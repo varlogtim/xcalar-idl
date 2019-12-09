@@ -912,7 +912,7 @@ class DagNodeExecutor {
             } else {
                 // for XD environment, detect if the table exist
                 let deferred: XDDeferred<string> = PromiseHelper.deferred();
-                XcalarGetTableMeta(source)
+                XIApi.getTableMeta(source)
                 .then(() => {
                     deferred.resolve(source);
                 })

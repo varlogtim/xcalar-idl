@@ -672,13 +672,13 @@ describe("Table Constructor Test", function() {
     });
 
     it("Should get meta test1", function(done) {
-        var oldFunc = XcalarGetTableMeta;
+        var oldFunc = XIApi.getTableMeta;
         var table = new TableMeta({
             "tableName": "test#a1",
             "tableId": "a1"
         });
 
-        XcalarGetTableMeta = function() {
+        XIApi.getTableMeta = function() {
             return PromiseHelper.resolve();
         };
 
@@ -691,12 +691,12 @@ describe("Table Constructor Test", function() {
             throw "error case";
         })
         .always(function() {
-            XcalarGetTableMeta = oldFunc;
+            XIApi.getTableMeta = oldFunc;
         });
     });
 
     it("Should get meta test2", function(done) {
-        var oldFunc = XcalarGetTableMeta;
+        var oldFunc = XIApi.getTableMeta;
         var progCol = new ProgCol({
             "name": "testCol",
             "backName": "prefix::backTestCol",
@@ -713,7 +713,7 @@ describe("Table Constructor Test", function() {
             "tableCols": [progCol, dataCol]
         });
 
-        XcalarGetTableMeta = function() {
+        XIApi.getTableMeta = function() {
             return PromiseHelper.resolve({
                 "keyAttr": [{
                     "name": "xcalarRecordNum",
@@ -754,7 +754,7 @@ describe("Table Constructor Test", function() {
             done("fail");
         })
         .always(function() {
-            XcalarGetTableMeta = oldFunc;
+            XIApi.getTableMeta = oldFunc;
         });
     });
 
@@ -790,7 +790,7 @@ describe("Table Constructor Test", function() {
         var test1 = null;
         var test2 = null;
         var oldMakeResult = XcalarMakeResultSetFromTable;
-        var oldGetMeta = XcalarGetTableMeta;
+        var oldGetMeta = XIApi.getTableMeta;
 
         XcalarMakeResultSetFromTable = function() {
             test1 = true;
@@ -800,7 +800,7 @@ describe("Table Constructor Test", function() {
             });
         };
 
-        XcalarGetTableMeta = function() {
+        XIApi.getTableMeta = function() {
             test2 = true;
             return PromiseHelper.resolve();
         };
@@ -821,7 +821,7 @@ describe("Table Constructor Test", function() {
         })
         .always(function() {
             XcalarMakeResultSetFromTable = oldMakeResult;
-            XcalarGetTableMeta = oldGetMeta;
+            XIApi.getTableMeta = oldGetMeta;
         });
     });
 

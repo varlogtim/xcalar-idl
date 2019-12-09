@@ -1345,7 +1345,8 @@ TblTStr = {
 ResultSetTStr = {
     "Del": "Drop Result Sets",
     "DelMsg": "Are you sure you want to drop the selected result set(s)?",
-    "DelMsgReplace": "Are you sure you want to drop result set <name>?"
+    "DelMsgReplace": "Are you sure you want to drop result set <name>?",
+    "NotFound": "Result set not found"
 };
 
 ColTStr = {

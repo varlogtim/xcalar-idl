@@ -122,7 +122,7 @@ class DagNodeIMDTable extends DagNodeIn {
 
     /**
      * executing an IMDTable node involves doing a XcalarRestoreTable and XcalarRefreshTable
-     * which do not go through XcalarQuery so we get stats via XcalarGetTableMeta
+     * which do not go through XcalarQuery so we get stats via XIApi.getTableMeta
      * instead of XcalarQueryState
      * @param meta
      */

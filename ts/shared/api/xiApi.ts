@@ -1403,7 +1403,7 @@ namespace XIApi {
         }
 
         const deferred: XDDeferred<{tableOrder: number, tableKeys: {name: string, ordering: string}[]}> = PromiseHelper.deferred();
-        XcalarGetTableMeta(tableName)
+        XIApi.getTableMeta(tableName)
         .then((tableMeta) => {
             const keys: {name: string, ordering: string}[] = xcHelper.getTableKeyInfoFromMeta(tableMeta);
             deferred.resolve({tableOrder: tableMeta.ordering, tableKeys: keys});
@@ -3211,7 +3211,25 @@ namespace XIApi {
     export function clearIndexTable(): void {
         indexTableCache = {};
         reverseIndexMap = {};
-    };
+    }
+
+    /**
+     * XIApi.getTableMeta
+     * @param tableName
+     */
+    export function getTableMeta(tableName: string): XDPromise<any> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        XcalarGetTableMeta(tableName)
+        .then(deferred.resolve)
+        .fail((error) => {
+            if (error && error.status === StatusT.StatusDsNotFound) {
+                error.error = ResultSetTStr.NotFound;
+            }
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
 
     function getIndexColKey(colNames) {
         return colNames.toString();

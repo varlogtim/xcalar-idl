@@ -2373,7 +2373,7 @@ namespace xcHelper {
             let colMeta: object = changeColMetaToMap(table.backTableMeta.valueAttrs);
             deferred.resolve({colMeta: colMeta, hasTableMeta: true});
         } else {
-            XcalarGetTableMeta(tableName)
+            XIApi.getTableMeta(tableName)
             .then(function(tableMeta) {
                 let colMeta: object = changeColMetaToMap(tableMeta.valueAttrs);
                 deferred.resolve({colMeta: colMeta, hasTableMeta: true});

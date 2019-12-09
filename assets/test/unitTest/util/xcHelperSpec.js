@@ -1665,8 +1665,8 @@ describe("xcHelper Test", function() {
         });
 
         it("xcHelper.getKeyInfos on missing table meta should work", function(done) {
-            var oldFunc = XcalarGetTableMeta;
-            XcalarGetTableMeta = function() {
+            var oldFunc = XIApi.getTableMeta;
+            XIApi.getTableMeta = function() {
                 return PromiseHelper.resolve({
                     valueAttrs: [{
                         name: "col",
@@ -1687,13 +1687,13 @@ describe("xcHelper Test", function() {
                 done("fail");
             })
             .always(function() {
-                XcalarGetTableMeta = oldFunc;
+                XIApi.getTableMeta = oldFunc;
             });
         });
 
         it("xcHelper.getKeyInfos on missing table meta should work case2", function(done) {
-            var oldFunc = XcalarGetTableMeta;
-            XcalarGetTableMeta = function() {
+            var oldFunc = XIApi.getTableMeta;
+            XIApi.getTableMeta = function() {
                 return PromiseHelper.reject();
             };
 
@@ -1709,7 +1709,7 @@ describe("xcHelper Test", function() {
                 done("fail");
             })
             .always(function() {
-                XcalarGetTableMeta = oldFunc;
+                XIApi.getTableMeta = oldFunc;
             });
         });
     });

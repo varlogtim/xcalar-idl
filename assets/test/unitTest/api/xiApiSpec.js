@@ -1286,7 +1286,7 @@ describe('XIApi Test', () => {
         });
 
         it('XIApi.checkOrder should work', (done) => {
-            const oldFunc = XcalarGetTableMeta;
+            const oldFunc = XIApi.getTableMeta;
             const ret = {
                 "keyAttr": [{
                     "name": "user::test",
@@ -1299,7 +1299,7 @@ describe('XIApi Test', () => {
                 }],
                 ordering: XcalarOrderingTStr[3]
             };
-            XcalarGetTableMeta = () => PromiseHelper.resolve(ret);
+            XIApi.getTableMeta = () => PromiseHelper.resolve(ret);
 
             XIApi.checkOrder('test1')
                 .then((res) => {
@@ -1313,7 +1313,7 @@ describe('XIApi Test', () => {
                     done('fail');
                 })
                 .always(() => {
-                    XcalarGetTableMeta = oldFunc;
+                    XIApi.getTableMeta = oldFunc;
                 });
         });
 
@@ -2565,6 +2565,48 @@ describe('XIApi Test', () => {
                 .always(() => {
                     XcalarTargetDelete = oldFunc;
                 });
+        });
+    });
+
+    it("XIApi.getTableMeta should call XcalarGetTableMeta and return the same value", function(done) {
+        const oldFunc = XcalarGetTableMeta;
+        XcalarGetTableMeta = () => {
+            return PromiseHelper.resolve("test");
+        };
+
+        XIApi.getTableMeta()
+        .then((res) => {
+            expect(res).to.equal("test");
+            done();
+        })
+        .fail(() => {
+            done("fail");
+        })
+        .always(() => {
+            XcalarGetTableMeta = oldFunc;
+        });
+    });
+
+    it("XIApi.getTableMeta should return correctg error message when fail with StatusT.StatusDsNotFound", function(done) {
+        const oldFunc = XcalarGetTableMeta;
+        XcalarGetTableMeta = () => {
+            return PromiseHelper.reject({
+                status: StatusT.StatusDsNotFound,
+                error: "test"
+            });
+        };
+
+        XIApi.getTableMeta()
+        .then(() => {
+            done("fail");
+        })
+        .fail((error) => {
+            expect(error.status).to.equal(StatusT.StatusDsNotFound);
+            expect(error.error).to.equal(ResultSetTStr.NotFound);
+            done();
+        })
+        .always(() => {
+            XcalarGetTableMeta = oldFunc;
         });
     });
 

@@ -881,7 +881,7 @@ class DagGraphExecutor {
 
     private _updateIMDProgress(node) {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        XcalarGetTableMeta(node.getTable())
+        XIApi.getTableMeta(node.getTable())
         .then((res: XcalarApiGetTableMetaOutputT) => {
             node.updateStepThroughProgress(res.metas);
         })

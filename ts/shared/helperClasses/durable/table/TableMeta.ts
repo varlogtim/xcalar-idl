@@ -110,7 +110,7 @@ class TableMeta extends Durable {
     public getMeta(): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-        XcalarGetTableMeta(this.tableName)
+        XIApi.getTableMeta(this.tableName)
         .then((tableMeta) => {
             if (tableMeta == null || tableMeta.valueAttrs == null) {
                 console.error("backend return error");
