@@ -155,6 +155,9 @@ class DagView {
             let parents = node.getParents();
             for (let i = 0; i < parents.length; i++) {
                 let parent = parents[i];
+                if (!parent) {
+                    return;
+                }
                 let hasTooltip = searchForTooltip(parent, seen);
                 if (hasTooltip) {
                     return true;
@@ -4200,7 +4203,9 @@ class DagView {
         let numConnections = connectorIndex;
         let isMulti = false;
         if (numParents === -1 || numParents > 1) {
-            numParents = childNode.getNumParent();
+            if (!(childNode instanceof DagNodeJoin)) {
+                numParents = childNode.getNumParent();
+            }
             isMulti = true;
         }
 
