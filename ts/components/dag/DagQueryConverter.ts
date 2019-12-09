@@ -1250,10 +1250,18 @@ class DagQueryConverter {
                 if (typeof loadArgs === "object") {
                     loadArgs = JSON.stringify(loadArgs);
                 }
+                let synthesize = false;
+                if (node.children && node.children.length) {
+                    node.children.forEach((child) => {
+                        if (child && child.api === XcalarApisT.XcalarApiSynthesize) {
+                            synthesize = true;
+                        }
+                    })
+                }
                 let createTableInput = {
                     source: xcHelper.stripPrefixFromDSName(node.args.dest),
                     prefix: "",
-                    synthesize: false,
+                    synthesize: synthesize,
                     loadArgs: loadArgs
                 }
 
