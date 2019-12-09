@@ -1004,7 +1004,8 @@ class DagNodeSQL extends DagNode {
         identifiers: Map<number, string>,
         pubTablesInfo?: {},
         sqlFuncs?: {},
-        usedTables?: string[]
+        usedTables?: string[],
+        compileId?: string
     ): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
         const self = this;
@@ -1018,6 +1019,7 @@ class DagNodeSQL extends DagNode {
         const sqlFuncQueries = [];
         const sqlFuncSchemas = [];
         const visitedMap = {};
+        compileId = compileId || "";
         identifiers.forEach(function(value, key) {
             if (!value || (usedTables &&
                            usedTables.indexOf(value.toUpperCase()) === -1)) {
@@ -1071,12 +1073,12 @@ class DagNodeSQL extends DagNode {
         })
         .then(function() {
             // always drop schema on plan server first
-            return SQLUtil.sendToPlanner(self.getId(), "dropAll");
+            return SQLUtil.sendToPlanner(self.getId() + compileId, "dropAll");
         })
         .then(function() {
             allSchemas = allSchemas.concat(sqlFuncSchemas);
             // send schema to plan server
-            return SQLUtil.sendToPlanner(self.getId(), "update", allSchemas);
+            return SQLUtil.sendToPlanner(self.getId() + compileId, "update", allSchemas);
         })
         .then(function() {
             schemaQueryArray = schemaQueryArray.concat(sqlFuncQueries).map(function(cli) {
@@ -1236,6 +1238,7 @@ class DagNodeSQL extends DagNode {
         let pubTablesInfo;
         let dropAsYouGo;
         let sqlFunctions;
+        let compileId = "_sql" + Authentication.getHashId();
         try {
             // set all options
             self.setIdentifiers(options.identifiers);
@@ -1265,7 +1268,7 @@ class DagNodeSQL extends DagNode {
                     ops: ["identifier"],
                     isMulti: false
                 };
-                promise = SQLUtil.sendToPlanner(self.getId(), "parse",
+                promise = SQLUtil.sendToPlanner(self.getId() + compileId, "parse",
                                                 parseStruct);
             } else {
                 promise = PromiseHelper.resolve();
@@ -1287,7 +1290,8 @@ class DagNodeSQL extends DagNode {
                     });
                 }
                 return self.sendSchema(identifiers, pubTablesInfo, sqlFunctions,
-                                                                    usedTables);
+                                                                    usedTables,
+                                                                    compileId);
             })
             .then(function(ret) {
                 schemaQueryString = ret.queryString;
@@ -1295,7 +1299,7 @@ class DagNodeSQL extends DagNode {
                 invalidColumnsMap = ret.invalidColumnsMap;
                 self.setTableSrcMap(tableSrcMap);
                 const struct = {"sqlQuery": sqlQueryStr};
-                return SQLUtil.sendToPlanner(self.getId(), "query", struct);
+                return SQLUtil.sendToPlanner(self.getId() + compileId, "query", struct);
             })
             .then(function(data) {
                 let logicalPlan = "";

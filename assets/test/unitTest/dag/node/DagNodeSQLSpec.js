@@ -116,7 +116,7 @@ describe("SQL Dag Node Test", () => {
             let tabId = "tabId";
             let res = node.replaceSQLTableName(queryString, oldTableName, tabId, tableSrcMap, replaceMap);
             let newTableName = res.newDestTableName;
-    
+
             expect(res.newTableMap).to.deep.equal({a:"a", b: newTableName});
             expect(res.newTableSrcMap).to.deep.equal({a:1});
             expect(JSON.parse(res.newQueryStr)).to.deep.equal([
@@ -145,13 +145,23 @@ describe("SQL Dag Node Test", () => {
         });
     });
     describe("saving config", () => {
+        let oldAuth;
+        let authId = "1";
+        let compileId;
+        before(() => {
+            oldAuth = Authentication.getHashId;
+            Authentication.getHashId = () => {
+                return authId;
+            }
+            compileId = "_sql" + authId;
+        });
         describe("compile", () => {
             it("should try to compile and fail", (done) => {
                 Alert.forceClose();
                 let cache = SQLUtil.sendToPlanner;
                 let called = false;
                 SQLUtil.sendToPlanner = (id, type, struct) => {
-                    expect(id).to.equal(node.getId());
+                    expect(id).to.equal(node.getId() + compileId);
                     expect(type).to.equal("parse");
                     expect(struct.sqlQuery).to.equal("SELECT * FROM a");
                     expect(struct.isMulti).to.be.false;
@@ -246,12 +256,12 @@ describe("SQL Dag Node Test", () => {
                 SQLUtil.sendToPlanner = (id, type, struct) => {
                     if (called) {
                         calledTwice = true;
-                        expect(id).to.equal(node.getId());
+                        expect(id).to.equal(node.getId() + compileId);
                         expect(type).to.equal("query");
                         expect(struct.sqlQuery).to.equal("SELECT * FROM a");
                         expect(struct.ops).to.be.undefined;
                     } else {
-                        expect(id).to.equal(node.getId());
+                        expect(id).to.equal(node.getId() + compileId);
                         expect(type).to.equal("parse");
                         expect(struct.sqlQuery).to.equal("SELECT * FROM a");
                         expect(struct.isMulti).to.be.false;
@@ -450,6 +460,10 @@ describe("SQL Dag Node Test", () => {
                     done('fail');
                 });
             });
+        });
+
+        after(() => {
+            Authentication.getHashId = oldAuth;
         });
     });
 
