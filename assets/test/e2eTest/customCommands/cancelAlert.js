@@ -5,7 +5,7 @@ class CancelAlert extends EventEmitter {
         this.api.isVisible("#alertModal", results => {
             if (results.value) { // close alert modal if visible
                 this.api
-                    .click("#alertModal .cancel:first-child")
+                    .click("#alertModal #alertHeader .close")
             }
             this.api
                 .waitForElementNotVisible("#modalBackground", 10 * 1000)

@@ -13,12 +13,12 @@ module.exports = {
         return execResult; // dfName/tabName => { id: string, nodes: NodeCopyInfo[] }
     },
 
-    getNodes: function() {
-        const dagTabs = DagTabManager.Instance.getTabs();
-        const dagTab = dagTabs[0];
-        const sortedNodes = dagTab.getGraph().getSortedNodes()
-            .map((node) => node.getNodeCopyInfo(true));
-        return sortedNodes; // NodeCopyInfo[]
+    getColumnIndex: function(columnName) {
+        return ColManager.parseColNum($(".dataTable th input[value='" + columnName + "']").closest("th"))
+    },
+
+    getTabElements: function() {
+        return DagViewManager.Instance.getActiveDag()._getDurable()
     },
 
     setAdvancedConfig: function(panelSelector, config) {

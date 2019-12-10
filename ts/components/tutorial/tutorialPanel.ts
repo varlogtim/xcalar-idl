@@ -198,7 +198,7 @@ class TutorialPanel {
             return "";
         }
 
-        let html = '<div class="category cardContainer">' +
+        let html = '<div class="category cardContainer ' + category.getName() + '">' +
                     '<header class="cardHeader">' +
                         '<div class="title textOverflowOneLine categoryName">' +
                             "Category: " + category.getName() +
@@ -223,7 +223,7 @@ class TutorialPanel {
             let btnClass: string = "download";
 
             let image = tut.getImage();
-            html += '<div class="item">' +
+            html += '<div class="item ' + tut.getName() + '">' +
                         '<section class="mainSection">' +
                         '<div class="leftPart">' +
                             '<div class="logoArea ' + image + '">' +

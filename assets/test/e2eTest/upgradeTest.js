@@ -457,7 +457,9 @@ module.exports = {
                     "parents": []
                 }
             ];
-            browser.switchTab(newTabName);
+            browser
+                .switchTab(newTabName)
+                .cancelAlert()
 
             let commandResult = { IMDNames: [], nodeElemIDs: [], nodeIDs: [] };
 
