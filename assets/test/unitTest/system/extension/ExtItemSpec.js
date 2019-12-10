@@ -17,7 +17,7 @@ describe("ExtItem Constructor Test", function() {
 
     it("should be a constructor", function() {
         expect(extItem).to.be.an.instanceof(ExtItem);
-        expect(Object.keys(extItem).length).to.equal(7);
+        expect(Object.keys(extItem).length).to.equal(8);
     });
 
     it("should get name", function() {

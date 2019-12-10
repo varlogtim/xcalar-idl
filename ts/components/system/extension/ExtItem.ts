@@ -10,6 +10,7 @@ class ExtItem {
     // then keep the structure, otherwise, can refactor to remove
     // category related code
     private category: string;
+    private link: string;
 
     public constructor(options) {
         options = options || {};
@@ -23,6 +24,7 @@ class ExtItem {
         // category related code
         this.category = options.category || ExtTStr.XcCategory;
         this.XDVersion = options.XDVersion;
+        this.link = options.website;
     }
 
     public getName(): string {
@@ -63,6 +65,10 @@ class ExtItem {
 
     public getXDVersion(): string {
         return this.XDVersion || "N/A";
+    }
+
+    public getLink(): string {
+        return this.link;
     }
 
     public getImage(): string {

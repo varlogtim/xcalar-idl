@@ -212,6 +212,9 @@ class TutorialPanel {
             let btnText = "Download";
             let btnClass: string = "download";
 
+            let showDocLink = tut.getLink() && tut.getLink() !== "https://www.xcalar.com"
+            let docLink = showDocLink ? '<a href="' + tut.getLink() + '" target="_blank">Documentation</a>' : ''
+
             let image = tut.getImage();
             html += '<div class="item ' + tut.getName() + '">' +
                         '<section class="mainSection">' +
@@ -237,6 +240,9 @@ class TutorialPanel {
                                 '<button class="btn btn-submit install ' + btnClass + '">' +
                                     btnText +
                                 '</button>' +
+                            '</div>' +
+                            '<div class="linkArea">' +
+                                docLink +
                             '</div>' +
                         '</div>' +
                         '</section>' +

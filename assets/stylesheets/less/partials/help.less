@@ -228,17 +228,24 @@
 
                 .rightPart {
                     .flex(0 0 150px);
-                }
-
-                .buttonArea {
                     .size(@width: 150px);
                     float: right;
                     .vertical-align;
-
-                    .btn {
-                        &.installed {
-                            pointer-events: none;
-                            .btn-disabled;
+                    .buttonArea {
+                        .btn {
+                            &.installed {
+                                pointer-events: none;
+                                .btn-disabled;
+                            }
+                        }
+                    }
+                    .linkArea {
+                        text-align: center;
+                        margin-top: 8px;
+                        a {
+                            font-size: 12px;
+                            text-decoration: none;
+                            color: @color-font-link-blue;
                         }
                     }
                 }
