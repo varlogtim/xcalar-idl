@@ -36,7 +36,7 @@ class ExtItem {
     public getMainName(): string {
         const name: string = this.getName();
         if (this.main) {
-            return this.main + " (" + name + ")";
+            return this.main;
         } else {
             return name;
         }

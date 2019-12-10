@@ -223,9 +223,6 @@ class TutorialPanel {
                                 ' data-name="' + tut.getName() + '">' +
                                     tut.getMainName() +
                                 '</div>' +
-                                '<div class="author textOverflowOneLine">' +
-                                    'By ' + tut.getAuthor() +
-                                '</div>' +
                                 '<div class="detail textOverflow">' +
                                     tut.getDescription() +
                                 '</div>' +

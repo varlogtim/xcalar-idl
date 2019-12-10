@@ -26,7 +26,7 @@ describe("ExtItem Constructor Test", function() {
     });
 
     it("should get main name", function() {
-        expect(extItem.getMainName()).to.equal("main (testItem)");
+        expect(extItem.getMainName()).to.equal("main");
         // empty main
         extItem.main = "";
         expect(extItem.getMainName()).to.equal("testItem");
