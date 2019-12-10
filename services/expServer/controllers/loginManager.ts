@@ -314,101 +314,106 @@ class LdapConfig extends ConfigFile {
     private setConnection(credArray, ldapConn, ldapConfig, loginId) {
         let deferred: any = jQuery.Deferred();
 
-        // Save the information of current user into a HashTable
-        let currentUser: any = new UserInformation();
-        currentUser.setLoginId(loginId);
-        this._users.set(loginId, currentUser);
+        try {
+            // Save the information of current user into a HashTable
+            let currentUser: any = new UserInformation();
+            currentUser.setLoginId(loginId);
+            this._users.set(loginId, currentUser);
 
-        // Configure parameters to connect to LDAP
-        ldapConn.username = credArray.xiusername;
-        ldapConn.password = credArray.xipassword;
+            // Configure parameters to connect to LDAP
+            ldapConn.username = credArray.xiusername;
+            ldapConn.password = credArray.xipassword;
 
-        ldapConn.client_url = ldapConfig.ldap_uri.endsWith('/')
-            ? ldapConfig.ldap_uri
-            : ldapConfig.ldap_uri + '/';
+            ldapConn.client_url = ldapConfig.ldap_uri.endsWith('/')
+                ? ldapConfig.ldap_uri
+                : ldapConfig.ldap_uri + '/';
 
-        ldapConn.userDN = ldapConfig.userDN;
-        ldapConn.searchFilter = ldapConfig.searchFilter;
-        ldapConn.activeDir = ldapConfig.activeDir;
-        ldapConn.useTLS = ldapConfig.useTLS;
-        ldapConn.useSubGroupTree = false;
+            ldapConn.userDN = ldapConfig.userDN;
+            ldapConn.searchFilter = ldapConfig.searchFilter;
+            ldapConn.activeDir = ldapConfig.activeDir;
+            ldapConn.useTLS = ldapConfig.useTLS;
+            ldapConn.useSubGroupTree = false;
 
-        ldapConn.client = ldap.createClient({
-            url: ldapConn.client_url,
-            timeout: 10000,
-            connectTimeout: 20000
-        });
-
-        if (ldapConn.activeDir) {
-            ldapConn.adUserGroup = (ldapConfig.hasOwnProperty("adUserGroup") &&
-                ldapConfig.adUserGroup !== "")
-                ? ldapConfig.adUserGroup
-                : "Xce User";
-
-            ldapConn.adAdminGroup = (ldapConfig.hasOwnProperty("adAdminGroup") &&
-                ldapConfig.adUserGroup !== "")
-                ? ldapConfig.adAdminGroup
-                : "Xce Admin";
-
-            if ((ldapConfig.hasOwnProperty("adDomain")) &&
-                (ldapConn.username.indexOf("@") <= -1)) {
-                ldapConn.username = ldapConn.username + "@" +
-                    ldapConfig.adDomain;
-            }
-
-            if (ldapConn.username.indexOf("@") > -1) {
-                ldapConn.shortName = ldapConn.username.substring(
-                    0,ldapConn.username.indexOf("@"));
-            } else {
-                ldapConn.shortName = ldapConn.username;
-            }
-
-            if (ldapConfig.hasOwnProperty("adSubGroupTree")) {
-                ldapConn.useSubGroupTree = ldapConfig.adSubGroupTree;
-            }
-
-            ldapConn.searchName = (
-                ldapConfig.hasOwnProperty("adSearchShortName") &&
-                ldapConfig.adSearchShortName === true)
-                ? ldapConn.shortName
-                : ldapConn.username;
-        } else {
-            ldapConn.userDN = ldapConn.userDN.replace(
-                    '%username%', ldapConn.username);
-            ldapConn.username = ldapConn.userDN;
-            ldapConn.searchName = ldapConn.userDN;
-        }
-
-        let searchFilter = (ldapConn.searchFilter !== "")
-            ? ldapConn.searchFilter.replace('%username%', ldapConn.searchName)
-            : undefined;
-
-        let activeDir = ldapConn.activeDir ? ['cn', 'mail', 'memberOf'] :
-                                            ['cn', 'mail', 'employeeType'];
-
-        ldapConn.searchOpts = {
-            filter: searchFilter,
-            scope: 'sub',
-            attributes: activeDir
-        };
-
-        // Use TLS Protocol
-        if (ldapConn.useTLS) {
-            let tlsOpts = {
-                cert: this._trustedCerts,
-                rejectUnauthorized: this._strictSecurity
-            };
-            xcConsole.log("Starting TLS...");
-            ldapConn.client.starttls(tlsOpts, [], (err) => {
-                if (err) {
-                    xcConsole.log("Failure: TLS start " + err.message);
-                    deferred.reject("ldap setConnection fails");
-                } else {
-                    deferred.resolve('ldap setConnection succeeds');
-                }
+            ldapConn.client = ldap.createClient({
+                url: ldapConn.client_url,
+                timeout: 10000,
+                connectTimeout: 20000
             });
-        } else {
-            deferred.resolve('ldap setConnection succeeds');
+
+            if (ldapConn.activeDir) {
+                ldapConn.adUserGroup = (ldapConfig.hasOwnProperty("adUserGroup") &&
+                    ldapConfig.adUserGroup !== "")
+                    ? ldapConfig.adUserGroup
+                    : "Xce User";
+
+                ldapConn.adAdminGroup = (ldapConfig.hasOwnProperty("adAdminGroup") &&
+                    ldapConfig.adUserGroup !== "")
+                    ? ldapConfig.adAdminGroup
+                    : "Xce Admin";
+
+                if ((ldapConfig.hasOwnProperty("adDomain")) &&
+                    (ldapConn.username.indexOf("@") <= -1)) {
+                    ldapConn.username = ldapConn.username + "@" +
+                        ldapConfig.adDomain;
+                }
+
+                if (ldapConn.username.indexOf("@") > -1) {
+                    ldapConn.shortName = ldapConn.username.substring(
+                        0,ldapConn.username.indexOf("@"));
+                } else {
+                    ldapConn.shortName = ldapConn.username;
+                }
+
+                if (ldapConfig.hasOwnProperty("adSubGroupTree")) {
+                    ldapConn.useSubGroupTree = ldapConfig.adSubGroupTree;
+                }
+
+                ldapConn.searchName = (
+                    ldapConfig.hasOwnProperty("adSearchShortName") &&
+                    ldapConfig.adSearchShortName === true)
+                    ? ldapConn.shortName
+                    : ldapConn.username;
+            } else {
+                ldapConn.userDN = ldapConn.userDN.replace(
+                        '%username%', ldapConn.username);
+                ldapConn.username = ldapConn.userDN;
+                ldapConn.searchName = ldapConn.userDN;
+            }
+
+            let searchFilter = (ldapConn.searchFilter !== "")
+                ? ldapConn.searchFilter.replace('%username%', ldapConn.searchName)
+                : undefined;
+
+            let activeDir = ldapConn.activeDir ? ['cn', 'mail', 'memberOf'] :
+                                                ['cn', 'mail', 'employeeType'];
+
+            ldapConn.searchOpts = {
+                filter: searchFilter,
+                scope: 'sub',
+                attributes: activeDir
+            };
+
+            // Use TLS Protocol
+            if (ldapConn.useTLS) {
+                let tlsOpts = {
+                    cert: this._trustedCerts,
+                    rejectUnauthorized: this._strictSecurity
+                };
+                xcConsole.log("Starting TLS...");
+                ldapConn.client.starttls(tlsOpts, [], (err) => {
+                    if (err) {
+                        xcConsole.log("Failure: TLS start " + err.message);
+                        deferred.reject("ldap setConnection fails");
+                    } else {
+                        deferred.resolve('ldap setConnection succeeds');
+                    }
+                });
+            } else {
+                deferred.resolve('ldap setConnection succeeds');
+            }
+        } catch (e) {
+            xcConsole.error(e);
+            deferred.reject("ldap setConnection fails");
         }
 
         return deferred.promise();
