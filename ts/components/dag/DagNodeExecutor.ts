@@ -920,6 +920,7 @@ class DagNodeExecutor {
         } else {
             node.setTable(source, true);
             DagTblManager.Instance.addTable(source);
+            node.updateStepThroughProgress();
             node.beCompleteState();
             if (xcHelper.isNodeJs()) {
                 return PromiseHelper.resolve(source);
@@ -979,6 +980,7 @@ class DagNodeExecutor {
                 if (destTable) {
                     dfInNode.setTable(destTable, true);
                     DagTblManager.Instance.addTable(destTable);
+                    dfInNode.updateStepThroughProgress();
                 }
                 dfInNode.beCompleteState();
                 deferred.resolve(destTable);

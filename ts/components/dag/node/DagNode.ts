@@ -1749,6 +1749,63 @@ abstract class DagNode extends Durable {
         return DagRuntime.getDefaultRuntime();
     }
 
+    // any concrete node that need to maunally update
+    // progess should overwrite it
+    public async updateStepThroughProgress(): Promise<void> {
+        return Promise.resolve();
+    }
+
+    protected async _updateProgressFromTable(
+        apiType: number,
+        elapsedTime: number
+    ): Promise<void> {
+        try {
+            if (xcHelper.isNodeJs()) {
+                // headless runtime don't update
+                return;
+            }
+            const tableName = this.getTable();
+            const res: XcalarApiGetTableMetaOutputT = await XIApi.getTableMeta(tableName);
+
+            this.runStats.hasRun = true;
+            this.runStats.nodes = {};
+            this.runStats.needsClear = false;
+
+            let numRows = 0;
+            let inputSize = 0;
+            let rows: number[] = [];
+            res.metas.forEach((meta) => {
+                numRows += meta.numRows;
+                inputSize += meta.size;
+                rows.push(meta.numRows);
+            });
+
+            let tableRunStats: TableRunStats = {
+                startTime: Date.now(),
+                pct: 100,
+                state: DgDagStateT.DgDagStateReady,
+                numRowsTotal: numRows,
+                numWorkCompleted: numRows,
+                numWorkTotal: numRows,
+                skewValue: this._getSkewValue(rows),
+                elapsedTime: elapsedTime,
+                size: inputSize,
+                rows: rows,
+                index: 0,
+                hasStats: true,
+                name: tableName,
+                type: apiType
+            };
+            this.runStats.nodes[tableName] = tableRunStats;
+
+            this.events.trigger(DagNodeEvents.ProgressChange, {
+                node: this
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     static _convertOp(op: string): string {
         if (op && op.length) {
             op = op.slice(0, 1).toLowerCase() + op.slice(1);

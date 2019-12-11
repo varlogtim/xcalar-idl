@@ -138,6 +138,14 @@ class DagNodeDFIn extends DagNodeIn {
     }
 
     /**
+     * For link in with source and link in with execution case to use
+     * @override
+     */
+    public updateStepThroughProgress(): Promise<void> {
+        return super._updateProgressFromTable(null, null);
+    }
+
+    /**
      * @override
      */
     protected _genParamHint(): string {

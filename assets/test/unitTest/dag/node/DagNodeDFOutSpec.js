@@ -68,4 +68,38 @@ describe("DagNodeDFOut Test", function() {
         expect(node.getDisplayNodeType()).to.equal("Link Out");
         expect(optimizedNode.getDisplayNodeType()).to.equal("Link Out Optimized");
     });
+
+    it("when link out node call updateStepThroughProgress(), it should update stats with table meta", async function(done) {
+        // arrange
+        const oldFunc = XIApi.getTableMeta;
+        const node = new DagNodeDFOut({});
+        node.setTable(xcHelper.randName("test"));
+        const numRows = Math.floor(Math.random() * 1000) + 1;
+        const size = Math.floor(Math.random() * 1000) + 1;
+        XIApi.getTableMeta = () => {
+            return Promise.resolve({
+                metas: [{
+                    numRows,
+                    size
+                }]
+            });
+        };
+
+        try {
+            // act
+            await node.updateStepThroughProgress();
+            const stats = node.getIndividualStats();
+            // assert
+            expect(stats.length).to.equal(1);
+            expect(stats[0].type).to.equal(null);
+            expect(stats[0].elapsedTime).to.equal(null);
+            expect(stats[0].size).to.equal(size);
+            expect(stats[0].rows).to.deep.equal([numRows]);
+            done();
+        } catch (e) {
+            done(e);
+        } finally {
+            XIApi.getTableMeta = oldFunc;
+        }
+    });
 });

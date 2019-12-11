@@ -109,7 +109,6 @@ describe("DagNodeInfoPanel Test", function() {
         });
 
         it("should show correct stats section", function() {
-            expect(1).to.equal(1);
             expect($panel.find(".progressRow").hasClass("xc-hidden")).to.be.true;
             let map = new Map();
             map.set("table_DF2_5C2E5E0B0EF91A85_1549520868132_61_dag_5C2E5E0B0EF91A85_1549668770304_65#t_1553122939885_0",  {

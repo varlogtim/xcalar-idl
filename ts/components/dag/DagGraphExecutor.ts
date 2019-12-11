@@ -494,6 +494,7 @@ class DagGraphExecutor {
                             node.setTable(destTable, true);
                             DagTblManager.Instance.addTable(destTable);
                         }
+                        node.updateStepThroughProgress();
                         node.beCompleteState();
                     } else if (node instanceof DagNodeDFIn) {
                         let destTable: string;
@@ -862,7 +863,7 @@ class DagGraphExecutor {
         .then((_destTable) => {
             this._currentNode = null;
             if (node.getType() === DagNodeType.IMDTable) {
-                return this._updateIMDProgress(node);
+                return PromiseHelper.convertToJQuery(node.updateStepThroughProgress());
             } else {
                 return PromiseHelper.resolve();
             }
@@ -876,16 +877,6 @@ class DagGraphExecutor {
             deferred.reject(e);
         });
 
-        return deferred.promise();
-    }
-
-    private _updateIMDProgress(node) {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        XIApi.getTableMeta(node.getTable())
-        .then((res: XcalarApiGetTableMetaOutputT) => {
-            node.updateStepThroughProgress(res.metas);
-        })
-        .always(deferred.resolve);
         return deferred.promise();
     }
 

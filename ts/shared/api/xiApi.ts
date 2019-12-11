@@ -3261,8 +3261,8 @@ namespace XIApi {
      * XIApi.getTableMeta
      * @param tableName
      */
-    export function getTableMeta(tableName: string): XDPromise<any> {
-        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    export function getTableMeta(tableName: string): XDPromise<XcalarApiGetTableMetaOutputT> {
+        const deferred: XDDeferred<XcalarApiGetTableMetaOutputT> = PromiseHelper.deferred();
         XcalarGetTableMeta(tableName)
         .then(deferred.resolve)
         .fail((error) => {

@@ -277,7 +277,8 @@ class DagNodeInfoPanel {
             let statsHtml: HTML = "";
             let skewInfos = [];
             operationsStats.forEach((stats) => {
-                let operationName = stats.type.substr("XcalarApi".length);
+                let operationName = stats.type ?
+                stats.type.substr("XcalarApi".length) : "N/A";
                 let skewText = DagView.getSkewText(stats.skewValue);
                 let skewColorRaw = DagView.getSkewColor(skewText);
                 let skewColor = skewColorRaw;
@@ -340,7 +341,7 @@ class DagNodeInfoPanel {
                     </div>
                     <div class="statsRow subRow">
                         <div class="label">Elapsed Time: </div>
-                        <div class="value">${xcTimeHelper.getElapsedTimeStr(stats.elapsedTime)}</div>
+                        <div class="value">${(stats.elapsedTime ? xcTimeHelper.getElapsedTimeStr(stats.elapsedTime) : "N/A")}</div>
                     </div>
                 </div>`;
 

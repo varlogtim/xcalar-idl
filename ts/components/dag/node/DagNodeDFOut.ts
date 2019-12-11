@@ -142,6 +142,14 @@ class DagNodeDFOut extends DagNodeOutOptimizable {
     }
 
     /**
+     * Linke out node don't run XcalarQuery, have to maunally update progress
+     * @override
+     */
+    public async updateStepThroughProgress(): Promise<void> {
+        return super._updateProgressFromTable(null, null);
+    }
+
+    /**
      * Stores the query and destable for a specific tabid's request
      * @param tabId the tab making the request
      * @param destTable destination table
