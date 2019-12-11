@@ -193,18 +193,8 @@ class TutorialPanel {
     private _getTutViewHTML(category: ExtCategory, searchKey?: string): string {
         let tutorials = category.getExtensionList(searchKey);
         let tutLen = tutorials.length;
-        if (tutLen === 0) {
-            // no qualified category
-            return "";
-        }
 
-        let html = '<div class="category cardContainer ' + category.getName() + '">' +
-                    '<header class="cardHeader">' +
-                        '<div class="title textOverflowOneLine categoryName">' +
-                            "Category: " + category.getName() +
-                        '</div>' +
-                    '</header>' +
-                    '<div class="cardMain items">';
+        let html = "";
 
         for (let i = 0; i < tutLen; i++) {
             let tut = tutorials[i];
@@ -253,7 +243,17 @@ class TutorialPanel {
                     '</div>';
         }
 
-        html += '</div></div>';
+        if (html !== "") {
+            html = '<div class="category cardContainer ' + category.getName() + '">' +
+                        '<header class="cardHeader">' +
+                            '<div class="title textOverflowOneLine categoryName">' +
+                                "Category: " + category.getName() +
+                            '</div>' +
+                        '</header>' +
+                        '<div class="cardMain items">' +
+                        html +
+                    '</div></div>';
+        }
 
         return html;
     }
