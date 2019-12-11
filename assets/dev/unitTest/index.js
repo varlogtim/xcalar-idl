@@ -74,10 +74,7 @@ async function runTest(testType, hostname) {
         const page = await browser.newPage();
         await page.setViewport({width: 1920, height: 1076});
 
-        page.on('console', msg => {
-          for (let i = 0; i < msg.args().length; ++i)
-            console.log(`${msg.args()[i]}`);
-        });
+        addPageEvent(page);
 
         const userName = "unitTestUser" + Math.ceil(Math.random() * 100000 + 1);
         if (testType === "testSuite") {
@@ -117,6 +114,26 @@ async function runTest(testType, hostname) {
         console.error(e);
         process.exit(1);
     }
+}
+
+function addPageEvent(page) {
+    page.on('console', msg => {
+        for (let i = 0; i < msg.args().length; ++i) {
+            console.log(`${msg.args()[i]}`);
+        }
+    });
+
+    page.on('error', error => {
+        console.error("general error occurred:", error);
+    });
+
+    page.on('pageerror', error => {
+        console.warn("Warning uncaught execption:", error);
+    });
+
+    page.on('requestfailed', request => {
+        console.error("page failed to load:", request.url(), "Error:", request.failure().errorText);
+    });
 }
 
 function getCoverage(coverage, testType) {
