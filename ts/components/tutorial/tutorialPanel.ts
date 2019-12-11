@@ -260,12 +260,13 @@ class TutorialPanel {
     // Reorders the categories. If it is not in this map, it will be ordered alphabetically.
     private _setupCategoryOrder() {
         this._categoryOrder = new Map<string, number>();
-        this._categoryOrder.set("import", 0);
-        this._categoryOrder.set("imports", 1);
-        this._categoryOrder.set("sql mode", 2);
-        this._categoryOrder.set("advanced mode", 3);
-        this._categoryOrder.set("export/publish", 4);
-        this._categoryOrder.set("system", 5);
-        this._orderedCatLength = 6;
+        this._categoryOrder.set("Applications", 0);
+        this._categoryOrder.set("How-to", 1);
+        this._categoryOrder.set("Imports", 2);
+        this._categoryOrder.set("SQL Mode", 3);
+        this._categoryOrder.set("Developer Mode", 4);
+        this._categoryOrder.set("Export/Publish", 5);
+        this._categoryOrder.set("System", 6);
+        this._orderedCatLength = 7;
     }
 }

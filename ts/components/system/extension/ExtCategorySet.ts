@@ -6,19 +6,16 @@ class ExtCategorySet {
     }
 
     public get(categoryName: string): ExtCategory {
-        categoryName = categoryName.toLowerCase();
         return this.set[categoryName];
     }
 
     public has(categoryName: string): boolean {
-        categoryName = categoryName.toLowerCase();
         return this.set.hasOwnProperty(categoryName);
     }
 
     public addExtension(data: object): void {
         const extension: ExtItem = new ExtItem(data);
         let categoryName: string = extension.getCategory() || ExtTStr.XcCategory;
-        categoryName = categoryName.toLowerCase();
         let extCategory: ExtCategory;
 
         if (this.has(categoryName)) {
@@ -31,7 +28,6 @@ class ExtCategorySet {
     }
 
     public getExtension(categoryName: string, extensionName: string): ExtItem {
-        categoryName = categoryName.toLowerCase();
         if (!this.has(categoryName)) {
             return null;
         }
