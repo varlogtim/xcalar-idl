@@ -6,6 +6,7 @@ describe("ExtItem Constructor Test", function() {
             "appName": "testItem",
             "version": "2.0",
             "XDVersion": "2.1",
+            "maxXDVersion": "2.2",
             "description": "test",
             "author": "test user",
             "image": "testImage",
@@ -17,7 +18,7 @@ describe("ExtItem Constructor Test", function() {
 
     it("should be a constructor", function() {
         expect(extItem).to.be.an.instanceof(ExtItem);
-        expect(Object.keys(extItem).length).to.equal(8);
+        expect(Object.keys(extItem).length).to.equal(9);
     });
 
     it("should get name", function() {
@@ -48,7 +49,11 @@ describe("ExtItem Constructor Test", function() {
     });
 
     it("should get XDversion", function() {
-        expect(extItem.getXDVersion()).to.equal("2.1");
+        expect(extItem.getMinXDVersion()).to.equal("2.1");
+    });
+
+    it("should get XDversion", function() {
+        expect(extItem.getMaxXDVersion()).to.equal("2.2");
     });
 
 

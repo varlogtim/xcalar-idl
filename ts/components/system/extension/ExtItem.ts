@@ -2,7 +2,8 @@
 class ExtItem {
     private appName: string;
     private version: string;
-    private XDVersion: string;
+    private minXDVersion: string;
+    private maxXDVersion: string;
     private description: string;
     private author: string;
     private main: string;
@@ -23,8 +24,9 @@ class ExtItem {
         // then keep the structure, otherwise, can refactor to remove
         // category related code
         this.category = options.category || ExtTStr.XcCategory;
-        this.XDVersion = options.XDVersion;
         this.link = options.website;
+        this.minXDVersion = options.minXDVersion || options.XDVersion; // remove .XDVersion ?
+        this.maxXDVersion = options.maxXDVersion;
     }
 
     public getName(): string {
@@ -63,8 +65,12 @@ class ExtItem {
         return this.version || "N/A";
     }
 
-    public getXDVersion(): string {
-        return this.XDVersion || "N/A";
+    public getMinXDVersion(): string {
+        return this.minXDVersion;
+    }
+
+    public getMaxXDVersion(): string {
+        return this.maxXDVersion;
     }
 
     public getLink(): string {

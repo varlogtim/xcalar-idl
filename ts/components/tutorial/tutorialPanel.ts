@@ -18,15 +18,6 @@ class TutorialPanel {
         this._$panel = $("#tutorialDownloadPanel");
         const self = this;
 
-        let version: string = XVM.getVersion();
-        let buildNum: string = version.substr(0,3);
-        try {
-            this.currVer = parseFloat(buildNum);
-        } catch(e) {
-            // Last expected version is 2.0
-            this.currVer = 2.0;
-        }
-
         this._$panel.on("click", ".item .download", function() {
             let tut: ExtItem = self._getTutorialFromEle($(this).closest(".item"));
             self._downloadTutorial(tut, $(this));
@@ -198,17 +189,22 @@ class TutorialPanel {
 
         for (let i = 0; i < tutLen; i++) {
             let tut = tutorials[i];
-            let tutVer: number;
-            try {
-                tutVer = parseFloat(tut.getXDVersion());
-            } catch (e) {
-                console.error("Tutorial workbook: '" + tut.getName() + "' is not configured correctly.");
-                continue;
+
+            const minXDVersion = tut.getMinXDVersion();
+            const maxXDVersion = tut.getMaxXDVersion();
+            if (minXDVersion) {
+                const comparedToCurrent = XVM.compareToCurrentVersion(minXDVersion);
+                if (comparedToCurrent === VersionComparison.Invalid || comparedToCurrent === VersionComparison.Bigger) {
+                    continue;
+                }
             }
-            if (tutVer > this.currVer) {
-                // This workbook is not supported by the running version of xcalar design.
-                continue;
+            if (maxXDVersion) {
+                const comparedToCurrent = XVM.compareToCurrentVersion(maxXDVersion);
+                if (comparedToCurrent === VersionComparison.Invalid || comparedToCurrent === VersionComparison.Smaller) {
+                    continue;
+                }
             }
+
             let btnText = "Download";
             let btnClass: string = "download";
 

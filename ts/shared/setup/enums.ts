@@ -462,6 +462,13 @@ enum ExportDriverPrettyNames {
     LegacyUDF = "Custom export using a UDF (deprecated)"
 }
 
+enum VersionComparison {
+    Invalid = "invalid",
+    Smaller = "smaller",
+    Bigger = "bigger",
+    Equal = "equal"
+}
+
 if (typeof global !== 'undefined') {
     global.RowDirection = RowDirection;
     global.WSTableType = WSTableType;

@@ -97,6 +97,19 @@ namespace XVM {
     function firstUserCheck(): XDPromise<void> {
         return XVM.commitKVVersion();
     }
+
+    function parseVersionString(version: string): number[] {
+        if (typeof version !== "string") {
+            return [];
+        }
+        const stringArray = version.split("-")[0].split(".");
+        const numberArray = stringArray.map(string => parseInt(string));
+        if (numberArray.length === 0 || numberArray.includes(NaN)) {
+            console.error("parseVersionString error");
+            return [];
+        }
+        return numberArray;
+    }
     /* ==================== End of Helper Function ========================== */
 
     /**
@@ -321,6 +334,37 @@ namespace XVM {
             .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    /**
+     * XVM.compareVersions
+     * Compare versions up to last mutually present sequence part
+     * @param v1str
+     * @returns string
+     */
+    export function compareVersions(v1str: string, v2str: string): string {
+        const v1 = parseVersionString(v1str);
+        const v2 = parseVersionString(v2str);
+        const sharedLength = Math.min(v1.length, v2.length);
+        if (sharedLength === 0) {
+            return VersionComparison.Invalid;
+        }
+        for (let i = 0; i < sharedLength; i++) {
+            if (v1[i] !== v2[i]) {
+                return v1[i] < v2[i] ? VersionComparison.Smaller : VersionComparison.Bigger;
+            }
+        }
+        return VersionComparison.Equal;
+    }
+
+    /**
+     * XVM.compareToCurrentVersion
+     * Compare versions up to last mutually present sequence part
+     * @param v1str
+     * @returns string
+     */
+    export function compareToCurrentVersion(v1str: string): string {
+        return XVM.compareVersions(v1str, XVM.getVersion());
     }
 
     /**

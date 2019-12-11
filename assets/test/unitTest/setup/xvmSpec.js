@@ -55,6 +55,37 @@ describe('XVM Test', () => {
             expect(/\d.\d.\d-.*/.test(version)).to.be.true;
         });
 
+        it('XVM.compareVersions should work', () => {
+            expect(XVM.compareVersions('', '')).to.equal(VersionComparison.Invalid);
+            expect(XVM.compareVersions('1.2.3', '')).to.equal(VersionComparison.Invalid);
+            expect(XVM.compareVersions('1.2.3', '1.a.3')).to.equal(VersionComparison.Invalid);
+            expect(XVM.compareVersions(1.2, '1.a.3')).to.equal(VersionComparison.Invalid);
+            expect(XVM.compareVersions('1', '1')).to.equal(VersionComparison.Equal);
+            expect(XVM.compareVersions('1', '1.2')).to.equal(VersionComparison.Equal);
+            expect(XVM.compareVersions('1.2.3', '1.2')).to.equal(VersionComparison.Equal);
+            expect(XVM.compareVersions('1.2.3', '1.2.3')).to.equal(VersionComparison.Equal);
+            expect(XVM.compareVersions('1.2.3', '1.2.4')).to.equal(VersionComparison.Smaller);
+            expect(XVM.compareVersions('1.2.3', '1.22')).to.equal(VersionComparison.Smaller);
+            expect(XVM.compareVersions('1.9.3', '2.0')).to.equal(VersionComparison.Smaller);
+            expect(XVM.compareVersions('2', '1.9')).to.equal(VersionComparison.Bigger);
+            expect(XVM.compareVersions('2.1', '2.0')).to.equal(VersionComparison.Bigger);
+        });
+
+        it('XVM.compareToCurrentVersion should work', () => {
+            const oldGetVersion = XVM.getVersion;
+            XVM.getVersion = () => "2.1.0-git";
+
+            expect(XVM.compareToCurrentVersion('')).to.equal(VersionComparison.Invalid);
+            expect(XVM.compareToCurrentVersion('a')).to.equal(VersionComparison.Invalid);
+            expect(XVM.compareToCurrentVersion('2')).to.equal(VersionComparison.Equal);
+            expect(XVM.compareToCurrentVersion('2.1')).to.equal(VersionComparison.Equal);
+            expect(XVM.compareToCurrentVersion('2.1.0')).to.equal(VersionComparison.Equal);
+            expect(XVM.compareToCurrentVersion('2.0')).to.equal(VersionComparison.Smaller);
+            expect(XVM.compareToCurrentVersion('2.2')).to.equal(VersionComparison.Bigger);
+
+            XVM.getVersion = oldGetVersion
+        });
+
         it('XVM.getVersion with patch version inculde should work', () => {
             let temp;
             if (typeof gPatchVersion !== "undefined") {
