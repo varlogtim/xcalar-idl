@@ -969,6 +969,7 @@ MonitorTStr = {
     "TicketId": "Ticket ID",
     "AcctAdmin": "Account Admin",
     "AcctAdmins": "Account Admins",
+    "NodeCMDDetail": "Please check the server log for more details.",
     "Severity": "Severity",
     "Severity1": "Xcalar Cluster is down or unresponsive, or critical features are unusable in a production deployment (development systems do not apply)." ,
     "Severity2": "Xcalar Cluster is up but performance or functionality is severely compromised, with no workaround.",

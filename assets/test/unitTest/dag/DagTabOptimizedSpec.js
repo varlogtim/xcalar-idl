@@ -1,4 +1,4 @@
-describe('DagTab Optimized Test', function() {
+describe('DagTabOptimized Test', function() {
     var $dagTabs;
     var oldPut;
     var tabId;
@@ -40,8 +40,7 @@ describe('DagTab Optimized Test', function() {
     });
 
     describe("Static function test", function() {
-        it("DagTabOptimized.parseOutputTableName should work \
-            for table name generate from DagTabOptimized.getOutputTableName", function() {
+        it("DagTabOptimized.parseOutputTableName should work for table name generate from DagTabOptimized.getOutputTableName", function() {
             let tabId = DagTab.generateId();
             let nodeId = DagNode.generateId();
             let retinaName = DagTabOptimized.getId(tabId, nodeId);
@@ -49,12 +48,12 @@ describe('DagTab Optimized Test', function() {
 
             let res = DagTabOptimized.parseOutputTableName(tableName);
 
-            expect(res).to.deep.equal({"tabId": tabId, "nodeId": nodeId});
+            expect(Object.keys(res).length).to.equal(2);
+            expect(res.tabId).to.equal(tabId);
+            expect(res.nodeId).to.equal(nodeId);
         });
 
-        it("DagTabOptimized.parseOutputTableName should work \
-            for table name generate from DagTabOptimized.getOutputTableName \
-            with retinaName from DagTabOptimized.getId_deprecated", function() {
+        it("DagTabOptimized.parseOutputTableName should work for table name generate from DagTabOptimized.getOutputTableName with retinaName from DagTabOptimized.getId_deprecated", function() {
             let tabId = DagTab.generateId();
             let nodeId = DagNode.generateId();
             let retinaName = DagTabOptimized.getId_deprecated(tabId, nodeId);
@@ -62,13 +61,16 @@ describe('DagTab Optimized Test', function() {
 
             let res = DagTabOptimized.parseOutputTableName(tableName);
 
-            expect(res).to.deep.equal({"tabId": tabId, "nodeId": nodeId});
+            expect(Object.keys(res).length).to.equal(2);
+            expect(res.tabId).to.equal(tabId);
+            expect(res.nodeId).to.equal(nodeId);
         });
 
-        it("DagTabOptimized.parseOutputTableName should return \
-            null tabId and nodeId for invalid case", function() {
+        it("DagTabOptimized.parseOutputTableName should return null tabId and nodeId for invalid case", function() {
             let res = DagTabOptimized.parseOutputTableName("a#b");
-            expect(res).to.deep.equal({"tabId": null, "nodeId": null});
+            expect(Object.keys(res).length).to.equal(2);
+            expect(res.tabId).to.equal(null);
+            expect(res.nodeId).to.equal(null);
         });
     });
 

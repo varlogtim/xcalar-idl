@@ -1033,12 +1033,12 @@ namespace Admin {
         }
 
         let msg: string;
-        if (err.logs) {
-            msg = err.logs;
+        if (err) {
+            msg = JSON.stringify(err);
         } else {
             msg = title + ".";
         }
-
+        msg += " " + MonitorTStr.NodeCMDDetail;
         Alert.error(title, msg);
     }
 
