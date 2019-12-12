@@ -11,7 +11,7 @@ module.exports = {
     before: function(browser) {
         browser
             .url(browser.globals.buildTestUrl(browser, testConfig.user))
-            .waitForElementVisible('#container', 1000 * 60 * 20)
+            .waitForElementVisible('#container', 1000 * 60 * 2)
             .waitForElementVisible('#container.noWorkbook', 1000 * 60 * 2);
     },
 

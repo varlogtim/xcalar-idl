@@ -19,7 +19,7 @@ function replay(testConfig, tags) {
         before: function(browser) {
             browser
                 .url(buildTestUrl(browser, testConfig))
-                .waitForElementVisible('#container', 1000 * 60 * 20)
+                .waitForElementVisible('#container', 1000 * 60 * 2)
                 .waitForElementVisible('#container.noWorkbook', 1000 * 60 * 2);
         },
 
