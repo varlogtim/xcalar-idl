@@ -219,14 +219,17 @@ class SQLModeState extends State {
             }
             try {
                 // Deal with OOM issue
+                this.log("create table from view");
                 await this.tableManager.createTableFromView([], columns, qInfo.tableName, tableName);
             } catch (error) {
                 // Out of resource error
                 if (error && error.status == StatusT.StatusNoXdbPageBcMem) {
                     // If OOM, randomly delete some tables
+                    this.log("run into StatusNoXdbPageBcMem, resolving...");
                     let deletePublishTables = Util.pickRandomMulti(publishTables, Math.min(publishTables.length, 10));
                     await this.tableManager._deleteTables(deletePublishTables);
                 } else {
+                    this.log("create table from view fails");
                     throw error;
                 }
             }

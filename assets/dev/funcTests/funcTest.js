@@ -45,6 +45,9 @@ class StateMachine {
     }
 
     async run() {
+        if (typeof window !== "undefined") {
+            window.verbose = true;
+        }
         await this.prepareData();
         let maxRun = new Map();
         maxRun.set("SQLMode", Util.getRandomInt(40) + 20);
@@ -212,7 +215,8 @@ window.FuncTestSuite = (function($, FuncTestSuite) {
                 }
             }
             console.log("======================XDFuncTest Fatal Error===========================");
-            console.log(errorMsg)
+            console.log("Error:", errorMsg);
+            console.log("Whole Error:", JSON.stringify(error));
             console.log("======================XDFuncTest Fatal Error Ends=======================");
             xcSessionStorage.setItem("xdFuncTestStatus", 'fail');
             cleanupSessionStorage();
