@@ -112,7 +112,8 @@ class PublishedTableService {
                         numInsterts: update.getNumInserts(),
                         numUpdated: update.getNumUpdates(),
                         numDeletes: update.getNumDeletes(),
-                        size: update.getSize()
+                        size: update.getSize(),
+                        startTS: update.getStartTs()
                     }
                     return updateInfo;
                 });
@@ -200,7 +201,8 @@ type UpdateInfo = {
     numInsterts: number,
     numUpdated: number,
     numDeletes: number,
-    size: number
+    size: number,
+    startTS: number
 }
 
 type SelectInfo = {

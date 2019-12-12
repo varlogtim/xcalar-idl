@@ -130,7 +130,12 @@ exports.testSuite = function(PublishedTableService, SCOPE, STATUS) {
             let numTables;
             let tables;
             try {
-                response = await PublishedTableService.listTables({ patternStr: tableName});
+                response = await PublishedTableService.listTables({
+                    patternStr: tableName,
+                    getSelects: true,
+                    getUpdates: true,
+                    updateStartBatchId: -1
+                });
                 numTables = response.numTables;
                 tables = response.tables;
             } catch (err) {
@@ -140,9 +145,23 @@ exports.testSuite = function(PublishedTableService, SCOPE, STATUS) {
             expect(Number.isInteger(numTables)).to.be.true;
             expect(Array.isArray(tables)).to.be.true;
             expect(tables.length).to.equal(1);
-            expect(tables[0].name).to.equal(tableName);
-            expect(tables[0].sessionName).to.equal(sessionName);
-            expect(tables[0].userIdName).to.equal(userName);
+
+            const table = tables[0];
+            expect(table.name).to.equal(tableName);
+            expect(table.sessionName).to.equal(sessionName);
+            expect(table.userIdName).to.equal(userName);
+            expect(table.updates.length).to.equal(1);
+
+            // test to make sure update has the correct attribute
+            const update = table.updates[0];
+            expect(update).to.have.property("source");
+            expect(update).to.have.property("batchId");
+            expect(update).to.have.property("numRows");
+            expect(update).to.have.property("numInsterts");
+            expect(update).to.have.property("numUpdated");
+            expect(update).to.have.property("numDeletes");
+            expect(update).to.have.property("size");
+            expect(update).to.have.property("startTS");
         });
 
         it("listTables() with select should work", async function () {
