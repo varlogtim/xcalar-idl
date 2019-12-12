@@ -219,6 +219,7 @@
                                                     <li value="1">There are two ways of starting the filtering process - starting from a column header and starting from a <span class="UIelement">Filter</span> Node.<ul><li value="1"><span class="UIelement">Starting from a column header</span>: Display the result set on which you want to perform the <span class="UIelement">Filter</span> operation. Right click the header of the column containing the value you want to filter, and select <span class="UIelement">Filter</span>. </li><li value="2"><p><span class="UIelement">Starting from a Filter Node</span>: Click the <span class="UIelement">Row Ops</span> category in the <span class="UIelement">Dataflow Mode Toolbar</span>, to display the <span class="UIelement">Filter</span> Node. Drag the <span class="UIelement">Filter</span> Node to the dataflow canvas. Locate the Node with the result set on which you want to perform the <span class="UIelement">Filter</span> operation, and connect its output to the <span class="UIelement">Filter</span> Node. Right click the <span class="UIelement">Filter</span> Node and select <span class="UIelement">Configure</span>. </p><div class="Note"><span class="label">NOTE</span>:&#160;See <a href="../A_Dataflows/CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating and editing a dataflow</a> for more information on connecting Nodes and creating dataflows.</div></li></ul><p>The <span class="UIelement">Filter</span> configuration panel is displayed.</p></li>
                                                     <li value="2">
                                                         <p>Select a <span class="UIelement">Filter Function</span>. For example, for an Integer or Float column, you can select the <span class="UIelement">between</span> function to filter the values that exist between two values.</p>
+                                                        <div class="Note"><span class="label">NOTE</span>:&#160;These functions work in the same way as the <span class="GeneralProductName3">Xcalar</span> defined functions (XDFs) in the conditional category. For information about these XDFs, see <a href="../../E_Reference/MapFunctions.htm#Conditio" class="MCXref xref" xrefformat="{para}">Conditional functions</a>. </div>
                                                         <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="#" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage" aria-expanded="false"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following functions are supported:</a></span>
                                                             <div class="MCDropDownBody dropDownBody">
                                                                 <ul>
@@ -251,8 +252,7 @@
                                                         </div>
                                                     </li>
                                                     <li value="3">
-                                                        <p>Based on the description of the function, fill out the other fields. </p>
-                                                        <div class="Note"><span class="label">NOTE</span>:&#160;These functions work in the same way as the <span class="UIelement">Map</span> functions in the conditional category. For information about these Map functions, see <a href="../../E_Reference/MapFunctions.htm#Conditio" class="MCXref xref" xrefformat="{para}">Conditional functions</a>.</div>
+                                                        <p>Based on the description of the function, fill out the other fields. You can also use any <a href="../../E_Reference/MapFunctions.htm" class="MCXref xref" xrefformat="{para}">Xcalar defined functions</a> in the these fields.</p>
                                                     </li>
                                                     <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="#" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage" aria-expanded="false"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following lists describe the rules and tips for entering information in a <span class="GeneralGUIName1">Xcalar Design</span> panel.</a></span>
                                                         <div class="MCDropDownBody dropDownBody">
@@ -307,21 +307,29 @@
                                                     </li>
                                                 </ol>
                                                 <h3>Example of filtering values that meet  all conditions</h3>
-                                                <p>The following example illustrates how to apply the <span class="UIelement">and</span> operator on two conditions.</p>
-                                                <p>In the result set named airlines, you can specify these conditions:</p>
+                                                <p>The following example illustrates how to use an XDF and apply the <span class="UIelement">and</span> operator on two conditions.</p>
+                                                <p>Suppose, in the result set named airlines you want to specify these two conditions:</p>
                                                 <ul>
-                                                    <li value="1">The value in the DayOfWeek column is 1.</li>
-                                                    <li value="2">The value in the Carrier column is UA.</li>
+                                                    <li value="1">
+                                                        <p>The value in the DayOfWeek column is 1. </p>
+                                                        <p>This condition can be specified as:</p>
+                                                        <p class="CLIoutput">Filter Function: eq</p>
+                                                        <p class="CLIoutput">Operand1: $airlines::DayOfWeek</p>
+                                                        <p class="CLIoutput">Operand2: 1</p>
+                                                    </li>
+                                                    <li value="2">
+                                                        <p>The number of characters in the Carrier column is 2. </p>
+                                                        <p>This condition can be specified using an XDF to calculate the number of characters in the Carrier column:</p>
+                                                        <p class="CLIoutput">Filter Function: eq</p>
+                                                        <p class="CLIoutput">Operand1: len($airlines::Carrier)</p>
+                                                        <p class="CLIoutput">Operand2: 2</p>
+                                                    </li>
                                                 </ul>
-                                                <p>Select the <span class="UIelement">and</span>&#160;operator in the <span class="UIelement">Filter</span>&#160;panel to indicate that a row must meet both the conditions to be included in the new result set. The following screenshots illustrate how to enter information in the&#160;<span class="UIelement">Filter</span>&#160;panel to specify these conditions:</p>
+                                                <p>Specify both the conditions in the configuration panel and then select the <span class="UIelement">and</span>&#160;operator in the <span class="UIelement">Filter</span>&#160;panel to indicate that a row must meet both the conditions to be included in the new result set. The following screenshots illustrate how to enter information in the&#160;<span class="UIelement">Filter</span>&#160;panel to specify these conditions:</p>
                                                 <p>
-                                                    <img src="../../../Resources/Images/XD_screenshots/xd-filter-multiple-conditions.png" />
+                                                    <img src="../../../Resources/Images/XD_screenshots/xd-filter-conditions.png" />
                                                 </p>
-                                                <p>The following partial screenshot illustrates the new result set, which includes only those rows that meet both the conditions.</p>
-                                                <p>
-                                                    <img src="../../../Resources/Images/XD_screenshots/xd-filter-result-set.png" />
-                                                </p>
-                                                <p>You can change the <span class="UIelement">and</span> operator to <span class="UIelement">or</span> in the same filter and you will get a result set which has all the rows where DayOfWeek is 1 regardless of the Carrier and all the rows where Carrier is UA regardless of the value of DayOfWeek.</p>
+                                                <p>You can change the <span class="UIelement">and</span> operator to <span class="UIelement">or</span> in the same filter and you will get a result set which has all the rows where DayOfWeek is 1 regardless of the Carrier and all the rows where Carrier name length is 2 regardless of the value of DayOfWeek.</p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

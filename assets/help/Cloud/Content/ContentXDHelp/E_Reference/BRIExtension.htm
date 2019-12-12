@@ -192,7 +192,7 @@
                                                 <h1>Understanding the Business Rules Inventory Extension</h1>
                                                 <p>Before building a dataflow or a query, you might want to determine whether all records in your table comply with the business rules set forth by your organization. A business rule is a statement specifying the constraint that a record must not violate for the record to be considered valid. For example, for analyzing flight information, your organization might have a business rule stating that data collected on Sunday is not valid, or that a carrier code from a defunct airline must not be analyzed. A business rule inventory is a collection of business rules.</p>
                                                 <p>After separating out the records that violate the business rules, you can focus your effort on records that are compliant. Alternatively, you can choose to fix the errors in the records that violate the rules.</p>
-                                                <p>The Business Rule Inventory (BRI) extension creates two user-defined functions (UDFs) for you to use as Map functions. One UDF identifies the records in a table that violate the business rules defined in a data file. Another UDF displays a description for each violation according to the rule specifications. The latter helps you determine what further actions should be taken for the violations.</p>
+                                                <p>The Business Rule Inventory (BRI) extension creates two user-defined functions (UDFs) for you to use as functions in a Map operation. One UDF identifies the records in a table that violate the business rules defined in a data file. Another UDF displays a description for each violation according to the rule specifications. The latter helps you determine what further actions should be taken for the violations.</p>
                                                 <p>This document describes how to use the BRI extension.</p>
                                                 <p>The major steps for using a business rule inventory against your data are as follows:</p>
                                                 <ol>
@@ -281,7 +281,7 @@
                                                 </ol>
                                                 <p>Now the UDF is ready for you to use on any target table in your workbook to check for business rule violations.</p>
                                                 <h2 class="noPageBreak">Applying the business rules inventory UDF</h2>
-                                                <p>To determine whether records in a particular table violate any rules specified in a BRI table, apply the business rules inventory UDF as a Map function as follows:</p>
+                                                <p>To determine whether records in a particular table violate any rules specified in a BRI table, apply the business rules inventory UDF as a function in a Map operation as follows:</p>
                                                 <ol>
                                                     <li value="1">From a result set column drop-down, select <span class="UIelement">Map</span>.</li>
                                                     <li value="2">In the <span class="UIelement">Map</span> configuration panel, select user-defined as the category, and then select the business rules inventory UDF (for example, bri_user1:business_rules_inventory).</li>

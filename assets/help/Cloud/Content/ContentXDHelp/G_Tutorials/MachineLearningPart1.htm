@@ -196,26 +196,27 @@
                                                     <li value="2">Training an ML model.</li>
                                                     <li value="3">Running predictive analysis using the trained ML model.</li>
                                                 </ol>
-                                                <p>This tutorial focuses on the first part - cleaning and transforming the input data for an ML model.</p>
+                                                <p>This tutorial focuses on the first part - cleaning and transforming the input data for an ML model. </p>
                                                 <h2 class="noPageBreak">Objective</h2>
-                                                <p>The publicly available Crunchbase funding data (companies.csv) contains the funding information about 66k companies. It includes information like their current status, total funding, first funding date, last funding date, etc. For our tutorial, we will transform this data which can then be used to train a ML model and do predictive analysis.</p>
+                                                <p>The publicly available Crunchbase funding data (companies.csv) contains the funding information about 66k companies. It includes information like their current status, total funding, first funding date, last funding date, etc. For our tutorial, we will clean and transform this data which can then be used to train an ML model and do predictive analysis.</p>
                                                 <h2 class="noPageBreak">Pre-requisites</h2>
-                                                <p>You have a basic understanding of how to import data and create a module in <span class="GeneralProductName3">Xcalar</span>.</p>
+                                                <p>You have a basic understanding of building applications in <span class="GeneralProductName3">Xcalar</span>.</p>
                                                 <p>The first step in creating an application is to import the data.</p>
-                                                <h2 class="noPageBreak">1. Importing each word in a different row</h2>
-                                                <p>Open <span class="GeneralGUIName1">Xcalar Design</span> in a browser and log in. Create a new project called <span class="UIelement">MachineLearning </span>and open it by clicking on the project card. We will be using visual components, Python, and SQL in this application; therefore, we will work in Developer Mode. If you are not in Developer Mode, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to <span class="UIelement">Developer Mode</span>.</p>
-                                                <p>To import the file companies.csv, click on the <span class="UIelement">Sources </span>icon in the sidebar and then <span class="UIelement">Import data Source</span> in the <span class="UIelement">Datasets</span> panel. Since our file resides on <span class="GeneralProductName3">Xcalar</span>'s public S3 bucket (/xcmarketplace-us-east-1/tutorial-datasets/), for the <span class="UIelement">Connector</span>, select <span class="UIelement">Public S3</span> and for the <span class="UIelement">Data Source Path</span>, enter /xcmarketplace-us-east-1/tutorial-datasets/. Click <span class="UIelement">Browse</span> to browse the directory structure and select companies.csv. Click <span class="UIelement">Next</span> to preview the file.</p>
-                                                <p><span class="GeneralProductName3">Xcalar</span> automatically detects the format of the file and shows its preview. Accept all the default values and click <span class="UIelement">Create Dataset</span> to create the dataset called <span class="UIelement">companies</span>. </p>
+                                                <h2 class="noPageBreak">1. Importing data</h2>
+                                                <p>Open <span class="GeneralGUIName1">Xcalar Design</span> in a browser and log in. Create a new project called MachineLearning and open it by clicking on its project card. We will be using visual components, Python, and SQL in this application; therefore, we will work in Developer Mode. If you are not in Developer Mode, click the mode switch to <span class="UIelement">Developer Mode</span> in the top menu bar.</p>
+                                                <p>To import the companies.csv file, click on the <span class="UIelement">Sources</span> icon in the sidebar, and then click <span class="UIelement">Import Data Source</span> in the <span class="UIelement">Datasets </span>panel. Since our file resides on <span class="GeneralProductName3">Xcalar</span>’s public S3 bucket, select <span class="UIelement">Public S3</span> as the <span class="UIelement">Connector</span>, and enter /xcmarketplace-us-east-1/tutorial-datasets/ as the <span class="UIelement">Data Source Path</span>. Click <span class="UIelement">Browse </span>to browse the directory structure and select companies.csv. Click <span class="UIelement">Next </span>to preview the file.</p>
+                                                <p><span class="GeneralProductName3">Xcalar</span> automatically detects the format of the file and shows its preview. Accept all the default values and click <span class="UIelement">Create Dataset</span> to create a dataset called companies. </p>
                                                 <p>The next step is to read the dataset and process it. </p>
-                                                <h2 class="noPageBreak">2. Viewing your data</h2>
-                                                <p>To read the dataset, we need to create a module. Click the <span class="UIelement">Application Builder</span> icon in the sidebar and then click <span class="UIelement">Create new module</span> or <span class="UIelement">New module</span> tab. A new module called <span class="UIelement">Module 1</span> is created. Drag and drop a <span class="UIelement">Dataset</span> Node into the canvas and configure it to read the <span class="UIelement">companies </span>dataset.</p>
-                                                <p>Save and execute the Node. A tabular view of the data read by the <span class="UIelement">Dataset </span>Node is displayed with 66,368 rows:</p>
+                                                <h2 class="noPageBreak">2. Viewing the dataset</h2>
+                                                <p>To view the dataset, we need to create a module. Click the <span class="UIelement">Application Builder</span> icon in the sidebar and then click either the <span class="UIelement">Create new module</span> or the <span class="UIelement">New module</span> tab. A new module called <span class="UIelement">Module 1</span> is created. Drag and drop a <span class="UIelement">Dataset</span> Node into the canvas and configure it to read the companies dataset.</p>
+                                                <p>Save and execute the Node. A tabular view of the data is displayed with 66,368 rows:</p>
                                                 <p>
-                                                    <img src="../../Resources/Images/Usecases/uc1-dataset.png" />
+                                                    <img src="../../Resources/Images/Tutorials/ml-dataset.png" />
                                                 </p>
+                                                <p>The next step is to remove extra columns.</p>
                                                 <h2 class="noPageBreak">3. Removing extra columns</h2>
                                                 <p>The first step in transforming your data is to view all the columns and remove any columns that you don’t need. In our case, we do not need the permalink, homepage_url, category_list, country_code, state_code, region and city columns.</p>
-                                                <p>To remove the extra columns, drag and drop a <span class="UIelement">SQL</span> Node to the canvas and connect the <span class="UIelement">Dataset</span> Node to the <span class="UIelement">SQL</span> Node. Configure the <span class="UIelement">SQL</span> Node to select only the required columns:</p>
+                                                <p>To remove the extra columns, drag and drop a <span class="UIelement">SQL</span> Node to the canvas and connect it to the <span class="UIelement">Dataset</span> Node. Configure the <span class="UIelement">SQL</span> Node to select only the required columns:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Usecases/uc1-sql-config2.png" />
                                                 </p>
@@ -223,14 +224,15 @@
                                                 <p>
                                                     <img src="../../Resources/Images/Usecases/uc1-sql-result.png" />
                                                 </p>
+                                                <p>The next step is to exclude the rows with missing data.</p>
                                                 <h2 class="noPageBreak">4. Excluding the rows with missing data</h2>
-                                                <p>One of the most important tasks of transforming the data is to find the missing or incorrect data. <span class="GeneralProductName3">Xcalar</span> provides many ways of doing that. Let’s use <span class="GeneralProductName3">Xcalar</span>'s <span class="UIelement">Profile</span> feature to view the distribution of values in a column. Right-click the header of a column and select <span class="UIelement">Profile</span> to see if it has missing or negative values. The missing values are displayed as FNFs (field not found).</p>
+                                                <p>One of the most important tasks of transforming the data is to find the missing or incorrect data. <span class="GeneralProductName3">Xcalar</span> provides many ways of doing that. Let’s use <span class="GeneralProductName3">Xcalar</span>'s Profile feature to view the distribution of values in a column. Right-click the header of a column and select <span class="UIelement">Profile</span> to see if it has missing or negative values. The missing values are displayed as FNFs (field not found).</p>
                                                 <p>For example, profiling FUNDING_TOTAL_USD column shows that many companies have ‘-’ as the funding amount:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Usecases/uc1-profile-funding.png" />
                                                 </p>
                                                 <p>Profiling other columns show that many companies do not have the funding amount or the funding dates. Let’s exclude the companies with missing funding amounts or missing founded dates or missing last funding dates through a filter operation.</p>
-                                                <p>Add a <span class="UIelement">Filter</span> Node to the module and connect the output of the last Node to this <span class="UIelement">Filter</span> Node. Configure the <span class="UIelement">Filter</span> Node with the following conditions:</p>
+                                                <p>Add a <span class="UIelement">Filter</span> Node to the canvas and connect it to the output of the last Node. Configure the Filter Node with the following conditions:</p>
                                                 <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
                                                     <col class="TableStyle-SimpleTable-Column-Column1" />
                                                     <col class="TableStyle-SimpleTable-Column-Column2" />
@@ -279,9 +281,10 @@
                                                     <img src="../../Resources/Images/Usecases/uc1-filter-missing-info.png" />
                                                 </p>
                                                 <p>Save and execute the Node. The new result is displayed. If you profile these columns again, you will notice that the rows with missing data have been excluded from the result. The total number of rows is reduced from 66,368 to 41,891.</p>
+                                                <p>The next step shows how you can fill in some missing data.</p>
                                                 <h2 class="noPageBreak">5. Filling in the missing data</h2>
                                                 <p>Sometimes, instead of excluding the rows with missing data, you want to fill them with some other data. For example, if a company has a founded date but not the first funding date, we can use the founded date as the first funding date.</p>
-                                                <p>In <span class="GeneralProductName3">Xcalar</span> a row level function is applied through a Map Node. Let’s add a <span class="UIelement">Map</span> Node to the module and connect the output of the previous <span class="UIelement">Filter</span> Node to the <span class="UIelement">Map</span> Node. In the configuration, select the category <span class="UIelement">miscellaneous</span> and the function <span class="UIelement">ifTimestamp</span>. Fill in the fields as follows:</p>
+                                                <p>In <span class="GeneralProductName3">Xcalar</span> a row level function is applied through a Map Node. Let’s add a <span class="UIelement">Map </span>Node to the canvas and connect it to the output of the Filter Node. In the configuration, select the category <span class="UIelement">miscellaneous</span> and the function <span class="UIelement">ifTimestamp</span>. Fill in the fields as follows:</p>
                                                 <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
                                                     <col class="TableStyle-SimpleTable-Column-Column1" />
                                                     <col class="TableStyle-SimpleTable-Column-Column2" />
@@ -336,9 +339,10 @@ exists($FIRST_FUNDING_AT)
                                                 <p>
                                                     <img src="../../Resources/Images/Usecases/uc1-map-fill-missing-dates.png" />
                                                 </p>
+                                                <p>Next, we will transform the date values.</p>
                                                 <h2 class="noPageBreak">6. Transforming the date columns</h2>
-                                                <p>All dates in our example data are timestamps. For our ML model, we need to convert them into months from today’s date. To transform the timestamps to months, we will use a Map Node.</p>
-                                                <p>Add another Map Node to the module and connect the output of the last Node to this Map Node. In the configuration panel, select the category timestamp and the function monthsBetween to convert the 3 date columns (FOUNDED_AT, FIRST_FUNDING_FILLED, LAST_FUNDING_AT) into 3 new columns - AGE, MON_SINCE_FIRST_FUND, and MON_SINCE_LAST_FUND as follows:</p>
+                                                <p>All dates in our example data are timestamps. For our ML model, we need to convert them into months from today’s date. To transform the date timestamps to months, we will use a Map Node.</p>
+                                                <p>Add another <span class="UIelement">Map</span> Node to the canvas and connect it to the output of the last Node. In the configuration panel, select the category <span class="UIelement">timestamp </span>and the function <span class="UIelement">monthsBetween </span>to convert the 3 date columns (FOUNDED_AT, FIRST_FUNDING_FILLED, LAST_FUNDING_AT) into 3 new columns - AGE, MON_SINCE_FIRST_FUND, and MON_SINCE_LAST_FUND as follows:</p>
                                                 <table style="margin-left: 0; margin-right: auto;">
                                                     <col style="width: 141px;" />
                                                     <col style="width: 175px;" />
@@ -381,13 +385,14 @@ exists($FIRST_FUNDING_AT)
                                                 <p>
                                                     <img src="../../Resources/Images/Usecases/uc1-map-month.png" />
                                                 </p>
-                                                <p>Save and Execute the Node. Now that we have transformed our date columns, we can hide the columns with timestamps and here is how our current data looks:</p>
+                                                <p>Save and Execute the Node. Now that we have transformed our date columns into integers, we can hide the columns with date timestamps:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Usecases/uc1-map-month-results.png" />
                                                 </p>
+                                                <p>Next, we need to ensure that our date transformation has no issues.</p>
                                                 <h2 class="noPageBreak">7. Sorting the columns to find missing or negative values</h2>
-                                                <p>Since we have just computed new columns, it’s a good idea to check if the computed data is correct using <span class="UIelement">Sort</span> or <span class="UIelement">Profile</span> options. Let’s sort the new columns one by one by clicking on the ascending or descending chevrons on the column headers and check for negative and missing values.</p>
-                                                <p>Ascending sort results show that a couple of these columns have negative values, which means that some of the dates were incorrect. Let’s apply a filter to remove all negative values from these columns. Add a <span class="UIelement">Filter</span> Node to the module and configure it to add the following conditions:</p>
+                                                <p>Since we have just computed three new columns, it’s a good idea to check if the computed data is correct by using either the Profile or the Sort operation. Let’s sort the new columns one by one by clicking on the ascending or descending chevrons on the column headers and check for negative and missing values.</p>
+                                                <p>Ascending sort results show that a couple of these columns have negative values, which means that some of the cells have future dates. Let’s apply a filter to remove all negative values from these columns. Add a <span class="UIelement">Filter</span> Node to the canvas and configure it to add the following conditions:</p>
                                                 <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
                                                     <col class="TableStyle-SimpleTable-Column-Column1" />
                                                     <col class="TableStyle-SimpleTable-Column-Column2" />
@@ -432,66 +437,67 @@ exists($FIRST_FUNDING_AT)
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                                <p>Save and execute the Node. Sort the columns again, they should not have any negative values. The total number of rows is reduced from 41,891 to 41,866.</p>
+                                                <p>Save and execute the Node. Sort the columns again and they should not have any negative values. The total number of rows is reduced from 41,891 to 41,866.</p>
+                                                <p>Next, we will transform the STATUS&#160;column.</p>
                                                 <h2 class="noPageBreak">8. Using Python for custom transformation</h2>
-                                                <p>In our tutorial data, the STATUS column contains a string, which can be one of the following - “operating”, “acquired”, “closed”, and “ipo”. Our ML model requires these to be in numeric format, which can be easily done through Python. In <span class="GeneralProductName3">Xcalar</span>, Python is written in the form of user-defined functions (UDF).</p>
-                                                <p>Click on the <span class="UIelement">UDF</span> icon in the sidebar to display the UDF panel. In the UDF Panel, write the Python code to define a dictionary of all possible status strings and a function called <cite>convertStatus</cite> to lookup the dictionary and return the corresponding numeric value. Save the UDF as ml_status.py. The function convertStatus in this UDF is accessible as ml_status:convertStatus.</p>
+                                                <p>In our tutorial data, the STATUS column contains a string, which can be one of the following - “operating”, “acquired”, “closed”, or “ipo”. Our ML model requires these values to be numeric, which can easily be done through Python. In <span class="GeneralProductName3">Xcalar</span>, Python code is written in the form of user-defined functions (UDF).</p>
+                                                <p>Click on the <span class="UIelement">UDF</span> icon in the sidebar to display the UDF panel. In the UDF Panel, write the Python code to define a dictionary of all possible status strings and a function called convertStatus to look up the dictionary and return the corresponding numeric value. Save the UDF as ml_status.py. The function convertStatus in this UDF is accessible as ml_status:convertStatus.</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Usecases/uc1-udf-panel.png" />
                                                 </p>
-                                                <p>To use the Map UDF in the module, add a <span class="UIelement">Map </span>Node to the module and connect the output of the last Node to this <span class="UIelement">Map </span>Node. Configure the Node as follows:</p>
+                                                <p>To apply the Map UDF, add a <span class="UIelement">Map </span>Node to the canvas and connect it to the output of the last Node. Configure the Map Node as follows:</p>
                                                 <p class="CLIoutput">Category: user-defined</p>
-                                                <p class="CLIoutput">Function: ml_status:convertStatus</p>
-                                                <p class="CLIoutput">Status: $STATUS (since we want to convert the STATUS column to numbers)</p>
+                                                <p class="CLIoutput">Function: ml_status:convertStatus (this is the UDF we want to apply)</p>
+                                                <p class="CLIoutput">Status: $STATUS (this is the column we want to convert)</p>
                                                 <p class="CLIoutput">New Resultant Column Name: STATUS_NUM</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Usecases/uc1-map-udf-config.png" />
                                                 </p>
-                                                <p>Save and execute the Node. A new column names STATUS_NUM is added with the status string converted to a numeric value for each row.</p>
+                                                <p>Save and execute the Node. A new column name STATUS_NUM is added to the result set with the status string converted to a numeric value for each row.</p>
                                                 <h2 class="noPageBreak">9. Changing column data types</h2>
-                                                <p>Our data seems clean now, except that we have FUNDING_TOTAL_USD and STATUS_NUM columns as strings, AGE, MON_SINCE_FIRST_FUND, and MON_SINCE_LAST_FUND columns as floats and FUNDING_ROUNDS as an integer. Our ML model needs all these columns as integers.</p>
-                                                <p>Xcalar provides an easy way to change data types. Add a <span class="UIelement">Cast </span>Node to the module and connect the output of the last Node to this <span class="UIelement">Cast </span>Node. In the configuration panel, select all the columns which require a data type change and choose the <span class="UIelement">New Type</span> as Integer:</p>
+                                                <p>Our data is clean now, except that we have FUNDING_TOTAL_USD and STATUS_NUM columns as strings, AGE, MON_SINCE_FIRST_FUND, and MON_SINCE_LAST_FUND columns as floats and FUNDING_ROUNDS as integer. Our ML model needs all these columns as integers.</p>
+                                                <p><span class="GeneralProductName3">Xcalar</span> provides an easy way to change data types. Add a <span class="UIelement">Cast </span>Node to the canvas and connect it to the output of the last Node. In the configuration panel of the Cast Node, select all the columns which require a data type change and choose the <span class="UIelement">New Type</span> as integer:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Usecases/uc1-cast-into-integer.png" />
                                                 </p>
-                                                <p>Save and Execute the <span class="UIelement">Cast </span>Node. In the new results, all the cast columns are converted to integers:</p>
+                                                <p>Save and Execute the Node. In the new result set, all the cast columns are converted to integer:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Usecases/uc1-cast-results.png" />
                                                 </p>
-                                                <p>Now we have a result set, which is ready to be used in an ML model. However, we still need to separate out the rows which can be used to train the ML model and the rows for which we need to run the predictive analysis.</p>
+                                                <p>Now we have a result set, which is ready to be used in an ML model. However, we still have to separate out the rows which can be used to train the ML model and the rows for which we have to run the predictive analysis.</p>
                                                 <h2 class="noPageBreak">10. Exporting data to train your ML model</h2>
-                                                <p>For training our ML model, we need the companies which have already had a liquidity or a liquidation event. These are the companies with STATUS_NUM &gt; 0. Let’s filter these rows.</p>
-                                                <p>Add a <span class="UIelement">SQL</span> Node to the module and connect the output of the <span class="UIelement">Cast</span> Node to this <span class="UIelement">SQL</span> Node. Configure the <span class="UIelement">SQL</span> Node to select only those rows which have STATUS_NUM &gt; 0:</p>
+                                                <p>For training our ML model, we need the companies which have already had a liquidity or a liquidation event. These are the companies with STATUS_NUM &gt; 0. Let’s filter these rows using a SQL operation.</p>
+                                                <p>Add a <span class="UIelement">SQL</span> Node to the module and connect it to the output of the last Node. Configure the SQL Node to select only those rows which have STATUS_NUM &gt; 0:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Usecases/uc1-sql-training.png" />
                                                 </p>
-                                                <p>Save and execute the <span class="UIelement">SQL</span> Node. The new result contains only 8,178 rows:</p>
+                                                <p>Save and execute the SQL Node. The new result contains only 8,178 rows:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Usecases/uc1-sql-onstatus.png" />
                                                 </p>
-                                                <p>Add an <span class="UIelement">Export</span> Node to the module and connect the output of the previous <span class="UIelement">SQL</span> Node to the <span class="UIelement">Export </span>Node. Configure the <span class="UIelement">Export </span>Node to select STATUS_NUM, FUNDING_TOTAL_USD, FUNDING_ROUNDS, AGE, MON_SINCE_FIRST_FUND, and MON_SINCE_LAST_FUND columns and save the results to a single comma-separated file.</p>
+                                                <p>Add an <span class="UIelement">Export</span> Node to the canvas and connect it to the output of the SQL Node. Configure the Export Node to select STATUS_NUM, FUNDING_TOTAL_USD, FUNDING_ROUNDS, AGE, MON_SINCE_FIRST_FUND, and MON_SINCE_LAST_FUND columns and save the results to a single comma-separated file.</p>
                                                 <p>
-                                                    <img src="../../Resources/Images/Usecases/uc1-export-final-result.png" />
+                                                    <img src="../../Resources/Images/Tutorials/ml-export.png" />
                                                 </p>
-                                                <p>Save and execute the <span class="UIelement">Export </span>Node. The result is saved in the specified file, which can be used to train your ML model.</p>
+                                                <p>Save and execute the Node. The result is saved in the specified file, which can be used to train your ML model.</p>
                                                 <h2 class="noPageBreak">11. Filtering the rows for predictive analysis</h2>
-                                                <p>For predictive analysis, we want to extract only those companies which have not had a liquidity or a liquidation event, meaning companies with STATUS_NUM value as 0.</p>
-                                                <p>To extract these companies, add a <span class="UIelement">SQL</span> Node to the module and connect the output of the <span class="UIelement">Cast</span> Node to this <span class="UIelement">SQL</span> Node. Configure the <span class="UIelement">SQL</span> Node to select only those rows which have STATUS_NUM = 0:</p>
+                                                <p>For predictive analysis, we want to extract only those companies which have not had a liquidity or a liquidation event. These are the companies with STATUS_NUM value as 0.</p>
+                                                <p>To extract these companies, add a <span class="UIelement">SQL</span> Node to the canvas and connect it to the output of the Cast Node. Configure the SQL Node to select only those rows which have STATUS_NUM = 0:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Usecases/uc2-sql-prediction.png" />
                                                 </p>
                                                 <div class="Note"><span class="label">NOTE</span>:&#160;You can also use a Filter Node to filter these rows.</div>
-                                                <p>Save and execute the <span class="UIelement">SQL</span> Node. The new result contains only those companies which have STATUS_NUM equal to 0. These are the companies for which we want to run the predictive analysis:</p>
+                                                <p>Save and execute the Node. A new result set is ready for predictive analysis:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Usecases/uc2-sql-statusnum-result.png" />
                                                 </p>
-                                                <p>Our companies data is ready for training a model and then running predictive analysis.</p>
+                                                <p>We have cleaned the data and divided it into two sets - for training a model and for running the predictive analysis.</p>
                                                 <h2 class="noPageBreak">Summary</h2>
                                                 <p>This tutorial touched upon the following topics:</p>
                                                 <ul>
                                                     <li value="1">Importing a file</li>
                                                     <li value="2">Using a dataset</li>
-                                                    <li value="3">Finding anomalies in data using Profile and Sort on columns</li>
+                                                    <li value="3">Finding anomalies in data using Profile and Sort</li>
                                                     <li value="4">Using a Map Node to apply functions on cell values</li>
                                                     <li value="5">Using date and time functions in Map Node</li>
                                                     <li value="6">Using SQL and Filter Nodes</li>
@@ -500,7 +506,7 @@ exists($FIRST_FUNDING_AT)
                                                     <li value="9">Exporting a result set to a file</li>
                                                 </ul>
                                                 <p>For detailed information about these topics, see the online help for <span class="GeneralProductName3">Xcalar</span>.</p>
-                                                <p>The <span class="UIelement">MachineLearning </span>application is available on the tutorial page of <span class="GeneralGUIName1">Xcalar Design</span>.</p>
+                                                <p>The MachineLearning application is available on the tutorial page of <span class="GeneralGUIName1">Xcalar Design</span>. To understand the training and prediction part of ML, see <a href="MachineLearningPart2.htm" class="MCXref xref">Writing a machine learning application - part 2</a>.</p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Applying a function on a column using a Map Node</title>
+        <meta name="author" content="" /><title>Applying a Xcalar defined function on a column using a Map Node</title>
         <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -188,15 +188,15 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" role="navigation" aria-label="Breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1>Applying a function on a column using a Map Node</h1>
-                                                <p>A Map Node is used to apply a function on existing column values to create new meaningful values. The new values can be based on one or more columns. For example, you can perform an arithmetic calculation on the values of two columns to create a third column that contains the results of the calculation. The new value may also be generated without any column input. For example, you can generate a column of unique, random values.</p>
-                                                <p>The functions available in the Map Node configuration are called the Map functions. This section describes the steps for using a Map function. For descriptions of all Map functions, see <a href="../../E_Reference/MapFunctions.htm" class="MCXref xref" xrefformat="{para}">Map functions</a>.</p>
-                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;Many  Map functions work in a similar way as Microsoft Excel functions. However, there might be differences, such as differences in the  number of operands accepted.&#160;Do not assume that the  Map functions are identical to the Excel functions even though they share the same name. </div>
-                                                <h2 class="noPageBreak">How a Map function works on Mixed, Array, or Object columns</h2>
-                                                <p>If you use a Mixed column as an input to a Map function, the function is run on the cells of a data type appropriate for the function. For all other cells, the function returns FNF (field not found). For example, if a Mixed column is the input for a div function, the division is performed only on numerical cells. FNF&#160;is displayed for each non-numerical cell in the resultant column. If you use an Array or Object column as input to a Map function, the input value is treated as FNF. </p>
+                                                <h1>Applying a <span class="GeneralProductName3">Xcalar</span> defined function on a column using a Map Node</h1>
+                                                <p>A Map Node is used to apply a <span class="GeneralProductName3">Xcalar</span> defined function (XDF) on existing column values to create new meaningful values. The new values can be based on one or more columns. For example, you can perform an arithmetic calculation on the values of two columns to create a third column that contains the results of the calculation. The new value may also be generated without any column input. For example, you can generate a column of unique, random values.</p>
+                                                <p>This section describes the steps for using an XDF in a Map Node. For descriptions of all XDFs, see <a href="../../E_Reference/MapFunctions.htm" class="MCXref xref" xrefformat="{para}">Xcalar defined functions</a>.</p>
+                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;Many  XDFs work in a similar way as Microsoft Excel functions. However, there might be differences, such as differences in the  number of operands accepted.&#160;Do not assume that the  XDFs are identical to the Excel functions even though they share the same name. </div>
+                                                <h2 class="noPageBreak">How a <span class="GeneralProductName3">Xcalar</span> defined function works on Mixed, Array, or Object columns</h2>
+                                                <p>If you use a Mixed column as an input to a <span class="GeneralProductName3">Xcalar</span> defined function (XDF), the function is run on the cells of a data type appropriate for the function. For all other cells, the function returns FNF (field not found). For example, if a Mixed column is the input for a div function, the division is performed only on numerical cells. FNF&#160;is displayed for each non-numerical cell in the resultant column. If you use an Array or Object column as input to an XDF, the input value is treated as FNF. </p>
                                                 <p>For more information about FNF, see <a href="UnderstandFNF.htm" class="MCXref xref" xrefformat="{para}">Working with a result set containing FNF</a>.</p>
-                                                <h2 class="noPageBreak">Applying a Map function</h2>
-                                                <p>Applying a Map function creates a new column with new values. To apply a Map function on a column:</p>
+                                                <h2 class="noPageBreak">Applying a <span class="GeneralProductName3">Xcalar</span> defined function</h2>
+                                                <p>Applying a <span class="GeneralProductName3">Xcalar</span> defined function (XDF) creates a new column with new values. To apply an XDF on a column:</p>
                                                 <ol>
                                                     <li value="1">
                                                         <p>Verify that you are in Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace.</p>
@@ -206,13 +206,13 @@
                                                         <p>The <span class="UIelement">Dataflow Mode</span> workspace opens.</p>
                                                     </li>
                                                     <li value="3">
-                                                        <p>There are two ways of applying a Map function on a column - starting from a result set and starting from a <span class="UIelement">Map</span> Node:</p>
+                                                        <p>There are two ways of applying an XDF on a column - starting from a result set and starting from a <span class="UIelement">Map</span> Node:</p>
                                                         <ul>
                                                             <li value="1">
-                                                                <p><span class="UIelement">Starting from a result set</span>: Display the result set on which you want to apply the Map function. Right click the header of the result set column and select <span class="UIelement">Map</span>. The <span class="UIelement">Map</span>&#160;configuration panel is displayed. </p>
+                                                                <p><span class="UIelement">Starting from a result set</span>: Display the result set on which you want to apply the XDF. Right click the header of the result set column and select <span class="UIelement">Map</span>. The <span class="UIelement">Map</span>&#160;configuration panel is displayed. </p>
                                                             </li>
                                                             <li value="2">
-                                                                <p><span class="UIelement"> Starting from a Map Node</span>: Click the <span class="UIelement">Column Ops</span> category of operations in the Dataflow Mode Toolbar. Drag the <span class="UIelement">Map</span> Node to the dataflow canvas. Locate the Node with the result set column on which you want to apply a Map function, and connect its output to the <span class="UIelement">Map</span> Node. Right click the <span class="UIelement">Map</span> Node and select <span class="UIelement">Configure</span>. The <span class="UIelement">Map</span>&#160;configuration panel is displayed.</p>
+                                                                <p><span class="UIelement"> Starting from a Map Node</span>: Click the <span class="UIelement">Column Ops</span> category of operations in the Dataflow Mode Toolbar. Drag the <span class="UIelement">Map</span> Node to the dataflow canvas. Locate the Node with the result set column on which you want to apply an XDF, and connect its output to the <span class="UIelement">Map</span> Node. Right click the <span class="UIelement">Map</span> Node and select <span class="UIelement">Configure</span>. The <span class="UIelement">Map</span>&#160;configuration panel is displayed.</p>
                                                             </li>
                                                         </ul>
                                                     </li>
@@ -260,7 +260,7 @@
                                                         <p>The configuration is saved and a new result set with the new column is displayed when the Node executes. </p>
                                                     </li>
                                                 </ol>
-                                                <h2 class="noPageBreak"> Example of changing column values using a Map function</h2>
+                                                <h2 class="noPageBreak"> Example of changing column values</h2>
                                                 <p>To replace a string in a column with another string:</p>
                                                 <ol>
                                                     <li value="1">Display the result set in which you want to change the column values. </li>

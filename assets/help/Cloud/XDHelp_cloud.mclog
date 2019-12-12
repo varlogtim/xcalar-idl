@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<MadCapLog Protocol="2" Description="MadCap Flare 2019 r2 Generated XDHelpCloudTargets/XDHelp_cloud.fltar" Date="2019-12-03T10:14:12.0782823-08:00">
+<MadCapLog Protocol="2" Description="MadCap Flare 2019 r2 Generated XDHelpCloudTargets/XDHelp_cloud.fltar" Date="2019-12-12T13:59:49.8296626-08:00">
     <Messages>Compiling target XDHelp_cloud...
 Removing previously generated content...
 Loading skin info...
@@ -12,8 +12,6 @@ Processing source files...
 Image "cc-cast-config.png" regenerated for "" medium: Resources\Images\Tutorials\cc-cast-config.png
 Image "cc-changed-data-type.png" regenerated for "" medium: Resources\Images\Tutorials\cc-changed-data-type.png
 Image "cc-correlation.png" regenerated for "" medium: Resources\Images\Tutorials\cc-correlation.png
-Image "la-dataset-result.png" regenerated for "" medium: Resources\Images\Tutorials\la-dataset-result.png
-Image "la-df11-export-config.png" regenerated for "" medium: Resources\Images\Tutorials\la-df11-export-config.png
 Image "la-df11-table-config.png" regenerated for "" medium: Resources\Images\Tutorials\la-df11-table-config.png
 Image "la-df11-table-result.png" regenerated for "" medium: Resources\Images\Tutorials\la-df11-table-result.png
 Image "la-groupby-config.png" regenerated for "" medium: Resources\Images\Tutorials\la-groupby-config.png
@@ -21,23 +19,21 @@ Image "la-groupby-result.png" regenerated for "" medium: Resources\Images\Tutori
 Image "la-log-import.png" regenerated for "" medium: Resources\Images\Tutorials\la-log-import.png
 Image "la-split-config.png" regenerated for "" medium: Resources\Images\Tutorials\la-split-config.png
 Image "la-split-result.png" regenerated for "" medium: Resources\Images\Tutorials\la-split-result.png
-Image "la-sql-config.png" regenerated for "" medium: Resources\Images\Tutorials\la-sql-config.png
 Image "la-sql-result.png" regenerated for "" medium: Resources\Images\Tutorials\la-sql-result.png
-Image "ml-import-udf-result.png" regenerated for "" medium: Resources\Images\Tutorials\ml-import-udf-result.png
-Image "ml-using-import-udf.png" regenerated for "" medium: Resources\Images\Tutorials\ml-using-import-udf.png
-Image "wc-df1-dataset.png" regenerated for "" medium: Resources\Images\Tutorials\wc-df1-dataset.png
+Image "ts-mixed.png" regenerated for "" medium: Resources\Images\Tutorials\ts-mixed.png
+Image "ts-string.png" regenerated for "" medium: Resources\Images\Tutorials\ts-string.png
 Image "wc-df1-import.png" regenerated for "" medium: Resources\Images\Tutorials\wc-df1-import.png
 Image "wc-df1-result.png" regenerated for "" medium: Resources\Images\Tutorials\wc-df1-result.png
 Image "wc-df2-dataset.png" regenerated for "" medium: Resources\Images\Tutorials\wc-df2-dataset.png
 Image "wc-df2-import.png" regenerated for "" medium: Resources\Images\Tutorials\wc-df2-import.png
-Image "wc-df2-map-config.png" regenerated for "" medium: Resources\Images\Tutorials\wc-df2-map-config.png
 Image "wc-df2-result.png" regenerated for "" medium: Resources\Images\Tutorials\wc-df2-result.png
 Image "wc-df2-udf-code.png" regenerated for "" medium: Resources\Images\Tutorials\wc-df2-udf-code.png
+Image "wc-df3-explode-config.png" regenerated for "" medium: Resources\Images\Tutorials\wc-df3-explode-config.png
+Image "wc-df3-explode-result.png" regenerated for "" medium: Resources\Images\Tutorials\wc-df3-explode-result.png
+Image "wc-df3-final-result.png" regenerated for "" medium: Resources\Images\Tutorials\wc-df3-final-result.png
 Image "xt-tableau-graph.png" regenerated for "" medium: Resources\Images\Tutorials\xt-tableau-graph.png
 Image "uc1-cast-into-integer.png" regenerated for "" medium: Resources\Images\Usecases\uc1-cast-into-integer.png
 Image "uc1-cast-results.png" regenerated for "" medium: Resources\Images\Usecases\uc1-cast-results.png
-Image "uc1-dataset.png" regenerated for "" medium: Resources\Images\Usecases\uc1-dataset.png
-Image "uc1-export-final-result.png" regenerated for "" medium: Resources\Images\Usecases\uc1-export-final-result.png
 Image "uc1-filter-missing-info.png" regenerated for "" medium: Resources\Images\Usecases\uc1-filter-missing-info.png
 Image "uc1-map-fill-missing-dates.png" regenerated for "" medium: Resources\Images\Usecases\uc1-map-fill-missing-dates.png
 Image "uc1-map-month-results.png" regenerated for "" medium: Resources\Images\Usecases\uc1-map-month-results.png
@@ -51,13 +47,10 @@ Image "uc1-sql-training.png" regenerated for "" medium: Resources\Images\Usecase
 Image "uc1-udf-panel.png" regenerated for "" medium: Resources\Images\Usecases\uc1-udf-panel.png
 Image "uc2-final-result.png" regenerated for "" medium: Resources\Images\Usecases\uc2-final-result.png
 Image "uc2-jn-code.png" regenerated for "" medium: Resources\Images\Usecases\uc2-jn-code.png
-Image "uc2-map-predict-udf.png" regenerated for "" medium: Resources\Images\Usecases\uc2-map-predict-udf.png
 Image "uc2-sql-prediction.png" regenerated for "" medium: Resources\Images\Usecases\uc2-sql-prediction.png
 Image "uc2-sql-statusnum-result.png" regenerated for "" medium: Resources\Images\Usecases\uc2-sql-statusnum-result.png
-Image "uc2-udf-predict.png" regenerated for "" medium: Resources\Images\Usecases\uc2-udf-predict.png
 Image "uc3-csv-data.png" regenerated for "" medium: Resources\Images\Usecases\uc3-csv-data.png
 Image "uc3-expected-result.png" regenerated for "" medium: Resources\Images\Usecases\uc3-expected-result.png
-Image "uc3-import-options.png" regenerated for "" medium: Resources\Images\Usecases\uc3-import-options.png
 Image "uc3-split-result.png" regenerated for "" medium: Resources\Images\Usecases\uc3-split-result.png
 Image "uc3-tabular-data.png" regenerated for "" medium: Resources\Images\Usecases\uc3-tabular-data.png
 Image "xd-dataflow-create.png" regenerated for "" medium: Resources\Images\XD_assets\xd-dataflow-create.png
@@ -144,10 +137,9 @@ Image "xd-exe-buttons.png" regenerated for "" medium: Resources\Images\XD_screen
 Image "xd-explode-after.png" regenerated for "" medium: Resources\Images\XD_screenshots\xd-explode-after.png
 Image "xd-explode-before.png" regenerated for "" medium: Resources\Images\XD_screenshots\xd-explode-before.png
 Image "xd-file-preview-selection.png" regenerated for "" medium: Resources\Images\XD_screenshots\xd-file-preview-selection.png
-Image "xd-filter-multiple-conditions.png" regenerated for "" medium: Resources\Images\XD_screenshots\xd-filter-multiple-conditions.png
+Image "xd-filter-conditions.png" regenerated for "" medium: Resources\Images\XD_screenshots\xd-filter-conditions.png
 Image "xd-filter-on-cell.png" regenerated for "" medium: Resources\Images\XD_screenshots\xd-filter-on-cell.png
 Image "xd-filter-panel.png" regenerated for "" medium: Resources\Images\XD_screenshots\xd-filter-panel.png
-Image "xd-filter-result-set.png" regenerated for "" medium: Resources\Images\XD_screenshots\xd-filter-result-set.png
 Image "xd-groupby-aggregate.png" regenerated for "" medium: Resources\Images\XD_screenshots\xd-groupby-aggregate.png
 Image "xd-groupby-multi-col-multi-func.png" regenerated for "" medium: Resources\Images\XD_screenshots\xd-groupby-multi-col-multi-func.png
 Image "xd-groupby-panel-aggregates.png" regenerated for "" medium: Resources\Images\XD_screenshots\xd-groupby-panel-aggregates.png
@@ -636,8 +628,8 @@ Generated Skins\Default\Stylesheets\TextEffects.micro-content.css
 Generated Skins\Default\Stylesheets\Topic.micro-content.css
 Generated Default.htm
 Saving result set...
-Ignored Compiler Warnings: 298
-Output generated in 27 second(s).
+Ignored Compiler Warnings: 299
+Output generated in 29 second(s).
 
 Done
 Saving log to "C:\Users\Ruchi Garg\xcalar-docs\oh_docs\Output\Ruchi_Garg\XDHelpCloudTargets\XDHelp_cloud\XDHelp_cloud.mclog"

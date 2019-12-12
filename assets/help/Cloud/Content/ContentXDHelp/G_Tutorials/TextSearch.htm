@@ -190,23 +190,56 @@
                                                     </div>
                                                 </div>
                                                 <h1>Writing a text search application</h1>
-                                                <p>Text search is a common requirement in any application development. <span class="GeneralProductName3">Xcalar</span> provides a powerful set of search functions for simple as well as sophisticated search needs. This tutorial shows you how you can ingest a simple JSON file with wine reviews and search it for the wines of your choice.</p>
-                                                <p>The first step in creating an application in <span class="GeneralProductName3">Xcalar</span> is to create a project. A project is a container where you create, design, troubleshoot, and execute your application. Open <span class="GeneralGUIName1">Xcalar Design</span> in a browser and log in. Create a new project called <span class="UIelement">TextSearch </span>and open it by clicking on the project card.</p>
+                                                <p>Text search is a common requirement in any application development. <span class="GeneralProductName3">Xcalar</span> provides a powerful set of search functions for your simple as well as sophisticated search needs. This tutorial shows how you can ingest a simple JSON file with wine reviews and search it for the wines of your choice.</p>
+                                                <p>The first step in creating an application in <span class="GeneralProductName3">Xcalar</span> is to create a project. A project is a container where you create, design, troubleshoot, and execute your application. Open <span class="GeneralGUIName1">Xcalar Design</span> in a browser and log in. Create a new project called TextSearch and open it by clicking on the project card.</p>
                                                 <p><span class="GeneralProductName3">Xcalar</span> has two modes - the SQL Mode and the Developer Mode. In SQL Mode, you develop your queries using the SQL query statements and user-defined functions (UDFs) written in Python. In Developer Mode, you develop your applications using visual components, SQL query statements, and UDFs written in Python.</p>
-                                                <p>We will be using visual components in this application; therefore, we will work in Developer Mode. If you are not in Developer Mode, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to <span class="UIelement">Developer Mode</span>.</p>
-                                                <p>Next, we will import the wine reviews file (winemag-data.json) into <span class="GeneralProductName3">Xcalar</span>.  If you have already created a dataset using this file, skip to the second step. </p>
+                                                <p>We will be using visual components in this application; therefore, we will work in Developer Mode. If you are not in Developer Mode, click the mode switch to <span class="UIelement">Developer Mode</span> in the top menu bar.</p>
+                                                <p>Next, we will import the wine reviews file (winemag-data.json) into <span class="GeneralProductName3">Xcalar</span>.  If you have already imported this file into a dataset, skip to the second step. </p>
                                                 <h2 class="noPageBreak">1. Importing the wine reviews file</h2>
-                                                <p>To import the reviews file, click on the <span class="UIelement">Sources </span>icon in the sidebar and then in the <span class="UIelement">Datasets </span>panel, click <span class="UIelement">Import data Source</span>. Since our file resides on <span class="GeneralProductName3">Xcalar</span>’s public S3 bucket (/xcmarketplace-us-east-1/tutorial-datasets/), for the <span class="UIelement">Connector</span>, select <span class="UIelement">Public S3</span> and in the <span class="UIelement">Data Source Path</span>, enter <code>/xcmarketplace-us-east-1/tutorial-datasets/</code>. Click <span class="UIelement">Browse </span>to browse the directory structure and select winemag-data.json. Click <span class="UIelement">Next </span>to preview the file.</p>
-                                                <p><span class="GeneralProductName3">Xcalar</span> automatically detects the format of the file and displays its preview. Since this is a simple json file, we don't need to pull out any nested fields. Let's accept all default options and click <span class="UIelement">Create Dataset</span>. A dataset called <span class="UIelement">winemag-data</span> is created with 129,971 rows and 13 columns. The next step is to read the dataset into a module.</p>
+                                                <p>To import the wine reviews file into <span class="GeneralProductName3">Xcalar</span>, click on the <span class="UIelement">Sources</span> icon in the sidebar, and then click <span class="UIelement">Import Data Source</span> in the <span class="UIelement">Datasets </span>panel. Since our file resides on <span class="GeneralProductName3">Xcalar</span>’s public S3 bucket, select <span class="UIelement">Public S3</span> as the <span class="UIelement">Connector</span>, and enter /xcmarketplace-us-east-1/tutorial-datasets/ as the <span class="UIelement">Data Source Path</span>. Click <span class="UIelement">Browse </span>to browse the directory structure and select winemag-data.json. Click <span class="UIelement">Next </span>to preview the file.</p>
+                                                <p><span class="GeneralProductName3">Xcalar</span> automatically detects the format of the file and displays its preview. Since this is a simple json file, we don't need to pull out any nested fields. Accept all default options and click <span class="UIelement">Create Dataset</span>. A dataset called winemag-data is created with 129,971 rows and 13 columns. The next step is to read the dataset.</p>
                                                 <h2 class="noPageBreak">2. Creating a module and reading the dataset</h2>
-                                                <p>To read the dataset and process it, we need to create a module. In <span class="GeneralProductName3">Xcalar</span>, module is a graphical representation of a series of operations performed on data. Each operation is represented by a graphical component called Node.</p>
-                                                <p>To create a module, click on the <span class="UIelement">Application Builder</span> icon in the sidebar and click <span class="UIelement">Create new module</span> or <span class="UIelement">New module</span> tab. A new module is created. From the <span class="UIelement">In</span> category of Nodes, add a <span class="UIelement">Dataset </span>Node to the module. To configure the <span class="UIelement">Dataset </span>Node, click on it and select <span class="UIelement">Configure</span>. Select the <span class="UIelement">winemag-data</span> dataset in the configuration panel and click <span class="UIelement">Save</span>. By default, the Node gets executed and the result set is displayed:</p>
+                                                <p>To read a dataset and process it, we need to create a module. In <span class="GeneralProductName3">Xcalar</span>, a module is a graphical representation of a series of operations performed on data. Each operation is represented by a graphical component called Node. To create a module, click the <span class="UIelement">Application Builder</span> icon in the sidebar and then click either the <span class="UIelement">Create new module</span> or the <span class="UIelement">New module</span> tab. A new module called <span class="UIelement">Module 1</span> is created.</p>
+                                                <p>Every module starts with a source Node, which brings the data into the module. Since we imported our data file into a dataset, let’s add a Dataset Node to the module and configure it to read the dataset we imported.</p>
+                                                <p>From the <span class="UIelement">In</span> category of Nodes, add a <span class="UIelement">Dataset </span>Node to the canvas. To configure the Dataset Node, click on it and select <span class="UIelement">Configure</span>. Select the winemag-data dataset in the configuration panel and click <span class="UIelement">Save</span>. By default, the Node gets executed and the result set is displayed:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/ts-dataset.png" />
                                                 </p>
-                                                <p>Scrolling through the result set shows that it has a description column containing the description of each wine. Let’s search the description column for a keyword.</p>
+                                                <p>Scroll through the result set and study the following columns of interest:</p>
+                                                <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                    <col class="TableStyle-SimpleTable-Column-Column2" style="width: 422px;" />
+                                                    <thead>
+                                                        <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Column name</th>
+                                                            <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Description</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>description </p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Contains the description of each wine.</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p>points </p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p class="tableParagraph">Contains the wine ratings.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">price </td>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">Contains the wine prices.</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <p>Let’s search the description column for a keyword.</p>
                                                 <h2 class="noPageBreak">3. Searching a column</h2>
-                                                <p><span class="GeneralProductName3">Xcalar</span> provides many different functions for searching text through the <span class="UIelement">Map </span>Node. From the <span class="UIelement">Column Ops</span> category of Nodes, drag and drop the <span class="UIelement">Map </span>Node into the canvas. Connect the output of the <span class="UIelement">Dataset </span>Node to the <span class="UIelement">Map </span>Node. To configure the <span class="UIelement">Map </span>Node, click on it and select <span class="UIelement">Configure</span>. A configuration panel opens up. To search for a keyword <span class="UIelement">cinnamon </span>in the description column, configure the <span class="UIelement">Map </span>Node as follows:</p>
+                                                <p><span class="GeneralProductName3">Xcalar</span> provides many different functions for searching strings through a Map operation. We will it to search for the word cinnamon in the description column. </p>
+                                                <p>From the <span class="UIelement">Column Ops</span> category of Nodes, drag and drop the <span class="UIelement">Map </span>Node into the canvas and connect it to the output of the Dataset Node. To configure the Map Node, click on it and select <span class="UIelement">Configure</span>. Fill in the configuration panel as follows:</p>
                                                 <p class="CLIoutput">Category: string</p>
                                                 <p class="CLIoutput">Function: find</p>
                                                 <p class="CLIoutput">String to search: $winemag_data::description </p>
@@ -217,19 +250,19 @@
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/ts-map-find1.png" />
                                                 </p>
-                                                <p>Save and execute the <span class="UIelement">Map</span> Node. A new result set is displayed with a new column called <span class="UIelement">cinnamon</span>. Notice that the column has many rows with value -1. These are the rows in which the word <span class="UIelement">cinnamon </span>was not found:</p>
+                                                <p>Save and execute the Node. A new result set is displayed with a new column called cinnamon. Notice that the column has many rows with value -1. These are the rows in which the word cinnamon was not found:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/ts-cinnamon-rs.png" />
                                                 </p>
                                                 <p>Let's exclude these rows.</p>
                                                 <h2 class="noPageBreak">4. Excluding rows</h2>
-                                                <p>In the result set, click on a cell with value -1, and select <span class="UIelement">Exclude this value</span>. Notice that a <span class="UIelement">Filter </span>Node is automatically added to the module and executed. A new result set is displayed with 3,555 rows with  the word <span class="UIelement">cinnamon </span>in all the descriptions:</p>
+                                                <p>In the result set, right click on a cell with value -1, and select <span class="UIelement">Exclude this value</span>. Notice that a <span class="UIelement">Filter </span>Node is automatically added to the module and executed. A new result set is displayed with 3,555 rows with  the word cinnamon in every description:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/ts-filter-cinnamon.png" />
                                                 </p>
                                                 <p>This was a simple one word search. Let's add another keyword to the search.</p>
-                                                <h2 class="noPageBreak">5. Searching multiple words in the text</h2>
-                                                <p>Let’s add another function to the same <span class="UIelement">Map </span>Node by clicking on <span class="UIelement">Apply Additional Functions</span>. Configure the newly added fields as follows:</p>
+                                                <h2 class="noPageBreak">5. Searching multiple words</h2>
+                                                <p>Let’s add another function to the same Map operation by clicking <span class="UIelement">Apply Additional Functions</span> in the configuration panel. Configure the newly added fields as follows:</p>
                                                 <p class="CLIoutput">Category: string</p>
                                                 <p class="CLIoutput">Function: find</p>
                                                 <p class="CLIoutput">String to search: $winemag_data::description </p>
@@ -237,8 +270,8 @@
                                                 <p class="CLIoutput">Starting index: 0 (search from the beginning)</p>
                                                 <p class="CLIoutput">Ending index: 0 (no end restriction)</p>
                                                 <p class="CLIoutput">New Resultant Column Name: ripe</p>
-                                                <p>Save and execute the Node. A new result set is displayed with two new columns - <span class="UIelement">cinnamon </span>and <span class="UIelement">ripe</span>. </p>
-                                                <p>Let's reconfigure our <span class="UIelement">Filter </span>Node to exclude all those rows which have -1 values in either of the two columns. Click <span class="UIelement">Additional Conditions</span> in the <span class="UIelement">Filter </span>Node configuration. Configure the newly added condition as follows: </p>
+                                                <p>Save and execute the Node. A new result set is displayed with one additional column called ripe. </p>
+                                                <p>Let's reconfigure the Filter Node to exclude all those rows which have -1 values in either of the two columns (cinnamon and ripe). Click <span class="UIelement">Additional Conditions</span> in the <span class="UIelement">Filter </span>Node configuration panel and configure the newly added fields as follows: </p>
                                                 <p class="CLIoutput">Filter Function: neq (not equal to)</p>
                                                 <p class="CLIoutput">Operand 1: $ripe</p>
                                                 <p class="CLIoutput">Operand 2: -1</p>
@@ -246,25 +279,25 @@
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/ts-double-filter.png" />
                                                 </p>
-                                                <p>Save and execute the Node and a new result is displayed with 765 rows. Notice that both the columns have no -1 values. </p>
+                                                <p>Save and execute the Node and a new result set is displayed with 765 rows. Notice that in the new result set, there are no -1 values in the cinnamon and ripe columns. </p>
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/ts-cinnamon-ripe-rs.png" />
                                                 </p>
-                                                <p>Now that we have reduced our dataset by searching for two keywords, let's make it more interesting by finding the wines that are rated very highly and have reasonable prices. </p>
+                                                <p>Now that we have reduced our dataset by searching for two keywords, let's make it more interesting by finding the wines that are rated very high and have reasonable prices. </p>
                                                 <h2 class="noPageBreak">6. Changing the data types</h2>
-                                                <p>The wine ratings are stored in the <span class="UIelement">points </span>column and the wine prices are stored in the <span class="UIelement">price </span>column. For convenience, let's drag and drop the <span class="UIelement">price </span>column next to the <span class="UIelement">points </span>column. If you look carefully at the data type of both columns in the column header, you will notice  that the <span class="UIelement">points </span>column is of type string (<img src="../../Resources/Images/Tutorials/ts-string.png" />) and the price column is of type mixed (<img src="../../Resources/Images/Tutorials/ts-mixed.png" />). A Mixed column is created when <span class="GeneralProductName3">Xcalar</span> is unable to detect the type of the column correctly at the time of import. </p>
+                                                <p>For convenience, let's drag and drop the price column next to the points column in the result set. If you look carefully at the data type of both columns in the column header, you will notice  that the points column is of type string (<img src="../../Resources/Images/Tutorials/ts-string.png" />) and the price column is of type mixed (<img src="../../Resources/Images/Tutorials/ts-mixed.png" />). A Mixed column is created when <span class="GeneralProductName3">Xcalar</span> is unable to detect the type of the column correctly at the time of import. </p>
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/ts-wrong-data-type.png" />
                                                 </p>
                                                 <p>Since we know that both these columns contain integer data, let's convert these column to integers so that we can apply simple numeric functions on them and find the wines we want. </p>
-                                                <p>Select both the columns and right click the column header and select <span class="UIelement">Change data type -&gt; Integer</span>. Notice that a <span class="UIelement">Cast </span>Node is added to the module and its configuration panel is open. The <span class="UIelement">points </span>and <span class="UIelement">price </span>columns are at the top of the panel displaying their <span class="UIelement">New Name</span> and <span class="UIelement">New Type</span>. If you want to change the data type of another column, you can click on another column name at the bottom of the panel and enter its <span class="UIelement">New Name</span> and <span class="UIelement">New Type</span>. We want to change the data type of <span class="UIelement">points </span>and <span class="UIelement">price </span>columns only. Click <span class="UIelement">Save </span>and execute the Node. </p>
-                                                <p>A new result set is displayed with <span class="UIelement">points </span>and <span class="UIelement">price </span>column types as Integer. </p>
+                                                <p>Select both the columns, right click the column header, and select <span class="UIelement">Change data type -&gt; Integer</span>. Notice that a <span class="UIelement">Cast </span>Node is added to the canvas and its configuration panel is open. The points and price columns are at the top of the panel displaying their <span class="UIelement">New Name</span> and <span class="UIelement">New Type</span>. If you want to change the data type of another column, you can click on another column name at the bottom of the panel and enter its new name and type. Click <span class="UIelement">Save </span>and execute the Node. </p>
+                                                <p>A new result set is displayed with points and price column type as integer. </p>
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/ts-correct-data-type.png" />
                                                 </p>
-                                                <p>We can now apply some numeric functions to filter the wine we want.</p>
+                                                <p>We can now apply numeric functions to filter the wines we want.</p>
                                                 <h3>7. Filtering rows</h3>
-                                                <p>From the <span class="UIelement">Row Ops</span> category of Nodes, add a <span class="UIelement">Filter</span>Node to the module and connect the <span class="UIelement">Cast</span> Node to the <span class="UIelement">Filter</span> Node. Configure the <span class="UIelement">Filter</span>Node as follows:</p>
+                                                <p>From the <span class="UIelement">Row Ops</span> category of Nodes, add a <span class="UIelement">Filter</span>Node to the canvas and connect it to the output of the last Node. Configure the FilterNode as follows:</p>
                                                 <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
                                                     <col class="TableStyle-SimpleTable-Column-Column1" />
                                                     <col class="TableStyle-SimpleTable-Column-Column2" />
@@ -309,8 +342,8 @@
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/ts-final-result.png" />
                                                 </p>
-                                                <p>You can play with the search keywords, <span class="UIelement">points</span>, and <span class="UIelement">price </span>columns and you will get different results. For example, if you replace the keyword <span class="UIelement">ripe </span>with <span class="UIelement">smooth</span>, you will get precisely one wine. </p>
-                                                <p>We have used the most basic search function in this tutorial but the <span class="UIelement">Map </span>Node provides all sorts of advanced search functions if you need to use them. </p>
+                                                <p>You can play with the search keywords, points, and price columns and you will get different results. For example, if you replace the keyword ripe with smooth, you will get precisely one wine. </p>
+                                                <p>We have used the most basic search function in this tutorial but the Map operation provides all sorts of advanced search functions if you need to use them. </p>
                                                 <h2 class="noPageBreak">Summary</h2>
                                                 <p>This tutorial touched upon the following topics:</p>
                                                 <ul>
@@ -323,7 +356,7 @@
                                                     <li value="7">Changing the data types</li>
                                                 </ul>
                                                 <p>For detailed information about these topics, see the online help for <span class="GeneralProductName3">Xcalar</span>.</p>
-                                                <p>The <span class="UIelement">TextSearch </span>application is available on the tutorial page of <span class="GeneralGUIName1">Xcalar Design</span>.</p>
+                                                <p>The TextSearch application is available on the tutorial page of <span class="GeneralGUIName1">Xcalar Design</span>.</p>
                                                 <p>&#160;</p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>

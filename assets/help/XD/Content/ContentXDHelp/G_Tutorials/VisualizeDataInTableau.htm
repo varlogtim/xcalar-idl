@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Visualizing an Xcalar table in Tableau</title>
+        <meta name="author" content="" /><title>Visualizing a Xcalar table in Tableau</title>
         <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -188,24 +188,25 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" role="navigation" aria-label="Breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1>Visualizing an <span class="GeneralProductName3">Xcalar</span> table in Tableau</h1>
-                                                <p>Many times, after you have processed your data in <span class="GeneralProductName3">Xcalar</span>, you want to visualize it using specialized Business Intelligence (BI) software like Tableau. This tutorial shows how you can write an application in <span class="GeneralProductName3">Xcalar</span> so that it's result set is accessible from Tableau.</p>
-                                                <p>The first step in creating an application in <span class="GeneralProductName3">Xcalar</span> is to create a project. A project is a container where you create, design, troubleshoot, and execute your application. Open <span class="GeneralGUIName1">Xcalar Design</span> in a browser and log in. Create a new project called <span class="UIelement">VisualizeDataInTableau</span>and open it by clicking on the project card.</p>
+                                                <h1>Visualizing a <span class="GeneralProductName3">Xcalar</span> table in Tableau</h1>
+                                                <p>After you have processed your data in <span class="GeneralProductName3">Xcalar</span>, many times, you may want to visualize it using specialized Business Intelligence (BI) software like Tableau. This tutorial shows how you can write an application in <span class="GeneralProductName3">Xcalar</span> so that its result set is accessible from Tableau.</p>
+                                                <p>The first step in creating an application in <span class="GeneralProductName3">Xcalar</span> is to create a project. A project is a container where you create, design, troubleshoot, and execute your application. Open <span class="GeneralGUIName1">Xcalar Design</span> in a browser and log in. Create a new project called VisualizeDataInTableau and open it by clicking on its project card.</p>
                                                 <p><span class="GeneralProductName3">Xcalar</span> has two modes - the SQL Mode and the Developer Mode. In SQL Mode, you develop your queries using the SQL query statements and user-defined functions (UDFs) written in Python. In Developer Mode, you develop your applications using visual components, SQL query statements, and UDFs written in Python.</p>
-                                                <p>We will be using visual components in this application; therefore, we will work in Developer Mode. If you are not in Developer Mode, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to <span class="UIelement">Developer Mode</span>.</p>
-                                                <p>Next, we will import the wine reviews file (winemag-data.json) into <span class="GeneralProductName3">Xcalar</span>. If you have already created a dataset using this file, skip to the second step. </p>
+                                                <p>We will be using visual components in this application; therefore, we will work in Developer Mode. If you are not in Developer Mode, click the mode switch to <span class="UIelement">Developer Mode</span> in the top menu bar.</p>
+                                                <p>Next, we will import the wine reviews file (winemag-data.json) into <span class="GeneralProductName3">Xcalar</span>. If you have already imported this file into a dataset, skip to the second step. </p>
                                                 <h2 class="noPageBreak">1. Importing the wine reviews file</h2>
-                                                <p>To import the wine reviews file, click on the <span class="UIelement">Sources </span>icon in the sidebar and then in the <span class="UIelement">Datasets </span>panel, click <span class="UIelement">Import data Source</span>. Since our file resides on <span class="GeneralProductName3">Xcalar</span>’s public S3 bucket (/xcmarketplace-us-east-1/tutorial-datasets/), for the <span class="UIelement">Connector</span>, select <span class="UIelement">Public S3</span> and in the <span class="UIelement">Data Source Path</span>, enter <code>/xcmarketplace-us-east-1/tutorial-datasets/</code>. Click <span class="UIelement">Browse </span>to browse the directory structure and select winemag-data.json. Click <span class="UIelement">Next </span>to preview the file.</p>
-                                                <p><span class="GeneralProductName3">Xcalar</span> automatically detects the format of the file and displays its preview. Since this is a simple json file, we don't need to pull out any nested fields. Let's accept all default options and click <span class="UIelement">Create Dataset</span>. The dataset winemag-data is created with 129,971 rows and 13 columns. The next step is to read the dataset into a module.</p>
+                                                <p>To import the wine reviews file into <span class="GeneralProductName3">Xcalar</span>, click on the <span class="UIelement">Sources</span> icon in the sidebar, and then click <span class="UIelement">Import Data Source</span> in the <span class="UIelement">Datasets </span>panel. Since our file resides on <span class="GeneralProductName3">Xcalar</span>’s public S3 bucket, select <span class="UIelement">Public S3</span> as the <span class="UIelement">Connector</span>, and enter /xcmarketplace-us-east-1/tutorial-datasets/ as the <span class="UIelement">Data Source Path</span>. Click <span class="UIelement">Browse </span>to browse the directory structure and select winemag-data.json. Click <span class="UIelement">Next </span>to preview the file.</p>
+                                                <p><span class="GeneralProductName3">Xcalar</span> automatically detects the format of the file and displays its preview. Since this is a simple json file, we don't need to pull out any nested fields. Accept all default options and click <span class="UIelement">Create Dataset</span>. A dataset called winemag-data is created with 129,971 rows and 13 columns. The next step is to read the dataset.</p>
                                                 <h2 class="noPageBreak">2. Creating a module and reading the dataset</h2>
-                                                <p>To read the dataset, we need to create a module. In <span class="GeneralProductName3">Xcalar</span>, a module is a graphical representation of a series of operations performed on data. Each operation is represented by a graphical component called Node.</p>
-                                                <p>To create a module, click on the <span class="UIelement">Application Builder</span> icon in the sidebar and click <span class="UIelement">Create new module</span> or <span class="UIelement">New module</span> tab. A new module is created. From the <span class="UIelement">In</span> category of Nodes, add a <span class="UIelement">Dataset </span>Node to the module. To configure the <span class="UIelement">Dataset </span>Node, click it and select <span class="UIelement">Configure</span>. Select the <span class="UIelement">winemag-data</span> dataset in the configuration panel and click <span class="UIelement">Save</span>. By default, the Node gets executed and the result set is displayed:</p>
+                                                <p>To read the dataset, we need to create a module. In <span class="GeneralProductName3">Xcalar</span>, a module is a graphical representation of a series of operations performed on data. Each operation is represented by a graphical component called Node. To create a module, click the <span class="UIelement">Application Builder</span> icon in the sidebar and then click either the <span class="UIelement">Create new module</span> or the <span class="UIelement">New module</span> tab. A new module called <span class="UIelement">Module 1</span> is created.</p>
+                                                <p>Every module starts with a source Node, which brings the data into the module. Since we imported our data file into a dataset, let’s add a Dataset Node to the module and configure it to read the dataset we imported.</p>
+                                                <p>From the <span class="UIelement">In</span> category of Nodes, add a <span class="UIelement">Dataset </span>Node to the canvas. To configure the Node, click on it and select <span class="UIelement">Configure</span>. Select the winemag-data dataset in the configuration panel and click <span class="UIelement">Save</span>. By default, the Node gets executed and the result set is displayed:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/xp-dataset.png" />
                                                 </p>
-                                                <p>Next, we will group the wines by their ratings, stored in the <span class="UIelement">points </span>column.</p>
+                                                <p>Next, we will group the wines by their ratings, stored in the points column.</p>
                                                 <h2 class="noPageBreak">3. Grouping rows</h2>
-                                                <p>To group the wines by their ratings, right click the <span class="UIelement">points </span>column header and select <span class="UIelement">Group By</span>. A <span class="UIelement">Group By</span> Node is added to the canvas and its configuration panel opens up. Configure the Node as follows:</p>
+                                                <p>To group the wines by their ratings, right click the points column header and select <span class="UIelement">Group By</span>. A Group By Node is added to the canvas and its configuration panel opens up. Configure the Node as follows:</p>
                                                 <p class="CLIoutput">Fields to group on: $winemag_data::points</p>
                                                 <p class="CLIoutput">Function to apply to group: count</p>
                                                 <p class="CLIoutput">Field name to count occurrences of: $winemag_data::title</p>
@@ -215,29 +216,29 @@
                                                     <img src="../../Resources/Images/Tutorials/xp-group-by-result.png" />
                                                 </p>
                                                 <h2 class="noPageBreak">4. Changing data types</h2>
-                                                <p>If you look carefully at the data type of each column in the column header, you will notice that the <span class="UIelement">points </span>column is of type string (<img src="../../Resources/Images/Tutorials/ts-string.png" />). Let's convert it to integer by right clicking the <span class="UIelement">points </span>column header and selecting <span class="UIelement">Change data type -&gt; Integer</span>. A <span class="UIelement">Cast </span>Node is added to the canvas and it's configuration panel is displayed. The <span class="UIelement">points </span>column is at the top of the panel displaying a <span class="UIelement">New Name</span> and <span class="UIelement">New Type</span>. If you want to change the data type of another column, you can click on another column name at the bottom of the panel and enter its <span class="UIelement">New Name</span> and <span class="UIelement">New Type</span>. We want to change the data type of <span class="UIelement">points </span>column only. </p>
+                                                <p>If you look carefully at the data type of each column in the column header, you will notice that the points column is of type string (<img src="../../Resources/Images/Tutorials/ts-string.png" />). To visualize this result set, we may need to convert this column to integer. Right click on the points column header and select <span class="UIelement">Change data type -&gt; Integer</span>. A <span class="UIelement">Cast </span>Node is added to the canvas and it's configuration panel is displayed. The points column is at the top of the panel showing a <span class="UIelement">New Name</span> and <span class="UIelement">New Type</span>:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/xp-cast-config.png" />
                                                 </p>
                                                 <p>Click <span class="UIelement">Save </span>and execute the Node. </p>
-                                                <p>A new result set is displayed with <span class="UIelement">points </span>column as Integer. </p>
+                                                <p>A new result set is displayed with points column as integer. </p>
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/xp-cast-result.png" />
                                                 </p>
                                                 <h2 class="noPageBreak">5. Saving the result set as a table</h2>
                                                 <p>To ensure a seamless client-side application compatibility, <span class="GeneralProductName3">Xcalar</span> emulates the Spark Java Database Connectivity (JDBC) and Open Database Connectivity (ODBC) server protocols. Therefore, any BI software that supports JDBC or ODBC can access <span class="GeneralProductName3">Xcalar</span> as long as the data is stored in standard tables. </p>
-                                                <p>To save our result set in a table, from the <span class="UIelement">Out </span>category of Nodes, drag an ddrop the <span class="UIelement">Publish Table</span> Node to the canvas. Connect the <span class="UIelement">Cast </span>Node to the <span class="UIelement">Publish Table </span>Node. To configure the <span class="UIelement">Publish Table</span> Node, click on it and select <span class="UIelement">Configure</span>. In the configuration panel, enter a table name and check <span class="UIelement">Select All</span>.  Leave other fields as default. </p>
+                                                <p>To save our result set in a table, from the <span class="UIelement">Out </span>category of Nodes, drag and drop the <span class="UIelement">Publish Table</span> Node to the canvas and connect it to the  Cast Node. To configure the <span class="UIelement">Publish Table</span> Node, click on it and select <span class="UIelement">Configure</span>. In the configuration panel, enter a table name and check <span class="UIelement">Select All</span>.  Leave other fields as default. </p>
                                                 <div class="Note"><span class="label">NOTE:</span> <span class="GeneralProductName3">Xcalar</span> automatically converts the name of the table to the upper case.</div>
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/xt-xcalar-tableau.png" />
                                                 </p>
                                                 <p>Save and execute the Node. The WINE_RATINGS table is created. </p>
-                                                <p>To verify, from the sidebar, click on the <span class="UIelement">Sources </span>icon, and then the <span class="UIelement">Tables </span>icon. The <span class="UIelement">Tables </span>panel gets displayed. Look for WINE_RATINGS and click on it to see its preview:</p>
+                                                <p>To verify the table, click the <span class="UIelement">Sources </span>icon, and then the <span class="UIelement">Tables </span>icon in the sidebar. The Tables panel opens up. Look for WINE_RATINGS table and click on it to see its preview:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/xt-table.png" />
                                                 </p>
-                                                <h2 class="noPageBreak">5. Visualizing an <span class="GeneralProductName3">Xcalar</span> table in Tableau</h2>
-                                                <p>To visualize an <span class="GeneralProductName3">Xcalar</span> table in Tableau, you need to connect to an <span class="GeneralProductName3">Xcalar</span> instance and then select the table of interest.</p>
+                                                <h2 class="noPageBreak">5. Visualizing a <span class="GeneralProductName3">Xcalar</span> table in Tableau</h2>
+                                                <p>To visualize a <span class="GeneralProductName3">Xcalar</span> table in Tableau, you need to connect to a <span class="GeneralProductName3">Xcalar</span> instance  from Tableau, and then select the table of interest.</p>
                                                 <h3>Configuring Tableau to work with <span class="GeneralProductName3">Xcalar</span></h3>
                                                 <ol style="list-style-type: lower-alpha;">
                                                     <li value="1">Open Tableau desktop</li>
@@ -265,7 +266,7 @@
                                                     </li>
                                                     <li value="3">Drag the WINE_RATINGS table to the canvas, and then select the sheet tab to view or start analysis.</li>
                                                     <li value="4">
-                                                        <p>Here is a sample graph using WINE_RATINGS table in Tableau:</p>
+                                                        <p>Here is a sample graph for WINE_RATINGS table in Tableau:</p>
                                                         <p>
                                                             <img src="../../Resources/Images/Tutorials/xt-tableau-graph.png" />
                                                         </p>
@@ -276,12 +277,11 @@
                                                 <ul>
                                                     <li value="1">Grouping rows</li>
                                                     <li value="2">Saving a result set to a table</li>
-                                                    <li value="3">Connecting Tableau desktop to an <span class="GeneralProductName3">Xcalar</span> instance</li>
-                                                    <li value="4">Viewing <span class="GeneralProductName3">Xcalar</span> tables in Tableau</li>
-                                                    <li value="5">Visualizing <span class="GeneralProductName3">Xcalar</span> tables in Tableau</li>
+                                                    <li value="3">Connecting Tableau desktop to a <span class="GeneralProductName3">Xcalar</span> instance</li>
+                                                    <li value="4">Visualizing <span class="GeneralProductName3">Xcalar</span> tables in Tableau</li>
                                                 </ul>
                                                 <p>For detailed information about these topics, see the  online help for <span class="GeneralProductName3">Xcalar</span>.</p>
-                                                <p>The <span class="UIelement">VisualizeDataInTableau </span>application is available on the tutorial page of <span class="GeneralGUIName1">Xcalar Design</span>.</p>
+                                                <p>The VisualizeDataInTableau application is available on the tutorial page of <span class="GeneralGUIName1">Xcalar Design</span>.</p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

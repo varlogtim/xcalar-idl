@@ -197,28 +197,28 @@
                                                 </ol>
                                                 <p>This tutorial focuses on the second and third parts - Training and running predictive analysis.</p>
                                                 <h2 class="noPageBreak">Challenge</h2>
-                                                <p>There are many tools available in the market for developing the ML models. The problem arises while applying those models on a huge amount of data to produce reliable and quick results consistently.</p>
+                                                <p>There are many tools available in the market for developing ML models. The problem arises while applying those models on a huge amount of data to produce reliable and quick results consistently.</p>
                                                 <h2 class="noPageBreak">Solution</h2>
-                                                <p><span class="GeneralProductName3">Xcalar</span> provides a cloud-scale platform for executing your ML jobs on big data in minutes rather than in hours. The combination of visual tools, SQL and Python for cleaning and transforming the data requires minimal or no learning period.</p>
+                                                <p><span class="GeneralProductName3">Xcalar</span> provides a cloud-scale platform for executing your ML jobs on big data in minutes rather than in hours. The combination of visual tools, SQL, and Python for cleaning and transforming the data requires minimal or no learning period.</p>
                                                 <h2 class="noPageBreak">Objective</h2>
                                                 <p>The publicly available Crunchbase funding data contains the funding information about 66k companies. It includes information like their current status, total funding, first funding date, last funding date, etc. </p>
-                                                <p>In part 1 of this tutorial, we created a project called <span class="UIelement">MachineLearning</span> and a module named <span class="UIelement">Module 1</span>. In that module we cleaned and extracted the companies data for training our ML model and for running the predictive analysis. </p>
+                                                <p>In part 1 of this tutorial, we created a project called MachineLearning and a module named <span class="UIelement">Module 1</span>. In that module we cleaned and extracted the companies data for training an ML model and for running the predictive analysis. </p>
                                                 <p>In this tutorial we will train our ML model and run predictive analysis on those clean data sets.</p>
                                                 <h2 class="noPageBreak">Pre-requisites</h2>
-                                                <p>You have already completed <span class="UIelement">Writing a machine learning application - part 1</span> tutorial.</p>
+                                                <p>You have already completed the <a href="MachineLearningPart1.htm" class="MCXref xref" xrefformat="{para}">Writing a machine learning application - part 1</a>.</p>
                                                 <h2 class="noPageBreak">Understanding the ML training process</h2>
                                                 <p>In simple words, training an ML model means feeding the training data to an ML algorithm for learning the patterns between the input and the output attributes. The training data must contain the correct output for each set of inputs.</p>
                                                 <p>The attribute you want to predict is called a target or a label and the attributes that you want to use as input are called features. The algorithm finds patterns between the features and the target, known as fitting a model, and saves those patterns in the form of an ML model.</p>
                                                 <h2 class="noPageBreak">1. Writing the training algorithm</h2>
                                                 <p>We will write our training algorithm in Python. In <span class="GeneralProductName3">Xcalar</span>, the Python code is written as a user-defined function (UDF). UDFs can be of two types:</p>
-                                                <p><span class="UIelement">Map UDF</span> - When you need to use Python to convert your column data into custom values, you can write a Map UDF, and specify it as a Map function in a Map operation. </p>
-                                                <p><span class="UIelement">Import UDF</span> - When your source data requires custom processing during an import, you can use an import UDF to parse the data.</p>
-                                                <p>Since we have to generate a single ML model by processing the whole training data, we will use an import UDF.</p>
-                                                <p>Open the <span class="UIelement">MachineLearning</span> project and then <span class="UIelement">Module 1</span>. To create an import UDF, from the sidebar, click on the <span class="UIelement">UDF </span>icon. The UDF panel opens up. Copy and paste the following sample ML training code for our tutorial. The comments explain each line of code.</p>
+                                                <p>Map UDF - When you need to apply a function on your column data, you can write a Map UDF and specify it as a function in a Map operation. This creates a new column.</p>
+                                                <p>Import UDF - When your source data requires custom processing during an import, you can use an import UDF to parse and process the data.</p>
+                                                <p>Since we have to generate an ML model by processing the whole training data, we will use an import UDF.</p>
+                                                <p>Open the MachineLearning project. Duplicate <span class="UIelement">Module 1</span> and rename it to <span class="UIelement">Module 2</span>. To create an import UDF, click on the <span class="UIelement">UDF </span>icon in the sidebar. The UDF panel opens up. Copy and paste the following sample ML training code for our tutorial. The comments explain each line of code.</p>
                                                 <div class="Code"># fullPath and inStream are the default arguments in an import UDF</div>
                                                 <div class="Code"># fullPath contains the path of the file to read</div>
                                                 <div class="Code"># inStream contains the input stream of the file content</div>
-                                                <div class="Code">def fn_training(fullPath, inStream):</div>
+                                                <div class="Code">def train_model(fullPath, inStream):</div>
                                                 <div class="Code"># NumPy is the fundamental library for scientific computing in Python.</div>
                                                 <div class="Code">import numpy as np</div>
                                                 <div class="Code">&#160;</div>
@@ -275,44 +275,46 @@
                                                 <div class="Code"># Yield the output string</div>
                                                 <div class="Code">yield {"Result": ret_str}</div>
                                                 <p>Save the UDF as ml_training.py. You can replace the code within this function with your own ML training code. Make sure that the module contains all the imports and all the helper functions.</p>
-                                                <h2 class="noPageBreak">2. Applying the import UDF to train the ML model</h2>
-                                                <p>Now that we have written our training code as an import UDF, we need to import the training data. From the sidebar, click the <span class="UIelement">Sources </span>icon and then the <span class="UIelement">Import Data Source</span>. Select the appropriate connector and browse the source to select the ‘/mnt/xcalar/export/ml_training_data.csv’ file saved in <span class="UIelement">Writing a machine learning application - part 1</span>.</p>
-                                                <p>In the Format page select the following options to use the import UDF we wrote in the previous step:</p>
+                                                <p>In the next step, we will use the import UDF.</p>
+                                                <h2 class="noPageBreak">2. Using the import UDF to train the ML model</h2>
+                                                <p>To generate the ML model, we will import our training data using the import UDF. Click the <span class="UIelement">Sources </span>icon in the sidebar and then the <span class="UIelement">Import Data Source</span> in the Datasets panel. Select <span class="UIelement">Tutorial Export</span> as the Connector because that's where we saved our training data in part 1 of this tutorial. Browse the source to select the training data file (ml_training.csv) and click <span class="UIelement">Next</span>.</p>
+                                                <p><span class="GeneralProductName3">Xcalar</span> automatically detects the format of the file and shows its preview. In the Format page select the following options to use the import UDF:</p>
                                                 <p class="CLIoutput">Format: Custom Format</p>
                                                 <p class="CLIoutput">Module: ml_training</p>
-                                                <p class="CLIoutput">Function: fn_training</p>
+                                                <p class="CLIoutput">Function: train_model</p>
                                                 <p>Click <span class="UIelement">Apply UDF</span>.</p>
                                                 <p>
-                                                    <img src="../../Resources/Images/Tutorials/ml-using-import-udf.png" />
+                                                    <img src="../../Resources/Images/Tutorials/ml-import-udf.png" />
                                                 </p>
-                                                <p>The file data is read and passed to the import UDF ml_training:fn_training. The function code trains the model, saves it in ‘/mnt/xcalar/export/ml_model_obj’, and outputs the training and the testing accuracy details:</p>
+                                                <p>The file data is read and passed through the import UDF. The UDF code trains the model, saves it in ml_model_obj, and displays the training and the testing accuracy details:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/ml-import-udf-result.png" />
                                                 </p>
                                                 <p>At this point, if you are satisfied with the training and testing accuracy, you can use the saved ML model for predictive analysis. Otherwise, update your UDF code as per your needs and train the model again.</p>
-                                                <h2 class="noPageBreak">3. Writing Python code for predictive analysis in Jupyter Notebook</h2>
+                                                <p>The next step is to test your predictive analysis code in Jupyter Notebook. If you do not need to test your code, you can skip the next step.</p>
+                                                <h2 class="noPageBreak">3. Testing Python code for predictive analysis in Jupyter Notebook</h2>
                                                 <p>Jupyter Notebook is an open-source web application that allows you to create and share documents that contain live code, equations, visualizations, and narrative text. <span class="GeneralProductName3">Xcalar</span> includes Jupyter Notebook interactive development environment. </p>
-                                                <p>To open Jupyter Notebook from <span class="GeneralProductName3">Xcalar</span>, click the Jupyter Notebook icon in the sidebar. <span class="GeneralProductName3">Xcalar</span> fills in some basic Python code in the first cell of the Jupyter Notebook to connect the current <span class="GeneralProductName3">Xcalar</span> project to the newly created Jupyter Notebook. For our purposes, we don’t need this code.</p>
+                                                <p>To open Jupyter Notebook from <span class="GeneralProductName3">Xcalar</span>, click the <span class="UIelement">Jupyter Notebook</span> icon in the sidebar. <span class="GeneralProductName3">Xcalar</span> fills in some basic Python code in the first cell of the Jupyter Notebook to connect the current <span class="GeneralProductName3">Xcalar</span> project to the newly created Jupyter Notebook. For our purposes, we don’t need this code.</p>
                                                 <p>Create an empty cell in the Jupyter Notebook and paste your machine learning code for predictive analysis in that cell.</p>
-                                                <p>Here is a <span class="UIelement">sample</span> function called predict which runs the predictive analysis on a company’s funding data:</p>
+                                                <p>Here is a sample function called predict which runs the predictive analysis on a company’s funding data:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Usecases/uc2-jn-code.png" />
                                                 </p>
-                                                <p>The predict function reads the model we trained in the previous step from a file (/mnt/xcalar/export/ml_model.obj). The code then calls the standard predict_proba function on the trained model and returns the probability of each of the three possible outcomes for a company.</p>
+                                                <p>The predict function reads the model we trained in the previous step from ml_model.obj file. The code then calls the standard predict_proba function on the trained model and returns the probability of each of the three possible outcomes for a company.</p>
                                                 <p>To test this function, the code calls the predict function with some random funding data and gets the following output:</p>
                                                 <p><code>acquired: 0.140  closed: 0.630  ipo: 0.230</code>
                                                 </p>
-                                                <p>The result shows that for this company, the probability of being acquired is 14%, the probability for its closing is 63% and the probability for going public is 23%.</p>
+                                                <p>The result shows that for this test company, the probability of being acquired is 14%, the probability for its closing is 63% and the probability for going public is 23%.</p>
                                                 <p>The advantage of the integrated Jupyter Notebook is that you can make changes to your Python code and see the results interactively without ever leaving <span class="GeneralProductName3">Xcalar</span>. Once you are satisfied with your results we can create a Map UDF with this code.</p>
                                                 <h2 class="noPageBreak">4. Creating a Map UDF for predictive analysis</h2>
-                                                <p>Click the <span class="UIelement">UDF</span> icon in the sidebar to bring up the UDF panel. Copy and paste your Python code from previous step in the UDF panel. The code should be complete with all the imports and helper functions and should be able to access your trained model. Save the UDF and give it a name, for example, ml_predict.py. The function predict in this UDF module is accessible as <span class="UIelement">ml_predict:predict</span>.</p>
+                                                <p>Click the <span class="UIelement">UDF</span> icon in the sidebar to bring up the UDF panel. Copy and paste your Python code from the previous step in the UDF panel. The code should be complete with all the imports and helper functions and should be able to access your trained model. Save the UDF and give it a name - ml_prediction.py. The function predict in this UDF module is accessible as ml_prediction:predict.</p>
                                                 <p>
-                                                    <img src="../../Resources/Images/Usecases/uc2-udf-predict.png" />
+                                                    <img src="../../Resources/Images/Tutorials/ml-prediction-udf-code.png" />
                                                 </p>
                                                 <h2 class="noPageBreak">5. Using the Map UDF for predictive analysis</h2>
-                                                <p>The output of Node 11 (<span class="UIelement">SQL </span>Node) contains the companies for whom we want to predict the future outcome. To apply the Map UDF for predictive analysis to the result set of Node 11, add a <span class="UIelement">Map</span> Node to the module and connect the output of Node 11 to this <span class="UIelement">Map</span> Node. Configure the Map Node as follows:</p>
+                                                <p>The output of <span class="UIelement">Node 11</span> (SQL Node) contains the companies for whom we want to predict the future outcome. To apply the Map UDF, add a <span class="UIelement">Map</span> Node to the canvas and connect it to the output of <span class="UIelement">Node 11</span>. Configure the Map Node as follows:</p>
                                                 <p class="CLIoutput">Category: user-defined</p>
-                                                <p class="CLIoutput">Function: ml_predict:predict</p>
+                                                <p class="CLIoutput">Function: ml_prediction:predict</p>
                                                 <p class="CLIoutput">total_funding:  $FUNDING_TOTAL_USD</p>
                                                 <p class="CLIoutput">total_rounds: $FUNDING_ROUNDS</p>
                                                 <p class="CLIoutput">age: $AGE</p>
@@ -320,9 +322,9 @@
                                                 <p class="CLIoutput">months_first_funding: $MON_SINCE_FIRST_FUND</p>
                                                 <p class="CLIoutput">New Resultant Column Name: RESULT</p>
                                                 <p>
-                                                    <img src="../../Resources/Images/Usecases/uc2-map-predict-udf.png" />
+                                                    <img src="../../Resources/Images/Tutorials/ml-map-udf.png" />
                                                 </p>
-                                                <p>Save and execute the Node. The Map UDF, containing the predictive analysis code is executed for each row and a new column named RESULT is added to the results with the probability prediction for each of the companies:</p>
+                                                <p>Save and execute the Node. The Map UDF, is executed for each row and the new column RESULT shows the prediction for each of the companies:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Usecases/uc2-final-result.png" />
                                                 </p>
@@ -333,8 +335,8 @@
                                                     <li value="2">Using Jupyter Notebook integrated with <span class="GeneralProductName3">Xcalar</span></li>
                                                     <li value="3">Writing and using a Map UDF</li>
                                                 </ul>
-                                                <p>For detailed information about these topics, see the online help for Xcalar.</p>
-                                                <p>The <span class="UIelement">MachineLearning </span>application is available on the tutorial page of <span class="GeneralGUIName1">Xcalar Design</span>.</p>
+                                                <p>For detailed information about these topics, see the online help for <span class="GeneralProductName3">Xcalar</span>.</p>
+                                                <p>The MachineLearning application is available on the tutorial page of <span class="GeneralGUIName1">Xcalar Design</span>. </p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

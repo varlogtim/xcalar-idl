@@ -189,48 +189,50 @@
                                                     </div>
                                                 </div>
                                                 <h1>How to write a custom import parser</h1>
-                                                <p>If you want to import some data, which is not natively supported by <span class="GeneralProductName3">Xcalar</span>, you can write an import parser in Python to parse the data as per your requirements and use that parser during the import process. This tutorial shows you how to write a custom import parser in <span class="GeneralProductName3">Xcalar</span>. </p>
+                                                <p>If you want to import some data, which is not natively supported by <span class="GeneralProductName3">Xcalar</span>, you can write an import parser in Python to parse the data as per your requirements and use that parser during the import process. This tutorial shows how you can write a custom import parser in <span class="GeneralProductName3">Xcalar</span>. </p>
                                                 <p>Suppose you have a data file with student scores in Maths, Science and English:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/ip-original-data.png" />
                                                 </p>
-                                                <p>You need to compute the GPA of the students based on their grades in the three subjects. However, if you import this file in <span class="GeneralProductName3">Xcalar</span> using the default CSV parser, the output looks like this:</p>
+                                                <p>You need to compute the GPA of the students based on their grades in the three subjects. However, if you import this file into <span class="GeneralProductName3">Xcalar</span> using the default CSV parser, the output looks like this:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/ip-default-import.png" />
                                                 </p>
-                                                <p>The third column contains all the grades. To calculate the GPA, you need to separate out the grades. There are multiple ways of doing this in <span class="GeneralProductName3">Xcalar</span> and one of the ways is to write a custom import parser, which reads each line of the file and separates out the grades. </p>
-                                                <p>By the end of this tutorial, your data will look like this:</p>
+                                                <p>The third column contains all the three grades. To calculate the GPA, you need to separate out the grades. There are multiple ways of separating the grades and one of the ways is to write a custom import parser. </p>
+                                                <p>By the end of this tutorial, your dataset will look like this:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/ip-final-result.png" />
                                                 </p>
                                                 <h2 class="noPageBreak">1. Creating a project</h2>
-                                                <p>The first step in creating an application in <span class="GeneralProductName3">Xcalar</span> is to create a project. A project is a container where you create, design, troubleshoot, and execute your application. Open <span class="GeneralGUIName1">Xcalar Design</span> in a browser and log in. Create a new project called <span class="UIelement">ImportParser </span>and open it by clicking on the project card.</p>
+                                                <p>The first step in creating an application in <span class="GeneralProductName3">Xcalar</span> is to create a project. A project is a container where you create, design, troubleshoot, and execute your application. Open <span class="GeneralGUIName1">Xcalar Design</span> in a browser and log in. Create a new project called ImportParser and open it by clicking on its project card.</p>
                                                 <p><span class="GeneralProductName3">Xcalar</span> has two modes - the SQL Mode and the Developer Mode. In SQL Mode, you develop your applications using SQL query statements and user-defined functions (UDFs) written in Python. In Developer Mode, you develop your applications using visual components, SQL query statements, and UDFs written in Python.</p>
-                                                <p>We will be using visual components and Python in this application; therefore, we will work in Developer Mode. If you are not in Developer Mode, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to <span class="UIelement">Developer Mode</span>.</p>
+                                                <p>We will be using visual components and Python in this application; therefore, we will work in Developer Mode. If you are not in Developer Mode, click the mode switch to <span class="UIelement">Developer Mode</span> in the top menu bar.</p>
+                                                <p>The next step is to write the import parser.</p>
                                                 <h2 class="noPageBreak">2. Writing the import parser code</h2>
                                                 <p>In <span class="GeneralProductName3">Xcalar</span>, the parsers are written in Python using the user-defined function (UDF) framework. UDFs can be of two types:</p>
-                                                <p><span class="UIelement">Map UDF</span> - When you need to use Python to convert your column data into custom values, you can write a Map UDF, and specify it as a Map function in a Map operation. </p>
-                                                <p><span class="UIelement">Import UDF</span> - When your source data requires custom processing during an import, you can use an import UDF to process the data.</p>
-                                                <p>Since we need to do a custom import, we will write an import UDF. </p>
-                                                <p>In the import UDF, you can use as many parameters as needed but the first two parameters must be <span class="UIelement">fullPath</span> and <span class="UIelement">inStream</span>, where <span class="UIelement">fullPath</span> is the full pathname of the data source and <span class="UIelement">inStream</span> is the input stream of the content of the data source.</p>
+                                                <p>Map UDF - When you need to apply a function on your column data, you can write a Map UDF and specify it as a function in a Map operation. </p>
+                                                <p>Import UDF - When your source data requires custom processing during an import, you can use an import UDF to parse the data.</p>
+                                                <p>Since this application requires custom processing during the import, we will write an import UDF.</p>
+                                                <p>In the import UDF, you can use as many parameters as you need but the first two parameters must be fullPath and inStream, where fullPath is the full pathname of the data source and inStream is the input stream of the content of the data source.</p>
                                                 <p>In our example, the import UDF code logic will be:</p>
                                                 <ol>
                                                     <li value="1">Create an empty dictionary.</li>
-                                                    <li value="2">Read a line from <span class="UIelement">inStream</span>.</li>
+                                                    <li value="2">Read a line from inStream.</li>
                                                     <li value="3">Split the line using the | character.</li>
                                                     <li value="4">The first split value contains the school name, add that to the dictionary with <span class="UIelement">School Name</span> as the key.</li>
                                                     <li value="5">The second split value contains the student name, add that to the dictionary with <span class="UIelement">Student Name</span> as the key.</li>
                                                     <li value="6">The third split value contains all the three grades separated by space.<ol style="list-style-type: lower-alpha;"><li value="1">Split the third value again into 3 grades.</li><li value="2">Save each grade in the dictionary using the first letter as the key.</li></ol></li>
                                                     <li value="7">Repeat steps 2 to 6 till EOF.</li>
                                                 </ol>
-                                                <p><span class="GeneralProductName3">Xcalar</span> provides a simple UDF panel to code the UDF. Click on the <span class="UIelement">UDF</span> icon in the sidebar to open the UDF panel. In the UDF Panel, select <span class="UIelement">New Module</span> in the drop-down and enter the following code for our tutorial:</p>
+                                                <p><span class="GeneralProductName3">Xcalar</span> provides a simple UDF panel to code the UDF. To open the UDF panel, click the <span class="UIelement">UDF</span> icon in the sidebar. Select <span class="UIelement">New Module</span> in the drop-down and enter the following code for our tutorial:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/ip-udf.png" />
                                                 </p>
-                                                <p>Click the <span class="UIelement">Save </span>icon on the <span class="UIelement">UDF panel</span>. A <span class="UIelement">Save As</span> modal is displayed. Enter the module name (import_parser.py) and click <span class="UIelement">Save</span>. The function <span class="UIelement">parse_scores</span> in the python module <span class="UIelement">import_parser.py</span> is now accessible as <span class="UIelement">import_parser:parse_scores</span>.</p>
+                                                <p>Click the <span class="UIelement">Save </span>icon on the UDF panel. A <span class="UIelement">Save As</span> modal is displayed. Enter the module name (import_parser.py) and click <span class="UIelement">Save</span>. The function parse_scores in the python module import_parser.py is now accessible as import_parser:parse_scores.</p>
+                                                <p>The next step is to apply the import UDF during the import.</p>
                                                 <h2 class="noPageBreak">3. Applying the import UDF</h2>
-                                                <p>Let’s apply the import UDF on input data during the import. Click on the <span class="UIelement">Sources</span> tab and then the <span class="UIelement">Import Data Source</span> in the Datasets panel. Since our file resides on <span class="GeneralProductName3">Xcalar</span>’s public S3 bucket (/xcmarketplace-us-east-1/tutorial-datasets/), for the <span class="UIelement">Connector</span>, select <span class="UIelement">Public S3</span> and for the <span class="UIelement">Data Source Path</span>, enter <code>/xcmarketplace-us-east-1/tutorial-datasets/</code>. Click <span class="UIelement">Browse </span>to browse the directory structure and select <span class="UIelement">student_scores.dat</span>. Click <span class="UIelement">Next </span>to preview the file.</p>
-                                                <p>In the Format window, change the following options:</p>
+                                                <p>An import UDF is applied while importing the file. To import the file, click on the <span class="UIelement">Sources</span> icon in the sidebar, and then click <span class="UIelement">Import Data Source</span> in the <span class="UIelement">Datasets </span>panel. Since our file resides on <span class="GeneralProductName3">Xcalar</span>’s public S3 bucket, select <span class="UIelement">Public S3</span> as the <span class="UIelement">Connector</span>, and enter /xcmarketplace-us-east-1/tutorial-datasets/ as the <span class="UIelement">Data Source Path</span>. Click <span class="UIelement">Browse </span>to browse the directory structure and select student_scores.dat. Click <span class="UIelement">Next </span>to preview the file.</p>
+                                                <p><span class="GeneralProductName3">Xcalar</span> automatically detects the format of the file and shows its preview, but it gives you the flexibility to change the options and import the file differently. To apply our import parser, change the following options:</p>
                                                 <p class="CLIoutput">Format: Custom Format</p>
                                                 <p class="CLIoutput">Module: import_parser </p>
                                                 <p class="CLIoutput">Function: parse_scores</p>
@@ -238,17 +240,17 @@
                                                     <img src="../../Resources/Images/Tutorials/ip-import.png" />
                                                 </p>
                                                 <p> Click <span class="UIelement">Apply UDF</span>.</p>
-                                                <p>The file is read and passed through the <span class="UIelement">movie_genre:split_genres</span> UDF, creating individual column for each grade. After the process is finished, the preview of the data is displayed with a separate column for each grade:</p>
+                                                <p>The file is read and passed through the import_parser:parse_scores UDF, creating individual column for each grade. After the process is finished, the preview of the data is displayed:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/ip-final-result.png" />
                                                 </p>
-                                                <p>Click <span class="UIelement">Create Dataset</span> to finish importing the file and now you have a dataset with all the grades split into their own columns in a dataset named <span class="UIelement">student_scores</span>.</p>
+                                                <p>Click <span class="UIelement">Create Dataset</span> to finish importing the file and now you have a dataset  named <span class="UIelement">student_scores</span>.</p>
+                                                <p>The next step is to read the dataset.</p>
                                                 <h2 class="noPageBreak">4. Creating a module and reading the dataset</h2>
-                                                <p>To read the dataset, create a module. In <span class="GeneralProductName3">Xcalar</span>, a module is a graphical representation of a series of operations performed on data. Each operation is represented by a graphical component called Node.</p>
-                                                <p>To create a module, click on the <span class="UIelement">Application Builder</span> icon in the sidebar and click <span class="UIelement">Create new module</span>. A new module called <span class="UIelement">Module 1</span> is created.</p>
-                                                <p>Every module starts with a source Node, which brings the data into the module. Since we imported our data file into a dataset, let’s add a <span class="UIelement">Dataset</span> Node to the module and configure it to read the dataset we imported.</p>
-                                                <p>Drag and drop a <span class="UIelement">Dataset</span> Node to the canvas. To configure the dataset, click on the dataset and select <span class="UIelement">Configure</span>. Select the <span class="UIelement">student_scores</span> dataset in the configuration panel and click <span class="UIelement">Save</span>.</p>
-                                                <p>By default, the Node gets executed unless you have changed the module settings by checking off the auto execute option. On the execution of the <span class="UIelement">Dataset</span> Node, a result set is displayed with 5 columns:</p>
+                                                <p>To read the dataset, create a module. In <span class="GeneralProductName3">Xcalar</span>, a module is a graphical representation of a series of operations performed on data. Each operation is represented by a graphical component called Node. To create a module, click on the <span class="UIelement">Application Builder</span> icon in the sidebar, and then click <span class="UIelement">Create new module</span>. A new module called <span class="UIelement">Module 1</span> is created.</p>
+                                                <p>Every module starts with a source Node, which brings the data into the module. Since we imported our data file into a dataset, let’s add a Dataset Node to the module and configure it to read the dataset we imported.</p>
+                                                <p>Drag and drop a <span class="UIelement">Dataset</span> Node to the canvas. To configure the Dataset Node, click on it and select <span class="UIelement">Configure</span>. Select the student_scores dataset in the configuration panel and click <span class="UIelement">Save</span>.</p>
+                                                <p>By default, the Node gets executed unless you have changed the module settings by checking off the auto execute option. On the execution of the Dataset Node, a result set is displayed with 5 columns:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/Tutorials/ip-dataset.png" />
                                                 </p>
@@ -261,7 +263,7 @@
                                                     <li value="4">Using a Dataset Node</li>
                                                 </ul>
                                                 <p>For detailed information about these topics, see the online help for <span class="GeneralProductName3">Xcalar</span>.</p>
-                                                <p>The <span class="UIelement">ImportParser </span>tutorial is available on the tutorial page of <span class="GeneralGUIName1">Xcalar Design</span>.</p>
+                                                <p>The ImportParser tutorial is available on the tutorial page of <span class="GeneralGUIName1">Xcalar Design</span>.</p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>
