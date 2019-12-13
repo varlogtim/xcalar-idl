@@ -5,10 +5,10 @@ class DeleteWorkbook extends EventEmitter {
         const self = this;
         userName = userName || this.api.globals.user;
 
+        this.api.ensureHomeScreenOpen()
         this.api.isPresent('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"]', isPresent => {
             if (isPresent) {
                 self.api
-                    .ensureHomeScreenOpen()
                     .waitForElementVisible('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"] .dropDown')
                     .click('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"] .dropDown')
 
