@@ -123,7 +123,7 @@ namespace Log {
         options = options || {};
 
         if ($.isEmptyObject(options)) {
-            console.warn("Options for", title, "is empty!");
+            console.warn("Options for" + title + "is empty!");
             return;
         }
 

@@ -202,6 +202,7 @@ class WorkbookState extends State {
 
     public async takeOneAction(): Promise<WorkbookState> {
         let randomAction = Util.pickRandom(this.availableActions);
+        this.log(`take action ${randomAction.name}`);
         const newState = await randomAction.call(this);
         return newState;
     }

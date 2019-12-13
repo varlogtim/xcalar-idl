@@ -838,7 +838,8 @@ class AdvancedModeState extends State {
         let randomAction = Util.pickRandom(this.availableActions);
         let newState = this;
         try {
-                newState = await randomAction.call(this);
+            this.log(`take action ${randomAction.name}`);
+            newState = await randomAction.call(this);
         } catch (error) {
             // XXX: Ignoring all errors. Might want to rethrow some errors;
             this.log(`Exec Action Error: `);

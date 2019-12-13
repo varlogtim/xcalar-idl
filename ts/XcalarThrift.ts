@@ -3795,6 +3795,12 @@ XcalarQuery = function(
         bailOnError = true; // Stop running query on error
     }
 
+    if (verbose) {
+        console.log("XcalarQuery(queryName=" + queryName +
+                   " queryString=" + queryString +
+                   ")");
+    }
+
     const schedName:string = ""; // New backend flag
     const udfUserName: string = options.udfUserName;
     const udfSessionName: string = options.udfSessionName;
@@ -4016,6 +4022,11 @@ XcalarQueryWithCheck = function(
             }
         }
         const thriftError = thriftLog("XcalarQuery with name:" + queryName, error);
+        if (verbose) {
+            console.log("XcalarQuery with check failed: " +
+                        " (queryName=" + queryName +
+                        " queryString=" + queryString + ")");
+        }
         deferred.reject(thriftError, queryStateOutput);
     });
 

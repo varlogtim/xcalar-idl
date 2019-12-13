@@ -219,7 +219,7 @@ class SQLModeState extends State {
             }
             try {
                 // Deal with OOM issue
-                this.log("create table from view");
+                this.log("create table from view created by " + JSON.stringify(qInfo));
                 await this.tableManager.createTableFromView([], columns, qInfo.tableName, tableName);
             } catch (error) {
                 // Out of resource error
@@ -240,6 +240,7 @@ class SQLModeState extends State {
     public async takeOneAction(): Promise<SQLModeState> {
         XVM.setMode(<XVM.Mode>this.mode);
         let randomAction = Util.pickRandom(this.availableActions);
+        this.log(`take action ${randomAction.name}`);
         const newState = await randomAction.call(this);
         this.run++;
         return newState;
