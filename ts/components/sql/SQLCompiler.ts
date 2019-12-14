@@ -1933,8 +1933,7 @@ class SQLCompiler {
         }
         let ret = xcHelper.cleanseSQLColName(name).toUpperCase();
         if (cutName && ret.length > XcalarApisConstantsT.XcalarApiMaxFieldNameLen / 2) {
-            ret = ret.substring(ret.length - XcalarApisConstantsT.XcalarApiMaxFieldNameLen / 2)
-                  + "_" + Authentication.getHashId().substring(3);
+            ret = ret.substring(ret.length - XcalarApisConstantsT.XcalarApiMaxFieldNameLen / 2);
         }
         return ret;
     }

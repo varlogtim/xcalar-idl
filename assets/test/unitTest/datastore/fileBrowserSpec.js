@@ -858,7 +858,7 @@ describe.skip("Dataset-File Browser Test", function() {
             FileBrowser.__testOnly__.searchFiles("region.tb")
             .then(function() {
                 var $grids = $("#innerFileBrowserContainer").find(".grid-unit");
-                expect($grids.length).to.equal(2);
+                expect($grids.length).to.equal(3);
                 done();
             })
             .fail(function() {
@@ -903,7 +903,7 @@ describe.skip("Dataset-File Browser Test", function() {
                                               $searchDropdown.find("li").eq(1))
             .then(function() {
                 $grids = $("#innerFileBrowserContainer").find(".grid-unit");
-                expect($grids.length).to.equal(2);
+                expect($grids.length).to.equal(3);
                 done();
             })
             .fail(function() {
@@ -933,7 +933,7 @@ describe.skip("Dataset-File Browser Test", function() {
                                               $searchDropdown.find("li").eq(3))
             .then(function() {
                 $grids = $("#innerFileBrowserContainer").find(".grid-unit");
-                expect($grids.length).to.equal(2);
+                expect($grids.length).to.equal(3);
                 done();
             })
             .fail(function() {
