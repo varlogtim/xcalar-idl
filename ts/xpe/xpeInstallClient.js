@@ -378,11 +378,12 @@ function checkRequirements() {
             }
 
             var dockerVersion = data.docker.version;
-            var versionGrep = "Docker version 18";
+            var versionGrep = "Docker version ([0-9]+)";
             if (dockerVersion) {
-                if (dockerVersion.indexOf(versionGrep) === -1) {
+                var found = dockerVersion.match(versionGrep);
+                if (!found || (found[1] < 18)) {
                     failmsg = failmsg = "\n" + XPEStr.prodname +
-                        " requires Docker versions 18.XX.XX. " +
+                        " requires Docker versions 18.XX.XX. or higher " +
                         "Please upgrade Docker for Mac. " +
                         "(Click your Docker icon, and then select " +
                         " 'Check for Updates')";
