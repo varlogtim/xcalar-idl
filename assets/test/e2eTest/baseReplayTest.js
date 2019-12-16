@@ -156,7 +156,7 @@ function replay(testConfig, tags) {
                     testNodeIdMapping.set(newTabName, result.nodeIdMap);
                     testConfig.datasets = testConfig.datasets || [];
                     testConfig.datasets = testConfig.datasets.concat(result.datasets);
-                    console.log(result);
+                    // console.log(result);
                 });
                 browser
                 .elements('css selector','.dataflowArea.active .operator', function (result) {
