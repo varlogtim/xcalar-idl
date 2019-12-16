@@ -234,7 +234,8 @@ class SQLEditorSpace {
             queryId: xcHelper.randName("sql", 8) + Date.now(),
             status: SQLStatus.Running,
             queryString: queryString,
-            startTime: new Date()
+            startTime: new Date(),
+            statementType: SQLStatementType.Drop
         }
         let found = false;
         let tableInfos: PbTblInfo[] = PTblManager.Instance.getTables();

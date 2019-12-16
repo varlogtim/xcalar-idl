@@ -930,18 +930,16 @@ abstract class DagNode extends Durable {
                         status: SQLStatus.Failed,
                         errorMsg: error
                     });
-                    this.updateSQLQueryHistory(true);
                 }
             }
         } else if (isComplete && includesAllTables && this.state !== DagNodeState.Complete) {
             this.beCompleteState();
-            if (this instanceof DagNodeSQL && !this.isFromSQLMode()) {
+            if (this instanceof DagNodeSQL) {
                 this.setSQLQuery({
                     endTime: new Date(),
                     status: SQLStatus.Done,
                     newTableName: this.getNewTableName()
                 });
-                this.updateSQLQueryHistory(true);
             } else if (this instanceof DagNodePublishIMD) {
                 if (!(typeof PTblManager === "undefined")) {
                     let tableName = this.getParam(true).pubTableName;

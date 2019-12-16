@@ -414,6 +414,7 @@ enum SQLStatus {
 enum SQLStatementType {
     Select = "Select",
     Create = "Create",
+    Drop = "Drop",
     Show = "Show",
     Describe = "Describe"
 }

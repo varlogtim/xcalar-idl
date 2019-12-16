@@ -165,6 +165,7 @@ class SQLDagExecutor {
         let finish = () => {
             SQLDagExecutor.deleteTab(tabId);
             if (this._status === SQLStatus.Done) {
+                this._sqlNode.setSQLQuery({newTableName: this._sqlNode.getNewTableName()});
                 this._updateStatus(SQLStatus.Done, undefined, new Date());
             } else if (this._status === SQLStatus.Cancelled) {
                 this._updateStatus(SQLStatus.Cancelled, undefined, new Date());
@@ -194,7 +195,6 @@ class SQLDagExecutor {
 
         this._status = SQLStatus.Running;
         SQLResultSpace.Instance.showProgressDataflow(true);
-        this._sqlNode.setFromSQLMode();
 
         this._restoreTables()
         .then(() => {
