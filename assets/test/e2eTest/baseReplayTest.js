@@ -278,7 +278,6 @@ function replay(testConfig, tags) {
                         browser.assert.equal(result.value.length, 0); // link out optimized not executed
                     })
                     .saveScreenshot("nwscreenshot1.png")
-                    .getLog("browser", function(result){console.log(result)})
                     .elements('css selector','.dataflowArea.active .operator.state-Error', function (result) {
                         console.log("should not have error nodes");
                         browser.assert.equal(result.value.length, 0);

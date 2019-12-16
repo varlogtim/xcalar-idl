@@ -15,38 +15,38 @@
     },
 
     "test_settings" : {
-      "default" : {
-        "globals": {
-            "launchUrl": "http://localhost:8888/"
+        "default" : {
+            "globals": {
+                "launchUrl": "http://localhost:8888/"
+            },
+            "desiredCapabilities": {
+            "browserName": "chrome",
+            "chromeOptions": {
+                "args": ["--headless", "window-size=4000,2000", "--ignore-certificate-errors"]
+            },
+            "loggingPrefs": {
+                    "driver": "ALL",
+                    "server": "OFF",
+                    "browser": "ALL"
+                }
+            }
         },
-        "desiredCapabilities": {
-          "browserName": "chrome",
-          "chromeOptions": {
-            "args": ["--headless", "window-size=4000,2000"]
-          },
-          "loggingPrefs": {
-                "driver": "ALL",
-                "server": "OFF",
-                "browser": "ALL"
+       "jenkins": {
+            "globals": {
+                "launchUrl": "https://localhost:8443/"
+            },
+            "desiredCapabilities": {
+                "browserName": "chrome",
+                "chromeOptions": {
+                    "args": ["--headless", "window-size=6000,3000", "--no-sandbox", "--ignore-certificate-errors"]
+                },
+                "loggingPrefs": {
+                    "driver": "ALL",
+                    "server": "OFF",
+                    "browser": "ALL"
+                }
             }
         }
-      },
-      "jenkins": {
-        "globals": {
-            "launchUrl": "https://localhost:8443/"
-        },
-        "desiredCapabilities": {
-          "browserName": "chrome",
-          "chromeOptions": {
-            "args": ["--headless", "window-size=6000,3000", "--no-sandbox"]
-          },
-          "loggingPrefs": {
-                "driver": "ALL",
-                "server": "OFF",
-                "browser": "ALL"
-           }
-        }
-    }
     },
     "chrome" : {
       "desiredCapabilities": {

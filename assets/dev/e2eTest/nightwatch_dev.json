@@ -15,18 +15,11 @@
             "launchUrl": "http://localhost:8888/"
         },
         "desiredCapabilities": {
-          "browserName": "chrome"
+            "browserName": "chrome",
+            "chromeOptions": {
+                "args" : ["--ignore-certificate-errors"]
+            }
         }
-      }
-    },
-    "chrome" : {
-      "desiredCapabilities": {
-        "browserName": "chrome",
-        "javascriptEnabled": true,
-        "acceptSslCerts": true
-      },
-      "chromeOptions" : {
-        "args" : ["disable-web-security", "user-data-dir"]
       }
     }
   }

@@ -30,7 +30,6 @@ class CreateCustomNode extends EventEmitter {
             this.api.elements('css selector','.dataflowArea.active .operator.category-custom', function (result) {
                 console.log("custom node created: " + result.value.length);
             });
-            this.api.getLog("browser", function(result){console.log(result)});
             this.emit('complete');
         }, 2000);
 
