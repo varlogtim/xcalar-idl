@@ -35,7 +35,13 @@ class AboutModal {
             setTimeout(() => {
                 xcTooltip.changeText($el, TooltipTStr.AboutCopy);
             }, 1000);
-        })
+        });
+
+        $modal.on("copy", (event) => {
+            var text = window.getSelection().toString();
+            xcHelper.copyToClipboard(text); // changes font color from white to black
+            return false;
+        });
     }
 
     public show(): void {
