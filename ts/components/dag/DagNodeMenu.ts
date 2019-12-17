@@ -177,7 +177,7 @@ namespace DagNodeMenu {
                     DagViewManager.Instance.triggerCut();
                     break;
                 case ("pasteNodes"):
-                    _showPasteAlert();
+                    _handlePaste();
                     break;
                 case ("executeNode"):
                     DagViewManager.Instance.run(dagNodeIds);
@@ -1012,12 +1012,18 @@ namespace DagNodeMenu {
         return DagViewManager.Instance.getActiveDag().getNode(id);
     }
 
-    function _showPasteAlert() {
-        let pasteKey: string = isSystemMac ? "⌘V" : "\"CTRL\" + \"V\"";
-        Alert.show({
-            title: "Paste",
-            msg: "You must use " + pasteKey + " to paste."
-        });
+    async function _handlePaste() {
+        try {
+            // will go to catch clause if .readText is not supported
+            const text = await navigator.clipboard.readText();
+            DagViewManager.Instance.paste(text);
+        } catch (e) {
+            let pasteKey: string = isSystemMac ? "⌘V" : "\"CTRL\" + \"V\"";
+            Alert.show({
+                title: "Paste",
+                msg: "You must use " + pasteKey + " to paste."
+            });
+        }
     }
 
     function _restoreDatasetFromNode(node: DagNodeDataset): void {

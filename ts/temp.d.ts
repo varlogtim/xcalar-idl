@@ -452,6 +452,14 @@ interface FileManagerPathItem {
     size: number;
 }
 
+interface Navigator {
+    clipboard: Clipboard
+}
+
+interface Clipboard {
+    readText: Function
+}
+
 declare namespace Base64 {
     function encode(input: string): string;
     function decode(input: string): string;

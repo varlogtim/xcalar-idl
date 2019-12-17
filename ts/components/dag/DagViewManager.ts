@@ -144,17 +144,12 @@ class DagViewManager {
         });
 
         $(document).on("paste.dataflowPanel", function (e: JQueryEventObject) {
-            if (!self.activeDagView) {
-                return;
-            }
-            if (self.isDisableActions()) {
-                return;
-            }
+
             if ($(e.target).is("input") || $(e.target).is("textarea")) {
                 return; // use default paste event
             }
             let content = e.originalEvent.clipboardData.getData('text/plain');
-            self.activeDagView.validateAndPaste(content);
+            self.paste(content);
         });
 
         $(document).on("keydown.dataflowPanel", function (e: JQueryEventObject) {
@@ -786,6 +781,16 @@ class DagViewManager {
         this._isCopying = true;
         document.execCommand("cut");
         this._isCopying = false;
+    }
+
+    public paste(content: string) {
+        if (!this.activeDagView) {
+            return;
+        }
+        if (this.isDisableActions()) {
+            return;
+        }
+        this.activeDagView.validateAndPaste(content);
     }
 
     /**
