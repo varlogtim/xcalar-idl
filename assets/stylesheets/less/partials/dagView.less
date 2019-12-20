@@ -1277,6 +1277,7 @@
             }
 
             &.active {
+                box-shadow: inset 0 2px 0 0 @color-border-select-blue;
                 background-color: @color-white;
                 color: @color-font-form-gray;
                 text-overflow: clip;
@@ -1294,9 +1295,16 @@
             &.sql {
                 background-color: @color-dagTab-sql;
             }
+            &.sql.active {
+                background-color: tint(@color-dagTab-sql, 55%);
+            }
 
             &.custom {
                 background-color: @color-dagTab-custom;
+            }
+
+            &.custom.active {
+                background-color: tint(@color-dagTab-custom, 58%);
             }
 
             .dragArea {
