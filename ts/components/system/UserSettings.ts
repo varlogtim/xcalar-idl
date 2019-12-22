@@ -217,7 +217,7 @@ namespace UserSettings {
     export function revertDefault(): void {
         let newPrefs: UserPref = new UserPref();
         userPrefs.general = newPrefs.general;
-        if (Admin.isAdmin() && !XVM.isCloud()) {
+        if (Admin.isAdmin() && !XVM.isSingleUser()) {
             genSettings = new GenSettings();
         }
         restoreSettingsPanel();
@@ -227,7 +227,12 @@ namespace UserSettings {
     function setup(): void {
         userPrefs = new UserPref();
         addEventListeners();
-        if (XVM.isCloud()) {
+
+        if (XVM.isDataMart()) {
+            // remove both prem only and cloud only settings
+            $("#monitorGenSettingsCard .optionSet.onPremOnly").remove();
+            $("#monitorGenSettingsCard .optionSet.cloudOnly").remove();
+        } else if (XVM.isCloud()) {
             // remove prem only settings
             $("#monitorGenSettingsCard .optionSet.onPremOnly").remove();
         } else {

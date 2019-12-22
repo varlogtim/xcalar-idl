@@ -19,7 +19,7 @@ namespace DSForm {
         // reset anything browser may have autofilled
         resetForm();
         DSPreview.update();
-        if (!XVM.isCloud()) {
+        if (!XVM.isSingleUser()) {
             $("#dsForm-target input").val(gDefaultSharedRoot);
         }
     }

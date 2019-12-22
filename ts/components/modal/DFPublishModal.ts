@@ -9,7 +9,7 @@ class DFPublishModal {
 
     private constructor() {
         const $modal: JQuery = this._getModal();
-        if (XVM.isCloud()) {
+        if (XVM.isSingleUser()) {
             $modal.addClass("cloud");
             $modal.find(".onPremOnly").hide();
         }
@@ -69,7 +69,7 @@ class DFPublishModal {
         this._modalHelper.disableSubmit();
         const $modal: JQuery = this._getModal();
         const path: string = res.path;
-        const shareDS: boolean = XVM.isCloud() ? false : $modal.find(".shareDS .checkbox").hasClass("checked");
+        const shareDS: boolean = XVM.isSingleUser() ? false : $modal.find(".shareDS .checkbox").hasClass("checked");
 
         const graph: DagGraph = this._cachedDagTab.getGraph();
         const tab: DagTabPublished = new DagTabPublished({

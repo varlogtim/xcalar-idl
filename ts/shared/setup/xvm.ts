@@ -233,6 +233,20 @@ namespace XVM {
     }
 
     /**
+     * XVM.isDataMart
+     */
+    export function isDataMart(): boolean {
+        return (typeof gDataMart !== "undefined" && gDataMart === true);
+    }
+
+    /**
+     * XVM.isSingleUser
+     */
+    export function isSingleUser(): boolean {
+        return XVM.isCloud() || XVM.isDataMart();
+    }
+
+    /**
      * XVM.checkMaxUsers
      * @param userInfos
      * @returns true if it need to warn
@@ -243,7 +257,7 @@ namespace XVM {
             return false;
         }
 
-        if (XVM.isCloud()) {
+        if (XVM.isSingleUser()) {
             // cloud deployment skip the check
             return false;
         } else if (Admin.isAdmin()) {

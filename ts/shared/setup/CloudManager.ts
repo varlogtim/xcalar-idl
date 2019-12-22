@@ -16,7 +16,7 @@ class CloudManager {
      */
     public setup(): XDPromise<void> {
         if (!XVM.isCloud()) {
-            return PromiseHelper.resolve();;
+            return PromiseHelper.resolve();
         }
         this.checkCloud();
         return this.setApiUrl();

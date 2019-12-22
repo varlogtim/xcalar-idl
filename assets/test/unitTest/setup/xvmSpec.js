@@ -105,11 +105,11 @@ describe('XVM Test', () => {
         });
 
         it('XVM.checkMaxUsers should work', () => {
-            let wasCloud = XVM.isCloud;
-            XVM.isCloud = () => false;
+            let isSingleUser = XVM.isSingleUser;
+            XVM.isSingleUser = () => false;
             // case 1
             expect(XVM.checkMaxUsers()).to.be.false;
-            XVM.isCloud = () => false;
+            XVM.isSingleUser = () => false;
             // case 2
             const oldAdmin = Admin.isAdmin;
             Admin.isAdmin = () => true;
@@ -138,12 +138,12 @@ describe('XVM Test', () => {
                 expect(test).to.be.true;
             }
             // case 5
-            XVM.isCloud = () => true;
+            XVM.isSingleUser = () => true;
             expect(XVM.checkMaxUsers({})).to.be.false;
 
             Alert.error = oldAlert;
             Admin.isAdmin = oldAdmin;
-            XVM.isCloud = wasCloud;
+            XVM.isSingleUser = isSingleUser;
         });
 
         it('XVM.commitKVVersion should work', () => {

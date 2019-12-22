@@ -33,6 +33,8 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         // in case of the auto login trigger of short cuts
         xcLocalStorage.removeItem("autoLogin");
         xcLocalStorage.setItem("xcalar-noModeSwitchAlert", "true");
+        // keep the test to be non data mart feature
+        gDataMart = false;
 
         var params = getUrlParameters();
         var runTest = hasUser && parseBooleanParam(params.test);

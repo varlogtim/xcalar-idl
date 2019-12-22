@@ -16,6 +16,9 @@ namespace xcManager {
         Compatible.check();
         xcGlobal.setup();
 
+        if (XVM.isDataMart()) {
+            setupDataMart();
+        }
 
         let xcSocket: XcSocket;
         let firstTimeUser: boolean;
@@ -1518,6 +1521,10 @@ namespace xcManager {
                 $("#showDatasetHint").remove();
             });
         }
+    }
+
+    function setupDataMart(): void {
+        $("#workbookPanel").find(".monitorBox").remove();
     }
 
     /* Unit Test Only */

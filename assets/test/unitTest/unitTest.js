@@ -49,6 +49,7 @@ window.UnitTest = (function(UnitTest, $) {
             xcMixpanel.off();
             loginMixpanel.off();
             xcGlobal.setup();
+            gDataMart = false;
             setupTestDatasets();
             mocha.run(function() {
                 // used for puppeteer
