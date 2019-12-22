@@ -1612,7 +1612,7 @@ describe('XIApi Test', () => {
                         done('fail');
                     })
                     .fail((error) => {
-                        expect(error).to.equal('Invalid args in join');
+                        expect(error).to.equal('Invalid args in join.');
                         done();
                     });
             });
@@ -1632,7 +1632,7 @@ describe('XIApi Test', () => {
                         done('fail');
                     })
                     .fail((error) => {
-                        expect(error).to.equal('Invalid args in join');
+                        expect(error).to.equal('Invalid args in join.');
                         done();
                     });
             });

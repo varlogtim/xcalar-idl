@@ -84,6 +84,8 @@ interface AggColInfo {
 interface GroupByOptions {
     isIncSample?: boolean; // include sample or not
     sampleCols?: number[]; // sampleColumns to keep, only used when isIncSample is true
+    allCols?: {name: string, type: DfFieldTypeT}[]; // sample column names to keep, only used when isIncSample is true
+      // allCols is used until we can figure out if sampleCols is actually used
     icvMode?: boolean; // icv mode or not
     newTableName?: string; // dst table name, optional
     clean?: boolean; // remove intermediate table if set true

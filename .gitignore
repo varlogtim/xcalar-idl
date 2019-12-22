@@ -59,3 +59,7 @@ tags
 /assets/js/thrift/
 /assets/js/*.js
 /assets/js/*.js.map
+
+#dev
+/assets/dev/e2eTest/*.png
+/assets/dev/e2eTest/*.log

@@ -434,9 +434,23 @@ class DagNodeExecutor {
         if (params.joinBack) {
             params.includeSample = false;
         }
+        if (params.groupAll) {
+            params.includeSample = false;
+            params.joinBack = false;
+        }
+        let sampleCols: {name: string, type: DfFieldTypeT}[];
+        if (params.includeSample) {
+            sampleCols = node.getParents()[0].getLineage().getColumns(this.replaceParam, true).map(col => {
+                return {
+                    name: col.getBackColName(),
+                    type: xcHelper.convertColTypeToFieldType(col.getType())
+                }
+            });
+        }
         const options: GroupByOptions = {
             newTableName: this._generateTableName(),
             isIncSample: params.includeSample,
+            allCols: sampleCols,
             icvMode: params.icv,
             groupAll: params.groupAll,
             newKeys: newKeys,

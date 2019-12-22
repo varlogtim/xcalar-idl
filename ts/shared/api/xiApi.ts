@@ -741,6 +741,65 @@ namespace XIApi {
         }
         return evalStr;
     }
+
+    function distinctGroupby(
+        txId: number,
+        tableName: string,
+        groupOnCols: string[],
+        aggCols: object,
+        normalAggArgs: AggColInfo[],
+        gbTableName: string,
+        onlyDistinct: boolean,
+        isIncSample: boolean,
+        allCols?: {name: string, type: DfFieldTypeT}[]
+    ): XDPromise<{resTable: string, resTempTables: string[], resTempCols: string[]}> {
+        const promises: XDPromise<void>[] = [];
+        const distinctGbTables: string[] = [];
+        const tempTables: string[] = [];
+        const tempCols: string[] = [];
+        const origGroupOnCols: string[] = groupOnCols;
+        const gbOutputCols: string[][] = [];
+        // Create output column list for normal gbs
+        gbOutputCols.push(normalAggArgs.map((args) => {return args.newColName}));
+
+        // we're going to manipulate groupOnCols
+        // and don't want to modify the original copy
+        for (let distinctCol in aggCols) {
+            groupOnCols = xcHelper.deepCopy(origGroupOnCols);
+            gbOutputCols.push(aggCols[distinctCol].map((args) => {return args.newColName}));
+            promises.push(computeDistinctGroupby(txId, tableName,
+                            groupOnCols, distinctCol, aggCols[distinctCol],
+                            distinctGbTables, tempTables, tempCols, isIncSample));
+        }
+
+        const deferred: XDDeferred<{resTable: string, resTempTables: string[], resTempCols: string[]}> = PromiseHelper.deferred();
+        let whenPassed = false;
+        PromiseHelper.when.apply(this, promises)
+        .then(() => {
+            whenPassed = true;
+            // Now we want to do cascading joins on the newTableNames
+            if (onlyDistinct) {
+                gbTableName = distinctGbTables[0];
+                distinctGbTables.splice(0, 1);
+                gbOutputCols.splice(0, 1);
+            }
+            return cascadingJoins(txId, distinctGbTables, gbTableName, groupOnCols,
+                                  tempTables, tempCols, gbOutputCols, allCols);
+        })
+        .then((finalJoinedTable) => {
+            deferred.resolve({resTable: finalJoinedTable, resTempTables: tempTables, resTempCols: tempCols});
+        })
+        .fail((args) => {
+            if (!whenPassed) {
+                deferred.reject(xcHelper.getPromiseWhenError(args));
+            } else {
+                deferred.reject.apply(this, arguments);
+            }
+        });
+
+        return deferred.promise();
+    }
+
     // XXX FIXME: currently it can only triggered by sql which assumes all columns
     // are derived fields. When this assumption breaks, must hand the case when
     // newKeyFieldName in groupByHelper is a prefix
@@ -752,7 +811,8 @@ namespace XIApi {
         aggArgs: AggColInfo[],
         distinctGbTables: string[],
         tempTables: string[],
-        tempCols: string[]
+        tempCols: string[],
+        isIncSample: boolean
     ): XDPromise<void> {
         let reuseIndex: boolean = false;
         let newGroupOnCols: string[];
@@ -781,7 +841,7 @@ namespace XIApi {
             tempTables.push(gbDistinctTableName);
             // XXX [0] argument needs to be fixed once bohan's fix goes in
             return groupByHelper(txId, [newAggColName], ["count(1)"],
-            indexedTableName, gbDistinctTableName, false, false,
+            indexedTableName, gbDistinctTableName, isIncSample, false,
             newGroupOnCols[0], false);
         })
         .then(() => {
@@ -806,7 +866,7 @@ namespace XIApi {
                 newColNames.push(aggArg.newColName);
             });
             return groupByHelper(txId, newColNames, evalStrs, newIndexTable,
-            gbTableName, false, false, newGroupOnCols[0], groupAll);
+            gbTableName, isIncSample, false, newGroupOnCols[0], groupAll);
         })
         .then(() => {
             tempTables.push(gbTableName);
@@ -850,7 +910,8 @@ namespace XIApi {
         joinCols: string[],
         tempTables: string[],
         tempCols: string[],
-        gbOutputCols: string[][]
+        gbOutputCols: string[][],
+        allCols?: {name: string, type: DfFieldTypeT}[]
     ): XDPromise<string> {
         if (distinctGbTables.length === 0) {
             return PromiseHelper.resolve(origGbTable);
@@ -866,7 +927,8 @@ namespace XIApi {
             // be renamed earlier on XXX add asserts / fixme
             const rTableName: string = distinctGbTables[i];
             // Use keepAllColumns=false so need to specify columns to keep in lRename
-            const lRename: ColRenameInfo[] = [];
+            let lRename: ColRenameInfo[] = [];
+            const leftColNamesSet: Set<string> = new Set(); // to prevent duplicates
             const rRename: ColRenameInfo[] = [];
             let rTableId: TableId = xcHelper.getTableId(rTableName);
             if (typeof rTableId === "string") {
@@ -874,7 +936,7 @@ namespace XIApi {
             }
             let joinType: JoinType = JoinOperatorT.InnerJoin;
             let evalString: string = "";
-            let key: string[][] = undefined;
+            let key: string[][] = [[],[]];
             if (joinCols.length === 0) {
                 joinType = JoinOperatorT.CrossJoin;
             } else {
@@ -891,6 +953,7 @@ namespace XIApi {
                         new: newColName,
                         type: DfFieldTypeT.DfUnknown
                     });
+                    leftColNamesSet.add(colName);
                     // Now with keepAllColumns=false, all duplicate join columns
                     // in intermediate tables will get dropped. Only those from
                     // the last distinct gb table survive
@@ -898,6 +961,7 @@ namespace XIApi {
                         tempCols.push(newColName);
                     }
                 });
+
                 key = [joinCols, joinCols];
             }
             gbOutputCols[0].forEach((colName) => {
@@ -906,7 +970,38 @@ namespace XIApi {
                     new: colName,
                     type: DfFieldTypeT.DfUnknown
                 });
+                leftColNamesSet.add(colName);
             });
+
+            if (allCols) {
+                let sampleCols: ColRenameInfo[] = [];
+                let prefixes: Set<string> = new Set();
+                allCols.forEach((col) => {
+                    if (leftColNamesSet.has(col.name)) {
+                        return; // skip dupes
+                    }
+                    const prefix = xcHelper.parsePrefixColName(col.name).prefix;
+                    if (prefix) {
+                        prefixes.add(prefix);
+                    } else {
+                        sampleCols.push({
+                            orig: col.name,
+                            new: col.name,
+                            type: col.type
+                        });
+                    }
+                });
+                prefixes.forEach((prefix) => {
+                    sampleCols.push({
+                        orig: prefix,
+                        new: prefix,
+                        type: DfFieldTypeT.DfFatptr
+                    });
+                });
+
+                lRename = lRename.concat(sampleCols);
+            }
+
             gbOutputCols[i + 1].forEach((colName) => {
                 // After join, gb results of right table become columns need to keep in next loop
                 // So update gbOutputCols[0], which indicates columns in left table
@@ -935,6 +1030,7 @@ namespace XIApi {
                 nullSafe: true,
                 key: key
             };
+
             promises.push(joinHelper.bind(this, txId, curTableName, rTableName,
                         newTableName, joinType, lRename, rRename, joinOptions));
             curTableName = newTableName;
@@ -947,60 +1043,6 @@ namespace XIApi {
             deferred.resolve(finalJoinedTable);
         })
         .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    function distinctGroupby(
-        txId: number,
-        tableName: string,
-        groupOnCols: string[],
-        aggCols: object,
-        normalAggArgs: AggColInfo[],
-        gbTableName: string,
-        onlyDistinct: boolean
-    ): XDPromise<{resTable: string, resTempTables: string[], resTempCols: string[]}> {
-        const promises: XDPromise<void>[] = [];
-        const distinctGbTables: string[] = [];
-        const tempTables: string[] = [];
-        const tempCols: string[] = [];
-        const origGroupOnCols: string[] = groupOnCols;
-        const gbOutputCols: string[][] = [];
-        // Create output column list for normal gbs
-        gbOutputCols.push(normalAggArgs.map((args) => {return args.newColName}));
-        // we're going to manipulate groupOnCols
-        // and don't want to modify the original copy
-        for (let distinctCol in aggCols) {
-            groupOnCols = xcHelper.deepCopy(origGroupOnCols);
-            gbOutputCols.push(aggCols[distinctCol].map((args) => {return args.newColName}));
-            promises.push(computeDistinctGroupby(txId, tableName,
-                            groupOnCols, distinctCol, aggCols[distinctCol],
-                            distinctGbTables, tempTables, tempCols));
-        }
-
-        const deferred: XDDeferred<{resTable: string, resTempTables: string[], resTempCols: string[]}> = PromiseHelper.deferred();
-        let whenPassed = false;
-        PromiseHelper.when.apply(this, promises)
-        .then(() => {
-            whenPassed = true;
-            // Now we want to do cascading joins on the newTableNames
-            if (onlyDistinct) {
-                gbTableName = distinctGbTables[0];
-                distinctGbTables.splice(0, 1);
-            }
-            return cascadingJoins(txId, distinctGbTables, gbTableName, groupOnCols,
-                                  tempTables, tempCols, gbOutputCols);
-        })
-        .then((finalJoinedTable) => {
-            deferred.resolve({resTable: finalJoinedTable, resTempTables: tempTables, resTempCols: tempCols});
-        })
-        .fail((args) => {
-            if (!whenPassed) {
-                deferred.reject(xcHelper.getPromiseWhenError(args));
-            } else {
-                deferred.reject.apply(this, arguments);
-            }
-        });
 
         return deferred.promise();
     }
@@ -1927,7 +1969,7 @@ namespace XIApi {
             lTableInfo.tableName == null ||
             rTableInfo.tableName == null
         ) {
-            return PromiseHelper.reject("Invalid args in join");
+            return PromiseHelper.reject("Invalid args in join.");
         }
 
         const lTableName: string = lTableInfo.tableName;
@@ -1946,7 +1988,7 @@ namespace XIApi {
         if ((joinType !== JoinOperatorT.CrossJoin && lColNames.length < 1) ||
             lColNames.length !== rColNames.length
         ) {
-            return PromiseHelper.reject("Invalid args in join");
+            return PromiseHelper.reject("Invalid args in join.");
         }
 
         if (lCasts == null || lCasts.length == 0) {
@@ -2125,6 +2167,7 @@ namespace XIApi {
         let newKeyFieldName: string;
         let newKeys: string[] = options.newKeys || [];
         let isIncSample: boolean = options.isIncSample || false;
+        let allCols: {name: string, type: DfFieldTypeT}[] = options.allCols;
         newKeys.forEach((colName) => {
             if (xcHelper.parsePrefixColName(colName).prefix) {
                 isIncSample = true; // if there is prefix field in newKeys, keep sample
@@ -2173,7 +2216,8 @@ namespace XIApi {
         .then(() => {
             // XXX Check whether tempTables is well tracked
             return distinctGroupby(txId, tableName, groupByCols, aggCols,
-                                   normalAggArgs, gbTableName, onlyDistinct);
+                                   normalAggArgs, gbTableName, onlyDistinct,
+                                   isIncSample, allCols);
         })
         .then((ret) => {
             const {resTable, resTempTables, resTempCols} = ret;

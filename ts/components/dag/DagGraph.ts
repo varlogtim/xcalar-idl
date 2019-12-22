@@ -2076,7 +2076,17 @@ class DagGraph extends Durable {
                     }
                 }
             });
+            if (zeroInputNodes.length === 0 && nodeInputMap.size > 0) {
+                // a case is if map node has no connections so numParents = 0,
+                // but uses an aggregate
+                nodeInputMap.forEach((numParent, nodeId) => {
+                    if (numParent === 0 && nodesMap.has(nodeId)) {
+                        zeroInputNodes.push(nodesMap.get(nodeId));
+                    }
+                });
+            }
         }
+
         if (needAggNodes.size != 0) {
             // These two errors should only show up if an aggregate/linkout is made within this
             // dataflow, but theres a circular dependency.
@@ -2092,7 +2102,11 @@ class DagGraph extends Durable {
                 "node": node
             });
         } else if (nodeInputMap.size > 0) {
-            throw new Error("Error Sort!");
+            let nodeId: DagNodeId = nodeInputMap.keys().next().value;
+            throw ({
+                "error": "Parent could not be found.",
+                "node": nodesMap.get(nodeId)
+            });
         }
 
         return orderedNodes;

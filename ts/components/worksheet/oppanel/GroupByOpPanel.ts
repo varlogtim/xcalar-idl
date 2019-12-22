@@ -24,8 +24,17 @@ class GroupByOpPanel extends GeneralOpPanel {
         this._$panel.on('click', '.checkboxSection', function() {
             const $section = $(this);
             const $checkbox = $section.find('.checkbox');
+            let checked: boolean = $checkbox.hasClass("checked");
+            if (self.model.getModel().groupAll && !checked &&
+                ($section.hasClass("incSample") ||
+                $section.hasClass("joinBack"))) {
+                xcTooltip.transient($section,
+                    {title: "Unavailable when 'Fields to group on' is set to 'None'"},
+                    3000);
+                return;
+            }
             $checkbox.toggleClass("checked");
-            const checked = $checkbox.hasClass("checked");
+            checked = !checked;
 
             if ($section.hasClass("incSample")) {
                 self.model.toggleIncludeSample(checked);
@@ -193,16 +202,17 @@ class GroupByOpPanel extends GeneralOpPanel {
             this._$panel.find(".icvMode .checkbox").addClass("checked");
         }
 
-        if (groupAll) {
-            this._toggleGroupAll(this._$panel.find(".groupByAll .checkbox"));
-        }
-
         if (includeSample) {
             this._$panel.find(".incSample .checkbox").addClass("checked");
         }
 
         if (joinBack) {
             this._$panel.find(".joinBack .checkbox").addClass("checked");
+        }
+
+        if (groupAll) { // must come after includeSample and joinBack
+            // to uncheck those checkbox if needed
+            this._toggleGroupAll(this._$panel.find(".groupByAll .checkbox"));
         }
 
         this._$panel.find(".opSection").scrollTop(scrollTop);
@@ -1094,6 +1104,8 @@ class GroupByOpPanel extends GeneralOpPanel {
         if ($checkbox.hasClass("checked")) {
             this._$panel.find(".gbOnRow").hide();
             this._$panel.find(".addGroupArg").hide();
+            this._$panel.find(".joinBack .checkbox").removeClass("checked");
+            this._$panel.find(".incSample .checkbox").removeClass("checked");
         } else {
             this._$panel.find(".gbOnRow").show();
             this._$panel.find(".addGroupArg").show();

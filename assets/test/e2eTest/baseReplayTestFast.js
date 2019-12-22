@@ -1,7 +1,7 @@
 const execFunctions = require('./lib/execFunctions');
 
 function replay(testConfig, tags) {
-    let testTabs = {}; // { id: string, nodes: [] }
+    let testTabs = new Map(); // { id: string, nodes: [] }
     const testTabMapping = new Map(); // WB tabName => newTabName
     const testDfIdMapping = new Map(); // WB df_id => new df_id
     const testTabDfMapping = new Map(); // tabName => dfId
@@ -96,7 +96,25 @@ function replay(testConfig, tags) {
 
         'get tabs and nodes': function(browser) {
             browser.execute(execFunctions.getDataflowInfo, [], function(result) {
-                testTabs = result.value;
+                let arr = [];
+                let map = result.value;
+                for (let i in result.value) {
+                    arr.push({
+                        name: i,
+                        value: result.value[i]
+                    });
+                }
+                arr.sort((a,b) => {
+                    return a.value.order - b.value.order
+                });
+                arr.forEach(el => {
+                    testTabs.set(el.name, el.value);
+                    const nodeIdMap = {};
+                    el.value.nodes.forEach(node => {
+                        nodeIdMap[node.nodeId] = node.nodeId; // TODO fix the need for this
+                    });
+                    testNodeIdMapping.set(el.name, nodeIdMap);
+                });
             });
         },
 
@@ -109,26 +127,32 @@ function replay(testConfig, tags) {
                     browser.click("#intro-popover .cancel");
                     browser.pause(1000);
                 }
-                const tabNames = Object.keys(testTabs);
+                const tabNames = testTabs.keys();
                 let newTabIndex = tabNames.length + 1;
                 for (const tabName of tabNames) {
-                    const selector = `#dagTabSectionTabs .dagTab:nth-child(${newTabIndex}).active`;
-                    browser
-                        .click('#tabButton')
-                        .waitForElementPresent(selector, 2000)
-                        .getText(`${selector} div.name`, function(result) {
-                            testTabMapping.set(tabName, result.value);
-                        })
-                        .execute(function(tabIndex) {
-                            const tab = DagTabManager.Instance.getTabByIndex(tabIndex);
-                            return tab.getId();
-                        }, [newTabIndex - 1], function(result) {
-                            testDfIdMapping.set(testTabs[tabName].id, result.value);
-                            testTabDfMapping.set(tabName, testTabs[tabName].id); // uploaded df
-                            testTabDfMapping.set(testTabMapping.get(tabName), result.value); // replayed df
-                        });
+                    // testDfIdMapping.set(testTabs[tabName].id, result.value);
+                    testTabDfMapping.set(tabName, testTabs.get(tabName).id); // uploaded df
+                    // testTabDfMapping.set(testTabMapping.get(tabName), result.value); // replayed df
 
-                    newTabIndex ++;
+
+
+                    // const selector = `#dagTabSectionTabs .dagTab:nth-child(${newTabIndex}).active`;
+                    // browser
+                    //     .click('#tabButton')
+                    //     .waitForElementPresent(selector, 2000)
+                    //     .getText(`${selector} div.name`, function(result) {
+                    //         testTabMapping.set(tabName, result.value);
+                    //     })
+                    //     .execute(function(tabIndex) {
+                    //         const tab = DagTabManager.Instance.getTabByIndex(tabIndex);
+                    //         return tab.getId();
+                    //     }, [newTabIndex - 1], function(result) {
+                    //         testDfIdMapping.set(testTabs[tabName].id, result.value);
+                    //         testTabDfMapping.set(tabName, testTabs[tabName].id); // uploaded df
+                    //         testTabDfMapping.set(testTabMapping.get(tabName), result.value); // replayed df
+                    //     });
+
+                    // newTabIndex ++;
                 }
             });
 
@@ -147,107 +171,64 @@ function replay(testConfig, tags) {
             }, [], null);
         },
 
-        'recreate nodes': function(browser) {
-            for (const tabName of Object.keys(testTabs)) {
-                const newTabName = testTabMapping.get(tabName);
-                browser.switchTab(newTabName)
-                .recreateNodes(testTabs[tabName].nodes, testTabDfMapping.get(tabName), testDfIdMapping, function(result) {
-                    testConfig.IMDNames = result.IMDNames;
-                    testNodeIdMapping.set(newTabName, result.nodeIdMap);
-                    testConfig.datasets = testConfig.datasets || [];
-                    testConfig.datasets = testConfig.datasets.concat(result.datasets);
-                    // console.log(result);
-                });
-                browser
-                .elements('css selector','.dataflowArea.active .operator', function (result) {
-                    console.log("first--result: " + result.value.length);
-                });
+        'restore dataset': function(browser) {
+            for (const tabName of testTabs.keys()) {
+                browser.switchTab(tabName);
+                browser.restoreDataset(".dataflowArea.active .dataset .main");
             }
         },
 
-          // imdTable nodes depend on publishedIMD node to be executed first
-        'config imdTable nodes': function(browser) {
-            for (const tabName of Object.keys(testTabs)) {
-                const newTabName = testTabMapping.get(tabName);
-                browser.switchTab(newTabName);
-                let modifier = 1;
+        // 'execute optimized nodes first': function(browser) {
+        //     for (const tabName of Object.keys(testTabs)) {
+        //         const newTabName = testTabMapping.get(tabName);
+        //         const numOfNodes = testTabs[tabName].nodes.length;
 
-                testTabs[tabName].nodes.forEach((node, i) => {
-                    let input = JSON.parse(JSON.stringify(node.input));
-                    if (node.type === "IMDTable") {
-                        browser
-                            .openOpPanel(".operator:nth-child(" + (i + modifier) + ")")
-                            .pause(8000) // need to check for listTables call to resolve
-                            .setValue("#IMDTableOpPanel .pubTableInput", input.source)
-                            .pause(1000)
-                            .moveToElement("#pubTableList li:not(.xc-hidden)", 2, 2)
-                            .mouseButtonUp("left")
-                            .click("#IMDTableOpPanel .next")
-                            .submitAdvancedPanel("#IMDTableOpPanel", JSON.stringify(input, null, 4));
-                    } else if (node.type === "export") {
-                        pause = 6000;
-                        input.driverArgs.file_path = "/home/jenkins/export_test/datasetTest.csv";
-                        browser
-                            .openOpPanel(".operator:nth-child(" + (i + modifier) + ")")
-                            .pause(pause)
-                            .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4));
-                    } else if (node.type === "custom") {
-                        // we have to change the modifier to represent that the custom nodes are created last during the recreate nodes step.
-                        modifier--;
-                    }
-                });
-            }
-        },
+        //         const linkOutOptimizedNode = testTabs[tabName].nodes.find((node) => {
+        //             return node.type === "link out" &&
+        //                 node.title === "optimized";
+        //         });
+        //         if (linkOutOptimizedNode) {
+        //             browser.switchTab(newTabName);
+        //             browser.waitForElementNotPresent(".dataflowArea.active.locked");
+        //             let linkOutNodeId = testNodeIdMapping.get(newTabName)[linkOutOptimizedNode.nodeId];
 
-        'execute optimized nodes first': function(browser) {
-            for (const tabName of Object.keys(testTabs)) {
-                const newTabName = testTabMapping.get(tabName);
-                const numOfNodes = testTabs[tabName].nodes.length;
+        //             let selector = '.operator[data-nodeid="' + linkOutNodeId + '"]';
+        //             browser
+        //                 .moveToElement(".dataflowArea.active " + selector, 30, 15)
+        //                 .mouseButtonClick('right')
+        //                 .waitForElementVisible("#dagNodeMenu", 1000)
+        //                 .moveToElement("#dagNodeMenu li.createNodeOptimized", 10, 1)
+        //                 .waitForElementNotPresent(".dataflowArea.active.locked")
+        //                 .mouseButtonClick('left')
+        //                 .waitForElementNotPresent('.dataflowArea ' + selector + '.locked', numOfNodes * 20000)
+        //                 .waitForElementNotPresent(".dataflowArea.active .operator.state-Running", 100000)
+        //                 .waitForElementNotPresent(".dataflowArea.active .operator.locked", 10000);
 
-                const linkOutOptimizedNode = testTabs[tabName].nodes.find((node) => {
-                    return node.type === "link out" &&
-                        node.title === "optimized";
-                });
-                if (linkOutOptimizedNode) {
-                    browser.switchTab(newTabName);
-                    browser.waitForElementNotPresent(".dataflowArea.active.locked");
-                    let linkOutNodeId = testNodeIdMapping.get(newTabName)[linkOutOptimizedNode.nodeId];
-
-                    let selector = '.operator[data-nodeid="' + linkOutNodeId + '"]';
-                    browser
-                        .moveToElement(".dataflowArea.active " + selector, 30, 15)
-                        .mouseButtonClick('right')
-                        .waitForElementVisible("#dagNodeMenu", 1000)
-                        .moveToElement("#dagNodeMenu li.createNodeOptimized", 10, 1)
-                        .waitForElementNotPresent(".dataflowArea.active.locked")
-                        .mouseButtonClick('left')
-                        .waitForElementNotPresent('.dataflowArea ' + selector + '.locked', numOfNodes * 20000)
-                        .waitForElementNotPresent(".dataflowArea.active .operator.state-Running", 100000)
-                        .waitForElementNotPresent(".dataflowArea.active .operator.locked", 10000);
-
-                    browser.execute(execFunctions.getTableNameFromOptimizedGraph, [], ({value}) => {
-                        linkOutOptimizedTable = value;
-                    });
-                }
-            }
-        },
+        //             browser.execute(execFunctions.getTableNameFromOptimizedGraph, [], ({value}) => {
+        //                 linkOutOptimizedTable = value;
+        //             });
+        //         }
+        //     }
+        // },
 
         'execute': function(browser) {
             // let linkOutOptimizedTable;
-            for (const tabName of Object.keys(testTabs)) {
+            for (const tabName of testTabs.keys()) {
                 browser.perform(() => {
                     browser.execute(execFunctions.clearConsole, [], () => {});
-                    const newTabName = testTabMapping.get(tabName);
-                    const numOfNodes = testTabs[tabName].nodes.length;
+                    // const newTabName = testTabMapping.get(tabName);
+                    const newTabName = tabName;
+                    const numOfNodes = testTabs.get(tabName).nodes.length;
                     // used for checking completed nodes
-                    const numOfCustomNodes = testTabs[tabName].nodes.filter((node) => {
+                    const numOfCustomNodes = testTabs.get(tabName).nodes.filter((node) => {
                         return node.type === "custom";
                     }).length;
                     console.log("numOfCustomNodes: " + numOfCustomNodes);
+                    console.log(newTabName);
                     browser
                     .switchTab(newTabName);
 
-                    const linkInOptimizedNode = testTabs[tabName].nodes.find((node) => {
+                    const linkInOptimizedNode = testTabs.get(tabName).nodes.find((node) => {
                         return node.type === "link in" &&
                             node.title === "optimized";
                     });
@@ -302,9 +283,10 @@ function replay(testConfig, tags) {
         'validate': function(browser) {
             // The validation nodes must be DFLinkOut
             for (const {dfName, nodeName} of testConfig.validation) {
-                const newTabName = testTabMapping.get(dfName);
+                // const newTabName = testTabMapping.get(dfName);
+                const newTabName = dfName;
 
-                const linkOutNode = testTabs[dfName].nodes.find((node) => {
+                const linkOutNode = testTabs.get(dfName).nodes.find((node) => {
                     return node.type === "link out" &&
                            node.input.name === nodeName;
                 });
@@ -328,12 +310,13 @@ function replay(testConfig, tags) {
 
         'resetDatasetNodes': function(browser) {
             // The validation nodes must be DFLinkOut
-            for (const tabName of Object.keys(testTabs)) {
+            for (const tabName of testTabs.keys()) {
                 browser.perform(() => {
-                    const newTabName = testTabMapping.get(tabName);
+                    // const newTabName = testTabMapping.get(tabName);
+                    const newTabName = tabName;
                     browser.switchTab(newTabName);
 
-                    const datasetNodes = testTabs[tabName].nodes.filter((node) => {
+                    const datasetNodes = testTabs.get(tabName).nodes.filter((node) => {
                         return node.type === "dataset";
                     });
                     datasetNodes.forEach((datasetNode) => {

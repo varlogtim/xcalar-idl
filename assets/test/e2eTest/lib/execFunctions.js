@@ -2,12 +2,15 @@ module.exports = {
     getDataflowInfo: function() {
         const execResult = {};
         const dagTabs = DagTabManager.Instance.getTabs();
+        let i = 0;
         for (const dagTab of dagTabs) {
+            i++;
             const sortedNodes = dagTab.getGraph().getSortedNodes()
                 .map((node) => node.getNodeCopyInfo(true));
             execResult[dagTab.getName()] = {
                 id: dagTab.getId(),
-                nodes: sortedNodes
+                nodes: sortedNodes,
+                order: i
             };
         }
         return execResult; // dfName/tabName => { id: string, nodes: NodeCopyInfo[] }

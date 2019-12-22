@@ -98,6 +98,7 @@ namespace xcTooltip {
         };
 
         const toolTipOptions: TooltipOptions = $.extend(defaultOptions, options);
+        xcTooltip.hideAll();
         $element.tooltip(<any>toolTipOptions);
         $element.scrollintoview({duration: 0});
         $element.tooltip("show");

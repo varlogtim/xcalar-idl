@@ -74,18 +74,20 @@ class DagNodeSet extends DagNode {
             });
             // 2. get changes
             const parents: DagNode[] = this.getParents();
-            input.columns.forEach((colLists, i) => {
+            input.columns.forEach((colLists, parentIndex) => {
                 const colMap: Map<string, ProgCol> = new Map();
-                parents[i].getLineage().getColumns(replaceParameters, true).forEach((progCol) => {
+                const parent = parents[parentIndex];
+                parent.getLineage().getColumns(replaceParameters, true).forEach((progCol) => {
                     colMap.set(progCol.getBackColName(), progCol);
                 });
 
-                colLists.forEach((colInfo, j) => {
+                colLists.forEach((colInfo, colIndex) => {
                     const colName: string = colInfo.sourceColumn;
                     const oldProgCol: ProgCol = colMap.get(colName);
                     changes.push({
                         from: oldProgCol,
-                        to: finalCols[j]
+                        to: finalCols[colIndex],
+                        parentIndex: parentIndex
                     });
                     colMap.delete(colName);
                     hiddenColsToDelete.add(colName);
@@ -95,7 +97,8 @@ class DagNodeSet extends DagNode {
                     changes.push({
                         from: progCol,
                         to: null,
-                        hidden: hiddenColumns.has(progCol.getBackColName())
+                        hidden: hiddenColumns.has(progCol.getBackColName()),
+                        parentIndex: parentIndex
                     });
                     hiddenColsToDelete.add(progCol.getBackColName());
                 }

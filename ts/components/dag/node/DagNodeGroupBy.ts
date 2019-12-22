@@ -45,6 +45,10 @@ class DagNodeGroupBy extends DagNode {
         if (input.joinBack) {
             input.includeSample = false;
         }
+        if (input.groupAll) {
+            input.includeSample = false;
+            input.joinBack = false;
+        }
         this.input.setInput({
             groupBy: input.groupBy,
             aggregate: input.aggregate,

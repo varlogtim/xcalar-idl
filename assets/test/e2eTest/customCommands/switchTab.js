@@ -18,7 +18,7 @@ class SwitchTab extends EventEmitter {
                 });
             }
         });
-        
+
         self.api.perform(function() {
             if (elemFound != null) {
                 self.api.elementIdClick(elemFound);

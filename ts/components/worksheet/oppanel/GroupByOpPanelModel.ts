@@ -110,6 +110,10 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
 
     public toggleGroupAll(groupAll: boolean): void {
         this.groupAll = groupAll;
+        if (this.groupAll) {
+            this.joinBack = false;
+            this.includeSample = false;
+        }
     }
 
     /**
