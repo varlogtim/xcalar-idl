@@ -744,6 +744,7 @@ namespace xcManager {
     function setupUserArea(): void {
         UserMenu.Instance.setup();
         MemoryAlert.Instance.setup();
+        HelpMenu.Instance.setup();
     }
 
     /**

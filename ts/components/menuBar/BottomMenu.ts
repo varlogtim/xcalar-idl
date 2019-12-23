@@ -10,7 +10,6 @@ namespace BottomMenu {
         $menuPanel = $("#bottomMenu");
         setupButtons();
         Log.setup();
-        HelpPanel.Instance.setup();
         initialize();
     };
 

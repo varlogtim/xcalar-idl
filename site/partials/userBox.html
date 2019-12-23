@@ -2,6 +2,9 @@
 <div id="userBox">
 	<button id="userNameArea" class="clickable xc-innerIcon-action">
     <i class="icon xi-user"></i>
+  </button>
+  <button id="helpArea" class="clickable btn btn-small xc-innerIcon-action" data-toggle="tooltip" data-container="body" data-placement="bottom" data-title="<%= dicts.common.Help %>">
+    <i class="icon xi-help"></i>
 	</button>
   <button id="memoryAlert" class="btn btn-small inActive" data-toggle="tooltip" data-container="body" data-placement="bottom" data-title="<%= dicts.TooltipTStr.SystemGood %>">
     <i class="icon xi-warning"></i>
@@ -14,6 +17,19 @@
     </div>
   </div>
 </div>
+<div id="helpAreaMenu" class="menu noBorder">
+  <ul>
+    <li class="help"><%= dicts.menuBar.HelpDocs %></li>
+    <li class="tutorials"><%= dicts.menuBar.Tutorials %></li>
+    <li class="walkthroughs"><%= dicts.menuBar.Walkthroughs %></li>
+    <li class="discourse"><%= dicts.menuBar.discourse %></li>
+    <div class="divider"></div>
+    <!-- XXX hide in 2.2 -->
+    <!-- XXX TODO: enable it when it's ready to support -->
+    <!-- <li class="liveHelp"><%= dicts.menuBar.LiveHelp %></li> -->
+    <li class="supTicket"><%= dicts.monitor.GenSub %></li>
+  </ul>
+</div>
 <div id="userMenu" class="menu noBorder">
   <ul>
     <li id="userName" class="textOverflowOneLine">
@@ -24,19 +40,8 @@
         <i class="icon xi-warning"></i>
         <span class="add">Add</span>
     </li>
-    <div class="divider"></div>
-    <li class="help"><%= dicts.menuBar.HelpDocs %></li>
-    <li class="tutorials"><%= dicts.menuBar.Tutorials %></li>
-    <li class="walkthroughs"><%= dicts.menuBar.Walkthroughs %></li>
-    <li class="discourse"><%= dicts.menuBar.discourse %></li>
     <li class="about"><%= dicts.menuBar.About %></li>
     <li class="setup adminOnly"><%= dicts.monitor.Setup %></li>
-    <div class="divider"></div>
-    <!-- XXX hide in 2.2 -->
-    <!-- XXX TODO: enable it when it's ready to support -->
-    <!-- <li class="liveHelp"><%= dicts.menuBar.LiveHelp %></li> -->
-    <li class="supTicket"><%= dicts.monitor.GenSub %></li>
-    <div class="divider"></div>
     <li id="logout"><%= dicts.menuBar.LogOut %></li>
   </ul>
 </div>

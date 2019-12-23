@@ -526,8 +526,9 @@ namespace MainMenu {
         const curTab: string = $curTab.attr("id");
         $menuBar.find(".topMenuBarTab").removeClass("active");
         $curTab.addClass("active");
-        if (($("#helpSection").hasClass("active") || $("#udfSection").hasClass("active"))
-                && !$("#bottomMenu").hasClass("poppedOut")) {
+        if ($("#udfSection").hasClass("active") &&
+            !$("#bottomMenu").hasClass("poppedOut")
+        ) {
             BottomMenu.close(true);
         }
 

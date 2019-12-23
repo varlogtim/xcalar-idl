@@ -5,10 +5,6 @@ class HelpPanel {
         return this._instance || (this._instance = new this());
     }
 
-    public setup(): void {
-        this._setupResources();
-    }
-
     public getHelpDocBaseURL(): string {
         if (XVM.isCloud()) {
             return "assets/help/Cloud/Content/";
@@ -56,14 +52,6 @@ class HelpPanel {
                 break;
         }
 
-    }
-
-    private _setupResources(): void {
-        // main menu
-        $('#helpSection').find('.helpResource').click((event) => {
-            let $button = $(event.currentTarget);
-            this.openHelpResource($button.attr("id"));
-        });
     }
 
     private _openHelpDocs(): void {

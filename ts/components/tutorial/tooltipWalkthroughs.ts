@@ -200,8 +200,8 @@ namespace TooltipWalkthroughs {
             type: TooltipType.Text
         },
         {
-            highlight_div: "#userNameArea",
-            text: "Relaunch this walkthrough anytime by clicking on the User icon and selecting Walkthroughs.",
+            highlight_div: "#helpArea",
+            text: "Relaunch this walkthrough anytime by clicking on the Help icon and selecting Walkthroughs.",
             type: TooltipType.Text
         },
         {
@@ -260,15 +260,9 @@ namespace TooltipWalkthroughs {
             type: TooltipType.Text,
         },
         {
-            highlight_div: "#helpMenuTab",
-            interact_div: "#helpMenuTab",
-            text: "Click the Help icon to get help and support.",
-            type: TooltipType.Click,
-            wait_before_next_step: 300,
-        },
-        {
-            highlight_div: "#tutorialResource",
-            text: "This concludes the tour of the SQL Mode user interface. To get more hands-on experience, view the tutorial projects.",
+            highlight_div: "#helpArea",
+            interact_div: "#helpArea",
+            text: "This concludes the tour of the SQL Mode user interface. To get more hands-on experience, please click the Help icon and view the tutorials.",
             type: TooltipType.Text
         }];
         TooltipManager.start(
@@ -300,8 +294,8 @@ namespace TooltipWalkthroughs {
                 type: TooltipType.Text
             },
             {
-                highlight_div: "#userNameArea",
-                text: "Relaunch this walkthrough anytime by clicking on the User icon and selecting Walkthroughs.",
+                highlight_div: "#helpArea",
+                text: "Relaunch this walkthrough anytime by clicking on the Help icon and selecting Walkthroughs.",
                 type: TooltipType.Text
             },
             {
@@ -355,15 +349,9 @@ namespace TooltipWalkthroughs {
                 type: TooltipType.Text
             },
             {
-                highlight_div: "#helpMenuTab",
-                interact_div: "#helpMenuTab",
-                text: "Click the Help icon to get help and support.",
-                type: TooltipType.Click,
-                wait_before_next_step: 300,
-            },
-            {
-                highlight_div: "#tutorialResource",
-                text: "This concludes the tour of the Developer Mode user interface. To get more hands-on experience, view the tutorial projects.",
+                highlight_div: "#helpArea",
+                interact_div: "#helpArea",
+                text: "This concludes the tour of the Developer Mode user interface. To get more hands-on experience, please click the Help icon and view the tutorials.",
                 type: TooltipType.Text
             }],
             0,

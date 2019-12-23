@@ -6,7 +6,6 @@ describe("Help Panel Test", function() {
     before(() => {
         console.log("Help Panel Test");
         helpPanel = HelpPanel.Instance;
-        helpPanel.setup();
 
         oldWindowOpen = window.open;
         window.open = function(url) {

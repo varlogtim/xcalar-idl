@@ -34,10 +34,10 @@ function replay(testConfig, tags) {
         'tutorial project can be downloaded and opened': function(browser) {
             browser
                 .ensureHomeScreenOpen()
-                .waitForElementVisible("#userNameArea")
-                .click("#userNameArea")
-                .waitForElementVisible("#userMenu .tutorials")
-                .click("#userMenu .tutorials")
+                .waitForElementVisible("#helpArea")
+                .click("#helpArea")
+                .waitForElementVisible("#helpAreaMenu .tutorials")
+                .click("#helpAreaMenu .tutorials")
                 .waitForElementVisible("#helpTopBar .title")
                 .expect.element("#helpTopBar .title").text.to.equal(`HELP & SUPPORT: TUTORIALS`)
             browser

@@ -913,7 +913,7 @@ class SupTicketModal {
 
     private _submitBundle(ticketId: number | string): XDPromise<any> {
         let deferred: XDDeferred<any> = PromiseHelper.deferred();
-        $("#userMenu").find(".supTicket").addClass("xc-disabled");
+        $("#helpAreaMenu").find(".supTicket").addClass("xc-disabled");
         let mgmtdRet;
         // xcalarSupportGenerate has an alert on success
         XcalarSupportGenerate(false, ticketId)
@@ -962,7 +962,7 @@ class SupTicketModal {
             deferred.reject(err);
         })
         .always(() => {
-            $("#userMenu").find(".supTicket").removeClass("xc-disabled");
+            $("#helpAreaMenu").find(".supTicket").removeClass("xc-disabled");
         });
 
         return deferred.promise();

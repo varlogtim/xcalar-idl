@@ -125,10 +125,6 @@ body {
             z-index: @z-index-homeBtn;
         }
 
-        #userMenu .help {
-            display: none;
-        }
-
         #bottomMenu {
             z-index: @z-index-bottomMenu; // so if it's undocked, it will be
             //behind the worbook panel
@@ -665,6 +661,19 @@ body {
         .vertical-align;
         width: 24px;
         height: 24px;
+        margin-right: 5px;
+        outline: none;
+        padding: 0;
+        .rounded;
+
+        .icon {
+            font-size: 17px;
+            line-height: 24px;
+        }
+
+        &:first-child {
+            margin-right: 0;
+        }
     }
 
     #modeArea {
@@ -722,45 +731,21 @@ body {
             .transition(left 0.2s);
         }
     }
-
-    .xi-warning, .xi-success {
-        font-size: 17px;
-        line-height: 19px;
-    }
 }
 
 #userNameArea {
-    margin-left: 5px;
-    .size(30px, 30px);
     .noSelection;
     display: inline-block;
-    background-color: transparent;
-    outline: 0;
-    padding: 0;
     border: 0;
     background-color: @color-white;
-    border-radius: 2px;
-
-    .icon {
-        font-size: 17px;
-    }
 
     &:active {
         border: 1px solid rgba(0, 0, 0, 0.1);
     }
 }
 
-#userMenu {
-    .size(@min-width: 140px, @max-width: 90vw, @width: auto);
-    text-align: center;
+#userMenu, #helpAreaMenu {
     z-index: @z-index-useMenu;
-
-    #userName {
-        font-weight: 600;
-        &.selected {
-            background-color: inherit;
-        }
-    }
     li {
         color: @color-font-form-gray;
         font-weight: 500;
@@ -768,9 +753,28 @@ body {
             background-color: @color-selectedCell-light;
         }
     }
+
     .divider {
         border: 1px solid @color-border-menugray;
         border-top: none;
+    }
+}
+
+#helpAreaMenu {
+    width: 130px;
+}
+
+#userMenu {
+    .size(@min-width: 140px, @max-width: 90vw, @width: auto);
+    text-align: center;
+
+    #userName {
+        font-weight: 600;
+        cursor: default;
+
+        &.selected {
+            background-color: inherit;
+        }
     }
 
     .credits {
@@ -805,19 +809,13 @@ body {
     }
 }
 
-#userName {
-    cursor: default;
-}
-
 #memoryAlert {
-    .rounded;
     background-color: @color-bg-monitor-green;
-    outline: none;
-    padding: 0;
 
     .icon {
         position: relative;
     }
+
     .xi-success {
         display: block;
     }
@@ -850,6 +848,14 @@ body {
     &.inActive {
         pointer-events: none;
         background-color: @color-bg-pinkish-grey2;
+    }
+}
+
+#helpArea {
+    background-color: @color-font-link-blue;
+
+    .icon {
+        color: @color-white;
     }
 }
 /* =========== END TOP RIGHT CORNER =========== */

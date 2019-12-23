@@ -1,4 +1,4 @@
-describe("Tooltip Flight Test", function(done) {
+describe("Tooltip Flight Test", function() {
 
     before((done) => {
         UnitTest.testFinish(() => DagPanel.hasSetup())
@@ -19,10 +19,10 @@ describe("Tooltip Flight Test", function(done) {
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
-            return UnitTest.testFinish(()=>$("#userNameArea").hasClass("intro-highlightedElement"))
+            return UnitTest.testFinish(()=>$("#helpArea").hasClass("intro-highlightedElement"))
         }).then(() => {
             //user tip
-            expect($("#userNameArea").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#helpArea").hasClass("intro-highlightedElement")).to.be.true;
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
@@ -97,19 +97,11 @@ describe("Tooltip Flight Test", function(done) {
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
-            return UnitTest.testFinish(()=>$("#helpMenuTab").hasClass("intro-highlightedElement"))
+            return UnitTest.testFinish(()=>$("#helpArea").hasClass("intro-highlightedElement"))
         }).then(() => {
 
             // help button tip
-            expect($("#helpMenuTab").hasClass("intro-highlightedElement")).to.be.true;
-            expect($("#intro-popover").is(":visible")).to.be.true;
-            $("#helpMenuTab").click();
-
-            return UnitTest.testFinish(()=>$("#tutorialResource").hasClass("intro-highlightedElement"))
-        }).then(() => {
-
-            // help walkthrough tip
-            expect($("#tutorialResource").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#helpArea").hasClass("intro-highlightedElement")).to.be.true;
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
@@ -135,10 +127,10 @@ describe("Tooltip Flight Test", function(done) {
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
-            return UnitTest.testFinish(()=>$("#userNameArea").hasClass("intro-highlightedElement"))
+            return UnitTest.testFinish(()=>$("#helpArea").hasClass("intro-highlightedElement"))
         }).then(() => {
             //user tip
-            expect($("#userNameArea").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#helpArea").hasClass("intro-highlightedElement")).to.be.true;
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
@@ -257,19 +249,11 @@ describe("Tooltip Flight Test", function(done) {
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
-            return UnitTest.testFinish(()=>$("#helpMenuTab").hasClass("intro-highlightedElement"))
+            return UnitTest.testFinish(()=>$("#helpArea").hasClass("intro-highlightedElement"))
         }).then(() => {
 
             // help button tip
-            expect($("#helpMenuTab").hasClass("intro-highlightedElement")).to.be.true;
-            expect($("#intro-popover").is(":visible")).to.be.true;
-            $("#helpMenuTab").click();
-
-            return UnitTest.testFinish(()=>$("#tutorialResource").hasClass("intro-highlightedElement"))
-        }).then(() => {
-
-            // help walkthrough tip
-            expect($("#tutorialResource").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#helpArea").hasClass("intro-highlightedElement")).to.be.true;
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
@@ -297,10 +281,10 @@ describe("Tooltip Flight Test", function(done) {
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
-            return UnitTest.testFinish(()=>$("#userNameArea").hasClass("intro-highlightedElement"))
+            return UnitTest.testFinish(()=>$("#helpArea").hasClass("intro-highlightedElement"))
         }).then(() => {
             //user tip
-            expect($("#userNameArea").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#helpArea").hasClass("intro-highlightedElement")).to.be.true;
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
@@ -424,19 +408,11 @@ describe("Tooltip Flight Test", function(done) {
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
-            return UnitTest.testFinish(()=>$("#helpMenuTab").hasClass("intro-highlightedElement"))
+            return UnitTest.testFinish(()=>$("#helpArea").hasClass("intro-highlightedElement"))
         }).then(() => {
 
             // help button tip
-            expect($("#helpMenuTab").hasClass("intro-highlightedElement")).to.be.true;
-            expect($("#intro-popover").is(":visible")).to.be.true;
-            $("#helpMenuTab").click();
-
-            return UnitTest.testFinish(()=>$("#tutorialResource").hasClass("intro-highlightedElement"))
-        }).then(() => {
-
-            // help walkthrough tip
-            expect($("#tutorialResource").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#helpArea").hasClass("intro-highlightedElement")).to.be.true;
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 

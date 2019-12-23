@@ -46,24 +46,12 @@ module.exports = {
             .waitForElementNotVisible("#modalBackground")
     },
 
-    'tooltip modal can be opened from help panel': function(browser) {
-        browser
-            .waitForElementVisible("#helpMenuTab")
-            .click("#helpMenuTab")
-            .waitForElementVisible("#tooltipResource")
-            .click("#tooltipResource")
-            .waitForElementVisible("#tooltipModal")
-            .click("#tooltipModal .close")
-            .waitForElementNotVisible("#modalBackground")
-            .click("#helpMenuTab")
-    },
-
     'tooltip modal can be opened from top right user menu': function(browser) {
         browser
-            .waitForElementVisible("#userNameArea")
-            .click("#userNameArea")
-            .waitForElementVisible("#userMenu .walkthroughs")
-            .click("#userMenu .walkthroughs")
+            .waitForElementVisible("#helpArea")
+            .click("#helpArea")
+            .waitForElementVisible("#helpAreaMenu .walkthroughs")
+            .click("#helpAreaMenu .walkthroughs")
             .waitForElementVisible("#tooltipModal")
             .click("#tooltipModal .close")
             .waitForElementNotVisible("#modalBackground")
@@ -71,10 +59,10 @@ module.exports = {
 
     'only project tooltip walkthrough is enabled if no active Projects': function(browser) {
         browser
-            .waitForElementVisible("#userNameArea")
-            .click("#userNameArea")
-            .waitForElementVisible("#userMenu .walkthroughs")
-            .click("#userMenu .walkthroughs")
+            .waitForElementVisible("#helpArea")
+            .click("#helpArea")
+            .waitForElementVisible("#helpAreaMenu .walkthroughs")
+            .click("#helpAreaMenu .walkthroughs")
             .waitForElementVisible("#tooltipModal")
             .expect.element('#tooltipModal .item:nth-of-type(1) .tooltipName').text.to.equal('Project Browser')
         browser.assert.cssClassNotPresent('#tooltipModal .item:nth-of-type(1) button', 'xc-disabled')
@@ -95,7 +83,7 @@ module.exports = {
             .waitForElementVisible("#intro-popover")
 
             .tooltipTest("#modeArea")
-            .tooltipTest("#userNameArea")
+            .tooltipTest("#helpArea")
             .tooltipTest("#menuBar")
             .tooltipTest("#dataStoresTab")
             .tooltipTest("#sqlTab")
@@ -111,8 +99,7 @@ module.exports = {
             .tooltipTest("#sqlEditorSpace")
             .tooltipTest("#sqlTableListerArea")
             .tooltipTest("#sqlWorkSpacePanel .historySection")
-            .tooltipTest("#helpMenuTab", "#helpMenuTab")
-            .tooltipTest("#tutorialResource")
+            .tooltipTest("#helpArea")
 
             .waitForElementNotPresent("#intro-popover")
             .waitForElementNotPresent("#intro-visibleOverlay")
@@ -120,10 +107,10 @@ module.exports = {
 
     'all tooltip walkthroughs are enabled if there is an active project': function(browser) {
         browser
-            .waitForElementVisible("#userNameArea")
-            .click("#userNameArea")
-            .waitForElementVisible("#userMenu .walkthroughs")
-            .click("#userMenu .walkthroughs")
+            .waitForElementVisible("#helpArea")
+            .click("#helpArea")
+            .waitForElementVisible("#helpAreaMenu .walkthroughs")
+            .click("#helpAreaMenu .walkthroughs")
             .waitForElementVisible("#tooltipModal")
             .expect.element('#tooltipModal .item:nth-of-type(1) .tooltipName').text.to.equal('Project Browser')
         browser.assert.cssClassNotPresent('#tooltipModal .item:nth-of-type(1) button', 'xc-disabled')
@@ -137,10 +124,10 @@ module.exports = {
 
     'should start project walkthrough successfully': function(browser) {
         browser
-            .waitForElementVisible("#userNameArea")
-            .click("#userNameArea")
-            .waitForElementVisible("#userMenu .walkthroughs")
-            .click("#userMenu .walkthroughs")
+            .waitForElementVisible("#helpArea")
+            .click("#helpArea")
+            .waitForElementVisible("#helpAreaMenu .walkthroughs")
+            .click("#helpAreaMenu .walkthroughs")
             .waitForElementVisible("#tooltipModal")
             .expect.element('#tooltipModal .item:nth-of-type(1) .tooltipName').text.to.equal('Project Browser')
         browser
@@ -157,10 +144,10 @@ module.exports = {
 
     'should do the entire developer mode walkthrough successfully': function(browser) {
         browser
-            .waitForElementVisible("#userNameArea")
-            .click("#userNameArea")
-            .waitForElementVisible("#userMenu .walkthroughs")
-            .click("#userMenu .walkthroughs")
+            .waitForElementVisible("#helpArea")
+            .click("#helpArea")
+            .waitForElementVisible("#helpAreaMenu .walkthroughs")
+            .click("#helpAreaMenu .walkthroughs")
             .waitForElementVisible("#tooltipModal")
             .expect.element('#tooltipModal .item:nth-of-type(3) .tooltipName').text.to.equal('Developer Mode')
         browser
@@ -170,7 +157,7 @@ module.exports = {
             .waitForElementVisible("#intro-popover")
 
             .tooltipTest("#modeArea")
-            .tooltipTest("#userNameArea")
+            .tooltipTest("#helpArea")
             .tooltipTest("#tabButton", "#tabButton")
             .tooltipTest(".dataflowMainArea")
             .tooltipTest("#dagView .categoryBar")
@@ -188,8 +175,7 @@ module.exports = {
                 true
             )
             .tooltipTest("#dagView", "#intro-popover .next")
-            .tooltipTest("#helpMenuTab", "#helpMenuTab")
-            .tooltipTest("#tutorialResource")
+            .tooltipTest("#helpArea")
 
             .waitForElementNotPresent("#intro-popover")
             .waitForElementNotPresent("#intro-visibleOverlay")
@@ -203,10 +189,10 @@ module.exports = {
         }, [], null);
 
         browser
-            .waitForElementVisible("#userNameArea")
-            .click("#userNameArea")
-            .waitForElementVisible("#userMenu .walkthroughs")
-            .click("#userMenu .walkthroughs")
+            .waitForElementVisible("#helpArea")
+            .click("#helpArea")
+            .waitForElementVisible("#helpAreaMenu .walkthroughs")
+            .click("#helpAreaMenu .walkthroughs")
             .waitForElementVisible("#tooltipModal")
             .expect.element('#tooltipModal .item:nth-of-type(2) .tooltipName').text.to.equal('SQL Mode')
         browser.assert.cssClassNotPresent('#tooltipModal .item:nth-of-type(2) button', 'xc-disabled')
@@ -214,7 +200,7 @@ module.exports = {
             .click('#tooltipModal .item:nth-of-type(2) button')
             .waitForElementVisible("#intro-popover")
             .tooltipTest("#modeArea")
-            .tooltipTest("#userNameArea")
+            .tooltipTest("#helpArea")
             .tooltipTest("#menuBar")
             .tooltipTest("#dataStoresTab")
             .tooltipTest("#sqlTab")
@@ -232,8 +218,7 @@ module.exports = {
             .tooltipTest("#sqlEditorSpace")
             .tooltipTest("#sqlTableListerArea")
             .tooltipTest("#sqlWorkSpacePanel .historySection")
-            .tooltipTest("#helpMenuTab", "#helpMenuTab")
-            .tooltipTest("#tutorialResource")
+            .tooltipTest("#helpArea")
 
             .waitForElementNotPresent("#intro-popover")
             .waitForElementNotPresent("#intro-visibleOverlay")
@@ -251,10 +236,10 @@ module.exports = {
         }, [], null);
 
         browser
-            .waitForElementVisible("#userNameArea")
-            .click("#userNameArea")
-            .waitForElementVisible("#userMenu .walkthroughs")
-            .click("#userMenu .walkthroughs")
+            .waitForElementVisible("#helpArea")
+            .click("#helpArea")
+            .waitForElementVisible("#helpAreaMenu .walkthroughs")
+            .click("#helpAreaMenu .walkthroughs")
             .waitForElementVisible("#tooltipModal")
             .expect.element('#tooltipModal .item:nth-of-type(2) .tooltipName').text.to.equal('SQL Mode')
         browser.assert.cssClassNotPresent('#tooltipModal .item:nth-of-type(2) button', 'xc-disabled')
