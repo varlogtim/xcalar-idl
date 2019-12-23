@@ -6331,36 +6331,27 @@ html.microsoft {
 }
 
 #createPublishTableModal {
+    @row-height: 26px;
+    @row-margin: 16px;
     @h-without-main: @modal-header-h + @modal-bottom-h;
     .size(@height: 500px, @min-height: 500px);
     overflow: hidden;
 
-    .modalHeader {
-        .close {
-            margin: 0;
-            color: @color-font-form-gray;
-        }
-    }
-
-    .close {
-        color: @color-white;
-        right: 0px;
-    }
     .modalMain {
         height: ~"calc(100% - @{h-without-main})";
         overflow-y: auto;
         display: block;
         position: relative;
 
-        .IMDName, .IMDKey {
-            width: 100%;
+        .formRow {
+            height: @row-height;
+            margin-bottom: @row-margin;
 
             .subHeading {
                 float: left;
                 margin-top: 0;
 
-                .label{
-                    width: 100px;
+                .label {
                     height: 26px;
                     line-height: 26px;
                     padding-left: 0;
@@ -6369,11 +6360,17 @@ html.microsoft {
             }
         }
 
-        .IMDName {
-            display: inline-flex;
-            padding-bottom: 24px;
-            float: left;
+        .IMDName, .IMDKey {
+            width: 100%;
 
+            .subHeading {
+                .label {
+                    width: 100px;
+                }
+            }
+        }
+
+        .IMDName {
             .inputWrap {
                 border: 1px @color-border-softGray;
                 float: right;
@@ -6414,7 +6411,6 @@ html.microsoft {
 
         .keyOptions {
             .disableKey {
-                margin-top: 10px;
                 float: left;
                 width: 150px;
 
@@ -6429,8 +6425,12 @@ html.microsoft {
             }
             .btnWrap {
                 width: 200px;
-                padding-bottom: 10px;
                 float: right;
+
+                .addArgWrap {
+                    margin-top: 0;
+                }
+
                 .text {
                     line-height: 22px;
                     width: 95px;
@@ -6443,31 +6443,24 @@ html.microsoft {
                     border-radius: 14px;
                     float: right;
                     .xi-plus {
-                        line-height: 25px;
+                        line-height: 23px;
                     }
                 }
             }
         }
 
         #publishTableModalColumns {
-            .subHeading {
-                width: 150px;
-                height: 20px;
-                .label {
-                    margin-top: 15px;
-                    padding-left: 0;
-                }
-            }
+            @base-row: @row-height + @row-margin;
+            @rest-h: 3 * @base-row;
+            height: ~"calc(100% - @{rest-h})";
+            margin-bottom: 0;
+
             .selectAllWrap {
                 float: right;
-                padding-top: 5px;
-                margin-top: 15px;
-                margin-right: -200px;
-                .text {
-                    float: left;
-                }
             }
             .columnsToPublish {
+                height: ~"calc(100% - @{base-row})";
+
                 .cols {
                     padding-top: 1px;
                     border-left: 1px solid @color-bg-white-five;
@@ -6486,7 +6479,6 @@ html.microsoft {
                             height: 19px;
                         }
                     }
-                    max-height: 101px;
                     overflow-y: none;
                 }
 
@@ -6535,7 +6527,6 @@ html.microsoft {
         }
 
         .exportDriver {
-            height: 79px;
 
             .subHeading {
                 float: left;

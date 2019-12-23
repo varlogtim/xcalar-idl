@@ -35,7 +35,7 @@
                 </div>
             </div>
         </div>
-        <div class="keyOptions">
+        <div class="keyOptions formRow">
             <div class="checkboxWrap disableKey">
                 <div class="checkbox">
                     <i class="icon xi-ckbox-empty fa-13"></i>
@@ -54,16 +54,18 @@
                 </div>
             </div>
         </div>
-        <div id="publishTableModalColumns" class="publishColumnsSection formRow">
-            <div class="subHeading clearfix">
-                <div class="label"><%= dicts.publishIMDOp.colsInTable %>:</div>
-            </div>
-            <div class="checkboxWrap selectAllWrap">
-                <div class="checkbox">
-                    <i class="icon xi-ckbox-empty fa-13"></i>
-                    <i class="icon xi-ckbox-selected fa-13"></i>
+        <div id="publishTableModalColumns" class="publishColumnsSection">
+            <div class="formRow">
+                <div class="subHeading">
+                    <div class="label"><%= dicts.publishIMDOp.colsInTable %>:</div>
                 </div>
-                <div class="text"><%= dicts.common.SelectAll %></div>
+                <div class="checkboxWrap selectAllWrap">
+                    <div class="checkbox">
+                        <i class="icon xi-ckbox-empty fa-13"></i>
+                        <i class="icon xi-ckbox-selected fa-13"></i>
+                    </div>
+                    <div class="text"><%= dicts.common.SelectAll %></div>
+                </div>
             </div>
             <div class="columnsToPublish columnsWrap flexWrap clearfix">
                 <ul class="cols"></ul>
