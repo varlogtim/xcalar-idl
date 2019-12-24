@@ -133,7 +133,7 @@ abstract class DSConnectorPanel {
         }
         let cb = () => this._restoreFromPreview(connector, paths);
         this._clear();
-        DSPreview.show({
+        DSConfig.show({
             targetName: connector,
             files: paths,
             multiDS: multiDS,

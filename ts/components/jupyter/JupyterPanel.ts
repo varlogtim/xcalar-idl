@@ -559,7 +559,7 @@ namespace JupyterPanel {
 
     function showDSForm(moduleName: string, fnName: string): void {
         let formatVal: string = $("#fileFormat .text").val();
-        if (!$("#dsForm-preview").hasClass("xc-hidden") &&
+        if (!$("#dsForm-config").hasClass("xc-hidden") &&
             formatVal === $("#fileFormatMenu").find('li[name="UDF"]').text()) {
 
             MainMenu.openPanel("datastorePanel", "inButton");

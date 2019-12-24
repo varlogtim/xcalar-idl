@@ -13,7 +13,7 @@ class DataSourceManager {
         "S3": "S3Config",
         "Path": "DSForm",
         "Browser": "FileBrowser",
-        "Preview": "DSPreview"
+        "Preview": "DSConfig"
     };
 
     public static ImportSteps = {
@@ -30,7 +30,7 @@ class DataSourceManager {
         this._setupViews();
         DSSource.setup();
         DSForm.setup();
-        DSPreview.setup();
+        DSConfig.setup();
         FileBrowser.setup();
         DSTable.setup();
         DSTargetManager.setup();
@@ -51,12 +51,12 @@ class DataSourceManager {
      */
     public static setMode(createTableMode: boolean): void {
         if (createTableMode != null) {
-            DSPreview.setMode(createTableMode);
+            DSConfig.setMode(createTableMode);
             let $topBar = $("#datastore-in-view-topBar");
             if (createTableMode) {
-                $topBar.find(".tab.result").text("Table");
+                $topBar.find(".tab.result").text("3. Table");
             } else {
-                $topBar.find(".tab.result").text("Dataset");
+                $topBar.find(".tab.result").text("3. Dataset");
             }
         }
     }
@@ -93,7 +93,7 @@ class DataSourceManager {
      */
     public static switchView(view: string): void {
         let $cardToSwitch: JQuery = null;
-        let wasInPreview = !$("#dsForm-preview").hasClass("xc-hidden");
+        let wasInPreview = !$("#dsForm-config").hasClass("xc-hidden");
         let step = null;
 
         switch (view) {
@@ -119,7 +119,7 @@ class DataSourceManager {
                 break;
             case DataSourceManager.View.Preview:
                 step = DataSourceManager.ImportSteps.Preview;
-                $cardToSwitch = $("#dsForm-preview");
+                $cardToSwitch = $("#dsForm-config");
                 break;
             default:
                 console.error("invalid view");
@@ -127,7 +127,7 @@ class DataSourceManager {
         }
 
         if (wasInPreview) {
-            DSPreview.cancelLaod();
+            DSConfig.cancelLaod();
         }
 
         $cardToSwitch.removeClass("xc-hidden")

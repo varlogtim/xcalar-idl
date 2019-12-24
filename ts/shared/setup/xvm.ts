@@ -526,7 +526,7 @@ namespace XVM {
         xcManager.setModeStatus();
         TblSourcePreview.Instance.switchMode();
         SQLWorkSpace.Instance.switchMode();
-        DSPreview.switchMode();
+        DSConfig.switchMode();
         let allPanelsClosed = MainMenu.switchMode();
         if (allPanelsClosed) {
             MainMenu.openDefaultPanel();

@@ -253,9 +253,9 @@ describe.skip("Dataset-File Browser Test", function() {
             $firstGrid = $fileBrowser.find(".grid-unit").eq(0);
             $lastGrid = $fileBrowser.find(".grid-unit").eq(testFiles.length - 1);
             submitForm = FileBrowser.__testOnly__.submitForm;
-            oldFunc = DSPreview.show;
+            oldFunc = DSConfig.show;
             test = null;
-            DSPreview.show = function(options) {
+            DSConfig.show = function(options) {
                 test = options;
             };
             $infoContainer = $("#fileInfoContainer");
@@ -398,7 +398,7 @@ describe.skip("Dataset-File Browser Test", function() {
             expect($fileBrowser.find(".pickedFileList li").length).to.equal(0);
         });
         after(function() {
-            DSPreview.show = oldFunc;
+            DSConfig.show = oldFunc;
         })
     })
 
@@ -685,8 +685,8 @@ describe.skip("Dataset-File Browser Test", function() {
         var test = null;
 
         before(function() {
-            oldFunc = DSPreview.show;
-            DSPreview.show = function(options) {
+            oldFunc = DSConfig.show;
+            DSConfig.show = function(options) {
                 test = options;
             };
         });
@@ -725,7 +725,7 @@ describe.skip("Dataset-File Browser Test", function() {
         });
 
         after(function() {
-            DSPreview.show = oldFunc;
+            DSConfig.show = oldFunc;
             $fileBrowser.find(".cancel").click();
         });
     });

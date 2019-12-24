@@ -195,7 +195,7 @@ namespace FileBrowser {
         options?: {
             backCB?: Function
             cloud?: boolean
-        }        
+        }
     ): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (!restore) {
@@ -304,7 +304,7 @@ namespace FileBrowser {
 
     function setMode(): void {
         let $switch = $("#fileInfoBottom .switchWrap");
-        if (DSPreview.isCreateTableMode()) {
+        if (DSConfig.isCreateTableMode()) {
             $switch.find(".switch").removeClass("on");
             $switch.addClass("xc-hidden");
             $switch.siblings(".infoTitle").addClass("xc-hidden");
@@ -895,7 +895,7 @@ namespace FileBrowser {
                 renderFiles(path, true);
             }
         });
-        
+
         return deferred.promise();
     }
 
@@ -1456,7 +1456,7 @@ namespace FileBrowser {
         } else {
             cb = () => FileBrowser.show(targetName, curDir, true);
         }
-        DSPreview.show(options, cb, false);
+        DSConfig.show(options, cb, false);
     }
 
     function searchFiles(
@@ -1896,7 +1896,7 @@ namespace FileBrowser {
             // used to keep file position when
             // files before it are hidden
         let hasCtime: boolean = false;
-        let len: number = files.length; 
+        let len: number = files.length;
         for (let i = 0; i < len; i++) {
             // fileObj: {name, isSelected, isPicked, attr{isDirectory, size}}
             let fileObj = files[i];
@@ -1953,7 +1953,7 @@ namespace FileBrowser {
                 '<div class="label fileName" data-name="' + escName + '">' +
                     name +
                 '</div>';
-            
+
             if (ctime) {
                 hasCtime = true;
                 html += genDateHtml(ctime, "ctime");

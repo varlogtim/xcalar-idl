@@ -546,7 +546,7 @@ class DSTable {
                 "dsToReplace": dsId
             };
         });
-        DSPreview.show({
+        DSConfig.show({
             "targetName": dsObj.getTargetName(),
             "files": files,
             "format": dsObj.getFormat(),

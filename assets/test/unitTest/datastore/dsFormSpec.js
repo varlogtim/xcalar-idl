@@ -169,9 +169,9 @@ describe("Dataset-DSForm Test", function() {
         });
 
         it("Should click preview button to trigger preview", function() {
-            var oldFunc = DSPreview.show;
+            var oldFunc = DSConfig.show;
             var test = false;
-            DSPreview.show = function() {
+            DSConfig.show = function() {
                 test = true;
             };
 
@@ -179,19 +179,19 @@ describe("Dataset-DSForm Test", function() {
             $pathCard.find(".confirm").click();
             expect(test).to.be.true;
             expect($filePath.val()).to.equal(""); // form will be clear
-            DSPreview.show = oldFunc;
+            DSConfig.show = oldFunc;
         });
 
         it("back from preview should restore form", function() {
-            var oldFunc = DSPreview.show;
-            DSPreview.show = function(_arg, cb) {
+            var oldFunc = DSConfig.show;
+            DSConfig.show = function(_arg, cb) {
                 cb();
             };
 
             $filePath.val("test");
             $pathCard.find(".confirm").click();
             expect($filePath.val()).to.equal("/test/");
-            DSPreview.show = oldFunc;
+            DSConfig.show = oldFunc;
         });
 
         it("Should use the previously set history path dropdown", function() {

@@ -587,7 +587,7 @@ window.Shortcuts = (function($, Shortcuts) {
             $formatDropdown.find('li[name="JSON"]').click();
             $("#importDataForm").find(".dsName").eq(0).val(dsName);
 
-            $('#dsForm-preview').find('.confirm').last().click();
+            $('#dsForm-config').find('.confirm').last().click();
             dsIcon = ".ds.grid-unit[data-dsname='" + dsName + "']:not(.inactive)";
         }
         checkExists(dsIcon)

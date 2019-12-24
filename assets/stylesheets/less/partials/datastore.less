@@ -44,7 +44,7 @@ html.safari {
             display: none;
         }
 
-        #dsForm-preview:not(.createTable) {
+        #dsForm-config:not(.createTable) {
             display: none;
         }
     }
@@ -54,7 +54,7 @@ html.safari {
             display: none;
         }
 
-        #dsForm-preview.createTable {
+        #dsForm-config.createTable {
             display: none;
         }
     }
@@ -1707,22 +1707,29 @@ table.datasetTable {
 
 
 /* Data Form Preview */
-#dsForm-preview {
+#dsForm-config {
     .size(@min-width: 750px, @height: 100%);
     overflow: hidden;
     margin-bottom: 0;
 
-    &.minimize {
-        .cardMain {
-            .size(@height: ~"calc(100% - 54px)");
-        }
-
-        .cardBottom {
-            .size(@height: 18px);
-
-            #importDataForm {
+    &.hidingPreview {
+        .previewHeader {
+            .xi-down {
                 display: none;
             }
+            .xi-next {
+                display: inline-block;
+            }
+        }
+        #dsPreviewWrap {
+            display: none;
+        }
+        .cardBottom {
+            top: 40px !important;
+            height: ~"calc(100% - 40px)" !important;
+        }
+        #dsForm-minimize, .ui-resizable-n {
+           display: none !important;
         }
     }
 
@@ -1731,8 +1738,8 @@ table.datasetTable {
             display: none;
         }
         .cardBottom {
-            top: 0% !important;
-            height: 100% !important;
+            top: 40px !important;
+            height: ~"calc(100% - 40px)" !important;
         }
         #dsForm-minimize, .ui-resizable-n {
             cursor: not-allowed;
@@ -1792,7 +1799,7 @@ table.datasetTable {
 
     .cardMain {
         padding-top: 0;
-        .size(@height: 50%);
+        .size(@height: ~"calc(50% - 40px)");
         .text-selection;
         .transition(height 0.3s);
 
@@ -1825,6 +1832,26 @@ table.datasetTable {
             position: relative;
             background: @color-white;
             .position(absolute, @right: 0px, @bottom: 0px);
+        }
+    }
+
+    .previewHeader {
+        height: 40px;
+        line-height: 40px;
+        padding-left: 10px;
+        cursor: pointer;
+
+        span {
+            font-weight: bold;
+        }
+
+        .xi-next {
+            display: none;
+        }
+        .xi-next, .xi-down {
+            font-size: 14px;
+            line-height: 40px;
+            margin-right: 8px;
         }
     }
 
@@ -1945,9 +1972,15 @@ table.datasetTable {
         display: none !important;
     }
 
+    .closeDSPreview {
+        float: right;
+        padding: 5px;
+        margin: 5px;
+    }
+
     .titleSection {
         .size(@height: @size-title);
-        padding: 15px 20px;
+        padding: 15px 20px 15px;
 
         .info {
             .size(@height: 30px);

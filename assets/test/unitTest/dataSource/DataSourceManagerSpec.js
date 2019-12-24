@@ -36,7 +36,7 @@ describe("DataSourceManager Test", function() {
             "$ele": $("#fileBrowser")
         }, {
             "view": DataSourceManager.View.Preview,
-            "$ele": $("#dsForm-preview")
+            "$ele": $("#dsForm-config")
         }, {
             "view": DataSourceManager.View.Path,
             "$ele": $("#dsForm-path")
@@ -65,10 +65,10 @@ describe("DataSourceManager Test", function() {
         let wasCreateMode = $tab.text() === "Table";
         // case 1
         DataSourceManager.setMode(true);
-        expect($tab.text()).to.equal("Table");
+        expect($tab.text()).to.equal("3. Table");
         // case 2
         DataSourceManager.setMode(false);
-        expect($tab.text()).to.equal("Dataset");
+        expect($tab.text()).to.equal("3. Dataset");
 
         // restore
         DataSourceManager.setMode(wasCreateMode);

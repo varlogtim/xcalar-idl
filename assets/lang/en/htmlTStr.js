@@ -714,7 +714,7 @@ module.exports = {
         "ExcelIndex": "Worksheet Number",
         "SkipRowsHint": "Skip the first X rows in each file in the data source",
         "CreateDS": "Create Dataset",
-        "ApplyUDF": "Apply UDF",
+        "ApplyUDF": "Apply UDF and Preview Result",
         "applyPattern": "Refresh Files",
         "REDETECT": "REDETECT FORMAT",
         "Minimize": "Toggle minimization of the form",

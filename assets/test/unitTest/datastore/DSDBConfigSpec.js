@@ -62,8 +62,8 @@ describe("DSDBConfig Test", function() {
     });
 
     it("back from preview should restore form", function() {
-        var oldFunc = DSPreview.show;
-        DSPreview.show = function(_arg, cb) {
+        var oldFunc = DSConfig.show;
+        DSConfig.show = function(_arg, cb) {
             cb();
         };
 
@@ -72,7 +72,7 @@ describe("DSDBConfig Test", function() {
         $card.find(".confirm").click();
 
         expect($card.find(".path input").val()).to.equal("path");
-        DSPreview.show = oldFunc;
+        DSConfig.show = oldFunc;
     });
 
     it("should go back", function() {

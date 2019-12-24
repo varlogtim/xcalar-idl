@@ -771,7 +771,7 @@ namespace DSTargetManager {
         });
     }
 
-    // XXX TODO: combine with the one in DSPreview.ts
+    // XXX TODO: combine with the one in DSConfig.ts
     function selectUDFModuleOnEnter(displayedModuleName: string): void {
         let moduleName = $udfModuleList.find("li").filter(function() {
             return $(this).text() === displayedModuleName;

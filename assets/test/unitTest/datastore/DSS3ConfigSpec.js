@@ -66,9 +66,9 @@ describe("DSS3Config Test", function() {
     });
 
     it("should submit", function() {
-        let oldFunc = DSPreview.show;
+        let oldFunc = DSConfig.show;
         let test = null;
-        DSPreview.show = (arg) => { test = arg; };
+        DSConfig.show = (arg) => { test = arg; };
 
         $dropdown.find("input").val("target");
         $card.find(".path input").eq(0).val("path");
@@ -80,12 +80,12 @@ describe("DSS3Config Test", function() {
             multiDS: false
         });
         expect($card.find(".path input").eq(0).val()).to.equal("");
-        DSPreview.show = oldFunc;
+        DSConfig.show = oldFunc;
     });
 
     it("back from preview should restore form", function() {
-        var oldFunc = DSPreview.show;
-        DSPreview.show = function(_arg, cb) {
+        var oldFunc = DSConfig.show;
+        DSConfig.show = function(_arg, cb) {
             cb();
         };
 
@@ -94,7 +94,7 @@ describe("DSS3Config Test", function() {
         $card.find(".confirm").click();
 
         expect($card.find(".path input").eq(0).val()).to.equal("path");
-        DSPreview.show = oldFunc;
+        DSConfig.show = oldFunc;
     });
 
     it("should go back", function() {

@@ -439,7 +439,7 @@ namespace DS {
             try {
                 let loadArgs = JSON.parse(res);
                 let parserFnName = loadArgs.args.loadArgs.parseArgs.parserFnName;
-                let format = DSPreview.getFormatFromParserFnName(parserFnName);
+                let format = DSConfig.getFormatFromParserFnName(parserFnName);
                 dsObj.setFormat(format);
                 commitDSChange();
                 deferred.resolve(format);

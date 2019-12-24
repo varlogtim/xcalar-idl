@@ -68,7 +68,7 @@ describe("Mocha Setup Test", function() {
         } else {
             console.error("invalid license, it should not happen, but still trying running test");
         }
-        
+
     });
 
     it("duplicate element IDs should not exist", function() {

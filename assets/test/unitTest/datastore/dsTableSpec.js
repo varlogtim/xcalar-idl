@@ -283,7 +283,7 @@ describe("Dataset-DSTable Test", function() {
         it("should click retry button to retry", function() {
             var oldGetError = DS.getErrorDSObj;
             var oldRemove = DS.removeErrorDSObj;
-            var oldPreview = DSPreview.show;
+            var oldPreview = DSConfig.show;
             var test = false;
             var oldId = $dsTableContainer.data("id");
             var $dsTableView = $("#dsTableView");
@@ -298,7 +298,7 @@ describe("Dataset-DSTable Test", function() {
                 test = true;
             };
 
-            DSPreview.show = function() {};
+            DSConfig.show = function() {};
 
             // case 1
             $dsTableContainer.data("id", null);
@@ -313,7 +313,7 @@ describe("Dataset-DSTable Test", function() {
             DS.getErrorDSObj = oldGetError;
             DS.removeErrorDSObj = oldRemove;
             $dsTableContainer.data(oldId);
-            DSPreview.show = oldPreview;
+            DSConfig.show = oldPreview;
         });
 
         it("should update format info", function(done) {

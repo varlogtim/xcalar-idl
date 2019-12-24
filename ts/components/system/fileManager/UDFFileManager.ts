@@ -469,7 +469,6 @@ class UDFFileManager extends BaseFileManager {
             }, 1000);
 
             xcUIHelper.disableSubmit($fnUpload);
-
             XcalarUploadPython(uploadPath, entireString, absolutePath, true)
             .then(() => {
                 if (overwiteShareUDF) {
@@ -557,7 +556,6 @@ class UDFFileManager extends BaseFileManager {
         let def = isLocalUDF
         ? this._warnDatasetUDF(uploadPath, entireString)
         : PromiseHelper.resolve();
-
         def
         .then((overwiteShareUDF: boolean) => {
             return this.upload(uploadPath, entireString, absolutePath, overwiteShareUDF);
@@ -908,7 +906,7 @@ class UDFFileManager extends BaseFileManager {
                 // transform object - filter out other notebooks and shorten
                 // names
                 this.filterWorkbookUDF(listXdfsObjUpdate);
-                DSPreview.update(listXdfsObjUpdate);
+                DSConfig.update(listXdfsObjUpdate);
                 DSTargetManager.updateUDF(listXdfsObjUpdate);
                 XDFManager.Instance.updateUDFs(listXdfsObjUpdate);
 

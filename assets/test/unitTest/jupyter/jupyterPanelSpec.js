@@ -390,8 +390,8 @@ describe("JupyterPanel Test", function() {
         });
 
         it("showDSForm should work", function() {
-            var wasHidden = $("#dsForm-preview").hasClass("xc-hidden");
-            $("#dsForm-preview").removeClass("xc-hidden");
+            var wasHidden = $("#dsForm-config").hasClass("xc-hidden");
+            $("#dsForm-config").removeClass("xc-hidden");
             var text = $("#fileFormatMenu").find('li[name="UDF"]').text();
             var prevText = $("#fileFormat .text").val();
             $("#fileFormat .text").val(text);
@@ -420,7 +420,7 @@ describe("JupyterPanel Test", function() {
             xcMixpanel.errorEvent = cacheFn3;
 
             if (wasHidden) {
-                $("#dsForm-preview").addClass("xc-hidden");
+                $("#dsForm-config").addClass("xc-hidden");
             }
             $("#fileFormat .text").val(prevText);
             $("#dsForm-applyUDF").off("click.testClick");

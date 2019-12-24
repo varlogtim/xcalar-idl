@@ -18,7 +18,7 @@ namespace DSForm {
     export function initialize(): void {
         // reset anything browser may have autofilled
         resetForm();
-        DSPreview.update();
+        DSConfig.update();
         if (!XVM.isSingleUser()) {
             $("#dsForm-target input").val(gDefaultSharedRoot);
         }
@@ -47,7 +47,7 @@ namespace DSForm {
      */
     export function hide(): void {
         $("#dsFormView").addClass("xc-hidden");
-        DSPreview.clear();
+        DSConfig.clear();
         FileBrowser.clear();
     }
 
@@ -282,7 +282,7 @@ namespace DSForm {
 
         let cb = () => restoreFromPreview(targetName, path);
         resetForm();
-        DSPreview.show({
+        DSConfig.show({
             targetName: targetName,
             files: [{path: path}]
         }, cb, false);

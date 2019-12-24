@@ -16,8 +16,8 @@ interface DSPreviewOptions {
     multiDS?: boolean;
 }
 
-namespace DSPreview {
-    let $previewCard: JQuery;   // $("#dsForm-preview");
+namespace DSConfig {
+    let $previewCard: JQuery;   // $("#dsForm-config");
     let $previewWrap: JQuery;    // $("#dsPreviewWrap")
     let $previewTable: JQuery;  // $("#previewTable")
     let $previewTableWrap: JQuery; //$("dsPreviewTableWrap")
@@ -60,6 +60,7 @@ namespace DSPreview {
     let previewId: number;
     let createTableMode: boolean = null;
     let _backCB: Function = null; // go back callback
+    let previewHiddenForParquet: boolean = false;
 
     // constant
     const defaultRowsToFech: number = 40;
@@ -88,10 +89,10 @@ namespace DSPreview {
     };
 
     /**
-     * DSPreview.setup
+     * DSConfig.setup
      */
     export function setup(): void {
-        $previewCard = $("#dsForm-preview");
+        $previewCard = $("#dsForm-config");
         $previewWrap = $("#dsPreviewWrap");
         $previewTable = $("#previewTable");
         $previewTableWrap = $("#dsPreviewTableWrap");
@@ -124,7 +125,10 @@ namespace DSPreview {
         });
         createPreviewLoader({
             $container: $form,
-            refreshPreviewFunc: () => refreshPreview(true, true)
+            refreshPreviewFunc: () => {
+                refreshPreview(true, true);
+                showPreview();
+            }
         });
         componentXmlFormat = createXMLFormat({
             $container: $form,
@@ -353,10 +357,12 @@ namespace DSPreview {
             xcTooltip.auto(this);
         });
 
-        // minimize
-        $("#dsForm-minimize").click(function() {
-            xcTooltip.hideAll();
-            $previewCard.toggleClass("minimize");
+        $previewCard.find(".previewHeader").click(function() {
+            if ($previewCard.hasClass("hidingPreview")) {
+                showPreview();
+            } else {
+                $previewCard.addClass("hidingPreview");
+            }
         });
 
         // set up format dropdownlist
@@ -391,8 +397,8 @@ namespace DSPreview {
                 }
             },
             onOpen: setActivePreviewFile,
-            "container": "#dsForm-preview",
-            "bounds": "#dsForm-preview",
+            "container": "#dsForm-config",
+            "bounds": "#dsForm-config",
             "bottomPadding": 5
         }).setupListeners();
 
@@ -427,6 +433,7 @@ namespace DSPreview {
         $bottomCard .on('mousedown', '.ui-resizable-n', function() {
             bottomCardTop = $bottomCard.position().top;
         });
+        let cardHeight: number;
 
         $bottomCard.resizable({
             handles: "n",
@@ -435,6 +442,7 @@ namespace DSPreview {
                 $bottomCard.css('top', bottomCardTop);
                 ui.originalPosition.top = bottomCardTop;
                 ui.position.top = bottomCardTop;
+                cardHeight = $previewCard.height();
                 $previewWrap.outerHeight('100%');
                 $previewWrap.addClass("dragging");
                 // if resize is triggered, don't validate, just return to old
@@ -445,7 +453,11 @@ namespace DSPreview {
                     $("#importColRename").trigger("blur");
                 }
             },
-            resize: function() {
+            resize: function(_event, ui) {
+                if (ui.position.top < 40) {
+                    $bottomCard.css("top", "40px");
+                    $bottomCard.height(cardHeight - 40);
+                }
             },
             stop: function() {
                 let containerHeight: number = $previewCard.find(".cardWrap").height();
@@ -502,7 +514,7 @@ namespace DSPreview {
     }
 
     /**
-     * DSPreview.show
+     * DSConfig.show
      * @param options
      * options:
      * pattern: pattern of the path (can only be one path, not supported yet)
@@ -565,14 +577,14 @@ namespace DSPreview {
     }
 
     /**
-     * DSPreview.setMode
+     * DSConfig.setMode
      */
     export function setMode(flag: boolean): void {
         createTableMode = flag;
     }
 
     /**
-     * DSPreview.isCreateTableMode
+     * DSConfig.isCreateTableMode
      */
     export function isCreateTableMode(): boolean {
         if (XVM.isSQLMode()) {
@@ -585,7 +597,7 @@ namespace DSPreview {
     }
 
     /**
-     * DSPreview.switchMode
+     * DSConfig.switchMode
      */
     export function switchMode(): void {
         if (XVM.isSQLMode()) {
@@ -599,7 +611,7 @@ namespace DSPreview {
     }
 
     /**
-     * DSPreview.update
+     * DSConfig.update
      */
     export function update(listXdfsObj?: any): void {
         let moduleName = $udfModuleList.find("input").data("module");
@@ -612,10 +624,10 @@ namespace DSPreview {
     }
 
     /**
-     * DSPreview.clear
+     * DSConfig.clear
      */
     export function clear(): XDPromise<boolean> {
-        if ($("#dsForm-preview").hasClass("xc-hidden")) {
+        if ($("#dsForm-config").hasClass("xc-hidden")) {
             // when preview table not shows up
             return PromiseHelper.resolve(null);
         } else {
@@ -626,14 +638,14 @@ namespace DSPreview {
     }
 
     /**
-     * DSPreview.cancelRunningPreview
+     * DSConfig.cancelRunningPreview
      */
     export function cancelLaod(): void {
         cancelRunningPreview();
     }
 
     /**
-     * DSPreview.getFormatFromParserFnName
+     * DSConfig.getFormatFromParserFnName
      * @param parserFnName
      */
     export function getFormatFromParserFnName(parserFnName: string): string {
@@ -953,6 +965,7 @@ namespace DSPreview {
         $("#dsForm-applyUDF").click(function() {
             $(this).blur();
             refreshPreview(true);
+            showPreview();
         });
 
         $("#dsForm-writeUDF").click(function() {
@@ -2998,6 +3011,9 @@ namespace DSPreview {
         }
 
         xcTooltip.remove($previewCard.find(".ui-resizable-n"));
+        xcTooltip.add($previewCard.find(".previewHeader span"), {
+            title: "Toggle preview"
+        });
 
         if (format == null) {
             // reset case
@@ -3025,6 +3041,11 @@ namespace DSPreview {
             dataSourceSchema.toggleCaseInsensitive(false);
         } else {
             dataSourceSchema.hide();
+        }
+
+        if (format !== "PARQUET" && previewHiddenForParquet) {
+            $previewCard.removeClass("hidingPreview");
+            previewHiddenForParquet = false;
         }
 
         switch (format) {
@@ -3061,7 +3082,12 @@ namespace DSPreview {
                 xcTooltip.add($previewCard.find(".ui-resizable-n"), {
                     title: "Dataset preview is not available"
                 });
+                xcTooltip.add($previewCard.find(".previewHeader span"), {
+                    title: "Dataset preview is not available"
+                });
                 initParquetForm(filePath, targetName);
+                previewHiddenForParquet = !$previewCard.hasClass("hidingPreview");
+                $previewCard.addClass("hidingPreview");
                 break;
             case "UDF":
                 $form.find(".format.udf").removeClass("xc-hidden");
@@ -3574,6 +3600,7 @@ namespace DSPreview {
         let dsNames = [];
         let html: HTML = "";
         let $inputPart = $form.find(".topSection .inputPart");
+
         files.forEach(function(file) {
             let path = file.path;
             let dsName = getNameFromPath(path);
@@ -3619,6 +3646,7 @@ namespace DSPreview {
                     title: originalText
                 });
             }
+            $ele.data("path", originalText)
         });
     }
 
@@ -3778,6 +3806,19 @@ namespace DSPreview {
             $previewFile.find("li.active").removeClass("active");
             $previewFile.find('li[data-path="' + previewFile + '"]')
                         .addClass("active");
+        }
+    }
+
+    function showPreview() {
+        if (loadArgs.getFormat() === formatMap.PARQUET) {
+            return;
+        }
+        $previewCard.removeClass("hidingPreview");
+        if ($previewWrap.height() < 140) {
+            let $bottomCard = $previewCard.find(".cardBottom");
+            $bottomCard.css('top', '50%');
+            $bottomCard.outerHeight('50%');
+            $previewWrap.outerHeight('calc(50% - 40px)');
         }
     }
 
@@ -6898,13 +6939,13 @@ namespace DSPreview {
         var oldIsCreateTableMode;
         __testOnly__.setIsCreateTableMode = function(flag) {
             oldIsCreateTableMode = isCreateTableMode;
-            DSPreview.isCreateTableMode = function() {
+            DSConfig.isCreateTableMode = function() {
                 return flag;
             };
         }
 
         __testOnly__.resetIsCreateTableMode = function() {
-            DSPreview.isCreateTableMode = oldIsCreateTableMode;
+            DSConfig.isCreateTableMode = oldIsCreateTableMode;
         };
         __testOnly__.validateParquetArgs = validateParquetArgs;
         __testOnly__.delimiterTranslate = delimiterTranslate;

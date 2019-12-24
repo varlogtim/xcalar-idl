@@ -1,4 +1,4 @@
-describe("Dataset-DSPreview Test", function() {
+describe("Dataset-DSConfig Test", function() {
     // Note that this function is called in very early time
     // so do not initialize any resuable varible here
     // instead, initialize in the it() function
@@ -25,7 +25,7 @@ describe("Dataset-DSPreview Test", function() {
 
     before(function() {
         XVM.setMode(XVM.Mode.Advanced);
-        $previewCard = $("#dsForm-preview");
+        $previewCard = $("#dsForm-config");
         $previewTable = $("#previewTable");
         $previewWrap = $("#dsPreviewWrap");
         $form = $("#importDataForm");
@@ -41,7 +41,7 @@ describe("Dataset-DSPreview Test", function() {
 
         $skipInput = $("#dsForm-skipRows");
         $quoteInput = $("#dsForm-quote");
-        loadArgs = DSPreview.__testOnly__.get().loadArgs;
+        loadArgs = DSConfig.__testOnly__.get().loadArgs;
 
         $mainTabCache = $(".topMenuBarTab.active");
         $("#dataStoresTab").click();
@@ -50,7 +50,7 @@ describe("Dataset-DSPreview Test", function() {
 
     describe("Basic Preview Function Test", function() {
         it("parseTdHelper should work", function() {
-            var parseTdHelper = DSPreview.__testOnly__.parseTdHelper;
+            var parseTdHelper = DSConfig.__testOnly__.parseTdHelper;
             var testCases = [{
                 // test1: when not th, has delimiter
                 "delimiter": ",",
@@ -129,13 +129,13 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("parseTdHelper should work for editable case", () => {
-            const parseTdHelper = DSPreview.__testOnly__.parseTdHelper;
+            const parseTdHelper = DSConfig.__testOnly__.parseTdHelper;
             const res = parseTdHelper('h, i', ',', true, true);
             expect(res).to.contains('editable');
         });
 
         it("getTbodyHTML() shoud work", function() {
-            var getTbodyHTML = DSPreview.__testOnly__.getTbodyHTML;
+            var getTbodyHTML = DSConfig.__testOnly__.getTbodyHTML;
 
             var testCases = [{
                 // test1: when no header
@@ -183,11 +183,11 @@ describe("Dataset-DSPreview Test", function() {
                 expect(tbody).to.equal(testCase.expectRes);
             });
 
-            DSPreview.__testOnly__.set();
+            DSConfig.__testOnly__.set();
         });
 
         it("getTheadHTML should work", function() {
-            var getTheadHTML = DSPreview.__testOnly__.getTheadHTML;
+            var getTheadHTML = DSConfig.__testOnly__.getTheadHTML;
 
             var testCases = [{
                 // test1: when no header
@@ -240,7 +240,7 @@ describe("Dataset-DSPreview Test", function() {
                 expect(tHead).to.equal(testCase.expectRes);
             });
 
-            DSPreview.__testOnly__.set();
+            DSConfig.__testOnly__.set();
         });
 
         it("highlightHelper() should work", function() {
@@ -249,7 +249,7 @@ describe("Dataset-DSPreview Test", function() {
                             '<span class="td">,</span>' +
                             '<span class="td">i</span>' +
                         '</div>');
-            DSPreview.__testOnly__.highlightHelper($cell, ",");
+            DSConfig.__testOnly__.highlightHelper($cell, ",");
 
             expect($cell.html()).to.equal('<span class="td">h</span>' +
                                 '<span class="td highlight">,</span>' +
@@ -257,7 +257,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("getPreviewName() should work", function() {
-            var getPreviewTableName = DSPreview.__testOnly__.getPreviewTableName;
+            var getPreviewTableName = DSConfig.__testOnly__.getPreviewTableName;
             var res = getPreviewTableName("test");
             expect(res.indexOf("test-") > 0).to.be.true;
             expect(res.endsWith("-xcalar-preview")).to.be.true;
@@ -270,11 +270,11 @@ describe("Dataset-DSPreview Test", function() {
         it("toggleHeader() should workh", function() {
             var data = "line1\nline2";
             var $checkbox = $headerCheckBox.find(".checkbox");
-            var toggleHeader = DSPreview.__testOnly__.toggleHeader;
+            var toggleHeader = DSConfig.__testOnly__.toggleHeader;
 
             loadArgs.reset();
-            DSPreview.__testOnly__.set(data);
-            DSPreview.__testOnly__.getPreviewTable();
+            DSConfig.__testOnly__.set(data);
+            DSConfig.__testOnly__.getPreviewTable();
             // has 2 rows
             expect($previewTable.find("tbody tr").length).to.equal(2);
 
@@ -312,7 +312,7 @@ describe("Dataset-DSPreview Test", function() {
                 return PromiseHelper.resolve("test");
             };
 
-            DSPreview.__testOnly__.getDataFromLoadUDF()
+            DSConfig.__testOnly__.getDataFromLoadUDF()
             .then(function() {
                 done("fail");
             })
@@ -341,7 +341,7 @@ describe("Dataset-DSPreview Test", function() {
                 return PromiseHelper.resolve();
             };
 
-            DSPreview.__testOnly__.getDataFromLoadUDF()
+            DSConfig.__testOnly__.getDataFromLoadUDF()
             .then(function(res) {
                 expect(res).to.be.null;
                 done();
@@ -374,7 +374,7 @@ describe("Dataset-DSPreview Test", function() {
                 return PromiseHelper.resolve(['{"column10":"Opportunity Source"}']);
             };
 
-            DSPreview.__testOnly__.getDataFromLoadUDF()
+            DSConfig.__testOnly__.getDataFromLoadUDF()
             .then(function(res) {
                 expect(res).to.equal('[{"column10":"Opportunity Source"}]');
                 done();
@@ -390,14 +390,14 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("getURLToPreview should work", function(done) {
-            var meta = DSPreview.__testOnly__.get();
+            var meta = DSConfig.__testOnly__.get();
             meta.loadArgs.set({
                 targetName: gDefaultSharedRoot,
                 files: [{
                     path: "/url",
                 }]
             });
-            DSPreview.__testOnly__.set(null, null);
+            DSConfig.__testOnly__.set(null, null);
             var oldList = XcalarListFiles;
             XcalarListFiles = function() {
                 return PromiseHelper.resolve({
@@ -411,7 +411,7 @@ describe("Dataset-DSPreview Test", function() {
                 });
             };
 
-            DSPreview.__testOnly__.getURLToPreview()
+            DSConfig.__testOnly__.getURLToPreview()
             .then(function({sourceIndex, url}) {
                 expect(sourceIndex).to.equal(0);
                 expect(url).to.equal("/url/test");
@@ -422,7 +422,7 @@ describe("Dataset-DSPreview Test", function() {
             })
             .always(function() {
                 XcalarListFiles = oldList;
-                DSPreview.__testOnly__.set(null, null);
+                DSConfig.__testOnly__.set(null, null);
             });
         });
 
@@ -431,8 +431,8 @@ describe("Dataset-DSPreview Test", function() {
             let loadArgs;
 
             before(() => {
-                invalidHeaderDetection = DSPreview.__testOnly__.invalidHeaderDetection;
-                loadArgs = DSPreview.__testOnly__.get().loadArgs;
+                invalidHeaderDetection = DSConfig.__testOnly__.invalidHeaderDetection;
+                loadArgs = DSConfig.__testOnly__.get().loadArgs;
                 loadArgs.setFormat("JSON");
             });
 
@@ -494,7 +494,7 @@ describe("Dataset-DSPreview Test", function() {
         it("changePreviewFile should work", function() {
             var oldPreviewSource = loadArgs.getPreviewingSource();
             loadArgs.setPreviewingSource(0, "test");
-            DSPreview.__testOnly__.changePreviewFile(0, "test2");
+            DSConfig.__testOnly__.changePreviewFile(0, "test2");
             expect(loadArgs.getPreviewFile()).to.equal("test2");
             if (oldPreviewSource != null) {
                 loadArgs.setPreviewingSource(oldPreviewSource.index, oldPreviewSource.file);
@@ -502,7 +502,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("getTerminationOptions should work", function() {
-            var getTerminationOptions = DSPreview.__testOnly__.getTerminationOptions;
+            var getTerminationOptions = DSConfig.__testOnly__.getTerminationOptions;
             var $btns = $form.find(".advanceSection .termOptions .radioButton");
             var tests = [{
                 option: "stop",
@@ -533,7 +533,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it('errorHandler should work', () => {
-            const errorHandler = DSPreview.__testOnly__.errorHandler;
+            const errorHandler = DSConfig.__testOnly__.errorHandler;
             const $errorSection = $previewWrap.find('.errorSection');
             const $content = $errorSection.find('.content');
             const $bottomSection = $errorSection.find('.bottomSection');
@@ -581,8 +581,8 @@ describe("Dataset-DSPreview Test", function() {
             let oldList;
 
             before(() => {
-                previewData = DSPreview.__testOnly__.previewData;
-                loadArgs = DSPreview.__testOnly__.get().loadArgs;
+                previewData = DSConfig.__testOnly__.previewData;
+                loadArgs = DSConfig.__testOnly__.get().loadArgs;
                 $errorSection = $previewWrap.find('.errorSection');
 
                 oldList = XcalarListFiles;
@@ -659,8 +659,8 @@ describe("Dataset-DSPreview Test", function() {
                     oldImport = DS.load;
                     DS.load = (args) => PromiseHelper.resolve(args);
 
-                    loadArgs = DSPreview.__testOnly__.get().loadArgs;
-                    validateParquetArgs = DSPreview.__testOnly__.validateParquetArgs;
+                    loadArgs = DSConfig.__testOnly__.get().loadArgs;
+                    validateParquetArgs = DSConfig.__testOnly__.validateParquetArgs;
                 });
 
                 it('should get parquetArgs', () => {
@@ -701,7 +701,7 @@ describe("Dataset-DSPreview Test", function() {
                     XcalarListFiles = oldList;
                     DS.load = oldImport;
                     loadArgs.reset();
-                    DSPreview.__testOnly__.resetForm();
+                    DSConfig.__testOnly__.resetForm();
                 });
             });
 
@@ -711,11 +711,11 @@ describe("Dataset-DSPreview Test", function() {
                 let loadArgs;
 
                 before(() => {
-                    importDataHelper = DSPreview.__testOnly__.importDataHelper;
+                    importDataHelper = DSConfig.__testOnly__.importDataHelper;
                     oldImport = DS.load;
                     DS.load = (args) => PromiseHelper.resolve(args);
 
-                    loadArgs = DSPreview.__testOnly__.get().loadArgs;
+                    loadArgs = DSConfig.__testOnly__.get().loadArgs;
                 });
 
                 it('should work for parquet case', (done) => {
@@ -789,12 +789,12 @@ describe("Dataset-DSPreview Test", function() {
                 Transaction.fail = oldTransFail;
                 XcalarListFiles = oldList;
                 loadArgs.reset();
-                DSPreview.__testOnly__.resetForm();
+                DSConfig.__testOnly__.resetForm();
             });
         });
 
         it("delimiterTranslate should work", function() {
-            let delimiterTranslate = DSPreview.__testOnly__.delimiterTranslate;
+            let delimiterTranslate = DSConfig.__testOnly__.delimiterTranslate;
             // case 1
             var $input = $('<input class="nullVal">');
             var res = delimiterTranslate($input);
@@ -813,11 +813,11 @@ describe("Dataset-DSPreview Test", function() {
     });
 
     describe("Preview Public API Test", function() {
-        it("DSPreview.clear shoule resolve if view is hidden", function(done) {
+        it("DSConfig.clear shoule resolve if view is hidden", function(done) {
             var isHidden = $previewCard.hasClass("xc-hidden");
             $previewCard.addClass("xc-hidden");
 
-            DSPreview.clear()
+            DSConfig.clear()
             .then(function(res) {
                 expect(res).to.equal(null);
                 done();
@@ -863,7 +863,7 @@ describe("Dataset-DSPreview Test", function() {
             }];
 
             tests.forEach((test) => {
-                let res = DSPreview.getFormatFromParserFnName(test.fn);
+                let res = DSConfig.getFormatFromParserFnName(test.fn);
                 if (res !== test.expect) {
                     console.error("fail test", test);
                 }
@@ -872,7 +872,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         after(function() {
-            DSPreview.__testOnly__.resetForm();
+            DSConfig.__testOnly__.resetForm();
         });
     });
 
@@ -882,7 +882,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("Should detect correct format", function() {
-            var detectFormat = DSPreview.__testOnly__.detectFormat;
+            var detectFormat = DSConfig.__testOnly__.detectFormat;
             loadArgs.setPreviewingSource(0, "test.xlsx");
             expect(detectFormat()).to.equal("Excel");
             loadArgs.setPreviewingSource(0, "test");
@@ -897,7 +897,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("Should detect correct header", function() {
-            var detectHeader = DSPreview.__testOnly__.detectHeader;
+            var detectHeader = DSConfig.__testOnly__.detectHeader;
 
             // when nothing to delimit
             var linDelim = "\n";
@@ -928,7 +928,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("Should detect excel header", function() {
-            var detectExcelHeader = DSPreview.__testOnly__.detectExcelHeader;
+            var detectExcelHeader = DSConfig.__testOnly__.detectExcelHeader;
 
             // has header case
             var obj = [{"col0": "test"}, {"col0": 1}, {"col0": 2}];
@@ -957,8 +957,8 @@ describe("Dataset-DSPreview Test", function() {
             loadArgs.setFieldDelim("");
 
             var data = "h,i\nte,st";
-            DSPreview.__testOnly__.set(data);
-            DSPreview.__testOnly__.getPreviewTable();
+            DSConfig.__testOnly__.set(data);
+            DSConfig.__testOnly__.getPreviewTable();
 
             // has 2 rows and 2 columns(include lineMaker)
             expect($previewTable.find("th").length).to.equal(2);
@@ -966,7 +966,7 @@ describe("Dataset-DSPreview Test", function() {
             expect($previewTable.hasClass("has-delimiter")).to.be.false;
 
             loadArgs.setFieldDelim(",");
-            DSPreview.__testOnly__.getPreviewTable();
+            DSConfig.__testOnly__.getPreviewTable();
             // has 2 rows and 3 columns
             expect($previewTable.find("th").length).to.equal(3);
             expect($previewTable.find("tbody tr").length).to.equal(2);
@@ -974,22 +974,22 @@ describe("Dataset-DSPreview Test", function() {
 
             // error json
             loadArgs.setFormat("JSON");
-            DSPreview.__testOnly__.getPreviewTable();
+            DSConfig.__testOnly__.getPreviewTable();
             var res = $previewWrap.find(".errorSection .topSection .content").text();
             expect(res).to.equal("Your file cannot be parsed as JSON. We recommend you use the CSV format instead.");
 
             // valid json
             data = '{"a": "b"}';
-            DSPreview.__testOnly__.set(data);
-            DSPreview.__testOnly__.getPreviewTable();
+            DSConfig.__testOnly__.set(data);
+            DSConfig.__testOnly__.getPreviewTable();
             // has 1 row and 2 columns(include lineMaker)
             expect($previewTable.find("th").length).to.equal(2);
             expect($previewTable.find("tbody tr").length).to.equal(1);
 
             // valid json2
             data = '{"a": "{b"}';
-            DSPreview.__testOnly__.set(data);
-            DSPreview.__testOnly__.getPreviewTable();
+            DSConfig.__testOnly__.set(data);
+            DSConfig.__testOnly__.getPreviewTable();
             // has 1 row and 2 columns(include lineMaker)
             expect($previewTable.find("th").length).to.equal(2);
             expect($previewTable.find("tbody tr").length).to.equal(1);
@@ -1002,21 +1002,21 @@ describe("Dataset-DSPreview Test", function() {
 
             loadArgs.setFormat("CSV");
             loadArgs.setFieldDelim("");
-            DSPreview.__testOnly__.set(data);
-            DSPreview.__testOnly__.getPreviewTable();
+            DSConfig.__testOnly__.set(data);
+            DSConfig.__testOnly__.getPreviewTable();
 
             expect($highLightBtn.hasClass("xc-disabled")).to.be.true;
             expect($rmHightLightBtn.hasClass("xc-disabled")).to.be.true;
             // can highlight
-            DSPreview.__testOnly__.applyHighlight(",");
-            expect(DSPreview.__testOnly__.get().highlighter).to.equal(",");
+            DSConfig.__testOnly__.applyHighlight(",");
+            expect(DSConfig.__testOnly__.get().highlighter).to.equal(",");
             expect($previewTable.find(".highlight").length).to.equal(1);
             expect($highLightBtn.hasClass("xc-disabled")).to.be.false;
             expect($rmHightLightBtn.hasClass("xc-disabled")).to.be.false;
 
             // can remove highlight
-            DSPreview.__testOnly__.applyHighlight("");
-            expect(DSPreview.__testOnly__.get().highlighter).to.equal("");
+            DSConfig.__testOnly__.applyHighlight("");
+            expect(DSConfig.__testOnly__.get().highlighter).to.equal("");
             expect($previewTable.find(".highlight").length).to.equal(0);
             expect($highLightBtn.hasClass("xc-disabled")).to.be.true;
             expect($rmHightLightBtn.hasClass("xc-disabled")).to.be.true;
@@ -1024,13 +1024,13 @@ describe("Dataset-DSPreview Test", function() {
 
         it("Should clear preview table", function(done) {
             var data = "h,i";
-            DSPreview.__testOnly__.set(data);
-            DSPreview.__testOnly__.getPreviewTable();
-            var tName = DSPreview.__testOnly__.get().tableName;
-            DSPreview.__testOnly__.clearPreviewTable(tName)
+            DSConfig.__testOnly__.set(data);
+            DSConfig.__testOnly__.getPreviewTable();
+            var tName = DSConfig.__testOnly__.get().tableName;
+            DSConfig.__testOnly__.clearPreviewTable(tName)
             .then(function(hasDestroyTable) {
                 expect(hasDestroyTable).to.be.false;
-                var res = DSPreview.__testOnly__.get();
+                var res = DSConfig.__testOnly__.get();
                 expect(res.highlighter).to.equal("");
                 expect($previewTable.html()).to.equal("");
                 done();
@@ -1041,7 +1041,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         after(function() {
-            DSPreview.__testOnly__.set("");
+            DSConfig.__testOnly__.set("");
             $previewTable.empty();
         });
     });
@@ -1066,7 +1066,7 @@ describe("Dataset-DSPreview Test", function() {
                 return PromiseHelper.reject("test");
             };
 
-            DSPreview.__testOnly__.loadDataWithUDF(1, "test", "ds", {
+            DSConfig.__testOnly__.loadDataWithUDF(1, "test", "ds", {
                 "moduleName": "module",
                 "funcName": "func"
             })
@@ -1100,7 +1100,7 @@ describe("Dataset-DSPreview Test", function() {
                 return PromiseHelper.resolve(["test"]);
             };
 
-            DSPreview.__testOnly__.loadDataWithUDF(1, "test", "ds",{
+            DSConfig.__testOnly__.loadDataWithUDF(1, "test", "ds",{
                 "moduleName": "module",
                 "funcName": "func"
             })
@@ -1141,7 +1141,7 @@ describe("Dataset-DSPreview Test", function() {
                 return PromiseHelper.resolve();
             };
 
-            DSPreview.__testOnly__.loadDataWithUDF(1, "test", "ds", {
+            DSConfig.__testOnly__.loadDataWithUDF(1, "test", "ds", {
                 "moduleName": "module",
                 "funcName": "func"
             })
@@ -1195,8 +1195,8 @@ describe("Dataset-DSPreview Test", function() {
                 called++;
                 return PromiseHelper.resolve();
             };
-            var tName = DSPreview.__testOnly__.get().tableName;
-            DSPreview.__testOnly__.clearPreviewTable(tName)
+            var tName = DSConfig.__testOnly__.get().tableName;
+            DSConfig.__testOnly__.clearPreviewTable(tName)
             .then(function(hasDestroyTable) {
                 expect(called).to.equal(1);
                 expect(hasDestroyTable).to.be.true;
@@ -1215,7 +1215,7 @@ describe("Dataset-DSPreview Test", function() {
             XcalarSetFree = oldSetFree;
             XcalarMakeResultSetFromDataset = oldMakeResultSet;
             XcalarFetchData = oldFetch;
-            DSPreview.__testOnly__.resetForm();
+            DSConfig.__testOnly__.resetForm();
         });
     });
 
@@ -1223,14 +1223,14 @@ describe("Dataset-DSPreview Test", function() {
         it("Should reset form", function() {
             $("#dsForm-skipRows").val(1);
             loadArgs.setFieldDelim("test..");
-            DSPreview.__testOnly__.resetForm();
+            DSConfig.__testOnly__.resetForm();
 
             expect($("#dsForm-skipRows").val()).to.equal("0");
             expect(loadArgs.getFieldDelim()).to.equal("");
         });
 
         it("getNameFromPath should work", function() {
-            var getNameFromPath = DSPreview.__testOnly__.getNameFromPath;
+            var getNameFromPath = DSConfig.__testOnly__.getNameFromPath;
 
             var testName = xcHelper.randName("testName");
             var oldhas = DS.has;
@@ -1275,7 +1275,7 @@ describe("Dataset-DSPreview Test", function() {
 
         it("getSkipRows() should work", function() {
             var $input = $("#dsForm-skipRows");
-            var getSkipRows = DSPreview.__testOnly__.getSkipRows;
+            var getSkipRows = DSConfig.__testOnly__.getSkipRows;
             // test1
             $input.val("2");
             expect(getSkipRows()).to.equal(2);
@@ -1296,7 +1296,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("applyQuote() should work", function() {
-            var applyQuote = DSPreview.__testOnly__.applyQuote;
+            var applyQuote = DSConfig.__testOnly__.applyQuote;
             var $quote = $("#dsForm-quote");
 
             applyQuote("\'");
@@ -1309,17 +1309,17 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         after(function() {
-            DSPreview.__testOnly__.resetForm();
+            DSConfig.__testOnly__.resetForm();
         });
     });
 
     describe("Delimiter Selection Test", function() {
         before(function() {
-            DSPreview.__testOnly__.toggleFormat("CSV");
+            DSConfig.__testOnly__.toggleFormat("CSV");
         });
 
         it("applyFieldDelim() should work", function() {
-            var applyFieldDelim = DSPreview.__testOnly__.applyFieldDelim;
+            var applyFieldDelim = DSConfig.__testOnly__.applyFieldDelim;
 
             // test1
             applyFieldDelim("");
@@ -1341,7 +1341,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("applyLineDelim() should work", function() {
-            var applyLineDelim = DSPreview.__testOnly__.applyLineDelim;
+            var applyLineDelim = DSConfig.__testOnly__.applyLineDelim;
 
             // test1
             applyLineDelim("");
@@ -1413,7 +1413,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         after(function() {
-            DSPreview.__testOnly__.resetForm();
+            DSConfig.__testOnly__.resetForm();
         });
     });
 
@@ -1424,11 +1424,11 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         beforeEach(function() {
-            DSPreview.__testOnly__.resetForm();
+            DSConfig.__testOnly__.resetForm();
         });
 
         it("Format Should be CSV", function() {
-            DSPreview.__testOnly__.toggleFormat("CSV");
+            DSConfig.__testOnly__.toggleFormat("CSV");
             expect($formatText.data("format")).to.equal("CSV");
 
             // UI part
@@ -1440,7 +1440,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("Format Should be JSON", function() {
-            DSPreview.__testOnly__.toggleFormat("JSON");
+            DSConfig.__testOnly__.toggleFormat("JSON");
             expect($formatText.data("format")).to.equal("JSON");
 
             // UI part
@@ -1453,7 +1453,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("Format Should be Text", function() {
-            DSPreview.__testOnly__.toggleFormat("Text");
+            DSConfig.__testOnly__.toggleFormat("Text");
             expect($formatText.data("format")).to.equal("TEXT");
 
             // UI part
@@ -1465,7 +1465,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("Format Should be Excel", function() {
-            DSPreview.__testOnly__.toggleFormat("Excel");
+            DSConfig.__testOnly__.toggleFormat("Excel");
             expect($formatText.data("format")).to.equal("EXCEL");
 
             // UI part
@@ -1481,7 +1481,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("Format Should be UDF", function() {
-            DSPreview.__testOnly__.toggleFormat("UDF");
+            DSConfig.__testOnly__.toggleFormat("UDF");
             expect($formatText.data("format")).to.equal("UDF");
 
             // UI part
@@ -1498,7 +1498,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("Format Should be XML", function() {
-            DSPreview.__testOnly__.toggleFormat("XML");
+            DSConfig.__testOnly__.toggleFormat("XML");
             expect($formatText.data("format")).to.equal("XML");
             // UI part
             assert.isFalse($headerCheckBox.is(":visible"), "no header checkbox");
@@ -1515,12 +1515,12 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("Format should be PARQUET", function() {
-            var loadArgs = DSPreview.__testOnly__.get().loadArgs;
+            var loadArgs = DSConfig.__testOnly__.get().loadArgs;
             loadArgs.set({files: [{}]});
             var oldFunc = XcalarAppExecute;
             XcalarAppExecute = function() { return PromiseHelper.reject("test") };
             $previewCard.removeClass("format-parquet");
-            DSPreview.__testOnly__.toggleFormat("PARQUET");
+            DSConfig.__testOnly__.toggleFormat("PARQUET");
             expect($previewCard.hasClass("format-parquet")).to.be.treu;
             UnitTest.hasAlertWithTitle("Error Parsing Parquet Dataset");
             loadArgs.reset();
@@ -1529,12 +1529,12 @@ describe("Dataset-DSPreview Test", function() {
 
         it("Format should be PARQUETFILE", function() {
             assert.isFalse($("#dsForm-parquetParser").is(":visible"), "should not see parquet parser dropdown");
-            DSPreview.__testOnly__.toggleFormat("PARQUETFILE");
+            DSConfig.__testOnly__.toggleFormat("PARQUETFILE");
             assert.isTrue($("#dsForm-parquetParser").is(":visible"), "should see parquet parser dropdown");
         });
 
         it("Format Should be DATABASE", function() {
-            DSPreview.__testOnly__.toggleFormat("DATABASE");
+            DSConfig.__testOnly__.toggleFormat("DATABASE");
             expect($formatText.data("format")).to.equal("DATABASE");
             // UI part
             assert.isFalse($headerCheckBox.is(":visible"), "no header checkbox");
@@ -1548,14 +1548,14 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("Format Should be CONFLUENT", function() {
-            DSPreview.__testOnly__.toggleFormat("CONFLUENT");
+            DSConfig.__testOnly__.toggleFormat("CONFLUENT");
             expect($formatText.data("format")).to.equal("CONFLUENT");
             // UI part
             // assert.isTrue($("#dsForm-cfNumRows").is(":visible"), "has number of rows");
         });
 
         after(function() {
-            DSPreview.__testOnly__.resetForm();
+            DSConfig.__testOnly__.resetForm();
             DSForm.show();
         });
     });
@@ -1566,29 +1566,29 @@ describe("Dataset-DSPreview Test", function() {
         before(function(done) {
             $previewCard.removeClass("xc-hidden")
                         .siblings().addClass("xc-hidden");
-            isUseUDFWithFunc = DSPreview.__testOnly__.isUseUDFWithFunc;
+            isUseUDFWithFunc = DSConfig.__testOnly__.isUseUDFWithFunc;
             // UDF module&Function dropdowns get rendered in asyn manner
             // so all tests beblow should not start until the dropdowns are ready
-            DSPreview.__testOnly__.listUDFSection().always(done);
+            DSConfig.__testOnly__.listUDFSection().always(done);
         });
 
         it("Should toggle UDF format", function() {
-            var isUseUDF = DSPreview.__testOnly__.isUseUDF;
+            var isUseUDF = DSConfig.__testOnly__.isUseUDF;
             // test 1
-            DSPreview.__testOnly__.toggleFormat("UDF");
+            DSConfig.__testOnly__.toggleFormat("UDF");
             expect($form.find(".format.udf").hasClass("xc-hidden")).to.be.false;
             expect(isUseUDF()).to.be.true;
             expect(isUseUDFWithFunc()).to.be.false;
 
             // test 2
-            DSPreview.__testOnly__.toggleFormat("CSV");
+            DSConfig.__testOnly__.toggleFormat("CSV");
             expect($form.find(".format.udf").hasClass("xc-hidden")).to.be.true;
             expect(isUseUDF()).to.be.false;
             expect(isUseUDFWithFunc()).to.be.false;
         });
 
         it("Should have default UDF", function() {
-            DSPreview.__testOnly__.toggleFormat("UDF");
+            DSConfig.__testOnly__.toggleFormat("UDF");
             expect($udfModuleList.find("input").val()).to.be.empty;
             expect($udfFuncList.find("input").val()).to.be.empty;
 
@@ -1598,44 +1598,44 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("Should select a UDF module", function() {
-            DSPreview.__testOnly__.selectUDFModule(null);
+            DSConfig.__testOnly__.selectUDFModule(null);
             expect($udfModuleList.find("input").val()).to.be.empty;
             expect($udfFuncList.find("input").val()).to.be.empty;
             expect(isUseUDFWithFunc()).to.be.false;
 
-            DSPreview.__testOnly__.selectUDFModule(defaultUDFPath);
+            DSConfig.__testOnly__.selectUDFModule(defaultUDFPath);
             expect($udfModuleList.find("input").val()).to.equal("default");
             expect($udfFuncList.find("input").val()).to.be.empty;
             expect(isUseUDFWithFunc()).to.be.false;
         });
 
         it("Should select a UDF func", function() {
-            DSPreview.__testOnly__.selectUDFFunc(null);
+            DSConfig.__testOnly__.selectUDFFunc(null);
             expect($udfModuleList.find("input").val()).to.equal("default");
             expect($udfFuncList.find("input").val()).to.be.empty;
             expect(isUseUDFWithFunc()).to.be.false;
 
-            DSPreview.__testOnly__.selectUDFFunc("openExcel");
+            DSConfig.__testOnly__.selectUDFFunc("openExcel");
             expect($udfModuleList.find("input").val()).to.equal("default");
             expect($udfFuncList.find("input").val()).to.equal("openExcel");
             expect(isUseUDFWithFunc()).to.be.true;
         });
 
         it("Should validate UDF module", function() {
-            var validateUDFModule = DSPreview.__testOnly__.validateUDFModule;
+            var validateUDFModule = DSConfig.__testOnly__.validateUDFModule;
             expect(validateUDFModule(defaultUDFPath + "invalidModule")).to.be.false;
             expect(validateUDFModule(defaultUDFPath)).to.be.true;
         });
 
         it("Should validate UDF module", function() {
-            var validateUDFFunc = DSPreview.__testOnly__.validateUDFFunc;
+            var validateUDFFunc = DSConfig.__testOnly__.validateUDFFunc;
             expect(validateUDFFunc(defaultUDFPath, "invalidFunc")).to.be.false;
             expect(validateUDFFunc(defaultUDFPath, "openExcel")).to.be.true;
         });
 
         it("Should reset UDF case 1", function() {
             let udfQuery = {"test": "a"};
-            DSPreview.__testOnly__.resetUdfSection({
+            DSConfig.__testOnly__.resetUdfSection({
                 "udfQuery": udfQuery
             });
             expect($udfModuleList.find("input").val()).to.be.empty;
@@ -1644,13 +1644,13 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("Should reset UDF case 2", function() {
-            DSPreview.__testOnly__.resetUdfSection();
+            DSConfig.__testOnly__.resetUdfSection();
             expect($udfModuleList.find("input").val()).to.be.empty;
             expect($udfFuncList.find("input").val()).to.be.empty;
         });
 
         after(function() {
-            DSPreview.__testOnly__.resetForm();
+            DSConfig.__testOnly__.resetForm();
         });
     });
 
@@ -1694,7 +1694,7 @@ describe("Dataset-DSPreview Test", function() {
             const outStr = JSON.stringify([[JSON.stringify(outRes)]]);
             XcalarAppExecute = () => PromiseHelper.resolve({outStr});
 
-            const getParquetInfo = DSPreview.__testOnly__.getParquetInfo;
+            const getParquetInfo = DSConfig.__testOnly__.getParquetInfo;
             getParquetInfo('path', 'target')
             .then((res) => {
                 expect(res).to.be.an('object');
@@ -1718,7 +1718,7 @@ describe("Dataset-DSPreview Test", function() {
             const outStr = JSON.stringify([[JSON.stringify(outRes)]]);
             XcalarAppExecute = () => PromiseHelper.resolve({outStr});
 
-            const getParquetInfo = DSPreview.__testOnly__.getParquetInfo;
+            const getParquetInfo = DSConfig.__testOnly__.getParquetInfo;
             getParquetInfo('path', 'target')
             .then(() => {
                 done('fail');
@@ -1743,7 +1743,7 @@ describe("Dataset-DSPreview Test", function() {
             let test = false;
             Alert.error = () => { test = true; }
 
-            const initParquetForm = DSPreview.__testOnly__.initParquetForm;
+            const initParquetForm = DSConfig.__testOnly__.initParquetForm;
             initParquetForm('path', 'target')
             .then(() => {
                 done('fail');
@@ -1772,7 +1772,7 @@ describe("Dataset-DSPreview Test", function() {
             const outStr = JSON.stringify([[JSON.stringify(outRes)]]);
             XcalarAppExecute = () => PromiseHelper.resolve({outStr});
 
-            const initParquetForm = DSPreview.__testOnly__.initParquetForm;
+            const initParquetForm = DSConfig.__testOnly__.initParquetForm;
             initParquetForm('path', 'target')
             .then(() => {
                 expect($availableColList.find('li').length).to.equal(2);
@@ -1865,9 +1865,9 @@ describe("Dataset-DSPreview Test", function() {
         var loadArgs;
 
         before(function() {
-            validateForm = DSPreview.__testOnly__.validateForm;
+            validateForm = DSConfig.__testOnly__.validateForm;
 
-            loadArgs = DSPreview.__testOnly__.get().loadArgs;
+            loadArgs = DSConfig.__testOnly__.get().loadArgs;
             loadArgs.set({files: [{}]});
         });
 
@@ -1932,7 +1932,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("should validate UDF", function() {
-            DSPreview.__testOnly__.toggleFormat("UDF");
+            DSConfig.__testOnly__.toggleFormat("UDF");
             $udfModuleList.find("input").val("");
             $udfModuleList.find("input").data("module", "");
 
@@ -1957,7 +1957,7 @@ describe("Dataset-DSPreview Test", function() {
             // remove UDF checkbox
             $udfModuleList.find("input").val("").data("module", "");
             $udfFuncList.find("input").val("");
-            DSPreview.__testOnly__.toggleFormat("CSV");
+            DSConfig.__testOnly__.toggleFormat("CSV");
         });
 
         it("should validate delimiter", function() {
@@ -2031,7 +2031,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("should validate XML case", function(done) {
-            const componentXmlFormat = DSPreview.__testOnly__.componentXmlFormat();
+            const componentXmlFormat = DSConfig.__testOnly__.componentXmlFormat();
             const testHelper = componentXmlFormat.getTestHelper();
             loadArgs.set({format: "XML"});
 
@@ -2275,7 +2275,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         after(function() {
-            DSPreview.__testOnly__.resetForm();
+            DSConfig.__testOnly__.resetForm();
         });
     });
 
@@ -2284,8 +2284,8 @@ describe("Dataset-DSPreview Test", function() {
         var loadArgs;
 
         before(function() {
-            validatePreview = DSPreview.__testOnly__.validatePreview;
-            loadArgs = DSPreview.__testOnly__.get().loadArgs;
+            validatePreview = DSConfig.__testOnly__.validatePreview;
+            loadArgs = DSConfig.__testOnly__.get().loadArgs;
             loadArgs.set({files: [{}]});
         });
 
@@ -2301,7 +2301,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("should validate UDF", function() {
-            DSPreview.__testOnly__.toggleFormat("UDF");
+            DSConfig.__testOnly__.toggleFormat("UDF");
             $udfModuleList.find("input").val("").data("module", "");
 
             // empty module test
@@ -2320,7 +2320,7 @@ describe("Dataset-DSPreview Test", function() {
             // remove UDF checkbox
             $udfModuleList.find("input").val("");
             $udfFuncList.find("input").val("");
-            DSPreview.__testOnly__.toggleFormat("CSV");
+            DSConfig.__testOnly__.toggleFormat("CSV");
         });
 
         it("should validate Excel case", function() {
@@ -2357,9 +2357,9 @@ describe("Dataset-DSPreview Test", function() {
         var loadArgs;
 
         before(function() {
-            DSPreview.__testOnly__.resetForm();
-            resetForm = DSPreview.__testOnly__.restoreForm;
-            loadArgs = DSPreview.__testOnly__.get().loadArgs;
+            DSConfig.__testOnly__.resetForm();
+            resetForm = DSConfig.__testOnly__.restoreForm;
+            loadArgs = DSConfig.__testOnly__.get().loadArgs;
         });
 
         it("should restore form with UDF format", function() {
@@ -2410,7 +2410,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("should restore XML", function() {
-            const componentXmlFormat = DSPreview.__testOnly__.componentXmlFormat();
+            const componentXmlFormat = DSConfig.__testOnly__.componentXmlFormat();
             const testHelper = componentXmlFormat.getTestHelper();
 
             resetForm({
@@ -2564,7 +2564,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         after(function() {
-            DSPreview.__testOnly__.resetForm();
+            DSConfig.__testOnly__.resetForm();
             loadArgs.reset();
         });
     });
@@ -2573,12 +2573,12 @@ describe("Dataset-DSPreview Test", function() {
         var loadArgs;
 
         before(function() {
-            loadArgs = DSPreview.__testOnly__.get().loadArgs;
+            loadArgs = DSConfig.__testOnly__.get().loadArgs;
         });
 
         it("should click suggest to change format", function() {
             var $errorSection = $previewCard.find(".errorSection");
-            DSPreview.__testOnly__.toggleFormat("TEXT");
+            DSConfig.__testOnly__.toggleFormat("TEXT");
             $errorSection.find(".content").html('<div class="suggest" data-format="CSV"></div>');
             $errorSection.find(".suggest").click();
             expect(loadArgs.getFormat()).to.equal("CSV");
@@ -2599,7 +2599,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         after(function() {
-            DSPreview.__testOnly__.resetForm();
+            DSConfig.__testOnly__.resetForm();
         });
     });
 
@@ -2608,7 +2608,7 @@ describe("Dataset-DSPreview Test", function() {
         let loadArgs;
 
         before(() => {
-            loadArgs = DSPreview.__testOnly__.get().loadArgs;
+            loadArgs = DSConfig.__testOnly__.get().loadArgs;
             loadArgs.setFormat('CSV');
             $advanceSection = $form.find(".advanceSection");
             const table = '<thead><tr><td>H1</td></tr></thead>' +
@@ -2703,13 +2703,13 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         after(function() {
-            DSPreview.__testOnly__.resetForm();
+            DSConfig.__testOnly__.resetForm();
         });
     });
 
     describe("Preview UI Behavior Test", function() {
         before(function() {
-            DSPreview.__testOnly__.restoreForm({
+            DSConfig.__testOnly__.restoreForm({
                 "dsName": "test",
                 "moduleName": "default",
                 "funcName": "openExcel",
@@ -2722,6 +2722,7 @@ describe("Dataset-DSPreview Test", function() {
             });
             // selection of range needs it to be visible
             DataSourceManager.switchView(DataSourceManager.View.Preview);
+           $("#dsForm-config").removeClass("hidingPreview");
         });
 
         it("should apply highligher", function() {
@@ -2729,13 +2730,13 @@ describe("Dataset-DSPreview Test", function() {
             // case 1
             $previewTable.addClass("has-delimiter");
             $previewTable.mouseup();
-            highlighter = DSPreview.__testOnly__.get().highlighter;
+            highlighter = DSConfig.__testOnly__.get().highlighter;
             expect(highlighter).to.be.empty;
 
             // case 2
             $previewTable.removeClass("has-delimiter").addClass("truncMessage");
             $previewTable.mouseup();
-            highlighter = DSPreview.__testOnly__.get().highlighter;
+            highlighter = DSConfig.__testOnly__.get().highlighter;
             expect(highlighter).to.be.empty;
 
             // case 3
@@ -2751,7 +2752,7 @@ describe("Dataset-DSPreview Test", function() {
             sel.addRange(range);
 
             $previewTable.mouseup();
-            highlighter = DSPreview.__testOnly__.get().highlighter;
+            highlighter = DSConfig.__testOnly__.get().highlighter;
             expect(highlighter).to.equal("a");
 
             $previewTable.empty();
@@ -2759,12 +2760,12 @@ describe("Dataset-DSPreview Test", function() {
 
         it("should remove highlighter", function() {
             $previewCard.find(".rmHightLight").click();
-            var highlighter = DSPreview.__testOnly__.get().highlighter;
+            var highlighter = DSConfig.__testOnly__.get().highlighter;
             expect(highlighter).to.be.empty;
         });
 
         it("should apply highlighter to delimiter", function() {
-            DSPreview.__testOnly__.set(null, "a");
+            DSConfig.__testOnly__.set(null, "a");
             $previewCard.find(".highlight").click();
             expect(loadArgs.getFieldDelim()).to.equal("a");
         });
@@ -2808,18 +2809,8 @@ describe("Dataset-DSPreview Test", function() {
             TblAnim.startColResize = oldFunc;
         });
 
-        it("should click #dsForm-minimize to toggle minize", function() {
-            expect($previewCard.hasClass("minimize")).to.be.false;
-
-            var $btn = $("#dsForm-minimize");
-            $btn.click();
-            expect($previewCard.hasClass("minimize")).to.be.true;
-            $btn.click();
-            expect($previewCard.hasClass("minimize")).to.be.false;
-        });
-
         it("should click to fetch more rows", function(done) {
-            DSPreview.__testOnly__.set("abc");
+            DSConfig.__testOnly__.set("abc");
             $("#dsForm-skipRows").val("0");
             var test = false;
             var oldFunc = XcalarPreview;
@@ -2915,24 +2906,24 @@ describe("Dataset-DSPreview Test", function() {
             var cb = () => test2 = true;
 
             // case 1
-            DSPreview.__testOnly__.setCB(null);
+            DSConfig.__testOnly__.setCB(null);
             $button.click();
             expect(test1).to.be.true;
             expect(test2).to.be.false;
 
             // case 2
             test1 = false;
-            DSPreview.__testOnly__.setCB(cb);
+            DSConfig.__testOnly__.setCB(cb);
             $button.click();
             expect(test1).to.be.false;
             expect(test2).to.be.true;
 
-            DSPreview.__testOnly__.setCB(null);
+            DSConfig.__testOnly__.setCB(null);
             DataSourceManager.startImport = oldForm;
         });
 
         it("should click dsForm-writeUDF to trigger jupyer", function() {
-            var loadArgs = DSPreview.__testOnly__.get().loadArgs;
+            var loadArgs = DSConfig.__testOnly__.get().loadArgs;
             var test = false;
             var oldFunc = JupyterPanel.autofillImportUdfModal;
             JupyterPanel.autofillImportUdfModal = function() {
@@ -2956,8 +2947,8 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         after(function() {
-            DSPreview.__testOnly__.set();
-            DSPreview.__testOnly__.resetForm();
+            DSConfig.__testOnly__.set();
+            DSConfig.__testOnly__.resetForm();
         });
     });
 
@@ -2974,7 +2965,7 @@ describe("Dataset-DSPreview Test", function() {
             $previewFile = $("#preview-file");
             $ul = $previewFile.find("ul");
             oldHTML = $ul.html();
-            loadArgs = DSPreview.__testOnly__.get().loadArgs;
+            loadArgs = DSConfig.__testOnly__.get().loadArgs;
             loadArgs.set();
             loadArgs.files = [{path: "path1"}, null, {path: "path4"}];
 
@@ -3064,7 +3055,7 @@ describe("Dataset-DSPreview Test", function() {
 
     describe("csv column renaming and type casting", function() {
         before(function(done) {
-            DSPreview.show({
+            DSConfig.show({
                 "targetName": testDatasets.sp500.targetName,
                 "files": [{path: testDatasets.sp500.path}]
             }, null)
@@ -3187,7 +3178,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("check bulkduplicate names should work", function(done) {
-            var fn = DSPreview.__testOnly__.checkBulkDuplicateNames;
+            var fn = DSConfig.__testOnly__.checkBulkDuplicateNames;
             var headers = [{colName: "aa"}, {colName: "bb"}, {colName: "cc"}];
             var firstPass = false;
             fn(headers)
@@ -3209,8 +3200,8 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         after(function() {
-            DSPreview.__testOnly__.set();
-            DSPreview.__testOnly__.resetForm();
+            DSConfig.__testOnly__.set();
+            DSConfig.__testOnly__.resetForm();
         });
     });
 
@@ -3239,7 +3230,7 @@ describe("Dataset-DSPreview Test", function() {
         let loadArgs;
 
         before(function() {
-            loadArgs = DSPreview.__testOnly__.get().loadArgs;
+            loadArgs = DSConfig.__testOnly__.get().loadArgs;
         });
 
         describe("suggestDetect test", function() {
@@ -3248,7 +3239,7 @@ describe("Dataset-DSPreview Test", function() {
             let msg;
 
             before(function() {
-                suggestDetect = DSPreview.__testOnly__.suggestDetect;
+                suggestDetect = DSConfig.__testOnly__.suggestDetect;
                 oldAlert = Alert.show;
                 Alert.show = (options) => {
                     msg = options.msgTemplate;
@@ -3376,13 +3367,13 @@ describe("Dataset-DSPreview Test", function() {
         var loadArgs;
 
         before(function() {
-            loadArgs = DSPreview.__testOnly__.get().loadArgs;
+            loadArgs = DSConfig.__testOnly__.get().loadArgs;
             loadArgs.set();
         });
 
         it("slowPreviewCheck should alert when too many files", function(done) {
             loadArgs.files = new Array(20);
-            var def = DSPreview.__testOnly__.slowPreviewCheck();
+            var def = DSConfig.__testOnly__.slowPreviewCheck();
             UnitTest.hasAlertWithTitle(DSFormTStr.ImportMultiple);
             def
             .then(function() {
@@ -3402,7 +3393,7 @@ describe("Dataset-DSPreview Test", function() {
             };
 
             loadArgs.files = [];
-            var def = DSPreview.__testOnly__.slowPreviewCheck();
+            var def = DSConfig.__testOnly__.slowPreviewCheck();
             UnitTest.hasAlertWithTitle(DSFormTStr.ImportMultiple, {confirm: true});
             def
             .then(function() {
@@ -3419,7 +3410,7 @@ describe("Dataset-DSPreview Test", function() {
 
         it("slowPreviewCheck should not alert in normal case", function(done) {
             loadArgs.files = [];
-            var def = DSPreview.__testOnly__.slowPreviewCheck();
+            var def = DSConfig.__testOnly__.slowPreviewCheck();
             def
             .then(function() {
                 done();
@@ -3443,7 +3434,7 @@ describe("Dataset-DSPreview Test", function() {
                 return PromiseHelper.resolve({buffer: buffer});
             };
 
-            DSPreview.__testOnly__.autoDetectSourceHeaderTypes({}, "testTarget", dsArgs, typedColumnsList, 0)
+            DSConfig.__testOnly__.autoDetectSourceHeaderTypes({}, "testTarget", dsArgs, typedColumnsList, 0)
             .then(function() {
                 expect(typedColumnsList.length).to.equal(1);
                 var typedColumns = typedColumnsList[0];
@@ -3475,7 +3466,7 @@ describe("Dataset-DSPreview Test", function() {
                 return PromiseHelper.reject("test");
             };
 
-            DSPreview.__testOnly__.autoDetectSourceHeaderTypes({}, "testTarget", dsArgs, typedColumnsList, 0)
+            DSConfig.__testOnly__.autoDetectSourceHeaderTypes({}, "testTarget", dsArgs, typedColumnsList, 0)
             .then(function() {
                 expect(typedColumnsList.length).to.equal(0);
                 done();
@@ -3490,7 +3481,7 @@ describe("Dataset-DSPreview Test", function() {
 
         it("getTypedColumnsList should resolve with non CSV format", function(done) {
             var dsArgs = {format: "JSON"};
-            DSPreview.__testOnly__.getTypedColumnsList([], dsArgs)
+            DSConfig.__testOnly__.getTypedColumnsList([], dsArgs)
             .then(function(typedColumnsList) {
                 expect(typedColumnsList).to.be.an("array");
                 expect(typedColumnsList.length).to.equal(0);
@@ -3506,7 +3497,7 @@ describe("Dataset-DSPreview Test", function() {
             var dsArgs = {format: "CSV"};
             loadArgs.multiDS = false;
 
-            DSPreview.__testOnly__.getTypedColumnsList(typedColumns, dsArgs)
+            DSConfig.__testOnly__.getTypedColumnsList(typedColumns, dsArgs)
             .then(function(typedColumnsList) {
                 expect(typedColumnsList).to.be.an("array");
                 expect(typedColumnsList.length).to.equal(1);
@@ -3531,7 +3522,7 @@ describe("Dataset-DSPreview Test", function() {
                 return PromiseHelper.reject("test");
             };
 
-            DSPreview.__testOnly__.getTypedColumnsList(typedColumns, dsArgs)
+            DSConfig.__testOnly__.getTypedColumnsList(typedColumns, dsArgs)
             .then(function(typedColumnsList) {
                 expect(typedColumnsList).to.be.an("array");
                 expect(typedColumnsList.length).to.equal(2);
@@ -3554,12 +3545,12 @@ describe("Dataset-DSPreview Test", function() {
 
     describe("Show Preview and Submit Test", function() {
         before(function() {
-            DSPreview.__testOnly__.resetForm();
+            DSConfig.__testOnly__.resetForm();
             DSForm.show();
         });
 
-        it("DSPreview.show() should work", function(done) {
-            DSPreview.show({
+        it("DSConfig.show() should work", function(done) {
+            DSConfig.show({
                 "targetName": testDatasets.sp500.targetName,
                 "files": [{path: testDatasets.sp500.path}]
             }, null)
@@ -3589,7 +3580,7 @@ describe("Dataset-DSPreview Test", function() {
                 test = true;
                 return PromiseHelper.resolve();
             };
-            DSPreview.__testOnly__.submitForm()
+            DSConfig.__testOnly__.submitForm()
             .then(function() {
                 expect(test).to.be.true;
                 done();
