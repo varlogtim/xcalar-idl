@@ -4053,6 +4053,54 @@ table.datasetTable {
             }
         }
 
+        &.hierarchicalView {
+            .dataMartGroup {
+                .expand {
+                    float: left;
+                    margin-left: 10px;
+                    margin-right: 0;
+                    height: 100%;
+
+                    .icon {
+                        height: 100%;
+                        line-height: 35px;
+
+                        &:before {
+                            display: block;
+                            .vertical-align;
+                        }
+                    }
+                }
+            }
+
+            .list {
+                .grid-unit {
+                    padding-left: 53px;
+                }
+            }
+
+            .grid-unit {
+                margin: 1px;
+                width: ~"calc(100% - 2px)";
+
+                &.active {
+                    background-color: @color-bg-dropdown-hover-gray;
+                }
+
+                &:hover {
+                    background-color: @color-bg-list-hover-blue;
+                }
+
+                &.deleting {
+                    opacity: 0.8 !important;
+                }
+
+                .deactivatingIcon {
+                    display: none;
+                }
+            }
+        }
+
         .grid-unit {
             .no-selection;
 
@@ -4071,6 +4119,7 @@ table.datasetTable {
     .gridViewWrapper {
         margin-top: 0;
         padding-top: 5px;
+        height: ~"calc(100% - 43px)";
     }
 }
 
@@ -4147,6 +4196,11 @@ table.datasetTable {
     }
     &.targetOpts {
         .targetOpt {
+            display: block;
+        }
+    }
+    &.dataMartOpts {
+        .dataMartOpt {
             display: block;
         }
     }
@@ -4537,11 +4591,11 @@ table.datasetTable {
 
             .iconBtn {
                 padding: 0 10px 0 5px;
-                width: 165px;
+                width: 125px;
             }
 
             .btn-secondary {
-                width: 88px;
+                width: 125px;
                 margin-left: 8px;
             }
         }
@@ -4562,6 +4616,22 @@ table.datasetTable {
 
         > .mainSection {
             height: ~"calc(100% - 118px)" !important;
+        }
+
+        &.dataMart {
+            .switchView {
+                display: none;
+            }
+
+            .topWrapper {
+                display: none;
+            }
+
+            #tableGridViewMenu {
+                .sort {
+                    display: none;
+                }
+            }
         }
     }
 }

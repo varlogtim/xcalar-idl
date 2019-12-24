@@ -658,6 +658,8 @@ module.exports = {
 
     "ds": {
         "Point": "Import Data Source",
+        "AddDS": "Add Dataset",
+        "AddTable": "Add Table",
         "Location": "Select Data Source Location",
         "Datasets": "Datasets",
         "Import": "Create Dataset",
@@ -681,6 +683,10 @@ module.exports = {
         "TargetParams": "Connector Configuration",
         "DELETETARGET": "Delete Connector",
         "ImportData": "Import Data"
+    },
+
+    "DataMart": {
+        "New": "New Data Mart",
     },
 
     // keep in sync with the FileProtocol in enums.js

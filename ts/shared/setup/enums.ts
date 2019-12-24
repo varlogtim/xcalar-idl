@@ -234,6 +234,7 @@ enum PatternCategory {
     SQLSnippet = "sqlSnippet",
     SQLFunc = "sqlFunc",
     SQLIdentifier = "sqlIdentifier",
+    DataMart = "DataMart",
 }
 
 enum ParserPatternCategory {

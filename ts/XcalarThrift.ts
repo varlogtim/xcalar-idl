@@ -5186,7 +5186,9 @@ XcalarKeyPut = function(
     scopeInfo?:Xcrpc.KVStore.ScopeInfo
 ): XDPromise<void> {
     if (key == null) {
-        return PromiseHelper.reject("key is not defined");
+        return PromiseHelper.reject({
+            error: "commit failed with no commit key defined"
+        });
     }
 
     if (persist == null) {
@@ -5212,7 +5214,9 @@ XcalarKeyMultiPut = function(
     scopeInfo?: Xcrpc.KVStore.ScopeInfo
 ): XDPromise<void> {
     if (kvMap == null) {
-        return PromiseHelper.reject("kvMap is not defined");
+        return PromiseHelper.reject({
+            error: "kvMap is not defined"
+        });
     }
 
     if (persist == null) {

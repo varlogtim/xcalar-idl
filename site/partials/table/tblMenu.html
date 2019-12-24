@@ -1,10 +1,6 @@
 <!-- table menu -->
 <div class="topSection">
-  <div class="titleSection">
-    <header>
-      <span><%= dicts.Table.Tables %> (<span class="numTables">0</span>)</span>
-    </header>
-  </div>
+  <div class="titleSection"></div>
   <div class="iconSection">
     <i class="minimizeBtn icon xi-close"></i>
     <!-- switch list view -->
@@ -19,7 +15,10 @@
   <!-- import data button -->
   <button class="btn btn-submit iconBtn import createTable"">
     <i class="icon xi-plus fa-11"></i>
-    <span><%= dicts.ds.Point %></span>
+    <span><%= dicts.ds.AddTable %></span>
+  </button>
+  <button id="addDataMartBtn" class="btn btn-secondary">
+    <span><%= dicts.DataMart.New %></span>
   </button>
 </div>
 <div id="sourceTableListSection" class="mainSection">

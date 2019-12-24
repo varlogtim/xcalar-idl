@@ -5064,6 +5064,21 @@ html.microsoft {
     }
 }
 
+#newDataMartModal {
+    @h-without-main: @modal-header-h + @modal-bottom-h;
+    .size(@height: 208px, @min-height: 208px);
+
+    .modalMain {
+        height: ~"calc(100% - @{h-without-main})";
+
+        .label {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+    }
+}
+
 #clusterStatusModal {
     @h-without-main: @modal-header-with-subHeader-h + @modal-bottom-h;
     .size(@height: 800px, @min-height: 300px, @max-height: 800px);

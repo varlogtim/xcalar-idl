@@ -2043,7 +2043,7 @@ namespace DSConfig {
                 }, extraUDFArgs);
                 let promise;
                 if (createTable) {
-                    promise = TblSource.Instance.import(args.name, args);
+                    promise =  PromiseHelper.convertToJQuery(TblSource.Instance.import(args.name, args));
                 } else{
                     promise = DS.load(args, {});
                 }
@@ -2062,7 +2062,7 @@ namespace DSConfig {
             let dsToReplace = files[0].dsToReplace || null;
             let promise;
             if (createTable) {
-                promise = TblSource.Instance.import(multiLoadArgs.name, multiLoadArgs);
+                promise = PromiseHelper.convertToJQuery(TblSource.Instance.import(multiLoadArgs.name, multiLoadArgs));
             } else {
                 promise = DS.load(multiLoadArgs, {
                     "dsToReplace": dsToReplace

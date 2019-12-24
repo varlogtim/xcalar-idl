@@ -7,18 +7,22 @@ class TblSource {
 
     private _tables: Map<string, PbTblInfo>;
     private _sortKey: string;
+    private _dataMarts: DataMarts;
 
     public constructor() {
         this._tables = new Map();
+        this._dataMarts = new DataMarts();
         this._addEventListeners();
         this._setupGridMenu();
+        this._setUpView();
+        this._updateSourceTitle();
     }
 
     /**
      * TblSource.Instance.refresh
      */
     public refresh(): XDPromise<void> {
-        return this._refresh(false);
+        return PromiseHelper.convertToJQuery(this._refresh(false));
     }
 
     /**
@@ -79,7 +83,7 @@ class TblSource {
      * @param args
      * @param schema
      */
-    public import(
+    public async import(
         tableName: string,
         args: {
             name: string,
@@ -96,27 +100,43 @@ class TblSource {
             schema: ColSchema[],
             newNames: string[],
             primaryKeys: string[],
+            dataMartName: string
         }
-    ): XDPromise<string> {
+    ): Promise<void> {
         if (this._tables.has(tableName)) {
-            return PromiseHelper.reject({
+            throw {
                 error: "Table: " + tableName + " already exists"
-            });
+            }
         }
 
-        let tableInfo: PbTblInfo = PTblManager.Instance.createTableInfo(tableName);
-        this._tables.set(tableName, tableInfo);
-        this._renderGridView();
+        try {
+            if (XVM.isDataMart()) {
+                let dataMartName: string = args.dataMartName;
+                // XXX TODO: use a dataMartName from function args
+                console.warn("use fake data mart, need to remove this piece of code");
+                const dataMarts = this._dataMarts.getAllList();
+                if (dataMarts.length === 0) {
+                    await this.newDataMart();
+                    dataMartName = this._dataMarts.getAllList()[0].name;
+                } else {
+                    dataMartName = dataMartName || dataMarts[0].name;
+                }
+                await this._dataMarts.addTable(dataMartName, tableName);
+            }
 
-        let $grid: JQuery = this._getGridByName(tableName);
-        this._addLoadingIcon($grid);
-        this._focusOnTable($grid);
+            let tableInfo: PbTblInfo = PTblManager.Instance.createTableInfo(tableName);
+            this._tables.set(tableName, tableInfo);
+            this._renderView();
 
-        PTblManager.Instance.createTableFromSource(tableInfo, args)
-        .always(() => {
-            // re-render
+            let $grid: JQuery = this._getGridByName(tableName);
+            this._addLoadingIcon($grid);
+            this._focusOnTable($grid);
+            await PTblManager.Instance.createTableFromSource(tableInfo, args);
+        } catch (e) {
+            console.error("create table failed", e);
+        } finally {
             this._refresh(false);
-        });
+        }
     }
 
     /**
@@ -132,7 +152,7 @@ class TblSource {
         let tableName = tableInfo.name;
         if (!this._tables.has(tableName)) {
             this._tables.set(tableName, tableInfo);
-            this._renderGridView();
+            this._renderView();
         }
         let $grid: JQuery = this._getGridByName(tableName);
         this._addLoadingIcon($grid);
@@ -157,6 +177,21 @@ class TblSource {
         return this._markActivating(tableName);
     }
 
+    /**
+     * TblSource.Instance.newDataMart
+     */
+    public async newDataMart(): Promise<void> {
+        const onSumbit = async (name) => {
+            try {
+                await this._dataMarts.create(name);
+                this._renderView();
+            } catch (e) {
+                Alert.error(ErrTStr.Error, e.message);
+            }
+        };
+        NewDataMartModal.Instance.show(this._dataMarts, onSumbit);
+    }
+
     private _getMenuSection(): JQuery {
         return $("#datastoreMenu .menuSection.table");
     }
@@ -177,29 +212,26 @@ class TblSource {
         return this._getGridView().find('.grid-unit[data-id="' + name + '"]');
     }
 
-    private _refresh(forceRefresh: boolean): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+    private async _refresh(forceRefresh: boolean): Promise<void> {
         const $focusedGrid: JQuery = this._getGridView().find(".grid-unit.active");
         let focusTable: string = null;
         if ($focusedGrid.length) {
             focusTable = $focusedGrid.data("id");
         }
 
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         xcUIHelper.showRefreshIcon(this._getGridView(), false, deferred.promise());
 
-        PTblManager.Instance.getTablesAsync(forceRefresh)
-        .then((tables) => {
-            this._setTables(tables);
-            this._renderGridView();
-            this._updateTablsInAction();
-            this._reFocusOnTable(focusTable);
-
-            deferred.resolve();
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return deferred.promise();
+        const tables = await PTblManager.Instance.getTablesAsync(forceRefresh)
+        this._setTables(tables);
+        if (XVM.isDataMart()) {
+            await this._dataMarts.restore(forceRefresh);
+            this._dataMarts.sync(tables);
+        }
+        deferred.resolve();
+        this._renderView();
+        this._updateTablsInAction();
+        this._reFocusOnTable(focusTable);
     }
 
     private _setTables(tables: PbTblInfo[]): void {
@@ -219,7 +251,7 @@ class TblSource {
             this._sortKey = null;
         } else {
             this._sortKey = key;
-            this._renderGridView();
+            this._renderView();
         }
         this._highlighSortKey();
     }
@@ -265,23 +297,73 @@ class TblSource {
         return tables;
     }
 
-    private _updateNumTables(): void {
-        this._getMenuSection().find(".numTables").text(this._tables.size);
+    private _updateSourceTitle(): void {
+        let text: string = "";
+        if (XVM.isDataMart()) {
+            text = DataMartTStr.Title;
+        } else {
+            text = TblTStr.Tables + " (" + this._tables.size + ")";
+        }
+        this._getMenuSection().find(".titleSection").text(text);
     }
 
-    private _renderGridView(): void {
+    private _renderView(): void {
         try {
-            let tables = this._sortTables();
-            let html: HTML = tables.map(this._getTableHTML).join("");
-            this._getGridView().html(html);
+            if (XVM.isDataMart()) {
+                this._renderHierarchicalView();
+            } else {
+                this._renderGridView();
+            }
         } catch (e) {
             console.error(e);
         }
-        this._updateNumTables();
+        this._updateSourceTitle();
+    }
+
+    private _renderHierarchicalView(): void {
+        const dataMarts: DataMart[] = this._dataMarts.getAllList();
+        let html: HTML = dataMarts.map((mart) => this._getDataMartHTML(mart)).join("");
+        this._getGridView().html(html);
+    }
+
+    private _renderGridView(): void {
+        let tables = this._sortTables();
+        let html: HTML = tables.map(this._getTableHTML).join("");
+        this._getGridView().html(html);
+    }
+
+    private _getDataMartHTML(dataMart: DataMart): HTML {
+        let tableHTML: HTML = dataMart.tables.map((tableName) => {
+            let table: PbTblInfo = this._tables.get(tableName);
+            return this._getTableHTML(table);
+        }).join("");
+        let classNames: string[] = ["dataMartGroup", "xc-expand-list"];
+        if (dataMart.active) {
+            classNames.push("expanded");
+        }
+        let html: HTML = '<div class="' + classNames.join(" ") +
+                        '" data-name="' + dataMart.name + '">' +
+                            '<div class="grid-unit dataMart">' +
+                                '<span class="expand">' +
+                                    '<i class="icon xi-down fa-13"></i>' +
+                                '</span>' +
+                                '<i class="gridIcon icon xi_data"></i>' +
+                                '<div class="label">' +
+                                    dataMart.name +
+                                '</div>' +
+                            '</div>' +
+                            '<ul class="list">' +
+                                tableHTML +
+                            '</ul>' +
+                         '</div>';
+        return html;
     }
 
     private _getTableHTML(table: PbTblInfo): HTML {
-        // const checkMarkIcon: string = '<i class="gridIcon icon xi-table"></i>';
+        if (!table) {
+            // error case
+            return "";
+        }
         const name: string = table.name;
         const title: string = name;
         let dsTableIcon: string = "";
@@ -322,6 +404,15 @@ class TblSource {
         this._getGridView().find(".selected").removeClass("selected");
     }
 
+    private _toggleDataMart($dataMartGroup: JQuery): void {
+        const name: string = $dataMartGroup.data("name");
+        const dataMart: DataMart = this._dataMarts.get(name);
+        if (dataMart) {
+            dataMart.active = !dataMart.active;
+            $dataMartGroup.toggleClass("expanded");
+        }
+    }
+
     private _focusOnTable($grid: JQuery): void {
         if ($grid == null ||
             $grid.hasClass("deleting")
@@ -343,6 +434,14 @@ class TblSource {
                 loadMsg = tableInfo.loadMsg || TblTStr.Creating;
             }
             TblSourcePreview.Instance.show(tableInfo, loadMsg);
+        }
+
+        if (XVM.isDataMart()) {
+            // expand data mart list when focus on the tale
+            const $dataMartGroup = $grid.closest(".dataMartGroup");
+            if (!$dataMartGroup.hasClass("expanded")) {
+                this._toggleDataMart($dataMartGroup);
+            }
         }
     }
 
@@ -403,7 +502,10 @@ class TblSource {
         });
     }
 
-    private _deletTables(tableNames: string[]): void {
+    private async _deletTables(
+        tableNames: string[],
+        dataMartName?: string
+    ): Promise<void> {
         tableNames.forEach((name) => {
             let $grid: JQuery = this._getGridByName(name);
             this._addDeactivateIcon($grid);
@@ -411,10 +513,36 @@ class TblSource {
             $grid.addClass("deleting");
         });
 
-        PTblManager.Instance.deleteTables(tableNames)
-        .always(() => {
+        try {
+            await PTblManager.Instance.deleteTables(tableNames);
+            if (XVM.isDataMart()) {
+                await this._dataMarts.deleteTable(dataMartName, tableNames[0]);
+            }
+        } catch (e) {
+            console.error("delete table from failed", e);
+        } finally {
             // update UI
             this._refresh(false);
+        }
+    }
+
+    private _deleteDataMart(name: string): void {
+        const deleteAction = async () => {
+            try {
+                await this._dataMarts.delete(name);
+                this._renderView();
+            } catch (e) {
+                Alert.error(ErrTStr.Error, e.message);
+            }
+        };
+
+        const msg = xcStringHelper.replaceMsg(DataMartTStr.DeleteConfirm, {name});
+        Alert.show({
+            title: DataMartTStr.Delete,
+            msg,
+            onConfirm: () => {
+                deleteAction();
+            }
         });
     }
 
@@ -549,7 +677,12 @@ class TblSource {
         const $gridView: JQuery = this._getGridView();
         $gridView.on("click", ".grid-unit", (event) => {
             this._cleanGridSelect();
-            this._focusOnTable($(event.currentTarget));
+            let $target: JQuery = $(event.currentTarget);
+            if (XVM.isDataMart() && $target.hasClass("dataMart")) {
+                this._toggleDataMart($target.closest(".dataMartGroup"));
+            } else {
+                this._focusOnTable($target);
+            }
         });
 
         const $gridViewWrapper: JQuery = this._getTableListSection().find(".gridViewWrapper");
@@ -557,6 +690,13 @@ class TblSource {
             if (event.which !== 1|| (isSystemMac && event.ctrlKey)) {
                 return;
             }
+
+            // Disable the multi selection for data mart
+            // as it's not in the plan for the stage 1 chagne
+            if (XVM.isDataMart()) {
+                return;
+            }
+
             let $target = $(event.target);
             if ($target.closest(".gridIcon").length ||
                 $target.closest(".label").length
@@ -567,6 +707,27 @@ class TblSource {
 
             this._createRectSelection(event.pageX, event.pageY);
         });
+
+        if (XVM.isDataMart()) {
+            this._addDataMartEvents();
+        }
+    }
+
+    private _addDataMartEvents(): void {
+        $("#addDataMartBtn").click((event) => {
+            $(event.currentTarget).blur();
+            this.newDataMart();
+        });
+    }
+
+    private _setUpView(): void {
+        if (XVM.isDataMart()) {
+            this._getMenuSection().addClass("dataMart");
+            this._getGridView().removeClass("gridView listView")
+                                .addClass("hierarchicalView listView");
+        } else {
+            $("#addDataMartBtn").remove();
+        }
     }
 
     private _setupGridMenu(): void {
@@ -605,24 +766,37 @@ class TblSource {
                 $gridMenu.find(".multiActivate, .multiDeactivate").hide();
                 if ($grid.length) {
                     $grid.addClass("selected");
-                    let id = $grid.data("id");
-                    $gridMenu.data("id", id);
-                    let tableInfo = self._tables.get(id);
-                    classes += " tblOpts dsOpts";
 
-                    if (tableInfo && tableInfo.active) {
-                        classes += " dsActivated";
+                    if (XVM.isDataMart()) {
+                        let dataMartName = $grid.closest(".dataMartGroup").data("name");
+                        $gridMenu.data("dataMartName", dataMartName);
                     }
 
-                    if (tableInfo && tableInfo.state === PbTblState.BeDataset) {
-                        classes += " dsInCreate";
-                    }
+                    if ($grid.hasClass("dataMart")) {
+                        // options for data mart
+                        classes += " dataMartOpts";
+                    } else {
+                        // options for a single table
+                        let id = $grid.data("id");
+                        $gridMenu.data("id", id);
+                        let tableInfo = self._tables.get(id);
+                        classes += " tblOpts dsOpts";
 
-                    if ($grid.hasClass("loading")) {
-                        classes += " loading cancelable";
-                    }
-                    if ($grid.hasClass("activating")) {
-                        classes += " activating cancelable";
+                        if (tableInfo && tableInfo.active) {
+                            classes += " dsActivated";
+                        }
+
+                        if (tableInfo && tableInfo.state === PbTblState.BeDataset) {
+                            classes += " dsInCreate";
+                        }
+
+                        if ($grid.hasClass("loading")) {
+                            classes += " loading cancelable";
+                        }
+
+                        if ($grid.hasClass("activating")) {
+                            classes += " activating cancelable";
+                        }
                     }
                 } else {
                     classes += " bgOpts";
@@ -666,7 +840,16 @@ class TblSource {
             if (event.which !== 1) {
                 return;
             }
-            this._deletTables([$gridMenu.data("id")]);
+            let dataMartName: string = "";
+            if (XVM.isDataMart()) {
+                dataMartName = $gridMenu.data("dataMartName");
+            }
+
+            if (XVM.isDataMart() && $gridMenu.hasClass("dataMartOpts")) {
+                this._deleteDataMart(dataMartName);
+            } else {
+                this._deletTables([$gridMenu.data("id")], dataMartName);
+            }
         });
 
         $gridMenu.on("mouseup", ".multiDelete", (event) => {

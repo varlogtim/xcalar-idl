@@ -7,6 +7,9 @@ var Status = {
     "Incomplete": 4
 };
 
+// flag for Data Mart product
+var gDataMart = true;
+
 /** START DEBUG ONLY **/
 // for XD dev which is on localhost, set to false by default
 // for NON-XD dev which is on VMs,  set to true by default
@@ -16,7 +19,4 @@ var gLoginEnabled = (typeof window !== "undefined" && window.location.hostname =
 // methodology of dataflows, it should be limited to internal
 // use only.
 var gUpdateIMDAccess = false;
-
-// flag for Data Mart product
-var gDataMart = true;
 /** END DEBUG ONLY **/

@@ -1581,6 +1581,7 @@ namespace xcHelper {
                 break;
             case PatternCategory.Workbook:
             case PatternCategory.Target:
+            case PatternCategory.DataMart:
                 namePattern = /^[a-zA-Z][a-zA-Z0-9\s_-]*$/;
                 break;
             case PatternCategory.WorkbookFix:
