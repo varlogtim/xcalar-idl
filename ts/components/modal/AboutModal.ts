@@ -8,10 +8,10 @@ class AboutModal {
 
     private constructor() {
         const $modal: JQuery = this._getModal();
-        if (XVM.isCloud()) {
-            $modal.addClass("cloud");
+        if (XVM.isCloud() || XVM.isDataMart()) {
+            $modal.addClass("noLicense");
         } else {
-            $modal.removeClass("cloud");
+            $modal.removeClass("noLicense");
         }
         this._modalHelper = new ModalHelper($modal, {
             noResize: true,
@@ -37,9 +37,9 @@ class AboutModal {
             }, 1000);
         });
 
-        $modal.on("copy", (event) => {
+        $modal.on("copy", () => {
             var text = window.getSelection().toString();
-            xcHelper.copyToClipboard(text); // changes font color from white to black
+            xcUIHelper.copyToClipboard(text); // changes font color from white to black
             return false;
         });
     }
@@ -60,15 +60,15 @@ class AboutModal {
         $modal.find(".frontVersion").text(frontVers);
         $modal.find(".buildNumber").text(buildNumber);
         
-        if (XVM.isCloud()) {
-            $modal.addClass("cloud");
+        if (XVM.isCloud() || XVM.isDataMart()) {
+            $modal.addClass("noLicense");
             $modal.find(".licensee").text("");
             $modal.find(".expiration").text("");
             $modal.find(".numServers").text("");
             $modal.find(".numUsers").text("");
             $modal.find(".keyValue").text("");
         } else {
-            $modal.removeClass("cloud");
+            $modal.removeClass("noLicense");
              // License
             const expiration = XVM.getLicenseExipreInfo();
             const licensee = XVM.getLicensee();
