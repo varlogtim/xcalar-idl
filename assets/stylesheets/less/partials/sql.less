@@ -492,9 +492,10 @@
     height: 100%;
     background-color: @color-white;
     @topSectionHeight: 60px;
-    @top-bar-height: 51px;
-    @bottom-height: @height-btn + 24 * 2 + 1;
-    @total-height: @topSectionHeight + @top-bar-height + @bottom-height;
+    @top-bar-height: 93px;
+    @total-height: @topSectionHeight + @top-bar-height;
+    .flex-display;
+    .flex-flow(column);
 
     .undock {
         position: absolute;
@@ -504,7 +505,6 @@
     }
 
     header {
-        height: @topSectionHeight;
         border-bottom: 1px solid @color-border-softGray;
         display: flex;
         padding: 15px 50px 15px 15px;
@@ -513,29 +513,24 @@
             color: @color-font-form-gray;
             font-size: 22px;
             font-weight: bold;
-            line-height: 30px;
             pointer-events: none;
-            .flex(0 1 auto);
-            white-space: nowrap;
         }
 
         .divider {
             margin: 5px 15px;
             width: 1px;
-            height: 20px;
             background-color: @color-border-grayBlue;
-            .flex(0 0 1px);
+            flex: 0 0 1px;
         }
 
         .fileName {
             margin: 5px 0px;
             font-weight: normal;
             font-size: 14px;
-            height: 20px;
-            line-height: 20px;
             color: @color-font-link-blue;
             text-decoration: underline;
             cursor: pointer;
+            word-break: break-all;
 
             &.untitled {
                 font-style: italic;
@@ -560,35 +555,56 @@
     }
 
     .topBarSection {
-        padding: 10px 15px;
-        height: @top-bar-height;
-        background-color: @color-bg-list-hover-blue;
+        padding: 16px;
         border-bottom: 1px solid @color-border-softGray;
-        display: flex; // allows .showTables to compress
 
-        .fileOption {
-            width: 200px;
-            margin-right: 15px;
+        .row {
+            &:last-child {
+                span {
+                    text-decoration: underline;
+                    color: @color-font-link-blue;
+                    white-space: nowrap;
+                }
 
-            .text {
-                height: 30px;
-                width: ~"calc(100% - 30px)";
-                line-height: 30px;
+                .qMark {
+                    margin-top: 4px;
+                    margin-left: 4px;
+                    margin-right: 16px;
+                }
             }
 
-            .list {
-                min-width: 100px;
-            }
-        }
+            button {
+                width: 113px;
+                padding: 0 16px;
+                margin-right: 8px;
+                margin-bottom: 12px;
 
-        button {
-            position: relative;
-            top: 1px;
-            padding: 0 5px;
-            width: 130px;
+                &:last-child {
+                    margin-right: 0;
+                }
 
-            &.sqlFunc {
-                margin-right: 10px;
+                &.dropDownList {
+                    color: @color-font-form-gray;
+                    overflow: visible;
+                    float: none;
+
+                    .icon {
+                        .dropDownList .iconWrapper .icon;
+                        float: right;
+                        left: auto;
+                        right: -7px;
+                        top: 13px;
+                    }
+
+                    .list {
+                        top: 27px;
+                        width: 100%;
+
+                        li {
+                            text-align: left;
+                        }
+                    }
+                }
             }
         }
     }
@@ -610,18 +626,6 @@
         }
         .CodeMirror-gutters {
             background-color: @color-bg-list-hover-blue;
-        }
-    }
-
-    .bottomSection {
-        height: @bottom-height;
-        border-top: 1px solid @color-border-softGray;
-        padding-top: 24px;
-        padding-bottom: 24px;
-
-        button {
-            display: block;
-            margin: 0 auto;
         }
     }
 }

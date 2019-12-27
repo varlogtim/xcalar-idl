@@ -1054,6 +1054,12 @@ module.exports = {
     },
 
     "SQLEditor": {
+        "Run": "Run",
+        "RunHint": "Select a portion of query to run selected",
+        "More": "More",
+        "WriteUDF": "Write UDF",
+        "WriteUDFHint": "UDF can be used in SQL, e.g., Select udf(Col1) from Table",
+        "SQLFuncHint": "SQL function can be used in SQL, e.g., Select * from sqlFunc(Table1, Table2).",
         "NewSnippet": "New Snippet",
         "Import": "Import Snippet",
         "Download": "Download Snippet",

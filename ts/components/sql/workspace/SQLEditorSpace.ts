@@ -125,21 +125,6 @@ class SQLEditorSpace {
                 tables: acTables
             });
         }
-        this._setExecuteBtnTooltip();
-    }
-
-    private _setExecuteBtnTooltip(): void {
-        let $btn: JQuery = this._getEditorSpaceEl().find(".bottomSection .execute");
-        let title: string = "Execute Query" + "<br/> (";
-        if (isSystemMac) {
-            title += "Cmd + E";
-        } else {
-            title += "Ctrl + E";
-        }
-        title += ")";
-        xcTooltip.add($btn, {
-            title: title
-        });
     }
 
     private _onLoadMode(promise: XDPromise<any>): any {
@@ -655,12 +640,6 @@ class SQLEditorSpace {
 
     private _addEventListeners(): void {
         const $container = this._getEditorSpaceEl();
-        const $bottomSection = $container.find(".bottomSection");
-        $bottomSection.on("click", ".execute", (event) => {
-            $(event.currentTarget).blur();
-            this._executeAction();
-        });
-
         $container.on("click", ".undock", () => {
             if ($container.closest(".leftSection").hasClass("undocked")) {
                 this._dock();
@@ -670,6 +649,7 @@ class SQLEditorSpace {
         });
 
         this._setupResize();
+        this._setupHeader();
         this._setupTopBar();
     }
 
@@ -687,18 +667,7 @@ class SQLEditorSpace {
         }
     }
 
-    private _setupTopBar(): void {
-        const $topBar = this._getTopBarEl();
-        $topBar.on("click", ".showTables", (event) => {
-            $(event.currentTarget).blur();
-            SQLResultSpace.Instance.showTables(true);
-        });
-
-        $topBar.on("click", ".sqlFunc", (event) => {
-            $(event.currentTarget).blur();
-            this._goToSQLFunc();
-        });
-
+    private _setupHeader(): void {
         let $fileName = this._getFileNameEl();
         $fileName.on("click", (event) => {
             let $snippet_name: JQuery = $(event.currentTarget);
@@ -721,14 +690,51 @@ class SQLEditorSpace {
             }
         });
 
-       $fileName.on("focusout", ".xc-input", (event) => {
+        $fileName.on("focusout", ".xc-input", (event) => {
             let $nameInput: JQuery = $(event.currentTarget);
             this._renameSnippet($nameInput);
             xcUIHelper.removeSelectionRange();
         });
 
+        this._getEditorSpaceEl().find("header").on("mouseenter", ".tooltipOverflow", (event) => {
+            xcTooltip.auto(<any>event.currentTarget);
+        });
+    }
+
+    private _setupTopBar(): void {
+        const $topBar = this._getTopBarEl();
+        $topBar.on("click", ".execute", (event) => {
+            $(event.currentTarget).blur();
+            this._executeAction();
+        });
+
+        $topBar.on("click", ".saveAs", (event) => {
+            $(event.currentTarget).blur();
+            this._fileOption("saveAs");
+        });
+
+        $topBar.on("click", ".new", (event) => {
+            $(event.currentTarget).blur();
+            this._fileOption("new");
+        });
+
+        // $topBar.on("click", ".showTables", (event) => {
+        //     $(event.currentTarget).blur();
+        //     SQLResultSpace.Instance.showTables(true);
+        // });
+
+        $topBar.on("click", ".udf", (event) => {
+            $(event.currentTarget).blur();
+            $("#udfButtonWrap .toManager").click();
+        });
+
+        $topBar.on("click", ".sqlFunc", (event) => {
+            $(event.currentTarget).blur();
+            this._goToSQLFunc();
+        });
+
         let selector: string = `#${this._getEditorSpaceEl().attr("id")}`;
-        new MenuHelper($topBar.find(".fileOption"), {
+        new MenuHelper($topBar.find(".btn.more"), {
             onOpen: () => {
                 let $deletLi: JQuery = $topBar.find('.fileOption li[data-action="delete"]');
                 if (SQLSnippet.Instance.hasSnippet(this._currentFile)) {
@@ -745,10 +751,6 @@ class SQLEditorSpace {
         }).setupListeners();
 
         $topBar.on("mouseenter", ".tooltipOverflow", (event) => {
-            xcTooltip.auto(<any>event.currentTarget);
-        });
-
-        this._getEditorSpaceEl().find("header").on("mouseenter", ".tooltipOverflow", (event) => {
             xcTooltip.auto(<any>event.currentTarget);
         });
     }

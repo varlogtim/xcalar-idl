@@ -8,38 +8,48 @@
   </header>
   <i class="icon xc-icon-action xi_popout undock" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.bottomMenu.popOutBtn %>"></i>
   <section class="topBarSection">
-    <div class="fileOption dropDownList">
-      <div class="text">File</div>
-      <div class="iconWrapper">
+    <div class="row">
+      <button class="btn execute"
+      data-toggle="tooltip"
+      data-placement="top"
+      data-container="body"
+      data-title="<%= dicts.SQLEditor.RunHint %>"
+      >
+        <%= dicts.SQLEditor.Run %>
+      </button>
+      <button class="btn btn-secondary saveAs"><%= dicts.common.SaveAs %>...</button>
+      <button class="btn btn-secondary new"><%= dicts.SQLEditor.NewSnippet %></button>
+      <button class="btn btn-secondary more dropDownList">
+        <%= dicts.SQLEditor.More %>...
         <i class="icon xi-arrow-down"></i>
-      </div>
-      <div class="list">
-        <ul>
-          <li data-action="new"><%= dicts.SQLEditor.NewSnippet %></li>
-          <li data-action="open"><%= dicts.fileManager.Open %>...</li>
-          <li data-action="saveAs"><%= dicts.common.SaveAs %>...</li>
-          <li data-action="delete"><%= dicts.fileManager.Delete %></li>
-          <!-- <li data-action="import"><%= dicts.SQLEditor.Import %></li> -->
-          <li data-action="download"><%= dicts.SQLEditor.Download %></li>
-        </ul>
-      </div>
+        <div class="list">
+          <ul>
+            <li data-action="open"><%= dicts.fileManager.Open %>...</li>
+            <li data-action="delete"><%= dicts.fileManager.Delete %></li>
+            <li data-action="download"><%= dicts.SQLEditor.Download %></li>
+            include "../../util/menuScrollArea.html"
+          </ul>
+        </div>
+      </button>
     </div>
-    <!-- temporary hide sql function button -->
-    <button class="btn btn-secondary sqlFunc xc-hidden" data-toggle="tooltip" data-placement="top" data-container="body" data-title="<%= dicts.SQLFunc.SwitchToUse %>">
-      <%= dicts.SQLFunc.Title %>
-    </button>
-    <button class="btn btn-secondary showTables">
-      <%= dicts.Table.Show %>
-    </button>
+    <div class="row">
+      <span class="xc-action udf"><%= dicts.SQLEditor.WriteUDF %></span>
+      <i class="qMark icon xi-unknown"
+      data-toggle="tooltip"
+      data-container="body"
+      data-title="<%= dicts.SQLEditor.WriteUDFHint %>"
+      data-placement="top"></i>
+      <span class="xc-action sqlFunc"><%= dicts.SQLFunc.Title %></span>
+      <i class="qMark icon xi-unknown"
+      data-toggle="tooltip"
+      data-container="body"
+      data-title="<%= dicts.SQLEditor.SQLFuncHint %>"
+      data-placement="top"></i>
+    </div>
   </section>
   <section class="editSection">
     <div class="editArea">
       <textarea id="sqlEditorSpace-editor"></textarea>
     </div>
-  </section>
-  <section class="bottomSection">
-    <button class="btn btn-submit execute">
-      <%= dicts.dag.execute %>
-    </button>
   </section>
 </div>
