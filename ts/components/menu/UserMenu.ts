@@ -50,6 +50,13 @@ class UserMenu {
             MainMenu.open(true);
         });
 
+        $menu.on('mouseup', ".preferences", function(event: JQueryEventObject): void {
+            if (event.which !== 1) {
+                return;
+            }
+            MainMenu.openPanel("monitorPanel", "settingsButton");
+        });
+
         $("#logout").mouseup(function(event: JQueryEventObject): void {
             if (event.which !== 1) {
                 return;

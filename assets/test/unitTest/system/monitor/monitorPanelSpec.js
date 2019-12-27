@@ -50,29 +50,6 @@ describe("MonitorPanel Test", function() {
             $listInfo.find(".expand").click();
             expect($listInfo.closest(".listWrap").hasClass("active")).to.equal(wasActive);
         });
-
-        it("toggling monitor setup lists should work", function() {
-            var $listInfo = $("#monitorMenu-setup").find(".listInfo").eq(0);
-            var wasActive = $listInfo.closest(".listWrap").hasClass("active");
-            $listInfo.find(".expand").click();
-            expect($listInfo.closest(".listWrap").hasClass("active")).to.not.equal(wasActive);
-            $listInfo.find(".expand").click();
-            expect($listInfo.closest(".listWrap").hasClass("active")).to.equal(wasActive);
-        });
-
-        // XXX TODO: fix it in unit test
-        // it("monitor-delete button should work", function() {
-        //     var shown = false;
-        //     var cache = DeleteTableModal.Instance.show;
-        //     DeleteTableModal.Instance.show = function() {
-        //         shown = true;
-        //     };
-
-        //     $("#monitor-delete").click();
-        //     expect(shown).to.be.true;
-
-        //     DeleteTableModal.Instance.show = cache;
-        // });
     });
 
     describe("tab switching", function() {
@@ -84,7 +61,7 @@ describe("MonitorPanel Test", function() {
             if (!$("#mainMenu").hasClass("open")) {
                 $("#monitorTab .mainTab").click();
             }
-            if (!$("#monitorMenu .menuSection.settings").is(":visible")) {
+            if (!$("#monitor-settings").is(":visible")) {
                 $("#settingsButton").click();
             }
             expect($("#monitor-settings").is(":visible")).to.be.true;

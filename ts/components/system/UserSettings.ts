@@ -229,18 +229,14 @@ namespace UserSettings {
         addEventListeners();
 
         if (XVM.isDataMart()) {
-            // remove both prem only and cloud only settings
-            $("#monitorGenSettingsCard .optionSet.onPremOnly").remove();
-            $("#monitorGenSettingsCard .optionSet.cloudOnly").remove();
+            // data mart options
+            $("#monitorGenSettingsCard .optionSet:not(.dataMart)").remove();
         } else if (XVM.isCloud()) {
-            // remove prem only settings
-            $("#monitorGenSettingsCard .optionSet.onPremOnly").remove();
+            // cloud options
+            $("#monitorGenSettingsCard .optionSet:not(.cloud)").remove();
         } else {
             // remove cloud only settings
-            $("#monitorGenSettingsCard .optionSet.cloudOnly").remove();
-            if (!Admin.isAdmin()) {
-                $("#monitorGenSettingsCard .optionSet.adminOrCloudOnly").remove();
-            }
+            $("#monitorGenSettingsCard .optionSet:not(.onPrem)").remove();
         }
 
         if (!Admin.isAdmin()) {

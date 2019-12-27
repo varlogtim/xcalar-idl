@@ -136,8 +136,7 @@ namespace MonitorPanel {
                     break;
                 case ("settingsButton"):
                     $("#monitor-settings").addClass("active");
-                    $menu.find(".menuSection.settings").removeClass("xc-hidden");
-                    title += MonitorTStr.Settings;
+                    title += MonitorTStr.Preferences;
                     break;
                 case ("fileManagerButton"):
                     $("#monitor-file-manager").addClass("active");

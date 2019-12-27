@@ -1,10 +1,10 @@
 <div id="monitorGenSettingsCard" class="mainSection no-selection cardContainer">
   <header class="cardHeader">
-    <div class="title"><%= dicts.monitor.GeneralSettings %></div>
+    <div class="title"><%= dicts.monitor.Preferences %></div>
   </header>
   <div class="optionsContainer cardMain">
     <!-- show data col -->
-    <div class="optionSet">
+    <div class="optionSet dataMart cloud onPrem">
       <div class="optionSelector">
         <div id="showDataColBox" class="checkbox">
           <i class="icon xi-ckbox-empty fa-13"></i>
@@ -12,19 +12,24 @@
         </div>
       </div>
       <div class="label"><%= dicts.monitor.showDataCol %></div>
+      <i class="qMark icon xi-unknown"
+      data-toggle="tooltip"
+      data-container="body"
+      data-title="<%= dicts.monitor.showDataColHint %>"
+      data-placement="top"></i>
     </div>
-
-    <div class="optionSet">
+    <!-- show imd -->
+    <div class="optionSet cloud onPrem">
       <div class="optionSelector">
         <div id="showIMD" class="checkbox">
           <i class="icon xi-ckbox-empty fa-13"></i>
           <i class="icon xi-ckbox-selected fa-13"></i>
         </div>
       </div>
-      <div class="label">Show IMD screen</div>
+      <div class="label"><%= dicts.monitor.ShowIMD %></div>
     </div>
-
-    <div class="optionSet">
+    <!-- hide system op logs -->
+    <div class="optionSet cloud onPrem">
       <div class="optionSelector">
         <div id="hideSysOps" class="checkbox">
           <i class="icon xi-ckbox-empty fa-13"></i>
@@ -33,8 +38,8 @@
       </div>
       <div class="label"><%= dicts.monitor.hideSysOps %></div>
     </div>
-
-    <div class="optionSet">
+    <!-- health check interval -->
+    <div class="optionSet dataMart cloud onPrem">
       <div class="label"><%= dicts.monitor.commitInterval %></div>
       <div id="commitIntervalSlider" class="optionSelector rangeSliderWrap">
         <div class="rangeSlider">
@@ -47,7 +52,8 @@
         <span><%= dicts.common.seconds %></span>
       </div>
     </div>
-    <div class="optionSet admin onPremOnly">
+    <!-- disable dataset sharing -->
+    <div class="optionSet admin onPrem">
       <div class="optionSelector">
         <div id="disableDSShare" class="checkbox">
           <i class="icon xi-ckbox-empty fa-13"></i>
@@ -56,8 +62,8 @@
       </div>
       <div class="label"><%= dicts.monitor.DISABLESHARE %></div>
     </div>
-    <!-- show logout interval if cloud or if admin -->
-    <div class="optionSet adminOrCloudOnly">
+    <!-- logout interval -->
+    <div class="optionSet dataMart cloud onPrem">
       <div class="label"><%= dicts.monitor.logOutInterval %></div>
       <div id="logOutIntervalSlider" class="optionSelector rangeSliderWrap">
         <div class="rangeSlider">
@@ -70,27 +76,29 @@
         <span><%= dicts.common.minutes %></span>
       </div>
     </div>
-    <div class="optionSet cloudOnly">
+    <!-- cloud inactivity shut down -->
+    <div class="optionSet cloud">
       <div class="optionSelector">
         <div id="enableInactivityCheck" class="checkbox">
           <i class="icon xi-ckbox-empty fa-13"></i>
           <i class="icon xi-ckbox-selected fa-13"></i>
         </div>
       </div>
-      <div class="label">Shut down cluster after inactivity</div>
+      <div class="label"><%= dicts.monitor.InactivityShutdown %></div>
     </div>
-    <div class="optionSet cloudOnly">
+    <!-- enable cloud support -->
+    <div class="optionSet cloud">
       <div class="optionSelector">
         <div id="enableXcalarSupport" class="checkbox">
           <i class="icon xi-ckbox-empty fa-13"></i>
           <i class="icon xi-ckbox-selected fa-13"></i>
         </div>
       </div>
-      <div class="label">Enable Xcalar support login</div>
+      <div class="label"><%= dicts.monitor.EnableSupport %></div>
       <i class="qMark icon xi-unknown"
       data-toggle="tooltip"
       data-container="body"
-      data-title="This setting enables the Xcalar support to log into your Xcalar cluster and help you troubleshoot. By default, it is not enabled."
+      data-title="<%= dicts.monitor.EnableSupportHint %>"
       data-placement="top"></i>
     </div>
   </div>

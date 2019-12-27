@@ -19,16 +19,20 @@ class MemoryAlert {
         this._getMemoryAlertEl().click((e) => {
             if ($("#container").hasClass("noWorkbook") ||
                 $("#container").hasClass("switchingWkbk")) {
-                WorkbookPanel.goToMonitor();
+                if (!XVM.isDataMart()) {
+                    WorkbookPanel.goToMonitor();
+                }
                 return;
             }
             let $el = $(e.currentTarget);
             $el.blur();
-            if (!$el.hasClass("yellow") && !$el.hasClass("red")) {
+
+            if (XVM.isDataMart()) {
+                $("#monitor-delete").click();
+            } else if (!$el.hasClass("yellow") && !$el.hasClass("red")) {
                 MainMenu.openPanel("monitorPanel", "systemButton");
                 return false;
-            }
-            if ($el.hasClass("tableAlert")) {
+            } else if ($el.hasClass("tableAlert")) {
                 MainMenu.openPanel("monitorPanel", "systemButton");
                 $("#monitor-delete").click();
             } else {

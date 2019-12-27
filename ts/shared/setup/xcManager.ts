@@ -1526,6 +1526,7 @@ namespace xcManager {
 
     function setupDataMart(): void {
         $("#workbookPanel").find(".monitorBox").remove();
+        $("#monitorTab").addClass("xc-hidden");
     }
 
     /* Unit Test Only */
