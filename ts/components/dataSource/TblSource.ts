@@ -345,9 +345,9 @@ class TblSource {
                         '" data-name="' + dataMart.name + '">' +
                             '<div class="grid-unit dataMart">' +
                                 '<span class="expand">' +
-                                    '<i class="icon xi-down fa-13"></i>' +
+                                    '<i class="icon xi-arrow-down fa-10"></i>' +
                                 '</span>' +
-                                '<i class="gridIcon icon xi_data"></i>' +
+                                '<i class="gridIcon icon xi-datamart"></i>' +
                                 '<div class="label">' +
                                     dataMart.name +
                                 '</div>' +
