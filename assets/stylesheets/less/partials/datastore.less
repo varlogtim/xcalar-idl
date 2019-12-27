@@ -2748,6 +2748,7 @@ table.datasetTable {
         padding-bottom: 15px;
 
         #dsForm-tblSchema {
+
             label {
                 margin-top: 5px;
             }
@@ -3418,7 +3419,14 @@ table.datasetTable {
 
         &.schema {
             padding-left: 45px;
-            height: 130px;
+            height: 160px;
+
+            &.autoDetect {
+                height: 30px;
+                .schemaDesc, .textSection {
+                    display: none;
+                }
+            }
 
             .qMark {
                 top: 15px;

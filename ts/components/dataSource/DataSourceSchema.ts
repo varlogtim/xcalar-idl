@@ -3,17 +3,20 @@ class DataSourceSchema {
     private _events: object;
     private _caseInSensitive: boolean;
     private _isAutoDetect: boolean;
+    private _isAutoDetectChecked: boolean;
 
-    public constructor($section: JQuery) {
+    public constructor($section: JQuery, autoDetectChecked: boolean = false) {
         this._$container = $section;
         this._events = {};
         this._caseInSensitive = false;
         this._isAutoDetect = false;
+        this._isAutoDetectChecked = autoDetectChecked;
         this._addEventListeners();
     }
 
     public show(): void {
         this._toggleDisplay(true);
+        this._toggleAutoDetectCheckbox(this._isAutoDetectChecked);
     }
 
     public hide(): void {
@@ -24,14 +27,18 @@ class DataSourceSchema {
         this._toggleAutoDetect(true);
     }
 
-    public setSchema(schema: ColSchema[]): void {
+    public setSchema(schema: ColSchema[], uncheckAutoDetect: boolean = false): void {
         this._toggleAutoDetect(false);
         this._addSchema(schema);
+        if (uncheckAutoDetect) {
+            this._toggleAutoDetectCheckbox(false);
+        }
     }
 
     public reset(): void {
         this._toggleAutoDetect(false);
         this._showSchemaError(null);
+        this._toggleAutoDetectCheckbox(this._isAutoDetectChecked);
     }
 
     public validate(): {
@@ -62,6 +69,10 @@ class DataSourceSchema {
         return this._getContainer().find(".schemaWizard");
     }
 
+    private _getSchemaAutoDetectCheckbox(): JQuery {
+        return this._getContainer().find(".checkboxSection");
+    }
+
     private _toggleDisplay(show: boolean): void {
         let $container = this._getContainer();
         this._getSchemaTextAreaEl().val("");
@@ -77,6 +88,7 @@ class DataSourceSchema {
         let $schemaPart = this._getSchemaTextAreaEl().add(this._getSchemaWizardEl());
         if (autoDetect) {
             $schemaPart.addClass("xc-disabled");
+            this._toggleAutoDetectCheckbox(true);
         } else {
             $schemaPart.removeClass("xc-disabled");
         }
@@ -102,7 +114,7 @@ class DataSourceSchema {
             schema: res.schema,
             newNames: res.newNames
         };
-    } 
+    }
 
     private _validateSchema(ignoreError: boolean): {
         schema: ColSchema[],
@@ -153,7 +165,7 @@ class DataSourceSchema {
                 error: ErrTStr.NoEmpty
             };
         }
-        
+
         let validTypes: ColumnType[] = BaseOpPanel.getBasicColTypes();
         let schema: ColSchema[] = [];
         let schemaToSuggest: ColSchema[] = [];
@@ -356,5 +368,32 @@ class DataSourceSchema {
                 this._changeSchema();
             }, 500);
         });
+
+        this._getSchemaAutoDetectCheckbox().click((event) => {
+            const $checkbox: JQuery = $(event.currentTarget).find(".checkbox");
+            const checked: boolean = !$checkbox.hasClass("checked");
+            this._toggleAutoDetectCheckbox(checked);
+
+            this._triggerEvent(DataSourceSchemaEvent.ToggleAutoDetect, {
+                autoDetect: checked,
+                callback: (colSchema) => {
+                    this._addSchema(colSchema);
+                    this._checkSchema();
+                }
+            });
+        });
+    }
+
+    private _toggleAutoDetectCheckbox(setToTrue: boolean) {
+        const $checkbox: JQuery = this._getSchemaAutoDetectCheckbox().find(".checkbox");
+        if (setToTrue) {
+            $checkbox.addClass("checked");
+            this._getContainer().addClass("autoDetect");
+            this._isAutoDetectChecked = true;
+        } else {
+            $checkbox.removeClass("checked");
+            this._getContainer().removeClass("autoDetect");
+            this._isAutoDetectChecked = false;
+        }
     }
 }

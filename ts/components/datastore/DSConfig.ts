@@ -710,25 +710,32 @@ namespace DSConfig {
     }
 
     function setupDataSourceSchema(): void {
-        dataSourceSchema = new DataSourceSchema(getSchemaRow());
+        dataSourceSchema = new DataSourceSchema(getSchemaRow(), true);
         dataSourceSchema
         .registerEvent(DataSourceSchemaEvent.GetHintSchema, function() {
-            return getHintSchmea();
+            return getHintSchema();
         })
         .registerEvent(DataSourceSchemaEvent.ChangeSchema, function(arg){
             applySchemaChangetoPreview(arg.schema, arg.newNames, arg.autoDetect);
         })
         .registerEvent(DataSourceSchemaEvent.ValidateSchema, function(schema) {
             return validateMatchOfSchemaAndHeaders(schema);
+        })
+        .registerEvent(DataSourceSchemaEvent.ToggleAutoDetect, function(arg) {
+            if (arg.autoDetect) {
+                csvArgChange();
+                getPreviewTable();
+                arg.callback(getHintSchema());
+            }
         });
     }
 
     function updateSchema(): void {
         var schema = getSchemaFromPreviewTable();
-        dataSourceSchema.setSchema(schema);
+        dataSourceSchema.setSchema(schema, true);
     }
 
-    function getHintSchmea(): ColSchema[] {
+    function getHintSchema(): ColSchema[] {
         let schema = getSchemaFromPreviewTable();
         if (loadArgs.getFormat() === formatMap.CSV) {
             return schema;
@@ -836,7 +843,7 @@ namespace DSConfig {
                 }
                 dataSourceSchema.setSchema(schema);
             } else {
-                let schema = getHintSchmea();
+                let schema = getHintSchema();
                 dataSourceSchema.setSchema(schema);
                 applySchemaChangetoPreview(schema, [], false);
             }
