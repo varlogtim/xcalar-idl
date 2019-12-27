@@ -98,6 +98,29 @@ class SQLEditorSpace {
         this._sqlEditor.refresh();
     }
 
+    /**
+     * SQLEditorSpace.Instance.deleteSnippet
+     * @param sqls
+     */
+    public deleteSnippet(name: string, callback: Function): void {
+        let msg = xcStringHelper.replaceMsg(SQLTStr.DeleteSnippetMsg, {
+            name: name
+        });
+        Alert.show({
+            title: SQLTStr.DeleteSnippet,
+            msg: msg,
+            onConfirm: () => {
+                SQLSnippet.Instance.deleteSnippet(name);
+                if (name === this._currentFile) {
+                    this.setSnippet(CommonTxtTstr.Untitled);
+                }
+                if (typeof callback === "function") {
+                    callback();
+                }
+            }
+        });
+    }
+
     private _setupSQLEditor(): void {
         const self = this;
         const callbacks = {
@@ -494,14 +517,11 @@ class SQLEditorSpace {
                 this._saveSnippet();
                 this._newSnippet();
                 break;
-            case "open":
-                this._openSnippet();
+            case "list":
+                this._listSnippet();
                 break;
             case "saveAs":
                 this._saveAsSnippet();
-                break;
-            case "delete":
-                this._deleteSnippet();
                 break;
             case "download":
                 this._downlodSnippet();
@@ -522,24 +542,31 @@ class SQLEditorSpace {
         });
     }
 
-    private _openSnippet(): void {
-        SQLSnippetListModal.Instance.show((name) => {
-            this._renameWarning()
-            .then(() => {
-                if (this._currentFile == CommonTxtTstr.Untitled) {
-                    // We don't want to save the untitled file if we just deleted it
-                    return PromiseHelper.resolve();
-                }
-                return this._saveSnippet()
-            })
-            .then(() => {
-                this.setSnippet(name)
-            })
-            .fail(() => {
-                // We decided not to discard the change
-                return;
-            })
+    private _listSnippet(): void {
+        SQLSnippetListModal.Instance.show((name, action) => {
+            switch (action) {
+                case "open":
+                    this._openSnippet(name);
+                    break;
+                default:
+                    console.error("error action " + action + " for list snippet");
+                    return;
+            }
         });
+    }
+
+    private async _openSnippet(name: string): Promise<void> {
+        try {
+            await this._renameWarning();
+            if (this._currentFile !== CommonTxtTstr.Untitled) {
+                // We don't want to save the untitled file if we just deleted it
+                await this._saveSnippet();
+            }
+            this.setSnippet(name);
+        } catch (e) {
+            // We decided not to discard the change
+            console.error("open snippet error", e);
+        }
     }
 
     private _saveSnippet(): XDPromise<void> {
@@ -560,25 +587,9 @@ class SQLEditorSpace {
         });
     }
 
-    private _deleteSnippet(): void {
-        let name: string = this._currentFile;
-        let msg = xcStringHelper.replaceMsg(SQLTStr.DeleteSnippetMsg, {
-            name: name
-        });
-        Alert.show({
-            title: SQLTStr.DeleteSnippet,
-            msg: msg,
-            onConfirm: () => {
-                SQLSnippet.Instance.deleteSnippet(name);
-                this.setSnippet(CommonTxtTstr.Untitled);
-                xcUIHelper.showSuccess(SuccessTStr.Saved);
-            }
-        });
-    }
-
     private _downlodSnippet(): void {
-        let fileName: string = this._getFileName() + ".sql";
-        let content: string = this._sqlEditor.getValue();
+        const fileName: string = this._getFileName() + ".sql";
+        const content = this._sqlEditor.getValue();
         xcHelper.downloadAsFile(fileName, content);
     }
 

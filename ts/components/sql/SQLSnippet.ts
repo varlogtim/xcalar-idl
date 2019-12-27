@@ -72,6 +72,12 @@ class SQLSnippet {
         return this._updateSnippets();
     }
 
+    public downloadSnippet(snippetName: string): void {
+        const fileName: string = snippetName + ".sql";
+        const content: string = this.getSnippet(snippetName);
+        xcHelper.downloadAsFile(fileName, content);
+    }
+
     public async showLastOpenedSnippet(): Promise<void> {
         try {
             await this._fetchSnippets();

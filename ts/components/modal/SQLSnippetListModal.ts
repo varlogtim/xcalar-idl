@@ -6,7 +6,7 @@ class SQLSnippetListModal {
     }
 
     private _modalHelper: ModalHelper;
-    private _callback: Function;
+    private _callback: (name: string, action: string) => void;
 
     private constructor() {
         const $modal: JQuery = this._getModal();
@@ -17,6 +17,16 @@ class SQLSnippetListModal {
         this._addEventListeners();
     }
 
+    /**
+     * SQLSnippetListModal.Instance.show
+     * @param callback
+     */
+    public show(callback: (name: string, action: string) => void): void {
+        this._modalHelper.setup();
+        this._render();
+        this._callback = callback;
+    }
+
     private _getModal(): JQuery {
         return $("#sqlSnippetListModal");
     }
@@ -25,10 +35,8 @@ class SQLSnippetListModal {
         return this._getModal().find(".listSection");
     }
 
-    public show(callback: Function): void {
-        this._modalHelper.setup();
-        this._render();
-        this._callback = callback;
+    private _getSnippetNameFromRow($row: JQuery): string {
+        return $row.find(".name").text();
     }
 
     private _close(): void {
@@ -37,13 +45,19 @@ class SQLSnippetListModal {
         this._callback = null;
     }
 
-    private _submitForm(): void {
-        let $row: JQuery = this._getListSection().find(".row.selected");
+    private _submitForm(action: string): void {
+        const $row: JQuery = this._getListSection().find(".row.selected");
         if ($row.length && typeof this._callback === "function") {
-            let name = $row.text();
-            this._callback(name);
+            const name: string = this._getSnippetNameFromRow($row);
+            this._callback(name, action);
         }
         this._close();
+    }
+
+    private _refresh(): void {
+        const list = SQLSnippet.Instance.listSnippets();
+        this._renderList(list);
+        this._selectRow(null);
     }
 
     private _render(): XDPromise<void> {
@@ -73,7 +87,18 @@ class SQLSnippetListModal {
             }
             let row: HTML =
                 '<div class="row">' +
-                    `<div>${list.name}</div>` +
+                    '<span class="name">' +
+                        list.name +
+                    '</span>' +
+                    '<span class="action delete xc-action">' +
+                        SQLTStr.toDelete +
+                    '</span>' +
+                    '<span class="action download xc-action">' +
+                        SQLTStr.download +
+                    '</span>' +
+                    '<span class="action open xc-action">' +
+                        SQLTStr.open +
+                    '</span>' +
                 '</div>';
             return row;
         }).join("");
@@ -99,19 +124,32 @@ class SQLSnippetListModal {
             this._close();
         });
 
-        // click upload button
-        $modal.on("click", ".confirm", () => {
-            this._submitForm();
-        });
-
         const $listSection = this._getListSection();
         $listSection.on("click", ".row", (event) => {
             this._selectRow($(event.currentTarget));
         });
 
-        $listSection.on("dblclick", ".row", (event) => {
-            this._selectRow($(event.currentTarget));
-            this._submitForm();
+        // click open button
+        $listSection.on("click", ".open", (event) => {
+            const $row = $(event.currentTarget).closest(".row");
+            this._selectRow($row);
+            this._submitForm("open");
+        });
+
+        // click download button
+        $listSection.on("click", ".download", (event) => {
+            const $row = $(event.currentTarget).closest(".row");
+            const name: string = this._getSnippetNameFromRow($row);
+            SQLSnippet.Instance.downloadSnippet(name);
+        });
+
+        // click delete button
+        $listSection.on("click", ".delete", (event) => {
+            const $row = $(event.currentTarget).closest(".row");
+            const name: string = this._getSnippetNameFromRow($row);
+            SQLEditorSpace.Instance.deleteSnippet(name, () => {
+                this._refresh();
+            });
         });
     }
 }

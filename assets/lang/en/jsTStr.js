@@ -1583,6 +1583,9 @@ SQLTStr = {
     "PreviewError": "The corresponding plan for sql cannot be previewed",
     "DefaultSnippet": "Default Snippet",
     "ExpandSQL": "Expanding SQL will delete the SQL node while inspecting will not. Do you want to conitnue?",
+    "open": "open",
+    "download": "download",
+    "toDelete": "delete"
 };
 
 LoginConfigTStr = {

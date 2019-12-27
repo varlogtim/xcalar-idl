@@ -427,16 +427,16 @@ describe("SQLEditorSpace Test", function() {
             SQLEditorSpace.Instance._newSnippet = oldNew;
         });
 
-        it("should open snippet", function() {
-            let oldOpen = SQLEditorSpace.Instance._openSnippet;
+        it("should list snippet", function() {
+            let oldFunc = SQLEditorSpace.Instance._listSnippet;
             let called = 0;
 
-            SQLEditorSpace.Instance._openSnippet = () => { called++; };
+            SQLEditorSpace.Instance._listSnippet = () => { called++; };
 
-            SQLEditorSpace.Instance._fileOption("open");
+            SQLEditorSpace.Instance._fileOption("list");
             expect(called).to.equal(1);
 
-            SQLEditorSpace.Instance._openSnippet = oldOpen;
+            SQLEditorSpace.Instance._listSnippet = oldFunc;
         });
 
         it("should saveAs snippet", function() {
@@ -450,18 +450,6 @@ describe("SQLEditorSpace Test", function() {
             expect(called).to.equal(1);
 
             SQLEditorSpace.Instance._saveAsSnippet = oldSave;
-        });
-
-        it("should delete snippet", function() {
-            let oldDelete = SQLEditorSpace.Instance._deleteSnippet;
-            let called = 0;
-
-            SQLEditorSpace.Instance._deleteSnippet = () => { called++; };
-
-            SQLEditorSpace.Instance._fileOption("delete");
-            expect(called).to.equal(1);
-
-            SQLEditorSpace.Instance._deleteSnippet = oldDelete;
         });
 
         it("should download snippet", function() {
