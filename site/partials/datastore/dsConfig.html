@@ -5,6 +5,11 @@
         <span data-toggle="tooltip" data-container="body" data-placement="top" data-title="Toggle preview">
             <i class="icon xi-next"></i><i class="icon xi-down"></i>Preview
         </span>
+        <!-- Refresh icon -->
+        <div class="refresh xc-action"  data-xcid="format.refresh">
+            <i class="icon xi-refresh xc-icon"></i>
+            <span>Refresh</span>
+        </div>
     </header>
     include "dsPreview.html"
     <div class="cardBottom">
@@ -65,10 +70,6 @@
                 </div>
               </div>
               <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSFormat %>" data-placement="top"></i>
-              <!-- Refresh icon -->
-              <div class="refresh xc-icon xc-action" data-toggle="tooltip" data-placement="top" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSPreviewRefresh %>" data-xcid="format.refresh">
-                  <i class="icon xi-refresh"></i>
-              </div>
               <!-- New XPath button -->
               <div class="add_xpath format xml">
                   <button class="btn btn-secondary" data-xcid="xml.newXPath"><%= dicts.dsForm.NEWXPATH %></button>

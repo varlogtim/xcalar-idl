@@ -1720,6 +1720,9 @@ table.datasetTable {
             .xi-next {
                 display: inline-block;
             }
+            .refresh {
+                display: none;
+            }
         }
         #dsPreviewWrap {
             display: none;
@@ -1841,7 +1844,7 @@ table.datasetTable {
         padding-left: 10px;
         cursor: pointer;
 
-        span {
+        > span {
             font-weight: bold;
         }
 
@@ -1852,6 +1855,24 @@ table.datasetTable {
             font-size: 14px;
             line-height: 40px;
             margin-right: 8px;
+        }
+
+        .refresh {
+            margin-right: 20px;
+            margin-top: 3px;
+            position: relative;
+            float: right;
+
+            .icon {
+                line-height: 1.4;
+                padding: 2px 6px 0px;
+                font-size: 15px;
+                height: 25px;
+                display: inline-block;
+            }
+            span {
+                display: inline;
+            }
         }
     }
 
@@ -3038,7 +3059,7 @@ table.datasetTable {
 
         #fileFormat {
              // 100% - format + refresh + qmark - xpath button
-            width:  ~"calc(100% - 125px - 170px)";
+            width:  ~"calc(100% - 100px - 170px)";
         }
 
         .qMark {
@@ -3413,22 +3434,6 @@ table.datasetTable {
 
             .schemaDesc {
                 font-size: 12px;
-            }
-        }
-
-        .refresh {
-            padding: 0 4px;
-            margin-right: 0px;
-            margin-top: 3px;
-            width: 25px;
-            height: 25px;
-            background-color: @color-bg-topBarGray2;
-            position: relative;
-            .icon {
-                line-height: 1.4;
-                padding-top: 2px;
-                padding-left: 1px;
-                font-size: 15px;
             }
         }
     }

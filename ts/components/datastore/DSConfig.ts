@@ -124,10 +124,9 @@ namespace DSConfig {
             udfFunction: 'extractJsonRecords'
         });
         createPreviewLoader({
-            $container: $form,
+            $container: $previewCard,
             refreshPreviewFunc: () => {
                 refreshPreview(true, true);
-                showPreview();
             }
         });
         componentXmlFormat = createXMLFormat({
@@ -357,7 +356,10 @@ namespace DSConfig {
             xcTooltip.auto(this);
         });
 
-        $previewCard.find(".previewHeader").click(function() {
+        $previewCard.find(".previewHeader").click(function(event) {
+            if ($(event.target).closest(".refresh").length) {
+                return;
+            }
             if ($previewCard.hasClass("hidingPreview")) {
                 showPreview();
             } else {
