@@ -352,7 +352,7 @@ class TblSource {
                                     dataMart.name +
                                 '</div>' +
                             '</div>' +
-                            '<ul class="list">' +
+                            '<ul>' +
                                 tableHTML +
                             '</ul>' +
                          '</div>';
