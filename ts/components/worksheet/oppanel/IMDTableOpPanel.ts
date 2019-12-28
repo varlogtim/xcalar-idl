@@ -28,7 +28,6 @@ class IMDTableOpPanel extends BaseOpPanel {
         this._setupEventListener();
     }
 
-
     /**
      * Show the panel with information from dagNode
      * @param dagNode DagNode object
@@ -128,11 +127,6 @@ class IMDTableOpPanel extends BaseOpPanel {
     private _restorePanel(input: DagNodeIMDTableInputStruct): void {
         this._limitedRows = input.limitedRows;
         this._$pubTableInput.val(input.source);
-        if (input.version != -1) {
-            $("#IMDTableOpPanel #tableVersionList").removeClass("xc-disabled");
-            $('#IMDTableOpPanel .tableVersion .checkbox').removeClass("checked");
-            $('#IMDTableOpPanel .tableVersion .checkboxWrap').removeClass("checked");
-        }
         this._changeSelectedTable(input.source);
         this._schemaSection.render(input.schema);
     }
@@ -273,6 +267,8 @@ class IMDTableOpPanel extends BaseOpPanel {
         //XX: TODO: Uncomment this out when backend truly supports aggregates in filter string
         //const aggs: string[] = DagNode.getAggsFromEvalStrs([{evalString: params.filterString}]);
         //this._dagNode.setAggregates(aggs);
+        // XXX TODO: add a waiting state for the async all
+        dagNode.setSubgraph();
         dagNode.setParam(params);
         this.close(true);
     }

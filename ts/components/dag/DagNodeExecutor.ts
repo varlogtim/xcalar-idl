@@ -4,7 +4,7 @@ class DagNodeExecutor {
      * DagNodeExecutor.getTableNamePrefix
      * @param tabId
      */
-    public static getTableNamePrefix(tabId: string): string {
+    public static getTableNamePrefix(tabId: string = ""): string {
         if (tabId && tabId.length < 20) {
             //XXX hacky way to detect if tab is published table tab
             if (DagTabManager && DagTabManager.Instance.getTabById(tabId)) {
@@ -163,7 +163,7 @@ class DagNodeExecutor {
                 case DagNodeType.Jupyter:
                     return this._jupyter();
                 case DagNodeType.IMDTable:
-                    return this._IMDTable();
+                    return this._IMDTable(optimized);
                 case DagNodeType.SQL:
                     return this._sql();
                 case DagNodeType.RowNum:
@@ -1220,12 +1220,37 @@ class DagNodeExecutor {
         });
     }
 
-    private _IMDTable(): XDPromise<string> {
-        const self = this;
+    private _IMDTable(optimized?: boolean): XDPromise<string> {
+        if (optimized) {
+            // optimized execution will use the stored dataflow
+            // to do operationalition
+            const deferred: XDDeferred<string> = PromiseHelper.deferred();
+            let destTable: string;
+            const node: DagNodeIMDTable = <DagNodeIMDTable>this.node;
+            node.getSubGraph().getQuery(null, true)
+            .then(({queryStr, destTables}) => {
+                destTable = destTables[destTables.length - 1];
+                return XIApi.query(this.txId, destTable, queryStr);
+            })
+            .then(() => {
+                deferred.resolve(destTable);
+            })
+            .fail(() => {
+                this._selectIMDTable()
+                .then(deferred.resolve)
+                .fail(deferred.reject);
+            });
+            return deferred.promise();
+        } else {
+            return this._selectIMDTable();
+        }
+    }
+
+    private _selectIMDTable(): XDPromise<string> {
         const node: DagNodeIMDTable = <DagNodeIMDTable>this.node;
         const params: DagNodeIMDTableInputStruct = node.getParam(this.replaceParam);
-        //XXX TODO: Integrate with new XIAPI.publishTable
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
+
         const newTableName = this._generateTableName(params.source);
         let cols: RefreshColInfo[] = this._getRefreshColInfoFromSchema(params.schema);
         let limitedRows: number = params.limitedRows;
@@ -1236,7 +1261,7 @@ class DagNodeExecutor {
         this._restoreIMDTable(params.source)
         .then(() => {
             return XcalarRefreshTable(params.source, newTableName,
-                -1, params.version, self.txId, params.filterString,
+                -1, params.version, this.txId, params.filterString,
                 cols, limitedRows);
         })
         .then((res) => {

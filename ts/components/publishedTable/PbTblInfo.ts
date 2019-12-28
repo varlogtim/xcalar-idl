@@ -1,4 +1,6 @@
 class PbTblInfo {
+    public static KVPATH = "/ui/tblMeta/";
+
     public batchId: number;
     public index: number;
     public keys: string[];
@@ -204,6 +206,96 @@ class PbTblInfo {
         return cols;
     }
 
+    public async saveDataflow(resultSetName: string): Promise<void> {
+        const dag: {node: any[]} = await XcalarGetDag(resultSetName);
+        const convert = new DagQueryConverter({query: dag.node});
+        let subGraph: DagSubGraph = convert.convertToSubGraph();
+        subGraph = await this._normalizeSubgraph(subGraph);
+        const serializedStr: string = JSON.stringify(subGraph.getSerializableObj());
+        await this._getKVStore().put(serializedStr, true);
+    }
+
+    public async getDataflow(): Promise<DagGraphInfo> {
+        return await this._getKVStore().getAndParse();
+    }
+
+    public async deleteDataflow(): Promise<void> {
+        return await this._getKVStore().delete();
+    }
+
+    private _getKVStore(): KVStore {
+        const key = `${PbTblInfo.KVPATH}${this.name}`;
+        return new KVStore(key, gKVScope.GLOB);
+    }
+
+    // 1. add link out node to the end
+    // 2. replace all DagNodeIMDTable to table's dataflow
+    // Example of a special case:
+    // Table1 = Dataset1 -> filter1
+    // Table2 = Table1 -> filter2 = Dataset1 -> filter1 -> filtet2
+    // Table 3 = Table1 -> Join
+    //           Table2-/
+    // In this case, because all node id doesn't change when source graph is expanded
+    // Table3 will looks like this:
+    // Table3 = Dataset1 -> filter1 -> filter2-join
+    //                             \----------/
+    // Aka, Table3 will deduplicate the duplicated nodes
+    private async _normalizeSubgraph(subGraph: DagSubGraph): Promise<DagSubGraph> {
+        const tableNodeSet: Set<DagNodeIMDTable> = new Set();
+        let lastNode: DagNode = null;
+        subGraph.getAllNodes().forEach((node) => {
+            if (node instanceof DagNodeIMDTable) {
+                tableNodeSet.add(node);
+            }
+            if (node.hasNoChildren()) {
+                lastNode = node;
+            }
+        });
+
+        const promises = [];
+        tableNodeSet.forEach((tableNode) => promises.push(this._expandTableNode(subGraph, tableNode)));
+        await Promise.all(promises);
+        this._addLinkOutNodeToGraph(subGraph, lastNode);
+        return subGraph;
+    }
+
+    private async _expandTableNode(
+        graph: DagSubGraph,
+        tableNode: DagNodeIMDTable
+    ): Promise<void> {
+        const source: string = tableNode.getParam().source;
+        const sourcePTblInfo = new PbTblInfo({name: source});
+        const sourceGraphInfo: DagGraphInfo = await sourcePTblInfo.getDataflow();
+        graph.initFromJSON(sourceGraphInfo);
+        // find the end node (link out node) of the source graph
+        let lastSourceNodeId: DagNodeId;
+        for (let node of sourceGraphInfo.nodes) {
+            if (node.type === DagNodeType.DFOut) {
+                lastSourceNodeId = node.id;
+            }
+        }
+        const lastSourceNode: DagNode = graph.getNode(lastSourceNodeId);
+        // replace tableNode to use the source graph
+        const parentNode: DagNode = lastSourceNode.getParents()[0];
+        const nextNode: DagNode = tableNode.getChildren()[0];
+        let pos: number = nextNode.getParents().findIndex((node) => node === tableNode);
+        graph.removeNode(lastSourceNodeId, false);
+        graph.removeNode(tableNode.getId(), false);
+        graph.connect(parentNode.getId(), nextNode.getId(), pos, true, false);
+    }
+
+    private _addLinkOutNodeToGraph(graph: DagGraph, lastNode: DagNode): void {
+        const linkOutNode: DagNodeDFOut = <DagNodeDFOut>DagNodeFactory.create({
+            type: DagNodeType.DFOut,
+            input: {name: "pbTableOut"},
+            state: DagNodeState.Configured,
+            display: {x: 0, y: 0}
+        });
+
+        graph.addNode(linkOutNode);
+        graph.connect(lastNode.getId(), linkOutNode.getId(), 0, true, false);
+    }
+
     private _selectTable(limitedRows: number): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const graph: DagGraph = new DagGraph();
@@ -224,13 +316,22 @@ class PbTblInfo {
             this._cachedSelectResultSet = result;
             deferred.resolve(result);
         })
-        .fail(deferred.reject);
+        .fail((error) => {
+            if (typeof error === "object" && error.hasError) {
+                error = error.type;
+            }
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     }
 
     private _delete(): XDPromise<void> {
         return XcalarUnpublishTable(this.name, false)
+                .then(() => {
+                    const promise = PromiseHelper.convertToJQuery(this.deleteDataflow());
+                    return PromiseHelper.alwaysResolve(promise);
+                });
     }
 
     private _deleteDataset(): XDPromise<void> {
@@ -256,4 +357,8 @@ class PbTblInfo {
         });
         return deferred.promise();
     }
+}
+
+if (typeof exports !== 'undefined') {
+    exports.PbTblInfo = PbTblInfo;
 }

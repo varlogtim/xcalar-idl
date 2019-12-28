@@ -3144,6 +3144,10 @@ namespace XIApi {
             return XcalarPublishTable(indexTable, pubTableName, txId);
         })
         .then(() => {
+            // persist the final table that used to create published table
+            return PromiseHelper.convertToJQuery(_savePublishedTableDataFlow(pubTableName, tableToDelete));
+        })
+        .then(() => {
             if (tableToDelete != srcTableName) {
                 XIApi.deleteTable(txId, tableToDelete);
             }
@@ -3157,6 +3161,18 @@ namespace XIApi {
         });
 
         return deferred.promise();
+    }
+
+    async function _savePublishedTableDataFlow(
+        pubTableName: string,
+        resultSetName: string,
+    ): Promise<void> {
+        try {
+            const pbTblInfo = new PbTblInfo({name: pubTableName});
+            await pbTblInfo.saveDataflow(resultSetName);
+        } catch (e) {
+            console.error("persist published table data flow failed", e);
+        }
     }
 
     /**

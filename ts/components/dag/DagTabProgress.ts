@@ -101,41 +101,10 @@ abstract class DagTabProgress extends DagTab {
         return this._isFocused;
     }
 
-    protected _constructGraphFromQuery(queryNodes: any[], options = {}): DagSubGraph {
-        const nameIdMap = {};
-        const idToNamesMap = {};
-        const retStruct = DagGraph.convertQueryToDataflowGraph(queryNodes, null, null, null, options);
-
-        const nodeJsons = retStruct.dagInfoList;
-        const nodeInfos = [];
-        nodeJsons.forEach((nodeJson) => {
-            idToNamesMap[nodeJson.id] = [];
-            nameIdMap[nodeJson.table] = nodeJson.id;
-            if (nodeJson.subGraphNodes) {
-                // map the index nodes to the containing dagNodeId
-                nodeJson.subGraphNodes.forEach((subGraphNodeJson) => {
-                    nameIdMap[subGraphNodeJson.table] = nodeJson.id;
-                    idToNamesMap[nodeJson.id].push(subGraphNodeJson.table);
-                });
-            }
-
-            idToNamesMap[nodeJson.id].push(nodeJson.table);
-            nodeInfos.push({
-                node: DagNodeFactory.create(nodeJson),
-                parents: nodeJson.parents
-            });
-        });
-        const comments: CommentInfo[] = [];
-        const graphInfo = {
-            comments: comments,
-            display: <Dimensions>{scale: 1},
-            nodes: nodeInfos,
-            operationTime: null
-        };
-
-        const graph: DagSubGraph = new DagSubGraph(retStruct.tableNewDagIdMap, retStruct.dagIdToTableNamesMap);
+    protected _constructGraphFromQuery(queryNodes: any[]): DagSubGraph {
+        const converter = new DagQueryConverter({query: queryNodes});
+        const graph: DagSubGraph = converter.convertToSubGraph();
         graph.setNoTableDelete();
-        graph.rebuildGraph(graphInfo);
         graph.initializeProgress();
         this._dagGraph = graph;
         const positionInfo = DagView.getAutoAlignPositions(this._dagGraph);

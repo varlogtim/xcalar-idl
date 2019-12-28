@@ -136,4 +136,6 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.DagAggService = require("../../dagHelper/DagAggService.js").DagAggService;
     global.DagListService = require("../../dagHelper/DagListService.js").DagListService;
     global.DagServiceFactory = require("../../dagHelper/DagServiceFactory.js").DagServiceFactory;
+
+    global.PbTblInfo = require("../../dagHelper/PbTblInfo.js").PbTblInfo;
 });

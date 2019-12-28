@@ -2,14 +2,20 @@ class DagNodeIMDTable extends DagNodeIn {
     protected input: DagNodeIMDTableInput;
     protected columns: ProgCol[];
     private elapsedTime: number;
+    private _subGraph: DagSubGraph;
 
-    public constructor(options: DagNodeInInfo, runtime?: DagRuntime) {
+    public constructor(options: DagNodeIMDTableInfo, runtime?: DagRuntime) {
         super(options, runtime);
         this.type = DagNodeType.IMDTable;
         this.maxParents = 0;
         this.minParents = 0;
         this.display.icon = "&#xe910;";
         this.input = this.getRuntime().accessible(new DagNodeIMDTableInput(options.input));
+        this._subGraph = this.getRuntime().accessible(new DagSubGraph());
+
+        if (options && options.subGraph) {
+          this._subGraph.initFromJSON(options.subGraph);
+        }
     }
 
     public static readonly specificSchema = {
@@ -105,6 +111,27 @@ class DagNodeIMDTable extends DagNodeIn {
             limitedRows: limitedRows
         });
         super.setParam(null, noAutoExecute);
+        this.setSubgraph();
+    }
+
+    // Note: due to the original implementation of setParam is not async
+    // the decision here is to call an extra save inside setSubGraph
+    // if it cause performance issue, then it needs to be improved
+    public async setSubgraph(): Promise<void> {
+      try {
+          const source: string = this.getParam().source;
+          const pbTblInfo = new PbTblInfo({name: source});
+          const subGraph = await pbTblInfo.getDataflow();
+          this._subGraph = this.getRuntime().accessible(new DagSubGraph());
+          this._subGraph.initFromJSON(subGraph);
+          this.events.trigger(DagNodeEvents.Save, {});
+        } catch (e) {
+          console.error("get published table graph failed", e);
+      }
+    }
+
+    public getSubGraph(): DagSubGraph {
+        return this._subGraph;
     }
 
     public getSource(): string {
@@ -148,6 +175,16 @@ class DagNodeIMDTable extends DagNodeIn {
 
     protected _getColumnsUsedInInput() {
         return null;
+    }
+
+    /**
+     * @override
+     * @param includeStats
+     */
+    protected _getSerializeInfo(includeStats?: boolean): DagNodeIMDTableInfo {
+        const serializedInfo: DagNodeIMDTableInfo = <DagNodeIMDTableInfo>super._getSerializeInfo(includeStats);
+        serializedInfo.subGraph = this._subGraph.getSerializableObj();
+        return serializedInfo;
     }
 }
 

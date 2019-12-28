@@ -606,9 +606,10 @@ class DagGraph extends Durable {
         })
         .registerEvents(DagNodeEvents.Hide, info => {
             this.events.trigger(DagNodeEvents.Hide, info);
+        })
+        .registerEvents(DagNodeEvents.Save, () => {
+            this.events.trigger(DagGraphEvents.Save, {tabId: this.parentTabId});
         });
-
-
     }
 
     /**

@@ -2327,7 +2327,7 @@ class DagView {
         }
     }
 
-      /**
+    /**
      * Expand the Custom node into a sub graph in place for editing purpose
      * @param nodeId
      */
@@ -2790,6 +2790,9 @@ class DagView {
                 subGraphNodes.forEach(node => {
                     graph.addNode(node);
                     nodesArray.push(node);
+                    if (node instanceof DagNodeIMDTable) {
+                        node.setSubgraph();
+                    }
                 });
 
                 // auto align the sub graph nodes
