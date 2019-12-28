@@ -1789,6 +1789,10 @@ table.datasetTable {
                 text-transform: uppercase;
             }
         }
+
+        .dataMartRow {
+            display: block !important;
+        }
     }
 
     &:not(.createTable) {
@@ -2701,6 +2705,24 @@ table.datasetTable {
         &:not(.collapse) {
             .more {
                 display: none;
+            }
+        }
+
+        .dataMartRow {
+            margin-top: 10px;
+            display: none;
+
+            .dataMartLabel {
+                font-weight: bold;
+            }
+
+            .dropDownList {
+                width: ~"calc(100% - 150px)";
+            }
+
+            .createNew {
+                color: @color-font-link-blue;
+                font-weight: bold;
             }
         }
 

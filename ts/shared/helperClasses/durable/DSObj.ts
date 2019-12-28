@@ -2,6 +2,7 @@ interface DSObjOptions extends DSDurable {
     sources?: any[];
     columns?: ColSchema[];
     activated?: boolean;
+    dataMartName?: string;
 }
 
 interface DSSources {
@@ -46,6 +47,7 @@ class DSObj extends Durable {
     public activated: boolean; // if the dataset is activated or not
     private columns: ColSchema[];
     public cachedLoadArgs: string;
+    public dataMartName: string;
 
     constructor(options: DSObjOptions) {
         options = options || <DSObjOptions>{};
@@ -105,6 +107,9 @@ class DSObj extends Durable {
         }
         if (options.columns != null) {
             this.columns = options.columns;
+        }
+        if (options.dataMartName != null) {
+            this.dataMartName = options.dataMartName;
         }
         this.activated = options.activated || false;
     }

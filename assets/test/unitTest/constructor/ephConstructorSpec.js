@@ -149,7 +149,7 @@ describe("Ephemeral Constructor Test", function() {
             });
             controller.reset();
 
-            expect(Object.keys(controller).length).to.equal(10);
+            expect(Object.keys(controller).length).to.equal(11);
             expect(controller.getTargetName()).to.be.undefined;
             expect(controller.getFieldDelim()).to.equal("");
             expect(controller.getLineDelim()).to.equal("\n");
@@ -383,7 +383,7 @@ describe("Ephemeral Constructor Test", function() {
             var controller = new DSFormController();
             controller.reset();
             var res = controller.getArgStr();
-            expect(res).to.equal('{"fieldDelim":"","lineDelim":"\\n","hasHeader":false,"quote":"\\""}');
+            expect(res).to.equal('{"fieldDelim":"","lineDelim":"\\n","hasHeader":false,"quote":"\\"","dataMartName":""}');
         });
 
         it("should list file in path", function(done) {

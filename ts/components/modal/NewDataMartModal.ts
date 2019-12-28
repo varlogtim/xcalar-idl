@@ -40,7 +40,10 @@ class NewDataMartModal {
         return this._getModal().find("input");
     }
 
-    private _close(): void {
+    private _close(name: string = ""): void {
+        if (typeof this._onSubmit === "function") {
+            this._onSubmit(name);
+        }
         this._modalHelper.clear();
         this._getInput().val("");
         this._existingDataMarts = null;
@@ -53,10 +56,8 @@ class NewDataMartModal {
             // invalid case
             return;
         }
-        if (typeof this._onSubmit === "function") {
-            this._onSubmit(res.name);
-        }
-        this._close();
+
+        this._close(res.name);
     }
 
     private _validate(): {name: string} {

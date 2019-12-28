@@ -179,17 +179,32 @@ class TblSource {
 
     /**
      * TblSource.Instance.newDataMart
+     * returns newName or "" if not created
      */
-    public async newDataMart(): Promise<void> {
-        const onSumbit = async (name) => {
-            try {
-                await this._dataMarts.create(name);
-                this._renderView();
-            } catch (e) {
-                Alert.error(ErrTStr.Error, e.message);
-            }
-        };
-        NewDataMartModal.Instance.show(this._dataMarts, onSumbit);
+    public async newDataMart(): Promise<any> {
+        let promise = new Promise((res, rej) => {
+            const onSubmit = async (name) => {
+                if (!name) {
+                    res("");
+                    return;
+                }
+                try {
+                    await this._dataMarts.create(name);
+                    this._renderView();
+                    res(name);
+                } catch (e) {
+                    Alert.error(ErrTStr.Error, e.message);
+                    res("");
+                }
+            };
+            NewDataMartModal.Instance.show(this._dataMarts, onSubmit);
+        });
+
+        return promise;
+    }
+
+    public getDataMarts(): DataMarts {
+        return this._dataMarts;
     }
 
     private _getMenuSection(): JQuery {

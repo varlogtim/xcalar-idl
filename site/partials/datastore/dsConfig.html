@@ -29,6 +29,20 @@
         <div id="importDataForm-content" class="contentSection">
           <!-- top section -->
             <section class="topSection">
+                <div class="row dataMartRow">
+                    <label class="dataMartLabel">Data Mart:</label>
+                    <div class="dropDownList dataMartsList">
+                      <input class="text" type="text" placeholder="Select a Data Mart" spellcheck="false" disabled>
+                      <div class="iconWrapper">
+                        <i class="icon xi-arrow-down"></i>
+                      </div>
+                      <!-- Data Mart Menu -->
+                      <div class="list">
+                        <ul></ul>
+                        include "../../util/menuScrollArea.html"
+                      </div>
+                    </div>
+                </div>
                 <div class="row title">
                     <label class="prevFileLabel"><%= dicts.dsForm.FileName %>:</label>
                     <label class="prevFileLabel right"><%= dicts.dsTable.DSName %>:</label>

@@ -560,7 +560,8 @@ class DSTable {
             "quoteChar": dsObj.quoteChar,
             "typedColumns": dsObj.typedColumns,
             "udfQuery": dsObj.udfQuery,
-            "advancedArgs": dsObj.advancedArgs
+            "advancedArgs": dsObj.advancedArgs,
+            "dataMartName": dsObj.dataMartName
         }, null, true);
     }
 
