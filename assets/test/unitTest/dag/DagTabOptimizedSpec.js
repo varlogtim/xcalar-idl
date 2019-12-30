@@ -517,16 +517,17 @@ describe('DagTabOptimized Test', function() {
                 expect($dfArea.find(".operator").length).to.equal(2);
                 expect($dfArea.find(".operator.dataset").attr('transform')).to.equal("translate(140,140)");
 
-                expect($dfArea.find(".operator.synthesize").attr('transform')).to.equal("translate(280,140)");
-                expect($dfArea.find(".operator.synthesize").find(".opProgress").text()).to.equal("50%");
+                expect($dfArea.find(".operator.synthesize").attr('transform')).to.equal("translate(340,140)");
+                let nodeid = $dfArea.find(".operator.synthesize").data("nodeid");
+                expect($dfArea.find('.nodeStats[data-id="' + nodeid + '"]').find(".progress").text()).to.equal("50%");
 
                 expect($dfArea.find(".runStats").length).to.equal(2);
                 expect($dfArea.find(".runStats").eq(0).hasClass("Processing")).to.be.true;
                 expect($dfArea.find(".runStats").eq(0).hasClass("Ready")).to.be.false;
                 expect($dfArea.find(".runStats").eq(1).hasClass("Ready")).to.be.true;
                 expect($dfArea.find(".runStats").eq(1).hasClass("Processing")).to.be.false;
-                expect($dfArea.find(".runStats").eq(0).text().trim().replace(/ /gi, "").replace(/\n/gi, "")).to.equal("RowsTimeSkew69ms33");
-                expect($dfArea.find(".runStats").eq(1).text().trim().replace(/ /gi, "").replace(/\n/gi, "")).to.equal("RowsTimeSkew6185ms100");
+                expect($dfArea.find(".runStats").eq(0).text().trim().replace(/ /gi, "").replace(/\n/gi, "")).to.equal("RowsSkew633");
+                expect($dfArea.find(".runStats").eq(1).text().trim().replace(/ /gi, "").replace(/\n/gi, "")).to.equal("RowsSkew6100");
 
                 DagNode.generateId = oldGenId;
                 done();
@@ -716,7 +717,7 @@ describe('DagTabOptimized Test', function() {
              expect(res.startsWith(DagTabOptimized.KEY));
              expect(res.split("_").length).to.equal(7);
         });
-        
+
         it("getId_deprecated should work", function() {
             let res = DagTabOptimized.getId_deprecated("a", "b");
             expect(res.startsWith(DagTabOptimized.KEY));

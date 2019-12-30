@@ -6,12 +6,14 @@ class DagSchemaPopup {
     private _tableColumns: ProgCol[];
     private _dagView: DagView;
     private _$dagArea: JQuery;
+    private _fromTable: boolean;
 
-    public constructor(nodeId: DagNodeId, tabId: string) {
+    public constructor(nodeId: DagNodeId, tabId: string, fromTable: boolean = false) {
         this._nodeId = nodeId;
         this._tabId = tabId;
         this._$dagArea = DagViewManager.Instance.getActiveArea().closest(".dagContainer");
         this._dagNode = DagViewManager.Instance.getActiveDag().getNode(nodeId);
+        this._fromTable = fromTable;
         this._show();
         this._setupEvents();
     }
@@ -155,7 +157,11 @@ class DagSchemaPopup {
         });
 
         // list changes first
-        for (let i = 0; i < changes.length; i++) {
+        let numChanges: number = changes.length;
+        if (this._fromTable) {
+            numChanges = 0;
+        }
+        for (let i = 0; i < numChanges; i++) {
             const change = changes[i];
             let changeType = "";
             let progCol;
@@ -205,14 +211,23 @@ class DagSchemaPopup {
             }
 
             if (changeType === "replace") {
-                htmlType.html += '<ul class="replaceSection">';
+                if (this._fromTable) {
+                    let liClass = "";
+                    if (isHidden) {
+                        liClass += " hidden";
+                    }
+                    html += this._liTemplate(progCol, "", liClass, progCol, isHidden);
+                } else {
+                    htmlType.html += '<ul class="replaceSection">';
 
-                let liClass = 'changeType-' + changeType + ' changeType-remove';
-                if (isHidden) {
-                    liClass += " hidden";
+                    let liClass = 'changeType-' + changeType + ' changeType-remove';
+                    if (isHidden) {
+                        liClass += " hidden";
+                    }
+                    htmlType.html += this._liTemplate(otherProgCol, changeIcon,
+                                                    liClass, progCol, isHidden);
                 }
-                htmlType.html += this._liTemplate(otherProgCol, changeIcon,
-                                                  liClass, progCol, isHidden);
+
             }
 
             let liClass = 'changeType-' + changeType;
@@ -312,7 +327,7 @@ class DagSchemaPopup {
         DagViewManager.Instance.getNode(this._nodeId, this._tabId).removeClass("lineageStart");
         this._dagNode.unregisterEvent(DagNodeEvents.LineageReset);
         this._clearLineage();
-        this._dagView.removeSchemaPopup(this._nodeId);
+        this._dagView.removeSchemaPopup(this._nodeId, this._fromTable);
         this._dagNode = null;
         this._nodeId = null;
         this._tabId = null;
@@ -367,7 +382,7 @@ class DagSchemaPopup {
     }
 
     private _getHtml() {
-        let html = `<div class="dagSchemaPopup modalContainer noBackground">
+        let html = `<div class="dagSchemaPopup modalContainer noBackground fromTable-${this._fromTable}">
             <div id="dagSchemaPopupTitle-${this._nodeId}" class="header modalHeader">
                 <div class="title">
                     <span class="tableName text">Schema: ${this._dagNode.getTitle()}</span>

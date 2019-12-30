@@ -89,14 +89,14 @@ class XcDagTableViewer extends XcTableViewer {
     private _showTableIconOnDagNode(): void {
         const $node: JQuery = this._getNodeEl();
         if ($node.length && !$node.find(".tableIcon").length) {
-            DagView.addNodeIcon($node, "tableIcon", "Viewing result");
+            DagView.addTableIcon($node, "tableIcon", "Viewing result");
         }
     }
 
     private _removeTableIconOnDagNode(): void {
         const $node: JQuery = this._getNodeEl();
         if ($node.length) {
-            DagView.removeNodeIcon($node, "tableIcon", true);
+            DagView.removeTableIcon($node, "tableIcon");
         }
     }
 }

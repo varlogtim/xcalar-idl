@@ -142,7 +142,8 @@ declare type DagSubGraphConnectionInfo = {
     out: NodeConnection[],
     openNodes: DagNodeId[],
     endSets: { in: Set<DagNodeId>, out: Set<DagNodeId> },
-    dfIOSets: { in: Set<DagNodeId>, out: Set<DagNodeId> }
+    dfIOSets: { in: Set<DagNodeId>, out: Set<DagNodeId> },
+    noViewOutput: boolean
 }
 
 interface TableRunStats {

@@ -130,13 +130,13 @@
     @operator-width: 90px;
 
     &.showProgressTips {
-        .dagTableTip.runStats {
+        .dagTableTip.runStats, .dagTableTip.nodeStats {
             display: block;
         }
     }
 
     &.hideProgressTips {
-        .dagTableTip.runStats {
+        .dagTableTip.runStats, .dagTableTip.nodeStats {
             display: none;
         }
     }
@@ -533,9 +533,12 @@
         }
 
         &.lineageSelected, &.lineageStart {
-            .main, .iconArea, .statusIcon{
+            .main, .iconArea, .statusIcon, .tableLine {
                 stroke: @color-border-focus-blue;
                 stroke-width: 2;
+            }
+            .tableLine {
+                stroke-width: 3;
             }
         }
 
@@ -609,12 +612,20 @@
             .statusIcon {
                 fill: @color-dag-green;
             }
+            .table {
+                fill: rgb(132, 156, 176);
+            }
         }
         &.state-Error {
             .statusIcon {
                 fill: @color-background-error;
             }
         }
+    }
+
+    .table {
+        fill: #CCCCCC;
+        cursor: pointer;
     }
 
     .tabBar {
@@ -657,7 +668,7 @@
 
 
             &.largeHidden {
-                .dataflowAreaWrapper, .runStats {
+                .dataflowAreaWrapper, .runStats, .nodeStats {
                     display: none !important;
                 }
                 .largeMsg {
@@ -686,7 +697,7 @@
             }
 
             &.progressGraph {
-                .dagTableTip.runStats {
+                .dagTableTip.runStats, .dagTableTip.nodeStats {
                     display: block;
                 }
                 // make the grids appear slightly more gray
@@ -736,18 +747,11 @@
         }
 
         .dragSvg > .connOut > .connector.out, .dragSvg > .connOut > .connectorOutVisible {
-            transform: translate(-93px, -2px);
+            transform: translate(-151px, -1px);
         }
 
         .operator {
             position: absolute;
-        }
-        &.isOffScreen {
-            .operator {
-                .main {
-                    background-color: pink;
-                }
-            }
         }
 
         &.clone {
@@ -810,7 +814,6 @@
             }
         }
 
-        // &.selected, &.dragSelected {
         &.selected , &.selecting {
             box-shadow: inset 0px 0px 0px 1px @color-border-focus-blue;
         }
@@ -899,7 +902,7 @@
             &.lineageSelected {
                 .visibleLine {
                     stroke: @color-border-focus-blue;
-                    stroke-width: 2px;
+                    stroke-width: 3px;
                 }
             }
         }
@@ -929,8 +932,8 @@
             padding: 3px 6px;
         }
 
-        &.runStats {
-            padding: 1px 2px 2px;
+        &.runStats, &.nodeStats {
+            padding: 1px 2px;
             display: none;
             opacity: 0.95;
 
@@ -953,9 +956,10 @@
                 border-collapse: collapse;
             }
 
+
             th, td {
                 font-size: 9px;
-                padding: 0 3px;
+                padding: 0 2px;
                 text-align: center;
                 line-height: 10px;
             }
@@ -973,6 +977,15 @@
                 .skewTh, .skewTd {
                     background-color: @color-bg-hover-blue-dark;
                 }
+            }
+        }
+
+        &.nodeStats {
+            padding: 2px 2px;
+            > div {
+                font-size: 9px;
+                padding: 0 2px;
+                line-height: 10px;
             }
         }
 
@@ -1484,7 +1497,7 @@
 
 #container {
     &.formOpen {
-        #dagNodeMenu {
+        #dagNodeMenu, #dagTableNodeMenu {
             .exitOp {
                 display: list-item;
             }
@@ -1497,7 +1510,7 @@
     }
 }
 
-#dagNodeMenu, #dagNodeSubMenu {
+#dagNodeMenu, #dagNodeSubMenu, #dagTableNodeMenu {
     background-color: @color-white;
     width: 175px;
     border-radius: 5px;
@@ -1564,7 +1577,7 @@
     }
 }
 
-#dagNodeMenu {
+#dagNodeMenu, #dagTableNodeMenu {
     @liHeight: 24px;
     @iconWidth: 10px;
     @iconMargin: 8px;
@@ -3217,7 +3230,7 @@
             display: block;
         }
     }
-    .runStats {
+    .runStats, .nodeStats {
         display: block !important;
     }
 }

@@ -267,6 +267,7 @@ class DagCategoryBar {
     }
 
     private _getConnectorOutParams(numOutput: number) {
+        const offset = 151;
         const params: {
             largeTriangle: {class: string[], attrs: {[attrName: string]: string}},
             smallTriangle: {class: string[], attrs: {[attrName: string]: string}},
@@ -279,7 +280,7 @@ class DagCategoryBar {
                 largeTriangle: {
                     class: ['connector', 'out'],
                     attrs: {
-                        'points': '93,2 109,10, 109,18, 93,26',
+                        'points': `${offset},2 ${offset + 16},9, ${offset + 16},19, ${offset},26`,
                         'fill': 'transparent',
                         'stroke': 'transparent'
                     }
@@ -287,7 +288,7 @@ class DagCategoryBar {
                 smallTriangle: {
                     class: ['connectorOutVisible'],
                     attrs: {
-                        'points': '95,8 103,14 95,20',
+                        'points': `${offset + 2},8 ${offset + 10},14 ${offset + 2},20`,
                         'fill': '#BBC7D1',
                         'stroke': '#849CB0', 'stroke-width': '1',
                         'rx': '1', 'ry': '1'
@@ -322,9 +323,6 @@ class DagCategoryBar {
                     }
                 }
             });
-            // '<rect class="connectorSpace" ' +
-            //     'x="0" y="11" fill="none" ' +
-            //     'stroke="none" width="7" height="7" />';
         } else if (numParents === -1) {
             params.push({largeSquare: {
                     class: ['connector', 'in', 'noConnection', 'multi'],
@@ -345,12 +343,6 @@ class DagCategoryBar {
                     }
                 }
             });
-
-
-            // '<rect class="connector in noConnection multi"' +
-            //     'data-index="0" x="0" y="5" fill="#BBC7D1" ' +
-            //     'stroke="#849CB0" stroke-width="1" ' +
-            //     'ry="1" rx="1" width="7" height="18" />';
         } else {
             for (let j = 0; j < numParents; j++) {
                 const y  = 28 / (numParents + 1) * (1 + j) - 3;
@@ -373,11 +365,6 @@ class DagCategoryBar {
                     }
                 }
             });
-                // '<rect class="connector in noConnection"' +
-                //     'data-index="' + j + ' " x="0" y="' + y +
-                //     '" fill="#BBC7D1" ' +
-                //     'stroke="#849CB0" stroke-width="1" ry="1" ' +
-                //     'rx="1" width="7" height="7" />';
             }
         }
         return params;
@@ -441,6 +428,15 @@ class DagCategoryBar {
         const color: string = categoryNode.getColor();
         const icon: string = categoryNode.getIcon();
         const description: string = categoryNode.getDescription();
+
+        let table = "";
+        if (!(operator instanceof DagNodeExport) && !(operator instanceof DagNodePublishIMD)) {
+            table = '<g class="table" transform="translate(130, 0)" display="none">' +
+                        '<path class="tableLine" stroke="#627483" stroke-width="1px" fill="none" stroke-linecap="round" d="M-35,14L16,14"></path>' +
+                        '<rect x="0" y="3" width="22" height="22" fill="white" ry="2" rx="2" />'+
+                        '<text font-family="icomoon" font-size="24" x="-2" y="24" ' + xcTooltip.Attrs + ' data-original-title="Click to view options">\uea07</text>' +
+                    '</g>';
+        }
         if (subType) {
             opDisplayName = subTypeDisplayName;
         }
@@ -465,7 +461,8 @@ class DagCategoryBar {
                 'data-topicons="" ' +
                 'transform="translate(' + pos.x + ',' + pos.y + ')" >' +
                 '<g class="connInGroup">' + inConnector + '</g>' +
-                '<g class="connOut">' + outConnector + '</g>' +
+                '<g class="connOut" transform="translate(-58,0)">' + outConnector + '</g>' +
+                table +
             '<rect class="main" x="6" y="0" width="90" height="28" ' +
                 'fill="white" stroke="#849CB0" stroke-width="1" ' +
                 'ry="28" rx="12" ' +

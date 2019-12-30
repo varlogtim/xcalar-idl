@@ -1094,6 +1094,7 @@ class DagGraph extends Durable {
         const outEnds: Set<DagNodeId> = new Set(); // Potential output nodes(no child)
         const sourceNodes: Set<DagNodeId> = new Set(); // DF input nodes(ex.: dataset)
         const destNodes: Set<DagNodeId> = new Set(); // DF export nodes(ex.: export)
+        let noViewOutput: boolean = false; // if output node produces a table that can be previewed
         for (const [subNodeId, subNode] of subGraphMap.entries()) {
             // Find inputs
             // Node with unlimited parents: maxParent = -1; numParent >=0
@@ -1147,6 +1148,9 @@ class DagGraph extends Durable {
             if (subNode.getChildren().length === 0) {
                 if (this._isDestNode(subNode)) {
                     destNodes.add(subNodeId);
+                    if ((subNode instanceof DagNodeExport) || (subNode instanceof DagNodePublishIMD)) {
+                        noViewOutput = true;
+                    }
                 } else {
                     outEnds.add(subNodeId);
                 }
@@ -1175,7 +1179,8 @@ class DagGraph extends Durable {
             out: outputEdges,
             openNodes: openNodeId == null ? [] : [openNodeId],
             endSets: { in: inEnds, out: outEnds },
-            dfIOSets: { in: sourceNodes, out: destNodes }
+            dfIOSets: { in: sourceNodes, out: destNodes },
+            noViewOutput: noViewOutput
         };
     }
 

@@ -1,5 +1,8 @@
 namespace DagNodeMenu {
     let position: Coordinate;
+    let curNodeId: DagNodeId;
+    let curParentNodeId: DagNodeId;
+    let curConnectorIndex: number;
 
     export function setup() {
         _setupNodeMenu();
@@ -60,8 +63,8 @@ namespace DagNodeMenu {
 
     function _setupNodeMenu(): void {
         position = {x: 0, y: 0};
-        let $menu = _getDagNodeMenu();
-        xcMenu.add($menu);
+        xcMenu.add(_getDagNodeMenu());
+        xcMenu.add(_getDagTableMenu());
 
         let $dfWrap = _getDFWrap();
         let $dfWraps = $dfWrap.add($("#dagStatsPanel .dataflowWrap"));
@@ -72,6 +75,11 @@ namespace DagNodeMenu {
 
         $dfWraps.on("contextmenu", function(event: JQueryEventObject) {
             _showNodeMenu(event, null);
+            return false;
+        });
+
+        $dfWraps.on("contextmenu", ".operator .table", function(event: JQueryEventObject) {
+            _showNodeMenu(event, $(this));
             return false;
         });
 
@@ -100,7 +108,6 @@ namespace DagNodeMenu {
         }
     ) {
         try {
-            const $menu: JQuery = $("#dagNodeMenu");
             let nodeId: DagNodeId;
             let nodeIds: DagNodeId[];
             let dagNodeIds: DagNodeId[];
@@ -110,14 +117,14 @@ namespace DagNodeMenu {
                 nodeIds = [options.node.getId()];
                 dagNodeIds = [options.node.getId()];
             } else {
-                nodeId = $menu.data("nodeid"); // clicked node
+                nodeId = curNodeId;
                 nodeIds = DagViewManager.Instance.getSelectedNodeIds(true, true); // includes comments
                 dagNodeIds = DagViewManager.Instance.getSelectedNodeIds(true); // dag nodes only
             }
              // all selected nodes && comments
             const tabId = DagViewManager.Instance.getActiveDag().getTabId();
-            const parentNodeId: DagNodeId = $menu.data("parentnodeid");
-            const connectorIndex: number = parseInt($menu.data("connectorindex"));
+            const parentNodeId: DagNodeId = curParentNodeId
+            const connectorIndex: number = curConnectorIndex;
             switch (action) {
                 case ("removeNode"):
                     DagViewManager.Instance.removeNodes(nodeIds, tabId);
@@ -238,6 +245,9 @@ namespace DagNodeMenu {
                 case ("viewSchema"):
                     _showDagSchemaPopup(dagNodeIds[0], tabId);
                     break;
+                case ("viewSchemaTable"):
+                    _showDagSchemaPopup(dagNodeIds[0], tabId, true);
+                    break;
                 case ("viewStats"):
                     DagStatsModal.Instance.show(dagNodeIds[0], tabId);
                     break;
@@ -290,7 +300,7 @@ namespace DagNodeMenu {
     }
 
     function _setupNodeMenuActions(): void {
-        const $menu: JQuery = $("#dagNodeMenu");
+        const $menu: JQuery = _getDagNodeMenu().add(_getDagTableMenu());
         $menu.on("mouseup", "li", function(event) {
             if (event.which !== 1 || (isSystemMac && event.ctrlKey)) {
                 return;
@@ -352,6 +362,10 @@ namespace DagNodeMenu {
 
     function _getDagNodeMenu(): JQuery {
         return $("#dagNodeMenu");
+    }
+
+    function _getDagTableMenu(): JQuery {
+        return $("#dagTableNodeMenu");
     }
 
     function expandSQLNode(
@@ -543,6 +557,7 @@ namespace DagNodeMenu {
     }
 
     function _showEdgeMenu($edge: JQuery, event: JQueryEventObject): void {
+        _resetMenu();
         if (DagViewManager.Instance.isDisableActions() || $edge.closest(".largeHidden").length) {
             return;
         }
@@ -563,9 +578,9 @@ namespace DagNodeMenu {
         });
         const nodeId: DagNodeId = $edge.attr("data-childnodeid");
         const parentNodeId: DagNodeId = $edge.attr("data-parentnodeid");
-        $menu.data("nodeid", nodeId);
-        $menu.data("parentnodeid", parentNodeId);
-        $menu.data("connectorindex", $edge.attr("data-connectorindex"));
+        curNodeId = nodeId;
+        curParentNodeId = parentNodeId;
+        curConnectorIndex = parseInt($edge.attr("data-connectorindex"));
         const childNodeId: DagNodeId = $edge.attr("data-childnodeid");
         $menu.find("li").removeClass("unavailable");
         if (DagViewManager.Instance.isNodeLocked(childNodeId)) {
@@ -577,15 +592,13 @@ namespace DagNodeMenu {
         if ($clickedEl.closest("largeHidden").length) {
             return;
         }
-        let nodeIds = DagViewManager.Instance.getSelectedNodeIds();
-        const nodeId: DagNodeId = $(this).data("nodeid");
+        const nodeId: DagNodeId = $clickedEl.data("nodeid");
         let $menu = _getDagNodeMenu();
-        $menu.data("nodeid", nodeId);
-        $menu.data("nodeids", nodeIds);
+        curNodeId = nodeId;
 
         let classes: string = " commentMenu ";
         $menu.find("li").removeClass("unavailable");
-        adjustMenuForOpenForm();
+        adjustMenuForOpenForm($menu);
 
         MenuHelper.dropdownOpen($clickedEl, $menu, {
             mouseCoors: {x: event.pageX, y: event.pageY},
@@ -608,17 +621,27 @@ namespace DagNodeMenu {
             nodeIds.push($(this).data("nodeid"));
         });
 
+        let tableNodeClicked: boolean = false;
         let nodeId: DagNodeId;
         if ($clickedEl && $clickedEl.length) {
             nodeId = $clickedEl.closest(".operator").data("nodeid");
+            if ($clickedEl.closest(".table").length) {
+                tableNodeClicked = true;
+            }
         } else {
             nodeId = nodeIds[0];
             backgroundClicked = true;
         }
 
-        let $menu = _getDagNodeMenu();
-        $menu.data("nodeid", nodeId);
-        $menu.data("nodeids", nodeIds);
+
+        let $menu: JQuery;
+        if (tableNodeClicked) {
+            $menu = _getDagTableMenu();
+        } else {
+            $menu = _getDagNodeMenu();
+        }
+
+        curNodeId = nodeId;
         $menu.find("li").removeClass("unavailable");
 
         let classes: string = "";
@@ -665,7 +688,7 @@ namespace DagNodeMenu {
             classes += " operatorMenu "
             if (nodeIds.length === 1) {
                 classes += " single ";
-                const extraClasses: string = adjustMenuForSingleNode(nodeIds[0]);
+                const extraClasses: string = _adjustMenuForSingleNode($menu, nodeIds[0]);
                 classes += extraClasses + " ";
             } else {
                 classes += " multiple ";
@@ -723,7 +746,7 @@ namespace DagNodeMenu {
                               nodeIds.length === 1 &&
                               !DagViewManager.Instance.isNodeLocked(nodeIds[0]) &&
                               !DagViewManager.Instance.isNodeConfigLocked(nodeIds[0]) );
-        adjustMenuForOpenForm(enableConfig);
+        adjustMenuForOpenForm($menu, enableConfig);
 
         position = {x: event.pageX, y: event.pageY};
 
@@ -738,13 +761,12 @@ namespace DagNodeMenu {
         }
     }
 
-    function adjustMenuForSingleNode(nodeId): string {
+    function _adjustMenuForSingleNode($menu: JQuery, nodeId): string {
         const dagGraph: DagGraph = DagViewManager.Instance.getActiveDag();
         const dagNode: DagNode = dagGraph.getNode(nodeId);
         const state: DagNodeState = (dagNode != null) ? dagNode.getState() : null;
         const $node: JQuery = DagViewManager.Instance.getNode(dagNode.getId());
         let classes = "";
-        let $menu = _getDagNodeMenu();
 
         // display viewResults or generateResult
         if (dagNode != null &&
@@ -752,10 +774,7 @@ namespace DagNodeMenu {
             !$node.find(".tableIcon").length
         ) {
             const table: string = dagNode.getTable();
-            if (dagNode instanceof DagNodeExport) {
-                $menu.find(".generateResult").addClass("xc-hidden");
-                $menu.find(".viewResult").addClass("xc-hidden");
-            } else if (table != null && DagTblManager.Instance.hasTable(table)) {
+            if (table != null && DagTblManager.Instance.hasTable(table)) {
                 $menu.find(".generateResult").addClass("xc-hidden");
                 $menu.find(".viewResult").removeClass("xc-hidden");
                 $menu.find(".viewResult").removeClass("unavailable");
@@ -914,8 +933,7 @@ namespace DagNodeMenu {
         return classes;
     }
 
-    function adjustMenuForOpenForm(enableConfig?: boolean) {
-        let $menu = _getDagNodeMenu();
+    function adjustMenuForOpenForm($menu: JQuery, enableConfig?: boolean) {
         let $lis: JQuery = $menu.find(".executeNode, .executeAllNodes, " +
                         ".executeNodeOptimized, .createNodeOptimized," +
                         ".resetNode, .resetAllNodes, .cutNodes, " +
@@ -1086,19 +1104,25 @@ namespace DagNodeMenu {
         return deferred.promise();
     }
 
-    function _showDagSchemaPopup(nodeId, tabId) {
+    function _showDagSchemaPopup(nodeId, tabId, fromTable = false) {
         let dagNode = DagViewManager.Instance.getActiveDag().getNode(nodeId);
         if (dagNode == null) {
             console.error("error case");
             return;
         }
         let dagView = DagViewManager.Instance.getActiveDagView();
-        let oldPopup = dagView.getSchemaPopup(nodeId);
+        let oldPopup = dagView.getSchemaPopup(nodeId, fromTable);
         if (oldPopup) {
             oldPopup.bringToFront();
         } else {
-            let schemaPopup = new DagSchemaPopup(nodeId, tabId);
-            dagView.addSchemaPopup(schemaPopup);
+            let schemaPopup = new DagSchemaPopup(nodeId, tabId, fromTable);
+            dagView.addSchemaPopup(schemaPopup, fromTable);
         }
+    }
+
+    function _resetMenu() {
+        curNodeId = null;
+        curParentNodeId = null;
+        curConnectorIndex = null;
     }
 }

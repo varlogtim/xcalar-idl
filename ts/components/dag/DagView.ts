@@ -4,19 +4,20 @@ class DagView {
     private tabId: string;
     private graph: DagGraph;
 
-    public static readonly horzPadding = 200;
+    public static readonly horzPadding = 200; // padding around edges of dataflow
     public static readonly vertPadding = 100;
     public static readonly nodeHeight = 28;
     public static readonly nodeWidth = 103;
+    public static readonly nodeAndTableWidth = DagView.nodeWidth + 58;
     public static readonly gridSpacing = 20;
     public static zoomLevels = [.25, .5, .75, 1, 1.5, 2];
     public static iconOrder = ["tableIcon", "columnIcon", "descriptionIcon", "lockIcon", "aggregateIcon", "paramIcon"];
     public static iconMap = {
-        "descriptionIcon": "\ue966",
-        "lockIcon": "\ue940",
-        "aggregateIcon": "\ue939",
-        "paramIcon": "\uea69",
-        "tableIcon": "\uea07",
+        "descriptionIcon": "\ue966", // xi-info-no-bg
+        "lockIcon": "\ue940", // xi-lock
+        "aggregateIcon": "\ue939", // xi-aggregate
+        "paramIcon": "\uea69", // xi-parameter
+        "tableIcon": "\ue920", // xi-show
         "columnIcon": "c"
     };
 
@@ -25,7 +26,7 @@ class DagView {
     private static $dfWrap: JQuery;
     private static _$operatorBar: JQuery;
 
-    private static horzNodeSpacing = 140;// spacing between nodes when auto-aligning
+    private static horzNodeSpacing = 200;// spacing between nodes when auto-aligning
     private static vertNodeSpacing = 60;
     private static gridLineSize = 12;
     private static titleLineHeight = 11;
@@ -412,6 +413,152 @@ class DagView {
 
         icons.splice(index, 1);
         isTopIcon ? $node.attr("data-topicons", <any>icons) : $node.attr("data-icons", <any>icons);
+    }
+
+    public static addTableIcon($node: JQuery, iconType: string, tooltip: string) {
+        let left: number;
+        let top: number;
+        if (iconType === "tableIcon") {
+            let icons;
+            if ($node.attr("data-toptableicons")) {
+                icons = $node.attr("data-toptableicons").split(",");
+            } else {
+                icons = [];
+            }
+
+            if (icons.indexOf(iconType) > -1) {
+                return;
+            } else {
+                icons.push(iconType);
+            }
+            icons.sort(function(a, b) {
+                return DagView.iconOrder.indexOf(a) - DagView.iconOrder.indexOf(b);
+            });
+            $node.find(".topTableIcon").remove();
+            $node.attr("data-toptableicons", icons);
+            top = 1;
+            left = DagView.nodeAndTableWidth - 19;
+
+            for (let i = 0; i < icons.length; i++) {
+                if (icons[i] === iconType) {
+                    drawIcon(icons[i], true, left - (i * 15 ), top, DagView.iconMap[iconType], xcStringHelper.escapeDblQuoteForHTML(tooltip), i);
+                    $node.attr("data-" + iconType.toLowerCase(), tooltip);
+                } else {
+                    let tip: string = $node.attr("data-" + icons[i].toLowerCase());
+                    drawIcon(icons[i], true, left - (i * 15 ), top, DagView.iconMap[icons[i]], tip, i);
+                }
+            }
+        } else {
+            let icons;
+            if ($node.attr("data-bottomtableicons")) {
+                icons = $node.attr("data-bottomtableicons").split(",");
+            } else {
+                icons = [];
+            }
+            if (icons.indexOf(iconType) > -1) {
+                return;
+            } else {
+                icons.push(iconType);
+            }
+            // sort icons in order of DagView.iconOrder
+            icons.sort(function(a, b) {
+                return DagView.iconOrder.indexOf(a) - DagView.iconOrder.indexOf(b);
+            });
+            $node.find(".bottomTableIcon").remove();
+            // store the icon order
+            $node.attr("data-bottomtableicons", icons);
+            top = DagView.nodeHeight;
+            for (let i = 0; i < icons.length; i++) {
+                if (icons[i] === iconType) {
+                    drawIcon(icons[i], false, DagView.nodeAndTableWidth - (i * 15 ) - 19, top, DagView.iconMap[iconType], xcStringHelper.escapeDblQuoteForHTML(tooltip), i);
+                    $node.attr("data-" + iconType.toLowerCase(), tooltip);
+                } else {
+                    let tip: string = $node.data(icons[i].toLowerCase())
+                    drawIcon(icons[i], false,  DagView.nodeAndTableWidth - (i * 15 ) - 19, top, DagView.iconMap[icons[i]], tip, i);
+                }
+            }
+        }
+
+        function drawIcon(iconType, isTopIcon, left, top, icon, tooltip, index) {
+            let fontSize: number = 7;
+            let iconLeft: number = 0;
+            let iconTop: number = 3;
+            let tipClasses: string = "";
+            let fontFamily: string = "icomoon";
+            if (iconType === "tableIcon") {
+                iconLeft = -0.5;
+            }
+            let topClass = isTopIcon ? " topTableIcon " : " bottomTableIcon ";
+
+            const g = d3.select($node.get(0)).append("g")
+            .attr("class", iconType + topClass + " tblIcon index" + index)
+            .attr("transform", `translate(${left}, ${top})`);
+            g.append("circle")
+                .attr("cx", 3.5)
+                .attr("cy", 0)
+                .attr("r", 6)
+                // .style("fill", "#849CB0");
+                // .style("fill", "#888888");
+                // .style("fill", "#9FB1C0");
+                // .style("fill", "#888888");
+                .style("fill", "#627483");
+            g.append("text")
+                .attr("font-family", fontFamily)
+                .attr("font-size", fontSize)
+                .attr("fill", "white")
+                .attr("x", iconLeft)
+                .attr("y", iconTop)
+                .text(function (_d) {return icon});
+
+            xcTooltip.add($node.find("." + iconType), {
+                title: tooltip,
+                classes: tipClasses
+            });
+        }
+    }
+
+       /**
+     * removes icon and repositions other icons
+     * @param $node
+     * @param iconType
+     */
+    public static removeTableIcon($node: JQuery, iconType: string) {
+        const $icon: JQuery = $node.find("." + iconType);
+        if (!$icon.length) {
+            return;
+        }
+        let isTopIcon: boolean = false;
+        if (iconType === "tableIcon") {
+            isTopIcon = true;
+        }
+        let iconStr = isTopIcon ? $node.attr("data-toptableicons") : $node.attr("data-bottomtableicons");
+        let icons: string[] = iconStr.split(",");
+        let index = icons.indexOf(iconType);
+        $icon.remove();
+
+        $node.removeAttr("data-" + iconType.toLowerCase());
+
+        if (isTopIcon) {
+            let offset = DagView.nodeWidth - 19;
+            // shift all following icons to the right;
+            for (let i = index + 1; i < icons.length; i++) {
+                let left = offset - ((i - 1) * 15);
+                d3.select($node.find(`.nodeIcon.index${i}`).get(0))
+                    .attr("transform", `translate(${left}, 1)`)
+                    .attr("class", icons[i] + " topTableIcon tblIcon index" + (i - 1));
+            }
+        } else {
+            // shift all following icons to the left;
+            for (let i = index + 1; i < icons.length; i++) {
+                let left = ((i - 1) * 15) + 22;
+                d3.select($node.find(`.nodeIcon.index${i}`).get(0))
+                    .attr("transform", `translate(${left}, ${DagView.nodeHeight})`)
+                    .attr("class", icons[i] + " bottomTableIcon tblIcon index" + (i - 1));
+            }
+        }
+
+        icons.splice(index, 1);
+        isTopIcon ? $node.attr("data-toptableicons", <any>icons) : $node.attr("data-bottomtableicons", <any>icons);
     }
 
     private static _dagLineageTipTemplate(x, y, text): HTML {
@@ -2064,7 +2211,7 @@ class DagView {
                 }
             };
             this.graph.addNode(customNode);
-            const addLogParam = this._addNodeNoPersist(customNode, { isNoLog: true });
+            const addLogParam = this._addNodeNoPersist(customNode, { isNoLog: true, noViewOutput: connectionInfo.noViewOutput });
             customLogParam.options.actions.push(addLogParam.options);
 
             // Delete selected nodes
@@ -2738,35 +2885,25 @@ class DagView {
         StatusMessage.updateLocation(true, text); // update operation time
     }
 
-    public addProgressPct(nodeId: DagNodeId, pct?: number, step?: number): void {
-        this.updateOperationTime(true);
-        let g = d3.select(this.$dfArea.find('.operator[data-nodeid = "' + nodeId + '"]')[0]);
-        g.selectAll(".opProgress")
-            .remove(); // remove old progress
-        g = g.append("text")
-            .attr("class", "opProgress")
-            .attr("font-family", "Open Sans")
-            .attr("font-size", "10")
-            .attr("fill", "#44515c")
-            .attr("text-anchor", "middle")
-            .attr("transform", "translate(" + (DagView.nodeWidth + 15) + ", " + (DagView.nodeHeight + 3) + ")")
-        let gPct = g.append("tspan")
-                    .attr("class", "opProgressPct");
-        if (pct != null) {
-            gPct.text(pct + "%");
-            if (step != null) {
-                gPct.attr("y", 1);
-                g.append("tspan")
-                 .attr("class", "opProgressStep")
-                 .attr("font-size", "9")
-                 .attr("fill", "#849CB0")
-                 .attr('x', 0)
-                 .attr("y", -9)
-                 .text("Step " + step);
-            }
-        } else {
-            gPct.text("0%");
+    public addProgressPct(nodeId: DagNodeId, pct?: number, step?: number, times?: number[], state?: any, noPct?: boolean): void {
+        const node: DagNode = this.graph.getNode(nodeId);
+        if (!node) return;
+        if (node instanceof DagNodeSQLSubInput ||
+            node instanceof DagNodeSQLSubOutput ||
+            node instanceof DagNodeCustomInput ||
+            node instanceof DagNodeCustomOutput ||
+            node instanceof DagNodePublishIMD ||
+            node instanceof DagNodeExport
+        ) {
+            return;
         }
+
+        this.updateOperationTime(true);
+        this.$dfArea.find('.nodeStats[data-id="' + nodeId + '"]').remove();
+        let tip: HTML = this._nodeProgressTemplate(this.graph, node, times, state, pct, step, noPct);
+
+        const $tip = $(tip);
+        this.$dfArea.append($tip);
     }
 
     /**
@@ -2774,9 +2911,8 @@ class DagView {
      * @param nodeId
      */
     public removeProgressPct(nodeId: DagNodeId): void {
-        const g = d3.select(this.$dfArea.find('.operator[data-nodeid = "' + nodeId + '"]')[0]);
-        g.selectAll(".opProgress")
-            .remove();
+        const $operatorStats = this.$dfArea.find('.nodeStats[data-id="' + nodeId + '"]');
+        $operatorStats.find(".progress").remove();
     }
 
       /**
@@ -2813,9 +2949,11 @@ class DagView {
             }
 
             node = graph.getNode(nodeId);
-            if (stats.started && node && node.getState() !== DagNodeState.Complete &&
-                node.getState() !== DagNodeState.Error) {
-                DagViewManager.Instance.addProgressPct(nodeId, tabId, pct, step);
+            // $dfArea.find('.nodeStats[data-id="' + nodeId + '"]').remove();
+            if (stats.started && node) {
+                const noPct = (node.getState() === DagNodeState.Complete ||
+                node.getState() === DagNodeState.Error);
+                DagViewManager.Instance.addProgressPct(nodeId, tabId, pct, step, times, stats.state, noPct);
             }
         }
 
@@ -2829,7 +2967,7 @@ class DagView {
                 graph = dagTab.getGraph();
             }
 
-            this._addProgressTooltip(graph, node, $dfArea, skewInfos, times, stats.state);
+            this._addProgressTooltip(graph, node, $dfArea, skewInfos, stats.state);
 
             if (stats.state === DgDagStateT.DgDagStateReady) {
                 const totalTime: number = times.reduce((a, b) => a + b, 0);
@@ -3056,8 +3194,8 @@ class DagView {
         });
     }
 
-    public getSchemaPopup(id: DagNodeId): DagSchemaPopup {
-        return this.schemaPopups.get(id);
+    public getSchemaPopup(id: DagNodeId, fromTable: boolean): DagSchemaPopup {
+        return this.schemaPopups.get(id + fromTable);
     }
 
     public getGraph(): DagGraph {
@@ -3086,12 +3224,12 @@ class DagView {
         }
     }
 
-    public addSchemaPopup(schemaPopup: DagSchemaPopup): void {
-        this.schemaPopups.set(schemaPopup.getId(), schemaPopup);
+    public addSchemaPopup(schemaPopup: DagSchemaPopup, fromTable: boolean = false): void {
+        this.schemaPopups.set(schemaPopup.getId() + fromTable, schemaPopup);
     }
 
-    public removeSchemaPopup(id: DagNodeId): void {
-        this.schemaPopups.delete(id);
+    public removeSchemaPopup(id: DagNodeId, fromTable: boolean = false): void {
+        this.schemaPopups.delete(id + fromTable);
     }
 
     private _getOperationTime(): string {
@@ -3108,20 +3246,20 @@ class DagView {
         node: DagNode,
         $dfArea: JQuery,
         skewInfos: any[],
-        times: number[],
         state: DgDagStateT
     ): void {
         if (node instanceof DagNodeSQLSubInput ||
             node instanceof DagNodeSQLSubOutput ||
             node instanceof DagNodeCustomInput ||
-            node instanceof DagNodeCustomOutput
+            node instanceof DagNodeCustomOutput ||
+            node instanceof DagNodePublishIMD ||
+            node instanceof DagNodeExport
         ) {
             return;
         }
 
-        const pos = node.getPosition();
-        let tip: HTML = this._nodeProgressTemplate(graph, node, pos.x, pos.y, skewInfos, times, state);
-        const $tip = $(tip)
+        let tip: HTML = this._tableInfoTooltipTemplate(graph, node, skewInfos, state);
+        const $tip = $(tip);
         $dfArea.append($tip);
         let maxSkew: number = 0;
         let skewData = {};
@@ -3163,7 +3301,8 @@ class DagView {
                         times.push(nodeStat.elapsedTime);
                     }
                 });
-                this._addProgressTooltip(this.graph, node, this.$dfArea, skewInfos, times, overallStats.state);
+                this._addProgressTooltip(this.graph, node, this.$dfArea, skewInfos, overallStats.state);
+                this.addProgressPct(node.getId(), null, null, times, overallStats.state, true);
             }
         } catch (e) {
             console.error(e);
@@ -3173,20 +3312,26 @@ class DagView {
     private _nodeProgressTemplate(
         graph: DagGraph,
         node: DagNode,
-        nodeX: number,
-        nodeY: number,
-        skewInfos: any[],
         times: number[],
-        state: DgDagStateT
+        state: DgDagStateT,
+        pct: number,
+        step: number,
+        noPct: boolean
     ): HTML {
         const nodeId: DagNodeId = node.getId();
-        const tooltipMargin = 5;
-        const tooltipPadding = 5;
-        const rowHeight = 10;
+        const pos = node.getPosition();
+        const nodeX: number = pos.x;
+        const nodeY: number = pos.y;
+        const tooltipMargin = 11;
+        const tooltipPadding = 2;
+        let rowHeight = 10;
+        if (!noPct) {
+            rowHeight = 20;
+        }
         const scale = graph.getScale();
-        const y = Math.max(1, (scale * nodeY) - (rowHeight * 2 + tooltipPadding + tooltipMargin));
+        const y = Math.max(1, (scale * nodeY) - (rowHeight + tooltipPadding + tooltipMargin));
         let totalTime: number;
-        if (times.length) {
+        if (times && times.length) {
             totalTime = times.reduce((total, num) => {
                 return total + num;
             });
@@ -3194,7 +3339,50 @@ class DagView {
             totalTime = 0;
         }
 
-        const totalTimeStr = xcTimeHelper.getElapsedTimeStr(totalTime);
+        let progressDiv = "";
+        let progressText = "";
+        if (noPct) {
+            progressDiv = "";
+        } else {
+            if (pct != null) {
+                let pctText = pct + "%";
+                if (step != null) {
+                    progressText = "Step " + step + " " + pctText;
+                } else {
+                    progressText = pctText;
+                }
+            } else {
+                progressText = "0%";
+            }
+            progressDiv = `<div class="progress">${progressText}</div>`;
+        }
+        const totalTimeStr = "Time: " + xcTimeHelper.getElapsedTimeStr(totalTime);
+        let stateClass: string = DgDagStateTStr[state];
+        const left: number = this._getProgressTooltipLeftPosition(totalTimeStr, graph, nodeX, progressText);
+
+        let html = `<div data-id="${nodeId}" class="nodeStats dagTableTip ${stateClass}" style="left:${left}px;top:${y}px;">
+                        <div class="time">${totalTimeStr}</div>
+                        ${progressDiv}
+                    </div>`;
+
+        return html;
+    }
+
+    private _tableInfoTooltipTemplate(
+        graph: DagGraph,
+        node: DagNode,
+        skewInfos: any[],
+        state: DgDagStateT
+    ): HTML {
+        const nodeId: DagNodeId = node.getId();
+        const pos = node.getPosition();
+        const nodeX: number = pos.x;
+        const nodeY: number = pos.y;
+        const tooltipMargin = 6;
+        const tooltipPadding = 2;
+        const rowHeight = 10;
+        const scale = graph.getScale();
+        const y = Math.max(1, (scale * nodeY) - (rowHeight * 2 + tooltipPadding + tooltipMargin));
 
         let hasSkewValue: boolean = false;
         let maxSkew: number | string = 0;
@@ -3219,28 +3407,23 @@ class DagView {
         if (skewInfos.length) {
             skewRows = xcStringHelper.numToStr(skewInfos[skewInfos.length - 1].totalRows);
         }
-        if (skewRows === "0" && node instanceof DagNodeExport) {
-            skewRows = "N/A"; // don't show 0 for export nodes because stats
-            // show 0 even though there are actually rows
-        }
+
         let stateClass: string = DgDagStateTStr[state];
         let skewClass: string = "";
         if (skewRows === "N/A") {
             skewClass = "skewUnavailable";
         }
-        const left: number = this._getProgressTooltipLeftPosition(skewRows, totalTimeStr, graph, nodeX);
+        const left: number = this._getTableTooltipLeftPosition(skewRows, graph, nodeX);
 
         let html = `<div data-id="${nodeId}" class="runStats dagTableTip ${stateClass}" style="left:${left}px;top:${y}px;">`;
         html += `<table>
                  <thead>
                     <th>Rows</th>
-                    <th>Time</th>
                     <th class="skewTh ${skewClass}">Skew</th>
                 </thead>
                 <tbody>
                     <tr>
                         <td class="rows">${skewRows}</td>
-                        <td class="time">${totalTimeStr}</td>
                         <td class="skewTd ${skewClass}" ><span class="value" style="${colorStyle}">${maxSkew}</span></td>
                     </tr>
                 </tbody>
@@ -3250,43 +3433,75 @@ class DagView {
         return html;
     }
 
-    // we're estimating the width of the tooltip because calculating
+
+      // we're estimating the width of the tooltip because calculating
     // the exact width is too slow
     private _getProgressTooltipLeftPosition(
-        skewRows: string,
         totalTimeStr: string,
         graph: DagGraph,
-        nodeX: number
+        nodeX: number,
+        progressText: string
     ): number {
-        let cellPadding = 3;
-        let numCells = 3;
         let outerPadding = 3;
-        let baseWidth = (cellPadding * 2) * numCells + (outerPadding * 2);
-        let rowHeadingWidth = 23;
-        let timeHeadingWidth = 22;
-        let firstColWidth = Math.max(skewRows.length * 4.5, rowHeadingWidth);
-        let secondColWidth = Math.max(((totalTimeStr.length - 2) * 4.5) + 11, timeHeadingWidth);
-        let thirdColWidth = 23;
-        let width = firstColWidth + secondColWidth + thirdColWidth + baseWidth;
+        let baseWidth = outerPadding * 2;
+        let topRowWidth = totalTimeStr.length * 4.8;
+        let bottomRowWidth = progressText.length * 4.8;
+        let rowWidth = Math.max(topRowWidth, bottomRowWidth);
+        let width = rowWidth + baseWidth;
         const nodeCenter = graph.getScale() * (nodeX + (DagView.nodeWidth / 2));
         return nodeCenter - (width / 2);
     }
 
+    // we're estimating the width of the tooltip because calculating
+    // the exact width is too slow
+    private _getTableTooltipLeftPosition(
+        skewRows: string,
+        graph: DagGraph,
+        nodeX: number
+    ): number {
+        let cellPadding = 2;
+        let numCells = 2;
+        let outerPadding = 2;
+        let baseWidth = (cellPadding * 2) * numCells + (outerPadding * 2);
+        let rowHeadingWidth = 23;
+        let firstColWidth = Math.max(skewRows.length * 4.5, rowHeadingWidth);
+        let secondColWidth = 23;
+        let width = firstColWidth + secondColWidth + baseWidth;
+        const nodeCenter = graph.getScale() * (nodeX + DagView.nodeAndTableWidth - 18);
+        return nodeCenter - (width / 2);
+    }
+
     private _repositionProgressTooltip(nodeInfo, nodeId: DagNodeId): void {
-        const $runStats = this.$dfArea.find('.runStats[data-id="' + nodeId + '"]');
-        if ($runStats.length) {
-            $runStats.addClass("visible"); // in case we can't get the dimensions
+        const $tableStats = this.$dfArea.find('.runStats[data-id="' + nodeId + '"]');
+        if ($tableStats.length) {
+            $tableStats.addClass("visible"); // in case we can't get the dimensions
             // because user is hiding tips by default
-            const infoRect = $runStats[0].getBoundingClientRect();
-            const rectWidth = Math.max(infoRect.width, 92); // width can be 0 if tab is not visible
+            const infoRect = $tableStats[0].getBoundingClientRect();
+            const rectWidth = Math.max(infoRect.width, 60); // width can be 0 if tab is not visible
             const rectHeight = Math.max(infoRect.height, 25);
             const scale = this.graph.getScale();
+            // const nodeCenter = nodeInfo.position.x + 1 + (DagView.nodeAndTableWidth - 12);
+            const nodeCenter = nodeInfo.position.x + (DagView.nodeAndTableWidth - 18);
+            $tableStats.css({
+                left: scale * nodeCenter - (rectWidth / 2),
+                top: Math.max(1, (scale * nodeInfo.position.y) - (rectHeight + 2))
+            });
+            $tableStats.removeClass("visible");
+        }
+        const $operatorStats = this.$dfArea.find('.nodeStats[data-id="' + nodeId + '"]');
+        if ($operatorStats.length) {
+            $operatorStats.addClass("visible"); // in case we can't get the dimensions
+            // because user is hiding tips by default
+            const infoRect = $operatorStats[0].getBoundingClientRect();
+            const rectWidth = Math.max(infoRect.width, 50); // width can be 0 if tab is not visible
+            const rectHeight = Math.max(infoRect.height, 14);
+            const scale = this.graph.getScale();
             const nodeCenter = nodeInfo.position.x + 1 + (DagView.nodeWidth / 2);
-            $runStats.css({
+            $operatorStats.css({
                 left: scale * nodeCenter - (rectWidth / 2),
                 top: Math.max(1, (scale * nodeInfo.position.y) - (rectHeight + 5))
             });
-            $runStats.removeClass("visible");
+            $operatorStats.removeClass("visible");
         }
     }
 
@@ -3365,12 +3580,18 @@ class DagView {
                     hasLinkOut = true;
                 }
                 $node.remove();
-                let schemaPopup: DagSchemaPopup = this.schemaPopups.get(nodeId);
+                let schemaPopup: DagSchemaPopup = this.schemaPopups.get(nodeId + "false");
                 if (schemaPopup) {
                     schemaPopup.remove();
                 }
-                this.removeSchemaPopup(nodeId);
+                schemaPopup = this.schemaPopups.get(nodeId + "true");
+                if (schemaPopup) {
+                    schemaPopup.remove();
+                }
+                this.removeSchemaPopup(nodeId, false);
+                this.removeSchemaPopup(nodeId, true);
                 this.$dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
+                this.$dfArea.find('.nodeStats[data-id="' + nodeId + '"]').remove();
                 this.$dfArea.find('.edge[data-childnodeid="' + nodeId + '"]').remove();
                 this.$dfArea.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function () {
                     const childNodeId = $(this).attr("data-childnodeid");
@@ -3468,6 +3689,7 @@ class DagView {
             }
             DagNodeInfoPanel.Instance.update(info.id, "params");
             this.$dfArea.find('.runStats[data-id="' + info.id + '"]').remove();
+            this.$dfArea.find('.nodeStats[data-id="' + info.id + '"]').remove();
 
             this.dagTab.save()
             .then(() => {
@@ -3710,7 +3932,7 @@ class DagView {
         return this._drawLineBetweenNodes(parentNodeId, childNodeId, connectorIndex, svg);
     }
 
-    private _drawNode(node: DagNode, select?: boolean, bulk?: boolean): JQuery {
+    private _drawNode(node: DagNode, select?: boolean, bulk?: boolean, noViewOutput?: boolean): JQuery {
         const pos = node.getPosition();
         let type = node.getType();
         let subType = node.getSubType() || "";
@@ -3726,6 +3948,13 @@ class DagView {
         }
 
         const $node = $categoryBarNode.clone();
+
+        if (noViewOutput) {
+            $node.find(".table").remove();
+        } else {
+            $node.find(".connOut").removeAttr("transform");
+            $node.find(".table").removeAttr("display");
+        }
         if ($categoryBarNode.closest(".category-hidden").length &&
             type !== DagNodeType.Synthesize &&
             type !== DagNodeType.DFOut &&
@@ -3790,7 +4019,7 @@ class DagView {
         if (node instanceof DagNodeCustom) {
             const { input, output } = node.getNumIOPorts();
             this._updateConnectorIn($node, input);
-            this._updateConnectorOut($node, output);
+            this._updateConnectorOut($node, output, node);
         }
 
 
@@ -3820,7 +4049,7 @@ class DagView {
         DagCategoryBar.Instance.updateNodeConnectorIn(numInputs, g);
     }
 
-    private _updateConnectorOut($node: JQuery, numberOutputs: number) {
+    private _updateConnectorOut($node: JQuery, numberOutputs: number, node: DagNodeCustom) {
         const g = d3.select($node[0]);
         DagCategoryBar.Instance.updateNodeConnectorOut(numberOutputs, g);
     }
@@ -3852,6 +4081,7 @@ class DagView {
             // don't remove tooltip upon completion or if the node went from
             // running to an errored state
             this.$dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
+            this.$dfArea.find('.nodeStats[data-id="' + nodeId + '"]').remove();
         }
         if (node.getType() === DagNodeType.Map && node.getSubType() == null) {
             if ((<DagNodeMap>node).hasUDFError()) {
@@ -3970,9 +4200,9 @@ class DagView {
         $node: JQuery, lock: boolean
     ): void {
         if (lock) {
-            DagView.addNodeIcon($node, "lockIcon", "Result locked");
+            DagView.addTableIcon($node, "lockIcon", "Result locked");
         } else {
-            DagView.removeNodeIcon($node, "lockIcon");
+            DagView.removeTableIcon($node, "lockIcon");
         }
     }
 
@@ -4227,7 +4457,7 @@ class DagView {
         }
 
         const parentCoors: Coordinate = {
-            x: parentNode.getPosition().x + DagView.nodeWidth,
+            x: parentNode.getPosition().x + DagView.nodeAndTableWidth,
             y: parentNode.getPosition().y + (DagView.nodeHeight / 2)
         };
 
@@ -4628,6 +4858,9 @@ class DagView {
             DagNodeInfoPanel.Instance.show(node, false);
             const $tip = this.$dfArea.find('.runStats[data-id="' + nodeId + '"]');
             this.$dfArea.append($tip);
+
+            const $nodeTip = this.$dfArea.find('.nodeStats[data-id="' + nodeId + '"]');
+            this.$dfArea.append($nodeTip);
             this.$dfArea.find(".operatorSvg").append($operator);
         }
 
@@ -4750,7 +4983,7 @@ class DagView {
         let path;
         let parentCoors;
         let scale: number = self.graph.getScale();
-
+        // connector's clone position is fixed in css file
         new DragHelper({
             event: event,
             $element: $parentConnector.parent(),
@@ -5268,7 +5501,8 @@ class DagView {
         node,
         options?: {
             isNoLog?: boolean,
-            $svg?: JQuery
+            $svg?: JQuery,
+            noViewOutput?: boolean
         }
     ): LogParam {
         options = options || {};
@@ -5276,7 +5510,7 @@ class DagView {
 
         this._deselectAllNodes();
         const nodeId = node.getId();
-        const $node = this._drawNode(node, true, options.$svg != null);
+        const $node = this._drawNode(node, true, options.$svg != null, options.noViewOutput);
         if (options.$svg) {
             $node.appendTo(options.$svg);
         }

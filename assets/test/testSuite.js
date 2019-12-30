@@ -451,8 +451,17 @@ window.TestSuite = (function($, TestSuite) {
         },
 
         nodeMenuAction($node, action) {
-            $node.find(".main").trigger("contextmenu");
-            $("#dagNodeMenu").find("." + action).trigger(fakeEvent.mouseup);
+            // select node
+            $node.find(".main").trigger(fakeEvent.mousedown);
+            $node.find(".main").trigger(fakeEvent.mouseup);
+            if (action === "viewResult") {
+                $node.find(".table").trigger("contextmenu");
+                $("#dagTableNodeMenu").find("." + action).trigger(fakeEvent.mouseup);
+            } else {
+                $node.find(".main").trigger("contextmenu");
+                $("#dagNodeMenu").find("." + action).trigger(fakeEvent.mouseup);
+            }
+
         },
 
         hasNodeWithState(nodeId, state) {

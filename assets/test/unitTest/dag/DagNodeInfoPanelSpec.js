@@ -104,6 +104,7 @@ describe("DagNodeInfoPanel Test", function() {
             expect($panel.find(".errorSection").text()).to.equal("Requires 1 parents");
 
             filterNode.beErrorState("some error");
+
             expect($panel.find(".statusSection").text()).to.equal("Error");
             expect($panel.find(".errorSection").text()).to.equal("some error");
         });

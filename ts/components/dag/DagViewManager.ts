@@ -570,10 +570,10 @@ class DagViewManager {
         newDagView.render(null, null, noEvents);
     }
 
-    public addProgressPct(nodeId: DagNodeId, tabId: string, pct?: number, step?: number): void {
+    public addProgressPct(nodeId: DagNodeId, tabId: string, pct?: number, step?: number, times?: number[], state?: string, noPct?: boolean): void {
         const dagView: DagView = this.dagViewMap.get(tabId);
         if (dagView) {
-            dagView.addProgressPct(nodeId, pct, step);
+            dagView.addProgressPct(nodeId, pct, step, times, state, noPct);
         }
     }
 
@@ -1206,7 +1206,8 @@ class DagViewManager {
         const self = this;
 
         // moving node in dataflow area to another position
-        this.$dfWrap.add($("#dagStatsPanel .dataflowWrap")).on("mousedown", ".operator .main, .operator .iconArea, .comment", function (event) {
+        let operatorSelector = ".operator .main, .operator .iconArea, .comment, .operator .table";
+        this.$dfWrap.add($("#dagStatsPanel .dataflowWrap")).on("mousedown", operatorSelector, function (event) {
             self.activeDagView.operatorMousedown(event, $(this));
         });
 

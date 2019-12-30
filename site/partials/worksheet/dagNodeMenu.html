@@ -29,14 +29,6 @@
             <i class="icon xi-play-circle"></i>
             <span class="label"><%= dicts.dag.executeOptimized %></span>
         </li>
-        <li class="viewResult unavailable" data-action="viewResult">
-            <i class="icon xi-table-2"></i>
-            <span class="label"><%= dicts.dag.viewResult %></span>
-        </li>
-        <li class="generateResult unavailable xc-hidden" data-action="generateResult">
-            <i class="icon xi-table-2"></i>
-            <span class="label"><%= dicts.dag.generateResult %></span>
-        </li>
         <li class="viewOptimizedDataflow" data-action="viewOptimizedDataflow">
             <i class="icon xi-search"></i>
             <span class="label"><%= dicts.dag.viewOptimizedDataflow %></span>
@@ -96,15 +88,6 @@
         <li class="restoreAllDataset" data-action="restoreAllDataset">
             <i class="icon xi-restore"></i>
             <span class="label"><%= dicts.dag.restoreAllDataset %></span>
-        </li>
-
-        <li class="unlockNodeTable unavailable xc-hidden" data-action="unlockTable">
-            <i class="icon xi-unlock"></i>
-            <span class="label"><%= dicts.dag.unlockTable %></span>
-        </li>
-        <li class="lockNodeTable unavailable" data-action="lockTable">
-            <i class="icon xi-table-locked"></i>
-            <span class="label"><%= dicts.dag.lockTable %></span>
         </li>
         <li class="autoAlign" data-action="autoAlign">
             <i class="icon xi-rearrange"></i>
@@ -169,6 +152,83 @@
     </ul>
     include "../../util/menuScrollArea.html"
 </div>
+
+<div id="dagTableNodeMenu" class="menu">
+    <ul>
+
+        <!-- <li class="restoreDataset xc-hidden" data-action="restoreDataset">
+            <i class="icon xi-restore"></i>
+            <span class="label"><%= dicts.dag.restoreDataset %></span>
+        </li> -->
+        <!-- <li class="executeNode" data-action="executeNode">
+            <i class="icon xi-play-circle"></i>
+            <span class="label"><%= dicts.dag.execute %></span>
+        </li> -->
+        <!-- <li class="createNodeOptimized" data-action="createNodeOptimized">
+            <i class="icon xi-dfg2"></i>
+            <span class="label"><%= dicts.dag.CreateOptimized %></span>
+        </li> -->
+        <li class="viewResult unavailable" data-action="viewResult">
+            <i class="icon xi-show"></i>
+            <span class="label"><%= dicts.dag.viewResult %></span>
+        </li>
+        <li class="generateResult unavailable xc-hidden" data-action="generateResult">
+            <i class="icon xi-show"></i>
+            <span class="label"><%= dicts.dag.generateResult %></span>
+        </li>
+        <!-- <li class="viewOptimizedDataflow" data-action="viewOptimizedDataflow">
+            <i class="icon xi-search"></i>
+            <span class="label"><%= dicts.dag.viewOptimizedDataflow %></span>
+        </li> -->
+        <!-- <li class="viewUDFErrors" data-action="viewUDFErrors">
+            <i class="icon xi-error"></i>
+            <span class="label"><%= dicts.dag.viewUDFErrors %></span>
+        </li> -->
+        <!-- <li class="resetNode" data-action="resetNode">
+            <i class="icon xi-reset"></i>
+            <span class="label"><%= dicts.dag.reset %></span>
+        </li> -->
+
+
+        <!-- <li class="findLinkOut" data-action="findLinkOut">
+            <i class="icon xi-search"></i>
+            <span class="label"><%= dicts.dag.findLinkOut %></span>
+        </li> -->
+        <li class="viewSchema" data-action="viewSchemaTable">
+            <i class="icon xi-viewschema"></i>
+            <span class="label"><%= dicts.dag.viewSchema %></span>
+        </li>
+
+        <li class="unlockNodeTable unavailable xc-hidden" data-action="unlockTable">
+            <i class="icon xi-unlock"></i>
+            <span class="label"><%= dicts.dag.unlockTable %></span>
+        </li>
+        <li class="lockNodeTable unavailable" data-action="lockTable">
+            <i class="icon xi-table-locked"></i>
+            <span class="label"><%= dicts.dag.lockTable %></span>
+        </li>
+        <!-- <li class="description" data-action="description">
+            <i class="icon xi-edit"></i>
+            <span class="label"><%= dicts.dag.description %></span>
+        </li> -->
+
+        <!-- <li class="removeNode" data-action="removeNode">
+            <i class="icon xi-trash"></i>
+            <span class="label"><%= dicts.dag.removeNode %></span>
+        </li> -->
+
+        <li class="viewStats" data-action="viewStats">
+            <i class="icon xi-graph"></i>
+            <span class="label">View Stats</span>
+        </li>
+        <li class="exitOp" data-action="exitOpPanel">
+            <i class="icon xi-close-no-circle"></i>
+            <span class="label"></span>
+        </li>
+    </ul>
+    include "../../util/menuScrollArea.html"
+</div>
+
 
 <div id="dagNodeSubMenu" class="menu subMenu">
     include "../../util/menuScrollArea.html"
