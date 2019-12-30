@@ -31,6 +31,7 @@ module.exports = {
         "Comma": "Comma",
         "Confirm": "Confirm",
         "ConfirmSave": "Confirm & Save",
+        "Create": "Create",
         "Date": "Date",
         "DateCreated": "Date Created",
         "DateModified": "Date Modified",
@@ -690,6 +691,7 @@ module.exports = {
 
     "DataMart": {
         "New": "New Data Mart",
+        "Create": "Create Data Mart",
     },
 
     // keep in sync with the FileProtocol in enums.js
