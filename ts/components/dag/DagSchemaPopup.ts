@@ -367,7 +367,7 @@ class DagSchemaPopup {
     }
 
     private _getHtml() {
-        let html = `<div class="dagSchemaPopup modalContainer">
+        let html = `<div class="dagSchemaPopup modalContainer noBackground">
             <div id="dagSchemaPopupTitle-${this._nodeId}" class="header modalHeader">
                 <div class="title">
                     <span class="tableName text">Schema: ${this._dagNode.getTitle()}</span>
