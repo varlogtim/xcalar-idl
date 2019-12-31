@@ -209,7 +209,9 @@ namespace DagNodeMenu {
                 case ("generateResult"):
                     const nodeToPreview: DagNode = _getNodeFromId(dagNodeIds[0]);
                     DagViewManager.Instance.run(dagNodeIds).then(() => {
-                        DagViewManager.Instance.viewResult(nodeToPreview);
+                        if (!UserSettings.getPref("dfAutoPreview")) {
+                            DagViewManager.Instance.viewResult(nodeToPreview);
+                        }
                     });
                     break;
                 case ("viewOptimizedDataflow"):
