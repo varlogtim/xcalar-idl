@@ -326,7 +326,7 @@ class DataSourceManager {
         $("#sourceTblButton").removeClass("xc-hidden");
         $("#imdTab").addClass("xc-hidden");
 
-        const text: string = XVM.isDataMart() ? DSTStr.Sources : CommonTxtTstr.Table;
+        const text: string = XVM.isDataMart() ? "Source & Load Data": CommonTxtTstr.Table;
         $title.text(text);
         $menu.find(".table").removeClass("xc-hidden");
         TblSource.Instance.refresh(); // update every time switch to the tab

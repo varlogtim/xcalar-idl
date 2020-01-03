@@ -14,8 +14,9 @@
     <!-- datasets tab -->
     <!--  TODO: Currently Datasets/etc don't work if no workbook is activated. This will come later. -->
     <div id="dataStoresTab" class="topMenuBarTab firstTouch mainMenuOpen">
-      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.source %>">
+      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Source & Load Data">
         <i class="icon xi-source fa-25"></i>
+        <span class="label">Source & Load Data</span>
       </div>
       <div class="subTabs">
         <div id="inButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.Datasets %>">
@@ -23,6 +24,7 @@
         </div>
         <div id="sourceTblButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.Table.Tables %>">
           <i class="icon xi_table"></i>
+          <span class="label">Tables</span>
         </div>
         <!-- imd tab -->
         <div id="imdTab" class="subTab noLeftPanel firstTouch xc-hidden" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ws.IMDPanel %>">
@@ -30,21 +32,24 @@
         </div>
         <div id="targetButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.Targets %>">
           <i class="icon xi-data-connector"></i>
+          <span class="label">Connectors</span>
         </div>
       </div>
     </div>
 
     <!-- dataflow tab -->
     <div id="modelingDataflowTab" class="topMenuBarTab mainMenuOpen firstTouch wkbkMenuBarTabs">
-        <div id="dagButton" class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Application Builder">
+        <div id="dagButton" class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Transformation & Business Logic">
             <i class="icon xi-dfg2"></i>
+            <span class="label">T & B Logic</span>
         </div>
     </div>
 
     <!-- SQL tab -->
     <div id="sqlTab" class="topMenuBarTab mainMenuOpen wkbkMenuBarTabs noLeftPanel">
-        <div id="sqlWorkSpace" class="mainTab noLeftPanel" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.SQL.WorkSpace %>">
+        <div id="sqlWorkSpace" class="mainTab noLeftPanel" data-toggle="tooltip" data-placement="right" data-container="body" title="Query">
             <i class="icon xi-SQLworkspace"></i>
+            <span class="label">Query</span>
         </div>
     </div>
 
@@ -52,6 +57,7 @@
     <div id="jupyterTab" class="topMenuBarTab mainMenuOpen noLeftPanel wkbkMenuBarTabs">
         <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Jupyter Notebook">
           <i class="icon xi-menu-cli fa-20"></i>
+          <span class="label">Jupyter</span>
         </div>
     </div>
 
@@ -102,6 +108,7 @@
     <div id="udfTab" class="sliderBtn bottomMenuBarTab xd-only" data-toggle="tooltip" data-placement="right" data-container="body" title="UDF">
       <div class="mainTab">
         <i class="icon xi-menu-udf fa-25"></i>
+        <span class="label">UDF</span>
       </div>
     </div>
 

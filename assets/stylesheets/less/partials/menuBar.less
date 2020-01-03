@@ -47,7 +47,7 @@
 
             .mainTab {
                 opacity: 1;
-                .icon {
+                .icon, .label {
                     color: @color-bg-cardHeader;
                 }
             }
@@ -57,7 +57,7 @@
                 box-shadow: inset 0 1px 1px 0.5px @color-tab-shadow;
 
                 .mainTab {
-                    .icon {
+                    .icon, .label {
                         color: @color-white;
                     }
                 }
@@ -67,7 +67,7 @@
                 .mainTab {
                     background-color: @color-bg-cardHeader !important;
 
-                    .icon {
+                    .icon, .label {
                         color: @color-white;
                     }
                 }
@@ -123,7 +123,7 @@
         .mainTab {
             opacity: 1;
 
-            .icon {
+            .icon, .label {
                 color: @color-font-softBlue;
             }
         }
@@ -147,6 +147,20 @@
 
         .icon {
             .center-align;
+            position: absolute;
+            top: 20px;
+        }
+        .label {
+            font-size: 9px;
+            position: absolute;
+            line-height: 10px;
+            text-align: center;
+            top: 32px;
+            height: @height-mainTab - 32px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
         }
     }
     .subTab {
@@ -158,7 +172,7 @@
 
         &.active {
             background-color: @color-bg-marine;
-            .icon {
+            .icon, .label {
                 color: @color-font-softBlue;
             }
 
@@ -170,6 +184,21 @@
         .icon {
             font-size: 17px;
             .center-align;
+            position: absolute;
+            top: 14px;
+        }
+
+        .label {
+            font-size: 9px;
+            position: absolute;
+            line-height: 10px;
+            text-align: center;
+            top: 22px;
+            height: @height-subTab - 22px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
         }
 
         &:hover {
