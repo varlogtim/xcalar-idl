@@ -430,7 +430,7 @@ namespace DagNodeMenu {
         });
         Log.lockUndoRedo();
         DagTabManager.Instance.lockTab(tabId);
-        DagTopBar.Instance.lock();
+        DagGraphBar.Instance.lock();
         MainMenu.closeForms(); // close opened forms first
         // Nodes in SQL sub graph can't be configured
         if (dagTab instanceof DagTabSQL) {
@@ -537,7 +537,7 @@ namespace DagNodeMenu {
         function unlock(tabId: string) {
             DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             Log.unlockUndoRedo();
-            DagTopBar.Instance.unlock();
+            DagGraphBar.Instance.unlock();
             DagTabManager.Instance.unlockTab(tabId);
         }
     }

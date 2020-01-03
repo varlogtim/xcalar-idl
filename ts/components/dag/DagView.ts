@@ -3414,6 +3414,7 @@ class DagView {
                 DagSharedActionService.Instance.broadcast(DagGraphEvents.LockChange, info);
             }
             DagTopBar.Instance.setState(this.dagTab); // refresh the stop button status
+            DagGraphBar.Instance.setState(this.dagTab); // refresh the stop button status
         });
 
         this._registerGraphEvent(this.graph, DagNodeEvents.StateChange, (info) => {

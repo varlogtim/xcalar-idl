@@ -1,10 +1,10 @@
-describe("DagTopBar Test", function() {
+describe("DagGraphBar Test", function() {
     let oldActiveDag;
     let topBar;
     let $topBar;
 
     before(function() {
-        console.log("DagTopBar Test");
+        console.log("DagGraphBar Test");
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
         }
@@ -14,8 +14,8 @@ describe("DagTopBar Test", function() {
             return null;
         };
 
-        topBar = DagTopBar.Instance;
-        $topBar = $("#dagViewBar");
+        topBar = DagGraphBar.Instance;
+        $topBar = $("#dagGraphBar");
     });
 
     it("Should lock", function() {
@@ -24,7 +24,7 @@ describe("DagTopBar Test", function() {
         expect($topBar.hasClass("locked")).to.be.true;
         $topBar.removeClass("locked");
     });
-    
+
     it("Should unlock", function() {
         $topBar.removeClass("locked");
         topBar.unlock();
@@ -33,13 +33,11 @@ describe("DagTopBar Test", function() {
     });
 
     it("Should render all expected buttons", function () {
-        expect($topBar.find(".topButton").length).to.equal(10);
+        expect($topBar.find(".topButton").length).to.equal(8);
         expect($topBar.find(".undo").length).to.equal(1);
         expect($topBar.find(".redo").length).to.equal(1);
         expect($topBar.find(".run").length).to.equal(1);
         expect($topBar.find(".stop").length).to.equal(1);
-        expect($topBar.find(".parameters").length).to.equal(1);
-        expect($topBar.find(".aggregates").length).to.equal(1);
         expect($topBar.find(".setting").length).to.equal(1);
     });
 
@@ -48,17 +46,17 @@ describe("DagTopBar Test", function() {
         let disabled = $btn.hasClass("xc-disabled");
 
         $btn.removeClass("xc-disabled");
-        DagTopBar.Instance.toggleDisable(true);
+        DagGraphBar.Instance.toggleDisable(true);
         expect($btn.hasClass("xc-disabled")).to.be.true;
         // case 2
-        DagTopBar.Instance.toggleDisable(false);
+        DagGraphBar.Instance.toggleDisable(false);
         expect($btn.hasClass("xc-disabled")).to.be.false;
 
         // restore
-        DagTopBar.Instance.toggleDisable(disabled);
+        DagGraphBar.Instance.toggleDisable(disabled);
     });
-    
-    describe("zooming", function() { 
+
+    describe("zooming", function() {
         it("Should disable zooming out button if at or below 25%", function() {
             let graph = new DagGraph();
             graph.setScale(.25);
@@ -95,10 +93,10 @@ describe("DagTopBar Test", function() {
         });
     });
 
-    describe("states", function() { 
+    describe("states", function() {
         it("Should disable most buttons on null dagtab", function () {
             topBar.setState(null);
-            expect($topBar.find(".topButton.xc-disabled").length).to.equal(8);
+            expect($topBar.find(".topButton.xc-disabled").length).to.equal(7);
             topBar.setState(new DagTab({name: "name"}));
             expect($topBar.find(".topButton.xc-disabled").length).to.equal(2);
         });

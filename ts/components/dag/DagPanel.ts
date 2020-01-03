@@ -84,6 +84,7 @@ namespace DagPanel {
     function _beforeLoad(): void {
         DagList.Instance.toggleDisable(true);
         DagTopBar.Instance.toggleDisable(true);
+        DagGraphBar.Instance.toggleDisable(true);
         DagTabManager.Instance.toggleDisable(true);
         _getDagViewEl().append(_generateLoadingSection());
     }
@@ -91,6 +92,7 @@ namespace DagPanel {
     function _afterLoad(): void {
         DagList.Instance.toggleDisable(false);
         DagTopBar.Instance.toggleDisable(false);
+        DagGraphBar.Instance.toggleDisable(false);
         DagTabManager.Instance.toggleDisable(false);
         _getLoadSectionEl().remove();
     }

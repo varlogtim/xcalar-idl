@@ -5,13 +5,6 @@
     max-height: 50px;
     padding-left: 10px;
 
-    &.locked {
-        .run, .stop, .undo, .redo {
-            pointer-events: none;
-            opacity: @opacity-disabled;
-        }
-    }
-
     .topButtons {
         float: right;
         .flex-display;
@@ -66,17 +59,6 @@
             }
         }
 
-        &.run {
-            .icon {
-                color: @color-bg-green-submit;
-            }
-        }
-        &.stop {
-            .icon {
-                color: @color-stop;
-            }
-        }
-
         &.disabled {
             cursor: not-allowed;
             .icon {
@@ -112,30 +94,6 @@
             .rounded(3px);
         }
 
-        &.zoomPercent {
-            position: relative;
-            .zoomPercentInput {
-                font-size: 12px;
-                height: 30px;
-                line-height: 30px;
-                margin-top: 10px;
-                border: 1px solid  @color-border-bar;
-                padding: 0 6px;
-                padding-right: 23px;
-                color: @color-font-form-gray;
-                width: 53px;
-                text-align: right;
-                .rounded(3px);
-            }
-            .percent-sign {
-                position: absolute;
-                z-index: 3;
-                bottom: 32%;
-                right: 8px;
-                cursor: default;
-            }
-
-        }
     }
 
     .toggleStatsPanel {
@@ -1127,10 +1085,141 @@
     }
 }
 
-#dagView {
-    .dataflowMainArea {
-        border-top: 1px solid @color-border-menugray;
+#dagGraphBar {
+    .flex-direction(row);
+    z-index: 0;
+    min-height: 40px;
+    max-height: 40px;
+    padding-left: 10px;
+    background-color: white;
+
+    &.locked {
+        .run, .stop, .undo, .redo {
+            pointer-events: none;
+            opacity: @opacity-disabled;
+        }
     }
+
+    .topButtons {
+        float: right;
+        .flex-display;
+        height: 100%;
+
+        &.left {
+            float: left;
+        }
+    }
+
+    .topButton {
+        cursor: pointer;
+        padding: 0px 1px;
+
+        .icon {
+            height: 27px;
+            width: 27px;
+            line-height: 27px;
+            text-align: center;
+        }
+
+        .icon {
+            .vertical-align;
+            color: @color-border-bar;
+            font-size: 18px;
+            .rounded(4px);
+        }
+
+        &:hover {
+            .icon {
+                background-color: rgba(0, 0, 0, 0.05);
+            }
+            &.disabled {
+                .icon {
+                    background-color: transparent;
+                }
+            }
+        }
+        &:active {
+            .icon {
+                background-color: rgba(0, 0, 0, 0.1);
+            }
+            &.disabled {
+                .icon {
+                    background-color: transparent;
+                }
+            }
+        }
+
+        &.run {
+            .icon {
+                color: @color-bg-green-submit;
+            }
+        }
+        &.stop {
+            .icon {
+                color: @color-stop;
+            }
+        }
+
+        &.disabled {
+            cursor: not-allowed;
+            .icon {
+                color: @color-connector;
+            }
+        }
+        &.repeatable {
+            cursor: pointer;
+        }
+        &.locked {
+            cursor: not-allowed;
+            .icon {
+                color: @color-connector;
+            }
+        }
+
+        &.autoSave {
+            > div {
+                float: left;
+                font-size: 12px;
+                .vertical-align;
+                text-transform: initial;
+                margin-right: 5px;
+            }
+        }
+
+        &.zoomPercent {
+            position: relative;
+            .zoomPercentInput {
+                font-size: 12px;
+                height: 30px;
+                line-height: 30px;
+                margin-top: 5px;
+                border: 1px solid  @color-border-bar;
+                padding: 0 6px;
+                padding-right: 23px;
+                color: @color-font-form-gray;
+                width: 53px;
+                text-align: right;
+                .rounded(3px);
+            }
+            .percent-sign {
+                position: absolute;
+                z-index: 3;
+                top: 10px;
+                right: 8px;
+                cursor: default;
+            }
+
+        }
+    }
+
+    .divider {
+        height: 25px;
+        width: 1px;
+        margin: 0px 5px;
+        .vertical-align;
+        background-color: @color-border-bar;
+    }
+
 }
 
 /* ========== Dag Table Viewer Tabs ========== */

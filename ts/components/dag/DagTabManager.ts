@@ -645,7 +645,7 @@ class DagTabManager {
         }
 
         DagViewManager.Instance.switchActiveDagTab(this.getTabByIndex(index), $dataflowAreas.eq(index));
-        DagTopBar.Instance.reset();
+        DagGraphBar.Instance.reset();
         if (dagTab instanceof DagTabProgress) {
             dagTab.focus();
         }

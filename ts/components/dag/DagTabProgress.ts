@@ -228,6 +228,7 @@ abstract class DagTabProgress extends DagTab {
                 this._dagGraph.setExecutor(null);
                 if (this._isFocused) {
                     DagTopBar.Instance.setState(this);
+                    DagGraphBar.Instance.setState(this);
                 }
             } else {
                 if (!this._dagGraph.getExecutor()) {
@@ -238,6 +239,7 @@ abstract class DagTabProgress extends DagTab {
                     }));
                     if (this._isFocused) {
                         DagTopBar.Instance.setState(this);
+                        DagGraphBar.Instance.setState(this);
                     }
                 }
                 DagViewManager.Instance.updateProgressDataflow(this._id, queryStateOutput);
@@ -254,6 +256,7 @@ abstract class DagTabProgress extends DagTab {
                 this._dagGraph.stopExecution();
                 if (this._isFocused) {
                     DagTopBar.Instance.setState(this);
+                    DagGraphBar.Instance.setState(this);
                 }
                 deferred.reject(error);
             }

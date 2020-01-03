@@ -5,7 +5,7 @@ class ExecuteAll extends EventEmitter {
     command(time, cb) {
         // execute all nodes
         this.api
-        .moveToElement("#dagViewBar .topButton.run .icon", 1, 1)
+        .moveToElement("#dagGraphBar .topButton.run .icon", 1, 1)
         .mouseButtonClick('left')
         .waitForElementPresent(".dataflowArea.active.locked")
         .execute(execFunctions.clearConsole, [], () => {})

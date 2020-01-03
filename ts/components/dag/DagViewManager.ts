@@ -43,7 +43,7 @@ class DagViewManager {
         this._setupDagSharedActionEvents();
 
 
-        DagTopBar.Instance.setup();
+        DagGraphBar.Instance.setup();
         DagCategoryBar.Instance.setup();
         DagCategoryBar.Instance.loadCategories(); // Async call
         DagNodeMenu.setup();
@@ -1364,6 +1364,7 @@ class DagViewManager {
             this._deselectAllNodes();
         }
         DagTopBar.Instance.setState(this.activeDagTab);
+        DagGraphBar.Instance.setState(this.activeDagTab);
         this._checkNodeValidation();
     }
 

@@ -25,7 +25,7 @@ class RunSQLFunction extends EventEmitter {
                 .waitForElementVisible("#alertModal", 1000)
                 .click("#alertModal .confirm")
                 .waitForElementNotVisible("#initialLoadScreen", 600000)
-                .click("#dagViewBar .xi-setting")
+                .click("#dagGraphBar .xi-setting")
                 .execute(function() {
                     if ($("#dfSettingsModal .dfAutoExecute .checkbox.checked").length > 0) {
                         $("#dfSettingsModal .dfAutoExecute .checkbox.checked").click();

@@ -1360,7 +1360,6 @@ describe("DagNodeMenu Test", function() {
 
             DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             Log.unlockUndoRedo();
-            DagTopBar.Instance.unlock();
             DagTabManager.Instance.unlockTab(tabId);
         });
 
