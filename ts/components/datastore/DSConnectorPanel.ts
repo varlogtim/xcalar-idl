@@ -28,7 +28,6 @@ abstract class DSConnectorPanel {
             }
         });
         this._getMultiDSSection().addClass("xc-hidden");
-        this._getCard().find(".orBrowser").removeClass("xc-hidden")
     }
 
     private _getConnectorSection(): JQuery {
@@ -52,8 +51,9 @@ abstract class DSConnectorPanel {
         let $path = $pathSection.find(".content").eq(0).clone();
         $path.find("input").val("");
         $pathSection.append($path);
-        this._getMultiDSSection().removeClass("xc-hidden");
-        this._getCard().find(".orBrowser").addClass("xc-hidden")
+        if (!XVM.isDataMart()) {
+            this._getMultiDSSection().removeClass("xc-hidden");
+        }
         return $path;
     }
 

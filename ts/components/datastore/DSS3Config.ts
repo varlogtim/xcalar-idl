@@ -10,6 +10,9 @@ class DSS3Config extends DSConnectorPanel {
     private constructor() {
         super();
         this._connector = DSTargetManager.S3Connector;
+        if (XVM.isDataMart()) {
+            this._getCard().find(".back").text(CommonTxtTstr.Clear);
+        }
     }
 
     /**
@@ -30,7 +33,9 @@ class DSS3Config extends DSConnectorPanel {
         .join("");
         html = '<li class="createNew">+ Create New Amazon S3 Connector</li>' +
                 '<li class="public">' + DSTargetManager.getPublicS3Connector() + '</li>' +
-                html;
+                html +
+                // XXX hack DataMart that should be removed
+                '<li>Default Shared Root</li>';
         return html;
     }
 
