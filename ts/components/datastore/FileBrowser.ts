@@ -83,7 +83,7 @@ namespace FileBrowser {
     let sortKey = defaultSortKey;
     let sortRegEx;
     let reverseSort = false;
-    let $anchor: JQuery; // The anchor for selected files
+    let $lastSelectedFile: JQuery; // last file that was clicked
     let pathDropdownMenu: MenuHelper;
     let searchDropdownMenu: MenuHelper;
     let searchInfo: string = "";
@@ -130,11 +130,7 @@ namespace FileBrowser {
      * FileBrowser.restore
      */
     export function restore(): void {
-        // restore list view if saved
-        let isListView: boolean = UserSettings.getPref('browserListView');
-        if (isListView) {
-            toggleView(true, true);
-        }
+        toggleView(true, true);
     }
 
     /**
@@ -143,6 +139,7 @@ namespace FileBrowser {
     export function clear(): void {
         $("#fileBrowserUp").addClass("disabled");
         setPath("");
+        updateActiveFileInfo(null);
         $pathLists.empty();
         // performance when there's 1000+ files, is the remove slow?
         $container.removeClass("manyFiles");
@@ -334,31 +331,9 @@ namespace FileBrowser {
                 // click to focus
                 let $grid = $(this);
                 event.stopPropagation();
-
-                if ((isSystemMac && event.metaKey) ||
-                    (!isSystemMac && event.ctrlKey)) {
-                    if ($grid.hasClass("selected")) {
-                        // If ctrl+click on a selected file, unselect and return
-                        unselectSingleFile($grid);
-                        return;
-                    }
-                    // Keep selected & picked files
-                    cleanContainer({keepSelected: true, keepPicked: true});
-                    $anchor = $grid;
-                    selectSingleFile($grid);
-
-                } else if (event.shiftKey) {
-                    // ctrl + shift at same time = ctrl
-                    // This is only for shift-click
-                    cleanContainer({keepAnchor: true, keepPicked: true});
-                    selectMultiFiles($grid);
-                } else {
-                    // Regular single click
-                    // If there are picked files, we should keep them
-                    cleanContainer({keepPicked: true});
-                    $anchor = $grid;
-                    selectSingleFile($grid);
-                }
+                cleanContainer({keepPicked: true});
+                selectSingleFile($grid);
+                $lastSelectedFile = $grid;
             },
             "dblclick": function() {
                 let $grid = $(this);
@@ -382,40 +357,65 @@ namespace FileBrowser {
             },
         }, ".grid-unit");
 
-        $fileBrowser.on({
+        $innerContainer.on({
             "click": function(event) {
                 // This behavior is in essence the same as a ctrl+click
                 event.stopPropagation();
                 let $grid = $(this).closest(".grid-unit");
-                if ($grid.hasClass("selected")) {
-                    cleanContainer({keepSelected: true,
-                                    keepPicked: true,
-                                    keepAnchor: true});
-                } else if ($grid.hasClass("picked")) {
-                    // If uncheck on an unselected file, remove all selected
-                    cleanContainer({keepPicked: true,
-                                    keepAnchor: true});
+                if (event.shiftKey) {
+                    // ctrl + shift at same time = ctrl
+                    // This is only for shift-click
+                    if ($grid.hasClass("picked")) {
+                        deselectMultiFiles($grid);
+                        uncheckSelectAll();
+                        $lastSelectedFile = $grid;
+                        return;
+                    } else {
+                        selectMultiFiles($grid);
+                    }
                 } else {
-                    // If check on an unselected file, remove all
-                    // selected & unpicked files first
                     cleanContainer({keepPicked: true,
-                                    keepAnchor: true,
-                                    removeUnpicked: true});
+                                    keepAnchor: true});
+                    selectSingleFile($grid);
                 }
-                selectSingleFile($grid);
+
                 togglePickedFiles($grid);
                 if ($grid.hasClass("picked")) {
                     updatePickedFilesList(null, null);
                 } else {
                     updatePickedFilesList(null, {isRemove: true});
+                    uncheckSelectAll();
                 }
+                $lastSelectedFile = $grid;
             },
             "dblclick": function(event) {
                 // dbclick on checkbox does nothing and should stopPropagation
                 event.stopPropagation();
                 return;
             },
-        }, ".checkBox .icon");
+        }, ".checkBox");
+
+        $fileBrowser.find(".titleSection .selectAll").click(function() {
+            const $checkbox = $(this).find(".icon");
+            const $grids = $container.find(".grid-unit");
+            if ($checkbox.hasClass("xi-ckbox-selected")) {
+                cleanContainer(null);
+                $fileBrowser.find(".pickedFileList").empty();
+                uncheckSelectAll();
+            } else {
+                $grids.addClass("selected picked");
+                $grids.find(".xi-ckbox-empty").addClass("xi-ckbox-selected");
+                $grids.each(function() {
+                    let $cur = $(this);
+                    curFiles[$cur.data("index")].isSelected = true;
+                    curFiles[$cur.data("index")].isPicked = true;
+                });
+
+                $pickedFileList.empty();
+                updatePickedFilesList(null, null);
+                checkSelectAll();
+            }
+        });
 
         $("#fileBrowserRefresh").click(function(event) {
             $(this).blur();
@@ -469,15 +469,17 @@ namespace FileBrowser {
             // Clear all
             cleanContainer(null);
             $fileBrowser.find(".pickedFileList").empty();
+            uncheckSelectAll();
         });
 
         $infoContainer.find(".addRegex").on("click", function() {
             // Add a regex pattern to list
             $(this).blur();
-            let html = createListElement(null, false);
+            let html = createListElement(null);
             let $span = $(html).appendTo($pickedFileList).find(".text");
             refreshFileListEllipsis($span, true);
             updateButtons();
+            updateFileCount();
             updateSelectAll();
         });
 
@@ -517,6 +519,7 @@ namespace FileBrowser {
             $li.remove();
             updateButtons();
             updateSelectAll();
+            updateFileCount();
         });
 
         $infoContainer.on("click", ".switch", function() {
@@ -544,6 +547,11 @@ namespace FileBrowser {
                 $label.siblings(".switchLabel").removeClass("highlighted");
                 $label.addClass("highlighted");
             }
+        });
+
+        $infoContainer.on("click", ".fileRawData .btn", function() {
+            var $grid = getFocusedGridEle();
+            previewDS(getGridUnitName($grid));
         });
 
         // confirm to open a ds
@@ -1067,6 +1075,7 @@ namespace FileBrowser {
     function setPath(path: string): void {
         path = path || "";
         $pathSection.find(".text").val(path);
+        console.log("set path", path);
     }
 
     function appendPath(
@@ -1077,6 +1086,7 @@ namespace FileBrowser {
             setPath(path);
         }
         $pathLists.prepend('<li>' + path + '</li>');
+        updateActiveFileInfo(null);
     }
 
     function cleanContainer(
@@ -1103,9 +1113,7 @@ namespace FileBrowser {
                 curFiles[$grid.data("index")].isSelected = false;
             });
         }
-        if (!options.keepAnchor) {
-            $anchor = null;
-        }
+
         if (!options.keepPicked) {
             togglePickedFiles(null);
             // clearAll flag
@@ -1297,6 +1305,11 @@ namespace FileBrowser {
             clearSearch();
         }
         sortFilesBy(sortKey, sortRegEx, false);
+        if ($container.find(".picked").length === curFiles.length) {
+            checkSelectAll();
+        } else {
+            uncheckSelectAll();
+        }
     }
 
     function goIntoFolder(): void {
@@ -1383,7 +1396,9 @@ namespace FileBrowser {
                     path = $li.data("path");
                     let recursive: boolean = $li.find(".checkbox")
                                            .hasClass("checked");
+                    recursive = true; // XXX making always true;
                     let searchKey: string = $li.find("input").val();
+
                     let pattern: string;
                     if (searchKey === "") {
                         invalidRegex = true;
@@ -1409,7 +1424,8 @@ namespace FileBrowser {
                 } else {
                     path = $li.data("fullpath");
                     let recursive: boolean = $li.find(".checkbox")
-                                           .hasClass("checked");
+                                                .hasClass("checked");
+                    recursive = true; // XXX making always true;
                     let isFolder: boolean = ($li.data("type") === "Folder");
 
                     files.push({
@@ -1771,7 +1787,7 @@ namespace FileBrowser {
         showError = false
     ): void {
         if (grid == null) {
-            $anchor = null;
+            $lastSelectedFile = null;
             return;
         }
 
@@ -1802,7 +1818,7 @@ namespace FileBrowser {
         var $grid = $container.find(str).eq(0).closest('.grid-unit');
         if ($grid.length > 0) {
             selectSingleFile($grid);
-            $anchor = $grid;
+            $lastSelectedFile = $grid;
 
             if ($fileBrowserMain.hasClass("listView")) {
                 scrollIconIntoView($grid, false);
@@ -1847,6 +1863,7 @@ namespace FileBrowser {
         if (restore) {
             // This is a restore case
             setPath(path);
+            updateActiveFileInfo(null);
             return PromiseHelper.resolve();
         }
         if (!path.startsWith(defaultPath)) {
@@ -2440,26 +2457,79 @@ namespace FileBrowser {
     }
 
     function updateActiveFileInfo($grid: JQuery): void {
+        const $fileInfoTop = $infoContainer.find(".fileInfoTop");
         if (!$grid) {
-            $container.find(".filePathBottom .content").text(searchInfo);
+            $fileInfoTop.addClass("pathInfoMode");
+            console.log(searchInfo, curFiles, getCurrentPath());
+            if (searchInfo) {
+                $fileInfoTop.find(".path .label").text("Searching:");
+            } else {
+                $fileInfoTop.find(".path .label").text("Location:");
+            }
+            // &lrm; is used to fix direction: rtl issue where slashes get moved
+            const path = xcStringHelper.escapeHTMLSpecialChar(getCurrentPath());
+            $fileInfoTop.find(".path .content").html("&lrm;" + path + "&lrm;");
+            const numItems = xcStringHelper.numToStr(curFiles.length)
+            $fileInfoTop.find(".numItems .content").text(numItems);
             return;
         }
-        let index: number = Number($grid.data("index"));
-        let file = curFiles[index];
-        let name = file.name;
-        let path = getCurrentPath() + name;
+        $fileInfoTop.removeClass("pathInfoMode");
+        var index = Number($grid.data("index"));
+        var file = curFiles[index];
+        var name = file.name;
+        var path = getCurrentPath() + name;
+        var mTime = moment(file.attr.mtime * 1000).format("h:mm:ss A ll");
+        // var cTime = file.attr.ctime ?
+        //             moment(file.attr.ctime * 1000).format("h:mm:ss A ll") :
+        //             "--";
+        var isFolder = file.attr.isDirectory;
+        const size: string = isFolder ? "--" : <string>xcHelper.sizeTranslator(file.attr.size);
+        var fileType = isFolder ? "Folder" : xcHelper.getFormat(name);
+        var $fileIcon = $infoContainer.find(".fileIcon").eq(0);
+        // Update file name & type
+        if (name.length > 30) {
+            name = name.substring(0, 30) + "...";
+        }
+        $infoContainer.find(".fileName").text(name);
+        if (!fileType) {
+            // Unknown type
+            fileType = "File";
+        }
+        $infoContainer.find(".fileType").text(fileType);
+        // Update file icon
+        $fileIcon.removeClass();
+        if (isFolder) {
+            $fileIcon.addClass("xi-folder");
+            $infoContainer.find(".fileRawData .btn").addClass("xc-disabled");
+        }
+        else {
+            $infoContainer.find(".fileRawData .btn").removeClass("xc-disabled");
+            if (fileType && listFormatMap.hasOwnProperty(fileType) &&
+                gridFormatMap.hasOwnProperty(fileType)) {
+                $fileIcon.addClass(gridFormatMap[fileType]);
+            }
+            else {
+                $fileIcon.addClass("xi-documentation-paper");
+            }
+        }
+        $fileIcon.addClass("icon fileIcon");
+        // Update file info
+        $infoContainer.find(".mdate .content").text(mTime);
+        // $infoContainer.find(".cdate .content").text(cTime);
+        $infoContainer.find(".fileSize .content").text(size);
         // Update bottom file path
         $container.find(".filePathBottom .content").text(path);
         refreshFilePathEllipsis(true);
     }
 
+
     function selectMultiFiles($curActiveGrid: JQuery): void {
         // Selecet but not pick
         let startIndex: number;
-        if (!$anchor) {
+        if (!$lastSelectedFile) {
             startIndex = 0;
         } else {
-            startIndex = $anchor.data("index");
+            startIndex = $lastSelectedFile.data("index");
         }
         let endIndex: number = $curActiveGrid.data("index");
         let $grids: JQuery;
@@ -2480,11 +2550,58 @@ namespace FileBrowser {
         updateActiveFileInfo($curActiveGrid);
     }
 
+    function deselectMultiFiles($curActiveGrid: JQuery): void {
+        // Selecet but not pick
+        let startIndex: number;
+        if (!$lastSelectedFile) {
+            startIndex = 0;
+        } else {
+            startIndex = $lastSelectedFile.data("index");
+        }
+        let endIndex: number = $curActiveGrid.data("index");
+        let $grids: JQuery;
+        if (startIndex > endIndex) {
+            $grids = $container.find(".grid-unit")
+                               .slice(endIndex, startIndex + 1);
+        } else {
+            $grids = $container.find(".grid-unit").slice(startIndex, endIndex);
+        }
+        let path = getCurrentPath();
+        let escPath = xcStringHelper.escapeDblQuote(path);
+        $grids.each(function() {
+            let $cur = $(this);
+            $cur.removeClass("picked selected");
+            curFiles[$cur.data("index")].isSelected = false;
+            curFiles[$cur.data("index")].isPicked = false;
+            uncheckCkBox($cur.find(".checkBox .icon"));
+            let name = getGridUnitName($cur);
+            let escName = xcStringHelper.escapeDblQuote(name);
+            let isFolder: boolean = $cur.hasClass("folder");
+            let fullpath = getFullPath(escPath + escName, isFolder);
+            $pickedFileList.find('li[data-fullpath="' + fullpath + '"]').remove();
+        });
+
+
+        $curActiveGrid.addClass('active');
+        $curActiveGrid.removeClass('picked selected');
+        curFiles[$curActiveGrid.data("index")].isSelected = false;
+        curFiles[$curActiveGrid.data("index")].isPicked = false;
+        uncheckCkBox($curActiveGrid.find(".checkBox .icon"));
+        let name = getGridUnitName($curActiveGrid);
+        let escName = xcStringHelper.escapeDblQuote(name);
+        let isFolder: boolean = $curActiveGrid.hasClass("folder");
+        let fullpath = getFullPath(escPath + escName, isFolder);
+        $pickedFileList.find('li[data-fullpath="' + fullpath + '"]').remove();
+        updateActiveFileInfo($curActiveGrid);
+        updateFileCount();
+    }
+
+
     function getFullPath(path: string, isFolder: boolean): string {
         return isFolder ? path + '/' : path;
     }
 
-    function createListElement($grid: JQuery, preChecked: boolean): HTML {
+    function createListElement($grid: JQuery): HTML {
         // e.g. path can be "/netstore" and name can be "/datasets/test.txt"
         let curDir = getCurrentPath();
         let escDir = xcStringHelper.escapeDblQuoteForHTML(curDir);
@@ -2496,20 +2613,12 @@ namespace FileBrowser {
             let escName = xcStringHelper.escapeDblQuoteForHTML(name);
             let isFolder = file.attr.isDirectory;
             let fileType: string = isFolder ? "Folder" : xcHelper.getFormat(name);
-            let ckBoxClass: string = isFolder ? "checkbox" : "checkbox xc-disabled";
             let fullPath = getFullPath(escDir + escName, isFolder);
             let displayPath = getFullPath(curDir + name, isFolder);
-            if (preChecked) {
-                ckBoxClass = "checkbox checked";
-            }
 
             return '<li data-name="' + escName + '"' +
                    ' data-fullpath="' + fullPath + '"' +
                    ' data-type="' + fileType + '">' +
-                        '<span class="' + ckBoxClass + '">' +
-                            '<i class="icon xi-ckbox-empty"></i>' +
-                            '<i class="icon xi-ckbox-selected"></i>' +
-                        '</span>' +
                         '<span class="text">' + displayPath + '</span>' +
                         '<span class="close xc-action">' +
                             '<i class="icon xi-trash"></i>' +
@@ -2518,10 +2627,6 @@ namespace FileBrowser {
         } else {
             // For the case where we add input box for regex
             return '<li class="regex" data-path="' + escDir + '">' +
-                        '<span class="checkbox">' +
-                            '<i class="icon xi-ckbox-empty"></i>' +
-                            '<i class="icon xi-ckbox-selected"></i>' +
-                        '</span>' +
                         '<span class="text">' + curDir + '</span>' +
                         '<input class="xc-input" value=".*$"></input>' +
                         '<span class="close xc-action">' +
@@ -2555,7 +2660,7 @@ namespace FileBrowser {
                     $pickedFileList.find('li[data-fullpath="' + fullpath + '"]').remove();
                 } else if ($pickedFileList.find('li[data-fullpath="' + fullpath + '"]').length === 0) {
                     // If it doesn't exist, append the file
-                    let html = createListElement($ele, false);
+                    let html = createListElement($ele);
                     let $span = $(html).appendTo($pickedFileList).find(".text");
                     refreshFileListEllipsis($span, false);
                 }
@@ -2570,13 +2675,29 @@ namespace FileBrowser {
                 $pickedFileList.find('li[data-fullpath="' + fullpath + '"]').remove();
             } else if ($pickedFileList.find('li[data-fullpath="' + fullpath + '"]').length === 0) {
                 // If it doesn't exist, append the file
-                let html = createListElement($grid, false);
+                let html = createListElement($grid);
                 let $span = $(html).appendTo($pickedFileList).find(".text");
                 refreshFileListEllipsis($span, false);
             }
         }
         updateButtons();
         updateSelectAll();
+        updateFileCount();
+    }
+
+    function updateSelectAll(): void {
+        let $checkbox = $infoContainer.find(".selectAll");
+        if ($infoContainer.find("li .checkbox:not(.xc-disabled)").length === 0) {
+            $checkbox.removeClass("checked");
+            return;
+        }
+        let $unchecked = $infoContainer.find("li .checkbox:not(.checked):not(.xc-disabled)");
+        if ($unchecked.length === 0) {
+            // all checked
+            $checkbox.addClass("checked");
+        } else {
+            $checkbox.removeClass("checked");
+        }
     }
 
     function updateButtons(): void {
@@ -2632,19 +2753,21 @@ namespace FileBrowser {
         $checkBox.removeClass("xi-ckbox-selected").addClass("xi-ckbox-empty");
     }
 
-    function updateSelectAll(): void {
-        let $checkbox = $infoContainer.find(".selectAll");
-        if ($infoContainer.find("li .checkbox:not(.xc-disabled)").length === 0) {
-            $checkbox.removeClass("checked");
-            return;
-        }
-        let $unchecked = $infoContainer.find("li .checkbox:not(.checked):not(.xc-disabled)");
-        if ($unchecked.length === 0) {
-            // all checked
-            $checkbox.addClass("checked");
-        } else {
-            $checkbox.removeClass("checked");
-        }
+    function checkSelectAll() {
+        const $checkbox = $fileBrowser.find(".titleSection .selectAll .icon");
+        $checkbox.removeClass("xi-ckbox-empty").addClass("xi-ckbox-selected");
+    }
+
+    function uncheckSelectAll() {
+        const $checkbox = $fileBrowser.find(".titleSection .selectAll .icon");
+        $checkbox.removeClass("xi-ckbox-selected").addClass("xi-ckbox-empty");
+    }
+
+    function updateFileCount(): void {
+        const numSelectedFiles = $infoContainer.find("li").length;
+        const num = xcStringHelper.numToStr(numSelectedFiles);
+        const text = numSelectedFiles === 1 ? (num + " item selected") : (num + " items selected");
+        $infoContainer.find(".numSelectedFiles").text(text);
     }
 
     function togglePickedFiles($grid: JQuery): void {
@@ -2668,6 +2791,11 @@ namespace FileBrowser {
                 curFiles[$cur.data("index")].isPicked = true;
             });
             checkCkBox($allSelected.find(".checkBox .icon"));
+        }
+        if (($container.find(".picked").length === curFiles.length) && curFiles.length > 0) {
+            checkSelectAll();
+        } else {
+            uncheckSelectAll();
         }
     }
 

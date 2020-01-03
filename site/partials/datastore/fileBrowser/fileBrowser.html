@@ -68,10 +68,6 @@
           <i class="icon xi-tick fa-12"></i>
         </li>
       </ul>
-      <!-- toggle view -->
-      <span id="fileBrowserGridView" class="xc-iconWrap-action gridView" data-toggle="tooltip" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SwitchToListView %>" data-container="body">
-        <i class="icon xi-view-as-list-2"></i>
-      </span>
       <!-- refresh -->
       <span id="fileBrowserRefresh" class="xc-iconWrap-action refresh" title="<%= dicts.common.Refresh %>" data-toggle="tooltip" data-placement="top" data-container="body">
         <i class="icon xi-refresh"></i>
@@ -100,7 +96,9 @@
           </div>
           <!-- Titles -->
           <div class="titleSection">
-            <div class="checkBox"></div>
+            <div class="checkBox selectAll">
+                <i class="icon xi-ckbox-empty"></i>
+            </div>
             <div class="title gridIcon"></div>
             <!-- file name -->
             <div class="title fileName" data-sortkey="name">
@@ -134,6 +132,71 @@
         </section>
         <!-- File Info -->
         <section id="fileInfoContainer" class="fileInfoContainer">
+            <div id="fileInfoTop" class="fileInfoTop">
+                <div class="fileInfoSection">
+                    <div>
+                        <span class="fileName"></span>
+                        <span> | </span>
+                        <span class="fileType content"></span>
+                    </div>
+                    <div class="fileInfoDetails">
+                        <div class="fileInfoIcon">
+                            <i class="icon fileIcon"></i>
+                        </div>
+                        <div class="fileInfoText">
+                            <div class="fileDate fileInfo mdate">
+                                <i class="icon xi-menu-scheduler"></i>
+                                <div class="contentWrapper">
+                                    <span><%= dicts.common.DateModified %>:</span>
+                                    <span class="content"></span>
+                                </div>
+                            </div>
+                            <!-- <div class="fileDate fileInfo cdate">
+                                <i class="icon xi-menu-add-scheduler"></i>
+                                <div class="contentWrapper">
+                                <span><%= dicts.common.DateCreated %>:</span>
+                                <span class="content"></span>
+                                </div>
+                            </div> -->
+                            <div class="fileSize fileInfo">
+                                <i class="icon xi-compare"></i>
+                                <div class="contentWrapper">
+                                    <span><%= dicts.common.Size %>:</span>
+                                    <span class="content"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fileRawData">
+                        <button id="fileRawData" class="btn btn-clear iconBtn xc-disabled">
+                        <i class="icon xi-show"></i>
+                        <span><%= dicts.common.ViewRawData %></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="pathInfoSection">
+                    <div>
+                        <span>--</span>
+                        <span> | </span>
+                        <span class="content">--</span>
+                    </div>
+                    <div class="fileInfoDetails">
+                        <div class="fileInfoIcon">
+                            <i class="xi-folder icon fileIcon"></i>
+                        </div>
+                        <div class="fileInfoText">
+                            <div class="path">
+                                <span class="label">Location:</span>
+                                <span class="content"></span>
+                            </div>
+                            <div class="numItems">
+                                <span class="lable">Total Items:</span>
+                                <span class="content"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+          </div>
           <div id="fileInfoMid" class="fileInfoMid">
             <div class="infoTitle">
               <span><%= dicts.common.SelectedFiles %></span>
@@ -142,12 +205,7 @@
               </button>
             </div>
             <div class="pickedFiles">
-              <span class="selectAll checkbox xc-action">
-                <i class="icon xi-ckbox-empty"></i>
-                <i class="icon xi-ckbox-selected"></i>
-              </span>
-              <span><%= dicts.dsForm.Recursive %></span>
-              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="Import folders recursively" data-placement="top"></i>
+              <span class="numSelectedFiles">0 items selected</span>
               <span class="clearAll xc-action">
                   <%= dicts.common.ClearAll %>
                   <i class="icon xi-trash"></i>
@@ -160,7 +218,7 @@
           <div id="fileInfoBottom" class="fileInfoBottom">
             <div class="infoTitle">
               <span><%= dicts.common.ImportInto %>:</span>
-            </div>              
+            </div>
             <div class="switchWrap">
               <div class="switchLabel highlighted">
                 <%= dicts.common.OneDataset %>
