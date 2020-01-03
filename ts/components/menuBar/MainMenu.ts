@@ -60,11 +60,13 @@ namespace MainMenu {
     };
 
     export function switchMode(): boolean {
-        const isSQLMode: boolean = XVM.isSQLMode();
         const $sqlModeTabs: JQuery = $("#sqlTab");
         const $advModeTabs: JQuery = $("#modelingDataflowTab, #jupyterTab, #inButton");
         let allPanelsClosed: boolean = false;
-        if (isSQLMode) {
+        if (XVM.isDataMart()) {
+            // hide dataset in data mart
+            $("#inButton").addClass("xc-hidden");
+        } else if (XVM.isSQLMode()) {
             $("#inButton").addClass("xc-hidden");
             $sqlModeTabs.removeClass("xc-hidden");
             $advModeTabs.addClass("xc-hidden");
@@ -93,11 +95,14 @@ namespace MainMenu {
         return allPanelsClosed;
     };
 
-    export function openDefaultPanel(): void {
+    export function openDefaultPanel(openMenu: boolean = false): void {
         if (XVM.isSQLMode()) {
             MainMenu.openPanel("sqlPanel");
         } else {
             MainMenu.openPanel("dagPanel");
+            if (openMenu) {
+                MainMenu.open(true);
+            }
         }
     };
 
@@ -541,12 +546,12 @@ namespace MainMenu {
                     $curTab.removeClass("firstTouch");
                     DataSourceManager.initialize();
                     DSForm.initialize();
-                    if (XVM.isSQLMode() && !noWorkbook) {
+                    if (DataSourceManager.isCreateTableMode() && !noWorkbook) {
                         $("#sourceTblButton").click(); // switch to source panel
                     }
                 }
                 if ($curTab.find(".subTab.active").length === 0 && !noWorkbook) {
-                    if (XVM.isSQLMode()) {
+                    if (DataSourceManager.isCreateTableMode()) {
                         $("#sourceTblButton").click(); // switch to source panel
                     } else {
                         $("#inButton").click();

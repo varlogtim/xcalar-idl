@@ -131,6 +131,11 @@ class UDFPanel {
      * @returns void
      */
     public updateUDF(): void {
+        this._updateDropdownList(this.listUDFs());
+    }
+
+    public listUDFs(): {displayName: string, path: string}[] {
+        const res: {displayName: string, path: string}[] = [];
         // store by name
         const unsortedUDF: string[] = Array.from(
             UDFFileManager.Instance.getUDFs().keys()
@@ -145,8 +150,15 @@ class UDFPanel {
                 UDFFileManager.Instance.getSharedUDFPath()
             );
         });
-        const sortedUDF = workbookUDF.sort().concat(sharedUDF.sort());
-        this._updateDropdownList(sortedUDF);
+        const nsPaths = workbookUDF.sort().concat(sharedUDF.sort());
+        for (const nsPath of nsPaths) {
+            const displayName: string = this._getDisplayNameFromNSPath(nsPath);
+            res.push({
+                displayName,
+                path: nsPath
+            });
+        }
+        return res;
     }
 
     /**
@@ -156,7 +168,7 @@ class UDFPanel {
     public switchMode(): void {
         const $udfSection: JQuery = this._getUDFSection();
         const $topSection: JQuery = $("#udf-fnSection .topSection");
-        if (XVM.isSQLMode() &&
+        if (DataSourceManager.isCreateTableMode() &&
             $("#sqlWorkSpacePanel").hasClass("active")
         ) {
             // switch to sql mode, only show sql.py
@@ -170,6 +182,16 @@ class UDFPanel {
             $topSection.find(".template.sql").addClass("xc-hidden");
         }
     }
+
+    public selectUDF(udfPath: string): void {
+        if (UDFFileManager.Instance.hasUDF(udfPath)) {
+            const displayName = this._getDisplayNameFromNSPath(udfPath);
+            this._selectUDF(displayName, false);
+        } else {
+            this._selectBlankUDF();
+        }
+    }
+
 
     private _getUDFSection(): JQuery {
         return $("#udfSection");
@@ -535,22 +557,25 @@ class UDFPanel {
         return [displayName, displayPath];
     }
 
-    private _updateDropdownList(nsPaths: string[]): void {
+    private _getDisplayNameFromNSPath(nsPath: string): string {
+        const nsPathSplit: string[] = nsPath.split("/");
+        let displayName: string = nsPath.startsWith(
+            UDFFileManager.Instance.getCurrWorkbookPath()
+        )
+            ? nsPathSplit[nsPathSplit.length - 1]
+            : nsPath;
+        displayName = UDFFileManager.Instance.nsPathToDisplayPath(
+            displayName
+        );
+        return displayName;
+    }
+
+    private _updateDropdownList(udfLists: {displayName}[]): void {
         const $blankFunc: JQuery = $("#udf-fnMenu").find("li[name=blank]");
         let html: string = "";
         const liClass: string = "workbookUDF";
 
-        for (const nsPath of nsPaths) {
-            const nsPathSplit: string[] = nsPath.split("/");
-            let displayName: string = nsPath.startsWith(
-                UDFFileManager.Instance.getCurrWorkbookPath()
-            )
-                ? nsPathSplit[nsPathSplit.length - 1]
-                : nsPath;
-            displayName = UDFFileManager.Instance.nsPathToDisplayPath(
-                displayName
-            );
-
+        for (const {displayName} of udfLists) {
             const tempHTML: string =
                 '<li class="tooltipOverflow' +
                 liClass +

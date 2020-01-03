@@ -33,6 +33,14 @@ class DagNodeProject extends DagNode {
     };
 
     /**
+     * @override
+     * @returns {string}
+     */
+    public getDisplayNodeType(): string {
+        return "Project Columns";
+    }
+
+    /**
      * Set project node's parameters
      * @param input {DagNodeProjectInputStruct}
      * @param input.columns {string[]} An array of column names to project

@@ -41,7 +41,11 @@ class DataSourceManager {
         // restore list view if saved and ellipsis the icon
         let preference: boolean = UserSettings.getPref('datasetListView');
         this._toggleViewDisplay(preference, true);
-        DataSourceManager.startImport(XVM.isSQLMode());
+        DataSourceManager.startImport(DataSourceManager.isCreateTableMode());
+    }
+
+    public static isCreateTableMode(): boolean {
+        return XVM.isSQLMode() || XVM.isDataMart();
     }
 
     /**

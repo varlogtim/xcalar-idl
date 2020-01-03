@@ -590,7 +590,7 @@ namespace DSConfig {
      * DSConfig.isCreateTableMode
      */
     export function isCreateTableMode(): boolean {
-        if (XVM.isSQLMode()) {
+        if (DataSourceManager.isCreateTableMode()) {
             return true;
         } else if (createTableMode != null) {
             return createTableMode;

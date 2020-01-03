@@ -31,14 +31,7 @@ class DagCategoryNode {
 
     public getDisplayNodeType(): string {
         const node = this.getNode();
-        let displayNodeType: string;
-        if (node instanceof DagNodeSQLFuncIn) {
-            displayNodeType = "Input";
-        } else if (node instanceof DagNodeSQLFuncOut) {
-            displayNodeType = "Output";
-        } else {
-            displayNodeType = node.getDisplayNodeType();
-        }
+        let displayNodeType: string = node.getDisplayNodeType();
         return displayNodeType;
     }
 

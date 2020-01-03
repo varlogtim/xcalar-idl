@@ -126,12 +126,7 @@ namespace xcManager {
             try {
                 DagStatsPanel.Instance.setup();
                 // By default show panel
-                if (XVM.isSQLMode()) {
-                    MainMenu.openPanel("sqlPanel");
-                } else {
-                    MainMenu.openPanel("dagPanel");
-                    MainMenu.open(true);
-                }
+                MainMenu.openDefaultPanel(true);
                 if (firstTimeUser) {
                     // show hint to create datasets if no tables have been created
                     // in this workbook
@@ -756,7 +751,12 @@ namespace xcManager {
         let $container: JQuery = $("#container");
         let currentText: string;
         let nextText: string;
-        if (XVM.isSQLMode()) {
+        if (XVM.isDataMart()) {
+            $modeArea.remove();
+            $container.removeClass("sqlMode")
+                    .removeClass("advMode")
+                    .addClass("dataMart");
+        } else if (XVM.isSQLMode()) {
             currentText = ModeTStr.SQL;
             nextText = ModeTStr.Advanced;
             $modeArea.removeClass("on");

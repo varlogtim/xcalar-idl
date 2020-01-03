@@ -1600,17 +1600,17 @@ describe("DagView Test", () => {
                 if (count === 1) {
                     expect(type).to.equal(DagNodeType.SQLFuncIn);
                     expect(x).to.equal(40);
-                    expect(y).to.equal(40);
+                    expect(y).to.equal(140);
                 }
                 if (count === 2) {
                     expect(type).to.equal(DagNodeType.SQLFuncIn);
                     expect(x).to.equal(40);
-                    expect(y).to.equal(120);
+                    expect(y).to.equal(220);
                 }
                 if (count === 3) {
                     expect(type).to.equal(DagNodeType.SQLFuncOut);
                     expect(x).to.equal(840);
-                    expect(y).to.equal(80);
+                    expect(y).to.equal(180);
                 }
             }
             DagView.newSQLFunc(2);

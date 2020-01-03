@@ -30,6 +30,10 @@ class FileLister {
         this._rootPath = rootPath || DSTStr.Home;
     }
 
+    public getRootPath(): string {
+        return this._rootPath;
+    }
+
     /**
      * Set the file info to list
      * if the path represent a folder, do {path: /folderPath/, id: null}

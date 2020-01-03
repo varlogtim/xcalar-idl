@@ -169,19 +169,34 @@ class DagView {
 
     public static newSQLFunc(numInput) {
         DagTabManager.Instance.newSQLFunc();
+
+        // add instruction
+        const commentBase: number = 40;
+        DagViewManager.Instance.newComment({
+            text: SQLTStr.FuncInstr,
+            display: {
+                x: commentBase,
+                y: commentBase,
+                width: 450,
+                height: 80
+            }
+        }, false);
+
         // add input
-        const base: number = 40;
+        const xBase: number = commentBase;
+        const yBase: number = commentBase + 100;
         const inc: number = 80;
+
         for (let i = 0; i < numInput; i++) {
-            let x: number = base;
-            let y: number = base + (i * inc);
+            let x: number = xBase;
+            let y: number = yBase + (i * inc);
             DagViewManager.Instance.autoAddNode(DagNodeType.SQLFuncIn, null, null, null, x, y);
         }
 
         // add output
         const numIncSpace = 10;
-        let x = base + (inc * numIncSpace);
-        let y = base + (inc * (numInput - 1) / 2);
+        let x = xBase + (inc * numIncSpace);
+        let y = yBase + (inc * (numInput - 1) / 2);
         DagViewManager.Instance.autoAddNode(DagNodeType.SQLFuncOut, null, null, null, x, y);
     }
 
@@ -1743,7 +1758,8 @@ class DagView {
         Log.add("Add Operation", {
             operation: SQLOps.DagBulkOperation,
             actions: logActions,
-            dataflowId: this.tabId
+            dataflowId: this.tabId,
+            nodeId: node.getId()
         });
         this.dagTab.turnOnSave();
         this.dagTab.save();

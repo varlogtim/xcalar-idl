@@ -239,18 +239,20 @@ class TblSourcePreview {
 
     private _getNextStepButton(): HTML {
         let html: HTML;
-        if (XVM.isSQLMode()) {
-            html =
-            '<button class="nextStep writeSQL btn btn-submit iconBtn">' +
-                '<i class="icon xi-newSQL"></i>' +
-                TblTStr.WriteSQL +
-            '</button>';
+        const sqlButton: HTML = '<button class="nextStep writeSQL btn btn-submit iconBtn">' +
+                                    '<i class="icon xi-newSQL"></i>' +
+                                    TblTStr.WriteSQL +
+                                '</button>';
+        const dfButton: HTML = '<button class="nextStep createDF btn btn-submit iconBtn">' +
+                                    '<i class="icon xi-dfg2"></i>' +
+                                    TblTStr.CreateDF +
+                                '</button>';
+        if (XVM.isDataMart()) {
+            html = dfButton + sqlButton;
+        } else if (XVM.isSQLMode()) {
+            html = sqlButton;
         } else {
-            html =
-            '<button class="nextStep createDF btn btn-submit iconBtn">' +
-                '<i class="icon xi-dfg2"></i>' +
-                TblTStr.CreateDF +
-            '</button>';
+            html = dfButton;
         }
         return html;
     }
@@ -485,7 +487,7 @@ class TblSourcePreview {
     }
 
     private _createDF(tableInfo: PbTblInfo): void {
-        if (XVM.isSQLMode() || tableInfo == null) {
+        if (tableInfo == null) {
             return;
         }
 
@@ -497,7 +499,7 @@ class TblSourcePreview {
     }
 
     private _writeSQL(tableInfo: PbTblInfo): void {
-        if (XVM.isAdvancedMode() || tableInfo == null) {
+        if (tableInfo == null) {
             return;
         }
         let tableName: string = tableInfo.name;

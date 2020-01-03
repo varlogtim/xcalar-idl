@@ -29,7 +29,7 @@ class SQLWorkSpace {
     }
 
     public save(): XDPromise<void> {
-        if (XVM.isAdvancedMode()) {
+        if (XVM.isAdvancedMode() || XVM.isDataMart()) {
             return PromiseHelper.resolve();
         }
         return SQLEditorSpace.Instance.save();

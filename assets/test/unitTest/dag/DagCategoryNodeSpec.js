@@ -35,10 +35,10 @@ describe("DagCategoryNode Test", function() {
             expect(node.getDisplayNodeType()).to.equal("Input");
 
             node = new DagCategoryNode(new DagNodeSQLFuncIn({}));
-            expect(node.getDisplayNodeType()).to.equal("Input");
+            expect(node.getDisplayNodeType()).to.equal("Input Table");
 
             node = new DagCategoryNode(new DagNodeSQLFuncOut({}));
-            expect(node.getDisplayNodeType()).to.equal("Output");
+            expect(node.getDisplayNodeType()).to.equal("Output    Table");
 
             node = new DagCategoryNode(new DagNodeIMDTable({}));
             expect(node.getDisplayNodeType()).to.equal("Table");

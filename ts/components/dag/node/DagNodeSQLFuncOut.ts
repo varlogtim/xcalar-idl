@@ -42,6 +42,13 @@ class DagNodeSQLFuncOut extends DagNodeOut {
         super.setParam();
     }
 
+    /**
+     * Override
+     */
+    public getTitle(): string {
+        return "output";
+    }
+
     public getSchema(): ColSchema[] {
         return this.getParam().schema;
     }
@@ -111,7 +118,8 @@ class DagNodeSQLFuncOut extends DagNodeOut {
      * @returns {string}
      */
     public getDisplayNodeType(): string {
-        return "SQL Function Output";
+        // the multiple space is for the _formatOpTitle to split it into two lines
+        return "Output    Table";
     }
 
     /**

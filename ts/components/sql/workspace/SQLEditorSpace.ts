@@ -729,10 +729,10 @@ class SQLEditorSpace {
             this._fileOption("new");
         });
 
-        // $topBar.on("click", ".showTables", (event) => {
-        //     $(event.currentTarget).blur();
-        //     SQLResultSpace.Instance.showTables(true);
-        // });
+        $topBar.on("click", ".showTables", (event) => {
+            $(event.currentTarget).blur();
+            SQLResultSpace.Instance.showTables(true);
+        });
 
         $topBar.on("click", ".udf", (event) => {
             $(event.currentTarget).blur();

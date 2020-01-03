@@ -17,6 +17,7 @@ class DagList extends Durable {
         this._initialize();
         this._setupFileLister();
         this._addEventListeners();
+        this._updateSection();
 
         this._stateOrder[QueryStateTStr[QueryStateT.qrCancelled]] = 2;
         this._stateOrder[QueryStateTStr[QueryStateT.qrNotStarted]] = 3;
@@ -120,7 +121,7 @@ class DagList extends Durable {
             }
 
         };
-        const publishedList: {path: string, id: string, options: {isOpen: boolean}}[] = [];
+        let publishedList: {path: string, id: string, options: {isOpen: boolean}}[] = [];
         let userList: {path: string, id: string, options: {isOpen: boolean, state?: string}}[] = [];
         const queryList: {
             path: string,
@@ -137,7 +138,7 @@ class DagList extends Durable {
                     id: tabId,
                     options: {isOpen: dagTab.isOpen()}
                 });
-            } else if (dagTab instanceof DagTabOptimized) {
+            } else if (dagTab instanceof DagTabOptimized && !XVM.isDataMart()) {
                 path = "/" + dagTab.getPath();
                 userList.push({
                     path: path,
@@ -170,6 +171,8 @@ class DagList extends Durable {
                 let dagName: string = dagTab.getName();
                 if (this._isForSQLFolder(dagTab)) {
                     path = "/" + DagTabSQL.PATH + dagName;
+                } else if (XVM.isDataMart()) {
+                    path = "/" + DFTStr.TBModules + "/" + dagName;
                 } else {
                     path = "/" + dagName;
                 }
@@ -191,8 +194,51 @@ class DagList extends Durable {
                 options: {isOpen: false}
             });
         }
+        if (XVM.isDataMart()) {
+            // data mart don't have published dataflows
+            publishedList = [];
+        }
         userList = userList.concat(queryList);
-        return publishedList.concat(userList);
+
+        const otherList = this._getOtherListForDataMart();
+        return publishedList.concat(userList).concat(otherList);
+    }
+
+    private _getOtherListForDataMart(): any[] {
+        if (!XVM.isDataMart()) {
+            return [];
+        }
+        const udfList: {
+            path: string,
+            id: string,
+            options: {type: string}
+        }[] = [];
+        const savedQueryList: {
+            path: string,
+            id: string,
+            options: {type: string}
+        }[] = [];
+
+        UDFPanel.Instance.listUDFs().forEach(({displayName, path}) => {
+            const displayPath: string = displayName.startsWith("/")
+            ? "/" + UDFTStr.UDF + displayName
+            : "/" + UDFTStr.UDF +"/" + displayName;
+            udfList.push({
+                path: displayPath, 
+                id: path,
+                options: {type: "UDF"}
+            });
+        });
+
+        SQLSnippet.Instance.listSnippets().forEach(({name}) => {
+            savedQueryList.push({
+                path: "/" + SQLTStr.SavedQueries +"/" + name, 
+                id: name,
+                options: {type: "SQL"}
+            });
+        });
+
+        return udfList.concat(savedQueryList);
     }
 
     public listUserDagAsync(): XDPromise<{dags: {name: string, id: string}[]}> {
@@ -583,7 +629,7 @@ class DagList extends Durable {
 
     private _setupFileLister(): void {
         const renderTemplate = (
-            files: {name: string, id: string, options: {isOpen: boolean, createdTime?: number, state?: string}}[],
+            files: {name: string, id: string, options: {isOpen: boolean, createdTime?: number, state?: string, type?: string}}[],
             folders: string[],
             path: string
         ): string => {
@@ -618,10 +664,15 @@ class DagList extends Durable {
                 publishIcon = this._iconHTML("publishDataflow", "xi-add-dataflow", DFTStr.PubDF);
             }
             let downloadIcon: HTML = this._iconHTML("downloadDataflow", "xi-download", DFTStr.DownloadDF);
+            let editUDFIcon: HTML = this._iconHTML("editUDF", "xi-edit", UDFTStr.Edit);
+            let editQueryIcon: HTML = this._iconHTML("editQuery", "xi-edit", SQLTStr.Edit);
+            let gridIcon = '<i class="gridIcon icon xi-dfg2"></i>';
+
             files.forEach((file) => {
                 let openClass: string = "";
                 let timeTooltip: string = "";
                 let canBeDisabledIconWrap: HTML = "";
+                let actionIcon: HTML = deleteIcon;
                 let stateIcon: HTML = "";
                 let queryClass: string = "";
                 if (file.options) {
@@ -650,15 +701,26 @@ class DagList extends Durable {
                                     '" ' + xcTooltip.Attrs + ' data-original-title="' +
                                     xcStringHelper.camelCaseToRegular(file.options.state.slice(2)) + '"></div>';
                     }
+
+                    if (file.options.type === "SQL") {
+                        gridIcon = '<i class="gridIcon icon xi-menu-sql"></i>';
+                        actionIcon = editQueryIcon;
+                        canBeDisabledIconWrap = "";
+                    } else if (file.options.type === "UDF") {
+                        gridIcon = '<i class="gridIcon icon xi-menu-udf"></i>';
+                        actionIcon = editUDFIcon;
+                        canBeDisabledIconWrap = "";
+                    }
                 }
 
                 html +=
                 '<li class="fileName dagListDetail ' + openClass + queryClass + '" data-id="' + file.id + '">' +
-                    '<i class="gridIcon icon xi-dfg2"></i>' +
+                    gridIcon +
                     stateIcon +
                     '<div class="name" ' + timeTooltip + '>' + file.name + '</div>' +
                     '<div class="listIcons">' +
-                        deleteIcon + canBeDisabledIconWrap +
+                        actionIcon +
+                        canBeDisabledIconWrap +
                     '</div>' +
                 '</li>';
             });
@@ -669,6 +731,7 @@ class DagList extends Durable {
             renderTemplate: renderTemplate,
             folderSingleClick: true
         });
+        this._fileLister.setRootPath(DFTStr.Resources);
     }
 
     private _renderDagList(keepLocation: boolean = true, ignoreError = false): void {
@@ -676,7 +739,7 @@ class DagList extends Durable {
         this._fileLister.setFileObj(dagLists);
         if (keepLocation) {
             let curPath = this._fileLister.getCurrentPath();
-            let path = "Home/";
+            let path = this._fileLister.getRootPath() + "/";
             if (curPath) {
                 path += curPath + "/";
             }
@@ -1072,9 +1135,14 @@ class DagList extends Durable {
         }
     }
 
-
     private _updateSection(): void {
-        let text: string = `${DFTStr.DFs} (${this._dags.size})`;
+        let text: string = "";
+        if (XVM.isDataMart()) {
+            text = DFTStr.Resources;
+        } else {
+            const size: number = this._dags ? this._dags.size : 0;
+            text = `${DFTStr.DFs} (${size})`;
+        }
         this._getDagListMenuEl().find(".numDF").text(text);
     }
 
@@ -1197,6 +1265,24 @@ class DagList extends Durable {
             }
             const dagTab: DagTab = this.getDagTabById($dagListItem.data("id"));
             DFDownloadModal.Instance.show(dagTab);
+        });
+
+        $dagListSection.on("click", ".editQuery", (event) => {
+            let $dagListItem: JQuery = $(event.currentTarget).closest(".dagListDetail");
+            const sqlQueryName: string = $dagListItem.data("id")
+            SQLEditorSpace.Instance.setSnippet(sqlQueryName);
+            XVM.setMode(XVM.Mode.SQL);
+            $("#sqlTab").click();
+        });
+
+        $dagListSection.on("click", ".editUDF", (event) => {
+            let $dagListItem: JQuery = $(event.currentTarget).closest(".dagListDetail");
+            const udfName: string = $dagListItem.data("id")
+            UDFPanel.Instance.selectUDF(udfName);
+            const $udfTab = $("#udfTab");
+            if (!$udfTab.hasClass("active")) {
+                $udfTab.click();
+            }
         });
 
         DagTabManager.Instance

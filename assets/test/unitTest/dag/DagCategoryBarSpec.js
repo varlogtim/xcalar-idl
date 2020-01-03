@@ -53,7 +53,7 @@ describe("DagCategoryBar Test", function() {
         DagCategoryBar.Instance.updateCategories(new DagTabSQLFunc());
 
         expect($operatorBar.find(".category-in").find(".operator").length).to.equal(1);
-        expect($operatorBar.find(".category-in").find(".operator").eq(0).find(".opTitle").text()).to.equal("Input");
+        expect($operatorBar.find(".category-in").find(".operator").eq(0).find(".opTitle").text()).to.equal("Input Table");
     });
 
     it("should switch back to advanced mode", function(){

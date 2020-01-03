@@ -523,6 +523,10 @@ namespace XVM {
      * XVM.initializeMode
      */
     export function initializeMode(): XDPromise<void> {
+        if (XVM.isDataMart()) {
+            _mode = null;
+            return PromiseHelper.resolve();
+        }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let kvStore: KVStore = _getModeKVStore();
         kvStore.getAndParse()
@@ -549,6 +553,10 @@ namespace XVM {
         mode: XVM.Mode,
         ignoreSQLChange?: boolean
     ): XDPromise<void> {
+        if (XVM.isDataMart()) {
+            // data mart don't have the concep of mode
+            return PromiseHelper.resolve();
+        }
         if (mode === _mode) {
             return PromiseHelper.resolve();
         }

@@ -132,7 +132,7 @@ class DagNodeSQLFuncIn extends DagNodeIn {
      * @returns {string}
      */
     public getDisplayNodeType(): string {
-        return "SQL Function Input";
+        return "Input Table";
     }
 
     /**
