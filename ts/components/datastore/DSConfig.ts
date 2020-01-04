@@ -142,6 +142,7 @@ namespace DSConfig {
         });
 
         setupDataSourceSchema();
+        setupDataMartConfig();
 
         // select a char as candidate delimiter
         $previewTable.mouseup(function(event) {
@@ -727,6 +728,20 @@ namespace DSConfig {
                 csvArgChange();
                 getPreviewTable();
                 arg.callback(getHintSchema());
+            }
+        });
+    }
+
+    function setupDataMartConfig(): void {
+        if (!XVM.isDataMart()) {
+            return;
+        }
+        const whiteList: string[] = [formatMap.CSV, formatMap.JSON, formatMap.PARQUET, formatMap.EXCEL.toUpperCase()];
+        $("#fileFormatMenu li").each((_index, el) => {
+            const $li = $(el);
+            const name: string = $li.attr("name");
+            if (!whiteList.includes(name)) {
+                $li.addClass("xc-hidden");
             }
         });
     }
