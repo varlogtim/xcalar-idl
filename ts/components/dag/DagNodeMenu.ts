@@ -704,7 +704,7 @@ namespace DagNodeMenu {
             $menu.find(".executeNodeOptimized, .executeAllNodesOptimized").addClass("xc-hidden");
         }
 
-        if (DagViewManager.Instance.hasOptimizableNode(optNodeIds)) {
+        if (DagViewManager.Instance.hasOptimizableNode(optNodeIds) && !XVM.isDataMart()) {
             $menu.find(".createNodeOptimized").removeClass("xc-hidden");
         } else {
             $menu.find(".createNodeOptimized").addClass("xc-hidden");
@@ -819,7 +819,8 @@ namespace DagNodeMenu {
             classes += " linkInMenu";
         }
         if ((dagNode instanceof DagNodeDFOut || dagNode instanceof DagNodeExport) &&
-            !dagNode.isOptimized()
+            !dagNode.isOptimized() &&
+            !XVM.isDataMart()
         ) {
             classes += " optimizableMenu";
             if (state === DagNodeState.Unused) {

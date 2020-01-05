@@ -660,7 +660,7 @@ class DagList extends Durable {
                 duplicateIcon = this._iconHTML("duplicateDataflow", "xi-duplicate", DFTStr.DupDF);
             }
             let publishIcon: HTML = "";
-            if (!isInPublishedFolder && !isOptimizedFolder) {
+            if (!isInPublishedFolder && !isOptimizedFolder && !XVM.isDataMart()) {
                 publishIcon = this._iconHTML("publishDataflow", "xi-add-dataflow", DFTStr.PubDF);
             }
             let downloadIcon: HTML = this._iconHTML("downloadDataflow", "xi-download", DFTStr.DownloadDF);
