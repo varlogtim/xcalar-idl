@@ -110,7 +110,7 @@ class TblSource {
         }
 
         try {
-            if (XVM.isDataMart()) {
+            if (this._isDataMart()) {
                 let dataMartName: string = args.dataMartName;
                 // XXX TODO: use a dataMartName from function args
                 console.warn("use fake data mart, need to remove this piece of code");
@@ -239,7 +239,7 @@ class TblSource {
 
         const tables = await PTblManager.Instance.getTablesAsync(forceRefresh)
         this._setTables(tables);
-        if (XVM.isDataMart()) {
+        if (this._isDataMart()) {
             await this._dataMarts.restore(forceRefresh);
             this._dataMarts.sync(tables);
         }
@@ -314,7 +314,7 @@ class TblSource {
 
     private _updateSourceTitle(): void {
         let text: string = "";
-        if (XVM.isDataMart()) {
+        if (this._isDataMart()) {
             text = DataMartTStr.Title;
         } else {
             text = TblTStr.Tables + " (" + this._tables.size + ")";
@@ -324,7 +324,7 @@ class TblSource {
 
     private _renderView(): void {
         try {
-            if (XVM.isDataMart()) {
+            if (this._isDataMart()) {
                 this._renderHierarchicalView();
             } else {
                 this._renderGridView();
@@ -451,7 +451,7 @@ class TblSource {
             TblSourcePreview.Instance.show(tableInfo, loadMsg);
         }
 
-        if (XVM.isDataMart()) {
+        if (this._isDataMart()) {
             // expand data mart list when focus on the tale
             const $dataMartGroup = $grid.closest(".dataMartGroup");
             if (!$dataMartGroup.hasClass("expanded")) {
@@ -530,7 +530,7 @@ class TblSource {
 
         try {
             await PTblManager.Instance.deleteTables(tableNames);
-            if (XVM.isDataMart()) {
+            if (this._isDataMart()) {
                 await this._dataMarts.deleteTable(dataMartName, tableNames[0]);
             }
         } catch (e) {
@@ -693,7 +693,7 @@ class TblSource {
         $gridView.on("click", ".grid-unit", (event) => {
             this._cleanGridSelect();
             let $target: JQuery = $(event.currentTarget);
-            if (XVM.isDataMart() && $target.hasClass("dataMart")) {
+            if (this._isDataMart() && $target.hasClass("dataMart")) {
                 this._toggleDataMart($target.closest(".dataMartGroup"));
             } else {
                 this._focusOnTable($target);
@@ -708,7 +708,7 @@ class TblSource {
 
             // Disable the multi selection for data mart
             // as it's not in the plan for the stage 1 chagne
-            if (XVM.isDataMart()) {
+            if (this._isDataMart()) {
                 return;
             }
 
@@ -723,7 +723,7 @@ class TblSource {
             this._createRectSelection(event.pageX, event.pageY);
         });
 
-        if (XVM.isDataMart()) {
+        if (this._isDataMart()) {
             this._addDataMartEvents();
         }
     }
@@ -736,7 +736,7 @@ class TblSource {
     }
 
     private _setUpView(): void {
-        if (XVM.isDataMart()) {
+        if (this._isDataMart()) {
             this._getMenuSection().addClass("dataMart");
             this._getGridView().removeClass("gridView listView")
                                 .addClass("hierarchicalView listView");
@@ -782,7 +782,7 @@ class TblSource {
                 if ($grid.length) {
                     $grid.addClass("selected");
 
-                    if (XVM.isDataMart()) {
+                    if (self._isDataMart()) {
                         let dataMartName = $grid.closest(".dataMartGroup").data("name");
                         $gridMenu.data("dataMartName", dataMartName);
                     }
@@ -856,11 +856,11 @@ class TblSource {
                 return;
             }
             let dataMartName: string = "";
-            if (XVM.isDataMart()) {
+            if (this._isDataMart()) {
                 dataMartName = $gridMenu.data("dataMartName");
             }
 
-            if (XVM.isDataMart() && $gridMenu.hasClass("dataMartOpts")) {
+            if (this._isDataMart() && $gridMenu.hasClass("dataMartOpts")) {
                 this._deleteDataMart(dataMartName);
             } else {
                 this._deletTables([$gridMenu.data("id")], dataMartName);
@@ -938,5 +938,11 @@ class TblSource {
             ids.push(id);
         });
         return ids;
+    }
+
+    private _isDataMart(): boolean {
+        // XXX temporaty disable it until further details about the UX
+        return false;
+        return XVM.isDataMart();
     }
 }

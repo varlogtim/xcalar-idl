@@ -427,18 +427,6 @@ describe("SQLEditorSpace Test", function() {
             SQLEditorSpace.Instance._newSnippet = oldNew;
         });
 
-        it("should list snippet", function() {
-            let oldFunc = SQLEditorSpace.Instance._listSnippet;
-            let called = 0;
-
-            SQLEditorSpace.Instance._listSnippet = () => { called++; };
-
-            SQLEditorSpace.Instance._fileOption("list");
-            expect(called).to.equal(1);
-
-            SQLEditorSpace.Instance._listSnippet = oldFunc;
-        });
-
         it("should saveAs snippet", function() {
             let oldSave = SQLEditorSpace.Instance._saveAsSnippet;
             let called = 0;

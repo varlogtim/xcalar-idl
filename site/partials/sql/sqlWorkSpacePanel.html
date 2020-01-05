@@ -8,10 +8,40 @@
     </section>
     <section class="rightSection">
       <div class="resultSection">
-        include "sqlTableListerArea.html"
-        include "sqlTableArea.html"
-        include "sqlTableSchemaArea.html"
-        include "sqlDataflowArea.html"
+        <div class="tabSection">
+          <div class="tab" data-tab="query"><%= dicts.SQL.SaveQueryTab %></div>
+          <div class="tab" data-tab="table"><%= dicts.SQL.TableTab %></div>
+          <div class="tab" data-tab="udf"><%= dicts.SQL.UDFTab %></div>
+          <div class="tab" data-tab="sqlFunc"><%= dicts.SQL.SQLFuncTab %></div>
+          <div class="tab" data-tab="result"><%= dicts.SQL.ResultTab %></div>
+        </div>
+        <div class="contentSection">
+          <div class="section query">
+            <div class="lister noBottom noTop">
+              <div id="sqlResultQueryListArea" class="mainSection xc-gridList">
+                <div class="listSection content"></div>
+              </div>
+            </div>
+          </div>
+          <div class="section table">
+            include "sqlTableListerArea.html"
+            include "sqlTableSchemaArea.html"
+          </div>
+          <div class="section udf">
+            include "sqlResultUDFListArea.html"
+          </div>
+          <div class="section sqlFunc">
+            include "sqlResultFuncListArea.html"
+          </div>
+          <div class="section result">
+            include "sqlTableArea.html"
+            include "sqlDataflowArea.html"
+            <div class="hintArea">
+              <b>No query results</b>
+              <div class="hint">Run a query or select a query result in SQL history to get started</div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="historySection">
         <div class="resizeHandler">

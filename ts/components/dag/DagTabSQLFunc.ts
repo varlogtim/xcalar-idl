@@ -1,6 +1,6 @@
 class DagTabSQLFunc extends DagTabUser {
     public static KEY: string = "SQLFunc";
-    public static HOMEDIR: string = "SQL Functions";
+    public static HOMEDIR: string = "Table Creator Functions";
 
     /**
      * DagTabSQLFunc.generateId
@@ -49,6 +49,15 @@ class DagTabSQLFunc extends DagTabUser {
         }
 
         return null;
+    }
+
+    public static async getFuncInputNum(name: string): Promise<number> {
+        const dagTab: DagTabSQLFunc = this.getFunc(name);
+        if (dagTab == null) {
+            return 0;
+        }
+        await dagTab.load();
+        return dagTab.getGraph().getNodesByType(DagNodeType.SQLFuncIn).length;
     }
 
     /**

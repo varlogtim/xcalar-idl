@@ -482,6 +482,12 @@ namespace TooltipWalkthroughs {
             seenDataflow = true;
             return PromiseHelper.resolve();
         }
+        if (XVM.isDataMart()) {
+            // XXX TODO reenable tooltip tutorial when it's fixed
+            seenSQL = true;
+            seenDataflow = true;
+            return PromiseHelper.resolve();
+        }
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         const key: string = KVStore.getKey("gUserTooltipKey");
         const kvStore: KVStore = new KVStore(key, gKVScope.USER);

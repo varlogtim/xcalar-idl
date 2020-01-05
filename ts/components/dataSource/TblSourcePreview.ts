@@ -248,7 +248,7 @@ class TblSourcePreview {
                                     TblTStr.CreateDF +
                                 '</button>';
         if (XVM.isDataMart()) {
-            html = dfButton + sqlButton;
+            html = sqlButton;
         } else if (XVM.isSQLMode()) {
             html = sqlButton;
         } else {

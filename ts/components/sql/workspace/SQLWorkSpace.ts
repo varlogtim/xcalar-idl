@@ -29,10 +29,13 @@ class SQLWorkSpace {
     }
 
     public save(): XDPromise<void> {
-        if (XVM.isAdvancedMode() || XVM.isDataMart()) {
+        if (XVM.isDataMart()) {
+            return SQLEditorSpace.Instance.save();
+        } else if (XVM.isAdvancedMode()) {
             return PromiseHelper.resolve();
+        } else {
+            return SQLEditorSpace.Instance.save();
         }
-        return SQLEditorSpace.Instance.save();
     }
 
     public refresh(): void {

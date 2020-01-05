@@ -121,6 +121,20 @@ class SQLEditorSpace {
         });
     }
 
+    public async openSnippet(name: string): Promise<void> {
+        try {
+            await this._renameWarning();
+            if (this._currentFile !== CommonTxtTstr.Untitled) {
+                // We don't want to save the untitled file if we just deleted it
+                await this._saveSnippet();
+            }
+            this.setSnippet(name);
+        } catch (e) {
+            // We decided not to discard the change
+            console.error("open snippet error", e);
+        }
+    }
+
     private _setupSQLEditor(): void {
         const self = this;
         const callbacks = {
@@ -520,9 +534,6 @@ class SQLEditorSpace {
                 this._saveSnippet();
                 this._newSnippet();
                 break;
-            case "list":
-                this._listSnippet();
-                break;
             case "saveAs":
                 this._saveAsSnippet();
                 break;
@@ -543,33 +554,6 @@ class SQLEditorSpace {
             // We decided not to discard the change
             return;
         });
-    }
-
-    private _listSnippet(): void {
-        SQLSnippetListModal.Instance.show((name, action) => {
-            switch (action) {
-                case "open":
-                    this._openSnippet(name);
-                    break;
-                default:
-                    console.error("error action " + action + " for list snippet");
-                    return;
-            }
-        });
-    }
-
-    private async _openSnippet(name: string): Promise<void> {
-        try {
-            await this._renameWarning();
-            if (this._currentFile !== CommonTxtTstr.Untitled) {
-                // We don't want to save the untitled file if we just deleted it
-                await this._saveSnippet();
-            }
-            this.setSnippet(name);
-        } catch (e) {
-            // We decided not to discard the change
-            console.error("open snippet error", e);
-        }
     }
 
     private _saveSnippet(): XDPromise<void> {
@@ -642,14 +626,6 @@ class SQLEditorSpace {
             console.error(err);
         });
         setName(newName);
-    }
-
-    private _goToSQLFunc(): void {
-        XVM.setMode(XVM.Mode.Advanced)
-        .then(function() {
-            $("#modelingDataflowTab").click();
-            DagViewManager.Instance.createSQLFunc(true);
-        });
     }
 
     private _addEventListeners(): void {
@@ -735,16 +711,6 @@ class SQLEditorSpace {
         $topBar.on("click", ".showTables", (event) => {
             $(event.currentTarget).blur();
             SQLResultSpace.Instance.showTables(true);
-        });
-
-        $topBar.on("click", ".udf", (event) => {
-            $(event.currentTarget).blur();
-            $("#udfButtonWrap .toManager").click();
-        });
-
-        $topBar.on("click", ".sqlFunc", (event) => {
-            $(event.currentTarget).blur();
-            this._goToSQLFunc();
         });
 
         let selector: string = `#${this._getEditorSpaceEl().attr("id")}`;

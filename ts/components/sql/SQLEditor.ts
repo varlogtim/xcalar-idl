@@ -425,7 +425,7 @@ class SQLEditor {
             } else if ($li.hasClass("funcName") || $li.hasClass("udfName")) {
                 this._insertText($li.text() + "()");
             } else if ($li.hasClass("newUDF")) {
-                UDFFileManager.Instance.open("sql.py");
+                UDFPanel.Instance.openEditor();
             }
         });
     }
@@ -548,6 +548,8 @@ class SQLEditor {
                 if (typeof event !== "undefined") {
                     event(self._editor);
                 }
+            } else {
+                self.showHintMenu(<any>_cm);
             }
         });
 

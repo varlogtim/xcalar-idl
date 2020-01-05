@@ -138,8 +138,12 @@ class DagList extends Durable {
                     id: tabId,
                     options: {isOpen: dagTab.isOpen()}
                 });
-            } else if (dagTab instanceof DagTabOptimized && !XVM.isDataMart()) {
-                path = "/" + dagTab.getPath();
+            } else if (dagTab instanceof DagTabOptimized) {
+                if (XVM.isDataMart()) {
+                    path = "/" + DFTStr.TBModules + "/" + dagTab.getPath();
+                } else {
+                    path = "/" + dagTab.getPath();
+                }
                 userList.push({
                     path: path,
                     id: tabId,
@@ -149,7 +153,11 @@ class DagList extends Durable {
                     }
                 });
             } else if (dagTab instanceof DagTabQuery) {
-                path = "/" + dagTab.getPath();
+                if (XVM.isDataMart()) {
+                    path = "/" + DFTStr.TBModules + "/" + dagTab.getPath();
+                } else {
+                    path = "/" + dagTab.getPath();
+                }
                 queryList.push({
                     path: path,
                     id: tabId,

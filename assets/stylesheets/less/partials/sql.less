@@ -298,91 +298,182 @@
             }
 
             .resultSection {
-                > div {
-                    height: 100%;
-                    @top-h: 36px;
-                    @bottom-h: 50px;
-                    @total-h: @top-h + @bottom-h;
+                @tab-h: 36px;
+                .tabSection {
+                    height: @tab-h;
+                    line-height: @tab-h;
+                    border-bottom: 1px solid @color-border-softGray;
+                    display: flex;
+                    flex-direction: row;
 
-                    &.noBottom {
-                        .mainSection {
-                            height: ~"calc(100% - @{top-h})";
-                        }
-                    }
+                    > div {
+                        .flex(1 1 auto);
+                        text-align: center;
+                        padding: 0 16px;
+                        color: @color-font-edge;
+                        background-color: @color-border-softGray;
+                        border-right: 1px solid @color-bg-topBarGray2;
+                        .xc-action;
 
-                    .topSection {
-                        background-color: @color-white;
-                        height: @top-h;
-                        font-size: 12px;
-                        padding: 6px 15px;
-                        border-bottom: 1px solid @color-border-softGray;
-                        @div-h: 20px;
-
-                        > div {
-                            .flex(0 0 auto);
-
-                            &.tableNameArea {
-                                .flex(1 1 0px);
-                            }
-                        }
-
-                        > .label {
-                            margin-right: 10px;
-                            line-height: 24px;
-                            font-size: 16px;
-                            font-weight: bold;
+                        &.active {
+                            background-color: @color-white;
                             color: @color-font-form-gray;
-
-                            .name {
-                                font-weight: normal;
-                                margin-left: 8px;
-                            }
                         }
 
-                        .searchbarArea {
-                            .size(@height: 24px);
-
-                            input {
-                                font-size: 12px;
-                                .rounded(3px);
-                                .size(@height: 24px);
-                                padding-left: 22px;
-                                line-height: 24px;
-                                background-color: @color-white;
-                            }
-
-                            > .icon {
-                                .font(@size: 14px);
-                                .position(absolute, @top: 6px, @left: 5px);
-                                color: @color-border-bar;
-                            }
+                        &.active, &:hover {
+                            box-shadow: inset 0 -2px 0 0 @color-bg-select-blue;
                         }
                     }
+                }
 
-                    .mainSection, .loadingSection, .errorSection {
-                        height: ~"calc(100% - @{total-h})";
-                    }
+                .contentSection {
+                    height: ~"calc(100% - @{tab-h})";
+                }
 
-                    .bottomSection {
-                        height: @bottom-h;
-                        padding: 11px 25px;
-                        border-top: 1px solid @color-border-softGray;
-                        background-color: @color-bg-list-hover-blue;
+                .contentSection .section {
+                    height: 100%;
 
-                        .buttonWrap {
-                            float: left;
+                    > div {
+                        height: 100%;
+                        @top-h: 36px;
+                        @bottom-h: 50px;
+                        @total-h: @top-h + @bottom-h;
+    
+                        &.noBottom {
+                            .mainSection {
+                                height: ~"calc(100% - @{top-h})";
+                            }
                         }
 
-                        button {
-                            margin-right: 10px;
-                            padding: 0 17px;
-
-                            &.btn-create {
-                                .icon {
-                                    position: relative;
-                                    top: -2px;
+                        &.noBottom.noTop {
+                            .mainSection {
+                                height: 100%;
+                            }
+                        }
+    
+                        .topSection {
+                            background-color: @color-white;
+                            height: @top-h;
+                            font-size: 12px;
+                            padding: 6px 15px;
+                            border-bottom: 1px solid @color-border-softGray;
+                            @div-h: 20px;
+    
+                            > div {
+                                .flex(0 0 auto);
+    
+                                &.tableNameArea {
+                                    .flex(1 1 0px);
                                 }
                             }
+    
+                            > .label {
+                                margin-right: 10px;
+                                line-height: 24px;
+                                font-size: 16px;
+                                font-weight: bold;
+                                color: @color-font-form-gray;
+    
+                                .name {
+                                    font-weight: normal;
+                                    margin-left: 8px;
+                                }
+                            }
+    
+                            .searchbarArea {
+                                .size(@height: 24px);
+    
+                                input {
+                                    font-size: 12px;
+                                    .rounded(3px);
+                                    .size(@height: 24px);
+                                    padding-left: 22px;
+                                    line-height: 24px;
+                                    background-color: @color-white;
+                                }
+    
+                                > .icon {
+                                    .font(@size: 14px);
+                                    .position(absolute, @top: 6px, @left: 5px);
+                                    color: @color-border-bar;
+                                }
+                            }
+                        }
+    
+                        .mainSection, .loadingSection, .errorSection {
+                            height: ~"calc(100% - @{total-h})";
+                        }
+    
+                        .bottomSection {
+                            height: @bottom-h;
+                            padding: 11px 25px;
+                            border-top: 1px solid @color-border-softGray;
+                            background-color: @color-bg-list-hover-blue;
+    
+                            .buttonWrap {
+                                float: left;
+                            }
+    
+                            button {
+                                margin-right: 10px;
+                                padding: 0 17px;
+    
+                                &.btn-create {
+                                    .icon {
+                                        position: relative;
+                                        top: -2px;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    .lister {
+                        .listSection {
+                            overflow-y: auto;
+
+                            .row {
+                                padding: 0 16px;
+                
+                                > span {
+                                    display: block;
+                                    line-height: 29px;
+                                }
+                                
+                                .name {
+                                    float: left;
+                                }
+                
+                                .action {
+                                    margin-left: 8px;
+                                    float: right;
+                                    font-size: 12px;
+                                    text-decoration: underline;
+                                    color: @color-font-link-blue;
+                                }
+                            }
+                        }
+
+                        .error {
+                            width: 300px;
+                            .center-align;
+                            text-align: center;
+                            color: @color-text-error;
+                        }
+                    }
+
+                    .hintArea {
+                        width: auto;
+                        height: auto;
+                        .center-align;
+                        text-align: center;
+
+                        b {
+                            font-size: 16px;
+                        }
+
+                        .hint {
+                            margin-top: 8px
                         }
                     }
                 }
@@ -487,6 +578,35 @@
             }
         }
     }
+
+    #sqlResultFuncListArea, #sqlResultUDFListArea {
+        display: flex;
+        flex-direction: column;
+
+        .topSection {
+            height: auto;
+            display: flex;
+            flex: 1 1 auto;
+
+            .instruction {
+                flex: 1 1 auto;
+                margin-right: 10px;
+            }
+
+            button {
+                flex: 0 0 140px;
+                .vertical-align;
+
+                &.newSQLFunc {
+                    flex: 0 0 200px;
+                }
+            }
+        }
+
+        .mainSection {
+            flex: 0 0 auto;
+        }
+    }
 }
 
 #sqlEditorSpace {
@@ -560,20 +680,6 @@
         border-bottom: 1px solid @color-border-softGray;
 
         .row {
-            &:last-child {
-                span {
-                    text-decoration: underline;
-                    color: @color-font-link-blue;
-                    white-space: nowrap;
-                }
-
-                .qMark {
-                    margin-top: 4px;
-                    margin-left: 4px;
-                    margin-right: 16px;
-                }
-            }
-
             button {
                 width: 113px;
                 padding: 0 16px;
@@ -647,6 +753,7 @@
 
 #sqlHintSubMenu {
     max-height: 200px !important;
+    width: 220px;
 
     .new {
         color: @color-font-link-blue;
@@ -729,6 +836,24 @@
     .topSection {
         .actionArea {
             float: right;
+        }
+
+        .viewSchema {
+            width: auto;
+            padding: 0 3px;
+
+            .icon {
+                display: inline-block;
+                float: left;
+                margin-right: 3px;
+                left: 0;
+                transform: translate(0, -50%);
+            }
+
+            span {
+                float: right;
+                line-height: 24px;
+            }
         }
     }
 

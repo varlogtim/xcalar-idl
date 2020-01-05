@@ -4919,47 +4919,6 @@ html.microsoft {
 }
 /* ========== End of Dataflow download ============= */
 
-/* ========== SQL Snippet List ============= */
-#sqlSnippetListModal {
-    @h-without-main: @modal-header-h + @modal-bottom-h;
-    .size(@height: 600px);
-
-    .modalMain {
-        height: ~"calc(100% - @{h-without-main})";
-
-        .label {
-            margin-bottom: 10px;
-        }
-
-        .listSection {
-            overflow-y: auto;
-            border: 1px solid @color-border-softGray;
-
-            .row {
-                padding: 0 16px;
-
-                > span {
-                    display: block;
-                    line-height: 29px;
-                }
-                
-                .name {
-                    float: left;
-                }
-
-                .action {
-                    margin-left: 8px;
-                    float: right;
-                    font-size: 12px;
-                    text-decoration: underline;
-                    color: @color-font-link-blue;
-                }
-            }
-        }
-    }
-}
-/* ========== End of SQL Snippet List ============= */
-
 /* ========== SQL Save List ============= */
 #sqlSnippetSaveModal {
     @h-without-main: @modal-header-h + @modal-bottom-h;
@@ -5036,12 +4995,12 @@ html.microsoft {
 
 /* ========== SQL Func Setting ============= */
 #sqlFuncSettingModal {
-    @h-without-main: @modal-header-h + @modal-bottom-h;
-    .size(@height: 180px);
+    @h-without-main: @modal-header-with-subHeader-h + @modal-bottom-h;
+    .size(@height: 200px, @min-width: 565px);
 
     .modalMain {
         height: ~"calc(100% - @{h-without-main})";
-        @label-w: 160px;
+        @label-w: 170px;
         @margin: 10px;
         @total-w: @label-w + @margin;
 

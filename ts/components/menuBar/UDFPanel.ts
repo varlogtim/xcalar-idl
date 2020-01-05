@@ -58,6 +58,18 @@ class UDFPanel {
     }
 
     /**
+     * open UDF editor
+     */
+    public openEditor(): void {
+        if (
+            !$("#bottomMenu").hasClass("open") ||
+            !$("#udfSection").hasClass("active")
+        ) {
+            $("#udfTab").trigger("click");
+        }
+    }
+
+    /**
      * Clear the UDF editor.
      * @returns void
      */

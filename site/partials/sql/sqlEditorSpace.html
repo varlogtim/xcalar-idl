@@ -27,26 +27,11 @@
         <i class="icon xi-arrow-down"></i>
         <div class="list">
           <ul>
-            <li data-action="list"><%= dicts.SQLEditor.Open %>...</li>
             <li data-action="download"><%= dicts.fileManager.Download %></li>
             include "../../util/menuScrollArea.html"
           </ul>
         </div>
       </button>
-    </div>
-    <div class="row">
-      <span class="xc-action udf"><%= dicts.SQLEditor.WriteUDF %></span>
-      <i class="qMark icon xi-unknown"
-      data-toggle="tooltip"
-      data-container="body"
-      data-title="<%= dicts.SQLEditor.WriteUDFHint %>"
-      data-placement="top"></i>
-      <span class="xc-action sqlFunc"><%= dicts.SQLFunc.Title %></span>
-      <i class="qMark icon xi-unknown"
-      data-toggle="tooltip"
-      data-container="body"
-      data-title="<%= dicts.SQLEditor.SQLFuncHint %>"
-      data-placement="top"></i>
     </div>
   </section>
   <section class="editSection">
