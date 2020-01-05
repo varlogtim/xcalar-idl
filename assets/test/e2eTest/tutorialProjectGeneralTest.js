@@ -13,7 +13,6 @@ module.exports = {
         browser
             .url(browser.globals.buildTestUrl(browser, browser.globals.user))
             .waitForElementVisible('#container', 10000)
-            .waitForElementVisible('#container.noWorkbook', 10000)
             .cancelAlert()
             .cancelTooltipWalkthrough()
     },
@@ -59,7 +58,6 @@ module.exports = {
             })
             .waitForElementVisible("#help-tutorial .category .item .icon")
             .waitForElementVisible("#help-tutorial .category .item .tutorialName")
-            .waitForElementVisible("#help-tutorial .category .item .author")
             .waitForElementVisible("#help-tutorial .category .item .detail")
             .waitForElementVisible("#help-tutorial .category .item button.download")
             .expect.element("#help-tutorial .category .item button.download").text.to.equal(`Download`)
@@ -92,10 +90,10 @@ module.exports = {
 
     'first tutorial project can be downloaded and opened': function(browser) {
         browser
-            .waitForElementVisible("#help-tutorial .category.applications .item:first-of-type .tutorialName")
+            .waitForElementVisible("#help-tutorial .category.Applications .item:first-of-type .tutorialName")
             .pause(3000)
-            .waitForElementVisible("#help-tutorial .category.applications .item:first-of-type button.download")
-            .click("#help-tutorial .category.applications .item:first-of-type button.download")
+            .waitForElementVisible("#help-tutorial .category.Applications .item:first-of-type button.download")
+            .click("#help-tutorial .category.Applications .item:first-of-type button.download")
             .pause(10000)
             .waitForElementNotVisible("#initialLoadScreen", 2 * 60 * 1000)
             .pause(3000)

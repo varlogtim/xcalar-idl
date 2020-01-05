@@ -20,7 +20,6 @@ function replay(testConfig, tags) {
             browser
                 .url(browser.globals.buildTestUrl(browser, browser.globals.user))
                 .waitForElementVisible('#container', 10000)
-                .waitForElementVisible('#container.noWorkbook', 10000)
                 .cancelAlert()
                 .cancelTooltipWalkthrough()
                 .deleteWorkbook(testConfig.workbook)
@@ -41,16 +40,19 @@ function replay(testConfig, tags) {
                 .waitForElementVisible("#helpTopBar .title")
                 .expect.element("#helpTopBar .title").text.to.equal(`HELP & SUPPORT: TUTORIALS`)
             browser
-                .waitForElementVisible("#help-tutorial .category.applications .item." + testConfig.workbook + " .tutorialName")
+                .waitForElementVisible("#help-tutorial .category.Applications .item." + testConfig.workbook + " .tutorialName", 60000)
                 .pause(3000)
-                .expect.element("#help-tutorial .category.applications .item." + testConfig.workbook + " .tutorialName").text.to.contain(`Word Count`)
+                .expect.element("#help-tutorial .category.Applications .item." + testConfig.workbook + " .tutorialName").text.to.contain(`Word Count`)
             browser
-                .waitForElementVisible("#help-tutorial .category.applications .item." + testConfig.workbook + " button.download")
-                .click("#help-tutorial .category.applications .item." + testConfig.workbook + " button.download")
+                .waitForElementVisible("#help-tutorial .category.Applications .item." + testConfig.workbook + " button.download")
+                .click("#help-tutorial .category.Applications .item." + testConfig.workbook + " button.download")
                 .pause(10000)
                 .waitForElementNotVisible("#initialLoadScreen", 2 * 60 * 1000)
-                .pause(3000)
-                .expect.element('#worksheetInfo .wkbkName').text.to.equal(testConfig.workbook)
+                .url(function (response) {
+                    url = new URL(response.value)
+                    workbookName = url.searchParams.get("workbook")
+                    browser.assert.equal(workbookName, testConfig.workbook)
+                });
         },
 
         'word count tutorial project should have the right structure': function(browser) {
@@ -95,6 +97,7 @@ function replay(testConfig, tags) {
                             .executeAll(nodes.length * 10000)
 
                         browser
+                            .pause(10000)
                             .waitForElementVisible(`.dataflowArea.active .operator[data-nodeid="${resultNodeId}"] .main`)
                             .moveToElement(`.dataflowArea.active .operator[data-nodeid="${resultNodeId}"] .main`, 10, 20)
                             .mouseButtonClick('right')

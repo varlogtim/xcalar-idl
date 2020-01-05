@@ -67,7 +67,7 @@ module.exports = {
             .click("#gridViewMenu .deactivate")
             .waitForElementVisible("#alertModal", 10000)
             .click("#alertModal .confirm")
-            .waitForElementVisible("#dsListSection .grid-unit:last-child.inActivated", 20000)
+            .waitForElementVisible("#dsListSection .grid-unit:last-child.inActivated", 60000)
             .moveToElement("#dsListSection .grid-unit:last-child", 10, 10)
             .mouseButtonClick('right')
             .waitForElementVisible("#gridViewMenu", 1000)
@@ -458,6 +458,7 @@ module.exports = {
                 }
             ];
             browser
+                .waitForElementNotVisible("#modalBackground", 300000)
                 .switchTab(newTabName)
                 .cancelAlert()
 

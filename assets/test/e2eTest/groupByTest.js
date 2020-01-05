@@ -12,5 +12,5 @@ module.exports = require('./baseReplayTestFast.js').replay(
 		  {dfName: 'cast (result)', nodeName: 'finalnode'},
        ]
    },
-   ["groupByTest", "allTests"]
+   ["groupByTest"]
 );

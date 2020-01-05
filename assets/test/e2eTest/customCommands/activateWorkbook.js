@@ -8,7 +8,7 @@ class ActivateWorkbook extends EventEmitter {
             .pause(1000)
             .confirmAlert()
             .pause(10000)
-            .waitForElementNotVisible("#initialLoadScreen", 2 * 60 * 1000)
+            .waitForElementNotVisible("#initialLoadScreen", 5 * 60 * 1000)
             .pause(3000);
 
         this.emit('complete');

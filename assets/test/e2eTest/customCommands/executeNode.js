@@ -13,7 +13,8 @@ class ExecuteNode extends EventEmitter {
             .waitForElementNotPresent(".dataflowArea.active.locked")
             .mouseButtonClick('left')
             .waitForElementPresent(".dataflowArea.active.locked", 20000)
-            .waitForElementNotPresent(".dataflowArea.active.locked", time || 100000);
+            .waitForElementNotPresent(".dataflowArea.active.locked", time || 100000)
+            .pause(20000)
 
         this.emit('complete');
         return this;

@@ -11,15 +11,16 @@ class DeleteWorkbook extends EventEmitter {
                 self.api
                     .waitForElementVisible('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"] .dropDown')
                     .click('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"] .dropDown')
+                    .pause(10000)
 
                 self.api.isPresent('.workbookBox.active input[value="' + workbookName + '"]', isPresent => {
                     if (isPresent) {
                         self.api
                             .waitForElementVisible("#wkbkMenu .deactivate")
                             .click("#wkbkMenu .deactivate")
-                            .pause(1000)
+                            .pause(5000)
                             .click("#alertModal .confirm")
-                            .waitForElementNotVisible("#modalBackground", 10000);
+                            .waitForElementNotVisible("#modalBackground", 30000);
                     }
                     self.api
                         .waitForElementNotPresent('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"].active', 50000)

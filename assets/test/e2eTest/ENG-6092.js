@@ -51,6 +51,7 @@ module.exports = {
     'execute aggregate': function(browser) {
         browser
         .executeNode('.operator[data-type="singleValue"]')
+        .pause(10000)
         .moveToElement(`.dataflowArea.active .operator[data-type="singleValue"] .main`, 10, 20)
         .mouseButtonClick('right')
         .waitForElementVisible("#dagNodeMenu", 1000)

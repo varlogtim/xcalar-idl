@@ -6,15 +6,18 @@ class EnsureHomeScreenOpen extends EventEmitter {
             if (results.value) {
                 /* is visible */
             } else {
-                this.api.moveToElement("#homeBtn", 0, 0)
-                    .mouseButtonClick("left");
+                this.api
+                    .waitForElementNotVisible("#modalBackground", 30000)
+                    .moveToElement("#homeBtn", 0, 0)
+                    .mouseButtonClick("left")
+                    .pause(10000)
+                    .waitForElementNotVisible("#modalBackground", 120000)
+                    .pause(10000)
+                    .waitForElementVisible("#workbookPanel", 120000)
             }
+            this.emit('complete');
+            return this;
         });
-        this.api
-            .waitForElementNotVisible("#modalBackground", 10000)
-            .waitForElementVisible("#workbookPanel")
-        this.emit('complete');
-        return this;
     }
 }
 

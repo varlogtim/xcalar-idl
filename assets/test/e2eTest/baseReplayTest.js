@@ -319,7 +319,7 @@ function replay(testConfig, tags) {
                     .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
                     .mouseButtonClick('left')
                     .waitForElementVisible('#dagViewTableArea .totalRows', 20000)
-		    .pause(1000)
+                    .pause(10000)
                     .getText('#dagViewTableArea .totalRows', ({value}) => {
                         browser.assert.equal(value, "0");
                     });
