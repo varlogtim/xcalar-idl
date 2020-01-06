@@ -75,7 +75,7 @@ namespace XIApi {
         if (tableName == null || tableName === '') {
             return false;
         }
-        const regexp: RegExp = new RegExp('^.*#[a-zA-Z0-9_]+$');
+        const regexp: RegExp = new RegExp('^.*#[a-zA-Z0-9_\-]+$');
         return regexp.test(tableName);
     }
 

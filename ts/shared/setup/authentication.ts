@@ -1,6 +1,7 @@
 // XXX TODO: rename or clean up this file
 class Authentication {
     private static uid: XcUID;
+    private static keyMap = {};
 
     /**
      * Authentication.getCount
@@ -21,6 +22,14 @@ class Authentication {
         }
     }
 
+    /**
+     * Authentication.getTableId
+     */
+    public static getTableId(key = null): string {
+        const idCount: string = this._getTableUid(key).gen();
+        return ("#" + idCount);
+    }
+
     private static _getUId(): XcUID {
         if (this.uid == null) {
             // Note that . and - is not good for HTML rendering reason
@@ -31,5 +40,24 @@ class Authentication {
             });
         }
         return this.uid;
+    }
+
+    private static _getTableUid(key): XcUID {
+        let uid: XcUID = this.keyMap[key];
+        if (uid == null) {
+            uid = new XcUID("v");
+            uid.setGenerator((prefix: string, count: number): string => {
+                const date = new Date();
+                return prefix + "_" + count + "_" +
+                        date.getUTCFullYear() + "-" +
+                        (date.getUTCMonth() + 1) + "-" +
+                        date.getUTCDate() + "T" +
+                        date.getUTCHours() +
+                        date.getUTCMinutes() +
+                        date.getUTCSeconds() + "Z";
+            });
+        }
+        this.keyMap[key] = uid;
+        return uid;
     }
 }

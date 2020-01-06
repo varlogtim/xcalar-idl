@@ -1327,6 +1327,20 @@ namespace xcHelper {
         return tableName;
     }
 
+    export function genTableNameFromNode(node: DagNode): string {
+        try {
+            return node.getParents()
+            .map((parentNode) => {
+                const parentTable = parentNode.getTable();
+                return xcHelper.getTableName(parentTable);
+            })
+            .join("_");
+        } catch (e) {
+            console.error("generate table name from node error", e);
+            return "table";
+        }
+    }
+
     /**
      * xcHelper.getTableId
      * expects 'schedule#AB12' and retuns 'AB12'

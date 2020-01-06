@@ -40,7 +40,7 @@ class XcDagTableViewer extends XcTableViewer {
     }
 
     public getTitle(): string {
-        return this.dagNode.getTitle();
+        return this.table.getName() + " from " + this.dagNode.getTitle();
     }
 
     /**

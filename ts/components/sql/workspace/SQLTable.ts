@@ -86,6 +86,7 @@ class SQLTable {
         const viewer = this._currentViewer;
         const $tableSection: JQuery = $container.find(".tableSection");
         viewer.setContainer($container);
+        this._renderTableNameArea(viewer);
         viewer.render($tableSection, true)
         .then(() => {
             $container.removeClass("loading");
@@ -158,5 +159,10 @@ class SQLTable {
             return false;
         }
         return true;
+    }
+
+    private _renderTableNameArea(viewer: XcViewer) {
+        const $nameArea: JQuery = this._getContainer().find(".tableNameArea");
+        $nameArea.find(".name").text(viewer.getId());
     }
 }

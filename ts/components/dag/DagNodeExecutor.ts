@@ -198,14 +198,27 @@ class DagNodeExecutor {
         return parentNode.getTable();
     }
 
-    private _generateTableName(): string {
+    private _generateTableName(source?: string): string {
         let tabId = this.tabId;
         if (tabId == null) {
             tabId = this._getClosestTabId(this.txId);
         }
 
-        return DagNodeExecutor.getTableNamePrefix(tabId) +
-        "_" + this.node.getId() + Authentication.getHashId();
+        try {
+            let prefix: string = "";
+            if (source) {
+                prefix = source;
+            } else {
+                prefix = xcHelper.genTableNameFromNode(this.node);
+            }
+            return prefix + Authentication.getTableId(tabId);
+        } catch (e) {
+            console.error("generate table name error", e);
+            // when has error case, use the old behavior
+            // XXX TODO: deprecate it
+            return DagNodeExecutor.getTableNamePrefix(tabId) +
+            "_" + this.node.getId() + Authentication.getHashId();
+        }
     }
 
     private _getClosestTabId(txId) {
@@ -306,7 +319,7 @@ class DagNodeExecutor {
     }
 
     private _indexDataset(dsName: string, prefix: string): XDPromise<string> {
-        const desTable = this._generateTableName();
+        const desTable = this._generateTableName(xcHelper.parseDSName(dsName).dsName);
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         XIApi.indexFromDataset(this.txId, dsName, desTable, prefix)
         .then((ret) => {
@@ -320,7 +333,7 @@ class DagNodeExecutor {
         dsName: string,
         schema: ColSchema[],
     ): XDPromise<string> {
-        const desTable = this._generateTableName();
+        const desTable = this._generateTableName(xcHelper.parseDSName(dsName).dsName);
         const colInfos: ColRenameInfo[] = xcHelper.getColRenameInfosFromSchema(schema);
         // when load dataset, the dataset should always be from the same seesion
         let sameSession: boolean = true;
@@ -1250,7 +1263,7 @@ class DagNodeExecutor {
         const params: DagNodeIMDTableInputStruct = node.getParam(this.replaceParam);
         //XXX TODO: Integrate with new XIAPI.publishTable
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        const newTableName = this._generateTableName();
+        const newTableName = this._generateTableName(params.source);
         let cols: RefreshColInfo[] = this._getRefreshColInfoFromSchema(params.schema);
         let limitedRows: number = params.limitedRows;
         if (isNaN(limitedRows) || limitedRows < 0 || !Number.isInteger(limitedRows)) {

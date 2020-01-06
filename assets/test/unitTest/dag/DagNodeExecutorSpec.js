@@ -176,7 +176,7 @@ describe("DagNodeExecutor Test", () => {
                 type: 0
             }]);
             expect(dsName).to.equal(".XcalarDS.dsName");
-            expect(desTable.startsWith("table_undefined_dag")).to.be.true;
+            expect(desTable.startsWith("dsName")).to.be.true;
             expect(sameSession).to.be.true;
             called = true;
             return PromiseHelper.resolve();
@@ -368,7 +368,7 @@ describe("DagNodeExecutor Test", () => {
                 ]
             );
             expect(joinOpts.keepAllColumns).to.be.true;
-            expect(joinOpts.newTableName.startsWith("table_undefined_dag")).to.be.true;
+            expect(joinOpts.newTableName.startsWith("testTable")).to.be.true;
             called = true;
             return PromiseHelper.resolve("newTableName");
         };

@@ -1582,8 +1582,22 @@ class DagNodeSQL extends DagNode {
     }
 
     private _generateTableName(tag: string, tabId?: string): string {
-        return "table_" + (tabId ? tabId : "") + "_" + this.getId()
+        try {
+            let prefix = xcHelper.genTableNameFromNode(this);
+            if (prefix == "") {
+                const identifiersList: string[] = [];
+                this.identifiers.forEach((identifier) => identifiersList.push(identifier));
+                prefix = identifiersList.join("_");
+            }
+            return prefix + (tag ? "_" + tag : "") +
+                    Authentication.getTableId(tabId);
+        } catch (e) {
+            console.error("generate table name error", e);
+            // when has error case, use the old behavior
+            // XXX TODO: deprecate it
+            return "table_" + (tabId ? tabId : "") + "_" + this.getId()
                 + (tag ? "_" + tag : "") + Authentication.getHashId();
+        }
     }
 }
 
