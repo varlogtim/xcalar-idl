@@ -631,6 +631,28 @@
     }
 }
 
+#sqlHintMenu {
+    &.table {
+        .columns, .udf {
+            display: none;
+        }
+    }
+
+    &.column {
+        .tables, .sqlFunc {
+            display: none;
+        }
+    }
+}
+
+#sqlHintSubMenu {
+    max-height: 200px !important;
+
+    .new {
+        color: @color-font-link-blue;
+    }
+}
+
 #sqlTableArea {
     &.loading, &.error {
         .bottomSection button {

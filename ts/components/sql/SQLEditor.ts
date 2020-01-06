@@ -254,6 +254,7 @@ class SQLEditor {
             }
         );
         this._addEventListeners();
+        this._setupHintMenu();
         this.refresh();
     }
 
@@ -398,6 +399,136 @@ class SQLEditor {
         }
     }
 
+    private _insertText(text: string): void {
+        this._editor.getDoc().replaceSelection(text);
+    }
+
+    private _getHintMenu(): JQuery {
+        return $("#sqlHintMenu");
+    }
+
+    private _getHintSubMenu(): JQuery {
+        return $("#sqlHintSubMenu");
+    }
+
+    private _setupHintMenu(): void {
+        const $menu = this._getHintMenu();
+        const $subMenu = this._getHintSubMenu();
+        xcMenu.add($menu);
+
+        $subMenu.on("click", "li", (el) => {
+            const $li = $(el.currentTarget);
+            if ($li.hasClass("newSQLFunc")) {
+                DagViewManager.Instance.createSQLFunc(true);
+            } else if ($li.hasClass("tableName") || $li.hasClass("columnName")) {
+                this._insertText($li.text());
+            } else if ($li.hasClass("funcName") || $li.hasClass("udfName")) {
+                this._insertText($li.text() + "()");
+            } else if ($li.hasClass("newUDF")) {
+                UDFFileManager.Instance.open("sql.py");
+            }
+        });
+    }
+
+    private _showHintMenu(instance: CodeMirror.Editor, changeObj): void {
+        try {
+            if (changeObj.text[0] !== " ") {
+                // a quick filter
+                this._getHintMenu().hide();
+                this._getHintSubMenu().hide();
+                return;
+            }
+            const text: string = instance.getDoc().getRange({
+                line: changeObj.from.line,
+                ch: 0
+            }, changeObj.to).toLowerCase();
+
+            const classNames: string[] = [];
+            if (text.endsWith("from")) {
+                classNames.push("table");
+                this._renderTableHint();
+                this._renderSQLFuncHint();
+            } else if (text.endsWith("select")) {
+                classNames.push("column");
+                this._renderColumnHint();
+                this._renderUDFHint();
+            }
+            if (classNames.length) {
+                // XXXX TODO: hide codemirror's hint menu
+                const $menu = this._getHintMenu();
+                const coords = instance.cursorCoords(true);
+                MenuHelper.dropdownOpen(null, $menu, {
+                    "mouseCoors": {
+                        "x": coords.left + 10,
+                        "y": coords.top + 20
+                    },
+                    "classes": classNames.join(" "),
+                    "floating": true
+                });
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    private _renderTableHint(): void {
+        const list: HTML = SQLResultSpace.Instance.getAvailableTables()
+        .map((table) => '<li class="tableName">' + table.name + '</li>')
+        .join("");
+        this._getHintSubMenu().find(".tables").html(list);
+    }
+
+    private _renderSQLFuncHint(): void {
+        let list: HTML = DagTabSQLFunc.listFuncs()
+        .map((func) => '<li class="funcName">' + func + '</li>')
+        .join("");
+        list = '<li class="new newSQLFunc">' +
+                    '<i class="icon xi-plus"></i>' +
+                    '<span>' + SQLTStr.CreateFunc + '</span>' +
+                '</li>' +
+                list;
+        this._getHintSubMenu().find(".sqlFunc").html(list);
+    }
+
+    // XXX TODO: combine with _getAutoCompleteHint in SQLEditorSpace.ts
+    private _renderColumnHint(): void {
+        const columnSet: Set<string> = new Set();
+        SQLResultSpace.Instance.getAvailableTables().forEach((table) => {
+            table.columns.forEach((col) => {
+                const upperName = col.name.toUpperCase();
+                if (col.name != "DATA" &&
+                    !upperName.startsWith("XCALARRANKOVER") &&
+                    !upperName.startsWith("XCALAROPCODE") &&
+                    !upperName.startsWith("XCALARBATCHID") &&
+                    !upperName.startsWith("XCALARROWNUMPK")) {
+                    columnSet.add(col.name);
+                }
+            });
+        });
+
+        const columns: string[] = [];
+        columnSet.forEach((name) => columns.push(name));
+        columns.sort();
+        columns.unshift("*");
+        const list: HTML = columns
+        .map((column) => '<li class="columnName">' + column + '</li>')
+        .join("");
+        this._getHintSubMenu().find(".columns").html(list);
+    }
+
+    private _renderUDFHint(): void {
+        let list: HTML = UDFFileManager.Instance.listSQLUDFFuncs()
+        .map((udfFunc) => '<li class="udfName">' + udfFunc.name + '</li>')
+        .join("");
+
+        list = '<li class="new newUDF">' +
+                    '<i class="icon xi-plus"></i>' +
+                    '<span>' + SQLTStr.CreateUDF + '</span>' +
+                '</li>' +
+                list;
+        this._getHintSubMenu().find(".udf").html(list);
+    }
+
     private _addEventListeners(): void {
         const self = this;
         self._editor.on("keyup", function(_cm, e) {
@@ -415,6 +546,10 @@ class SQLEditor {
                     event(self._editor);
                 }
             }
+        });
+
+        self._editor.on("change", function(instance, changeObj) {
+            self._showHintMenu(instance, changeObj);
         });
 
         self._keywordsToRemove.forEach(function(key) {

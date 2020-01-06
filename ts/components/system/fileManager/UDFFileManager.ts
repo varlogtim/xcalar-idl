@@ -10,6 +10,7 @@ class UDFFileManager extends BaseFileManager {
     private userIDWorkbookMap: Map<string, Map<string, string>>;
     private userWorkbookIDMap: Map<string, Map<string, string>>;
     private panels: FileManagerPanel[];
+    private storedSQLFuncs: {name: string, numArg: number}[];
 
     /*
      * Pay special attention when dealing with UDF paths / names.
@@ -55,6 +56,7 @@ class UDFFileManager extends BaseFileManager {
         this.userIDWorkbookMap = new Map();
         this.userWorkbookIDMap = new Map();
         this.panels = [];
+        this.storedSQLFuncs = [];
     }
 
     /**
@@ -301,6 +303,10 @@ class UDFFileManager extends BaseFileManager {
     public list(prefix?: string): XDPromise<any> {
         prefix = prefix || "";
         return XcalarListXdfs(prefix + "*", "User*");
+    }
+
+    public listSQLUDFFuncs(): {name: string, numArg: number}[] {
+        return this.storedSQLFuncs;
     }
 
     /**
@@ -933,10 +939,20 @@ class UDFFileManager extends BaseFileManager {
         listXdfsObj: XcalarApiListXdfsOutputT,
         prefix?: string
     ) {
+        this.storedSQLFuncs = [];
+        const sqlUDFPath: string = UDFFileManager.Instance.getCurrWorkbookPath() + "sql";
         const newStoredUDF: Map<string, string> = new Map();
         listXdfsObj.fnDescs.forEach((udf: XcalarEvalFnDescT) => {
-            const nsPath: string = udf.fnName.split(":")[0];
+            const splits = udf.fnName.split(":");
+            const nsPath: string = splits[0];
             newStoredUDF.set(nsPath, this.storedUDF.get(nsPath));
+
+            if (sqlUDFPath === nsPath) {
+                this.storedSQLFuncs.push({
+                    name: splits[1],
+                    numArg: udf.numArgs
+                });
+            }
         });
 
         // prefix != null means the output is partial. Should add those who

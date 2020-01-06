@@ -1568,6 +1568,7 @@ SQLTStr = {
     "FuncInstr": "SQL Function can be used as part of the SQL query, the function can accept one or more inputs tables and output a table. You can build any transformation & business logic between the inputs and output",
     "DupFuncName": "SQL function name already in use",
     "CreateFunc": "Create new SQL function",
+    "CreateUDF": "Create new UDF",
     "WorkSpace": "SQL WorkSpace",
     "DeleteSnippet": "Delete Query",
     "DeleteSnippetMsg": "Are you sure you want to delete query \"<name>\"?",

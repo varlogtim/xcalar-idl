@@ -1003,8 +1003,17 @@ class DagViewManager {
      */
     public createSQLFunc(isFromSQLMode: boolean): void {
         let onSubmit: Function = (numInput) => {
-            DagView.newSQLFunc(numInput);
-            DagList.Instance.gotToSQLFuncFolder();
+            if (isFromSQLMode) {
+                XVM.setMode(XVM.Mode.Advanced)
+                .then(function() {
+                    $("#modelingDataflowTab").click();
+                    DagView.newSQLFunc(numInput);
+                    DagList.Instance.gotToSQLFuncFolder();
+                });
+            } else {
+                DagView.newSQLFunc(numInput);
+                DagList.Instance.gotToSQLFuncFolder();
+            }
         };
         let onCancel: Function = null;
         if (isFromSQLMode) {
