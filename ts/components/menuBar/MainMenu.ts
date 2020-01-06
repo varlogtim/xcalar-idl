@@ -96,7 +96,9 @@ namespace MainMenu {
     };
 
     export function openDefaultPanel(openMenu: boolean = false): void {
-        if (XVM.isSQLMode()) {
+        if (XVM.isDataMart()) {
+            MainMenu.openPanel("sqlPanel");
+        } else if (XVM.isSQLMode()) {
             MainMenu.openPanel("sqlPanel");
         } else {
             MainMenu.openPanel("dagPanel");
