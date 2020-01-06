@@ -11,16 +11,27 @@ class UDFPanel {
     private dropdownHint: InputDropdownHint;
     private isSetup: boolean;
     private readonly udfDefault: string =
-        "# PLEASE TAKE NOTE:\n\n" +
-        "# UDFs can only support\n" +
-        "# return values of\n" +
-        "# type String.\n\n" +
-        "# Function names that\n" +
-        "# start with __ are\n" +
-        "# considered private\n" +
-        "# functions and will not\n" +
-        "# be directly invokable.\n\n";
-
+        "# PLEASE TAKE NOTE:\n" +
+        "# \n" +
+        "# UDFs works on one or more\n" +
+        "# fields of a table row\n" +
+        "# and/or on literal values.\n" +
+        "# Function automatically\n" +
+        "# applys to all rows of a\n" +
+        "# table.\n" +
+        "# \n" +
+        "# Function def:\n" +
+        "# 'def' NAME parameters ':'\n" +
+        "#     [TYPE_COMMENT]\n" +
+        "#     func_body_suite\n" +
+        "# full grammar here: https://docs.python.org/3.6/reference/grammar.html\n" +
+        "# Note: Return type is always\n" +
+        "# treated as string\n" +
+        "# \n" +
+        "# ex:\n" +
+        "# def udf_sum(col1, col2):\n" +
+        "#     return col1 + col2;\n" +
+        "# \n";
     /**
      * @returns void
      */
