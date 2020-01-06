@@ -440,13 +440,13 @@ enum PbTblState {
     Loading = "Loading",
     BeDataset = "BeDataset",
     Error = "Error",
-    Activating = "Activating",
-    Deactivating = "Deactivating"
+    Activating = "Recreating",
+    Deactivating = "Deleting"
 }
 
 enum PbTblStatus {
-    Active = "Active",
-    Inactive = "Inactive"
+    Active = "Resident",
+    Inactive = "Non-Resident"
 }
 
 enum DataSourceSchemaEvent {

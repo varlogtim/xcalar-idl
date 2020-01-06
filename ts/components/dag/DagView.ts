@@ -3017,7 +3017,7 @@ class DagView {
                 style="left:${left}px;top:${y}px;">
                 <table>
                  <thead>
-                    <th colspan="2">Activating Dataset</th>
+                    <th colspan="2">Recreating Dataset</th>
                 </thead>
                 <tbody>
                     <tr>

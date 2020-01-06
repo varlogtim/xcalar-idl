@@ -183,6 +183,7 @@ module.exports = {
         "CreateParamQuery": "Customize operation",
         "CreateTarget": "Create new connector",
         "Del": "Delete",
+        "PermanentDel": "Permanently Delete",
         "DelCol": "Delete column",
         "DelColPlura": "Delete columns",
         "DelTarget": "Delete connector",
@@ -226,8 +227,8 @@ module.exports = {
         "Join": "Join",
         "Jupyter": "Convert to Jupyter DF",
         "LockTbl": "Lock table",
-        "ActivateDS": "Activate dataset",
-        "DeactivateDS": "Deactivate dataset",
+        "ActivateDS": "Recreate dataset",
+        "DeactivateDS": "Delete dataset",
         "Map": "Map",
         "Move": "Move",
         "MoveUp": "Move up a level",
@@ -373,8 +374,8 @@ module.exports = {
         "Export": "Export Result",
         "Preview": "Preview of Table",
         "Show": "Show Tables",
-        "Activate": "Activate Table",
-        "Deactivate": "Deactivate Table",
+        "Activate": "Recreate Table",
+        "Deactivate": "Delete Table",
         "Tables": "Tables",
         "Schema": "Schema",
         "ViewTables": "View Tables",
@@ -702,7 +703,7 @@ module.exports = {
         "Back": "Click to go back",
         "Forward": "Click to go forward",
         "addFolderBtn": "Add New Folder",
-        "delDSBtn": "Delete folder or dataset"
+        "delDSBtn": "Permanently delete folder or dataset"
     },
 
     "dsForm": {

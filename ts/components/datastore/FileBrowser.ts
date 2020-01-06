@@ -1075,7 +1075,6 @@ namespace FileBrowser {
     function setPath(path: string): void {
         path = path || "";
         $pathSection.find(".text").val(path);
-        console.log("set path", path);
     }
 
     function appendPath(
@@ -2460,7 +2459,6 @@ namespace FileBrowser {
         const $fileInfoTop = $infoContainer.find(".fileInfoTop");
         if (!$grid) {
             $fileInfoTop.addClass("pathInfoMode");
-            console.log(searchInfo, curFiles, getCurrentPath());
             if (searchInfo) {
                 $fileInfoTop.find(".path .label").text("Searching:");
             } else {

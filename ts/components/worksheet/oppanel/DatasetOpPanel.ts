@@ -203,9 +203,9 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         if (file.options && file.options.inActivated) {
             let inactiveHtml = "";
             if (DS.isLoading(file.id)) {
-                inactiveHtml = '<div class="activating">Activating</div>';
+                inactiveHtml = '<div class="activating">' + DSTStr.DSActivating + '</div>';
             } else {
-                inactiveHtml = '<div class="actButton">Activate</div>';
+                inactiveHtml = '<div class="actButton">' + DSTStr.Activate + '</div>';
             }
             html +=
             '<li class="fileName inActivated"' +
@@ -541,7 +541,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 msg: DSTStr.DFActivateDSMsg,
                 onConfirm: () => {
                     $btn.remove();
-                    $dataset.append('<div class="activating">Activating</div>');
+                    $dataset.append('<div class="activating">' + DSTStr.DSActivating + '</div>');
                     let deferred: XDDeferred<void> = PromiseHelper.deferred();
                     DS.activate([id], false)
                     .always(() => {
