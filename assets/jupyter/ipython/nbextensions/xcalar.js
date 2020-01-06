@@ -551,7 +551,7 @@ define(['base/js/utils'], function(utils) {
                             deferred.reject({error: "failed to create folder"});
                         } else if (e.message.indexOf("No such file") > -1) {
                             deferred.reject({error: "folder not found"});
-                        } if (e.message.indexOf("File already exists") === 0 &&
+                        } else if (e.message.indexOf("File already exists") === 0 &&
                             attemptNumber < 10) {
                             renameFolderHelper(struct, struct.folderName + "_" + attemptNumber, prevName, attemptNumber, deferred);
                         } else { // last try
