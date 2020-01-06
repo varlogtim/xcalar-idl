@@ -27,7 +27,6 @@ class DSFormController {
     private path: string;
     private udfModule: string;
     private udfFunc: string;
-    private dataMartName: string;
 
     public constructor() {
     }
@@ -79,7 +78,6 @@ class DSFormController {
         this.originalHeadersList = [];
         this.suggestHeadersList = [];
         this.files = [];
-        this.dataMartName = "";
 
         delete this.multiDS;
         delete this.targetName;
@@ -278,13 +276,5 @@ class DSFormController {
 
             return deferred.promise();
         }
-    }
-
-    public setDataMartName(dataMartName: string): void {
-        this.dataMartName = dataMartName;
-    }
-
-    public getDataMartName(): string {
-        return this.dataMartName;
     }
 }

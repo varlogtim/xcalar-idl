@@ -14,7 +14,6 @@ interface DSPreviewOptions {
     advancedArgs?: any;
     targetName?: string;
     multiDS?: boolean;
-    dataMartName?: string;
 }
 
 namespace DSConfig {
@@ -877,31 +876,6 @@ namespace DSConfig {
             $(this).closest(".topSection").toggleClass("collapse");
         });
 
-        let $dataMartDropDown = $form.find(".dropDownList.dataMartsList");
-        new MenuHelper($dataMartDropDown, {
-            onOpen: () => {
-                let html: HTML = _renderDataMartsList();
-                $dataMartDropDown.find("ul").html(html);
-            },
-            onSelect: ($li) => {
-                let $input = $dataMartDropDown.find("input");
-                if ($li.hasClass("createNew")) {
-                    (async () => {
-                        const dataMartName: string = await TblSource.Instance.newDataMart();
-                        if (dataMartName) {
-                            $input.val(dataMartName);
-                            loadArgs.setDataMartName(dataMartName);
-                        }
-                    })();
-                } else {
-                    let dataMartName: string = $li.text();
-                    $input.val(dataMartName);
-                    loadArgs.setDataMartName(dataMartName);
-                }
-            },
-            container: "#dsForm-config",
-            bounds: "#dsForm-config",
-        }).setupListeners();
 
         // set up format dropdownlist
         new MenuHelper($("#fileFormat"), {
@@ -1653,7 +1627,6 @@ namespace DSConfig {
 
         // skip rows
         $("#dsForm-skipRows").val(options.skipRows || 0);
-        $form.find(".dataMartsList .text").val(options.dataMartName || "");
 
         detectArgs = {
             "fieldDelim": options.fieldDelim,
@@ -1786,8 +1759,7 @@ namespace DSConfig {
             "advancedArgs": advancedArgs,
             "schema": res.schema,
             "newNames": res.newNames,
-            "primaryKeys": res.primaryKeys,
-            "dataMartName": res.dataMartName
+            "primaryKeys": res.primaryKeys
         };
         let curPreviewId = previewId;
 
@@ -2154,19 +2126,6 @@ namespace DSConfig {
     function getSchemaFromPreviewTable() {
         let headers = getColumnHeaders(null);
         return getSchemaFromHeader(headers);
-    }
-
-    function validateDataMartName(): string | null {
-        let dataMart = loadArgs.getDataMartName();
-        const isValid: boolean = xcHelper.validate([{
-            "$ele": $form.find(".dataMartsList .text")
-        }]);
-
-        if (!isValid) {
-            return null;
-        }
-
-        return dataMart;
     }
 
     function validateDSNames(): string[] | null {
@@ -2719,15 +2678,6 @@ namespace DSConfig {
     }
 
     function validateForm(): any {
-        let dataMartName = "";
-        if (isCreateTableMode()) {
-            dataMartName = validateDataMartName();
-            if (dataMartName == null) {
-                // error case
-                return null;
-            }
-        }
-
         let dsNames = validateDSNames();
         if (dsNames == null) {
             // error case
@@ -2865,8 +2815,7 @@ namespace DSConfig {
             "skipRows": skipRows,
             "schema": schema,
             "newNames": schemaArgs.newNames,
-            "primaryKeys": schemaArgs.primaryKeys,
-            "dataMartName": dataMartName
+            "primaryKeys": schemaArgs.primaryKeys
         };
 
         return $.extend(args, advanceArgs);
@@ -6939,14 +6888,6 @@ namespace DSConfig {
         return {};
     }
     // End === PreviewLoader component factory
-
-    function _renderDataMartsList(): HTML {
-        let html: HTML = '<li class="createNew">+ Create New Data Mart</li>';
-        TblSource.Instance.getDataMarts().getAllList().forEach((dataMart) => {
-            html += `<li>${dataMart.name}</li>`
-        });
-        return html;
-    }
 
     /* Unit Test Only */
     export let __testOnly__: any = {};
