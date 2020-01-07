@@ -179,6 +179,12 @@ abstract class DSConnectorPanel {
             this._preview();
         });
 
+        this._getPathInput().on("keydown", function(event) {
+            if (event.which === keyCode.Enter) {
+                $card.find(".browse").click();
+            }
+        });
+
         $card.find(".back").click(() => {
             // back to data source panel
             this._clear();

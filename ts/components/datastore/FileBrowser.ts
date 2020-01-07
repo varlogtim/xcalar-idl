@@ -2498,10 +2498,12 @@ namespace FileBrowser {
         $fileIcon.removeClass();
         if (isFolder) {
             $fileIcon.addClass("xi-folder");
-            $infoContainer.find(".fileRawData .btn").addClass("xc-disabled");
+            $infoContainer.find(".fileRawData").addClass("xc-hidden");
+            $infoContainer.find(".folderNumItems").removeClass("xc-hidden");
         }
         else {
-            $infoContainer.find(".fileRawData .btn").removeClass("xc-disabled");
+            $infoContainer.find(".fileRawData").removeClass("xc-hidden");
+            $infoContainer.find(".folderNumItems").addClass("xc-hidden")
             if (fileType && listFormatMap.hasOwnProperty(fileType) &&
                 gridFormatMap.hasOwnProperty(fileType)) {
                 $fileIcon.addClass(gridFormatMap[fileType]);

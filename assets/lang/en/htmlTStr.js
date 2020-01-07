@@ -790,7 +790,8 @@ module.exports = {
         "ModifiedDate": "Modified",
         "Kind": "Kind",
         "Folder": "Folder",
-        "Dataset": "Dataset"
+        "Dataset": "Dataset",
+        "NumItems": "Number of items"
     },
 
     "dsFormat": {
