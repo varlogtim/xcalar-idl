@@ -430,19 +430,21 @@ class SQLEditor {
         });
     }
 
-    private _showHintMenu(instance: CodeMirror.Editor, changeObj): void {
+    public showHintMenu(cm: CodeMirror.Editor): boolean {
         try {
-            if (changeObj.text[0] !== " ") {
+            const cursor = cm.getCursor();
+            let text: string = cm.getDoc().getRange({
+                line: cursor.line,
+                ch: 0
+            }, cursor).toLowerCase();
+            if (text[text.length - 1] !== " ") {
                 // a quick filter
                 this._getHintMenu().hide();
                 this._getHintSubMenu().hide();
-                return;
+                return false;
             }
-            const text: string = instance.getDoc().getRange({
-                line: changeObj.from.line,
-                ch: 0
-            }, changeObj.to).toLowerCase();
 
+            text = text.substring(0, text.length - 1);
             const classNames: string[] = [];
             if (text.endsWith("from")) {
                 classNames.push("table");
@@ -454,9 +456,8 @@ class SQLEditor {
                 this._renderUDFHint();
             }
             if (classNames.length) {
-                // XXXX TODO: hide codemirror's hint menu
                 const $menu = this._getHintMenu();
-                const coords = instance.cursorCoords(true);
+                const coords = cm.cursorCoords(true);
                 MenuHelper.dropdownOpen(null, $menu, {
                     "mouseCoors": {
                         "x": coords.left + 10,
@@ -465,10 +466,12 @@ class SQLEditor {
                     "classes": classNames.join(" "),
                     "floating": true
                 });
+                return true;
             }
         } catch (e) {
             console.error(e);
         }
+        return false;
     }
 
     private _renderTableHint(): void {
@@ -546,10 +549,6 @@ class SQLEditor {
                     event(self._editor);
                 }
             }
-        });
-
-        self._editor.on("change", function(instance, changeObj) {
-            self._showHintMenu(instance, changeObj);
         });
 
         self._keywordsToRemove.forEach(function(key) {

@@ -132,7 +132,10 @@ class SQLEditorSpace {
                 this.cancelExecution();
             },
             onAutoComplete: (editor: CodeMirror.Editor) => {
-                editor.execCommand("autocompleteSQLInVDW");
+                const hasHint = self._sqlEditor.showHintMenu(editor);
+                if (!hasHint) {
+                    editor.execCommand("autocompleteSQLInVDW");
+                }
             }
         }
         this._sqlEditor = new SQLEditor("sqlEditorSpace-editor", callbacks);
