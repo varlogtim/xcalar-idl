@@ -864,6 +864,8 @@ module.exports = {
         "dataflows": "Modules",
         "create": "CREATE",
         "CreateDF": "Create new module",
+        "NewModule": "New Module",
+        "NewModuleHint": "Create new transformation & business logic module",
         "noColsHint": "No columns are available for export",
         "filterHint": "Showing only filtered columns",
         "newParam": "new parameter",

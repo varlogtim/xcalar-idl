@@ -1179,6 +1179,12 @@ class DagList extends Durable {
     private _addEventListeners(): void {
         const $dagListSection: JQuery = this._getDagListSection();
         const $iconSection: JQuery = this._getIconSection();
+        const $buttonSection: JQuery = this._getDagListMenuEl().find(".buttonSection");
+
+        $buttonSection.find(".newModule").click(() => {
+            DagTabManager.Instance.newTab();
+        });
+
         $iconSection.find(".refreshBtn").click(() => {
             this.refresh();
         });
