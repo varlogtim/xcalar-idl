@@ -5,7 +5,7 @@ class ConfirmAlert extends EventEmitter {
         this.api.isVisible("#alertModal", results => {
             if (results.value) { // close alert modal if visible
                 this.api
-                    .pause(5000)
+                    .waitForElementVisible("#alertModal #alertActions button.confirm")
                     .click("#alertModal #alertActions button.confirm")
             }
             this.api
