@@ -86,6 +86,7 @@ namespace xcManager {
         .then(function() {
             try {
                 $("#topMenuBarTabs").removeClass("xc-hidden");
+                $("#bottomMenuBarTabs").removeClass("xc-hidden");
                 MainMenu.setup();
                 setupModeArea();
                 ExtensionManager.loadEnabledExtension(); // async load of extnesion
@@ -195,6 +196,7 @@ namespace xcManager {
     function handleSetupFail(error: string|object, firstTimeUser: boolean): void {
         // in case it's not setup yet
         $("#topMenuBarTabs").removeClass("xc-hidden");
+        $("#bottomMenuBarTabs").removeClass("xc-hidden");
         MainMenu.setup();
         QueryManager.setup();
         Alert.setup();
@@ -754,8 +756,7 @@ namespace xcManager {
         if (XVM.isDataMart()) {
             $modeArea.remove();
             $container.removeClass("sqlMode")
-                    .removeClass("advMode")
-                    .addClass("dataMart");
+                    .removeClass("advMode");
         } else if (XVM.isSQLMode()) {
             currentText = ModeTStr.SQL;
             nextText = ModeTStr.Advanced;
@@ -1525,6 +1526,7 @@ namespace xcManager {
     }
 
     function setupDataMart(): void {
+        $("#container").addClass("dataMart")
         $("#workbookPanel").find(".monitorBox").remove();
         $("#monitorTab").addClass("xc-hidden");
         $("#dagViewBar .parameters").addClass("xc-hidden");
