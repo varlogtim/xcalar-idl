@@ -54,9 +54,7 @@ class FormHelper {
     private state: string;
     private mainMenuState: {
         isPoppedOut: boolean,
-        isTopOpen: boolean,
         isBottomOpen: boolean,
-        $activeTopSection: JQuery,
         $activeBottomSection: JQuery,
         $activeDataflowMenu: JQuery
     };
@@ -303,7 +301,7 @@ class FormHelper {
             deferred.resolve();
         }
 
-        if ($form.closest('#mainMenu').length) {
+        if ($form.closest('.leftSection').length) {
             MainMenu.setFormOpen();
         }
 
@@ -320,13 +318,6 @@ class FormHelper {
         }
         this.$form.removeClass("xc-hidden");
 
-        let wasMenuOpen: boolean = false;
-        if (MainMenu.isMenuOpen("mainMenu")) {
-            BottomMenu.close(true);
-            wasMenuOpen = true;
-        } else {
-            MainMenu.open();
-        }
         $("#container").addClass("formOpen");
 
         let name: string = formName || this.id;
@@ -344,7 +335,7 @@ class FormHelper {
         tblMenu.updateExitOptions("#tableMenu", name);
         tblMenu.updateExitOptions("#colMenu", name);
         DagNodeMenu.updateExitOptions(name);
-        return wasMenuOpen;
+        return true;
     }
 
     public hideView(): void {
@@ -364,9 +355,6 @@ class FormHelper {
 
         if (this.mainMenuState != null) {
             MainMenu.restoreState(this.mainMenuState, ignoreClose);
-            if (!this.mainMenuState["isTopOpen"]) {
-                BottomMenu.unsetMenuCache();
-            }
             this.mainMenuState = null;
         }
 
@@ -421,7 +409,7 @@ class FormHelper {
             deferred.resolve();
         }
 
-        if ($form.closest('#mainMenu').length) {
+        if ($form.closest('.leftSection').length) {
             MainMenu.setFormClose();
         }
 

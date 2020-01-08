@@ -662,7 +662,7 @@ describe("WorkbookManager Test", function() {
             })
             .fail(function(error) {
                 expect(error).to.be.an("object");
-                expect(error.error).to.equal("Cannot switch to same workbook");
+                expect(error.error).to.equal("Cannot switch to the same project");
                 done();
             });
         });

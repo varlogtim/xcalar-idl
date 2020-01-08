@@ -212,7 +212,7 @@ class DagList extends Durable {
             ? "/" + UDFTStr.UDF + displayName
             : "/" + UDFTStr.UDF +"/" + displayName;
             udfList.push({
-                path: displayPath, 
+                path: displayPath,
                 id: path,
                 options: {type: "UDF"}
             });
@@ -220,7 +220,7 @@ class DagList extends Durable {
 
         SQLSnippet.Instance.listSnippets().forEach(({name}) => {
             savedQueryList.push({
-                path: "/" + SQLTStr.SavedQueries +"/" + name, 
+                path: "/" + SQLTStr.SavedQueries +"/" + name,
                 id: name,
                 options: {type: "SQL"}
             });
@@ -1331,7 +1331,7 @@ class DagList extends Durable {
             let $dagListItem: JQuery = $(event.currentTarget).closest(".dagListDetail");
             const sqlQueryName: string = $dagListItem.data("id")
             XVM.setMode(XVM.Mode.SQL);
-            $("#sqlTab").click();
+            MainMenu.openPanel("sqlPanel");
             SQLEditorSpace.Instance.openSnippet(sqlQueryName);
         });
 

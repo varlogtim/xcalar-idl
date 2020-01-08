@@ -249,92 +249,52 @@
     }
 }
 
-// ========== Start Top / Main Menu =======
-#mainMenu {
-    .position(absolute, @left: @width-homeBtn - @width-topMenu, @bottom: 0px);
-    .size(@width: @width-topMenu, @min-width: @width-topMenu, @height: ~"calc(100% - @{height-homeBtn})");
-    z-index: @z-index-topMenu;
-    .transition(left @time-menuAnim);
-    background-color: @color-white;
+.mainMenuGhost {
+    opacity: 0.5;
+    background: @color-white;
+    border-right: 2px solid @color-border-softGray2;
+}
+
+
+.mainPanel:not(#sqlWorkSpacePanel) > .mainContent > .leftSection {
+    .position(absolute, @left: 0px);
+    .size(@width-topMenu,  @min-width: @width-topMenu, @height: ~"calc(100% - (@{height-bottomBar} + @{height-topBar}))");
+    padding: 0px;
     color: @color-font-form-gray;
+    border-right: 1px solid @color-border-grayBlue;
+    margin-left: @width-homeBtn;
+    z-index: @z-index-topMenu;
+    background-color: @color-white;
 
-    &.noAnim {
-        .transition(left 0s);
+    &.active {
+        display: block;
     }
 
-    &.open {
-        .position(@left: @width-homeBtn);
-        border-top: 1px solid @color-border-grayBlue;
-        border-right: 1px solid @color-border-grayBlue;
-        border-left: 1px solid @color-border-grayBlue;
 
-        &::after { // used for darkening menu when json modal is open
-            content: "";
-            opacity: 0;
-            z-index: -1;
-            .transition(opacity @time-menuAnim);
-        }
-        &.jsonModalOpen {
-            z-index: @z-index-modal;
-            > .ui-resizable-handle {
-                display: none !important;
-                z-index: -1;
-            }
-            > .ui-resizable-handle.ui-resizable-e {
-                display: none !important;
-                z-index: -1;
-            }
-            &::after {
-                content: "";
-                display: block;
-                .position(absolute, 0, -1);
-                .size(~"calc(100% + 1px)", 100%);
-                background-color: @color-black;
-                opacity: 0.25;
-                z-index: 4;
-            }
-        }
+    &::after { // used for darkening menu when json modal is open
+        content: "";
+        opacity: 0;
+        z-index: -1;
+        .transition(opacity @time-menuAnim);
     }
-
-    &.closed {
-        border-right: 1px solid @color-border-grayBlue;
-
-        .mainContent {
-            display: none;
-        }
+    &.jsonModalOpen {
+        z-index: @z-index-modal;
         > .ui-resizable-handle {
             display: none !important;
+            z-index: -1;
         }
-    }
-
-    &.expanded {
-        box-shadow: 0px 0px 3px rgba(0,0,0,0.1);
-    }
-
-    &.resizing {
-        .mainContent {
-            pointer-events: none;
+        > .ui-resizable-handle.ui-resizable-e {
+            display: none !important;
+            z-index: -1;
         }
-    }
-
-    > .ui-resizable-handle {
-        z-index: @z-index-topMenu !important;
-        width: 10px;
-        right: -5px;
-    }
-
-    > .mainContent {
-        .size(100%, 100%);
-    }
-
-    .commonSection {
-        display: none;
-        .size(100%, 100%);
-        padding: 0px;
-        color: @color-font-form-gray;
-
-        &.active {
+        &::after {
+            content: "";
             display: block;
+            .position(absolute, 0, -1);
+            .size(~"calc(100% + 1px)", 100%);
+            background-color: @color-black;
+            opacity: 0.25;
+            z-index: 4;
         }
     }
 
@@ -383,14 +343,25 @@
         }
     }
 }
-// ==========  End Top / Main Menu =======
 
-.mainMenuGhost {
-    opacity: 0.5;
-    background: @color-white;
-    border-right: 2px solid @color-border-softGray2;
+#modelingDagPanel > .mainContent {
+    > .leftSection {
+        .transition(margin-left @time-menuAnim);
+    }
 }
 
+#datastorePanel, #monitorPanel {
+    > .mainContent {
+        > .leftSection {
+            height: 100% !important;
+            margin-left: 0px !important;
+        }
+        > .rightSection {
+            margin-left: @width-topMenu;
+            height: 100%;
+        }
+    }
+}
 
 #dataflowMenu {
     .menuSection.tables {
@@ -415,8 +386,18 @@
     }
 }
 
+
 #monitorMenu .menuSection > .mainSection {
     overflow: initial; // prevents monitorMenu-query exitOptions from being hidden
+}
+
+#container.dataMart {
+    #monitorMenu {
+        display: none;
+    }
+    #monitorPanel > .mainContent > .rightSection {
+        margin-left: 0px;
+    }
 }
 
 #inButton {

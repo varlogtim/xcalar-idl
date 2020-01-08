@@ -13,7 +13,7 @@
   <div id="topMenuBarTabs" class="clearfix xc-hidden">
     <!-- datasets tab -->
     <!--  TODO: Currently Datasets/etc don't work if no workbook is activated. This will come later. -->
-    <div id="dataStoresTab" class="topMenuBarTab firstTouch mainMenuOpen">
+    <div id="dataStoresTab" class="topMenuBarTab firstTouch">
       <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Source & Load Data">
         <i class="icon xi-source fa-25"></i>
         <span class="label">Source & Load Data</span>
@@ -21,6 +21,7 @@
       <div class="subTabs">
         <div id="inButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.Datasets %>">
           <i class="icon xi-import-dataset-double"></i>
+          <span class="label">Datasets</span>
         </div>
         <div id="sourceTblButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.Table.Tables %>">
           <i class="icon xi_table"></i>
@@ -38,7 +39,7 @@
     </div>
 
     <!-- SQL tab -->
-    <div id="sqlTab" class="topMenuBarTab mainMenuOpen wkbkMenuBarTabs noLeftPanel">
+    <div id="sqlTab" class="topMenuBarTab wkbkMenuBarTabs noLeftPanel">
       <div id="sqlWorkSpace" class="mainTab noLeftPanel" data-toggle="tooltip" data-placement="right" data-container="body" title="Query">
           <i class="icon xi-SQLworkspace"></i>
           <span class="label">Query</span>
@@ -46,15 +47,15 @@
   </div>
 
     <!-- dataflow tab -->
-    <div id="modelingDataflowTab" class="topMenuBarTab mainMenuOpen firstTouch wkbkMenuBarTabs">
+    <div id="modelingDataflowTab" class="topMenuBarTab firstTouch wkbkMenuBarTabs">
         <div id="dagButton" class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Transformation & Business Logic">
             <i class="icon xi-dfg2"></i>
-            <span class="label">T & B Logic</span>
+            <span class="label">B & T Logic</span>
         </div>
     </div>
 
     <!-- jupyter Tab -->
-    <div id="jupyterTab" class="topMenuBarTab mainMenuOpen noLeftPanel wkbkMenuBarTabs">
+    <div id="jupyterTab" class="topMenuBarTab noLeftPanel wkbkMenuBarTabs">
         <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Jupyter Notebook">
           <i class="icon xi-menu-cli fa-20"></i>
           <span class="label">Jupyter</span>
@@ -62,9 +63,10 @@
     </div>
 
     <!-- system tab -->
-    <div id="monitorTab" class="topMenuBarTab mainMenuOpen firstTouch">
+    <div id="monitorTab" class="topMenuBarTab firstTouch">
       <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.monitor %>">
         <i class="icon xi-menu-monitoring fa-20"></i>
+        <span class="label">System</span>
       </div>
       <div class="subTabs">
         <div id="queriesButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Queries %>">
@@ -121,5 +123,4 @@
   </div>
 </div>
 <!-- End of Menu Bar -->
-include "mainMenu.html"
 include "bottomMenu.html"

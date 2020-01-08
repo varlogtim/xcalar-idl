@@ -284,22 +284,20 @@ describe("Tooltip Manager Test", function() {
             // Ensure datastores tab is open
             MainMenu.openPanel("datastorePanel");
             // hide everything
-            MainMenu.close(true);
             DSForm.hide();
             TooltipManager.start(basicInfo, buttonClick, 0)
             .always(() => {
-                expect(MainMenu.isMenuOpen()).to.be.false;
                 expect($("#dsFormView").hasClass("xc-hidden")).to.be.true;
                 var e = jQuery.Event("click.tooltip");
                 $("#inButton").trigger(e);
-                UnitTest.testFinish(()=>MainMenu.isMenuOpen())
+                UnitTest.timeoutPromise(1)
                 .then(() => {
-                    expect(MainMenu.isMenuOpen()).to.be.true;
                     expect($("#dsFormView").hasClass("xc-hidden")).to.be.false;
                     TooltipManager.closeWalkthrough();
-                    return UnitTest.testFinish(()=>$("#intro-popover").length === 0)
-                }).then(() => {
-                    done();
+                    UnitTest.testFinish(()=>$("#intro-popover").length === 0)
+                    .then(() => {
+                        done();
+                    });
                 });
             });
         });
@@ -321,22 +319,21 @@ describe("Tooltip Manager Test", function() {
             // Ensure datastores tab is open
             MainMenu.openPanel("datastorePanel");
             // hide everything
-            MainMenu.close(true);
             DSForm.hide();
             TooltipManager.start(basicInfo, buttonClick, 0)
             .always(() => {
-                expect(MainMenu.isMenuOpen()).to.be.false;
+
                 expect($("#dsFormView").hasClass("xc-hidden")).to.be.true;
                 var e = jQuery.Event("click.tooltip");
                 $("#sourceTblButton").trigger(e);
-                UnitTest.testFinish(()=>MainMenu.isMenuOpen())
+                UnitTest.timeoutPromise(1)
                 .then(() => {
-                    expect(MainMenu.isMenuOpen()).to.be.true;
                     expect($("#dsFormView").hasClass("xc-hidden")).to.be.false;
                     TooltipManager.closeWalkthrough();
-                    return UnitTest.testFinish(()=>$("#intro-popover").length === 0)
-                }).then(() => {
-                    done();
+                    UnitTest.testFinish(()=>$("#intro-popover").length === 0)
+                    .then(() => {
+                        done();
+                    });
                 });
             });
         });

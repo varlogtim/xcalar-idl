@@ -753,7 +753,7 @@ class BaseOpPanel {
             errorStr = xcHelper.parseJSONError(error).error;
         }
 
-        MainMenu.checkMenuAnimFinish()
+        BottomMenu.checkMenuAnimFinish()
         .then(() => {
             if (error) {
                 StatusBox.show(errorStr,

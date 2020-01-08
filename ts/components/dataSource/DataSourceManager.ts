@@ -2,8 +2,6 @@
  * Manager Module for Data Source Section
  */
 class DataSourceManager {
-    private static _isMenOpen: boolean;
-
     /**
      * DataSourceManager.View
      */
@@ -330,10 +328,6 @@ class DataSourceManager {
         $title.text(text);
         $menu.find(".table").removeClass("xc-hidden");
         TblSource.Instance.refresh(); // update every time switch to the tab
-        if (this._isMenOpen) {
-            MainMenu.open(true);
-            this._isMenOpen = null;
-        }
 
         if (wasInDatasetScreen) {
             DataSourceManager.startImport(true);
@@ -341,13 +335,10 @@ class DataSourceManager {
     }
 
     private static _switchToViewIMD(): void {
-        this._isMenOpen = MainMenu.isMenuOpen();
-
         let $panel = this._getPanel();
         let $menu = this._getMenu();
         $panel.addClass("imd");
         $menu.addClass("xc-hidden");
-        MainMenu.close(true);
         $("#sourceTblButton").addClass("xc-hidden");
         let $tab = $("#imdTab").removeClass("xc-hidden");
         if ($tab.hasClass("firstTouch")) {

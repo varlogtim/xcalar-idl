@@ -101,7 +101,7 @@ namespace TooltipManager {
                 .then(() => {
                     // Switch to SQL workspace if not open
                     if (!$("#sqlTab").hasClass("active")) {
-                        $("#sqlTab").click();
+                        MainMenu.openPanel("sqlPanel");
                     }
                     deferred.resolve();
                 })
@@ -342,11 +342,9 @@ namespace TooltipManager {
         switch(interact_div) {
             case (hardcodedInteractives.DatasetCreateTablePanel):
                 DataSourceManager.startImport(false);
-                MainMenu.open(true);
                 break;
             case (hardcodedInteractives.SQLCreateTablePanel):
                 DataSourceManager.startImport(true);
-                MainMenu.open(true);
                 break;
             default:
                 break;

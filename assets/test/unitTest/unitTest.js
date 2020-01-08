@@ -258,7 +258,7 @@ window.UnitTest = (function(UnitTest, $) {
                 timeCnt += 1;
                 if (timeCnt > outCnt) {
                     clearInterval(timer);
-                    console.error("Time out!", JSON.stringify(checkFunc));
+                    console.error("Time out!", checkFunc, JSON.stringify(checkFunc));
                     deferred.reject("Time out");
                 }
             }

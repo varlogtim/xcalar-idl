@@ -2006,9 +2006,9 @@ describe("xcHelper Test", function() {
 
     it("deleteURLParam should work", function() {
         var curHref = window.location.href;
-        expect(curHref.indexOf("workbook")).to.be.gt(-1);
-        var res = xcHelper.deleteURLParam("workbook");
-        expect(res.indexOf("workbook=")).to.equal(-1);
+        expect(curHref.indexOf("project")).to.be.gt(-1);
+        var res = xcHelper.deleteURLParam("project");
+        expect(res.indexOf("project=")).to.equal(-1);
     });
 
     // XXX now located in extensionApi_Operations.js

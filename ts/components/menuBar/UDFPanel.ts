@@ -236,8 +236,7 @@ class UDFPanel {
         const $toManagerButton: JQuery = $("#udfButtonWrap .toManager");
         $toManagerButton.on("click", (_event: JQueryEventObject) => {
             $udfSection.addClass("switching");
-            $("#monitorTab").trigger("click");
-            $("#fileManagerButton").trigger("click");
+            MainMenu.openPanel("monitorPanel", "fileManagerButton");
             monitorFileManager.switchType("UDF");
             monitorFileManager.switchPath("/");
             monitorFileManager.switchPathByStep(

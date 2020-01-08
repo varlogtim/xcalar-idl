@@ -193,7 +193,7 @@ namespace QueryManager {
      */
     export function scrollToFocused(): boolean {
         const $activeLi: JQuery = $queryList.find('.active');
-        if ($activeLi.length && $('#monitorMenu').hasClass('active') &&
+        if ($activeLi.length &&
             !$('#monitorMenu').find('.menuSection.query')
             .hasClass('xc-hidden')) {
             const listHeight: number = $queryList.height();
@@ -2037,9 +2037,6 @@ namespace QueryManager {
                 $datastoreTab.click();
             }
 
-            if (!$datastoreTab.hasClass("mainMenuOpen")) {
-                $datastoreTab.find(".mainTab").click();
-            }
 
             const $inButton: JQuery = $("#inButton");
             if (!$inButton.hasClass("active")) {

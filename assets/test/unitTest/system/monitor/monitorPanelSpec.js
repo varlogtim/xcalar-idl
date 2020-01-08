@@ -57,10 +57,7 @@ describe("MonitorPanel Test", function() {
             if (!$("#monitorTab").hasClass("active")) {
                 $("#monitorTab .mainTab").click();
             }
-            // open up panel
-            if (!$("#mainMenu").hasClass("open")) {
-                $("#monitorTab .mainTab").click();
-            }
+
             if (!$("#monitor-settings").is(":visible")) {
                 $("#settingsButton").click();
             }

@@ -4,39 +4,53 @@
   include "../imdBar.html"
   <!-- Main Content -->
   <div class="mainContent">
-    <!-- Imporat View -->
-    <div id="datastore-in-view" class="subPanel in import">
-      <div id="datastore-in-view-topBar">
-        <div class="tabs">
-          <!-- reverse the order for z-index of style to work -->
-          <div class="tab result">3. Dataset</div>
-          <div class="tab preview">2. Format</div>
-          <div class="tab source">1. Source</div>
+    <div id="datastoreMenu" class="commonSection leftSection" data-tab="dataStoresTab">
+        <section class="menuSection in">
+            include "dsMenu.html"
+        </section>
+        <section class="menuSection table xc-hidden">
+            include "../table/tblMenu.html"
+        </section>
+        <section class="menuSection target xc-hidden">
+            include "dsTargetMenu.html"
+        </section>
+    </div>
+    <div class="rightSection">
+         <!-- Import View -->
+        <div id="datastore-in-view" class="subPanel in import">
+            <div id="datastore-in-view-topBar">
+              <div class="tabs">
+                <!-- reverse the order for z-index of style to work -->
+                <div class="tab result">3. Dataset</div>
+                <div class="tab preview">2. Format</div>
+                <div class="tab source">1. Source</div>
+              </div>
+            </div>
+            <div id="dsFormView" class="viewSection">
+              include "dsSource.html"
+              include "dsS3Config.html"
+              include "dsDBConfig.html"
+              include "dsForm.html"
+              include "fileBrowser/fileBrowser.html"
+              include "dsConfig.html"
+            </div>
+            <div id="dsTableView" class="viewSection xc-hidden">
+              include "dsTable.html"
+            </div>
+            <div id="pTblView" class="viewSection xc-hidden">
+              include "../table/tblPreview.html"
+            </div>
         </div>
-      </div>
-      <div id="dsFormView" class="viewSection">
-        include "dsSource.html"
-        include "dsS3Config.html"
-        include "dsDBConfig.html"
-        include "dsForm.html"
-        include "fileBrowser/fileBrowser.html"
-        include "dsConfig.html"
-      </div>
-      <div id="dsTableView" class="viewSection xc-hidden">
-        include "dsTable.html"
-      </div>
-      <div id="pTblView" class="viewSection xc-hidden">
-        include "../table/tblPreview.html"
-      </div>
-    </div>
-    <!-- data target view -->
-    <div id="datastore-target-view" class="firstTouch subPanel target">
-        include "dsTarget.html"
-    </div>
-    <!-- imd view -->
-    <div id="imdView" class="subPanel">
-        include "../worksheet/imdView.html"
-    </div>
-  </div>
+        <!-- data target view -->
+        <div id="datastore-target-view" class="firstTouch subPanel target">
+            include "dsTarget.html"
+        </div>
+        <!-- imd view -->
+        <div id="imdView" class="subPanel">
+            include "../worksheet/imdView.html"
+        </div>
+    </div> <!-- END RIGHT SECTION -->
+
+  </div><!-- END MAIN CONTENT-->
 </div>
 <!-- END DATASTORE PANEL -->

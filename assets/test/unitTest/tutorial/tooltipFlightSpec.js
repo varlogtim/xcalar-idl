@@ -184,8 +184,6 @@ describe("Tooltip Flight Test", function() {
 
             return UnitTest.testFinish(()=>!$("#dsFormView").hasClass("xc-hidden"))
         }).then(() => {
-
-            expect(MainMenu.isMenuOpen()).to.be.false;
             expect($("#dsFormView").hasClass("xc-hidden")).to.be.false;
 
             //dsSource locaion file

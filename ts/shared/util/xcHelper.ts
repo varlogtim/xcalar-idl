@@ -2549,7 +2549,7 @@ namespace xcHelper {
         return ret;
     }
 
-    export function setURLParam(key: string, value: string) {
+    export function setURLParam(key: string, value: string): string {
         const curHref = window.location.href;
         const url: URL = new URL(curHref);
         const queryStr = url.search;
@@ -2583,7 +2583,7 @@ namespace xcHelper {
      *
      * @param key
      */
-    export function deleteURLParam(key: string) {
+    export function deleteURLParam(key: string): string {
         const curHref = window.location.href;
         const url: URL = new URL(curHref);
         const queryStr = url.search;

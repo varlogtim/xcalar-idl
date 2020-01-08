@@ -106,7 +106,6 @@ describe("Workbook Panel Test", function() {
         it("Should access monitor", function() {
             $workbookPanel.find(".monitorBtn, .monitorLink").click();
             expect($("#container").hasClass("monitorViewOpen")).to.be.true;
-            expect($("#container").hasClass("mainMenuOpen")).to.be.true;
             expect($("#container").hasClass("workbookMode")).to.be.false;
         });
 
@@ -200,10 +199,24 @@ describe("Workbook Panel Test", function() {
             });
         });
 
-        it("Should not show dataset hint", function() {
+        it("Should not show dataset hint", function(done) {
             $("#homeBtn").click();
             expect($("#showDatasetHint").length)
             .to.equal(0);
+
+            var checkFunc = function() {
+                return !$("#workbookPanel").is(":visible");
+            };
+            UnitTest.testFinish(checkFunc)
+            .then(() => {
+                $("#homeBtn").click();
+                setTimeout(() => {
+                    done();
+                }, 200);
+            })
+            .fail(() => {
+                done("fail")
+            });
         });
 
         it("Should close workbook", function(done) {
@@ -796,7 +809,7 @@ describe("Workbook Panel Test", function() {
             });
         });
 
-        it("Should close workbook", function(done) {
+        it("Should close workbook 2", function(done) {
             $("#homeBtn").click();
 
             var checkFunc = function() {

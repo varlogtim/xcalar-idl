@@ -140,7 +140,6 @@ namespace MonitorPanel {
                     break;
                 case ("fileManagerButton"):
                     $("#monitor-file-manager").addClass("active");
-                    $menu.find(".menuSection.fileManager").removeClass("xc-hidden");
                     title += MonitorTStr.FileManagerTitle;
                     // TODO: hack until UI is finalized.
                     if ($("#udfSection").hasClass("switching")) {

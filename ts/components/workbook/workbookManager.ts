@@ -165,9 +165,9 @@ namespace WorkbookManager {
             let newHref: string;
             if (workbookId != null && wkbkSet.has(workbookId)) {
                 workbookName = wkbkSet.get(workbookId).getName();
-                newHref = xcHelper.setURLParam("workbook", workbookName);
+                newHref = xcHelper.setURLParam("project", workbookName);
             } else {
-                newHref = xcHelper.deleteURLParam("workbook");
+                newHref = xcHelper.deleteURLParam("project");
             }
 
             if (newTab) {
@@ -180,9 +180,9 @@ namespace WorkbookManager {
 
             if (!curHref.endsWith(newHref)) {
                 if (replace) {
-                    window.history.replaceState("view workbook", workbookName, newHref);
+                    window.history.replaceState(window.history.state, workbookName, newHref);
                 } else {
-                    window.history.pushState("view workbook", workbookName, newHref);
+                    window.history.pushState("view project", workbookName, newHref);
                 }
             }
         } catch (e) {
@@ -243,11 +243,10 @@ namespace WorkbookManager {
     * @param workbookBox - if opening in a new tab, the workbook card that should be updated to active, optional
     */
     export function switchWKBK(wkbkId: string, newTab: boolean = false, $workbookBox?: JQuery): XDPromise<void> {
-        console.log("switching wkbks: " + wkbkId);
         // validation
         if (wkbkId === activeWKBKId) {
             return PromiseHelper.reject({
-                "error": "Cannot switch to same workbook"
+                "error": "Cannot switch to the same project"
             });
         }
 
@@ -261,7 +260,6 @@ namespace WorkbookManager {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         if (!newTab) {
-            console.log("showing initial load screen");
             $("#initialLoadScreen").show();
         } else {
             if ($workbookBox.hasClass("active")) {
@@ -276,15 +274,12 @@ namespace WorkbookManager {
                         commitActiveWkbk() : PromiseHelper.resolve();
 
         XcSupport.stopHeartbeatCheck();
-        console.log("commitactivewkbk")
         promise
         .then(function() {
-            console.log("switchWorkBookHelper")
             return switchWorkBookHelper(toWkbk);
         })
         .then(function() {
             if (!newTab) {
-                console.log("setActiveWKBK")
                 setActiveWKBK(wkbkId);
                 return switchWorkbookAnimation();
             } else {
@@ -296,13 +291,11 @@ namespace WorkbookManager {
         })
         .then(function() {
             if (!newTab) {
-                console.log("WorkbookManager.gotoWorkbook")
                 WorkbookManager.gotoWorkbook(wkbkId);
             }
             deferred.resolve();
         })
         .fail(function(error) {
-            console.log("switch failllllled");
             console.error("Switch Workbook Fails", error);
             error = error || {error: "Error occurred while switching workbooks"};
             if (!newTab) {
@@ -330,6 +323,7 @@ namespace WorkbookManager {
     */
     export function gotoWorkbook(workbookId: string, replaceURL: boolean = false): void {
         setURL(workbookId, replaceURL);
+        PanelHistory.Instance.deletePanelParam();
         xcManager.reload();
     }
 
@@ -1018,7 +1012,7 @@ namespace WorkbookManager {
 
     function getActiveWorkbookId(activeWorkbooks: string[]): string {
         const params: object = xcHelper.decodeFromUrl(window.location.href);
-        const activeWKBKName: string = params["workbook"];
+        const activeWKBKName: string = params["project"];
         if (activeWKBKName && activeWorkbooks.includes(activeWKBKName)) {//XXX includes does exist on array
             return getWKBKId(activeWKBKName);
         } else {
@@ -1138,7 +1132,7 @@ namespace WorkbookManager {
             WorkbookPanel.show();
             const xcSocket: XcSocket = XcSocket.Instance;
             xcSocket.unregisterUserSession(activeWkbk);
-            $("#container").addClass("noWorkbook noWorkbookMenuBar");
+            $("#container").addClass("noWorkbook");
 
             return;
         }
@@ -1361,9 +1355,6 @@ namespace WorkbookManager {
                    .text(StatusMessageTStr.PleaseWait);
         countdown()
         .always(function() {
-            MainMenu.close(true);
-            WorkbookPanel.hide(true);
-
             deferred.resolve();
         });
         return deferred.promise();

@@ -77,10 +77,7 @@ describe('QueryManager Test', function() {
         if (!$("#monitorTab").hasClass("active")) {
             $("#monitorTab .mainTab").click();
         }
-        // open up panel
-        if (!$("#mainMenu").hasClass("open")) {
-            $("#monitorTab .mainTab").click();
-        }
+
         if (!$("#monitorMenu .menuSection.query").is(":visible")) {
             $("#queriesButton").click();
         }

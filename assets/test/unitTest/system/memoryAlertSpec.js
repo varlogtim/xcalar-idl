@@ -329,10 +329,6 @@ describe('Memory Alert Test', () => {
             $memoryAlert.addClass("yellow")
                 .removeClass("tableAlert")
                 .click();
-            expect($("#mainMenu").hasClass("open")).to.be.true;
-            expect($("#datastoreMenu").hasClass("active")).to.be.true;
-            // close menu
-            $("#datastoreMenu .minimizeBtn").click();
             $memoryAlert.removeClass("yellow");
         });
 

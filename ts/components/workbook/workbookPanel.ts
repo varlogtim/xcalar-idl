@@ -13,6 +13,7 @@ namespace WorkbookPanel {
     let downloadingWKBKs: string[];
     let duplicatingWKBKs: string[];
     let hasSetup = false;
+    let lastTab = null;
 
     /**
     * WorkbookPanel.setup
@@ -49,10 +50,6 @@ namespace WorkbookPanel {
                 // when any for workbook only tab is open
                 BottomMenu.close();
             }
-            if ($("#mainMenu").hasClass("open")) {
-                MainMenu.close();
-                $("#mainMenu").addClass("wasOpen");
-            }
 
             //remove the dataset hint
             $("#showDatasetHint").remove();
@@ -87,11 +84,7 @@ namespace WorkbookPanel {
                 } else {
                     // default, exit the workbook
                     WorkbookPanel.hide();
-                    $container.removeClass("monitorMode setupMode noWorkbookMenuBar");
-                    if ($("#mainMenu").hasClass("wasOpen")) {
-                        $("#mainMenu").removeClass("wasOpen");
-                        MainMenu.open();
-                    }
+                    $container.removeClass("monitorMode setupMode");
                 }
             } else {
                 WorkbookPanel.show();
@@ -128,9 +121,9 @@ namespace WorkbookPanel {
     * Shows the workbook panel
     * @param isForceShow - boolean, if true no transition animation is shown
     */
-    export function show(isForceShow: boolean = false): void {
+    export function show(isForceShow: boolean = false, noHistory: boolean = false): void {
         $workbookPanel.show();
-        $("#container").addClass("workbookMode noWorkbookMenuBar");
+        $("#container").addClass("workbookMode");
 
         if (isForceShow) {
             getWorkbookInfo(isForceShow);
@@ -144,6 +137,11 @@ namespace WorkbookPanel {
         }
 
         WorkbookPanel.listWorkbookCards();
+
+        if (!noHistory) {
+            lastTab = PanelHistory.Instance.getCurrentPanel();
+            PanelHistory.Instance.push("projects");
+        }
     };
 
     /**
@@ -151,26 +149,44 @@ namespace WorkbookPanel {
     * hides the workbook panel
     * @param immediate - boolean, if true no transition animation is shown
     */
-    export function hide(immediate: boolean = false): void {
+    export function hide(immediate: boolean = false, noNav?: boolean): void {
         if (!hasSetup || $workbookPanel.hasClass("hidden")) {
             return;
         }
         $workbookPanel.addClass("hidden");
         $workbookSection.find(".workbookBox").remove();
-        $("#container").removeClass("wkbkViewOpen");
-
+        $("#container").removeClass("wkbkViewOpen workbookMode");
         if (immediate) {
             $workbookPanel.hide();
-            $("#container").removeClass("workbookMode");
         } else {
             setTimeout(function() {
                 $workbookPanel.hide();
-                $("#container").removeClass("workbookMode");
             }, 400);
         }
 
         xcTooltip.hideAll();
         StatusBox.forceHide();
+
+        if (!noNav && XVM.isDataMart()) {
+            if (!lastTab) {
+                lastTab = "query";
+            }
+            let tabId: string = UrlToTab[lastTab];
+            let subTabId: string = null;
+            if (tabId === "fileManagerButton" || tabId === "settingsButton") { // handle sub tabs
+                subTabId = tabId;
+                tabId = "monitorTab";
+            } else if (tabId === "workbook") {
+                WorkbookPanel.show(true, true);
+                return;
+            }
+            MainMenu.openPanel(MainMenu.tabToPanelMap[tabId], subTabId);
+            if (subTabId) {
+                tabId = subTabId;
+            }
+            let tabName = TabToUrl[tabId];
+            PanelHistory.Instance.push(tabName);
+        }
     };
 
     /**
@@ -179,7 +195,7 @@ namespace WorkbookPanel {
     */
     export function forceShow(): void {
         // When it's forceShow, no older workbooks are displayed
-        $("#container").addClass("noWorkbook noWorkbookMenuBar");
+        $("#container").addClass("noWorkbook");
         $("#container").removeClass("wkbkViewOpen");
         WorkbookPanel.show(true);
     };
@@ -190,7 +206,6 @@ namespace WorkbookPanel {
     */
     export function goToMonitor(): void {
         MainMenu.openPanel("monitorPanel", "systemButton");
-        MainMenu.open(true);
     };
 
     /**
@@ -705,22 +720,15 @@ namespace WorkbookPanel {
     function activateWorkbook($workbookBox: JQuery, newTab: boolean = false): void {
         const workbookId: string = $workbookBox.attr("data-workbook-id");
         const activeWKBKId: string = WorkbookManager.getActiveWKBK();
-        console.log("activating workbook: " + workbookId);
         if (!newTab) {
             if (activeWKBKId === workbookId) {
                 WorkbookPanel.hide();
-                if ($("#mainMenu").hasClass("wasOpen")) {
-                    MainMenu.open();
-                    $("#mainMenu").removeClass("wasOpen");
-                }
-                $("#container").removeClass("noWorkbookMenuBar");
+                $("#container").removeClass("noWorkbook");
             } else {
                 alertActivate(workbookId, activeWKBKId)
                 .then(function() {
-                    console.log("passed alert activiate, switching wkbks");
                     WorkbookManager.switchWKBK(workbookId)
                     .fail(function(error) {
-                        console.log("switch failed");
                         handleError(error, $workbookBox);
                         // has chance that inactivate the fromWorkbook
                         // but fail to activate the toWorkbook
@@ -987,7 +995,7 @@ namespace WorkbookPanel {
         .then(function() {
             updateWorkbookInfoWithReplace($workbookBox, workbookId);
             if (isActiveWkbk) {
-                $("#container").addClass("noWorkbook noWorkbookMenuBar");
+                $("#container").addClass("noWorkbook");
             }
         })
         .fail(function(error) {

@@ -42,10 +42,6 @@ class MemoryAlert {
                     $datastoreTab.click();
                 }
 
-                if (!$datastoreTab.hasClass("mainMenuOpen")) {
-                    $datastoreTab.find(".mainTab").click();
-                }
-
                 var $inButton = $("#inButton");
                 if (!$inButton.hasClass("active")) {
                     $inButton.click();

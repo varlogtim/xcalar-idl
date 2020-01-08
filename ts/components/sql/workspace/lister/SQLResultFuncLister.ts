@@ -28,7 +28,7 @@ class SQLResultFuncLister extends AbstractSQLResultLister{
     protected _registerEvents(): void {
         this
         .on("edit", ({ name }) => {
-            $("#modelingDataflowTab").click();
+            MainMenu.openPanel("dagPanel");
             const dagTab = DagTabSQLFunc.getFunc(name);
             DagTabManager.Instance.loadTab(dagTab);
         })

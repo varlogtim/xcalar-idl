@@ -35,17 +35,6 @@ describe("Dataset-DS Test", function() {
             }));
         })
         .then(function() {
-            // make sure panel is open for testing
-            if ($("#dataStoresTab").hasClass("mainMenuOpen")) {
-                return PromiseHelper.resolve();
-            } else {
-                $("#dataStoresTab .mainTab").click();
-                return (UnitTest.testFinish(function() {
-                    return !$("#menuBar").hasClass("animating");
-                }));
-            }
-        })
-        .then(function() {
             if (!$("#inButton").hasClass("active")) {
                 $("#inButton").click();
             }

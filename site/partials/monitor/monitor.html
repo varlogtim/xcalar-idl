@@ -8,47 +8,62 @@
     <div class="title wkbkTitle"><%= dicts.workbook.header %></div>
   </div>
   <div class="mainContent">
-    <!-- Queries Section -->
-    <section id="monitor-queries" class="subPanel monitorSection active">
-      include "monitorQuery.html"
-    </section>
-    <!-- End Of Queries Section -->
-    <!-- System Section -->
-    <section id="monitor-system" class="subPanel monitorSection">
-      include "monitorSys.html"
-    </section>
-    <!-- End Of System Section -->
-    <!-- Setup Section -->
-    <section id="monitor-setup" class="subPanel monitorSection firstTouch">
-      include "monitorAdminAlert.html"
-      include "monitorSetup.html"
-      include "monitorSupportTools.html"
-      include "monitorLog.html"
-    </section>
-    <!-- End of Setup Section -->
-    <!-- Settings Section -->
-    <section id="monitor-settings" class="subPanel monitorSection">
-      include "monitorUserSettings.html"
-    </section>
-    <section id="monitor-xd-log" class="subPanel monitorSection">
-      include "xdLog.html"
-    </section>
-    </section>
-    <section id="monitor-file-manager" class="subPanel monitorSection">
-      include "../fileManager/monitorFileManager.html"
-    </section>
-    <!-- End of Settings Section -->
-    <div id="userMemPopup" class="schemaPopup">
-      <div id="userMemPopupTitle" class="title">
-        <div class="titleContentWrap"></div>
-        <div class="close" data-container="body"
-            data-toggle="tooltip" title="" data-original-title="<%= dicts.common.Close %>">
-          <i class="icon xi-close"></i>
+        <div id="monitorMenu" class="commonSection leftSection" data-tab="monitorTab">
+            <section class="menuSection query">
+                include "queryMenu.html"
+            </section>
+            <section class="menuSection monitor xc-hidden">
+                include "monitorMenu.html"
+            </section>
+            <section class="menuSection xdLog xc-hidden">
+                include "xdLogMenu.html"
+            </section>
+            <section class="menuSection setup xc-hidden">
+                include "monitorSetupMenu.html"
+            </section>
         </div>
-      </div>
-      <div class="content prettyJson"></div>
-    </div>
+        <div class="rightSection">
+             <!-- Queries Section -->
+            <section id="monitor-queries" class="subPanel monitorSection active">
+                include "monitorQuery.html"
+            </section>
+            <!-- End Of Queries Section -->
+            <!-- System Section -->
+            <section id="monitor-system" class="subPanel monitorSection">
+                include "monitorSys.html"
+            </section>
+            <!-- End Of System Section -->
+            <!-- Setup Section -->
+            <section id="monitor-setup" class="subPanel monitorSection firstTouch">
+                include "monitorAdminAlert.html"
+                include "monitorSetup.html"
+                include "monitorSupportTools.html"
+                include "monitorLog.html"
+            </section>
+            <!-- End of Setup Section -->
+            <!-- Settings Section -->
+            <section id="monitor-settings" class="subPanel monitorSection">
+                include "monitorUserSettings.html"
+            </section>
+            <section id="monitor-xd-log" class="subPanel monitorSection">
+                include "xdLog.html"
+            </section>
+            </section>
+            <section id="monitor-file-manager" class="subPanel monitorSection">
+                include "../fileManager/monitorFileManager.html"
+            </section>
+            <!-- End of Settings Section -->
+            <div id="userMemPopup" class="schemaPopup">
+                <div id="userMemPopupTitle" class="title">
+                    <div class="titleContentWrap"></div>
+                    <div class="close" data-container="body"
+                        data-toggle="tooltip" title="" data-original-title="<%= dicts.common.Close %>">
+                        <i class="icon xi-close"></i>
+                    </div>
+                </div>
+                <div class="content prettyJson"></div>
+            </div>
+        </div>
   </div>
-
 </div>
 <!-- END OF MONITOR PANEL -->

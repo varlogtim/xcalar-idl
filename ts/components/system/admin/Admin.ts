@@ -148,12 +148,8 @@ namespace Admin {
         Alert.forceClose();
 
         MainMenu.openPanel("monitorPanel", "setupButton");
-        MainMenu.open(true);
         MonitorPanel.stop();
         $('#container').addClass('supportOnly');
-        if ($("#container").hasClass("noWorkbook")) {
-            $("#container").addClass("noWorkbookMenuBar");
-        }
         $("#container").removeClass("monitorMode setupMode");
         $('#configCard').addClass('xc-hidden');
         StatusMessage.updateLocation();

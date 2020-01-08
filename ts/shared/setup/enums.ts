@@ -470,6 +470,29 @@ enum VersionComparison {
     Equal = "equal"
 }
 
+enum TabToUrl {
+    dataStoresTab = "sources",
+    sqlTab = "query",
+    modelingDataflowTab = "btlogic",
+    jupyterTab = "jupyter",
+    fileManagerButton = "udf",
+    settingsButton = "settings",
+    helpTab = "help",
+    workbook = "projects"
+}
+
+enum UrlToTab {
+    sources = "dataStoresTab",
+    query = "sqlTab",
+    btlogic = "modelingDataflowTab",
+    jupyter = "jupyterTab",
+    udf = "fileManagerButton",
+    settings = "settingsButton",
+    help = "helpTab",
+    projects = "workbook"
+}
+
+
 if (typeof global !== 'undefined') {
     global.RowDirection = RowDirection;
     global.WSTableType = WSTableType;

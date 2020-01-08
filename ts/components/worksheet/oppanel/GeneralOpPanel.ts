@@ -1792,7 +1792,7 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _checkPanelOpeningError() {
         if (this.model.modelError || BaseOpPanel.isLastModeAdvanced) {
             this._startInAdvancedMode();
-            MainMenu.checkMenuAnimFinish()
+            BottomMenu.checkMenuAnimFinish()
             .then(() => {
                 if (this.model.modelError) {
                     StatusBox.show(this.model.modelError,

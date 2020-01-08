@@ -1017,7 +1017,7 @@ class DagViewManager {
             if (isFromSQLMode) {
                 XVM.setMode(XVM.Mode.Advanced)
                 .then(function() {
-                    $("#modelingDataflowTab").click();
+                    MainMenu.openPanel("dagPanel");
                     cb();
                 });
             } else {

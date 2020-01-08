@@ -47,7 +47,6 @@ class UserMenu {
                 return;
             }
             MainMenu.openPanel("monitorPanel", "setupButton");
-            MainMenu.open(true);
         });
 
         $menu.on('mouseup', ".preferences", function(event: JQueryEventObject): void {

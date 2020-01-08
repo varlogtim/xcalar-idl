@@ -87,6 +87,7 @@ namespace xcManager {
             try {
                 $("#topMenuBarTabs").removeClass("xc-hidden");
                 $("#bottomMenuBarTabs").removeClass("xc-hidden");
+                PanelHistory.Instance.setup();
                 MainMenu.setup();
                 setupModeArea();
                 ExtensionManager.loadEnabledExtension(); // async load of extnesion
@@ -197,6 +198,7 @@ namespace xcManager {
         // in case it's not setup yet
         $("#topMenuBarTabs").removeClass("xc-hidden");
         $("#bottomMenuBarTabs").removeClass("xc-hidden");
+        PanelHistory.Instance.setup();
         MainMenu.setup();
         QueryManager.setup();
         Alert.setup();
@@ -1329,10 +1331,7 @@ namespace xcManager {
 
             $popup.click(function(event) {
                 if (!$(event.target).closest(".close").length) {
-                    $('#dataStoresTab').click();
-                    if (!$("#inButton").hasClass("active")) {
-                        $('#inButton').click();
-                    }
+                    MainMenu.openPanel("datastorePanel", "inButton");
                 }
                 $("#showDatasetHint").remove();
             });

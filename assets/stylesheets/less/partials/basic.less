@@ -52,13 +52,6 @@ body {
     overflow: hidden !important;
 
     &.xc-setup {
-        #topMenuBarTabs {
-            pointer-events: none;
-        }
-        #homeBtn {
-            pointer-events: none;
-        }
-
         .workspaceArea {
             pointer-events: none;
         }
@@ -74,7 +67,7 @@ body {
 }
 
 #container {
-    &.noWorkbookMenuBar {
+    &.workbookMode {
         .wkbkMenuBarTabs {
             display: none;
         }
@@ -103,6 +96,9 @@ body {
     }
 
     &.noWorkbook {
+        .wkbkMenuBarTabs {
+            display: none;
+        }
         #monitorMenu {
             .support > ul { // disable release memory
                 li:last-child {
@@ -528,7 +524,7 @@ body {
         }
 
         #monitorPanel {
-            > .topBar {;
+            > .topBar {
                 .backToWB {
                     display: block;
                 }
@@ -624,22 +620,17 @@ body {
         @menuWidth: @width-bottomMenu;
         .mainPanel > .mainContent {
             margin-left: @menuWidth !important;
+
         }
         // #statusBar
         #worksheetInfo {
             margin-left: @width-topMenu !important;
         }
     }
-    &.bottomMenuOpen:not(.bottomMenuOut), &.mainMenuOpen {
+    &.bottomMenuOpen:not(.bottomMenuOut) {
         @menuWidth: @width-bottomMenu;
-        .mainPanel > .mainContent {
-            margin-left: @menuWidth;
-        }
-        #watermark {
-            left: @menuWidth + 75px;
-        }
-        #insight {
-            left: @menuWidth + 298px;
+        #dataflowMenu {
+            margin-left: @menuWidth + @width-homeBtn !important;
         }
     }
 
