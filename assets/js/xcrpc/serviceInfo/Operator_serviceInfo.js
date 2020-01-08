@@ -23,6 +23,7 @@ const _serviceInfo = {
         "OpExport" : ["xcalar.compute.localtypes.Operator.ExportRequest", "xcalar.compute.localtypes.Operator.ExportResponse"],
         "OpSynthesize" : ["xcalar.compute.localtypes.Operator.SynthesizeRequest", "xcalar.compute.localtypes.Operator.SynthesizeResponse"],
         "OpBulkLoad" : ["xcalar.compute.localtypes.Operator.BulkLoadRequest", "xcalar.compute.localtypes.Operator.BulkLoadResponse"],
+        "OpMerge" : ["xcalar.compute.localtypes.Operator.MergeRequest", "google.protobuf.Empty"],
     },
 };
 
