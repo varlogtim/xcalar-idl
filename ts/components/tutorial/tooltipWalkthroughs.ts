@@ -486,6 +486,7 @@ namespace TooltipWalkthroughs {
             // XXX TODO reenable tooltip tutorial when it's fixed
             seenSQL = true;
             seenDataflow = true;
+            showWorkbook = false;
             return PromiseHelper.resolve();
         }
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
