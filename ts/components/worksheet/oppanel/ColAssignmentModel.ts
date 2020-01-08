@@ -4,8 +4,13 @@ class ColAssignmentModel {
     protected candidateColsList: ProgCol[][];
     protected allColsList: ProgCol[][];
     protected event: Function;
-    protected options;
-    private readonly validTypes: ColumnType[] = [];
+    protected options: {
+        showCast?: boolean,
+        preventAutoRemoveCol?: boolean,
+        validateType?: boolean,
+        allowUnknownType?: boolean
+    };
+    private readonly validTypes: Set<ColumnType>;
 
     public constructor(
         allColSets: ProgCol[][],
@@ -16,15 +21,19 @@ class ColAssignmentModel {
             cast: boolean
         }[][],
         event: Function,
-        options?
+        options: {
+            showCast?: boolean,
+            preventAutoRemoveCol?: boolean,
+            validateType?: boolean,
+            allowUnknownType?: boolean
+        }
     ) {
+        this.options = options || {};
         const validTypes: ColumnType[] = BaseOpPanel.getBasicColTypes(true);
-        validTypes.forEach((type) => {
-            this.validTypes.push(type);
-        });
+        this.validTypes = new Set(validTypes);
         this.event = event;
         this.initialize(allColSets, selectedColSets);
-        this.options = options || {};
+
     }
 
     /**
@@ -65,7 +74,11 @@ class ColAssignmentModel {
             func: undefined
         }));
         if (this.options.showCast && this.selectedColsList.length === 1) {
-            this.resultCols[this.resultCols.length - 1].type = progCol.getType();
+            let type: ColumnType = progCol.getType();
+            if (!this.validTypes.has(type)) {
+                type = this.validTypes.values().next().value;
+            }
+            this.resultCols[this.resultCols.length - 1].type = type;
         }
 
         let otherColsToSelect: ProgCol[] = autoDetect ?
@@ -511,7 +524,9 @@ class ColAssignmentModel {
         return this.allColsList[listIndex].filter((col) => {
             const colType = col.getType();
             return (!map.has(col.getBackColName()) &&
-                    this.validTypes.includes(colType));
+                    (this.validTypes.has(colType) || (
+                        this.options.allowUnknownType && colType === ColumnType.unknown
+                    )));
         });
     }
 

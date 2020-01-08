@@ -260,7 +260,7 @@ abstract class GeneralOpPanelModel {
                         arg.setError("No type");
                     } else {
                         const validTypes = GeneralOpPanelModel.parseType(arg.getTypeid());
-                        let errorText = self._validateColInputType(validTypes, colType);
+                        let errorText = self._validateColInputType(validTypes, colType, arg.isUnknownTypeValid());
                         if (errorText != null) {
                             arg.setError(errorText);
                             return;
@@ -431,7 +431,8 @@ abstract class GeneralOpPanelModel {
      // used for args with column names provided like $col1, and not "hey" or 3
     protected _validateColInputType(
         requiredTypes: string[],
-        inputType: string
+        inputType: string,
+        allowUnknownType: boolean
     ): string {
         if (inputType === "newColumn") {
             return ErrTStr.InvalidOpNewColumn;
@@ -442,6 +443,8 @@ abstract class GeneralOpPanelModel {
         } else if (inputType === ColumnType.number &&
                     (requiredTypes.includes(ColumnType.float) ||
                         requiredTypes.includes(ColumnType.integer))) {
+            return null;
+        } else if (inputType === ColumnType.unknown && allowUnknownType) {
             return null;
         } else {
             return xcStringHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {

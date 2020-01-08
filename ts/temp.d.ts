@@ -801,7 +801,15 @@ declare enum StatusT {
 declare enum FunctionCategoryT {
     FunctionCategoryAggregate,
     FunctionCategoryCondition,
-    FunctionCategoryUdf
+    FunctionCategoryUdf,
+    FunctionCategoryArithmetic,
+    FunctionCategoryBitwise,
+    FunctionCategoryTrigonometry,
+    FunctionCategoryConversion,
+    FunctionCategoryString,
+    FunctionCategoryMisc,
+    FunctionCategoryCast,
+    FunctionCategoryTimestamp
 }
 
 declare enum FunctionCategoryTStr {}

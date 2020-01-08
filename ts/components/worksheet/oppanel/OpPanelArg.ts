@@ -11,12 +11,14 @@ class OpPanelArg {
     private error: string;
     private isOptional: boolean = false;
     private valueType: string; // "string" | "number" | "money" | "timestamp" | "boolean"
+    private allowUnknownType: boolean;
 
     constructor(
         value: string,
         typeid: number,
         isOptional?: boolean,
-        isRestoring?: boolean
+        isRestoring?: boolean,
+        allowUnknownType: boolean = false,
     ) {
         this.value = value;
         this.formattedValue = value;
@@ -24,6 +26,7 @@ class OpPanelArg {
         this.typeid = typeid;
         this.isValid = false;
         this.isOptional = isOptional || false;
+        this.allowUnknownType = allowUnknownType;
         if (!isRestoring) {
             if (this.isOptional) {
                 this.isValid = true;
@@ -130,6 +133,10 @@ class OpPanelArg {
 
     public checkIsOptional(): boolean {
         return this.isOptional;
+    }
+
+    public isUnknownTypeValid(): boolean {
+        return this.allowUnknownType;
     }
 }
 

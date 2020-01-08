@@ -35,12 +35,17 @@ class MapOpPanelModel extends GeneralOpPanelModel {
         }
         this.groups[index].operator = value;
         if (opInfo) {
+            let allowUnknownType = false;
+            if (opInfo.category === FunctionCategoryT.FunctionCategoryCast) {
+                // allow unknown type for cast operations
+                allowUnknownType = true;
+            }
             const numArgs = Math.max(Math.abs(opInfo.numArgs),
                                 opInfo.argDescs.length);
             this.groups[index].args = Array(numArgs).fill("").map((_o, i) => {
                     const arg = opInfo.argDescs[i];
                     const isOptional = this._isOptional(opInfo, i);
-                    return new OpPanelArg("", arg.typesAccepted, isOptional);
+                    return new OpPanelArg("", arg.typesAccepted, isOptional, null, allowUnknownType);
                 });
             if (this.autofillColumns && index === 0) {
                 for (let i = 0; i < this.groups[index].args.length; i++) {

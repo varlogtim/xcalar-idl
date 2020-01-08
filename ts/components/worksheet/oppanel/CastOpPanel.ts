@@ -35,7 +35,9 @@ class CastOpPanel extends BaseOpPanel {
             let error;
             try {
                 const selectedCols = this._paramToSelectedCols(param);
-                this.dataModel = this.colRenameSection.show([curColumns], [selectedCols]);
+                this.dataModel = this.colRenameSection.show([curColumns], [selectedCols], {
+                    allowUnknownType: true
+                });
                 this._modifyColRenameSection();
 
             } catch (e) {
