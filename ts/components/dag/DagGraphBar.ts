@@ -67,6 +67,11 @@ class DagGraphBar {
             let scale = Math.round(graph.getScale() * 100);
             $topBar.find(".zoomPercentInput").val(scale);
         }
+        if (dagTab instanceof DagTabSQLFunc) {
+            $topBar.addClass("sqlFunc");
+        } else {
+            $topBar.removeClass("sqlFunc");
+        }
     }
 
     private _getGraphBar(): JQuery {
@@ -141,6 +146,10 @@ class DagGraphBar {
         // settings button
         $topBar.find(".setting").click(() => {
             DFSettingsModal.Instance.show();
+        });
+
+        $topBar.find(".returnToQuery").click(() => {
+            MainMenu.openPanel("sqlPanel");
         });
     }
 

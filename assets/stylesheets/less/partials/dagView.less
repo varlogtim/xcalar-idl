@@ -1234,6 +1234,37 @@
         background-color: @color-border-bar;
     }
 
+
+   .btn {
+        background-color: transparent;
+        color: @color-border-bar;
+        padding: 0px 8px;
+        font-size: 12px;
+        height: 30px;
+        line-height: 30px;
+        border: 1px solid  @color-border-bar;
+        .rounded(3px);
+        margin-top: 5px;
+        text-transform: uppercase;
+        width: auto;
+        margin-right: 8px;
+        &:hover {
+            background-color: rgba(20, 20, 20, .05);
+        }
+    }
+    .queryBtnDivider {
+        margin-right: 16px;
+    }
+    .returnToQuery, .queryBtnDivider {
+        display: none;
+
+    }
+    &.sqlFunc {
+        .returnToQuery, .queryBtnDivider {
+            display: block;
+        }
+    }
+
 }
 
 /* ========== Dag Table Viewer Tabs ========== */

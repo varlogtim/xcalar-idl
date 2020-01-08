@@ -19,7 +19,7 @@ export default {
     },
 
     "TooltipTStr": {
-        "LockedTable": "Result set is locked",
+        "LockedTable": "Result set is pinned",
     },
 
     "ResultSetTStr": {

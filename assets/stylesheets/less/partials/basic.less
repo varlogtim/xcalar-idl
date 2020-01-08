@@ -887,6 +887,15 @@ body {
         overflow: hidden;
         cursor: default;
         .flex(0 0 auto);
+
+        &:last-child {
+            .flex-display;
+            .flex(1 2 0px);
+            padding-right: 2px;
+            line-height: 20px;
+            .size(@height: 20px);
+            margin-top: 9px;
+        }
     }
 
     #pageStatusText {

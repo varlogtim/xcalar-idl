@@ -33,7 +33,7 @@ describe("DagGraphBar Test", function() {
     });
 
     it("Should render all expected buttons", function () {
-        expect($topBar.find(".topButton").length).to.equal(8);
+        expect($topBar.find(".topButton").length).to.equal(9);
         expect($topBar.find(".undo").length).to.equal(1);
         expect($topBar.find(".redo").length).to.equal(1);
         expect($topBar.find(".run").length).to.equal(1);
@@ -96,7 +96,7 @@ describe("DagGraphBar Test", function() {
     describe("states", function() {
         it("Should disable most buttons on null dagtab", function () {
             topBar.setState(null);
-            expect($topBar.find(".topButton.xc-disabled").length).to.equal(7);
+            expect($topBar.find(".topButton.xc-disabled").length).to.equal(8);
             topBar.setState(new DagTab({name: "name"}));
             expect($topBar.find(".topButton.xc-disabled").length).to.equal(2);
         });

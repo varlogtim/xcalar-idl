@@ -4200,7 +4200,7 @@ class DagView {
         $node: JQuery, lock: boolean
     ): void {
         if (lock) {
-            DagView.addTableIcon($node, "lockIcon", "Result locked");
+            DagView.addTableIcon($node, "lockIcon", "Result pinned");
         } else {
             DagView.removeTableIcon($node, "lockIcon");
         }

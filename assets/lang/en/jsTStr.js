@@ -68,7 +68,7 @@ TooltipTStr = {
     'NoUndoNoOp': 'No operation to undo',
     'NoRedo': 'No operation to redo',
     'UnhideWS': 'Show worksheet',
-    'LockedTable': 'Result set is locked',
+    'LockedTable': 'Result set is pinned.',
     'LockedTableUndo': 'Cannot undo while result set is locked',
     'LockedTableRedo': 'Cannot redo while result set is locked',
     'SaveQG': 'Save image',
@@ -319,7 +319,7 @@ ErrTStr = {
     'ExtDownloadFailure': 'Extension Download Failed',
     'TutDownloadFailure': 'Tutorial Download Failed',
     'ErrorModalDownloadFailure' : 'Error logs failed to be downloaded',
-    'CannotDropLocked': 'Cannot drop locked result sets',
+    'CannotDropLocked': 'Cannot drop pinned result sets',
     'RefreshBrowser': 'Refresh Browser',
     'RefreshBrowserDesc': 'We have detected an issue that requires a refresh.\nPlease refresh your browser now. Your work will be recovered to the last consistent state.',
     'BundleFailed': 'Submit Bundle Failed',
@@ -977,7 +977,7 @@ MonitorTStr = {
     "TicketErr2": "This ticket could not be found within your organization.",
     "LowMem": "Low Memory Warning",
     "LowMemMsg": "Warning! Cluster is low on memory. Please check the system status icon for details. " +
-        "Clicking 'Free Memory' will free all result sets not locked and not expected to be used by the current module tab.",
+        "Clicking 'Free Memory' will free all result sets not pinned and not expected to be used by the current module tab.",
     "LowMemInstr": "To find out more about memory management, please reference <a href=\"<link>\" target=\"_blank\">the link</a>",
 
     // with replace
@@ -1107,8 +1107,8 @@ DFTStr = {
     "ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized.",
     "CustomizeTitle": "Customize <op> Operation",
     "ParamNoValueList": "Please assign values to all the parameters being used in the current module. Parameters without values: <params>",
-    "LockedTableWarning": "Locked Result Warning",
-    "LockedTableMsg": "\'<action>\' will delete one or more locked results. If you do not want the results to be deleted, cancel and duplicate the relevant parts of the flow.",
+    "LockedTableWarning": "Pinned Result Warning",
+    "LockedTableMsg": "\'<action>\' will delete one or more pinned results. If you do not want the results to be deleted, cancel and duplicate the relevant parts of the flow.",
 };
 
 DFNodeLineageTStr = {
