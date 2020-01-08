@@ -129,21 +129,15 @@ class DagList extends Durable {
             options: {isOpen: boolean, createdTime: number, isSDK: boolean, state: string}}[] = [];
 
         this._dags.forEach((dagTab) => {
-            let path = "";
+            let path = this._getPathFromDagTab(dagTab);
             let tabId = dagTab.getId();
             if (dagTab instanceof DagTabPublished) {
-                path = dagTab.getPath();
                 publishedList.push({
                     path: path,
                     id: tabId,
                     options: {isOpen: dagTab.isOpen()}
                 });
             } else if (dagTab instanceof DagTabOptimized) {
-                if (XVM.isDataMart()) {
-                    path = "/" + DFTStr.TBModules + "/" + dagTab.getPath();
-                } else {
-                    path = "/" + dagTab.getPath();
-                }
                 userList.push({
                     path: path,
                     id: tabId,
@@ -153,11 +147,6 @@ class DagList extends Durable {
                     }
                 });
             } else if (dagTab instanceof DagTabQuery) {
-                if (XVM.isDataMart()) {
-                    path = "/" + DFTStr.TBModules + "/" + dagTab.getPath();
-                } else {
-                    path = "/" + dagTab.getPath();
-                }
                 queryList.push({
                     path: path,
                     id: tabId,
@@ -169,21 +158,12 @@ class DagList extends Durable {
                     }
                 });
             } else if (dagTab instanceof DagTabSQLFunc) {
-                path = dagTab.getPath();
                 userList.push({
                     path: path,
                     id: tabId,
                     options: {isOpen: dagTab.isOpen()}
                 });
             } else {
-                let dagName: string = dagTab.getName();
-                if (this._isForSQLFolder(dagTab)) {
-                    path = "/" + DagTabSQL.PATH + dagName;
-                } else if (XVM.isDataMart()) {
-                    path = "/" + DFTStr.TBModules + "/" + dagName;
-                } else {
-                    path = "/" + dagName;
-                }
                 userList.push({
                     path: path,
                     id: tabId,
@@ -544,6 +524,7 @@ class DagList extends Durable {
      * @param id Dag id we want to note as active
      */
     public switchActiveDag(id: string): void {
+        this._switchToFolder(id);
         const $dagListSection: JQuery = this._getDagListSection();
         $dagListSection.find(".dagListDetail").removeClass("active");
         this._getListElById(id).addClass("active");
@@ -1168,6 +1149,50 @@ class DagList extends Durable {
 
     private _getListElById(id: string): JQuery {
         return this._getDagListSection().find('.dagListDetail[data-id="' + id + '"]');
+    }
+
+    private _getPathFromDagTab(dagTab: DagTab): string {
+        let path: string = "";
+        if (dagTab instanceof DagTabPublished) {
+            path = dagTab.getPath();
+        } else if (dagTab instanceof DagTabOptimized) {
+            if (XVM.isDataMart()) {
+                path = "/" + DFTStr.TBModules + "/" + dagTab.getPath();
+            } else {
+                path = "/" + dagTab.getPath();
+            }
+        } else if (dagTab instanceof DagTabQuery) {
+            if (XVM.isDataMart()) {
+                path = "/" + DFTStr.TBModules + "/" + dagTab.getPath();
+            } else {
+                path = "/" + dagTab.getPath();
+            }
+        } else if (dagTab instanceof DagTabSQLFunc) {
+            path = dagTab.getPath();
+        } else {
+            let dagName: string = dagTab.getName();
+            if (this._isForSQLFolder(dagTab)) {
+                path = "/" + DagTabSQL.PATH + dagName;
+            } else if (XVM.isDataMart()) {
+                path = "/" + DFTStr.TBModules + "/" + dagName;
+            } else {
+                path = "/" + dagName;
+            }
+        }
+        return path;
+    }
+
+    private _switchToFolder(id: string): void {
+        try {
+            const dagTab = this.getDagTabById(id);
+            const path: string = this._getPathFromDagTab(dagTab);
+            const paths: string[] = path.split("/");
+            paths.pop(); // remove the last path
+            const parentPath: string = paths.join("/") + "/";
+            this._fileLister.goToPath(parentPath);
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     private _isForSQLFolder(dagTab: DagTab): boolean {

@@ -376,6 +376,7 @@ namespace XVM {
 
         XVM.checkVersion(false)
             .then((versionMatch) => {
+                versionMatch = true
                 let err: object;
                 try {
                     if (!versionMatch) {
