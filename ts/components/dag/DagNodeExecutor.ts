@@ -207,7 +207,7 @@ class DagNodeExecutor {
         try {
             let prefix: string = "";
             if (source) {
-                prefix = source;
+                prefix = xcHelper.getTableName(source);
             } else {
                 prefix = xcHelper.genTableNameFromNode(this.node);
             }
@@ -927,7 +927,7 @@ class DagNodeExecutor {
         let param: DagNodeDFInInputStruct = node.getParam(this.replaceParam);
         let source: string = param.source;
         if (optimized) {
-            const desTable = this._generateTableName();
+            const desTable = this._generateTableName(source);
             // get table outside from batch data flow, so sameSession must be set to false
             return XIApi.synthesize(this.txId, [], source, desTable, false)
         } else {
@@ -971,7 +971,7 @@ class DagNodeExecutor {
             if (!sourceTable) {
                 throw new Error("Cannot find source result in the linked node correctly.");
             }
-            const desTable = this._generateTableName();
+            const desTable = this._generateTableName(sourceTable);
             // get table outside from batch flow, so sameSession must be set to false
             XIApi.synthesize(this.txId, [], sourceTable, desTable, false)
             .then(deferred.resolve)
@@ -1040,7 +1040,7 @@ class DagNodeExecutor {
             if ("object" == typeof destTables) {
                 // get the last dest table
                 destTable = destTables[destTables.length - 1];
-                let newDestTable: string = this._generateTableName();
+                let newDestTable: string = this._generateTableName(destTable);
                 if (queryStr && queryStr.length) {
                     try {
                         // give final table name a name matching the
@@ -1553,7 +1553,7 @@ class DagNodeExecutor {
             return PromiseHelper.resolve(source);
         } else {
             const deferred: XDDeferred<string> = PromiseHelper.deferred();
-            const newTableName = this._generateTableName();
+            const newTableName = this._generateTableName(source);
             const cols: RefreshColInfo[] = this._getRefreshColInfoFromSchema(node.getSchema());
             XcalarRefreshTable(source, newTableName, -1, -1, this.txId, "", cols)
             .then(() => {

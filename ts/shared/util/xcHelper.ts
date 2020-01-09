@@ -1334,7 +1334,7 @@ namespace xcHelper {
                 const parentTable = parentNode.getTable();
                 return xcHelper.getTableName(parentTable);
             })
-            .join("_");
+            .join("_") || "table";
         } catch (e) {
             console.error("generate table name from node error", e);
             return "table";
