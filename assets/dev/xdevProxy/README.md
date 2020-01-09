@@ -14,13 +14,13 @@ xdev-proxy is supposed to run on your local machine where you are developing XD.
     Even it's NOT necessary, the host and port are configurable as env variables.
     ```bash
     export XDEV_PROXY_HOST="localhost"
-    export XDEV_PROXY_PORT="8889"
+    export XDEV_PROXY_PORT="8899"
     ```
     Any values other than "localhost" for XDEV_PROXY_HOST are not recommended, as the proxy's SSL certification is bound to "localhost".
 
     Note: If env variables are not set, xdev-proxy will use these default values:
     * XDEV_PROXY_HOST="localhost"
-    * XDEV_PROXY_PORT="8889"
+    * XDEV_PROXY_PORT="8899"
 
 2. Run the proxy
     ```bash
@@ -28,12 +28,12 @@ xdev-proxy is supposed to run on your local machine where you are developing XD.
     npm start
     ```
     If anything go wrong, please see the ***Troubleshooting*** setion.
-    
+
     Note: port lower than 1024 needs root user priviledge.
 
 3. Setup proxied urls in assets/js/config.js
     ```javascript
-    var planServer="https://localhost:8889/https://skywalker.int.xcalar.com:8443/sql";
+    var planServer="https://localhost:8899/https://skywalker.int.xcalar.com:8443/sql";
     ```
 
 4. Visit the planServer URL in your browser
@@ -57,7 +57,7 @@ Before xdev-proxy we have to launch the Chrome browser in the non-web-security m
 [cors-anywhere](https://github.com/Rob--W/cors-anywhere) is backing it up.
 
 ## Troubleshooting
-1. Starting proxy failed with error: "Error: listen **EADDRNOTAVAIL** 10.10.4.128:8889"
+1. Starting proxy failed with error: "Error: listen **EADDRNOTAVAIL** 10.10.4.128:8899"
 
     This happens when localhost is not properly resolved to "127.0.0.1" for some reasons. To solve the issue, add the following line to /etc/hosts
     ```
@@ -65,7 +65,7 @@ Before xdev-proxy we have to launch the Chrome browser in the non-web-security m
     ```
     Note: You may need root priviledge to change this file.
 
-2. Starting proxy failed with error: "Error: listen **EADDRINUSE** 127.0.0.1:8889"
+2. Starting proxy failed with error: "Error: listen **EADDRINUSE** 127.0.0.1:8899"
 
     This happens when the network port is being used by another process in OS. Change the proxy port by setting XDEV_PROXY_PORT, and start the proxy again.
 
