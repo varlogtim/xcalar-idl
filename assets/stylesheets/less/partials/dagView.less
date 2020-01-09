@@ -633,13 +633,14 @@
         background-color: @color-bg-topBarGray2;
     }
 
-    .dataflowWrapBackground, .dataflowWrap {
+    .dataflowWrapBackground, .dataflowWrap, .innerDataflowWrap {
         .flex(1 1 auto);
         .flex-display;
         background-color: @color-white;
         position: relative;
         overflow: auto;
     }
+
 
     .dataflowWrapBackground {
         height: 1px; // weird to have it, but without it vertial align not work
@@ -655,8 +656,33 @@
             }
         }
     }
-
     .dataflowWrap {
+        overflow: hidden;
+        @resize-h: 11px;
+
+        > .resizeHandler {
+            display: none;
+            position: absolute;
+            width: 100%;
+            height: @resize-h;
+            background-color: @color-bg-list-hover-blue;
+            border-top: 1px solid @color-border-bar;
+            border-bottom: 1px solid @color-border-bar;
+
+            .xc-resizeHandler {
+                width: 48px;
+                height: @resize-h;
+                padding-top: 1px;
+
+                .border {
+                    margin-top: 2px;
+                    background-color: @color-border-bar;
+                }
+            }
+        }
+    }
+    .innerDataflowWrap {
+
         .dataflowArea {
             min-height: 100%;
             min-width: 100%;
@@ -1080,7 +1106,18 @@
             .dataflowWrap {
                 height: 70%;
                 top: 30%;
+                > .ui-resizable-n {
+                    top: -5px;
+                }
             }
+            .resizeHandler {
+                display: block;
+            }
+            .innerDataflowWrap {
+                top: 11px;
+                height: ~"calc(100% - 11px)";
+            }
+
         }
         &.resizing {
             #dagViewTableArea, .dataflowArea {
@@ -1617,7 +1654,7 @@
         .removeNode, .copyNodes, .cutNodes, .executeNode, .resetNode, .executeNodeOptimized,
         .viewOptimizedDataflow,
         .description, .configureNode, .viewResult, .generateResult, .viewSchema, .viewOptions, .customNodeOptions, .autoAlign,
-        .unlockNodeTable, .lockNodeTable, .createCustom, .selectAllNodes, .viewUDFErrors {
+        .unlockNodeTable, .lockNodeTable, .createCustom, .selectAllNodes, .viewUDFErrors, .viewSkew {
             display: list-item;
         }
         .findLinkOut, .restoreDataset {
@@ -1674,7 +1711,7 @@
             li {
                 display: none;
             }
-            .autoAlign, .selectAllNodes, .viewResult {
+            .autoAlign, .selectAllNodes, .viewResult, .viewSkew {
                 display: list-item;
             }
             &.SQLTab {

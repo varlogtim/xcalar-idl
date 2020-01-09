@@ -52,7 +52,7 @@ class DagView {
 
     public static setup() {
         DagView.$dagView = $("#dagView");
-        DagView.$dfWrap = DagView.$dagView.find(".dataflowWrap");
+        DagView.$dfWrap = DagView.$dagView.find(".dataflowWrap .innerDataflowWrap");
         DagView._$operatorBar = DagView.$dagView.find(".operatorWrap");
     }
 
@@ -3757,7 +3757,7 @@ class DagView {
             if (!info.error) {
                 this._editTableLock(this._getNode(info.id), true);
             } else {
-                Alert.error("Lock table failed", info.error);
+                Alert.error("Pin table failed", info.error);
             }
         });
 
@@ -3766,7 +3766,7 @@ class DagView {
             if (!info.error) {
                 this._editTableLock(this._getNode(info.id), false);
             } else {
-                Alert.error("Unlock table failed", info.error);
+                Alert.error("Unpin table failed", info.error);
             }
         });
 

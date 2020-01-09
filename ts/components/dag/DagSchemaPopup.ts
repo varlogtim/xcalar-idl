@@ -56,7 +56,7 @@ class DagSchemaPopup {
             const $target = $(event.target);
             if ($target.closest('.dagSchemaPopup').length === 0 &&
                 !this._$popup.hasClass("pinned") &&
-                !$target.is(this._$dagArea.find(".dataflowWrap")) &&
+                !$target.is(this._$dagArea.find(".innerDataflowWrap")) &&
                 !$target.is(this._$dagArea.find(".dataflowArea"))) {
                 this._close();
             }

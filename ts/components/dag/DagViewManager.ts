@@ -29,7 +29,7 @@ class DagViewManager {
         this._setup = true;
 
         this.$dagView = this._getDagViewEl();
-        this.$dfWrap = this.$dagView.find(".dataflowWrap");
+        this.$dfWrap = this.$dagView.find(".innerDataflowWrap");
 
         DagView.setup();
 
@@ -502,7 +502,7 @@ class DagViewManager {
         } else {
             this.containerSelector = "#dagView";
         }
-        this.$dfWrap = $(this.containerSelector + " .dataflowWrap");
+        this.$dfWrap = $(this.containerSelector + " .dataflowWrap .innerDataflowWrap");
     }
 
 
@@ -1155,12 +1155,14 @@ class DagViewManager {
         let mainAreaHeight;
         let $tableArea;
         let $parent;
-        this.$dfWrap.resizable({
+        let $dfWrapOuter;
+        this.$dfWrap.closest(".dataflowWrap").resizable({
             handles: "n",
             containment: 'parent',
             minHeight: 40,
             start: () => {
-                $parent = this.$dfWrap.parent();
+                $dfWrapOuter = this.$dfWrap.closest(".dataflowWrap");
+                $parent = $dfWrapOuter.parent();
                 $parent.addClass("resizing");
                 mainAreaHeight = $parent.height();
                 $tableArea = $("#dagViewTableArea");
@@ -1170,8 +1172,8 @@ class DagViewManager {
                 if (ui.position.top <= 100) {
                     // ui.position.top = 100;
                     pct = (mainAreaHeight - 100) / mainAreaHeight;
-                    this.$dfWrap.height(mainAreaHeight - 100);
-                    this.$dfWrap.css("top", 100);
+                    $dfWrapOuter.height(mainAreaHeight - 100);
+                    $dfWrapOuter.css("top", 100);
                 }
 
                 $tableArea.height(100 * (1 - pct) + "%");
@@ -1184,12 +1186,13 @@ class DagViewManager {
                 }
                 let pctTop = ui.position.top / mainAreaHeight;
 
-                this.$dfWrap.css("top", 100 * pctTop + "%");
-                this.$dfWrap.height(100 * pct + "%");
+                $dfWrapOuter.css("top", 100 * pctTop + "%");
+                $dfWrapOuter.height(100 * pct + "%");
                 $tableArea.height(100 * (1 - pct) + "%");
                 $parent.removeClass("resizing");
                 $tableArea = null;
                 $parent = null;
+                $dfWrapOuter = null;
             }
         });
 
@@ -1207,7 +1210,7 @@ class DagViewManager {
 
         // moving node in dataflow area to another position
         let operatorSelector = ".operator .main, .operator .iconArea, .comment, .operator .table";
-        this.$dfWrap.add($("#dagStatsPanel .dataflowWrap")).on("mousedown", operatorSelector, function (event) {
+        this.$dfWrap.add($("#dagStatsPanel .dataflowWrap .innerDataflowWrap")).on("mousedown", operatorSelector, function (event) {
             self.activeDagView.operatorMousedown(event, $(this));
         });
 
@@ -1221,7 +1224,7 @@ class DagViewManager {
             self.activeDagView.connectorInMousedown(event, $(this));
         });
 
-        let $dfWraps = this.$dfWrap.add($("#dagStatsPanel .dataflowWrap"));
+        let $dfWraps = this.$dfWrap.add($("#dagStatsPanel .dataflowWrap .innerDataflowWrap"));
 
          // drag select multiple nodes
         let $dfArea;
@@ -1283,7 +1286,7 @@ class DagViewManager {
         });
 
         // add listeners to dagView and sqlMode graph
-        $dfWraps = $dfWraps.add($("#sqlDataflowArea .dataflowWrap"));
+        $dfWraps = $dfWraps.add($("#sqlDataflowArea .dataflowWrap .innerDataflowWrap"));
 
         // add classes to skewTh and skewTd because we can't use
         // css to control their hover states together

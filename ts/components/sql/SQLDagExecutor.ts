@@ -287,7 +287,7 @@ class SQLDagExecutor {
             reset: false,
             createdTime: xcTimeHelper.now()
         });
-        const $container = this._advancedDebug ? $() : $("#sqlDataflowArea .dataflowWrap");
+        const $container = this._advancedDebug ? $() : $("#sqlDataflowArea .dataflowWrap .innerDataflowWrap");
         DagViewManager.Instance.render($container, this._tempGraph, <DagTab>this._tempTab, true);
         this._tempGraph.addNode(this._sqlNode);
     }

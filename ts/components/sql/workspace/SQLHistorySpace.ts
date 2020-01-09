@@ -116,7 +116,7 @@ class SQLHistorySpace {
         dagTab.load()
         .then(() => {
             try {
-                const $container = $("#sqlDataflowArea .dataflowWrap");
+                const $container = $("#sqlDataflowArea .dataflowWrap .innerDataflowWrap");
                 $container.empty();
                 DagViewManager.Instance.addDataflowHTML($container, dataflowId, true, false)
                 DagViewManager.Instance.renderSQLPreviewDag(<DagTab>dagTab);

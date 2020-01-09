@@ -9,7 +9,7 @@ class DagComment {
 
     public setup() {
         const self = this;
-        const $dfWrap: JQuery = $("#dagView .dataflowWrap");
+        const $dfWrap: JQuery = $("#dagView .dataflowWrap .innerDataflowWrap");
         $dfWrap.on("mousedown", ".comment", function() {
             const $comment = $(this);
             if (!$comment.hasClass("focused")) {

@@ -111,6 +111,7 @@ namespace DagNodeMenu {
             let nodeId: DagNodeId;
             let nodeIds: DagNodeId[];
             let dagNodeIds: DagNodeId[];
+            let node: DagNode;
             options = options || {};
             if (options.node) {
                 nodeId = options.node.getId();
@@ -227,6 +228,12 @@ namespace DagNodeMenu {
                 case ("viewUDFErrors"):
                     DagUDFErrorModal.Instance.show(dagNodeIds[0]);
                     break;
+                case ("viewSkew"):
+                    node = _getNodeFromId(dagNodeIds[0]);
+                    const $dfArea = DagViewManager.Instance.getActiveArea();
+                    let $statsTip = $dfArea.find('.runStats[data-id="' + node.getId() + '"]');
+                    SkewInfoModal.Instance.show(null, {tableInfo: $statsTip.data("skewinfo")});
+                    break;
                 case ("description"):
                     DagDescriptionModal.Instance.show(dagNodeIds[0]);
                     break;
@@ -282,7 +289,7 @@ namespace DagNodeMenu {
                     DagViewManager.Instance.getActiveDag().getNode(nodeId).unpinTable();
                     break;
                 case ("restoreDataset"):
-                    const node: DagNodeDataset = <DagNodeDataset>DagViewManager.Instance.getActiveDag().getNode(dagNodeIds[0]);
+                    node = <DagNodeDataset>DagViewManager.Instance.getActiveDag().getNode(dagNodeIds[0]);
                     _restoreDatasetFromNode(node);
                     break;
                 case ("restoreAllDataset"):
@@ -762,6 +769,7 @@ namespace DagNodeMenu {
     }
 
     function _adjustMenuForSingleNode($menu: JQuery, nodeId): string {
+        const $dfArea: JQuery = DagViewManager.Instance.getActiveArea();
         const dagGraph: DagGraph = DagViewManager.Instance.getActiveDag();
         const dagNode: DagNode = dagGraph.getNode(nodeId);
         const state: DagNodeState = (dagNode != null) ? dagNode.getState() : null;
@@ -778,14 +786,24 @@ namespace DagNodeMenu {
                 $menu.find(".generateResult").addClass("xc-hidden");
                 $menu.find(".viewResult").removeClass("xc-hidden");
                 $menu.find(".viewResult").removeClass("unavailable");
+                $menu.find(".viewSkew").removeClass("xc-hidden");
             } else {
                 $menu.find(".viewResult").addClass("xc-hidden");
                 $menu.find(".generateResult").removeClass("xc-hidden");
                 $menu.find(".generateResult").removeClass("unavailable");
+                $menu.find(".viewSkew").addClass("xc-hidden");
             }
         } else {
             $menu.find(".viewResult").addClass("unavailable");
             $menu.find(".generateResult").addClass("xc-hidden");
+            $menu.find(".viewSkew").addClass("xc-hidden");
+        }
+        // show skew option
+        let $statsTip = $dfArea.find('.runStats[data-id="' + dagNode.getId() + '"]');
+        if ($statsTip.length && $statsTip.data("skewinfo")) {
+            $menu.find(".viewSkew").removeClass("xc-hidden");
+        } else {
+            $menu.find(".viewSkew").addClass("xc-hidden");
         }
 
         // view optimized dataflow
@@ -825,6 +843,7 @@ namespace DagNodeMenu {
             const aggNode = <DagNodeAggregate>dagNode;
             classes = "agg";
             $menu.find(".viewResult").removeClass("xc-hidden");
+            $menu.find(".viewSkew").addClass("xc-hidden");
             if (state === DagNodeState.Complete &&
                 aggNode.getAggVal() != null
             ) {

@@ -198,7 +198,7 @@ class DagTabManager {
         this._statsTab = dagTab;
         dagTab.load()
         .then(() => {
-            const $container = $("#dagStatsPanel .dataflowWrap");
+            const $container = $("#dagStatsPanel .dataflowWrap .innerDataflowWrap");
             $container.find(".dataflowArea").remove();
             const tabId = dagTab.getId();
             DagViewManager.Instance.addDataflowHTML($container, tabId, true, true, true);
@@ -219,7 +219,7 @@ class DagTabManager {
             newTab.setGraph(newTab.getGraph());
             this._sqlPreviewTab = <DagTab>newTab;
 
-            const $container = $("#sqlDataflowArea .dataflowWrap");
+            const $container = $("#sqlDataflowArea .dataflowWrap .innerDataflowWrap");
             $container.empty();
             DagViewManager.Instance.addDataflowHTML($container, tabId, true, false);
 
@@ -914,7 +914,7 @@ class DagTabManager {
             '</li>';
 
         this._getTabArea().append(html);
-        DagViewManager.Instance.addDataflowHTML($("#dagView .dataflowWrap"), tabId, isViewOnly, isProgressGraph);
+        DagViewManager.Instance.addDataflowHTML($("#dagView .dataflowWrap .innerDataflowWrap"), tabId, isViewOnly, isProgressGraph);
 
         if (tabIndex != null) {
             // Put the tab and area where they should be
@@ -977,7 +977,7 @@ class DagTabManager {
         const $dataflowArea: JQuery = this._getDataflowArea(previousIndex);
         // if last tab, just append
         if (newIndex === this._activeUserDags.length - 1) {
-            $("#dagView .dataflowWrap").append($dataflowArea);
+            $("#dagView .dataflowWrap .innerDataflowWrap").append($dataflowArea);
         } else {
             // because the current area still exists, we need to place before
             // or after the dataflow at the current index depending on the

@@ -10,7 +10,7 @@ class DagStatsPanel {
 
 
     constructor() {
-        this.$dfWrap = $("#dagStatsPanel .dataflowWrap");
+        this.$dfWrap = $("#dagStatsPanel .dataflowWrap .innerDataflowWrap");
         this._tableComponent = new StatsTable({
             // columnsToShow: [SqlQueryHistoryPanel.TableColumnCategory.SELECT, SqlQueryHistoryPanel.TableColumnCategory.STATUS, SqlQueryHistoryPanel.TableColumnCategory.QUERY, SqlQueryHistoryPanel.TableColumnCategory.DURATION],
             columnsToShow: [
@@ -222,7 +222,7 @@ class DagStatsPanel {
         let $toggleBtn = $("#dagViewBar .toggleStatsPanel");
         $toggleBtn.text("Back to modules");
         $toggleBtn.removeClass("modelingView").addClass("statsView");
-        $("#dagSearch").prependTo("#dagStatsPanel .dataflowWrap");
+        $("#dagSearch").prependTo("#dagStatsPanel .dataflowWrap .innerDataflowWrap");
 
     }
 
@@ -235,7 +235,7 @@ class DagStatsPanel {
         let $toggleBtn = $("#dagViewBar .toggleStatsPanel");
         $toggleBtn.text("View Optimized Application Stats");
         $toggleBtn.addClass("modelingView").removeClass("statsView");
-        $("#dagSearch").prependTo("#dagView .dataflowWrap");
+        $("#dagSearch").prependTo("#dagView .dataflowWrap .innerDataflowWrap");
     }
 
     private _setupResizing() {

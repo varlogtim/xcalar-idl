@@ -25,7 +25,7 @@ class SkewInfoModal {
      * SkewInfoModal.Instance.show
      * @param tableId
      */
-    public show(table: TableMeta, options?) {
+    public show(table: TableMeta, options?: {tableInfo?: any}) {
         this._instanceOptions = options || {};
         if (table == null && !this._instanceOptions.tableInfo) {
             // error case which should never happen
