@@ -130,6 +130,11 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
                             className="close"
                             onClick={close.callback}
                             ref={this._closeRef}
+                            data-toggle="tooltip"
+                            data-container="body"
+                            data-placement="top auto"
+                            data-tipclasses="highZindex" 
+                            data-original-title={CommonTStr.Close}
                         >
                             <i className="icon xi-close"></i>
                         </div>
