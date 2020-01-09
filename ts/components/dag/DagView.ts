@@ -436,7 +436,7 @@ class DagView {
             });
             $node.find(".topTableIcon").remove();
             $node.attr("data-toptableicons", icons);
-            top = 1;
+            top = 3;
             left = DagView.nodeAndTableWidth - 19;
 
             for (let i = 0; i < icons.length; i++) {
@@ -467,7 +467,7 @@ class DagView {
             $node.find(".bottomTableIcon").remove();
             // store the icon order
             $node.attr("data-bottomtableicons", icons);
-            top = DagView.nodeHeight;
+            top = DagView.nodeHeight - 2;
             for (let i = 0; i < icons.length; i++) {
                 if (icons[i] === iconType) {
                     drawIcon(icons[i], false, DagView.nodeAndTableWidth - (i * 15 ) - 19, top, DagView.iconMap[iconType], xcStringHelper.escapeDblQuoteForHTML(tooltip), i);
@@ -497,10 +497,6 @@ class DagView {
                 .attr("cx", 3.5)
                 .attr("cy", 0)
                 .attr("r", 6)
-                // .style("fill", "#849CB0");
-                // .style("fill", "#888888");
-                // .style("fill", "#9FB1C0");
-                // .style("fill", "#888888");
                 .style("fill", "#627483");
             g.append("text")
                 .attr("font-family", fontFamily)
@@ -4200,7 +4196,7 @@ class DagView {
         $node: JQuery, lock: boolean
     ): void {
         if (lock) {
-            DagView.addTableIcon($node, "lockIcon", "Result pinned");
+            DagView.addTableIcon($node, "lockIcon", TooltipTStr.PinnedTable);
         } else {
             DagView.removeTableIcon($node, "lockIcon");
         }

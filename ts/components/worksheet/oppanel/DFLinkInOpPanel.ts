@@ -445,7 +445,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
                 }
             }
         } catch (e) {
-            console.warn("cannot find node from result set", e);
+            console.warn("cannot find node from table", e);
         }
         return colSchema;
     }

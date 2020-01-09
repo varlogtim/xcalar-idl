@@ -9,7 +9,7 @@ describe("DagCategoryBar Test", function() {
     before(function(done) {
         console.clear();
         console.log("DagCategoryBar Test");
-    
+
         UnitTest.testFinish(() => DagPanel.hasSetup())
         .always(function() {
             oldPut = XcalarKeyPut;
@@ -47,7 +47,7 @@ describe("DagCategoryBar Test", function() {
     it("should update categories", function() {
         expect($operatorBar.find(".category-in").find(".operator").length).to.equal(3);
         expect($operatorBar.find(".category-in").find(".operator").eq(0).find(".opTitle").text()).to.equal("Dataset");
-        expect($operatorBar.find(".category-in").find(".operator").eq(1).find(".opTitle").text()).to.equal("Table");
+        expect($operatorBar.find(".category-in").find(".operator").eq(1).find(".opTitle").text()).to.equal("PublishedTable");
         expect($operatorBar.find(".category-in").find(".operator").eq(2).find(".opTitle").text()).to.equal("Link In");
 
         DagCategoryBar.Instance.updateCategories(new DagTabSQLFunc());
@@ -60,7 +60,7 @@ describe("DagCategoryBar Test", function() {
         DagCategoryBar.Instance.updateCategories(new DagTabUser());
         expect($operatorBar.find(".category-in").find(".operator").length).to.equal(3);
         expect($operatorBar.find(".category-in").find(".operator").eq(0).find(".opTitle").text()).to.equal("Dataset");
-        expect($operatorBar.find(".category-in").find(".operator").eq(1).find(".opTitle").text()).to.equal("Table");
+        expect($operatorBar.find(".category-in").find(".operator").eq(1).find(".opTitle").text()).to.equal("PublishedTable");
         expect($operatorBar.find(".category-in").find(".operator").eq(2).find(".opTitle").text()).to.equal("Link In");
 
     });
@@ -131,7 +131,7 @@ describe("DagCategoryBar Test", function() {
             expect($("#dagView .searchArea ul").is(":visible")).to.be.false;
             $("#dagView .categoryBar .searchInput").val("d").trigger(fakeEvent.input);
             expect($("#dagView .searchArea ul").is(":visible")).to.be.true;
-            expect($("#dagView .searchArea li").length).to.be.eq(4);
+            expect($("#dagView .searchArea li").length).to.be.eq(5);
             let $lis = $("#dagView .searchArea li");
 
             expect($lis.filter(function() {
@@ -142,6 +142,9 @@ describe("DagCategoryBar Test", function() {
             }).length).to.be.gt(0);
             expect($lis.filter(function() {
                 return $(this).text().indexOf("Explode") > -1;
+            }).length).to.be.gt(0);
+            expect($lis.filter(function() {
+                return $(this).text().indexOf("Published Table") > -1;
             }).length).to.be.gt(0);
         });
 

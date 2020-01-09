@@ -122,7 +122,7 @@ class JupyterUDFModal {
         if ($modal.hasClass("type-map")) {
             let tableName = $modal.find(".tableName:visible").data("tablename");
             if (tableName.includes(`'`) || tableName.includes(`"`)) {
-                StatusBox.show("Result set name cannot include quotes", $modal.find(".tableName:visible"), true);
+                StatusBox.show("Table name cannot include quotes", $modal.find(".tableName:visible"), true);
                 return;
             }
             let fullColumnsStr: string = $modal.find(".columns").val();

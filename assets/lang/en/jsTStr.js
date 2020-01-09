@@ -15,9 +15,9 @@ StatusMessageTStr = {
     'ImportDSFailed': 'Data source import failed',
     'DSFetchFailed': 'Dataset preview failed',
     'JoinEstFailed': "Join Size Estimation Failed",
-    'DeleteResultSets': 'Dropping result sets',
+    'DeleteResultSets': 'Dropping tables',
     'DeleteConstFailed': 'Drop aggregate(s) failed',
-    'PartialDeleteResultSetFail': 'Some resulet sets could not be dropped',
+    'PartialDeleteResultSetFail': 'Some tables could not be dropped',
     'Aggregate': 'Calculating Aggregate',
     'AggregateFailed': 'Aggregate failed',
     'AggregateNotExist': 'Aggregate does not exist: ',
@@ -49,7 +49,7 @@ StatusMessageTStr = {
     'CurrReplay': 'Currently Replaying',
     'CompReplay': 'Completed Replay',
     "PleaseWait": "Please wait",
-    'Finalize': "Finalizing Result Set",
+    'Finalize': "Finalizing Table",
     'FinalizeFailed': "Finalize failed",
     // Must keep in sync with htmlTStr
     'ActionSuccess': 'Your action was successful!',
@@ -68,9 +68,11 @@ TooltipTStr = {
     'NoUndoNoOp': 'No operation to undo',
     'NoRedo': 'No operation to redo',
     'UnhideWS': 'Show worksheet',
-    'LockedTable': 'Result set is pinned.',
-    'LockedTableUndo': 'Cannot undo while result set is locked',
-    'LockedTableRedo': 'Cannot redo while result set is locked',
+    'LockedTable': 'Table is pinned.',
+    'PinnedTable': 'Table pinned.',
+    'ViewingTable': "Viewing table",
+    'LockedTableUndo': 'Cannot undo while table is locked',
+    'LockedTableRedo': 'Cannot redo while table is locked',
     'SaveQG': 'Save image',
     'NewTabQG': 'Open image in new tab',
     'FileTicket': 'File Support Ticket',
@@ -83,7 +85,7 @@ TooltipTStr = {
     'ViewTableOptions': 'View menu options',
     'RemoveQuery': 'Remove operation',
     'CancelQuery': 'Cancel operation',
-    'AlreadyIcv': 'This result is already an erroneous rows(ER) result',
+    'AlreadyIcv': 'This table is already an erroneous rows(ER) table',
     'ParamValNoChange': 'This parameter value cannot be changed',
     'DeleteFile': 'Delete file',
     'CancelUpload': 'Cancel upload',
@@ -92,7 +94,7 @@ TooltipTStr = {
     "LoggedIn": "Logged In",
     "Saved": "Last saved",
     "SavedOn": "Last saved on",
-    "ComplementRestriction": "Complement result only available for Filter",
+    "ComplementRestriction": "Complement table only available for Filter",
     "AddToWorksheet": "Add To Worksheet",
     "SysOperation": "System generated operation",
     "UDFNoMain": "UDF requires a 'main' function",
@@ -114,7 +116,7 @@ TooltipTStr = {
     "MustBeInWorkbook": "You must be inside a project to perform this action.",
     "SelectToViewSchema": "Select a table to view schema",
     // Sync with htmlTStr
-    "IcvRestriction": "Erroneous rows(ER) result only available for Map and Group By",
+    "IcvRestriction": "Erroneous rows(ER) table only available for Map and Group By",
     "OnlyInOpMode": "Feature only available in Operational Cluster",
     "ColumnAlreadyInt": "Column is already an integer",
     "ColumnAlreadyFloat": "Column is already a float",
@@ -125,7 +127,7 @@ TooltipTStr = {
     'Undo': 'Undo: <op>',
     'NoUndo': 'Last operation is "<op>", cannot undo',
     'Redo': 'Redo: <op>',
-    'LowMemInTable': 'Warning! Cluster is low on memory for result set. Click this button to drop result sets.',
+    'LowMemInTable': 'Warning! Cluster is low on memory for table. Click this button to drop tables.',
     'LowMemInDS': 'Warning! Cluster is low on memory for datasets/published tables. Please delete unused datasets/published tables.',
     'LowMemByOthers': 'Current memory utilization by other cluster users is high. Work with an admin to free memory for your modeling.',
     'TooltipNoWorkbook': 'A project must be opened in order to start a walkthrough'
@@ -284,9 +286,9 @@ ErrTStr = {
     'TooLong': 'Please use fewer than 255 characters.',
     'PrefixTooLong': 'Please use fewer than 32 characters.',
     'NoTable': 'Table does not exist',
-    'ResultsetsNotDeleted': 'The following result sets were not dropped:',
+    'ResultsetsNotDeleted': 'The following tables were not dropped:',
     'ConstsNotDeleted': 'The following aggregates were not dropped:',
-    'NoResultSetDeleted': 'No result sets were dropped',
+    'NoResultSetDeleted': 'No tables were dropped',
     'NoConstsDeleted': 'No aggregates were dropped.',
     'LargeImgSave': 'Unable To Save Image',
     'LargeImgTab': 'Unable To Open Image',
@@ -308,7 +310,7 @@ ErrTStr = {
     'SchedHourWrong': 'Hour must be between 1 and 12',
     'SchedMinWrong': 'Minute must be between 0 and 59',
     'OutputNotFoundMsg': 'Output is not available.',
-    'TableNotExists': 'Result set does not exist.',
+    'TableNotExists': 'Table does not exist.',
     'SelectOption': 'Please select an option.',
     'NotDisplayRows': 'Could not display rows',
     'AppInstallFailed': 'App Installation Failed',
@@ -319,7 +321,7 @@ ErrTStr = {
     'ExtDownloadFailure': 'Extension Download Failed',
     'TutDownloadFailure': 'Tutorial Download Failed',
     'ErrorModalDownloadFailure' : 'Error logs failed to be downloaded',
-    'CannotDropLocked': 'Cannot drop pinned result sets',
+    'CannotDropLocked': 'Cannot drop pinned tables',
     'RefreshBrowser': 'Refresh Browser',
     'RefreshBrowserDesc': 'We have detected an issue that requires a refresh.\nPlease refresh your browser now. Your work will be recovered to the last consistent state.',
     'BundleFailed': 'Submit Bundle Failed',
@@ -361,7 +363,7 @@ ErrTStr = {
     'InvalidUDFFunction': 'Invalid function name',
     'InvalidDFDownload': 'Invalid module to download',
     "NoPrimaryKey": "Published tables must have a primary key.",
-    'DsNotFound': 'Result not found. It may be caused by module change or errors in the module, please reconfigure the node and try execute again.',
+    'DsNotFound': 'Table not found. It may be caused by module change or errors in the module, please reconfigure the node and try execute again.',
 
 };
 
@@ -377,16 +379,16 @@ ErrWRepTStr = {
     'NoUDF': 'UDF \" <udf> \" does not exist.',
     'InvalidOpsType': 'Data type is invalid. Expected: <type1>, Entered: <type2>.',
     'InvalidCol': 'Column "<name>" does not exist.',
-    'InvalidColOnTable': 'Column "<col>" does not exist in result set <table>.',
+    'InvalidColOnTable': 'Column "<col>" does not exist in table <table>.',
     'InvalidColOnNode': 'Column "<col>" does not exist in node <node>.',
     'InvalidRange': 'Please enter a value between <num1> and <num2>.',
     'InvalidColType': 'Column "<name>" has an invalid type: <type>',
-    'ColConflict': 'Column "<name>" already exists in result set "<table>."',
+    'ColConflict': 'Column "<name>" already exists in table "<table>."',
     'ColConflictInNode': 'Column "<name>" already exists in node "<node>."',
     'NoLessNum': 'Please enter a value greater than or equal to <num>',
     'NoBiggerNum': 'Please enter a value less than or equal to <num>',
     'IntInRange': 'Please input an integer between <lowerBound> and <upperBound>',
-    'ResultSetNotDeleted': 'Result set <name> was not dropped.',
+    'ResultSetNotDeleted': 'Table <name> was not dropped.',
     'ConstNotDeleted': 'Aggregate <name> was not dropped.',
     'AggConflict': 'Aggregate <aggPrefix>"' + '<name>" already exists. ' +
                     'Please choose another name.',
@@ -496,7 +498,7 @@ SQLErrTStr = {
     "ParameterMismatch": "Parameter names mismatch",
     "InvalidLogicalPlan": "Invalid logical plan",
     "InvalidXcalarQuery": "Invalid Xcalar Query String",
-    "InvalidPageInfo": "Invalid Xcalar result set page",
+    "InvalidPageInfo": "Invalid Xcalar table page",
     "InvalidSQLTable": "Invalid SQL table from persisted store",
     "InvalidSQLQuery": "Invalid SQL queries from persisted store",
     "FinalizingFailed": "Finalizing failed",
@@ -681,7 +683,7 @@ AlertTStr = {
     "BrowserVersions": "You are running an unsupported browser. Please use one of the following browsers:<br>Chrome (version 65+)<br>Firefox (version 59+)<br>Safari (version 11.1+)",
     "queryHistorySQLErrorTitle": "SQL Error",
     "queryHistoryReadErrorTitle": "Read query history failed",
-    "AutoTblManagerError": "Automatic Result Set Manager failed to setup.",
+    "AutoTblManagerError": "Automatic Table Manager failed to setup.",
     "DFLinkGraphError": "Module Output '<inName>' must be created in the graph '<graphName>'.",
     "DFLinkShouldLinkError": "The Module Output for '<inName>' must be manually " +
         "executed before the output can be used.",
@@ -741,7 +743,7 @@ AggTStr = {
 };
 
 IndexTStr = {
-    'Sorted': 'Result set already sorted',
+    'Sorted': 'Table already sorted',
     'SuggTitle': 'Sort Suggestion',
     'SuggMsg': 'This column can be sorted either numerically or ' +
                'alphabetically. How would you like to sort?',
@@ -749,7 +751,7 @@ IndexTStr = {
     'NoCast': 'Alphabetically',
 
     // with replace
-    'SortedErr': 'Current result set is already sorted on this column in <order> ' +
+    'SortedErr': 'Current table is already sorted on this column in <order> ' +
                  'order',
     'SuggInstr': 'Select "Numerically" to cast the column to <type> ' +
                  'before sorting in numerical order. Non-numeric rows are ' +
@@ -798,7 +800,7 @@ UnionTStr = {
     "Detect": "Auto detect column matches",
     "AutoDetect": "Auto Detect",
     "NewColName": "New Name",
-    "CandidateHint": "Columns in this section will not be in the results table. Click column name to add the column to the results table.",
+    "CandidateHint": "Columns in this section will not be in the resultant table. Click column name to add the column to the resultant table.",
     "EmptyList": "Empty List",
     "SearchCol": "Find column name",
     "SelectCol": "Please select columns for this operation.",
@@ -957,8 +959,8 @@ MonitorTStr = {
     "UsedSysMem": "OS Used",
     "FreeSysMem": "OS Free",
     "FreeXcalarMem": "Xcalar Free",
-    "OtherUsers": "Other Users' Result Sets",
-    "YourTables": "Your Result Sets",
+    "OtherUsers": "Other Users' Tables",
+    "YourTables": "Your Tables",
     "PubTables": "Published Tables",
     "Datasets": "Datasets",
     "TicketSuccess": "Your ticket was submitted successfully.",
@@ -977,7 +979,7 @@ MonitorTStr = {
     "TicketErr2": "This ticket could not be found within your organization.",
     "LowMem": "Low Memory Warning",
     "LowMemMsg": "Warning! Cluster is low on memory. Please check the system status icon for details. " +
-        "Clicking 'Free Memory' will free all result sets not pinned and not expected to be used by the current module tab.",
+        "Clicking 'Free Memory' will free all tables not pinned and not expected to be used by the current module tab.",
     "LowMemInstr": "To find out more about memory management, please reference <a href=\"<link>\" target=\"_blank\">the link</a>",
 
     // with replace
@@ -1107,8 +1109,8 @@ DFTStr = {
     "ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized.",
     "CustomizeTitle": "Customize <op> Operation",
     "ParamNoValueList": "Please assign values to all the parameters being used in the current module. Parameters without values: <params>",
-    "LockedTableWarning": "Pinned Result Warning",
-    "LockedTableMsg": "\'<action>\' will delete one or more pinned results. If you do not want the results to be deleted, cancel and duplicate the relevant parts of the flow.",
+    "LockedTableWarning": "Pinned Table Warning",
+    "LockedTableMsg": "\'<action>\' will delete one or more pinned tables. If you do not want the tables to be deleted, cancel and duplicate the relevant parts of the flow.",
 };
 
 DFNodeLineageTStr = {
@@ -1174,7 +1176,7 @@ DSTStr = {
     'DetectInvalidCol': 'Invalid Column Name In Dataset',
     'DetectInvalidColInstr': 'Invalid column names may cause unexpected issues when operating on the data. We recommend cleaning the column name first.',
     'DetectInvalidColInstrForce': 'Invalid column names may cause unexpected issues when operating on the data. Please clean the column names first.',
-    'InUseInstr': 'Please delete all active/hidden/temporary result sets and constants associated with the dataset before unlocking it.',
+    'InUseInstr': 'Please delete all active/hidden/temporary tables and constants associated with the dataset before unlocking it.',
     'SkipRowsError': 'The Skip Rows setting is higher than the number of rows in your preview. Please lower it or increase the number of rows in your preview.',
     'ClickChange': 'Click to change',
     'DetectInvalidColMsg': 'The following column names contain invalid characters. Do you want to continue?',
@@ -1351,10 +1353,10 @@ DataMartTStr = {
 };
 
 ResultSetTStr = {
-    "Del": "Drop Result Sets",
-    "DelMsg": "Are you sure you want to drop the selected result set(s)?",
-    "DelMsgReplace": "Are you sure you want to drop result set <name>?",
-    "NotFound": "Result set not found"
+    "Del": "Drop Tables",
+    "DelMsg": "Are you sure you want to drop the selected table(s)?",
+    "DelMsgReplace": "Are you sure you want to drop table <name>?",
+    "NotFound": "Table not found"
 };
 
 ColTStr = {
@@ -1473,7 +1475,7 @@ JsonModalTStr = {
     'SeeAll': 'See All',
     'SelectAll': 'Select all fields',
     'SelectionMode': 'Single Select Mode',
-    'SelectOther': 'Select another data cell from a result set to compare',
+    'SelectOther': 'Select another data cell from a table to compare',
     'SortAsc': 'Sort ascending',
     'SortDesc': 'Sort descending',
     'SubmitProjection': 'Submit Projection',
@@ -1697,8 +1699,8 @@ OpPanelTStr = {
     "RowNumPanelFieldNameDestColumn": "New resultant column name",
     "JoinPanelRenameTitlePrefix": "Prefixes",
     "JoinPanelRenameTitleDerived": "Derived Fields",
-    "JoinPanelRenameColOldLeft": "#1 Result",
-    "JoinPanelRenameColOldRight": "#2 Result",
+    "JoinPanelRenameColOldLeft": "#1 Table",
+    "JoinPanelRenameColOldRight": "#2 Table",
     "JoinPanelRenameColNew": "New Name",
     "JoinPanelColumnTableTitleKeep": "Columns To Keep",
     "JoinPanelColumnTableTitleDrop": "Columns To Drop",
@@ -1715,7 +1717,7 @@ OpPanelTStr = {
     "ExplodePanelFieldNameSourceColumn": "Column to explode",
     "ExplodePanelFieldNameDestColumn": "New resultant column name",
     "ExplodePanelFieldNameDelimiter": "Delimiter",
-    "SortPanelInstr": "Sort your result set by selecting one or more columns. The order in which you select the columns will determine that result set's sort order.",
+    "SortPanelInstr": "Sort your table by selecting one or more columns. The order in which you select the columns will determine that table's sort order.",
     "SortPanelTitle": "Sort",
     "SortPanelFieldName": "Column name",
     "SortColumnHeading": "Columns to sort",

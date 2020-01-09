@@ -350,7 +350,7 @@ class DagSchemaPopup {
             ? xcStringHelper.escapeHTMLSpecialChar(destCol.getBackColName())
             : '';
         let hideIcon: HTML = isHidden ? '<i class="icon xi-hide" ' + xcTooltip.Attrs +
-                        '  data-tipclasses="highZindex" data-original-title="Field is hidden from result set"></i>' : "";
+                        '  data-tipclasses="highZindex" data-original-title="Field is hidden from table"></i>' : "";
         let html: HTML =
             '<li class="' + liClass + '">' +
                 '<div class="cell type">' +

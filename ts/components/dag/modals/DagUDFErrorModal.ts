@@ -150,7 +150,7 @@ class DagUDFErrorModal {
         if (!parentNode) {
             xcUIHelper.disableElement(this._$modal.find(".genErrorTable"), "Parent node does not exist");
         } else if (!parentNode.getTable()) {
-            xcUIHelper.disableElement(this._$modal.find(".genErrorTable"), "Parent node does not have a result set");
+            xcUIHelper.disableElement(this._$modal.find(".genErrorTable"), "Parent node does not have a table");
         } else {
             xcUIHelper.enableElement(this._$modal.find(".genErrorTable"));
         }

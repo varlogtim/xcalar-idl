@@ -41,7 +41,7 @@ describe("DagCategoryNode Test", function() {
             expect(node.getDisplayNodeType()).to.equal("Output    Table");
 
             node = new DagCategoryNode(new DagNodeIMDTable({}));
-            expect(node.getDisplayNodeType()).to.equal("Table");
+            expect(node.getDisplayNodeType()).to.equal("Published Table");
 
             node = new DagCategoryNode(new DagNodeGroupBy({}));
             expect(node.getDisplayNodeType()).to.equal("Group By");

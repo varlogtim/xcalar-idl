@@ -12,22 +12,22 @@ export default {
     },
 
     "DeleteTableModalTStr": {
-        "header": "Drop Result Sets",
-        "instr": "To free space in this application please drop old or unnecessary result sets.",
+        "header": "Drop Tables",
+        "instr": "To free space in this application please drop old or unnecessary tables.",
         "Confirm": "Drop",
-        "Tables": "Result Sets"
+        "Tables": "Tables"
     },
 
     "TooltipTStr": {
-        "LockedTable": "Result set is pinned",
+        "LockedTable": "Table is pinned",
     },
 
     "ResultSetTStr": {
-        "Del": "Drop Result Sets",
-        "DelMsg": "Are you sure you want to drop the selected result set(s)?",
+        "Del": "Drop Tables",
+        "DelMsg": "Are you sure you want to drop the selected table(s)?",
     },
 
     "StatusMessageTStr": {
-        'DeleteResultSets': 'Dropping result sets',
+        'DeleteResultSets': 'Dropping tables',
     },
 }

@@ -228,7 +228,7 @@ class DagNodeInfoPanel {
             // dataset node and link in node add schem
             param.schema = this._activeNode.getSchema();
         }
-        param["result_set"] = this._activeNode.getTable() || "N/A";
+        param["result_table"] = this._activeNode.getTable() || "N/A";
         return JSON.stringify(param, null, 4);
     }
 
