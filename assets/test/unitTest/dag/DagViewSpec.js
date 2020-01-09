@@ -371,7 +371,7 @@ describe("DagView Test", () => {
             $operator.find(".nodeTitle").dblclick();
             expect($operator.find(".nodeTitle")).to.not.be.visible;
             expect($dfArea.find("textarea.editableNodeTitle").length).to.equal(1);
-            expect($dfArea.find("textarea.editableNodeTitle").val()).to.equal("Node 2");
+            expect($dfArea.find("textarea.editableNodeTitle").val()).to.equal("Label 2");
         });
 
         it("edit title should work", function(done) {

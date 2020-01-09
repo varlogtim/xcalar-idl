@@ -543,7 +543,7 @@ class DagQueryConverter {
         let count = 0;
         for (let i in dagNodeInfos) {
             if (!dagNodeInfos[i].title) {
-                dagNodeInfos[i].title = "Node " + (++count);
+                dagNodeInfos[i].title = "Label " + (++count);
             }
             delete dagNodeInfos[i].table; // new dag nodes don't need tables
             finalNodeInfos.push(dagNodeInfos[i]);

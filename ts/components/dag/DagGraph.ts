@@ -349,10 +349,10 @@ class DagGraph extends Durable {
     }
 
     /**
-     * Generate node title with format "Node {number}"
+     * Generate node title with format "Label {number}"
      */
     public generateNodeTitle(): string {
-        return `Node ${this.nodesMap.size + 1}`;
+        return `Label ${this.nodesMap.size + 1}`;
     }
 
     /**

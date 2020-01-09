@@ -405,7 +405,7 @@ window.TestSuite = (function($, TestSuite) {
                 }
             })
             .then(function() {
-                let tableTitle = "#dagViewTableArea .tableNameArea .name:contains(Node 1):visible";
+                let tableTitle = "#dagViewTableArea .tableNameArea .name:contains(Label 1):visible";
                 let dataCol = "#xcTable-" + xcHelper.getTableId(tableName) + " td.jsonElement";
                 return self.checkExists([tableTitle, dataCol]);
             })
