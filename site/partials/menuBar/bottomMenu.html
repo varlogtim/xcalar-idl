@@ -6,8 +6,6 @@
     <i class="icon xi_popout popOut" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.bottomMenu.popOutBtn %>"></i>
     <div id="udfButtonWrap" class="xc-hidden">
       <i class="icon xi-udf-manager toManager" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.UDF.ToManager %>"></i>
-      <i class="icon xi-save saveFile" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.UDF.SaveFile %>"></i>
-      <i class="icon xi-refresh refreshUdf" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.UDF.Refresh %>"></i>
     </div>
   </div>
   <!-- End Of Top Buttons -->
@@ -26,29 +24,40 @@
           <section id="udf-fnSection" class="mainSection xc-disabled">
             <!-- topSection -->
             <div class="topSection">
-              <div class="template normal">
-                <div id="udf-fnList" class="dropDownList">
-                  <input id= "test_udf_fn" class="text udf-fnName" spellcheck="false" placeholder="<%= dicts.UDF.SelectTemplate %>" data-toggle="tooltip" data-container="body" data-placement="top">
-                  <div class="iconWrapper">
-                    <i class="icon xi-arrow-down"></i>
-                  </div>
-                  <div id="udf-fnMenu" class="list">
-                    <ul>
-                      <li name="blank"><%= dicts.UDF.BlankFunc %></li>
-                    </ul>
-                    include "../../util/menuScrollArea.html"
+              <!-- template section -->
+              <div class="templateSection">
+                <div class="template normal">
+                  <div id="udf-fnList" class="dropDownList">
+                    <input id= "test_udf_fn" class="text udf-fnName" spellcheck="false" placeholder="<%= dicts.UDF.SelectTemplate %>" data-toggle="tooltip" data-container="body" data-placement="top">
+                    <div class="iconWrapper">
+                      <i class="icon xi-arrow-down"></i>
+                    </div>
+                    <div id="udf-fnMenu" class="list">
+                      <ul>
+                        <li name="blank">
+                          <i class="icon xi-plus"></i>
+                          <span><%= dicts.UDF.BlankFunc %></span>
+                        </li>
+                      </ul>
+                      include "../../util/menuScrollArea.html"
+                    </div>
                   </div>
                 </div>
+                <div class="template sql">
+                  <span class="text">
+                    sql.py
+                  </span>
+                  <i class="qMark icon xi-unknown"
+                  data-toggle="tooltip"
+                  data-container="body"
+                  data-title="sql.py is the only UDF module that can be called from SQL, each project has its own sql.py module"
+                  data-placement="top"></i>
+                </div>
               </div>
-              <div class="template sql">
-                <span class="text">
-                  sql.py
-                </span>
-                <i class="qMark icon xi-unknown"
-                data-toggle="tooltip"
-                data-container="body"
-                data-title="sql.py is the only UDF module that can be called from SQL"
-                data-placement="top"></i>
+              <!-- button section -->
+              <div class="buttonSection">
+                <i class="icon xi-refresh refreshUdf xc-icon-action" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.UDF.Refresh %>"></i>
+                <i class="icon xi-save saveFile xc-icon-action" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.UDF.SaveFile %>"></i>
               </div>
             </div>
             <!-- editSection -->

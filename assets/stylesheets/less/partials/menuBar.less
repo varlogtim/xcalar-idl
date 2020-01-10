@@ -543,7 +543,7 @@
     }
 
     .heading {
-        .size(@width: 100%, @height: 71px);
+        .size(@width: 100%, @height: 60px);
         text-align: left;
         overflow: hidden;
         pointer-events: none;
@@ -552,7 +552,7 @@
         padding-left: @width-menuPadding;
 
         h2 {
-            .font(@line-height: 90px,  @size: 20px, @weight: bold, @color: @color-font-form-gray);
+            .font(@line-height: 60px,  @size: 20px, @weight: bold, @color: @color-font-form-gray);
             display: inline-block;
             .textOverflowOneLine;
         }
@@ -610,59 +610,45 @@ ul.CodeMirror-hints {
     }
 
     .topSection {
-        border-top: solid 1px @color-border-softGray;
-    }
-
-    .topSection, .saveAsSection {
-        padding: 7px 16px;
+        padding: 8px 16px;
         background-color: @color-bg-list-hover-blue;
         font-size: 12px;
+        border-top: 1px solid @color-border-softGray;
         border-bottom: 1px solid @color-border-softGray;
 
         .flex-display;
         .flex-wrap(wrap);
         .flex(0 0 auto);
         .justify-content(space-around);
+        flex-direction: row;
 
-        .template {
-            .flex(1 1 255px);
-        }
-    }
+        .templateSection {
+            flex: 1 1 auto;
 
-    .template {
-        .size(@width: 255px, @height: 30px);
+            .template {
+                .size(@width: auto, @height: 30px);
 
-        > div {
-            float: left;
-        }
+                > div {
+                    float: left;
+                }
 
-        &.sql {
-            .text {
-                height: 30px;
-                line-height: 30px;
-                font-size: 16px;
+                &.sql {
+                    .text {
+                        height: 30px;
+                        line-height: 30px;
+                        font-size: 16px;
+                    }
+                }
             }
         }
 
-        .save, .close {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            .size(28px, 28px);
-            border: solid 1px @color-border-softGray;
-            margin-left: 8px;
-            background-color: @color-white;
+        .buttonSection {
+            flex: 0 0 auto;
+
             .icon {
                 font-size: 14px;
-                color: @color-bg-cardHeader;
-                opacity: @opacity-unhover;
-            }
-
-            &:hover {
-                .icon {
-                    opacity: @opacity-hover;
-                }
+                margin-left: 8px;
+                line-height: 30px;
             }
         }
     }
@@ -731,6 +717,15 @@ ul.CodeMirror-hints {
 
                 &[name="blank"] {
                     text-transform: initial;
+                    color: @color-font-link-blue;
+
+                    .icon {
+                        font-size: 10px;
+                        line-height: 24px;
+                        margin-right: 6px;
+                        display: inline-block;
+                        width: 10px;
+                    }
                 }
 
                 &.noResultHint {
@@ -745,23 +740,6 @@ ul.CodeMirror-hints {
 
         .iconWrapper {
             border-left: none;
-        }
-    }
-
-    .saveAsSection {
-        .text {
-            font-size: 12px;
-            width: ~"calc(100% - 36px)";
-            height: 28px;
-            background-color: @color-white;
-            border: 1px solid @color-border-softGray;
-            padding: 10px;
-            cursor: text;
-
-            &:focus {
-                outline: 1px solid @color-bg-softBlue;
-                border: 1px solid @color-bg-white-five;
-            }
         }
     }
 

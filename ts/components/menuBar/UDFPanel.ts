@@ -196,11 +196,13 @@ class UDFPanel {
         ) {
             // switch to sql mode, only show sql.py
             $udfSection.addClass("sqlMode");
+            $topSection.find(".refreshUdf").addClass("xc-hidden");
             $topSection.find(".template.normal").addClass("xc-hidden");
             $topSection.find(".template.sql").removeClass("xc-hidden");
             this._selectSQLUDF();
         } else {
             $udfSection.removeClass("sqlMode");
+            $topSection.find(".refreshUdf").removeClass("xc-hidden");
             $topSection.find(".template.normal").removeClass("xc-hidden");
             $topSection.find(".template.sql").addClass("xc-hidden");
         }
@@ -228,7 +230,7 @@ class UDFPanel {
             $("#monitor-file-manager")
         );
         UDFFileManager.Instance.registerPanel(monitorFileManager);
-        $("#udfButtonWrap .refreshUdf").on("click", () => {
+        $udfSection.find(".topSection .refreshUdf").on("click", () => {
             UDFFileManager.Instance.refresh(true, true);
         });
         const $toManagerButton: JQuery = $("#udfButtonWrap .toManager");
@@ -304,7 +306,7 @@ class UDFPanel {
     private _addSaveEvent(): void {
         const $udfSection: JQuery = this._getUDFSection();
         const $topSection: JQuery = $udfSection.find(".topSection");
-        const $save: JQuery = $("#udfButtonWrap").find(".saveFile");
+        const $save: JQuery = $topSection.find(".saveFile");
         const $saveNameInput: JQuery = $topSection.find(".udf-fnName");
         $save.on("click", () => {
             this._saveUDF($saveNameInput);
@@ -400,7 +402,15 @@ class UDFPanel {
     private _setupDropdownList(): void {
         const $dropdownList: JQuery = $("#udf-fnList");
         const menuHelper: MenuHelper = new MenuHelper($dropdownList, {
-            onSelect: ($li: JQuery) => this._selectUDF($li.text(), true),
+            onSelect: ($li: JQuery) => {
+                let name: string = "";
+                if ($li.attr("name") === "blank") {
+                    name = $li.find("span").text();
+                } else {
+                    name = $li.text();
+                }
+                this._selectUDF(name, true)
+            },
             container: "#udfSection",
             bounds: "#udfSection",
             bottomPadding: 2
@@ -541,7 +551,7 @@ class UDFPanel {
     private _selectBlankUDF(): void {
         const $fnListInput: JQuery = $("#udf-fnList input");
         const $blankFunc: JQuery = $("#udf-fnMenu").find("li[name=blank]");
-        const displayName: string = $blankFunc.text();
+        const displayName: string = $blankFunc.find("span").text();
 
         StatusBox.forceHide();
         this.dropdownHint.setInput(displayName);

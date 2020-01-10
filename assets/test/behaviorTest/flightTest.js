@@ -217,7 +217,7 @@ window.FlightTest = (function(FlightTest, $) {
                         '    if int(day) < 10:\n' +
                         '        day = "0" + str(day)\n' +
                         '    return str(year) + str(month) + str(day)');
-                        $("#udfButtonWrap").find(".saveFile").click();
+                        $("#udf-fnSection").find(".saveFile").click();
                         $("#fileManagerSaveAsModal .saveAs input").val("ymd.py");
                         $("#fileManagerSaveAsModal .modalBottom .save").click();
                     return test.checkExists(selector);
