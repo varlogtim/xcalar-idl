@@ -1309,9 +1309,9 @@ class DagList extends Durable {
         $dagListSection.on("click", ".editQuery", (event) => {
             let $dagListItem: JQuery = $(event.currentTarget).closest(".dagListDetail");
             const sqlQueryName: string = $dagListItem.data("id")
-            SQLEditorSpace.Instance.setSnippet(sqlQueryName);
             XVM.setMode(XVM.Mode.SQL);
             $("#sqlTab").click();
+            SQLEditorSpace.Instance.openSnippet(sqlQueryName);
         });
 
         $dagListSection.on("click", ".editUDF", (event) => {

@@ -21,28 +21,19 @@ class SQLEditorSpace {
     public setup(): void {
         this._setupSQLEditor();
         this._addEventListeners();
+        this._loadSnippet();
     }
 
+    /**
+     * SQLEditorSpace.Instance.refresh
+     */
     public refresh(): void {
         this._adjustResize();
-        this._refreshSnippet();
+        this._sqlEditor.refresh();
     }
 
     public resize(): void {
         this._adjustResize();
-    }
-
-    public switchMode(): void {
-        if (XVM.isAdvancedMode()) {
-            this._saveSnippet();
-        }
-    }
-
-    public save(): XDPromise<void> {
-        if (this._sqlEditor == null) {
-            return PromiseHelper.resolve();
-        }
-        return this._saveSnippet();
     }
 
     public clearSQL(): void {
@@ -91,10 +82,18 @@ class SQLEditorSpace {
     }
 
     public setSnippet(name: string): void {
-        SQLSnippet.Instance.setLastOpenedSnippet(name);
         this._setFileName(name);
-        let snippet = SQLSnippet.Instance.getSnippet(name);
-        this._sqlEditor.setValue(snippet);
+        const lasOpenedSnippet = SQLSnippet.Instance.getLastOpenSnippet();
+        let text: string = "";
+        if (lasOpenedSnippet &&
+            lasOpenedSnippet.name === name &&
+            lasOpenedSnippet.unsaved
+        ) {
+            text = lasOpenedSnippet.text;
+        } else {
+            text = SQLSnippet.Instance.getSnippet(name);
+        }
+        this._sqlEditor.setValue(text);
         this._sqlEditor.refresh();
     }
 
@@ -112,6 +111,7 @@ class SQLEditorSpace {
             onConfirm: () => {
                 SQLSnippet.Instance.deleteSnippet(name);
                 if (name === this._currentFile) {
+                    this._resetLastOpenedSnippet(CommonTxtTstr.Untitled, "");
                     this.setSnippet(CommonTxtTstr.Untitled);
                 }
                 if (typeof callback === "function") {
@@ -121,40 +121,48 @@ class SQLEditorSpace {
         });
     }
 
-    public async openSnippet(name: string): Promise<void> {
-        try {
-            await this._renameWarning();
-            if (this._currentFile !== CommonTxtTstr.Untitled) {
-                // We don't want to save the untitled file if we just deleted it
-                await this._saveSnippet();
-            }
+    public openSnippet(name: string): void {
+        const callback = () => {
+            this._resetLastOpenedSnippet(name, SQLSnippet.Instance.getSnippet(name));
             this.setSnippet(name);
-        } catch (e) {
-            // We decided not to discard the change
-            console.error("open snippet error", e);
+        };
+        if (this._hasEditedQuery()) {
+            Alert.show({
+                title: SQLTStr.OpenQuery,
+                msg: SQLTStr.OpenQueryMsg,
+                buttons: [{
+                    name: SQLTStr.open,
+                    func: callback
+                }]
+            });
+        } else {
+            callback();
         }
     }
 
     private _setupSQLEditor(): void {
         const self = this;
-        const callbacks = {
-            onExecute: () => {
-                this._getEditorSpaceEl().find(".execute").click();
-            },
-            onCancelExecute: () => {
-                // XXX need to unfreeze execute button in the future
-                this.cancelExecution();
-            },
-            onAutoComplete: (editor: CodeMirror.Editor) => {
-                const hasHint = self._sqlEditor.showHintMenu(editor);
-                if (!hasHint) {
-                    editor.execCommand("autocompleteSQLInVDW");
-                }
+        this._sqlEditor = new SQLEditor("sqlEditorSpace-editor");
+        this._sqlEditor
+        .on("execute", () => {
+            this._getEditorSpaceEl().find(".execute").click();
+        })
+        .on("cancelExecute", () => {
+            // XXX need to unfreeze execute button in the future
+            this.cancelExecution();
+        })
+        .on("autoComplete", (editor: CodeMirror.Editor) => {
+            const hasHint = this._sqlEditor.showHintMenu(editor);
+            if (!hasHint) {
+                editor.execCommand("autocompleteSQLInVDW");
             }
-        }
-        this._sqlEditor = new SQLEditor("sqlEditorSpace-editor", callbacks);
-
-        SQLSnippet.Instance.showLastOpenedSnippet();
+        })
+        .on("change", () => {
+            this._checkQueryChangeFromSaved();
+        })
+        .on("afterChange", () => {
+            this._saveLastSnippetChange();
+        });
 
         CodeMirror.commands.autocompleteSQLInVDW = function(cmeditor) {
             let acTables = self._getAutoCompleteHint();
@@ -167,7 +175,17 @@ class SQLEditorSpace {
         }
     }
 
-    private _onLoadMode(promise: XDPromise<any>): any {
+    private async _loadSnippet(): Promise<void> {
+        const deferred = PromiseHelper.deferred();
+        const timer = this._startLoad(deferred.promise());
+        const lastSnippetName: string = await SQLSnippet.Instance.load() || CommonTxtTstr.Untitled;
+        deferred.resolve();
+        this.setSnippet(lastSnippetName);
+        this._checkQueryChangeFromSaved();
+        this._stopLoad(timer);
+    }
+
+    private _startLoad(promise: XDPromise<any>): any {
         let timer = setTimeout(() => {
             let $section = this._getEditorSpaceEl();
             $section.addClass("loading");
@@ -176,26 +194,10 @@ class SQLEditorSpace {
         return timer;
     }
 
-    private _offLoadMode(timer: any): void {
+    private _stopLoad(timer: any): void {
         let $section = this._getEditorSpaceEl();
         clearTimeout(timer);
         $section.removeClass("loading");
-    }
-
-    private _refreshSnippet(): XDPromise<void> {
-        let deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let timer = this._onLoadMode(deferred.promise());
-        SQLSnippet.Instance.listSnippetsAsync()
-        .then(() => {
-            this.setSnippet(this._currentFile || CommonTxtTstr.Untitled);
-            deferred.resolve();
-        })
-        .fail(deferred.reject)
-        .always(() => {
-            this._offLoadMode(timer);
-        });
-
-        return deferred.promise();
     }
 
     private _getAutoCompleteHint(): any {
@@ -240,7 +242,6 @@ class SQLEditorSpace {
 
     private _executeAction(): void {
         if (this._executers.length === 0) {
-            SQLWorkSpace.Instance.save();
             let sqls: string = this._sqlEditor.getSelection() ||
                                this._sqlEditor.getValue();
             this._executeSQL(sqls);
@@ -511,15 +512,18 @@ class SQLEditorSpace {
     }
 
     private _setFileName(name: string): void {
-        let $el: JQuery = this._getFileNameEl();
+        const $el: JQuery = this._getFileNameEl();
+        const $save: JQuery = this._getTopBarEl().find(".save");
         $el.text(name);
         xcTooltip.add($el, {
             title: name
         });
         if (name == CommonTxtTstr.Untitled) {
             $el.addClass("untitled");
+            $save.addClass("noOption");
         } else {
             $el.removeClass("untitled");
+            $save.removeClass("noOption");
         }
         this._currentFile = name;
     }
@@ -531,8 +535,14 @@ class SQLEditorSpace {
     private _fileOption(action: string): void {
         switch (action) {
             case "new":
-                this._saveSnippet();
                 this._newSnippet();
+                break;
+            case "save":
+                if (this._currentFile === CommonTxtTstr.Untitled) {
+                    this._saveAsSnippet();
+                } else {
+                    this._saveSnippet(this._currentFile);
+                }
                 break;
             case "saveAs":
                 this._saveAsSnippet();
@@ -546,31 +556,40 @@ class SQLEditorSpace {
     }
 
     private _newSnippet(): void {
-        this._renameWarning()
-        .then(() => {
+        const callback = () => {
+            this._resetLastOpenedSnippet(CommonTxtTstr.Untitled, "");
             this.setSnippet(CommonTxtTstr.Untitled);
-        })
-        .fail(() => {
-            // We decided not to discard the change
-            return;
-        });
+        };
+        if (this._hasEditedQuery()) {
+            Alert.show({
+                title: SQLTStr.ComposeNew,
+                msg: SQLTStr.ComposeNewMsg,
+                buttons: [{
+                    name: SQLTStr.NewQuery,
+                    func: callback
+                }]
+            });
+        } else {
+            callback();
+        }
     }
 
-    private _saveSnippet(): XDPromise<void> {
+    private _saveSnippet(name: string): void {
         let snippet = this._sqlEditor.getValue();
-        return SQLSnippet.Instance.writeSnippet(this._currentFile, snippet, true);
+        SQLSnippet.Instance.writeSnippet(name, snippet, true);
+        this._resetLastOpenedSnippet(name, snippet);
+        xcUIHelper.showSuccess(SuccessTStr.Saved);
     }
 
     private _saveAsSnippet(): void {
-        SQLSnippetSaveModal.Instance.show(this._currentFile, (newName) => {
-            let snippet = this._sqlEditor.getValue();
-            let oldName = this._currentFile;
-            SQLSnippet.Instance.writeSnippet(newName, snippet, true);
+        let defaultName: string = this._currentFile;
+        if (defaultName === CommonTxtTstr.Untitled) {
+            defaultName = "New Query " + moment().format("YYYY-MM-DD hh:mm:ss");
+        }
+        SQLSnippetSaveModal.Instance.show(defaultName, (newName) => {
+            this._saveSnippet(newName);
             this._setFileName(newName);
-            xcUIHelper.showSuccess(SuccessTStr.Saved);
-            if (oldName == CommonTxtTstr.Untitled) {
-                SQLSnippet.Instance.deleteSnippet(oldName);
-            }
+            SQLResultSpace.Instance.refresh();
         });
     }
 
@@ -578,54 +597,6 @@ class SQLEditorSpace {
         const fileName: string = this._getFileName() + ".sql";
         const content = this._sqlEditor.getValue();
         xcHelper.downloadAsFile(fileName, content);
-    }
-
-    private _renameSnippet($nameInput: JQuery): void {
-        let $snippetName: JQuery = $nameInput.closest(".fileName");
-        let newName: string = $nameInput.text().trim();
-        let oldName: string = $snippetName.attr("data-original-title");
-        let setName = (name) => {
-            $nameInput.remove();
-            this._setFileName(name);
-        };
-
-        if (newName == oldName) {
-            setName(oldName);
-            return;
-        }
-
-        let isValid = xcHelper.validate([{
-            $ele: $nameInput
-        }, {
-            $ele: $nameInput,
-            error: SQLTStr.NoUntitledSnippet,
-            check: () => {
-                return newName === CommonTxtTstr.Untitled;
-            }
-        }, {
-            $ele: $nameInput,
-            error: SQLTStr.NoDupSnippetName,
-            check: () => {
-                return SQLSnippet.Instance.hasSnippet(newName);
-            }
-        }]);
-
-        if (!isValid) {
-            $nameInput.text(oldName);
-            return;
-        }
-
-        $snippetName.data("original-title", newName);
-        let snippet = this._sqlEditor.getValue();
-        SQLSnippet.Instance.writeSnippet(newName, snippet, true)
-        .then(() => {
-            SQLSnippet.Instance.deleteSnippet(oldName);
-        })
-        .fail((err) => {
-            // Since we still have the old version, we can just report an error
-            console.error(err);
-        });
-        setName(newName);
     }
 
     private _addEventListeners(): void {
@@ -658,34 +629,6 @@ class SQLEditorSpace {
     }
 
     private _setupHeader(): void {
-        let $fileName = this._getFileNameEl();
-        $fileName.on("click", (event) => {
-            let $snippet_name: JQuery = $(event.currentTarget);
-            $snippet_name.removeClass("untitled");
-            let editingName = $snippet_name.attr("data-original-title");
-            $snippet_name.text("");
-            let inputArea: string =
-                "<span contentEditable='true' class='xc-input nameInput'></span>";
-            $(inputArea).appendTo($snippet_name);
-            let $input: JQuery = $snippet_name.find('.xc-input');
-            $input.text(editingName);
-            $input.focus();
-            document.execCommand('selectAll', false, null);
-        });
-
-        $fileName.on("keypress", ".xc-input", (event) => {
-            if (event.which === keyCode.Enter || event.which === 10) {
-                event.preventDefault();
-                $(event.currentTarget).blur();
-            }
-        });
-
-        $fileName.on("focusout", ".xc-input", (event) => {
-            let $nameInput: JQuery = $(event.currentTarget);
-            this._renameSnippet($nameInput);
-            xcUIHelper.removeSelectionRange();
-        });
-
         this._getEditorSpaceEl().find("header").on("mouseenter", ".tooltipOverflow", (event) => {
             xcTooltip.auto(<any>event.currentTarget);
         });
@@ -713,16 +656,22 @@ class SQLEditorSpace {
             SQLResultSpace.Instance.showTables(true);
         });
 
+        $topBar.on("click", ".save span", (event) => {
+            $(event.currentTarget).blur();
+            this._fileOption("save");
+        });
+
         let selector: string = `#${this._getEditorSpaceEl().attr("id")}`;
-        new MenuHelper($topBar.find(".btn.more"), {
-            onOpen: () => {
-                let $deletLi: JQuery = $topBar.find('.fileOption li[data-action="delete"]');
-                if (SQLSnippet.Instance.hasSnippet(this._currentFile)) {
-                    $deletLi.removeClass("xc-disabled");
-                } else {
-                    $deletLi.addClass("xc-disabled");
-                }
+        new MenuHelper($topBar.find(".btn.save"), {
+            onSelect: ($li) => {
+                this._fileOption($li.data("action"));
             },
+            onlyClickIcon: true,
+            container: selector,
+            bounds: selector
+        }).setupListeners();
+        
+        new MenuHelper($topBar.find(".btn.more"), {
             onSelect: ($li) => {
                 this._fileOption($li.data("action"));
             },
@@ -838,26 +787,32 @@ class SQLEditorSpace {
         }
     }
 
-    private _renameWarning(): XDPromise<void> {
-        if (this._currentFile != CommonTxtTstr.Untitled) {
-            return PromiseHelper.resolve();
-        }
-        const snippet = this._sqlEditor.getValue();
-        let deferred: XDDeferred<void> = PromiseHelper.deferred();
-        if (snippet == "") {
-            return PromiseHelper.resolve();
+    private _hasEditedQuery(): boolean {
+        const lastOpened = SQLSnippet.Instance.getLastOpenSnippet();
+        return lastOpened && lastOpened.unsaved;
+    }
+
+    private _checkQueryChangeFromSaved(): boolean {
+        const text: string = this._sqlEditor.getValue();
+        const hasChange: boolean = (text !== SQLSnippet.Instance.getSnippet(this._currentFile));
+        const $editMark = this._getEditorSpaceEl().find(".editMark");
+        if (hasChange) {
+            $editMark.removeClass("xc-hidden");
         } else {
-            let saveCallback = (newName) => {
-                SQLSnippet.Instance.writeSnippet(newName, snippet, true)
-                .then(() => {
-                    xcUIHelper.showSuccess(SuccessTStr.Saved);
-                    deferred.resolve();
-                })
-                .fail(deferred.reject);
-            }
-            SQLSnippetRenameModal.Instance.show(saveCallback, deferred);
-            SQLSnippet.Instance.deleteSnippet(this._currentFile);
-            return deferred.promise();
+            $editMark.addClass("xc-hidden");
         }
+        return hasChange;
+    }
+
+    private _resetLastOpenedSnippet(name: string, text: string): void {
+        SQLSnippet.Instance.setLastOpenedSnippet(name, text, false);
+        this._checkQueryChangeFromSaved();
+    }
+
+    private _saveLastSnippetChange(): void {
+        const hasChange: boolean = this._checkQueryChangeFromSaved();
+        const fileName = this._getFileName();
+        const text: string = this._sqlEditor.getValue();
+        SQLSnippet.Instance.setLastOpenedSnippet(fileName, text, hasChange);
     }
 }

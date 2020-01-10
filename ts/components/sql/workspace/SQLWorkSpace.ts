@@ -24,20 +24,6 @@ class SQLWorkSpace {
         this._resizeEvents();
     }
 
-    public switchMode(): void {
-        this._sqlEditorSpace.switchMode();
-    }
-
-    public save(): XDPromise<void> {
-        if (XVM.isDataMart()) {
-            return SQLEditorSpace.Instance.save();
-        } else if (XVM.isAdvancedMode()) {
-            return PromiseHelper.resolve();
-        } else {
-            return SQLEditorSpace.Instance.save();
-        }
-    }
-
     public refresh(): void {
         this._sqlEditorSpace.refresh();
         this._sqlHistorySpace.refresh();
@@ -47,7 +33,7 @@ class SQLWorkSpace {
      * SQLWorkSpace.Instance.focus
      */
     public focus(): void {
-        SQLWorkSpace.Instance.refresh();
+        this.refresh();
         DagViewManager.Instance.toggleSqlPreview(true);
 
         if (this._firstTouch) {
@@ -70,7 +56,6 @@ class SQLWorkSpace {
 
     public unfocus(): void {
         $(window).off(".sqlPanelResize");
-        this.save();
     }
 
     /**

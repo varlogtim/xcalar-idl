@@ -56,6 +56,7 @@ class SQLFuncSettingModal {
         if (typeof this._onSubmit === "function") {
             this._onSubmit(res.num);
         }
+        SQLResultSpace.Instance.refresh();
         this._close(false);
     }
 

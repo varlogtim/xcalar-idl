@@ -1586,7 +1586,12 @@ SQLTStr = {
     "toDelete": "Delete",
     "Edit": "Edit",
     "Compose": "Compose query",
+    "ComposeNew": "Compose new query",
+    "ComposeNewMsg": "This action will clear your query editor and you will lose unsaved changes. Click Cancel if you want to save your current query.",
+    "NewQuery": "New Query",
     "SavedQueries": "Saved Queries",
+    "OpenQuery": "Open query",
+    "OpenQueryMsg": "You will lose any unsaved changes to open this query. Click Cancel if you want to save your current query?"
 };
 
 LoginConfigTStr = {

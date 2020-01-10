@@ -178,27 +178,23 @@ describe("xcManager Test", function() {
             window.onunload = unload;
         });
 
-        it("xcManager.unload should work in async case", function() {
-            var oldFunc = SQLWorkSpace.Instance.save;
-            var test;
-            SQLWorkSpace.Instance.save = function() { test = true; };
-
-            xcManager.unload(true);
-            expect(test).to.be.true;
-            SQLWorkSpace.Instance.save = oldFunc;
+        it("xcManager.unload should work in async case", function(done) {
+            xcManager.unload(true)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).not.to.be.null;
+                done();
+            });
         });
 
         it("xcManager.unload should work in sync case", function(done) {
             xcManager.__testOnly__.fakeLogoutRedirect();
 
-            var oldSave = SQLWorkSpace.Instance.save;
             var oldRelease =  XcUser.CurrentUser.releaseSession;
             var oldRemove = xcManager.removeUnloadPrompt;
-            var test2, test3, test4;
-            SQLWorkSpace.Instance.save = function() {
-                test2 = true;
-                return PromiseHelper.resolve();
-            };
+            var test3, test4;
             XcUser.CurrentUser.releaseSession = function() {
                 test3 = true;
                 return PromiseHelper.resolve();
@@ -211,7 +207,6 @@ describe("xcManager Test", function() {
                 return test4 === true;
             })
             .then(function() {
-                expect(test2).to.be.true;
                 expect(test3).to.be.true;
                 done();
             })
@@ -219,7 +214,6 @@ describe("xcManager Test", function() {
                 done("fail");
             })
             .always(function() {
-                SQLWorkSpace.Instance.save = oldSave;
                 XcUser.CurrentUser.releaseSession = oldRelease;
                 xcManager.removeUnloadPrompt = oldRemove;
                 xcManager.__testOnly__.resetLogoutRedirect();

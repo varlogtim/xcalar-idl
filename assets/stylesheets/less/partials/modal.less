@@ -4966,33 +4966,6 @@ html.microsoft {
 }
 /* ========== End of SQL Save List ============= */
 
-/* ========== SQL Snippet Rename ============= */
-#sqlSnippetRenameModal {
-    @h-without-main: @modal-header-h + @modal-instr-h + @modal-bottom-h;
-    .size(@height: 239px);
-
-    .modalMain {
-        height: ~"calc(100% - @{h-without-main})";
-        @margin: 10px;
-
-        .label {
-            display: block;
-            float: left;
-            height: 30px;
-            line-height: 30px;
-            width: 100%;
-            input {
-                width: ~"calc(100% - 70px)";
-            }
-            .text {
-                width: 70px;
-                float: left;
-            }
-        }
-    }
-}
-/* ========== End of SQL Snippet Rename ============= */
-
 /* ========== SQL Func Setting ============= */
 #sqlFuncSettingModal {
     @h-without-main: @modal-header-with-subHeader-h + @modal-bottom-h;

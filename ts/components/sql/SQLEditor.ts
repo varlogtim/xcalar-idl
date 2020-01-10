@@ -1,6 +1,6 @@
 class SQLEditor {
     private _editor: CodeMirror.Editor;
-    private _callbacks: {[key: string]: Function};
+    private _event: XcEvent;
     private _keywordsToRemove: string[] = [
         "alter",
         "begin",
@@ -203,8 +203,8 @@ class SQLEditor {
         "year"
     ];
 
-    public constructor(id: string, callbacks) {
-        this._callbacks = callbacks;
+    public constructor(id: string) {
+        this._event = new XcEvent();
         this._setup(id);
     }
 
@@ -226,6 +226,11 @@ class SQLEditor {
 
     public refresh(): void {
         this._editor.refresh();
+    }
+
+    public on(event: string, callback: Function): SQLEditor {
+        this._event.addEventListener(event, callback);
+        return this;
     }
 
     private _setup(id: string): void {
@@ -259,20 +264,12 @@ class SQLEditor {
     }
 
     private _setupShortCutKeys(): object {
-        const callbacks = this._callbacks;
-        let callbackTrigger = (eventName: string): void => {
-            const event = callbacks[eventName];
-            if (typeof event !== "undefined") {
-                event();
-            }
-        };
-    
         let executeTrigger = (): void => {
-            callbackTrigger("onExecute");
+            this._event.dispatchEvent("execute");
         };
     
         let cancelExec = (): void => {
-            callbackTrigger("onCancelExecute");
+            this._event.dispatchEvent("cancelExecute");
         };
 
         const extraKeys = {
@@ -534,6 +531,8 @@ class SQLEditor {
 
     private _addEventListeners(): void {
         const self = this;
+        let saveTimer = null;
+
         self._editor.on("keyup", function(_cm, e) {
             const pos = _cm.getCursor();
             if (self._editor.getTokenTypeAt(pos) === "comment") {
@@ -544,13 +543,17 @@ class SQLEditor {
                 e.keyCode >= 48 && e.keyCode <= 57 && !e.shiftKey ||
                 e.keyCode === 190 && !e.shiftKey
             ) {
-                const event = self._callbacks["onAutoComplete"];
-                if (typeof event !== "undefined") {
-                    event(self._editor);
-                }
+                self._event.dispatchEvent("autoComplete", self._editor);
             } else {
                 self.showHintMenu(<any>_cm);
             }
+
+            self._event.dispatchEvent("change");
+            // the change even will cause a save data to KV
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(function() {
+                self._event.dispatchEvent("afterChange");
+            }, 500); // 0.5s interval
         });
 
         self._keywordsToRemove.forEach(function(key) {

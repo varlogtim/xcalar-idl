@@ -84,6 +84,9 @@ class SQLResultSpace {
      */
     public refresh(): void {
         this._tableLister.refresh();
+        this._sqlResultQueryLister.show();
+        this._sqlResultFuncLister.show();
+        this._sqlResultUDFLister.show();
     }
 
     /**

@@ -7,75 +7,15 @@ describe("SQLEditorSpace Test", function() {
     });
 
     it("should refresh", function() {
-        let oldFunc = SQLSnippet.Instance.listSnippetsAsync;
+        let oldFunc = SQLEditorSpace.Instance._sqlEditor.refresh;
         let called = false;
-        SQLSnippet.Instance.listSnippetsAsync = () => {
+        SQLEditorSpace.Instance._sqlEditor.refresh = () => {
             called = true;
             return PromiseHelper.resolve();
         };
         SQLEditorSpace.Instance.refresh();
         expect(called).to.be.true;
-        SQLSnippet.Instance.listSnippetsAsync = oldFunc;
-    });
-
-    it("should switchMode", function() {
-        let isAdvMode = XVM.isAdvancedMode;
-        XVM.isAdvancedMode = () => true;
-        let oldSave = SQLSnippet.Instance.writeSnippet;
-        let called = false;
-        SQLSnippet.Instance.writeSnippet = () => { called = true; };
-
-        SQLEditorSpace.Instance.switchMode();
-        expect(called).to.be.true;
-
-        SQLSnippet.Instance.writeSnippet = oldSave;
-        XVM.isAdvancedMode = isAdvMode;
-    });
-
-    it("should save snippet", function(done) {
-        let oldSave = SQLSnippet.Instance.writeSnippet;
-        let called = false;
-        SQLSnippet.Instance.writeSnippet = () => {
-            called = true;
-            return PromiseHelper.resolve();
-        };
-
-        SQLEditorSpace.Instance.save()
-        .then(function() {
-            expect(called).to.be.true;
-            done();
-        })
-        .fail(function() {
-            done("fail");
-        })
-        .always(function() {
-            SQLSnippet.Instance.writeSnippet = oldSave;
-        });
-    });
-    
-    it("save should handle not set up case", function(done) {
-        let oldEditor = SQLEditorSpace.Instance._sqlEditor;
-        SQLEditorSpace.Instance._sqlEditor = null;
-
-        let oldSave = SQLSnippet.Instance.writeSnippet;
-        let called = false;
-        SQLSnippet.Instance.writeSnippet = () => {
-            called = true;
-            return PromiseHelper.resolve();
-        };
-
-        SQLEditorSpace.Instance.save()
-        .then(function() {
-            expect(called).to.be.false;
-            done();
-        })
-        .fail(function() {
-            done("fail");
-        })
-        .always(function() {
-            SQLSnippet.Instance.writeSnippet = oldSave;
-            SQLEditorSpace.Instance._sqlEditor = oldEditor;
-        });
+        SQLEditorSpace.Instance._sqlEditor.refresh = oldFunc;
     });
 
     it("should clear SQL", function() {
@@ -299,16 +239,16 @@ describe("SQLEditorSpace Test", function() {
         expect(executor.getStatus()).to.equal(SQLStatus.Cancelled);
     });
 
-    it("_onLoadMode should work", function() {
-        let timer = SQLEditorSpace.Instance._onLoadMode();
+    it("_startLoad should work", function() {
+        let timer = SQLEditorSpace.Instance._startLoad();
         expect(timer).not.to.be.null;
         clearTimeout(timer);
     });
 
-    it("_offLoadMode", function() {
+    it("_stopLoad", function() {
         let $section = SQLEditorSpace.Instance._getEditorSpaceEl();
         $section.addClass("loading");
-        SQLEditorSpace.Instance._offLoadMode();
+        SQLEditorSpace.Instance._stopLoad();
         expect($section.hasClass("loading")).to.be.false;
     });
 
@@ -412,18 +352,15 @@ describe("SQLEditorSpace Test", function() {
 
     describe("Snippet Option Test", function() {
         it("should new snippet", function() {
-            let oldSave = SQLEditorSpace.Instance._saveSnippet;
             let oldNew = SQLEditorSpace.Instance._newSnippet;
             let called = 0;
 
-            SQLEditorSpace.Instance._saveSnippet = () => { called++; };
             SQLEditorSpace.Instance._newSnippet = () => { called++; };
 
 
             SQLEditorSpace.Instance._fileOption("new");
-            expect(called).to.equal(2);
+            expect(called).to.equal(1);
 
-            SQLEditorSpace.Instance._saveSnippet = oldSave;
             SQLEditorSpace.Instance._newSnippet = oldNew;
         });
 
@@ -468,56 +405,6 @@ describe("SQLEditorSpace Test", function() {
             SQLEditorSpace.Instance._setFileName(oldFile);
             SQLEditorSpace.Instance._sqlEditor.setValue("");
             SQLSnippet.Instance.getSnippet = oldFunc;
-        });
-
-        describe("_renameWarning test", function() {
-            let oldFile;
-
-            before(function() {
-                oldFile = SQLEditorSpace.Instance._getFileName();
-            });
-
-            it("should resolve if not untitled", function(done) {
-                SQLEditorSpace.Instance._setFileName("test");
-                SQLEditorSpace.Instance._renameWarning()
-                .then(function() {
-                    done();
-                })
-                .fail(function() {
-                    done("fail");
-                });
-            });
-
-            it("should resolve if snippet is empty", function(done) {
-                SQLEditorSpace.Instance._setFileName(CommonTxtTstr.Untitled);
-                SQLEditorSpace.Instance._sqlEditor.setValue("");
-                
-                SQLEditorSpace.Instance._renameWarning()
-                .then(function() {
-                    done();
-                })
-                .fail(function() {
-                    done("fail");
-                });
-            });
-
-            it("should warn correctly", function(done) {
-                SQLEditorSpace.Instance._setFileName(CommonTxtTstr.Untitled);
-                SQLEditorSpace.Instance._sqlEditor.setValue("");
-                
-                SQLEditorSpace.Instance._renameWarning()
-                .then(function() {
-                    done();
-                })
-                .fail(function() {
-                    done("fail");
-                });
-            });
-
-            after(function() {
-                SQLEditorSpace.Instance._sqlEditor.setValue("");
-                SQLEditorSpace.Instance._setFileName(CommonTxtTstr.oldFile);
-            });
         });
     });
 });

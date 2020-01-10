@@ -17,6 +17,18 @@ class SQLSnippetSaveModal {
         this._addEventListeners();
     }
 
+    /**
+     * SQLSnippetSaveModal.Instance.show
+     * @param name
+     * @param callback
+     */
+    public show(name: string, callback: Function): void {
+        this._modalHelper.setup();
+        this._getNameInput().val(name);
+        this._render();
+        this._callback = callback;
+    }
+
     private _getModal(): JQuery {
         return $("#sqlSnippetSaveModal");
     }
@@ -27,13 +39,6 @@ class SQLSnippetSaveModal {
 
     private _getListSection(): JQuery {
         return this._getModal().find(".listSection");
-    }
-
-    public show(name: string, callback: Function): void {
-        this._modalHelper.setup();
-        this._getNameInput().val(name);
-        this._render();
-        this._callback = callback;
     }
 
     private _close(): void {
@@ -56,19 +61,28 @@ class SQLSnippetSaveModal {
     }
 
     private _validate(): {name: string} {
-        let $input: JQuery = this._getNameInput();
-        let isValid = xcHelper.validate([{
-            $ele: $input
+        let $nameInput: JQuery = this._getNameInput();
+        const newName: string = $nameInput.val().trim();
+        const isValid = xcHelper.validate([{
+            $ele: $nameInput
+        }, {
+            $ele: $nameInput,
+            error: SQLTStr.NoUntitledSnippet,
+            check: () => {
+                return newName === CommonTxtTstr.Untitled;
+            }
+        }, {
+            $ele: $nameInput,
+            error: SQLTStr.NoDupSnippetName,
+            check: () => {
+                return SQLSnippet.Instance.hasSnippet(newName);
+            }
         }]);
         if (!isValid) {
-            StatusBox.show("Invalid Name", $input, false);
-            return;
-        } else if ($input.val().trim() == CommonTxtTstr.Untitled){
-            StatusBox.show('Name cannot be "' + CommonTxtTstr.Untitled + '"', $input, false);
             return;
         }
         return {
-            name: $input.val().trim()
+            name: newName
         }
     }
 

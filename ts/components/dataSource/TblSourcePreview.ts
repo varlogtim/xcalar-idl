@@ -507,7 +507,6 @@ class TblSourcePreview {
         `-- This is a sample code to start\n` +
         `select * from ${tableName};`;
         SQLWorkSpace.Instance.newSQL(sql);
-        SQLWorkSpace.Instance.save();
     }
 
     private _addEventListeners(): void {

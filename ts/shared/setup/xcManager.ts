@@ -335,16 +335,14 @@ namespace xcManager {
             // async unload should only be called in beforeload
             // this time, no commit, only free result set
             // as commit may only partially finished, which is dangerous
-            SQLWorkSpace.Instance.save();
             return deferred.reject("Async unload");
         } else {
-            SQLWorkSpace.Instance.save()
-            .then(function() {
-                let currentUser = XcUser.CurrentUser;
-                if (currentUser != null) {
-                    return currentUser.releaseSession();
-                }
-            })
+            let promise = PromiseHelper.resolve();
+            let currentUser = XcUser.CurrentUser;
+            if (currentUser != null) {
+                promise =  currentUser.releaseSession();
+            }
+            promise
             .fail(function(error) {
                 console.error(error);
             })

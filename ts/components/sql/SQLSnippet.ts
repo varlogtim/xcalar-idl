@@ -8,11 +8,34 @@ class SQLSnippet {
 
     private _snippets: {[key: string]: string};
     private _fetched: boolean;
-    private _lastOpenedSnippet: string;
+    private _lastOpenedSnippet: {
+        name: string,
+        text: string,
+        unsaved: boolean
+    };
 
     private constructor() {
         this._snippets = {};
         this._fetched = false;
+    }
+
+    /**
+     * SQLSnippet.Instance.load
+     */
+    public async load(): Promise<string> {
+        try {
+            await this._fetchSnippets();
+            await this._fetchLastOpenedSnippet();
+            if (this._lastOpenedSnippet == null) {
+                const snippetNames = this._listSnippetsNames();
+                return snippetNames[0]; // first snippet or "Untitled" if no snippets
+            } else {
+                return this._lastOpenedSnippet.name;
+            }
+        }
+        catch (e) {
+            return null;
+        }
     }
 
     public listSnippets(): {name: string, snippet: string}[] {
@@ -40,8 +63,8 @@ class SQLSnippet {
         return deferred.promise();
     }
 
-    public getSnippet(snippet: string): string {
-        return this._snippets[snippet] || "";
+    public getSnippet(name: string): string {
+        return this._snippets[name] || "";
     }
 
     public hasSnippet(snippetName: string): boolean {
@@ -78,26 +101,28 @@ class SQLSnippet {
         xcHelper.downloadAsFile(fileName, content);
     }
 
-    public async showLastOpenedSnippet(): Promise<void> {
-        try {
-            await this._fetchSnippets();
-            await this._fetchLastOpenedSnippet();
-            let lastOpenedSnippetName = this._lastOpenedSnippet;
-            const snippetNames = this._listSnippetsNames();
-            if (!lastOpenedSnippetName) {
-                lastOpenedSnippetName = snippetNames[0]; // first snippet or "Untitled" if no snippets
-            }
-            SQLEditorSpace.Instance.setSnippet(lastOpenedSnippetName);
+    public async setLastOpenedSnippet(
+        name: string,
+        text: string,
+        unsaved: boolean
+    ): Promise<void> {
+        if (this._lastOpenedSnippet != null &&
+            this._lastOpenedSnippet.name === name &&
+            this._lastOpenedSnippet.text === text
+        ) {
+            return;
         }
-        catch (e) {
-            throw new Error('showLastOpenedSnippet failed');
-        }
-    }
-
-    public setLastOpenedSnippet(snippetName: string): XDPromise<void> {
-        this._lastOpenedSnippet = snippetName;
+        this._lastOpenedSnippet = {
+            name,
+            text,
+            unsaved
+        };
         let lastOpenedSnippetKVStore = this._getLastOpenedSnippetKVStore();
         return lastOpenedSnippetKVStore.put(JSON.stringify(this._lastOpenedSnippet), true);
+    }
+
+    public getLastOpenSnippet(): {name: string, text: string, unsaved} | null {
+        return this._lastOpenedSnippet;
     }
 
     private _getKVStore(): KVStore {

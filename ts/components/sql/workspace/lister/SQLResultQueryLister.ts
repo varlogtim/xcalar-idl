@@ -1,31 +1,10 @@
 class SQLResultQueryLister extends AbstractSQLResultLister{
-    private _isShowing: boolean;
-
     constructor(container) {
         super(container);
     }
 
-    /**
-     * @override
-     */
-    public show(): void {
-        if (this._isShowing) {
-            return;
-        }
-        this._isShowing = true;
-        super.show();
-    }
-
-    /**
-     * @override
-     */
-    public close(): void {
-        this._isShowing = false;
-        super.close();
-    }
-
     protected async _getList(): Promise<string[]> {
-        const snippets = await SQLSnippet.Instance.listSnippetsAsync();
+        const snippets = SQLSnippet.Instance.listSnippets();
         return snippets.map((snippet) => snippet.name);
     }
 
@@ -48,7 +27,7 @@ class SQLResultQueryLister extends AbstractSQLResultLister{
                     '<div class="hint">Write and save a SQL query to get started</div>' +
                 '</div>';
     }
-    
+
     protected _registerEvents(): void {
         this
         .on("open", ({ name }) => {

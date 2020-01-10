@@ -1077,6 +1077,7 @@ module.exports = {
         "RenameWarning": "Leaving Draft Query",
         "Discard": "Discard Draft",
         "RenameModalInstr": "You are leaving the draft query. Either save your draft as a new query or discard your changes.",
+        "Edited": "Edited",
     },
 
     "IMDTableOp": {

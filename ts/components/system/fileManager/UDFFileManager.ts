@@ -485,10 +485,14 @@ class UDFFileManager extends BaseFileManager {
                     isUpdate: true,
                     isDelete: false
                 });
-
                 return this._refresh(true, false);
             })
             .then(deferred.resolve)
+            .then(() => {
+                if (XVM.isDataMart() || XVM.isSQLMode()) {
+                    SQLResultSpace.Instance.refresh();
+                }
+            })
             .fail((error) => {
                 // XXX might not actually be a syntax error
                 const syntaxErr: {

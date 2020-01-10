@@ -101,19 +101,15 @@ class SQLOpPanel extends BaseOpPanel {
 
     private _setupSQLEditor(): void {
         const self = this;
-        const callbacks = {
-            onExecute: () => {
-                // $("#sqlExecute").click();
-            },
-            onCancelExecute: () => {
-                console.log("SQL cancel triggered!");
-                SQLUtil.resetProgress();
-            },
-            onAutoComplete: (editor: CodeMirror.Editor) => {
-                editor.execCommand("autocompleteSQLInDF");
-            }
-        }
-        this._sqlEditor = new SQLEditor("sqlEditor", callbacks);
+        this._sqlEditor = new SQLEditor("sqlEditor");
+        this._sqlEditor
+        .on("cancelExecute", () => {
+            console.log("SQL cancel triggered!");
+            SQLUtil.resetProgress();
+        })
+        .on("autoComplete", (editor: CodeMirror.Editor) => {
+            editor.execCommand("autocompleteSQLInDF");
+        });
         CodeMirror.commands.autocompleteSQLInDF = function(cmeditor) {
             const acTables = {};
             for(const tableName in self._sqlTables) {
