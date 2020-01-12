@@ -1424,9 +1424,8 @@ namespace FileBrowser {
                     path = $li.data("fullpath");
                     let recursive: boolean = $li.find(".checkbox")
                                                 .hasClass("checked");
-                    recursive = true; // XXX making always true;
                     let isFolder: boolean = ($li.data("type") === "Folder");
-
+                    recursive = isFolder ? true : false; // XXX making always true if it's folder
                     files.push({
                         path: path,
                         recursive: recursive,

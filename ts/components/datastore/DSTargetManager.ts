@@ -145,6 +145,22 @@ namespace DSTargetManager {
     }
 
     /**
+     * DSTargetManager.isS3
+     * @param targetName
+     */
+    export function isS3(targetName: string): boolean {
+        let target = DSTargetManager.getTarget(targetName);
+        if (target && (
+            target.type_id === "s3environ" ||
+            target.type_id === "s3fullaccount")
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * DSTargetManager.refreshTargets
      * @param noWaitIcon
      */

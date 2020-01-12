@@ -3849,14 +3849,16 @@ namespace DSConfig {
     function loadFiles(
         url: string,
         index: number,
-        files: {name: string, attr: {isDirectory: boolean}}[]
+        files: {name: string, attr: {isDirectory: boolean}}[],
+        isFolder: boolean
     ): string[] {
         let file = loadArgs.files[index];
         let $previewFile = $("#preview-file");
         let paths: string[] = [];
-        let isFolder: boolean = null;
-
-        if (files.length === 1 && url.endsWith(files[0].name)) {
+        const targetName: string = loadArgs.getTargetName();
+        if (files.length === 1 && url.endsWith(files[0].name) ||
+            DSTargetManager.isS3(targetName) && !isFolder // hack way to check is folder or file for s3 until ENG-6634 is fixed
+        ) {
             // when it's a single file
             isFolder = false;
             paths[0] = url;
@@ -3957,7 +3959,7 @@ namespace DSConfig {
                 deferred.reject();
                 return;
             } else {
-                let paths = loadFiles(path, fileIndex, res.files);
+                let paths = loadFiles(path, fileIndex, res.files, file.isFolder);
                 deferred.resolve(paths);
             }
         })
