@@ -1104,6 +1104,7 @@ DFTStr = {
     "ParamInUse": "Parameter in use",
     "Resources": "Resources",
     "TBModules": "Modules",
+    "CloseModule": "Close module",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     "ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized.",

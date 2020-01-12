@@ -901,14 +901,17 @@ class DagTabManager {
         let html: HTML =
             '<li class="dagTab' + extraClass + '" data-id="' + tabId +'">' +
                 '<div class="dragArea">' +
-                    '<i class="icon xi-ellipsis-v" ' + xcTooltip.Attrs+ ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>' +
+                    '<i class="icon xi-ellipsis-v" ' + xcTooltip.Attrs + ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>' +
                 '</div>' +
                 extraIcon +
                 '<div class="name ' + (isEditable? '': 'nonedit') + '">' +
                     tabName +
                 '</div>' +
                 '<div class="after">' +
-                    '<i class="icon xi-close-no-circle close"></i>' +
+                    '<i class="icon xi-close-no-circle close" ' +
+                    xcTooltip.Attrs +
+                    ' data-original-title="' + DFTStr.CloseModule + '" ' +
+                    '></i>' +
                     '<i class="icon xi-solid-circle dot"></i>' +
                 '</div>' +
             '</li>';
