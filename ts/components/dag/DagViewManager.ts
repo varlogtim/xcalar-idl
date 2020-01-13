@@ -1231,12 +1231,27 @@ class DagViewManager {
             self.activeDagView.connectorInMousedown(event, $(this));
         });
 
-        let $dfWraps = this.$dfWrap.add($("#dagStatsPanel .innerDataflowWrap"));
-
-        $dfWraps.add($("#sqlDataflowArea .innerDataflowWrap")).on("mousedown", operatorSelector, function (event) {
-            const preventDrag = $(this).closest("#sqlDataflowArea").length;
-            self.activeDagView.operatorMousedown(event, $(this), preventDrag);
+        this.$dfWrap.on("dblclick", ".nodeTitle", function () {
+            self.activeDagView.nodeTitleEditMode($(this));
         });
+
+        this.$dfWrap.on("click", ".paramTitle", function () {
+            if (self.activeDagTab == null || self.activeDag == null) {
+                return; // error case
+            }
+            if (self.isDisableActions()) {
+                return; // invalid case
+            }
+            const $node: JQuery = $(this).closest(".operator");
+            const node: DagNode = self.activeDag.getNode($node.data("nodeid"));
+            if (node != null) {
+                DagNodeMenu.execute("configureNode", {
+                    node: node
+                });
+            }
+        });
+
+        let $dfWraps = this.$dfWrap.add($("#dagStatsPanel .innerDataflowWrap"));
 
          // drag select multiple nodes
         let $dfArea;
@@ -1271,34 +1286,21 @@ class DagViewManager {
             }
         });
 
-        this.$dfWrap.on("click", ".descriptionIcon", function () {
-            const nodeId: DagNodeId = $(this).closest(".operator")
-                .data("nodeid");
-            DagDescriptionModal.Instance.show(nodeId);
-        });
-
-        this.$dfWrap.on("dblclick", ".nodeTitle", function () {
-            self.activeDagView.nodeTitleEditMode($(this));
-        });
-
-        this.$dfWrap.on("click", ".paramTitle", function () {
-            if (self.activeDagTab == null || self.activeDag == null) {
-                return; // error case
-            }
-            if (self.isDisableActions()) {
-                return; // invalid case
-            }
-            const $node: JQuery = $(this).closest(".operator");
-            const node: DagNode = self.activeDag.getNode($node.data("nodeid"));
-            if (node != null) {
-                DagNodeMenu.execute("configureNode", {
-                    node: node
-                });
-            }
-        });
-
         // add listeners to dagView and sqlMode graph
         $dfWraps = $dfWraps.add($("#sqlDataflowArea .dataflowWrap .innerDataflowWrap"));
+
+        $dfWraps.on("mousedown", operatorSelector, function (event) {
+            const preventDrag = $(this).closest("#sqlDataflowArea").length;
+            self.activeDagView.operatorMousedown(event, $(this), preventDrag);
+        });
+
+        $dfWraps.on("click", ".descriptionIcon", function () {
+            const nodeId: DagNodeId = $(this).closest(".operator")
+                .data("nodeid");
+            const viewOnly: boolean = $(this).closest("#sqlDataflowArea").length ||
+                                     $(this).closest("#dagStatsPanel").length;
+            DagDescriptionModal.Instance.show(nodeId, viewOnly);
+        });
 
         // add classes to skewTh and skewTd because we can't use
         // css to control their hover states together

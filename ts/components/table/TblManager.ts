@@ -1800,7 +1800,7 @@ class TblManager {
     public static unHighlightCells(tableId?: TableId): void {
         if (tableId != null) {
             $("#xcTable-" + tableId).find(".highlightedCell")
-                                    .removeClass(".highlightedCell")
+                                    .removeClass("highlightedCell")
                                     .find(".highlightBox").remove();
             const table: TableMeta = gTables[tableId];
             if (table != null) {

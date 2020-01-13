@@ -5747,7 +5747,7 @@ html.microsoft {
 }
 
 #dagDescriptionModal {
-    .size(@height: 250px, @min-height: 250px);
+    .size(@height: 300px, @min-height: 250px, @width: 500px, @min-width: 400px);
 
     .subHeading {
         .flex-display;
@@ -5764,6 +5764,19 @@ html.microsoft {
         width: 100%;
         .flex(1 0 auto);
         background-color: @color-bg-list-hover-blue;
+    }
+
+    &.viewOnly {
+        .optionButtons {
+            display: none;
+        }
+        .confirm, .subHeader, .optionButtons {
+            display: none;
+        }
+        .xc-textArea {
+            border: none;
+            background-color: transparent;
+        }
     }
 }
 

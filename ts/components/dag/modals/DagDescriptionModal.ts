@@ -24,7 +24,7 @@ class DagDescriptionModal {
      * @returns {boolean}
      * @param nodeId
      */
-    public show(nodeId: DagNodeId): boolean {
+    public show(nodeId: DagNodeId, viewOnly?: boolean): boolean {
         if (this._$modal.is(":visible")) {
             return false;
         }
@@ -34,17 +34,19 @@ class DagDescriptionModal {
             // error case
             return false;
         }
-        const curDescription: string = this._node.getDescription();
-
-        if (curDescription) {
-            this._$modal.addClass("hasDescription");
+        if (viewOnly) {
+            this._$modal.addClass("viewOnly");
+            this._$textArea.prop('readonly', true)
         } else {
-            this._$modal.removeClass("hasDescription");
+            this._$modal.removeClass("viewOnly");
+            this._$textArea.prop('readonly', false);
         }
+        const curDescription: string = this._node.getDescription();
         this._$textArea.val(curDescription);
 
         this._modalHelper.setup();
         this._$textArea.focus();
+        this._$textArea.scrollTop(0);
         return true;
     };
 

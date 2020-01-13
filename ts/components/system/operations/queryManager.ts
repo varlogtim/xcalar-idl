@@ -688,7 +688,7 @@ namespace QueryManager {
             $queryList.addClass("hideSysOps");
             if ($queryList.find(".sysType.active").length) {
                 setDisplayToDefault();
-                $queryList.find(".active").removeClass(".active");
+                $queryList.find(".active").removeClass("active");
             }
         } else {
             $queryList.removeClass("hideSysOps");

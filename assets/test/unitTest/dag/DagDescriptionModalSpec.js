@@ -24,7 +24,6 @@ describe("DagDescriptionModal Test", function() {
 
         it("should show with no description", function() {
             DagDescriptionModal.Instance.show("someId");
-            expect($modal.hasClass("hasDescription")).to.be.false;
             $modal.find(".close").click();
         });
         it("should show with description", function() {
@@ -33,7 +32,6 @@ describe("DagDescriptionModal Test", function() {
                 getId: function(){return "someId"}
             };
             DagDescriptionModal.Instance.show("someId");
-            expect($modal.hasClass("hasDescription")).to.be.true;
             expect($modal.find("textarea").val()).to.equal("something");
 
         });
