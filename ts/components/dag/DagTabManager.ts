@@ -142,8 +142,12 @@ class DagTabManager {
      * DagTabManager.Instance.newSQLFunc
      * @param graph
      */
-    public newSQLFunc(): string {
-        const name: string = DagList.Instance.getValidName(null, false, true);
+    public newSQLFunc(name: string): string {
+        if (DagList.Instance.validateName(name, true) != null) {
+            // when not a valid sql function name
+            console.error("invalid sql function name " + name + " regenrate valid name!");
+            name = DagList.Instance.getValidName(null, false, true);
+        }
         const graph: DagGraph = new DagGraph();
         const tab: DagTab = this._newTab(name, graph, true);
         this._tabListScroller.showOrHideScrollers();
@@ -952,25 +956,14 @@ class DagTabManager {
     }
 
     private _tabRenameCheck(name: string, $tab: JQuery): boolean {
-        let isSQLFunc: boolean = $tab.closest(".dagTab").hasClass("sqlFunc");
-        const isValid: boolean = xcHelper.validate([{
-            $ele: $tab
-        },
-        {
-            $ele: $tab,
-            error: isSQLFunc ? SQLTStr.DupFuncName : DFTStr.DupDataflowName,
-            check: () => {
-                return !DagList.Instance.isUniqueName(name);
-            }
-        }, {
-            $ele: $tab,
-            error: isSQLFunc ? ErrTStr.SQLFuncNameIllegal : ErrTStr.DFNameIllegal,
-            check: () => {
-                let category = isSQLFunc ? PatternCategory.SQLFunc : PatternCategory.Dataflow;
-                return !xcHelper.checkNamePattern(category, PatternAction.Check, name);
-            }
-        }])
-        return isValid;
+        const isSQLFunc: boolean = $tab.closest(".dagTab").hasClass("sqlFunc");
+        const error: string = DagList.Instance.validateName(name, isSQLFunc);
+        if (error) {
+            StatusBox.show(error, $tab);
+            return false;
+        } else {
+            return true;
+        }
     }
 
     private _reorderTab(previousIndex: number, newIndex: number) {

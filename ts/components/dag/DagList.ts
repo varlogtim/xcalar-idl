@@ -469,6 +469,27 @@ class DagList extends Durable {
     }
 
     /**
+     * DagList.Instance.validateName
+     * @param name
+     * @param isSQLFunc
+     */
+    public validateName(name: string, isSQLFunc: boolean): string | null {
+        if (!name) {
+            return ErrTStr.NoEmpty;
+        }
+
+        if (!this.isUniqueName(name)) {
+            return isSQLFunc ? SQLTStr.DupFuncName : DFTStr.DupDataflowName;
+        }
+
+        const category = isSQLFunc ? PatternCategory.SQLFunc : PatternCategory.Dataflow;
+        if (!xcHelper.checkNamePattern(category, PatternAction.Check, name)) {
+            return isSQLFunc ? ErrTStr.SQLFuncNameIllegal : ErrTStr.DFNameIllegal;
+        }
+        return null;
+    }
+
+    /**
      * Deletes the dataflow represented by dagListItem from the dagList
      * Also removes from dagTabs if it is active.
      * @param $dagListItem Dataflow we want to delete.

@@ -6,8 +6,8 @@ class SQLFuncSettingModal {
     }
 
     private _modalHelper: ModalHelper;
-    private _onSubmit: Function;
-    private _onCancel: Function;
+    private _onSubmit: (name: string, numInput: number) => void;
+    private _onCancel: () => void;
 
     private constructor() {
         const $modal: JQuery = this._getModal();
@@ -22,9 +22,14 @@ class SQLFuncSettingModal {
      * SQLFuncSettingModal.Instance.show
      * @param callback
      */
-    public show(onSubmit: Function, onCancel: Function): void {
+    public show(
+        onSubmit: (name: string, numInput: number) => void,
+        onCancel: () => void
+    ): void {
         this._modalHelper.setup();
-        this._getInput().val(1);
+        const fnName: string = DagList.Instance.getValidName(null, false, true);
+        this._getNameInput().val(fnName);
+        this._getNumInput().val(1);
         this._onSubmit = onSubmit;
         this._onCancel = onCancel;
     }
@@ -33,8 +38,12 @@ class SQLFuncSettingModal {
         return $("#sqlFuncSettingModal");
     }
 
-    private _getInput(): JQuery {
-        return this._getModal().find("input");
+    private _getNameInput(): JQuery {
+        return this._getModal().find(".fnName").find("input");
+    }
+
+    private _getNumInput(): JQuery {
+        return this._getModal().find(".numInput").find("input");
     }
 
     private _close(isCancel: boolean): void {
@@ -42,7 +51,8 @@ class SQLFuncSettingModal {
             this._onCancel();
         }
         this._modalHelper.clear();
-        this._getInput().val("");
+        this._getNameInput().val("");
+        this._getNumInput().val("");
         this._onSubmit = null;
         this._onCancel = null;
     }
@@ -54,19 +64,28 @@ class SQLFuncSettingModal {
             return;
         }
         if (typeof this._onSubmit === "function") {
-            this._onSubmit(res.num);
+            this._onSubmit(res.name, res.num);
         }
-        SQLResultSpace.Instance.refresh();
         this._close(false);
     }
 
-    private _validate(): {num: number} {
-        let $input: JQuery = this._getInput();
-        let num: number = Number($input.val());
-        let isValid = xcHelper.validate([{
-            $ele: $input
+    private _validate(): {name: string, num: number} {
+        const $nameInput: JQuery = this._getNameInput();
+        const $numInput: JQuery = this._getNumInput();
+        const name: string = $nameInput.val().trim();
+        const num: number = Number($numInput.val());
+
+        const nameError: string = DagList.Instance.validateName(name, true);
+        const isValid = xcHelper.validate([{
+            $ele: $nameInput
         }, {
-            $ele: $input,
+            $ele: $nameInput,
+            error: nameError,
+            check: () => nameError != null
+        }, {
+            $ele: $numInput
+        }, {
+            $ele: $numInput,
             error: ErrTStr.PositiveInteger,
             check: () => {
                 return isNaN(num) || num <= 0 || !Number.isInteger(num);
@@ -76,7 +95,8 @@ class SQLFuncSettingModal {
             return;
         }
         return {
-            num: num
+            name,
+            num
         }
     }
 

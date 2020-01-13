@@ -1615,7 +1615,7 @@ describe("DagView Test", () => {
                     expect(y).to.equal(180);
                 }
             }
-            DagView.newSQLFunc(2);
+            DagView.newSQLFunc(null, 2);
             expect(count).to.equal(3);
             expect(called).to.be.true;
 

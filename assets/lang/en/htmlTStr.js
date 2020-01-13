@@ -466,6 +466,7 @@ module.exports = {
         "EditUDF": "Add/Edit UDF",
         "UDFHint": "Tips: UDF (User Defined Function) is a customized python function that accepts one or more fields of a table as input and outputs a string field. UDFs can be used in a SQL query, e.g, select udf(Field1, Field2...) from Table. You can add/edit UDFs in the UDF panel.",
         "NumOfInput": "Number of input tables",
+        "FunctionName": "Function name",
         "EditAdvanced": "Debug plan",
         "SaveQueryTab": "Saved Queries",
         "TableTab": "Tables",

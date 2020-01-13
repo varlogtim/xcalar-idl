@@ -168,8 +168,8 @@ class DagView {
         }
     }
 
-    public static newSQLFunc(numInput) {
-        DagTabManager.Instance.newSQLFunc();
+    public static newSQLFunc(name, numInput) {
+        DagTabManager.Instance.newSQLFunc(name);
 
         // add instruction
         const commentBase: number = 40;

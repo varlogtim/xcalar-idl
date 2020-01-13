@@ -4969,13 +4969,22 @@ html.microsoft {
 /* ========== SQL Func Setting ============= */
 #sqlFuncSettingModal {
     @h-without-main: @modal-header-with-subHeader-h + @modal-bottom-h;
-    .size(@height: 200px, @min-width: 565px);
+    .size(@height: 246px, @min-width: 565px);
 
     .modalMain {
         height: ~"calc(100% - @{h-without-main})";
         @label-w: 170px;
         @margin: 10px;
         @total-w: @label-w + @margin;
+
+        .row {
+            height: 30px;
+            margin-top: 16px;
+
+            &:first-child {
+                margin-top: 0;
+            }
+        }
 
         .label, input {
             display: block;
