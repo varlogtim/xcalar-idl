@@ -140,7 +140,7 @@
     }
 
     .box-small {
-        .size(@height: 210px);
+        .size(@height: 220px);
         .flex(1 0 320px);
         overflow: hidden;
 
@@ -471,6 +471,16 @@
 
         .row {
             margin-top: 8px;
+
+            &.sessionIdRow {
+                &:hover {
+                    .info {
+                        i {
+                            display: inline-block;
+                        }
+                    }
+                }
+            }
         }
 
         .label {
@@ -484,6 +494,20 @@
             float: left;
             color: @color-font-edge;
             .textOverflowOneLine;
+
+            &.sessionId {
+                div {
+                    float: left;
+                }
+
+                i {
+                    display: none;
+                    margin-left: 8px;
+                    font-size: 15px;
+                    height: 21px;
+                    line-height: 21px;
+                }
+            }
         }
 
         .tab {

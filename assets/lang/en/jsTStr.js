@@ -895,6 +895,8 @@ WKBKTStr = {
     'Modified': 'Last modified',
     'DF': 'Modules',
     'State': 'State',
+    'SessionId': "Session ID",
+    "CopySessionId": "Copy Session ID to clipborad",
     'Creating': 'Creating Project',
     'Updating': "Updating Project",
     'SwitchErr': 'Switch Project Error',

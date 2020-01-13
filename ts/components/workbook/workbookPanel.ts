@@ -415,6 +415,13 @@ namespace WorkbookPanel {
             }
         });
 
+        $workbookSection.on("click", ".sessionId .icon", function(event) {
+            event.stopPropagation();
+            const sessionId = $(this).prev().text();
+            xcUIHelper.copyToClipboard(sessionId);
+            xcUIHelper.showSuccess();
+        });
+
         // Events for the actual workbooks
         // anywhere on workbook card
         $workbookSection.on("click", ".activate", function(event) {
@@ -1100,6 +1107,18 @@ namespace WorkbookPanel {
                                     '</div>' +
                                     '<div class="info isActive">' +
                                         isActive +
+                                    '</div>' +
+                                '</div>' +
+                                '<div class="row clearfix sessionIdRow">' +
+                                    '<div class="label">' +
+                                        WKBKTStr.SessionId + ':' +
+                                    '</div>' +
+                                    '<div class="info sessionId">' +
+                                        '<div>' + workbook.sessionId + '</div>' +
+                                        '<i class="icon xi-copy-clipboard" '+
+                                        xcTooltip.Attrs +
+                                        ' data-title="' + WKBKTStr.CopySessionId + '"' +
+                                        '></i>' +
                                     '</div>' +
                                 '</div>' +
                             '</div>' +
