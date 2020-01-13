@@ -982,7 +982,7 @@ class MapOpPanel extends GeneralOpPanel {
         const html: HTML = '<div class="group mapGroup extraGroup">' +
                 '<i class="icon xi-close removeExtraGroup"></i>' +
                 '<i class="icon xi-minus minGroup"></i>' +
-                '<div class="altFnTitle">No Function Chosen</div>' +
+                '<div class="altFnTitle">No Map Function Chosen</div>' +
                 '<div class="filterMapFuncArea">' +
                     '<input type="text" class="mapFilter" placeholder="Search map functions...">' +
                     '<div class="clear">' +

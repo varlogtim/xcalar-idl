@@ -338,7 +338,7 @@
                         @top-h: 36px;
                         @bottom-h: 50px;
                         @total-h: @top-h + @bottom-h;
-    
+
                         &.noBottom {
                             .mainSection {
                                 height: ~"calc(100% - @{top-h})";
@@ -350,7 +350,7 @@
                                 height: 100%;
                             }
                         }
-    
+
                         .topSection {
                             background-color: @color-white;
                             height: @top-h;
@@ -358,31 +358,31 @@
                             padding: 6px 15px;
                             border-bottom: 1px solid @color-border-softGray;
                             @div-h: 20px;
-    
+
                             > div {
                                 .flex(0 0 auto);
-    
+
                                 &.tableNameArea {
                                     .flex(1 1 0px);
                                 }
                             }
-    
+
                             > .label {
                                 margin-right: 10px;
                                 line-height: 24px;
                                 font-size: 16px;
                                 font-weight: bold;
                                 color: @color-font-form-gray;
-    
+
                                 .name {
                                     font-weight: normal;
                                     margin-left: 8px;
                                 }
                             }
-    
+
                             .searchbarArea {
                                 .size(@height: 24px);
-    
+
                                 input {
                                     font-size: 12px;
                                     .rounded(3px);
@@ -391,7 +391,7 @@
                                     line-height: 24px;
                                     background-color: @color-white;
                                 }
-    
+
                                 > .icon {
                                     .font(@size: 14px);
                                     .position(absolute, @top: 6px, @left: 5px);
@@ -399,25 +399,25 @@
                                 }
                             }
                         }
-    
+
                         .mainSection, .loadingSection, .errorSection {
                             height: ~"calc(100% - @{total-h})";
                         }
-    
+
                         .bottomSection {
                             height: @bottom-h;
                             padding: 11px 25px;
                             border-top: 1px solid @color-border-softGray;
                             background-color: @color-bg-list-hover-blue;
-    
+
                             .buttonWrap {
                                 float: left;
                             }
-    
+
                             button {
                                 margin-right: 10px;
                                 padding: 0 17px;
-    
+
                                 &.btn-create {
                                     .icon {
                                         position: relative;
@@ -434,16 +434,16 @@
 
                             .row {
                                 padding: 0 16px;
-                
+
                                 > span {
                                     display: block;
                                     line-height: 29px;
                                 }
-                                
+
                                 .name {
                                     float: left;
                                 }
-                
+
                                 .action {
                                     margin-left: 8px;
                                     float: right;
@@ -1049,8 +1049,11 @@
     }
     .dataflowArea {
         display: block;
-        .operator .main, .edge, .paramTitle {
+        .operator .main, .edge, .paramTitle, .table {
             cursor: initial;
+        }
+        .table {
+            pointer-events: none;
         }
     }
 }

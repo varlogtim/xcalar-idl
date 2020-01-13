@@ -903,7 +903,7 @@ class FilterOpPanel extends GeneralOpPanel {
         const html = '<div class="group filterGroup ' + extraClass + '">' +
                         '<div class="catFuncHeadings clearfix subHeading">' +
                             '<div class="filterFnTitle">Filter Function</div>' +
-                            '<div class="altFnTitle">No Function Chosen</div>' +
+                            '<div class="altFnTitle">No Filter Function Chosen</div>' +
                             '<i class="icon xi-close removeExtraGroup"></i>' +
                             '<i class="icon xi-minus minGroup"></i>' +
                         '</div>' +

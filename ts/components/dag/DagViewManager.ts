@@ -567,7 +567,7 @@ class DagViewManager {
             this.activeDagTab = DagTabManager.Instance.getTabById(tabId) || dagTab;
             this.activeDagView.focus();
         }
-        newDagView.render(null, null, noEvents);
+        newDagView.render(noEvents);
     }
 
     public addProgressPct(nodeId: DagNodeId, tabId: string, pct?: number, step?: number, times?: number[], state?: string, noPct?: boolean): void {

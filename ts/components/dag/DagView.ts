@@ -992,12 +992,11 @@ class DagView {
         // add connections separately after so all node elements already exist
         // adds event listeners
      */
-    public render($dfArea?: JQuery, graph?: DagGraph, noEvents?: boolean): void {
-        this.$dfArea = $dfArea || this.$dfArea;
+    public render(noEvents?: boolean): void {
         if (this.$dfArea.closest("#dagView").length && this.$dfArea.hasClass("rendered")) {
             return;
         }
-        this.graph = graph || this.graph;
+
         this.tabId = this.graph.getTabId();
         this.$dfArea.empty().html(
             '<div class="dataflowAreaWrapper">' +
@@ -3410,8 +3409,7 @@ class DagView {
             skewClass = "skewUnavailable";
         }
         const left: number = this._getTableTooltipLeftPosition(skewRows, graph, nodeX);
-
-        let html = `<div data-id="${nodeId}" class="runStats dagTableTip ${stateClass}" style="left:${left}px;top:${y}px;">`;
+        let html = `<div data-left="${left}" data-id="${nodeId}" class="runStats dagTableTip ${stateClass}" style="left:${left}px;top:${y}px;">`;
         html += `<table>
                  <thead>
                     <th>Rows</th>
@@ -3451,7 +3449,7 @@ class DagView {
     // we're estimating the width of the tooltip because calculating
     // the exact width is too slow
     private _getTableTooltipLeftPosition(
-        skewRows: string,
+        numRows: string,
         graph: DagGraph,
         nodeX: number
     ): number {
@@ -3460,7 +3458,7 @@ class DagView {
         let outerPadding = 2;
         let baseWidth = (cellPadding * 2) * numCells + (outerPadding * 2);
         let rowHeadingWidth = 23;
-        let firstColWidth = Math.max(skewRows.length * 4.5, rowHeadingWidth);
+        let firstColWidth = Math.max(numRows.length * 4.5, rowHeadingWidth);
         let secondColWidth = 23;
         let width = firstColWidth + secondColWidth + baseWidth;
         const nodeCenter = graph.getScale() * (nodeX + DagView.nodeAndTableWidth - 18);
@@ -3473,7 +3471,20 @@ class DagView {
             $tableStats.addClass("visible"); // in case we can't get the dimensions
             // because user is hiding tips by default
             const infoRect = $tableStats[0].getBoundingClientRect();
-            const rectWidth = Math.max(infoRect.width, 60); // width can be 0 if tab is not visible
+            let width: number;
+            if (infoRect.width === 0) {
+                let cellPadding = 2;
+                let numCells = 2;
+                let outerPadding = 2;
+                let baseWidth = (cellPadding * 2) * numCells + (outerPadding * 2);
+                let rowHeadingWidth = 23;
+                let firstColWidth = Math.max($tableStats.find(".rows").text().length * 4.5, rowHeadingWidth);
+                let secondColWidth = 23;
+                width = firstColWidth + secondColWidth + baseWidth;
+            } else {
+                width = infoRect.width;
+            }
+            const rectWidth = Math.max(width, 60); // width can be 0 if tab is not visible
             const rectHeight = Math.max(infoRect.height, 25);
             const scale = this.graph.getScale();
             // const nodeCenter = nodeInfo.position.x + 1 + (DagView.nodeAndTableWidth - 12);

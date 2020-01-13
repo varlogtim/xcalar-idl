@@ -1150,6 +1150,7 @@ module.exports = {
         "noFunc": "No Function Chosen",
         "additional": "Additional Conditions",
         "additionalFunc": "Apply Additional Functions",
+        "additionalMapFunc": "Apply an additional map function",
         "fieldsToGroup": "Fields to group on",
         "AddAnotherColumn": "Add Another Column",
         "funcToGroup": "Function to apply to group",

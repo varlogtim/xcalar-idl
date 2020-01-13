@@ -126,7 +126,7 @@ class DagNodeSQL extends DagNode {
         }
     }
 
-    public updateSubGraph(_newTableMap?: {}, rawXcQuery?: boolean): void {
+    public updateSubGraph(_newTableMap?: {}, rawXcQuery?: boolean, noInputOutpuNodes?: boolean): void {
         if (_newTableMap) {
             // If it's simply updating the mapping of oldTableName ->
             // newTableName. No need to re-build the entire sub graph
@@ -199,7 +199,7 @@ class DagNodeSQL extends DagNode {
             this.subGraphNodeIds.push(nodeId);
 
             const dagParents = dagIdParentMap[nodeId];
-            if (dagParents) {
+            if (dagParents && !noInputOutpuNodes) {
                 dagParents.forEach((dagParent) => {
                     const index = dagParent.index;
                     const srcId = dagParent.srcId;
@@ -221,7 +221,7 @@ class DagNodeSQL extends DagNode {
                     });
                 }
             }
-            if (nodeId === outputDagId) {
+            if (nodeId === outputDagId && !noInputOutpuNodes) {
                 this.addOutputNode(node);
             }
         });
@@ -1341,8 +1341,8 @@ class DagNodeSQL extends DagNode {
                     allCols: sqlQueryObj.allColumns,
                     tableSrcMap: tableSrcMap
                 }
-                self.updateSubGraph();
-                self.updateSubGraph(replaceRetStruct.newTableMap);
+                self.updateSubGraph(null, null, sqlMode);
+                self.updateSubGraph(replaceRetStruct.newTableMap, null, sqlMode);
                 // recalculate the lineage after compilation
                 const lineage = self.getLineage();
                 lineage.reset();
