@@ -120,7 +120,8 @@ class ProfileEngine {
                 newColName: this._statsColName
             };
             let options = {
-                newTableName: this._getNewName(srcTable, ".profile.GB", true)
+                newTableName: this._getNewName(srcTable, ".profile.GB", true),
+                clean: true
             };
             return XIApi.groupBy(txId, [aggArgs], [colName], srcTable, options);
         })

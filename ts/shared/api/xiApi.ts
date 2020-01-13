@@ -75,7 +75,7 @@ namespace XIApi {
         if (tableName == null || tableName === '') {
             return false;
         }
-        const regexp: RegExp = new RegExp('^.*#[a-zA-Z0-9_\-]+$');
+        const regexp: RegExp = new RegExp('^.*#[a-zA-Z0-9_]+$');
         return regexp.test(tableName);
     }
 
@@ -519,7 +519,8 @@ namespace XIApi {
     function joinIndex(
         txId: number,
         joinInfo: JoinIndexInfo,
-        removeNulls: boolean
+        removeNulls: boolean,
+        noCache: boolean
     ): XDPromise<{
         lRes: JoinIndexResult,
         rRes: JoinIndexResult,
@@ -589,6 +590,13 @@ namespace XIApi {
                 tempCols = currentTempCols;
             } else {
                 tempCols = currentTempCols.concat(res2.tempCols || []);
+            }
+
+            if (noCache) {
+                tempTables.push(lIndexedTable);
+                if (lIndexedTable !== rIndexedTable) {
+                    tempTables.push(rIndexedTable);
+                }
             }
 
             if (removeNulls) {
@@ -1673,7 +1681,8 @@ namespace XIApi {
         tableName: string,
         newTableName?: string,
         newKeys?: string[],
-        dhtName?: string
+        dhtName?: string,
+        noCache: boolean = false
     ): XDPromise<{newTableName: string, isCache: boolean, newKeys: string[], tempCols: string[]}> {
         if (txId == null ||
             colNames == null ||
@@ -1716,9 +1725,16 @@ namespace XIApi {
             indexHelper(txId, keyInfos, tableName, newTableName, dhtName)
             .then((ret) => {
                 const {newTableName, newKeys} = ret;
-                XIApi.cacheIndexTable(tableName, colNames,
-                                            newTableName, newKeys, tempCols);
-                deferred.resolve({newTableName: newTableName, isCache: false, newKeys: newKeys, tempCols: tempCols});
+                if (noCache) {
+                    XIApi.cacheIndexTable(tableName, colNames,
+                        newTableName, newKeys, tempCols);
+                }
+                deferred.resolve({
+                    newTableName: newTableName,
+                    isCache: false,
+                    newKeys: newKeys,
+                    tempCols: tempCols
+                });
             })
             .fail(deferred.reject);
 
@@ -1749,7 +1765,7 @@ namespace XIApi {
         };
 
         let indexCache: TableIndexCache = XIApi.getIndexTable(tableName, colNames);
-        if (indexCache != null) {
+        if (!noCache && indexCache != null) {
             // log this indexed table as part of the transaction so afterwards
             // we can add a tag to the indexed table to indicate it is
             // part of the transaction
@@ -2037,7 +2053,7 @@ namespace XIApi {
             tempTables = tempTables.concat(res.tempTables);
             // Step 2: index the left table and right table
             rIndexColNames = res.rColNames;
-            return joinIndex(txId, res, lTableInfo.removeNulls);
+            return joinIndex(txId, res, lTableInfo.removeNulls, clean);
         })
         .then((ret) => {
             const {lRes, rRes, tempTablesInIndex, tempCols} = ret;
@@ -2181,11 +2197,14 @@ namespace XIApi {
         if (onlyDistinct) {
             promise = PromiseHelper.resolve();
         } else {
-            promise = XIApi.index(txId, groupByCols, tableName, null, newKeys, options.dhtName)
+            promise = XIApi.index(txId, groupByCols, tableName, null, newKeys, options.dhtName, clean)
             .then((ret) => {
                 const indexedTable = ret.newTableName;
                 const indexKeys = ret.newKeys;
                 newKeys = indexKeys;
+                if (clean) {
+                    tempTables.push(indexedTable);
+                }
                 // table name may have changed after sort!
                 if (isIncSample || isMultiGroupby || groupAll || indexKeys.length === 0) {
                     // incSample does not take renames, multiGroupby already handle
@@ -2263,7 +2282,8 @@ namespace XIApi {
         tableInfos: UnionTableInfo[],
         dedup: boolean = false,
         newTableName?: string,
-        unionType?: UnionOperatorT
+        unionType?: UnionOperatorT,
+        cleanup: boolean = false
     ): XDPromise<{newTableName: string, newTableCols: {rename: string, type: ColumnType}[]}> {
         if (unionType === undefined) {
             unionType = UnionOperatorT.UnionStandard;
@@ -2302,6 +2322,12 @@ namespace XIApi {
                 colInfos.push(tableInfo.renames);
             });
             return unionHelper(txId, tableNames, newTableName, colInfos, dedup, unionType, indexKeys);
+        })
+        .then(() => {
+            if (cleanup) {
+                // remove temp table (in step execution only)
+                return XIApi.deleteTableInBulk(txId, tempTables, true);
+            }
         })
         .then(() => {
             const newTableCols: {rename: string, type: ColumnType}[] = tableInfos[0].columns.map((col) => {

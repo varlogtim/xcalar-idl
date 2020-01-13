@@ -1,20 +1,27 @@
 // XXX TODO: rename or clean up this file
 class Authentication {
+    private static uid_deprecated: XcUID;
     private static uid: XcUID;
-    private static keyMap = {};
+    private static idCount: number;
+    private static idIncTimer;
 
     /**
-     * Authentication.getCount
+     * Authentication.setup
      */
-    public static getCount(): number {
-        return this._getUId().count;
+    public static async setup(): Promise<void> {
+        try {
+            const idCountStr = await this._getIdCountKVStore().get();
+            this.idCount = idCountStr ? Number(idCountStr) : 0;
+        } catch (e) {
+            console.error("fetch id count failed: " + e);
+        }
     }
 
     /**
      * Authentication.getHashId
      */
     public static getHashId(excludeHash?: boolean): string {
-        const idCount: string = this._getUId().gen();
+        const idCount: string = this._getUId_depreacated().gen();
         if (excludeHash) {
             return (idCount + '');
         } else {
@@ -25,28 +32,34 @@ class Authentication {
     /**
      * Authentication.getTableId
      */
-    public static getTableId(key = null): string {
-        const idCount: string = this._getTableUid(key).gen();
+    public static getTableId(): string {
+        let idCount: string; 
+        if (xcHelper.isNodeJs() || this.idCount == null) {
+            return this._getHeadLessTableUid().gen();;
+        } else {
+            idCount = "v" + this.idCount;
+            this.incIdCount();
+        }
+        
         return ("#" + idCount);
     }
 
-    private static _getUId(): XcUID {
-        if (this.uid == null) {
+    private static _getUId_depreacated(): XcUID {
+        if (this.uid_deprecated == null) {
             // Note that . and - is not good for HTML rendering reason
             // so here the choice is _
-            this.uid = new XcUID("t");
-            this.uid.setGenerator((prefix: string, count: number): string => {
+            this.uid_deprecated = new XcUID("t");
+            this.uid_deprecated.setGenerator((prefix: string, count: number): string => {
                 return prefix + "_" + new Date().getTime() + "_" + count;
             });
         }
-        return this.uid;
+        return this.uid_deprecated;
     }
 
-    private static _getTableUid(key): XcUID {
-        let uid: XcUID = this.keyMap[key];
-        if (uid == null) {
-            uid = new XcUID("v");
-            uid.setGenerator((prefix: string, count: number): string => {
+    private static _getHeadLessTableUid(): XcUID {
+        if (this.uid == null) {
+            this.uid = new XcUID("v");
+            this.uid.setGenerator((prefix: string, count: number): string => {
                 const date = new Date();
                 return prefix + "_" + count + "_" +
                         date.getUTCFullYear() + "-" +
@@ -57,7 +70,21 @@ class Authentication {
                         date.getUTCSeconds() + "Z";
             });
         }
-        this.keyMap[key] = uid;
-        return uid;
+        return this.uid;
+    }
+
+    private static _getIdCountKVStore(): KVStore {
+        const key: string = KVStore.getKey("gIdCountKey");
+        return new KVStore(key, gKVScope.WKBK);
+    }
+
+    private static incIdCount(): void {
+        console.log("increase id counct");
+        this.idCount++;
+        clearTimeout(this.idIncTimer);
+        this.idIncTimer = setTimeout(() => {
+            console.log("commit")
+            this._getIdCountKVStore().put(String(this.idCount), true);
+        }, 1000); // 1s interval
     }
 }

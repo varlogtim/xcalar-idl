@@ -609,8 +609,13 @@ namespace xcManager {
             return JupyterPanel.initialize();
         })
         .then(() => {
+            // restores table info, dataset info, settings etc
             return KVStore.restoreWKBKInfo();
-        }) // restores table info, dataset info, settings etc
+        })
+        .then(() => {
+            const promise = Authentication.setup();
+            return PromiseHelper.convertToJQuery(promise);
+        })
         .then(deferred.resolve)
         .fail(deferred.reject);
 

@@ -18,7 +18,7 @@ describe('XIApi Test', () => {
             expect(isCorrectTableNameFormat("table#abAZ12")).to.be.true;
             expect(isCorrectTableNameFormat("table#abAZ_12")).to.be.true;
             expect(isCorrectTableNameFormat("table#abAZ!12")).to.be.false;
-            // expect(isCorrectTableNameFormat("table#abAZ-12")).to.be.false;
+            expect(isCorrectTableNameFormat("table#abAZ-12")).to.be.false;
         });
 
         it('isValidTableName should work', () => {

@@ -18,6 +18,8 @@ class DagUtil {
      * @param regEx
      */
     public static deleteTable(tableName: string, regEx: boolean): XDPromise<any> {
+        // XXX hack: always use regEx = false
+        regEx = false;
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let generalTableName = tableName;
         if (regEx && tableName.includes("#")) {

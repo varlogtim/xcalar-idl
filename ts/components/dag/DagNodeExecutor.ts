@@ -467,7 +467,8 @@ class DagNodeExecutor {
             icvMode: params.icv,
             groupAll: params.groupAll,
             newKeys: newKeys,
-            dhtName: params.dhtName
+            dhtName: params.dhtName,
+            clean: !this.isOptimized
         };
 
         cast()
@@ -490,7 +491,8 @@ class DagNodeExecutor {
         ): XDPromise<string> {
             const joinOpts: JoinOptions = {
                 newTableName: self._generateTableName(),
-                keepAllColumns: true
+                keepAllColumns: true,
+                clean: !self.isOptimized
             };
             const lTableInfo: JoinTableInfo = {
                 tableName: srcTable,
@@ -606,8 +608,8 @@ class DagNodeExecutor {
             newTableName: this._generateTableName(),
             evalString: this._mapEvalStrAggs(params.evalString, usedAggs),
             nullSafe: params.nullSafe,
-            keepAllColumns: false // Backend is removing this flag, so XD should not use it anymore
-            // keepAllColumns: params.keepAllColumns
+            keepAllColumns: false, // Backend is removing this flag, so XD should not use it anymore
+            clean: !this.isOptimized
         };
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
@@ -737,7 +739,7 @@ class DagNodeExecutor {
             }
         });
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        XIApi.union(this.txId, tableInfos, params.dedup, desTable, unionType)
+        XIApi.union(this.txId, tableInfos, params.dedup, desTable, unionType, !this.isOptimized)
         .then((ret) => {
             deferred.resolve(ret.newTableName);
         })
