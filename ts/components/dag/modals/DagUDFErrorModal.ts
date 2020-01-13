@@ -148,9 +148,9 @@ class DagUDFErrorModal {
     private _updateGenErrorTableButton(): void {
         let parentNode = this._node.getParents()[0];
         if (!parentNode) {
-            xcUIHelper.disableElement(this._$modal.find(".genErrorTable"), "Parent node does not exist");
+            xcUIHelper.disableElement(this._$modal.find(".genErrorTable"), TooltipTStr.UDFErrorModalNoParent);
         } else if (!parentNode.getTable()) {
-            xcUIHelper.disableElement(this._$modal.find(".genErrorTable"), "Parent node does not have a table");
+            xcUIHelper.disableElement(this._$modal.find(".genErrorTable"), TooltipTStr.UDFErrorModalNoTable);
         } else {
             xcUIHelper.enableElement(this._$modal.find(".genErrorTable"));
         }

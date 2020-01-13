@@ -115,6 +115,8 @@ TooltipTStr = {
     'twodp': '2 decimal places',
     "MustBeInWorkbook": "You must be inside a project to perform this action.",
     "SelectToViewSchema": "Select a table to view schema",
+    "UDFErrorModalNoParent": "Parent node does not exist",
+    "UDFErrorModalNoTable": "Parent node requires an active table",
     // Sync with htmlTStr
     "IcvRestriction": "Erroneous rows(ER) table only available for Map and Group By",
     "OnlyInOpMode": "Feature only available in Operational Cluster",

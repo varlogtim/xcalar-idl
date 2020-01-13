@@ -69,21 +69,6 @@ class DagViewManager {
         DagCategoryBar.Instance.showOrHideArrows();
         TblFunc.moveFirstColumn();
 
-        let $activeDfArea;
-        if (this._isStatsPanel) {
-            $activeDfArea = $("#dagStatsPanel .dataflowArea");
-        } else {
-            $activeDfArea = this.$dfWrap.find(".dataflowArea.active");
-        }
-
-        if ($activeDfArea.length) {
-            const tabId = $activeDfArea.data("id");
-            if (this.dagViewMap.has(tabId)) {
-                this.activeDagView = this.dagViewMap.get(tabId);
-                this.activeDag = this.activeDagView.getGraph();
-                this.activeDagTab = this.activeDagView.getTab();
-            }
-        }
         if (this.activeDagView) {
             this.activeDagView.focus();
         }
@@ -229,7 +214,11 @@ class DagViewManager {
             $activeDfArea = $("#dagStatsPanel .dataflowArea");
             this._isStatsPanel = true;
         } else {
-            $activeDfArea = this.$dfWrap.find(".dataflowArea.active");
+            if (this.isSqlPreview) {
+                $activeDfArea = this.$dfWrap.find(".dataflowArea");
+            } else {
+                $activeDfArea = this.$dfWrap.find(".dataflowArea.active");
+            }
             this._isStatsPanel = false;
         }
         if (this.activeDagView) {
@@ -476,9 +465,9 @@ class DagViewManager {
     }
 
     public renderSQLPreviewDag(dagTab: DagTab): void {
-        this.toggleSqlPreview(true);
         this.activeDagTab = dagTab;
         this.activeDag = dagTab.getGraph();
+        this.toggleSqlPreview(true);
         this.$dfWrap.removeClass("xc-hidden");
         this.render($(this.containerSelector + " .dataflowArea"), this.activeDag, dagTab, true);
     }
@@ -503,6 +492,23 @@ class DagViewManager {
             this.containerSelector = "#dagView";
         }
         this.$dfWrap = $(this.containerSelector + " .dataflowWrap .innerDataflowWrap");
+        let $activeDfArea;
+        if (this._isStatsPanel) {
+            $activeDfArea = $("#dagStatsPanel .dataflowArea");
+        } else if (this.isSqlPreview) {
+            $activeDfArea = this.$dfWrap.find(".dataflowArea");
+        } else {
+            $activeDfArea = this.$dfWrap.find(".dataflowArea.active");
+        }
+
+        if ($activeDfArea.length) {
+            const tabId = $activeDfArea.data("id");
+            if (this.dagViewMap.has(tabId)) {
+                this.activeDagView = this.dagViewMap.get(tabId);
+                this.activeDag = this.activeDagView.getGraph();
+                this.activeDagTab = this.activeDagView.getTab();
+            }
+        }
     }
 
 
@@ -1213,21 +1219,24 @@ class DagViewManager {
 
         // moving node in dataflow area to another position
         let operatorSelector = ".operator .main, .operator .iconArea, .comment, .operator .table";
-        this.$dfWrap.add($("#dagStatsPanel .dataflowWrap .innerDataflowWrap")).on("mousedown", operatorSelector, function (event) {
-            self.activeDagView.operatorMousedown(event, $(this));
-        });
 
-         // connecting 2 nodes dragging the parent's connector
+
+        // connecting 2 nodes dragging the parent's connector
         this.$dfWrap.on("mousedown", ".operator .connector.out", function (event) {
             self.activeDagView.connectorOutMousedown(event, $(this));
         });
 
-         // connecting 2 nodes dragging the child's connector
+            // connecting 2 nodes dragging the child's connector
         this.$dfWrap.on("mousedown", ".operator .connector.in", function (event) {
             self.activeDagView.connectorInMousedown(event, $(this));
         });
 
-        let $dfWraps = this.$dfWrap.add($("#dagStatsPanel .dataflowWrap .innerDataflowWrap"));
+        let $dfWraps = this.$dfWrap.add($("#dagStatsPanel .innerDataflowWrap"));
+
+        $dfWraps.add($("#sqlDataflowArea .innerDataflowWrap")).on("mousedown", operatorSelector, function (event) {
+            const preventDrag = $(this).closest("#sqlDataflowArea").length;
+            self.activeDagView.operatorMousedown(event, $(this), preventDrag);
+        });
 
          // drag select multiple nodes
         let $dfArea;
@@ -1436,6 +1445,8 @@ class DagViewManager {
     private _getActiveArea(): JQuery {
         if (this._isStatsPanel) {
             return $("#dagStatsPanel .dataflowArea");
+        } else if(this.isSqlPreview) {
+            return this.$dfWrap.find(".dataflowArea");
         } else {
             return this.$dfWrap.find(".dataflowArea.active");
         }

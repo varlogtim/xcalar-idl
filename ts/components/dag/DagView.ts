@@ -4837,7 +4837,7 @@ class DagView {
     }
 
     // handles drag n drop
-    public operatorMousedown(event, $opMain) {
+    public operatorMousedown(event, $opMain: JQuery, noDragDrop?: boolean) {
         let $operator = $opMain.closest(".operator");
         let isDagNode = true;
         if (!$operator.length) {
@@ -4895,6 +4895,11 @@ class DagView {
             return;
         }
 
+        if (noDragDrop) { // dragdrop disabled in sql panel
+            dragFail.bind(this)();
+            return;
+        }
+
         const $elements = $operator.add(this.$dfArea.find(".selected"));
 
         // the description icon and large node title cause the
@@ -4912,6 +4917,7 @@ class DagView {
             elOffsets.push(elOffset);
         });
 
+
         new DragHelper({
             event: event,
             $element: $operator,
@@ -4922,8 +4928,7 @@ class DagView {
             padding: DagView.gridSpacing,
             scale: this.graph.getScale(),
             elOffsets: elOffsets,
-            onDragStart: (_$els) => {
-            },
+            onDragStart: (_$els) => {},
             onDragEnd: ($els, _event, data) => {
                 let nodeInfos = [];
                 $els.each(function (i) {
@@ -4945,28 +4950,31 @@ class DagView {
                 this.moveNodes(nodeInfos);
             },
             onDragFail: (wasDragged: boolean) => {
-                if (!wasDragged) {
-                    // did not drag
-                    if (!event.shiftKey) {
-                        this._deselectAllNodes();
-                        DagView.selectNode($operator);
-                    }
-                    // if no drag, treat as right click and open menu
-                    if (!event.shiftKey && !$opMain.hasClass("comment")) {
-                        if ($opMain.hasClass("iconArea")) {
-                            DagUDFErrorModal.Instance.show(nodeId);
-                        } else {
-                            let contextMenuEvent = $.Event("contextmenu", {
-                                pageX: event.pageX,
-                                pageY: event.pageY
-                            });
-                            $opMain.trigger(contextMenuEvent);
-                        }
-                    }
+                if (!wasDragged) { // did not drag
+                    dragFail.bind(this)();
                 }
             },
             move: true
         });
+
+        function dragFail() {
+            if (!event.shiftKey) {
+                this._deselectAllNodes();
+                DagView.selectNode($operator);
+            }
+            // if no drag, treat as right click and open menu
+            if (!event.shiftKey && !$opMain.hasClass("comment")) {
+                if ($opMain.hasClass("iconArea")) {
+                    DagUDFErrorModal.Instance.show(nodeId);
+                } else {
+                    let contextMenuEvent = $.Event("contextmenu", {
+                        pageX: event.pageX,
+                        pageY: event.pageY
+                    });
+                    $opMain.trigger(contextMenuEvent);
+                }
+            }
+        }
 
     }
 
