@@ -203,7 +203,7 @@ class DagTabOptimized extends DagTabProgress {
         XcalarDeleteRetina(retinaName)
         .then(() => {
             let tableName: string = DagTabOptimized.getOutputTableName(retinaName);
-            DagUtil.deleteTable(tableName, false);
+            DagUtil.deleteTable(tableName);
         })
         .then(deferred.resolve)
         .fail((error) => {

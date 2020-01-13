@@ -175,39 +175,27 @@ class DagTblManager {
      * @param forceDelete if true, deletes locked tables. if false, ignores locked tables
      * @param regEx If true, uses "name" to patternmatch
      */
-    public deleteTable(name: string, forceDelete: boolean, regEx?: boolean): string[] {
+    public deleteTable(name: string, forceDelete: boolean): string[] {
         if (!this.configured) {
             return [];
         }
         let tablesToDelete = [];
-        if (regEx) {
-            let match: RegExp = new RegExp(name);
-            let toDelete: string[] = Object.keys(this.cache)
-                .filter((key) => match.test(key));
-            toDelete.forEach((key: string) => {
-                if (!this.cache[key].locked || forceDelete) {
-                    this.cache[key].markedForDelete = true;
-                    tablesToDelete.push(key);
-                }
-            });
-        } else {
-            if (!this.cache[name]) {
-                // table deleted through deleteTableModal may not be in this
-                // cache so we add it so we can delete it
-                this.cache[name] = {
-                    name: name,
-                    locked: false,
-                    markedForReset: false,
-                    markedForDelete: true,
-                    clockCount: 0,
-                    timestamp: -1
-                };
-                return [name];
-            }
-            if (!this.cache[name].locked || forceDelete) {
-                this.cache[name].markedForDelete = true;
-                tablesToDelete.push(name);
-            }
+        if (!this.cache[name]) {
+            // table deleted through deleteTableModal may not be in this
+            // cache so we add it so we can delete it
+            this.cache[name] = {
+                name: name,
+                locked: false,
+                markedForReset: false,
+                markedForDelete: true,
+                clockCount: 0,
+                timestamp: -1
+            };
+            return [name];
+        }
+        if (!this.cache[name].locked || forceDelete) {
+            this.cache[name].markedForDelete = true;
+            tablesToDelete.push(name);
         }
         return tablesToDelete;
     }

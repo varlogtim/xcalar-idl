@@ -246,7 +246,18 @@ abstract class DagTab extends Durable {
     }
 
     protected _deleteTableHelper(): XDPromise<void> {
-        DagTblManager.Instance.deleteTable(this._id + "_dag_.*", true, true);
+        try {
+            if (this._dagGraph != null) {
+                this._dagGraph.getAllNodes().forEach((node) => {
+                    const tableName = node.getTable();
+                    if (tableName) {
+                        DagTblManager.Instance.deleteTable(tableName, true);
+                    }
+                });
+            }
+        } catch (e) {
+            console.error(e);
+        }
         return PromiseHelper.alwaysResolve(DagTblManager.Instance.forceDeleteSweep());
     }
 

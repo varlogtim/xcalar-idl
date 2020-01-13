@@ -939,7 +939,7 @@ class DagGraphExecutor {
                             if (nodeAndGraph.node && !nodeAndGraph.node.shouldLinkAfterExecution()) {
                                 queryNodesMap.forEach((_queryNode, tableName) => {
                                     if (tableName !== destTable) {
-                                        DagUtil.deleteTable(tableName, false);
+                                        DagUtil.deleteTable(tableName);
                                     }
                                 });
                             }

@@ -481,9 +481,11 @@ class DagGraph extends Durable {
             const tableName: string = info.table;
             const node: DagNode = info.node;
             const nodeType: DagNodeType = node.getType();
-            if (nodeType !== DagNodeType.DFIn && nodeType !== DagNodeType.DFOut
-                && nodeType !== DagNodeType.CustomInput) {
-                DagUtil.deleteTable(tableName, true);
+            if (nodeType !== DagNodeType.DFIn &&
+                nodeType !== DagNodeType.DFOut &&
+                nodeType !== DagNodeType.CustomInput
+            ) {
+                DagUtil.deleteTable(tableName);
             }
         })
         .registerEvents(DagNodeEvents.ResultSetChange, (info) => {

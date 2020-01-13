@@ -187,20 +187,17 @@ describe("DagTabPublished Test", function() {
     });
 
     describe("Delete Test", function() {
-        let oldDeleteTable;
         let oldDeactivate;
         let oldDeleteWKBK;
 
         before(function() {
-            oldDeleteTable = DagTblManager.Instance.deleteTable;
             oldDeactivate = XcalarDeactivateWorkbook;
             oldDeleteWKBK =  XcalarDeleteWorkbook;
         });
 
-        it("should delete", function(done) {
+        it("should delete for DagTabPublished", function(done) {
             let called = 0;
     
-            DagTblManager.Instance.deleteTable =
             XcalarDeleteWorkbook =
             XcalarDeactivateWorkbook = () => {
                 called++;
@@ -209,7 +206,7 @@ describe("DagTabPublished Test", function() {
     
             dagTab.delete()
             .then(function() {
-                expect(called).to.equal(3);
+                expect(called).to.equal(2);
                 done();
             })
             .fail(function() {
@@ -226,15 +223,14 @@ describe("DagTabPublished Test", function() {
                 });
             };
 
-            XcalarDeactivateWorkbook =
-            DagTblManager.Instance.deleteTable = () => {
+            XcalarDeactivateWorkbook = () => {
                 called++;
                 return PromiseHelper.resolve();
             };
     
             dagTab.delete()
             .then(function() {
-                expect(called).to.equal(3);
+                expect(called).to.equal(2);
                 done();
             })
             .fail(function() {
@@ -260,7 +256,6 @@ describe("DagTabPublished Test", function() {
         });
 
         after(function() {
-            DagTblManager.Instance.deleteTable = oldDeleteTable;
             XcalarDeactivateWorkbook = oldDeactivate;
             XcalarDeleteWorkbook = oldDeleteWKBK;
         });

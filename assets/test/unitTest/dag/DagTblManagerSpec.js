@@ -127,15 +127,6 @@ describe("DagTblManager Test", function() {
         XcalarPinTable = cachePin;
     });
 
-
-    it("Should regex set delete flags", function () {
-        tableManager.addTable("test8");
-        tableManager.addTable("test9");
-        tableManager.deleteTable("test", true, true);
-        expect(tableManager.cache["test8"].markedForDelete).to.be.true;
-        expect(tableManager.cache["test9"].markedForDelete).to.be.true;
-    });
-
     it("Should get a tables timestamp", function () {
         tableManager.addTable("test10");
         expect(tableManager.getTimeStamp("test10")).to.be.an('number');

@@ -82,7 +82,7 @@ describe("DagTabUser Test", function() {
         })
     });
 
-    it("should delete", function(done) {
+    it("should delete for DagTabUser", function(done) {
         called = false;
         userTab._kvStore = {
             delete: function() {

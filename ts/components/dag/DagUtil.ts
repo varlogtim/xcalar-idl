@@ -15,17 +15,11 @@ class DagUtil {
     /**
      * DagUtil.deleteTable
      * @param tableName
-     * @param regEx
      */
-    public static deleteTable(tableName: string, regEx: boolean): XDPromise<any> {
-        // XXX hack: always use regEx = false
-        regEx = false;
+    public static deleteTable(tableName: string): XDPromise<any> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let generalTableName = tableName;
-        if (regEx && tableName.includes("#")) {
-            generalTableName = tableName.split("#")[0] + ".*";
-        }
-        let allTables = DagTblManager.Instance.deleteTable(generalTableName, true, regEx);
+        let allTables = DagTblManager.Instance.deleteTable(generalTableName, true);
         allTables.push(tableName);
         let hasPendingDelete = this._tablesPendingDelete.length > 0;
         this._tablesPendingDelete = this._tablesPendingDelete.concat(allTables);

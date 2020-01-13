@@ -3788,7 +3788,7 @@ class DagView {
                 // remove optimized dataflow tab if opened
                 DagTabManager.Instance.removeTab(retinaName);
                 let tableName: string = DagTabOptimized.getOutputTableName(retinaName);
-                DagUtil.deleteTable(tableName, false);
+                DagUtil.deleteTable(tableName);
             })
             .fail((error) => {
                 // most likely failed due to connectionMeta reset being called

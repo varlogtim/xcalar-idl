@@ -104,7 +104,7 @@ describe("PbTblInfo Test", function() {
         });
     });
 
-    it("should delete", function(done) {
+    it("should delete can call XcalarUnpublishTable", function(done) {
         let oldFunc = XcalarUnpublishTable;
         let called = false;
         XcalarUnpublishTable = function() {

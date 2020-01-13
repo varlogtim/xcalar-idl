@@ -73,7 +73,7 @@ class DeleteTableModalService {
         // XXX TODO: remove window hack
         let DagTblManager = window["DagTblManager"];
         let MemoryAlert = window["MemoryAlert"];
-        tableNames.forEach((tableName) => DagTblManager.Instance.deleteTable(tableName, false, false));
+        tableNames.forEach((tableName) => DagTblManager.Instance.deleteTable(tableName, false));
 
         if (tableNames.length === 0) {
             return new Promise((resolve) => {
