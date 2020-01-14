@@ -6,6 +6,7 @@ class TutorialPanel {
     private currVer: number;
     private _categoryOrder: Map<string, number>;
     private _orderedCatLength: number;
+    private tutorialObject = <any>{};
 
     constructor() {}
 
@@ -58,6 +59,387 @@ class TutorialPanel {
         });
 
         return deferred.promise();
+    }
+
+    public isTutorialWorkbook(): XDPromise<boolean> {
+        const deferred: XDDeferred<boolean> = PromiseHelper.deferred();
+        let key: string = KVStore.getKey("gTutorialKey");
+        let kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
+        kvStore.get()
+        .then((savedTutorialObject) => {
+            try {
+                this.tutorialObject = JSON.parse(savedTutorialObject);
+            } catch (e) {
+                console.error(e);
+            }
+            deferred.resolve(savedTutorialObject !== null);
+        })
+        .fail((err) => {
+            console.error(err);
+            return deferred.resolve(false); // still resolve it
+        });
+        return deferred.promise();
+    }
+
+    public setupTutorial(): XDPromise<void> {
+        return PromiseHelper.alwaysResolve(this.processTutorialHelper())
+    }
+
+    /**
+     * This function allows you to set a workbook such that it is dealt with
+     * as a "tutorial workbook" upon upload/being switched to.
+     * @param flag
+     */
+    public setTutorialFlag(flag: boolean) {
+        let key: string = KVStore.getKey("gTutorialKey");
+        let _kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
+        _kvStore.put(flag.toString(), true);
+    }
+
+    /**
+     * This function allows you to set a tutorial workbook to open
+     * a specific sql snippet when launched
+     * @param snippetName
+     */
+    public setTutorialDefaultSnippet(snippetName: string) {
+        let snipKey: string = KVStore.getKey("gStartingSnippetKey");
+        let _snipKVStore: KVStore = new KVStore(snipKey, gKVScope.WKBK);
+        return _snipKVStore.put(snippetName, true);
+    }
+
+    /**
+    * This function allows you to specify a dataflow that will be
+    * auto executed on tutorial workbook download
+    * @param dagId
+    * @param nodeIds
+    */
+    public setTutorialNodesToAutoExecute(dagId: string, nodeIds: string[]) {
+        let dagNodesObjectStr: string = JSON.stringify(
+            {
+                dagId: dagId,
+                nodeIds: nodeIds
+            }
+        );
+        this.setTutorialParameter("nodesToAutoExecute", dagNodesObjectStr);
+    }
+
+   /**
+    * This function allows you specify a connector that will be
+    * auto created on tutorial workbook download
+    * @param targetType
+    * @param targetName
+    * @param targetName optional
+    */
+    public setTutorialConnectorToAutoCreate(targetType: string, targetName: string, targetParams = {}) {
+        let targetObjectStr: string = JSON.stringify(
+            {
+                targetType: targetType,
+                targetName: targetName,
+                targetParams: targetParams
+            }
+        );
+        this.setTutorialParameter("connectorToAutoCreate", targetObjectStr);
+    }
+
+    /**
+     * Allows for storing dataset load arguments within the kvstore,
+     * for later use. Should not be used outside of console (for now).
+     * Also allows for specifying which datasets should automatically create published tables
+     * @param dsInfos: Object list specifying the datasets we want to load and if they have an
+     *    associated publish table
+     */
+    public storeDatasets(dsInfos: {name: string, publish?: boolean,
+            pubName?: string, primaryKeys: string[], deleteDataset?: boolean}[]) {
+        const promises: XDPromise<void>[] = [];
+        const loadArgs: object = {};
+        loadArgs["size"] = dsInfos.length;
+
+
+        for (let i = 0; i < dsInfos.length; i++) {
+            promises.push(DS.getLoadArgsFromDS(dsInfos[i].name).then((res) => {
+                if (dsInfos[i].publish) {
+                    loadArgs[i] = {
+                        loadArgs: res,
+                        publish: {
+                            pubName: dsInfos[i].pubName,
+                            pubKeys: dsInfos[i].primaryKeys,
+                            deleteDataset: dsInfos[i].deleteDataset
+                        }
+                    };
+                } else {
+                    loadArgs[i] = {
+                        loadArgs: res
+                    };
+                }
+            }));
+        }
+
+        PromiseHelper.when(...promises)
+        .then(() => {
+            let dataKey: string = KVStore.getKey("gStoredDatasetsKey");
+            let _dataKVStore: KVStore = new KVStore(dataKey, gKVScope.WKBK);
+            return _dataKVStore.put(JSON.stringify(loadArgs), true);
+        })
+        .fail((err) => {
+            console.error(err);
+        });
+    }
+
+    /**
+     * This function allows you to save a key-value pair to KVstore
+     * to be used by tutorial
+     * @param key
+     * @param value
+     */
+    private setTutorialParameter(
+        key: string,
+        value: string
+    ) {
+        let KVStoreKey: string = KVStore.getKey("gTutorialKey");
+        let _kvStore: KVStore = new KVStore(KVStoreKey, gKVScope.WKBK);
+        PromiseHelper.alwaysResolve(_kvStore.get())
+        .then((tutorialObjectString: string) => {
+            let tutorialObject = {};
+            if (tutorialObjectString) {
+                try {
+                    const parsedObject = JSON.parse(tutorialObjectString);
+                    if (typeof parsedObject === "object") {
+                        tutorialObject = parsedObject;
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+            tutorialObject[key] = value;
+            _kvStore.put(JSON.stringify(tutorialObject), true);
+        })
+        .fail((error) => {
+            console.error(error);
+        })
+    }
+
+    private processTutorialHelper(): XDPromise<any> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        const tutTarget: string = "Tutorial Dataset Target";
+        let datasetSources: Set<string> = new Set<string>();
+        let dataKey: string = KVStore.getKey("gStoredDatasetsKey");
+        let _dataKVStore: KVStore = new KVStore(dataKey, gKVScope.WKBK);
+        let walkthroughKey: string = KVStore.getKey("gStoredWalkthroughKey");
+        let _walkthroughKVStore: KVStore = new KVStore(walkthroughKey, gKVScope.WKBK);
+        let snipKey: string = KVStore.getKey("gStartingSnippetKey");
+        let _snipKVStore: KVStore = new KVStore(snipKey, gKVScope.WKBK);
+        let pubTables: StoredPubInfo[] = [];
+        let promise: XDPromise<void>;
+
+        // XXX TODO: remove this target and use Public S3 connector instead
+        // First, set up the tutorial data target if it doesnt exist
+        if (DSTargetManager.getTarget(tutTarget) != null) {
+            promise = PromiseHelper.resolve();
+        } else {
+            promise = XcalarTargetCreate("s3environ", tutTarget,
+                {authenticate_requests: "false"})
+                .then(() => {
+                    return DSTargetManager.refreshTargets(true);
+                });
+        }
+        promise
+        .then(() => {
+            // Then, load the stored datasets, if they exist
+            return PromiseHelper.alwaysResolve(_dataKVStore.getAndParse())
+        })
+        .then((datasets: {[key: number]: StoredDataset}) => {
+            if (datasets == null) {
+                // This tutorial workbook doesn't have any stored datasets
+                return PromiseHelper.resolve();
+            }
+
+            // Figure out what datasets already exist
+            let existingDatasets: ListDSInfo[] = DS.listDatasets(false);
+            let names: Set<string> = new Set<string>();
+            let inactiveNames: Set<string> = new Set<string>();
+            for(let i = 0; i < existingDatasets.length; i++) {
+                let eDs = existingDatasets[i];
+                if (eDs.options && eDs.options.inActivated) {
+                    // need to reactivate inactive datasets
+                    inactiveNames.add(eDs.id);
+                } else {
+                    names.add(eDs.id);
+                }
+            }
+            // only load the needed datasets
+            let loadArgs: OperationNode[] = [];
+            let reactivateIds: string[] = [];
+            try {
+                for(let i = 0; i < datasets["size"]; i++) {
+                    let node: OperationNode = JSON.parse(datasets[i].loadArgs)
+                    let parsedName = xcHelper.parseDSName(node.args["dest"]);
+                    parsedName.randId = parsedName.randId || "";
+                    node.args["dest"] = xcHelper.wrapDSName(parsedName.dsName, parsedName.randId)
+                    if (!names.has(node.args["dest"])) {
+                        if (inactiveNames.has(node.args["dest"])) {
+                            reactivateIds.push(node.args["dest"]);
+                        } else {
+                            loadArgs.push(node);
+                        }
+                    }
+                    datasetSources.add(parsedName.randId + "." + parsedName.dsName);
+                    // Prepare needed published tables
+                    let pubInfo = datasets[i].publish;
+                    if (pubInfo != null) {
+                        pubInfo.dsName = node.args["dest"];
+                        pubTables.push(pubInfo);
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+                return PromiseHelper.reject();
+            }
+
+            let promises = [];
+            for(let i = 0; i < loadArgs.length; i++) {
+                promises.push(DS.restoreTutorialDS(loadArgs[i]));
+            }
+            if (reactivateIds.length > 0) {
+                promises.push(DS.activate(reactivateIds, true));
+            }
+            return PromiseHelper.when(...promises);
+        })
+        .then(() => {
+            // We need to cast old dataset node sources
+            if (datasetSources.size == 0) {
+                return PromiseHelper.resolve();
+            }
+            try {
+                let dagTabs: DagTab[] = DagTabManager.Instance.getTabs();
+                let graphs: DagGraph[] = dagTabs.map((tab: DagTab) => {
+                    return tab.getGraph();
+                });
+                for (let i = 0; i < graphs.length; i++) {
+                    let graph = graphs[i];
+                    if (graph == null) {
+                        continue;
+                    }
+                    graph.reConfigureDatasetNodes(datasetSources);
+                }
+            } catch (e) {
+                console.error(e);
+                return PromiseHelper.reject();
+            }
+        })
+        .then(() => {
+            if (pubTables.length == 0) {
+                return PromiseHelper.resolve([]);
+            } else {
+                return PTblManager.Instance.getTablesAsync();
+            }
+        })
+        .then((tables: PbTblInfo[]) => {
+            let pubNames: Set<string> = new Set<string>();
+            for (let i = 0; i < tables.length; i++) {
+                let table: PbTblInfo = tables[i];
+                if (table == null) { continue };
+                pubNames.add(table.name);
+            }
+            // Time to publish tutorial workbook tables
+            let promises = [];
+            for (let i = 0; i < pubTables.length; i++) {
+                let info = pubTables[i];
+                if (pubNames.has(info.pubName)) {
+                    continue;
+                }
+                let schema = DS.getSchema(info.dsName);
+                if (schema.error != null) {
+                    continue;
+                }
+                promises.push(PTblManager.Instance.createTableFromDataset(info.dsName,
+                    info.pubName, schema.schema,
+                    info.pubKeys, !info.deleteDataset));
+            }
+            return PromiseHelper.when(...promises);
+        })
+        .then(() => {
+            return PromiseHelper.alwaysResolve(DS.refresh())
+        })
+        .then(() => {
+            // Then, load the stored snippet key, if it exists
+            return PromiseHelper.alwaysResolve(_snipKVStore.get())
+        })
+        .then((snippetName: string) => {
+            if (snippetName) {
+                SQLEditorSpace.Instance.setSnippet(snippetName);
+            }
+            return PromiseHelper.alwaysResolve(_walkthroughKVStore.get());
+        })
+        .then((walkthrough: string) => {
+            if (walkthrough) {
+                try {
+                    TooltipWalkthroughs.setWorkbookWalkthrough(JSON.parse(walkthrough));
+                } catch (e) {
+                    console.error(e);
+                    // Although we hit an error, this is a non-issue and could be rectified on reload.
+                }
+            }
+            return PromiseHelper.resolve();
+        })
+        .then(() => {
+            return this.autoExecuteNodes();
+        })
+        .then(() => {
+            return this.autoCreateConnector();
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject)
+
+        return deferred.promise();
+    }
+
+    private autoExecuteNodes(): XDPromise<void> {
+        if (this.tutorialObject.nodesToAutoExecute) {
+            try {
+                const {dagId, nodeIds} = JSON.parse(this.tutorialObject.nodesToAutoExecute);
+                const dagTab = DagList.Instance.getDagTabById(dagId);
+                return DagTabManager.Instance.loadTab(dagTab)
+                .then(() => {
+                    const graph = DagViewManager.Instance.getActiveDagView().getGraph();
+                    const unexecutedNodeIds = nodeIds.filter(nodeId => graph.getNode(nodeId).getNodeInfo().state !== "Complete");
+                    return DagViewManager.Instance.run(unexecutedNodeIds);
+                })
+                .fail((error) => {
+                    console.error(error);
+                    return PromiseHelper.reject();
+                })
+            } catch (e) {
+                console.error(e);
+                return PromiseHelper.reject();
+            }
+        }
+        else {
+            return PromiseHelper.resolve();
+        }
+    }
+
+    private autoCreateConnector(): XDPromise<void> {
+        if (this.tutorialObject.connectorToAutoCreate) {
+            try {
+                const {targetType, targetName, targetParams} = JSON.parse(this.tutorialObject.connectorToAutoCreate);
+                if (DSTargetManager.getTarget(targetName) == null) {
+                    XcalarTargetCreate(targetType, targetName, targetParams)
+                    .then(() => {
+                        return DSTargetManager.refreshTargets(true);
+                    })
+                    .fail((error) => {
+                        console.error(error);
+                        return PromiseHelper.reject();
+                    })
+                }
+            } catch (e) {
+                console.error(e);
+                return PromiseHelper.reject();
+            }
+        }
+        else {
+            return PromiseHelper.resolve();
+        }
     }
 
     private _fetchData(): XDPromise<any> {

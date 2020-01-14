@@ -98,7 +98,7 @@ namespace xcManager {
             } catch (e) {
                 return PromiseHelper.reject(e.message);
             }
-            return isTutorialWorkbook();
+            return TutorialPanel.Instance.isTutorialWorkbook();
         })
         .then(function(res: boolean) {
             isTutorial = res;
@@ -113,7 +113,7 @@ namespace xcManager {
         })
         .then(function() {
             if (isTutorial) {
-                return setupTutorial();
+                return TutorialPanel.Instance.setupTutorial();
             }
         })
         .then(function() {
@@ -1145,198 +1145,9 @@ namespace xcManager {
         return window.devicePixelRatio > 1;
     }
 
-    function isTutorialWorkbook(): XDPromise<boolean> {
-        const deferred: XDDeferred<boolean> = PromiseHelper.deferred();
-        let key: string = KVStore.getKey("gTutorialKey");
-        let kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
-        kvStore.get()
-        .then((tutorialFlag) => {
-            deferred.resolve(tutorialFlag === "true");
-        })
-        .fail((err) => {
-            console.error(err);
-            return deferred.resolve(false); // still resolve it
-        });
-
-        return deferred.promise();
-    }
-
     function setupTooltips(): XDPromise<void> {
         return PromiseHelper.alwaysResolve(
             TooltipWalkthroughs.setupInitialWalkthroughCheck());
-    }
-
-    function setupTutorial(): XDPromise<void> {
-        return PromiseHelper.alwaysResolve(processTutorialHelper())
-    }
-
-    function processTutorialHelper(): XDPromise<any> {
-        const deferred: XDDeferred<any> = PromiseHelper.deferred();
-        const tutTarget: string = "Tutorial Dataset Target";
-        let datasetSources: Set<string> = new Set<string>();
-        let dataKey: string = KVStore.getKey("gStoredDatasetsKey");
-        let _dataKVStore: KVStore = new KVStore(dataKey, gKVScope.WKBK);
-        let walkthroughKey: string = KVStore.getKey("gStoredWalkthroughKey");
-        let _walkthroughKVStore: KVStore = new KVStore(walkthroughKey, gKVScope.WKBK);
-        let snipKey: string = KVStore.getKey("gStartingSnippetKey");
-        let _snipKVStore: KVStore = new KVStore(snipKey, gKVScope.WKBK);
-        let pubTables: StoredPubInfo[] = [];
-        let promise: XDPromise<void>;
-
-        // XXX TODO: remove this target and use Public S3 connector instead
-        // First, set up the tutorial data target if it doesnt exist
-        if (DSTargetManager.getTarget(tutTarget) != null) {
-            promise = PromiseHelper.resolve();
-        } else {
-            promise = XcalarTargetCreate("s3environ", tutTarget,
-                {authenticate_requests: "false"})
-                .then(() => {
-                    return DSTargetManager.refreshTargets(true);
-                });
-        }
-        promise
-        .then(() => {
-            // Then, load the stored datasets, if they exist
-            return PromiseHelper.alwaysResolve(_dataKVStore.getAndParse())
-        })
-        .then((datasets: {[key: number]: StoredDataset}) => {
-            if (datasets == null) {
-                // This tutorial workbook doesn't have any stored datasets
-                return PromiseHelper.resolve();
-            }
-
-            // Figure out what datasets already exist
-            let existingDatasets: ListDSInfo[] = DS.listDatasets(false);
-            let names: Set<string> = new Set<string>();
-            let inactiveNames: Set<string> = new Set<string>();
-            for(let i = 0; i < existingDatasets.length; i++) {
-                let eDs = existingDatasets[i];
-                if (eDs.options && eDs.options.inActivated) {
-                    // need to reactivate inactive datasets
-                    inactiveNames.add(eDs.id);
-                } else {
-                    names.add(eDs.id);
-                }
-            }
-            // only load the needed datasets
-            let loadArgs: OperationNode[] = [];
-            let reactivateIds: string[] = [];
-            try {
-                for(let i = 0; i < datasets["size"]; i++) {
-                    let node: OperationNode = JSON.parse(datasets[i].loadArgs)
-                    let parsedName = xcHelper.parseDSName(node.args["dest"]);
-                    parsedName.randId = parsedName.randId || "";
-                    node.args["dest"] = xcHelper.wrapDSName(parsedName.dsName, parsedName.randId)
-                    if (!names.has(node.args["dest"])) {
-                        if (inactiveNames.has(node.args["dest"])) {
-                            reactivateIds.push(node.args["dest"]);
-                        } else {
-                            loadArgs.push(node);
-                        }
-                    }
-                    datasetSources.add(parsedName.randId + "." + parsedName.dsName);
-                    // Prepare needed published tables
-                    let pubInfo = datasets[i].publish;
-                    if (pubInfo != null) {
-                        pubInfo.dsName = node.args["dest"];
-                        pubTables.push(pubInfo);
-                    }
-                }
-            } catch (e) {
-                console.error(e);
-                return PromiseHelper.reject();
-            }
-
-            let promises = [];
-            for(let i = 0; i < loadArgs.length; i++) {
-                promises.push(DS.restoreTutorialDS(loadArgs[i]));
-            }
-            if (reactivateIds.length > 0) {
-                promises.push(DS.activate(reactivateIds, true));
-            }
-            return PromiseHelper.when(...promises);
-        })
-        .then(() => {
-            // We need to cast old dataset node sources
-            if (datasetSources.size == 0) {
-                return PromiseHelper.resolve();
-            }
-            try {
-                let dagTabs: DagTab[] = DagTabManager.Instance.getTabs();
-                let graphs: DagGraph[] = dagTabs.map((tab: DagTab) => {
-                    return tab.getGraph();
-                });
-                for (let i = 0; i < graphs.length; i++) {
-                    let graph = graphs[i];
-                    if (graph == null) {
-                        continue;
-                    }
-                    graph.reConfigureDatasetNodes(datasetSources);
-                }
-            } catch (e) {
-                console.error(e);
-                return PromiseHelper.reject();
-            }
-        })
-        .then(() => {
-            if (pubTables.length == 0) {
-                return PromiseHelper.resolve([]);
-            } else {
-                return PTblManager.Instance.getTablesAsync();
-            }
-        })
-        .then((tables: PbTblInfo[]) => {
-            let pubNames: Set<string> = new Set<string>();
-            for (let i = 0; i < tables.length; i++) {
-                let table: PbTblInfo = tables[i];
-                if (table == null) { continue };
-                pubNames.add(table.name);
-            }
-            // Time to publish tutorial workbook tables
-            let promises = [];
-            for (let i = 0; i < pubTables.length; i++) {
-                let info = pubTables[i];
-                if (pubNames.has(info.pubName)) {
-                    continue;
-                }
-                let schema = DS.getSchema(info.dsName);
-                if (schema.error != null) {
-                    continue;
-                }
-                promises.push(PTblManager.Instance.createTableFromDataset(info.dsName,
-                    info.pubName, schema.schema,
-                    info.pubKeys, !info.deleteDataset));
-            }
-            return PromiseHelper.when(...promises);
-        })
-        .then(() => {
-            return PromiseHelper.alwaysResolve(DS.refresh())
-        })
-        .then(() => {
-            // Then, load the stored snippet key, if it exists
-            return PromiseHelper.alwaysResolve(_snipKVStore.get())
-        })
-        .then((snippetName: string) => {
-            if (snippetName) {
-                SQLEditorSpace.Instance.setSnippet(snippetName);
-            }
-            return PromiseHelper.alwaysResolve(_walkthroughKVStore.get());
-        })
-        .then((walkthrough: string) => {
-            if (walkthrough) {
-                try {
-                    TooltipWalkthroughs.setWorkbookWalkthrough(JSON.parse(walkthrough));
-                } catch (e) {
-                    console.error(e);
-                    // Although we hit an error, this is a non-issue and could be rectified on reload.
-                }
-            }
-            return PromiseHelper.resolve();
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject)
-
-        return deferred.promise();
     }
 
     function reImplementMouseWheel(e: JQueryEventObject): void {
