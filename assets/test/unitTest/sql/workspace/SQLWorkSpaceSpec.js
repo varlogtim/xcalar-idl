@@ -26,7 +26,7 @@ describe("SQLWorkSpace Test", () => {
         SQLResultSpace.Instance.showTables = () => {};
 
         SQLWorkSpace.Instance.focus();
-        expect(called).to.equal(2);
+        expect(called).to.equal(1);
 
         SQLWorkSpace.Instance.refresh = oldRefresh;
         DagViewManager.Instance.toggleSqlPreview = oldToggle;

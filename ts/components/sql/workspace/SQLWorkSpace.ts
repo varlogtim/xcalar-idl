@@ -33,14 +33,15 @@ class SQLWorkSpace {
      * SQLWorkSpace.Instance.focus
      */
     public focus(): void {
-        this.refresh();
+        // XXX the refresh is quite slow and seems not needed
+        // so commented out. Uncomment it if it's actually necessary
+        // this.refresh();
         DagViewManager.Instance.toggleSqlPreview(true);
 
         if (this._firstTouch) {
+            this.refresh();
             SQLResultSpace.Instance.showTables(true);
             this._firstTouch = false;
-        } else {
-            SQLResultSpace.Instance.refresh();
         }
         TblFunc.moveFirstColumn();
 

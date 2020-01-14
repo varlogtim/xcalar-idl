@@ -48,10 +48,10 @@ class PTblManager {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._addOneTable(tableName)
         .then(() => {
-            XcSocket.Instance.sendMessage("refreshIMD", {
+            this._onTableChange({
                 "action": "add",
                 "tables": [tableName]
-            }, null);
+            });
             deferred.resolve();
         })
         .fail(() => {
@@ -442,10 +442,10 @@ class PTblManager {
                 let error: string = failures.join("\n");
                 Alert.error(IMDTStr.ActivatingFail, error);
             }
-            XcSocket.Instance.sendMessage("refreshIMD", {
+            this._onTableChange({
                 "action": "activate",
                 "tables": succeeds
-            }, null);
+            });
             deferred.resolve();
         })
         .fail((error) => {
@@ -477,10 +477,10 @@ class PTblManager {
                         let error: string = failures.join("\n");
                         Alert.error(IMDTStr.DeactivateTableFail, error);
                     }
-                    XcSocket.Instance.sendMessage("refreshIMD", {
+                    this._onTableChange({
                         "action": "deactivate",
                         "tables": succeeds
-                    }, null);
+                    });
                     deferred.resolve();
                 })
                 .fail((error) => {
@@ -539,10 +539,10 @@ class PTblManager {
                     this._handleDeleteTableFailures(error, tablesToForceDelete);
                 }
             }
-            XcSocket.Instance.sendMessage("refreshIMD", {
+            this._onTableChange({
                 "action": "delete",
                 "tables": succeeds
-            }, null);
+            });
             deferred.resolve();
         })
         .fail((error) => {
@@ -1262,5 +1262,15 @@ class PTblManager {
             throw new Error("Table has cyclic dependency");
         }
         return sortedNodes.reverse();
+    }
+
+    private _onTableChange(
+        event: {
+            action: string,
+            tables: string[]
+        }
+    ): void {
+        SQLResultSpace.Instance.refresh();
+        XcSocket.Instance.sendMessage("refreshIMD", event, null);
     }
 }

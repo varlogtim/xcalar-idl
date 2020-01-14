@@ -18,11 +18,6 @@ class SQLTableLister extends AbstractSQLResultView {
      */
     public show(reset: boolean): XDPromise<void> {
         const $container = this._getContainer();
-        // let refresh: boolean = true;
-        // if (!$container.hasClass("xc-hidden")) {
-        //     // already show
-        //     refresh = false;
-        // }
         $container.removeClass("xc-hidden");
         if (reset) {
             this._reset();
@@ -42,7 +37,7 @@ class SQLTableLister extends AbstractSQLResultView {
     public refresh(): void {
         const $container = this._getContainer();
         if (!$container.hasClass("xc-hidden")) {
-            this.show(true);
+            this._listTables(false);
         }
     }
 
@@ -128,7 +123,6 @@ class SQLTableLister extends AbstractSQLResultView {
             clearTimeout(timer);
             this._offLoadingMode();
         });
-
         return promise;
     }
 
@@ -153,10 +147,7 @@ class SQLTableLister extends AbstractSQLResultView {
         copyTableInfo.state = PbTblState.Activating;
         this._replaceRowContent($row, copyTableInfo);
 
-        return PTblManager.Instance.activateTables([tableInfo.name])
-        .always(() => {
-            this._listTables(false);
-        });
+        return PTblManager.Instance.activateTables([tableInfo.name]);
     }
 
     private _deactivateTable($row: JQuery): XDPromise<void> {
@@ -172,10 +163,7 @@ class SQLTableLister extends AbstractSQLResultView {
         copyTableInfo.state = PbTblState.Deactivating;
         this._replaceRowContent($row, copyTableInfo);
 
-        return PTblManager.Instance.deactivateTables([tableInfo.name])
-        .always(() => {
-            this._listTables(false);
-        });
+        return PTblManager.Instance.deactivateTables([tableInfo.name]);
     }
 
     private _initializeMainSection(): void {
