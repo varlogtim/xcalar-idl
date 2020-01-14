@@ -1445,6 +1445,8 @@ module.exports = {
         "findOptimizedSource": "Find Original Module",
         "returnToQuery": "Back to query",
         "returnToQueryPanel": "Return to the Query panel",
+        "NumOperatorNodes": "No. operator nodes",
+        "ViewOnly": "View only"
     },
 
     "dagSearch": {

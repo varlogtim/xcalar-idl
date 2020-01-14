@@ -1,5 +1,6 @@
 class DagGraphBar {
     private static _instance: DagGraphBar;
+    private _curDagTab: DagTab;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -46,6 +47,7 @@ class DagGraphBar {
             $btns.find(".topButton:not(.noTabRequired)").addClass("xc-disabled");
             return;
         }
+        this._curDagTab = dagTab;
 
         $btns.find(".topButton").removeClass("xc-disabled");
 
@@ -54,6 +56,13 @@ class DagGraphBar {
             $userAndPublishOnlyBtns.removeClass("xc-disabled");
         } else {
             $userAndPublishOnlyBtns.addClass("xc-disabled");
+        }
+
+        const isViewOnly: boolean = (dagTab instanceof DagTabProgress);
+        if (isViewOnly) {
+            $topBar.addClass("viewOnly");
+        } else {
+            $topBar.removeClass("viewOnly");
         }
 
         const graph: DagGraph = dagTab.getGraph();
@@ -72,6 +81,20 @@ class DagGraphBar {
         } else {
             $topBar.removeClass("sqlFunc");
         }
+        this.updateNumNodes(dagTab);
+    }
+
+    public updateNumNodes(dagTab: DagTab): void {
+        if (dagTab == null || dagTab !== this._curDagTab) {
+            return;
+        }
+        const graph: DagGraph = dagTab.getGraph();
+        if (!graph) {
+            return;
+        }
+        const $topBar = this._getGraphBar();
+        const numNodes: number = graph.getAllNodes().size;
+        $topBar.find(".numNodes").text(xcStringHelper.numToStr(numNodes));
     }
 
     private _getGraphBar(): JQuery {

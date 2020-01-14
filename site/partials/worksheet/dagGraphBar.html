@@ -20,6 +20,18 @@
             <div class="percent-sign">%</div>
         </div>
     </div>
+    <div class="infoSection">
+        <div class="divider"></div>
+        <div class="numNodesSection">
+            <%= dicts.dag.NumOperatorNodes %>:
+            <span class="numNodes">0</span>
+        </div>
+
+        <div class="viewOnly">
+            <div class="divider"></div>
+            <%= dicts.dag.ViewOnly %>
+        </div>
+    </div>
     <div class="topButtons">
         <div class="topButton returnToQuery btn" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.dag.returnToQueryPanel %>">
             <%= dicts.dag.returnToQuery %>

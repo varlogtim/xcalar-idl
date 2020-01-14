@@ -547,6 +547,12 @@ class UDFPanel {
         }
     }
 
+    public focusBlankUDF(): void {
+        let lineNum = this.udfDefault.match(/\n/g).length;
+        this.editor.setCursor({line: lineNum, ch: 0});
+        this.editor.focus();
+    }
+
     private _selectBlankUDF(): void {
         const $fnListInput: JQuery = $("#udf-fnList input");
         const $blankFunc: JQuery = $("#udf-fnMenu").find("li[name=blank]");
@@ -557,6 +563,7 @@ class UDFPanel {
         xcTooltip.changeText($fnListInput, displayName);
 
         this._setEditorValue(this.udfDefault);
+        this.focusBlankUDF();
     }
 
     private _selectSQLUDF(): void {

@@ -345,6 +345,10 @@ class DagGraph extends Durable {
             dagNode.setTitle(this.generateNodeTitle());
         }
         this.addNode(dagNode);
+        this.events.trigger(DagGraphEvents.NewNode, {
+            tabId: this.parentTabId,
+            node: dagNode
+        });
         return dagNode;
     }
 
@@ -413,6 +417,10 @@ class DagGraph extends Durable {
                 node: node
             },
             tabId: this.parentTabId
+        });
+        this.events.trigger(DagGraphEvents.NewNode, {
+            tabId: this.parentTabId,
+            node: node
         });
         return node;
     }
@@ -2192,6 +2200,10 @@ class DagGraph extends Durable {
                 order: order
             });
         }
+        this.events.trigger(DagGraphEvents.RemoveNode, {
+            tabId: this.parentTabId,
+            node: node
+        });
         return spliceFlags;
 
     }

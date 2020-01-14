@@ -905,6 +905,7 @@ class UDFFileManager extends BaseFileManager {
             .always(() => {
                 XDFManager.Instance.updateAllUDFs(listXdfsObjUpdate);
                 GeneralOpPanel.updateOperationsMap();
+                MapOpPanel.Instance.updateOpCategories();
                 this._updateStoredUDF(listXdfsObjUpdate);
 
                 // transform object - filter out other notebooks and shorten

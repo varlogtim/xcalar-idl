@@ -274,7 +274,7 @@
 
             &.undocked {
                 z-index: @z-index-sqlEditorUndocked;
-                box-shadow: 0 0 2px rgba(0,0,0, 0.3);
+                box-shadow: 0 0 4px rgba(0,0,0, 0.5);
 
                 header {
                     pointer-events: auto;
@@ -1031,9 +1031,18 @@
         }
     }
     .topSection {
+        display: flex;
+        .infoSection {
+            display: flex;
+            align-items: center;
+            .viewOnly {
+                font-style: italic;
+                color: @color-bg-cancel-gray-hover;
+            }
+        }
         .actionArea {
             margin-left: 0px;
-            width: 100%;
+            flex: 1 1 100% !important;
             .xc-action {
                 float: right;
                 margin-right: 10px;

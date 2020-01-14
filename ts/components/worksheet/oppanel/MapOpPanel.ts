@@ -5,6 +5,9 @@ class MapOpPanel extends GeneralOpPanel {
     protected _functionsMap = [];
     protected _dagNode: DagNodeMap;
     protected _opCategories: number[] = [];
+    private readonly emptyFuncMsg =  '<div class="emptyFuncMsg">' +
+    OpModalTStr.SelectCategory + ' <span class="createNew">' + OpModalTStr.CreateUDF + '</span>.' +
+    '</div>';
 
     public constructor() {
         super();
@@ -36,7 +39,7 @@ class MapOpPanel extends GeneralOpPanel {
 
         super.show(node, options)
         .then(() => {
-            this._updateOpCategories();
+            this.updateOpCategories();
 
             this.model = new MapOpPanelModel(this._dagNode, () => {
                 this._render();
@@ -252,6 +255,10 @@ class MapOpPanel extends GeneralOpPanel {
             if ($(this).hasClass('active')) {
                 return; // do not update functions list if clicking on same li
             }
+            if ($(this).hasClass("createNew")) {
+                self._createNewUDF();
+                return;
+            }
             const $group = $(this).closest(".group");
             const groupIndex = self._$panel.find(".group").index($group);
             const $li = $(this);
@@ -267,6 +274,21 @@ class MapOpPanel extends GeneralOpPanel {
         // XXX need to add listeners to each new functions list
         this._$panel.find(".functionsMenu").scroll(function() {
             xcTooltip.hideAll();
+        });
+
+        this._$panel.on("click", ".emptyFuncMsg .createNew", () => {
+            self._createNewUDF();
+        });
+
+        this._$panel.on("click", ".udfLink", function() {
+            const path: string = $(this).data("path");
+            let moduleName: string;
+            if (path.includes(xcHelper.constructUDFSharedPrefix())) {
+                moduleName = path.slice(0, path.lastIndexOf(":"));
+            } else {
+                moduleName = path.slice(path.lastIndexOf("/") + 1, path.lastIndexOf(":"));
+            }
+            self._openUDFPanel(moduleName);
         });
     }
 
@@ -341,18 +363,19 @@ class MapOpPanel extends GeneralOpPanel {
                                             preventImmediateHide: true});
     }
 
-    // // for map
     private _updateMapFunctionsList(groupIndex, filtered?: boolean) {
         const $group = this._$panel.find(".group").eq(groupIndex);
         const $categoryList = $group.find(".categoryMenu");
         const $functionsList = $group.find(".functionsMenu");
         const $mapFilter = $group.find(".mapFilter");
         let opsMap;
+        let hasFilterVal: boolean = $mapFilter.val().trim() !== "";
+        let categoryNum;
         if (!filtered) {
             const $li = $categoryList.find('.active');
-            const categoryNum = $li.data('category');
+            categoryNum = $li.data('category');
             opsMap = {};
-            if ($mapFilter.val().trim() !== "") {
+            if (hasFilterVal) {
                 opsMap[categoryNum] = this._filteredOperatorsMap[groupIndex][categoryNum];
             } else {
                 opsMap[categoryNum] = this._functionsMap[groupIndex][categoryNum];
@@ -408,6 +431,9 @@ class MapOpPanel extends GeneralOpPanel {
         $functionsList.empty();
         $functionsList.append($startsWith);
         $functionsList.append($includes);
+        if ((filtered && !hasFilterVal) || (!filtered && !hasFilterVal && categoryNum === FunctionCategoryT.FunctionCategoryUdf)) {
+            $functionsList.prepend('<li class="createNew">+ ' + OpPanelTStr.CreateNewUDF + '</li>');
+        }
         $functionsList.scrollTop(0);
 
         $group.find('.argsSection').addClass('inactive').empty();
@@ -461,8 +487,12 @@ class MapOpPanel extends GeneralOpPanel {
 
         // hide any args that aren't being used
         $rows.show().filter(":gt(" + (numArgs - 1) + ")").hide();
-
-        const despText = operObj.fnDesc || "N/A";
+        let despText: string;
+        if (operObj.category === FunctionCategoryT.FunctionCategoryUdf && !operObj.fnDesc) {
+            despText = operObj.displayName + ' <span class="xc-action-link udfLink" data-path="' + operObj.fnName + '">view</span>';
+        } else {
+            despText = operObj.fnDesc || "N/A";
+        }
         const descriptionHtml = '<b>' + OpFormTStr.Descript + ':</b> ' +
                     '<span class="instrText instrText-format">' + despText + '</span>';
 
@@ -782,7 +812,7 @@ class MapOpPanel extends GeneralOpPanel {
         if (!keepFilter) {
             this._$panel.find(".mapFilter").val("");
         }
-        this._$panel.find(".functionsMenu").empty();
+        this._$panel.find(".functionsMenu").html(this.emptyFuncMsg);
         this._$panel.find('.icvMode').addClass('inactive');
         this._filteredOperatorsMap = [];
         this._functionsMap = [];
@@ -995,7 +1025,9 @@ class MapOpPanel extends GeneralOpPanel {
                 '</div>' +
                 '<div class="catFuncMenus clearfix">' +
                     '<ul class="categoryMenu"></ul>' +
-                    '<ul class="functionsMenu"></ul>' +
+                    '<ul class="functionsMenu">' +
+                        this.emptyFuncMsg +
+                    '</ul>' +
                 '</div>' +
                 '<div class="descriptionText"></div>' +
                 '<div class="argsSection inactive"></div>' +
@@ -1003,7 +1035,8 @@ class MapOpPanel extends GeneralOpPanel {
         return html;
     }
 
-    protected _updateOpCategories(): void {
+    public updateOpCategories(): void {
+        const self = this;
         this._opCategories = [];
         let operatorsMap = GeneralOpPanel.getOperatorsMap();
         for (let i in operatorsMap) {
@@ -1011,5 +1044,34 @@ class MapOpPanel extends GeneralOpPanel {
                 this._opCategories.push(parseInt(i));
             }
         }
+
+        this._$panel.find('.group').each(function(index) {
+            const $group = $(this);
+            const $argsSection = $group.find('.argsSection').last();
+            if (!$argsSection.hasClass("inactive")) {
+                return;
+            }
+            self._populateInitialCategoryField(index);
+
+            const val = $group.find(".mapFilter").val();
+            const valTrimmed = val.trim();
+            if (valTrimmed.length || val.length === 0) {
+                self._filterTheMapFunctions(valTrimmed, index);
+            }
+        });
+    }
+
+
+    private _createNewUDF(): void {
+        UDFPanel.Instance.edit("New Module");
+        UDFPanel.Instance.openEditor();
+        setTimeout(() => {
+            UDFPanel.Instance.focusBlankUDF();
+        }, 500);
+    }
+    // opens udf panel and selects a module
+    private _openUDFPanel(moduleName: string) {
+        UDFPanel.Instance.openEditor();
+        UDFPanel.Instance.selectUDFPath(moduleName);
     }
 }

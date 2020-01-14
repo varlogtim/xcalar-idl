@@ -8,7 +8,7 @@ var Status = {
 };
 
 // flag for Data Mart product
-var gDataMart = true;
+var gDataMart = false;
 
 /** START DEBUG ONLY **/
 // for XD dev which is on localhost, set to false by default

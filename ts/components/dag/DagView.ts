@@ -3889,6 +3889,21 @@ class DagView {
             }
             this.dagTab.save();
         });
+
+        let updateNumNodesTimeout;
+        this._registerGraphEvent(this.graph, DagGraphEvents.NewNode, (info) => {
+            clearTimeout(updateNumNodesTimeout);
+            updateNumNodesTimeout = setTimeout(() => {
+                DagGraphBar.Instance.updateNumNodes(this.dagTab);
+            }, 0);
+        });
+
+        this._registerGraphEvent(this.graph, DagGraphEvents.RemoveNode, (info) => {
+            clearTimeout(updateNumNodesTimeout);
+            updateNumNodesTimeout = setTimeout(() => {
+                DagGraphBar.Instance.updateNumNodes(this.dagTab);
+            }, 0);
+        });
     }
 
     private _registerGraphEvent(

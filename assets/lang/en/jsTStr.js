@@ -1456,7 +1456,8 @@ OpModalTStr = {
     'NoneArg': 'None',
     'EmptyString': 'Empty String',
     'WeirdQuotes': '[Unicode Quotes(“) detected. Please check quotation marks]',
-
+    'SelectCategory': 'Select a category on the left or',
+    'CreateUDF': 'Create a new UDF',
     // with replace
     'ModifyDesc': 'Would you like to modify the <name>?',
     'ModifyBtn': 'MODIFY <name>'
@@ -1732,4 +1733,5 @@ OpPanelTStr = {
     "SortColumnHeading": "Columns to sort",
     "SelectDSSource": "Please select a dataset source and provide a prefix.",
     "InvalidDSSource": "Invalid dataset source selected.",
+    "CreateNewUDF": "Create New UDF"
 };

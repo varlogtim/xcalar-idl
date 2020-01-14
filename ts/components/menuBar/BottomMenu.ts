@@ -270,6 +270,10 @@ namespace BottomMenu {
                     TblFunc.moveFirstColumn();
                     DagCategoryBar.Instance.showOrHideArrows();
                 }
+                if (sectionId ==="udfSection") {
+                    $("#udfButtonWrap").removeClass("xc-hidden");
+                    UDFPanel.Instance.getEditor().focus();
+                }
             });
         } else {
             TblFunc.moveFirstColumn();

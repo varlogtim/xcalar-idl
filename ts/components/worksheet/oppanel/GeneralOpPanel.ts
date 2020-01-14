@@ -22,7 +22,6 @@ class GeneralOpPanel extends BaseOpPanel {
     protected model;
     protected _opCategories: number[];
     protected _specialWords: string[] = ["None", "null"];
-    private static _needsUDFUpdate: boolean = false;
     private static _operatorsMap = {};
     private static _udfDisplayPathPrefix: string;
     private static _isSetup: boolean;
@@ -61,7 +60,6 @@ class GeneralOpPanel extends BaseOpPanel {
             return PromiseHelper.reject();
         }
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this._needsUDFUpdate = false;
         XDFManager.Instance.waitForSetup()
         .always(() => {
             this._operatorsMap = XDFManager.Instance.getOperatorsMapFromWorkbook(
@@ -87,16 +85,7 @@ class GeneralOpPanel extends BaseOpPanel {
         return this._operatorsMap;
     }
 
-    public static needsUDFUpdate() {
-        return this._needsUDFUpdate;
-    }
-
     public static updateOperationsMap() {
-        this._needsUDFUpdate = true;
-        if (MainMenu.isFormOpen()) {
-            // only update once form is closed
-            return;
-        }
         this.updateOperatorsMap();
     }
 
@@ -565,9 +554,7 @@ class GeneralOpPanel extends BaseOpPanel {
         super.hidePanel(isSubmit);
         $(document).off('click.OpSection');
         $(document).off("keydown.OpSection");
-        if (GeneralOpPanel.needsUDFUpdate()) {
-            GeneralOpPanel.updateOperatorsMap();
-        }
+        GeneralOpPanel.updateOperatorsMap();
     }
 
     public refreshColumns(): void {
