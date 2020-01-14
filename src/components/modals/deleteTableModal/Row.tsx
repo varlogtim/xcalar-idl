@@ -11,7 +11,7 @@ export default function Row(props: {table: TableAttrs, onClick: any}) {
     let {name, sizeText, locked, checked, date, dateTip} = table;
     let container = `#${id}`;
     return (
-        <div className="grid-unit" key={name} onClick={onClick}>
+        <div className="grid-unit" key={name}>
             {
                 locked
                 ? <i className="lockIcon icon xi-lockwithkeyhole"
@@ -20,7 +20,7 @@ export default function Row(props: {table: TableAttrs, onClick: any}) {
                     data-placement="top"
                     data-title={TooltipTStr.LockedTable}>
                 </i>
-                : <Checkbox checked={checked}/>
+                : <Checkbox checked={checked} onClick={onClick}/>
             }
             <Tooltipbox className="name" container={container} title={name}>
                 {name}

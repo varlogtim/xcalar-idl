@@ -520,7 +520,7 @@ describe("TableManager Test", function() {
                 expect(deleteCalled).to.be.true;
                 UnitTest.hasAlertWithText("Table " + tableName2 + " was locked.\n" +
                     "Error: failll." +
-                    " Table " + tableName + " was not dropped.");
+                    " Table " + tableName + " was not deleted.");
                 delete gTables[tableId];
                 delete gTables[tableId2];
                 done();

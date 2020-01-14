@@ -187,7 +187,7 @@ module.exports = {
         "DelCol": "Delete column",
         "DelColPlura": "Delete columns",
         "DelTarget": "Delete connector",
-        "DelTbl": "Drop table",
+        "DelTbl": "Delete table",
         "ExamCell": "Examine",
         "ExceedsSize": "Image exceeds size limit",
         "ExclCell": "Exclude this value",
@@ -309,8 +309,6 @@ module.exports = {
         "NoWSToMV": "No destination worksheet",
         "Restore": "Restore to default",
         "ToggleAdvanced": "Toggle advanced options",
-        "AllowDelete": "Allow table to be dropped",
-        "LockTable": "Prevents table from being dropped",
         "SwitchToListView": "Switch to List view",
         "AllQueries": "Show all operations",
         "ErrorQueries": "Show error operations",
@@ -318,7 +316,6 @@ module.exports = {
         "DoneQueries": "Show finished operations",
         "SelectCol": "Please select a column first.",
         "SelectFile": "Select a .tar.gz file first",
-        "DropConsts": "Drop Aggregates",
         "OnlyInOpMode": "Feature only available in Operational mode",
         "SystemGood": "All Systems Good",
         "CSHelp": "Click to open up Xcalar Help for more information",
@@ -1244,13 +1241,6 @@ module.exports = {
         "optional": "optional",
         "uploadFile": "Source File",
         "uploadTip": "Open file browser"
-    },
-
-    "deleteTable": {
-        "header": "Drop Tables",
-        "instr": "To free space in this application please drop old or unnecessary tables.",
-        "Confirm": "Drop",
-        "Tables": "Tables"
     },
 
     "extension": {

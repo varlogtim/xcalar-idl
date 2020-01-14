@@ -15,9 +15,9 @@ StatusMessageTStr = {
     'ImportDSFailed': 'Data source import failed',
     'DSFetchFailed': 'Dataset preview failed',
     'JoinEstFailed': "Join Size Estimation Failed",
-    'DeleteResultSets': 'Dropping tables',
-    'DeleteConstFailed': 'Drop aggregate(s) failed',
-    'PartialDeleteResultSetFail': 'Some tables could not be dropped',
+    'DeleteResultSets': 'Deleting tables',
+    'DeleteConstFailed': 'Delete aggregate(s) failed',
+    'PartialDeleteResultSetFail': 'Some tables could not be deleted',
     'Aggregate': 'Calculating Aggregate',
     'AggregateFailed': 'Aggregate failed',
     'AggregateNotExist': 'Aggregate does not exist: ',
@@ -127,7 +127,7 @@ TooltipTStr = {
     'Undo': 'Undo: <op>',
     'NoUndo': 'Last operation is "<op>", cannot undo',
     'Redo': 'Redo: <op>',
-    'LowMemInTable': 'Warning! Cluster is low on memory for table. Click this button to drop tables.',
+    'LowMemInTable': 'Warning! Cluster is low on memory for table. Click this button to delete tables.',
     'LowMemInDS': 'Warning! Cluster is low on memory for datasets/published tables. Please delete unused datasets/published tables.',
     'LowMemByOthers': 'Current memory utilization by other cluster users is high. Work with an admin to free memory for your modeling.',
     'TooltipNoWorkbook': 'A project must be opened in order to start a walkthrough'
@@ -286,10 +286,10 @@ ErrTStr = {
     'TooLong': 'Please use fewer than 255 characters.',
     'PrefixTooLong': 'Please use fewer than 32 characters.',
     'NoTable': 'Table does not exist',
-    'ResultsetsNotDeleted': 'The following tables were not dropped:',
-    'ConstsNotDeleted': 'The following aggregates were not dropped:',
-    'NoResultSetDeleted': 'No tables were dropped',
-    'NoConstsDeleted': 'No aggregates were dropped.',
+    'ResultsetsNotDeleted': 'The following tables were not deleted:',
+    'ConstsNotDeleted': 'The following aggregates were not deleted:',
+    'NoResultSetDeleted': 'No tables were deleted',
+    'NoConstsDeleted': 'No aggregates were deleted.',
     'LargeImgSave': 'Unable To Save Image',
     'LargeImgTab': 'Unable To Open Image',
     'LargeImgText': 'Image exceeds your browser\'s maximum allowable size',
@@ -321,7 +321,7 @@ ErrTStr = {
     'ExtDownloadFailure': 'Extension Download Failed',
     'TutDownloadFailure': 'Tutorial Download Failed',
     'ErrorModalDownloadFailure' : 'Error logs failed to be downloaded',
-    'CannotDropLocked': 'Cannot drop pinned tables',
+    'CannotDropLocked': 'Cannot delete pinned tables',
     'RefreshBrowser': 'Refresh Browser',
     'RefreshBrowserDesc': 'We have detected an issue that requires a refresh.\nPlease refresh your browser now. Your work will be recovered to the last consistent state.',
     'BundleFailed': 'Submit Bundle Failed',
@@ -388,8 +388,8 @@ ErrWRepTStr = {
     'NoLessNum': 'Please enter a value greater than or equal to <num>',
     'NoBiggerNum': 'Please enter a value less than or equal to <num>',
     'IntInRange': 'Please input an integer between <lowerBound> and <upperBound>',
-    'ResultSetNotDeleted': 'Table <name> was not dropped.',
-    'ConstNotDeleted': 'Aggregate <name> was not dropped.',
+    'ResultSetNotDeleted': 'Table <name> was not deleted.',
+    'ConstNotDeleted': 'Aggregate <name> was not deleted.',
     'AggConflict': 'Aggregate <aggPrefix>"' + '<name>" already exists. ' +
                     'Please choose another name.',
     'OutputNotFound': '<name> Not Found',
@@ -506,7 +506,7 @@ SQLErrTStr = {
     "InvalidColTypeForFinalize": "Can't refer to the column due to unsupported type in SQL: ",
     "IdentifierExists": "Table identifier already exists.",
     "NoResult": "Cannot find the result",
-    "ResultDropped": "Query result has been dropped. Do you want to rerun the query to regenerate the result?",
+    "ResultDropped": "Query result has been deleted. Do you want to rerun the query to regenerate the result?",
     "InvalidOuterType": "Invalid outer join type: ",
     "FailedToRepublish": "Failed to republish schemas.",
     "InvalidOuterType": "Invalid outer join type: ",
@@ -1322,8 +1322,6 @@ TblTStr = {
     'CreateFail': 'Create Table Failed',
     'Importing': 'Importing data source',
     'CheckingSchema': 'Checking data source schema',
-    'Del': 'Drop Tables',
-    'DEL': 'DROP TABLES',
     'Truncate': 'Additional characters were truncated',
     'ToTemp': 'SEND TO TEMPORARY',
     'TempStatus': 'Temporary',
@@ -1356,9 +1354,9 @@ DataMartTStr = {
 };
 
 ResultSetTStr = {
-    "Del": "Drop Tables",
-    "DelMsg": "Are you sure you want to drop the selected table(s)?",
-    "DelMsgReplace": "Are you sure you want to drop table <name>?",
+    "Del": "Delete Tables",
+    "DelMsg": "Are you sure you want to delete the selected table(s)?",
+    "DelMsgReplace": "Are you sure you want to delete table <name>?",
     "NotFound": "Table not found"
 };
 
@@ -1397,8 +1395,8 @@ SideBarTStr = {
     'DownloadError': 'Download UDF Failed',
     'DownloadMsg': 'UDF is empty',
     'OverwriteErr': 'Cannot overwrite default UDF',
-    'DropConsts': 'Drop Aggregates',
-    'DropConstsMsg': 'Are you sure you want to drop the selected aggregate(s)?',
+    'DropConsts': 'Delete Aggregates',
+    'DropConstsMsg': 'Are you sure you want to delete the selected aggregate(s)?',
     // With Replace
     'UDFError': '<reason> found in line <line>'
 

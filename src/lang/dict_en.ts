@@ -12,9 +12,9 @@ export default {
     },
 
     "DeleteTableModalTStr": {
-        "header": "Drop Tables",
-        "instr": "To free space in this application please drop old or unnecessary tables.",
-        "Confirm": "Drop",
+        "header": "Permanently Delete Tables",
+        "instr": "To free space in this application please delete old or unnecessary tables.",
+        "Confirm": "Delete",
         "Tables": "Tables"
     },
 
@@ -23,11 +23,11 @@ export default {
     },
 
     "ResultSetTStr": {
-        "Del": "Drop Tables",
-        "DelMsg": "Are you sure you want to drop the selected table(s)?",
+        "Del": "Permanently Delete Tables",
+        "DelMsg": "Are you sure you want to permanently delete the selected table(s)?",
     },
 
     "StatusMessageTStr": {
-        'DeleteResultSets': 'Dropping tables',
+        'DeleteResultSets': 'Deleting tables',
     },
 }
