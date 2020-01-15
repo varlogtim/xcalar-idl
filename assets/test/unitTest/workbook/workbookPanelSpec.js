@@ -115,20 +115,20 @@ describe("Workbook Panel Test", function() {
             expect($("#container").hasClass("workbookMode")).to.be.true;
         });
 
-        it("Should access docs", function() {
-            var oldHelpPanelOpen = HelpPanel.Instance.openHelpResource;
-            var called = false;
+        // it("Should access docs", function() {
+        //     var oldHelpPanelOpen = HelpPanel.Instance.openHelpResource;
+        //     var called = false;
 
-            HelpPanel.Instance.openHelpResource = function(resource) {
-                if (resource == "docsResource") {
-                    called = true;
-                }
-                return;
-            }
-            $workbookPanel.find(".docsBtn").click();
-            expect(called).to.be.true;
-            HelpPanel.Instance.openHelpResource = oldHelpPanelOpen;
-        });
+        //     HelpPanel.Instance.openHelpResource = function(resource) {
+        //         if (resource == "docsResource") {
+        //             called = true;
+        //         }
+        //         return;
+        //     }
+        //     $workbookPanel.find(".docsBtn").click();
+        //     expect(called).to.be.true;
+        //     HelpPanel.Instance.openHelpResource = oldHelpPanelOpen;
+        // });
 
         it("Should access tutorials", function() {
             var oldHelpPanelOpen = HelpPanel.Instance.openHelpResource;

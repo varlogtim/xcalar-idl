@@ -5,24 +5,24 @@ describe("HelpMenu Test", function() {
         $menu = $("#helpAreaMenu");
     });
 
-    it("should mouseup .help to open help tab", function() {
-        var oldHelpPanelOpen = HelpPanel.Instance.openHelpResource;
-        var called = false;
+    // it("should mouseup .help to open help tab", function() {
+    //     var oldHelpPanelOpen = HelpPanel.Instance.openHelpResource;
+    //     var called = false;
 
-        HelpPanel.Instance.openHelpResource = function(resource) {
-            if (resource == "docsResource") {
-                called = true;
-            }
-            return;
-        }
-        // normal mouseup not work
-        $menu.find(".help").mouseup();
-        expect(called).to.be.false;
-        $menu.find(".help").trigger(fakeEvent.mouseup);
-        expect(called).to.be.true;
+    //     HelpPanel.Instance.openHelpResource = function(resource) {
+    //         if (resource == "docsResource") {
+    //             called = true;
+    //         }
+    //         return;
+    //     }
+    //     // normal mouseup not work
+    //     $menu.find(".help").mouseup();
+    //     expect(called).to.be.false;
+    //     $menu.find(".help").trigger(fakeEvent.mouseup);
+    //     expect(called).to.be.true;
 
-        HelpPanel.Instance.openHelpResource = oldHelpPanelOpen;
-    });
+    //     HelpPanel.Instance.openHelpResource = oldHelpPanelOpen;
+    // });
 
     it("should mouseup .tutorials to open tutorial workbook screen", function() {
         var oldHelpPanelOpen = HelpPanel.Instance.openHelpResource;

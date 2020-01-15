@@ -2348,6 +2348,8 @@ module.exports = function(grunt) {
         var csLookupCloud
     */
     grunt.task.registerTask("help_contents", function() {
+        // XXX deprecated help since 2.2
+        return;
         generateCSLookupFile(XD);
         generateCSLookupFile(Cloud);
     });
