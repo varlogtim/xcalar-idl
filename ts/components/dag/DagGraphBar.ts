@@ -41,6 +41,10 @@ class DagGraphBar {
      * @param dagTab
      */
     public setState(dagTab: DagTab): void {
+        let activeTab: DagTab = DagViewManager.Instance.getActiveTab();
+        if (activeTab && dagTab !== activeTab) {
+            return;
+        }
         let $topBar = this._getGraphBar();
         const $btns: JQuery = $topBar.find(".topButtons");
         if (dagTab == null) {
@@ -66,10 +70,15 @@ class DagGraphBar {
         }
 
         const graph: DagGraph = dagTab.getGraph();
+
         if (graph != null && graph.getExecutor() != null) {
+            $topBar.addClass("running");
             $btns.find(".stop").removeClass("xc-disabled");
+            $btns.find(".run, .stop").addClass("running");
         } else {
+            $topBar.removeClass("running");
             $btns.find(".stop").addClass("xc-disabled");
+            $btns.find(".run, .stop").removeClass("running");
         }
 
         if (graph != null) {
@@ -145,7 +154,7 @@ class DagGraphBar {
         });
 
         $topBar.find(".zoomPercentInput").on('keyup', function(e) {
-            if (e.which == 13) {
+            if (e.which == keyCode.Enter) {
                 e.preventDefault();
                 let percent: number = $(this).val();
                 if (percent <= 0 || percent > 200) {

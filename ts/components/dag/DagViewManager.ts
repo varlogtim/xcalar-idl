@@ -56,6 +56,9 @@ class DagViewManager {
         if (UserSettings.getPref("dfConfigInfo")) {
             this.toogleConfigInfo(true);
         }
+        if (UserSettings.getPref("dfTableName")) {
+            this.toggleTableName(true);
+        }
     }
 
     /**
@@ -1109,6 +1112,14 @@ class DagViewManager {
             this.$dagView.addClass("showConfigInfo");
         } else {
             this.$dagView.removeClass("showConfigInfo");
+        }
+    }
+
+    public toggleTableName(show?: boolean): void {
+        if (show) {
+            this.$dagView.addClass("showTableName");
+        } else {
+            this.$dagView.removeClass("showTableName");
         }
     }
 

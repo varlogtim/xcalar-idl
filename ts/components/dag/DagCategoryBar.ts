@@ -435,6 +435,10 @@ class DagCategoryBar {
                         '<path class="tableLine" stroke="#627483" stroke-width="1px" fill="none" stroke-linecap="round" d="M-35,14L16,14"></path>' +
                         '<rect x="0" y="3" width="22" height="22" fill="white" ry="2" rx="2" />'+
                         '<text font-family="icomoon" font-size="24" x="-2" y="24" ' + xcTooltip.Attrs + ' data-original-title="Click to view options">\uea07</text>' +
+                        '<text class="tableName" x="12" y="36" ' +
+                        'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
+                        'font-size="10" fill="#44515c">' +
+                        '</text>' +
                     '</g>';
         }
         if (subType) {

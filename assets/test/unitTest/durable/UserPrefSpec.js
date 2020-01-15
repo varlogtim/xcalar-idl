@@ -3,7 +3,7 @@ describe("UserPref Constructor Test", function() {
         var userPref = new UserPref();
 
         expect(userPref).to.be.an.instanceof(UserPref);
-        expect(Object.keys(userPref).length).to.equal(10);
+        expect(Object.keys(userPref).length).to.equal(11);
         expect(userPref).to.have.property("version")
         .and.to.equal(Durable.Version);
         expect(userPref).to.have.property("datasetListView")

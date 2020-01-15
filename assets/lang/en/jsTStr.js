@@ -1097,6 +1097,7 @@ DFTStr = {
     "AutoPreview": "Auto preview the results after execution",
     "ShowProgressTips": "Show progress details for each operation",
     "ShowConfigInfo": "Show configuration info",
+    "ShowTableName": "Show table names",
     "NoEmptyDestName": "Please enter a destination module name.",
     "NoSlashUpload": "Cannot upload to this path.",
     "PublishedDFDeleted": "Published module deleted",

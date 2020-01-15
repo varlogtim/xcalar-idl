@@ -3663,6 +3663,8 @@ class DagView {
 
         this._registerGraphEvent(this.graph, DagNodeEvents.StateChange, (info) => {
             this.updateNodeState(info);
+            const $node: JQuery = this.getNodeElById(info.node.getId());
+            this._updateTableNameText($node, info.node);
             DagNodeInfoPanel.Instance.update(info.id, "stats");
             if (info.state !== DagNodeState.Running) {
                 const isDelay: boolean = (info.oldState === DagNodeState.Running &&
@@ -3783,11 +3785,15 @@ class DagView {
             if (DagTable.Instance.getBindNodeId() === nodeId) {
                 DagTable.Instance.close();
             }
+            const $node: JQuery = this.getNodeElById(nodeId);
+            this._updateTableNameText($node, info.node);
             DagNodeInfoPanel.Instance.update(nodeId, "params");
         });
 
         this._registerGraphEvent(this.graph, DagNodeEvents.ResultSetChange, (info) => {
             const nodeId: DagNodeId = info.nodeId;
+            const $node: JQuery = this.getNodeElById(nodeId);
+            this._updateTableNameText($node, info.node);
             DagNodeInfoPanel.Instance.update(nodeId, "params");
         });
 
@@ -4005,6 +4011,7 @@ class DagView {
         }
 
         this._drawTitleText($node, node);
+        this._updateTableNameText($node, node);
 
         // use .attr instead of .data so we can grab by selector
         $node.attr("data-nodeid", nodeId);
@@ -4211,6 +4218,19 @@ class DagView {
                 .attr("y", i * DagView.titleLineHeight);
         });
         xcTooltip.add(<any>paramTextSvg, { title: fullParamHint, placement: "bottom auto" });
+    }
+
+    private _updateTableNameText($node: JQuery, node: DagNode) {
+        let fullTableName: string = node.getTable() || "";
+        let tableName: string;
+        if (fullTableName.length > 14) {
+            tableName = fullTableName.slice(0, 14) + "...";
+        } else {
+            tableName = fullTableName;
+        }
+        const $tableName = $node.find(".tableName");
+        $tableName.text(tableName);
+        xcTooltip.add(<any>$tableName, { title: fullTableName, placement: "bottom auto" });
     }
 
         /**

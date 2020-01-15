@@ -8,6 +8,7 @@ class UserPref extends Durable {
     public dfAutoPreview: boolean; // DF 2.0 settings
     public dfProgressTips: boolean; // DF 2.0 settings
     public dfConfigInfo: boolean; // DF 2.0 settings
+    public dfTableName: boolean;
 
     public constructor (options?: UserPrefDurable) {
         options = options || <UserPrefDurable>{};
@@ -26,6 +27,7 @@ class UserPref extends Durable {
         this.dfAutoPreview = (options.dfAutoPreview == null) ? true : options.dfAutoPreview;
         this.dfProgressTips = (options.dfProgressTips == null) ? true : options.dfProgressTips;
         this.dfConfigInfo = (options.dfConfigInfo == null) ? true : options.dfConfigInfo;
+        this.dfTableName = (options.dfTableName == null) ? true : options.dfTableName;
     }
 
     public update(): void {

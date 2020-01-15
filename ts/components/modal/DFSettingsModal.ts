@@ -46,6 +46,9 @@ class DFSettingsModal {
                 case ("dfConfigInfo"):
                     DagViewManager.Instance.toogleConfigInfo(val);
                     break;
+                case ("dfTableName"):
+                    DagViewManager.Instance.toggleTableName(val);
+                    break;
                 default:
                     break;
             }
@@ -91,7 +94,12 @@ class DFSettingsModal {
         }, {
             name: "dfConfigInfo",
             text: DFTStr.ShowConfigInfo
-        }];
+        },
+        {
+            name: "dfTableName",
+            text: DFTStr.ShowTableName
+        }
+    ];
     }
 
     private _addEventListeners(): void {

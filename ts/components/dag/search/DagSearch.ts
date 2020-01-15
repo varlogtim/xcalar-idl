@@ -125,7 +125,7 @@ class DagSearch {
 
     private _getAdvanceOptionHTML(option: DagSearchBasicOption): HTML {
         const {key, checked} = option;
-        const html = 
+        const html =
             '<div class="checkboxSection cell ' + key + '">' +
                 '<div class="checkbox' + (checked ? " checked" : "") +
                 '">' +
@@ -258,7 +258,7 @@ class DagSearch {
     }
 
     private _getPopup(): JQuery {
-        return $("#dagSearch"); 
+        return $("#dagSearch");
     }
 
     private _getSearchArea(): JQuery {
@@ -352,6 +352,16 @@ class DagSearch {
                 }
                 return null;
             }
+        }, {
+            key: "Table Name",
+            default: false,
+            checked: false,
+            selector: (keyword: string, node: DagNode) => {
+                const table: string = node.getTable();
+                if (table.toLowerCase().includes(keyword)) {
+                    return ($node) => $node;
+                }
+                return null;
         }, {
             key: "Aggregates",
             default: false,

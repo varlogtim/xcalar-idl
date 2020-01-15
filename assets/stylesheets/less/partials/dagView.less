@@ -152,6 +152,12 @@
         }
     }
 
+    &:not(.showTableName) {
+        .tableName {
+            display: none;
+        }
+    }
+
     &.sqlMode {
         .dagTab .name {
             text-transform: lowercase;
@@ -1153,6 +1159,8 @@
     max-height: @dagGraphBarHeight;
     padding-left: 10px;
     background-color: white;
+    color: @color-icon-gray;
+    font-size: 13px;
 
     &.locked {
         .run, .stop, .undo, .redo {
@@ -1169,6 +1177,7 @@
 
         &.left {
             float: left;
+            padding-right: 0px;
         }
     }
 
@@ -1181,11 +1190,8 @@
             width: 27px;
             line-height: 27px;
             text-align: center;
-        }
-
-        .icon {
             .vertical-align;
-            color: @color-border-bar;
+            color: @color-icon-gray;
             font-size: 18px;
             .rounded(4px);
         }
@@ -1211,12 +1217,50 @@
             }
         }
 
+        &.run, &.stop {
+            font-size: 13px;
+            .rounded(4px);
+            line-height: 28px;
+            height: 28px;
+            margin-top: 6px;
+
+            &:hover {
+                background-color: rgba(0, 0, 0, 0.05);
+                .icon {
+                    background-color: transparent;
+                }
+
+                &.disabled {
+                    background-color: transparent;
+                }
+            }
+            .text {
+                float: left;
+                margin-right: 4px;
+                margin-left: 4px;
+            }
+        }
+
         &.run {
+
+            &.running {
+                display: none;
+                .animatedEllipsisWrapper {
+                    display: block;
+                }
+                .icon {
+                    display: none;
+                }
+            }
             .icon {
                 color: @color-bg-green-submit;
             }
         }
         &.stop {
+            display: none;
+            &.running {
+                display: block;
+            }
             .icon {
                 color: @color-stop;
             }
@@ -1224,9 +1268,7 @@
 
         &.disabled {
             cursor: not-allowed;
-            .icon {
-                color: @color-connector;
-            }
+            opacity: @opacity-disabled;
         }
         &.repeatable {
             cursor: pointer;
@@ -1251,26 +1293,29 @@
         &.zoomPercent {
             position: relative;
             .zoomPercentInput {
-                font-size: 12px;
+                font-size: 13px;
                 height: 30px;
                 line-height: 30px;
                 margin-top: 5px;
-                border: 1px solid  @color-border-bar;
-                padding: 0 6px;
-                padding-right: 23px;
-                color: @color-font-form-gray;
-                width: 53px;
+                padding: 0 0;
+                padding-right: 16px;
+                color: @color-icon-gray;
+                width: 40px;
                 text-align: right;
-                .rounded(3px);
+                border: none;
             }
             .percent-sign {
                 position: absolute;
                 z-index: 3;
                 top: 10px;
-                right: 8px;
+                right: 2px;
                 cursor: default;
             }
-
+        }
+        .animatedEllipsisWrapper {
+            display: none;
+            width: 90px;
+            color: @color-bg-green-submit;
         }
     }
 
@@ -1316,11 +1361,14 @@
         height: @dagGraphBarHeight;
         line-height: @dagGraphBarHeight;
         color: @color-font-edge;
-        font-size: 12px;
         display: flex;
 
+        .numNodesSection {
+            display: none; // XXX hiding because it's cluttered
+        }
+
         .divider {
-            margin-left: 8px;
+            // margin-left: 8px;
             margin-right: 8px;
         }
 
@@ -1332,6 +1380,14 @@
     }
     &.viewOnly {
         .viewOnly {
+            display: flex;
+        }
+    }
+    .runStatus {
+        display: none;
+    }
+    &.running {
+        .runStatus {
             display: flex;
         }
     }
@@ -2472,7 +2528,7 @@
             }
 
             &.type {
-                height: 150px;
+                height: 175px;
             }
 
             .options {

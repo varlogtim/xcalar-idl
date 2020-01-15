@@ -11,25 +11,37 @@
                 dicts.dag.zoomOut %>">
             <i class="icon xi-minus-circle-outline"></i>
         </div>
+        <div class="topButton zoomPercent" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.dag.zoom %>">
+            <input disabled class="zoomPercentInput xc-input white" type="text" pattern="\d*" maxlength="3" max="200" min="25" step="1" value="100" placeholder="100">
+            <div class="percent-sign">%</div>
+        </div>
         <div class="topButton zoomIn" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%=
                 dicts.dag.zoomIn %>">
             <i class="icon xi-plus-circle-outline"></i>
         </div>
-        <div class="topButton zoomPercent" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.dag.zoom %>">
-            <input class="zoomPercentInput xc-input white" type="text" pattern="\d*" maxlength="3" max="200" min="25" step="1" value="100" placeholder="100">
-            <div class="percent-sign">%</div>
-        </div>
     </div>
     <div class="infoSection">
-        <div class="divider"></div>
+        <!-- <div class="divider"></div> -->
         <div class="numNodesSection">
             <%= dicts.dag.NumOperatorNodes %>:
             <span class="numNodes">0</span>
         </div>
-
         <div class="viewOnly">
             <div class="divider"></div>
             <%= dicts.dag.ViewOnly %>
+        </div>
+        <div class="runStatus">
+            <div class="divider"></div>
+            <div class="animatedEllipsisWrapper">
+                <div class="text">
+                    Executing
+                </div>
+                <div class="animatedEllipsis">
+                    <div>.</div>
+                    <div>.</div>
+                    <div>.</div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="topButtons">
@@ -37,10 +49,12 @@
             <%= dicts.dag.returnToQuery %>
         </div>
         <div class="divider queryBtnDivider"></div>
-        <div class="topButton run" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.dag.executeAll %>">
+        <div class="topButton run" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.dag.executeAllNodes %>">
+            <span class="text">Execute all</span>
             <i class="icon xi-play-circle"></i>
         </div>
         <div class="topButton stop" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.dag.cancelExecute %>">
+            <span class="text">Cancel</span>
             <i class="icon xi-stop-circle"></i>
         </div>
         <div class="divider"></div>

@@ -1,33 +1,33 @@
 <div id="dagUDFErrorModal" class="modalContainer large">
-<!-- Header -->
-<header class="modalHeader flexContainer">
-    <span class="text">UDF failure report (<span class="numErrors"></span> failures)</span>
-    <div class="close" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Close %>">
-        <i class="icon xi-close"></i>
-    </div>
-</header>
-<!-- Instruction -->
-<section class="modalInstruction">
-    <div class="modalInstructionSection extraErrors">
-        <i class="icon xi-error"></i>
-        There are more failures than reported below. To discover additional errors, fix the ones reported, and re-run the map operation.
-    </div>
-</section>
-<section class="modalTopMain">
-    <div class="columnHeader">
-        Column name
-    </div>
-    <div class="expandAll toggleAll xc-action">Expand all</div>
-    <div class="collapseAll toggleAll xc-action">Collapse all</div>
-</section>
-<div class="divider"></div>
-<!-- Main Section -->
-<section class="modalMain">
-    <div class="errorList"></div>
-</section>
+    <!-- Header -->
+    <header class="modalHeader flexContainer">
+        <span class="text">UDF failure report (<span class="numErrors"></span> failures)</span>
+        <div class="close" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Close %>">
+            <i class="icon xi-close"></i>
+        </div>
+    </header>
+    <!-- Instruction -->
+    <section class="modalInstruction">
+        <div class="modalInstructionSection extraErrors">
+            <i class="icon xi-error"></i>
+            There are more failures than reported below. To discover additional errors, fix the ones reported, and re-run the map operation.
+        </div>
+    </section>
+    <section class="modalTopMain">
+        <div class="columnHeader">
+            Column name
+        </div>
+        <div class="expandAll toggleAll xc-action">Expand all</div>
+        <div class="collapseAll toggleAll xc-action">Collapse all</div>
+    </section>
+    <div class="divider"></div>
+    <!-- Main Section -->
+    <section class="modalMain">
+        <div class="errorList"></div>
+    </section>
 
-<section class="modalBottom">
-    <button type="button" class="btn btn-large btn-submit genErrorTable">Generate detailed error report</button>
-    <button type="button" class="btn cancel"><%= dicts.common.Close %></button>
-</section>
+    <section class="modalBottom">
+        <button type="button" class="btn btn-large btn-submit genErrorTable">Generate table of errors</button>
+        <button type="button" class="btn cancel"><%= dicts.common.Close %></button>
+    </section>
 </div>

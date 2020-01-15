@@ -1406,6 +1406,7 @@ module.exports = {
         "comment": "New Comment",
         "execute": "Execute",
         "executeAll": "Execute All",
+        "executeAllNodes": "Execute all operator nodes",
         "executeOptimized": "Execute Optimized",
         "executeAllOptimized": "Execute All Optimized",
         "CreateOptimized": "Create Optimized Application",
