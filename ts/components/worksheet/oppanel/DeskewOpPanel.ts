@@ -13,7 +13,7 @@ class DeskewOpPanel extends BaseOpPanel {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._dagNode = dagNode;
         // Show panel
-        super.showPanel("Deskew", options)
+        super.showPanel("De-skew", options)
         .then(() => {
             this._restorePanel(this._dagNode.getParam());
             if (BaseOpPanel.isLastModeAdvanced) {

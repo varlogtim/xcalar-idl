@@ -1125,8 +1125,7 @@ class DagNodeSQL extends DagNode {
     ): XDPromise<any> {
         const inputTableNames = [];
         if (Object.keys(sqlFunc).length > 1) {
-            return PromiseHelper.reject("Invalid table creator functionn: " +
-                                        JSON.stringify(sqlFunc));
+            return PromiseHelper.reject("Invalid table functionn: " + JSON.stringify(sqlFunc));
         }
         const key = Object.keys(sqlFunc)[0];
         if (visitedMap.hasOwnProperty(key)) {
@@ -1135,7 +1134,7 @@ class DagNodeSQL extends DagNode {
         const funcName = sqlFunc[key].funcName;
         // list all functions and check if funcName is there
         if (!DagTabSQLFunc.hasFunc(funcName)) {
-            return PromiseHelper.reject("Cannot find table creator function: " + funcName);
+            return PromiseHelper.reject("Cannot find table function: " + funcName);
         }
         const deferred = PromiseHelper.deferred();
         const args = sqlFunc[key].arguments;

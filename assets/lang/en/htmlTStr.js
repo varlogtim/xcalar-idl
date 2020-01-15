@@ -458,8 +458,8 @@ module.exports = {
         "queryHistColTable": "Results",
         "queryHistMenuInstr": "You can review your SQL queries in the Query History table to the right.",
         "queryHistSQLModalTitle": "SQL Query",
-        "AddFunc": "New Table Creator Function",
-        "SQLFuncHint": "Tips: A table creator function takes one or more tables as inputs and outputs a table. Table creator functions can be called in a query, e.g, select * from fn(Table1, Table2...). You can visually create a table creator function using the graph interface in the Transformation & Business Logic Panel.",
+        "AddFunc": "New Table Function",
+        "SQLFuncHint": "Tips: A table function takes one or more tables as inputs and outputs a table. Table functions can be called in a query, e.g, select * from fn(Table1, Table2...). You can visually create a table function using the graph interface in the Transformation & Business Logic Panel.",
         "EditUDF": "Add/Edit UDF",
         "UDFHint": "Tips: UDF (User Defined Function) is a customized python function that accepts one or more fields of a table as input and outputs a string field. UDFs can be used in a SQL query, e.g, select udf(Field1, Field2...) from Table. You can add/edit UDFs in the UDF panel.",
         "NumOfInput": "Number of input tables",
@@ -468,7 +468,7 @@ module.exports = {
         "SaveQueryTab": "Saved Queries",
         "TableTab": "Tables",
         "UDFTab": "UDFs",
-        "SQLFuncTab": "Table Creator Functions",
+        "SQLFuncTab": "Table Functions",
         "ResultTab": "Query Results"
     },
 
@@ -891,7 +891,7 @@ module.exports = {
         "upload": "Upload",
         "uploadHeader": "Upload Module",
         "uploadInstr": "Upload a previously downloaded module into Xcalar. Your file should be of the format .xlrdf.tar.gz",
-        "uploadAsSQLFunc": "Upload as table creator function",
+        "uploadAsSQLFunc": "Upload as table function",
         "overwriteUdf": "Overwrite UDFs",
         "overwriteUdfHint": "Overwrite UDFs of the same module name with those inside this application builder module",
         "restoreDS": "Restore datasets",
@@ -1054,7 +1054,7 @@ module.exports = {
     },
 
     "SQLFunc": {
-        "Title": "Table Creator Function",
+        "Title": "Table Function",
         "SwitchToUse": "Switch to developer mode to create table ceator function",
         "Input": "Input Table",
         "Output": "Output Table",
@@ -1067,7 +1067,7 @@ module.exports = {
         "Run": "Run",
         "RunHint": "Select a portion of query to run selected",
         "More": "More",
-        "SQLFuncShortHint": "Table creator function takes one or more tables as input and output a table.",
+        "SQLFuncShortHint": "Table function takes one or more tables as input and output a table.",
         "NewSnippet": "New Query",
         "Open": "Saved Queries",
         "Snippets": "Saved Queries",

@@ -35,7 +35,7 @@ class SQLResultUDFLister extends AbstractSQLResultLister{
                 SQLWorkSpace.Instance.newSQL(sql);
             } catch (e) {
                 console.error(e);
-                Alert.error(ErrTStr.Error, "Error occurred when compose query from table creator function.");
+                Alert.error(ErrTStr.Error, "Error occurred when compose query from table function.");
             }
         });
     }

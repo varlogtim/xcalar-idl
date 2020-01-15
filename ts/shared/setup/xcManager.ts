@@ -1532,7 +1532,6 @@ namespace xcManager {
         $("#container").addClass("dataMart")
         $("#workbookPanel").find(".monitorBox").remove();
         $("#monitorTab").addClass("xc-hidden");
-        $("#dagViewBar .parameters").addClass("xc-hidden");
         $("#bottomMenuBarTabs").addClass("dataMart");
     }
 

@@ -68,6 +68,14 @@ class DagNodeDeskew extends DagNode {
         };
     }
 
+    /**
+     * @override
+     * @returns {string}
+     */
+    public getDisplayNodeType(): string {
+        return "De-skew";
+    }
+
     public applyColumnMapping(renameMap): void {
         let newRenameMap = xcHelper.deepCopy(renameMap);
         try {

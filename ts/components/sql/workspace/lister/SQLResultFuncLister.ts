@@ -20,8 +20,8 @@ class SQLResultFuncLister extends AbstractSQLResultLister{
 
     protected _getHintHTML(): HTML {
         return '<div class="hintArea">' +
-                    '<b>No available table creator functions</b>' +
-                    '<div class="hint">Add a new table creator function to get started</div>' +
+                    '<b>No available table functions</b>' +
+                    '<div class="hint">Add a new table function to get started</div>' +
                 '</div>';
     }
 
@@ -38,12 +38,12 @@ class SQLResultFuncLister extends AbstractSQLResultLister{
                 const inputSignature = new Array(numInput).fill(null)
                 .map((_v, i) => `Input${i + 1}`).join(", ");
                 const sql: string =
-                `-- This is a sample code to use table creator function\n` +
+                `-- This is a sample code to use table function\n` +
                 `select * from ${name}(${inputSignature});`;
                 SQLWorkSpace.Instance.newSQL(sql);
             } catch (e) {
                 console.error(e);
-                Alert.error(ErrTStr.Error, "Error occurred when compose query from table creator function.");
+                Alert.error(ErrTStr.Error, "Error occurred when compose query from table function.");
             }
         });
     }

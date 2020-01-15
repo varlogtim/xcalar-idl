@@ -1,6 +1,6 @@
 class DagTabSQLFunc extends DagTabUser {
     public static KEY: string = "SQLFunc";
-    public static HOMEDIR: string = "Table Creator Functions";
+    public static HOMEDIR: string = "Table Functions";
 
     /**
      * DagTabSQLFunc.generateId

@@ -1583,7 +1583,7 @@ class DagNodeExecutor {
             }
         });
         if (hasDupName) {
-            return PromiseHelper.reject("Has duplicate column name in table creator function out");
+            return PromiseHelper.reject("Has duplicate column name in table function out");
         }
         const srcTable: string = this._getParentNodeTable(0);
         const desTable: string = this._generateTableName();

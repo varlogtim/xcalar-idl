@@ -75,7 +75,7 @@ enum DagNodeErrorType {
     NoColumn = "Invalid column in the schema:\n",
     NoColumns = "Invalid columns in the schema:\n",
     NoAccessToSource = "Dataset does not exist or you have no rights to access it. Please change the node configuration or restore the dastaset.",
-    InvalidSQLFunc = "Invalid Table Creator Function",
+    InvalidSQLFunc = "Invalid Table Function",
 }
 
 enum DagNodeLinkInErrorType {
