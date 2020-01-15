@@ -336,7 +336,8 @@ enum SQLOps {
     EditNodeTitle = "editNodeTitle",
     DagBulkOperation = "dagBulkOperation",
     DeleteDataflow = "deleteDataflow",
-    DataflowExecution = "Application Execution"
+    DataflowExecution = "Application Execution",
+    DebugPlan = "debugPlan"
 }
 
 enum XcalarMode {

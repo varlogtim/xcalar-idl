@@ -66,6 +66,12 @@ class SQLDataflowPreview {
             return DagTabManager.Instance.loadTab(<DagTab>dagTab);
         })
         .then(() => {
+            // add to log to prevent this operation from being undone
+            // undoing causes a bug when we reload this graph from kvstore
+            Log.add(SQLTStr.DebugPlan, {
+                "operation": SQLOps.DebugPlan,
+                "noUndo": true
+            });
             deferred.resolve();
         })
         .fail((error) => {

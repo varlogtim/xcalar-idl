@@ -1594,7 +1594,8 @@ SQLTStr = {
     "NewQuery": "New Query",
     "SavedQueries": "Saved Queries",
     "OpenQuery": "Open query",
-    "OpenQueryMsg": "You will lose any unsaved changes to open this query. Click Cancel if you want to save your current query?"
+    "OpenQueryMsg": "You will lose any unsaved changes to open this query. Click Cancel if you want to save your current query?",
+    "DebugPlan": "Debug Plan"
 };
 
 LoginConfigTStr = {

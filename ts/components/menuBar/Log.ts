@@ -792,6 +792,7 @@ namespace Log {
         switch (operation) {
             case SQLOps.RemoveDagTab:
             case SQLOps.DeleteDataflow:
+            case SQLOps.DebugPlan:
                 return UndoType.Invalid;
             case SQLOps.DSImport:
             case SQLOps.TableFromDS:
