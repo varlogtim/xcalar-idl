@@ -17,7 +17,7 @@ class PbTblInfo {
     private _cachedSelectResultSet: string;
 
     public constructor(options) {
-        options = options || <PbTblInfo>{};
+        options = options || <any>{};
         this.batchId = options.batchId;
         this.index = options.index;
         this.keys = options.keys || [];

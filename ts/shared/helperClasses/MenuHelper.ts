@@ -526,7 +526,7 @@ class MenuHelper {
 
         $list.mouseenter(function() {
             outerHeight = $list.height();
-            innerHeight = $ul[0].scrollHeight;
+            innerHeight = getListToScroll()[0].scrollHeight;
             isMouseMoving = true;
             fadeIn();
         });
@@ -587,9 +587,23 @@ class MenuHelper {
             }
         }
 
+        function getListToScroll(): JQuery {
+            if ($ul.length > 1) {
+                // if the menu list includes severl uls, need a filter
+                const $visibleUl = $ul.filter((_index, el) => $(el).is(":visible"));
+                if ($visibleUl.length > 1) {
+                    console.warn("more than 1 list to scroll");
+                }
+                return $visibleUl;
+            } else {
+                return $ul;
+            }
+        }
+
         function scrollList(scrollUp: boolean): void {
             let top: number;
-            const scrollTop: number = $ul.scrollTop();
+            const $visibleUl = getListToScroll();
+            const scrollTop: number = $visibleUl.scrollTop();
 
             if (scrollUp) { // scroll upwards
                 if (scrollTop === 0) {
@@ -598,7 +612,7 @@ class MenuHelper {
                 }
                 timer.scroll = window.setTimeout(function() {
                     top = scrollTop - 7;
-                    $ul.scrollTop(top);
+                    $visibleUl.scrollTop(top);
                     scrollList(scrollUp);
                 }, 30);
             } else { // scroll downwards
@@ -609,14 +623,15 @@ class MenuHelper {
 
                 timer.scroll = window.setTimeout(function() {
                     top = scrollTop + 7;
-                    $ul.scrollTop(top);
+                    $visibleUl.scrollTop(top);
                     scrollList(scrollUp);
                 }, 30);
             }
         }
 
         function mouseScroll(): void {
-            const scrollTop: number = $ul.scrollTop();
+            const $visibleUl = getListToScroll();
+            const scrollTop: number = $visibleUl.scrollTop();
             if (scrollTop === 0) {
                 $scrollAreas.eq(0).addClass('stopped');
                 $scrollAreas.eq(1).removeClass('stopped');

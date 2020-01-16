@@ -59,6 +59,14 @@ abstract class AbstractSQLResultView {
         let lastLeft: number = 0;
         let colW: number = 0;
         let preColW: number = 0;
+        const getWidth = ($el: JQuery) => {
+            try {
+                return $el[0].getBoundingClientRect().width;
+            } catch (e) {
+                console.error("get width error");
+                return $el.outerWidth();
+            }
+        };
 
         $section.resizable({
             handles: "w",
@@ -67,8 +75,8 @@ abstract class AbstractSQLResultView {
             start: (_event, ui) => {
                 $prev = $section.prev();
                 lastLeft = ui.position.left;
-                colW = $section.outerWidth();
-                preColW = $prev.outerWidth();
+                colW = getWidth($section);
+                preColW = getWidth($prev);
                 this._getMainSection().addClass("resizing");
             },
             resize: (_event, ui) => {

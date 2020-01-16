@@ -397,7 +397,9 @@ class SQLEditor {
     }
 
     private _insertText(text: string): void {
-        this._editor.getDoc().replaceSelection(text);
+        const editor = this._editor;
+        editor.getDoc().replaceSelection(text);
+        editor.focus();
     }
 
     private _getHintMenu(): JQuery {
@@ -441,6 +443,11 @@ class SQLEditor {
                 return false;
             }
 
+            const $menu = this._getHintMenu();
+            if ($menu.is(":visible")) {
+                // when menu already open
+                return;
+            }
             text = text.substring(0, text.length - 1);
             const classNames: string[] = [];
             if (text.endsWith("from")) {
@@ -453,7 +460,6 @@ class SQLEditor {
                 this._renderUDFHint();
             }
             if (classNames.length) {
-                const $menu = this._getHintMenu();
                 const coords = cm.cursorCoords(true);
                 MenuHelper.dropdownOpen(null, $menu, {
                     "mouseCoors": {
@@ -493,7 +499,8 @@ class SQLEditor {
     // XXX TODO: combine with _getAutoCompleteHint in SQLEditorSpace.ts
     private _renderColumnHint(): void {
         const columnSet: Set<string> = new Set();
-        SQLResultSpace.Instance.getAvailableTables().forEach((table) => {
+        SQLResultSpace.Instance.getAvailableTables().forEach((table: PbTblInfo) => {
+            const tableName: string = table.name;
             table.columns.forEach((col) => {
                 const upperName = col.name.toUpperCase();
                 if (col.name != "DATA" &&
@@ -501,7 +508,7 @@ class SQLEditor {
                     !upperName.startsWith("XCALAROPCODE") &&
                     !upperName.startsWith("XCALARBATCHID") &&
                     !upperName.startsWith("XCALARROWNUMPK")) {
-                    columnSet.add(col.name);
+                    columnSet.add(tableName + "." + col.name);
                 }
             });
         });

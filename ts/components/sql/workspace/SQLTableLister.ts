@@ -115,7 +115,7 @@ class SQLTableLister extends AbstractSQLResultView {
         PTblManager.Instance.getTablesAsync(refresh)
         .then(() => {
             this._tableInfos = this._getAvailableTables();
-            this._render();
+            this._render(refresh);
             deferred.resolve();
         })
         .fail(deferred.reject)
@@ -175,7 +175,11 @@ class SQLTableLister extends AbstractSQLResultView {
         this._getMainSection().html(html);
     }
 
-    private _render(): void {
+    private _render(refresh: boolean = false): void {
+        let rowWidth: number[] = null;
+        if (refresh) {
+            this._getColumnsWidth(this._getMainSection().find(".header .row"));
+        }
         this._renderHeader();
         let tableInfos = this._sortTables(this._tableInfos);
         let html: HTML = tableInfos.map((tableInfo) => {
@@ -199,6 +203,9 @@ class SQLTableLister extends AbstractSQLResultView {
         this._filterTables();
         this._updateActions(null);
         this._resizeEvents();
+        if (refresh) {
+            this._resizeColums(rowWidth, true);
+        }
     }
 
     private _renderHeader(): void {
