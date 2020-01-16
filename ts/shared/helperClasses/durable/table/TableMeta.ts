@@ -266,7 +266,18 @@ class TableMeta extends Durable {
 
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail((error) => {
+            if (typeof error === "object") {
+                let errMsg: string = error.log || error.error;
+                if (error.status === StatusT.StatusDagNodeNotFound) {
+                    errMsg = "table is deleted, please re-run the query to generate the table.";
+                }
+                errMsg = "View result error: " + errMsg;
+                deferred.reject(errMsg);
+            } else {
+                deferred.reject(error);
+            }
+        });
 
         return deferred.promise();
     }

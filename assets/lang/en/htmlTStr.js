@@ -444,7 +444,7 @@ module.exports = {
 
     "SQL": {
         "WorkSpace": "SQL WorkSpace",
-        "Editor": "SQL Query",
+        "Editor": "SQL",
         "Schema": "Tables and Schemas available to SQL",
         "SchemaInst": "Select and click a table to view columns.",
         "ColumnInst": "Select and click a table in order to view and select columns.",
@@ -469,7 +469,8 @@ module.exports = {
         "TableTab": "Tables",
         "UDFTab": "UDFs",
         "SQLFuncTab": "Table Functions",
-        "ResultTab": "Query Results"
+        "ResultTab": "Query Results",
+        "ViewingResult": "Viewing Result"
     },
 
     "bottomMenu": {
