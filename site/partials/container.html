@@ -34,25 +34,6 @@
   include "menuBar/menuBar.html"
   include "userBox.html"
 
-  <!-- START MAIN PANELS -->
-  include "jupyter.html"
-  include "monitor/monitor.html"
-  include "datastore/datastore.html"
-  include "modelingDagPanel.html"
-  include "sql/sqlWorkSpacePanel.html"
-  include "workbook.html"
-  include "help/help.html"
-  include "tableMenus.html"
-  <!-- END MAIN PANELS -->
-
-  <div class="underConstruction mainPanel">
-    <div class="topBar"></div>
-    <div class="alert">
-      <i class="icon xi-info-circle fa-25"></i>
-    </div>
-    <br>
-    This page is still under construction!
-  </div>
   <div id="adminStatusBar" class="adminOnly active">
     <div class="pulloutTab">
       <div class="border"></div>
@@ -88,6 +69,26 @@
     </div>
   </div>
   <!-- End Of StatusBox -->
+
+  <!-- START MAIN PANELS -->
+  include "jupyter.html"
+  include "monitor/monitor.html"
+  include "datastore/datastore.html"
+  include "modelingDagPanel.html"
+  include "sql/sqlWorkSpacePanel.html"
+  include "workbook.html"
+  include "help/help.html"
+  include "tableMenus.html"
+  <!-- END MAIN PANELS -->
+
+  <div class="underConstruction mainPanel">
+    <div class="topBar"></div>
+    <div class="alert">
+      <i class="icon xi-info-circle fa-25"></i>
+    </div>
+    <br>
+    This page is still under construction!
+  </div>
 
 <!-- used for dataflow node styling -->
 <svg class="dataflowSVGHelper" height="0" width="0" style="position:absolute">

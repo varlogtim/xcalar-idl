@@ -2775,7 +2775,7 @@ body.xc-setup .workspaceArea {
   height: 29px;
   z-index: 11;
 }
-#worksheetInfo {
+#statusBar {
   width: calc(100% - 40px);
   height: 100%;
   float: left;

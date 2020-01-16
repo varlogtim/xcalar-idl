@@ -946,7 +946,7 @@ describe("WorkbookManager Test", function() {
             WorkbookManager.updateWorkbooks(info);
             UnitTest.testFinish(checkFunc)
             .then(function() {
-                expect($("#worksheetInfo .wkbkName").text()).to.equal(info.newName);
+                expect($("#statusBar .wkbkName").text()).to.equal(info.newName);
                 done();
             })
             .fail(function() {
@@ -968,7 +968,7 @@ describe("WorkbookManager Test", function() {
             WorkbookManager.updateWorkbooks(info);
             UnitTest.testFinish(checkFunc)
             .then(function() {
-                expect($("#worksheetInfo .wkbkName").text()).to.equal(oldName);
+                expect($("#statusBar .wkbkName").text()).to.equal(oldName);
                 done();
             })
             .fail(function() {

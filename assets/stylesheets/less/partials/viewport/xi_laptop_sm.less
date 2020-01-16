@@ -59,9 +59,21 @@
     #userBox {
         left: @width-minScreen - @width-userBox;
     }
+    .dataMart {
+        #userBox {
+            left: @width-minScreen - (@width-userBox - @width-toggleBtn);
+        }
+    }
 }
 
 @media screen and (max-width: 1040px) {
+    .dagPanel-active {
+        #statusBar {
+            .xdname {
+                display: none;
+            }
+        }
+    }
     #pTblView {
         .infoSection {
             .action {

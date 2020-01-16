@@ -2,6 +2,14 @@
 namespace MonitorPanel {
     let monitorDonuts: MonitorDonuts;
     let monitorGraph: MonitorGraph;
+    const tabToPanelMap = {
+        systemButton: "systemSubPanel",
+        queriesButton: "queriesSubPanel",
+        setupButton: "setupSubPanel",
+        logButton: "logSubPanel",
+        settingsButton: "settingsSubPanel",
+        fileManagerButton: "fileManagerSubPanel",
+    };
 
     /**
      * MonitorPanel.setup
@@ -38,6 +46,33 @@ namespace MonitorPanel {
     export function active(): void {
         monitorGraph.start();
         QueryManager.showLogs();
+        const curTab: string = $('#monitorTab').find('.subTab.active').attr("id");
+        let title = MonitorTStr.System + ': ';
+
+        switch (curTab) {
+            case ("systemButton"):
+                title += MonitorTStr.Monitor;
+                break;
+            case ("queriesButton"):
+                title += MonitorTStr.Queries;
+                break;
+            case ("setupButton"):
+                title += MonitorTStr.Setup;
+                break;
+            case ("logButton"):
+                title += MonitorTStr.Logs;
+                break;
+            case ("settingsButton"):
+                title += MonitorTStr.Preferences;
+                break;
+            case ("fileManagerButton"):
+                title += MonitorTStr.FileManagerTitle;
+                break;
+            default:
+                break;
+        }
+        $("#container").addClass(tabToPanelMap[curTab] + "-active");
+        $("#statusBar").find(".panelName").text(title);
     }
 
     // XXX move to system panel
@@ -46,6 +81,10 @@ namespace MonitorPanel {
      */
     export function inActive(): void {
         monitorGraph.clear();
+        const $container = $("#container");
+        for (let i in tabToPanelMap) {
+            $container.removeClass(tabToPanelMap[i] + "-active");
+        }
     }
 
     /**
@@ -101,12 +140,16 @@ namespace MonitorPanel {
             }
             $monitorPanel.find(".monitorSection.active").removeClass("active");
             let title = MonitorTStr.System + ': ';
-            let $menu = $("#monitorMenu");
             $monitorPanel.find(".mainContent").scrollTop(0);
-            $("#container").removeClass("activePanel-FileManagerPanel");
+            const $container = $("#container");
+            $container.removeClass("activePanel-FileManagerPanel");
             $monitorPanel.removeClass("fileManagerMainPanel");
+            for (let i in tabToPanelMap) {
+                $container.removeClass(tabToPanelMap[i] + "-active");
+            }
+            const curTab: string = $button.attr("id");
 
-            switch ($button.attr("id")) {
+            switch (curTab) {
                 case ("systemButton"):
                     $("#monitor-system").addClass("active");
                     title += MonitorTStr.Monitor;
@@ -145,7 +188,8 @@ namespace MonitorPanel {
                 default:
                     break;
             }
-            $monitorPanel.find('.topBar .title:not(.wkbkTitle)').text(title);
+            $container.addClass(tabToPanelMap[curTab] + "-active");
+            $("#statusBar").find(".panelName").text(title);
         });
     }
 

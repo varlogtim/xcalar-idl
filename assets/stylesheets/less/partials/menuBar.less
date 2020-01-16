@@ -259,7 +259,7 @@
 .mainPanel:not(#sqlWorkSpacePanel) > .mainContent > .leftSection,
 #monitorPanel .subPanel > .leftSection {
     .position(absolute, @left: 0px);
-    .size(@width-topMenu,  @min-width: @width-topMenu, @height: ~"calc(100% - (@{height-bottomBar} + @{height-topBar}))");
+    .size(@width-topMenu,  @min-width: @width-topMenu, @height: ~"calc(100% - @{height-topBar})");
     padding: 0px;
     color: @color-font-form-gray;
     border-right: 1px solid @color-border-grayBlue;
@@ -270,7 +270,6 @@
     &.active {
         display: block;
     }
-
 
     &::after { // used for darkening menu when json modal is open
         content: "";

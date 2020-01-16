@@ -169,7 +169,7 @@ module.exports = {
             .uploadWorkbook('tstUpload')
             .waitForElementVisible('.workbookBox[data-workbook-id="' + browser.globals.currentUsername + '-wkbk-tstUpload"]', 30000)
             .activateWorkbook('.workbookBox[data-workbook-id="' + browser.globals.currentUsername + '-wkbk-tstUpload"]')
-            .expect.element('#worksheetInfo .wkbkName').text.to.equal(`tstUpload`)
+            .expect.element('#statusBar .wkbkName').text.to.equal(`tstUpload`)
         browser
             .elements('css selector', '.dataflowArea.active rect.main' ,function(result) {
                 browser

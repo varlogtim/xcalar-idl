@@ -23,6 +23,15 @@ namespace MainMenu {
         helpTab: "helpPanel"
     };
 
+    const tabToPanelTitleMap = {
+        dataStoresTab: "Source & Load Data",
+        sqlTab: "Query",
+        modelingDataflowTab: "Business & Transformation Logic",
+        jupyterTab: "Jupyter Notebook",
+        monitorTab: "System",
+        helpTab: "Help & Support: Tutorials"
+    };
+
     export function setup() {
         if (hasSetUp) {
             return;
@@ -521,14 +530,19 @@ namespace MainMenu {
             SQLWorkSpace.Instance.unfocus();
         }
         closeMainPanels();
-        $("#container").removeClass("monitorViewOpen");
+        const $container = $("#container");
+        $container.removeClass("monitorViewOpen");
         const curTab: string = $curTab.attr("id");
         $menuBar.find(".topMenuBarTab").removeClass("active");
         $curTab.addClass("active");
+        for (let i in tabToPanelMap) {
+            $container.removeClass(tabToPanelMap[i] + "-active");
+        }
+        $("#statusBar .panelName").text(tabToPanelTitleMap[curTab] || "");
 
         switch (curTab) {
             case ("dataStoresTab"):
-                let noWorkbook: boolean = $("#container").hasClass("noWorkbook");
+                let noWorkbook: boolean = $container.hasClass("noWorkbook");
                 $("#datastorePanel").addClass("active");
                 DSTable.refresh();
                 if ($curTab.hasClass("firstTouch")) {
@@ -580,7 +594,10 @@ namespace MainMenu {
                 break;
             default:
                 $(".underConstruction").addClass("active");
+                break;
         }
+
+        $container.addClass(tabToPanelMap[curTab] + "-active");
         sizeRightPanel();
         StatusMessage.updateLocation(null, null);
         $(".tableDonePopupWrap").remove();

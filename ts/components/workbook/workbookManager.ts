@@ -140,7 +140,7 @@ namespace WorkbookManager {
         if (workbookId == null) {
             activeWKBKId = null;
             setSessionName(null);
-            $("#worksheetInfo .wkbkName").text(name);
+            $("#statusBar .wkbkName").text(name);
             return true;
         }
 
@@ -154,7 +154,7 @@ namespace WorkbookManager {
         activeWKBKId = workbookId;
         name = wkbk.getName()
         setSessionName(name);
-        $("#worksheetInfo .wkbkName").text(name);
+        $("#statusBar .wkbkName").text(name);
         return true;
     }
 
@@ -749,7 +749,7 @@ namespace WorkbookManager {
             });
             if (isCurrentWKBK) {
                 /// Change workbookname in status bar
-                $("#worksheetInfo .wkbkName").text(newName);
+                $("#statusBar .wkbkName").text(newName);
                 return resetActiveWKBK(newWKBKId);
             }
         })
@@ -1140,7 +1140,7 @@ namespace WorkbookManager {
         .always(function() {
             if (info.action === "rename") {
                 if (activeWkbk && activeWkbk === info.triggerWkbk) {
-                    $("#worksheetInfo .wkbkName").text(info.newName);
+                    $("#statusBar .wkbkName").text(info.newName);
                     const newWKBKId: string = getWKBKId(info.newName);
                     resetActiveWKBK(newWKBKId);
                     const newFoldername: string = WorkbookManager.getWorkbook(newWKBKId).jupyterFolder;
