@@ -256,7 +256,8 @@
 }
 
 
-.mainPanel:not(#sqlWorkSpacePanel) > .mainContent > .leftSection {
+.mainPanel:not(#sqlWorkSpacePanel) > .mainContent > .leftSection,
+#monitorPanel .subPanel > .leftSection {
     .position(absolute, @left: 0px);
     .size(@width-topMenu,  @min-width: @width-topMenu, @height: ~"calc(100% - (@{height-bottomBar} + @{height-topBar}))");
     padding: 0px;

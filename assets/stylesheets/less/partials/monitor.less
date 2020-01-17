@@ -7,6 +7,75 @@
         }
     }
 
+    .subPanel {
+        > .leftSection {
+            margin-left: 0px !important;
+            height: 100% !important;
+        }
+        > .rightSection {
+            margin-left: @width-topMenu;
+            height: 100%;
+        }
+
+        &.noLeftSection {
+            > .rightSection {
+                margin-left: 0px;
+            }
+        }
+    }
+
+    .subPanel > .leftSection {
+        @topSectionHeight: 60px;
+
+        .position(absolute, @left: 0px);
+        .size(@width-topMenu,  @min-width: @width-topMenu, @height: 100%);
+        padding: 0px;
+        padding-bottom: 5px;
+        border-right: 1px solid @color-border-grayBlue;
+        margin-left: 0px;
+        z-index: @z-index-topMenu;
+        background-color: @color-white;
+        color: @color-font-edge;
+
+        > .topSection {
+            display: flex;
+            font-weight: bold;
+            padding-left: 15px;
+            padding-right: 8px;
+            height: @topSectionHeight;
+            border-bottom: 1px solid @color-bg-topBarGray2;
+
+            .titleSection {
+                .flex(1 1 auto);
+                color: @color-font-form-gray;
+                font-size: 22px;
+                line-height: @topSectionHeight;
+            }
+
+            .iconSection {
+                .flex(1 0 auto);
+
+                .icon {
+                    font-size: 14px;
+                    margin-left: 12px;
+                    margin-top: 8px;
+                    float: right;
+                    .xc-icon-action;
+                }
+            }
+        }
+
+        > .mainSection {
+            height: ~"calc(100% - @{topSectionHeight})";
+            color: @color-font-edge;
+            overflow: auto;
+            border-top: none;
+            padding-top: 10px;
+        }
+
+    }
+
+
     .topBar {
         .backToWB {
             display: none;
@@ -1543,6 +1612,9 @@
     &.active {
         display: flex !important;
         flex-direction: column;
+    }
+    > .rightSection {
+        overflow: auto;
     }
     > .cardContainer {
         flex: 1 1 auto;

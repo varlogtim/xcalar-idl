@@ -102,7 +102,6 @@ namespace MonitorPanel {
             $monitorPanel.find(".monitorSection.active").removeClass("active");
             let title = MonitorTStr.System + ': ';
             let $menu = $("#monitorMenu");
-            $menu.find(".menuSection").addClass("xc-hidden");
             $monitorPanel.find(".mainContent").scrollTop(0);
             $("#container").removeClass("activePanel-FileManagerPanel");
             $monitorPanel.removeClass("fileManagerMainPanel");
@@ -110,23 +109,19 @@ namespace MonitorPanel {
             switch ($button.attr("id")) {
                 case ("systemButton"):
                     $("#monitor-system").addClass("active");
-                    $menu.find(".menuSection.monitor").removeClass("xc-hidden");
                     title += MonitorTStr.Monitor;
                     break;
                 case ("queriesButton"):
                     $("#monitor-queries").addClass("active");
-                    $menu.find(".menuSection.query").removeClass("xc-hidden");
                     title += MonitorTStr.Queries;
                     QueryManager.showLogs();
                     break;
                 case ("setupButton"):
                     $("#monitor-setup").addClass("active");
-                    $menu.find(".menuSection.setup").removeClass("xc-hidden");
                     title += MonitorTStr.Setup;
                     break;
                 case ("logButton"):
                     $("#monitor-xd-log").addClass("active");
-                    $menu.find(".menuSection.xdLog").removeClass("xc-hidden");
                     title += MonitorTStr.Logs;
                     let $section = $("#logSection");
                     if ($section.hasClass("firstTouch")) {
