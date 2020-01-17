@@ -358,7 +358,7 @@ class DagSearch {
             checked: false,
             selector: (keyword: string, node: DagNode) => {
                 const table: string = node.getTable();
-                if (table.toLowerCase().includes(keyword)) {
+                if (table && table.toLowerCase().includes(keyword)) {
                     return ($node) => $node;
                 }
                 return null;
