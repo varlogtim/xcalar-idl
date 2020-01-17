@@ -52,7 +52,7 @@ abstract class AbstractSQLResultLister {
                 const actionHTML: HTML = this._getActionsHTML();
                 html = list.map((name) => {
                     const row: HTML =
-                    '<div class="row">' +
+                    '<div class="row noSelect">' +
                         '<span class="name">' +
                             name +
                         '</span>' +
