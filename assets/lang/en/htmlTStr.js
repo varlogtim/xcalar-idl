@@ -1216,7 +1216,7 @@ module.exports = {
 
     "workbook": {
         "createWKBK": "Create New Project",
-        "browseWKBK": "Browse",
+        "browseWKBK": "Upload",
         "header": "Project Browser",
         "hello": "Hello",
         "monitorStatus": "Monitor the status of your Xcalar Cluster",

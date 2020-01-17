@@ -76,54 +76,16 @@
           </div>
         </div>
       </div>
-      <div class="flexSection bottomSection">
-        <div class="box box-small newWorkbookBox">
-          <div class="innerBox">
-            <div class="leftBar"></div>
-            <div class="content">
-              <div class="innerContent">
-                <div class="section">
-                  <div class="subHeading"><%= dicts.workbook.newWKBK %></div>
-                  <button id="createWKBKbtn" class="btn btn-submit"><%= dicts.workbook.createWKBK %></button>
-                </div>
-                <div class="section upload">
-                  <input style="display: none;" type="file" id="WKBK_uploads" name="WKBK_uploads" accept=".gz">
-                  <div class="subHeading"><%= dicts.workbook.uploadWKBK %></div>
-                  <button id="browseWKBKbtn" class="btn btn-secondary"><%= dicts.workbook.browseWKBK %></button>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div class="bottomSection">
+        <div class="actionSection">
+          <span class="label">Projects</span>
+          <button id="createWKBKbtn" class="btn btn-submit"><%= dicts.workbook.createWKBK %></button>
+          <button id="browseWKBKbtn" class="btn btn-secondary"><%= dicts.workbook.browseWKBK %></button>
+          <input style="display: none;" type="file" id="WKBK_uploads" name="WKBK_uploads" accept=".gz">
         </div>
-        <div class="box box-small dummyBox">
-          <div class="innerBox"></div>
-        </div>
-        <div class="box box-small dummyBox">
-          <div class="innerBox"></div>
-        </div>
-        <div class="box box-small dummyBox">
-          <div class="innerBox"></div>
-        </div>
-        <div class="box box-small dummyBox">
-          <div class="innerBox"></div>
-        </div>
-        <div class="box box-small dummyBox">
-          <div class="innerBox"></div>
-        </div>
-        <div class="box box-small dummyBox">
-          <div class="innerBox"></div>
-        </div>
-        <div class="box box-small dummyBox">
-          <div class="innerBox"></div>
-        </div>
-        <div class="box box-small dummyBox">
-          <div class="innerBox"></div>
-        </div>
-        <div class="box box-small dummyBox">
-          <div class="innerBox"></div>
-        </div>
-        <div class="box box-small dummyBox">
-          <div class="innerBox"></div>
+        <div class="workbookList xc-gridList">
+          <div class="header"></div>
+          <div class="content"></div>
         </div>
         <ul id="wkbkMenu" class="menu">
           <li class="newTab">

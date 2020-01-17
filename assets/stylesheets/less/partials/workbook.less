@@ -73,18 +73,21 @@
         padding: 5px;
     }
 
+    .contentWrap {
+        height: 100%;
+    }
+
     .topSection {
         padding-bottom: 15px;
         padding-top: 15px;
         padding-left: 10px;
         border-bottom: 1px solid @color-border-menubar-grey;
+        height: 341px;
     }
 
     .bottomSection {
-        padding-left: 8px;
-        padding-top: 15px;
-        padding-bottom: 15px;
         background-color: @color-bg-topBarGray2;
+        height: ~"calc(100% - 341px)";
     }
 
     .inActive {
@@ -166,12 +169,6 @@
             .innerBox {
                 .transform(translateX(-110%));
             }
-        }
-
-        &.dummyBox {
-            visibility: hidden;
-            height: 0px;
-            margin-bottom: 0px;
         }
 
         .content {
@@ -268,276 +265,159 @@
         }
     }
 
-    .newWorkbookBox {
-        .innerBox {
-            .flex-display;
+    .actionSection {
+        height: 60px;
+        padding: 16px 15px;
 
-            &:hover {
-                box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
-                cursor: default;
-            }
+        .label {
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 16px;
+        }
 
-            .content {
-                padding: 0;
-
-                .innerContent {
-                    .btn {
-                        width: 100%;
-                        margin-top: 5px;
-                    }
-                }
-
-                .section {
-                    height: 50%;
-                    padding: 12px 36px;
-
-                    &.upload {
-                        border-top: 1px solid @color-border-menubar-grey;
-                    }
-                }
-            }
+        button {
+            margin-left: 8px;
         }
     }
 
-    .workbookBox {
-        @tabHeight: 45px;
-        .noSelection;
-        cursor: default;
+    .workbookList {
+        height: ~"calc(100% - 61px)";
+        box-shadow: 0 2px 2px 0 rgba(101, 101, 101, 0.2);
+        @h: 40px;
 
-        .innerBox {
-            .flex-direction(column);
-            overflow: hidden; // text can expand the box if we don't have this
+        .row {
+            height: @h + 1; // 1px border bottom
+            background-color: @color-white;
+            position: relative;
+
+            > div {
+                height: @h;
+                line-height: @h;
+            }
+
+            .name {
+                width: 250px;
+            }
+
+            .createdTime, .modifiedTime {
+                width: 150px;
+            }
+
+            .sessionId {
+                width: 181px;
+            }
+
+            .state {
+                width: 120px;
+            }
         }
 
-        &:not(.active) {
-            .icon {
-                color: @color-bg-cardHeader;
+        .header {
+            height: @h + 1;
 
+            .row {
+                cursor: default;
+            }
+        }
+
+        .content {
+            height: ~"calc(100% - @{h})";
+
+            .row {
                 &:hover {
-                    opacity: 1;
-                    color: @color-border-grayBlue;
+                    background-color: @color-bg-list-hover-blue;
                 }
             }
         }
 
-        &.active {
-            .innerBox {
-                background-color: @color-bg-select-blue;
-                color: @color-white;
-
-                .info, .icon, input, .subHeading, .description {
-                    color: @color-white;
+        .workbookBox {
+            @tabHeight: 45px;
+    
+            &.loading {
+                .loadSection {
+                    display: block;
                 }
-
+    
+                i, > div:not(.loadSection) {
+                    display: none !important;
+                }
+            }
+    
+            .loadSection {
+                position: relative;
+                opacity: 0.8;
+                display: none;
+                .size(100%, 100%);
+    
+                .animatedEllipsisWrapper {
+                    .size(@width: 150px, @height: @h);
+                    .center-align;
+    
+                    .animatedEllipsis {
+                        > div {
+                            .font(@weight: bold);
+                            margin-left: 1px;
+                        }
+                    }
+                }
+            }
+    
+            &.noMeta {
+                color: @color-font-greyish-brown;
+            }
+    
+            &.active {
+                .state {
+                    color: @color-font-link-blue;  
+                }
+            }
+    
+            .name {
+                &:hover {
+                    cursor: pointer;
+                    text-decoration: underline;
+                }
+    
                 input {
+                    width: 100%;
                     background-color: transparent;
-                    border-color: transparent;
-
-                    &.focused {
-                        background-color: transparent;
-                        border: 1px solid @color-white;
+                    outline: none;
+    
+                    &.focused, &:focus {
+                        border: 1px solid @color-border-softBlue;
                         cursor: auto;
                     }
-
+    
                     &.error {
                         border: 1px solid @color-error-border;
                     }
                 }
             }
-        }
-
-        &.noMeta {
-            .subHeading {
-                input {
-                    color: @color-font-greyish-brown;
-                    opacity: 0.5;
-                }
-            }
-            .info {
-                color: @color-font-greyish-brown;
-                opacity: 0.5;
-            }
-        }
-
-        &.loading {
-            .loadSection {
-                display: block;
-            }
-
-            .content, .rightBar, .subHeading {
-                display: none !important; // new workbook tiles have a
-                // display:block from .show() on the rightBar so we need to
-                // overwrite this
-            }
-            .rightBar {
-                .tab {
-                    .transform(translateX(0%));
-                }
-            }
-        }
-
-        .loadSection {
-            position: relative;
-            opacity: 0.5;
-            display: none;
-            .size(100%, 100%);
-
-            &.safari {
-                // safari has issue when use height 100% T_T
-                height:  180px;
-            }
-
-            .animatedEllipsisWrapper {
-                .size(@width: 150px, @height: 20px);
-                .center-align;
-
-                .animatedEllipsis {
-                    > div {
-                        .font(@weight: bold);
-                        margin-left: 1px;
-                    }
-                }
-            }
-        }
-
-        .content {
-            position: relative;
-            padding: 8px;
-
-            .icon {
-                .size(20px, 35px);
-                line-height: 40px;
-                padding: 0 10px 0 0;
-
-                &.dropDown {
-                    .position(absolute, @right: 0px, @top: 0px);
-                }
-            }
-        }
-
-        .innerContent {
-            margin-left: 5%;
-            padding-right: 20px; // to make space for dropdown icons
-            overflow: hidden;
-        }
-
-        .subHeading {
-            position: relative;
-            padding-top: 5px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid @color-wkbk-border-gray;
-
-            .workbookName {
-                .size(@height: 30px);
-                .font(@size: 22px, @weight: normal);
-                background-color: transparent;
-                padding: 0 5px 0 0px;
-                left: -5px;
-                border: 1px solid transparent;
-                cursor: pointer;
-
-                &.focused, &.error {
-                    width: ~"calc(100% - 39px)";
-                    padding-left: 5px;
-                }
-                &.focused {
-                    border: 1px solid @color-border-softBlue;
-                    cursor: auto;
-                }
-
-                &.error {
-                    border: 1px solid @color-error-border;
-                }
-            }
-        }
-
-        .descriptionWrap {
-            overflow: hidden;
-        }
-        .description {
-            .font(@size: 13px, @line-height: 18px, @color: @color-font-select-blue);
-            padding: 0 5px 5px 0px;
-        }
-
-        .workbookName, .descriptionWrap {
-            .size(@width: ~"calc(100% - 31px)"); // to make space for dropdown icons
-        }
-
-        .topInfo {
-            border-bottom: 1px solid @color-border-pinkish-grey2;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-        }
-
-        .row {
-            margin-top: 8px;
-
-            &.sessionIdRow {
+    
+            .sessionId {
                 &:hover {
-                    .info {
-                        i {
-                            display: inline-block;
-                        }
+                    i {
+                        display: inline-block;
                     }
                 }
-            }
-        }
-
-        .label {
-            width: 95px;
-            display: inline-block;
-            float: left;
-        }
-        .info {
-            width: ~"calc(100% - 95px)";
-            display: inline-block;
-            float: left;
-            color: @color-font-edge;
-            .textOverflowOneLine;
-
-            &.sessionId {
+    
                 div {
                     float: left;
                 }
-
+    
                 i {
                     display: none;
                     margin-left: 8px;
                     font-size: 15px;
-                    height: 21px;
-                    line-height: 21px;
+                    height: @h;
+                    line-height: @h;
                 }
             }
-        }
-
-        .tab {
-            background-color: @color-bg-select-blue;
-            .size(100%, 100%);
-            border-top: 1px solid @color-bg-dusk-blue;
-            border-left: 1px solid @color-bg-dusk-blue;
-            display: block;
-
-            .transform(translateX(100%));
-            .transition(0.22s transform);
-            // temp fix for Safari
-            -webkit-transition: -webkit-transform 0.22s;
-
-            &:hover {
-                .icon {
-                    opacity: @opacity-hover;
-                }
-            }
-
-            .icon {
-                line-height: @tabHeight;
-                opacity: @opacity-unhover;
-
-                &.xi-edit, &.xi-duplicate, &.xi-trash {
-                    font-size: 16px;
-                }
-                &.xi-duplicate {
-                    font-size: 18px;
-                }
+    
+            .dropDown {
+                position: absolute;
+                right: 20px;
+                top: 10px;
             }
         }
     }

@@ -285,7 +285,7 @@ namespace WorkbookManager {
             } else {
                 setURL(wkbkId, false, true);
                 $workbookBox.addClass("active");
-                $workbookBox.find(".isActive").text(WKBKTStr.Active);
+                $workbookBox.find(".state").text(WKBKTStr.Active);
                 deferred.resolve();
             }
         })

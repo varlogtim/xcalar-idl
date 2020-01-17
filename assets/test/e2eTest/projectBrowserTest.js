@@ -125,15 +125,11 @@ module.exports = {
     'should have new workbook section with new and upload sections': function(browser) {
         browser
             .ensureHomeScreenOpen()
-            .waitForElementVisible(".newWorkbookBox")
-            .assert.cssClassPresent('.bottomSection .box:nth-of-type(1)', 'newWorkbookBox')
-            .expect.element('.newWorkbookBox .section:nth-of-type(1) .subHeading').text.to.equal(`New Project`)
+            .waitForElementVisible("#workbookPanel .actionSection")
         browser
-            .expect.element('.newWorkbookBox .section:nth-of-type(1) .btn-submit').text.to.equal(`Create New Project`)
+            .expect.element('#workbookPanel .actionSection .btn-submit').text.to.equal(`Create New Project`)
         browser
-            .expect.element('.newWorkbookBox .section:nth-of-type(2) .subHeading').text.to.equal(`Upload Project`)
-        browser
-            .expect.element('.newWorkbookBox .section:nth-of-type(2) .btn-secondary').text.to.equal(`Browse`)
+            .expect.element('#workbookPanel .actionSection .btn-secondary').text.to.equal(`Upload`)
     },
 
     'should create new project': function(browser) {

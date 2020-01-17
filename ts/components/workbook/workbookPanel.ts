@@ -2,7 +2,6 @@ namespace WorkbookPanel {
     let $workbookPanel: JQuery; // $("#workbookPanel")
     let $workbookTopbar: JQuery; // $workbookPanel.find(".topSection")
     let $workbookSection: JQuery; // $workbookPanel.find(".bottomSection")
-    let $newWorkbookCard: JQuery; // $workbookPanel.find(".newWorkbookBox")
     let $welcomeCard: JQuery; // $workbookTopbar.find(".welcomeBox")
     let $wkbkMenu: JQuery; //$workbookPanel.find("#wkbkMenu")
     const sortkey: string = "modified"; // No longer user configurable
@@ -27,7 +26,6 @@ namespace WorkbookPanel {
         $workbookPanel = $("#workbookPanel");
         $workbookTopbar = $workbookPanel.find(".topSection");
         $workbookSection = $workbookPanel.find(".bottomSection");
-        $newWorkbookCard = $workbookPanel.find(".newWorkbookBox");
         $welcomeCard = $workbookTopbar.find(".welcomeBox");
         $fileUpload = $("#WKBK_uploads");
         $wkbkMenu = $workbookPanel.find("#wkbkMenu");
@@ -35,6 +33,7 @@ namespace WorkbookPanel {
         downloadingWKBKs = [];
         duplicatingWKBKs = [];
 
+        _renderHeader();
         addTopbarEvents();
         addWorkbookEvents();
         setupDragDrop();
@@ -289,13 +288,14 @@ namespace WorkbookPanel {
     * Creates the list of workbook cards
     */
     export function listWorkbookCards(): void {
+        const $contentSection = _getContentSection();
         let html: string = "";
         let sorted: WKBK[] = [];
         const workbooks: object = WorkbookManager.getWorkbooks();
         for (let id in workbooks) {
             sorted.push(workbooks[id]);
         }
-        $workbookPanel.find(".workbookBox").not($newWorkbookCard).remove();
+        $contentSection.empty();
 
         const activeWKBKId: string = WorkbookManager.getActiveWKBK();
         // sort by workbook.name
@@ -307,21 +307,15 @@ namespace WorkbookPanel {
             if (workbook.getId() === activeWKBKId) {
                 activeWorkbook = workbook;
             } else {
-                html = createWorkbookCard(workbook) + html;
+                html = _renderWorkbookHTML(workbook) + html;
             }
         });
         // active workbook always comes first
         if (activeWorkbook != null) {
-            html = createWorkbookCard(activeWorkbook) + html;
+            html = _renderWorkbookHTML(activeWorkbook) + html;
         }
 
-        $newWorkbookCard.after(html);
-        // Add tooltips to all descriptions
-        const $descriptions: JQuery = $workbookSection.find(".workbookBox .description");
-        for (let i: number = 0; i < $descriptions.length; i++) {
-            xcTooltip.add($descriptions.eq(i),
-                            {title: xcStringHelper.escapeHTMLSpecialChar($descriptions.eq(i).text())});
-        }
+        $contentSection.html(html);
     }
 
     /**
@@ -434,7 +428,7 @@ namespace WorkbookPanel {
             event.stopPropagation();
             const sessionId = $(this).prev().text();
             xcUIHelper.copyToClipboard(sessionId);
-            xcUIHelper.showSuccess();
+            xcUIHelper.showSuccess(undefined);
         });
 
         // Events for the actual workbooks
@@ -557,13 +551,13 @@ namespace WorkbookPanel {
             xcTooltip.remove($workbookBox.find(".description"));
         }
 
-        const $subHeading: JQuery = $workbookBox.find(".subHeading");
-        xcTooltip.changeText($subHeading, name);
+        const $name: JQuery = $workbookBox.find(".name");
+        xcTooltip.changeText($name, name);
     }
 
     function updateWorkbookInfoWithReplace($card: JQuery, workbookId: string): void {
         const workbook: WKBK = WorkbookManager.getWorkbook(workbookId);
-        const $updateCard: JQuery = $(createWorkbookCard(workbook));
+        const $updateCard: JQuery = $(_renderWorkbookHTML(workbook));
         $card.replaceWith($updateCard);
     }
 
@@ -608,7 +602,7 @@ namespace WorkbookPanel {
             if (WorkbookManager.getActiveWKBK()) {
                 $sibling = getWorkbookBoxById(WorkbookManager.getActiveWKBK());
             } else {
-                $sibling = $newWorkbookCard;
+                $sibling = null;
             }
             const deferred2: XDPromise<JQuery> = createLoadingCard($sibling);
             return PromiseHelper.when(deferred1, deferred2);
@@ -676,10 +670,15 @@ namespace WorkbookPanel {
             "name": ""
         });
         const extraClasses: string[] = ["loading", "new"];
-        const html: string = createWorkbookCard(workbook, extraClasses);
+        const html: string = _renderWorkbookHTML(workbook, extraClasses);
 
         const $newCard: JQuery = $(html);
-        $sibling.after($newCard);
+        if ($sibling == null) {
+            _getContentSection().prepend($newCard);
+        } else {
+            $sibling.after($newCard);
+        }
+        
 
         // need to remove "new" class from workbookcard a split second
         // after it's appended or it won't animate
@@ -695,18 +694,10 @@ namespace WorkbookPanel {
     }
 
     function replaceLoadingCard($card: JQuery, workbookId: string, isNewWKBK: boolean = false): JQuery {
-        const classes: string[] = ["loading"];
+        const classes: string[] = [];
         const workbook: WKBK = WorkbookManager.getWorkbook(workbookId);
-        const $updateCard: JQuery = $(createWorkbookCard(workbook, classes, isNewWKBK));
+        const $updateCard: JQuery = $(_renderWorkbookHTML(workbook, classes, isNewWKBK));
         $card.replaceWith($updateCard);
-
-        const animClasses: string = ".label, .info, .workbookName, .rightBar";
-        $updateCard.removeClass("loading")
-            .addClass("finishedLoading")
-            .find(animClasses).hide().fadeIn();
-        setTimeout(function() {
-            $updateCard.removeClass("finishedLoading");
-        }, 500);
         return $updateCard;
     }
 
@@ -1003,7 +994,11 @@ namespace WorkbookPanel {
         });
     }
 
-    function createWorkbookCard(workbook: WKBK, extraClasses?: string[], isNewWKBK: boolean = false): string {
+    function _getContentSection(): JQuery {
+        return $workbookSection.find(".workbookList .content");
+    }
+
+    function _renderWorkbookHTML(workbook: WKBK, extraClasses?: string[], isNewWKBK: boolean = false): string {
         if (workbook == null) {
             // error case
             return "";
@@ -1014,10 +1009,8 @@ namespace WorkbookPanel {
         let createdTimeDisplay: string = "";
         const modifiedTime: number = workbook.getModifyTime();
         let modifiedTimeDisplay: string = "";
-        let createdTimeTip: string = "";
-        let modifiedTimeTip: string = "";
-        const description: string = workbook.getDescription() || "";
-        let time: moment.Moment;
+        let description: string = workbook.getDescription() || "";
+        description = xcStringHelper.escapeHTMLSpecialChar(description);
 
         extraClasses = extraClasses || [];
 
@@ -1028,15 +1021,13 @@ namespace WorkbookPanel {
         }
 
         if (createdTime) {
-            time = moment(createdTime);
+            let time = moment(createdTime);
             createdTimeDisplay = time.calendar();
-            createdTimeTip = xcTimeHelper.getDateTip(time);
         }
 
         if (modifiedTime) {
-            time = moment(modifiedTime);
+            let time = moment(modifiedTime);
             modifiedTimeDisplay = time.fromNow();
-            modifiedTimeTip = xcTimeHelper.getDateTip(time);
         }
         let isActive: string;
 
@@ -1048,99 +1039,99 @@ namespace WorkbookPanel {
             extraClasses.push("noResource");
         }
 
-        let loadSection: string = "loadSection";
-        if (isBrowserSafari) {
-            loadSection += " safari";
+        const loadSection =
+        '<div class="loadSection">' +
+            '<div class="refreshIcon">' +
+                '<img src="' + paths.waitIcon + '">' +
+            '</div>' +
+            '<div class="animatedEllipsisWrapper">' +
+                '<div class="text">' +
+                    WKBKTStr.Creating +
+                '</div>' +
+                '<div class="animatedEllipsis">' +
+                    '<div>.</div>' +
+                    '<div>.</div>' +
+                    '<div>.</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+        let nameInput: HTML = "";
+        if (isNewWKBK) {
+            nameInput = '<input type="text" class="workbookName tooltipOverflow textOverflowOneLine"' +
+            ' value="' + workbookName + '" spellcheck="false"/>';
+        } else {
+            // XXX TODO: make it a div
+            nameInput = '<input type="text" class="workbookName tooltipOverflow textOverflowOneLine"' +
+            ' value="' + workbookName + '" disabled spellcheck="false"/>';;
         }
         const html: string =
-            '<div class="box box-small workbookBox ' +
+            '<div class="row workbookBox ' +
             extraClasses.join(" ") + '"' +
             ' data-workbook-id="' + workbookId +'">' +
-                '<div class="innerBox">' +
-                    '<div class="' + loadSection + '">' +
-                        '<div class="refreshIcon">' +
-                            '<img src="' + paths.waitIcon + '">' +
-                        '</div>' +
-                        '<div class="animatedEllipsisWrapper">' +
-                            '<div class="text">' +
-                                WKBKTStr.Creating +
-                            '</div>' +
-                            '<div class="animatedEllipsis">' +
-                                '<div>.</div>' +
-                                '<div>.</div>' +
-                                '<div>.</div>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>' +
-                    '<div class="content activate">' +
-                        '<div class="innerContent">' +
-                            '<div class="infoSection topIsnfo">' +
-                                '<div class="subHeading tooltipOverflow" ' +
-                                ' data-toggle="tooltip" data-container="body"' +
-                                ' data-original-title="' + title + '">' +
-                                    '<input type="text" class="workbookName ' +
-                                    'tooltipOverflow"' +
-                                    ' value="' + workbookName + '"' +
-                                    (isNewWKBK ? '' : ' disabled') +
-                                    ' spellcheck="false"/>' +
-                                '</div>' +
-                                '<div class="descriptionWrap">' +
-                                    '<div class="description textOverflowOneLine">' +
-                                        xcStringHelper.escapeHTMLSpecialChar(description) +
-                                    '</div>' +
-                                '</div>' +
-                                '<div class="row clearfix">' +
-                                    '<div class="label">' +
-                                        TimeTStr.Created + ':' +
-                                    '</div>' +
-                                    '<div class="info createdTime" ' +
-                                        createdTimeTip + '">' +
-                                        createdTimeDisplay +
-                                    '</div>' +
-                                '</div>' +
-                                '<div class="row clearfix">' +
-                                    '<div class="label">' +
-                                        TimeTStr.LastSaved + ':' +
-                                    '</div>' +
-                                    '<div class="info modifiedTime" ' +
-                                        modifiedTimeTip + '">' +
-                                        modifiedTimeDisplay +
-                                    '</div>' +
-                                '</div>' +
-                            '</div>' +
-                            '<div class="infoSection bottomInfo">' +
-                                '<div class="row clearfix">' +
-                                    '<div class="label">' +
-                                        WKBKTStr.State + ':' +
-                                    '</div>' +
-                                    '<div class="info isActive">' +
-                                        isActive +
-                                    '</div>' +
-                                '</div>' +
-                                '<div class="row clearfix sessionIdRow">' +
-                                    '<div class="label">' +
-                                        WKBKTStr.SessionId + ':' +
-                                    '</div>' +
-                                    '<div class="info sessionId">' +
-                                        '<div>' + workbook.sessionId + '</div>' +
-                                        '<i class="icon xi-copy-clipboard" '+
-                                        xcTooltip.Attrs +
-                                        ' data-title="' + WKBKTStr.CopySessionId + '"' +
-                                        '></i>' +
-                                    '</div>' +
-                                '</div>' +
-                            '</div>' +
-                        '</div>' +
-                        '<i class="dropDown icon xi-ellipsis-h xc-action" ' +
-                        ' data-toggle="tooltip" data-container="body"' +
-                        ' data-placement="top"' +
-                        ' data-title="' + WKBKTStr.MoreActions + '"' +
-                        '></i>' +
-                    '</div>' +
+                loadSection +
+                '<div class="name activate tooltipOverflow" ' +
+                xcTooltip.Attrs + ' data-title="' + title + '">' +
+                    nameInput +
                 '</div>' +
+                '<div class="createdTime">' +
+                    createdTimeDisplay +
+                '</div>' +
+                '<div class="modifiedTime">' +
+                    modifiedTimeDisplay +
+                '</div>' +
+                '<div class="description textOverflowOneLine" ' +
+                xcTooltip.Attrs +
+                ' data-title="' + description + '"' +
+                '>' +
+                    description +
+                '</div>' +
+                '<div class="sessionId">' +
+                    '<div>' + workbook.sessionId + '</div>' +
+                    '<i class="icon xi-copy-clipboard" '+
+                    xcTooltip.Attrs +
+                    ' data-title="' + WKBKTStr.CopySessionId + '"' +
+                    '></i>' +
+                '</div>' +
+                '<div class="state">' +
+                    isActive +
+                '</div>' +
+                '<i class="dropDown icon xi-ellipsis-h xc-action" ' +
+                xcTooltip.Attrs +
+                ' data-title="' + WKBKTStr.MoreActions + '"' +
+                '></i>' +
             '</div>';
 
         return html;
+    }
+
+    function _renderHeader(): void {
+        const attributes = [{
+            key: "name",
+            text: "Name"
+        }, {
+            key: "createdTime",
+            text: TimeTStr.Created
+        }, {
+            key: "modifiedTime",
+            text: TimeTStr.LastSaved
+        }, {
+            key: "description",
+            text: "Description"
+        }, {
+            key: "sessionId",
+            text: WKBKTStr.SessionId
+        }, {
+            key: "state",
+            text: WKBKTStr.State
+        }];
+        const header: HTML = attributes.map((attr) => {
+            const html: HTML =
+            `<div class="title ${attr.key}">` +
+                attr.text +
+            '</div>';
+            return html;
+        }).join("");
+        $workbookSection.find(".workbookList .header").html('<div class="row">' + header + '</div>');
     }
 
     function changeFilePath(dragFile?: File): void {

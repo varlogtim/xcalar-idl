@@ -440,7 +440,7 @@ describe("Workbook Panel Test", function() {
                 var $input = $workbookPanel.find(".focused");
                 var $box = $input.closest(".workbookBox");
                 expect($box.length).to.equal(1);
-                expect($box.find(".isActive").text()).to.equal("Inactive");
+                expect($box.find(".state").text()).to.equal("Inactive");
                 done();
             })
             .fail(function() {
@@ -640,7 +640,7 @@ describe("Workbook Panel Test", function() {
                 var dupName = $dupBox.find(".workbookName").val();
 
                 expect(dupName.startsWith(name)).to.be.true;
-                expect($dupBox.find(".isActive").text()).to.equal("Inactive");
+                expect($dupBox.find(".state").text()).to.equal("Inactive");
                 done();
             })
             .fail(function() {

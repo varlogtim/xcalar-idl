@@ -8,8 +8,8 @@ class CreateNewWorkbook extends EventEmitter {
         this.api.elements('css selector', '.workbookBox' ,function(result) {
             beforeWorkbooks = result.value.length
             self.api
-                .waitForElementVisible('.newWorkbookBox #createWKBKbtn')
-                .click('.newWorkbookBox #createWKBKbtn')
+                .waitForElementVisible('#createWKBKbtn')
+                .click('#createWKBKbtn')
                 .waitForElementVisible('.lastCreate', 10 * 1000)
 
                 self.api.elements('css selector', '.workbookBox' ,function(result) {
