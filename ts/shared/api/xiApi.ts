@@ -134,6 +134,9 @@ namespace XIApi {
         rand: boolean = false
     ): string {
         let nameRoot: string = xcHelper.getTableName(tableName);
+        if (!xcHelper.isValidTableName(nameRoot)) {
+            nameRoot = nameRoot.replace(/[^a-zA-Z\d\_\-]/g, "_").replace(/^_+/, "");
+        }
 
         if (affix != null) {
             nameRoot += affix;
@@ -855,7 +858,12 @@ namespace XIApi {
         .then(() => {
             if (reuseIndex || groupAll) {
                 newIndexTable = gbDistinctTableName;
-                return PromiseHelper.resolve({});
+                return PromiseHelper.resolve<{
+                    newTableName: string;
+                    isCache: boolean;
+                    newKeys: string[];
+                    tempCols: string[];
+                }>({newTableName: newIndexTable});
             } else {
                 newIndexTable = getNewTableName(origTableName, "index");
                 tempTables.push(newIndexTable);
@@ -865,7 +873,7 @@ namespace XIApi {
                 return XIApi.index(txId, groupOnCols, gbDistinctTableName, newIndexTable);
             }
         })
-        .then(() => {
+        .then((ret) => {
             const evalStrs: string[] = [];
             const newColNames: string[] = [];
             aggArgs.forEach((aggArg) => {
@@ -873,7 +881,7 @@ namespace XIApi {
                 evalStrs.push(getGroupByAggEvalStr(aggArg));
                 newColNames.push(aggArg.newColName);
             });
-            return groupByHelper(txId, newColNames, evalStrs, newIndexTable,
+            return groupByHelper(txId, newColNames, evalStrs, ret.newTableName,
             gbTableName, isIncSample, false, newGroupOnCols[0], groupAll);
         })
         .then(() => {
