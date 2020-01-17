@@ -113,11 +113,12 @@ class TutorialPanel {
     * @param dagId
     * @param nodeIds
     */
-    public setTutorialNodesToAutoExecute(dagId: string, nodeIds: string[]) {
+    public setTutorialNodesToAutoExecute(dagId: string, nodeIds: string[], optimized?: boolean) {
         let dagNodesObjectStr: string = JSON.stringify(
             {
                 dagId: dagId,
-                nodeIds: nodeIds
+                nodeIds: nodeIds,
+                optimized: optimized
             }
         );
         this.setTutorialParameter("nodesToAutoExecute", dagNodesObjectStr);
@@ -128,7 +129,7 @@ class TutorialPanel {
     * auto created on tutorial workbook download
     * @param targetType
     * @param targetName
-    * @param targetName optional
+    * @param targetParams optional
     */
     public setTutorialConnectorToAutoCreate(targetType: string, targetName: string, targetParams = {}) {
         let targetObjectStr: string = JSON.stringify(
@@ -210,7 +211,11 @@ class TutorialPanel {
                     console.error(e);
                 }
             }
-            tutorialObject[key] = value;
+            if (value === "{}") {
+                delete tutorialObject[key];
+            } else {
+                tutorialObject[key] = value;
+            }
             _kvStore.put(JSON.stringify(tutorialObject), true);
         })
         .fail((error) => {
@@ -396,13 +401,15 @@ class TutorialPanel {
     private autoExecuteNodes(): XDPromise<void> {
         if (this.tutorialObject.nodesToAutoExecute) {
             try {
-                const {dagId, nodeIds} = JSON.parse(this.tutorialObject.nodesToAutoExecute);
+                let {dagId, nodeIds, optimized} = JSON.parse(this.tutorialObject.nodesToAutoExecute);
                 const dagTab = DagList.Instance.getDagTabById(dagId);
                 return DagTabManager.Instance.loadTab(dagTab)
                 .then(() => {
                     const graph = DagViewManager.Instance.getActiveDagView().getGraph();
-                    const unexecutedNodeIds = nodeIds.filter(nodeId => graph.getNode(nodeId).getNodeInfo().state !== "Complete");
-                    return DagViewManager.Instance.run(unexecutedNodeIds);
+                    if (nodeIds) {
+                        nodeIds = nodeIds.filter(nodeId => graph.getNode(nodeId).getNodeInfo().state === "Configured");
+                    }
+                    return DagViewManager.Instance.run(nodeIds, optimized);
                 })
                 .fail((error) => {
                     console.error(error);
