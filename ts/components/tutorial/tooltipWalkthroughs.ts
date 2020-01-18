@@ -389,7 +389,7 @@ namespace TooltipWalkthroughs {
                 highlight_div: "#workbookPanel .workbookBox.lastCreate",
                 interact_div: "#workbookPanel .workbookBox.lastCreate",
                 title: "Rename and activate the project",
-                text: "Enter a new project name, then click the project card to activate and open it.",
+                text: "Enter a new project name, then click a project's name to activate and open it.",
                 type: TooltipType.Click
             }],
             0,

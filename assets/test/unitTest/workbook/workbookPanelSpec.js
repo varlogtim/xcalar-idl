@@ -1,4 +1,4 @@
-describe("Workbook Panel Test", function() {
+describe("WorkbookPanel Test", function() {
     var $workbookPanel;
     var oldCommitCheck;
     var menuAction = function($box, action) {
@@ -479,7 +479,7 @@ describe("Workbook Panel Test", function() {
 
         it("Should Download Workbook", function() {
             var $box = $workbookPanel.find(".workbookBox").eq(0);
-            var testWKBKName = $box.find(".workbookName").val();
+            var testWKBKName = $box.find(".workbookName").text();
             var called = false;
 
             XcalarDownloadWorkbook = function(name) {
@@ -626,7 +626,7 @@ describe("Workbook Panel Test", function() {
                 if (diff === 1) {
                     // has a fadeIn animation, so need to wait for it
                     var $dupBox = $workbookPanel.find(".workbookBox").eq(1);
-                    if ($dupBox.find(".workbookName").val()) {
+                    if ($dupBox.find(".workbookName").text()) {
                         return true;
                     }
                 }
@@ -635,9 +635,9 @@ describe("Workbook Panel Test", function() {
 
             UnitTest.testFinish(checkFunc)
             .then(function() {
-                var name = $box.find(".workbookName").val();
+                var name = $box.find(".workbookName").text();
                 var $dupBox = $workbookPanel.find(".workbookBox").eq(1);
-                var dupName = $dupBox.find(".workbookName").val();
+                var dupName = $dupBox.find(".workbookName").text();
 
                 expect(dupName.startsWith(name)).to.be.true;
                 expect($dupBox.find(".state").text()).to.equal("Inactive");

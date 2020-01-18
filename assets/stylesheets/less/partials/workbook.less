@@ -82,12 +82,12 @@
         padding-top: 15px;
         padding-left: 10px;
         border-bottom: 1px solid @color-border-menubar-grey;
-        height: 341px;
+        height: 291px;
     }
 
     .bottomSection {
         background-color: @color-bg-topBarGray2;
-        height: ~"calc(100% - 341px)";
+        height: ~"calc(100% - 291px)";
     }
 
     .inActive {
@@ -123,7 +123,7 @@
         }
     }
     .box-large {
-        .size(350px, 300px);
+        .size(350px, 250px);
         .flex(1 0 350px);
         margin-right: 10px;
         margin-bottom: 10px;
@@ -139,50 +139,6 @@
         .innerContent {
             width: 80%;
             min-width: 300px;
-        }
-    }
-
-    .box-small {
-        .size(@height: 220px);
-        .flex(1 0 320px);
-        overflow: hidden;
-
-        .innerBox {
-            width: 100%;
-            margin-right: 8px;
-            margin-bottom: 8px;
-            margin-top: 2px;
-            margin-left: 2px;
-            box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
-            //.flex-display;
-            background-color: @color-white;
-            .transition(0.7s transform);
-            cursor: pointer;
-
-            &:hover {
-                box-shadow: 0 0 0 2px @color-bg-bright-light-blue,
-                            0px 3px 5px 0px rgba(0,0,0,0.2);
-            }
-        }
-
-        &.new, &.removing {
-            .innerBox {
-                .transform(translateX(-110%));
-            }
-        }
-
-        .content {
-            .flex(1 0 200px);
-        }
-
-        .innerContent {
-            width: 100%;
-        }
-
-        .input-box(@w:100%, @h:30px);
-
-        .subHeading {
-            margin-bottom: 5px;
         }
     }
 
@@ -278,6 +234,28 @@
         button {
             margin-left: 8px;
         }
+
+        .searchbarArea {
+            width: 185px;
+            height: 28px;
+            display: inline-block;
+            margin-left: 8px;
+
+            input {
+                padding-left: 22px;
+                height: 28px;
+                line-height: 28px;
+                font-size: 12px;
+            }
+
+            .icon {
+                position: absolute;
+                top: 7px;
+                left: 5px;
+                color: @color-bg-cancel-gray-hover;
+                font-size: 14px;
+            }
+        }
     }
 
     .workbookList {
@@ -371,6 +349,10 @@
                     color: @color-font-link-blue;  
                 }
             }
+
+            &.open {
+                background-color: @color-bg-dropdown-hover-gray
+            }
     
             .name {
                 &:hover {
@@ -391,6 +373,10 @@
                     &.error {
                         border: 1px solid @color-error-border;
                     }
+                }
+
+                > div {
+                    width: 100%;
                 }
             }
     

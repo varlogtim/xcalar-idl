@@ -91,7 +91,7 @@ namespace WorkbookManager {
     };
 
     /**
-    * WorkbookManager.getWorkbooks
+    * WorkbookManager.getWorkbook
     * Returns a workbook based on id
     * @param workbookId - id of the target workbook
     */

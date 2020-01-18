@@ -1242,7 +1242,8 @@ module.exports = {
         "TotalUsage": "Total Size",
         "optional": "optional",
         "uploadFile": "Source File",
-        "uploadTip": "Open file browser"
+        "uploadTip": "Open file browser",
+        "searchHint": "Filter by name/session ID",
     },
 
     "extension": {

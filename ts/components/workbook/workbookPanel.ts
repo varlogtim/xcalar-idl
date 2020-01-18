@@ -390,9 +390,7 @@ namespace WorkbookPanel {
             const $workbookBox: JQuery = $this.closest(".workbookBox");
             let val = $this.val();
             if (val === $this.parent().attr("data-original-title")) {
-                $this.removeClass("focused");
-                $this.removeClass("error");
-                $this.attr("disabled", "disabled");
+                _changeInputToDiv($this);
                 return;
             }
 
@@ -403,12 +401,7 @@ namespace WorkbookPanel {
             } else {
                 WorkbookPanel.edit(workbookId, val)
                 .then(function() {
-                    $this.removeClass("focused");
-                    $this.attr("disabled", "disabled");
-
-                    // This is to fix XD-705
-                    let $clonedInput = $this.clone();
-                    $this.replaceWith($clonedInput);
+                    _changeInputToDiv($this);
                 })
                 .fail(function() {
                     $this.addClass("error");
@@ -460,7 +453,8 @@ namespace WorkbookPanel {
             // Create workbook names in a loop until we find a workbook name
             // that we can use
             const $dropDownMenu: JQuery = $dropDownCard.find(".dropDown");
-            let currentWorkbookName: string = $dropDownCard.find(".workbookName").val();
+            const $workbookName: JQuery = $dropDownCard.find(".workbookName");
+            let currentWorkbookName: string = $workbookName.is("input") ? $workbookName.val() : $workbookName.text();
             const currentWorkbooks: object = WorkbookManager.getWorkbooks();
             currentWorkbookName = wbDuplicateName(currentWorkbookName, currentWorkbooks, 0);
 
@@ -517,10 +511,22 @@ namespace WorkbookPanel {
             openDropDown(event);
         });
 
+        $workbookSection.find(".searchbarArea input").on("input", function() {
+            const searchStr = $(this).val();
+            _searchWorkbooks(searchStr);
+        });
+
         $workbookSection.on("mouseenter", ".tooltipOverflow", function() {
             const $div: JQuery = $(this).find(".workbookName");
             xcTooltip.auto(this, <HTMLElement>$div[0]);
         });
+    }
+
+    function _changeInputToDiv($input: JQuery): void {
+        const div = '<div class="workbookName">' +
+                        $input.val() +
+                    '<div>';
+        $input.replaceWith(div);
     }
 
     function updateWorkbookInfo($workbookBox: JQuery, workbookId: string): void {
@@ -541,9 +547,13 @@ namespace WorkbookPanel {
         $workbookBox.find(".modifiedTime").text(modifiedStr);
         $workbookBox.find(".description").text(description);
 
-        let $input = $workbookBox.find(".workbookName");
-        $input.val(name);
-        $input.attr("value", name);
+        let $workbookName = $workbookBox.find(".workbookName");
+        if ($workbookName.is("input")) {
+            $workbookName.val(name);
+            $workbookName.attr("value", name);
+        } else {
+            $workbookName.text(name);
+        }
 
         if (description.trim().length > 0) {
             xcTooltip.add($workbookBox.find(".description"), {title: xcStringHelper.escapeHTMLSpecialChar(description)});
@@ -815,7 +825,7 @@ namespace WorkbookPanel {
 
         try {
             const noAlert: boolean = xcLocalStorage.getItem("noWKBKDownloadAlert") === "true";
-            if (noAlert) {
+            if (XVM.isDataMart() || noAlert) {
                 deferred.resolve();
             } else {
                 Alert.show({
@@ -1029,6 +1039,10 @@ namespace WorkbookPanel {
             let time = moment(modifiedTime);
             modifiedTimeDisplay = time.fromNow();
         }
+        
+        if (workbookId === WorkbookManager.getActiveWKBK()) {
+            extraClasses.push("open");
+        }
         let isActive: string;
 
         if (workbook.hasResource()) {
@@ -1061,8 +1075,9 @@ namespace WorkbookPanel {
             ' value="' + workbookName + '" spellcheck="false"/>';
         } else {
             // XXX TODO: make it a div
-            nameInput = '<input type="text" class="workbookName tooltipOverflow textOverflowOneLine"' +
-            ' value="' + workbookName + '" disabled spellcheck="false"/>';;
+            nameInput = '<div class="workbookName tooltipOverflow textOverflowOneLine">' +
+                            workbookName +
+                        '</div>';
         }
         const html: string =
             '<div class="row workbookBox ' +
@@ -1070,7 +1085,7 @@ namespace WorkbookPanel {
             ' data-workbook-id="' + workbookId +'">' +
                 loadSection +
                 '<div class="name activate tooltipOverflow" ' +
-                xcTooltip.Attrs + ' data-title="' + title + '">' +
+                xcTooltip.Attrs + ' data-original-title="' + title + '">' +
                     nameInput +
                 '</div>' +
                 '<div class="createdTime">' +
@@ -1132,6 +1147,28 @@ namespace WorkbookPanel {
             return html;
         }).join("");
         $workbookSection.find(".workbookList .header").html('<div class="row">' + header + '</div>');
+    }
+
+    function _searchWorkbooks(keyword: string): void {
+        const $workbooks = _getContentSection().find(".workbookBox");
+        if (!keyword) {
+            $workbooks.removeClass("xc-hidden");
+        } else {
+            keyword = keyword.toLowerCase();
+            $workbooks.each(function() {
+                const $workbook: JQuery = $(this);
+                const id: string = $workbook.attr("data-workbook-id");
+                const worbook: WKBK = WorkbookManager.getWorkbook(id);
+                if (worbook &&
+                    (worbook.getName().toLowerCase().includes(keyword) ||
+                    worbook.sessionId.toLowerCase().includes(keyword))
+                ) {
+                    $workbook.removeClass("xc-hidden");
+                } else {
+                    $workbook.addClass("xc-hidden");
+                }
+            });
+        }
     }
 
     function changeFilePath(dragFile?: File): void {
