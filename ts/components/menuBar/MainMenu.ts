@@ -40,6 +40,7 @@ namespace MainMenu {
         $menuBar = $("#menuBar");
         setupTabbing();
         setupDataflowResizable();
+        setupSQLPanelResizable():
         setupDatastoreResizable();
         MainMenu.switchMode();
         $resizableRightPanels = $("#workbookPanel, #monitorPanel, #datastorePanel, #modelingDagPanel")
@@ -323,39 +324,7 @@ namespace MainMenu {
     }
     // XXX for dagpanel only, move this function
     export function resize(width: number): void {
-        const $menu = $("#dataflowMenu");
-        width = Math.max(width, defaultWidth);
-        $("#container").addClass("noMenuAnim");
-        const minWidth: number = defaultWidth;
-        const $mainContent = $("#modelingDagPanel > .mainContent");
-        const mainContentWidth = $mainContent.outerWidth();
-
-        // if left panel width exceeds 50% of mainContentWidth, right panel width should be the greatest of (fullWidth - 50%) or minRightWidth;
-        // if left panel is below 50%, right panel width should be fullWidth - leftPanel width
-        // left margin is fullWidth - rightPanelWidth, but can never be smaller than minWidth
-        let rightPanelWidth;
-        if ((width > (mainContentWidth / 2)) || ((mainContentWidth - width) < minRightPanelWidth)) {
-            rightPanelWidth = Math.max(mainContentWidth / 2, minRightPanelWidth);
-        } else {
-            rightPanelWidth = mainContentWidth - width;
-        }
-        let rightPanelMargin = Math.max(mainContentWidth - rightPanelWidth, minWidth);
-
-
-        $menu.outerWidth(width);
-
-        $menu.removeClass("resizing");
-        const newWidth: number = $menu.outerWidth();
-        if (newWidth < minWidth) {
-            $menu.outerWidth(defaultWidth);
-            $menu.removeClass("expanded");
-        } else {
-            $menu.addClass("expanded");
-        }
-        $mainContent.children(".rightSection").css("margin-left", rightPanelMargin);
-        let widthCSS: string = $menu.css("width");
-        $menu.attr("style", ""); // remove styling added by ghost
-        $menu.css("width", widthCSS);
+        _resize($("#dataflowMenu"), width);
         // let codemirror know it's area was resized
         formPanels.forEach(function(panel) {
             if (panel.isOpen()) {
@@ -370,11 +339,6 @@ namespace MainMenu {
                 }
             }
         });
-        TblFunc.moveFirstColumn();
-        setTimeout(() => {
-            $("#container").removeClass("noMenuAnim");
-            // remove animation for a split second so there's no anim
-        }, 0);
     }
 
     export function toggleIMDPanel(show: boolean): void {
@@ -394,10 +358,30 @@ namespace MainMenu {
     }
 
     function setupDataflowResizable(): void {
+        const $menu = $("#dataflowMenu");
+        const onStop = (width) => { MainMenu.resize(width); };
+        _setupResizable($menu, undefined, onStop);
+    }
+
+    function setupSQLPanelResizable(): void {
+        const $menu = $("#sqlMenu");
+        _setupResizable($menu);
+    }
+
+    function setupDatastoreResizable(): void {
+        const $menu = $("#datastoreMenu");
+        const onResize = () => { DS.resize(); };
+        _setupResizable($menu, onResize);
+    }
+
+    function _setupResizable(
+        $menu: JQuery,
+        onResize?: () => void,
+        onStop?: (width) => void
+    ): void {
         const minWidth: number = defaultWidth + 3;
         let isSmall: boolean = true;
         let $ghost: JQuery;
-        let $menu = $("#dataflowMenu");
         $menu.resizable({
             "handles": "e",
             "minWidth": defaultWidth,
@@ -422,99 +406,63 @@ namespace MainMenu {
                 } else if (isSmall && width >= minWidth) {
                     $menu.addClass("expanded");
                     isSmall = false;
+                }
+                if (typeof onResize === "function") {
+                    onResize();
                 }
             },
             "stop": () => {
                 $menu.css("max-width", "").css("max-height", "");
                 let width: number = $menu.width();
                 width = Math.min(width, $(window).width() - $("#menuBar").width() - 10);
-                resize(width);
-            }
-        });
-    }
-
-    function setupDatastoreResizable(): void {
-        const minWidth: number = defaultWidth + 3;
-        let isSmall: boolean = true;
-        let $ghost: JQuery;
-        let $menu = $("#datastoreMenu");
-        $menu.resizable({
-            "handles": "e",
-            "minWidth": defaultWidth,
-            "distance": 2,
-            "helper": "mainMenuGhost",
-            "start": () => {
-                let winWidth =  $(window).width();
-                let panelRight: number = $menu[0].getBoundingClientRect().right;
-
-                panelRight = winWidth - panelRight + $menu.width();
-                $menu.css("max-width", panelRight - 10);
-                $menu.addClass("resizing");
-                $ghost = $(".mainMenuGhost");
-                $ghost.css("max-width", panelRight - 10);
-                $("#container").addClass("noMenuAnim");
-            },
-            "resize": (_event, ui) => {
-                let width = ui.size.width;
-                if (!isSmall && width < minWidth) {
-                    $menu.removeClass("expanded");
-                    isSmall = true;
-                } else if (isSmall && width >= minWidth) {
-                    $menu.addClass("expanded");
-                    isSmall = false;
+                if (typeof onStop === "function") {
+                    onStop(width);
+                } else {
+                    _resize($menu, width);
                 }
-                DS.resize();
-            },
-            "stop": () => {
-                $menu.css("max-width", "").css("max-height", "");
-                let width: number = $menu.outerWidth();
-                width = Math.min(width, $(window).width() - $("#menuBar").width() - 10);
-                resize(width);
             }
         });
-
-        function resize(width: number): void {
-            const $menu = $("#datastoreMenu");
-            width = Math.max(width, defaultWidth);
-            $("#container").addClass("noMenuAnim");
-            const minWidth: number = defaultWidth;
-            const $mainContent = $("#datastorePanel > .mainContent");
-            const mainContentWidth = $mainContent.outerWidth();
-
-            // if left panel width exceeds 50% of mainContentWidth, right panel width should be the greatest of (fullWidth - 50%) or minRightWidth;
-            // if left panel is below 50%, right panel width should be fullWidth - leftPanel width
-            // left margin is fullWidth - rightPanelWidth, but can never be smaller than minWidth
-            let rightPanelWidth;
-            if ((width > (mainContentWidth / 2)) || ((mainContentWidth - width) < minRightPanelWidth)) {
-                rightPanelWidth = Math.max(mainContentWidth / 2, minRightPanelWidth);
-            } else {
-                rightPanelWidth = mainContentWidth - width;
-            }
-            let rightPanelMargin = Math.max(mainContentWidth - rightPanelWidth, minWidth);
-
-            $menu.outerWidth(width);
-
-            $menu.removeClass("resizing");
-            const newWidth: number = $menu.outerWidth();
-            if (newWidth < minWidth) {
-                $menu.outerWidth(defaultWidth);
-                $menu.removeClass("expanded");
-            } else {
-                $menu.addClass("expanded");
-            }
-
-            $mainContent.children(".rightSection").css("margin-left", rightPanelMargin);
-            let widthCSS: string = $menu.css("width");
-            $menu.attr("style", ""); // remove styling added by ghost
-            $menu.css("width", widthCSS);
-            TblFunc.moveFirstColumn();
-            setTimeout(() => {
-                $("#container").removeClass("noMenuAnim");
-                // remove animation for a split second so there's no anim
-            }, 0);
-        }
     }
 
+    function _resize($menu: JQuery, width: number): void {
+        width = Math.max(width, defaultWidth);
+        $("#container").addClass("noMenuAnim");
+        const minWidth: number = defaultWidth;
+        const $mainContent = $menu.closest(".mainPanel").find("> .mainContent");
+        const mainContentWidth = $mainContent.outerWidth();
+
+        // if left panel width exceeds 50% of mainContentWidth, right panel width should be the greatest of (fullWidth - 50%) or minRightWidth;
+        // if left panel is below 50%, right panel width should be fullWidth - leftPanel width
+        // left margin is fullWidth - rightPanelWidth, but can never be smaller than minWidth
+        let rightPanelWidth;
+        if ((width > (mainContentWidth / 2)) || ((mainContentWidth - width) < minRightPanelWidth)) {
+            rightPanelWidth = Math.max(mainContentWidth / 2, minRightPanelWidth);
+        } else {
+            rightPanelWidth = mainContentWidth - width;
+        }
+        let rightPanelMargin = Math.max(mainContentWidth - rightPanelWidth, minWidth);
+
+        $menu.outerWidth(width);
+
+        $menu.removeClass("resizing");
+        const newWidth: number = $menu.outerWidth();
+        if (newWidth < minWidth) {
+            $menu.outerWidth(defaultWidth);
+            $menu.removeClass("expanded");
+        } else {
+            $menu.addClass("expanded");
+        }
+
+        $mainContent.children(".rightSection").css("margin-left", rightPanelMargin);
+        let widthCSS: string = $menu.css("width");
+        $menu.attr("style", ""); // remove styling added by ghost
+        $menu.css("width", widthCSS);
+        TblFunc.moveFirstColumn();
+        setTimeout(() => {
+            $("#container").removeClass("noMenuAnim");
+            // remove animation for a split second so there's no anim
+        }, 0);
+    }
 
     function closeMainPanels(): void {
         $menuBar.find(".topMenuBarTab").removeClass("active");

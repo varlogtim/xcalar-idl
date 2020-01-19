@@ -1267,6 +1267,123 @@
     }
 }
 
+.xc-resourceMenu {
+    padding-top: 0;
+
+    > .listWrap {
+        // only apply to outmost listWrap
+        display: flex;
+        flex-direction: column;
+
+        > .listInfo {
+            flex: 0 0 30px;
+        }
+
+        > ul {
+            flex: 1 1 auto;
+            overflow-y: auto;
+        }
+    }
+
+    .listWrap {
+        clear: both;
+        margin-top: 8px;
+
+        &.nested {
+            .listInfo {
+                padding-left: 24px;
+            }
+
+            li {
+                padding-left: 32px;
+            }
+        }
+
+        .listInfo {
+            font-size: 13px;
+            line-height: 30px;
+            padding-right: 8px;
+    
+            .action {
+                float: right;
+                color: @color-font-link-blue;
+    
+                .icon {
+                    font-size: 11px;
+                }
+            }
+        }
+
+        li {
+            .position(relative);
+            padding: 0 8px 0 24px;
+            white-space: nowrap;
+            border-top: 1px solid @color-border-menugray;
+            border-bottom: none;
+
+            &:last-child {
+                border-bottom: 1px solid @color-border-menugray;
+            }
+
+            &:hover {
+                .dropDown {
+                    display: block;
+                }
+            }
+
+            &.selectable {
+                cursor: pointer;
+
+                &:hover {
+                    background-color: @color-bg-list-hover-blue;
+                }
+            }
+
+            &.active {
+                background-color: @color-bg-dropdown-hover-gray;
+                border-top-color: @color-font-link-blue;
+
+                &:last-child {
+                    border-bottom-color: @color-font-link-blue;
+                }
+
+                + li {
+                    border-top-color: @color-font-link-blue;
+                }
+            }
+
+            .gridIcon {
+                font-size: 14px;
+                float: left;
+                width: 22px;
+                margin-top: 4px;
+            }
+
+            .name {
+                width: ~"calc(100% - 50px)";
+                font-size: 12px;
+                float: left;
+                line-height: 30px;
+            }
+
+            .dropDown {
+                display: none;
+                float: right;
+                width: 25px;
+                height: 18px;
+                line-height: 18px;
+                padding: 0;
+                margin-top: 6px;
+                outline: none;
+
+                .icon {
+                    font-size: 14px;
+                }
+            }
+        }
+    }
+}
+
 // style for context sensitive help icon
 .csHelp {
     display: inline-block;
@@ -1486,23 +1603,16 @@
 
 .xc-expand-list {
     &.active, &.expanded {
-        .expand {
-            .icon {
-                .transform(rotate(360deg));
+        > .listInfo {
+            .expand {
+                .icon {
+                    .transform(rotate(360deg));
+                }
             }
         }
 
-        ul {
+        > ul {
             display: block;
-        }
-    }
-
-    .expand {
-        margin-right: 5px;
-        cursor: pointer;
-
-        .icon {
-            .transform(rotate(270deg));
         }
     }
 
@@ -1514,9 +1624,18 @@
     .listInfo {
         padding: 0 15px;
         height: 30px;
+
+        .expand {
+            margin-right: 5px;
+            cursor: pointer;
+    
+            .icon {
+                .transform(rotate(270deg));
+            }
+        }
     }
 
-    ul {
+    > ul {
         display: none;
 
         > li {

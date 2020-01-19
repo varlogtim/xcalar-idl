@@ -20,6 +20,7 @@ class SQLEditorSpace {
 
     public setup(): void {
         this._setupSQLEditor();
+        this._setupResize();
         this._addEventListeners();
         this._loadSnippet();
     }
@@ -230,6 +231,10 @@ class SQLEditorSpace {
 
     private _getEditorSpaceEl(): JQuery {
         return $("#sqlEditorSpace");
+    }
+
+    private _getDockableSection(): JQuery {
+        return this._getEditorSpaceEl();
     }
 
     private _getTopBarEl(): JQuery {
@@ -602,29 +607,28 @@ class SQLEditorSpace {
     private _addEventListeners(): void {
         const $container = this._getEditorSpaceEl();
         $container.on("click", ".undock", () => {
-            if ($container.closest(".leftSection").hasClass("undocked")) {
+            if (this._getDockableSection().hasClass("undocked")) {
                 this._dock();
             } else {
                 this._undock();
             }
         });
 
-        this._setupResize();
         this._setupHeader();
         this._setupTopBar();
     }
 
     private _toggleDraggable(isDraggable: boolean): void {
-        const $header: JQuery = this._getEditorSpaceEl().closest(".leftSection");
+        const $section: JQuery = this._getDockableSection();
         if (isDraggable) {
-            $header.draggable({
+            $section.draggable({
                 "handle": "header.draggable",
                 "cursor": "-webkit-grabbing",
                 "containment": "#sqlWorkSpacePanel",
                 "disabled": false
             });
         } else {
-            $header.draggable({disabled: true});
+            $section.draggable({disabled: true});
         }
     }
 
@@ -684,67 +688,14 @@ class SQLEditorSpace {
         });
     }
 
-    private _setupResize() {
-        let $panel: JQuery = $('#sqlWorkSpacePanel');
-        let $mainContent: JQuery = $panel.children(".mainContent");
-        let $leftSection: JQuery = $panel.find(".leftSection");
-        let $rightSection: JQuery = $panel.find(".rightSection");
-        let mainContentWidth: number;
-
-        let rightSectionMin: number = 650;
-        let self = this;
-
-        // resizable left and right sections
-        $leftSection.resizable({
-            handles: "e, s, se",
-            containment: 'parent',
-            minWidth: self._minWidth,
-            minHeight: 300,
-            start: function () {
-                $panel.addClass("resizing");
-                mainContentWidth = $mainContent.width();
-            },
-            resize: function (_event, ui) {
-                if (!self._isDocked) {
-                    return;
-                }
-                let width = ui.size.width;
-                if (mainContentWidth - width <= rightSectionMin) {
-                    width = Math.max(self._minWidth, mainContentWidth - rightSectionMin);
-                    $leftSection.outerWidth(width);
-                }
-                $rightSection.width("calc(100% - " + width + "px)");
-            },
-            stop: function (_event, ui) {
-                let width = ui.size.width;
-                let rect: ClientRect = $leftSection[0].getBoundingClientRect();
-                let diffRight = rect.right - $(window).width();
-                if (diffRight > 0) {
-                    width -= (diffRight + 5);
-                    $leftSection.outerWidth(width);
-                }
-
-                if (self._isDocked) {
-                    if (mainContentWidth - width <= rightSectionMin) {
-                        width = Math.max(self._minWidth, mainContentWidth - rightSectionMin);
-                        $leftSection.outerWidth(width);
-                    }
-                    $rightSection.width("calc(100% - " + width + "px)");
-                }
-
-                $panel.removeClass("resizing");
-                TblFunc.moveFirstColumn();
-            }
-        });
-    }
-
     private _undock(): void {
         this._isDocked = false;
         const $container = this._getEditorSpaceEl()
-        $container.closest(".leftSection")
+        this._getDockableSection()
                   .addClass("undocked")
-                  .css({"left": 10, "top": -10});
-        $("#sqlWorkSpacePanel").find(".rightSection").outerWidth("100%");
+                  .css({"left": 10, "top": -10, "width": "300px", "height": "500px"});
+        $("#sqlWorkSpacePanel").find(".rightSection .topPart").css("height", "100%");
+        $("#sqlWorkSpacePanel").find(".rightSection .bottomPart").addClass("undocked");
         const $icon = $container.find(".undock");
         xcTooltip.changeText($icon, SideBarTStr.PopBack);
         $icon.removeClass("xi_popout").addClass("xi_popin");
@@ -754,11 +705,15 @@ class SQLEditorSpace {
     private _dock(): void {
         this._isDocked = true;
         const $container = this._getEditorSpaceEl();
-        $container.closest(".leftSection")
+        // reset to default
+        this._getDockableSection()
                     .removeClass("undocked")
-                    .css({"left": 0, "top": 0, "height": "100%"})
-        const width = $container.outerWidth() + 1; // weird issue where border takes up 1px
-        $("#sqlWorkSpacePanel").find(".rightSection").outerWidth("calc(100% - " + width + "px)");
+                    .css({"left": "", "top": "", "width": "", "height": ""});
+        $("#sqlWorkSpacePanel").find(".rightSection .topPart")
+                                .css("height", "");
+        $("#sqlWorkSpacePanel").find(".rightSection .bottomPart")
+                                .removeClass("undocked")
+                                .css({"top": "", "height": ""});
         this.refresh();
         const $icon = $container.find(".undock");
         xcTooltip.changeText($icon, SideBarTStr.PopOut);
@@ -766,9 +721,9 @@ class SQLEditorSpace {
         this._toggleDraggable(false);
     }
 
-    // if window is shrunk, guarantees that leftSection shrinks so that
-    // rightSection retains a minimum width
+    // XXX TODO: remove it
     private _adjustResize() {
+        return;
         if (!this._isDocked) {
             return;
         }
@@ -786,6 +741,19 @@ class SQLEditorSpace {
             $rightSection.width("calc(100% - " + width + "px)");
         }
     }
+
+    private _setupResize(): void {
+        let self = this;
+        this._getEditorSpaceEl().resizable({
+            handles: "e, s, se",
+            minWidth: self._minWidth,
+            minHeight: 300,
+            stop: function () {
+                self._sqlEditor.refresh();
+            }
+        });
+    }
+
 
     private _hasEditedQuery(): boolean {
         const lastOpened = SQLSnippet.Instance.getLastOpenSnippet();

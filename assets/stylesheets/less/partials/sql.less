@@ -255,46 +255,32 @@
     }
 
     .mainContent {
-        position: relative;// necessary for resizable sections
-
-        .leftSection {
-            width: 40%;
-            height: 100%;
-            border-right: 1px solid @color-border-grayBlue;
-            position: absolute;
-            left: 0px;
-
-            .ui-resizable-se, .ui-resizable-s {
-                display: none !important;
-            }
-
-            .ui-resizable-handle {
-                z-index: 3 !important; // don't block other elements
-            }
-
-            &.undocked {
-                z-index: @z-index-sqlEditorUndocked;
-                box-shadow: 0 0 4px rgba(0,0,0, 0.5);
-
-                header {
-                    pointer-events: auto;
-                    .cursor-move;
-                }
-                .ui-resizable-se, .ui-resizable-s {
-                    display: block !important;
-                }
-            }
-        }
-
         .rightSection {
-            width: 60%;
+            margin-left: 295px;
             height: 100%;
-            position: absolute; // necessary for resizable sections
-            right: 0px;
+            position: relative;
+            // position: absolute; // necessary for resizable sections
+            // right: 0px;
 
-            .resultSection, .historySection {
-                height: 50%;
+            .topPart, .bottomPart {
                 background-color: @color-white;
+            }
+
+            .topPart {
+                height: 40%;
+            }
+
+            .bottomPart {
+                height: 60%;
+                top: 40%;
+
+                &.undocked {
+                    height: 0;
+                    border: none;
+                    > div:not(#sqlEditorSpace) {
+                        display: none;
+                    }   
+                }
             }
 
             .resultSection {
@@ -479,10 +465,9 @@
                 }
             }
 
-            .historySection {
+            .bottomPart {
                 position: absolute;
                 width: 100%;
-                top: 50%;
                 border-top: 1px solid @color-border-bar;
                 @resize-h: 11px;
 
@@ -509,71 +494,69 @@
                     }
                 }
 
-                .sqlQueryHist {
-                    .size(@height: ~"calc(100% - @{resize-h})");
-                    margin-bottom: 0px;
-                    // .cardMain {
-                    //     min-width: 775px;
-                    // }
-                }
-
-                .cardHeader {
-                    background-color: @color-white;
-                    display: block;
-                    padding-right: 20px;
-
-                    .title {
-                        padding-left: 15px;
-                        font-size: 16px;
-                        font-weight: bold;
-                        color: @color-font-form-gray;
-                    }
-
-                    .action {
-                        float: right;
-                        margin-left: 0;
-                        .position(relative, @top: 8px);
-                    }
-
-                    .selCancelQueryHist {
-                        .icon {
-                            color: @color-red-forbid;
-                        }
-                    }
-
-                    .searchbarArea {
-                        float: right;
-                        margin-right: 10px;
-                        input {
-                            .size(@width: 131px, @height: 24px);
-                            font-size: 12px;
-                            line-height: 24px;
-                            padding-left: 22px;
-                            background-color: @color-white;
-                            border-radius: 3px;
-                        }
-                        .icon {
-                            .position(absolute, @top: 12px, @left: 5px);
-                            font-size: 14px;
-                            color: @color-border-bar;
-                        }
-                    }
-                }
-
-                .flexTable {
-                    .col-action {
-                        .icon {
-                            position: relative;
-                            top: 2px;
-                            font-size: 18px;
-                        }
-                    }
-                }
-
                 > .ui-resizable-handle {
                     z-index: 3 !important; // don't block other elements
                     height: 12px;
                     top: -4px;
+                }
+             
+            }
+        }
+    }
+
+    .selQueryHistCard {
+        height: 100%;
+        margin-bottom: 0px;
+
+        .cardHeader {
+            background-color: @color-white;
+            display: block;
+            padding-right: 20px;
+
+            .title {
+                padding-left: 15px;
+                font-size: 16px;
+                font-weight: bold;
+                color: @color-font-form-gray;
+            }
+
+            .action {
+                float: right;
+                margin-left: 0;
+                .position(relative, @top: 8px);
+            }
+
+            .selCancelQueryHist {
+                .icon {
+                    color: @color-red-forbid;
+                }
+            }
+
+            .searchbarArea {
+                float: right;
+                margin-right: 10px;
+                input {
+                    .size(@width: 131px, @height: 24px);
+                    font-size: 12px;
+                    line-height: 24px;
+                    padding-left: 22px;
+                    background-color: @color-white;
+                    border-radius: 3px;
+                }
+                .icon {
+                    .position(absolute, @top: 12px, @left: 5px);
+                    font-size: 14px;
+                    color: @color-border-bar;
+                }
+            }
+        }
+
+        .flexTable {
+            .col-action {
+                .icon {
+                    position: relative;
+                    top: 2px;
+                    font-size: 18px;
                 }
             }
         }
@@ -609,6 +592,12 @@
     }
 }
 
+#sqlMenu {
+    .listWrap {
+        max-height: 85%;
+    }
+}
+
 #sqlEditorSpace {
     height: 100%;
     background-color: @color-white;
@@ -618,10 +607,31 @@
     .flex-display;
     .flex-flow(column);
 
+    .ui-resizable-se, .ui-resizable-s {
+        display: none !important;
+    }
+
+    .ui-resizable-handle {
+        z-index: 3 !important; // don't block other elements
+    }
+
+    &.undocked {
+        z-index: @z-index-sqlEditorUndocked;
+        box-shadow: 0 0 4px rgba(0,0,0, 0.5);
+
+        header {
+            pointer-events: auto;
+            .cursor-move;
+        }
+        .ui-resizable-se, .ui-resizable-s {
+            display: block !important;
+        }
+    }
+
     .undock {
         position: absolute;
-        top: 8px;
-        right: 8px;
+        top: 16px;
+        right: 16px;
         font-size: 14px;
     }
 

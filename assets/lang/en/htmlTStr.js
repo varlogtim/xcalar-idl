@@ -449,14 +449,6 @@ module.exports = {
         "SchemaInst": "Select and click a table to view columns.",
         "ColumnInst": "Select and click a table in order to view and select columns.",
         "AddNew": "New Query",
-        "queryHistMenuTitle": "SQL",
-        "queryHistCardTitle": "Query History",
-        "queryHistColStatus": "Status",
-        "queryHistColQuery": "Query",
-        "queryHistColStartTime": "Start Time",
-        "queryHistColDuration": "Duration",
-        "queryHistColTable": "Results",
-        "queryHistMenuInstr": "You can review your SQL queries in the Query History table to the right.",
         "queryHistSQLModalTitle": "SQL Query",
         "AddFunc": "New Table Function",
         "SQLFuncHint": "Tips: A table function takes one or more tables as inputs and outputs a table. Table functions can be called in a query, e.g, select * from fn(Table1, Table2...). You can visually create a table function using the graph interface in the Transformation & Business Logic Panel.",
@@ -470,7 +462,24 @@ module.exports = {
         "UDFTab": "UDFs",
         "SQLFuncTab": "Table Functions",
         "ResultTab": "Query Results",
-        "ViewingResult": "Viewing Result"
+        "HistoryTab": "History",
+        "ViewingResult": "Viewing Result",
+        "SearchByQuery": "Filter by query"
+    },
+
+    "resouceMenu": {
+        "Resources": "Resources",
+        "Tables": "Tables",
+        "AddTable": "Add Table",
+        "Modules": "B & T Logic Modules",
+        "AddModule": "New Module",
+        "TableFuncs": "Table Functions",
+        "AddTableFunc": "New Function",
+        "UDFs": "UDFs",
+        "AddUDF": "Add UDF",
+        "UseInSQL": "Use in SQL",
+        "UseInModule": "Use in B & T Logic Module",
+        "Edit": "Edit"
     },
 
     "bottomMenu": {

@@ -160,6 +160,10 @@ abstract class DagTab extends Durable {
         return false;
     }
 
+    public getPath(): string {
+        return "";
+    }
+
     // not used
     public serialize(): string {
         return null;

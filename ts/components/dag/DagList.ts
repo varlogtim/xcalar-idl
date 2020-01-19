@@ -8,16 +8,18 @@ class DagList extends Durable {
     }
 
     private _dags: Map<string, DagTab>;
-    private _fileLister: FileLister;
+    private _resourceMenu: ResourceMenu;
     private _setup: boolean;
     private _stateOrder = {};
 
     private constructor() {
         super(null);
+        this._resourceMenu = new ResourceMenu("dagListSection");
         this._initialize();
-        this._setupFileLister();
+        this._setupResourceMenuEvent();
+        this._setupActionMenu();
         this._addEventListeners();
-        this._updateSection();
+        this._getDagListSection().find(".dfModuleList").addClass("active");
 
         this._stateOrder[QueryStateTStr[QueryStateT.qrCancelled]] = 2;
         this._stateOrder[QueryStateTStr[QueryStateT.qrNotStarted]] = 3;
@@ -55,8 +57,8 @@ class DagList extends Durable {
             return this._fetchXcalarQueries();
         })
         .then(() => {
-            this._renderDagList(false);
-            this._updateSection();
+            this._renderResourceList();
+            SQLWorkSpace.Instance.refreshMenuList();
             this._setup = true;
             deferred.resolve();
         })
@@ -70,7 +72,7 @@ class DagList extends Durable {
      * @param disable
      */
     public toggleDisable(disable: boolean): void {
-        let $dagList: JQuery = this._getDagListMenuEl();
+        let $dagList: JQuery = this._geContainer();
         if (disable) {
             $dagList.addClass("xc-disabled");
         } else {
@@ -92,6 +94,7 @@ class DagList extends Durable {
         return this._dags.get(id);
     }
 
+    // XXX TODO: remove it
     public list(): {path: string, id: string, options: {isOpen: boolean}}[] {
         const self = this;
         let sortFunc = (a: {path: string}, b: {path: string}): number => {
@@ -187,46 +190,7 @@ class DagList extends Durable {
             publishedList = [];
         }
         userList = userList.concat(queryList);
-
-        const otherList = this._getOtherListForDataMart();
-        return publishedList.concat(userList).concat(otherList);
-    }
-
-    private _getOtherListForDataMart(): any[] {
-        if (!XVM.isDataMart()) {
-            return [];
-        }
-        const udfList: {
-            path: string,
-            id: string,
-            options: {type: string}
-        }[] = [];
-        const savedQueryList: {
-            path: string,
-            id: string,
-            options: {type: string}
-        }[] = [];
-
-        UDFPanel.Instance.listUDFs().forEach(({displayName, path}) => {
-            const displayPath: string = displayName.startsWith("/")
-            ? "/" + UDFTStr.UDF + displayName
-            : "/" + UDFTStr.UDF +"/" + displayName;
-            udfList.push({
-                path: displayPath,
-                id: path,
-                options: {type: "UDF"}
-            });
-        });
-
-        SQLSnippet.Instance.listSnippets().forEach(({name}) => {
-            savedQueryList.push({
-                path: "/" + SQLTStr.SavedQueries +"/" + name,
-                id: name,
-                options: {type: "SQL"}
-            });
-        });
-
-        return udfList.concat(savedQueryList);
+        return publishedList.concat(userList);
     }
 
     public listUserDagAsync(): XDPromise<{dags: {name: string, id: string}[]}> {
@@ -266,8 +230,7 @@ class DagList extends Durable {
         try {
             let tabId = tab.getId();
             this._dags.delete(tabId);
-            this._renderDagList(true, true);
-            this._updateSection();
+            this._renderResourceList();
         } catch (e) {
           console.error(e);
         }
@@ -279,7 +242,7 @@ class DagList extends Durable {
     public refresh(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const promise: XDPromise<void> = deferred.promise();
-        const $dagList: JQuery = this._getDagListMenuEl();
+        const $dagList: JQuery = this._geContainer();
         // delete shared dag and optimized list first
         const oldPublishedDags: Map<string, DagTabPublished> = new Map();
         const oldOptimizedDags: Map<string, DagTabOptimized> = new Map();
@@ -309,8 +272,8 @@ class DagList extends Durable {
         .then(deferred.resolve)
         .fail(deferred.reject)
         .always(() => {
-            this._renderDagList();
-            this._updateSection();
+            this._renderResourceList();
+            SQLWorkSpace.Instance.refreshMenuList();
         });
         return promise;
     }
@@ -337,8 +300,8 @@ class DagList extends Durable {
         } else if (dagTab instanceof DagTabPublished) {
             this._dags.set(dagTab.getId(), dagTab);
         }
-        this._renderDagList();
-        this._updateSection();
+        this._renderResourceList();
+        SQLWorkSpace.Instance.refreshMenuList();
         return true;
     }
 
@@ -402,7 +365,14 @@ class DagList extends Durable {
     }
 
     public updateList(): void {
-        this._renderDagList();
+        this._renderResourceList();
+    }
+
+    /**
+     * DagList.Instance.clearFocusedTable
+     */
+    public clearFocusedTable(): void {
+        $("#dagListSection .tableList .table.active").removeClass("active");
     }
 
     /**
@@ -512,8 +482,8 @@ class DagList extends Durable {
             $('#dagListSection .dagListDetail[data-id="' +id + '"]').remove();
             this._dags.delete(id);
             this._saveDagList(dagTab);
-            this._renderDagList(true, true);
-            this._updateSection();
+            this._renderResourceList();
+            SQLWorkSpace.Instance.refreshMenuList();
             if (dagTab instanceof DagTabPublished) {
                 DagSharedActionService.Instance.broadcast(DagGraphEvents.DeleteGraph, {
                     tabId: id
@@ -545,7 +515,7 @@ class DagList extends Durable {
      * @param id Dag id we want to note as active
      */
     public switchActiveDag(id: string): void {
-        this._switchToFolder(id);
+        this._focusOnDagList(id);
         const $dagListSection: JQuery = this._getDagListSection();
         $dagListSection.find(".dagListDetail").removeClass("active");
         this._getListElById(id).addClass("active");
@@ -569,34 +539,6 @@ class DagList extends Durable {
         DagTabManager.Instance.reset();
         this._saveUserDagList();
         this._saveSQLFuncList();
-        this._updateSection();
-    }
-
-    /**
-     * DagList.Instance.gotToSQLFuncFolder
-     * @param path
-     */
-    public gotToSQLFuncFolder(): void {
-        this._fileLister.goToPath("/" + DagTabSQLFunc.HOMEDIR + "/");
-    }
-
-    /**
-     * DagList.Instance.clearSQLDataflow
-     */
-    public clearSQLDataflow(): void {
-        let sqlDags: DagTab[] = [];
-        this._dags.forEach((dagTab) => {
-            if (this._isForSQLFolder(dagTab)) {
-                sqlDags.push(dagTab);
-            }
-        });
-
-        sqlDags.forEach((sqlTab) => {
-            sqlTab.delete();
-            this._dags.delete(sqlTab.getId());
-        });
-        this._renderDagList(false, true);
-        this._updateSection();
     }
 
     public serialize(dags: DagListTabDurable[]): string {
@@ -633,130 +575,161 @@ class DagList extends Durable {
         return new KVStore(key, gKVScope.WKBK);
     }
 
-    private _stripPath(path: string) {
-        return path.substring(0, path.length - 1);
+    private _renderResourceList(): void {
+        this._resourceMenu.render();
     }
 
-    private _setupFileLister(): void {
-        const renderTemplate = (
-            files: {name: string, id: string, options: {isOpen: boolean, createdTime?: number, state?: string, type?: string}}[],
-            folders: string[],
-            path: string
-        ): string => {
-            let html: HTML = "";
-            let publishedPath = DagTabPublished.PATH.substring(1, DagTabPublished.PATH.length - 1);
-            let isInPublishedFolder = path.startsWith(publishedPath);
-            let isAbandonedQuery = (path.startsWith(this._stripPath(DagTabQuery.PATH)) ||
-                                path.startsWith(this._stripPath(DagTabQuery.SDKPATH))) &&
-                                !path.startsWith(this._stripPath(DagTabOptimized.SDKPATH));
-            let isOptimizedFolder = path.startsWith(this._stripPath(DagTabOptimized.XDPATH)) ||
-                                path.startsWith(this._stripPath(DagTabOptimized.SDKPATH));
-
-            // Add folders
-            folders.forEach((folder) => {
-                let icon = "xi-folder";
-                if (folder === "Published" && path === "" || isInPublishedFolder) {
-                    icon = "xi-share-icon";
-                }
-                html += '<li class="folderName">' +
-                            '<i class="gridIcon icon ' + icon + '"></i>' +
-                            '<div class="name">' + folder + '</div>' +
-                        '</li>';
-            });
-            // Add files
-            let deleteIcon: HTML = this._iconHTML("deleteDataflow", "xi-trash", DFTStr.DelDF);
-            let duplicateIcon: HTML = "";
-            if (!isOptimizedFolder) {
-                duplicateIcon = this._iconHTML("duplicateDataflow", "xi-duplicate", DFTStr.DupDF);
+    private _getTableFuncList(): HTML {
+        const listClassNames: string[] = ["tableFunc", "dagListDetail", "selectable"];
+        const iconClassNames: string[] = ["xi-SQLfunction"];
+        const dagTabs = this.getAllDags();
+        let html: HTML = "";
+        dagTabs.forEach((dagTab) => {
+            if (dagTab instanceof DagTabSQLFunc) {
+                const name = dagTab.getName();
+                const id = dagTab.getId();
+                html += this._resourceMenu.getListHTML(name, listClassNames, iconClassNames, id);
             }
-            let publishIcon: HTML = "";
-            if (!isInPublishedFolder && !isOptimizedFolder && !XVM.isDataMart()) {
-                publishIcon = this._iconHTML("publishDataflow", "xi-add-dataflow", DFTStr.PubDF);
-            }
-            let downloadIcon: HTML = this._iconHTML("downloadDataflow", "xi-download", DFTStr.DownloadDF);
-            let editUDFIcon: HTML = this._iconHTML("editUDF", "xi-edit", UDFTStr.Edit);
-            let editQueryIcon: HTML = this._iconHTML("editQuery", "xi-edit", SQLTStr.Edit);
-            let gridIcon = '<i class="gridIcon icon xi-dfg2"></i>';
-
-            files.forEach((file) => {
-                let openClass: string = "";
-                let timeTooltip: string = "";
-                let canBeDisabledIconWrap: HTML = "";
-                let actionIcon: HTML = deleteIcon;
-                let stateIcon: HTML = "";
-                let queryClass: string = "";
-                if (file.options) {
-                    if (file.options.isOpen) {
-                        openClass = "open";
-                        canBeDisabledIconWrap =
-                        "<div class='canBeDisabledIconWrap'>" +
-                            duplicateIcon +
-                            publishIcon +
-                            downloadIcon +
-                        "</div>";
-                    } else {
-                        canBeDisabledIconWrap =
-                        "<div class='canBeDisabledIconWrap xc-disabled'>" +
-                            duplicateIcon +
-                            publishIcon +
-                            downloadIcon +
-                        "</div>";
-                    }
-                    if (file.options.createdTime) {
-                        timeTooltip = xcTimeHelper.getDateTip(file.options.createdTime, {prefix: "Created: "});
-                    }
-                    if (isAbandonedQuery && file.options.state) {
-                        queryClass = " abandonedQuery ";
-                        stateIcon = '<div class="statusIcon state-' + file.options.state +
-                                    '" ' + xcTooltip.Attrs + ' data-original-title="' +
-                                    xcStringHelper.camelCaseToRegular(file.options.state.slice(2)) + '"></div>';
-                    }
-
-                    if (file.options.type === "SQL") {
-                        gridIcon = '<i class="gridIcon icon xi-menu-sql"></i>';
-                        actionIcon = editQueryIcon;
-                        canBeDisabledIconWrap = "";
-                    } else if (file.options.type === "UDF") {
-                        gridIcon = '<i class="gridIcon icon xi-menu-udf"></i>';
-                        actionIcon = editUDFIcon;
-                        canBeDisabledIconWrap = "";
-                    }
-                }
-
-                html +=
-                '<li class="fileName dagListDetail ' + openClass + queryClass + '" data-id="' + file.id + '">' +
-                    gridIcon +
-                    stateIcon +
-                    '<div class="name" ' + timeTooltip + '>' + file.name + '</div>' +
-                    '<div class="listIcons">' +
-                        actionIcon +
-                        canBeDisabledIconWrap +
-                    '</div>' +
-                '</li>';
-            });
-            this._updateIconSection(path);
-            return html;
-        };
-        this._fileLister = new FileLister(this._getDagListSection(), {
-            renderTemplate: renderTemplate,
-            folderSingleClick: true
         });
-        this._fileLister.setRootPath(DFTStr.Resources);
+        return html;
     }
 
-    private _renderDagList(keepLocation: boolean = true, ignoreError = false): void {
-        const dagLists = this.list();
-        this._fileLister.setFileObj(dagLists);
-        if (keepLocation) {
-            let curPath = this._fileLister.getCurrentPath();
-            let path = this._fileLister.getRootPath() + "/";
-            if (curPath) {
-                path += curPath + "/";
+    private _getUDFList(): HTML {
+        const udfs = UDFPanel.Instance.listUDFs();
+        const listClassNames: string[] = ["udf"];
+        const iconClassNames: string[] = ["xi-menu-udf"];
+        const html: HTML = udfs.map((udf) => {
+            return this._resourceMenu.getListHTML(udf.displayName, listClassNames, iconClassNames);
+        }).join("");
+        return html;
+    }
+
+    private _getDFList(): HTML {
+        const normalDagList: DagTab[] = [];
+        const optimizedDagList: DagTabOptimized[] = [];
+        const optimizedSDKDagList: DagTabOptimized[] = [];
+        const queryDagList: DagTabQuery[] = [];
+        const querySDKDagList: DagTabQuery[] = [];
+
+        this._dags.forEach((dagTab) => {
+            if (dagTab instanceof DagTabOptimized) {
+                if (dagTab.isFromSDK()) {
+                    optimizedSDKDagList.push(dagTab);
+                } else {
+                    optimizedDagList.push(dagTab);
+                }
+            } else if (dagTab instanceof DagTabQuery) {
+                if (dagTab.isSDK()) {
+                    querySDKDagList.push(dagTab);
+                } else {
+                    queryDagList.push(dagTab);
+                }
+            } else if (dagTab instanceof DagTabPublished) {
+                // ingore it
+            } else if (dagTab instanceof DagTabSQLFunc) {
+                // ingore it, is handled in _getTableFuncList
+            } else {
+                normalDagList.push(dagTab);
             }
-            this._fileLister.goToPath(path, ignoreError);
+        });
+
+        normalDagList.sort(this._sortDagTab);
+        optimizedDagList.sort(this._sortDagTab);
+        optimizedSDKDagList.sort(this._sortDagTab);
+        querySDKDagList.sort(this._sortDagTab);
+        queryDagList.sort((a, b) => this._sortAbandonedQueryTab(a, b));
+
+        const html: HTML =
+        this._getNestedDagListHTML(optimizedDagList) +
+        this._getNestedDagListHTML(optimizedSDKDagList) +
+        this._getNestedDagListHTML(queryDagList) +
+        this._getNestedDagListHTML(querySDKDagList) +
+        this._getDagListHTML(normalDagList);
+        return html;
+    }
+
+    private _sortDagTab(dagTabA: DagTab, dagTabB: DagTab): number {
+        const aName = dagTabA.getName().toLowerCase();
+        const bName = dagTabB.getName().toLowerCase();
+        return (aName < bName ? -1 : (aName > bName ? 1 : 0));
+    }
+
+    private _sortAbandonedQueryTab(dagTabA: DagTabQuery, dagTabB: DagTabQuery): number {
+        // both abandoned queries
+        const aState = dagTabA.getState();
+        const bState = dagTabB.getState();
+        if (aState === bState) {
+            const aTime = dagTabA.getCreatedTime();
+            const bTime = dagTabB.getCreatedTime();
+            return (aTime < bTime ? -1 : (aTime > bTime ? 1 : 0));
         } else {
-            this._fileLister.render();
+            return (this._stateOrder[aState] > this._stateOrder[bState] ? -1 : 1);
         }
+    }
+
+    private _getDagListHTML(dagTabs: DagTab[]): HTML {
+        return dagTabs.map((dagTab) => {
+            const id = dagTab.getId();
+            const name = dagTab.getName();
+            const listClassNames: string[] = ["dagListDetail", "selectable"];
+            const iconClassNames: string[] = ["gridIcon", "icon", "xi-dfg2"];
+            let tooltip: string = ""
+            let stateIcon: string = "";
+            if (dagTab.isOpen()) {
+                listClassNames.push("open");
+            }
+            if (dagTab instanceof DagTabOptimized) {
+                listClassNames.push("optimized");
+            } else if (dagTab instanceof DagTabQuery) {
+                listClassNames.push("abandonedQuery");
+                const state = dagTab.getState();
+                stateIcon = '<div class="statusIcon state-' + state +
+                            '" ' + xcTooltip.Attrs + ' data-original-title="' +
+                            xcStringHelper.camelCaseToRegular(state.slice(2)) + '"></div>';
+                const createdTime = dagTab.getCreatedTime();
+                if (createdTime) {
+                    tooltip = xcTimeHelper.getDateTip(dagTab.getCreatedTime(), {prefix: "Created: "});
+                }
+            }
+            // XXX TODO: combine with _getListHTML
+            return `<li class="${listClassNames.join(" ")}" data-id="${id}">` +
+                        `<i class="${iconClassNames.join(" ")}"></i>` +
+                        stateIcon +
+                        '<div class="name tooltipOverflow textOverflowOneLine" ' + tooltip + '>' +
+                            name +
+                        '</div>' +
+                        '<button class=" btn-secondary dropDown">' +
+                            '<i class="icon xi-ellipsis-h xc-action"></i>' +
+                        '</div>' +
+                    '</li>';
+        }).join("");
+    }
+
+    private _getNestedDagListHTML(dagTabs: DagTab[]): HTML {
+        if (dagTabs.length === 0) {
+            return "";
+        }
+        try {
+            const html = this._getDagListHTML(dagTabs);
+            const dagTab = dagTabs[0];
+            const path: string = dagTab.getPath();
+            const folderName = path.split("/")[0];
+            return '<div class="nested listWrap xc-expand-list">' +
+                        '<div class="listInfo">' +
+                            '<span class="expand">' +
+                                '<i class="icon xi-down fa-13"></i>' +
+                            '</span>' +
+                            '<span class="text">' + folderName + '</span>' +
+                        '</div>' +
+                        '<ul>' +
+                            html +
+                        '</ul>' +
+                    '</div>';
+        } catch (e) {
+            console.error(e);
+            return "";
+        }
+
     }
 
     private _iconHTML(type: string, icon: string, title: string): HTML {
@@ -1145,18 +1118,7 @@ class DagList extends Durable {
         }
     }
 
-    private _updateSection(): void {
-        let text: string = "";
-        if (XVM.isDataMart()) {
-            text = DFTStr.Resources;
-        } else {
-            const size: number = this._dags ? this._dags.size : 0;
-            text = `${DFTStr.DFs} (${size})`;
-        }
-        this._getDagListMenuEl().find(".numDF").text(text);
-    }
-
-    private _getDagListMenuEl(): JQuery {
+    private _geContainer(): JQuery {
         return $("#dagList");
     }
 
@@ -1164,8 +1126,8 @@ class DagList extends Durable {
         return $("#dagListSection");
     }
 
-    private _getIconSection(): JQuery {
-        return this._getDagListMenuEl().find(".iconSection");
+    private _getMenu(): JQuery {
+        return $("#dagListMenu");
     }
 
     private _getListElById(id: string): JQuery {
@@ -1177,25 +1139,15 @@ class DagList extends Durable {
         if (dagTab instanceof DagTabPublished) {
             path = dagTab.getPath();
         } else if (dagTab instanceof DagTabOptimized) {
-            if (XVM.isDataMart()) {
-                path = "/" + DFTStr.TBModules + "/" + dagTab.getPath();
-            } else {
-                path = "/" + dagTab.getPath();
-            }
+            path = "/" + dagTab.getPath();
         } else if (dagTab instanceof DagTabQuery) {
-            if (XVM.isDataMart()) {
-                path = "/" + DFTStr.TBModules + "/" + dagTab.getPath();
-            } else {
-                path = "/" + dagTab.getPath();
-            }
+            path = "/" + dagTab.getPath();
         } else if (dagTab instanceof DagTabSQLFunc) {
             path = dagTab.getPath();
         } else {
             let dagName: string = dagTab.getName();
             if (this._isForSQLFolder(dagTab)) {
                 path = "/" + DagTabSQL.PATH + dagName;
-            } else if (XVM.isDataMart()) {
-                path = "/" + DFTStr.TBModules + "/" + dagName;
             } else {
                 path = "/" + dagName;
             }
@@ -1203,78 +1155,55 @@ class DagList extends Durable {
         return path;
     }
 
-    private _switchToFolder(id: string): void {
+    private _focusOnDagList(id: string): void {
         try {
-            const dagTab = this.getDagTabById(id);
-            const path: string = this._getPathFromDagTab(dagTab);
-            const paths: string[] = path.split("/");
-            paths.pop(); // remove the last path
-            const parentPath: string = paths.join("/") + "/";
-            this._fileLister.goToPath(parentPath);
+            const $li = this._getListElById(id);
+            let $listWrap = $li.closest(".listWrap");
+            $listWrap.addClass("active");
+            if ($listWrap.hasClass("nested")) {
+                $listWrap = $listWrap.closest(".listWrap:not(.nested)");
+                $listWrap.addClass("active");
+            }
+            const $section = this._getDagListSection();
+            DagUtil.scrollIntoView($listWrap, $section);
+            $li.scrollintoview({duration: 0});
         } catch (e) {
             console.error(e);
         }
     }
 
-    private _isForSQLFolder(dagTab: DagTab): boolean {
-        return DagTabUser.isForSQLFolder(dagTab);
-    }
-
-    private _updateIconSection(path: string): void {
-        const $iconSection: JQuery = this._getIconSection();
-        const $btn = $iconSection.find(".clearSQLBtn");
-        if (path === "SQL" && !this._isHideSQLFolder()) {
-            $btn.removeClass("xc-hidden");
-        } else {
-            $btn.addClass("xc-hidden");
+    // XXX TODO: verify it
+    private _udfEdit(): void {
+        let $dagListItem: JQuery = $(event.currentTarget).closest(".dagListDetail");
+        const udfName: string = $dagListItem.data("id")
+        UDFPanel.Instance.selectUDF(udfName);
+        const $udfTab = $("#udfTab");
+        if (!$udfTab.hasClass("active")) {
+            $udfTab.click();
         }
     }
 
-    private _addEventListeners(): void {
-        const $dagListSection: JQuery = this._getDagListSection();
-        const $iconSection: JQuery = this._getIconSection();
-        const $buttonSection: JQuery = this._getDagListMenuEl().find(".buttonSection");
+    private _setupResourceMenuEvent(): void {
+        this._resourceMenu
+        .on("getTableFuncList", () => this._getTableFuncList())
+        .on("getUDFList", () => this._getUDFList())
+        .on("getDFList", () => this._getDFList())
+        .on("viewTable", (arg) => this._viewTable(arg));
+    }
 
-        $buttonSection.find(".newModule").click(() => {
-            DagTabManager.Instance.newTab();
+    private _setupActionMenu(): void {
+        const $menu: JQuery = this._getMenu();
+        $menu.on("click", ".udfEdit", () => {
+            this._udfEdit();
         });
 
-        $iconSection.find(".refreshBtn").click(() => {
-            this.refresh();
-        });
-
-        $iconSection.find(".uploadBtn").click(() => {
-            DFUploadModal.Instance.show();
-        });
-
-        $iconSection.find(".clearSQLBtn").click(() => {
-            DagList.Instance.clearSQLDataflow();
-        });
-
-        // expand/collapse the section
-        $dagListSection.on("click", ".listWrap .listInfo", (event) => {
-            $(event.currentTarget).closest(".listWrap").toggleClass("active");
-        });
-
-        $dagListSection.on("click", ".fileName .name", (event) => {
-            const $dagListItem: JQuery = $(event.currentTarget).parent();
-            if ($dagListItem.hasClass("unavailable")) {
-                return;
-            }
-            const dagTab: DagTab = this.getDagTabById($dagListItem.data("id"));
-            DagTabManager.Instance.loadTab(dagTab);
-        });
-
-        $dagListSection.on("click", ".deleteDataflow", (event) => {
-            let $dagListItem: JQuery = $(event.currentTarget).closest(".dagListDetail");
-            if ($dagListItem.hasClass("unavailable")) {
-                return;
-            }
-            const tabId: string = $dagListItem.data("id");
+        $menu.on("click", ".deleteDataflow", () => {
+            const tabId: string = $menu.data("id");
+            const $dagListItem = this._getListElById(tabId);
             Alert.show({
                 title: DFTStr.DelDF,
                 msg: xcStringHelper.replaceMsg(DFTStr.DelDFMsg, {
-                    dfName: $dagListItem.text()
+                    dfName: $menu.data("name")
                 }),
                 onConfirm: () => {
                     xcUIHelper.disableElement($dagListItem);
@@ -1285,65 +1214,80 @@ class DagList extends Durable {
                             log = error.error;
                         }
                         // need to refetch dagListItem after list is updated
-                        $dagListItem = this._getListElById(tabId);
+                        let $dagListItem = this._getListElById(tabId);
                         StatusBox.show(DFTStr.DelDFErr, $dagListItem, false, {
                             detail: log
                         });
                     })
                     .always(() => {
                         // need to refetch dagListItem after list is updated
-                        $dagListItem = this._getListElById(tabId);
+                        let $dagListItem = this._getListElById(tabId);
                         xcUIHelper.enableElement($dagListItem);
                     });
                 }
             });
         });
 
-        $dagListSection.on("click", ".duplicateDataflow", (event) => {
-            let $dagListItem: JQuery = $(event.currentTarget).closest(".dagListDetail");
-            if ($dagListItem.hasClass("unavailable")) {
-                return;
-            }
-            const dagTab: DagTab = this.getDagTabById($dagListItem.data("id"));
+        $menu.on("click", ".duplicateDataflow", () => {
+            const dagTab: DagTab = this.getDagTabById($menu.data("id"));
             DagTabManager.Instance.duplicateTab(dagTab);
         });
 
-        $dagListSection.on("click", ".publishDataflow", (event) => {
-            let $dagListItem: JQuery = $(event.currentTarget).closest(".dagListDetail");
-            if ($dagListItem.hasClass("unavailable")) {
-                return;
-            }
-            const dagTab: DagTab = this.getDagTabById($dagListItem.data("id"));
-            DFPublishModal.Instance.show(<DagTabUser>dagTab);
-
-        });
-
-        $dagListSection.on("click", ".downloadDataflow", (event) => {
-            let $dagListItem: JQuery = $(event.currentTarget).closest(".dagListDetail");
-            if ($dagListItem.hasClass("unavailable")) {
-                return;
-            }
-            const dagTab: DagTab = this.getDagTabById($dagListItem.data("id"));
+        $menu.on("click", ".downloadDataflow", () => {
+            const dagTab: DagTab = this.getDagTabById($menu.data("id"));
             DFDownloadModal.Instance.show(dagTab);
         });
+    }
 
-        $dagListSection.on("click", ".editQuery", (event) => {
-            let $dagListItem: JQuery = $(event.currentTarget).closest(".dagListDetail");
-            const sqlQueryName: string = $dagListItem.data("id")
-            XVM.setMode(XVM.Mode.SQL);
-            MainMenu.openPanel("sqlPanel");
-            SQLEditorSpace.Instance.openSnippet(sqlQueryName);
+    private _isForSQLFolder(dagTab: DagTab): boolean {
+        return DagTabUser.isForSQLFolder(dagTab);
+    }
+
+    private _viewTable(
+        arg: {
+            table: TableMeta,
+            schema: ColSchema[]
+        }
+    ): void {
+        const { table, schema } = arg;
+        const columns: ProgCol[] = schema.map((schema) => ColManager.newPullCol(schema.name, schema.name, schema.type));
+        columns.push(ColManager.newDATACol());
+        table.tableCols = columns;
+        gTables[table.getId()] = table;
+        DagTable.Instance.previewPublishedTable(table);
+    }
+
+    private _addEventListeners(): void {
+        const $dagListSection: JQuery = this._getDagListSection();
+        const $container: JQuery = this._geContainer();
+
+        $container.find(".refreshBtn").click(() => {
+            this.refresh();
         });
 
-        $dagListSection.on("click", ".editUDF", (event) => {
-            let $dagListItem: JQuery = $(event.currentTarget).closest(".dagListDetail");
-            const udfName: string = $dagListItem.data("id")
-            UDFPanel.Instance.selectUDF(udfName);
-            const $udfTab = $("#udfTab");
-            if (!$udfTab.hasClass("active")) {
-                $udfTab.click();
+        $container.find(".uploadBtn").click(() => {
+            DFUploadModal.Instance.show();
+        });
+
+        $dagListSection.on("click", ".addUDF", (event) => {
+            event.stopPropagation();
+            UDFPanel.Instance.openEditor();
+        });
+
+        $dagListSection.on("click", ".addDFModule", (event) => {
+            event.stopPropagation();
+            DagTabManager.Instance.newTab();
+        });
+
+        $dagListSection.on("click", ".dagListDetail .name", (event) => {
+            const $dagListItem: JQuery = $(event.currentTarget).parent();
+            if ($dagListItem.hasClass("unavailable")) {
+                return;
             }
+            const dagTab: DagTab = this.getDagTabById($dagListItem.data("id"));
+            DagTabManager.Instance.loadTab(dagTab);
         });
+        
 
         DagTabManager.Instance
         .on("beforeLoad", (dagTab: DagTab) => {

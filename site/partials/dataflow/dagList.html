@@ -1,22 +1,77 @@
 <div class="topSection">
   <div class="titleSection no-selection">
-    <header class="numDF"><%= dicts.dataflow.dataflows %> (0)</header>
+    <header><%= dicts.resouceMenu.Resources %></header>
   </div>
   <div class="iconSection">
     <i class="refreshBtn icon xi-refresh" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Refresh %>"></i>
     <i class="uploadBtn icon xi-upload" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.dataflow.uploadHeader %>"></i>
-    <i class="clearSQLBtn icon xi-trash xc-hidden" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.dataflow.ClearSQL %>"></i>
   </div>
 </div>
-<div class="buttonSection">
-  <button class="newModule btn btn-secondary"
-  data-toggle="tooltip"
-  data-placement="top"
-  data-container="body"
-  data-original-title="<%= dicts.dataflow.NewModuleHint %>">
-    <%= dicts.dataflow.NewModule %>
-  </button>
-</div>
-<div id="dagListSection" class="mainSection xc-fileListView">
-  include "../util/fileListView.html"
+<div id="dagListSection" class="mainSection xc-resourceMenu">
+  <!-- table list -->
+  <div class="tableList listWrap xc-expand-list">
+    <div class="listInfo">
+      <span class="expand">
+        <i class="icon xi-down fa-13"></i>
+      </span>
+      <span class="text"><%= dicts.resouceMenu.Tables %></span>
+      <span class="action addTable xc-action">
+        <i class="icon xi-plus"></i>
+        <span><%= dicts.resouceMenu.AddTable %></span>
+      </span>
+    </div>
+    <ul></ul>
+  </div>
+  <!-- module list -->
+  <div class="dfModuleList listWrap xc-expand-list">
+    <div class="listInfo">
+      <span class="expand">
+        <i class="icon xi-down fa-13"></i>
+      </span>
+      <span class="text"><%= dicts.resouceMenu.Modules %></span>
+      <span class="action addDFModule xc-action">
+        <i class="icon xi-plus"></i>
+        <span><%= dicts.resouceMenu.AddModule %></span>
+      </span>
+    </div>
+    <ul></ul>
+  </div>
+  <!-- table function list -->
+  <div class="tableFunc listWrap xc-expand-list">
+    <div class="listInfo">
+      <span class="expand">
+        <i class="icon xi-down fa-13"></i>
+      </span>
+      <span class="text"><%= dicts.resouceMenu.TableFuncs %></span>
+      <span class="action addTableFunc xc-action">
+        <i class="icon xi-plus"></i>
+        <span><%= dicts.resouceMenu.AddTableFunc %></span>
+      </span>
+    </div>
+    <ul></ul>
+  </div>
+  <!-- udf list -->
+  <div class="udf listWrap xc-expand-list">
+    <div class="listInfo">
+      <span class="expand">
+        <i class="icon xi-down fa-13"></i>
+      </span>
+      <span class="text"><%= dicts.resouceMenu.UDFs %></span>
+      <span class="action addUDF xc-action">
+        <i class="icon xi-plus"></i>
+        <span><%= dicts.resouceMenu.AddUDF %></span>
+      </span>
+    </div>
+    <ul></ul>
+  </div>
+  <ul id="dagListMenu" class="menu">
+    <li class="table tableQuery"><%= dicts.resouceMenu.UseInSQL %></li>
+    <li class="table tableModule"><%= dicts.resouceMenu.UseInModule %></li>
+    <li class="tableFunc tableFuncQuery"><%= dicts.resouceMenu.UseInSQL %></li>
+    <!-- <li class="udf udfQuery"><%= dicts.resouceMenu.UseInSQL %></li> -->
+    <li class="udf udfEdit"><%= dicts.resouceMenu.Edit %></li>
+    <li class="dag duplicateDataflow"><%= dicts.fileManager.Duplicate %></li>
+    <li class="dag downloadDataflow"><%= dicts.fileManager.Download %></li>
+    <li class="dag deleteDataflow"><%= dicts.fileManager.Delete %></li>
+  </ul>
 </div>

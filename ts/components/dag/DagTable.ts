@@ -24,14 +24,19 @@ class DagTable {
         return this._show(viewer);
     }
 
+    public previewPublishedTable(table: TableMeta): XDPromise<XcViewer> {
+        const viewer: XcPbTableViewer = new XcPbTableViewer(table);
+        return this._show(viewer);
+    }
+
     public previewDataset(dsId: string) {
         const viewer: XcDatasetViewer = new XcDatasetViewer(DS.getDSObj(dsId));
         return this._show(viewer);
     }
 
     public switchTab(tabId: string): void {
-        if (this._currentViewer instanceof XcDatasetViewer) {
-            // dataset viewer has higher priority
+        if (!(this._currentViewer instanceof XcDagTableViewer)) {
+            // dataset viewer or publised table viewer has higher priority
             return;
         }
 
@@ -44,7 +49,7 @@ class DagTable {
     }
 
     public replaceTable(table: TableMeta): XDPromise<XcViewer> {
-        if (this._currentViewer instanceof XcDatasetViewer) {
+        if (!(this._currentViewer instanceof XcDagTableViewer)) {
             return PromiseHelper.resolve(this._currentViewer); // invalid case
         }
         const currentViewer: XcDagTableViewer = <XcDagTableViewer>this._currentViewer;
@@ -58,7 +63,7 @@ class DagTable {
 
     public refreshTable() {
         const currentViewer: XcDagTableViewer = <XcDagTableViewer>this._currentViewer;
-        if (!currentViewer || currentViewer instanceof XcDatasetViewer) {
+        if (!currentViewer || !(currentViewer instanceof XcDagTableViewer)) {
             return PromiseHelper.resolve(); // invalid case
         }
 
@@ -98,7 +103,7 @@ class DagTable {
 
 
     public closeDatasetPreview(): void {
-        if (this._currentViewer instanceof XcDatasetViewer) {
+        if (!(this._currentViewer instanceof XcDagTableViewer)) {
             this._close();
         }
     }

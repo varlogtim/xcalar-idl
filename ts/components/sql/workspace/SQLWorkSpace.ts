@@ -4,6 +4,7 @@ class SQLWorkSpace {
     private _sqlEditorSpace: SQLEditorSpace;
     private _sqlResultSpace: SQLResultSpace;
     private _sqlHistorySpace: SQLHistorySpace;
+    private _sqlMenu: SQLMenu;
     private _firstTouch: boolean;
 
     public static get Instance() {
@@ -14,6 +15,7 @@ class SQLWorkSpace {
         this._sqlEditorSpace = SQLEditorSpace.Instance;
         this._sqlResultSpace = SQLResultSpace.Instance;
         this._sqlHistorySpace = SQLHistorySpace.Instance;
+        this._sqlMenu = new SQLMenu("sqlMenu");
         this._firstTouch = true;
     }
 
@@ -27,6 +29,14 @@ class SQLWorkSpace {
     public refresh(): void {
         this._sqlEditorSpace.refresh();
         this._sqlHistorySpace.refresh();
+        this._sqlMenu.render();
+    }
+
+   /**
+    * SQLWorkSpace.Instance.refreshMenuList
+    */
+    public refreshMenuList(): void {
+        this._sqlMenu.render();
     }
 
     /**
@@ -75,12 +85,12 @@ class SQLWorkSpace {
     private _resizeEvents() {
         let $panel: JQuery = $('#sqlWorkSpacePanel');
         let $rightSection: JQuery = $panel.find(".rightSection");
-        let $histSection: JQuery = $panel.find(".historySection");
-        let $resultSection: JQuery = $panel.find(".resultSection");
+        let $bottomPart: JQuery = $panel.find(".bottomPart");
+        let $topPart: JQuery = $panel.find(".topPart");
         let rightSectionHeight: number;
 
         // resizable top/bottom result/history sections
-        $histSection.resizable({
+        $bottomPart.resizable({
             handles: "n",
             containment: 'parent',
             minHeight: 36,
@@ -92,10 +102,10 @@ class SQLWorkSpace {
                 let pct = ui.size.height / rightSectionHeight;
                 if (ui.position.top <= 100) {
                     pct = (rightSectionHeight - 100) / rightSectionHeight;
-                    $histSection.outerHeight(rightSectionHeight - 100)
+                    $bottomPart.outerHeight(rightSectionHeight - 100)
                              .css("top", 100);
                 }
-                $resultSection.outerHeight(100 * (1 - pct) + "%");
+                $topPart.outerHeight(100 * (1 - pct) + "%");
             },
             stop: function (_event, ui) {
                 let pct = ui.size.height / rightSectionHeight;
@@ -104,9 +114,9 @@ class SQLWorkSpace {
                     pct = (rightSectionHeight - 100) / rightSectionHeight;
                 }
                 let pctTop = 1 - pct;
-                $histSection.css("top", 100 * pctTop + "%")
+                $bottomPart.css("top", 100 * pctTop + "%")
                          .outerHeight(100 * pct + "%");
-                $resultSection.outerHeight(100 * pctTop + "%");
+                $topPart.outerHeight(100 * pctTop + "%");
                 $panel.removeClass("resizing");
             }
         });

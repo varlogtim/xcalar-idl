@@ -302,7 +302,7 @@
 }
 
 
-.mainPanel:not(#sqlWorkSpacePanel) > .mainContent > .leftSection,
+.mainPanel > .mainContent > .leftSection,
 #monitorPanel .subPanel > .leftSection {
     .position(absolute, @left: 0px);
     .size(@width-topMenu,  @min-width: @width-topMenu, @height: ~"calc(100% - @{height-topBar})");
@@ -390,9 +390,11 @@
     }
 }
 
-#modelingDagPanel > .mainContent {
-    > .leftSection {
-        .transition(margin-left @time-menuAnim);
+#modelingDagPanel, #sqlWorkSpacePanel{
+    > .mainContent {
+        > .leftSection {
+            .transition(margin-left @time-menuAnim);
+        }
     }
 }
 

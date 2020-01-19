@@ -100,6 +100,8 @@ class SQLResultSpace {
         callback?: Function
     ): void {
         this._sqlTable.show(table, columns, callback);
+        this._tableLister.close();
+        this._sqlTableSchema.close();
         this._sqlDataflowPreview.close();
         this._switchTab("result");
     }
@@ -109,9 +111,11 @@ class SQLResultSpace {
      * @param reset
      */
     public showTables(reset: boolean): void {
+        this._sqlTable.close();
+        this._sqlTableSchema.close();
         this._sqlTableSchema.close();
         this._tableLister.show(reset);
-        this._switchTab("table");
+        this._switchTab("result");
     }
 
     public refreshTables(): void {
@@ -119,15 +123,18 @@ class SQLResultSpace {
     }
 
     public showSchema(tableInfo: PbTblInfo): void {
+        this._sqlTable.close();
         this._tableLister.close();
         this._sqlTableSchema.show(tableInfo);
-        this._switchTab("table");
+        this._switchTab("result");
     }
 
     public showSchemaError(errorString: string): void {
+        this._sqlTable.close();
         this._tableLister.close();
+        this._sqlDataflowPreview.close();
         this._sqlTableSchema.showError(errorString);
-        this._switchTab("table");
+        this._switchTab("result");
     }
 
     /**
@@ -136,6 +143,8 @@ class SQLResultSpace {
      */
     public showProgressDataflow(inProgress: boolean, sql?: string): void {
         this._sqlTable.close();
+        this._sqlTableSchema.close();
+        this._tableLister.close();
         this._sqlDataflowPreview.show(inProgress, sql);
         this._switchTab("result");
     }

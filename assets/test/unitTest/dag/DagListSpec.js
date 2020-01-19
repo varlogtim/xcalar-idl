@@ -153,15 +153,6 @@ describe('DagList Test', function() {
             expect(DagList.Instance._dags.size).to.equal(prevLen - 1);
         });
 
-        it("Should clear sql dataflows", function() {
-            var prevLen = DagList.Instance._dags.size;
-            dagName = xcHelper.randName("newAgg");
-            dagTab = new DagTabSQL({name: name});
-            DagList.Instance.addDag(dagTab);
-            DagList.Instance.clearSQLDataflow();
-            expect(DagList.Instance._dags.size).to.equal(prevLen);
-        });
-
         // XXX should refactor to aviod relying on DOM and UI
         // it("Should delete a dataflow through UI clicks", function(done) {
         //     dagName = xcHelper.randName("newAgg");

@@ -1,4 +1,4 @@
-describe("Tooltip Flight Test", function() {
+describe.skip("Tooltip Flight Test", function() {
 
     before((done) => {
         UnitTest.testFinish(() => DagPanel.hasSetup())

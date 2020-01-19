@@ -2044,145 +2044,77 @@
         height: 60px !important;
     }
 
-    .dagListTitle {
-        width: 150px;
-        font-weight: 700;
-        font-size: 20px;
-        color: @color-white;
-        margin: -3px 10px 0 15px;
-    }
-
-    .buttonSection {
-        padding: 15px;
-        height: 58px;
-
-        button {
-            width: auto;
-        }
-    }
-
     #dagListSection {
-        height: ~"calc(100% - 118px)";
+        height: ~"calc(100% - 60px)";
+    }
+}
 
-        .pathSection {
-            padding-left: 15px;
+#dagListSection {
+    .listWrap {
+        max-height: 42%;
+    }
+
+    li.dagListDetail {
+        .xi-dfg2 {
+            left: -7px;
         }
 
-        .sortSection {
-            display: none;
+        &.abandonedQuery {
+            .gridIcon {
+                font-size: 12px;
+                margin-top: 12px;
+                margin-right: 8px;
+                margin-left: 6px;
+            }
         }
 
-        .listView li {
-            .position(relative);
-            padding: 0 0 0 15px;
-            white-space: nowrap;
-            border-top: 1px solid @color-border-menugray;
-
-            &:last-child {
-                border-bottom: 1px solid @color-border-menugray;
-            }
-
-            &.active {
-                background-color: @color-bg-dropdown-hover-gray;
-                border-top-color: @color-font-link-blue;
-
-                &:last-child {
-                    border-bottom-color: @color-font-link-blue;
-                }
-
-                + li {
-                    border-top-color: @color-font-link-blue;
-                }
-            }
-
-            &:hover {
-                background-color: @color-bg-list-hover-blue;
-                .listIcons {
-                    display: block;
-                }
-                .name {
-                    width: ~"calc(100% - 110px)";
-                }
-            }
-
-            &.abandonedQuery {
-                .gridIcon {
-                    font-size: 12px;
-                    margin-top: 12px;
-                    margin-right: 8px;
-                    margin-left: 6px;
-                }
-            }
+        &.open {
+            background-color: @color-bg-dropdown-hover-gray;
 
             .gridIcon {
-                color: @color-border-grayBlue;
-
-                &:not(.xi-dfg2) {
-                    color: @color-font-edge;
-                }
-            }
-
-            &.open {
-                .gridIcon {
-                    color: @color-font-link-blue;
-                }
-
-                .name {
-                    font-weight: 600;
-                }
-            }
-
-            .listIcons {
-                display: none;
-            }
-
-            > span {
-                display: block;
-                float: left;
+                color: @color-font-link-blue;
             }
 
             .name {
-                cursor: pointer;
-                width: ~"calc(100% - 32px)";
-                font-size: 12px;
-
-                .loadingSection {
-                    float: right;
-                    margin: 0 10px;
-                }
+                font-weight: 600;
             }
+        }
 
-            .icon {
-                font-size: 14px;
-                &.xc-icon-action {
-                    margin-right: 8px;
-                    float: right;
-                    margin-top: 11px;
-                }
+        &.unavailable {
+            .dropDown {
+                .xc-disabled;
             }
-            .statusIcon {
-                width: 8px;
-                height: 8px;
-                border-radius: 100%;
-                position: absolute;
-                top: 14px;
-                left: 5px;
+        }
+
+        .name {
+            .loadingSection {
+                float: right;
+                margin: 0 10px;
+            }
+        }
+
+        .statusIcon {
+            width: 8px;
+            height: 8px;
+            border-radius: 100%;
+            position: absolute;
+            top: 14px;
+            left: 5px;
+            background-color: @color-white;
+
+            &.state-qrNotStarted {
                 background-color: @color-white;
-
-                &.state-qrNotStarted {
-                    background-color: @color-white;
-                    border: 1px solid @color-bg-white-nine;
-                }
-                &.state-qrProcessing {
-                    background-color: @color-dag-yellow;
-                    border: 1px solid shade(@color-dag-yellow, 10%);
-                }
-                &.state-qrFinished {
-                    background-color: @color-dag-green;
-                }
-                &.state-qrError, &.state-qrCancelled {
-                    background-color: @color-background-error;
-                }
+                border: 1px solid @color-bg-white-nine;
+            }
+            &.state-qrProcessing {
+                background-color: @color-dag-yellow;
+                border: 1px solid shade(@color-dag-yellow, 10%);
+            }
+            &.state-qrFinished {
+                background-color: @color-dag-green;
+            }
+            &.state-qrError, &.state-qrCancelled {
+                background-color: @color-background-error;
             }
         }
     }

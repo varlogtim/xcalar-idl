@@ -1014,7 +1014,6 @@ class DagViewManager {
         let onSubmit: Function = (name, numInput) => {
             const cb = () => {
                 DagView.newSQLFunc(name, numInput);
-                DagList.Instance.gotToSQLFuncFolder();
                 SQLResultSpace.Instance.refresh();
             };
             if (isFromSQLMode) {

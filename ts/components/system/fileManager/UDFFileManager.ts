@@ -964,6 +964,7 @@ class UDFFileManager extends BaseFileManager {
             });
         }
         this.storedUDF = newStoredUDF;
+        SQLWorkSpace.Instance.refreshMenuList();
     }
 
     private _bulkTask(operations: XDPromise<void>[], isDelete: boolean) {

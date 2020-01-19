@@ -42,7 +42,7 @@ class SQLResultUDFLister extends AbstractSQLResultLister{
 
     private _addExtraEventListeners(): void {
         this._getSection().find(".newUDF").click(() => {
-            UDFFileManager.Instance.open("sql.py")
+            UDFFileManager.Instance.open("sql.py");
         })
     }
 }

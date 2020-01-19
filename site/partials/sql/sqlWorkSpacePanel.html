@@ -3,17 +3,18 @@
     <div class="title">Query</div>
   </div>
   <div class="mainContent">
-    <section class="leftSection">
-      include "sqlEditorSpace.html"
+    <section id="sqlMenu" class="leftSection commonSection">
+      include "sqlMenu.html"
     </section>
     <section class="rightSection">
-      <div class="resultSection">
+      <div class="resultSection topPart">
         <div class="tabSection">
           <div class="tab" data-tab="query"><%= dicts.SQL.SaveQueryTab %></div>
-          <div class="tab" data-tab="table"><%= dicts.SQL.TableTab %></div>
+          <!-- <div class="tab" data-tab="table"><%= dicts.SQL.TableTab %></div>
           <div class="tab" data-tab="udf"><%= dicts.SQL.UDFTab %></div>
-          <div class="tab" data-tab="sqlFunc"><%= dicts.SQL.SQLFuncTab %></div>
+          <div class="tab" data-tab="sqlFunc"><%= dicts.SQL.SQLFuncTab %></div> -->
           <div class="tab" data-tab="result"><%= dicts.SQL.ResultTab %></div>
+          <div class="tab" data-tab="history"><%= dicts.SQL.HistoryTab %></div>
         </div>
         <div class="contentSection">
           <div class="section query">
@@ -23,10 +24,6 @@
               </div>
             </div>
           </div>
-          <div class="section table">
-            include "sqlTableListerArea.html"
-            include "sqlTableSchemaArea.html"
-          </div>
           <div class="section udf">
             include "sqlResultUDFListArea.html"
           </div>
@@ -34,6 +31,8 @@
             include "sqlResultFuncListArea.html"
           </div>
           <div class="section result">
+            include "sqlTableListerArea.html"
+            include "sqlTableSchemaArea.html"
             include "sqlTableArea.html"
             include "sqlDataflowArea.html"
             <div class="hintArea">
@@ -41,16 +40,19 @@
               <div class="hint">Run a query or select a query result from the SQL history to get started</div>
             </div>
           </div>
+          <div class="section history">
+            include "sqlQueryHistory.html"
+          </div>
         </div>
       </div>
-      <div class="historySection">
+      <div class="bottomPart">
         <div class="resizeHandler">
             <div class="xc-resizeHandler">
               <div class="border"></div>
               <div class="border"></div>
             </div>
         </div>
-        include "sqlQueryHistory.html"
+        include "sqlEditorSpace.html"
       </div>
     </section>
   </div>
