@@ -241,6 +241,7 @@ describe("Admin Test", function() {
                 expect($ownLi.find(".memory").data("originalTitle")).to.equal("Memory usage: 3 B");
                 expect($("#userMemPopup").find(".breakdown .jObj").css("display")).to.equal("none");
                 $("#userMemPopup").find(".toggleBreakdown").click();
+
                 expect($("#userMemPopup").find(".breakdown .jObj").css("display")).to.equal("inline");
 
                 $(document).mousedown();
@@ -563,7 +564,7 @@ describe("Admin Test", function() {
             ClusterStatusModal.Instance.show = function() {
                 called = true;
             };
-            
+
             getStatus()
             .then(function() {
                 expect(called).to.equal(true);

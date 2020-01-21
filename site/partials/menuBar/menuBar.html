@@ -14,84 +14,96 @@
     <!-- datasets tab -->
     <!--  TODO: Currently Datasets/etc don't work if no workbook is activated. This will come later. -->
     <div id="dataStoresTab" class="topMenuBarTab firstTouch">
-      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Source & Load Data">
-        <i class="icon xi-source fa-25"></i>
-        <span class="label">Source & Load Data</span>
-      </div>
-      <div class="subTabs">
-        <div id="inButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.Datasets %>">
-          <i class="icon xi-import-dataset-double"></i>
-          <span class="label">Datasets</span>
+        <div class="tabGroup">
+            <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Source & Load Data">
+                <i class="icon xi-source fa-24"></i>
+                <span class="label">Source & Load Data</span>
+                </div>
+                <div class="subTabs">
+                <div id="inButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.Datasets %>">
+                    <i class="icon xi-import-dataset-double"></i>
+                    <span class="label">Datasets</span>
+                </div>
+                <div id="sourceTblButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.Table.Tables %>">
+                    <i class="icon xi-table-2"></i>
+                    <span class="label">Tables</span>
+                </div>
+                <!-- imd tab -->
+                <div id="imdTab" class="subTab noLeftPanel firstTouch xc-hidden" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ws.IMDPanel %>">
+                    <i class="icon xi-changingclock"></i>
+                </div>
+                <div id="targetButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.Targets %>">
+                    <i class="icon xi-data-connector"></i>
+                    <span class="label">Connectors</span>
+                </div>
+            </div>
         </div>
-        <div id="sourceTblButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.Table.Tables %>">
-          <i class="icon xi_table"></i>
-          <span class="label">Tables</span>
-        </div>
-        <!-- imd tab -->
-        <div id="imdTab" class="subTab noLeftPanel firstTouch xc-hidden" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ws.IMDPanel %>">
-          <i class="icon xi-changingclock"></i>
-        </div>
-        <div id="targetButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.Targets %>">
-          <i class="icon xi-data-connector"></i>
-          <span class="label">Connectors</span>
-        </div>
-      </div>
     </div>
 
     <!-- SQL tab -->
     <div id="sqlTab" class="topMenuBarTab wkbkMenuBarTabs noLeftPanel">
-      <div id="sqlWorkSpace" class="mainTab noLeftPanel" data-toggle="tooltip" data-placement="right" data-container="body" title="Query">
-          <i class="icon xi-SQLworkspace"></i>
-          <span class="label">Query</span>
+      <div class="tabGroup">
+        <div id="sqlWorkSpace" class="mainTab noLeftPanel" data-toggle="tooltip" data-placement="right" data-container="body" title="Query">
+                <i class="icon xi-SQLworkspace"></i>
+                <span class="label">Query</span>
+        </div>
       </div>
   </div>
 
     <!-- dataflow tab -->
     <div id="modelingDataflowTab" class="topMenuBarTab firstTouch wkbkMenuBarTabs">
-        <div id="dagButton" class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Transformation & Business Logic">
-            <i class="icon xi-dfg2"></i>
-            <span class="label">B & T Logic</span>
+        <div class="tabGroup">
+            <div id="dagButton" class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Transformation & Business Logic">
+                <i class="icon xi-dfg2"></i>
+                <span class="label">B & T Logic</span>
+            </div>
         </div>
     </div>
 
     <!-- jupyter Tab -->
     <div id="jupyterTab" class="topMenuBarTab noLeftPanel wkbkMenuBarTabs">
-        <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Jupyter Notebook">
-          <i class="icon xi-menu-cli fa-20"></i>
-          <span class="label">Jupyter</span>
+        <div class="tabGroup">
+            <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Jupyter Notebook">
+                <i class="icon xi-menu-cli fa-20"></i>
+                <span class="label">Jupyter</span>
+            </div>
         </div>
     </div>
 
     <!-- system tab -->
     <div id="monitorTab" class="topMenuBarTab firstTouch">
-      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.monitor %>">
-        <i class="icon xi-menu-monitoring fa-20"></i>
-        <span class="label">System</span>
-      </div>
-      <div class="subTabs">
-        <div id="queriesButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Queries %>">
-          <i class="icon xi-operations"></i>
+        <div class="tabGroup">
+            <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.monitor %>">
+                <i class="icon xi-menu-monitoring fa-20"></i>
+                <span class="label">System</span>
+            </div>
+            <div class="subTabs">
+                <div id="queriesButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Queries %>">
+                    <i class="icon xi-operations"></i>
+                </div>
+                <div id="systemButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Monitor %>">
+                    <i class="icon xi-system2"></i>
+                </div>
+                <div id="fileManagerButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.fileManager %>">
+                    <i class="icon xi-udf-manager"></i>
+                </div>
+                <div id="logButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.Logs %>">
+                    <i class="icon xi-menu-log"></i>
+                </div>
+                <div id="settingsButton" class="subTab noLeftPanel" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Preferences %>">
+                    <i class="icon xi-setting"></i>
+                </div>
+                <div id="setupButton" class="subTab adminOnly" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Setup %>">
+                    <i class="icon xi-setup"></i>
+                </div>
+            </div>
         </div>
-        <div id="systemButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Monitor %>">
-          <i class="icon xi-system2"></i>
-        </div>
-        <div id="fileManagerButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.fileManager %>">
-          <i class="icon xi-udf-manager"></i>
-        </div>
-        <div id="logButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.Logs %>">
-          <i class="icon xi-menu-log"></i>
-        </div>
-        <div id="settingsButton" class="subTab noLeftPanel" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Preferences %>">
-          <i class="icon xi-setting"></i>
-        </div>
-        <div id="setupButton" class="subTab adminOnly" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Setup %>">
-          <i class="icon xi-setup"></i>
-        </div>
-      </div>
     </div>
     <div id="helpTab" class="topMenuBarTab xc-hidden">
-        <div class="mainTab">
-          </div>
+        <div class="tabGroup">
+            <div class="mainTab">
+            </div>
+        </div>
     </div>
 
   </div>
@@ -108,17 +120,21 @@
 
     <!-- udf -->
     <div id="udfTab" class="sliderBtn bottomMenuBarTab xd-only wkbkMenuBarTabs" data-toggle="tooltip" data-placement="right" data-container="body" title="UDF">
-      <div class="mainTab">
-        <i class="icon xi-menu-udf fa-25"></i>
-        <span class="label">UDF</span>
+        <div class="tabGroup">
+            <div class="mainTab">
+            <i class="icon xi-menu-udf fa-25"></i>
+            <span class="label">UDF</span>
+        </div>
       </div>
     </div>
 
     <!-- help section -->
     <div id="helpMenuTab" class="sliderBtn bottomMenuBarTab xc-hidden" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.Help %>">
-      <div class="mainTab">
-        <i class="icon xi-help-outline fa-25"></i>
-      </div>
+       <div class="tabGroup">
+            <div class="mainTab">
+                <i class="icon xi-help-outline fa-25"></i>
+            </div>
+       </div>
     </div>
   </div>
 </div>
