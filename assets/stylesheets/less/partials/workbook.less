@@ -8,7 +8,7 @@
     height: 100%;
     background-color: @color-bg-body-gray;
     box-shadow: 0px 0px 8px 2px rgba(0,0,0,0.3);
-    top: 50px;
+    top: @height-homeBtn;
     .transition(0.4s top ease-out);
 
     #dialogWrap {
@@ -310,27 +310,27 @@
 
         .workbookBox {
             @tabHeight: 45px;
-    
+
             &.loading {
                 .loadSection {
                     display: block;
                 }
-    
+
                 i, > div:not(.loadSection) {
                     display: none !important;
                 }
             }
-    
+
             .loadSection {
                 position: relative;
                 opacity: 0.8;
                 display: none;
                 .size(100%, 100%);
-    
+
                 .animatedEllipsisWrapper {
                     .size(@width: 150px, @height: @h);
                     .center-align;
-    
+
                     .animatedEllipsis {
                         > div {
                             .font(@weight: bold);
@@ -339,37 +339,37 @@
                     }
                 }
             }
-    
+
             &.noMeta {
                 color: @color-font-greyish-brown;
             }
-    
+
             &.active {
                 .state {
-                    color: @color-font-link-blue;  
+                    color: @color-font-link-blue;
                 }
             }
 
             &.open {
                 background-color: @color-bg-dropdown-hover-gray
             }
-    
+
             .name {
                 &:hover {
                     cursor: pointer;
                     text-decoration: underline;
                 }
-    
+
                 input {
                     width: 100%;
                     background-color: transparent;
                     outline: none;
-    
+
                     &.focused, &:focus {
                         border: 1px solid @color-border-softBlue;
                         cursor: auto;
                     }
-    
+
                     &.error {
                         border: 1px solid @color-error-border;
                     }
@@ -379,18 +379,18 @@
                     width: 100%;
                 }
             }
-    
+
             .sessionId {
                 &:hover {
                     i {
                         display: inline-block;
                     }
                 }
-    
+
                 div {
                     float: left;
                 }
-    
+
                 i {
                     display: none;
                     margin-left: 8px;
@@ -399,7 +399,7 @@
                     line-height: @h;
                 }
             }
-    
+
             .dropDown {
                 position: absolute;
                 right: 20px;
