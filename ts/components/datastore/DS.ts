@@ -64,6 +64,10 @@ namespace DS {
         oldHomeFolder: DSDurable,
         atStartUp: boolean
     ): XDPromise<void> {
+        if (XVM.isDataMart()) {
+            // data mart doesn't restore
+            return PromiseHelper.resolve();
+        }
         restoreSortKey();
         return restoreDS(oldHomeFolder, atStartUp);
     }

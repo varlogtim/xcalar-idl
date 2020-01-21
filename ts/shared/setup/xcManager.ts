@@ -77,8 +77,12 @@ namespace xcManager {
             // First XD instance to run since cluster restart
             return oneTimeSetup();
         })
-        .then(setupWKBKIndependentPanels)
-        .then(setupSession) // restores info from kvStore
+        .then(function() {
+            return setupWKBKIndependentPanels();
+        })
+        .then(function() {
+            return setupSession();
+        }) // restores info from kvStore
         .then(function() {
             UDFPanel.Instance.setup();
             return XVM.initializeMode();
@@ -128,7 +132,7 @@ namespace xcManager {
             try {
                 DagStatsPanel.Instance.setup();
                 // By default show panel
-                MainMenu.openDefaultPanel(true);
+                MainMenu.openDefaultPanel();
                 if (firstTimeUser) {
                     // show hint to create datasets if no tables have been created
                     // in this workbook
@@ -163,10 +167,11 @@ namespace xcManager {
                 console.error(e);
                 return PromiseHelper.reject(e);
             }
-
             return TooltipWalkthroughs.checkFirstTimeTooltip();
         })
-        .then(deferred.resolve)
+        .then(function() {
+            deferred.resolve();
+        })
         .fail(function(error) {
             handleSetupFail(error, firstTimeUser);
             UDFPanel.Instance.setup(); // ok to load twice, we check
@@ -602,7 +607,6 @@ namespace xcManager {
 
     function setupSession(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-
         WorkbookManager.setup()
         .then((wkbkId) => {
             return XcUser.CurrentUser.holdSession(wkbkId, false);
@@ -618,7 +622,9 @@ namespace xcManager {
             const promise = Authentication.setup();
             return PromiseHelper.convertToJQuery(promise);
         })
-        .then(deferred.resolve)
+        .then(() => {
+            deferred.resolve();
+        })
         .fail(deferred.reject);
 
         return deferred.promise();
@@ -674,6 +680,10 @@ namespace xcManager {
     function hotPatch(): XDPromise<void> {
         if (XVM.isCloud()) {
             // cloud don't need to use hotpatch
+            return PromiseHelper.resolve();
+        }
+        if (XVM.isDataMart()) {
+            // data mart cannot use hotpatch, as VPC may block external internet
             return PromiseHelper.resolve();
         }
 
