@@ -323,13 +323,13 @@
     .textOverflowOneLine;
     text-align: center;
     .size(150px, @height-btn);
-    background-color: @color-font-link-blue;
+    background-color: @color-link-blue;
     cursor: pointer;
     .transition(background-color 0.1s);
     border-radius: 4px;
 
     &:hover, &:focus {
-        background-color: @color-font-button-hover;
+        background-color: @color-hover-blue;
     }
 
     &:active {
@@ -377,7 +377,7 @@
 
     &.iconBtn {
         .icon {
-            color:@color-font-link-blue;
+            color: @color-font-link-blue;
         }
     }
 
@@ -1580,14 +1580,14 @@
     }
 
     &.on {
-        background-color: @color-bg-softBlue;
+        background-color: @color-hover-blue;
         .slider {
             left: 12px;
         }
     }
 
     &.alwaysBlue {
-        background-color: @color-bg-softBlue;
+        background-color: @color-hover-blue;
     }
 
     &.alwaysBail {
@@ -1597,7 +1597,7 @@
 
 .xc-logo {
     background-color: @color-bg-dusk-blue;
-    border: 2px solid @color-bg-softBlue;
+    border: 2px solid @color-bg-brighter-blue;
     .innerShadow {
         height: 100%;
         width: 100%;
@@ -1608,7 +1608,7 @@
 
     .icon {
         .size(@width: 38px, @height: 38px);
-        background-color: @color-bg-softBlue;
+        background-color: @color-bg-brighter-blue;
         display: block;
 
         font-size: 38px;
@@ -1691,7 +1691,7 @@ html.firefox {
         .queryIcon {
             &.processing {
                 display: inline-block;
-                color: @color-bg-softBlue;
+                color: @color-hover-blue;
             }
         }
 
@@ -1707,7 +1707,7 @@ html.firefox {
         }
 
         .progressBar {
-            background-color: @color-bg-softBlue;
+            background-color: @color-hover-blue;
         }
     }
 
@@ -1715,12 +1715,12 @@ html.firefox {
         .queryIcon {
             &.processing {
                 display: inline-block;
-                color: @color-bg-softBlue;
+                color: @color-hover-blue;
             }
         }
 
         .progressBar {
-            background-color: @color-bg-softBlue;
+            background-color: @color-hover-blue;
         }
     }
 

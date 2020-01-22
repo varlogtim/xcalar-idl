@@ -77,8 +77,8 @@
 @color-profile-bar-selected-border: #2D7694;
 @color-profile-bar-null-hover: #CA443B; // XXX only used once (profile modal)
 @color-profile-selected-bar-extra: #A4BBC3; // XXX only used once (profile modal)
-@color-profile-bar: @color-bg-softBlue;
-@color-profile-bar-hover: #3A9AC2;
+@color-profile-bar: @color-hover-blue;
+@color-profile-bar-hover: @color-link-blue;
 @color-profile-selected-bar: #339ECA;
 @color-profile-bar-null: #E04C42;
 @color-profile-selected-bar-null: #9E2F28; // XXX only used once (profile modal)
@@ -145,7 +145,7 @@
 @color-bg-advSubTab-drakerGrey: #4e5D69;
 @color-bg-advSubTab-draketsGrey: #38434C; // XXX only used once (developer mode, active subTab's hover state)
 @color-bg-cancel-gray: #798fa1;
-@color-bg-cancel-gray-hover: #9EB3C5;
+@color-bg-cancel-gray-hover: #9fb3c8;
 
 // green
 @color-bg-apple-green: #64B053;
@@ -175,13 +175,15 @@
 @color-bg-marine: #0A3549;
 @color-bg-dark-marine: #062330;
 @color-bg-wkbk-blue: #008EB4;
-@color-bg-select-blue: #378CB3;
+@color-bg-select-blue: #0c76da;
 @color-bg-cardHeader: #849CB0;
 @color-bg-dusk-blue: #1E6688; // active main tab & mainmenu background
 @color-bg-dusk-blue-up: #236E90;
 @color-bg-light-navy: #154f69; // inactive sub tab
 @color-bg-btn-hover-blue: #046EA1;
-@color-bg-softBlue: #5CB2E8;
+@color-bg-bright-blue: #378CB3;
+@color-bg-brighter-blue: #5CB2E8;
+// @color-hover-blue: #5CB2E8;
 @color-bg-bright-light-blue: #38CBFF; // help headings
 @color-bg-menu-light-blue: #3981A2; // XXX only used once (dataset menu share action when share is disabled)
 @color-bg-limedSpruce: #36444D;
@@ -190,7 +192,7 @@
 @color-bg-graph-one: #B4DCD5;
 @color-bg-graph-two: #5DB9C4;
 @color-bg-graph-three: #5A9FC8;
-@color-bg-graph-four: @color-bg-softBlue;
+@color-bg-graph-four: @color-hover-blue;
 @color-bg-graph-gray: #EEEEEE;
 @color-bg-highlight-blue-trans: rgba(221, 234, 242, 0.5);
 @color-bg-list-hover-blue:#F5F8FA;
@@ -208,10 +210,10 @@
 @color-bg-lockedIcon-cancel-lighter: rgba(161, 4, 4, 0.56);
 @color-bg-lockedIcon-cancel-dark: #7D2626;
 @color-bg-tarawera-blue: #0B3E55;
-@color-bg-dropdown-hover-gray: #EAF9FF;
+@color-bg-dropdown-hover-gray: @color-bg-list-hover-blue;
 
 /* Borders */
-@color-border-softBlue: @color-bg-softBlue;
+@color-border-softBlue: @color-hover-blue;
 @color-border-select-blue: @color-bg-select-blue;
 @color-border-activeBlue: @color-bg-marine;
 @color-border-mainTab-active: #0b2f40;
@@ -293,19 +295,20 @@
 @color-font-warm-grey-three: #858585;
 @color-font-form-gray: #44515C;
 @color-font-dropdown-gray: #8C9CB0;
-@color-font-seconday-button-hover: #ebeff2;
+@color-font-seconday-button-hover: #f4f7fa;
 
 // blues
-@color-font-softBlue: @color-bg-softBlue;
+@color-font-softBlue: @color-hover-blue;
 @color-font-select-blue: @color-bg-select-blue;
 @color-font-bright-light-blue: @color-bg-bright-light-blue;
 @color-font-dusk-blue: @color-bg-dusk-blue;
 @color-font-wkbkInfo-blue: #7098A5;
 @color-font-edge: #627483;
 @color-font-light-blue: #6eb9db;
-@color-font-link-blue: #37a9dd;
-@color-font-button-hover: #29b5f4;
-@color-font-checkbox-hover: #21BAFF;
+// @color-font-link-blue: #37a9dd;
+// @color-font-button-hover: #29b5f4;
+@color-font-button-hover: #2a93ee;
+@color-font-checkbox-hover: #0c76da;
 
 /* Pie Chart Colors */
 @color-arc-1: #67b9a1;
@@ -315,7 +318,7 @@
 @color-arc-5: #97cce9;
 @color-arc-6: #d7fdb1;
 @color-arc-7: #91b7b0;
-@color-arc-8: @color-bg-softBlue;
+@color-arc-8: @color-hover-blue;
 @color-arc-9: #f7f7f7;
 @color-arc-10: @color-selectedCell-light;
 @color-arc-11: #1ec89f;
@@ -375,7 +378,8 @@
 @color-wkbk-border-gray: #e3e9ef;
 @color-icon-gray: #627d98;
 @color-link-blue: #0c76da;
-
+@color-hover-blue: #0a64b8;
+@color-font-link-blue: @color-hover-blue;
 
 /* z-indexes
 - table header input needs to go on top of table header grab so that you can

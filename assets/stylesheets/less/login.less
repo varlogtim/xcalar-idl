@@ -33,7 +33,7 @@ body {
     -webkit-font-smoothing: antialiased;
     color: @color-white;
     // font-size: 0; /* Need to use this to get rid of stupid white space */
-    .linear-gradient(top, @color-bg-select-blue, @color-bg-marine);
+    .linear-gradient(top, #378CB3, @color-bg-marine);
 }
 
 form {
@@ -100,7 +100,7 @@ header {
 
 #loadingBar {
     .size(@width: 100%, @height: 1px);
-    background-color: @color-border-softBlue;
+    background-color: @color-bg-brighter-blue;
     margin-bottom: 26px;
     position: relative;
     overflow: hidden;
@@ -112,7 +112,7 @@ header {
         position:absolute;
         left: -200px;
         // XX need to add this to mixin
-        background: linear-gradient(to right, @color-border-softBlue, #d6e4ec, @color-border-softBlue);
+        background: linear-gradient(to right, @color-bg-brighter-blue, #d6e4ec, @color-border-softBlue);
 
         &.animated {
             .keyframe(slideRight, {
@@ -165,9 +165,9 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:active,
 input:-webkit-autofill:focus {
-    background-color: @color-border-select-blue !important;
+    background-color: @color-bg-bright-blue !important;
     color: @color-white !important;
-    -webkit-box-shadow: 0 0 0 1000px  @color-border-select-blue inset !important;
+    -webkit-box-shadow: 0 0 0 1000px  @color-bg-bright-blue inset !important;
     -webkit-text-fill-color: @color-white !important;
 }
 
@@ -196,7 +196,7 @@ input:-webkit-autofill:focus {
             position: absolute;
             bottom: 0px;
             .size(@width: 100%, @height: 1px);
-            background-color: @color-border-select-blue;
+            background-color: @color-bg-bright-blue;
             .transition(all 0.5s);
         }
     }
