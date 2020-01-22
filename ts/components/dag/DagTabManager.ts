@@ -603,7 +603,7 @@ class DagTabManager {
         //Use a chain to ensure all are run sequentially.
         PromiseHelper.chain(promises)
         .always(() => {
-            DagList.Instance.updateList();
+            DagList.Instance.refreshMenuList(ResourceMenu.KEY.DF);
             if (this.getNumTabs() === 0) {
                 this.reset();
             }
@@ -752,7 +752,11 @@ class DagTabManager {
         }
 
         DagViewManager.Instance.cleanupClosedTab(dagTab.getGraph());
-        DagList.Instance.updateList();
+        if (dagTab instanceof DagTabSQLFunc) {
+            DagList.Instance.refreshMenuList(ResourceMenu.KEY.TableFunc);
+        } else {
+            DagList.Instance.refreshMenuList(ResourceMenu.KEY.DF);
+        }
         return true;
     }
 
@@ -839,7 +843,11 @@ class DagTabManager {
         this._activeUserDags.splice(index, 0, dagTab);
         dagTab.setOpen();
         if (!noUpdate) {
-            DagList.Instance.updateList();
+            if (dagTab instanceof DagTabSQLFunc) {
+                DagList.Instance.refreshMenuList(ResourceMenu.KEY.TableFunc);
+            } else {
+                DagList.Instance.refreshMenuList(ResourceMenu.KEY.DF);
+            }
         }
         this._addTabHTML(dagTab);
         this._addTabEvents(dagTab);

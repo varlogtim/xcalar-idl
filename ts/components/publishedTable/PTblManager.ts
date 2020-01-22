@@ -1271,6 +1271,7 @@ class PTblManager {
         }
     ): void {
         SQLResultSpace.Instance.refresh();
+        ResourceMenu.update(ResourceMenu.KEY.Table);
         XcSocket.Instance.sendMessage("refreshIMD", event, null);
     }
 }

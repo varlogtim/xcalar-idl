@@ -8,8 +8,8 @@ class SQLMenu {
         this._addEventListeners();
     }
 
-    public render(): void {
-        this._resourceMenu.render();
+    public render(key?: string): void {
+        this._resourceMenu.render(key);
     }
 
     private _getTableFuncList(): HTML {

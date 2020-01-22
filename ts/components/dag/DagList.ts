@@ -57,8 +57,10 @@ class DagList extends Durable {
             return this._fetchXcalarQueries();
         })
         .then(() => {
+            // for dag list, it's a render of whole thing,
+            // for sql menu, it's only for table function
             this._renderResourceList();
-            SQLWorkSpace.Instance.refreshMenuList();
+            SQLWorkSpace.Instance.refreshMenuList(ResourceMenu.KEY.TableFunc);
             this._setup = true;
             deferred.resolve();
         })
@@ -272,8 +274,8 @@ class DagList extends Durable {
         .then(deferred.resolve)
         .fail(deferred.reject)
         .always(() => {
-            this._renderResourceList();
-            SQLWorkSpace.Instance.refreshMenuList();
+            ResourceMenu.update(ResourceMenu.KEY.DF);
+            ResourceMenu.update(ResourceMenu.KEY.TableFunc);
         });
         return promise;
     }
@@ -300,8 +302,12 @@ class DagList extends Durable {
         } else if (dagTab instanceof DagTabPublished) {
             this._dags.set(dagTab.getId(), dagTab);
         }
-        this._renderResourceList();
-        SQLWorkSpace.Instance.refreshMenuList();
+
+        if (dagTab instanceof DagTabSQLFunc) {
+            ResourceMenu.update(ResourceMenu.KEY.TableFunc);
+        } else {
+            ResourceMenu.update(ResourceMenu.KEY.DF);
+        }
         return true;
     }
 
@@ -327,7 +333,7 @@ class DagList extends Durable {
             $li.find(".name").text(newName);
         }
         // not support rename published df now
-        this.updateList();
+        ResourceMenu.update(ResourceMenu.KEY.DF);
     }
 
     /**
@@ -363,9 +369,13 @@ class DagList extends Durable {
             }
         }
     }
-
-    public updateList(): void {
-        this._renderResourceList();
+    
+    /**
+     * DagList.Instance.refreshMenuList
+     * @param key
+     */
+    public refreshMenuList(key: string): void {
+        this._resourceMenu.render(key);
     }
 
     /**
@@ -482,8 +492,11 @@ class DagList extends Durable {
             $('#dagListSection .dagListDetail[data-id="' +id + '"]').remove();
             this._dags.delete(id);
             this._saveDagList(dagTab);
-            this._renderResourceList();
-            SQLWorkSpace.Instance.refreshMenuList();
+            if (dagTab instanceof DagTabSQLFunc) {
+                ResourceMenu.update(ResourceMenu.KEY.TableFunc);
+            } else {
+                ResourceMenu.update(ResourceMenu.KEY.DF);
+            }
             if (dagTab instanceof DagTabPublished) {
                 DagSharedActionService.Instance.broadcast(DagGraphEvents.DeleteGraph, {
                     tabId: id

@@ -207,6 +207,18 @@ class TblSource {
         return this._dataMarts;
     }
 
+    public activateTable(tableName: string): void {
+        return this._activateTables([tableName]);
+    }
+
+    public deactivateTable(tableName: string): void {
+        return this._deactivateTables([tableName]);
+    }
+
+    public async deleteTable(tableName: string): Promise<void> {
+        return this._deletTables([tableName]);
+    }
+
     private _getMenuSection(): JQuery {
         return $("#datastoreMenu .menuSection.table");
     }

@@ -1,6 +1,18 @@
 class ResourceMenu {
+    public static KEY = {
+        Table: "Table",
+        TableFunc: "TableFunc",
+        UDF: "UDF",
+        DF: "DF"
+    };
+
     private _container: string;
     private _event: XcEvent;
+
+    public static update(key: string): void {
+        DagList.Instance.refreshMenuList(key);
+        SQLWorkSpace.Instance.refreshMenuList(key);
+    }
 
     constructor(container: string) {
         this._container = container;
@@ -10,12 +22,22 @@ class ResourceMenu {
         this._getContainer().find(".tableList").addClass("active");
     }
 
-    public render(): void {
+    public render(key?: string): void {
         try {
-            this._renderTableList();
-            this._renderTableFuncList();
-            this._renderUDFList();
-            this._renderDataflowList();
+            if (!key) {
+                this._renderTableList();
+                this._renderTableFuncList();
+                this._renderUDFList();
+                this._renderDataflowList();
+            } else if (key === ResourceMenu.KEY.Table) {
+                this._renderTableList();
+            } else if (key === ResourceMenu.KEY.TableFunc) {
+                this._renderTableFuncList();
+            } else if (key === ResourceMenu.KEY.UDF) {
+                this._renderUDFList();
+            } else if (key === ResourceMenu.KEY.DF) {
+                this._renderDataflowList();
+            }
         } catch (e) {
             console.error(e);
         }
@@ -88,9 +110,13 @@ class ResourceMenu {
 
     private _renderTableList(): void {
         const tables: PbTblInfo[] = SQLResultSpace.Instance.getAvailableTables();
-        const listClassNames: string[] = ["table", "selectable"];
+        tables.sort((a, b) => xcHelper.sortVals(a.name, b.name));
         const iconClassNames: string[] = ["xi-table-2"];
         const html: HTML = tables.map((table) => {
+            const listClassNames: string[] = ["table", "selectable"];
+            if (!table.active) {
+                listClassNames.push("inActive");
+            }
             return this._getListHTML(table.name, listClassNames, iconClassNames);
         }).join("");
         this._getContainer().find(".tableList ul").html(html);
@@ -106,11 +132,20 @@ class ResourceMenu {
         $menu.find("li").hide();
         if ($li.hasClass("table")) {
             $menu.find("li.table").show();
+            if ($li.hasClass("inActive")) {
+                $menu.find("li.tableActivate").show();
+                $menu.find("li.tableDeactivate").hide();
+            } else {
+                $menu.find("li.tableActivate").hide();
+                $menu.find("li.tableDeactivate").show();
+            }
         } else if ($li.hasClass("tableFunc")) {
             $menu.find("li.tableFunc").show();
         } else if ($li.hasClass("udf")) {
             $menu.find("li.udf").show();
-        } else if ($li.hasClass("dagListDetail")) {
+        }
+        // sql func can also have this class
+        if ($li.hasClass("dagListDetail")) {
             $menu.find("li.dag").show();
 
             const $openOnlyOption = $menu.find("li.duplicateDataflow, li.downloadDataflow");
@@ -220,6 +255,21 @@ class ResourceMenu {
         $menu.on("click", ".tableQuery", () => {
             const name: string = $menu.data("name");
             this._tableQuery(name);
+        });
+
+        $menu.on("click", ".tableActivate", () => {
+            const name: string = $menu.data("name");
+            TblSource.Instance.activateTable(name);
+        });
+
+        $menu.on("click", ".tableDeactivate", () => {
+            const name: string = $menu.data("name");
+            TblSource.Instance.deactivateTable(name);
+        });
+
+        $menu.on("click", ".tableDelete", () => {
+            const name: string = $menu.data("name");
+            TblSource.Instance.deleteTable(name);
         });
 
         $menu.on("click", ".tableModule", () => {

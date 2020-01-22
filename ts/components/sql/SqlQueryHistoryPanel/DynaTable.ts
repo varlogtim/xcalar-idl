@@ -313,7 +313,8 @@ namespace SqlQueryHistoryPanel {
                 colIndex
             ) => {
                 let elems = null;
-                const columnWidth = this._getHeaderColumnWidth(colIndex);
+                // when return 0, make it to be null
+                const columnWidth = this._getHeaderColumnWidth(colIndex) || null;
                 const widthWithUnit = columnWidth == null ? null : `${columnWidth}px`;
     
                 if (type === TableHeaderColumnType.REGULAR) {
@@ -419,7 +420,8 @@ namespace SqlQueryHistoryPanel {
     
             const columns = [];
             columnProps.forEach((columnProp, colIndex) => {
-                const columnWidth = this._getBodyColumnWidth(colIndex);
+                // when return 0, make it to be null
+                const columnWidth = this._getBodyColumnWidth(colIndex) || null;
                 if (columnWidth != null) {
                     columnProp.width = `${this._getBodyColumnWidth(colIndex)}px`;
                 }

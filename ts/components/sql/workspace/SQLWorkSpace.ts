@@ -35,8 +35,8 @@ class SQLWorkSpace {
    /**
     * SQLWorkSpace.Instance.refreshMenuList
     */
-    public refreshMenuList(): void {
-        this._sqlMenu.render();
+    public refreshMenuList(key: string): void {
+        this._sqlMenu.render(key);
     }
 
     /**

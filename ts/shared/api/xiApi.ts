@@ -3106,7 +3106,7 @@ namespace XIApi {
                 name: xcHelper.cleanseSQLColName(primaryKey.toUpperCase()),
                 ordering: XcalarOrderingT.XcalarOrderingUnordered
             };
-    });
+        });
 
         pubTableName = pubTableName.toUpperCase();
 
