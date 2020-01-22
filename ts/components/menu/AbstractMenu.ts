@@ -156,4 +156,102 @@ abstract class AbstractMenu {
         }
         $menu.removeClass("showingHotKeys");
     }
+
+    protected _switchToSQL(callback) {
+        const confirm = () => {
+                /*
+                    check if sql statement exists, if so then we create a dataflow, and copy
+                    and paste the nodes from this dataflow into the active dataflow in
+                    the dataflow panel, then we attach a node from whatever operation
+                    is triggered by the column menu. The callback function then configures
+                    that node and opens the operation panel or executes
+                    If sql statement doesn't exist, we just create a published table node
+                    from the table
+                */
+            try {
+                const tableId: TableId = $menu.data('tableId');
+                const table: TableMeta = gTables[tableId];
+                const tableName = table.getName();
+                const sqlString = SqlQueryHistory.getInstance().getSQLFromTableName(tableName);
+
+                if (sqlString) {
+                    const name: string = "SQL " + moment(new Date()).format("HH:mm:ss ll");
+                    SQLDataflowPreview.restoreDataflow(sqlString, name)
+                    .then((dagTab) => {
+                        MainMenu.openPanel("dagPanel");
+                        if (DagTabManager.Instance.getNumTabs() === 0) {
+                            DagTabManager.Instance.newTab();
+                        }
+                        const graph = dagTab.getGraph();
+                        let nodeInfos = [];
+                        let parentNodeId;
+                        graph.getAllNodes().forEach((node) => {
+                            nodeInfos.push(node.getNodeCopyInfo(true));
+                        });
+                        const newNodes = DagViewManager.Instance.paste(JSON.stringify(nodeInfos));
+                        newNodes.forEach((node) => {
+                            if (node.getChildren().length === 0) {
+                                parentNodeId = node.getId();
+                            }
+                        });
+                        callback.bind(this)(parentNodeId);
+                    })
+                    .fail((e) => {
+                        console.error("error", e);
+                        Alert.error(ErrTStr.Error, ErrTStr.Unknown);
+                    });
+                } else {
+                    // sql string may not exist so we just create a published
+                    // table node as the start point
+                    MainMenu.openPanel("dagPanel");
+                    if (DagTabManager.Instance.getNumTabs() === 0) {
+                        DagTabManager.Instance.newTab();
+                    }
+                    const input = {
+                        "source": xcHelper.getTableName(tableName),
+                        "version": -1,
+                        "filterString": "",
+                        "schema": [],
+                        "limitedRows": null
+                    };
+                    let schema = table.getAllCols(true).map((progCol) => {
+                        return {
+                            name: progCol.getBackColName(),
+                            type: progCol.getType()
+                        }
+                    });
+                    input.schema = schema;
+
+                    let parentNode = DagViewManager.Instance.autoAddNode(DagNodeType.IMDTable,
+                        null, null, input, undefined, undefined, {
+                            configured: true,
+                            forceAdd: true
+                    });
+                    parentNode.setParam(input, true);
+
+                    callback.bind(this)(parentNode.getId());
+                }
+            }  catch (e) {
+                console.error("error", e);
+                Alert.error(ErrTStr.Error, ErrTStr.Unknown);
+            }
+        }
+
+        const $menu: JQuery = this._getMenu();
+        if (UserSettings.getPref("ignoreSQLFASJWarning")) {
+            confirm();
+            return;
+        }
+        Alert.show({
+            title: "Switching Panels",
+            msg: "You will be redirected to the " + MainMenu.tabToPanelTitleMap.modelingDataflowTab + " Panel for this operation. Do you want to continue?",
+            isCheckBox: true,
+            onConfirm: (checked) => {
+                if (checked) {
+                    UserSettings.setPref("ignoreSQLFASJWarning", true, false);
+                }
+                confirm();
+            }
+        });
+    }
 }

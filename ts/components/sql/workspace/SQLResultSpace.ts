@@ -96,7 +96,7 @@ class SQLResultSpace {
      */
     public viewTable(
         table: TableMeta,
-        columns: {name: string, backName: string, type: ColumnType}[], 
+        columns: {name: string, backName: string, type: ColumnType}[],
         callback?: Function
     ): void {
         this._sqlTable.show(table, columns, callback);
@@ -168,11 +168,11 @@ class SQLResultSpace {
         const $tabSection: JQuery = this._getTabSection();
         $tabSection.find(".tab.active").removeClass("active");
         $tabSection.find('.tab[data-tab="' + tab + '"]').addClass("active");
-        
+
         const $contentSection: JQuery = this._getContentSection();
         $contentSection.find(".section").addClass("xc-hidden");
         $contentSection.find(".section" + "." + tab).removeClass("xc-hidden");
-    
+
         switch (tab) {
             case "query":
                 this._sqlResultQueryLister.show();

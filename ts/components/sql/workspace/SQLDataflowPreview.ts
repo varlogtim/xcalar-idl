@@ -55,7 +55,7 @@ class SQLDataflowPreview {
         this._alertAnalyze()
         .then((tabName) => {
             $("#initialLoadScreen").show();
-            return this._restoreDataflow(sql, tabName);
+            return SQLDataflowPreview.restoreDataflow(sql, tabName);
         })
         .then((resultTab) => {
             dagTab = resultTab;
@@ -104,7 +104,8 @@ class SQLDataflowPreview {
         return deferred.promise();
     }
 
-    private _restoreDataflow(sql: string, tabName: string): XDPromise<DagTabUser> {
+    // being used by column menu to create dataflow nodes
+    public static restoreDataflow(sql: string, tabName: string): XDPromise<DagTabUser> {
         try {
             const deferred: XDDeferred<DagTabUser> = PromiseHelper.deferred();
             SQLUtil.getSQLStruct(sql)

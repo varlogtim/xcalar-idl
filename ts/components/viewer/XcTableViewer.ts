@@ -4,8 +4,9 @@ class XcTableViewer extends XcViewer {
     protected skew: TableSkew;
     private rowManager: RowManager;
     private $container: JQuery;
+    private _options: any
 
-    public constructor(table: TableMeta) {
+    public constructor(table: TableMeta, options: any = {}) {
         const tableName: string = table.getName(); // use table name as unique id
         super(tableName);
         this._initializeColumnWidth(table);
@@ -14,6 +15,7 @@ class XcTableViewer extends XcViewer {
         this.rowInput = new RowInput(this.rowManager);
         this.skew = new TableSkew(this.table);
         this._setTableMode(true);
+        this._options = options;
     }
 
     public getTitle(): string {
@@ -235,7 +237,12 @@ class XcTableViewer extends XcViewer {
         const $xcTableWrap: JQuery = $('#xcTableWrap-' + tableId);
         $xcTableWrap.removeClass("building");
         this._autoSizeDataCol(tableId);
-        $table.addClass("noOperation");
+        if (this._options.fromSQL) {
+            $table.addClass("fromSQL");
+        } else {
+            $table.addClass("noOperation");
+        }
+
         if (table.allImmediates) {
             $table.addClass("allImmediates");
         }

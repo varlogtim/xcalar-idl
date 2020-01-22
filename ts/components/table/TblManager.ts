@@ -2391,6 +2391,9 @@ class TblManager {
             if ($table.hasClass("noOperation")) {
                 extraClasses += " noOperation";
             }
+            if ($table.hasClass("fromSQL")) {
+                extraClasses += " fromSQL";
+            }
 
             MenuHelper.dropdownOpen($el, $("#cellMenu"), {
                 "colNum": colNum,
@@ -2499,6 +2502,9 @@ class TblManager {
                 " mode-modeling" : "";
                 if ($table.hasClass("noOperation")) {
                     extraClasses += " noOperation"
+                }
+                if ($table.hasClass("fromSQL")) {
+                    extraClasses += " fromSQL";
                 }
 
                 MenuHelper.dropdownOpen($div, $("#cellMenu"), {
@@ -2640,6 +2646,10 @@ class TblManager {
             });
         } else {
             options.classes += " type-singleColumn";
+        }
+
+        if ($table.hasClass("fromSQL")) {
+            options.classes += " fromSQL";
         }
 
         if (isRightClick) {

@@ -88,6 +88,43 @@ class DagQueryConverter {
         }
     }
 
+    public convertToSubGraph(): DagSubGraph {
+        const nameIdMap = {};
+        const idToNamesMap = {};
+        const retStruct = this.getResult();
+
+        const nodeJsons = retStruct.dagInfoList;
+        const nodeInfos = [];
+        nodeJsons.forEach((nodeJson) => {
+            idToNamesMap[nodeJson.id] = [];
+            nameIdMap[nodeJson.table] = nodeJson.id;
+            if (nodeJson.subGraphNodes) {
+                // map the index nodes to the containing dagNodeId
+                nodeJson.subGraphNodes.forEach((subGraphNodeJson) => {
+                    nameIdMap[subGraphNodeJson.table] = nodeJson.id;
+                    idToNamesMap[nodeJson.id].push(subGraphNodeJson.table);
+                });
+            }
+
+            idToNamesMap[nodeJson.id].push(nodeJson.table);
+            nodeInfos.push({
+                node: DagNodeFactory.create(nodeJson),
+                parents: nodeJson.parents
+            });
+        });
+        const comments: CommentInfo[] = [];
+        const graphInfo = {
+            comments: comments,
+            display: <Dimensions>{scale: 1},
+            nodes: nodeInfos,
+            operationTime: null
+        };
+
+        const graph: DagSubGraph = new DagSubGraph(retStruct.tableNewDagIdMap, retStruct.dagIdToTableNamesMap);
+        graph.rebuildGraph(graphInfo);
+        return graph;
+    }
+
     /**
      *
      * @param globalState optional state to assign to all nodes

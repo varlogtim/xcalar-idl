@@ -388,17 +388,27 @@ class ColMenu extends AbstractMenu {
             newType?: ColumnType
         }
     ): void {
-        try {
-            options = options || {};
-            const table: TableMeta = gTables[tableId];
-            const progCols: ProgCol[] = colNums.map((colNum) => table.getCol(colNum));
-            const input: object = this._getNodeParam(type, progCols, options);
-            const node: DagNode = this._addNode(type, input, options.subType);
-            const colNames: string[] = progCols.map(progCol => progCol.getBackColName());
-            this._openOpPanel(node, colNames);
-        } catch (e) {
-            console.error("error", e);
-            Alert.error(ErrTStr.Error, ErrTStr.Unknown);
+        const $colMenu: JQuery = this._getMenu();
+        if ($colMenu.hasClass("fromSQL")) {
+            this._switchToSQL(callback);
+        } else {
+            callback.bind(this)();
+        }
+
+
+        function callback(parentNodeId?: string) {
+            try {
+                options = options || {};
+                const table: TableMeta = gTables[tableId];
+                const progCols: ProgCol[] = colNums.map((colNum) => table.getCol(colNum));
+                const input: object = this._getNodeParam(type, progCols, options);
+                const node: DagNode = this._addNode(type, input, options.subType, parentNodeId);
+                const colNames: string[] = progCols.map(progCol => progCol.getBackColName());
+                this._openOpPanel(node, colNames);
+            } catch (e) {
+                console.error("error", e);
+                Alert.error(ErrTStr.Error, ErrTStr.Unknown);
+            }
         }
     }
 

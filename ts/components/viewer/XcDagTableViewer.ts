@@ -79,7 +79,7 @@ class XcDagTableViewer extends XcTableViewer {
         super._afterBuild();
         const tableId: TableId = this.table.getId();
         const $table: JQuery = $('#xcTable-' + tableId);
-        $table.removeClass("noOperation");
+        $table.removeClass("noOperation fromSQL");
     }
 
     private _getNodeEl(): JQuery {

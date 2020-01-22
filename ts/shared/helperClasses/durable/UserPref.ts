@@ -8,7 +8,8 @@ class UserPref extends Durable {
     public dfAutoPreview: boolean; // DF 2.0 settings
     public dfProgressTips: boolean; // DF 2.0 settings
     public dfConfigInfo: boolean; // DF 2.0 settings
-    public dfTableName: boolean;
+    public dfTableName: boolean;// DF 2.0 settings
+    public ignoreSQLFASJWarning: boolean;// DF 2.0 settings
 
     public constructor (options?: UserPrefDurable) {
         options = options || <UserPrefDurable>{};
@@ -28,6 +29,7 @@ class UserPref extends Durable {
         this.dfProgressTips = (options.dfProgressTips == null) ? true : options.dfProgressTips;
         this.dfConfigInfo = (options.dfConfigInfo == null) ? true : options.dfConfigInfo;
         this.dfTableName = (options.dfTableName == null) ? true : options.dfTableName;
+        this.ignoreSQLFASJWarning = (options.ignoreSQLFASJWarning == null) ? false : options.ignoreSQLFASJWarning;
     }
 
     public update(): void {

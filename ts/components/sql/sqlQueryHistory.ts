@@ -9,6 +9,7 @@ class SqlQueryHistory {
     private _storageKey: string;
     private _queryMap: SqlQueryMap = {};
     private _isLoaded: boolean = false;
+    private _tableNameToSQLMap: Map<string, string> = new Map();
 
     private constructor() {
         // The query keys in KVStore are folder like
@@ -46,6 +47,10 @@ class SqlQueryHistory {
         return null;
     }
 
+    public getSQLFromTableName(tableName: string): string {
+        return this._tableNameToSQLMap.get(tableName);
+    }
+
     /**
      * Add/Set a query in queryMap
      * @param queryInfo QueryInfo object
@@ -54,6 +59,7 @@ class SqlQueryHistory {
     public setQuery(queryInfo: SqlQueryHistory.QueryInfo): boolean {
         const isNewQuery = (this.getQuery(queryInfo.queryId) == null);
         this._queryMap[queryInfo.queryId] = xcHelper.deepCopy(queryInfo);
+        this._tableNameToSQLMap.set(queryInfo.tableName, queryInfo.queryString);
         return isNewQuery;
     }
 
@@ -92,9 +98,11 @@ class SqlQueryHistory {
                             ) {
                             queryInfo.status = SQLStatus.Interrupted;
                             this._queryMap[queryId] = queryInfo;
+                            this._tableNameToSQLMap.set(queryInfo.tableName, queryInfo.queryString);
                             return kvStore.put(JSON.stringify(queryInfo), true);
                         }
                         this._queryMap[queryId] = queryInfo;
+                        this._tableNameToSQLMap.set(queryInfo.tableName, queryInfo.queryString);
                     } catch(e) {
                         deferred.reject();
                     }
@@ -159,7 +167,9 @@ class SqlQueryHistory {
     public deleteQuery(queryId: string): XDPromise<void> {
         const queryKvStore = this._getKVStoreFromQueryId(queryId);
         this._deleteDataflow(this._queryMap[queryId].dataflowId);
+        this._tableNameToSQLMap.delete(this._queryMap[queryId].tableName);
         delete this._queryMap[queryId];
+
         return queryKvStore.delete();
     }
 

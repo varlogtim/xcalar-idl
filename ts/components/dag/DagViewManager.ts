@@ -792,14 +792,14 @@ class DagViewManager {
         this._isCopying = false;
     }
 
-    public paste(content: string) {
+    public paste(content: string): any[] {
         if (!this.activeDagView) {
             return;
         }
         if (this.isDisableActions()) {
             return;
         }
-        this.activeDagView.validateAndPaste(content);
+        return this.activeDagView.validateAndPaste(content);
     }
 
     /**

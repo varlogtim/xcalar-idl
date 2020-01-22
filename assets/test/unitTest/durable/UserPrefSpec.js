@@ -1,9 +1,9 @@
 describe("UserPref Constructor Test", function() {
-    it("should have 10 attributes", function() {
+    it("should have 12 attributes", function() {
         var userPref = new UserPref();
 
         expect(userPref).to.be.an.instanceof(UserPref);
-        expect(Object.keys(userPref).length).to.equal(11);
+        expect(Object.keys(userPref).length).to.equal(12);
         expect(userPref).to.have.property("version")
         .and.to.equal(Durable.Version);
         expect(userPref).to.have.property("datasetListView")

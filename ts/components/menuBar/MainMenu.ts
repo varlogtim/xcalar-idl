@@ -23,7 +23,7 @@ namespace MainMenu {
         helpTab: "helpPanel"
     };
 
-    const tabToPanelTitleMap = {
+    export const tabToPanelTitleMap = {
         dataStoresTab: "Source & Load Data",
         sqlTab: "Query",
         modelingDataflowTab: "Business & Transformation Logic",

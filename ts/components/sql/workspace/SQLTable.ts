@@ -28,7 +28,9 @@ class SQLTable {
             table.addAllCols(tableCols);
         }
 
-        const viewer: XcTableViewer = new XcTableViewer(table);
+        const viewer: XcTableViewer = new XcTableViewer(table, {
+            fromSQL: true
+        });
 
         this._show(viewer)
         .then(deferred.resolve)

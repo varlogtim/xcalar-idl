@@ -933,7 +933,8 @@ class MenuHelper {
             noFilterReason = "Cannot filter or exclude values on terminal nodes.";
         }
         if (!noFilterReason && DagViewManager.Instance.getActiveDagView() &&
-            DagViewManager.Instance.getActiveDagView().isViewOnly()) {
+            DagViewManager.Instance.getActiveDagView().isViewOnly() &&
+            !options.classes.includes("fromSQL")) {
             noFilterReason = "Table is view only.";
         }
         if (!noFilterReason && options.isMultiCol) {

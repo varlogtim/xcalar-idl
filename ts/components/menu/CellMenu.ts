@@ -155,16 +155,29 @@ class CellMenu extends AbstractMenu {
     }
 
     private _createNodeAndShowForm(evalString: string): void {
-        try {
-            const type: DagNodeType = DagNodeType.Filter;
-            const input: DagNodeFilterInputStruct = {
-                evalString: evalString
-            };
-            const node: DagNodeFilter = <DagNodeFilter>this._addNode(type, input, undefined, undefined, true);
-            DagViewManager.Instance.run([node.getId()], false);
-        } catch (e) {
-            console.error("error", e);
-            Alert.error(ErrTStr.Error, ErrTStr.Unknown);
+        const $menu: JQuery = this._getMenu();
+        if ($menu.hasClass("fromSQL")) {
+            this._switchToSQL(callback);
+        } else {
+            callback.bind(this)();
+        }
+        function callback(parentNodeId?: string) {
+            try {
+                const type: DagNodeType = DagNodeType.Filter;
+                const input: DagNodeFilterInputStruct = {
+                    evalString: evalString
+                };
+                const node: DagNodeFilter = <DagNodeFilter>this._addNode(type, input, undefined, parentNodeId, true);
+                DagViewManager.Instance.run([node.getId()], false)
+                .then(() => {
+                    if (!UserSettings.getPref("dfAutoPreview")) {
+                        DagViewManager.Instance.viewResult(node);
+                    }
+                });
+            } catch (e) {
+                console.error("error", e);
+                Alert.error(ErrTStr.Error, ErrTStr.Unknown);
+            }
         }
     }
 

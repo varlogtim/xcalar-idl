@@ -1345,13 +1345,13 @@ class DagView {
      * DagView.pasteNodes
      *  finds new position for cloned nodes, adds to dagGraph and UI
      */
-    public pasteNodes(nodeInfos): XDPromise<void> {
+    public pasteNodes(nodeInfos): any[] {
         if (!nodeInfos.length) {
-            return PromiseHelper.reject();
+            return;
         }
         if (this.dagTab instanceof DagTabPublished) {
             // cannot modify shared dag
-            return PromiseHelper.reject();
+            return;
         }
 
         this.deselectNodes();
@@ -1478,7 +1478,7 @@ class DagView {
             });
             if (!allNewNodeIds.length) {
                 this.dagTab.turnOnSave();
-                return PromiseHelper.reject();
+                return;
             }
 
             // restore connection to parents
@@ -1539,7 +1539,7 @@ class DagView {
                 "nodeIds": allNewNodeIds
             });
             this.dagTab.turnOnSave();
-            return this.dagTab.save();
+            return allNewNodes;
         } catch (error) {
             this.dagTab.turnOnSave();
             throw(error);
@@ -4632,7 +4632,7 @@ class DagView {
         return nodeInfos;
     }
 
-    public validateAndPaste(content: string): void {
+    public validateAndPaste(content: string): any[] {
         let parsed = false;
         try {
             if (!content) {
@@ -4685,7 +4685,7 @@ class DagView {
                     }
                 }
             }
-            this.pasteNodes(nodesArray);
+            return this.pasteNodes(nodesArray);
         } catch (err) {
             console.error(err);
             let errStr: string;
