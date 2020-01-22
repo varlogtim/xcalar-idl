@@ -19,7 +19,7 @@
     "SessionVersionSignature" : 5607803,
     "SqlVersionSignature" : 146971870,
     "StatsVersionSignature" : 126019846,
-    "TableVersionSignature" : 83473886,
+    "TableVersionSignature" : 70520578,
     "TableMetaVersionSignature" : 45672993,
     "TargetVersionSignature" : 155606753,
     "UDFVersionSignature" : 21162965,
@@ -27,6 +27,6 @@
     "WorkbookVersionSignature" : 57235854,
     "XDFVersionSignature" : 188684344,
     "XcalarEnumTypeVersionSignature" : 222419149,
-    "ProtoAPIVersionSignature" : 140963673
+    "ProtoAPIVersionSignature" : 128665507
 }
 

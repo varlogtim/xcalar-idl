@@ -81,6 +81,84 @@ TableService.prototype = {
             throw error;
         }
     },
+    publishTable: async function(publishRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(publishRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Table.PublishRequest");
+        //anyWrapper.pack(publishRequest.serializeBinary(), "PublishRequest");
+
+        try {
+            var responseData = await this.client.execute("Table", "PublishTable", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var empty =
+            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+            //                        "Empty");
+            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+            return empty;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
+    unpublishTable: async function(unpublishRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(unpublishRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Table.UnpublishRequest");
+        //anyWrapper.pack(unpublishRequest.serializeBinary(), "UnpublishRequest");
+
+        try {
+            var responseData = await this.client.execute("Table", "UnpublishTable", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var empty =
+            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+            //                        "Empty");
+            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+            return empty;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
+    listNsTables: async function(listNsTablesRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(listNsTablesRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Table.ListNsTablesRequest");
+        //anyWrapper.pack(listNsTablesRequest.serializeBinary(), "ListNsTablesRequest");
+
+        try {
+            var responseData = await this.client.execute("Table", "ListNsTables", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var listNsTablesResponse =
+            //    responseData.unpack(table.ListNsTablesResponse.deserializeBinary,
+            //                        "ListNsTablesResponse");
+            var listNsTablesResponse = table.ListNsTablesResponse.deserializeBinary(specificBytes);
+            return listNsTablesResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = table.ListNsTablesResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
 };
 
 exports.TableService = TableService;
