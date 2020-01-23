@@ -378,6 +378,9 @@ namespace DS {
      * DS.getHomeDir
      */
     export function getHomeDir(toPersist: boolean): DSDurable {
+        if (XVM.isDataMart()) {
+            return homeFolder;
+        }
         if (toPersist) {
             let copy = removeNonpersistDSObjAttributes(homeFolder);
             for (var i = 0, len = copy.eles.length; i < len; i++) {
