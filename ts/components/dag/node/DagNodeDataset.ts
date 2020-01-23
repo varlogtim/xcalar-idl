@@ -109,8 +109,8 @@ class DagNodeDataset extends DagNodeIn {
     /**
      * Get the dataset name
      */
-    public getDSName(): string {
-        return this.input.getInput().source || null;
+    public getDSName(replaceParam?: boolean): string {
+        return this.input.getInput(replaceParam).source || null;
     }
 
     public getLoadArgs(): string {
@@ -124,7 +124,7 @@ class DagNodeDataset extends DagNodeIn {
         if (noPrefix) {
             return this.schema;
         }
-        const input = this.input.getInput();
+        const input = this.input.getInput(true);
         const prefix: string = input.synthesize ? null : input.prefix;
         const schema = this.schema.map((colInfo) => {
             return {

@@ -90,7 +90,7 @@ namespace DS {
             if (!(dagNode instanceof DagNodeDataset)) {
                 return;
             }
-            const dsName = dagNode.getDSName();
+            const dsName = dagNode.getDSName(true);
             if (DS.getDSObj(dsName) != null) {
                 return;
             }
@@ -200,7 +200,7 @@ namespace DS {
         failures: string[]
     ): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let oldDSName = dagNodes[0].getDSName();
+        let oldDSName = dagNodes[0].getDSName(true);
         let newDSName = getNewDSName(oldDSName);
         let loadArgs: string = dagNodes[0].getLoadArgs();
         loadArgs = loadArgsAdapter(loadArgs);
