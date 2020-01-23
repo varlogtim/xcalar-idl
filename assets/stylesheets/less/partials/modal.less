@@ -4737,8 +4737,13 @@ html.microsoft {
 }
 
 #dfSettingsModal {
+    @modalMainPadding: 24px;
+    @numItems: 6;
+    @itemsHeight: 30px;
+    @modalMainHeight: @modalMainPadding + (@numItems * @itemsHeight);
     @h-without-main: @modal-header-h + @modal-bottom-h;
-    .size(@height: 294px);
+
+    .size(@height: @h-without-main + @modalMainHeight);
 
     .modalMain {
         .size(@height: ~"calc(100% - @{h-without-main})");
@@ -4750,7 +4755,7 @@ html.microsoft {
 
             &.checkboxSection {
                 .checkbox {
-                    height: 30px;
+                    height: @itemsHeight;
                 }
             }
         }

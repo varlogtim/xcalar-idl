@@ -59,6 +59,9 @@ class DagViewManager {
         if (UserSettings.getPref("dfTableName")) {
             this.toggleTableName(true);
         }
+        if (UserSettings.getPref("dfPinOperatorBar")) {
+            this.pinOperatorBar(true);
+        }
     }
 
     /**
@@ -1121,6 +1124,15 @@ class DagViewManager {
             this.$dagView.removeClass("showTableName");
         }
     }
+
+    public pinOperatorBar(show?: boolean): void {
+        if (show) {
+            this.$dagView.addClass("operatorBarPinned");
+        } else {
+            this.$dagView.removeClass("operatorBarPinned");
+        }
+    }
+
 
 
     /**

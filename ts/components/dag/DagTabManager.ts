@@ -1094,12 +1094,14 @@ class DagTabManager {
                 $dagTabArea.find(".sortablePlaceholder").html(html);
                 initialIndex = $(ui.item).index();
                 xcTooltip.hideAll();
+                $("#dagView").addClass("sortingTabs");
             },
             stop: (_event, ui) => {
                 const newIndex = $(ui.item).index();
                 if (initialIndex != newIndex) {
                     this._reorderTab(initialIndex, newIndex);
                 }
+                $("#dagView").removeClass("sortingTabs");
             }
         });
     }

@@ -59,6 +59,7 @@ class DragHelper {
     protected elOffsets: Coordinate[]
     protected padding: number;
     protected horzScrollDirection: number;
+    protected containerOffset: Coordinate;
 
     public constructor(options: DragHelperOptions) {
         const self = this;
@@ -103,6 +104,10 @@ class DragHelper {
         this.currY = this.lastY;
         this.elOffsets = options.elOffsets || [];
         this.padding = options.padding || 0;
+        this.containerOffset = {
+            x: this.$container.offset().left,
+            y: this.$container.offset().top
+        };
 
         $(document).on("mousemove.checkDrag", function(event: JQueryEventObject) {
             self.checkDrag(event);
@@ -155,8 +160,8 @@ class DragHelper {
         this.positionDraggingEl(event);
         if (this.onDragCallback) {
             this.onDragCallback({
-                x: this.currentDragCoor.left,
-                y: this.currentDragCoor.top
+                x: this.currentDragCoor.left + this.containerOffset.x,
+                y: this.currentDragCoor.top + this.containerOffset.y
             });
         }
     }
@@ -365,6 +370,8 @@ class DragHelper {
             const topDiff = topRounded - curOffsetTop;
             this.currentDragCoor.top += topDiff;
         }
+        this.currentDragCoor.left -= this.containerOffset.x;
+        this.currentDragCoor.top -= this.containerOffset.y;
         this.$draggingEl.css({
             left: this.currentDragCoor.left,
             top: this.currentDragCoor.top
@@ -372,7 +379,6 @@ class DragHelper {
     }
 
     protected endDrag(event: JQueryEventObject): void {
-        const self = this;
         $("body").removeClass("tooltipOff");
         $("#moveCursor").remove();
         $(document).off("mousemove.checkDrag");
@@ -386,8 +392,8 @@ class DragHelper {
         this.isDragging = false;
         this.$draggingEl.removeClass("dragging clone");
 
-        let deltaX: number = self.currentDragCoor.left - self.targetRect.left + this.scrollLeft;
-        let deltaY: number = self.currentDragCoor.top - self.targetRect.top + this.scrollTop;
+        let deltaX: number = this.currentDragCoor.left - this.targetRect.left + this.scrollLeft + this.containerOffset.x;
+        let deltaY: number = this.currentDragCoor.top - this.targetRect.top + this.scrollTop + this.containerOffset.y;
         let coors: Coordinate[] = [];
         // check if item was dropped within left and top boundaries of drop target
         if (deltaX >= this.padding && deltaY >= this.padding) {

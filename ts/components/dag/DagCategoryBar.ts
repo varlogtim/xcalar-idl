@@ -7,14 +7,19 @@ class DagCategoryBar {
     }
 
     private $dagView: JQuery;
+    private $categoryBar: JQuery;
     private $operatorBar: JQuery;
     private dagCategories: DagCategories;
     private currentCategory: DagCategoryType = DagCategoryType.Favorites;
     private _listScrollers: ListScroller[] = [];
     private selectedOpId: string;
+    private _closeBarTimer: NodeJS.Timeout;
+    private _selectCategoryTimer: NodeJS.Timeout;
+    private _showBarTimer: NodeJS.Timeout;
 
     constructor() {
         this.$dagView = $("#dagView");
+        this.$categoryBar = this.$dagView.find(".categoryBar");
         this.$operatorBar = this.$dagView.find(".operatorWrap");
         this._isSQLFunc = false;
     }
@@ -25,7 +30,7 @@ class DagCategoryBar {
         this._setupDragDrop();
         this._setupScrolling();
         this._setupSearch();
-        this._setupActionBar();
+        this._setupOperatorBar();
         // Activate the favorites category by default
         this._focusOnCategory(DagCategoryType.In);
         this.showOrHideArrows();
@@ -60,9 +65,9 @@ class DagCategoryBar {
     public showOrHideArrows(): void {
         const $catWrap: JQuery = this.$dagView.find(".categoryWrap");
         if ($catWrap.width() < $catWrap[0].scrollWidth) {
-            this.$dagView.find(".categoryBar").addClass("scrollable");
+            this.$categoryBar.addClass("scrollable");
         } else {
-            this.$dagView.find(".categoryBar").removeClass("scrollable");
+            this.$categoryBar.removeClass("scrollable");
         }
     }
 
@@ -176,15 +181,68 @@ class DagCategoryBar {
         const self = this;
         this._renderCategoryBar();
         this._renderOperatorBar();
+
         this.$dagView.find(".categories").on("mousedown", ".category", (event) => {
             const $category: JQuery = $(event.currentTarget);
             const category: string = $category.data("category");
+            clearTimeout(this._selectCategoryTimer);
             this._focusOnCategory(category);
+            clearTimeout(self._closeBarTimer);
+            clearTimeout(self._showBarTimer);
+            this.showOperatorBar();
         });
+
+        this.$dagView.find(".categories").on("mouseenter", ".category", (event) => {
+            const $category: JQuery = $(event.currentTarget);
+            const category: string = $category.data("category");
+            clearTimeout(this._selectCategoryTimer);
+            this._selectCategoryTimer = setTimeout(() => {
+                this._focusOnCategory(category);
+            }, 200);
+        });
+
+        this.$dagView.find(".categories").on("mouseleave", ".category", (event) => {
+            clearTimeout(this._selectCategoryTimer);
+        });
+
+        this.$categoryBar.mouseenter(() => {
+            clearTimeout(self._closeBarTimer);
+            clearTimeout(self._showBarTimer);
+            this._showBarTimer = setTimeout(() => {
+                this.showOperatorBar();
+            }, 200);
+        });
+
+        this.$categoryBar.mouseleave(() => {
+            clearTimeout(self._closeBarTimer);
+            clearTimeout(self._showBarTimer);
+            this._closeBarTimer = setTimeout(() => {
+                this.hideOperatorBar();
+            }, 500);
+        });
+
         this.$dagView.find(".operatorBar").mouseenter(function() {
+            clearTimeout(self._closeBarTimer);
+            clearTimeout(self._showBarTimer);
             const index = $(this).find(".category").index($(this).find(".category.active"));
             self._showOrHideScrollers(index);
         });
+
+        this.$dagView.find(".operatorBar").mouseleave(() => {
+            clearTimeout(self._closeBarTimer);
+            clearTimeout(self._showBarTimer);
+            self._closeBarTimer = setTimeout(() => {
+                this.hideOperatorBar();
+            }, 500);
+        });
+    }
+
+    public showOperatorBar() {
+        this.$dagView.addClass("showingOperatorBar");
+    }
+
+    public hideOperatorBar() {
+        this.$dagView.removeClass("showingOperatorBar");
     }
 
     private _renderCategoryBar() {
@@ -209,8 +267,10 @@ class DagCategoryBar {
             const icon: string = iconMap[categoryType];
             html += `<div class="category category-${categoryType}"
                 data-category="${categoryType}" ${xcTooltip.Attrs} data-original-title="${description}">
-                <i class="icon categoryIcon ${icon}"></i>
-                <span class="text">${categoryName}</span>
+                <div class="innerCategory">
+                    <i class="icon categoryIcon ${icon}"></i>
+                    <span class="text">${categoryName}</span>
+                </div>
             </div>`;
         });
         html += '<div class="spacer"></div>'; // adds right padding
@@ -568,7 +628,7 @@ class DagCategoryBar {
         });
     }
 
-    private _setupActionBar(): void {
+    private _setupOperatorBar(): void {
         this.$operatorBar.on('click', '.operator .main', (event) => {
             const $operator: JQuery = $(event.target).closest(".operator");
             const opInfo: DagNodeCopyInfo = this._getOperatorInfo(
@@ -710,6 +770,7 @@ class DagCategoryBar {
         const $seachArea: JQuery = this.$dagView.find(".categoryBar .searchArea");
         const $input: JQuery = $seachArea.find(".searchInput");
         const $ul: JQuery = $seachArea.find("ul");
+        let operatorBarTimer: NodeJS.Timeout;
         const menuHelper: MenuHelper = new MenuHelper($seachArea, {
             bounds: '#' + this.$dagView.attr("id"),
             bottomPadding: 5
@@ -734,6 +795,11 @@ class DagCategoryBar {
             menuHelper.hideDropdowns();
             this._focusOnCategory(category);
             this._focusOnOperator(opId);
+            this.$dagView.addClass("operatorBarLocked");
+            clearTimeout(operatorBarTimer);
+            operatorBarTimer = setTimeout(() => {
+                this.$dagView.removeClass("operatorBarLocked");
+            }, 3000);
         });
     }
 

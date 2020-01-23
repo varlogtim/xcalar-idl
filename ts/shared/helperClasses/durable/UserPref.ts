@@ -10,6 +10,7 @@ class UserPref extends Durable {
     public dfConfigInfo: boolean; // DF 2.0 settings
     public dfTableName: boolean;// DF 2.0 settings
     public ignoreSQLFASJWarning: boolean;// DF 2.0 settings
+    public dfPinOperatorBar: boolean;
 
     public constructor (options?: UserPrefDurable) {
         options = options || <UserPrefDurable>{};
@@ -30,6 +31,7 @@ class UserPref extends Durable {
         this.dfConfigInfo = (options.dfConfigInfo == null) ? true : options.dfConfigInfo;
         this.dfTableName = (options.dfTableName == null) ? true : options.dfTableName;
         this.ignoreSQLFASJWarning = (options.ignoreSQLFASJWarning == null) ? false : options.ignoreSQLFASJWarning;
+        this.dfPinOperatorBar = (options.dfPinOperatorBar == null) ? false : options.dfPinOperatorBar;
     }
 
     public update(): void {

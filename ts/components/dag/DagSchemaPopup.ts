@@ -111,7 +111,7 @@ class DagSchemaPopup {
         this._$popup.draggable({
             handle: '#dagSchemaPopupTitle-'  + this._nodeId,
             cursor: '-webkit-grabbing',
-            containment: "window"
+            containment: "#dagView"
         });
 
         this._$popup.resizable({
@@ -284,12 +284,14 @@ class DagSchemaPopup {
     private _positionPopup(): void {
         const $node: JQuery = DagViewManager.Instance.getNode(this._nodeId, this._tabId);
         const rect: ClientRect = $node[0].getBoundingClientRect();
-        let top: number = Math.max(5, rect.top);
-        let left: number = Math.max(5, rect.left);
+        let $container = $("#dagView");
+        let containerOffset = $container.offset();
+        let top: number = Math.max(5, rect.top - containerOffset.top);
+        let left: number = Math.max(5, rect.left - containerOffset.left);
         let defaultWidth = 320;
         let defaultHeight =  260;
-        let rightBoundary: number = $(window).width() - 5;
-        let bottomBoundary: number = $(window).height() - 5;
+        let rightBoundary: number = $container.width() - 5;
+        let bottomBoundary: number = $container.height() - 5;
         if (this._$popup.hasClass("hasHiddenCols")) {
             defaultWidth += 40;
         }

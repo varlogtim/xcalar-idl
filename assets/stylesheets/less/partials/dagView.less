@@ -1,3 +1,322 @@
+#dagView {
+    @category-height: 36px;
+    @color-border-bar: @color-border-bar-white;
+    @color-border-operator: @color-bg-cardHeader;
+    @color-connector: @color-border-softGray2;
+    @operator-height: 28px;
+    @operator-width: 90px;
+
+
+    margin-left: @width-topMenu;
+    position: relative;
+
+    &.showingOperatorBar, &.operatorBarLocked, &.operatorBarPinned {
+        .operatorBar {
+            display: flex;
+        }
+
+        .categoryBar {
+            .category {
+                &.active {
+                    .innerCategory {
+                        background-color: @color-white;
+                        border-top-left-radius: 5px;
+                        border-top-right-radius: 5px;
+                        border-bottom-right-radius: 0px;
+                        border-bottom-left-radius: 0px;
+                        height: @category-height - 3px;
+                    }
+
+                    .text {
+                        text-shadow: 0px 0px #222222;
+                    }
+                }
+            }
+        }
+    }
+
+    &.operatorBarPinned {
+        .operatorBar {
+            background: @color-white;
+            box-shadow: 0px 0.25px 0px @color-border-operator;
+            position: relative;
+            top: 0px;
+        }
+    }
+
+    &.sortingTabs {
+        .categoryBar, .operatorBar {
+            pointer-events: none;
+        }
+    }
+
+    .categoryBar {
+        @icon-height: 22px;
+        @search-width: 150px;
+
+        .size(@min-height: @category-height, @max-height: @category-height);
+        background-color: @color-bg-topBarGray2;
+        box-shadow: 0px 0.25px 0px @color-border-operator;
+        line-height: @category-height;
+        .flex-display;
+
+        &.scrollable {
+            .searchArea {
+                box-shadow: 3px 0px 2px -2px rgba(0, 0, 0, 0.1);
+            }
+            .categoryScroll {
+               .flex-display;
+            }
+        }
+
+        .searchArea {
+            padding: 6px 4px 6px 10px;
+            background-color: transparent;
+
+            .searchBox {
+                width: @search-width;
+
+                .searchInput {
+                    float: left;
+                }
+            }
+
+            .list {
+                min-width: @search-width - 2px;
+                .position(@top: 32px, @left: 11px);
+                .font(@size: 12px);
+            }
+        }
+
+        .categoryScroll {
+            display: none;
+            min-width: 50px;
+            .position(absolute, @right: 0px);
+            box-shadow: -3px 0 2px -2px rgba(0, 0, 0, 0.1);
+            .icon {
+                width: 50%;
+                font-size: 14px;
+                line-height: @category-height;
+                text-align: center;
+                color: @color-font-edge;
+                cursor: pointer;
+            }
+        }
+
+        .categoryWrap {
+            overflow: hidden;
+            margin-bottom: -1px;
+            margin-right: 50px;
+        }
+
+        .categories {
+            .flex-display;
+        }
+
+        .category {
+            padding: 2px 5px 0px;
+            .flex-display;
+            height: 30px;
+            line-height: 24px;
+            font-size: 12px;
+            position: relative;
+            top: 1px;
+            border-radius: 5px;
+
+            .innerCategory {
+                padding: 3px 8px;
+                .flex-display;
+                height: 30px;
+                line-height: 24px;
+                font-size: 12px;
+                position: relative;
+                top: 1px;
+                cursor: pointer;
+                border-radius: 5px;
+            }
+
+            &:hover {
+                .innerCategory {
+                    background-color: rgba(0, 0, 0, 0.05);
+                }
+            }
+
+            .text {
+                white-space: nowrap;
+            }
+
+            .categoryIcon {
+                .size(@icon-height,@icon-height);
+                border-radius: 100%;
+                margin-right: 8px;
+                color: @color-white;
+                font-size: 12px;
+                line-height: @icon-height;
+                text-align: center;
+            }
+
+            &.category-favorites {
+                .icon {
+                    background-color: @color-operator-favorites;
+                }
+            }
+            &.category-in {
+                .icon {
+                    background-color: @color-operator-in;
+                }
+            }
+            &.category-out {
+                .icon {
+                    background-color: @color-operator-out;
+                }
+            }
+            &.category-SQL {
+                .icon {
+                    background-color: @color-operator-SQL;
+                }
+            }
+            &.category-columnOps {
+                .icon {
+                    background-color: @color-operator-column;
+                }
+            }
+            &.category-rowOps {
+                .icon {
+                    background-color: @color-operator-operations;
+                }
+            }
+            &.category-join {
+                .icon {
+                    background-color: @color-operator-join;
+                }
+            }
+            &.category-set {
+                .icon {
+                    background-color: @color-operator-set;
+                }
+            }
+            &.category-aggregates {
+                .icon {
+                    background-color: @color-operator-value;
+                }
+            }
+            &.category-extensions {
+                .icon {
+                    background-color: @color-operator-extensions;
+                }
+            }
+            &.category-custom {
+                .icon {
+                    background-color: @color-operator-custom;
+                }
+            }
+            &.category-hidden {
+                display: none;
+            }
+        }
+
+        .spacer {
+            // padding right or margin right doesn't work within flexbox
+            // so using an actual div to create space
+            min-width: 10px;
+        }
+    }
+
+    .operatorBar {
+        .size(@height: 50px, @min-height: 50px);
+        display: none;
+        background: @color-white;
+        box-shadow: 0px 0.25px 0px @color-border-operator, 0px 3px 3px rgba(0,0,0,0.1);
+        z-index: 2;
+        position: absolute;
+        top: @category-height;
+        width: 100%;
+
+
+        .actionWrap {
+            .flex-display;
+
+            .actions {
+                .iconWrap {
+                    .size(@width: 20px, @height: 20px);
+                    padding: 0 3px;
+                    margin: 3px 5px;
+                    border-radius: 2px;
+                    background-color: @color-border-softGray;
+                    color: @color-font-edge;
+                    cursor: pointer;
+
+                    &:hover {
+                        background-color: @color-font-edge;
+                        color: WHITE;
+                    }
+                }
+
+                &.disabled {
+                    .iconWrap {
+                        background-color: @color-bg-topBarGray2;
+                        color: @color-border-softGray2;
+                        cursor: not-allowed;
+                    }
+                }
+
+                .icon {
+                    font-size: 14px;
+                    line-height: 20px;
+                }
+            }
+
+            .divider {
+                width: 1px;
+                .vertical-align;
+                background-color: @color-border-softGray;
+            }
+        }
+
+        .operatorWrap {
+            .size(@height: 50px, @width: 100%);
+            overflow: hidden;
+        }
+
+        .category {
+            width: 100%;
+            height: 50px;
+            overflow: hidden;
+            display: none;
+            position: relative;
+
+            .svgWrap {
+                height: 50px;
+                width: 100%;
+            }
+
+            &.active {
+                display: block;
+            }
+
+            .scrollArea {
+                .arrow {
+                    width: 100%;
+                    height: 19px;
+                    line-height: 19px;
+                    font-size: 12px;
+                }
+            }
+        }
+
+        .operator {
+            margin-top: 10px;
+            margin-left: 10px;
+            margin-right: 10px;
+            float: left;
+
+            .statusIcon {
+                display: none;
+            }
+        }
+    }
+}
+
 #dagViewBar {
     .flex-direction(row);
     z-index: 0;
@@ -118,10 +437,6 @@
 }
 
 
-#dagView {
-    margin-left: @width-topMenu;
-}
-
 .dagContainer {
     .flex-display;
     .flex-direction(column);
@@ -178,268 +493,6 @@
         }
     }
 
-    .categoryBar {
-        @category-height: 40px;
-        @icon-height: 22px;
-        @search-width: 150px;
-
-        .size(@min-height: @category-height);
-        background-color: @color-bg-topBarGray2;
-        box-shadow: 0px 0.25px 0px @color-border-operator;
-        line-height: @category-height;
-        .flex-display;
-
-        &.scrollable {
-            .searchArea {
-                box-shadow: 3px 0px 2px -2px rgba(0, 0, 0, 0.1);
-            }
-            .categoryScroll {
-               .flex-display;
-            }
-        }
-
-        .searchArea {
-            padding: 8px 4px 8px 10px;
-            background-color: transparent;
-
-            .searchBox {
-                width: @search-width;
-
-                .searchInput {
-                    float: left;
-                }
-            }
-
-            .list {
-                min-width: @search-width - 2px;
-                .position(@top: 32px, @left: 11px);
-                .font(@size: 12px);
-            }
-        }
-
-        .categoryScroll {
-            display: none;
-            min-width: 50px;
-            .position(absolute, @right: 0px);
-            box-shadow: -3px 0 2px -2px rgba(0, 0, 0, 0.1);
-            .icon {
-                width: 50%;
-                font-size: 14px;
-                line-height: @category-height;
-                text-align: center;
-                color: @color-font-edge;
-                cursor: pointer;
-            }
-        }
-
-        .categoryWrap {
-            overflow: hidden;
-            margin-bottom: -1px;
-            margin-right: 50px;
-        }
-
-        .categories {
-            .flex-display;
-        }
-
-        .category {
-            padding: 4px 10px;
-            margin: 4px 5px 0px;
-            .flex-display;
-            height: 30px;;
-            line-height: 22px;
-            font-size: 13px;
-            position: relative;
-            top: 1px;
-            cursor: pointer;
-            border-radius: 5px;
-
-            &:hover {
-                background-color: rgba(0, 0, 0, 0.05);
-            }
-
-            &.active {
-                height: @category-height - 5px;
-                background-color: @color-white;
-                border-top-left-radius: 5px;
-                border-top-right-radius: 5px;
-                border-bottom-right-radius: 0px;
-                border-bottom-left-radius: 0px;
-
-                .text {
-                    text-shadow: 0px 0px #222222;
-                }
-            }
-
-            .text {
-                white-space: nowrap;
-            }
-
-            .categoryIcon {
-                .size(@icon-height,@icon-height);
-                border-radius: 100%;
-                margin-right: 8px;
-                color: @color-white;
-                font-size: 12px;
-                line-height: @icon-height;
-                text-align: center;
-            }
-
-            &.category-favorites {
-                .icon {
-                    background-color: @color-operator-favorites;
-                }
-            }
-            &.category-in {
-                .icon {
-                    background-color: @color-operator-in;
-                }
-            }
-            &.category-out {
-                .icon {
-                    background-color: @color-operator-out;
-                }
-            }
-            &.category-SQL {
-                .icon {
-                    background-color: @color-operator-SQL;
-                }
-            }
-            &.category-columnOps {
-                .icon {
-                    background-color: @color-operator-column;
-                }
-            }
-            &.category-rowOps {
-                .icon {
-                    background-color: @color-operator-operations;
-                }
-            }
-            &.category-join {
-                .icon {
-                    background-color: @color-operator-join;
-                }
-            }
-            &.category-set {
-                .icon {
-                    background-color: @color-operator-set;
-                }
-            }
-            &.category-aggregates {
-                .icon {
-                    background-color: @color-operator-value;
-                }
-            }
-            &.category-extensions {
-                .icon {
-                    background-color: @color-operator-extensions;
-                }
-            }
-            &.category-custom {
-                .icon {
-                    background-color: @color-operator-custom;
-                }
-            }
-            &.category-hidden {
-                display: none;
-            }
-        }
-
-        .spacer {
-            // padding right or margin right doesn't work within flexbox
-            // so using an actual div to create space
-            min-width: 10px;
-        }
-    }
-    .operatorBar {
-        .size(@height: 50px, @min-height: 50px);
-        .flex-display;
-        background: @color-white;
-        box-shadow: 0px 0.25px 0px @color-border-operator;
-        z-index: 2;
-
-        .actionWrap {
-            .flex-display;
-
-            .actions {
-                .iconWrap {
-                    .size(@width: 20px, @height: 20px);
-                    padding: 0 3px;
-                    margin: 3px 5px;
-                    border-radius: 2px;
-                    background-color: @color-border-softGray;
-                    color: @color-font-edge;
-                    cursor: pointer;
-
-                    &:hover {
-                        background-color: @color-font-edge;
-                        color: WHITE;
-                    }
-                }
-
-                &.disabled {
-                    .iconWrap {
-                        background-color: @color-bg-topBarGray2;
-                        color: @color-border-softGray2;
-                        cursor: not-allowed;
-                    }
-                }
-
-                .icon {
-                    font-size: 14px;
-                    line-height: 20px;
-                }
-            }
-
-            .divider {
-                width: 1px;
-                .vertical-align;
-                background-color: @color-border-softGray;
-            }
-        }
-
-        .operatorWrap {
-            .size(@height: 50px, @width: 100%);
-            overflow: hidden;
-        }
-
-        .category {
-            width: 100%;
-            height: 50px;
-            overflow: hidden;
-            display: none;
-            position: relative;
-
-            .svgWrap {
-                height: 50px;
-                width: 100%;
-            }
-
-            &.active {
-                display: block;
-            }
-
-            .scrollArea {
-                .arrow {
-                    width: 100%;
-                    height: 19px;
-                    line-height: 19px;
-                    font-size: 12px;
-                }
-            }
-        }
-
-        .operator {
-            margin-top: 10px;
-            margin-left: 10px;
-            margin-right: 10px;
-            float: left;
-
-            .statusIcon {
-                display: none;
-            }
-        }
-    }
     .operator {
         height: @operator-height;
         position: relative;
@@ -1152,7 +1205,7 @@
 
 
 #dagGraphBar {
-    @dagGraphBarHeight: 40px;
+    @dagGraphBarHeight: 36px;
     .flex-direction(row);
     z-index: 0;
     min-height: @dagGraphBarHeight;
@@ -1160,7 +1213,7 @@
     padding-left: 10px;
     background-color: white;
     color: @color-icon-gray;
-    font-size: 13px;
+    font-size: 12px;
 
     &.locked {
         .run, .stop, .undo, .redo {
@@ -1218,11 +1271,11 @@
         }
 
         &.run, &.stop {
-            font-size: 13px;
+            font-size: 12px;
             .rounded(4px);
-            line-height: 28px;
-            height: 28px;
-            margin-top: 6px;
+            line-height: @dagGraphBarHeight - 8px;
+            height: @dagGraphBarHeight - 8px;
+            margin-top: 4px;
 
             &:hover {
                 background-color: rgba(0, 0, 0, 0.05);
@@ -1293,10 +1346,10 @@
         &.zoomPercent {
             position: relative;
             .zoomPercentInput {
-                font-size: 13px;
+                font-size: 12px;
                 height: 30px;
                 line-height: 30px;
-                margin-top: 5px;
+                margin-top: 3px;
                 padding: 0 0;
                 padding-right: 16px;
                 color: @color-icon-gray;
@@ -1307,7 +1360,7 @@
             .percent-sign {
                 position: absolute;
                 z-index: 3;
-                top: 10px;
+                top: 9px;
                 right: 2px;
                 cursor: default;
             }
@@ -1320,7 +1373,7 @@
     }
 
     .divider {
-        height: 25px;
+        height: 24px;
         width: 1px;
         margin: 0px 5px;
         .vertical-align;
@@ -1438,6 +1491,7 @@
         .font(@size: 11px);
         .size(@height: @tabHeight, @width: @tabWidth);
         border-right: 1px solid @color-border-softGray;
+        border-top: 1px solid @color-border-softGray;
         color: @color-bg-cardHeader;
         cursor: pointer;
         min-width: @tabWidth;
@@ -2181,7 +2235,7 @@
 
 
     .nodeInfoSection {
-        padding: 0 15px;
+        padding: 10px 15px 0px;
         padding-bottom: 20px;
         font-size: 12px;
     }

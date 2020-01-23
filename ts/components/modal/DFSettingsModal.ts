@@ -49,6 +49,9 @@ class DFSettingsModal {
                 case ("dfTableName"):
                     DagViewManager.Instance.toggleTableName(val);
                     break;
+                case ("dfPinOperatorBar"):
+                    DagViewManager.Instance.pinOperatorBar(val);
+                    break;
                 default:
                     break;
             }
@@ -98,8 +101,11 @@ class DFSettingsModal {
         {
             name: "dfTableName",
             text: DFTStr.ShowTableName
-        }
-    ];
+        },
+        {
+            name: "dfPinOperatorBar",
+            text: DFTStr.PinOperatorBar
+        }];
     }
 
     private _addEventListeners(): void {
