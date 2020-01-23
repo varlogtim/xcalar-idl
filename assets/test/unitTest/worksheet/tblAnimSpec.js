@@ -1,4 +1,4 @@
-describe('TblAnim Test', function() {
+describe.skip('TblAnim Test', function() {
     var testDs;
     var tableName;
     var tableId;

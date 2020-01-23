@@ -40,7 +40,6 @@ namespace MainMenu {
         $menuBar = $("#menuBar");
         setupTabbing();
         setupDataflowResizable();
-        setupSQLPanelResizable():
         setupDatastoreResizable();
         MainMenu.switchMode();
         $resizableRightPanels = $("#workbookPanel, #monitorPanel, #datastorePanel, #modelingDagPanel")
@@ -363,11 +362,6 @@ namespace MainMenu {
         _setupResizable($menu, undefined, onStop);
     }
 
-    function setupSQLPanelResizable(): void {
-        const $menu = $("#sqlMenu");
-        _setupResizable($menu);
-    }
-
     function setupDatastoreResizable(): void {
         const $menu = $("#datastoreMenu");
         const onResize = () => { DS.resize(); };
@@ -472,10 +466,9 @@ namespace MainMenu {
     function panelSwitchingHandler($curTab: JQuery, lastTabId: string): void {
         if (lastTabId === "monitorTab") {
             MonitorPanel.inActive();
-        } else if (lastTabId === "modelingDataflowTab") {
-            DagViewManager.Instance.hide();
         } else if (lastTabId === "sqlTab") {
             SQLWorkSpace.Instance.unfocus();
+            DagViewManager.Instance.hide();
         }
         closeMainPanels();
         const $container = $("#container");
@@ -531,11 +524,11 @@ namespace MainMenu {
                 break;
             case ("modelingDataflowTab"):
                 $("#modelingDagPanel").addClass("active");
-                DagViewManager.Instance.show();
                 break;
             case ("sqlTab"):
                 $("#sqlWorkSpacePanel").addClass("active");
                 SQLWorkSpace.Instance.focus();
+                DagViewManager.Instance.show();
                 break;
             case ("helpTab"):
                 $("#helpPanel").addClass("active");

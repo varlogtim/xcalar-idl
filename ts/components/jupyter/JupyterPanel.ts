@@ -541,7 +541,7 @@ namespace JupyterPanel {
                 isAlert: true
             });
         } else {
-            MainMenu.openPanel("dagPanel");
+            MainMenu.openPanel("sqlPanel");
             DagTabManager.Instance.switchTab(tabId);
             let input = {
                 eval: [{

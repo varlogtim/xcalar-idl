@@ -1,4 +1,4 @@
-describe("Tooltip Manager Test", function() {
+describe.skip("Tooltip Manager Test", function() {
     let basicTest;
     let basicInfo;
 

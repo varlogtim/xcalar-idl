@@ -6,13 +6,11 @@
     @operator-height: 28px;
     @operator-width: 90px;
 
-
-    margin-left: @width-topMenu;
     position: relative;
 
     &.showingOperatorBar, &.operatorBarLocked, &.operatorBarPinned {
         .operatorBar {
-            display: flex;
+            top: @category-height;
         }
 
         .categoryBar {
@@ -38,7 +36,7 @@
     &.operatorBarPinned {
         .operatorBar {
             background: @color-white;
-            box-shadow: 0px 0.25px 0px @color-border-operator;
+            box-shadow: inset 0px 0.25px 0px @color-border-operator;
             position: relative;
             top: 0px;
         }
@@ -56,9 +54,10 @@
 
         .size(@min-height: @category-height, @max-height: @category-height);
         background-color: @color-bg-topBarGray2;
-        box-shadow: 0px 0.25px 0px @color-border-operator;
         line-height: @category-height;
         .flex-display;
+        position: relative;
+        z-index: @z-index-categoryBar;
 
         &.scrollable {
             .searchArea {
@@ -224,14 +223,14 @@
 
     .operatorBar {
         .size(@height: 50px, @min-height: 50px);
-        display: none;
         background: @color-white;
         box-shadow: 0px 0.25px 0px @color-border-operator, 0px 3px 3px rgba(0,0,0,0.1);
-        z-index: 2;
+        z-index: @z-index-operatorBar;
         position: absolute;
-        top: @category-height;
+        top: @category-height - 50px - 5px; // extra 5 to hide shadow
         width: 100%;
-
+        transition: 0.3s top;
+        display: flex;
 
         .actionWrap {
             .flex-display;
@@ -694,11 +693,6 @@
     .table {
         fill: #CCCCCC;
         cursor: pointer;
-    }
-
-    .tabBar {
-        .size(@min-height: 24px);
-        background-color: @color-bg-topBarGray2;
     }
 
     .dataflowWrapBackground, .dataflowWrap, .innerDataflowWrap {
@@ -1397,18 +1391,7 @@
             background-color: rgba(20, 20, 20, .05);
         }
     }
-    .queryBtnDivider {
-        margin-right: 8px;
-    }
-    .returnToQuery, .queryBtnDivider {
-        display: none;
 
-    }
-    &.sqlFunc {
-        .returnToQuery, .queryBtnDivider {
-            display: block;
-        }
-    }
     .infoSection {
         float: left;
         height: @dagGraphBarHeight;

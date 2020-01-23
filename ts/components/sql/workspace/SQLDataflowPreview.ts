@@ -62,7 +62,7 @@ class SQLDataflowPreview {
             return XVM.setMode(XVM.Mode.Advanced);
         })
         .then(() => {
-            MainMenu.openPanel("dagPanel");
+            DagViewManager.Instance.toggleSqlPreview(false);
             return DagTabManager.Instance.loadTab(<DagTab>dagTab);
         })
         .then(() => {

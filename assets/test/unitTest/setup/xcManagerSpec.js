@@ -151,7 +151,7 @@ describe("xcManager Test", function() {
     });
 
     describe("Public API Test", function() {
-        it("xcManager.isInSetup should work", function() {
+        it.skip("xcManager.isInSetup should work", function() {
             $("body").addClass("xc-setup");
             expect(xcManager.isInSetup()).to.be.true;
             $("body").removeClass("xc-setup");

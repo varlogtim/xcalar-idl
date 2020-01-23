@@ -273,12 +273,47 @@
             .bottomPart {
                 height: 60%;
                 top: 40%;
+                display: flex;
+                flex-direction: row;
+                padding-top: 34px;
+
+                .resizeHandler {
+                    position: absolute;
+                    top: 0;
+                    z-index: @z-index-sqlBottomResizeHandler;
+                }
+
+                .tabBar {
+                    position: absolute;
+                    top: 10px;
+                    height: 24px;
+                    width: 100%;
+                    z-index: 3;
+                    background-color: @color-bg-topBarGray2;
+                }
+
+                .bottomLeftPart, .bottomRightPart {
+                    overflow: hidden;
+                    float: left;
+                    width: 50%;
+                    height: 100%;
+                    position: absolute;
+                }
+
+                .bottomRightPart {
+                    left: 50%;
+                }
 
                 &.undocked {
-                    height: 0;
-                    border: none;
-                    > div:not(#sqlEditorSpace) {
-                        display: none;
+                    .bottomRightPart {
+                        height: 0;
+                        border: none;
+                        flex: 0 0 0px;
+                        width: 0px;
+
+                        > div:not(#sqlEditorSpace) {
+                            display: none;
+                        }
                     }
                 }
             }
@@ -473,7 +508,7 @@
 
                 .ui-resizable-n {
                     top: 0px;
-                    z-index: 2 !important;
+                    z-index: @z-index-sqlBottomResizeHandler !important;
                 }
 
                 .resizeHandler {
@@ -495,7 +530,7 @@
                 }
 
                 > .ui-resizable-handle {
-                    z-index: 3 !important; // don't block other elements
+                    z-index: @z-index-sqlBottomResizeHandler !important; // don't block other elements
                     height: 12px;
                     top: -4px;
                 }
@@ -592,12 +627,6 @@
     }
 }
 
-#sqlMenu {
-    .listWrap {
-        max-height: 85%;
-    }
-}
-
 #sqlEditorSpace {
     height: 100%;
     background-color: @color-white;
@@ -606,8 +635,10 @@
     @total-height: @topSectionHeight + @top-bar-height;
     .flex-display;
     .flex-flow(column);
+    border-left: 1px solid @color-border-grayBlue;
+    position: relative;
 
-    .ui-resizable-se, .ui-resizable-s {
+    .ui-resizable-se, .ui-resizable-s, .ui-resizable-e {
         display: none !important;
     }
 
@@ -623,7 +654,7 @@
             pointer-events: auto;
             .cursor-move;
         }
-        .ui-resizable-se, .ui-resizable-s {
+        .ui-resizable-se, .ui-resizable-s, .ui-resizable-e {
             display: block !important;
         }
     }

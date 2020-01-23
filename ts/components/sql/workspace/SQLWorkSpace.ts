@@ -4,7 +4,6 @@ class SQLWorkSpace {
     private _sqlEditorSpace: SQLEditorSpace;
     private _sqlResultSpace: SQLResultSpace;
     private _sqlHistorySpace: SQLHistorySpace;
-    private _sqlMenu: SQLMenu;
     private _firstTouch: boolean;
 
     public static get Instance() {
@@ -15,7 +14,6 @@ class SQLWorkSpace {
         this._sqlEditorSpace = SQLEditorSpace.Instance;
         this._sqlResultSpace = SQLResultSpace.Instance;
         this._sqlHistorySpace = SQLHistorySpace.Instance;
-        this._sqlMenu = new SQLMenu("sqlMenu");
         this._firstTouch = true;
     }
 
@@ -29,14 +27,6 @@ class SQLWorkSpace {
     public refresh(): void {
         this._sqlEditorSpace.refresh();
         this._sqlHistorySpace.refresh();
-        this._sqlMenu.render();
-    }
-
-   /**
-    * SQLWorkSpace.Instance.refreshMenuList
-    */
-    public refreshMenuList(key: string): void {
-        this._sqlMenu.render(key);
     }
 
     /**
@@ -118,6 +108,34 @@ class SQLWorkSpace {
                          .outerHeight(100 * pct + "%");
                 $topPart.outerHeight(100 * pctTop + "%");
                 $panel.removeClass("resizing");
+            }
+        });
+
+        const $bottomLeftPart = $bottomPart.find(".bottomLeftPart");
+        const $bottomRightPart = $bottomPart.find(".bottomRightPart");
+        let bottomPartWidth: number = null;
+        
+        $bottomRightPart.resizable({
+            handles: "w",
+            containment: 'parent',
+            minWidth: 36,
+            start: function () {
+                bottomPartWidth = $bottomPart.outerWidth();
+            },
+            resize: function (_event, ui) {
+                let pct = ui.size.width / bottomPartWidth;
+                if (pct > 0.98) {
+                    pct = 0.98;
+                    $bottomRightPart.css("left", "2%");
+                }
+                $bottomLeftPart.outerWidth(100 * (1 - pct) + "%");
+            },
+            stop: function (_event, ui) {
+                let pct = Math.min(ui.size.width / bottomPartWidth, 0.98);
+                let pctLeft = 1 - pct;
+                $bottomRightPart.css("left", 100 * pctLeft + "%")
+                         .outerWidth(100 * pct + "%");
+                $bottomLeftPart.outerWidth(100 * pctLeft + "%");
             }
         });
     }

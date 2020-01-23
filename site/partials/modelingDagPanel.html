@@ -1,41 +1,6 @@
 <div id="modelingDagPanel" class="mainPanel no-selection">
     include "worksheet/dagViewBar.html"
     <div id="dagViewContent" class="mainContent">
-        <div id="dataflowMenu" class="leftSection commonSection" data-tab="modelingDataflowTab">
-            <section id="dagList" class="dagList menuSection">
-                include "dataflow/dagList.html"
-            </section>
-            include "dataflow/dagNodeInfoPanel.html"
-            include "dataflow/dataflowInfoPanel.html"
-            include "worksheet/aggOpPanel.html"
-            include "worksheet/castOpPanel.html"
-            include "worksheet/datasetOpPanel.html"
-            include "worksheet/dfLinkInOpPanel.html"
-            include "worksheet/dfLinkOutOpPanel.html"
-            include "worksheet/exportOpPanel.html"
-            include "worksheet/extensionOpPanel.html"
-            include "worksheet/filterOpPanel.html"
-            include "worksheet/groupByOpPanel.html"
-            include "worksheet/IMDTableOpPanel.html"
-            include "worksheet/joinOpPanel.html"
-            include "worksheet/mapOpPanel.html"
-            include "worksheet/projectOpPanel.html"
-            include "worksheet/explodeOpPanel.html"
-            include "worksheet/publishIMDOpPanel.html"
-            include "worksheet/updateIMDOpPanel.html"
-            include "worksheet/roundOpPanel.html"
-            include "worksheet/rownumOpPanel.html"
-            include "worksheet/setOpPanel.html"
-            include "worksheet/jupyterOpPanel.html"
-            include "worksheet/splitOpPanel.html"
-            include "worksheet/SQLOpPanel.html"
-            include "worksheet/sortOpPanel.html"
-            include "worksheet/sqlFuncInOpPanel.html"
-            include "worksheet/sqlFuncOutOpPanel.html"
-            include "worksheet/synthesizeOpPanel.html"
-            include "worksheet/deskewOpPanel.html"
-        </div>
-        include "worksheet/dagView.html"
         <div id="dagStatsPanel" class="dagContainer showProgressTips showConfigInfo showTableName xc-hidden">
             <div class="dataflowMainArea">
                 <div class="queryList"></div>
@@ -46,7 +11,6 @@
                 </div>
             </div>
         </div>
-        include "worksheet/dagNodeMenu.html"
     </div>
     <div id="paramPopUp" class="dataflowParameterPopup">
         <div class="inputSection">

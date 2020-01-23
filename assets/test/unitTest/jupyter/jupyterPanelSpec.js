@@ -367,7 +367,7 @@ describe("JupyterPanel Test", function() {
 
 
             MainMenu.openPanel = function(type) {
-                expect(type).to.equal("dagPanel");
+                expect(type).to.equal("sqlPanel");
                 called1 = true;
             };
 

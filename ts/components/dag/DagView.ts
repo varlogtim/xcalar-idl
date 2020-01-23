@@ -208,7 +208,7 @@ class DagView {
      */
     public static newTabFromSource(type: DagNodeType, config: any) {
         try {
-            MainMenu.openPanel("dagPanel");
+            DagViewManager.Instance.toggleSqlPreview(false);
             DagTabManager.Instance.newTab();
             let position: number = DagView.gridSpacing * 2;
             let node: DagNode = DagViewManager.Instance.autoAddNode(type, null, null, config,

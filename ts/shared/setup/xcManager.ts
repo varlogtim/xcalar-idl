@@ -18,6 +18,8 @@ namespace xcManager {
 
         if (XVM.isDataMart()) {
             setupDataMart();
+        } else {
+            setupNonDataMart();
         }
 
         let xcSocket: XcSocket;
@@ -1353,6 +1355,16 @@ namespace xcManager {
         $("#workbookPanel").find(".monitorBox").remove();
         $("#monitorTab").addClass("xc-hidden");
         $("#bottomMenuBarTabs").addClass("dataMart");
+    }
+
+    function setupNonDataMart(): void {
+        const $dagViewContent = $("#dagViewContent");
+        $("#dataflowMenu").appendTo($dagViewContent);
+        $("#dagView").appendTo($dagViewContent);
+        $("#dagNodeMenu").appendTo($dagViewContent);
+        $("#dagTabView").parent().insertAfter($("#dagView .operatorBar"));
+        $("#dagViewTableArea").prependTo($("#dagView .dataflowMainArea"));
+
     }
 
     /* Unit Test Only */

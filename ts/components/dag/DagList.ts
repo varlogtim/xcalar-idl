@@ -16,7 +16,6 @@ class DagList extends Durable {
         super(null);
         this._resourceMenu = new ResourceMenu("dagListSection");
         this._initialize();
-        this._setupResourceMenuEvent();
         this._setupActionMenu();
         this._addEventListeners();
         this._getDagListSection().find(".dfModuleList").addClass("active");
@@ -60,7 +59,6 @@ class DagList extends Durable {
             // for dag list, it's a render of whole thing,
             // for sql menu, it's only for table function
             this._renderResourceList();
-            SQLWorkSpace.Instance.refreshMenuList(ResourceMenu.KEY.TableFunc);
             this._setup = true;
             deferred.resolve();
         })
@@ -274,8 +272,8 @@ class DagList extends Durable {
         .then(deferred.resolve)
         .fail(deferred.reject)
         .always(() => {
-            ResourceMenu.update(ResourceMenu.KEY.DF);
-            ResourceMenu.update(ResourceMenu.KEY.TableFunc);
+            DagList.Instance.refreshMenuList(ResourceMenu.KEY.DF);
+            DagList.Instance.refreshMenuList(ResourceMenu.KEY.TableFunc);
         });
         return promise;
     }
@@ -304,9 +302,9 @@ class DagList extends Durable {
         }
 
         if (dagTab instanceof DagTabSQLFunc) {
-            ResourceMenu.update(ResourceMenu.KEY.TableFunc);
+            DagList.Instance.refreshMenuList(ResourceMenu.KEY.TableFunc);
         } else {
-            ResourceMenu.update(ResourceMenu.KEY.DF);
+            DagList.Instance.refreshMenuList(ResourceMenu.KEY.DF);
         }
         return true;
     }
@@ -333,7 +331,7 @@ class DagList extends Durable {
             $li.find(".name").text(newName);
         }
         // not support rename published df now
-        ResourceMenu.update(ResourceMenu.KEY.DF);
+        DagList.Instance.refreshMenuList(ResourceMenu.KEY.DF);
     }
 
     /**
@@ -493,9 +491,9 @@ class DagList extends Durable {
             this._dags.delete(id);
             this._saveDagList(dagTab);
             if (dagTab instanceof DagTabSQLFunc) {
-                ResourceMenu.update(ResourceMenu.KEY.TableFunc);
+                DagList.Instance.refreshMenuList(ResourceMenu.KEY.TableFunc);
             } else {
-                ResourceMenu.update(ResourceMenu.KEY.DF);
+                DagList.Instance.refreshMenuList(ResourceMenu.KEY.DF);
             }
             if (dagTab instanceof DagTabPublished) {
                 DagSharedActionService.Instance.broadcast(DagGraphEvents.DeleteGraph, {
@@ -590,159 +588,6 @@ class DagList extends Durable {
 
     private _renderResourceList(): void {
         this._resourceMenu.render();
-    }
-
-    private _getTableFuncList(): HTML {
-        const listClassNames: string[] = ["tableFunc", "dagListDetail", "selectable"];
-        const iconClassNames: string[] = ["xi-SQLfunction"];
-        const dagTabs = this.getAllDags();
-        let html: HTML = "";
-        dagTabs.forEach((dagTab) => {
-            if (dagTab instanceof DagTabSQLFunc) {
-                const name = dagTab.getName();
-                const id = dagTab.getId();
-                html += this._resourceMenu.getListHTML(name, listClassNames, iconClassNames, id);
-            }
-        });
-        return html;
-    }
-
-    private _getUDFList(): HTML {
-        const udfs = UDFPanel.Instance.listUDFs();
-        const listClassNames: string[] = ["udf"];
-        const iconClassNames: string[] = ["xi-menu-udf"];
-        const html: HTML = udfs.map((udf) => {
-            return this._resourceMenu.getListHTML(udf.displayName, listClassNames, iconClassNames);
-        }).join("");
-        return html;
-    }
-
-    private _getDFList(): HTML {
-        const normalDagList: DagTab[] = [];
-        const optimizedDagList: DagTabOptimized[] = [];
-        const optimizedSDKDagList: DagTabOptimized[] = [];
-        const queryDagList: DagTabQuery[] = [];
-        const querySDKDagList: DagTabQuery[] = [];
-
-        this._dags.forEach((dagTab) => {
-            if (dagTab instanceof DagTabOptimized) {
-                if (dagTab.isFromSDK()) {
-                    optimizedSDKDagList.push(dagTab);
-                } else {
-                    optimizedDagList.push(dagTab);
-                }
-            } else if (dagTab instanceof DagTabQuery) {
-                if (dagTab.isSDK()) {
-                    querySDKDagList.push(dagTab);
-                } else {
-                    queryDagList.push(dagTab);
-                }
-            } else if (dagTab instanceof DagTabPublished) {
-                // ingore it
-            } else if (dagTab instanceof DagTabSQLFunc) {
-                // ingore it, is handled in _getTableFuncList
-            } else {
-                normalDagList.push(dagTab);
-            }
-        });
-
-        normalDagList.sort(this._sortDagTab);
-        optimizedDagList.sort(this._sortDagTab);
-        optimizedSDKDagList.sort(this._sortDagTab);
-        querySDKDagList.sort(this._sortDagTab);
-        queryDagList.sort((a, b) => this._sortAbandonedQueryTab(a, b));
-
-        const html: HTML =
-        this._getNestedDagListHTML(optimizedDagList) +
-        this._getNestedDagListHTML(optimizedSDKDagList) +
-        this._getNestedDagListHTML(queryDagList) +
-        this._getNestedDagListHTML(querySDKDagList) +
-        this._getDagListHTML(normalDagList);
-        return html;
-    }
-
-    private _sortDagTab(dagTabA: DagTab, dagTabB: DagTab): number {
-        const aName = dagTabA.getName().toLowerCase();
-        const bName = dagTabB.getName().toLowerCase();
-        return (aName < bName ? -1 : (aName > bName ? 1 : 0));
-    }
-
-    private _sortAbandonedQueryTab(dagTabA: DagTabQuery, dagTabB: DagTabQuery): number {
-        // both abandoned queries
-        const aState = dagTabA.getState();
-        const bState = dagTabB.getState();
-        if (aState === bState) {
-            const aTime = dagTabA.getCreatedTime();
-            const bTime = dagTabB.getCreatedTime();
-            return (aTime < bTime ? -1 : (aTime > bTime ? 1 : 0));
-        } else {
-            return (this._stateOrder[aState] > this._stateOrder[bState] ? -1 : 1);
-        }
-    }
-
-    private _getDagListHTML(dagTabs: DagTab[]): HTML {
-        return dagTabs.map((dagTab) => {
-            const id = dagTab.getId();
-            const name = dagTab.getName();
-            const listClassNames: string[] = ["dagListDetail", "selectable"];
-            const iconClassNames: string[] = ["gridIcon", "icon", "xi-dfg2"];
-            let tooltip: string = ""
-            let stateIcon: string = "";
-            if (dagTab.isOpen()) {
-                listClassNames.push("open");
-            }
-            if (dagTab instanceof DagTabOptimized) {
-                listClassNames.push("optimized");
-            } else if (dagTab instanceof DagTabQuery) {
-                listClassNames.push("abandonedQuery");
-                const state = dagTab.getState();
-                stateIcon = '<div class="statusIcon state-' + state +
-                            '" ' + xcTooltip.Attrs + ' data-original-title="' +
-                            xcStringHelper.camelCaseToRegular(state.slice(2)) + '"></div>';
-                const createdTime = dagTab.getCreatedTime();
-                if (createdTime) {
-                    tooltip = xcTimeHelper.getDateTip(dagTab.getCreatedTime(), {prefix: "Created: "});
-                }
-            }
-            // XXX TODO: combine with _getListHTML
-            return `<li class="${listClassNames.join(" ")}" data-id="${id}">` +
-                        `<i class="${iconClassNames.join(" ")}"></i>` +
-                        stateIcon +
-                        '<div class="name tooltipOverflow textOverflowOneLine" ' + tooltip + '>' +
-                            name +
-                        '</div>' +
-                        '<button class=" btn-secondary dropDown">' +
-                            '<i class="icon xi-ellipsis-h xc-action"></i>' +
-                        '</div>' +
-                    '</li>';
-        }).join("");
-    }
-
-    private _getNestedDagListHTML(dagTabs: DagTab[]): HTML {
-        if (dagTabs.length === 0) {
-            return "";
-        }
-        try {
-            const html = this._getDagListHTML(dagTabs);
-            const dagTab = dagTabs[0];
-            const path: string = dagTab.getPath();
-            const folderName = path.split("/")[0];
-            return '<div class="nested listWrap xc-expand-list">' +
-                        '<div class="listInfo">' +
-                            '<span class="expand">' +
-                                '<i class="icon xi-down fa-13"></i>' +
-                            '</span>' +
-                            '<span class="text">' + folderName + '</span>' +
-                        '</div>' +
-                        '<ul>' +
-                            html +
-                        '</ul>' +
-                    '</div>';
-        } catch (e) {
-            console.error(e);
-            return "";
-        }
-
     }
 
     private _iconHTML(type: string, icon: string, title: string): HTML {
@@ -1196,14 +1041,6 @@ class DagList extends Durable {
         }
     }
 
-    private _setupResourceMenuEvent(): void {
-        this._resourceMenu
-        .on("getTableFuncList", () => this._getTableFuncList())
-        .on("getUDFList", () => this._getUDFList())
-        .on("getDFList", () => this._getDFList())
-        .on("viewTable", (arg) => this._viewTable(arg));
-    }
-
     private _setupActionMenu(): void {
         const $menu: JQuery = this._getMenu();
         $menu.on("click", ".udfEdit", () => {
@@ -1254,20 +1091,6 @@ class DagList extends Durable {
 
     private _isForSQLFolder(dagTab: DagTab): boolean {
         return DagTabUser.isForSQLFolder(dagTab);
-    }
-
-    private _viewTable(
-        arg: {
-            table: TableMeta,
-            schema: ColSchema[]
-        }
-    ): void {
-        const { table, schema } = arg;
-        const columns: ProgCol[] = schema.map((schema) => ColManager.newPullCol(schema.name, schema.name, schema.type));
-        columns.push(ColManager.newDATACol());
-        table.tableCols = columns;
-        gTables[table.getId()] = table;
-        DagTable.Instance.previewPublishedTable(table);
     }
 
     private _addEventListeners(): void {

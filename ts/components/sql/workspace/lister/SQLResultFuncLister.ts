@@ -28,7 +28,7 @@ class SQLResultFuncLister extends AbstractSQLResultLister{
     protected _registerEvents(): void {
         this
         .on("edit", ({ name }) => {
-            MainMenu.openPanel("dagPanel");
+            DagViewManager.Instance.toggleSqlPreview(false);
             const dagTab = DagTabSQLFunc.getFunc(name);
             DagTabManager.Instance.loadTab(dagTab);
         })

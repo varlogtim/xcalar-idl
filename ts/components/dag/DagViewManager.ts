@@ -71,7 +71,6 @@ class DagViewManager {
     public show(): void {
         const self = this;
         this.toggleSqlPreview(false);
-        $("#container").addClass("activePanel-modelingDagPanel");
         DagCategoryBar.Instance.showOrHideArrows();
         TblFunc.moveFirstColumn();
 
@@ -208,7 +207,6 @@ class DagViewManager {
     public hide(): void {
         $(window).off(".dagViewResize");
         $(document).off(".dataflowPanel");
-        $("#container").removeClass("activePanel-modelingDagPanel");
         if (this.activeDagView) {
             this.activeDagView.unfocus();
         }
@@ -491,6 +489,9 @@ class DagViewManager {
     }
 
     public toggleSqlPreview(sqlPreview: boolean) {
+        if (!sqlPreview && !XVM.isDataMart()) {
+            MainMenu.openPanel("dagPanel");
+        }
         this.isSqlPreview = sqlPreview;
         if (this.isSqlPreview) {
             this.containerSelector = "#sqlDataflowArea";
@@ -1022,7 +1023,7 @@ class DagViewManager {
             if (isFromSQLMode) {
                 XVM.setMode(XVM.Mode.Advanced)
                 .then(function() {
-                    MainMenu.openPanel("dagPanel");
+                    DagViewManager.Instance.toggleSqlPreview(false);
                     cb();
                 });
             } else {
@@ -1230,6 +1231,16 @@ class DagViewManager {
         this.$dagView.find(".dataflowWrapBackground").on("click", ".newTab", () => {
             this.newTab();
         });
+
+        // XXX quick hack to handle 2 dataflow graph areas in sql panel
+        $("#dagView").mouseenter(() => {
+            this.toggleSqlPreview(false);
+        });
+
+        $("#sqlDataflowArea").mouseenter(() => {
+            this.toggleSqlPreview(true);
+        });
+        // XXX end 2 dataflow graph hack
     }
 
     private _getDagViewEl(): JQuery {
@@ -1469,7 +1480,7 @@ class DagViewManager {
     private _getActiveArea(): JQuery {
         if (this._isStatsPanel) {
             return $("#dagStatsPanel .dataflowArea");
-        } else if(this.isSqlPreview) {
+        } else if (this.isSqlPreview) {
             return this.$dfWrap.find(".dataflowArea");
         } else {
             return this.$dfWrap.find(".dataflowArea.active");

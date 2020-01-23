@@ -179,10 +179,6 @@ class DagGraphBar {
         $topBar.find(".setting").click(() => {
             DFSettingsModal.Instance.show();
         });
-
-        $topBar.find(".returnToQuery").click(() => {
-            MainMenu.openPanel("sqlPanel");
-        });
     }
 
     private _updateZoom(): void {

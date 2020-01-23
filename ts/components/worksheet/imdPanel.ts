@@ -1801,7 +1801,8 @@ namespace IMDPanel {
     function refreshTablesToDataflow(tableInfos: DagNodeIMDTableInputStruct[]): void {
         const numTables: number = tableInfos.length;
         XVM.setMode(XVM.Mode.Advanced);
-        MainMenu.openPanel("dagPanel", null);
+        MainMenu.openPanel("sqlPanel", null);
+        DagViewManager.Instance.toggleSqlPreview(false);
         DagTabManager.Instance.newTab();
         for(let i = 0; i < numTables; i++) {
             let tableInfo = tableInfos[i]

@@ -113,8 +113,20 @@ class SQLResultSpace {
     public showTables(reset: boolean): void {
         this._sqlTable.close();
         this._sqlTableSchema.close();
-        this._sqlTableSchema.close();
+        this._sqlDataflowPreview.close();
         this._tableLister.show(reset);
+        this._switchTab("result");
+    }
+
+    // XXX TODO: move the whole DagTable functionality there
+    /**
+     * SQLResultSpace.Instance.showDagTable
+     */
+    public showDagTable(): void {
+        this._sqlTable.close();
+        this._sqlTableSchema.close();
+        this._sqlDataflowPreview.close();
+        this._tableLister.close()
         this._switchTab("result");
     }
 

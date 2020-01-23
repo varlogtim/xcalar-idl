@@ -7,19 +7,19 @@ class ResourceMenu {
     };
 
     private _container: string;
-    private _event: XcEvent;
-
-    public static update(key: string): void {
-        DagList.Instance.refreshMenuList(key);
-        SQLWorkSpace.Instance.refreshMenuList(key);
-    }
+    private _stateOrder = {};
 
     constructor(container: string) {
         this._container = container;
-        this._event = new XcEvent();
         this._setupActionMenu();
         this._addEventListeners();
         this._getContainer().find(".tableList").addClass("active");
+
+        this._stateOrder[QueryStateTStr[QueryStateT.qrCancelled]] = 2;
+        this._stateOrder[QueryStateTStr[QueryStateT.qrNotStarted]] = 3;
+        this._stateOrder[QueryStateTStr[QueryStateT.qrProcessing]] = 4;
+        this._stateOrder[QueryStateTStr[QueryStateT.qrFinished]] = 0;
+        this._stateOrder[QueryStateTStr[QueryStateT.qrError]] = 1;
     }
 
     public render(key?: string): void {
@@ -43,28 +43,6 @@ class ResourceMenu {
         }
     }
 
-    public on(event: string, callback: Function): ResourceMenu {
-        this._event.addEventListener(event, callback);
-        return this;
-    }
-
-    public getContainer(): JQuery {
-        return this._getContainer();
-    }
-
-    public getMenu(): JQuery {
-        return this._getMenu();
-    }
-
-    public getListHTML(
-        name: string,
-        listClassNames: string[],
-        iconClassNames: string[],
-        id: string = ""
-    ): HTML {
-        return this._getListHTML(name, listClassNames, iconClassNames, id);
-    }
-
     private _getContainer(): JQuery {
         return $(`#${this._container}`);
     }
@@ -73,19 +51,59 @@ class ResourceMenu {
         return this._getContainer().find(".menu");
     }
 
+    private _renderTableList(): void {
+        const tables: PbTblInfo[] = SQLResultSpace.Instance.getAvailableTables();
+        tables.sort((a, b) => xcHelper.sortVals(a.name, b.name));
+        const iconClassNames: string[] = ["xi-table-2"];
+        const html: HTML = tables.map((table) => {
+            const listClassNames: string[] = ["table", "selectable"];
+            if (!table.active) {
+                listClassNames.push("inActive");
+            }
+            return this._getListHTML(table.name, listClassNames, iconClassNames);
+        }).join("");
+        this._getContainer().find(".tableList ul").html(html);
+    }
 
     private _renderTableFuncList(): void {
-        const html = this._event.dispatchEvent("getTableFuncList") || "";
+        const listClassNames: string[] = ["tableFunc", "dagListDetail", "selectable"];
+        const iconClassNames: string[] = ["xi-SQLfunction"];
+        const dagTabs = DagList.Instance.getAllDags();
+        let html: HTML = "";
+        dagTabs.forEach((dagTab) => {
+            if (dagTab instanceof DagTabSQLFunc) {
+                const name = dagTab.getName();
+                const id = dagTab.getId();
+                html += this._getListHTML(name, listClassNames, iconClassNames, id);
+            }
+        });
         this._getContainer().find(".tableFunc ul").html(html);
     }
 
     private _renderUDFList(): void {
-        const html = this._event.dispatchEvent("getUDFList") || "";
+        const udfs = UDFPanel.Instance.listUDFs();
+        const listClassNames: string[] = ["udf"];
+        const iconClassNames: string[] = ["xi-menu-udf"];
+        let html: HTML = udfs.map((udf) => {
+            return this._getListHTML(udf.displayName, listClassNames, iconClassNames);
+        }).join("");
+        html = this._getSQLUDFList() + html;
         this._getContainer().find(".udf ul").html(html);
     }
 
+    private _getSQLUDFList(): HTML {
+        const udfs = UDFFileManager.Instance.listSQLUDFFuncs();
+        const listClassNames: string[] = ["udf", "sqlUDF"];
+        const iconClassNames: string[] = ["xi-menu-udf"];
+        const html: HTML = udfs.map((udf) => {
+            return this._getListHTML(udf.name, listClassNames, iconClassNames);
+        }).join("");
+
+        return this._getNestedListWrapHTML("SQL UDFs", html);
+    }
+
     private _renderDataflowList(): void {
-        const html = this._event.dispatchEvent("getDFList") || "";
+        const html = this._getDFList();
         this._getContainer().find(".dfModuleList ul").html(html);
     }
 
@@ -108,18 +126,136 @@ class ResourceMenu {
                 '</li>';
     }
 
-    private _renderTableList(): void {
-        const tables: PbTblInfo[] = SQLResultSpace.Instance.getAvailableTables();
-        tables.sort((a, b) => xcHelper.sortVals(a.name, b.name));
-        const iconClassNames: string[] = ["xi-table-2"];
-        const html: HTML = tables.map((table) => {
-            const listClassNames: string[] = ["table", "selectable"];
-            if (!table.active) {
-                listClassNames.push("inActive");
+    private _getDFList(): HTML {
+        const normalDagList: DagTab[] = [];
+        const optimizedDagList: DagTabOptimized[] = [];
+        const optimizedSDKDagList: DagTabOptimized[] = [];
+        const queryDagList: DagTabQuery[] = [];
+        const querySDKDagList: DagTabQuery[] = [];
+
+        DagList.Instance.getAllDags().forEach((dagTab) => {
+            if (dagTab instanceof DagTabOptimized) {
+                if (dagTab.isFromSDK()) {
+                    optimizedSDKDagList.push(dagTab);
+                } else {
+                    optimizedDagList.push(dagTab);
+                }
+            } else if (dagTab instanceof DagTabQuery) {
+                if (dagTab.isSDK()) {
+                    querySDKDagList.push(dagTab);
+                } else {
+                    queryDagList.push(dagTab);
+                }
+            } else if (dagTab instanceof DagTabPublished) {
+                // ingore it
+            } else if (dagTab instanceof DagTabSQLFunc) {
+                // ingore it, is handled in _getTableFuncList
+            } else {
+                normalDagList.push(dagTab);
             }
-            return this._getListHTML(table.name, listClassNames, iconClassNames);
+        });
+
+        normalDagList.sort(this._sortDagTab);
+        optimizedDagList.sort(this._sortDagTab);
+        optimizedSDKDagList.sort(this._sortDagTab);
+        querySDKDagList.sort(this._sortDagTab);
+        queryDagList.sort((a, b) => this._sortAbandonedQueryTab(a, b));
+
+        const html: HTML =
+        this._getNestedDagListHTML(optimizedDagList) +
+        this._getNestedDagListHTML(optimizedSDKDagList) +
+        this._getNestedDagListHTML(queryDagList) +
+        this._getNestedDagListHTML(querySDKDagList) +
+        this._getDagListHTML(normalDagList);
+        return html;
+    }
+
+    private _sortDagTab(dagTabA: DagTab, dagTabB: DagTab): number {
+        const aName = dagTabA.getName().toLowerCase();
+        const bName = dagTabB.getName().toLowerCase();
+        return (aName < bName ? -1 : (aName > bName ? 1 : 0));
+    }
+
+    private _sortAbandonedQueryTab(dagTabA: DagTabQuery, dagTabB: DagTabQuery): number {
+        // both abandoned queries
+        const aState = dagTabA.getState();
+        const bState = dagTabB.getState();
+        if (aState === bState) {
+            const aTime = dagTabA.getCreatedTime();
+            const bTime = dagTabB.getCreatedTime();
+            return (aTime < bTime ? -1 : (aTime > bTime ? 1 : 0));
+        } else {
+            return (this._stateOrder[aState] > this._stateOrder[bState] ? -1 : 1);
+        }
+    }
+
+    private _getDagListHTML(dagTabs: DagTab[]): HTML {
+        return dagTabs.map((dagTab) => {
+            const id = dagTab.getId();
+            const name = dagTab.getName();
+            const listClassNames: string[] = ["dagListDetail", "selectable"];
+            const iconClassNames: string[] = ["gridIcon", "icon", "xi-dfg2"];
+            let tooltip: string = ""
+            let stateIcon: string = "";
+            if (dagTab.isOpen()) {
+                listClassNames.push("open");
+            }
+            if (dagTab instanceof DagTabOptimized) {
+                listClassNames.push("optimized");
+            } else if (dagTab instanceof DagTabQuery) {
+                listClassNames.push("abandonedQuery");
+                const state = dagTab.getState();
+                stateIcon = '<div class="statusIcon state-' + state +
+                            '" ' + xcTooltip.Attrs + ' data-original-title="' +
+                            xcStringHelper.camelCaseToRegular(state.slice(2)) + '"></div>';
+                const createdTime = dagTab.getCreatedTime();
+                if (createdTime) {
+                    tooltip = xcTimeHelper.getDateTip(dagTab.getCreatedTime(), {prefix: "Created: "});
+                }
+            }
+            // XXX TODO: combine with _getListHTML
+            return `<li class="${listClassNames.join(" ")}" data-id="${id}">` +
+                        `<i class="${iconClassNames.join(" ")}"></i>` +
+                        stateIcon +
+                        '<div class="name tooltipOverflow textOverflowOneLine" ' + tooltip + '>' +
+                            name +
+                        '</div>' +
+                        '<button class=" btn-secondary dropDown">' +
+                            '<i class="icon xi-ellipsis-h xc-action"></i>' +
+                        '</div>' +
+                    '</li>';
         }).join("");
-        this._getContainer().find(".tableList ul").html(html);
+    }
+
+    private _getNestedDagListHTML(dagTabs: DagTab[]): HTML {
+        if (dagTabs.length === 0) {
+            return "";
+        }
+        try {
+            const html = this._getDagListHTML(dagTabs);
+            const dagTab = dagTabs[0];
+            const path: string = dagTab.getPath();
+            const folderName = path.split("/")[0];
+            return this._getNestedListWrapHTML(folderName, html);
+        } catch (e) {
+            console.error(e);
+            return "";
+        }
+
+    }
+
+    private _getNestedListWrapHTML(name: string, content: HTML): HTML {
+        return '<div class="nested listWrap xc-expand-list">' +
+                '<div class="listInfo">' +
+                    '<span class="expand">' +
+                        '<i class="icon xi-down fa-13"></i>' +
+                    '</span>' +
+                    '<span class="text">' + name + '</span>' +
+                '</div>' +
+                '<ul>' +
+                    content +
+                '</ul>' +
+            '</div>';
     }
 
     private _openDropdown(event: JQueryEventObject): void {
@@ -143,6 +279,12 @@ class ResourceMenu {
             $menu.find("li.tableFunc").show();
         } else if ($li.hasClass("udf")) {
             $menu.find("li.udf").show();
+
+            if ($li.hasClass("sqlUDF")) {
+                $menu.find("li.udfQuery").removeClass("xc-disabled");
+            } else {
+                $menu.find("li.udfQuery").addClass("xc-disabled");
+            }
         }
         // sql func can also have this class
         if ($li.hasClass("dagListDetail")) {
@@ -186,7 +328,7 @@ class ResourceMenu {
             const msg = `Cannot find table ${tableName}`;
             Alert.error(ErrTStr.Error, msg);
         } else {
-            MainMenu.openPanel("dagPanel");
+            DagViewManager.Instance.toggleSqlPreview(false);
             if (DagTabManager.Instance.getNumTabs() === 0) {
                 DagTabManager.Instance.newTab();
             }
@@ -255,10 +397,16 @@ class ResourceMenu {
                 tableId: tableId,
                 tableName: resultName
             });
-            this._event.dispatchEvent("viewTable", {
-                table,
-                schema: tableInfo.getSchema()
+            const schema = tableInfo.getSchema();
+            const columns = schema.map((col) => {
+                return {
+                    name: col.name,
+                    backName: col.name,
+                    type: col.type
+                };
             });
+            gTables[table.getId()] = table;
+            SQLResultSpace.Instance.viewTable(table, columns);
         } catch (e) {
             console.error(e);
         }

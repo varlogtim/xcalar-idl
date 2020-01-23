@@ -198,7 +198,7 @@ class DagCategoryBar {
             clearTimeout(this._selectCategoryTimer);
             this._selectCategoryTimer = setTimeout(() => {
                 this._focusOnCategory(category);
-            }, 200);
+            }, 250);
         });
 
         this.$dagView.find(".categories").on("mouseleave", ".category", (event) => {
@@ -210,7 +210,7 @@ class DagCategoryBar {
             clearTimeout(self._showBarTimer);
             this._showBarTimer = setTimeout(() => {
                 this.showOperatorBar();
-            }, 200);
+            }, 250);
         });
 
         this.$categoryBar.mouseleave(() => {

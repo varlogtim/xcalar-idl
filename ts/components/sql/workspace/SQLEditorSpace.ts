@@ -620,6 +620,7 @@ class SQLEditorSpace {
 
     private _toggleDraggable(isDraggable: boolean): void {
         const $section: JQuery = this._getDockableSection();
+        let self = this;
         if (isDraggable) {
             $section.draggable({
                 "handle": "header.draggable",
@@ -674,7 +675,7 @@ class SQLEditorSpace {
             container: selector,
             bounds: selector
         }).setupListeners();
-        
+
         new MenuHelper($topBar.find(".btn.more"), {
             onSelect: ($li) => {
                 this._fileOption($li.data("action"));
@@ -693,8 +694,7 @@ class SQLEditorSpace {
         const $container = this._getEditorSpaceEl()
         this._getDockableSection()
                   .addClass("undocked")
-                  .css({"left": 10, "top": -10, "width": "300px", "height": "500px"});
-        $("#sqlWorkSpacePanel").find(".rightSection .topPart").css("height", "100%");
+                  .css({"left": -310, "top": -10, "width": "300px", "height": "500px"});
         $("#sqlWorkSpacePanel").find(".rightSection .bottomPart").addClass("undocked");
         const $icon = $container.find(".undock");
         xcTooltip.changeText($icon, SideBarTStr.PopBack);
@@ -709,8 +709,6 @@ class SQLEditorSpace {
         this._getDockableSection()
                     .removeClass("undocked")
                     .css({"left": "", "top": "", "width": "", "height": ""});
-        $("#sqlWorkSpacePanel").find(".rightSection .topPart")
-                                .css("height", "");
         $("#sqlWorkSpacePanel").find(".rightSection .bottomPart")
                                 .removeClass("undocked")
                                 .css({"top": "", "height": ""});
@@ -745,7 +743,7 @@ class SQLEditorSpace {
     private _setupResize(): void {
         let self = this;
         this._getEditorSpaceEl().resizable({
-            handles: "e, s, se",
+            handles: "w,e,se",
             minWidth: self._minWidth,
             minHeight: 300,
             stop: function () {

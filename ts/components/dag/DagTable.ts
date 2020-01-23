@@ -135,6 +135,7 @@ class DagTable {
             return PromiseHelper.resolve();
         }
 
+        SQLResultSpace.Instance.showDagTable();
         this._reset(isRefresh);
         this._currentViewer = viewer;
         return this._showViewer();

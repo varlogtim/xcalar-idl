@@ -3,9 +3,40 @@
     <div class="title">Query</div>
   </div>
   <div class="mainContent">
-    <section id="sqlMenu" class="leftSection commonSection">
-      include "sqlMenu.html"
-    </section>
+    <div id="dataflowMenu" class="leftSection commonSection" data-tab="modelingDataflowTab">
+        <section id="dagList" class="dagList menuSection">
+            include "../dataflow/dagList.html"
+        </section>
+        include "../dataflow/dagNodeInfoPanel.html"
+        include "../dataflow/dataflowInfoPanel.html"
+        include "../worksheet/aggOpPanel.html"
+        include "../worksheet/castOpPanel.html"
+        include "../worksheet/datasetOpPanel.html"
+        include "../worksheet/dfLinkInOpPanel.html"
+        include "../worksheet/dfLinkOutOpPanel.html"
+        include "../worksheet/exportOpPanel.html"
+        include "../worksheet/extensionOpPanel.html"
+        include "../worksheet/filterOpPanel.html"
+        include "../worksheet/groupByOpPanel.html"
+        include "../worksheet/IMDTableOpPanel.html"
+        include "../worksheet/joinOpPanel.html"
+        include "../worksheet/mapOpPanel.html"
+        include "../worksheet/projectOpPanel.html"
+        include "../worksheet/explodeOpPanel.html"
+        include "../worksheet/publishIMDOpPanel.html"
+        include "../worksheet/updateIMDOpPanel.html"
+        include "../worksheet/roundOpPanel.html"
+        include "../worksheet/rownumOpPanel.html"
+        include "../worksheet/setOpPanel.html"
+        include "../worksheet/jupyterOpPanel.html"
+        include "../worksheet/splitOpPanel.html"
+        include "../worksheet/SQLOpPanel.html"
+        include "../worksheet/sortOpPanel.html"
+        include "../worksheet/sqlFuncInOpPanel.html"
+        include "../worksheet/sqlFuncOutOpPanel.html"
+        include "../worksheet/synthesizeOpPanel.html"
+        include "../worksheet/deskewOpPanel.html"
+    </div>
     <section class="rightSection">
       <div class="resultSection topPart">
         <div class="tabSection">
@@ -35,6 +66,7 @@
             include "sqlTableSchemaArea.html"
             include "sqlTableArea.html"
             include "sqlDataflowArea.html"
+            include "../worksheet/dagViewTableArea.html"
             <div class="hintArea">
               <b>No query results</b>
               <div class="hint">Run a query or select a query result from the SQL history to get started</div>
@@ -52,8 +84,17 @@
               <div class="border"></div>
             </div>
         </div>
-        include "sqlEditorSpace.html"
+        <div class="tabBar">
+          include "../worksheet/tabView.html"
+        </div>
+        <div class="bottomLeftPart">
+          include "sqlEditorSpace.html"
+        </div>
+        <div class="bottomRightPart">
+          include "../worksheet/dagView.html"
+        </div>
       </div>
+      include "../worksheet/dagNodeMenu.html"
     </section>
   </div>
 </div>
