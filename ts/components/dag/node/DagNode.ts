@@ -367,6 +367,15 @@ abstract class DagNode extends Durable {
      * Change to error state
      */
     public beErrorState(error?: string): void {
+        try {
+            if (error && this instanceof DagNodeAggregate
+                && error.match(ErrWRepTStr.AggConflict.replace('<aggPrefix>"<name>"',".*")) == null
+                && error !== StatusTStr[StatusT.StatusDgDagAlreadyExists]) {
+                DagAggManager.Instance.removeValue(this.getAggName(), true);
+            }
+        } catch (e) {
+            console.error("Invalid error setting state: ", e);
+        }
         this.error = error || this.error;
         this._setState(DagNodeState.Error);
         this._clearConnectionMeta();
