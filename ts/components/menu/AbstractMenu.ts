@@ -76,13 +76,13 @@ abstract class AbstractMenu {
             });
     }
 
-    protected _openOpPanel(node: DagNode, colNames: string[]): void {
+    protected _openOpPanel(node: DagNode, colNames: string[], allNodes: DagNode[]): void {
         const tabId: string = DagViewManager.Instance.getActiveDag().getTabId();
         DagNodeMenu.execute("configureNode", {
             node: node,
             autofillColumnNames: colNames,
             exitCallback: function() {
-                DagViewManager.Instance.removeNodes([node.getId()], tabId);
+                DagViewManager.Instance.removeNodes(allNodes.map(node=>node.getId()), tabId);
             }
         });
     }
@@ -171,8 +171,12 @@ abstract class AbstractMenu {
             try {
                 const tableId: TableId = $menu.data('tableId');
                 const table: TableMeta = gTables[tableId];
-                const tableName = table.getName();
-                const sqlString = SqlQueryHistory.getInstance().getSQLFromTableName(tableName);
+                let tableName: string;
+                let sqlString: string;
+                if (table) {
+                    tableName = table.getName();
+                    sqlString = SqlQueryHistory.getInstance().getSQLFromTableName(tableName);
+                }
 
                 if (sqlString) {
                     const name: string = "SQL " + moment(new Date()).format("HH:mm:ss ll");
@@ -194,7 +198,7 @@ abstract class AbstractMenu {
                                 parentNodeId = node.getId();
                             }
                         });
-                        callback.bind(this)(parentNodeId);
+                        callback.bind(this)(newNodes, parentNodeId);
                     })
                     .fail((e) => {
                         console.error("error", e);
@@ -209,18 +213,13 @@ abstract class AbstractMenu {
                     }
                     const input = {
                         "source": xcHelper.getTableName(tableName),
-                        "version": -1,
-                        "filterString": "",
-                        "schema": [],
-                        "limitedRows": null
+                        "schema": table.getAllCols(true).map((progCol) => {
+                                        return {
+                                            name: progCol.getBackColName(),
+                                            type: progCol.getType()
+                                        }
+                                })
                     };
-                    let schema = table.getAllCols(true).map((progCol) => {
-                        return {
-                            name: progCol.getBackColName(),
-                            type: progCol.getType()
-                        }
-                    });
-                    input.schema = schema;
 
                     let parentNode = DagViewManager.Instance.autoAddNode(DagNodeType.IMDTable,
                         null, null, input, undefined, undefined, {
@@ -229,7 +228,7 @@ abstract class AbstractMenu {
                     });
                     parentNode.setParam(input, true);
 
-                    callback.bind(this)(parentNode.getId());
+                    callback.bind(this)([parentNode], parentNode.getId());
                 }
             }  catch (e) {
                 console.error("error", e);

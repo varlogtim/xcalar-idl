@@ -334,7 +334,7 @@ class TableMenu extends AbstractMenu {
             options = options || {};
             const input: object = options.input || this._getNodeParam(type, tableId, options);
             const node: DagNode = this._addNode(type, input, options.subType, options.parentNodeId);
-            this._openOpPanel(node, []);
+            this._openOpPanel(node, [], [node]);
         } catch (e) {
             console.error("error", e);
             Alert.error(ErrTStr.Error, ErrTStr.Unknown);

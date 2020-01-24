@@ -161,7 +161,7 @@ class CellMenu extends AbstractMenu {
         } else {
             callback.bind(this)();
         }
-        function callback(parentNodeId?: string) {
+        function callback(_allNodes?: DagNode[], parentNodeId?: string) {
             try {
                 const type: DagNodeType = DagNodeType.Filter;
                 const input: DagNodeFilterInputStruct = {

@@ -186,9 +186,25 @@ class ResourceMenu {
             const msg = `Cannot find table ${tableName}`;
             Alert.error(ErrTStr.Error, msg);
         } else {
-            DagView.newTabFromSource(DagNodeType.IMDTable, {
+            MainMenu.openPanel("dagPanel");
+            if (DagTabManager.Instance.getNumTabs() === 0) {
+                DagTabManager.Instance.newTab();
+            }
+            const input = {
                 source: tableName,
                 schema: tableInfo.getSchema()
+            };
+            let node: DagNode = DagViewManager.Instance.autoAddNode(DagNodeType.IMDTable,
+                null, null, input, undefined, undefined, {
+                    configured: true,
+                    forceAdd: true
+            });
+
+            DagNodeMenu.execute("configureNode", {
+                node: node,
+                exitCallback: () => {
+                    node.setParam({}, true);
+                }
             });
         }
     }

@@ -392,11 +392,11 @@ class ColMenu extends AbstractMenu {
         if ($colMenu.hasClass("fromSQL")) {
             this._switchToSQL(callback);
         } else {
-            callback.bind(this)();
+            callback.bind(this)([]);
         }
 
 
-        function callback(parentNodeId?: string) {
+        function callback(newNodes: DagNode[], parentNodeId?: string) {
             try {
                 options = options || {};
                 const table: TableMeta = gTables[tableId];
@@ -404,7 +404,7 @@ class ColMenu extends AbstractMenu {
                 const input: object = this._getNodeParam(type, progCols, options);
                 const node: DagNode = this._addNode(type, input, options.subType, parentNodeId);
                 const colNames: string[] = progCols.map(progCol => progCol.getBackColName());
-                this._openOpPanel(node, colNames);
+                this._openOpPanel(node, colNames, newNodes.concat(node));
             } catch (e) {
                 console.error("error", e);
                 Alert.error(ErrTStr.Error, ErrTStr.Unknown);
