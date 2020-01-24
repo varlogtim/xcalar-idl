@@ -1559,167 +1559,46 @@ input {
 /* End Of Status Box */
 
 #successMessageWrap {
-    .position(absolute, @top: 0px, @left: 50%);
-    .transform(translateX(-50%));
+    @messageHeight: 60px;
+    background-color: rgba(16,42,67, 0.8);
+    .position(absolute, @top: 0, @left: 0px);
     z-index: @z-index-locked + 3;
-    font-weight: bold;
-    height: ~"calc(50% + 55px)";
-    text-align: center;
-    width: 410px;
+    height: @messageHeight;
+    width: 100%;
     overflow: hidden;
-    display: none;
     pointer-events: none;
-    padding-left: 5px;
+    transition: 0.3s transform;
+    transform: translateY(-@messageHeight);
+    color: @color-white;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    .failed {
-        display: none !important;
-    }
-
-    .checkMark {
-        .size(60px, 60px);
-        border-radius: 100%;
-        display: block;
-        left: 170px;
-        position: absolute;
-        bottom: 185px;
-        z-index: 1;
-        color: @color-white;
-        .icon {
-            font-size: 50px;
-        }
-        &.hidden {
-            bottom: 120%;
-            .transition(bottom 0.4s ease-out);
-        }
-    }
-
-    @boxHeight: 270px;
-    .successMessage {
-        height: @boxHeight;
-        width: 400px;
-        position: absolute;
-        bottom: 5px;
-        .transition(bottom 0.6s);
-        background-color: @color-bg-java-green;
-        box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.3);
-        &.hidden {
-            bottom: -400px;
-        }
+    &.active {
+        transform: translateY(0px);
     }
 
     &.failed {
+        background-color: rgba(124, 13, 3, 0.8);
         .failed {
             display: block !important;
         }
         .success {
             display: none !important;
         }
-        .successMessage {
-            background-color: @color-error-border;
-        }
     }
 
-    .textBox {
-        @marginTop: 150px;
-        height: @boxHeight - @marginTop;
-        width: 100%;
-        background-color: @color-white;
-        margin-top: @marginTop;
-        padding-top: 45px;
-        .font(@size: 18px, @weight: 300, @color: @color-font-greyish-brown);
+    .failed {
+        display: none !important;
     }
 
-    .largeText {
-        height: 270px;
-        width: 400px;
-        position: absolute;
-        bottom: 0px;
-        .font(@size: 40px, @color: @color-white, @weight: 500);
-        z-index: 2;
-        padding-top: 85px;
-        display: block;
-        .transition(bottom 0.6s);
-        &.hidden {
-            bottom: -400px;
-        }
+    .icon {
+        position: relative;
+        top: 3px;
+        margin-right: 8px;
     }
 
-    @-webkit-keyframes bounceInDown {
-      from, 60%, 75%, 90%, to {
-        -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
-        animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
-      }
-
-      0% {
-        opacity: 0;
-        -webkit-transform: translate3d(0, -3000px, 0);
-        transform: translate3d(0, -3000px, 0);
-      }
-
-      60% {
-        opacity: 1;
-        -webkit-transform: translate3d(0, 25px, 0);
-        transform: translate3d(0, 25px, 0);
-      }
-
-      75% {
-        -webkit-transform: translate3d(0, -10px, 0);
-        transform: translate3d(0, -10px, 0);
-      }
-
-      90% {
-        -webkit-transform: translate3d(0, 5px, 0);
-        transform: translate3d(0, 5px, 0);
-      }
-
-      to {
-        -webkit-transform: none;
-        transform: none;
-      }
-    }
-
-    @keyframes bounceInDown {
-      from, 60%, 75%, 90%, to {
-        -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
-        animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
-      }
-
-      0% {
-        opacity: 0;
-        -webkit-transform: translate3d(0, -3000px, 0);
-        transform: translate3d(0, -3000px, 0);
-      }
-
-      60% {
-        opacity: 1;
-        -webkit-transform: translate3d(0, 25px, 0);
-        transform: translate3d(0, 25px, 0);
-      }
-
-      75% {
-        -webkit-transform: translate3d(0, -10px, 0);
-        transform: translate3d(0, -10px, 0);
-      }
-
-      90% {
-        -webkit-transform: translate3d(0, 5px, 0);
-        transform: translate3d(0, 5px, 0);
-      }
-
-      to {
-        -webkit-transform: none;
-        transform: none;
-      }
-    }
-
-    .bounceInDown {
-        -webkit-animation-name: bounceInDown;
-        animation-name: bounceInDown;
-        webkit-animation-duration: 0.7s;
-        animation-duration: 0.7s;
-        -webkit-animation-fill-mode: both;
-        animation-fill-mode: both;
-    }
 }
 
 /* Finished Table Notification */

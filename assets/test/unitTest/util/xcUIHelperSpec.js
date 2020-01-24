@@ -242,56 +242,29 @@ describe("xcUIHelper Test", function() {
     it("xcUIHelper.showSuccess should work", function(done) {
         xcUIHelper.showSuccess("Hello");
         assert.isTrue($("#successMessageWrap").is(":visible"));
-        expect($("#successMessageWrap .textBox.success").text()).to
-                                                                .equal("Hello");
-        UnitTest.testFinish(function() {
-            return !$("#successMessageWrap").is(":visible");
-        })
-        .then(function() {
-            assert.isFalse($("#successMessageWrap").is(":visible"));
-            done();
-        })
-        .fail(function() {
-            done("failed");
-        });
+        expect($("#successMessageWrap .msg").eq(0).text()).to.equal("Hello");
+        done();
     });
 
     it("xcUIHelper.showSuccess should reset text", function(done) {
         xcUIHelper.showSuccess();
         assert.isTrue($("#successMessageWrap").is(":visible"));
-        expect($("#successMessageWrap .textBox.success").text()).to.not
-                                                                .equal("Hello");
-        UnitTest.testFinish(function() {
-            return !$("#successMessageWrap").is(":visible");
-        })
-        .then(function() {
-            assert.isFalse($("#successMessageWrap").is(":visible"));
-            done();
-        })
-        .fail(function() {
-            done("failed");
-        });
+        expect($("#successMessageWrap .msg").eq(0).text()).to.not.equal("Hello");
+        done();
     });
 
     it("xcUIHelper.showFail should work", function(done) {
         xcUIHelper.showFail("World");
         assert.isTrue($("#successMessageWrap").is(":visible"));
-        expect($("#successMessageWrap .textBox.success").text()).to.equal("World");
-        setTimeout(function() {
-            assert.isFalse($("#successMessageWrap").is(":visible"));
-            done();
-        }, 3000);
+        expect($("#successMessageWrap .msg").eq(1).text()).to.equal("World");
+        done();
     });
 
     it("xcUIHelper.showFail should reset text", function(done) {
         xcUIHelper.showFail();
         assert.isTrue($("#successMessageWrap").is(":visible"));
-        expect($("#successMessageWrap .textBox.success").text()).to.not
-                                                                .equal("World");
-        setTimeout(function() {
-            assert.isFalse($("#successMessageWrap").is(":visible"));
-            done();
-        }, 3000);
+        expect($("#successMessageWrap .msg").eq(1).text()).to.not.equal("World");
+        done();
     });
 
 

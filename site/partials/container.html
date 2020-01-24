@@ -9,7 +9,7 @@
           <i class="icon xi-close"></i>
         </div>
         <div class="iconWrap">
-          <i class="waitIcon icon xi-chat-bubble-waiting2"></i>
+          <i class="waitIcon icon xi-progress"></i>
         </div>
         <div class="progressWrap">
           <div class="progressBar"></div>
@@ -100,20 +100,19 @@
 </svg>
 
   <div id="successMessageWrap">
-    <div class="checkMark hidden bounceInDown">
-      <i class="icon success xi-chat-bubble-happy"></i>
-      <i class="icon failed xi-chat-bubble-sad"></i>
-    </div>
-    <span class="largeText success"><%= dicts.status.SUCCESS %></span>
-    <span class="largeText failed"><%= dicts.status.FAILED %></span>
-    <div class="successMessage">
-      <div class="textBox success">
-        <%= dicts.status.actionSuccess %>
-      </div>
-      <div class="textBox failed">
-        <%= dicts.status.actionFailed %>
-      </div>
-    </div>
+    <span class="largeText success">
+        <i class="icon xi-success"></i><%= dicts.status.success %>
+        <span class="msg">
+            <%= dicts.status.actionSuccess %>
+        </span>
+    </span>
+    <span class="largeText failed">
+        <i class="icon xi-error"></i>
+        <%= dicts.status.failed %>
+        <span class="msg">
+            <%= dicts.status.actionFailed %>
+        </span>
+    </span>
   </div>
 
   <!-- Modal Background -->

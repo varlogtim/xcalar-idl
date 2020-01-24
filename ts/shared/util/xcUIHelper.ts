@@ -162,12 +162,7 @@ namespace xcUIHelper {
      */
     export function hideSuccessBox(): void {
         const $successMessage: JQuery = $('#successMessageWrap');
-        const $checkMark: JQuery = $successMessage.find('.checkMark');
-        $successMessage.find('.checkMark, .successMessage, .largeText')
-                       .addClass('hidden');
-        $successMessage.removeClass("failed");
-        $checkMark.hide();
-        $successMessage.hide();
+        $successMessage.removeClass("active");
         for (let timer in successTimers) {
             clearTimeout(successTimers[timer]);
         }
@@ -195,51 +190,19 @@ namespace xcUIHelper {
         xcUIHelper.hideSuccessBox();
         if (!isSuccess) {
             $successMessage.addClass('failed');
-        }
-        $successMessage.show();
-        if (msg) {
-            $successMessage.find('.textBox').text(msg);
-        }
-        if (!gMinModeOn) {
-            var $checkMark = $successMessage.find('.checkMark');
-            var $text = $successMessage.find('.successMessage');
-            var $largeText = $successMessage.find('.largeText');
-            $text = $text.add($largeText);
-            var $textAndCheckMark = $checkMark.add($text);
-            $textAndCheckMark.addClass('hidden');
-            $checkMark.hide().addClass('bounceInDown');
-
-            successTimers.step1 = setTimeout(function() {
-                $text.removeClass('hidden');
-            }, 200);
-
-            successTimers.step2 = setTimeout(function() {
-                $checkMark.show().removeClass('hidden');
-            }, 400);
-
-            successTimers.step3 = setTimeout(function() {
-                $textAndCheckMark.addClass('hidden');
-            }, 2000);
-
-            successTimers.step4 = setTimeout(function() {
-                $successMessage.find(".textBox.success")
-                .text(StatusMessageTStr.ActionSuccess);
-                $successMessage.find(".textBox.failed")
-                .text(StatusMessageTStr.ActionFailed);
-                xcUIHelper.hideSuccessBox();
-            }, 2600);
         } else {
-            $successMessage.find('.hidden').removeClass('hidden');
-            $successMessage.find('.checkMark').removeClass('bounceInDown')
-                                              .show();
-            successTimers.step4 = setTimeout(function() {
-                xcUIHelper.hideSuccessBox();
-                $successMessage.find(".textBox.success")
-                .text(StatusMessageTStr.ActionSuccess);
-                $successMessage.find(".textBox.failed")
-                .text(StatusMessageTStr.ActionFailed);
-            }, 1800);
+            $successMessage.removeClass("failed");
         }
+        $successMessage.addClass("active");
+        if (msg) {
+            $successMessage.find('.msg').text(msg);
+        } else {
+            $successMessage.find(".msg").text("");
+        }
+
+        successTimers.step4 = setTimeout(function() {
+            xcUIHelper.hideSuccessBox();
+        }, 1800);
     }
 
     /**

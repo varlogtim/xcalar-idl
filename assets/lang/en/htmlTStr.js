@@ -141,9 +141,9 @@ module.exports = {
 
     "status": {
         "actionSuccess": "Your action was successful!",
-        "SUCCESS": "SUCCESS",
+        "success": "Success!",
         "actionFailed": "Your action failed.",
-        "FAILED": "FAILED",
+        "failed": "Failed!",
         "INPROGRESS": "IN PROGRESS"
     },
 
