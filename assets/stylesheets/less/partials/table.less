@@ -140,7 +140,7 @@ html.edge {
 
     td {
         .size(@height: @height-tableCell);
-        .font(@size: 11px, @line-height: @height-innerTableCell, @family: @font-code);
+        .font(@size: 11px, @line-height: @height-innerTableCell, @family: @font-code, @weight: 500, @color: @color-black);
         overflow: hidden;
         padding: 2px;
         vertical-align: middle;
@@ -333,7 +333,7 @@ html.edge {
             .size(@width: 100%);
             text-align: center;
             outline: none;
-            font-weight: normal;
+            font-weight: 600;
         }
 
         &:focus {
@@ -350,7 +350,7 @@ html.edge {
         display: block;
         text-align: center;
         overflow: hidden;
-        .font(@weight: normal, @size: 11px, @family: @font-base, @color: @color-font-edge);
+        .font(@weight: 600, @size: 11px, @family: @font-base, @color: @color-font-form-gray);
         margin-left: -2px;
         // pointer-events: none;
         pointer-events: initial;
@@ -1338,7 +1338,7 @@ html.edge {
         .typeIcon;
 
         .type.icon {
-            color: @color-font-edge;
+            color: @color-font-form-gray;
         }
 
         .dropDown;
@@ -1568,7 +1568,6 @@ html.edge {
             border-width: 0 0 1px 0;
             border-color: @color-bg-topBarGray2;
 
-
             .sortIcon {
                 .flex(0 1 20px);
                 color: @color-font-greyish-brown;
@@ -1618,7 +1617,7 @@ html.edge {
 
             .prefix {
                 .flex(1 1 auto);
-                .font(@color: @color-font-form-gray, @size: 11px);
+                .font(@color: @color-font-darkGray, @size: 11px);
                 line-height: @height-xcColPrefix;
                 .textOverflowOneLine;
 
