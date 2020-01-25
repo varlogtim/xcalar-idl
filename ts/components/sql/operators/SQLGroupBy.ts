@@ -566,7 +566,7 @@ class SQLGroupBy {
             });
         }
         curPromise = PromiseHelper.resolve({newTableName: gbTableNames[0]});
-        const joinType = JoinOperatorT.InnerJoin;
+        const joinType = gbColNames.length > 0 ? JoinOperatorT.InnerJoin : JoinOperatorT.CrossJoin;
         index = 1;
         for (let i = 0; i < gbColNames.length; i++) {
             gbTableColInfos[0].rename.push({orig: gbColNames[i],
