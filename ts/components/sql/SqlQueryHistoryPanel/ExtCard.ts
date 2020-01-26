@@ -73,7 +73,6 @@ namespace SqlQueryHistoryPanel {
                 TableColumnCategory.SELECT,
                 TableColumnCategory.STATUS,
                 TableColumnCategory.QUERY,
-                TableColumnCategory.ACTION,
                 TableColumnCategory.TABLE,
                 TableColumnCategory.STARTTIME,
                 TableColumnCategory.DURATION,
@@ -113,43 +112,6 @@ namespace SqlQueryHistoryPanel {
                         isEllipsis: false,
                         text: `${formatNumber(queryInfo.skew)}`,
                         style: genSkewStyle(queryInfo.skew)
-                    };
-                    return prop;
-                }
-            };
-
-            tableDef.columns[TableColumnCategory.ACTION] = {
-                type: TableHeaderColumnType.REGULAR,
-                convertFunc: (queryInfo) => {
-                    let text = "";
-                    let iconClass = "";
-                    let isValidStatus = queryInfo.status === SQLStatus.Done ||
-                    queryInfo.status === SQLStatus.Failed;
-                    if (queryInfo.statementType &&
-                        queryInfo.statementType !== SQLStatementType.Select) {
-                        text = "";
-                        iconClass = "";
-                    } else if (isValidStatus) {
-                        text = SQLTStr.queryTableBodyTextPreview;
-                        iconClass = 'xi-dfg2';
-                    } else if (queryInfo.status === SQLStatus.Running) {
-                        text = SQLTStr.queryTableBodyTextProgress;
-                        iconClass = 'xi-dfg2';
-                    }
-                    const prop: TableBodyColumnIconLinkProp = {
-                        category: TableColumnCategory.ACTION,
-                        text: text,
-                        iconClass: iconClass,
-                        onLinkClick: () => {
-                            if (queryInfo.statementType &&
-                                queryInfo.statementType !== SQLStatementType.Select) {
-                                return;
-                            } else if (isValidStatus) {
-                                SQLHistorySpace.Instance.previewDataflow(queryInfo);
-                            } else if (queryInfo.status === SQLStatus.Running) {
-                                SQLHistorySpace.Instance.viewProgress(queryInfo.dataflowId);
-                            }
-                        }
                     };
                     return prop;
                 }

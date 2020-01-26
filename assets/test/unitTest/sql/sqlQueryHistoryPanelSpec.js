@@ -645,22 +645,22 @@ describe("SqlQueryHistoryPanel Test", function() {
                 style: SqlQueryHistoryPanel.genSkewStyle(queryInfo.skew)
             });
             // Action: Done
-            columnProps = tableDef.columns['ACTION'].convertFunc(queryInfo);
-            delete columnProps.onLinkClick;
-            expect(columnProps).to.deep.equal({
-                category: 'ACTION',
-                text: SQLTStr.queryTableBodyTextPreview,
-                iconClass: 'xi-dfg2'
-            });
-            // Action: Running
-            queryInfo.status = 'Running';
-            columnProps = tableDef.columns['ACTION'].convertFunc(queryInfo);
-            delete columnProps.onLinkClick;
-            expect(columnProps).to.deep.equal({
-                category: 'ACTION',
-                text: SQLTStr.queryTableBodyTextProgress,
-                iconClass: 'xi-dfg2'
-            });
+            // columnProps = tableDef.columns['ACTION'].convertFunc(queryInfo);
+            // delete columnProps.onLinkClick;
+            // expect(columnProps).to.deep.equal({
+            //     category: 'ACTION',
+            //     text: SQLTStr.queryTableBodyTextPreview,
+            //     iconClass: 'xi-dfg2'
+            // });
+            // // Action: Running
+            // queryInfo.status = 'Running';
+            // columnProps = tableDef.columns['ACTION'].convertFunc(queryInfo);
+            // delete columnProps.onLinkClick;
+            // expect(columnProps).to.deep.equal({
+            //     category: 'ACTION',
+            //     text: SQLTStr.queryTableBodyTextProgress,
+            //     iconClass: 'xi-dfg2'
+            // });
         });
 
         function createContainer() {

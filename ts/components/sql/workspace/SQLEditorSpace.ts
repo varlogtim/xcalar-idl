@@ -691,15 +691,19 @@ class SQLEditorSpace {
 
     private _undock(): void {
         this._isDocked = false;
-        const $container = this._getEditorSpaceEl()
-        this._getDockableSection()
-                  .addClass("undocked")
-                  .css({"left": -310, "top": -10, "width": "300px", "height": "500px"});
-        $("#sqlWorkSpacePanel").find(".rightSection .bottomPart").addClass("undocked");
+        const $container = this._getEditorSpaceEl();
+        let $dockableSection = this._getDockableSection();
+        let rect = $dockableSection[0].getBoundingClientRect();
+        let height = Math.min(500, Math.max(300, $(window).height() - rect.top));
+        $dockableSection.addClass("undocked")
+                  .css({"left": rect.left + 5, "top": rect.top - 5, "width": "300px", "height": height});
+        $("#sqlWorkSpacePanel").find(".rightSection .bottomPart").addClass("undocked").removeClass("docked")
         const $icon = $container.find(".undock");
         xcTooltip.changeText($icon, SideBarTStr.PopBack);
         $icon.removeClass("xi_popout").addClass("xi_popin");
         this._toggleDraggable(true);
+        this.refresh();
+        DagCategoryBar.Instance.showOrHideArrows();
     }
 
     private _dock(): void {
@@ -709,14 +713,20 @@ class SQLEditorSpace {
         this._getDockableSection()
                     .removeClass("undocked")
                     .css({"left": "", "top": "", "width": "", "height": ""});
+        $("#sqlWorkSpacePanel").find(".rightSection .bottomRightPart")
+                    .css({"left": "", "width": ""});
         $("#sqlWorkSpacePanel").find(".rightSection .bottomPart")
                                 .removeClass("undocked")
+                                .addClass("docked")
                                 .css({"top": "", "height": ""});
+        $("#sqlWorkSpacePanel").find(".rightSection .topPart")
+                                .css({"height": ""});
         this.refresh();
         const $icon = $container.find(".undock");
         xcTooltip.changeText($icon, SideBarTStr.PopOut);
         $icon.removeClass("xi_popin").addClass("xi_popout");
         this._toggleDraggable(false);
+        DagCategoryBar.Instance.showOrHideArrows();
     }
 
     // XXX TODO: remove it

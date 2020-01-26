@@ -92,7 +92,7 @@ class SQLDagExecutor {
             this._sqlNode.setSQLQuery({statementType: SQLStatementType.Create});
         }
         this._sqlNode.subscribeHistoryUpdate();
-        this._createDataflow(tabName);
+        this._appendNodeToDataflow();
     }
 
     public getStatus(): SQLStatus {
@@ -143,7 +143,7 @@ class SQLDagExecutor {
             }
             DagTabManager.Instance.addSQLTabCache(this._tempTab);
             this._sqlTabCached = true;
-            return DagViewManager.Instance.inspectSQLNode(this._sqlNode.getId(), tabId, true);
+            return DagView.expandSQLNodeNoRemove(this._sqlNode.getId(), this._tempTab.getId());
         })
         .then(deferred.resolve)
         .fail((e) => {
@@ -164,6 +164,8 @@ class SQLDagExecutor {
         let columns: {name: string, backName: string, type: ColumnType}[];
         let finish = () => {
             SQLDagExecutor.deleteTab(tabId);
+            this._sqlNode.getSubGraph();
+            this._tempGraph.removeNode(this._sqlNode.getId(), false, false);
             if (this._status === SQLStatus.Done) {
                 this._sqlNode.setSQLQuery({newTableName: this._sqlNode.getNewTableName()});
                 this._updateStatus(SQLStatus.Done, undefined, new Date());
@@ -194,7 +196,6 @@ class SQLDagExecutor {
         }
 
         this._status = SQLStatus.Running;
-        SQLResultSpace.Instance.showProgressDataflow(true);
 
         this._restoreTables()
         .then(() => {
@@ -211,7 +212,6 @@ class SQLDagExecutor {
         })
         .then(() => {
             DagTabManager.Instance.removeSQLTabCache(this._tempTab);
-            DagViewManager.Instance.cleanupClosedTab(this._tempTab.getGraph());
             succeed = true;
             if (this._publishName) {
                 const newTableName: string = this._sqlNode.getNewTableName();
@@ -276,19 +276,14 @@ class SQLDagExecutor {
         return this._publishName;
     }
 
-    private _createDataflow(tabName?: string): void {
-        this._tempGraph = new DagGraph();
-        const id: string = this._advancedDebug ? null : DagTab.generateId() + ".sql";
-        const name: string = tabName || SQLDagExecutor.generateTabName();
-        this._tempTab = new DagTabUser({
-            name: name,
-            id: id,
-            dagGraph: this._tempGraph,
-            reset: false,
-            createdTime: xcTimeHelper.now()
-        });
-        const $container = this._advancedDebug ? $() : $("#sqlDataflowArea .innerDataflowWrap .dataflowArea");
-        DagViewManager.Instance.render($container, this._tempGraph, <DagTab>this._tempTab, true);
+    private _appendNodeToDataflow(): void {
+        DagViewManager.Instance.toggleSqlPreview(false);
+        if (DagTabManager.Instance.getNumTabs() === 0) {
+            DagTabManager.Instance.newTab();
+        }
+        this._tempTab = <DagTabUser>DagViewManager.Instance.getActiveTab();
+        this._tempGraph = DagViewManager.Instance.getActiveDag();
+        this._sqlNode.hide();
         this._tempGraph.addNode(this._sqlNode);
     }
 
@@ -344,10 +339,12 @@ class SQLDagExecutor {
     }
 
     private _inspectSQLNodeAndAddToList(): XDPromise<void> {
+        // XXX disabling
+        return PromiseHelper.resolve();
         if (!this._sqlNode.getSubGraph()) {
             return PromiseHelper.resolve();
         }
-        this._tempTab.setGraph(this._sqlNode.getSubGraph());
+        // this._tempTab.setGraph(this._sqlNode.getSubGraph());
         DagList.Instance.addDag(<DagTab>this._tempTab);
         return this._saveDataflow();
     }
@@ -356,6 +353,7 @@ class SQLDagExecutor {
         if (!this._sqlNode.getSubGraph()) {
             return PromiseHelper.resolve();
         }
+        return PromiseHelper.resolve();
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         DagTabManager.Instance.addSQLTabCache(this._tempTab);

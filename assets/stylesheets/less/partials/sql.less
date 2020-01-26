@@ -255,12 +255,13 @@
     }
 
     .mainContent {
+        @resize-h: 11px;
+        @tabBar-h: 24px;
+
         .rightSection {
             margin-left: 295px;
             height: 100%;
-            position: relative;
-            // position: absolute; // necessary for resizable sections
-            // right: 0px;
+            position: relative; // necessary for resizable sections
 
             .topPart, .bottomPart {
                 background-color: @color-white;
@@ -274,19 +275,46 @@
                 height: 60%;
                 top: 40%;
                 display: flex;
-                flex-direction: row;
-                padding-top: 34px;
+                flex-direction: column;
+                position: absolute;
+                width: 100%;
+                border-top: 1px solid @color-border-bar;
+
+                > .ui-resizable-handle {
+                    z-index: @z-index-sqlBottomResizeHandler !important; // don't block other elements
+                    height: 12px;
+                    top: -4px;
+                }
+
+                .ui-resizable-n {
+                    top: 0px;
+                    z-index: @z-index-sqlBottomResizeHandler !important;
+                }
 
                 .resizeHandler {
-                    position: absolute;
+                    position: relative;
                     top: 0;
                     z-index: @z-index-sqlBottomResizeHandler;
+                    width: 100%;
+                    height: @resize-h;
+                    background-color: @color-bg-list-hover-blue;
+                    border-bottom: 1px solid @color-border-bar;
+
+                    .xc-resizeHandler {
+                        width: 48px;
+                        height: @resize-h;
+                        padding-top: 1px;
+
+                        .border {
+                            margin-top: 2px;
+                            background-color: @color-border-bar;
+                        }
+                    }
                 }
 
                 .tabBar {
-                    position: absolute;
-                    top: 10px;
-                    height: 24px;
+                    position: relative;
+                    height: @tabBar-h;
                     width: 100%;
                     z-index: 3;
                     background-color: @color-bg-topBarGray2;
@@ -296,24 +324,25 @@
                     overflow: hidden;
                     float: left;
                     width: 50%;
-                    height: 100%;
+                    height: ~"calc(100% - @{resize-h} - @{tabBar-h})";
                     position: absolute;
+                    top: @resize-h + @tabBar-h;
                 }
 
                 .bottomRightPart {
                     left: 50%;
                 }
 
+                &.docked {
+                    .bottomLeftPart {
+                        height: ~"calc(100% - @{resize-h} - @{tabBar-h})" !important;
+                    }
+                }
+
                 &.undocked {
                     .bottomRightPart {
-                        height: 0;
-                        border: none;
-                        flex: 0 0 0px;
-                        width: 0px;
-
-                        > div:not(#sqlEditorSpace) {
-                            display: none;
-                        }
+                        width: 100% !important;
+                        left: 0px !important;
                     }
                 }
             }
@@ -499,43 +528,6 @@
                     }
                 }
             }
-
-            .bottomPart {
-                position: absolute;
-                width: 100%;
-                border-top: 1px solid @color-border-bar;
-                @resize-h: 11px;
-
-                .ui-resizable-n {
-                    top: 0px;
-                    z-index: @z-index-sqlBottomResizeHandler !important;
-                }
-
-                .resizeHandler {
-                    width: 100%;
-                    height: @resize-h;
-                    background-color: @color-bg-list-hover-blue;
-                    border-bottom: 1px solid @color-border-bar;
-
-                    .xc-resizeHandler {
-                        width: 48px;
-                        height: @resize-h;
-                        padding-top: 1px;
-
-                        .border {
-                            margin-top: 2px;
-                            background-color: @color-border-bar;
-                        }
-                    }
-                }
-
-                > .ui-resizable-handle {
-                    z-index: @z-index-sqlBottomResizeHandler !important; // don't block other elements
-                    height: 12px;
-                    top: -4px;
-                }
-
-            }
         }
     }
 
@@ -636,6 +628,7 @@
     .flex-display;
     .flex-flow(column);
     border-left: 1px solid @color-border-grayBlue;
+    border-right: 1px solid @color-border-grayBlue;
     position: relative;
 
     .ui-resizable-se, .ui-resizable-s, .ui-resizable-e {
@@ -649,6 +642,7 @@
     &.undocked {
         z-index: @z-index-sqlEditorUndocked;
         box-shadow: 0 0 4px rgba(0,0,0, 0.5);
+        position: fixed !important;
 
         header {
             pointer-events: auto;

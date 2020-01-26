@@ -5,6 +5,7 @@ interface DagNodeDisplayInfo {
     coordinates: Coordinate;
     icon: string;
     description: string;
+    isHidden?: boolean;
 }
 
 interface DagNodeCopyInfo extends DagNodeInfo {

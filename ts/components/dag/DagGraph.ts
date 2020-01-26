@@ -556,6 +556,9 @@ class DagGraph extends Durable {
         .registerEvents(DagNodeEvents.UDFErrorChange, (info) => {
             this.events.trigger(DagNodeEvents.UDFErrorChange, info);
             this.events.trigger(DagGraphEvents.Save, {tabId: this.parentTabId});
+        })
+        .registerEvents(DagNodeEvents.Hide, info => {
+            this.events.trigger(DagNodeEvents.Hide, info);
         });
     }
 
@@ -565,10 +568,11 @@ class DagGraph extends Durable {
      */
     public removeNode(
         nodeId: DagNodeId,
-        switchState: boolean = true
+        switchState: boolean = true,
+        clearMeta: boolean = true
     ): {dagNodeId: boolean[]} {
         const node: DagNode = this._getNodeFromId(nodeId);
-        return this._removeNode(node, switchState);
+        return this._removeNode(node, switchState, clearMeta);
     }
 
     /**
@@ -2129,7 +2133,8 @@ class DagGraph extends Durable {
 
     private _removeNode(
         node: DagNode,
-        switchState: boolean = true
+        switchState: boolean = true,
+        clearMeta: boolean = true
     ):  {dagNodeId: boolean[]} {
 
         const parents: DagNode[] = node.getParents();
@@ -2170,7 +2175,7 @@ class DagGraph extends Durable {
             }
         });
 
-        if (node.getState() === DagNodeState.Complete) {
+        if (clearMeta && node.getState() === DagNodeState.Complete) {
             if (node instanceof DagNodeSQL) {
                 node.setXcQueryString(null);
                 node.setRawXcQueryString(null);
@@ -2193,6 +2198,10 @@ class DagGraph extends Durable {
                 removeInfo: {childIndices: childIndices, node: node},
                 tabId: this.parentTabId
             });
+            this.events.trigger(DagGraphEvents.RemoveNode, {
+                tabId: this.parentTabId,
+                node: node
+            });
         }
         if (node instanceof DagNodeSQLFuncIn) {
             this.events.trigger(DagGraphEvents.RemoveSQLFucInput, {
@@ -2200,12 +2209,7 @@ class DagGraph extends Durable {
                 order: order
             });
         }
-        this.events.trigger(DagGraphEvents.RemoveNode, {
-            tabId: this.parentTabId,
-            node: node
-        });
         return spliceFlags;
-
     }
 
     private _getNodeFromId(nodeId: DagNodeId): DagNode | null {

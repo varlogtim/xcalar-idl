@@ -290,8 +290,8 @@ class DagSchemaPopup {
         let left: number = Math.max(5, rect.left - containerOffset.left);
         let defaultWidth = 320;
         let defaultHeight =  260;
-        let rightBoundary: number = $container.width() - 5;
-        let bottomBoundary: number = $container.height() - 5;
+        let rightBoundary: number = containerOffset.left + $container.width() - 5;
+        let bottomBoundary: number = containerOffset.top + $container.height() - 5;
         if (this._$popup.hasClass("hasHiddenCols")) {
             defaultWidth += 40;
         }
@@ -314,11 +314,11 @@ class DagSchemaPopup {
 
         let popupRect: ClientRect = this._$popup[0].getBoundingClientRect();
         if (popupRect.right > rightBoundary) {
-            left = rightBoundary - popupRect.width;
+            left -= (popupRect.right - rightBoundary);
             this._$popup.css("left", left);
         }
         if (popupRect.bottom > bottomBoundary) {
-            top = bottomBoundary - popupRect.height;
+            top -= (popupRect.bottom - bottomBoundary);
             this._$popup.css("top", top);
         }
     }

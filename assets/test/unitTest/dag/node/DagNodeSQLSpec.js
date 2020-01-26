@@ -82,7 +82,8 @@ describe("SQL Dag Node Test", () => {
                 "state": "Unused",
                 "configured": false,
                 "aggregates": [],
-                "tag": []
+                "tag": [],
+                "isHidden": undefined
             });
         });
 

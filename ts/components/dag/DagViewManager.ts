@@ -892,6 +892,10 @@ class DagViewManager {
         return this.activeDagView.autoAddNode(newType, subType, parentNodeId, input, x, y, options);
     }
 
+    public appendNode(node: DagNode, options?: {vertSpacing?: number}): void {
+        this.activeDagView.appendNode(node, options);
+    }
+
     public getAllNodes(includeComments?: boolean): JQuery {
         return this.activeDagView.getAllNodes(includeComments);
     }
@@ -1048,7 +1052,6 @@ class DagViewManager {
         tabId: string,
         sqlPreview?: boolean
     ): XDPromise<string> {
-        // return this.dagViewMap.get(tabId).inspectSQLNode(nodeId, sqlPreview);
         return DagView.inspectSQLNode(nodeId, tabId, sqlPreview);
     }
 

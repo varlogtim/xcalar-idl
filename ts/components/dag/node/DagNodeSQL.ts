@@ -36,6 +36,7 @@ class DagNodeSQL extends DagNode {
         this.minParents = 0; // when working on pub tables in SQL mode, it can
                              // be 0
         this.display.icon = "&#xe957;";
+        this.display.isHidden = options.isHidden;
         this.input = this.getRuntime().accessible(new DagNodeSQLInput(options.input));
         const identifiers = new Map<number, string>();
         const identifiersOrder = this.input.getInput().identifiersOrder;
@@ -126,7 +127,7 @@ class DagNodeSQL extends DagNode {
         }
     }
 
-    public updateSubGraph(_newTableMap?: {}, rawXcQuery?: boolean, noInputOutpuNodes?: boolean): void {
+    public updateSubGraph(_newTableMap?: {}, rawXcQuery?: boolean, noInputOutputNodes?: boolean): void {
         if (_newTableMap) {
             // If it's simply updating the mapping of oldTableName ->
             // newTableName. No need to re-build the entire sub graph
@@ -199,7 +200,7 @@ class DagNodeSQL extends DagNode {
             this.subGraphNodeIds.push(nodeId);
 
             const dagParents = dagIdParentMap[nodeId];
-            if (dagParents && !noInputOutpuNodes) {
+            if (dagParents && !noInputOutputNodes) {
                 dagParents.forEach((dagParent) => {
                     const index = dagParent.index;
                     const srcId = dagParent.srcId;
@@ -221,7 +222,7 @@ class DagNodeSQL extends DagNode {
                     });
                 }
             }
-            if (nodeId === outputDagId && !noInputOutpuNodes) {
+            if (nodeId === outputDagId) {
                 this.addOutputNode(node);
             }
         });
@@ -343,6 +344,24 @@ class DagNodeSQL extends DagNode {
         super.setParam(null, noAutoExecute);
     }
 
+     /**
+      * @override
+     * attach table to the node
+     * @param tableName the name of the table associated with the node
+     */
+    public setTable(tableName: string, popupEvent: boolean = false) {
+        super.setTable(tableName, popupEvent);
+        const outputNode = this.subOutputNodes[0];
+        if (outputNode) {
+            outputNode.setTable(tableName, popupEvent);
+            let parentNode = outputNode.getParents()[0];
+            if (parentNode) {
+                parentNode.setTable(tableName, popupEvent);
+            }
+        }
+    }
+
+
 
     /**
      * DFS to get lineage changes from sub graph
@@ -448,6 +467,7 @@ class DagNodeSQL extends DagNode {
         nodeInfo.tableSrcMap = this.tableSrcMap;
         nodeInfo.columns = this.columns;
         nodeInfo.identifiersNameMap = this.identifiersNameMap;
+        nodeInfo.isHidden = this.display.isHidden;
         if (!forCopy && this.subGraphNodeIds) {
             nodeInfo.subGraphNodeIds = this.subGraphNodeIds;
         }
@@ -746,6 +766,20 @@ class DagNodeSQL extends DagNode {
 
     public getTableNewDagIdMap() {
         return this.tableNewDagIdMap;
+    }
+
+    public hide(): void {
+        this.display.isHidden = true;
+        this.display.coordinates.x = 0;
+        this.display.coordinates.y = 0;
+        this.events.trigger(DagNodeEvents.Hide, {
+            id: this.getId(),
+            node: this
+        });
+    }
+
+    public isHidden(): boolean {
+        return this.display.isHidden;
     }
 
     private _getDerivedColName(colName: string, validate?: boolean): string {

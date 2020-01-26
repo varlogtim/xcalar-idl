@@ -120,7 +120,8 @@ enum DagNodeEvents {
     PreTablePin = "PreTablePin",
     PostTablePin = "PostTablePin",
     PreTableUnpin = "PreTableUnpin",
-    PostTableUnpin = "PostTableUnpin"
+    PostTableUnpin = "PostTableUnpin",
+    Hide = "Hide"
 }
 
 enum DagCategoryType {

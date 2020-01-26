@@ -1387,11 +1387,9 @@ class DagView {
         let origMinYCoor = upperLeftMostNode.display.y;
         const nextAvailablePosition = this._getNextAvailablePosition(null,
             upperLeftMostNode.display.x, upperLeftMostNode.display.y);
-        minXCoor = nextAvailablePosition.x;
-        minYCoor = nextAvailablePosition.y;
 
-        let xDelta = minXCoor - origMinXCoor;
-        let yDelta = minYCoor - origMinYCoor;
+        let xDelta = nextAvailablePosition.x - origMinXCoor;
+        let yDelta = nextAvailablePosition.y - origMinYCoor;
         maxXCoor += xDelta;
         maxYCoor += yDelta;
 
@@ -1908,6 +1906,17 @@ class DagView {
         return node;
     }
 
+    /**
+     * adds a original node to a graph without mutating the node
+     */
+    public appendNode(node: DagNode, options?: {vertSpacing?: number}): void {
+        const pos: Coordinate = node.getPosition();
+        const newCoors = this._getNextAvailablePosition(null, pos.x, pos.y, options);
+        node.setPosition(newCoors);
+        this.graph.addNode(node);
+        this._addNodeNoPersist(node, { isNoLog: true });
+    }
+
     public getAllNodes(includeComments?: boolean): JQuery {
         let $nodes = this.$dfArea.find(".operator");
         if (includeComments) {
@@ -2297,7 +2306,7 @@ class DagView {
         }
         if (dagNode instanceof DagNodeCustom) {
             return this._expandSubgraphNode({
-                dagNode: dagNode,
+                containerNode: dagNode,
                 logTitle: SQLTStr.ExpandCustomOperation,
                 getInputParent: (node) => dagNode.getInputParent(node),
                 isInputNode: (node) => (node instanceof DagNodeCustomInput),
@@ -2309,7 +2318,7 @@ class DagView {
     }
 
     private _expandSubgraphNode(args: {
-        dagNode: SubgraphContainerNode,
+        containerNode: SubgraphContainerNode,
         logTitle: string,
         getInputParent: (node: any) => DagNode,
         isInputNode: (node: DagNode) => boolean,
@@ -2318,7 +2327,7 @@ class DagView {
         isPreAutoAlign?: boolean,
     }): XDPromise<void> {
         const {
-            dagNode, logTitle, getInputParent, isInputNode, isOutputNode,
+            containerNode, logTitle, getInputParent, isInputNode, isOutputNode,
             preExpand = () => { }, isPreAutoAlign = false,
         } = args;
 
@@ -2329,7 +2338,7 @@ class DagView {
         try {
             this.dagTab.turnOffSave();
             preExpand();
-            const subGraph = dagNode.getSubGraph();
+            const subGraph = containerNode.getSubGraph();
             const allSubNodes = subGraph.getAllNodes();
             const expandNodeIds: string[] = [];
             const expandLogParam: LogParam = {
@@ -2385,8 +2394,8 @@ class DagView {
                 if (isInputNode(node)) {
                     return;
                 } else if (isOutputNode(node)) {
-                    dagNode.getChildren().forEach((child) => {
-                        child.findParentIndices(dagNode).forEach((i) => {
+                    containerNode.getChildren().forEach((child) => {
+                        child.findParentIndices(containerNode).forEach((i) => {
                             connections.push({
                                 parentId: parents[0],
                                 childId: child.getId(),
@@ -2431,7 +2440,7 @@ class DagView {
             // remove the container node from graph
             // always resolves
             this._removeNodesNoPersist(
-                [dagNode.getId()],
+                [containerNode.getId()],
                 { isNoLog: true, isSwitchState: false })
             .then(({ logParam: removeLogParam, spliceInfos }) => {
                 expandLogParam.options.actions.push(removeLogParam.options);
@@ -2474,7 +2483,7 @@ class DagView {
                     }
                 }
                 const moveInfo = this._getExpandPositions(
-                    dagNode.getPosition(),
+                    containerNode.getPosition(),
                     expandNodeIds,
                     autoAlignPos
                 );
@@ -2704,6 +2713,114 @@ class DagView {
         return deferred.promise();
     }
 
+      /**
+     * Expand the SQL node into a sub graph but keep the sql node
+     * used when executing from sql editor to show progress on subgraph
+     * while sql node is executing
+     * @param nodeId
+     */
+    public static expandSQLNodeNoRemove(
+        nodeId: DagNodeId,
+        tabId: string
+    ): XDPromise<string> {
+        const dagTab = DagTabManager.Instance.getTabById(tabId);
+        const graph = dagTab.getGraph();
+        const sqlNode = graph.getNode(nodeId);
+        if (sqlNode == null || !(sqlNode instanceof DagNodeSQL)) {
+            return PromiseHelper.reject();
+        }
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        let subGraph = sqlNode.getSubGraph();
+        let promise = PromiseHelper.resolve();
+
+        if (!subGraph) {
+            const params: DagNodeSQLInputStruct = sqlNode.getParam();
+            if (!params.sqlQueryStr) {
+                return PromiseHelper.reject(SQLErrTStr.NeedConfiguration);
+            }
+            const queryId = xcHelper.randName("sql", 8);
+            promise = sqlNode.compileSQL(params.sqlQueryStr, queryId);
+        }
+        promise
+            .then(() => {
+                subGraph = sqlNode.getSubGraph();
+                subGraph.setTabId(tabId);
+                let subGraphNodes = subGraph.getAllNodes();
+                sqlNode.getOutputNodes().forEach(node => {
+                    if (node) {
+                        subGraph.removeNode(node.getId(), false, false);
+                    }
+                });
+                const dagView = DagViewManager.Instance.getDagViewById(tabId);
+
+                // add the sub graph nodes to the graph
+                subGraphNodes.forEach(node => {
+                    graph.addNode(node);
+                });
+
+                // auto align the sub graph nodes
+                let positionInfos = DagView.getAutoAlignPositions(subGraph).nodeInfos;
+
+                let upperLeftMostNode = null;
+                let minXCoor: number = 0;
+                let minYCoor: number = 0;
+
+                positionInfos.forEach((nodeInfo, i) => {
+                    const coors = nodeInfo.position;
+                    if (i === 0) {
+                        minXCoor = coors.x;
+                        minYCoor = coors.y;
+                    }
+                    minYCoor = Math.min(coors.y, minYCoor);
+                    if (coors.y === minYCoor) {
+                        minXCoor = Math.min(coors.x, minXCoor);
+                        if (coors.x === minXCoor) {
+                            upperLeftMostNode = nodeInfo;
+                        }
+                    }
+                });
+
+                // move the sub graph nodes where there's open space
+                const nextAvailablePosition = dagView._getNextAvailablePosition(null,
+                    upperLeftMostNode.position.x, upperLeftMostNode.position.y, {vertSpacing: 80});
+
+                let xDelta = nextAvailablePosition.x - upperLeftMostNode.position.x;
+                let yDelta = nextAvailablePosition.y - upperLeftMostNode.position.y;
+
+                for (const posInfo of positionInfos) {
+                    posInfo.position.x += xDelta;
+                    posInfo.position.y += yDelta;
+                    subGraph.getNode(posInfo.id).setPosition(posInfo.position);
+                }
+
+                // draw the nodes
+                let $svg = dagView.$dfArea.find(".operatorSvg").remove();
+                subGraphNodes.forEach(node => {
+                    dagView._addNodeNoPersist(node, {
+                        isNoLog: true,
+                        $svg: $svg
+                    });
+                });
+                dagView.$dfArea.find(".edgeSvg").after($svg);
+
+                // draw the edges
+                $svg = dagView.$dfArea.find(".edgeSvg").remove();
+                const svg = d3.select($svg[0]);
+                subGraphNodes.forEach((node: DagNode, nodeId: DagNodeId) => {
+                    node.getParents().forEach((parentNode, index) => {
+                        const parentId: DagNodeId = parentNode.getId();
+                        dagView._drawConnection(parentId, nodeId, index, node.canHaveMultiParents(), svg, false, true);
+                    });
+                });
+                dagView.$dfArea.find(".operatorSvg").before($svg);
+
+                dagView.deselectNodes();
+                deferred.resolve(tabId);
+            })
+            .fail(deferred.reject);
+        return deferred.promise();
+    }
+
      /**
      * Expand the SQL node into a sub graph in place for editing purpose
      * @param nodeId
@@ -2724,30 +2841,30 @@ class DagView {
      * DagView.expandSQLNodeInTab
      */
     public expandSQLNodeInTab(
-        dagNode: DagNodeSQL,
+        sqlNode: DagNodeSQL,
         rawXcQuery: boolean = false
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let promise = PromiseHelper.resolve();
-        let subGraph = dagNode.getSubGraph();
+        let subGraph = sqlNode.getSubGraph();
         if (!subGraph) {
-            const params: DagNodeSQLInputStruct = dagNode.getParam();
+            const params: DagNodeSQLInputStruct = sqlNode.getParam();
             if (!params.sqlQueryStr) {
                 return PromiseHelper.reject(SQLErrTStr.NeedConfiguration);
             }
             const queryId = xcHelper.randName("sql", 8);
-            promise = dagNode.compileSQL(params.sqlQueryStr, queryId);
+            promise = sqlNode.compileSQL(params.sqlQueryStr, queryId);
         }
         promise
             .then(() => {
                 if (rawXcQuery) {
                     // give the partially optimized subgraph
-                    dagNode.updateSubGraph(null, true);
+                    sqlNode.updateSubGraph(null, true);
                 }
                 return this._expandSubgraphNode({
-                    dagNode: dagNode,
+                    containerNode: sqlNode,
                     logTitle: SQLTStr.ExpandSQLOperation,
-                    getInputParent: (node) => dagNode.getInputParent(node),
+                    getInputParent: (node) => sqlNode.getInputParent(node),
                     isInputNode: (node) => (node instanceof DagNodeSQLSubInput),
                     isOutputNode: (node) => (node instanceof DagNodeSQLSubOutput),
                     preExpand: () => {
@@ -2760,7 +2877,7 @@ class DagView {
             .always(() => {
                 if (rawXcQuery) {
                     // restore the fully optimized subgraph
-                    dagNode.updateSubGraph(null, false);
+                    sqlNode.updateSubGraph(null, false);
                 }
             });
 
@@ -2890,6 +3007,9 @@ class DagView {
             node instanceof DagNodePublishIMD ||
             node instanceof DagNodeExport
         ) {
+            return;
+        }
+        if (node instanceof DagNodeSQL && node.isHidden()) {
             return;
         }
 
@@ -3250,6 +3370,9 @@ class DagView {
             node instanceof DagNodePublishIMD ||
             node instanceof DagNodeExport
         ) {
+            return;
+        }
+        if (node instanceof DagNodeSQL && node.isHidden()) {
             return;
         }
 
@@ -3910,6 +4033,11 @@ class DagView {
                 DagGraphBar.Instance.updateNumNodes(this.dagTab);
             }, 0);
         });
+
+        this._registerGraphEvent(this.graph, DagNodeEvents.Hide, (info) => {
+            const $node = this._getNode(info.nodeId);
+            $node.remove();
+        });
     }
 
     private _registerGraphEvent(
@@ -3961,6 +4089,9 @@ class DagView {
     }
 
     private _drawNode(node: DagNode, select?: boolean, bulk?: boolean, noViewOutput?: boolean): JQuery {
+        if (node instanceof DagNodeSQL && node.isHidden()) {
+            return $();
+        }
         const pos = node.getPosition();
         let type = node.getType();
         let subType = node.getSubType() || "";
@@ -4050,7 +4181,6 @@ class DagView {
             this._updateConnectorIn($node, input);
             this._updateConnectorOut($node, output, node);
         }
-
 
         if (!bulk) {
             $node.appendTo(this.$dfArea.find(".operatorSvg"));
@@ -4432,27 +4562,33 @@ class DagView {
         return deferred.promise();
     }
 
-    private _getNextAvailablePosition(nodeId: DagNodeId, x: number, y: number): Coordinate {
-        let positions = {};
-        let positionConflict = true;
+    private _getNextAvailablePosition(nodeId: DagNodeId, x: number, y: number, options?: {vertSpacing?: number}): Coordinate {
+        x = Math.max(x, DagView.gridSpacing);
+        y = Math.max(y, DagView.gridSpacing);
+        let positions: Map<number, Set<number>> = new Map();
+
+        options = options || {};
+        let vertSpacing = options.vertSpacing || DagView.gridSpacing;
 
         this.graph.getAllNodes().forEach(node => {
             if (node.getId() === nodeId) {
                 return;
             }
             const pos: Coordinate = node.getPosition();
-            if (!positions[pos.x]) {
-                positions[pos.x] = {};
+            if (!positions.has(pos.x)) {
+                positions.set(pos.x, new Set());
             }
-            positions[pos.x][pos.y] = true;
+            positions.get(pos.x).add(pos.y);
         });
 
+        let positionConflict = true;
         while (positionConflict) {
             positionConflict = false;
-            if (positions[x] && positions[x][y]) {
+            if (positions.has(x) && positions.get(x).has(y)) {
                 positionConflict = true;
-                y += DagView.gridSpacing;
                 x += DagView.gridSpacing;
+                y += vertSpacing;
+                // XXX to do, better checking when using vertSpacing
             }
         }
         return {
@@ -5547,6 +5683,7 @@ class DagView {
         return logParam;
     }
 
+    // draws node, does not affect the DagGraph
     private _addNodeNoPersist(
         node,
         options?: {
