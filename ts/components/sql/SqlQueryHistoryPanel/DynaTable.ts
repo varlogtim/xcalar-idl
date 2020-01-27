@@ -7,7 +7,7 @@ namespace SqlQueryHistoryPanel {
         protected _numRowsToShow: number;
         protected _enableAutoRefresh: () => boolean;
         protected _msRefreshDuration: number;
-    
+
         protected _data: TData[] = [];
         protected _selectSet: Set<string> = new Set();
         protected _currentSorting: TableSortMethod;
@@ -18,7 +18,7 @@ namespace SqlQueryHistoryPanel {
         };
         protected _resizeHandlers: (()=>void)[][];
         protected _getSizeHandlers: { header: ()=>number, body: ()=>number }[];
-    
+
         protected _templateMgr = new OpPanelTemplateManager();
         protected _templates = {
             table:
@@ -76,7 +76,7 @@ namespace SqlQueryHistoryPanel {
             body:
                 `<div class="body"><APP-BODYROWS></APP-BODYROWS></div>`
         };
-    
+
         protected _sortOrderMapping = {};
         protected _headerTitleMapping = {};
         protected _headerCssMapping = {};
@@ -84,7 +84,7 @@ namespace SqlQueryHistoryPanel {
         protected _bodyColumnBuilder = {};
         protected _sqlStatusString = {};
         protected _columnResizeDef: Map<string, { minWidth: number }> = new Map();
-    
+
         /**
          * Constructor
          * @param columnsToShow Columns will be shown in the list order
@@ -104,7 +104,7 @@ namespace SqlQueryHistoryPanel {
         }) {
             this._setupStaticMapping();
             this._setupColumnMapping();
-    
+
             const {
                 columnsToShow, tableDef, container, defaultSorting,
                 numRowsToShow = 200, enableAutoRefresh, msRefreshDuration = 2000
@@ -116,17 +116,17 @@ namespace SqlQueryHistoryPanel {
             this._numRowsToShow = numRowsToShow;
             this._enableAutoRefresh = enableAutoRefresh;
             this._msRefreshDuration = msRefreshDuration;
-    
+
             this._resizeState = {
                 headerWidth: new Array(columnsToShow.length),
                 bodyWidth: new Array(columnsToShow.length)
             };
             this._resizeHandlers = new Array(columnsToShow.length);
             this._getSizeHandlers = new Array(columnsToShow.length);
-    
+
             this._container = container;
         }
-    
+
         /**
          * Show the table UI according to the data passed in
          * @param data A list of data to be shown in the table
@@ -136,19 +136,19 @@ namespace SqlQueryHistoryPanel {
             isClearSorting?: boolean
         }) {
             const { isClearSorting = false } = options || {};
-    
+
             // Setup the sorting
             if (isClearSorting) {
                 this._currentSorting = this._defaultSorting;
             }
-    
+
             // Store the raw data
             this._data = data.filter((v) => (v != null))
                 .map((v) => xcHelper.deepCopy(v));
-    
+
             // Update the UI
             this._updateUI();
-    
+
             // Setup auto refresh
             if (this._enableAutoRefresh != null) {
                 // if (this._refreshTimer == null) {
@@ -160,19 +160,19 @@ namespace SqlQueryHistoryPanel {
                 // }
             }
         }
-    
+
         protected _updateUI() {
             // Get the current column size && clean up the handlers
             this._updateColumnSize();
             this._clearGetSizeHandlers();
-    
+
             // Clean up the resize handlers
             this._clearResizeHandlers();
-    
+
             // Determine sort order of each columns, according to the current sorting
             const sorting = this._currentSorting;
             const columnSortOrders = this._getColumnSortOrders(sorting, this._columnsToShow);
-    
+
             // Create sort index (a index list of this._data)
             // Ex. [3,2,4,1]
             const sortIndex = this._getSortIndex(
@@ -181,13 +181,13 @@ namespace SqlQueryHistoryPanel {
                 this._tableDef.columns[sorting.sortBy].sortFunction,
                 this._numRowsToShow
             );
-    
+
             // Update the selected list
             const newSelectSet = this._removeSelectNotShown(
                 this._data, sortIndex, this._tableDef.getKeyFunction , this._selectSet
             );
             this._setSelectSet(newSelectSet);
-    
+
             // Create table header model
             const headerProp: TableHeaderColumnProp[] = this._columnsToShow.map((category) => {
                 const columnDef = this._tableDef.columns[category];
@@ -222,7 +222,7 @@ namespace SqlQueryHistoryPanel {
                 }
                 return prop;
             });
-    
+
             // Create table body model
             const bodyProp: TableBodyColumnProp[][] = [];
             for (const dataIndex of sortIndex) {
@@ -250,13 +250,13 @@ namespace SqlQueryHistoryPanel {
                 });
                 bodyProp.push(rowProp);
             }
-    
+
             // Create component DOM
             const tableElement = this._createTable({
                 headerProp: headerProp,
                 bodyProp: bodyProp
             });
-    
+
             // Cache the column width when UI rendering is done
             const renderDone: XDPromise<void>[] = [];
             for (const elem of tableElement) {
@@ -269,11 +269,11 @@ namespace SqlQueryHistoryPanel {
             PromiseHelper.when(...renderDone).then(() => {
                 this._updateColumnSize();
             });
-    
+
             // Call templateMgr to update UI
             this._templateMgr.updateDOM(this._container, tableElement);
         }
-    
+
         protected _createTable(props: {
             headerProp: TableHeaderColumnProp[],
             bodyProp: TableBodyColumnProp[][]
@@ -281,32 +281,32 @@ namespace SqlQueryHistoryPanel {
             if (props == null) {
                 return null;
             }
-    
+
             // Deconstruct parameters
             const { headerProp, bodyProp } = props;
-    
+
             const templateId = 'table';
             this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-    
+
             return this._templateMgr.createElements(templateId, {
                 'APP-HEADER': this._createHeader({ columnProps: headerProp }),
                 'APP-BODY': this._createBody({ rowProps: bodyProp })
             });
         }
-    
+
         protected _createHeader(props?: {
             columnProps: TableHeaderColumnProp[]
         }): NodeDefDOMElement[] {
             if (props == null) {
                 return null;
             }
-    
+
             // Deconstruct parameters
             const { columnProps } = props;
-    
+
             const templateId = 'header';
             this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-    
+
             const columns = [];
             columnProps.forEach((
                 { type, category, sortOrder, onClickSort, isSelected, onClickSelect },
@@ -316,7 +316,7 @@ namespace SqlQueryHistoryPanel {
                 // when return 0, make it to be null
                 const columnWidth = this._getHeaderColumnWidth(colIndex) || null;
                 const widthWithUnit = columnWidth == null ? null : `${columnWidth}px`;
-    
+
                 if (type === TableHeaderColumnType.REGULAR) {
                     // Regular header column
                     elems = this._createHeaderRegularColumn({
@@ -344,50 +344,50 @@ namespace SqlQueryHistoryPanel {
                 } else {
                     console.error(`Unsupported column type ${type}`);
                 }
-    
+
                 if (elems != null) {
                     elems.forEach((e) => {
                         columns.push(e);
                     });
                 }
             });
-    
+
             // Setup resizable once UI rendering is done
             const columnList: HTMLElement[] = new Array(columns.length);
-    
+
             const allMountDone: XDPromise<void>[] = [];
             columns.forEach((column, colIndex) => {
                 const deferred: XDDeferred<void> = PromiseHelper.deferred();
                 allMountDone.push(deferred.promise());
-    
+
                 OpPanelTemplateManager.setNodeMountDoneListener([column], (elem) => {
                     columnList[colIndex] = elem;
                     deferred.resolve();
                 });
             });
-    
+
             PromiseHelper.when(...allMountDone).then(() => {
                 this._setupResizable(columnList, true);
             });
-    
+
             return this._templateMgr.createElements(templateId, {
                 'APP-HEADERCOLUMNS': columns
             });
         }
-    
+
         protected _createBody(props?: {
             rowProps: TableBodyColumnProp[][]
         }): NodeDefDOMElement[] {
             if (props == null) {
                 return null;
             }
-    
+
             // Deconstruct parameters
             const { rowProps } = props;
-    
+
             const templateId = 'body';
             this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-    
+
             const bodyRows = [];
             rowProps.forEach((columnProps) => {
                 const rowElems = this._createBodyRow({
@@ -399,25 +399,25 @@ namespace SqlQueryHistoryPanel {
                     });
                 }
             });
-    
+
             return this._templateMgr.createElements(templateId, {
                 'APP-BODYROWS': bodyRows
             });
         }
-    
+
         protected _createBodyRow(props: {
             columnProps: TableBodyColumnProp[]
         }): NodeDefDOMElement[] {
             if (props == null) {
                 return null;
             }
-    
+
             // Deconstruct parameters
             const { columnProps } = props;
-    
+
             const templateId = 'bodyRow';
             this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-    
+
             const columns = [];
             columnProps.forEach((columnProp, colIndex) => {
                 // when return 0, make it to be null
@@ -432,30 +432,30 @@ namespace SqlQueryHistoryPanel {
                     })
                 }
             });
-    
+
             // Setup resizable once UI rendering is done
             const columnList: HTMLElement[] = new Array(columns.length);
-    
+
             const allMountDone: XDPromise<void>[] = [];
             columns.forEach((column, colIndex) => {
                 const deferred: XDDeferred<void> = PromiseHelper.deferred();
                 allMountDone.push(deferred.promise());
-    
+
                 OpPanelTemplateManager.setNodeMountDoneListener([column], (elem) => {
                     columnList[colIndex] = elem;
                     deferred.resolve();
                 });
             });
-    
+
             PromiseHelper.when(...allMountDone).then(() => {
                 this._setupResizable(columnList, false);
             });
-    
+
             return this._templateMgr.createElements(templateId, {
                 'APP-BODYCOLUMNS': columns
             });
         }
-    
+
         protected _setupResizable(columnList: HTMLElement[], isHeader: boolean) {
             const getColumnWidth: (colIndex: number) => number
                 = isHeader
@@ -475,24 +475,24 @@ namespace SqlQueryHistoryPanel {
                     : this._setHeaderColumnWidth.bind(this);
             for (let colIndex = 0; colIndex < columnList.length; colIndex ++) {
                 const $elem = $(columnList[colIndex]);
-    
+
                 // Initialize the column width, if it hasn't been set
                 if (getColumnWidth(colIndex) == null) {
                     setColumnWidth(colIndex, $elem.outerWidth());
                 }
-    
+
                 // Turn off resizable if it's already on
                 if ($elem.resizable('instance')) {
                     $elem.resizable('destroy');
                 }
-    
+
                 // Register column resize handler
                 this._addResizeHandler(colIndex, () => {
                     const width = getColumnWidth(colIndex);
                     $elem.css('flex-basis', `${width}px`);
                     $elem.css('left', 0);
                 });
-    
+
                 // Register column getSize handler
                 if (isHeader) {
                     this._setGetSizeHandler(colIndex, {
@@ -503,7 +503,7 @@ namespace SqlQueryHistoryPanel {
                         body: () => $elem.outerWidth()
                     });
                 }
-    
+
                 // Current column's resize config
                 const resizeConfig = this._getResizeConfig(colIndex);
                 if (resizeConfig == null) {
@@ -511,7 +511,7 @@ namespace SqlQueryHistoryPanel {
                     continue;
                 }
                 const { minWidth } = resizeConfig;
-    
+
                 // Previous(might not be adjacent) resizable column
                 const prevResizeConfig = this._getPreviousResizable(colIndex);
                 if (prevResizeConfig == null) {
@@ -520,7 +520,7 @@ namespace SqlQueryHistoryPanel {
                 }
                 const { index: prevIndex, config: prevConfig } = prevResizeConfig;
                 const { minWidth: prevMinWidth } = prevConfig;
-    
+
                 // Setup resizable
                 let lastLeft = 0;
                 $elem.resizable({
@@ -545,7 +545,7 @@ namespace SqlQueryHistoryPanel {
                             setColumnWidth(prevIndex, prevWidth);
                             setOtherColumnWidth(colIndex, getOtherColumnWidth(colIndex) - delta);
                             setOtherColumnWidth(prevIndex, getOtherColumnWidth(prevIndex) + delta);
-                            
+
                         }
                         // Resize columns
                         this._resizeColumn(prevIndex);
@@ -558,21 +558,21 @@ namespace SqlQueryHistoryPanel {
                 });
             }
         }
-    
+
         protected _createBodyColumnCheckbox(
             props?: TableBodyColumnCheckboxProp
         ): NodeDefDOMElement[] {
             if (props == null) {
                 return null;
             }
-    
+
             // Deconstruct parameters
             const { category, isChecked, onClickCheck, width } = props;
             const cssStyle = width == null ? null : `flex-basis:${width}`;
-    
+
             const templateId = 'bodyColumnCheckbox';
             this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-    
+
             return this._templateMgr.createElements(templateId, {
                 cssClass: this._getBodyColumnCss(category),
                 cssStyle: cssStyle,
@@ -580,21 +580,21 @@ namespace SqlQueryHistoryPanel {
                 onClick: onClickCheck
             });
         }
-    
+
         protected _createBodyColumnStatus(
             props?: TableBodyColumnStatusProp
         ): NodeDefDOMElement[] {
             if (props == null) {
                 return null;
             }
-    
+
             // Deconstruct parameters
             const { category, status, width } = props;
             const cssStyle = width == null ? null : `flex-basis:${width}`;
-    
+
             const templateId = 'bodyColumnStatus';
             this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-    
+
             return this._templateMgr.createElements(templateId, {
                 cssClass: this._getBodyColumnCss(category),
                 iconClass: this._getBodyColumnStatusIconCss(status),
@@ -602,24 +602,24 @@ namespace SqlQueryHistoryPanel {
                 cssStyle: cssStyle
             });
         }
-    
+
         protected _createBodyColumnText(
             props?: TableBodyColumnTextProp
         ): NodeDefDOMElement[] {
             if (props == null) {
                 return null;
             }
-    
+
             // Deconstruct parameters
             const { isEllipsis, tooltip, category, text, style, width } = props;
             const widthStyle = width == null ? null : `flex-basis:${width}`;
             const cssStyle = [style, widthStyle].filter((v)=>v!=null).join(';');
-    
+
             const templateId = isEllipsis
                 ? (tooltip != null ? 'bodyColumnElpsTextTooltip' : 'bodyColumnElpsText')
                 :  (tooltip != null ? 'bodyColumnTextTooltip' : 'bodyColumnText');
             this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-    
+
             return this._templateMgr.createElements(templateId, {
                 cssClass: this._getBodyColumnCss(category),
                 text: text,
@@ -627,21 +627,21 @@ namespace SqlQueryHistoryPanel {
                 cssStyle: cssStyle.length === 0 ? null : cssStyle
             });
         }
-    
+
         protected _createBodyColumnTextLink(
             props?: TableBodyColumnTextLinkProp
         ): NodeDefDOMElement[] {
             if (props == null) {
                 return null;
             }
-    
+
             // Deconstruct parameters
             const { category, text, isError = false, onLinkClick = () => {}, width } = props;
             const cssStyle = width == null ? null : `flex-basis:${width}`;
-    
+
             const templateId = 'bodyColumnElpsTextLink';
             this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-    
+
             return this._templateMgr.createElements(templateId, {
                 cssClass: `${this._getBodyColumnCss(category)}${isError ? ' error' : ''}`,
                 cssStyle: cssStyle,
@@ -649,21 +649,21 @@ namespace SqlQueryHistoryPanel {
                 onLinkClick: onLinkClick
             });
         }
-    
+
         protected _createBodyColumnIconLink(
             props?: TableBodyColumnIconLinkProp
         ): NodeDefDOMElement[] {
             if (props == null) {
                 return null;
             }
-    
+
             // Deconstruct parameters
             const { category, text, iconClass, onLinkClick = () => {}, width } = props;
             const cssStyle = width == null ? null : `flex-basis:${width}`;
-    
+
             const templateId = 'bodyColumnIconLink';
             this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-    
+
             return this._templateMgr.createElements(templateId, {
                 cssClass: this._getBodyColumnCss(category),
                 cssStyle: cssStyle,
@@ -672,7 +672,7 @@ namespace SqlQueryHistoryPanel {
                 onLinkClick: onLinkClick
             });
         }
-    
+
         protected _createHeaderRegularColumn(props?: {
             cssClass: string,
             title: string,
@@ -681,21 +681,21 @@ namespace SqlQueryHistoryPanel {
             if (props == null) {
                 return null;
             }
-    
+
             // Deconstruct parameters
             const { cssClass, title, width } = props;
             const cssStyle = width == null ? null : `flex-basis:${width}`;
-    
+
             const templateId = 'headerColumnRegular';
             this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-    
+
             return this._templateMgr.createElements(templateId, {
                 cssClass: cssClass,
                 cssStyle: cssStyle,
                 title: title
             });
         }
-    
+
         protected _createHeaderCheckboxColumn(props?: {
             cssClass: string,
             isChecked: boolean,
@@ -705,14 +705,14 @@ namespace SqlQueryHistoryPanel {
             if (props == null) {
                 return null;
             }
-    
+
             // Deconstruct parameters
             const { cssClass, isChecked, onClick = () => {}, width } = props;
             const cssStyle = width == null ? null : `flex-basis:${width}`;
-    
+
             const templateId = 'headerColumnCheckbox';
             this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-    
+
             return this._templateMgr.createElements(templateId, {
                 cssClass: cssClass,
                 cssStyle: cssStyle,
@@ -720,7 +720,7 @@ namespace SqlQueryHistoryPanel {
                 onClick: onClick
             });
         }
-    
+
         protected _createHeaderSortableColumn(props?: {
             cssClass: string,
             title: string,
@@ -731,16 +731,16 @@ namespace SqlQueryHistoryPanel {
             if (props == null) {
                 return null;
             }
-    
+
             // Deconstruct parameters
             const { cssClass, title, sortOrder, onClickSort = () => {}, width } = props;
             const cssStyle = width == null ? null : `flex-basis:${width}`;
-    
+
             const currentOrder = sortOrder;
             if (sortOrder == SortOrder.NONE) {
                 const templateId = 'headerColumnSortableNoSort';
                 this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-    
+
                 return this._templateMgr.createElements(templateId, {
                     cssClass: cssClass,
                     cssStyle: cssStyle,
@@ -749,11 +749,11 @@ namespace SqlQueryHistoryPanel {
                         onClickSort(currentOrder);
                     }
                 });
-    
+
             } else {
                 const templateId = 'headerColumnSortable';
                 this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-    
+
                 return this._templateMgr.createElements(templateId, {
                     cssClass: cssClass,
                     cssStyle: cssStyle,
@@ -765,7 +765,7 @@ namespace SqlQueryHistoryPanel {
                 });
             }
         }
-    
+
         // *** Mapping functions - start ***
         protected _setupColumnMapping() {
             // TableColumnCategory => header title
@@ -805,9 +805,9 @@ namespace SqlQueryHistoryPanel {
             this._columnResizeDef.set(TableColumnCategory.TABLE, { minWidth: 75 });
             this._columnResizeDef.set(TableColumnCategory.ROWS, { minWidth: 50 });
             this._columnResizeDef.set(TableColumnCategory.SKEW, { minWidth: 50 });
-            this._columnResizeDef.set(TableColumnCategory.ACTION, { minWidth: 50 });                        
+            this._columnResizeDef.set(TableColumnCategory.ACTION, { minWidth: 50 });
         }
-    
+
         protected _setupStaticMapping() {
             // SortOrder => sort icon
             this._sortOrderMapping[SortOrder.ASC] = 'xi-arrow-up';
@@ -829,36 +829,36 @@ namespace SqlQueryHistoryPanel {
             this._sqlStatusString[SQLStatus.None] = SQLTStr.queryHistStatusNone;
             this._sqlStatusString[SQLStatus.Interrupted] = SQLTStr.queryHistStatusInterrupt;
         }
-    
+
         protected _getSortOrderClass(sortOrder: SortOrder): string {
             return this._sortOrderMapping[sortOrder] || '';
         }
-    
+
         protected _getHeaderColumnTitle(category: TableColumnCategory): string {
             return this._headerTitleMapping[category] || '';
         }
-    
+
         protected _getHeaderColumnCss(category: TableColumnCategory): string {
             return this._headerCssMapping[category] || '';
         }
-    
+
         protected _getBodyColumnCss(category: TableColumnCategory): string {
             return this._headerCssMapping[category] || '';
         }
-    
+
         protected _getBodyColumnStatusText(status: SQLStatus): string {
             return this._sqlStatusString[status] || '';
         }
-    
+
         protected _getBodyColumnStatusIconCss(status: SQLStatus): string {
             return this._statusMapping[status] || '';
         }
-    
+
         protected _getBodyColumnBuilder(category: TableColumnCategory): (any) => any {
             return this._bodyColumnBuilder[category] || (() => null);
         }
         // *** Mapping functions - end ***
-    
+
         // *** Resize related functions - start ***
         protected _getHeaderColumnWidth(colIndex: number): number {
             return this._resizeState.headerWidth[colIndex];
@@ -872,7 +872,7 @@ namespace SqlQueryHistoryPanel {
         protected _setBodyColumnWidth(colIndex: number, width: number) {
             this._resizeState.bodyWidth[colIndex] = width;
         }
-    
+
         protected _getResizeConfig(colIndex: number): { minWidth: number } {
             const columnCategory = this._columnsToShow[colIndex];
             if (columnCategory == null) {
@@ -882,10 +882,10 @@ namespace SqlQueryHistoryPanel {
             if (columnDef == null) {
                 return null;
             }
-    
+
             return { minWidth: columnDef.minWidth };
         }
-    
+
         protected _getPreviousResizable(
             currentIndex: number
         ): {
@@ -903,13 +903,13 @@ namespace SqlQueryHistoryPanel {
             }
             return null;
         }
-    
+
         protected _clearGetSizeHandlers(): void {
             for (let i = 0; i < this._getSizeHandlers.length; i ++) {
                 this._getSizeHandlers[i] = { header: null, body: null };
             }
         }
-    
+
         protected _setGetSizeHandler(colIndex: number, handler: {
             header?: () => number,
             body?: () => number
@@ -926,7 +926,7 @@ namespace SqlQueryHistoryPanel {
                 handlers.body = body;
             }
         }
-    
+
         protected _updateColumnSize(): void {
             for (let colIndex = 0; colIndex < this._getSizeHandlers.length; colIndex ++) {
                 const { header = null, body = null } = this._getSizeHandlers[colIndex] || {};
@@ -938,20 +938,20 @@ namespace SqlQueryHistoryPanel {
                 }
             }
         }
-    
+
         protected _clearResizeHandlers(): void {
             for (let i = 0; i < this._resizeHandlers.length; i ++) {
                 this._resizeHandlers[i] = [];
             }
         }
-    
+
         protected _addResizeHandler(colIndex: number, handler: () => void): void {
             if (colIndex < 0 || colIndex >= this._resizeHandlers.length) {
                 return;
             }
             this._resizeHandlers[colIndex].push(handler);
         }
-    
+
         protected _resizeColumn(colIndex: number): void {
             const columnResizers = this._resizeHandlers[colIndex];
             if (columnResizers == null) {
@@ -961,14 +961,14 @@ namespace SqlQueryHistoryPanel {
                 resizeHandler();
             }
         }
-    
+
         protected _resizeAllColumns(): void {
             for (let i = 0; i < this._resizeHandlers.length; i ++) {
                 this._resizeColumn(i);
             }
         }
         // *** Resize related functions - end ***
-    
+
         // *** Helper functions - start ***
         protected _getColumnSortOrders(
             currentSorting: TableSortMethod,
@@ -984,7 +984,7 @@ namespace SqlQueryHistoryPanel {
             }
             return sortOrders;
         }
-    
+
         protected _getSortIndex(
             data: TData[],
             order: SortOrder = SortOrder.NONE,
@@ -1004,7 +1004,7 @@ namespace SqlQueryHistoryPanel {
                 return sortList.slice(0, numRows);
             }
         }
-    
+
         protected _getNextSorting(
             currentOrder: SortOrder,
             currentColumn: TableColumnCategory,
@@ -1013,12 +1013,12 @@ namespace SqlQueryHistoryPanel {
             stateTransit[SortOrder.NONE] = SortOrder.ASC;
             stateTransit[SortOrder.ASC] = SortOrder.DESC;
             stateTransit[SortOrder.DESC] = SortOrder.NONE;
-    
+
             return {
                 sortBy: currentColumn, sortOrder: stateTransit[currentOrder]
             };
         }
-    
+
         protected _removeSelectNotShown(
             dataList: TData[],
             dataIndexShown: number[],
@@ -1037,7 +1037,7 @@ namespace SqlQueryHistoryPanel {
             }
             return newSelectSet;
         }
-    
+
         protected _setSelectSet(newSelectSet: Set<string>): void {
             let isChanged = newSelectSet.size !== this._selectSet.size;
             if (!isChanged) {
@@ -1053,7 +1053,7 @@ namespace SqlQueryHistoryPanel {
                 this._tableDef.onSelectChange(new Set(newSelectSet));
             }
         }
-    
+
         protected _selectRow(dataKey: string, isSelect: boolean): void {
             if (isSelect) {
                 if (!this._selectSet.has(dataKey)) {
@@ -1068,14 +1068,14 @@ namespace SqlQueryHistoryPanel {
             }
         }
         // *** Helper functions - end ***
-    
+
         public static SortOrder = {}
     }
-    
+
     export enum TableHeaderColumnType {
         REGULAR, SORTABLE, SELECTABLE
     }
-    
+
     export enum TableColumnCategory {
         SELECT = 'SELECT',
         STATUS = 'STATUS',
@@ -1087,16 +1087,16 @@ namespace SqlQueryHistoryPanel {
         SKEW = 'SKEW',
         ACTION = 'ACTION'
     }
-    
+
     export enum SortOrder {
         NONE, ASC, DESC
     }
-    
+
     export interface TableSortMethod {
         sortBy: TableColumnCategory,
         sortOrder: SortOrder
     }
-    
+
     export interface TableHeaderColumnProp {
         type: TableHeaderColumnType, // Basic
         category: TableColumnCategory, // Basic
@@ -1105,42 +1105,42 @@ namespace SqlQueryHistoryPanel {
         isSelected?: boolean, // SELECTABLE
         onClickSelect?: () => void // SELECTABLE
     }
-    
+
     export interface TableBodyColumnProp {
         category: TableColumnCategory
         width?: string
     }
-    
+
     export interface TableBodyColumnCheckboxProp extends TableBodyColumnProp {
         isChecked: boolean,
         onClickCheck: () => void
     }
-    
+
     export interface TableBodyColumnStatusProp extends TableBodyColumnProp {
         // cssClass: string,
         status: SQLStatus
     }
-    
+
     export interface TableBodyColumnTextProp extends TableBodyColumnProp {
         isEllipsis: boolean,
         text: string,
         tooltip?: string,
         style?: string
     }
-    
+
     export interface TableBodyColumnTextLinkProp extends TableBodyColumnProp {
         // cssClass: string,
         text: string,
         isError?: boolean,
         onLinkClick: () => void
     }
-    
+
     export interface TableBodyColumnIconLinkProp extends TableBodyColumnProp {
         text: string,
         iconClass: string,
         onLinkClick: () => void,
     }
-    
+
     export type TableDefinition<TData> = {
         onSelectChange?: (keySet: Set<string>) => void, // Callback function when selected rows being changed
         getKeyFunction?: (data: TData) => string, // The function the get the key of data
@@ -1149,5 +1149,5 @@ namespace SqlQueryHistoryPanel {
             sortFunction?: (a: TData, b: TData) => number, // The function to help sorting the data(similar to the compare function of Array.sort)
             convertFunc?: (data: TData) => TableBodyColumnProp // The function to convert the data to the value shown in the table
         }}
-    }    
+    }
 }

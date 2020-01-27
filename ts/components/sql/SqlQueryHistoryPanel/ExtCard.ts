@@ -1,6 +1,18 @@
 namespace SqlQueryHistoryPanel {
     import QueryUpdateInfo = SqlQueryHistory.QueryUpdateInfo;
     import QueryExtInfo = SqlQueryHistory.QueryExtInfo;
+    /**
+     * Import symbols defined in other files from the same namespace
+     * This is a hack fix for our grunt watch approach!!!
+     * See BaseCard.ts for detailed reason.
+     */
+    import BaseCard = SqlQueryHistoryPanel.BaseCard;
+    import CardOptions = SqlQueryHistoryPanel.CardOptions;
+    import TableColumnCategory = SqlQueryHistoryPanel.TableColumnCategory;
+    import TableDefinition = SqlQueryHistoryPanel.TableDefinition;
+    import TableHeaderColumnType = SqlQueryHistoryPanel.TableHeaderColumnType;
+    import TableBodyColumnTextProp = SqlQueryHistoryPanel.TableBodyColumnTextProp;
+    import sortFunctions = SqlQueryHistoryPanel.sortFunctions;
 
     export class ExtCard extends BaseCard {
         protected _selectedQueryIds = new Set<string>();

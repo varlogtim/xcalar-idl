@@ -1,5 +1,11 @@
 namespace SqlQueryHistoryPanel {
     import QueryUpdateInfo = SqlQueryHistory.QueryUpdateInfo;
+    /**
+     * Import symbols defined in other files from the same namespace
+     * This is a hack fix for our grunt watch approach!!!
+     * See BaseCard.ts for detailed reason.
+     */
+    import BaseCard = SqlQueryHistoryPanel.BaseCard;
 
     export class Card extends BaseCard {
         private static _instance = null;

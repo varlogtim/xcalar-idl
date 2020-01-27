@@ -1,6 +1,29 @@
 namespace SqlQueryHistoryPanel {
     import QueryInfo = SqlQueryHistory.QueryInfo;
     import QueryExtInfo = SqlQueryHistory.QueryExtInfo;
+    /**
+     * Import symbols defined in other files from the same namespace
+     * This is a hack fix for our grunt watch approach!!!
+     *
+     * In grunt dev, tsc goes through all the ts files(in the src folder),
+     * and is smart enough to prefix symbols with the correct namespace.
+     *
+     * In grunt watch, only the file modified is present in the build src(tswatchtmp),
+     * and tsc has no idea of the scope of symbols because lack of context.
+     * Ex. DynaTalbe would be treated as a global class, if its definition
+     * file(DynaTable.ts) is not provided.
+     *
+     * The long term solution should be compiling ts files directly from source folder,
+     * but we have to keep the pseudo imports here before that happens.
+     */
+    import DynaTable = SqlQueryHistoryPanel.DynaTable;
+    import TableColumnCategory = SqlQueryHistoryPanel.TableColumnCategory;
+    import TableDefinition = SqlQueryHistoryPanel.TableDefinition;
+    import TableHeaderColumnType = SqlQueryHistoryPanel.TableHeaderColumnType;
+    import TableBodyColumnStatusProp = SqlQueryHistoryPanel.TableBodyColumnStatusProp;
+    import TableBodyColumnTextLinkProp = SqlQueryHistoryPanel.TableBodyColumnTextLinkProp;
+    import TableBodyColumnTextProp = SqlQueryHistoryPanel.TableBodyColumnTextProp;
+    import SortOrder = SqlQueryHistoryPanel.SortOrder;
 
     export class BaseCard {
         protected _$cardContainer: JQuery = null;
