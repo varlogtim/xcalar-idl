@@ -45,14 +45,14 @@ class SQLWorkSpace {
         }
         TblFunc.moveFirstColumn();
 
-        $(window).off(".sqlPanelResize");
-        let resizeTimer;
-        $(window).on("resize.sqlPanelResize", () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => {
-                this._sqlEditorSpace.resize();
-            }, 300);
-        });
+        // $(window).off(".sqlPanelResize");
+        // let resizeTimer;
+        // $(window).on("resize.sqlPanelResize", () => {
+        //     clearTimeout(resizeTimer);
+        //     resizeTimer = setTimeout(() => {
+        //         this._sqlEditorSpace.resize();
+        //     }, 300);
+        // });
     }
 
     public unfocus(): void {

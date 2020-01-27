@@ -3,53 +3,31 @@
     <div class="title">
       <%= dicts.SQL.Editor %>
     </div>
-    <div class="divider"></div>
-    <div class="fileName tooltipOverflow"></div>
-    <div class="editMark xc-hidden"><%= dicts.SQLEditor.Edited %></div>
+    <button class="btn execute"
+    data-toggle="tooltip"
+    data-placement="top"
+    data-container="body"
+    data-title="<%= dicts.SQLEditor.RunHint %>">
+      <%= dicts.SQLEditor.Run %>
+    </button>
+    <button class="btn btn-secondary save">
+      <%= dicts.common.SaveAs %>...
+    </button>
+    <button class="btn btn-secondary more dropDownList">
+      <span><%= dicts.SQLEditor.More %>...</span>
+      <div class="iconWrapper">
+        <i class="icon xi-arrow-down"></i>
+      </div>
+      <div class="list">
+        <ul>
+          <li data-action="download"><%= dicts.fileManager.Download %></li>
+          <li data-action="showTables"><%= dicts.Table.Show %></li>
+          include "../../util/menuScrollArea.html"
+        </ul>
+      </div>
+    </button>
   </header>
   <i class="icon xc-icon-action xi_popout undock" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.bottomMenu.popOutBtn %>"></i>
-  <section class="topBarSection">
-    <div class="row">
-      <button class="btn execute"
-      data-toggle="tooltip"
-      data-placement="top"
-      data-container="body"
-      data-title="<%= dicts.SQLEditor.RunHint %>"
-      >
-        <%= dicts.SQLEditor.Run %>
-      </button>
-      <button class="btn btn-secondary save dropDownList">
-        <span><%= dicts.common.Save %></span>
-        <div class="iconWrapper">
-          <i class="icon xi-arrow-down"></i>
-        </div>
-        <div class="list">
-          <ul>
-            <li data-action="saveAs">
-              <%= dicts.common.SaveAs %>...
-            </li>
-            include "../../util/menuScrollArea.html"
-          </ul>
-        </div>
-      </button>
-      <button class="btn btn-secondary new"><%= dicts.SQLEditor.NewSnippet %></button>
-      <button class="btn btn-secondary showTables">
-        <%= dicts.Table.Show %>
-      </button>
-      <button class="btn btn-secondary more dropDownList">
-        <span><%= dicts.SQLEditor.More %>...</span>
-        <div class="iconWrapper">
-          <i class="icon xi-arrow-down"></i>
-        </div>
-        <div class="list">
-          <ul>
-            <li data-action="download"><%= dicts.fileManager.Download %></li>
-            include "../../util/menuScrollArea.html"
-          </ul>
-        </div>
-      </button>
-    </div>
-  </section>
   <section class="editSection">
     <div class="editArea">
       <textarea id="sqlEditorSpace-editor"></textarea>

@@ -555,11 +555,10 @@ class SQLEditor {
                 self.showHintMenu(<any>_cm);
             }
 
-            self._event.dispatchEvent("change");
             // the change even will cause a save data to KV
             clearTimeout(saveTimer);
             saveTimer = setTimeout(function() {
-                self._event.dispatchEvent("afterChange");
+                self._event.dispatchEvent("change");
             }, 500); // 0.5s interval
         });
 

@@ -444,7 +444,7 @@ module.exports = {
 
     "SQL": {
         "WorkSpace": "SQL WorkSpace",
-        "Editor": "SQL",
+        "Editor": "SQL Playground",
         "Schema": "Tables and Schemas available to SQL",
         "SchemaInst": "Select and click a table to view columns.",
         "ColumnInst": "Select and click a table in order to view and select columns.",

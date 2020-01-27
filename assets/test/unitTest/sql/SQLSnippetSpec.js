@@ -99,7 +99,7 @@ describe("SQLSnippet Test", function() {
         });
     });
 
-    it("should delete snippet", function(done) {
+    it("should delete snippet", async function(done) {
         let oldFunc = sqlSnippet._updateSnippets;
         let called = false;
         sqlSnippet._updateSnippets = () => {
@@ -107,21 +107,19 @@ describe("SQLSnippet Test", function() {
             return PromiseHelper.resolve();
         };
 
-        sqlSnippet.deleteSnippet("test")
-        .then(function() {
+        try {
+            await sqlSnippet._deletSnippet("test");
             expect(called).to.be.true;
             expect(sqlSnippet.getSnippet("test")).to.equal("");
             done();
-        })
-        .fail(function() {
+        } catch (e) {
             done("fail");
-        })
-        .always(function() {
+        } finally {
             sqlSnippet._updateSnippets = oldFunc;
-        });
+        }
     });
 
-    it("should handle delete non existing snippet case", function(done) {
+    it("should handle delete non existing snippet case", async function(done) {
         let oldFunc = sqlSnippet._updateSnippets;
         let called = false;
         sqlSnippet._updateSnippets = () => {
@@ -129,17 +127,15 @@ describe("SQLSnippet Test", function() {
             return PromiseHelper.resolve();
         };
 
-        sqlSnippet.deleteSnippet("test2")
-        .then(function() {
+        try {
+            await sqlSnippet._deletSnippet("test2");
             expect(called).to.be.false;
             done();
-        })
-        .fail(function() {
+        } catch (e) {
             done("fail");
-        })
-        .always(function() {
+        } finally {
             sqlSnippet._updateSnippets = oldFunc;
-        });
+        }
     });
 
     it("load should work", async function() {
@@ -148,18 +144,6 @@ describe("SQLSnippet Test", function() {
         if (lastOpened != null) {
             expect(snippetName).to.equal(lastOpened.name);
         }
-    });
-
-    it("setLastOpenedSnippet should work", async function() {
-        await sqlSnippet.setLastOpenedSnippet('test1');
-        await sqlSnippet._fetchLastOpenedSnippet();
-        let lastOpenedSnippetName = sqlSnippet._lastOpenedSnippet;
-        expect(lastOpenedSnippetName.name).to.equal("test1");
-
-        await sqlSnippet.setLastOpenedSnippet('test2');
-        await sqlSnippet._fetchLastOpenedSnippet();
-        lastOpenedSnippetName = sqlSnippet._lastOpenedSnippet;
-        expect(lastOpenedSnippetName.name).to.equal("test2");
     });
 
     it("_getKVStore should work", function() {

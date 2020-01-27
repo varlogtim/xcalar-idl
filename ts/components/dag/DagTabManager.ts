@@ -445,6 +445,7 @@ class DagTabManager {
         this._getDataflowArea().remove();
         this._getTabsEle().remove();
         DagViewManager.Instance.resetActiveDagTab();
+        SQLEditorSpace.Instance.setTab(null);
     }
 
     public lockTab(tabId: string): void {
@@ -631,6 +632,8 @@ class DagTabManager {
 
         // Switch to the corresponding dataflow in the left panel(DagList)
         const dagTab: DagTab = this.getTabByIndex(index);
+
+        SQLEditorSpace.Instance.setTab(dagTab);
         if (this._activeTab && this._activeTab instanceof DagTabProgress) {
             this._activeTab.unfocus();
         }

@@ -83,42 +83,34 @@ class SQLSnippet {
         if (snippetName === SQLSnippet.Default) {
             return PromiseHelper.resolve();
         }
-        return this._updateSnippets();  
+        return this._updateSnippets();
     }
 
-    public deleteSnippet(snippetName: string): XDPromise<void> {
-        if (!this.hasSnippet(snippetName)) {
-            return PromiseHelper.resolve();
-        }
-
-        delete this._snippets[snippetName];
-        return this._updateSnippets();
+    /**
+     * SQLSnippet.Instance.deleteSnippet
+     * @param snippetName
+     * @param callback
+     */
+    public async deleteSnippet(snippetName: string, callback: Function): void {
+        let msg = xcStringHelper.replaceMsg(SQLTStr.DeleteSnippetMsg, {
+            name: name
+        });
+        Alert.show({
+            title: SQLTStr.DeleteSnippet,
+            msg: msg,
+            onConfirm: () => {
+                this._deletSnippet(snippetName);
+                if (typeof callback === "function") {
+                    callback();
+                }
+            }
+        });
     }
 
     public downloadSnippet(snippetName: string): void {
         const fileName: string = snippetName + ".sql";
         const content: string = this.getSnippet(snippetName);
         xcHelper.downloadAsFile(fileName, content);
-    }
-
-    public async setLastOpenedSnippet(
-        name: string,
-        text: string,
-        unsaved: boolean
-    ): Promise<void> {
-        if (this._lastOpenedSnippet != null &&
-            this._lastOpenedSnippet.name === name &&
-            this._lastOpenedSnippet.text === text
-        ) {
-            return;
-        }
-        this._lastOpenedSnippet = {
-            name,
-            text,
-            unsaved
-        };
-        let lastOpenedSnippetKVStore = this._getLastOpenedSnippetKVStore();
-        return lastOpenedSnippetKVStore.put(JSON.stringify(this._lastOpenedSnippet), true);
     }
 
     public getLastOpenSnippet(): {name: string, text: string, unsaved} | null {
@@ -202,5 +194,13 @@ class SQLSnippet {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    private async _deletSnippet(snippetName: string): Promise<void> {
+        if (!this.hasSnippet(snippetName)) {
+            return;
+        }
+        delete this._snippets[snippetName];
+        return this._updateSnippets();
     }
 }

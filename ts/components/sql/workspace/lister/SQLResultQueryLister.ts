@@ -37,7 +37,7 @@ class SQLResultQueryLister extends AbstractSQLResultLister{
             SQLSnippet.Instance.downloadSnippet(name);
         })
         .on("delete", ({ name }) => {
-            SQLEditorSpace.Instance.deleteSnippet(name, () => {
+            SQLSnippet.Instance.deleteSnippet(name, () => {
                 // refresh the list
                 this._render();
             });

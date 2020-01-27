@@ -268,12 +268,12 @@
             }
 
             .topPart {
-                height: 40%;
+                height: 30%;
             }
 
             .bottomPart {
-                height: 60%;
-                top: 40%;
+                height: 70%;
+                top: 30%;
                 display: flex;
                 flex-direction: column;
                 position: absolute;
@@ -628,9 +628,8 @@
 #sqlEditorSpace {
     height: 100%;
     background-color: @color-white;
-    @topSectionHeight: 60px;
-    @top-bar-height: 93px;
-    @total-height: @topSectionHeight + @top-bar-height;
+    @topSectionHeight: 45px;
+    @total-height: @topSectionHeight;
     .flex-display;
     .flex-flow(column);
     border-right: 1px solid @color-border-grayBlue;
@@ -669,117 +668,89 @@
     header {
         border-bottom: 1px solid @color-border-softGray;
         display: flex;
-        padding: 15px 50px 15px 15px;
+        flex-wrap: wrap;
+        padding: 8px 50px 8px 15px;
 
         .title {
             color: @color-font-form-gray;
-            font-size: 22px;
+            font-size: 16px;
             font-weight: bold;
-            pointer-events: none;
+            line-height: 28px;
+            margin-right: 16px;
         }
 
-        .divider {
-            margin: 5px 15px;
-            width: 1px;
-            background-color: @color-border-grayBlue;
-            flex: 0 0 1px;
-        }
+        button {
+            flex: 0 0 100px;
+            padding: 0 8px;
+            margin-right: 8px;
+            margin-bottom: 4px;
 
-        .fileName {
-            font-weight: normal;
-            font-size: 14px;
-            word-break: break-all;
-            line-height: 30px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-
-            &.untitled {
-                font-style: italic;
-                min-width: 55px;
+            &:last-child {
+                margin-right: 0;
             }
-        }
 
-        .editMark {
-            margin-left: 8px;
-            color: @color-bg-cancel-gray-hover;
-            line-height: 30px;
-        }
-    }
+            &.execute {
+                flex: 0 0 75px;
+            }
 
-    .topBarSection {
-        padding: 16px;
-        border-bottom: 1px solid @color-border-softGray;
+            &.dropDownList {
+                color: @color-font-form-gray;
+                overflow: visible;
+                float: none;
+                padding: 0;
+                color: @color-font-link-blue;
 
-        .row {
-            button {
-                width: 113px;
-                padding: 0 16px;
-                margin-right: 8px;
-                margin-bottom: 12px;
-
-                &:last-child {
-                    margin-right: 0;
-                }
-
-                &.dropDownList {
-                    color: @color-font-form-gray;
-                    overflow: visible;
-                    float: none;
-                    padding: 0;
-                    color: @color-font-link-blue;
-
-                    &.noOption {
-                        span {
-                            padding-right: 16px;
-                            width: 100%;
-                        }
-
-                        .iconWrapper {
-                            display: none;
-                        }
-                    }
-
-                    &:hover {
-                        background-color: @color-white;
-                    }
-
+                &.noOption {
                     span {
-                        display: inline-block;
-                        padding-left: 16px;
-                        width: ~"calc(100% - 28px)";
-
-                        &:hover {
-                            background-color: @color-font-seconday-button-hover;
-                        }
+                        padding-right: 16px;
+                        width: 100%;
                     }
 
                     .iconWrapper {
-                        border-right: none;
-                        border-top: none;
-                        border-bottom: none;
-                        border-top-right-radius: 3px;
-                        border-bottom-right-radius: 3px;
-                        width: 28px;
-                        height: 26px;
-
-                        &:hover {
-                            background-color: @color-font-seconday-button-hover;
-                        }
+                        display: none;
                     }
+                }
 
-                    .list {
-                        top: 27px;
-                        width: 150px;
-                        color: @color-font-form-gray;
+                &:hover {
+                    background-color: @color-white;
+                }
 
-                        li {
-                            text-align: left;
-                        }
+                span {
+                    display: inline-block;
+                    padding-left: 16px;
+                    width: ~"calc(100% - 28px)";
+
+                    &:hover {
+                        background-color: @color-font-seconday-button-hover;
+                    }
+                }
+
+                .iconWrapper {
+                    border-right: none;
+                    border-top: none;
+                    border-bottom: none;
+                    border-top-right-radius: 3px;
+                    border-bottom-right-radius: 3px;
+                    width: 28px;
+                    height: 26px;
+
+                    &:hover {
+                        background-color: @color-font-seconday-button-hover;
+                    }
+                }
+
+                .list {
+                    top: 27px;
+                    width: 150px;
+                    color: @color-font-form-gray;
+
+                    li {
+                        text-align: left;
                     }
                 }
             }
         }
+
     }
 
     .editSection {

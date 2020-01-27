@@ -371,7 +371,7 @@ class TutorialPanel {
         })
         .then((snippetName: string) => {
             if (snippetName) {
-                SQLEditorSpace.Instance.setSnippet(snippetName);
+                SQLEditorSpace.Instance.openSnippet(snippetName);
             }
             return PromiseHelper.alwaysResolve(_walkthroughKVStore.get());
         })

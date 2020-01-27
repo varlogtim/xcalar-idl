@@ -239,18 +239,18 @@ describe("SQLEditorSpace Test", function() {
         expect(executor.getStatus()).to.equal(SQLStatus.Cancelled);
     });
 
-    it("_startLoad should work", function() {
-        let timer = SQLEditorSpace.Instance._startLoad();
-        expect(timer).not.to.be.null;
-        clearTimeout(timer);
-    });
+    // it("_startLoad should work", function() {
+    //     let timer = SQLEditorSpace.Instance._startLoad();
+    //     expect(timer).not.to.be.null;
+    //     clearTimeout(timer);
+    // });
 
-    it("_stopLoad", function() {
-        let $section = SQLEditorSpace.Instance._getEditorSpaceEl();
-        $section.addClass("loading");
-        SQLEditorSpace.Instance._stopLoad();
-        expect($section.hasClass("loading")).to.be.false;
-    });
+    // it("_stopLoad", function() {
+    //     let $section = SQLEditorSpace.Instance._getEditorSpaceEl();
+    //     $section.addClass("loading");
+    //     SQLEditorSpace.Instance._stopLoad();
+    //     expect($section.hasClass("loading")).to.be.false;
+    // });
 
     it("_getAutoCompleteHint should work", function() {
         let oldFunc = SQLResultSpace.Instance.getAvailableTables;
@@ -284,11 +284,6 @@ describe("SQLEditorSpace Test", function() {
 
     it("_getEditorSpaceEl should work", function() {
         let $el = SQLEditorSpace.Instance._getEditorSpaceEl();
-        expect($el.length).to.equal(1);
-    });
-
-    it("_getTopBarEl should work", function() {
-        let $el = SQLEditorSpace.Instance._getTopBarEl();
         expect($el.length).to.equal(1);
     });
 
@@ -338,43 +333,18 @@ describe("SQLEditorSpace Test", function() {
         Alert.show = oldFunc;
     });
 
-    it("should get snd set file name", function() {
-        let oldFileName = SQLEditorSpace.Instance._getFileName();
-        expect(oldFileName).to.be.a("string");
-
-        let res;
-        SQLEditorSpace.Instance._setFileName("test");
-        res = SQLEditorSpace.Instance._getFileName();
-        expect(res).to.equal("test");
-
-        SQLEditorSpace.Instance._setFileName(oldFileName);
-    });
-
     describe("Snippet Option Test", function() {
-        it("should new snippet", function() {
-            let oldNew = SQLEditorSpace.Instance._newSnippet;
+        it("should save snippet", function() {
+            let oldSave = SQLEditorSpace.Instance._saveSnippet;
             let called = 0;
 
-            SQLEditorSpace.Instance._newSnippet = () => { called++; };
+            SQLEditorSpace.Instance._saveSnippet = () => { called++; };
 
 
-            SQLEditorSpace.Instance._fileOption("new");
+            SQLEditorSpace.Instance._fileOption("save");
             expect(called).to.equal(1);
 
-            SQLEditorSpace.Instance._newSnippet = oldNew;
-        });
-
-        it("should saveAs snippet", function() {
-            let oldSave = SQLEditorSpace.Instance._saveAsSnippet;
-            let called = 0;
-
-            SQLEditorSpace.Instance._saveAsSnippet = () => { called++; };
-
-
-            SQLEditorSpace.Instance._fileOption("saveAs");
-            expect(called).to.equal(1);
-
-            SQLEditorSpace.Instance._saveAsSnippet = oldSave;
+            SQLEditorSpace.Instance._saveSnippet = oldSave;
         });
 
         it("should download snippet", function() {
@@ -394,17 +364,9 @@ describe("SQLEditorSpace Test", function() {
         });
 
         it("setSnippet should work", function() {
-            let oldFile = SQLEditorSpace.Instance._getFileName();
-            let oldFunc = SQLSnippet.Instance.getSnippet;
-            SQLSnippet.Instance.getSnippet = () => "test";
-
-            SQLEditorSpace.Instance.setSnippet("testFile");
-            expect(SQLEditorSpace.Instance._getFileName()).to.equal("testFile");
+            SQLEditorSpace.Instance._setSnippet("test");
             expect(SQLEditorSpace.Instance._sqlEditor.getValue()).to.equal("test");
-
-            SQLEditorSpace.Instance._setFileName(oldFile);
             SQLEditorSpace.Instance._sqlEditor.setValue("");
-            SQLSnippet.Instance.getSnippet = oldFunc;
         });
     });
 });
