@@ -2722,14 +2722,14 @@ class DagView {
     public static expandSQLNodeNoRemove(
         nodeId: DagNodeId,
         tabId: string
-    ): XDPromise<string> {
+    ): XDPromise<DagNode[]> {
         const dagTab = DagTabManager.Instance.getTabById(tabId);
         const graph = dagTab.getGraph();
         const sqlNode = graph.getNode(nodeId);
         if (sqlNode == null || !(sqlNode instanceof DagNodeSQL)) {
             return PromiseHelper.reject();
         }
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const deferred: XDDeferred<DagNode[]> = PromiseHelper.deferred();
         let subGraph = sqlNode.getSubGraph();
         let promise = PromiseHelper.resolve();
 
@@ -2754,8 +2754,10 @@ class DagView {
                 const dagView = DagViewManager.Instance.getDagViewById(tabId);
 
                 // add the sub graph nodes to the graph
+                const nodesArray: DagNode[] = [];
                 subGraphNodes.forEach(node => {
                     graph.addNode(node);
+                    nodesArray.push(node);
                 });
 
                 // auto align the sub graph nodes
@@ -2814,8 +2816,9 @@ class DagView {
                 });
                 dagView.$dfArea.find(".operatorSvg").before($svg);
 
+
                 dagView.deselectNodes();
-                deferred.resolve(tabId);
+                deferred.resolve(nodesArray);
             })
             .fail(deferred.reject);
         return deferred.promise();

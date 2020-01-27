@@ -152,6 +152,8 @@ class DagTable {
         const $container: JQuery = this._getContainer();
         $container.parent().removeClass("noPreviewTable").addClass("tableViewMode");
         $container.removeClass("xc-hidden").addClass("loading");
+        $("#sqlTableArea").addClass('xc-hidden');
+
         const viewer: XcViewer = this._currentViewer;
         if (viewer instanceof XcDatasetViewer) {
             $container.addClass("dataset");

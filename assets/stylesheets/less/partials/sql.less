@@ -322,15 +322,18 @@
 
                 .bottomLeftPart, .bottomRightPart {
                     overflow: hidden;
-                    float: left;
-                    width: 50%;
                     height: ~"calc(100% - @{resize-h} - @{tabBar-h})";
                     position: absolute;
                     top: @resize-h + @tabBar-h;
                 }
 
+                .bottomLeftPart {
+                    width: 32%;
+                }
+
                 .bottomRightPart {
-                    left: 50%;
+                    left: 32%;
+                    width: 68%;
                 }
 
                 &.docked {
@@ -343,6 +346,9 @@
                     .bottomRightPart {
                         width: 100% !important;
                         left: 0px !important;
+                    }
+                    >.ui-resizable-w {
+                        display: none;
                     }
                 }
             }
@@ -627,28 +633,28 @@
     @total-height: @topSectionHeight + @top-bar-height;
     .flex-display;
     .flex-flow(column);
-    border-left: 1px solid @color-border-grayBlue;
     border-right: 1px solid @color-border-grayBlue;
     position: relative;
 
-    .ui-resizable-se, .ui-resizable-s, .ui-resizable-e {
+    .ui-resizable-se, .ui-resizable-s, .ui-resizable-e, .ui-resizable-w {
         display: none !important;
     }
 
     .ui-resizable-handle {
-        z-index: 3 !important; // don't block other elements
+        z-index: 6 !important; // don't block other elements
     }
 
     &.undocked {
         z-index: @z-index-sqlEditorUndocked;
         box-shadow: 0 0 4px rgba(0,0,0, 0.5);
         position: fixed !important;
+        border-left: 1px solid @color-border-grayBlue;
 
         header {
             pointer-events: auto;
             .cursor-move;
         }
-        .ui-resizable-se, .ui-resizable-s, .ui-resizable-e {
+        .ui-resizable-se, .ui-resizable-s, .ui-resizable-e, .ui-resizable-w {
             display: block !important;
         }
     }
@@ -779,6 +785,7 @@
     .editSection {
         width: 100%;
         height: ~"calc(100% - @{total-height})";
+        flex: 1 1 100%;
         position: relative;
         overflow: hidden;
         font-size: 13px;
@@ -821,6 +828,7 @@
 }
 
 #sqlTableArea {
+
     &.loading, &.error {
         .bottomSection button {
             pointer-events: none;

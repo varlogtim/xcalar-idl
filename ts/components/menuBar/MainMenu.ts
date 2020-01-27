@@ -3,6 +3,7 @@ namespace MainMenu {
     // offset when a menu is closed (includes 5px padding in .mainContent)
     const openOffset: number = 340; // when the menu is open
     export const defaultWidth: number = 295;
+    export const minWidth: number = 100;
     let _isFormOpen: boolean = false; // if export, join, map etc is open
     let ignoreRestoreState: boolean = false; // boolean flag - if closing of a form is
     // triggered by the clicking of a mainMenu tab, we do not want to restore
@@ -12,6 +13,7 @@ namespace MainMenu {
     let rightPanelMargin: number = defaultWidth;
     let $resizableRightPanels: JQuery;
     const minRightPanelWidth = 600;
+    export let curSQLLeftWidth = defaultWidth;
 
     export let historyCursor: number = 0;
     export const tabToPanelMap = {
@@ -324,6 +326,8 @@ namespace MainMenu {
     // XXX for dagpanel only, move this function
     export function resize(width: number): void {
         _resize($("#dataflowMenu"), width);
+        curSQLLeftWidth = Math.min(width, minWidth);
+
         // let codemirror know it's area was resized
         formPanels.forEach(function(panel) {
             if (panel.isOpen()) {
@@ -359,26 +363,28 @@ namespace MainMenu {
     function setupDataflowResizable(): void {
         const $menu = $("#dataflowMenu");
         const onStop = (width) => { MainMenu.resize(width); };
-        _setupResizable($menu, undefined, onStop);
+        _setupResizable($menu, minWidth, undefined, onStop);
     }
 
     function setupDatastoreResizable(): void {
         const $menu = $("#datastoreMenu");
         const onResize = () => { DS.resize(); };
-        _setupResizable($menu, onResize);
+        _setupResizable($menu, defaultWidth, onResize, null);
     }
 
     function _setupResizable(
         $menu: JQuery,
+        minWidth: number,
         onResize?: () => void,
         onStop?: (width) => void
     ): void {
-        const minWidth: number = defaultWidth + 3;
+        // const minWidth: number = defaultWidth + 3;
         let isSmall: boolean = true;
         let $ghost: JQuery;
         $menu.resizable({
             "handles": "e",
-            "minWidth": defaultWidth,
+            // "minWidth": defaultWidth,
+            "minWidth": minWidth,
             "distance": 2,
             "helper": "mainMenuGhost",
             "start": () => {
@@ -394,10 +400,10 @@ namespace MainMenu {
             },
             "resize": (_event, ui) => {
                 let width = ui.size.width;
-                if (!isSmall && width < minWidth) {
+                if (!isSmall && width < (defaultWidth + 3)) {
                     $menu.removeClass("expanded");
                     isSmall = true;
-                } else if (isSmall && width >= minWidth) {
+                } else if (isSmall && width >= (defaultWidth + 3)) {
                     $menu.addClass("expanded");
                     isSmall = false;
                 }
@@ -419,9 +425,8 @@ namespace MainMenu {
     }
 
     function _resize($menu: JQuery, width: number): void {
-        width = Math.max(width, defaultWidth);
+        width = Math.max(width, minWidth);
         $("#container").addClass("noMenuAnim");
-        const minWidth: number = defaultWidth;
         const $mainContent = $menu.closest(".mainPanel").find("> .mainContent");
         const mainContentWidth = $mainContent.outerWidth();
 

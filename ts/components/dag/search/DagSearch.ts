@@ -76,7 +76,7 @@ class DagSearch {
 
     private _defaultPosition(): void {
         const $popUp: JQuery = this._getPopup();
-        $popUp.css("top", "182px")
+        $popUp.css("top",  $("#dagView")[0].getBoundingClientRect().top + 60)
               .css("right", "16px")
               .css("left", "auto");
     }

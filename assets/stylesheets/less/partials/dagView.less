@@ -36,7 +36,7 @@
     &.operatorBarPinned {
         .operatorBar {
             background: @color-white;
-            box-shadow: inset 0px 0.25px 0px @color-border-operator;
+            box-shadow: inset 0px 0.25px 0px @color-border-operator, inset 0px -0.25px 0px @color-border-operator;
             position: relative;
             top: 0px;
         }
@@ -2220,6 +2220,9 @@
     .nodeInfoSection {
         padding: 10px 15px 20px;
         font-size: 12px;
+    }
+    .mainRow {
+        min-width: 150px;
     }
     .row {
         border-bottom: 1px solid @color-bg-topBarGray2;

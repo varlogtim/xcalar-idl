@@ -180,19 +180,19 @@ abstract class AbstractMenu {
 
                 if (sqlString) {
                     const name: string = "SQL " + moment(new Date()).format("HH:mm:ss ll");
-                    SQLDataflowPreview.restoreDataflow(sqlString, name)
-                    .then((dagTab) => {
+                    SQLDataflowPreview.restoreDataflow2(sqlString, name)
+                    .then((newNodes) => {
                         DagViewManager.Instance.toggleSqlPreview(false);
                         if (DagTabManager.Instance.getNumTabs() === 0) {
                             DagTabManager.Instance.newTab();
                         }
-                        const graph = dagTab.getGraph();
-                        let nodeInfos = [];
+                        // const graph = dagTab.getGraph();
+                        // let nodeInfos = [];
                         let parentNodeId;
-                        graph.getAllNodes().forEach((node) => {
-                            nodeInfos.push(node.getNodeCopyInfo(true));
-                        });
-                        const newNodes = DagViewManager.Instance.paste(JSON.stringify(nodeInfos));
+                        // graph.getAllNodes().forEach((node) => {
+                        //     nodeInfos.push(node.getNodeCopyInfo(true));
+                        // });
+                        // const newNodes = DagViewManager.Instance.paste(JSON.stringify(nodeInfos));
                         newNodes.forEach((node) => {
                             if (node.getChildren().length === 0) {
                                 parentNodeId = node.getId();

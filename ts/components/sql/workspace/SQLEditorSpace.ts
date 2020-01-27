@@ -3,7 +3,7 @@ class SQLEditorSpace {
 
     private _sqlEditor: SQLEditor;
     private _isDocked: boolean;
-    private _minWidth: number;
+    public static minWidth: number = 200;
     private _currentFile: string;
     private _executers: SQLDagExecutor[];
 
@@ -13,7 +13,6 @@ class SQLEditorSpace {
 
     private constructor() {
         this._isDocked = true;
-        this._minWidth = 200;
         this._executers = [];
         this._updateExecutor();
     }
@@ -620,7 +619,6 @@ class SQLEditorSpace {
 
     private _toggleDraggable(isDraggable: boolean): void {
         const $section: JQuery = this._getDockableSection();
-        let self = this;
         if (isDraggable) {
             $section.draggable({
                 "handle": "header.draggable",
@@ -744,7 +742,7 @@ class SQLEditorSpace {
         let mainContentWidth: number = $mainContent.width();
         let width = $leftSection.outerWidth();
         if (mainContentWidth - width <= rightSectionMin) {
-            width = Math.max(this._minWidth, mainContentWidth - rightSectionMin);
+            width = Math.max(SQLEditorSpace.minWidth, mainContentWidth - rightSectionMin);
             $leftSection.outerWidth(width);
             $rightSection.width("calc(100% - " + width + "px)");
         }
@@ -753,8 +751,8 @@ class SQLEditorSpace {
     private _setupResize(): void {
         let self = this;
         this._getEditorSpaceEl().resizable({
-            handles: "w,e,se",
-            minWidth: self._minWidth,
+            handles: "w,e,s, se",
+            minWidth: SQLEditorSpace.minWidth,
             minHeight: 300,
             stop: function () {
                 self._sqlEditor.refresh();

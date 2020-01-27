@@ -282,7 +282,7 @@ class TblFunc {
             dagView = true;
             $allTables = $dagViewTableArea.find(".xcTableWrap:visible");
         } else {
-            $allTables = $('.xcTableWrap:not(".inActive")');
+            $allTables = $('.xcTableWrap:not(".inActive"):visible');
         }
         if ((isBrowserMicrosoft || isBrowserSafari) && !moveScrollBar) {
             return;

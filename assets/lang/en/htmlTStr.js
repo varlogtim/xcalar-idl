@@ -471,7 +471,7 @@ module.exports = {
         "Resources": "Resources",
         "Tables": "Tables",
         "AddTable": "Add Table",
-        "Modules": "B & T Logic Modules",
+        "Modules": "Modules",
         "AddModule": "New Module",
         "TableFuncs": "Table Functions",
         "AddTableFunc": "New Function",

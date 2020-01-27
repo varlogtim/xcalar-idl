@@ -1269,6 +1269,7 @@
 
 .xc-resourceMenu {
     padding-top: 0;
+    cursor: default;
 
     > .listWrap {
         // only apply to outmost listWrap
@@ -1277,6 +1278,8 @@
 
         > .listInfo {
             flex: 0 0 30px;
+            padding: 0 10px;
+            overflow: hidden;
         }
 
         > ul {
@@ -1288,6 +1291,9 @@
     .listWrap {
         clear: both;
         margin-top: 8px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
 
         &.nested {
             .listInfo {
@@ -1300,14 +1306,21 @@
         }
 
         .listInfo {
+            display: flex;
             font-size: 13px;
             line-height: 30px;
             padding-right: 8px;
-    
+
+            > .text, .action {
+                .textOverflowOneLine;
+            }
+
             .action {
                 float: right;
                 color: @color-font-link-blue;
-    
+                margin-left: auto;
+                text-align: right;
+
                 .icon {
                     font-size: 11px;
                 }
@@ -1326,6 +1339,9 @@
             }
 
             &:hover {
+                .name {
+                    width: ~"calc(100% - 50px)";
+                }
                 .dropDown {
                     display: block;
                 }
@@ -1366,7 +1382,7 @@
             }
 
             .name {
-                width: ~"calc(100% - 50px)";
+                width: ~"calc(100% - 23px)";
                 font-size: 12px;
                 float: left;
                 line-height: 30px;
@@ -1374,7 +1390,8 @@
 
             .dropDown {
                 display: none;
-                float: right;
+                position: absolute;
+                right: 8px;
                 width: 25px;
                 height: 18px;
                 line-height: 18px;
@@ -1634,7 +1651,7 @@
         .expand {
             margin-right: 5px;
             cursor: pointer;
-    
+
             .icon {
                 .transform(rotate(270deg));
             }
@@ -2089,7 +2106,7 @@ html.firefox {
         }
 
         #fauxCol {
-            top: 30px;
+            top: 0px;
         }
 
         .tableCover {

@@ -111,8 +111,11 @@ class SQLDagExecutor {
         this._status = status;
     }
 
-    public compile(callback): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+    /**
+     * returns nodes expanded from sql node
+     */
+    public compile(callback): XDPromise<DagNode[]> {
+        const deferred: XDDeferred<DagNode[]> = PromiseHelper.deferred();
         let tabId: string = this._tempTab.getId();
         SQLDagExecutor.setTab(tabId, this._tempTab);
 
@@ -266,6 +269,21 @@ class SQLDagExecutor {
         })
         .then(() => {
             deferred.resolve(tabId, this._tempTab);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    public restoreDataflow2(): XDPromise<DagNode[]> {
+        const deferred: XDDeferred<DagNode[]> = PromiseHelper.deferred();
+
+        this._configureSQLNode(true)
+        .then(() => {
+            return DagView.expandSQLNodeNoRemove(this._sqlNode.getId(), this._tempTab.getId());
+        })
+        .then((dagNodes) => {
+            deferred.resolve(dagNodes);
         })
         .fail(deferred.reject);
 

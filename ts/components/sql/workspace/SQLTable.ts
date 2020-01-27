@@ -81,9 +81,12 @@ class SQLTable {
     }
 
     private _showViewer(): XDPromise<void> {
+        DagTable.Instance.close();
+
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const $container: JQuery = this._getContainer();
         $container.removeClass("xc-hidden").addClass("loading");
+
         this._addLoadingText();
         const viewer = this._currentViewer;
         const $tableSection: JQuery = $container.find(".tableSection");

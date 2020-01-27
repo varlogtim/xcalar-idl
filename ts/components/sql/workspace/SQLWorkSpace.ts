@@ -108,30 +108,40 @@ class SQLWorkSpace {
                          .outerHeight(100 * pct + "%");
                 $topPart.outerHeight(100 * pctTop + "%");
                 $panel.removeClass("resizing");
+                SQLEditorSpace.Instance.refresh();
             }
         });
 
         const $bottomLeftPart = $bottomPart.find(".bottomLeftPart");
         const $bottomRightPart = $bottomPart.find(".bottomRightPart");
         let bottomPartWidth: number = null;
-        
+        let maxWidth;
+
         $bottomRightPart.resizable({
             handles: "w",
             containment: 'parent',
             minWidth: 36,
             start: function () {
                 bottomPartWidth = $bottomPart.outerWidth();
+                maxWidth = bottomPartWidth - SQLEditorSpace.minWidth;
             },
             resize: function (_event, ui) {
-                let pct = ui.size.width / bottomPartWidth;
+                let width = Math.min(ui.size.width, maxWidth);
+                let pct = width / bottomPartWidth;
+
                 if (pct > 0.98) {
                     pct = 0.98;
                     $bottomRightPart.css("left", "2%");
+                } else {
+                    $bottomRightPart.css("left", bottomPartWidth - width)
+                         .css("width", width);
                 }
+
                 $bottomLeftPart.outerWidth(100 * (1 - pct) + "%");
             },
             stop: function (_event, ui) {
-                let pct = Math.min(ui.size.width / bottomPartWidth, 0.98);
+                let width = Math.min(ui.size.width, maxWidth);
+                let pct = Math.min(width / bottomPartWidth, 0.98);
                 let pctLeft = 1 - pct;
                 $bottomRightPart.css("left", 100 * pctLeft + "%")
                          .outerWidth(100 * pct + "%");

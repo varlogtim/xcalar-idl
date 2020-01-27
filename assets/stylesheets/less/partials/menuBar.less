@@ -252,26 +252,7 @@
         }
     }
 }
-.topMenuBarTab.active::after {
-    // content: "";
-    // display: block;
-    // .position(absolute, @top: 0, @left: 0);
-    // height: ~"calc(100% - @{height-mainTab})";
-    // width: 5px;
-    // background-color: @color-border-mainTab-active;
-    // top: @height-mainTab;
-    // left: 0;
-}
-.subTab.active::after {
-    // content: "";
-    // display: block;
-    // .position(absolute, @top: 0, @left: 0);
-    // position: absolute;
-    // height: 100%;
-    // width: 5px;
-    // background-color: @color-border-subTab-active;
-    // z-index: 1;
-}
+
 #targetButton {
     .xi-data-connector {
         font-size: 24px;
@@ -359,12 +340,18 @@
             padding-right: 8px;
             height: @topSectionHeight;
             border-bottom: 1px solid @color-bg-topBarGray2;
+            overflow: hidden;
 
             .titleSection {
                 .flex(1 1 auto);
                 color: @color-font-form-gray;
                 font-size: 22px;
                 line-height: @topSectionHeight;
+                overflow: hidden;
+
+                header {
+                    .textOverflowOneLine;
+                }
             }
 
             .iconSection {
@@ -394,6 +381,7 @@
     > .mainContent {
         > .leftSection {
             .transition(margin-left @time-menuAnim);
+            min-width: 100px;
         }
     }
 }
