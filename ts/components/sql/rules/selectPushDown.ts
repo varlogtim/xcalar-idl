@@ -92,7 +92,7 @@ class SelectPushDown {
                 }
                 for (let i = 0; i < maps.length; i++) {
                     if (selectStruct.colNameMap[maps[i].newField]) {
-                        delete selectStruct.colNameMap[maps[i].newField];
+                        selectStruct.colNameMap[maps[i].newField] = maps[i].newField;
                         for (let j = 0; j < selectStruct.args.columns.length; j++) {
                             if (selectStruct.args.columns[j].destColumn ===
                                 maps[i].newField) {
@@ -103,6 +103,7 @@ class SelectPushDown {
                             break;
                         }
                     } else {
+                        selectStruct.colNameMap[maps[i].newField] = maps[i].newField;
                         selectStruct.args.columns.push(
                                               {sourceColumn: maps[i].newField});
                     }
@@ -122,6 +123,8 @@ class SelectPushDown {
                         destColumn: curNode.value.args.columns[i]
                     });
                 } else {
+                    newColNameMap[curNode.value.args.columns[i]] =
+                                                curNode.value.args.columns[i];
                     columns.push({sourceColumn: curNode.value.args.columns[i]});
                 }
             }
@@ -141,6 +144,7 @@ class SelectPushDown {
                         destColumn: curColumn.destColumn
                     });
                 } else {
+                    newColNameMap[curColumn.destColumn] = curColumn.sourceColumn;
                     columns.push({sourceColumn: curColumn.sourceColumn,
                                   destColumn: curColumn.destColumn});
                 }
