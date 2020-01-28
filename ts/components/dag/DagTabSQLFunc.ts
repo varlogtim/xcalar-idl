@@ -156,7 +156,10 @@ class DagTabSQLFunc extends DagTabUser {
             let schema: ColSchema[] = [];
             if (nodes.length === 1) {
                 // invalid case
-                schema = nodes[0].getSchema();
+                schema = nodes[0].getSchema().map((col: ColSchema) => {
+                    col.name = col.name.toUpperCase();
+                    return col;
+                });
             }
             deferred.resolve(schema);
         })
