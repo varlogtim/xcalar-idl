@@ -278,13 +278,11 @@ class SQLDagExecutor {
     public restoreDataflow2(): XDPromise<DagNode[]> {
         const deferred: XDDeferred<DagNode[]> = PromiseHelper.deferred();
 
-        this._configureSQLNode(true)
+        this._configureSQLNode(true, true)
         .then(() => {
             return DagView.expandSQLNodeNoRemove(this._sqlNode.getId(), this._tempTab.getId());
         })
-        .then((dagNodes) => {
-            deferred.resolve(dagNodes);
-        })
+        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();
@@ -305,7 +303,7 @@ class SQLDagExecutor {
         this._tempGraph.addNode(this._sqlNode);
     }
 
-    private _configureSQLNode(noStatusUpdate: boolean = false): XDPromise<any> {
+    private _configureSQLNode(noStatusUpdate: boolean = false, noPushToSelect: boolean = false): XDPromise<any> {
         this._sqlNode.setParam({
             sqlQueryStr: this._sql,
             identifiers: this._identifiers,
@@ -331,7 +329,8 @@ class SQLDagExecutor {
             identifiers: identifiers,
             sqlMode: true,
             pubTablesInfo: pubTablesInfo,
-            sqlFunctions: this._sqlFunctions
+            sqlFunctions: this._sqlFunctions,
+            noPushToSelect: true // XXX hack to prevent pushDown
         }
         return this._sqlNode.compileSQL(this._newSql, queryId, options);
     }

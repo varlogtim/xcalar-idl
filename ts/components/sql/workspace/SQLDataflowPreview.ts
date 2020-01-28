@@ -141,7 +141,7 @@ class SQLDataflowPreview {
                     return PromiseHelper.reject(e.message);
                 }
             })
-            .then((dagNodes) => {
+            .then((dagNodes: DagNode[]) => {
                 deferred.resolve(dagNodes);
             })
             .fail(deferred.reject);

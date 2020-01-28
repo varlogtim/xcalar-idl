@@ -1247,7 +1247,8 @@ class DagNodeSQL extends DagNode {
             pubTablesInfo?: {},
             dropAsYouGo?: boolean
             sqlFunctions?: {},
-            originalSQLNode?: DagNodeSQL
+            originalSQLNode?: DagNodeSQL,
+            noPushToSelect?: boolean
         } = {},
         replaceParam: boolean = true
     ): XDPromise<any> {
@@ -1347,7 +1348,9 @@ class DagNodeSQL extends DagNode {
                                                     sqlQueryObj.optimizations,
                                                     schemaQueryString)
                                                     .optimizedQueryString);
-                        sqlQueryObj.optimizations.pushToSelect = true;
+                        if (!options.noPushToSelect) {
+                            sqlQueryObj.optimizations.pushToSelect = true;
+                        }
                     }
                     optimizeStruct = LogicalOptimizer.optimize(
                                                     sqlQueryObj.xcQueryString,

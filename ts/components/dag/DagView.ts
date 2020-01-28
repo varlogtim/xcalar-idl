@@ -4123,7 +4123,9 @@ class DagView {
             type !== DagNodeType.Export
         ) {
             $node.addClass("configDisabled");
-        };
+        } else {
+            $node.removeClass("configDisabled");
+        }
 
         $node.attr("transform", "translate(" + pos.x + "," + pos.y + ")");
         this._setTooltip($node, node);
