@@ -288,13 +288,15 @@ abstract class DagNode extends Durable {
      * @param title
      */
     public setTitle(title: string, isChange?: boolean): void {
+        const oldTitle = this.title;
         this.title = title;
         if (isChange) { // prevents event from firing when title is set when
             // new node is created
             this.events.trigger(DagNodeEvents.TitleChange, {
                 id: this.getId(),
                 node: this,
-                title: title
+                title: title,
+                oldTitle: oldTitle
             });
         }
     }

@@ -11,7 +11,7 @@ class DagGraph extends Durable {
     private _isBulkStateSwitch: boolean;
     private _stateSwitchSet: Set<DagNode>;
     private _noTableDelete: boolean = false;
-
+    private nodeTitlesMap: Map<string, DagNodeId>;
 
     protected operationTime: number;
     protected currentExecutor: DagGraphExecutor
@@ -23,6 +23,7 @@ class DagGraph extends Durable {
         this.removedNodesMap = new Map();
         this.commentsMap = new Map();
         this.removedCommentsMap = new Map();
+        this.nodeTitlesMap = new Map();
         this.display = {
             width: -1,
             height: -1,
@@ -96,6 +97,9 @@ class DagGraph extends Durable {
 
         graphJSON.nodes.forEach((desNode) => {
             const node: DagNode = desNode.node;
+            if (node instanceof DagNodeSQL && node.isHidden()) {
+                return;
+            }
             const childId: string = node.getId();
             const parents: string[] = desNode.parents;
             for (let i = 0; i < parents.length; i++) {
@@ -342,7 +346,8 @@ class DagGraph extends Durable {
         nodeInfo["graph"] = this;
         const dagNode: DagNode = DagNodeFactory.create(nodeInfo);
         if (!dagNode.getTitle()) {
-            dagNode.setTitle(this.generateNodeTitle());
+            const title = this.generateNodeTitle();
+            dagNode.setTitle(title);
         }
         this.addNode(dagNode);
         this.events.trigger(DagGraphEvents.NewNode, {
@@ -407,6 +412,7 @@ class DagGraph extends Durable {
         }
         this.nodesMap.set(node.getId(), node);
         this.removedNodesMap.delete(node.getId());
+        this.nodeTitlesMap.set(node.getTitle(), node.getId());
         const set = this._traverseSwitchState(node);
 
         this.events.trigger(DagNodeEvents.ConnectionChange, {
@@ -442,6 +448,17 @@ class DagGraph extends Durable {
      */
     public addNode(dagNode: DagNode): void {
         this.nodesMap.set(dagNode.getId(), dagNode);
+        let origTitle = dagNode.getTitle();
+        if (origTitle) {
+            let title = origTitle;
+            let count = 1;
+            while (this.nodeTitlesMap.has(title)) {
+                title = origTitle + "(" + (count++) + ")";
+            }
+            dagNode.setTitle(title);
+            this.nodeTitlesMap.set(title, dagNode.getId());
+        }
+
         if (dagNode instanceof DagNodeSQLFuncIn) {
             this.events.trigger(DagGraphEvents.AddSQLFuncInput, {
                 tabId: this.parentTabId,
@@ -533,6 +550,8 @@ class DagGraph extends Durable {
             this.events.trigger(DagNodeEvents.LineageChange, info);
         })
         .registerEvents(DagNodeEvents.TitleChange, (info) => {
+            this.nodeTitlesMap.delete(info.oldTitle);
+            this.nodeTitlesMap.set(info.title, dagNode.getId());
             info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.TitleChange, info);
         })
@@ -560,6 +579,8 @@ class DagGraph extends Durable {
         .registerEvents(DagNodeEvents.Hide, info => {
             this.events.trigger(DagNodeEvents.Hide, info);
         });
+
+
     }
 
     /**
@@ -1775,6 +1796,10 @@ class DagGraph extends Durable {
         return null;
     }
 
+    public hasNodeTitle(title: string): boolean {
+        return this.nodeTitlesMap.has(title);
+    }
+
     protected _getDurable(includeStats?: boolean): DagGraphInfo {
         let nodes: DagNodeInfo[] = [];
         // Assemble node list
@@ -2191,6 +2216,7 @@ class DagGraph extends Durable {
             order = node.getOrder();
         }
         this.nodesMap.delete(node.getId());
+        this.nodeTitlesMap.delete(node.getTitle());
         if (switchState) {
             this.events.trigger(DagNodeEvents.ConnectionChange, {
                 type: "remove",

@@ -5481,7 +5481,8 @@ class DagView {
         if (this.dagTab instanceof DagTabPublished) {
             return;
         }
-        const nodeId: DagNodeId = $origTitle.closest(".operator").data("nodeid");
+        const $operator = $origTitle.closest(".operator")
+        const nodeId: DagNodeId = $operator.data("nodeid");
         const node = this.graph.getNode(nodeId);
         if (node == null) {
             return;
@@ -5508,9 +5509,18 @@ class DagView {
 
         $textArea.blur(() => {
             const newVal: string = $textArea.val().trim();
-            this.editNodeTitle(nodeId, newVal);
             $textArea.remove();
             $origTitle.show();
+
+            if (newVal === origVal) {
+                return;
+            }
+
+            if (this.graph.hasNodeTitle(newVal)) {
+                StatusBox.show(DagTStr.LabelTaken, $operator);
+            } else {
+                this.editNodeTitle(nodeId, newVal);
+            }
         });
 
         $textArea.on("input", sizeInput);
