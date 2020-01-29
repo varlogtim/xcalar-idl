@@ -112,6 +112,7 @@ class SQLResultSpace {
      */
     public showTables(reset: boolean): void {
         this._sqlTable.close();
+        DagTable.Instance.close();
         this._sqlTableSchema.close();
         this._sqlDataflowPreview.close();
         this._tableLister.show(reset);
@@ -135,6 +136,7 @@ class SQLResultSpace {
     }
 
     public showSchema(tableInfo: PbTblInfo): void {
+        DagTable.Instance.close();
         this._sqlTable.close();
         this._tableLister.close();
         this._sqlTableSchema.show(tableInfo);
@@ -142,6 +144,7 @@ class SQLResultSpace {
     }
 
     public showSchemaError(errorString: string): void {
+        DagTable.Instance.close();
         this._sqlTable.close();
         this._tableLister.close();
         this._sqlDataflowPreview.close();
@@ -154,6 +157,7 @@ class SQLResultSpace {
      * @param inProgress - set to true if previewing dataflow while it's running
      */
     public showProgressDataflow(inProgress: boolean, sql?: string): void {
+        DagTable.Instance.close();
         this._sqlTable.close();
         this._sqlTableSchema.close();
         this._tableLister.close();

@@ -1,4 +1,4 @@
-describe("SQLHistorySpace Test", () => {
+describe.skip("SQLHistorySpace Test", () => {
     before(function(done) {
         UnitTest.testFinish(() => DagPanel.hasSetup())
         .always(function() {

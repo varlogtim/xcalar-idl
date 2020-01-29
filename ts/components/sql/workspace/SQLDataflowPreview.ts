@@ -104,14 +104,13 @@ class SQLDataflowPreview {
         return deferred.promise();
     }
 
-    // being used by column menu to create dataflow nodes
     public static restoreDataflow(sql: string, tabName: string): XDPromise<DagTabUser> {
         try {
             const deferred: XDDeferred<DagTabUser> = PromiseHelper.deferred();
             SQLUtil.getSQLStruct(sql)
             .then((sqlStruct) => {
                 try {
-                    let executor = new SQLDagExecutor(sqlStruct, true, tabName);
+                    let executor = new SQLDagExecutor(sqlStruct, tabName);
                     return executor.restoreDataflow();
                 } catch (e) {
                     return PromiseHelper.reject(e.message);
@@ -129,13 +128,14 @@ class SQLDataflowPreview {
         }
     }
 
+    // being used by column menu to create dataflow nodes
     public static restoreDataflow2(sql: string, tabName: string): XDPromise<DagNode[]> {
         try {
             const deferred: XDDeferred<DagNode[]> = PromiseHelper.deferred();
             SQLUtil.getSQLStruct(sql)
             .then((sqlStruct) => {
                 try {
-                    let executor = new SQLDagExecutor(sqlStruct, true, tabName);
+                    let executor = new SQLDagExecutor(sqlStruct, tabName);
                     return executor.restoreDataflow2();
                 } catch (e) {
                     return PromiseHelper.reject(e.message);
