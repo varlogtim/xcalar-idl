@@ -472,6 +472,15 @@
         }
     }
 
+    &:not(.showLabels) {
+        .nodeTitle {
+            display: none;
+        }
+        .paramTitle {
+            transform: translate((@operator-width + 15) / 2, @operator-height + 16);
+        }
+    }
+
     &.sqlMode {
         .dagTab .name {
             text-transform: lowercase;

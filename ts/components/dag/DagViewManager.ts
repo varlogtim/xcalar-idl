@@ -54,10 +54,13 @@ class DagViewManager {
             this.toggleProgressTips(true);
         }
         if (UserSettings.getPref("dfConfigInfo")) {
-            this.toogleConfigInfo(true);
+            this.toggleConfigInfo(true);
         }
         if (UserSettings.getPref("dfTableName")) {
             this.toggleTableName(true);
+        }
+        if (UserSettings.getPref("dfLabel")) {
+            this.toggleLabels(true);
         }
         if (UserSettings.getPref("dfPinOperatorBar")) {
             this.pinOperatorBar(true);
@@ -1113,7 +1116,7 @@ class DagViewManager {
         }
     }
 
-    public toogleConfigInfo(show?: boolean): void {
+    public toggleConfigInfo(show?: boolean): void {
         if (show) {
             this.$dagView.addClass("showConfigInfo");
         } else {
@@ -1126,6 +1129,14 @@ class DagViewManager {
             this.$dagView.addClass("showTableName");
         } else {
             this.$dagView.removeClass("showTableName");
+        }
+    }
+
+    public toggleLabels(show?: boolean): void {
+        if (show) {
+            this.$dagView.addClass("showLabels");
+        } else {
+            this.$dagView.removeClass("showLabels");
         }
     }
 

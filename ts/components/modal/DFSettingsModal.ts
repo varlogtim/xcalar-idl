@@ -43,8 +43,11 @@ class DFSettingsModal {
                 case ("dfProgressTips"):
                     DagViewManager.Instance.toggleProgressTips(val);
                     break;
+                case ("dfLabel"):
+                    DagViewManager.Instance.toggleLabels(val);
+                    break;
                 case ("dfConfigInfo"):
-                    DagViewManager.Instance.toogleConfigInfo(val);
+                    DagViewManager.Instance.toggleConfigInfo(val);
                     break;
                 case ("dfTableName"):
                     DagViewManager.Instance.toggleTableName(val);
@@ -91,18 +94,19 @@ class DFSettingsModal {
         }, {
             name: "dfAutoPreview",
             text: DFTStr.AutoPreview
-        },{
+        }, {
             name: "dfProgressTips",
             text: DFTStr.ShowProgressTips
         }, {
+            name: "dfLabel",
+            text: DFTStr.ShowLabels
+        }, {
             name: "dfConfigInfo",
             text: DFTStr.ShowConfigInfo
-        },
-        {
+        }, {
             name: "dfTableName",
             text: DFTStr.ShowTableName
-        },
-        {
+        }, {
             name: "dfPinOperatorBar",
             text: DFTStr.PinOperatorBar
         }];

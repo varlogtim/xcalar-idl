@@ -9,6 +9,7 @@ class UserPref extends Durable {
     public dfProgressTips: boolean; // DF 2.0 settings
     public dfConfigInfo: boolean; // DF 2.0 settings
     public dfTableName: boolean;// DF 2.0 settings
+    public dfLabel: boolean;// DF 2.0 settings
     public ignoreSQLFASJWarning: boolean;// DF 2.0 settings
     public dfPinOperatorBar: boolean;
 
@@ -30,6 +31,7 @@ class UserPref extends Durable {
         this.dfProgressTips = (options.dfProgressTips == null) ? true : options.dfProgressTips;
         this.dfConfigInfo = (options.dfConfigInfo == null) ? true : options.dfConfigInfo;
         this.dfTableName = (options.dfTableName == null) ? true : options.dfTableName;
+        this.dfLabel = (options.dfLabel == null) ? true : options.dfLabel;
         this.ignoreSQLFASJWarning = (options.ignoreSQLFASJWarning == null) ? false : options.ignoreSQLFASJWarning;
         this.dfPinOperatorBar = (options.dfPinOperatorBar == null) ? false : options.dfPinOperatorBar;
     }
