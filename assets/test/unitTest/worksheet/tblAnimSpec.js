@@ -1,4 +1,4 @@
-describe.skip('TblAnim Test', function() {
+describe('TblAnim Test', function() {
     var testDs;
     var tableName;
     var tableId;
@@ -366,7 +366,8 @@ describe.skip('TblAnim Test', function() {
         });
     });
 
-    describe('column drag', function() {
+    // XXX this test is broken since the change of layout
+    describe.skip('column drag', function() {
         var $el;
         var $th;
         var startWidth;

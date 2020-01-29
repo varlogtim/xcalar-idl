@@ -1,4 +1,4 @@
-describe.skip("Tooltip Manager Test", function() {
+describe("Tooltip Manager Test", function() {
     let basicTest;
     let basicInfo;
 
@@ -156,10 +156,10 @@ describe.skip("Tooltip Manager Test", function() {
             if (XVM.isSQLMode()) {
                 XVM.setMode("Advanced", true);
             }
-            expect($("#sqlTab").hasClass("active")).to.be.false;
+            expect($("#sqlTab").is(":visible")).to.be.false;
             basicInfo.startScreen = TooltipStartScreen.SQLWorkspace;
             TooltipManager.start(basicInfo, basicTest, 0);
-            expect($("#sqlTab").hasClass("active")).to.be.true;
+            expect($("#sqlTab").is(":visible")).to.be.true;
             TooltipManager.closeWalkthrough();
             UnitTest.testFinish(()=>$("#intro-popover").length === 0)
             .then(() => {
@@ -171,12 +171,12 @@ describe.skip("Tooltip Manager Test", function() {
             if (!XVM.isSQLMode()) {
                 XVM.setMode("SQL", true);
             }
-            expect($("#modelingDataflowTab").hasClass("active")).to.be.false;
+            expect($("#modelingDataflowTab").is(":visible")).to.be.false;
             basicInfo.startScreen = TooltipStartScreen.ADVModeDataflow;
             TooltipManager.start(basicInfo, basicTest, 0);
-            UnitTest.testFinish(()=>$("#modelingDataflowTab").hasClass("active"))
+            UnitTest.testFinish(()=>$("#modelingDataflowTab").is(":visible"))
             .then(() => {
-                expect($("#modelingDataflowTab").hasClass("active")).to.be.true;
+                expect($("#modelingDataflowTab").is(":visible")).to.be.true;
                 TooltipManager.closeWalkthrough();
                 return UnitTest.testFinish(()=>$("#intro-popover").length === 0)
             }).then(() => {
@@ -189,12 +189,12 @@ describe.skip("Tooltip Manager Test", function() {
             if (!XVM.isSQLMode()) {
                 $("#modeArea").click();
             }
-            expect($("#modelingDataflowTab").hasClass("active")).to.be.false;
+            expect($("#modelingDataflowTab").is(":visible")).to.be.false;
             basicInfo.startScreen = TooltipStartScreen.ADVModeDataflow;
             TooltipManager.start(basicInfo, basicTest, 0);
-            UnitTest.testFinish(()=>$("#modelingDataflowTab").hasClass("active"))
+            UnitTest.testFinish(()=>$("#modelingDataflowTab").is(":visible"))
             .then(() => {
-                expect($("#modelingDataflowTab").hasClass("active")).to.be.true;
+                expect($("#modelingDataflowTab").is(":visible")).to.be.true;
                 TooltipManager.closeWalkthrough();
                 return UnitTest.testFinish(()=>$("#intro-popover").length === 0)
             }).then(() => {
@@ -207,12 +207,12 @@ describe.skip("Tooltip Manager Test", function() {
             if (XVM.isSQLMode()) {
                 $("#modeArea").click();
             }
-            expect($("#sqlTab").hasClass("active")).to.be.false;
+            expect($("#sqlTab").is(":visible")).to.be.false;
             basicInfo.startScreen = TooltipStartScreen.SQLWorkspace;
             TooltipManager.start(basicInfo, basicTest, 0);
-            UnitTest.testFinish(()=>$("#sqlTab").hasClass("active"))
+            UnitTest.testFinish(()=>$("#sqlTab").is(":visible"))
             .then(() => {
-                expect($("#sqlTab").hasClass("active")).to.be.true;
+                expect($("#sqlTab").is(":visible")).to.be.true;
                 TooltipManager.closeWalkthrough();
                 return UnitTest.testFinish(()=>$("#intro-popover").length === 0)
             }).then(() => {
