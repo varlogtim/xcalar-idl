@@ -126,7 +126,7 @@ html.edge {
         &.dataCol {
             .flexRow {
                 background-color: @color-border-menugray !important;
-                height: @height-xcColHeaderOuter - 10px;
+                height: @height-xcColHeaderOuter - (@width-tableCellPadding * 2);
             }
         }
         &.indexedColumn:not(.noIndexStyle) {
@@ -1439,9 +1439,27 @@ html.edge {
     }
 
     &.allImmediates {
+        .dragArea {
+            height: @height-colHeaderOuter + 1;
+        }
+        th {
+            height: @height-colHeaderOuter;
+            &.rowNumHead input {
+                height: @height-colHeaderOuter;
+            }
+            &.dataCol {
+                .header .flexContainer .flexWrap.flex-mid {
+                    height: @height-colHeaderOuter - (@width-tableCellPadding * 2);
+                    line-height: @height-colInput;
+                }
+                .flexRow {
+                    height: @height-colHeaderOuter - (@width-tableCellPadding * 2);
+                }
+            }
+        }
         .header {
             .topHeader {
-                border: none;
+                display: none;
             }
         }
     }

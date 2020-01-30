@@ -128,6 +128,9 @@ class TableMeta extends Durable {
             if (tableMeta.valueAttrs != null) {
                 valueAttrs = tableMeta.valueAttrs;
             }
+            if (tableMeta.numValues === tableMeta.numImmediates) {
+                this.allImmediates = true;
+            }
 
             valueAttrs.forEach((valueAttr) => {
                 if (valueAttr.type === DfFieldTypeT.DfFatptr) {

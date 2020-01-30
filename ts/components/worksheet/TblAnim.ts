@@ -81,7 +81,7 @@ namespace TblAnim {
      */
     export function startColResize(
         $el: JQuery,
-        event: JQueryEventObject, 
+        event: JQueryEventObject,
         options: {
             minWidth?: number,
             target: string,
@@ -898,6 +898,9 @@ namespace TblAnim {
         }
         if (dragInfo.isMinimized) {
             $fauxTable.addClass('userHidden');
+        }
+        if ($table.hasClass("allImmediates")) {
+            $fauxTable.addClass("allImmediates");
         }
 
         let totalRowHeight: number = $tableWrap.height() -
