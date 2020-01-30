@@ -3815,6 +3815,9 @@ class DagView {
                 // XXX TODO only update if nodes involved in form are affected
                 FormHelper.updateColumns(info);
             }
+            if (info.addInfo) {
+                this._onAddConnection(info.addInfo);
+            }
         });
 
         this._registerGraphEvent(this.graph, DagNodeEvents.ParamChange, (info) => {
@@ -4044,6 +4047,19 @@ class DagView {
             const $node = this._getNode(info.nodeId);
             $node.remove();
         });
+    }
+
+    private _onAddConnection(addInfo: {node: DagNode}): void {
+        try {
+            const {node} = addInfo;
+            node.getChildren().forEach((childNode) => {
+                if (childNode instanceof DagNodeSQLFuncOut) {
+                    childNode.updateSchema();
+                }
+            });
+        } catch (e) {
+            console.error("add connection event error", e);
+        }
     }
 
     private _registerGraphEvent(

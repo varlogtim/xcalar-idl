@@ -2382,6 +2382,10 @@ class DagGraph extends Durable {
                 node.setXcQueryString(null);
                 node.setRawXcQueryString(null);
             }
+            if (node instanceof DagNodeSQLFuncOut) {
+                // auto update schema for sql func output
+                node.updateSchema();
+            }
             if (!this._isBulkStateSwitch) {
                 node.switchState();
             }

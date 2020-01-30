@@ -947,24 +947,6 @@ describe("DagNodeMenu Test", function() {
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
-        it("should configure SQLFuncOut", function() {
-            const newNodeInfo = {type: "SQLFuncOut"};
-            node = DagViewManager.Instance.newNode(newNodeInfo);
-
-            var cacheFn = SQLFuncOutOpPanel.Instance.show;
-            var called = false;
-            SQLFuncOutOpPanel.Instance.show = function() {
-                called = true;
-            }
-            DagNodeMenu.execute("configureNode", {
-                node: node
-            });
-            expect(called).to.be.true;
-            SQLFuncOutOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
-            DagViewManager.Instance.removeNodes([node.getId()], tabId);
-        });
-
         it("should configure synthesize", function() {
             const newNodeInfo = {type: "synthesize"};
             node = DagViewManager.Instance.newNode(newNodeInfo);

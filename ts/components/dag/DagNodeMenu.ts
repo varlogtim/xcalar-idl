@@ -539,9 +539,6 @@ namespace DagNodeMenu {
             case (DagNodeType.SQLFuncIn):
                 SQLFuncInOpPanel.Instance.show(node, options);
                 break;
-            case (DagNodeType.SQLFuncOut):
-                SQLFuncOutOpPanel.Instance.show(node, options);
-                break;
             case (DagNodeType.Synthesize):
                 SynthesizeOpPanel.Instance.show(node, options);
                 break;
@@ -935,6 +932,10 @@ namespace DagNodeMenu {
             dagNodeType === DagNodeType.SQLSubOutput)
         ) {
             $menu.find('.configureNode, .executeNode').addClass('unavailable');
+        }
+
+        if (dagNode != null && dagNodeType === DagNodeType.SQLFuncOut) {
+            $menu.find('.configureNode').addClass('unavailable');
         }
 
         if (dagNodeType === DagNodeType.SQL) {

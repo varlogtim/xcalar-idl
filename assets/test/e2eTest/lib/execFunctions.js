@@ -77,7 +77,8 @@ module.exports = {
 
     openOpPanel: function(nodeId) {
         const node = DagViewManager.Instance.getActiveDag().getNode(nodeId);
-        SQLFuncOutOpPanel.Instance.show(node);
+        throw new Error("Break code, fix it!");
+        // SQLFuncOutOpPanel.Instance.show(node);
     },
 
     connectNodes: function(childId, parentId, idx) {

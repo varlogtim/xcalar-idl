@@ -1560,25 +1560,13 @@ class DagNodeExecutor {
 
     private _sqlFuncOut(): XDPromise<string> {
         const node: DagNodeSQLFuncOut = <DagNodeSQLFuncOut>this.node;
-        const params: DagNodeSQLFuncOutInputStruct = node.getParam(this.replaceParam);
-        const colInfos: ColRenameInfo[] = xcHelper.getColRenameInfosFromSchema(params.schema);
-        const nameSet: Set<string> = new Set();
-        let hasDupName: boolean = false;
-        colInfos.forEach((colInfo) => {
-            let newName = colInfo.new.toUpperCase(); // need to make the name be uppercase for sql
-            colInfo.new = newName;
-            if (nameSet.has(newName)) {
-                hasDupName = true;
-            } else {
-                nameSet.add(newName);
-            }
-        });
-        if (hasDupName) {
-            return PromiseHelper.reject("Has duplicate column name in table function out");
+        const colRenameRes = node.getColRenameInfo();
+        if (colRenameRes.hasError) {
+            return PromiseHelper.reject(colRenameRes.error);
         }
         const srcTable: string = this._getParentNodeTable(0);
         const desTable: string = this._generateTableName();
-        return XIApi.synthesize(this.txId, colInfos, srcTable, desTable);
+        return XIApi.synthesize(this.txId, colRenameRes.colInfos, srcTable, desTable);
     }
 
     private _mapEvalStrAggs(evalString: string, aggs: string[]): string {

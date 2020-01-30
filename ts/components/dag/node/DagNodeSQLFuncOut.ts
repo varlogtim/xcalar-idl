@@ -35,11 +35,32 @@ class DagNodeSQLFuncOut extends DagNodeOut {
      * Set node's parameters
      * @param input {DagNodeExportInputStruct}
      */
-    public setParam(input: DagNodeSQLFuncOutInputStruct = <DagNodeSQLFuncOutInputStruct>{}) {
+    public setParam(
+        input: DagNodeSQLFuncOutInputStruct = <DagNodeSQLFuncOutInputStruct>{},
+        noAutoExecute?: boolean
+    ) {
         this.input.setInput({
             schema: input.schema,
         });
-        super.setParam();
+        super.setParam(null, noAutoExecute);
+    }
+
+    public updateSchema(): void {
+        try {
+            const parents: DagNode[] = this.getParents();
+            if (parents && parents[0]) {
+                const parent: DagNode = parents[0];
+                const schema = parent.getLineage().getColumns(false, true).map((progCol) => {
+                    return {
+                        name: progCol.getBackColName(),
+                        type: progCol.getType()
+                    }
+                });
+                this.setParam({ schema }, true);
+            }
+        } catch (e) {
+            console.error("update schema failed", e);
+        }
     }
 
     /**
@@ -51,6 +72,55 @@ class DagNodeSQLFuncOut extends DagNodeOut {
 
     public getSchema(): ColSchema[] {
         return this.getParam().schema;
+    }
+
+    public getColRenameInfo(): {
+        hasError: boolean,
+        colInfos: ColRenameInfo[]
+        error: string
+    } {
+        const params: DagNodeSQLFuncOutInputStruct = this.getParam();
+        const colInfos: ColRenameInfo[] = xcHelper.getColRenameInfosFromSchema(params.schema);
+        const nameSet: Set<string> = new Set();
+        let hasDupName: boolean = false;
+        colInfos.forEach((colInfo) => {
+            let newName = colInfo.new.toUpperCase(); // need to make the name be uppercase for sql
+            colInfo.new = newName;
+            if (nameSet.has(newName)) {
+                hasDupName = true;
+            } else {
+                nameSet.add(newName);
+            }
+        });
+
+        let hasError: boolean = false;
+        let error: string;
+        if (hasDupName) {
+            hasError = true;
+            error = DagNodeErrorType.SQLFuncOutDupCol;
+        }
+        return {
+            hasError,
+            colInfos,
+            error
+        }
+    }
+
+    /**
+     * @override
+     * @param input
+     */
+    public validateParam(input?: any): {error: string} {
+        const res = super.validateParam(input);
+        if (res != null) {
+            return res;
+        }
+        const colRenameRes = this.getColRenameInfo();
+        if (colRenameRes.hasError) {
+            return {
+                error: colRenameRes.error
+            }
+        }
     }
 
     public lineageChange(
