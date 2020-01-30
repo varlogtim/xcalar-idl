@@ -35,7 +35,6 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         xcLocalStorage.setItem("xcalar-noModeSwitchAlert", "true");
         // keep the test to be non data mart feature
         gDataMart = false;
-
         var params = getUrlParameters();
         var runTest = hasUser && parseBooleanParam(params.test);
         var testType = params.type;

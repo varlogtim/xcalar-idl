@@ -8,7 +8,7 @@ describe("SQLOpPanel Test", function() {
     var parentNode;
 
     before(function(done) {
-        MainMenu.openPanel("dagPanel");
+        MainMenu.openPanel("sqlPanel");
         UnitTest.testFinish(() => DagPanel.hasSetup())
         .always(function() {
             node = new DagNodeSQL({});

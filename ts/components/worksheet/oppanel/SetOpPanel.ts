@@ -235,7 +235,7 @@ class SetOpPanel extends BaseOpPanel {
         } else {
             const numList: number = this.setOpData.getNumList();
             let width: number = minWidth + Math.max(0, numList - 1) * sectionW;
-            width = Math.min(width, $("#modelingDagPanel").width() * 0.5);
+            width = Math.min(width, $("#sqlWorkSpacePanel").width() * 0.5);
             MainMenu.resize(width);
         }
     }

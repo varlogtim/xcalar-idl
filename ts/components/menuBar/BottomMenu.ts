@@ -186,7 +186,7 @@ namespace BottomMenu {
         _isMenuOpen = false;
         // recenter table titles if on workspace panel
         $("#bottomMenuBarTabs .sliderBtn.active").removeClass("active");
-        if (!_isPoppedOut && $("#modelingDagPanel").hasClass("active")) {
+        if (!_isPoppedOut && $("#sqlWorkSpacePanel").hasClass("active")) {
             checkAnimFinish()
             .then(function() {
                 TblFunc.moveFirstColumn();
@@ -266,7 +266,7 @@ namespace BottomMenu {
             checkAnimFinish()
             .then(function() {
                 MainMenu.sizeRightPanel();
-                if ($("#modelingDagPanel").hasClass("active")) {
+                if ($("#sqlWorkSpacePanel").hasClass("active")) {
                     TblFunc.moveFirstColumn();
                     DagCategoryBar.Instance.showOrHideArrows();
                 }
@@ -335,7 +335,7 @@ namespace BottomMenu {
         });
         $("#container").addClass("bottomMenuOut");
 
-        if ($("#modelingDagPanel").hasClass("active")) {
+        if ($("#sqlWorkSpacePanel").hasClass("active")) {
             checkAnimFinish()
             .then(function() {
                 TblFunc.moveFirstColumn();
@@ -363,7 +363,7 @@ namespace BottomMenu {
         .then(function() {
             MainMenu.sizeRightPanel();
             refreshEditor();
-            if (adjustTables && $("#modelingDagPanel").hasClass("active")) {
+            if (adjustTables && $("#sqlWorkSpacePanel").hasClass("active")) {
                 TblFunc.moveFirstColumn();
                 DagCategoryBar.Instance.showOrHideArrows();
             }

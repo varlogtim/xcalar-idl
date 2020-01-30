@@ -253,7 +253,7 @@ namespace xcMenu {
         xcMenu.removeKeyboardNavigation();
         $(document).off(".xcMenu");
         $(window).off(".xcMenu");
-        $("#dagViewTableArea .viewWrap").off(".xcMenu");
+        $("#sqlTableArea .viewWrap").off(".xcMenu");
         if (closeCallback && typeof closeCallback === "function") {
             closeCallback();
             closeCallback = null;
@@ -279,7 +279,7 @@ namespace xcMenu {
 
         let frameScrolling: boolean = false;
         let frameScrollTimer: NodeJS.Timer;
-        $("#dagViewTableArea .viewWrap").on("scroll.xcMenu", function() {
+        $("#sqlTableArea .viewWrap").on("scroll.xcMenu", function() {
             if (!frameScrolling) {
                 frameScrolling = true;
                 xcMenu.close($menu);
@@ -320,7 +320,7 @@ namespace xcMenu {
         xcMenu.removeKeyboardNavigation();
         $(document).off(".xcMenu");
         $(window).off(".xcMenu");
-        $("#dagViewTableArea .viewWrap").off(".xcMenu");
+        $("#sqlTableArea.viewWrap").off(".xcMenu");
         if (closeCallback && typeof closeCallback === "function") {
             closeCallback();
             closeCallback = null;

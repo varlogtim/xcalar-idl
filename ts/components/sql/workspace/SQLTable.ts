@@ -92,6 +92,7 @@ class SQLTable {
         const $tableSection: JQuery = $container.find(".tableSection");
         viewer.setContainer($container);
         this._renderTableNameArea(viewer);
+
         viewer.render($tableSection, true)
         .then(() => {
             $container.removeClass("loading");
@@ -135,6 +136,7 @@ class SQLTable {
 
     private _reset(): void {
         this._resetViewer();
+        this._clearTableNameArea();
         const $container: JQuery = this._getContainer();
         $container.removeClass("loading").removeClass("error");
         $container.find(".errorSection").empty();
@@ -166,8 +168,20 @@ class SQLTable {
         return true;
     }
 
+    private _getTableNameArea(): JQuery {
+        return this._getContainer().find(".tableNameArea");
+    }
+
     private _renderTableNameArea(viewer: XcViewer) {
-        const $nameArea: JQuery = this._getContainer().find(".tableNameArea");
+        const $nameArea: JQuery = this._getTableNameArea();
+        $nameArea.removeClass("xc-hidden");
         $nameArea.find(".name").text(viewer.getId());
+    }
+
+    private _clearTableNameArea(): void {
+        const $nameArea = this._getTableNameArea();
+        $nameArea.addClass("xc-hidden");
+        $nameArea.find(".type").empty();
+        $nameArea.find(".name").empty();
     }
 }

@@ -10,8 +10,8 @@ describe("DFUploadModal Test", function() {
         $destPath = $modal.find(".dest .path");
 
         $mainTabCache = $(".topMenuBarTab.active");
-        if ($mainTabCache.attr("id") !== "modelingDataflowTab") {
-            $("#modelingDataflowTab").click();
+        if ($mainTabCache.attr("id") !== "sqlTab") {
+            $("#sqlTab").click();
         }
     });
 
@@ -224,7 +224,7 @@ describe("DFUploadModal Test", function() {
 
     after(function() {
         DFUploadModal.Instance._close();
-        if ($mainTabCache.attr("id") !== "modelingDataflowTab") {
+        if ($mainTabCache.attr("id") !== "sqlTab") {
             $mainTabCache.click();
         }
     });

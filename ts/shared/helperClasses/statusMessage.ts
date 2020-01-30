@@ -487,7 +487,7 @@ namespace StatusMessage {
                 classes += ' workspaceNotify';
                 popupNeeded = true;
             } else {
-                if (!$("#dagViewTableArea").is(":visible")) {
+                if (!$("#sqlTableArea").is(":visible")) {
                     // when dag table is not visible
                     popupNeeded = true;
                     $popups = $('.tableDonePopup.worksheetNotify');
@@ -546,7 +546,7 @@ namespace StatusMessage {
                     classes.indexOf('left') > -1)) {
                     // detects if user scrolls to table. If so, remove scroll Listener
                     let scrollTimer: number;
-                    $('#dagViewTableArea .viewWrap').on('scroll.' + msgId, function() {
+                    $('#sqlTableArea .viewWrap').on('scroll.' + msgId, function() {
                         clearTimeout(scrollTimer);
                         scrollTimer = window.setTimeout(removePopUpIfScrolledToTable, 100);
                     });
@@ -596,7 +596,7 @@ namespace StatusMessage {
                                 } else {
                                     $tableDonePopup.remove();
                                 }
-                                $('#dagViewTableArea .viewWrap').off('scroll.' + msgId);
+                                $('#sqlTableArea .viewWrap').off('scroll.' + msgId);
                             });
                         }, displayTime);
                     });
@@ -607,7 +607,7 @@ namespace StatusMessage {
                 const isInScreen: boolean = TblManager.isTableInScreen(newTableId);
                 if (isInScreen) {
                     $tableDonePopup.remove();
-                    $('#dagViewTableArea .viewWrap').off('scroll.' + msgId);
+                    $('#sqlTableArea .viewWrap').off('scroll.' + msgId);
                 }
             }
 
@@ -655,7 +655,7 @@ namespace StatusMessage {
                 } else {
                     $popup.remove();
                 }
-                $('#dagViewTableArea .viewWrap').off('scroll.' + msgId);
+                $('#sqlTableArea .viewWrap').off('scroll.' + msgId);
                 $(document).mouseup(self.removeSelectionRange);
             });
 
@@ -674,7 +674,7 @@ namespace StatusMessage {
                 } else {
                     $popup.remove();
                 }
-                $('#dagViewTableArea .viewWrap').off('scroll.' + msgId);
+                $('#sqlTableArea .viewWrap').off('scroll.' + msgId);
                 $(document).mouseup(self.removeSelectionRange);
             });
         }

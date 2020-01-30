@@ -18,7 +18,7 @@ describe('ProjectOpPanel Test', () => {
             getTitle: () => "Node 1"
         };
 
-        MainMenu.openPanel("dagPanel");
+        MainMenu.openPanel("sqlPanel");
         ProjectOpPanel.Instance.show(projectNode, {});
         if ($("#projectOpPanel").find(".advancedEditor").is(":visible")) {
             $("#projectOpPanel .bottomSection .xc-switch").click();

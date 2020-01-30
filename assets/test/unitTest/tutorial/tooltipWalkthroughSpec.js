@@ -1,4 +1,4 @@
-describe("Tooltip Walkthrough Test", function() {
+describe.skip("Tooltip Walkthrough Test", function() {
     var oldGetActiveWKBK;
     var oldStart;
 
@@ -31,7 +31,7 @@ describe("Tooltip Walkthrough Test", function() {
                           "description": "test desc"
                       },
             "walkthrough":            [{
-                            "highlight_div": "#dagButton",
+                            "highlight_div": "#sqlTab",
                             "text": "testing",
                             "type": "text"
                         }],

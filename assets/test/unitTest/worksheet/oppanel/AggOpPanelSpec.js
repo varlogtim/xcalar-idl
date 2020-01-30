@@ -12,7 +12,7 @@ describe("AggOpPanel Test", function() {
     before(function(done) {
         UnitTest.testFinish(() => DagPanel.hasSetup())
         .always(function() {
-            MainMenu.openPanel("dagPanel");
+            MainMenu.openPanel("sqlPanel");
             node = new DagNodeAggregate({});
             const parentNode = new DagNodeAggregate({});
             parentNode.getLineage = function() {

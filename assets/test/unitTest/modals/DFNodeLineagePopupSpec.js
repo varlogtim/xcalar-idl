@@ -36,8 +36,8 @@ describe("DFNodeLineagePopup Test", function() {
         $popup = $("#dfNodeLineagePopup");
 
         $mainTabCache = $(".topMenuBarTab.active");
-        if ($mainTabCache.attr("id") !== "modelingDataflowTab") {
-            $("#modelingDataflowTab").click();
+        if ($mainTabCache.attr("id") !== "sqlTab") {
+            $("#sqlTab").click();
         }
         const destNodeAndTab = generateTabAndNode();
         destTab = destNodeAndTab.tab;
@@ -73,7 +73,7 @@ describe("DFNodeLineagePopup Test", function() {
     after(function() {
         DagTabManager.Instance.getTabById = oldGetTab;
 
-        if ($mainTabCache.attr("id") !== "modelingDataflowTab") {
+        if ($mainTabCache.attr("id") !== "sqlTab") {
             $mainTabCache.click();
         }
     });

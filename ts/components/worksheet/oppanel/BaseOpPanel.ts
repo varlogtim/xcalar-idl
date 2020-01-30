@@ -778,7 +778,7 @@ class BaseOpPanel {
             MainMenu.resize(0);
         } else {
             let width: number = minWidth + sectionW;
-            width = Math.min(width, $("#modelingDagPanel").width() * 0.5);
+            width = Math.min(width, $("#sqlWorkSpacePanel").width() * 0.5);
             MainMenu.resize(width);
         }
     }

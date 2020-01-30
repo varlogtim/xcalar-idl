@@ -17,7 +17,7 @@ describe('RowNumOpPanel Test', () => {
             getTitle: () => "Node 1"
         };
 
-        MainMenu.openPanel("dagPanel");
+        MainMenu.openPanel("sqlPanel");
         RowNumOpPanel.Instance.show(rowNumNode, {});
         if ($("#rownumOpPanel").find(".advancedEditor").is(":visible")) {
             $("#rownumOpPanel .bottomSection .xc-switch").click();

@@ -405,13 +405,13 @@ window.TestSuite = (function($, TestSuite) {
                 }
             })
             .then(function() {
-                let tableTitle = "#dagViewTableArea .tableNameArea .name:contains(Label 1):visible";
+                let tableTitle = "#sqlTableArea .tableNameArea .name:contains(Label 1):visible";
                 let dataCol = "#xcTable-" + xcHelper.getTableId(tableName) + " td.jsonElement";
                 return self.checkExists([tableTitle, dataCol]);
             })
             .then(function() {
-                const $table = $("#dagViewTableArea .xcTableWrap");
-                tableId = $("#dagViewTableArea .xcTableWrap").data("id");
+                const $table = $("#sqlTableArea .xcTableWrap");
+                tableId = $("#sqlTableArea .xcTableWrap").data("id");
                 if (sorted) {
                     TblManager.sortColumns(tableId, ColumnSortType.name, "forward");
                 }

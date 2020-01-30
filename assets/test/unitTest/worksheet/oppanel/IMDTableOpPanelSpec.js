@@ -68,7 +68,7 @@ describe('IMDTableOpPanel Test', () => {
                 })];
             };
             node = new DagNodeIMDTable({});
-            MainMenu.openPanel("dagPanel");
+            MainMenu.openPanel("sqlPanel");
             IMDTableOpPanel.Instance.show(node, {});
             $panel = $("#IMDTableOpPanel");
             opPanel = IMDTableOpPanel.Instance;

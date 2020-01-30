@@ -500,6 +500,8 @@ window.UnitTest = (function(UnitTest, $) {
         return deferred;
     };
 
+    UnitTest.wait = UnitTest.pause = UnitTest.timeoutPromise;
+
     UnitTest.removeOrphanTable = function() {
         var deferred = PromiseHelper.deferred();
 

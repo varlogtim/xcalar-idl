@@ -1,4 +1,4 @@
-describe("Tooltip Manager Test", function() {
+describe.skip("Tooltip Manager Test", function() {
     let basicTest;
     let basicInfo;
 
@@ -163,23 +163,6 @@ describe("Tooltip Manager Test", function() {
             TooltipManager.closeWalkthrough();
             UnitTest.testFinish(()=>$("#intro-popover").length === 0)
             .then(() => {
-                done();
-            });
-        });
-
-        it("Should be able to switch to adv mode from sql mode", function(done) {
-            if (!XVM.isSQLMode()) {
-                XVM.setMode("SQL", true);
-            }
-            expect($("#modelingDataflowTab").is(":visible")).to.be.false;
-            basicInfo.startScreen = TooltipStartScreen.ADVModeDataflow;
-            TooltipManager.start(basicInfo, basicTest, 0);
-            UnitTest.testFinish(()=>$("#modelingDataflowTab").is(":visible"))
-            .then(() => {
-                expect($("#modelingDataflowTab").is(":visible")).to.be.true;
-                TooltipManager.closeWalkthrough();
-                return UnitTest.testFinish(()=>$("#intro-popover").length === 0)
-            }).then(() => {
                 done();
             });
         });

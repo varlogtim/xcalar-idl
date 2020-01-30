@@ -12,8 +12,8 @@ describe("DagNodeMenu Test", function() {
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
         }
-        if (!$("#modelingDataflowTab").hasClass("active")) {
-            $("#dagButton").click();
+        if (!$("#sqlWorkSpacePanel").hasClass("active")) {
+            MainMenu.openPanel("sqlPanel")
         }
         UnitTest.testFinish(() => DagPanel.hasSetup())
         .always(function() {

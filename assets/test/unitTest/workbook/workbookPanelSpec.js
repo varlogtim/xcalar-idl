@@ -737,6 +737,9 @@ describe("WorkbookPanel Test", function() {
             .then(function() {
                 // need to refresh the panel
                 WorkbookPanel.hide();
+                return UnitTest.wait(2000);
+            })
+            .then(function() {
                 WorkbookPanel.show(true);
 
                 expect($workbookPanel.find(".workbookBox.active").length)
@@ -817,6 +820,9 @@ describe("WorkbookPanel Test", function() {
             };
 
             UnitTest.testFinish(checkFunc)
+            .then(() => {
+                return UnitTest.pause(1000);
+            })
             .then(function() {
                 expect($workbookPanel.is(":visible")).to.be.false;
                 done();

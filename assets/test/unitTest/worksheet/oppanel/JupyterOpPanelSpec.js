@@ -11,7 +11,7 @@ describe("JupyterOpPanel Test", function() {
             return XDFManager.Instance.waitForSetup();
         })
         .always(function() {
-            MainMenu.openPanel("dagPanel");
+            MainMenu.openPanel("sqlPanel");
             node = new DagNodeJupyter({subType: DagNodeSubType.Jupyter});
             const parentNode = new DagNodeFilter({});
             parentNode.getLineage = function() {

@@ -32,7 +32,7 @@ describe("DagView Test", () => {
             DagTabManager.Instance.newTab();
             tabId = DagViewManager.Instance.getActiveDag().getTabId();
             $dfArea = $dfWrap.find(".dataflowArea.active");
-            MainMenu.openPanel("dagPanel", null);
+            MainMenu.openPanel("sqlPanel", null);
             cachedUserPref = UserSettings.getPref;
             UserSettings.getPref = function(val) {
                 if (val === "dfAutoExecute" || val === "dfAutoPreview") {
@@ -1447,11 +1447,11 @@ describe("DagView Test", () => {
             });
             sqlNode.updateSubGraph();
             sqlNode.beConfiguredState();
-            let numTabs = $dagView.find(".dagTab").length;
+            let numTabs = $("#dagTabView").find(".dagTab").length;
             DagViewManager.Instance.inspectSQLNode(sqlNode.getId(), tabId)
             .then(function() {
                 $dfArea = $dfWrap.find(".dataflowArea.active");
-                expect($dagView.find(".dagTab").length).to.equal(numTabs + 1);
+                expect($("#dagTabView").find(".dagTab").length).to.equal(numTabs + 1);
                 expect($dfArea.find(".operator").length).to.equal(4);
                 expect($dfArea.find(".operator.synthesize").length).to.equal(1);
                 expect($dfArea.find(".operator.SQLSubInput").length).to.equal(1);
@@ -1485,7 +1485,7 @@ describe("DagView Test", () => {
             expect(outNode.getPosition().x).to.equal(640);
             expect(outNode.getPosition().y).to.equal(40);
 
-            $dagView.find(".dagTab").last().find(".after").click();
+            $("#dagTabView").find(".dagTab").last().find(".after").click();
             $dfArea = $dfWrap.find(".dataflowArea.active");
         });
 
@@ -1505,7 +1505,8 @@ describe("DagView Test", () => {
                 expect(synthesizeNode.getChildren()[0].getId()).to.equal(filter2Node.getId());
                 done();
             })
-            .fail(() => {
+            .fail((e) => {
+                console.error(e);
                 done("fail");
             })
         });
@@ -1554,11 +1555,11 @@ describe("DagView Test", () => {
         });
 
         it.skip("inspect after execute should work", function(done) {
-            let numTabs = $dagView.find(".dagTab").length;
+            let numTabs = $("#dagTabView").find(".dagTab").length;
             DagViewManager.Instance.inspectSQLNode(sqlNode.getId(), tabId)
             .then(function() {
                 $dfArea = $dfWrap.find(".dataflowArea.active");
-                expect($dagView.find(".dagTab").length).to.equal(numTabs + 1);
+                expect($("#dagTabView").find(".dagTab").length).to.equal(numTabs + 1);
                 expect($dfArea.find(".operator").length).to.equal(4);
                 expect($dfArea.find(".operator.synthesize").length).to.equal(1);
                 expect($dfArea.find(".operator.SQLSubInput").length).to.equal(1);
@@ -1579,7 +1580,7 @@ describe("DagView Test", () => {
                 expect($tip.length).to.equal(1);
                 expect($tip.find("tbody tr td").first().text()).to.equal("4"); // 4 rows
 
-                $dagView.find(".dagTab").last().find(".after").click();
+                $("#dagTabView").find(".dagTab").last().find(".after").click();
                 $dfArea = $dfWrap.find(".dataflowArea.active");
 
                 done();

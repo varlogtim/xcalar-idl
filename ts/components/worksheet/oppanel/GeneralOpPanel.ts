@@ -602,7 +602,7 @@ class GeneralOpPanel extends BaseOpPanel {
     // listeners added whenever operation view opens
     protected _operationsViewShowListeners() {
         const self = this;
-        $("#dagViewTableArea").on("mousedown.keepInputFocused", ".xcTable .header, " +
+        $("#sqlTableArea").on("mousedown.keepInputFocused", ".xcTable .header, " +
                         ".xcTable td.clickable", self._keepInputFocused.bind(self));
 
         $(document).on('click.OpSection', function() {
@@ -703,7 +703,7 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _toggleOpPanelDisplay(isHide: boolean): void {
         const $tableWrap: JQuery = $('.xcTableWrap');
         if (isHide) {
-            $("#dagViewTableArea").off('mousedown.keepInputFocused');
+            $("#sqlTableArea").off('mousedown.keepInputFocused');
             $('body').off('keydown.opPanelListHighlight');
             $tableWrap.removeClass('modalOpen');
         } else {

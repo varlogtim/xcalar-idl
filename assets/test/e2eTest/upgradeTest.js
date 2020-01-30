@@ -690,9 +690,9 @@ module.exports = {
                 .waitForElementVisible("#dagNodeMenu", 1000)
                 .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
                 .mouseButtonClick('left')
-                .waitForElementVisible('#dagViewTableArea .totalRows', 20000);
+                .waitForElementVisible('#sqlTableArea .totalRows', 20000);
 
-            browser.getText('#dagViewTableArea .totalRows', ({value}) => {
+            browser.getText('#sqlTableArea .totalRows', ({value}) => {
                 browser.assert.equal(value, "0");
             });
             // reset the dataset node so we can delete the dataset at cleanup
@@ -863,8 +863,8 @@ module.exports = {
     //             .waitForElementVisible("#dagNodeMenu", 1000)
     //             .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
     //             .mouseButtonClick('left')
-    //             .waitForElementVisible('#dagViewTableArea .totalRows', 20000)
-    //             .getText('#dagViewTableArea .totalRows', ({value}) => {
+    //             .waitForElementVisible('#sqlTableArea .totalRows', 20000)
+    //             .getText('#sqlTableArea .totalRows', ({value}) => {
     //                 browser.assert.equal(value, "0");
     //             });
     //     }

@@ -950,7 +950,7 @@ namespace xcManager {
                 }
             }
 
-            if (!$('#modelingDagPanel').hasClass('active') ||
+            if (!$('#sqlWorkSpacePanel').hasClass('active') ||
                 DagTable.Instance.getTable() == null) {
                 // if not on modelingDagPanel panel, or no tables then we're done
                 return;
@@ -1358,12 +1358,12 @@ namespace xcManager {
     }
 
     function setupNonDataMart(): void {
-        const $dagViewContent = $("#dagViewContent");
-        $("#dataflowMenu").appendTo($dagViewContent);
-        $("#dagView").appendTo($dagViewContent);
-        $("#dagNodeMenu").appendTo($dagViewContent);
-        $("#dagTabView").parent().insertAfter($("#dagView .operatorBar"));
-        $("#dagViewTableArea").prependTo($("#dagView .dataflowMainArea"));
+        // const $dagViewContent = $("#dagViewContent");
+        // $("#dataflowMenu").appendTo($dagViewContent);
+        // $("#dagView").appendTo($dagViewContent);
+        // $("#dagNodeMenu").appendTo($dagViewContent);
+        // $("#dagTabView").parent().insertAfter($("#dagView .operatorBar"));
+        // $("#dagViewTableArea").prependTo($("#dagView .dataflowMainArea"));
 
     }
 

@@ -276,11 +276,11 @@ class TblFunc {
     ): void {
         const moveScrollBar: boolean = !noScrollBar;
         let $allTables: JQuery;
-        const $dagViewTableArea: JQuery = $("#dagViewTableArea");
+        const $sqlTableArea: JQuery = $("#sqlTableArea");
         let dagView = false;
-        if ($dagViewTableArea.is(":visible")) {
+        if ($sqlTableArea.is(":visible")) {
             dagView = true;
-            $allTables = $dagViewTableArea.find(".xcTableWrap:visible");
+            $allTables = $sqlTableArea.find(".xcTableWrap:visible");
         } else {
             $allTables = $('.xcTableWrap:not(".inActive"):visible');
         }
@@ -337,7 +337,7 @@ class TblFunc {
                 scrollLeft = -($targetTable.offset().left -
                                 $container.offset().left);
             } else if (dagView) {
-                scrollLeft = $dagViewTableArea.offset().left -
+                scrollLeft = $sqlTableArea.offset().left -
                 $targetTable.offset().left;
             } else {
                 scrollLeft = mainMenuOffset - $targetTable.offset().left;
@@ -433,7 +433,7 @@ class TblFunc {
         const $rowInput: JQuery = $("#rowInputArea input");
         const $lastTarget: JQuery = gMouseEvents.getLastMouseDownTarget();
         const isInFrame: boolean = !$lastTarget.context ||
-                            ($lastTarget.closest("#dagViewTableArea").length > 0 &&
+                            ($lastTarget.closest("#sqlTbleArea").length > 0 &&
                             !$lastTarget.is("input"));
 
         if (isInFrame && TblManager.isTableInScreen(tableId)) {

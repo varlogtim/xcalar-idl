@@ -58,8 +58,8 @@ class XcTableViewer extends XcViewer {
         })
         .then(() => {
             this._afterBuild();
-            this._renderSkew($container);
-            this._renderRowInput($container);
+            this._renderSkew($container.parent());
+            this._renderRowInput($container.parent());
         })
         .then(deferred.resolve)
         .fail(deferred.reject);

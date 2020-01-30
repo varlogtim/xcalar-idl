@@ -300,9 +300,9 @@ function replay(testConfig, tags) {
                     .waitForElementVisible("#dagNodeMenu", 1000)
                     .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
                     .mouseButtonClick('left')
-                    .waitForElementVisible('#dagViewTableArea .totalRows', 20000)
+                    .waitForElementVisible('#sqlTableArea .totalRows', 20000)
 		    .pause(1000)
-                    .getText('#dagViewTableArea .totalRows', ({value}) => {
+                    .getText('#sqlTableArea .totalRows', ({value}) => {
                         browser.assert.equal(value, "0");
                     });
             }

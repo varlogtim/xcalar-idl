@@ -242,9 +242,6 @@ class MenuHelper {
 
         let classes: string = options.classes;
         if (classes != null) {
-            if (gTables[tableId] && gTables[tableId].modelingMode) {
-                classes += " mode-modeling";
-            }
             const showingHotKeys: boolean = $menu.hasClass("showingHotKeys");
             const className: string = classes.replace("header", "");
             $menu.attr("class", "menu " + className);

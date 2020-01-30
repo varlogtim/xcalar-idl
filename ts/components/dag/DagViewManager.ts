@@ -178,7 +178,7 @@ class DagViewManager {
                 return;
             }
             if (FormHelper.activeForm ||
-                !$('#modelingDagPanel').hasClass('active') ||
+                !$('#sqlWorkSpacePanel').hasClass('active') ||
                 $('#container').hasClass('columnPicker') ||
                 $('.modalContainer:not(#aboutModal):visible').length ||
                 $('textarea:focus').length ||
@@ -493,7 +493,7 @@ class DagViewManager {
 
     public toggleSqlPreview(sqlPreview: boolean) {
         if (!sqlPreview && !XVM.isDataMart()) {
-            MainMenu.openPanel("dagPanel");
+            MainMenu.openPanel("sqlPanel");
         }
         this.isSqlPreview = sqlPreview;
         if (this.isSqlPreview) {

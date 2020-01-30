@@ -10,7 +10,7 @@ describe("GroupByOpPanel Test", function() {
     var openOptions = {};
 
     before(function() {
-        MainMenu.openPanel("dagPanel");
+        MainMenu.openPanel("sqlPanel");
         node = new DagNodeGroupBy({});
         let parentNode = new DagNodeGroupBy({});
         parentNode.getLineage = function() {

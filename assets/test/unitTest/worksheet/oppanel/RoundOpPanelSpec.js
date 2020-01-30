@@ -25,7 +25,7 @@ describe('RoundOpPanel Test', () => {
 
         UnitTest.testFinish(() => DagPanel.hasSetup())
         .always(function() {
-            MainMenu.openPanel("dagPanel");
+            MainMenu.openPanel("sqlPanel");
             RoundOpPanel.Instance.show(roundNode, {});
             if ($("#roundOpPanel").find(".advancedEditor").is(":visible")) {
                 $("#roundOpPanel .bottomSection .xc-switch").click();

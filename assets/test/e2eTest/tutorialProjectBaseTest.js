@@ -113,7 +113,7 @@ function replay(testConfig, tags) {
                         } else if (resultType === 'table value') {
                             let columnIndex;
                             browser
-                                .waitForElementVisible("#dagViewTableArea table")
+                                .waitForElementVisible("#sqlTableArea table")
                                 .execute(execFunctions.getColumnIndex, [resultValue.column], function(result) {
                                     columnIndex = result.value;
                                     const cellsInResultColumn = "td[contains(@class, 'col" + columnIndex + "')]";

@@ -10,7 +10,7 @@ describe("MapOpPanel Test", function() {
     var openOptions = {};
 
     before(function(done) {
-        MainMenu.openPanel("dagPanel");
+        MainMenu.openPanel("sqlPanel");
         UnitTest.testFinish(() => DagPanel.hasSetup())
         .always(function() {
             node = new DagNodeMap({});
@@ -563,9 +563,9 @@ describe("MapOpPanel Test", function() {
                                         '<input class="editableHead" value="average_stars">' +
                                     '</div>' +
                                 '</div>');
-                    $("#dagViewTableArea").append($table);
-                    if ($("#dagViewTableArea").hasClass("xc-hidden")) {
-                        $("#dagViewTableArea").removeClass("xc-hidden");
+                    $("#sqlTableArea").append($table);
+                    if ($("#sqlTableArea").hasClass("xc-hidden")) {
+                        $("#sqlTableArea").removeClass("xc-hidden");
                         wasHidden = true;
                     }
                 });
@@ -626,7 +626,7 @@ describe("MapOpPanel Test", function() {
                 after(function() {
                     $table.remove();
                     if (wasHidden) {
-                        $("#dagViewTableArea").addClass("xc-hidden");
+                        $("#sqlTableArea").addClass("xc-hidden");
                     }
                 });
             });

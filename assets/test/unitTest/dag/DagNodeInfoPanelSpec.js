@@ -7,6 +7,7 @@ describe("DagNodeInfoPanel Test", function() {
     let testDagGraph;
     let tabId;
     let test;
+    let cachedUserPref;
 
     before(function(done) {
         if (XVM.isSQLMode()) {
@@ -14,14 +15,22 @@ describe("DagNodeInfoPanel Test", function() {
         }
         test = TestSuite.createTest();
         UnitTest.onMinMode();
-        if (!$("#modelingDataflowTab").hasClass("active")) {
-            $("#dagButton").click();
+        if (!$("#sqlWorkSpacePanel").hasClass("active")) {
+            MainMenu.openPanel("sqlPanel");
         }
-        UnitTest.testFinish(() => {
-            return DagTabManager.Instance._setup;
-        })
+
+        UnitTest.testFinish(() => DagPanel.hasSetup())
         .then(() => {
-            $("#dagView .newTab").click();
+            cachedUserPref = UserSettings.getPref;
+            UserSettings.getPref = function(val) {
+                if (val === "dfAutoExecute" || val === "dfAutoPreview") {
+                    return false;
+                } else {
+                    return cachedUserPref(val);
+                }
+            };
+
+            $("#dagTabView .newTab").click();
             testDagGraph = DagViewManager.Instance.getActiveDag();
             tabId = testDagGraph.getTabId();
             let $mapNode = test.createNode("map");
@@ -34,6 +43,8 @@ describe("DagNodeInfoPanel Test", function() {
 
             DagNodeInfoPanel.Instance.hide();
             $panel = $("#dagNodeInfoPanel");
+
+
             done();
         })
         .fail(() => {
@@ -321,12 +332,13 @@ describe("DagNodeInfoPanel Test", function() {
             $panel.find(".restore .action").click();
             expect(called).to.be.true;
             DS.restoreSourceFromDagNode = cachedFn;
-        })
+        });
     });
 
 
 
     after(function(done) {
+        UserSettings.getPref = cachedUserPref;
         UnitTest.deleteTab(tabId)
         .then(() => {
             UnitTest.offMinMode();

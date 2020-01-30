@@ -98,7 +98,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             var promiseArray = [];
             UserSettings.setPref("dfAutoPreview", false);
             UserSettings.setPref("dfAutoExecute", false);
-            $("#dagButton").click();
+            $("#sqlTab").click();
             $("#dagView .newTab").click();
             testDagGraph = DagViewManager.Instance.getActiveDag();
             for (var i = 0; i < tableNames.length; i++) {
@@ -234,7 +234,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                         return checkConfigure();
                     })
                     .then(function() {
-                        if ($("#dagViewTableArea").hasClass("xc-hidden")) {
+                        if ($("#sqlTableArea").hasClass("xc-hidden")) {
                             return DagViewManager.Instance.viewResult(sqlNode);
                         } else {
                             return PromiseHelper.resolve();
@@ -269,7 +269,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         }
     }
     function checkResult(answerSet, queryName) {
-        var table = "#dagViewTableArea table";
+        var table = "#sqlTableArea table";
         for (var row in answerSet[queryName]) {
             if (row === "numOfRows") {
                 if (answerSet[queryName][row] !==

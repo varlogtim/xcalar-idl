@@ -812,7 +812,7 @@ describe("Ephemeral Constructor Test", function() {
                 '</table>' +
             '</div>';
             $table = $(htmlTable);
-            $("#dagViewTableArea").append($table);
+            $("#sqlTableArea").append($table);
             DagTable.Instance.getView = function() {
                 return $table;
             };

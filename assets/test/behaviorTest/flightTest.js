@@ -121,7 +121,7 @@ window.FlightTest = (function(FlightTest, $) {
         // create dataset node
         function flightTestPart2() {
             console.log("start flightTestPart2", "create dataset node");
-            $("#dagButton").click();
+            $("#sqlTab").click();
             // creat new tab
             $("#tabButton").click();
 
@@ -825,7 +825,7 @@ window.FlightTest = (function(FlightTest, $) {
         test.loadDS(scheduleDS, url, check)
         .then(() => {
             // focus on the multi join tab
-            $("#dagButton").click();
+            $("#sqlTab").click();
             console.log("focus on the multi join tab");
             const $tab = $("#dagTabView .dagTab").filter((_index, el) => {
                 return $(el).find(".name").text() === MultiJoin;
@@ -872,10 +872,10 @@ window.FlightTest = (function(FlightTest, $) {
             console.log("preview multi join result");
             const $node = DagViewManager.Instance.getNode(joinNodeId);
             test.nodeMenuAction($node, "viewResult");
-            return test.checkExists("#dagViewTableArea:visible .xcTableWrap");
+            return test.checkExists("#sqlTableArea:visible .xcTableWrap");
         })
         .then(()  => {
-            test.assert($("#dagViewTableArea .totalRows").text().indexOf("1,953") > -1);
+            test.assert($("#sqlTableArea .totalRows").text().indexOf("1,953") > -1);
             test.pass(deferred, testName, currentTestNumber);
         })
         .fail((error) => {
@@ -942,7 +942,7 @@ window.FlightTest = (function(FlightTest, $) {
 
     function profileTest(deferred, testName, currentTestNumber) {
         console.log("Profile Test");
-        const $table = $("#dagViewTableArea .xcTable");
+        const $table = $("#sqlTableArea .xcTable");
         const $header = $table.find(".flexWrap.flex-mid input[value='Month']");
         $header.parent().parent().find(".flex-right .innerBox").click();
         $("#colMenu .profile").trigger(fakeEvent.mouseup);
@@ -995,7 +995,7 @@ window.FlightTest = (function(FlightTest, $) {
 
     function corrTest(deferred, testName, currentTestNumber) {
         console.log("Correlation Test");
-        $("#dagViewTableArea .tableMenu").click();
+        $("#sqlTableArea .tableMenu").click();
         $("#tableMenu .corrAgg").trigger(fakeEvent.mouseup);
         test.checkExists("#aggModal-corr[data-state='finished']",
                         null, {"asserts": [".aggTableField:contains('-0.4')"]})
@@ -1027,7 +1027,7 @@ window.FlightTest = (function(FlightTest, $) {
             $("#alertActions button:visible").click();
         }
         const $jsonModal = $("#jsonModal");
-        const $activeTable = $("#dagViewTableArea .xcTable");
+        const $activeTable = $("#sqlTableArea .xcTable");
         $activeTable.find('.jsonElement').eq(0).trigger(fakeEvent.mousedown);
         $activeTable.find('.jsonElement').eq(0).trigger(fakeEvent.mousedown);
         $activeTable.find('.jsonElement').eq(1).trigger(fakeEvent.mousedown);

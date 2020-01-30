@@ -15,8 +15,8 @@ class ValidateSQLNode extends EventEmitter {
             .waitForElementVisible("#dagNodeMenu", 1000)
             .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
             .mouseButtonClick('left')
-            .waitForElementVisible('#dagViewTableArea .totalRows', 20000)
-            .getText('#dagViewTableArea .totalRows', ({value}) => {
+            .waitForElementVisible('#sqlTableArea .totalRows', 20000)
+            .getText('#sqlTableArea .totalRows', ({value}) => {
                 self.api.assert.equal(value, "0");
             });
         this.emit('complete');

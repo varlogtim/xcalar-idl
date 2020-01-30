@@ -121,7 +121,7 @@ class FormHelper {
 
     // called everytime the form opens
     public setup(extraOptions: FormHelperOptions): XDPromise<any> {
-        this.$container = $("#dagViewTableArea"); // currently only used for column picker
+        this.$container = $("#sqlTableArea"); // currently only used for column picker
 
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         const self: FormHelper = this;

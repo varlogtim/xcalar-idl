@@ -16,7 +16,7 @@ describe("GeneralOpPanel Test", function() {
         }
         UnitTest.testFinish(() => DagPanel.hasSetup())
         .always(function() {
-            MainMenu.openPanel("dagPanel");
+            MainMenu.openPanel("sqlPanel");
             node = new DagNodeMap({});
             const parentNode = new DagNodeMap({});
             parentNode.getLineage = function() {

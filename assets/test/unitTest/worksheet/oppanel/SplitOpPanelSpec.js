@@ -24,7 +24,7 @@ describe('SplitOpPanel Test', () => {
             getTitle: () => "Node 1"
         };
 
-        MainMenu.openPanel("dagPanel");
+        MainMenu.openPanel("sqlPanel");
         SplitOpPanel.Instance.show(splitNode, {});
         if ($("#splitOpPanel").find(".advancedEditor").is(":visible")) {
             $("#splitOpPanel .bottomSection .xc-switch").click();

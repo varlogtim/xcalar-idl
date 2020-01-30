@@ -110,13 +110,8 @@ namespace MainMenu {
                     return;
                 }
             }
-
-            MainMenu.openPanel("sqlPanel");
-        } else if (XVM.isSQLMode()) {
-            MainMenu.openPanel("sqlPanel");
-        } else {
-            MainMenu.openPanel("dagPanel");
         }
+        MainMenu.openPanel("sqlPanel");
     };
 
     export function openPanel(panelId: string, subTabId?: string, ignoreHistory: boolean = false): boolean {
@@ -318,7 +313,7 @@ namespace MainMenu {
                 $resizableRightPanels.filter(":visible").css("margin-left", rightPanelMargin);
             }
         }
-        if ($("#modelingDagPanel").hasClass("active")) {
+        if ($("#sqlWorkSpacePanel").hasClass("active")) {
             TblFunc.moveFirstColumn();
             DagCategoryBar.Instance.showOrHideArrows();
         }
@@ -575,7 +570,7 @@ namespace MainMenu {
         if ($("#monitor-queries").hasClass("active")) {
             QueryManager.scrollToFocused();
         }
-        if ($("#modelingDagPanel").hasClass("active")) {
+        if ($("#sqlWorkSpacePanel").hasClass("active")) {
             DagCategoryBar.Instance.showOrHideArrows();
         }
     }

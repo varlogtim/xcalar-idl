@@ -20,12 +20,12 @@ describe("DagTable Test", () => {
         }
 
         viewer = new TestViewer("id");
-        $container = $("#dagViewTableArea");
+        $container = $("#sqlTableArea");
     });
 
     it("should get instance", () => {
        const dagTable = DagTable.Instance;
-       expect(dagTable).to.be.an.instanceof(DagTable); 
+       expect(dagTable).to.be.an.instanceof(DagTable);
     });
 
     it("should show the viewer", (done) => {
@@ -62,7 +62,7 @@ describe("DagTable Test", () => {
                 constructor(id) {
                     super(id);
                 }
-    
+
                 render($container) {
                     super.render($container);
                     return PromiseHelper.reject("test error");
@@ -72,10 +72,10 @@ describe("DagTable Test", () => {
                     return "test";
                 }
             }
-    
+
             viewer = new ErrorViewer("id2");
         });
-        
+
         it("should show error", (done) => {
             DagTable.Instance._show(viewer)
             .then(() => {

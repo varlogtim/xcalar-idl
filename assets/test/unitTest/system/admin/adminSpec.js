@@ -427,7 +427,7 @@ describe("Admin Test", function() {
         });
 
         it("admin.showSupport should work", function() {
-            $("#modelingDataflowTab").click();
+            $("#sqlTab").click();
             expect($("#monitor-setup").is(":visible")).to.be.false;
             Admin.showSupport();
             expect($("#monitor-setup").is(":visible")).to.be.true;

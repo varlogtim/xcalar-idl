@@ -111,6 +111,7 @@ describe("DagUDFErrorModal Test", function() {
             }
             DagUDFErrorModal.Instance._genErrorTable();
 
+            console.log(called, called2, called3);
             expect(called && called2 && called3).to.be.true;
 
             DagViewManager.Instance.run = cacheRun;

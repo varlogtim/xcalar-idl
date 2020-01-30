@@ -1,6 +1,6 @@
 class DagTable {
     private static _instance: DagTable;
-    private readonly _container: string = "dagViewTableArea";
+    private readonly _container: string = "sqlTableArea";
     private _searchBar: TableSearchBar;
 
     public static get Instance() {
@@ -142,7 +142,7 @@ class DagTable {
     }
 
     private _close(): void {
-        this._getContainer().addClass("xc-hidden").parent().removeClass("tableViewMode").addClass("noPreviewTable");
+        this._getContainer().addClass("xc-hidden");
         this._reset();
         Log.updateUndoRedoState(); // update the state to skip table related undo/redo
     }
@@ -150,18 +150,19 @@ class DagTable {
     private _showViewer(): XDPromise<XcViewer> {
         const deferred: XDDeferred<XcViewer> = PromiseHelper.deferred();
         const $container: JQuery = this._getContainer();
-        $container.parent().removeClass("noPreviewTable").addClass("tableViewMode");
         $container.removeClass("xc-hidden").addClass("loading");
-        $("#sqlTableArea").addClass('xc-hidden');
 
         const viewer: XcViewer = this._currentViewer;
+        $container.addClass("dagTableMode noBottom");
         if (viewer instanceof XcDatasetViewer) {
             $container.addClass("dataset");
         } else {
             $container.removeClass("dataset");
         }
         this._renderTableNameArea(viewer);
-        viewer.render(this._getContainer())
+
+        const $tableSection: JQuery = $container.find(".tableSection");
+        viewer.render($tableSection)
         .then(() => {
             $container.removeClass("loading");
             TblFunc.alignScrollBar($container.find(".dataTable").eq(0));
@@ -173,7 +174,7 @@ class DagTable {
         });
 
         const promise = deferred.promise();
-        xcUIHelper.showRefreshIcon($container, true, promise);
+        xcUIHelper.showRefreshIcon($tableSection, true, promise);
         return promise;
     }
 
@@ -206,6 +207,7 @@ class DagTable {
         const $container: JQuery = this._getContainer();
         $container.removeClass("loading").removeClass("error");
         $container.find(".errorSection").empty();
+        $container.removeClass("dagTableMode noBottom");
     }
 
     private _resetViewer(isRefresh: boolean = false): void {
@@ -257,7 +259,7 @@ class DagTable {
         const $nameArea: JQuery = this._getTableNameArea();
         $nameArea.removeClass("xc-hidden");
         const type: string = viewer instanceof XcDatasetViewer ?
-        "Dataset" : "Table";
+        "Dataset" : "";
         $nameArea.find(".type").text(type);
         $nameArea.find(".name").text(": " + viewer.getTitle());
     }

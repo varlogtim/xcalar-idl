@@ -15,7 +15,7 @@ describe('ColAssignmentView Test', function() {
 
         UnitTest.testFinish(() => DagPanel.hasSetup())
         .always(function() {
-            MainMenu.openPanel("dagPanel");
+            MainMenu.openPanel("sqlPanel");
             node = new DagNodeMap({subType: "cast"});
             const parentNode = new DagNodeFilter({});
             parentNode.getLineage = function() {

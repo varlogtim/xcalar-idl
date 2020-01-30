@@ -33,7 +33,7 @@ describe('PublishIMDOpPanel Test', () => {
                 return [parentNode];
             };
 
-            MainMenu.openPanel("dagPanel");
+            MainMenu.openPanel("sqlPanel");
             PublishIMDOpPanel.Instance.show(publishNode, {})
             .then(() => {
                 $panel = $("#publishIMDOpPanel");

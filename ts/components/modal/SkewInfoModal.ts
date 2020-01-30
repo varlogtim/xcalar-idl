@@ -67,7 +67,7 @@ class SkewInfoModal {
             skewColor = this._instanceOptions.tableInfo.skewColor;
         } else {
             const table: TableMeta = this._activeTable;
-            const $skew: JQuery = $("#dagViewTableArea .skewInfoArea .text");
+            const $skew: JQuery = $("#sqlTableArea .skewInfoArea .text");
             size = table.getSize();
             totalRows = table.resultSetCount;
             skewValue = $skew.text();

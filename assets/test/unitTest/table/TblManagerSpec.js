@@ -682,9 +682,9 @@ describe("TableManager Test", function() {
 
             it("Should open tableMenu", function() {
                 var $menu = $("#tableMenu");
-                $("#dagViewTableArea .tableMenu").click();
+                $("#sqlTableArea .tableMenu").click();
                 assert.isTrue($menu.is(":visible"));
-                $("#dagViewTableArea .tableMenu").click();
+                $("#sqlTableArea .tableMenu").click();
                 assert.isFalse($menu.is(":visible"));
             });
         });
@@ -751,7 +751,7 @@ describe("TableManager Test", function() {
                 var dropboxClickHandler = TblManager.__testOnly__.dropboxClickHandler;
                 dropboxClickHandler($dropdown, $table, tableId, true)
                 assert.isTrue(opened);
-                $("#dagViewTableArea").mousedown();
+                $("#sqlTableArea").mousedown();
                 MenuHelper.dropdownOpen = oldOpen;
 
             });
@@ -773,7 +773,7 @@ describe("TableManager Test", function() {
                 // .eq(0) is empty
                 $thead.find(".header").eq(1).contextmenu();
                 assert.isTrue($menu.is(":visible"));
-                $("#dagViewTableArea").mousedown();
+                $("#sqlTableArea").mousedown();
                 assert.isFalse($menu.is(":visible"));
             });
 
@@ -846,7 +846,7 @@ describe("TableManager Test", function() {
                 assert.isFalse($menu.is(":visible"));
                 $td.trigger(fakeEvent.mousedown);
                 assert.isTrue($menu.is(":visible"));
-                $("#dagViewTableArea").mousedown();
+                $("#sqlTableArea").mousedown();
                 assert.isFalse($menu.is(":visible"));
 
                 var e = jQuery.Event("mousedown", {
@@ -855,14 +855,14 @@ describe("TableManager Test", function() {
                 });
                 $td.trigger(e);
                 assert.isTrue($menu.is(":visible"));
-                $("#dagViewTableArea").mousedown();
+                $("#sqlTableArea").mousedown();
                 assert.isFalse($menu.is(":visible"));
 
                 // click on jsonElement should work
                 $td = $tbody.find("td.jsonElement").eq(0);
                 $td.trigger(fakeEvent.mousedown);
                 assert.isTrue($menu.is(":visible"));
-                $("#dagViewTableArea").mousedown();
+                $("#sqlTableArea").mousedown();
                 assert.isFalse($menu.is(":visible"));
             });
 
@@ -874,7 +874,7 @@ describe("TableManager Test", function() {
 
                 $tbody.trigger(e);
                 assert.isTrue($menu.is(":visible"));
-                $("#dagViewTableArea").mousedown();
+                $("#sqlTableArea").mousedown();
                 assert.isFalse($menu.is(":visible"));
             });
 
@@ -892,7 +892,7 @@ describe("TableManager Test", function() {
 
                 $tbody.trigger(e);
                 assert.isTrue($menu.is(":visible"));
-                $("#dagViewTableArea").mousedown();
+                $("#sqlTableArea").mousedown();
                 assert.isFalse($menu.is(":visible"));
             });
 

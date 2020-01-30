@@ -2385,9 +2385,6 @@ class TblManager {
                 singleSelection();
             }
 
-            if ($el.closest("#dagViewTableArea").length) {
-                extraClasses += " mode-modeling"
-            }
             if ($table.hasClass("noOperation")) {
                 extraClasses += " noOperation";
             }
@@ -2498,8 +2495,7 @@ class TblManager {
                     TblManager.unHighlightCells();
                     TblManager.highlightCell($td, tableId, rowNum, colNum);
                 }
-                let extraClasses = $div.closest("#dagViewTableArea").length ?
-                " mode-modeling" : "";
+                let extraClasses = "";
                 if ($table.hasClass("noOperation")) {
                     extraClasses += " noOperation"
                 }

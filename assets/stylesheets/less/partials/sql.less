@@ -807,10 +807,33 @@
         }
     }
 
+
+    &.dagTableMode {
+
+        .bottomSection {
+            display: none;
+        }
+
+        .topSection {
+            .menuArea {
+                display: block;
+            }
+            .close {
+                display: block;
+            }
+        }
+        .mainSection {
+            height: calc(100%);
+        }
+    }
+
     .tableSection {
         position: relative;
         .viewWrap {
             height: 100%;
+        }
+        .jsonCover {
+            display: none;
         }
     }
 
@@ -829,16 +852,17 @@
                 top: 2px;
             }
         }
+
+        .menuArea, .close {
+            display: none;
+        }
+
     }
 
     .bottomSection {
         .btn-create, .btn-export {
             width: 170px;
         }
-    }
-
-    .idSpan, .rowNumHead .header {
-        left: 0px !important;
     }
 }
 

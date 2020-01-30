@@ -17,7 +17,7 @@ describe('Sort Op Panel Test', function() {
 
         UnitTest.testFinish(() => DagPanel.hasSetup())
         .always(function() {
-            MainMenu.openPanel("dagPanel");
+            MainMenu.openPanel("sqlPanel");
             node = new DagNodeSort({});
             const parentNode = new DagNodeMap({});
             parentNode.getLineage = function() {
@@ -166,9 +166,9 @@ describe('Sort Op Panel Test', function() {
                                 '<input class="editableHead" value="average_stars">' +
                             '</div>' +
                         '</div>');
-            $("#dagViewTableArea").append($table);
-            if ($("#dagViewTableArea").hasClass("xc-hidden")) {
-                $("#dagViewTableArea").removeClass("xc-hidden");
+            $("#sqlTableArea").append($table);
+            if ($("#sqlTableArea").hasClass("xc-hidden")) {
+                $("#sqlTableArea").removeClass("xc-hidden");
                 wasHidden = true;
             }
 
@@ -242,7 +242,7 @@ describe('Sort Op Panel Test', function() {
             $table.remove();
             SortOpPanel.Instance.close();
             if (wasHidden) {
-                $("#dagViewTableArea").addClass("xc-hidden");
+                $("#sqlTableArea").addClass("xc-hidden");
             }
         });
     });

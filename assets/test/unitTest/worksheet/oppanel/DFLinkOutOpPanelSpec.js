@@ -11,7 +11,7 @@ describe("DFLinkOutOpPanel Test", function() {
             return XDFManager.Instance.waitForSetup();
         })
         .always(function() {
-            MainMenu.openPanel("dagPanel");
+            MainMenu.openPanel("sqlPanel");
             node = new DagNodeDFOut({subType: DagNodeSubType.DFOutOptimized});
             const parentNode = new DagNodeFilter({});
             parentNode.getLineage = function() {

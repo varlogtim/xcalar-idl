@@ -472,7 +472,7 @@ class ModalHelper {
     ): void {
         const $modalBg: JQuery = $("#modalBackground");
         let $tableWrap: JQuery;
-        let $tableContainer: JQuery = $("#dagViewTableArea .viewWrap");
+        let $tableContainer: JQuery = $("#sqlTbleArea .viewWrap");
 
         if (tableId === "all") {
             $tableWrap = $('.xcTableWrap:visible');
