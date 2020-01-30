@@ -1591,7 +1591,7 @@ class DagGraphExecutor {
     private _getDagNodeIdFromQueryInfo(queryNodeInfo: XcalarApiDagNodeT): DagNodeId {
         let nodeCandidates: DagTagInfo[] = [];
         try {
-            nodeCandidates = JSON.parse(queryNodeInfo.comment).nodes || [];
+            nodeCandidates = JSON.parse(queryNodeInfo.comment).graph_node_locator || [];
             let nodeId: DagNodeId;
             for (let i = 0; i < nodeCandidates.length; i++) {
                 nodeId = nodeCandidates[i].nodeId;

@@ -2890,7 +2890,7 @@ namespace xcHelper {
         if (query.operation === XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
             return query;
         }
-        let queryComment = {nodes: []};
+        let queryComment = {graph_node_locator: []};
         try {
             if (query.comment) {
                 queryComment = JSON.parse(query.comment);
@@ -2901,13 +2901,13 @@ namespace xcHelper {
 
         try {
             query = {...query}; // deep copy
-            let curNodeInfos = queryComment.nodes || [];
+            let curNodeInfos = queryComment.graph_node_locator || [];
             let finalNodeInfos = [
                 ...parentNodeInfos,
                 curentNodeInfo,
                 ...curNodeInfos
             ];
-            queryComment.nodes = finalNodeInfos;
+            queryComment.graph_node_locator = finalNodeInfos;
             query.comment = JSON.stringify(queryComment);
         } catch (e) {
             console.error(e);

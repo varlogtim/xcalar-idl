@@ -2229,7 +2229,7 @@ describe("xcHelper Test", function() {
             // arrange
             const query = {
                 operation: "filter",
-                comment: JSON.stringify({nodes: []})
+                comment: JSON.stringify({graph_node_locator: []})
             };
             // act
             const res = xcHelper.addNodeLineageToQueryComment(query, null, null);
@@ -2241,7 +2241,7 @@ describe("xcHelper Test", function() {
             // arrange
             const query = {
                 operation: "filter",
-                comment: JSON.stringify({nodes: [{nodeId: "c2", tabId: "tabC2"}]})
+                comment: JSON.stringify({graph_node_locator: [{nodeId: "c2", tabId: "tabC2"}]})
             };
 
             const parentNodeInfos = [{nodeId: "a2", tabId: "tabA2"}];
@@ -2251,7 +2251,7 @@ describe("xcHelper Test", function() {
             // assert
             expect(res).to.deep.equal({
                 operation: "filter",
-                comment: JSON.stringify({nodes: [
+                comment: JSON.stringify({graph_node_locator: [
                     {nodeId: "a2", tabId: "tabA2"},
                     {nodeId: "b2", tabId: "tabB2"},
                     {nodeId: "c2", tabId: "tabC2"}

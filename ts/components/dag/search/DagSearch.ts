@@ -125,8 +125,9 @@ class DagSearch {
 
     private _getAdvanceOptionHTML(option: DagSearchBasicOption): HTML {
         const {key, checked} = option;
+        const keyClassName = key.split(" ").join("_");
         const html =
-            '<div class="checkboxSection cell ' + key + '">' +
+            '<div class="checkboxSection cell ' + keyClassName + '">' +
                 '<div class="checkbox' + (checked ? " checked" : "") +
                 '">' +
                     '<i class="icon xi-ckbox-empty"></i>' +
@@ -362,6 +363,7 @@ class DagSearch {
                     return ($node) => $node;
                 }
                 return null;
+            }
         }, {
             key: "Aggregates",
             default: false,
@@ -372,6 +374,16 @@ class DagSearch {
                     if (aggragate.toLowerCase().includes(keyword)) {
                         return ($node) => $node;
                     }
+                }
+                return null;
+            }
+        }, {
+            key: "Graph Node ID",
+            default: false,
+            checked: false,
+            selector: (keyword: string, node: DagNode) => {
+                if (node.getId().toLowerCase().includes(keyword)) {
+                    return ($node) => $node;
                 }
                 return null;
             }
