@@ -1600,21 +1600,6 @@ describe("DagView Test", () => {
             let cache2 = DagViewManager.Instance.autoAddNode;
             DagViewManager.Instance.autoAddNode = (type, a, b, c, x, y) => {
                 count++;
-                if (count === 1) {
-                    expect(type).to.equal(DagNodeType.SQLFuncIn);
-                    expect(x).to.equal(40);
-                    expect(y).to.equal(140);
-                }
-                if (count === 2) {
-                    expect(type).to.equal(DagNodeType.SQLFuncIn);
-                    expect(x).to.equal(40);
-                    expect(y).to.equal(220);
-                }
-                if (count === 3) {
-                    expect(type).to.equal(DagNodeType.SQLFuncOut);
-                    expect(x).to.equal(840);
-                    expect(y).to.equal(180);
-                }
             }
             DagView.newSQLFunc(null, 2);
             expect(count).to.equal(3);

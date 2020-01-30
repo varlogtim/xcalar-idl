@@ -444,7 +444,7 @@ module.exports = {
 
     "SQL": {
         "WorkSpace": "SQL WorkSpace",
-        "Editor": "SQL Playground",
+        "Editor": "SQL",
         "Schema": "Tables and Schemas available to SQL",
         "SchemaInst": "Select and click a table to view columns.",
         "ColumnInst": "Select and click a table in order to view and select columns.",
@@ -867,6 +867,7 @@ module.exports = {
     },
 
     "dataflow": {
+        "Title": "Module Builder",
         "PublishDF": "Publish Module",
         "PublishDFInstr": "Published module is viewable/configurable/executable by other users, but any other changes are not allowed on the published module.",
         "ShareDS": "Share datasets used in the module",

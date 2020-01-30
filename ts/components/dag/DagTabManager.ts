@@ -905,7 +905,7 @@ class DagTabManager {
             }
         } else if (dagTab instanceof DagTabSQLFunc) {
             extraClass += " sqlFunc";
-            extraIcon = '<i class="icon xi-menu-cli tabIcon"></i>';
+            extraIcon = '<i class="icon xi-SQLfunction tabIcon"></i>';
         } else if (dagTab instanceof DagTabCustom) {
             extraClass += " custom";
         } else if (dagTab instanceof DagTabPublished) {

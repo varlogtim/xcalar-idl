@@ -51,6 +51,19 @@ class DagCategories {
             hiddenCategory.add(new DagCategoryNodeIn(DagNodeFactory.create({
                 type: DagNodeType.DFIn
             })));
+        } else if (XVM.isDataMart()) {
+            hiddenCategory.add(new DagCategoryNodeIn(DagNodeFactory.create({
+                type: DagNodeType.Dataset
+            })));
+
+            inCategory = new DagCategory(DagCategoryType.In, [
+                new DagCategoryNodeIn(DagNodeFactory.create({
+                    type: DagNodeType.IMDTable
+                })),
+                new DagCategoryNodeIn(DagNodeFactory.create({
+                    type: DagNodeType.DFIn
+                })),
+            ]);
         } else {
             inCategory = new DagCategory(DagCategoryType.In, [
                 new DagCategoryNodeIn(DagNodeFactory.create({
@@ -197,11 +210,11 @@ class DagCategories {
             })),
         ]);
 
-        const extensionCategory = new DagCategory(DagCategoryType.Extensions, [
-            new DagCategoryNodeExtensions(DagNodeFactory.create({
-                type: DagNodeType.Extension
-            }))
-        ]);
+        // const extensionCategory = new DagCategory(DagCategoryType.Extensions, [
+        //     new DagCategoryNodeExtensions(DagNodeFactory.create({
+        //         type: DagNodeType.Extension
+        //     }))
+        // ]);
 
         // Default operators(not in the kvstore)
         const customCategory = new DagCategoryCustom([
@@ -228,7 +241,7 @@ class DagCategories {
             joinCategory,
             setCategory,
             aggregatesCategory,
-            extensionCategory,
+            // extensionCategory,
             customCategory,
             hiddenCategory
         ];

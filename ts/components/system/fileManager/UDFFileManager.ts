@@ -68,7 +68,7 @@ class UDFFileManager extends BaseFileManager {
             ? displayPath.split("/").pop()
             : displayPath;
         UDFPanel.Instance.edit(displayPath);
-        UDFPanel.Instance.openEditor();
+        UDFPanel.Instance.openEditor(false);
     }
 
     /**

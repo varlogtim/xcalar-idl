@@ -1064,14 +1064,14 @@ class MapOpPanel extends GeneralOpPanel {
 
     private _createNewUDF(): void {
         UDFPanel.Instance.edit("New Module");
-        UDFPanel.Instance.openEditor();
+        UDFPanel.Instance.openEditor(false);
         setTimeout(() => {
             UDFPanel.Instance.focusBlankUDF();
         }, 500);
     }
     // opens udf panel and selects a module
     private _openUDFPanel(moduleName: string) {
-        UDFPanel.Instance.openEditor();
+        UDFPanel.Instance.openEditor(false);
         UDFPanel.Instance.selectUDFPath(moduleName);
     }
 }

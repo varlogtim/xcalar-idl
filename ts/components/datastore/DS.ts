@@ -5,7 +5,7 @@ namespace DS {
     let homeDirId: string; // DSObjTerm.homeDirId
 
     let curDirId: string;       // current folder id
-    let dsLookUpTable: {[key: string]: DSObj};  // find DSObj by dsId
+    let dsLookUpTable: {[key: string]: DSObj} = {};  // find DSObj by dsId
     let homeFolder;
     let dsInfoMeta: SharedDSInfo;
     let errorDSSet = {}; // UI cache only

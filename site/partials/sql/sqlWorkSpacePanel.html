@@ -39,14 +39,6 @@
     </div>
     <section class="rightSection">
       <div class="resultSection topPart">
-        <div class="tabSection">
-          <div class="tab" data-tab="query"><%= dicts.SQL.SaveQueryTab %></div>
-          <!-- <div class="tab" data-tab="table"><%= dicts.SQL.TableTab %></div>
-          <div class="tab" data-tab="udf"><%= dicts.SQL.UDFTab %></div>
-          <div class="tab" data-tab="sqlFunc"><%= dicts.SQL.SQLFuncTab %></div> -->
-          <div class="tab" data-tab="result"><%= dicts.SQL.ResultTab %></div>
-          <div class="tab" data-tab="history"><%= dicts.SQL.HistoryTab %></div>
-        </div>
         <div class="contentSection">
           <div class="section query">
             <div class="lister noBottom noTop">
@@ -68,8 +60,8 @@
             include "sqlDataflowArea.html"
             <!-- include "../worksheet/dagViewTableArea.html" -->
             <div class="hintArea">
-              <b>No query results</b>
-              <div class="hint">Run a query or select a query result from the SQL history to get started</div>
+              <b>No results</b>
+              <div class="hint">Run a SQL query to get started, add/modify the opeatrots in module builder to build advanced data app</div>
             </div>
           </div>
           <div class="section history">
@@ -86,6 +78,24 @@
         </div>
         <div class="tabBar">
           include "../worksheet/tabView.html"
+          <div id="tabViewSwitcher" class="actions">
+            <button class="btn btn-small showSQL active" 
+            data-toggle="tooltip"
+            data-placement="top"
+            data-container="body"
+            data-original-title="Show/hide SQL Editor"
+            >
+              <i class="icon xi-SQLworkspace"></i>
+            </button>
+            <button class="btn btn-small showDataflow active" 
+            data-toggle="tooltip"
+            data-placement="top"
+            data-container="body"
+            data-original-title="Show/hide Business & Transformation Logic Builder"
+            >
+              <i class="icon xi-edit-dataflow-2"></i>
+            </button>
+          </div>
         </div>
         include "sqlEditorSpace.html"
         <div class="bottomRightPart">

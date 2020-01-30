@@ -58,15 +58,19 @@ class UDFPanel {
     }
 
     /**
+     * UDFPanel.Instance.openEditor
      * open UDF editor
      */
-    public openEditor(): void {
+    public openEditor(sqlMode: boolean): void {
+        // need to open first then swtich the mode, because
+        // the open code in BottomMenu will turn off the sql mode
         if (
             !$("#bottomMenu").hasClass("open") ||
             !$("#udfSection").hasClass("active")
         ) {
             $("#udfTab").trigger("click");
         }
+        UDFPanel.Instance.switchMode(sqlMode);
     }
 
     /**
@@ -188,12 +192,15 @@ class UDFPanel {
      * UDFPanel.Instance.switchMode
      * update mode of udf section
      */
-    public switchMode(): void {
+    public switchMode(sqlMode: boolean): void {
+        // XXX TODO: deprecate it
+        if (!XVM.isDataMart()) {
+            sqlMode = XVM.isSQLMode() &&
+            $("#sqlWorkSpacePanel").hasClass("active");
+        }
         const $udfSection: JQuery = this._getUDFSection();
         const $topSection: JQuery = $("#udf-fnSection .topSection");
-        if (DataSourceManager.isCreateTableMode() &&
-            $("#sqlWorkSpacePanel").hasClass("active")
-        ) {
+        if (sqlMode) {
             // switch to sql mode, only show sql.py
             $udfSection.addClass("sqlMode");
             $topSection.find(".refreshUdf").addClass("xc-hidden");

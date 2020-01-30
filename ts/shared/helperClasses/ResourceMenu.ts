@@ -351,19 +351,6 @@ class ResourceMenu {
         }
     }
 
-    private async _tableFuncQuery(name: string): Promise<void> {
-        try {
-            const numInput = await DagTabSQLFunc.getFuncInputNum(name);
-            const inputSignature = new Array(numInput).fill(null)
-            .map((_v, i) => `Input${i + 1}`).join(", ");
-            const sql: string = `select * from ${name}(${inputSignature});`;
-            SQLWorkSpace.Instance.newSQL(sql);
-        } catch (e) {
-            console.error(e);
-            Alert.error(ErrTStr.Error, "Error occurred when compose query from table function.");
-        }
-    }
-
     private _udfQuery(name: string): void {
         try {
             const fn = UDFFileManager.Instance.listSQLUDFFuncs().find((fn) => fn.name === name);
@@ -443,7 +430,7 @@ class ResourceMenu {
 
         $menu.on("click", ".tableFuncQuery", () => {
             const name: string = $menu.data("name");
-            this._tableFuncQuery(name);
+            SQLWorkSpace.Instance.tableFuncQuery(name);
         });
 
         $menu.on("click", ".udfQuery", () => {
@@ -465,11 +452,20 @@ class ResourceMenu {
             DataSourceManager.startImport(true);
         });
 
+        $container.on("click", ".addUDF", (event) => {
+            event.stopPropagation();
+            UDFPanel.Instance.openEditor(false);
+        });
+
+        $container.on("click", ".addDFModule", (event) => {
+            event.stopPropagation();
+            DagTabManager.Instance.newTab();
+        });
+
         $container.on("click", ".addTableFunc", (event) => {
             event.stopPropagation();
             DagViewManager.Instance.createSQLFunc(true);
         });
-
 
         $container.on("click", ".tableList .table", (event) => {
             const $li = $(event.currentTarget);

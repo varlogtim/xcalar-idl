@@ -20,8 +20,11 @@
       </div>
       <div class="list">
         <ul>
-          <li data-action="download"><%= dicts.fileManager.Download %></li>
+          <li data-action="savedQueries"><%= dicts.SQLEditor.Snippets %></li>
+          <li data-action="history"><%= dicts.SQL.HistoryTab %></li>
           <li data-action="showTables"><%= dicts.Table.Show %></li>
+          <li data-action="addUDF"><%= dicts.resouceMenu.AddUDF %></li>
+          <li data-action="download"><%= dicts.fileManager.Download %></li>
           include "../../util/menuScrollArea.html"
         </ul>
       </div>

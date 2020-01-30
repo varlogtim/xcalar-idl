@@ -28,7 +28,7 @@ describe("DagCategoryBar Test", function() {
     });
 
     it("should have correct categories", function() {
-        expect($categories.length).to.equal(11);
+        expect($categories.length).to.equal(10);
         expect($categories.eq(0).text().trim()).to.equal("In");
         expect($categories.eq(1).text().trim()).to.equal("Out");
         expect($categories.eq(2).text().trim()).to.equal("SQL");
@@ -37,11 +37,11 @@ describe("DagCategoryBar Test", function() {
         expect($categories.eq(5).text().trim()).to.equal("Join");
         expect($categories.eq(6).text().trim()).to.equal("Set");
         expect($categories.eq(7).text().trim()).to.equal("Aggregates");
-        expect($categories.eq(8).text().trim()).to.equal("Extensions");
-        expect($categories.eq(9).text().trim()).to.equal("Custom");
-        expect($categories.eq(10).text().trim()).to.equal("Hidden");
-        expect($("#dagView .categories").find(".category:visible").length).to.equal(10);
-        expect($categories.eq(10).is(":visible")).to.be.false;
+        // expect($categories.eq(8).text().trim()).to.equal("Extensions");
+        expect($categories.eq(8).text().trim()).to.equal("Custom");
+        expect($categories.eq(9).text().trim()).to.equal("Hidden");
+        expect($("#dagView .categories").find(".category:visible").length).to.equal(9);
+        expect($categories.eq(9).is(":visible")).to.be.false;
     });
 
     it("should update categories", function() {
@@ -215,7 +215,7 @@ describe("DagCategoryBar Test", function() {
             expect($("#dagView .categoryBar .category").eq(0).hasClass("category-custom")).to.be.true
             expect($("#dagView .categoryBar .category").eq(1).hasClass("category-hidden")).to.be.true
             expect($("#dagView .categoryBar .category").eq(2).hasClass("category-in")).to.be.true
-            expect($("#dagView .categoryBar .category").last().hasClass("category-extensions")).to.be.true;
+            // expect($("#dagView .categoryBar .category").last().hasClass("category-extensions")).to.be.true;
         });
         it("should scroll right", function() {
             $("#dagView").find(".categoryScroll .arrow.right").trigger(fakeEvent.mouseup);

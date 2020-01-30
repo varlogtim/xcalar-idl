@@ -4,7 +4,7 @@ class SQLResultQueryLister extends AbstractSQLResultLister{
     }
 
     protected async _getList(): Promise<string[]> {
-        const snippets = SQLSnippet.Instance.listSnippets();
+        let snippets = await SQLSnippet.Instance.listSnippetsAsync();
         return snippets.map((snippet) => snippet.name);
     }
 
@@ -30,8 +30,11 @@ class SQLResultQueryLister extends AbstractSQLResultLister{
 
     protected _registerEvents(): void {
         this
-        .on("open", ({ name }) => {
-            SQLEditorSpace.Instance.openSnippet(name);
+        .on("open", ({ name, $target }) => {
+            const succeed = SQLEditorSpace.Instance.openSnippet(name);
+            if (!succeed) {
+                StatusBox.show(SQLTStr.ReadOnly, $target);
+            }
         })
         .on("download", ({ name }) => {
             SQLSnippet.Instance.downloadSnippet(name);

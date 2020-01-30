@@ -4,7 +4,6 @@
   </div>
   <div class="iconSection">
     <i class="refreshBtn icon xi-refresh" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Refresh %>"></i>
-    <i class="uploadBtn icon xi-upload" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.dataflow.uploadHeader %>"></i>
   </div>
 </div>
 <div id="dagListSection" class="mainSection xc-resourceMenu">
@@ -15,9 +14,13 @@
         <i class="icon xi-down fa-13"></i>
       </span>
       <span class="text"><%= dicts.resouceMenu.Tables %></span>
-      <span class="action addTable xc-action">
+      <span class="action addTable xc-action" 
+      data-toggle="tooltip"
+      data-placement="top"
+      data-container="body"
+      data-original-title="<%= dicts.resouceMenu.AddTable %>"
+      >
         <i class="icon xi-plus"></i>
-        <span><%= dicts.resouceMenu.AddTable %></span>
       </span>
     </div>
     <ul></ul>
@@ -29,9 +32,18 @@
         <i class="icon xi-down fa-13"></i>
       </span>
       <span class="text"><%= dicts.resouceMenu.Modules %></span>
-      <span class="action addDFModule xc-action">
+      <span class="action uploadBtn xc-action" 
+      data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.dataflow.uploadHeader %>"
+      >
+        <i class="icon xi-upload"></i>
+      </span>
+      <span class="action addDFModule xc-action" 
+      data-toggle="tooltip"
+      data-placement="top"
+      data-container="body"
+      data-original-title="<%= dicts.resouceMenu.AddModule %>"
+      >
         <i class="icon xi-plus"></i>
-        <span><%= dicts.resouceMenu.AddModule %></span>
       </span>
     </div>
     <ul></ul>
@@ -43,9 +55,13 @@
         <i class="icon xi-down fa-13"></i>
       </span>
       <span class="text"><%= dicts.resouceMenu.TableFuncs %></span>
-      <span class="action addTableFunc xc-action">
+      <span class="action addTableFunc xc-action" 
+      data-toggle="tooltip"
+      data-placement="top"
+      data-container="body"
+      data-original-title="<%= dicts.resouceMenu.AddTableFunc %>"
+      >
         <i class="icon xi-plus"></i>
-        <span><%= dicts.resouceMenu.AddTableFunc %></span>
       </span>
     </div>
     <ul></ul>
@@ -57,9 +73,13 @@
         <i class="icon xi-down fa-13"></i>
       </span>
       <span class="text"><%= dicts.resouceMenu.UDFs %></span>
-      <span class="action addUDF xc-action">
+      <span class="action addUDF xc-action" 
+      data-toggle="tooltip"
+      data-placement="top"
+      data-container="body"
+      data-original-title="<%= dicts.resouceMenu.AddUDF %>"
+      >
         <i class="icon xi-plus"></i>
-        <span><%= dicts.resouceMenu.AddUDF %></span>
       </span>
     </div>
     <ul></ul>

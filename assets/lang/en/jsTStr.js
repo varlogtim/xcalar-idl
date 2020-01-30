@@ -1599,7 +1599,9 @@ SQLTStr = {
     "SavedQueries": "Saved Queries",
     "OpenQuery": "Open query",
     "OpenQueryMsg": "You will lose any unsaved changes to open this query. Click Cancel if you want to save your current query?",
-    "DebugPlan": "Debug Plan"
+    "DebugPlan": "Debug Plan",
+    "ReadOnly": "Current module doesn't support the use of SQL Editor",
+    "SnippetHint": "Run a SQL query to get started, add/modify the opeatrots in module builder to build advanced data app."
 };
 
 LoginConfigTStr = {

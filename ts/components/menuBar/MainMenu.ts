@@ -27,7 +27,7 @@ namespace MainMenu {
 
     export const tabToPanelTitleMap = {
         dataStoresTab: "Source & Load Data",
-        sqlTab: "Query",
+        sqlTab: "Workspace",
         modelingDataflowTab: "Business & Transformation Logic",
         jupyterTab: "Jupyter Notebook",
         monitorTab: "System",
@@ -201,7 +201,7 @@ namespace MainMenu {
 
             panelSwitchingHandler($curTab, lastTabId);
             xcUIHelper.hideSuccessBox();
-            UDFPanel.Instance.switchMode();
+            UDFPanel.Instance.switchMode(false);
 
             if (addToHistory) {
                 let tabId: string ;

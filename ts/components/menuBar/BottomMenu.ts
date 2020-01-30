@@ -284,7 +284,7 @@ namespace BottomMenu {
         const sectionId: string = $section.attr("id");
         if (sectionId ==="udfSection") {
             $("#udfButtonWrap").removeClass("xc-hidden");
-            UDFPanel.Instance.switchMode();
+            UDFPanel.Instance.switchMode(false);
         } else {
             $("#udfButtonWrap").addClass("xc-hidden");
         }

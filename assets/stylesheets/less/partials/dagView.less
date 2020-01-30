@@ -50,7 +50,7 @@
 
     .categoryBar {
         @icon-height: 22px;
-        @search-width: 150px;
+        @search-width: 135px;
 
         .size(@min-height: @category-height, @max-height: @category-height);
         background-color: @color-bg-topBarGray2;
@@ -66,6 +66,14 @@
             .categoryScroll {
                .flex-display;
             }
+        }
+
+        > .label {
+            margin-left: 8px;
+            font-size: 13px;
+            line-height: 36px;
+            font-weight: bold;
+            flex: 0 0 100px;
         }
 
         .searchArea {
@@ -1207,6 +1215,19 @@
         }
     }
 
+    &.sqlFunc {
+        .useInSQL {
+            display: block;
+        }
+    }
+
+    .useInSQL {
+        display: none;
+        width: 85px;
+        position: relative;
+        top: 4px;
+    }
+
     .topButtons {
         float: right;
         .flex-display;
@@ -1365,7 +1386,7 @@
         background-color: @color-border-bar;
     }
 
-   .btn {
+   .btn:not(.useInSQL) {
         background-color: transparent;
         color: @color-border-bar;
         padding: 0px 8px;
@@ -2101,14 +2122,13 @@
         }
 
         &.open {
-            background-color: @color-bg-dropdown-hover-gray;
-
             .gridIcon {
-                color: @color-font-link-blue;
+                color: @color-hover-blue;
             }
 
             .name {
-                font-weight: 600;
+                color: @color-hover-blue;
+                font-weight: 700;
             }
         }
 

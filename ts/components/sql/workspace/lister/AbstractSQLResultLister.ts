@@ -112,7 +112,7 @@ abstract class AbstractSQLResultLister {
             const action = $action.data("action");
             const $row = $action.closest(".row");
             const name: string = this._getEntryNameFromRow($row);
-            this._event.dispatchEvent(action, {name})
+            this._event.dispatchEvent(action, {name, $target: $action})
         });
     }
 }

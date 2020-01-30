@@ -2214,24 +2214,25 @@ describe("Dataset-DSConfig Test", function() {
             });
         });
 
-        it("should validate invalid col name in advanced section", function(done) {
+        it("should validate invalid col name in advanced section case 1", function(done) {
             var $advanceSection = $form.find(".advanceSection");
             var $fileName = $advanceSection.find(".fileName");
             var oldFunc = xcHelper.validateColName;
+            var oldShow = StatusBox.show;
+            var called = false;
 
             $fileName.find(".checkbox").addClass("checked");
             xcHelper.validateColName = function() {
                 return "test error";
             };
-
+            StatusBox.show = () => called = true;
             var res = validateForm();
 
             UnitTest.testFinish(function() {
                 // it has dealy
-                return $("#statusBox").is(":visible");
+                return called === true;
             })
             .then(function() {
-                UnitTest.hasStatusBoxWithError(ErrTStr.InvalidColName);
                 expect(res).to.be.null;
                 done();
             })
@@ -2241,26 +2242,29 @@ describe("Dataset-DSConfig Test", function() {
             .always(function() {
                 $fileName.find(".checkbox").removeClass("checked");
                 xcHelper.validateColName = oldFunc;
+                StatusBox.show = oldShow;
             });
         });
 
-        it("should validate invalid col name in advanced section", function(done) {
+        it("should validate invalid col name in advanced section case 2", function(done) {
             var $advanceSection = $form.find(".advanceSection");
             var $rowNum = $advanceSection.find(".rowNumber");
             var oldFunc = xcHelper.validateColName;
+            var oldShow = StatusBox.show;
+            var called = false;
 
             $rowNum.find(".checkbox").addClass("checked");
             $rowNum.find("input").val("test");
             $("#previewTable").html('<input class="editableHead" value="test">');
 
+            StatusBox.show = () => called = true;
             var res = validateForm();
 
             UnitTest.testFinish(function() {
                 // it has dealy
-                return $("#statusBox").is(":visible");
+                return called === true;
             })
             .then(function() {
-                UnitTest.hasStatusBoxWithError(ErrTStr.ColumnConflict);
                 expect(res).to.be.null;
                 done();
             })
@@ -2271,6 +2275,7 @@ describe("Dataset-DSConfig Test", function() {
                 $("#previewTable").empty();
                 $rowNum.find(".checkbox").removeClass("checked");
                 xcHelper.validateColName = oldFunc;
+                StatusBox.show = oldShow;
             });
         });
 

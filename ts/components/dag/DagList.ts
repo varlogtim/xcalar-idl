@@ -1105,16 +1105,6 @@ class DagList extends Durable {
             DFUploadModal.Instance.show();
         });
 
-        $dagListSection.on("click", ".addUDF", (event) => {
-            event.stopPropagation();
-            UDFPanel.Instance.openEditor();
-        });
-
-        $dagListSection.on("click", ".addDFModule", (event) => {
-            event.stopPropagation();
-            DagTabManager.Instance.newTab();
-        });
-
         $dagListSection.on("click", ".dagListDetail .name", (event) => {
             const $dagListItem: JQuery = $(event.currentTarget).parent();
             if ($dagListItem.hasClass("unavailable")) {

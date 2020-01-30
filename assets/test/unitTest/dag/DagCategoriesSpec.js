@@ -12,7 +12,7 @@ describe("DagCategories Test", function() {
         it("get categories should work", function() {
             let categories = dagCategories.getCategories();
 
-            expect(categories.length).to.equal(11);
+            expect(categories.length).to.equal(10);
             expect(categories[0] instanceof DagCategory).to.be.true;
 
             expect(categories[0].type).to.equal(DagCategoryType.In);
@@ -23,9 +23,8 @@ describe("DagCategories Test", function() {
             expect(categories[5].type).to.equal(DagCategoryType.Join);
             expect(categories[6].type).to.equal(DagCategoryType.Set);
             expect(categories[7].type).to.equal(DagCategoryType.Aggregates);
-            expect(categories[8].type).to.equal(DagCategoryType.Extensions);
-            expect(categories[9].type).to.equal(DagCategoryType.Custom);
-            expect(categories[10].type).to.equal(DagCategoryType.Hidden);
+            expect(categories[8].type).to.equal(DagCategoryType.Custom);
+            expect(categories[9].type).to.equal(DagCategoryType.Hidden);
 
             expect(categories[0].operators.length).to.equal(3);
             expect(categories[0].operators[0].node instanceof DagNodeDataset).to.be.true;
@@ -77,20 +76,20 @@ describe("DagCategories Test", function() {
             expect(categories[7].operators[0].node instanceof DagNodeAggregate).to.be.true;
             expect(categories[7].operators[1].node instanceof DagNodeGroupBy).to.be.true;
 
-            expect(categories[8].operators.length).to.equal(1);
-            expect(categories[8].operators[0].node instanceof DagNodeExtension).to.be.true;
+            // expect(categories[8].operators.length).to.equal(1);
+            // expect(categories[8].operators[0].node instanceof DagNodeExtension).to.be.true;
 
-            expect(categories[9].operators.length).to.equal(3);
-            expect(categories[9].operators[0].node instanceof DagNodeCustom).to.be.true;
-            expect(categories[9].operators[1].node instanceof DagNodeCustomInput).to.be.true;
-            expect(categories[9].operators[2].node instanceof DagNodeCustomOutput).to.be.true;
+            expect(categories[8].operators.length).to.equal(3);
+            expect(categories[8].operators[0].node instanceof DagNodeCustom).to.be.true;
+            expect(categories[8].operators[1].node instanceof DagNodeCustomInput).to.be.true;
+            expect(categories[8].operators[2].node instanceof DagNodeCustomOutput).to.be.true;
 
-            expect(categories[10].operators.length).to.equal(5);
-            expect(categories[10].operators[0].node instanceof DagNodeIndex).to.be.true;
-            expect(categories[10].operators[1].node instanceof DagNodeSynthesize).to.be.true;
-            expect(categories[10].operators[2].node instanceof DagNodePlaceholder).to.be.true;
-            expect(categories[10].operators[3].node instanceof DagNodeDFOut).to.be.true;
-            expect(categories[10].operators[4].node instanceof DagNodeExport).to.be.true;
+            expect(categories[9].operators.length).to.equal(5);
+            expect(categories[9].operators[0].node instanceof DagNodeIndex).to.be.true;
+            expect(categories[9].operators[1].node instanceof DagNodeSynthesize).to.be.true;
+            expect(categories[9].operators[2].node instanceof DagNodePlaceholder).to.be.true;
+            expect(categories[9].operators[3].node instanceof DagNodeDFOut).to.be.true;
+            expect(categories[9].operators[4].node instanceof DagNodeExport).to.be.true;
         });
 
         it("update for sqlFunc should work", function() {
@@ -169,7 +168,7 @@ describe("DagCategories Test", function() {
             dagCategories.update();
             let categories = dagCategories.getCategories();
 
-            expect(categories.length).to.equal(11);
+            expect(categories.length).to.equal(10);
         });
 
         it("should load categories", function(done) {

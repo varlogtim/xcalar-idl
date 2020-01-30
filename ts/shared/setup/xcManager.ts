@@ -1351,10 +1351,11 @@ namespace xcManager {
     }
 
     function setupDataMart(): void {
-        $("#container").addClass("dataMart")
-        $("#workbookPanel").find(".monitorBox").remove();
+        $("#container").addClass("dataMart");
+        $("#workbookPanel").addClass("dataMart");
         $("#monitorTab").addClass("xc-hidden");
         $("#bottomMenuBarTabs").addClass("dataMart");
+        $("#helpAreaMenu .walkthroughs").remove();
     }
 
     function setupNonDataMart(): void {

@@ -22,6 +22,7 @@ class SQLWorkSpace {
         this._sqlResultSpace.setup();
         this._sqlHistorySpace.setup();
         this._resizeEvents();
+        this._addEventListeners();
     }
 
     public refresh(): void {
@@ -72,10 +73,35 @@ class SQLWorkSpace {
         }
     }
 
-    private _resizeEvents() {
-        let $panel: JQuery = $('#sqlWorkSpacePanel');
+     /**
+     * SQLWorkSpace.Instance.tableFuncQuery
+     * @param name
+     */
+    public async tableFuncQuery(name: string): Promise<void> {
+        try {
+            const numInput = await DagTabSQLFunc.getFuncInputNum(name);
+            const inputSignature = new Array(numInput).fill(null)
+            .map((_v, i) => `Input${i + 1}`).join(", ");
+            const sql: string = `select * from ${name}(${inputSignature});`;
+            SQLWorkSpace.Instance.newSQL(sql);
+        } catch (e) {
+            console.error(e);
+            Alert.error(ErrTStr.Error, "Error occurred when compose query from table function.");
+        }
+    }
+
+    private _getPanel(): JQuery {
+        return $('#sqlWorkSpacePanel');
+    }
+
+    private _getBottomPart(): JQuery {
+        return this._getPanel().find(".bottomPart");
+    }
+
+    private _resizeEvents(): void {
+        let $panel: JQuery = this._getPanel();
         let $rightSection: JQuery = $panel.find(".rightSection");
-        let $bottomPart: JQuery = $panel.find(".bottomPart");
+        let $bottomPart: JQuery = this._getBottomPart();
         let $topPart: JQuery = $panel.find(".topPart");
         let rightSectionHeight: number;
 
@@ -146,6 +172,33 @@ class SQLWorkSpace {
                 $bottomRightPart.css("left", 100 * pctLeft + "%")
                          .outerWidth(100 * pct + "%");
                 $bottomLeftPart.outerWidth(100 * pctLeft + "%");
+            }
+        });
+    }
+
+    private _addEventListeners(): void {
+        const $tabViewSwitcher = $("#tabViewSwitcher");
+        $tabViewSwitcher.find(".showSQL").click((event) => {
+            const $button = $(event.currentTarget);
+            const $bottomPart = this._getBottomPart();
+            if ($button.hasClass("active")) {
+                $button.removeClass("active");
+                $bottomPart.addClass("noSQL");
+            } else {
+                $button.addClass("active");
+                $bottomPart.removeClass("noSQL");
+            }
+        });
+
+        $tabViewSwitcher.find(".showDataflow").click((event) => {
+            const $button = $(event.currentTarget);
+            const $bottomPart = this._getBottomPart();
+            if ($button.hasClass("active")) {
+                $button.removeClass("active");
+                $bottomPart.addClass("noDataflow");
+            } else {
+                $button.addClass("active");
+                $bottomPart.removeClass("noDataflow");
             }
         });
     }

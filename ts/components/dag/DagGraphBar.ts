@@ -121,6 +121,13 @@ class DagGraphBar {
             DagViewManager.Instance.cancel();
         });
 
+        $topBar.find(".useInSQL").click(function() {
+            const dagTab = DagViewManager.Instance.getActiveTab();
+            if (dagTab instanceof DagTabSQLFunc) {
+                SQLWorkSpace.Instance.tableFuncQuery(dagTab.getName());
+            }
+        });
+
         $topBar.find(".undo").click(function() {
             if ($(this).hasClass("disabled") || $(this).hasClass("locked")) {
                 return;

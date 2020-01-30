@@ -172,7 +172,7 @@ class DagView {
         DagTabManager.Instance.newSQLFunc(name);
 
         // add instruction
-        const commentBase: number = 40;
+        const commentBase: number = 20;
         DagViewManager.Instance.newComment({
             text: SQLTStr.FuncInstr,
             display: {
@@ -198,6 +198,9 @@ class DagView {
         const numIncSpace = 10;
         let x = xBase + (inc * numIncSpace);
         let y = yBase + (inc * (numInput - 1) / 2);
+        const viewPortWidth = DagView.$dagView.outerWidth() - 120;
+        const maxX = Math.round(viewPortWidth / 20) * 20;
+        x = Math.max(xBase + inc, Math.min(maxX, x));
         DagViewManager.Instance.autoAddNode(DagNodeType.SQLFuncOut, null, null, null, x, y);
     }
 

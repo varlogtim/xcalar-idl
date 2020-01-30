@@ -90,6 +90,14 @@ class SQLResultSpace {
     }
 
     /**
+     * SQLResultSpace.Instance.switchTab
+     * @param tab
+     */
+    public switchTab(tab: string): void {
+        return this._switchTab(tab);
+    }
+
+    /**
      * SQLResultSpace.Instance.viewTable
      * @param table
      * @param callback
