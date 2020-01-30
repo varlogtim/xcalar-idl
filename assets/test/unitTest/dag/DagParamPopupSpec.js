@@ -10,7 +10,7 @@ describe("DagParamPopup Test", function() {
         MainMenu.openPanel("sqlPanel", null);
         UnitTest.testFinish(() => DagPanel.hasSetup())
         .always(function() {
-            $tab = $("#dagViewBar .parameters");
+            $tab = $("#dagView .optionsMenu .parameters");
             getParamMap = DagParamManager.Instance.getParamMap;
             updateParamMapCache = DagParamManager.Instance.updateParamMap;
             DagParamManager.Instance.getParamMap = function() {return {}};
@@ -23,6 +23,7 @@ describe("DagParamPopup Test", function() {
             expect($("#paramPopUp").hasClass("active")).to.be.false;
         });
         it("param popup should open", function() {
+            $(window).scrollTop(0);
             var called = false;
             DagParamManager.Instance.getParamMap = function() {
                 called = true;

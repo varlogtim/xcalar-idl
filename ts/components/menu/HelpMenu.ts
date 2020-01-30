@@ -15,9 +15,8 @@ class HelpMenu {
         $("#helpArea").click((event) =>  {
             const $target: JQuery = $(event.currentTarget);
             MenuHelper.dropdownOpen($target, $menu, <DropdownOptions>{
-                "offsetY": -3,
-                "toggle": true,
-                "closeListener": true
+                "offsetY": -1,
+                "toggle": true
             });
         });
 

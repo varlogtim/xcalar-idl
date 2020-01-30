@@ -22,6 +22,7 @@ class DagGraphBar {
 
     public setup(): void {
         this._addEventListeners();
+        this._setupActionMenu();
     }
 
     public reset(): void {
@@ -49,11 +50,13 @@ class DagGraphBar {
         const $btns: JQuery = $topBar.find(".topButtons");
         if (dagTab == null) {
             $btns.find(".topButton:not(.noTabRequired)").addClass("xc-disabled");
+            this._getMenu().find("li:not(.noTabRequired)").addClass("xc-disabled");
             return;
         }
         this._curDagTab = dagTab;
 
         $btns.find(".topButton").removeClass("xc-disabled");
+        this._getMenu().find("li").removeClass("xc-disabled");
 
         const $userAndPublishOnlyBtns: JQuery = $btns.find(".run");
         if (dagTab instanceof DagTabUser || dagTab instanceof DagTabPublished) {
@@ -181,11 +184,6 @@ class DagGraphBar {
             // last saved zoom
             this._updateZoom();
         });
-
-        // settings button
-        $topBar.find(".setting").click(() => {
-            DFSettingsModal.Instance.show();
-        });
     }
 
     private _updateZoom(): void {
@@ -221,5 +219,28 @@ class DagGraphBar {
         } else if (scaleIndex === DagView.zoomLevels.length - 1) {
             $zoomIn.addClass("disabled");
         }
+    }
+
+    private _getMenu(): JQuery {
+        return $("#dagView .optionsMenu");
+    }
+
+
+    private _setupActionMenu(): void {
+        const $menu: JQuery = this._getMenu();
+        xcMenu.add($menu);
+
+        this._getGraphBar().find(".optionsBtn").click(function () {
+            const $target = $(this);
+            MenuHelper.dropdownOpen($target, $menu, {
+                "offsetY": -1,
+                "toggle": true
+            });
+        });
+
+        $menu.on("click", ".settings", () => {
+            DFSettingsModal.Instance.show();
+        });
+        // param and aggregates managed in DagAggManager and ParamAggManager
     }
 }

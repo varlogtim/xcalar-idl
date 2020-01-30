@@ -156,7 +156,7 @@ describe("DagView Test", () => {
             DagViewManager.Instance.newNode(newNodeInfo);
         });
 
-        it("drag and drop for connectors should work", function() {
+        it.skip("drag and drop for connectors should work", function() {
             let dagView = DagViewManager.Instance.getActiveDagView();
             const cacheFn = dagView.connectNodes;
             let called = false;

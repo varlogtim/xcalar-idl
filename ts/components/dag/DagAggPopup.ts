@@ -77,15 +77,12 @@ class DagAggPopup {
             }
         });
 
-        $("#dagViewBar").find(".parameters").click(() => {
-            this.closePopup();
-        });
-
-        this.$aggManagerPopup.resizable({
-            "handles": "w, s, sw",
-            "minWidth": 558,
-            "minHeight": 210
-        });
+        // XXX buggy
+        // this.$aggManagerPopup.resizable({
+        //     "handles": "w, s, sw",
+        //     "minWidth": 558,
+        //     "minHeight": 210
+        // });
     }
 
     private aggBtnClick(): void {

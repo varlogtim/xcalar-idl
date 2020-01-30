@@ -56,7 +56,7 @@ class DagAggManager {
             if (toDelete.length != 0) {
                 return this._deleteAgg(toDelete, true);
             }
-            new DagAggPopup($("#modelingDagPanel"), $("#dagViewBar").find(".aggregates"));
+            new DagAggPopup($("#sqlWorkSpacePanel"), $("#dagView .optionsMenu .aggregates"));
             return PromiseHelper.resolve();
         })
         .then(deferred.resolve)

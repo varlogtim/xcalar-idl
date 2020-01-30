@@ -478,7 +478,7 @@ module.exports = {
         "UDFs": "UDFs",
         "AddUDF": "Add UDF",
         "UseInSQL": "Use in SQL",
-        "UseInModule": "Use in B & T Logic Module",
+        "UseInModule": "Use in Module",
         "Edit": "Edit"
     },
 

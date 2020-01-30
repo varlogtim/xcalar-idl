@@ -51,15 +51,12 @@ class ParamPopup {
             this.paramBtnClick();
         });
 
-        $("#dagViewBar").find(".aggregates").click(() => {
-            this.closePopup();
-        });
-
-        this.$paramPopup.resizable({
-            "handles": "w, s, sw",
-            "minWidth": 558,
-            "minHeight": 240
-        });
+        // XXX buggy
+        // this.$paramPopup.resizable({
+        //     "handles": "w, s, sw",
+        //     "minWidth": 558,
+        //     "minHeight": 240
+        // });
     }
 
     private static setupGeneralListeners() {

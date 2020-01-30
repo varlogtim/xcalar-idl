@@ -21,9 +21,8 @@ class UserMenu {
                 $menu.find(".credits").hide();
             }
             MenuHelper.dropdownOpen($target, $menu, <DropdownOptions>{
-                "offsetY": -3,
-                "toggle": true,
-                "closeListener": true
+                "offsetY": -1,
+                "toggle": true
             });
             XcUser.creditUsageCheck();
         });

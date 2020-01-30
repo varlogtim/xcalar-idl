@@ -13,7 +13,7 @@ class DagParamManager {
 
     public setup(): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
-        this.paramTab = new DagParamPopup($("#modelingDagPanel"), $("#dagViewBar").find(".parameters"));
+        this.paramTab = new DagParamPopup($("#sqlWorkSpacePanel"), $("#dagView .optionsMenu .parameters"));
         var key = KVStore.getKey("gDagParamKey");
         var kvStore = new KVStore(key, gKVScope.WKBK);
         kvStore.get()
