@@ -234,30 +234,6 @@ describe("xcSocket Test", function() {
             Alert.show = oldFunc;
         });
 
-        it("refreshDataflow event should work", function() {
-            const oldFunc = DagSharedActionService.Instance.receive;
-            let testName = null;
-            DagSharedActionService.Instance.receive= (info) => {
-                testName = info.dfName;
-            };
-
-            // case 1;
-            xcSocket._isRegistered = false;
-            xcSocket._socket.trigger('refreshDataflow', {
-                dfName: 'df'
-            });
-            expect(testName).to.be.null;
-
-            // case 2
-            xcSocket._isRegistered = true;
-            xcSocket._socket.trigger('refreshDataflow', {
-                dfName: 'df'
-            });
-            expect(testName).to.equal('df');
-
-            DagSharedActionService.Instance.receive = oldFunc;
-        });
-
         it("refreshUDF event should work", function () {
             const oldFunc = UDFFileManager.Instance.refresh;
             let testIsUpdate = null;

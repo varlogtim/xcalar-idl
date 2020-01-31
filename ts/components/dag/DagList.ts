@@ -47,9 +47,6 @@ class DagList extends Durable {
             return this._restoreSQLFuncDag(needReset);
         })
         .then(() => {
-            return this._restorePublishedDags();
-        })
-        .then(() => {
             return this._restoreOptimizedDags();
         })
         .then(() => {
@@ -94,105 +91,6 @@ class DagList extends Durable {
         return this._dags.get(id);
     }
 
-    // XXX TODO: remove it
-    public list(): {path: string, id: string, options: {isOpen: boolean}}[] {
-        const self = this;
-        let sortFunc = (a: {path: string}, b: {path: string}): number => {
-            var aName = a.path.toLowerCase();
-            var bName = b.path.toLowerCase();
-            return (aName < bName ? -1 : (aName > bName ? 1 : 0));
-        };
-        let querySortFunc = (a: {path: string, options: any}, b: {path: string, options: any}): number => {
-            if (a.options.isSDK) {
-                if (b.options.isSDK) {
-                    var aName = a.path.toLowerCase();
-                    var bName = b.path.toLowerCase();
-                    return (aName < bName ? -1 : (aName > bName ? 1 : 0));
-                } else {
-                    return 1; // place sdk queries after abandoned queries
-                }
-            } else {
-                if (b.options.isSDK) {
-                    return -1;
-                } else { // both abandoned queries
-                    if (a.options.state === b.options.state) {
-                        return (a.options.createdTime < b.options.createdTime ? -1 : (a.options.createdTime > b.options.createdTime ? 1 : 0));
-                    } else {
-                        return (self._stateOrder[a.options.state] > self._stateOrder[b.options.state] ? -1 : 1);
-                    }
-                }
-            }
-
-        };
-        let publishedList: {path: string, id: string, options: {isOpen: boolean}}[] = [];
-        let userList: {path: string, id: string, options: {isOpen: boolean, state?: string}}[] = [];
-        const queryList: {
-            path: string,
-            id: string,
-            options: {isOpen: boolean, createdTime: number, isSDK: boolean, state: string}}[] = [];
-
-        this._dags.forEach((dagTab) => {
-            let path = this._getPathFromDagTab(dagTab);
-            let tabId = dagTab.getId();
-            if (dagTab instanceof DagTabPublished) {
-                publishedList.push({
-                    path: path,
-                    id: tabId,
-                    options: {isOpen: dagTab.isOpen()}
-                });
-            } else if (dagTab instanceof DagTabOptimized) {
-                userList.push({
-                    path: path,
-                    id: tabId,
-                    options: {
-                        isOpen: dagTab.isOpen(),
-                        state: dagTab.getState()
-                    }
-                });
-            } else if (dagTab instanceof DagTabQuery) {
-                queryList.push({
-                    path: path,
-                    id: tabId,
-                    options: {
-                        isOpen: dagTab.isOpen(),
-                        isSDK: dagTab.isSDK(),
-                        createdTime: dagTab.getCreatedTime(),
-                        state: dagTab.getState()
-                    }
-                });
-            } else if (dagTab instanceof DagTabSQLFunc) {
-                userList.push({
-                    path: path,
-                    id: tabId,
-                    options: {isOpen: dagTab.isOpen()}
-                });
-            } else {
-                userList.push({
-                    path: path,
-                    id: tabId,
-                    options: {isOpen: dagTab.isOpen()}
-                });
-            }
-        });
-        publishedList.sort(sortFunc);
-        userList.sort(sortFunc);
-        queryList.sort(querySortFunc);
-        if (publishedList.length === 0) {
-            // add the published folder by default
-            publishedList.push({
-                path: DagTabPublished.PATH,
-                id: null,
-                options: {isOpen: false}
-            });
-        }
-        if (XVM.isDataMart()) {
-            // data mart don't have published dataflows
-            publishedList = [];
-        }
-        userList = userList.concat(queryList);
-        return publishedList.concat(userList);
-    }
-
     public listUserDagAsync(): XDPromise<{dags: {name: string, id: string}[]}> {
         return this._getUserDagKVStore().getAndParse();
     }
@@ -220,23 +118,6 @@ class DagList extends Durable {
     }
 
     /**
-     * DagList.Instance.removePublishedDagFromList
-     * @param tab
-     */
-    public removePublishedDagFromList(tab: DagTabPublished): void {
-        if (!(tab instanceof DagTabPublished)) {
-            return;
-        }
-        try {
-            let tabId = tab.getId();
-            this._dags.delete(tabId);
-            this._renderResourceList();
-        } catch (e) {
-          console.error(e);
-        }
-    }
-
-    /**
      * DagList.Instance.refresh
      */
     public refresh(): XDPromise<void> {
@@ -244,14 +125,10 @@ class DagList extends Durable {
         const promise: XDPromise<void> = deferred.promise();
         const $dagList: JQuery = this._geContainer();
         // delete shared dag and optimized list first
-        const oldPublishedDags: Map<string, DagTabPublished> = new Map();
         const oldOptimizedDags: Map<string, DagTabOptimized> = new Map();
         const oldQueryDags: Map<string, DagTabQuery> = new Map();
         for (let [id, dagTab] of this._dags) {
-            if (dagTab instanceof DagTabPublished) {
-                oldPublishedDags.set(dagTab.getId(), dagTab);
-                this._dags.delete(id);
-            } else if (dagTab instanceof DagTabOptimized) {
+            if (dagTab instanceof DagTabOptimized) {
                 oldOptimizedDags.set(dagTab.getName(), dagTab);
                 this._dags.delete(id);
             } else if (dagTab instanceof DagTabQuery) {
@@ -262,10 +139,7 @@ class DagList extends Durable {
 
         xcUIHelper.showRefreshIcon($dagList, false, promise, true);
 
-        this._restorePublishedDags(oldPublishedDags)
-        .then(() => {
-            return this._restoreOptimizedDags(oldOptimizedDags);
-        })
+        this._restoreOptimizedDags(oldOptimizedDags)
         .then(() => {
             return this._fetchXcalarQueries(oldQueryDags, true);
         })
@@ -297,10 +171,7 @@ class DagList extends Durable {
         ) {
             this._dags.set(dagTab.getId(), dagTab);
             this._saveDagList(dagTab);
-        } else if (dagTab instanceof DagTabPublished) {
-            this._dags.set(dagTab.getId(), dagTab);
         }
-
         if (dagTab instanceof DagTabSQLFunc) {
             DagList.Instance.refreshMenuList(ResourceMenu.KEY.TableFunc);
         } else {
@@ -494,11 +365,6 @@ class DagList extends Durable {
                 DagList.Instance.refreshMenuList(ResourceMenu.KEY.TableFunc);
             } else {
                 DagList.Instance.refreshMenuList(ResourceMenu.KEY.DF);
-            }
-            if (dagTab instanceof DagTabPublished) {
-                DagSharedActionService.Instance.broadcast(DagGraphEvents.DeleteGraph, {
-                    tabId: id
-                });
             }
             Log.add(DagTStr.DeleteDataflow, {
                 "operation": SQLOps.DeleteDataflow,
@@ -712,35 +578,6 @@ class DagList extends Durable {
             }
         })
         .then(deferred.resolve)
-        .fail((error) => {
-            console.error(error);
-            deferred.resolve(); // still resolve it
-        });
-
-        return deferred.promise();
-    }
-
-    private _restorePublishedDags(
-        oldPublishedDags?: Map<string, DagTabPublished>
-    ): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        DagTabPublished.restore()
-        .then((dags) => {
-            const oldDags: Map<string, DagTabPublished> = oldPublishedDags || new Map();
-            dags.forEach((dagTab) => {
-                // if the old tab still exists, use it because it contains
-                // data such as whether it's closed or open
-                if (oldDags.has(dagTab.getId()) &&
-                    DagTabManager.Instance.getTabById(dagTab.getId())
-                ) {
-                    const oldDag = oldDags.get(dagTab.getId());
-                    this._dags.set(oldDag.getId(), oldDag);
-                } else {
-                    this._dags.set(dagTab.getId(), <DagTab>dagTab);
-                }
-            });
-            deferred.resolve();
-        })
         .fail((error) => {
             console.error(error);
             deferred.resolve(); // still resolve it
@@ -990,27 +827,6 @@ class DagList extends Durable {
 
     private _getListElById(id: string): JQuery {
         return this._getDagListSection().find('.dagListDetail[data-id="' + id + '"]');
-    }
-
-    private _getPathFromDagTab(dagTab: DagTab): string {
-        let path: string = "";
-        if (dagTab instanceof DagTabPublished) {
-            path = dagTab.getPath();
-        } else if (dagTab instanceof DagTabOptimized) {
-            path = "/" + dagTab.getPath();
-        } else if (dagTab instanceof DagTabQuery) {
-            path = "/" + dagTab.getPath();
-        } else if (dagTab instanceof DagTabSQLFunc) {
-            path = dagTab.getPath();
-        } else {
-            let dagName: string = dagTab.getName();
-            if (this._isForSQLFolder(dagTab)) {
-                path = "/" + DagTabSQL.PATH + dagName;
-            } else {
-                path = "/" + dagName;
-            }
-        }
-        return path;
     }
 
     private _focusOnDagList(id: string): void {

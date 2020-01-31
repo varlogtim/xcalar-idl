@@ -372,37 +372,6 @@ describe("DagNodeMenu Test", function() {
              $("#container").trigger(fakeEvent.mousedown);
         });
 
-        it("tab is published", function() {
-            var cachedFn1 = DagViewManager.Instance.isDisableActions;
-            DagViewManager.Instance.isDisableActions = () => true;
-            var cachedFn = DagViewManager.Instance.getActiveTab;
-            DagViewManager.Instance.getActiveTab = () => {
-                return new DagTabPublished({name: "someName"});
-            };
-
-            DagView.selectNode($dfArea.find(".operator.map"));
-            $dfArea.find(".operator.map .main").contextmenu();
-
-            expect($menu.find("li:visible").length).to.equal(5);
-            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(4);
-            let classes = [];
-            $menu.find("li:visible").each(function() {
-                classes.push($(this).attr("class"));
-            });
-            expect(classes).to.deep.equal([
-                "executeNode unavailable",
-                "generateResult",
-                "resetNode",
-                "copyNodes",
-                "viewSchema"
-            ]);
-
-            DagViewManager.Instance.getActiveTab = cachedFn;
-            DagViewManager.Instance.deselectNodes();
-            DagViewManager.Instance.isDisableActions = cachedFn1;
-            $("#container").trigger(fakeEvent.mousedown);
-        });
-
         it("tab is sql", function() {
             var cachedFn1 = DagViewManager.Instance.isDisableActions;
             DagViewManager.Instance.isDisableActions = () => true;

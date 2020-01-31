@@ -111,8 +111,6 @@ describe("DagGraphBar Test", function() {
             expect($topBar.find(".run").hasClass("xc-disabled")).to.be.false;
             topBar.setState(new DagTabOptimized({name: "name"}));
             expect($topBar.find(".run").hasClass("xc-disabled")).to.be.false;
-            topBar.setState(new DagTabPublished({name: "name"}));
-            expect($topBar.find(".run").hasClass("xc-disabled")).to.be.false;
         });
 
         it("Should set the scale correctly", function() {

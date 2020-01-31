@@ -383,18 +383,12 @@ class DagTabManager {
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        if (dagTab instanceof DagTabPublished) {
-            DagSharedActionService.Instance.queueRegister(dagTab);
-        }
 
         this._loadOneTab(dagTab, reset)
         .then(() => {
             this._addDagTab(dagTab);
             this._switchTabs();
             this._save();
-            if (dagTab instanceof DagTabPublished) {
-                DagSharedActionService.Instance.queueUnResiger(dagTab);
-            }
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -403,17 +397,7 @@ class DagTabManager {
     }
 
     public reloadTab(dagTab: DagTab): XDPromise<void> {
-        if (dagTab instanceof DagTabPublished) {
-            DagSharedActionService.Instance.queueRegister(dagTab);
-        }
-        const promise = this._loadOneTab(dagTab, false);
-        promise
-        .then(() => {
-            if (dagTab instanceof DagTabPublished) {
-                DagSharedActionService.Instance.queueUnResiger(dagTab);
-            }
-        });
-        return promise;
+        return this._loadOneTab(dagTab, false);
     }
 
     /**
@@ -879,12 +863,7 @@ class DagTabManager {
      * @param {number} [tabIndex] Optional tab index
      */
     private _addTabHTML(dagTab: DagTab, tabIndex?: number): void {
-        let tabName: string;
-        if (dagTab instanceof DagTabPublished) {
-            tabName = dagTab.getPath();
-        } else {
-            tabName = dagTab.getName();
-        }
+        let tabName: string = dagTab.getName();
         tabName = xcStringHelper.escapeHTMLSpecialChar(tabName);
         const tabId = dagTab.getId();
         let isEditable: boolean = (dagTab instanceof DagTabUser);
@@ -908,8 +887,6 @@ class DagTabManager {
             extraIcon = '<i class="icon xi-SQLfunction tabIcon"></i>';
         } else if (dagTab instanceof DagTabCustom) {
             extraClass += " custom";
-        } else if (dagTab instanceof DagTabPublished) {
-            extraIcon = '<i class="icon xi-activated-share-icon tabIcon"></i>';
         } else if (DagTabUser.isForSQLFolder(dagTab) || dagTab instanceof DagTabSQL) {
             extraClass += " sql";
         }

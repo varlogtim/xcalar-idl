@@ -141,16 +141,6 @@ class UDFFileManager extends BaseFileManager {
             if (idWorkbookMap && idWorkbookMap.has(workbookId)) {
                 nsPathSplit[3] = idWorkbookMap.get(workbookId);
             }
-
-            // Special handling for published dataflows.
-            if (userName === DagTabPublished.getSecretUser()) {
-                nsPathSplit.splice(
-                    1,
-                    3,
-                    DagTabPublished.getPrefixUDF(),
-                    ...nsPathSplit[3].split(DagTabPublished.getDelim())
-                );
-            }
         }
         return nsPathSplit.join("/") + ".py";
     }
@@ -181,33 +171,6 @@ class UDFFileManager extends BaseFileManager {
             if (workbookIDMap && workbookIDMap.has(displayPathSplit[3])) {
                 displayPathSplit[3] = workbookIDMap.get(displayPathSplit[3]);
             }
-            // Special handling for published dataflows.
-        } else if (displayPathSplit[1] === DagTabPublished.getPrefixUDF()) {
-            const workbookNameSplit: string[] = displayPathSplit.slice(2, -1);
-            const workbookName: string = workbookNameSplit.join(
-                DagTabPublished.getDelim()
-            );
-            let workbookId: string = workbookName;
-            const workbookIDMap: Map<
-            string,
-            string
-            > = this.userWorkbookIDMap.get(DagTabPublished.getSecretUser());
-            if (workbookIDMap && workbookIDMap.has(workbookName)) {
-                workbookId = workbookIDMap.get(workbookName);
-            }
-
-            const moduleFilename: string =
-                displayPathSplit[displayPathSplit.length - 1];
-
-            displayPathSplit.splice(
-                1,
-                displayPathSplit.length,
-                "workbook",
-                DagTabPublished.getSecretUser(),
-                workbookId,
-                "udf",
-                moduleFilename
-            );
         }
         const nsPath: string = displayPathSplit.join("/");
         return isPrefix ? nsPath : nsPath.substring(0, nsPath.length - 3);

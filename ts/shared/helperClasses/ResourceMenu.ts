@@ -146,8 +146,6 @@ class ResourceMenu {
                 } else {
                     queryDagList.push(dagTab);
                 }
-            } else if (dagTab instanceof DagTabPublished) {
-                // ingore it
             } else if (dagTab instanceof DagTabSQLFunc) {
                 // ingore it, is handled in _getTableFuncList
             } else {

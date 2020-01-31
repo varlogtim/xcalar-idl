@@ -13,56 +13,6 @@ describe("DagTabPublished Test", function() {
         dagTab._kvStore.put = () => PromiseHelper.resolve();
     });
 
-    it("should getName", function() {
-        expect(dagTab.getName()).to.equal("test");
-    });
-
-    it("should getPath", function() {
-        expect(dagTab.getPath()).to.equal("/Published/test");
-    });
-
-    it("getUDFContext should work", function() {
-        expect(dagTab.getUDFContext()).to.deep.equal({
-            udfUserName: ".xcalar.published.df",
-            udfSessionName: "test"
-        });
-    });
-
-    it("getUDFDisplayPathPrefix should work", function() {
-        expect(dagTab.getUDFDisplayPathPrefix())
-        .to.equal("/workbook/.xcalar.published.df/test/");
-    });
-
-    it("getNodeUDFResolution should reject invalid case", function(done) {
-        dagTab.getNodeUDFResolution(null)
-        .then(function() {
-            done("fail");
-        })
-        .fail(function(error) {
-            expect(error).not.to.be.empty;
-            done();
-        });
-    });
-
-    it("getNodeUDFResolution should work", function(done) {
-        let called = false;
-        let fakeDagNode = {
-            getModuleResolutions: () => {
-                called = true;
-                return PromiseHelper.resolve();
-            }
-        };
-        
-        dagTab.getNodeUDFResolution(fakeDagNode)
-        .then(function() {
-            expect(called).to.be.true;
-            done();
-        })
-        .fail(function() {
-            done("fail");
-        });
-    });
-
     it("should load", function(done) {
         let oldKVStore = dagTab._kvStore;
         dagTab._kvStore = {
@@ -86,102 +36,6 @@ describe("DagTabPublished Test", function() {
             done("fail");
         })
         .always(function() {
-            dagTab._kvStore = oldKVStore;
-        });
-    });
-
-    describe("Save Test", function() {
-        let oldKVStore;
-
-        before(function() {
-            oldKVStore = dagTab._kvStore;
-        });
-
-        it("should save", function(done) {
-            let oldCommit = Log.commit;
-            let called = false;
-            Log.commit = () => called = true;
-            let oldEditVersion = dagTab._editVersion;
-    
-            dagTab._kvStore = {
-                getAndParse: () => {
-                    return PromiseHelper.resolve({
-                        name: "test",
-                        id: "test",
-                        dag: {},
-                        editVersion: oldEditVersion
-                    });
-                },
-                put: () => PromiseHelper.resolve()
-            }
-    
-            dagTab.save()
-            .then(function() {
-                expect(dagTab._editVersion).to.equal(oldEditVersion + 1);
-                expect(called).to.be.true;
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                Log.commit = oldCommit;
-            });
-        });
-
-        it("should revert version when commit fail", function(done) {
-            let oldEditVersion = dagTab._editVersion;
-            dagTab._kvStore = {
-                getAndParse: () => {
-                    return PromiseHelper.resolve({
-                        name: "test",
-                        id: "test",
-                        dag: {},
-                        editVersion: oldEditVersion
-                    });
-                },
-                put: () => PromiseHelper.reject("test")
-            }
-    
-            dagTab.save()
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(dagTab._editVersion).to.equal(oldEditVersion);
-                expect(error).to.equal("test");
-                done();
-            });
-        });
-
-        it("should alert for no seesion fail", function(done) {
-            let oldAlert = Alert.show;
-            let called = false;
-
-            Alert.show = () => called = true;
-
-            dagTab._kvStore = {
-                getAndParse: () => {
-                    return PromiseHelper.reject({
-                        status: StatusT.StatusSessionNotFound
-                    });
-                }
-            }
-    
-            dagTab.save()
-            .then(function() {
-                done("fail");
-            })
-            .fail(function() {
-                expect(called).to.equal(true);
-                done();
-            })
-            .always(function() {
-                Alert.show = oldAlert;
-            });
-        });
-
-        after(function() {
             dagTab._kvStore = oldKVStore;
         });
     });
@@ -371,27 +225,6 @@ describe("DagTabPublished Test", function() {
         });
     });
 
-    it("should clone", function(done) {
-        let oldNew = XcalarNewWorkbook;
-        let called = false;
-        XcalarNewWorkbook = () => {
-            called = true;
-            return PromiseHelper.resolve();
-        };
-
-        dagTab.clone()
-        .then(function() {
-            expect(called).to.equal(true);
-            done();
-        })
-        .fail(function() {
-            done();
-        })
-        .always(function() {
-            XcalarNewWorkbook = oldNew;
-        });
-    });
-
     it("copyUDFToLocal should work", function(done) {
         let called = 0;
         let oldList = XcalarListXdfs;
@@ -431,42 +264,6 @@ describe("DagTabPublished Test", function() {
             UDFFileManager.Instance.refresh = oldRefresh;
             XcalarDownloadPython = oldDownload;
             XcalarUploadPython = oldUpload;
-        });
-    });
-
-    describe("Static Function Test", function() {
-        it("getSecretUser should work", function() {
-            let res = DagTabPublished.getSecretUser();
-            expect(res).to.equal(".xcalar.published.df");
-        });
-
-        it("getDelim should work", function() {
-            let res = DagTabPublished.getDelim();
-            expect(res).to.equal("_Xcalar_");
-        });
-
-        it("getPrefixUDF should work", function() {
-            let res = DagTabPublished.getPrefixUDF();
-            expect(res).to.equal(DagTabPublished._prefixUDF);
-        });
-
-        it("DagTabPublished.restore should work", function(done) {
-            let oldFunc = XcalarListWorkbooks;
-            XcalarListWorkbooks = () => PromiseHelper.resolve({
-                sessions: [{name: "test", sessionId: "test"}]
-            });
-
-            DagTabPublished.restore()
-            .then(function(dags) {
-                expect(dags.length).to.equal(1);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                XcalarListWorkbooks = oldFunc;
-            });
         });
     });
 });

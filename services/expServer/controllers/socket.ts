@@ -210,13 +210,6 @@ class SocketUtil {
                 // note: no need to socket.leave(user) here
             });
 
-            socket.on("refreshDataflow", (arg: any): void => {
-                if (self.checkIoSocketAuth(socket)) {
-                    return;
-                }
-                socket.broadcast.emit("refreshDataflow", arg);
-            });
-
             socket.on("refreshUDF", (refreshOption: any): void => {
                 if (self.checkIoSocketAuth(socket)) {
                     return;

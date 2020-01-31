@@ -2107,50 +2107,6 @@ describe("DagView Test", () => {
                 graph.executionPreCheck = cache2;
             });
         });
-
-        it("canRun should work", function(done) {
-            let graph = DagViewManager.Instance.getActiveDag();
-            let dagView = DagViewManager.Instance.getActiveDagView();
-            let sqlNode = graph.getNodesByType(DagNodeType.SQL)[0];
-            let nodeId = sqlNode.getId();
-
-            let cache = graph.execute;
-            let called = false;
-            let isOptimized = false;
-            graph.execute = (nodeIds, optimized) => {
-                called = true;
-                sqlNode.getState = () => DagNodeState.Complete;
-                isOptimized = optimized;
-                return PromiseHelper.resolve();
-            };
-
-            let cache2 = DagSharedActionService.Instance.checkExecuteStatus;
-            let called2 = false;
-            DagSharedActionService.Instance.checkExecuteStatus = () => {
-                called2 = true;
-                return PromiseHelper.resolve(false);
-            }
-
-            let oldTab = dagView.dagTab;
-            dagView.dagTab = new DagTabPublished();
-
-            dagView.run()
-            .then(() => {
-                expect(isOptimized).to.be.undefined;
-                expect(called).to.be.true;
-                expect(called2).to.be.true;
-                done();
-            })
-            .fail(() => {
-                done("fail");
-            })
-            .always(() => {
-                graph.execute = cache;
-                DagSharedActionService.Instance.checkExecuteStatus = cache2;
-                dagView.dagTab = oldTab;
-            });
-        })
-
     });
 
     describe("optimized dataflow", () => {

@@ -40,7 +40,6 @@ class DagViewManager {
 
         this._addEventListeners();
         this._addDagViewListeners();
-        this._setupDagSharedActionEvents();
 
 
         DagGraphBar.Instance.setup();
@@ -1022,7 +1021,7 @@ class DagViewManager {
      * @param nodeIds
      */
     public createSQLFunc(isFromSQLMode: boolean): void {
-        let onSubmit: Function = (name, numInput) => {
+        let onSubmit = (name, numInput) => {
             const cb = () => {
                 DagView.newSQLFunc(name, numInput);
                 SQLResultSpace.Instance.refresh();
@@ -1337,15 +1336,15 @@ class DagViewManager {
         $dfWraps = $dfWraps.add($("#sqlDataflowArea .dataflowWrap .innerDataflowWrap"));
 
         $dfWraps.on("mousedown", operatorSelector, function (event) {
-            const preventDrag = $(this).closest("#sqlDataflowArea").length;
+            const preventDrag = $(this).closest("#sqlDataflowArea").length > 0;
             self.activeDagView.operatorMousedown(event, $(this), preventDrag);
         });
 
         $dfWraps.on("click", ".descriptionIcon", function () {
             const nodeId: DagNodeId = $(this).closest(".operator")
                 .data("nodeid");
-            const viewOnly: boolean = $(this).closest("#sqlDataflowArea").length ||
-                                     $(this).closest("#dagStatsPanel").length;
+            const viewOnly: boolean = $(this).closest("#sqlDataflowArea").length > 0 ||
+                                     $(this).closest("#dagStatsPanel").length > 0;
             DagDescriptionModal.Instance.show(nodeId, viewOnly);
         });
 
@@ -1500,83 +1499,4 @@ class DagViewManager {
             return this.$dfWrap.find(".dataflowArea.active");
         }
     }
-
-
-    private _setupDagSharedActionEvents(): void {
-        const service = DagSharedActionService.Instance;
-        service
-            .on(DagNodeEvents.ProgressChange, (info) => {
-                this._updateSharedProgress(info);
-            })
-            .on(DagNodeEvents.StateChange, (info) => {
-                this._updateNodeState(info);
-            })
-            .on(DagNodeEvents.ParamChange, (info) => {
-                const tabId: string = info.tabId;
-                const tab: DagTab = info.tab;
-                if (this.activeDagTab.getId() === tabId) {
-                    Alert.show({
-                        title: DFTStr.Refresh,
-                        msg: DFTStr.RefreshMsg,
-                        isAlert: true
-                    });
-                }
-
-                const $dfArea: JQuery = this._getAreaByTab(tabId);
-                $dfArea.addClass("xc-disabled");
-                const promise = DagTabManager.Instance.reloadTab(tab);
-                xcUIHelper.showRefreshIcon($dfArea, true, promise);
-
-                promise
-                    .then(() => {
-                        this._getAreaByTab(tabId).removeClass("rendered");
-                        if (this.activeDagTab.getId() === tabId) {
-                            this.switchActiveDagTab(tab);
-                        }
-                    })
-                    .always(() => {
-                        $dfArea.removeClass("xc-disabled");
-                    });
-            })
-            .on(DagGraphEvents.LockChange, (info) => {
-                const dagView: DagView = this.dagViewMap.get(info.tabId);
-                if (dagView) {
-                    dagView.lockUnlockHelper(info);
-                }
-            });
-    }
-
-    private _updateSharedProgress(progressInfo: {
-        nodeId: DagNodeId,
-        tabId: string,
-        stats: any,
-        skewInfos: any[],
-        times: number[]
-    }): void {
-        const nodeId: DagNodeId = progressInfo.nodeId;
-        const tabId: string = progressInfo.tabId;
-        this.activeDagView.updateNodeProgress(nodeId, tabId, progressInfo.stats,
-            progressInfo.skewInfos, progressInfo.times, false);
-        if (progressInfo.stats.state === DgDagStateT.DgDagStateReady) {
-            this.activeDagView.removeProgressPct(nodeId);
-        }
-    }
-
-
-    private _updateNodeState(nodeInfo: {
-        id: DagNodeId,
-        tabId: string,
-        node: DagNode,
-        oldState: DagNodeState,
-        state: DagNodeState
-    }
-    ): void {
-        const tabId: string = nodeInfo.tabId;
-        const dagView: DagView = this.dagViewMap.get(tabId);
-        if (!dagView) {
-            return;
-        }
-        dagView.updateNodeState(nodeInfo);
-    }
-
 }

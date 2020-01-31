@@ -459,10 +459,7 @@ namespace DagNodeMenu {
         }
         if ([DagNodeType.Map, DagNodeType.GroupBy, DagNodeType.Filter,
             DagNodeType.Aggregate].indexOf(type) > -1) {
-            options.udfDisplayPathPrefix =
-                dagTab instanceof DagTabPublished ?
-                    dagTab.getUDFDisplayPathPrefix() :
-                    UDFFileManager.Instance.getCurrWorkbookDisplayPath();
+            options.udfDisplayPathPrefix = UDFFileManager.Instance.getCurrWorkbookDisplayPath();
         }
 
         switch (type) {
@@ -657,9 +654,6 @@ namespace DagNodeMenu {
             classes += ' viewOnly ';
         }
         let activeTab: DagTab = DagViewManager.Instance.getActiveTab();
-        if (activeTab instanceof DagTabPublished) {
-            classes += ' published ';
-        }
         if (activeTab instanceof DagTabSQL) {
             classes += ' viewOnly SQLTab ';
         }
@@ -1073,8 +1067,7 @@ namespace DagNodeMenu {
                 let $node = DagViewManager.Instance.getNode(node.getId());
                 StatusBox.show(ErrTStr.RestoreDSNoLoadArgs, $node);
             } else {
-                const shareDS: boolean = DagViewManager.Instance.getActiveTab() instanceof DagTabPublished;
-                DS.restoreSourceFromDagNode([node], shareDS)
+                DS.restoreSourceFromDagNode([node], false)
                 .then(() => {
                     node.beConfiguredState();
                 });
@@ -1101,8 +1094,7 @@ namespace DagNodeMenu {
                 }
             });
             if (dagNodes.length) {
-                let shareDS: boolean = (tab instanceof DagTabPublished);
-                DS.restoreSourceFromDagNode(dagNodes, shareDS)
+                DS.restoreSourceFromDagNode(dagNodes, false)
                 .then(deferred.resolve)
                 .fail(deferred.reject);
             } else {

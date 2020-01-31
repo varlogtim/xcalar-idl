@@ -2262,14 +2262,6 @@ class TblManager {
             }
 
             let $table = $tbody.closest(".xcTable");
-            if (!$table.hasClass("noOperation")) {
-                // when it's not table view in sql mdoe
-                if (DagViewManager.Instance.getActiveTab() instanceof DagTabPublished) {
-                    // when published tab or out node
-                    return;
-                }
-            }
-
             const colNum: number = ColManager.parseColNum($td);
             const rowNum: number = RowManager.parseRowNum($td.closest("tr"));
             let isUnSelect: boolean = false;
@@ -2476,14 +2468,6 @@ class TblManager {
                 }
 
                 let $table = $tbody.closest(".xcTable");
-                if (!$table.hasClass("noOperation")) {
-                    // when it's not table view in sql mdoe
-                    if (DagViewManager.Instance.getActiveTab() instanceof DagTabPublished) {
-                        // when published tab or out node
-                        return false;
-                    }
-                }
-
                 const colNum: number = ColManager.parseColNum($td);
                 const rowNum: number = RowManager.parseRowNum($td.closest("tr"));
 

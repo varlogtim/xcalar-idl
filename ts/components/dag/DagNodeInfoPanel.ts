@@ -480,8 +480,7 @@ class DagNodeInfoPanel {
 
     private _restoreDataset(): void {
         const node: DagNodeDataset = <DagNodeDataset>this._activeNode;
-        const shareDS: boolean = DagViewManager.Instance.getActiveTab() instanceof DagTabPublished;
-        DS.restoreSourceFromDagNode([node], shareDS);
+        DS.restoreSourceFromDagNode([node], false);
     }
 
     private _viewUDFs() {
@@ -490,7 +489,7 @@ class DagNodeInfoPanel {
         this._$panel.find(".udfsSection").html(this._genLoadingHTML())
 
         // Call API to get resolutions
-        this._getUDFResolution(<DagNodeMap>this._activeNode, DagViewManager.Instance.getActiveTab())
+        this._getUDFResolution(<DagNodeMap>this._activeNode)
         .then((udfRes) => {
             const convertedMap: Map<string, string> = new Map();
             udfRes.forEach((path, moduleName) => {
@@ -508,12 +507,8 @@ class DagNodeInfoPanel {
         });
     }
 
-    private _getUDFResolution(dagNode: DagNodeMap, activeTab: DagTab): XDPromise<Map<string, string>> {
-        if (activeTab instanceof DagTabPublished) {
-            return activeTab.getNodeUDFResolution(dagNode);
-        } else {
-            return dagNode.getModuleResolutions();
-        }
+    private _getUDFResolution(dagNode: DagNodeMap): XDPromise<Map<string, string>> {
+        return dagNode.getModuleResolutions();
     }
 
     private _genLoadingHTML(): HTML {

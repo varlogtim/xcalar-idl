@@ -1,6 +1,10 @@
+/**
+ * DagTabPublished used to be a read/execute only and shared dataflow tab
+ * but since 2.2, the feature is removed and it is only used for the use of
+ * dataflow upload/download
+ */
 class DagTabPublished extends DagTab {
     public static readonly PATH = "/Published/";
-    private static readonly _prefixUDF: string = "published module";
     // XXX TODO: encrypt it
     private static readonly _secretUser: string = ".xcalar.published.df";
     private static readonly _delim: string = "_Xcalar_";
@@ -8,71 +12,6 @@ class DagTabPublished extends DagTab {
     private static _currentSession: string;
 
     private _editVersion: number;
-    /**
-     * DagTabPublished.restore
-     */
-    public static restore(): XDPromise<DagTabPublished[]> {
-        const deferred: XDDeferred<DagTabPublished[]> = PromiseHelper.deferred();
-        const dags: DagTabPublished[] = [];
-
-        DagTabPublished._listSession()
-        .then((res: {sessions: any[]}) => {
-            const promises: XDPromise<void>[] = [];
-            res.sessions.map((sessionInfo) => {
-                const name: string = sessionInfo.name;
-                if (!name.startsWith(".temp")) {
-                    // filter out .temp dataflows
-                    const id: string = sessionInfo.sessionId;
-                    const dagTab: DagTabPublished = new DagTabPublished({
-                        name: name,
-                        id: id
-                    });
-                    dags.push(dagTab);
-
-                    if (sessionInfo.state === "Inactive") {
-                        const promise = this._activateSessionAndResetDag(dagTab);
-                        promises.push(promise);
-                    }
-                }
-            });
-
-            return PromiseHelper.when(...promises);
-        })
-        .then(() => {
-            deferred.resolve(dags);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    /**
-     * @returns string
-     */
-    public static getSecretUser(): string {
-        return this._secretUser;
-    }
-
-    /**
-     * @returns string
-     */
-    public static getDelim(): string {
-        return this._delim;
-    }
-
-    /**
-     * @returns string
-     */
-    public static getPrefixUDF(): string {
-        return this._prefixUDF;
-    }
-
-    private static _listSession(): XDPromise<{sessions: any[]}> {
-        this._switchSession(null);
-        const promise = XcalarListWorkbooks("*", true);
-        this._resetSession();
-        return promise;
-    }
 
     private static _switchSession(sessionToSwitch: string): void {
         this._currentSession = sessionName;
@@ -84,24 +23,6 @@ class DagTabPublished extends DagTab {
     private static _resetSession(): void {
         XcUser.resetUserSession();
         setSessionName(this._currentSession);
-    }
-
-    // because published tab is shared, so once it detects as inactivate,
-    // will activate it and rest graph immediately
-    private static _activateSessionAndResetDag(dagTab: DagTabPublished): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        dagTab._activateWKBK()
-        .then(() => {
-            return dagTab.load(true);
-        })
-        .then(() => {
-            deferred.resolve();
-        })
-        .fail(() => {
-            deferred.resolve(); // still resolve it
-        });
-
-        return deferred.promise();
     }
 
     public constructor(options: DagTabOptions) {
@@ -116,51 +37,6 @@ class DagTabPublished extends DagTab {
         super(options);
         this._kvStore = new KVStore(DagTabPublished._dagKey, gKVScope.WKBK);
         this._editVersion = 0;
-    }
-
-    public getName(): string {
-        return this._name;
-    }
-
-    public getPath(): string {
-        return DagTabPublished.PATH + this.getName();
-    }
-
-    public getUDFContext(): {
-        udfUserName: string,
-        udfSessionName: string
-    } {
-        return {
-            udfUserName: DagTabPublished._secretUser,
-            udfSessionName: this._getWKBKName()
-        };
-    }
-
-    public getUDFDisplayPathPrefix(): string {
-        return "/workbook/" + DagTabPublished._secretUser + "/" + this._getWKBKName() + "/";
-    }
-
-    /**
-     * Get node's UDF resolutions in a published dataflow
-     * @param dagNode
-     * @description
-     * All UDFs are stored in a secret user's namespace in shared dataflow cases.
-     * So get the correct resolution of UDFs would be tricky:
-     * 1. Switch the user seesion to the secret user
-     * 2. Call API to get the resolutions
-     * 3. Switch back to regular user session
-     */
-    public getNodeUDFResolution(dagNode: DagNodeMap): XDPromise<Map<string, string>> {
-        if (dagNode == null) {
-            return PromiseHelper.reject('DagNode is null');
-        }
-        DagTabPublished._switchSession(this._getWKBKName());
-        const promise = dagNode.getModuleResolutions();
-        // Do not wait for the API done,
-        // or there could be chances unexpected API calls happening before reset session
-        DagTabPublished._resetSession();
-
-        return promise;
     }
 
     public load(reset?: boolean): XDPromise<any> {
@@ -188,43 +64,7 @@ class DagTabPublished extends DagTab {
     }
 
     public save(): XDPromise<void> {
-        if (this._disableSaveLock > 0) {
-            return PromiseHelper.resolve();
-        }
-
-        const deferred: XDDeferred<any> = PromiseHelper.deferred();
-        let hasVersionChange: boolean = false;
-        let oldVersion: number = this._editVersion;
-
-        this._loadFromKVStore()
-        .then((ret) => {
-            const {dagInfo} = ret;
-            // when editVersion not match, cannot save
-            if (dagInfo == null || dagInfo.editVersion !== this._editVersion) {
-                return PromiseHelper.reject();
-            }
-
-            oldVersion = this._editVersion;
-            this._editVersion++;
-            hasVersionChange = true;
-            return this._writeToKVStore();
-        })
-        .then(() => {
-            this._trigger("save");
-            Log.commit();
-            deferred.resolve();
-        })
-        .fail((error) => {
-            if (hasVersionChange) {
-                this._editVersion = oldVersion;
-            }
-            if (typeof error === "object" && error.status === StatusT.StatusSessionNotFound) {
-                this.deletedAlert();
-            }
-            deferred.reject(error);
-        })
-
-        return deferred.promise();
+        return PromiseHelper.resolve();
     }
 
     public delete(): XDPromise<void> {
@@ -312,14 +152,6 @@ class DagTabPublished extends DagTab {
         return deferred.promise();
     }
 
-    public clone(newTabName): XDPromise<void> {
-        const wkbkName: string = this._getWKBKName();
-        DagTabPublished._switchSession(wkbkName);
-        const promise = XcalarNewWorkbook(newTabName, true, wkbkName);
-        DagTabPublished._resetSession();
-        return promise;
-    }
-
     public copyUDFToLocal(overwrite: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const id: string = this._id;
@@ -344,20 +176,6 @@ class DagTabPublished extends DagTab {
         .fail(deferred.reject);
 
         return deferred.promise();
-    }
-
-    public deletedAlert(): void {
-        let tab = this;
-        let msg: string = xcStringHelper.replaceMsg(DFTStr.PublishedDFDeletedMsg, {
-            "name": tab.getPath()
-        });
-        Alert.show({
-           title: DFTStr.PublishedDFDeleted,
-           msg: msg,
-           onConfirm: () => {
-               DagTabManager.Instance.duplicateTab(tab);
-           }
-        });
     }
 
     protected _loadFromKVStore(): XDPromise<any> {

@@ -227,12 +227,6 @@ class XcSocket {
 
     private _addSocketEvents(): void {
         const socket = this._socket;
-        socket.on('refreshDataflow', (updateInfo) => {
-            if (!this._isRegistered) {
-                return;
-            }
-            DagSharedActionService.Instance.receive(updateInfo);
-        });
 
         socket.on('refreshUDF', (refreshOption: { isUpdate: boolean, isDelete: boolean }) => {
             if (!this._isRegistered) {

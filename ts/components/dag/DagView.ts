@@ -1064,8 +1064,7 @@ class DagView {
         }
 
         this.$dfArea.addClass("rendered");
-        if (this.dagTab instanceof DagTabUser ||
-            this.dagTab instanceof DagTabPublished) {
+        if (this.dagTab instanceof DagTabUser) {
             this._checkLoadedTabHasQueryInProgress();
         }
     }
@@ -1095,13 +1094,7 @@ class DagView {
 
     // resume progress checking
     private _checkLoadedTabHasQueryInProgress() {
-        let queryPrefix: string;
-        if (this.dagTab instanceof DagTabPublished) {
-            queryPrefix = "table_published_" + xcHelper.checkNamePattern(null, PatternAction.Fix, this.dagTab.getName(), "_");
-        } else {
-            queryPrefix = "table_" + this.graph.getTabId();
-        }
-
+        const queryPrefix: string = "table_" + this.graph.getTabId();
         XcalarQueryList(queryPrefix + "*")
         .then((ret) => {
             let latestTime = 0;
@@ -1216,10 +1209,7 @@ class DagView {
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-        this._canRun()
-            .then(() => {
-                return this._runValidation(nodeIds, optimized);
-            })
+        this._runValidation(nodeIds, optimized)
             .then((ret) => {
                 if (ret && ret.optimized) {
                     optimized = true;
@@ -1352,11 +1342,6 @@ class DagView {
         if (!nodeInfos.length) {
             return;
         }
-        if (this.dagTab instanceof DagTabPublished) {
-            // cannot modify shared dag
-            return;
-        }
-
         this.deselectNodes();
 
         let minXCoor: number = this.$dfArea.width();
@@ -2974,7 +2959,6 @@ class DagView {
         return (this.dagTab instanceof DagTabCustom ||
             this.dagTab instanceof DagTabSQL ||
             this.dagTab instanceof DagTabProgress ||
-            this.dagTab instanceof DagTabPublished ||
             (this.$dfArea && this.$dfArea.hasClass("largeHidden")));
     }
 
@@ -3119,16 +3103,6 @@ class DagView {
                     }
                 }
             }
-        }
-
-        if (stats.started && broadcast && dagTab instanceof DagTabPublished) {
-            DagSharedActionService.Instance.broadcast(DagNodeEvents.ProgressChange, {
-                nodeId: nodeId,
-                tabId: tabId,
-                stats: stats,
-                skewInfos: skewInfos,
-                times: times
-            });
         }
     }
 
@@ -3783,9 +3757,6 @@ class DagView {
         // when a graph gets locked during execution
         this._registerGraphEvent(this.graph, DagGraphEvents.LockChange, (info) => {
             this.lockUnlockHelper(info);
-            if (this.dagTab instanceof DagTabPublished) {
-                DagSharedActionService.Instance.broadcast(DagGraphEvents.LockChange, info);
-            }
             DagTopBar.Instance.setState(this.dagTab); // refresh the stop button status
             DagGraphBar.Instance.setState(this.dagTab); // refresh the stop button status
         });
@@ -3800,13 +3771,6 @@ class DagView {
                                           info.state === DagNodeState.Complete);
                 this.dagTab.save(isDelay);
                 this.removeProgressPct(info.id);
-            }
-            if (this.dagTab instanceof DagTabPublished) {
-                DagSharedActionService.Instance.broadcast(DagNodeEvents.StateChange, {
-                    nodeId: info.id,
-                    tabId: this.tabId,
-                    state: info.state
-                });
             }
         });
 
@@ -3832,14 +3796,7 @@ class DagView {
             this.$dfArea.find('.runStats[data-id="' + info.id + '"]').remove();
             this.$dfArea.find('.nodeStats[data-id="' + info.id + '"]').remove();
 
-            this.dagTab.save()
-            .then(() => {
-                if (this.dagTab instanceof DagTabPublished) {
-                    DagSharedActionService.Instance.broadcast(DagNodeEvents.ParamChange, {
-                        tabId: this.tabId
-                    });
-                }
-            });
+            this.dagTab.save();
 
             if (!info.noAutoExecute) {
                 this._autoExecute(info.node);
@@ -4523,25 +4480,6 @@ class DagView {
         });
     }
 
-    private _canRun(): XDPromise<void> {
-        if (this.dagTab instanceof DagTabPublished) {
-            const deferred: XDDeferred<void> = PromiseHelper.deferred();
-            DagSharedActionService.Instance.checkExecuteStatus(this.tabId)
-            .then((isExecuting) => {
-                if (isExecuting) {
-                    deferred.reject(DFTStr.InExecution);
-                } else {
-                    deferred.resolve();
-                }
-            })
-            .fail(deferred.reject);
-
-            return deferred.promise();
-        } else {
-            return PromiseHelper.resolve();
-        }
-    }
-
     // a check that is done right before execution to allow users to confirm
     // and continue if an error is found - one case is if a parameter with no
     // value is found -- we can prompt the user to continue or abandon the execution
@@ -4921,9 +4859,6 @@ class DagView {
             isNoLog?: boolean
         }
     ): XDPromise<void> {
-        if (this.dagTab instanceof DagTabPublished) {
-            return;
-        }
         const { isNoLog = false } = options || {};
         this.dagTab.turnOffSave();
         this._moveNodesNoPersist(nodeInfos, graphDimensions, { isNoLog: isNoLog });
@@ -5077,18 +5012,6 @@ class DagView {
             }
             return;
         }
-        if (this.dagTab instanceof DagTabPublished) {
-             // if no drag, treat as right click and open menu
-            if (!$opMain.hasClass("comment") && !$opMain.hasClass("iconArea") &&
-                !event.shiftKey) {
-                let contextMenuEvent = $.Event("contextmenu", {
-                    pageX: event.pageX,
-                    pageY: event.pageY
-                });
-                $opMain.trigger(contextMenuEvent);
-            }
-            return;
-        }
 
         if (noDragDrop) { // dragdrop disabled in sql panel
             dragFail.bind(this)();
@@ -5177,9 +5100,6 @@ class DagView {
     public connectorOutMousedown(event, $parentConnector) {
         const self = this;
         if (event.which !== 1 || (isSystemMac && event.ctrlKey)) {
-            return;
-        }
-        if (self.dagTab instanceof DagTabPublished) {
             return;
         }
         const $parentNode = $parentConnector.closest(".operator");
@@ -5330,10 +5250,6 @@ class DagView {
         if (event.which !== 1 || (isSystemMac && event.ctrlKey)) {
             return;
         }
-        if (self.dagTab instanceof DagTabPublished) {
-            return;
-        }
-
         const $childNode = $childConnector.closest(".operator");
         const childNodeId: DagNodeId = $childNode.data("nodeid");
         if (self.isNodeLocked(childNodeId)) {
@@ -5497,9 +5413,6 @@ class DagView {
     }
 
     public nodeTitleEditMode($origTitle): void {
-        if (this.dagTab instanceof DagTabPublished) {
-            return;
-        }
         const $operator = $origTitle.closest(".operator")
         const nodeId: DagNodeId = $operator.data("nodeid");
         const node = this.graph.getNode(nodeId);
@@ -5641,10 +5554,6 @@ class DagView {
         identifiers?: Map<number, string>,
         setNodeConfig?: {sourceColumn: string, destColumn: string, columnType: ColumnType, cast: boolean}[]
     ): XDPromise<void> {
-        if (this.dagTab instanceof DagTabPublished) {
-            return PromiseHelper.reject();
-        }
-
         this.dagTab.turnOffSave();
         this._connectNodesNoPersist(parentNodeId, childNodeId, connectorIndex,  {
             isReconnect: isReconnect,

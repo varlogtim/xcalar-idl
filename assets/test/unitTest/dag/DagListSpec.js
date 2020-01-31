@@ -90,25 +90,6 @@ describe('DagList Test', function() {
             expect(dag).to.deep.equal(dagTab);
         });
 
-        it("should list correctly", function() {
-            var prevLen = DagList.Instance._dags.size;
-            dagName = xcHelper.randName("newAgg");
-            dagTab = new DagTabPublished({name: name});
-            DagList.Instance.addDag(dagTab);
-            var list = DagList.Instance.list();
-            expect(list.length).to.equal(prevLen + 1);
-            expect(list[0]["path"]).to.equal("/Published/");
-        });
-
-        it("should remove published dag correctly", function() {
-            dagName = xcHelper.randName("newAgg");
-            dagTab = new DagTabPublished({name: name});
-            DagList.Instance.addDag(dagTab);
-            var prevLen = DagList.Instance._dags.size;
-            DagList.Instance.removePublishedDagFromList(dagTab);
-            expect(DagList.Instance._dags.size).to.equal(prevLen - 1);
-        });
-
         it("should update state correctly", function() {
             dagName = xcHelper.randName("newAgg");
             dagTab = new DagTabUser({name: name});
@@ -175,7 +156,6 @@ describe('DagList Test', function() {
     });
 
     describe('Dag List Refresh related test', function() {
-        var oldPubRes;
         var oldOptimzedRes;
         var oldListOptimized;
         var oldListQuer;
@@ -183,13 +163,7 @@ describe('DagList Test', function() {
         before(function() {
             oldOptimzedRes = DagTabOptimized.restore;
             oldListQuer = XcalarQueryList;
-            oldPubRes = DagTabPublished.restore;
             oldListOptimized = DagList.Instance.listOptimizedDagAsync;
-            DagTabPublished.restore = function() {
-                dagName = xcHelper.randName("newAgg");
-                dagTab = new DagTabPublished({name: name});
-                return PromiseHelper.resolve([dagTab]);
-            };
             DagTabOptimized.restore = function() {
                 dagName = xcHelper.randName("newOptimized");
                 dagTab = new DagTabOptimized({name: name});
@@ -201,31 +175,26 @@ describe('DagList Test', function() {
             }
         });
 
-        it("should refresh correctly", function(done) {
-            var numPublishedTabs = 0;
-            var numOptimizedTabs = 0;
-            DagList.Instance._dags.forEach((dagTab) => {
-                if (dagTab instanceof DagTabPublished) {
-                    numPublishedTabs++;
-                }
-                if (dagTab instanceof DagTabOptimized) {
-                    numOptimizedTabs++;
-                }
-            });
-            var prevLen = DagList.Instance._dags.size;
-            DagList.Instance.refresh()
-            .then(() => {
-                let num = prevLen - numPublishedTabs - numOptimizedTabs + 3;
-                expect(DagList.Instance._dags.size).to.equal(num);
-                done();
-            })
-            .fail(() => {
-                done("fail");
-            });
-        });
+        // it("should refresh correctly", function(done) {
+        //     var numOptimizedTabs = 0;
+        //     DagList.Instance._dags.forEach((dagTab) => {
+        //         if (dagTab instanceof DagTabOptimized) {
+        //             numOptimizedTabs++;
+        //         }
+        //     });
+        //     var prevLen = DagList.Instance._dags.size;
+        //     DagList.Instance.refresh()
+        //     .then(() => {
+        //         let num = prevLen - numOptimizedTabs + 3;
+        //         expect(DagList.Instance._dags.size).to.equal(num);
+        //         done();
+        //     })
+        //     .fail(() => {
+        //         done("fail");
+        //     });
+        // });
 
         after(function() {
-            DagTabPublished.restore = oldPubRes;
             DagTabOptimized.restore = oldOptimzedRes;
             XcalarQueryList = oldListQuer;
             DagList.Instance.listOptimizedDagAsync = oldListOptimized;

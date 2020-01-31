@@ -46,8 +46,7 @@ abstract class AbstractMenu {
     }
 
     protected _isViewOnlyTab(node: DagNode): boolean {
-        if (DagViewManager.Instance.getActiveTab() instanceof DagTabPublished ||
-            node.getMaxChildren() === 0 || (DagViewManager.Instance.getActiveDagView() &&
+        if (node.getMaxChildren() === 0 || (DagViewManager.Instance.getActiveDagView() &&
             DagViewManager.Instance.getActiveDagView().isViewOnly())
         ) {
             return true;

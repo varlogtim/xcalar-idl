@@ -107,9 +107,7 @@ class DFDownloadModal {
         const $dropdown: JQuery = this._getDownloadTypeList();
         const $lis: JQuery = $dropdown.find("li");
         $lis.removeClass("xc-disabled");
-        if (!(this._dagTab instanceof DagTabUser) &&
-            !(this._dagTab instanceof DagTabPublished)
-        ) {
+        if (!(this._dagTab instanceof DagTabUser)) {
             $lis.filter((_index, el) => {
                 return ($(el).data("type") !== this._DownloadTypeEnum.Image &&
                         $(el).data("type") !== this._DownloadTypeEnum.OperationStats &&
@@ -231,8 +229,6 @@ class DFDownloadModal {
         const tab: DagTab = this._dagTab;
         if (tab instanceof DagTabUser) {
             return this._downloadUserDataflow(name);
-        } else if (tab instanceof DagTabPublished) {
-            return this._downloadSharedDataflow(name);
         } else {
             return PromiseHelper.reject({error: ErrTStr.InvalidDFDownload});
         }
@@ -248,37 +244,6 @@ class DFDownloadModal {
         const clonedTab: DagTabUser = tab.clone();
         this._cleanupNodes(clonedTab.getGraph(), this._selectedNodes);
         return clonedTab.download(name);
-    }
-
-    private _downloadSharedDataflow(name: string): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const tab: DagTabPublished = <DagTabPublished>this._dagTab;
-        const tempName = xcHelper.randName(".temp" + tab.getShortName());
-        const clonedTab: DagTabPublished = new DagTabPublished({name: tempName});
-        let hasClone: boolean = false;
-
-        tab.clone(tempName)
-        .then(() => {
-            hasClone = true;
-            return clonedTab.load();
-        })
-        .then(() => {
-            this._cleanupNodes(clonedTab.getGraph(), this._selectedNodes);
-            return clonedTab.save();
-        })
-        .then(() => {
-            return clonedTab.download(name);
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject)
-        .always(() => {
-            if (hasClone) {
-                clonedTab.delete();
-            }
-        });
-
-        return deferred.promise();
-
     }
 
     private _cleanupNodes(graph: DagGraph, selectedNodes: DagNodeId[]): void {

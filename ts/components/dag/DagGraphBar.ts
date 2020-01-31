@@ -59,7 +59,7 @@ class DagGraphBar {
         this._getMenu().find("li").removeClass("xc-disabled");
 
         const $userAndPublishOnlyBtns: JQuery = $btns.find(".run");
-        if (dagTab instanceof DagTabUser || dagTab instanceof DagTabPublished) {
+        if (dagTab instanceof DagTabUser) {
             $userAndPublishOnlyBtns.removeClass("xc-disabled");
         } else {
             $userAndPublishOnlyBtns.addClass("xc-disabled");

@@ -100,7 +100,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
         const dataflows: {tab: DagTab, displayName: string}[] = [];
         tabs.forEach((tab) => {
             // don't show sql tab, custom tab, or optimized tab
-            if (!(tab instanceof DagTabUser) && !(tab instanceof DagTabPublished)) {
+            if (!(tab instanceof DagTabUser)) {
                 return;
             }
             let hasLinkOutNode: boolean = false;
@@ -120,11 +120,9 @@ class DFLinkInOpPanel extends BaseOpPanel {
                 return;
             }
             const name: string = tab.getName();
-            const shared: boolean = (tab instanceof DagTabPublished);
-            const displayName: string = shared ? (<DagTabPublished>tab).getPath() : name;
             dataflows.push({
                 tab: tab,
-                displayName: displayName
+                displayName: name
             });
         });
 

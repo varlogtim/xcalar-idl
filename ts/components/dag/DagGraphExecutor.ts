@@ -1112,15 +1112,9 @@ class DagGraphExecutor {
         udfUserName: string,
         udfSessionName: string
     } {
-        const tabId: string = this._graph.getTabId();
-        const tab: DagTab = DagServiceFactory.getDagListService().getDagTabById(tabId);
-        if (tab != null && tab instanceof DagTabPublished) {
-            return tab.getUDFContext();
-        } else {
-            return {
-                udfUserName: undefined,
-                udfSessionName: undefined
-            };
+        return {
+            udfUserName: undefined,
+            udfSessionName: undefined
         }
     }
 

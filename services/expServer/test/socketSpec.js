@@ -76,14 +76,6 @@ describe("ExpServer Socket Test", function() {
         })
     });
 
-    it("socket should handle refreshDataflow", function(done) {
-        client.emit("refreshDataflow", testDF);
-        peerClient.on("refreshDataflow", function(dfName) {
-            expect(dfName).to.equal(testDF);
-            done();
-        });
-    });
-
     it("socket should handle refreshUDF", function(done) {
         client.emit("refreshUDF", testRefreshUDFOption);
         peerClient.on("refreshUDF", function(refreshOption) {
