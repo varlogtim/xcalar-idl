@@ -154,7 +154,7 @@ namespace StatusMessage {
             .then(function() {
                 const $successSpan: JQuery = self.$statusText.find('#stsMsg-' + msgId);
                 $successSpan.addClass('success');
-                const completed: string = '<b>' + StatusMessageTStr.Completed + ': </b>';
+                const completed: string = '<span class="semibold">' + StatusMessageTStr.Completed + ': </span>';
                 $successSpan.prepend(completed);
 
                 if (self.messages.indexOf(msgId) === 0) {

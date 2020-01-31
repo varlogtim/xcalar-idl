@@ -163,7 +163,7 @@ html.safari {
         @active-bg: @color-font-link-blue;
 
         background-color: @bg;
-        color: @color-font-edge;
+        color: @color-icon-gray;
         height: @height-card-header;
         line-height: @height-card-header;
         float: right; // reverse the order for z-index of style to work
@@ -204,7 +204,7 @@ html.safari {
         &.active {
             background-color: @active-bg;
             color: @color-white;
-            font-weight: bold;
+            font-weight: 600;
 
             + .tab {
                 &:before {
@@ -271,7 +271,7 @@ html.safari {
 
             .title {
                 .size(@width: 100%);
-                .font(@size: 18px, @weight: 700);
+                .font(@size: 18px, @weight: 600);
                 color: @color-font-select-blue;
                 float: left;
                 .textOverflowOneLine;
@@ -336,7 +336,7 @@ html.safari {
             }
             i {
                 float: right;
-                color: @color-bg-cardHeader;
+                color: @color-icon-gray;
                 background-color: @color-white;
                 position: absolute;
                 top: 6px;
@@ -500,6 +500,8 @@ html.safari {
         .text-selection;
 
         .infoSection {
+            font-size: 13px;
+
             > span {
                 margin-right: 4px;
                 float: left;
@@ -520,7 +522,7 @@ html.safari {
                 &.action {
                     float: right;
                     text-decoration: underline;
-                    color: @color-bg-cardHeader;
+                    color: @color-icon-gray;
                 }
             }
 
@@ -902,13 +904,13 @@ table.datasetTable {
         li {
             &.createNew {
                 color: @color-font-link-blue;
-                font-weight: bold;
+                font-weight: 600;
             }
         }
     }
 
     .cardInstruction {
-        b {
+        b, .semibold {
             color: @color-font-link-blue;
         }
     }
@@ -1078,7 +1080,7 @@ table.datasetTable {
         .label {
             .size(@width: 70px);
             .font(@size: 14px, @line-height: 28px);
-            font-weight: bold;
+            font-weight: 600;
         }
 
         #fileBrowserUp {
@@ -1393,7 +1395,7 @@ table.datasetTable {
                 }
 
                 > .label {
-                    color: @color-font-form-gray;
+                    color: @color-font-xcDark;
                     word-break: break-all;
                     width: 65px !important;
                 }
@@ -1662,7 +1664,7 @@ table.datasetTable {
                         padding: 0 9px;
                         &.btn, .icon {
                             font-size: 18px;
-                            color: @color-bg-cardHeader;
+                            color: @color-icon-gray;
                             span {
                                 font-size: 13px;
                                 float: left;
@@ -1709,7 +1711,7 @@ table.datasetTable {
                     .clearAll {
                         white-space: normal;
                         float: right;
-                        color: @color-bg-cardHeader;
+                        color: @color-icon-gray;
 
                         .icon {
                             position: relative;
@@ -1731,7 +1733,7 @@ table.datasetTable {
                         padding-top: 8px;
 
                         .close {
-                            color: @color-bg-cardHeader;
+                            color: @color-icon-gray;
                            .flex(0 0 14px);
                         }
 
@@ -1959,7 +1961,7 @@ table.datasetTable {
         cursor: pointer;
 
         > span {
-            font-weight: bold;
+            font-weight: 600;
         }
 
         .xi-arrow-right {
@@ -2015,7 +2017,7 @@ table.datasetTable {
 
         i {
             float: right;
-            color: @color-bg-cardHeader;
+            color: @color-icon-gray;
             background-color: @color-white;
             position: absolute;
             top: 4px;
@@ -2227,7 +2229,7 @@ table.datasetTable {
                 }
 
                 .active {
-                    color: @color-bg-cardHeader;
+                    color: @color-icon-gray;
                 }
             }
 
@@ -2351,12 +2353,12 @@ table.datasetTable {
             .icon {
                 font-size: 32px;
                 margin-bottom: 10px;
-                color: @color-bg-cardHeader;
+                color: @color-icon-gray;
             }
         }
 
         .title {
-            font-weight: bold;
+            font-weight: 600;
             .size(@width: 50px);
             float: left;
         }
@@ -2369,8 +2371,8 @@ table.datasetTable {
             padding-top: 2px;
 
             .suggest {
-                color: @color-bg-cardHeader;
-                font-weight: bold;
+                color: @color-icon-gray;
+                font-weight: 600;
                 padding: 0 3px;
                 cursor: pointer;
 
@@ -2392,7 +2394,7 @@ table.datasetTable {
         width: 120px;
         li {
             background-color: @color-white;
-            color: @color-font-form-gray;
+            color: @color-font-xcDark;
             padding: 0px;
             height: 28px;
             &:hover, .hover {
@@ -2746,7 +2748,7 @@ table.datasetTable {
         &.unused {
             // .xc-disabled;
             background-color: @color-bg-white-seven;
-            color: fadeout(@color-font-form-gray, 70%);
+            color: fadeout(@color-font-xcDark, 60%);
         }
     }
 }
@@ -2883,7 +2885,7 @@ table.datasetTable {
 
         .listInfo {
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
         }
 
         input {
@@ -3023,7 +3025,7 @@ table.datasetTable {
             }
 
             .mainLabel {
-                font-weight: 700;
+                font-weight: 600;
                 padding-bottom: 10px;
                 height: 28px;
             }
@@ -3220,7 +3222,7 @@ table.datasetTable {
             &.prevFileLabel {
                 width: 48%;
                 margin-right: 0px;
-                font-weight: bold;
+                font-weight: 600;
             }
         }
 
@@ -3622,7 +3624,7 @@ table.datasetTable {
 /* End Of Import Data View Section */
 
 #dsListSection, #sourceTableListSection {
-    color: @color-font-edge;
+    color: @color-font-xcDark;
     @top-h: 65px;
 
     .topWrapper {
@@ -3676,7 +3678,7 @@ table.datasetTable {
             font-size: 12px;
 
             .label {
-                font-weight: bold;
+                font-weight: 600;
                 opacity: 1;
             }
 
@@ -3814,7 +3816,7 @@ table.datasetTable {
                 }
 
                 > .label {
-                    color: @color-font-form-gray;
+                    color: @color-font-xcDark;
 
                     textarea {
                         background-color: transparent;
@@ -3825,7 +3827,7 @@ table.datasetTable {
                 }
 
                 .dsCount {
-                    .font(@weight: 700, @color: @color-white);
+                    .font(@weight: 600, @color: @color-white);
                     opacity: 0.9;
                     .no-selection;
                     .textOverflowOneLine;
@@ -3879,7 +3881,7 @@ table.datasetTable {
                         background-color: transparent;
                         text-align: center;
 
-                        b {
+                        b, .semibold {
                            color: @color-font-softGrayBlue;
                         }
                     }

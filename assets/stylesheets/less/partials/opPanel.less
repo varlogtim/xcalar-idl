@@ -23,8 +23,8 @@
 .opPanel {
     height: 100%;
     background-color: @color-white;
-    color: @color-font-form-gray;
-    font-weight: 600;
+    color: @color-font-xcDark;
+    font-weight: 400;
 
     @title-height: 40px;
     @header-height: 66px;
@@ -35,7 +35,7 @@
     @functionsListZindex: 10;
 
     section {
-        color: @color-font-form-gray;
+        color: @color-font-xcDark;
     }
 
     .input-box(100%, @listHeight);
@@ -53,7 +53,8 @@
 
         .title {
             margin-left: 10px;
-            font-weight: bold;
+            font-weight: 600;
+            color: @color-font-darkGray;
             float: left;
             .textOverflowOneLine;
         }
@@ -66,13 +67,13 @@
 
             .icon {
                 position: absolute;
-                color: @color-bg-cardHeader;
+                color: @color-icon-gray;
             }
         }
 
         .headerIcons {
             float: right;
-            color: @color-bg-cardHeader;
+            color: @color-icon-gray;
             margin-left: auto;
 
             .icon {
@@ -80,7 +81,6 @@
                 margin-right: 10px;
                 float: right;
                 font-size: 16px;
-                // color: @color-bg-cardHeader;
                 cursor: pointer;
                 opacity: @opacity-unhover;
                 &:hover {
@@ -94,7 +94,7 @@
             margin-right: 7px;
             float: right;
             font-size: 16px;
-            color: @color-bg-cardHeader;
+            color: @color-icon-gray;
             cursor: pointer;
             opacity: @opacity-unhover;
             margin-left: auto;
@@ -105,7 +105,7 @@
         }
 
         .subTitle {
-            font-weight: normal;
+            font-weight: 600;
             font-size: 12px;
             line-height: 16px;
             padding-bottom: 10px;
@@ -139,12 +139,13 @@
     p {
         padding: 0px 10px 10px 10px;
         font-size: 11px;
+        color: @color-font-darkGray;
     }
 
     input {
         font-size: @standardFontSize;
         background-color: @color-white;
-        color: @color-font-form-gray;
+        color: @color-font-xcDark;
         border: 1px solid @color-border-softGray;
     }
 
@@ -154,8 +155,7 @@
     }
 
     .instrText {
-        font-weight: 500;
-        color: @color-font-form-gray;
+        color: @color-font-darkGray;
     }
 
     .instrText-format {
@@ -386,11 +386,13 @@
     .instructions {
         padding-top: 10px;
         padding-bottom: 10px;
+        color: @color-font-darkGray;;
     }
     .tableInstruction {
         font-size: 11px;
         padding-top: 10px;
         padding-bottom: 10px;
+        color: @color-font-darkGray;;
     }
 
     .opSection {
@@ -414,7 +416,7 @@
             .text {
                 display: inline;
                 margin-right: 5px;
-                font-weight: 600;
+                font-weight: 400;
                 line-height: 23px;
                 font-size: 11px;
                 color: @color-font-dropdown-gray;
@@ -475,7 +477,7 @@
                 width: 100%;
             }
             .text {
-                font-weight: 600;
+                font-weight: 400;
                 cursor: pointer;
             }
         }
@@ -494,7 +496,7 @@
             height: @headingHeight;
             line-height: @headingHeight + 4;
             padding-left: @commonMargin;
-            font-weight: 700;
+            font-weight: 600;
         }
         > .focusTable {
             padding-left: 6px;
@@ -513,7 +515,7 @@
             line-height: @headingHeight - 6;
             padding-bottom: 4px;
             padding-left: 9px;
-            font-weight: 700;
+            font-weight: 600;
         }
     }
 
@@ -555,7 +557,7 @@
                 }
                 &.createNew {
                     color: @color-font-link-blue;
-                    font-weight: bold;
+                    font-weight: 600;
                     padding-left: 4px;
                 }
             }
@@ -569,7 +571,7 @@
 
                 .createNew {
                     color: @color-font-link-blue;
-                    font-weight: bold;
+                    font-weight: 600;
                     cursor: pointer;
                 }
             }
@@ -689,7 +691,7 @@
                     border: none !important;
                     outline: none;
                     font-size: @standardFontSize !important;
-                    font-weight: 700;
+                    font-weight: 600;
                     pointer-events: none;
                 }
                 .iconWrapper {
@@ -813,7 +815,7 @@
             padding-left: @commonMargin;
             padding-bottom: 4px;
             line-height: 14px;
-            font-weight: 700;
+            font-weight: 600;
         }
         .cast {
             width: 100%;
@@ -833,7 +835,7 @@
             }
 
             .label {
-                font-weight: 700;
+                font-weight: 600;
                 margin-left: @commonMargin;
                 float: left;
                 display: block;
@@ -919,7 +921,7 @@
                 width: 20px;
                 line-height: @listHeight;
                 text-align: center;
-                color: @color-bg-cardHeader;
+                color: @color-icon-gray;
                 cursor: pointer;
             }
             .removeItemIcon {
@@ -998,7 +1000,7 @@
         height: 86px;
         background: @color-bg-list-hover-blue;
         .instr {
-        	font-weight: 700;
+        	font-weight: 600;
         	text-align: center;
         }
         .hint {
@@ -1007,7 +1009,7 @@
         	top: 1px;
         	padding-left: 3px;
         	.icon {
-        		color: @color-bg-cardHeader;
+        		color: @color-icon-gray;
         	}
         	display: inline-block;
         }
@@ -1124,7 +1126,7 @@
                 background-color: @color-bg-white-eight;
                 color: @color-font-warm-grey-two !important;
                 font-style: italic;
-                font-weight: 600;
+                font-weight: 400;
             }
         }
     }
@@ -1293,7 +1295,7 @@
                         opacity: 1;
                     }
                     .text {
-                        font-weight: 700;
+                        font-weight: 600;
                     }
                 }
                 .action-icon .icon {
@@ -1330,7 +1332,7 @@
 
             .lists {
                 text-align: center;
-                font-weight: bold;
+                font-weight: 600;
             }
         }
 
@@ -1464,8 +1466,8 @@
                     &::after {
                         content: "New Name";
                         padding-left: 10px;
-                        color: @color-font-form-gray;
-                        font-weight: bold;
+                        color: @color-font-xcDark;
+                        font-weight: 600;
                     }
                 }
 
@@ -1486,7 +1488,7 @@
             .subHeading {
                 .text {
                     .size(@width: 100%);
-                    font-weight: bold;
+                    font-weight: 600;
                 }
             }
 
@@ -1579,7 +1581,7 @@
                     line-height: @listHeight - 2px;
                     text-align: center;
                     cursor: initial;
-                    color: @color-font-edge;
+                    color: @color-icon-gray;
                 }
             }
 
@@ -1634,7 +1636,7 @@
                 .text {
                     float: left;
                     margin-left: 10px;
-                    font-weight: 600;
+                    font-weight: 400;
                     line-height: 23px;
                     font-size: 11px;
                 }
@@ -1655,7 +1657,7 @@
                 padding-left: 10px;
                 padding-bottom: 4px;
                 line-height: 14px;
-                font-weight: 700;
+                font-weight: 600;
             }
 
             &.inactive {
@@ -1793,7 +1795,7 @@
                 border: none !important;
                 outline: none;
                 font-size: @standardFontSize !important;
-                font-weight: 700;
+                font-weight: 600;
                 pointer-events: none;
             }
 
@@ -1854,7 +1856,7 @@
                 .altFnTitle {
                     display: block;
                     padding-left: 10px;
-                    font-weight: 700;
+                    font-weight: 600;
                     height: 20px;
                 }
                 .argsSection, .catFuncMenus {
@@ -2092,7 +2094,7 @@
     @rest-h: (@instr-h + @top-h + @bottom-h);
 
     .header {
-        font-weight: 700;
+        font-weight: 600;
     }
 
     .modeList {
@@ -2310,7 +2312,7 @@
                 }
 
                 ul {
-                    color: @color-font-edge;
+                    color: @color-font-xcDark;
 
                     li {
                         border-top: 1px solid @color-bg-topBarGray2;
@@ -2328,7 +2330,7 @@
                             }
                             .name, .icon {
                                 opacity: 0.7;
-                                color: @color-bg-cardHeader;
+                                color: @color-icon-gray;
                             }
                         }
 
@@ -2365,7 +2367,7 @@
                         }
 
                         &.active {
-                            font-weight: bold;
+                            font-weight: 600;
                             background-color: @color-bg-list-selected-blue;
                             border-top: 1px solid @color-border-softGray;
                             border-bottom: 1px solid @color-border-softGray;
@@ -2441,7 +2443,7 @@
             margin-bottom: 15px;
         }
         .listSection {
-            font-weight: bold;
+            font-weight: 600;
         }
     }
 
@@ -2527,10 +2529,10 @@
             &:after {
                 content: "New Name";
                 top: -35px;
-                color: @color-font-form-gray;
+                color: @color-font-xcDark;
                 position: relative;
                 padding-left: 0px;
-                font-weight: bold;
+                font-weight: 600;
             }
         }
         .resultCol {
@@ -2603,7 +2605,7 @@
         .subHeading {
             margin-top: 0px;
             margin-left: 0px;
-            font-weight: bold;
+            font-weight: 600;
         }
         &.empty {
             display: none;
@@ -2786,7 +2788,7 @@
 
         .row-subheading {
             .col {
-                font-weight: 700;
+                font-weight: 600;
             }
         }
 
@@ -2805,7 +2807,7 @@
                 .size(@height: 100%, @width: 20px);
                 line-height: @listHeight;
                 text-align: center;
-                color: @color-bg-cardHeader;
+                color: @color-icon-gray;
                 cursor: pointer;
             }
         }
@@ -2908,7 +2910,7 @@
                 border: 1px solid @color-error-border-light;
                 background-color: white;
                 max-width: 100%;
-                color: @color-font-form-gray;
+                color:@color-font-xcDark;
                 box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.2);
             }
 
@@ -2977,7 +2979,7 @@
             padding-bottom: 4px;
             .title {
                 .size(@width: 100%);
-                font-weight: 700;
+                font-weight: 600;
             }
         }
 
@@ -3012,7 +3014,7 @@
 
             .column-title {
                 border: none;
-                font-weight: 700;
+                font-weight: 600;
                 overflow: hidden;
                 .title-text {
                     .col();
@@ -3082,7 +3084,7 @@
         border: 1px solid @color-error-border-light;
         background-color: white;
         max-width: 100%;
-        color: @color-font-form-gray;
+        color: @color-font-xcDark;
         box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.2);
     }
 
@@ -3170,7 +3172,7 @@
         &:after {
             content: "New Name";
             top: -35px;
-            color: @color-font-form-gray;
+            color: @color-font-xcDark;
             position: relative;
             padding-left: 0px;
         }
@@ -3407,7 +3409,7 @@
 
         .icon {
             font-size: 10px;
-            color: @color-font-edge;
+            color: @color-icon-gray;
             line-height: 26px;
         }
     }
@@ -3433,14 +3435,14 @@
             width: ~"calc(100% - 20px)";
             margin-left: 10px;
             #exportDriver {
-                color: @color-font-edge;
+                color: @color-font-darkGray;
             }
         }
     }
 
     .argsSection {
         .arg {
-            color: @color-font-edge;
+            color: @color-font-darkGray;
         }
         .dropDownList {
             .styleDropDownList(~"calc(100% - 20px)", @listHeight) !important;
@@ -3584,7 +3586,6 @@
         padding: 2px @padding-l;
         .title {
             font-size: 12px;
-            font-weight: bold;
         }
         .header {
             font-size: 11px;
@@ -3595,7 +3596,7 @@
             height: @instruct-h;
             margin-top: 5px;
             margin-bottom: 13px;
-            color: @color-font-form-gray;
+            color: @color-font-darkGray;
         }
         .sourceHeader {
             .size(@source-header-w, @source-header-h);
@@ -3643,7 +3644,7 @@
                         border: none;
                     }
                     .icon {
-                        color: @color-bg-cardHeader;
+                        color: @color-icon-gray;
                         transform: rotate(135deg);
                     }
                     .text {
@@ -3661,7 +3662,7 @@
                 .xi-trash {
                     font-size: @trash-w;
                     margin-left: @trash-margin-l;
-                    color: @color-bg-cardHeader;
+                    color: @color-icon-gray;
                     cursor: pointer;
                 }
                 @input-w: (@source-w + @source-margin-r + @equal-w + @equal-margin-r + @trash-w + @trash-margin-l);
@@ -3721,7 +3722,7 @@
         justify-content: space-between;
         padding: 0px 15px;
         border-top: 1px solid @color-border-softGray;
-        font-weight: bold;
+        font-weight: 600;
     }
 
     .tableTitle {
@@ -3748,7 +3749,7 @@
 
         .qMark {
             position: relative;
-            top: -1px;
+            top: 9px;
         }
     }
     .maximize {

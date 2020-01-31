@@ -177,7 +177,7 @@ class DataSourceManager {
             if (shared) {
                 $label.html($label.text() +
                             (isListView ? "" : "<br/>") +
-                            "<b>(" + $grid.data("user") + ")</b>");
+                            "<span class='semibold'>(" + $grid.data("user") + ")</span>");
             }
         });
     }

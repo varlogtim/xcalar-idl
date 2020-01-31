@@ -628,7 +628,7 @@
     .no-selection;
 
     .text {
-        color: @color-font-greyish-brown;
+        color: @color-font-xcDark;
         background-color: @color-white;
         border: 1px solid @color-border-menugray;
         border-right: none;
@@ -931,7 +931,7 @@
         overflow: hidden;
 
         .cell {
-            .font(@weight: bold);
+            .font(@weight: 600);
             background-color: @color-white;
         }
     }
@@ -969,7 +969,7 @@
 .input-box(@w, @h: 30px, @focus: false) {
     input {
         .size(@width: @w, @height: @h);
-        .font(@size: 14px, @weight: 600, @line-height: @h);
+        .font(@size: 14px, @line-height: @h);
         border: solid 1px @color-border-menugray;
         padding: 0 10px;
         text-align: left;
@@ -1089,7 +1089,7 @@
 .xc-sortSection {
     .size(@height: 33px);
     background-color: @color-bg-topBarGray2;
-    .font(@size: 10px, @color: @color-font-edge);
+    .font(@size: 10px, @color: @color-icon-gray);
     text-align: right;
     text-transform: uppercase;
 
@@ -1138,7 +1138,7 @@
 
         .row {
             cursor: pointer;
-            font-weight: 700;
+            font-weight: 600;
         }
     }
 
@@ -1556,11 +1556,11 @@
 
 // for icon
 .xc-icon-action {
-    color: @color-bg-cardHeader;
+    color: @color-icon-gray;
     cursor: pointer;
 
     &:hover {
-        color: @color-border-grayBlue;
+        color: @color-icon-gray-hover;
     }
 }
 
@@ -1573,7 +1573,7 @@
 
     .icon {
         @size: 14px;
-        color: @color-bg-cardHeader;
+        color: @color-icon-gray;
         font-size: @size;
         width: @size;
         height: @size;
@@ -1633,6 +1633,7 @@
             .expand {
                 .icon {
                     .transform(rotate(360deg));
+                    color: @color-icon-gray;
                 }
             }
         }
@@ -1657,6 +1658,7 @@
 
             .icon {
                 .transform(rotate(270deg));
+                color: @color-icon-gray;
             }
         }
     }
@@ -1689,6 +1691,7 @@
 
             .icon {
                 .position(relative, @top: 3px);
+                color: @color-icon-gray;
             }
         }
     }
@@ -2043,7 +2046,7 @@ html.firefox {
             display: flex;
             .name {
                 .textOverflowOneLine;
-                font-weight: bold;
+                font-weight: 600;
                 user-select: text;
             }
         }
@@ -2418,4 +2421,8 @@ html.firefox {
         margin-top: 5px;
         font-size: 14px;
     }
+}
+
+.semibold {
+    font-weight: 600;
 }

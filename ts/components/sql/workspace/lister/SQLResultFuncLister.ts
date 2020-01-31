@@ -20,7 +20,7 @@ class SQLResultFuncLister extends AbstractSQLResultLister{
 
     protected _getHintHTML(): HTML {
         return '<div class="hintArea">' +
-                    '<b>No available table functions</b>' +
+                    '<span class="semibold">No available table functions</span>' +
                     '<div class="hint">Add a new table function to get started</div>' +
                 '</div>';
     }

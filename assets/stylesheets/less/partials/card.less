@@ -2,7 +2,6 @@
     .size(@width: 100%);
     margin-bottom: 5px;
     background-color: @color-white;
-    color: @color-font-form-gray;
 
     &.minimized {
         .cardInstruction, .cardTopMain, .cardMain, .cardSubMain, .cardBottom {
@@ -33,7 +32,7 @@
     background-color: @color-bg-topBarGray2;
 
     .title {
-        .font(@weight: 600, @size: 18px, @color: @color-font-form-gray);
+        .font(@weight: 600, @size: 18px, @color: @color-font-darkGray);
         display: inline-block;
         padding-left: 20px;
         padding-right: 20px;
@@ -83,7 +82,7 @@
 
     .icon {
         .flex(0 0 36px);
-        .font(@size: 24px, @color: @color-bg-cardHeader);
+        .font(@size: 24px, @color: @color-icon-gray);
 
         &:before {
             display: block;
@@ -107,7 +106,7 @@
         }
     }
 
-    b {
+    b, .semibold {
         color: @color-font-select-blue;
     }
 }
@@ -115,7 +114,7 @@
 .cardTopMain {
     .size(@width: 100%);
     padding-top: 40px;
-    color: @color-font-form-gray;
+    color: @color-font-xcDark;
     .no-selection;
     border-bottom: 1px  solid @color-border-softGray;
 }

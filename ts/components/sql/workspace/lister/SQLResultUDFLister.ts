@@ -17,7 +17,7 @@ class SQLResultUDFLister extends AbstractSQLResultLister{
 
     protected _getHintHTML(): HTML {
         return '<div class="hintArea">' +
-                    '<b>No available UDF</b>' +
+                    '<span class="semibold">No available UDF</span>' +
                     '<div class="hint">Add a new UDF to get started</div>' +
                 '</div>';
     }

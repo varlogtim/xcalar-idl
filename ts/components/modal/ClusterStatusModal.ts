@@ -121,7 +121,7 @@ class ClusterStatusModal {
         if (numNodes === 1) {
             return "Getting cluster status for the node";
         } else if (numNodes > 1) {
-            return `Getting cluster status for all <b>${numNodes}</b> nodes`;
+            return `Getting cluster status for all <span class="semibold">${numNodes}</span> nodes`;
         } else {
             return "Getting cluster status for all nodes";
         }

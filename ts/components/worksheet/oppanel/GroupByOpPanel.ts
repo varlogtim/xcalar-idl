@@ -522,15 +522,15 @@ class GroupByOpPanel extends GeneralOpPanel {
         $rows.show().filter(":gt(" + (numArgs - 1) + ")").hide();
 
         const despText = operObj.fnDesc || "N/A";
-        const descriptionHtml = '<b>' + OpFormTStr.Descript + ':</b> ' +
+        const descriptionHtml = '<span class="semibold">' + OpFormTStr.Descript + ':</span> ' +
                     '<span class="instrText">' + despText + '</span>';
 
         $argsGroup.find('.descriptionText').html(descriptionHtml);
 
         const $strPreview = this._$panel.find('.strPreview');
         if ($strPreview.text() === "") {
-            const initialText = '<b class="prevTitle">' + OpFormTStr.CMD +
-                               ':<br></b>' +
+            const initialText = '<span class="semibold prevTitle">' + OpFormTStr.CMD +
+                               ':<br></span>' +
                                '<span class="aggColSection"></span>' +
                                'GROUP BY (' +
                      '<span class="groupByCols"></span>)';

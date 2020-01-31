@@ -1014,8 +1014,8 @@ class SupTicketModal {
             if (i === 0) {
                 let status: string = ticket[i].status || "open";
                 html += '<div class="td status">' + status + '</div>';
-                commentSection = '<div class="subject"><b>' +
-                                 MonitorTStr.Subject + ': </b>' +
+                commentSection = '<div class="subject"><span class="semibold">' +
+                                 MonitorTStr.Subject + ': </span>' +
                                  ticket[i].subject + '</div>';
                 let severity: string = "";
                 if (ticket[i].severity != null &&
@@ -1023,22 +1023,22 @@ class SupTicketModal {
                     severity = '<div class="severity" data-toggle="tooltip" ' +
                             'data-placement="top" data-container="body" ' +
                             'data-original-title="' + MonitorTStr["Severity" +
-                            ticket[i].severity] + '"><b>' +
-                            MonitorTStr.Severity + ': </b> ' +
+                            ticket[i].severity] + '"><span class="semibold">' +
+                            MonitorTStr.Severity + ': </span> ' +
                             ticket[i].severity + '</div>';
                 } else {
                     severity = '<div class="severity unavailable"></div>';
                 }
                 commentSection += severity;
                 commentSection = '<div class="subjectWrap">' + commentSection + '</div>';
-                commentSection += '<div class="comment"><b>' + OpFormTStr.Descript + ':</b> ' + comment + '</div>';
+                commentSection += '<div class="comment"><span class="semibold">' + OpFormTStr.Descript + ':</span> ' + comment + '</div>';
 
             } else {
                 html += '<div class="td status"></div>';
                 if (ticket[i].author === "user") {
-                    comment = "<b>Comment</b> (You): " + comment;
+                    comment = "<span class='semibold'>Comment</span> (You): " + comment;
                 } else {
-                    comment = "<b>Comment</b> (Xcalar): " + comment;
+                    comment = "<span class='semibold'>Comment</span> (Xcalar): " + comment;
                 }
                 commentSection = '<div class="comment">' + comment + '</div>';
             }

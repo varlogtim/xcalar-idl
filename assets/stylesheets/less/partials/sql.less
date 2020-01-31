@@ -92,6 +92,7 @@
         .flex-container();
         .justify-content(flex-end);
         padding-left: @cell-padding;
+        color: @color-icon-gray;
     }
 
     .sort-none {
@@ -101,6 +102,7 @@
     .sortIconWrap {
         .flex-container();
         .justify-content(flex-end);
+        color: @color-icon-gray;
     }
 
     .col-sort {
@@ -450,8 +452,8 @@
                                 margin-right: 10px;
                                 line-height: 24px;
                                 font-size: 14px;
-                                font-weight: bold;
-                                color: @color-font-form-gray;
+                                font-weight: 600;
+                                color: @color-font-xcDark;
 
                                 .name {
                                     font-weight: normal;
@@ -548,7 +550,7 @@
                         text-align: center;
                         max-width: 600px;
 
-                        b {
+                        b, .semibold {
                             font-size: 16px;
                         }
 
@@ -573,8 +575,8 @@
             .title {
                 padding-left: 15px;
                 font-size: 16px;
-                font-weight: bold;
-                color: @color-font-form-gray;
+                font-weight: 600;
+                color: @color-font-xcDark;
             }
 
             .action {
@@ -696,9 +698,10 @@
         padding: 8px 50px 8px 15px;
 
         .title {
-            color: @color-font-form-gray;
+            color: @color-font-xcDark;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 600;
+            color: @color-font-darkGray;
             line-height: 28px;
             margin-right: 16px;
         }
@@ -718,7 +721,7 @@
             }
 
             &.dropDownList {
-                color: @color-font-form-gray;
+                color: @color-font-xcDark;
                 overflow: visible;
                 float: none;
                 padding: 0;
@@ -766,7 +769,7 @@
                 .list {
                     top: 27px;
                     width: 130px;
-                    color: @color-font-form-gray;
+                    color: @color-font-xcDark;
 
                     li {
                         text-align: left;
@@ -1063,6 +1066,7 @@
 
                 .sort {
                     .position(absolute, @top: 0px, @right: 10px);
+                    color: @color-icon-gray;
 
                     .sortIconWrap {
                         .position(relative, @top: 8px);

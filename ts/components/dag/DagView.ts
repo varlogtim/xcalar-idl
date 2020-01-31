@@ -4337,7 +4337,7 @@ class DagView {
 
         const textSvg = g.append("text")
             .attr("class", "nodeTitle")
-            .attr("fill", "#44515C")
+            .attr("fill", "#000000")
             .attr("font-size", 10)
             .attr("transform", "translate(" + ((DagView.nodeWidth / 2) + 1) + "," +
                 titleHeight + ")")
@@ -4359,7 +4359,7 @@ class DagView {
         const paramHeight: number = titleHeight + 1 + titleLines.length * DagView.titleLineHeight;
         const paramTextSvg: d3 = g.append("text")
             .attr("class", "paramTitle")
-            .attr("fill", "#44515C")
+            .attr("fill", "#000000")
             .attr("font-size", 10)
             .attr("transform", "translate(" + ((DagView.nodeWidth / 2) + 1) + "," +
                 paramHeight + ")")

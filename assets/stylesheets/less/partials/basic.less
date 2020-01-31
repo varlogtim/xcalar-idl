@@ -12,7 +12,7 @@ table, tr, td, th, input, textarea, section, p {
     .nomargin-padding;
     .box-sizing;
     border: none;
-    .font(@weight: 600, @size: 14px, @family: @font-base, @color: @color-font-form-gray);
+    .font(@weight: 400, @size: 14px, @family: @font-base);
 }
 
 section {
@@ -26,6 +26,10 @@ h1, h2, h3, h4, h5, h6{
 
 h2 {
     font-size: 16px;
+}
+
+b {
+    color: @color-font-form-gray;
 }
 
 input[type="button"], input[type="submit"], input[type="reset"], input[type="file"], button {
@@ -45,7 +49,7 @@ html {
 body {
     -webkit-font-smoothing: antialiased;
     .nomargin-padding;
-    .font(@weight: 600, @family: @font-base, @color: @color-font-form-gray);
+    .font(@weight: 400, @family: @font-base, @color: @color-font-xcDark);
     font-size: 0; /* Need to use this to get rid of stupid white space */
     overflow-y: hidden;
     background: @color-bg-body-gray;
@@ -574,7 +578,6 @@ body {
 /* For Both worksheet menu bar and bottom area bar */
 .topBar {
     .size(@width: 100%, @height: @height-homeBtn);
-    color: @color-font-form-gray;
     background-color: @color-bg-topBarGray2;
     padding-left: @width-menuPadding;
     padding-right: @width-userBox;
@@ -583,7 +586,7 @@ body {
     z-index: @z-index-topBar;
 
     .title {
-        .font(@size: 20px, @color: @color-bg-cardHeader);
+        .font(@size: 20px, @weight: 600, @color: @color-bg-cardHeader);
         float: left;
         line-height: @height-homeBtn;
     }
@@ -702,7 +705,7 @@ body {
 
             &.next {
                 color: @color-bg-cancel-gray-hover;
-                font-weight: normal;
+                font-weight: 400;
                 position: absolute;
                 left: 92px;
             }
@@ -741,7 +744,6 @@ body {
 #userMenu, #helpAreaMenu {
     z-index: @z-index-useMenu;
     li {
-        color: @color-font-form-gray;
         font-weight: 500;
         &.selected {
             background-color: @color-selectedCell-light;
@@ -868,22 +870,22 @@ body {
         .size(@width: 100%, @height: 100%);
         float: left;
         display: inline-block;
-        // color: @color-font-form-gray;
         white-space: nowrap;
         overflow: hidden;
         .flex-display;
         margin-left: 0 !important;
 
         .panelName {
-            color: @color-font-form-gray;
-            .font(@size: 18px, @color: @color-bg-cardHeader);
+            text-transform: capitalize;
+            .font(@size: 18px, @color: @color-font-form-gray, @line-height: 10px, @weight: 600);
             margin-left: 1px;
+            overflow: visible;
         }
     }
 
     .workspaceArea {
         .size(@height: 15px);
-        .font(@size: 13px, @line-height: 13px);
+        .font(@size: 13px, @line-height: 13px, @weight: 500);
         margin-top: (@height-homeBtn - 15px) / 2;
         overflow: hidden;
         cursor: default;
@@ -922,7 +924,7 @@ body {
         }
 
         .fail {
-            font-weight: bold;
+            font-weight: 600;
         }
 
         .close {
@@ -1373,13 +1375,13 @@ input {
         .position(absolute, @top: 14px, @right: 10px);
         .size(14px, 14px);
         display: inline-block;
-        color: @color-black;
-        font-weight: bold;
+        color: @color-font-xcDark;
+        font-weight: 600;
     }
 
     .title {
         margin-bottom: 3px;
-        font-weight: bold;
+        font-weight: 600;
 
         .titleText {
             display: inline-block;
@@ -1388,7 +1390,7 @@ input {
     }
 
     .message, .detailContent {
-        color: @color-font-form-gray;
+        color: @color-font-xcDark;
         .font(@size: 12px, @line-height: 16px);
         white-space: normal;
         word-wrap: break-word;
@@ -1912,7 +1914,7 @@ input {
 
 i.qMark {
     .size(12px, 12px);
-    background-color: @color-bg-cancel-gray-hover;
+    background-color: @color-icon-gray-hover;
     color: @color-white;
     border-radius: 100%;
     font-size: 7px;
@@ -1952,7 +1954,7 @@ input[type=number]::-webkit-outer-spin-button {
     opacity: 0.75;
     color: @color-font-gray36;
     color: @color-text-midlightGray;
-    font-weight: bold;
+    font-weight: 600;
     pointer-events: none;
 
     &:after {
@@ -2270,6 +2272,7 @@ body.tooltipOff {
 /* CodeMirror linewidget */
 .CodeMirror {
     font-size: 13px;
+    font-weight: 600;
 }
 
 #udf-fnSection {
@@ -2463,7 +2466,7 @@ body.tooltipOff {
 
         .ui-datepicker-title {
             text-align: center;
-            .font(@size: 14px, @weight: bold);
+            .font(@size: 14px, @weight: 600);
             background-color: @color-hover-blue;
             text-transform: uppercase;
         }
@@ -2479,7 +2482,7 @@ body.tooltipOff {
 
         th {
             background-color: @color-bg-select-blue;
-            .font(@size: 10px, @color: @color-white, @line-height: 2, @weight: bold);
+            .font(@size: 10px, @color: @color-white, @line-height: 2, @weight: 600);
 
             span {
                 height: 20px;
@@ -2495,7 +2498,7 @@ body.tooltipOff {
 
             span, a {
                 text-decoration: none;
-                .font(@size: 12px, @color: @color-font-greyish-brown, @weight: bold);
+                .font(@size: 12px, @color: @color-font-greyish-brown, @weight: 600);
                 text-shadow: 0px 0px rgba(0, 0, 0, 0.2);
             }
 

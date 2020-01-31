@@ -5674,15 +5674,15 @@ namespace DSConfig {
     ): HTML {
         let text: HTML = '<span>';
         if (error === ColTStr.RenameStartInvalid) {
-            text += '<b class="highlight">' + header.colName.slice(0, 1) +
-                    '</b>' + header.colName.slice(1);
+            text += '<span class="semibold highlight">' + header.colName.slice(0, 1) +
+                    '</span>' + header.colName.slice(1);
 
         } else if (error === ErrTStr.NoEmpty) {
             text += '<span class="empty">' + CommonTxtTstr.empty + '</span>';
         } else {
             text += Array.from(header.colName).map(function(ch) {
                 return xcHelper.hasInvalidCharInCol(ch, false) ?
-                       '<b class="highlight">' + ch + '</b>' : ch;
+                       '<span class="semibold highlight">' + ch + '</span>' : ch;
             }).join("");
         }
 

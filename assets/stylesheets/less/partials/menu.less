@@ -358,9 +358,9 @@
         border-bottom: 1px solid @color-border-softGray;
         height: @liHeight;
         line-height: @liHeight;
-        color: @color-font-edge;
+        color: @color-font-xcDark;
         font-size: 11px;
-        font-weight: 600;
+        font-weight: 400;
         .noSelection;
         text-align: left;
 
@@ -424,7 +424,7 @@
         }
 
         .icon {
-            .font(@size: 10px, @line-height: @liHeight);
+            .font(@size: 10px, @line-height: @liHeight, @color: @color-icon-gray);
             margin-right: 6px;
             display: inline-block;
             width: 10px;
@@ -433,7 +433,7 @@
 
     input, .menuInput {
         .size(@width: 160px, @height: 20px);
-        .font(@size: 12px, @line-height: 20px, @color: @color-font-edge);
+        .font(@size: 12px, @line-height: 20px, @color: @color-font-xcDark);
         margin-left: -3px;
         padding: 0 2px;
         text-align: center;
@@ -512,7 +512,7 @@
             .typeIcon;
 
             .type.icon {
-                color: @color-font-edge;
+                color: @color-icon-gray;
             }
 
             .flexWrap.flex-left {
@@ -852,7 +852,7 @@
 // styling common to menus and lists
 .menu, .list {
     .sectionLabel {
-        font-weight: 700;
+        font-weight: 600;
         padding-left: 5px;
         padding-right: 8px;
         .textOverflowOneLine;

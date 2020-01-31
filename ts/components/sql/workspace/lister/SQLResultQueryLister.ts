@@ -23,7 +23,7 @@ class SQLResultQueryLister extends AbstractSQLResultLister{
 
     protected _getHintHTML(): HTML {
         return '<div class="hintArea">' +
-                    '<b>No saved queries</b>' +
+                    '<span class="semibold">No saved queries</span>' +
                     '<div class="hint">Write and save a SQL query to get started</div>' +
                 '</div>';
     }

@@ -25,7 +25,7 @@
     .size(@max-width: 99%, @max-height: 99%);
     z-index: @z-index-modal;
     background-color: @color-white;
-    color: @color-font-form-gray;
+    color: @color-font-xcDark;
     box-shadow: -2px 4px 8px 0 rgba(12, 31, 49, 0.1), 0 10px 24px 0 rgba(12, 31, 49, 0.15), 0 15px 32px 0 rgba(12, 31, 49, 0.1);
     .rounded(16px);
     width: @modal-normal-w;
@@ -73,7 +73,7 @@
         }
 
         .text {
-            .font(@size: 20px, @weight: 600);
+            .font(@size: 20px, @weight: 600, @color: @color-font-darkGray);
             display: inline-block;
             padding-right: @modal-padding-horizontal;
             line-height: @modal-header-text-h;
@@ -117,7 +117,7 @@
             font-weight: normal;
         }
 
-        b {
+        b, .semibold {
             color: @color-font-link-blue;
         }
     }
@@ -448,7 +448,7 @@
         &.multiSelectMode {
             .menu {
                 li.selectionOpt {
-                    color: @color-font-form-gray;
+                    color: @color-font-xcDark;
                     .check {
                         display: none;
                     }
@@ -747,7 +747,7 @@
 
             &.seeAll {
                 position: relative;
-                font-weight: 700;
+                font-weight: 600;
 
                 &.active {
                     min-width: 90px;
@@ -1059,7 +1059,7 @@
     .modalTopMain {
         @height: @modal-top-main-h;
         .size(@height: @height);
-        .font(@weight: bold, @line-height: @height);
+        .font(@weight: 600, @line-height: @height);
         padding-top: 0;
         padding-bottom: 0;
 
@@ -1081,7 +1081,7 @@
 
         .text {
             margin-left: 10px;
-            .font(@weight: bold, @size: 13px, @line-height: 25px,
+            .font(@weight: 600, @size: 13px, @line-height: 25px,
                 @color: @color-font-select-blue);
         }
         .progressValue {
@@ -1160,7 +1160,7 @@
                 }
                 &.active {
                     background-color: @color-white;
-                    color: @color-font-form-gray;
+                    color: @color-font-xcDark;
                     border-right: none;
                     border-bottom: none;
                     border-left: 2px solid  @color-agg-border-blue;
@@ -1291,14 +1291,14 @@
                 .justify-content(center);
                 .align-items(center);
                 .flex-direction(column);
-                .font(@weight: bold, @size: 14px);
+                .font(@weight: 600, @size: 14px);
                 .textOverflow;
                 white-space: nowrap;
 
                 &.aggTableFlex {
                     background-color: @color-white;
                     .dash {
-                        color: @color-font-form-gray;
+                        color: @color-font-xcDark;
                     }
                 }
             }
@@ -1352,7 +1352,7 @@
         margin-bottom: 15px;
 
         label {
-            font-weight: bold;
+            font-weight: 600;
             text-transform: capitalize;
         }
 
@@ -1797,7 +1797,7 @@ html.microsoft {
             padding-bottom: 15px;
             min-height: 53px;
 
-            b {
+            b, .semibold {
                 color: @color-font-link-blue;
             }
         }
@@ -1838,7 +1838,7 @@ html.microsoft {
     }
 
     .header {
-        font-weight: bold;
+        font-weight: 600;
     }
     .colNum {
         width: 80px;
@@ -1998,7 +1998,7 @@ html.microsoft {
             .size(@width: ~"calc(100% - 26px)", @height: 26px);
             font-size: 12px;
             line-height: 26px;
-            color: @color-font-form-gray;
+            color: @color-font-xcDark;
             outline: none;
         }
         .iconWrapper {
@@ -2063,13 +2063,13 @@ html.microsoft {
                 .size(@width: 100%, @height: 30px);
 
                 .text {
-                    .font(@size: 12px, @weight: bold, @line-height: 30px);
+                    .font(@size: 12px, @weight: 600, @line-height: 30px);
                     margin-right: 3px;
                 }
 
                 .animatedEllipsis {
                     > div {
-                        .font(@size: 12px, @weight: bold, @line-height: 30px);
+                        .font(@size: 12px, @weight: 600, @line-height: 30px);
                     }
                 }
             }
@@ -2186,7 +2186,7 @@ html.microsoft {
 
         .label {
             height: 20px;
-            font-weight: 700;
+            font-weight: 600;
             padding-left: 15px;
         }
 
@@ -3087,7 +3087,7 @@ html.microsoft {
 
                 .tick:not(.last) {
                     fill: @color-profile-bar;
-                    font-weight: bold;
+                    font-weight: 600;
                 }
             }
 
@@ -3951,7 +3951,7 @@ html.microsoft {
             }
             .header {
                 margin-top: 20px;
-                font-weight: bold;
+                font-weight: 600;
                 font-size: 16px;
             }
             .textRow {
@@ -4044,7 +4044,7 @@ html.microsoft {
 
     .subHeader {
         .fileName {
-            font-weight: bold;
+            font-weight: 600;
         }
     }
 
@@ -4324,7 +4324,7 @@ html.microsoft {
                 width:  ~"calc(100% - 162px)";
                 .tooltipName {
                     font-size: 18px;
-                    font-weight: bold;
+                    font-weight: 600;
                 }
                 .detail {
                     font-size: 14px;
@@ -4457,7 +4457,7 @@ html.microsoft {
             background: #f8f8f8;
         }
         .libStatsHeading, .dagNodeGroupHeading {
-            font-weight: bold;
+            font-weight: 600;
             padding: 10px 0px;
             width: 100%;
             text-align: center;
@@ -4471,7 +4471,7 @@ html.microsoft {
             }
             th {
                 text-align: left;
-                font-weight: bold;
+                font-weight: 600;
             }
             th, td {
                 vertical-align: top;
@@ -4533,7 +4533,7 @@ html.microsoft {
         header {
             text-align: center;
             padding: 10px;
-            font-weight: bold;
+            font-weight: 600;
         }
         li {
             .xc-action;
@@ -4641,7 +4641,7 @@ html.microsoft {
                 color: @color-link-blue;
                 text-decoration: underline;
                 text-transform: capitalize;
-                font-weight: bold;
+                font-weight: 600;
                 margin-right: 8px;
                 .xc-action;
             }
@@ -5019,7 +5019,7 @@ html.microsoft {
         height: ~"calc(100% - @{h-without-main})";
 
         .label {
-            font-weight: bold;
+            font-weight: 600;
             margin-bottom: 8px;
         }
 
@@ -5034,7 +5034,7 @@ html.microsoft {
         height: ~"calc(100% - @{h-without-main})";
 
         .label {
-            font-weight: bold;
+            font-weight: 600;
             margin-bottom: 8px;
         }
 
@@ -5067,7 +5067,7 @@ html.microsoft {
         }
 
         .key {
-            font-weight: bold;
+            font-weight: 600;
         }
 
         .val {
@@ -5272,7 +5272,7 @@ html.microsoft {
         cursor: pointer;
     }
     .content {
-        b {
+        b, .semibold {
             font-family: @font-base;
         }
         padding: 10px;
@@ -5520,7 +5520,7 @@ html.microsoft {
         clear: both;
         p {
             color: @color-prefix-gray;
-            font-weight: bold;
+            font-weight: 600;
         }
     }
     .supportMsgSender {
@@ -5530,7 +5530,7 @@ html.microsoft {
         clear: both;
         p {
             color: @color-prefix-gray;
-            font-weight: bold;
+            font-weight: 600;
         }
     }
     .confirmBox {
@@ -5627,7 +5627,7 @@ html.microsoft {
     }
 
     .columnHeader {
-        font-weight: bold;
+        font-weight: 600;
         float: left;
     }
     .expandAll, .collapseAll {
@@ -5686,7 +5686,7 @@ html.microsoft {
     }
 
     .groupHeader {
-        font-weight: bold;
+        font-weight: 600;
         padding: 16px 24px 0px;
         margin-bottom: -8px; // to counter 16px padding from first row
         cursor: pointer;
@@ -5822,13 +5822,13 @@ html.microsoft {
                 .flex-display;
 
                 .text {
-                    .font(@size: 12px, @weight: bold, @line-height: 30px);
+                    .font(@size: 12px, @weight: 600, @line-height: 30px);
                     margin-right: 3px;
                 }
 
                 .animatedEllipsis {
                     > div {
-                        .font(@size: 12px, @weight: bold, @line-height: 30px);
+                        .font(@size: 12px, @weight: 600, @line-height: 30px);
                     }
                 }
             }
@@ -5867,7 +5867,7 @@ html.microsoft {
 
     .treeWrap {
         white-space: pre;
-        color: @color-font-form-gray;
+        color: @color-font-xcDark;
         font-size: 13px;
         padding: 20px 40px 30px;
         display: inline-block;
@@ -6204,7 +6204,7 @@ html.microsoft {
         position: relative; // for .scrollbar
 
         .headerArea {
-            font-weight: 700;
+            font-weight: 600;
             height: 36px;
             border-bottom: 1px solid @color-border-pinkish-grey2;
 
@@ -6713,7 +6713,7 @@ html.microsoft {
         overflow: auto;
 
         .title {
-            font-weight: bold;
+            font-weight: 600;
             padding-bottom: 10px;
         }
     }

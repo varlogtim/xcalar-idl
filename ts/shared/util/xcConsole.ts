@@ -160,11 +160,11 @@ namespace xcConsole {
         const tag: string = isError ? '<div style="color:red;">' : '<div>';
         const content: string =
             tag +
-                '<b>Info:</b><br/>' +
+                '<span class="semibold">Info:</span><br/>' +
                 JSON.stringify(args) +
             '</div>' +
             '<div>' +
-                '<b>Stack:</b><br/>' +
+                '<span class="semibold">Stack:</span><br/>' +
                 stackStr +
             '</div>';
         $alert.find('.content').html(content);

@@ -387,7 +387,7 @@ class JoinOpPanelStep1 {
         const { type1, type2 } = props;
         const content = xcStringHelper.replaceMsg(
             JoinTStr.MismatchDetail,
-            { type1: `<b>${type1}</b>`, type2: `<b>${type2}</b>` }
+            { type1: `<span class="semibold">${type1}</span>`, type2: `<span class="semibold">${type2}</span>` }
         );
         const $element = BaseOpPanel.createElementFromString(`<span>${content}</span>`);
         return $element[0];

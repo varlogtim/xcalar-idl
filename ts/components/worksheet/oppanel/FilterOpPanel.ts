@@ -400,13 +400,13 @@ class FilterOpPanel extends GeneralOpPanel {
         $rows.show().filter(":gt(" + (numArgs - 1) + ")").remove();
 
         const despText = operObj.fnDesc || "N/A";
-        const descriptionHtml = '<b>' + OpFormTStr.Descript + ':</b> ' +
+        const descriptionHtml = '<span class="semibold">' + OpFormTStr.Descript + ':</span> ' +
                     '<span class="instrText">' + despText + '</span>';
 
         $argsGroup.find('.descriptionText').html(descriptionHtml);
 
         this._$panel.find('.strPreview')
-                        .html('<b>' + OpFormTStr.CMD + ':</b> <br>' +
+                        .html('<span class="semibold">' + OpFormTStr.CMD + ':</span> <br>' +
                                 strPreview);
         this._checkIfStringReplaceNeeded(true);
     }

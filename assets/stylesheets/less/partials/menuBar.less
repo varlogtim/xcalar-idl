@@ -56,7 +56,7 @@
             .mainTab {
                 opacity: 1;
                 .icon, .label {
-                    color: @color-bg-cardHeader;
+                    color: @color-icon-gray;
                 }
             }
 
@@ -288,7 +288,7 @@
     .position(absolute, @left: 0px);
     .size(@width-topMenu,  @min-width: @width-topMenu, @height: ~"calc(100% - @{height-topBar})");
     padding: 0px;
-    color: @color-font-form-gray;
+    color: @color-font-xcDark;
     border-right: 1px solid @color-border-grayBlue;
     margin-left: @width-homeBtn;
     z-index: @z-index-topMenu;
@@ -330,12 +330,10 @@
     .menuSection {
         background-color: @color-white;
         padding-bottom: 5px;
-        color: @color-font-edge;
         height: 100%;
 
         > .topSection {
             display: flex;
-            font-weight: bold;
             padding-left: 15px;
             padding-right: 8px;
             height: @topSectionHeight;
@@ -344,10 +342,11 @@
 
             .titleSection {
                 .flex(1 1 auto);
-                color: @color-font-form-gray;
                 font-size: 22px;
                 line-height: @topSectionHeight;
                 overflow: hidden;
+                font-weight: 600;
+                color: @color-font-darkGray;
 
                 header {
                     .textOverflowOneLine;
@@ -369,7 +368,7 @@
 
         > .mainSection {
             height: ~"calc(100% - @{topSectionHeight})";
-            color: @color-font-edge;
+            color: @color-font-xcDark;
             overflow: auto;
             border-top: none;
             padding-top: 10px;
@@ -569,7 +568,7 @@
         padding-left: @width-menuPadding;
 
         h2 {
-            .font(@line-height: 60px,  @size: 20px, @weight: bold, @color: @color-font-form-gray);
+            .font(@line-height: 60px,  @size: 20px, @weight: 600, @color-font-xcDark);
             display: inline-block;
             .textOverflowOneLine;
         }
@@ -585,7 +584,7 @@
 
 /* ========== UDF Section ========== */
 #udfSection {
-    color: @color-font-form-gray;
+    color: @color-font-xcDark;
     overflow: visible !important;
 
     .mainSectionContainer {
@@ -622,7 +621,7 @@ ul.CodeMirror-hints {
     }
 
     input {
-        color: @color-font-form-gray;
+        color: @color-font-xcDark;
         .textOverflowOneLine;
     }
 
@@ -693,7 +692,7 @@ ul.CodeMirror-hints {
 
             li {
                 box-shadow: inset 0 -1px 0 0 @color-border-menugray;
-                color: @color-font-form-gray;
+                color: @color-font-xcDark;
                 font-size: 12px;
                 background-color: @color-white;
 
@@ -720,7 +719,7 @@ ul.CodeMirror-hints {
                     line-height: 24px;
                     background-color: @color-bg-light-navy;
                     text-transform: uppercase;
-                    font-weight: bold;
+                    font-weight: 600;
                 }
 
                 &.dataflowHeader {
@@ -729,7 +728,7 @@ ul.CodeMirror-hints {
                     background-color: @color-bg-dusk-blue;
                     text-transform: uppercase;
                     padding-left: 15px;
-                    font-weight: bold;
+                    font-weight: 600;
                 }
 
                 &[name="blank"] {

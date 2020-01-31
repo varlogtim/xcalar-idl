@@ -494,10 +494,10 @@ class DagCategoryBar {
             table = '<g class="table" transform="translate(130, 0)" display="none">' +
                         '<path class="tableLine" stroke="#627483" stroke-width="1px" fill="none" stroke-linecap="round" d="M-35,14L16,14"></path>' +
                         '<rect x="0" y="3" width="22" height="22" fill="white" ry="2" rx="2" />'+
-                        '<text font-family="icomoon" font-size="24" x="-2" y="24" ' + xcTooltip.Attrs + ' data-original-title="Click to view options">\uea07</text>' +
+                        '<text class="mainTableIcon" font-family="icomoon" font-size="24" x="-2" y="24" ' + xcTooltip.Attrs + ' data-original-title="Click to view options">\uea07</text>' +
                         '<text class="tableName" x="12" y="36" ' +
                         'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
-                        'font-size="10" fill="#44515c">' +
+                        'font-size="10" fill="#000000">' +
                         '</text>' +
                     '</g>';
         }
@@ -553,17 +553,17 @@ class DagCategoryBar {
             const namePart2 = name.slice(name.lastIndexOf(" ") + 1);
             html = '<text class="opTitle" x="50%" y="30%" ' +
             'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
-            'font-size="11" fill="#44515c">' + namePart1 +
+            'font-size="11" fill="#000000">' + namePart1 +
             '</text>' +
             '<text class="opTitle" x="50%" y="70%" ' +
             'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
-            'font-size="11" fill="#44515c">' + namePart2 +
+            'font-size="11" fill="#000000">' + namePart2 +
             '</text>';
 
         } else {
             html = '<text class="opTitle" x="50%" y="50%" ' +
             'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
-            'font-size="11" fill="#44515c">' + name +
+            'font-size="11" fill="#000000">' + name +
             '</text>';
         }
         return html;

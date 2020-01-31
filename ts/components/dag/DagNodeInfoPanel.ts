@@ -304,7 +304,7 @@ class DagNodeInfoPanel {
                 statsHtml += `<div class="operationStats">
                     <div class="statsRow subRow">
                         <div class="label">Operation: </div>
-                        <div class="value"><b>${operationName}</b></div>
+                        <div class="value"><span class="semibold">${operationName}</span></div>
                     </div>
                     <div class="statsRow subRow">
                         <div class="label">Progress: </div>
@@ -428,7 +428,7 @@ class DagNodeInfoPanel {
         let colHTML: HTML = "";
         if (columnDeltas.size) {
             columnDeltas.forEach((colInfo, colName) => { // map to obj
-                colHTML += `<b>${colName}</b>\n`;
+                colHTML += `<span class="semibold">${colName}</span>\n`;
                 let colInfoHTML = JSON.stringify(colInfo, null, 4);
                 colInfoHTML = colInfoHTML.slice(2, -1); // remove { }
                 colHTML += colInfoHTML;

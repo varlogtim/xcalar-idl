@@ -35,11 +35,11 @@
         margin-left: 0px;
         z-index: @z-index-topMenu;
         background-color: @color-white;
-        color: @color-font-edge;
+        color: @color-font-xcDark;
 
         > .topSection {
             display: flex;
-            font-weight: bold;
+            font-weight: 600;
             padding-left: 15px;
             padding-right: 8px;
             height: @topSectionHeight;
@@ -47,7 +47,7 @@
 
             .titleSection {
                 .flex(1 1 auto);
-                color: @color-font-form-gray;
+                color: @color-font-xcDark;
                 font-size: 22px;
                 line-height: @topSectionHeight;
             }
@@ -67,7 +67,7 @@
 
         > .mainSection {
             height: ~"calc(100% - @{topSectionHeight})";
-            color: @color-font-edge;
+            color: @color-font-xcDark;
             overflow: auto;
             border-top: none;
             padding-top: 10px;
@@ -196,7 +196,7 @@
             .size(@height: 100%);
             .rounded(10px);
             margin-right: 12px;
-            background-color: @color-bg-cardHeader;
+            background-color: @color-icon-gray;
             opacity: 0.7;
             color: @color-white;
 
@@ -224,7 +224,7 @@
         }
 
         .deleteIcon, .xi-close {
-            color: @color-bg-cardHeader;
+            color: @color-icon-gray;
             overflow: hidden; // maintains height
         }
 
@@ -304,16 +304,16 @@
 
         &.sysType {
             .name {
-                color: @color-bg-cardHeader;
+                color: @color-icon-gray;
             }
             .progressBar {
                 background-color: @color-bg-dropdown-gray;
             }
             .queryIcon {
-                color: @color-bg-cardHeader;
+                color: @color-icon-gray;
             }
             .querySteps {
-                color: @color-bg-cardHeader;
+                color: @color-icon-gray;
             }
         }
 
@@ -352,7 +352,7 @@
             float: right;
 
             .icon {
-                .font(@size: 14px, @color: @color-bg-cardHeader);
+                .font(@size: 14px, @color: @color-icon-gray);
                 float: right;
                 &:first-child {
                     margin-left: 10px;
@@ -366,7 +366,7 @@
         }
 
         .name {
-            .font(@size: 14px, @color: @color-bg-cardHeader);
+            .font(@size: 14px, @color: @color-icon-gray);
             .position(relative, @top: -2px);
             text-transform: capitalize;
         }
@@ -506,7 +506,7 @@
                 }
 
                 .type {
-                    font-weight: bold;
+                    font-weight: 600;
                 }
 
                 &.left {
@@ -676,7 +676,7 @@
             .sampleText {
                 text-align: center;
                 z-index: 5;
-                .font(@size: 70px, @color: @color-white, @weight: bold);
+                .font(@size: 70px, @color: @color-white, @weight: 600);
                 line-height: 110px;
                 opacity: 0.15;
             }
@@ -723,7 +723,7 @@
 
             .sampleText {
                 .position(absolute, @top: 20px, @left: -40px);
-                .font(@size: 44px, @color: black, @weight: bold);
+                .font(@size: 44px, @color: black, @weight: 600);
                 .transform(rotate(35deg));
                 opacity: 0.15;
                 z-index: 5;
@@ -984,7 +984,7 @@
                     height: 16px;
                     white-space: nowrap;
                     &:hover, &.hover {
-                        font-weight: bold;
+                        font-weight: 600;
                     }
                     &:nth-child(1) .key {
                         background-color: @color-arc-sysfree;
@@ -1219,7 +1219,7 @@
 
                         .name {
                             color: @color-font-navy;
-                            font-weight: bold;
+                            font-weight: 600;
                             float: left;
                             position: relative;
                         }
@@ -1304,7 +1304,7 @@
         border-top: 1px solid @color-bg-cancel-gray-hover;
 
         .title {
-            .font(@size: 14px, @weight: 700, @color: @color-font-edge);
+            .font(@size: 14px, @weight: 600, @color: @color-font-xcDark);
         }
         .flex-display;
         .flex-direction(column);
@@ -1385,7 +1385,7 @@
             padding-left: 15px;
             padding-top: 10px;
             position: relative;
-            .font(@weight: 700);
+            .font(@weight: 600);
             overflow: hidden;
 
             .text {
@@ -1453,7 +1453,7 @@
     .statusSection {
         .content {
             padding: 10px 20px 0px 0px;
-            color: @color-font-form-gray;
+            color: @color-font-xcDark;
             font-size: 12px;
 
             .status {
@@ -1662,13 +1662,13 @@
         }
 
         .label {
-            font-weight: bold;
+            font-weight: 600;
             margin-right: 5px;
         }
 
         .name {
             color: @color-font-select-blue;
-            font-weight: bold;
+            font-weight: 600;
         }
 
         input {
@@ -1816,7 +1816,7 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
                 font-size: 11px;
-                font-weight: bold;
+                font-weight: 600;
                 text-align: center;
                 color: @color-font-greyish-brown;
                 opacity: 0.5;
@@ -2142,7 +2142,7 @@
 
         .text {
             line-height: 30px;
-            font-weight: 700;
+            font-weight: 600;
             .textOverflowOneLine;
         }
         .xc-input {
@@ -2206,7 +2206,7 @@
 
             .logContentWrap, .cliWrap {
                 .size(@width: 100%);
-                .font(@size: 13px, @color: @color-font-form-gray);
+                .font(@size: 13px, @color: @color-font-xcDark);
             }
 
             .logContentWrap {
