@@ -1560,6 +1560,7 @@ class DagNodeSQL extends DagNode {
         newTableMap: {}} {
         const queryStruct = JSON.parse(queryStr);
         const newTableMap = {};
+        const newAggMap = {};
         const newTableSrcMap = {};
         const newDestTableName = this._generateTableName("SQLTAG_DEST", tabId);
         let tagCount = -1;
@@ -1568,6 +1569,9 @@ class DagNodeSQL extends DagNode {
                 const namePattern = operation.args.namePattern;
                 if (namePattern && newTableMap[namePattern]) {
                     operation.args.namePattern = newTableMap[namePattern];
+                }
+                if (namePattern && newAggMap["^" + operation.args.namePattern]) {
+                    operation.args.namePattern = newAggMap["^" + operation.args.namePattern].substring(1);
                 }
                 return;
             }
@@ -1599,6 +1603,21 @@ class DagNodeSQL extends DagNode {
             } else {
                 operation.args.source = source;
             }
+            // agg replacement for eval strings
+            if (operation.operation === "XcalarApiJoin") {
+                operation.args.evalString = XDParser.XEvalParser
+                                    .replaceColName(operation.args.evalString,
+                                                    {}, newAggMap, true);
+            } else if (operation.operation === "XcalarApiGroupBy"
+                       || operation.operation === "XcalarApiMap"
+                       || operation.operation === "XcalarApiFilter"
+                       || operation.operation === "XcalarApiAggregate") {
+                for (let i = 0; i < operation.args.eval.length; i++) {
+                    operation.args.eval[i].evalString = XDParser.XEvalParser
+                                .replaceColName(operation.args.eval[i].evalString,
+                                                {}, newAggMap, true);
+                }
+            }
             // dest replacement
             if (operation.args.dest === oldDestTableName) {
                 newTableMap[operation.args.dest] = newDestTableName;
@@ -1609,6 +1628,11 @@ class DagNodeSQL extends DagNode {
                     newTableMap[operation.args.dest] = this._generateTableName("SQLTAG_" + tagCount, tabId);
                 }
                 operation.args.dest = newTableMap[operation.args.dest];
+            } else {
+                tagCount++;
+                let newAggName = this._generateTableName("SQLTAG_" + tagCount, tabId, true);
+                newAggMap["^" + operation.args.dest] = "^" + newAggName;
+                operation.args.dest = newAggName;
             }
         });
         return {newQueryStr: JSON.stringify(queryStruct),
@@ -1617,7 +1641,7 @@ class DagNodeSQL extends DagNode {
                 newTableMap: newTableMap};
     }
 
-    private _generateTableName(tag: string, tabId?: string): string {
+    private _generateTableName(tag: string, tabId?: string, isAgg?: boolean): string {
         try {
             let prefix = xcHelper.genTableNameFromNode(this);
             if (prefix == "") {
@@ -1625,14 +1649,24 @@ class DagNodeSQL extends DagNode {
                 this.identifiers.forEach((identifier) => identifiersList.push(identifier));
                 prefix = identifiersList.join("_");
             }
-            return prefix + (tag ? "_" + tag : "") +
-                    Authentication.getTableId(tabId);
+            if (isAgg) {
+                return prefix + (tag ? "_" + tag : "") +
+                        Authentication.getTableId().substring(1);
+            } else {
+                return prefix + (tag ? "_" + tag : "") +
+                        Authentication.getTableId();
+            }
         } catch (e) {
             console.error("generate table name error", e);
             // when has error case, use the old behavior
             // XXX TODO: deprecate it
-            return "table_" + (tabId ? tabId : "") + "_" + this.getId()
-                + (tag ? "_" + tag : "") + Authentication.getHashId();
+            if (isAgg) {
+                return "table_" + (tabId ? tabId : "") + "_" + this.getId()
+                    + (tag ? "_" + tag : "") + Authentication.getHashId().substring(1);
+            } else {
+                return "table_" + (tabId ? tabId : "") + "_" + this.getId()
+                    + (tag ? "_" + tag : "") + Authentication.getHashId();
+            }
         }
     }
 }
