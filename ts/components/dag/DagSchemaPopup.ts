@@ -35,17 +35,17 @@ class DagSchemaPopup {
     }
 
     public bringToFront() {
-        let $allPopups = this._$dagArea.find(".dagSchemaPopup");
+        let $allPopups = this._getContainer().find(".dagSchemaPopup");
         if ($allPopups.index(this._$popup) === $allPopups.length - 1) {
             // if popup is already at the end, don't move
             return;
         }
-        this._$popup.appendTo(this._$dagArea);
+        this._$popup.appendTo(this._getContainer());
     }
 
     private _show(): void {
         this._$popup = $(this._getHtml());
-        this._$popup.appendTo(this._$dagArea);
+        this._$popup.appendTo(this._getContainer());
         this._addEventListeners();
         this._dagView = DagViewManager.Instance.getActiveDagView();
 
@@ -111,7 +111,7 @@ class DagSchemaPopup {
         this._$popup.draggable({
             handle: '#dagSchemaPopupTitle-'  + this._nodeId,
             cursor: '-webkit-grabbing',
-            containment: "#dagView"
+            containment: "#sqlWorkSpacePanel"
         });
 
         this._$popup.resizable({
@@ -284,14 +284,14 @@ class DagSchemaPopup {
     private _positionPopup(): void {
         const $node: JQuery = DagViewManager.Instance.getNode(this._nodeId, this._tabId);
         const rect: ClientRect = $node[0].getBoundingClientRect();
-        let $container = $("#dagView");
+        let $container = this._getContainer();
         let containerOffset = $container.offset();
         let top: number = Math.max(5, rect.top - containerOffset.top);
         let left: number = Math.max(5, rect.left - containerOffset.left);
         let defaultWidth = 320;
         let defaultHeight =  260;
-        let rightBoundary: number = containerOffset.left + $container.width() - 5;
-        let bottomBoundary: number = containerOffset.top + $container.height() - 5;
+        let rightBoundary: number = containerOffset.left + $container.outerWidth() - 5;
+        let bottomBoundary: number = containerOffset.top + $container.outerHeight() - 5;
         if (this._$popup.hasClass("hasHiddenCols")) {
             defaultWidth += 40;
         }
@@ -380,7 +380,7 @@ class DagSchemaPopup {
         $dagView.find(".lineageSelected").removeClass("lineageSelected");
         $dagView.find(".lineageTip").remove();
         $dagView.removeClass("hideProgressTips");
-        $dagView.find(".dagSchemaPopup li.selected").removeClass("selected");
+        this._getContainer().find(".dagSchemaPopup li.selected").removeClass("selected");
     }
 
     private _getHtml() {
@@ -419,5 +419,9 @@ class DagSchemaPopup {
             this._clearLineage();
             this._fillColumns();
         });
+    }
+
+    private _getContainer(): JQuery {
+        return $("#sqlWorkSpacePanel");
     }
 }

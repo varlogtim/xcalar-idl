@@ -46,6 +46,23 @@ class SQLWorkSpace {
         }
         TblFunc.moveFirstColumn();
 
+        // deslect nodes when clicking outside dataflow area or dataflow
+        // related divs
+        $("#container").on("mousedown.sqlPanelMouseDown", (event) => {
+            const $target = $(event.target);
+            if ($target.closest("#sqlWorkSpacePanel").length &&
+                !$target.closest("#dagView").length &&
+                !$target.closest("#dataflowMenu").length &&
+                !$target.closest("#dagNodeMenu").length &&
+                !$target.closest("#dagTableNodeMenu").length &&
+                !$target.closest(".dagSchemaPopup").length &&
+                !$target.closest("#dagTabView").length
+            ) {
+                DagViewManager.Instance.deselectNodes();
+                DagNodeInfoPanel.Instance.hide();
+            }
+        });
+
         // $(window).off(".sqlPanelResize");
         // let resizeTimer;
         // $(window).on("resize.sqlPanelResize", () => {
@@ -58,6 +75,7 @@ class SQLWorkSpace {
 
     public unfocus(): void {
         $(window).off(".sqlPanelResize");
+        $("#container").off(".sqlPanelMouseDown");
     }
 
     /**
