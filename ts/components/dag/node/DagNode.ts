@@ -7,8 +7,8 @@ abstract class DagNode extends Durable {
     private id: DagNodeId;
     private parents: DagNode[];
     private children: DagNode[];
-    private description: string;
-    private title: string;
+    protected description: string;
+    protected title: string;
     protected table: string;
     private state: DagNodeState;
     protected error: string;

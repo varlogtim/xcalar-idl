@@ -4,7 +4,7 @@
     @color-border-operator: @color-bg-cardHeader;
     @color-connector: @color-border-softGray2;
     @operator-height: 28px;
-    @operator-width: 90px;
+    @operator-width: 77px;
 
     position: relative;
 
@@ -470,7 +470,7 @@
     @color-border-operator: @color-bg-cardHeader;
     @color-connector: @color-border-softGray2;
     @operator-height: 28px;
-    @operator-width: 90px;
+    @operator-width: 77px;
 
     &.showProgressTips {
         .dagTableTip.runStats, .dagTableTip.nodeStats {
@@ -564,6 +564,45 @@
             }
         }
 
+        &.instruction {
+            opacity: 0.8;
+            &.selected {
+                opacity: 1;
+                .main {
+                    stroke-width: 2;
+                }
+                .icon {
+                    fill: @color-border-focus-blue;
+                }
+            }
+
+            .main {
+                stroke-width: 2;
+                stroke-dasharray: 5 5;
+                fill: transparent;
+                cursor: pointer;
+            }
+            .connInGroup, .connOut {
+                opacity: 0.8;
+            }
+            .nodeTitle {
+                display: block !important;
+            }
+            .iconArea {
+                // fill: @color-bg-select-blue;
+                fill: transparent;
+                stroke-width: 0px !important;
+            }
+            .icon {
+                transform: translate(@operator-width / 2 - 11, 1px);
+                fill: @color-bg-cardHeader;
+                font-size: 16px;
+            }
+            .statusIcon, .selection, .opTitle {
+                display: none;
+            }
+        }
+
         .opTitle, .iconArea, .icon, .opSubTypeTitle {
             pointer-events: none;
         }
@@ -575,7 +614,7 @@
         .nodeid {
             font-size: 8px;
             text-align: center;
-            width: 100px;
+            width: @operator-width + 10;
         }
 
         .nodeTitle {
@@ -630,6 +669,7 @@
                 stroke: @color-border-focus-blue;
                 stroke-width: 1;
             }
+
         }
 
         &.lineageSelected, &.lineageStart {
@@ -868,7 +908,7 @@
         }
 
         .dragSvg > .connOut > .connector.out, .dragSvg > .connOut > .connectorOutVisible {
-            transform: translate(-151px, -1px);
+            transform: translate(-137px, 0px);
         }
 
         .operator {

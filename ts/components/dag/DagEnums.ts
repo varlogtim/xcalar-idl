@@ -29,6 +29,7 @@ enum DagNodeType {
     SQLSubOutput = "SQLSubOutput",
     SubGraph = "subGraph",
     Placeholder = "placeholder",
+    Instruction = "instruction",
     Synthesize = "synthesize",
     UpdateIMD = "updateIMD",
     SQLFuncIn = "SQLFuncIn",

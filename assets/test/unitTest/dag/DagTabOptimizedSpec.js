@@ -517,7 +517,7 @@ describe('DagTabOptimized Test', function() {
                 expect($dfArea.find(".operator").length).to.equal(2);
                 expect($dfArea.find(".operator.dataset").attr('transform')).to.equal("translate(140,140)");
 
-                expect($dfArea.find(".operator.synthesize").attr('transform')).to.equal("translate(340,140)");
+                expect($dfArea.find(".operator.synthesize").attr('transform')).to.equal("translate(" + (140 + DagView.horzNodeSpacing) + ",140)");
                 let nodeid = $dfArea.find(".operator.synthesize").data("nodeid");
                 expect($dfArea.find('.nodeStats[data-id="' + nodeid + '"]').find(".progress").text()).to.equal("50%");
 

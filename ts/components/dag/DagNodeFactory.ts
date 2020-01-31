@@ -91,6 +91,9 @@ class DagNodeFactory {
             case DagNodeType.Placeholder:
                 node = new DagNodePlaceholder(<DagNodePlaceholderInfo>options, runtime);
                 break;
+            case DagNodeType.Instruction:
+                node = new DagNodeInstruction(<DagNodePlaceholderInfo>options, runtime);
+                break;
             case DagNodeType.Synthesize:
                 node = new DagNodeSynthesize(options, runtime);
                 break;
@@ -171,6 +174,8 @@ class DagNodeFactory {
                 return DagNodeSort;
             case DagNodeType.Placeholder:
                 return DagNodePlaceholder;
+            case DagNodeType.Instruction:
+                return DagNodeInstruction;
             case DagNodeType.Synthesize:
                 return DagNodeSynthesize;
             case DagNodeType.SQLFuncIn:

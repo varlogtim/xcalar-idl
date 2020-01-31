@@ -591,8 +591,8 @@ describe("DagView Test", () => {
             expect(node3.getPosition().y).to.equal(40);
 
             expect(node2.getPosition().x).to.equal(40);
-            expect(node1.getPosition().x).to.equal(240);
-            expect(node3.getPosition().x).to.equal(440);
+            expect(node1.getPosition().x).to.equal(40 + DagView.horzNodeSpacing);
+            expect(node3.getPosition().x).to.equal(40 + (DagView.horzNodeSpacing * 2));
         });
 
         // undo repositioning , connection of nodes, addition of a node
@@ -1478,11 +1478,11 @@ describe("DagView Test", () => {
 
             expect(inNode.getPosition().x).to.equal(40);
             expect(inNode.getPosition().y).to.equal(40);
-            expect(synthesizeNode.getPosition().x).to.equal(240);
+            expect(synthesizeNode.getPosition().x).to.equal(40 + DagView.horzNodeSpacing);
             expect(synthesizeNode.getPosition().y).to.equal(40);
-            expect(filter2Node.getPosition().x).to.equal(440);
+            expect(filter2Node.getPosition().x).to.equal(40 + (2 * DagView.horzNodeSpacing));
             expect(filter2Node.getPosition().y).to.equal(40);
-            expect(outNode.getPosition().x).to.equal(640);
+            expect(outNode.getPosition().x).to.equal(40 + (3 * DagView.horzNodeSpacing));
             expect(outNode.getPosition().y).to.equal(40);
 
             $("#dagTabView").find(".dagTab").last().find(".after").click();
@@ -1497,7 +1497,7 @@ describe("DagView Test", () => {
                 filter2Node = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.filter").last().data("nodeid"));
                 expect(synthesizeNode.getPosition().x).to.equal(sqlNode.getPosition().x);
                 expect(synthesizeNode.getPosition().y).to.equal(sqlNode.getPosition().y);
-                expect(filter2Node.getPosition().x).to.equal(sqlNode.getPosition().x + 200);
+                expect(filter2Node.getPosition().x).to.equal(sqlNode.getPosition().x + DagView.horzNodeSpacing);
                 expect(filter2Node.getPosition().y).to.equal(sqlNode.getPosition().y);
 
                 expect(synthesizeNode.getParents().length).to.equal(1);

@@ -412,6 +412,7 @@ class DagViewManager {
             this.activeDagView = this.dagViewMap.get(dagTab.getId());
         }
         DagCategoryBar.Instance.updateCategories(this.activeDagTab);
+        DagNodeMenu.updateCategories();
         this.render($dfArea);
         this.activeDagView.focus();
         this._updateDagView();
@@ -596,8 +597,12 @@ class DagViewManager {
         return this.dagViewMap.get(tabId);
     }
 
-    public newGraph(): void {
-        this.activeDagView.newGraph();
+    public addInstructionNode(): void {
+        this.activeDagView.addInstructionNode();
+    }
+
+    public removeInstructionNode(nodeInfoToReplace?: {}): void {
+        this.activeDagView.removeInstructionNode(nodeInfoToReplace);
     }
 
 
@@ -1181,13 +1186,6 @@ class DagViewManager {
         this.dagViewMap.delete(graph.getTabId());
     }
 
-    /**
-     * DagViewManager.Instance.newTab
-     */
-    public newTab(): void {
-        DagTabManager.Instance.newTab();
-    }
-
     public resetColumnDeltas(nodeId: DagNodeId): void {
         this.activeDagView.resetColumnDeltas(nodeId);
     }
@@ -1242,7 +1240,7 @@ class DagViewManager {
         });
 
         this.$dagView.find(".dataflowWrapBackground").on("click", ".newTab", () => {
-            this.newTab();
+            DagTabManager.Instance.newTab(true);
         });
 
         // XXX quick hack to handle 2 dataflow graph areas in sql panel

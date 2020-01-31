@@ -7,7 +7,7 @@ class DagView {
     public static readonly horzPadding = 200; // padding around edges of dataflow
     public static readonly vertPadding = 100;
     public static readonly nodeHeight = 28;
-    public static readonly nodeWidth = 103;
+    public static readonly nodeWidth = 90;
     public static readonly nodeAndTableWidth = DagView.nodeWidth + 58;
     public static readonly gridSpacing = 20;
     public static zoomLevels = [.25, .5, .75, 1, 1.5, 2];
@@ -26,7 +26,7 @@ class DagView {
     private static $dfWrap: JQuery;
     private static _$operatorBar: JQuery;
 
-    private static horzNodeSpacing = 200;// spacing between nodes when auto-aligning
+    private static horzNodeSpacing = 180;// spacing between nodes when auto-aligning
     private static vertNodeSpacing = 60;
     private static gridLineSize = 12;
     private static titleLineHeight = 11;
@@ -42,6 +42,7 @@ class DagView {
     private isSqlPreview: boolean = false;
     private _isFocused: boolean;
     private schemaPopups: Map<DagNodeId, DagSchemaPopup> = new Map();
+    private _hasInstructionNode: boolean = false;
 
     constructor($dfArea: JQuery, graph: DagGraph, containerSelector: string, dagTab?: DagTab) {
         this.$dfArea = $dfArea;
@@ -1069,6 +1070,39 @@ class DagView {
         }
     }
 
+    public addInstructionNode() {
+
+        let nodeInfo: DagNodeInfo = {
+            type: DagNodeType.Instruction,
+            subType: null,
+            input: null,
+            display: {x: 100, y: 100},
+            state: undefined
+        };
+        const node: DagNode = DagNodeFactory.create(nodeInfo);
+        this._addNodeNoPersist(node, { isNoLog: true });
+        this.deselectNodes();
+        DagNodeInfoPanel.Instance.hide();
+        this._hasInstructionNode = true;
+    }
+
+    public removeInstructionNode(replacementNodeInfo?: any): DagNode {
+        const $instructionNode = this.$dfArea.find(".operator.instruction");
+        let x: number = null;
+        let y: number = null;
+        if ($instructionNode.length) {
+            const containerRect = this.$dfArea.find(".operatorSvg")[0].getBoundingClientRect();
+            const nodeRect = $instructionNode[0].getBoundingClientRect();
+            x = Math.round((nodeRect.left  - containerRect.left) / DagView.gridSpacing) * 20;
+            y = Math.round((nodeRect.top  - containerRect.top) / DagView.gridSpacing) * 20;
+            $instructionNode.remove();
+        }
+        this._hasInstructionNode = false;
+        if (replacementNodeInfo) {
+            return this.autoAddNode(replacementNodeInfo.type, replacementNodeInfo.subType, null, null, x, y);
+        }
+    }
+
     private _renderAllNodes(nodes) {
         let $nodes = $();
         nodes.forEach((node: DagNode) => {
@@ -1120,11 +1154,6 @@ class DagView {
             console.error("query list failed");
         });
     }
-
-    public newGraph(): void {
-        this._setupGraphEvents();
-    }
-
 
     /**
      * DagView.addBackNodes
@@ -1921,7 +1950,7 @@ class DagView {
         includeSelecting?: boolean,
         includeComments?: boolean
     ): JQuery {
-        let selector = ".operator.selected";
+        let selector = ".operator.selected:not(.instruction)";
         if (includeSelecting) {
             selector += ", .operator.selecting";
         }
@@ -2082,7 +2111,7 @@ class DagView {
         if (tipText) {
             const scale = this.graph.getScale();
             const pos = node.getPosition();
-            const x = scale * (pos.x + 50) - 21;
+            const x = scale * (pos.x + 45) - 21;
             const y = Math.max(1, scale * pos.y - 25);
             let tip: HTML = DagView._dagLineageTipTemplate(x, y, tipText);
             this.$dfArea.append(tip);
@@ -5165,7 +5194,7 @@ class DagView {
                 const offset = self._getDFAreaOffset();
                 const childCoors = {
                     x: (coors.x + offset.left) + 2,
-                    y: (coors.y + offset.top) + 11
+                    y: (coors.y + offset.top) + 14
                 };
                 path.attr("d", DagView.lineFunction([parentCoors, childCoors]));
             },
@@ -5428,7 +5457,7 @@ class DagView {
         const offset = this._getDFAreaOffset();
         const left = rect.left + offset.left + (rect.width / 2);
         const top = rect.top + offset.top;
-        const minWidth = 90;
+        const minWidth = DagView.nodeWidth - 20;
         const origVal = node.getTitle();
         let html: HTML = `<textarea class="editableNodeTitle" spellcheck="false"
                     style="top:${top}px;left:${left}px;">${origVal}</textarea>`;
@@ -5637,6 +5666,11 @@ class DagView {
     ): LogParam {
         options = options || {};
         let isNoLog = options.isNoLog || false;
+
+        if (this._hasInstructionNode) {
+            this.$dfArea.find(".operator.instruction").remove();
+            this._hasInstructionNode = false;
+        }
 
         this._deselectAllNodes();
         const nodeId = node.getId();

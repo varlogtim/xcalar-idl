@@ -238,7 +238,7 @@ class DagList extends Durable {
             }
         }
     }
-    
+
     /**
      * DagList.Instance.refreshMenuList
      * @param key
@@ -929,7 +929,7 @@ class DagList extends Durable {
             const dagTab: DagTab = this.getDagTabById($dagListItem.data("id"));
             DagTabManager.Instance.loadTab(dagTab);
         });
-        
+
 
         DagTabManager.Instance
         .on("beforeLoad", (dagTab: DagTab) => {

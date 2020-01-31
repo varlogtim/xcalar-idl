@@ -1091,6 +1091,7 @@ module.exports = {
 
     "IMDTableOp": {
         "IMDTable": "Published Table",
+        "SourceTable": "Source Table",
         "IMDTableInstr": "Use a published table as the source of data",
         "table": "Published Table",
         "tableInstr": "Select a published table to use as a source.",

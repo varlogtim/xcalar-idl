@@ -7,6 +7,7 @@ namespace DagNodeMenu {
     export function setup() {
         _setupNodeMenu();
         _setupNodeMenuActions();
+        _setupInstructionNodeCategories();
     }
 
     export function updateExitOptions(name) {
@@ -65,15 +66,31 @@ namespace DagNodeMenu {
         position = {x: 0, y: 0};
         xcMenu.add(_getDagNodeMenu());
         xcMenu.add(_getDagTableMenu());
+        xcMenu.add(_getInstructionMenu());
 
         let $dfWrap = _getDFWrap();
         let $dfWraps = $dfWrap.add($("#dagStatsPanel .dataflowWrap"));
+
+        $dfWraps.on("contextmenu", ".operator.instruction", function(event) {
+            _showNodeInstructionMenu(event, $(this));
+        });
+
         $dfWraps.on("contextmenu", ".operator .main", function(event: JQueryEventObject) {
-            _showNodeMenu(event, $(this));
+            let $operatorMain = $(this);
+            if ($operatorMain.closest(".operator.instruction").length) {
+                _showNodeInstructionMenu(event, $operatorMain.closest(".operator"));
+                return false;
+            }
+            _showNodeMenu(event, $operatorMain);
             return false; // prevent default browser's rightclick menu
         });
 
         $dfWraps.on("contextmenu", function(event: JQueryEventObject) {
+            const $target = $(event.target);
+            if ($target.closest(".operator.instruction").length) {
+                _showNodeInstructionMenu(event, $target.closest(".operator"));
+                return false;
+            }
             _showNodeMenu(event, null);
             return false;
         });
@@ -97,6 +114,73 @@ namespace DagNodeMenu {
             return false; // prevent default browser's rightclick menu
         });
     }
+
+    function _setupInstructionNodeCategories(): void {
+        updateCategories();
+        $("#dagNodeInstructionSubMenu").on("mouseup", "li", function(event) {
+            if (event.which !== 1 || (isSystemMac && event.ctrlKey)) {
+                return;
+            }
+            const $li: JQuery = $(this);
+            const opid: string = $li.data('opid');
+            const newNodeInfo: DagNodeCopyInfo = DagCategoryBar.Instance.getOperatorInfo(opid);
+            const type: DagNodeType = newNodeInfo.type;
+            const subType: DagNodeSubType = newNodeInfo.subType;
+            DagViewManager.Instance.removeInstructionNode({
+                type: type,
+                subType: subType
+            });
+        });
+    }
+
+    export function updateCategories() {
+        const dagCategories = DagCategoryBar.Instance.getCategories();
+        const iconMap = DagCategoryBar.Instance.getCategoryIconMap();
+        let menuHtml: HTML = "";
+        let subMenuHtml: HTML = "";
+        dagCategories.getCategories().forEach((category: DagCategory) => {
+            if (category.getType() === DagCategoryType.Hidden ||
+                category.getType() === DagCategoryType.Custom) {
+                return;
+            }
+
+            const categoryType: DagCategoryType = category.getType();
+            const categoryName: string = category.getName();
+            const description: string = category.getDescription();
+            const icon: string = iconMap[categoryType];
+            const operators: DagCategoryNode[] = category.getSortedOperators();
+            let subMenuPart: HTML = "";
+
+            operators.forEach((categoryNode: DagCategoryNode) => {
+                if (categoryNode.isHidden()) {
+                    return;
+                }
+                const operator: DagNode = categoryNode.getNode();
+                const operatorName: string = categoryNode.getNodeType();
+                let opDisplayName: string = categoryNode.getDisplayNodeType();
+                const icon: string = categoryNode.getIcon();
+                const description: string = categoryNode.getDescription();
+                subMenuPart += `<li class="operator ${operatorName}" data-opid="${operator.getId()}"
+                                ${xcTooltip.Attrs} data-delay="500" data-original-title="${description}">
+                                    <i class="icon operatorIcon ${icon}">${icon}</i>
+                                    <span class="label">${opDisplayName}</span>
+                            </li>`;
+            });
+            if (subMenuPart.length) {
+                subMenuHtml += `<ul class="category-${categoryType}">${subMenuPart}</ul>`;
+
+                menuHtml += `<li class="category category-${categoryType} parentMenu"
+                        data-submenu="category-${categoryType}"
+                        ${xcTooltip.Attrs} data-delay="500" data-original-title="${description}" >
+                            <i class="icon categoryIcon ${icon}"></i>
+                            <span class="label">${categoryName}</span>
+                        </li>`;
+            }
+        });
+        _getInstructionMenu().find("ul").html(menuHtml);
+        $("#dagNodeInstructionSubMenu").html(subMenuHtml);
+    }
+
 
     function _processMenuAction(
         action: string,
@@ -373,6 +457,10 @@ namespace DagNodeMenu {
 
     function _getDagTableMenu(): JQuery {
         return $("#dagTableNodeMenu");
+    }
+
+    function _getInstructionMenu(): JQuery {
+        return $("#dagNodeInstructionMenu");
     }
 
     function expandSQLNode(
@@ -973,6 +1061,24 @@ namespace DagNodeMenu {
         } else {
             $menu.find(".focusRunning").addClass("unavailable");
         }
+    }
+
+    function _showNodeInstructionMenu(event: JQueryEventObject, $clickedEl: JQuery) {
+        const $dfArea = DagViewManager.Instance.getActiveArea();
+        if (!$dfArea.length || $dfArea.hasClass("largeHidden")) {
+            return;
+        }
+
+        let $menu: JQuery = _getInstructionMenu();
+
+        position = {x: event.pageX, y: event.pageY};
+
+        MenuHelper.dropdownOpen($(event.target), $menu, {
+            mouseCoors: {x: event.pageX, y: event.pageY},
+            offsetY: 8,
+            floating: true,
+            classes: ""
+        });
     }
 
     function _findLinkOutNode(nodeId: DagNodeId): void {

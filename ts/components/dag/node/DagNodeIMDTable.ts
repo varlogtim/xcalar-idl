@@ -116,7 +116,7 @@ class DagNodeIMDTable extends DagNodeIn {
      * @returns {string}
      */
     public getDisplayNodeType(): string {
-        return "Published Table";
+        return "Source Table";
     }
 
 

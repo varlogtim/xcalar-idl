@@ -154,7 +154,7 @@ class DagCategoryBar {
      * @param elemNode
      */
     public updateNodeConnectorOut(numOutput: number, elemNode: d3): void {
-        const params = this._getConnectorOutParams(numOutput);
+        const params = this._getConnectorOutParams(numOutput, true);
         const elemConnOut = elemNode.select('.connOut');
 
         elemConnOut.empty();
@@ -175,6 +175,10 @@ class DagCategoryBar {
                 elemPolygon.attr(attrName, attrValue);
             }
         }
+    }
+
+    public getCategories(): DagCategories {
+        return this.dagCategories;
     }
 
     private _setupCategoryBar(): void {
@@ -245,8 +249,7 @@ class DagCategoryBar {
         this.$dagView.removeClass("showingOperatorBar");
     }
 
-    private _renderCategoryBar() {
-        let html: HTML = "";
+    public getCategoryIconMap() {
         const iconMap = {};
         iconMap[DagCategoryType.Favorites] = "xi-recommend";
         iconMap[DagCategoryType.In] = "xi-horizontal-align-center";
@@ -259,6 +262,12 @@ class DagCategoryBar {
         iconMap[DagCategoryType.Aggregates] = "xi-aggregate";
         iconMap[DagCategoryType.Extensions] = "xi-menu-extension";
         iconMap[DagCategoryType.Custom] = "xi-custom";
+        return iconMap;
+    }
+
+    private _renderCategoryBar() {
+        let html: HTML = "";
+        const iconMap = this.getCategoryIconMap();
 
         this.dagCategories.getCategories().forEach((category: DagCategory) => {
             const categoryType: DagCategoryType = category.getType();
@@ -326,8 +335,9 @@ class DagCategoryBar {
         }
     }
 
-    private _getConnectorOutParams(numOutput: number) {
-        const offset = 151;
+    private _getConnectorOutParams(numOutput: number, hasTable: boolean) {
+        let offset: number = hasTable ? DagView.nodeAndTableWidth : DagView.nodeWidth;
+        offset -= 10;
         const params: {
             largeTriangle: {class: string[], attrs: {[attrName: string]: string}},
             smallTriangle: {class: string[], attrs: {[attrName: string]: string}},
@@ -453,8 +463,8 @@ class DagCategoryBar {
         return html;
     }
 
-    private _genConnectorOutHTML(numOutput: number): HTML {
-        const params = this._getConnectorOutParams(numOutput);
+    private _genConnectorOutHTML(numOutput: number, hasTable: boolean): HTML {
+        const params = this._getConnectorOutParams(numOutput, hasTable);
 
         let html = '';
         for (const param of params) {
@@ -490,12 +500,15 @@ class DagCategoryBar {
         const description: string = categoryNode.getDescription();
 
         let table = "";
-        if (!(operator instanceof DagNodeExport) && !(operator instanceof DagNodePublishIMD)) {
-            table = '<g class="table" transform="translate(130, 0)" display="none">' +
+        let hasTable: boolean = false;
+        if (!(operator instanceof DagNodeExport) && !(operator instanceof DagNodePublishIMD)
+                && !(operator instanceof DagNodeInstruction)) {
+            hasTable = true;
+            table = '<g class="table" transform="translate(' + (DagView.nodeWidth + 24) + ', 0)" display="none">' +
                         '<path class="tableLine" stroke="#627483" stroke-width="1px" fill="none" stroke-linecap="round" d="M-35,14L16,14"></path>' +
-                        '<rect x="0" y="3" width="22" height="22" fill="white" ry="2" rx="2" />'+
-                        '<text class="mainTableIcon" font-family="icomoon" font-size="24" x="-2" y="24" ' + xcTooltip.Attrs + ' data-original-title="Click to view options">\uea07</text>' +
-                        '<text class="tableName" x="12" y="36" ' +
+                        '<rect x="0" y="3" width="25" height="25" fill="white" ry="2" rx="2" />'+
+                        '<text class="mainTableIcon" font-family="icomoon" font-size="27" x="-2" y="26" ' + xcTooltip.Attrs + ' data-original-title="Click to view options">\uea07</text>' +
+                        '<text class="tableName" x="12" y="37" ' +
                         'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
                         'font-size="10" fill="#000000">' +
                         '</text>' +
@@ -510,7 +523,7 @@ class DagCategoryBar {
         }
 
         const inConnector = this._genConnectorInHTML(numParents);
-        const outConnector = this._genConnectorOutHTML(numChildren);
+        const outConnector = this._genConnectorOutHTML(numChildren, hasTable);
 
         const opTitleHtml = this._formatOpTitle(opDisplayName);
 
@@ -527,7 +540,7 @@ class DagCategoryBar {
                 '<g class="connInGroup">' + inConnector + '</g>' +
                 '<g class="connOut" transform="translate(-58,0)">' + outConnector + '</g>' +
                 table +
-            '<rect class="main" x="6" y="0" width="90" height="28" ' +
+            '<rect class="main" x="6" y="0" width="' + (DagView.nodeWidth - 13) + '" height="28" ' +
                 'fill="white" stroke="#849CB0" stroke-width="1" ' +
                 'ry="28" rx="12" ' +
                 xcTooltip.Attrs + ' data-original-title="' + description + '" />'+
@@ -535,10 +548,10 @@ class DagCategoryBar {
                 'x="0" y="0" width="26" height="28" stroke="#849CB0" ' +
                 'stroke-width="1" fill="' + color + '" />'+
             '<text class="icon" x="11" y="19" font-family="icomoon" ' +
-                'font-size="12" fill="white">' + icon + '</text>' +
-            '<svg width="60" height="' + DagView.nodeHeight + '" x="28" y="1">' +
+                'font-size="13" fill="white">' + icon + '</text>' +
+            '<svg width="' + (DagView.nodeWidth - 43) + '" height="' + DagView.nodeHeight + '" x="28" y="1">' +
                 opTitleHtml + '</svg>' +
-            '<circle class="statusIcon" cx="88" cy="27" r="5" ' +
+            '<circle class="statusIcon" cx="' + (DagView.nodeWidth - 15) + '" cy="27" r="5" ' +
                 'stroke="#849CB0" stroke-width="1" fill="white" />' +
             '</g>';
 
@@ -548,7 +561,7 @@ class DagCategoryBar {
     private _formatOpTitle(name): HTML {
         let html: HTML;
         // XXX arbritrary way to decide if name is too long for 1 line
-        if (name.length > 12 && name.indexOf(" ") > -1) {
+        if (name.length > 10 && name.indexOf(" ") > -1) {
             const namePart1 = name.substring(0, name.lastIndexOf(" "));
             const namePart2 = name.slice(name.lastIndexOf(" ") + 1);
             html = '<text class="opTitle" x="50%" y="30%" ' +
@@ -592,7 +605,7 @@ class DagCategoryBar {
                 round: DagView.gridSpacing,
                 scale: activeDag.getScale(),
                 onDragEnd: function(_$newNode, _event, data) {
-                    const newNodeInfo: DagNodeInfo = self._getOperatorInfo(
+                    const newNodeInfo: DagNodeInfo = self.getOperatorInfo(
                         $operator.data('opid')
                     );
                     newNodeInfo.display = {
@@ -614,7 +627,7 @@ class DagCategoryBar {
             }
             const $operator: JQuery = $(this).closest(".operator");
             const $selectedNodes: JQuery = DagViewManager.Instance.getSelectedNodes();
-            const newNodeInfo: DagNodeCopyInfo = self._getOperatorInfo(
+            const newNodeInfo: DagNodeCopyInfo = self.getOperatorInfo(
                 $operator.data('opid')
             );
             const type: DagNodeType = newNodeInfo.type;
@@ -631,7 +644,7 @@ class DagCategoryBar {
     private _setupOperatorBar(): void {
         this.$operatorBar.on('click', '.operator .main', (event) => {
             const $operator: JQuery = $(event.target).closest(".operator");
-            const opInfo: DagNodeCopyInfo = this._getOperatorInfo(
+            const opInfo: DagNodeCopyInfo = this.getOperatorInfo(
                 $operator.data('opid'));
             this._focusOnOperator(opInfo.id || opInfo.nodeId);
 
@@ -667,7 +680,7 @@ class DagCategoryBar {
         const rect = d3.select($operator[0]).insert('rect', ':first-child');
         rect.classed('selection', true);
         rect.attr('x', '-4').attr('y', '-8')
-            .attr('width', '111').attr('height', '43')
+            .attr('width', DagView.nodeWidth + 8).attr('height', '43')
             .attr('fill', '#EAF9FF').attr('stroke', '#38CBFF').attr('stroke-width', '1')
             .attr('rx', '16').attr('ry', '43');
     }
@@ -842,7 +855,7 @@ class DagCategoryBar {
         $ul.html(html);
     }
 
-    private _getOperatorInfo(nodeId: string): DagNodeCopyInfo {
+    public getOperatorInfo(nodeId: string): DagNodeCopyInfo {
         for (const category of this.dagCategories.getCategories()) {
             for (const categoryNode of category.getOperators()) {
                 if (categoryNode.getNode().getId() === nodeId) {

@@ -484,7 +484,7 @@ describe("DagSchemaPopup Test", function() {
                 let nodeRect = $dfArea.find(".operator.sql")[0].getBoundingClientRect();
                 let tipRect = $dfArea.find(".lineageTip")[0].getBoundingClientRect();
                 expect(tipRect.left - nodeRect.left).to.be.gt(20);
-                expect(tipRect.left - nodeRect.left).to.be.lt(40);
+                expect(tipRect.left - nodeRect.left).to.be.lt(50);
                 expect(tipRect.top - nodeRect.top).to.be.gt(-30);
                 expect(tipRect.top - nodeRect.top).to.be.lt(-10);
             });
@@ -493,7 +493,7 @@ describe("DagSchemaPopup Test", function() {
                 let nodeRect = $dfArea.find(".operator.dataset")[0].getBoundingClientRect();
                 let tipRect = $dfArea.find(".lineageTip")[1].getBoundingClientRect();
                 expect(tipRect.left - nodeRect.left).to.be.gt(20);
-                expect(tipRect.left - nodeRect.left).to.be.lt(40);
+                expect(tipRect.left - nodeRect.left).to.be.lt(50);
                 expect(tipRect.top - nodeRect.top).to.be.gt(-30);
                 expect(tipRect.top - nodeRect.top).to.be.lt(-10);
             });
@@ -516,7 +516,7 @@ describe("DagSchemaPopup Test", function() {
                 let nodeRect = $dfArea.find(".operator.sql")[0].getBoundingClientRect();
                 let tipRect = $dfArea.find(".lineageTip")[0].getBoundingClientRect();
                 expect(tipRect.left - nodeRect.left).to.be.gt(20);
-                expect(tipRect.left - nodeRect.left).to.be.lt(40);
+                expect(tipRect.left - nodeRect.left).to.be.lt(50);
                 expect(tipRect.top - nodeRect.top).to.be.gt(-30);
                 expect(tipRect.top - nodeRect.top).to.be.lt(-10);
             });
@@ -525,7 +525,7 @@ describe("DagSchemaPopup Test", function() {
                 let nodeRect = $dfArea.find(".operator.dataset")[0].getBoundingClientRect();
                 let tipRect = $dfArea.find(".lineageTip")[1].getBoundingClientRect();
                 expect(tipRect.left - nodeRect.left).to.be.gt(20);
-                expect(tipRect.left - nodeRect.left).to.be.lt(40);
+                expect(tipRect.left - nodeRect.left).to.be.lt(50);
                 expect(tipRect.top - nodeRect.top).to.be.gt(-30);
                 expect(tipRect.top - nodeRect.top).to.be.lt(-10);
             });

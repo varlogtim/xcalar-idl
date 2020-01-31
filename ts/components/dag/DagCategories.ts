@@ -24,6 +24,9 @@ class DagCategories {
             new DagCategoryNode(DagNodeFactory.create({
                 type: DagNodeType.Placeholder
             }), DagCategoryType.Hidden),
+            new DagCategoryNode(DagNodeFactory.create({
+                type: DagNodeType.Instruction
+            }), DagCategoryType.Hidden),
             new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.DFOut,
                 subType: DagNodeSubType.DFOutOptimized

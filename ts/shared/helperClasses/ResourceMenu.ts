@@ -457,7 +457,7 @@ class ResourceMenu {
 
         $container.on("click", ".addDFModule", (event) => {
             event.stopPropagation();
-            DagTabManager.Instance.newTab();
+            DagTabManager.Instance.newTab(true);
         });
 
         $container.on("click", ".addTableFunc", (event) => {

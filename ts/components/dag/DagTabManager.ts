@@ -123,11 +123,13 @@ class DagTabManager {
     /**
      * DagTabManager.Instance.newTab
      * Creates a new Tab and dataflow.
+     * @param isEmpty will create a new graph with no immediate plans to add any nodes
+     * used to indicate it's a blank graph and we can add instructions to it
      */
-    public newTab(): string {
+    public newTab(isEmpty?: boolean): string {
         const name: string = DagList.Instance.getValidName();
         const graph: DagGraph = new DagGraph();
-        const tab: DagTab = this._newTab(name, graph, false);
+        const tab: DagTab = this._newTab(name, graph, false, isEmpty);
         this._tabListScroller.showOrHideScrollers();
         Log.add(SQLTStr.NewTab, {
             "operation": SQLOps.NewDagTab,
@@ -642,26 +644,22 @@ class DagTabManager {
         }
     }
 
-    private _newTab(name: string, graph: DagGraph, isSQLFunc: boolean): DagTab {
-        let newDagTab: DagTab;
-        if (isSQLFunc) {
-            newDagTab = <DagTab>new DagTabSQLFunc({
-                name: name,
-                dagGraph: graph,
-                createdTime: xcTimeHelper.now()
-            });
-        } else {
-            newDagTab = <DagTab>new DagTabUser({
-                name: name,
-                dagGraph: graph,
-                createdTime: xcTimeHelper.now()
-            });
-        }
+    private _newTab(name: string, graph: DagGraph, isSQLFunc: boolean, isEmpty?: boolean): DagTab {
+        const tabConstructor = isSQLFunc ? DagTabSQLFunc : DagTabUser;
+        const newDagTab = <DagTab>new tabConstructor({
+            name: name,
+            dagGraph: graph,
+            createdTime: xcTimeHelper.now()
+        });
+
         let succeed = this._addNewTab(newDagTab);
         if (!succeed) {
             return null;
         }
-        DagViewManager.Instance.newGraph();
+
+        if (isEmpty) {
+            DagViewManager.Instance.addInstructionNode();
+        }
         return newDagTab;
     }
 
@@ -995,7 +993,7 @@ class DagTabManager {
         // Adding a new tab creates a new tab and adds
         // The html for a dataflowArea.
         $("#tabButton").on("click", () => {
-            DagViewManager.Instance.newTab();
+            this.newTab(true);
         });
 
         $("#tabSQLFuncButton").click(() => {

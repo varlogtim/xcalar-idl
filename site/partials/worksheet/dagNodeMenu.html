@@ -228,6 +228,33 @@
     include "../../util/menuScrollArea.html"
 </div>
 
+<div id="dagNodeInstructionMenu" class="menu" data-submenu="dagNodeInstructionSubMenu">
+    <ul>
+        <li class="viewResult" data-action="viewResult">
+            <i class="icon xi-show"></i>
+            <span class="label"><%= dicts.dag.viewResult %></span>
+        </li>
+        <li class="sortByName parentMenu" data-submenu="sortByName">
+            <i class="icon xi-show"></i>
+            <span class="label"><%= dicts.dag.viewResult %></span>
+        </li>
+    </ul>
+    include "../../util/menuScrollArea.html"
+</div>
+<div id="dagNodeInstructionSubMenu" class="menu subMenu">
+    <ul class="sortByName">
+        <li class="sizeToHeader">
+            <%= dicts.MenuTStr.ResizeHeaders %>
+        </li>
+        <li class="sizeToContents">
+            <%= dicts.MenuTStr.ResizeToContents %>
+        </li>
+        <li class="sizeToFitAll">
+            <%= dicts.MenuTStr.ResizeToAll %>
+        </li>
+    </ul>
+    include "../../util/menuScrollArea.html"
+</div>
 
 <div id="dagNodeSubMenu" class="menu subMenu">
     include "../../util/menuScrollArea.html"
