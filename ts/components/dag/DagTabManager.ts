@@ -591,6 +591,7 @@ class DagTabManager {
         PromiseHelper.chain(promises)
         .always(() => {
             DagList.Instance.refreshMenuList(ResourceMenu.KEY.DF);
+            DagList.Instance.refreshMenuList(ResourceMenu.KEY.TableFunc);
             if (this.getNumTabs() === 0) {
                 this.reset();
             }

@@ -81,22 +81,6 @@ describe('IMDTableOpPanel Test', () => {
                 expect($tableList.find("li").length).to.equal(3);
             });
 
-            it('Initial Version', () => {
-                expect($panel.find(".tableVersionInput").val()).to.equal("-1");
-            });
-
-            it('Should be able to open schema screen and go back from it', () => {
-                $tableList.find(".pubTableInput").click();
-                $tableList.find("li").eq(1).trigger(fakeEvent.mouseup);
-                expect($panel.find(".tableVersionInput").is(":visible")).to.be.true;
-                $panel.find(".btn-next").click();
-                expect($panel.find(".tableVersionInput").is(":visible")).to.be.false;
-                expect($panel.find(".schema").is(":visible")).to.be.true;
-                $panel.find(".btn-back").click();
-                expect($panel.find(".tableVersionInput").is(":visible")).to.be.true;
-                expect($panel.find(".schema").is(":visible")).to.be.false;
-            });
-
             it ("Should be hidden at start", function () {
                 opPanel.close();
                 expect($('#IMDTableOpPanel').hasClass("xc-hidden")).to.be.true;
@@ -119,36 +103,6 @@ describe('IMDTableOpPanel Test', () => {
                 $('#IMDTableOpPanel .close').click();
                 expect($('#IMDTableOpPanel').hasClass("xc-hidden")).to.be.true;
             });
-        });
-
-        describe('Panel tests', () => {
-            before(() => {
-                opPanel.show(node, {});
-            });
-
-            it("Should change possible versions depending on table", () => {
-                expect($("#tableVersionList li").length).to.equal(0);
-                $tableList.find(".pubTableInput").click();
-                $tableList.find("li").eq(1).trigger(fakeEvent.mouseup);
-                expect($("#tableVersionList li").length).to.equal(2);
-                $tableList.find(".pubTableInput").click();
-                $tableList.find("li").eq(0).trigger(fakeEvent.mouseup);
-                expect($("#tableVersionList li").length).to.equal(1);
-            });
-
-            it("Should be able to check and uncheck latest version", () => {
-                $tableList.find(".pubTableInput").click();
-                $tableList.find("li").eq(1).trigger(fakeEvent.mouseup);
-                expect($(".tableVersion .checkbox").hasClass("checked")).to.be.true;
-                $(".tableVersion .checkbox").click();
-                expect($(".tableVersion .checkbox").hasClass("checked")).to.be.false;
-                $tableList.find(".pubTableInput").click();
-                $tableList.find("li").eq(2).trigger(fakeEvent.mouseup);
-                expect($(".tableVersion .checkbox").hasClass("checked")).to.be.true;
-                $(".tableVersion .checkbox").click();
-                expect($(".tableVersion .checkbox").hasClass("checked")).to.be.true;
-            });
-
         });
 
         describe("Advanced Mode related IMD Table Op Panel Tests", function() {
@@ -199,9 +153,6 @@ describe('IMDTableOpPanel Test', () => {
                     null, 4));
                 $("#IMDTableOpPanel .bottomSection .xc-switch").click();
                 expect($panel.find(".pubTableInput").val()).to.equal("B");
-                expect($panel.find(".tableVersionInput").val()).to.equal("0");
-                expect($panel.find(".filterStringInput").val()).to.equal("123");
-                expect($(".tableVersion .checkbox").hasClass("checked")).to.be.false;
                 opPanel.close();
             });
         });

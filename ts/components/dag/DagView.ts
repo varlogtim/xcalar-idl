@@ -203,6 +203,7 @@ class DagView {
         const maxX = Math.round(viewPortWidth / 20) * 20;
         x = Math.max(xBase + inc, Math.min(maxX, x));
         DagViewManager.Instance.autoAddNode(DagNodeType.SQLFuncOut, null, null, null, x, y);
+        DagNodeInfoPanel.Instance.hide(); // not show info panel
     }
 
     /**

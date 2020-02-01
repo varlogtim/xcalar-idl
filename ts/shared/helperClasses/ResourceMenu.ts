@@ -66,14 +66,17 @@ class ResourceMenu {
     }
 
     private _renderTableFuncList(): void {
-        const listClassNames: string[] = ["tableFunc", "dagListDetail", "selectable"];
         const iconClassNames: string[] = ["xi-SQLfunction"];
         const dagTabs = DagList.Instance.getAllDags();
         let html: HTML = "";
         dagTabs.forEach((dagTab) => {
             if (dagTab instanceof DagTabSQLFunc) {
+                const listClassNames: string[] = ["tableFunc", "dagListDetail", "selectable"];
                 const name = dagTab.getName();
                 const id = dagTab.getId();
+                if (dagTab.isOpen()) {
+                    listClassNames.push("open");
+                }
                 html += this._getListHTML(name, listClassNames, iconClassNames, id);
             }
         });

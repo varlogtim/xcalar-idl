@@ -3,15 +3,11 @@ class IMDTableOpPanel extends BaseOpPanel {
     private _advMode: boolean;
     protected _dagNode: DagNodeIMDTable;
     private _$pubTableInput: JQuery; // $('#IMDTableOpPanel .pubTableInput')
-    private _$tableVersionInput: JQuery; // $('#IMDTableOpPanel .tableVersionInput')
-    private _$filterStringInput: JQuery; // $('#IMDTableOpPanel .filterStringInput')
     private _$columns: JQuery; // $('#IMDTableOpColumns')
-    private _$versionList: JQuery; // $('#IMDTableOpPanel #tableVersionList .tableVersions');
     private _tables: PbTblInfo[];
     private _selectedTable: PbTblInfo;
     private _schemaSection: ColSchemaSection;
     private _primaryKeys: string[];
-    private _currentStep: number;
     private _limitedRows: number;
 
     // *******************
@@ -27,12 +23,8 @@ class IMDTableOpPanel extends BaseOpPanel {
         this._advMode = false;
         super.setup(this._$elemPanel);
         this._$pubTableInput = $('#IMDTableOpPanel .pubTableInput');
-        this._$tableVersionInput = $('#IMDTableOpPanel .tableVersionInput');
-        this._$filterStringInput = $('#IMDTableOpPanel .filterStringInput');
         this._$columns = $('#IMDTableOpPanel #IMDTableOpColumns .cols');
-        this._$versionList = $('#IMDTableOpPanel #tableVersionList .tableVersions');
         this._schemaSection = new ColSchemaSection(this._$elemPanel.find(".colSchemaSection"));
-        this._$tableVersionInput.val(-1);
         this._setupEventListener();
     }
 
@@ -50,9 +42,6 @@ class IMDTableOpPanel extends BaseOpPanel {
             this._selectedTable = null;
             this._primaryKeys = [];
             this._$columns.empty();
-            this._$versionList.empty();
-            this._currentStep = 1;
-            this._gotoStep();
 
             this._tables = PTblManager.Instance.getAvailableTables();
             this._updateTableList();
@@ -99,20 +88,15 @@ class IMDTableOpPanel extends BaseOpPanel {
             this._cachedBasicModeParam = paramStr;
             this._editor.setValue(paramStr);
             this._advMode = true;
-            this._gotoStep();
         } else {
             try {
                 const newModel: DagNodeIMDTableInputStruct = this._convertAdvConfigToModel();
                 if (newModel == null) {
                     this._advMode = false;
-                    this._currentStep = 1;
-                    this._gotoStep();
                     return;
                 }
                 this._restorePanel(newModel);
-                this._currentStep = 1;
                 this._advMode = false;
-                this._gotoStep();
                 return;
             } catch (e) {
                 return {error: e.message || e.error};
@@ -124,9 +108,9 @@ class IMDTableOpPanel extends BaseOpPanel {
     private _getParams(): DagNodeIMDTableInputStruct {
         return {
             source: this._$pubTableInput.val(),
-            version: parseInt(this._$tableVersionInput.val()),
+            version: -1,
             schema: this._schemaSection.getSchema(false),
-            filterString: this._$filterStringInput.val(),
+            filterString: "",
             limitedRows: this._limitedRows
         }
     }
@@ -141,50 +125,15 @@ class IMDTableOpPanel extends BaseOpPanel {
         }
     }
 
-    private _renderVersions() {
-        if (this._selectedTable == null) {
-            this._$versionList.empty();
-            return;
-        }
-        if (!this._selectedTable.active) {
-            // Inactive table, can't list updates
-            let $checkbox: JQuery = $('#IMDTableOpPanel .tableVersion .checkbox');
-            $checkbox.removeClass("active");
-            $checkbox.addClass("checked");
-            $checkbox.parent().addClass("checked");
-            $("#IMDTableOpPanel #tableVersionList").addClass("xc-disabled");
-            return;
-        }
-        $('#IMDTableOpPanel .tableVersion .checkbox').addClass("active");
-        const versionList = this._selectedTable.updates;
-        let html: string = "";
-        versionList.forEach((update) => {
-            let id: number = update.batchId;
-            let time: string = moment.unix(update.startTS).format("M-D-Y h:mm:ss A");
-            html += '<li class="versionListItem" data-version="' + id +
-                '"> <span class="text tooltipOverflow">' +
-                '<div class="versionText">' +
-                    id +
-                '</div><div class="dateText">' +
-                    time +
-                '</div></span>' +
-                '</li>';
-        });
-        this._$versionList.html(html);
-    }
-
     private _restorePanel(input: DagNodeIMDTableInputStruct): void {
         this._limitedRows = input.limitedRows;
         this._$pubTableInput.val(input.source);
-        this._$tableVersionInput.val(input.version);
         if (input.version != -1) {
             $("#IMDTableOpPanel #tableVersionList").removeClass("xc-disabled");
             $('#IMDTableOpPanel .tableVersion .checkbox').removeClass("checked");
             $('#IMDTableOpPanel .tableVersion .checkboxWrap').removeClass("checked");
         }
-        this._$filterStringInput.val(input.filterString);
         this._changeSelectedTable(input.source);
-        this._renderVersions();
         this._schemaSection.render(input.schema);
     }
 
@@ -249,15 +198,6 @@ class IMDTableOpPanel extends BaseOpPanel {
             () => { this.close(); }
         );
 
-        this._$elemPanel.on("click", ".next", () => {
-            this._goToSchemaStep();
-        });
-
-        this._$elemPanel.on("click", ".back", () => {
-            this._currentStep = 1;
-            this._gotoStep();
-        });
-
         // Submit button
         this._$elemPanel.on(
             `click.submit.${IMDTableOpPanel._eventNamespace}`,
@@ -267,7 +207,7 @@ class IMDTableOpPanel extends BaseOpPanel {
 
         let $list = $('#pubTableList');
         this._activateDropDown($list, '#pubTableList');
-        let expList: MenuHelper = new MenuHelper($list, {
+        new MenuHelper($list, {
             "onSelect": function($li) {
                 if ($li.hasClass("hint")) {
                     return false;
@@ -279,52 +219,14 @@ class IMDTableOpPanel extends BaseOpPanel {
 
                 self._$pubTableInput.val($li.text());
                 self._changeSelectedTable($li.text());
-                self._renderVersions();
+                self._autoDetectSchema(true);
             }
-        });
-        expList.setupListeners();
-
-        $list = $('#tableVersionList');
-        this._activateDropDown($list, '#tableVersionList');
-        expList = new MenuHelper($list, {
-            "onSelect": function($li) {
-                if ($li.hasClass("hint")) {
-                    return false;
-                }
-
-                if ($li.hasClass("unavailable")) {
-                    return true; // return true to keep dropdown open
-                }
-
-                self._$tableVersionInput.val($li.data("version"));
-            }
-        });
-        expList.setupListeners();
+        }).setupListeners();
 
         this._$pubTableInput.on('blur', function() {
             self._changeSelectedTable(self._$pubTableInput.val());
-            self._renderVersions();
+            self._autoDetectSchema(true);
         })
-
-        $('#IMDTableOpPanel .tableVersion .checkbox').on("click", function(event) {
-            event.stopPropagation();
-            let $box: JQuery = $(this);
-            if (!$box.hasClass("active")) {
-                return;
-            }
-            let $arg: JQuery = $(this).parent();
-            let $versionListWrap: JQuery = $("#IMDTableOpPanel #tableVersionList");
-            if ($arg.hasClass("checked")) {
-                $arg.removeClass("checked");
-                $box.removeClass("checked");
-                $versionListWrap.removeClass("xc-disabled");
-            } else {
-                $arg.addClass("checked");
-                $box.addClass("checked");
-                $versionListWrap.addClass("xc-disabled");
-                self._$tableVersionInput.val(-1);
-            }
-        });
     }
 
 
@@ -375,40 +277,6 @@ class IMDTableOpPanel extends BaseOpPanel {
         this.close(true);
     }
 
-    private _gotoStep(): void {
-        let btnHTML: HTML = "";
-        const $section: JQuery = this._$elemPanel.find(".modalTopMain");
-        if (this._advMode) {
-            btnHTML =
-                '<button class="btn btn-submit btn-rounded submit">' +
-                    CommonTxtTstr.Save +
-                '</button>';
-        } else if (this._currentStep === 1) {
-            $section.find(".step1").removeClass("xc-hidden")
-                    .end()
-                    .find(".step2").addClass("xc-hidden");
-            btnHTML =
-                '<button class="btn btn-next btn-rounded next">' +
-                    CommonTxtTstr.Next +
-                '</button>';
-        } else if (this._currentStep === 2) {
-            $section.find(".step2").removeClass("xc-hidden")
-                    .end()
-                    .find(".step1").addClass("xc-hidden");
-            btnHTML =
-                '<button class="btn btn-submit btn-rounded submit">' +
-                    CommonTxtTstr.Save +
-                '</button>' +
-                '<button class="btn btn-back btn-rounded back">' +
-                    CommonTxtTstr.Back +
-                '</button>';
-        } else {
-            throw new Error("Error step");
-        }
-        this.$panel.find(".mainContent > .bottomSection")
-        .find(".btnWrap").html(btnHTML);
-    }
-
     private _autoDetectSchema(userOldSchema: boolean): {error: string} {
         const oldParam: DagNodeIMDTableInputStruct = this._dagNode.getParam();
         let oldSchema: ColSchema[] = null;
@@ -419,20 +287,9 @@ class IMDTableOpPanel extends BaseOpPanel {
             // when only has prefix change
             oldSchema = this._schemaSection.getSchema(true);
         }
-        let schema: ColSchema[] = this._selectedTable.getSchema();
+        let schema: ColSchema[] = this._selectedTable ? this._selectedTable.getSchema() : [];
         this._schemaSection.setInitialSchema(schema);
         this._schemaSection.render(oldSchema || schema);
         return null;
     }
-
-    private _goToSchemaStep(): void {
-        if (this._selectedTable == null) {
-            StatusBox.show("Input must have a source", this._$pubTableInput, false, {'side': 'right'});
-            return;
-        }
-        this._autoDetectSchema(true);
-        this._currentStep = 2;
-        this._gotoStep();
-    }
-
 }

@@ -47,10 +47,11 @@ class SQLEditorSpace {
         }
         let val: string = this._sqlEditor.getValue();
         if (val) {
-            if (!val.endsWith(";")) {
+            if (!val.trim().endsWith(";")) {
                 val += ";";
             }
-            val += "\n" + sql;
+            const delim: string = val.endsWith("\n") ? "" : "\n";
+            val += delim + sql;
         } else {
             val = sql;
         }
@@ -643,7 +644,7 @@ class SQLEditorSpace {
             readOnly = false;
             snippet = dagTab.getSnippet() || oldSnippet;
             if (!snippet) {
-                snippet = "--" + SQLTStr.SnippetHint;
+                snippet = "--" + SQLTStr.SnippetHint + ";\n";
             }
         }
         this._setSnippet(snippet);

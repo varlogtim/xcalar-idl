@@ -286,7 +286,8 @@ class DagList extends Durable {
             nameSet.add(dagTab.getName());
             if (!isSQLFunc &&
                 !isOptimizedDag &&
-                dagTab instanceof DagTabUser
+                dagTab instanceof DagTabUser &&
+                !(dagTab instanceof DagTabSQLFunc)
             ) {
                 if (!this._isForSQLFolder(dagTab)) {
                     cnt++;

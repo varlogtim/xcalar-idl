@@ -32,46 +32,12 @@
                     </div>
                 </div>
             </div>
-            <div class="tableVersion formRow step1 clearfix">
-                <div class="subHeading clearfix">
-                    <div class="label"><%= dicts.IMDTableOp.tableVersion %>:</div>
-                </div>
-                <p><%= dicts.IMDTableOp.versionInstr %></p>
-                <div class="checkboxWrap selectAllWrap checked">
-                    <div class="checkbox checked">
-                        <i class="icon xi-ckbox-empty fa-13"></i>
-                        <i class="icon xi-ckbox-selected fa-13"></i>
-                    </div>
-                    <div class="text"><%= dicts.IMDTableOp.latest %></div>
-                </div>
-                <div id="tableVersionList" class="dropDownList xc-disabled">
-                    <input class="text tableVersionInput" type="number" value="" spellcheck="false">
-                    <div class="iconWrapper">
-                        <i class="icon xi-arrow-down"></i>
-                    </div>
-                    <div class="list">
-                        <ul class="tableVersions"></ul>
-                        include "../../util/menuScrollArea.html"
-                    </div>
-                </div>
-            </div>
-            <div class="filterString formRow step1 clearfix">
-                <div class="subHeading clearfix">
-                    <div class="label"><%= dicts.IMDTableOp.filterString %>:</div>
-                </div>
-                <p><%= dicts.IMDTableOp.filterStringInstr %></p>
-                <div class="inputWrap">
-                    <input class="arg filterStringInput" type="text" tabindex="10"
-                        spellcheck="false" data-typeid="-1" placeholder="Optional"
-                        data-casted="false" data-casttype="null">
-                </div>
-            </div>
             <!-- schema -->
-            <div class="schema step2">
+            <div class="schema">
                 <div class="subHeading clearfix">
                     <div class="label"><%= dicts.DFLink.Schema %>:</div>
                 </div>
-            include "colSchemaView.html"
+                include "colSchemaView.html"
             </div>
         </section>
         </div>
