@@ -10,8 +10,6 @@ class SQLResultSpace {
     private _sqlTableSchema: SQLTableSchema;
     private _sqlDataflowPreview: SQLDataflowPreview;
     private _sqlResultQueryLister: SQLResultQueryLister;
-    private _sqlResultFuncLister: SQLResultFuncLister;
-    private _sqlResultUDFLister: SQLResultUDFLister;
 
     private constructor() {
         this._sqlTable = new SQLTable("sqlTableArea");
@@ -19,8 +17,6 @@ class SQLResultSpace {
         this._sqlTableSchema = new SQLTableSchema("sqlTableSchemaArea");
         this._sqlDataflowPreview = new SQLDataflowPreview("sqlDataflowArea");
         this._sqlResultQueryLister = new SQLResultQueryLister("sqlResultQueryListArea");
-        this._sqlResultFuncLister = new SQLResultFuncLister("sqlResultFuncListArea");
-        this._sqlResultUDFLister = new SQLResultUDFLister("sqlResultUDFListArea");
     }
 
     private _setupListeners() {
@@ -63,11 +59,6 @@ class SQLResultSpace {
                 console.error(e);
             }
         });
-
-        this._getTabSection().on("click", ".tab", (el) => {
-            const $tab = $(el.currentTarget);
-            this._switchTab($tab.data("tab"));
-        });
     }
 
     public setup(): void {
@@ -85,8 +76,6 @@ class SQLResultSpace {
     public refresh(): void {
         this._tableLister.refresh();
         this._sqlResultQueryLister.show();
-        this._sqlResultFuncLister.show();
-        this._sqlResultUDFLister.show();
     }
 
     /**
@@ -189,10 +178,6 @@ class SQLResultSpace {
     }
 
     private _switchTab(tab): void {
-        const $tabSection: JQuery = this._getTabSection();
-        $tabSection.find(".tab.active").removeClass("active");
-        $tabSection.find('.tab[data-tab="' + tab + '"]').addClass("active");
-
         const $contentSection: JQuery = this._getContentSection();
         $contentSection.find(".section").addClass("xc-hidden");
         $contentSection.find(".section" + "." + tab).removeClass("xc-hidden");
@@ -200,12 +185,6 @@ class SQLResultSpace {
         switch (tab) {
             case "query":
                 this._sqlResultQueryLister.show();
-                break;
-            case "udf":
-                this._sqlResultUDFLister.show();
-                break;
-            case "sqlFunc":
-                this._sqlResultFuncLister.show();
                 break;
             case "result":
                 if ($("#sqlTableArea").hasClass("xc-hidden") &&
@@ -223,10 +202,6 @@ class SQLResultSpace {
 
     private _getResultSection(): JQuery {
         return $("#sqlWorkSpacePanel .resultSection");
-    }
-
-    private _getTabSection(): JQuery {
-        return this._getResultSection().find(".tabSection");
     }
 
     private _getContentSection(): JQuery {
