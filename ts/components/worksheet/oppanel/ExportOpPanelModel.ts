@@ -498,7 +498,7 @@ class ExportOpPanelModel extends BaseOpPanelModel {
         let labelName = param.pretty_print || param.name;
         type = param.secret ? "password" : type;
         argHtml = '';
-        argHtml = '<div class="exportArg formRow ' + param.name.replace(/ /g,"_") + ' ' + type + 'Arg">' +
+        argHtml = '<div class="exportArg formRow clearfix ' + param.name.replace(/ /g,"_") + ' ' + type + 'Arg">' +
             '<div class="subHeading clearfix">' +
                 '<div class="label">'
         if (param.optional) {

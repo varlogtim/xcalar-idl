@@ -242,6 +242,7 @@
         li {
             font-size: @standardFontSize;
             padding-left: @commonMargin;
+            display: flex;
         }
 
         &.disabled {
@@ -3458,7 +3459,7 @@
     .checkboxArg {
         p {
             float: left;
-            width: 90%;
+            width: ~"calc(100% - 30px)";
         }
 
         .checkbox {
@@ -3529,6 +3530,9 @@
     }
     .option {
         .checkboxSection {
+            height: auto;
+            align-items: center;
+
            .checkbox {
                height: 30px;
                float: left;
@@ -3537,15 +3541,15 @@
            .text {
                font-size: 11px;
                margin-left: 2px;
+               white-space: normal;
+               line-height: 12px;
             }
 
            .qMark {
-               margin-left: 2px;
-               .position(relative, @top: 9px);
+               margin-left: 4px;
            }
         }
     }
-
 
     .noColsHint {
         padding-left: 10px;

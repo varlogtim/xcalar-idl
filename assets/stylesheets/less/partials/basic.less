@@ -619,16 +619,14 @@ body {
 // subpanel width changes when bottommenu open
 .mainContainer {
     &.bottomMenuOpen:not(.bottomMenuOut) {
-        @menuWidth: @width-bottomMenu;
         .mainPanel > .mainContent {
-            margin-left: @menuWidth !important;
+            margin-left: @width-bottomMenu !important;
 
         }
     }
     &.bottomMenuOpen:not(.bottomMenuOut) {
-        @menuWidth: @width-bottomMenu;
         #dataflowMenu, #sqlWorkSpacePanel .leftSection {
-            margin-left: @menuWidth + @width-homeBtn !important;
+            margin-left: @width-bottomMenu + @width-homeBtn !important;
         }
     }
 

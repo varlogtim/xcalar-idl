@@ -96,7 +96,7 @@ namespace BottomMenu {
 
         $bottomMenu.resizable({
             "handles": "n, e, s, w, se",
-            "minWidth": 295,
+            "minWidth": 290,
             "minHeight": 300,
             "start": function() {
                 $("#container").addClass("menuResizing");

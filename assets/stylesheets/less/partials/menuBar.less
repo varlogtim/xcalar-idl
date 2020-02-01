@@ -293,7 +293,7 @@
     .size(@width-topMenu,  @min-width: @width-topMenu, @height: ~"calc(100% - @{height-topBar})");
     padding: 0px;
     color: @color-font-xcDark;
-    border-right: 1px solid @color-border-grayBlue;
+    box-shadow: 0px 0px 0px 1px @color-border-grayBlue; // border-right
     margin-left: @width-homeBtn;
     z-index: @z-index-topMenu;
     background-color: @color-white;
@@ -637,7 +637,6 @@ ul.CodeMirror-hints {
         border-bottom: 1px solid @color-border-softGray;
 
         .flex-display;
-        .flex-wrap(wrap);
         .flex(0 0 auto);
         .justify-content(space-around);
         flex-direction: row;

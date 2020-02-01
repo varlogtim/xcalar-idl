@@ -1,8 +1,8 @@
 namespace MainMenu {
     let $menuBar: JQuery; // $("#menuBar");
     // offset when a menu is closed (includes 5px padding in .mainContent)
-    const openOffset: number = 340; // when the menu is open
-    export const defaultWidth: number = 295;
+    const openOffset: number = 290; // when the menu is open
+    export const defaultWidth: number = 240;
     export const minWidth: number = 100;
     let _isFormOpen: boolean = false; // if export, join, map etc is open
     let ignoreRestoreState: boolean = false; // boolean flag - if closing of a form is
