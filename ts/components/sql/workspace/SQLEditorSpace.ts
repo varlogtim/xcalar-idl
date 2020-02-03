@@ -2,20 +2,21 @@ class SQLEditorSpace {
     private static _instance: SQLEditorSpace;
 
     private _sqlEditor: SQLEditor;
-    private _isDocked: boolean;
     public static minWidth: number = 200;
     private _executers: SQLDagExecutor[];
     private _loadTimer;
     private _dagTab: DagTab;
+    private _popup: PopupPanel;
+
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
     }
 
     private constructor() {
-        this._isDocked = true;
         this._executers = [];
         this._updateExecutor();
+        this._setupPopup();
     }
 
     public setup(): void {
@@ -192,10 +193,6 @@ class SQLEditorSpace {
 
     private _getEditorSpaceEl(): JQuery {
         return $("#sqlEditorSpace");
-    }
-
-    private _getDockableSection(): JQuery {
-        return this._getEditorSpaceEl();
     }
 
     private _executeAction(): void {
@@ -509,16 +506,19 @@ class SQLEditorSpace {
         xcHelper.downloadAsFile(fileName, content);
     }
 
+    private _setupPopup(): void {
+        this._popup = new PopupPanel("sqlEditorSpace", {});
+        this._popup
+        .on("Undock", () => {
+            this._undock();
+        })
+        .on("Dock", () => {
+            this._dock();
+        });
+    }
+
     private _addEventListeners(): void {
         const $container = this._getEditorSpaceEl();
-        $container.on("click", ".undock", () => {
-            if (this._getDockableSection().hasClass("undocked")) {
-                this._dock();
-            } else {
-                this._undock();
-            }
-        });
-
         const $header = $container.find("header");
         $header.on("click", ".execute", (event) => {
             $(event.currentTarget).blur();
@@ -546,7 +546,7 @@ class SQLEditorSpace {
     }
 
     private _toggleDraggable(isDraggable: boolean): void {
-        const $section: JQuery = this._getDockableSection();
+        const $section: JQuery = this._popup.getPanel();
         if (isDraggable) {
             $section.draggable({
                 "handle": "header.draggable",
@@ -560,29 +560,21 @@ class SQLEditorSpace {
     }
 
     private _undock(): void {
-        this._isDocked = false;
-        const $container = this._getEditorSpaceEl();
-        let $dockableSection = this._getDockableSection();
+        let $dockableSection = this._popup.getPanel();
         let rect = $dockableSection[0].getBoundingClientRect();
         let height = Math.min(500, Math.max(300, $(window).height() - rect.top));
-        $dockableSection.addClass("undocked")
-                  .css({"left": rect.left + 5, "top": rect.top - 5, "width": "300px", "height": height});
-        $("#sqlWorkSpacePanel").find(".rightSection .bottomPart").addClass("undocked").removeClass("docked")
-        const $icon = $container.find(".undock");
-        xcTooltip.changeText($icon, SideBarTStr.PopBack);
-        $icon.removeClass("xi_popout").addClass("xi_popin");
+        $dockableSection.css({"left": rect.left + 5, "top": rect.top - 5, "width": "300px", "height": height});
+        $("#sqlWorkSpacePanel").find(".rightSection .bottomPart").addClass("undocked").removeClass("docked");
         this._toggleDraggable(true);
         this.refresh();
         DagCategoryBar.Instance.showOrHideArrows();
     }
 
     private _dock(): void {
-        this._isDocked = true;
-        const $container = this._getEditorSpaceEl();
         // reset to default
-        this._getDockableSection()
-                    .removeClass("undocked")
-                    .css({"left": "", "top": "", "width": "", "height": ""});
+        // this._getDockableSection()
+        //             .removeClass("undocked")
+        //             .css({"left": "", "top": "", "width": "", "height": ""});
         $("#sqlWorkSpacePanel").find(".rightSection .bottomRightPart")
                     .css({"left": "", "width": ""});
         $("#sqlWorkSpacePanel").find(".rightSection .bottomPart")
@@ -592,9 +584,6 @@ class SQLEditorSpace {
         $("#sqlWorkSpacePanel").find(".rightSection .topPart")
                                 .css({"height": ""});
         this.refresh();
-        const $icon = $container.find(".undock");
-        xcTooltip.changeText($icon, SideBarTStr.PopOut);
-        $icon.removeClass("xi_popin").addClass("xi_popout");
         this._toggleDraggable(false);
         DagCategoryBar.Instance.showOrHideArrows();
     }

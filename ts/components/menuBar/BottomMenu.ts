@@ -2,12 +2,13 @@ namespace BottomMenu {
     let clickable: boolean = true;
     let $bottomMenu: JQuery; //$("#bottomMenu");
     let _isMenuOpen: boolean = false;
-    let _isPoppedOut: boolean = false;
     let menuAnimCheckers: XDDeferred<void>[] = [];
+    let _popup: PopupPanel;
 
     export function setup(): void {
         $bottomMenu = $("#bottomMenu");
         setupButtons();
+        setupPopup();
         Log.setup();
         initialize();
     };
@@ -39,7 +40,7 @@ namespace BottomMenu {
     };
 
     export function isPoppedOut(): boolean {
-        return _isPoppedOut;
+        return _popup ? !_popup.isDocked() : false;
     };
 
     export function openSection(sectionIndex: number): void {
@@ -50,19 +51,21 @@ namespace BottomMenu {
         openMenu(0, true);
     }
 
+    function setupPopup(): void {
+        _popup = new PopupPanel("bottomMenu", {});
+        _popup
+        .on("Undock", () => {
+            _undock();
+        })
+        .on("Dock", () => {
+            _dock();
+        });
+    }
+
     // setup buttons to open bottom menu
     function setupButtons(): void {
         $bottomMenu.on("click", ".close", function() {
             BottomMenu.close();
-        });
-
-        $bottomMenu.on("click", ".popOut", function() {
-            if ($bottomMenu.hasClass('poppedOut')) {
-                // width is changing
-                popInModal(true);
-            } else {
-                popOutModal();
-            }
         });
 
         $bottomMenu.draggable({
@@ -186,14 +189,16 @@ namespace BottomMenu {
         _isMenuOpen = false;
         // recenter table titles if on workspace panel
         $("#bottomMenuBarTabs .sliderBtn.active").removeClass("active");
-        if (!_isPoppedOut && $("#sqlWorkSpacePanel").hasClass("active")) {
+        if (!isPoppedOut() && $("#sqlWorkSpacePanel").hasClass("active")) {
             checkAnimFinish()
             .then(function() {
                 TblFunc.moveFirstColumn();
                 DagCategoryBar.Instance.showOrHideArrows();
             });
         }
-        popInModal(null, false);
+        if (isPoppedOut()) {
+            _popup.toggleDock();
+        }
     }
 
     function toggleSection(sectionIndex: number): void {
@@ -208,7 +213,7 @@ namespace BottomMenu {
 
         if ($bottomMenu.hasClass("open") && $section.hasClass("active")) {
             // section is active, close right side bar
-            if ($bottomMenu.hasClass("poppedOut")) {
+            if (isPoppedOut()) {
                 // disable closing if popped out
                 return;
             } else {
@@ -295,13 +300,6 @@ namespace BottomMenu {
         return hasAnim;
     }
 
-    function noAnim(): void {
-        $bottomMenu.addClass("noAnim");
-        setTimeout(function() {
-            $bottomMenu.removeClass("noAnim");
-        }, 100);
-    }
-
     function checkAnimFinish() {
         const menuAnimDeferred: XDDeferred<void> = PromiseHelper.deferred();
         menuAnimCheckers.push(menuAnimDeferred);
@@ -320,15 +318,8 @@ namespace BottomMenu {
         return deferred.promise();
     }
 
-    function popOutModal(): void {
-        _isPoppedOut = true;
+    function _undock(): void {
         const offset: {left: number, top: number} = $bottomMenu.offset();
-
-        $bottomMenu.addClass("poppedOut");
-        const $popOut: JQuery = $bottomMenu.find(".popOut");
-        xcTooltip.changeText($popOut, SideBarTStr.PopBack);
-        $popOut.removeClass("xi_popout").addClass("xi_popin");
-        xcTooltip.hideAll();
         $bottomMenu.css({
             "left": offset.left - 5,
             "top": offset.top - 5
@@ -344,26 +335,14 @@ namespace BottomMenu {
         }
     }
 
-    function popInModal(adjustTables: boolean = false, noAnimation: boolean = false): void {
-        if (noAnimation) {
-            noAnim();
-        }
-
-        $bottomMenu.removeClass("poppedOut");
-        $bottomMenu.attr("style", "");
-
-        const $popOut: JQuery = $bottomMenu.find(".popOut");
-        xcTooltip.changeText($popOut, SideBarTStr.PopOut);
-        $popOut.removeClass("xi_popin").addClass("xi_popout");
-        xcTooltip.hideAll();
+    function _dock(): void {
         $("#container").removeClass("bottomMenuOut");
-        _isPoppedOut = false;
 
         checkAnimFinish()
         .then(function() {
             MainMenu.sizeRightPanel();
             refreshEditor();
-            if (adjustTables && $("#sqlWorkSpacePanel").hasClass("active")) {
+            if ($("#sqlWorkSpacePanel").hasClass("active")) {
                 TblFunc.moveFirstColumn();
                 DagCategoryBar.Instance.showOrHideArrows();
             }

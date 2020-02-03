@@ -50,8 +50,7 @@ describe("Bottom Menu Test", function() {
         });
 
         it("should pop out the bottom menu", function() {
-            $bottomMenu.find(".popOut").click();
-            expect($bottomMenu.hasClass("poppedOut")).to.be.true;
+            $bottomMenu.find(".undock").click();
             expect(BottomMenu.isPoppedOut()).to.be.true;
             expect(MainMenu.getOffset()).to.be.an("number");
         });
@@ -204,8 +203,7 @@ describe("Bottom Menu Test", function() {
         // });
 
         it("should pop in the bottom menu", function() {
-            $bottomMenu.find(".popOut").click();
-            expect($bottomMenu.hasClass("poppedOut")).to.be.false;
+            $bottomMenu.find(".undock").click();
             expect(BottomMenu.isPoppedOut()).to.be.false;
             expect(MainMenu.getOffset()).to.be.an("number");
         });

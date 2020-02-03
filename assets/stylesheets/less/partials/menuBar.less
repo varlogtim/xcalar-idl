@@ -456,7 +456,7 @@
     }
 
     &.fromMainMenu {
-        .toManager, .popOut {
+        .toManager, .undock {
             display: none;
         }
     }
@@ -478,7 +478,7 @@
         }
     }
 
-    &.poppedOut {
+    &.undocked {
         height: ~"calc(100% - 119px)";
         .position(@right: 5px, @bottom: 46px);
         z-index: @z-index-homeBtn + 1;
