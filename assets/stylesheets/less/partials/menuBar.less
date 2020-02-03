@@ -1,6 +1,6 @@
  /* Menu Bar  */
 #homeBtn {
-    .size(@width: @width-homeBtn, @height: @height-homeBtn);
+    .size(@width: @width-homeBtn, @height: @height-homeBtn - 3px);
     display: inline-block;
     position: fixed;
     top: 0px;
@@ -14,9 +14,9 @@
         border: 2px solid #CFE9FD;
     }
     .xd-logo-bw {
-        font-size: 28px;
-        height: 28px;
-        width: 28px;
+        font-size: 24px;
+        height: 23px;
+        width: 24px;
         background-color: #CFE9FD;
     }
 }
@@ -127,7 +127,7 @@
     float: left;
     cursor: pointer;
     .noSelection;
-    padding: 6px;
+    padding: 6px 4px;
 
     &.active:not(.fromMainMenu) {
         .transition(all 0s);
@@ -167,13 +167,17 @@
         opacity: 1;
         .transition(opacity 0.1s);
         border-radius: 8px;
+        position: relative;
 
         color: #CFE9FD;
 
         .icon {
             .center-align;
             position: absolute;
-            top: 25px;
+            font-size: 22px;
+            &.xi-menu-udf, &.xi-menu-cli {
+                font-size: 20px;
+            }
         }
         .label {
             font-size: 9px;
@@ -443,8 +447,8 @@
 
 // ========== Bottom Menu ==========
 #bottomMenu {
-    .position(absolute, @left: @width-homeBtn - @width-topMenu, @bottom: 0px); // far left so we can't see visibile items
-    .size(@width: @width-bottomMenu,  @height: ~"calc(100% - @{height-homeBtn})");
+    .position(absolute, @left: @width-homeBtn - @width-bottomMenu, @bottom: 0px); // far left so we can't see visibile items
+    .size(@width: @width-bottomMenu,  @height: ~"calc(100% - @{height-topBar})");
     z-index: @z-index-bottomMenu;
     .transition(left @time-menuAnim);
     border-right: 1px solid @color-border-grayBlue;

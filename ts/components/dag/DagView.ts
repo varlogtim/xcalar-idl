@@ -6,8 +6,8 @@ class DagView {
 
     public static readonly horzPadding = 200; // padding around edges of dataflow
     public static readonly vertPadding = 100;
-    public static readonly nodeHeight = 28;
-    public static readonly nodeWidth = 90;
+    public static readonly nodeHeight = 26;
+    public static readonly nodeWidth = 88;
     public static readonly nodeAndTableWidth = DagView.nodeWidth + 58;
     public static readonly gridSpacing = 20;
     public static zoomLevels = [.25, .5, .75, 1, 1.5, 2];
@@ -327,11 +327,11 @@ class DagView {
             top = DagView.nodeHeight;
             for (let i = 0; i < icons.length; i++) {
                 if (icons[i] === iconType) {
-                    drawIcon(icons[i], false, (i * 15 )+ 22, top, DagView.iconMap[iconType], xcStringHelper.escapeDblQuoteForHTML(tooltip), i);
+                    drawIcon(icons[i], false, (i * 15 )+ 18, top, DagView.iconMap[iconType], xcStringHelper.escapeDblQuoteForHTML(tooltip), i);
                     $node.attr("data-" + iconType.toLowerCase(), tooltip);
                 } else {
                     let tip: string = $node.data(icons[i].toLowerCase())
-                    drawIcon(icons[i], false, (i * 15 )+ 22, top, DagView.iconMap[icons[i]], tip, i);
+                    drawIcon(icons[i], false, (i * 15 )+ 18, top, DagView.iconMap[icons[i]], tip, i);
                 }
             }
         }

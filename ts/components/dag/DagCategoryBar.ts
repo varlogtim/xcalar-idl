@@ -200,9 +200,15 @@ class DagCategoryBar {
             const $category: JQuery = $(event.currentTarget);
             const category: string = $category.data("category");
             clearTimeout(this._selectCategoryTimer);
+            let delayTime: number;
+            if (this.$dagView.hasClass("showingOperatorBar")) {
+                delayTime = 250;
+            } else {
+                delayTime = 400;
+            }
             this._selectCategoryTimer = setTimeout(() => {
                 this._focusOnCategory(category);
-            }, 250);
+            }, delayTime);
         });
 
         this.$dagView.find(".categories").on("mouseleave", ".category", (event) => {
@@ -214,7 +220,7 @@ class DagCategoryBar {
             clearTimeout(self._showBarTimer);
             this._showBarTimer = setTimeout(() => {
                 this.showOperatorBar();
-            }, 250);
+            }, 400);
         });
 
         this.$categoryBar.mouseleave(() => {
@@ -297,14 +303,14 @@ class DagCategoryBar {
             let operatorHtml: HTML = "";
             operators.forEach((categoryNode: DagCategoryNode) => {
                 operatorHtml += this._genOperatorHTML(categoryNode, {
-                    x: 10 + index * (DagView.nodeWidth + 20),
-                    y: 11
+                    x: 10 + index * (DagView.nodeWidth + 16),
+                    y: 8
                 });
                 if (!categoryNode.isHidden()) {
                     index ++;
                 }
             });
-            const width = 10 + index * (DagView.nodeWidth + 20);
+            const width = 10 + index * (DagView.nodeWidth + 16);
             html += `<div class="category category-${categoryType}">
                         <div class="svgWrap">
                             <svg version="1.1" height="100%" width="${width}">
@@ -350,7 +356,7 @@ class DagCategoryBar {
                 largeTriangle: {
                     class: ['connector', 'out'],
                     attrs: {
-                        'points': `${offset},2 ${offset + 16},9, ${offset + 16},19, ${offset},26`,
+                        'points': `${offset},2 ${offset + 16},9, ${offset + 16},19, ${offset},${DagView.nodeHeight - 2}`,
                         'fill': 'transparent',
                         'stroke': 'transparent'
                     }
@@ -415,7 +421,7 @@ class DagCategoryBar {
             });
         } else {
             for (let j = 0; j < numParents; j++) {
-                const y  = 28 / (numParents + 1) * (1 + j) - 3;
+                const y  = DagView.nodeHeight / (numParents + 1) * (1 + j) - 3;
                 params.push({largeSquare: {
                     class: ['connector', 'in', 'noConnection'],
                     attrs: {
@@ -507,7 +513,7 @@ class DagCategoryBar {
             table = '<g class="table" transform="translate(' + (DagView.nodeWidth + 24) + ', 0)" display="none">' +
                         '<path class="tableLine" stroke="#627483" stroke-width="1px" fill="none" stroke-linecap="round" d="M-35,14L16,14"></path>' +
                         '<rect x="0" y="3" width="25" height="25" fill="white" ry="2" rx="2" />'+
-                        '<text class="mainTableIcon" font-family="icomoon" font-size="27" x="-2" y="26" ' + xcTooltip.Attrs + ' data-original-title="Click to view options">\uea07</text>' +
+                        '<text class="mainTableIcon" font-family="icomoon" font-size="27" x="-2" y="' + (DagView.nodeHeight - 1) + '" ' + xcTooltip.Attrs + ' data-original-title="Click to view options">\uea07</text>' +
                         '<text class="tableName" x="12" y="37" ' +
                         'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
                         'font-size="10" fill="#000000">' +
@@ -540,18 +546,18 @@ class DagCategoryBar {
                 '<g class="connInGroup">' + inConnector + '</g>' +
                 '<g class="connOut" transform="translate(-58,0)">' + outConnector + '</g>' +
                 table +
-            '<rect class="main" x="6" y="0" width="' + (DagView.nodeWidth - 13) + '" height="28" ' +
+            '<rect class="main" x="6" y="0" width="' + (DagView.nodeWidth - 13) + '" height="' + DagView.nodeHeight + '" ' +
                 'fill="white" stroke="#849CB0" stroke-width="1" ' +
-                'ry="28" rx="12" ' +
+                'ry="' + DagView.nodeHeight + '" rx="11" ' +
                 xcTooltip.Attrs + ' data-original-title="' + description + '" />'+
             '<rect class="iconArea" clip-path="url(#cut-off-right)" ' +
-                'x="0" y="0" width="26" height="28" stroke="#849CB0" ' +
+                'x="0" y="0" width="25" height="' + DagView.nodeHeight + '" stroke="#849CB0" ' +
                 'stroke-width="1" fill="' + color + '" />'+
-            '<text class="icon" x="11" y="19" font-family="icomoon" ' +
+            '<text class="icon" x="10" y="19" font-family="icomoon" ' +
                 'font-size="13" fill="white">' + icon + '</text>' +
             '<svg width="' + (DagView.nodeWidth - 43) + '" height="' + DagView.nodeHeight + '" x="28" y="1">' +
                 opTitleHtml + '</svg>' +
-            '<circle class="statusIcon" cx="' + (DagView.nodeWidth - 15) + '" cy="27" r="5" ' +
+            '<circle class="statusIcon" cx="' + (DagView.nodeWidth - 15) + '" cy="' + (DagView.nodeHeight - 1) + '" r="5" ' +
                 'stroke="#849CB0" stroke-width="1" fill="white" />' +
             '</g>';
 
