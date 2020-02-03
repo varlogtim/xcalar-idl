@@ -10,9 +10,11 @@ class PopupManager {
         popup
         .on("Undock_BroadCast", () => {
             this._addPopup(popup);
+            this._updateZIndex();
         })
         .on("Dock_BroadCast", () => {
-            this._removePopup(popup, false);
+            this._removePopup(popup, true);
+            this._updateZIndex();
         })
         .on("BringFront_BroadCast", () => {
             this._bringFrontPopup(popup);
@@ -21,23 +23,29 @@ class PopupManager {
 
     private static _addPopup(popup: PopupPanel): void {
         this._stack.push(popup);
-        this._updateZIndex();
     }
 
-    private static _removePopup(popup: PopupPanel, noUpdate: boolean): void {
+    private static _removePopup(popup: PopupPanel, removeZIndex: boolean): number {
+        let index: number = -1;
         for (let i = 0; i < this._stack.length; i++) {
             if (this._stack[i] === popup) {
+                index = i;
                 this._stack.splice(i, 1);
                 break;
             }
         }
-        popup.getPanel().css("z-index", "");
-        this._updateZIndex();
+        if (removeZIndex) {
+            popup.getPanel().css("z-index", "");
+        }
+        return index;
     }
 
     private static _bringFrontPopup(popup: PopupPanel): void {
-        this._removePopup(popup, true);
+        const index: number = this._removePopup(popup, false);
         this._addPopup(popup);
+        if (this._stack[index] !== popup) {
+            this._updateZIndex(); // when has order change
+        }
     }
 
     private static _updateZIndex(): void {

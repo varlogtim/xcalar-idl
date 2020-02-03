@@ -53,7 +53,9 @@ class PopupPanel {
         
         const $panel = this.getPanel();
         $panel.on("click.undock", () => {
-            this._event.dispatchEvent("BringFront_BroadCast");
+            if (!this._isDocked) {
+                this._event.dispatchEvent("BringFront_BroadCast");
+            }
         });
         
         $panel.addClass("undocked"); // only when all set make it undocked
