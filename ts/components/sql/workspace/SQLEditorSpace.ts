@@ -456,7 +456,7 @@ class SQLEditorSpace {
                 this._downlodSnippet();
                 break;
             case "showTables":
-                SQLResultSpace.Instance.showTables(true);
+                SQLResultSpace.Instance.showTables(false);
                 break;
             case "addUDF":
                 UDFPanel.Instance.openEditor(true);

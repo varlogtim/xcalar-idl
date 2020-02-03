@@ -40,8 +40,11 @@
       <div class="resultSection topPart">
         <div class="contentSection">
           <div class="section query">
-            <div class="lister noBottom noTop">
-              <div id="sqlResultQueryListArea" class="mainSection xc-gridList">
+            <div  id="sqlResultQueryListArea"  class="lister noBottom">
+              <div class="topSection">
+                <span class="label"><%= dicts.SQL.SaveQueryTab %></span>
+              </div>
+              <div class="mainSection xc-gridList noHeader">
                 <div class="listSection content"></div>
               </div>
             </div>
@@ -64,10 +67,9 @@
       </div>
       <div class="bottomPart docked">
         <div class="resizeHandler">
-            <div class="xc-resizeHandler">
-              <div class="border"></div>
-              <div class="border"></div>
-            </div>
+          <div class="xc-resizeHandler">
+            <div class="border"></div>
+          </div>
         </div>
         <div class="tabBar">
           include "../worksheet/tabView.html"

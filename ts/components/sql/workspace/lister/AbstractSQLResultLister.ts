@@ -85,10 +85,10 @@ abstract class AbstractSQLResultLister {
 
     private _getActionsHTML(): HTML {
         const html: HTML = this._getActions().map((action) => {
-            const classNames: string[] = ["action", "xc-action", action.name];
-            return '<span class="' + classNames.join(" ") + '" data-action="' + action.name + '">' +
+            const classNames: string[] = ["action", "btn", "btn-secondary", action.name];
+            return '<button class="' + classNames.join(" ") + '" data-action="' + action.name + '">' +
                         action.text +
-                    '</span>';
+                    '</button>';
         }).join("");
         return html;
     }

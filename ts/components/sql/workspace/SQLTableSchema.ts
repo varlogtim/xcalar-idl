@@ -31,8 +31,7 @@ class SQLTableSchema extends AbstractSQLResultView {
     protected _addEventListeners(): void {
         super._addEventListeners();
 
-        const $bottomSection = this._getContainer().find(".bottomSection");
-        $bottomSection.find(".back").click(() => {
+        this._getContainer().find(".actionArea .back").click(() => {
             SQLResultSpace.Instance.showTables(false);
         });
 

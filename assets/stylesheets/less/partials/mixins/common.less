@@ -383,7 +383,6 @@
 
     &:hover, &:focus, &:active {
         background-color: @color-font-seconday-button-hover;
-        border-color: @color-font-seconday-button-hover;
     }
 
     &:active {
@@ -1116,11 +1115,17 @@
 }
 
 .xc-gridList {
-    @row-h: 30px;
-    @header-h: 30px;
+    @row-h: 24px;
+    @header-h: 24px;
 
     &.cardMain {
         user-select: auto;
+    }
+
+    &.noHeader {
+        .content {
+            height: 100%;
+        }
     }
 
     .header {
@@ -1270,6 +1275,7 @@
 .xc-resourceMenu {
     padding-top: 0;
     cursor: default;
+    @h: 24px;
 
     > .listWrap {
         // only apply to outmost listWrap
@@ -1277,7 +1283,7 @@
         flex-direction: column;
 
         > .listInfo {
-            flex: 0 0 30px;
+            flex: 0 0 @h;
             padding: 0 8px;
             overflow: hidden;
         }
@@ -1290,10 +1296,14 @@
 
     .listWrap {
         clear: both;
-        margin-top: 8px;
+        margin-top: 4px;
         display: flex;
         flex-direction: column;
         overflow: hidden;
+
+        &:first-child {
+            margin-top: 0;
+        }
 
         &.nested {
             .listInfo {
@@ -1307,8 +1317,9 @@
 
         .listInfo {
             display: flex;
-            font-size: 13px;
-            line-height: 30px;
+            font-size: 12px;
+            height: @h;
+            line-height: @h;
             padding-right: 8px;
 
             > .text, .action {
@@ -1333,12 +1344,12 @@
         li {
             .position(relative);
             padding: 0 8px 0 20px;
+            height: @h;
             white-space: nowrap;
-            border-top: 1px solid @color-border-menugray;
-            border-bottom: none;
+            border: none;
 
-            &:last-child {
-                border-bottom: 1px solid @color-border-menugray;
+            &:first-child {
+                border-top: none; // overwrite xc-expand-list
             }
 
             &:hover {
@@ -1360,15 +1371,6 @@
 
             &.active {
                 background-color: @color-bg-dropdown-hover-gray;
-                border-top-color: @color-font-link-blue;
-
-                &:last-child {
-                    border-bottom-color: @color-font-link-blue;
-                }
-
-                + li {
-                    border-top-color: @color-font-link-blue;
-                }
             }
 
             &.inActive {
@@ -1378,32 +1380,32 @@
             }
 
             .gridIcon {
-                font-size: 14px;
+                font-size: 12px;
                 float: left;
-                width: 22px;
-                margin-top: 4px;
+                width: 18px;
+                margin-top: 2px;
             }
 
             .name {
                 width: ~"calc(100% - 23px)";
                 font-size: 12px;
                 float: left;
-                line-height: 30px;
+                line-height: @h;
             }
 
             .dropDown {
                 display: none;
                 position: absolute;
                 right: 8px;
-                width: 25px;
-                height: 18px;
-                line-height: 18px;
+                width: 20px;
+                height: 14px;
                 padding: 0;
-                margin-top: 6px;
+                margin-top: 5px;
                 outline: none;
 
                 .icon {
-                    font-size: 14px;
+                    font-size: 12px;
+                    top: 1px;
                 }
             }
         }
@@ -1423,15 +1425,17 @@
 }
 
 .xc-resizeHandler {
-    .size(@width: 100px, @height: 15px);
+    .size(@width: 32px, @height: 9px);
     .horizontal-align;
-    .position(absolute, @top: 0px);
-    padding-top: 2px;
+    .position(absolute, @top: -4px);
+    border: 1px solid @color-bg-cancel-gray-hover;
+    padding: 4px;
+    background-color: @color-white;
+    border-radius: 1px;
 
     .border {
         .size(@width: 100%, @height: 1px);
         background-color: @color-border-pinkish-grey2;
-        margin-top: 3px;
     }
 }
 

@@ -39,8 +39,8 @@ namespace SqlQueryHistoryPanel {
                 </div>`,
             headerColumnSortableNoSort:
                 `<div class="col col-sort {{cssClass}}" (click)="onClickSort" style="{{cssStyle}}"><span class="label">{{title}}</span><div class="sort sort-none">
-                    <span class="sortIconWrap"><i class="icon fa-8 xi-arrow-up"></i></span>
-                    <span class="sortIconWrap"><i class="icon fa-8 xi-arrow-down"></i></span>
+                    <span class="sortIconWrap"><i class="icon fa-7 xi-arrow-up"></i></span>
+                    <span class="sortIconWrap"><i class="icon fa-7 xi-arrow-down"></i></span>
                 </div></div>`,
             header:
                 `<div class="row row-header"><APP-HEADERCOLUMNS></APP-HEADERCOLUMNS></div>`,

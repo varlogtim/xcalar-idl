@@ -805,28 +805,6 @@
     }
     .dataflowWrap {
         overflow: hidden;
-        @resize-h: 11px;
-
-        > .resizeHandler {
-            display: none;
-            position: absolute;
-            width: 100%;
-            height: @resize-h;
-            background-color: @color-bg-list-hover-blue;
-            border-top: 1px solid @color-border-bar;
-            border-bottom: 1px solid @color-border-bar;
-
-            .xc-resizeHandler {
-                width: 48px;
-                height: @resize-h;
-                padding-top: 1px;
-
-                .border {
-                    margin-top: 2px;
-                    background-color: @color-border-bar;
-                }
-            }
-        }
     }
     .innerDataflowWrap {
 
@@ -2165,26 +2143,6 @@
 
 
 /* ========== Dataflow List Section ========== */
-#dagList {
-    &.sqlMode {
-        #dagListSection {
-            padding-top: 0;
-
-            .pathSection {
-                display: none;
-            }
-        }
-    }
-
-    .topSection {
-        height: 60px !important;
-    }
-
-    #dagListSection {
-        height: ~"calc(100% - 60px)";
-    }
-}
-
 #dagListSection {
     .listWrap {
         max-height: 42%;

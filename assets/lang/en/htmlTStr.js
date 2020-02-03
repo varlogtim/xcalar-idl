@@ -464,7 +464,9 @@ module.exports = {
         "ResultTab": "Query Results",
         "HistoryTab": "History",
         "ViewingResult": "Viewing Result",
-        "SearchByQuery": "Filter by query"
+        "SearchByQuery": "Filter by query",
+        "SearchByName": "Filter by name",
+        "SchemaBack": "Back to show tables",
     },
 
     "resouceMenu": {

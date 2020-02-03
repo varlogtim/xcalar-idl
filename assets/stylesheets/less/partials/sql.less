@@ -2,12 +2,12 @@
     @border-style: solid @color-border-softGray 1px;
     @cell-padding: 10px;
     @scrollbar-width: 11px;
-    @tableHeaderHeight: 30px;
+    @tableHeaderHeight: 24px;
 
     .size(@height: 100%);
 
     .row {
-        .size(@height:30px);
+        .size(@height: 24px);
         .flex-container();
         .flex-flow(nowrap);
         .align-items(center);
@@ -257,7 +257,7 @@
     }
 
     .mainContent {
-        @resize-h: 11px;
+        @resize-h: 1px;
         @tabBar-h: 24px;
 
         .rightSection {
@@ -280,7 +280,6 @@
                 flex-direction: column;
                 position: absolute;
                 width: 100%;
-                border-top: 1px solid @color-border-bar;
 
                 > .ui-resizable-handle {
                     z-index: @z-index-sqlBottomResizeHandler !important; // don't block other elements
@@ -299,19 +298,7 @@
                     z-index: @z-index-sqlBottomResizeHandler;
                     width: 100%;
                     height: @resize-h;
-                    background-color: @color-bg-list-hover-blue;
-                    border-bottom: 1px solid @color-border-bar;
-
-                    .xc-resizeHandler {
-                        width: 48px;
-                        height: @resize-h;
-                        padding-top: 1px;
-
-                        .border {
-                            margin-top: 2px;
-                            background-color: @color-border-bar;
-                        }
-                    }
+                    border-bottom: 1px solid @color-border-pinkish-grey2;
                 }
 
                 .tabBar {
@@ -510,40 +497,6 @@
                         }
                     }
 
-                    .lister {
-                        .listSection {
-                            overflow-y: auto;
-
-                            .row {
-                                padding: 0 16px;
-
-                                > span {
-                                    display: block;
-                                    line-height: 29px;
-                                }
-
-                                .name {
-                                    float: left;
-                                }
-
-                                .action {
-                                    margin-left: 8px;
-                                    float: right;
-                                    font-size: 12px;
-                                    text-decoration: underline;
-                                    color: @color-font-link-blue;
-                                }
-                            }
-                        }
-
-                        .error {
-                            width: 300px;
-                            .center-align;
-                            text-align: center;
-                            color: @color-text-error;
-                        }
-                    }
-
                     .hintArea {
                         width: auto;
                         height: auto;
@@ -571,11 +524,11 @@
         .cardHeader {
             background-color: @color-white;
             display: block;
-            padding-right: 20px;
+            padding-left: 15px;
+            padding-right: 15px;
 
-            .title {
-                padding-left: 15px;
-                font-size: 16px;
+            label {
+                font-size: 14px;
                 font-weight: 600;
                 color: @color-font-xcDark;
             }
@@ -658,7 +611,7 @@
 
     .undock {
         position: absolute;
-        top: 16px;
+        top: 13px;
         right: 16px;
         font-size: 14px;
     }
@@ -667,14 +620,14 @@
         border-bottom: 1px solid @color-border-softGray;
         display: flex;
         flex-wrap: wrap;
-        padding: 8px 50px 8px 15px;
+        padding: 8px 32px 4px 16px;
 
         .title {
             color: @color-font-xcDark;
             font-size: 16px;
             font-weight: 600;
             color: @color-font-darkGray;
-            line-height: 28px;
+            line-height: 24px;
             margin-right: 16px;
         }
 
@@ -731,7 +684,7 @@
                     border-top-right-radius: 3px;
                     border-bottom-right-radius: 3px;
                     width: 18px;
-                    height: 26px;
+                    height: 22px;
 
                     &:hover {
                         background-color: @color-font-seconday-button-hover;
@@ -876,19 +829,6 @@
     }
 }
 
-#sqlTableListerArea, #sqlTableSchemaArea {
-    .topSection {
-        .searchbarArea {
-            float: right;
-            max-width: 131px;
-
-            input {
-                padding-right: 10px;
-            }
-        }
-    }
-}
-
 #sqlTableListerArea {
     &.loading {
         .topSection {
@@ -899,11 +839,11 @@
         }
     }
 
-    .topSection {
-        .actionArea {
-            float: right;
-        }
+    .actionArea {
+        float: right;
+    }
 
+    .topSection {
         .viewSchema {
             width: auto;
             padding: 0 3px;
@@ -976,7 +916,30 @@
 }
 
 #sqlTableSchemaArea {
+    .actionArea {
+        button {
+            margin-right: 8px;
+            width: 68px;
+            padding-right: 8px;
+            padding-left: 0;
+            height: 20px;
+            line-height: 18px;
+
+            .icon {
+                font-size: 10px;
+            }
+        }
+    }
+
     .mainSection {
+        .header {
+            .row {
+                > div {
+                    font-weight: 600;
+                }
+            }
+        }
+
         .row {
             @w-other: 150px;
             @w-primaryKey: @w-other * 2;
@@ -1005,6 +968,17 @@
 }
 
 #sqlTableListerArea, #sqlTableSchemaArea {
+    .topSection {
+        .searchbarArea {
+            float: right;
+            max-width: 131px;
+
+            input {
+                padding-right: 10px;
+            }
+        }
+    }
+
     .mainSection {
         .header {
             background-color: @color-white;
@@ -1041,7 +1015,7 @@
                     color: @color-icon-gray;
 
                     .sortIconWrap {
-                        .position(relative, @top: 8px);
+                        .position(relative, @top: 5px);
 
                         .icon {
                             display: block;
@@ -1107,5 +1081,42 @@
         .table {
             pointer-events: none;
         }
+    }
+}
+
+#sqlResultQueryListArea {
+    .listSection {
+        overflow-y: auto;
+
+        .row {
+            padding: 0 16px;
+
+            > span {
+                display: block;
+                line-height: 24px;
+                font-size: 12px;
+            }
+
+            .name {
+                float: left;
+            }
+
+            .action {
+                margin-left: 8px;
+                float: right;
+                font-size: 11px;
+                margin-top: 4px;
+                width: auto;
+                height: 16px;
+                line-height: 14px;
+            }
+        }
+    }
+
+    .error {
+        width: 300px;
+        .center-align;
+        text-align: center;
+        color: @color-text-error;
     }
 }

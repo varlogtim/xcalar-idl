@@ -249,7 +249,7 @@ class ResourceMenu {
         return '<div class="nested listWrap xc-expand-list">' +
                 '<div class="listInfo">' +
                     '<span class="expand">' +
-                        '<i class="icon xi-down fa-13"></i>' +
+                        '<i class="icon xi-down fa-12"></i>' +
                     '</span>' +
                     '<span class="text">' + name + '</span>' +
                 '</div>' +

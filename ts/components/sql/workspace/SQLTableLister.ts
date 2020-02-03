@@ -211,8 +211,8 @@ class SQLTableLister extends AbstractSQLResultView {
     private _renderHeader(): void {
         let header: HTML = this._attributes.map((attr) => {
             let key: string = attr.key;
-            let upIcon = '<i class="icon fa-8 xi-arrow-up"></i>';
-            let downIcon = '<i class="icon fa-8 xi-arrow-down"></i>';
+            let upIcon = '<i class="icon fa-7 xi-arrow-up"></i>';
+            let downIcon = '<i class="icon fa-7 xi-arrow-down"></i>';
             let sortIcon = "";
             if (key === this._sortKey) {
                 sortIcon = this._reverseSort ? downIcon : upIcon;

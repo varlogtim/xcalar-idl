@@ -1934,13 +1934,17 @@ table.datasetTable {
         position: absolute;
         background: @color-white;
         border-top: 1px solid @color-border-bar;
-        overflow: hidden;
+        // overflow: hidden;
         z-index: 1;
 
         .ui-resizable-n {
             top: 0px;
             z-index: 2 !important;
             border-bottom: 1px solid @color-border-bar;
+        }
+
+        .xc-resizeHandler {
+            top: -6px;
         }
 
         .pulloutTab {
@@ -4724,8 +4728,8 @@ table.datasetTable {
 
     .menuSection {
         .buttonSection {
-            padding: 15px;
-            height: 58px;
+            padding: 15px 8px;
+            height: 54px;
 
             .iconBtn {
                 padding: 0 12px 0 4px;
@@ -4754,7 +4758,7 @@ table.datasetTable {
         }
 
         > .mainSection {
-            height: ~"calc(100% - 118px)" !important;
+            height: ~"calc(100% - 90px)" !important;
         }
 
         &.dataMart {

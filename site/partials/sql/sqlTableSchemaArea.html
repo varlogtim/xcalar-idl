@@ -1,16 +1,20 @@
-<div id="sqlTableSchemaArea">
+<div id="sqlTableSchemaArea" class="noBottom">
   <div class="topSection">
+    <span class="actionArea">
+      <button class="btn btn-secondary iconBtn back" 
+      data-toggle="tooltip"
+      data-placement="top"
+      data-container="body"
+      data-original-title="<%= dicts.SQL.SchemaBack %>">
+        <i class="icon xi-arrowtail-left"></i>
+        Back
+      </button>
+    </span>
     <span class="label">Schema of Table <span class="name"></span></span>
     <span class="searchbarArea">
-      <input type="text">
+      <input type="text" placeholder="<%= dicts.SQL.SearchByName %>">
       <i class="icon xi-search"></i>
     </span>
   </div>
   <div class="mainSection xc-gridList"></div>
-  <div class="bottomSection">
-    <div class="info"></div>
-    <div class="buttonWrap">
-      <button class="btn btn-clear back"><%= dicts.common.Back %></button>
-    </div>
-  </div>
 </div>
