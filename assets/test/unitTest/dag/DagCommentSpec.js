@@ -19,7 +19,7 @@ describe("DagComment Test", function() {
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
         }
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             DagTabManager.Instance.newTab();
             tabId = DagViewManager.Instance.getActiveDag().getTabId();

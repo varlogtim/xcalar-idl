@@ -6,7 +6,7 @@ describe('PublishIMDOpPanel Test', () => {
     let editor;
 
     before((done) => {
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             const inputColumns = genProgCols('myPrefix::coll', 5).concat(genProgCols('col', 4));
             const parentNode = {

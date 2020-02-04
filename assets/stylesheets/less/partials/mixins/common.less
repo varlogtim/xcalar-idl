@@ -1184,6 +1184,12 @@
             }
         }
     }
+
+    .ui-resizable-handle {
+        z-index: 3 !important;
+        height: 100%;
+        top: 0;
+    }
 }
 
 .xc-fileListView {
@@ -2429,4 +2435,29 @@ html.firefox {
 
 .semibold {
     font-weight: 600;
+}
+
+.undockable {
+    .ui-resizable-handle {
+        display: none !important;
+        z-index: 6 !important; // don't block other elements
+    }
+    .ui-resizable-se, .ui-resizable-sw, .ui-resizable-ne, .ui-resizable-nw {
+        z-index: 7 !important;
+    }
+
+    &.undocked {
+        z-index: @z-index-sqlEditorUndocked;
+        box-shadow: 0 0 5px 1px rgba(0,0,0, 0.5);
+        position: fixed !important;
+
+        .ui-resizable-handle {
+            display: block !important;
+        }
+
+        .ui-draggable-handle {
+            pointer-events: auto;
+            .cursor-move;
+        }
+    }
 }

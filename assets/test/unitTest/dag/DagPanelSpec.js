@@ -1,15 +1,15 @@
 describe("DagPanel Test", function() {
     before(function(done) {
         // wait the initialize setup finish first
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             done();
         });
     });
 
     it("hasSetup should work", function() {
-        DagPanel.__testOnly__.setSetup(false);
-        expect(DagPanel.hasSetup()).to.be.false
+        DagPanel.Instance._setup = false;
+        expect(DagPanel.Instance.hasSetup()).to.be.false
     });
 
     it("should alert error setup", function(done) {
@@ -18,16 +18,16 @@ describe("DagPanel Test", function() {
         let called = false;
         DagAggManager.Instance.setup = () => PromiseHelper.reject("test");
         Alert.show = () => { called = true; };
-        
-        DagPanel.__testOnly__.setSetup(false);
-        DagPanel.setup()
+
+        DagPanel.Instance._setup = false;
+        DagPanel.Instance.setup()
         .then(function() {
             done("fail");
         })
         .fail(function(error) {
             expect(called).to.be.true;
             expect(error).to.equal("test");
-            expect(DagPanel.hasSetup()).to.be.true;
+            expect(DagPanel.Instance.hasSetup()).to.be.true;
             done();
         })
         .always(function() {
@@ -37,10 +37,10 @@ describe("DagPanel Test", function() {
     });
 
     it("should setup", function(done) {
-        DagPanel.__testOnly__.setSetup(false);
-        DagPanel.setup()
+        DagPanel.Instance._setup = false;
+        DagPanel.Instance.setup()
         .then(function() {
-            expect(DagPanel.hasSetup()).to.be.true;
+            expect(DagPanel.Instance.hasSetup()).to.be.true;
             done();
         })
         .fail(function() {
@@ -49,6 +49,6 @@ describe("DagPanel Test", function() {
     });
 
     after(function() {
-        DagPanel.__testOnly__.setSetup(true);
+        DagPanel.Instance._setup = true;
     });
 });

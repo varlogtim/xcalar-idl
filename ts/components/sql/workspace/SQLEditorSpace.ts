@@ -64,7 +64,7 @@ class SQLEditorSpace {
      * @param sqls
      */
     public execute(sqls: string): void {
-        if (!DagPanel.hasSetup()) {
+        if (!DagPanel.Instance.hasSetup()) {
             Alert.error(AlertTStr.Error, DFTStr.NotSetup);
             return;
         }
@@ -532,12 +532,7 @@ class SQLEditorSpace {
     private _toggleDraggable(isDraggable: boolean): void {
         const $section: JQuery = this._popup.getPanel();
         if (isDraggable) {
-            $section.draggable({
-                "handle": "header.draggable",
-                "cursor": "-webkit-grabbing",
-                "containment": "#sqlWorkSpacePanel",
-                "disabled": false
-            });
+            this._popup.setDraggable("header.draggable");
         } else {
             $section.draggable({disabled: true});
         }
@@ -547,8 +542,15 @@ class SQLEditorSpace {
         let $dockableSection = this._popup.getPanel();
         let rect = $dockableSection[0].getBoundingClientRect();
         let height = Math.min(500, Math.max(300, $(window).height() - rect.top));
-        $dockableSection.css({"left": rect.left + 5, "top": rect.top - 5, "width": "300px", "height": height});
-        $("#sqlWorkSpacePanel").find(".rightSection .bottomPart").addClass("undocked").removeClass("docked");
+        $dockableSection.css({
+            "left": rect.left + 5,
+            "top": rect.top - 5,
+            "width": "300px", "height": height
+        });
+
+        $("#sqlWorkSpacePanel").addClass("sqlEditorUndocked")
+                               .removeClass("sqlEditorDocked");
+
         this._toggleDraggable(true);
         this.refresh();
         DagCategoryBar.Instance.showOrHideArrows();
@@ -556,15 +558,15 @@ class SQLEditorSpace {
 
     private _dock(): void {
         // reset to default
-        // this._getDockableSection()
-        //             .removeClass("undocked")
-        //             .css({"left": "", "top": "", "width": "", "height": ""});
-        $("#sqlWorkSpacePanel").find(".rightSection .bottomRightPart")
-                    .css({"left": "", "width": ""});
-        $("#sqlWorkSpacePanel").find(".rightSection .bottomPart")
-                                .removeClass("undocked")
-                                .addClass("docked")
+        $("#sqlWorkSpacePanel").removeClass("sqlEditorUndocked")
+                                .addClass("sqlEditorDocked")
+                                .find(".rightSection .bottomPart")
                                 .css({"top": "", "height": ""});
+
+        if (PopupManager.isDocked("dagView")) {
+            $("#dagView").css({"left": "", "width": ""});
+        }
+
         $("#sqlWorkSpacePanel").find(".rightSection .topPart")
                                 .css({"height": ""});
         this.refresh();
@@ -575,9 +577,10 @@ class SQLEditorSpace {
     private _setupResize(): void {
         let self = this;
         this._getEditorSpaceEl().resizable({
-            handles: "w,e,s, se",
+            handles: "w, e, s, n, nw, ne, sw, se",
             minWidth: SQLEditorSpace.minWidth,
             minHeight: 300,
+            containment: "#sqlWorkSpacePanel",
             stop: function () {
                 self._sqlEditor.refresh();
             }

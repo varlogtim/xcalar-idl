@@ -5,7 +5,7 @@ describe.skip("SQL Executor Test", function() {
         oldUpdateHistory = SQLHistorySpace.Instance.update;
         SQLHistorySpace.Instance.update = function() {};
 
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             done();
         });
@@ -37,7 +37,7 @@ describe.skip("SQL Executor Test", function() {
         PTblManager.Instance.getTableMap = oldMap;
         return executor;
     };
-    
+
     it("should set/get/delete tab", function() {
         let dagTab = new DagTabUser();
         let id = dagTab.getId();
@@ -84,13 +84,13 @@ describe.skip("SQL Executor Test", function() {
             let status = executor.getStatus();
             expect(status).to.equal(SQLStatus.None);
         });
-    
+
         it("should set to to running status", function() {
             executor.setStatus(SQLStatus.Running);
             let status = executor.getStatus();
             expect(status).to.equal(SQLStatus.Running);
         });
-    
+
         it("set cancel status should cancel execute", function() {
             executor._tempGraph = new DagGraph();
             let oldFunc = executor._tempGraph.cancelExecute;
@@ -98,12 +98,12 @@ describe.skip("SQL Executor Test", function() {
             executor._tempGraph.cancelExecute = function() {
                 called = true;
             };
-    
+
             executor.setStatus(SQLStatus.Cancelled);
             let status = executor.getStatus();
             expect(status).to.equal(SQLStatus.Cancelled);
             expect(called).to.be.true;
-    
+
             executor._tempGraph.cancelExecute = oldFunc;
             delete executor._tempGraph;
         });
@@ -138,7 +138,7 @@ describe.skip("SQL Executor Test", function() {
         it("should configure sql node and compile", function(done) {
             let executor = createExecutor();
             let called = 0;
-            
+
             let oldAddCache = DagTabManager.Instance.addSQLTabCache;
             let oldInspect = DagViewManager.Instance.inspectSQLNode;
 
@@ -217,7 +217,7 @@ describe.skip("SQL Executor Test", function() {
         it("should reject in cancel status", function(done) {
             let executor = createExecutor();
             executor.setStatus(SQLStatus.Cancelled);
-            
+
             let called = false;
             let callback = function() {
                 called = true;
@@ -396,7 +396,7 @@ describe.skip("SQL Executor Test", function() {
         DagList.Instance.addDag = function() {
             called++;
         };
-        
+
         executor._sqlNode.subGraph = new DagGraph();
         executor._tempTab.save = function() {
             called++;
@@ -424,7 +424,7 @@ describe.skip("SQL Executor Test", function() {
         DagList.Instance.addDag = function() {
             called++;
         };
-        
+
         executor._sqlNode.subGraph = null;
         executor._tempTab.save = function() {
             called++;
@@ -462,7 +462,7 @@ describe.skip("SQL Executor Test", function() {
         DagList.Instance.addDag = function() {
             called++;
         };
-        
+
         executor._sqlNode.subGraph = new DagGraph();
         executor._tempTab.save = function() {
             called++;
@@ -502,7 +502,7 @@ describe.skip("SQL Executor Test", function() {
         DagList.Instance.addDag = function() {
             called++;
         };
-        
+
         executor._sqlNode.subGraph = null;
         executor._tempTab.save = function() {
             called++;

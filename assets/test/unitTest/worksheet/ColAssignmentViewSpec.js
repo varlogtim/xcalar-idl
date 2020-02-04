@@ -13,7 +13,7 @@ describe('ColAssignmentView Test', function() {
         }
         console.log("Col assignmentView test");
 
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             MainMenu.openPanel("sqlPanel");
             node = new DagNodeMap({subType: "cast"});

@@ -1,6 +1,6 @@
 describe("SQLEditorSpace Test", function() {
     before(function(done) {
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             done();
         });

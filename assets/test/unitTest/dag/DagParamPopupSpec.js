@@ -8,7 +8,7 @@ describe("DagParamPopup Test", function() {
             $("#modeArea").click();
         }
         MainMenu.openPanel("sqlPanel", null);
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             $tab = $("#dagView .optionsMenu .parameters");
             getParamMap = DagParamManager.Instance.getParamMap;

@@ -1,7 +1,7 @@
 describe("DagSearch Test", function() {
     before(function(done) {
         UnitTest.onMinMode();
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             done();
         });

@@ -49,25 +49,27 @@
         }
     }
 
+    &.undocked {
+        .categoryBar {
+            .label {
+                .cursor-move;
+            }
+        }
+    }
+
+    .ui-resizable-w {
+        display: block !important;
+    }
+
     .categoryBar {
         @icon-height: 20px;
         @search-width: 135px;
-
         .size(@min-height: @category-height, @max-height: @category-height);
         background-color: @color-bg-topBarGray2;
         line-height: @category-height;
         .flex-display;
         position: relative;
         z-index: @z-index-categoryBar;
-
-        &.scrollable {
-            .searchArea {
-                box-shadow: 3px 0px 2px -2px rgba(0, 0, 0, 0.1);
-            }
-            .categoryScroll {
-               .flex-display;
-            }
-        }
 
         > .label {
             margin-left: 8px;
@@ -109,6 +111,27 @@
                 color: @color-icon-gray;
                 cursor: pointer;
             }
+        }
+
+        .categorySection {
+            .flex-display;
+            position: relative;
+            width: ~"calc(100% - 146px)";
+
+            &.scrollable {
+                .searchArea {
+                    box-shadow: 3px 0px 2px -2px rgba(0, 0, 0, 0.1);
+                }
+                .categoryScroll {
+                   .flex-display;
+                }
+            }
+        }
+
+        .categoryArea {
+            display: flex;
+            position: relative;
+            overflow: hidden;
         }
 
         .categoryWrap {
@@ -228,6 +251,17 @@
             // padding right or margin right doesn't work within flexbox
             // so using an actual div to create space
             min-width: 10px;
+        }
+
+
+        .rightIconArea {
+            margin-left: auto;
+            padding: 0px 8px;
+            box-shadow: 0.25px 0px 1px #849CB0;
+
+            .icon {
+                font-size: 14px;
+            }
         }
     }
 
@@ -349,126 +383,6 @@
     }
 }
 
-#dagViewBar {
-    .flex-direction(row);
-    z-index: 0;
-    min-height: @height-topBar;
-    max-height: @height-topBar;
-    padding-left: 10px;
-
-    .topButtons {
-        float: right;
-        .flex-display;
-        height: 100%;
-
-        .retTab {
-            margin-left: 3px;
-            margin-right: 1px;
-        }
-
-        &.left {
-            float: left;
-        }
-    }
-
-    .topButton {
-        cursor: pointer;
-        padding: 0px 1px;
-
-        .icon {
-            height: 27px;
-            width: 27px;
-            line-height: 27px;
-            text-align: center;
-        }
-
-        .icon, &.parameters, &.aggregates {
-            .vertical-align;
-            color: @color-border-bar;
-            font-size: 18px;
-            .rounded(4px);
-        }
-
-        &:hover {
-            .icon, &.parameters, &.aggregates {
-                background-color: rgba(0, 0, 0, 0.05);
-            }
-            &.disabled {
-                .icon, &.parameters, &.aggregates {
-                    background-color: transparent;
-                }
-            }
-        }
-        &:active {
-            .icon, &.parameters, &.aggregates {
-                background-color: rgba(0, 0, 0, 0.1);
-            }
-            &.disabled {
-                .icon, &.parameters, &.aggregates {
-                    background-color: transparent;
-                }
-            }
-        }
-
-        &.disabled {
-            cursor: not-allowed;
-            .icon {
-                color: @color-connector;
-            }
-        }
-        &.repeatable {
-            cursor: pointer;
-        }
-        &.locked {
-            cursor: not-allowed;
-            .icon {
-                color: @color-connector;
-            }
-        }
-
-        &.autoSave {
-            > div {
-                float: left;
-                font-size: 12px;
-                .vertical-align;
-                text-transform: initial;
-                margin-right: 5px;
-            }
-        }
-
-        &.parameters, &.aggregates {
-            padding: 0px 5px;
-            font-size: 12px;
-            height: 30px;
-            line-height: 30px;
-            border: 1px solid  @color-border-bar;
-            .rounded(3px);
-        }
-
-    }
-
-    .toggleStatsPanel {
-        color: @color-font-link-blue;
-        line-height: 52px;
-        padding: 0 20px;
-        font-size: 12px;
-        display: none !important; // XXX temp hiding until backend is ready
-
-        + .divider {
-            display: none; // XXX temp hiding until backend is ready
-        }
-    }
-
-    .divider {
-        height: 25px;
-        width: 1px;
-        margin: 0px 5px;
-        .vertical-align;
-        background-color: @color-border-bar;
-    }
-}
-
-
 .dagContainer {
     .flex-display;
     .flex-direction(column);
@@ -570,6 +484,7 @@
             .iconArea {
                 pointer-events: initial;
                 cursor: pointer;
+                fill: @color-error-red !important;
             }
         }
 
@@ -715,10 +630,10 @@
         }
         &.state-Complete {
             .statusIcon {
-                fill: @color-dag-green;
+                fill: @color-icon-darkGreen;
             }
             .mainTableIcon {
-                fill: rgb(132, 156, 176);
+                fill: @color-icon-grayBlue;
             }
         }
         &.state-Error {
@@ -1242,7 +1157,6 @@
     }
 }
 
-
 #dagGraphBar {
     @dagGraphBarHeight: 32px;
     .flex-direction(row);
@@ -1399,9 +1313,9 @@
             position: relative;
             .zoomPercentInput {
                 font-size: 12px;
-                height: 30px;
-                line-height: 30px;
-                margin-top: 3px;
+                height: 28px;
+                line-height: 28px;
+                margin-top: 2px;
                 padding: 0 0;
                 padding-right: 16px;
                 color: @color-icon-gray;
@@ -1412,7 +1326,7 @@
             .percent-sign {
                 position: absolute;
                 z-index: 3;
-                top: 9px;
+                top: 7px;
                 right: 2px;
                 cursor: default;
             }
@@ -1795,6 +1709,7 @@
     @liHeight: 24px;
     @iconWidth: 10px;
     @iconMargin: 8px;
+    z-index: @z-index-popupUndocked + 5;
 
     li {
         display: none;

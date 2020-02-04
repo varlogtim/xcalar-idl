@@ -13,6 +13,7 @@ class PopupPanel {
         this._isDocked = true;
         this._event = new XcEvent();
         this._addEventListeners();
+        this.getPanel().addClass("undockable");
         PopupManager.register(this);
     }
 
@@ -37,6 +38,44 @@ class PopupPanel {
         return $(`#${this._id}`);
     }
 
+    public getId(): string {
+        return this._id;
+    }
+
+    public setDraggable(handleSelector: string): void {
+        let minLeft = -40;
+        let maxLeft: number;
+        let maxTop: number;
+        this.getPanel().draggable({
+            "handle": handleSelector,
+            "cursor": "-webkit-grabbing",
+            "disabled": false,
+            "containment": "",
+            start: () => {
+                let winWidth = window.innerWidth;
+                let winHeight = window.innerHeight;
+                maxLeft = winWidth - 40;
+                maxTop = winHeight - 30;
+            },
+            drag: (_event, ui) => {
+                if (ui.position.left < minLeft) {
+                    ui.helper.css("left", minLeft);
+                    ui.position.left = minLeft;
+                } else if (ui.position.left > maxLeft) {
+                    ui.helper.css("left", maxLeft);
+                    ui.position.left = maxLeft;
+                }
+                if (ui.position.top < 1) {
+                    ui.helper.css("top", 1);
+                    ui.position.top = 1;
+                } else if (ui.position.top > maxTop) {
+                    ui.helper.css("top", maxTop);
+                    ui.position.top = maxTop;
+                }
+            }
+        });
+    }
+
     private _getPopupButton(): JQuery {
         return this.getPanel().find(".undock");
     }
@@ -50,14 +89,14 @@ class PopupPanel {
 
         this._event.dispatchEvent("Undock");
         this._event.dispatchEvent("Undock_BroadCast");
-        
+
         const $panel = this.getPanel();
-        $panel.on("click.undock", () => {
+        $panel.on("mousedown.undock", () => {
             if (!this._isDocked) {
                 this._event.dispatchEvent("BringFront_BroadCast");
             }
         });
-        
+
         $panel.addClass("undocked"); // only when all set make it undocked
     }
 
@@ -68,7 +107,7 @@ class PopupPanel {
         $panel
         .removeClass("undocked")
         .attr("style", ""); // reset position and size to default
-        $panel.off("click.undock");
+        $panel.off("mousedown.undock");
 
         const $button = this._getPopupButton();
         xcTooltip.changeText($button, SideBarTStr.PopOut);
@@ -83,7 +122,6 @@ class PopupPanel {
         $button.click(() => {
             this.toggleDock();
         });
-
 
     }
 }

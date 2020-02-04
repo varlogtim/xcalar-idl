@@ -1,23 +1,30 @@
-namespace DagPanel {
-    let _setup: boolean = false;
+class DagPanel {
+    private static _instance: DagPanel;
+    private _setup: boolean = false;
+    private _popup: PopupPanel;
 
+    public static get Instance() {
+        return this._instance || (this._instance = new this());
+    }
     /**
      * DagPanel.setup
      */
-    export function setup(): XDPromise<void> {
+    public setup(): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         let hasAfterLoadCalled: boolean = false;
 
-        _beforeLoad();
+        this._beforeLoad();
         DagTabManager.Instance.on("afterFirstTabLoad", () => {
             // when the first tab loaded, can go into afterLoad State
             hasAfterLoadCalled = true;
-            _afterLoad();
+            this._afterLoad();
         });
 
-        _basicSetup()
+        this._setupPopup();
+
+        this._basicSetup()
         .then(() => {
-            return _loadTabs();
+            return this._loadTabs();
         })
         .then(deferred.resolve)
         .fail((error) => {
@@ -31,9 +38,9 @@ namespace DagPanel {
             deferred.reject(error);
         })
         .always(() => {
-            _setup = true;
+            this._setup = true;
             if (!hasAfterLoadCalled) {
-                _afterLoad();
+                this._afterLoad();
             }
         });
 
@@ -43,19 +50,19 @@ namespace DagPanel {
     /**
      * DagPanel.hasSetup
      */
-    export function hasSetup(): boolean {
-        return _setup;
+    public hasSetup(): boolean {
+        return this._setup;
     }
 
-    function _basicSetup(): XDPromise<void> {
+    private _basicSetup(): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         DagParamPopup.setup();
-        _updateSetupStatus("Initializing Aggregates");
+        this._updateSetupStatus("Initializing Aggregates");
 
         DagAggManager.Instance.setup()
         .then(() => {
-            _updateSetupStatus("Initializing Modules");
+            this._updateSetupStatus("Initializing Modules");
             return DagTblManager.Instance.setup();
         })
         .then(() => {
@@ -69,50 +76,149 @@ namespace DagPanel {
         return deferred.promise();
     }
 
-    function _loadTabs(): XDPromise<void> {
+    private _loadTabs(): XDPromise<void> {
         return PromiseHelper.alwaysResolve(DagTabManager.Instance.setup());
     }
 
-    function _getDagViewEl(): JQuery {
+    private _getDagViewEl(): JQuery {
         return $("#dagView");
     }
 
-    function _getLoadSectionEl(): JQuery {
-        return _getDagViewEl().find(".loadingSection");
+    private _getLoadSectionEl(): JQuery {
+        return this._getDagViewEl().find(".loadingSection");
     }
 
-    function _beforeLoad(): void {
+    private _beforeLoad(): void {
         DagList.Instance.toggleDisable(true);
         DagTopBar.Instance.toggleDisable(true);
         DagGraphBar.Instance.toggleDisable(true);
         DagTabManager.Instance.toggleDisable(true);
-        _getDagViewEl().append(_generateLoadingSection());
+        this._getDagViewEl().append(this._generateLoadingSection());
     }
 
-    function _afterLoad(): void {
+    private _afterLoad(): void {
         DagList.Instance.toggleDisable(false);
         DagTopBar.Instance.toggleDisable(false);
         DagGraphBar.Instance.toggleDisable(false);
         DagTabManager.Instance.toggleDisable(false);
-        _getLoadSectionEl().remove();
+        this._getLoadSectionEl().remove();
     }
 
-    function _updateSetupStatus(msg: string): void {
-        _getLoadSectionEl().find(".text").text(msg);
+    private _updateSetupStatus(msg: string): void {
+        this._getLoadSectionEl().find(".text").text(msg);
     }
 
-    function _generateLoadingSection(): HTML {
+    private _generateLoadingSection(): HTML {
         let html: HTML = xcUIHelper.getLoadingSectionHTML("", "loadingSection");
         return html;
     }
 
-    /* Unit Test Only */
-    export let __testOnly__: any = {};
-    if (typeof window !== 'undefined' && window['unitTestMode']) {
-        __testOnly__ = {};
-        __testOnly__.setSetup = function(isSetup) {
-            _setup = isSetup;
-        };
+    private _setupPopup() {
+        const $bottomPart = $("#sqlWorkSpacePanel").find(".rightSection .bottomPart");
+        const $bottomLeftPart = $("#sqlEditorSpace");
+        const $bottomRightPart = $("#dagView");
+        let bottomPartWidth: number = null;
+        let maxWidth;
+
+        this._popup = new PopupPanel("dagView", {});
+        this._popup
+        .on("Undock", () => {
+            this._undock();
+        })
+        .on("Dock", () => {
+            this._dock();
+        });
+
+        $bottomRightPart.resizable({
+            handles: "w, e, s, n, nw, ne, sw, se",
+            containment: 'parent',
+            minWidth: 36,
+            minHeight: 50,
+            start: () => {
+                if (this._popup.isDocked()) {
+                    bottomPartWidth = $bottomPart.outerWidth();
+                    maxWidth = bottomPartWidth - SQLEditorSpace.minWidth;
+                }
+            },
+            resize: (_event, ui) => {
+                if (this._popup.isDocked()) {
+                    let width = Math.min(ui.size.width, maxWidth);
+                    let pct = width / bottomPartWidth;
+
+                    if (pct > 0.98) {
+                        pct = 0.98;
+                        $bottomRightPart.css("left", "2%");
+                    } else {
+                        $bottomRightPart.css("left", bottomPartWidth - width)
+                            .css("width", width);
+                    }
+                    $bottomLeftPart.outerWidth(100 * (1 - pct) + "%");
+                }
+            },
+            stop: (_event, ui) => {
+                if (this._popup.isDocked()) {
+                    let width = Math.min(ui.size.width, maxWidth);
+                    let pct = Math.min(width / bottomPartWidth, 0.98);
+                    let pctLeft = 1 - pct;
+                    $bottomRightPart.css("left", 100 * pctLeft + "%")
+                            .outerWidth(100 * pct + "%");
+                    $bottomLeftPart.outerWidth(100 * pctLeft + "%");
+                }
+            }
+        });
     }
-    /* End Of Unit Test Only */
+
+    private _undock(): void {
+        let $dockableSection = this._popup.getPanel();
+        let rect = $dockableSection[0].getBoundingClientRect();
+        let height = Math.min(500, Math.max(300, $(window).height() - (rect.top + 10)));
+        let width = 500;
+        let left = Math.min($(window).width() - (width + 5), rect.left + 15);
+        $dockableSection.css({
+            "left": left,
+            "top": rect.top + 10,
+            "width": width,
+            "height": height
+        });
+
+        $("#sqlWorkSpacePanel").addClass("dagPanelUndocked")
+                                .removeClass("dagPanelDocked");
+
+        DagCategoryBar.Instance.showOrHideArrows();
+        $dockableSection.resizable("option", "containment", "#sqlWorkSpacePanel");
+        this._toggleDraggable(true);
+    }
+
+    private _dock(): void {
+        // reset to default
+        let $dockableSection = this._popup.getPanel();
+        $("#sqlWorkSpacePanel").removeClass("dagPanelUndocked")
+                                .addClass("dagPanelDocked")
+                                .find(".rightSection .bottomPart")
+                                .css({"top": "", "height": ""});
+
+        if (PopupManager.isDocked("sqlEditorSpace")) {
+            $("#sqlEditorSpace").css({"left": "", "width": ""});
+        }
+
+        $("#sqlWorkSpacePanel").find(".rightSection .topPart")
+                                .css({"height": ""});
+
+        DagCategoryBar.Instance.showOrHideArrows();
+
+        $dockableSection.resizable("option", "containment", "parent");
+        this._toggleDraggable(false);
+    }
+
+    private _toggleDraggable(isDraggable: boolean): void {
+        const $section: JQuery = this._popup.getPanel();
+        if (isDraggable) {
+            this._popup.setDraggable( ".categoryBar");
+;        } else {
+            $section.draggable({disabled: true});
+        }
+    }
+
+    /* Unit Test Only */
+    public __testOnly__: any = {};
 }

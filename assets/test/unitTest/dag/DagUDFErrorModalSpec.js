@@ -7,7 +7,7 @@ describe("DagUDFErrorModal Test", function() {
     before(function(done) {
         UnitTest.onMinMode();
 
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             $modal = $("#dagUDFErrorModal");
             const parentNode = new DagNodeMap({});

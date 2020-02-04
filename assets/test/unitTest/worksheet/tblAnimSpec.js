@@ -12,7 +12,7 @@ describe('TblAnim Test', function() {
             $("#modeArea").click();
         }
         UnitTest.onMinMode();
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(() => {
             var testDSObj = testDatasets.fakeYelp;
             UnitTest.addAll(testDSObj, "unitTestFakeYelp")

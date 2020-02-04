@@ -33,7 +33,7 @@ describe("GeneralOpPanelModel Test", function() {
             udfDisplayPathPrefix : UDFFileManager.Instance.getCurrWorkbookDisplayPath()
         };
 
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             done();
         });

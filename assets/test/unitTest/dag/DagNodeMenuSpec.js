@@ -15,7 +15,7 @@ describe("DagNodeMenu Test", function() {
         if (!$("#sqlWorkSpacePanel").hasClass("active")) {
             MainMenu.openPanel("sqlPanel")
         }
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
 
             DagTabManager.Instance.newTab();

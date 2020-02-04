@@ -1,12 +1,15 @@
 class PopupManager {
     private static readonly BaseZIndex: number = 32;
     private static _stack: PopupPanel[] = [];
+    private static _popupMap: Map<string, PopupPanel> = new Map();
 
     /**
      * PopupManager.register
      * @param popup
      */
     public static register(popup: PopupPanel): void {
+        this._popupMap.set(popup.getId(), popup);
+
         popup
         .on("Undock_BroadCast", () => {
             this._addPopup(popup);
@@ -19,6 +22,16 @@ class PopupManager {
         .on("BringFront_BroadCast", () => {
             this._bringFrontPopup(popup);
         });
+    }
+
+    public static isDocked(popupId): boolean {
+        const popup: PopupPanel = this._popupMap.get(popupId);
+        if (!popup) {
+            console.log(popupId + " not found", this._popupMap);
+            return true;
+        } else {
+            return popup.isDocked();
+        }
     }
 
     private static _addPopup(popup: PopupPanel): void {

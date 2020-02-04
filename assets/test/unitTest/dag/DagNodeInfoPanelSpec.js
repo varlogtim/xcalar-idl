@@ -19,7 +19,7 @@ describe("DagNodeInfoPanel Test", function() {
             MainMenu.openPanel("sqlPanel");
         }
 
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .then(() => {
             cachedUserPref = UserSettings.getPref;
             UserSettings.getPref = function(val) {

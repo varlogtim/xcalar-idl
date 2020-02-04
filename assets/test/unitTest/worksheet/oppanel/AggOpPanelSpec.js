@@ -10,7 +10,7 @@ describe("AggOpPanel Test", function() {
     var openOptions;
 
     before(function(done) {
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             MainMenu.openPanel("sqlPanel");
             node = new DagNodeAggregate({});

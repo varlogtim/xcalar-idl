@@ -21,7 +21,7 @@ describe("DagView Test", () => {
         $dfWrap = $dagView.find(".dataflowWrap");
         oldPut = XcalarKeyPut;
 
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             XcalarKeyPut = function() {
                 return PromiseHelper.resolve();

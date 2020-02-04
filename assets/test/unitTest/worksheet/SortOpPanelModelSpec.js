@@ -1,6 +1,6 @@
 describe('SortOpPanelModel Test', () => {
     before((done) => {
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             done();
         });

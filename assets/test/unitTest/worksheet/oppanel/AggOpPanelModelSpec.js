@@ -5,7 +5,7 @@ describe("AggOpPanelModel Test", function() {
     var openOptions;
 
     before(function(done) {
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             node = new DagNodeAggregate({});
             const parentNode = new DagNodeAggregate({});

@@ -7,7 +7,7 @@ describe('DagList Test', function() {
             return PromiseHelper.resolve();
         };
         UnitTest.onMinMode();
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             done();
         });

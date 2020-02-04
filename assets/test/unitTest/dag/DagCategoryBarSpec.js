@@ -10,7 +10,7 @@ describe("DagCategoryBar Test", function() {
         console.clear();
         console.log("DagCategoryBar Test");
 
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             oldPut = XcalarKeyPut;
             if (XVM.isSQLMode()) {

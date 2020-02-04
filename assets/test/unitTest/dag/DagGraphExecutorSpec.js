@@ -1,7 +1,7 @@
 describe("Dag Graph Executor Test", () => {
     // XXX needs more tests
     before((done) => {
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(() => {
             done();
         });

@@ -20,7 +20,7 @@ describe('DagTab Test', function() {
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
         }
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             var dagTabManager = DagTabManager.Instance;
             dagTabManager.newTab();
@@ -36,10 +36,10 @@ describe('DagTab Test', function() {
                 id: "myId",
                 dagGraph: dagGraph
             })
-            
+
             done();
         });
-        
+
     });
 
     describe("DagTab Test", function() {

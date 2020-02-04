@@ -13,7 +13,7 @@ describe('DagTabOptimized Test', function() {
         }
         console.log("dag tab optimized test");
 
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .then(function() {
             oldPut = XcalarKeyPut;
             XcalarKeyPut = function() {

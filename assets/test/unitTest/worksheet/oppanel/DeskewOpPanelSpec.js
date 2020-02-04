@@ -6,7 +6,7 @@ describe("DeskewOpPanel Test", function() {
     let cachedGetDagFn;
 
     before(function(done) {
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             MainMenu.openPanel("sqlPanel");
             node = new DagNodeDeskew({});

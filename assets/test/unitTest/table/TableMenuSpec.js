@@ -14,7 +14,7 @@ describe('TableMenu Test', function() {
     before(function(done) {
         UnitTest.onMinMode();
 
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             tableName = xcHelper.randName("test") + Authentication.getHashId();
             tableId = xcHelper.getTableId(tableName);

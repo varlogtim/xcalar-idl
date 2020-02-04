@@ -19,7 +19,7 @@ class DagCategoryBar {
 
     constructor() {
         this.$dagView = $("#dagView");
-        this.$categoryBar = this.$dagView.find(".categoryBar");
+        this.$categoryBar = this.$dagView.find(".categorySection");
         this.$operatorBar = this.$dagView.find(".operatorWrap");
         this._isSQLFunc = false;
     }

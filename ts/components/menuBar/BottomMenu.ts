@@ -60,44 +60,16 @@ namespace BottomMenu {
         .on("Dock", () => {
             _dock();
         });
-    }
 
-    // setup buttons to open bottom menu
-    function setupButtons(): void {
-        $bottomMenu.on("click", ".close", function() {
-            BottomMenu.close();
-        });
-
-        $bottomMenu.draggable({
-            "handle": ".heading.draggable",
-            "cursor": "-webkit-grabbing",
-            "containment": "window"
-        });
-
-        let sideDragging: string;
-        $bottomMenu.on("mousedown", ".ui-resizable-handle", function() {
-            const $handle: JQuery = $(this);
-            if ($handle.hasClass("ui-resizable-w")) {
-                sideDragging = "left";
-            } else if ($handle.hasClass("ui-resizable-e")) {
-                sideDragging = "right";
-            } else if ($handle.hasClass("ui-resizable-n")) {
-                sideDragging = "top";
-            } else if ($handle.hasClass("ui-resizable-s")) {
-                sideDragging = "bottom";
-            } else if ($handle.hasClass("ui-resizable-se")) {
-                sideDragging = "bottomRight";
-            }
-        });
+        _popup.setDraggable(".heading.draggable");
 
         let poppedOut: boolean = false;
-        let menuIsSmall: boolean = false;
-        const smallWidth: number = 425;
 
         $bottomMenu.resizable({
-            "handles": "n, e, s, w, se",
+            "handles": "w, e, s, n, nw, ne, sw, se",
             "minWidth": 290,
             "minHeight": 300,
+            "containment": "document",
             "start": function() {
                 $("#container").addClass("menuResizing");
                 if (!$bottomMenu.hasClass("poppedOut")) {
@@ -105,58 +77,12 @@ namespace BottomMenu {
                 } else {
                     poppedOut = true;
                 }
-
-                // set boundaries so it can't resize past window
-                let panelRight: number = $bottomMenu[0].getBoundingClientRect().right;
-                let panelBottom: number = $bottomMenu[0].getBoundingClientRect().bottom;
-
-                if (sideDragging === "left") {
-                    $bottomMenu.css("max-width", panelRight - 10);
-                } else if (sideDragging === "right") {
-                    panelRight = $(window).width() - panelRight +
-                                 $bottomMenu.width();
-                    $bottomMenu.css("max-width", panelRight - 10);
-                } else if (sideDragging === "top") {
-                    $bottomMenu.css("max-height", panelBottom);
-                } else if (sideDragging === "bottom") {
-                    panelBottom = $(window).height() - panelBottom +
-                                  $bottomMenu.height();
-                    $bottomMenu.css("max-height", panelBottom);
-                } else if (sideDragging === "bottomRight") {
-                    panelRight = $(window).width() - panelRight +
-                                 $bottomMenu.width();
-                    $bottomMenu.css("max-width", panelRight);
-                    panelBottom = $(window).height() - panelBottom +
-                                  $bottomMenu.height();
-                    $bottomMenu.css("max-height", panelBottom);
-                }
-
-                if ($bottomMenu.width() > 425) {
-                    menuIsSmall = false;
-                } else {
-                    menuIsSmall = true;
-                }
             },
-            "resize": function(_event, ui) {
-                if (ui.size.width > smallWidth) {
-                    if (menuIsSmall) {
-                        menuIsSmall = false;
-                        $bottomMenu.removeClass("small");
-                    }
-                } else if (!menuIsSmall) {
-                    menuIsSmall = true;
-                    $bottomMenu.addClass("small");
-                }
+            "resize": function() {
                 refreshEditor();
 
                 if (!poppedOut) {
                     return;
-                }
-                if (ui.position.left <= 0) {
-                    $bottomMenu.css("left", 0);
-                }
-                if (ui.position.top <= 0) {
-                    $bottomMenu.css("top", 0);
                 }
             },
             "stop": function() {
@@ -165,14 +91,16 @@ namespace BottomMenu {
 
                 width = Math.min(width, $(window).width() - $("#menuBar").width() - 10);
                 $bottomMenu.width(width);
-                if (width > 425) {
-                    $bottomMenu.removeClass("small");
-                } else {
-                    $bottomMenu.addClass("small");
-                }
                 refreshEditor();
                 $("#container").removeClass("menuResizing");
             }
+        });
+    }
+
+    // setup buttons to open bottom menu
+    function setupButtons(): void {
+        $bottomMenu.on("click", ".close", function() {
+            BottomMenu.close();
         });
 
         $("#bottomMenuBarTabs").on("click", ".sliderBtn", function() {

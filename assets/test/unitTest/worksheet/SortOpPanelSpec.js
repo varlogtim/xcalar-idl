@@ -15,7 +15,7 @@ describe('Sort Op Panel Test', function() {
         }
         console.log("Sort panel test");
 
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             MainMenu.openPanel("sqlPanel");
             node = new DagNodeSort({});

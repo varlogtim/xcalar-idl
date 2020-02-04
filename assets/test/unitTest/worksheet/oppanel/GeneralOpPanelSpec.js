@@ -14,7 +14,7 @@ describe("GeneralOpPanel Test", function() {
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
         }
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             MainMenu.openPanel("sqlPanel");
             node = new DagNodeMap({});

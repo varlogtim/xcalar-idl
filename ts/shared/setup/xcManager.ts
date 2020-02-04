@@ -112,9 +112,9 @@ namespace xcManager {
             if (isTutorial || loadAll) {
                 // if it's tutorial or loadAll is true
                 // wait for DagPanel setup to finish first
-                return DagPanel.setup();
+                return DagPanel.Instance.setup();
             } else {
-                DagPanel.setup(); // async setup
+                DagPanel.Instance.setup(); // async setup
                 return;
             }
         })

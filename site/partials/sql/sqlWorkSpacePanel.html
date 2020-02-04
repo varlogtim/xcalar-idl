@@ -1,4 +1,4 @@
-<div id="sqlWorkSpacePanel" class="mainPanel">
+<div id="sqlWorkSpacePanel" class="mainPanel sqlEditorDocked dagPanelDocked">
   <div class="topBar">
     <div class="title">Query</div>
   </div>
@@ -65,7 +65,7 @@
           </div>
         </div>
       </div>
-      <div class="bottomPart docked">
+      <div class="bottomPart">
         <div class="resizeHandler">
           <div class="xc-resizeHandler">
             <div class="border"></div>
@@ -92,10 +92,10 @@
             </button>
           </div>
         </div>
+        <!-- bottom left part -->
         include "sqlEditorSpace.html"
-        <div class="bottomRightPart">
-          include "../worksheet/dagView.html"
-        </div>
+         <!-- bottom right part -->
+        include "../worksheet/dagView.html"
       </div>
       include "../worksheet/dagNodeMenu.html"
     </section>

@@ -3,7 +3,7 @@ describe("SQL Dag Node Test", () => {
     // XXX needs more tests
     before((done) => {
         console.log("SQL node test");
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             node = new DagNodeSQL({});
             done();

@@ -57,7 +57,7 @@ describe("Dataset Operator Panel Test", function() {
         oldWaitForSetup = XDFManager.Instance.waitForSetup;
         XDFManager.Instance.waitForSetup = () => PromiseHelper.resolve();
 
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             done();
         });

@@ -7,7 +7,7 @@ describe('IMDTableOpPanel Test', () => {
             return PromiseHelper.resolve();
         };
         UnitTest.onMinMode();
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .then(function() {
             return XDFManager.Instance.waitForSetup();
         })

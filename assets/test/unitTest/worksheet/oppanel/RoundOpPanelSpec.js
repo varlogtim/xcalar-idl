@@ -23,7 +23,7 @@ describe('RoundOpPanel Test', () => {
             getTitle: () => "Node 1"
         };
 
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             MainMenu.openPanel("sqlPanel");
             RoundOpPanel.Instance.show(roundNode, {});

@@ -4,7 +4,7 @@ describe("DFLinkInOpPanel Test", function() {
     let dagNode;
 
     before(function(done) {
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             let createTab = (tabName, dfOutName) => {
                 let dfOutNode = new DagNodeDFOut({});

@@ -252,14 +252,55 @@
 
 
 #sqlWorkSpacePanel {
+    @resize-h: 1px;
+    @tabBar-h: 24px;
+
     &.resizing {
         pointer-events: none;
     }
 
-    .mainContent {
-        @resize-h: 1px;
-        @tabBar-h: 24px;
+    &.sqlEditorDocked {
+        #sqlEditorSpace {
+            height: ~"calc(100% - @{resize-h} - @{tabBar-h})" !important;
+        }
+    }
 
+    &.sqlEditorUndocked {
+        &.dagPanelDocked {
+            #dagView {
+                width: 100% !important;
+                left: 0px !important;
+            }
+        }
+    }
+
+    &.dagPanelDocked {
+        #dagView {
+            height: ~"calc(100% - @{resize-h} - @{tabBar-h})" !important;
+        }
+    }
+
+    &.dagPanelUndocked {
+        &.sqlEditorDocked {
+            #sqlEditorSpace {
+                width: 100% !important;
+            }
+        }
+    }
+
+    &.sqlEditorUndocked.dagPanelUndocked {
+        .topPart {
+            height: ~"calc(100% - @{resize-h} - @{tabBar-h} - 4px)" !important;
+            overflow: hidden; // prevents draggable bug
+        }
+        .bottomPart {
+            top: auto !important;
+            bottom: 0px;
+            height:  @resize-h + @tabBar-h + 4 !important;
+        }
+    }
+
+    .mainContent {
         .rightSection {
             margin-left: @width-topMenu;
             height: 100%;
@@ -287,7 +328,7 @@
                     top: -4px;
                 }
 
-                .ui-resizable-n {
+                > .ui-resizable-n {
                     top: 0px;
                     z-index: @z-index-sqlBottomResizeHandler !important;
                 }
@@ -373,22 +414,6 @@
 
                 &.noSQL.noDataflow {
                     .bottomLeftPart, .bottomRightPart {
-                        display: none;
-                    }
-                }
-
-                &.docked {
-                    .bottomLeftPart {
-                        height: ~"calc(100% - @{resize-h} - @{tabBar-h})" !important;
-                    }
-                }
-
-                &.undocked {
-                    .bottomRightPart {
-                        width: 100% !important;
-                        left: 0px !important;
-                    }
-                    >.ui-resizable-w {
                         display: none;
                     }
                 }
@@ -585,29 +610,6 @@
     .flex-flow(column);
     border-right: 1px solid @color-border-grayBlue;
     position: relative;
-
-    .ui-resizable-se, .ui-resizable-s, .ui-resizable-e, .ui-resizable-w {
-        display: none !important;
-    }
-
-    .ui-resizable-handle {
-        z-index: 6 !important; // don't block other elements
-    }
-
-    &.undocked {
-        z-index: @z-index-sqlEditorUndocked;
-        box-shadow: 0 0 4px rgba(0,0,0, 0.5);
-        position: fixed !important;
-        border-left: 1px solid @color-border-grayBlue;
-
-        header {
-            pointer-events: auto;
-            .cursor-move;
-        }
-        .ui-resizable-se, .ui-resizable-s, .ui-resizable-e, .ui-resizable-w {
-            display: block !important;
-        }
-    }
 
     .undock {
         position: absolute;

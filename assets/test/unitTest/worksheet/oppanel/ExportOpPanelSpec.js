@@ -9,7 +9,7 @@ describe("Export Operator Panel Test", function() {
     var editor;
 
     before(function(done) {
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             oldDriverList = XcalarDriverList;
             node = new DagNodeExport({});

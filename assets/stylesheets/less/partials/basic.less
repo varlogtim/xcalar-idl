@@ -2340,11 +2340,14 @@ body.tooltipOff {
     right: -10px;
 }
 
+.ui-resizable-se, .ui-resizable-sw, .ui-resizable-ne, .ui-resizable-nw {
+    height: 25px;
+    width: 25px;
+}
+
 .ui-resizable-se {
     bottom: -10px;
     right: -10px;
-    height: 25px;
-    width: 25px;
     cursor: se-resize;
 
     &::before {
@@ -2375,8 +2378,19 @@ body.tooltipOff {
 .ui-resizable-sw {
     left: -10px;
     bottom: -10px;
-    .size(25px, 25px);
     cursor: sw-resize;
+}
+
+.ui-resizable-nw {
+    left: -10px;
+    top: -10px;
+    cursor: nw-resize;
+}
+
+.ui-resizable-ne {
+    right: -10px;
+    top: -10px;
+    cursor: ne-resize;
 }
 
 /* JQUERY DATEPICKER */

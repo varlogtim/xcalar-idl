@@ -1,22 +1,29 @@
-<div id="dagView" class="dagContainer noSelection monochrome">
+<div id="dagView" class="bottomRightPart dagContainer noSelection monochrome">
     <div class="categoryBar">
         <div class="label"><%= dicts.dataflow.Title %></div>
-        <div class="searchArea dropDownList">
-            <div class="searchBox xc-search-input">
-              <input type="text" class="searchInput xc-input white" placeholder="<%= dicts.common.SearchTools %>">
-              <i class="icon xi-search"></i>
+        <div class="categorySection">
+            <div class="searchArea dropDownList">
+                <div class="searchBox xc-search-input">
+                    <input type="text" class="searchInput xc-input white" placeholder="<%= dicts.common.SearchTools %>">
+                    <i class="icon xi-search"></i>
+                </div>
+                <div class="list">
+                    <ul></ul>
+                    include "../../util/menuScrollArea.html"
+                </div>
             </div>
-            <div class="list">
-              <ul></ul>
-              include "../../util/menuScrollArea.html"
+            <div class="categoryArea">
+                <div class="categoryWrap">
+                    <div class="categories"></div>
+                </div>
+                <div class="categoryScroll">
+                    <i class="icon arrow left xi-arrow-left"></i>
+                    <i class="icon arrow right xi-arrow-right"></i>
+                </div>
             </div>
         </div>
-        <div class="categoryWrap">
-            <div class="categories"></div>
-        </div>
-        <div class="categoryScroll">
-            <i class="icon arrow left xi-arrow-left"></i>
-            <i class="icon arrow right xi-arrow-right"></i>
+        <div class="rightIconArea">
+            <i class="icon xc-icon-action undock xi_popout" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="Undock"></i>
         </div>
     </div>
     <div class="operatorBar">

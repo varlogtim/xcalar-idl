@@ -13,7 +13,7 @@ describe('CastOpPanel Test', function() {
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
         }
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             if ($(".dataflowWrapBackground .newTab").is(":visible")) {
                 $(".dataflowWrapBackground .newTab").click();

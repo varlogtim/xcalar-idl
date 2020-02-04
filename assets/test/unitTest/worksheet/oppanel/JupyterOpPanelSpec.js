@@ -6,7 +6,7 @@ describe("JupyterOpPanel Test", function() {
     let cachedGetDagFn;
 
     before(function(done) {
-        UnitTest.testFinish(() => DagPanel.hasSetup())
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .then(function() {
             return XDFManager.Instance.waitForSetup();
         })
