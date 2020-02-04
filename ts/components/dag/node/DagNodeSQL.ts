@@ -1315,7 +1315,16 @@ class DagNodeSQL extends DagNode {
             .then(function(ret) {
                 let usedTables: string[];
                 if (ret) {
-                    const sqlStructArray: [SQLParserStruct] = JSON.parse(ret).ret;
+                    const sqlParseRet = JSON.parse(ret).ret;
+                    let sqlStructArray: SQLParserStruct[];
+                    if (!(sqlParseRet instanceof Array)) { // Remove this after parser change in
+                        if (sqlParseRet.errorMsg) {
+                            return PromiseHelper.reject(sqlParseRet.errorMsg);
+                        }
+                        sqlStructArray = sqlParseRet.parseStructs;
+                    } else {
+                        sqlStructArray = sqlParseRet;
+                    }
                     if (sqlStructArray.length !== 1) {
                         return PromiseHelper.reject(SQLErrTStr.MultiQueries);
                     }

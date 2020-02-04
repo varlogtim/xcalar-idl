@@ -72,7 +72,16 @@ class SQLUtil {
         SQLUtil.sendToPlanner("", "parse", struct)
         .then((ret) => {
             try {
-                let sqlStructArray = JSON.parse(ret).ret;
+                const sqlParseRet = JSON.parse(ret).ret;
+                let sqlStructArray: SQLParserStruct[];
+                if (!(sqlParseRet instanceof Array)) { // Remove this after parser change in
+                    if (sqlParseRet.errorMsg) {
+                        return PromiseHelper.reject(sqlParseRet.errorMsg);
+                    }
+                    sqlStructArray = sqlParseRet.parseStructs;
+                } else {
+                    sqlStructArray = sqlParseRet;
+                }
                 let sqlStruct: SQLParserStruct = sqlStructArray[0];
                 deferred.resolve(sqlStruct);
             } catch (e) {

@@ -272,7 +272,16 @@ class SQLEditorSpace {
             };
             SQLUtil.sendToPlanner("", "parse", struct)
             .then((ret) => {
-                const sqlStructArray: [SQLParserStruct] = JSON.parse(ret).ret;
+                const sqlParseRet = JSON.parse(ret).ret;
+                let sqlStructArray: SQLParserStruct[];
+                if (!(sqlParseRet instanceof Array)) { // Remove this after parser change in
+                    if (sqlParseRet.errorMsg) {
+                        return PromiseHelper.reject(sqlParseRet.errorMsg);
+                    }
+                    sqlStructArray = sqlParseRet.parseStructs;
+                } else {
+                    sqlStructArray = sqlParseRet;
+                }
                 if (!struct.isMulti && sqlStructArray.length === 1 &&
                     Object.keys(sqlStructArray[0].functions).length === 0 &&
                     sqlStructArray[0].command.type !== "createTable") {
