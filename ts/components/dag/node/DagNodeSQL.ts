@@ -354,14 +354,27 @@ class DagNodeSQL extends DagNode {
         const outputNode = this.subOutputNodes[0];
         if (outputNode) {
             outputNode.setTable(tableName, popupEvent);
-            let parentNode = outputNode.getParents()[0];
-            if (parentNode) {
+            this.getSubGraphOutputNodes().forEach((parentNode) => {
                 parentNode.setTable(tableName, popupEvent);
-            }
+            });
         }
     }
 
+    public getSubGraphOutputNodes(): DagNode[] {
+        let resultNodes:DagNode[] = [];
 
+        this.subOutputNodes.forEach((outputNode) => {
+            if (outputNode) {
+                outputNode.getParents().forEach((node) => {
+                    if (node) {
+                        resultNodes.push(node);
+                    }
+                })
+            }
+        });
+
+        return resultNodes;
+    }
 
     /**
      * DFS to get lineage changes from sub graph

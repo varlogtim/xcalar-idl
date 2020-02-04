@@ -60,11 +60,11 @@ describe("SQLEditorSpace Test", function() {
                 return PromiseHelper.resolve();
             };
             Alert.show = () => { called++; };
-    
+
             SQLEditorSpace.Instance.execute();
             expect(called).to.equal(0);
         });
-    
+
         it("should handle invaidate data", function(done) {
             let called = false;
             let errorCalled = false;
@@ -73,9 +73,9 @@ describe("SQLEditorSpace Test", function() {
                 return PromiseHelper.resolve({});
             };
             Alert.show = () => { errorCalled = true };
-    
+
             SQLEditorSpace.Instance.execute("test");
-    
+
             UnitTest.testFinish(() => called)
             .then(function() {
                 expect(errorCalled).to.equal(true);
@@ -313,25 +313,6 @@ describe("SQLEditorSpace Test", function() {
         SQLEditorSpace.Instance._executers = oldExecuters;
     });
 
-    it("_showTable should work", function() {
-        let oldFunc = SQLResultSpace.Instance.viewTable;
-        let called = false;
-        SQLResultSpace.Instance.viewTable = () => { called = true; };
-
-        SQLEditorSpace.Instance._showTable("a#b", {columns: ["a"]});
-        expect(called).to.be.true;
-        SQLResultSpace.Instance.viewTable = oldFunc;
-    });
-
-    it("_showTable should handle error case", function() {
-        let oldFunc = Alert.show;
-        let called = false;
-        Alert.show = () => { called = true; };
-
-        SQLEditorSpace.Instance._showTable();
-        expect(called).to.be.true;
-        Alert.show = oldFunc;
-    });
 
     describe("Snippet Option Test", function() {
         it("should save snippet", function() {

@@ -143,7 +143,7 @@ class SQLDagExecutor {
             }
             DagTabManager.Instance.addSQLTabCache(this._tempTab);
             this._sqlTabCached = true;
-            return DagView.expandSQLNodeNoRemove(this._sqlNode.getId(), this._tempTab.getId());
+            return DagView.expandSQLNodeAndHide(this._sqlNode.getId(), this._tempTab.getId());
         })
         .then(deferred.resolve)
         .fail((e) => {
@@ -154,16 +154,17 @@ class SQLDagExecutor {
         return deferred.promise();
     }
 
-    public execute(callback): XDPromise<void> {
+    public execute(callback: (outputNode: DagNode, tabId: string, suceed: boolean, options: any) => void): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let tabId: string = this._tempTab.getId();
         SQLDagExecutor.setTab(tabId, this._tempTab);
 
-        let finalTableName;
         let succeed: boolean = false;
         let columns: {name: string, backName: string, type: ColumnType}[];
         let finish = () => {
             SQLDagExecutor.deleteTab(tabId);
+            const outputNodes: DagNode[] = this._sqlNode.getSubGraphOutputNodes();
+
             this._tempGraph.removeNode(this._sqlNode.getId(), false, false);
             if (this._status === SQLStatus.Done) {
                 this._sqlNode.setSQLQuery({newTableName: this._sqlNode.getNewTableName()});
@@ -179,7 +180,7 @@ class SQLDagExecutor {
                 if (this._publishName) {
                     options.show = "tableList";
                 }
-                callback(finalTableName, succeed, options);
+                callback(outputNodes[0], this._tempTab.getId(), succeed, options);
             }
             if (this._publishName) {
                 TblManager.deleteTables([xcHelper.getTableId(this._sqlNode.getNewTableName())],
@@ -201,7 +202,6 @@ class SQLDagExecutor {
             return this._tempGraph.execute([this._sqlNode.getId()]);
         })
         .then(() => {
-            finalTableName = this._sqlNode.getTable();
             columns = this._sqlNode.getColumns();
 
             DagTabManager.Instance.removeSQLTabCache(this._tempTab);
@@ -256,7 +256,7 @@ class SQLDagExecutor {
 
         this._configureSQLNode(true, true)
         .then(() => {
-            return DagView.expandSQLNodeNoRemove(this._sqlNode.getId(), this._tempTab.getId());
+            return DagView.expandSQLNodeAndHide(this._sqlNode.getId(), this._tempTab.getId());
         })
         .then(deferred.resolve)
         .fail(deferred.reject)

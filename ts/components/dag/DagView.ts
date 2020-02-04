@@ -2737,7 +2737,7 @@ class DagView {
      * while sql node is executing
      * @param nodeId
      */
-    public static expandSQLNodeNoRemove(
+    public static expandSQLNodeAndHide(
         nodeId: DagNodeId,
         tabId: string
     ): XDPromise<DagNode[]> {
@@ -2833,7 +2833,6 @@ class DagView {
                     });
                 });
                 dagView.$dfArea.find(".operatorSvg").before($svg);
-
 
                 dagView.deselectNodes();
                 deferred.resolve(nodesArray);

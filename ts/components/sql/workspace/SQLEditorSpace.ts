@@ -392,10 +392,10 @@ class SQLEditorSpace {
             let callback = null;
             let deferred: XDDeferred<void> = PromiseHelper.deferred();
             if (i === statementCount - 1) {
-                callback = (tableName, succeed, options) => {
+                callback = (outputNode: DagNode, tabId: string, succeed, options) => {
                     this._removeExecutor(curExecutor);
                     if (succeed && options.show === "resultTable") {
-                        this._showTable(tableName, options);
+                        DagViewManager.Instance.viewResult(outputNode, tabId);
                     } else if (succeed && options.show === "tableList") {
                         SQLResultSpace.Instance.showTables(true);
                     }
@@ -444,28 +444,6 @@ class SQLEditorSpace {
         }
     }
 
-    private _showTable(tableName: string, options?: any): void {
-        let tableId = xcHelper.getTableId(tableName);
-        if (!tableId) {
-            // invalid case
-            Alert.show({
-                title: SQLErrTStr.Err,
-                msg: SQLErrTStr.NoResult,
-                isAlert: true
-            });
-            return;
-        }
-        let table = new TableMeta({
-            tableId: tableId,
-            tableName: tableName
-        });
-        let columns = null;
-        if (options && options.columns) {
-            columns = options.columns;
-        }
-        gTables[tableId] = table;
-        SQLResultSpace.Instance.viewTable(table, columns);
-    }
 
     private _fileOption(action: string): void {
         switch (action) {
