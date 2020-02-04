@@ -132,6 +132,11 @@ class SQLEditorSpace {
         this._sqlEditor.refresh();
     }
 
+    private _setPlaceholder(placeholder: string): void {
+        this._sqlEditor.setPlaceholder(placeholder);
+        this._sqlEditor.refresh();
+    }
+
     private _setupSQLEditor(): void {
         const self = this;
         this._sqlEditor = new SQLEditor("sqlEditorSpace-editor");
@@ -605,6 +610,7 @@ class SQLEditorSpace {
     private _setEditorMode(oldSnippet: string): void {
         let readOnly: boolean | string;
         let snippet: string;
+        let placeholder: string = "";
         let mode: string = "text/x-sql";
         const $buttons = this._getEditorSpaceEl().find(".execute, .save");
         $buttons.removeClass("xc-disabled");
@@ -614,7 +620,8 @@ class SQLEditorSpace {
             snippet = "";
         } else if (this._isReadOnlyTab(this._dagTab)) {
             readOnly = "nocursor";
-            snippet = SQLTStr.ReadOnly;
+            snippet  ="";
+            placeholder = SQLTStr.ReadOnly;
             mode = null;
             $buttons.addClass("xc-disabled");
         } else {
@@ -622,9 +629,11 @@ class SQLEditorSpace {
             readOnly = false;
             snippet = dagTab.getSnippet() || oldSnippet;
             if (!snippet) {
-                snippet = "--" + SQLTStr.SnippetHint + ";\n";
+                snippet = "";
+                placeholder = SQLTStr.SnippetHint;
             }
         }
+        this._setPlaceholder(placeholder);
         this._setSnippet(snippet);
         this._saveSnippetChange();
         const editor = this._sqlEditor.getEditor();

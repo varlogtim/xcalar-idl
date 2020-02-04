@@ -86,7 +86,7 @@ describe("SQLOpPanel Test", function() {
                 expect($sqlOpPanel.find(".dropAsYouGo .checkbox.checked").length).to.equal(1);
             });
             it("editor should be blank", function() {
-                expect(sqlEditor.getValue()).to.equal(SQLOpPanel._udfDefault);
+                expect(sqlEditor.getValue()).to.equal("");
             });
         });
 

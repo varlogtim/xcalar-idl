@@ -3,8 +3,8 @@
  */
 class SQLOpPanel extends BaseOpPanel {
     private static readonly _udfDefault: string =
-        "-- Example:\n" +
-        "-- select * from table_identifier\n\n";
+        "Example:\n" +
+        "select * from table_identifier";
 
     private _$elemPanel: JQuery; // The DOM element of the panel
     protected _dataModel: SQLOpPanelModel; // The key data structure
@@ -388,8 +388,14 @@ class SQLOpPanel extends BaseOpPanel {
     }
 
     private _renderSqlQueryString(): void {
-        const sqlQueryString: string = this._dataModel.getSqlQueryString() || SQLOpPanel._udfDefault;
-        this._sqlEditor.setValue(sqlQueryString);
+        const sqlQueryString: string = this._dataModel.getSqlQueryString();
+        if (!sqlQueryString) {
+            this._sqlEditor.setPlaceholder(SQLOpPanel._udfDefault);
+            this._sqlEditor.setValue("");
+        } else {
+            this._sqlEditor.setValue(sqlQueryString);
+        }
+        this._sqlEditor.refresh();
     }
 
     private _renderIdentifiers(): void {

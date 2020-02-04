@@ -224,6 +224,10 @@ class SQLEditor {
         this._editor.setValue(str);
     }
 
+    public setPlaceholder(str: string): void {
+        this._editor.setOption("placeholder" , str);
+    }
+
     public refresh(): void {
         this._editor.refresh();
     }
@@ -256,6 +260,7 @@ class SQLEditor {
                 "search": true,
                 "hint": CodeMirror.hint.sql,
                 "extraKeys": extraKeys,
+                "placeholder": "Here is a placeholder"
             }
         );
         this._addEventListeners();
@@ -267,7 +272,7 @@ class SQLEditor {
         let executeTrigger = (): void => {
             this._event.dispatchEvent("execute");
         };
-    
+
         let cancelExec = (): void => {
             this._event.dispatchEvent("cancelExecute");
         };
