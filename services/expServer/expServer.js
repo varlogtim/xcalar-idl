@@ -195,9 +195,6 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     // Invoke the Service router
     app.use(require('./route/service.js').router);
 
-    // Invoke the Extension router
-    app.use(require('./route/extension.js').router);
-
     // Invoke the Tutorial router
     app.use(require('./route/tutorial.js').router);
 

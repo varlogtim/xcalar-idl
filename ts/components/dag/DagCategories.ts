@@ -228,12 +228,6 @@ class DagCategories {
             })),
         ]);
 
-        // const extensionCategory = new DagCategory(DagCategoryType.Extensions, [
-        //     new DagCategoryNodeExtensions(DagNodeFactory.create({
-        //         type: DagNodeType.Extension
-        //     }))
-        // ]);
-
         // Default operators(not in the kvstore)
         const customCategory = new DagCategoryCustom([
             new DagCategoryNode(DagNodeFactory.create({
@@ -259,7 +253,6 @@ class DagCategories {
             joinCategory,
             setCategory,
             aggregatesCategory,
-            // extensionCategory,
             customCategory,
             hiddenCategory
         ];
@@ -268,8 +261,7 @@ class DagCategories {
             // XXX TODO: verify it's valid or not XD-261
             this.categories = this.categories.filter((category) => {
                 let categoryType = category.getType();
-                return categoryType !== DagCategoryType.Extensions &&
-                categoryType !== DagCategoryType.Custom;
+                return categoryType !== DagCategoryType.Custom;
             });
         }
     }

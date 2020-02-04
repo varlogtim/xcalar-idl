@@ -76,9 +76,6 @@ describe("DagCategories Test", function() {
             expect(categories[7].operators[0].node instanceof DagNodeAggregate).to.be.true;
             expect(categories[7].operators[1].node instanceof DagNodeGroupBy).to.be.true;
 
-            // expect(categories[8].operators.length).to.equal(1);
-            // expect(categories[8].operators[0].node instanceof DagNodeExtension).to.be.true;
-
             expect(categories[8].operators.length).to.equal(3);
             expect(categories[8].operators[0].node instanceof DagNodeCustom).to.be.true;
             expect(categories[8].operators[1].node instanceof DagNodeCustomInput).to.be.true;

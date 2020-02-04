@@ -833,48 +833,6 @@ describe("DagNodeExecutor Test", () => {
         });
     });
 
-    it("should work for extension", (done) => {
-        const node = createNode(DagNodeType.Extension);
-        node.setParam({
-            moduleName: "testModule",
-            functName: "testFunc",
-            args: {
-                col: new XcSDK.Column("testCol", ColumnType.integer)
-            }
-        });
-
-        const executor = new DagNodeExecutor(node, txId);
-        const oldTriggerFromDF = ExtensionManager.triggerFromDF;
-        const oldQuery = XIApi.query;
-
-        ExtensionManager.triggerFromDF = (moduleName, funcName, args) => {
-            expect(moduleName).to.equal("testModule");
-            expect(funcName).to.equal("testFunc");
-            expect(args.col).not.to.be.empty
-            return PromiseHelper.resolve("testTable", "testQuery", []);
-        };
-
-        XIApi.query = (txId, queryName, queryStr) => {
-            expect(txId).to.equal(1);
-            expect(queryName).to.equal("testTable");
-            expect(queryStr).to.equal("testQuery");
-            return PromiseHelper.resolve();
-        };
-
-        executor.run()
-        .then(() => {
-            done();
-        })
-        .fail((error) => {
-            console.error("fail", error);
-            done("fail");
-        })
-        .always(() => {
-            ExtensionManager.triggerFromDF = oldTriggerFromDF;
-            XIApi.query = oldQuery;
-        });
-    });
-
     it("should work for get IMDTable", (done) => {
         const node = createNode(DagNodeType.IMDTable);
         node.setParam({

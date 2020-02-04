@@ -83,9 +83,6 @@ class DagConfigNodeModal {
             case (DagNodeType.Jupyter):
                 JupyterOpPanel.Instance.show(node, options);
                 break;
-            case (DagNodeType.Extension):
-                ExtensionOpPanel.Instance.show(node, options);
-                break;
             case (DagNodeType.IMDTable):
                 IMDTableOpPanel.Instance.show(node, options);
                 break;

@@ -267,43 +267,6 @@ interface ParsedEvalArg {
     type: string
 }
 
-interface ExtensionTypeCheck {
-    columnType?: string[];
-    integer?: boolean;
-    min?: number;
-    max?: number;
-    multiColumn?: boolean;
-    newAggName?: boolean;
-    allowEmpty?: boolean;
-    tableField?: string;
-    newColumnName?: boolean;
-    newTableName?: boolean;
-}
-
-interface ExtensionFieldInfo {
-    type: string;
-    name: string;
-    fieldClass: string;
-    autofill?: any;
-    enums?: string[];
-    typeCheck?: ExtensionTypeCheck;
-    variableArg?: boolean;
-}
-
-interface ExtensionFuncInfo {
-    fnName: string;
-    buttonText: string;
-    arrayOfFields: ExtensionFieldInfo[];
-    instruction: string;
-}
-
-interface ExtensionInfo {
-    name: string;
-    buttons: ExtensionFuncInfo[];
-    actionFn: Function;
-    configParams: {notTableDependent: boolean};
-}
-
 interface ColSchema {
     name: string,
     type: ColumnType
@@ -991,26 +954,5 @@ declare namespace Msal {
 declare namespace XDParser {
     export var SqlParser: any;
     export var XEvalParser: XEvalParser;
-}
-
-declare namespace XcSDK {
-    class Table {
-        public constructor(tableName: string, worksheet: string, modelingMode: boolean);
-        public getName(): string;
-        public setCols(progCols: ProgCol[]): void;
-    }
-    class Column {
-        public constructor(colName: string, colType: ColumnType);
-        public getName(): string;
-        public getType(): ColumnType;
-    }
-
-    class Extension {
-        public initialize(table: string, worksheet, args, modelingMode)
-        public runBeforeStart(extButton: any): XDPromise<void>;
-        public run(txId: number): XDPromise<any>;
-        public runAfterFinish(): XDPromise<any>;
-        public getTable(tableName: string): any;
-    }
 }
 

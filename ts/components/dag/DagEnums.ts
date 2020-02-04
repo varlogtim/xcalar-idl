@@ -8,7 +8,6 @@ enum DagNodeType {
     DFOut = "link out",
     Explode = "explode",
     Export = "export",
-    Extension = "extension",
     Filter = "filter",
     GroupBy = "groupBy",
     IMDTable = "IMDTable",
@@ -137,7 +136,6 @@ enum DagCategoryType {
     Join = "join",
     Set = "set",
     Aggregates = "aggregates",
-    Extensions = "extensions",
     Custom = "custom",
     Hidden = "hidden"
 }
@@ -154,7 +152,6 @@ DagNodeTooltip[DagNodeType.DFIn] = "Sources data from another module";
 DagNodeTooltip[DagNodeType.DFOut] = "Exports the results of a module to another module";
 DagNodeTooltip[DagNodeType.Explode] = "Separates a column into rows using a delimiter";
 DagNodeTooltip[DagNodeType.Export] = "Exports the results of a module via an export driver";
-DagNodeTooltip[DagNodeType.Extension] = "Applies an extension on a result";
 DagNodeTooltip[DagNodeType.Filter] = "Filters tables using a selected function";
 DagNodeTooltip[DagNodeType.GroupBy] = "Summarizes tables using an aggregate function";
 DagNodeTooltip[DagNodeType.IMDTable] = "Sources data from a published IMD Table";
@@ -203,7 +200,6 @@ DagCategoryTooltip[DagCategoryType.RowOps] = "These operators target rows";
 DagCategoryTooltip[DagCategoryType.Join] = "These operators join tables";
 DagCategoryTooltip[DagCategoryType.Set] = "These operators apply set operations";
 DagCategoryTooltip[DagCategoryType.Aggregates] = "These operators compute results based on aggregate functions";
-DagCategoryTooltip[DagCategoryType.Extensions] = "These operators apply extensions";
 DagCategoryTooltip[DagCategoryType.Custom] = "These compound operators are user-defined";
 
 enum DagColumnChangeType {

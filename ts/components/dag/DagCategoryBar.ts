@@ -283,7 +283,6 @@ class DagCategoryBar {
         iconMap[DagCategoryType.Join] = "xi-join-inner";
         iconMap[DagCategoryType.Set] = "xi-union";
         iconMap[DagCategoryType.Aggregates] = "xi-aggregate";
-        iconMap[DagCategoryType.Extensions] = "xi-menu-extension";
         iconMap[DagCategoryType.Custom] = "xi-custom";
         return iconMap;
     }

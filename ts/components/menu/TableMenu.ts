@@ -119,12 +119,7 @@ class TableMenu extends AbstractMenu {
             if (this._isInvalidTrigger(event)) {
                 return;
             }
-            const $li: JQuery = $(event.currentTarget);
-            if ($li.hasClass("exitExt")) {
-                BottomMenu.close();
-            } else {
-                MainMenu.closeForms();
-            }
+            MainMenu.closeForms();
         });
 
         $tableMenu.on('mouseup', '.copyTableName', (event) => {

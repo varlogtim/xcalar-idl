@@ -871,7 +871,7 @@ DONT_RSYNC = DONT_RSYNC.concat(jsMapping.remove.map(x => jsMapping.src + x));
 DONT_RSYNC_FASTCOPY = DONT_RSYNC.concat("3rd/**/*").concat("services/**/*")
     .concat("assets/help/**/*");
 
-DONT_RSYNC_RC = DONT_RSYNC.concat("assets/extensions/ext-unused");
+DONT_RSYNC_RC = DONT_RSYNC
 
 // files and folders (rel BLDROOT) to remove from installer builds.
 // done end-of-build

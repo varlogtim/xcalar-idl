@@ -212,7 +212,6 @@ describe("DagCategoryBar Test", function() {
             expect($("#dagView .categoryBar .category").eq(0).hasClass("category-custom")).to.be.true
             expect($("#dagView .categoryBar .category").eq(1).hasClass("category-hidden")).to.be.true
             expect($("#dagView .categoryBar .category").eq(2).hasClass("category-in")).to.be.true
-            // expect($("#dagView .categoryBar .category").last().hasClass("category-extensions")).to.be.true;
         });
         it("should scroll right", function() {
             $("#dagView").find(".categoryScroll .arrow.right").trigger(fakeEvent.mouseup);

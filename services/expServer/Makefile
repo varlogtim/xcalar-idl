@@ -7,7 +7,7 @@ NAME ?= appserver
 GIT_SHA1=$(shell git rev-parse --short=8 HEAD)
 ARCHIVE := $(NAME)-$(NOW)-$(GIT_SHA1).tar.gz
 DESTDIR ?= /srv/apps/$(NAME)-$(NOW)
-FILES = expServer.js expServerSupport.js expServerXcConsole.js route/extension.js route/tutorial.js route/installer.js route/login.js route/service.js socket.js sqlRestfulServer.js supportStatusFile.js tail.js upload.js
+FILES = expServer.js expServerSupport.js expServerXcConsole.js route/tutorial.js route/installer.js route/login.js route/service.js socket.js sqlRestfulServer.js supportStatusFile.js tail.js upload.js
 
 all:
 	@echo "deploy    - deploy to $(SERVER)"

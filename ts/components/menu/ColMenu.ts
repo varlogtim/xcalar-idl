@@ -244,12 +244,7 @@ class ColMenu extends AbstractMenu {
             if (event.which !== 1) {
                 return;
             }
-            const $li: JQuery = $(event.currentTarget);
-            if ($li.hasClass("exitExt")) {
-                BottomMenu.close();
-            } else {
-                MainMenu.closeForms();
-            }
+            MainMenu.closeForms();
         });
     }
 

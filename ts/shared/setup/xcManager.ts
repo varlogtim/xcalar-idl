@@ -96,7 +96,6 @@ namespace xcManager {
                 PanelHistory.Instance.setup();
                 MainMenu.setup();
                 setupModeArea();
-                ExtensionManager.loadEnabledExtension(); // async load of extnesion
                 XDFManager.Instance.setup();
                 setupOpPanels();
                 WorkbookPanel.initialize();
@@ -726,7 +725,6 @@ namespace xcManager {
             return PromiseHelper.alwaysResolve(DSTargetManager.refreshTargets(true));
         })
         .then(() => {
-            ExtensionManager.setup();
             TutorialPanel.Instance.setup();
         })
         .then(() => {

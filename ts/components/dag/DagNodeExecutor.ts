@@ -162,8 +162,6 @@ class DagNodeExecutor {
                     return this._updateIMD();
                 case DagNodeType.Jupyter:
                     return this._jupyter();
-                case DagNodeType.Extension:
-                    return this._extension();
                 case DagNodeType.IMDTable:
                     return this._IMDTable();
                 case DagNodeType.SQL:
@@ -211,7 +209,7 @@ class DagNodeExecutor {
             } else {
                 prefix = xcHelper.genTableNameFromNode(this.node);
             }
-            return prefix + Authentication.getTableId(tabId);
+            return prefix + Authentication.getTableId();
         } catch (e) {
             console.error("generate table name error", e);
             // when has error case, use the old behavior
@@ -1209,34 +1207,6 @@ class DagNodeExecutor {
             txLog.resetCurrentNodeInfo();
             deferred.reject(err);
         });
-        return deferred.promise();
-    }
-
-    private _extension(): XDPromise<string> {
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        const node: DagNodeExtension = <DagNodeExtension>this.node;
-        let finalTable: string
-        const txLog = Transaction.get(this.txId);
-        node.getQuery()
-        .then((ret) => {
-            const {resTable, query} = ret;
-            finalTable = resTable;
-            if (!query) {
-                // when the extension doesn't generate query
-                return PromiseHelper.resolve();
-            }
-            txLog.setCurrentNodeInfo(node.getId(), this.tabId);
-            return XIApi.query(this.txId, finalTable, query);
-        })
-        .then(() => {
-            txLog.resetCurrentNodeInfo();
-            deferred.resolve(finalTable);
-        })
-        .fail((err) => {
-            txLog.resetCurrentNodeInfo();
-            deferred.reject(err);
-        });
-
         return deferred.promise();
     }
 

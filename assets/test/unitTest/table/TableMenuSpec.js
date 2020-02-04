@@ -602,52 +602,9 @@ describe('TableMenu Test', function() {
 
                 Profile.show = cachedFunc;
             });
-
-            describe('exit op', function() {
-                it('ext', function() {
-                    var cachedFunc = BottomMenu.close;
-                    var called = false;
-                    BottomMenu.close = function() {
-                        called = true;
-                    };
-
-                    $colMenu.find('.exitOp.exitExt').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $colMenu.find('.exitOp.exitExt').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    BottomMenu.close = cachedFunc;
-                });
-            });
         });
 
         describe('sub menu', function() {
-            // it('click inputAction and renameCol', function() {
-            //     var cachedFunc = ColManager.renameCol;
-            //     var called = false;
-            //     ColManager.renameCol = function(colNum, tId, colName) {
-            //         expect(colNum).to.equal(12);
-            //         expect(tId).to.equal(tableId);
-            //         expect(colName).to.equal("test");
-            //         called = true;
-            //     };
-
-            //     $colSubMenu.find('.inputAction').eq(0).siblings('input').val(prefix + gPrefixSign + 'yelping_since');
-            //     $colSubMenu.find('.inputAction').eq(0).click();
-            //     expect(called).to.be.false;
-
-            //     $colSubMenu.find('.inputAction').eq(0).siblings('input').val('');
-            //     $colSubMenu.find('.inputAction').eq(0).click();
-            //     expect(called).to.be.false;
-
-            //     $colSubMenu.find('.inputAction').eq(0).siblings('input').val('test');
-            //     $colSubMenu.find('.inputAction').eq(0).click();
-            //     expect(called).to.be.true;
-
-            //     ColManager.renameCol = cachedFunc;
-            // });
-
             it('changeFormat', function() {
                 var cachedFunc = ColManager.format;
                 var called = false;

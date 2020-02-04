@@ -46,9 +46,6 @@ class DagNodeFactory {
             case DagNodeType.RowNum:
                 node = new DagNodeRowNum(options, runtime);
                 break;
-            case DagNodeType.Extension:
-                node = new DagNodeExtension(<DagNodeExtensionInfo>options, runtime);
-                break;
             case DagNodeType.Custom:
                 node = new DagNodeCustom(<DagNodeCustomInfo>options, runtime);
                 break;
@@ -144,8 +141,6 @@ class DagNodeFactory {
                 return DagNodeSQLSubOutput;
             case DagNodeType.RowNum:
                 return DagNodeRowNum;
-            case DagNodeType.Extension:
-                return DagNodeExtension;
             case DagNodeType.Custom:
                 return DagNodeCustom;
             case DagNodeType.CustomInput:

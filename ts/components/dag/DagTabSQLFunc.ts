@@ -81,9 +81,7 @@ class DagTabSQLFunc extends DagTabUser {
             }
         }
 
-        if (nodeType === DagNodeType.Extension ||
-            nodeType === DagNodeType.Custom
-        ) {
+        if (nodeType === DagNodeType.Custom) {
             return false;
         }
         return true;

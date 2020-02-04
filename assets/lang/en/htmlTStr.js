@@ -153,7 +153,6 @@ module.exports = {
         "monitor": "System",
         "source": "Sources",
         "discourse": "Discourse",
-        "exts": "Extensions",
         "tuts": "Tutorial Projects",
         "user": "User",
         "tutorUser": "John Smith",
@@ -201,12 +200,10 @@ module.exports = {
         "ExitGroupby": "Exit Group By",
         "ExitMap": "Exit Map",
         "ExitJoin": "Exit Join",
-        "ExitExt": "Exit Extension",
         "ExitSort": "Exit Sort",
         "ExitProject": "Exit Project",
         "ExitUnion": "Exit Set Operation",
         "ExportTbl": "Export",
-        "Exts": "Extensions",
         "Flt": "Filter",
         "FltCell": "Filter this value",
         "FltCellPlural": "Filter these values",
@@ -1256,21 +1253,6 @@ module.exports = {
         "uploadFile": "Source File",
         "uploadTip": "Open file browser",
         "searchHint": "Filter by name/session ID",
-    },
-
-    "extension": {
-        "uploadInstr": "Upload an extension into Xcalar. Your file should be of the format .tar.gz and include a .ext.js and a .ext.py file.",
-        "Installed": "Installed Extensions",
-        "Load": "Loading Extensions",
-        "Upload": "Upload Custom Extension",
-        "LoadErr": "Sorry, cannot load extensions.",
-        "MyExt": "My Extensions",
-        "NotAdded": "No Extensions Added",
-        "NotFound": "No Extensions Found",
-        "SearchHint": "Search for Extensions",
-        "Extension": "Extension",
-        "ExtensionName": "Extension Name",
-        "FunctionName": "Function Name"
     },
 
     "tutorial": {

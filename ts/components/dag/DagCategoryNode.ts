@@ -156,13 +156,6 @@ class DagCategoryNodeAggregates extends DagCategoryNode {
     }
 }
 
-class DagCategoryNodeExtensions extends DagCategoryNode {
-    protected color: string = "#EAABD3";
-    public constructor(node: DagNode) {
-        super(node, DagCategoryType.Extensions);
-    }
-}
-
 class DagCategoryNodeCustom extends DagCategoryNode {
     private static keyGenerator: XcUID = new XcUID('co');
     protected color: string = "#F8A296";

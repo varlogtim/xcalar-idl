@@ -312,7 +312,6 @@ enum SQLOps {
     ChangeFormat = "changeFormat",
     Round = "round",
     Finalize = "finalizeTable",
-    Ext = "extension",
     DFRerun = "Application Rerun",
     ExecSQL = "Execute SQL",
     RefreshTables = "refreshTables",

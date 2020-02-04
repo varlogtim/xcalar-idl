@@ -170,12 +170,6 @@ describe("DagCategoryNode Test", function() {
             expect(node.getColor()).to.equal("#F896A9");
         });
 
-        it("category extensions should work", function() {
-            node = new DagCategoryNodeExtensions(mapNode);
-            expect(node.getCategoryType()).to.equal(DagCategoryType.Extensions);
-            expect(node.getColor()).to.equal("#EAABD3");
-        });
-
         it("category custom should work", function() {
             node = new DagCategoryNodeCustom(mapNode, true);
             expect(node.getCategoryType()).to.equal(DagCategoryType.Custom);

@@ -808,24 +808,6 @@ describe("DagNodeMenu Test", function() {
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
-        it("should configure Extension", function() {
-            const newNodeInfo = {type: "extension"};
-            node = DagViewManager.Instance.newNode(newNodeInfo);
-
-            var cacheFn = ExtensionOpPanel.Instance.show;
-            var called = false;
-            ExtensionOpPanel.Instance.show = function() {
-                called = true;
-            }
-            DagNodeMenu.execute("configureNode", {
-                node: node
-            });
-            expect(called).to.be.true;
-            ExtensionOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
-            DagViewManager.Instance.removeNodes([node.getId()], tabId);
-        });
-
         it("should configure IMDTable", function() {
             const newNodeInfo = {type: "IMDTable"};
             node = DagViewManager.Instance.newNode(newNodeInfo);

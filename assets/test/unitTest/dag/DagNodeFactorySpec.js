@@ -64,9 +64,6 @@ describe("DagNodeFactory Test", () => {
             "type": DagNodeType.RowNum,
             "expect": DagNodeRowNum
         }, {
-            "type": DagNodeType.Extension,
-            "expect": DagNodeExtension
-        }, {
             "type": DagNodeType.Custom,
             "expect": DagNodeCustom
         }, {
