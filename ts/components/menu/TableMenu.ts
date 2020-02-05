@@ -33,9 +33,7 @@ class TableMenu extends AbstractMenu {
             ["d", "deleteTable"],
             ["e", "exportTable"],
             ["j", "jupyterTable"],
-            ["m", "hideTable"],
             ["s", "multiCast"],
-            ["u", "unhideTable"],
             ["x", "exitOp"],
         ];
     }
