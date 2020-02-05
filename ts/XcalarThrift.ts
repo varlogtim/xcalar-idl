@@ -603,6 +603,32 @@ function insertError(
 // ========================= MAIN FUNCTIONS  =============================== //
 XcalarGetVersion = function(
     connectionCheck: boolean
+): XDPromise<XcalarApiGetVersionOutputT | {}> {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<XcalarApiGetVersionOutputT> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarGetVersion(tHandle)
+    .then(deferred.resolve)
+    .fail(function(error: XcalarApiError) {
+        if (connectionCheck) {
+            // don't call thriftLog or else it may call XcalarGetVersion again
+            deferred.reject("ConnectionCheck Failed", error);
+        } else {
+            deferred.reject(thriftLog("XcalarGetVersion()", error));
+        }
+    });
+
+    return deferred.promise();
+};
+
+XcalarGetVersionXcrpc = function(
+    connectionCheck: boolean
 ): XDPromise<Xcrpc.Version.VersionOutput | {}> {
     const deferred: XDDeferred<Xcrpc.Version.VersionOutput> = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
@@ -965,7 +991,7 @@ XcalarParseDSLoadArgs = function(options: XcalarLoadInputOptions): {
     }
 };
 
-XcalarDatasetCreateThrift = function(
+XcalarDatasetCreate = function(
     datasetName: string,
     options: XcalarLoadInputOptions
 ) {
@@ -990,7 +1016,7 @@ XcalarDatasetCreateThrift = function(
     return deferred.promise();
 };
 
-XcalarDatasetCreate = function(
+XcalarDatasetCreateXcrpc = function(
     datasetName: string,
     options: XcalarLoadInputOptions,
     scopeInfo?: Xcrpc.Dataset.ScopeInfo
@@ -1030,7 +1056,7 @@ XcalarDatasetCreate = function(
     return deferred.promise();
 };
 
-XcalarDatasetRestoreThrift = function(
+XcalarDatasetRestore = function(
     datasetName: string,
     args: any
 ) {
@@ -1079,7 +1105,7 @@ XcalarDatasetRestoreThrift = function(
     return deferred.promise();
 };
 
-XcalarDatasetRestore = function(
+XcalarDatasetRestoreXcrpc = function(
     datasetName: string,
     args: any,
     scopeInfo?: Xcrpc.Dataset.ScopeInfo
@@ -1131,7 +1157,7 @@ XcalarDatasetActivate = function(
     return XcalarDatasetLoad(datasetName, null, txId, scopeInfo);
 };
 
-XcalarDatasetLoadThrift = function(
+XcalarDatasetLoad = function(
     datasetName: string,
     options: XcalarLoadInputOptions,
     txId: number
@@ -1209,7 +1235,7 @@ XcalarDatasetLoadThrift = function(
     return deferred.promise();
 };
 
-XcalarDatasetLoad = function(
+XcalarDatasetLoadXcrpc = function(
     datasetName: string,
     options: XcalarLoadInputOptions,
     txId: number,
@@ -1299,6 +1325,66 @@ XcalarDatasetLoad = function(
 };
 
 XcalarDatasetDeactivate = function(
+    datasetname: string,
+    txId: number
+): XDPromise<void> {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    if (Transaction.checkCanceled(txId)) {
+        return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
+    }
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    const dsNameBeforeParse: string = datasetname;
+    const dsName: string = parseDS(datasetname);
+
+    releaseAllResultsets()
+    .then(function() {
+        const promise = xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
+        return PromiseHelper.alwaysResolve(promise);
+    })
+    .then(function() {
+        return xcalarDatasetUnload(tHandle, dsName);
+    })
+    .then(function() {
+        if (Transaction.checkCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            deferred.resolve();
+        }
+    })
+    .fail(function(error) {
+        const thriftError: ThriftError = thriftLog("XcalarDatasetDeactivate", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+
+    function releaseAllResultsets(): XDPromise<void> {
+        // always resolve to continue the deletion
+        const innerDeferred: XDDeferred<any> = PromiseHelper.deferred();
+
+        XcalarGetDatasetMeta(dsNameBeforeParse)
+        .then(function(res) {
+            if (res && res.resultSetIds) {
+                const resultSetIds: string[] = res.resultSetIds;
+                const promises: XDPromise<StatusT>[] = [];
+                for (let i = 0; i < resultSetIds.length; i++) {
+                    promises.push(XcalarSetFree(resultSetIds[i]));
+                }
+                return PromiseHelper.when.apply(this, promises);
+            }
+        })
+        .then(innerDeferred.resolve)
+        .fail(innerDeferred.resolve);
+
+        return innerDeferred.promise();
+    }
+};
+
+XcalarDatasetDeactivateXcrpc = function(
     datasetname: string,
     txId: number,
     scopeInfo?: Xcrpc.DagNode.DagScopeInfo
@@ -1498,7 +1584,40 @@ XcalarDatasetGetLoadArgs = function(datasetName: string) {
     return deferred.promise();
 }
 
-XcalarDatasetDeleteLoadNode = function(
+XcalarDatasetDeleteLoadNode = function(datasetName: string, wkbkName: string): XDPromise<void> {
+    const deferred: XDDeferred<void> = PromiseHelper.deferred();
+    const currentSession: string = sessionName;
+    setSessionName(wkbkName);
+
+    XcalarGetDSNode(datasetName)
+    .then((res: {nodeInfo: {name: string}[]}) => {
+        try {
+            const promises = [];
+            const dsName: string = parseDS(datasetName);
+            res.nodeInfo.forEach((nodeInfo) => {
+                if (nodeInfo.name === datasetName) {
+                    setSessionName(wkbkName);
+                    let promise = xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
+                    setSessionName(currentSession);
+                    promises.push(promise);
+                }
+            });
+            return PromiseHelper.when(...promises);
+        } catch (e) {
+            console.error(e);
+        }
+    })
+    .then(deferred.resolve)
+    .fail((error) => {
+        const thriftError: ThriftError = thriftLog("XcalarDatasetDeleteLoadNode", error);
+        deferred.reject(thriftError);
+    });
+
+    setSessionName(currentSession);
+    return deferred.promise();
+}
+
+XcalarDatasetDeleteLoadNodeXcrpc = function(
     datasetName: string,
     wkbkName: string,
     scopeInfo?: Xcrpc.DagNode.DagScopeInfo
@@ -1674,6 +1793,45 @@ XcalarListExportTargets = function(
 };
 
 XcalarExport = function(
+    tableName: string,
+    driverName: string,
+    driverParams: {},
+    columns: XcalarApiExportColumnT[],
+    exportName: string,
+    txId?: number
+): XDPromise<any> {
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    var workItem = xcalarExportWorkItem(tableName, driverName, driverParams, columns, exportName);
+    let def: XDPromise<any>;
+    if (Transaction.isSimulate(txId)) {
+        def = fakeApiCall();
+    } else {
+        if (tHandle == null) {
+            return PromiseHelper.resolve(null);
+        }
+        def = xcalarExport(tHandle, tableName, driverName, driverParams, columns, exportName);
+    }
+    let query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, 'export', exportName, query);
+
+    def
+    .then(function(ret) {
+        Transaction.log(txId, query, exportName, ret.timeElapsed);
+        deferred.resolve(ret);
+    })
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarExport", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+XcalarExportXcrpc = function(
     tableName: string,
     driverName: string,
     driverParams: {},
@@ -1932,6 +2090,71 @@ XcalarDeleteTable = function(
     tableName: string,
     txId?: number,
     isRetry?: boolean,
+    deleteCompletely?: boolean
+): XDPromise<XcalarApiDeleteDagNodeOutputT> {
+    const deferred: XDDeferred<XcalarApiDeleteDagNodeOutputT> = PromiseHelper.deferred();
+
+    if (Transaction.checkCanceled(txId)) {
+        return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
+    }
+    const workItem = xcalarDeleteDagNodesWorkItem(tableName,
+                                        SourceTypeT.SrcTable, deleteCompletely);
+    let def: XDPromise<any>;
+    if (Transaction.isSimulate(txId)) {
+        def = fakeApiCall();
+    } else {
+        if (tHandle == null) {
+            return PromiseHelper.resolve(null);
+        }
+        def = xcalarDeleteDagNodes(tHandle, tableName, SourceTypeT.SrcTable,
+                                   deleteCompletely);
+    }
+
+    const query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, 'drop table', tableName + "drop", query);
+
+    def
+    .then(function(ret) {
+        if (Transaction.checkCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            // txId may be null if deleting an undone table or performing a
+            // deletion not triggered by the user (i.e. clean up)
+            if (txId != null) {
+                Transaction.log(txId, query, tableName + "drop", ret.timeElapsed);
+            }
+            if (typeof MonitorPanel !== "undefined") {
+                MonitorPanel.tableUsageChange();
+            }
+            deferred.resolve(ret);
+        }
+    })
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarDeleteTable", error);
+        if (!isRetry && thriftError.status === StatusT.StatusDgNodeInUse) {
+            forceReleaseTable(error.output)
+            .then(function() {
+                return XcalarDeleteTable(tableName, txId, true);
+            })
+            .then(deferred.resolve)
+            .fail(function() {
+                deferred.reject(thriftError);
+            });
+        } else if (thriftError.status === StatusT.StatusDagNodeNotFound) {
+            // if not found, then doesn't exist so it's essentially deleted
+            deferred.resolve();
+        } else {
+            deferred.reject(thriftError);
+        }
+    });
+
+    return deferred.promise();
+};
+
+XcalarDeleteTableXcrpc = function(
+    tableName: string,
+    txId?: number,
+    isRetry?: boolean,
     deleteCompletely?: boolean,
     scopeInfo?: Xcrpc.DagNode.DagScopeInfo
 ): XDPromise<XcalarApiDeleteDagNodeOutputT> {
@@ -2005,6 +2228,55 @@ XcalarDeleteTable = function(
 };
 
 XcalarDeleteConstants = function(
+    constantPattern: string,
+    txId: number
+): XDPromise<XcalarApiDeleteDagNodeOutputT> {
+    const deferred: XDDeferred<XcalarApiDeleteDagNodeOutputT> = PromiseHelper.deferred();
+
+    if (Transaction.checkCanceled(txId)) {
+        return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
+    }
+    const workItem = xcalarDeleteDagNodesWorkItem(constantPattern,
+                                                SourceTypeT.SrcConstant);
+    let def: XDPromise<any>;
+    if (Transaction.isSimulate(txId)) {
+        def = fakeApiCall();
+    } else {
+        if (tHandle == null) {
+            return PromiseHelper.resolve(null);
+        }
+        def = xcalarDeleteDagNodes(tHandle, constantPattern,
+                                    SourceTypeT.SrcConstant);
+    }
+
+    const query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, 'drop constants',
+                              constantPattern + "drop", query);
+
+    def
+    .then(function(ret) {
+        if (Transaction.checkCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            if (txId != null) {
+                Transaction.log(txId, query, constantPattern + "drop",
+                                ret.timeElapsed);
+            }
+            if (typeof MonitorPanel !== "undefined") {
+                MonitorPanel.tableUsageChange();
+            }
+            deferred.resolve(ret);
+        }
+    })
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarDeleteConstants", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+XcalarDeleteConstantsXcrpc = function(
     constantPattern: string,
     txId: number,
     scopeInfo?: Xcrpc.DagNode.DagScopeInfo
@@ -2624,7 +2896,7 @@ XcalarGetTableRefCount = function(tableName: string): XDPromise<any> {
     return (deferred.promise());
 };
 
-XcalarMakeResultSetFromTableThrift = function(
+XcalarMakeResultSetFromTable = function(
     tableName: string
 ): XDPromise<XcalarApiMakeResultSetOutputT> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -2647,7 +2919,7 @@ XcalarMakeResultSetFromTableThrift = function(
     return (deferred.promise());
 };
 
-XcalarMakeResultSetFromTable = function(
+XcalarMakeResultSetFromTableXcrpc = function(
     tableName: string,
     scopeInfo?: Xcrpc.ResultSet.ScopeInfo
 ): XDPromise<XcalarApiMakeResultSetOutputT> {
@@ -2738,7 +3010,7 @@ XcalarMakeResultSetFromTable = function(
     return deferred.promise();
 };
 
-XcalarMakeResultSetFromDatasetThrift = function(
+XcalarMakeResultSetFromDataset = function(
     datasetName: string,
     getErrorDataset: boolean
 ): XDPromise<XcalarApiMakeResultSetOutputT> {
@@ -2769,7 +3041,7 @@ XcalarMakeResultSetFromDatasetThrift = function(
 
 };
 
-XcalarMakeResultSetFromDataset = function(
+XcalarMakeResultSetFromDatasetXcrpc = function(
     datasetName: string,
     getErrorDataset: boolean,
     scopeInfo?: Xcrpc.ResultSet.ScopeInfo
@@ -2862,7 +3134,7 @@ XcalarMakeResultSetFromDataset = function(
     return deferred.promise();
 };
 
-XcalarSetAbsoluteThrift = function(
+XcalarSetAbsolute = function(
     resultSetId: string,
     position: number
 ): XDPromise<StatusT> {
@@ -2886,7 +3158,7 @@ XcalarSetAbsoluteThrift = function(
     return (deferred.promise());
 };
 
-XcalarSetAbsolute = function(
+XcalarSetAbsoluteXcrpc = function(
     resultSetId: number,
     position: number,
     scopeInfo?: Xcrpc.ResultSet.ScopeInfo
@@ -2921,7 +3193,7 @@ XcalarSetAbsolute = function(
     return (deferred.promise());
 }
 
-XcalarGetNextPageThrift = function(
+XcalarGetNextPage = function(
     resultSetId: string,
     numEntries: number
 ): XDPromise<any> {
@@ -2945,7 +3217,7 @@ XcalarGetNextPageThrift = function(
     return (deferred.promise());
 };
 
-XcalarGetNextPage = function(
+XcalarGetNextPageXcrpc = function(
     resultSetId: number,
     numEntries: number,
     scopeInfo?: Xcrpc.ResultSet.ScopeInfo
@@ -2987,7 +3259,7 @@ XcalarGetNextPage = function(
     return deferred.promise();
 };
 
-XcalarSetFreeThrift = function(
+XcalarSetFree = function(
     resultSetId: string
 ): XDPromise<StatusT> {
     if (tHandle == null) {
@@ -3010,7 +3282,7 @@ XcalarSetFreeThrift = function(
     return (deferred.promise());
 };
 
-XcalarSetFree = function(
+XcalarSetFreeXcrpc = function(
     resultSetId: number,
     scopeInfo?: Xcrpc.ResultSet.ScopeInfo
 ): XDPromise<any> {
@@ -3708,7 +3980,7 @@ XcalarArchiveTable = function(
 // must make sure that the first table that is being passed into XcalarQuery
 // is an unsorted table! Otherwise backend may crash
 // txId does not need to be passed in if xcalarquery not called inside a transaction
-XcalarQueryThrift = function(
+XcalarQuery = function(
     queryName: string,
     queryString: string,
     txId: number,
@@ -3729,6 +4001,12 @@ XcalarQueryThrift = function(
     */
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
+    }
+
+    if (verbose) {
+        console.log("XcalarQuery(queryName=" + queryName +
+                   " queryString=" + queryString +
+                   ")");
     }
 
     const deferred: XDDeferred<void> = PromiseHelper.deferred();
@@ -3771,7 +4049,7 @@ XcalarQueryThrift = function(
 /**
  * Execute xcalar query with xcrpc API
  */
-XcalarQuery = function(
+XcalarQueryXcrpc = function(
     queryName: string,
     queryString: string,
     txId: number,
@@ -4138,7 +4416,9 @@ XcalarQueryList = function(namePattern) {
     }
 
     xcalarQueryList(tHandle, namePattern)
-    .then(deferred.resolve)
+    .then(function(ret) {
+        deferred.resolve(ret.queries);
+    })
     .fail(function(error) {
         const thriftError = thriftLog("XcalraQueryList " + namePattern, error);
         Log.errorLog("Xcalar Query List " + namePattern, null, null, thriftError);
@@ -4148,7 +4428,7 @@ XcalarQueryList = function(namePattern) {
     return (deferred.promise());
 };
 
-XcalarQueryList = function(namePattern: string): XDPromise<Xcrpc.Query.QueryInfo[]> {
+XcalarQueryListXcrpc = function(namePattern: string): XDPromise<Xcrpc.Query.QueryInfo[]> {
     return PromiseHelper.convertToJQuery(Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME)
                                               .getQueryService()
                                               .list({namePattern:namePattern}));
@@ -4564,6 +4844,80 @@ XcalarUpdateRetina = function(
 // then, params = [{"paramName":"opera", "paramValue":"lt"},
 // {"pN":"colName", "pV":"column5"}, {, "pV":"\"hello\""}]
 XcalarExecuteRetina = function(
+    retName: string,
+    params: XcalarApiParameterT[],
+    options: {
+        activeSession?: boolean,
+        newTableName?: string,
+        queryName?: string,
+        udfUserName?: string,
+        udfSessionName?: string
+    },
+    txId: number
+): XDPromise<any> {
+    if (retName === "" || retName == null ||
+        [null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    if (Transaction.checkCanceled(txId)) {
+        return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
+    }
+
+    options = options || {};
+    // If activeSession is true, it exports to the
+    // current active session and creates a table
+    // with newTableName
+
+    const activeSession: boolean = options.activeSession || false;
+    const newTableName: string = options.newTableName || "";
+    const queryName: string = options.queryName || undefined;
+    const udfUserName: string = options.udfUserName || undefined;
+    const udfSessionName: string = options.udfSessionName || undefined;
+
+    const schedName: string = ""; // This is for IMD, invoked via APIs.
+    const workItem = xcalarExecuteRetinaWorkItem(retName, params, activeSession,
+        newTableName, queryName, schedName, udfUserName, udfSessionName);
+    let def: XDPromise<any>;
+    if (Transaction.isSimulate(txId)) {
+        def = fakeApiCall();
+    } else {
+        def = xcalarExecuteRetina(tHandle, retName, params, activeSession,
+            newTableName, queryName, schedName, udfUserName, udfSessionName);
+    }
+
+    const query = XcalarGetQuery(workItem);
+    const transactionOptions = {
+        retName: retName
+    };
+    Transaction.startSubQuery(txId, SQLOps.Retina, retName, query,
+                                  transactionOptions);
+
+    def
+    .then(function(ret) {
+        if (Transaction.checkCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            Transaction.log(txId, query, retName, ret.timeElapsed,
+                            transactionOptions);
+            deferred.resolve(ret);
+        }
+    })
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarExecuteRetina", error);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+};
+
+// XXX TODO Log.add
+// param has 2 string values: param.paramName, param.paramValue
+// params is an array of param.
+// For example, if my paramValue was "filter(<opera>(<colName>, <val>))"
+// then, params = [{"paramName":"opera", "paramValue":"lt"},
+// {"pN":"colName", "pV":"column5"}, {, "pV":"\"hello\""}]
+XcalarExecuteRetinaXcrpc = function(
     retName: string,
     params: XcalarApiParameterT[],
     options: {
@@ -5149,6 +5503,43 @@ XcalarResumeSched = function(scheduleKey: string): XDPromise<boolean> {
 
 XcalarKeyLookup = function(
     key: string,
+    scope: number
+): XDPromise<XcalarApiKeyLookupOutputT> {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<XcalarApiKeyLookupOutputT> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    if (scope == null) {
+        scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
+    }
+
+    xcalarKeyLookup(tHandle, scope, key)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarKeyLookup", error);
+        // it's normal to find an unexisted key.
+        if (thriftError.status === StatusT.StatusKvEntryNotFound) {
+            console.warn("Status", error, "Key, not found");
+            deferred.resolve(null);
+        } else if (thriftError.status === StatusT.StatusKvStoreNotFound) {
+            console.warn("Status", error, "kvStore, not found");
+            deferred.resolve(null);
+        } else {
+            Log.errorLog("Key Lookup", null, null, thriftError);
+            deferred.reject(thriftError);
+        }
+    });
+
+    return (deferred.promise());
+};
+
+XcalarKeyLookupXcrpc = function(
+    key: string,
     scope: number,
     scopeInfo?:Xcrpc.KVStore.ScopeInfo
 ): XDPromise<Xcrpc.KVStore.Value> {
@@ -5165,6 +5556,34 @@ XcalarKeyLookup = function(
 
 XcalarKeyList = function(
     keyRegex: string,
+    scope: number
+): XDPromise<XcalarApiKeyListOutputT> {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<XcalarApiKeyListOutputT> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    if (scope == null) {
+        scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
+    }
+
+    xcalarKeyList(tHandle, scope, keyRegex)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarKeyList", error);
+        Log.errorLog("Key List", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+};
+
+XcalarKeyListXcrpc = function(
+    keyRegex: string,
     scope: number,
     scopeInfo?:Xcrpc.KVStore.ScopeInfo
 ): XDPromise<Xcrpc.KVStore.keyListResponse> {
@@ -5179,6 +5598,45 @@ XcalarKeyList = function(
 };
 
 XcalarKeyPut = function(
+    key: string,
+    value: string,
+    persist: boolean,
+    scope: number
+): XDPromise<StatusT> {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+    if (key == null) {
+        return PromiseHelper.reject({
+            error: "commit failed with no commit key defined"
+        });
+    }
+
+    const deferred: XDDeferred<StatusT> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    if (persist == null) {
+        persist = false;
+    }
+
+    if (scope == null) {
+        scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
+    }
+
+    xcalarKeyAddOrReplace(tHandle, scope, key, value, persist)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarKeyPut", error);
+        Log.errorLog("Key Put", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+};
+
+XcalarKeyPutXcrpc = function(
     key: string,
     value: string,
     persist: boolean,
@@ -5239,6 +5697,41 @@ XcalarKeyMultiPut = function(
 
 XcalarKeyDelete = function(
     key: string,
+    scope: number
+): XDPromise<StatusT> {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<StatusT> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    if (scope == null) {
+        scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
+    }
+
+    xcalarKeyDelete(tHandle, scope, key)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarKeyDelete", error);
+        if (thriftError.status === StatusT.StatusKvEntryNotFound) {
+            deferred.resolve();
+        } else if (thriftError.status === StatusT.StatusKvStoreNotFound) {
+            console.warn(thriftError, "kvStore, not found");
+            deferred.resolve(null);
+        } else {
+            Log.errorLog("Key Delete", null, null, thriftError);
+            deferred.reject(thriftError);
+        }
+    });
+
+    return (deferred.promise());
+};
+
+XcalarKeyDeleteXcrpc = function(
+    key: string,
     scope: number,
     scopeInfo?:Xcrpc.KVStore.ScopeInfo
 ): XDPromise<void> {
@@ -5255,6 +5748,41 @@ XcalarKeyDelete = function(
 };
 
 XcalarKeySetIfEqual = function(
+    scope: number,
+    persist: boolean,
+    keyCompare: string,
+    oldValue: string,
+    newValue: string
+): XDPromise<{noKV: boolean}> {
+    if (tHandle == null) {
+        return PromiseHelper.resolve({noKV: false});
+    }
+    const deferred: XDDeferred<{noKV: boolean}> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarKeySetIfEqual(tHandle, scope, persist, keyCompare, oldValue, newValue)
+    .then(function() {
+        deferred.resolve({noKV: false});
+    })
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarKeySetIfEqual", error);
+        if (thriftError.status === StatusT.StatusKvEntryNotFound) {
+            deferred.resolve({noKV: true});
+        } else if (thriftError.status === StatusT.StatusKvStoreNotFound) {
+            console.warn("Status", error, "kvStore, not found");
+            deferred.resolve({noKV: true});
+        } else {
+            Log.errorLog("Key Set If Equal", null, null, thriftError);
+            deferred.reject(thriftError);
+        }
+    });
+
+    return (deferred.promise());
+};
+
+XcalarKeySetIfEqualXcrpc = function(
     scope: number,
     persist: boolean,
     keyCompare: string,
@@ -5279,6 +5807,45 @@ XcalarKeySetBothIfEqual = function(
     oldValue: string,
     newValue: string,
     otherKey: string,
+    otherValue: string
+): XDPromise<{noKV: boolean}> {
+    if (tHandle == null) {
+        return PromiseHelper.resolve({noKV: false});
+    }
+    const deferred: XDDeferred<{noKV: boolean}> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarKeySetIfEqual(tHandle, scope, persist, keyCompare, oldValue, newValue,
+                        otherKey, otherValue)
+    .then(function() {
+        deferred.resolve({noKV: false});
+    })
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarKeySetBothIfEqual", error);
+        if (thriftError.status === StatusT.StatusKvEntryNotFound) {
+            deferred.resolve({noKV: true});
+        } else if (thriftError.status === StatusT.StatusKvStoreNotFound) {
+            console.warn("Status", error, "kvStore, not found");
+            deferred.resolve({noKV: true});
+        } else {
+            Log.errorLog("Key Set If Both Equal", null, null, thriftError);
+            deferred.reject(thriftError);
+        }
+    });
+
+    return (deferred.promise());
+
+};
+
+XcalarKeySetBothIfEqualXcrpc = function(
+    scope: number,
+    persist: boolean,
+    keyCompare: string,
+    oldValue: string,
+    newValue: string,
+    otherKey: string,
     otherValue: string,
     scopeInfo?:Xcrpc.KVStore.ScopeInfo
 ): XDPromise<{noKV: boolean}> {
@@ -5292,6 +5859,45 @@ XcalarKeySetBothIfEqual = function(
 };
 
 XcalarKeyAppend = function(
+    key: string,
+    stuffToAppend: string,
+    persist: boolean,
+    scope: number
+): XDPromise<StatusT> {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+    const deferred: XDDeferred<StatusT> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    if (scope == null) {
+        scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
+    }
+
+    xcalarKeyAppend(tHandle, scope, key, stuffToAppend)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarKeyAppend", error);
+        if (thriftError.status === StatusT.StatusKvEntryNotFound ||
+            thriftError.status === StatusT.StatusKvStoreNotFound)
+        {
+            console.info("Append fails as key or kvStore not found, put key instead");
+            // if append fails because key not found, put value instead
+            xcalarKeyAddOrReplace(tHandle, scope, key, stuffToAppend, persist)
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        } else {
+            Log.errorLog("Key Append", null, null, thriftError);
+            deferred.reject(thriftError);
+        }
+    });
+
+    return (deferred.promise());
+};
+
+XcalarKeyAppendXcrpc = function(
     key: string,
     stuffToAppend: string,
     persist: boolean,
@@ -5409,6 +6015,41 @@ XcalarGetAllTableMemory = function(): XDPromise<number> {
 };
 
 XcalarListXdfs = function(
+    fnNamePattern: string,
+    categoryPattern: string
+): XDPromise<any> {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarApiListXdfs(tHandle, fnNamePattern, categoryPattern)
+    .then(function(listXdfsOutput) {
+        // xx remove findMinIdx until backend fixes crashes
+        for (var i = 0; i < listXdfsOutput.fnDescs.length; i++) {
+            if (listXdfsOutput.fnDescs[i].fnName === "findMinIdx") {
+                listXdfsOutput.fnDescs.splice(i , 1);
+                listXdfsOutput.numXdfs--;
+                i--;
+            } else {
+                (listXdfsOutput.fnDescs[i] as any).displayName =
+                    listXdfsOutput.fnDescs[i].fnName.split("/").pop();
+            }
+        }
+        deferred.resolve(listXdfsOutput);
+    })
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarListXdf", error);
+        Log.errorLog("List Xdf", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+};
+
+XcalarListXdfsXcrpc = function(
     fnNamePattern: string,
     categoryPattern: string,
     scopeInfo?: Xcrpc.XDF.ScopeInfo
@@ -5670,6 +6311,30 @@ XcalarGetQuery = function(workItem: WorkItem): string {
 XcalarNewWorkbook = function(
     newWorkbookName: string,
     isCopy: boolean,
+    copyFromWhichWorkbook: string
+): XDPromise<any> {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+
+    xcalarApiSessionNew(tHandle, newWorkbookName, isCopy,
+                        copyFromWhichWorkbook)
+    .then(function(res) {
+        const sessionId: string = parseWorkbookId(res);
+        deferred.resolve(sessionId);
+    })
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarNewWorkbook", error);
+        Log.errorLog("New Workbook", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+};
+
+XcalarNewWorkbookXcrpc = function(
+    newWorkbookName: string,
+    isCopy: boolean,
     copyFromWhichWorkbook: string,
     scopeInfo?: Xcrpc.Session.ScopeInfo
 ): XDPromise<any> {
@@ -5785,7 +6450,25 @@ XcalarSaveWorkbooks = function(
     return (deferred.promise());
 };
 
-XcalarActivateWorkbook = function(
+XcalarActivateWorkbook = function(workbookName: string): XDPromise<any> {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    // fromWhichWorkbook can be null
+    xcalarApiSessionActivate(tHandle, workbookName)
+    .then(function(output) {
+        deferred.resolve(output);
+    })
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarActivateWorkbook", error);
+        Log.errorLog("Activate Workbook", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+}
+
+XcalarActivateWorkbookXcrpc = function(
     workbookName: string,
     scopeInfo?: Xcrpc.Session.ScopeInfo
 ): XDPromise<any> {
@@ -6070,6 +6753,31 @@ XcalarLogLevelSet = function(
 XcalarTargetCreate = function(
     targetType: string,
     targetName: string,
+    targetParams: object
+): XDPromise<any> {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    xcalarTargetCreate(tHandle, targetType, targetName, targetParams)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarTargetCreate", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+/*
+ * targetName: "mgmtdtest target";
+ * targetType: "shared";
+ * targetParams = {"mountpoint": "/netstore"};
+ */
+XcalarTargetCreateXcrpc = function(
+    targetType: string,
+    targetName: string,
     targetParams: object,
     scopeInfo?: Xcrpc.Target.ScopeInfo
 ): XDPromise<any> {
@@ -6109,7 +6817,23 @@ XcalarTargetCreate = function(
     return deferred.promise();
 };
 
-XcalarTargetDelete = function(
+XcalarTargetDelete = function(targetName: string): XDPromise<any> {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    xcalarTargetDelete(tHandle, targetName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarTargetDelete", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+XcalarTargetDeleteXcrpc = function(
     targetName: string,
     scopeInfo?: Xcrpc.Target.ScopeInfo
 ): XDPromise<any> {
@@ -6147,7 +6871,23 @@ XcalarTargetDelete = function(
     return deferred.promise();
 };
 
-XcalarTargetList = function(
+XcalarTargetList = function(): XDPromise<any[]> {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<any[]> = PromiseHelper.deferred();
+    xcalarTargetList(tHandle)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarTargetList", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+XcalarTargetListXcrpc = function(
     scopeInfo?: Xcrpc.Target.ScopeInfo
 ): XDPromise<any[]> {
     const deferred: XDDeferred<any[]> = PromiseHelper.deferred();
@@ -6181,7 +6921,23 @@ XcalarTargetList = function(
     return deferred.promise();
 };
 
-XcalarTargetTypeList = function(
+XcalarTargetTypeList = function(): XDPromise<any[]> {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<any[]> = PromiseHelper.deferred();
+    xcalarTargetTypeList(tHandle)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarTargetTypeList", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+XcalarTargetTypeListXcrpc = function(
     scopeInfo?: Xcrpc.Target.ScopeInfo
 ): XDPromise<any[]> {
     const deferred: XDDeferred<any[]> = PromiseHelper.deferred();
@@ -6217,6 +6973,30 @@ XcalarTargetTypeList = function(
 
 // IMD APIs
 XcalarListPublishedTables = function(
+    pubPatternMatch: string,
+    getSelects: boolean = true,
+    getUpdates: boolean = true,
+    updateStartBatchId: number = -1
+): XDPromise<XcalarApiListTablesOutputT> {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<XcalarApiListTablesOutputT> = jQuery.Deferred();
+    // Note that the arguments are not in the same order. This is deliberate for
+    // programmer UX.
+    xcalarListPublishedTables(tHandle, pubPatternMatch, getUpdates,
+        updateStartBatchId, getSelects)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarListPublishedTables", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+XcalarListPublishedTablesXcrpc = function(
     pubPatternMatch: string,
     getSelects: boolean = true,
     getUpdates: boolean = true,
@@ -6306,10 +7086,63 @@ XcalarUpdateTable = function(
 };
 
 /**
- * Also knowns as SELECT
  * limitRows: set the return of row for each node
  */
 XcalarRefreshTable = function(
+    pubTableName: string,
+    dstTableName: string,
+    minBatch: number,
+    maxBatch: number,
+    txId: number,
+    filterString: string,
+    columnInfo: RefreshColInfo[],
+    limitRows?: number
+): XDPromise<XcalarApiNewTableOutputT> {
+    let columns: XcalarApiColumnT[] = null;
+    if (columnInfo != null) {
+        columns = [];
+        columnInfo.forEach((col) => {
+            columns.push(new XcalarApiColumnT(col));
+        });
+    }
+
+    const workItem = xcalarApiSelectWorkItem(pubTableName, dstTableName,
+        minBatch, maxBatch, filterString, columns, limitRows);
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    let def: XDPromise<any>;
+    if (Transaction.isSimulate(txId)) {
+        def = fakeApiCall();
+    } else {
+        if (tHandle == null) {
+            return PromiseHelper.resolve(null);
+        }
+        def = xcalarApiSelect(tHandle, pubTableName, dstTableName, maxBatch, minBatch,
+            filterString, columns, limitRows)
+    }
+
+    const query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, SQLOps.RefreshTables, dstTableName, query);
+
+    // Note max and min places are switched because the API is a little strange
+    def
+    .then(function(ret) {
+        Transaction.log(txId, query, dstTableName, (ret as any).timeElapsed);
+        deferred.resolve.apply(this, arguments);
+    })
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarRefreshTable", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+/**
+ * Also knowns as SELECT
+ * limitRows: set the return of row for each node
+ */
+XcalarRefreshTableXcrpc = function(
     pubTableName: string,
     dstTableName: string,
     minBatch: number,

@@ -1,4 +1,4 @@
-describe("XcalarThrift Test", function() {
+describe.skip("XcalarThrift Test", function() {
     it("remove findMinIdx when invalid", function(done) {
         XcalarListXdfs("*findMinIdx", "*")
         .then((ret) => {
