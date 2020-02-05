@@ -154,15 +154,23 @@ namespace JupyterPanel {
             }
         });
 
+        const $tab = $("#jupyterTab");
+        $tab.addClass("xc-disabled");
         if (noRestore) {
             jupyterMeta = new JupyterMeta();
             loadJupyterNotebook()
-            .always(deferred.resolve);
+            .always(() => {
+                $tab.removeClass("xc-disabled");
+                deferred.resolve();
+            });
         } else {
             restoreMeta()
-            .always(function() {
+            .always(() => {
                 loadJupyterNotebook()
-                .always(deferred.resolve);
+                .always(() => {
+                    $tab.removeClass("xc-disabled");
+                    deferred.resolve();
+                });
             });
         }
 

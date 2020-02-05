@@ -614,7 +614,7 @@ namespace xcManager {
             return XcUser.CurrentUser.holdSession(wkbkId, false);
         })
         .then(() => {
-            return JupyterPanel.initialize();
+            JupyterPanel.initialize();
         })
         .then(() => {
             // restores table info, dataset info, settings etc
