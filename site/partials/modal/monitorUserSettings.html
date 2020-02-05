@@ -1,8 +1,12 @@
-<div id="monitorGenSettingsCard" class="mainSection no-selection cardContainer">
-  <header class="cardHeader">
-    <div class="title"><%= dicts.monitor.Preferences %></div>
+<div id="userSettingsModal" class="modalContainer mainSection no-selection">
+  <header class="modalHeader">
+    <span class="text"><%= dicts.monitor.Preferences %></span>
+    <div class="close" data-container="body" data-toggle="tooltip"
+    data-original-title="<%= dicts.common.Close %>">
+        <i class="icon xi-close"></i>
+    </div>
   </header>
-  <div class="optionsContainer cardMain">
+  <div class="optionsContainer modalMain">
     <!-- show data col -->
     <div class="optionSet dataMart cloud onPrem">
       <div class="optionSelector">
@@ -102,8 +106,8 @@
       data-placement="top"></i>
     </div>
   </div>
-  <div class="cardBottom">
-    <button id="userSettingsSave" class="btn btn-submit btn-rounded"><%= dicts.common.Save %></button>
-    <button id="userSettingsDefault" class="btn btn-secondary btn-rounded"><%= dicts.exportView.restoreDefaults %></button>
+  <div class="modalBottom">
+    <button id="userSettingsSave" class="btn confirm btn-submit btn-rounded"><%= dicts.common.Save %></button>
+    <button id="userSettingsDefault" class="btn cancel btn-secondary btn-rounded"><%= dicts.exportView.restoreDefaults %></button>
   </div>
 </div>

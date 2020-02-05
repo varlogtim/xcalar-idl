@@ -7,7 +7,6 @@ namespace MonitorPanel {
         queriesButton: "queriesSubPanel",
         setupButton: "setupSubPanel",
         logButton: "logSubPanel",
-        settingsButton: "settingsSubPanel",
         fileManagerButton: "fileManagerSubPanel",
     };
 
@@ -61,9 +60,6 @@ namespace MonitorPanel {
                 break;
             case ("logButton"):
                 title += MonitorTStr.Logs;
-                break;
-            case ("settingsButton"):
-                title += MonitorTStr.Preferences;
                 break;
             case ("fileManagerButton"):
                 title += MonitorTStr.FileManagerTitle;
@@ -171,10 +167,6 @@ namespace MonitorPanel {
                         $section.removeClass("firstTouch");
                         Log.scrollToBottom();
                     }
-                    break;
-                case ("settingsButton"):
-                    $("#monitor-settings").addClass("active");
-                    title += MonitorTStr.Preferences;
                     break;
                 case ("fileManagerButton"):
                     $("#monitor-file-manager").addClass("active");

@@ -7,14 +7,11 @@ describe("MonitorPanel Test", function() {
         $mainTabCache = $(".topMenuBarTab.active");
         $monitorPanel = $("#monitor-system");
         $monitorMenu = $("#monitorMenu-sys");
-        $("#systemButton").click();
-    });
+        if (!$("#monitorTab").hasClass("active")) {
+            $("#monitorTab .mainTab").click();
+        }
 
-    describe("monitor tabs", function() {
-        it("settings button should work", function() {
-            $("#settingsButton").click();
-            expect($("#monitor-settings").hasClass("active")).to.be.true;
-        });
+        $("#systemButton").click();
     });
 
     describe("toggling graph switches", function() {
@@ -57,16 +54,7 @@ describe("MonitorPanel Test", function() {
             if (!$("#monitorTab").hasClass("active")) {
                 $("#monitorTab .mainTab").click();
             }
-
-            if (!$("#monitor-settings").is(":visible")) {
-                $("#settingsButton").click();
-            }
-            expect($("#monitor-settings").is(":visible")).to.be.true;
-            expect($("#monitor-queries").is(":visible")).to.be.false;
-
             $("#queriesButton").click();
-
-            expect($("#monitor-settings").is(":visible")).to.be.false;
             expect($("#monitor-queries").is(":visible")).to.be.true;
         });
     });

@@ -52,7 +52,7 @@ class UserMenu {
             if (event.which !== 1) {
                 return;
             }
-            MainMenu.openPanel("monitorPanel", "settingsButton");
+            UserSettings.show();
         });
 
         $("#logout").mouseup(function(event: JQueryEventObject): void {

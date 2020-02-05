@@ -7,6 +7,7 @@ namespace UserSettings {
     let commitIntervalSlider;
     let logOutIntervalSlider;
     let revertedToDefault = false;
+    let modalHelper: ModalHelper;
 
     // oldUserInfos/userInfos contains settings such as if the user last had
     // list vs grid view on in the file browser, also contains general settings
@@ -224,24 +225,37 @@ namespace UserSettings {
         revertedToDefault = true;
     }
 
+    export function show(): void {
+        modalHelper.setup();
+    }
+
+    function close(): void {
+        modalHelper.clear();
+    }
+
     function setup(): void {
+        const $modal = $("#userSettingsModal");
+        modalHelper = new ModalHelper($modal, {
+            sizeToDefault: true
+        });
+
         userPrefs = new UserPref();
         addEventListeners();
 
         if (XVM.isDataMart()) {
             // data mart options
-            $("#monitorGenSettingsCard .optionSet:not(.dataMart)").remove();
+            $("#userSettingsModal .optionSet:not(.dataMart)").remove();
         } else if (XVM.isCloud()) {
             // cloud options
-            $("#monitorGenSettingsCard .optionSet:not(.cloud)").remove();
+            $("#userSettingsModal .optionSet:not(.cloud)").remove();
         } else {
             // remove cloud only settings
-            $("#monitorGenSettingsCard .optionSet:not(.onPrem)").remove();
+            $("#userSettingsModal .optionSet:not(.onPrem)").remove();
         }
 
         if (!Admin.isAdmin()) {
             // remove admin only settings
-            $("#monitorGenSettingsCard .optionSet.admin").remove();
+            $("#userSettingsModal .optionSet.admin").remove();
         }
     }
 
@@ -401,6 +415,7 @@ namespace UserSettings {
 
         $("#userSettingsSave").click(function() {
             UserSettings.commit(true);
+            close();
         });
 
         $("#userSettingsDefault").click(function() {
@@ -408,6 +423,11 @@ namespace UserSettings {
             // var genSets = genSettings;
             UserSettings.revertDefault();
             UserSettings.commit(true);
+            close();
+        });
+
+        $("#userSettingsModal").on("click", ".close, .cancel", () => {
+            close();
         });
     }
 
