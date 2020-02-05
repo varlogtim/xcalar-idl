@@ -319,22 +319,6 @@
 //                 done("fail");
 //             });
 //         });
-
-//         it("mark prefix should work", function(done) {
-//             TableComponent.getPrefixManager().markColor(prefix, "green");
-//             TblManager.highlightColumn($table2.find("th.col1"));
-//             Log.repeat()
-//             .then(function() {
-//                 var lastLog = Log.viewLastAction(true);
-//                 expect(lastLog.title).to.equal("Mark Prefix");
-//                 expect(lastLog.options.prefix).to.equal(prefix2);
-//                 done();
-//             })
-//             .fail(function() {
-//                 done("fail");
-//             });
-//         });
-
 //         it("sort table cols should work", function(done) {
 //             TblManager.sortColumns(tableId, "name", "reverse");
 //             TblFunc.focusTable(tableId2);

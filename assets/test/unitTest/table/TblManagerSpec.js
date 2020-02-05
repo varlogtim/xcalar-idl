@@ -585,20 +585,6 @@ describe("TableManager Test", function() {
             });
         });
 
-        it("TblManager.hideTable should work", function() {
-            TblManager.hideTable(tableId);
-            var $tableWrap = $("#xcTableWrap-" + tableId);
-            expect($tableWrap.hasClass("tableHidden"))
-            .to.be.true;
-        });
-
-        it("TblManager.unHideTable should work", function() {
-            TblManager.unHideTable(tableId);
-            var $tableWrap = $("#xcTableWrap-" + tableId);
-            expect($tableWrap.hasClass("tableHidden"))
-            .to.be.false;
-        });
-
         it("TblManager.sortColumns should work", function() {
             var table = gTables[tableId];
             var colName = table.getCol(1).getFrontColName();

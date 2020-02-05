@@ -2915,6 +2915,15 @@ namespace xcHelper {
 
         return query;
     }
+
+    /**
+     * xcHelper.isShirtKey
+     * @param event
+     */
+    export function isShirtKey(event): boolean {
+        return isSystemMac && event.metaKey ||
+                !isSystemMac && event.ctrlKey;
+    }
 }
 
 if (typeof exports !== "undefined") {

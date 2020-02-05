@@ -1512,7 +1512,6 @@ SQLTStr = {
     "DelCol": "Delete Column",
     "DelWS": "Delete Worksheet",
     "HideCol": "Hide Column",
-    "HideTable": "Hide Table",
     "HideWS": "Hide Worksheet",
     "MakeTemp": "Send to Temporary List",
     "MarkPrefix": "Mark Prefix",

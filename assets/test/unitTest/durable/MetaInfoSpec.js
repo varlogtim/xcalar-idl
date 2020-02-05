@@ -42,10 +42,6 @@ describe("MetaInfo Constructor Test", function() {
         expect(metaInfos.getLogCMeta()).to.equal(-2);
     });
 
-    it("should get table prefix meta", function() {
-        expect(metaInfos.getTpfxMeta()).to.have.property("testPrefix");
-    });
-
     it("should get query meta", function() {
         var queryList = metaInfos.getQueryMeta();
         expect(queryList.length).to.equal(1);
@@ -59,7 +55,6 @@ describe("MetaInfo Constructor Test", function() {
         expect(newMetaInfo.getTableMeta()).not.to.have.property("test");
         expect(newMetaInfo.getStatsMeta()).not.to.have.property("testTable");
         expect(newMetaInfo.getLogCMeta()).not.to.equal(-2);
-        expect(newMetaInfo.getTpfxMeta()).not.to.have.property("testPrefix");
         expect(newMetaInfo.getQueryMeta().length).to.equal(0);
     });
 });

@@ -515,127 +515,6 @@ html.edge {
         }
     }
 
-    &.tableHidden {
-        .unhideTable {
-            display: block !important;
-        }
-
-        .hideTable {
-            display: none !important;
-        }
-
-        &.tableLockedDisplayed {
-            .xcTbodyWrap {
-                &::after {
-                    background-color: @color-table-after-gray;
-                    height: 5px;
-                    margin-top: -5px;
-                }
-            }
-        }
-
-        .lockedTableIcon {
-            display: none !important;
-        }
-
-        .xcTheadWrap {
-            width: 30px !important;
-
-            .tableTitle > .labelWrap {
-                width: 30px !important;
-                .textOverflow;
-                visibility: hidden;
-            }
-            .dropdownBox {
-                width: 24px;
-            }
-
-            .lockIcon {
-                background-color: transparent !important;
-                left: -1px !important;
-                display: block !important;
-            }
-        }
-
-        .xcTbodyWrap {
-            width: 30px !important;
-            pointer-events: none;
-            cursor: default;
-            overflow: hidden;
-
-            thead {
-                .header {
-                    width: 30px !important;
-                }
-
-                th {
-                    display: none;
-
-                    &:first-child {
-                        display: table-cell;
-
-                        .header {
-                            width: 30px;
-                            height: @height-xcColHeaderOuter;
-                            border-left: none;
-                        }
-
-                        input {
-                            background: @color-table-header-gray !important;
-                            left: 0px !important;
-                        }
-                    }
-                    &:not(:first-child) {
-                        display: none;
-                    }
-                }
-            }
-
-            tbody {
-                display: none;
-            }
-
-            .xcTable {
-                background-color: @color-table-lightGray;
-                &:after {
-                    background-color: transparent;
-                }
-            }
-
-            td, tr, .idWrap {
-                background-color: @color-table-lightGray !important;
-                border-color: @color-table-lightGray !important;
-            }
-
-            td:not(:first-child) {
-                display: none;
-            }
-
-            .idWrap {
-                overflow: hidden;
-                pointer-events: none;
-                cursor: default;
-
-                &::after {
-                    .size(@width: 31px, @height: 105%);
-                    .position(absolute, @top: -2px, @left: -5px);
-                    content: "";
-                    z-index: 0;
-                    background-color: @color-table-lightGray;
-                }
-
-                .idSpan {
-                    z-index: 0;
-                    visibility: hidden;
-                }
-            }
-        }
-
-        .tableScrollBar {
-            display: none !important;
-        }
-    }
-
     &.modalOpen {
 
         .dropdownBox {
@@ -760,16 +639,10 @@ html.edge {
                 opacity: 0.7;
             }
         }
-        &.tableHidden {
-            th:first-child input {
-                background: @color-background-colIcon-gray !important;
-            }
-        }
 
         .tableScrollBar {
             display: none !important;
         }
-
 
         // lockedtableicon styling in basic.less
         .tableCover {
@@ -1242,10 +1115,6 @@ html.edge {
             padding-left: 6px;
         }
 
-        .prefix, .dotWrap {
-            display: none;
-        }
-
         .sortIcon {
            display: none !important;
         }
@@ -1641,80 +1510,7 @@ html.edge {
 
                 &.immediate {
                     font-style: italic;
-
-                    ~ .dotWrap {
-                        visibility: hidden;
-                        pointer-events: none;
-                    }
                 }
-            }
-
-            .dotWrap {
-                .flex(0 1 20px);
-                .size(@height: 100%);
-                .position(relative);
-                cursor: pointer;
-                z-index: 2;
-                opacity: 0;
-
-                .dot {
-                    .size(6px, 6px);
-                    .rounded(100%);
-                    background-color: @color-font-greyish-brown;
-                    .position(absolute, @right: 4px, @bottom: 5px);
-                }
-            }
-
-            &[data-color="indigo"] {
-                background-color: @color-prefix-indigo;
-            }
-
-            &[data-color="orange"] {
-                background-color: @color-prefix-orange;
-                .prefix {
-                    color: @color-white;
-                    opacity: 1;
-                }
-            }
-
-            &[data-color="yellow"] {
-                background-color: @color-prefix-yellow;
-            }
-
-            &[data-color="green"] {
-                background-color: @color-prefix-green;
-                .prefix {
-                    color: @color-white;
-                    opacity: 1;
-                }
-            }
-
-            &[data-color="blue"] {
-                background-color: @color-prefix-blue;
-                .prefix {
-                    color: @color-white;
-                    opacity: 1;
-                }
-            }
-
-            &[data-color="violet"] {
-                background-color: @color-prefix-violet;
-                .prefix {
-                    color: @color-white;
-                    opacity: 1;
-                }
-            }
-
-            &[data-color="pink"] {
-                background-color: @color-prefix-pink;
-                .prefix {
-                    color: @color-white;
-                    opacity: 1;
-                }
-            }
-
-            &[data-color="white"] {
-                background-color: @color-white;
             }
         }
 
@@ -1742,10 +1538,6 @@ html.edge {
 
         &:hover {
             .flexWrap.flex-right > .dropdownBox {
-                opacity: @opacity-hover;
-            }
-
-            .topHeader .dotWrap {
                 opacity: @opacity-hover;
             }
         }

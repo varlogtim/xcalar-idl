@@ -81,23 +81,6 @@ class TableMenu extends AbstractMenu {
     private _addMainMenuActions(): void {
         const $tableMenu: JQuery = this._getMenu();
 
-        $tableMenu.on('mouseup', '.hideTable', (event) => {
-            if (this._isInvalidTrigger(event)) {
-                return;
-            }
-
-            const tableId: TableId = $tableMenu.data('tableId');
-            TblManager.hideTable(tableId);
-        });
-
-        $tableMenu.on('mouseup', '.unhideTable', (event) => {
-            if (this._isInvalidTrigger(event)) {
-                return;
-            }
-            const tableId: TableId = $tableMenu.data('tableId');
-            TblManager.unHideTable(tableId);
-        });
-
         $tableMenu.on('mouseup', '.deleteTable', (event) => {
             if (this._isInvalidTrigger(event)) {
                 return;

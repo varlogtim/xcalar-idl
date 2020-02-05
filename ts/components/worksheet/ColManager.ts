@@ -541,7 +541,6 @@ namespace ColManager {
 
                 table.tableCols[colNum - 1] = progCol;
                 pullColHelper(colNum, tableId);
-                TableComponent.getPrefixManager().updateColor(tableId, colNum);
 
                 if (!args || !args.noLog) {
                     let sqlOptions = {

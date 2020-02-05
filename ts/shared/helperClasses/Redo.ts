@@ -237,25 +237,6 @@ namespace Redo {
 
     /* END USER STYLING/FORMATING OPERATIONS */
 
-    /* Table Operations */
-    redoFuncs[SQLOps.HideTable] = function(options): XDPromise<void> {
-        focusTableHelper(options);
-        TblManager.hideTable(options.tableId);
-        return PromiseHelper.resolve(null);
-    };
-
-    redoFuncs[SQLOps.UnhideTable] = function(options): XDPromise<void> {
-        focusTableHelper(options);
-        TblManager.unHideTable(options.tableId);
-        return PromiseHelper.resolve(null);
-    };
-
-    redoFuncs[SQLOps.MarkPrefix] = function(options): XDPromise<void> {
-        TableComponent.getPrefixManager().markColor(options.prefix, options.newColor);
-        return PromiseHelper.resolve(null);
-    };
-    /* End of Table Operations */
-
     function focusTableHelper(options): void {
         if (options.tableId !== gActiveTableId) {
             TblFunc.focusTable(options.tableId);

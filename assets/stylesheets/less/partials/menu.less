@@ -125,21 +125,8 @@
     overflow: hidden;
 
     .copyTableName, .deleteTable,
-    .divider, .exitOp, .hideTable {
+    .divider, .exitOp {
         display: none;
-    }
-
-    .unhideTable {
-        display: none;
-    }
-
-    &.tableHidden {
-        .hideTable {
-            display: none;
-        }
-        .unhideTable {
-            display: block;
-        }
     }
 }
 
@@ -150,110 +137,6 @@
         left: 0px;
         margin-top: 0px;
         position: static;
-    }
-}
-
-#prefixColorMenu {
-    .position(absolute, @top: 200px, @left: 500px);
-    .size(@width: 113px, @height: 20px);
-    background-color: @color-white;
-    overflow: visible;
-
-    &:before {
-        // a faux dot
-        content: "";
-        .size(6px, 6px);
-        .rounded(100%);
-        background-color: @color-font-greyish-brown;
-        .position(absolute, @top: -11px, @left: -1px);
-    }
-
-    .wrap {
-        .size(10px, 10px);
-        .rounded(100%);
-        .position(relative);
-        border: 0px solid transparent;
-        float: left;
-        margin: 5px 2px;
-
-        &:hover, &.selected {
-            border-width: 1px;
-        }
-
-        &.white {
-            background-color: @color-bg-white-three;
-        }
-
-        .dot {
-            .size(6px, 6px);
-            .rounded(100%);
-            .center-align;
-        }
-
-        &.indigo {
-            border-color: @color-prefix-indigo;
-
-            .dot {
-                background-color: @color-prefix-indigo;
-            }
-        }
-
-        &.orange {
-            border-color: @color-prefix-orange;
-
-            .dot {
-                background-color: @color-prefix-orange;
-            }
-        }
-
-        &.yellow {
-            border-color: @color-prefix-yellow;
-
-            .dot {
-                background-color: @color-prefix-yellow;
-            }
-        }
-
-        &.green {
-            border-color: @color-prefix-green;
-
-            .dot {
-                background-color: @color-prefix-green;
-            }
-        }
-
-        &.blue {
-            border-color: @color-prefix-blue;
-
-            .dot {
-                background-color: @color-prefix-blue;
-            }
-        }
-
-        &.violet {
-            border-color: @color-prefix-violet;
-
-            .dot {
-                background-color: @color-prefix-violet;
-            }
-        }
-
-        &.pink {
-            border-color: @color-prefix-pink;
-
-            .dot {
-                background-color: @color-prefix-pink;
-            }
-        }
-
-        &.white {
-            border-color: @color-font-greyish-brown;
-            .size(9px, 9px);
-
-            .dot {
-                background-color: @color-white;
-            }
-        }
     }
 }
 
@@ -282,12 +165,6 @@
             opacity: 0.4;
             cursor: default;
             pointer-events: none;
-
-            &.hideTable, &.unhideTable {
-                opacity: 1;
-                cursor: pointer;
-                pointer-events: auto;
-            }
         }
     }
 
@@ -725,7 +602,7 @@
 
 // colmenu dropdown option when in FASJ mode
 #container.columnPicker {
-    .topHeader .dotWrap, .topHeader .xi-sort {
+    .topHeader .xi-sort {
         visibility: hidden;
         pointer-events: none;
     }
@@ -736,14 +613,6 @@
     #colMenu, #tableMenu {
         li, .divider {
             display: none !important;
-        }
-    }
-
-    #tableMenu {
-        &.tableHidden {
-            .unhideTable {
-                display: block !important;
-            }
         }
     }
 

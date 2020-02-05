@@ -275,26 +275,6 @@ namespace Undo {
     };
     /* END USER STYLING/FORMATING OPERATIONS */
 
-
-    /* Table Operations */
-    undoFuncs[SQLOps.HideTable] = function(options): XDPromise<void>  {
-        focusTableHelper(options);
-        TblManager.unHideTable(options.tableId);
-        return PromiseHelper.resolve(null);
-    };
-
-    undoFuncs[SQLOps.UnhideTable] = function(options): XDPromise<void>  {
-        focusTableHelper(options);
-        TblManager.hideTable(options.tableId);
-        return PromiseHelper.resolve(null);
-    };
-
-    undoFuncs[SQLOps.MarkPrefix] = function(options): XDPromise<void>  {
-        TableComponent.getPrefixManager().markColor(options.prefix, options.oldColor);
-        return PromiseHelper.resolve(null);
-    };
-    /* End of Table Operations */
-
     // for undoing deleted table columns
     function undoDeleteColHelper(options: {progCols: ProgCol[], tableId: TableId, colNums: number[], columnDeltas: any}): void {
         focusTableHelper(options);

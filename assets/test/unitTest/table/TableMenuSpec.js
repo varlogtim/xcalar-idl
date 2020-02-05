@@ -51,40 +51,6 @@ describe('TableMenu Test', function() {
         });
 
         describe('main menu', function() {
-            it('hideTable', function() {
-                var cachedFunc = TblManager.hideTable;
-                var called = false;
-                TblManager.hideTable = function(tId) {
-                    expect(tId).to.equal(tableId);
-                    called = true;
-                };
-
-                $tableMenu.find('.hideTable').trigger(rightMouseup);
-                expect(called).to.be.false;
-
-                $tableMenu.find('.hideTable').trigger(fakeEvent.mouseup);
-                expect(called).to.be.true;
-
-                TblManager.hideTable = cachedFunc;
-            });
-
-            it('unhideTable', function() {
-                var cachedFunc = TblManager.unHideTable;
-                var called = false;
-                TblManager.unHideTable = function(tId) {
-                    expect(tId).to.equal(tableId);
-                    called = true;
-                };
-
-                $tableMenu.find('.unhideTable').trigger(rightMouseup);
-                expect(called).to.be.false;
-
-                $tableMenu.find('.unhideTable').trigger(fakeEvent.mouseup);
-                expect(called).to.be.true;
-
-                TblManager.unHideTable = cachedFunc;
-            });
-
             it('exportTable', function() {
                 var cachedFunc = TableMenu.prototype._createNodeAndShowForm;
                 var called = false;
@@ -1242,32 +1208,6 @@ describe('TableMenu Test', function() {
     //         expect($colMenu.find(".join .underline").length).to.equal(0);
     //     });
     // });
-
-    describe('prefix menu actions', function() {
-        before(function() {
-            $table.find('th.col12 .dotWrap').click();
-        });
-
-        it('prefix menu should work', function() {
-            var $prefixColorMenu = $("#prefixColorMenu");
-            var prefixManager = TableComponent.getPrefixManager();
-            var cachedFunc = prefixManager.markColor;
-            var called = false;
-            prefixManager.markColor = function(pfix, color) {
-                expect(pfix).to.equal(prefix);
-                expect(color).to.equal("indigo");
-                called = true;
-            };
-
-            $prefixColorMenu.find('.wrap').eq(0).trigger(rightMouseup);
-            expect(called).to.be.false;
-
-            $prefixColorMenu.find('.wrap').eq(0).trigger(fakeEvent.mouseup);
-            expect(called).to.be.true;
-
-            prefixManager.markColor = cachedFunc;
-        });
-    });
 
     after(function() {
         $tableWrap.remove();

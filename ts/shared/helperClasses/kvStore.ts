@@ -196,7 +196,6 @@ class KVStore {
 
         try {
             metaInfo = new MetaInfo(gInfosMeta);
-            TableComponent.getPrefixManager().restore(metaInfo.getTpfxMeta());
             TblManager.restoreTableMeta(metaInfo.getTableMeta());
             Profile.restore(metaInfo.getStatsMeta());
         } catch (error) {

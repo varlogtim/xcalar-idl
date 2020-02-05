@@ -1220,8 +1220,6 @@ namespace Log {
             case (SQLOps.ResizeTableCols):
             case (SQLOps.DragResizeTableCol):
             case (SQLOps.DragResizeRow):
-            case (SQLOps.HideTable):
-            case (SQLOps.UnhideTable):
             case (SQLOps.ChangeFormat):
             case (SQLOps.MarkPrefix):
             case (SQLOps.ConnectOperations):

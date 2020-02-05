@@ -184,8 +184,9 @@ class MenuHelper {
         }
 
         let tableId: TableId;
-        if (menuId === "tableMenu" || menuId === "colMenu" ||
-            menuId === "cellMenu" || menuId === "prefixColorMenu"
+        if (menuId === "tableMenu" ||
+            menuId === "colMenu" ||
+            menuId === "cellMenu"
         ) {
             if (menuId === "tableMenu" && options.tableId) {
                 tableId = options.tableId;
@@ -226,14 +227,6 @@ class MenuHelper {
         }
         if (menuId === "tableMenu") {
             $menu.data("tableId", tableId);
-        }
-
-        if (menuId === "prefixColorMenu") {
-            $menu.data("tableId", tableId)
-                .data("prefix", options.prefix || "");
-            $menu.find(".wrap").removeClass("selected");
-            const color: string = options.color || "white";
-            $menu.find("." + color).addClass("selected");
         }
 
         if (options.rowNum != null && options.rowNum > -1) {
@@ -982,12 +975,7 @@ class MenuHelper {
     }
 
     private static updateTableDropdown($menu: JQuery, options: DropdownOptions): void {
-        if (options.classes && options.classes.indexOf('locked') !== -1) {
-            $menu.find('li:not(.hideTable, .unhideTable)')
-                  .addClass('unavailable');
-        } else {
-            $menu.find('li').removeClass('unavailable');
-        }
+        $menu.find('li').removeClass('unavailable');
     }
 
     private static updateColDropdown(

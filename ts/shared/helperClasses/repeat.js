@@ -1,7 +1,6 @@
 window.Repeat = (function($, Repeat) {
     var repeatFuncs = {};
-    var tableOperations = [SQLOps.HideTable, SQLOps.UnhideTable,
-                           SQLOps.DeleteTable, SQLOps.SortTableCols,
+    var tableOperations = [SQLOps.DeleteTable, SQLOps.SortTableCols,
                            SQLOps.ResizeTableCols];
 
     Repeat.run = function(xcLog) {
@@ -93,27 +92,6 @@ window.Repeat = (function($, Repeat) {
     /* END USER STYLING/FORMATING OPERATIONS */
 
     /* Table Operations */
-    repeatFuncs[SQLOps.HideTable] = function(options, colNums, tableId) {
-        TblManager.hideTable(tableId);
-        return PromiseHelper.resolve(null);
-    };
-
-    repeatFuncs[SQLOps.UnhideTable] = function(options, colNums, tableId) {
-        TblManager.unHideTable(tableId);
-        return PromiseHelper.resolve(null);
-    };
-
-    repeatFuncs[SQLOps.MarkPrefix] = function(options, colNums, tableId) {
-        if (colNums.length === 1) {
-            var progCol = gTables[tableId].getCol(colNums[0]);
-            var prefix = progCol.getPrefix();
-            if (prefix) {
-                TableComponent.getPrefixManager().markColor(prefix, options.newColor);
-            }
-        }
-        return PromiseHelper.resolve(null);
-    };
-
     repeatFuncs[SQLOps.DeleteTable] = function (options, colNums, tableId) {
         var deferred = PromiseHelper.deferred();
         var table = gTables[tableId];

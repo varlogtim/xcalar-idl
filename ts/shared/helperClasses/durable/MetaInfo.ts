@@ -32,10 +32,6 @@ class MetaInfo extends Durable {
         return this.sqlcursor;
     }
 
-    public getTpfxMeta() {
-        return this.tablePrefix;
-    }
-
     public getQueryMeta() {
         return this.query;
     }
@@ -50,8 +46,7 @@ class MetaInfo extends Durable {
             "version": this.version,
             "TILookup": this._saveTables(),
             "statsCols": Profile.getCache(),
-            "sqlcursor": Log.getCursor(),
-            "tablePrefix": TableComponent.getPrefixManager().getCache()
+            "sqlcursor": Log.getCursor()
         }
     }
 

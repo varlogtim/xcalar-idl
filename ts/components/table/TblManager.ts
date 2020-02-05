@@ -1184,14 +1184,11 @@ class TblManager {
         colName = colName.replace(/"/g, "&quot;");
 
         let prefix: string = progCol.getPrefix();
-        let prefixColor: string = "";
         let prefixClass: string = "prefix";
 
         if (prefix === "") {
             prefix = table.allImmediates ? "" : CommonTxtTstr.Immediates;
             prefixClass += " immediate";
-        } else {
-            prefixColor = TableComponent.getPrefixManager().getColor(prefix);
         }
 
         const th: string =
@@ -1206,13 +1203,10 @@ class TblManager {
                         '</div>' +
                     '</div>' +
                     '<div class="colGrab"></div>' +
-                    '<div class="topHeader" data-color="' + prefixColor + '">' +
+                    '<div class="topHeader">' +
                         sortIcon +
                         '<div class="' + prefixClass + '">' +
                             prefix +
-                        '</div>' +
-                        '<div class="dotWrap">' +
-                            '<div class="dot"></div>' +
                         '</div>' +
                     '</div>' +
                     '<div class="flexContainer flexRow">' +
@@ -1247,69 +1241,6 @@ class TblManager {
             '</th>';
 
         return th;
-    }
-
-    /**
-     * TblManager.hideTable
-     * @param tableId
-     */
-    public static hideTable(tableId: TableId): void {
-        const table: TableMeta = gTables[tableId];
-        if (table == null) {
-            console.error("no table meta");
-            return;
-        }
-        const tableName: string = table.tableName;
-        const $table: JQuery = $('#xcTable-' + tableId);
-        const tableHeight: number = $table.height();
-        const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
-        if ($tableWrap.hasClass("tableHidden")) {
-            return;
-        }
-        $tableWrap.addClass('tableHidden');
-        const $dropdown: JQuery = $tableWrap.find('.tableTitle .dropdownBox');
-        xcTooltip.changeText($dropdown, tableName);
-
-        const bottomBorderHeight: number = 5;
-        $table.height(tableHeight + bottomBorderHeight);
-        TblFunc.matchHeaderSizes($table);
-        TblFunc.moveFirstColumn(null);
-
-        Log.add(SQLTStr.MinimizeTable, {
-            "operation": SQLOps.HideTable,
-            "tableName": tableName,
-            "tableId": tableId
-        });
-    }
-
-    /**
-     * TblManager.unHideTable
-     * @param tableId
-     */
-    public static unHideTable(tableId: TableId): void {
-        const table: TableMeta = gTables[tableId];
-        if (table == null) {
-            console.error("no table meta");
-            return;
-        }
-        const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
-        if (!$tableWrap.hasClass("tableHidden")) {
-            return;
-        }
-        $tableWrap.removeClass('tableHidden');
-        const $dropdown: JQuery = $tableWrap.find('.tableTitle .dropdownBox');
-        xcTooltip.changeText($dropdown, TooltipTStr.ViewTableOptions);
-
-        const $table: JQuery = $('#xcTable-' + tableId);
-        $table.height('auto');
-        TblFunc.matchHeaderSizes($table);
-        TblFunc.moveFirstColumn(null);
-
-        Log.add(SQLTStr.MaximizeTable, {
-            "operation": SQLOps.UnhideTable,
-            "tableName": table.getName(),
-            "tableId": tableId
-        });
     }
 
     /**
@@ -1985,26 +1916,6 @@ class TblManager {
         const $thead: JQuery = $table.find('thead tr');
         const $tbody: JQuery = $table.find("tbody");
         let lastSelectedCell: JQuery;
-        const dotWrapClick = ($dotWrap: JQuery): void => {
-            try {
-                const $dot: JQuery = $dotWrap.find(".dot");
-                const $topHeader: JQuery = $dotWrap.closest(".topHeader");
-                const x: number = $dot[0].getBoundingClientRect().left;
-                const y: number = $topHeader[0].getBoundingClientRect().bottom;
-                const $menu: JQuery = $("#prefixColorMenu");
-                const prefix: string = $topHeader.find(".prefix").text();
-                const color: string = $topHeader.data("color");
-
-                MenuHelper.dropdownOpen($dotWrap, $menu, {
-                    "mouseCoors": {"x": x + 1, "y": y},
-                    "floating": true,
-                    "prefix": prefix,
-                    "color": color
-                });
-            } catch (e) {
-                console.error(e);
-            }
-        };
 
         gTables[tableId].highlightedCells = {};
 
@@ -2027,8 +1938,7 @@ class TblManager {
 
             const colNum: number = ColManager.parseColNum($editableHead);
             const $target: JQuery = $(event.target);
-            const notDropDown: boolean = $target.closest('.dropdownBox').length === 0 &&
-                                $target.closest(".dotWrap").length === 0;
+            const notDropDown: boolean = $target.closest('.dropdownBox').length === 0;
             if ($table.find('.selectedCell').length === 0) {
                 $('.selectedCell').removeClass('selectedCell');
                 lastSelectedCell = $editableHead;
@@ -2093,16 +2003,11 @@ class TblManager {
             const $evTarget: JQuery = $(event.target);
             const $header: JQuery = $evTarget.closest('.header');
             if ($header.length) {
-                const $dotWrap: JQuery = $evTarget.closest('.dotWrap');
-                if ($dotWrap.length) {
-                    dotWrapClick($dotWrap);
-                } else {
-                    const $target: JQuery = $header.find('.dropdownBox');
-                    const click: any = $.Event("click");
-                    click.rightClick = true;
-                    click.pageX = event.pageX;
-                    $target.trigger(click);
-                }
+                const $target: JQuery = $header.find('.dropdownBox');
+                const click: any = $.Event("click");
+                click.rightClick = true;
+                click.pageX = event.pageX;
+                $target.trigger(click);
                 event.preventDefault();
             }
         });
@@ -2149,16 +2054,6 @@ class TblManager {
             $thead.find('.editableHead').each((_index, el) => {
                 TblManager.highlightColumn($(el), true, false);
             });
-        });
-
-        $thead.on("mousedown", ".topHeader .dotWrap", (event) => {
-            const $th: JQuery = $(event.currentTarget).closest('th');
-            TblManager.highlightColumn($th, false, false);
-            lastSelectedCell = $th;
-        });
-
-        $thead.on("click", ".topHeader .dotWrap", (event) => {
-            dotWrapClick($(event.currentTarget));
         });
 
         $thead.on("click", ".dropdownBox", (event: any) => {
