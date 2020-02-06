@@ -394,7 +394,7 @@ class DagCategoryBar {
                 smallSquare: {
                     class: ['connectorInVisible'],
                     attrs: {
-                        'x': '0', 'y': '11', 'fill': 'none', 'stroke': 'none',
+                        'x': '0', 'y': '10', 'fill': 'none', 'stroke': 'none',
                         'width': '7', 'height': '7'
                     }
                 }
@@ -412,7 +412,7 @@ class DagCategoryBar {
                 smallSquare: {
                     class: ['connectorInVisible'],
                     attrs: {
-                        'x': '0', 'y': '5', 'fill': '#BBC7D1', 'stroke': '#849CB0',
+                        'x': '0', 'y': '4', 'fill': '#BBC7D1', 'stroke': '#849CB0',
                         'stroke-width': '1', 'rx': '1', 'ry': '1',
                         'width': '7', 'height': '18',
                         'data-index': '0',
@@ -550,12 +550,7 @@ class DagCategoryBar {
                 'fill="white" stroke="#849CB0" stroke-width="1" ' +
                 'ry="' + DagView.nodeHeight + '" rx="11" ' +
                 xcTooltip.Attrs + ' data-original-title="' + description + '" />'+
-            '<rect class="iconArea" clip-path="url(#cut-off-right)" ' +
-                'x="0" y="0" width="25" height="' + DagView.nodeHeight + '" stroke="#849CB0" ' +
-                'stroke-width="1" fill="' + color + '" />'+
-            '<text class="icon" x="10" y="19" font-family="icomoon" ' +
-                'font-size="13" fill="white">' + icon + '</text>' +
-            '<svg width="' + (DagView.nodeWidth - 43) + '" height="' + DagView.nodeHeight + '" x="28" y="1">' +
+            '<svg width="' + (DagView.nodeWidth - 2) + '" height="' + DagView.nodeHeight + '" x="1" y="1">' +
                 opTitleHtml + '</svg>' +
             '<circle class="statusIcon" cx="' + (DagView.nodeWidth - 15) + '" cy="' + (DagView.nodeHeight - 1) + '" r="5" ' +
                 'stroke="#849CB0" stroke-width="1" fill="white" />' +
@@ -685,10 +680,10 @@ class DagCategoryBar {
         }
         const rect = d3.select($operator[0]).insert('rect', ':first-child');
         rect.classed('selection', true);
-        rect.attr('x', '-4').attr('y', '-8')
-            .attr('width', DagView.nodeWidth + 8).attr('height', '43')
+        rect.attr('x', '-4').attr('y', '-4')
+            .attr('width', DagView.nodeWidth + 8).attr('height', DagView.nodeHeight + 8)
             .attr('fill', '#EAF9FF').attr('stroke', '#38CBFF').attr('stroke-width', '1')
-            .attr('rx', '16').attr('ry', '43');
+            .attr('rx', '16').attr('ry', DagView.nodeHeight+ 8);
     }
 
     private _clearSelectedStyle($operator: JQuery): void {

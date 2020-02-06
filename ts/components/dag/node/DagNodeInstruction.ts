@@ -47,7 +47,7 @@ class DagNodeInstruction extends DagNode {
      * @returns {string}
      */
     public getDisplayNodeType(): string {
-        return "Add Node";
+        return "+";
     }
 
 

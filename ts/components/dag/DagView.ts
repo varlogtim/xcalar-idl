@@ -7,7 +7,7 @@ class DagView {
     public static readonly horzPadding = 200; // padding around edges of dataflow
     public static readonly vertPadding = 100;
     public static readonly nodeHeight = 26;
-    public static readonly nodeWidth = 88;
+    public static readonly nodeWidth = 80;
     public static readonly nodeAndTableWidth = DagView.nodeWidth + 58;
     public static readonly gridSpacing = 20;
     public static zoomLevels = [.25, .5, .75, 1, 1.5, 2];
@@ -4199,18 +4199,41 @@ class DagView {
     }
 
     private _updateNodeUDFErrorIcon($node: JQuery, node: DagNodeMap) {
+        if ($node.find("iconArea").length) {
+            $node.find("iconArea").remove();
+        }
         $node.addClass("hasUdfError");
-        $node.find(".iconArea").attr("fill", DagView.udfErrorColor);
-        $node.find(".icon").text("\uea70");
+        const g = d3.select($node.get(0));
+
+        g.append("rect")
+            .attr("class", "iconArea")
+            .attr("clip-path", "url(#cut-off-right)")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", 25)
+            .attr("height", DagView.nodeHeight)
+            .attr("stroke", "#849CB0")
+            .attr("stroke-width", 1)
+            .attr("fill", DagView.udfErrorColor);
+
+        g.append("text")
+            .attr("class", "icon")
+            .attr("x", 10)
+            .attr("y", 19)
+            .attr("font-family", "icomoon")
+            .attr("font-size", 13)
+            .attr("fill", "white")
+            .attr("font-family", "icomoon")
+            .text("\uea70");
+
         let numFailed = xcStringHelper.numToStr(node.getUDFError().numRowsFailedTotal);
         xcTooltip.add($node.find(".iconArea"), {title: numFailed + " rows failed. Click to view details."});
     }
 
     private _removeNodeUDFErrorIcon($node: JQuery): void {
         $node.removeClass("hasUdfError");
-        $node.find(".iconArea").attr("fill", DagView.mapNodeColor);
-        $node.find(".icon").text("\ue9da");
-        xcTooltip.remove($node.find(".iconArea"));
+        $node.find(".iconArea").remove();
+        $node.find(".icon").remove();
     }
 
     private _updateConnectorIn($node: JQuery, numInputs: number) {

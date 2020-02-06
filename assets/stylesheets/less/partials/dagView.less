@@ -4,7 +4,7 @@
     @color-border-operator: @color-bg-cardHeader;
     @color-connector: @color-border-softGray2;
     @operator-height: 26px;
-    @operator-width: 75px;
+    @operator-width: 67px;
 
     position: relative;
 
@@ -393,7 +393,7 @@
     @color-border-operator: @color-bg-cardHeader;
     @color-connector: @color-border-softGray2;
     @operator-height: 26px;
-    @operator-width: 75px;
+    @operator-width: 67px;
 
     &.showProgressTips {
         .dagTableTip.runStats, .dagTableTip.nodeStats {
@@ -452,7 +452,6 @@
         height: @operator-height;
         position: relative;
 
-        @iconArea-width: 20px;
         @border-width: 2px;
 
         .main {
@@ -481,6 +480,9 @@
         }
 
         &.hasUdfError {
+            .opTitle {
+                transform: translate(4px, 0px);
+            }
             .iconArea {
                 pointer-events: initial;
                 cursor: pointer;
@@ -495,7 +497,7 @@
                 .main {
                     stroke-width: 2;
                 }
-                .icon {
+                .icon, .opTitle {
                     fill: @color-border-focus-blue;
                 }
             }
@@ -512,17 +514,13 @@
             .nodeTitle {
                 display: block !important;
             }
-            .iconArea {
-                // fill: @color-bg-select-blue;
-                fill: transparent !important;
-                stroke-width: 0px !important;
+            .opTitle {
+                fill: @color-border-operator;
+                font-size: 30px;
+                font-weight: 700;
             }
-            .icon {
-                transform: translate(@operator-width / 2 - 11, 1px);
-                fill: @color-bg-cardHeader;
-                font-size: 16px;
-            }
-            .statusIcon, .selection, .opTitle {
+
+            .statusIcon, .selection {
                 display: none;
             }
         }
@@ -813,7 +811,7 @@
         }
 
         .dragSvg > .connOut > .connector.out, .dragSvg > .connOut > .connectorOutVisible {
-            transform: translate(-137px, 0px);
+            transform: translate(-129px, 0px);
         }
 
         .operator {
