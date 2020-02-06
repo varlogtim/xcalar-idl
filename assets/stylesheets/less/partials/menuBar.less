@@ -292,11 +292,9 @@
     .position(absolute, @left: 0px);
     .size(@width-topMenu,  @min-width: @width-topMenu, @height: ~"calc(100% - @{height-topBar})");
     padding: 0px;
-    color: @color-font-xcDark;
     box-shadow: 0px 0px 0px 1px @color-border-grayBlue; // border-right
     margin-left: @width-homeBtn;
     z-index: @z-index-topMenu;
-    background-color: @color-white;
 
     &.active {
         display: block;
@@ -332,7 +330,6 @@
     @topSectionHeight: 36px;
 
     .menuSection {
-        background-color: @color-white;
         padding-bottom: 5px;
         height: 100%;
 
@@ -371,7 +368,6 @@
 
         > .mainSection {
             height: ~"calc(100% - @{topSectionHeight})";
-            color: @color-font-xcDark;
             overflow: auto;
             border-top: none;
         }
@@ -552,7 +548,6 @@
         .size(@width: 100%, @height: 100%);
         display: none;
         overflow: hidden;
-        background-color: @color-white;
 
         &.active {
             display: block;
@@ -565,11 +560,10 @@
         overflow: hidden;
         pointer-events: none;
         cursor: default;
-        background-color: @color-white;
         padding-left: @width-menuPadding;
 
         h2 {
-            .font(@line-height: 36px,  @size: 18px, @weight: 600, @color: @color-font-xcDark);
+            .font(@line-height: 36px,  @size: 18px, @weight: 600);
             display: inline-block;
             .textOverflowOneLine;
         }
@@ -585,7 +579,6 @@
 
 /* ========== UDF Section ========== */
 #udfSection {
-    color: @color-font-xcDark;
     overflow: visible !important;
 
     .mainSectionContainer {
@@ -622,7 +615,6 @@ ul.CodeMirror-hints {
     }
 
     input {
-        color: @color-font-xcDark;
         .textOverflowOneLine;
     }
 
@@ -675,7 +667,6 @@ ul.CodeMirror-hints {
         .text {
             font-size: 12px;
             width: ~"calc(100% - 28px)";
-            background-color: @color-white;
             border: 1px solid @color-border-softGray;
             cursor: text;
 
@@ -692,9 +683,7 @@ ul.CodeMirror-hints {
 
             li {
                 box-shadow: inset 0 -1px 0 0 @color-border-menugray;
-                color: @color-font-xcDark;
                 font-size: 12px;
-                background-color: @color-white;
 
                 &.workbookUDF {
                     background-color: @color-bg-select-blue;

@@ -49,8 +49,6 @@
 
 .opPanel {
     height: 100%;
-    background-color: @color-white;
-    color: @color-font-xcDark;
     font-weight: 400;
 
     @title-height: 40px;
@@ -60,10 +58,6 @@
     @standardFontSize: 12px;
     @commonMargin: 10px; // margin left used on text and input padding
     @functionsListZindex: 10;
-
-    section {
-        color: @color-font-xcDark;
-    }
 
     .input-box(100%, @listHeight);
 
@@ -168,8 +162,6 @@
 
     input {
         font-size: @standardFontSize;
-        background-color: @color-white;
-        color: @color-font-xcDark;
         border: 1px solid @color-border-softGray;
     }
 
@@ -241,7 +233,6 @@
             padding-right: 26px;
             padding-left: @commonMargin;
             .input-placeholder(@color-text-placeholder);
-            background-color: @color-white;
             font-size: @standardFontSize;
             border: 1px solid @color-border-white-five;
         }
@@ -325,7 +316,6 @@
         ul {
             float: left;
             width: 50%;
-            background-color: @color-white;
             &:first-child {
                 border-right: 1px solid @color-border-white-five;
             }
@@ -374,7 +364,6 @@
                 float: left;
                 border-right: 1px solid @color-border-white-five;
                 border-top: 1px solid @color-border-white-five;
-                background-color: @color-white;
                 padding-right: 22px;
                 position: relative;
                 .flex(1 1 100px);
@@ -564,7 +553,6 @@
             li {
                 height: @listHeight;
                 line-height: @listHeight;
-                background-color: @color-white;
                 border-bottom: 1px solid @color-border-white-five;
                 cursor: pointer;
                 padding-left: @commonMargin;
@@ -1285,10 +1273,6 @@
                         .position(relative);
                     }
 
-                    .text {
-                        background-color: @color-white;
-                    }
-
                     .inputCol {
                         .position(relative);
 
@@ -1486,7 +1470,6 @@
                     &::after {
                         content: "New Name";
                         padding-left: 10px;
-                        color: @color-font-xcDark;
                         font-weight: 600;
                     }
                 }
@@ -1923,7 +1906,6 @@
             padding-left: @commonMargin;
             .input-placeholder(@color-text-placeholder);
             text-transform: capitalize;
-            background-color: @color-white;
             font-size: @standardFontSize;
             border: 1px solid @color-border-white-five;
         }
@@ -2290,7 +2272,6 @@
             .sortSection {
                 padding-left: 10px;
                 text-align: left;
-                background-color: @color-white;
 
                 .divider {
                     height: 20px;
@@ -2314,7 +2295,6 @@
                 }
 
                 ul {
-                    color: @color-font-xcDark;
 
                     li {
                         border-top: 1px solid @color-bg-topBarGray2;
@@ -2529,7 +2509,6 @@
             &:after {
                 content: "New Name";
                 top: -35px;
-                color: @color-font-xcDark;
                 position: relative;
                 padding-left: 0px;
                 font-weight: 600;
@@ -2628,7 +2607,6 @@
                 top: 1px;
                 margin-left: 2px;
                 border-radius: 100%;
-                background-color: @color-white;
             }
         }
         .prefixGroup {
@@ -2828,7 +2806,6 @@
             .size(14px, 14px);
             .center-align;
             border-radius: 100%;
-            background-color: @color-white;
             top: @listHeight/2;
         }
 
@@ -2889,7 +2866,7 @@
 
             .tooltip-inner {
                 border: 1px solid @color-error-border-light;
-                background-color: white;
+                background-color: @color-white;
                 max-width: 100%;
                 color:@color-font-xcDark;
                 box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.2);
@@ -3061,7 +3038,7 @@
 
     .tooltip-inner {
         border: 1px solid @color-error-border-light;
-        background-color: white;
+        background-color: @color-white;
         max-width: 100%;
         color: @color-font-xcDark;
         box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.2);
@@ -3151,7 +3128,6 @@
         &:after {
             content: "New Name";
             top: -35px;
-            color: @color-font-xcDark;
             position: relative;
             padding-left: 0px;
         }
@@ -3642,7 +3618,6 @@
                     ul {
                         position: fixed;
                         width: @source-w;
-                        background-color: @color-white;
                     }
                     li {
                         margin-top: 0px;
@@ -3818,7 +3793,6 @@
             .size(14px, 14px);
             .center-align;
             border-radius: 100%;
-            background-color: @color-white;
             top: @listHeight/2;
         }
 

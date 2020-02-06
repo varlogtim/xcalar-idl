@@ -723,7 +723,7 @@
 
             .sampleText {
                 .position(absolute, @top: 20px, @left: -40px);
-                .font(@size: 44px, @color: black, @weight: 600);
+                .font(@size: 44px, @color: @color-black, @weight: 600);
                 .transform(rotate(35deg));
                 opacity: 0.15;
                 z-index: 5;
@@ -2071,7 +2071,7 @@
             }
             .paramName {
                 border: 0px;
-                background-color: white;
+                background-color: @color-white;
                 color: @color-font-select-blue;
             }
         }
@@ -2152,7 +2152,7 @@
         }
         .readonly {
             border: 0px;
-            background-color: white;
+            background-color: @color-white;
             color: @color-font-select-blue;
             &.newVal {
                 cursor: not-allowed;

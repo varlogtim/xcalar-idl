@@ -29,7 +29,6 @@
         .size(@height: @tableHeaderHeight);
         .font(@weight: 600);
         border-top: @border-style;
-        background-color: @color-white;
 
         // Scroll bar hack
         .col-skew {
@@ -189,7 +188,7 @@
     .cardHeader {
         display: flex;
         .refresh-queryHist, .selCancelQueryHist {
-            color: white;
+            color: @color-white;
             cursor: pointer;
             align-self: center;
             margin-left: auto;
@@ -466,7 +465,6 @@
                                 line-height: 24px;
                                 font-size: 14px;
                                 font-weight: 600;
-                                color: @color-font-xcDark;
 
                                 .name {
                                     font-weight: normal;
@@ -547,7 +545,6 @@
         margin-bottom: 0px;
 
         .cardHeader {
-            background-color: @color-white;
             display: block;
             padding-left: 15px;
             padding-right: 15px;
@@ -555,7 +552,6 @@
             label {
                 font-size: 14px;
                 font-weight: 600;
-                color: @color-font-xcDark;
             }
 
             .action {
@@ -625,7 +621,6 @@
         padding: 8px 32px 4px 16px;
 
         .title {
-            color: @color-font-xcDark;
             font-size: 16px;
             font-weight: 600;
             color: @color-font-darkGray;
@@ -648,11 +643,9 @@
             }
 
             &.dropDownList {
-                color: @color-font-xcDark;
                 overflow: visible;
                 float: none;
                 padding: 0;
-                color: @color-font-link-blue;
 
                 &.noOption {
                     span {
@@ -673,6 +666,7 @@
                     display: inline-block;
                     padding-left: 8px;
                     width: ~"calc(100% - 18px)";
+                    color: @color-font-link-blue;
 
                     &:hover {
                         background-color: @color-font-seconday-button-hover;
@@ -696,7 +690,6 @@
                 .list {
                     top: 27px;
                     width: 130px;
-                    color: @color-font-xcDark;
 
                     li {
                         text-align: left;

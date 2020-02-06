@@ -292,7 +292,7 @@
 
                     &:hover {
                         background-color: @color-font-edge;
-                        color: WHITE;
+                        color: @color-white;
                     }
                 }
 
@@ -913,7 +913,6 @@
             overflow: auto;
             font-size: 12px;
             word-wrap: normal;
-            color: @color-font-xcDark;
             .input-placeholder(@color-lightSilverChalice);
 
             &:focus {
@@ -987,7 +986,6 @@
         .position(absolute);
         white-space: nowrap;
         border: 1px solid @color-bg-cardHeader;
-        color: @color-font-xcDark;
         font-size: 9px;
         padding: 1px 4px 2px;
         .rounded(3px);
@@ -1164,7 +1162,7 @@
     min-height: @dagGraphBarHeight;
     max-height: @dagGraphBarHeight;
     padding-left: 8px;
-    background-color: white;
+    background-color: @color-white;
     color: @color-icon-gray;
     font-size: 12px;
 
@@ -1713,10 +1711,9 @@
 
     li {
         display: none;
-        background-color: @color-white;
         border-bottom: 1px solid @color-border-softGray;
         height: @liHeight;
-        .font(@color: @color-font-xcDark, @size: 10px, @line-height: @liHeight);
+        .font(@size: 10px, @line-height: @liHeight);
         padding-top: 0px;
         padding-bottom: 0px;
         &.selected {
@@ -2592,8 +2589,6 @@
      @header-h: 67px;
 
      box-shadow: @box-shadow--default;
-     background-color: @color-white;
-     color: @color-font-xcDark;
      transition: box-shadow 0.3s cubic-bezier(.25,.8,.25,1);
 
     &:hover, &:active, &:focus {
@@ -2627,8 +2622,6 @@
 
     .header {
         border-bottom: 1px solid @color-border-softGray;
-        background-color: @color-white;
-        color: @color-font-xcDark;
         border-top-left-radius: 18px;
         border-top-right-radius: 18px;
 
@@ -2642,7 +2635,6 @@
             .textOverflowOneLine;
             font-size: 20px;
             margin-top: 0px;
-            color: @color-font-xcDark;
             text-align: left;
 
             .text {
@@ -3256,7 +3248,7 @@
                 text-overflow: ellipsis;
 
                 &:focus {
-                    background-color: white;
+                    background-color: @color-white;
                     border: solid 1px @color-font-softBlue;
                 }
             }

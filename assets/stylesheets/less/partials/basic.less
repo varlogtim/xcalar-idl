@@ -71,6 +71,7 @@ body {
 }
 
 #container {
+    background-color: @color-white;
     &.workbookMode {
         .wkbkMenuBarTabs {
             display: none;
@@ -1092,7 +1093,6 @@ input {
     .size(@height: 30px);
     line-height: 30px;
     padding: 0 4px;
-    background-color: @color-white;
 
     &:-ms-input-placeholder {
         color: @color-bg-cancel-gray-hover;
@@ -1351,7 +1351,6 @@ input {
         .position(absolute, @top: 14px, @right: 10px);
         .size(14px, 14px);
         display: inline-block;
-        color: @color-font-xcDark;
         font-weight: 600;
     }
 
@@ -1366,7 +1365,6 @@ input {
     }
 
     .message, .detailContent {
-        color: @color-font-xcDark;
         .font(@size: 12px, @line-height: 16px);
         white-space: normal;
         word-wrap: break-word;
@@ -1947,7 +1945,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .xc-dragDropArea.entering {
-    background-color: white;
+    background-color: @color-white;
     .flex-display;
     * {
         pointer-events: none;
@@ -1956,7 +1954,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 .xc-fileDragging {
     .xc-dragDropArea {
-        background-color: white;
+        background-color: @color-white;
         .flex-display;
     }
     * {
@@ -2133,7 +2131,7 @@ input[type=number]::-webkit-outer-spin-button {
     }
 
     .tooltip-inner {
-        background-color: white;
+        background-color: @color-white;
         border: 1px solid @color-error-border-light;
         box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.2);
     }
