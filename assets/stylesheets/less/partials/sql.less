@@ -91,7 +91,7 @@
         .flex-container();
         .justify-content(flex-end);
         padding-left: @cell-padding;
-        color: @color-icon-gray;
+        color: @color-icon-default;
     }
 
     .sort-none {
@@ -101,7 +101,7 @@
     .sortIconWrap {
         .flex-container();
         .justify-content(flex-end);
-        color: @color-icon-gray;
+        color: @color-icon-default;
     }
 
     .col-sort {
@@ -306,7 +306,7 @@
             position: relative; // necessary for resizable sections
 
             .topPart, .bottomPart {
-                background-color: @color-white;
+                background-color: @color-bg-default;
             }
 
             .topPart {
@@ -341,7 +341,7 @@
                     height: @tabBar-h;
                     width: 100%;
                     z-index: 3;
-                    background-color: @color-bg-topBarGray2;
+                    background-color: @color-bg-2;
                     display: flex;
 
                     .tabView {
@@ -440,11 +440,11 @@
                         }
 
                         .topSection {
-                            background-color: @color-white;
+                            background-color: @color-bg-default;
                             height: @top-h;
                             font-size: 12px;
                             padding: 6px 15px;
-                            border-bottom: 1px solid @color-border-softGray;
+                            border-bottom: 1px solid @color-border-medium2;
                             @div-h: 20px;
 
                             > div {
@@ -476,7 +476,7 @@
                                     .size(@height: 24px);
                                     padding-left: 22px;
                                     line-height: 24px;
-                                    background-color: @color-white;
+                                    background-color: @color-bg-default;
                                 }
 
                                 > .icon {
@@ -494,8 +494,8 @@
                         .bottomSection {
                             height: @bottom-h;
                             padding: 11px 25px;
-                            border-top: 1px solid @color-border-softGray;
-                            background-color: @color-bg-list-hover-blue;
+                            border-top: 1px solid @color-border-medium2;
+                            background-color: @color-bg-list-hover;
 
                             .buttonWrap {
                                 float: left;
@@ -569,7 +569,7 @@
                     font-size: 12px;
                     line-height: 24px;
                     padding-left: 22px;
-                    background-color: @color-white;
+                    background-color: @color-bg-default;
                     border-radius: 3px;
                 }
                 .icon {
@@ -594,12 +594,12 @@
 
 #sqlEditorSpace {
     height: 100%;
-    background-color: @color-white;
+    background-color: @color-bg-sqlEditor;
     @topSectionHeight: 45px;
     @total-height: @topSectionHeight;
     .flex-display;
     .flex-flow(column);
-    border-right: 1px solid @color-border-grayBlue;
+    border-right: 1px solid @color-border-medium;
     position: relative;
 
     .undock {
@@ -610,7 +610,7 @@
     }
 
     header {
-        border-bottom: 1px solid @color-border-softGray;
+        border-bottom: 1px solid @color-border-medium2;
         display: flex;
         flex-wrap: wrap;
         padding: 8px 32px 4px 16px;
@@ -654,7 +654,7 @@
                 }
 
                 &:hover {
-                    background-color: @color-white;
+                    background-color: @color-bg-default;
                 }
 
                 span {
@@ -712,7 +712,7 @@
             height: 100%;
         }
         .CodeMirror-gutters {
-            background-color: @color-bg-list-hover-blue;
+            background-color: @color-editor-gutter;
         }
     }
 }
@@ -971,7 +971,7 @@
 
     .mainSection {
         .header {
-            background-color: @color-white;
+            background-color: @color-bg-default;
         }
 
         .row {
@@ -1002,7 +1002,7 @@
 
                 .sort {
                     .position(absolute, @top: 0px, @right: 10px);
-                    color: @color-icon-gray;
+                    color: @color-icon-default;
 
                     .sortIconWrap {
                         .position(relative, @top: 5px);

@@ -149,8 +149,8 @@ html.safari {
 }
 
 #datastore-in-view-topBar {
-    background-color: @color-bg-topBarGray2;
-    border-bottom: 1px solid @color-border-grayBlue;
+    background-color: @color-bg-2;
+    border-bottom: 1px solid @color-border-medium;
     height: @height-card-header + 1px;
     overflow: hidden;
 
@@ -163,7 +163,7 @@ html.safari {
         @active-bg: @color-font-link-blue;
 
         background-color: @bg;
-        color: @color-icon-gray;
+        color: @color-icon-default;
         height: @height-card-header;
         line-height: @height-card-header;
         float: right; // reverse the order for z-index of style to work
@@ -193,7 +193,7 @@ html.safari {
 
         &:first-child {
             &:after, &:before {
-                background-color: @color-bg-topBarGray2;
+                background-color: @color-bg-2;
             }
 
             &:before {
@@ -222,7 +222,7 @@ html.safari {
 
             &:first-child {
                 &:before {
-                    background-color: @color-bg-topBarGray2;
+                    background-color: @color-bg-2;
                 }
             }
         }
@@ -336,8 +336,8 @@ html.safari {
             }
             i {
                 float: right;
-                color: @color-icon-gray;
-                background-color: @color-white;
+                color: @color-icon-default;
+                background-color: @color-bg-default;
                 position: absolute;
                 top: 6px;
                 right: 0px;
@@ -522,7 +522,7 @@ html.safari {
                 &.action {
                     float: right;
                     text-decoration: underline;
-                    color: @color-icon-gray;
+                    color: @color-icon-default;
                 }
             }
 
@@ -555,7 +555,7 @@ html.safari {
 
         .schemaSection {
             height: 100%;
-            border-top: 1px solid @color-border-softGray;
+            border-top: 1px solid @color-border-medium2;
 
             .loading {
                 padding-left: 15px;
@@ -726,14 +726,14 @@ table.datasetTable {
 
     .cardMain {
         padding: 40px 30px;
-        border-bottom: 1px solid @color-border-softGray;
+        border-bottom: 1px solid @color-border-medium2;
         max-height: ~"calc(100% - 56px)";
         overflow-y: auto;
 
         .clickable {
             .rounded(18px);
             border: 1px solid @color-bg-dropdown-gray;
-            background-color: @color-bg-list-hover-blue;
+            background-color: @color-bg-list-hover;
             font-size: 18px;
             text-align: center;
             font-weight: 600;
@@ -896,7 +896,7 @@ table.datasetTable {
 
     #dsForm-targetMenu {
         li {
-            border-bottom: 1px solid @color-border-softGray;
+            border-bottom: 1px solid @color-border-medium2;
         }
     }
 
@@ -919,7 +919,7 @@ table.datasetTable {
         .size(@min-height: 120px);
         padding-top: 30px;
         padding-bottom: 24px;
-        border-bottom: 1px solid @color-border-softGray;
+        border-bottom: 1px solid @color-border-medium2;
 
         > div {
             .size(@width: 80%);
@@ -958,7 +958,7 @@ table.datasetTable {
 
                 input {
                     .vertical-align;
-                    background-color: @color-white;
+                    background-color: @color-bg-default;
                 }
 
                 .btn {
@@ -992,7 +992,7 @@ table.datasetTable {
     .size(@min-width: 650px, @height: 100%);
     text-transform: capitalize;
     overflow: visible;
-    border-bottom: 1px solid @color-border-softGray;
+    border-bottom: 1px solid @color-border-medium2;
 
     @fileInfoWidth: 360px;
 
@@ -1123,7 +1123,7 @@ table.datasetTable {
                 padding-left: 3px;
                 cursor: text;
                 outline: none;
-                background-color: @color-white;
+                background-color: @color-bg-default;
                 .textOverflowOneLine;
                 .font(@size: 12px, @line-height: 26px);
                 border-top: 1px solid @color-border-menugray;
@@ -1151,7 +1151,7 @@ table.datasetTable {
 
             input {
                 padding-right: 20px;
-                background-color: @color-white;
+                background-color: @color-bg-default;
 
                 &:focus {
                     ~ .clear {
@@ -1258,7 +1258,7 @@ table.datasetTable {
 
         .titleSection {
             .size(@width: 100%, @height: 40px);
-            background-color: @color-bg-list-hover-blue;
+            background-color: @color-bg-list-hover;
             border-bottom: 1px solid @color-border-menugray;
 
             .title {
@@ -1387,7 +1387,7 @@ table.datasetTable {
 
                 .checkBox {
                     width: 14px;
-                    background-color: @color-white;
+                    background-color: @color-bg-default;
                     display: block;
                     position: relative;
                     top: -5px;
@@ -1395,7 +1395,7 @@ table.datasetTable {
                 }
 
                 > .label {
-                    color: @color-font-xcDark;
+                    color: @color-font-default;
                     word-break: break-all;
                     width: 65px !important;
                 }
@@ -1555,7 +1555,7 @@ table.datasetTable {
         }
         .filePathBottom {
             height: 25px;
-            background-color: @color-bg-topBarGray2;
+            background-color: @color-bg-2;
             display: flex;
             align-items: center;
             border-bottom: 1px solid @color-border-menugray;
@@ -1582,7 +1582,7 @@ table.datasetTable {
                 .size(@width: 100%, @height: 170px);
                 padding: 16px 20px;
                 background-color: #F5F8FA;
-                border-bottom: 1px solid @color-border-softGray;
+                border-bottom: 1px solid @color-border-medium2;
 
                 &.pathInfoMode {
                     .fileInfoSection {
@@ -1664,7 +1664,7 @@ table.datasetTable {
                         padding: 0 9px;
                         &.btn, .icon {
                             font-size: 18px;
-                            color: @color-icon-gray;
+                            color: @color-icon-default;
                             span {
                                 font-size: 13px;
                                 float: left;
@@ -1678,7 +1678,7 @@ table.datasetTable {
                 .size(@width: 100%);
                 .flex(1 1 auto);
                 padding: 16px 0;
-                border-bottom: 1px solid @color-border-softGray;
+                border-bottom: 1px solid @color-border-medium2;
                 overflow: hidden;
 
                 > div {
@@ -1711,7 +1711,7 @@ table.datasetTable {
                     .clearAll {
                         white-space: normal;
                         float: right;
-                        color: @color-icon-gray;
+                        color: @color-icon-default;
 
                         .icon {
                             position: relative;
@@ -1733,7 +1733,7 @@ table.datasetTable {
                         padding-top: 8px;
 
                         .close {
-                            color: @color-icon-gray;
+                            color: @color-icon-default;
                            .flex(0 0 14px);
                         }
 
@@ -2021,8 +2021,8 @@ table.datasetTable {
 
         i {
             float: right;
-            color: @color-icon-gray;
-            background-color: @color-white;
+            color: @color-icon-default;
+            background-color: @color-bg-default;
             position: absolute;
             top: 4px;
             opacity: 0;
@@ -2087,7 +2087,7 @@ table.datasetTable {
         height: 65px;
         width: 100%;
         padding: 16px;
-        border-bottom: 1px solid @color-border-softGray;
+        border-bottom: 1px solid @color-border-medium2;
         overflow: hidden;
 
         > div {
@@ -2233,7 +2233,7 @@ table.datasetTable {
                 }
 
                 .active {
-                    color: @color-icon-gray;
+                    color: @color-icon-default;
                 }
             }
 
@@ -2357,7 +2357,7 @@ table.datasetTable {
             .icon {
                 font-size: 32px;
                 margin-bottom: 10px;
-                color: @color-icon-gray;
+                color: @color-icon-default;
             }
         }
 
@@ -2375,7 +2375,7 @@ table.datasetTable {
             padding-top: 2px;
 
             .suggest {
-                color: @color-icon-gray;
+                color: @color-icon-default;
                 font-weight: 600;
                 padding: 0 3px;
                 cursor: pointer;
@@ -2394,11 +2394,11 @@ table.datasetTable {
     }
 
     .castDropdown {
-        background-color: @color-white;
+        background-color: @color-bg-default;
         width: 120px;
         li {
-            background-color: @color-white;
-            color: @color-font-xcDark;
+            background-color: @color-bg-default;
+            color: @color-font-default;
             padding: 0px;
             height: 28px;
             &:hover, .hover {
@@ -2409,7 +2409,7 @@ table.datasetTable {
             }
             .typeIcon;
             .type.icon {
-                color: @color-font-form-gray;
+                color: @color-font-form;
             }
         }
 
@@ -2752,7 +2752,7 @@ table.datasetTable {
         &.unused {
             // .xc-disabled;
             background-color: @color-bg-white-seven;
-            color: fadeout(@color-font-xcDark, 60%);
+            color: fadeout(@color-font-default, 60%);
         }
     }
 }
@@ -2829,7 +2829,7 @@ table.datasetTable {
 
             input {
                 width: 100%;
-                background-color: @color-white;
+                background-color: @color-bg-default;
             }
 
             label {
@@ -3008,7 +3008,7 @@ table.datasetTable {
                 }
 
                 input {
-                    background-color: @color-white;
+                    background-color: @color-bg-default;
                     width: 100%;
                 }
             }
@@ -3236,7 +3236,7 @@ table.datasetTable {
             input {
                 width: 100%;
                 max-width: 100%;
-                background-color: @color-white;
+                background-color: @color-bg-default;
             }
         }
 
@@ -3408,7 +3408,7 @@ table.datasetTable {
             }
 
             .test-xpath {
-                background-color: @color-white;
+                background-color: @color-bg-default;
             }
 
             .xpathLabel {
@@ -3431,11 +3431,11 @@ table.datasetTable {
                     .input-box(@w: 100%, @h: 30px);
                     margin: 0;
                     .text {
-                        background-color: @color-white;
+                        background-color: @color-bg-default;
                     }
                 }
                 .xpathInputWrap input {
-                    background-color: @color-white;
+                    background-color: @color-bg-default;
                 }
             }
 
@@ -3478,7 +3478,7 @@ table.datasetTable {
                     padding-left: 10px;
                     width: 100px;
                     .text {
-                        background-color: @color-white;
+                        background-color: @color-bg-default;
                     }
                 }
             }
@@ -3588,11 +3588,11 @@ table.datasetTable {
     .thinDivider {
         margin-top: 10px;
         .size(@width: 100%, @height: 1px, @min-height: 1px);
-        background-color: @color-bg-topBarGray2;
+        background-color: @color-bg-2;
     }
 
     .advancedDivider {
-        background-color: @color-bg-topBarGray2;
+        background-color: @color-bg-2;
         margin-top: 16px;
         margin-bottom: 16px;
     }
@@ -3603,7 +3603,7 @@ table.datasetTable {
         &:focus {
             outline: none;
             border-color: @color-border-softBlue;
-            background-color: @color-white;
+            background-color: @color-bg-default;
         }
     }
 
@@ -3628,7 +3628,7 @@ table.datasetTable {
 /* End Of Import Data View Section */
 
 #dsListSection, #sourceTableListSection {
-    color: @color-font-xcDark;
+    color: @color-font-default;
     @top-h: 65px;
 
     .topWrapper {
@@ -3703,7 +3703,7 @@ table.datasetTable {
     .gridViewWrapper {
         @margin: 8px;
         @total: @top-h + @margin;
-        background-color: @color-white;
+        background-color: @color-bg-default;
         .size(@height: ~"calc(100% - @{total})");
         .position(relative);
         overflow-x: hidden;
@@ -3820,7 +3820,7 @@ table.datasetTable {
                 }
 
                 > .label {
-                    color: @color-font-xcDark;
+                    color: @color-font-default;
 
                     textarea {
                         background-color: transparent;
@@ -4230,7 +4230,7 @@ table.datasetTable {
                 }
 
                 &:hover {
-                    background-color: @color-bg-list-hover-blue;
+                    background-color: @color-bg-list-hover;
                 }
 
                 &.deleting {
@@ -4515,7 +4515,7 @@ table.datasetTable {
 
         .grid-unit {
             &:hover, &.active {
-                background-color: @color-bg-topBarGray2;
+                background-color: @color-bg-2;
             }
 
             &.active {
@@ -4795,7 +4795,7 @@ table.datasetTable {
         &:focus {
             outline: none;
             border-color: @color-border-softBlue;
-            background-color: @color-white;
+            background-color: @color-bg-default;
         }
     }
 }

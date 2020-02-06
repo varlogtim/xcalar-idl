@@ -230,6 +230,7 @@ class SetOpPanel extends BaseOpPanel {
         const $panel: JQuery = this._getPanel();
         const sectionW: number = parseFloat($panel.find(".lists").eq(0).css("min-width")) + 5;
         const minWidth: number = MainMenu.defaultWidth;
+        return;
         if (reset) {
             MainMenu.resize(0);
         } else {

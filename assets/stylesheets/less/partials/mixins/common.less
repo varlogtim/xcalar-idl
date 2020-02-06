@@ -1,4 +1,5 @@
 @import "partials/mixins/constants.less";
+@import "partials/mixins/colors.less";
 @import "partials/mixins/flex.less";
 
 .box-sizing (@type: border-box) {
@@ -317,7 +318,7 @@
     outline: 0;
     padding-top: 0px;
     padding-bottom: 0px;
-    .font(@family: @font-base, @color: @color-white, @weight: 600, @size: 12px);
+    .font(@family: @font-base, @color: @color-font-white, @weight: 600, @size: 12px);
     line-height: @height-btn - 2;
     letter-spacing: 0.5px;
     .textOverflowOneLine;
@@ -333,7 +334,7 @@
     }
 
     &:active {
-        box-shadow: inset 0 0.5px 3px 0 @color-font-form-gray;
+        box-shadow: inset 0 0.5px 3px 0 @color-font-form;
     }
 }
 
@@ -371,13 +372,13 @@
 }
 
 .btn-cancel, .btn-secondary, .btn-back, .btn-clear  {
-    background-color: @color-white;
-    color: @color-font-link-blue;
-    border: 1px solid @color-bg-cancel-gray;
+    background-color: @color-bg-default;
+    color: @color-font-btn-secondary;
+    border: 1px solid @color-border-btn-secondary;
 
     &.iconBtn {
         .icon {
-            color: @color-font-link-blue;
+            color: @color-font-btn-secondary;
         }
     }
 
@@ -623,7 +624,6 @@
 .dropDownList {
     .position(relative);
     float: left;
-    background-color: @color-white;
     .no-selection;
 
     .text {
@@ -640,7 +640,7 @@
     }
 
     .iconWrapper {
-        background-color: @color-white;
+        background-color: @color-bg-default;
         border: 1px solid @color-border-menugray;
         cursor: pointer;
         float: right;
@@ -676,6 +676,7 @@
         z-index: 10;
         display: none;
         width: ~"calc(100% - 30px)";
+        background-color: @color-bg-menu;;
 
         li {
             padding-left: 10px;
@@ -685,7 +686,7 @@
             line-height: 30px;
 
             &:hover, &.hover {
-                background-color: @color-bg-list-hover-blue;
+                background-color: @color-bg-list-hover;
             }
             &.inactive {
                 opacity: 0.3;
@@ -828,7 +829,7 @@
             float: left;
             display: inline-block;
             margin: 0 5px 0 0px;
-            background-color: @color-white;
+            background-color: @color-bg-default;
             border-radius: 100%;
             .vertical-align;
 
@@ -928,7 +929,7 @@
 
         .cell {
             .font(@weight: 600);
-            background-color: @color-white;
+            background-color: @color-bg-default;
         }
     }
 
@@ -950,7 +951,7 @@
                 }
 
                 &:nth-child(even) .cell {
-                    background-color: @color-white;
+                    background-color: @color-bg-default;
                 }
             }
 
@@ -969,7 +970,7 @@
         border: solid 1px @color-border-menugray;
         padding: 0 10px;
         text-align: left;
-        background-color: @color-white;
+        background-color: @color-bg-default;
         .textOverflowOneLine;
 
         &:focus {
@@ -993,7 +994,7 @@
         .size(@height: 24px);
         padding-left: 22px;
         line-height: 24px;
-        background-color: @color-white;
+        background-color: @color-bg-default;
     }
 
     > .icon {
@@ -1011,17 +1012,17 @@
     border: solid 1px @color-border-menugray;
     padding: 0 10px;
     text-align: left;
-    background-color: @color-bg-white-three;
+    background-color: @color-bg-input;
     .textOverflowOneLine;
 
     &.white {
-        background-color: @color-white;
+        background-color: @color-bg-default;
     }
 
     &:focus {
         outline: none;
         border-color: @color-border-softBlue;
-        background-color: @color-white;
+        background-color: @color-bg-default;
     }
 
     &.error {
@@ -1036,10 +1037,9 @@
     &:focus {
         outline: none;
         border-color: @color-border-softBlue;
-        background-color: @color-white;
+        background-color: @color-bg-default;
     }
 }
-
 
 .xc-viewMode {
     &.loading {
@@ -1084,8 +1084,8 @@
 
 .xc-sortSection {
     .size(@height: 33px);
-    background-color: @color-bg-topBarGray2;
-    .font(@size: 10px, @color: @color-icon-gray);
+    background-color: @color-bg-2;
+    .font(@size: 10px, @color: @color-icon-default);
     text-align: right;
     text-transform: uppercase;
 
@@ -1153,7 +1153,7 @@
 
         .row:not(.noSelect) {
             &:hover {
-                background-color: @color-bg-list-hover-blue;
+                background-color: @color-bg-list-hover;
             }
 
             &.selected {
@@ -1164,14 +1164,14 @@
 
     .row {
         height: @row-h;
-        border-bottom: 1px solid @color-border-softGray;
+        border-bottom: 1px solid @color-border-xdGridList;
 
         > div {
             float: left;
             width: 20%;
             height: @row-h;
             padding: 0 15px;
-            border-left: 1px solid @color-border-softGray;
+            // border-left: 1px solid @color-border-medium2; // XXX hiding vertical borders
             .textOverflowOneLine;
             line-height: @row-h;
             font-size: 13px;
@@ -1368,7 +1368,7 @@
                 cursor: pointer;
 
                 &:hover {
-                    background-color: @color-bg-list-hover-blue;
+                    background-color: @color-bg-list-hover;
                 }
             }
 
@@ -1433,7 +1433,7 @@
     .position(absolute, @top: -4px);
     border: 1px solid @color-bg-cancel-gray-hover;
     padding: 4px;
-    background-color: @color-white;
+    background-color: @color-bg-default;
     border-radius: 1px;
 
     .border {
@@ -1563,11 +1563,11 @@
 
 // for icon
 .xc-icon-action {
-    color: @color-icon-gray;
+    color: @color-icon-default;
     cursor: pointer;
 
     &:hover {
-        color: @color-icon-gray-hover;
+        color: @color-icon-default-hover;
     }
 }
 
@@ -1580,7 +1580,7 @@
 
     .icon {
         @size: 14px;
-        color: @color-icon-gray;
+        color: @color-icon-default;
         font-size: @size;
         width: @size;
         height: @size;
@@ -1589,7 +1589,7 @@
     }
 
     &:hover, &:focus {
-        background-color: @color-bg-topBarGray2;
+        background-color: @color-bg-2;
     }
 }
 
@@ -1624,7 +1624,7 @@
 }
 
 .xc-icon {
-    background-color: @color-bg-topBarGray2;
+    background-color: @color-bg-2;
     .rounded(3px);
 
     .icon {
@@ -1640,7 +1640,7 @@
             .expand {
                 .icon {
                     .transform(rotate(360deg));
-                    color: @color-icon-gray;
+                    color: @color-icon-default;
                 }
             }
         }
@@ -1665,7 +1665,7 @@
 
             .icon {
                 .transform(rotate(270deg));
-                color: @color-icon-gray;
+                color: @color-icon-default;
             }
         }
     }
@@ -1677,11 +1677,11 @@
             .size(@width: 100%, @height: 30px);
             opacity: @opacity-unhover;
             padding: 5px 15px;
-            border-bottom: 1px solid @color-bg-topBarGray2;
+            border-bottom: 1px solid @color-bg-2;
             font-size: 12px;
 
             &:first-child {
-                border-top: 1px solid @color-bg-topBarGray2;
+                border-top: 1px solid @color-bg-2;
             }
 
             &:hover {
@@ -1689,7 +1689,7 @@
             }
 
             &.active {
-                background-color: @color-bg-topBarGray2;
+                background-color: @color-bg-2;
             }
 
             > i, > span, > input, > div {
@@ -1698,7 +1698,7 @@
 
             .icon {
                 .position(relative, @top: 3px);
-                color: @color-icon-gray;
+                color: @color-icon-default;
             }
         }
     }
@@ -1721,7 +1721,7 @@
     .size(@width: 22px, @height: 12px);
     .position(relative, @top: 5px);
     .rounded(5px);
-    background-color: @color-bg-topBarGray2;
+    background-color: @color-bg-2;
     border: 1px solid @color-bg-cardHeader;
     cursor: pointer;
 
@@ -1730,7 +1730,7 @@
         .rounded(100%);
         .position(relative, @left: -2px, @top: -1px);
         border: 1px solid @color-bg-cardHeader;
-        background-color: @color-white;
+        background-color: @color-bg-default;
         .transition(left 0.2s);
     }
 
@@ -1974,7 +1974,7 @@ html.firefox {
                 padding-left: 20px;
                 padding-right: 85px;
                 line-height: 20px;
-                background-color: @color-white;
+                background-color: @color-bg-default;
             }
 
             .icon {
@@ -2009,7 +2009,7 @@ html.firefox {
                     .icon {
                         top: 5px;
                         left: 3px;
-                        color: @color-font-form-gray;
+                        color: @color-font-form;
                     }
 
                     &:hover {
@@ -2029,7 +2029,7 @@ html.firefox {
                 .size(@width: 65px, @height: 22px);
                 padding: 0 9px;
                 float: left;
-                background-color: @color-white;
+                background-color: @color-bg-default;
                 border: 1px solid @color-border-menugray;
 
                 .text {
@@ -2076,7 +2076,7 @@ html.firefox {
             padding-top: 3px;
 
             input {
-                background-color: @color-white;
+                background-color: @color-bg-default;
                 .size(@height: 22px);
                 top: 1px;
             }
@@ -2272,7 +2272,7 @@ html.firefox {
         &:focus {
             outline: none;
             border: 1px solid @color-font-softBlue;
-            background-color: @color-white;
+            background-color: @color-bg-default;
         }
     }
 
@@ -2308,12 +2308,12 @@ html.firefox {
 
      &.active {
         .icon-wrap {
-            background-color: @color-white;
+            background-color: @color-bg-default;
             border: solid 1px  @color-border-softBlue;
             border-left: none;
         }
         .utc-wrap {
-            background-color: @color-white;
+            background-color: @color-bg-default;
             border: solid 1px  @color-border-softBlue;
             border-left: none;
             border-right: none;
@@ -2324,7 +2324,7 @@ html.firefox {
         display: none;
         .size(@width: 208px, @height: 120px);
         .position(absolute, @top: 30px, @left: 1px);
-        background-color: @color-white;
+        background-color: @color-bg-default;
         box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
         z-index: 41;
         .rounded(0 0 3px 3px);
@@ -2366,7 +2366,7 @@ html.firefox {
                 .size(@width: 14px, @height: 3px);
                 .position(absolute, @left: 50%);
                 .transform(translate(-50%, -30%));
-                background-color: @color-white;
+                background-color: @color-bg-default;
                 opacity: 0.9;
                 box-shadow: 0 1px 1px 1px rgba(0, 0, 0, .1);
                 .rounded(1px);

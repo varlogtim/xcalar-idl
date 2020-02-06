@@ -11,13 +11,14 @@
     .logo {
         .center-align;
         position: absolute;
-        border: 2px solid #CFE9FD;
+        border: 2px solid @color-bg-logoBorder;
     }
     .xd-logo-bw {
         font-size: 24px;
         height: 23px;
         width: 24px;
-        background-color: #CFE9FD;
+        background-color: @color-bg-logoBorder;
+        color: @color-font-logo;
     }
 }
 
@@ -27,12 +28,12 @@
     position: absolute;
     top: 0px;
     left: 0px;
-    background-color: #0a64b8;
+    background-color: @color-bg-menuBar;
     line-height: 0px;
     z-index: @z-index-menuBar;
     padding-top: @height-homeBtn;
     color: @color-white;
-    border-right: 1px solid #c0ced9;
+    border-right: 1px solid @color-border-menuBar;
 
     &.animating > div {
         pointer-events: none;
@@ -42,7 +43,7 @@
 #container {
     &.advMode {
         #menuBar {
-            background-color: @color-bg-topBarGray2;
+            background-color: @color-bg-2;
         }
 
         #bottomMenuBarTabs {
@@ -56,7 +57,7 @@
             .mainTab {
                 opacity: 1;
                 .icon, .label {
-                    color: @color-icon-gray;
+                    color: @color-icon-menuBar;
                 }
             }
 
@@ -71,21 +72,15 @@
 
                 .mainTab, .subTab {
                     .icon, .label {
-                        color: @color-white;
+                        color: @color-icon-menuBarActive;
                     }
-                }
-
-                .mainTab {
-                    background-color: #02254b !important;
                 }
             }
 
             &:hover, &.hover {
                 .mainTab {
-                    background-color: @color-bg-cardHeader !important;
-
                     .icon, .label {
-                        color: @color-white;
+                        color: @color-icon-menuBarActive;
                     }
                 }
             }
@@ -132,16 +127,11 @@
     &.active:not(.fromMainMenu) {
         .transition(all 0s);
 
-        .tabGroup {
-            box-shadow: 0px 0px 7px rgba(0, 0, 0, 0.5);
-        }
-
         .mainTab {
             opacity: 1;
-            background-color: #02254b !important;
 
             .icon, .label {
-                color: @color-white;
+                color: @color-icon-menuBarActive;
             }
         }
         .subTabs, .subTab {
@@ -152,8 +142,7 @@
     &:hover, &.hover {
         color: @color-white;
         .mainTab {
-            background-color: #013b74 !important;
-            color: @color-white;
+            color: @color-icon-menuBarActive;
             opacity: 1;
         }
     }
@@ -169,7 +158,7 @@
         border-radius: 8px;
         position: relative;
 
-        color: #CFE9FD;
+        color: @color-icon-menuBar;
 
         .icon {
             .center-align;
@@ -211,7 +200,7 @@
         color: #CFE9FD;
 
         &.active {
-            background-color: @color-white;
+            background-color: @color-bg-default;
             .icon, .label {
                 color: @color-font-softBlue;
                 color: #0774aa;
@@ -245,7 +234,7 @@
         }
 
         &:hover {
-            background-color: @color-white;
+            background-color: @color-bg-default;
         }
     }
 
@@ -292,9 +281,10 @@
     .position(absolute, @left: 0px);
     .size(@width-topMenu,  @min-width: @width-topMenu, @height: ~"calc(100% - @{height-topBar})");
     padding: 0px;
-    box-shadow: 0px 0px 0px 1px @color-border-grayBlue; // border-right
+    box-shadow: 0px 0px 0px 1px @color-border-light; // border-right
     margin-left: @width-homeBtn;
     z-index: @z-index-topMenu;
+    background-color: @color-bg-leftPanel;
 
     &.active {
         display: block;
@@ -445,9 +435,9 @@
     .size(@width: @width-bottomMenu,  @height: ~"calc(100% - @{height-topBar})");
     z-index: @z-index-bottomMenu;
     .transition(left @time-menuAnim);
-    border-right: 1px solid @color-border-grayBlue;
-    border-top: 1px solid @color-border-grayBlue;
-    border-left: 1px solid @color-border-grayBlue;
+    border-right: 1px solid @color-border-medium;
+    border-top: 1px solid @color-border-medium;
+    border-left: 1px solid @color-border-medium;
 
     &.noAnim {
         .transition(left 0s);
@@ -573,7 +563,7 @@
         .position(relative);
         .size(@width: auto, @height: ~"calc(100% - 36px)");
         overflow: hidden;
-        background-color: @color-white;
+        background-color: @color-bg-default;
     }
 }
 
@@ -620,10 +610,10 @@ ul.CodeMirror-hints {
 
     .topSection {
         padding: 8px 16px;
-        background-color: @color-bg-list-hover-blue;
+        background-color: @color-bg-list-hover;
         font-size: 12px;
-        border-top: 1px solid @color-border-softGray;
-        border-bottom: 1px solid @color-border-softGray;
+        border-top: 1px solid @color-border-medium2;
+        border-bottom: 1px solid @color-border-medium2;
 
         .flex-display;
         .flex(0 0 auto);
@@ -667,7 +657,7 @@ ul.CodeMirror-hints {
         .text {
             font-size: 12px;
             width: ~"calc(100% - 28px)";
-            border: 1px solid @color-border-softGray;
+            border: 1px solid @color-border-medium2;
             cursor: text;
 
             &:focus {
@@ -738,7 +728,7 @@ ul.CodeMirror-hints {
                 }
 
                 &.hover, &.highlighted {
-                    background-color: @color-bg-list-hover-blue;
+                    background-color: @color-bg-list-hover;
                 }
             }
         }
@@ -761,7 +751,7 @@ ul.CodeMirror-hints {
 
         .editArea {
             ::-webkit-scrollbar-track {
-                background: @color-bg-list-hover-blue;
+                background: @color-bg-list-hover;
             }
             ::-webkit-scrollbar-thumb {
                 background-color: #c1c1c1 !important;

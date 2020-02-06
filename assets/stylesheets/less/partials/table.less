@@ -71,13 +71,13 @@ html.edge {
     }
 
     thead {
-        background-color: @color-bg-topBarGray2;
+        background-color: @color-bg-2;
         box-shadow: inset 0px -1px 0 0 rgba(0, 0, 0, 0.2);
         white-space: pre;
 
         .selectedCell, .selectedCol, .colSelected {
             .flexContainer, .columnTab {
-                background-color: #5fb7df;
+                background-color: @color-table-headerSelected;
                 .editableHead {
                     color: @color-white !important;
                     -webkit-text-fill-color: @color-white !important;
@@ -89,7 +89,7 @@ html.edge {
 
     th {
         .size(@height: @height-colHeaderOuter);
-        background-color: @color-white;
+        background-color: @color-bg-default;
         border-left: none;
         padding: 0px;
         .font(@weight: 600, @size: 13px);
@@ -98,7 +98,7 @@ html.edge {
             // style for rowNum
             .header {
                 z-index: @z-index-firstHeader;
-                border-left: 5px solid @color-bg-topBarGray2;
+                border-left: 5px solid @color-bg-2;
                 &::before {
                     .transition(opacity 0.3s);
                     content: "";
@@ -115,7 +115,7 @@ html.edge {
             input {
                 .position(absolute, @left: 0);
                 .size(@width: ~"calc(100% + 10px)", @height: @height-colHeaderOuter);
-                border: @width-tableCellPadding solid @color-bg-topBarGray2;
+                border: @width-tableCellPadding solid @color-bg-2;
                 background: @color-white;
                 margin-left: -5px;
                 margin-top: -5px;
@@ -125,7 +125,7 @@ html.edge {
         }
         &.dataCol {
             .flexRow {
-                background-color: @color-border-menugray !important;
+                background-color: @color-bg-dataColHeader !important;
                 height: @height-xcColHeaderOuter - (@width-tableCellPadding * 2);
             }
         }
@@ -140,14 +140,14 @@ html.edge {
 
     td {
         .size(@height: @height-tableCell);
-        .font(@size: 11px, @line-height: @height-innerTableCell, @family: @font-code, @weight: 500, @color: @color-black);
+        .font(@size: 11px, @line-height: @height-innerTableCell, @family: @font-code, @weight: 500, @color: @color-font-default);
         overflow: hidden;
         padding: 2px;
         vertical-align: middle;
         text-align: left;
 
         &:last-child {
-            border-right: 5px solid @color-bg-topBarGray2 !important;
+            border-right: 5px solid @color-bg-2 !important;
         }
 
         &.highlightedCell {
@@ -159,9 +159,9 @@ html.edge {
         white-space: pre;
         tr {
 
-            background-color: @color-bg-topBarGray2;
+            background-color: @color-bg-2;
             td {
-               border-right: 5px solid @color-bg-topBarGray2;
+               border-right: 5px solid @color-bg-2;
                &.emptyTable {
                    padding-left: 48px;
                }
@@ -169,7 +169,7 @@ html.edge {
 
             &:nth-child(odd) {
                 td {
-                    background-color: @color-white;
+                    background-color: @color-bg-default;
 
                     &.indexedColumn:not(.noIndexStyle) {
                         background-color: @color-table-indexed-blue !important;
@@ -183,12 +183,12 @@ html.edge {
                 }
 
                 .idSpan {
-                    background-color: @color-white;
+                    background-color: @color-bg-default;
                 }
             }
             &:nth-child(even) {
                 td {
-                    background-color: @color-bg-list-hover-blue;
+                    background-color: @color-bg-list-hover;
 
                     &.indexedColumn:not(.noIndexStyle) {
                         background-color: @color-table-indexed-lightBlue !important;
@@ -202,7 +202,7 @@ html.edge {
                 }
 
                 .idSpan {
-                    background-color: @color-bg-list-hover-blue;
+                    background-color: @color-bg-list-hover;
                 }
             }
         }
@@ -217,10 +217,10 @@ html.edge {
                 background-color: @color-iron !important;
             }
             &.selectedCell, &.colSelected, &.selectedCol {
-                background-color: @color-heather !important;
+                background-color: @color-table-selected-hover !important;
             }
             &.jsonElement, &.jsonElement .pop, &.dataCol {
-                background-color: @color-tasman;
+                background-color: @color-table-dataCol-hover;
             }
 
             .idSpan {
@@ -234,8 +234,8 @@ html.edge {
         .position(relative);
         .size(@width: ~"calc(100% + 10px)", @height: 100%);
         margin-left: -5px;
-        border-right: 5px solid @color-bg-topBarGray2;
-        border-left: 5px solid @color-bg-topBarGray2;
+        border-right: 5px solid @color-bg-2;
+        border-left: 5px solid @color-bg-2;
         font-weight: normal;
         .flex-display;
         .justify-content(center);
@@ -254,7 +254,7 @@ html.edge {
         .rounded;
         .noSelection;
 
-        border-color: @color-bg-topBarGray2 !important;
+        border-color: @color-bg-2 !important;
 
         &::after {
             .position(absolute, @top: @height-colHeader + 4px, @left: 0);
@@ -283,7 +283,7 @@ html.edge {
 
         .flexContainer {
             overflow: hidden;
-            background-color: @color-white;
+            background-color: @color-bg-default;
            .flexWrap {
                 &.flex-left {
                     .position(relative);
@@ -292,7 +292,7 @@ html.edge {
                     white-space: normal;
                     margin: 0;
                     overflow: hidden;
-                    background-color: @color-white;
+                    background-color: @color-bg-default;
 
                     .iconHidden {
                         .size(@width: 1px, @height: @height-colHeader);
@@ -350,7 +350,7 @@ html.edge {
         display: block;
         text-align: center;
         overflow: hidden;
-        .font(@weight: 600, @size: 11px, @family: @font-base, @color: @color-font-xcDark);
+        .font(@weight: 600, @size: 11px, @family: @font-base, @color: @color-font-default);
         margin-left: -2px;
         // pointer-events: none;
         pointer-events: initial;
@@ -852,7 +852,7 @@ html.edge {
             color: @color-white;
             text-align: center;
             border-radius: 100%;
-            border: 3px solid @color-bg-topBarGray2;
+            border: 3px solid @color-bg-2;
             background: @color-bg-select-blue;
             box-shadow: -1px 1px 2px rgba(0, 0, 0, 0.4);
             z-index: 3;
@@ -1074,9 +1074,9 @@ html.edge {
             -webkit-text-fill-color: @color-white;
             // used for editable table name
             &:focus {
-                background-color: @color-white;
-                color: @color-font-xcDark !important;
-                -webkit-text-fill-color: @color-font-xcDark !important;
+                background-color: @color-bg-default;
+                color: @color-font-default !important;
+                -webkit-text-fill-color: @color-font-default !important;
                 padding: 1px 4px;
                 margin: 1px 0px;
                 outline: none;
@@ -1198,13 +1198,13 @@ html.edge {
 
     .header {
         border: 5px solid @color-table-header-gray;
-        background-color: @color-white;
+        background-color: @color-bg-default;
         border-left: none;
         border-radius: 0px;
         .typeIcon;
 
         .type.icon {
-            color: @color-font-form-gray;
+            color: @color-font-form;
         }
 
         .dropDown;
@@ -1221,18 +1221,18 @@ html.edge {
 
     .selectedHeaderStyling {
         .type.icon {
-            color: @color-white;
+            color: @color-font-white;
         }
         .flexWrap.flex-left, .topHeader {
-            background-color: #5fb7df !important;
+            background-color: @color-table-headerSelected !important;
         }
 
         .sortIcon, .sortNum {
-            color: @color-white !important;
+            color: @color-font-white !important;
         }
 
         .prefix {
-            color: @color-white !important;
+            color: @color-font-white !important;
             opacity: 1 !important;
         }
     }
@@ -1281,7 +1281,7 @@ html.edge {
         content: "";
         .size(@width: ~"calc(100% - 5px)", @height: 5px);
         position: absolute;
-        background-color: @color-white;
+        background-color: @color-bg-default;
     }
 
     &.noOperation {
@@ -1447,10 +1447,10 @@ html.edge {
             .flex-display;
             .position(relative);
             .rounded(2px 2px 0 0);
-            background-color: @color-white;
+            background-color: @color-bg-default;
             border-style: solid;
             border-width: 0 0 1px 0;
-            border-color: @color-bg-topBarGray2;
+            border-color: @color-bg-2;
 
             .sortIcon {
                 .flex(0 1 20px);

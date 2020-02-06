@@ -317,7 +317,6 @@ namespace MainMenu {
     }
     // XXX for dagpanel only, move this function
     export function resize(width: number): void {
-        return; // XXX disabled
         _resize($("#dataflowMenu"), width);
         curSQLLeftWidth = Math.min(width, minWidth);
 

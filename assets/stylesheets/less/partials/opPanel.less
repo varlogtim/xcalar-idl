@@ -62,7 +62,7 @@
     .input-box(100%, @listHeight);
 
     .divider {
-        background-color: @color-bg-topBarGray2;
+        background-color: @color-bg-2;
         height: 1px;
         margin: 10px 0;
     }
@@ -87,13 +87,13 @@
 
             .icon {
                 position: absolute;
-                color: @color-icon-gray;
+                color: @color-icon-default;
             }
         }
 
         .headerIcons {
             float: right;
-            color: @color-icon-gray;
+            color: @color-icon-default;
             margin-left: auto;
 
             .icon {
@@ -113,7 +113,7 @@
             line-height: 30px;
             float: right;
             font-size: 14px;
-            color: @color-icon-gray;
+            color: @color-icon-default;
             cursor: pointer;
             opacity: @opacity-unhover;
             margin-left: auto;
@@ -162,7 +162,7 @@
 
     input {
         font-size: @standardFontSize;
-        border: 1px solid @color-border-softGray;
+        border: 1px solid @color-border-medium2;
     }
 
     // TODO: remove styling if we change the default btn class styling
@@ -483,7 +483,7 @@
             top: 2px;
             left: 1px;
             margin-right: 10px;
-            color: @color-font-form-gray;
+            color: @color-font-form;
         }
 
         .advancedTitle {
@@ -563,7 +563,7 @@
                 }
 
                 &:hover {
-                    background-color: @color-bg-topBarGray2;
+                    background-color: @color-bg-2;
                 }
                 &.active {
                     background-color: @color-bg-light-blue-grey;
@@ -929,7 +929,7 @@
                 width: 20px;
                 line-height: @listHeight;
                 text-align: center;
-                color: @color-icon-gray;
+                color: @color-icon-default;
                 cursor: pointer;
             }
             .removeItemIcon {
@@ -1006,7 +1006,7 @@
         margin-left: -20px;
         width: ~"calc(100% + 40px)";
         height: 86px;
-        background: @color-bg-list-hover-blue;
+        background: @color-bg-list-hover;
 
         .instr {
         	font-weight: 600;
@@ -1018,7 +1018,7 @@
         	top: 1px;
         	padding-left: 3px;
         	.icon {
-        		color: @color-icon-gray;
+        		color: @color-icon-default;
         	}
         	display: inline-block;
         }
@@ -1119,10 +1119,10 @@
 
         .CodeMirror {
             height: ~"calc(100% - 30px)";
-            border: 1px solid @color-border-softGray;
+            border: 1px solid @color-border-medium2;
 
             .CodeMirror-gutters {
-                background-color: @color-bg-list-hover-blue;
+                background-color: @color-bg-list-hover;
             }
 
             .CodeMirror-linenumber {
@@ -1142,7 +1142,7 @@
     .bottomSection {
         margin: 20px 0px 0px;
         padding: 20px 0px;
-        border-top: 1px solid @color-bg-topBarGray2;
+        border-top: 1px solid @color-bg-2;
         .flex(0 0 auto);
         min-height: 97px;
         overflow: auto;
@@ -1420,7 +1420,7 @@
                             input {
                                 height: 24px;
                                 top: 0;
-                                border: 1px solid @color-border-softGray;
+                                border: 1px solid @color-border-medium2;
                             }
                         }
 
@@ -1584,7 +1584,7 @@
                     line-height: @listHeight - 2px;
                     text-align: center;
                     cursor: initial;
-                    color: @color-icon-gray;
+                    color: @color-icon-default;
                 }
             }
 
@@ -1973,7 +1973,7 @@
         }
 
         .iconWrapper {
-            border: 1px solid @color-border-softGray;
+            border: 1px solid @color-border-medium2;
             border-right: none;
         }
     }
@@ -2046,7 +2046,7 @@
         }
         .columnsToPublish {
             ::-webkit-scrollbar-thumb {
-                background: @color-bg-topBarGray2 !important;
+                background: @color-bg-2 !important;
             }
             ::-webkit-scrollbar-track {
                 background: @color-white;
@@ -2258,7 +2258,7 @@
         }
         #datasetOpBrowser {
             .pathSection {
-                border-top: 1px solid @color-bg-topBarGray2;
+                border-top: 1px solid @color-bg-2;
                 padding-left: 10px;
                 padding-bottom: 5px;
                 padding-top: 8px;
@@ -2287,8 +2287,8 @@
             }
 
             .listView {
-                border-top: 1px solid @color-bg-topBarGray2;
-                border-bottom: 1px solid @color-bg-topBarGray2;
+                border-top: 1px solid @color-bg-2;
+                border-bottom: 1px solid @color-bg-2;
 
                 &::-webkit-scrollbar-track {
                     background: rgba(0, 0, 0, 0);
@@ -2297,8 +2297,8 @@
                 ul {
 
                     li {
-                        border-top: 1px solid @color-bg-topBarGray2;
-                        border-bottom: 1px solid @color-bg-topBarGray2;
+                        border-top: 1px solid @color-bg-2;
+                        border-bottom: 1px solid @color-bg-2;
 
 
                         .name {
@@ -2312,7 +2312,7 @@
                             }
                             .name, .icon {
                                 opacity: 0.7;
-                                color: @color-icon-gray;
+                                color: @color-icon-default;
                             }
                         }
 
@@ -2335,11 +2335,11 @@
                         }
 
                         &:hover {
-                            background-color: @color-bg-list-hover-blue;
-                            border-top: 1px solid @color-border-softGray;
-                            border-bottom: 1px solid @color-border-softGray;
+                            background-color: @color-bg-list-hover;
+                            border-top: 1px solid @color-border-medium2;
+                            border-bottom: 1px solid @color-border-medium2;
                             + li {
-                                border-top: 1px solid @color-border-softGray;
+                                border-top: 1px solid @color-border-medium2;
                             }
                             &.folderName {
                                 .name {
@@ -2351,10 +2351,10 @@
                         &.active {
                             font-weight: 600;
                             background-color: @color-bg-list-selected-blue;
-                            border-top: 1px solid @color-border-softGray;
-                            border-bottom: 1px solid @color-border-softGray;
+                            border-top: 1px solid @color-border-medium2;
+                            border-bottom: 1px solid @color-border-medium2;
                             + li {
-                                border-top: 1px solid @color-border-softGray;
+                                border-top: 1px solid @color-border-medium2;
                             }
                         }
 
@@ -2768,7 +2768,7 @@
                 .size(@height: 100%, @width: 20px);
                 line-height: @listHeight;
                 text-align: center;
-                color: @color-icon-gray;
+                color: @color-icon-default;
                 cursor: pointer;
             }
         }
@@ -2777,12 +2777,12 @@
             float: none;
             .size(@height: @listHeight + 2px);
             line-height: @listHeight;
-            border: 1px solid @color-border-softGray;
+            border: 1px solid @color-border-medium2;
 
             .list {
                 .size(@width: 100%);
                 li {
-                    border-top: 1px solid @color-border-softGray;
+                    border-top: 1px solid @color-border-medium2;
                 }
             }
             .text {
@@ -2866,9 +2866,9 @@
 
             .tooltip-inner {
                 border: 1px solid @color-error-border-light;
-                background-color: @color-white;
+                background-color: @color-bg-default;
                 max-width: 100%;
-                color:@color-font-xcDark;
+                color:@color-font-default;
                 box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.2);
             }
 
@@ -2962,7 +2962,7 @@
                 .flexContainer();
                 .size(@height: @listHeight, @width: 100%);
                 line-height: @listHeight - 2;
-                border: 1px solid @color-border-softGray;
+                border: 1px solid @color-border-medium2;
                 margin-top: -1px;
             }
 
@@ -3038,9 +3038,9 @@
 
     .tooltip-inner {
         border: 1px solid @color-error-border-light;
-        background-color: @color-white;
+        background-color: @color-bg-default;
         max-width: 100%;
-        color: @color-font-xcDark;
+        color: @color-font-default;
         box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.2);
     }
 
@@ -3292,7 +3292,7 @@
     #exportOpColumns {
         .columnsToExport {
             ::-webkit-scrollbar-thumb {
-                background: @color-bg-topBarGray2 !important;
+                background: @color-bg-2 !important;
             }
             ::-webkit-scrollbar-track {
                 background: @color-white;
@@ -3362,7 +3362,7 @@
 
         .icon {
             font-size: 10px;
-            color: @color-icon-gray;
+            color: @color-icon-default;
             line-height: 26px;
         }
     }
@@ -3428,8 +3428,8 @@
     }
 
     .sourceSection {
-        border-top: 1px solid @color-bg-topBarGray2;
-        border-bottom: 1px solid @color-bg-topBarGray2;
+        border-top: 1px solid @color-bg-2;
+        border-bottom: 1px solid @color-bg-2;
         padding-bottom: 16px;
 
         .qMark {
@@ -3588,7 +3588,7 @@
                         border: none;
                     }
                     .icon {
-                        color: @color-icon-gray;
+                        color: @color-icon-default;
                         transform: rotate(135deg);
                     }
                     .text {
@@ -3606,7 +3606,7 @@
                 .xi-trash {
                     font-size: @trash-w;
                     margin-left: @trash-margin-l;
-                    color: @color-icon-gray;
+                    color: @color-icon-default;
                     cursor: pointer;
                 }
                 @input-w: (@source-w + @source-margin-r + @equal-w + @equal-margin-r + @trash-w + @trash-margin-l);
@@ -3621,7 +3621,7 @@
                     }
                     li {
                         margin-top: 0px;
-                        border: 1px solid @color-border-softGray;
+                        border: 1px solid @color-border-medium2;
                         border-top: none;
                         &:hover {
                             background-color: @color-border-softGray;
@@ -3650,7 +3650,7 @@
         .position(relative);
         overflow: hidden;
         font-size: 14px;
-        border-top: 1px solid @color-border-softGray;
+        border-top: 1px solid @color-border-medium2;
 
         .editArea {
             .size(@width: 100%, @height: 100%);
@@ -3664,7 +3664,7 @@
         align-items: center;
         justify-content: space-between;
         padding: 0px 15px;
-        border-top: 1px solid @color-border-softGray;
+        border-top: 1px solid @color-border-medium2;
         font-weight: 600;
     }
 

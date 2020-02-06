@@ -1,7 +1,7 @@
 .cardContainer {
     .size(@width: 100%);
     margin-bottom: 5px;
-    background-color: @color-white;
+    background-color: @color-bg-default;
 
     &.minimized {
         .cardInstruction, .cardTopMain, .cardMain, .cardSubMain, .cardBottom {
@@ -65,7 +65,7 @@
 
 .cardInstruction {
     .size(@width: 100%, @height: @height-card-instr);
-    background-color: @color-white;
+    background-color: @color-bg-default;
     overflow: hidden;
     padding: 5px 20px;
     .flex-display;
@@ -81,7 +81,7 @@
 
     .icon {
         .flex(0 0 36px);
-        .font(@size: 24px, @color: @color-icon-gray);
+        .font(@size: 24px, @color: @color-icon-default);
 
         &:before {
             display: block;

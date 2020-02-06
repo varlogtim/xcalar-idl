@@ -31,7 +31,7 @@ input {
 
 body {
     -webkit-font-smoothing: antialiased;
-    color: @color-white;
+    color: @color-font-white;
     // font-size: 0; /* Need to use this to get rid of stupid white space */
     .linear-gradient(top, #378CB3, @color-bg-marine);
 }
@@ -108,7 +108,7 @@ header {
     .innerBar {
         height: 1px;
         width: 200px;
-        background-color: @color-white;
+        background-color: @color-bg-default;
         position:absolute;
         left: -200px;
         // XX need to add this to mixin
@@ -166,9 +166,9 @@ input:-webkit-autofill:hover,
 input:-webkit-autofill:active,
 input:-webkit-autofill:focus {
     background-color: @color-bg-bright-blue !important;
-    color: @color-white !important;
+    color: @color-font-white !important;
     -webkit-box-shadow: 0 0 0 1000px  @color-bg-bright-blue inset !important;
-    -webkit-text-fill-color: @color-white !important;
+    -webkit-text-fill-color: @color-font-white !important;
 }
 
 .section {
@@ -214,7 +214,7 @@ input:-webkit-autofill:focus {
         outline: none;
         margin-left: 90px;
         padding-left: 10px;
-        .font(@weight: 500, @size: 13px, @line-height: 30px, @color: @color-white);
+        .font(@weight: 500, @size: 13px, @line-height: 30px, @color: @color-font-white);
         position: relative;
         z-index: 1;
         padding-top: 2px;
@@ -231,21 +231,21 @@ input:-webkit-autofill:focus {
         }
 
         &:focus {
-            .font(@color: @color-white);
+            .font(@color: @color-font-white);
             outline: none;
             padding-top: 4px;
             margin-top: 13px;
 
             &::after {
-                background-color: @color-white;
+                background-color: @color-bg-default;
                 height: 2px;
                 bottom: 0px;
             }
 
             ~ .label {
-                color: @color-white;
+                color: @color-font-white;
                 &:after {
-                    background-color: @color-white;
+                    background-color: @color-font-white;
                     height: 2px;
                 }
             }
@@ -354,7 +354,7 @@ input:-webkit-autofill:focus {
     }
 
     .text {
-        color: @color-white;
+        color: @color-font-white;
         display: inline-block;
         width: auto;
         &::after {
@@ -370,8 +370,8 @@ input:-webkit-autofill:focus {
 }
 
 #loginButton, #signup-submit {
-    border: 1px solid @color-white;
-    .font(@color: @color-white);
+    border: 1px solid @color-font-white;
+    .font(@color: @color-font-white);
 }
 
 #loginButton {

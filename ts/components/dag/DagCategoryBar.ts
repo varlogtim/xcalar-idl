@@ -16,12 +16,26 @@ class DagCategoryBar {
     private _closeBarTimer: NodeJS.Timeout;
     private _selectCategoryTimer: NodeJS.Timeout;
     private _showBarTimer: NodeJS.Timeout;
+    private _textColor = "#000000";
+    private _edgeColor = "#627483";
+    private _borderColor = "#849CB0";
+    private _selectedColor = "#EAF9FF";
+    private _selectedBorderColor = "#EAF9FF";
+    private _connectorColor = "#BBC7D1";
+    private _nodeFillColor = "#FFFFFF";
+    private _tableBackColor = "#FFFFFF";
 
     constructor() {
         this.$dagView = $("#dagView");
         this.$categoryBar = this.$dagView.find(".categorySection");
         this.$operatorBar = this.$dagView.find(".operatorWrap");
         this._isSQLFunc = false;
+        if (xcGlobal.darkMode) {
+            this._textColor = "#FFFFFF";
+            this._nodeFillColor = "#424242";
+            this._tableBackColor = "#181818";
+            this._borderColor = "#C9C9C9";
+        }
     }
 
     public setup(): void {
@@ -273,17 +287,14 @@ class DagCategoryBar {
 
     private _renderCategoryBar() {
         let html: HTML = "";
-        const iconMap = this.getCategoryIconMap();
 
         this.dagCategories.getCategories().forEach((category: DagCategory) => {
             const categoryType: DagCategoryType = category.getType();
             const categoryName: string = category.getName();
             const description: string = category.getDescription();
-            const icon: string = iconMap[categoryType];
             html += `<div class="category category-${categoryType}"
                 data-category="${categoryType}" ${xcTooltip.Attrs} data-original-title="${description}">
                 <div class="innerCategory">
-                    <i class="icon categoryIcon ${icon}"></i>
                     <span class="text">${categoryName}</span>
                 </div>
             </div>`;
@@ -365,8 +376,8 @@ class DagCategoryBar {
                     class: ['connectorOutVisible'],
                     attrs: {
                         'points': `${offset + 2},8 ${offset + 10},14 ${offset + 2},20`,
-                        'fill': '#BBC7D1',
-                        'stroke': '#849CB0', 'stroke-width': '1',
+                        'fill': this._connectorColor,
+                        'stroke': this._borderColor, 'stroke-width': '1',
                         'rx': '1', 'ry': '1'
                     }
                 }
@@ -412,7 +423,7 @@ class DagCategoryBar {
                 smallSquare: {
                     class: ['connectorInVisible'],
                     attrs: {
-                        'x': '0', 'y': '4', 'fill': '#BBC7D1', 'stroke': '#849CB0',
+                        'x': '0', 'y': '4', 'fill': this._connectorColor, 'stroke': this._borderColor,
                         'stroke-width': '1', 'rx': '1', 'ry': '1',
                         'width': '7', 'height': '18',
                         'data-index': '0',
@@ -434,8 +445,8 @@ class DagCategoryBar {
                 smallSquare: {
                     class: ['connectorInVisible'],
                     attrs: {
-                        'x': '0', 'y': `${y}`, 'fill': '#BBC7D1',
-                        'stroke': '#849CB0', 'stroke-width': '1',
+                        'x': '0', 'y': `${y}`, 'fill': this._connectorColor,
+                        'stroke': this._borderColor, 'stroke-width': '1',
                         'rx': '1', 'ry': '1', 'width': '7', 'height': '7',
                         'data-index': `${j}`,
                     }
@@ -511,12 +522,12 @@ class DagCategoryBar {
                 && !(operator instanceof DagNodeInstruction)) {
             hasTable = true;
             table = '<g class="table" transform="translate(' + (DagView.nodeWidth + 24) + ', 0)" display="none">' +
-                        '<path class="tableLine" stroke="#627483" stroke-width="1px" fill="none" stroke-linecap="round" d="M-35,14L16,14"></path>' +
-                        '<rect x="0" y="3" width="25" height="25" fill="white" ry="2" rx="2" />'+
+                        '<path class="tableLine" stroke="' + this._edgeColor + '" stroke-width="1px" fill="none" stroke-linecap="round" d="M-35,14L16,14"></path>' +
+                        '<rect x="0" y="3" width="25" height="25" fill=" ' + this._tableBackColor + '" ry="2" rx="2" />'+
                         '<text class="mainTableIcon" font-family="icomoon" font-size="27" x="-2" y="' + (DagView.nodeHeight - 1) + '" ' + xcTooltip.Attrs + ' data-original-title="Click to view options">\uea07</text>' +
                         '<text class="tableName" x="12" y="37" ' +
                         'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
-                        'font-size="10" fill="#000000">' +
+                        'font-size="10" fill="' + this._textColor + '">' +
                         '</text>' +
                     '</g>';
         }
@@ -547,13 +558,13 @@ class DagCategoryBar {
                 '<g class="connOut" transform="translate(-58,0)">' + outConnector + '</g>' +
                 table +
             '<rect class="main" x="6" y="0" width="' + (DagView.nodeWidth - 13) + '" height="' + DagView.nodeHeight + '" ' +
-                'fill="white" stroke="#849CB0" stroke-width="1" ' +
+                'fill="' + this._nodeFillColor + '" stroke="' + this._borderColor + '" stroke-width="1" ' +
                 'ry="' + DagView.nodeHeight + '" rx="11" ' +
                 xcTooltip.Attrs + ' data-original-title="' + description + '" />'+
             '<svg width="' + (DagView.nodeWidth - 2) + '" height="' + DagView.nodeHeight + '" x="1" y="1">' +
                 opTitleHtml + '</svg>' +
             '<circle class="statusIcon" cx="' + (DagView.nodeWidth - 15) + '" cy="' + (DagView.nodeHeight - 1) + '" r="5" ' +
-                'stroke="#849CB0" stroke-width="1" fill="white" />' +
+                'stroke="' + this._borderColor + '" stroke-width="1" fill="white" />' +
             '</g>';
 
         return html;
@@ -567,17 +578,17 @@ class DagCategoryBar {
             const namePart2 = name.slice(name.lastIndexOf(" ") + 1);
             html = '<text class="opTitle" x="50%" y="30%" ' +
             'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
-            'font-size="11" fill="#000000">' + namePart1 +
+            'font-size="11" fill="' + this._textColor + '">' + namePart1 +
             '</text>' +
             '<text class="opTitle" x="50%" y="70%" ' +
             'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
-            'font-size="11" fill="#000000">' + namePart2 +
+            'font-size="11" fill="' + this._textColor + '">' + namePart2 +
             '</text>';
 
         } else {
             html = '<text class="opTitle" x="50%" y="50%" ' +
             'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
-            'font-size="11" fill="#000000">' + name +
+            'font-size="11" fill="' + this._textColor + '">' + name +
             '</text>';
         }
         return html;
@@ -682,7 +693,7 @@ class DagCategoryBar {
         rect.classed('selection', true);
         rect.attr('x', '-4').attr('y', '-4')
             .attr('width', DagView.nodeWidth + 8).attr('height', DagView.nodeHeight + 8)
-            .attr('fill', '#EAF9FF').attr('stroke', '#38CBFF').attr('stroke-width', '1')
+            .attr('fill', this._selectedColor).attr('stroke', this._selectedBorderColor).attr('stroke-width', '1')
             .attr('rx', '16').attr('ry', DagView.nodeHeight+ 8);
     }
 

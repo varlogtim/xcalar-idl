@@ -3,9 +3,9 @@
 .fileManagerMainPanel {
     .topBar {
         // TODO: move to constants.less when colors are finalized
-        @color-title: @color-icon-gray;
+        @color-title: @color-icon-default;
         @color-border-bar: @color-bg-cardHeader;
-        background-color: @color-bg-topBarGray2;
+        background-color: @color-bg-2;
         box-shadow: 0px 0.25px 0px @color-border-bar;
         min-height: @height-topBar;
         max-height: 50px;
@@ -27,14 +27,14 @@
 }
 
 .fileManager {
-    color: @color-font-xcDark;
+    color: @color-font-default;
     font-size: 12px;
     height: 100%;
 
     // TODO: move to constants.less when colors are finalized
     @color-border-operator: @color-bg-cardHeader;
     @color-border-bar: @color-bg-cardHeader;
-    @color-icon-background: @color-bg-list-hover-blue;
+    @color-icon-background: @color-bg-list-hover;
 
     .fileManagerBar {
         @operation-height: 40px;
@@ -46,7 +46,7 @@
         @upload-width: 123px;
 
         .size(@min-height: @operation-height, @max-height: @operation-height);
-        background-color: @color-bg-topBarGray2;
+        background-color: @color-bg-2;
         box-shadow: 0px 0.25px 0px @color-border-operator;
         .flex-display;
 
@@ -66,8 +66,8 @@
                 font-style: normal;
                 line-height: 23px;
                 box-sizing: border-box;
-                border: 1px solid @color-border-softGray;
-                background-color: @color-white;
+                border: 1px solid @color-border-medium2;
+                background-color: @color-bg-default;
                 padding: 0px 7px;
             }
 
@@ -79,7 +79,7 @@
                 color: @color-border-operator;
                 line-height: 23px;
                 box-sizing: border-box;
-                border: 1px solid @color-border-softGray;
+                border: 1px solid @color-border-medium2;
                 border-left: none;
                 text-align: center;
                 background-color: @color-icon-background;
@@ -99,14 +99,14 @@
                     .size(@height: 25px);
                     .position(relative);
                     padding: 0 0 0 0;
-                    background-color: @color-white;
+                    background-color: @color-bg-default;
                     box-sizing: border-box;
-                    border: 1px solid @color-border-softGray;
+                    border: 1px solid @color-border-medium2;
                     border-top: none;
                     box-shadow: 0px 0px 0.25px @color-border-softGray;
 
                     .label {
-                        color: @color-font-xcDark;
+                        color: @color-font-default;
                         .position(relative);
                         line-height: 23px;
                         padding: 0px 7px;
@@ -145,14 +145,14 @@
                 .size(@height: 25px, @width: 100%);
                 font-size: 12px;
                 font-style: normal;
-                color: @color-font-xcDark;
-                .input-placeholder(@color-font-xcDark);
+                color: @color-font-default;
+                .input-placeholder(@color-font-default);
                 line-height: 23px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 box-sizing: border-box;
-                border: 1px solid @color-border-softGray;
-                background-color: @color-white;
+                border: 1px solid @color-border-medium2;
+                background-color: @color-bg-default;
                 padding: 0px 7px;
             }
         }
@@ -173,7 +173,7 @@
                 line-height: 23px;
                 box-sizing: border-box;
                 border: 1px solid @color-border-menugray;
-                background-color: @color-white;
+                background-color: @color-bg-default;
                 padding: 0px 7px;
             }
 
@@ -185,10 +185,10 @@
                 color: @color-border-operator;
                 line-height: 23px;
                 box-sizing: border-box;
-                border: 1px solid @color-border-softGray;
+                border: 1px solid @color-border-medium2;
                 border-left: none;
                 text-align: center;
-                background-color: @color-white;
+                background-color: @color-bg-default;
 
                 &:hover {
                     background-color: @color-bg-dropdown-hover-gray;
@@ -212,21 +212,21 @@
                     .size(@height: 25px);
                     .position(relative);
                     padding: 0 0 0 0;
-                    background-color: @color-white;
+                    background-color: @color-bg-default;
                     box-sizing: border-box;
-                    border: 1px solid @color-border-softGray;
+                    border: 1px solid @color-border-medium2;
                     border-top: none;
                     box-shadow: 0px 0px 0.25px @color-border-softGray;
 
                     .label {
-                        color: @color-font-xcDark;
+                        color: @color-font-default;
                         .position(relative);
                         line-height: 23px;
                         padding: 0px 7px;
                     }
 
                     &.selected {
-                        background-color: @color-bg-list-hover-blue;
+                        background-color: @color-bg-list-hover;
                     }
 
                     &.disabled, &.unavailable {
@@ -267,7 +267,7 @@
                 text-align: center;
                 line-height: 25px;
                 box-sizing: border-box;
-                border: 1px solid @color-border-softGray;
+                border: 1px solid @color-border-medium2;
                 border-radius: 4px;
                 background-color: @color-border-bar;
                 padding: 0px 7px;
@@ -298,10 +298,10 @@
             font-size: 12px;
             line-height: 23px;
             box-sizing: border-box;
-            border: 1px solid @color-border-softGray;
+            border: 1px solid @color-border-medium2;
             border-right: none;
             text-align: center;
-            background-color: @color-white;
+            background-color: @color-bg-default;
         }
 
         .searchInput {
@@ -310,9 +310,9 @@
             font-size: 12px;
             line-height: 23px;
             box-sizing: border-box;
-            border: 1px solid @color-border-softGray;
+            border: 1px solid @color-border-medium2;
             border-left: none;
-            background-color: @color-white;
+            background-color: @color-bg-default;
             padding: 0 7px;
         }
     }
@@ -373,7 +373,7 @@
             .size(@width: 100%, @height: @title-section-height);
             background-color: @color-icon-background;
             box-shadow: none;
-            border: 1px solid @color-border-softGray;
+            border: 1px solid @color-border-medium2;
 
             .row {
                 .field {
@@ -384,7 +384,7 @@
                     }
 
                     .icon {
-                        color: @color-icon-gray;
+                        color: @color-icon-default;
                         opacity: @opacity-unhover;
 
                         // TODO: xi-sort by itself has padding.
@@ -414,7 +414,7 @@
 
         .mainSection {
             .size(@width: 100%, @height: 100%);
-            border: 1px solid @color-border-softGray;
+            border: 1px solid @color-border-medium2;
             border-top: none;
             max-height: ~"calc(100vh - 260px)";
             overflow-y: auto;

@@ -51,7 +51,7 @@
         border-color: transparent;
         margin-left: 0px !important; // override menuopen styling
         width: 100% !important;
-        background-color: @color-bg-topBarGray2;
+        background-color: @color-bg-2;
     }
 
     #workbookTopBar {
@@ -95,7 +95,7 @@
     }
 
     .bottomSection {
-        background-color: @color-bg-topBarGray2;
+        background-color: @color-bg-2;
         height: ~"calc(100% - 291px)";
     }
 
@@ -137,7 +137,7 @@
         margin-right: 10px;
         margin-bottom: 10px;
         box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
-        background-color: @color-white;
+        background-color: @color-bg-default;
 
         .content {
             .flex(1 0 300px);
@@ -179,10 +179,10 @@
             font-weight: normal;
 
             a {
-                color: @color-font-xcDark;
+                color: @color-font-default;
                 text-decoration: underline;
                 &:visited {
-                    color: @color-font-xcDark;
+                    color: @color-font-default;
                 }
                 &:hover {
                     color: @color-font-link-blue;
@@ -201,12 +201,12 @@
             padding-left: 12px;
 
             a {
-                color: @color-font-xcDark !important;
+                color: @color-font-default !important;
                 // over ride default link color
             }
 
             &:hover {
-                background-color: @color-bg-topBarGray2;
+                background-color: @color-bg-2;
             }
         }
         .tutBtn {
@@ -214,7 +214,7 @@
             .size(45px, 100%);
             text-align: center;
             .icon {
-                color: @color-icon-gray;
+                color: @color-icon-default;
                 font-size: 30px;
                 &.xi-videocam {
                     font-size: 20px;
@@ -270,7 +270,7 @@
 
         .row {
             height: @h + 1; // 1px border bottom
-            background-color: @color-white;
+            background-color: @color-bg-default;
             position: relative;
             display: flex;
 
@@ -309,7 +309,7 @@
 
             .row {
                 &:hover {
-                    background-color: @color-bg-list-hover-blue;
+                    background-color: @color-bg-list-hover;
                 }
             }
         }

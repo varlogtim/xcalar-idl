@@ -31,11 +31,11 @@
         .size(@width-topMenu,  @min-width: @width-topMenu, @height: 100%);
         padding: 0px;
         padding-bottom: 5px;
-        border-right: 1px solid @color-border-grayBlue;
+        border-right: 1px solid @color-border-medium;
         margin-left: 0px;
         z-index: @z-index-topMenu;
-        background-color: @color-white;
-        color: @color-font-xcDark;
+        background-color: @color-bg-default;
+        color: @color-font-default;
 
         > .topSection {
             display: flex;
@@ -43,11 +43,11 @@
             padding-left: 15px;
             padding-right: 8px;
             height: @topSectionHeight;
-            border-bottom: 1px solid @color-bg-topBarGray2;
+            border-bottom: 1px solid @color-bg-2;
 
             .titleSection {
                 .flex(1 1 auto);
-                color: @color-font-xcDark;
+                color: @color-font-default;
                 font-size: 22px;
                 line-height: @topSectionHeight;
             }
@@ -67,7 +67,7 @@
 
         > .mainSection {
             height: ~"calc(100% - @{topSectionHeight})";
-            color: @color-font-xcDark;
+            color: @color-font-default;
             overflow: auto;
             border-top: none;
             padding-top: 10px;
@@ -182,8 +182,8 @@
     .topSection {
         height: 59px;
         padding: 10px 15px;
-        background-color: @color-bg-topBarGray2;
-        border-bottom: 1px solid @color-border-softGray;
+        background-color: @color-bg-2;
+        border-bottom: 1px solid @color-border-medium2;
     }
 
     .filterSection {
@@ -196,7 +196,7 @@
             .size(@height: 100%);
             .rounded(10px);
             margin-right: 12px;
-            background-color: @color-icon-gray;
+            background-color: @color-icon-default;
             opacity: 0.7;
             color: @color-white;
 
@@ -213,18 +213,18 @@
         float: right;
         position: relative;
         .size(@width: 50px, @height: 40px);
-        border-left: 1px solid @color-border-softGray;
+        border-left: 1px solid @color-border-medium2;
         padding-left: 10px;
 
         .iconWrap {
             height: 100%;
-            background-color: @color-white;
+            background-color: @color-bg-default;
             .rounded(10px);
             border: 1px solid @color-bg-cardHeader;
         }
 
         .deleteIcon, .xi-close {
-            color: @color-icon-gray;
+            color: @color-icon-default;
             overflow: hidden; // maintains height
         }
 
@@ -248,8 +248,8 @@
         display: none;
         .position(absolute, @bottom: 43px, @right: 4px);
         .rounded;
-        border: 1px solid @color-border-softGray;
-        background-color: @color-white;
+        border: 1px solid @color-border-medium2;
+        background-color: @color-bg-default;
 
         li {
             .size(26px, 26px);
@@ -257,10 +257,10 @@
             padding-left: 3px;
 
             &:first-child {
-                border-right: 1px solid @color-border-softGray;
+                border-right: 1px solid @color-border-medium2;
             }
             &:last-child {
-                border-left: 1px solid @color-border-softGray;
+                border-left: 1px solid @color-border-medium2;
             }
 
             &.deleteAll {
@@ -295,25 +295,25 @@
         box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
 
         &:hover {
-            background-color: @color-bg-list-hover-blue;
+            background-color: @color-bg-list-hover;
         }
 
         &.active {
-            background-color: @color-bg-topBarGray2;
+            background-color: @color-bg-2;
         }
 
         &.sysType {
             .name {
-                color: @color-icon-gray;
+                color: @color-icon-default;
             }
             .progressBar {
                 background-color: @color-bg-dropdown-gray;
             }
             .queryIcon {
-                color: @color-icon-gray;
+                color: @color-icon-default;
             }
             .querySteps {
-                color: @color-icon-gray;
+                color: @color-icon-default;
             }
         }
 
@@ -352,7 +352,7 @@
             float: right;
 
             .icon {
-                .font(@size: 14px, @color: @color-icon-gray);
+                .font(@size: 14px, @color: @color-icon-default);
                 float: right;
                 &:first-child {
                     margin-left: 10px;
@@ -366,7 +366,7 @@
         }
 
         .name {
-            .font(@size: 14px, @color: @color-icon-gray);
+            .font(@size: 14px, @color: @color-icon-default);
             .position(relative, @top: -2px);
             text-transform: capitalize;
         }
@@ -425,7 +425,7 @@
                 padding-right: 10px;
             }
             .text:not(:first-child) {
-                border-left: 1px solid @color-border-softGray;
+                border-left: 1px solid @color-border-medium2;
                 padding-left: 10px;
             }
         }
@@ -450,7 +450,7 @@
         padding-right: 55px;
         display: inline-block;
         float: left;
-        background-color: @color-white;
+        background-color: @color-bg-default;
         overflow: hidden;
         position: relative;
 
@@ -616,7 +616,7 @@
             .position(absolute, @left: 30px);
             .size(@width: ~"calc(100% - 170px)", @height: 210px);
             margin: 10px 0px 20px -1px;
-            background-color: @color-white;
+            background-color: @color-bg-default;
         }
 
         .axis {
@@ -689,7 +689,7 @@
 
             .gridSvg {
                 .position(@top: 10px, @right: 0);
-                background: @color-bg-list-hover-blue;
+                background: @color-bg-list-hover;
             }
         }
     }
@@ -739,7 +739,7 @@
                 hr {
                     width: 60px;
                     border: none;
-                    border-top: 1px solid @color-border-softGray;
+                    border-top: 1px solid @color-border-medium2;
                     display: block;
                     .nomargin-padding;
                     margin: 0 auto;
@@ -1201,7 +1201,7 @@
             .listWrap {
                 width: 100%;
                 margin: 0 auto 5px auto;
-                background-color: @color-bg-topBarGray2;
+                background-color: @color-bg-2;
 
                 ul {
                     width: 100%;
@@ -1304,7 +1304,7 @@
         border-top: 1px solid @color-bg-cancel-gray-hover;
 
         .title {
-            .font(@size: 14px, @weight: 600, @color: @color-font-xcDark);
+            .font(@size: 14px, @weight: 600, @color: @color-font-default);
         }
         .flex-display;
         .flex-direction(column);
@@ -1445,7 +1445,7 @@
             float: left;
 
             &:last-child {
-                border-left: 1px solid @color-bg-topBarGray2;
+                border-left: 1px solid @color-bg-2;
             }
         }
     }
@@ -1453,7 +1453,7 @@
     .statusSection {
         .content {
             padding: 10px 20px 0px 0px;
-            color: @color-font-xcDark;
+            color: @color-font-default;
             font-size: 12px;
 
             .status {
@@ -1845,7 +1845,7 @@
                     }
                 }
                 &.focus {
-                    background-color: @color-white;
+                    background-color: @color-bg-default;
                     opacity: 1.0;
                     border-top-left-radius: 10px;
                 }
@@ -2030,7 +2030,7 @@
 
 
             .icon {
-                color: @color-font-form-gray;
+                color: @color-font-form;
             }
         }
 
@@ -2071,7 +2071,7 @@
             }
             .paramName {
                 border: 0px;
-                background-color: @color-white;
+                background-color: @color-bg-default;
                 color: @color-font-select-blue;
             }
         }
@@ -2152,7 +2152,7 @@
         }
         .readonly {
             border: 0px;
-            background-color: @color-white;
+            background-color: @color-bg-default;
             color: @color-font-select-blue;
             &.newVal {
                 cursor: not-allowed;
@@ -2181,7 +2181,7 @@
         max-width: 500px;
         opacity: 0.8;
         font-size: 12px;
-        border-bottom: 1px solid @color-border-softGray;
+        border-bottom: 1px solid @color-border-medium2;
     }
 }
 
@@ -2206,7 +2206,7 @@
 
             .logContentWrap, .cliWrap {
                 .size(@width: 100%);
-                .font(@size: 13px, @color: @color-font-xcDark);
+                .font(@size: 13px, @color: @color-font-default);
             }
 
             .logContentWrap {
@@ -2313,7 +2313,7 @@
         }
 
         &:hover {
-            background-color: @color-bg-topBarGray2;
+            background-color: @color-bg-2;
         }
     }
 }

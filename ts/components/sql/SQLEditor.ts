@@ -248,7 +248,7 @@ class SQLEditor {
         this._editor = CodeMirror.fromTextArea(textArea as HTMLTextAreaElement,
             {
                 "mode": "text/x-sql",
-                "theme": "xcalar-light",
+                "theme": "xcalar-dark",
                 "lineNumbers": true,
                 "lineWrapping": true,
                 "smartIndent": true,

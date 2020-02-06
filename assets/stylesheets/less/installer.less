@@ -124,7 +124,7 @@ form {
     .innerBar {
         height: 1px;
         width: 200px;
-        background-color: @color-white;
+        background-color: @color-bg-default;
         position:absolute;
         left: -200px;
         // XX need to add this to mixin
@@ -175,7 +175,7 @@ form {
             float: left;
             display: inline-block;
             margin: 0 5px 0 0px;
-            background-color: @color-white;
+            background-color: @color-bg-default;
             border-radius: 100%;
             .vertical-align;
 
@@ -427,7 +427,7 @@ input:-webkit-autofill:focus {
                 outline: none;
 
                 &::after {
-                    background-color: @color-white;
+                    background-color: @color-bg-default;
                     height: 2px;
                     bottom: 0px;
                 }
@@ -435,7 +435,7 @@ input:-webkit-autofill:focus {
                 ~ .bar {
                     color: @color-white;
                     &::after {
-                        background-color: @color-white;
+                        background-color: @color-bg-default;
                         height: 2px;
                     }
                 }
@@ -911,7 +911,7 @@ input:-webkit-autofill:focus {
     .position(absolute, 0, 0, 0, 0);
     .size(@max-width: 99%, @max-height: 99%);
     z-index: @z-index-modal;
-    background-color: @color-white;
+    background-color: @color-bg-default;
 
     .modalHeader {
         background-color: @color-bg-dusk-blue;
@@ -975,7 +975,7 @@ input:-webkit-autofill:focus {
 
     .modalInstruction {
         .size(@width: 100%, @height: @height-card-instr);
-        background-color: @color-white;
+        background-color: @color-bg-default;
         overflow: hidden;
         padding: 10px;
         border-bottom: 1px  solid @color-border-pinkish-grey2;
@@ -1007,7 +1007,7 @@ input:-webkit-autofill:focus {
     }
 
     .modalMain {
-        background-color: @color-white;
+        background-color: @color-bg-default;
         .no-selection;
     }
 

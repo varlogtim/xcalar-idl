@@ -263,7 +263,7 @@ class UDFPanel {
                     version: 3,
                     singleLineStringErrors: false
                 },
-                theme: "xcalar-light",
+                theme: "xcalar-dark",
                 lineNumbers: true,
                 lineWrapping: true,
                 indentWithTabs: false,

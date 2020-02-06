@@ -36,6 +36,7 @@ class DagView {
     private static dagEventNamespace = 'DagView';
     private static udfErrorColor = "#F15840";
     private static mapNodeColor = "#89D0E0";
+    private static textColor = "#000000";
     private static dataflowNodeLimit = 1000; // point where dataflow starts to lag
     private static _nodeCache: Map<string, JQuery> = new Map(); // used to store nodes for drawing
 
@@ -55,6 +56,9 @@ class DagView {
         DagView.$dagView = $("#dagView");
         DagView.$dfWrap = DagView.$dagView.find(".dataflowWrap .innerDataflowWrap");
         DagView._$operatorBar = DagView.$dagView.find(".operatorWrap");
+        if (xcGlobal.darkMode) {
+            DagView.textColor = "#FFFFFF";
+        }
     }
 
     private static lineFunction: Function = d3.svg.line()
@@ -4346,7 +4350,7 @@ class DagView {
 
         const textSvg = g.append("text")
             .attr("class", "nodeTitle")
-            .attr("fill", "#000000")
+            .attr("fill", DagView.textColor)
             .attr("font-size", 10)
             .attr("transform", "translate(" + ((DagView.nodeWidth / 2) + 1) + "," +
                 titleHeight + ")")
@@ -4368,7 +4372,7 @@ class DagView {
         const paramHeight: number = titleHeight + 1 + titleLines.length * DagView.titleLineHeight;
         const paramTextSvg: d3 = g.append("text")
             .attr("class", "paramTitle")
-            .attr("fill", "#000000")
+            .attr("fill", DagView.textColor)
             .attr("font-size", 10)
             .attr("transform", "translate(" + ((DagView.nodeWidth / 2) + 1) + "," +
                 paramHeight + ")")

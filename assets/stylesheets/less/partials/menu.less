@@ -150,7 +150,7 @@
     cursor: pointer;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
     .dropDown;
-    background-color: @color-white;
+    background-color: @color-bg-default;
 
     &.noBorder {
         li {
@@ -231,7 +231,7 @@
     li {
         .position(relative);
         padding: 0px 6px 0 8px;
-        border-bottom: 1px solid @color-border-softGray;
+        border-bottom: 1px solid @color-border-menuItem;;
         height: @liHeight;
         line-height: @liHeight;
         font-size: 11px;
@@ -299,7 +299,7 @@
         }
 
         .icon {
-            .font(@size: 10px, @line-height: @liHeight, @color: @color-icon-gray);
+            .font(@size: 10px, @line-height: @liHeight, @color: @color-icon-default);
             margin-right: 6px;
             display: inline-block;
             width: 10px;
@@ -312,7 +312,7 @@
         margin-left: -3px;
         padding: 0 2px;
         text-align: center;
-        border: 1px solid @color-border-softGray;
+        border: 1px solid @color-border-medium2;
         opacity: @opacity-unhover;
 
         &:focus {
@@ -386,7 +386,7 @@
             .typeIcon;
 
             .type.icon {
-                color: @color-icon-gray;
+                color: @color-icon-default;
             }
 
             .flexWrap.flex-left {
@@ -631,7 +631,7 @@
 }
 
 .menu, .list {
-    background-color: @color-white;
+    background-color: @color-bg-menu;
 }
 
 //scrollable list styling
@@ -694,7 +694,7 @@
            top: 0px;
            width: 20px;
            height: 100%;
-           background-color: @color-bg-topBarGray2;
+           background-color: @color-bg-2;
 
             &.top {
                 z-index: 2;
@@ -797,7 +797,7 @@ ul.inputMenu {
             .box-sizing;
             display: block;
             padding: 8px 6px 6px 6px;
-            background-color: @color-white;
+            background-color: @color-bg-default;
             z-index: 1;
             .transition (margin-bottom .3s);
 

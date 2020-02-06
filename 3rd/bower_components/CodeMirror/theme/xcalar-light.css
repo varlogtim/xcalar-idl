@@ -1,8 +1,8 @@
-.cm-s-xcalar-light.CodeMirror { background: white; color: #485461; }
+.cm-s-xcalar-light.CodeMirror { background: #181818; color: #485461; }
 .cm-s-xcalar-light div.CodeMirror-selected { background: #b2d7fe !important; }
 .cm-s-xcalar-light.CodeMirror ::selection { background: #b2d7fe; }
 .cm-s-xcalar-light.CodeMirror ::-moz-selection { background: #b2d7fe; }
-.cm-s-xcalar-light .CodeMirror-gutters { background: #f5f8fa; border-right: 7px solid #f5f8fa; }
+.cm-s-xcalar-light .CodeMirror-gutters { background: #181818; border-right: 7px solid #181818; }
 .cm-s-xcalar-light .CodeMirror-guttermarker { color: #485461; }
 .cm-s-xcalar-light .CodeMirror-guttermarker-subtle { color: #3E7087; }
 .cm-s-xcalar-light .CodeMirror-linenumber { color: #485461; }

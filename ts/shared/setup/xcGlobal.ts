@@ -86,7 +86,11 @@ namespace xcGlobal {
         // Shut up the console logs
         verbose = false;
         superVerbose = false;
+
+
     };
+
+    export let darkMode = true;
 }
 
 if (typeof exports !== 'undefined') {

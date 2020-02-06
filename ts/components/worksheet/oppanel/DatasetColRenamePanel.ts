@@ -177,6 +177,7 @@ class DatasetColRenamePanel {
         const $panel: JQuery = this.$view;
         const sectionW: number = parseFloat($panel.find(".lists").eq(0).css("min-width")) + 5;
         const minWidth: number = MainMenu.defaultWidth;
+        return;
         if (reset) {
             MainMenu.resize(0);
         } else {

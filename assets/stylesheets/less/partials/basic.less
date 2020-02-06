@@ -29,7 +29,11 @@ h2 {
 }
 
 b {
-    color: @color-font-form-gray;
+    color: @color-font-form;
+}
+
+input {
+    color: @color-font-default;
 }
 
 input[type="button"], input[type="submit"], input[type="reset"], input[type="file"], button {
@@ -49,7 +53,7 @@ html {
 body {
     -webkit-font-smoothing: antialiased;
     .nomargin-padding;
-    .font(@weight: 400, @family: @font-base, @color: @color-font-xcDark);
+    .font(@weight: 400, @family: @font-base, @color: @color-font-default);
     font-size: 0; /* Need to use this to get rid of stupid white space */
     overflow-y: hidden;
     background: @color-bg-body-gray;
@@ -71,7 +75,8 @@ body {
 }
 
 #container {
-    background-color: @color-white;
+    background-color: @color-bg-default;
+    color: @color-font-default;
     &.workbookMode {
         .wkbkMenuBarTabs {
             display: none;
@@ -260,13 +265,13 @@ body {
     border-color: transparent;
     border-style: solid;
     .rounded(10px);
-    background-color: @color-border-grayBlue !important;
+    background-color: @color-scrollBarThumb !important;
     background-clip: content-box;
     -webkit-box-shadow: inset 0 -1px 2px rgba(205,205,205,0.75);
 }
 
 &::-webkit-scrollbar-track {
-    background: linear-gradient(to bottom right, @color-mercury , @color-white); /* Standard syntax */
+    background: linear-gradient(to bottom right, @color-scrollBarLight , @color-scrollBarDark); /* Standard syntax */
 }
 
 &::-webkit-scrollbar-corner {
@@ -328,7 +333,7 @@ body {
         .size(400px, 270px);
         .center-align;
         top: 38%;
-        background-color: @color-white;
+        background-color: @color-bg-modal;
         box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.3);
         pointer-events: none;
 
@@ -448,7 +453,7 @@ body {
         .progressBar {
             height: 100%;
             width: 0%;
-            background-color: @color-white;
+            background-color: @color-bg-default;
         }
 
         .steps, .progressWrap, .progressNode {
@@ -561,7 +566,7 @@ body {
 #formWaitingBG {
     .size(@width: 100%, @height: ~"calc(100% - 36px)");
     .position(absolute, @top: 36px, @left: 0);
-    background-color: rgba(255,255,255, 0.6);
+    background-color: @color-bg-formWaiting;
     z-index: 101; // higher than the resizable grabbers
 
     &.transparent {
@@ -579,7 +584,7 @@ body {
 /* For Both worksheet menu bar and bottom area bar */
 .topBar {
     .size(@width: 100%, @height: @height-topBar);
-    background-color: @color-bg-topBarGray2;
+    background-color: @color-bg-topBar;
     padding-left: @width-menuPadding;
     padding-right: @width-userBox;
     overflow: hidden;
@@ -587,7 +592,7 @@ body {
     z-index: @z-index-topBar;
 
     .title {
-        .font(@size: 20px, @weight: 600, @color: @color-font-form-gray);
+        .font(@size: 20px, @weight: 600, @color: @color-font-form);
         float: left;
         line-height: @height-topBar;
     }
@@ -613,7 +618,7 @@ body {
     & > .mainContent {
         .size(@height: ~"calc(100% - @{height-topBar})");
         .transition(margin-left @time-menuAnim);
-        border-top: 1px solid @color-border-grayBlue;
+        border-top: 1px solid @color-border-medium;
     }
 }
 
@@ -649,7 +654,7 @@ body {
     z-index: @z-index-topBar + 1;
     padding-right: 10px;
     padding-left: 5px;
-    background-color: @color-bg-topBarGray2;
+    background-color: @color-bg-topBar;
 
    > button {
         display: inline-block;
@@ -682,7 +687,7 @@ body {
         .vertical-align;
         cursor: pointer;
         .rounded(@modeArea-radius);
-        background-color: @color-white;
+        background-color: @color-bg-default;
         border: 1px solid @color-font-link-blue;
 
         &.on {
@@ -733,7 +738,7 @@ body {
     .noSelection;
     display: inline-block;
     border: 0;
-    background-color: @color-white;
+    background-color: @color-bg-default;
 
     &:active {
         border: 1px solid rgba(0, 0, 0, 0.1);
@@ -860,7 +865,7 @@ body {
     .size(@width: ~"calc(100% - 305px)", @height: @height-topBar);
     margin-left:  0;
     padding-left: @width-homeBtn;
-    background-color: @color-bg-topBarGray2;
+    background-color: @color-bg-topBar;
     .noSelection;
     z-index: @z-index-statusBar;
     display: flex;
@@ -893,7 +898,7 @@ body {
 
         &.panelName {
             text-transform: capitalize;
-            .font(@size: 18px, @color: @color-font-form-gray, @line-height: 10px, @weight: 600);
+            .font(@size: 18px, @color: @color-font-form, @line-height: 10px, @weight: 600);
             margin-left: 1px;
             overflow: visible;
         }
@@ -1307,7 +1312,7 @@ input {
         .position(relative);
         .size(@width: 240px, @min-height: 100px, @max-height: 300px);
         box-shadow: 0 0 4px 1px rgba(0,0,0,.25);
-        background-color: @color-white;
+        background-color: @color-bg-default;
         z-index: 3;
         .flex-display;
         .align-items(stretch);
@@ -1888,7 +1893,7 @@ input {
 
 i.qMark {
     .size(12px, 12px);
-    background-color: @color-icon-gray-hover;
+    background-color: @color-icon-default-hover;
     color: @color-white;
     border-radius: 100%;
     font-size: 7px;
@@ -1916,7 +1921,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .xc-dragDropArea {
-    background-color: @color-white;
+    background-color: @color-bg-default;
     padding: 20px;
     display: none;
     .size(100%, 100%);
@@ -1945,7 +1950,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .xc-dragDropArea.entering {
-    background-color: @color-white;
+    background-color: @color-bg-default;
     .flex-display;
     * {
         pointer-events: none;
@@ -1954,7 +1959,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 .xc-fileDragging {
     .xc-dragDropArea {
-        background-color: @color-white;
+        background-color: @color-bg-default;
         .flex-display;
     }
     * {
@@ -2095,24 +2100,25 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .tooltip-inner {
-    background-color: @color-bg-charcoal-grey;
-    opacity: 0.95;
+    background-color: @color-bg-tooltip;
+    opacity: 1;
     padding-top: 4px;
     padding-bottom: 4px;
+    color: @color-font-white;
 }
 
 .tooltip.bottom .tooltip-arrow {
-    border-bottom-color: @color-bg-charcoal-grey;
+    border-bottom-color: @color-bg-tooltip;
 }
 .tooltip.top .tooltip-arrow {
-    border-top-color: @color-bg-charcoal-grey;
+    border-top-color: @color-bg-tooltip;
 }
 
 .tooltip.left .tooltip-arrow {
-    border-left-color: @color-bg-charcoal-grey;
+    border-left-color: @color-bg-tooltip;
 }
 .tooltip.right .tooltip-arrow {
-    border-right-color: @color-bg-charcoal-grey;
+    border-right-color: @color-bg-tooltip;
 }
 
 .tooltip.error {
@@ -2121,7 +2127,7 @@ input[type=number]::-webkit-outer-spin-button {
     pointer-events: initial;
 
     .tooltip-inner, .tooltip-arrow {
-        color: @color-font-form-gray;
+        color: @color-font-form;
         opacity: 1 !important;
     }
 
@@ -2131,7 +2137,7 @@ input[type=number]::-webkit-outer-spin-button {
     }
 
     .tooltip-inner {
-        background-color: @color-white;
+        background-color: @color-bg-default;
         border: 1px solid @color-error-border-light;
         box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.2);
     }
@@ -2160,7 +2166,7 @@ input[type=number]::-webkit-outer-spin-button {
     }
 
     .tooltip-inner, .tooltip-arrow {
-        color: @color-font-form-gray;
+        color: @color-font-form;
         opacity: 1 !important;
     }
 
@@ -2484,7 +2490,7 @@ body.tooltipOff {
         }
 
         td {
-            background-color: @color-white;
+            background-color: @color-bg-default;
             border: 1px solid @color-bg-white-five;
 
             span, a {

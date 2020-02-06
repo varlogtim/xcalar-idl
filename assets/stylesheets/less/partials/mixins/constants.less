@@ -51,6 +51,8 @@
 @color-table-after-gray: #B8B8B8; // XXX only used once
 @color-table-border-darkened: #C0C0C0; // XXX only used once
 @color-table-border-gray: #9E9E9E; // XXX only used once
+@color-table-dataCol-hover: #CCD7CC;
+@color-table-selected-hover: #BFCCD4;
 
 /* JSON Modal */
 @color-json-default: #FFA633; // XXX only used twice
@@ -118,6 +120,8 @@
  */
 /* Backgrounds */
 // whites and grays
+@color-bg-default: #FFFFFF;
+@color-bg-modal: #FFFFFF;
 @color-bg-white-two: #D8D8D8;
 @color-bg-white-three: #F2F2F2;
 @color-bg-white-five: #E6E6E6;
@@ -185,7 +189,7 @@
 @color-bg-graph-four: @color-hover-blue;
 @color-bg-graph-gray: #EEEEEE;
 @color-bg-highlight-blue-trans: rgba(221, 234, 242, 0.5); // XXX only used once
-@color-bg-list-hover-blue:#F5F8FA;
+@color-bg-list-hover:#F5F8FA;
 @color-bg-list-selected-blue:#E7EEF3; // XXX only used once
 @color-bg-tableView-blue: #16506A; // XXX only used once
 @color-bg-hover-blue-dark: #D8E2EA; // XXX only used once
@@ -199,7 +203,7 @@
 @color-bg-lockedIcon-cancel-light: rgba(161, 4, 4, 0.7);
 @color-bg-lockedIcon-cancel-lighter: rgba(161, 4, 4, 0.56);
 @color-bg-lockedIcon-cancel-dark: #7D2626;
-@color-bg-dropdown-hover-gray: @color-bg-list-hover-blue;
+@color-bg-dropdown-hover-gray: @color-bg-list-hover;
 
 /* Borders */
 @color-border-softBlue: @color-hover-blue;
@@ -221,6 +225,7 @@
 @color-border-bar-white: #D4DCE3;
 @color-border-grayBlue: #B9CBDB;
 @color-border-menugray: #D7E0E7;
+@color-editor-gutter: #F5F8FA;
 
 /* Shadow */
 @color-inset-shadow: rgba(0, 0, 0, 0.2); // XXX only used once
@@ -233,6 +238,7 @@
 @color-table-oddSelectedCell-blue: #D7EFF9; // XXX only used once
 @color-table-evenSelectedCell-blue: #CFEAF6; // XXX only used once
 @color-table-hoverBg-gray: @color-border-softGray;
+@color-table-headerSelected: #5fb7df;
 
 /* Log Color Scheme */
 @color-log-blue: @color-bg-select-blue;
@@ -262,6 +268,7 @@
 @color-prefix-gray: #808080;
 
 /* Fonts Color */
+@color-font-white: #FFFFFF;
 // grayish
 @color-font-softGrayBlue: #ABC1CC;
 @color-font-pinkish-grey: @color-bg-pinkish-grey;
@@ -272,8 +279,8 @@
 @color-font-warm-grey-two: @color-bg-unselect-gray;
 @color-font-darkGray: #282828;
 @color-font-warm-grey-three: #858585; // XXX only used once
-@color-font-form-gray: #44515C;
-@color-font-xcDark: #000000;
+@color-font-form: #44515C;
+@color-font-default: #000000;
 @color-font-dropdown-gray: #8C9CB0;
 @color-font-seconday-button-hover: #f4f7fa;
 
@@ -355,13 +362,54 @@
 @color-agg-border-blue: #9DD2FA;
 @color-profile-gray: #d9e2ec;
 @color-wkbk-border-gray: #e3e9ef;
-@color-icon-gray: #334E68;
-@color-icon-gray-hover: #829AB1;
-@color-icon-grayBlue: #486581;
+@color-icon-default: #334E68;
+@color-icon-default-hover: #829AB1;
+@color-icon-defaultBlue: #486581;
 @color-icon-darkGreen: #1F7553;
 @color-link-blue: #0c76da;
 @color-hover-blue: #0a64b8;
 @color-font-link-blue: @color-hover-blue;
+
+
+/* light mode styles */
+@color-bg-2: #EEF1F4;
+@color-bg-topBar: @color-bg-topBarGray2;
+@color-bg-categoryBar: @color-bg-topBarGray2;
+@color-bg-dagTabInactive: @color-border-softGray;
+@color-bg-dagTabActive: @color-white;
+@color-bg-sqlEditor: @color-white;
+@color-bg-logoBorder: #CFE9FD;
+@color-font-logo: #1E6688;
+@color-icon-menuBar: #334E68;
+@color-icon-menuBarActive: #FFFFFF;
+@color-border-light: #B9CBDB;
+@color-bg-leftPanel: #FFFFFF;
+@color-bg-tableIcon: #CCCCCC;
+@color-bg-dagTip: @color-bg-list-hover;
+@color-bg-dagTipStrong: @color-white;
+@color-bg-graphBar: @color-white;
+@color-bg-dagTabBar:  @color-bg-topBarGray2;
+@color-bg-dgTabInactive: @color-border-softGray;
+@color-bg-default: #FFFFFF;
+@color-bg-menuBar: #0A64B8;
+@color-bg-formWaiting: rgba(255, 255, 255, 0.6);
+@color-bg-menu: #FFFFFF;
+@color-bg-input: @color-bg-white-three;
+@color-bg-nodeSelecting: @color-bg-white-seven;
+@color-bg-dataColHeader: @color-border-menugray;
+@color-border-menuBar: #C0CED9;
+@color-font-btn-secondary: #0a64b8;
+@color-border-btn-secondary: #798fa1;
+@color-border-xdGridList: #DBE1E6;
+@color-scrollBarLight: @color-mercury;
+@color-scrollBarDark: #FFFFFF;
+@color-scrollBarThumb: @color-border-grayBlue;
+@color-bg-tableIconActive: @color-icon-defaultBlue;
+@color-bg-tooltip: @color-bg-charcoal-grey;
+@color-border-menuItem: #DBE1E6;
+@color-border-medium: #B9CBDB;
+@color-border-medium2: #DBE1E6;
+/* end light mode */
 
 /* z-indexes
 - table header input needs to go on top of table header grab so that you can

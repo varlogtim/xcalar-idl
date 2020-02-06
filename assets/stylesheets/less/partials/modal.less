@@ -24,7 +24,7 @@
     .position(absolute, 0, 0, 0, 0);
     .size(@max-width: 99%, @max-height: 99%);
     z-index: @z-index-modal;
-    background-color: @color-white;
+    background-color: @color-bg-modal;
     box-shadow: -2px 4px 8px 0 rgba(12, 31, 49, 0.1), 0 10px 24px 0 rgba(12, 31, 49, 0.15), 0 15px 32px 0 rgba(12, 31, 49, 0.1);
     .rounded(16px);
     width: @modal-normal-w;
@@ -292,7 +292,7 @@
 
     .jsonArea {
         height: ~"calc(100% - @{modal-header-h})";
-        background-color: @color-white;
+        background-color: @color-bg-default;
         opacity: 1;
         z-index: 36;
         padding: 0;
@@ -310,7 +310,7 @@
         padding-bottom: 10px;
         line-height: 20px;
         position: relative; // for dropdown menu
-        background-color: @color-white;
+        background-color: @color-bg-default;
 
         &:not(:last-child) {
             border-right: 1px solid @color-border-white-two;
@@ -447,7 +447,7 @@
         &.multiSelectMode {
             .menu {
                 li.selectionOpt {
-                    color: @color-font-xcDark;
+                    color: @color-font-default;
                     .check {
                         display: none;
                     }
@@ -700,7 +700,7 @@
         .tab {
             float: left;
             display: inline-block;
-            background-color: @color-bg-topBarGray2;
+            background-color: @color-bg-2;
             height: 100%;
             line-height: 28px;
             border-left: 1px solid @color-agg-border-gray;
@@ -719,7 +719,7 @@
             }
 
             &.active {
-                background-color: @color-white;
+                background-color: @color-bg-default;
                 border-bottom-color: transparent;
                 border-top: 2px solid @color-agg-border-blue;
                 overflow: visible;
@@ -769,7 +769,7 @@
         padding: 10px 0px 10px 10px;
         overflow-y: auto;
         overflow-x: hidden;
-        background-color: @color-white;
+        background-color: @color-bg-default;
         .font(@size: 14px, @family: @font-code, @color: @color-json-default, @line-height: 16px);
         .text-selection;
 
@@ -1158,8 +1158,8 @@
                     border-bottom: 0px;
                 }
                 &.active {
-                    background-color: @color-white;
-                    color: @color-font-xcDark;
+                    background-color: @color-bg-default;
+                    color: @color-font-default;
                     border-right: none;
                     border-bottom: none;
                     border-left: 2px solid  @color-agg-border-blue;
@@ -1176,7 +1176,7 @@
             .size(@width: ~"calc(100% - 40px)", @height: 100%);
             margin: 0 auto;
             padding: 0;
-            background-color: @color-white;
+            background-color: @color-bg-default;
             float: right;
 
             .headerContainer {
@@ -1295,15 +1295,15 @@
                 white-space: nowrap;
 
                 &.aggTableFlex {
-                    background-color: @color-white;
+                    background-color: @color-bg-default;
                     .dash {
-                        color: @color-font-xcDark;
+                        color: @color-font-default;
                     }
                 }
             }
 
             .rowLabel, .colLabel {
-                background-color: @color-white;
+                background-color: @color-bg-default;
 
                 &.active {
                     background-color: @color-agg-tab-bg;
@@ -1404,7 +1404,7 @@ html.microsoft {
     #extContent {
         .size(@width: 100%, @height: ~"calc(100% - 120px)");
         vertical-align: middle;
-        background-color: @color-white;
+        background-color: @color-bg-default;
         padding: 10px;
     }
     .modalBottom {
@@ -2697,7 +2697,7 @@ html.microsoft {
                 input {
                     .size(@min-width: 80px);
                     max-width: ~"calc(100% - 80px)";
-                    background-color: @color-white;
+                    background-color: @color-bg-default;
                     margin: 0 10px;
                 }
 
@@ -2754,7 +2754,7 @@ html.microsoft {
                     border: 1px solid @color-border-softBlue;
                     margin-left: 5px;
                     .vertical-align;
-                    background-color: @color-white;
+                    background-color: @color-bg-default;
                     padding: 0 5px;
                 }
 
@@ -2783,7 +2783,7 @@ html.microsoft {
                         }
 
                         &:hover {
-                            background-color: @color-white;
+                            background-color: @color-bg-default;
                         }
                     }
                 }
@@ -4168,7 +4168,7 @@ html.microsoft {
     }
 
     .modalMain {
-        border-top: 1px solid @color-border-softGray;
+        border-top: 1px solid @color-border-medium2;
         padding: 0;
         .font(@size: 12px, @align: center);
         .size(@height: ~"calc(100% - 26px)");
@@ -4631,7 +4631,7 @@ html.microsoft {
 
                 .icon {
                     font-size: 12px;
-                    color: @color-icon-gray;
+                    color: @color-icon-default;
                 }
             }
 
@@ -4709,7 +4709,7 @@ html.microsoft {
             }
 
             .listView {
-                border: 1px solid @color-border-softGray;
+                border: 1px solid @color-border-medium2;
                 height: ~"calc(100% - 31px)";
             }
         }
@@ -4757,7 +4757,7 @@ html.microsoft {
 
             input {
                 width: ~"calc(100% - @{total-w})";
-                background-color: @color-white;
+                background-color: @color-bg-default;
             }
         }
 
@@ -4872,7 +4872,7 @@ html.microsoft {
             margin-top: 10px;
             height: ~"calc(100% - 40px)";
             overflow-y: auto;
-            border: 1px solid @color-border-softGray;
+            border: 1px solid @color-border-medium2;
 
             .content {
                 overflow-y: auto;
@@ -4968,7 +4968,7 @@ html.microsoft {
 
     .section {
         padding: 15px 0;
-        border-bottom: 1px solid @color-border-softGray;
+        border-bottom: 1px solid @color-border-medium2;
 
         &:first-child {
             padding-top: 0;
@@ -5017,7 +5017,7 @@ html.microsoft {
 
     .modalMainSection {
         vertical-align: middle;
-        background-color: @color-white;
+        background-color: @color-bg-default;
         &:not(:last-child) {
             border-bottom: 1px solid @color-border-pinkish-grey2;
         }
@@ -5164,7 +5164,7 @@ html.microsoft {
     min-height: 100px;
     width: 400px;
     height: 200px;
-    background-color: @color-white;
+    background-color: @color-bg-default;
     font-size: 18px;
     display: none;
 
@@ -5452,7 +5452,7 @@ html.microsoft {
     .confirmBox {
         width: 100%;
         height: 50px;
-        background-color: @color-white;
+        background-color: @color-bg-default;
         box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.15);
         vertical-align: middle;
         margin-bottom: 5px;
@@ -5552,7 +5552,7 @@ html.microsoft {
         text-decoration: underline;
     }
     .modalRow {
-        background-color: @color-bg-topBarGray2;
+        background-color: @color-bg-2;
         border-top: 1px solid @color-border-menubar-grey;
         border-bottom: 1px solid @color-border-menubar-grey;
         font-size: 15px;
@@ -5684,7 +5684,7 @@ html.microsoft {
     .xc-textArea {
         width: 100%;
         .flex(1 0 auto);
-        background-color: @color-bg-list-hover-blue;
+        background-color: @color-bg-list-hover;
     }
 
     &.viewOnly {
@@ -6380,7 +6380,7 @@ html.microsoft {
                             padding-right: 4px;
                             padding-left: 4px;
                             border-right: 1px solid @color-bg-white-five;
-                            background-color: @color-bg-list-hover-blue;
+                            background-color: @color-bg-list-hover;
                             height: 19px;
                         }
                     }
@@ -6450,7 +6450,7 @@ html.microsoft {
             margin-top: 20px;
             float: left;
             .argsSection {
-                border: 1px solid @color-border-softGray;
+                border: 1px solid @color-border-medium2;
                 max-height: 100%;
                 overflow-y: auto;
                 overflow-x: hidden;
@@ -6534,7 +6534,7 @@ html.microsoft {
                             padding-right: 4px;
                             padding-left: 4px;
                             border-right: 1px solid @color-bg-white-five;
-                            background-color: @color-bg-list-hover-blue;
+                            background-color: @color-bg-list-hover;
                             height: 19px;
                         }
                     }
@@ -6670,7 +6670,7 @@ html.microsoft {
             }
 
             input {
-                background-color: @color-white;
+                background-color: @color-bg-default;
                 width: ~"calc(100% - 62px)";
                 margin-left: 3px;
                 float: right;
@@ -6681,7 +6681,7 @@ html.microsoft {
     .fileManager {
         .fileManagerBar {
             min-height: 26px;
-            background-color: @color-white;
+            background-color: @color-bg-default;
             box-shadow: none;
             flex-direction: row-reverse;
 
@@ -6732,7 +6732,7 @@ html.microsoft {
             }
 
             .mainSection {
-                border: 1px solid @color-border-softGray;
+                border: 1px solid @color-border-medium2;
             }
         }
     }
