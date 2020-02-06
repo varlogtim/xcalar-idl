@@ -45,7 +45,7 @@ describe('Sort Op Panel Test', function() {
     describe("Basic Function Test", function() {
         it("Should show the Sort View", function(done) {
             expect($sortOpPanel.is(":visible")).to.be.false;
-            SortOpPanel.Instance.show(node, {});
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             expect($sortOpPanel.is(":visible")).to.be.true;
             expect($sortTable.find(".flexrow").length).to.equal(1);
             expect($sortTable.find(".selInput").length).to.equal(1);
@@ -114,7 +114,7 @@ describe('Sort Op Panel Test', function() {
 
         it("should show form with first column filled in", function(done) {
             expect($sortOpPanel.is(":visible")).to.be.false;
-            SortOpPanel.Instance.show(node, {});
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             expect($sortOpPanel.is(":visible")).to.be.true;
             expect($sortTable.find(".flexrow").length).to.equal(1);
             expect($sortTable.find(".selInput").length).to.equal(1);
@@ -189,7 +189,7 @@ describe('Sort Op Panel Test', function() {
                 return [parentNode];
             };
 
-            SortOpPanel.Instance.show(node, {});
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
 
             setTimeout(function() {
                 done();
@@ -249,7 +249,7 @@ describe('Sort Op Panel Test', function() {
 
     describe("advanced mode", function() {
         before(function(done) {
-            SortOpPanel.Instance.show(node, {});
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             setTimeout(function() {
                 done();
             }, 100);
@@ -307,7 +307,7 @@ describe('Sort Op Panel Test', function() {
                 ],
                 "newKeys": ["test"]
             });
-            SortOpPanel.Instance.show(node, {});
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $sortOpPanel.find(".switch").click();
             SortOpPanel.Instance.close();
         });

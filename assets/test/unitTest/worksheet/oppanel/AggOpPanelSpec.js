@@ -47,19 +47,18 @@ describe("AggOpPanel Test", function() {
         });
 
         it ("Should be visible when show is called", function () {
-
-            aggOpPanel.show(node, openOptions);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
             expect($('#aggOpPanel').hasClass("xc-hidden")).to.be.false;
         });
 
         it ("Should be hidden when close is called after showing", function () {
-            aggOpPanel.show(node, openOptions);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
             aggOpPanel.close();
             expect($('#aggOpPanel').hasClass("xc-hidden")).to.be.true;
         });
 
         it ("Should be hidden when close is clicked", function () {
-            aggOpPanel.show(node, openOptions);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
             $('#aggOpPanel .close').click();
             expect($('#aggOpPanel').hasClass("xc-hidden")).to.be.true;
         });
@@ -69,7 +68,7 @@ describe("AggOpPanel Test", function() {
 
         before(function () {
             var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
-            aggOpPanel.show(node, $.extend({}, openOptions, {autofillColumnNames: [prefixCol]}));
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), $.extend({}, openOptions, {autofillColumnNames: [prefixCol]}));
             $functionsInput = $aggOpPanel.find('.functionsInput');
             $functionsList = $functionsInput.siblings('.list');
             $argSection = $aggOpPanel.find('.argsSection').eq(0);
@@ -329,7 +328,7 @@ describe("AggOpPanel Test", function() {
 
     describe("Advanced Mode related Aggregate Panel Tests", function() {
         it("Should show statusbox error if columns isnt a field", function() {
-            aggOpPanel.show(node, openOptions);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
             $("#aggOpPanel .bottomSection .xc-switch").click();
             editor.setValue(JSON.stringify({}, null, 4));
             $("#aggOpPanel .bottomSection .btn-submit").click();
@@ -340,7 +339,7 @@ describe("AggOpPanel Test", function() {
 
     describe("Final output", function() {
         it ("final node should have correct input", function() {
-            aggOpPanel.show(node, openOptions);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
             $("#aggOpPanel .bottomSection .xc-switch").click();
             expect(JSON.stringify(node.getParam())).to.equal('{"evalString":"","dest":""}');
             let aggName = "^a" + Date.now();

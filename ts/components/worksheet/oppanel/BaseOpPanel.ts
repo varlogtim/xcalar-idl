@@ -317,6 +317,7 @@ class BaseOpPanel {
         this.udfMap = {};
         this.xdfMap = {};
         this.aggMap = {};
+        DagConfigNodeModal.Instance.close();
         // unlocks the node associated with the form
         this._closeCallback();
 

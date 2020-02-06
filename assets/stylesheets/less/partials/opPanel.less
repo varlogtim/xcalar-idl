@@ -1,13 +1,20 @@
-.leftSection {
+#configNodeModal {
     @title-height: 40px;
     @header-height: 66px;
+
+    .size(@height: 600px, @width: 400px, @min-width: auto);
+    overflow: hidden;
+    z-index: @z-index-modalBackground - 1;
+
     .opPanel {
         display: flex;
         flex-direction: column;
         > header {
             flex: 1 0 auto;
-            min-height:  @header-height;
+            min-height: @header-height;
             height: auto;
+            font-size: 18px;
+            .cursor-move;
 
             .row {
                 &:first-child {
@@ -16,6 +23,26 @@
                     overflow: hidden;
                 }
             }
+        }
+    }
+
+    .modalTopMain {
+        padding: 0px;
+    }
+    .opPanelHeader {
+        padding: 10px 20px 0px;
+    }
+    .opSection, .advancedEditor, .bottomSection {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    .xc-colShema .listSection {
+        padding: 0px;
+        .addColumn {
+            margin-bottom: 10px;
+        }
+        .part > div {
+            width: 50% !important;
         }
     }
 }
@@ -52,7 +79,6 @@
         font-size: 22px;
 
         .title {
-            margin-left: 10px;
             font-weight: 600;
             color: @color-font-darkGray;
             float: left;
@@ -78,7 +104,7 @@
 
             .icon {
                 line-height: @title-height;
-                margin-right: 10px;
+                margin-left: 10px;
                 float: right;
                 font-size: 16px;
                 cursor: pointer;
@@ -91,7 +117,6 @@
 
         .close {
             line-height: 30px;
-            margin-right: 2px;
             float: right;
             font-size: 14px;
             color: @color-icon-gray;
@@ -110,7 +135,6 @@
             line-height: 16px;
             padding-bottom: 10px;
             .textOverflowOneLine;
-            margin-left: 10px;
             margin-right: 15px;
             color: @color-font-link-blue;
         }
@@ -137,7 +161,7 @@
     }
 
     p {
-        padding: 0px 10px 10px 10px;
+        padding: 0px 0px 10px 0px;
         font-size: 11px;
         color: @color-font-darkGray;
     }
@@ -480,6 +504,7 @@
             .text {
                 font-weight: 400;
                 cursor: pointer;
+                margin-left: 10px;
             }
         }
     }
@@ -496,7 +521,6 @@
             width: 50%;
             height: @headingHeight;
             line-height: @headingHeight + 4;
-            padding-left: @commonMargin;
             font-weight: 600;
         }
         > .focusTable {
@@ -522,7 +546,7 @@
 
     .catFuncMenus {
         border: 1px solid @color-border-white-five;
-        margin: 0 10px;
+        margin: 0;
 
         ul {
             float: left;
@@ -582,12 +606,11 @@
     .descriptionText {
         .udfLink {
             float: right;
-            margin-right: 10px;
         }
     }
 
     .descriptionText, .strPreview {
-        padding: 10px 4px 4px @commonMargin;
+        padding: 10px 0px 4px 0px;
     }
 
     .strPreview {
@@ -666,6 +689,7 @@
                 margin-top: 0px;
                 padding-top: 6px;
                 position: relative;
+                overflow: visible;
                 .filterFnTitle {
                     display: none;
                 }
@@ -703,7 +727,6 @@
                 float: left;
                 width: 100%;
                 margin-bottom: 0px;
-                padding: 0px 10px;
             }
 
             .row {
@@ -733,7 +756,6 @@
                         display: none;
                     }
                     .text {
-                        padding-right: 10px;
                         text-align: center;
                         border: none;
                     }
@@ -812,8 +834,7 @@
             margin-top: 6px;
         }
         .description {
-            padding: 6px;
-            padding-left: @commonMargin;
+            padding: 6px 0px;
             padding-bottom: 4px;
             line-height: 14px;
             font-weight: 600;
@@ -837,7 +858,6 @@
 
             .label {
                 font-weight: 600;
-                margin-left: @commonMargin;
                 float: left;
                 display: block;
                 width: 40px;
@@ -893,7 +913,6 @@
         .inputWrap {
             float: left;
             width: 100%;
-            padding: 0px 10px;
 
             .dropDownList {
                 .list.hint {
@@ -955,7 +974,7 @@
 
             .xi-cancel {
                 position: absolute;
-                left: 14px;
+                left: 4px;
                 top: 7px;
                 color: @color-font-warm-grey-two;
                 font-size: 14px;
@@ -984,7 +1003,6 @@
         .noSelection;
 
         .checkbox {
-            margin-left: @commonMargin;
             margin-right: 7px;
             margin-top: 4px;
             float: left;
@@ -997,9 +1015,11 @@
     	padding-bottom: 23px;
     	margin-bottom: -10px; // to counter .divider
         margin-top: 20px;
-        width: 100%;
+        margin-left: -20px;
+        width: ~"calc(100% + 40px)";
         height: 86px;
         background: @color-bg-list-hover-blue;
+
         .instr {
         	font-weight: 600;
         	text-align: center;
@@ -1033,7 +1053,6 @@
     }
 
     .addArgWrap {
-        padding-left: @commonMargin;
         .btn {
             .size(@listHeight, @listHeight);
             padding: 0px;
@@ -1066,7 +1085,7 @@
         // using left: 50%; translate -50% doesn't work well in IE
     }
     .bottomSection.flexWrap {
-        margin: 25px 10px 35px;
+        margin: 25px 0px 35px;
         .flex-display;
         .flex-wrap(wrap);
         .justify-content(center);
@@ -1082,7 +1101,7 @@
 
     .advancedEditor {
         display: none;
-        margin: 10px;
+        margin: 10px 0px;
         margin-top: 0px;
         .flex(1 1 auto);
         overflow: hidden;
@@ -1133,7 +1152,7 @@
     }
 
     .bottomSection {
-        margin: 20px 10px 0px;
+        margin: 20px 0px 0px;
         padding: 20px 0px;
         border-top: 1px solid @color-bg-topBarGray2;
         .flex(0 0 auto);
@@ -1146,6 +1165,8 @@
             margin-left: auto;
             margin-right: auto;
             width: 160px;
+            display: flex;
+            justify-content: center;
 
             > div {
                 float: left;
@@ -1219,7 +1240,6 @@
         .flex-display;
         .flex-direction(column);
         .header {
-            padding-left: 10px;
             padding-bottom: 10px;
         }
         &:last-child {
@@ -1325,7 +1345,6 @@
             padding-right: 10px;
 
             .header {
-                margin-left: 10px;
                 margin-bottom: 10px;
                 padding-left: 0px;
                 padding-bottom: 0px;
@@ -1606,7 +1625,7 @@
         .catFuncHeadings {
             position: relative;
             .xi-close { // for closing group
-                .position(absolute, @top: 0px, @right: 0px);
+                .position(absolute, @top: 2px, @right: 0px);
                 .size(24px, 20px);
                 text-align: center;
                 line-height: 20px;
@@ -1636,7 +1655,6 @@
 
                 .text {
                     float: left;
-                    margin-left: 10px;
                     font-weight: 400;
                     line-height: 23px;
                     font-size: 11px;
@@ -1655,7 +1673,6 @@
 
             .description {
                 padding: 6px;
-                padding-left: 10px;
                 padding-bottom: 4px;
                 line-height: 14px;
                 font-weight: 600;
@@ -1717,7 +1734,7 @@
             .clear {
                 display: none;
                 .size(@width: 20px, @height: @listHeight);
-                .position(absolute, @top: 4px, @right: 10px);
+                .position(absolute, @top: 4px, @right: 0px);
 
                 .icon {
                     color: @color-font-greyish-brown;
@@ -1731,8 +1748,6 @@
             }
         }
         .mapFilter {
-            width: ~"calc(100% - 20px)";
-            margin-left: 10px;
             margin-top: 4px;
             padding-right: 20px;
 
@@ -1804,7 +1819,6 @@
                 float: left;
                 width: 100%;
                 margin-bottom: 0px;
-                padding: 0px 10px;
             }
 
             .row {
@@ -1856,7 +1870,6 @@
             &.fnInputEmpty {
                 .altFnTitle {
                     display: block;
-                    padding-left: 10px;
                     font-weight: 600;
                     height: 20px;
                 }
@@ -1954,8 +1967,6 @@
 
         &.functionsList {
             float: none;
-            margin: 0 10px;
-            width: ~"calc(100% - 20px)";
             input {
                 position: relative;
                 z-index: @functionsListZindex;
@@ -1983,19 +1994,12 @@
             border: 1px solid @color-border-softGray;
             border-right: none;
         }
-
-        .arg {
-            padding-right: 10px;
-        }
     }
 }
 
 #aggOpPanel {
     .row.option {
         margin-top: 10px;
-        .description {
-            margin-left: 10px;
-        }
         .checkbox {
             margin-top: 6px;
         }
@@ -2032,13 +2036,13 @@
     .disableKey {
         margin-top: 10px;
         float: right;
-        padding-left: 10px;
         width: 135px;
         .text {
             float: left;
         }
         .checkBox {
             float: right;
+            margin-left: 10px;
         }
     }
 
@@ -2059,7 +2063,6 @@
             }
         }
         .columnsToPublish {
-            padding: 0 10px;
             ::-webkit-scrollbar-thumb {
                 background: @color-bg-topBarGray2 !important;
             }
@@ -2132,12 +2135,11 @@
     }
 
     .topSection {
-        padding: 10px 0 0px 0;
+        padding-top: 10px;
         display: flex;
         flex-direction: column;
 
         .operationSection {
-            margin-left: 10px;
 
             .header {
                 .size(@width: 70px);
@@ -2151,7 +2153,6 @@
         }
 
         .radioButtonGroup {
-            margin-left: 10px;
             margin-top: 10px;
             .size(@max-width: 425px);
             overflow: hidden;
@@ -2452,12 +2453,10 @@
         &:focus {
             width: calc(100% + 3px);
             left: -1px;
-            padding-left: 10px;
         }
     }
 
     .addRowBtn {
-        margin: 0 10px;
         width: 120px;
     }
 
@@ -2600,8 +2599,6 @@
 
 .projectOpPanel {
     .prefixedSection, .derivedSection {
-        padding-left: 10px;
-        padding-right: 10px;
         margin-bottom: 10px;
         .subHeading {
             margin-top: 0px;
@@ -2643,7 +2640,6 @@
         }
         .prefixName {
             float: left;
-            margin-left: 10px;
             margin-top: 4px;
             max-width: ~"calc(100% - 100px)";
             .textOverflowOneLine;
@@ -2672,12 +2668,6 @@
     @standardFontSize: 12px;
     @middleIconWidth: 26px;
     @headingHeight: 30px;
-    @commonMargin: 10px;
-
-    .firstStep, .secondStep {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
 
     .advancedEditor {
         .flex(1 1 auto);
@@ -2689,14 +2679,6 @@
         .btn {
             margin-top: 10px;
         }
-    }
-
-    .subHeading > div {
-        padding-left: 0;
-    }
-
-    p {
-        padding-left: 0;
     }
 
     .joinSection {
@@ -2903,8 +2885,6 @@
 
         .castErr {
             position: relative;
-            padding-left: 10px;
-            padding-right: 10px;
             margin-bottom: 2px;
 
             .tooltip-inner {
@@ -3076,8 +3056,6 @@
 
 .opPanelErr {
     position: relative;
-    padding-left: 10px;
-    padding-right: 10px;
     margin-bottom: 2px;
     margin-top: 5px;
 
@@ -3320,7 +3298,7 @@
 
             .addClause {
                 height: 50px;
-                padding: 10px;
+                padding: 10px 0px;
                 clear: both;
 
                 .btn {
@@ -3337,7 +3315,6 @@
 
     #exportOpColumns {
         .columnsToExport {
-            padding: 0 10px;
             ::-webkit-scrollbar-thumb {
                 background: @color-bg-topBarGray2 !important;
             }
@@ -3391,7 +3368,6 @@
     .toggleColumnCollapse {
         float: left;
         cursor: pointer;
-        margin-left: 10px;
         padding: 0 5px;
         height: 26px;
 
@@ -3434,7 +3410,6 @@
     .exportDriver {
         #exportDriverList {
             width: ~"calc(100% - 20px)";
-            margin-left: 10px;
             #exportDriver {
                 color: @color-font-darkGray;
             }
@@ -3447,12 +3422,9 @@
         }
         .dropDownList {
             .styleDropDownList(~"calc(100% - 20px)", @listHeight) !important;
-            margin-left: 10px;
         }
         .exportDescription {
-            padding-left: 10px;
             padding-top: 25px;
-            padding-right: 10px;
         }
     }
 
@@ -3464,7 +3436,6 @@
 
         .checkbox {
             font-size: 15px;
-            margin-right: 10px;
         }
     }
 }
@@ -3484,10 +3455,6 @@
         border-top: 1px solid @color-bg-topBarGray2;
         border-bottom: 1px solid @color-bg-topBarGray2;
         padding-bottom: 16px;
-
-        .radioButtonGroup {
-            margin: 0px 10px;
-        }
 
         .qMark {
             cursor: help;
@@ -3551,9 +3518,6 @@
         }
     }
 
-    .noColsHint {
-        padding-left: 10px;
-    }
 }
 
 #sqlOpPanel {
@@ -3740,7 +3704,7 @@
 
     .dropAsYouGo {
         height: @dropAsYouGo-h;
-        padding: 0 15px 10px 15px;
+        padding: 0 5px 10px 5px;
 
         .checkbox {
             float: left;
@@ -3757,7 +3721,6 @@
         }
     }
     .maximize {
-        margin-right: -10px;
         margin-top: -20px;
         .icon {
             font-size: 10px;
@@ -3789,8 +3752,6 @@
 
     .opSection {
         .flex(1 1 auto);
-        padding-left: 10px;
-        padding-right: 10px;
     }
 
     p {

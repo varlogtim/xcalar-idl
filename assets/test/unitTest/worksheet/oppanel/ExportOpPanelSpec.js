@@ -107,18 +107,18 @@ describe("Export Operator Panel Test", function() {
 
         it ("Should be visible when show is called", function () {
 
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             expect($('#exportOpPanel').hasClass("xc-hidden")).to.be.false;
         });
 
         it ("Should be hidden when close is called after showing", function () {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             exportOpPanel.close();
             expect($('#exportOpPanel').hasClass("xc-hidden")).to.be.true;
         });
 
         it ("Should be hidden when close is clicked", function () {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $('#exportOpPanel .close').click();
             expect($('#exportOpPanel').hasClass("xc-hidden")).to.be.true;
         });
@@ -127,13 +127,13 @@ describe("Export Operator Panel Test", function() {
     describe("Standard View Driver related Export Panel Tests", function() {
 
         it ("Should populate driver list", function () {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             expect(calledDriverList).to.be.true;
             expect($("#exportDriverList .exportDriver").length).to.equal(3);
         });
 
         it ("Should display parameters when a driver is selected", function() {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $("#exportDriver").val("test1");
             exportOpPanel.renderDriverArgs();
             expect($("#exportOpPanel .exportArg").length).to.equal(1);
@@ -143,7 +143,7 @@ describe("Export Operator Panel Test", function() {
         });
 
         it ("Should display text params correctly when a driver is selected", function() {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $("#exportDriver").val("full test driver");
             exportOpPanel.renderDriverArgs();
             expect($("#exportOpPanel .str_param").length).to.equal(1);
@@ -153,7 +153,7 @@ describe("Export Operator Panel Test", function() {
         });
 
         it ("Should display integer params correctly when a driver is selected", function() {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $("#exportDriver").val("full test driver");
             exportOpPanel.renderDriverArgs();
             expect($("#exportOpPanel .int_param").length).to.equal(1);
@@ -163,7 +163,7 @@ describe("Export Operator Panel Test", function() {
         });
 
         it ("Should display boolean params correctly when a driver is selected", function() {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $("#exportDriver").val("full test driver");
             exportOpPanel.renderDriverArgs();
             expect($("#exportOpPanel .bool_param").length).to.equal(1);
@@ -172,7 +172,7 @@ describe("Export Operator Panel Test", function() {
         });
 
         it ("Should display secret/optional params correctly when a driver is selected", function() {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $("#exportDriver").val("full test driver");
             exportOpPanel.renderDriverArgs();
             expect($("#exportOpPanel .secret_optional_param").length).to.equal(1);
@@ -182,7 +182,7 @@ describe("Export Operator Panel Test", function() {
         });
 
         it ("Should display target params correctly when a driver is selected", function() {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $("#exportDriver").val("full test driver");
             exportOpPanel.renderDriverArgs();
             expect($("#exportOpPanel .target_param").length).to.equal(1);
@@ -192,7 +192,7 @@ describe("Export Operator Panel Test", function() {
         });
 
         it ("Should show statusbox error if a non optional param isn't filled", function () {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $("#exportDriver").val("test1");
             exportOpPanel.renderDriverArgs();
             $("#exportOpPanel .bottomSection .btn-submit").click();
@@ -214,7 +214,7 @@ describe("Export Operator Panel Test", function() {
                 return [parentNode];
             };
 
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             if (exportOpPanel._isAdvancedMode()) {
                 $("#exportOpPanel .bottomSection .xc-switch").click();
                 exportOpPanel._switchMode(false);
@@ -268,7 +268,7 @@ describe("Export Operator Panel Test", function() {
             };
         })
         it("Should show statusbox error if columns isnt a field", function() {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $("#exportOpPanel .bottomSection .xc-switch").click();
             exportOpPanel._switchMode(true);
             editor.setValue(JSON.stringify({}, null, 4));
@@ -278,7 +278,7 @@ describe("Export Operator Panel Test", function() {
         });
 
         it("Should show statusbox error if driver is null", function() {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $("#exportOpPanel .bottomSection .xc-switch").click();
             exportOpPanel._switchMode(true);
             editor.setValue(JSON.stringify({
@@ -293,7 +293,7 @@ describe("Export Operator Panel Test", function() {
         });
 
         it("Should show statusbox error if driver is not real", function() {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $("#exportOpPanel .bottomSection .xc-switch").click();
             exportOpPanel._switchMode(true);
             editor.setValue(JSON.stringify({
@@ -309,7 +309,7 @@ describe("Export Operator Panel Test", function() {
         });
 
         it("Should show statusbox error if there arent enough arguments specified", function() {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $("#exportOpPanel .bottomSection .xc-switch").click();
             exportOpPanel._switchMode(true);
             editor.setValue(JSON.stringify({
@@ -326,7 +326,7 @@ describe("Export Operator Panel Test", function() {
         });
 
         it("Should show statusbox error if driver arguments don't match up", function() {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $("#exportOpPanel .bottomSection .xc-switch").click();
             exportOpPanel._switchMode(true);
             editor.setValue(JSON.stringify({
@@ -343,7 +343,7 @@ describe("Export Operator Panel Test", function() {
         });
 
         it("Should show statusbox error if integer argument is invalid", function() {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $("#exportOpPanel .bottomSection .xc-switch").click();
             exportOpPanel._switchMode(true);
             editor.setValue(JSON.stringify({
@@ -360,7 +360,7 @@ describe("Export Operator Panel Test", function() {
         });
 
         it ("Should show statusbox error if a non optional param isn't filled", function () {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $("#exportOpPanel .bottomSection .xc-switch").click();
             exportOpPanel._switchMode(true);
             editor.setValue(JSON.stringify({
@@ -377,7 +377,7 @@ describe("Export Operator Panel Test", function() {
         });
 
         it ("Should save correctly if JSON is correct", function () {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $("#exportOpPanel .bottomSection .xc-switch").click();
             exportOpPanel._switchMode(true);
             editor.setValue(JSON.stringify({
@@ -424,7 +424,7 @@ describe("Export Operator Panel Test", function() {
         })
 
         it("should hide columns when an input is specified", function() {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $('#exportOpColumns .searchInput').val("a").trigger("input");
             expect($('#exportOpColumns .col.xc-hidden').length).to.equal(2);
             $('#exportOpColumns .searchInput').val("").trigger("input");
@@ -433,7 +433,7 @@ describe("Export Operator Panel Test", function() {
         });
 
         it("should only select all of the filtered columns", function() {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $('#exportOpColumns .searchInput').val("a").trigger("input");
             $('#exportOpColumns .selectAllWrap').click();
             expect($('#exportOpColumns .col.checked').length).to.equal(1);
@@ -441,7 +441,7 @@ describe("Export Operator Panel Test", function() {
         })
 
         it("should change the select all checkbox depending on what's selected", function() {
-            exportOpPanel.show(node);
+           DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $('#exportOpColumns .searchInput').val("a").trigger("input");
             $('#exportOpColumns .selectAllWrap').click();
             expect($('#exportOpColumns .selectAllWrap .checkbox').hasClass("checked")).to.be.true;

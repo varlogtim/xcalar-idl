@@ -86,7 +86,7 @@ describe("DatasetColRenamePanel Test", function() {
 
     describe("Standard Rename Panel Tests", function() {
         it("Should display rename panel", function() {
-            datasetOpPanel.show(node);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             expect($("#datasetOpColumnAssignment").is(":visible")).to.be.false;
             let struct = JSON.parse(datasetOpPanel._editor.getValue());
             struct.schema = [
@@ -160,7 +160,7 @@ describe("DatasetColRenamePanel Test", function() {
 
     describe("test no columns", function() {
         it("Should display rename panel", function() {
-            datasetOpPanel.show(node);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             expect($("#datasetOpColumnAssignment").is(":visible")).to.be.false;
             let struct = JSON.parse(datasetOpPanel._editor.getValue());
             struct.schema = [

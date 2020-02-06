@@ -16,7 +16,8 @@ interface ModalHelperOptions {
     open?: Function,
     close?: Function,
     noResize?: boolean,
-    sizeCallBack?: Function
+    sizeCallBack?: Function,
+    dragHandle?: string
 }
 
 interface ModalHelperCenterOptions {
@@ -179,7 +180,7 @@ class ModalHelper {
 
         // draggable
         $modal.draggable({
-            "handle": ".modalHeader",
+            "handle": options.dragHandle || ".modalHeader",
             "cursor": "-webkit-grabbing",
             "containment": "window"
         });

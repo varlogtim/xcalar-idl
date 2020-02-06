@@ -313,9 +313,6 @@ class FormHelper {
         this.openTime = Date.now();
         FormHelper.activeForm = formPanel;
         this.mainMenuState = MainMenu.getState();
-        if (formPanel) {
-            $("#dataflowMenu").find(".menuSection").addClass("xc-hidden");
-        }
         this.$form.removeClass("xc-hidden");
 
         $("#container").addClass("formOpen");

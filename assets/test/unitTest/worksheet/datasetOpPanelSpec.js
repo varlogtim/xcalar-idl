@@ -71,18 +71,18 @@ describe("Dataset Operator Panel Test", function() {
 
         it ("Should be visible when show is called", function () {
             datasetOpPanel.close();
-            datasetOpPanel.show(node);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             expect($('#datasetOpPanel').hasClass("xc-hidden")).to.be.false;
         });
 
         it ("Should be hidden when close is called after showing", function () {
-            datasetOpPanel.show(node);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             datasetOpPanel.close();
             expect($('#datasetOpPanel').hasClass("xc-hidden")).to.be.true;
         });
 
         it ("Should be hidden when close is clicked", function () {
-            datasetOpPanel.show(node);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $('#datasetOpPanel .close.icon.xi-close').click();
             expect($('#datasetOpPanel').hasClass("xc-hidden")).to.be.true;
         });
@@ -104,7 +104,7 @@ describe("Dataset Operator Panel Test", function() {
     describe("Standard Dataset Panel Tests", function() {
 
         it("Should display dataset list correctly", function() {
-            datasetOpPanel.show(node);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             var $nameList = $("#datasetOpPanel #dsOpListSection .fileName");
             expect($nameList.length).to.equal(2);
             expect($nameList.eq(0).find(".name").text()).to.equal("ds1");
@@ -114,7 +114,7 @@ describe("Dataset Operator Panel Test", function() {
         });
 
         it("Should be able to activate an inactive dataset correctly", function() {
-            datasetOpPanel.show(node);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             var calledActivate = false;
             var $nameList = $("#datasetOpPanel #dsOpListSection .fileName");
             var $inactiveDS = $nameList.eq(1);
@@ -129,7 +129,7 @@ describe("Dataset Operator Panel Test", function() {
         });
 
         it("Should display folders correctly", function() {
-            datasetOpPanel.show(node);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             var $foldList = $("#datasetOpPanel #dsOpListSection .folderName");
             expect($foldList.length).to.equal(1);
             expect($foldList.eq(0).find(".name").text()).to.equal("folder");
@@ -141,7 +141,7 @@ describe("Dataset Operator Panel Test", function() {
         });
 
         it("Should handle back and forward buttons correctly", function() {
-            datasetOpPanel.show(node);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $("#datasetOpPanel #dsOpListSection .folderName").eq(0).click();
             expect($("#datasetOpBrowser .backFolderBtn").hasClass("xc-disabled")).to.be.false;
             expect($("#datasetOpBrowser .forwardFolderBtn").hasClass("xc-disabled")).to.be.true;
@@ -161,7 +161,7 @@ describe("Dataset Operator Panel Test", function() {
         });
 
         it("Should show the path correctly", function() {
-            datasetOpPanel.show(node);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             expect($("#datasetOpBrowser .pathSection .pathWrap > .path").text()).to.equal("Home /");
             $("#datasetOpPanel #dsOpListSection .folderName").eq(0).click();
             expect($("#datasetOpBrowser .pathSection .pathWrap > .path").text()).to.equal("Home / folder /");
@@ -234,20 +234,20 @@ describe("Dataset Operator Panel Test", function() {
         });
 
         it ("Should not submit empty arguments", function () {
-            datasetOpPanel.show(node);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $('#datasetOpPanel .submit').click();
             expect($('#datasetOpPanel').hasClass("xc-hidden")).to.be.false;
         });
 
         it("Should not submit empty dataset", function() {
-            datasetOpPanel.show(node);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $("#datasetOpPanel #dsOpListSection .folderName").eq(0).click();
             $('#datasetOpPanel .bottomSection .submit').click();
             UnitTest.hasStatusBoxWithError(OpPanelTStr.SelectDSSource);
         });
 
         it("Should not submit invalid prefix", function() {
-            datasetOpPanel.show(node);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $("#datasetOpPanel #dsOpListSection .fileName").eq(0).click();
             $("#datasetOpPanel .datasetPrefix .arg").val("@test");
             $('#datasetOpPanel .bottomSection .submit').click();
@@ -263,7 +263,7 @@ describe("Dataset Operator Panel Test", function() {
                     getColumns: () => []
                 };
             };
-            datasetOpPanel.show(node);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $("#datasetOpPanel #dsOpListSection .fileName").eq(0).click();
             $("#datasetOpPanel .datasetPrefix .arg").val("test");
             $('#datasetOpPanel .bottomSection .submit').click();
@@ -320,7 +320,7 @@ describe("Dataset Operator Panel Test", function() {
 
     describe("Advanced Dataset Panel Tests", function() {
         it("Should switch from advanced panel correctly", function() {
-            datasetOpPanel.show(node);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             expect($("#datasetOpPanel .refreshDatasetList").is(":visible")).to.be.true;
             JSON.parse = function() {
                 return {

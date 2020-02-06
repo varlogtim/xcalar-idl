@@ -48,7 +48,7 @@ describe("SQLOpPanel Test", function() {
         });
 
         it ("Should be visible when show is called", function () {
-            sqlOpPanel.show(node, openOptions);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
             expect($('#sqlOpPanel').hasClass("xc-hidden")).to.be.false;
             if ($sqlOpPanel.find(".advancedEditor").is(":visible")) {
                 $("#sqlOpPanel .bottomSection .xc-switch").click();
@@ -56,14 +56,14 @@ describe("SQLOpPanel Test", function() {
         });
 
         it ("Should be hidden when close is called after showing", function () {
-            sqlOpPanel.show(node, openOptions);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
             sqlOpPanel.close();
             $('#formWaitingBG').remove();
             expect($('#sqlOpPanel').hasClass("xc-hidden")).to.be.true;
         });
 
         it ("Should be hidden when close is clicked", function () {
-            sqlOpPanel.show(node, openOptions);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
             $('#sqlOpPanel .close').click();
             $('#formWaitingBG').remove();
             expect($('#sqlOpPanel').hasClass("xc-hidden")).to.be.true;
@@ -73,7 +73,7 @@ describe("SQLOpPanel Test", function() {
     describe("SQL Panel Tests", function() {
 
         before(function () {
-            sqlOpPanel.show(node, openOptions);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
             $('#formWaitingBG').remove();
         });
 
@@ -143,7 +143,7 @@ describe("SQLOpPanel Test", function() {
 
     describe("Advanced Mode related SQL Panel Tests", function() {
         it("Should show statusbox error if columns isnt a field", function() {
-            sqlOpPanel.show(node, openOptions);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
             $('#formWaitingBG').remove();
             if (!sqlOpPanel._isAdvancedMode()) {
                 $("#sqlOpPanel .bottomSection .xc-switch").click();
@@ -166,7 +166,7 @@ describe("SQLOpPanel Test", function() {
                 ],
                 "dropAsYouGo": true
             };
-            sqlOpPanel.show(node, openOptions);
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
             $('#formWaitingBG').remove();
             if (!sqlOpPanel._isAdvancedMode()) {
                 $("#sqlOpPanel .bottomSection .xc-switch").click();

@@ -32,7 +32,7 @@ describe("AggOpPanelModel Test", function() {
         let model;
         before(function () {
             var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
-            aggOpPanel.show(node, $.extend({}, openOptions, {autofillColumnNames: [prefixCol]}));
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), $.extend({}, openOptions, {autofillColumnNames: [prefixCol]}));
             model = aggOpPanel.model;
         });
 

@@ -260,7 +260,7 @@ class SQLEditor {
                 "search": true,
                 "hint": CodeMirror.hint.sql,
                 "extraKeys": extraKeys,
-                "placeholder": "Here is a placeholder"
+                "placeholder": ""
             }
         );
         this._addEventListeners();

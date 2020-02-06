@@ -255,10 +255,6 @@ namespace MainMenu {
         return _isFormOpen;
     };
 
-    export function isFormOpen(): boolean {
-        return _isFormOpen;
-    };
-
     // xx currently only supporting form views in the worksheet panel
     export function restoreState(prevState: {
         isPoppedOut: boolean,
@@ -293,6 +289,7 @@ namespace MainMenu {
                 }
             });
             ignoreRestoreState = false;
+            DagConfigNodeModal.Instance.close();
         }
     };
 
@@ -320,6 +317,7 @@ namespace MainMenu {
     }
     // XXX for dagpanel only, move this function
     export function resize(width: number): void {
+        return; // XXX disabled
         _resize($("#dataflowMenu"), width);
         curSQLLeftWidth = Math.min(width, minWidth);
 

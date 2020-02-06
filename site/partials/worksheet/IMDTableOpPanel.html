@@ -21,14 +21,16 @@
                 <div class="label"><%= dicts.IMDTableOp.table %>:</div>
                 </div>
                 <p><%= dicts.IMDTableOp.tableInstr %></p>
-                <div id="pubTableList" class="dropDownList">
-                    <input class="text pubTableInput" type="text" value="" spellcheck="false">
-                    <div class="iconWrapper">
-                        <i class="icon xi-arrow-down"></i>
-                    </div>
-                    <div class="list">
-                        <ul class="pubTables"></ul>
-                        include "../../util/menuScrollArea.html"
+                <div class="inputWrap" >
+                    <div id="pubTableList" class="dropDownList">
+                        <input class="text pubTableInput" type="text" value="" spellcheck="false">
+                        <div class="iconWrapper">
+                            <i class="icon xi-arrow-down"></i>
+                        </div>
+                        <div class="list">
+                            <ul class="pubTables"></ul>
+                            include "../../util/menuScrollArea.html"
+                        </div>
                     </div>
                 </div>
             </div>

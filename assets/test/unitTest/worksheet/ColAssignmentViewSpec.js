@@ -43,7 +43,7 @@ describe('ColAssignmentView Test', function() {
     describe("Basic Function Test", function() {
         it("Should show the Cast View", function() {
             expect($castOpPanel.is(":visible")).to.be.false;
-            CastOpPanel.Instance.show(node, {});
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             if ($castOpPanel.find(".advancedEditor").is(":visible")) {
                 $castOpPanel.find(".xc-switch").click();
             }
@@ -166,7 +166,7 @@ describe('ColAssignmentView Test', function() {
 
         it("should show form with first column filled in", function() {
             expect($castOpPanel.is(":visible")).to.be.false;
-            CastOpPanel.Instance.show(node, {});
+            DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             expect($castOpPanel.is(":visible")).to.be.true;
 
             expect($castSection.find(".candidateSection .inputCol").length).to.equal(1);
