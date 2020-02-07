@@ -299,6 +299,17 @@
     //     }
     // }
 
+    &.hidingLeftPanel {
+        .mainContent {
+            > .leftSection {
+                display: none;
+            }
+            > .rightSection {
+                margin-left: 0px !important; // important to override margin-left set by resizing
+            }
+        }
+    }
+
     .mainContent {
         .rightSection {
             margin-left: @width-topMenu;

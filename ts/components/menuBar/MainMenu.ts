@@ -149,7 +149,7 @@ namespace MainMenu {
                 subTabId = null;
             }
             if (!$tab.hasClass("active") || WorkbookPanel.isWBMode()) {
-                tabClickEvent($tab, $tab.closest(".topMenuBarTab"), subTabId, !ignoreHistory);
+                tabClickEvent($tab, $tab.closest(".topMenuBarTab"), subTabId, !ignoreHistory, true);
             }
             if ($subTab) {
                 $subTab.trigger({...fakeEvent.click, subTabId: subTabId});
@@ -161,7 +161,7 @@ namespace MainMenu {
         }
     };
 
-    function tabClickEvent($target: JQuery, $curTab: JQuery, subTabId?: string, addToHistory?: boolean) {
+    function tabClickEvent($target: JQuery, $curTab: JQuery, subTabId?: string, addToHistory?: boolean, noToggle?: boolean) {
         const $tabs: JQuery = $menuBar.find(".topMenuBarTab");
         WorkbookPanel.hide(true, true);
         $menuBar.removeClass("animating");
@@ -178,6 +178,8 @@ namespace MainMenu {
                         PanelHistory.Instance.push(tabName);
                     }
                 }
+            } else if (!noToggle && $curTab.attr("id") === "sqlTab") {
+                toggleResourcePanel();
             }
         } else { // this tab was inactive, will make active
             const $lastActiveTab: JQuery = $tabs.filter(".active");
@@ -214,6 +216,20 @@ namespace MainMenu {
                 PanelHistory.Instance.push(tabName);
             }
         }
+    }
+
+    function toggleResourcePanel() {
+        const $tab = $("#sqlTab");
+        if ($tab.hasClass("showing")) {
+            $tab.removeClass("showing");
+            $("#sqlWorkSpacePanel").addClass("hidingLeftPanel");
+        } else {
+            $tab.addClass("showing");
+            $("#sqlWorkSpacePanel").removeClass("hidingLeftPanel");
+        }
+        TblFunc.moveFirstColumn();
+        DagCategoryBar.Instance.showOrHideArrows();
+        SQLEditorSpace.Instance.refresh();
     }
 
     function setupTabbing(): void {

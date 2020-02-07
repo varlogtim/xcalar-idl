@@ -124,7 +124,7 @@
     .noSelection;
     padding: 6px 4px;
 
-    &.active:not(.fromMainMenu) {
+    &.active:not(.fromMainMenu):not(.toggleable) {
         .transition(all 0s);
 
         .mainTab {
@@ -136,6 +136,16 @@
         }
         .subTabs, .subTab {
             display: block;
+        }
+    }
+
+    &.showing.active {
+        .mainTab {
+            opacity: 1;
+
+            .icon, .label {
+                color: @color-icon-menuBarActive;
+            }
         }
     }
 
@@ -267,6 +277,17 @@
         line-height: 15px;
         .size(@width: 100%, @height: @height-mainTab);
     }
+
+    .showing {
+        .mainTab {
+            opacity: 1;
+
+            .icon, .label {
+                color: @color-icon-menuBarActive;
+            }
+        }
+    }
+
 }
 
 .mainMenuGhost {
