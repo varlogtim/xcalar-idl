@@ -1357,20 +1357,32 @@ namespace xcHelper {
         if (wholeName == null) {
             return null;
         }
-        // get out hashId from tableName + hashId
-        const hashIndex: number = wholeName.lastIndexOf('#');
-        if (hashIndex > -1) {
-            let id = wholeName.substring(hashIndex + 1);
-            if (isNaN(Number(id)) || parseInt(id).toString() !== id) {
-                return id;
-            } else {
-                return parseInt(id);
-            }
+        if (isGlobalTable(wholeName)) {
+            return 't' + jQuery.md5(wholeName);
         } else {
-            return null;
+            // get out hashId from tableName + hashId
+            const hashIndex: number = wholeName.lastIndexOf('#');
+            if (hashIndex > -1) {
+                let id = wholeName.substring(hashIndex + 1);
+                if (isNaN(Number(id)) || parseInt(id).toString() !== id) {
+                    return id;
+                } else {
+                    return parseInt(id);
+                }
+            } else {
+                return null;
+            }
         }
     }
 
+    /**
+     * xcHelper.isGlobalTable
+     * @param tableName
+     */
+    export function isGlobalTable(tableName: string): boolean {
+        // Global table with name pattern '/tableName/{sessionId}/{sessionTableName}
+        return tableName.indexOf('/tableName/') === 0;
+    }
 
     /**
      * xcHelper.createNextName

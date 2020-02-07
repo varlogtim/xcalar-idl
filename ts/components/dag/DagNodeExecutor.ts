@@ -929,6 +929,11 @@ class DagNodeExecutor {
                 return PromiseHelper.resolve(source);
             } else {
                 // for XD environment, detect if the table exist
+                if (xcHelper.isGlobalTable(source)) {
+                    // XcalarGetTableMeta doesn't support global(cross-session) table for now,
+                    // so this is a workaround
+                    return PromiseHelper.resolve(source);
+                }
                 let deferred: XDDeferred<string> = PromiseHelper.deferred();
                 XIApi.getTableMeta(source)
                 .then(() => {

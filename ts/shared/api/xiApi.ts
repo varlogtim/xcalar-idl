@@ -2842,6 +2842,9 @@ namespace XIApi {
             // txID not needed if deleting undone tables
             return PromiseHelper.reject('Invalid args in delete table');
         }
+        if (arrayOfQueries.length === 0) {
+            return PromiseHelper.resolve([]);
+        }
 
         let queryName: string = xcHelper.randName('sql');
         let queryStr: string = JSON.stringify(arrayOfQueries);
