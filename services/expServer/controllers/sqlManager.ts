@@ -590,7 +590,16 @@ class SqlManager {
                                                 userName, sessionName);
         })
         .then((data: any): JQueryPromise<any> => {
-            let retStruct: any[] = data.ret;
+            const sqlParseRet = data.ret;
+            let retStruct;
+            if (!(sqlParseRet instanceof Array)) { // Remove this after parser change in
+                if (sqlParseRet.errorMsg) {
+                    return PromiseHelper.reject(sqlParseRet.errorMsg);
+                }
+                retStruct = sqlParseRet.parseStructs;
+            } else {
+                retStruct = sqlParseRet;
+            }
             let newIdentifiersMap: any = {};
             if (retStruct.length > 1) {
                 return PromiseHelper.reject("Multiple queries not supported yet");
