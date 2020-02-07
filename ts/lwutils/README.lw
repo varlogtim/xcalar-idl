@@ -1,0 +1,84 @@
+When you place a call to the Discover API, passing:
+
+1. Schema
+2. List of file paths
+
+you will get back list of <file, schema> as response. The load wizard
+uses these classes below to determine unique schemas. But there are
+4 schemes to determine uniqueness:
+
+1. Exact Schemas - TestExactSchemas.js
+2. Trailing Schemas - TestTrailingSchemas.js
+3. Superset Schemas - TestSupersetSchemas.js
+4. Union Schema - TestUnionSchema.js
+
+The user needs to choose which scheme to apply per model, and based on that
+load wizard will be able to categorize the files according to unique
+schemas.
+
+Example response from Discover API that is sent as Input JSON schema
+for a set of file paths.
+
+If success is false, status contains the reason it failed.
+It also tells you what step it was on when it failed.
+
+{
+  "path": "/xcfield/instantdatamart/csv/forecast_canonical.csv",
+  "success": true,
+  "status": "success",
+  "schema": {
+    "numColumns": "10",
+    "columns": [
+      {
+        "name": "COL_Row_Number",
+        "mapping": "$.Row_Number",
+        "type": "INTEGER"
+      },
+      {
+        "name": "City_Name",
+        "mapping": "$.City_Name",
+        "type": "VARCHAR(8)"
+      },
+      {
+        "name": "City_Canonical_Name",
+        "mapping": "$.City_Canonical_Name",
+        "type": "VARCHAR(64)"
+      },
+      {
+        "name": "Lat_Lon",
+        "mapping": "$.Lat_Lon",
+        "type": "VARCHAR(32)"
+      },
+      {
+        "name": "Start_Time",
+        "mapping": "$.Start_Time",
+        "type": "INTEGER"
+      },
+      {
+        "name": "End_Time",
+        "mapping": "$.End_Time",
+        "type": "INTEGER"
+      },
+      {
+        "name": "Temperature",
+        "mapping": "$.Temperature",
+        "type": "REAL"
+      },
+      {
+        "name": "Pressure",
+        "mapping": "$.Pressure",
+        "type": "REAL"
+      },
+      {
+        "name": "Humidity",
+        "mapping": "$.Humidity",
+        "type": "INTEGER"
+      },
+      {
+        "name": "Weather_ID",
+        "mapping": "$.Weather_ID",
+        "type": "INTEGER"
+      }
+    ]
+  }
+}
