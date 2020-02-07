@@ -20,6 +20,14 @@ class SQLResultSpace {
     }
 
     private _setupListeners() {
+        this._getResultSection().find(".closeResult").click(() => {
+            this._toggleDisplay(false);
+        });
+
+        $("#dagView .openResult").click(() => {
+            this._toggleDisplay(true);
+        });
+
         $("#sqlTableArea").on("click", ".btn-create", () => {
             let tableName: string = this._sqlTable.getTable();
             try {
@@ -198,6 +206,7 @@ class SQLResultSpace {
             default:
                 break;
         }
+        this._toggleDisplay(true);
     }
 
     private _getResultSection(): JQuery {
@@ -206,5 +215,15 @@ class SQLResultSpace {
 
     private _getContentSection(): JQuery {
         return this._getResultSection().find(".contentSection");
+    }
+
+    private _toggleDisplay(display: boolean): void {
+        const $resultSection = this._getResultSection();
+        const $container = $resultSection.parent();
+        if (display) {
+            $container.removeClass("noResult");
+        } else {
+            $container.addClass("noResult");
+        }
     }
 }

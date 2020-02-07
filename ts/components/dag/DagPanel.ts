@@ -54,6 +54,10 @@ class DagPanel {
         return this._setup;
     }
 
+    public isDocked(): boolean {
+        return this._popup.isDocked();
+    }
+
     private _basicSetup(): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
@@ -114,12 +118,6 @@ class DagPanel {
     }
 
     private _setupPopup() {
-        const $bottomPart = $("#sqlWorkSpacePanel").find(".rightSection .bottomPart");
-        const $bottomLeftPart = $("#sqlEditorSpace");
-        const $bottomRightPart = $("#dagView");
-        let bottomPartWidth: number = null;
-        let maxWidth;
-
         this._popup = new PopupPanel("dagView", {});
         this._popup
         .on("Undock", () => {
@@ -127,44 +125,6 @@ class DagPanel {
         })
         .on("Dock", () => {
             this._dock();
-        });
-
-        $bottomRightPart.resizable({
-            handles: "w, e, s, n, nw, ne, sw, se",
-            containment: 'parent',
-            minWidth: 36,
-            minHeight: 50,
-            start: () => {
-                if (this._popup.isDocked()) {
-                    bottomPartWidth = $bottomPart.outerWidth();
-                    maxWidth = bottomPartWidth - SQLEditorSpace.minWidth;
-                }
-            },
-            resize: (_event, ui) => {
-                if (this._popup.isDocked()) {
-                    let width = Math.min(ui.size.width, maxWidth);
-                    let pct = width / bottomPartWidth;
-
-                    if (pct > 0.98) {
-                        pct = 0.98;
-                        $bottomRightPart.css("left", "2%");
-                    } else {
-                        $bottomRightPart.css("left", bottomPartWidth - width)
-                            .css("width", width);
-                    }
-                    $bottomLeftPart.outerWidth(100 * (1 - pct) + "%");
-                }
-            },
-            stop: (_event, ui) => {
-                if (this._popup.isDocked()) {
-                    let width = Math.min(ui.size.width, maxWidth);
-                    let pct = Math.min(width / bottomPartWidth, 0.98);
-                    let pctLeft = 1 - pct;
-                    $bottomRightPart.css("left", 100 * pctLeft + "%")
-                            .outerWidth(100 * pct + "%");
-                    $bottomLeftPart.outerWidth(100 * pctLeft + "%");
-                }
-            }
         });
     }
 

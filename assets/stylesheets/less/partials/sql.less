@@ -1,5 +1,5 @@
 .flexTable {
-    @border-style: solid @color-border-softGray 1px;
+    @border-style: solid @color-border-medium2 1px;
     @cell-padding: 10px;
     @scrollbar-width: 11px;
     @tableHeaderHeight: 24px;
@@ -188,7 +188,7 @@
     .cardHeader {
         display: flex;
         .refresh-queryHist, .selCancelQueryHist {
-            color: @color-white;
+            color: @color-bg-default;
             cursor: pointer;
             align-self: center;
             margin-left: auto;
@@ -258,67 +258,84 @@
         pointer-events: none;
     }
 
-    &.sqlEditorDocked {
-        #sqlEditorSpace {
-            height: ~"calc(100% - @{resize-h} - @{tabBar-h})" !important;
-        }
-    }
+    // &.sqlEditorDocked {
+    //     #sqlEditorSpace {
+    //         height: 100% !important;
+    //     }
+    // }
 
-    &.sqlEditorUndocked {
-        &.dagPanelDocked {
-            #dagView {
-                width: 100% !important;
-                left: 0px !important;
-            }
-        }
-    }
+    // &.sqlEditorUndocked {
+    //     &.dagPanelDocked {
+    //         #dagView {
+    //             width: 100% !important;
+    //             left: 0px !important;
+    //         }
+    //     }
+    // }
 
-    &.dagPanelDocked {
-        #dagView {
-            height: ~"calc(100% - @{resize-h} - @{tabBar-h})" !important;
-        }
-    }
+    // &.dagPanelDocked {
+    //     #dagView {
+    //         height: ~"calc(100% - @{resize-h} - @{tabBar-h})" !important;
+    //     }
+    // }
 
-    &.dagPanelUndocked {
-        &.sqlEditorDocked {
-            #sqlEditorSpace {
-                width: 100% !important;
-            }
-        }
-    }
+    // &.dagPanelUndocked {
+    //     &.sqlEditorDocked {
+    //         #sqlEditorSpace {
+    //             width: 100% !important;
+    //         }
+    //     }
+    // }
 
-    &.sqlEditorUndocked.dagPanelUndocked {
-        .topPart {
-            height: ~"calc(100% - @{resize-h} - @{tabBar-h} - 4px)" !important;
-            overflow: hidden; // prevents draggable bug
-        }
-        .bottomPart {
-            top: auto !important;
-            bottom: 0px;
-            height:  @resize-h + @tabBar-h + 4 !important;
-        }
-    }
+    // &.sqlEditorUndocked.dagPanelUndocked {
+    //     .topPart {
+    //         height: ~"calc(100% - @{resize-h} - @{tabBar-h} - 4px)" !important;
+    //         overflow: hidden; // prevents draggable bug
+    //     }
+    //     .bottomPart {
+    //         top: auto !important;
+    //         bottom: 0px;
+    //         height:  @resize-h + @tabBar-h + 4 !important;
+    //     }
+    // }
 
     .mainContent {
         .rightSection {
             margin-left: @width-topMenu;
             height: 100%;
             position: relative; // necessary for resizable sections
+            display: flex;
+            flex-direction: column;
 
             .topPart, .bottomPart {
                 background-color: @color-bg-default;
             }
 
             .topPart {
-                height: 30%;
+                flex: 1 1 auto;
+                display: flex;
+                flex-direction: row;
+                overflow-x: auto;
+
+                .section {
+                    height: 100%;
+
+                    &:first-child {
+                        flex: 1 1 0;
+                    }
+
+                    &:not(:first-child) {
+                        width: 50%;
+                        position: relative;
+                    }
+                }
             }
 
             .bottomPart {
-                height: 70%;
-                top: 30%;
                 display: flex;
                 flex-direction: column;
-                position: absolute;
+                position: relative;
+                height: 40%;
                 width: 100%;
 
                 > .ui-resizable-handle {
@@ -336,67 +353,28 @@
                     border-bottom: 1px solid @color-border-pinkish-grey2;
                 }
 
-                .tabBar {
-                    position: relative;
-                    height: @tabBar-h;
-                    width: 100%;
-                    z-index: 3;
-                    background-color: @color-bg-2;
-                    display: flex;
-
-                    .tabView {
-                        flex: 1 1 auto;
-                        overflow: hidden;
-                    }
-
-                    .actions {
-                        flex: 0 0 70px;
-                        height: 24px;
-
-                        button {
-                            height: 24px;
-                            line-height: 24px;
-
-                            .icon {
-                                font-size: 16px;
-                                line-height: 24px;
-                            }
-
-                            &.active {
-                                background-color: @color-hover-blue;
-                            }
-                        }
-                    }
-                }
-
                 .bottomLeftPart, .bottomRightPart {
                     overflow: hidden;
-                    height: ~"calc(100% - @{resize-h} - @{tabBar-h})";
+                    height: ~"calc(100% - @{resize-h})";
                     position: absolute;
-                    top: @resize-h + @tabBar-h;
+                    top: @resize-h;
                 }
 
                 .bottomLeftPart {
-                    width: 32%;
+                    width: 50%;
                 }
 
                 .bottomRightPart {
-                    left: 32%;
-                    width: 68%;
+                    left: 50%;
+                    width: 50%;
+                    border-left: 1px solid @color-bg-pinkish-grey2;
                 }
 
-                &.noSQL {
-                    .bottomLeftPart {
-                        display: none;
-                    }
-
-                    .bottomRightPart {
-                        left: 0 !important;
-                        width: 100% !important;
-                    }
+                .openResult {
+                    display: none;
                 }
 
-                &.noDataflow {
+                &.noResult {
                     .bottomLeftPart {
                         width: 100% !important;
                     }
@@ -404,13 +382,15 @@
                     .bottomRightPart {
                         display: none;
                     }
-                }
 
-                &.noSQL.noDataflow {
-                    .bottomLeftPart, .bottomRightPart {
-                        display: none;
+                    .openResult {
+                        display: inline-block;
                     }
                 }
+            }
+
+            .debugPart {
+                flex: 1 1 20%;
             }
 
             .resultSection {
@@ -531,6 +511,53 @@
                         }
                     }
                 }
+
+                .closeResult {
+                    position: absolute;
+                    top: 6px;
+                    right: 8px;
+                }
+
+                .topSection {
+                    padding-right: 28px !important;
+                }
+            }
+
+            .tabBar {
+                position: relative;
+                height: @tabBar-h;
+                width: 100%;
+                z-index: 3;
+                background-color: @color-bg-2;
+                display: flex;
+
+                .tabView {
+                    flex: 1 1 auto;
+                    overflow: hidden;
+                }
+
+                .actions {
+                    flex: 0 0 70px;
+                    height: 24px;
+
+                    button {
+                        height: 24px;
+                        line-height: 24px;
+
+                        .icon {
+                            font-size: 16px;
+                            line-height: 24px;
+                        }
+
+                        &.active {
+                            background-color: @color-hover-blue;
+                        }
+                    }
+                }
+            }
+
+            #dagView {
+                height: ~"calc(100% - @{resize-h} - @{tabBar-h})";
             }
         }
     }
@@ -542,7 +569,7 @@
         .cardHeader {
             display: block;
             padding-left: 15px;
-            padding-right: 15px;
+            padding-right: 28px;
 
             label {
                 font-size: 14px;
@@ -552,7 +579,7 @@
             .action {
                 float: right;
                 margin-left: 0;
-                .position(relative, @top: 8px);
+                .position(relative, @top: 6px);
             }
 
             .selCancelQueryHist {

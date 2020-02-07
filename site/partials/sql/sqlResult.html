@@ -1,0 +1,33 @@
+<div class="contentSection">
+  <div class="closeResult xc-iconWrap-action" 
+  data-toggle="tooltip"
+  data-container="body"
+  data-original-title="<%= dicts.common.Close %>"
+  >
+    <i class="icon xi-close"></i>
+  </div>
+  <div class="section query">
+    <div  id="sqlResultQueryListArea"  class="lister noBottom">
+    <div class="topSection">
+      <span class="label"><%= dicts.SQL.SaveQueryTab %></span>
+    </div>
+    <div class="mainSection xc-gridList noHeader">
+      <div class="listSection content"></div>
+    </div>
+    </div>
+  </div>
+  <div class="section result">
+    include "sqlTableListerArea.html"
+    include "sqlTableSchemaArea.html"
+    include "sqlTableArea.html"
+    include "sqlDataflowArea.html"
+    <!-- include "../worksheet/dagViewTableArea.html" -->
+    <div class="hintArea">
+    <span class="semibold">No results</span>
+    <div class="hint">Run a SQL query to get started, add/modify the operators in the module builder to build an advanced data app</div>
+    </div>
+  </div>
+  <div class="section history">
+    include "sqlQueryHistory.html"
+  </div>
+</div>

@@ -103,10 +103,20 @@ namespace BottomMenu {
             BottomMenu.close();
         });
 
-        $("#bottomMenuBarTabs").on("click", ".sliderBtn", function() {
+        $("#bottomMenuBarTabs").on("click", ".sliderBtn", function(event) {
             if (!clickable) {
                 return;
             }
+            // XXX temp hack
+            const $button = $(event.currentTarget);
+            const id = $button.attr("id");
+            if (id === "udfTab") {
+                UDFPanel.Instance.toggleDisplay();
+            } else if (id === "debugTab") {
+                $("#sqlWorkSpacePanel .debugPart").toggleClass("xc-hidden");
+            }
+            return
+            // XXX end of temp hack
             toggleSection($(this).index("#bottomMenuBarTabs .sliderBtn"));
         });
     }

@@ -1,20 +1,39 @@
-<div id="dagTabView" class="tabView" >
-  <div id="dagTabSectionTabs">
-    <ul>
-    </ul>
-    <div class="scrollArea top">
+<div class="tabBar">
+  <div id="dagTabView" class="tabView" >
+    <div id="dagTabSectionTabs">
+      <ul></ul>
+      <div class="scrollArea top">
         <i class="arrow icon xi-arrow-left"></i>
+      </div>
+      <div class="scrollArea bottom">
+        <i class="arrow icon xi-arrow-right"></i>
+      </div>
     </div>
-    <div class="scrollArea bottom">
-      <i class="arrow icon xi-arrow-right"></i>
+    <div id="tabButton" class="addTab" data-toggle="tooltip" data-container="body" data-placement="top" data-title="New module">
+      <i class="icon xi-plus"></i>
+      <i class="icon xi-dfg2"></i>
+    </div>
+    <div id="tabSQLFuncButton" class="addTab" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.SQL.AddFunc %>">
+      <i class="icon xi-plus"></i>
+      <i class="icon xi-SQLfunction"></i>
     </div>
   </div>
-  <div id="tabButton" class="addTab" data-toggle="tooltip" data-container="body" data-placement="top" data-title="New module">
-    <i class="icon xi-plus"></i>
-    <i class="icon xi-dfg2"></i>
-  </div>
-  <div id="tabSQLFuncButton" class="addTab" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.SQL.AddFunc %>">
-    <i class="icon xi-plus"></i>
-    <i class="icon xi-SQLfunction"></i>
-  </div>
+  <!-- <div id="tabViewSwitcher" class="actions">
+    <button class="btn btn-small showSQL active"
+    data-toggle="tooltip"
+    data-placement="top"
+    data-container="body"
+    data-original-title="Show/hide SQL Editor"
+    >
+      <i class="icon xi-SQLworkspace"></i>
+    </button>
+    <button class="btn btn-small showDataflow active"
+    data-toggle="tooltip"
+    data-placement="top"
+    data-container="body"
+    data-original-title="Show/hide Business & Transformation Logic Builder"
+    >
+      <i class="icon xi-edit-dataflow-2"></i>
+    </button>
+  </div> -->
 </div>

@@ -118,42 +118,104 @@ class SQLWorkSpace {
     }
 
     private _resizeEvents(): void {
+        this._resizeTopAndBottomPart();
+        this._resizeTopPartSection();
+        this._resizeDataflowAndResultSection();
+    }
+
+    private _resizeTopAndBottomPart(): void {
         let $panel: JQuery = this._getPanel();
-        let $rightSection: JQuery = $panel.find(".rightSection");
         let $bottomPart: JQuery = this._getBottomPart();
         let $topPart: JQuery = $panel.find(".topPart");
-        let rightSectionHeight: number;
+        let bottomHeight: number;
+        let topHeight: number;
+        let totalHeight: number;
+        let lastTop: number = 0;
 
         // resizable top/bottom result/history sections
         $bottomPart.resizable({
             handles: "n",
-            containment: 'parent',
-            minHeight: 36,
-            start: function () {
+            start: function(_event, ui) {
                 $panel.addClass("resizing");
-                rightSectionHeight = $rightSection.outerHeight();
+                bottomHeight = $bottomPart.outerHeight();
+                topHeight = $topPart.outerHeight();
+                totalHeight = topHeight + bottomHeight;
+                lastTop = ui.position.top;
             },
-            resize: function (_event, ui) {
-                let pct = ui.size.height / rightSectionHeight;
-                if (ui.position.top <= 100) {
-                    pct = (rightSectionHeight - 100) / rightSectionHeight;
-                    $bottomPart.outerHeight(rightSectionHeight - 100)
-                             .css("top", 100);
-                }
-                $topPart.outerHeight(100 * (1 - pct) + "%");
+            resize: function(_event, ui) {
+                const top: number = ui.position.top;
+                const delta: number = top - lastTop;
+                let pct = (bottomHeight - delta) / totalHeight;
+                pct = Math.min(pct, 0.98);
+                pct = Math.max(0.02, pct);
+                $bottomPart.css("height", `${pct * 100}%`);
+                $bottomPart.css("top", "0");
             },
-            stop: function (_event, ui) {
-                let pct = ui.size.height / rightSectionHeight;
-                if (ui.position.top <= 100) {
-                    ui.position.top = 100;
-                    pct = (rightSectionHeight - 100) / rightSectionHeight;
-                }
-                let pctTop = 1 - pct;
-                $bottomPart.css("top", 100 * pctTop + "%")
-                         .outerHeight(100 * pct + "%");
-                $topPart.outerHeight(100 * pctTop + "%");
+            stop: function() {               
                 $panel.removeClass("resizing");
                 SQLEditorSpace.Instance.refresh();
+                UDFPanel.Instance.getEditor().refresh();
+            }
+        });
+    }
+
+    private _resizeTopPartSection(): void {
+        const $topPart: JQuery = this._getPanel().find(".topPart");
+        const $sections = $topPart.find(".section");
+        const $prevSection: JQuery = $sections.eq(0);
+        const $resizableSection: JQuery = $sections.eq(1);
+        let prevWidth: number;
+        let resizableWidth: number;
+        let totalWidth: number;
+        let lastLeft: number = 0;
+
+        // resizable top/bottom result/history sections
+        $resizableSection.resizable({
+            handles: "w",
+            start: function(_event, ui) {
+                prevWidth = $prevSection.outerHeight();
+                resizableWidth = $resizableSection.outerHeight();
+                totalWidth = prevWidth + resizableWidth;
+                lastLeft = ui.position.left;
+            },
+            resize: function(_event, ui) {
+                const left: number = ui.position.left;
+                const delta: number = left - lastLeft;
+                let pct = (resizableWidth - delta) / totalWidth;
+                pct = Math.min(pct, 0.98);
+                pct = Math.max(0.02, pct);
+                $resizableSection.css("width", `${pct * 100}%`);
+                $resizableSection.css("left", "0");
+            }
+        });
+    }
+
+    private _resizeDataflowAndResultSection(): void {
+        const $bottomPart = $("#sqlWorkSpacePanel").find(".rightSection .bottomPart");
+        const $bottomLeftPart = $bottomPart.find(".bottomLeftPart");
+        const $bottomRightPart = $bottomPart.find(".bottomRightPart");
+        let bottomPartWidth: number = null;
+
+        $bottomLeftPart.resizable({
+            handles: "w, e, s, n, nw, ne, sw, se",
+            containment: 'parent',
+            minWidth: 36,
+            minHeight: 50,
+        });
+
+        $bottomRightPart.resizable({
+            handles: "w",
+            start: () => {
+                bottomPartWidth = $bottomPart.outerWidth();
+            },
+            resize: (_event, ui) => {
+                let pct = ui.size.width / bottomPartWidth;
+                pct = Math.min(pct, 0.98);
+                pct = Math.max(0.02, pct);
+                let pctLeft = 1 - pct;
+                $bottomRightPart.css("left", 100 * pctLeft + "%")
+                        .outerWidth(100 * pct + "%");
+                $bottomLeftPart.outerWidth(100 * pctLeft + "%");
             }
         });
     }

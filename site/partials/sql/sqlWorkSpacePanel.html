@@ -5,38 +5,19 @@
   <div class="mainContent">
     <div id="dataflowMenu" class="leftSection commonSection" data-tab="modelingDataflowTab">
         <section id="dagList" class="dagList menuSection">
-            include "../dataflow/dagList.html"
+          include "../dataflow/dagList.html"
         </section>
         include "../dataflow/dagNodeInfoPanel.html"
         include "../dataflow/dataflowInfoPanel.html"
     </div>
     <section class="rightSection">
-      <div class="resultSection topPart">
-        <div class="contentSection">
-          <div class="section query">
-            <div  id="sqlResultQueryListArea"  class="lister noBottom">
-              <div class="topSection">
-                <span class="label"><%= dicts.SQL.SaveQueryTab %></span>
-              </div>
-              <div class="mainSection xc-gridList noHeader">
-                <div class="listSection content"></div>
-              </div>
-            </div>
-          </div>
-          <div class="section result">
-            include "sqlTableListerArea.html"
-            include "sqlTableSchemaArea.html"
-            include "sqlTableArea.html"
-            include "sqlDataflowArea.html"
-            <!-- include "../worksheet/dagViewTableArea.html" -->
-            <div class="hintArea">
-              <span class="semibold">No results</span>
-              <div class="hint">Run a SQL query to get started, add/modify the operators in the module builder to build an advanced data app</div>
-            </div>
-          </div>
-          <div class="section history">
-            include "sqlQueryHistory.html"
-          </div>
+      <div class="topPart">
+        <!-- sql section -->
+        <div class="section sql">
+          include "sqlEditorSpace.html"
+        </div>
+        <div class="section udf xc-hidden">
+          include "../udf/udfSection.html"
         </div>
       </div>
       <div class="bottomPart">
@@ -45,32 +26,17 @@
             <div class="border"></div>
           </div>
         </div>
-        <div class="tabBar">
-          include "../worksheet/tabView.html"
-          <div id="tabViewSwitcher" class="actions">
-            <button class="btn btn-small showSQL active"
-            data-toggle="tooltip"
-            data-placement="top"
-            data-container="body"
-            data-original-title="Show/hide SQL Editor"
-            >
-              <i class="icon xi-SQLworkspace"></i>
-            </button>
-            <button class="btn btn-small showDataflow active"
-            data-toggle="tooltip"
-            data-placement="top"
-            data-container="body"
-            data-original-title="Show/hide Business & Transformation Logic Builder"
-            >
-              <i class="icon xi-edit-dataflow-2"></i>
-            </button>
-          </div>
-        </div>
         <!-- bottom left part -->
-        include "sqlEditorSpace.html"
-         <!-- bottom right part -->
-        include "../worksheet/dagView.html"
+        <div class="bottomLeftPart">
+          include "../worksheet/tabView.html"
+          include "../worksheet/dagView.html"
+        </div>
+        <!-- bottom right part -->
+        <div class="resultSection bottomRightPart">
+          include "sqlResult.html"
+        </div>
       </div>
+      <div class="debugPart xc-hidden">Debug</div>
       include "../worksheet/dagNodeMenu.html"
     </section>
   </div>

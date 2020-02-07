@@ -1265,7 +1265,7 @@ describe("DagView Test", () => {
             expect($dfArea.find(".operator.groupBy").length).to.equal(1);
             node4 = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.groupBy").data("nodeid"));
             expect(node4.getPosition().x).to.be.gt(100);
-            expect(node4.getPosition().y).to.be.gt(40);
+            expect(node4.getPosition().y).to.be.gt(39);
             expect(node4.getPosition().x).to.be.lt(10000);
             expect(node4.getPosition().y).to.be.lt(10000);
             expect(node4.getParents().length).to.equal(0);

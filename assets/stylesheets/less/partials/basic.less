@@ -616,7 +616,7 @@ body {
         display: block;
     }
     & > .mainContent {
-        .size(@height: ~"calc(100% - @{height-topBar})");
+        .size(@height: ~"calc(100% - @{height-topBar} - @{height-bottomBar})");
         .transition(margin-left @time-menuAnim);
         border-top: 1px solid @color-border-medium;
     }
@@ -859,6 +859,15 @@ body {
 /* =========== END TOP RIGHT CORNER =========== */
 
 /* Bottom Section */
+#bottomBar {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: @height-bottomBar;
+    background-color: @color-bg-topBarGray2;
+    z-index: @z-index-bottomMenu + 1;
+    overflow: hidden;
+}
 
 #statusBar {
     .position(absolute, @top: 0);

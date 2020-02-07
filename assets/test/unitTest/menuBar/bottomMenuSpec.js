@@ -1,4 +1,4 @@
-describe("Bottom Menu Test", function() {
+describe.skip("Bottom Menu Test", function() {
     before(function() {
         if (BottomMenu.isMenuOpen()) {
             BottomMenu.close(true);

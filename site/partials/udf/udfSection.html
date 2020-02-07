@@ -1,0 +1,65 @@
+<!-- UDF Section -->
+<section id="udfSection">
+  <!-- Heading -->
+  <header class="heading draggable">
+    <h2><%= dicts.UDF.Header %></h2>
+    <i class="icon xi-close close xc-icon-action" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Close %>"></i>
+    <i class="icon xi_popout undock xc-icon-action" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.bottomMenu.popOutBtn %>"></i>
+    <i class="icon xi-udf-manager toManager xc-icon-action" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.UDF.ToManager %>"></i>
+  </header>
+  <!-- Content -->
+  <div class="menuContent">
+    <!-- Main Content -->
+    <section class="mainSectionContainer">
+    <!-- Section to write function -->
+    <section id="udf-fnSection" class="mainSection xc-disabled">
+      <!-- topSection -->
+      <div class="topSection">
+      <!-- template section -->
+      <div class="templateSection">
+        <div class="template normal">
+        <div id="udf-fnList" class="dropDownList">
+          <input id= "test_udf_fn" class="text xc-input udf-fnName" spellcheck="false" placeholder="<%= dicts.UDF.SelectTemplate %>" data-toggle="tooltip" data-container="body" data-placement="top">
+          <div class="iconWrapper">
+          <i class="icon xi-arrow-down"></i>
+          </div>
+          <div id="udf-fnMenu" class="list">
+          <ul>
+            <li name="blank">
+            <i class="icon xi-plus"></i>
+            <span><%= dicts.UDF.BlankFunc %></span>
+            </li>
+          </ul>
+          include "../../util/menuScrollArea.html"
+          </div>
+        </div>
+        </div>
+        <div class="template sql">
+        <span class="text">
+          sql.py
+        </span>
+        <i class="qMark icon xi-unknown"
+        data-toggle="tooltip"
+        data-container="body"
+        data-title="sql.py is the only UDF module that can be called from SQL, each project has its own sql.py module"
+        data-placement="top"></i>
+        </div>
+      </div>
+      <!-- button section -->
+      <div class="buttonSection">
+        <i class="icon xi-refresh refreshUdf xc-icon-action" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.UDF.Refresh %>"></i>
+        <i class="icon xi-save saveFile xc-icon-action" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.UDF.SaveFile %>"></i>
+      </div>
+      </div>
+      <!-- editSection -->
+      <div class="editSection">
+      <div class="editArea">
+        <textarea id="udf-codeArea"></textarea>
+      </div>
+      </div>
+    </section>
+    </section>
+    <!-- End of Main Section -->
+  </div>
+</section>
+<!-- end of UDF Section -->

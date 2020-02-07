@@ -44,6 +44,22 @@ class UDFPanel {
         this._setupDropdownList();
     }
 
+    public toggleDisplay(display?: boolean): void {
+        const $container = this._getUDFSection().parent();
+        if (display == null) {
+            display = $container.hasClass("xc-hidden");
+        }
+
+        if (display) {
+            $container.removeClass("xc-hidden");
+            this.getEditor().refresh();
+        } else {
+            $container.addClass("xc-hidden");
+        }
+        
+
+    }
+
     /**
      * Clear UDFs.
      * @returns void
@@ -240,8 +256,8 @@ class UDFPanel {
         $udfSection.find(".topSection .refreshUdf").on("click", () => {
             UDFFileManager.Instance.refresh(true, true);
         });
-        const $toManagerButton: JQuery = $("#udfButtonWrap .toManager");
-        $toManagerButton.on("click", (_event: JQueryEventObject) => {
+
+        $udfSection.find(".toManager").on("click", (_event: JQueryEventObject) => {
             $udfSection.addClass("switching");
             MainMenu.openPanel("monitorPanel", "fileManagerButton");
             monitorFileManager.switchType("UDF");
@@ -251,6 +267,10 @@ class UDFPanel {
             );
 
             $udfSection.removeClass("switching");
+        });
+
+        $udfSection.find("header .close").click(() => {
+            this.toggleDisplay(false);
         });
 
         const textArea: HTMLElement = document.getElementById("udf-codeArea");
