@@ -38,6 +38,17 @@ class SQLSnippet {
         }
     }
 
+    /**
+     * SQLSnippet.Instance.newSnippet
+     * @param name
+     */
+    public newSnippet(name: string | null): string {
+        name = this.getValidName(name);
+        this._snippets[name] = "";
+        this._updateSnippets();
+        return name;
+    }
+
     public listSnippets(): {name: string, snippet: string}[] {
         let names: string[] = this._listSnippetsNames();
         let snippets = this._snippets;
@@ -91,21 +102,25 @@ class SQLSnippet {
      * @param snippetName
      * @param callback
      */
-    public async deleteSnippet(snippetName: string, callback: Function): void {
-        let msg = xcStringHelper.replaceMsg(SQLTStr.DeleteSnippetMsg, {
-            name: name
-        });
-        Alert.show({
-            title: SQLTStr.DeleteSnippet,
-            msg: msg,
-            onConfirm: () => {
-                this._deletSnippet(snippetName);
-                if (typeof callback === "function") {
-                    callback();
-                }
-            }
-        });
+    public async deleteSnippet(snippetName: string): Promise<void> {
+        return this._deletSnippet(snippetName);
     }
+
+    /**
+     * SQLSnippet.Instance.renameSnippet
+     * @param oldName
+     * @param newName 
+     */
+    public async renameSnippet(oldName: string, newName: string): Promise<void> {
+        if (!this.hasSnippet(oldName) || this.hasSnippet(newName)) {
+            return;
+        }
+        const snippet = this.getSnippet(oldName);
+        delete this._snippets[oldName];
+        this._snippets[newName] = snippet;
+        return this._updateSnippets();
+    }
+
 
     public downloadSnippet(snippetName: string): void {
         const fileName: string = snippetName + ".sql";
@@ -115,6 +130,21 @@ class SQLSnippet {
 
     public getLastOpenSnippet(): {name: string, text: string, unsaved} | null {
         return this._lastOpenedSnippet;
+    }
+
+    /**
+     * SQLSnippet.Instance.getValidName
+     * @param name
+     */
+    public getValidName(name: string | null): string {
+        name = name || CommonTxtTstr.Untitled;
+        let cnt = 0;
+        let validName = name;
+        while (this.hasSnippet(validName)) {
+            cnt++;
+            validName = name + cnt;
+        }
+        return validName;
     }
 
     private _getKVStore(): KVStore {

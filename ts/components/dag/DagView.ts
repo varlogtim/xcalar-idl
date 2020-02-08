@@ -1376,6 +1376,11 @@ class DagView {
         if (!nodeInfos.length) {
             return;
         }
+        if (this.dagTab instanceof DagTabSQLExecute) {
+            // cannot modify sql execute tab
+            DagTabSQLExecute.viewOnlyAlert();
+            return;
+        }
         this.deselectNodes();
 
         let minXCoor: number = this.$dfArea.width();
@@ -2988,10 +2993,14 @@ class DagView {
      /**
      * Check if modification to graph/nodes should be disabled, Ex. it's showing the subGraph of a customNode
      */
-    public isDisableActions(): boolean {
+    public isDisableActions(showAlert: boolean = false): boolean {
+        if (showAlert && this.dagTab instanceof DagTabSQLExecute) {
+            DagTabSQLExecute.viewOnlyAlert();
+        }
         return (this.dagTab instanceof DagTabCustom ||
             this.dagTab instanceof DagTabSQL ||
             this.dagTab instanceof DagTabProgress ||
+            this.dagTab instanceof DagTabSQLExecute ||
             (this.$dfArea && this.$dfArea.hasClass("largeHidden")));
     }
 
@@ -5306,6 +5315,9 @@ class DagView {
         if (event.which !== 1 || (isSystemMac && event.ctrlKey)) {
             return;
         }
+        if (self.dagTab instanceof DagTabSQLExecute) {
+            return;
+        }
         const $childNode = $childConnector.closest(".operator");
         const childNodeId: DagNodeId = $childNode.data("nodeid");
         if (self.isNodeLocked(childNodeId)) {
@@ -5469,6 +5481,9 @@ class DagView {
     }
 
     public nodeTitleEditMode($origTitle): void {
+        if (this.dagTab instanceof DagTabSQLExecute) {
+            return;
+        }
         const $operator = $origTitle.closest(".operator")
         const nodeId: DagNodeId = $operator.data("nodeid");
         const node = this.graph.getNode(nodeId);
@@ -5610,6 +5625,9 @@ class DagView {
         identifiers?: Map<number, string>,
         setNodeConfig?: {sourceColumn: string, destColumn: string, columnType: ColumnType, cast: boolean}[]
     ): XDPromise<void> {
+        if (this.dagTab instanceof DagTabSQLExecute) {
+            return PromiseHelper.reject();
+        }
         this.dagTab.turnOffSave();
         this._connectNodesNoPersist(parentNodeId, childNodeId, connectorIndex,  {
             isReconnect: isReconnect,

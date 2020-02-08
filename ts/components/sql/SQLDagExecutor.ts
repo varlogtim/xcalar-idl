@@ -1,11 +1,11 @@
 class SQLDagExecutor {
-    private static _tabs: Map<string, DagTabUser> = new Map();
+    private static _tabs: Map<string, DagTabSQLExecute> = new Map();
 
-    public static getTab(tabId: string): DagTabUser {
+    public static getTab(tabId: string): DagTabSQLExecute {
         return SQLDagExecutor._tabs.get(tabId);
     }
 
-    public static setTab(tabId: string, dagTab: DagTabUser): void {
+    public static setTab(tabId: string, dagTab: DagTabSQLExecute): void {
         SQLDagExecutor._tabs.set(tabId, dagTab);
     }
 
@@ -273,11 +273,9 @@ class SQLDagExecutor {
 
     private _appendNodeToDataflow(): void {
         DagViewManager.Instance.toggleSqlPreview(false);
-        if (DagTabManager.Instance.getNumTabs() === 0) {
-            DagTabManager.Instance.newTab();
-        }
-        this._tempTab = <DagTabUser>DagViewManager.Instance.getActiveTab();
-        this._tempGraph = DagViewManager.Instance.getActiveDag();
+        DagTabManager.Instance.openAndResetSQLExecuteTab();
+        this._tempTab = <DagTabSQLExecute>DagViewManager.Instance.getActiveTab();
+        this._tempGraph = this._tempTab.getGraph();
         this._sqlNode.hide();
         this._tempGraph.addNode(this._sqlNode);
     }

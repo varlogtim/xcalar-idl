@@ -652,6 +652,9 @@ namespace DagNodeMenu {
             classes += ' viewOnly ';
         }
         let activeTab: DagTab = DagViewManager.Instance.getActiveTab();
+        if (activeTab instanceof DagTabSQLExecute) {
+            classes += ' viewOnly SQLExecuteTab ';
+        }
         if (activeTab instanceof DagTabSQL) {
             classes += ' viewOnly SQLTab ';
         }

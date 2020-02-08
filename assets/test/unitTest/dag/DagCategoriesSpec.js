@@ -429,65 +429,65 @@ describe("DagCategories Test", function() {
             });
         });
 
-        it("should save category if 1 item added", function(done) {
-            addedNode = new DagNodeCustom({subGraph: {nodes: [], comments: [], display:{}}, inPorts:[], outPorts:[], customName:"testName"});
-            let customNode = new DagCategoryNodeCustom(addedNode);
-            customCategory.add(customNode);
-            let called1 = false;
-            let called2 = false;
-            let XcalarKeyPutCache = XcalarKeyPut;
-            let XcalarKeyDeleteCache = XcalarKeyDelete;
-            XcalarKeyPut = function(key, data) {
-                addedKey = key;
-                expect(JSON.parse(data).node.customName).to.equal("testName");
-                called1 = true;
-                return PromiseHelper.resolve();
-            }
-            XcalarKeyDelete = function(res) {
-                called2 = true;
-                return PromiseHelper.resolve();
-            }
-            customCategory.saveCategory()
-            .then(function() {
-                expect(called1).to.be.true;
-                expect(called2).to.be.false;
-                XcalarKeyPut = XcalarKeyPutCache;
-                XcalarKeyDelete = XcalarKeyDeleteCache;
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
+        // it("should save category if 1 item added", function(done) {
+        //     addedNode = new DagNodeCustom({subGraph: {nodes: [], comments: [], display:{}}, inPorts:[], outPorts:[], customName:"testName"});
+        //     let customNode = new DagCategoryNodeCustom(addedNode);
+        //     customCategory.add(customNode);
+        //     let called1 = false;
+        //     let called2 = false;
+        //     let XcalarKeyPutCache = XcalarKeyPut;
+        //     let XcalarKeyDeleteCache = XcalarKeyDelete;
+        //     XcalarKeyPut = function(key, data) {
+        //         addedKey = key;
+        //         expect(JSON.parse(data).node.customName).to.equal("testName");
+        //         called1 = true;
+        //         return PromiseHelper.resolve();
+        //     }
+        //     XcalarKeyDelete = function(res) {
+        //         called2 = true;
+        //         return PromiseHelper.resolve();
+        //     }
+        //     customCategory.saveCategory()
+        //     .then(function() {
+        //         expect(called1).to.be.true;
+        //         expect(called2).to.be.false;
+        //         XcalarKeyPut = XcalarKeyPutCache;
+        //         XcalarKeyDelete = XcalarKeyDeleteCache;
+        //         done();
+        //     })
+        //     .fail(function() {
+        //         done("fail");
+        //     });
+        // });
 
-        it("should save category if 1 item deleted", function(done) {
-            customCategory.removeOperatorById(addedNode.getId());
+        // it("should save category if 1 item deleted", function(done) {
+        //     customCategory.removeOperatorById(addedNode.getId());
 
-            let called1 = false;
-            let called2 = false;
-            let XcalarKeyPutCache = XcalarKeyPut;
-            let XcalarKeyDeleteCache = XcalarKeyDelete;
-            XcalarKeyPut = function(res) {
-                called1 = true;
-                return PromiseHelper.resolve();
-            }
-            XcalarKeyDelete = function(key) {
-                called2 = true;
-                expect(key).to.equal(addedKey);
-                return PromiseHelper.resolve();
-            }
-            customCategory.saveCategory()
-            .then(function() {
-                expect(called1).to.be.false;
-                expect(called2).to.be.true;
-                XcalarKeyPut = XcalarKeyPutCache;
-                XcalarKeyDelete = XcalarKeyDeleteCache;
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
+        //     let called1 = false;
+        //     let called2 = false;
+        //     let XcalarKeyPutCache = XcalarKeyPut;
+        //     let XcalarKeyDeleteCache = XcalarKeyDelete;
+        //     XcalarKeyPut = function(res) {
+        //         called1 = true;
+        //         return PromiseHelper.resolve();
+        //     }
+        //     XcalarKeyDelete = function(key) {
+        //         called2 = true;
+        //         expect(key).to.equal(addedKey);
+        //         return PromiseHelper.resolve();
+        //     }
+        //     customCategory.saveCategory()
+        //     .then(function() {
+        //         expect(called1).to.be.false;
+        //         expect(called2).to.be.true;
+        //         XcalarKeyPut = XcalarKeyPutCache;
+        //         XcalarKeyDelete = XcalarKeyDeleteCache;
+        //         done();
+        //     })
+        //     .fail(function() {
+        //         done("fail");
+        //     });
+        // });
 
         it("genOperatorName", function() {
             let a = customCategory.genOperatorName("testName");

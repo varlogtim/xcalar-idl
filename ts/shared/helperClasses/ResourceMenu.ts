@@ -3,7 +3,8 @@ class ResourceMenu {
         Table: "Table",
         TableFunc: "TableFunc",
         UDF: "UDF",
-        DF: "DF"
+        DF: "DF",
+        SQL: "SQL"
     };
 
     private _container: string;
@@ -28,6 +29,7 @@ class ResourceMenu {
                 this._renderTableList();
                 this._renderTableFuncList();
                 this._renderUDFList();
+                this._renderSQList();
                 this._renderDataflowList();
             } else if (key === ResourceMenu.KEY.Table) {
                 this._renderTableList();
@@ -35,6 +37,8 @@ class ResourceMenu {
                 this._renderTableFuncList();
             } else if (key === ResourceMenu.KEY.UDF) {
                 this._renderUDFList();
+            } else if (key === ResourceMenu.KEY.SQL) {
+                this._renderSQList();
             } else if (key === ResourceMenu.KEY.DF) {
                 this._renderDataflowList();
             }
@@ -105,10 +109,29 @@ class ResourceMenu {
         return this._getNestedListWrapHTML("SQL UDFs", html);
     }
 
+    private _renderSQList(): void {
+        const html = this._getSQLList();
+        this._getContainer().find(".sqlList ul").html(html);
+    }
+
+    private _getSQLList(): HTML {
+        const snippets = SQLSnippet.Instance.listSnippets();
+        const iconClassNames: string[] = ["xi-menu-sql"];
+        const html: HTML = snippets.map((snippet) => {
+            const name = snippet.name;
+            const listClassNames: string[] = ["sqlSnippet"];
+            if (SQLTabManager.Instance.isOpen(name)) {
+                listClassNames.push("open");
+            }
+            return this._getListHTML(name, listClassNames, iconClassNames);
+        }).join("");
+        return html;
+    }
+
     private _renderDataflowList(): void {
         const html = this._getDFList();
         this._getContainer().find(".dfModuleList ul").html(html);
-    }
+    } 
 
     private _getListHTML(
         name: string,
@@ -286,6 +309,8 @@ class ResourceMenu {
             } else {
                 $menu.find("li.udfQuery").addClass("xc-disabled");
             }
+        } else if ($li.hasClass("sqlSnippet")) {
+            $menu.find("li.sql").show();
         }
         // sql func can also have this class
         if ($li.hasClass("dagListDetail")) {
@@ -349,6 +374,17 @@ class ResourceMenu {
                     node.setParam({}, true);
                 }
             });
+        }
+    }
+
+     // XXX TODO: verify it
+     private _udfEdit(): void {
+        let $dagListItem: JQuery = $(event.currentTarget).closest(".dagListDetail");
+        const udfName: string = $dagListItem.data("id")
+        UDFPanel.Instance.selectUDF(udfName);
+        const $udfTab = $("#udfTab");
+        if (!$udfTab.hasClass("active")) {
+            $udfTab.click();
         }
     }
 
@@ -434,9 +470,23 @@ class ResourceMenu {
             SQLWorkSpace.Instance.tableFuncQuery(name);
         });
 
+        $menu.on("click", ".udfEdit", () => {
+            this._udfEdit();
+        });
+
         $menu.on("click", ".udfQuery", () => {
             const name: string = $menu.data("name");
             this._udfQuery(name);
+        });
+
+        $menu.on("click", ".sqlDownload", () => {
+            const name: string = $menu.data("name");
+            SQLSnippet.Instance.downloadSnippet(name);
+        });
+
+        $menu.on("click", ".sqlDelete", () => {
+            const name: string = $menu.data("name");
+            SQLEditorSpace.Instance.deleteSnippet(name, null);
         });
     }
 
@@ -463,6 +513,11 @@ class ResourceMenu {
             DagTabManager.Instance.newTab(true);
         });
 
+        $container.on("click", ".addSQL", (event) => {
+            event.stopPropagation();
+            SQLTabManager.Instance.newTab();
+        });
+
         $container.on("click", ".addTableFunc", (event) => {
             event.stopPropagation();
             DagViewManager.Instance.createSQLFunc(true);
@@ -476,6 +531,15 @@ class ResourceMenu {
             $li.siblings(".active").removeClass("active");
             $li.addClass("active");
             this._focusOnTable($li.find(".name").text());
+        });
+
+        $container.on("click", ".sqlList .sqlSnippet", (event) => {
+            const $li = $(event.currentTarget);
+            if ($li.hasClass("active")) {
+                return;
+            }
+            const name: string = $li.find(".name").text();
+            SQLTabManager.Instance.openTab(name);
         });
 
         $container.on("click", ".dropDown", (event) => {

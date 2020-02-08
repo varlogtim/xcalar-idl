@@ -847,23 +847,8 @@ class DagList extends Durable {
         }
     }
 
-    // XXX TODO: verify it
-    private _udfEdit(): void {
-        let $dagListItem: JQuery = $(event.currentTarget).closest(".dagListDetail");
-        const udfName: string = $dagListItem.data("id")
-        UDFPanel.Instance.selectUDF(udfName);
-        const $udfTab = $("#udfTab");
-        if (!$udfTab.hasClass("active")) {
-            $udfTab.click();
-        }
-    }
-
     private _setupActionMenu(): void {
         const $menu: JQuery = this._getMenu();
-        $menu.on("click", ".udfEdit", () => {
-            this._udfEdit();
-        });
-
         $menu.on("click", ".deleteDataflow", () => {
             const tabId: string = $menu.data("id");
             const $dagListItem = this._getListElById(tabId);

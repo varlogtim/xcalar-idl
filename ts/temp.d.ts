@@ -140,6 +140,7 @@ interface WkbkKVKeySet {
     gOverwrittenLogKey: string;
     gNotebookKey: string;
     gDagManagerKey: string;
+    gSQLManagerKey: string;
     gDagTableManagerKey: string;
     gDagListKey: string;
     gSQLFuncListKey: string;

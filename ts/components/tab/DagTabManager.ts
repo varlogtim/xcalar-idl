@@ -1,6 +1,6 @@
 // DagTabManager is in charge of managing and loading dataflows
 // depending on which tab is selected.
-class DagTabManager {
+class DagTabManager extends AbstractTabManager {
     private static _instance: DagTabManager;
 
     public static get Instance() {
@@ -9,43 +9,33 @@ class DagTabManager {
 
     private _activeUserDags: DagTab[];
     private _cachedSQLDags: Map<string, DagTabUser>;
-    private _tabListScroller: ListScroller;
     private _subTabs: Map<string, string>; // subTabId => parentTabId
     private _activeTab: DagTab;
     private _sqlPreviewTab: DagTab;
     private _hiddenDags: Map<string, DagTab>; // used to store undone tabs
     private _statsTab: DagTab;
     private _event: XcEvent;
-    private _setup: boolean;
 
     private constructor() {
+        super("dagTabView", "gDagManagerKey")
         this._activeUserDags = [];
         this._cachedSQLDags = new Map();
         this._subTabs = new Map();
         this._hiddenDags = new Map();
         this._event = new XcEvent();
-        this._setup = false;
     }
 
     /**
+     * Public events that inherits from Parent:
      * DagTabManager.Instance.setup
+     *
      */
-    public setup(): XDPromise<void> {
-        if (this._setup) {
-            return PromiseHelper.resolve();
-        }
-        this._setup = true;
-        const $tabArea: JQuery = this._getTabArea();
-        this._tabListScroller = new ListScroller($('#dagTabSectionTabs'),
-        $tabArea, false, {
-            bounds: "#dagTabView",
-            noPositionReset: true
-        });
 
-        this._addEventListeners();
-        return this._getManagerDataAsync();
-    }
-
+     /**
+      * DagTabManager.Instance.on
+      * @param event 
+      * @param callback 
+      */
     public on(event: string, callback: Function): DagTabManager {
         this._event.addEventListener(event, callback);
         return this;
@@ -291,6 +281,19 @@ class DagTabManager {
     }
 
     /**
+     * DagTabManager.Instance.convertSQLExecuteTabToDF
+     * @param dagTab
+     */
+    public convertSQLExecuteTabToDF(dagTab: DagTabSQLExecute): void {
+        const graphJSON = dagTab.getGraph().getSerializableObj(true);
+        const name: string = DagList.Instance.getValidName();
+        const graph: DagGraph = new DagGraph();
+        graph.create(graphJSON);
+        this._newTab(name, graph, false, false);
+        this._tabListScroller.showOrHideScrollers();
+    }
+
+    /**
      *  Creates a new Tab and dataflow.
      */
     public duplicateTab(tab: DagTab): void {
@@ -421,7 +424,7 @@ class DagTabManager {
      * @return {JQuery}
      */
     public getDagTabElement(index: number): JQuery {
-        return this._getTabsEle().eq(index);
+        return this._getTabElByIndex(index);
     }
 
     /**
@@ -431,7 +434,6 @@ class DagTabManager {
         this._getDataflowArea().remove();
         this._getTabsEle().remove();
         DagViewManager.Instance.resetActiveDagTab();
-        SQLEditorSpace.Instance.setTab(null);
     }
 
     public lockTab(tabId: string): void {
@@ -478,42 +480,43 @@ class DagTabManager {
         });
     }
 
-    private _getKVStore(): KVStore {
-        let key: string = KVStore.getKey("gDagManagerKey");
-        return new KVStore(key, gKVScope.WKBK);
+    /**
+     * DagTabManager.Instance.openAndResetSQLExecuteTab
+     * open the tab and clear the graph inside it
+     */
+    public openAndResetSQLExecuteTab(): void {
+        // Check if we already have the tab
+        const dagTab: DagTabSQLExecute = new DagTabSQLExecute();
+        const index: number = this.getTabIndex(dagTab.getId());
+        if (index != -1) {
+            this._switchTabs(index);
+            const oldTab = this._activeUserDags[index];
+            // reset graph
+            const graph = oldTab.getGraph();
+            graph.reset();
+            graph.initialize();
+            const $dagArea = DagViewManager.Instance.getAreaByTab(oldTab.getId());
+            $dagArea.find(".commentArea").empty();
+            $dagArea.find(".edgeSvg").empty();
+            $dagArea.find(".operatorSvg").empty();
+        } else {
+            this._addSQLExecuteTab(dagTab);
+        }
     }
 
-    private _save(): XDPromise<void> {
-        let jsonStr: string = JSON.stringify(this._getJSON());
-        return this._getKVStore().put(jsonStr, true, true);
-    }
-
-    private _getJSON(): {dagKeys: string[]} {
-        // filter out retina tabs as we don't want to persist these viewonly tabs
-        const keys: string[] = this.getTabs().reduce((res, dagTab) => {
-            if (!(dagTab instanceof DagTabProgress)) {
-                res.push(dagTab.getId());
-            }
-            return res;
-        }, []);
-        return {
-            dagKeys: keys
-        };
-    }
-
-    //getManagerDataAsync handles loading the tabManager
-    private _getManagerDataAsync(): XDPromise<void> {
+    protected _restoreTabs(): XDPromise<void> {
         const dagMaps: Map<string, DagTab> = DagList.Instance.getAllDags();
         if (dagMaps.size === 0) {
             DagList.Instance.reset();
             return PromiseHelper.resolve();
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this._getKVStore().getAndParse()
+        this._loadSQLExecuteTab()
+        .then(() => {
+            return this._getKVStore().getAndParse();
+        })
         .then((managerData) => {
             if (managerData == null) {
-                this.reset();
-                deferred.resolve();
                 return;
             }
             // sync up dag list with the opened tab's data
@@ -532,6 +535,21 @@ class DagTabManager {
             deferred.reject(error);
         });
         return deferred.promise();
+    }
+
+    protected _getJSON(): {dagKeys: string[]} {
+        // filter out retina tabs as we don't want to persist these viewonly tabs
+        const keys: string[] = this.getTabs().reduce((res, dagTab) => {
+            if (!(dagTab instanceof DagTabProgress) &&
+                !(dagTab instanceof DagTabSQLExecute) // DagTabSQLExecute use openSQLExecuteTab to handle the load/setup
+            ) {
+                res.push(dagTab.getId());
+            }
+            return res;
+        }, []);
+        return {
+            dagKeys: keys
+        };
     }
 
     private _loadOneTab(
@@ -601,26 +619,20 @@ class DagTabManager {
         return deferred.promise();
     }
 
-    // Clicking a tab activates the dataflow connected
-    // to the tab.
-    private _switchTabs(index?: number): void {
-        if (index == null) {
-            index = this.getNumTabs() - 1;
-        }
+    /**
+     * Clicking a tab activates the dataflow connected to the tab.
+     * @override
+     * @param index
+     */
+    protected _switchTabs(index?: number): number {
+        index = super._switchTabs(index);
 
-        const $tabs: JQuery = this._getTabsEle();
-        const $tab: JQuery = $tabs.eq(index);
         const $dataflowAreas: JQuery = this._getDataflowArea();
-        $tabs.removeClass("active");
         $dataflowAreas.removeClass("active");
-        $tab.addClass("active");
-        $tab.scrollintoview({duration: 0});
         $dataflowAreas.eq(index).addClass("active");
 
         // Switch to the corresponding dataflow in the left panel(DagList)
         const dagTab: DagTab = this.getTabByIndex(index);
-
-        SQLEditorSpace.Instance.setTab(dagTab);
         if (this._activeTab && this._activeTab instanceof DagTabProgress) {
             this._activeTab.unfocus();
         }
@@ -643,6 +655,7 @@ class DagTabManager {
         if (dagTab instanceof DagTabProgress) {
             dagTab.focus();
         }
+        return index;
     }
 
     private _newTab(name: string, graph: DagGraph, isSQLFunc: boolean, isEmpty?: boolean): DagTab {
@@ -746,12 +759,11 @@ class DagTabManager {
         return true;
     }
 
-    private _deleteTabAction(index: number, name: string): void {
+    protected _deleteTabAction(index: number, name: string): void {
         const dagTab: DagTab = this.getTabByIndex(index);
         const tabId: string = dagTab.getId();
         const isLogDisabled: boolean = this._isTabLogDisabled(tabId);
         this._deleteTab(index);
-        this._tabListScroller.showOrHideScrollers();
         if (!isLogDisabled) {
             Log.add(DagTStr.RemoveTab, {
                 "operation": SQLOps.RemoveDagTab,
@@ -760,6 +772,30 @@ class DagTabManager {
                 "name": name
             });
         }
+    }
+
+    protected _renameTabAction($input: JQuery): string {
+        let newName: string = $input.text().trim();
+        const $tabName: JQuery = $input.parent();
+        const $tab: JQuery = $tabName.parent();
+        const index: number = $tab.index();
+        const dagTab: DagTab = this.getTabByIndex(index);
+        if (dagTab instanceof DagTabSQLFunc) {
+            // sql func force name to be case insensitive
+            newName = newName.toLowerCase();
+        }
+
+        if (dagTab != null &&
+            newName != dagTab.getName() &&
+            this._tabRenameCheck(newName, $tabName)
+        ) {
+            dagTab.setName(newName);
+            DagList.Instance.changeName(newName, dagTab.getId());
+        } else {
+            // Reset name if it already exists
+            newName = dagTab ? dagTab.getName() : null;
+        }
+        return newName;
     }
 
     private _addSubTab(parentId: string, childId: string): boolean {
@@ -823,8 +859,11 @@ class DagTabManager {
      * update the dag list until the end so we don't do it here
      */
     private _addDagTab(dagTab: DagTab, index?: number, noUpdate?: boolean): void {
+        let tabIndex: number = null;
         if (index == null) {
             index = this.getNumTabs();
+        } else {
+            tabIndex = index;
         }
         this._activeUserDags.splice(index, 0, dagTab);
         dagTab.setOpen();
@@ -835,7 +874,7 @@ class DagTabManager {
                 DagList.Instance.refreshMenuList(ResourceMenu.KEY.DF);
             }
         }
-        this._addTabHTML(dagTab);
+        this._addTabHTML(dagTab, tabIndex);
         this._addTabEvents(dagTab);
     }
 
@@ -888,9 +927,12 @@ class DagTabManager {
             extraClass += " custom";
         } else if (DagTabUser.isForSQLFolder(dagTab) || dagTab instanceof DagTabSQL) {
             extraClass += " sql";
+        } else if (dagTab instanceof DagTabSQLExecute) {
+            extraClass += " sqlExecute";
+            extraIcon = '<i class="icon xi-menu-sql tabIcon"></i>';
         }
         let html: HTML =
-            '<li class="dagTab' + extraClass + '" data-id="' + tabId +'">' +
+            '<li class="tab dagTab' + extraClass + '" data-id="' + tabId +'">' +
                 '<div class="dragArea">' +
                     '<i class="icon xi-ellipsis-v" ' + xcTooltip.Attrs + ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>' +
                 '</div>' +
@@ -914,7 +956,7 @@ class DagTabManager {
             // Put the tab and area where they should be
             const numTabs: number = this.getNumTabs();
             let $newTab: JQuery = this.getDagTabElement(numTabs - 1);
-            let $newTabArea: JQuery = this._getDataflowArea(numTabs);
+            let $newTabArea: JQuery = this._getDataflowArea(numTabs - 1);
             $newTab.insertBefore(this.getDagTabElement(tabIndex));
             $newTabArea.insertBefore(this._getDataflowArea(tabIndex));
         }
@@ -923,14 +965,6 @@ class DagTabManager {
     private _getDataflowArea(index?: number): JQuery {
         const $area: JQuery = $("#dagView .dataflowArea");
         return (index == null) ? $area : $area.eq(index);
-    }
-
-    private _getTabArea(): JQuery {
-        return $("#dagTabSectionTabs").find("ul");
-    }
-
-    private _getTabsEle(): JQuery {
-        return this._getTabArea().find(".dagTab");
     }
 
     private _getTabEleById(tabId: string): JQuery {
@@ -953,44 +987,63 @@ class DagTabManager {
         }
     }
 
-    private _reorderTab(previousIndex: number, newIndex: number) {
-        // update activeUserDags order as well as dataflowArea
-        const tab = this._activeUserDags.splice(previousIndex, 1)[0];
-        this._activeUserDags.splice(newIndex, 0, tab);
-        const $dataflowArea: JQuery = this._getDataflowArea(previousIndex);
-        // if last tab, just append
-        if (newIndex === this._activeUserDags.length - 1) {
-            $("#dagView .dataflowWrap .innerDataflowWrap").append($dataflowArea);
-        } else {
-            // because the current area still exists, we need to place before
-            // or after the dataflow at the current index depending on the
-            // reorder direction
-            if (newIndex > previousIndex) {
-                this._getDataflowArea(newIndex).after($dataflowArea);
-            } else {
-                this._getDataflowArea(newIndex).before($dataflowArea);
-            }
-        }
-        this._save();
+    protected _startReorderTabAction(): void {
+        $("#dagView").addClass("sortingTabs");
     }
 
-    private _addEventListeners(): void {
-        const $dagTabArea: JQuery = this._getTabArea();
-        $dagTabArea.on("click", ".after", (event) => {
-            event.stopPropagation();
-            const $tab: JQuery = $(event.currentTarget).parent();
-            const index: number = $tab.index();
-            this._deleteTabAction(index, $tab.text());
-        });
-
-        $dagTabArea.on("click", ".dagTab", (event) => {
-            const $tab: JQuery = $(event.currentTarget);
-            // dragging when sorting will trigger an unwanted click
-            if (!$tab.hasClass("ui-sortable-helper")) {
-                this._switchTabs($tab.index());
+    protected _stopReorderTabAction(previousIndex: number, newIndex: number): void {
+        if (previousIndex !== newIndex) {
+            // update activeUserDags order as well as dataflowArea
+            const tab = this._activeUserDags.splice(previousIndex, 1)[0];
+            this._activeUserDags.splice(newIndex, 0, tab);
+            const $dataflowArea: JQuery = this._getDataflowArea(previousIndex);
+            // if last tab, just append
+            if (newIndex === this._activeUserDags.length - 1) {
+                $("#dagView .dataflowWrap .innerDataflowWrap").append($dataflowArea);
+            } else {
+                // because the current area still exists, we need to place before
+                // or after the dataflow at the current index depending on the
+                // reorder direction
+                if (newIndex > previousIndex) {
+                    this._getDataflowArea(newIndex).after($dataflowArea);
+                } else {
+                    this._getDataflowArea(newIndex).before($dataflowArea);
+                }
             }
+            this._save();
+        }
+        $("#dagView").removeClass("sortingTabs");
+    }
+
+    private _loadSQLExecuteTab(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const dagTab: DagTabSQLExecute = new DagTabSQLExecute();
+        dagTab.load()
+        .then(() => {
+            this._addSQLExecuteTab(dagTab);
+            deferred.resolve();
+        })
+        .fail(() => {
+            // assume it's a new sql tab case
+            dagTab.save();
+            this._addSQLExecuteTab(dagTab);
+            deferred.resolve();
         });
 
+        return deferred.promise();
+    }
+
+    private _addSQLExecuteTab(dagTab: DagTabSQLExecute): void {
+        // always add the tab at the front
+        this._addDagTab(dagTab, 0);
+        this._switchTabs(0);
+    }
+
+    /**
+     * @override
+     */
+    protected _addEventListeners(): void {
+        super._addEventListeners();
         // Adding a new tab creates a new tab and adds
         // The html for a dataflowArea.
         $("#tabButton").on("click", () => {
@@ -999,89 +1052,6 @@ class DagTabManager {
 
         $("#tabSQLFuncButton").click(() => {
             DagViewManager.Instance.createSQLFunc(false);
-        });
-
-        $dagTabArea.on("dblclick", ".dragArea", (event) => {
-            let $dragArea: JQuery = $(event.currentTarget);
-            let $tab_name: JQuery = $dragArea.siblings(".name");
-            if ($tab_name.hasClass('nonedit')) {
-                return;
-            }
-            let editingName = $tab_name.text();
-            $tab_name.text("");
-            let inputArea: string =
-                "<span contentEditable='true' class='xc-input'></span>";
-            $(inputArea).appendTo($tab_name);
-            let $input: JQuery = $tab_name.find('.xc-input');
-            $input.text(editingName);
-            $input.focus();
-            document.execCommand('selectAll', false, null);
-        });
-
-        $dagTabArea.on("keypress", ".name .xc-input", (event) => {
-            if (event.which === keyCode.Enter) {
-                $(event.currentTarget).blur();
-            }
-        });
-
-       $dagTabArea.on("focusout", ".name .xc-input", (event) => {
-            let $tabInput: JQuery = $(event.currentTarget);
-            let $tabName: JQuery = $tabInput.parent();
-            let newName: string = $tabInput.text().trim();
-
-            let $tab: JQuery = $tabName.parent();
-            let index: number = $tab.index();
-            const dagTab: DagTab = this.getTabByIndex(index);
-            if (dagTab instanceof DagTabSQLFunc) {
-                // sql func force name to be case insensitive
-                newName = newName.toLowerCase();
-            }
-
-            if (dagTab != null &&
-                newName != dagTab.getName() &&
-                this._tabRenameCheck(newName, $tabName)
-            ) {
-                dagTab.setName(newName);
-                DagList.Instance.changeName(newName, dagTab.getId());
-            } else {
-                // Reset name if it already exists
-                newName = dagTab ? dagTab.getName() : null;
-            }
-
-            if (newName) {
-                $tabName.text(newName);
-            }
-            $tabInput.remove();
-            this._tabListScroller.showOrHideScrollers();
-        });
-
-        $dagTabArea.mouseenter(() => {
-            this._tabListScroller.showOrHideScrollers();
-        });
-
-        let initialIndex;
-        $dagTabArea.sortable({
-            revert: 300,
-            axis: "x",
-            handle: ".dragArea",
-            distance: 5,
-            forcePlaceholderSize: true,
-            placeholder: "sortablePlaceholder",
-            start: (_event, ui) => {
-                // add html to the placeholder so it maintains the same width
-                const html = $(ui.item).html();
-                $dagTabArea.find(".sortablePlaceholder").html(html);
-                initialIndex = $(ui.item).index();
-                xcTooltip.hideAll();
-                $("#dagView").addClass("sortingTabs");
-            },
-            stop: (_event, ui) => {
-                const newIndex = $(ui.item).index();
-                if (initialIndex != newIndex) {
-                    this._reorderTab(initialIndex, newIndex);
-                }
-                $("#dagView").removeClass("sortingTabs");
-            }
         });
     }
 }

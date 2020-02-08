@@ -1,7 +1,6 @@
 interface DagTabUserOptions extends DagTabOptions {
     reset?: boolean;
     createdTime?: number;
-    snippet?: string;
 }
 
 class DagTabUser extends DagTab {
@@ -9,7 +8,6 @@ class DagTabUser extends DagTab {
     private _saveTimer: NodeJS.Timer;
     private _saveDelay: number;
     private _hasPendingSave: boolean;
-    private _snippet: string;
 
     /**
      * DagTabUser.restore
@@ -192,7 +190,6 @@ class DagTabUser extends DagTab {
                 DagList.Instance.saveUserDagList();
             }
             this.setGraph(graph);
-            this._snippet = (dagInfo ? dagInfo.snippet : "") || "";
 
             if (reset) {
                 return this._writeToKVStore();
@@ -387,14 +384,6 @@ class DagTabUser extends DagTab {
         return this._reset;
     }
 
-    public getSnippet(): string {
-        return this._snippet || "";
-    }
-
-    public setSnippet(snippet: string): void {
-        this._snippet = snippet;
-    }
-
     protected _writeToKVStore(): XDPromise<void> {
         // getJSON with includeStats = true
         return super._writeToKVStore(this._getDurable(true));
@@ -404,18 +393,6 @@ class DagTabUser extends DagTab {
          // format is .temp/randNum/fileName
          const tempName: string = ".temp/" + xcHelper.randName("rand") + "/" + this.getName();
          return tempName;
-    }
-
-    /**
-     * @override
-     * @param includeStats
-     */
-    protected _getDurable(includeStats?: boolean): DagTabUserDurable{
-        const options = <DagTabUserDurable>super._getDurable(includeStats);
-        if (options != null) {
-            options.snippet = this._snippet || "";
-        }
-        return options;
     }
 
     private _isSQLFunc(dagInfo: {name: string}): boolean {

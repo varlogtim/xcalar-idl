@@ -25,6 +25,24 @@
     </div>
     <ul></ul>
   </div>
+  <!-- sql list -->
+  <div class="sqlList listWrap xc-expand-list">
+    <div class="listInfo">
+      <span class="expand">
+        <i class="icon xi-down fa-12"></i>
+      </span>
+      <span class="text"><%= dicts.resouceMenu.SQL %></span>
+      <span class="action addSQL xc-action" 
+      data-toggle="tooltip"
+      data-placement="top"
+      data-container="body"
+      data-original-title="<%= dicts.resouceMenu.AddSQL %>"
+      >
+        <i class="icon xi-plus"></i>
+      </span>
+    </div>
+    <ul></ul>
+  </div>
   <!-- module list -->
   <div class="dfModuleList listWrap xc-expand-list">
     <div class="listInfo">
@@ -93,6 +111,8 @@
     <li class="tableFunc tableFuncQuery"><%= dicts.resouceMenu.UseInSQL %></li>
     <li class="udf udfQuery"><%= dicts.resouceMenu.UseInSQL %></li>
     <li class="udf udfEdit"><%= dicts.resouceMenu.Edit %></li>
+    <li class="sql sqlDownload"><%= dicts.fileManager.Download %></li>
+    <li class="sql sqlDelete"><%= dicts.fileManager.Delete %></li>
     <li class="dag duplicateDataflow"><%= dicts.fileManager.Duplicate %></li>
     <li class="dag downloadDataflow"><%= dicts.fileManager.Download %></li>
     <li class="dag deleteDataflow"><%= dicts.fileManager.Delete %></li>

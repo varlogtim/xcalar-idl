@@ -1201,9 +1201,15 @@
         }
     }
 
-    .useInSQL {
+    &.sqlExecute {
+        .convertSQLToDF {
+            display: block;
+        }
+    }
+
+    .useInSQL, .convertSQLToDF {
         display: none;
-        width: 85px;
+        width: auto;
         position: relative;
         top: 4px;
     }
@@ -1366,7 +1372,7 @@
         background-color: @color-border-bar;
     }
 
-   .btn:not(.useInSQL) {
+   .btn:not(.action) {
         background-color: transparent;
         color: @color-border-bar;
         padding: 0px 8px;
@@ -1474,235 +1480,8 @@
 }
 
 /* ========== Dag Tabs ========== */
-#dagTabView {
-    @tabHeight: 24px;
-    @tabWidth: 40px;
-    display: flex;
-    background-color: @color-bg-dagTabBar;
-
-    #tabButton, #tabSQLFuncButton {
-        .font(@size: 11px);
-        .size(@height: @tabHeight, @width: @tabWidth);
-        border-right: 1px solid @color-border-medium2;
-        border-top: 1px solid @color-border-medium2;
-        color: @color-icon-default;
-        cursor: pointer;
-        min-width: @tabWidth;
-        flex: 0 0 auto;
-        background-color: @color-bg-dagTabBar;
-        padding: 0 5px;
-
-        .icon {
-            .font(@size: 11px, @align: center, @line-height: @tabHeight);
-
-            &:first-child {
-                margin-right: 3px;
-            }
-        }
-
-        &:hover {
-            background-color: @color-border-bar;
-            color: @color-white;
-        }
-    }
-
-    // XXX Hide the button ENG-6674
-    #tabSQLFuncButton {
-        display: none;
-    }
-
-    #dagTabSectionTabs {
-        .size(@height: @tabHeight);
-        display: inline-flex;
-        flex-wrap: nowrap;
-        overflow-x: hidden;
-        overflow-y: hidden;
-        white-space:nowrap;
-        z-index: 1;
-        background-color: @color-bg-dagTabBar;
-        position: relative;
-        flex: 0 1 auto;
-
-        ul {
-            display: flex;
-        }
-
-        .scrollArea {
-            width: @tabHeight;
-            margin-top: 1px; // to not interfer with categoryBar box shadow
-
-            &.top {
-                .arrow {
-                    width: @tabHeight - 2px;
-                }
-            }
-
-            .arrow {
-                width: 100%;
-                height: @tabHeight - 1;
-                line-height: @tabHeight - 1;
-                font-size: 12px;
-            }
-        }
-
-
-
-        .dagTab, .sortablePlaceholder {
-            flex: 0 0 auto;
-            min-width: 65px;
-            .size(@height: 100%);
-            .font(@size: 12px,
-                @color: @color-font-darkGray,
-                @line-height: @tabHeight,
-                @align: center);
-            border-right: 1px solid @color-bg-2;
-            background-color: @color-bg-dagTabInactive;
-            padding: 0px 12px;
-            padding-left: 3px;
-            padding-right: 9px; // close button has 3px space on the right
-            .noSelection;
-            .textOverflow;
-            cursor: pointer;
-            position: relative;
-            padding-left: 15px;
-            font-weight: 600;
-
-            &:last-child {
-                border-right: none;
-            }
-
-            &:hover {
-                box-shadow: inset 0 2px 0 0 @color-border-select-blue;
-                .dragArea {
-                    visibility: visible;
-                }
-            }
-
-            &.ui-sortable-helper {
-                .dragArea {
-                    visibility: visible;
-                    pointer-events: none;
-                }
-
-                .after {
-                    margin-left: 8px;
-                }
-            }
-
-            &.active {
-                box-shadow: inset 0 2px 0 0 @color-border-select-blue;
-                background-color: @color-bg-dagTabActive;
-                color: @color-font-default;
-                text-overflow: clip;
-            }
-
-            &.optimized {
-                background-color: @color-dagTab-optimized;
-                font-style: italic;
-            }
-
-            &.query {
-                font-style: italic;
-            }
-
-            &.sql {
-                background-color: @color-dagTab-sql;
-            }
-            &.sql.active {
-                background-color: tint(@color-dagTab-sql, 55%);
-            }
-
-            &.custom {
-                background-color: @color-dagTab-custom;
-            }
-
-            &.custom.active {
-                background-color: tint(@color-dagTab-custom, 58%);
-            }
-
-            .dragArea {
-                display: block;
-                padding: 0px;
-                float: left;
-                visibility: hidden;
-                position: absolute;
-                width: 100%;
-                left: 3px;
-
-                .icon {
-                    padding: 0px;
-                    float: left;
-                    width: 12px;
-                    text-align: center;
-                    font-size: 10px;
-                    line-height: @tabHeight;
-                    .cursor-move;
-                }
-            }
-
-            .tabIcon {
-                margin-right: 8px;
-                float: left;
-                font-size: 12px;
-                position: relative;
-                top: 6px;
-
-                &.xi-activated-share-icon {
-                    font-size: 14px;
-                    top: 5px;
-                }
-            }
-
-            .name {
-                float:left;
-                letter-spacing: 0.2px;
-
-                .xc-input {
-                    height: 17px;
-                    max-height: 17px;
-                    font-size: inherit;
-                    font-weight: inherit;
-                    line-height: inherit;
-                }
-            }
-
-            .after {
-                margin-right: 0px;
-                margin-left: 9px;
-                float: right;
-                .size(13px, 13px);
-                .rounded(100%);
-                .position(relative, @top: 6px);
-                background-color: transparent;
-
-                &:hover {
-                    background-color: @color-border-darkGray;
-
-                    .icon {
-                        color: @color-white;
-                    }
-                }
-
-                .icon {
-                    font-size: 8px;
-                    .size(8px, 7px);
-                    display: block;
-                    .center-align;
-                }
-
-                .dot {
-                    display: none;
-                }
-            }
-        }
-
-        .sortablePlaceholder {
-            background-color: @color-bg-pinkish-grey2;
-            color: @color-bg-pinkish-grey2;
-            pointer-events: none;
-        }
-    }
-
+#tabSQLFuncButton {
+    display: none;
 }
 
 #container {
@@ -1856,28 +1635,20 @@
             .autoAlign, .selectAllNodes, .viewResult, .viewSkew {
                 display: list-item;
             }
-            &.SQLTab {
+            &.SQLTab, &.SQLExecuteTab {
                 .viewSchema {
                     display: list-item;
                 }
             }
-        }
-        &.SQLFuncTab {
-            .createCustom {
-                display: none;
-            }
-        }
-        &.published {
-            .cutNodes, .description, .newComment, .autoAlign, .createCustom, .removeNode {
-                display: none;
-            }
-            .copyNodes {
-                display: list-item;
-            }
-            &.nonEditableSubgraph {
-                .executeNode {
+            &.SQLExecuteTab {
+                .generateResult, .executeNode, .copyNodes {
                     display: list-item;
                 }
+            }
+        }
+        &.SQLFuncTab, &.SQLExecuteTab {
+            .createCustom {
+                display: none;
             }
         }
         &.optimizedTab, &.statsTab {
@@ -2093,17 +1864,6 @@
                 margin-top: 12px;
                 margin-right: 8px;
                 margin-left: 6px;
-            }
-        }
-
-        &.open {
-            .gridIcon {
-                color: @color-link-blue;
-            }
-
-            .name {
-                color: @color-link-blue;
-                font-weight: 700;
             }
         }
 

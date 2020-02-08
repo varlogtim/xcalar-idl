@@ -4,8 +4,7 @@ class SQLEditorSpace {
     private _sqlEditor: SQLEditor;
     public static minWidth: number = 200;
     private _executers: SQLDagExecutor[];
-    private _loadTimer;
-    private _dagTab: DagTab;
+    private _currentFile: string;
     private _popup: PopupPanel;
 
 
@@ -21,8 +20,8 @@ class SQLEditorSpace {
 
     public setup(): void {
         this._setupSQLEditor();
-        this._setupResize();
         this._addEventListeners();
+        this._loadSnippet();
     }
 
     /**
@@ -42,9 +41,6 @@ class SQLEditorSpace {
      * @param sql
      */
     public newSQL(sql: string): void {
-        if (this._isReadOnlyTab(this._dagTab)) {
-            DagTabManager.Instance.newTab();
-        }
         let val: string = this._sqlEditor.getValue();
         if (val) {
             if (!val.trim().endsWith(";")) {
@@ -88,16 +84,24 @@ class SQLEditorSpace {
     }
 
     /**
-     * SQLEditorSpace.Instance.setTab
-     * @param dagTab
+     * SQLEditorSpace.Instance.deleteSnippet
+     * @param sqls
      */
-    public setTab(dagTab: DagTab): void {
-        let oldSnippet: string = "";
-        if (this._dagTab == null && this._sqlEditor) {
-            oldSnippet = this._sqlEditor.getValue();
-        }
-        this._dagTab = dagTab;
-        this._setEditorMode(oldSnippet);
+    public deleteSnippet(name: string, callback: Function): void {
+        let msg = xcStringHelper.replaceMsg(SQLTStr.DeleteSnippetMsg, {
+            name: name
+        });
+        Alert.show({
+            title: SQLTStr.DeleteSnippet,
+            msg: msg,
+            onConfirm: () => {
+                SQLSnippet.Instance.deleteSnippet(name);
+                SQLTabManager.Instance.closeTab(name);
+                if (typeof callback === "function") {
+                    callback();
+                }
+            }
+        });
     }
 
     /**
@@ -105,29 +109,16 @@ class SQLEditorSpace {
      * @param name
      */
     public openSnippet(name: string): boolean {
-        if (this._isReadOnlyTab(this._dagTab)) {
-            return false;
-        }
         const snippet = SQLSnippet.Instance.getSnippet(name) || "";
+        this._currentFile = name;
         this._setSnippet(snippet);
         return true;
     }
 
-    public startLoad(promise: XDPromise<any>): void {
-        this._loadTimer = setTimeout(() => {
-            let $section = this._getEditorSpaceEl();
-            $section.addClass("loading");
-            xcUIHelper.showRefreshIcon($section, true, promise);
-        }, 500);
-    }
-
-    public stopLoad(): void {
-        let $section = this._getEditorSpaceEl();
-        clearTimeout(this._loadTimer);
-        $section.removeClass("loading");
-    }
-
     private _setSnippet(snippet: string): void {
+        if (!snippet) {
+            this._setPlaceholder(SQLTStr.SnippetHint);
+        }
         this._sqlEditor.setValue(snippet || "");
         this._sqlEditor.refresh();
     }
@@ -199,6 +190,31 @@ class SQLEditorSpace {
 
     private _getEditorSpaceEl(): JQuery {
         return $("#sqlEditorSpace");
+    }
+
+    private async _loadSnippet(): Promise<void> {
+        const deferred = PromiseHelper.deferred();
+        const timer = this._startLoad(deferred.promise());
+        await SQLSnippet.Instance.load();
+        await SQLTabManager.Instance.setup();
+        deferred.resolve();
+        this._stopLoad(timer);
+        DagList.Instance.refreshMenuList(ResourceMenu.KEY.SQL);
+    }
+
+    private _startLoad(promise: XDPromise<any>): any {
+        const timer = setTimeout(() => {
+            let $section = this._getEditorSpaceEl();
+            $section.addClass("loading");
+            xcUIHelper.showRefreshIcon($section, true, promise);
+        }, 500);
+        return timer;
+    }
+
+    private _stopLoad(timer: any): void {
+        let $section = this._getEditorSpaceEl();
+        clearTimeout(timer);
+        $section.removeClass("loading");
     }
 
     private _executeAction(): void {
@@ -471,7 +487,7 @@ class SQLEditorSpace {
                 UDFPanel.Instance.openEditor(true);
                 break;
             case "save":
-                this._saveSnippet();
+                this._saveAsSnippet();
                 break;
             case "savedQueries":
                 SQLResultSpace.Instance.switchTab("query");
@@ -484,10 +500,14 @@ class SQLEditorSpace {
         }
     }
 
-    private _saveSnippet(): void {
+    private _saveSnippet(name: string, snippet: string): void {
+        SQLSnippet.Instance.writeSnippet(name, snippet, true);
+    }
+
+    private _saveAsSnippet(): void {
         const snippet = this._sqlEditor.getValue();
         const callback = (name) => {
-            SQLSnippet.Instance.writeSnippet(name, snippet, true);
+            this._saveSnippet(name, snippet);
             xcUIHelper.showSuccess(SuccessTStr.Saved);
         }
         SQLSnippetSaveModal.Instance.show(CommonTxtTstr.Untitled, callback);
@@ -500,8 +520,8 @@ class SQLEditorSpace {
     }
 
     private _setupPopup(): void {
-        this._popup = new PopupPanel("sqlEditorSpace", {
-            draggableHeader: "header.draggable"
+        this._popup = new PopupPanel("sqlViewContainer", {
+            draggableHeader: ".draggableHeader"
         });
         this._popup
         .on("Undock", () => {
@@ -551,73 +571,15 @@ class SQLEditorSpace {
         this.refresh();
     }
 
-    private _setupResize(): void {
-        let self = this;
-        this._getEditorSpaceEl().resizable({
-            handles: "w, e, s, n, nw, ne, sw, se",
-            minWidth: SQLEditorSpace.minWidth,
-            minHeight: 300,
-            containment: "#sqlWorkSpacePanel",
-            stop: function () {
-                self._sqlEditor.refresh();
-            }
-        });
-    }
-
     private _saveSnippetChange(): void {
         try {
-            if (this._dagTab == null || this._isReadOnlyTab(this._dagTab)) {
-                return;
-            }
-            const dagTab = <DagTabUser>this._dagTab;
             const snippet: string = this._sqlEditor.getValue() || "";
-            const lastSnippet: string = dagTab.getSnippet() || "";
+            const lastSnippet: string = SQLSnippet.Instance.getSnippet(this._currentFile) || "";
             if (snippet !== lastSnippet) {
-                dagTab.setSnippet(snippet);
-                dagTab.save();
+                this._saveSnippet(this._currentFile, snippet);
             }
         } catch (e) {
             console.error("save snippet change failed", e);
         }
-    }
-
-    private _isReadOnlyTab(dagTab: DagTab): boolean {
-        return (dagTab != null) &&
-                (!(dagTab instanceof DagTabUser) ||
-                dagTab instanceof DagTabSQLFunc);
-    }
-
-    private _setEditorMode(oldSnippet: string): void {
-        let readOnly: boolean | string;
-        let snippet: string;
-        let placeholder: string = "";
-        let mode: string = "text/x-sql";
-        const $buttons = this._getEditorSpaceEl().find(".execute, .save");
-        $buttons.removeClass("xc-disabled");
-
-        if (this._dagTab == null) {
-            readOnly = false;
-            snippet = "";
-        } else if (this._isReadOnlyTab(this._dagTab)) {
-            readOnly = "nocursor";
-            snippet  ="";
-            placeholder = SQLTStr.ReadOnly;
-            mode = null;
-            $buttons.addClass("xc-disabled");
-        } else {
-            const dagTab = <DagTabUser>this._dagTab;
-            readOnly = false;
-            snippet = dagTab.getSnippet() || oldSnippet;
-            if (!snippet) {
-                snippet = "";
-                placeholder = SQLTStr.SnippetHint;
-            }
-        }
-        this._setPlaceholder(placeholder);
-        this._setSnippet(snippet);
-        this._saveSnippetChange();
-        const editor = this._sqlEditor.getEditor();
-        editor.setOption("readOnly", readOnly);
-        editor.setOption("mode", mode);
     }
 }

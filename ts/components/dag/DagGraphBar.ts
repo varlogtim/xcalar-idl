@@ -93,6 +93,12 @@ class DagGraphBar {
         } else {
             $topBar.removeClass("sqlFunc");
         }
+
+        if (dagTab instanceof DagTabSQLExecute) {
+            $topBar.addClass("sqlExecute");
+        } else {
+            $topBar.removeClass("sqlExecute");
+        }
         this.updateNumNodes(dagTab);
     }
 
@@ -128,6 +134,13 @@ class DagGraphBar {
             const dagTab = DagViewManager.Instance.getActiveTab();
             if (dagTab instanceof DagTabSQLFunc) {
                 SQLWorkSpace.Instance.tableFuncQuery(dagTab.getName());
+            }
+        });
+
+        $topBar.find(".convertSQLToDF").click(function() {
+            const dagTab = DagViewManager.Instance.getActiveTab();
+            if (dagTab instanceof DagTabSQLExecute) {
+                DagTabManager.Instance.convertSQLExecuteTabToDF(dagTab);
             }
         });
 

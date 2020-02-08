@@ -115,7 +115,7 @@ class DagViewManager {
                 if (!self.activeDagView) {
                     return;
                 }
-                if (self.isDisableActions()) {
+                if (self.isDisableActions(true)) {
                     return;
                 }
                 if ($(e.target).is("body")) {
@@ -156,7 +156,7 @@ class DagViewManager {
             switch (e.which) {
                 case (keyCode.Backspace):
                 case (keyCode.Delete):
-                    if (self.isDisableActions()) {
+                    if (self.isDisableActions(true)) {
                         break;
                     }
                     DagNodeMenu.close();
@@ -807,7 +807,7 @@ class DagViewManager {
         if (!this.activeDagView) {
             return;
         }
-        if (this.isDisableActions()) {
+        if (this.isDisableActions(true)) {
             return;
         }
         return this.activeDagView.validateAndPaste(content);
@@ -896,6 +896,12 @@ class DagViewManager {
             forceAdd?: boolean
         }
     ): DagNode {
+        if (this.activeDagTab == null) {
+            throw new Error("Module doesn't exist");
+        }
+        if (this.activeDagTab instanceof DagTabSQLExecute) {
+            DagTabManager.Instance.convertSQLExecuteTabToDF(this.activeDagTab);
+        }
         return this.activeDagView.autoAddNode(newType, subType, parentNodeId, input, x, y, options);
     }
 
@@ -1100,8 +1106,8 @@ class DagViewManager {
     /**
      * Check if modification to graph/nodes should be disabled, Ex. it's showing the subGraph of a customNode
      */
-    public isDisableActions(): boolean {
-        return this.activeDagView == null || this.activeDagView.isDisableActions();
+    public isDisableActions(alert?: boolean): boolean {
+        return this.activeDagView == null || this.activeDagView.isDisableActions(alert);
     }
 
     public isViewOnly(): boolean {
@@ -1283,7 +1289,7 @@ class DagViewManager {
             if (self.activeDagTab == null || self.activeDag == null) {
                 return; // error case
             }
-            if (self.isDisableActions()) {
+            if (self.isDisableActions(true)) {
                 return; // invalid case
             }
             const $node: JQuery = $(this).closest(".operator");

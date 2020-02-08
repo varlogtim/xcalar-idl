@@ -19,20 +19,13 @@ class DagGraph extends Durable {
 
     public constructor() {
         super(null);
-        this.nodesMap = new Map();
-        this.removedNodesMap = new Map();
-        this.commentsMap = new Map();
-        this.removedCommentsMap = new Map();
-        this.nodeTitlesMap = new Map();
+        this.initialize();
         this.display = {
             width: -1,
             height: -1,
             scale: 1
         };
         this.lock = false;
-        this.operationTime = 0;
-        this._isBulkStateSwitch = false;
-        this._stateSwitchSet = new Set();
         this._setupEvents();
     }
 
@@ -275,6 +268,18 @@ class DagGraph extends Durable {
             operationTime: 0
         });
         this.clear();
+    }
+
+    public initialize(): void {
+        this.nodesMap = new Map();
+        this.removedNodesMap = new Map();
+        this.commentsMap = new Map();
+        this.removedCommentsMap = new Map();
+        this.nodeTitlesMap = new Map();
+        this.lock = false;
+        this.operationTime = 0;
+        this._isBulkStateSwitch = false;
+        this._stateSwitchSet = new Set();
     }
 
     public clone(): DagGraph {

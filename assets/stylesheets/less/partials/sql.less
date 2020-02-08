@@ -251,7 +251,7 @@
 
 
 #sqlWorkSpacePanel {
-    @tabBar-h: 24px;
+    @tabBar-h: @height-tabBar;
 
     &.resizing {
         pointer-events: none;
@@ -497,18 +497,6 @@
             }
 
             .tabBar {
-                position: relative;
-                height: @tabBar-h;
-                width: 100%;
-                z-index: 3;
-                background-color: @color-bg-2;
-                display: flex;
-
-                .tabView {
-                    flex: 1 1 auto;
-                    overflow: hidden;
-                }
-
                 .actions {
                     flex: 0 0 70px;
                     height: 24px;
@@ -525,6 +513,14 @@
                         &.active {
                             background-color: @color-hover-blue;
                         }
+                    }
+                }
+            }
+
+            .topPart {
+                .section {
+                    .sql {
+                        height: ~"calc(100% - @{tabBar-h})";
                     }
                 }
             }
@@ -588,6 +584,27 @@
                     font-size: 18px;
                 }
             }
+        }
+    }
+}
+
+#sqlViewContainer {
+    @header-h: 10px;
+    height: 100%;
+
+    .draggableHeader {
+        display: none;
+    }
+
+    &.undocked {
+        padding-top: @header-h;
+
+        .draggableHeader {
+            display: block;
+            position: absolute;
+            height: @header-h;
+            width: 100%;
+            top: 0;
         }
     }
 }

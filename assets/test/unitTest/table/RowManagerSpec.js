@@ -29,7 +29,7 @@ describe('RowManager Test', function() {
             }
         };
         UnitTest.testFinish(() => {
-            return DagTabManager.Instance._setup;
+            return DagTabManager.Instance._hasSetup;
         })
         .then(() => {
             return UnitTest.addAll(testDSObj, "unitTestFakeYelp");

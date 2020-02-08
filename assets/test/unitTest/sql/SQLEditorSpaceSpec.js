@@ -316,16 +316,16 @@ describe("SQLEditorSpace Test", function() {
 
     describe("Snippet Option Test", function() {
         it("should save snippet", function() {
-            let oldSave = SQLEditorSpace.Instance._saveSnippet;
+            let oldSave = SQLEditorSpace.Instance._saveAsSnippet;
             let called = 0;
 
-            SQLEditorSpace.Instance._saveSnippet = () => { called++; };
+            SQLEditorSpace.Instance._saveAsSnippet = () => { called++; };
 
 
             SQLEditorSpace.Instance._fileOption("save");
             expect(called).to.equal(1);
 
-            SQLEditorSpace.Instance._saveSnippet = oldSave;
+            SQLEditorSpace.Instance._saveAsSnippet = oldSave;
         });
 
         it("should download snippet", function() {

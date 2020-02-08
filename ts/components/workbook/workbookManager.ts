@@ -931,6 +931,7 @@ namespace WorkbookManager {
         const gOverwrittenLogKey: string = generateKey("gOverwritten", version);
         const gNotebookKey: string = generateKey("gNotebook", version);
         const gSQLTablesKey: string = generateKey("gSQLTables", version);
+        const gSQLManagerKey: string = generateKey("gSQLManagerKey", version);
         const gDagManagerKey: string = generateKey("gDagManagerKey", version);
         const gDagTableManagerKey: string = generateKey("gDagTableManagerKey", version);
         const gDagAggKey: string = generateKey("gDagAggKey", version);
@@ -963,6 +964,7 @@ namespace WorkbookManager {
             "gSQLTables": gSQLTablesKey,
             "gSQLQuery": gSQLQueryKey,
             "gSQLQueries": gSQLQueriesKey,
+            "gSQLManagerKey": gSQLManagerKey,
             "gDagManagerKey": gDagManagerKey,
             "gDagTableManagerKey": gDagTableManagerKey,
             "gDagAggKey": gDagAggKey,

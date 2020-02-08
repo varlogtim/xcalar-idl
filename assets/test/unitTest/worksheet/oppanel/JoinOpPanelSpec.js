@@ -3,7 +3,7 @@ describe('JoinOpPanel Test', () => {
     before((done) => {
         component = JoinOpPanel.Instance;
         UnitTest.testFinish(() => {
-            return DagTabManager.Instance._setup;
+            return DagTabManager.Instance._hasSetup;
         })
         .then(() => {
             done();

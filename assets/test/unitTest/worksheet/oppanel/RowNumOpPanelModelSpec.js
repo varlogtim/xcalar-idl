@@ -1,7 +1,7 @@
 describe('RowNumOpPanelModel Test', () => {
     before((done) => {
         UnitTest.testFinish(() => {
-            return DagTabManager.Instance._setup;
+            return DagTabManager.Instance._hasSetup;
         }).then(() => {
             done();
         });
