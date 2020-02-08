@@ -3958,6 +3958,13 @@ class DagView {
             DagNodeInfoPanel.Instance.update(info.id, "title");
         });
 
+        this._registerGraphEvent(this.graph, DagNodeEvents.HeadChange, (info) => {
+            info.nodes.forEach((node) => {
+                const $node: JQuery = this._getNode(node.getId()); 
+                this._drawHeadText($node, node);
+            });
+        });
+
         this._registerGraphEvent(this.graph, DagNodeEvents.DescriptionChange, (info) => {
             const $node: JQuery = this._getNode(info.id);
             DagView.removeNodeIcon($node, "descriptionIcon");
@@ -4168,6 +4175,11 @@ class DagView {
 
         this._drawTitleText($node, node);
         this._updateTableNameText($node, node);
+        if (!(this.dagTab instanceof DagTabSQLFunc) &&
+             node instanceof DagNodeIn
+        ) {
+            this._drawHeadText($node, node);
+        }
 
         // use .attr instead of .data so we can grab by selector
         $node.attr("data-nodeid", nodeId);
@@ -4396,6 +4408,23 @@ class DagView {
                 .attr("y", i * DagView.titleLineHeight);
         });
         xcTooltip.add(<any>paramTextSvg, { title: fullParamHint, placement: "bottom auto" });
+    }
+
+    private _drawHeadText($node: JQuery, node: DagNodeIn): void {
+        const g = d3.select($node.get(0));
+        const head: string = node.getHead();
+        g.select(".grahHead").remove();
+        if (!head) {
+            return;
+        }
+        g.append("text")
+            .attr("class", "grahHead")
+            .attr("fill", DagView.textColor)
+            .attr("font-size", 10)
+            .attr("transform", "translate(-20,0)")
+            .attr("text-anchor", "middle")
+            .attr("font-family", "Open Sans")
+            .text(head);
     }
 
     private _updateTableNameText($node: JQuery, node: DagNode) {
@@ -5497,12 +5526,48 @@ class DagView {
             return;
         }
 
+        const origVal = node.getTitle();
+        const onChange = (newVal) => {
+            if (this.graph.hasNodeTitle(newVal)) {
+                StatusBox.show(DagTStr.LabelTaken, $operator);
+            } else {
+                this.editNodeTitle(nodeId, newVal);
+            }
+        };
+        this._editMode($origTitle, origVal, onChange);
+    }
+
+    public graphHeadEditMode($origTitle): void {
+        const $operator = $origTitle.closest(".operator")
+        const nodeId: DagNodeId = $operator.data("nodeid");
+        const node:DagNodeIn = <DagNodeIn>this.graph.getNode(nodeId);
+        if (node == null) {
+            return;
+        }
+
+        if (!(node instanceof DagNodeIn)) {
+            return;
+        }
+        const origVal = node.getHead();
+        const onChange = (newVal) => {
+            newVal = newVal.trim();
+            if (!newVal) {
+                StatusBox.show(ErrTStr.NoEmpty, $operator);
+            } else if (this.graph.hasHead(newVal)) {
+                StatusBox.show(DagTStr.HeadTaken, $operator);
+            } else {
+                node.setHead(newVal, true);
+            }
+        };
+        this._editMode($origTitle, origVal, onChange);
+    }
+
+    private _editMode($origTitle: JQuery, origVal: string, onChange: Function): void {
         const rect = $origTitle[0].getBoundingClientRect();
         const offset = this._getDFAreaOffset();
         const left = rect.left + offset.left + (rect.width / 2);
         const top = rect.top + offset.top;
         const minWidth = DagView.nodeWidth - 20;
-        const origVal = node.getTitle();
         let html: HTML = `<textarea class="editableNodeTitle" spellcheck="false"
                     style="top:${top}px;left:${left}px;">${origVal}</textarea>`;
         let $textArea = $(html);
@@ -5520,12 +5585,7 @@ class DagView {
             if (newVal === origVal) {
                 return;
             }
-
-            if (this.graph.hasNodeTitle(newVal)) {
-                StatusBox.show(DagTStr.LabelTaken, $operator);
-            } else {
-                this.editNodeTitle(nodeId, newVal);
-            }
+            onChange(newVal);
         });
 
         $textArea.on("input", sizeInput);
@@ -5541,7 +5601,7 @@ class DagView {
         }
     }
 
-        /**
+    /**
      *
      * @param nodeId
      * @param title

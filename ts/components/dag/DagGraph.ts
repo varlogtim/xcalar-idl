@@ -12,6 +12,7 @@ class DagGraph extends Durable {
     private _stateSwitchSet: Set<DagNode>;
     private _noTableDelete: boolean = false;
     private nodeTitlesMap: Map<string, DagNodeId>;
+    private nodeHeadsMap: Map<string, DagNodeId>;
 
     protected operationTime: number;
     protected currentExecutor: DagGraphExecutor
@@ -146,6 +147,8 @@ class DagGraph extends Durable {
             display: serializableGraph.display,
             operationTime: serializableGraph.operationTime
         });
+
+        this._normalizeHeads();
     }
 
     public createWithValidate(serializableGraph: DagGraphInfo): void {
@@ -276,6 +279,7 @@ class DagGraph extends Durable {
         this.commentsMap = new Map();
         this.removedCommentsMap = new Map();
         this.nodeTitlesMap = new Map();
+        this.nodeHeadsMap = new Map();
         this.lock = false;
         this.operationTime = 0;
         this._isBulkStateSwitch = false;
@@ -355,6 +359,9 @@ class DagGraph extends Durable {
             dagNode.setTitle(title);
         }
         this.addNode(dagNode);
+        if (dagNode instanceof DagNodeIn) {
+            this._updateHeads();
+        }
         this.events.trigger(DagGraphEvents.NewNode, {
             tabId: this.parentTabId,
             node: dagNode
@@ -418,6 +425,7 @@ class DagGraph extends Durable {
         this.nodesMap.set(node.getId(), node);
         this.removedNodesMap.delete(node.getId());
         this.nodeTitlesMap.set(node.getTitle(), node.getId());
+        this._updateHeads();
         const set = this._traverseSwitchState(node);
 
         this.events.trigger(DagNodeEvents.ConnectionChange, {
@@ -463,7 +471,6 @@ class DagGraph extends Durable {
             dagNode.setTitle(title);
             this.nodeTitlesMap.set(title, dagNode.getId());
         }
-
         if (dagNode instanceof DagNodeSQLFuncIn) {
             this.events.trigger(DagGraphEvents.AddSQLFuncInput, {
                 tabId: this.parentTabId,
@@ -559,6 +566,16 @@ class DagGraph extends Durable {
             this.nodeTitlesMap.set(info.title, dagNode.getId());
             info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.TitleChange, info);
+        })
+        .registerEvents(DagNodeEvents.HeadChange, (info) => {
+            this.nodeHeadsMap.delete(info.oldName);
+            this.nodeHeadsMap.set(info.name, info.node.getId());
+            info.tabId = this.parentTabId;
+            this.events.trigger(DagNodeEvents.HeadChange, {
+                tabId: this.parentTabId,
+                nodes: [info.node]
+            });
+            this.events.trigger(DagGraphEvents.Save);
         })
         .registerEvents(DagNodeEvents.DescriptionChange, (info) => {
             info.tabId = this.parentTabId;
@@ -692,6 +709,9 @@ class DagGraph extends Durable {
                     },
                     tabId: this.parentTabId
                 });
+                if (childNode.getMaxParents() !== 1) {
+                    this._updateHeads();
+                }
             }
             return true;
         } catch (e) {
@@ -750,6 +770,9 @@ class DagGraph extends Durable {
                 },
                 tabId: this.parentTabId
             });
+            if (childNode.getMaxParents() !== 1) {
+                this._updateHeads();
+            }
         }
         return wasSpliced;
     }
@@ -1497,6 +1520,31 @@ class DagGraph extends Durable {
         }
     }
 
+    public getConnectedNodesFromHead(nodeId: string): DagNodeId[] {
+        const nodeIds: DagNodeId[] = [];
+        try {
+            let stack: DagNode[] = [this._getNodeFromId(nodeId)];
+            const endNodes: DagNodeId[] = [];
+            while (stack.length > 0) {
+                const node = stack.pop();
+                const children: DagNode[] = node.getChildren();
+                if (children.length === 0) {
+                    endNodes.push(node.getId());
+                } else {
+                    stack = stack.concat(children);
+                }
+            }
+
+            const {map} = this.backTraverseNodes(endNodes)
+            map.forEach((_node, nodeId) => {
+                nodeIds.push(nodeId);
+            });
+        } catch (e) {
+            console.error(e);
+        }
+        return nodeIds;
+    }
+
     // XXX TODO, change to only get the local one
     /**
      * Get the used local UDF modules in the graph
@@ -1803,6 +1851,14 @@ class DagGraph extends Durable {
 
     public hasNodeTitle(title: string): boolean {
         return this.nodeTitlesMap.has(title);
+    }
+
+    public hasHead(name: string): boolean {
+        return this.nodeHeadsMap.has(name);
+    }
+
+    public getNodeHeadsMap(): Map<string, DagNodeId> {
+        return this.nodeHeadsMap;
     }
 
     protected _getDurable(includeStats?: boolean): DagGraphInfo {
@@ -2222,6 +2278,7 @@ class DagGraph extends Durable {
         }
         this.nodesMap.delete(node.getId());
         this.nodeTitlesMap.delete(node.getTitle());
+        this._updateHeads();
         if (switchState) {
             this.events.trigger(DagNodeEvents.ConnectionChange, {
                 type: "remove",
@@ -2668,6 +2725,73 @@ class DagGraph extends Durable {
             }
         }
         return optimizedNodeIds;
+    }
+
+    private _normalizeHeads(): {
+        headers: DagNodeIn[],
+        notHeaders: DagNodeIn[]
+    } {
+        const notHeaders: DagNodeIn[] = [];
+        const headers: DagNodeIn[] = [];
+        // 1. get all in nodes
+        for (let node of this.nodesMap.values()) {
+            if (node instanceof DagNodeIn) {
+                // 2. filter out nod that are not headers
+                if (node.isFirstHead()) {
+                    headers.push(node);
+                } else {
+                    notHeaders.push(node);
+                }
+            }
+        }
+
+        // 3. remove not headers if it's in cache
+        notHeaders.forEach((node) => {
+            const oldHead = node.getHead();
+            node.setHead(null);
+            this.nodeHeadsMap.delete(oldHead);
+        });
+
+        headers.forEach((node) => {
+            let head = node.getHead();
+            if (!head) {
+                head = this._getHeadName(head);
+            }
+            node.setHead(head);
+            this.nodeHeadsMap.set(head, node.getId());
+        });
+
+        return {
+            headers,
+            notHeaders
+        }
+    }
+
+    private _getHeadName(head: string): string {
+        let count = 1;
+        let origHead;
+        let realHead;
+        if (head) {
+            origHead = head;
+            realHead = head;
+        } else {
+            origHead = "fn";
+            realHead = "fn1";
+        }
+        while (this.nodeHeadsMap.has(realHead)) {
+            realHead = origHead + count;
+            count++;
+        }
+        return realHead;
+    }
+
+    private _updateHeads(): void {
+        const {headers, notHeaders} = this._normalizeHeads();
+        const nodes = headers.concat(notHeaders);
+        this.events.trigger(DagNodeEvents.HeadChange, {
+            tabId: this.parentTabId,
+            nodes
+        });
     }
 }
 

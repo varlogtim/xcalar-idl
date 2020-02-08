@@ -2,6 +2,7 @@
 abstract class DagNodeIn extends DagNode {
     protected schema: ColSchema[];
     private lastSchema: ColSchema[];
+    private headName: string | null;
 
     public constructor(options: DagNodeInInfo, runtime?: DagRuntime) {
         super(options, runtime);
@@ -13,6 +14,11 @@ abstract class DagNodeIn extends DagNode {
             this.setSchema([]);
         }
         this.lastSchema = this.schema;
+        if (options && options.headName) {
+            this.headName = options.headName
+        } else {
+            this.headName = null;
+        }
     }
 
     public setParam(_param?: any, noAutoExecute?: boolean): boolean | void {
@@ -57,9 +63,41 @@ abstract class DagNodeIn extends DagNode {
         };
     }
 
+    public setHead(name: string, isChange?: boolean): void {
+        const oldName: string = this.headName;
+        this.headName = name;
+        if (isChange) { // prevents event from firing when title is set when
+            // new node is created
+            this.events.trigger(DagNodeEvents.HeadChange, {
+                id: this.getId(),
+                oldName,
+                name,
+                node: this
+            });
+        }
+    }
+
+    public getHead(): string {
+        return this.headName;
+    }
+
+    public isFirstHead(): boolean {
+        let node: DagNode = <DagNode>this;
+        let children = node.getChildren();
+        while (children.length) {
+            if (children[0].getParents()[0] !== node) {
+                return false;
+            }
+            node = children[0];
+            children = node.getChildren();
+        }
+        return true;
+    }
+
     protected _getSerializeInfo(includeStats?: boolean):DagNodeInInfo {
         const serializedInfo: DagNodeInInfo = <DagNodeInInfo>super._getSerializeInfo(includeStats);
         serializedInfo.schema = this.schema; // should save the schema directly, should not call getSchema
+        serializedInfo.headName = this.headName;
         return serializedInfo;
     }
 

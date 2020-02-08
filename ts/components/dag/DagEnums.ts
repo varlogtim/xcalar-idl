@@ -114,6 +114,7 @@ enum DagNodeEvents {
     SubGraphError = "SubGraphError",
     TableRemove = "TableRemove",
     TitleChange = "TitleChange",
+    HeadChange = "HeadChange",
     AutoExecute = "AutoExecute",
     RetinaRemove = "RetinaRemove",
     StartSQLCompile = "StartSQLCompile",

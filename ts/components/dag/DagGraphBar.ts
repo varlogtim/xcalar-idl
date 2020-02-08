@@ -122,7 +122,7 @@ class DagGraphBar {
     private _addEventListeners(): void {
         const self = this;
         let $topBar = this._getGraphBar();
-        $topBar.find(".run").click(function() {
+        $topBar.find(".run > span").click(function() {
             DagViewManager.Instance.run();
         });
 
@@ -197,6 +197,43 @@ class DagGraphBar {
             // last saved zoom
             this._updateZoom();
         });
+
+        this._setupRunButton();
+    }
+
+    private _setupRunButton(): void {
+        const $run = this._getGraphBar().find(".run");
+        new MenuHelper($run, {
+            onOpen: ($dropdownList) => {
+                this._renderGraphHeaderList($dropdownList);
+            },
+            onSelect: ($li) => {
+                if ($li.hasClass("hint")) {
+                    return;
+                }
+                const nodeId = $li.data("id");
+                DagViewManager.Instance.runWithHead(nodeId);
+            },
+            onClose: () => {
+                DagViewManager.Instance.higlightGraph(null);
+            },
+            onlyClickIcon: true,
+            container: "#dagViewContainer",
+            bounds: "#dagViewContainer"
+        }).setupListeners();
+
+        $run.on("mouseenter", "li", (event) => {
+            const $li = $(event.currentTarget);
+            if ($li.hasClass("hint")) {
+                return;
+            }
+            const nodeId = $li.data("id");
+            DagViewManager.Instance.higlightGraph(nodeId);
+        });
+
+        $run.on("mouseleave", "li", () => {
+            DagViewManager.Instance.higlightGraph(null);
+        });
     }
 
     private _updateZoom(): void {
@@ -255,5 +292,23 @@ class DagGraphBar {
             DFSettingsModal.Instance.show();
         });
         // param and aggregates managed in DagAggManager and ParamAggManager
+    }
+
+    private _renderGraphHeaderList($dropdownList: JQuery): void {
+        $dropdownList.find("li").remove();
+        let list: HTML = "";
+        try {
+            const graph = DagViewManager.Instance.getActiveDag();
+            const nodeHeasMap = graph.getNodeHeadsMap();
+            nodeHeasMap.forEach((nodeId, head) => {
+                list += '<li data-id="' + nodeId + '">' + head + '</li>';
+            });
+        } catch (e) {
+            console.error(e);
+        }
+        if (!list) {
+            list = '<li class="hint">No functions</li>';
+        }
+        $dropdownList.find("ul").prepend(list);
     }
 }

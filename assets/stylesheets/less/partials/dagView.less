@@ -505,6 +505,11 @@
             fill: @color-highlight-selection-gold;
         }
 
+        .graphHighLightSelection {
+            stroke: @color-highlight-stroke-gold;
+            fill: @color-highlight-selection-gold;
+        }
+
         rect {
             &.searchHighLight {
                 fill: @color-highlight-gold;
@@ -1115,7 +1120,7 @@
 #dagGraphBar {
     @dagGraphBarHeight: 32px;
     .flex-direction(row);
-    z-index: 0;
+    // z-index: 0;
     min-height: @dagGraphBarHeight;
     max-height: @dagGraphBarHeight;
     padding-left: 8px;
@@ -1133,6 +1138,12 @@
     &.sqlFunc {
         .useInSQL {
             display: block;
+        }
+
+        .run {
+            .iconWrapper {
+                display: none;
+            }
         }
     }
 
@@ -1165,7 +1176,7 @@
         cursor: pointer;
         padding: 0px 1px;
 
-        .icon {
+        .actionIcon {
             height: 24px;
             width: 24px;
             line-height: 24px;
@@ -1177,21 +1188,21 @@
         }
 
         &:hover {
-            .icon {
+            .actionIcon {
                 background-color: rgba(0, 0, 0, 0.05);
             }
             &.disabled {
-                .icon {
+                .actionIcon {
                     background-color: transparent;
                 }
             }
         }
         &:active {
-            .icon {
+            .actionIcon {
                 background-color: rgba(0, 0, 0, 0.1);
             }
             &.disabled {
-                .icon {
+                .actionIcon {
                     background-color: transparent;
                 }
             }
@@ -1206,7 +1217,7 @@
 
             &:hover {
                 background-color: rgba(0, 0, 0, 0.05);
-                .icon {
+                .actionIcon {
                     background-color: transparent;
                 }
 
@@ -1222,18 +1233,52 @@
         }
 
         &.run {
+            overflow: visible;
 
             &.running {
                 display: none;
                 .animatedEllipsisWrapper {
                     display: block;
                 }
-                .icon {
+                .actionIcon {
                     display: none;
                 }
             }
-            .icon {
-                color: @color-bg-green-submit;
+            
+            > span {
+                display: inline-block;
+                height: 100%;
+
+                &:hover {
+                    background-color: @color-font-seconday-button-hover;
+                }
+
+                .actionIcon {
+                    color: @color-bg-green-submit;
+                }
+            }
+
+            .iconWrapper {
+                border-right: none;
+                border-top: none;
+                border-bottom: none;
+                border-top-right-radius: 3px;
+                border-bottom-right-radius: 3px;
+                width: 18px;
+                height: 22px;
+
+                &:hover {
+                    background-color: @color-font-seconday-button-hover;
+                }
+            }
+
+            .list {
+                top: 27px;
+                width: 130px;
+
+                li {
+                    text-align: left;
+                }
             }
         }
         &.stop {

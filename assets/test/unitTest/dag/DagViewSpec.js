@@ -94,7 +94,7 @@ describe("DagView Test", () => {
                 expect(nodeInfos.length).to.equal(1);
                 expect(nodeInfos[0].id).to.equal($operator.data("nodeid"));
                 expect(nodeInfos[0].position.x).to.equal(left + 60);
-                expect(nodeInfos[0].position.y).to.equal(top + 80);
+                expect(nodeInfos[0].position.y).to.equal(top + 60);
                 called = true;
             };
             $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);

@@ -1,15 +1,15 @@
 <div id="dagGraphBar">
     <div class="topButtons left">
         <div id="undo" class="topButton undo" data-toggle="tooltip" data-container="body" data-placement="top">
-            <i class="icon xi-undo"></i>
+            <i class="icon xi-undo actionIcon"></i>
         </div>
         <div id="redo" class="topButton redo" data-toggle="tooltip" data-container="body" data-placement="top">
-            <i class="icon xi-redo"></i>
+            <i class="icon xi-redo actionIcon"></i>
         </div>
         <div class="divider"></div>
         <div class="topButton zoomOut" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%=
                 dicts.dag.zoomOut %>">
-            <i class="icon xi-minus-circle-outline"></i>
+            <i class="icon xi-minus-circle-outline actionIcon"></i>
         </div>
         <div class="topButton zoomPercent" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.dag.zoom %>">
             <input disabled class="zoomPercentInput xc-input white" type="text" pattern="\d*" maxlength="3" max="200" min="25" step="1" value="100" placeholder="100">
@@ -17,7 +17,7 @@
         </div>
         <div class="topButton zoomIn" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%=
                 dicts.dag.zoomIn %>">
-            <i class="icon xi-plus-circle-outline"></i>
+            <i class="icon xi-plus-circle-outline actionIcon"></i>
         </div>
     </div>
     <div class="infoSection">
@@ -46,14 +46,24 @@
     </div>
     <div class="topButtons">
         <button class="btn btn-secondary action convertSQLToDF">Save As Module</button>
-        <button class="btn btn-secondary action useInSQL">Use In SQL</button>
-        <div class="topButton run" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.dag.executeAllNodes %>">
-            <span class="text">Execute all</span>
-            <i class="icon xi-play-circle"></i>
+        <button class="btn btn-secondary useInSQL">Use In SQL</button>
+        <div class="topButton run dropDownList">
+            <span>
+                <span class="text">Execute</span>
+                <i class="icon xi-play-circle actionIcon"></i>
+            </span>
+            <div class="iconWrapper" data-toggle="tooltip" data-container="body" data-placement="top" data-title="Select a functio to execute">
+                <i class="icon xi-arrow-down"></i>
+            </div>
+            <div class="list">
+            <ul>
+                include "../../util/menuScrollArea.html"
+            </ul>
+            </div>
         </div>
         <div class="topButton stop" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.dag.cancelExecute %>">
             <span class="text">Cancel</span>
-            <i class="icon xi-stop-circle"></i>
+            <i class="icon xi-stop-circle actionIcon"></i>
         </div>
         <div class="divider"></div>
         <!-- <div class="topButton setting noTabRequired" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.dataflow.Settings %>">

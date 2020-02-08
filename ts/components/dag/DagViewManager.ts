@@ -658,6 +658,38 @@ class DagViewManager {
     }
 
     /**
+     * DagViewManager.Instance.runWithHead
+     * @param nodeId
+     */
+    public runWithHead(nodeId: string): XDPromise<void> {
+        if (this.activeDag == null) {
+            return PromiseHelper.reject();
+        }
+        const nodeIds: string[] = this.activeDag.getConnectedNodesFromHead(nodeId);
+        return this.run(nodeIds);
+    }
+
+    /**
+     * DagViewManager.Instance.higlightGraph
+     * @param headNodeId
+     */
+    public higlightGraph(headNodeId: string | null): void {
+        if (this.activeDagView == null) {
+            return;
+        }
+        const $dfArea = DagViewManager.Instance.getActiveArea();
+        $dfArea.find(".graphHighLightSelection").remove();
+        if (headNodeId == null) {
+            return;
+        }
+        const nodeIds: string[] = this.activeDag.getConnectedNodesFromHead(headNodeId);
+        nodeIds.forEach((nodeId) => {
+            const $node = this.activeDagView.getNodeElById(nodeId);
+            DagView.addSelection($node, "graphHighLightSelection");
+        });
+    }
+
+    /**
      * DagViewManager.Instance.generateOptimizedDataflow
      * @param nodeIds
      */
@@ -1279,6 +1311,10 @@ class DagViewManager {
             // connecting 2 nodes dragging the child's connector
         this.$dfWrap.on("mousedown", ".operator .connector.in", function (event) {
             self.activeDagView.connectorInMousedown(event, $(this));
+        });
+
+        this.$dfWrap.on("dblclick", ".grahHead", function () {
+            self.activeDagView.graphHeadEditMode($(this));
         });
 
         this.$dfWrap.on("dblclick", ".nodeTitle", function () {
