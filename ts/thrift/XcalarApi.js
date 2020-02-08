@@ -1811,23 +1811,24 @@ xcalarQuery = runEntity.xcalarQuery = function(thriftHandle, queryName, queryStr
     return (deferred.promise());
 };
 
-xcalarQueryStateWorkItem = runEntity.xcalarQueryStateWorkItem = function(queryName) {
+xcalarQueryStateWorkItem = runEntity.xcalarQueryStateWorkItem = function(queryName, detailedStats) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.queryStateInput = new XcalarApiQueryNameInputT();
 
     workItem.api = XcalarApisT.XcalarApiQueryState;
     workItem.input.queryStateInput.queryName = queryName;
+    workItem.input.queryStateInput.detailedStats = detailedStats;
     return (workItem);
 };
 
-xcalarQueryState = runEntity.xcalarQueryState = function(thriftHandle, queryName) {
+xcalarQueryState = runEntity.xcalarQueryState = function(thriftHandle, queryName, detailedStats) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarQueryState(query name = " + queryName + ")");
+        console.log("xcalarQueryState(query name = " + queryName + ", detailedStats = " + detailedStats + ")");
     }
 
-    var workItem = xcalarQueryStateWorkItem(queryName);
+    var workItem = xcalarQueryStateWorkItem(queryName, detailedStats);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .done(function(result) {

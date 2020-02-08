@@ -2046,7 +2046,7 @@ window.Function.prototype.bind = function() {
 
             (function wait() {
               setTimeout(function() {
-                xcalarQueryState(thriftHandle, locaQueryName)
+                xcalarQueryState(thriftHandle, locaQueryName, true)
                 .then(function(result) {
                     var qrStateOutput = result;
                     if (qrStateOutput.queryState === QueryStateT.qrProcssing) {
@@ -2075,7 +2075,7 @@ window.Function.prototype.bind = function() {
     }
 
     function testQueryState(test) {
-        test.trivial(xcalarQueryState(thriftHandle, queryName));
+        test.trivial(xcalarQueryState(thriftHandle, queryName, true));
     }
 
     function waitForDag(test) {
@@ -2083,7 +2083,7 @@ window.Function.prototype.bind = function() {
 
         (function wait() {
             setTimeout(function() {
-                xcalarQueryState(thriftHandle, queryName)
+                xcalarQueryState(thriftHandle, queryName, false)
                 .done(function(result) {
                     queryStateOutput = result;
                     if (queryStateOutput.queryState ===
@@ -2564,7 +2564,7 @@ window.Function.prototype.bind = function() {
             })
             .fail(function(reason) {
                 if (reason.xcalarStatus === StatusT.StatusCanceled) {
-                    xcalarQueryState(thriftHandle, retinaName)
+                    xcalarQueryState(thriftHandle, retinaName, false)
                     .then(function(result) {
                         var qrStateOutput = result;
                         if (qrStateOutput.queryState != QueryStateT.qrCancelled) {

@@ -7855,9 +7855,13 @@ XcalarApiGetRowNumInputT.prototype.write = function(output) {
 
 XcalarApiQueryNameInputT = function(args) {
   this.queryName = null;
+  this.detailedStats = null;
   if (args) {
     if (args.queryName !== undefined && args.queryName !== null) {
       this.queryName = args.queryName;
+    }
+    if (args.detailedStats !== undefined && args.detailedStats !== null) {
+      this.detailedStats = args.detailedStats;
     }
   }
 };
@@ -7882,9 +7886,13 @@ XcalarApiQueryNameInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 0:
+      case 2:
+      if (ftype == Thrift.Type.BOOL) {
+        this.detailedStats = input.readBool().value;
+      } else {
         input.skip(ftype);
-        break;
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -7899,6 +7907,11 @@ XcalarApiQueryNameInputT.prototype.write = function(output) {
   if (this.queryName !== null && this.queryName !== undefined) {
     output.writeFieldBegin('queryName', Thrift.Type.STRING, 1);
     output.writeString(this.queryName);
+    output.writeFieldEnd();
+  }
+  if (this.detailedStats !== null && this.detailedStats !== undefined) {
+    output.writeFieldBegin('detailedStats', Thrift.Type.BOOL, 2);
+    output.writeBool(this.detailedStats);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

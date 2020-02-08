@@ -530,7 +530,8 @@ declare function xcalarQuery(
 
 declare function xcalarQueryState(
     thriftHandle: ThriftHandler,
-    queryName: string
+    queryName: string,
+    detailedStats: boolean
 ): XDPromise<any>;
 
 declare function xcalarQueryDelete(

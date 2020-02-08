@@ -4130,10 +4130,15 @@ XcalarQueryXcrpc = function(
 // for queries or retinas
 XcalarQueryState = function(
     queryName: string,
-    statusesToIgnore?: any[]
+    statusesToIgnore?: any[],
+    includeDetailedStats?: boolean
 ): XDPromise<XcalarApiQueryStateOutputT> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
+    }
+    // Set default value to true, to keep the same behavior as before.
+    if (includeDetailedStats == null) {
+        includeDetailedStats = true;
     }
 
     const deferred: XDDeferred<XcalarApiQueryStateOutputT> = PromiseHelper.deferred();
@@ -4142,7 +4147,7 @@ XcalarQueryState = function(
         return (deferred.promise());
     }
 
-    xcalarQueryState(tHandle, queryName)
+    xcalarQueryState(tHandle, queryName, includeDetailedStats)
     .then(deferred.resolve)
     .fail(function(error) {
         const thriftError = queryStateErrorStatusHandler(error, statusesToIgnore);
