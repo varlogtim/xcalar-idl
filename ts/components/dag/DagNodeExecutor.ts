@@ -1487,7 +1487,7 @@ class DagNodeExecutor {
                         !tableName.startsWith(gAggVarPrefix)) {
                         tableName = gAggVarPrefix + tableName;
                     }
-                    queryNode.comment = JSON.stringify({nodeIds: [node.getTableNewDagIdMap()[tableName]]});
+                    queryNode.comment = JSON.stringify({graph_node_locator: [{nodeId: node.getTableNewDagIdMap()[tableName]}]});
                 }
             });
 

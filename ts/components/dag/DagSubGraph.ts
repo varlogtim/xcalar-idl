@@ -400,13 +400,13 @@ class DagSubGraph extends DagGraph {
     private _getDagNodeIdFromQueryInfo(queryNodeInfo: XcalarApiDagNodeT): DagNodeId {
         let nodeIdCandidates = [];
         try {
-            nodeIdCandidates = JSON.parse(queryNodeInfo.comment).nodeIds || [];
+            nodeIdCandidates = JSON.parse(queryNodeInfo.comment).graph_node_locator || [];
         } catch (e) {}
-        let nodeId: DagNodeId;
+        let nodeInfo: DagTagInfo;
         for (let i = 0; i < nodeIdCandidates.length; i++) {
-            nodeId = nodeIdCandidates[i];
-            if (this.hasNode(nodeId)) {
-                return nodeId;
+            nodeInfo = nodeIdCandidates[i];
+            if (nodeInfo && this.hasNode(nodeInfo.nodeId)) {
+                return nodeInfo.nodeId;
             }
         }
         return null;

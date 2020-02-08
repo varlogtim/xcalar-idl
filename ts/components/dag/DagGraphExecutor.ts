@@ -636,11 +636,11 @@ class DagGraphExecutor {
                 // query's tag contains a list of dagNodeIds it's linked to
                 let nodeIdCandidates = [];
                 try {
-                    nodeIdCandidates = JSON.parse(queryNode.comment).nodeIds || [];
+                    nodeIdCandidates = JSON.parse(queryNode.comment).graph_node_locator || [];
                 } catch (e) {}
-                nodeIdCandidates.forEach((nodeId) => {
-                    if (nodeId) {
-                        nodeIdsSet.add(nodeId);
+                nodeIdCandidates.forEach((nodeInfo) => {
+                    if (nodeInfo && nodeInfo.nodeId) {
+                        nodeIdsSet.add(nodeInfo.nodeId);
                     }
                 });
             });
@@ -748,6 +748,11 @@ class DagGraphExecutor {
                 let queryName = destTables[destTables.length - 1];
                 if (queryName.startsWith("DF2_")) {
                     queryName = "table_" + queryName;
+                } else {
+                    const txLog = Transaction.get(txId);
+                    if (txLog && txLog.tabId) {
+                        queryName = "table_" + txLog.tabId + queryName;
+                    }
                 }
                 if (!queryName.includes("#t_")) {
                     queryName += "#t_" + Date.now() + "_0";

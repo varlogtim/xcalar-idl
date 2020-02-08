@@ -6,6 +6,7 @@ class ParamPopup {
     private $btn: JQuery;
     private static currentInstance: ParamPopup;
     private static _setup: boolean = false;
+    private modalHelper: ModalHelper;
 
     private static paramRowLen: number = 5;
     private static paramRowTemplate: HTML = '<div class="row unfilled">' +
@@ -42,13 +43,16 @@ class ParamPopup {
         this.$btn = $btn;
         this.hasChange = false;
         this.setupListeners();
+        this.modalHelper = new ModalHelper(this.$paramPopup, {
+            noBackground: true
+        });
     }
 
     private setupListeners() {
          // toggle open retina pop up
         this.$btn.click(() => {
             ParamPopup.currentInstance = this;
-            this.paramBtnClick();
+            this.show();
         });
 
         // XXX buggy
@@ -61,6 +65,10 @@ class ParamPopup {
 
     private static setupGeneralListeners() {
         const $paramPopup = $("#paramPopUp");
+
+        $paramPopup.on("click", ".close", () => {
+            ParamPopup.currentInstance.closePopup();
+        });
         // delete retina para
         $paramPopup.on("click", ".paramDelete", function(event) {
             event.stopPropagation();
@@ -107,7 +115,7 @@ class ParamPopup {
         });
     }
 
-    private paramBtnClick() {
+    private show() {
         const self = this;
         if (XVM.getLicenseMode() === XcalarMode.Mod) {
             xcTooltip.add($(this), {"title": TooltipTStr.OnlyInOpMode});
@@ -135,15 +143,8 @@ class ParamPopup {
                     return false;
                 }
             });
-            let resizeTimer;
-            $(window).on("resize.dagParamPopup", function() {
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(() => {
-                    let width = self.$paramPopup.outerWidth();
-                    let winWidth = $(window).width();
-                    self.$paramPopup.css("left", winWidth - width);
-                }, 300);
-            });
+
+            this.modalHelper.setup();
         } else {
             this.closePopup();
         }
@@ -244,6 +245,7 @@ class ParamPopup {
             StatusBox.forceHide();
             $("#container").off("mousedown.retTab");
             $(window).off(".dagParamPopup");
+            this.modalHelper.clear();
         }
 
         if (!invalidFound && this.hasChange && !force) {

@@ -1,10 +1,15 @@
 class BarChartBuilder extends AbstractChartBuilder {
+    private _textColor =  "#000000";
+
     public constructor(
         id: string,
         options: any
     ) {
         super(id, options);
         this.type = "bar";
+        if (xcGlobal.darkMode) {
+            this._textColor = "#FFFFFF";
+        }
     }
 
     public build() {
@@ -260,6 +265,7 @@ class BarChartBuilder extends AbstractChartBuilder {
             .attr("width", xWidth)
             .attr("x", getTickX)
             .attr("y", tickHeight)
+            .attr("stroke", this._textColor)
             .text(getXAxis);
 
 

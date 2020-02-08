@@ -523,7 +523,7 @@ class DagCategoryBar {
             hasTable = true;
             table = '<g class="table" transform="translate(' + (DagView.nodeWidth + 24) + ', 0)" display="none">' +
                         '<path class="tableLine" stroke="' + this._edgeColor + '" stroke-width="1px" fill="none" stroke-linecap="round" d="M-35,14L16,14"></path>' +
-                        '<rect x="0" y="3" width="25" height="25" fill=" ' + this._tableBackColor + '" ry="2" rx="2" />'+
+                        '<rect x="0" y="1" width="25" height="25" fill=" ' + this._tableBackColor + '" ry="2" rx="2" />'+
                         '<text class="mainTableIcon" font-family="icomoon" font-size="27" x="-2" y="' + (DagView.nodeHeight - 1) + '" ' + xcTooltip.Attrs + ' data-original-title="Click to view options">\uea07</text>' +
                         '<text class="tableName" x="12" y="37" ' +
                         'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
@@ -563,7 +563,7 @@ class DagCategoryBar {
                 xcTooltip.Attrs + ' data-original-title="' + description + '" />'+
             '<svg width="' + (DagView.nodeWidth - 2) + '" height="' + DagView.nodeHeight + '" x="1" y="1">' +
                 opTitleHtml + '</svg>' +
-            '<circle class="statusIcon" cx="' + (DagView.nodeWidth - 15) + '" cy="' + (DagView.nodeHeight - 1) + '" r="5" ' +
+            '<circle class="statusIcon" cx="' + (DagView.nodeWidth - 12) + '" cy="' + (DagView.nodeHeight - 2) + '" r="5" ' +
                 'stroke="' + this._borderColor + '" stroke-width="1" fill="white" />' +
             '</g>';
 

@@ -298,7 +298,7 @@ class DagView {
             $node.find(".topNodeIcon").remove();
             $node.attr("data-topicons", icons);
             top = 1;
-            left = DagView.nodeWidth - 19;
+            left = DagView.nodeWidth - 18;
 
             for (let i = 0; i < icons.length; i++) {
                 if (icons[i] === iconType) {
@@ -328,14 +328,14 @@ class DagView {
             $node.find(".bottomNodeIcon").remove();
             // store the icon order
             $node.attr("data-icons", icons);
-            top = DagView.nodeHeight;
+            top = DagView.nodeHeight + 1;
             for (let i = 0; i < icons.length; i++) {
                 if (icons[i] === iconType) {
-                    drawIcon(icons[i], false, (i * 15 )+ 18, top, DagView.iconMap[iconType], xcStringHelper.escapeDblQuoteForHTML(tooltip), i);
+                    drawIcon(icons[i], false, (i * 15 ) + 12, top, DagView.iconMap[iconType], xcStringHelper.escapeDblQuoteForHTML(tooltip), i);
                     $node.attr("data-" + iconType.toLowerCase(), tooltip);
                 } else {
                     let tip: string = $node.data(icons[i].toLowerCase())
-                    drawIcon(icons[i], false, (i * 15 )+ 18, top, DagView.iconMap[icons[i]], tip, i);
+                    drawIcon(icons[i], false, (i * 15 ) + 12, top, DagView.iconMap[icons[i]], tip, i);
                 }
             }
         }

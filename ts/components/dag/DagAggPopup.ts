@@ -4,6 +4,7 @@ class DagAggPopup {
     private $retLists: JQuery;
     private $aggManagerPopup: JQuery;
     private $btn: JQuery;
+    private modalHelper: ModalHelper;
 
     private aggRowLen: number = 5;
     private aggRowTemplate: HTML = '<div class="row unfilled">' +
@@ -34,6 +35,9 @@ class DagAggPopup {
         this.$retLists = this.$aggManagerPopup.find(".aggList");
         this.$btn = $btn;
         this._setupListeners();
+        this.modalHelper = new ModalHelper(this.$aggManagerPopup, {
+            noBackground: true
+        });
     }
 
     private _setupListeners(): void {
@@ -41,10 +45,16 @@ class DagAggPopup {
 
          // toggle open retina pop up
         this.$btn.click(() => {
-            this.aggBtnClick();
+            this.show();
         });
 
         const $aggManagerPopup = $("#aggManagerPopup");
+
+        $aggManagerPopup.on("click", ".close", () => {
+           self.closePopup();
+        });
+
+
         // delete retina para
         $aggManagerPopup.on("click", ".aggDelete",  function (event) {
             event.stopPropagation();
@@ -85,7 +95,7 @@ class DagAggPopup {
         // });
     }
 
-    private aggBtnClick(): void {
+    private show(): void {
         const self = this;
         if (XVM.getLicenseMode() === XcalarMode.Mod) {
             xcTooltip.add($(this), {"title": TooltipTStr.OnlyInOpMode});
@@ -108,16 +118,7 @@ class DagAggPopup {
                     return false;
                 }
             });
-
-            let resizeTimer;
-            $(window).on("resize.dagParamPopup", function() {
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(() => {
-                    let width = self.$aggManagerPopup.outerWidth();
-                    let winWidth = $(window).width();
-                    self.$aggManagerPopup.css("left", winWidth - width);
-                }, 300);
-            });
+            this.modalHelper.setup();
         } else {
             this.closePopup();
         }
@@ -223,6 +224,7 @@ class DagAggPopup {
         StatusBox.forceHide();
         $("#container").off("mousedown.aggPopup");
         $(window).off(".aggPopup");
+        this.modalHelper.clear();
     }
 
     private deleteAgg($row: JQuery): void {

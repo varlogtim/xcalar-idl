@@ -2,7 +2,7 @@
 .cm-s-xcalar-dark div.CodeMirror-selected { background: #b2d7fe !important; }
 .cm-s-xcalar-dark.CodeMirror ::selection { background: #b2d7fe; }
 .cm-s-xcalar-dark.CodeMirror ::-moz-selection { background: #b2d7fe; }
-.cm-s-xcalar-dark .CodeMirror-gutters { background: #f5f8fa; border-right: 7px solid #f5f8fa; }
+.cm-s-xcalar-dark .CodeMirror-gutters { background: #181818; border-right: 7px solid #181818; }
 .cm-s-xcalar-dark .CodeMirror-guttermarker { color: #485461; }
 .cm-s-xcalar-dark .CodeMirror-guttermarker-subtle { color: #3E7087; }
 .cm-s-xcalar-dark .CodeMirror-linenumber { color: #485461; }
