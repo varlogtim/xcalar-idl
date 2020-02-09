@@ -251,53 +251,11 @@
 
 
 #sqlWorkSpacePanel {
-    @resize-h: 1px;
     @tabBar-h: 24px;
 
     &.resizing {
         pointer-events: none;
     }
-
-    // &.sqlEditorDocked {
-    //     #sqlEditorSpace {
-    //         height: 100% !important;
-    //     }
-    // }
-
-    // &.sqlEditorUndocked {
-    //     &.dagPanelDocked {
-    //         #dagView {
-    //             width: 100% !important;
-    //             left: 0px !important;
-    //         }
-    //     }
-    // }
-
-    // &.dagPanelDocked {
-    //     #dagView {
-    //         height: ~"calc(100% - @{resize-h} - @{tabBar-h})" !important;
-    //     }
-    // }
-
-    // &.dagPanelUndocked {
-    //     &.sqlEditorDocked {
-    //         #sqlEditorSpace {
-    //             width: 100% !important;
-    //         }
-    //     }
-    // }
-
-    // &.sqlEditorUndocked.dagPanelUndocked {
-    //     .topPart {
-    //         height: ~"calc(100% - @{resize-h} - @{tabBar-h} - 4px)" !important;
-    //         overflow: hidden; // prevents draggable bug
-    //     }
-    //     .bottomPart {
-    //         top: auto !important;
-    //         bottom: 0px;
-    //         height:  @resize-h + @tabBar-h + 4 !important;
-    //     }
-    // }
 
     &.hidingLeftPanel {
         .mainContent {
@@ -333,11 +291,24 @@
 
                     &:first-child {
                         flex: 1 1 0;
+
+                        &.contentUndocked {
+                            flex: 0 0 0;
+
+                            ~ .section:not(.undocked) {
+                                width: auto !important;
+                                flex: 1 1 auto;
+                            }
+                        }
                     }
 
                     &:not(:first-child) {
                         width: 50%;
                         position: relative;
+
+                        &.contentUndocked {
+                            width: 0 !important;
+                        }
                     }
                 }
             }
@@ -348,6 +319,7 @@
                 position: relative;
                 height: 40%;
                 width: 100%;
+                border-top: 1px solid @color-border-pinkish-grey2;
 
                 > .ui-resizable-handle {
                     z-index: @z-index-sqlBottomResizeHandler !important; // don't block other elements
@@ -355,20 +327,10 @@
                     top: -7px;
                 }
 
-                .resizeHandler {
-                    position: relative;
-                    top: 0;
-                    z-index: @z-index-sqlBottomResizeHandler;
-                    width: 100%;
-                    height: @resize-h;
-                    border-bottom: 1px solid @color-border-pinkish-grey2;
-                }
-
                 .bottomLeftPart, .bottomRightPart {
                     overflow: hidden;
-                    height: ~"calc(100% - @{resize-h})";
+                    height: 100%;
                     position: absolute;
-                    top: @resize-h;
                 }
 
                 .bottomLeftPart {
@@ -568,7 +530,7 @@
             }
 
             #dagView {
-                height: ~"calc(100% - @{resize-h} - @{tabBar-h})";
+                height: ~"calc(100% - @{tabBar-h})";
             }
         }
     }

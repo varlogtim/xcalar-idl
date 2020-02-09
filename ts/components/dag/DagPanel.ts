@@ -7,7 +7,7 @@ class DagPanel {
         return this._instance || (this._instance = new this());
     }
     /**
-     * DagPanel.setup
+     * DagPanel.Instance.setup
      */
     public setup(): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
@@ -118,7 +118,9 @@ class DagPanel {
     }
 
     private _setupPopup() {
-        this._popup = new PopupPanel("dagView", {});
+        this._popup = new PopupPanel("dagViewContainer", {
+            draggableHeader: ".draggableHeader"
+        });
         this._popup
         .on("Undock", () => {
             this._undock();
@@ -129,54 +131,11 @@ class DagPanel {
     }
 
     private _undock(): void {
-        let $dockableSection = this._popup.getPanel();
-        let rect = $dockableSection[0].getBoundingClientRect();
-        let height = Math.min(500, Math.max(300, $(window).height() - (rect.top + 10)));
-        let width = 500;
-        let left = Math.min($(window).width() - (width + 5), rect.left + 15);
-        $dockableSection.css({
-            "left": left,
-            "top": rect.top + 10,
-            "width": width,
-            "height": height
-        });
-
-        $("#sqlWorkSpacePanel").addClass("dagPanelUndocked")
-                                .removeClass("dagPanelDocked");
-
         DagCategoryBar.Instance.showOrHideArrows();
-        $dockableSection.resizable("option", "containment", "#sqlWorkSpacePanel");
-        this._toggleDraggable(true);
     }
 
     private _dock(): void {
-        // reset to default
-        let $dockableSection = this._popup.getPanel();
-        $("#sqlWorkSpacePanel").removeClass("dagPanelUndocked")
-                                .addClass("dagPanelDocked")
-                                .find(".rightSection .bottomPart")
-                                .css({"top": "", "height": ""});
-
-        if (PopupManager.isDocked("sqlEditorSpace")) {
-            $("#sqlEditorSpace").css({"left": "", "width": ""});
-        }
-
-        $("#sqlWorkSpacePanel").find(".rightSection .topPart")
-                                .css({"height": ""});
-
         DagCategoryBar.Instance.showOrHideArrows();
-
-        $dockableSection.resizable("option", "containment", "parent");
-        this._toggleDraggable(false);
-    }
-
-    private _toggleDraggable(isDraggable: boolean): void {
-        const $section: JQuery = this._popup.getPanel();
-        if (isDraggable) {
-            this._popup.setDraggable( ".categoryBar");
-;        } else {
-            $section.draggable({disabled: true});
-        }
     }
 
     /* Unit Test Only */

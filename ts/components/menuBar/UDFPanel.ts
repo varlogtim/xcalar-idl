@@ -10,6 +10,8 @@ class UDFPanel {
     private udfWidgets: CodeMirror.LineWidget[] = [];
     private dropdownHint: InputDropdownHint;
     private isSetup: boolean;
+    private _popup: PopupPanel;
+
     private readonly udfDefault: string =
         "# PLEASE TAKE NOTE:\n" +
         "# \n" +
@@ -42,6 +44,7 @@ class UDFPanel {
         this.isSetup = true;
         this._setupUDF();
         this._setupDropdownList();
+        this._setupPopup();
     }
 
     public toggleDisplay(display?: boolean): void {
@@ -449,6 +452,30 @@ class UDFPanel {
         });
 
         this._selectBlankUDF();
+    }
+
+    private _setupPopup(): void {
+        this._popup = new PopupPanel("udfSection", {
+            draggableHeader: ".heading.draggable"
+        });
+        this._popup
+        .on("Undock", () => {
+            this._undock();
+        })
+        .on("Dock", () => {
+            this._dock();
+        })
+        .on("Resize", () => {
+            this.getEditor().refresh();
+        });
+    }
+
+    private _undock(): void {
+        this.getEditor().refresh();
+    }
+
+    private _dock(): void {
+        this.getEditor().refresh();
     }
 
     private _setupAutocomplete(editor: CodeMirror.EditorFromTextArea): void {

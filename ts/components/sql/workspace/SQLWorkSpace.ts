@@ -196,13 +196,6 @@ class SQLWorkSpace {
         const $bottomRightPart = $bottomPart.find(".bottomRightPart");
         let bottomPartWidth: number = null;
 
-        $bottomLeftPart.resizable({
-            handles: "w, e, s, n, nw, ne, sw, se",
-            containment: 'parent',
-            minWidth: 36,
-            minHeight: 50,
-        });
-
         $bottomRightPart.resizable({
             handles: "w",
             start: () => {

@@ -500,13 +500,18 @@ class SQLEditorSpace {
     }
 
     private _setupPopup(): void {
-        this._popup = new PopupPanel("sqlEditorSpace", {});
+        this._popup = new PopupPanel("sqlEditorSpace", {
+            draggableHeader: "header.draggable"
+        });
         this._popup
         .on("Undock", () => {
             this._undock();
         })
         .on("Dock", () => {
             this._dock();
+        })
+        .on("Resize", () => {
+            this.refresh();
         });
     }
 
@@ -538,49 +543,12 @@ class SQLEditorSpace {
         }).setupListeners();
     }
 
-    private _toggleDraggable(isDraggable: boolean): void {
-        const $section: JQuery = this._popup.getPanel();
-        if (isDraggable) {
-            this._popup.setDraggable("header.draggable");
-        } else {
-            $section.draggable({disabled: true});
-        }
-    }
-
     private _undock(): void {
-        let $dockableSection = this._popup.getPanel();
-        let rect = $dockableSection[0].getBoundingClientRect();
-        let height = Math.min(500, Math.max(300, $(window).height() - rect.top));
-        $dockableSection.css({
-            "left": rect.left + 5,
-            "top": rect.top - 5,
-            "width": "300px", "height": height
-        });
-
-        $("#sqlWorkSpacePanel").addClass("sqlEditorUndocked")
-                               .removeClass("sqlEditorDocked");
-
-        this._toggleDraggable(true);
         this.refresh();
-        DagCategoryBar.Instance.showOrHideArrows();
     }
 
     private _dock(): void {
-        // reset to default
-        $("#sqlWorkSpacePanel").removeClass("sqlEditorUndocked")
-                                .addClass("sqlEditorDocked")
-                                .find(".rightSection .bottomPart")
-                                .css({"top": "", "height": ""});
-
-        if (PopupManager.isDocked("dagView")) {
-            $("#dagView").css({"left": "", "width": ""});
-        }
-
-        $("#sqlWorkSpacePanel").find(".rightSection .topPart")
-                                .css({"height": ""});
         this.refresh();
-        this._toggleDraggable(false);
-        DagCategoryBar.Instance.showOrHideArrows();
     }
 
     private _setupResize(): void {

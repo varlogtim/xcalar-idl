@@ -52,7 +52,9 @@ namespace BottomMenu {
     }
 
     function setupPopup(): void {
-        _popup = new PopupPanel("bottomMenu", {});
+        _popup = new PopupPanel("bottomMenu", {
+            draggableHeader: ".heading.draggable"
+        });
         _popup
         .on("Undock", () => {
             _undock();
@@ -61,7 +63,6 @@ namespace BottomMenu {
             _dock();
         });
 
-        _popup.setDraggable(".heading.draggable");
 
         let poppedOut: boolean = false;
 
