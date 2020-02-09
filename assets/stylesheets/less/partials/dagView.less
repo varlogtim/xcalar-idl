@@ -57,7 +57,7 @@
 
     &.operatorBarPinned {
         .operatorBar {
-            background: @color-white;
+            background: @color-bg-default;
             box-shadow: inset 0px 0.25px 0px @color-border-operator, inset 0px -0.25px 0px @color-border-operator;
             position: relative;
             top: 0px;
@@ -189,7 +189,7 @@
 
             &:hover {
                 .innerCategory {
-                    background-color: rgba(0, 0, 0, 0.05);
+                    background-color: @color-icon-hoverBg;
                 }
             }
 
@@ -197,72 +197,6 @@
                 white-space: nowrap;
             }
 
-            .categoryIcon {
-                .size(@icon-height,@icon-height);
-                border-radius: 100%;
-                margin-right: 6px;
-                margin-top: 1px;
-                color: @color-white;
-                font-size: 12px;
-                line-height: @icon-height;
-                text-align: center;
-            }
-
-            &.category-favorites {
-                .icon {
-                    background-color: @color-operator-favorites;
-                }
-            }
-            &.category-in {
-                .icon {
-                    background-color: @color-operator-in;
-                }
-            }
-            &.category-out {
-                .icon {
-                    background-color: @color-operator-out;
-                }
-            }
-            &.category-SQL {
-                .icon {
-                    background-color: @color-operator-SQL;
-                }
-            }
-            &.category-columnOps {
-                .icon {
-                    background-color: @color-operator-column;
-                }
-            }
-            &.category-rowOps {
-                .icon {
-                    background-color: @color-operator-operations;
-                }
-            }
-            &.category-join {
-                .icon {
-                    background-color: @color-operator-join;
-                }
-            }
-            &.category-set {
-                .icon {
-                    background-color: @color-operator-set;
-                }
-            }
-            &.category-aggregates {
-                .icon {
-                    background-color: @color-operator-value;
-                }
-            }
-            &.category-extensions {
-                .icon {
-                    background-color: @color-operator-extensions;
-                }
-            }
-            &.category-custom {
-                .icon {
-                    background-color: @color-operator-custom;
-                }
-            }
             &.category-hidden {
                 display: none;
             }
@@ -289,7 +223,7 @@
     .operatorBar {
         @operatorBar-height: 44px;
         .size(@height: @operatorBar-height, @min-height: @operatorBar-height);
-        background: @color-white;
+        background: @color-bg-default;
         box-shadow: 0px 0.25px 0px @color-border-operator, 0px 3px 3px rgba(0,0,0,0.1);
         z-index: @z-index-operatorBar;
         position: absolute;
@@ -313,7 +247,7 @@
 
                     &:hover {
                         background-color: @color-font-edge;
-                        color: @color-white;
+                        color: @color-font-defaultInverse;
                     }
                 }
 
@@ -579,7 +513,7 @@
 
         .paramTitle, .nodeTitle {
             tspan {
-                text-shadow: 0px 0px 5px @color-white, 0px 0px 5px @color-white; // to show better over lines
+                text-shadow: 0px 0px 5px @color-font-defaultInverse, 0px 0px 5px @color-font-defaultInverse; // to show better over lines
             }
         }
 
@@ -639,7 +573,7 @@
 
         &.state-Unused {
             .statusIcon {
-                fill: @color-white;
+                fill: @color-bg-default;
             }
         }
         &.state-Configured {
@@ -888,7 +822,7 @@
         min-width: 20px;
         min-height: 20px;
         overflow: visible;
-        background: @color-white;
+        background:  @color-bg-default;
         .cursor-move();
         transform-origin: top left;
 
@@ -2685,7 +2619,7 @@
         display: block;
         text-align: center;
         font-size: 13px;
-        color: @color-white;
+        color: @color-font-defaultInverse;
         line-height: 22px;
         height: 24px;
         .flex(0 0 24px);
@@ -3074,7 +3008,7 @@
         width: ~"calc(100% - 8px)";
 
         &::-webkit-scrollbar-track {
-            background: @color-white;
+            background: @color-bg-default;
         }
 
         .cell {

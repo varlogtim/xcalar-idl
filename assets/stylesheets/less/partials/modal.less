@@ -212,7 +212,7 @@
 #modalBackground, .modalBackground {
     .position(fixed, @top: 0, @left: 0);
     .size(100%, 100%);
-    background-color: @color-black;
+    background-color: @color-font-black;
     opacity: 0.5;
     display: none;
     z-index: @z-index-modalBackground;
@@ -640,7 +640,7 @@
             float: right;
 
             .icon {
-               color: @color-white;
+               color: @color-bg-default;
             }
         }
         .flexArea {
@@ -792,7 +792,7 @@
 
         .prettyJson {
             height: 100%;
-            background-color: @color-white !important;
+            background-color: @color-bg-default !important;
         }
 
         .multiSelectMode {
@@ -1114,7 +1114,7 @@
         display: none;
 
         .aggContainer .aggTableField {
-            color: @color-white;
+            color: @color-bg-default;
         }
 
         &:not(.empty) {
@@ -1188,7 +1188,7 @@
                 .padding {
                     .position(absolute, @top: 0px, @left: 0px);
                     .size(@width: 120px, @height: 35px);
-                    background: @color-white;
+                    background: @color-bg-default;
                     z-index: 10;
                 }
 
@@ -2845,7 +2845,7 @@ html.microsoft {
         .size(@width: 120px, @height: 60px);
         .position(absolute);
         background-color: fadeout(@color-font-greyish-brown, 10%);
-        color: @color-white;
+        color:  @color-font-defaultInverse;
         box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
         display: none;
 
@@ -2855,7 +2855,7 @@ html.microsoft {
             box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
 
             .text {
-                .font(@size: 11px, @color: @color-white);
+                .font(@size: 11px, @color: @color-font-defaultInverse);
             }
 
             &:hover {
@@ -3091,7 +3091,7 @@ html.microsoft {
 
             &.hover {
                 .bar-extra {
-                    fill: @color-black;
+                    fill: @color-font-default;
                     opacity: 0.15;
                 }
 
@@ -3260,7 +3260,7 @@ html.microsoft {
             z-index: 100; // higher than .ui-resizable-w
 
             .icon {
-                color: @color-white;
+                color: @color-font-defaultInverse;
                 font-size: 9px;
                 position: relative;
                 top: 5px;
@@ -3510,7 +3510,7 @@ html.microsoft {
 
     section.inactive {
         opacity: 0.5;
-        background: @color-white;
+        background: @color-bg-default;
     }
 
     .formRow {
@@ -3651,7 +3651,7 @@ html.microsoft {
             .flex(0 1 auto);
             overflow-y: scroll;
             max-height: 150px;
-            background: @color-white;
+            background: @color-bg-default;
             .text-selection;
             .row {
                 &:nth-child(even) {
@@ -3856,7 +3856,7 @@ html.microsoft {
     }
     .subjectInput {
         font-size: @fontSize;
-        background: @color-white;
+        background: @color-bg-default;
         margin-top: 10px;
     }
     .bundleArea, .downloadMsg {
@@ -3903,7 +3903,7 @@ html.microsoft {
         padding: 0;
 
         .close {
-            color: @color-white;
+            color: @color-font-defaultInverse;
             top: 13px;
         }
     }
@@ -3912,7 +3912,7 @@ html.microsoft {
         height: 425px;
         position: relative;
         padding: 30px 51px 23px 51px;
-        .font(@size: 12px, @color: @color-white);
+        .font(@size: 12px, @color: @color-font-white);
         .linear-gradient(top, @color-about-gradient-top,
         @color-about-gradient-bottom);
 
@@ -4562,7 +4562,7 @@ html.microsoft {
             }
 
             input {
-                background: @color-white;
+                background: @color-bg-default;
             }
 
             .error {
@@ -5171,7 +5171,7 @@ html.microsoft {
     .title {
         text-align: center;
         background-color: @color-error-border-light;
-        color: @color-white;
+        color: @color-font-defaultInverse;
         height: 30px;
         line-height: 30px;
     }
@@ -5306,7 +5306,7 @@ html.microsoft {
             left: 4px;
             width: 26px;
             height: 20px;
-            background: @color-white;
+            background: @color-bg-default;
             border-bottom-right-radius: 10px;
             -webkit-transform: translate(-30px, -2px);
         }
@@ -5340,7 +5340,7 @@ html.microsoft {
             right: -56px;
             width: 26px;
             height: 20px;
-            background: @color-white;
+            background: @color-bg-default;
             border-bottom-left-radius: 10px;
             -webkit-transform: translate(-30px, -2px);
         }
@@ -5931,7 +5931,7 @@ html.microsoft {
     .topRow {
         height: 50px;
         .flex-display;
-        background: @color-white;
+        background: @color-bg-default;
         border-bottom: 1px solid @color-border-pinkish-grey2;
         padding-left: @left-main-padding;
 
@@ -5992,7 +5992,7 @@ html.microsoft {
         }
 
         .tempRow {
-            background: @color-white !important;
+            background: @color-bg-default !important;
             height: @rowHeight * 2;
             position: relative;
             border-bottom: none;
@@ -6077,10 +6077,10 @@ html.microsoft {
 
             &.active {
                 background-color: @color-bg-select-blue;
-                color: @color-white;
+                color: @color-font-white;
 
                 .icon {
-                    color: @color-white;
+                    color: @color-font-white;
                 }
             }
 
@@ -6097,7 +6097,7 @@ html.microsoft {
             }
 
             .hiddenChar {
-                color: @color-white;
+                color: @color-font-defaultInverse;
                 font-size: 0px;
                 width: 0px;
                 overflow: hidden;

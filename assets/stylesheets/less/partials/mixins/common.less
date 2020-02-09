@@ -1,5 +1,6 @@
 @import "partials/mixins/constants.less";
-@import "partials/mixins/colors.less";
+@import "partials/mixins/colorsLightMode.less";
+@import "partials/mixins/colorsDarkMode.less";
 @import "partials/mixins/flex.less";
 
 .box-sizing (@type: border-box) {
@@ -15,17 +16,17 @@
 
 .vertical-align() {
     .position(relative, @top: 50%);
-    .transform (translateY(-50%));
+    .transform(translateY(-50%));
 }
 
 .horizontal-align(@position: relative) {
     .position(@position, @left: 50%);
-    .transform (translateX(-50%));
+    .transform(translateX(-50%));
 }
 
 .center-align() {
     .position(relative, @top: 50%, @left: 50%);
-    .transform (translate(-50%, -50%));
+    .transform(translate(-50%, -50%));
 }
 
 .noSelection {
@@ -404,7 +405,7 @@
     .icon {
         display: inline-block;
         .size(@width: 25px, @height: 100%);
-        color: @color-white;
+        color: @color-font-defaultInverse;
         float: left;
 
         &:before {
@@ -1433,7 +1434,7 @@
         cursor: pointer;
         color: @color-bg-select-blue;
         &.white {
-            color: @color-white;
+            color: @color-font-defaultInverse;
         }
     }
 }
@@ -1636,7 +1637,7 @@
                     background-color: @color-border-darkGray;
 
                     .icon {
-                        color: @color-white;
+                        color: @color-font-defaultInverse;
                     }
                 }
 
@@ -1681,7 +1682,7 @@
 
         &:hover {
             background-color: @color-border-bar;
-            color: @color-white;
+            color: @color-font-defaultInverse;
         }
     }
 }
@@ -1738,7 +1739,7 @@
         /* Better Font Rendering =========== */
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        color: @color-white;
+        color: @color-font-defaultInverse;
 
         display: inline-block;
         float: left;
@@ -2329,7 +2330,7 @@ html.firefox {
         .close {
             .size(@div-h, @div-h);
             background-color: @color-bg-cardHeader;
-            color: @color-white;
+            color: @color-font-defaultInverse;
             .rounded(3px);
 
             .icon {
@@ -2460,7 +2461,7 @@ html.firefox {
 /* ========== End Of Transition ========== */
 
 /* ========== Gradient Color ========== */
-.linear-gradient(@origin: left, @start: @color-white, @stop: @color-black) {
+.linear-gradient(@origin: left, @start: @color-bg-defaultStrong, @stop: @color-font-default) {
     background: -webkit-linear-gradient(@origin, @start, @stop);
     background: -moz-linear-gradient(@origin, @start, @stop);
     background: -o-linear-gradient(@origin, @start, @stop);

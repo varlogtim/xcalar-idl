@@ -1,11 +1,11 @@
-
-// USED FOR DARK MODE, overrides constants.less
-@color-white: #000000;
+// to be used with colorLightMode.less as this file doesn't have all the colors
 @color-font-default: #FFFFFF;
+@color-font-defaultInverse: #000000;
 @color-font-darkGray: #DDDDDD;
 @color-font-form: #BBBBBB;
 
 @color-bg-default: #181818;
+@color-bg-defaultStrong: #000000;
 @color-bg-leftPanel: #202021;
 @color-bg-sqlEditor: #181818;
 @color-bg-topBar: #393939;
@@ -25,6 +25,7 @@
 @color-border-menugray: #281F18; // temporary
 @color-bg-tableIcon: #C9C9C9;
 @color-bg-tableIconActive: #0c76da;
+@color-bg-dialog: rgba(208, 208, 208, 0.6);
 
 @color-bg-logoBorder: #CACACA;
 @color-font-logo: #323232;
@@ -33,6 +34,9 @@
 @color-icon-default-hover: #888888;
 @color-icon-menuBar: #858585;
 @color-icon-menuBarActive: #FFFFFF;
+@color-icon-hoverBg: rgba(255, 255, 255, 0.05);
+@color-icon-hoverBgMed: rgba(255, 255, 255, 0.1);
+@color-icon-hoverBgLight:  rgba(0, 0, 0, 0.7);
 
 @color-border-light: #262626;
 @color-border-medium: #707070;
@@ -102,7 +106,6 @@
 @color-bg-pinkish-grey: #414141;
 @color-bg-pinkish-grey2: #333333;
 @color-bg-topBarGray: @color-bg-white-eight;
-@color-bg-topBarGray2: #110e0b;
 @color-bg-topBarGray4: #060403;
 @color-bg-unselect-gray: #606060;
 @color-bg-99-grey: #666666;
@@ -113,3 +116,6 @@
 @color-bg-advSubTab-draketsGrey: #c7bcb3; // XXX only used once (developer mode, active subTab's hover state)
 @color-bg-cancel-gray: #86705e;
 @color-bg-cancel-gray-hover: #604c37;
+
+@color-bg-opaque3: rgba(255, 255, 255, 0.3);
+@color-bg-opaque5: rgba(255, 255, 255, 0.5);

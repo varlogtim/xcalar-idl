@@ -198,7 +198,7 @@
             margin-right: 12px;
             background-color: @color-icon-default;
             opacity: 0.7;
-            color: @color-white;
+            color: @color-font-defaultInverse;
 
             &:hover {
                 opacity: 0.9;
@@ -440,7 +440,7 @@
     .topSection {
         position: relative;
         z-index: @topSection-zindex;
-        border-top: 1px solid @color-white;
+        border-top: 1px solid @color-bg-defaultStrong;
     }
 
     .graphSection {
@@ -620,7 +620,7 @@
         }
 
         .axis {
-            stroke: @color-black;
+            stroke: @color-font-default;
             &.x {
                 stroke: @color-border-darkGray;
             }
@@ -676,7 +676,7 @@
             .sampleText {
                 text-align: center;
                 z-index: 5;
-                .font(@size: 70px, @color: @color-white, @weight: 600);
+                .font(@size: 70px, @color: @color-font-defaultInverse, @weight: 600);
                 line-height: 110px;
                 opacity: 0.15;
             }
@@ -723,7 +723,7 @@
 
             .sampleText {
                 .position(absolute, @top: 20px, @left: -40px);
-                .font(@size: 44px, @color: @color-black, @weight: 600);
+                .font(@size: 44px, @color: @color-font-default, @weight: 600);
                 .transform(rotate(35deg));
                 opacity: 0.15;
                 z-index: 5;
@@ -826,7 +826,7 @@
             .holeCover {
                .size(90px, 90px);
                .position(absolute, @top: 10px, @left: 10px);
-               background: @color-white;
+               background: @color-bg-default;
                z-index: 3;
                border-radius: 100%;
             }
@@ -1133,7 +1133,7 @@
             }
 
             .statsHeadingBar {
-                .font(@size: 12px, @color: @color-white, @line-height: 25px);
+                .font(@size: 12px, @color: @color-font-defaultInverse, @line-height: 25px);
                 .size(@width: 100%, @height: 26px);
                 padding: 0 0 0 4px;
                 margin: 0 auto;
@@ -1581,9 +1581,9 @@
         .size(@width: 320px, @height: 60px);
         margin: 0 auto;
         .rounded;
-        border: 1px solid @color-white;
+        border: 1px solid @color-bg-defaultStrong;
         padding: 10px 0;
-        background-color: rgba(255, 255, 255, 0.7);
+        background-color: @color-icon-hoverBgLight;
 
         > div, > i {
             display: inline-block;
@@ -2086,7 +2086,7 @@
         .size(30px, 30px);
         line-height: 15px;
         background-color: @color-bg-select-blue;
-        color: @color-white;
+        color: @color-font-defaultInverse;
     }
 
     .argWrap {

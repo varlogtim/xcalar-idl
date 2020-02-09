@@ -72,6 +72,11 @@ body {
     font-size: 14px;
     overflow: hidden;
     display: none;
+
+    input, textarea {
+        background-color: @color-bg-input;
+        color: @color-font-defaultInverse;
+    }
 }
 
 #container {
@@ -293,11 +298,11 @@ body {
     .horizontal-align;
     top: 30%;
     text-align: center;
-    background-color: rgba(47, 47, 47, 0.6);
-    >span {
+    background-color: @color-bg-dialog;
+    > span {
         margin: auto;
         font-weight: 600;
-        color: @color-white;
+        color: @color-font-defaultInverse;
         line-height: 75px;
     }
 }
@@ -325,7 +330,7 @@ body {
             width: 100%;
             height: 100%;
             .position(absolute, 0, 0);
-            background: rgba(0,0,0,0.5);
+            background: @color-bg-opaque5;
         }
     }
 
@@ -340,7 +345,7 @@ body {
         .top {
             height: ~"calc(100% - 120px)";
             background-color: @color-hover-blue;
-            .font(@size: 40px, @color: @color-white, @weight: 500);
+            .font(@size: 40px, @color: @color-font-defaultInverse, @weight: 500);
             text-align: center;
             position: relative;
         }
@@ -715,7 +720,7 @@ body {
             }
 
             &.current {
-                color: @color-white;
+                color: @color-font-defaultInverse;
                 font-weight: 600;
                 width: 100%;
                 text-align: center;
@@ -853,7 +858,7 @@ body {
 
 #helpArea {
     .icon {
-        color: @color-white;
+        color: @color-font-defaultInverse;
     }
 }
 /* =========== END TOP RIGHT CORNER =========== */
@@ -864,7 +869,7 @@ body {
     bottom: 0;
     width: 100%;
     height: @height-bottomBar;
-    background-color: @color-bg-topBarGray2;
+    background-color: @color-font-default;
     z-index: @z-index-bottomMenu + 1;
     overflow: hidden;
 }
@@ -1245,7 +1250,7 @@ input {
         display: inline-block;
         position: absolute;
         right: 0px;
-        color: @color-white;
+        color: @color-font-defaultInverse;
 
         > div {
             .size(24px, 24px);
@@ -1346,7 +1351,7 @@ input {
         .size(@width:50px, @min-height: 100px);
         background-color: @color-error-border-light;
         text-align: center;
-        color: @color-white;
+        color: @color-font-defaultInverse;
 
         .icon {
             font-size: 24px;
@@ -1480,16 +1485,16 @@ input {
                 .position(absolute, @top: 30px, @right: -10px);
             }
             &:before {
-                border-left: 10px solid @color-white;
+                border-left: 10px solid @color-bg-defaultStrong;
             }
             &:after {
-                border-left: 9px solid @color-white;
+                border-left: 9px solid @color-bg-defaultStrong;
                 margin-right: 2px;
             }
         }
         &.info {
             .boxInnerWrap:before {
-                border-left: 10px solid @color-white;
+                border-left: 10px solid @color-bg-defaultStrong;
             }
         }
     }
@@ -1504,10 +1509,10 @@ input {
                 border-right: 7px solid transparent;
             }
             &:before {
-                border-top: 10px solid @color-white;
+                border-top: 10px solid @color-bg-defaultStrong;
             }
             &:after {
-                border-top: 9px solid @color-white;
+                border-top: 9px solid @color-bg-defaultStrong;
                 margin-right: 2px;
                 bottom: -15px;
                 left: 128px;
@@ -1516,7 +1521,7 @@ input {
         }
         &.info {
             .boxInnerWrap:before {
-                border-top: 10px solid @color-white;
+                border-top: 10px solid @color-bg-defaultStrong;
             }
         }
     }
@@ -1531,10 +1536,10 @@ input {
                 border-right: 7px solid transparent;
             }
             &:before {
-                border-bottom: 10px solid @color-white;
+                border-bottom: 10px solid @color-bg-defaultStrong;
             }
             &:after {
-                border-bottom: 9px solid @color-white;
+                border-bottom: 9px solid @color-bg-defaultStrong;
                 margin-right: 2px;
                 bottom: 0px;
                 left: 128px;
@@ -1542,7 +1547,7 @@ input {
         }
         &.info {
             .boxInnerWrap:before {
-                border-bottom: 10px solid @color-white;
+                border-bottom: 10px solid @color-bg-defaultStrong;
             }
         }
     }
@@ -1599,7 +1604,7 @@ input {
     display: inline-block;
 
     .tableDonePopup {
-        .font(@size: 12px, @color: @color-white);
+        .font(@size: 12px, @color: @color-font-white);
         .rounded(3px);
         position: relative;
         background-color: @color-bg-select-blue;
@@ -1615,7 +1620,7 @@ input {
 
         .close {
             .transform(rotate(45deg));
-            color: @color-white;
+            color: @color-font-defaultInverse;
             position: absolute;
             top: -2px;
             right: -2px;
@@ -1810,7 +1815,7 @@ input {
             top: 15px;
             left: 45px;
             font-size: 60px;
-            color: @color-white;
+            color: @color-font-defaultInverse;
             opacity: 0.8;
             &.xi-close {
                 top: 17px;
@@ -1864,7 +1869,7 @@ input {
         path {
             fill: transparent;
             &:first-child {
-                fill: @color-white;
+                fill: @color-font-white;
             }
         }
     }
@@ -1872,7 +1877,7 @@ input {
         .size(90px, 36px);
         margin: 14px auto 0;
         background-color: @color-bg-lockedIcon-lighter;
-        color: @color-white;
+        color: @color-font-defaultInverse;
         line-height: 36px;
         text-align: center;
         font-size: 14px;
@@ -1903,7 +1908,7 @@ input {
 i.qMark {
     .size(12px, 12px);
     background-color: @color-icon-default-hover;
-    color: @color-white;
+    color: @color-font-defaultInverse;
     border-radius: 100%;
     font-size: 7px;
     line-height: 12px;
@@ -2028,10 +2033,10 @@ input[type=number]::-webkit-outer-spin-button {
 .tooltip-inner {
     max-width: 200px;
     padding: 3px 8px;
-    color: @color-white;
+    color: @color-font-defaultInverse;
     text-align: center;
     text-decoration: none;
-    background-color: @color-black;
+    background-color: @color-font-black;
 }
 .tooltip-arrow {
     position: absolute;
@@ -2045,56 +2050,56 @@ input[type=number]::-webkit-outer-spin-button {
     left: 50%;
     margin-left: -5px;
     border-width: 5px 5px 0;
-    border-top-color: @color-black;
+    border-top-color: @color-font-black;
 }
 .tooltip.top-left .tooltip-arrow {
     bottom: 0;
     right: 5px;
     margin-bottom: -5px;
     border-width: 5px 5px 0;
-    border-top-color: @color-black;
+    border-top-color: @color-font-black;
 }
 .tooltip.top-right .tooltip-arrow {
     bottom: 0;
     left: 5px;
     margin-bottom: -5px;
     border-width: 5px 5px 0;
-    border-top-color: @color-black;
+    border-top-color: @color-font-black;
 }
 .tooltip.right .tooltip-arrow {
     top: 50%;
     left: 0;
     margin-top: -5px;
     border-width: 5px 5px 5px 0;
-    border-right-color: @color-black;
+    border-right-color: @color-font-black;
 }
 .tooltip.left .tooltip-arrow {
     top: 50%;
     right: 0;
     margin-top: -5px;
     border-width: 5px 0 5px 5px;
-    border-left-color: @color-black;
+    border-left-color: @color-font-black;
 }
 .tooltip.bottom .tooltip-arrow {
     top: 0;
     left: 50%;
     margin-left: -5px;
     border-width: 0 5px 5px;
-    border-bottom-color: @color-black;
+    border-bottom-color: @color-font-black;
 }
 .tooltip.bottom-left .tooltip-arrow {
     top: 0;
     right: 5px;
     margin-top: -5px;
     border-width: 0 5px 5px;
-    border-bottom-color: @color-black;
+    border-bottom-color: @color-font-black;
 }
 .tooltip.bottom-right .tooltip-arrow {
     top: 0;
     left: 5px;
     margin-top: -5px;
     border-width: 0 5px 5px;
-    border-bottom-color: @color-black;
+    border-bottom-color: @color-font-black;
 }
 /* END AUTOGEN BOOTSTRAP CODE */
 /* START CUSTOM BOOTSTRAP CODE */
@@ -2310,7 +2315,7 @@ body.tooltipOff {
 .lint-error-icon {
     background: @color-background-error;
     .rounded(50%);
-    color: @color-white;
+    color: @color-font-defaultInverse;
     padding: 0 1px 1px 1px;
     margin-right: 4px;
 }
@@ -2415,7 +2420,7 @@ body.tooltipOff {
 
     .ui-datepicker-header {
         .size(@height: 40px);
-        .font(@line-height: 40px, @color: @color-white);
+        .font(@line-height: 40px, @color: @color-font-defaultInverse);
 
         .ui-datepicker-prev, .ui-datepicker-next {
             .position(absolute, @top: 0px);
@@ -2444,7 +2449,7 @@ body.tooltipOff {
             /* Better Font Rendering =========== */
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            color: @color-white;
+            color: @color-font-defaultInverse;
             opacity: @opacity-unhover;
             .size(30px, 30px);
             text-align: center;
@@ -2488,7 +2493,7 @@ body.tooltipOff {
 
         th {
             background-color: @color-bg-select-blue;
-            .font(@size: 10px, @color: @color-white, @line-height: 2, @weight: 600);
+            .font(@size: 10px, @color: @color-font-white, @line-height: 2, @weight: 600);
 
             span {
                 height: 20px;
@@ -2512,7 +2517,7 @@ body.tooltipOff {
                 background: @color-bg-select-blue;
 
                 span, a {
-                    color: @color-white;
+                    color: @color-font-defaultInverse;
                 }
             }
 
@@ -2533,3 +2538,111 @@ body.tooltipOff {
     width: 100%;
 }
 
+/* RESIZE CURSOR */
+#resizeCursor, #rowResizeCursor {
+    .position(absolute, @top: 0, @left: 0);
+    z-index: 22;
+    width: 100%;
+    height: 100%;
+}
+#resizeCursor {
+    .cursor-resize();
+}
+#rowResizeCursor {
+    .cursor-rowResize();
+}
+/* END RESIZE CURSOR */
+
+ul.CodeMirror-hints {
+    font-size: 13px;
+    min-width: 100px;
+    max-width: 400px;
+    padding: 0px;
+    border-radius: 0px;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
+    border: 0px;
+    font-family: @font-base;
+    margin-top: -3px;
+    z-index: @z-index-bottomMenu + 1;
+    background: transparent;
+    .CodeMirror-hint {
+        &:first-child {
+            border-top: 1px solid @color-bg-pinkish-grey2;
+        }
+        font-size: 13px;
+        color: @color-font-default;
+        border-radius: 0px;
+        width: 100%;
+        max-width: 400px;
+        padding: 2px 0px 2px 4px;
+        background-color: @color-bg-default;
+        .textOverflowOneLine;
+        .flex-display;
+        .justify-content(space-between);
+
+        .displayText {
+            // display: inline-block;
+            padding-right: 10px;
+        }
+        .template {
+            font-size: 12px;
+            .textOverflowOneLine;
+            max-width: 70%;
+            text-align: right;
+            padding-right: 4px;
+            font-style: italic;
+            color: @color-font-warm-grey-two;
+            font-weight: 500;
+            .flex-display;
+        }
+
+        .argDesc {
+            display: inline-block;
+            max-width: 80px;
+            .textOverflowOneLine;
+            vertical-align: bottom;
+        }
+
+        &.CodeMirror-hint-active, &:hover {
+            background-color: @color-selectedCell-light;
+        }
+        &.operator {
+            color: @color-log-blue;
+            &.mainOperator {
+                .template {
+                    padding-right: 4px;
+                }
+            }
+        }
+        &.colName {
+            color: @color-log-brown;
+            padding-right: 20px;
+        }
+    }
+}
+
+.bottomMenuOut ~ ul.CodeMirror-hints {
+    z-index: @z-index-homeBtn + 2;
+}
+
+.rowInputArea {
+    border-left: 1px solid @color-border-menugray;
+    margin-top: 11px;
+    .input-box(@w:60px, @h:32px);
+    input {
+        position:relative;
+        top: -1px;
+        margin-top: -3px;
+        margin-left: 3px;
+        margin-right: 3px;
+        background-color: @color-bg-white-nine;
+        border: 1px solid @color-border-menugray;
+        padding: 0px 4px;
+        &::-webkit-outer-spin-button, &::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+        &:focus {
+            background-color: @color-bg-default;
+        }
+    }
+}

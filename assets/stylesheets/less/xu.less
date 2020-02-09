@@ -36,7 +36,7 @@ header {
              .siteName {
                  position: absolute;
                 .font-baseText;
-                .font(@size: 24px, @color: @color-white);
+                .font(@size: 24px, @color: @color-font-white);
                 margin-left: 120px;
                 margin-top: 15px;
              }
@@ -49,7 +49,7 @@ header {
         .userInfo {
             width: 300px;
             margin-top: 23px;
-            .font(@color: @color-white);
+            .font(@color: @color-font-white);
 
             > span {
                 margin-right: 10px;
@@ -70,7 +70,7 @@ header {
             font-size: 20px;
             margin-left: 15px;
             margin-top: 15px;
-            color: @color-white;
+            color: @color-font-defaultInverse;
         }
         .logoutButton {
             background-color: @color-bg-dusk-blue;
@@ -327,7 +327,7 @@ a {
     font-weight: bold;
     font-stretch: condensed;
     text-align: center;
-    color: @color-white;
+    color: @color-font-defaultInverse;
 
     width: auto;
     height: auto;
@@ -352,7 +352,7 @@ a {
     }
     .field {
         background-color: @color-flame-pea;
-        border: 5px solid @color-white;
+        border: 5px solid @color-font-white;
         position: relative;
     }
     .finishLineWrapper {
@@ -387,8 +387,8 @@ a {
     .grid {
         width: 200px;
         height: 150px;
-        border-bottom: 5px solid @color-white;
-        border-right: 3px dotted @color-white;
+        border-bottom: 5px solid @color-font-white;
+        border-right: 3px dotted @color-font-white;
         border-left: none;
         border-top: none;
         display: flex;

@@ -188,7 +188,7 @@ html.safari {
 
         &:before {
             right: 0px;
-            border-left-color: @color-white;
+            border-left-color: @color-font-defaultInverse;
         }
 
         &:first-child {
@@ -203,7 +203,7 @@ html.safari {
 
         &.active {
             background-color: @active-bg;
-            color: @color-white;
+            color: @color-font-defaultInverse;
             font-weight: 600;
 
             + .tab {
@@ -371,7 +371,7 @@ html.safari {
             .size(@width: 20px, @height: 16px);
             .rounded(100%);
             background-color: @color-bg-dusk-blue;
-            .font(@color: @color-white, @line-height: 3px, @size: 20px);
+            .font(@color: @color-font-white, @line-height: 3px, @size: 20px);
             padding-left: 1px;
             margin-left: 2px;
             .no-selection;
@@ -625,7 +625,7 @@ html.safari {
     overflow-x: visible;
     overflow-y: scroll;
     display: inline-block;
-    outline: 1px solid @color-white; // ie bug if we dont use this outline
+    outline: 1px solid @color-bg-defaultStrong; // ie bug if we dont use this outline
     outline-offset: -1px;
     margin-top: -1px;
 
@@ -662,7 +662,7 @@ table.datasetTable {
         .flexWrap.flex-right {
             .flex(0 0 20px);
             position: relative;
-            color: @color-white;
+            color: @color-font-defaultInverse;
 
             .icon {
                 .position(relative, @top: 1px);
@@ -710,7 +710,7 @@ table.datasetTable {
     .selectedCol {
         .header {
             .editableHead {
-                color: @color-white;
+                color: @color-font-defaultInverse;
             }
             .tick.icon {
                 opacity: 1.0;
@@ -1056,7 +1056,7 @@ table.datasetTable {
         display: flex;
         .headerClose {
             margin-left: auto;
-            color: @color-white;
+            color: @color-font-defaultInverse;
             .cancel {
                 margin-top: 8px;
                 margin-right: 11px;
@@ -1174,7 +1174,7 @@ table.datasetTable {
             ul > li.selected {
                 &, span {
                     background-color: @color-bg-select-blue;
-                    color: @color-white !important;
+                    color: @color-font-white !important;
                 }
             }
         }
@@ -1932,7 +1932,7 @@ table.datasetTable {
         .size(@height: 50%, @width: 100%);
         padding: 0;
         position: absolute;
-        background: @color-white;
+        background: @color-bg-default;
         border-top: 1px solid @color-border-bar;
         // overflow: hidden;
         z-index: 1;
@@ -1953,7 +1953,7 @@ table.datasetTable {
 
         .buttonSection {
             position: relative;
-            background: @color-white;
+            background: @color-bg-default;
             .position(absolute, @right: 0px, @bottom: 0px);
         }
     }
@@ -2893,7 +2893,7 @@ table.datasetTable {
         }
 
         input {
-            background-color: @color-white !important;
+            background-color: @color-bg-defaultStrong !important;
         }
 
         .row {
@@ -3655,7 +3655,7 @@ table.datasetTable {
                     margin-top: 6px;
                     .size(12px, 12px);
                     .horizontal-align;
-                    color: @color-white;
+                    color: @color-font-defaultInverse;
                 }
             }
         }
@@ -3824,14 +3824,14 @@ table.datasetTable {
 
                     textarea {
                         background-color: transparent;
-                        color: @color-white;
+                        color: @color-font-defaultInverse;
                         outline: none;
                         resize: none;
                     }
                 }
 
                 .dsCount {
-                    .font(@weight: 600, @color: @color-white);
+                    .font(@weight: 600, @color: @color-font-defaultInverse);
                     opacity: 0.9;
                     .no-selection;
                     .textOverflowOneLine;
@@ -3860,7 +3860,7 @@ table.datasetTable {
                     .deactivating {
                         .position(absolute, @top: 1.5px, @right: 1.5px);
                         font-size: 9px;
-                        color: @color-white;
+                        color: @color-font-defaultInverse;
                     }
                 }
 
@@ -3949,9 +3949,9 @@ table.datasetTable {
                         textarea {
                             .size(@width: 130%, @height: 15px, @min-height: 15px, @max-height: 30px);
                             .position(absolute, @left: -7px);
-                            box-shadow: inset 0px 0px 3px @color-white;
+                            box-shadow: inset 0px 0px 3px @color-bg-defaultStrong;
                             padding: 1px 1px;
-                            .font(@size: 9px, @color: @color-black);
+                            .font(@size: 9px, @color: @color-font-default);
                             text-align: center;
                         }
                     }
@@ -4096,7 +4096,7 @@ table.datasetTable {
                             width: 100%;
                             height: @text-height !important;
                             padding: 0 2px;
-                            box-shadow: inset 0px 0px 3px @color-white;
+                            box-shadow: inset 0px 0px 3px @color-bg-defaultStrong;
                             .font(@size: 11px, @line-height: @text-height);
                             .textOverflowOneLine;
                             background: transparent;
@@ -4748,7 +4748,7 @@ table.datasetTable {
                 background-color: @color-bg-cardHeader;
                 .rounded(100%);
                 .size(22px, 22px);
-                .font(@size: 16px, @color: @color-white);
+                .font(@size: 16px, @color: @color-font-defaultInverse);
                 .position(relative, @top: -3px);
 
                 &:before {

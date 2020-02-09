@@ -27,7 +27,7 @@ input {
 
 body {
     -webkit-font-smoothing: antialiased;
-    color: @color-white;
+    color: @color-font-defaultInverse;
     // font-size: 0; /* Need to use this to get rid of stupid white space */
     .linear-gradient(top, @color-bg-select-blue, @color-bg-marine);
 }
@@ -135,9 +135,9 @@ input:-webkit-autofill:hover,
 input:-webkit-autofill:active,
 input:-webkit-autofill:focus {
     background-color: @color-border-select-blue !important;
-    color: @color-white !important;
+    color: @color-font-white !important;
     -webkit-box-shadow: 0 0 0 1000px  @color-border-select-blue inset !important;
-    -webkit-text-fill-color: @color-white !important;
+    -webkit-text-fill-color: @color-font-white !important;
 }
 
 #formArea {
@@ -182,7 +182,7 @@ input:-webkit-autofill:focus {
         margin-top: 20px;
         margin-bottom: 10px;
         font-weight: 700;
-        color: @color-white;
+        color: @color-font-defaultInverse;
         font-size: 14px;
     }
 
@@ -350,7 +350,7 @@ input:-webkit-autofill:focus {
             outline: none;
             margin-left: 150px;
             padding-left: 10px;
-            .font(@weight: 500, @size: 16px, @line-height: 16px, @color: @color-white);
+            .font(@weight: 500, @size: 16px, @line-height: 16px, @color: @color-font-white);
             position: relative;
             z-index: 1;
             padding-top: 2px;
@@ -368,7 +368,7 @@ input:-webkit-autofill:focus {
             }
 
             &:focus {
-                .font(@color: @color-white);
+                .font(@color: @color-font-white);
                 outline: none;
 
                 &::after {
@@ -378,7 +378,7 @@ input:-webkit-autofill:focus {
                 }
 
                 ~ .bar {
-                    color: @color-white;
+                    color: @color-font-defaultInverse;
                     &::after {
                         background-color: @color-bg-default;
                         height: 2px;
@@ -405,9 +405,9 @@ input:-webkit-autofill:focus {
     .btn {
         width: 150px;
         height: 36px;
-        border: 1px solid @color-white;
+        border: 1px solid @color-font-white;
         background-color: rgba(0,0,0,0);
-        .font(@weight: bold, @align: center, @color: @color-white);
+        .font(@weight: bold, @align: center, @color: @color-font-white);
         float: right;
         margin-left: 10px;
         margin-top: 36px;

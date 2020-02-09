@@ -32,7 +32,7 @@
     line-height: 0px;
     z-index: @z-index-menuBar;
     padding-top: @height-homeBtn;
-    color: @color-white;
+    color: @color-font-defaultInverse;
     border-right: 1px solid @color-border-menuBar;
 
     &.animating > div {
@@ -150,7 +150,7 @@
     }
 
     &:hover, &.hover {
-        color: @color-white;
+        color: @color-icon-menuBarActive;
         .mainTab {
             color: @color-icon-menuBarActive;
             opacity: 1;
@@ -292,10 +292,9 @@
 
 .mainMenuGhost {
     opacity: 0.5;
-    background: @color-white;
+    background: @color-bg-defaultStrong;
     border-right: 2px solid @color-border-softGray2;
 }
-
 
 .mainPanel > .mainContent > .leftSection,
 #monitorPanel .subPanel > .leftSection {
@@ -332,7 +331,7 @@
             display: block;
             .position(absolute, 0, -1);
             .size(~"calc(100% + 1px)", 100%);
-            background-color: @color-black;
+            background-color: @color-font-default;
             opacity: 0.25;
             z-index: 4;
         }
@@ -525,7 +524,7 @@
                 display: block;
                 .position(absolute, 0, 0);
                 .size(100%, 100%);
-                background-color: @color-black;
+                background-color: @color-font-default;
                 opacity: 0.4;
                 z-index: 4;
             }
@@ -634,7 +633,7 @@
         .position(relative);
         .size(@width: auto, @height: ~"calc(100% - 36px)");
         overflow: hidden;
-        background-color: @color-white;
+        background-color: @color-font-defaultInverse;
     }
 
     .mainSectionContainer {
