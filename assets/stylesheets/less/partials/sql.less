@@ -364,6 +364,7 @@
 
             .debugPart {
                 height: 20%;
+                border-top: 1px solid @color-border-pinkish-grey2;
             }
 
             .resultSection {
@@ -610,7 +611,7 @@
 }
 
 #sqlEditorSpace {
-    height: 100%;
+    height: ~"calc(100% - @{height-tabBar})";
     background-color: @color-bg-sqlEditor;
     @topSectionHeight: 45px;
     @total-height: @topSectionHeight;
