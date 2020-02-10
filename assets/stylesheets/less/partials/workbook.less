@@ -1,5 +1,41 @@
 #workbookTopBar {
     box-shadow: 0 1px 1px 0 rgba(101, 101, 101, 0.2);
+    padding-right: @width-userBox - @width-toggleBtn;
+
+    .actionSection {
+        height: 100%;
+        padding: 6px 50px 6px 0;
+
+        button {
+            margin-right: 8px;
+            height: 20px;
+            line-height: 18px;
+        }
+
+        .searchbarArea {
+            width: 185px;
+            height: 20px;
+            margin-left: 8px;
+            float: right;
+
+            input {
+                padding-left: 22px;
+                height: 20px;
+                line-height: 20px;
+                font-size: 12px;
+                color: @color-font-default;
+            }
+
+            .icon {
+                position: absolute;
+                top: 4px;
+                left: 5px;
+                color: @color-bg-cancel-gray-hover;
+                font-size: 14px;
+            }
+        }
+    }
+
 }
 
 #workbookPanel {
@@ -55,21 +91,8 @@
         background-color: @color-bg-2;
     }
 
-    #workbookTopBar {
-        .title {
-            opacity: 1;
-            .transition(0.6s opacity);
-        }
-    }
-
     &.hidden{
         top: -100%;
-        #workbookTopBar {
-            .title {
-                opacity: 0;
-                .transition(0.4s opacity);
-            }
-        }
     }
 
     &.closeAttempt {
@@ -231,41 +254,8 @@
         }
     }
 
-    .actionSection {
-        height: 60px;
-        padding: 16px 15px;
-
-        button {
-            margin-right: 8px;
-            height: 28px;
-            line-height: 26px;
-        }
-
-        .searchbarArea {
-            width: 185px;
-            height: 28px;
-            display: inline-block;
-            margin-left: 8px;
-
-            input {
-                padding-left: 22px;
-                height: 28px;
-                line-height: 28px;
-                font-size: 12px;
-            }
-
-            .icon {
-                position: absolute;
-                top: 7px;
-                left: 5px;
-                color: @color-bg-cancel-gray-hover;
-                font-size: 14px;
-            }
-        }
-    }
-
     .workbookList {
-        height: ~"calc(100% - 61px)";
+        height: ~"calc(100% - 1px)";
         box-shadow: 0 2px 2px 0 rgba(101, 101, 101, 0.2);
         @h: 40px;
 

@@ -240,6 +240,12 @@ body {
         #userBox {
             width: @width-userBox - @width-toggleBtn;
         }
+
+        #statusBar {
+            .panelName {
+                display: none;
+            }
+        }
     }
 }
 
@@ -662,7 +668,6 @@ body {
     background-color: @color-bg-topBar;
 
    > button {
-        display: inline-block;
         float: right;
         .vertical-align;
         width: 24px;
@@ -671,6 +676,7 @@ body {
         outline: none;
         padding: 0;
         .rounded;
+        background-color: transparent;
 
         .icon {
             font-size: 17px;
@@ -815,10 +821,9 @@ body {
 }
 
 #memoryAlert {
-    background-color: @color-bg-monitor-green;
-
     .icon {
         position: relative;
+        color: @color-bg-monitor-green;
     }
 
     .xi-success {
@@ -829,8 +834,10 @@ body {
     }
 
     &.yellow {
-        cursor: pointer;
-        background-color: @color-bg-monitor-gold;
+        .icon {
+            color: @color-bg-monitor-gold;
+        }
+
         .xi-success {
             display: none;
         }
@@ -840,8 +847,10 @@ body {
     }
 
     &.red {
-        cursor: pointer;
-        background-color: @color-bg-monitor-red;
+        .icon {
+            color: @color-bg-monitor-red;
+        }
+
         .xi-success {
             display: none;
         }
@@ -853,12 +862,6 @@ body {
     &.inActive {
         pointer-events: none;
         background-color: @color-bg-pinkish-grey2;
-    }
-}
-
-#helpArea {
-    .icon {
-        color: @color-font-defaultInverse;
     }
 }
 /* =========== END TOP RIGHT CORNER =========== */

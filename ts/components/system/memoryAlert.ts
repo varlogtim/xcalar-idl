@@ -215,21 +215,24 @@ class MemoryAlert {
         const percent: string = Math.round(avgMemUsage * 100) + "%";
         const highestUsageText: string = "<br>" +
             CommonTxtTstr.HighXcalarMemUsage + ": " + highPercent;
-        const usageText: string = "<br>" + CommonTxtTstr.XcalarMemUsage + ": " + percent;
+        const avgUsageText: string = "<br>" + CommonTxtTstr.AverageXcalarMemUsage + ": " + percent;
 
         let text: string;
         if (shouldAlert) {
             // we want user to drop table first and only when no tables
             // let them drop ds
-            if (this.hasNoTables()) {
-                text = TooltipTStr.LowMemInDS + highestUsageText + usageText;
+            if (XVM.isDataMart()) {
+                text = TooltipTStr.LowMemInTable + highestUsageText + avgUsageText;
+                $memoryAlert.addClass("tableAlert");
+            } else if (this.hasNoTables()) {
+                text = TooltipTStr.LowMemInDS + highestUsageText + avgUsageText;
                 $memoryAlert.removeClass("tableAlert");
             } else {
-                text = TooltipTStr.LowMemInTable + highestUsageText + usageText;
+                text = TooltipTStr.LowMemInTable + highestUsageText + avgUsageText;
                 $memoryAlert.addClass("tableAlert");
             }
         } else {
-            text = TooltipTStr.SystemGood + usageText;
+            text = CommonTxtTstr.XcalarMemUsage + ": " + percent;;
         }
 
         xcTooltip.changeText($memoryAlert, text);

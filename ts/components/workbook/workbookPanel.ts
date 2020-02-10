@@ -379,6 +379,14 @@ namespace WorkbookPanel {
             $("#WKBK_uploads").click();
         });
 
+        $("#loadWizardbtn").click(function() {
+            Alert.show({
+                title: "Comming Soon",
+                msg: "Import Data Source Wizard will release in the next version.",
+                isAlert: true
+            });
+        });
+
         $fileUpload.change(function() {
             if ($fileUpload.val() !== "") {
                 changeFilePath();
@@ -511,7 +519,7 @@ namespace WorkbookPanel {
             openDropDown(event);
         });
 
-        $workbookSection.find(".searchbarArea input").on("input", function() {
+        $("#workbookTopBar").find(".searchbarArea input").on("input", function() {
             const searchStr = $(this).val();
             _searchWorkbooks(searchStr);
         });

@@ -315,7 +315,6 @@ module.exports = {
         "SelectCol": "Please select a column first.",
         "SelectFile": "Select a .tar.gz file first",
         "OnlyInOpMode": "Feature only available in Operational mode",
-        "SystemGood": "All Systems Good",
         "CSHelp": "Click to open up Xcalar Help for more information",
         "ProfileSortInc": "Ascending by frequency",
         "ProfileSortDec": "Descending by frequency",
@@ -1229,7 +1228,7 @@ module.exports = {
 
     "workbook": {
         "createWKBK": "Create New Project",
-        "browseWKBK": "Upload",
+        "browseWKBK": "Upload Project",
         "header": "Project Browser",
         "hello": "Hello",
         "monitorStatus": "Monitor the status of your Xcalar Cluster",

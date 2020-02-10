@@ -6,8 +6,15 @@
     </div>
   </div>
   <div id="workbookTopBar" class="topBar">
-    <div class="rightHeaderArea mainSection">
-      <div class="title"><%= dicts.workbook.header %></div>
+    <div class="actionSection">
+      <button id="createWKBKbtn" class="btn btn-submit"><%= dicts.workbook.createWKBK %></button>
+      <button id="browseWKBKbtn" class="btn btn-secondary"><%= dicts.workbook.browseWKBK %></button>
+      <button id="loadWizardbtn" class="btn btn-secondary"><%= dicts.ds.Point %></button>
+      <input style="display: none;" type="file" id="WKBK_uploads" name="WKBK_uploads" accept=".gz">
+      <span class="searchbarArea">
+        <input type="text" placeholder="<%= dicts.workbook.searchHint %>">
+        <i class="icon xi-search"></i>
+      </span>
     </div>
   </div>
   <!-- mainSection -->
@@ -77,15 +84,6 @@
         </div>
       </div>
       <div class="bottomSection">
-        <div class="actionSection">
-          <button id="createWKBKbtn" class="btn btn-submit"><%= dicts.workbook.createWKBK %></button>
-          <button id="browseWKBKbtn" class="btn btn-secondary"><%= dicts.workbook.browseWKBK %></button>
-          <input style="display: none;" type="file" id="WKBK_uploads" name="WKBK_uploads" accept=".gz">
-          <span class="searchbarArea">
-            <input type="text" placeholder="<%= dicts.workbook.searchHint %>">
-            <i class="icon xi-search"></i>
-          </span>
-        </div>
         <div class="workbookList xc-gridList">
           <div class="header"></div>
           <div class="content"></div>

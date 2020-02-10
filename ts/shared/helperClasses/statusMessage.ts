@@ -273,13 +273,13 @@ namespace StatusMessage {
                         panelName = "";
                         break;
                 }
-                if (panelName) {
+                if (panelName && !XVM.isDataMart()) {
                     text = text || StatusMessageTStr.Viewing + " " + panelName;
                 }
 
                 const locationHTML: string =
                     '<span id="viewLocation">' +
-                        text +
+                        (text || "") +
                     '</span>';
                 this.$statusText.html(locationHTML);
             }

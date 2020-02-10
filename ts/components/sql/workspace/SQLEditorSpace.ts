@@ -489,9 +489,6 @@ class SQLEditorSpace {
             case "save":
                 this._saveAsSnippet();
                 break;
-            case "savedQueries":
-                SQLResultSpace.Instance.switchTab("query");
-                break;
             case "history":
                 SQLResultSpace.Instance.switchTab("history");
                 break;

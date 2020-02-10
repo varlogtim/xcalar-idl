@@ -122,15 +122,14 @@ TooltipTStr = {
     "OnlyInOpMode": "Feature only available in Operational Cluster",
     "ColumnAlreadyInt": "Column is already an integer",
     "ColumnAlreadyFloat": "Column is already a float",
-    "SystemGood": "All Systems Good",
     "CloseConfigForm": "Exit the configuration form to perform this action",
 
     // with replace
     'Undo': 'Undo: <op>',
     'NoUndo': 'Last operation is "<op>", cannot undo',
     'Redo': 'Redo: <op>',
-    'LowMemInTable': 'Warning! Cluster is low on memory for table. Click this button to delete tables.',
-    'LowMemInDS': 'Warning! Cluster is low on memory for datasets/published tables. Please delete unused datasets/published tables.',
+    'LowMemInTable': 'Warning! Cluster is low on memory. Click this button to delete tables.',
+    'LowMemInDS': 'Warning! Cluster is low on memory. Please delete unused data sources.',
     'LowMemByOthers': 'Current memory utilization by other cluster users is high. Work with an admin to free memory for your modeling.',
     'TooltipNoWorkbook': 'A project must be opened in order to start a walkthrough'
 };
@@ -206,8 +205,9 @@ CommonTxtTstr = {
     'Uploading': 'Uploading',
     'Untitled': 'Untitled',
     'Value': 'Value',
-    'HighXcalarMemUsage': 'Highest Xcalar Memory Usage',
-    'XcalarMemUsage': 'Average Xcalar Memory Usage',
+    'HighXcalarMemUsage': 'Highest memory usage',
+    'AverageXcalarMemUsage': 'Average memory usage',
+    'XcalarMemUsage': 'Memory usage',
     'XcWelcome': 'Have fun with ' + autogenVars.prodName + '!',
     'YES': 'YES'
 };

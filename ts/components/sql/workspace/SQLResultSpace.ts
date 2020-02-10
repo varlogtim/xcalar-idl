@@ -9,14 +9,12 @@ class SQLResultSpace {
     private _tableLister: SQLTableLister;
     private _sqlTableSchema: SQLTableSchema;
     private _sqlDataflowPreview: SQLDataflowPreview;
-    private _sqlResultQueryLister: SQLResultQueryLister;
 
     private constructor() {
         this._sqlTable = new SQLTable("sqlTableArea");
         this._tableLister = new SQLTableLister("sqlTableListerArea");
         this._sqlTableSchema = new SQLTableSchema("sqlTableSchemaArea");
         this._sqlDataflowPreview = new SQLDataflowPreview("sqlDataflowArea");
-        this._sqlResultQueryLister = new SQLResultQueryLister("sqlResultQueryListArea");
     }
 
     private _setupListeners() {
@@ -83,7 +81,6 @@ class SQLResultSpace {
      */
     public refresh(): void {
         this._tableLister.refresh();
-        this._sqlResultQueryLister.show();
     }
 
     /**
@@ -191,9 +188,6 @@ class SQLResultSpace {
         $contentSection.find(".section" + "." + tab).removeClass("xc-hidden");
 
         switch (tab) {
-            case "query":
-                this._sqlResultQueryLister.show();
-                break;
             case "result":
                 if ($("#sqlTableArea").hasClass("xc-hidden") &&
                     $("#sqlDataflowArea").hasClass("xc-hidden")

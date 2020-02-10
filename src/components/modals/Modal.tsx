@@ -30,13 +30,13 @@ type ModalProps = {
 }
 
 type ModalState = {
-    isFullScreen: boolean;
     isDragging: boolean;
 };
 
 export default class Modal extends React.Component<ModalProps, ModalState> {
     _confirmRef: React.RefObject<HTMLButtonElement>;
     _closeRef: React.RefObject<HTMLDivElement>;
+    rnd: Rnd;
 
     constructor(props) {
         super(props);
@@ -45,7 +45,6 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
         this._confirmRef = React.createRef();
         this._closeRef = React.createRef();
         this.state = {
-            isFullScreen: false,
             isDragging: false
         };
     }
@@ -91,12 +90,11 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
         return (
             <React.Fragment>
                 <Rnd
+                    ref={c => { this.rnd = c; }}
                     id={id}
                     className={modalClassNames.join(" ")}
                     style={this._getStyle()}
-                    default={{
-                        ...this._center()
-                    }}
+                    default = {{...this._center(false)}}
                     bounds="body"
                     dragHandleClassName="modalHeader"
                     onDragStart={() => this.setState({isDragging: true})}
@@ -174,14 +172,14 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
         };
     }
 
-    private _center(): {x: number, y: number, width: number, height: number} {
+    private _center(isFullScreen: boolean): {x: number, y: number, width: number, height: number} {
         let {width, height} = this.props.style;
         let width_num: number = parseFloat(width);
         let height_num: number = parseFloat(height);
         let left: number;
         let top: number;
 
-        if (this.state.isFullScreen) {
+        if (isFullScreen) {
             width_num = window.innerWidth - 14;
             height_num = window.innerHeight - 9;
             top = 0;
@@ -214,10 +212,14 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
     }
 
     private _enterFullScreen() {
-        this.setState({isFullScreen: true});
+        const pos = this._center(true);
+        this.rnd.updateSize(pos);
+        this.rnd.updatePosition(pos);
     }
 
     private _exitFullScreen() {
-        this.setState({isFullScreen: false});
+        const pos = this._center(false);
+        this.rnd.updateSize(pos);
+        this.rnd.updatePosition(pos);
     }
 }
