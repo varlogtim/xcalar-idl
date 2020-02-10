@@ -53,10 +53,13 @@ class UDFPanel {
             display = $container.hasClass("xc-hidden");
         }
 
+        const $tab = $("#udfTab");
         if (display) {
+            $tab.addClass("active");
             $container.removeClass("xc-hidden");
             this.getEditor().refresh();
         } else {
+            $tab.removeClass("active");
             $container.addClass("xc-hidden");
         }
         

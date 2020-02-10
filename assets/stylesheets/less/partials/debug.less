@@ -1,0 +1,57 @@
+#debugViewContainer {
+    @tab-h: 24px;
+    height: 100%;
+    padding-top: 8px;
+
+    .topSection {
+        height: @tab-h;
+        padding-right: 24px;
+        position: relative;
+
+        .tabSection {
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+            
+            .tab {
+                flex: 0 0 auto;
+                font-size: 12px;
+                font-weight: 600;
+                color: @color-font-darkGray;
+                line-height: @tab-h;
+                text-align: center;
+                margin-left: 16px;
+                padding: 0px 16px;
+                cursor: pointer;
+
+                &:hover {
+                    color: @color-font-default;
+                }
+
+                &.active {
+                    color: @color-font-default;
+                    box-shadow: inset 0 -2px 0 0 @color-border-select-blue;
+                }
+            }
+        }
+
+        .closeResult {
+            position: absolute;
+            top: 0px;
+            right: 8px;
+        }
+    }
+
+    .contentSection {
+        height: ~"calc(100% - @{tab-h})";
+        padding: 8px;
+        overflow-x: hidden;
+        overflow-y: auto;
+
+        .section {
+            &.output {
+                padding-top: 0 4px;
+            }
+        }
+    }
+}

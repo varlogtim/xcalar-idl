@@ -114,7 +114,7 @@ namespace BottomMenu {
             if (id === "udfTab") {
                 UDFPanel.Instance.toggleDisplay();
             } else if (id === "debugTab") {
-                $("#sqlWorkSpacePanel .debugPart").toggleClass("xc-hidden");
+                DebugPanel.Instance.toggleDisplay();
             }
             return
             // XXX end of temp hack

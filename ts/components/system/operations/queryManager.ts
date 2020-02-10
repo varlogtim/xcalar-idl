@@ -121,6 +121,7 @@ namespace QueryManager {
 
         focusOnQuery($query);
 
+        DebugPanel.Instance.addOutput(`Execute ${name}`);
         updateStatusDetail({
             "start": getQueryTime(time),
             "op": name,
@@ -250,15 +251,18 @@ namespace QueryManager {
         mainQuery.setElapsedTime();
         clearIntervalHelper(id);
         updateQueryBar(id, 100);
+
+        const elapsed = xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(), null, true);
         updateStatusDetail({
             "start": getQueryTime(mainQuery.getTime()),
-            "elapsed": xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
-                                                    null, true),
+            "elapsed": elapsed,
             "opTime": xcTimeHelper.getElapsedTimeStr(mainQuery.getOpTime()),
-            "total": xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
-                                                null, true)
+            "total": elapsed
         }, id);
         updateOutputSection(id);
+        const debugOutput = `Execute ${mainQuery.name} finished in ${elapsed}. ` +
+                            `Query: ${mainQuery.getQuery()},`;
+        DebugPanel.Instance.addOutput(debugOutput);
     };
 
     /**
@@ -592,10 +596,10 @@ namespace QueryManager {
         mainQuery.setElapsedTime();
         clearIntervalHelper(id);
         updateQueryBar(id, null, true, false, true);
+        const elapsed = xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(), null, true);
         updateStatusDetail({
             "start": getQueryTime(mainQuery.getTime()),
-            "elapsed": xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
-                                                    null, true),
+            "elapsed": elapsed,
             "opTime": xcTimeHelper.getElapsedTimeStr(mainQuery.getOpTime()),
             "total": CommonTxtTstr.NA
         }, id, QueryStatus.Error);
@@ -606,6 +610,11 @@ namespace QueryManager {
         if ($query.hasClass('active')) {
             updateHeadingSection(mainQuery);
         }
+
+        const debugOutput = `Execute ${mainQuery.name} fails after ${elapsed}. ` +
+                            `Query: ${mainQuery.getQuery()}. ` +
+                            `Error: ${mainQuery.error}.`;
+        DebugPanel.Instance.addOutput(debugOutput);
     };
 
     /**
