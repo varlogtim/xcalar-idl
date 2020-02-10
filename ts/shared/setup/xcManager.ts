@@ -1359,13 +1359,7 @@ namespace xcManager {
     }
 
     function setupNonDataMart(): void {
-        // const $dagViewContent = $("#dagViewContent");
-        // $("#dataflowMenu").appendTo($dagViewContent);
-        // $("#dagView").appendTo($dagViewContent);
-        // $("#dagNodeMenu").appendTo($dagViewContent);
-        // $("#dagTabView").parent().insertAfter($("#dagView .operatorBar"));
-        // $("#dagViewTableArea").prependTo($("#dagView .dataflowMainArea"));
-
+        $("#jupyterTab").removeClass("xc-hidden");
     }
 
     /* Unit Test Only */
