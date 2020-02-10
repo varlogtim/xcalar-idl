@@ -48,6 +48,9 @@ namespace JupyterPanel {
     };
 
     export function initialize(noRestore?: boolean): XDPromise<void> {
+        if (XVM.isDataMart()) {
+            return PromiseHelper.resolve();
+        }
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (window["jupyterNode"] == null || window["jupyterNode"] === "") {
             window["jupyterNode"] = hostname + '/jupyter';
@@ -281,6 +284,9 @@ namespace JupyterPanel {
     // called when we create a new xcalar workbook
     // will create a new jupyter folder dedicated to this workbook
     export function newWorkbook(wkbkName: string): XDPromise<string> {
+        if (XVM.isDataMart()) {
+            return PromiseHelper.resolve();
+        }
         let deferred: XDDeferred<string> = PromiseHelper.deferred();
 
         let folderName: string = XcUser.getCurrentUserName() + "-" + wkbkName;
@@ -302,6 +308,9 @@ namespace JupyterPanel {
     };
 
     export function renameWorkbook(oldFolderName: string, newWkbkName: string): XDPromise<string> {
+        if (XVM.isDataMart()) {
+            return PromiseHelper.resolve();
+        }
         let deferred: XDDeferred<string> = PromiseHelper.deferred();
         let newFolderName: string = XcUser.getCurrentUserName() + "-" + newWkbkName;
         let msgStruct = {
@@ -327,6 +336,9 @@ namespace JupyterPanel {
     }
 
     export function copyWorkbook(oldFolder: string, newFolder: string): void {
+        if (XVM.isDataMart()) {
+            return;
+        }
         let msgStruct = {
             action: "copyWorkbook",
             oldFolder: oldFolder,
@@ -337,6 +349,9 @@ namespace JupyterPanel {
     }
 
     export function deleteWorkbook(wkbkId: string): void {
+        if (XVM.isDataMart()) {
+            return;
+        }
         let folderName: string = WorkbookManager.getWorkbook(wkbkId).jupyterFolder;
 
         if (folderName) {
@@ -350,6 +365,9 @@ namespace JupyterPanel {
 
     // when name change was triggered from another workbook
     export function updateFolderName(newFolderName: string): void {
+        if (XVM.isDataMart()) {
+            return;
+        }
         let oldFolderName: string = jupyterMeta.getFolderName();
         let sessionId: string = WorkbookManager.getActiveWKBK();
         let sessionName: string = WorkbookManager.getWorkbook(sessionId).getName();

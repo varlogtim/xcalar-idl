@@ -101,7 +101,22 @@ class DagCategories {
             hiddenCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.PublishIMD
             })));
+        } else if (XVM.isDataMart()) {
+            outCategory = new DagCategory(DagCategoryType.Out, [
+                new DagCategoryNodeOut(DagNodeFactory.create({
+                    type: DagNodeType.Export
+                })),
+                new DagCategoryNodeOut(DagNodeFactory.create({
+                    type: DagNodeType.DFOut
+                })),
+                new DagCategoryNodeOut(DagNodeFactory.create({
+                    type: DagNodeType.PublishIMD
+                }))
+            ]);
 
+            hiddenCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
+                type: DagNodeType.Jupyter
+            })));
         } else {
             outCategory = new DagCategory(DagCategoryType.Out, [
                 new DagCategoryNodeOut(DagNodeFactory.create({
