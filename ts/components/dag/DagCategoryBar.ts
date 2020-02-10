@@ -35,6 +35,9 @@ class DagCategoryBar {
             this._nodeFillColor = "#424242";
             this._tableBackColor = "#181818";
             this._borderColor = "#C9C9C9";
+            this._edgeColor = "#C9C9C9";
+            this._selectedColor = "rgba(150, 225, 255, 0.2)";
+            this._selectedBorderColor = "rgba(0, 188, 255, 0.78)";
         }
     }
 

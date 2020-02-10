@@ -75,7 +75,7 @@ body {
 
     input, textarea {
         background-color: @color-bg-input;
-        color: @color-font-defaultInverse;
+        color: @color-font-default;
     }
 }
 
@@ -351,7 +351,7 @@ body {
         .top {
             height: ~"calc(100% - 120px)";
             background-color: @color-hover-blue;
-            .font(@size: 40px, @color: @color-font-defaultInverse, @weight: 500);
+            .font(@size: 40px, @color: @color-font-white, @weight: 500);
             text-align: center;
             position: relative;
         }
@@ -872,7 +872,7 @@ body {
     bottom: 0;
     width: 100%;
     height: @height-bottomBar;
-    background-color: @color-font-default;
+    background-color: @color-bg-bottomBar;
     z-index: @z-index-bottomMenu + 1;
     overflow: hidden;
 }
@@ -1117,10 +1117,10 @@ input {
     padding: 0 4px;
 
     &:-ms-input-placeholder {
-        color: @color-bg-cancel-gray-hover;
+        color: @color-text-placeholder;
     }
     &::-webkit-input-placeholder {
-        color: @color-bg-cancel-gray-hover;
+        color: @color-text-placeholder;
     }
     &[type=number] {
         -moz-appearance: textfield;
@@ -1328,7 +1328,7 @@ input {
     .boxInnerWrap {
         .position(relative);
         .size(@width: 240px, @min-height: 100px, @max-height: 300px);
-        box-shadow: 0 0 4px 1px rgba(0,0,0,.25);
+        box-shadow: 0 0 4px 1px @color-bg-opaque3;
         background-color: @color-bg-default;
         z-index: 3;
         .flex-display;

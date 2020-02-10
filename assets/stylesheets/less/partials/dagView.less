@@ -241,12 +241,12 @@
                     padding: 0 3px;
                     margin: 2px 5px;
                     border-radius: 2px;
-                    background-color: @color-border-softGray;
+                    background-color:  @color-bg-actionIcon;
                     color: @color-icon-default;
                     cursor: pointer;
 
                     &:hover {
-                        background-color: @color-font-edge;
+                        background-color: @color-border-nodeEdge;
                         color: @color-font-defaultInverse;
                     }
                 }
@@ -254,7 +254,7 @@
                 &.disabled {
                     .iconWrap {
                         background-color: @color-bg-2;
-                        color: @color-border-softGray2;
+                        color:  @color-bg-actionIcon;
                         cursor: not-allowed;
                     }
                 }
@@ -868,7 +868,7 @@
             overflow: auto;
             font-size: 12px;
             word-wrap: normal;
-            .input-placeholder(@color-lightSilverChalice);
+            .input-placeholder(@color-text-placeholder);
             background-color: @color-bg-default;
             color: @color-font-default;
 
@@ -897,7 +897,7 @@
             cursor: pointer;
 
             .visibleLine {
-                stroke: @color-font-edge;
+                stroke: @color-border-nodeEdge;
                 stroke-width: 1px;
                 fill: none;
                 stroke-linecap: round;
@@ -912,11 +912,11 @@
 
             &:hover, &.selected {
                 .visibleLine {
-                    stroke: #555555;
+                    stroke: @color-border-nodeEdgeSelected;
                     stroke-width: 2px;
                 }
                 .connectorIndex {
-                    fill: #444444;
+                    fill: @color-border-nodeEdgeSelected;
                     font-size: 13px;
                 }
             }
@@ -1495,7 +1495,7 @@
 
         &.parentMenu {
             &::after {
-                border-right: 6px solid @color-font-edge;
+                border-right: 6px solid @color-border-nodeEdge;
             }
         }
     }

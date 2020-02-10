@@ -710,7 +710,7 @@
     }
 
     .hint {
-        color: @color-font-warm-grey-three;
+        color: @color-bg-cancel-gray;
     }
 
     .extHint {
@@ -1387,7 +1387,7 @@
                 .gridIcon {
                     color: @color-link-blue;
                 }
-    
+
                 .name {
                     color: @color-link-blue;
                     font-weight: 700;
@@ -1510,7 +1510,7 @@
             min-width: 65px;
             .size(@height: 100%);
             .font(@size: 12px,
-                @color: @color-font-darkGray,
+                @color: @color-font-dagTabInactive,
                 @line-height: @tabHeight,
                 @align: center);
             border-right: 1px solid @color-bg-2;
@@ -1576,6 +1576,10 @@
 
             &.custom.active {
                 background-color: tint(@color-dagTab-custom, 58%);
+            }
+
+            &.sqlExecute {
+                font-style: italic;
             }
 
             .dragArea {
@@ -1674,10 +1678,7 @@
 
         .icon {
             .font(@size: 11px, @align: center, @line-height: @tabHeight);
-
-            &:first-child {
-                margin-right: 3px;
-            }
+            margin: 0 2px;
         }
 
         &:hover {
