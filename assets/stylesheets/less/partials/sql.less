@@ -310,6 +310,10 @@
                             width: 0 !important;
                         }
                     }
+
+                    .sql {
+                        height: ~"calc(100% - @{tabBar-h})";
+                    }
                 }
             }
 
@@ -366,232 +370,232 @@
                 height: 20%;
                 border-top: 1px solid @color-border-pinkish-grey2;
             }
+        }
 
-            .resultSection {
-                .contentSection {
+        .resultSection {
+            .contentSection {
+                height: 100%;
+            }
+
+            .contentSection .section {
+                height: 100%;
+
+                > div {
                     height: 100%;
-                }
+                    @top-h: 36px;
+                    @bottom-h: 50px;
+                    @total-h: @top-h + @bottom-h;
 
-                .contentSection .section {
-                    height: 100%;
+                    &.noBottom {
+                        .mainSection {
+                            height: ~"calc(100% - @{top-h})";
+                        }
+                    }
 
-                    > div {
-                        height: 100%;
-                        @top-h: 36px;
-                        @bottom-h: 50px;
-                        @total-h: @top-h + @bottom-h;
+                    &.noBottom.noTop {
+                        .mainSection {
+                            height: 100%;
+                        }
+                    }
 
-                        &.noBottom {
-                            .mainSection {
-                                height: ~"calc(100% - @{top-h})";
+                    .topSection {
+                        background-color: @color-bg-default;
+                        height: @top-h;
+                        font-size: 12px;
+                        padding: 6px 28px 6px 15px;
+                        border-bottom: 1px solid @color-border-medium2;
+                        @div-h: 20px;
+
+                        > div, .tableBarWrap > div {
+                            .flex(0 0 auto);
+
+                            &.tableNameArea {
+                                .flex(1 1 0px);
                             }
                         }
 
-                        &.noBottom.noTop {
-                            .mainSection {
-                                height: 100%;
+                        > .label , .tableBarWrap > .label {
+                            margin-right: 10px;
+                            line-height: 24px;
+                            font-size: 14px;
+                            font-weight: 600;
+
+                            .name {
+                                font-weight: normal;
+                                margin-left: 8px;
                             }
                         }
 
-                        .topSection {
-                            background-color: @color-bg-default;
-                            height: @top-h;
-                            font-size: 12px;
+                        .tableBarWrap {
+                            display: flex;
+                            min-width: 100%;
+                            position: relative;
                             padding: 6px 15px;
-                            border-bottom: 1px solid @color-border-medium2;
-                            @div-h: 20px;
+                        }
 
-                            > div {
-                                .flex(0 0 auto);
+                        .slidingSearchWrap {
+                            top:0px;
+                            height: 100%;
+                            width: 258px;
 
-                                &.tableNameArea {
-                                    .flex(1 1 0px);
-                                }
-                            }
-
-                            > .label {
-                                margin-right: 10px;
-                                line-height: 24px;
-                                font-size: 14px;
-                                font-weight: 600;
-
-                                .name {
-                                    font-weight: normal;
-                                    margin-left: 8px;
-                                }
-                            }
-
-                            .slidingSearchWrap {
-                                top:0px;
-                                height: 100%;
+                            .searchbarArea {
+                                min-width: auto;
+                                max-width: none;
+                                margin-top: 6px;
                                 width: 258px;
+                                left: 0px;
 
-                                .searchbarArea {
-                                    min-width: auto;
-                                    max-width: none;
-                                    margin-top: 6px;
-                                    width: 258px;
-                                    left: 0px;
-
-                                    &.closed {
-                                        transform: translate3d(232px, 0, 0);
-
-                                        .searchIcon {
-                                            border-left: none;
-                                        }
-                                    }
+                                &.closed {
+                                    transform: translate3d(232px, 0, 0);
 
                                     .searchIcon {
-                                        position: relative;
-                                        top: -1px;
-                                        width: 24px;
-                                        margin-right: 4px;
-                                        border-left: 1px solid @color-border-medium2;
+                                        border-left: none;
                                     }
-                                    input {
-                                        padding-left: 8px;
-                                        // width: 166px;
-                                        width: 228px;
-                                        height: 24px;
-                                        margin-top: 0px;
-                                        float: left;
-                                        outline: none;
-                                        line-height: 24px;
-                                    }
-                                    .closeBox {
-                                        right: 2px;
-                                        margin-top: 0px;
-                                        font-size: 14px;
-                                        line-height: 16px;
-                                        .icon {
-                                            top: -1px;
-                                        }
-                                    }
-
-                                    .counter {
-                                        right: 64px;
-                                        top: 4px;
-                                    }
-                                    .arrows {
-                                        right: 20px;
-                                        top: 2px;
-                                    }
-                                    // .arrows .downArrow {
-                                    //     right: 4px;
-                                    // }
                                 }
-                            }
-                            .searchbarArea {
-                                .size(@height: 24px);
 
+                                .searchIcon {
+                                    position: relative;
+                                    top: -1px;
+                                    width: 24px;
+                                    margin-right: 4px;
+                                    border-left: 1px solid @color-border-medium2;
+                                }
                                 input {
-                                    font-size: 12px;
-                                    .rounded(3px);
-                                    .size(@height: 24px);
-                                    padding-left: 22px;
+                                    padding-left: 8px;
+                                    // width: 166px;
+                                    width: 228px;
+                                    height: 24px;
+                                    margin-top: 0px;
+                                    float: left;
+                                    outline: none;
                                     line-height: 24px;
-                                    // background-color: @color-bg-default;
                                 }
-
-                                > .icon {
-                                    .font(@size: 14px);
-                                    .position(absolute, @top: 6px, @left: 5px);
-                                    color: @color-border-bar;
-                                }
-                            }
-                            .menuArea {
-                                padding-left: 40px;
-                            }
-                        }
-
-                        .mainSection, .loadingSection, .errorSection {
-                            height: ~"calc(100% - @{total-h})";
-                        }
-
-                        .bottomSection {
-                            height: @bottom-h;
-                            padding: 11px 25px;
-                            border-top: 1px solid @color-border-medium2;
-                            background-color: @color-bg-list-hover;
-
-                            .buttonWrap {
-                                float: left;
-                            }
-
-                            button {
-                                margin-right: 10px;
-                                padding: 0 17px;
-
-                                &.btn-create {
+                                .closeBox {
+                                    right: 2px;
+                                    margin-top: 0px;
+                                    font-size: 14px;
+                                    line-height: 16px;
                                     .icon {
-                                        position: relative;
-                                        top: -2px;
+                                        top: -1px;
                                     }
                                 }
+
+                                .counter {
+                                    right: 64px;
+                                    top: 4px;
+                                }
+                                .arrows {
+                                    right: 20px;
+                                    top: 2px;
+                                }
+                                // .arrows .downArrow {
+                                //     right: 4px;
+                                // }
+                            }
+                        }
+                        .searchbarArea {
+                            .size(@height: 24px);
+
+                            input {
+                                font-size: 12px;
+                                .rounded(3px);
+                                .size(@height: 24px);
+                                padding-left: 22px;
+                                line-height: 24px;
+                                // background-color: @color-bg-default;
+                            }
+
+                            > .icon {
+                                .font(@size: 14px);
+                                .position(absolute, @top: 6px, @left: 5px);
+                                color: @color-border-bar;
+                            }
+                        }
+                        .menuArea {
+                            padding-left: 40px;
+                        }
+                    }
+
+                    .mainSection, .loadingSection, .errorSection {
+                        height: ~"calc(100% - @{total-h})";
+                    }
+
+                    .bottomSection {
+                        height: @bottom-h;
+                        padding: 11px 25px;
+                        border-top: 1px solid @color-border-medium2;
+                        background-color: @color-bg-list-hover;
+
+                        .buttonWrap {
+                            float: left;
+                        }
+
+                        button {
+                            margin-right: 10px;
+                            padding: 0 17px;
+
+                            &.btn-create {
+                                .icon {
+                                    position: relative;
+                                    top: -2px;
+                                }
                             }
                         }
                     }
+                }
 
-                    .hintArea {
-                        width: auto;
-                        height: auto;
-                        .center-align;
-                        text-align: center;
-                        max-width: 600px;
+                .hintArea {
+                    width: auto;
+                    height: auto;
+                    .center-align;
+                    text-align: center;
+                    max-width: 600px;
 
-                        b, .semibold {
-                            font-size: 16px;
-                        }
-
-                        .hint {
-                            margin-top: 8px
-                        }
+                    b, .semibold {
+                        font-size: 16px;
                     }
-                }
 
-                .closeResult {
-                    position: absolute;
-                    top: 6px;
-                    right: 8px;
-                }
-
-                .topSection {
-                    padding-right: 28px !important;
+                    .hint {
+                        margin-top: 8px
+                    }
                 }
             }
 
-            .tabBar {
-                .actions {
-                    flex: 0 0 70px;
+            .closeResult {
+                position: absolute;
+                top: 6px;
+                right: 0px;
+                padding-left: 4px;
+                padding-right: 8px;
+                width: 32px;
+                z-index: 3;
+                background: @color-bg-default;
+            }
+        }
+
+        .tabBar {
+            .actions {
+                flex: 0 0 70px;
+                height: 24px;
+
+                button {
                     height: 24px;
+                    line-height: 24px;
 
-                    button {
-                        height: 24px;
+                    .icon {
+                        font-size: 16px;
                         line-height: 24px;
+                    }
 
-                        .icon {
-                            font-size: 16px;
-                            line-height: 24px;
-                        }
-
-                        &.active {
-                            background-color: @color-hover-blue;
-                        }
+                    &.active {
+                        background-color: @color-hover-blue;
                     }
                 }
             }
+        }
 
-            .topPart {
-                .section {
-                    .sql {
-                        height: ~"calc(100% - @{tabBar-h})";
-                    }
-                }
-            }
-
-            #dagView {
-                height: ~"calc(100% - @{tabBar-h})";
-            }
+        #dagView {
+            height: ~"calc(100% - @{tabBar-h})";
         }
     }
 
@@ -821,7 +825,7 @@
 }
 
 #sqlTableArea {
-
+    @top-h: 36px;
     &.loading, &.error {
         .bottomSection button {
             pointer-events: none;
@@ -833,7 +837,7 @@
         display: none;
     }
     .mainSection {
-        height: 100% !important;
+        height: ~"calc(100% - @{top-h})" !important;
     }
     &.dagTableMode {
         .topSection {
@@ -844,7 +848,7 @@
                 display: block;
             }
             .slidingSearchWrap {
-                margin-right: 134px;
+                right: 119px;
             }
         }
     }
@@ -861,9 +865,12 @@
 
     .topSection {
         display: flex;
+        padding: 0px !important;
+        padding-right: 28px !important;
+        overflow: hidden;
 
         .slidingSearchWrap {
-            right: 116px;
+            right: 101px;
         }
 
         .searchbarArea {
@@ -1110,49 +1117,6 @@
         > div {
             font-size: 12px;
             font-weight: normal;
-        }
-    }
-}
-
-#sqlDataflowArea {
-    &.inProgress {
-        .topSection {
-            display: none !important;
-        }
-    }
-    .topSection {
-        display: flex;
-        .infoSection {
-            display: flex;
-            align-items: center;
-            .viewOnly {
-                font-style: italic;
-                color: @color-bg-cancel-gray-hover;
-            }
-        }
-        .actionArea {
-            margin-left: 0px;
-            flex: 1 1 100% !important;
-            .xc-action {
-                float: right;
-                margin-right: 10px;
-
-                &.analyze {
-                    .icon {
-                        position: relative;
-                        top: 3px;
-                    }
-                }
-            }
-        }
-    }
-    .dataflowArea {
-        display: block;
-        .operator .main, .edge, .paramTitle, .table {
-            cursor: initial;
-        }
-        .table {
-            pointer-events: none;
         }
     }
 }
