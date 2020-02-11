@@ -1383,14 +1383,19 @@
                 }
             }
 
-            &.open {
-                .gridIcon {
-                    color: @color-link-blue;
-                }
+            // &.open {
+            //     .gridIcon {
+            //         color: @color-link-blue;
+            //     }
 
-                .name {
-                    color: @color-link-blue;
-                    font-weight: 700;
+            //     .name {
+            //         color: @color-link-blue;
+            //         font-weight: 700;
+            //     }
+            // }
+            &:not(.open) {
+                .gridIcon {
+                    opacity: 0.25;
                 }
             }
 

@@ -1,7 +1,7 @@
 // a read only tab to test SQL's execution plan
 class DagTabSQLExecute extends DagTabUser {
     public static readonly ID = "DF_SQLExecute";
-    public static readonly Name = "Console";
+    public static readonly Name = "SQL graph";
 
     /**
      * DagTabSQLExecute.viewOnlyAlert
