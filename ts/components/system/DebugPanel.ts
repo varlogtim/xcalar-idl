@@ -30,6 +30,14 @@ class DebugPanel {
     }
 
     /**
+     * DebugPanel.Instance.switchTab
+     * @param tab
+     */
+    public switchTab(tab: string): void {
+        return this._switchTab(tab);
+    }
+
+    /**
      * DebugPanel.Instance.addOutput
      * @param output
      */

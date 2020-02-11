@@ -490,7 +490,8 @@ class SQLEditorSpace {
                 this._saveAsSnippet();
                 break;
             case "history":
-                SQLResultSpace.Instance.switchTab("history");
+                DebugPanel.Instance.toggleDisplay(true);
+                DebugPanel.Instance.switchTab("sqlHistory");
                 break;
             default:
                 break;

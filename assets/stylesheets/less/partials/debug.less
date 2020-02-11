@@ -45,12 +45,15 @@
     .contentSection {
         height: ~"calc(100% - @{tab-h})";
         padding: 8px;
-        overflow-x: hidden;
-        overflow-y: auto;
+        overflow: hidden;
 
         .section {
+            height: 100%;
+
             &.output {
-                padding-top: 0 4px;
+                padding-top: 4px;
+                overflow-x: hidden;
+                overflow-y: auto;
             }
         }
     }
