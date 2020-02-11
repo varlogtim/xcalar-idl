@@ -13,7 +13,7 @@ class DagTable {
 
     private constructor() {
         this._addEventListeners();
-        this._searchBar = new TableSearchBar(this._container);
+        this._searchBar = SQLResultSpace.Instance.getSQLTable().getSearchBar();
         this._viewers = new Map();
     }
 
@@ -192,7 +192,7 @@ class DagTable {
                 tableId: xcHelper.getTableId(this.getTable())
             };
             const tableMenu: TableMenu = TableComponent.getMenu().getTableMenu();
-            tableMenu.setUnavailableClasses();
+            tableMenu.setUnavailableClasses(!$container.hasClass("dagTableMode"));
             MenuHelper.dropdownOpen($(event.target), $("#tableMenu"), options);
         });
     }

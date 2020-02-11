@@ -33,6 +33,7 @@
     removeHighlight?: boolean,
     arrowsPreventDefault?: boolean,
     $searchInput?: JQuery,
+    inputPaddingRight?: number
 }
 
 interface SearchBarClearOptions {
@@ -245,8 +246,9 @@ class SearchBar {
         searchBar.$position.text(position);
         searchBar.$total.text("of " + searchBar.numMatches);
         if (searchBar.isSlider) {
+            const paddingRight = searchBar.options.inputPaddingRight || 0;
             searchBar.$searchInput.css("padding-right",
-                                        searchBar.$counter.width() + 25);
+                                        searchBar.$counter.width() + 25 + paddingRight);
         }
     }
     public clearSearch(callback?: Function, options?: SearchBarClearOptions): void {

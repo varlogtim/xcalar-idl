@@ -2,24 +2,6 @@
 <div id="sqlTableArea" class="tableArea xc-viewMode xc-tableArea">
     <div class="topSection tableBar">
         <div class="label"><%= dicts.SQL.ViewingResult %></div>
-        <!-- search area -->
-        <div class="searchbarArea">
-          <input type="text" placeholder="<%= dicts.common.SeachColumn %>">
-          <i class="icon xi-search"></i>
-          <div class="counter">
-            <span class="position">1</span>
-            <span class="total">of 2</span>
-          </div>
-          <div class="arrows">
-            <div class="upArrow iconWrap">
-              <i class="icon xi-up"></i>
-             </div>
-            <div class="downArrow iconWrap">
-              <i class="icon xi-down"></i>
-            </div>
-          </div>
-        </div>
-        <!-- end of search area -->
         <div class="tableNameArea">
           <div class="label">Table Name:&nbsp;</div>
           <div class="type"></div>
@@ -27,10 +9,33 @@
         </div>
         <div class="skewInfoArea"></div>
         <div class="rowInputArea"></div>
+        <!-- search area -->
+        <div class="slidingSearchWrap">
+            <div class="searchbarArea closed">
+                <i class="icon xi-search searchIcon"></i>
+                <input type="text" spellcheck="false" placeholder="<%= dicts.common.SeachColumn %>">
+                <div class="closeBox iconWrap">
+                    <i class="icon xi-cancel"></i>
+                </div>
+                <div class="counter">
+                    <span class="position">1</span>
+                    <span class="total">of 2</span>
+                </div>
+                <div class="arrows">
+                    <div class="upArrow iconWrap">
+                    <i class="icon xi-up"></i>
+                    </div>
+                    <div class="downArrow iconWrap">
+                    <i class="icon xi-down"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end of search area -->
         <div class="menuArea">
-        <div class="tableMenu option xc-action">
-            <span class="text"><%= dicts.common.TableMenu %></span>
-            <i class="icon xi-arrow-down"></i>
+            <div class="tableMenu option xc-action">
+                <span class="text"><%= dicts.common.TableMenu %></span>
+                <i class="icon xi-arrow-down"></i>
             </div>
         </div>
         <div class="close xc-action">

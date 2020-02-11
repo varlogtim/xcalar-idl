@@ -93,7 +93,23 @@ class TableSearchBar {
                 }
             },
             $input: $searchArea.find("input"),
-            arrowsPreventDefault: true
+            arrowsPreventDefault: true,
+            inputPaddingRight: 40
+        });
+
+        const $input: JQuery = $searchArea.find("input");
+        $searchArea.find('.closeBox').mousedown((event) => {
+            event.preventDefault();
+            event.stopPropagation();// prevent unfocus
+        });
+        $searchArea.find('.closeBox').click(() => {
+            if ($input.val() === "") {
+                this._searchHelper.toggleSlider();
+                this._clearSearch();
+            } else {
+                $input.val("");
+                this._searchColNames("");
+            }
         });
     }
 
@@ -107,6 +123,7 @@ class TableSearchBar {
 
         $input.on("focusout", () => {
             this._clearSearch();
+            this._searchHelper.toggleSlider();
         });
     }
 }

@@ -182,6 +182,10 @@ class SQLResultSpace {
         return this._sqlTable.getTable();
     }
 
+    public getSQLTable(): SQLTable {
+        return this._sqlTable;
+    }
+
     private _switchTab(tab): void {
         const $contentSection: JQuery = this._getContentSection();
         $contentSection.find(".section").addClass("xc-hidden");

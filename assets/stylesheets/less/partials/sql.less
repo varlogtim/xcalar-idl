@@ -421,6 +421,66 @@
                                 }
                             }
 
+                            .slidingSearchWrap {
+                                top:0px;
+                                height: 100%;
+                                width: 258px;
+
+                                .searchbarArea {
+                                    min-width: auto;
+                                    max-width: none;
+                                    margin-top: 6px;
+                                    width: 258px;
+                                    left: 0px;
+
+                                    &.closed {
+                                        transform: translate3d(232px, 0, 0);
+
+                                        .searchIcon {
+                                            border-left: none;
+                                        }
+                                    }
+
+                                    .searchIcon {
+                                        position: relative;
+                                        top: -1px;
+                                        width: 24px;
+                                        margin-right: 4px;
+                                        border-left: 1px solid @color-border-medium2;
+                                    }
+                                    input {
+                                        padding-left: 8px;
+                                        // width: 166px;
+                                        width: 228px;
+                                        height: 24px;
+                                        margin-top: 0px;
+                                        float: left;
+                                        outline: none;
+                                        line-height: 24px;
+                                    }
+                                    .closeBox {
+                                        right: 2px;
+                                        margin-top: 0px;
+                                        font-size: 14px;
+                                        line-height: 16px;
+                                        .icon {
+                                            top: -1px;
+                                        }
+                                    }
+
+                                    .counter {
+                                        right: 64px;
+                                        top: 4px;
+                                    }
+                                    .arrows {
+                                        right: 20px;
+                                        top: 2px;
+                                    }
+                                    // .arrows .downArrow {
+                                    //     right: 4px;
+                                    // }
+                                }
+                            }
                             .searchbarArea {
                                 .size(@height: 24px);
 
@@ -430,7 +490,7 @@
                                     .size(@height: 24px);
                                     padding-left: 22px;
                                     line-height: 24px;
-                                    background-color: @color-bg-default;
+                                    // background-color: @color-bg-default;
                                 }
 
                                 > .icon {
@@ -438,6 +498,9 @@
                                     .position(absolute, @top: 6px, @left: 5px);
                                     color: @color-border-bar;
                                 }
+                            }
+                            .menuArea {
+                                padding-left: 40px;
                             }
                         }
 
@@ -767,13 +830,13 @@
         }
     }
 
-
+    .bottomSection {
+        display: none;
+    }
+    .mainSection {
+        height: 100% !important;
+    }
     &.dagTableMode {
-
-        .bottomSection {
-            display: none;
-        }
-
         .topSection {
             .menuArea {
                 display: block;
@@ -781,9 +844,9 @@
             .close {
                 display: block;
             }
-        }
-        .mainSection {
-            height: calc(100%);
+            .slidingSearchWrap {
+                margin-right: 134px;
+            }
         }
     }
 
@@ -800,6 +863,10 @@
     .topSection {
         display: flex;
 
+        .slidingSearchWrap {
+            right: 116px;
+        }
+
         .searchbarArea {
             .size(@max-width: 244px, @min-width: 20%);
             float: left;
@@ -813,10 +880,9 @@
             }
         }
 
-        .menuArea, .close {
+        .close {
             display: none;
         }
-
     }
 
     .bottomSection {

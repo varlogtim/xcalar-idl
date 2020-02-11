@@ -5,9 +5,17 @@ class TableMenu extends AbstractMenu {
         super(menuId, subMenuId);
     }
 
-    public setUnavailableClasses(): void {
+    public setUnavailableClasses(isSqlTable: boolean): void {
         try {
             const $menu: JQuery = this._getMenu();
+            if (isSqlTable) {
+                $menu.find("li").addClass('xc-hidden');
+                $menu.find(".exportTableSQL, .saveTableSQL").removeClass("xc-hidden");
+                return;
+            } else {
+                $menu.find("li").removeClass('xc-hidden');
+                $menu.find(".exportTableSQL, .saveTableSQL").addClass("xc-hidden");
+            }
             const node: DagNode = DagTable.Instance.getBindNode();
             if (node == null) {
                 return;
@@ -174,6 +182,54 @@ class TableMenu extends AbstractMenu {
                 return;
             }
             this._createNodeAndShowForm(DagNodeType.Jupyter);
+        });
+
+        $tableMenu.on("mouseup", ".exportTableSQL", (event) => {
+            if (this._isInvalidTrigger(event)) {
+                return;
+            }
+            let tableName = SQLResultSpace.Instance.getSQLTable().getTable();
+            try {
+                if (tableName == null) {
+                    return;
+                }
+                let tableId = xcHelper.getTableId(tableName);
+                let table = gTables[tableId];
+                if (table == null) {
+                    return;
+                }
+                let progCols = table.getAllCols().filter((progCol) => {
+                    return !progCol.isDATACol();
+                });
+                CreatePublishTableModal.Instance.show(tableName, progCols);
+            }
+            catch (e) {
+                console.error(e);
+            }
+        });
+
+        $tableMenu.on("mouseup", ".saveTableSQL", (event) => {
+            if (this._isInvalidTrigger(event)) {
+                return;
+            }
+            let tableName = SQLResultSpace.Instance.getSQLTable().getTable();
+            try {
+                if (tableName == null) {
+                    return;
+                }
+                let tableId = xcHelper.getTableId(tableName);
+                let table = gTables[tableId];
+                if (table == null) {
+                    return;
+                }
+                let progCols = table.getAllCols().filter((progCol) => {
+                    return !progCol.isDATACol();
+                });
+                ExportSQLTableModal.Instance.show(tableName, progCols);
+            }
+            catch (e) {
+                console.error(e);
+            }
         });
     }
 
