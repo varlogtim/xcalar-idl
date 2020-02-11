@@ -63,7 +63,6 @@ namespace BottomMenu {
             _dock();
         });
 
-
         let poppedOut: boolean = false;
 
         $bottomMenu.resizable({

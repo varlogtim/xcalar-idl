@@ -23,7 +23,17 @@ class SQLResultSpace {
         });
 
         $("#dagView .openResult").click(() => {
-            this._toggleDisplay(true);
+            const $resultSection = this._getResultSection();
+            const $container = $resultSection.parent();
+            if ($container.hasClass("noResult")) {
+                this._toggleDisplay(true);
+            } else {
+                this._toggleDisplayExpanded(!$container.hasClass("contentsExpanded"));
+            }
+        });
+
+        $("#dagView .collapseResult").click(() => {
+            this._toggleDisplayExpanded(false);
         });
 
         $("#sqlTableArea").on("click", ".btn-create", () => {
@@ -222,6 +232,20 @@ class SQLResultSpace {
             $container.removeClass("noResult");
         } else {
             $container.addClass("noResult");
+            this._toggleDisplayExpanded(false);
         }
+        PopupManager.checkAllContentUndocked();
+    }
+
+    private _toggleDisplayExpanded(expand: boolean) {
+        const $resultSection = this._getResultSection();
+        const $container = $resultSection.parent();
+        if (expand) {
+            $container.addClass("contentsExpanded");
+        } else {
+            $container.removeClass("contentsExpanded");
+        }
+        TblFunc.moveFirstColumn();
+        DagCategoryBar.Instance.showOrHideArrows();
     }
 }

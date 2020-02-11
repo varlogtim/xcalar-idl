@@ -34,6 +34,12 @@ class PopupManager {
         }
     }
 
+    public static checkAllContentUndocked(): void {
+        this._popupMap.forEach((popup) => {
+            popup.checkAllContentUndocked();
+        });
+    }
+
     private static _addPopup(popup: PopupPanel): void {
         this._stack.push(popup);
     }

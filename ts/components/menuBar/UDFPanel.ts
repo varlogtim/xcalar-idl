@@ -57,13 +57,13 @@ class UDFPanel {
         if (display) {
             $tab.addClass("active");
             $container.removeClass("xc-hidden");
+            PopupManager.checkAllContentUndocked();
             this.getEditor().refresh();
         } else {
             $tab.removeClass("active");
             $container.addClass("xc-hidden");
+            PopupManager.checkAllContentUndocked();
         }
-        
-
     }
 
     /**

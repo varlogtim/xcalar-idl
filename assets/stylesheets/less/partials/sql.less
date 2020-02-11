@@ -276,18 +276,26 @@
             display: flex;
             flex-direction: column;
 
-            .topPart, .bottomPart {
-                background-color: @color-bg-default;
+            .topPart {
+                flex: 1 1 0;
+                overflow-x: auto;
+                &.allContentUndocked {
+                    flex: 0 0 0;
+                    ~ .bottomPart:not(.allContentUndocked) {
+                        height: auto !important;
+                        flex: 1 1 auto;
+                    }
+                }
             }
 
-            .topPart {
-                flex: 1 1 auto;
+            .topPart, .bottomPart {
                 display: flex;
                 flex-direction: row;
-                overflow-x: auto;
+                background-color: @color-bg-default;
 
-                .section {
+                > .section {
                     height: 100%;
+                    overflow: hidden;
 
                     &:first-child {
                         flex: 1 1 0;
@@ -305,6 +313,7 @@
                     &:not(:first-child) {
                         width: 50%;
                         position: relative;
+                        border-left: 1px solid @color-bg-pinkish-grey2;
 
                         &.contentUndocked {
                             width: 0 !important;
@@ -318,12 +327,16 @@
             }
 
             .bottomPart {
-                display: flex;
-                flex-direction: column;
                 position: relative;
                 height: 40%;
                 width: 100%;
                 border-top: 1px solid @color-border-pinkish-grey2;
+                display: flex;
+                flex-direction: row;
+
+                &.allContentUndocked {
+                    height: 0 !important;
+                }
 
                 > .ui-resizable-handle {
                     z-index: @z-index-sqlBottomResizeHandler !important; // don't block other elements
@@ -331,23 +344,20 @@
                     top: -7px;
                 }
 
-                .bottomLeftPart, .bottomRightPart {
-                    overflow: hidden;
-                    height: 100%;
-                    position: absolute;
-                }
-
-                .bottomLeftPart {
-                    width: 50%;
-                }
-
-                .bottomRightPart {
-                    left: 50%;
-                    width: 50%;
-                    border-left: 1px solid @color-bg-pinkish-grey2;
+                > .section {
+                    > .ui-resizable-n {
+                        display: none !important;
+                    }
+                    > .ui-resizable-w {
+                        display: block !important;
+                    }
                 }
 
                 .openResult {
+                    display: inline-block;
+                }
+
+                .collapseResult {
                     display: none;
                 }
 
@@ -360,8 +370,55 @@
                         display: none;
                     }
 
+                    // .openResult {
+                    //     display: inline-block;
+                    // }
+                }
+
+                &.contentsExpanded {
+                    flex-direction: column;
+                    height: 60%;
+
                     .openResult {
+                        display: none;
+                    }
+
+                    .collapseResult {
                         display: inline-block;
+                    }
+
+                    > .section {
+                        width: 100% !important;
+                        height: auto;
+
+                        > .ui-resizable-n {
+                            display: block !important;
+                        }
+                        > .ui-resizable-w {
+                            display: none !important;
+                        }
+
+                        &.contentUndocked {
+                            height: 0 !important;
+                        }
+
+                        &:first-child {
+                            flex: 1 1 0;
+
+                            &.contentUndocked {
+                                flex: 0 0 0;
+                            }
+                        }
+
+                        &:not(:first-child) {
+                            height: 50%;
+                            position: relative;
+                            border-top: 1px solid @color-bg-pinkish-grey2;
+
+                            &.contentUndocked {
+                                height: 0 !important;
+                            }
+                        }
                     }
                 }
             }
@@ -559,6 +616,16 @@
                         margin-top: 8px
                     }
                 }
+                // .expandResult {
+                //     position: absolute;
+                //     top: 6px;
+                //     left: 4px;
+                // }
+
+                .topSection {
+                    padding-left: 28px !important;
+                    padding-right: 28px !important;
+                }
             }
 
             .closeResult {
@@ -657,7 +724,7 @@
 }
 
 #sqlViewContainer {
-    @header-h: 10px;
+    @header-h: 12px;
     height: 100%;
 
     .draggableHeader {
@@ -684,7 +751,6 @@
     @total-height: @topSectionHeight;
     .flex-display;
     .flex-flow(column);
-    border-right: 1px solid @color-border-medium;
     position: relative;
 
     .undock {
@@ -799,6 +865,10 @@
             background-color: @color-editor-gutter;
         }
     }
+}
+
+#sqlHintMenu, #sqlHintSubMenu {
+    z-index: @z-index-modalBackground - 1;
 }
 
 #sqlHintMenu {

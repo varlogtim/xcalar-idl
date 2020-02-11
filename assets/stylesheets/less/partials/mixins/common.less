@@ -2178,8 +2178,8 @@ html.firefox {
     @div-h: 22px;
 
     .tableScrollBar {
-        height: ~"calc(100% - @{height-xcColHeaderOuter})";
-        top: @height-xcColHeaderOuter;
+        height: ~"calc(100% - @{height-colHeaderOuter})";
+        top: @height-colHeaderOuter;
         width: 10px;
     }
 
@@ -2691,8 +2691,11 @@ html.firefox {
 
     &.undocked {
         z-index: @z-index-sqlEditorUndocked;
-        box-shadow: 0 0 5px 1px rgba(0,0,0, 0.5);
+        box-shadow: 0 0 0px 1px rgba(255,255,255,0.2),
+                    0 0 5px 1px rgba(0, 0, 0, 0.5);
         position: fixed !important;
+        overflow: hidden;
+        background-color: @color-bg-default;
 
         .ui-resizable-handle {
             display: block !important;

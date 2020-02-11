@@ -151,7 +151,7 @@ class SQLWorkSpace {
                 $bottomPart.css("height", `${pct * 100}%`);
                 $bottomPart.css("top", "0");
             },
-            stop: function() {               
+            stop: function() {
                 $panel.removeClass("resizing");
                 SQLEditorSpace.Instance.refresh();
                 UDFPanel.Instance.getEditor().refresh();
@@ -161,7 +161,7 @@ class SQLWorkSpace {
 
     private _resizeTopPartSection(): void {
         const $topPart: JQuery = this._getPanel().find(".topPart");
-        const $sections = $topPart.find(".section");
+        const $sections = $topPart.children(".section");
         const $prevSection: JQuery = $sections.eq(0);
         const $resizableSection: JQuery = $sections.eq(1);
         let prevWidth: number;
@@ -173,8 +173,8 @@ class SQLWorkSpace {
         $resizableSection.resizable({
             handles: "w",
             start: function(_event, ui) {
-                prevWidth = $prevSection.outerHeight();
-                resizableWidth = $resizableSection.outerHeight();
+                prevWidth = $prevSection.outerWidth();
+                resizableWidth = $resizableSection.outerWidth();
                 totalWidth = prevWidth + resizableWidth;
                 lastLeft = ui.position.left;
             },
@@ -190,27 +190,54 @@ class SQLWorkSpace {
         });
     }
 
+    // handles vertical and horizontal resizing
     private _resizeDataflowAndResultSection(): void {
         const $bottomPart = $("#sqlWorkSpacePanel").find(".rightSection .bottomPart");
-        const $bottomLeftPart = $bottomPart.find(".bottomLeftPart");
         const $bottomRightPart = $bottomPart.find(".bottomRightPart");
+        const $bottomLeftPart = $bottomPart.find(".bottomLeftPart");
         let bottomPartWidth: number = null;
+        let vertically: boolean = false;
+        let bottomRightHeight: number;
+        let bottomLeftHeight: number;
+        let totalHeight: number;
+        let lastTop: number = 0;
+        let $panel: JQuery = this._getPanel();
 
         $bottomRightPart.resizable({
-            handles: "w",
-            start: () => {
+            handles: "n, w",
+            start: (event, ui) => {
+                $panel.addClass("resizing");
+                vertically = $(event.originalEvent.target).hasClass("ui-resizable-n");
                 bottomPartWidth = $bottomPart.outerWidth();
+
+                bottomRightHeight = $bottomRightPart.outerHeight();
+                bottomLeftHeight = $bottomLeftPart.outerHeight();
+                totalHeight = bottomRightHeight + bottomLeftHeight;
+                lastTop = ui.position.top;
             },
             resize: (_event, ui) => {
-                let pct = ui.size.width / bottomPartWidth;
-                pct = Math.min(pct, 0.98);
-                pct = Math.max(0.02, pct);
-                let pctLeft = 1 - pct;
-                $bottomRightPart.css("left", 100 * pctLeft + "%")
-                        .outerWidth(100 * pct + "%");
-                $bottomLeftPart.outerWidth(100 * pctLeft + "%");
+                if (vertically) {
+                    const top: number = ui.position.top;
+                    const delta: number = top - lastTop;
+                    let pct = (bottomRightHeight - delta) / totalHeight;
+                    pct = Math.min(pct, 0.98);
+                    pct = Math.max(0.02, pct);
+                    $bottomRightPart.css("height", `${pct * 100}%`);
+                    $bottomRightPart.css("top", "0");
+                } else {
+                    let pct = ui.size.width / bottomPartWidth;
+                    pct = Math.min(pct, 0.98);
+                    pct = Math.max(0.02, pct);
+                    $bottomRightPart.css("width", `${pct * 100}%`);
+                    $bottomRightPart.css("left", "0");
+                }
+            },
+            stop: () => {
+                $panel.removeClass("resizing");
             }
         });
+
+
     }
 
     private _addEventListeners(): void {

@@ -1,5 +1,5 @@
 #dagViewContainer {
-    @header-h: 10px;
+    @header-h: 12px;
     height: 100%;
 
     .draggableHeader {
@@ -1478,17 +1478,20 @@
         }
     }
 }
-
-#dagNodeMenu, #dagNodeSubMenu, #dagTableNodeMenu {
-    background-color: @color-bg-menu;
-    width: 175px;
+#dagNodeMenu, #dagNodeSubMenu, #dagTableNodeMenu, #dagNodeInstructionSubMenu,
+#dagNodeInstructionMenu {
+    z-index: @z-index-popupUndocked + 5;
     border-radius: 5px;
     box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.2);
+}
+
+#dagNodeMenu, #dagNodeSubMenu, #dagTableNodeMenu {
+    width: 175px;
+
 
     @liHeight: 24px;
     @iconWidth: 10px;
     @iconMargin: 8px;
-    z-index: @z-index-popupUndocked + 5;
 
     li {
         display: none;

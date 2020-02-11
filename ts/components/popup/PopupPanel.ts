@@ -72,6 +72,7 @@ class PopupPanel {
         $panel.draggable("enable");
         $panel.addClass("undocked"); // only when all set make it undocked
         $panel.parent().addClass("contentUndocked");
+        this.checkAllContentUndocked();
     }
 
     // dock = pop back the panel
@@ -89,6 +90,7 @@ class PopupPanel {
         $panel.resizable("disable");
         $panel.draggable("disable");
         $panel.parent().removeClass("contentUndocked");
+        $panel.parent().parent().removeClass("allContentUndocked");
 
         this._event.dispatchEvent("Dock");
         this._event.dispatchEvent("Dock_BroadCast");
@@ -161,5 +163,16 @@ class PopupPanel {
                 }
             }
         });
+    }
+
+    public checkAllContentUndocked() {
+        const $panel = this.getPanel();
+        const $largeSection = $panel.parent().parent(); // top or bottom half
+        if ($largeSection.children(".section:visible").length ===
+            $largeSection.children(".section.contentUndocked:visible").length) {
+            $largeSection.addClass("allContentUndocked");
+        } else {
+            $largeSection.removeClass("allContentUndocked");
+        }
     }
 }

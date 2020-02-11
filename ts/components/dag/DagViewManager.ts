@@ -1233,50 +1233,6 @@ class DagViewManager {
     }
 
     private _addEventListeners(): void {
-        let mainAreaHeight;
-        let $tableArea;
-        let $parent;
-        let $dfWrapOuter;
-        this.$dfWrap.closest(".dataflowWrap").resizable({
-            handles: "n",
-            containment: 'parent',
-            minHeight: 40,
-            start: () => {
-                $dfWrapOuter = this.$dfWrap.closest(".dataflowWrap");
-                $parent = $dfWrapOuter.parent();
-                $parent.addClass("resizing");
-                mainAreaHeight = $parent.height();
-                $tableArea = $("#dagViewTableArea");
-            },
-            resize: (_event, ui) => {
-                let pct = ui.size.height / mainAreaHeight;
-                if (ui.position.top <= 100) {
-                    // ui.position.top = 100;
-                    pct = (mainAreaHeight - 100) / mainAreaHeight;
-                    $dfWrapOuter.height(mainAreaHeight - 100);
-                    $dfWrapOuter.css("top", 100);
-                }
-
-                $tableArea.height(100 * (1 - pct) + "%");
-            },
-            stop: (_event, ui) => {
-                let pct = ui.size.height / mainAreaHeight;
-                if (ui.position.top <= 100) {
-                    ui.position.top = 100;
-                    pct = (mainAreaHeight - 100) / mainAreaHeight;
-                }
-                let pctTop = ui.position.top / mainAreaHeight;
-
-                $dfWrapOuter.css("top", 100 * pctTop + "%");
-                $dfWrapOuter.height(100 * pct + "%");
-                $tableArea.height(100 * (1 - pct) + "%");
-                $parent.removeClass("resizing");
-                $tableArea = null;
-                $parent = null;
-                $dfWrapOuter = null;
-            }
-        });
-
         this.$dagView.find(".dataflowWrapBackground").on("click", ".newTab", () => {
             DagTabManager.Instance.newTab(true);
         });
