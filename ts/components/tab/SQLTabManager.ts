@@ -43,7 +43,7 @@ class SQLTabManager extends AbstractTabManager {
         } else {
             this._loadTab(name);
             this._save();
-            this._tabListScroller.showOrHideScrollers();
+            this._switchTabs();
             this._updateList();
         }
     }
@@ -83,6 +83,7 @@ class SQLTabManager extends AbstractTabManager {
         const snippets = SQLSnippet.Instance.listSnippets();
         if (snippets.length === 0) {
             SQLTabManager.Instance.newTab();
+            this._updateList();
             return PromiseHelper.resolve();
         }
 
@@ -93,7 +94,10 @@ class SQLTabManager extends AbstractTabManager {
                 restoreData.tabs.forEach((tab) => {
                     this._loadTab(tab);
                 });
-                this._switchTabs(0);
+                if (this._activeTabs.length) {
+                    this._switchTabs[0];
+                }
+                this._updateList();
             }
         })
         .then(() => {
@@ -210,6 +214,13 @@ class SQLTabManager extends AbstractTabManager {
 
     private _updateList(): void {
         DagList.Instance.refreshMenuList(ResourceMenu.KEY.SQL);
+        const $view = $("#sqlViewContainer");
+        if (this._activeTabs.length === 0) {
+            $view.addClass("hint");
+        } else {
+            $view.removeClass("hint");
+        }
+        this._tabListScroller.showOrHideScrollers();
     }
 
     private _tabRenameCheck(name: string, $tab: JQuery): boolean {

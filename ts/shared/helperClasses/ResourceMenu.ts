@@ -89,9 +89,12 @@ class ResourceMenu {
 
     private _renderUDFList(): void {
         const udfs = UDFPanel.Instance.listUDFs();
-        const listClassNames: string[] = ["udf"];
         const iconClassNames: string[] = ["xi-menu-udf"];
         let html: HTML = udfs.map((udf) => {
+            const listClassNames: string[] = ["udf"];
+            if (UDFTabManager.Instance.isOpen(name)) {
+                listClassNames.push("open");
+            }
             return this._getListHTML(udf.displayName, listClassNames, iconClassNames);
         }).join("");
         html = this._getSQLUDFList() + html;
@@ -505,7 +508,7 @@ class ResourceMenu {
 
         $container.on("click", ".addUDF", (event) => {
             event.stopPropagation();
-            UDFPanel.Instance.openEditor(false);
+            UDFPanel.Instance.newUDF();
         });
 
         $container.on("click", ".addDFModule", (event) => {
@@ -540,6 +543,20 @@ class ResourceMenu {
             }
             const name: string = $li.find(".name").text();
             SQLTabManager.Instance.openTab(name);
+        });
+
+        $container.on("click", ".udf.listWrap .udf", (event) => {
+            const $li = $(event.currentTarget);
+            if ($li.hasClass("active")) {
+                return;
+            }
+            let name: string = $li.find(".name").text();
+            if ($li.hasClass("sqlUDF")) {
+                name = "sql";
+            } else {
+                name = name.substring(0, name.indexOf(".py"));
+            }
+            UDFPanel.Instance.loadUDF(name);
         });
 
         $container.on("click", ".dropDown", (event) => {

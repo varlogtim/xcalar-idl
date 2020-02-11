@@ -484,7 +484,7 @@ class SQLEditorSpace {
                 SQLResultSpace.Instance.showTables(false);
                 break;
             case "addUDF":
-                UDFPanel.Instance.openEditor(true);
+                UDFPanel.Instance.loadSQLUDF("sql");
                 break;
             case "save":
                 this._saveAsSnippet();

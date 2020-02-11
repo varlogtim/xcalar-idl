@@ -144,15 +144,6 @@ describe("UDFPanel Test", function() {
                 $("#sqlWorkSpacePanel").removeClass("active");
             }
         });
-
-        // XXX clear will affect UDFFileManager test, need a way to restore
-        // it("UDFPanel.Instance.clear should work", function() {
-        //     UDFPanel.Instance.clear();
-        //     var udfs = UDFFileManager.Instance.getUDFs();
-        //     var udfsObj = {};
-        //     udfs.forEach((value, key) => {udfsObj[key] = value;});
-        //     expect(jQuery.isEmptyObject(udfsObj)).to.be.true;
-        // });
     });
 
     // describe("Upload and Delete UDF Test", function() {

@@ -202,10 +202,7 @@ window.FlightTest = (function(FlightTest, $) {
         function flightTestPart5(parentNodeId) {
             console.log("start flightTestPart5", "upload python");
             $("#udfTab").click();
-            test.checkExists("#udf-fnSection .editArea:visible")
-            .then(() => {
-                return test.checkExists("#udf-fnSection .xc-waitingBG", null, {notExist: true});
-            })
+            test.checkExists("#udf-fnSection .xc-waitingBG", null, {notExist: true})
             .then(() => {
                 var udfDisplayName = "ymd.py";
                 var selector = '#udf-fnMenu li[data-original-title="' + udfDisplayName + '"]';

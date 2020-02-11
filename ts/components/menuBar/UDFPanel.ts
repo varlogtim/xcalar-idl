@@ -35,7 +35,7 @@ class UDFPanel {
         "#     return col1 + col2;\n" +
         "# \n";
     /**
-     * @returns void
+     * UDFPanel.Instance.setup
      */
     public setup(): void {
         if (this.isSetup) {
@@ -47,8 +47,12 @@ class UDFPanel {
         this._setupPopup();
     }
 
+    /**
+     * UDFPanel.Instance.toggleDisplay
+     * @param display
+     */
     public toggleDisplay(display?: boolean): void {
-        const $container = this._getUDFSection().parent();
+        const $container = $("#udfViewContainer").parent();
         if (display == null) {
             display = $container.hasClass("xc-hidden");
         }
@@ -67,32 +71,26 @@ class UDFPanel {
     }
 
     /**
-     * Clear UDFs.
-     * @returns void
+     * UDFPanel.Instance.newUDF
      */
-    public clear(): void {
-        this.clearEditor();
-        UDFFileManager.Instance.getUDFs().clear();
-        $("#udf-fnMenu")
-        .find("li[name=blank]")
-        .siblings()
-        .remove();
+    public newUDF(): void {
+        this.toggleDisplay(true);
+        UDFTabManager.Instance.newTab();
     }
 
     /**
-     * UDFPanel.Instance.openEditor
-     * open UDF editor
+     * UDFPanel.Instance.loadUDF
      */
-    public openEditor(sqlMode: boolean): void {
-        // need to open first then swtich the mode, because
-        // the open code in BottomMenu will turn off the sql mode
-        if (
-            !$("#bottomMenu").hasClass("open") ||
-            !$("#udfSection").hasClass("active")
-        ) {
-            $("#udfTab").trigger("click");
-        }
-        UDFPanel.Instance.switchMode(sqlMode);
+    public loadUDF(name: string): void {
+        this.toggleDisplay(true);
+        UDFTabManager.Instance.openTab(name);
+    }
+
+    /**
+     * UDFPanel.Instance.loadSQLUDF
+     */
+    public loadSQLUDF(): void {
+        return this.loadUDF("sql");
     }
 
     /**
@@ -102,14 +100,13 @@ class UDFPanel {
     public clearEditor(): void {
         // clear CodeMirror
         if (this.editor != null) {
-            // Wrap in if because KVStore.restore may call UDFPanel.Instance.clear()
-            // and at that time editor has not setup yet.
             this._setEditorValue(this.udfDefault);
             this.editor.clearHistory();
         }
     }
 
     /**
+     * UDFPanel.Instance.getEditor
      * Get the UDF editor.
      * @returns CodeMirror
      */
@@ -118,11 +115,23 @@ class UDFPanel {
     }
 
     /**
+     * UDFPanel.Instance.openUDF
+     * @param moduleName
+     */
+    public openUDF(moduleName: string): void {
+        if (moduleName) {
+            this.selectUDFPath(moduleName);
+        } else {
+            this._selectBlankUDF();
+        }
+    }
+
+    /**
      * @param  {string} moduleName
      * @returns void
      */
     public selectUDFPath(moduleName: string): void {
-        this._selectUDF(moduleName + ".py", true);
+        this._selectUDF(moduleName + ".py", false);
     }
 
     /**
@@ -177,6 +186,7 @@ class UDFPanel {
     }
 
     /**
+     * UDFPanel.Instance.updateUDF
      * @returns void
      */
     public updateUDF(): void {
@@ -259,9 +269,6 @@ class UDFPanel {
             $("#monitor-file-manager")
         );
         UDFFileManager.Instance.registerPanel(monitorFileManager);
-        $udfSection.find(".topSection .refreshUdf").on("click", () => {
-            UDFFileManager.Instance.refresh(true, true);
-        });
 
         $udfSection.find(".toManager").on("click", (_event: JQueryEventObject) => {
             $udfSection.addClass("switching");
@@ -338,7 +345,7 @@ class UDFPanel {
     private _addSaveEvent(): void {
         const $udfSection: JQuery = this._getUDFSection();
         const $topSection: JQuery = $udfSection.find(".topSection");
-        const $save: JQuery = $topSection.find(".saveFile");
+        const $save: JQuery = $udfSection.find(".saveFile");
         const $saveNameInput: JQuery = $topSection.find(".udf-fnName");
         $save.on("click", () => {
             this._saveUDF($saveNameInput);
@@ -367,11 +374,13 @@ class UDFPanel {
 
         if (displayPath === "New Module") {
             let $udfSection = this._getUDFSection();
-            if ($udfSection.hasClass("sqlMode")) {
+            const tabName = UDFTabManager.Instance.getActiveTabName();
+            // XXX hakc that should be removed
+            if ($udfSection.hasClass("sqlMode") || tabName === "sql") {
                 newModule = true;
                 displayPath = "sql.py";
             } else {
-                this._eventSaveAs();
+                this._eventSaveAs(tabName);
                 return;
             }
         }
@@ -396,10 +405,13 @@ class UDFPanel {
         }
     }
 
-    private _eventSaveAs() {
+    private _eventSaveAs(tabName: string) {
         const options = {
             onSave: (displayPath: string) => {
                 this._eventSave(displayPath, true);
+                const name = this._getDisplayNameAndPath(displayPath)[0];
+                const newName = name.substring(0, name.indexOf(".py"));
+                UDFTabManager.Instance.renameTab(tabName, newName);
             }
         };
         FileManagerSaveAsModal.Instance.show(
@@ -458,8 +470,8 @@ class UDFPanel {
     }
 
     private _setupPopup(): void {
-        this._popup = new PopupPanel("udfSection", {
-            draggableHeader: ".heading.draggable"
+        this._popup = new PopupPanel("udfViewContainer", {
+            draggableHeader: ".draggableHeader"
         });
         this._popup
         .on("Undock", () => {
@@ -557,6 +569,11 @@ class UDFPanel {
                 displayPath
             );
             if (!UDFFileManager.Instance.getUDFs().has(nsPath)) {
+                // XXX hack way
+                if (displayNameOrPath === "sql.py") {
+                    this._selectBlankUDF();
+                    return;
+                }
                 StatusBox.show(UDFTStr.NoTemplate, $("#udf-fnList"));
                 return;
             }

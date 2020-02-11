@@ -429,7 +429,7 @@ class SQLEditor {
             } else if ($li.hasClass("funcName") || $li.hasClass("udfName")) {
                 this._insertText($li.text() + "()");
             } else if ($li.hasClass("newUDF")) {
-                UDFPanel.Instance.openEditor(true);
+                UDFPanel.Instance.loadSQLUDF();
             }
         });
     }

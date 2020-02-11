@@ -726,6 +726,7 @@
 #sqlViewContainer {
     @header-h: 12px;
     height: 100%;
+    border-right: 1px solid @color-border-medium;
 
     .draggableHeader {
         display: none;
@@ -741,6 +742,24 @@
             width: 100%;
             top: 0;
         }
+    }
+
+    &.hint {
+        #sqlEditorSpace {
+            display: none;
+        }
+
+        .hintSection {
+            display: block;
+        }
+    }
+
+    .hintSection {
+        display: none;
+        height: 20px;
+        max-width: 450px;
+        color: @color-font-default;
+        .center-align;
     }
 }
 
