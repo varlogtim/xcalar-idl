@@ -45,7 +45,8 @@ interface DropdownOptions {
 
 interface FixedPositionOption {
     selector: string, // selector of element to base positioning off of
-    rightMargin?: number
+    rightMargin?: number,
+    float?: boolean
 }
 
 /*
@@ -433,12 +434,24 @@ class MenuHelper {
                     return;
                 }
                 const parentPos: ClientRect = $baseElement[0].getBoundingClientRect();
-                self.$list.css({
-                    "position": "fixed",
-                    "left": parentPos.left,
-                    "top": parentPos.top + parentPos.height,
-                    "width": parentPos.width - (self.options.fixedPosition.rightMargin || 0)
-                });
+                if (self.options.fixedPosition.float) {
+                    let left: number;
+                    let width = $lists.outerWidth();
+                    left = Math.min(parentPos.left, $(window).width() - width - 4);
+                    self.$list.css({
+                        "position": "fixed",
+                        "left": left,
+                        "top": parentPos.top + parentPos.height
+                    });
+                } else {
+                    self.$list.css({
+                        "position": "fixed",
+                        "left": parentPos.left,
+                        "top": parentPos.top + parentPos.height,
+                        "width": parentPos.width - (self.options.fixedPosition.rightMargin || 0)
+                    });
+                }
+
                 const $scrollListeningEls = self.$dropDownList.parentsUntil(self.$container.parent());
                 self.$scrollListeningEls = $scrollListeningEls;
                 $scrollListeningEls.on("scroll.dropdownScrollListening" + self.id, () => {

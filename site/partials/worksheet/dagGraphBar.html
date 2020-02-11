@@ -1,15 +1,15 @@
 <div id="dagGraphBar">
     <div class="topButtons left">
         <div id="undo" class="topButton undo" data-toggle="tooltip" data-container="body" data-placement="top">
-            <i class="icon xi-undo actionIcon"></i>
+            <i class="icon xi-undo-outline actionIcon"></i>
         </div>
         <div id="redo" class="topButton redo" data-toggle="tooltip" data-container="body" data-placement="top">
-            <i class="icon xi-redo actionIcon"></i>
+            <i class="icon xi-redo-outline actionIcon"></i>
         </div>
         <div class="divider"></div>
         <div class="topButton zoomOut" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%=
                 dicts.dag.zoomOut %>">
-            <i class="icon xi-minus-circle-outline actionIcon"></i>
+            <i class="icon xi-minus actionIcon"></i>
         </div>
         <div class="topButton zoomPercent" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.dag.zoom %>">
             <input disabled class="zoomPercentInput xc-input white" type="text" pattern="\d*" maxlength="3" max="200" min="25" step="1" value="100" placeholder="100">
@@ -17,7 +17,7 @@
         </div>
         <div class="topButton zoomIn" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%=
                 dicts.dag.zoomIn %>">
-            <i class="icon xi-plus-circle-outline actionIcon"></i>
+            <i class="icon xi-plus actionIcon"></i>
         </div>
     </div>
     <div class="infoSection">
@@ -50,7 +50,7 @@
         <div class="topButton run dropDownList">
             <span>
                 <span class="text">Execute</span>
-                <i class="icon xi-play-circle actionIcon"></i>
+                <i class="icon xi-play-outline actionIcon"></i>
             </span>
             <div class="iconWrapper" data-toggle="tooltip" data-container="body" data-placement="top" data-title="Select a functio to execute">
                 <i class="icon xi-arrow-down"></i>
@@ -63,7 +63,7 @@
         </div>
         <div class="topButton stop" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.dag.cancelExecute %>">
             <span class="text">Cancel</span>
-            <i class="icon xi-stop-circle actionIcon"></i>
+            <i class="icon xi-stop-outline actionIcon"></i>
         </div>
         <div class="divider"></div>
         <!-- <div class="topButton setting noTabRequired" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.dataflow.Settings %>">

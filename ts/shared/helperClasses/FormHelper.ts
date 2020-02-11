@@ -81,7 +81,7 @@ class FormHelper {
                     'spellcheck="false" disabled/>' +
                     '<div class="middleIcon renameIcon">' +
                         '<div class="iconWrapper">' +
-                            '<i class="icon xi-play-circle fa-14"></i>' +
+                            '<i class="icon xi-play-outline fa-14"></i>' +
                         '</div>' +
                     '</div>' +
                     '<input class="columnName newName arg" type="text" ' +

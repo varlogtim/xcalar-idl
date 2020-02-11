@@ -557,7 +557,9 @@ class SQLEditorSpace {
                 this._fileOption($li.data("action"));
             },
             container: selector,
-            bounds: selector
+            bounds: selector,
+            fixedPosition: {selector: ".xc-action", float: true}
+
         }).setupListeners();
     }
 

@@ -821,16 +821,19 @@ body {
 }
 
 #memoryAlert {
+
     .icon {
         position: relative;
         color: @color-bg-monitor-green;
     }
 
-    .xi-success {
+    .xi-tick {
         display: block;
+        font-size: 16px !important;
     }
     .xi-warning {
         display: none;
+        font-size: 18px !important;
     }
 
     &.yellow {
@@ -838,7 +841,7 @@ body {
             color: @color-bg-monitor-gold;
         }
 
-        .xi-success {
+        .xi-tick {
             display: none;
         }
         .xi-warning {
@@ -851,7 +854,7 @@ body {
             color: @color-bg-monitor-red;
         }
 
-        .xi-success {
+        .xi-tick {
             display: none;
         }
         .xi-warning {

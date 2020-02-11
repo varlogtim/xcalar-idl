@@ -3,21 +3,18 @@
     <div class="title">
       <%= dicts.SQL.Editor %>
     </div>
-    <button class="btn execute"
+    <i class="icon xi-play-outline execute"
     data-toggle="tooltip"
     data-placement="top"
     data-container="body"
-    data-title="<%= dicts.SQLEditor.RunHint %>">
-      <%= dicts.SQLEditor.Run %>
-    </button>
-    <button class="btn btn-secondary save">
+    data-title="<%= dicts.SQLEditor.RunHint %>"></i>
+    <button class="btn btn-secondary save xc-hidden">
       <%= dicts.common.SaveAs %>...
     </button>
     <button class="btn btn-secondary more dropDownList">
-      <span><%= dicts.SQLEditor.More %>...</span>
-      <div class="iconWrapper">
-        <i class="icon xi-arrow-down"></i>
-      </div>
+      <!-- <div class="iconWrapper"> -->
+        <i class="icon xi-ellipsis-h xc-action"></i>
+      <!-- </div> -->
       <div class="list">
         <ul>
           <li data-action="history"><%= dicts.SQL.HistoryTab %></li>
