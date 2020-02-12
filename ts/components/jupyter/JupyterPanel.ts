@@ -533,7 +533,7 @@ namespace JupyterPanel {
     };
 
     // XXX TODO: update it
-    function showMapForm(tableName: string, columns: string[], moduleName: string, fnName: string): void {
+    async function showMapForm(tableName: string, columns: string[], moduleName: string, fnName: string): Promise<void> {
         let tabId: string = null;
         let dagNode: DagNode = null;
         try {
@@ -576,10 +576,12 @@ namespace JupyterPanel {
                 }],
                 icv: false
             };
-            let mapNode: DagNodeMap = <DagNodeMap>DagViewManager.Instance.autoAddNode(DagNodeType.Map, null, dagNode.getId(), input);
-            DagNodeMenu.execute("configureNode", {
-                node: mapNode
-            });
+            let mapNode: DagNodeMap = <DagNodeMap> await DagViewManager.Instance.autoAddNode(DagNodeType.Map, null, dagNode.getId(), input);
+            if (mapNode != null) {
+                DagNodeMenu.execute("configureNode", {
+                    node: mapNode
+                });
+            }
         }
     }
 

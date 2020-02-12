@@ -204,7 +204,7 @@ class DagUDFErrorModal {
         this._tabId = null;
     }
 
-    private _genErrorTable() {
+    private async _genErrorTable(): Promise<void> {
         let node = this._node;
         this.close();
 
@@ -215,10 +215,12 @@ class DagUDFErrorModal {
         let input = node.getParam();
         input.icv = true;
 
-        let newNode = DagViewManager.Instance.autoAddNode(DagNodeType.Map, null, parentNode.getId(), null, null, null, {
+        let newNode = await DagViewManager.Instance.autoAddNode(DagNodeType.Map, null, parentNode.getId(), null, null, null, {
             nodeTitle: newTitle
         });
-
+        if (newNode == null) {
+            return;
+        }
         newNode.setParam(input, true);
 
         DagViewManager.Instance.run([newNode.getId()])

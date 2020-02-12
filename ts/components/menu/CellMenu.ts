@@ -154,30 +154,24 @@ class CellMenu extends AbstractMenu {
         TblManager.unHighlightCells();
     }
 
-    private _createNodeAndShowForm(evalString: string): void {
-        const $menu: JQuery = this._getMenu();
-        if ($menu.hasClass("fromSQL")) {
-            this._switchToSQL(callback);
-        } else {
-            callback.bind(this)();
-        }
-        function callback(_allNodes?: DagNode[], parentNodeId?: string) {
-            try {
-                const type: DagNodeType = DagNodeType.Filter;
-                const input: DagNodeFilterInputStruct = {
-                    evalString: evalString
-                };
-                const node: DagNodeFilter = <DagNodeFilter>this._addNode(type, input, undefined, parentNodeId, true);
+    private async _createNodeAndShowForm(evalString: string): Promise<void> {
+        try {
+            const type: DagNodeType = DagNodeType.Filter;
+            const input: DagNodeFilterInputStruct = {
+                evalString: evalString
+            };
+            const node: DagNodeFilter = <DagNodeFilter>await this._addNode(type, input, undefined, undefined, true);
+            if (node != null) {
                 DagViewManager.Instance.run([node.getId()], false)
                 .then(() => {
                     if (!UserSettings.getPref("dfAutoPreview")) {
                         DagViewManager.Instance.viewResult(node);
                     }
                 });
-            } catch (e) {
-                console.error("error", e);
-                Alert.error(ErrTStr.Error, ErrTStr.Unknown);
             }
+        } catch (e) {
+            console.error("error", e);
+            Alert.error(ErrTStr.Error, ErrTStr.Unknown);
         }
     }
 

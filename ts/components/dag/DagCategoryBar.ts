@@ -601,7 +601,7 @@ class DagCategoryBar {
         const self = this;
         // dragging operator bar node into dataflow area
         this.$operatorBar.on("mousedown", ".operator .main", function(event) {
-            if (DagViewManager.Instance.isDisableActions()) {
+            if (DagViewManager.Instance.isDisableActions(true)) {
                 return;
             }
             if (event.which !== 1 || (isSystemMac && event.ctrlKey)) {
@@ -637,7 +637,7 @@ class DagCategoryBar {
         });
 
         this.$operatorBar.on("dblclick", ".operator .main", function() {
-            if (DagViewManager.Instance.isDisableActions()) {
+            if (DagViewManager.Instance.isDisableActions(true)) {
                 return;
             }
             const $operator: JQuery = $(this).closest(".operator");

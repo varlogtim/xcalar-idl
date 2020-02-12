@@ -6,13 +6,45 @@ class DagTabSQLExecute extends DagTabUser {
     /**
      * DagTabSQLExecute.viewOnlyAlert
      */
-    public static viewOnlyAlert(): void {
-        const title = `${DagTabSQLExecute.Name} is view only`;
-        Alert.show({
-            title: title,
-            msg: "Please save it as a module and try again.",
-            isAlert: true
-        });
+    public static viewOnlyAlert(dagTab: DagTabSQLExecute): XDPromise<void> {
+        try {
+            const key: string = "noDagTabSQLExecuteAlert";
+            const noAlert = xcLocalStorage.getItem(key) === "true";
+            if (noAlert) {
+                DagTabManager.Instance.convertSQLExecuteTabToDF(dagTab);
+                return PromiseHelper.resolve();
+            }
+            const deferred: XDDeferred<void> = PromiseHelper.deferred();
+            const title = `${DagTabSQLExecute.Name} is view only`;
+            const writeChecked = (hasChecked) => {
+                if (hasChecked) {
+                    xcLocalStorage.setItem(key, "true");
+                }
+            };
+            Alert.show({
+                title: title,
+                msg: "To change this SQL graph, save the graph as a new module.",
+                isCheckBox: true,
+                buttons: [{
+                    name: "Create new module",
+                    className: "larger",
+                    func: (hasChecked) => {
+                        writeChecked(hasChecked);
+                        DagTabManager.Instance.convertSQLExecuteTabToDF(dagTab);
+                        deferred.resolve();
+                    }
+                }],
+                onCancel: (hasChecked) => {
+                    writeChecked(hasChecked);
+                    deferred.reject();
+                }
+            });
+
+            return deferred.promise();
+        } catch (e) {
+            console.error(e);
+            return PromiseHelper.resolve();
+        }
     }
 
     public constructor() {

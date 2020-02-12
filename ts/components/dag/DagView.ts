@@ -175,7 +175,7 @@ class DagView {
         }
     }
 
-    public static newSQLFunc(name, numInput) {
+    public async static newSQLFunc(name, numInput): Promise<void> {
         DagTabManager.Instance.newSQLFunc(name);
 
         // add instruction
@@ -198,7 +198,7 @@ class DagView {
         for (let i = 0; i < numInput; i++) {
             let x: number = xBase;
             let y: number = yBase + (i * inc);
-            DagViewManager.Instance.autoAddNode(DagNodeType.SQLFuncIn, null, null, null, x, y);
+            await DagViewManager.Instance.autoAddNode(DagNodeType.SQLFuncIn, null, null, null, x, y);
         }
 
         // add output
@@ -208,7 +208,7 @@ class DagView {
         const viewPortWidth = DagView.$dagView.outerWidth() - 120;
         const maxX = Math.round(viewPortWidth / 20) * 20;
         x = Math.max(xBase + inc, Math.min(maxX, x));
-        DagViewManager.Instance.autoAddNode(DagNodeType.SQLFuncOut, null, null, null, x, y);
+        await DagViewManager.Instance.autoAddNode(DagNodeType.SQLFuncOut, null, null, null, x, y);
         DagNodeInfoPanel.Instance.hide(); // not show info panel
     }
 
@@ -217,12 +217,12 @@ class DagView {
      * @param type
      * @param config
      */
-    public static newTabFromSource(type: DagNodeType, config: any) {
+    public static async newTabFromSource(type: DagNodeType, config: any): Promise<void> {
         try {
             DagViewManager.Instance.toggleSqlPreview(false);
             DagTabManager.Instance.newTab();
             let position: number = DagView.gridSpacing * 2;
-            let node: DagNode = DagViewManager.Instance.autoAddNode(type, null, null, config,
+            let node: DagNode = await DagViewManager.Instance.autoAddNode(type, null, null, config,
                 position, position);
             if (node != null) {
                 DagNodeMenu.execute("configureNode", {
@@ -1380,7 +1380,7 @@ class DagView {
         }
         if (this.dagTab instanceof DagTabSQLExecute) {
             // cannot modify sql execute tab
-            DagTabSQLExecute.viewOnlyAlert();
+            DagTabSQLExecute.viewOnlyAlert(this.dagTab);
             return;
         }
         this.deselectNodes();
@@ -2997,7 +2997,7 @@ class DagView {
      */
     public isDisableActions(showAlert: boolean = false): boolean {
         if (showAlert && this.dagTab instanceof DagTabSQLExecute) {
-            DagTabSQLExecute.viewOnlyAlert();
+            DagTabSQLExecute.viewOnlyAlert(this.dagTab);
         }
         return (this.dagTab instanceof DagTabCustom ||
             this.dagTab instanceof DagTabSQL ||
@@ -5485,13 +5485,30 @@ class DagView {
 
                 const warning = self._connectionWarning(childNodeId, parentNodeId);
                 if (warning) {
-                    Alert.show({
-                        title: warning.title,
-                        msg: warning.msg,
-                        onConfirm: () => {
-                            self.connectNodes(parentNodeId, childNodeId, connectorIndex, isReconnecting);
-                        }
-                    });
+                    const key = "noConnectAlert";
+                    const noAlert = xcLocalStorage.getItem(key) === "true";
+                    if (noAlert) {
+                        self.connectNodes(parentNodeId, childNodeId,
+                            connectorIndex, isReconnecting);
+                    } else {
+                        const writeChecked = (hasChecked) => {
+                            if (hasChecked) {
+                                xcLocalStorage.setItem(key, "true");
+                            }
+                        };
+                        Alert.show({
+                            title: warning.title,
+                            msg: warning.msg,
+                            isCheckBox: true,
+                            onConfirm: (hasChecked) => {
+                                writeChecked(hasChecked);
+                                self.connectNodes(parentNodeId, childNodeId, connectorIndex, isReconnecting);
+                            },
+                            onCancel: (hasChecked) => {
+                                writeChecked(hasChecked);
+                            }
+                        });
+                    }
                 } else {
                     self.connectNodes(parentNodeId, childNodeId,
                         connectorIndex, isReconnecting);
@@ -5653,6 +5670,11 @@ class DagView {
                 title: DagTStr.SortConnectWarningTitle,
                 msg: DagTStr.SortConnectWarning
             }
+        // }else if (childNode.getMaxParents() !== 1 && childNode.getParents().length > 1) {
+        //     return {
+        //         title: "Combine Graph",
+        //         msg: "Unifying functions will result in a single function name."
+        //     }
         } else {
             return null;
         }

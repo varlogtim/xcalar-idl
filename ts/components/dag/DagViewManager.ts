@@ -915,7 +915,17 @@ class DagViewManager {
         return DagView.getAutoAlignPositions(graph);
     }
 
-    public autoAddNode(
+    /**
+     * DagViewManager.Instance.autoAddNode
+     * @param newType
+     * @param subType 
+     * @param parentNodeId 
+     * @param input 
+     * @param x 
+     * @param y 
+     * @param options 
+     */
+    public async autoAddNode(
         newType: DagNodeType,
         subType?: DagNodeSubType,
         parentNodeId?: DagNodeId,
@@ -927,14 +937,18 @@ class DagViewManager {
             configured?: boolean
             forceAdd?: boolean
         }
-    ): DagNode {
+    ): Promise<DagNode | null> {
         if (this.activeDagTab == null) {
-            throw new Error("Module doesn't exist");
+            return null;
         }
-        if (this.activeDagTab instanceof DagTabSQLExecute) {
-            DagTabManager.Instance.convertSQLExecuteTabToDF(this.activeDagTab);
+        try {
+            if (this.activeDagTab instanceof DagTabSQLExecute) {
+                await DagTabSQLExecute.viewOnlyAlert(this.activeDagTab);
+            }
+            return this.activeDagView.autoAddNode(newType, subType, parentNodeId, input, x, y, options);
+        } catch (e) {
+            return null;
         }
-        return this.activeDagView.autoAddNode(newType, subType, parentNodeId, input, x, y, options);
     }
 
     public appendNode(node: DagNode, options?: {vertSpacing?: number}): void {

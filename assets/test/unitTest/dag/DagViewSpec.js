@@ -276,7 +276,7 @@ describe("DagView Test", () => {
                 done();
             });
         });
-        it("sql node connections should work", function(done) {
+        it("sql node connections should work", async function(done) {
             let dagView = DagViewManager.Instance.getActiveDagView();
 
             let dag = DagViewManager.Instance.getActiveDag();
@@ -285,7 +285,7 @@ describe("DagView Test", () => {
             nodes.forEach((node) => {
                 nodeIds.push(node.getId());
             });
-            let sqlNode = DagViewManager.Instance.autoAddNode(DagNodeType.SQL);
+            let sqlNode = await DagViewManager.Instance.autoAddNode(DagNodeType.SQL);
 
             dagView.connectNodes(nodeIds[0], sqlNode.getId(), 0);
             dagView.connectNodes(nodeIds[1], sqlNode.getId(), 1);
@@ -1257,10 +1257,10 @@ describe("DagView Test", () => {
             tabId = DagViewManager.Instance.getActiveDag().getTabId();
             node3 = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.map").data("nodeid"));
         });
-        it("should add groupby node", function(done) {
+        it("should add groupby node", async function(done) {
             expect($dfArea.find(".operator").length).to.equal(3);
             expect($dfArea.find(".operator.groupBy").length).to.equal(0);
-            DagViewManager.Instance.autoAddNode("groupBy");
+            await DagViewManager.Instance.autoAddNode("groupBy");
             expect($dfArea.find(".operator").length).to.equal(4);
             expect($dfArea.find(".operator.groupBy").length).to.equal(1);
             node4 = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.groupBy").data("nodeid"));
@@ -1279,10 +1279,10 @@ describe("DagView Test", () => {
             });
         });
 
-        it ("should add groupby node as child of map node", function(done) {
+        it ("should add groupby node as child of map node", async function(done) {
             expect($dfArea.find(".operator").length).to.equal(3);
             expect($dfArea.find(".operator.groupBy").length).to.equal(0);
-            DagViewManager.Instance.autoAddNode("groupBy", null, node3.getId(),
+            await DagViewManager.Instance.autoAddNode("groupBy", null, node3.getId(),
             {"groupBy":[""],"aggregate":[{"operator":"","sourceColumn":"","destColumn":"","distinct":false,"cast":null}],"includeSample":false,"joinBack":false,"icv":false,"groupAll":false,"newKeys":[],"dhtName":""});
             expect($dfArea.find(".operator").length).to.equal(4);
             expect($dfArea.find(".operator.groupBy").length).to.equal(1);

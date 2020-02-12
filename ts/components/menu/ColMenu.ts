@@ -379,7 +379,7 @@ class ColMenu extends AbstractMenu {
         });
     }
 
-    private _createNodeAndShowForm(
+    private async _createNodeAndShowForm(
         type: DagNodeType,
         tableId: TableId,
         colNums: number[],
@@ -387,28 +387,20 @@ class ColMenu extends AbstractMenu {
             subType?: DagNodeSubType
             newType?: ColumnType
         }
-    ): void {
-        const $colMenu: JQuery = this._getMenu();
-        if ($colMenu.hasClass("fromSQL")) {
-            this._switchToSQL(callback);
-        } else {
-            callback.bind(this)([]);
-        }
-
-
-        function callback(newNodes: DagNode[], parentNodeId?: string) {
-            try {
-                options = options || {};
-                const table: TableMeta = gTables[tableId];
-                const progCols: ProgCol[] = colNums.map((colNum) => table.getCol(colNum));
-                const input: object = this._getNodeParam(type, progCols, options);
-                const node: DagNode = this._addNode(type, input, options.subType, parentNodeId);
+    ): Promise<void> {
+        try {
+            options = options || {};
+            const table: TableMeta = gTables[tableId];
+            const progCols: ProgCol[] = colNums.map((colNum) => table.getCol(colNum));
+            const input: object = this._getNodeParam(type, progCols, options);
+            const node: DagNode = await this._addNode(type, input, options.subType);
+            if (node != null) {
                 const colNames: string[] = progCols.map(progCol => progCol.getBackColName());
-                this._openOpPanel(node, colNames, newNodes.concat(node));
-            } catch (e) {
-                console.error("error", e);
-                Alert.error(ErrTStr.Error, ErrTStr.Unknown);
+                this._openOpPanel(node, colNames, [node]);
             }
+        } catch (e) {
+            console.error("error", e);
+            Alert.error(ErrTStr.Error, ErrTStr.Unknown);
         }
     }
 

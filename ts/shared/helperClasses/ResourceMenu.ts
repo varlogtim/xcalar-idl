@@ -351,7 +351,7 @@ class ResourceMenu {
         SQLWorkSpace.Instance.newSQL(sql);
     }
 
-    private _tableModule(tableName: string): void {
+    private async _tableModule(tableName: string): Promise<void> {
         const tableInfo = PTblManager.Instance.getTableByName(tableName);
         if (tableInfo == null) {
             const msg = `Cannot find table ${tableName}`;
@@ -365,18 +365,19 @@ class ResourceMenu {
                 source: tableName,
                 schema: tableInfo.getSchema()
             };
-            let node: DagNode = DagViewManager.Instance.autoAddNode(DagNodeType.IMDTable,
+            let node: DagNode = await DagViewManager.Instance.autoAddNode(DagNodeType.IMDTable,
                 null, null, input, undefined, undefined, {
                     configured: true,
                     forceAdd: true
             });
-
-            DagNodeMenu.execute("configureNode", {
-                node: node,
-                exitCallback: () => {
-                    node.setParam({}, true);
-                }
-            });
+            if (node != null) {
+                DagNodeMenu.execute("configureNode", {
+                    node: node,
+                    exitCallback: () => {
+                        node.setParam({}, true);
+                    }
+                });
+            }
         }
     }
 

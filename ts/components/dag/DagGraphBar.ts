@@ -137,13 +137,6 @@ class DagGraphBar {
             }
         });
 
-        $topBar.find(".convertSQLToDF").click(function() {
-            const dagTab = DagViewManager.Instance.getActiveTab();
-            if (dagTab instanceof DagTabSQLExecute) {
-                DagTabManager.Instance.convertSQLExecuteTabToDF(dagTab);
-            }
-        });
-
         $topBar.find(".undo").click(function() {
             if ($(this).hasClass("disabled") || $(this).hasClass("locked")) {
                 return;

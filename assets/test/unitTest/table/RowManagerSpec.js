@@ -34,7 +34,7 @@ describe('RowManager Test', function() {
         .then(() => {
             return UnitTest.addAll(testDSObj, "unitTestFakeYelp");
         })
-        .then(function(ds, tName, tPrefx, _nodeId, _tabId) {
+        .then(async function(ds, tName, tPrefx, _nodeId, _tabId) {
             testDs = ds;
             tableName = tName;
             tableId = xcHelper.getTableId(tableName);
@@ -42,7 +42,7 @@ describe('RowManager Test', function() {
             tabId = _tabId;
             nodeId = _nodeId;
 
-            node = DagViewManager.Instance.autoAddNode("rowNum", null, _nodeId, {newField: "rowNum"});
+            node = await DagViewManager.Instance.autoAddNode("rowNum", null, _nodeId, {newField: "rowNum"});
             node.setParam({newField: "rowNum"});
             return DagViewManager.Instance.run();
         })

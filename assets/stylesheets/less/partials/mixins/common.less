@@ -1393,7 +1393,8 @@
             //         font-weight: 700;
             //     }
             // }
-            &:not(.open) {
+            // XXX TODO: fix the special case
+            &:not(.open):not(".table") {
                 .gridIcon {
                     opacity: 0.25;
                 }

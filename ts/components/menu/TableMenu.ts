@@ -358,7 +358,7 @@ class TableMenu extends AbstractMenu {
         }, 0);
     }
 
-    private _createNodeAndShowForm(
+    private async _createNodeAndShowForm(
         type: DagNodeType,
         tableId?: TableId,
         options?: {
@@ -366,12 +366,14 @@ class TableMenu extends AbstractMenu {
             input?: object,
             parentNodeId?: DagNodeId
         }
-    ): void {
+    ): Promise<void> {
         try {
             options = options || {};
             const input: object = options.input || this._getNodeParam(type, tableId, options);
-            const node: DagNode = this._addNode(type, input, options.subType, options.parentNodeId);
-            this._openOpPanel(node, [], [node]);
+            const node: DagNode = await this._addNode(type, input, options.subType, options.parentNodeId);
+            if (node != null) {
+                this._openOpPanel(node, [], [node]);
+            }
         } catch (e) {
             console.error("error", e);
             Alert.error(ErrTStr.Error, ErrTStr.Unknown);
