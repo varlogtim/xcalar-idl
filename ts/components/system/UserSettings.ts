@@ -315,7 +315,24 @@ namespace UserSettings {
         return shouldCommit;
     }
 
+    function toggleSyntaxHighlight(on: boolean): void {
+        SQLEditorSpace.Instance.toggleSyntaxHighlight(on);
+        UDFPanel.Instance.toggleSyntaxHighlight(on);
+    }
+
     function addEventListeners(): void {
+        $("#showSyntaxHighlight").click(function() {
+            let $checkbox = $(this);
+            $checkbox.toggleClass("checked");
+            if ($checkbox.hasClass("checked")) {
+                UserSettings.setPref("hideSyntaxHiglight", false, true);
+                toggleSyntaxHighlight(true);
+            } else {
+                UserSettings.setPref("hideSyntaxHiglight", true, true);
+                toggleSyntaxHighlight(false);
+            }
+        });
+
         $("#showDataColBox").click(function() {
             let $checkbox = $(this);
             $checkbox.toggleClass("checked");
@@ -432,6 +449,7 @@ namespace UserSettings {
     }
 
     function restoreSettingsPanel(): void {
+        const hideSyntaxHiglight = UserSettings.getPref("hideSyntaxHiglight")
         let hideDataCol = UserSettings.getPref("hideDataCol");
         let graphInterval = UserSettings.getPref("monitorGraphInterval");
         let commitInterval = UserSettings.getPref("commitInterval");
@@ -441,6 +459,12 @@ namespace UserSettings {
         let logOutInterval = UserSettings.getPref("logOutInterval");
         let enableInactivityCheck = UserSettings.getPref("enableInactivityCheck");
         let enableXcalarSupport: boolean = UserSettings.getPref("enableXcalarSupport") || false;
+
+        if (!hideSyntaxHiglight) {
+            $("#showSyntaxHighlight").addClass("checked");
+        } else {
+            $("#showSyntaxHighlight").removeClass("checked");
+        }
 
         if (!hideDataCol) {
             $("#showDataColBox").addClass("checked");

@@ -237,6 +237,14 @@ class SQLEditor {
         return this;
     }
 
+    public toggleSyntaxHighlight(on: boolean) {
+        if (on) {
+            this._editor.setOption("mode", "text/x-sql");
+        } else {
+            this._editor.setOption("mode", null);
+        }
+    }
+
     private _setup(id: string): void {
         const textArea = document.getElementById(id);
         if (!textArea) {

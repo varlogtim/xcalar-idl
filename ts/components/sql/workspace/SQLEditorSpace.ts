@@ -7,7 +7,6 @@ class SQLEditorSpace {
     private _currentFile: string;
     private _popup: PopupPanel;
 
-
     public static get Instance() {
         return this._instance || (this._instance = new this());
     }
@@ -22,6 +21,7 @@ class SQLEditorSpace {
         this._setupSQLEditor();
         this._addEventListeners();
         this._loadSnippet();
+        this.toggleSyntaxHighlight(!UserSettings.getPref("hideSyntaxHiglight"));
     }
 
     /**
@@ -113,6 +113,14 @@ class SQLEditorSpace {
         this._currentFile = name;
         this._setSnippet(snippet);
         return true;
+    }
+
+    /**
+     * SQLEditorSpace.Instance.toggleSyntaxHighlight
+     * @param on
+     */
+    public toggleSyntaxHighlight(on: boolean): void {
+        this._sqlEditor.toggleSyntaxHighlight(on);
     }
 
     private _setSnippet(snippet: string): void {
@@ -484,7 +492,7 @@ class SQLEditorSpace {
                 SQLResultSpace.Instance.showTables(false);
                 break;
             case "addUDF":
-                UDFPanel.Instance.loadSQLUDF("sql");
+                UDFPanel.Instance.loadSQLUDF();
                 break;
             case "save":
                 this._saveAsSnippet();

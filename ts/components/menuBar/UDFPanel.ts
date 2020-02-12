@@ -11,6 +11,11 @@ class UDFPanel {
     private dropdownHint: InputDropdownHint;
     private isSetup: boolean;
     private _popup: PopupPanel;
+    private _mode = {
+        name: "python",
+        version: 3,
+        singleLineStringErrors: false
+    };
 
     private readonly udfDefault: string =
         "# PLEASE TAKE NOTE:\n" +
@@ -67,6 +72,18 @@ class UDFPanel {
             $tab.removeClass("active");
             $container.addClass("xc-hidden");
             PopupManager.checkAllContentUndocked();
+        }
+    }
+
+    /**
+     * UDFPanel.Instance.toggleSyntaxHighlight
+     * @param on
+     */
+    public toggleSyntaxHighlight(on: boolean): void {
+        if (on) {
+            this.editor.setOption("mode", this._mode);
+        } else {
+            this.editor.setOption("mode", null);
         }
     }
 
@@ -291,11 +308,7 @@ class UDFPanel {
         this.editor = CodeMirror.fromTextArea(
             textArea as HTMLTextAreaElement,
             {
-                mode: {
-                    name: "python",
-                    version: 3,
-                    singleLineStringErrors: false
-                },
+                mode: this._mode,
                 theme: "xcalar-dark",
                 lineNumbers: true,
                 lineWrapping: true,
@@ -340,6 +353,8 @@ class UDFPanel {
                 xcTooltip.auto(<any>event.currentTarget);
             }
         );
+
+        this.toggleSyntaxHighlight(!UserSettings.getPref("hideSyntaxHiglight"));
     }
 
     private _addSaveEvent(): void {

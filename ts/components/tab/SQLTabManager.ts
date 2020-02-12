@@ -95,7 +95,7 @@ class SQLTabManager extends AbstractTabManager {
                     this._loadTab(tab);
                 });
                 if (this._activeTabs.length) {
-                    this._switchTabs[0];
+                    this._switchTabs(0);
                 }
                 this._updateList();
             }
