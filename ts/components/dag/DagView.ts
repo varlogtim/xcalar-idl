@@ -1244,7 +1244,6 @@ class DagView {
         generateOptimizedDataflow?: boolean
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-
         this._runValidation(nodeIds, optimized)
             .then((ret) => {
                 if (ret && ret.optimized) {
@@ -3053,6 +3052,7 @@ class DagView {
 
         const $tip = $(tip);
         this.$dfArea.append($tip);
+        this._focusRunningNode($tip);
     }
 
     /**
@@ -4293,7 +4293,6 @@ class DagView {
             // when switch from error state to other state
             this._setTooltip($node, nodeInfo.node);
         }
-
         if (nodeInfo.state !== DagNodeState.Complete &&
             !(nodeInfo.state === DagNodeState.Error &&
                 nodeInfo.oldState === DagNodeState.Running)) {
@@ -5913,6 +5912,29 @@ class DagView {
             };
             this._repositionProgressTooltip(nodeInfo, node.getId());
             this.dagTab.save();
+        }
+    }
+
+    private _focusRunningNode($tip: JQuery): void {
+        try {
+            if (DagViewManager.Instance.getActiveDagView() !== this) {
+                return;
+            }
+            if (!$tip.hasClass(DgDagStateTStr[DgDagStateT.DgDagStateProcessing])) {
+                return;
+            }
+            const $node = this.getNodeElById($tip.data("id"));
+            if (!$node.length) {
+                console.error("Running node could not be found");
+                return;
+            }
+            DagViewManager.Instance.deselectNodes();
+            DagUtil.scrollIntoView($node, this.$dfArea)
+            const tabId: string = this.getTab().getId();
+            const nodeId: DagNodeId = $node.data("nodeid");
+            DagViewManager.Instance.selectNodes(tabId, [nodeId]);
+        } catch (e) {
+            console.error("focus on running node error", e);
         }
     }
 }

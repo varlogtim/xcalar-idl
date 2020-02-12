@@ -1023,7 +1023,7 @@ namespace DagNodeMenu {
             let $node: JQuery;
             let $tip = $container.find(".runStats." + DgDagStateTStr[DgDagStateT.DgDagStateProcessing]);
             if ($tip.length) {
-                $node =  DagViewManager.Instance.getNode($tip.data("id"));
+                $node = DagViewManager.Instance.getNode($tip.data("id"));
             }
             if (!$node || !$node.length) {
                 throw({message: "Running node could not be found"});
