@@ -127,8 +127,9 @@ class SQLWorkSpace {
         let $panel: JQuery = this._getPanel();
         let $bottomPart: JQuery = this._getBottomPart();
         let $topPart: JQuery = $panel.find(".topPart");
+        let $debugPart: JQuery = $panel.find(".debugPart");
         let bottomHeight: number;
-        let topHeight: number;
+        let siblingHeight: number;
         let totalHeight: number;
         let lastTop: number = 0;
 
@@ -138,8 +139,8 @@ class SQLWorkSpace {
             start: function(_event, ui) {
                 $panel.addClass("resizing");
                 bottomHeight = $bottomPart.outerHeight();
-                topHeight = $topPart.outerHeight();
-                totalHeight = topHeight + bottomHeight;
+                siblingHeight = $topPart.outerHeight() + $debugPart[0].getBoundingClientRect().height;
+                totalHeight = siblingHeight + bottomHeight;
                 lastTop = ui.position.top;
             },
             resize: function(_event, ui) {
