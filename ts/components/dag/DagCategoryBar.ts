@@ -566,7 +566,7 @@ class DagCategoryBar {
                 xcTooltip.Attrs + ' data-original-title="' + description + '" />'+
             '<svg width="' + (DagView.nodeWidth - 2) + '" height="' + DagView.nodeHeight + '" x="1" y="1">' +
                 opTitleHtml + '</svg>' +
-            '<circle class="statusIcon" cx="' + (DagView.nodeWidth - 12) + '" cy="' + (DagView.nodeHeight - 2) + '" r="5" ' +
+            '<circle class="statusIcon" cx="' + (DagView.nodeWidth - 12) + '" cy="' + (DagView.nodeHeight - 2) + '" r="3" ' +
                 'stroke="' + this._borderColor + '" stroke-width="1" fill="white" />' +
             '</g>';
 
