@@ -38,12 +38,12 @@ class SQLWorkSpace {
         // so commented out. Uncomment it if it's actually necessary
         // this.refresh();
         DagViewManager.Instance.toggleSqlPreview(true);
-
         if (this._firstTouch) {
             this.refresh();
             SQLResultSpace.Instance.showTables(true);
             this._firstTouch = false;
         }
+        PopupManager.checkAllContentUndocked();
         TblFunc.moveFirstColumn();
 
         // deslect nodes when clicking outside dataflow area or dataflow

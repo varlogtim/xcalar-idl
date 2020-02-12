@@ -3960,7 +3960,7 @@ class DagView {
 
         this._registerGraphEvent(this.graph, DagNodeEvents.HeadChange, (info) => {
             info.nodes.forEach((node) => {
-                const $node: JQuery = this._getNode(node.getId()); 
+                const $node: JQuery = this._getNode(node.getId());
                 this._drawHeadText($node, node);
             });
         });
@@ -4413,12 +4413,12 @@ class DagView {
     private _drawHeadText($node: JQuery, node: DagNodeIn): void {
         const g = d3.select($node.get(0));
         const head: string = node.getHead();
-        g.select(".grahHead").remove();
+        g.select(".graphHead").remove();
         if (!head) {
             return;
         }
         g.append("text")
-            .attr("class", "grahHead")
+            .attr("class", "graphHead")
             .attr("fill", DagView.textColor)
             .attr("font-size", 10)
             .attr("transform", "translate(-20,0)")
@@ -5120,6 +5120,7 @@ class DagView {
         // desired dimensions of the operator element to be altered so we
         // undo its effects by using offsets
         const elOffsets = [];
+        $elements.find(".graphHead").hide();
         $elements.each(function () {
             const $el = $(this);
             const elOffset = { x: 0, y: 0 };
@@ -5130,7 +5131,7 @@ class DagView {
             }
             elOffsets.push(elOffset);
         });
-
+        $elements.find(".graphHead").show();
 
         new DragHelper({
             event: event,

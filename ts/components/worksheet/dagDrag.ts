@@ -257,6 +257,7 @@ class DragHelper {
         // so we can create a div that's sized to encapsulate all dragging elements
         // and append these to the div
         this.$els.find(".topNodeIcon").hide();// prevent nodeIcons from interfering with position
+        this.$els.find(".graphHead").hide();// prevent nodeIcons from interfering with position
         this.$els.each(function(i) {
             const elOffset = self.elOffsets[i] || {x: 0, y: 0};
             let rect = this.getBoundingClientRect();
@@ -272,6 +273,7 @@ class DragHelper {
             maxY = Math.max(maxY, rect.bottom);
         });
         this.$els.find(".topNodeIcon").show();
+        this.$els.find(".graphHead").show();
         let width: number = maxX - minX;
         let height: number = maxY - minY;
         const left: number = minX;
