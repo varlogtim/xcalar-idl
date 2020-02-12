@@ -121,6 +121,7 @@ class SQLWorkSpace {
         this._resizeTopAndBottomPart();
         this._resizeTopPartSection();
         this._resizeDataflowAndResultSection();
+        this._resizeDebugPart();
     }
 
     private _resizeTopAndBottomPart(): void {
@@ -237,8 +238,60 @@ class SQLWorkSpace {
                 $panel.removeClass("resizing");
             }
         });
+    }
 
+    private _resizeDebugPart(): void {
+        let $panel: JQuery = this._getPanel();
+        let $bottomPart: JQuery = this._getBottomPart();
+        let $topPart: JQuery = $panel.find(".topPart");
+        let $debugPart: JQuery = $panel.find(".debugPart");
+        let debugHeight: number;
+        let siblingHeight: number;
+        let totalHeight: number;
+        let lastTop: number = 0;
+        let origDebugPct: number = 0;
+        let origBottomPct: number = 0;
+        let isBottomAllUndocked: boolean;
 
+        // resizable debug secton
+        $debugPart.resizable({
+            handles: "n",
+            start: function(_event, ui) {
+                $panel.addClass("resizing");
+                debugHeight = $debugPart.outerHeight();
+                const bottomHeight = $bottomPart[0].getBoundingClientRect().height
+                siblingHeight = $topPart.outerHeight() + bottomHeight;
+                totalHeight = siblingHeight + debugHeight;
+                lastTop = ui.position.top;
+                origDebugPct = debugHeight / totalHeight;
+                origBottomPct = bottomHeight / totalHeight;
+                isBottomAllUndocked = $bottomPart.hasClass("allContentUndocked");
+            },
+            resize: function(_event, ui) {
+                const top: number = ui.position.top;
+                const delta: number = top - lastTop;
+                let pct = (debugHeight - delta) / totalHeight;
+                pct = Math.min(pct, 0.98);
+                pct = Math.max(0.02, pct);
+
+                const deltaPct: number = pct - origDebugPct;
+
+                let bottomPct = origBottomPct - (deltaPct / 2);
+                bottomPct = Math.min(bottomPct, 0.98);
+                bottomPct = Math.max(0.02, bottomPct);
+
+                $debugPart.css("height", `${pct * 100}%`);
+                $debugPart.css("top", "0");
+                if (!isBottomAllUndocked) {
+                    $bottomPart.css("height", `${bottomPct * 100}%`);
+                }
+            },
+            stop: function() {
+                $panel.removeClass("resizing");
+                SQLEditorSpace.Instance.refresh();
+                UDFPanel.Instance.getEditor().refresh();
+            }
+        });
     }
 
     private _addEventListeners(): void {
