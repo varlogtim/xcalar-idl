@@ -20,7 +20,7 @@ class UDFPanel {
     private readonly udfDefault: string =
         "# PLEASE TAKE NOTE:\n" +
         "# \n" +
-        "# UDFs works on one or more\n" +
+        "# Scalar function works on one or more\n" +
         "# fields of a table row\n" +
         "# and/or on literal values.\n" +
         "# Function automatically\n" +
@@ -36,7 +36,7 @@ class UDFPanel {
         "# treated as string\n" +
         "# \n" +
         "# ex:\n" +
-        "# def udf_sum(col1, col2):\n" +
+        "# def scalar_sum(col1, col2):\n" +
         "#     return col1 + col2;\n" +
         "# \n";
     /**

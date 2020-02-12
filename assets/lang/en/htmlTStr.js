@@ -400,9 +400,9 @@ module.exports = {
     },
 
     "fileManager": {
-        "monitorMenuTitle": "UDF Manager",
-        "monitorMenuInstr": "You can manage udfs.",
-        "UDF": "UDF",
+        "monitorMenuTitle": "Scalar Fn Manager",
+        "monitorMenuInstr": "You can manage scalar functions.",
+        "UDF": "Scalar Fn",
         "Dataflow": "Application",
         "Actions": "Actions",
         "Open": "Open",
@@ -425,7 +425,7 @@ module.exports = {
         "BlankFunc": "New Module",
         "Editor": "Editor",
         "Func": "UDF Function",
-        "Header": "UDF",
+        "Header": "Scalar Fn",
         "Manager": "Manager",
         "MyUDF": "My UDFs",
         "Module": "UDF Module",
@@ -433,8 +433,8 @@ module.exports = {
         "NameHint": "Module name (lowercase)",
         "Refresh": "Refresh UDF List",
         "SelectTemplate": "Select a UDF module",
-        "ToManager": "Open UDF Manager",
-        "SaveFile": "Save UDF",
+        "ToManager": "Open Scalar Function Manager",
+        "SaveFile": "Save Scalar Function",
         "Udf": "UDF",
         "Udfs": "UDFs"
     },
@@ -476,8 +476,8 @@ module.exports = {
         "AddModule": "New Module",
         "TableFuncs": "Table Functions",
         "AddTableFunc": "New Function",
-        "UDFs": "UDFs",
-        "AddUDF": "Add UDF",
+        "UDFs": "Scalar Fns",
+        "AddUDF": "Add Scalar Function",
         "UseInSQL": "Use in SQL",
         "UseInModule": "Use in Module",
         "Edit": "Edit"
