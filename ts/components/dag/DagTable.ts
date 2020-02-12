@@ -81,6 +81,17 @@ class DagTable {
         return this._currentViewer ? this._currentViewer.getView() : null;
     }
 
+    /**
+     * DagTable.Instance.getBindTabId
+     */
+    public getBindTabId(): string {
+        if (this._currentViewer instanceof XcDagTableViewer) {
+            return this._currentViewer.getDataflowTabId();
+        } else {
+            return null;
+        }
+    }
+
     public getBindNode(): DagNode {
         if (this._currentViewer != null && this._currentViewer instanceof XcDagTableViewer) {
             return this._currentViewer.getNode();

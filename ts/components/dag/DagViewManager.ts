@@ -416,7 +416,7 @@ class DagViewManager {
         this.render($dfArea);
         this.activeDagView.focus();
         this._updateDagView();
-        DagTable.Instance.switchTab(dagTab.getId());
+        // DagTable.Instance.switchTab(dagTab.getId());
         DagSearch.Instance.switchTab();
         this.activeDagView.updateOperationTime();
         DagUDFErrorModal.Instance.close();

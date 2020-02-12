@@ -46,8 +46,9 @@ abstract class AbstractMenu {
     }
 
     protected _isViewOnlyTab(node: DagNode): boolean {
-        if (node.getMaxChildren() === 0 || (DagViewManager.Instance.getActiveDagView() &&
-            DagViewManager.Instance.getActiveDagView().isViewOnly())
+        const tabId = this._getTabId();
+        const dagView = DagViewManager.Instance.getDagViewById(tabId);
+        if (node.getMaxChildren() === 0 || (dagView && dagView.isViewOnly())
         ) {
             return true;
         } else {
@@ -56,8 +57,14 @@ abstract class AbstractMenu {
     }
 
     protected _getCurrentNode(): DagNode {
-        const nodeId: DagNodeId = DagTable.Instance.getBindNodeId();
-        return DagViewManager.Instance.getActiveDag().getNode(nodeId);
+        const tabId = this._getTabId();
+        const dagView = DagViewManager.Instance.getDagViewById(tabId);
+        if (dagView != null) {
+            const nodeId: DagNodeId = DagTable.Instance.getBindNodeId();
+            return dagView.getGraph().getNode(nodeId);
+        } else {
+            return null;
+        }
     }
 
     protected _addNode(
@@ -67,6 +74,8 @@ abstract class AbstractMenu {
         parentNodeId?: DagNodeId,
         configured?: boolean
     ): Promise<DagNode | null> {
+        const tabId = this._getTabId();
+        DagTabManager.Instance.switchTab(tabId);
         parentNodeId = parentNodeId || DagTable.Instance.getBindNodeId();
         return DagViewManager.Instance.autoAddNode(type,
             subType, parentNodeId, input, undefined, undefined, {
@@ -76,7 +85,7 @@ abstract class AbstractMenu {
     }
 
     protected _openOpPanel(node: DagNode, colNames: string[], allNodes: DagNode[]): void {
-        const tabId: string = DagViewManager.Instance.getActiveDag().getTabId();
+        const tabId: string = this._getTabId();
         DagNodeMenu.execute("configureNode", {
             node: node,
             autofillColumnNames: colNames,
@@ -121,6 +130,15 @@ abstract class AbstractMenu {
                 $li.trigger(fakeEvent.mouseup);
             }
         }
+    }
+
+    protected _getTabId(): string {
+        let tabId: string = DagTable.Instance.getBindTabId();
+        if (tabId == null) {
+            // use current tab when no binded tab
+            tabId = DagViewManager.Instance.getActiveTab().getId();
+        }
+        return tabId;
     }
 
     private _showHotKeys($menu: JQuery): void {
