@@ -252,6 +252,7 @@ class SQLWorkSpace {
         let origDebugPct: number = 0;
         let origBottomPct: number = 0;
         let isBottomAllUndocked: boolean;
+        let heightFactor: 1 | 2;
 
         // resizable debug secton
         $debugPart.resizable({
@@ -266,6 +267,7 @@ class SQLWorkSpace {
                 origDebugPct = debugHeight / totalHeight;
                 origBottomPct = bottomHeight / totalHeight;
                 isBottomAllUndocked = $bottomPart.hasClass("allContentUndocked");
+                heightFactor = $topPart.hasClass("allContentUndocked") ? 1 : 2;
             },
             resize: function(_event, ui) {
                 const top: number = ui.position.top;
@@ -276,7 +278,7 @@ class SQLWorkSpace {
 
                 const deltaPct: number = pct - origDebugPct;
 
-                let bottomPct = origBottomPct - (deltaPct / 2);
+                let bottomPct = origBottomPct - (deltaPct / heightFactor);
                 bottomPct = Math.min(bottomPct, 0.98);
                 bottomPct = Math.max(0.02, bottomPct);
 

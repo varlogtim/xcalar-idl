@@ -282,8 +282,10 @@
                 &.allContentUndocked {
                     flex: 0 0 0;
                     ~ .bottomPart:not(.allContentUndocked) {
-                        height: auto !important;
                         flex: 1 1 auto;
+                        > .ui-resizable-handle {
+                            display: none !important;
+                        }
                     }
                 }
             }
@@ -336,6 +338,9 @@
 
                 &.allContentUndocked {
                     height: 0 !important;
+                    > .ui-resizable-handle {
+                        display: none !important;
+                    }
                 }
 
                 > .ui-resizable-handle {
@@ -370,9 +375,17 @@
                         display: none;
                     }
 
-                    // .openResult {
-                    //     display: inline-block;
-                    // }
+                }
+
+                &:not(.contentsExpanded) {
+                    > .section {
+                        &:not(.contentUndocked) {
+                            // when docked and not stacked,
+                            // we should overwrite any resized height
+                            // by using 100% important
+                            height: 100% !important;
+                        }
+                    }
                 }
 
                 &.contentsExpanded {

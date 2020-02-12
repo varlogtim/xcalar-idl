@@ -90,7 +90,7 @@ class PopupPanel {
         $panel.resizable("disable");
         $panel.draggable("disable");
         $panel.parent().removeClass("contentUndocked");
-        $panel.parent().parent().removeClass("allContentUndocked");
+        this.checkAllContentUndocked();
 
         this._event.dispatchEvent("Dock");
         this._event.dispatchEvent("Dock_BroadCast");
@@ -167,12 +167,20 @@ class PopupPanel {
 
     public checkAllContentUndocked() {
         const $panel = this.getPanel();
-        const $largeSection = $panel.parent().parent(); // top or bottom half
+        const $largeSection = $panel.parent().parent();
+        const wasAllUndocked = $largeSection.hasClass("allContentUndocked");
         if ($largeSection.children(".section:visible").length ===
             $largeSection.children(".section.contentUndocked:visible").length) {
             $largeSection.addClass("allContentUndocked");
         } else {
             $largeSection.removeClass("allContentUndocked");
+            if (wasAllUndocked && $largeSection.hasClass("topPart") &&
+                ($largeSection.outerHeight() < 20)) {
+                const totalHeight = $largeSection.parent().height();
+                const bottomHeight = $largeSection.siblings(".bottomPart")[0].getBoundingClientRect().height;
+                // if topPart has a small height, then reduce bottomPart's height by half
+                $largeSection.siblings(".bottomPart").css("height", (100 * (bottomHeight / totalHeight) / 2) + "%");
+            }
         }
     }
 }
