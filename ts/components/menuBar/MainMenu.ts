@@ -218,14 +218,23 @@ namespace MainMenu {
         }
     }
 
+    // not used
+    export function showResourcePanel() {
+        const $tab = $("#sqlTab");
+        $tab.addClass("showing");
+        $("#sqlWorkSpacePanel").removeClass("hidingLeftPanel");
+        TblFunc.moveFirstColumn();
+        DagCategoryBar.Instance.showOrHideArrows();
+        SQLEditorSpace.Instance.refresh();
+    }
+
     function toggleResourcePanel() {
         const $tab = $("#sqlTab");
         if ($tab.hasClass("showing")) {
             $tab.removeClass("showing");
             $("#sqlWorkSpacePanel").addClass("hidingLeftPanel");
         } else {
-            $tab.addClass("showing");
-            $("#sqlWorkSpacePanel").removeClass("hidingLeftPanel");
+            MainMenu.showResourcePanel();
         }
         TblFunc.moveFirstColumn();
         DagCategoryBar.Instance.showOrHideArrows();
