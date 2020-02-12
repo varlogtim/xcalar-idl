@@ -214,7 +214,7 @@ html.edge {
             background-color: @color-table-hoverBg-gray;
 
             &.indexedColumn:not(.noIndexStyle) {
-                background-color: @color-iron !important;
+                background-color: @color-table-indexed-hover !important;
             }
             &.selectedCell, &.colSelected, &.selectedCol {
                 background-color: @color-table-selected-hover !important;
@@ -561,12 +561,12 @@ html.edge {
             }
             &:nth-child(even) {
                 td.modalHighlighted, td.jsonElement.modalHighlighted .pop {
-                    background-color: @color-selectedCell-light;
+                    background-color: @color-table-selectedCell-light;
                 }
             }
             &:hover {
                 td.modalHighlighted, td.jsonElement.modalHighlighted .pop {
-                    background-color: @color-heather !important;
+                    background-color: @color-table-selected-hover !important;
                 }
             }
         }
@@ -834,12 +834,12 @@ html.edge {
             }
             &:nth-child(even) {
                 td.modalHighlighted {
-                    background-color: @color-selectedCell-light;
+                    background-color: @color-table-selectedCell-light;
                 }
             }
             &:hover {
                 td.modalHighlighted {
-                    background-color: @color-heather !important;
+                    background-color: @color-table-selected-hover !important;
                 }
             }
         }
@@ -1265,12 +1265,12 @@ html.edge {
         }
         &:nth-child(even) {
             td.modalHighlighted {
-                background-color: @color-selectedCell-light;
+                background-color: @color-table-selectedCell-light;
             }
         }
         &:hover {
             td.modalHighlighted {
-                background-color: @color-heather !important;
+                background-color: @color-table-selected-hover !important;
             }
         }
     }

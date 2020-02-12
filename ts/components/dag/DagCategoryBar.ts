@@ -526,7 +526,7 @@ class DagCategoryBar {
             hasTable = true;
             table = '<g class="table" transform="translate(' + (DagView.nodeWidth + 24) + ', 0)" display="none">' +
                         '<path class="tableLine" stroke="' + this._edgeColor + '" stroke-width="1px" fill="none" stroke-linecap="round" d="M-35,14L16,14"></path>' +
-                        '<rect x="0" y="1" width="25" height="25" fill=" ' + this._tableBackColor + '" ry="2" rx="2" />'+
+                        '<rect x="-1" y="1" width="25" height="25" fill=" ' + this._tableBackColor + '" ry="1" rx="1" />'+
                         '<text class="mainTableIcon" font-family="icomoon" font-size="27" x="-2" y="' + (DagView.nodeHeight - 1) + '" ' + xcTooltip.Attrs + ' data-original-title="Click to view options">\uea82</text>' +
                         '<text class="tableName" x="12" y="37" ' +
                         'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
