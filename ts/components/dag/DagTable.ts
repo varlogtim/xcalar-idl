@@ -114,7 +114,7 @@ class DagTable {
 
 
     public closeDatasetPreview(): void {
-        if (!(this._currentViewer instanceof XcDagTableViewer)) {
+        if (this._currentViewer && !(this._currentViewer instanceof XcDagTableViewer)) {
             this._close();
         }
     }
