@@ -67,7 +67,7 @@ class UDFFileManager extends BaseFileManager {
         displayPath = displayPath.startsWith(this.getCurrWorkbookDisplayPath())
             ? displayPath.split("/").pop()
             : displayPath;
-        const moduleName = displayPath.substring(0, displayPath.indexOf(".py"));
+        const moduleName = UDFPanel.parseModuleNameFromFileName(displayPath);
         UDFPanel.Instance.loadUDF(moduleName);
     }
 
@@ -200,7 +200,6 @@ class UDFFileManager extends BaseFileManager {
      */
     public storePython(nsPath: string, entireString: string): void {
         this.storedUDF.set(nsPath, entireString);
-        UDFPanel.Instance.updateUDF();
         this.panels.forEach((panel: FileManagerPanel) =>
             this._updatePanel(panel, false)
         );
@@ -238,7 +237,6 @@ class UDFFileManager extends BaseFileManager {
             return this._getUserWorkbookMap(listXdfsObj);
         })
         .then(() => {
-            UDFPanel.Instance.updateUDF();
             UDFTabManager.Instance.setup();
             $("#udf-fnSection").removeClass("xc-disabled");
             this.panels.forEach((panel: FileManagerPanel) =>
@@ -887,7 +885,6 @@ class UDFFileManager extends BaseFileManager {
             return def.promise();
         })
         .then(() => {
-            UDFPanel.Instance.updateUDF();
             this.panels.forEach((panel: FileManagerPanel) =>
                 this._updatePanel(panel, isDelete)
             );

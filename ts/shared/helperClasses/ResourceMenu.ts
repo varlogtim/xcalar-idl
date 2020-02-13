@@ -109,7 +109,7 @@ class ResourceMenu {
             return this._getListHTML(udf.name, listClassNames, iconClassNames);
         }).join("");
 
-        return this._getNestedListWrapHTML("SQL Fns", html);
+        return this._getNestedListWrapHTML("SQL Scalar Fns", html);
     }
 
     private _renderSQList(): void {
@@ -381,17 +381,6 @@ class ResourceMenu {
         }
     }
 
-     // XXX TODO: verify it
-     private _udfEdit(): void {
-        let $dagListItem: JQuery = $(event.currentTarget).closest(".dagListDetail");
-        const udfName: string = $dagListItem.data("id")
-        UDFPanel.Instance.selectUDF(udfName);
-        const $udfTab = $("#udfTab");
-        if (!$udfTab.hasClass("active")) {
-            $udfTab.click();
-        }
-    }
-
     private _udfQuery(name: string): void {
         try {
             const fn = UDFFileManager.Instance.listSQLUDFFuncs().find((fn) => fn.name === name);
@@ -474,13 +463,14 @@ class ResourceMenu {
             SQLWorkSpace.Instance.tableFuncQuery(name);
         });
 
-        $menu.on("click", ".udfEdit", () => {
-            this._udfEdit();
-        });
-
         $menu.on("click", ".udfQuery", () => {
             const name: string = $menu.data("name");
             this._udfQuery(name);
+        });
+
+        $menu.on("click", ".udfDelete", () => {
+            const name: string = UDFPanel.parseModuleNameFromFileName($menu.data("name"));
+            UDFPanel.Instance.deleteUDF(name);
         });
 
         $menu.on("click", ".sqlDownload", () => {
@@ -551,13 +541,13 @@ class ResourceMenu {
             if ($li.hasClass("active")) {
                 return;
             }
-            let name: string = $li.find(".name").text();
             if ($li.hasClass("sqlUDF")) {
-                name = "sql";
+                UDFPanel.Instance.loadSQLUDF();
             } else {
-                name = name.substring(0, name.indexOf(".py"));
+                let name: string = $li.find(".name").text();
+                name = UDFPanel.parseModuleNameFromFileName(name);
+                UDFPanel.Instance.loadUDF(name);
             }
-            UDFPanel.Instance.loadUDF(name);
         });
 
         $container.on("click", ".dropDown", (event) => {

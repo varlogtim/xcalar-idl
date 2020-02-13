@@ -1063,9 +1063,6 @@ class MapOpPanel extends GeneralOpPanel {
 
     private _createNewUDF(): void {
         UDFPanel.Instance.newUDF();
-        setTimeout(() => {
-            UDFPanel.Instance.focusBlankUDF();
-        }, 500);
     }
     // opens udf panel and selects a module
     private _openUDFPanel(moduleName: string) {

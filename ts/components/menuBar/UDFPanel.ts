@@ -1,14 +1,21 @@
 class UDFPanel {
     private static _instance = null;
-
+    
     public static get Instance(): UDFPanel {
         return this._instance || (this._instance = new this());
     }
 
+    /**
+     * UDFPanel.parseModuleNameFromFileName
+     * @param fileName
+     */
+    public static parseModuleNameFromFileName(fileName: string): string {
+        return fileName.substring(0, fileName.indexOf(".py"));
+    }
+
+    private readonly _sqlUDF: string = "sql";
     private editor: CodeMirror.EditorFromTextArea;
-    private editorInitValue: string;
     private udfWidgets: CodeMirror.LineWidget[] = [];
-    private dropdownHint: InputDropdownHint;
     private isSetup: boolean;
     private _popup: PopupPanel;
     private _mode = {
@@ -47,8 +54,7 @@ class UDFPanel {
             return;
         }
         this.isSetup = true;
-        this._setupUDF();
-        this._setupDropdownList();
+        this._addEventListeners();
         this._setupPopup();
     }
 
@@ -107,19 +113,14 @@ class UDFPanel {
      * UDFPanel.Instance.loadSQLUDF
      */
     public loadSQLUDF(): void {
-        return this.loadUDF("sql");
+        return this.loadUDF(this._sqlUDF);
     }
 
     /**
-     * Clear the UDF editor.
-     * @returns void
+     * UDFPanel.Instance.refresh
      */
-    public clearEditor(): void {
-        // clear CodeMirror
-        if (this.editor != null) {
-            this._setEditorValue(this.udfDefault);
-            this.editor.clearHistory();
-        }
+    public refresh(): void {
+        this.editor.refresh();
     }
 
     /**
@@ -135,28 +136,27 @@ class UDFPanel {
      * UDFPanel.Instance.openUDF
      * @param moduleName
      */
-    public openUDF(moduleName: string): void {
-        if (moduleName) {
-            this.selectUDFPath(moduleName);
-        } else {
-            this._selectBlankUDF();
-        }
+    public openUDF(moduleName: string, isNew?: boolean): void {
+        this._selectUDF(moduleName, isNew);
     }
 
     /**
-     * @param  {string} moduleName
-     * @returns void
+     * UDFPanel.Instance.deleteUDF
+     * @param moduleName
      */
-    public selectUDFPath(moduleName: string): void {
-        this._selectUDF(moduleName + ".py", false);
-    }
-
-    /**
-     * @param  {string} displayName
-     * @returns void
-     */
-    public edit(displayName: string): void {
-        this._selectUDF(displayName, true);
+    public deleteUDF(moduleName: string): void {
+        let msg = xcStringHelper.replaceMsg(UDFTStr.DelMsg, {
+            name: moduleName
+        });
+        Alert.show({
+            title: UDFTStr.Del,
+            msg,
+            onConfirm: () => {
+                const displayPath = this._getDisplayNameAndPath(moduleName)[1] + ".py";
+                UDFFileManager.Instance.delete([displayPath]);
+                UDFTabManager.Instance.closeTab(moduleName);
+            }
+        });
     }
 
     /**
@@ -202,14 +202,6 @@ class UDFPanel {
         }
     }
 
-    /**
-     * UDFPanel.Instance.updateUDF
-     * @returns void
-     */
-    public updateUDF(): void {
-        this._updateDropdownList(this.listUDFs());
-    }
-
     public listUDFs(): {displayName: string, path: string}[] {
         const res: {displayName: string, path: string}[] = [];
         // store by name
@@ -237,49 +229,19 @@ class UDFPanel {
         return res;
     }
 
-    /**
-     * UDFPanel.Instance.switchMode
-     * update mode of udf section
-     */
-    public switchMode(sqlMode: boolean): void {
-        // XXX TODO: deprecate it
-        if (!XVM.isDataMart()) {
-            sqlMode = XVM.isSQLMode() &&
-            $("#sqlWorkSpacePanel").hasClass("active");
-        }
-        const $udfSection: JQuery = this._getUDFSection();
-        const $topSection: JQuery = $("#udf-fnSection .topSection");
-        if (sqlMode) {
-            // switch to sql mode, only show sql.py
-            $udfSection.addClass("sqlMode");
-            $topSection.find(".refreshUdf").addClass("xc-hidden");
-            $topSection.find(".template.normal").addClass("xc-hidden");
-            $topSection.find(".template.sql").removeClass("xc-hidden");
-            this._selectSQLUDF();
-        } else {
-            $udfSection.removeClass("sqlMode");
-            $topSection.find(".refreshUdf").removeClass("xc-hidden");
-            $topSection.find(".template.normal").removeClass("xc-hidden");
-            $topSection.find(".template.sql").addClass("xc-hidden");
-        }
-    }
-
-    public selectUDF(udfPath: string): void {
-        if (UDFFileManager.Instance.hasUDF(udfPath)) {
-            const displayName = this._getDisplayNameFromNSPath(udfPath);
-            this._selectUDF(displayName, false);
-        } else {
-            this._selectBlankUDF();
-        }
-    }
-
-
     private _getUDFSection(): JQuery {
         return $("#udfSection");
     }
 
-    // Setup UDF section
-    private _setupUDF(): void {
+    private _getEditSection(): JQuery {
+        return this._getUDFSection().find(".editSection");
+    }
+
+    private _getSaveButton(): JQuery {
+        return this._getUDFSection().find(".saveFile");
+    }
+
+    private _addEventListeners(): void {
         const $udfSection: JQuery = this._getUDFSection();
         UDFFileManager.Instance.initialize();
         const monitorFileManager: FileManagerPanel = new FileManagerPanel(
@@ -345,75 +307,53 @@ class UDFPanel {
         }
 
         this._addSaveEvent();
-
-        $udfSection.on(
-            "mouseenter",
-            ".tooltipOverflow",
-            (event: JQueryEventObject): void => {
-                xcTooltip.auto(<any>event.currentTarget);
-            }
-        );
-
         this.toggleSyntaxHighlight(!UserSettings.getPref("hideSyntaxHiglight"));
     }
 
     private _addSaveEvent(): void {
         const $udfSection: JQuery = this._getUDFSection();
-        const $topSection: JQuery = $udfSection.find(".topSection");
-        const $save: JQuery = $udfSection.find(".saveFile");
-        const $saveNameInput: JQuery = $topSection.find(".udf-fnName");
-        $save.on("click", () => {
-            this._saveUDF($saveNameInput);
+        this._getSaveButton().on("click", () => {
+            this._saveUDF();
         });
 
         const $editArea: JQuery = $udfSection.find(".editSection .editArea");
-        $editArea.keydown((event: JQueryEventObject) => {
-            if (
-                (!(isSystemMac && event.metaKey) &&
-                    !(!isSystemMac && event.ctrlKey)) ||
-                event.which !== keyCode.S
-            ) {
-                return;
+        $editArea.keydown((event) => {
+            if (xcHelper.isShirtKey(event) && event.which === keyCode.S) {
+                // ctl + s to save
+                event.preventDefault();
+                event.stopPropagation(); // Stop propagation, otherwise will clear StatusBox.
+                this._saveUDF();
             }
-            event.preventDefault();
-            // Stop propagation, otherwise will clear StatusBox.
-            event.stopPropagation();
-            $save.click();
         });
     }
 
-    private _saveUDF($saveNameInput: JQuery): void {
-        const $save: JQuery = $("#udfButtonWrap").find(".saveFile");
-        let displayPath: string = $saveNameInput.val().trim();
-        let newModule: boolean = false;
-
-        if (displayPath === "New Module") {
-            let $udfSection = this._getUDFSection();
-            const tabName = UDFTabManager.Instance.getActiveTabName();
-            // XXX hakc that should be removed
-            if ($udfSection.hasClass("sqlMode") || tabName === "sql") {
-                newModule = true;
-                displayPath = "sql.py";
-            } else {
-                this._eventSaveAs(tabName);
-                return;
-            }
+    private _saveUDF(): void {
+        const activeTab = UDFTabManager.Instance.getActiveTab();
+        if (activeTab == null) {
+            // error case
+            return;
         }
+
+        const tabName = activeTab.name;
+        if (activeTab.isNew) {
+            this._eventSaveAs(tabName);
+            return;
+        }
+        let displayPath = `${tabName}.py`;
         if (!displayPath.startsWith("/")) {
-            displayPath =
-                UDFFileManager.Instance.getCurrWorkbookDisplayPath() +
-                displayPath;
+            displayPath = UDFFileManager.Instance.getCurrWorkbookDisplayPath() + displayPath;
         }
         if (
             UDFFileManager.Instance.canAdd(
                 displayPath,
-                $saveNameInput,
-                $saveNameInput,
+                this._getEditSection(),
+                null,
                 "bottom"
             )
         ) {
+            const $save: JQuery = this._getSaveButton();
             $save.addClass("xc-disabled");
-            this._eventSave(displayPath, newModule)
+            this._eventSave(displayPath)
             .always(() => {
                 $save.removeClass("xc-disabled");
             });
@@ -423,7 +363,7 @@ class UDFPanel {
     private _eventSaveAs(tabName: string) {
         const options = {
             onSave: (displayPath: string) => {
-                this._eventSave(displayPath, true);
+                this._eventSave(displayPath);
                 const name = this._getDisplayNameAndPath(displayPath)[0];
                 const newName = name.substring(0, name.indexOf(".py"));
                 UDFTabManager.Instance.renameTab(tabName, newName);
@@ -437,17 +377,12 @@ class UDFPanel {
         );
     }
 
-    private _eventSave(displayPath: string, newModule?: boolean): XDPromise<void> {
+    private _eventSave(displayPath: string): XDPromise<void> {
         const entireString: string = this._validateUDFStr();
         if (entireString) {
             let deferred: XDDeferred<void> = PromiseHelper.deferred();
             UDFFileManager.Instance.add(displayPath, entireString)
             .then(() => {
-                if (newModule) {
-                    this._selectUDF(displayPath, false);
-                } else {
-                    this.editorInitValue = this.editor.getValue();
-                }
                 deferred.resolve();
             })
             .fail(deferred.reject);
@@ -456,32 +391,6 @@ class UDFPanel {
         } else {
             return PromiseHelper.resolve();
         }
-    }
-
-    private _setupDropdownList(): void {
-        const $dropdownList: JQuery = $("#udf-fnList");
-        const menuHelper: MenuHelper = new MenuHelper($dropdownList, {
-            onSelect: ($li: JQuery) => {
-                let name: string = "";
-                if ($li.attr("name") === "blank") {
-                    name = $li.find("span").text();
-                } else {
-                    name = $li.text();
-                }
-                this._selectUDF(name, true)
-            },
-            container: "#udfSection",
-            bounds: "#udfSection",
-            bottomPadding: 2
-        });
-
-        this.dropdownHint = new InputDropdownHint($dropdownList, {
-            menuHelper,
-            onEnter: (displayName: string) =>
-                this._selectUDF(displayName, true)
-        });
-
-        this._selectBlankUDF();
     }
 
     private _setupPopup(): void {
@@ -496,16 +405,16 @@ class UDFPanel {
             this._dock();
         })
         .on("Resize", () => {
-            this.getEditor().refresh();
+            this.refresh();
         });
     }
 
     private _undock(): void {
-        this.getEditor().refresh();
+        this.refresh();
     }
 
     private _dock(): void {
-        this.getEditor().refresh();
+        this.refresh();
     }
 
     private _setupAutocomplete(editor: CodeMirror.EditorFromTextArea): void {
@@ -561,107 +470,56 @@ class UDFPanel {
         return entireString;
     }
 
-    /**
-     * @param  {string} displayNameOrPath
-     * @param  {boolean} needConfirm
-     * @returns void
-     */
-    private _selectUDF(displayNameOrPath: string, needConfirm: boolean): void {
-        const confirmSelect = () => {
-            if (displayNameOrPath === "New Module") {
-                this._selectBlankUDF();
-                return;
+    private _getUDFPathFromModuleName(moduleName: string): string {
+        const modulePath = moduleName + ".py";
+        const displayPath: string = this._getDisplayNameAndPath(modulePath)[1];
+        return UDFFileManager.Instance.displayPathToNsPath(displayPath);
+    }
+
+    private _selectUDF(moduleName: string, isNew: boolean): void {
+        if (isNew) {
+            this._selectBlankUDF();
+            return;
+        }
+        const udfPath = this._getUDFPathFromModuleName(moduleName);
+        if (!UDFFileManager.Instance.getUDFs().has(udfPath)) {
+            this._selectBlankUDF();
+            return;
+        }
+
+        UDFFileManager.Instance.getEntireUDF(udfPath)
+        .then((udfStr) => {
+            const currentTab = UDFTabManager.Instance.getActiveTab();
+            if (currentTab && currentTab.name === moduleName) {
+                this._setEditorValue(udfStr);
             }
-
-            const displayNameAndPath: [
-            string,
-            string
-            ] = this._getDisplayNameAndPath(displayNameOrPath);
-            const displayName = displayNameAndPath[0];
-            const displayPath = displayNameAndPath[1];
-
-            const nsPath = UDFFileManager.Instance.displayPathToNsPath(
-                displayPath
-            );
-            if (!UDFFileManager.Instance.getUDFs().has(nsPath)) {
-                // XXX hack way
-                if (displayNameOrPath === "sql.py") {
-                    this._selectBlankUDF();
-                    return;
-                }
-                StatusBox.show(UDFTStr.NoTemplate, $("#udf-fnList"));
-                return;
-            }
-
-            const $fnListInput: JQuery = $("#udf-fnList input");
-            StatusBox.forceHide();
-            this.dropdownHint.setInput(displayName);
-            xcTooltip.changeText($fnListInput, displayName);
-
-            const fillUDFFunc = (funcStr: string) => {
-                if ($fnListInput.val() !== displayName) {
-                    // Check if diff list item was selected during
-                    // the async call
-                    return;
-                }
-
-                this._setEditorValue(funcStr);
-            };
-            UDFFileManager.Instance.getEntireUDF(nsPath)
-            .then(fillUDFFunc)
-            .fail((error) => {
+        })
+        .fail((error) => {
+            const currentTab = UDFTabManager.Instance.getActiveTab();
+            if (currentTab && currentTab.name === moduleName) {
                 const options: {side: string; offsetY: number} = {
                     side: "bottom",
                     offsetY: -2
                 };
                 StatusBox.show(
                     xcHelper.parseError(error),
-                    $fnListInput,
+                    this._getEditSection(),
                     true,
                     options
                 );
-            });
-        };
-
-        if (needConfirm && this.editorInitValue !== this.editor.getValue()) {
-            Alert.show({
-                title: UDFTStr.SwitchTitle,
-                msg: UDFTStr.SwitchMsg,
-                onConfirm: () => {
-                    confirmSelect();
-                }
-            });
-        } else {
-            confirmSelect();
-        }
+            }
+        });
     }
 
-    public focusBlankUDF(): void {
+    private _focusBlankUDF(): void {
         let lineNum = this.udfDefault.match(/\n/g).length;
         this.editor.setCursor({line: lineNum, ch: 0});
         this.editor.focus();
     }
 
     private _selectBlankUDF(): void {
-        const $fnListInput: JQuery = $("#udf-fnList input");
-        const $blankFunc: JQuery = $("#udf-fnMenu").find("li[name=blank]");
-        const displayName: string = $blankFunc.find("span").text();
-
-        StatusBox.forceHide();
-        this.dropdownHint.setInput(displayName);
-        xcTooltip.changeText($fnListInput, displayName);
-
         this._setEditorValue(this.udfDefault);
-        this.focusBlankUDF();
-    }
-
-    private _selectSQLUDF(): void {
-        let sqlUDFPath = UDFFileManager.Instance.getCurrWorkbookPath() + "sql";
-        if (UDFFileManager.Instance.hasUDF(sqlUDFPath)) {
-            this._selectUDF("sql.py", false);
-        } else {
-            this._selectBlankUDF();
-        }
+        this._focusBlankUDF();
     }
 
     private _getDisplayNameAndPath(
@@ -698,47 +556,7 @@ class UDFPanel {
         return displayName;
     }
 
-    private _updateDropdownList(udfLists: {displayName}[]): void {
-        const $blankFunc: JQuery = $("#udf-fnMenu").find("li[name=blank]");
-        let html: string = "";
-        const liClass: string = "workbookUDF";
-
-        for (const {displayName} of udfLists) {
-            const tempHTML: string =
-                '<li class="tooltipOverflow' +
-                liClass +
-                '"' +
-                ' data-toggle="tooltip"' +
-                ' data-container="body"' +
-                ' data-placement="top"' +
-                ' data-original-title="' +
-                displayName +
-                '">' +
-                displayName +
-                "</li>";
-
-            html += tempHTML;
-        }
-
-        $blankFunc.siblings().remove();
-        $blankFunc.after(html);
-    }
-
     private _setEditorValue(valueStr: string): void {
         this.editor.setValue(valueStr);
-        // after put into editor, valueStr may be different then
-        // editor.getValue
-        this.editorInitValue = this.editor.getValue();
     }
-
-    /* Unit Test Only */
-    public __testOnly__: any = {};
-
-    public setupTest(): void {
-        if (typeof unitTestMode !== "undefined" && unitTestMode) {
-            this.__testOnly__.inputUDFFuncList = (displayName: string) =>
-                this._selectUDF(displayName, false);
-        }
-    }
-    /* End Of Unit Test Only */
 }

@@ -94,7 +94,6 @@ TooltipTStr = {
     "ComplementRestriction": "Complement table only available for Filter",
     "AddToWorksheet": "Add To Worksheet",
     "SysOperation": "System generated operation",
-    "UDFNoMain": "UDF requires a 'main' function",
     "NoUndoActiveForm": "Close active form to undo or redo",
     "FocusOnCol": "Click to focus on column",
     "UnionSearch": "Search within this node",
@@ -367,7 +366,7 @@ ErrWRepTStr = {
                     'Please choose another name.',
     'NoPath': '<path> was not found. Redirected to the root directory.',
     'NoPathInLoad': 'Path <path> was not found. (Not set up?)',
-    'NoUDF': 'UDF \" <udf> \" does not exist.',
+    'NoUDF': 'Scalar Fn \" <udf> \" does not exist.',
     'InvalidOpsType': 'Data type is invalid. Expected: <type1>, Entered: <type2>.',
     'InvalidCol': 'Column "<name>" does not exist.',
     'InvalidColOnTable': 'Column "<col>" does not exist in table <table>.',
@@ -479,13 +478,13 @@ SQLErrTStr = {
     "SubqueryNoChild": "Subquery should have no children",
     "SubqueryTree": "Subquery should have subqueryTree",
     "AccSubqueryArray": "Accumulator should have subqueryArray to operate on",
-    "UDFNoName": "UDF doesn't have a name in plan",
+    "UDFNoName": "Scalar fn doesn't have a name in plan",
     "NonOpShouldHaveNoChildren": "Non-op/expression node should have no children",
     "FirstChildAlias": "First element in eval list should be alias node",
     "NoDataType": "Node should has dataType",
     "EvalOnlyChildAttr": "Eval list's only child should be AttributeReference in non-groupingexpressions list",
     "UnsupportedColType": "Unsupported column type: ",
-    "UDFColumnMismatch": "UDF columns mismatch",
+    "UDFColumnMismatch": "Scalar fn columns mismatch",
     "ParameterMismatch": "Parameter names mismatch",
     "InvalidLogicalPlan": "Invalid logical plan",
     "InvalidXcalarQuery": "Invalid Xcalar Query String",
@@ -586,7 +585,7 @@ SuccessTStr = {
     "UpdateLicense": "License Successfully Updated!",
     "Upload": "Upload Successful!",
     "UploadApp": "App Successfully Uploaded!",
-    "UploadUDF": "UDF Successfully Saved!",
+    "UploadUDF": "Scalar Function Successfully Saved!",
     "Profile": "Profile Image Saved Successfully!",
     "BundleGenerated": "Bundle Generated",
     "BundleUploaded": "Bundle generated! Uploaded: ",
@@ -869,7 +868,7 @@ WKBKTStr = {
     "CancelMsg": "Are you sure you want to cancel activating this project?",
     "WaitActivateFinish": "Please wait for project to activate.",
     "NoActive": "Please create or choose one project first.",
-    "DownloadWarn": "The downloaded project will include ONLY the project's UDFs, and will not include any UDFs it uses that are from the shared space",
+    "DownloadWarn": "The downloaded project will include ONLY the project's scalar functions, and will not include any scalar functions it uses that are from the shared space",
     "DeletingWKBK": "Deleting project",
     // With replace
     'Conflict': 'Project "<name>" already exists. ' +
@@ -908,7 +907,7 @@ MonitorTStr = {
     "NewVal": "New Value",
     'ClusterStatus': 'Cluster Status',
     'Tut': 'Tutorials',
-    'FileManagerTitle': 'UDF MANAGER',
+    'FileManagerTitle': 'SCALAR FN MANAGER',
     'GetHostsFail': 'Could not get hosts',
     'GetLogsFail': 'Could not get logs',
     'GetDuplicateHost': 'Each Host should map to only one single Node',
@@ -1046,7 +1045,7 @@ DFTStr = {
     'Scheduled': 'Scheduled',
     'UpdateParamFail': 'Update Parameters Failed',
     'UploadErr': 'Upload Module Error',
-    'UpoladErrInstr': 'The module is succseefully uploaded, but some errors occurred when uploading the UDFs in the module',
+    'UpoladErrInstr': 'The module is succseefully uploaded, but some errors occurred when uploading the scalar functions in the module',
     'NewParam': 'New Parameter',
     'EnterNewParam': 'Enter New Parameter Here',
     "NewComment": "Add a comment",
@@ -1135,7 +1134,7 @@ DSTStr = {
     'NoParse': 'Cannot parse the data source.',
     'NoRecords': 'No records in data source.',
     'NoColumns': 'No Columns Selected',
-    'NoRecrodsHint': 'Please check the validation of path, pattern, and UDF, and try again.',
+    'NoRecrodsHint': 'Please check the validation of path, pattern, and saclar function, and try again.',
     'CancelPoint': 'Cancel import data source',
     'DSSourceHint': 'Please try another path or use another connector.',
     'FileOversize': 'Too many files in the folder, cannot read, please import with the url directly',
@@ -1232,12 +1231,12 @@ DSFormTStr = {
     'CreateWarn': 'Too Many Columns To Create',
     'NoQuoteWarn': 'No Quote Character',
     'NoQuoteWarnMsg': 'You have not selected a quoting character for your dataset. Are you sure you want to continue?',
-    'UDFHint': 'Please select a UDF module and UDF function then click \"Apply UDF\" button to apply the UDF.',
+    'UDFHint': 'Please select a scalar fn module and function then click \"Apply UDF\" button to apply the scalar function.',
     'GeneratedTargetHint': 'The path for this connector should be the number of rows desired in the dataset',
     'KafkaConnectorHint': 'Kafka topic name',
     'ImportMultiple': 'Importing Multiple Datasets',
     'ParseError': 'Your file cannot be parsed as <format>. We recommend you use the <suggest> format instead.',
-    'UDFError': 'UDF generated errors while running your file.',
+    'UDFError': 'Scalar function generated errors while running your file.',
     'UDFQueryError': 'Invalid JSON format',
     'NoFileInFolder': 'No data source files in this directory',
     'ResucriveErr': 'No data source files in directory <path>. Please import with \"recursive\" option to include files in subdirectories.',
@@ -1253,7 +1252,7 @@ DSParserTStr = {
     "Submit": "Submit Visual Parser",
     "SubmitMsg": "Are you sure you want to submit the visual parser?",
     "NoKey": "No keys are selected",
-    "FileSizeWarn": "Your file size is greater than 500MB, the recommended maximum. The visual parser will take very long to run. Please break your file into logical chunks, or read it directly using a streaming UDF",
+    "FileSizeWarn": "Your file size is greater than 500MB, the recommended maximum. The visual parser will take very long to run. Please break your file into logical chunks, or read it directly using a streaming scalar function",
     "Proceed": "Proceed (slow)"
 };
 
@@ -1285,22 +1284,16 @@ FileManagerTStr = {
 }
 
 UDFTStr = {
-    "UDF": "UDF",
-    "Edit": "Edit UDF",
-    "View": "View UDF",
-    "Del": "Delete UDF",
-    "Download": "Download UDF",
-    "DelFail": "Delete UDF Failed",
-    // Must be kept consistent with htmlTStr.UDF
+    "Del": "Delete Scalar Function",
+    "DelMsg": "Are you sure you want to delete scalar function <name>?",
+    "DelFail": "Delete Scalar Function Failed",
     "NameHint": "Module name (lowercase)",
     "NoTemplate": "Cannot find the module",
     "InValidName": "Module name should start with a lowercase letter or underscore and contain only letters, digits, underscores(_)",
     "InValidFileName": "File name should end with \".py\"",
     "InValidFnName": "Function name should start with a lowercase letter or underscore and contain only letters, digits or underscores(_)",
-    "InValidPath": "UDF file path is read only",
+    "InValidPath": "Scalar function file path is read only",
     "Show": "Show",
-    "SwitchTitle": "Switch UDF",
-    "SwitchMsg": "Switch UDF? Changes you made may not be saved."
 };
 
 TblTStr = {
@@ -1379,9 +1372,9 @@ SideBarTStr = {
     'UploadUDFMsg': 'Your python script has been successfully uploaded!',
     'SyntaxError': 'Syntax Error',
     'UploadError': 'Upload Error',
-    'DownloadError': 'Download UDF Failed',
-    'DownloadMsg': 'UDF is empty',
-    'OverwriteErr': 'Cannot overwrite default UDF',
+    'DownloadError': 'Download Scalar Function Failed',
+    'DownloadMsg': 'Scalar function is empty',
+    'OverwriteErr': 'Cannot overwrite default scalar function',
     'DropConsts': 'Delete Aggregates',
     'DropConstsMsg': 'Are you sure you want to delete the selected aggregate(s)?',
     // With Replace
@@ -1405,7 +1398,7 @@ ExtTStr = {
     "InvalidTableName": "Invalid table name, please use extension api to create a valid name",
     "AddClause": "Add Another Argument",
     "LoadScriptFail": "Fail to load extension script",
-    "LoadUDFFail": "Fail to load extension UDF, please test the UDF first and make sure it can be uploaded to Xcalar",
+    "LoadUDFFail": "Fail to load extension scalar function, please test the scalar function first and make sure it can be uploaded to Xcalar",
     "Instruction": "Instruction",
     "NoScript": "The extension file was not found on the server",
     "ParseFail": "Cannot parse the extension, please check syntax",
@@ -1440,7 +1433,7 @@ OpModalTStr = {
     'EmptyString': 'Empty String',
     'WeirdQuotes': '[Unicode Quotes(“) detected. Please check quotation marks]',
     'SelectCategory': 'Select a category on the left or',
-    'CreateUDF': 'Create a new UDF',
+    'CreateUDF': 'Create a new scalar function',
     // with replace
     'ModifyDesc': 'Would you like to modify the <name>?',
     'ModifyBtn': 'MODIFY <name>'
@@ -1554,7 +1547,7 @@ SQLTStr = {
     "FuncInstr": "Table function can be used as part of the SQL query, the function can take one or more inputs tables and output a table. You can build any transformation & business logic between the inputs and output",
     "DupFuncName": "Table function name already in use",
     "CreateFunc": "Create new table function",
-    "CreateUDF": "Create new UDF",
+    "CreateUDF": "Create new scalar fn",
     "WorkSpace": "SQL WorkSpace",
     "DeleteSnippet": "Delete Query",
     "DeleteSnippetMsg": "Are you sure you want to delete query \"<name>\"?",
@@ -1719,5 +1712,5 @@ OpPanelTStr = {
     "SortColumnHeading": "Columns to sort",
     "SelectDSSource": "Please select a dataset source and provide a prefix.",
     "InvalidDSSource": "Invalid dataset source selected.",
-    "CreateNewUDF": "Create New UDF"
+    "CreateNewUDF": "Create New Scalar Fn"
 };

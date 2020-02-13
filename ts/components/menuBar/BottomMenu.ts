@@ -227,7 +227,6 @@ namespace BottomMenu {
         const sectionId: string = $section.attr("id");
         if (sectionId ==="udfSection") {
             $("#udfButtonWrap").removeClass("xc-hidden");
-            UDFPanel.Instance.switchMode(false);
         } else {
             $("#udfButtonWrap").addClass("xc-hidden");
         }
@@ -300,7 +299,7 @@ namespace BottomMenu {
         if ($("#udfSection").hasClass("active") &&
             !$("#udf-fnSection").hasClass("xc-hidden"))
         {
-            UDFPanel.Instance.getEditor().refresh();
+            UDFPanel.Instance.refresh();
         }
     }
 }

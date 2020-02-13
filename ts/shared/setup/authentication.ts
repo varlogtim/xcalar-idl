@@ -79,11 +79,9 @@ class Authentication {
     }
 
     private static incIdCount(): void {
-        console.log("increase id counct");
         this.idCount++;
         clearTimeout(this.idIncTimer);
         this.idIncTimer = setTimeout(() => {
-            console.log("commit")
             this._getIdCountKVStore().put(String(this.idCount), true);
         }, 1000); // 1s interval
     }

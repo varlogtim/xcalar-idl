@@ -77,14 +77,13 @@ class UDFTabManager extends AbstractTabManager {
     }
 
     /**
-     * XXX hack
-     * UDFTabManager.Instance.getActiveTabName
+     * UDFTabManager.Instance.getActiveTab
      */
-    public getActiveTabName(): string {
+    public getActiveTab(): {name: string, isNew: boolean} | null {
         const currentIndex = this._getTabArea().find(".tab.active").index();
         const currentTab = this._activeTabs[currentIndex];
         if (currentTab) {
-            return currentTab.name;
+            return currentTab;
         } else {
             return null;
         }
@@ -127,8 +126,7 @@ class UDFTabManager extends AbstractTabManager {
         if (cache) {
             UDFPanel.Instance.getEditor().setValue(cache);
         } else {
-            const name: string = tab.isNew ? null : tab.name;
-            UDFPanel.Instance.openUDF(name);
+            UDFPanel.Instance.openUDF(tab.name, tab.isNew);
         }
         return index;
     }

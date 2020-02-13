@@ -11,7 +11,6 @@ describe("UDFPanel Test", function() {
         $udfSection = $("#udfSection");
 
         UnitTest.onMinMode();
-        UDFPanel.Instance.setupTest();
 
         if (!udfTab.hasClass("active")) {
             UnitTest.testFinish(function() {
@@ -35,16 +34,6 @@ describe("UDFPanel Test", function() {
     });
 
     describe("Basic Function Test", function() {
-        it("inputUDFFuncList should work", function() {
-            var inputUDFFuncList = UDFPanel.Instance.__testOnly__.inputUDFFuncList;
-            var module = xcHelper.randName("testModule");
-            inputUDFFuncList(module);
-            UnitTest.hasStatusBoxWithError(UDFTStr.NoTemplate);
-            // case 2
-            // inputUDFFuncList("default");
-            // expect(UDFPanel.Instance.getEditor().getValue()).contains("convertFormats");
-        });
-
         // it("readUDFFromFile should work", function() {
         //     var readUDFFromFile = UDFPanel.Instance.__testOnly__.readUDFFromFile;
         //     var oldReader = FileReader;
@@ -59,14 +48,6 @@ describe("UDFPanel Test", function() {
         //     // clear up
         //     $("#udf-fnName").val("");
         //     FileReader = oldReader;
-        // });
-
-        // it("UDFPanel.Instance.selectUDFPath should work", function() {
-        //     $("#udf-fnName").val("");
-        //     UDFPanel.Instance.selectUDFPath("default");
-        //     expect($("#udf-fnName").val()).to.equal("default");
-        //     // clear up
-        //     $("#udf-fnName").val("");
         // });
     });
 
@@ -125,25 +106,6 @@ describe("UDFPanel Test", function() {
             var editor = UDFPanel.Instance.getEditor();
             expect(editor instanceof CodeMirror).to.be.true;
         });
-
-        it("UDFPanel.Instance.switchMode should work", function() {
-            let wasActive = $("#sqlWorkSpacePanel").hasClass("active");
-            let $udfSection = $("#udfSection");
-            let oldFunc = XVM.isSQLMode;
-            XVM.isSQLMode = () => true;
-            $("#sqlWorkSpacePanel").addClass("active");
-            UDFPanel.Instance.switchMode();
-            expect($udfSection.hasClass("sqlMode")).to.be.true;
-            // case 2
-            XVM.isSQLMode = () => false;
-            UDFPanel.Instance.switchMode();
-            expect($udfSection.hasClass("sqlMode")).to.be.false;
-            XVM.isSQLMode = oldFunc;
-
-            if (!wasActive) {
-                $("#sqlWorkSpacePanel").removeClass("active");
-            }
-        });
     });
 
     // describe("Upload and Delete UDF Test", function() {
@@ -167,14 +129,6 @@ describe("UDFPanel Test", function() {
     //             console.warn("wrong session name");
     //             setSessionName(wkbkName);
     //         }
-    //     });
-
-    //     it("Should choose template", function() {
-    //         var $menu = $("#udf-fnMenu");
-    //         $("#udf-fnList").trigger(fakeEvent.click);
-    //         expect($menu.hasClass("openList")).to.be.true;
-    //         $menu.find('li[name="blank"]').trigger(fakeEvent.mouseup);
-    //         expect($menu.hasClass("openList")).to.be.false;
     //     });
 
     //     it("Should not upload with empty module name", function() {

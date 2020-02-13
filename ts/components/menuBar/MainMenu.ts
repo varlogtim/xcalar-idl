@@ -203,7 +203,6 @@ namespace MainMenu {
 
             panelSwitchingHandler($curTab, lastTabId);
             xcUIHelper.hideSuccessBox();
-            UDFPanel.Instance.switchMode(false);
 
             if (addToHistory) {
                 let tabId: string ;

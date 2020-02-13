@@ -155,7 +155,7 @@ class SQLWorkSpace {
             stop: function() {
                 $panel.removeClass("resizing");
                 SQLEditorSpace.Instance.refresh();
-                UDFPanel.Instance.getEditor().refresh();
+                UDFPanel.Instance.refresh();
             }
         });
     }
@@ -273,7 +273,7 @@ class SQLWorkSpace {
             stop: function() {
                 $panel.removeClass("resizing");
                 SQLEditorSpace.Instance.refresh();
-                UDFPanel.Instance.getEditor().refresh();
+                UDFPanel.Instance.refresh();
             }
         });
     }
