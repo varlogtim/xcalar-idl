@@ -11,25 +11,27 @@
         include "../dataflow/dataflowInfoPanel.html"
     </div>
     <section class="rightSection">
-      <div class="topPart">
-        <!-- sql section -->
-        <div class="section sql">
-          include "sqlViewContainer.html"
-        </div>
-        <div class="section udf xc-hidden">
-          include "../udf/udfViewContainer.html"
-        </div>
-      </div>
-      <div class="bottomPart">
-        <!-- bottom left part -->
-        <div class="section bottomLeftPart">
-          include "../worksheet/dagViewContainer.html"
-        </div>
-        <!-- bottom right part -->
-        <div class="section resultSection bottomRightPart">
-          include "sqlResult.html"
-        </div>
-      </div>
+      <section class="mainPart">
+          <div class="topPart">
+              <!-- sql section -->
+              <div class="section sql">
+                include "sqlViewContainer.html"
+              </div>
+              <div class="section udf xc-hidden">
+                include "../udf/udfViewContainer.html"
+              </div>
+          </div>
+          <div class="bottomPart">
+            <!-- bottom left part -->
+            <div class="section bottomLeftPart">
+              include "../worksheet/dagViewContainer.html"
+            </div>
+            <!-- bottom right part -->
+            <div class="section resultSection bottomRightPart">
+              include "sqlResult.html"
+            </div>
+          </div>
+      </section>
       <div class="debugPart xc-hidden">
         include "debugViewContainer.html"
       </div>

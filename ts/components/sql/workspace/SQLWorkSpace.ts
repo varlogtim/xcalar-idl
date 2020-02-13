@@ -128,7 +128,6 @@ class SQLWorkSpace {
         let $panel: JQuery = this._getPanel();
         let $bottomPart: JQuery = this._getBottomPart();
         let $topPart: JQuery = $panel.find(".topPart");
-        let $debugPart: JQuery = $panel.find(".debugPart");
         let bottomHeight: number;
         let siblingHeight: number;
         let totalHeight: number;
@@ -140,7 +139,7 @@ class SQLWorkSpace {
             start: function(_event, ui) {
                 $panel.addClass("resizing");
                 bottomHeight = $bottomPart.outerHeight();
-                siblingHeight = $topPart.outerHeight() + $debugPart[0].getBoundingClientRect().height;
+                siblingHeight = $topPart[0].getBoundingClientRect().height;
                 totalHeight = siblingHeight + bottomHeight;
                 lastTop = ui.position.top;
             },
@@ -249,10 +248,6 @@ class SQLWorkSpace {
         let siblingHeight: number;
         let totalHeight: number;
         let lastTop: number = 0;
-        let origDebugPct: number = 0;
-        let origBottomPct: number = 0;
-        let isBottomAllUndocked: boolean;
-        let heightFactor: 1 | 2;
 
         // resizable debug secton
         $debugPart.resizable({
@@ -264,10 +259,6 @@ class SQLWorkSpace {
                 siblingHeight = $topPart.outerHeight() + bottomHeight;
                 totalHeight = siblingHeight + debugHeight;
                 lastTop = ui.position.top;
-                origDebugPct = debugHeight / totalHeight;
-                origBottomPct = bottomHeight / totalHeight;
-                isBottomAllUndocked = $bottomPart.hasClass("allContentUndocked");
-                heightFactor = $topPart.hasClass("allContentUndocked") ? 1 : 2;
             },
             resize: function(_event, ui) {
                 const top: number = ui.position.top;
@@ -276,17 +267,8 @@ class SQLWorkSpace {
                 pct = Math.min(pct, 0.98);
                 pct = Math.max(0.02, pct);
 
-                const deltaPct: number = pct - origDebugPct;
-
-                let bottomPct = origBottomPct - (deltaPct / heightFactor);
-                bottomPct = Math.min(bottomPct, 0.98);
-                bottomPct = Math.max(0.02, bottomPct);
-
                 $debugPart.css("height", `${pct * 100}%`);
                 $debugPart.css("top", "0");
-                if (!isBottomAllUndocked) {
-                    $bottomPart.css("height", `${bottomPct * 100}%`);
-                }
             },
             stop: function() {
                 $panel.removeClass("resizing");
