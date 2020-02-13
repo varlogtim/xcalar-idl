@@ -205,8 +205,9 @@ window.FlightTest = (function(FlightTest, $) {
             test.checkExists("#udf-fnSection .xc-waitingBG", null, {notExist: true})
             .then(() => {
                 var udfDisplayName = "ymd.py";
-                var selector = '#udf-fnMenu li[data-original-title="' + udfDisplayName + '"]';
+                var selector = '#dagListSection .udf.listWrap .udf .name:contains(' + udfDisplayName +')';
                 if (!$(selector).length) {
+                    $("#udfTabView .addTab").click();
                     var editor = UDFPanel.Instance.getEditor();
                     editor.setValue('def ymd(year, month, day):\n' +
                         '    if int(month) < 10:\n' +
@@ -214,7 +215,10 @@ window.FlightTest = (function(FlightTest, $) {
                         '    if int(day) < 10:\n' +
                         '        day = "0" + str(day)\n' +
                         '    return str(year) + str(month) + str(day)');
-                        $("#udf-fnSection").find(".saveFile").click();
+                        // XXX a temp hack to fix test
+                        $("#udfSection .udf-fnName").val("New Module");
+                        $("#udfSection").removeClass("sqlMode")
+                        $("#udfSection").find(".saveFile").click();
                         $("#fileManagerSaveAsModal .saveAs input").val("ymd.py");
                         $("#fileManagerSaveAsModal .modalBottom .save").click();
                     return test.checkExists(selector);
@@ -233,7 +237,7 @@ window.FlightTest = (function(FlightTest, $) {
         function flightTestPart6(parentNodeId) {
             console.log("start flightTestPart6", "map on flight table with udf");
             const nodeId = test.createNodeAndOpenPanel(parentNodeId, DagNodeType.Map);
-            test.wait(10)
+            test.wait(5000)
             .then(() => {
                 const $panel = $("#mapOpPanel");
                 test.assert($panel.hasClass("xc-hidden") === false);

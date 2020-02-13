@@ -175,7 +175,7 @@ class DagView {
         }
     }
 
-    public async static newSQLFunc(name, numInput): Promise<void> {
+    public static async newSQLFunc(name, numInput): Promise<void> {
         DagTabManager.Instance.newSQLFunc(name);
 
         // add instruction

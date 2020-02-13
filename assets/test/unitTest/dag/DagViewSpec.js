@@ -94,7 +94,7 @@ describe("DagView Test", () => {
                 expect(nodeInfos.length).to.equal(1);
                 expect(nodeInfos[0].id).to.equal($operator.data("nodeid"));
                 expect(nodeInfos[0].position.x).to.equal(left + 60);
-                expect(nodeInfos[0].position.y).to.equal(top + 60);
+                expect(nodeInfos[0].position.y).to.equal(top + 80);
                 called = true;
             };
             $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);
@@ -1590,7 +1590,7 @@ describe("DagView Test", () => {
             });
         });
 
-        it("newSQLFunc should work", function() {
+        it("newSQLFunc should work", async function(done) {
             let cache = DagTabManager.Instance.newSQLFunc;
             let called = false;
             DagTabManager.Instance.newSQLFunc = () => {
@@ -1601,12 +1601,13 @@ describe("DagView Test", () => {
             DagViewManager.Instance.autoAddNode = (type, a, b, c, x, y) => {
                 count++;
             }
-            DagView.newSQLFunc(null, 2);
+            await DagView.newSQLFunc(null, 2);
             expect(count).to.equal(3);
             expect(called).to.be.true;
 
             DagTabManager.Instance.newSQLFunc = cache;
             DagViewManager.Instance.autoAddNode = cache2;
+            done();
         });
 
     });

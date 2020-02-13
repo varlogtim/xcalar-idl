@@ -91,7 +91,7 @@ describe("DagUDFErrorModal Test", function() {
     });
 
     describe("submitting", function() {
-        it("genErrorTable should work", function() {
+        it("genErrorTable should work", async function(done) {
             let called = false;
             let called2 = false;
             let called3 = false;
@@ -109,7 +109,7 @@ describe("DagUDFErrorModal Test", function() {
                 called3 = true;
                 return new DagNodeMap({});
             }
-            DagUDFErrorModal.Instance._genErrorTable();
+            await DagUDFErrorModal.Instance._genErrorTable();
 
             console.log(called, called2, called3);
             expect(called && called2 && called3).to.be.true;
@@ -117,6 +117,7 @@ describe("DagUDFErrorModal Test", function() {
             DagViewManager.Instance.run = cacheRun;
             DagViewManager.Instance.viewResult = cachePreview;
             DagViewManager.Instance.autoAddNode = cacheAdd;
+            done();
         });
 
         it("should be close", function() {
