@@ -370,7 +370,7 @@ class DagCategoryBar {
                 largeTriangle: {
                     class: ['connector', 'out'],
                     attrs: {
-                        'points': `${offset},2 ${offset + 16},9, ${offset + 16},19, ${offset},${DagView.nodeHeight - 2}`,
+                        'points': `${offset},1 ${offset + 16},8, ${offset + 16},18, ${offset},${DagView.nodeHeight - 2}`,
                         'fill': 'transparent',
                         'stroke': 'transparent'
                     }
@@ -378,7 +378,7 @@ class DagCategoryBar {
                 smallTriangle: {
                     class: ['connectorOutVisible'],
                     attrs: {
-                        'points': `${offset + 2},8 ${offset + 10},14 ${offset + 2},20`,
+                        'points': `${offset + 2},7 ${offset + 10},13 ${offset + 2},19`,
                         'fill': this._connectorColor,
                         'stroke': this._borderColor, 'stroke-width': '1',
                         'rx': '1', 'ry': '1'
@@ -435,7 +435,7 @@ class DagCategoryBar {
             });
         } else {
             for (let j = 0; j < numParents; j++) {
-                const y  = DagView.nodeHeight / (numParents + 1) * (1 + j) - 3;
+                const y = (((DagView.nodeHeight + 2) / (numParents + 1)) * (1 + j)) - 4.5;
                 params.push({largeSquare: {
                     class: ['connector', 'in', 'noConnection'],
                     attrs: {
@@ -566,7 +566,7 @@ class DagCategoryBar {
                 xcTooltip.Attrs + ' data-original-title="' + description + '" />'+
             '<svg width="' + (DagView.nodeWidth - 2) + '" height="' + DagView.nodeHeight + '" x="1" y="1">' +
                 opTitleHtml + '</svg>' +
-            '<circle class="statusIcon" cx="' + (DagView.nodeWidth - 12) + '" cy="' + (DagView.nodeHeight - 2) + '" r="3" ' +
+            '<circle class="statusIcon" cx="' + (DagView.nodeWidth - 12) + '" cy="' + (DagView.nodeHeight - 2) + '" r="2.5" ' +
                 'stroke="' + this._borderColor + '" stroke-width="1" fill="white" />' +
             '</g>';
 

@@ -407,21 +407,11 @@
         height: @operator-height;
         position: relative;
 
-        @border-width: 2px;
-
         .main {
-            .size(@width: @operator-width, @height: @operator-height);
-            line-height: @operator-height - @border-width;
-            border-radius: (@operator-height / 2) - @border-width;
-            border: 1px solid  @color-border-operator;
-            font-size: 11px;
             .cursor-move();
-            margin-left: 6px;
-            margin-right: 6px;
             overflow: hidden;
             position: relative; // places main section in front of connectors
             z-index: 1;
-            background-color: @color-bg-default;
         }
 
         &.locked, &.configLocked {
@@ -451,9 +441,10 @@
                 opacity: 1;
                 .main {
                     stroke-width: 2;
+                    stroke: @color-border-nodeEdgeSelected;
                 }
-                .icon, .opTitle {
-                    fill: @color-border-focus-blue;
+                .main, .opTitle {
+                    stroke: @color-border-nodeEdgeSelected;
                 }
             }
 
@@ -470,7 +461,7 @@
                 display: block !important;
             }
             .opTitle {
-                fill: @color-border-operator;
+                fill: @color-border-nodeEdge;
                 font-size: 30px;
                 font-weight: 700;
             }
@@ -502,12 +493,17 @@
 
         .searchHighLightSelection {
             stroke: @color-highlight-stroke-gold;
-            fill: @color-highlight-selection-gold;
+            fill: transparent;
         }
 
         .graphHighLightSelection {
             stroke: @color-highlight-stroke-gold;
-            fill: @color-highlight-selection-gold;
+            fill: transparent;
+        }
+
+        .selection {
+            fill: @color-bg-opaque1;
+            stroke: @color-border-nodeEdge;
         }
 
         rect {
@@ -545,14 +541,6 @@
         }
 
 
-        // &.selected, &.dragSelected {
-        &.selected , &.selecting {
-            .main, .iconArea, .statusIcon{
-                stroke: @color-border-focus-blue;
-                stroke-width: 1;
-            }
-
-        }
 
         &.lineageSelected, &.lineageStart {
             .main, .iconArea, .statusIcon, .tableLine {
@@ -774,7 +762,7 @@
         }
 
         .dragSvg > .connOut > .connector.out, .dragSvg > .connOut > .connectorOutVisible {
-            transform: translate(-129px, 0px);
+            transform: translate(-130px, 0px);
         }
 
         .operator {
@@ -1002,7 +990,7 @@
             }
             &.hoveringSkew {
                 .skewTh, .skewTd {
-                    background-color: @color-bg-hover-blue-dark;
+                    background-color: @color-selectedCell-light;
                 }
             }
         }
@@ -1228,6 +1216,8 @@
                 float: left;
                 margin-right: 4px;
                 margin-left: 4px;
+                font-size: 12px;
+                border: none;
             }
         }
 

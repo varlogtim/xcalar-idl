@@ -8,7 +8,7 @@ class DagView {
     public static readonly vertPadding = 100;
     public static readonly nodeHeight = 26;
     public static readonly nodeWidth = 80;
-    public static readonly nodeAndTableWidth = DagView.nodeWidth + 58;
+    public static readonly nodeAndTableWidth = DagView.nodeWidth + 57;
     public static readonly gridSpacing = 20;
     public static zoomLevels = [.25, .5, .75, 1, 1.5, 2];
     public static iconOrder = ["tableIcon", "columnIcon", "descriptionIcon", "lockIcon", "aggregateIcon", "paramIcon"];
