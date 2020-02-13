@@ -1530,7 +1530,7 @@
             cursor: pointer;
             position: relative;
             padding-left: 15px;
-            font-weight: 600;
+            font-weight: 400;
 
             &:last-child {
                 border-right: none;
@@ -1786,6 +1786,10 @@
 
 .xc-hidden {
     display: none !important;
+}
+
+.forceShow {
+    display: block !important;
 }
 
 .xc-disabled {
@@ -2708,7 +2712,7 @@ html.firefox {
     &.undocked {
         z-index: @z-index-sqlEditorUndocked;
         box-shadow: 0 0 0px 1px rgba(255,255,255,0.2),
-                    0 0 5px 1px rgba(0, 0, 0, 0.5);
+                    0 1px 10px 1px rgba(0, 0, 0, 1);
         position: fixed !important;
         overflow: hidden;
         background-color: @color-bg-default;
@@ -2722,8 +2726,4 @@ html.firefox {
             .cursor-move;
         }
     }
-}
-
-.forceShow {
-    display: block !important;
 }

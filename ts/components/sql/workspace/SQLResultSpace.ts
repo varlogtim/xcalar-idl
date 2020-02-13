@@ -28,7 +28,7 @@ class SQLResultSpace {
             if ($container.hasClass("noResult")) {
                 this._toggleDisplay(true);
             } else {
-                this._toggleDisplayExpanded(!$container.hasClass("contentsExpanded"));
+                this._toggleDisplayExpanded(!$container.hasClass("flexColumn"));
             }
         });
 
@@ -230,8 +230,10 @@ class SQLResultSpace {
         const $container = $resultSection.parent();
         if (display) {
             $container.removeClass("noResult");
+            $resultSection.removeClass("xc-hidden");
         } else {
             $container.addClass("noResult");
+            $resultSection.addClass("xc-hidden");
             this._toggleDisplayExpanded(false);
         }
         PopupManager.checkAllContentUndocked();
@@ -241,9 +243,9 @@ class SQLResultSpace {
         const $resultSection = this._getResultSection();
         const $container = $resultSection.parent();
         if (expand) {
-            $container.addClass("contentsExpanded");
+            $container.addClass("flexColumn");
         } else {
-            $container.removeClass("contentsExpanded");
+            $container.removeClass("flexColumn");
         }
         TblFunc.moveFirstColumn();
         DagCategoryBar.Instance.showOrHideArrows();

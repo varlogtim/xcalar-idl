@@ -10,61 +10,38 @@
         include "../dataflow/dagNodeInfoPanel.html"
         include "../dataflow/dataflowInfoPanel.html"
     </div>
-    <section class="rightSection">
-      <section class="mainPart">
-          <div class="topPart">
+    <section class="rightSection flexResizeContainer flexColumn">
+      <section class="mainPart flexResizeContainer flexColumn flexResizeItem">
+          <div class="topPart flexResizeContainer flexResizeItem">
               <!-- sql section -->
-              <div class="section sql">
-                include "sqlViewContainer.html"
+              <div class="section topLeftPart flexResizeContainer flexResizeItem">
+                  <div class="section sql flexResizeItem">
+                    include "sqlViewContainer.html"
+                  </div>
+                  <div class="section udf xc-hidden flexResizeItem">
+                    include "../udf/udfViewContainer.html"
+                  </div>
               </div>
-              <div class="section udf xc-hidden">
-                include "../udf/udfViewContainer.html"
+              <div class="section configNode xc-hidden flexResizeItem">
+                  include "../worksheet/configNodeContainer.html"
               </div>
           </div>
-          <div class="bottomPart">
+          <div class="bottomPart flexResizeContainer flexResizeItem">
             <!-- bottom left part -->
-            <div class="section bottomLeftPart">
+            <div class="section bottomLeftPart flexResizeItem">
               include "../worksheet/dagViewContainer.html"
             </div>
             <!-- bottom right part -->
-            <div class="section resultSection bottomRightPart">
+            <div class="section resultSection bottomRightPart flexResizeItem">
               include "sqlResult.html"
             </div>
           </div>
       </section>
-      <div class="debugPart xc-hidden">
+      <section class="debugPart flexResizeItem xc-hidden">
         include "debugViewContainer.html"
-      </div>
+      </section>
       include "../worksheet/dagNodeMenu.html"
     </section>
-  </div>
-
-  <div id="configNodeModal" class="modalContainer">
-    include "../worksheet/aggOpPanel.html"
-    include "../worksheet/castOpPanel.html"
-    include "../worksheet/datasetOpPanel.html"
-    include "../worksheet/dfLinkInOpPanel.html"
-    include "../worksheet/dfLinkOutOpPanel.html"
-    include "../worksheet/exportOpPanel.html"
-    include "../worksheet/filterOpPanel.html"
-    include "../worksheet/groupByOpPanel.html"
-    include "../worksheet/IMDTableOpPanel.html"
-    include "../worksheet/joinOpPanel.html"
-    include "../worksheet/mapOpPanel.html"
-    include "../worksheet/projectOpPanel.html"
-    include "../worksheet/explodeOpPanel.html"
-    include "../worksheet/publishIMDOpPanel.html"
-    include "../worksheet/updateIMDOpPanel.html"
-    include "../worksheet/roundOpPanel.html"
-    include "../worksheet/rownumOpPanel.html"
-    include "../worksheet/setOpPanel.html"
-    include "../worksheet/jupyterOpPanel.html"
-    include "../worksheet/splitOpPanel.html"
-    include "../worksheet/SQLOpPanel.html"
-    include "../worksheet/sortOpPanel.html"
-    include "../worksheet/sqlFuncInOpPanel.html"
-    include "../worksheet/synthesizeOpPanel.html"
-    include "../worksheet/deskewOpPanel.html"
   </div>
 
   <div id="paramPopUp" class="dataflowParameterPopup modalContainer">

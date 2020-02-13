@@ -167,12 +167,25 @@ class PopupPanel {
 
     public checkAllContentUndocked() {
         const $panel = this.getPanel();
-        const $largeSection = $panel.parent().parent();
-        if ($largeSection.children(".section:visible").length ===
-            $largeSection.children(".section.contentUndocked:visible").length) {
-            $largeSection.addClass("allContentUndocked");
-        } else {
-            $largeSection.removeClass("allContentUndocked");
+        checkUndocked($panel.parent());
+
+        function checkUndocked($section) {
+            let $parent = $section.parent();
+            if (!$parent.hasClass("flexResizeContainer") ||
+                !$parent.hasClass("flexResizeItem")) {
+                return;
+            }
+            // use xc-hidden to detect visiblity because non-hidden element
+            // with 0 height and width will return visible: false which is
+            // incorrect
+            if ($parent.children(".flexResizeItem:not(.xc-hidden)").length ===
+                $parent.children(".flexResizeItem.contentUndocked:not(.xc-hidden)," +
+                                " .flexResizeItem.allContentUndocked:not(.xc-hidden)").length) {
+                $parent.addClass("allContentUndocked");
+            } else {
+                $parent.removeClass("allContentUndocked");
+            }
+            checkUndocked($parent);
         }
     }
 }

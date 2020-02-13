@@ -8,7 +8,6 @@ namespace BottomMenu {
     export function setup(): void {
         $bottomMenu = $("#bottomMenu");
         setupButtons();
-        setupPopup();
         Log.setup();
         initialize();
     };
@@ -49,52 +48,6 @@ namespace BottomMenu {
 
     export function openUDFMenuWithMainMenu(): void {
         openMenu(0, true);
-    }
-
-    function setupPopup(): void {
-        _popup = new PopupPanel("bottomMenu", {
-            draggableHeader: ".heading.draggable"
-        });
-        _popup
-        .on("Undock", () => {
-            _undock();
-        })
-        .on("Dock", () => {
-            _dock();
-        });
-
-        let poppedOut: boolean = false;
-
-        $bottomMenu.resizable({
-            "handles": "w, e, s, n, nw, ne, sw, se",
-            "minWidth": 290,
-            "minHeight": 300,
-            "containment": "document",
-            "start": function() {
-                $("#container").addClass("menuResizing");
-                if (!$bottomMenu.hasClass("poppedOut")) {
-                    poppedOut = false;
-                } else {
-                    poppedOut = true;
-                }
-            },
-            "resize": function() {
-                refreshEditor();
-
-                if (!poppedOut) {
-                    return;
-                }
-            },
-            "stop": function() {
-                $bottomMenu.css("max-width", "").css("max-height", "");
-                let width: number = $bottomMenu.width();
-
-                width = Math.min(width, $(window).width() - $("#menuBar").width() - 10);
-                $bottomMenu.width(width);
-                refreshEditor();
-                $("#container").removeClass("menuResizing");
-            }
-        });
     }
 
     // setup buttons to open bottom menu

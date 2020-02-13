@@ -248,6 +248,66 @@
     }
 }
 
+.flexResizeContainer {
+    display: flex;
+}
+
+.flexColumn {
+    flex-direction: column;
+
+    > .flexResizeItem {
+        &:not(:first-child) {
+            width: 100% !important;
+            height: 50%;
+            border-top: 1px solid @color-bg-pinkish-grey2;
+        }
+    }
+}
+
+.flexResizeItem {
+    position: relative;
+    overflow: hidden;
+
+    &:first-child {
+        flex: 1 1 0;
+    }
+
+    &:not(:first-child) {
+        width: 50%;
+        border-left: 1px solid @color-bg-pinkish-grey2;
+
+        &.contentUndocked {
+            width: 0 !important;
+        }
+    }
+
+    &.contentUndocked {
+        flex: 0 0 0 !important;
+
+        ~ .flexResizeItem:not(.undocked) {
+            flex: 1 1 auto;
+            width: auto !important;
+        }
+    }
+
+    &.allContentUndocked { // row
+        flex: 0 0 0;
+        height: 0px !important;
+        width: 0px !important;
+        > .ui-resizable-handle {
+            display: none !important;
+        }
+
+        ~ .flexResizeItem:not(.allContentUndocked) { // .botomPart
+            flex: 1 1 auto;
+            > .ui-resizable-handle {
+                display: none !important;
+            }
+        }
+    }
+
+}
+
 
 #sqlWorkSpacePanel {
     @tabBar-h: @height-tabBar;
@@ -268,87 +328,14 @@
     }
 
     .mainContent {
+        .flexResizeItem {
+            background-color: @color-bg-default;
+        }
         .rightSection {
             margin-left: @width-topMenu;
             height: 100%;
-            position: relative; // necessary for resizable sections
-            display: flex;
-            flex-direction: column;
-
-            .mainPart {
-                display: flex;
-                flex-direction: column;
-                flex: 1 1 0;
-                overflow: hidden;
-            }
-
-            .topPart {
-                flex: 1 1 0;
-                overflow: hidden;
-                &.allContentUndocked {
-                    flex: 0 0 0;
-                    ~ .bottomPart:not(.allContentUndocked) {
-                        flex: 1 1 auto;
-                        > .ui-resizable-handle {
-                            display: none !important;
-                        }
-                    }
-                }
-            }
-
-            .topPart, .bottomPart {
-                display: flex;
-                flex-direction: row;
-                background-color: @color-bg-default;
-
-                > .section {
-                    height: 100%;
-                    overflow: hidden;
-
-                    &:first-child {
-                        flex: 1 1 0;
-
-                        &.contentUndocked {
-                            flex: 0 0 0;
-
-                            ~ .section:not(.undocked) {
-                                width: auto !important;
-                                flex: 1 1 auto;
-                            }
-                        }
-                    }
-
-                    &:not(:first-child) {
-                        width: 50%;
-                        position: relative;
-                        border-left: 1px solid @color-bg-pinkish-grey2;
-
-                        &.contentUndocked {
-                            width: 0 !important;
-                        }
-                    }
-
-                    .sql {
-                        height: ~"calc(100% - @{tabBar-h})";
-                    }
-                }
-            }
 
             .bottomPart {
-                position: relative;
-                height: 40%;
-                width: 100%;
-                border-top: 1px solid @color-border-pinkish-grey2;
-                display: flex;
-                flex-direction: row;
-
-                &.allContentUndocked {
-                    height: 0 !important;
-                    > .ui-resizable-handle {
-                        display: none !important;
-                    }
-                }
-
                 > .ui-resizable-handle {
                     z-index: @z-index-sqlBottomResizeHandler !important; // don't block other elements
                     height: 12px;
@@ -372,18 +359,7 @@
                     display: none;
                 }
 
-                &.noResult {
-                    .bottomLeftPart {
-                        width: 100% !important;
-                    }
-
-                    .bottomRightPart {
-                        display: none;
-                    }
-
-                }
-
-                &:not(.contentsExpanded) {
+                &:not(.flexColumn) {
                     > .section {
                         &:not(.contentUndocked) {
                             // when docked and not stacked,
@@ -394,8 +370,7 @@
                     }
                 }
 
-                &.contentsExpanded {
-                    flex-direction: column;
+                &.flexColumn {
                     height: 60%;
 
                     .openResult {
@@ -406,37 +381,12 @@
                         display: inline-block;
                     }
 
-                    > .section {
-                        width: 100% !important;
-                        height: auto;
-
+                    > .flexResizeItem {
                         > .ui-resizable-n {
                             display: block !important;
                         }
                         > .ui-resizable-w {
                             display: none !important;
-                        }
-
-                        &.contentUndocked {
-                            height: 0 !important;
-                        }
-
-                        &:first-child {
-                            flex: 1 1 0;
-
-                            &.contentUndocked {
-                                flex: 0 0 0;
-                            }
-                        }
-
-                        &:not(:first-child) {
-                            height: 50%;
-                            position: relative;
-                            border-top: 1px solid @color-bg-pinkish-grey2;
-
-                            &.contentUndocked {
-                                height: 0 !important;
-                            }
                         }
                     }
                 }
@@ -444,10 +394,6 @@
 
             .debugPart {
                 height: 20%;
-                border-top: 1px solid @color-border-pinkish-grey2;
-                flex: 0 0 auto;
-                overflow: hidden;
-                position: relative;
             }
         }
 

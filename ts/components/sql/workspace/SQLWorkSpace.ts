@@ -57,7 +57,7 @@ class SQLWorkSpace {
                 !$target.closest("#dagTableNodeMenu").length &&
                 !$target.closest(".dagSchemaPopup").length &&
                 !$target.closest("#dagTabView").length &&
-                !$target.closest("#configNodeModal").length
+                !$target.closest("#configNodeContainer").length
             ) {
                 DagViewManager.Instance.deselectNodes();
                 DagNodeInfoPanel.Instance.hide();
@@ -120,6 +120,7 @@ class SQLWorkSpace {
     private _resizeEvents(): void {
         this._resizeTopAndBottomPart();
         this._resizeTopPartSection();
+        this._resizeNodeConfigSection();
         this._resizeDataflowAndResultSection();
         this._resizeDebugPart();
     }
@@ -162,6 +163,37 @@ class SQLWorkSpace {
 
     private _resizeTopPartSection(): void {
         const $topPart: JQuery = this._getPanel().find(".topPart");
+        const $sections = $topPart.children(".topLeftPart").children(".section");
+        const $prevSection: JQuery = $sections.eq(0);
+        const $resizableSection: JQuery = $sections.eq(1);
+        let prevWidth: number;
+        let resizableWidth: number;
+        let totalWidth: number;
+        let lastLeft: number = 0;
+
+        // resizable sql/udf area
+        $resizableSection.resizable({
+            handles: "w",
+            start: function(_event, ui) {
+                prevWidth = $prevSection.outerWidth();
+                resizableWidth = $resizableSection.outerWidth();
+                totalWidth = prevWidth + resizableWidth;
+                lastLeft = ui.position.left;
+            },
+            resize: function(_event, ui) {
+                const left: number = ui.position.left;
+                const delta: number = left - lastLeft;
+                let pct = (resizableWidth - delta) / totalWidth;
+                pct = Math.min(pct, 0.98);
+                pct = Math.max(0.02, pct);
+                $resizableSection.css("width", `${pct * 100}%`);
+                $resizableSection.css("left", "0");
+            }
+        });
+    }
+
+    private _resizeNodeConfigSection(): void {
+        const $topPart: JQuery = this._getPanel().find(".topPart");
         const $sections = $topPart.children(".section");
         const $prevSection: JQuery = $sections.eq(0);
         const $resizableSection: JQuery = $sections.eq(1);
@@ -170,7 +202,7 @@ class SQLWorkSpace {
         let totalWidth: number;
         let lastLeft: number = 0;
 
-        // resizable top/bottom result/history sections
+        // resizable sql/udf area
         $resizableSection.resizable({
             handles: "w",
             start: function(_event, ui) {

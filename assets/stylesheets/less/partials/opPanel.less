@@ -1,10 +1,18 @@
-#configNodeModal {
-    @title-height: 40px;
-    @header-height: 66px;
+#configNodeContainer {
+    @title-height: 32px;
+    @header-height: 58px;
 
-    .size(@height: 600px, @width: 400px, @min-width: auto);
+    // .size(@height: 600px, @width: 400px, @min-width: auto);
     overflow: hidden;
-    z-index: @z-index-modalBackground - 2;
+    height: 100%;
+    // z-index: @z-index-modalBackground - 2;
+
+    > .undock {
+        position: absolute;
+        top: 16px;
+        right: 40px;
+        font-size: 14px;
+    }
 
     .opPanel {
         display: flex;
@@ -14,7 +22,6 @@
             min-height: @header-height;
             height: auto;
             font-size: 18px;
-            .cursor-move;
 
             .row {
                 &:first-child {
@@ -30,7 +37,7 @@
         padding: 0px;
     }
     .opPanelHeader {
-        padding: 10px 20px 0px;
+        padding: 8px 10px 0px 20px;
     }
     .opSection, .advancedEditor, .bottomSection {
         padding-left: 20px;
@@ -51,8 +58,8 @@
     height: 100%;
     font-weight: 400;
 
-    @title-height: 40px;
-    @header-height: 66px;
+    @title-height: 32px;
+    @header-height: 58px;
     @listHeight: 26px;
     @headingHeight: 30px;
     @standardFontSize: 12px;
@@ -1072,7 +1079,7 @@
         margin: 0px auto;
         // using left: 50%; translate -50% doesn't work well in IE
     }
-    .bottomSection.flexWrap {
+    .bottomSection.flexWrap { // only used for dataset panel
         margin: 25px 0px 35px;
         .flex-display;
         .flex-wrap(wrap);
@@ -1140,16 +1147,20 @@
     }
 
     .bottomSection {
-        margin: 20px 0px 0px;
-        padding: 20px 0px;
+        @height-switcher: 18px;
+        @marginTop-switcher: 10px;
+        @padding: 12px;
+
+        margin: @padding 0px 0px;
+        padding: @padding 0px;
         border-top: 1px solid @color-bg-2;
         .flex(0 0 auto);
-        min-height: 97px;
+        min-height: 1px + @height-btn + @marginTop-switcher + (@padding * 2);
         overflow: auto;
 
         .switcher {
-            .size(@height: 18px);
-            margin-top: 10px;
+            .size(@height: @height-switcher);
+            margin-top: @marginTop-switcher;
             margin-left: auto;
             margin-right: auto;
             width: 160px;
@@ -1598,7 +1609,7 @@
 
 // used only in map, filter, groupby, and aggregate
 .generalOpPanel {
-    @title-height: 40px;
+    @title-height: 32px;
     @listHeight: 26px;
     @standardFontSize: 12px;
     @commonMargin: 10px;

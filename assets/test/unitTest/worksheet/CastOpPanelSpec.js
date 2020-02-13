@@ -40,7 +40,7 @@ describe('CastOpPanel Test', function() {
             xcTooltip.hideAll();
             $castOpPanel = $("#castOpPanel");
             $castSection = $("#castOpPanel .opSection");
-            $("#configNodeModal").addClass("forceShow");
+            $("#configNodeContainer").parent().addClass("forceShow");
             done();
         });
     });

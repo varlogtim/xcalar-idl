@@ -6,7 +6,7 @@ class MapOpPanel extends GeneralOpPanel {
     protected _dagNode: DagNodeMap;
     protected _opCategories: number[] = [];
     private readonly emptyFuncMsg =  '<div class="emptyFuncMsg">' +
-    OpModalTStr.SelectCategory + ' <span class="createNew">' + OpModalTStr.CreateUDF + '</span>.' +
+    OpModalTStr.SelectCategory + ' <span class="createNew">' + OpModalTStr.CreateUDF + '</span>' +
     '</div>';
 
     public constructor() {

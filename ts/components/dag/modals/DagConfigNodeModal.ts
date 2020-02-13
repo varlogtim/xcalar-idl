@@ -1,32 +1,40 @@
 class DagConfigNodeModal {
     private static _instance: DagConfigNodeModal;
+    private _popup: PopupPanel;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
     }
 
-    private modalHelper: ModalHelper;
-
     private constructor() {
         const $modal: JQuery = this._getModal();
         $modal.find("header").addClass("opPanelHeader");
-        this.modalHelper = new ModalHelper($modal, {
-            noBackground: true,
-            minHeight: 300,
-            minWidth: 300,
-            dragHandle: ".opPanelHeader"
+
+        this._popup = new PopupPanel("configNodeContainer", {
+            draggableHeader: ".opPanelHeader"
+        });
+        this._popup
+        .on("Undock", () => {
+            // this._undock();
+        })
+        .on("Dock", () => {
+            // this._dock();
+        })
+        .on("Resize", () => {
+            // this.getEditor().refresh();
         });
     }
 
     private _getModal(): JQuery {
-        return $("#configNodeModal");
+        return $("#configNodeContainer").parent();
     }
 
     public show(node: DagNode, tabId: string, $node: JQuery, options): void {
         const type: DagNodeType = node.getType();
         const subType: DagNodeSubType = node.getSubType();
 
-        this.modalHelper.setup();
+        this._getModal().removeClass("xc-hidden");
+
         switch (type) {
             case (DagNodeType.Dataset):
                 DatasetOpPanel.Instance.show(node, options);
@@ -111,15 +119,13 @@ class DagConfigNodeModal {
                                 $node);
                 return;
         }
-        const $modal = this._getModal();
-        const nodeRect = $node[0].getBoundingClientRect();
-        const modalRect = $modal[0].getBoundingClientRect();
-        let newLeft = Math.max(1, nodeRect.left - modalRect.width);
-        $modal.css("left", newLeft);
+
+        PopupManager.checkAllContentUndocked();
     }
 
     public close(): void {
-        this.modalHelper.clear();
+        this._getModal().addClass("xc-hidden");
+        PopupManager.checkAllContentUndocked();
     }
 
     private _unlock(node, tabId: string) {
