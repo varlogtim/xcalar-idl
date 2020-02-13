@@ -81,10 +81,10 @@
 
     .link {
         cursor: pointer;
-        color: @color-font-link-blue;
-        &:hover {
-            color: @color-font-button-hover;
-        }
+        // color: @color-font-link-blue;
+        // &:hover {
+        //     color: @color-font-button-hover;
+        // }
     }
 
     .sort {
@@ -141,10 +141,10 @@
         .flex-basis(@width: 75px);
         &.link {
             text-decoration: underline;
-            color: @color-font-link-blue;
-            &:hover {
-                color: @color-font-link-blue;
-            }
+            // color: @color-font-link-blue;
+            // &:hover {
+            //     color: @color-font-link-blue;
+            // }
             &.error {
                 color: @color-error-red;
                 &:hover {
@@ -192,12 +192,11 @@
             cursor: pointer;
             align-self: center;
             margin-left: auto;
-            margin-right: 10px;
         }
     }
     .cardMain {
         padding: 0;
-        .size(@height: ~"calc(100% - @{cardHeaderHeight})");
+        height: 100%;
 
         .col {
             &:first-child {
@@ -687,8 +686,10 @@
 
         .cardHeader {
             display: block;
-            padding-left: 15px;
-            padding-right: 28px;
+            padding-left: 8px;
+            position: absolute;
+            top: 0;
+            right: 32px;
 
             label {
                 font-size: 14px;
@@ -698,7 +699,7 @@
             .action {
                 float: right;
                 margin-left: 0;
-                .position(relative, @top: 6px);
+                .position(relative, @top: 8px);
             }
 
             .selCancelQueryHist {
@@ -1045,10 +1046,10 @@
 
             .status {
                 width: @w-status;
-                .activate {
-                    color: @color-font-link-blue;
-                    text-decoration: underline;
-                }
+                // .activate {
+                //     color: @color-font-link-blue;
+                //     text-decoration: underline;
+                // }
             }
         }
     }
