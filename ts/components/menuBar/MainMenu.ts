@@ -501,7 +501,7 @@ namespace MainMenu {
         for (let i in tabToPanelMap) {
             $container.removeClass(tabToPanelMap[i] + "-active");
         }
-        $("#statusBar .panelName").text(tabToPanelTitleMap[curTab] || "");
+        $("#mainTopBar .panelName").text(tabToPanelTitleMap[curTab] || "");
 
         switch (curTab) {
             case ("dataStoresTab"):

@@ -495,7 +495,7 @@ module.exports = {
     },
 
     "statusBar": {
-        "EC": "Establishing Connection",
+        "EC": "Establishing Connection...",
         "adminText": "This is what " + bldVars.prodName + " looks like to",
         "adminClose": "Return to administrator account"
     },

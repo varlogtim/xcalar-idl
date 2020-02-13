@@ -60,7 +60,7 @@ body {
     overflow: hidden !important;
 
     &.xc-setup {
-        #statusBar {
+        #mainTopBar {
             pointer-events: none;
         }
     }
@@ -136,10 +136,6 @@ body {
             z-index: @z-index-homeBtn;
         }
 
-        #bottomMenu {
-            z-index: @z-index-bottomMenu; // so if it's undocked, it will be
-            //behind the worbook panel
-        }
 
         &.monitorMode, &.setupMode {
             #initialLoadScreen {
@@ -241,7 +237,7 @@ body {
             width: @width-userBox - @width-toggleBtn;
         }
 
-        #statusBar {
+        #mainTopBar {
             .panelName {
                 display: none;
             }
@@ -865,18 +861,7 @@ body {
 }
 /* =========== END TOP RIGHT CORNER =========== */
 
-/* Bottom Section */
-#bottomBar {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: @height-bottomBar;
-    background-color: @color-bg-bottomBar;
-    z-index: @z-index-bottomMenu + 1;
-    overflow: hidden;
-}
-
-#statusBar {
+#mainTopBar {
     .position(absolute, @top: 0);
     .size(@width: ~"calc(100% - 305px)", @height: @height-topBar);
     margin-left:  0;
@@ -888,7 +873,6 @@ body {
     white-space: nowrap;
     overflow: hidden;
 
-
     .workspaceArea {
         .size(@height: 15px);
         .font(@size: 13px, @line-height: 13px, @weight: 500);
@@ -899,17 +883,14 @@ body {
         cursor: default;
         .flex(0 0 auto);
 
-        &:last-child {
-            .flex-display;
-            .flex(1 2 0px);
-            padding-right: 2px;
-            line-height: 20px;
-            .size(@height: 20px);
-            margin-top: (@height-topBar - 20px) / 2;
-            border-right: none;
-        }
         &:empty {
             display: none;
+        }
+
+        &:last-child {
+            .flex(1 2 0px);
+            padding-right: 2px;
+            border-right: none;
         }
 
         &.panelName {
@@ -919,101 +900,121 @@ body {
             overflow: visible;
         }
     }
+}
 
-    #pageStatusText {
-        float: left;
+/* Bottom Section */
+#statusBar {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: @height-bottomBar;
+    background-color: @color-bg-bottomBar;
+    z-index: @z-index-bottomMenu + 1;
+    overflow: hidden;
+    display: flex;
+
+    .statusBarArea {
+        .font(@size: 12px, @line-height: @height-bottomBar, @weight: 500);
+        padding: 0px 14px;
+        border-right: 1px solid @color-border-warmGray;
         overflow: hidden;
-        display: inline-block;
-        .size(@height: 20px);
-        .font(@line-height: 20px);
-        white-space: nowrap;
+        cursor: default;
+        .flex(0 0 auto);
+        .flex-display;
 
-        span {
-            display: block;
-            .size(@height: 20px);
-            .font(@line-height: 20px);
-            position: relative;
-            .textOverflow;
+        &:last-child { // the scrolling status text
+            .flex(1 2 0px);
+            padding-right: 2px;
+            border-right: none;
         }
-
-        .text {
-            float: left;
-        }
-
-        .fail {
-            font-weight: 600;
-        }
-
-        .close {
-            float: left;
-            .size(@width: 20px, @height: 20px);
-            line-height: 20px;
-            margin-left: 5px;
-            display: inline-block;
-            color: @color-font-greyish-brown;
-            font-size: 11px;
-            .position(relative, @top: 1px);
-        }
-
-        .menuIcon {
-            .size(@width: 20px, @height: 20px);
-            padding-left: 6px;
-            margin-top: 1px;
+        &:empty {
             display: none;
-            float: right;
-
-            .icon {
-                font-size: 13px;
-                line-height: 20px;
-                display: block;
-                color: @color-font-greyish-brown;
-            }
-        }
-    }
-
-    #loadingIconWrap {
-        position: relative;
-        display: inline-block;
-        .size(@width: 30px, @height: 100%);
-        margin-left: 12px;
-        float: left;
-        display: none;
-
-        .spinner {
-            width: 30px;
-
         }
     }
 }
 
+#pageStatusText {
+    @areaHeight: @height-bottomBar - 4;
+    overflow: hidden;
+    display: inline-block;
+    .size(@height: @areaHeight);
+    margin-top: 2px;
+    .font(@line-height: @areaHeight);
+    white-space: nowrap;
+
+    > span {
+        display: block;
+        .size(@height: @areaHeight);
+        .font(@line-height: @areaHeight);
+        position: relative;
+        .textOverflow;
+    }
+
+    .text {
+        float: left;
+    }
+
+    .fail {
+        font-weight: 600;
+    }
+
+    .close {
+        float: left;
+        .size(@width: 20px, @height: @areaHeight);
+        line-height: @areaHeight;
+        margin-left: 5px;
+        display: inline-block;
+        font-size: 11px;
+        .position(relative, @top: 1px);
+    }
+}
+
+#statusBarloadingIconWrap {
+    position: relative;
+    display: inline-block;
+    .size(@width: 28px, @height: 100%);
+    margin-left: 8px;
+    display: none;
+
+    .spinner {
+        width: 28px;
+        line-height: 18px;
+        > div {
+            width: 4px;
+            height: 4px;
+        }
+    }
+}
+
+
 #container {
     &.dagPanel-active {
-        #statusBar {
+        #mainTopBar {
             width: ~"calc(100% - 500px)";
         }
     }
     &.jupyterPanel-active {
-        #statusBar {
+        #mainTopBar {
             width: ~"calc(100% - 440px)";
         }
     }
     &.helpPanel-active {
-        #statusBar {
+        #mainTopBar {
             width: 50%;
         }
     }
     &.dataMart {
-        #statusBar {
+        #mainTopBar {
             @userBoxWidth: @width-userBox - @width-toggleBtn;
             width: ~"calc(100% - @{userBoxWidth})";
         }
         &.dagPanel-active {
-            #statusBar {
+            #mainTopBar {
                 width: ~"calc(100% - 310px)";
             }
         }
         &.jupyterPanel-active {
-            #statusBar {
+            #mainTopBar {
                 width: ~"calc(100% - 250px)";
             }
         }

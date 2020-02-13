@@ -786,7 +786,7 @@ namespace Admin {
             $('#monitorLogCard').removeClass('maximized');
         })
         .on("adjustScollbar", (posDiff) => {
-            let bottomBuffer = $("#statusBar").height() + 20;
+            let bottomBuffer = $("#mainTopBar").height() + 20;
             let winHeight = $(window).height();
             posDiff = (posDiff + bottomBuffer) - winHeight;
             if (posDiff > 0) {

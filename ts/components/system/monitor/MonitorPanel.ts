@@ -68,7 +68,7 @@ namespace MonitorPanel {
                 break;
         }
         $("#container").addClass(tabToPanelMap[curTab] + "-active");
-        $("#statusBar").find(".panelName").text(title);
+        $("#mainTopBar").find(".panelName").text(title);
     }
 
     // XXX move to system panel
@@ -181,7 +181,7 @@ namespace MonitorPanel {
                     break;
             }
             $container.addClass(tabToPanelMap[curTab] + "-active");
-            $("#statusBar").find(".panelName").text(title);
+            $("#mainTopBar").find(".panelName").text(title);
         });
     }
 

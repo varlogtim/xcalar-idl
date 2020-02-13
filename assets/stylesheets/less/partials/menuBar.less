@@ -31,10 +31,10 @@
     left: 0px;
     background-color: @color-bg-menuBar;
     line-height: 0px;
-    z-index: @z-index-menuBar;
     padding-top: @height-homeBtn;
     color: @color-font-defaultInverse;
     border-right: 1px solid @color-border-menuBar;
+    z-index: 1;
 
     &.animating > div {
         pointer-events: none;
@@ -454,11 +454,11 @@
 #bottomMenu {
     .position(absolute, @left: @width-homeBtn - @width-bottomMenu, @bottom: 0px); // far left so we can't see visibile items
     .size(@width: @width-bottomMenu,  @height: ~"calc(100% - @{height-topBar})");
-    z-index: @z-index-bottomMenu;
     .transition(left @time-menuAnim);
     border-right: 1px solid @color-border-medium;
     border-top: 1px solid @color-border-medium;
     border-left: 1px solid @color-border-medium;
+    display: none;
 
     &.noAnim {
         .transition(left 0s);

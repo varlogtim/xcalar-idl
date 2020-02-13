@@ -44,10 +44,11 @@ namespace StatusMessage {
         private inRotation: boolean;
         private notificationTime: number;
         private failNotificationTime: number;
+        private itemHeight: number;
 
         constructor() {
             this.$statusText = $('#pageStatusText');
-            this.$waitingIcon = $('#loadingIconWrap');
+            this.$waitingIcon = $('#statusBarloadingIconWrap');
             this.isLoading = false;
             this.isFailed = false;
             this.rotateInterval;
@@ -63,16 +64,12 @@ namespace StatusMessage {
             this.inRotation = false;
             this.notificationTime = 6000;
             this.failNotificationTime = 8000;
-
+            this.itemHeight = 16; /// in pixels
             this.setup();
         }
 
         private setup(): void {
             const self = this;
-
-            self.$statusText.on('click', '.close', function() {
-                self.removeFailedMsg($(this).parent());
-            });
 
             self.$statusText.on('click', '.close', function() {
                 self.removeFailedMsg($(this).parent());
@@ -390,7 +387,7 @@ namespace StatusMessage {
         private scrollToMessage(): XDPromise<any> {
             const deferred = PromiseHelper.deferred();
             this.rotatePosition++;
-            this.$statusText.animate({scrollTop: 20 * this.rotatePosition},
+            this.$statusText.animate({scrollTop: this.itemHeight * this.rotatePosition},
                 this.scrollSpeed,
                 function() {
                 window.setTimeout(function() {
@@ -731,7 +728,7 @@ namespace StatusMessage {
      * StatusMessage.addMsg
      * @param msgObj
      */
-    export function addMsg(msgObj: object = {}): number {
+    export function addMsg(msgObj: MsgObject): number {
        return statusMessage.addMsg(msgObj);
     }
 
