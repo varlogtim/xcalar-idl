@@ -662,7 +662,7 @@
             top: 50%;
             opacity: @opacity-unhover;
             font-size: @size;
-            color: @color-font-link-blue;
+            // color: @color-font-link-blue;
 
             &:before {
                 display: inline-block;
@@ -830,7 +830,7 @@
             float: left;
             display: inline-block;
             margin: 0 5px 0 0px;
-            background-color: @color-bg-default;
+            // background-color: @color-bg-default;
             border-radius: 100%;
             .vertical-align;
 
@@ -1009,7 +1009,7 @@
     @width: 100%;
     @height: 30px;
     .size(@width: @width, @height: @height);
-    .font(@size: 14px, @weight: 600, @line-height: @height);
+    .font(@size: 14px, @weight: 400, @line-height: @height);
     border: solid 1px @color-border-menugray;
     padding: 0 10px;
     text-align: left;
@@ -1335,7 +1335,7 @@
             }
 
             .action {
-                color: @color-font-link-blue;
+                // color: @color-font-link-blue;
                 text-align: right;
                 flex: 0 0 16px;
 
@@ -2278,14 +2278,14 @@ html.firefox {
                 padding: 0 9px;
                 float: left;
                 background-color: @color-bg-default;
-                border: 1px solid @color-border-menugray;
+                border: 1px solid @color-border-medium;
 
                 .text {
-                    .font(@size: 11px, @line-height: 22px, @color: @color-font-edge);
+                    .font(@size: 11px, @line-height: 22px);
                 }
 
                 .icon {
-                    color: @color-border-bar;
+                    color: @color-font-dagTabInactive;
                     font-size: 10px;
                     position: relative;
                     left: 6px;
