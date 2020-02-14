@@ -58,7 +58,7 @@ class ResourceMenu {
     private _renderTableList(): void {
         const tables: PbTblInfo[] = SQLResultSpace.Instance.getAvailableTables();
         tables.sort((a, b) => xcHelper.sortVals(a.name, b.name));
-        const iconClassNames: string[] = ["xi-table-2"];
+        const iconClassNames: string[] = ["xi-table-outline"];
         const html: HTML = tables.map((table) => {
             const listClassNames: string[] = ["table", "selectable"];
             if (!table.active) {

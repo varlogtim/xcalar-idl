@@ -412,7 +412,7 @@ class TblSource {
         const html: HTML =
         '<div class="ds grid-unit' + extraClass + '"' +
         ' data-id="' + name + '" ' + tooltip + '>' +
-            '<i class="gridIcon icon xi-table-2"></i>' +
+            '<i class="gridIcon icon xi-table-outline"></i>' +
             dsTableIcon +
             // checkMarkIcon +
             '<div title="' + title + '" class="label"' +
