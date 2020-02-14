@@ -1081,7 +1081,6 @@ class DagViewManager {
         let onSubmit = (name, numInput) => {
             const cb = () => {
                 DagView.newSQLFunc(name, numInput);
-                SQLResultSpace.Instance.refresh();
             };
             if (isFromSQLMode) {
                 XVM.setMode(XVM.Mode.Advanced)
@@ -1093,13 +1092,13 @@ class DagViewManager {
                 cb();
             }
         };
-        let onCancel: Function = null;
+        let onCancel: () => void = null;
         if (isFromSQLMode) {
             onCancel = () => {
                 XVM.setMode(XVM.Mode.SQL);
             };
         }
-        SQLFuncSettingModal.Instance.show(onSubmit, onCancel);
+        SQLFuncSettingModal.Instance.show(onSubmit, onCancel, null);
     }
 
     /**

@@ -175,6 +175,11 @@ class DagView {
         }
     }
 
+    /**
+     * DagView.newSQLFunc
+     * @param name
+     * @param numInput
+     */
     public static async newSQLFunc(name, numInput): Promise<void> {
         DagTabManager.Instance.newSQLFunc(name);
 

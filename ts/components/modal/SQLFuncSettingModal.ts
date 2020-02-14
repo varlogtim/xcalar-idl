@@ -24,12 +24,19 @@ class SQLFuncSettingModal {
      */
     public show(
         onSubmit: (name: string, numInput: number) => void,
-        onCancel: () => void
+        onCancel: () => void,
+        numInput: number | null
     ): void {
         this._modalHelper.setup();
         const fnName: string = DagList.Instance.getValidName(null, false, true);
         this._getNameInput().val(fnName);
-        this._getNumInput().val(1);
+        if (numInput != null) {
+            this._getNumInput().val(numInput)
+            .addClass("xc-disabled");
+        } else {
+            this._getNumInput().val(1)
+            .removeClass("xc-disabled");
+        }
         this._onSubmit = onSubmit;
         this._onCancel = onCancel;
     }

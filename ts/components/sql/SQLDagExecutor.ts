@@ -33,11 +33,15 @@ class SQLDagExecutor {
     private _sqlTabCached: boolean;
     private _sqlFunctions: {};
     private _publishName: string;
+    private _options: {compileOnly: boolean};
 
     public constructor(
         sqlStruct: SQLParserStruct,
-        tabName?: string
+        options?: {
+            compileOnly: boolean
+        }
     ) {
+        this._options = options || {compileOnly: false};
         this._sql = sqlStruct.sql.replace(/;+$/, "");
         this._newSql = sqlStruct.newSql ? sqlStruct.newSql.replace(/;+$/, "") :
                                                                      this._sql;
@@ -88,8 +92,20 @@ class SQLDagExecutor {
             }
             this._sqlNode.setSQLQuery({statementType: SQLStatementType.Create});
         }
-        this._sqlNode.subscribeHistoryUpdate();
-        this._appendNodeToDataflow();
+
+        if (this._options.compileOnly) {
+            this._tempGraph = new DagGraph();
+            this._tempTab = new DagTabUser({name: "temp"});
+            this._tempTab.setGraph(this._tempGraph);
+            this._tempGraph.addNode(this._sqlNode);
+        } else {
+            this._sqlNode.subscribeHistoryUpdate();
+            this._appendNodeToDataflow();
+        }
+    }
+
+    public getGraph(): DagGraph {
+        return this._tempGraph;
     }
 
     public getStatus(): SQLStatus {
@@ -114,10 +130,14 @@ class SQLDagExecutor {
     public compile(callback): XDPromise<DagNode[]> {
         const deferred: XDDeferred<DagNode[]> = PromiseHelper.deferred();
         let tabId: string = this._tempTab.getId();
-        SQLDagExecutor.setTab(tabId, this._tempTab);
+        if (!this._options.compileOnly) {
+            SQLDagExecutor.setTab(tabId, this._tempTab);
+        }
 
         let finish = () => {
-            SQLDagExecutor.deleteTab(tabId);
+            if (!this._options.compileOnly) {
+                SQLDagExecutor.deleteTab(tabId);
+            }
             if (this._status === SQLStatus.Done) {
                 this._updateStatus(SQLStatus.Done);
             } else if (this._status === SQLStatus.Cancelled) {
@@ -141,9 +161,12 @@ class SQLDagExecutor {
             if (this._status === SQLStatus.Cancelled) {
                 return PromiseHelper.reject(SQLStatus.Cancelled);
             }
-            DagTabManager.Instance.addSQLTabCache(this._tempTab);
-            this._sqlTabCached = true;
-            return DagView.expandSQLNodeAndHide(this._sqlNode.getId(), this._tempTab.getId());
+            if (!this._options.compileOnly) {
+                SQLDagExecutor.setTab(tabId, this._tempTab);
+                DagTabManager.Instance.addSQLTabCache(this._tempTab);
+                this._sqlTabCached = true;
+                return DagView.expandSQLNodeAndHide(this._sqlNode.getId(), this._tempTab.getId());
+            }
         })
         .then(deferred.resolve)
         .fail((e) => {
@@ -269,6 +292,42 @@ class SQLDagExecutor {
 
     public getPublishName(): string {
         return this._publishName;
+    }
+
+    public convertToSQLFunc(): {
+        graph: DagGraph,
+        numInput: number,
+        sqlNode: DagNodeSQL
+    } {
+        const clonedGraph: DagGraph = this._tempGraph.clone();
+        const sqlNode: DagNodeSQL = <DagNodeSQL>clonedGraph.getNode(this._sqlNode.getId());
+        for (let idx of this._identifiersOrder) {
+            const tableName = this._identifiers[idx];
+            const schema = this._schema[tableName];
+            const sqlFuncIn = <DagNodeSQLFuncIn>DagNodeFactory.create({
+                type: DagNodeType.SQLFuncIn
+            });
+            sqlFuncIn.setParam({source: tableName}, true);
+            sqlFuncIn.setSchema(schema);
+            sqlFuncIn.beConfiguredState();
+            sqlFuncIn.setOrder(idx - 1);
+            clonedGraph.addNode(sqlFuncIn);
+            clonedGraph.connect(sqlFuncIn.getId(), sqlNode.getId(), idx - 1);
+        }
+
+        // add out node
+        const sqlFuncOut = <DagNodeSQLFuncOut>DagNodeFactory.create({
+            type: DagNodeType.SQLFuncOut
+        });
+        clonedGraph.addNode(sqlFuncOut);
+        clonedGraph.connect(sqlNode.getId(), sqlFuncOut.getId());
+        sqlFuncOut.beConfiguredState();
+        sqlFuncOut.updateSchema();
+        return {
+            graph: clonedGraph,
+            numInput: this._identifiersOrder.length,
+            sqlNode
+        }
     }
 
     private _appendNodeToDataflow(): void {

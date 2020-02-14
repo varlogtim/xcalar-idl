@@ -134,13 +134,13 @@ class DagTabManager extends AbstractTabManager {
      * DagTabManager.Instance.newSQLFunc
      * @param graph
      */
-    public newSQLFunc(name: string): string {
+    public newSQLFunc(name: string, graph?: DagGraph): string {
         if (DagList.Instance.validateName(name, true) != null) {
             // when not a valid sql function name
             console.error("invalid sql function name " + name + " regenrate valid name!");
             name = DagList.Instance.getValidName(null, false, true);
         }
-        const graph: DagGraph = new DagGraph();
+        graph = graph || new DagGraph();
         const tab: DagTab = this._newTab(name, graph, true);
         this._tabListScroller.showOrHideScrollers();
         Log.add(SQLTStr.NewTab, {

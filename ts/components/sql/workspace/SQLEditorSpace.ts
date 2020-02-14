@@ -281,6 +281,42 @@ class SQLEditorSpace {
         return deferred.promise();
     }
 
+    private async _compileSingleSQL(sql: string): Promise<SQLDagExecutor | null> {
+        if (!sql || !sql.trim()) {
+            return null;
+        }
+
+        try {
+            const struct = {
+                sqlQuery: sql,
+                ops: ["identifier", "sqlfunc", "parameters"],
+                isMulti: false
+            };
+            const ret = await SQLUtil.sendToPlanner("", "parse", struct)
+            const sqlParseRet = JSON.parse(ret).ret;
+            let sqlStructArray: SQLParserStruct[];
+            if (!(sqlParseRet instanceof Array)) { // Remove this after parser change in
+                if (sqlParseRet.errorMsg) {
+                    throw new Error(sqlParseRet.errorMsg);
+                }
+                sqlStructArray = sqlParseRet.parseStructs;
+            } else {
+                sqlStructArray = sqlParseRet;
+            }
+
+            const sqlStruct: SQLParserStruct = sqlStructArray[0];
+            if (sqlStruct.nonQuery) {
+                throw new Error(SQLErrTStr.NoSupport + sqlStruct.sql);
+            }
+            const executor: SQLDagExecutor = new SQLDagExecutor(sqlStruct, {compileOnly: true});
+            await executor.compile(null);
+            return executor;
+        } catch (e) {
+            this._throwError(e);
+            return null;
+        }
+    }
+
     private _executeSQL(sqls: string): void {
         if (!sqls || !sqls.trim()) return;
         try {
@@ -385,6 +421,11 @@ class SQLEditorSpace {
         }
     }
     private _throwError(error: any): void {
+        if (!error) {
+            // if error is null, it should have an alert in sql node
+            return;
+        }
+        console.error(error);
         let errorMsg: string;
         if (error instanceof Error) {
             errorMsg = error.message;
@@ -405,7 +446,7 @@ class SQLEditorSpace {
     private _compileStatement(curExecutor: SQLDagExecutor) {
         try {
             let callback = null;
-            let deferred: XDDeferred<void> = PromiseHelper.deferred();
+            let deferred: XDDeferred<any> = PromiseHelper.deferred();
             callback = () => {
                 this._removeExecutor(curExecutor);
             };
@@ -501,6 +542,9 @@ class SQLEditorSpace {
                 DebugPanel.Instance.toggleDisplay(true);
                 DebugPanel.Instance.switchTab("sqlHistory");
                 break;
+            case "convertToSQLFuc":
+                this._convertToSQLFunc();
+                break;
             default:
                 break;
         }
@@ -561,14 +605,32 @@ class SQLEditorSpace {
 
         let selector: string = `#${this._getEditorSpaceEl().attr("id")}`;
         new MenuHelper($header.find(".btn.more"), {
+            onOpen: ($dropdown) => {
+                this._onDropdownOpen($dropdown);
+            },
             onSelect: ($li) => {
-                this._fileOption($li.data("action"));
+                if (!$li.hasClass("unavailable")) {
+                    this._fileOption($li.data("action"));
+                }
             },
             container: selector,
             bounds: selector,
             fixedPosition: {selector: ".xc-action", float: true}
 
         }).setupListeners();
+    }
+
+    private _onDropdownOpen($dropdown: JQuery): void {
+        const $li = $dropdown.find('li[data-action="convertToSQLFuc"]');
+        if (this._sqlEditor.getSelection().length) {
+            $li.removeClass("unavailable");
+            xcTooltip.remove($li);
+        } else {
+            $li.addClass("unavailable");
+            xcTooltip.add($li, {
+                title: "Select a portion of query to convert"
+            });
+        }
     }
 
     private _undock(): void {
@@ -589,5 +651,22 @@ class SQLEditorSpace {
         } catch (e) {
             console.error("save snippet change failed", e);
         }
+    }
+
+    private async _convertToSQLFunc(): Promise<void> {
+        const sql = this._sqlEditor.getSelection();
+        const executor: SQLDagExecutor = await this._compileSingleSQL(sql);
+        if (executor == null) {
+            // error case
+            return;
+        }
+        const {graph, numInput, sqlNode} = executor.convertToSQLFunc();
+        const onSubmit = (name) => {
+            DagTabManager.Instance.newSQLFunc(name, graph);
+            DagViewManager.Instance.getActiveDagView().autoAlign({isNoLog: true});
+            // XXX uncomment it if need to expand the sql node
+            // DagViewManager.Instance.expandSQLNode(sqlNode.getId());
+        };
+        SQLFuncSettingModal.Instance.show(onSubmit, () => {}, numInput);
     }
 }
