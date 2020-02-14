@@ -2194,7 +2194,6 @@ html.firefox {
 }
 
 .xc-tableArea {
-    background-color: @color-xpe-docker-starter-bg;
     @div-h: 22px;
 
     .tableScrollBar {
@@ -2313,13 +2312,12 @@ html.firefox {
 
         .tableNameArea {
             .flex(1 1 0px);
-            padding: 0 10px;
-            padding-top: 2px;
+            padding: 0 4px;
+            line-height: 24px;
             .textOverflowOneLine;
             display: flex;
             .name {
                 .textOverflowOneLine;
-                font-weight: 600;
                 user-select: text;
             }
         }
@@ -2328,21 +2326,20 @@ html.firefox {
             .position(relative);
             cursor: pointer;
             border-right: 1px solid @color-border-menugray;
-            padding: 0 10px;
-            margin-right: 10px;
-            padding-top: 3px;
+            padding: 0 8px;
+            margin-right: 4px;
+            line-height: 24px;
         }
 
         .rowInputArea {
             .size(@min-width: 60px, @height: @div-h);
             margin-top: 0;
-            margin-right: 10px;
+            margin-right: 8px;
             border: none;
             padding: 0;
-            padding-top: 3px;
+            line-height: 24px;
 
             input {
-                background-color: @color-bg-default;
                 .size(@height: 22px);
                 top: 1px;
             }

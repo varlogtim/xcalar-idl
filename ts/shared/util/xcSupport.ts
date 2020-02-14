@@ -56,7 +56,7 @@ namespace XcSupport {
             });
         if (error == null) {
             // not ready case
-            msg = "Xcalar Design is setting up, please wait" + ".".repeat(cnt % 3 + 1);
+            msg = "Xcalar is setting up, please wait" + ".".repeat(cnt % 3 + 1);
         }
         Alert.updateMsg(alertId, msg);
 
@@ -187,7 +187,7 @@ namespace XcSupport {
             }
             id = Alert.show({
                 title,
-                msg: "Xcalar Design is setting up, please wait.",
+                msg: "Xcalar is setting up, please wait.",
                 isAlert: true,
                 lockScreen: true,
                 hideButtons: ["downloadLog", "genSub"]

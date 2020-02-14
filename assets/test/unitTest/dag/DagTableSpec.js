@@ -51,10 +51,10 @@ describe("DagTable Test", () => {
         });
     });
 
-    it("should click close button to close", () => {
-        $container.find(".close").click();
-        expect($container.hasClass("xc-hidden")).to.be.true;
-    });
+    // it("should click close button to close", () => {
+    //     $container.find(".close").click();
+    //     expect($container.hasClass("xc-hidden")).to.be.true;
+    // });
 
     describe("Error Case Test", () => {
         before(() => {

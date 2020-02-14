@@ -272,7 +272,7 @@ class DagTable {
         const type: string = viewer instanceof XcDatasetViewer ?
         "Dataset" : "";
         $nameArea.find(".type").text(type);
-        $nameArea.find(".name").text(": " + viewer.getTitle());
+        $nameArea.find(".name").text(viewer.getTitle());
     }
 
     private _clearTableNameArea(): void {

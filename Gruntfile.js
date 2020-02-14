@@ -80,16 +80,16 @@ var XLRGUIDIR = 'XLRGUIDIR';
 var XLRDIR = 'XLRDIR';
 
 // different possible product types.
-var XD = "XD"; // regular Xcalar Design builds
+var XD = "XD"; // regular XD builds
 var Cloud = "Cloud"; // cloud builds
-var XPE = "XPE"; // for special builds of Xcalar Design intended to be run by nwjs in MacOS app
+var XPE = "XPE"; // for special builds of XD intended to be run by nwjs in MacOS app
 var productTypes = {
     XD: {
-        'name': 'Xcalar Design', // default name to brand throughout GUIs for this product
+        'name': 'Xcalar Data App Notebook', // default name to brand throughout GUIs for this product
         'target': 'xcalar-gui' // dirname for build target
     },
     Cloud: {
-        'name': 'Xcalar Design', // default name to brand throughout GUIs for this product
+        'name': 'Xcalar Data App Notebook', // default name to brand throughout GUIs for this product
         'target': 'xcalar-gui' // dirname for build target
     },
     XPE: {
@@ -2834,7 +2834,7 @@ module.exports = function(grunt) {
         }
 
         if (PRODUCT === XPE) {
-            // script tags just used by Xcalar Design EE app for nwjs set ups
+            // script tags just used by XD EE app for nwjs set ups
             // httpStatus a dep. for XPE; it's included in login.html
             // in all blds but not index.html
             extraTags.push('assets/js/httpStatus.js');
@@ -2959,7 +2959,7 @@ module.exports = function(grunt) {
 
             1. render if/else logic within the src HTML
             2. internationalization
-            3. Product name strings normalized (they all say 'xcalar design';)
+            3. Product name strings normalized
 
         Once file has been templated, delete the original file so you don't end up
         with stale HTML.
@@ -3717,7 +3717,7 @@ module.exports = function(grunt) {
             "assets/jupyter/jupyter/custom/custom.js": "assets/jupyter/jupyter/custom/custom.js"
         }
 
-        // string occurences to to search for in the files - the default "Xcalar Design" string
+        // string occurences to to search for in the files - the default XD string
         var regularStr = productTypes[XD]['name'];
         // what to replace those occurances with
         var replaceStr = PROD_NAME;

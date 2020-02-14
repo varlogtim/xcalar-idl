@@ -445,7 +445,7 @@ module.exports = {
         "SQLFuncTab": "Table Functions",
         "ResultTab": "Query Results",
         "HistoryTab": "History",
-        "ViewingResult": "Viewing Result",
+        "ViewingResult": "Result",
         "SearchByQuery": "Filter by query",
         "SearchByName": "Filter by name",
         "SchemaBack": "Back to show tables",
@@ -637,8 +637,6 @@ module.exports = {
         "GenBundleTip": "This will be slow",
         "AdditionalInfo": "Additional (new) information",
         "GenBundle": "Generate Support Bundle",
-        "MiniDump": "Mini Dump",
-        "MiniDumpTip": "You must select Generate Support Bundle first",
         "Severity": "Severity",
         "Severity1": "Cluster is down",
         "Severity2": "Functionality is compromised",
@@ -1224,7 +1222,6 @@ module.exports = {
         "uploadWKBK": "Upload Project",
         "noActive": "No active worksheets. Please create one first.",
         "learnMore": "Learn more about " + bldVars.prodName,
-        "relatedDocs": "Xcalar Design Documentation",
         "walkthroughs": "Available Walkthroughs",
         "tuts": "Tutorials",
         "viewNewHelpDoc": "View our help documentation",
@@ -1260,7 +1257,7 @@ module.exports = {
         "numServers": "# of Servers",
         "numUsers": "# of Users",
         "key": "Key",
-        "copyright": "Copyright © 2019 Xcalar, Inc. All rights reserved."
+        "copyright": "Copyright © 2020 Xcalar, Inc. All rights reserved."
     },
 
     "login": {

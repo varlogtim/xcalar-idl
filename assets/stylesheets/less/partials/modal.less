@@ -3476,14 +3476,7 @@ html.microsoft {
                 .flex-wrap(wrap);
             }
             .checkboxSection {
-                &:first-child {
-                    .flex(0 0 200px);
-                }
-                &.miniDump {
-                    &.inactive {
-                        opacity: @opacity-disabled;
-                    }
-                }
+                .flex(0 0 auto);              
             }
         }
 
@@ -3507,10 +3500,6 @@ html.microsoft {
 
     .refresh {
         .position(absolute, @right: 27px, @top: 27px)
-    }
-
-    .ticketIDSection, .commentSection {
-        background: @color-table-header-gray;
     }
 
     .modalMain .formRow > .label {
@@ -3818,17 +3807,16 @@ html.microsoft {
         }
 
         .modalMain {
-            height: 260px;
+            height: 220px;
+            padding-top: 10px;
         }
     }
 
     .modalHeader {
         .size(@height: 31px);
-        background-color: @color-about-gradient-top;
         padding: 0;
 
         .close {
-            color: @color-font-defaultInverse;
             top: 13px;
         }
     }
@@ -3836,24 +3824,7 @@ html.microsoft {
     .modalMain {
         height: 425px;
         position: relative;
-        padding: 30px 51px 23px 51px;
-        .font(@size: 12px, @color: @color-font-white);
-        .linear-gradient(top, @color-about-gradient-top,
-        @color-about-gradient-bottom);
-
-        .background {
-            height: 100%;
-            width: 100%;
-            position: absolute;
-            left: 0px;
-            bottom: 0px;
-            opacity: 0.5;
-            background-image: url("../../images/wave.svg");
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: bottom;
-            z-index: 0;
-        }
+        .font(@size: 12px);
 
         .contents {
             position: relative;
@@ -3863,12 +3834,6 @@ html.microsoft {
                     display: inline-block;
                     &.xi-xcalar-full-logo {
                         font-size: 38px;
-                    }
-                    &.xi-design-logo {
-                        font-size: 36px;
-                        position: relative;
-                        top: -2px;
-                        left: 6px;
                     }
                 }
             }
