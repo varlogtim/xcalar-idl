@@ -1,7 +1,7 @@
 .cm-s-xcalar-dark.CodeMirror { background: #181818; color: #FFFFFF; }
-.cm-s-xcalar-dark div.CodeMirror-selected { background: #b2d7fe !important; }
-.cm-s-xcalar-dark.CodeMirror ::selection { background: #b2d7fe; }
-.cm-s-xcalar-dark.CodeMirror ::-moz-selection { background: #b2d7fe; }
+.cm-s-xcalar-dark div.CodeMirror-selected { background: #54595f !important; }
+.cm-s-xcalar-dark.CodeMirror ::selection { background: #54595f; }
+.cm-s-xcalar-dark.CodeMirror ::-moz-selection { background: #54595f; }
 .cm-s-xcalar-dark .CodeMirror-gutters { background: #181818; border-right: 7px solid #181818; }
 .cm-s-xcalar-dark .CodeMirror-guttermarker { color: #485461; }
 .cm-s-xcalar-dark .CodeMirror-guttermarker-subtle { color: #3E7087; }

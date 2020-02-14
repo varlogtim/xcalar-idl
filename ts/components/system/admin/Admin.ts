@@ -7,7 +7,6 @@ namespace Admin {
     let $menuPanel; // $('#monitorMenu-setup');
     let $userList; // $menuPanel.find('.userList');
     let adminAlertCard: AdminAlertCard;
-    let monitorLogCard: MonitorLog;
     let monitorConfig: MonitorConfig;
 
     /**
@@ -35,11 +34,11 @@ namespace Admin {
         $menuPanel = $('#monitorMenu-setup');
         $userList = $menuPanel.find('.userList');
 
+
         if (isAdmin) {
             addUserListListeners();
             addMonitorMenuSupportListeners();
             refreshUserList(true, false);
-            monitorLogCard = new MonitorLog("monitorLogCard");
             adminAlertCard = new AdminAlertCard("adminAlertCard");
         }
     }
@@ -171,9 +170,7 @@ namespace Admin {
      * Admin.onWinResize
      */
     export function onWinResize(): void {
-        if (monitorLogCard != null) {
-            monitorLogCard.adjustTabNumber();
-        }
+
     }
 
     /**

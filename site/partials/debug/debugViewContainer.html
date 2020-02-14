@@ -7,7 +7,7 @@
       <div class="tab" data-tab="systemLog">System Log</div>
       <div class="tab" data-tab="udfLog">UDF Log</div>
     </div>
-    <i class="closeResult xc-icon-action icon xi-close" 
+    <i class="closeResult xc-icon-action icon xi-close"
     data-toggle="tooltip"
     data-container="body"
     data-original-title="<%= dicts.common.Close %>"
@@ -18,8 +18,12 @@
     <div class="section sqlHistory xc-hidden">
       include "sqlQueryHistory.html"
     </div>
-    <div class="section console xc-hidden"></div>
-    <div class="section systemLog xc-hidden"></div>
+    <div class="section console xc-hidden">
+
+    </div>
+    <div class="section systemLog xc-hidden">
+      include "systemLogArea.html"
+    </div>
     <div class="section udfLog xc-hidden"></div>
   </div>
 </div>

@@ -1,4 +1,4 @@
-class MonitorLog {
+class SystemLog {
     private _id: string;
     private _hosts;
     private _hasError;
@@ -315,8 +315,8 @@ class MonitorLog {
         fileName: string
     } | null {
         let $inputSection = this._getInputSection();
-        let $lastNRow = $inputSection.find(".lastRow .xc-input");
-        let lastNRow: number = parseInt($inputSection.find(".lastRow .xc-input").val().trim());
+        let $lastNRow = $inputSection.find(".numLogs .xc-input");
+        let lastNRow: number = parseInt($inputSection.find(".numLogs .xc-input").val().trim());
         $lastNRow.blur();
 
         let fileName = this._validateFileName();
@@ -387,7 +387,7 @@ class MonitorLog {
         })
         .always(() => {
             $inputSection.removeClass("xc-disabled");
-            $inputSection.find(".lastRow .xc-input").blur();
+            $inputSection.find(".numLogs .xc-input").blur();
             xcTooltip.hideAll();
         });
 

@@ -1,5 +1,6 @@
 class DebugPanel {
     private static _instance: DebugPanel;
+    private _systemLogCard: SystemLog;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -7,6 +8,7 @@ class DebugPanel {
 
     private constructor() {
         this._addEventListeners();
+        this._systemLogCard = new SystemLog("systemLogCard");
     }
 
     /**
@@ -94,4 +96,10 @@ class DebugPanel {
             this.toggleDisplay(false);
         });
     }
+
+    // export function onWinResize(): void {
+    //     if (monitorLogCard != null) {
+    //         monitorLogCard.adjustTabNumber();
+    //     }
+    // }
 }

@@ -1,7 +1,7 @@
 class DagTabOptimized extends DagTabProgress {
     public static readonly KEY = "xcRet_";
-    public static readonly XDPATH = "Optimized Applications/";
-    public static readonly SDKPATH = "Optimized SDK Applications/";
+    public static readonly XDPATH = "Optimized Apps/";
+    public static readonly SDKPATH = "Optimized SDK Apps/";
     public static readonly FILEEXT = ".opt.tar.gz";
     public uid: XcUID;
 

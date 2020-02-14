@@ -8,10 +8,10 @@ describe("MonitorLog Test", function() {
 
     before(function() {
         let id = xcHelper.randName("test");
-        $card = $("#monitorLogCard").clone();
+        $card = $("#systemLogCard").clone();
         $card.attr("id", id);
         $("#container").append($card);
-        monitorLogCard = new MonitorLog(id);
+        monitorLogCard = new SystemLog(id);
         monitorLogCard._clearAll();
 
         retHosts = {
@@ -44,7 +44,7 @@ describe("MonitorLog Test", function() {
     });
 
     it("should be the correct instance", function() {
-        expect(monitorLogCard).to.be.an.instanceof(MonitorLog);
+        expect(monitorLogCard).to.be.an.instanceof(SystemLog);
     });
 
     it("adjustTabNumber should work", function() {
@@ -158,7 +158,7 @@ describe("MonitorLog Test", function() {
     it("_validate should work", function() {
         let $inputSection = monitorLogCard._getInputSection();
         let $fileName = $inputSection.find(".logName .xc-input");
-        let $lastNRow = $inputSection.find(".lastRow .xc-input");
+        let $lastNRow = $inputSection.find(".numLogs .xc-input");
         // case 1
         $fileName.val("");
         let res = monitorLogCard._validate();
@@ -178,6 +178,7 @@ describe("MonitorLog Test", function() {
         expect(res).to.equal(null);
         // case 5
         $lastNRow.val("100");
+
         res = monitorLogCard._validate();
         expect(res).to.deep.equal({
             lastNRow: 100,

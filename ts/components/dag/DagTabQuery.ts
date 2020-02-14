@@ -1,6 +1,6 @@
 class DagTabQuery extends DagTabProgress {
     public static readonly PATH = "Abandoned executions/";
-    public static readonly SDKPATH = "SDK Applications/";
+    public static readonly SDKPATH = "SDK Apps/";
     private static _abandonedQueryPrefix;
     private _isSDK: boolean;
     protected _state: string;
