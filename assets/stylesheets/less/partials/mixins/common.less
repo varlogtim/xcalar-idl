@@ -830,7 +830,6 @@
             float: left;
             display: inline-block;
             margin: 0 5px 0 0px;
-            // background-color: @color-bg-default;
             border-radius: 100%;
             .vertical-align;
 
@@ -840,9 +839,11 @@
                 vertical-align: top;
                 line-height: 12px;
                 display: inline-block;
+                border-radius: 100%;
 
                 &.xi-radio-selected {
                     color: @color-font-softBlue;
+                    background-color: @color-font-default;
                     display: none;
                 }
             }
@@ -1440,7 +1441,7 @@
         cursor: pointer;
         color: @color-bg-select-blue;
         &.white {
-            color: @color-font-defaultInverse;
+            color: @color-font-default;
         }
     }
 }
@@ -2016,6 +2017,19 @@
 
         font-size: 38px;
         color: @color-bg-dusk-blue;
+    }
+}
+
+.xc-new-logo {
+    border: none;
+    background-color: transparent;
+
+    .icon {
+        font-size: 24px;
+        height: 23px;
+        width: 24px;
+        background-color: @color-bg-logoBorder;
+        color: @color-font-logo;
     }
 }
 

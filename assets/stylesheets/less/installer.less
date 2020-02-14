@@ -30,15 +30,15 @@ input {
 
 body {
     -webkit-font-smoothing: antialiased;
-    color: @color-font-defaultInverse;
+    color: @color-font-default;
     // font-size: 0; /* Need to use this to get rid of stupid white space */
-    .linear-gradient(top, @color-bg-select-blue, @color-bg-marine);
+    background-color: @color-bg-default;
 }
 
 form {
     a {
-        color: @color-font-softBlue;
         cursor: pointer;
+        color: @color-font-default;
     }
     &.disabled {
         opacity: 0.5;
@@ -96,7 +96,6 @@ form {
 
         .icon {
             font-size: 20px;
-            color: @color-bg-select-blue;
         }
 
         .text {
@@ -117,7 +116,7 @@ form {
 
 #loadingBar {
     .size(@width: 100%, @height: 1px);
-    background-color: @color-border-softBlue;
+    background-color: @color-font-default;
     position: relative;
     overflow: hidden;
 
@@ -143,59 +142,20 @@ form {
 
 
 .radioButtonGroup {
-
-    &.center {
-        .align-content(center);
-        .align-items(center);
-    }
-
     .radioButton {
         .size(@height: 28px);
         .font(@size: 17px, @line-height: 24px);
-        .noSelection;
-        cursor: pointer;
-
-        &.active {
-            .radio {
-                .icon {
-                    &.xi-radio-selected {
-                        display: inline-block;
-                    }
-
-                    &.xi-radio-empty {
-                        display: none;
-                    }
-                }
-            }
-        }
 
         .radio {
             .size(@width: 16px, @height: 16px);
-            .position(relative, @top: 1px);
-            float: left;
-            display: inline-block;
-            margin: 0 5px 0 0px;
-            background-color: @color-bg-default;
-            border-radius: 100%;
-            .vertical-align;
 
             .icon {
                 font-size: 17px;
-                color: @color-font-pinkish-grey2;
-                vertical-align: top;
                 line-height: 16px;
-                display: inline-block;
-
-                &.xi-radio-selected {
-                    color: @color-font-softBlue;
-                    display: none;
-                }
             }
         }
 
         .label {
-            float: left;
-            padding-left: 5px;
             .size(@width:~"calc(100% - 30px)");
             text-align: left;
             font-size: 14px;
@@ -241,7 +201,6 @@ input:-webkit-autofill:focus {
         > div:not(.hint) {
             span {
                 display: inline-block;
-                font-weight: 700;
                 &:first-child {
                     &:not(.choice) {
                         width: 78px;
@@ -287,8 +246,7 @@ input:-webkit-autofill:focus {
         display: inline-block;
         margin-top: 20px;
         margin-bottom: 10px;
-        font-weight: 700;
-        color: @color-font-defaultInverse;
+        color: @color-font-default;
         font-size: 14px;
     }
 
@@ -300,8 +258,8 @@ input:-webkit-autofill:focus {
     #numServers {
         outline: none;
         margin-left: 10px;
-        background: rgba(0, 0, 0, 0.2);
-        color: @color-font-defaultInverse;
+        background-color: @color-bg-default;
+        color: @color-font-default;
         padding-left: 10px;
         width: 100px;
         font-size: 15px;
@@ -323,7 +281,6 @@ input:-webkit-autofill:focus {
             .transition(color 0.5s);
             pointer-events: none;
             z-index: 0;
-            color: @color-font-softGrayBlue;
             width: 76%;
             margin-left: 5%;
             text-transform: uppercase;
@@ -346,7 +303,7 @@ input:-webkit-autofill:focus {
                 position: absolute;
                 bottom: 0px;
                 .size(@width: 100%, @height: 1px);
-                background-color: @color-bg-bright-blue;
+                background-color: @color-font-default;
                 .transition(all 0.5s);
             }
         }
@@ -356,8 +313,8 @@ input:-webkit-autofill:focus {
             margin-top: 20px;
             display: inline-block;
             font-family: @font-code;
-            background-color: rgba(0, 0, 0, 0.3);
-            color: @color-font-defaultInverse;
+            background-color: @color-bg-default;
+            color: @color-font-default;
             box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.2);
             resize: none;
             overflow: auto;
@@ -433,7 +390,7 @@ input:-webkit-autofill:focus {
                 }
 
                 ~ .bar {
-                    color: @color-font-defaultInverse;
+                    color: @color-font-default;
                     &::after {
                         background-color: @color-bg-default;
                         height: 2px;
