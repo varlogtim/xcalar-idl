@@ -501,13 +501,10 @@ namespace SqlQueryHistoryPanel {
                 this._noTableExistHandler(queryInfo);
                 return;
             }
-            let table = new TableMeta({
-                tableId: tableId,
-                tableName: tableName
-            });
             let columns = queryInfo.columns;
-            SQLResultSpace.Instance.viewTable(table, columns, () => {
-                this._noTableExistHandler(queryInfo);
+            TableTabManager.Instance.openTab(tableName, TableTabType.SQLHistory, {
+                tableName,
+                columns
             });
         }
 

@@ -16,18 +16,7 @@ class SQLTable {
         callback?: Function
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        table.allImmediates = true;
-
-        if (columns) {
-            let tableCols: ProgCol[] = [];
-            columns.forEach((col) => {
-                tableCols.push(ColManager.newPullCol(col.name,
-                                     col.backName, col.type));
-            });
-            tableCols.push(ColManager.newDATACol());
-            table.addAllCols(tableCols);
-        }
-
+        this._addColumnsToTable(table, columns);
         const viewer: XcTableViewer = new XcTableViewer(table, {
             fromSQL: true
         });
@@ -45,6 +34,33 @@ class SQLTable {
         });
 
         return deferred.promise();
+    }
+
+    public async showPublishedTable(tableName: string): Promise<void> {
+        // XXX TODO: copy the whole behavior of TblSource.ts
+        const tableInfo: PbTblInfo = PTblManager.Instance.getTableByName(tableName);
+        const resultName: string = await PTblManager.Instance.selectTable(tableInfo, 100);
+        let tableId = xcHelper.getTableId(resultName);
+        if (!tableId) {
+            throw new Error(SQLErrTStr.NoResult);
+        }
+        const table = new TableMeta({
+            tableId: tableId,
+            tableName: resultName
+        });
+        const schema = tableInfo.getSchema();
+        const columns = schema.map((col) => {
+            return {
+                name: col.name,
+                backName: col.name,
+                type: col.type
+            };
+        });
+        this._addColumnsToTable(table, columns);
+        gTables[table.getId()] = table;
+        const viewer: XcPbTableViewer = new XcPbTableViewer(table);
+        await this._show(viewer);
+        viewer.updateToalNumRows(tableInfo.rows);
     }
 
     public getTable(): string {
@@ -174,14 +190,34 @@ class SQLTable {
 
     private _renderTableNameArea(viewer: XcViewer) {
         const $nameArea: JQuery = this._getTableNameArea();
-        $nameArea.removeClass("xc-hidden");
-        $nameArea.find(".name").text(viewer.getId());
+        if (viewer instanceof XcPbTableViewer) {
+            this._clearTableNameArea();
+        } else {
+            $nameArea.removeClass("xc-hidden");
+            $nameArea.find(".name").text(viewer.getId());
+        }
     }
 
     private _clearTableNameArea(): void {
         const $nameArea = this._getTableNameArea();
         $nameArea.addClass("xc-hidden");
-        $nameArea.find(".type").empty();
         $nameArea.find(".name").empty();
+    }
+
+    private _addColumnsToTable(
+        table: TableMeta,
+        columns: {name: string, backName: string, type: ColumnType}[]
+    ): void {
+        table.allImmediates = true;
+
+        if (columns) {
+            let tableCols: ProgCol[] = [];
+            columns.forEach((col) => {
+                tableCols.push(ColManager.newPullCol(col.name,
+                                     col.backName, col.type));
+            });
+            tableCols.push(ColManager.newDATACol());
+            table.addAllCols(tableCols);
+        }
     }
 }

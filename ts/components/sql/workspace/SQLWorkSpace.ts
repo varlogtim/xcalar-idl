@@ -23,6 +23,7 @@ class SQLWorkSpace {
         this._sqlHistorySpace.setup();
         this._resizeEvents();
         this._addEventListeners();
+        TableTabManager.Instance.setup();
     }
 
     public refresh(): void {

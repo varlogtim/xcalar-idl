@@ -87,14 +87,6 @@ describe("SQLResultSpace Test", function() {
             sqlResultSpace._sqlTableSchema.showError = () => {};
         });
 
-        it("should showProgressDataflow", function() {
-            let called = false;
-            sqlResultSpace._sqlDataflowPreview.show = () => { called = true };
-            sqlResultSpace.showProgressDataflow();
-            expect(called).to.be.true;
-            sqlResultSpace._sqlDataflowPreview.show = () => {};
-        });
-
         it("should get the correct ID", function() {
             let id = sqlResultSpace.getShownResultID();
             expect(id).to.equal("test1");

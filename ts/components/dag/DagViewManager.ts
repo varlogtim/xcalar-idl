@@ -347,8 +347,8 @@ class DagViewManager {
         };
     }
 
-        /**
-     * DagView.viewResult
+    /**
+     * DagViewManager.Instance.viewResult
      * @param dagNodeId
      */
     public viewResult(dagNode: DagNode, tabId?: string): XDPromise<void> {
@@ -363,19 +363,17 @@ class DagViewManager {
             } else {
                 // all other nodes
                 tabId = tabId || this.activeDagTab.getId();
-                DagTable.Instance.previewTable(tabId, dagNode)
-                    .then((res: XcDagTableViewer) => {
-                        let dagView = this.getDagViewById(res.getDataflowTabId());
-                        let table = XcDagTableViewer.getTableFromDagNode(dagNode);
-                        if (dagView && table) {
-                            dagView.syncProgressTip(dagNode.getId(), table.resultSetCount);
-                        }
-                        deferred.resolve();
-                    })
-                    .fail((error) => {
-                        Alert.error(AlertTStr.Error, error);
-                        deferred.reject(error);
-                    });
+                const meta = {
+                    tabId,
+                    nodeId: dagNode.getId()
+                };
+                TableTabManager.Instance.openTab(dagNode.getTable(), TableTabType.ResultSet, meta)
+                .then(() => {
+                    deferred.resolve();
+                })
+                .catch((error) => {
+                    deferred.reject(error);
+                });
             }
         } catch (e) {
             console.error(e);

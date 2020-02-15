@@ -94,7 +94,6 @@ describe.skip("SQLHistorySpace Test", () => {
 
         let oldGetTab = DagTabManager.Instance.getTabById;
         let oldInspect = DagViewManager.Instance.inspectSQLNode;
-        let oldShowProgress = SQLResultSpace.Instance.showProgressDataflow;
         let called = 0;
 
         DagTabManager.Instance.getTabById = () => {
@@ -105,9 +104,6 @@ describe.skip("SQLHistorySpace Test", () => {
         DagViewManager.Instance.inspectSQLNode = () => {
             called++;
             return PromiseHelper.resolve();
-        };
-        SQLResultSpace.Instance.showProgressDataflow = () => {
-            called++;
         };
 
         SQLHistorySpace.Instance.viewProgress(tab.getId())
@@ -121,7 +117,6 @@ describe.skip("SQLHistorySpace Test", () => {
         .always(() => {
             DagTabManager.Instance.getTabById = oldGetTab;
             DagViewManager.Instance.inspectSQLNode = oldInspect;
-            SQLResultSpace.Instance.showProgressDataflow = oldShowProgress;
         });
     });
 

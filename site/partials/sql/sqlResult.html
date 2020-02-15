@@ -12,14 +12,16 @@
   data-original-title="<%= dicts.common.Close %>"
   ></i>
   <div class="section result">
-    include "sqlTableListerArea.html"
-    include "sqlTableSchemaArea.html"
     include "sqlTableArea.html"
     include "sqlDataflowArea.html"
     <!-- include "../worksheet/dagViewTableArea.html" -->
     <div class="hintArea">
-    <span class="semibold">No results</span>
-    <div class="hint">Run a SQL query to get started, add/modify the operators in the module builder to build an advanced data app</div>
+      <div class="hint">Reuslt is loading, please wait...</div>
     </div>
   </div>
+  <div class="section sql">
+    include "sqlTableListerArea.html"
+    include "sqlTableSchemaArea.html"
+  </div>
+  <div class="section error"></div>
 </div>

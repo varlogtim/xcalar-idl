@@ -24,16 +24,6 @@ class DagTable {
         return this._show(viewer);
     }
 
-    public previewPublishedTable(table: TableMeta): XDPromise<XcViewer> {
-        const viewer: XcPbTableViewer = new XcPbTableViewer(table);
-        return this._show(viewer);
-    }
-
-    public previewDataset(dsId: string) {
-        const viewer: XcDatasetViewer = new XcDatasetViewer(DS.getDSObj(dsId));
-        return this._show(viewer);
-    }
-
     public switchTab(tabId: string): void {
         if (!(this._currentViewer instanceof XcDagTableViewer)) {
             // dataset viewer or publised table viewer has higher priority
@@ -112,14 +102,8 @@ class DagTable {
         return this._searchBar;
     }
 
-
-    public closeDatasetPreview(): void {
-        if (this._currentViewer && !(this._currentViewer instanceof XcDagTableViewer)) {
-            this._close();
-        }
-    }
-
     /**
+     * DagTable.Instance.close
      * close the preview
      */
     public close(): void {
@@ -165,11 +149,6 @@ class DagTable {
 
         const viewer: XcViewer = this._currentViewer;
         $container.addClass("dagTableMode noBottom");
-        if (viewer instanceof XcDatasetViewer) {
-            $container.addClass("dataset");
-        } else {
-            $container.removeClass("dataset");
-        }
         this._renderTableNameArea(viewer);
 
         const $tableSection: JQuery = $container.find(".tableSection");
@@ -268,17 +247,25 @@ class DagTable {
 
     private _renderTableNameArea(viewer: XcViewer): void {
         const $nameArea: JQuery = this._getTableNameArea();
-        $nameArea.removeClass("xc-hidden");
-        const type: string = viewer instanceof XcDatasetViewer ?
-        "Dataset" : "";
-        $nameArea.find(".type").text(type);
-        $nameArea.find(".name").text(viewer.getTitle());
+        let shouldShowName: boolean = false;
+        if (viewer instanceof XcDagTableViewer) {
+            const tabId = viewer.getDataflowTabId();
+            if (tabId ===  DagTabSQLExecute.ID) {
+                shouldShowName = true;
+            }
+        }
+
+        if (shouldShowName) {
+            $nameArea.removeClass("xc-hidden");
+            $nameArea.find(".name").text(viewer.getTitle());
+        } else {
+            this._clearTableNameArea();
+        }
     }
 
     private _clearTableNameArea(): void {
         const $nameArea = this._getTableNameArea();
         $nameArea.addClass("xc-hidden");
-        $nameArea.find(".type").empty();
         $nameArea.find(".name").empty();
     }
 }

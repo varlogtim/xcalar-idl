@@ -394,39 +394,8 @@ class ResourceMenu {
         }
     }
 
-    // XXX TODO: copy the whole behavior of TblSource.ts
-    // XXX TODO: move into XcPbTableViewer
-    private async _focusOnTable(tableName: string): Promise<void> {
-        const tableInfo: PbTblInfo = PTblManager.Instance.getTableByName(tableName);
-        try {
-            const resultName: string = await PTblManager.Instance.selectTable(tableInfo, 100);
-            let tableId = xcHelper.getTableId(resultName);
-            if (!tableId) {
-                // invalid case
-                Alert.show({
-                    title: SQLErrTStr.Err,
-                    msg: SQLErrTStr.NoResult,
-                    isAlert: true
-                });
-                return;
-            }
-            const table = new TableMeta({
-                tableId: tableId,
-                tableName: resultName
-            });
-            const schema = tableInfo.getSchema();
-            const columns = schema.map((col) => {
-                return {
-                    name: col.name,
-                    backName: col.name,
-                    type: col.type
-                };
-            });
-            gTables[table.getId()] = table;
-            SQLResultSpace.Instance.viewTable(table, columns);
-        } catch (e) {
-            console.error(e);
-        }
+    private _focusOnTable(tableName: string): void {
+        TableTabManager.Instance.openTab(tableName, TableTabType.PbTable);
     }
 
     private _setupActionMenu(): void {

@@ -2,7 +2,7 @@ class XcTableViewer extends XcViewer {
     protected table: TableMeta;
     protected rowInput: RowInput;
     protected skew: TableSkew;
-    private rowManager: RowManager;
+    protected rowManager: RowManager;
     private $container: JQuery;
     private _options: any
 

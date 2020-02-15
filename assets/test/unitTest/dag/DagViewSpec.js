@@ -408,12 +408,12 @@ describe("DagView Test", () => {
             graph.addNode(node);
             table = xcHelper.randName("test#abc")
             node.setTable(table);
-            oldShow = DagTable.Instance._show;
+            oldShow = TableTabManager.Instance.openTab;
         });
 
         it("should show table", (done) => {
             let test = false;
-            DagTable.Instance._show = () => {
+            TableTabManager.Instance.openTab = () => {
                 test = true;
                 return PromiseHelper.resolve({
                     getDataflowTabId: ()=>null
@@ -430,21 +430,9 @@ describe("DagView Test", () => {
         });
 
         it("should show alert in error case", (done) => {
-            DagTable.Instance._show = () => {
-                return PromiseHelper.reject("test");
+            TableTabManager.Instance.openTab = () => {
+                throw new Error("test");
             }
-            DagViewManager.Instance.viewResult(node)
-            .then(() => {
-                done("fail");
-            })
-            .fail(() => {
-                UnitTest.hasAlertWithText("test");
-                done();
-            });
-        });
-
-        it("should show alert in error code", (done) => {
-            node.setTable("");
             DagViewManager.Instance.viewResult(node)
             .then(() => {
                 done("fail");
@@ -457,7 +445,7 @@ describe("DagView Test", () => {
 
         after(() => {
             graph.removeNode(node.getId());
-            DagTable.Instance._show = oldShow;
+            TableTabManager.Instance.openTab = oldShow;
         });
     });
 

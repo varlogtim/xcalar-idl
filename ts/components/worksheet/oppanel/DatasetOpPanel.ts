@@ -63,7 +63,6 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._loadArgs = null;
         this._currentStep = null;
         this._advMode = false;
-        DagTable.Instance.closeDatasetPreview();
     }
 
     private _getSchemaSection(): JQuery {
@@ -514,20 +513,6 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
 
         $panel.on("click", ".submit", () => {
             this._submitForm();
-        });
-
-        this._$datasetList.on("click", ".viewTable", (event) => {
-            const $btn: JQuery = $(event.currentTarget);
-            if ($btn.hasClass("showing")) {
-                $btn.removeClass("showing");
-                DagTable.Instance.closeDatasetPreview();
-            } else {
-                $("#dsOpListSection .showing").removeClass("showing");
-                $btn.addClass("showing");
-                const $dataset: JQuery = $btn.parent();
-                const id: string = $dataset.data("id");
-                DagTable.Instance.previewDataset(id);
-            }
         });
 
         this._$datasetList.on("click", ".actButton", (event) => {

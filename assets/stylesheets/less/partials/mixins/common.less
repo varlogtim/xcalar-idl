@@ -1461,6 +1461,49 @@
     }
 }
 
+.xc-tabViewContainer {
+    @header-h: 12px;
+    height: 100%;
+
+    .draggableHeader {
+        display: none;
+    }
+
+    &.undocked {
+        padding-top: @header-h;
+
+        .draggableHeader {
+            display: block;
+            position: absolute;
+            height: @header-h;
+            width: 100%;
+            top: 0;
+        }
+    }
+
+    &.hint {
+        .contentSection {
+            display: none;
+        }
+
+        .hintSection {
+            display: block;
+        }
+    }
+
+    .hintSection {
+        display: none;
+        height: 20px;
+        max-width: 450px;
+        color: @color-font-default;
+        .center-align;
+    }
+
+    .contentSection {
+        height: ~"calc(100% - @{height-tabBar})";
+    }
+}
+
 .xc-tabs {
     @tabHeight: @height-tabBar;
 
@@ -2298,7 +2341,7 @@ html.firefox {
                 border: 1px solid @color-border-medium;
 
                 .text {
-                    .font(@size: 11px, @line-height: 22px);
+                    .font(@size: 11px, @line-height: 20px);
                 }
 
                 .icon {

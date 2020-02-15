@@ -260,12 +260,8 @@ describe.skip("SQL Executor Test", function() {
                 called++;
                 return PromiseHelper.resolve();
             };
-            let oldShowProgress = SQLResultSpace.Instance.showProgressDataflow;
             let oldRemove = DagTabManager.Instance.removeSQLTabCache;
             let oldClean = DagViewManager.Instance.cleanupClosedTab;
-            SQLResultSpace.Instance.showProgressDataflow = function() {
-                called++;
-            };
             DagTabManager.Instance.removeSQLTabCache = function() {
                 called++;
             };
@@ -282,7 +278,6 @@ describe.skip("SQL Executor Test", function() {
                 done("fail");
             })
             .always(function() {
-                SQLResultSpace.Instance.showProgressDataflow = oldShowProgress;
                 DagTabManager.Instance.removeSQLTabCache = oldRemove;
                 DagViewManager.Instance.cleanupClosedTab = oldClean;
             });
@@ -301,11 +296,7 @@ describe.skip("SQL Executor Test", function() {
                 return PromiseHelper.resolve();
             };
             executor._sqlTabCached = false;
-            let oldShowProgress = SQLResultSpace.Instance.showProgressDataflow;
             let oldAddSQL = DagTabManager.Instance.addSQLTabCache;
-            SQLResultSpace.Instance.showProgressDataflow = function() {
-                called++;
-            };
             DagTabManager.Instance.addSQLTabCache = function() {
                 called++;
             };
@@ -320,7 +311,6 @@ describe.skip("SQL Executor Test", function() {
                 done();
             })
             .always(function() {
-                SQLResultSpace.Instance.showProgressDataflow = oldShowProgress;
                 DagTabManager.Instance.addSQLTabCache = oldAddSQL;            });
         });
     });

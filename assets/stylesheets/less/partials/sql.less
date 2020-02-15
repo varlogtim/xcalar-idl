@@ -336,14 +336,20 @@
         .resultSection {
             .contentSection {
                 height: 100%;
+                position: relative;
             }
 
             .contentSection .section {
                 height: 100%;
 
+                &.error {
+                    color: @color-text-error;
+                    padding: 16px;
+                }
+
                 > div {
                     height: 100%;
-                    @top-h: 36px;
+                    @top-h: 32px;
                     @bottom-h: 50px;
                     @total-h: @top-h + @bottom-h;
 
@@ -363,7 +369,7 @@
                         background-color: @color-bg-default;
                         height: @top-h;
                         font-size: 12px;
-                        padding: 6px 28px 6px 15px;
+                        padding: 4px 28px 4px 15px;
                         border-bottom: 1px solid @color-border-medium2;
                         @div-h: 20px;
 
@@ -389,7 +395,7 @@
 
                         .tableBarWrap {
                             display: flex;
-                            max-width: 100%;
+                            width: 100%;
                             position: relative;
                             padding: 6px 8px;
                         }
@@ -474,6 +480,7 @@
                         }
                         .menuArea {
                             padding-left: 40px;
+                            margin-left: auto;
                         }
                     }
 
@@ -533,7 +540,7 @@
 
             .closeResult {
                 position: absolute;
-                top: 12px;
+                top: 8px;
                 right: 0px;
                 padding-left: 4px;
                 padding-right: 8px;
@@ -570,47 +577,10 @@
 }
 
 #sqlViewContainer {
-    @header-h: 12px;
-    height: 100%;
     border-right: 1px solid @color-border-medium;
-
-    .draggableHeader {
-        display: none;
-    }
-
-    &.undocked {
-        padding-top: @header-h;
-
-        .draggableHeader {
-            display: block;
-            position: absolute;
-            height: @header-h;
-            width: 100%;
-            top: 0;
-        }
-    }
-
-    &.hint {
-        #sqlEditorSpace {
-            display: none;
-        }
-
-        .hintSection {
-            display: block;
-        }
-    }
-
-    .hintSection {
-        display: none;
-        height: 20px;
-        max-width: 450px;
-        color: @color-font-default;
-        .center-align;
-    }
 }
 
 #sqlEditorSpace {
-    height: ~"calc(100% - @{height-tabBar})";
     background-color: @color-bg-sqlEditor;
     @topSectionHeight: 45px;
     @total-height: @topSectionHeight;
@@ -765,7 +735,7 @@
                 display: block;
             }
             .slidingSearchWrap {
-                right: 119px;
+                right: 90px;
             }
         }
     }

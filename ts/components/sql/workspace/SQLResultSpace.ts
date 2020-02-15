@@ -111,11 +111,19 @@ class SQLResultSpace {
         columns: {name: string, backName: string, type: ColumnType}[],
         callback?: Function
     ): void {
+        DagTable.Instance.close();
         this._sqlTable.show(table, columns, callback);
-        this._tableLister.close();
-        this._sqlTableSchema.close();
         this._sqlDataflowPreview.close();
-        this._switchTab("result");
+    }
+
+    /**
+     * SQLResultSpace.Instance.viewPublishedTable
+     * @param tableName
+     */
+    public async viewPublishedTable(tableName: string): Promise<void> {
+        DagTable.Instance.close();
+        this._sqlTable.showPublishedTable(tableName);
+        this._sqlDataflowPreview.close();
     }
 
     /**
@@ -123,12 +131,9 @@ class SQLResultSpace {
      * @param reset
      */
     public showTables(reset: boolean): void {
-        this._sqlTable.close();
-        DagTable.Instance.close();
         this._sqlTableSchema.close();
-        this._sqlDataflowPreview.close();
         this._tableLister.show(reset);
-        this._switchTab("result");
+        TableTabManager.Instance.openSQLTab();
     }
 
     // XXX TODO: move the whole DagTable functionality there
@@ -137,10 +142,7 @@ class SQLResultSpace {
      */
     public showDagTable(): void {
         this._sqlTable.close();
-        this._sqlTableSchema.close();
         this._sqlDataflowPreview.close();
-        this._tableLister.close()
-        this._switchTab("result");
     }
 
     public refreshTables(): void {
@@ -148,33 +150,24 @@ class SQLResultSpace {
     }
 
     public showSchema(tableInfo: PbTblInfo): void {
-        DagTable.Instance.close();
-        this._sqlTable.close();
         this._tableLister.close();
         this._sqlTableSchema.show(tableInfo);
-        this._switchTab("result");
+        TableTabManager.Instance.openSQLTab();
     }
 
     public showSchemaError(errorString: string): void {
-        DagTable.Instance.close();
-        this._sqlTable.close();
         this._tableLister.close();
-        this._sqlDataflowPreview.close();
         this._sqlTableSchema.showError(errorString);
-        this._switchTab("result");
+        TableTabManager.Instance.openSQLTab();
     }
 
     /**
-     *
-     * @param inProgress - set to true if previewing dataflow while it's running
+     * SQLResultSpace.Instance.showError
+     * @param error
      */
-    public showProgressDataflow(inProgress: boolean, sql?: string): void {
-        DagTable.Instance.close();
-        this._sqlTable.close();
-        this._sqlTableSchema.close();
-        this._tableLister.close();
-        this._sqlDataflowPreview.show(inProgress, sql);
-        this._switchTab("result");
+    public showError(error: string): void {
+        this.switchTab("error");
+        this._getContentSection().find(".section.error").text(error);
     }
 
     /**

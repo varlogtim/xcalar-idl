@@ -405,9 +405,9 @@ window.TestSuite = (function($, TestSuite) {
                 }
             })
             .then(function() {
-                let tableTitle = "#sqlTableArea .tableNameArea .name:contains(Label 1):visible";
+                // let tableTitle = "#tableTabView .name:contains(Label 1):visible";
                 let dataCol = "#xcTable-" + xcHelper.getTableId(tableName) + " td.jsonElement";
-                return self.checkExists([tableTitle, dataCol]);
+                return self.checkExists([dataCol]);
             })
             .then(function() {
                 const $table = $("#sqlTableArea .xcTableWrap");

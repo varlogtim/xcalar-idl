@@ -47,9 +47,13 @@ class RowInput {
         }
     }
 
+    public updateTotalRowsText(text: string): void {
+        this.$rowInputSection.find(".totalRows").text(text);
+    }
+
     private _updateTotalRows(): void {
         const totalRows: number = this.rowManager.getTotalRowNum();
-        this.$rowInputSection.find(".totalRows").text(xcStringHelper.numToStr(totalRows));
+        this.updateTotalRowsText(xcStringHelper.numToStr(totalRows));
         let inputWidth: number = 50;
         const numDigits: number = ("" + totalRows).length;
         inputWidth = Math.max(inputWidth, 10 + (numDigits * 8));

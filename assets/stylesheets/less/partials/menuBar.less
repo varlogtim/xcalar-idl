@@ -580,46 +580,6 @@
 }
 
 /* ========== UDF Section ========== */
-// XXX TODO combine with sqlViewContainer
-#udfViewContainer {
-    @header-h: 10px;
-    height: 100%;
-
-    .draggableHeader {
-        display: none;
-    }
-
-    &.undocked {
-        padding-top: @header-h;
-
-        .draggableHeader {
-            display: block;
-            position: absolute;
-            height: @header-h;
-            width: 100%;
-            top: 0;
-        }
-    }
-
-    &.hint {
-        #udfSection {
-            display: none;
-        }
-
-        .hintSection {
-            display: block;
-        }
-    }
-
-    .hintSection {
-        display: none;
-        height: 20px;
-        max-width: 375px;
-        color: @color-font-default;
-        .center-align;
-    }
-}
-
 #udfSection {
     overflow: visible !important;
     height: ~"calc(100% - @{height-tabBar})";
