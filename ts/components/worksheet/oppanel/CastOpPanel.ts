@@ -24,7 +24,6 @@ class CastOpPanel extends BaseOpPanel {
             return PromiseHelper.reject();
         }
         this._reset();
-        this._formHelper.setup({});
 
         this._dagNode = dagNode;
         super.showPanel("cast", options)
@@ -49,6 +48,7 @@ class CastOpPanel extends BaseOpPanel {
                 this._startInAdvancedMode(error);
                 return;
             }
+            this._formHelper.setup({});
             this._autoResizeView(false);
         });
     }

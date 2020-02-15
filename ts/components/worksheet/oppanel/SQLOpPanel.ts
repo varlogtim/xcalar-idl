@@ -229,8 +229,8 @@ class SQLOpPanel extends BaseOpPanel {
 
         self._$elemPanel.on("click", ".maximize", function() {
             const $title = $(this).parent();
-            const restore = $(this).find(".icon").hasClass("xi-minus");
-            self._toggleExpandSection($title, restore);
+            const minimize = $(this).find(".icon").hasClass("xi-minus");
+            self._toggleExpandSection($title, minimize);
         });
     }
 
@@ -244,33 +244,15 @@ class SQLOpPanel extends BaseOpPanel {
         $ul.html(content).css({top: topOff + "px"});
     }
 
-    private _toggleExpandSection($title: JQuery, restoreToDefault: boolean): void {
-        // refer to opPanel.less @table-h & @title-h
-        const tableHeight = 220;
-        const titleHeight = 40;
-        const maxHeight = "calc(100% - " + (titleHeight * 3) + "px)";
-        if (restoreToDefault) {
-            // back to default size
-            let instrHeight: number = this.$panel.find(".mainInstructions").outerHeight();
-            this._toggleExpadHelper(this._$elemPanel.find(".maximize .icon"), true);
-            this._$tableWrapper.removeClass("xc-hidden");
-            this._$tableWrapper.css({height: tableHeight});
-            this._$editorWrapper.css({height: "calc(100% - " +
-                                      (tableHeight + titleHeight * 3 + instrHeight) + "px)"});
-        } else if ($title.hasClass("tableTitle")) {
-            // expand table mapping section
-            this._toggleExpadHelper($title.find(".maximize .icon"), false);
-            this._toggleExpadHelper(this._$editorWrapper.prev(".editorTitle").find(".maximize .icon"), true);
-            this._$tableWrapper.css({height: maxHeight});
-            this._$editorWrapper.css({height: 0});
-            this._$tableWrapper.removeClass("xc-hidden");
-        } else {
+    private _toggleExpandSection($title: JQuery, minimize: boolean): void {
+        if (minimize) {
             // expand sql snippet section
-            this._toggleExpadHelper($title.find(".maximize .icon"), false);
-            this._toggleExpadHelper(this._$tableWrapper.prev(".tableTitle").find(".maximize .icon"), true);
-            this._$tableWrapper.css({height: 0});
-            this._$editorWrapper.css({height: maxHeight});
+            this._toggleExpadHelper($title.find(".maximize .icon"), true);
             this._$tableWrapper.addClass("xc-hidden");
+        } else {
+             // back to default size
+             this._toggleExpadHelper($title.find(".maximize .icon"), false);
+             this._$tableWrapper.removeClass("xc-hidden");
         }
 
         this._sqlEditor.refresh();

@@ -9,7 +9,7 @@
 
     > .undock {
         position: absolute;
-        top: 16px;
+        top: 14px;
         right: 40px;
         font-size: 14px;
     }
@@ -18,17 +18,32 @@
         display: flex;
         flex-direction: column;
         > header {
-            flex: 1 0 auto;
-            min-height: @header-height;
+            flex: 0 0 auto;
             height: auto;
-            font-size: 18px;
+            font-size: 16px;
+            line-height: 20px;
+            padding: 10px 20px 0px 20px;
 
             .row {
                 &:first-child {
-                    height: @title-height;
+                    height: auto;
                     display: flex;
                     overflow: hidden;
+                    justify-content: flex-start;
+                    align-items: baseline;
+                    flex-wrap: wrap;
+                    width: ~"calc(100% - 30px)";
                 }
+            }
+
+            .title {
+                margin-right: 10px;
+                margin-bottom: 4px;
+            }
+            .close {
+                position: absolute;
+                top: 6px;
+                right: 20px;
             }
         }
     }
@@ -36,9 +51,7 @@
     .modalTopMain {
         padding: 0px;
     }
-    .opPanelHeader {
-        padding: 8px 10px 0px 20px;
-    }
+
     .opSection, .advancedEditor, .bottomSection {
         padding-left: 20px;
         padding-right: 20px;
@@ -131,10 +144,9 @@
         }
 
         .subTitle {
-            font-weight: 600;
             font-size: 12px;
             line-height: 16px;
-            padding-bottom: 10px;
+            padding-bottom: 4px;
             .textOverflowOneLine;
             margin-right: 15px;
             color: @color-font-link-blue;
@@ -152,9 +164,9 @@
     .mainContent {
         font-size: @standardFontSize;
         overflow: auto;
-        height: ~"calc(100% - @{header-height})";
         .flex-display;
         .flex-direction(column);
+        flex: 1 1 auto;
     }
 
     .opSection {
@@ -174,7 +186,7 @@
 
     // TODO: remove styling if we change the default btn class styling
     .btn {
-        width: 150px;
+        width: 120px;
     }
 
     .instrText {
@@ -241,7 +253,7 @@
             padding-left: @commonMargin;
             .input-placeholder(@color-text-placeholder);
             font-size: @standardFontSize;
-            border: 1px solid @color-border-white-five;
+            border: 1px solid @color-border-medium2;
         }
 
         .list {
@@ -324,7 +336,7 @@
             float: left;
             width: 50%;
             &:first-child {
-                border-right: 1px solid @color-border-white-five;
+                border-right: 1px solid @color-border-medium2;
             }
             &.rightCols {
                 width: ~"calc(50% - 1px)"; // -1px for border
@@ -334,11 +346,11 @@
             .size(100%, @listHeight);
             line-height: @listHeight;
             padding-left: @commonMargin;
-            border-bottom: 1px solid @color-border-white-five;
+            border-bottom: 1px solid @color-border-medium2;
             cursor: pointer;
 
             &:first-child {
-                border-top: 1px solid @color-border-white-five;
+                border-top: 1px solid @color-border-medium2;
             }
 
             .text {
@@ -541,7 +553,7 @@
     }
 
     .catFuncMenus {
-        border: 1px solid @color-border-white-five;
+        border: 1px solid @color-border-medium2;
         margin: 0;
 
         ul {
@@ -1064,7 +1076,6 @@
     }
 
     .btnWrap {
-        width: 100%;
         overflow: hidden;
         display: flex;
         flex-direction: column;
@@ -1148,21 +1159,28 @@
 
     .bottomSection {
         @height-switcher: 18px;
-        @marginTop-switcher: 10px;
-        @padding: 12px;
+        @marginTop-switcher: 8px;
+        @padding: 8px;
 
         margin: @padding 0px 0px;
-        padding: @padding 0px;
+        padding: @padding 0px 0px;
         border-top: 1px solid @color-bg-2;
         .flex(0 0 auto);
         min-height: 1px + @height-btn + @marginTop-switcher + (@padding * 2);
         overflow: auto;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        flex-direction: row-reverse;
+        flex-wrap: wrap;
+
+        .btnWrap {
+            margin-bottom: @padding;
+        }
 
         .switcher {
             .size(@height: @height-switcher);
-            margin-top: @marginTop-switcher;
-            margin-left: auto;
-            margin-right: auto;
+            margin-bottom: @marginTop-switcher;
             width: 160px;
             display: flex;
             justify-content: center;
@@ -1206,8 +1224,16 @@
                 display: none !important;
             }
 
-            .advancedEditor, .bottomSection, .instructions {
+            .advancedEditor, .instructions {
                 display: block !important;
+            }
+            .bottomSection {
+                display: flex !important;
+            }
+
+            .advancedEditor {
+                padding-left: 0px !important;
+                padding-right: 0px !important;
             }
         }
 
@@ -1918,7 +1944,7 @@
             .input-placeholder(@color-text-placeholder);
             text-transform: capitalize;
             font-size: @standardFontSize;
-            border: 1px solid @color-border-white-five;
+            border: 1px solid @color-border-medium2;
         }
 
         .list {
@@ -2120,7 +2146,7 @@
     }
 
     .mainInstructions {
-        padding-bottom: 2px; // allow space for bottom of characters
+        flex: 0 0 auto;
     }
 
     .searchArea .icon, .down .icon, .addCol, .editCol, .removeColInRow {
@@ -2131,6 +2157,7 @@
         padding-top: 10px;
         display: flex;
         flex-direction: column;
+        flex: 0 0 auto;
 
         .operationSection {
 
@@ -2173,7 +2200,8 @@
 
     .columnAssignmentSection {
         padding-top: 0px;
-        .size(@width: 100%, @height: ~"calc(100% - @{rest-h})");
+        .size(@width: 100%);
+        flex: 1 1 auto;
 
         .tableSection {
             height: 90px;
@@ -2638,12 +2666,12 @@
     .columnsWrap {
         &.flexWrap {
             .cols {
-                border-left: 1px solid @color-border-white-five;
+                border-left: 1px solid @color-border-medium2;
             }
 
             li {
                 padding-right: 0;
-                border-right: 1px solid @color-border-white-five;
+                border-right: 1px solid @color-border-medium2;
                 .text {
                     .size(@width: ~"calc(100% - 22px)");
                 }
@@ -3223,13 +3251,6 @@
             }
         }
     }
-
-    .bottomSection {
-        .btn {
-            margin: 10px auto 0 auto;
-            display: block;
-        }
-    }
 }
 
 #exportOpPanel {
@@ -3444,25 +3465,23 @@
 
 #sqlOpPanel {
     @bottom-h: 85px;
-    @table-h: 220px;
     @title-h: 40px;
     @dropAsYouGo-h: 40px;
     @instr-h: 44px;
-
-    .mainInstructions {
-        height: @instr-h;
-    }
 
     .list {
         text-transform: none;
     }
     .opSection {
-        height: ~"calc(100% - @{bottom-h})";
-        overflow: hidden;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
     }
-    .bottomSection {
-        height: @bottom-h;
+
+    .mainInstructions {
+        flex: 0 0 auto;
     }
+
     .tableSection {
         @instruct-h: 34px;
         @add-id-h: 24px;
@@ -3472,21 +3491,26 @@
         @source-header-w: 60px;
         @source-header-h: 15px;
         @padding-l: 15px;
-        height: @table-h;
         padding: 2px @padding-l;
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+
         .title {
             font-size: 12px;
+            flex: 0 0 auto;
         }
         .header {
             font-size: 11px;
             font-weight: 600;
             display: flex;
+            flex: 0 0 auto;
         }
         .instruction {
-            height: @instruct-h;
             margin-top: 5px;
             margin-bottom: 13px;
             color: @color-font-darkGray;
+            flex: 0 0 auto;
         }
         .sourceHeader {
             .size(@source-header-w, @source-header-h);
@@ -3498,7 +3522,7 @@
             @rest-h: @instruct-h + @add-id-h + @add-id-margin * 2 + @instruct-margin-bot + @instruct-margin-top + @source-header-h;
             display: flex;
             flex-wrap: wrap;
-            height: ~"calc(100% - @{rest-h})";
+            flex: 1 1 auto;
             overflow-y: auto;
             margin-right: -@padding-l;
             #sqlIdentifiers {
@@ -3587,8 +3611,7 @@
     }
 
     .editorWrapper {
-        @rest-h: @table-h + @dropAsYouGo-h + @title-h * 2 + @instr-h;
-        height: ~"calc(100% - @{rest-h})";
+        flex: 1 0 60px;
     }
 
     .editSection {
@@ -3612,6 +3635,7 @@
         padding: 0px 15px;
         border-top: 1px solid @color-border-medium2;
         font-weight: 600;
+        flex: 0 0 auto;
     }
 
     .tableTitle {
@@ -3625,6 +3649,7 @@
 
     .dropAsYouGo {
         height: @dropAsYouGo-h;
+        flex: 0 0 auto;
         padding: 0 5px 10px 5px;
 
         .checkbox {

@@ -102,16 +102,6 @@ describe("SQLOpPanel Test", function() {
                 expect($sqlOpPanel.find(".tableInstruction").is(":visible")).to.be.true;
             });
         });
-
-        describe("resizing", function() {
-            it("bottom section should expand and shrink", function() {
-                expect($("#sqlIdentifiers").is(":visible")).to.be.true;
-                $sqlOpPanel.find(".editorTitle .maximize").click();
-                expect($("#sqlIdentifiers").is(":visible")).to.be.false;
-                $sqlOpPanel.find(".editorTitle .maximize").click();
-                expect($("#sqlIdentifiers").is(":visible")).to.be.true;
-            });
-        });
     });
 
     describe("submit", function() {

@@ -6,13 +6,11 @@ class OpPanelComponentFactory {
     // templateId => template string
     private _templates = {
         header:
-            `<div class="row clearfix">
+            `<div class="row">
                 <div class="title selTitle">{{title}}</div>
-                <i class="close icon xi-close" (click)="onClose"></i>
-            </div>
-            <div class="row">
                 <div class="subTitle">{{subTitle}}</div>
-            </div>`,
+            </div>
+            <i class="close icon xi-close" (click)="onClose"></i>`,
 
         opSection:
             `<APP-INSTR></APP-INSTR><APP-ARGS></APP-ARGS>`,

@@ -1,13 +1,11 @@
 <!-- SQL Section -->
 <section id="sqlOpPanel" class="xc-hidden opPanel">
   <header>
-    <div class="row clearfix">
-      <div class="title">SQL</div>
-      <i class="close icon xi-close" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Close %>"></i>
-    </div>
     <div class="row">
+      <div class="title">SQL</div>
       <div class="subTitle"></div>
     </div>
+    <i class="close icon xi-close" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Close %>"></i>
   </header>
   <div class="mainContent">
     <!-- Operation panel-->
@@ -22,7 +20,9 @@
           data-title="Select an input connection number in the drop-down and enter a unique table identifier name (for example, orders). You can use this table identifier in the SQL snippet below."
           data-placement="top"></i>
         <div class="maximize">
-          <i class="icon xi-plus"></i>
+          <i class="icon xi-minus" data-container="body"
+          data-title="Collapse"
+          data-placement="top"></i>
         </div>
       </div>
       <div class="tableSection tableWrapper">
@@ -54,9 +54,6 @@
       </div>
       <div class="editorTitle">
         <div class="title">SQL Snippet:</div>
-        <div class="maximize">
-          <i class="icon xi-plus"></i>
-        </div>
       </div>
       <div id="sqlSnippetEditWrapper" class="editorWrapper">
         <div class="editSection">
