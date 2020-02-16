@@ -97,17 +97,6 @@ class TutorialPanel {
     }
 
     /**
-     * This function allows you to set a tutorial workbook to open
-     * a specific sql snippet when launched
-     * @param snippetName
-     */
-    public setTutorialDefaultSnippet(snippetName: string) {
-        let snipKey: string = KVStore.getKey("gStartingSnippetKey");
-        let _snipKVStore: KVStore = new KVStore(snipKey, gKVScope.WKBK);
-        return _snipKVStore.put(snippetName, true);
-    }
-
-    /**
     * This function allows you to specify a dataflow that will be
     * auto executed on tutorial workbook download
     * @param dagId
@@ -231,8 +220,6 @@ class TutorialPanel {
         let _dataKVStore: KVStore = new KVStore(dataKey, gKVScope.WKBK);
         let walkthroughKey: string = KVStore.getKey("gStoredWalkthroughKey");
         let _walkthroughKVStore: KVStore = new KVStore(walkthroughKey, gKVScope.WKBK);
-        let snipKey: string = KVStore.getKey("gStartingSnippetKey");
-        let _snipKVStore: KVStore = new KVStore(snipKey, gKVScope.WKBK);
         let pubTables: StoredPubInfo[] = [];
         let promise: XDPromise<void>;
 
@@ -366,13 +353,6 @@ class TutorialPanel {
             return PromiseHelper.alwaysResolve(DS.refresh())
         })
         .then(() => {
-            // Then, load the stored snippet key, if it exists
-            return PromiseHelper.alwaysResolve(_snipKVStore.get())
-        })
-        .then((snippetName: string) => {
-            if (snippetName) {
-                SQLEditorSpace.Instance.openSnippet(snippetName);
-            }
             return PromiseHelper.alwaysResolve(_walkthroughKVStore.get());
         })
         .then((walkthrough: string) => {

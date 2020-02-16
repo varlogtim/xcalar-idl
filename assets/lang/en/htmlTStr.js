@@ -687,11 +687,6 @@ module.exports = {
         "ImportData": "Import Data"
     },
 
-    "DataMart": {
-        "New": "New Data Mart",
-        "Create": "Create Data Mart",
-    },
-
     // keep in sync with the FileProtocol in enums.js
     "FileProtocol": {
         "nfs": "file:///"

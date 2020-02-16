@@ -530,32 +530,6 @@ namespace XVM {
     }
 
     /**
-     * XVM.initializeMode
-     */
-    export function initializeMode(): XDPromise<void> {
-        if (XVM.isDataMart()) {
-            _mode = null;
-            return PromiseHelper.resolve();
-        }
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let kvStore: KVStore = _getModeKVStore();
-        kvStore.getAndParse()
-        .then((res) => {
-            res = res || {};
-            // default mode when res is null (upgrade case)
-            _mode = res.mode || XVM.Mode.Advanced;
-            deferred.resolve();
-        })
-        .fail((error) => {
-            console.error(error);
-            _mode = XVM.Mode.SQL; // default mode in error case
-            deferred.resolve(); // still resolve
-        });
-
-        return deferred.promise();
-    }
-
-    /**
      * XVM.setMode
      * @param mode
      */
@@ -584,7 +558,6 @@ namespace XVM {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         _mode = mode;
 
-        _commitMode(mode);
         xcManager.setModeStatus();
         TblSourcePreview.Instance.switchMode();
         DSConfig.switchMode();
@@ -607,14 +580,6 @@ namespace XVM {
     }
 
     /**
-     * XVM.commitMode
-     * @param mode
-     */
-    export function commitMode(mode: XVM.Mode): XDPromise<void> {
-        return _commitMode(mode);
-    }
-
-    /**
      * XVM.isSQLMode
      */
     export function isSQLMode(): boolean {
@@ -626,19 +591,6 @@ namespace XVM {
      */
     export function isAdvancedMode(): boolean {
         return !XVM.isSQLMode();
-    }
-
-    function _getModeKVStore(): KVStore {
-        const key: string = KVStore.getKey("gModeKey");
-        return new KVStore(key, gKVScope.WKBK);
-    }
-
-    function _commitMode(mode: XVM.Mode): XDPromise<void> {
-        const kvStore = _getModeKVStore();
-        let data = {
-            mode: mode
-        };
-        return kvStore.put(JSON.stringify(data), true, true);
     }
 
     /* Unit Test Only */

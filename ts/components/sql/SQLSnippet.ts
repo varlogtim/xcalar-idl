@@ -22,19 +22,12 @@ class SQLSnippet {
     /**
      * SQLSnippet.Instance.load
      */
-    public async load(): Promise<string> {
+    public async load(): Promise<void> {
         try {
             await this._fetchSnippets();
-            await this._fetchLastOpenedSnippet();
-            if (this._lastOpenedSnippet == null) {
-                const snippetNames = this._listSnippetsNames();
-                return snippetNames[0]; // first snippet or "Untitled" if no snippets
-            } else {
-                return this._lastOpenedSnippet.name;
-            }
         }
         catch (e) {
-            return null;
+            console.error(e);
         }
     }
 
@@ -152,11 +145,6 @@ class SQLSnippet {
         return new KVStore(snippetQueryKey, gKVScope.WKBK);
     }
 
-    private _getLastOpenedSnippetKVStore(): KVStore {
-        let lastOpenedSnippetKey: string = KVStore.getKey("gSQLSnippetLastOpened");
-        return new KVStore(lastOpenedSnippetKey, gKVScope.WKBK);
-    }
-
     private _listSnippetsNames(): string[] {
         let names: string[] = [];
         let snippets = this._snippets;
@@ -174,21 +162,6 @@ class SQLSnippet {
             return (a < b ? -1 : (a > b ? 1 : 0));
         });
         return names;
-    }
-
-    private async _fetchLastOpenedSnippet(): Promise<string> {
-        try {
-            let kvStore = this._getLastOpenedSnippetKVStore();
-
-            const lastOpened = await kvStore.getAndParse();
-            if (lastOpened != null) {
-                this._lastOpenedSnippet = lastOpened;
-            }
-            return lastOpened;
-        }
-        catch (e) {
-            throw new Error('_fetchLastOpenedSnippet failed');
-        }
     }
 
     private _fetchSnippets(): XDPromise<void> {

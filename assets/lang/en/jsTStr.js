@@ -221,7 +221,6 @@ ErrTStr = {
     'InvalidPublishedTableName': 'Table name should start with a letter and contain only letters, digits, or underscores(_)',
     'InvalidWBName': 'Project name should start with a letter and contain only letters, digits, space, hyphens(-) or underscores(_)',
     'InvalidTargetName': 'Connector name should start with a letter and contain only letters, digits, space, hyphens(-) or underscores(_)',
-    'InvalidDataMartName': 'Data mart name should start with a letter and contain only letters, digits, space, hyphens(-) or underscores(_)',
     'NoHashTag': 'Please input a valid name with no # symbols.',
     'NoSpecialChar': 'Please input a valid name with no special characters.',
     'NoSpecialCharOrSpace': 'Please input a valid name with no special characters or spaces.',
@@ -1321,16 +1320,6 @@ TblTStr = {
     "EstimatedRowCountHint": "The row count is approximate because the table had an update.",
     "CannotDeletePrefix": "The following could not be deleted",
     "Tables": "Tables"
-};
-
-DataMartTStr = {
-    "Title": "Data Mart",
-    "AlredyExist": "Data mart with the same name already exist.",
-    "CreateFailed": "Create data mart failed with error: <error>",
-    "Delete": "Delete Data Mart",
-    "DeleteConfirm": "Are you sure you want to delete data mart <name>?",
-    "DeleteFailed": "Delete data mart failed: <error>",
-    "DeleteNoEmpty": "Cannot delete data mart that contains any tables.",
 };
 
 ResultSetTStr = {

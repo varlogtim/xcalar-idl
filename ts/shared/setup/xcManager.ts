@@ -87,7 +87,6 @@ namespace xcManager {
         }) // restores info from kvStore
         .then(function() {
             UDFPanel.Instance.setup();
-            return XVM.initializeMode();
         })
         .then(function() {
             try {

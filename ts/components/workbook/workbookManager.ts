@@ -217,11 +217,6 @@ namespace WorkbookManager {
 
         XcalarNewWorkbook(wkbkName, isCopy, copySrcName)
         .then(function() {
-            if (!isCopy) {
-                return setDefaultMode(wkbkName);
-            }
-        })
-        .then(function() {
             return finishCreatingWKBK(wkbkName, isCopy, copySrc);
         })
         .then(function(wkbkId) {
@@ -922,7 +917,6 @@ namespace WorkbookManager {
     * @param version - version number
     */
     export function getWkbkScopeKeys(version: number): any {
-        const gModeKey: string = generateKey("gMode", version);
         const gStorageKey: string = generateKey("gInfo", version);
         const gQueryListPrefix: string = generateKey("/XD/QueryLog", version);
         const gQueryArchivePrefix: string = generateKey("/XD/QueryArchive", version);
@@ -930,7 +924,6 @@ namespace WorkbookManager {
         const gErrKey: string = generateKey("gErr", version);
         const gOverwrittenLogKey: string = generateKey("gOverwritten", version);
         const gNotebookKey: string = generateKey("gNotebook", version);
-        const gSQLTablesKey: string = generateKey("gSQLTables", version);
         const gSQLManagerKey: string = generateKey("gSQLManagerKey", version);
         const gDagManagerKey: string = generateKey("gDagManagerKey", version);
         const gUDFManagerKey: string = generateKey("gUDFManagerKey", version);
@@ -943,18 +936,13 @@ namespace WorkbookManager {
         const gDagParamKey: string = generateKey("gDagParamKey", version);
         const gSQLQueryKey: string = generateKey("gSQLQuery", version);
         const gSQLQueriesKey: string = generateKey("gSQLQueries", version);
-        const gSQLSnippetKey: string = generateKey("gSQLSnippet", version);
         const gSQLSnippetQueryKey: string = generateKey("gSQLSnippetQuery", version);
-        const gSQLSnippetLastOpenedKey: string = generateKey("gSQLSnippetLastOpened", version);
         const gTutorialKey: string = generateKey("gTutorialKey", version);
         const gStoredDatasetsKey: string = generateKey("gStoredDatasetsKey", version);
         const gStoredWalkthroughKey: string = generateKey("gStoredWalkthroughKey", version);
-        const gStartingSnippetKey: string = generateKey("gStartingSnippetKey", version);
-        const gDataMartKey: string = generateKey("gDataMart", version);
         const gIdCountKey: string = generateKey("gIdCount", version);
 
         return {
-            "gModeKey": gModeKey,
             "gStorageKey": gStorageKey,
             "gQueryListPrefix": gQueryListPrefix,
             "gQueryArchivePrefix": gQueryArchivePrefix,
@@ -962,7 +950,6 @@ namespace WorkbookManager {
             "gErrKey": gErrKey,
             "gOverwrittenLogKey": gOverwrittenLogKey,
             "gNotebookKey": gNotebookKey,
-            "gSQLTables": gSQLTablesKey,
             "gSQLQuery": gSQLQueryKey,
             "gSQLQueries": gSQLQueriesKey,
             "gSQLManagerKey": gSQLManagerKey,
@@ -975,14 +962,10 @@ namespace WorkbookManager {
             "gOptimizedDagListKey": gOptimizedDagListKey,
             "gDagResetKey": gDagResetKey,
             "gDagParamKey": gDagParamKey,
-            "gSQLSnippet": gSQLSnippetKey,
             "gSQLSnippetQuery": gSQLSnippetQueryKey,
-            "gSQLSnippetLastOpened": gSQLSnippetLastOpenedKey,
             "gTutorialKey": gTutorialKey,
             "gStoredDatasetsKey": gStoredDatasetsKey,
             "gStoredWalkthroughKey": gStoredWalkthroughKey,
-            "gStartingSnippetKey": gStartingSnippetKey,
-            "gDataMartKey": gDataMartKey,
             "gIdCountKey": gIdCountKey
         };
     }
@@ -1202,14 +1185,6 @@ namespace WorkbookManager {
         const currentSession: string = sessionName;
         setSessionName(workbookName);
         const promise = kvStore.put(description, true, true);
-        setSessionName(currentSession);
-        return PromiseHelper.alwaysResolve(promise);
-    }
-
-    function setDefaultMode(workbookName: string): XDPromise<void> {
-        const currentSession: string = sessionName;
-        setSessionName(workbookName);
-        const promise = XVM.commitMode(XVM.Mode.SQL); // set sql as default mode
         setSessionName(currentSession);
         return PromiseHelper.alwaysResolve(promise);
     }
