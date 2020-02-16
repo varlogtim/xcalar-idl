@@ -471,6 +471,12 @@ class DagGraph extends Durable {
             dagNode.setTitle(title);
             this.nodeTitlesMap.set(title, dagNode.getId());
         }
+        if (dagNode instanceof DagNodeIn) {
+            const headName = dagNode.getHead();
+            if (headName != null) {
+                dagNode.setHead(this._getHeadName(headName));
+            }
+        }
         if (dagNode instanceof DagNodeSQLFuncIn) {
             this.events.trigger(DagGraphEvents.AddSQLFuncInput, {
                 tabId: this.parentTabId,
@@ -2768,18 +2774,20 @@ class DagGraph extends Durable {
     }
 
     private _getHeadName(head: string): string {
-        let count = 1;
-        let origHead;
-        let realHead;
+        let count: number = 1;
+        let origHead: string;
+        let realHead: string;
+        let concat: string = "";
         if (head) {
             origHead = head;
             realHead = head;
+            concat = "_";
         } else {
             origHead = "fn";
             realHead = "fn1";
         }
         while (this.nodeHeadsMap.has(realHead)) {
-            realHead = origHead + count;
+            realHead = origHead + concat + count;
             count++;
         }
         return realHead;
