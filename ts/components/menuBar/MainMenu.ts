@@ -98,7 +98,7 @@ namespace MainMenu {
             if (params.panel) {
                 let tabId: string = UrlToTab[params.panel];
                 let subTabId: string = null;
-                if (tabId === "fileManagerButton" || tabId === "settingsButton") { // handle sub tabs
+                if (tabId === "settingsButton") { // handle sub tabs
                     subTabId = tabId;
                     tabId = "monitorTab";
                 } else if (tabId === "workbook") {
@@ -198,7 +198,6 @@ namespace MainMenu {
             if (!$curTab.hasClass("noLeftPanel") &&
                 !$subTab.hasClass("noLeftPanel")) {
                 openMenu($curTab);
-                checkUDFMenu($curTab);
             }
 
             panelSwitchingHandler($curTab, lastTabId);
@@ -574,10 +573,6 @@ namespace MainMenu {
     function openMenu($curTab: JQuery): boolean {
         // Don't open side menu when the UDF panel is opening the file manager,
         // Otherwise the UDF panel will be blocked by the side menu.
-        if ($("#udfSection").hasClass("switching")) {
-            return;
-        }
-
         const id: string = $curTab.attr("id");
         if (id === "dataStoresTab" && $("#imdTab").hasClass("active")) {
             return;
@@ -593,13 +588,6 @@ namespace MainMenu {
         }
         if ($("#sqlWorkSpacePanel").hasClass("active")) {
             DagCategoryBar.Instance.showOrHideArrows();
-        }
-    }
-
-    function checkUDFMenu($subTab: JQuery): void {
-        let isUDFManager: boolean = $subTab.attr("id") === "fileManagerButton";
-        if (isUDFManager) {
-            BottomMenu.openUDFMenuWithMainMenu();
         }
     }
 

@@ -1,4 +1,4 @@
-class UDFFileManager extends BaseFileManager {
+class UDFFileManager {
     private static _instance = null;
 
     public static get Instance(): UDFFileManager {
@@ -50,7 +50,6 @@ class UDFFileManager extends BaseFileManager {
      */
 
     public constructor() {
-        super();
         this.storedUDF = new Map<string, string>();
         this.defaultModule = "default";
         this.userIDWorkbookMap = new Map();

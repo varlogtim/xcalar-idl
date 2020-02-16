@@ -1,29 +1,11 @@
-// New top bar UI
-
-.fileManagerMainPanel {
-    .topBar {
-        // TODO: move to constants.less when colors are finalized
-        @color-title: @color-icon-default;
-        @color-border-bar: @color-bg-cardHeader;
-        background-color: @color-bg-2;
-        box-shadow: 0px 0.25px 0px @color-border-bar;
-        min-height: @height-topBar;
-        max-height: 50px;
-
-        .title {
-            color: @color-title;
-        }
-    }
-
-    .mainContent {
-        padding: 0 0 0 0;
-    }
-}
-
 // TODO: this is larger than the current container UI.
 #monitorFileManager {
-    height: ~"calc(100% - 0px)";
-    margin-bottom: 0;
+    height: 100%;
+    @rest-h: @modal-header-h + @modal-bottom-h;
+
+    .modalMain {
+        height: ~"calc(100% - @{rest-h})";
+    }
 }
 
 .fileManager {
@@ -172,7 +154,7 @@
                 font-style: normal;
                 line-height: 23px;
                 box-sizing: border-box;
-                border: 1px solid @color-border-menugray;
+                border: 1px solid @color-border-medium2;
                 background-color: @color-bg-default;
                 padding: 0px 7px;
             }
@@ -251,33 +233,10 @@
             }
 
             &.operationAreaUpload {
-                padding: 6px 14px 0px 0px;
+                padding: 8px 12px 0px 0px;
+
                 .operationContent {
-                    background-color: @color-font-link-blue;
-                }
-            }
-
-            .operationContent {
-                cursor: pointer;
-                float: right;
-                .size(@height: 28px, @width: @action-width);
-                font-size: 12px;
-                font-style: normal;
-                color: @color-font-white;
-                text-align: center;
-                line-height: 25px;
-                box-sizing: border-box;
-                border: 1px solid @color-border-medium2;
-                border-radius: 4px;
-                background-color: @color-border-bar;
-                padding: 0px 7px;
-
-                &:hover {
-                    opacity: @opacity-hover;
-                }
-
-                &.btn-disabled {
-                    cursor: not-allowed;
+                    width: auto;
                 }
             }
         }
@@ -285,7 +244,7 @@
 
     .fileManagerSearchBar {
         .size(@height: 46px);
-        padding: 20px 16px 0px 16px;
+        padding-top: 20px;
         @search-width: 220px;
 
         .searchBox {
@@ -319,7 +278,7 @@
 
     .fileManagerMainArea {
         width: 100%;
-        padding: 20px 16px 20px 16px;
+        padding: 20px 0;
         @title-section-height: 34px;
         box-shadow: none;
 

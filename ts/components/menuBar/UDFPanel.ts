@@ -23,6 +23,7 @@ class UDFPanel {
         version: 3,
         singleLineStringErrors: false
     };
+    private _modalHelper: ModalHelper;
 
     private readonly udfDefault: string =
         "# PLEASE TAKE NOTE:\n" +
@@ -56,6 +57,9 @@ class UDFPanel {
         this.isSetup = true;
         this._addEventListeners();
         this._setupPopup();
+        this._modalHelper = new ModalHelper(this._getManagerModal(), {
+            sizeToDefault: true
+        });
     }
 
     /**
@@ -241,28 +245,33 @@ class UDFPanel {
         return this._getUDFSection().find(".saveFile");
     }
 
+    private _getManagerModal(): JQuery {
+        return $("#monitorFileManager");
+    }
+
     private _addEventListeners(): void {
         const $udfSection: JQuery = this._getUDFSection();
         UDFFileManager.Instance.initialize();
         const monitorFileManager: FileManagerPanel = new FileManagerPanel(
-            $("#monitor-file-manager")
+            $("#monitorFileManager")
         );
         UDFFileManager.Instance.registerPanel(monitorFileManager);
 
         $udfSection.find(".toManager").on("click", (_event: JQueryEventObject) => {
-            $udfSection.addClass("switching");
-            MainMenu.openPanel("monitorPanel", "fileManagerButton");
             monitorFileManager.switchType("UDF");
             monitorFileManager.switchPath("/");
             monitorFileManager.switchPathByStep(
                 UDFFileManager.Instance.getCurrWorkbookDisplayPath()
             );
-
-            $udfSection.removeClass("switching");
+            this._modalHelper.setup();
         });
 
         $udfSection.find("header .close").click(() => {
             this.toggleDisplay(false);
+        });
+
+        this._getManagerModal().find(".cancel, .close").click(() => {
+            this._modalHelper.clear();
         });
 
         const textArea: HTMLElement = document.getElementById("udf-codeArea");

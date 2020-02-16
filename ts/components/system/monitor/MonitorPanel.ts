@@ -6,8 +6,7 @@ namespace MonitorPanel {
         systemButton: "systemSubPanel",
         queriesButton: "queriesSubPanel",
         setupButton: "setupSubPanel",
-        logButton: "logSubPanel",
-        fileManagerButton: "fileManagerSubPanel",
+        logButton: "logSubPanel"
     };
 
     /**
@@ -60,9 +59,6 @@ namespace MonitorPanel {
                 break;
             case ("logButton"):
                 title += MonitorTStr.Logs;
-                break;
-            case ("fileManagerButton"):
-                title += MonitorTStr.FileManagerTitle;
                 break;
             default:
                 break;
@@ -138,8 +134,6 @@ namespace MonitorPanel {
             let title = MonitorTStr.System + ': ';
             $monitorPanel.find(".mainContent").scrollTop(0);
             const $container = $("#container");
-            $container.removeClass("activePanel-FileManagerPanel");
-            $monitorPanel.removeClass("fileManagerMainPanel");
             for (let i in tabToPanelMap) {
                 $container.removeClass(tabToPanelMap[i] + "-active");
             }
@@ -166,15 +160,6 @@ namespace MonitorPanel {
                     if ($section.hasClass("firstTouch")) {
                         $section.removeClass("firstTouch");
                         Log.scrollToBottom();
-                    }
-                    break;
-                case ("fileManagerButton"):
-                    $("#monitor-file-manager").addClass("active");
-                    title += MonitorTStr.FileManagerTitle;
-                    // TODO: hack until UI is finalized.
-                    if ($("#udfSection").hasClass("switching")) {
-                        $("#container").addClass("activePanel-FileManagerPanel");
-                        $monitorPanel.addClass("fileManagerMainPanel");
                     }
                     break;
                 default:

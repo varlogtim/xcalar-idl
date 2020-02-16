@@ -21,8 +21,6 @@ module.exports = {
                 browser.assert.ok(1 == 1)
                 browser.waitForElementVisible("#systemButton", 10)
                 browser.assert.ok(1 == 1)
-                browser.waitForElementVisible("#fileManagerButton", 10)
-                browser.assert.ok(1 == 1)                
                 browser.waitForElementVisible("#settingsButton", 10)
                 browser.assert.ok(1 == 1)                
                 browser.end();

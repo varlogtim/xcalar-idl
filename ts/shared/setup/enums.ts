@@ -471,7 +471,6 @@ enum TabToUrl {
     sqlTab = "query",
     modelingDataflowTab = "btlogic",
     jupyterTab = "jupyter",
-    fileManagerButton = "udf",
     settingsButton = "settings",
     helpTab = "help",
     workbook = "projects"
@@ -482,7 +481,6 @@ enum UrlToTab {
     query = "sqlTab",
     btlogic = "modelingDataflowTab",
     jupyter = "jupyterTab",
-    udf = "fileManagerButton",
     settings = "settingsButton",
     help = "helpTab",
     projects = "workbook"

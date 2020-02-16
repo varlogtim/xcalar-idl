@@ -2,7 +2,7 @@ class FileManagerPanel {
     private rootPathNode: FileManagerPathNode;
     private $panel: JQuery;
     private curFileType: string;
-    private managers: Map<string, BaseFileManager>;
+    private managers: Map<string, UDFFileManager>;
     private viewPathNode: FileManagerPathNode;
     private selectedPathNodes: Set<FileManagerPathNode>;
     private curHistoryNode: FileManagerHistoryNode;
@@ -57,7 +57,7 @@ class FileManagerPanel {
     public update(
         fileList: FileManagerPathItem[],
         dirList: FileManagerPathItem[],
-        manager: BaseFileManager,
+        manager: UDFFileManager,
         isDelete: boolean
     ): void {
         this.managers.set(manager.fileType(), manager);
@@ -216,7 +216,7 @@ class FileManagerPanel {
         return this.manager.autoRename(fileName);
     }
 
-    private get manager(): BaseFileManager {
+    private get manager(): UDFFileManager {
         return this.managers.get(this.curFileType);
     }
 

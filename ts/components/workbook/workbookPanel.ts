@@ -172,7 +172,7 @@ namespace WorkbookPanel {
             }
             let tabId: string = UrlToTab[lastTab];
             let subTabId: string = null;
-            if (tabId === "fileManagerButton" || tabId === "settingsButton") { // handle sub tabs
+            if (tabId === "settingsButton") { // handle sub tabs
                 subTabId = tabId;
                 tabId = "monitorTab";
             } else if (tabId === "workbook") {
