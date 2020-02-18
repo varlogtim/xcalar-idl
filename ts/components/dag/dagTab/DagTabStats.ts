@@ -29,6 +29,7 @@ class DagTabStats extends DagTabProgress {
         this._fileName = options.fileName;
         this._startTime = options.startTime;
         this._filePath = options.filePath;
+        this._type = DagTabType.Stats;
     }
 
 

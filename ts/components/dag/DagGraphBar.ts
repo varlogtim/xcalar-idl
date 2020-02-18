@@ -99,6 +99,12 @@ class DagGraphBar {
         } else {
             $topBar.removeClass("sqlExecute");
         }
+
+        if (dagTab instanceof DagTabMain) {
+            $topBar.addClass("mainFunc");
+        } else {
+            $topBar.removeClass("mainFunc");
+        }
         this.updateNumNodes(dagTab);
     }
 
@@ -113,6 +119,11 @@ class DagGraphBar {
         const $topBar = this._getGraphBar();
         const numNodes: number = graph.getAllNodes().size;
         $topBar.find(".numNodes").text(xcStringHelper.numToStr(numNodes));
+        if (!numNodes) {
+            $topBar.addClass("noNodes");
+        } else {
+            $topBar.removeClass("noNodes");
+        }
     }
 
     private _getGraphBar(): JQuery {
@@ -192,6 +203,7 @@ class DagGraphBar {
         });
 
         this._setupRunButton();
+        this._setupListFnsButton();
     }
 
     private _setupRunButton(): void {
@@ -227,6 +239,34 @@ class DagGraphBar {
         $run.on("mouseleave", "li", () => {
             DagViewManager.Instance.higlightGraph(null);
         });
+    }
+
+    private _setupListFnsButton() {
+        const $listFns = this._getGraphBar().find(".listFns");
+        new MenuHelper($listFns, {
+            onOpen: ($dropdownList) => {
+                this._renderMainFnList($dropdownList);
+            },
+            onSelect: ($li) => {
+                if ($li.hasClass("hint")) {
+                    return;
+                }
+                const nodeId = $li.data("id");
+                const tabId = $li.data("tabid");
+                const dagTab = DagTabManager.Instance.getTabById(tabId);
+                const headNode = dagTab.getGraph().getNode(nodeId);
+                try {
+                    DagViewManager.Instance.getAppGraph(dagTab.getApp(), headNode, true);
+                } catch (e) {
+                    console.error(e);
+                }
+            },
+            onClose: () => {
+                // DagViewManager.Instance.higlightGraph(null);
+            },
+            container: "#dagViewContainer",
+            bounds: "#dagViewContainer"
+        }).setupListeners();
     }
 
     private _updateZoom(): void {
@@ -296,6 +336,38 @@ class DagGraphBar {
             nodeHeasMap.forEach((nodeId, head) => {
                 list += '<li data-id="' + nodeId + '">' + head + '</li>';
             });
+        } catch (e) {
+            console.error(e);
+        }
+        if (!list) {
+            list = '<li class="hint">No functions</li>';
+        }
+        $dropdownList.find("ul").prepend(list);
+    }
+
+    private _renderMainFnList($dropdownList) {
+        $dropdownList.find("li").remove();
+        let list: HTML = "";
+        try {
+            const appId = this._curDagTab.getApp();
+            const tabs = DagTabManager.Instance.getTabs();
+            tabs.forEach((tab) => {
+                if (tab.getApp() === appId &&
+                    tab instanceof DagTabUser &&
+                    !(tab instanceof DagTabMain) &&
+                    !(tab instanceof DagTabSQLExecute) &&
+                    !(tab instanceof DagTabSQLFunc)
+                ) {
+                    const graph = tab.getGraph();
+                    const tabName = tab.getName();
+                    const nodeHeadsMap = graph.getNodeHeadsMap();
+                    const tabId = tab.getId();
+                    nodeHeadsMap.forEach((nodeId, head) => {
+                        list += `<li data-tabid=${tabId} data-id="${nodeId}">${tabName}.${head}</li>`;
+                    });
+                }
+            });
+
         } catch (e) {
             console.error(e);
         }

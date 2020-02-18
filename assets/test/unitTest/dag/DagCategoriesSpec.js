@@ -81,7 +81,7 @@ describe("DagCategories Test", function() {
             expect(categories[8].operators[1].node instanceof DagNodeCustomInput).to.be.true;
             expect(categories[8].operators[2].node instanceof DagNodeCustomOutput).to.be.true;
 
-            expect(categories[9].operators.length).to.equal(6);
+            expect(categories[9].operators.length).to.equal(8);
             expect(categories[9].operators[0].node instanceof DagNodeIndex).to.be.true;
             expect(categories[9].operators[1].node instanceof DagNodeSynthesize).to.be.true;
             expect(categories[9].operators[2].node instanceof DagNodePlaceholder).to.be.true;
@@ -151,16 +151,13 @@ describe("DagCategories Test", function() {
             expect(categories[7].operators[0].node instanceof DagNodeAggregate).to.be.true;
             expect(categories[7].operators[1].node instanceof DagNodeGroupBy).to.be.true;
 
-            expect(categories[8].operators.length).to.equal(13);
+            expect(categories[8].operators.length).to.equal(15);
             expect(categories[8].operators[0].node instanceof DagNodeIndex).to.be.true;
             expect(categories[8].operators[1].node instanceof DagNodeSynthesize).to.be.true;
             expect(categories[8].operators[2].node instanceof DagNodePlaceholder).to.be.true;
             expect(categories[8].operators[3].node instanceof DagNodeInstruction).to.be.true;
             expect(categories[8].operators[4].node instanceof DagNodeDFOut).to.be.true;
             expect(categories[8].operators[5].node instanceof DagNodeExport).to.be.true;
-            expect(categories[8].operators[6].node instanceof DagNodeDataset).to.be.true;
-            expect(categories[8].operators[7].node instanceof DagNodeIMDTable).to.be.true;
-            expect(categories[8].operators[8].node instanceof DagNodeDFIn).to.be.true;
         });
 
         it("should switch back to advanced mode", function(){

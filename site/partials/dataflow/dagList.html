@@ -26,7 +26,7 @@
     <ul></ul>
   </div>
   <!-- sql list -->
-  <div class="sqlList listWrap xc-expand-list">
+  <div class="sqlList main listWrap xc-expand-list">
     <div class="listInfo">
       <span class="expand">
         <i class="icon xi-down fa-12"></i>
@@ -44,7 +44,7 @@
     <ul></ul>
   </div>
   <!-- module list -->
-  <div class="dfModuleList listWrap xc-expand-list">
+  <div class="dfModuleList main listWrap xc-expand-list">
     <div class="listInfo">
       <span class="expand">
         <i class="icon xi-down fa-12"></i>
@@ -67,7 +67,7 @@
     <ul></ul>
   </div>
   <!-- table function list -->
-  <div class="tableFunc listWrap xc-expand-list">
+  <div class="tableFunc main listWrap xc-expand-list">
     <div class="listInfo">
       <span class="expand">
         <i class="icon xi-down fa-12"></i>
@@ -103,14 +103,39 @@
     <ul></ul>
   </div>
   <!-- app list -->
-  <div class="app listWrap xc-expand-list">
+  <div class="apps listWrap xc-expand-list">
     <div class="listInfo">
       <span class="expand">
         <i class="icon xi-down fa-12"></i>
       </span>
       <span class="text">Apps</span>
+      <span class="action addApp xc-action"
+      data-toggle="tooltip"
+      data-placement="top"
+      data-container="body"
+      data-original-title="Add App"
+      >
+        <i class="icon xi-plus"></i>
+      </span>
     </div>
     <ul></ul>
+  </div>
+  <div class="appTemplate xc-hidden">
+    <!-- module list -->
+    <div class="dfModuleList listWrap xc-expand-list">
+      <div class="listInfo">
+        <span class="expand">
+          <i class="icon xi-down fa-12"></i>
+        </span>
+        <span class="text"><%= dicts.resouceMenu.Modules %></span>
+        <span class="action uploadBtn xc-action"
+        data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.dataflow.uploadHeader %>"
+        >
+          <i class="icon xi-upload-outline"></i>
+        </span>
+      </div>
+      <ul></ul>
+    </div>
   </div>
   <ul id="dagListMenu" class="menu">
     <li class="table tableQuery"><%= dicts.resouceMenu.UseInSQL %></li>
@@ -118,6 +143,7 @@
     <li class="table tableActivate"><%= dicts.Table.Activate %></li>
     <li class="table tableDeactivate"><%= dicts.Table.Deactivate %></li>
     <li class="table tableDelete"><%= dicts.MenuTStr.PermanentDel %></li>
+    <li class="app appDelete"><%= dicts.fileManager.Delete %></li>
     <li class="tableFunc tableFuncQuery"><%= dicts.resouceMenu.UseInSQL %></li>
     <li class="udf udfQuery"><%= dicts.resouceMenu.UseInSQL %></li>
     <li class="udf udfDelete"><%= dicts.fileManager.Delete %></li>

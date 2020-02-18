@@ -1,8 +1,9 @@
 class ResourceMenu {
     public static KEY = {
         Table: "Table",
-        TableFunc: "TableFunc",
         UDF: "UDF",
+        App: "App",
+        TableFunc: "TableFunc",
         DF: "DF",
         SQL: "SQL"
     };
@@ -14,7 +15,8 @@ class ResourceMenu {
         this._container = container;
         this._setupActionMenu();
         this._addEventListeners();
-        this._getContainer().find(".tableList").addClass("active");
+        const $container = this._getContainer();
+        $container.find(".tableList").addClass("active");
 
         this._stateOrder[QueryStateTStr[QueryStateT.qrCancelled]] = 2;
         this._stateOrder[QueryStateTStr[QueryStateT.qrNotStarted]] = 3;
@@ -27,10 +29,8 @@ class ResourceMenu {
         try {
             if (!key) {
                 this._renderTableList();
-                this._renderTableFuncList();
                 this._renderUDFList();
-                this._renderSQList();
-                this._renderDataflowList();
+                this._renderApps();
             } else if (key === ResourceMenu.KEY.Table) {
                 this._renderTableList();
             } else if (key === ResourceMenu.KEY.TableFunc) {
@@ -41,6 +41,8 @@ class ResourceMenu {
                 this._renderSQList();
             } else if (key === ResourceMenu.KEY.DF) {
                 this._renderDataflowList();
+            } else if (key === ResourceMenu.KEY.App) {
+                this._renderApps();
             }
         } catch (e) {
             console.error(e);
@@ -53,6 +55,18 @@ class ResourceMenu {
 
     private _getMenu(): JQuery {
         return this._getContainer().find(".menu");
+    }
+
+    private _getList(selector: string, appId: string): JQuery {
+        const $section = appId ? this._getAppSection(appId) : this._getContainer();
+        if (appId == null) {
+            selector = `${selector}.main`; // select the one not in the app
+        }
+        return $section.find(`${selector} ul`);
+    }
+
+    private _getAppSection(appId: string): JQuery {
+        return this._getContainer().find(`.app[data-id=${appId}]`);
     }
 
     private _renderTableList(): void {
@@ -69,22 +83,49 @@ class ResourceMenu {
         this._getContainer().find(".tableList ul").html(html);
     }
 
+    private _renderApps(): void {
+        this._renderAppList();
+        this._renderTableFuncList();
+        this._renderSQList();
+        this._renderDataflowList();
+    }
+
+    private _renderAppList(): void {
+        const classNames: string[] = ["app"];
+        const apps = AppList.Instance.list();
+        const $container = this._getContainer();
+        const template = $container.find(".appTemplate").html();
+        let html: HTML = "";
+        apps.forEach((app) => {
+            html += this._getNestedListWrapHTML(app.name, template, classNames, app.id, true);
+        });
+
+        html = html + this._getSpecialAppList();
+        this._getContainer().find(".apps ul").html(html);
+    }
+
     private _renderTableFuncList(): void {
         const iconClassNames: string[] = ["xi-SQLfunction"];
         const dagTabs = DagList.Instance.getAllDags();
-        let html: HTML = "";
+        const map: Map<string, HTML> = new Map(); // appId to html map
         dagTabs.forEach((dagTab) => {
-            if (dagTab instanceof DagTabSQLFunc) {
+            if (dagTab.getType() === DagTabType.SQLFunc) {
                 const listClassNames: string[] = ["tableFunc", "dagListDetail", "selectable"];
                 const name = dagTab.getName();
                 const id = dagTab.getId();
                 if (dagTab.isOpen()) {
                     listClassNames.push("open");
                 }
+                const appId: string = dagTab.getApp();
+                let html: string = map.get(appId) || "";
                 html += this._getListHTML(name, listClassNames, iconClassNames, id);
+                map.set(appId, html);
             }
         });
-        this._getContainer().find(".tableFunc ul").html(html);
+
+        for (let [appId, html] of map) {
+            this._getList(".tableFunc", appId).html(html);
+        }
     }
 
     private _renderUDFList(): void {
@@ -113,27 +154,42 @@ class ResourceMenu {
     }
 
     private _renderSQList(): void {
-        const html = this._getSQLList();
-        this._getContainer().find(".sqlList ul").html(html);
-    }
-
-    private _getSQLList(): HTML {
-        const snippets = SQLSnippet.Instance.listSnippets();
+        const snippets: SQLSnippetDurable[] = SQLSnippet.Instance.list();
         const iconClassNames: string[] = ["xi-menu-sql"];
-        const html: HTML = snippets.map((snippet) => {
+        const map: Map<string, HTML> = new Map(); // appId to html map
+        snippets.forEach((snippet) => {
             const name = snippet.name;
+            const id = snippet.id;
             const listClassNames: string[] = ["sqlSnippet"];
-            if (SQLTabManager.Instance.isOpen(name)) {
+            if (SQLTabManager.Instance.isOpen(id)) {
                 listClassNames.push("open");
             }
-            return this._getListHTML(name, listClassNames, iconClassNames);
-        }).join("");
-        return html;
+            const appId: string = snippet.app;
+            let html: string = map.get(appId) || "";
+            html += this._getListHTML(name, listClassNames, iconClassNames, id);
+            map.set(appId, html);
+        });
+
+        for (let [appId, html] of map) {
+            this._getList(".sqlList", appId).html(html);
+        }
     }
 
     private _renderDataflowList(): void {
-        const html = this._getDFList();
-        this._getContainer().find(".dfModuleList ul").html(html);
+        const map: Map<string, HTML> = new Map(); // appId to html map
+        DagList.Instance.getAllDags().forEach((dagTab) => {
+            if (dagTab.getType() === DagTabType.User ||
+                dagTab.getType() === DagTabType.Main) {
+                const appId: string = dagTab.getApp();
+                let html: string = map.get(appId) || "";
+                html += this._getDagListHTML([dagTab]);
+                map.set(appId, html);
+            }
+        });
+
+        for (let [appId, html] of map) {
+            this._getList(".dfModuleList", appId).html(html);
+        }
     }
 
     private _getListHTML(
@@ -149,14 +205,17 @@ class ResourceMenu {
                     xcTooltip.Attrs +
                     ' data-title="' + name + '"' +
                     '>' + name + '</div>' +
-                    '<button class=" btn-secondary dropDown">' +
-                        '<i class="icon xi-ellipsis-h xc-action"></i>' +
-                    '</div>' +
+                    this._getDropdownHTML() +
                 '</li>';
     }
 
-    private _getDFList(): HTML {
-        const normalDagList: DagTab[] = [];
+    private _getDropdownHTML(): HTML {
+        return '<button class=" btn-secondary dropDown">' +
+                    '<i class="icon xi-ellipsis-h xc-action"></i>' +
+                '</button>'
+    }
+
+    private _getSpecialAppList(): HTML {
         const optimizedDagList: DagTabOptimized[] = [];
         const optimizedSDKDagList: DagTabOptimized[] = [];
         const queryDagList: DagTabQuery[] = [];
@@ -175,14 +234,9 @@ class ResourceMenu {
                 } else {
                     queryDagList.push(dagTab);
                 }
-            } else if (dagTab instanceof DagTabSQLFunc) {
-                // ingore it, is handled in _getTableFuncList
-            } else {
-                normalDagList.push(dagTab);
             }
         });
 
-        normalDagList.sort(this._sortDagTab);
         optimizedDagList.sort(this._sortDagTab);
         optimizedSDKDagList.sort(this._sortDagTab);
         querySDKDagList.sort(this._sortDagTab);
@@ -192,8 +246,7 @@ class ResourceMenu {
         this._getNestedDagListHTML(optimizedDagList) +
         this._getNestedDagListHTML(optimizedSDKDagList) +
         this._getNestedDagListHTML(queryDagList) +
-        this._getNestedDagListHTML(querySDKDagList) +
-        this._getDagListHTML(normalDagList);
+        this._getNestedDagListHTML(querySDKDagList)
         return html;
     }
 
@@ -227,7 +280,9 @@ class ResourceMenu {
             if (dagTab.isOpen()) {
                 listClassNames.push("open");
             }
-            if (dagTab instanceof DagTabOptimized) {
+            if (dagTab instanceof DagTabMain) {
+                listClassNames.push("main");
+            } else if (dagTab instanceof DagTabOptimized) {
                 listClassNames.push("optimized");
             } else if (dagTab instanceof DagTabQuery) {
                 listClassNames.push("abandonedQuery");
@@ -268,16 +323,23 @@ class ResourceMenu {
             console.error(e);
             return "";
         }
-
     }
 
-    private _getNestedListWrapHTML(name: string, content: HTML): HTML {
-        return '<div class="nested listWrap xc-expand-list">' +
+    private _getNestedListWrapHTML(
+        name: string,
+        content: HTML,
+        classNames: string[] = [],
+        id: string = "",
+        hasDropdown: boolean = false
+    ): HTML {
+        const sectionClasses: string[] = ["nested", "listWrap", "xc-expand-list", ...classNames];
+        return `<div class="${sectionClasses.join(" ")}" data-id="${id}">` +
                 '<div class="listInfo">' +
                     '<span class="expand">' +
                         '<i class="icon xi-down fa-12"></i>' +
                     '</span>' +
                     '<span class="text">' + name + '</span>' +
+                    (hasDropdown ? this._getDropdownHTML() : '') +
                 '</div>' +
                 '<ul>' +
                     content +
@@ -293,7 +355,14 @@ class ResourceMenu {
         $menu.data("id", $li.data("id"));
 
         $menu.find("li").hide();
-        if ($li.hasClass("table")) {
+
+        if ($dropDownLocation.closest(".listInfo").length &&
+            $dropDownLocation.closest(".app").length
+        ) {
+            // app option
+            $menu.find("li.app").show();
+            $menu.data("id", $dropDownLocation.closest(".app").data("id"));
+        } else if ($li.hasClass("table")) {
             $menu.find("li.table").show();
             if ($li.hasClass("inActive")) {
                 $menu.find("li.tableActivate").show();
@@ -320,11 +389,18 @@ class ResourceMenu {
             $menu.find("li.dag").show();
 
             const $openOnlyOption = $menu.find("li.duplicateDataflow, li.downloadDataflow");
+            const $deleteOption = $menu.find("li.deleteDataflow");
             if ($li.hasClass("open")) {
                 $openOnlyOption.removeClass("xc-disabled");
             } else {
                 $openOnlyOption.addClass("xc-disabled");
             }
+            if ($li.hasClass("main")) {
+                $deleteOption.hide();
+            } else {
+                $deleteOption.show();
+            }
+
         }
 
         MenuHelper.dropdownOpen($dropDownLocation, $menu, {
@@ -427,6 +503,11 @@ class ResourceMenu {
             this._tableModule(name);
         });
 
+        $menu.on("click", ".appDelete", () => {
+            const app: string = $menu.data("id");
+            AppList.Instance.delete(app);
+        });
+
         $menu.on("click", ".tableFuncQuery", () => {
             const name: string = $menu.data("name");
             SQLWorkSpace.Instance.tableFuncQuery(name);
@@ -443,13 +524,13 @@ class ResourceMenu {
         });
 
         $menu.on("click", ".sqlDownload", () => {
-            const name: string = $menu.data("name");
-            SQLSnippet.Instance.downloadSnippet(name);
+            const id: string = $menu.data("id");
+            SQLSnippet.Instance.download(id);
         });
 
         $menu.on("click", ".sqlDelete", () => {
-            const name: string = $menu.data("name");
-            SQLEditorSpace.Instance.deleteSnippet(name, null);
+            const id: string = $menu.data("id");
+            SQLEditorSpace.Instance.deleteSnippet(id);
         });
     }
 
@@ -457,13 +538,23 @@ class ResourceMenu {
         const $container: JQuery = this._getContainer();
         // expand/collapse the section
         $container.on("click", ".listWrap .listInfo", (event) => {
-            $(event.currentTarget).closest(".listWrap").toggleClass("active");
+            const $list = $(event.currentTarget).closest(".listWrap");
+            $list.toggleClass("active");
+            if ($list.hasClass("active")) {
+                $list.scrollintoview({duration: 0});
+            }
         });
 
         $container.on("click", ".addTable", (event) => {
             event.stopPropagation();
             $("#dataStoresTab").click();
             DataSourceManager.startImport(true);
+        });
+
+        $container.on("click", ".addApp", (event) => {
+            event.stopPropagation();
+            const name = AppList.Instance.getValidName(null);
+            AppList.Instance.createApp(name);
         });
 
         $container.on("click", ".addUDF", (event) => {
@@ -501,8 +592,8 @@ class ResourceMenu {
             if ($li.hasClass("active")) {
                 return;
             }
-            const name: string = $li.find(".name").text();
-            SQLTabManager.Instance.openTab(name);
+            const id: string = $li.data("id");
+            SQLTabManager.Instance.openTab(id);
         });
 
         $container.on("click", ".udf.listWrap .udf", (event) => {

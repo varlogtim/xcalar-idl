@@ -122,8 +122,7 @@ window.FlightTest = (function(FlightTest, $) {
         function flightTestPart2() {
             console.log("start flightTestPart2", "create dataset node");
             $("#sqlTab").click();
-            // creat new tab
-            $("#tabButton").click();
+            createNewTab();
 
             test.createDatasetNode(flightDS, flightPrefix)
             .then((nodeId) => {
@@ -444,7 +443,7 @@ window.FlightTest = (function(FlightTest, $) {
         .then((reslinkOutName) => {
             linkOutName = reslinkOutName;
             console.log("create new tab for multi join and link map node");
-            $("#tabButton").click();
+            createNewTab();
             return renameTab($("#dagTabView .dagTab.active"), MultiJoin);
         })
         .then(() => {
@@ -452,7 +451,7 @@ window.FlightTest = (function(FlightTest, $) {
         })
         .then(() => {
             console.log("create new tab for multi groupBy and link map node");
-            $("#tabButton").click();
+            createNewTab();
             return renameTab($("#dagTabView .dagTab.active"), MultiGroupBy);
         })
         .then(() => {
@@ -875,10 +874,10 @@ window.FlightTest = (function(FlightTest, $) {
             return dealyPromise(500);
         })
         .then(() => {
-            test.assert($tab.find(".name").text() === newName);
+            test.assert($tab.find(".name").text().includes(newName));
         })
         .always(() => {
-            if (test.assert($tab.find(".name").text() === newName)) {
+            if (test.assert($tab.find(".name").text().includes(newName))) {
                 deferred.resolve();
             } else {
                 deferred.reject();
@@ -893,6 +892,10 @@ window.FlightTest = (function(FlightTest, $) {
             deferred.resolve();
         }, dealyTime);
         return deferred.promise();
+    }
+
+    function createNewTab() {
+        $("#tabButton").click();
     }
     return FlightTest;
 }({}, jQuery));

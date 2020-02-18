@@ -38,6 +38,9 @@ class DagCategories {
             new DagCategoryNodeSQL(DagNodeFactory.create({
                 type: DagNodeType.Module
             })),
+            new DagCategoryNode(DagNodeFactory.create({
+                type: DagNodeType.Main
+            }), DagCategoryType.Hidden),
         ]);
 
         let inCategory: DagCategory;

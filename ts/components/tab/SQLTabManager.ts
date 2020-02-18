@@ -28,20 +28,20 @@ class SQLTabManager extends AbstractTabManager {
      * SQLTabManager.Instance.newTab
      */
     public newTab(): void {
-        const name: string = SQLSnippet.Instance.newSnippet(null);
-        this.openTab(name);
+        const id: string = SQLSnippet.Instance.create(null);
+        this.openTab(id);
     }
 
     /**
      * SQLTabManager.Instance.openTab
-     * @param name
+     * @param id
      */
-    public openTab(name: string): void {
-        const index: number = this._activeTabs.indexOf(name);
+    public openTab(id: string): void {
+        const index: number = this._activeTabs.indexOf(id);
         if (index > -1) {
             this._switchTabs(index);
         } else {
-            this._loadTab(name);
+            this._loadTab(id);
             this._save();
             this._switchTabs();
             this._updateList();
@@ -50,10 +50,10 @@ class SQLTabManager extends AbstractTabManager {
 
     /**
      * SQLTabManager.Instance.closeTab
-     * @param name
+     * @param id
      */
-    public closeTab(name: string): void {
-        const index: number = this._activeTabs.indexOf(name);
+    public closeTab(id: string): void {
+        const index: number = this._activeTabs.indexOf(id);
         if (index > -1) {
             this._deleteTabAction(index);
             this._tabListScroller.showOrHideScrollers();
@@ -62,10 +62,10 @@ class SQLTabManager extends AbstractTabManager {
 
     /**
      * SQLTabManager.Instance.isOpen
-     * @param name
+     * @param id
      */
-    public isOpen(name: string): boolean {
-        return this._activeTabs.includes(name);
+    public isOpen(id: string): boolean {
+        return this._activeTabs.includes(id);
     }
 
     /**
@@ -74,15 +74,14 @@ class SQLTabManager extends AbstractTabManager {
      */
     protected _switchTabs(index?: number): number {
         index = super._switchTabs(index);
-        const name: string = this._activeTabs[index];
-        SQLEditorSpace.Instance.openSnippet(name);
+        const id: string = this._activeTabs[index];
+        SQLEditorSpace.Instance.openSnippet(id);
         return index;
     }
 
     protected _restoreTabs(): XDPromise<void> {
-        const snippets = SQLSnippet.Instance.listSnippets();
+        const snippets = SQLSnippet.Instance.list();
         if (snippets.length === 0) {
-            SQLTabManager.Instance.newTab();
             this._updateList();
             return PromiseHelper.resolve();
         }
@@ -132,20 +131,27 @@ class SQLTabManager extends AbstractTabManager {
         const $tabName: JQuery = $input.parent();
         const $tab: JQuery = $tabName.parent();
         const index: number = $tab.index();
-        const oldName: string = this._activeTabs[index];
-
+        const id: string = this._activeTabs[index];
+        const snippetObj = SQLSnippet.Instance.getSnippetObj(id);
+        const oldName: string = snippetObj.name;
         if (newName != oldName &&
             this._tabRenameCheck(newName, $tabName)
         ) {
-            this._activeTabs[index] = newName;
-            SQLSnippet.Instance.renameSnippet(oldName, newName);
+            SQLSnippet.Instance.rename(id, newName);
             this._save();
             this._updateList();
-        } else {
-            // Reset name if fail to rename
-            newName = oldName;
         }
-        return newName;
+        return this._getAppPath(snippetObj);
+    }
+
+    /**
+     * @override
+     * @param $tabName
+     */
+    protected _getEditingName($tabName: JQuery): string {
+        const index: number = this._getTabIndexFromEl($tabName);
+        const id = this._activeTabs[index];
+        return SQLSnippet.Instance.getSnippetObj(id).name;
     }
 
     protected _startReorderTabAction(): void {};
@@ -172,21 +178,24 @@ class SQLTabManager extends AbstractTabManager {
         });
     }
 
-    private _loadTab(name: string, index?: number): void {
+    private _loadTab(id: string, index?: number): void {
         let tabIndex: number = null;
         if (index == null) {
             index = this.getNumTabs();
         } else {
             tabIndex = index;
         }
-        this._activeTabs.splice(index, 0, name);
-        this._addTabHTML(name, tabIndex);
+        const snippetObj = SQLSnippet.Instance.getSnippetObj(id);
+        if (snippetObj != null) {
+            this._activeTabs.splice(index, 0, id);
+            this._addTabHTML(snippetObj, tabIndex);
+        }
     }
 
-    private _addTabHTML(name: string, tabIndex?: number): void {
-        name = xcStringHelper.escapeHTMLSpecialChar(name);
-        let html: HTML =
-            '<li class="tab">' +
+    private _addTabHTML(snippetObj: SQLSnippetDurable, tabIndex?: number): void {
+        const name: string = this._getAppPath(snippetObj);
+        const html: HTML =
+            `<li class="tab" data-id="${snippetObj.id}">` +
                 '<div class="dragArea">' +
                     '<i class="icon xi-ellipsis-v" ' + xcTooltip.Attrs + ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>' +
                 '</div>' +
@@ -223,26 +232,36 @@ class SQLTabManager extends AbstractTabManager {
         this._tabListScroller.showOrHideScrollers();
     }
 
+    private _validateTabName(name: string): string | null {
+        if (!xcHelper.checkNamePattern(PatternCategory.Dataflow, PatternAction.Check, name)) {
+            return ErrTStr.DFNameIllegal;
+        } else if (SQLSnippet.Instance.hasSnippet(name)) {
+            return "SQL with the same name already exists";
+        } else {
+            return null;
+        }
+    }
+
     private _tabRenameCheck(name: string, $tab: JQuery): boolean {
+        const error: string | null = this._validateTabName(name);
         return xcHelper.validate([
             {
                 $ele: $tab
             },
             {
                 $ele: $tab,
-                error: ErrTStr.DFNameIllegal,
+                error: error,
                 check: () => {
-                    return !xcHelper.checkNamePattern(PatternCategory.Dataflow, PatternAction.Check, name);
+                    return error != null;
                 }
-            },
-            {
-                $ele: $tab,
-                error: "SQL with the same name already exists",
-                check: () => {
-                    return SQLSnippet.Instance.hasSnippet(name);
-                }
-
             }
         ]);
+    }
+
+    private _getAppPath(snippetObj: SQLSnippetDurable): string {
+        if (snippetObj.app == null) {
+            return snippetObj.name;
+        }
+        return AppList.Instance.getAppPath(snippetObj.app, snippetObj.name);
     }
 }

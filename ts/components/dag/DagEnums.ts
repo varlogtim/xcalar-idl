@@ -34,7 +34,8 @@ enum DagNodeType {
     SQLFuncIn = "SQLFuncIn",
     SQLFuncOut = "SQLFuncOut",
     Deskew = "Deskew",
-    Module = "Module"
+    Module = "Module",
+    Main = "Main"
 }
 
 enum DagNodeSubType {
@@ -142,6 +143,17 @@ enum DagCategoryType {
     Hidden = "hidden"
 }
 
+enum DagTabType {
+    User = "Normal",
+    SQLFunc = "Table Function",
+    Custom = "Custom",
+    Optimized = "Optimized",
+    Query = "Query",
+    SQL = "SQL",
+    SQLExecute = "SQL Execute Graph",
+    Stats = "Stats",
+    Main = "Main"
+}
 
 const DagNodeTooltip = {};
 

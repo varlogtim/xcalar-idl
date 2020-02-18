@@ -18,7 +18,7 @@ class SQLFuncSettingModal {
         this._addEventListeners();
     }
 
-     /**
+    /**
      * SQLFuncSettingModal.Instance.show
      * @param callback
      */

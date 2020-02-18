@@ -4726,53 +4726,6 @@ html.microsoft {
 }
 /* ========== End of Dataflow download ============= */
 
-/* ========== SQL Save List ============= */
-#sqlSnippetSaveModal {
-    @h-without-main: @modal-header-h + @modal-bottom-h;
-    .size(@height: 600px);
-
-    .modalMain {
-        height: ~"calc(100% - @{h-without-main})";
-
-        .label {
-            height: 30px;
-
-            .text, input {
-                display: block;
-                float: left;
-            }
-
-            .text {
-                width: 60px;
-                margin-right: 5px;
-                line-height: 30px;
-            }
-
-            input {
-                width: ~"calc(100% - 65px)";
-            }
-        }
-
-        .xc-gridList {
-            margin-top: 10px;
-            height: ~"calc(100% - 40px)";
-            overflow-y: auto;
-            border: 1px solid @color-border-medium2;
-
-            .content {
-                overflow-y: auto;
-            }
-
-            .row {
-                > div {
-                    width: 100%;
-                }
-            }
-        }
-    }
-}
-/* ========== End of SQL Save List ============= */
-
 /* ========== SQL Func Setting ============= */
 #sqlFuncSettingModal {
     @h-without-main: @modal-header-with-subHeader-h + @modal-bottom-h;

@@ -104,6 +104,7 @@ class DagTabSQLFunc extends DagTabUser {
         options = options || <DagTabUserOptions>{};
         options.id = options.id || DagTabSQLFunc.generateId();
         super(options);
+        this._type = DagTabType.SQLFunc;
     }
 
     public getPath(): string {

@@ -905,23 +905,15 @@ class DagViewManager {
         this.dagViewMap.get(tabId).autoAlign();
     }
 
-    public getAutoAlignPositions(graph: DagGraph): {
-        nodeInfos: NodeMoveInfo[],
-        maxX: number,
-        maxY: number
-    } {
-        return DagView.getAutoAlignPositions(graph);
-    }
-
     /**
      * DagViewManager.Instance.autoAddNode
      * @param newType
-     * @param subType 
-     * @param parentNodeId 
-     * @param input 
-     * @param x 
-     * @param y 
-     * @param options 
+     * @param subType
+     * @param parentNodeId
+     * @param input
+     * @param x
+     * @param y
+     * @param options
      */
     public async autoAddNode(
         newType: DagNodeType,
@@ -1073,7 +1065,7 @@ class DagViewManager {
 
     /**
      * DagViewManager.Instance.createSQLFunc
-     * @param nodeIds
+     * @param isFromSQLMode
      */
     public createSQLFunc(isFromSQLMode: boolean): void {
         let onSubmit = (name, numInput) => {
@@ -1246,21 +1238,65 @@ class DagViewManager {
     /**
      * DagViewManager.Instance.getAppGraph
      */
-    public getAppGraph(): DagGraph {
-        const map = this._getModules();
-        const graph = this._buildModuleGraph(map);
-        const tabId = DagTabManager.Instance.newApp(graph);
-        DagViewManager.Instance.autoAlign(tabId);
+    public getAppGraph(appId: string, headNode?: DagNode, useCurrentTab?: boolean): DagGraph {
+        let map = this._getModules(appId);
+        let graph = this._buildModuleGraph(map);
+        if (headNode) {
+            const trees = <Set<Set<DagNodeModule>>>graph.getDisjointTrees();
+            let nodeFoundOverall = false;
+            for (let tree of trees) {
+                let nodeFoundInCurrentTree = false;
+                if (!nodeFoundOverall) {
+                    for (let node of tree) {
+                        if ((<DagNodeModule>node).headNode === headNode) {
+                            nodeFoundOverall = true;
+                            nodeFoundInCurrentTree = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!nodeFoundInCurrentTree) {
+                    for (let node of tree) {
+                        graph.removeNode(node.getId(), false, false);
+                    }
+                }
+            }
+        }
+        if (useCurrentTab) {
+            const dagTab = DagViewManager.Instance.getActiveTab();
+            DagViewManager.Instance.cleanupClosedTab(dagTab.getGraph());
+            dagTab.setGraph(graph);
+            const $dfArea = this._getActiveArea();
+            $dfArea.removeClass("rendered");
+            DagViewManager.Instance.render($dfArea, graph);
+            DagGraphBar.Instance.updateNumNodes(dagTab);
+            DagViewManager.Instance.autoAlign(dagTab.getId());
+            DFNodeLineagePopup.Instance.update(dagTab.getId());
+
+            const allModuleNodes = graph.getAllNodes();
+            for (let [key, node] of allModuleNodes) {
+                if ((<DagNodeModule>node).headNode === headNode) {
+                    const moduleNodeId = node.getId();
+                    DagViewManager.Instance.selectNodes(dagTab.getId(), [moduleNodeId]);
+                }
+            }
+        } else {
+            const tabId = DagTabManager.Instance.newApp(graph);
+            DagViewManager.Instance.autoAlign(tabId);
+        }
+
         return graph;
     }
 
     // return a map of tabId and the node
-    private _getModules(): Map<string, DagNodeModule[]> {
-        // XXX TODO: load all nodes in all tabs
+    private _getModules(appId: string): Map<string, DagNodeModule[]> {
         const map: Map<string, DagNodeModule[]> = new Map();
         const tabs = DagTabManager.Instance.getTabs();
         tabs.forEach((tab) => {
-            if (tab instanceof DagTabUser &&
+            if (tab.getApp() === appId &&
+                tab instanceof DagTabUser &&
+                !(tab instanceof DagTabMain) &&
                 !(tab instanceof DagTabSQLExecute) &&
                 !(tab instanceof DagTabSQLFunc)
             ) {

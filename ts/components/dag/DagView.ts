@@ -73,26 +73,16 @@ class DagView {
         maxX: number,
         maxY: number
     } {
-        const allNodes: DagNode[] = graph.getSortedNodes();
-        let trees = {};
-        let seen: Map<DagNodeId, number> = new Map();
-        for (let i = allNodes.length - 1; i >= 0; i--) {
-            let node = allNodes[i];
-            if (node.getChildren().length === 0) {
-                // group nodes into trees
-                DagView._splitIntoTrees(node, seen, trees, i);
-            }
-        }
+        const trees = graph.getDisjointTrees();
 
         let startingWidth: number = 0;
         const allNodeInfos = [];
         let overallMaxDepth = 0;
-        for (let i in trees) {
-            const tree = trees[i];
+
+        trees.forEach((tree) => {
             const nodes = {};
             let showingProgressTips: boolean = false;
-            for (let j in tree) {
-                let node: DagNode = tree[j];
+            tree.forEach(node => {
                 if (node.getChildren().length === 0) {
                     if (!showingProgressTips) {
                         showingProgressTips = DagView.$dagView.hasClass("showProgressTips") && searchForTooltip(node, new Set());
@@ -102,16 +92,16 @@ class DagView {
                     }
                     DagView._alignNodes(node, nodes, startingWidth, showingProgressTips);
                 }
-            }
+            });
 
-            for (let j in tree) {
-                let node: DagNode = tree[j];
+            tree.forEach(node => {
                 if (node.getParents().length === 0) {
                     // adjust positions of nodes so that children will never be
                     // to the left of their parents
                     DagView._adjustPositions(node, nodes, new Set());
                 }
-            }
+            });
+
             let maxDepth = 0;
             let maxWidth = 0;
             let minDepth = 0;
@@ -134,7 +124,56 @@ class DagView {
             }
 
             startingWidth = (maxWidth + 1);
-        }
+        });
+
+        // for (let i in trees) {
+            // const tree = trees[i];
+            // const nodes = {};
+            // let showingProgressTips: boolean = false;
+            // for (let j in tree) {
+            //     let node: DagNode = tree[j];
+            //     if (node.getChildren().length === 0) {
+            //         if (!showingProgressTips) {
+            //             showingProgressTips = DagView.$dagView.hasClass("showProgressTips") && searchForTooltip(node, new Set());
+            //             if (showingProgressTips && startingWidth > 0) { // don't adjust the first row of nodes
+            //                 startingWidth += (2/3); // must be divisible by 3 because vertNodeSpacing == 60
+            //             }
+            //         }
+            //         DagView._alignNodes(node, nodes, startingWidth, showingProgressTips);
+            //     }
+            // }
+
+            // for (let j in tree) {
+            //     let node: DagNode = tree[j];
+            //     if (node.getParents().length === 0) {
+            //         // adjust positions of nodes so that children will never be
+            //         // to the left of their parents
+            //         DagView._adjustPositions(node, nodes, new Set());
+            //     }
+            // }
+            // let maxDepth = 0;
+            // let maxWidth = 0;
+            // let minDepth = 0;
+            // for (let j in nodes) {
+            //     maxDepth = Math.max(nodes[j].depth, maxDepth);
+            //     minDepth = Math.min(nodes[j].depth, minDepth);
+            //     maxWidth = Math.max(nodes[j].width, maxWidth);
+            // }
+            // overallMaxDepth = Math.max(maxDepth - minDepth, overallMaxDepth);
+
+            // for (let j in nodes) {
+            //     allNodeInfos.push({
+            //         type: "dagNode",
+            //         id: j,
+            //         position: {
+            //             x: ((maxDepth - nodes[j].depth) * DagView.horzNodeSpacing) + (DagView.gridSpacing * 2),
+            //             y: Math.round((nodes[j].width * DagView.vertNodeSpacing) / DagView.gridSpacing) * DagView.gridSpacing + (DagView.gridSpacing * 2)
+            //         }
+            //     });
+            // }
+
+            // startingWidth = (maxWidth + 1);
+        // }
         const graphHeight = DagView.vertNodeSpacing * (startingWidth - 1) + DagView.gridSpacing;
         const graphWidth = DagView.horzNodeSpacing * overallMaxDepth + DagView.gridSpacing;
         let maxX = graphWidth;
@@ -180,7 +219,7 @@ class DagView {
      * @param name
      * @param numInput
      */
-    public static async newSQLFunc(name, numInput): Promise<void> {
+    public static async newSQLFunc(name: string, numInput: number): Promise<void> {
         DagTabManager.Instance.newSQLFunc(name);
 
         // add instruction
@@ -215,31 +254,6 @@ class DagView {
         x = Math.max(xBase + inc, Math.min(maxX, x));
         await DagViewManager.Instance.autoAddNode(DagNodeType.SQLFuncOut, null, null, null, x, y);
         DagNodeInfoPanel.Instance.hide(); // not show info panel
-    }
-
-    /**
-     * DagView.newTabFromSource
-     * @param type
-     * @param config
-     */
-    public static async newTabFromSource(type: DagNodeType, config: any): Promise<void> {
-        try {
-            DagViewManager.Instance.toggleSqlPreview(false);
-            DagTabManager.Instance.newTab();
-            let position: number = DagView.gridSpacing * 2;
-            let node: DagNode = await DagViewManager.Instance.autoAddNode(type, null, null, config,
-                position, position);
-            if (node != null) {
-                DagNodeMenu.execute("configureNode", {
-                    node: node,
-                    exitCallback: () => {
-                        node.setParam({}, true);
-                    }
-                });
-            }
-        } catch (e) {
-            console.error(e);
-        }
     }
 
     public static getSkewText(skew) {
@@ -1385,6 +1399,9 @@ class DagView {
             // cannot modify sql execute tab
             DagTabSQLExecute.viewOnlyAlert(this.dagTab);
             return;
+        }
+        if (this._hasInstructionNode) {
+            this.removeInstructionNode();
         }
         this.deselectNodes();
 
@@ -4154,7 +4171,8 @@ class DagView {
         if ($categoryBarNode.closest(".category-hidden").length &&
             type !== DagNodeType.Synthesize &&
             type !== DagNodeType.DFOut &&
-            type !== DagNodeType.Export
+            type !== DagNodeType.Export &&
+            type !== DagNodeType.Main
         ) {
             $node.addClass("configDisabled");
         } else {
@@ -4703,10 +4721,14 @@ class DagView {
             y: parentNode.getPosition().y + (DagView.nodeHeight / 2)
         };
 
+        let childX = childNode.getPosition().x;
+        if (childNode instanceof DagNodeModule) {
+            childX += 7;
+        }
         const childCoors: Coordinate = {
-            x: childNode.getPosition().x,
+            x: childX,
             y: childNode.getPosition().y + 2 +
-                ((DagView.nodeHeight - 4) / (numParents + 1) * (1 + numConnections))
+                ((DagView.nodeHeight - 4) / (Math.max(numParents, 1) + 1) * (1 + numConnections))
         };
         let edgeClass = "edge";
 

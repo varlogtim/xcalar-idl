@@ -22,7 +22,9 @@ describe('DagList Test', function() {
 
         before(function() {
             dagName = xcHelper.randName("newAgg");
-            dagTab = new DagTabUser({name: name});
+            dagTab = new DagTabUser({
+                name: name
+            });
         });
 
         it("should add a new Dag correctly", function() {

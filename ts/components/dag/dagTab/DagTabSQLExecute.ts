@@ -54,14 +54,16 @@ class DagTabSQLExecute extends DagTabUser {
             dagGraph: new DagGraph()
         };
         super(options);
+        this._type = DagTabType.SQLExecute;
     }
 
     public load(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._loadFromKVStore()
         .then((ret) => {
-            let { graph } = ret;
+            let { graph, dagInfo } = ret;
             this.setGraph(graph);
+            this.setApp(dagInfo.app);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);

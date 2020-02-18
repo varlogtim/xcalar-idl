@@ -32,7 +32,6 @@ class DagConfigNodeModal {
     public show(node: DagNode, tabId: string, $node: JQuery, options): void {
         const type: DagNodeType = node.getType();
         const subType: DagNodeSubType = node.getSubType();
-
         this._getModal().removeClass("xc-hidden");
 
         switch (type) {
@@ -111,6 +110,9 @@ class DagConfigNodeModal {
                 break;
             case (DagNodeType.Deskew):
                 DeskewOpPanel.Instance.show(node, options);
+                break;
+            case (DagNodeType.Main):
+                MainOpPanel.Instance.show(node, options);
                 break;
             default:
                 this.close();

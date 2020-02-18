@@ -1111,6 +1111,8 @@
     background-color: @color-bg-graphBar;
     color: @color-icon-default;
     font-size: 12px;
+    display: flex;
+    flex-wrap: nowrap;
 
     &.locked {
         .run, .stop, .undo, .redo {
@@ -1131,11 +1133,26 @@
         }
     }
 
+    &.mainFunc {
+        .listFns {
+            display: block;
+        }
+        &.noNodes {
+            .run {
+                display: none;
+            }
+        }
+    }
+
     .useInSQL {
         display: none;
         width: auto;
         position: relative;
         top: 4px;
+    }
+
+    .listFns {
+        display: none;
     }
 
     .topButtons {
@@ -1147,6 +1164,9 @@
         &.left {
             float: left;
             padding-right: 0px;
+        }
+        &:not(.left) {
+            margin-left: auto;
         }
     }
 
@@ -1186,7 +1206,7 @@
             }
         }
 
-        &.run, &.stop {
+        &.run, &.stop, &.listFns {
             font-size: 12px;
             .rounded(4px);
             line-height: @dagGraphBarHeight - 8px;
@@ -1216,7 +1236,7 @@
             }
         }
 
-        &.run {
+        &.run, &.listFns {
             overflow: visible;
 
             &.running {
@@ -1456,10 +1476,6 @@
 }
 
 /* ========== Dag Tabs ========== */
-#tabSQLFuncButton {
-    display: none;
-}
-
 #container {
     &.formOpen {
         #dagNodeMenu, #dagTableNodeMenu {

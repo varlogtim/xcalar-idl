@@ -106,6 +106,9 @@ class DagNodeFactory {
             case DagNodeType.Module:
                 node = new DagNodeModule(options, runtime);
                 break;
+            case DagNodeType.Main:
+                node = new DagNodeMain(options, runtime);
+                break;
             default:
                 throw new Error("node type " + options.type + " not supported");
         }

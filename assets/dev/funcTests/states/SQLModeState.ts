@@ -129,7 +129,7 @@ class SQLModeState extends State {
         //     throw `Error creating snippet ${snippetName}, not in the snippet list in WKBK ${this.currentWKBKId}`;
         // }
 
-        if (this.sqlSnippet.listSnippets().length > 1) {
+        if (this.sqlSnippet.list().length > 1) {
             // If has more than one snippet ( except for the default one)
             // add more actions
             this.addAction(this.deleteSnippet);
@@ -142,7 +142,7 @@ class SQLModeState extends State {
         let randomSnippet = this.getRandomSnippet();
         this.log(`Deleting snippet ${randomSnippet} in WKBK ${this.currentWKBKId}`);
         try{
-            await this.sqlSnippet.deleteSnippet(randomSnippet);
+            await this.sqlSnippet.delete(randomSnippet);
             await this.sqlEditor._newSnippet();
         } catch (err) {
             this.log(`Error deleting snippet in WKBK ${this.currentWKBKId}`);
@@ -154,7 +154,7 @@ class SQLModeState extends State {
         // if (this.sqlSnippet.hasSnippet(randomSnippet)) {
         //     throw `Error deleting snippet ${randomSnippet}, it's still in the snippet list in WKBK ${this.currentWKBKId}`;
         // }
-        if (this.sqlSnippet.listSnippets().length == 1) {
+        if (this.sqlSnippet.list().length == 1) {
             // Only 1 default snippet: undefined
             this.deleteAction(this.executeSnippet);
             this.deleteAction(this.deleteSnippet);

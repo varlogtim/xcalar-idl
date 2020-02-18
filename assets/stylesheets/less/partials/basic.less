@@ -277,6 +277,7 @@ body {
     border-style: solid;
     .rounded(10px);
     background-color: @color-scrollBarThumb !important;
+    // background: @color-scrollBarThumb;
     background-clip: content-box;
     -webkit-box-shadow: inset 0 -1px 2px rgba(205,205,205,0.75);
 }
@@ -288,6 +289,19 @@ body {
 &::-webkit-scrollbar-corner {
     background: transparent;
 }
+
+// div, section, ul {
+//     &::-webkit-scrollbar-track, &::-webkit-scrollbar-thumb {
+//         background: transparent;
+//         transition: background-color 0.2s;
+//     }
+//     &:-webkit-scrollbar-thumb{
+//         background: @color-scrollBarThumb;
+//     }
+//     &:hover::-webkit-scrollbar-track {
+//         background: linear-gradient(to bottom right, @color-scrollBarLight , @color-scrollBarDark); /* Standard syntax */
+//     }
+// }
 
 .avoidClicks {
     pointer-events: none;

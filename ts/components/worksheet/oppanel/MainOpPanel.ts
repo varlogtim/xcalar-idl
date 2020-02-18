@@ -1,7 +1,7 @@
-class DFLinkInOpPanel extends BaseOpPanel {
+class MainOpPanel extends BaseOpPanel {
     protected _dagNode: DagNodeDFIn;
     private _dataflows: {tab: DagTab, displayName: string}[];
-    private _linkOutNodes: {node: DagNodeDFOut, displayName: string}[];
+    private _fns: {nodeId: DagNodeId, displayName: string}[];
     private _schemaSection: ColSchemaSection;
     private _source: string;
 
@@ -11,29 +11,16 @@ class DFLinkInOpPanel extends BaseOpPanel {
         this._schemaSection = new ColSchemaSection(this._getSchemaSection());
     }
 
-    /**
-     * DFLinkInOpPanel.Instance.show
-     * @param dagNode
-     * @param options
-     */
-    public show(dagNode: DagNodeDFIn, options): XDPromise<void> {
+    public show(dagNode: DagNodeDFIn, options?): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._dagNode = dagNode;
-        super.showPanel("Link In", options)
+        super.showPanel("Main", options)
         .then(() => {
             this._initialize(dagNode);
             const model = $.extend(this._dagNode.getParam(), {
                 schema: this._dagNode.getSchema()
             });
             this._restorePanel(model);
-            if (model.schema != null && model.schema.length !== 0) {
-                // Already linked to a source, so we update the panel to pick up any possible lineage change
-                this._autoDetectSchema(false);
-            }
-            if (BaseOpPanel.isLastModeAdvanced) {
-                this._switchMode(true);
-                this._updateMode(true);
-            }
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -77,14 +64,14 @@ class DFLinkInOpPanel extends BaseOpPanel {
     }
 
     private _setup(): void {
-        super.setup($("#dfLinkInPanel"));
+        super.setup($("#mainOpPanel"));
         this._addEventListeners();
     }
 
     private _clear(): void {
         this._dagNode = null;
         this._dataflows = null;
-        this._linkOutNodes = null;
+        this._fns = null;
         this._source = null;
         this._schemaSection.clear();
         let $panel = this._getPanel();
@@ -105,22 +92,26 @@ class DFLinkInOpPanel extends BaseOpPanel {
         const dataflows: {tab: DagTab, displayName: string}[] = [];
         tabs.forEach((tab) => {
             // don't show sql tab, custom tab, or optimized tab
-            if (tab.getType() !== DagTabType.User) {
+            if (!(tab instanceof DagTabUser)) {
                 return;
             }
-            let hasLinkOutNode: boolean = false;
+            let isValidDataflow: boolean = false;
             try {
-                const nodes: Map<DagNodeId, DagNode> = tab.getGraph().getAllNodes();
-                for (let node of nodes.values()) {
-                    if (node.getType() === DagNodeType.DFOut) {
-                        hasLinkOutNode = true;
-                        break;
-                    }
+                // const nodes: Map<DagNodeId, DagNode> = tab.getGraph().getAllNodes();
+                // for (let node of nodes.values()) {
+                //     if (node instanceof DagNodeOut) {
+                //         isValidDataflow = true;
+                //         break;
+                //     }
+                // }
+                const nodeHeadsMap = tab.getGraph().getNodeHeadsMap();
+                if (!nodeHeadsMap.size) {
+                    isValidDataflow = false;
                 }
             } catch (e) {
                 console.error(e);
             }
-            if (!hasLinkOutNode) {
+            if (!isValidDataflow) {
                 // exclude dataflow that don't have link out node
                 return;
             }
@@ -134,23 +125,15 @@ class DFLinkInOpPanel extends BaseOpPanel {
         this._dataflows = dataflows;
     }
 
-    private _initializeLinkOutNodes(dataflowName: string): void {
-        this._linkOutNodes = [];
+    private _initializeFns(dataflowName: string): void {
+        this._fns = [];
         const dataflow = this._dataflows.filter((dataflow) => {
             return dataflow.displayName === dataflowName;
         });
         if (dataflow.length === 1) {
-            const nodes: Map<DagNodeId, DagNode> = dataflow[0].tab.getGraph().getAllNodes();
-            nodes.forEach((node) => {
-                if (node.getType() === DagNodeType.DFOut) {
-                    const name: string = (<DagNodeDFOut>node).getParam().name;
-                    if (name) {
-                        this._linkOutNodes.push({
-                            node: <DagNodeDFOut>node,
-                            displayName: name
-                        });
-                    }
-                }
+            const nodeHeadsMap = dataflow[0].tab.getGraph().getNodeHeadsMap();
+            nodeHeadsMap.forEach((nodeId, head) => {
+                this._fns.push({nodeId: nodeId, displayName: head});
             });
         }
     }
@@ -177,7 +160,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
         const dataflowName: string = this._dataflowIdToName(param.dataflowId);
         this._getDFDropdownList().find("input").val(dataflowName);
         this._getLinkOutDropdownList().find("input").val(param.linkOutName);
-        this._initializeLinkOutNodes(dataflowName);
+        this._initializeFns(dataflowName);
         this._schemaSection.render(param.schema);
     }
 
@@ -210,8 +193,22 @@ class DFLinkInOpPanel extends BaseOpPanel {
     } {
         const $dfInput: JQuery = this._getDFDropdownList().find("input");
         const $linkOutInput: JQuery = this._getLinkOutDropdownList().find("input");
-        const dataflowId: string = this._dataflowNameToId($dfInput.val().trim());
-        const linkOutName: string = $linkOutInput.val().trim();
+        const dataflowName = $dfInput.val().trim();
+        const dataflowId: string = this._dataflowNameToId(dataflowName);
+        const outName: string = $linkOutInput.val().trim();
+
+
+        this._fns = [];
+        const dataflow = this._dataflows.filter((dataflow) => {
+            return dataflow.displayName === dataflowName;
+        });
+        let hasFn = false;
+        if (dataflow.length === 1) {
+            const graph = dataflow[0].tab.getGraph();
+            hasFn = graph.hasHead(outName);
+        }
+
+
         let isValid: boolean = false;
         if (ignore) {
             isValid = true;
@@ -227,26 +224,22 @@ class DFLinkInOpPanel extends BaseOpPanel {
                 check: () => dataflowId == null
             }, {
                 $ele: $linkOutInput
+            }, {
+                $ele: $linkOutInput,
+                error: "Function not found",
+                check: () => !hasFn
             }]);
         }
-
 
         if (!isValid) {
             return null;
         }
 
-        const schema = this._schemaSection.getSchema(ignore);
-        if (isValid && schema != null) {
-            if (!ignore) {
-                if (this._getSourceOptions().filter(`[data-option="node"]`).hasClass("active")) {
-                    this._source = null;
-                }
-            }
+
+        if (isValid) {
             return {
                 dataflowId: dataflowId,
-                linkOutName: linkOutName,
-                source: this._source,
-                schema: schema
+                fnNodeId: outName
             }
         } else {
             return null
@@ -297,15 +290,15 @@ class DFLinkInOpPanel extends BaseOpPanel {
         this._populateList(this._getDFDropdownList(), dataflows);
     }
 
-    private _searchLinkOutNodeName(keyword?: string): void {
-        let linkOutNodes = this._linkOutNodes;
+    private _searchFnName(keyword?: string): void {
+        let fns = this._fns;
         if (keyword) {
             keyword = keyword.toLowerCase();
-            linkOutNodes = linkOutNodes.filter((node) => {
-                return node.displayName.toLowerCase().includes(keyword);
+            fns = fns.filter((fn) => {
+                return fn.displayName.toLowerCase().includes(keyword);
             });
         }
-        this._populateList(this._getLinkOutDropdownList(), linkOutNodes);
+        this._populateList(this._getFnDropdownList(), fns);
     }
 
     private _dataflowIdToName(dataflowId: string): string {
@@ -331,11 +324,25 @@ class DFLinkInOpPanel extends BaseOpPanel {
         return dataflow.length === 1 ? dataflow[0].tab.getId() : null;
     }
 
+    private _getGraphFromDataflowName(dataflowName: string): DagGraph {
+        if (!dataflowName) {
+            return null;
+        }
+        const dataflow = this._dataflows.filter((dataflow) => {
+            return dataflow.displayName === dataflowName;
+        });
+        return dataflow.length === 1 ? dataflow[0].tab.getGraph() : null;
+    }
+
     private _getDFDropdownList(): JQuery {
         return this._getPanel().find(".dataflowName .dropDownList");
     }
 
     private _getLinkOutDropdownList(): JQuery {
+        return this._getPanel().find(".linkOutNodeName .dropDownList");
+    }
+
+    private _getFnDropdownList(): JQuery {
         return this._getPanel().find(".linkOutNodeName .dropDownList");
     }
 
@@ -347,175 +354,8 @@ class DFLinkInOpPanel extends BaseOpPanel {
         return this._getPanel().find(".sourceSection .radioButton");
     }
 
-    private _autoDetectSchema(
-        isOverwriteConfig: boolean = true
-    ): {error: string} | null {
-        try {
-            const $dfInput: JQuery = this._getDFDropdownList().find("input");
-            const $linkOutInput: JQuery = this._getLinkOutDropdownList().find("input");
-            const dataflowId: string = this._dataflowNameToId($dfInput.val().trim());
-            const linkOutName: string = $linkOutInput.val().trim();
-            if (!dataflowId) {
-                return {error: OpPanelTStr.DFLinkInNoDF};
-            }
-            if (!linkOutName) {
-                return {error: OpPanelTStr.DFLinkInNoOut};
-            }
-            const fakeLinkInNode: DagNodeDFIn = <DagNodeDFIn>DagNodeFactory.create({
-                type: DagNodeType.DFIn
-            });
-            fakeLinkInNode.setParam({
-                dataflowId: dataflowId,
-                linkOutName: linkOutName,
-                source: ""
-            });
-            const dfOutNode: DagNodeDFOut = fakeLinkInNode.getLinkedNodeAndGraph().node;
-            const progCols: ProgCol[] = dfOutNode.getLineage().getColumns(false, true);
-            const schema: ColSchema[] = progCols.map((progCol) => {
-                return {
-                    name: progCol.getBackColName(),
-                    type: progCol.getType()
-                }
-            });
-            this._schemaSection.setInitialSchema(schema);
-            if (isOverwriteConfig) {
-                this._schemaSection.render(schema);
-            }
-            return null;
-        } catch (e) {
-            return {error: e.message};
-        }
-    }
-
-    private _autoDetectSchemaFromSource(): XDPromise<ColSchema[]> {
-        let deferred: XDDeferred<ColSchema[]> = PromiseHelper.deferred();
-        try {
-            // use fake node to do parameterization replacement
-            const fakeLinkInNode: DagNodeDFIn = <DagNodeDFIn>DagNodeFactory.create({
-                type: DagNodeType.DFIn
-            });
-            fakeLinkInNode.setParam({
-                dataflowId: "",
-                linkOutName: "",
-                source: this._source
-            });
-
-            let source: string = fakeLinkInNode.getSource();
-            let schemaFromNode: ColSchema[] = this._getSchemaFromSourceNode(source);
-            let promise: XDPromise<ColSchema[]>;
-            if (schemaFromNode != null) {
-                promise = PromiseHelper.resolve(schemaFromNode);
-            } else {
-                promise = this._getSchemaFromResultSet(source);
-            }
-
-            promise
-            .then((schema) => {
-                this._schemaSection.setInitialSchema(schema);
-                this._schemaSection.render(schema);
-                deferred.resolve(schema);
-            })
-            .fail(deferred.reject);
-        } catch (e) {
-            deferred.reject({error: e.message});
-        }
-
-        let promise = deferred.promise();
-        xcUIHelper.showRefreshIcon(this._getSchemaSection(), false, promise);
-        return promise;
-    }
-
-    private _getSchemaFromSourceNode(wholeName: string): ColSchema[] | null {
-        let colSchema: ColSchema[] = null;
-        try {
-            let tableName: string = xcHelper.getTableName(wholeName);
-            let nodeIndex: number = tableName.indexOf(DagNode.KEY);
-            let tabIndex: number = tableName.indexOf(DagTab.KEY);
-            if (nodeIndex >= 0 && tabIndex >= 0) {
-                let tabId: string = tableName.substring(tabIndex, nodeIndex - 1);
-                let tab: DagTab = DagTabManager.Instance.getTabById(tabId);
-                if (tab != null) {
-                    let nodeId: string = tableName.substring(nodeIndex);
-                    let node = tab.getGraph().getNode(nodeId);
-                    if (node != null) {
-                        colSchema = node.getLineage().getColumns(true, true).map((progCol) => {
-                            return {
-                                name: progCol.getBackColName(),
-                                type: progCol.getType()
-                            }
-                        });
-                    }
-                }
-            }
-        } catch (e) {
-            console.warn("cannot find node from table", e);
-        }
-        return colSchema;
-    }
-
-    // XXX put it into TableMeta.ts
-    private _getSchemaFromResultSet(source: string): XDPromise<ColSchema[]> {
-        let deferred: XDDeferred<ColSchema[]> = PromiseHelper.deferred();
-
-        // since id doesn't really useful here, just make sure it's not empty
-        let id = xcHelper.getTableId(source) || source;
-        let table = new TableMeta({
-            tableName: source,
-            tableId: id
-        });
-
-        table.getMetaAndResultSet()
-        .then(() => {
-            let rowManager = new RowManager(table, null);
-            rowManager.setAlert(false);
-            return rowManager.getFirstPage();
-        })
-        .then((jsons) => {
-            let schema: ColSchema[] = table.getImmediates().map((info) => {
-                let name: string = info.name;
-                let type: ColumnType = xcHelper.convertFieldTypeToColType(info.type);
-                return {
-                    name: name,
-                    type: type
-                };
-            });
-
-            let set: Set<string> = new Set();
-            jsons.forEach((json) => {
-                try {
-                    let row = JSON.parse(json);
-                    for (let colName in row) {
-                        let parsed = xcHelper.parsePrefixColName(colName);
-                        if (parsed.prefix && !set.has(colName)) {
-                            // track fat-ptr columns
-                            set.add(colName);
-                            schema.push({
-                                name: colName,
-                                type: ColumnType.unknown
-                            });
-                        }
-                    }
-                } catch (e) {
-                    console.error(e);
-                }
-            });
-            schema.sort((schemaA, schemB) => {
-                let aName = schemaA.name;
-                let bName = schemB.name;
-                return (aName < bName ? -1 : (aName > bName ? 1 : 0));
-            });
-            deferred.resolve(schema);
-        })
-        .fail(deferred.reject)
-        .always(() => {
-            table.freeResultset();
-        });
-
-        return deferred.promise();
-    }
-
     private _convertAdvConfigToModel(): {
-        linkOutName: string,
+        outName: string,
         dataflowId: string,
         source: string,
         schema: ColSchema[]
@@ -570,16 +410,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
 
         $panel.on("change", ".dataflowName input", (event) => {
             const dataflowName: string = $(event.currentTarget).val().trim();
-            this._initializeLinkOutNodes(dataflowName);
-        });
-
-        $panel.on("change", ".linkOutNodeName input", () => {
-            this._autoDetectSchema();
-        });
-
-        $panel.on("click", ".sourceSection .radioButton", (event) => {
-            const $btn: JQuery = $(event.currentTarget);
-            this._toggleTableNameOption($btn.data("option") === "table");
+            this._initializeFns(dataflowName);
         });
 
         $panel.find(".sourceTableName input").change(() =>{
@@ -589,31 +420,9 @@ class DFLinkInOpPanel extends BaseOpPanel {
         // dropdown for dataflowName
         const $dfList: JQuery = this._getDFDropdownList();
         this._addEventListenersForDropdown($dfList, this._searchDF);
-        // dropdown for linkOutNodeName
-        const $linkOutDropdownList: JQuery = this._getLinkOutDropdownList();
-        this._addEventListenersForDropdown($linkOutDropdownList, this._searchLinkOutNodeName);
-
-
-        // auto detect listeners for schema section
-        const $schemaSection: JQuery = this._getSchemaSection();
-        $schemaSection.on("click", ".detect", (event) => {
-            let $button = $(event.currentTarget);
-            if (this._source) {
-                this._autoDetectSchemaFromSource()
-                .fail((error) => {
-                    StatusBox.show(ErrTStr.DetectSchema, $button, false, {
-                        detail: error.error
-                    });
-                })
-            } else {
-                const error: {error: string} = this._autoDetectSchema();
-                if (error != null) {
-                    StatusBox.show(ErrTStr.DetectSchema, $button, false, {
-                        detail: error.error
-                    });
-                }
-            }
-        });
+        // dropdown for outNodeName
+        const $fnNameDropdownList: JQuery = this._getFnDropdownList();
+        this._addEventListenersForDropdown($fnNameDropdownList, this._searchFnName);
     }
 
     private _toggleTableNameOption(withSource: boolean): void {

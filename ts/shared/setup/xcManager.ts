@@ -87,6 +87,7 @@ namespace xcManager {
         }) // restores info from kvStore
         .then(function() {
             UDFPanel.Instance.setup();
+            return PromiseHelper.convertToJQuery(AppList.Instance.restore());
         })
         .then(function() {
             try {

@@ -9,6 +9,7 @@ class DagTabSQL extends DagTab {
     }) {
         super(options);
         this._SQLNode = options.SQLNode;
+        this._type = DagTabType.SQL;
     }
 
     /**

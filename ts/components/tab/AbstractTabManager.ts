@@ -52,6 +52,13 @@ abstract class AbstractTabManager {
     protected _getTabElByIndex(index: number): JQuery {
         return this._getTabsEle().eq(index);
     }
+    
+    protected _getTabIndexFromEl($el: JQuery): number {
+        if (!$el.hasClass("tab")) {
+            $el = $el.closest(".tab");
+        }
+        return $el.index();
+    }
 
     protected _switchTabs(index?: number): number {
         if (index == null) {
@@ -65,12 +72,15 @@ abstract class AbstractTabManager {
         return index;
     }
 
+    protected _getEditingName($tabName: JQuery): string {
+        return $tabName.text();
+    }
+
     protected _addEventListeners(): void {
         const $tabArea: JQuery = this._getTabArea();
         $tabArea.on("click", ".after", (event) => {
             event.stopPropagation();
-            const $tab: JQuery = $(event.currentTarget).parent();
-            const index: number = $tab.index();
+            const index: number = this._getTabIndexFromEl($(event.currentTarget));
             this._deleteTabAction(index, name);
             this._tabListScroller.showOrHideScrollers();
         });
@@ -89,7 +99,7 @@ abstract class AbstractTabManager {
             if ($tabName.hasClass('nonedit')) {
                 return;
             }
-            let editingName = $tabName.text();
+            let editingName = this._getEditingName($tabName);
             $tabName.text("");
             let inputArea: string =
                 "<span contentEditable='true' class='xc-input'></span>";

@@ -1,21 +1,21 @@
 class SQLSnippet {
     private static _instance: SQLSnippet;
-    public static readonly Default: string = "Default Snippet";
+    private static _uid: XcUID;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
     }
 
-    private _snippets: {[key: string]: string};
+    public static generateId(): string {
+        this._uid = this._uid || new XcUID("Snippet");
+        return this._uid.gen();
+    }
+
+    private _snippets: SQLSnippetDurable[];
     private _fetched: boolean;
-    private _lastOpenedSnippet: {
-        name: string,
-        text: string,
-        unsaved: boolean
-    };
 
     private constructor() {
-        this._snippets = {};
+        this._snippets = [];
         this._fetched = false;
     }
 
@@ -23,106 +23,123 @@ class SQLSnippet {
      * SQLSnippet.Instance.load
      */
     public async load(): Promise<void> {
-        try {
-            await this._fetchSnippets();
-        }
-        catch (e) {
-            console.error(e);
-        }
+        return this._fetchSnippets();
     }
 
     /**
-     * SQLSnippet.Instance.newSnippet
+     * SQLSnippet.Instance.create
      * @param name
      */
-    public newSnippet(name: string | null): string {
+    public create(name: string | null): string {
         name = this.getValidName(name);
-        this._snippets[name] = "";
-        this._updateSnippets();
-        return name;
-    }
-
-    public listSnippets(): {name: string, snippet: string}[] {
-        let names: string[] = this._listSnippetsNames();
-        let snippets = this._snippets;
-        let res: {name: string, snippet: string}[] = names.map((name) => {
-            return {
-                name: name,
-                snippet: snippets[name] || ""
-            };
+        const id: string = SQLSnippet.generateId();
+        this._snippets.push({
+            id,
+            name,
+            snippet: "",
+            app: null
         });
-
-        return res;
+        this._updateSnippets();
+        return id;
     }
 
-    public listSnippetsAsync(): XDPromise<{name: string, snippet: string}[]> {
-        const deferred: XDDeferred<{name: string, snippet: string}[]> = PromiseHelper.deferred();
-        this._fetchSnippets()
-        .then(() => {
-            let res = this.listSnippets();
-            deferred.resolve(res);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
+    /**
+     * SQLSnippet.Instance.list
+     */
+    public list(): SQLSnippetDurable[] {
+        return this._snippets;
     }
 
-    public getSnippet(name: string): string {
-        return this._snippets[name] || "";
+    /**
+     * SQLSnippet.Instance.getSnippetObj
+     * @param id
+     */
+    public getSnippetObj(id: string): SQLSnippetDurable | null {
+        return this._getSnippetObjectById(id);
     }
 
-    public hasSnippet(snippetName: string): boolean {
-        return this._snippets.hasOwnProperty(snippetName);
-    }
-
-    public writeSnippet(
-        snippetName: string,
-        snippet: string,
-        overwrite: boolean
-    ): XDPromise<void> {
-        if (!overwrite && this.hasSnippet(snippetName)) {
-            return PromiseHelper.reject();
+    /**
+     * SQLSnippet.Instance.hasSnippet
+     * @param snippetName
+     */
+    public hasSnippet(name: string): boolean {
+        for (let snippetObj of this._snippets) {
+            if (snippetObj.name === name) {
+                return true;
+            }
         }
-        this._snippets[snippetName] = snippet;
-        if (snippetName === SQLSnippet.Default) {
-            return PromiseHelper.resolve();
+        return false;
+    }
+
+    /**
+     * SQLSnippet.Instance.update
+     * @param snippetName
+     * @param snippet
+     */
+    public async update(
+        id: string,
+        snippet: string
+    ): Promise<void> {
+        const snippetObj = this._getSnippetObjectById(id);
+        if (snippetObj == null) {
+            return;
         }
+        snippetObj.snippet = snippet;
         return this._updateSnippets();
     }
 
     /**
-     * SQLSnippet.Instance.deleteSnippet
-     * @param snippetName
-     * @param callback
+     * SQLSnippet.Instance.delete
+     * @param id
      */
-    public async deleteSnippet(snippetName: string): Promise<void> {
-        return this._deletSnippet(snippetName);
+    public async delete(id: string): Promise<void> {
+        SQLTabManager.Instance.closeTab(id);
+        return this._deletSnippet(id);
     }
 
     /**
-     * SQLSnippet.Instance.renameSnippet
+     * SQLSnippet.Instance.deleteByApp
+     * @param appId
+     */
+    public deleteByApp(appId: string): void {
+        const toDelete: string[] = [];
+        this._snippets.forEach((snippetObj) => {
+            if (snippetObj.app === appId) {
+                toDelete.push(snippetObj.id);
+            }
+        });
+
+        toDelete.forEach((id) => { this.delete(id); });
+    }
+
+    /**
+     * SQLSnippet.Instance.rename
+     * @param id
      * @param oldName
      * @param newName 
      */
-    public async renameSnippet(oldName: string, newName: string): Promise<void> {
-        if (!this.hasSnippet(oldName) || this.hasSnippet(newName)) {
+    public rename(id: string, newName: string): void {
+        const snippetObj = this._getSnippetObjectById(id);
+        if (snippetObj == null || this.hasSnippet(newName)) {
             return;
         }
-        const snippet = this.getSnippet(oldName);
-        delete this._snippets[oldName];
-        this._snippets[newName] = snippet;
-        return this._updateSnippets();
+        snippetObj.name = newName;
+        DagList.Instance.refreshMenuList(ResourceMenu.KEY.SQL);
+        this._updateSnippets();
     }
 
-
-    public downloadSnippet(snippetName: string): void {
-        const fileName: string = snippetName + ".sql";
-        const content: string = this.getSnippet(snippetName);
+    /**
+     * SQLSnippet.Instance.download
+     * @param id
+     */
+    public download(id: string): void {
+        const snippetObj = this._getSnippetObjectById(id);
+        if (snippetObj == null) {
+            return;
+        }
+        const fileName: string = snippetObj.name + ".sql";
+        const content: string = snippetObj.snippet;
         xcHelper.downloadAsFile(fileName, content);
-    }
-
-    public getLastOpenSnippet(): {name: string, text: string, unsaved} | null {
-        return this._lastOpenedSnippet;
     }
 
     /**
@@ -145,65 +162,61 @@ class SQLSnippet {
         return new KVStore(snippetQueryKey, gKVScope.WKBK);
     }
 
-    private _listSnippetsNames(): string[] {
-        let names: string[] = [];
-        let snippets = this._snippets;
-        for (let key in snippets) {
-            if (key === SQLSnippet.Default) {
-                // skip
-                continue;
-            }
-            names.push(key);
-        }
-
-        names.sort((a, b) => {
-            a = a.toLowerCase();
-            b = b.toLowerCase();
-            return (a < b ? -1 : (a > b ? 1 : 0));
-        });
-        return names;
-    }
-
-    private _fetchSnippets(): XDPromise<void> {
+    private async _fetchSnippets(): Promise<void> {
         if (this._fetched) {
-            return PromiseHelper.resolve();
-        }
-
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let kvStore = this._getKVStore();
-
-        kvStore.getAndParse()
-        .then((res) => {
-            if (res != null) {
-                this._fetched = true;
-                this._snippets = res;
-            }
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    private _updateSnippets(): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let kvStore = this._getKVStore();
-        let snippet = xcHelper.deepCopy(this._snippets);
-        delete snippet[SQLSnippet.Default];
-        kvStore.put(JSON.stringify(snippet), true)
-        .then(() => {
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    private async _deletSnippet(snippetName: string): Promise<void> {
-        if (!this.hasSnippet(snippetName)) {
             return;
         }
-        delete this._snippets[snippetName];
-        return this._updateSnippets();
+
+        try {
+            const res: SQLSnippetListDurable = await this._getKVStore().getAndParse();
+            if (res != null) {
+                this._fetched = true;
+                
+                if (!res.snippets) {
+                    // XXX a upgrade case that should be deprecated
+                    for (let key in res) {
+                        const snippet = {
+                            id: SQLSnippet.generateId(),
+                            name: key,
+                            snippet: res[key],
+                            app: null
+                        };
+                        this._snippets.push(snippet)
+                    }
+                } else {
+                    this._snippets = res.snippets;
+                }
+            }
+        } catch (e) {
+            console.error("fail sql snippet fails", e);
+        }
+    }
+
+    private _getDurable(): SQLSnippetListDurable {
+        return {
+            snippets: this._snippets
+        };
+    }
+
+    private _getSnippetObjectById(id: string): SQLSnippetDurable | null {
+        for (let snippet of this._snippets) {
+            if (snippet.id === id) {
+                return snippet;
+            }
+        }
+        return null;
+    }
+
+    private async _updateSnippets(): Promise<void> {
+        const jsonStr = JSON.stringify(this._getDurable());
+        await this._getKVStore().put(jsonStr, true);
+    }
+
+    private async _deletSnippet(id: string): Promise<void> {
+        const index: number = this._snippets.findIndex((snippetObj) => snippetObj.id === id);
+        if (index > -1) {
+            this._snippets.splice(index, 1);
+            return this._updateSnippets();
+        }
     }
 }

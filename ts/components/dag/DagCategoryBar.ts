@@ -546,6 +546,10 @@ class DagCategoryBar {
         const outConnector = this._genConnectorOutHTML(numChildren, hasTable);
 
         const opTitleHtml = this._formatOpTitle(opDisplayName);
+        let connectorInClass = "";
+        if (numParents === 0) {
+            connectorInClass = " noIn";
+        }
 
         const html = '<g class="operator ' + operatorName + ' ' +
             (categoryNode.isHidden() ? 'xc-hidden ' : '') +
@@ -557,7 +561,7 @@ class DagCategoryBar {
                 'data-icons="" ' +
                 'data-topicons="" ' +
                 'transform="translate(' + pos.x + ',' + pos.y + ')" >' +
-                '<g class="connInGroup">' + inConnector + '</g>' +
+                '<g class="connInGroup ' + connectorInClass + '">' + inConnector + '</g>' +
                 '<g class="connOut" transform="translate(-58,0)">' + outConnector + '</g>' +
                 table +
             '<rect class="main" x="6" y="0" width="' + (DagView.nodeWidth - 13) + '" height="' + DagView.nodeHeight + '" ' +

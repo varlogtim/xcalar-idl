@@ -4,7 +4,7 @@ class SQLEditorSpace {
     private _sqlEditor: SQLEditor;
     public static minWidth: number = 200;
     private _executers: SQLDagExecutor[];
-    private _currentFile: string;
+    private _currentSnippetId: string;
     private _popup: PopupPanel;
 
     public static get Instance() {
@@ -87,19 +87,19 @@ class SQLEditorSpace {
      * SQLEditorSpace.Instance.deleteSnippet
      * @param sqls
      */
-    public deleteSnippet(name: string, callback: Function): void {
+    public deleteSnippet(id: string): void {
+        const snippetObj = SQLSnippet.Instance.getSnippetObj(id);
+        if (snippetObj == null) {
+            return;
+        }
         let msg = xcStringHelper.replaceMsg(SQLTStr.DeleteSnippetMsg, {
-            name: name
+            name: snippetObj.name
         });
         Alert.show({
             title: SQLTStr.DeleteSnippet,
             msg: msg,
             onConfirm: () => {
-                SQLSnippet.Instance.deleteSnippet(name);
-                SQLTabManager.Instance.closeTab(name);
-                if (typeof callback === "function") {
-                    callback();
-                }
+                SQLSnippet.Instance.delete(id);
             }
         });
     }
@@ -108,9 +108,13 @@ class SQLEditorSpace {
      * SQLEditorSpace.Instance.openSnippet
      * @param name
      */
-    public openSnippet(name: string): boolean {
-        const snippet = SQLSnippet.Instance.getSnippet(name) || "";
-        this._currentFile = name;
+    public openSnippet(id: string): boolean {
+        const snippetObj = SQLSnippet.Instance.getSnippetObj(id);
+        if (snippetObj == null) {
+            return false;
+        }
+        const snippet = snippetObj.snippet || "";
+        this._currentSnippetId = snippetObj.id;
         this._setSnippet(snippet);
         return true;
     }
@@ -535,9 +539,6 @@ class SQLEditorSpace {
             case "addUDF":
                 UDFPanel.Instance.loadSQLUDF();
                 break;
-            case "save":
-                this._saveAsSnippet();
-                break;
             case "history":
                 DebugPanel.Instance.toggleDisplay(true);
                 DebugPanel.Instance.switchTab("sqlHistory");
@@ -550,17 +551,8 @@ class SQLEditorSpace {
         }
     }
 
-    private _saveSnippet(name: string, snippet: string): void {
-        SQLSnippet.Instance.writeSnippet(name, snippet, true);
-    }
-
-    private _saveAsSnippet(): void {
-        const snippet = this._sqlEditor.getValue();
-        const callback = (name) => {
-            this._saveSnippet(name, snippet);
-            xcUIHelper.showSuccess(SuccessTStr.Saved);
-        }
-        SQLSnippetSaveModal.Instance.show(CommonTxtTstr.Untitled, callback);
+    private _saveSnippet(id: string, snippet: string): void {
+        SQLSnippet.Instance.update(id, snippet);
     }
 
     private _downlodSnippet(): void {
@@ -596,11 +588,6 @@ class SQLEditorSpace {
         $header.on("click", ".showTables", (event) => {
             $(event.currentTarget).blur();
             SQLResultSpace.Instance.showTables(true);
-        });
-
-        $header.on("click", ".save", (event) => {
-            $(event.currentTarget).blur();
-            this._fileOption("save");
         });
 
         let selector: string = `#${this._getEditorSpaceEl().attr("id")}`;
@@ -644,9 +631,10 @@ class SQLEditorSpace {
     private _saveSnippetChange(): void {
         try {
             const snippet: string = this._sqlEditor.getValue() || "";
-            const lastSnippet: string = SQLSnippet.Instance.getSnippet(this._currentFile) || "";
+            const snippetObj: SQLSnippetDurable = SQLSnippet.Instance.getSnippetObj(this._currentSnippetId);
+            const lastSnippet: string = snippetObj.snippet || "";
             if (snippet !== lastSnippet) {
-                this._saveSnippet(this._currentFile, snippet);
+                this._saveSnippet(this._currentSnippetId, snippet);
             }
         } catch (e) {
             console.error("save snippet change failed", e);
@@ -654,6 +642,10 @@ class SQLEditorSpace {
     }
 
     private async _convertToSQLFunc(): Promise<void> {
+        const snippetObj = SQLSnippet.Instance.getSnippetObj(this._currentSnippetId);
+        if (snippetObj == null) {
+            return;
+        }
         const sql = this._sqlEditor.getSelection();
         const executor: SQLDagExecutor = await this._compileSingleSQL(sql);
         if (executor == null) {

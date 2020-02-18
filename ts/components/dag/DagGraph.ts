@@ -1868,6 +1868,43 @@ class DagGraph extends Durable {
         return this.nodeHeadsMap;
     }
 
+    public addMainNode() {
+        return this.newNode({
+            type: DagNodeType.Main,
+            display: {x: 80, y: 80}
+        });
+    }
+
+    public getDisjointTrees():  Set<Set<DagNode>> {
+        const trees: Set<Set<DagNode>> = new Set();
+        const seen: Set<DagNodeId> = new Set();
+        this.nodesMap.forEach((node, nodeId) => {
+            if (node.getChildren().length === 0 && !seen.has(nodeId)) {
+                let nodes: Set<DagNode> = new Set();
+                traverse(node, seen, nodes);
+                trees.add(nodes);
+            }
+        });
+
+        function traverse(node, seen, nodes) {
+            if (seen.has(node.getId())) {
+                return;
+            }
+            seen.add(node.getId());
+            nodes.add(node);
+            node.getParents().forEach(parentNode => {
+                if (parentNode != null) {
+                    traverse(parentNode, seen, nodes);
+                }
+            });
+
+            node.getChildren().forEach(childNode => {
+                traverse(childNode, seen, nodes);
+            });
+        }
+        return trees;
+    }
+
     protected _getDurable(includeStats?: boolean): DagGraphInfo {
         let nodes: DagNodeInfo[] = [];
         // Assemble node list

@@ -930,6 +930,7 @@ namespace WorkbookManager {
         const gTableManagerKey: string = generateKey("gTableManagerKey", version);
         const gDagTableManagerKey: string = generateKey("gDagTableManagerKey", version);
         const gDagAggKey: string = generateKey("gDagAggKey", version);
+        const gAppListKey: string = generateKey("gAppListKey", version);
         const gDagListKey: string = generateKey("gDagListKey", version);
         const gSQLFuncListKey: string = generateKey("gSQLFuncListKey", version);
         const gOptimizedDagListKey: string = generateKey("gOptimizedDagListKey", version);
@@ -959,6 +960,7 @@ namespace WorkbookManager {
             "gTableManagerKey": gTableManagerKey,
             "gDagTableManagerKey": gDagTableManagerKey,
             "gDagAggKey": gDagAggKey,
+            "gAppListKey": gAppListKey,
             "gDagListKey": gDagListKey,
             "gSQLFuncListKey": gSQLFuncListKey,
             "gOptimizedDagListKey": gOptimizedDagListKey,

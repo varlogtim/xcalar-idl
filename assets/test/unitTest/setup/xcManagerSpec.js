@@ -373,19 +373,19 @@ describe("xcManager Test", function() {
             expect($e.scrollTop()).to.equal(0);
         });
 
-        it("should scroll when is dataTable test 2", function() {
-            $e.addClass("dataTable");
-            var e = {
-                "originalEvent": {
-                    "wheelDeltaX": -10,
-                    "wheelDeltaY": -20
-                },
-                "target": $e.get(0)
-            };
-            reImplementMouseWheel(e);
-            expect($e.scrollLeft()).to.equal(0);
-            expect($e.scrollTop()).to.equal(9);
-        });
+        // it("should scroll when is dataTable test 2", function() {
+        //     $e.addClass("dataTable");
+        //     var e = {
+        //         "originalEvent": {
+        //             "wheelDeltaX": -10,
+        //             "wheelDeltaY": -20
+        //         },
+        //         "target": $e.get(0)
+        //     };
+        //     reImplementMouseWheel(e);
+        //     expect($e.scrollLeft()).to.equal(0);
+        //     expect($e.scrollTop()).to.equal(9);
+        // });
 
         after(function() {
             $e.remove();

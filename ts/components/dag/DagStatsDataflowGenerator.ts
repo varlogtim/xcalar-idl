@@ -25,7 +25,7 @@ class DagStatsDataflowGenerator {
         let name = statsDagTab.getName() + " analysis";
         let baseName = name;
         let attempt = 0;
-        while (!DagList.Instance.isUniqueName(name) && attempt < 30) {
+        while (!DagList.Instance.isUniqueName(name, null) && attempt < 30) {
             attempt++
             name = baseName + " (" + attempt + ")";
         }

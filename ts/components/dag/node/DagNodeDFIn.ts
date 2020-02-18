@@ -2,7 +2,7 @@ class DagNodeDFIn extends DagNodeIn {
     public static readonly SELF_ID: string = "self";
 
     protected input: DagNodeDFInInput;
-    private _graph: DagGraph; // non-persistent
+    protected _graph: DagGraph; // non-persistent
 
     public constructor(options: DagNodeDFInInfo, runtime?: DagRuntime) {
         super(<DagNodeInInfo>options, runtime);

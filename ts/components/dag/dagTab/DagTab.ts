@@ -3,6 +3,7 @@ interface DagTabOptions {
     name: string;
     id?: string;
     dagGraph?: DagGraph;
+    app?: string;
 }
 
 // dagTabs hold a user's dataflows and kvStore.
@@ -13,6 +14,7 @@ abstract class DagTab extends Durable {
     private _events: object;
     protected _name: string;
     protected _id: string;
+    protected _type: DagTabType;
     protected _dagGraph: DagGraph;
     protected _kvStore: KVStore;
     protected _disableSaveLock: number;
@@ -20,6 +22,7 @@ abstract class DagTab extends Durable {
     protected _isHidden: boolean;
     protected _saveCheckTimer: any; // ensures save not locked for more than 60 seconds
     protected _createdTime: number;
+    protected _app: string;
 
     public static generateId(): string {
         this.uid = this.uid || new XcUID(DagTab.KEY);
@@ -32,6 +35,7 @@ abstract class DagTab extends Durable {
         this._name = options.name;
         this._id = options.id || DagTab.generateId();
         this._dagGraph = options.dagGraph || null;
+        this._app = options.app || null;
         if (this._dagGraph != null) {
             this._dagGraph.setTabId(this._id);
         }
@@ -73,6 +77,26 @@ abstract class DagTab extends Durable {
      */
     public getId(): string {
         return this._id;
+    }
+    
+    /**
+     * return an id that represent the app
+     * @returns {string}
+     */
+    public getApp(): string {
+        return this._app;
+    }
+
+    public setApp(app: string): void {
+        this._app = app;
+    }
+
+    /**
+     * get tab's type specify by DagTabType
+     * @returns {DagTabType}
+     */
+    public getType(): DagTabType {
+        return this._type;
     }
 
     /**
@@ -245,8 +269,9 @@ abstract class DagTab extends Durable {
         return {
             name: this._name,
             id: this._id,
-            dag: dag
-        }
+            app: this._app,
+            dag,
+        };
     }
 
     protected _deleteTableHelper(): XDPromise<void> {

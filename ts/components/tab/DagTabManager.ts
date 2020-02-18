@@ -33,8 +33,8 @@ class DagTabManager extends AbstractTabManager {
 
      /**
       * DagTabManager.Instance.on
-      * @param event 
-      * @param callback 
+      * @param event
+      * @param callback
       */
     public on(event: string, callback: Function): DagTabManager {
         this._event.addEventListener(event, callback);
@@ -117,7 +117,7 @@ class DagTabManager extends AbstractTabManager {
      * used to indicate it's a blank graph and we can add instructions to it
      */
     public newTab(isEmpty?: boolean): string {
-        const name: string = DagList.Instance.getValidName();
+        const name = DagList.Instance.getValidName();
         const graph: DagGraph = new DagGraph();
         const tab: DagTab = this._newTab(name, graph, false, isEmpty);
         this._tabListScroller.showOrHideScrollers();
@@ -131,11 +131,13 @@ class DagTabManager extends AbstractTabManager {
     }
 
     /**
+     * XXX TODO: dead code, should be removed
      * DagTabManager.Instance.newApp
      * @param graph
      */
     public newApp(graph: DagGraph): string {
         const name = DagList.Instance.getValidName();
+        // XXX TODO: fix the null app arg
         const tab: DagTab = this._newTab(name, graph, false);
         this._tabListScroller.showOrHideScrollers();
         return tab.getId();
@@ -145,7 +147,10 @@ class DagTabManager extends AbstractTabManager {
      * DagTabManager.Instance.newSQLFunc
      * @param graph
      */
-    public newSQLFunc(name: string, graph?: DagGraph): string {
+    public newSQLFunc(
+        name: string,
+        graph?: DagGraph
+    ): string {
         if (DagList.Instance.validateName(name, true) != null) {
             // when not a valid sql function name
             console.error("invalid sql function name " + name + " regenrate valid name!");
@@ -305,6 +310,7 @@ class DagTabManager extends AbstractTabManager {
     }
 
     /**
+     *  DagTabManager.Instance.duplicateTab
      *  Creates a new Tab and dataflow.
      */
     public duplicateTab(tab: DagTab): void {
@@ -669,10 +675,15 @@ class DagTabManager extends AbstractTabManager {
         return index;
     }
 
-    private _newTab(name: string, graph: DagGraph, isSQLFunc: boolean, isEmpty?: boolean): DagTab {
+    private _newTab(
+        name: string,
+        graph: DagGraph,
+        isSQLFunc: boolean,
+        isEmpty?: boolean
+    ): DagTab {
         const tabConstructor = isSQLFunc ? DagTabSQLFunc : DagTabUser;
         const newDagTab = <DagTab>new tabConstructor({
-            name: name,
+            name,
             dagGraph: graph,
             createdTime: xcTimeHelper.now()
         });
@@ -806,7 +817,17 @@ class DagTabManager extends AbstractTabManager {
             // Reset name if it already exists
             newName = dagTab ? dagTab.getName() : null;
         }
-        return newName;
+        return this._getAppPath(dagTab);
+    }
+
+    /**
+     * @override
+     * @param $tabName
+     */
+    protected _getEditingName($tabName: JQuery): string {
+        const index: number = this._getTabIndexFromEl($tabName);
+        const dagTab = this.getTabByIndex(index);
+        return dagTab.getName();
     }
 
     private _addSubTab(parentId: string, childId: string): boolean {
@@ -906,14 +927,22 @@ class DagTabManager extends AbstractTabManager {
         })
     }
 
+    private _getAppPath(dagTab: DagTab): string {
+        const app = dagTab.getApp();
+        if (app == null) {
+            return dagTab.getName();
+        } else {
+            return AppList.Instance.getAppPath(app, dagTab.getName());
+        }
+    }
+
     /**
      * handles the jquery logic of adding a tab and its dataflow area
      * @param name Name of the tab we want to add
      * @param {number} [tabIndex] Optional tab index
      */
     private _addTabHTML(dagTab: DagTab, tabIndex?: number): void {
-        let tabName: string = dagTab.getName();
-        tabName = xcStringHelper.escapeHTMLSpecialChar(tabName);
+        let tabName: string = this._getAppPath(dagTab);
         const tabId = dagTab.getId();
         let isEditable: boolean = (dagTab instanceof DagTabUser);
         const isViewOnly: boolean = (dagTab instanceof DagTabProgress);
@@ -941,6 +970,10 @@ class DagTabManager extends AbstractTabManager {
         } else if (dagTab instanceof DagTabSQLExecute) {
             extraClass += " sqlExecute";
             extraIcon = '<i class="icon xi-menu-sql tabIcon"></i>';
+            isEditable = false;
+        } else if (dagTab instanceof DagTabMain) {
+            extraClass += " main";
+            // extraIcon = '<i class="icon xi-recommend tabIcon"></i>';
         }
         let html: HTML =
             '<li class="tab dagTab' + extraClass + '" data-id="' + tabId +'">' +
@@ -1059,10 +1092,6 @@ class DagTabManager extends AbstractTabManager {
         // The html for a dataflowArea.
         $("#tabButton").on("click", () => {
             this.newTab(true);
-        });
-
-        $("#tabSQLFuncButton").click(() => {
-            DagViewManager.Instance.createSQLFunc(false);
         });
     }
 }

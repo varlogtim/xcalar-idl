@@ -8,6 +8,7 @@ class DagTabCustom extends DagTab {
     }) {
         super(options);
         this._customNode = options.customNode;
+        this._type = DagTabType.Custom;
     }
 
     /**

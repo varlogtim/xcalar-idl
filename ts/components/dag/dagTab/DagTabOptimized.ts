@@ -157,6 +157,7 @@ class DagTabOptimized extends DagTabProgress {
         const {queryNodes, executor} = options;
         this._fromSDK = options.fromSDK || false;
         this._state = options.state;
+        this._type = DagTabType.Optimized;
 
         if (queryNodes) {
             const graph: DagSubGraph = this._constructGraphFromQuery(queryNodes);

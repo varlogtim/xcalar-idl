@@ -14,7 +14,7 @@ class DagTabUser extends DagTab {
      * @param dagList
      */
     public static restore(
-        dagList: {name: string, id: string, reset: boolean, createdTime: number}[]
+        dagList: DagListTabDurable[]
     ): XDPromise<{dagTabs: DagTabUser[], metaNotMatch: boolean}> {
         const deferred: XDDeferred<{dagTabs: DagTabUser[], metaNotMatch: boolean}> = PromiseHelper.deferred();
         const dagIdSet: Set<string> = new Set();
@@ -29,20 +29,21 @@ class DagTabUser extends DagTab {
             dagList.forEach((dagInfo) => {
                 let id: string = dagInfo.id;
                 if (dagIdSet.has(id)) {
-                    if (id.startsWith(DagTabSQLFunc.KEY)) {
+                    if (dagInfo.type === DagTabType.SQLFunc ||
+                        id.startsWith(DagTabSQLFunc.KEY) // this is deperatced to support the upgrade of version 2.0
+                    ) {
                         dagTabs.push(new DagTabSQLFunc({
-                            name: dagInfo.name,
-                            id: dagInfo.id,
-                            reset: dagInfo.reset,
-                            createdTime: dagInfo.createdTime
+                            ...dagInfo
+                        }));
+                    } else if (dagInfo.type === DagTabType.Main) {
+                        dagTabs.push(new DagTabMain({
+                            ...dagInfo,
+                            dagGraph: null
                         }));
                     } else {
                         dagTabs.push(new DagTabUser({
-                            name: dagInfo.name,
-                            id: dagInfo.id,
-                            dagGraph: null,
-                            reset: dagInfo.reset,
-                            createdTime: dagInfo.createdTime
+                            ...dagInfo,
+                            dagGraph: null
                         }));
                     }
                     dagIdSet.delete(dagInfo.id);
@@ -171,6 +172,7 @@ class DagTabUser extends DagTab {
         this._saveTimer = null;
         this._saveDelay = 3000;
         this._hasPendingSave = false;
+        this._type = DagTabType.User;
     }
 
     public setName(newName: string): void {

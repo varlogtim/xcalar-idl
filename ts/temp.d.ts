@@ -144,6 +144,7 @@ interface WkbkKVKeySet {
     gUDFManagerKey: string;
     gTableManagerKey: string;
     gDagTableManagerKey: string;
+    gAppListKey: string;
     gDagListKey: string;
     gSQLFuncListKey: string;
     gOptimizedDagListKey: string;

@@ -1304,18 +1304,33 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        position: relative;
+        @nested-padding-base: 16px;
+        @inc-padding: 8px;
 
         &:first-child {
             margin-top: 0;
         }
 
         &.nested {
+            &.app {
+                .listWrap {
+                    .listInfo {
+                        padding-left: @nested-padding-base + @inc-padding;
+                    }
+
+                    li {
+                        padding-left: @nested-padding-base + @inc-padding * 2;
+                    }
+                }
+            }
+
             .listInfo {
-                padding-left: 20px;
+                padding-left: @nested-padding-base;
             }
 
             li {
-                padding-left: 28px;
+                padding-left: @nested-padding-base + @inc-padding;
             }
         }
 
@@ -1360,9 +1375,6 @@
                 .name {
                     width: ~"calc(100% - 50px)";
                 }
-                .dropDown {
-                    display: block;
-                }
             }
 
             &.selectable {
@@ -1379,39 +1391,37 @@
 
             &.inActive {
                 .gridIcon {
-                    opacity: 0.25;
+                    opacity: 0.3;
                 }
             }
 
-            // &.open {
-            //     .gridIcon {
-            //         color: @color-link-blue;
-            //     }
-
-            //     .name {
-            //         color: @color-link-blue;
-            //         font-weight: 700;
-            //     }
-            // }
             // XXX TODO: fix the special case
-            &:not(.open):not(".table") {
+            &:not(.open):not(.table) {
                 .gridIcon {
-                    opacity: 0.25;
+                    opacity: 0.3;
                 }
             }
 
             .gridIcon {
-                font-size: 12px;
+                font-size: 11px;
                 float: left;
                 width: 18px;
-                margin-top: 2px;
+                margin-top: 3px;
             }
 
             .name {
                 width: ~"calc(100% - 23px)";
-                font-size: 12px;
+                font-size: 11px;
                 float: left;
                 line-height: @h;
+            }
+        }
+
+        .listInfo, li {
+            &:hover {
+                .dropDown {
+                    display: block;
+                }
             }
 
             .dropDown {

@@ -40,6 +40,7 @@ class RunSQLFunction extends EventEmitter {
                                     .map((node) => node.getNodeCopyInfo(true));
                     return copiedNodes;
                 }, [], ({value}) => {
+                    // XXX the button is removed
                     self.api
                         .click("#tabSQLFuncButton")
                         .waitForElementVisible("#sqlFuncSettingModal", 1000)

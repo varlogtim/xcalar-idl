@@ -91,15 +91,15 @@ class DagList extends Durable {
         return this._dags.get(id);
     }
 
-    public listUserDagAsync(): XDPromise<{dags: {name: string, id: string}[]}> {
+    public listUserDagAsync(): XDPromise<{dags: DagListTabDurable[]}> {
         return this._getUserDagKVStore().getAndParse();
     }
 
-    public listSQLFuncAsync(): XDPromise<{dags: {name: string, id: string}[]}> {
+    public listSQLFuncAsync(): XDPromise<{dags: DagListTabDurable[]}> {
         return this._getSQLFuncKVStore().getAndParse();
     }
 
-    public listOptimizedDagAsync(): XDPromise<{dags: {name: string, id: string}[]}> {
+    public listOptimizedDagAsync(): XDPromise<{dags: DagListTabDurable[]}> {
         return this._getOptimizedDagKVStore().getAndParse();
     }
 
@@ -255,34 +255,42 @@ class DagList extends Durable {
     }
 
     /**
+     * DagList.Instance.isUniqueName
      * Returns if the user has used this name for a dag graph or not.
      * @param name The name we want to check
      * @returns {string}
      */
-    public isUniqueName(name: string): boolean {
-        let found: boolean = false;
-        this._dags.forEach((dagTab) => {
-            if (dagTab.getName() == name) {
-                found = true;
-                return false; // stop llo
+    public isUniqueName(name: string, app: string | null): boolean {
+        for (let [key, dagTab] of this._dags) {
+            if (app != null && dagTab.getApp() !== app) {
+                continue;
             }
-        });
-        return (found === false);
+            if (dagTab.getName() == name) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
+     * DagList.Instance.getValidName
      * Return a valid name for new dafaflow tab
      */
     public getValidName(
         prefixName?: string,
         hasBracket?: boolean,
         isSQLFunc?: boolean,
-        isOptimizedDag?: boolean
+        isOptimizedDag?: boolean,
+        app?: string
     ): string {
         const prefix: string = prefixName || (isSQLFunc ? "fn" : "Module");
         const nameSet: Set<string> = new Set();
         let cnt: number = 1;
         this._dags.forEach((dagTab) => {
+            if (app != null && dagTab.getApp() !== app) {
+                // if app id is specified, check app id match first
+                return;
+            }
             nameSet.add(dagTab.getName());
             if (!isSQLFunc &&
                 !isOptimizedDag &&
@@ -323,12 +331,16 @@ class DagList extends Durable {
      * @param name
      * @param isSQLFunc
      */
-    public validateName(name: string, isSQLFunc: boolean): string | null {
+    public validateName(
+        name: string,
+        isSQLFunc: boolean,
+        app?: string | null
+    ): string | null {
         if (!name) {
             return ErrTStr.NoEmpty;
         }
 
-        if (!this.isUniqueName(name)) {
+        if (!this.isUniqueName(name, app)) {
             return isSQLFunc ? SQLTStr.DupFuncName : DFTStr.DupDataflowName;
         }
 
@@ -340,6 +352,22 @@ class DagList extends Durable {
     }
 
     /**
+     * DagList.Instance.deleteDataflowsByApp
+     * @param appId
+     */
+    public deleteDataflowsByApp(appId: string): void {
+        const toDelete: string[] = [];
+        this.getAllDags().forEach((dagTab) => {
+            if (dagTab.getApp() === appId) {
+                toDelete.push(dagTab.getId());
+            }
+        });
+
+        toDelete.forEach((id) => this.deleteDataflow(id));
+    }
+
+    /**
+     * DagList.Instance.deleteDataflow
      * Deletes the dataflow represented by dagListItem from the dagList
      * Also removes from dagTabs if it is active.
      * @param $dagListItem Dataflow we want to delete.
@@ -555,8 +583,8 @@ class DagList extends Durable {
         let sqFuncDagTabs: DagTab[] = [];
 
         this.listSQLFuncAsync()
-        .then((res: {dags: {name: string, id: string, reset: boolean, createdTime: number}[]}) => {
-            let dags: {name: string, id: string, reset: boolean, createdTime: number}[] = [];
+        .then((res: {dags: DagListTabDurable[]}) => {
+            let dags: DagListTabDurable[] = [];
             if (res && res.dags) {
                 dags = res.dags;
                 if (needReset) {
@@ -810,7 +838,9 @@ class DagList extends Durable {
             name: dagTab.getName(),
             id: dagTab.getId(),
             reset: dagTab.needReset(),
-            createdTime: dagTab.getCreatedTime()
+            createdTime: dagTab.getCreatedTime(),
+            type: dagTab.getType(),
+            app: dagTab.getApp()
         }
     }
 
