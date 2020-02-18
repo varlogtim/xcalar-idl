@@ -1243,6 +1243,63 @@ class DagViewManager {
         this.activeDagView.resetColumnOrdering(nodeId);
     }
 
+    /**
+     * DagViewManager.Instance.getAppGraph
+     */
+    public getAppGraph(): DagGraph {
+        const map = this._getModules();
+        const graph = this._buildModuleGraph(map);
+        const tabId = DagTabManager.Instance.newApp(graph);
+        DagViewManager.Instance.autoAlign(tabId);
+        return graph;
+    }
+
+    // return a map of tabId and the node
+    private _getModules(): Map<string, DagNodeModule[]> {
+        // XXX TODO: load all nodes in all tabs
+        const map: Map<string, DagNodeModule[]> = new Map();
+        const tabs = DagTabManager.Instance.getTabs();
+        tabs.forEach((tab) => {
+            if (tab instanceof DagTabUser &&
+                !(tab instanceof DagTabSQLExecute) &&
+                !(tab instanceof DagTabSQLFunc)
+            ) {
+                const modules = tab.getAppModules();
+                map.set(tab.getId(), modules);
+            }
+        });
+        return map;
+    }
+
+    private _buildModuleGraph(map: Map<string, DagNodeModule[]>): DagGraph {
+        const graph = new DagGraph();
+        const moduleNodes: DagNodeModule[] = [];
+        map.forEach((modules: DagNodeModule[]) => {
+            modules.forEach((moduleNode) => {
+                graph.addNode(moduleNode);
+                moduleNodes.push(moduleNode);
+            });
+        });
+
+        moduleNodes.forEach((childeNode) => {
+            childeNode.linkIns.forEach((linkInNode) => {
+                const res = linkInNode.getLinkedNodeAndGraph();
+                const linkedGraph = res.graph;
+                const linkOutNode = res.node;
+                const modules = map.get(linkedGraph.getTabId());
+                const linkOutNodeId: DagNodeId = linkOutNode.getId();
+                for (let moduleNode of modules) {
+                    if (moduleNode.linkOuts.has(linkOutNodeId)) {
+                        graph.connect(moduleNode.getId(), childeNode.getId());
+                        break;
+                    }
+                }
+            });
+        });
+
+        return graph;
+    }
+
     private _addEventListeners(): void {
         this.$dagView.find(".dataflowWrapBackground").on("click", ".newTab", () => {
             DagTabManager.Instance.newTab(true);

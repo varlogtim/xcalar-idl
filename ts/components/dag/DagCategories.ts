@@ -35,6 +35,9 @@ class DagCategories {
                 type: DagNodeType.Export,
                 subType: DagNodeSubType.ExportOptimized
             })),
+            new DagCategoryNodeSQL(DagNodeFactory.create({
+                type: DagNodeType.Module
+            })),
         ]);
 
         let inCategory: DagCategory;

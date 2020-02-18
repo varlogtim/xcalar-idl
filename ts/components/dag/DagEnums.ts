@@ -33,7 +33,8 @@ enum DagNodeType {
     UpdateIMD = "updateIMD",
     SQLFuncIn = "SQLFuncIn",
     SQLFuncOut = "SQLFuncOut",
-    Deskew = "Deskew"
+    Deskew = "Deskew",
+    Module = "Module"
 }
 
 enum DagNodeSubType {

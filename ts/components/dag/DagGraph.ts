@@ -1527,7 +1527,7 @@ class DagGraph extends Durable {
         }
     }
 
-    public getConnectedNodesFromHead(nodeId: string): DagNodeId[] {
+    public getConnectedNodesFromHead(nodeId: DagNodeId): DagNodeId[] {
         const nodeIds: DagNodeId[] = [];
         try {
             let stack: DagNode[] = [this._getNodeFromId(nodeId)];

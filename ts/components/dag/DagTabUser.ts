@@ -384,6 +384,34 @@ class DagTabUser extends DagTab {
         return this._reset;
     }
 
+    public getAppModules(): DagNodeModule[] {
+        const modules: DagNodeModule[] = [];
+        this.getGraph().getNodeHeadsMap().forEach((nodeId: DagNodeId) => {
+            modules.push(this._getAppModuleFromHead(nodeId));
+        });
+        return modules;
+    }
+
+    // XXX TODO: use public fuction for DagNodeModule instead public attribute
+    private _getAppModuleFromHead(nodeId: DagNodeId): DagNodeModule {
+        const moduleNode: DagNodeModule = <DagNodeModule>DagNodeFactory.create({
+            type: DagNodeType.Module
+        });
+        const graph: DagGraph = this.getGraph();
+        const nodeIds: DagNodeId[] = graph.getConnectedNodesFromHead(nodeId);
+        nodeIds.forEach((id) => {
+            const node = graph.getNode(id);
+            if (node instanceof DagNodeDFIn) {
+                moduleNode.linkIns.set(id, node);
+            } else if (node instanceof DagNodeDFOut) {
+                moduleNode.linkOuts.set(id, node);
+            }
+        });
+        moduleNode.headNode = <DagNodeIn>graph.getNode(nodeId);
+        moduleNode.tab = this;
+        return moduleNode;
+    }
+
     protected _writeToKVStore(): XDPromise<void> {
         // getJSON with includeStats = true
         return super._writeToKVStore(this._getDurable(true));

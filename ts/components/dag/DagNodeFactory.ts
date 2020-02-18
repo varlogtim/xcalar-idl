@@ -56,7 +56,7 @@ class DagNodeFactory {
                 node = new DagNodeCustomOutput(options, runtime);
                 break;
             case DagNodeType.IMDTable:
-                node = new DagNodeIMDTable(<DagNodeInInfo>options, runtime);
+                node = new DagNodeIMDTable(<DagNodeIMDTableInfo>options, runtime);
                 break;
             case DagNodeType.PublishIMD:
                 node = new DagNodePublishIMD(options, runtime);
@@ -102,6 +102,9 @@ class DagNodeFactory {
                 break;
             case DagNodeType.Deskew:
                 node = new DagNodeDeskew(options, runtime);
+                break;
+            case DagNodeType.Module:
+                node = new DagNodeModule(options, runtime);
                 break;
             default:
                 throw new Error("node type " + options.type + " not supported");
