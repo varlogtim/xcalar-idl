@@ -909,7 +909,6 @@
 }
 
 .dataflowParameterPopup, .dataflowAggPopup {
-    background-color: @color-bg-white-five;
 
     .cell {
         float: left;
@@ -2741,11 +2740,11 @@ html.firefox {
 }
 
 .undockable {
-    .ui-resizable-handle {
+    > .ui-resizable-handle {
         display: none !important;
         z-index: 6 !important; // don't block other elements
     }
-    .ui-resizable-se, .ui-resizable-sw, .ui-resizable-ne, .ui-resizable-nw {
+    > .ui-resizable-se, > .ui-resizable-sw, > .ui-resizable-ne, > .ui-resizable-nw {
         z-index: 7 !important;
     }
 
@@ -2757,11 +2756,11 @@ html.firefox {
         overflow: hidden;
         background-color: @color-bg-default;
 
-        .ui-resizable-handle {
+        > .ui-resizable-handle {
             display: block !important;
         }
 
-        .ui-draggable-handle {
+        > .ui-draggable-handle {
             pointer-events: auto;
             .cursor-move;
         }
