@@ -1494,8 +1494,10 @@
         display: none;
         height: 20px;
         max-width: 450px;
+        padding: 0 20px;
         color: @color-font-default;
         .center-align;
+        text-align: center;
     }
 
     .contentSection {
@@ -1597,7 +1599,6 @@
             }
 
             &.active {
-                box-shadow: inset 0 2px 0 0 @color-border-select-blue;
                 background-color: @color-bg-dagTabActive;
                 color: @color-font-default;
                 text-overflow: clip;
@@ -1722,7 +1723,7 @@
         padding: 0 5px;
 
         .icon {
-            .font(@size: 11px, @align: center, @line-height: @tabHeight);
+            .font(@size: 10px, @align: center, @line-height: @tabHeight);
             margin: 0 2px;
         }
 
@@ -2765,4 +2766,15 @@ html.firefox {
             .cursor-move;
         }
     }
+}
+
+.sectionBar {
+    height: @height-sectionBar;
+    border-bottom: 1px solid @color-border-medium2;
+}
+
+.sectionHeader {
+    font-size: 16px;
+    font-weight: 600;
+    color: @color-font-darkGray;
 }

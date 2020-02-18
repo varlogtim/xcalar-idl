@@ -21,9 +21,6 @@
 
 #dagView {
     @category-height: 32px;
-    @color-border-bar: @color-border-bar-white;
-    @color-border-operator: @color-bg-cardHeader;
-    @color-connector: @color-border-softGray2;
     @operator-height: 26px;
     @operator-width: 67px;
 
@@ -91,13 +88,12 @@
         .flex-display;
         position: relative;
         z-index: @z-index-categoryBar;
+        border-bottom: none;
 
         > .label {
             margin-left: 8px;
-            font-size: 14px;
             line-height: @category-height;
-            font-weight: 600;
-            flex: 0 0 106px;
+            flex: 0 0 120px;
         }
 
         .searchArea {
@@ -137,7 +133,7 @@
         .categorySection {
             .flex-display;
             position: relative;
-            width: ~"calc(100% - 165px)";
+            width: ~"calc(100% - 179px)";
 
             &.scrollable {
                 .searchArea {
@@ -287,6 +283,7 @@
             .svgWrap {
                 height: @operatorBar-height;
                 width: 100%;
+                overflow: hidden;
             }
 
             &.active {
@@ -344,9 +341,7 @@
     height: 100%;
 
     // TODO: move to constants.less when colors are finalized
-    @color-border-bar: @color-border-bar-white;
-    @color-border-operator: @color-bg-cardHeader;
-    @color-connector: @color-border-softGray2;
+
     @operator-height: 26px;
     @operator-width: 67px;
 
@@ -599,7 +594,7 @@
         overflow: visible;
         &:hover {
             .connectorInVisible {
-                fill: @color-border-operator;
+                fill: @color-border-operator-hover;
             }
         }
 
@@ -612,7 +607,7 @@
 
         &:hover {
             .connectorOutVisible {
-                fill: @color-border-operator;
+                fill: @color-border-operator-hover;
             }
         }
 
@@ -1243,7 +1238,7 @@
                 }
 
                 .actionIcon {
-                    color: @color-bg-green-submit;
+                    color: @color-icon-darkGreen;
                 }
             }
 
@@ -1340,7 +1335,7 @@
         .animatedEllipsisWrapper {
             display: none;
             width: 90px;
-            color: @color-bg-green-submit;
+            color: @color-icon-darkGreen;
         }
     }
 
@@ -1838,9 +1833,6 @@
     }
 
     li.dagListDetail {
-        .xi-dfg2 {
-            left: -7px;
-        }
 
         &.abandonedQuery {
             .gridIcon {

@@ -12,12 +12,16 @@ table, tr, td, th, input, textarea, section, p {
     .nomargin-padding;
     .box-sizing;
     border: none;
-    .font(@weight: 400, @size: 14px, @family: @font-base);
+    .font(@family: @font-base);
 }
 
-section {
-    .font(@size: inherit);
+table, tr, td, th, input, textarea {
+    .nomargin-padding;
+    .box-sizing;
+    border: none;
+    .font(@weight: 400, @size: 12px);
 }
+
 
 h1, h2, h3, h4, h5, h6{
     .nomargin-padding;
@@ -69,7 +73,7 @@ body {
 .mainContainer {
     .position(relative);
     .size(@height: 100vh, @min-height: 560px, @min-width: @width-minScreen);
-    font-size: 14px;
+    font-size: 12px;
     overflow: hidden;
     display: none;
 

@@ -335,6 +335,7 @@
 
         .resultSection {
             .contentSection {
+                height: ~"calc(100% - @{height-tabBar})";
                 position: relative;
             }
 
@@ -366,10 +367,8 @@
 
                     .topSection {
                         background-color: @color-bg-default;
-                        height: @top-h;
                         font-size: 12px;
                         padding: 4px 28px 4px 15px;
-                        border-bottom: 1px solid @color-border-medium2;
                         @div-h: 20px;
 
                         > div, .tableBarWrap > div {
@@ -382,9 +381,7 @@
 
                         > .label , .tableBarWrap > .label {
                             margin-right: 4px;
-                            line-height: 24px;
-                            font-size: 14px;
-                            font-weight: 600;
+                            line-height: 20px;
 
                             .name {
                                 font-weight: normal;
@@ -589,7 +586,7 @@
 
     .undock {
         position: absolute;
-        top: 13px;
+        top: 9px;
         right: 16px;
         font-size: 14px;
     }
@@ -598,12 +595,9 @@
         border-bottom: 1px solid @color-border-medium2;
         display: flex;
         flex-wrap: wrap;
-        padding: 8px 32px 4px 16px;
+        padding: 4px 32px 4px 16px;
 
         .title {
-            font-size: 16px;
-            font-weight: 600;
-            color: @color-font-darkGray;
             line-height: 24px;
             margin-right: auto;
         }
@@ -616,7 +610,7 @@
             &.execute {
                 font-size: 14px;
                 line-height: 24px;
-                color: @color-bg-green-submit;
+                color: @color-icon-darkGreen;
                 cursor: pointer;
             }
 
@@ -993,15 +987,21 @@
     }
 }
 
+#sqlTableListerArea, #sqlTableSchemaArea {
+    .row {
+        > div {
+            font-size: 12px;
+        }
+    }
+}
+
 #sqlTableListerArea, #sqlTableSchemaArea, .sqlQueryHist {
     .label {
-        font-size: 12px;
         font-weight: 600;
     }
 
     .row {
         > div {
-            font-size: 12px;
             font-weight: normal;
         }
     }

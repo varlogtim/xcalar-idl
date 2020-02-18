@@ -1021,7 +1021,7 @@ class TblManager {
 
         const idColWidth: number = xcUIHelper.getTextWidth($table.find('tr:last td:first'));
         const newWidth: number = Math.max(idColWidth, 22);
-        const padding: number = 12;
+        const padding: number = 6;
         $table.find('th:first-child').width(newWidth + padding);
         TblFunc.matchHeaderSizes($table);
     }
@@ -2568,7 +2568,7 @@ class TblManager {
         let newTableHtml: string =
             '<thead>' +
               '<tr>' +
-                '<th style="width: 50px;" class="col0 th rowNumHead">' +
+                '<th style="width: 46px;" class="col0 th rowNumHead">' +
                   '<div class="header">' +
                     '<input value="" spellcheck="false" disabled title="' +
                     TooltipTStr.SelectAllColumns + '" ' +

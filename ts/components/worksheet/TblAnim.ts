@@ -693,7 +693,7 @@ namespace TblAnim {
         dragInfo.docHeight = $(document).height();
         dragInfo.val = $editableHead.val();
         let shadowDivHeight = $tbodyWrap.height();
-        let shadowTop = $tableWrap.find('.header').position().top - 5;
+        let shadowTop = $tableWrap.find('.header').position().top - 3;
 
         dragInfo.inFocus = $editableHead.is(':focus');
         dragInfo.selected = el.hasClass('selectedCell');

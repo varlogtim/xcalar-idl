@@ -134,7 +134,7 @@ class ResourceMenu {
     private _renderDataflowList(): void {
         const html = this._getDFList();
         this._getContainer().find(".dfModuleList ul").html(html);
-    } 
+    }
 
     private _getListHTML(
         name: string,
@@ -221,7 +221,7 @@ class ResourceMenu {
             const id = dagTab.getId();
             const name = dagTab.getName();
             const listClassNames: string[] = ["dagListDetail", "selectable"];
-            const iconClassNames: string[] = ["gridIcon", "icon", "xi-dfg2"];
+            const iconClassNames: string[] = ["gridIcon", "icon", "xi-dataflow-thin"];
             let tooltip: string = ""
             let stateIcon: string = "";
             if (dagTab.isOpen()) {

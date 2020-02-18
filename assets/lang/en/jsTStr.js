@@ -1304,7 +1304,7 @@ TblTStr = {
     'Truncate': 'Additional characters were truncated',
     'ToTemp': 'SEND TO TEMPORARY',
     'TempStatus': 'Temporary',
-    "SkipToRow": "Skip to rows",
+    "SkipToRow": "Skip to row",
     "Skew": "Skew",
     "ClickToDetail": "Click to see details",
     "EmptyTable": "0 Rows",

@@ -1,5 +1,5 @@
 class ProgCol extends Durable {
-    public static readonly NewCellWidth: number = 125;
+    public static readonly NewCellWidth: number = 115;
 
     public name: string; // front column name
     public backName: string; // back column name

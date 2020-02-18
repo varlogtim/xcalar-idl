@@ -445,7 +445,7 @@ module.exports = {
         "SQLFuncTab": "Table Functions",
         "ResultTab": "Query Results",
         "HistoryTab": "History",
-        "ViewingResult": "Result",
+        "ViewingResult": "Table",
         "SearchByQuery": "Filter by query",
         "SearchByName": "Filter by name",
         "SchemaBack": "Back to show tables",

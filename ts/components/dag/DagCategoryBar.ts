@@ -38,6 +38,7 @@ class DagCategoryBar {
             this._edgeColor = "#C9C9C9";
             this._selectedColor = "rgba(150, 225, 255, 0.2)";
             this._selectedBorderColor = "rgba(0, 188, 255, 0.78)";
+            this._connectorColor = "#181818";
         }
     }
 

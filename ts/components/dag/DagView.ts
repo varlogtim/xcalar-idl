@@ -3615,7 +3615,7 @@ class DagView {
         let firstColWidth = Math.max(numRows.length * 4.5, rowHeadingWidth);
         let secondColWidth = 23;
         let width = firstColWidth + secondColWidth + baseWidth;
-        const nodeCenter = graph.getScale() * (nodeX + DagView.nodeAndTableWidth - 18);
+        const nodeCenter = graph.getScale() * (nodeX + DagView.nodeAndTableWidth - 19);
         return nodeCenter - (width / 2);
     }
 

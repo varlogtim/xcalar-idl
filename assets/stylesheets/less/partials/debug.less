@@ -48,6 +48,11 @@
         height: ~"calc(100% - @{tab-h})";
         padding: 8px;
         overflow: hidden;
+        font-size: 11px;
+
+        .btn {
+            font-size: 11px;
+        }
 
         .section {
             height: 100%;
@@ -71,6 +76,7 @@
             top: 0;
             right: 32px;
             width: auto;
+            font-size: 12px;
 
             label {
                 font-size: 14px;
@@ -156,7 +162,7 @@
     }
 
     .icon-run, .icon-done, .icon-cancel, .icon-fail, .icon-compile {
-        font-size: 13px;
+        font-size: 10px;
         margin-right: 9px;
     }
 
@@ -165,7 +171,7 @@
     }
 
     .icon-done {
-        color: @color-bg-green-submit;
+        color: @color-icon-darkGreen;
     }
 
     .icon-cancel {
@@ -189,7 +195,6 @@
     @inputHeight: 24px;
 
     min-width: 520px;
-    font-size: 12px;
     height: 100%;
 
     .cardHeader {
@@ -244,7 +249,7 @@
             min-width: 80px;
             margin-left: 10px;
             .flex(1 1 70px);
-            font-size: 12px;
+            font-size: 11px;
             height: @inputHeight;
             line-height: @inputHeight;
         }

@@ -35,9 +35,6 @@ class SQLOpPanel extends BaseOpPanel {
         return this._sqlEditor.getEditor();
     };
 
-    public refresh(): void {
-        this._refreshEllipsis();
-    }
 
         /**
      * Show the panel with information from dagNode
@@ -268,29 +265,6 @@ class SQLOpPanel extends BaseOpPanel {
         }
     }
 
-    private _refreshEllipsis(): void {
-        const labels = document.getElementById("sqlSection")
-                             .getElementsByClassName("label");
-        for (let i = 0; i < labels.length; i++) {
-            const el = labels[i];
-            const $label = $(el);
-            const name = $label.closest(".unit").attr("data-name");
-            const isEllipsis = el.scrollWidth > el.clientWidth;
-            this._toggleTooltip($label, name, isEllipsis);
-        }
-    }
-
-    private _toggleTooltip(
-        $text: JQuery,
-        name: string,
-        isEllipsis: boolean
-    ): void {
-        if (isEllipsis) {
-            xcTooltip.add($text, {title: name});
-        } else {
-            xcTooltip.remove($text);
-        }
-    }
 
     public getAlertOff(): boolean {
         return this._alertOff;
