@@ -73,10 +73,10 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.CommentNode = require("../../dagHelper/node/CommentNode.js").CommentNode
     global.DagQueryConverter = require("../../dagHelper/DagQueryConverter.js").DagQueryConverter;
      // XXX: Needed by DagGraph.getQuery()
-    global.DagTab = require("../../dagHelper/DagTab.js").DagTab
-    global.DagTabUser = require("../../dagHelper/DagTabUser.js").DagTabUser
-    global.DagTabProgress = require("../../dagHelper/DagTabProgress.js").DagTabProgress
-    global.DagTabOptimized = require("../../dagHelper/DagTabOptimized.js").DagTabOptimized
+    global.DagTab = require("../../dagHelper/dagTab/DagTab.js").DagTab
+    global.DagTabUser = require("../../dagHelper/dagTab/DagTabUser.js").DagTabUser
+    global.DagTabProgress = require("../../dagHelper/dagTab/DagTabProgress.js").DagTabProgress
+    global.DagTabOptimized = require("../../dagHelper/dagTab/DagTabOptimized.js").DagTabOptimized
     // global.DagList = require("../../dagHelper/DagList.js").DagList
     // XXX: Needed by DagNodeExecutor
     global.DagTblManager = require("../../dagHelper/DagTblManager.js").DagTblManager
@@ -132,7 +132,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.DagNodeUpdateIMD = require("../../dagHelper/node/DagNodeUpdateIMD.js").DagNodeUpdateIMD
     global.DagRuntime = require("../../dagHelper/DagRuntime.js").DagRuntime;
     global.XDFService = require("../../dagHelper/XDFService.js").XDFService;
-    global.DagTabService = require("../../dagHelper/DagTabService.js").DagTabService;
+    global.DagTabService = require("../../dagHelper/dagTab/DagTabService.js").DagTabService;
     global.DagAggService = require("../../dagHelper/DagAggService.js").DagAggService;
     global.DagListService = require("../../dagHelper/DagListService.js").DagListService;
     global.DagServiceFactory = require("../../dagHelper/DagServiceFactory.js").DagServiceFactory;
