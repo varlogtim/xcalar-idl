@@ -53,22 +53,42 @@ class DagNodeModule extends DagNode {
     /**
      * @override
      */
-    protected _genParamHint(): string {
+    protected _genParamHint(withModuleName?: boolean): string {
         let hint: string = "";
         try {
-
             const tab = this.getTab();
-            if (tab && !this.headNode) {
-                this.headNode = this._findHeadNodeFromTab(this.tab, this._headNodeId);
+            const headNode = this.getHeadNode();
+            if (withModuleName) {
+                hint = tab.getName() + "." + headNode.getHead();
+            } else {
+                hint = headNode.getHead();
             }
-            hint = this.tab.getName() + "." + this.headNode.getHead();
         } catch (e) {
             console.error(e);
         }
         return hint;
     }
 
-       // may not have tab if it was loaded before other tabs
+    public getFnName(separate?: boolean): string | {moduleName: string, fnName: string} {
+        if (separate) {
+            let moduleName = "";
+            let fnName = "";
+            try {
+                moduleName = this.getTab().getName() || "";
+                fnName = this.getHeadNode().getHead() || "";
+            } catch (e) {
+                console.error(e);
+            }
+            return {
+                moduleName,
+                fnName
+            };
+        } else {
+            return this._genParamHint(true) || "";
+        }
+    }
+
+    // may not have tab if it was loaded before other tabs
     public getTab(): DagTabUser {
         if (!this.tab) {
             this.tab = <DagTabUser>this._findTab(this._tabId);
@@ -76,8 +96,12 @@ class DagNodeModule extends DagNode {
         return this.tab;
     }
 
-    public getFnName(): string {
-        return this._genParamHint() || "";
+    public getHeadNode(): DagNodeIn {
+        const tab = this.getTab();
+        if (tab && !this.headNode) {
+            this.headNode = this._findHeadNodeFromTab(this.tab, this._headNodeId);
+        }
+        return this.headNode;
     }
 
      /**

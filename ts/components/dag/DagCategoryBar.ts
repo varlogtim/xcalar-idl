@@ -568,7 +568,7 @@ class DagCategoryBar {
                 'fill="' + this._nodeFillColor + '" stroke="' + this._borderColor + '" stroke-width="1" ' +
                 'ry="' + DagView.nodeHeight + '" rx="11" ' +
                 xcTooltip.Attrs + ' data-original-title="' + description + '" />'+
-            '<svg width="' + (DagView.nodeWidth - 2) + '" height="' + DagView.nodeHeight + '" x="1" y="1">' +
+            '<svg class="opTitleWrap" width="' + (DagView.nodeWidth - 2) + '" height="' + DagView.nodeHeight + '" x="1" y="1">' +
                 opTitleHtml + '</svg>' +
             '<circle class="statusIcon" cx="' + (DagView.nodeWidth - 12) + '" cy="' + (DagView.nodeHeight - 2) + '" r="2.5" ' +
                 'stroke="' + this._borderColor + '" stroke-width="1" fill="white" />' +
@@ -585,17 +585,17 @@ class DagCategoryBar {
             const namePart2 = name.slice(name.lastIndexOf(" ") + 1);
             html = '<text class="opTitle" x="50%" y="30%" ' +
             'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
-            'font-size="11" fill="' + this._textColor + '">' + namePart1 +
+            'font-size="10" fill="' + this._textColor + '">' + namePart1 +
             '</text>' +
             '<text class="opTitle" x="50%" y="70%" ' +
             'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
-            'font-size="11" fill="' + this._textColor + '">' + namePart2 +
+            'font-size="10" fill="' + this._textColor + '">' + namePart2 +
             '</text>';
 
         } else {
             html = '<text class="opTitle" x="50%" y="50%" ' +
             'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
-            'font-size="11" fill="' + this._textColor + '">' + name +
+            'font-size="10" fill="' + this._textColor + '">' + name +
             '</text>';
         }
         return html;

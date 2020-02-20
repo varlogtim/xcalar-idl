@@ -466,12 +466,17 @@
             }
         }
 
-        .opTitle, .iconArea, .icon, .opSubTypeTitle {
-            pointer-events: none;
+        &.Module {
+            .nodeTitle {
+                display: none;
+            }
+            .paramTitle {
+                transform: translate((@operator-width + 15) / 2, @operator-height + 16);
+            }
         }
 
-        .opTitle {
-            font-size: 10px;
+        .opTitle, .iconArea, .icon, .opSubTypeTitle {
+            pointer-events: none;
         }
 
         .nodeid {

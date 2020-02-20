@@ -4225,6 +4225,8 @@ class DagView {
 
         this._drawTitleText($node, node);
         this._updateTableNameText($node, node);
+        this._updateOpTitle($node, node);
+
         if (!(this.dagTab instanceof DagTabSQLFunc) &&
              node instanceof DagNodeIn
         ) {
@@ -4457,6 +4459,33 @@ class DagView {
                 .attr("y", i * DagView.titleLineHeight);
         });
         xcTooltip.add(<any>paramTextSvg, { title: fullParamHint, placement: "bottom auto" });
+    }
+
+    private _updateOpTitle($node, node) {
+        if (node.getType() === DagNodeType.Module) {
+            let {moduleName, fnName} = node.getFnName(true);
+            let fontSize = 10;
+            if (moduleName.length > 10) {
+                fontSize = 9;
+                moduleName = moduleName.slice(0, 13);
+            }
+            if (!moduleName) {
+                moduleName = DagNodeType.Module;
+            }
+            const g = d3.select($node.find('.opTitleWrap')[0]);
+            g.selectAll("*").remove();
+            g.append("text")
+                .attr("class", "opTitle")
+                .attr("x", "50%")
+                .attr("y", "50%")
+                .attr("text-anchor", "middle")
+                .attr("alignment-baseline", "middle")
+                .attr("font-family", "Open Sans")
+                .attr("font-size", fontSize)
+                .attr("fill", DagView.textColor)
+                .text(moduleName);
+        }
+
     }
 
     private _drawHeadText($node: JQuery, node: DagNodeIn): void {
