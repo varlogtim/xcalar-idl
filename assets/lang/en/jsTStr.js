@@ -517,7 +517,7 @@ SQLErrTStr = {
     "XDFNotSupport": "xdf_ without type prefix is not supported",
     "NoSupport": "Not supported: ",
     "RangeWindowMultipleCol": "Window function with range frame can only have 1 order by column",
-    "UnsupportedOperator": "Unsupported opeartor found: ",
+    "UnsupportedOperator": "Unsupported operator found: ",
     "DateTimeOneChild": "DateTime part node should have one argument, instead find: ",
     "UnixTimeTwoChildren": "Unix time node should have two arguments, instead find: ",
     "TimeIntervalTwoChildren": "Time interval node should have two arguments, instead find: ",
