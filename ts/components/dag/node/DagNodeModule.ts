@@ -38,8 +38,11 @@ class DagNodeModule extends DagNode {
         return 0; // no linking
     }
 
-    public lineageChange() {
-        return null;
+    public lineageChange(columns: ProgCol[]): DagLineageChange {
+        return {
+            columns: columns,
+            changes: []
+        };
     }
 
     protected _getColumnsUsedInInput(): Set<string> {

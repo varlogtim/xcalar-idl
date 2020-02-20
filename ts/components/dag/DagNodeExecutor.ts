@@ -182,6 +182,8 @@ class DagNodeExecutor {
                     return this._sqlFuncOut();
                 case DagNodeType.Deskew:
                     return this._deskew();
+                case DagNodeType.Module:
+                    return this._module();
                 default:
                     throw new Error(type + " not supported!");
             }
@@ -1562,6 +1564,37 @@ class DagNodeExecutor {
         const srcTable: string = this._getParentNodeTable(0);
         const desTable: string = this._generateTableName();
         return XIApi.synthesize(this.txId, colRenameRes.colInfos, srcTable, desTable);
+    }
+
+
+    private _module(): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        try {
+            const node: DagNodeModule = <DagNodeModule>this.node;
+            let destTable;
+            node.getTab().getGraph().getQuery()
+            .then(({queryStr, destTables}) => {
+                let tables = destTables || [];
+                destTable = tables[tables.length - 1];
+                return XIApi.query(this.txId, destTable, queryStr);
+            })
+            .then(() => {
+                deferred.resolve(destTable);
+            })
+            .fail((e) => {
+                console.error("execute error", e);
+                deferred.reject({
+                    error: e.message
+                });
+            });
+        } catch (e) {
+            console.error("execute error", e);
+            deferred.reject({
+                error: e.message
+            });
+        }
+
+        return deferred.promise();
     }
 
     private _mapEvalStrAggs(evalString: string, aggs: string[]): string {

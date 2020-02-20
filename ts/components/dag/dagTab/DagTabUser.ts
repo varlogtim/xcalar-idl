@@ -397,7 +397,8 @@ class DagTabUser extends DagTab {
     // XXX TODO: use public fuction for DagNodeModule instead public attribute
     private _getAppModuleFromHead(nodeId: DagNodeId): DagNodeModule {
         const moduleNode: DagNodeModule = <DagNodeModule>DagNodeFactory.create({
-            type: DagNodeType.Module
+            type: DagNodeType.Module,
+            state: DagNodeState.Configured
         });
         const graph: DagGraph = this.getGraph();
         const nodeIds: DagNodeId[] = graph.getConnectedNodesFromHead(nodeId);
