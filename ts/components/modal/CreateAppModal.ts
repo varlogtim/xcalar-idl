@@ -2,6 +2,7 @@ class CreateAppModal {
     private static _instance: CreateAppModal;
     private _modalHelper: ModalHelper;
     private _graphMap: Map<number, Set<DagNodeModule>>
+    private _isOpen =false;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -20,6 +21,9 @@ class CreateAppModal {
     }
 
     public show() {
+        if (this._isOpen) {
+            return;
+        }
         const {graph, disjointGraphs} = DagViewManager.Instance.getDisjointGraphs();
         this._renderGraphList(disjointGraphs);
         let index = 0;
@@ -28,13 +32,14 @@ class CreateAppModal {
             this._graphMap.set(index, moduleNodes);
             index++;
         });
-        this._toggleInput(true);
         this._modalHelper.setup();
+        this._isOpen = true;
     }
 
     private _close() {
         this._reset();
         this._modalHelper.clear();
+        this._isOpen = false;
     }
 
     private _reset() {
@@ -42,7 +47,6 @@ class CreateAppModal {
         $modal.find(".graphList").empty();
         $modal.find(".newName").val("");
         this._graphMap = null;
-        this._toggleInput(true);
     }
 
     private _addEventListeners() {
@@ -60,11 +64,9 @@ class CreateAppModal {
             const $checkbox = $(event.target).closest(".checkbox");
             if ($checkbox.hasClass("checked")) {
                 $checkbox.removeClass("checked");
-                this._toggleInput(true);
             } else {
                 $modal.find(".graphList .checkbox").removeClass("checked");
                 $checkbox.addClass("checked");
-                this._toggleInput(false);
             }
         });
 
@@ -84,7 +86,7 @@ class CreateAppModal {
                         </div>
                         <div class="graphInfo listWrap xc-expand-list active">
                             <div class="graphName listInfo">
-                                <span class="text">Graph ${index + 1}</span>
+                                <span class="text">Execution Plan ${index + 1}</span>
                                 <span class="expand">
                                     <i class="icon xi-down fa-12"></i>
                                 </span>
@@ -110,7 +112,7 @@ class CreateAppModal {
         const $input = $modal.find(".newName");
         const $checkbox = $modal.find(".graphList .checkbox.checked");
         if (!$checkbox.length) {
-            StatusBox.show("No graph selected.", $modal.find(".modalMain"));
+            StatusBox.show("No execution plan selected.", $modal.find(".modalMain"));
             return false;
         }
 
@@ -139,14 +141,5 @@ class CreateAppModal {
 
         this._close();
         return true;
-    }
-
-    private _toggleInput(disable: boolean) {
-        const $input = this._getModal().find(".newName");
-        if (disable) {
-            $input.prop("disabled", true).parent().addClass("xc-disabled");
-        } else {
-            $input.prop("disabled", false).parent().removeClass("xc-disabled");
-        }
     }
 }
