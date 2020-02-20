@@ -131,19 +131,6 @@ class DagTabManager extends AbstractTabManager {
     }
 
     /**
-     * XXX TODO: dead code, should be removed
-     * DagTabManager.Instance.newApp
-     * @param graph
-     */
-    public newApp(graph: DagGraph): string {
-        const name = DagList.Instance.getValidName();
-        // XXX TODO: fix the null app arg
-        const tab: DagTab = this._newTab(name, graph, false);
-        this._tabListScroller.showOrHideScrollers();
-        return tab.getId();
-    }
-
-    /**
      * DagTabManager.Instance.newSQLFunc
      * @param graph
      */

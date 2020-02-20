@@ -94,6 +94,28 @@ class AppList extends Durable {
         return validName;
     }
 
+    /**
+     * AppList.Instance.validateName
+     * @param name
+     */
+    public validateName(name): string {
+        if (!name) {
+            return ErrTStr.NoEmpty;
+        }
+
+        for (let app of this._apps) {
+            if (name === app.name) {
+                return "App name already in use.";
+            }
+        }
+
+        const category = PatternCategory.Dataflow;
+        if (!xcHelper.checkNamePattern(category, PatternAction.Check, name)) {
+            return ErrTStr.DFNameIllegal;
+        }
+        return null;
+    }
+
     public serialize(): string {
         return JSON.stringify(this._getDurable());
     }

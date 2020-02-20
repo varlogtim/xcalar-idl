@@ -1236,15 +1236,15 @@ class DagViewManager {
     }
 
     /**
-     *
+     * DagViewManager.Instance.getDisjointGraphs
      * @param appId
      * doesn't actually returns graphs, turns a set of module nodes that belong to graphs
      */
-    public getDisjointGraphs(appId?: string): {
+    public getDisjointGraphs(): {
         graph: DagGraph,
         disjointGraphs: Set<Set<DagNodeModule>>
     } {
-        let map = this._getModules(appId);
+        let map = this._getModules();
         let graph: DagGraph = this.buildModuleGraph(map);
         const disjointGraphs = <Set<Set<DagNodeModule>>>graph.getDisjointGraphs();
 
@@ -1254,65 +1254,12 @@ class DagViewManager {
         };
     }
 
-    /**
-     * DagViewManager.Instance.getAppGraph
-     */
-    public getAppGraph(appId?: string, headNode?: DagNode, useCurrentTab?: boolean): DagGraph {
-        const {graph, disjointGraphs} = this.getDisjointGraphs(appId);
-
-        if (headNode) {
-            let nodeFoundOverall = false;
-            for (let tree of disjointGraphs) {
-                let nodeFoundInCurrentTree = false;
-                if (!nodeFoundOverall) {
-                    for (let node of tree) {
-                        if ((<DagNodeModule>node).headNode === headNode) {
-                            nodeFoundOverall = true;
-                            nodeFoundInCurrentTree = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!nodeFoundInCurrentTree) {
-                    for (let node of tree) {
-                        graph.removeNode(node.getId(), false, false);
-                    }
-                }
-            }
-        }
-        if (useCurrentTab) {
-            const dagTab = DagViewManager.Instance.getActiveTab();
-            DagViewManager.Instance.cleanupClosedTab(dagTab.getGraph());
-            dagTab.setGraph(graph);
-            const $dfArea = this._getActiveArea();
-            $dfArea.removeClass("rendered");
-            DagViewManager.Instance.render($dfArea, graph);
-            DagGraphBar.Instance.updateNumNodes(dagTab);
-            DagViewManager.Instance.autoAlign(dagTab.getId());
-            DFNodeLineagePopup.Instance.update(dagTab.getId());
-
-            const allModuleNodes = graph.getAllNodes();
-            for (let [_key, node] of allModuleNodes) {
-                if ((<DagNodeModule>node).headNode === headNode) {
-                    const moduleNodeId = node.getId();
-                    DagViewManager.Instance.selectNodes(dagTab.getId(), [moduleNodeId]);
-                }
-            }
-        } else {
-            const tabId = DagTabManager.Instance.newApp(graph);
-            DagViewManager.Instance.autoAlign(tabId);
-        }
-
-        return graph;
-    }
-
     // return a map of tabId and the node
-    private _getModules(appId?: string): Map<string, DagNodeModule[]> {
+    private _getModules(): Map<string, DagNodeModule[]> {
         const map: Map<string, DagNodeModule[]> = new Map();
         const tabs = DagTabManager.Instance.getTabs();
         tabs.forEach((tab) => {
-            if ((appId ? tab.getApp() === appId : true) &&
+            if (tab.getApp() == null &&
                 tab.getType() === DagTabType.User
             ) {
                 const modules = (<DagTabUser>tab).getAppModules();

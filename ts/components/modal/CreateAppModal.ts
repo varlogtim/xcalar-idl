@@ -118,7 +118,7 @@ class CreateAppModal {
 
         const newName: string = $input.val().trim();
 
-        const error: string = DagList.Instance.validateName(newName, false);
+        const error: string = AppList.Instance.validateName(newName);
         if (error) {
             StatusBox.show(error, $input);
             return false;
@@ -128,6 +128,8 @@ class CreateAppModal {
         setTimeout(() => {
             if (succeed) {
                 xcUIHelper.showSuccess("App Created.");
+            } else {
+                xcUIHelper.showFail("App Creation Failed.");
             }
         }, 300);
 
