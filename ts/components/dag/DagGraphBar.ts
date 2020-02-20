@@ -102,8 +102,12 @@ class DagGraphBar {
 
         if (dagTab instanceof DagTabMain) {
             $topBar.addClass("mainFunc");
+            // XXX hack
+            $("#dagView").addClass("mainFunc");
         } else {
             $topBar.removeClass("mainFunc");
+            $("#dagView").removeClass("mainFunc");
+            DagCategoryBar.Instance.showOrHideArrows();
         }
         this.updateNumNodes(dagTab);
     }
