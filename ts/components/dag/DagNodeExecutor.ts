@@ -1581,12 +1581,7 @@ class DagNodeExecutor {
             .then(() => {
                 deferred.resolve(destTable);
             })
-            .fail((e) => {
-                console.error("execute error", e);
-                deferred.reject({
-                    error: e.message
-                });
-            });
+            .fail(deferred.reject);
         } catch (e) {
             console.error("execute error", e);
             deferred.reject({

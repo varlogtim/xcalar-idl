@@ -11,6 +11,7 @@ class DagNodeModule extends DagNode {
         this.type = DagNodeType.Module;
         this.maxParents = -1;
         this.minParents = 0;
+        this.input = this.getRuntime().accessible(new DagNodeModuleInput(options.input));
         this.linkIns = new Map();
         this.linkOuts = new Map();
         if (options.tabId) {
