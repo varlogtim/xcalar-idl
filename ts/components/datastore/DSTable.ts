@@ -514,14 +514,14 @@ class DSTable {
     }
 
     private static _createDF() {
-        // let dsId = this._getPreviewDSId();;
-        // let dsObj = DS.getDSObj(dsId);
-        // if (dsObj) {
-        //     DagView.newTabFromSource(DagNodeType.Dataset, {
-        //         source: dsObj.getId(),
-        //         prefix: xcHelper.normalizePrefix(dsObj.getName())
-        //     });
-        // }
+        let dsId = this._getPreviewDSId();;
+        let dsObj = DS.getDSObj(dsId);
+        if (dsObj) {
+            DagView.newTabFromSource(DagNodeType.Dataset, {
+                source: dsObj.getId(),
+                prefix: xcHelper.normalizePrefix(dsObj.getName())
+            });
+        }
     }
 
     private static _rePointDS(dsId: string): void {

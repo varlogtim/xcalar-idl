@@ -256,6 +256,31 @@ class DagView {
         DagNodeInfoPanel.Instance.hide(); // not show info panel
     }
 
+    /**
+     * DagView.newTabFromSource
+     * @param type
+     * @param config
+     */
+    public static async newTabFromSource(type: DagNodeType, config: any): Promise<void> {
+        try {
+            DagViewManager.Instance.toggleSqlPreview(false);
+            DagTabManager.Instance.newTab();
+            let position: number = DagView.gridSpacing * 2;
+            let node: DagNode = await DagViewManager.Instance.autoAddNode(type, null, null, config,
+                position, position);
+            if (node != null) {
+                DagNodeMenu.execute("configureNode", {
+                    node: node,
+                    exitCallback: () => {
+                        node.setParam({}, true);
+                    }
+                });
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     public static getSkewText(skew) {
         return ((skew == null || isNaN(skew))) ? "N/A" : String(skew);
     }

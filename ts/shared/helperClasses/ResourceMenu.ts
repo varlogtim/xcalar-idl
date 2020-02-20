@@ -150,7 +150,7 @@ class ResourceMenu {
             return this._getListHTML(udf.name, listClassNames, iconClassNames);
         }).join("");
 
-        return this._getNestedListWrapHTML("SQL Scalar Fns", html);
+        return this._getNestedListWrapHTML("SQL Scalar Functions", html);
     }
 
     private _renderSQList(): void {

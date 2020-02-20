@@ -31,24 +31,24 @@ input {
 
 body {
     -webkit-font-smoothing: antialiased;
-    color: @color-font-white;
+    color: @color-font-default;
     // font-size: 0; /* Need to use this to get rid of stupid white space */
-    .linear-gradient(top, #378CB3, @color-bg-marine);
+    background-color: @color-bg-default;
 }
 
 form {
     a {
-        color: @color-font-softBlue;
+        color: @color-font-default;
         cursor: pointer;
     }
 }
-#splashContainer {
-    .flex-display;
-    .flex-direction(column);
-    .justify-content(center);
-    .position(absolute, 0px);
-    .size(100%, 100%);
-}
+// #splashContainer {
+//     .flex-display;
+//     .flex-direction(column);
+//     .justify-content(center);
+//     .position(absolute, 0px);
+//     .size(100%, 100%);
+// }
 
 #animation_container {
     margin: 0 auto;
@@ -79,16 +79,15 @@ video {
 }
 
 header {
-    width: 650px;
+    width: 600px;
     overflow: hidden;
     position: relative;
-    top: 10px;
-    margin: 0px auto 30px;
+    margin: 0px auto;
     height: 50px;
 }
 
 .loginHeader, .signupHeader {
-    .font(@weight: 500, @size: 36px, @line-height: 36px, @family: @font-base);
+    .font(@weight: 400, @size: 28px, @family: @font-base);
     margin: 0;
     position: absolute;
     left: 0px;
@@ -100,8 +99,8 @@ header {
 
 #loadingBar {
     .size(@width: 100%, @height: 1px);
-    background-color: @color-bg-brighter-blue;
-    margin-bottom: 26px;
+    background-color: @color-font-default;
+    margin-bottom: 8px;
     position: relative;
     overflow: hidden;
 
@@ -143,7 +142,6 @@ header {
 #formArea {
    width: 600px;
    margin: 0 auto;
-   padding-left: 50px;
    .flex-display;
 }
 
@@ -186,9 +184,8 @@ input:-webkit-autofill:focus {
         .transition(color 0.5s);
         pointer-events: none;
         z-index: 0;
-        color: @color-font-softGrayBlue;
+        color: @color-font-darkGray;
         width: 100%;
-        text-transform: uppercase;
 
         &::after {
             content: "";
@@ -196,7 +193,7 @@ input:-webkit-autofill:focus {
             position: absolute;
             bottom: 0px;
             .size(@width: 100%, @height: 1px);
-            background-color: @color-bg-bright-blue;
+            background-color: @color-font-darkGray;
             .transition(all 0.5s);
         }
     }

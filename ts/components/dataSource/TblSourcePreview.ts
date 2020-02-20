@@ -487,15 +487,15 @@ class TblSourcePreview {
     }
 
     private _createDF(tableInfo: PbTblInfo): void {
-        // if (tableInfo == null) {
-        //     return;
-        // }
+        if (tableInfo == null) {
+            return;
+        }
 
-        // let tableName: string = tableInfo.name;
-        // DagView.newTabFromSource(DagNodeType.IMDTable, {
-        //     source: tableName,
-        //     schema: tableInfo.getSchema()
-        // });
+        let tableName: string = tableInfo.name;
+        DagView.newTabFromSource(DagNodeType.IMDTable, {
+            source: tableName,
+            schema: tableInfo.getSchema()
+        });
     }
 
     private _writeSQL(tableInfo: PbTblInfo): void {

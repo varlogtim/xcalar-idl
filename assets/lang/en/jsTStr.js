@@ -365,7 +365,7 @@ ErrWRepTStr = {
                     'Please choose another name.',
     'NoPath': '<path> was not found. Redirected to the root directory.',
     'NoPathInLoad': 'Path <path> was not found. (Not set up?)',
-    'NoUDF': 'Scalar Fn \" <udf> \" does not exist.',
+    'NoUDF': 'Scalar function \" <udf> \" does not exist.',
     'InvalidOpsType': 'Data type is invalid. Expected: <type1>, Entered: <type2>.',
     'InvalidCol': 'Column "<name>" does not exist.',
     'InvalidColOnTable': 'Column "<col>" does not exist in table <table>.',
@@ -477,13 +477,13 @@ SQLErrTStr = {
     "SubqueryNoChild": "Subquery should have no children",
     "SubqueryTree": "Subquery should have subqueryTree",
     "AccSubqueryArray": "Accumulator should have subqueryArray to operate on",
-    "UDFNoName": "Scalar fn doesn't have a name in plan",
+    "UDFNoName": "Scalar function doesn't have a name in plan",
     "NonOpShouldHaveNoChildren": "Non-op/expression node should have no children",
     "FirstChildAlias": "First element in eval list should be alias node",
     "NoDataType": "Node should has dataType",
     "EvalOnlyChildAttr": "Eval list's only child should be AttributeReference in non-groupingexpressions list",
     "UnsupportedColType": "Unsupported column type: ",
-    "UDFColumnMismatch": "Scalar fn columns mismatch",
+    "UDFColumnMismatch": "Scalar function columns mismatch",
     "ParameterMismatch": "Parameter names mismatch",
     "InvalidLogicalPlan": "Invalid logical plan",
     "InvalidXcalarQuery": "Invalid Xcalar Query String",
@@ -906,7 +906,7 @@ MonitorTStr = {
     "NewVal": "New Value",
     'ClusterStatus': 'Cluster Status',
     'Tut': 'Tutorials',
-    'FileManagerTitle': 'SCALAR FN MANAGER',
+    'FileManagerTitle': 'SCALAR FUNCTION MANAGER',
     'GetHostsFail': 'Could not get hosts',
     'GetLogsFail': 'Could not get logs',
     'GetDuplicateHost': 'Each Host should map to only one single Node',
@@ -1089,7 +1089,7 @@ DFTStr = {
     "ParamInUse": "Parameter in use",
     "Resources": "Resources",
     "TBModules": "Modules",
-    "CloseModule": "Close module",
+    "CloseModule": "Close",
     "PinOperatorBar": "Show Operator Nodes Bar",
     "ShowLabels": "Show operator node labels",
     // with replace
@@ -1230,7 +1230,7 @@ DSFormTStr = {
     'CreateWarn': 'Too Many Columns To Create',
     'NoQuoteWarn': 'No Quote Character',
     'NoQuoteWarnMsg': 'You have not selected a quoting character for your dataset. Are you sure you want to continue?',
-    'UDFHint': 'Please select a scalar fn module and function then click \"Apply UDF\" button to apply the scalar function.',
+    'UDFHint': 'Please select a scalar function module and function then click \"Apply UDF\" button to apply the scalar function.',
     'GeneratedTargetHint': 'The path for this connector should be the number of rows desired in the dataset',
     'KafkaConnectorHint': 'Kafka topic name',
     'ImportMultiple': 'Importing Multiple Datasets',
@@ -1536,7 +1536,7 @@ SQLTStr = {
     "FuncInstr": "Table function can be used as part of the SQL query, the function can take one or more inputs tables and output a table. You can build any transformation & business logic between the inputs and output",
     "DupFuncName": "Table function name already in use",
     "CreateFunc": "Create new table function",
-    "CreateUDF": "Create new scalar fn",
+    "CreateUDF": "Create new scalar function",
     "WorkSpace": "SQL WorkSpace",
     "DeleteSnippet": "Delete Query",
     "DeleteSnippetMsg": "Are you sure you want to delete query \"<name>\"?",
@@ -1562,7 +1562,7 @@ SQLTStr = {
     "OpenQueryMsg": "You will lose any unsaved changes to open this query. Click Cancel if you want to save your current query?",
     "DebugPlan": "Debug Plan",
     "ReadOnly": "Current module doesn't support the use of SQL Editor",
-    "SnippetHint": "Run a SQL query to get started, add/modify the operators in the module builder to build an advanced data app"
+    "SnippetHint": "Run a SQL query to get started, add/modify the operators in the app builder to build a data app"
 };
 
 LoginConfigTStr = {
@@ -1701,5 +1701,5 @@ OpPanelTStr = {
     "SortColumnHeading": "Columns to sort",
     "SelectDSSource": "Please select a dataset source and provide a prefix.",
     "InvalidDSSource": "Invalid dataset source selected.",
-    "CreateNewUDF": "Create New Scalar Fn"
+    "CreateNewUDF": "Create New Scalar Function"
 };

@@ -1,18 +1,18 @@
-<div id="splashContainer">
+<!-- <div id="splashContainer">
   <div id="animation_container" style="background-color:rgba(255, 255, 255, 0); width:550px; height:400px">
       <canvas id="canvas" width="550" height="400" style="position: absolute; display: block; background-color:rgba(255, 255, 255, 0.00);"></canvas>
       <div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:550px; height:400px; position: absolute; left: 0px; top: 0px; display: block;">
       </div>
   </div>
-</div>
-<div id="logo" class="xc-logo">
-  <div class="innerShadow"></div>
-    <i class="icon xd-logo-bw"></i>
+</div> -->
+<div id="logo" class="xc-new-logo">
+  <i class="icon xi-x-logo"></i>
 </div>
 <div id="loginContainer">
   <div class="outerWrap">
     <header>
-      <h2 class="loginHeader"><%= dicts.login.loginHeader %></h2>
+      <!-- <h2 class="loginHeader"><%= dicts.login.loginHeader %></h2> -->
+      <h2 class="loginHeader">Data App Notebook</h2>
       <h2 class="signupHeader hidden"><%= dicts.login.loginHeader %></h2>
     </header>
   </div>
@@ -26,14 +26,14 @@
           <label for="loginNameBox">
             <input name="noautocomplete" type="text" class="input" autocomplete="off" style="display: none;">
             <input id="loginNameBox" name="noautocomplete" type="text" class="input" autocomplete="off" spellcheck="false" autofocus required>
-            <div class="label"><%= dicts.login.username %></div>
+            <div class="label"><%= dicts.login.usernameLower %></div>
           </label>
         </div>
         <div class="section">
           <label for="loginPasswordBox">
             <input name="noautocomplete2" type="password" class="input" autocomplete="off" value=" " style="display: none;">
             <input id="loginPasswordBox" name="noautocomplete2" class="input" type="password" autocomplete="off">
-            <div class="label"><%= dicts.login.password %></div>
+            <div class="label"><%= dicts.login.passwordLower %></div>
           </label>
         </div>
         <button id="loginButton" class="btn login" type="submit"><span class="text"><%= dicts.login.login %></span></button>
