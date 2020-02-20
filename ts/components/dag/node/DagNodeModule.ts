@@ -39,7 +39,25 @@ class DagNodeModule extends DagNode {
         return 0; // no linking
     }
 
-    public lineageChange(columns: ProgCol[]): DagLineageChange {
+    // public lineageChange(columns: ProgCol[]): DagLineageChange {
+    public lineageChange(_: ProgCol[]): DagLineageChange {
+        let columns = [];
+
+        this.getTailNodes().forEach((outputNode) => {
+            const lineage = outputNode.getLineage();
+            if (lineage != null) {
+                for (const col of lineage.getColumns()) {
+                    const newCol = ColManager.newPullCol(
+                        xcHelper.parsePrefixColName(col.getBackColName()).name,
+                        col.getBackColName(),
+                        col.getType()
+                    );
+                    columns.push(newCol);
+                }
+            }
+        });
+
+        // XXX TODO: Compare parent's columns with the result columns to find out changes
         return {
             columns: columns,
             changes: []
@@ -106,6 +124,37 @@ class DagNodeModule extends DagNode {
             this.headNode = this._findHeadNodeFromTab(this.tab, this._headNodeId);
         }
         return this.headNode;
+    }
+
+    public getTailNodes(): DagNode[] {
+        let headNode: DagNodeIn;
+        try {
+            headNode = this.getHeadNode();
+        } catch (e) {
+            console.error(e);
+        }
+        const tailNodes: DagNode[] = [];
+        if (!headNode) {
+            return tailNodes;
+        }
+
+        const seen = new Set();
+        traverse(headNode);
+        function traverse(node) {
+            if (seen.has(node.getId())) {
+                return;
+            }
+            seen.add(node.getId());
+            const children =  node.getChildren();
+            if (!children.length) {
+                tailNodes.push(node);
+            } else {
+                children.forEach(child => {
+                    traverse(child);
+                });
+            }
+        }
+        return tailNodes;
     }
 
      /**
