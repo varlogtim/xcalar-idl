@@ -124,19 +124,11 @@ class CreateAppModal {
             return false;
         }
         const moduleNodes = this._graphMap.get($checkbox.closest(".row").data("index"));
-        const moduleMap: Map<string, DagNodeModule[]> = new Map();
-        moduleNodes.forEach(moduleNode => {
-            let dagTab = moduleNode.getTab();
-            if (!moduleMap.get(dagTab.getId())) {
-                moduleMap.set(dagTab.getId(), []);
-            }
-            moduleMap.get(dagTab.getId()).push(moduleNode);
-        });
-        const graph = DagViewManager.Instance.buildModuleGraph(moduleMap);
-
-        AppList.Instance.createApp(newName, graph);
+        const succeed = AppList.Instance.createApp(newName, moduleNodes);
         setTimeout(() => {
-            xcUIHelper.showSuccess("App Created.");
+            if (succeed) {
+                xcUIHelper.showSuccess("App Created.");
+            }
         }, 300);
 
         this._close();

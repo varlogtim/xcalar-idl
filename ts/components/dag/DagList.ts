@@ -181,6 +181,25 @@ class DagList extends Durable {
     }
 
     /**
+     * DagList.Instanace.addUserDags
+     * @param dagTabs
+     */
+    public addUserDags(dagTabs: DagTabUser[]): boolean {
+        if (!this._setup) {
+            return false;
+        }
+
+        dagTabs.forEach((dagTab) => {
+            if (dagTab.getType() !== DagTabType.User) {
+                // in case of error
+                throw new Error("Wrong type of module to add");
+            }
+            this._dags.set(dagTab.getId(), dagTab);
+        });
+        this._saveUserDagList();
+    }
+
+    /**
      * Changes the name of a Dataflow in the user's dataflows.
      * @param newName the new name
      * @param id The dataflow we change.

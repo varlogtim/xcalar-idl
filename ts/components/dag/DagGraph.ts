@@ -2320,6 +2320,9 @@ class DagGraph extends Durable {
         if (node instanceof DagNodeSQLFuncIn) {
             order = node.getOrder();
         }
+        if (node instanceof DagNodeIn) {
+            this.nodeHeadsMap.delete(node.getHead());
+        }
         this.nodesMap.delete(node.getId());
         this.nodeTitlesMap.delete(node.getTitle());
         this._updateHeads();
