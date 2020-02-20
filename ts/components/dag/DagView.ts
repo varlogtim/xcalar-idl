@@ -73,7 +73,7 @@ class DagView {
         maxX: number,
         maxY: number
     } {
-        const trees = graph.getDisjointTrees();
+        const trees = graph.getDisjointGraphs();
 
         let startingWidth: number = 0;
         const allNodeInfos = [];
@@ -5628,7 +5628,7 @@ class DagView {
             $textArea.remove();
             $origTitle.show();
 
-            if (newVal === origVal) {
+            if (!newVal || newVal === origVal) {
                 return;
             }
             onChange(newVal);

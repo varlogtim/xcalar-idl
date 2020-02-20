@@ -17,7 +17,8 @@ interface ModalHelperOptions {
     close?: Function,
     noResize?: boolean,
     sizeCallBack?: Function,
-    dragHandle?: string
+    dragHandle?: string,
+    offscreenDraggable?: boolean
 }
 
 interface ModalHelperCenterOptions {
@@ -179,12 +180,44 @@ class ModalHelper {
         }
 
         // draggable
-        $modal.draggable({
-            "handle": options.dragHandle || ".modalHeader",
-            "cursor": "-webkit-grabbing",
-            "containment": "window"
-        });
-
+        if (options.offscreenDraggable) {
+            let minLeft = -40;
+            let maxLeft: number;
+            let maxTop: number;
+            $modal.draggable({
+                "handle": options.dragHandle || ".modalHeader",
+                "cursor": "-webkit-grabbing",
+                "containment": "",
+                start: () => {
+                    let winWidth = window.innerWidth;
+                    let winHeight = window.innerHeight;
+                    maxLeft = winWidth - 40;
+                    maxTop = winHeight - 30;
+                },
+                drag: (_event, ui) => {
+                    if (ui.position.left < minLeft) {
+                        ui.helper.css("left", minLeft);
+                        ui.position.left = minLeft;
+                    } else if (ui.position.left > maxLeft) {
+                        ui.helper.css("left", maxLeft);
+                        ui.position.left = maxLeft;
+                    }
+                    if (ui.position.top < 1) {
+                        ui.helper.css("top", 1);
+                        ui.position.top = 1;
+                    } else if (ui.position.top > maxTop) {
+                        ui.helper.css("top", maxTop);
+                        ui.position.top = maxTop;
+                    }
+                }
+            });
+        } else {
+            $modal.draggable({
+                "handle": options.dragHandle || ".modalHeader",
+                "cursor": "-webkit-grabbing",
+                "containment": "window"
+            });
+        }
 
         if (!options.noResize) {
             const resizeOptions: JQueryUI.ResizableOptions = {
@@ -253,43 +286,8 @@ class ModalHelper {
             this.refreshTabbing();
         }
 
-        $(document).on("keydown.xcModal" + this.id, function(event) {
-            if (event.which === keyCode.Escape) {
-                if (options.noEsc || $modal.hasClass("locked")) {
-                    return true;
-                }
-                $modal.find(".modalHeader .close").click();
-                return false;
-            } else if (event.which === keyCode.Enter) {
-                if (options.noEnter || ($(":focus").hasClass('btn') &&
-                    $(":focus").closest('#' + self.id).length)) {
-                    // let default behavior take over
-                    return true;
-                }
-                const $btn: JQuery = $modal.find('.modalBottom .btn:visible')
-                                .filter(function() {
-                                    return (!$(this).hasClass('cancel') &&
-                                            !$(this).hasClass('close'));
-                                });
-                if ($btn.length === 0) {
-                    // no confirm button so treat as close
-                    if (!$modal.hasClass('locked')) {
-                        $modal.find(".modalHeader .close").click();
-                    }
-                } else if ($btn.length === 1) {
-                    // trigger confirm
-                    $btn.click();
-                } else {
-                    // multiple confirm buttons
-                    StatusBox.show(ErrTStr.SelectOption,
-                                    $modal.find('.modalBottom'), false, {
-                                        "type": "info",
-                                        "highZindex": true,
-                                        "offsetY": 12
-                                    });
-                }
-                return false;
-            }
+        $(document).on("keydown.xcModal" + this.id, (event) => {
+            return self.__keyDownHandler(event, options, $modal);
         });
 
         // this should be the last step
@@ -298,7 +296,11 @@ class ModalHelper {
             jQuery.when(options.open())
             .then(deferred.resolve)
             .fail(deferred.reject);
-        } else if (!options.noBackground) {
+        } else if (options.noBackground) {
+            $modal.addClass("noBackground").show();
+            $modal.addClass("visible");
+            deferred.resolve();
+        } else {
             const $modalBg: JQuery = $("#modalBackground");
             if (window.gMinModeOn) {
                 $modalBg.show();
@@ -314,10 +316,6 @@ class ModalHelper {
                 });
             }
             $modal.addClass("visible");
-        } else {
-            $modal.addClass("noBackground").show();
-            $modal.addClass("visible");
-            deferred.resolve();
         }
 
         return deferred.promise();
@@ -648,6 +646,46 @@ class ModalHelper {
                     !$ele.is("[readonly]") && !$ele.hasClass("unavailable") &&
                     !$ele.hasClass("btn-disabled") &&
                     $ele.css('visibility') !== "hidden");
+        }
+    }
+
+
+    private __keyDownHandler(event, options, $modal) {
+        if (event.which === keyCode.Escape) {
+            if (options.noEsc || $modal.hasClass("locked")) {
+                return true;
+            }
+            $modal.find(".modalHeader .close").click();
+            return false;
+        } else if (event.which === keyCode.Enter) {
+            if (options.noEnter || ($(":focus").hasClass('btn') &&
+                $(":focus").closest('#' + this.id).length)) {
+                // let default behavior take over
+                return true;
+            }
+            const $btn: JQuery = $modal.find('.modalBottom .btn:visible')
+                            .filter(function() {
+                                return (!$(this).hasClass('cancel') &&
+                                        !$(this).hasClass('close'));
+                            });
+            if ($btn.length === 0) {
+                // no confirm button so treat as close
+                if (!$modal.hasClass('locked')) {
+                    $modal.find(".modalHeader .close").click();
+                }
+            } else if ($btn.length === 1) {
+                // trigger confirm
+                $btn.click();
+            } else {
+                // multiple confirm buttons
+                StatusBox.show(ErrTStr.SelectOption,
+                                $modal.find('.modalBottom'), false, {
+                                    "type": "info",
+                                    "highZindex": true,
+                                    "offsetY": 12
+                                });
+            }
+            return false;
         }
     }
 }

@@ -553,8 +553,7 @@ class ResourceMenu {
 
         $container.on("click", ".addApp", (event) => {
             event.stopPropagation();
-            const name = AppList.Instance.getValidName(null);
-            AppList.Instance.createApp(name);
+            CreateAppModal.Instance.show();
         });
 
         $container.on("click", ".addUDF", (event) => {

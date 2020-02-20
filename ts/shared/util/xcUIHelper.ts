@@ -202,7 +202,7 @@ namespace xcUIHelper {
 
         successTimers.step4 = setTimeout(function() {
             xcUIHelper.hideSuccessBox();
-        }, 1800);
+        }, 2200);
     }
 
     /**

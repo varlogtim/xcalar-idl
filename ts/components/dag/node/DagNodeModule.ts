@@ -52,11 +52,9 @@ class DagNodeModule extends DagNode {
     protected _genParamHint(): string {
         let hint: string = "";
         try {
-            // may not have tab if it was loaded before other tabs
-            if (!this.tab) {
-                this.tab = <DagTabUser>this._findTab(this._tabId);
-            }
-            if (this.tab && !this.headNode) {
+
+            const tab = this.getTab();
+            if (tab && !this.headNode) {
                 this.headNode = this._findHeadNodeFromTab(this.tab, this._headNodeId);
             }
             hint = this.tab.getName() + "." + this.headNode.getHead();
@@ -64,6 +62,18 @@ class DagNodeModule extends DagNode {
             console.error(e);
         }
         return hint;
+    }
+
+       // may not have tab if it was loaded before other tabs
+    public getTab(): DagTabUser {
+        if (!this.tab) {
+            this.tab = <DagTabUser>this._findTab(this._tabId);
+        }
+        return this.tab;
+    }
+
+    public getFnName(): string {
+        return this._genParamHint() || "";
     }
 
      /**

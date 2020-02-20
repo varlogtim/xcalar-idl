@@ -11,6 +11,7 @@
 @modal-bottom-h: @modal-padding-section + @height-btn + @modal-padding-vertical;
 @modal-normal-w: 500px;
 @modal-large-w: 650px;
+@modal-normal-h: 500px;
 
 .modalHorizontalPadding() {
     padding-left: @modal-padding-horizontal;
@@ -32,6 +33,8 @@
     .rounded(16px);
     width: @modal-normal-w;
     min-width: @modal-normal-w;
+    height: @modal-normal-h;
+
     font-size: 14px;
 
     &.dragging {
@@ -211,6 +214,28 @@
         right: -5px;
     }
 }
+
+.modalContainer.flex {
+    flex-direction: column;
+
+    &.visible {
+        display: flex !important;
+    }
+
+    .modalHeader, .modalInstruction, .modalBottom , .modalBottomMain {
+        flex: 0 0 auto;
+    }
+    .modalMain {
+        flex: 1 1 auto;
+        overflow: auto;
+    }
+
+    .modalBottomMain {
+        .size(@width: 100%);
+        padding: 16px 24px 0px;
+    }
+}
+
 
 #modalBackground, .modalBackground {
     .position(fixed, @top: 0, @left: 0);
@@ -3476,7 +3501,7 @@ html.microsoft {
                 .flex-wrap(wrap);
             }
             .checkboxSection {
-                .flex(0 0 auto);              
+                .flex(0 0 auto);
             }
         }
 
@@ -6687,6 +6712,95 @@ html.microsoft {
                 box-shadow: none;
                 opacity: @opacity-hover;
             }
+        }
+    }
+}
+
+#createAppModal {
+    font-size: 12px;
+    min-height: 300px;
+    min-width: 400px;
+
+    .modalInstruction {
+        padding-top: 16px;
+        padding-bottom: 16px;
+        height: auto;
+    }
+
+    .modalMain {
+        padding-top: 8px;
+        padding-right: 8px;
+    }
+
+    .row {
+        display: flex;
+        margin-bottom: 8px;
+    }
+
+    .checkbox {
+        height: 16px;
+        width: auto;
+        margin-top: 3px;
+        padding-right: 8px;
+
+        .icon {
+            font-size: 11px;
+        }
+    }
+
+    .listWrap {
+        width: 100%;
+        overflow: hidden;
+
+        .listInfo {
+            height: 20px;
+            padding: 0px 8px 0px 0px;
+            display: flex;
+            cursor: pointer;
+
+            .expand {
+                margin-left: auto;
+            }
+        }
+
+        .name, .text {
+            .textOverflowOneLine;
+            float: none;
+        }
+
+        li {
+            border-top: none;
+            border-bottom: none;
+            height: 24px;
+            font-size: 11px;
+            padding: 0px 8px 0px 16px;
+            line-height: 20px;
+
+           &:hover {
+               opacity: 1;
+           }
+       }
+    }
+
+    .emptyMsg {
+        text-align: center;
+        padding: 24px;
+        width: 100%;
+    }
+
+    .inputWrap {
+        display: flex;
+        align-items: center;
+        width: 100%;
+
+        label {
+            flex: 0 0 auto;
+            padding-right: 8px;
+        }
+
+        .xc-input {
+            height: 24px;
+            font-size: 12px;
         }
     }
 }

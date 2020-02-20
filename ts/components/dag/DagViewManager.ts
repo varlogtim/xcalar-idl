@@ -1236,15 +1236,33 @@ class DagViewManager {
     }
 
     /**
+     *
+     * @param appId
+     * doesn't actually returns graphs, turns a set of module nodes that belong to graphs
+     */
+    public getDisjointGraphs(appId?: string): {
+        graph: DagGraph,
+        disjointGraphs: Set<Set<DagNodeModule>>
+    } {
+        let map = this._getModules(appId);
+        let graph: DagGraph = this.buildModuleGraph(map);
+        const disjointGraphs = <Set<Set<DagNodeModule>>>graph.getDisjointGraphs();
+
+        return {
+            graph: graph,
+            disjointGraphs: disjointGraphs
+        };
+    }
+
+    /**
      * DagViewManager.Instance.getAppGraph
      */
-    public getAppGraph(appId: string, headNode?: DagNode, useCurrentTab?: boolean): DagGraph {
-        let map = this._getModules(appId);
-        let graph = this._buildModuleGraph(map);
+    public getAppGraph(appId?: string, headNode?: DagNode, useCurrentTab?: boolean): DagGraph {
+        const {graph, disjointGraphs} = this.getDisjointGraphs(appId);
+
         if (headNode) {
-            const trees = <Set<Set<DagNodeModule>>>graph.getDisjointTrees();
             let nodeFoundOverall = false;
-            for (let tree of trees) {
+            for (let tree of disjointGraphs) {
                 let nodeFoundInCurrentTree = false;
                 if (!nodeFoundOverall) {
                     for (let node of tree) {
@@ -1275,7 +1293,7 @@ class DagViewManager {
             DFNodeLineagePopup.Instance.update(dagTab.getId());
 
             const allModuleNodes = graph.getAllNodes();
-            for (let [key, node] of allModuleNodes) {
+            for (let [_key, node] of allModuleNodes) {
                 if ((<DagNodeModule>node).headNode === headNode) {
                     const moduleNodeId = node.getId();
                     DagViewManager.Instance.selectNodes(dagTab.getId(), [moduleNodeId]);
@@ -1290,24 +1308,21 @@ class DagViewManager {
     }
 
     // return a map of tabId and the node
-    private _getModules(appId: string): Map<string, DagNodeModule[]> {
+    private _getModules(appId?: string): Map<string, DagNodeModule[]> {
         const map: Map<string, DagNodeModule[]> = new Map();
         const tabs = DagTabManager.Instance.getTabs();
         tabs.forEach((tab) => {
-            if (tab.getApp() === appId &&
-                tab instanceof DagTabUser &&
-                !(tab instanceof DagTabMain) &&
-                !(tab instanceof DagTabSQLExecute) &&
-                !(tab instanceof DagTabSQLFunc)
+            if ((appId ? tab.getApp() === appId : true) &&
+                tab.getType() === DagTabType.User
             ) {
-                const modules = tab.getAppModules();
+                const modules = (<DagTabUser>tab).getAppModules();
                 map.set(tab.getId(), modules);
             }
         });
         return map;
     }
 
-    private _buildModuleGraph(map: Map<string, DagNodeModule[]>): DagGraph {
+    public buildModuleGraph(map: Map<string, DagNodeModule[]>): DagGraph {
         const graph = new DagGraph();
         const moduleNodes: DagNodeModule[] = [];
         map.forEach((modules: DagNodeModule[]) => {
@@ -1318,20 +1333,38 @@ class DagViewManager {
         });
 
         moduleNodes.forEach((childeNode) => {
+            let index = 0;
             childeNode.linkIns.forEach((linkInNode) => {
-                const res = linkInNode.getLinkedNodeAndGraph();
+                let res;
+                try {
+                    res = linkInNode.getLinkedNodeAndGraph();
+                } catch (e) {
+                    console.error(e);
+                    return;
+                }
                 const linkedGraph = res.graph;
                 const linkOutNode = res.node;
                 const modules = map.get(linkedGraph.getTabId());
                 const linkOutNodeId: DagNodeId = linkOutNode.getId();
                 for (let moduleNode of modules) {
                     if (moduleNode.linkOuts.has(linkOutNodeId)) {
-                        graph.connect(moduleNode.getId(), childeNode.getId());
+                        graph.connect(moduleNode.getId(), childeNode.getId(), index++);
                         break;
                     }
                 }
             });
         });
+
+
+        const positionInfo = DagView.getAutoAlignPositions(graph);
+        positionInfo.nodeInfos.forEach((nodeInfo) => {
+            graph.moveNode(nodeInfo.id, {
+                x: nodeInfo.position.x + DagView.gridSpacing,
+                y: nodeInfo.position.y + DagView.gridSpacing,
+            });
+        });
+        graph.setDimensions(positionInfo.maxX + DagView.horzPadding + 100,
+                            positionInfo.maxY + DagView.vertPadding + 100);
 
         return graph;
     }

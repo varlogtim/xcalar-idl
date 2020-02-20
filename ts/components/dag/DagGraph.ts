@@ -1875,7 +1875,7 @@ class DagGraph extends Durable {
         });
     }
 
-    public getDisjointTrees():  Set<Set<DagNode>> {
+    public getDisjointGraphs():  Set<Set<DagNode>> {
         const trees: Set<Set<DagNode>> = new Set();
         const seen: Set<DagNodeId> = new Set();
         this.nodesMap.forEach((node, nodeId) => {

@@ -353,10 +353,7 @@ class DagGraphBar {
             const tabs = DagTabManager.Instance.getTabs();
             tabs.forEach((tab) => {
                 if (tab.getApp() === appId &&
-                    tab instanceof DagTabUser &&
-                    !(tab instanceof DagTabMain) &&
-                    !(tab instanceof DagTabSQLExecute) &&
-                    !(tab instanceof DagTabSQLFunc)
+                    tab.getType() === DagTabType.User
                 ) {
                     const graph = tab.getGraph();
                     const tabName = tab.getName();

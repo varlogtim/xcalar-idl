@@ -1,0 +1,25 @@
+<div id="createAppModal" class="modalContainer flex">
+  <header class="modalHeader">
+    <span class="text">Create an App</span>
+    <div class="close" data-container="body" data-toggle="tooltip"
+    data-original-title="<%= dicts.common.Close %>">
+        <i class="icon xi-close"></i>
+    </div>
+  </header>
+
+  <div class="modalInstruction">To create an app, select from the list of disjoint graphs below and provide a name for your app.</div>
+  <div class="modalMain">
+    <div class="graphList"></div>
+  </div>
+  <div class="modalBottomMain">
+    <div class="inputWrap">
+        <label>App name:</label>
+        <input type="text" class="newName xc-input textOverflow" spellcheck="false" placeholder="myApp">
+    </div>
+
+  </div>
+  <div class="modalBottom">
+    <button class="btn confirm btn-submit btn-rounded">Create</button>
+    <button class="btn cancel btn-secondary btn-rounded"><%= dicts.common.Cancel %></button>
+  </div>
+</div>

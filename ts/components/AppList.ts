@@ -35,8 +35,8 @@ class AppList extends Durable {
     /**
      * AppList.Instance.createApp
      */
-    public createApp(name: string): void {
-        return this._createApp(name);
+    public createApp(name: string, graph?: DagGraph): void {
+        return this._createApp(name, null, graph);
     }
 
     /**
@@ -125,7 +125,7 @@ class AppList extends Durable {
         return false;
     }
 
-    private _createApp(name: string, id?: string): void {
+    private _createApp(name: string, id?: string, graph?: DagGraph): void {
         if (this._has(name)) {
             return;
         }
@@ -136,12 +136,15 @@ class AppList extends Durable {
         });
         this._save();
         this._refreshMenuList();
-        this._createMainTab(id);
+        this._createMainTab(id, graph);
     }
 
-    private _createMainTab(app: string): void {
+    private _createMainTab(app: string, graph?: DagGraph): void {
         const name: string = DagList.Instance.getValidName("Main", undefined, undefined, undefined, app);
-        const graph: DagGraph = new DagGraph();
+        if (!graph) {
+            graph = new DagGraph();
+        }
+
         // graph.addMainNode();
         const mainTab: DagTabMain = new DagTabMain({
             app,

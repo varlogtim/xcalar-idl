@@ -110,8 +110,8 @@ abstract class DagTabProgress extends DagTab {
         const positionInfo = DagView.getAutoAlignPositions(this._dagGraph);
         positionInfo.nodeInfos.forEach((nodeInfo) => {
             graph.moveNode(nodeInfo.id, {
-                x: nodeInfo.position.x + 100,
-                y: nodeInfo.position.y + 100,
+                x: nodeInfo.position.x + (DagView.gridSpacing * 4),
+                y: nodeInfo.position.y + (DagView.gridSpacing * 4),
             });
         });
         graph.setDimensions(positionInfo.maxX + DagView.horzPadding + 100,

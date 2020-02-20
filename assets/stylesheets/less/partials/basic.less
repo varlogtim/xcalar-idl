@@ -1372,12 +1372,15 @@ input {
         .size(@width:50px, @min-height: 100px);
         background-color: @color-error-border-light;
         text-align: center;
-        color: @color-font-defaultInverse;
+        color: @color-font-white;
 
         .icon {
             font-size: 24px;
             margin-top: 14px;
             display: none;
+            &.xi-error-outline {
+                color: @color-font-white;
+            }
         }
     }
     .content {
@@ -1451,7 +1454,7 @@ input {
 
     &.error {
         .vertBar {
-            .xi-error {
+            .xi-error-outline {
                 display: block;
             }
         }
@@ -1584,7 +1587,7 @@ input {
     width: 100%;
     overflow: hidden;
     pointer-events: none;
-    transition: 0.3s transform;
+    transition: 0.4s transform;
     transform: translateY(-@messageHeight);
     color: @color-font-white;
     font-size: 14px;
