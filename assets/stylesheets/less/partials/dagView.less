@@ -1227,7 +1227,6 @@
         }
 
         &.run, &.stop, &.listFns {
-            font-size: 12px;
             .rounded(4px);
             line-height: @dagGraphBarHeight - 8px;
             height: @dagGraphBarHeight - 8px;
@@ -1380,7 +1379,7 @@
     }
 
     .divider {
-        height: 24px;
+        height: @dagGraphBarHeight - 12px;
         width: 1px;
         margin: 0px 5px;
         .vertical-align;
@@ -1391,7 +1390,6 @@
         background-color: transparent;
         color: @color-border-bar;
         padding: 0px 8px;
-        font-size: 12px;
         height: @dagGraphBarHeight - 10px;
         line-height: @dagGraphBarHeight - 10px;
         border: 1px solid  @color-border-bar;
@@ -1421,15 +1419,24 @@
             margin-right: 8px;
         }
 
-        .viewOnly {
-            display: none;
-            font-style: italic;
-            color: @color-bg-cancel-gray-hover;
-        }
+
     }
+    .viewOnly {
+        display: none;
+        font-style: italic;
+        color: @color-bg-cancel-gray-hover;
+        height: @dagGraphBarHeight;
+        line-height: @dagGraphBarHeight;
+        margin-left: 4px;
+        margin-right: 4px;
+    }
+
     &.viewOnly {
         .viewOnly {
             display: flex;
+        }
+        .run {
+            display: none;
         }
     }
     .runStatus {

@@ -26,10 +26,7 @@
             <%= dicts.dag.NumOperatorNodes %>:
             <span class="numNodes">0</span>
         </div>
-        <div class="viewOnly">
-            <div class="divider"></div>
-            <%= dicts.dag.ViewOnly %>
-        </div>
+
         <div class="runStatus">
             <div class="divider"></div>
             <div class="animatedEllipsisWrapper">
@@ -46,6 +43,9 @@
     </div>
     <div class="topButtons">
         <button class="btn btn-secondary useInSQL">Use In SQL</button>
+        <div class="topButton viewOnly">
+            <%= dicts.dag.ViewOnly %>
+        </div>
         <div class="topButton run dropDownList">
             <span>
                 <span class="text">Execute</span>
