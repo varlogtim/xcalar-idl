@@ -376,11 +376,16 @@
     }
 }
 
-#modelingDagPanel, #sqlWorkSpacePanel{
+#sqlWorkSpacePanel{
     > .mainContent {
         > .leftSection {
             .transition(margin-left @time-menuAnim);
             min-width: 100px;
+            .size(@height: ~"calc(100% - @{height-topBar} - @{height-bottomBar})");
+
+            > .menuSection {
+                padding-bottom: 0px;
+            }
         }
     }
 }

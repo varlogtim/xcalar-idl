@@ -89,83 +89,97 @@
 			if (options.direction.y === true) dirStr = dirStr ? "both" : "vertical";
 
 			var el = this.eq(0);
-			var scroller = el.closest(":scrollable(" + dirStr + ")");
-
+			var $scrollers = el.closest(":scrollable(" + dirStr + ")");
+            $scrollers = $scrollers.add($scrollers.parents(":scrollable(" + dirStr + ")"));
 			// check if there's anything to scroll in the first place
-			if (scroller.length > 0)
+			if ($scrollers.length > 0)
 			{
-				scroller = scroller.eq(0);
+                let callbackCalled = false;
+                $scrollers.each(function() {
+                    var scroller = $(this);
+                    var dim = {
+                        e: dimensions(el),
+                        s: dimensions(scroller)
+                    };
 
-				var dim = {
-					e: dimensions(el),
-					s: dimensions(scroller)
-                };
+                    var rel = {
+                        top: dim.e.rect.top - (dim.s.rect.top + dim.s.border.top),
+                        bottom: dim.s.rect.bottom - dim.s.border.bottom - dim.s.scrollbar.bottom - dim.e.rect.bottom,
+                        left: dim.e.rect.left - (dim.s.rect.left + dim.s.border.left),
+                        right: dim.s.rect.right - dim.s.border.right - dim.s.scrollbar.right - dim.e.rect.right
+                    };
 
-				var rel = {
-					top: dim.e.rect.top - (dim.s.rect.top + dim.s.border.top),
-					bottom: dim.s.rect.bottom - dim.s.border.bottom - dim.s.scrollbar.bottom - dim.e.rect.bottom,
-					left: dim.e.rect.left - (dim.s.rect.left + dim.s.border.left),
-					right: dim.s.rect.right - dim.s.border.right - dim.s.scrollbar.right - dim.e.rect.right
-				};
+                    var animOptions = {};
 
-				var animOptions = {};
+                    // vertical scroll
+                    if (options.direction.y === true)
+                    {
+                        if (rel.top < 0)
+                        {
+                            animOptions.scrollTop = dim.s.scroll.top + rel.top - options.padding;
+                        }
+                        else if (rel.top > 0 && rel.bottom < 0)
+                        {
+                            animOptions.scrollTop = dim.s.scroll.top + Math.min(rel.top, -rel.bottom) + options.padding;
+                        }
+                    }
 
-				// vertical scroll
-				if (options.direction.y === true)
-				{
-					if (rel.top < 0)
-					{
-						animOptions.scrollTop = dim.s.scroll.top + rel.top - options.padding;
-					}
-					else if (rel.top > 0 && rel.bottom < 0)
-					{
-						animOptions.scrollTop = dim.s.scroll.top + Math.min(rel.top, -rel.bottom) + options.padding;
-					}
-				}
+                    // horizontal scroll
+                    if (options.direction.x === true)
+                    {
+                        if (rel.left < 0)
+                        {
+                            animOptions.scrollLeft = dim.s.scroll.left + rel.left - options.padding;
+                        }
+                        else if (rel.left > 0 && rel.right < 0)
+                        {
+                            animOptions.scrollLeft = dim.s.scroll.left + Math.min(rel.left, -rel.right) + options.padding;
+                        }
+                    }
 
-				// horizontal scroll
-				if (options.direction.x === true)
-				{
-					if (rel.left < 0)
-					{
-                        animOptions.scrollLeft = dim.s.scroll.left + rel.left - options.padding;
-					}
-					else if (rel.left > 0 && rel.right < 0)
-					{
-						animOptions.scrollLeft = dim.s.scroll.left + Math.min(rel.left, -rel.right) + options.padding;
-					}
-				}
+                    // scroll if needed
+                    if (!$.isEmptyObject(animOptions))
+                    {
+                        if (rootrx.test(scroller[0].nodeName))
+                        {
+                            scroller = $("html,body");
+                        }
+                        if (options.duration === 0) {
+                            if (animOptions.hasOwnProperty("scrollLeft")) {
+                                scroller.scrollLeft(animOptions.scrollLeft);
+                            }
+                            if (animOptions.hasOwnProperty("scrollTop")) {
+                                scroller.scrollTop(animOptions.scrollTop);
+                            }
+                            if (!callbackCalled) {
+                                $.isFunction(options.complete) && options.complete.call(scroller[0]);
+                                callbackCalled = true;
+                            }
+                        } else {
+                            scroller
+                            .animate(animOptions, options.duration)
+                            .eq(0) // we want function to be called just once (ref. "html,body")
+                            .queue(function (next) {
+                                if (!callbackCalled) {
+                                    $.isFunction(options.complete) && options.complete.call(scroller[0]);
+                                    callbackCalled = true;
+                                }
 
-				// scroll if needed
-				if (!$.isEmptyObject(animOptions))
-				{
-					if (rootrx.test(scroller[0].nodeName))
-					{
-						scroller = $("html,body");
-					}
-					if (options.duration === 0) {
-						if (animOptions.hasOwnProperty("scrollLeft")) {
-							scroller.scrollLeft(animOptions.scrollLeft);
-						}
-						if (animOptions.hasOwnProperty("scrollTop")) {
-							scroller.scrollTop(animOptions.scrollTop);
-						}
-						$.isFunction(options.complete) && options.complete.call(scroller[0]);
-					} else {
-						scroller
-						.animate(animOptions, options.duration)
-						.eq(0) // we want function to be called just once (ref. "html,body")
-						.queue(function (next) {
-							$.isFunction(options.complete) && options.complete.call(scroller[0]);
-							next();
-						});
-					}
-				}
-				else
-				{
-					// when there's nothing to scroll, just call the "complete" function
-					$.isFunction(options.complete) && options.complete.call(scroller[0]);
-				}
+                                next();
+                            });
+                        }
+                    }
+                    else
+                    {
+                        // when there's nothing to scroll, just call the "complete" function
+                        if (!callbackCalled) {
+                            $.isFunction(options.complete) && options.complete.call(scroller[0]);
+                            callbackCalled = true;
+                        }
+                    }
+                });
+
+
 			}
 
 			// return set back

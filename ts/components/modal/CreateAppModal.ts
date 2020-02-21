@@ -172,15 +172,19 @@ class CreateAppModal {
         const moduleNodes = this._graphMap.get($checkbox.closest(".row").data("index"));
         const succeed = AppList.Instance.createApp(newName, moduleNodes);
         if (succeed) {
-            // TODO move this logic into ResourceMenu or DagList
-            $("#dagListSection .apps .listInfo").filter(function() {
-                return $(this).text() === newName;
-            }).click().scrollintoview({duration: 0});
+
         }
 
         setTimeout(() => {
             if (succeed) {
                 xcUIHelper.showSuccess("App Created.");
+                // TODO move this logic into ResourceMenu or DagList
+                if (!$("#dagList .apps").hasClass("active")) {
+                    $("#dagList .apps").children(".listInfo").click();
+                }
+                $("#dagList .apps .listInfo").filter(function() {
+                    return $(this).text() === newName;
+                }).click();
             } else {
                 xcUIHelper.showFail("App Creation Failed.");
             }
