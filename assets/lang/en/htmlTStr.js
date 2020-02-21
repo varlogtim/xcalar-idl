@@ -457,6 +457,7 @@ module.exports = {
         "AddTable": "Add Table",
         "SQL": "SQL Queries",
         "AddSQL": "New SQL Query",
+        "AppModules": "App Modules",
         "Modules": "Modules",
         "AddModule": "New Module",
         "TableFuncs": "Table Functions",

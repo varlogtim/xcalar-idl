@@ -4,4 +4,11 @@ class DagTabMain extends DagTabUser {
         super(options)
         this._type = DagTabType.Main;
     }
+
+    /**
+     * @override
+     */
+    public getName(): string {
+        return "OverView";
+    }
 }

@@ -177,18 +177,30 @@ class ResourceMenu {
 
     private _renderDataflowList(): void {
         const map: Map<string, HTML> = new Map(); // appId to html map
+        const mainMap: Map<string, HTML> = new Map();
         DagList.Instance.getAllDags().forEach((dagTab) => {
-            if (dagTab.getType() === DagTabType.User ||
-                dagTab.getType() === DagTabType.Main) {
+            const type: DagTabType = dagTab.getType();
+            if (type === DagTabType.User ||
+                type === DagTabType.Main
+            ) {
                 const appId: string = dagTab.getApp();
-                let html: string = map.get(appId) || "";
-                html += this._getDagListHTML([dagTab]);
-                map.set(appId, html);
+                const list = this._getDagListHTML([dagTab]);
+                if (type === DagTabType.Main) {
+                    mainMap.set(appId, list);
+                } else {
+                    let html: string = map.get(appId) || "";
+                    html += list;
+                    map.set(appId, html);
+                }
             }
         });
 
         for (let [appId, html] of map) {
             this._getList(".dfModuleList", appId).html(html);
+            if (appId != null) {
+                // append main tab to the first
+               this._getAppSection(appId).find(".overView").html(mainMap.get(appId));
+            }
         }
     }
 
