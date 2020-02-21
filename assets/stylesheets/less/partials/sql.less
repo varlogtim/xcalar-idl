@@ -271,14 +271,28 @@
             margin-left: @width-topMenu;
             height: 100%;
 
+            .topPart {
+                .udf, .configNode {
+                    > .ui-resizable-handle {
+                        z-index: @z-index-sqlBottomResizeHandler !important;
+                    }
+                }
+            }
+
             .bottomPart {
                 > .ui-resizable-handle {
-                    z-index: @z-index-sqlBottomResizeHandler !important; // don't block other elements
                     height: 12px;
                     top: -7px;
                 }
 
+                .ui-resizable-handle {
+                    z-index: @z-index-sqlBottomResizeHandler !important; // don't block other elements
+                }
+
                 > .section {
+                    > .ui-resizable-handle {
+                        z-index: @z-index-sqlBottomResizeHandler !important;
+                    }
                     > .ui-resizable-n {
                         display: none !important;
                     }
@@ -330,6 +344,9 @@
 
             .debugPart {
                 height: 20%;
+                > .ui-resizable-handle {
+                    z-index: @z-index-sqlBottomResizeHandler !important;
+                }
             }
         }
 
