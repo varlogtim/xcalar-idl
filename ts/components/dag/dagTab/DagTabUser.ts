@@ -396,11 +396,18 @@ class DagTabUser extends DagTab {
 
     // XXX TODO: use public fuction for DagNodeModule instead public attribute
     private _getAppModuleFromHead(nodeId: DagNodeId): DagNodeModule {
-        const moduleNode: DagNodeModule = <DagNodeModule>DagNodeFactory.create({
-            type: DagNodeType.Module,
-            state: DagNodeState.Configured
-        });
         const graph: DagGraph = this.getGraph();
+        const headNode: DagNodeIn = <DagNodeIn>graph.getNode(nodeId);
+        const moduleNode: DagNodeModule = <DagNodeModule>DagNodeFactory.create(<DagNodeModuleOptions>{
+            type: DagNodeType.Module,
+            state: DagNodeState.Configured,
+            tabId: this.getId(),
+            headNodeId: headNode.getId(),
+            moduleName: this.getName(),
+            fnName: headNode.getHead(),
+            headNode: headNode,
+            tab: this
+        });
         const nodeIds: DagNodeId[] = graph.getConnectedNodesFromHead(nodeId);
         nodeIds.forEach((id) => {
             const node = graph.getNode(id);
@@ -410,8 +417,6 @@ class DagTabUser extends DagTab {
                 moduleNode.linkOuts.set(id, node);
             }
         });
-        moduleNode.headNode = <DagNodeIn>graph.getNode(nodeId);
-        moduleNode.tab = this;
         return moduleNode;
     }
 

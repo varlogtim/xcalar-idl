@@ -1,12 +1,19 @@
+interface DagNodeModuleOptions extends DagNodeModuleInfo {
+    headNode: DagNodeIn,
+    tab: DagTabUser
+}
+
 class DagNodeModule extends DagNode {
     public linkIns: Map<DagNodeId, DagNodeDFIn>;
     public linkOuts: Map<DagNodeId, DagNodeDFOut>;
     public headNode: DagNodeIn;
     public tab: DagTabUser;
-    private _headNodeId?: DagNodeId;
-    private _tabId?: DagNodeId;
+    private _headNodeId: DagNodeId;
+    private _tabId: DagNodeId;
+    private _moduleName: string;
+    private _fnName: string;
 
-    public constructor(options: DagNodeModuleInfo, runtime?: DagRuntime) {
+    public constructor(options: DagNodeModuleOptions, runtime?: DagRuntime) {
         super(options, runtime);
         this.type = DagNodeType.Module;
         this.maxParents = -1;
@@ -14,20 +21,12 @@ class DagNodeModule extends DagNode {
         this.input = this.getRuntime().accessible(new DagNodeModuleInput(options.input));
         this.linkIns = new Map();
         this.linkOuts = new Map();
-        if (options.tabId) {
-            this.tab = <DagTabUser>this._findTab(options.tabId);
-            if (!this.tab) {
-                this._tabId = options.tabId;
-            }
-        }
-        if (options.headNodeId) {
-            if (this.tab) {
-                this.headNode = this._findHeadNodeFromTab(this.tab, options.headNodeId);
-            }
-            if (!this.headNode) {
-                this._headNodeId = options.headNodeId;
-            }
-        }
+        this._tabId = options.tabId;
+        this._headNodeId = options.headNodeId;
+        this._moduleName = options.moduleName;
+        this._fnName = options.fnName;
+        this.tab = options.tab || <DagTabUser>this._findTab(options.tabId);
+        this.headNode = options.headNode || this._findHeadNodeFromTab(this.tab, options.headNodeId);
     }
 
     public getMaxParents(): number {
@@ -74,12 +73,10 @@ class DagNodeModule extends DagNode {
     protected _genParamHint(withModuleName?: boolean): string {
         let hint: string = "";
         try {
-            const tab = this.getTab();
-            const headNode = this.getHeadNode();
             if (withModuleName) {
-                hint = tab.getName() + "." + headNode.getHead();
+                hint = this._getModuleName() + "." + this._getFnName();
             } else {
-                hint = headNode.getHead();
+                hint = this._getFnName();
             }
         } catch (e) {
             console.error(e);
@@ -92,8 +89,8 @@ class DagNodeModule extends DagNode {
             let moduleName = "";
             let fnName = "";
             try {
-                moduleName = this.getTab().getName() || "";
-                fnName = this.getHeadNode().getHead() || "";
+                moduleName = this._getModuleName();
+                fnName = this._getFnName();
             } catch (e) {
                 console.error(e);
             }
@@ -162,8 +159,10 @@ class DagNodeModule extends DagNode {
      */
     protected _getSerializeInfo(includeStats?: boolean): DagNodeModuleInfo {
         const serializedInfo = <DagNodeModuleInfo>super._getSerializeInfo(includeStats);
-        serializedInfo.tabId = this.tab ? this.tab.getId() : null;
-        serializedInfo.headNodeId = this.headNode ? this.headNode.getId() : null;
+        serializedInfo.tabId = this._tabId
+        serializedInfo.headNodeId = this._headNodeId;
+        serializedInfo.moduleName = this._moduleName;
+        serializedInfo.fnName = this._fnName;
         return serializedInfo;
     }
 
@@ -176,10 +175,35 @@ class DagNodeModule extends DagNode {
     }
 
     private _findHeadNodeFromTab(dagTab: DagTabUser, nodeId: DagNodeId): DagNodeIn {
+        if (dagTab == null) {
+            return null;
+        }
         const graph = dagTab.getGraph();
         if (graph) {
             return <DagNodeIn>graph.getNode(nodeId);
         }
         return null;
+    }
+
+    private _getModuleName(): string {
+        const tab = this.getTab();
+        if (tab != null) {
+            const moduleName = tab.getName() || "";
+            this._moduleName = moduleName;
+            return moduleName;
+        } else {
+            return this._moduleName; // use old cache if tab is not open
+        }
+    }
+
+    private _getFnName(): string {
+        const headNode = this.getHeadNode();
+        if (headNode != null) {
+            const fnName = headNode.getHead() || "";
+            this._fnName = fnName;
+            return fnName;
+        } else {
+            return this._fnName; // use old cache if tab is not open
+        }
     }
 }
