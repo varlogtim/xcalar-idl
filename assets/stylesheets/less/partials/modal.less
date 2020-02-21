@@ -6721,6 +6721,31 @@ html.microsoft {
     min-height: 300px;
     min-width: 400px;
 
+    &.load {
+        .loadingSection {
+            display: block;
+        }
+
+        .graphList {
+            display: none;
+        }
+
+        .modalBottomMain {
+            display: none;
+        }
+
+        .confirm {
+            .xc-disabled;
+        }
+    }
+
+    .loadingSection {
+        display: none;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+
     .modalInstruction {
         padding-top: 16px;
         padding-bottom: 16px;

@@ -346,13 +346,13 @@ class AppList extends Durable {
             const tab: DagTabUser = moduleNode.tab;
             if (!tabSet.has(tab)) {
                 tabSet.add(tab);
-                DagTabManager.Instance.addSQLTabCache(tab);
+                DagTabManager.Instance.addTabCache(tab);
             }
         });
         const tabToModuleMap = this._getTabToModuleMap(moduleNodes);
         const graph = DagViewManager.Instance.buildModuleGraph(tabToModuleMap);
         tabSet.forEach((tab) => {
-            DagTabManager.Instance.removeSQLTabCache(tab);
+            DagTabManager.Instance.removeTabCache(tab);
         });
         return graph;
     }

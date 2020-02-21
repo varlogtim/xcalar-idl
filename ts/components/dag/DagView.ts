@@ -1298,7 +1298,7 @@ class DagView {
             })
             .then((res) => {
                 tabsToLoad = res;
-                tabsToLoad.forEach((tab) => DagTabManager.Instance.addSQLTabCache(tab));
+                tabsToLoad.forEach((tab) => DagTabManager.Instance.addTabCache(tab));
                 return this.graph.execute(nodeIds, optimized, null,
                     generateOptimizedDataflow);
             })
@@ -1322,7 +1322,7 @@ class DagView {
                 deferred.reject(this._handleExecutionError(error));
             })
             .always(() => {
-                tabsToLoad.forEach((tab) => DagTabManager.Instance.removeSQLTabCache(tab));
+                tabsToLoad.forEach((tab) => DagTabManager.Instance.removeTabCache(tab));
             });
 
         return deferred.promise();

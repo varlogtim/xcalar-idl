@@ -3,6 +3,7 @@ class CreateAppModal {
     private _modalHelper: ModalHelper;
     private _graphMap: Map<number, Set<DagNodeModule>>
     private _isOpen =false;
+    private _cachedTabs: DagTabUser[];
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -14,17 +15,24 @@ class CreateAppModal {
             offscreenDraggable: true
         });
         this._addEventListeners();
+        this._cachedTabs = [];
     }
 
-    private _getModal() {
-        return $("#createAppModal");
-    }
-
-    public show() {
+    /**
+     * CreateAppModal.Instance.show
+     */
+    public async show(): Promise<void> {
         if (this._isOpen) {
             return;
         }
-        const {graph, disjointGraphs} = DagViewManager.Instance.getDisjointGraphs();
+        this._modalHelper.setup();
+        this._isOpen = true;
+
+        const timer = setTimeout(() => {
+            this._getModal().addClass("load");
+        }, 500);
+        await this._loadUnopenedTabs();
+        const {disjointGraphs} = DagViewManager.Instance.getDisjointGraphs();
         this._renderGraphList(disjointGraphs);
         let index = 0;
         this._graphMap = new Map();
@@ -32,14 +40,21 @@ class CreateAppModal {
             this._graphMap.set(index, moduleNodes);
             index++;
         });
-        this._modalHelper.setup();
-        this._isOpen = true;
+        clearTimeout(timer);
+        this._getModal().removeClass("load");
+    }
+
+    private _getModal() {
+        return $("#createAppModal");
     }
 
     private _close() {
         this._reset();
         this._modalHelper.clear();
         this._isOpen = false;
+        this._cachedTabs.forEach((dagTab) => DagTabManager.Instance.removeTabCache(dagTab));
+        this._cachedTabs = [];
+        this._getModal().removeClass("load");
     }
 
     private _reset() {
@@ -47,6 +62,37 @@ class CreateAppModal {
         $modal.find(".graphList").empty();
         $modal.find(".newName").val("");
         this._graphMap = null;
+    }
+
+    private _loadUnopenedTabs(): XDPromise<void> {
+        const promises = [];
+        DagList.Instance.getAllDags().forEach((dagTab) => {
+            if (dagTab.getType() !== DagTabType.User) {
+                return;
+            }
+            if (dagTab.getApp() !== null) {
+                return;
+            }
+            if (DagTabManager.Instance.getTabById(dagTab.getId()) == null) {
+                this._cachedTabs.push(<DagTabUser>dagTab);
+                // when tab is closed it may still have the graph
+                if (dagTab.getGraph() == null) {
+                    promises.push(dagTab.load());
+                }
+            }
+        });
+
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        PromiseHelper.when(...promises)
+        .then(() => {
+            this._cachedTabs.forEach((dagTab) => DagTabManager.Instance.addTabCache(dagTab));
+            deferred.resolve();
+        })
+        .fail(() => {
+            deferred.resolve(); // still resolve it
+        });
+
+        return deferred.promise();
     }
 
     private _addEventListeners() {

@@ -163,7 +163,7 @@ class SQLDagExecutor {
             }
             if (!this._options.compileOnly) {
                 SQLDagExecutor.setTab(tabId, this._tempTab);
-                DagTabManager.Instance.addSQLTabCache(this._tempTab);
+                DagTabManager.Instance.addTabCache(this._tempTab);
                 this._sqlTabCached = true;
                 return DagView.expandSQLNodeAndHide(this._sqlNode.getId(), this._tempTab.getId());
             }
@@ -227,7 +227,7 @@ class SQLDagExecutor {
         .then(() => {
             columns = this._sqlNode.getColumns();
 
-            DagTabManager.Instance.removeSQLTabCache(this._tempTab);
+            DagTabManager.Instance.removeTabCache(this._tempTab);
             succeed = true;
             if (this._publishName) {
                 const newTableName: string = this._sqlNode.getNewTableName();
@@ -251,7 +251,7 @@ class SQLDagExecutor {
             sqlQuery.errorMsg = sqlQuery.errorMsg || err;
             this._sqlNode.setSQLQuery(sqlQuery);
             if (!this._sqlTabCached) {
-                DagTabManager.Instance.addSQLTabCache(this._tempTab);
+                DagTabManager.Instance.addTabCache(this._tempTab);
             }
             finish();
             deferred.reject(err);

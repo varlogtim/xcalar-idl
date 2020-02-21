@@ -1257,7 +1257,7 @@ class DagViewManager {
     // return a map of tabId and the node
     private _getModules(): Map<string, DagNodeModule[]> {
         const map: Map<string, DagNodeModule[]> = new Map();
-        const tabs = DagTabManager.Instance.getTabs();
+        const tabs = DagTabManager.Instance.getTabs().concat(DagTabManager.Instance.getCachedTabs());
         tabs.forEach((tab) => {
             if (tab.getApp() == null &&
                 tab.getType() === DagTabType.User

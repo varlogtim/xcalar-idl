@@ -139,10 +139,10 @@ describe.skip("SQL Executor Test", function() {
             let executor = createExecutor();
             let called = 0;
 
-            let oldAddCache = DagTabManager.Instance.addSQLTabCache;
+            let oldAddCache = DagTabManager.Instance.addTabCache;
             let oldInspect = DagViewManager.Instance.inspectSQLNode;
 
-            DagTabManager.Instance.addSQLTabCache = function() {
+            DagTabManager.Instance.addTabCache = function() {
                 called++;
             };
 
@@ -165,7 +165,7 @@ describe.skip("SQL Executor Test", function() {
                 done("fail");
             })
             .always(function() {
-                DagTabManager.Instance.addSQLTabCache = oldAddCache;
+                DagTabManager.Instance.addTabCache = oldAddCache;
                 DagViewManager.Instance.inspectSQLNode = oldInspect;
             });
         });
@@ -260,9 +260,9 @@ describe.skip("SQL Executor Test", function() {
                 called++;
                 return PromiseHelper.resolve();
             };
-            let oldRemove = DagTabManager.Instance.removeSQLTabCache;
+            let oldRemove = DagTabManager.Instance.removeTabCache;
             let oldClean = DagViewManager.Instance.cleanupClosedTab;
-            DagTabManager.Instance.removeSQLTabCache = function() {
+            DagTabManager.Instance.removeTabCache = function() {
                 called++;
             };
             DagViewManager.Instance.cleanupClosedTab = function() {
@@ -278,7 +278,7 @@ describe.skip("SQL Executor Test", function() {
                 done("fail");
             })
             .always(function() {
-                DagTabManager.Instance.removeSQLTabCache = oldRemove;
+                DagTabManager.Instance.removeTabCache = oldRemove;
                 DagViewManager.Instance.cleanupClosedTab = oldClean;
             });
         });
@@ -296,8 +296,8 @@ describe.skip("SQL Executor Test", function() {
                 return PromiseHelper.resolve();
             };
             executor._sqlTabCached = false;
-            let oldAddSQL = DagTabManager.Instance.addSQLTabCache;
-            DagTabManager.Instance.addSQLTabCache = function() {
+            let oldAddSQL = DagTabManager.Instance.addTabCache;
+            DagTabManager.Instance.addTabCache = function() {
                 called++;
             };
 
@@ -311,7 +311,7 @@ describe.skip("SQL Executor Test", function() {
                 done();
             })
             .always(function() {
-                DagTabManager.Instance.addSQLTabCache = oldAddSQL;            });
+                DagTabManager.Instance.addTabCache = oldAddSQL;            });
         });
     });
 
