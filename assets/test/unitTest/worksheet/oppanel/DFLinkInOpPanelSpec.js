@@ -13,6 +13,7 @@ describe("DFLinkInOpPanel Test", function() {
                 graph.addNode(dfOutNode);
                 let tab = new DagTabUser({name: tabName});
                 tab.setGraph(graph);
+                tab.setApp(null)
                 return tab;
             };
             oldGetTabs = DagTabManager.Instance.getTabs;
@@ -29,7 +30,7 @@ describe("DFLinkInOpPanel Test", function() {
     });
 
     it("should show panel", function(done) {
-        panel.show(dagNode)
+        panel.show(dagNode, {app: null})
         .then(function() {
             expect(panel._dataflows.length).to.equal(2);
             done();
@@ -142,7 +143,7 @@ describe("DFLinkInOpPanel Test", function() {
             dagNode.input.input.source = "testTable#1";
             let $panel = panel._getPanel();
             expect($panel.hasClass("withSource")).to.be.false;
-            panel.show(dagNode)
+            panel.show(dagNode, {})
             .then(function() {
                 expect($panel.hasClass("withSource")).to.be.true;
                 let $radio = $panel.find(".radioButton.active");

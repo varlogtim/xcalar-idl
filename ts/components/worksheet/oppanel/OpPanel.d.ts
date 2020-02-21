@@ -200,9 +200,10 @@ declare type DFLinkOutOpPanelModelColumnInfo = {
 }
 
 declare type ShowPanelInfo = {
-    exitCallback?: Function,
-    closeCallback?: Function,
-    nonConfigurable?: boolean,
-    autofillColumnNames?: string[],
-    udfDisplayPathPrefix?: string
+    exitCallback?: Function;
+    closeCallback?: Function;
+    nonConfigurable?: boolean;
+    autofillColumnNames?: string[];
+    udfDisplayPathPrefix?: string;
+    app: string;
 };

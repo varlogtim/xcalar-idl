@@ -3931,6 +3931,7 @@ class DagView {
             const nodeId: DagNodeId = info.nodeId;
             if (DagTable.Instance.getBindNodeId() === nodeId) {
                 DagTable.Instance.close();
+                TableTabManager.Instance.refershTab();
             }
             const $node: JQuery = this.getNodeElById(nodeId);
             this._updateTableNameText($node, info.node);

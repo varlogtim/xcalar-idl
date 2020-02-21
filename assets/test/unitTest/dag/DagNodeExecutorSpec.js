@@ -1623,8 +1623,7 @@ describe("DagNodeExecutor Test", () => {
                 graph: new DagGraph(),
                 node: createNode(DagNodeType.DFOut, "")
             }
-        }
-
+        };
         txId = Transaction.start({
             operation: "test"
         });

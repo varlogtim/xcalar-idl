@@ -39,7 +39,7 @@ class TableMeta extends Durable {
         super(options.version);
 
         if (!options.tableName || !options.tableId) {
-            throw "error table meta!";
+            throw new Error("error table meta!");
         }
 
         this.tableName = options.tableName;

@@ -752,16 +752,21 @@ namespace DagNodeMenu {
         const dagGraph: DagGraph = DagViewManager.Instance.getActiveDag();
         const dagNode: DagNode = dagGraph.getNode(nodeId);
         const state: DagNodeState = (dagNode != null) ? dagNode.getState() : null;
-        const $node: JQuery = DagViewManager.Instance.getNode(dagNode.getId());
+        // const $node: JQuery = DagViewManager.Instance.getNode(dagNode.getId());
         let classes = "";
 
         // display viewResults or generateResult
         if (dagNode != null &&
-            state === DagNodeState.Complete &&
-            !$node.find(".tableIcon").length
+            state === DagNodeState.Complete
         ) {
             const table: string = dagNode.getTable();
-            if (table != null && DagTblManager.Instance.hasTable(table)) {
+            const dagTab: DagTab = DagViewManager.Instance.getActiveTab();
+            if (dagTab instanceof DagTabSQLExecute && dagNode.getChildren().length > 0) {
+                // when it's SQL graph and is not the last node
+                $menu.find(".viewResult").addClass("xc-hidden");
+                $menu.find(".generateResult").addClass("xc-hidden");
+                $menu.find(".viewSkew").addClass("xc-hidden");
+            } else if (table != null && DagTblManager.Instance.hasTable(table)) {
                 $menu.find(".generateResult").addClass("xc-hidden");
                 $menu.find(".viewResult").removeClass("xc-hidden");
                 $menu.find(".viewResult").removeClass("unavailable");
@@ -773,6 +778,7 @@ namespace DagNodeMenu {
                 $menu.find(".viewSkew").addClass("xc-hidden");
             }
         } else {
+            $menu.find(".viewResult").removeClass("xc-hidden");
             $menu.find(".viewResult").addClass("unavailable");
             $menu.find(".generateResult").addClass("xc-hidden");
             $menu.find(".viewSkew").addClass("xc-hidden");

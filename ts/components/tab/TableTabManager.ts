@@ -75,6 +75,16 @@ class TableTabManager extends AbstractTabManager {
     }
 
     /**
+     * TableTabManager.Instance.refershTab
+     */
+    public refershTab(): void {
+        const index: number = this._getTabArea().find(".tab.active").index();
+        if (index > -1) {
+            this._switchResult(index);
+        }
+    }
+
+    /**
      * @override
      * XXXX todo disable it until further confirmation
      */
@@ -317,7 +327,7 @@ class TableTabManager extends AbstractTabManager {
             tableName: tableName
         });
         SQLResultSpace.Instance.viewTable(table, columns, () => {
-            this._handleErrorCase(new Error(SQLErrTStr.ResultDropped));
+            this._handleErrorCase("Query result has been deleted");
         });
     }
 
@@ -334,11 +344,11 @@ class TableTabManager extends AbstractTabManager {
         return false;
     }
 
-    private _handleErrorCase(error: Error) {
+    private _handleErrorCase(error: Error | string) {
         console.error(error);
         let errMsg: string;
         if (error instanceof Error) {
-            errMsg = error.message;
+            errMsg = "Result has been deleted.";
         } else {
             errMsg = xcHelper.parseError(error);
         }

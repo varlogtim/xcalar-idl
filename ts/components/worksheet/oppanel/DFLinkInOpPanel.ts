@@ -4,6 +4,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
     private _linkOutNodes: {node: DagNodeDFOut, displayName: string}[];
     private _schemaSection: ColSchemaSection;
     private _source: string;
+    private _app: string;
 
     public constructor() {
         super();
@@ -16,9 +17,10 @@ class DFLinkInOpPanel extends BaseOpPanel {
      * @param dagNode
      * @param options
      */
-    public show(dagNode: DagNodeDFIn, options): XDPromise<void> {
+    public show(dagNode: DagNodeDFIn, options: ShowPanelInfo): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._dagNode = dagNode;
+        this._app = options ? options.app : null;
         super.showPanel("Link In", options)
         .then(() => {
             this._initialize(dagNode);
@@ -86,6 +88,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
         this._dataflows = null;
         this._linkOutNodes = null;
         this._source = null;
+        this._app = null;
         this._schemaSection.clear();
         let $panel = this._getPanel();
         const $drdopwonList: JQuery = $panel.find(".dropDownList");
@@ -105,7 +108,9 @@ class DFLinkInOpPanel extends BaseOpPanel {
         const dataflows: {tab: DagTab, displayName: string}[] = [];
         tabs.forEach((tab) => {
             // don't show sql tab, custom tab, or optimized tab
-            if (tab.getType() !== DagTabType.User) {
+            if (tab.getType() !== DagTabType.User ||
+                tab.getApp() !== this._app
+            ) {
                 return;
             }
             let hasLinkOutNode: boolean = false;

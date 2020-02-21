@@ -68,8 +68,12 @@ class DagConfigNodeModal {
     public show(node: DagNode, tabId: string, $node: JQuery, options): void {
         const type: DagNodeType = node.getType();
         const subType: DagNodeSubType = node.getSubType();
+        const tab = DagTabManager.Instance.getTabById(tabId);
         this._getModal().removeClass("xc-hidden");
-
+        options = {
+            ...options,
+            app: tab ? tab.getApp() : null
+        };
         switch (type) {
             case (DagNodeType.Dataset):
                 DatasetOpPanel.Instance.show(node, options);
