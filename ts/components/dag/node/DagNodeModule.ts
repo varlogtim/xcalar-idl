@@ -96,6 +96,10 @@ class DagNodeModule extends DagNode {
         return this.tab;
     }
 
+    public getTabId(): string {
+        return this._tabId;
+    }
+
     public getHeadNode(): DagNodeIn {
         const tab = this.getTab();
         if (tab && !this.headNode) {

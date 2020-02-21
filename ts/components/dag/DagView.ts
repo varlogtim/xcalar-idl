@@ -1288,11 +1288,17 @@ class DagView {
         generateOptimizedDataflow?: boolean
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let tabsToLoad: DagTabUser[] = [];
         this._runValidation(nodeIds, optimized)
             .then((ret) => {
                 if (ret && ret.optimized) {
                     optimized = true;
                 }
+                return this._loadNeededTabsBeforeRun();
+            })
+            .then((res) => {
+                tabsToLoad = res;
+                tabsToLoad.forEach((tab) => DagTabManager.Instance.addSQLTabCache(tab));
                 return this.graph.execute(nodeIds, optimized, null,
                     generateOptimizedDataflow);
             })
@@ -1314,6 +1320,9 @@ class DagView {
             })
             .fail((error) => {
                 deferred.reject(this._handleExecutionError(error));
+            })
+            .always(() => {
+                tabsToLoad.forEach((tab) => DagTabManager.Instance.removeSQLTabCache(tab));
             });
 
         return deferred.promise();
@@ -4694,6 +4703,44 @@ class DagView {
         } else {
             deferred.reject(ret);
         }
+
+        return deferred.promise();
+    }
+
+    // now only for DagTabMain to use
+    private _loadNeededTabsBeforeRun(): XDPromise<DagTabUser[]> {
+        const tab = this.getTab();
+        if (tab.getType() !== DagTabType.Main) {
+            return PromiseHelper.resolve([]);
+        }
+        const tabs: DagTabUser[] = [];
+        try {
+            const tabIdSet: Set<string> = new Set();
+            tab.getGraph().getAllNodes().forEach((node) => {
+                if (node instanceof DagNodeModule) {
+                    const tab = node.getTab();
+                    if (tab == null) {
+                        const tabId = node.getTabId();
+                        if (!tabIdSet.has(tabId)) {
+                            const tabToLoad: DagTabUser = <DagTabUser>DagList.Instance.getDagTabById(tabId);
+                            tabIdSet.add(tabId);
+                            tabs.push(tabToLoad);
+                        }
+                    }
+                }
+            });
+        } catch (e) {
+            console.error(e);
+            return PromiseHelper.reject({error: e.message});
+        }
+
+        const promises = tabs.map((tab) => tab.load());
+        const deferred: XDDeferred<DagTabUser[]> = PromiseHelper.deferred();
+        PromiseHelper.when(...promises)
+        .then(() => {
+            deferred.resolve(tabs);
+        })
+        .fail(deferred.reject);
 
         return deferred.promise();
     }
