@@ -525,7 +525,8 @@ class DagGraph extends Durable {
             const nodeType: DagNodeType = node.getType();
             if (nodeType !== DagNodeType.DFIn &&
                 nodeType !== DagNodeType.DFOut &&
-                nodeType !== DagNodeType.CustomInput
+                nodeType !== DagNodeType.CustomInput &&
+                nodeType !== DagNodeType.Module
             ) {
                 DagUtil.deleteTable(tableName);
             }
@@ -1455,6 +1456,7 @@ class DagGraph extends Durable {
                         }
                         // Otherwise this is a link in using a query, so the node itself is the source
                         inSource.node.deleteStoredQuery(this.getTabId());
+                        inSource.node.setTable(null);
                     }
                 }
             } catch (e) {

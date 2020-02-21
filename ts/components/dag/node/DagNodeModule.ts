@@ -41,7 +41,7 @@ class DagNodeModule extends DagNode {
     // public lineageChange(columns: ProgCol[]): DagLineageChange {
     public lineageChange(_: ProgCol[]): DagLineageChange {
         let columns = [];
-
+        // TODO: doesn't really handle multiple outputNodes well
         this.getTailNodes().forEach((outputNode) => {
             const lineage = outputNode.getLineage();
             if (lineage != null) {
@@ -123,14 +123,23 @@ class DagNodeModule extends DagNode {
         return this.headNode;
     }
 
+
+    /*
+        XXX BUG only searches descendants of headNode, does not handle the
+        case where another source node has many branches and joins up with a descendant
+        of the headNode -- those other branches are not counted
+    */
+
+
     public getTailNodes(): DagNode[] {
+        const tailNodes: DagNode[] = [];
         let headNode: DagNodeIn;
         try {
             headNode = this.getHeadNode();
         } catch (e) {
             console.error(e);
         }
-        const tailNodes: DagNode[] = [];
+
         if (!headNode) {
             return tailNodes;
         }
@@ -165,6 +174,15 @@ class DagNodeModule extends DagNode {
         serializedInfo.fnName = this._fnName;
         return serializedInfo;
     }
+
+    /**
+     * For link in with source and link in with execution case to use
+     * @override
+     */
+    public updateStepThroughProgress(): Promise<void> {
+        return super._updateProgressFromTable(null, null);
+    }
+
 
     private _findTab(dataflowId: string): DagTab {
         const dagTabService = this.getRuntime().getDagTabService();

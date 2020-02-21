@@ -4473,14 +4473,15 @@ class DagView {
     private _updateOpTitle($node, node) {
         if (node.getType() === DagNodeType.Module) {
             let {moduleName, fnName} = node.getFnName(true);
+            if (!moduleName) {
+                moduleName = DagNodeType.Module;
+            }
             let fontSize = 10;
             if (moduleName.length > 10) {
                 fontSize = 9;
                 moduleName = moduleName.slice(0, 13);
             }
-            if (!moduleName) {
-                moduleName = DagNodeType.Module;
-            }
+
             const g = d3.select($node.find('.opTitleWrap')[0]);
             g.selectAll("*").remove();
             g.append("text")

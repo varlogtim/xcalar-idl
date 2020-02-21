@@ -743,7 +743,12 @@ class DagGraphExecutor {
                 return PromiseHelper.resolve();
             } else {
                 nodes.forEach((node) => {
-                    node.setTable(null); // these table are only fake names
+                    // some nodes that didn't have queries, such as module nodes
+                    // with cached references are complete and shouldn't
+                    // lose their tables
+                    if (node.getState() !== DagNodeState.Complete) {
+                        node.setTable(null); // these table are only fake names
+                    }
                 });
                 let queryName = destTables[destTables.length - 1];
                 if (queryName.startsWith("DF2_")) {

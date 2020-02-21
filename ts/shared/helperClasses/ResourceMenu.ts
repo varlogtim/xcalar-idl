@@ -553,7 +553,8 @@ class ResourceMenu {
             const $list = $(event.currentTarget).closest(".listWrap");
             $list.toggleClass("active");
             if ($list.hasClass("active")) {
-                $list.scrollintoview({duration: 0});
+                // XXX scrolling has weird behavior
+                // $list.scrollintoview({duration: 0});
             }
         });
 
