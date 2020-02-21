@@ -171,6 +171,13 @@ class CreateAppModal {
         }
         const moduleNodes = this._graphMap.get($checkbox.closest(".row").data("index"));
         const succeed = AppList.Instance.createApp(newName, moduleNodes);
+        if (succeed) {
+            // TODO move this logic into ResourceMenu or DagList
+            $("#dagListSection .apps .listInfo").filter(function() {
+                return $(this).text() === newName;
+            }).click().scrollintoview({duration: 0});
+        }
+
         setTimeout(() => {
             if (succeed) {
                 xcUIHelper.showSuccess("App Created.");
