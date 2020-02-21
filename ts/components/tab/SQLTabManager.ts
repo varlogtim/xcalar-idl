@@ -43,8 +43,10 @@ class SQLTabManager extends AbstractTabManager {
         } else {
             this._loadTab(id);
             this._save();
-            this._switchTabs();
+            // Note: need to upate list to hide hintSection, show contentSection
+            // first then open the codeMirror, otherwise the render will have issue
             this._updateList();
+            this._switchTabs();
         }
     }
 
@@ -123,7 +125,7 @@ class SQLTabManager extends AbstractTabManager {
         this._save();
 
         $tab.remove();
-        DagList.Instance.refreshMenuList(ResourceMenu.KEY.SQL);
+        this._updateList();
     }
 
     protected _renameTabAction($input: JQuery): string {

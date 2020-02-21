@@ -122,6 +122,7 @@ class DagGraph extends Durable {
                 this.commentsMap.set(commentNode.getId(), commentNode);
             });
         }
+        this._normalizeHeads();
     }
 
     /**
@@ -147,8 +148,6 @@ class DagGraph extends Durable {
             display: serializableGraph.display,
             operationTime: serializableGraph.operationTime
         });
-
-        this._normalizeHeads();
     }
 
     public createWithValidate(serializableGraph: DagGraphInfo): void {

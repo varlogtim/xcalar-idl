@@ -552,6 +552,13 @@ class SQLEditor {
     private _addEventListeners(): void {
         const self = this;
         let saveTimer = null;
+        self._editor.on("change", function() {
+            // the change even will cause a save data to KV
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(function() {
+                self._event.dispatchEvent("change");
+            }, 500); // 0.5s interval
+        });
 
         self._editor.on("keyup", function(_cm, e) {
             const pos = _cm.getCursor();
@@ -567,12 +574,6 @@ class SQLEditor {
             } else {
                 self.showHintMenu(<any>_cm);
             }
-
-            // the change even will cause a save data to KV
-            clearTimeout(saveTimer);
-            saveTimer = setTimeout(function() {
-                self._event.dispatchEvent("change");
-            }, 500); // 0.5s interval
         });
 
         self._keywordsToRemove.forEach(function(key) {
