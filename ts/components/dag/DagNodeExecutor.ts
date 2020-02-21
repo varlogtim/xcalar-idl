@@ -66,7 +66,7 @@ class DagNodeExecutor {
 
         this._beforeRun(isStepThrough)
         .then(() => {
-            return this._apiAdapter(optimized);
+            return this._apiAdapter();
         })
         .then((destTable) => {
             if (destTable != null) {
@@ -118,14 +118,14 @@ class DagNodeExecutor {
         }
     }
 
-    private _apiAdapter(optimized?: boolean): XDPromise<string | null> {
+    private _apiAdapter(): XDPromise<string | null> {
         try {
             const type: DagNodeType = this.node.getType();
             switch (type) {
                 case DagNodeType.Dataset:
-                    return this._loadDataset(optimized);
+                    return this._loadDataset();
                 case DagNodeType.Aggregate:
-                    return this._aggregate(optimized);
+                    return this._aggregate();
                 case DagNodeType.Filter:
                     return this._filter();
                 case DagNodeType.GroupBy:
@@ -145,17 +145,17 @@ class DagNodeExecutor {
                 case DagNodeType.Set:
                     return this._set();
                 case DagNodeType.Export:
-                    return this._export(optimized);
+                    return this._export();
                 case DagNodeType.Custom:
-                    return this._custom(optimized);
+                    return this._custom();
                 case DagNodeType.CustomInput:
                     return this._customInput();
                 case DagNodeType.CustomOutput:
                     return this._customOutput();
                 case DagNodeType.DFIn:
-                    return this._dfIn(optimized);
+                    return this._dfIn();
                 case DagNodeType.DFOut:
-                    return this._dfOut(optimized);
+                    return this._dfOut();
                 case DagNodeType.PublishIMD:
                     return this._publishIMD();
                 case DagNodeType.UpdateIMD:
@@ -163,7 +163,7 @@ class DagNodeExecutor {
                 case DagNodeType.Jupyter:
                     return this._jupyter();
                 case DagNodeType.IMDTable:
-                    return this._IMDTable(optimized);
+                    return this._IMDTable();
                 case DagNodeType.SQL:
                     return this._sql();
                 case DagNodeType.RowNum:
@@ -233,13 +233,13 @@ class DagNodeExecutor {
         return undefined;
     }
 
-    private _loadDataset(optimized?: boolean): XDPromise<string> {
+    private _loadDataset(): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodeDataset = <DagNodeDataset>this.node;
         const params: DagNodeDatasetInputStruct = node.getParam(this.replaceParam);
         let dsName: string = params.source;
 
-        if (optimized) {
+        if (this.isOptimized) {
             // if ds already exist, load dataset will reuse in loadArgs in
             // dataset meta, so have to give the optimized exuection a unique ds name
             dsName = this._getOptimizedDSName(dsName);
@@ -248,10 +248,10 @@ class DagNodeExecutor {
         // it didn't add the load lock and will cause a bug.
         // the lock is per each workbook
         // so XD need to maunally call it.
-        let def = optimized ? PromiseHelper.resolve() : PromiseHelper.alwaysResolve(this._activateDataset(dsName));
+        let def = this.isOptimized ? PromiseHelper.resolve() : PromiseHelper.alwaysResolve(this._activateDataset(dsName));
         def
         .then(() => {
-            if (optimized && Transaction.isSimulate(this.txId)) {
+            if (this.isOptimized && Transaction.isSimulate(this.txId)) {
                 try {
                     let loadArg = this._getOptimizedLoadArg(node, dsName);
                     Transaction.log(this.txId, loadArg, null, 0);
@@ -372,7 +372,7 @@ class DagNodeExecutor {
         return XIApi.synthesize(this.txId, colsInfo, srcTable, desTable);
     }
 
-    private _aggregate(optimized?: boolean): XDPromise<string> {
+    private _aggregate(): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodeAggregate = <DagNodeAggregate>this.node;
         const params: DagNodeAggregateInputStruct = node.getParam(this.replaceParam);
@@ -387,7 +387,7 @@ class DagNodeExecutor {
             dstAggName = dstAggName.substring(1);
         }
 
-        if (optimized) {
+        if (this.isOptimized) {
             dstAggName = "batch_" + this.tabId + "_" + dstAggName;
             unwrappedName = gAggVarPrefix + dstAggName;
         } else if (this.isLinkInBatch && this.aggNames.has(unwrappedName)) {
@@ -738,7 +738,7 @@ class DagNodeExecutor {
         return deferred.promise();
     }
 
-    private _custom(optimized?: boolean): XDPromise<string> {
+    private _custom(): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodeCustom = <DagNodeCustom>this.node;
         const isSimulate: boolean = Transaction.isSimulate(this.txId);
@@ -762,7 +762,7 @@ class DagNodeExecutor {
 
             // Execute the subGraph in batch mode
             let destTable;
-            clonedGraph.getQuery(null, optimized, false)
+            clonedGraph.getQuery(null, this.isOptimized, false)
             .then((res) => {
                 let {queryStr, destTables} = res;
                 let tables = destTables || [];
@@ -785,7 +785,7 @@ class DagNodeExecutor {
             const txLog = Transaction.get(this.txId);
             txLog.setParentNodeInfo(node.getId(), this.tabId);
 
-            node.getSubGraph().execute(null, optimized, this.txId)
+            node.getSubGraph().execute(null, this.isOptimized, this.txId)
             .then(() => {
                 txLog.resetParentNodeInfo();
                 try {
@@ -840,7 +840,7 @@ class DagNodeExecutor {
         }
     }
 
-    private _export(optimized?: boolean): XDPromise<string> {
+    private _export(): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodeExport = <DagNodeExport>this.node;
         const exportInput: DagNodeExportInputStruct = node.getParam(this.replaceParam);
@@ -869,7 +869,7 @@ class DagNodeExecutor {
         let driverParams = exportInput.driverArgs;
         const srcTable: string = this._getParentNodeTable(0);
         let exportName: string;
-        if (optimized) {
+        if (this.isOptimized) {
             exportName = DagNodeExecutor.XcalarApiLrqExportPrefix + srcTable;
         } else {
             exportName = this._generateTableName();
@@ -877,7 +877,7 @@ class DagNodeExecutor {
 
         XIApi.exportTable(this.txId, srcTable, driverName, driverParams, driverColumns, exportName)
         .then(() => {
-            if (optimized) {
+            if (this.isOptimized) {
                 deferred.resolve(srcTable);
             } else {
                 deferred.resolve(exportName);
@@ -888,20 +888,20 @@ class DagNodeExecutor {
         return deferred.promise();
     }
 
-    private _dfIn(optimized?: boolean): XDPromise<string> {
+    private _dfIn(): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         try {
             const node: DagNodeDFIn = <DagNodeDFIn>this.node;
             if (node.hasSource()) {
-                return this._linkWithSource(node, optimized);
+                return this._linkWithSource(node);
             }
             const res = node.getLinkedNodeAndGraph();
             const graph: DagGraph = res.graph;
             const linkOutNode: DagNodeDFOut = res.node;
             if (linkOutNode.shouldLinkAfterExecution()) {
-                return this._linkWithExecution(graph, linkOutNode, node, optimized);
+                return this._linkWithExecution(graph, linkOutNode, node);
             } else {
-                return this._linkWithBatch(graph, linkOutNode, optimized);
+                return this._linkWithBatch(graph, linkOutNode);
             }
         } catch (e) {
             console.error("execute error", e);
@@ -914,12 +914,11 @@ class DagNodeExecutor {
     }
 
     private _linkWithSource(
-        node: DagNodeDFIn,
-        optimized?: boolean
+        node: DagNodeDFIn
     ): XDPromise<string> {
         let param: DagNodeDFInInputStruct = node.getParam(this.replaceParam);
         let source: string = param.source;
-        if (optimized) {
+        if (this.isOptimized) {
             const desTable = this._generateTableName(source);
             // get table outside from batch data flow, so sameSession must be set to false
             return XIApi.synthesize(this.txId, [], source, desTable, false)
@@ -947,11 +946,10 @@ class DagNodeExecutor {
     private _linkWithExecution(
         graph: DagGraph,
         node: DagNodeDFOut,
-        dfInNode: DagNodeDFIn,
-        optimized?: boolean
+        dfInNode: DagNodeDFIn
     ): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        if (optimized) {
+        if (this.isOptimized) {
             let sourceTable: string = node.getTable();
             if (!sourceTable && graph === dfInNode.getGraph()) {
                 // when link is in the same dataflow, as optimized
@@ -998,11 +996,11 @@ class DagNodeExecutor {
     }
 
     // creates a new query from the linkOut's ancestors and runs it
-    private _linkWithBatch(graph: DagGraph, linkOutNode: DagNodeDFOut, optimized?: boolean): XDPromise<string> {
+    private _linkWithBatch(graph: DagGraph, linkOutNode: DagNodeDFOut): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         let priorDestTable;
         let rootTx;
-        if (optimized) {
+        if (this.isOptimized) {
             rootTx = Transaction.getRootTx(this.txId);
             if (rootTx) {
                 priorDestTable = rootTx.getStoredQueryDest(linkOutNode.getId(), graph.getTabId());
@@ -1021,7 +1019,7 @@ class DagNodeExecutor {
         } else {
             txLog = Transaction.get(this.txId);
             txLog.setParentNodeInfo(this.node.getId(), this.tabId); // used to track dataset activation
-            promise = graph.getQuery(linkOutNode.getId(), optimized, true, true, this.txId, !optimized, true);
+            promise = graph.getQuery(linkOutNode.getId(), this.isOptimized, true, true, this.txId, !this.isOptimized, true);
         }
         let destTable: string;
         promise
@@ -1063,7 +1061,7 @@ class DagNodeExecutor {
                         noQueryNeeded = true;
                     }
                 } catch (e) {}
-                if (optimized) {
+                if (this.isOptimized) {
                     rootTx.setStoredQueryDest(linkOutNode.getId(), graph.getTabId(), destTable);
                 } else {
                     linkOutNode.setStoredQueryDest(this.tabId, destTable);
@@ -1140,13 +1138,13 @@ class DagNodeExecutor {
 
     // XXX TODO: if it's linkAfterExecution, lock the table
     // and unlock when reset
-    private _dfOut(optimized: boolean): XDPromise<string | null> {
+    private _dfOut(): XDPromise<string | null> {
         const node: DagNodeDFOut = <DagNodeDFOut>this.node;
         let srcTable: string = null;
         if (node.getNumParent() === 1) {
             srcTable = this._getParentNodeTable(0);
         }
-        if (!optimized) {
+        if (!this.isOptimized) {
             return PromiseHelper.resolve(srcTable);
         } else {
             // XXX FIX ME: this is a temp workaround to fix SDK-733
@@ -1222,8 +1220,8 @@ class DagNodeExecutor {
         });
     }
 
-    private _IMDTable(optimized?: boolean): XDPromise<string> {
-        if (optimized) {
+    private _IMDTable(): XDPromise<string> {
+        if (this.isOptimized) {
             // optimized execution will use the stored dataflow
             // to do operationalition
             const deferred: XDDeferred<string> = PromiseHelper.deferred();
