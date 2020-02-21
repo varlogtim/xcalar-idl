@@ -51,7 +51,6 @@ describe("DagNodeMenu Test", function() {
             expect(classes).to.deep.equal([
                 "executeAllNodes unavailable",
                 "resetAllNodes unavailable",
-                "focusRunning unavailable",
                 "pasteNodes",
                 "selectAllNodes unavailable",
                 "newComment",

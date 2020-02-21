@@ -72,13 +72,13 @@ namespace DagNodeMenu {
         let $dfWraps = $dfWrap.add($("#dagStatsPanel .dataflowWrap"));
 
         $dfWraps.on("contextmenu", ".operator.instruction", function(event) {
-            _showNodeInstructionMenu(event, $(this));
+            _showNodeInstructionMenu(event);
         });
 
         $dfWraps.on("contextmenu", ".operator .main", function(event: JQueryEventObject) {
             let $operatorMain = $(this);
             if ($operatorMain.closest(".operator.instruction").length) {
-                _showNodeInstructionMenu(event, $operatorMain.closest(".operator"));
+                _showNodeInstructionMenu(event);
                 return false;
             }
             _showNodeMenu(event, $operatorMain);
@@ -88,7 +88,7 @@ namespace DagNodeMenu {
         $dfWraps.on("contextmenu", function(event: JQueryEventObject) {
             const $target = $(event.target);
             if ($target.closest(".operator.instruction").length) {
-                _showNodeInstructionMenu(event, $target.closest(".operator"));
+                _showNodeInstructionMenu(event);
                 return false;
             }
             _showNodeMenu(event, null);
@@ -235,9 +235,6 @@ namespace DagNodeMenu {
                 case ("selectAllNodes"):
                     DagViewManager.Instance.selectNodes(DagViewManager.Instance.getActiveDag().getTabId());
                     break;
-                case ("focusRunning"):
-                    _focusRunningNode();
-                    break;
                 case ("findSourceNode"):
                     _findSourceNode(dagNodeIds[0], tabId);
                     break;
@@ -373,8 +370,7 @@ namespace DagNodeMenu {
                     DagViewManager.Instance.getActiveDag().getNode(nodeId).unpinTable();
                     break;
                 case ("restoreDataset"):
-                    node = <DagNodeDataset>DagViewManager.Instance.getActiveDag().getNode(dagNodeIds[0]);
-                    _restoreDatasetFromNode(node);
+                    _restoreDatasetFromNode(<DagNodeDataset>DagViewManager.Instance.getActiveDag().getNode(dagNodeIds[0]));
                     break;
                 case ("restoreAllDataset"):
                     restoreAllDatasets();
@@ -694,7 +690,6 @@ namespace DagNodeMenu {
             }
         } else {
             classes += " backgroundMenu ";
-            adjustMenuForBackground();
         }
         if (backgroundClicked) {
             $menu.find(".autoAlign, .selectAllNodes").removeClass("xc-hidden");
@@ -966,17 +961,7 @@ namespace DagNodeMenu {
         xcTooltip.add($lis, {title: TooltipTStr.CloseConfigForm});
     }
 
-    function adjustMenuForBackground() {
-        const $view: JQuery = DagViewManager.Instance.getActiveArea();
-        let $menu = _getDagNodeMenu();
-        if ($view.find(".operator.state-" + DagNodeState.Running).length) {
-            $menu.find(".focusRunning").removeClass("unavailable");
-        } else {
-            $menu.find(".focusRunning").addClass("unavailable");
-        }
-    }
-
-    function _showNodeInstructionMenu(event: JQueryEventObject, $clickedEl: JQuery) {
+    function _showNodeInstructionMenu(event: JQueryEventObject) {
         const $dfArea = DagViewManager.Instance.getActiveArea();
         if (!$dfArea.length || $dfArea.hasClass("largeHidden")) {
             return;
@@ -1012,27 +997,6 @@ namespace DagNodeMenu {
             DagUtil.scrollIntoView($node, $container)
             DagViewManager.Instance.deselectNodes();
             DagViewManager.Instance.selectNodes(tabId, [linkOutNodeId]);
-        } catch (e) {
-            Alert.error(AlertTStr.Error, e.message);
-        }
-    }
-
-    function _focusRunningNode(): void {
-        try {
-            const $container: JQuery = DagViewManager.Instance.getActiveArea();
-            let $node: JQuery;
-            let $tip = $container.find(".runStats." + DgDagStateTStr[DgDagStateT.DgDagStateProcessing]);
-            if ($tip.length) {
-                $node = DagViewManager.Instance.getNode($tip.data("id"));
-            }
-            if (!$node || !$node.length) {
-                throw({message: "Running node could not be found"});
-            }
-            DagUtil.scrollIntoView($node, $container)
-            DagViewManager.Instance.deselectNodes();
-            const tabId: string = DagViewManager.Instance.getActiveTab().getId();
-            const nodeId: DagNodeId = $node.data("nodeid");
-            DagViewManager.Instance.selectNodes(tabId, [nodeId]);
         } catch (e) {
             Alert.error(AlertTStr.Error, e.message);
         }
