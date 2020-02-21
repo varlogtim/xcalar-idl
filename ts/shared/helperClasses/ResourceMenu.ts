@@ -316,7 +316,7 @@ class ResourceMenu {
                         '</div>' +
                         '<button class=" btn-secondary dropDown">' +
                             '<i class="icon xi-ellipsis-h xc-action"></i>' +
-                        '</div>' +
+                        '</button>' +
                     '</li>';
         }).join("");
     }
