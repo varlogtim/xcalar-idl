@@ -232,8 +232,11 @@ class MemoryAlert {
                 $memoryAlert.addClass("tableAlert");
             }
         } else {
-            text = CommonTxtTstr.XcalarMemUsage + ": " + percent;;
+            text = CommonTxtTstr.XcalarMemUsage + ": " + percent;
         }
+
+        let iconPct = Math.round(Math.max(10,100 - (avgMemUsage * 100))) + "%";
+        $memoryAlert.find(".memoryBoxFill").css("height", iconPct);
 
         xcTooltip.changeText($memoryAlert, text);
         return shouldAlert;

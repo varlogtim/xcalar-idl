@@ -831,44 +831,48 @@ body {
 }
 
 #memoryAlert {
+    position: relative;
+    float: right;
+    .vertical-align;
+    width: 24px;
+    height: 24px;
+    margin-right: 4px;
+    outline: none;
+    padding: 0;
+    padding-top: 1px;
 
     .icon {
+        font-size: 20px;
         position: relative;
-        color: @color-bg-monitor-green;
     }
 
-    .xi-tick {
-        display: block;
-        font-size: 13px !important;
+    .memoryBoxOutline {
+        width: 11px;
+        height: 16px;
+        border-radius: 3px;
+        position: absolute;
+        bottom: 5px;
+        left: 4px;
     }
-    .xi-warning {
-        display: none;
-        font-size: 17px !important;
+
+    .memoryBoxFill {
+        width: 11px;
+        height: 90%;
+        background-color: @color-icon-darkGreen;
+        position: absolute;
+        bottom: 0px;
+        left: 0px;
     }
 
     &.yellow {
-        .icon {
-            color: @color-bg-monitor-gold;
-        }
-
-        .xi-tick {
-            display: none;
-        }
-        .xi-warning {
-            display: block;
+        .memoryBoxFill {
+            background-color: @color-bg-monitor-gold;
         }
     }
 
     &.red {
-        .icon {
-            color: @color-bg-monitor-red;
-        }
-
-        .xi-tick {
-            display: none;
-        }
-        .xi-warning {
-            display: block;
+        .memoryBoxFill {
+            background-color: @color-bg-monitor-red;
         }
     }
 
