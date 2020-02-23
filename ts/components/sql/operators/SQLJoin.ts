@@ -412,7 +412,7 @@ class SQLJoin {
     static __isNullSafeJoin(n: TreeNode): boolean {
         let hasEqNullSafe: boolean = false;
         if (n.value.condition == null) {
-            return false;;
+            return false;
         }
         for (const element of n.value.condition) {
             if (element.class === "org.apache.spark.sql.catalyst.expressions.EqualTo") {

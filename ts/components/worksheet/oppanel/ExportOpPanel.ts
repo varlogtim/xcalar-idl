@@ -194,7 +194,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
                 this._dataModel = this._mainModel.fromDag(dagNode);
             } catch (e) {
                 this._dataModel = new ExportOpPanelModel();
-                MainMenu.setFormOpen();
+                DagConfigNodeModal.Instance.setFormOpen();
                 this._dataModel.setAdvMode(true);
                 this._startInAdvancedMode(e);
                 return;
@@ -226,8 +226,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
                         false, {'side': 'right'});
             })
             .always(() => {
-
-                MainMenu.setFormOpen();
+                DagConfigNodeModal.Instance.setFormOpen();
                 this._$elemPanel.find(".searchBox .searchInput").val("");
                 this._$elemPanel.find(".columnsToExport .filterHint").addClass("xc-hidden");
                 this.panelResize();
@@ -374,7 +373,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
      */
     public close(isSubmit?: boolean): void {
         super.hidePanel(isSubmit);
-        MainMenu.setFormClose();
+        DagConfigNodeModal.Instance.setFormClose();
     }
 
     /**

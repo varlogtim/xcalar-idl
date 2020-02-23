@@ -1,5 +1,7 @@
 class SQLResultSpace {
     private static _instance: SQLResultSpace;
+    private _popup: PopupPanel;
+    private _preventShow: boolean = false;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -130,9 +132,16 @@ class SQLResultSpace {
      * SQLResultSpace.Instance.showTables
      * @param reset
      */
-    public showTables(reset: boolean): void {
+    public showTables(reset: boolean, firstTouch?: boolean): void {
         this._sqlTableSchema.close();
         this._tableLister.show(reset);
+        if (firstTouch && this._preventShow) {
+            // if trying to show for the first time but prevented because
+            // user had the panel closed last time, don't show this time but
+            // allow afterwards
+            this._preventShow = false;
+            return;
+        }
         TableTabManager.Instance.openSQLTab();
     }
 
@@ -189,6 +198,34 @@ class SQLResultSpace {
         return this._sqlTable;
     }
 
+    public setupPopup(): void {
+        this._popup = new PopupPanel("tableViewContainer", {
+            noUndock: true
+        });
+        this._popup
+        .on("Hide", (info: {restoring: boolean}) => {
+            this._toggleDisplay(false);
+            if (info && info.restoring) {
+                this._preventShow = true;
+            }
+        })
+        .on("ResizeDocked", (state) => {
+            if (state.dockedWidth != null) {
+                $("#tableViewContainer").parent().css("width", `${state.dockedWidth}%`);
+            }
+            if (state.dockedHeight != null) {
+                $("#tableViewContainer").parent().css("height", `${state.dockedHeight}%`);
+            }
+        })
+        .on("VertStack", () => {
+            this._toggleDisplayExpanded(true);
+        });
+    }
+
+    public getPopup(): PopupPanel {
+        return this._popup;
+    }
+
     private _switchTab(tab): void {
         const $contentSection: JQuery = this._getContentSection();
         $contentSection.find(".section").addClass("xc-hidden");
@@ -219,15 +256,20 @@ class SQLResultSpace {
     }
 
     private _toggleDisplay(display: boolean): void {
+        if (display && this._preventShow) {
+            return;
+        }
         const $resultSection = this._getResultSection();
         const $container = $resultSection.parent();
         if (display) {
             $container.removeClass("noResult");
             $resultSection.removeClass("xc-hidden");
+            this._popup.trigger("Show_BroadCast");
         } else {
             $container.addClass("noResult");
             $resultSection.addClass("xc-hidden");
             this._toggleDisplayExpanded(false);
+            this._popup.trigger("Hide_BroadCast");
         }
         PopupManager.checkAllContentUndocked();
     }
@@ -237,8 +279,10 @@ class SQLResultSpace {
         const $container = $resultSection.parent();
         if (expand) {
             $container.addClass("flexColumn");
+            this._popup.trigger("VertStack_BroadCast");
         } else {
             $container.removeClass("flexColumn");
+            this._popup.trigger("HorzStack_BroadCast");
         }
         TblFunc.moveFirstColumn();
         DagCategoryBar.Instance.showOrHideArrows();

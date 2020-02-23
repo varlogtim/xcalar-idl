@@ -263,7 +263,9 @@ class DagView {
      */
     public static async newTabFromSource(type: DagNodeType, config: any): Promise<void> {
         try {
-            DagViewManager.Instance.toggleSqlPreview(false);
+            if (!XVM.isDataMart()) {
+                MainMenu.openPanel("sqlPanel");
+            }
             DagTabManager.Instance.newTab();
             let position: number = DagView.gridSpacing * 2;
             let node: DagNode = await DagViewManager.Instance.autoAddNode(type, null, null, config,
@@ -992,52 +994,6 @@ class DagView {
                 this._adjustPositions(child, nodes, seen);
             }
         });
-    }
-
-     // groups individual nodes into trees and joins branches with main tree
-    private static _splitIntoTrees(node, seen: Map<DagNodeId, number>, treeGroups, groupId) {
-        let treeGroup = {};
-        formTreesHelper(node);
-        function formTreesHelper(node) {
-            const id = node.getId();
-            if (treeGroup[id]) { // already done
-                return;
-            }
-
-            if (seen.has(id)) { // we've encountered this node and it's
-                // part of another group so lets join its children to that group
-                const mainGroupId = seen.get(id);
-                if (groupId === mainGroupId) {
-                    // already part of the same tree
-                    return;
-                }
-                let mainGroup = treeGroups[mainGroupId];
-                for (let i in treeGroup) {
-                    seen.set(i, mainGroupId);
-                    // reassigning nodes from current
-                    // group to the main group that has the id of "mainGroupId"
-
-                    mainGroup[i] = treeGroup[i];
-                }
-                delete treeGroups[groupId];
-                groupId = mainGroupId;
-                treeGroup = mainGroup;
-                return;
-            }
-            treeGroup[id] = node;
-            seen.set(id, groupId);
-             if (!treeGroups[groupId]) {
-                treeGroups[groupId] = {};
-            }
-            treeGroups[groupId][id] = node;
-
-            const parents = node.getParents();
-            for (let i = 0; i < parents.length; i++) {
-                if (parents[i] != null) {
-                    formTreesHelper(parents[i]);
-                }
-            }
-        }
     }
 
      /**
@@ -2762,8 +2718,7 @@ class DagView {
      */
     public static inspectSQLNode(
         nodeId: DagNodeId,
-        tabId: string,
-        sqlPreview?: boolean
+        tabId: string
     ): XDPromise<string> {
         const dagTab = DagTabManager.Instance.getTabById(tabId);
         const graph = dagTab.getGraph();
@@ -2785,7 +2740,7 @@ class DagView {
         }
         promise
             .then(() => {
-                const tabId: string = DagTabManager.Instance.newSQLTab(dagNode, sqlPreview);
+                const tabId: string = DagTabManager.Instance.newSQLTab(dagNode);
                 const newDagView: DagView = DagViewManager.Instance.getActiveDagView();
                 if (newDagView != null) {
                     newDagView.autoAlign({ isNoLog: true });

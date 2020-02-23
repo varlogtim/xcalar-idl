@@ -119,7 +119,7 @@ class TableMenu extends AbstractMenu {
             if (this._isInvalidTrigger(event)) {
                 return;
             }
-            MainMenu.closeForms();
+            DagConfigNodeModal.Instance.closeForms();
         });
 
         $tableMenu.on('mouseup', '.copyTableName', (event) => {

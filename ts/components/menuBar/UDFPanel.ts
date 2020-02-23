@@ -1,6 +1,6 @@
 class UDFPanel {
     private static _instance = null;
-    
+
     public static get Instance(): UDFPanel {
         return this._instance || (this._instance = new this());
     }
@@ -56,7 +56,6 @@ class UDFPanel {
         }
         this.isSetup = true;
         this._addEventListeners();
-        this._setupPopup();
         this._modalHelper = new ModalHelper(this._getManagerModal(), {
             sizeToDefault: true
         });
@@ -77,11 +76,14 @@ class UDFPanel {
             $tab.addClass("active");
             $container.removeClass("xc-hidden");
             PopupManager.checkAllContentUndocked();
+            this._popup.trigger("Show_BroadCast");
             this.getEditor().refresh();
+
         } else {
             $tab.removeClass("active");
             $container.addClass("xc-hidden");
             PopupManager.checkAllContentUndocked();
+            this._popup.trigger("Hide_BroadCast");
         }
     }
 
@@ -402,7 +404,7 @@ class UDFPanel {
         }
     }
 
-    private _setupPopup(): void {
+    public setupPopup(): void {
         this._popup = new PopupPanel("udfViewContainer", {
             draggableHeader: ".draggableHeader"
         });
@@ -415,7 +417,17 @@ class UDFPanel {
         })
         .on("Resize", () => {
             this.refresh();
+        })
+        .on("ResizeDocked", (state) => {
+            $("#udfViewContainer").parent().css("width", `${state.dockedWidth}%`);
+        })
+        .on("Show", () => {
+            this.toggleDisplay(true);
         });
+    }
+
+    public getPopup() {
+        return this._popup;
     }
 
     private _undock(): void {

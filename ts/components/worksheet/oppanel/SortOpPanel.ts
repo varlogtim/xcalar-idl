@@ -76,7 +76,7 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
     private _getArgs(): AutogenSectionProps[] {
         const args: AutogenSectionProps[] = [];
 
-        const columnsLists: ColumnComboRowProps[] = [];;
+        const columnsLists: ColumnComboRowProps[] = [];
         const columns = this._dataModel.getSortedColumns();
 
         columns.forEach((column, idx) => {

@@ -445,7 +445,6 @@ class ResourceMenu {
             const msg = `Cannot find table ${tableName}`;
             Alert.error(ErrTStr.Error, msg);
         } else {
-            DagViewManager.Instance.toggleSqlPreview(false);
             if (DagTabManager.Instance.getNumTabs() === 0) {
                 DagTabManager.Instance.newTab();
             }

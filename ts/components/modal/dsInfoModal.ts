@@ -29,7 +29,7 @@ class DSInfoModal {
     };
 
     private _getModal(): JQuery {
-        return $("#dsInfoModal");;
+        return $("#dsInfoModal");
     }
 
     private _close() {

@@ -23,10 +23,13 @@ describe("DagNodeExecutor Test", () => {
         });
     });
     let createNode = (type, tableName, subType) => {
+        if (tableName == null) {
+            tableName = "testTable";
+        }
         return DagNodeFactory.create({
             type: type || DagNodeType.Dataset,
             subType: subType || null,
-            table: tableName || "testTable"
+            table: tableName
         });
     };
 
@@ -1618,7 +1621,7 @@ describe("DagNodeExecutor Test", () => {
         node.getLinkedNodeAndGraph = () => {
             return {
                 graph: new DagGraph(),
-                node: createNode(DagNodeType.DFOut)
+                node: createNode(DagNodeType.DFOut, "")
             }
         }
 
@@ -1641,6 +1644,73 @@ describe("DagNodeExecutor Test", () => {
         executor.run()
         .then(() => {
             expect(called).to.be.true;
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XIApi.query = oldQuery;
+        });
+    });
+
+    it("should work for _dfIn _linkWithBatch cachedTable", (done) => {
+        let nodeInfo =
+            {
+                "version": 1,
+                "type": "link in",
+                "subType": null,
+                "display": {
+                    "x": 320,
+                    "y": 240
+                },
+                "description": "",
+                "title": "Node 12",
+                "input": {
+                    "dataflowId": "self",
+                    "linkOutName": "a",
+                    "source": ""
+                },
+                "id": "dag_5D38D6453793C52F_1564551809791_101",
+                "state": "Configured",
+                "configured": true,
+                "aggregates": [],
+                "schema": [
+                    {
+                        "name": "flight5016::CheckSum",
+                        "type": "integer"
+                    }
+                ],
+                "parents": []
+            };
+        let node = DagViewManager.Instance.getActiveDag().newNode(nodeInfo);
+        node.getLinkedNodeAndGraph = () => {
+            return {
+                graph: new DagGraph(),
+                node: createNode(DagNodeType.DFOut)
+            }
+        }
+
+        txId = Transaction.start({
+            operation: "test"
+        });
+
+        const executor = new DagNodeExecutor(node, txId);
+
+        const oldQuery =  XIApi.query;
+        let called = false;
+
+        XIApi.query = (newTxId, destTable, queryStr) => {
+            expect(txId).to.equal(newTxId);
+            expect(queryStr).to.equal("[]");
+            called = true;
+        };
+
+
+        executor.run()
+        .then(() => {
+            expect(called).to.be.false; // reuse cache
             done();
         })
         .fail((error) => {
@@ -1682,7 +1752,7 @@ describe("DagNodeExecutor Test", () => {
                 "parents": []
             };
         let node = DagViewManager.Instance.getActiveDag().newNode(nodeInfo);
-        let outNode = createNode(DagNodeType.DFOut, null, DagNodeSubType.DFOutOptimized);
+        let outNode = createNode(DagNodeType.DFOut, "", DagNodeSubType.DFOutOptimized);
         const parentNode = createNode();
         outNode.connectToParent(parentNode);
         node.getLinkedNodeAndGraph = () => {

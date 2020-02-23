@@ -13,8 +13,7 @@ class DFDownloadModal {
         DF: "DF",
         OptimizedDF: "OptimizedDF",
         Image: "Image",
-        OperationStats: "Operation Statistics",
-        FullStats: "Full Stats"
+        OperationStats: "Operation Statistics"
     };
 
     private constructor() {
@@ -81,18 +80,6 @@ class DFDownloadModal {
             text: "Operation Statistics",
             suffix: ".json"
         }];
-        if (this._dagTab instanceof DagTabStats) {
-            this._model[2] = {
-                type: this._DownloadTypeEnum.OperationStats,
-                text: "Operation Statistics",
-                suffix: ".json"
-            }
-            this._model.push({
-                type: this._DownloadTypeEnum.FullStats,
-                text: "Advanced Operation Statistics",
-                suffix: ".json"
-            });
-        }
     }
 
     private _renderDropdown(): void {
@@ -110,8 +97,7 @@ class DFDownloadModal {
         if (!(this._dagTab instanceof DagTabUser)) {
             $lis.filter((_index, el) => {
                 return ($(el).data("type") !== this._DownloadTypeEnum.Image &&
-                        $(el).data("type") !== this._DownloadTypeEnum.OperationStats &&
-                        $(el).data("type") !== this._DownloadTypeEnum.FullStats
+                        $(el).data("type") !== this._DownloadTypeEnum.OperationStats
                     );
             }).addClass("xc-disabled");
         }
@@ -218,8 +204,6 @@ class DFDownloadModal {
                 return this._downloadImage(name);
             case this._DownloadTypeEnum.OperationStats:
                 return this._downloadStats(name);
-            case this._DownloadTypeEnum.FullStats:
-                return this._downloadFullStats(name);
             default:
                 return PromiseHelper.reject("Invalid download type");
         }
@@ -303,11 +287,6 @@ class DFDownloadModal {
     private _downloadStats(name: string): XDPromise<void> {
         const tab: DagTabUser = <DagTabUser>this._dagTab;
         return tab.downloadStats(name);
-    }
-
-    private _downloadFullStats(name: string): XDPromise<void> {
-        const tab: DagTabStats = <DagTabStats>this._dagTab;
-        return tab.downloadFullStats(name);
     }
 
     private _addEventListeners() {

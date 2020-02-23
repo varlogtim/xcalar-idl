@@ -4,16 +4,13 @@ namespace MainMenu {
     const openOffset: number = 200; // when the menu is open
     export const defaultWidth: number = 200;
     export const minWidth: number = 100;
-    let _isFormOpen: boolean = false; // if export, join, map etc is open
-    let ignoreRestoreState: boolean = false; // boolean flag - if closing of a form is
-    // triggered by the clicking of a mainMenu tab, we do not want to restore
-    // the pre-form state of the menu so we turn the flag on temporarily
     let hasSetUp: boolean = false;
     const formPanels: BaseOpPanel[] = [];
     let rightPanelMargin: number = defaultWidth;
     let $resizableRightPanels: JQuery;
     const minRightPanelWidth = 600;
     export let curSQLLeftWidth = defaultWidth;
+    let _popup:  PopupPanel;
 
     export let historyCursor: number = 0;
     export const tabToPanelMap = {
@@ -72,7 +69,7 @@ namespace MainMenu {
             if ($advModeTabs.hasClass("active")) {
                 $advModeTabs.removeClass("active");
                 DagViewManager.Instance.hide(); // turn off listeners
-                MainMenu.closeForms();
+                DagConfigNodeModal.Instance.closeForms();
                 closeMainPanels();
                 allPanelsClosed = true;
             }
@@ -82,7 +79,7 @@ namespace MainMenu {
             $advModeTabs.removeClass("xc-hidden");
             if ($sqlModeTabs.hasClass("active")) {
                 $sqlModeTabs.removeClass("active");
-                MainMenu.closeForms();
+                DagConfigNodeModal.Instance.closeForms();
                 closeMainPanels();
                 allPanelsClosed = true;
             }
@@ -254,13 +251,11 @@ namespace MainMenu {
     };
 
     export function getState(): {
-        isPoppedOut: boolean,
         isBottomOpen: boolean,
         $activeBottomSection: JQuery,
         $activeDataflowMenu: JQuery
     } {
         const state = {
-            isPoppedOut: BottomMenu.isPoppedOut(),
             isBottomOpen: BottomMenu.isMenuOpen(),
             $activeBottomSection: $("#bottomMenu").find(".menuSection.active"),
             $activeDataflowMenu: $("#dataflowMenu").find(".menuSection:not(.xc-hidden)")
@@ -268,58 +263,10 @@ namespace MainMenu {
         return (state);
     };
 
-    export function setFormOpen(): boolean {
-        _isFormOpen = true;
-        return _isFormOpen;
-    };
-
-    export function setFormClose(): boolean {
-        _isFormOpen = false;
-        return _isFormOpen;
-    };
-
-    // xx currently only supporting form views in the worksheet panel
-    export function restoreState(prevState: {
-        isPoppedOut: boolean,
-        isBottomOpen: boolean,
-        $activeBottomSection: JQuery,
-        $activeDataflowMenu: JQuery
-    }, ignoreClose?: boolean) {
-        // ignoreRestoreState is temporarily set when mainMenu tab is clicked
-        // and form is open
-        // ignoreClose will be true if different menu tab has been clicked
-        // and form is no longer visible
-        if (!ignoreRestoreState && !ignoreClose) {
-            if (prevState.isBottomOpen && !BottomMenu.isMenuOpen()) {
-                BottomMenu.openSection(prevState.$activeBottomSection.index());
-            }
-        }
-
-        if (prevState.$activeDataflowMenu.is("#dagNodeInfoPanel") &&
-            !DagNodeInfoPanel.Instance.isOpen()) {
-            $("#dagList").removeClass("xc-hidden");
-        } else {
-            prevState.$activeDataflowMenu.removeClass("xc-hidden");
-        }
-    };
-
-    export function closeForms(): void {
-        if (_isFormOpen) {
-            ignoreRestoreState = true;
-            formPanels.forEach((panel) => {
-                if (panel["close"]) {
-                    panel["close"]();
-                }
-            });
-            ignoreRestoreState = false;
-            DagConfigNodeModal.Instance.close();
-        }
-    };
-
     // ensures right panels are not too small
     export function sizeRightPanel() {
         let winWidth = $(window).width() - 60;
-        if (BottomMenu.isMenuOpen() && !BottomMenu.isPoppedOut()) {
+        if (BottomMenu.isMenuOpen()) {
             winWidth -= defaultWidth;
         }
         let halfWinWidth = Math.floor(winWidth / 2);
@@ -375,9 +322,26 @@ namespace MainMenu {
         }
     }
 
+    export function setupPopup(): void {
+        _popup = new PopupPanel("dataflowMenu", {
+            noUndock: true
+        });
+        _popup
+        .on("ResizeDocked", (state) => {
+            let width = Math.min(state.dockedWidth, $(window).width() - 20);
+            MainMenu.resize(width);
+        });
+    }
+
     function setupDataflowResizable(): void {
         const $menu = $("#dataflowMenu");
-        const onStop = (width) => { MainMenu.resize(width); };
+        const onStop = (width) => {
+            MainMenu.resize(width);
+            width = $menu[0].getBoundingClientRect().width;
+            _popup.trigger("ResizeDocked_BroadCast", {
+                dockedWidth: width,
+            });
+        };
         _setupResizable($menu, minWidth, undefined, onStop);
     }
 

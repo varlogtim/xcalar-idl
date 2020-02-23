@@ -1,12 +1,12 @@
 class PopupPanel {
     private _id: string;
-    private _options;
+    private _options: {draggableHeader?: string, noUndock?: boolean};
     private _event: XcEvent;
     private _isDocked: boolean;
 
     constructor(
         id: string,
-        options: {draggableHeader: string}
+        options: {draggableHeader?: string, noUndock?: boolean}
     ) {
         this._id = id;
         this._options = options;
@@ -15,15 +15,51 @@ class PopupPanel {
         this._addEventListeners();
 
         const $panel = this.getPanel();
-        $panel.addClass("undockable");
-        $panel.resizable("disable");
-        $panel.draggable("disable");
+        if (!this._options.noUndock) {
+            $panel.addClass("undockable");
+        }
+
         PopupManager.register(this);
     }
 
     public on(event: string, callback: Function): PopupPanel {
         this._event.addEventListener(event, callback);
         return this;
+    }
+
+    public trigger(event: string, info?: any): void {
+        this._event.dispatchEvent(event, info);
+    }
+
+    public restore(state) {
+        if (state.isVisible) {
+            this._event.dispatchEvent("Show");
+        } else {
+            this._event.dispatchEvent("Hide", {restoring: true});
+        }
+
+        this._event.dispatchEvent("ResizeDocked", state);
+
+        if (state.isUndocked) {
+            this._undock();
+            if (state.undockedWidth !== "auto") {
+                this.getPanel().outerWidth(state.undockedWidth);
+            }
+            if (state.undockedHeight !== "auto") {
+                this.getPanel().outerHeight(state.undockedHeight);
+            }
+            if (state.undockedTop !== "auto") {
+                const top = Math.min(state.undockedTop, $(window).height() - 40);
+                this.getPanel().css("top", top);
+            }
+            if (state.undockedLeft !== "auto") {
+                const left = Math.min(state.undockedLeft, $(window).width() - 40);
+                this.getPanel().css("left", left);
+            }
+        }
+        if (state.isVertStacked) {
+            this._event.dispatchEvent("VertStack", state);
+        }
     }
 
     public toggleDock(): void {
@@ -56,7 +92,7 @@ class PopupPanel {
         const $button = this._getPopupButton();
         xcTooltip.changeText($button, SideBarTStr.PopBack);
         $button.removeClass("xi_popout").addClass("xi_popin");
-        this._setUndockSize();
+        this._setUndockSizeAndPos();
 
         this._event.dispatchEvent("Undock");
         this._event.dispatchEvent("Undock_BroadCast");
@@ -96,7 +132,7 @@ class PopupPanel {
         this._event.dispatchEvent("Dock_BroadCast");
     }
 
-    private _setUndockSize(): void {
+    private _setUndockSizeAndPos(): void {
         const $panel = this.getPanel();
         const rect = $panel[0].getBoundingClientRect();
         const height = Math.min(500, Math.max(300, $(window).height() - (rect.top + 10)));
@@ -111,23 +147,34 @@ class PopupPanel {
     }
 
     private _addEventListeners(): void {
-        const $button = this._getPopupButton();
-        $button.click(() => {
-            this.toggleDock();
-        });
+        if (!this._options.noUndock) {
+            const $button = this._getPopupButton();
+            $button.click(() => {
+                this.toggleDock();
+            });
+            const $panel = this.getPanel();
 
-        this.getPanel().resizable({
-            handles: "w, e, s, n, nw, ne, sw, se",
-            containment: '#sqlWorkSpacePanel',
-            minWidth: 36,
-            minHeight: 50,
-            stop: () => {
-                this._event.dispatchEvent("Resize");
+            $panel.resizable({
+                handles: "w, e, s, n, nw, ne, sw, se",
+                containment: '#sqlWorkSpacePanel',
+                minWidth: 36,
+                minHeight: 50,
+                stop: (_, ui) => {
+                    const rect = ui.element[0].getBoundingClientRect();
+                    this._event.dispatchEvent("Resize");
+                    this._event.dispatchEvent("Resize_BroadCast", {
+                        undockedWidth: rect.width,
+                        undockedHeight: rect.height
+                    });
+                }
+            });
+
+            if (this._options.draggableHeader) {
+                this._setDraggable(this._options.draggableHeader);
             }
-        });
 
-        if (this._options.draggableHeader) {
-            this._setDraggable(this._options.draggableHeader);
+            $panel.resizable("disable");
+            $panel.draggable("disable");
         }
     }
 
@@ -161,6 +208,14 @@ class PopupPanel {
                     ui.helper.css("top", maxTop);
                     ui.position.top = maxTop;
                 }
+            },
+            stop: (_event, ui) => {
+                const rect = ui.helper[0].getBoundingClientRect();
+                this._event.dispatchEvent("Drag");
+                this._event.dispatchEvent("Drag_BroadCast", {
+                    undockedTop: rect.top,
+                    undockedLeft: rect.left
+                });
             }
         });
     }

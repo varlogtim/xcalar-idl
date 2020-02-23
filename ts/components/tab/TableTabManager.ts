@@ -154,7 +154,7 @@ class TableTabManager extends AbstractTabManager {
             this._activeTabs.splice(newIndex, 0, tab);
             this._save();
         }
-    } 
+    }
 
     protected _getJSON(): {
         tabs: {name: string, type: TableTabType, meta?: {tabId: string, nodeId: DagNodeId}}[]
@@ -186,7 +186,7 @@ class TableTabManager extends AbstractTabManager {
             meta?: {tabId: string, nodeId: DagNodeId}
         },
         index?: number,
-        
+
     ): void {
         let tabIndex: number = null;
         if (index == null) {

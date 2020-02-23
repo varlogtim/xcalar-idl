@@ -89,6 +89,9 @@ namespace xcManager {
             UDFPanel.Instance.setup();
             return PromiseHelper.convertToJQuery(AppList.Instance.restore());
         })
+        .then(() => {
+            return PopupManager.restore();
+        })
         .then(function() {
             try {
                 $("#topMenuBarTabs").removeClass("xc-hidden");
@@ -131,7 +134,6 @@ namespace xcManager {
         })
         .then(function() {
             try {
-                DagStatsPanel.Instance.setup();
                 // By default show panel
                 MainMenu.openDefaultPanel();
                 if (firstTimeUser) {

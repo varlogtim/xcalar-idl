@@ -47,7 +47,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 schema: dagNode.getSchema(true) || []
             });
             this._restorePanel(model, true);
-            MainMenu.setFormOpen();
+            DagConfigNodeModal.Instance.setFormOpen();
         });
     }
 
@@ -56,7 +56,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
      */
     public close(isSubmit?: boolean): void {
         super.hidePanel(isSubmit);
-        MainMenu.setFormClose();
+        DagConfigNodeModal.Instance.setFormClose();
         DatasetColRenamePanel.Instance.close();
         this._dagGraph = null;
         this._synthesize = null;

@@ -1,6 +1,7 @@
 class DebugPanel {
     private static _instance: DebugPanel;
     private _systemLogCard: SystemLog;
+    private _popup: PopupPanel;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -25,9 +26,11 @@ class DebugPanel {
         if (display) {
             $tab.addClass("active");
             $container.removeClass("xc-hidden");
+            this._popup.trigger("Show_BroadCast");
         } else {
             $tab.removeClass("active");
             $container.addClass("xc-hidden");
+            this._popup.trigger("Hide_BroadCast");
         }
     }
 
@@ -47,6 +50,23 @@ class DebugPanel {
         const html = this._getOutputHTML(output);
         const $section = this._getOutputSection();
         $section.append(html);
+    }
+
+    public setupPopup(): void {
+        this._popup = new PopupPanel("debugViewContainer", {
+            noUndock: true
+        });
+        this._popup
+        .on("Show", (info: {restoring: boolean}) => {
+            this.toggleDisplay(true);
+        })
+        .on("ResizeDocked", (state) => {
+            $("#debugViewContainer").parent().css("height", `${state.dockedHeight}%`);
+        });
+    }
+
+    public getPopup(): PopupPanel {
+        return this._popup;
     }
 
     private _getContainer(): JQuery {

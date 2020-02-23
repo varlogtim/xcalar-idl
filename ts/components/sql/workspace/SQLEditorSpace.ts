@@ -14,7 +14,6 @@ class SQLEditorSpace {
     private constructor() {
         this._executers = [];
         this._updateExecutor();
-        this._setupPopup();
     }
 
     public setup(): void {
@@ -28,7 +27,9 @@ class SQLEditorSpace {
      * SQLEditorSpace.Instance.refresh
      */
     public refresh(): void {
-        this._sqlEditor.refresh();
+        if (this._sqlEditor) { // may not exist if called on startup
+            this._sqlEditor.refresh();
+        }
     }
 
     public clearSQL(): void {
@@ -561,7 +562,7 @@ class SQLEditorSpace {
         xcHelper.downloadAsFile(fileName, content);
     }
 
-    private _setupPopup(): void {
+    public setupPopup(): void {
         this._popup = new PopupPanel("sqlViewContainer", {
             draggableHeader: ".draggableHeader"
         });

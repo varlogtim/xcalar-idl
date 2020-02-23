@@ -1,6 +1,8 @@
 class DagConfigNodeModal {
     private static _instance: DagConfigNodeModal;
     private _popup: PopupPanel;
+    private _formPanels: BaseOpPanel[] = [];
+    private _isFormOpen = false;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -9,21 +11,55 @@ class DagConfigNodeModal {
     private constructor() {
         const $modal: JQuery = this._getModal();
         $modal.find("header").addClass("opPanelHeader");
+    }
 
+    public setupPopup() {
         this._popup = new PopupPanel("configNodeContainer", {
             draggableHeader: ".opPanelHeader"
         });
         this._popup
         .on("Undock", () => {
-            // this._undock();
+            this._refreshEditor();
         })
         .on("Dock", () => {
-            // this._dock();
+            this._refreshEditor();
         })
         .on("Resize", () => {
-            // this.getEditor().refresh();
+            this._refreshEditor();
+        })
+        .on("ResizeDocked", (state) => {
+            $("#configNodeContainer").parent().css("width", `${state.dockedWidth}%`);
         });
     }
+
+    public getPopup(): PopupPanel {
+        return this._popup;
+    }
+
+    public setFormOpen(): boolean {
+        this._isFormOpen = true;
+        return this._isFormOpen;
+    };
+
+    public setFormClose(): boolean {
+        this._isFormOpen = false;
+        return this._isFormOpen;
+    };
+
+    public closeForms(): void {
+        if (this._isFormOpen) {
+            this._formPanels.forEach((panel) => {
+                if (panel["close"]) {
+                    panel["close"]();
+                }
+            });
+            this.close();
+        }
+    };
+
+    public registerPanels(panel): void {
+        this._formPanels.push(panel);
+    };
 
     private _getModal(): JQuery {
         return $("#configNodeContainer").parent();
@@ -135,5 +171,21 @@ class DagConfigNodeModal {
         Log.unlockUndoRedo();
         DagGraphBar.Instance.unlock();
         DagTabManager.Instance.unlockTab(tabId);
+    }
+
+    private _refreshEditor() {
+        this._formPanels.forEach(function(panel) {
+            if (panel.isOpen()) {
+                if (panel.getEditor && panel.getEditor()) {
+                    panel.getEditor().refresh();
+                }
+                if (panel["getSQLEditor"] && panel["getSQLEditor"]()) {
+                    panel["getSQLEditor"]().refresh();
+                }
+                if (panel.panelResize) {
+                    panel.panelResize();
+                }
+            }
+        });
     }
 }

@@ -33,14 +33,14 @@ class Authentication {
      * Authentication.getTableId
      */
     public static getTableId(): string {
-        let idCount: string; 
+        let idCount: string;
         if (xcHelper.isNodeJs() || this.idCount == null) {
-            return this._getHeadLessTableUid().gen();;
+            return this._getHeadLessTableUid().gen();
         } else {
             idCount = "v" + this.idCount;
             this.incIdCount();
         }
-        
+
         return ("#" + idCount);
     }
 

@@ -69,7 +69,7 @@ namespace DagNodeMenu {
         xcMenu.add(_getInstructionMenu());
 
         let $dfWrap = _getDFWrap();
-        let $dfWraps = $dfWrap.add($("#dagStatsPanel .dataflowWrap"));
+        let $dfWraps = $dfWrap;
 
         $dfWraps.on("contextmenu", ".operator.instruction", function(event) {
             _showNodeInstructionMenu(event);
@@ -336,9 +336,6 @@ namespace DagNodeMenu {
                 case ("viewSchemaTable"):
                     _showDagSchemaPopup(dagNodeIds[0], tabId, true);
                     break;
-                case ("viewStats"):
-                    DagStatsModal.Instance.show(dagNodeIds[0], tabId);
-                    break;
                 case ("exitOpPanel"):
                     exitOpPanel();
                     break;
@@ -374,9 +371,6 @@ namespace DagNodeMenu {
                     break;
                 case ("restoreAllDataset"):
                     restoreAllDatasets();
-                    break;
-                case ("generateStatsDataflow"):
-                    DagStatsDataflowGenerator.Instance.generateStatsDataflow();
                     break;
                 default:
                     break;
@@ -439,7 +433,7 @@ namespace DagNodeMenu {
                 }
             });
         } else {
-            MainMenu.closeForms();
+            DagConfigNodeModal.Instance.closeForms();
         }
     }
 
@@ -538,7 +532,7 @@ namespace DagNodeMenu {
         Log.lockUndoRedo();
         DagTabManager.Instance.lockTab(tabId);
         DagGraphBar.Instance.lock();
-        MainMenu.closeForms(); // close opened forms first
+        DagConfigNodeModal.Instance.closeForms(); // close opened forms first
         // Nodes in SQL sub graph can't be configured
         if (dagTab instanceof DagTabSQL) {
             options.nonConfigurable = true;
@@ -663,9 +657,7 @@ namespace DagNodeMenu {
         if (activeTab instanceof DagTabOptimized) {
             classes += " optimizedTab ";
         }
-        if (activeTab instanceof DagTabStats) {
-            classes += " statsTab ";
-        }
+
         if ($dfArea.find(".comment.selected").length) {
             classes += " commentMenu ";
         }

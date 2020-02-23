@@ -41,8 +41,10 @@ describe("WorkbookPanel Test", function() {
             var checkFunc = function() {
                 return !$("#container").hasClass("workbookMode");
             };
-
-            UnitTest.testFinish(checkFunc)
+            UnitTest.wait(1000)
+            .then(() => {
+                return UnitTest.testFinish(checkFunc);
+            })
             .then(function() {
                 expect($workbookPanel.find(".workbookBox.active").length)
                 .to.equal(0);
@@ -53,7 +55,7 @@ describe("WorkbookPanel Test", function() {
             });
         });
 
-        it("should have noting happen if trigger hide again", function() {
+        it("should have nothing happen if trigger hide again", function() {
             WorkbookPanel.hide();
             expect($workbookPanel.find(".workbookBox.active").length)
             .to.equal(0);

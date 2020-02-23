@@ -199,7 +199,6 @@ abstract class AbstractMenu {
                 const name: string = "SQL " + moment(new Date()).format("HH:mm:ss ll");
                 SQLDataflowPreview.restoreDataflow2(sqlString, name)
                 .then((newNodes) => {
-                    DagViewManager.Instance.toggleSqlPreview(false);
                     if (DagTabManager.Instance.getNumTabs() === 0) {
                         DagTabManager.Instance.newTab();
                     }
@@ -219,7 +218,6 @@ abstract class AbstractMenu {
             } else {
                 // sql string may not exist so we just create a published
                 // table node as the start point
-                DagViewManager.Instance.toggleSqlPreview(false);
                 if (DagTabManager.Instance.getNumTabs() === 0) {
                     DagTabManager.Instance.newTab();
                 }

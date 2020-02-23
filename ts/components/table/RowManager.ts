@@ -34,7 +34,7 @@ class RowManager {
 
     public setAlert(alert: boolean): void {
         this.alert = alert;
-    } 
+    }
 
     /**
      * @return {XDPromise}
@@ -267,7 +267,7 @@ class RowManager {
             }
         } else {
             const $trs: JQuery = $table.find('tbody tr');
-            let rowNum: number = (this.table.resultSetCount === 0) ? 0 : 1;;
+            let rowNum: number = (this.table.resultSetCount === 0) ? 0 : 1;
             $trs.each((_index, el) => {
                 const $tr: JQuery = $(el);
                 if ($tr[0].getBoundingClientRect().bottom > tdYCoor) {

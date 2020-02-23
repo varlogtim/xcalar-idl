@@ -219,6 +219,7 @@ class BaseOpPanel {
         this._setupRestoreBtn();
         this._addBasicEventListeners();
         MainMenu.registerPanels(this);
+        DagConfigNodeModal.Instance.registerPanels(this);
     }
 
     protected _setupColumnPicker(opName: string): void {
@@ -269,7 +270,7 @@ class BaseOpPanel {
         let formCount = this._formCount;
         this._reset();
         this._formHelper.showView(formName, this);
-        MainMenu.setFormOpen();
+        DagConfigNodeModal.Instance.setFormOpen();
         options = options || {};
         this._exitCallback = options.exitCallback || function () { };
         this._closeCallback = options.closeCallback || function () { };
@@ -778,11 +779,11 @@ class BaseOpPanel {
         const minWidth: number = MainMenu.defaultWidth;
         return; // XXX temporarily disabled fix me
         if (reset) {
-            MainMenu.resize(0);
+            // MainMenu.resize(0);
         } else {
             let width: number = minWidth + sectionW;
             width = Math.min(width, $("#sqlWorkSpacePanel").width() * 0.5);
-            MainMenu.resize(width);
+            // MainMenu.resize(width);
         }
     }
 

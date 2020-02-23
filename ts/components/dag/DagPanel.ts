@@ -20,8 +20,6 @@ class DagPanel {
             this._afterLoad();
         });
 
-        this._setupPopup();
-
         this._basicSetup()
         .then(() => {
             return this._loadTabs();
@@ -117,7 +115,7 @@ class DagPanel {
         return html;
     }
 
-    private _setupPopup() {
+    public setupPopup() {
         this._popup = new PopupPanel("dagViewContainer", {
             draggableHeader: ".draggableHeader"
         });

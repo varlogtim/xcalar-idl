@@ -621,7 +621,7 @@ class DagQueryConverter {
 
     private _getFailedDataflowRet(errorStr, isRetina?) {
         const kvPairs = {};
-        let commentId = CommentNode.generateId();;
+        let commentId = CommentNode.generateId();
         const comment = {
             "id": commentId,
             "nodeId": commentId,

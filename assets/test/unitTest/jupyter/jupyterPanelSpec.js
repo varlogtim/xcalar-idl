@@ -1,4 +1,4 @@
-describe("JupyterPanel Test", function() {
+describe.skip("JupyterPanel Test", function() {
     var $iframe;
     var sendMessage;
     before(function() {

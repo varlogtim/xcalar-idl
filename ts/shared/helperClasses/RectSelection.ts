@@ -129,8 +129,8 @@ class RectSelection {
         // update rect's position
         let left: number;
         let top: number;
-        let w: number = x - self.initialX;;
-        let h: number = y - self.initialY;;
+        let w: number = x - self.initialX;
+        let h: number = y - self.initialY;
         const $rect: JQuery = self.__getRect();
 
         if (w >= 0) {

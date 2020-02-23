@@ -905,7 +905,7 @@ class JSONModal {
             if (isArray) {
                 prettyJson += '<div class="brace">]</div>';
             } else {
-                prettyJson += '<div class="brace">}</div>';;
+                prettyJson += '<div class="brace">}</div>';
             }
         }
         if (this._isDataCol &&

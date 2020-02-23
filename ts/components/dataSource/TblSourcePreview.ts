@@ -102,7 +102,7 @@ class TblSourcePreview {
     }
 
     private _getSchemaSection(): JQuery {
-        return this._getContainer().find(".schemaSection");;
+        return this._getContainer().find(".schemaSection");
     }
 
     private _getInfoSection(): JQuery {

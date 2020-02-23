@@ -16,9 +16,6 @@ table, tr, td, th, input, textarea, section, p {
 }
 
 table, tr, td, th, input, textarea {
-    .nomargin-padding;
-    .box-sizing;
-    border: none;
     .font(@weight: 400, @size: 12px);
 }
 
@@ -137,9 +134,8 @@ body {
         @menuWidth: @width-bottomMenu;
 
         #userBox {
-            z-index: @z-index-homeBtn;
+            z-index: @z-index-workbook + 1;
         }
-
 
         &.monitorMode, &.setupMode {
             #initialLoadScreen {
@@ -330,9 +326,9 @@ body {
 #initialLoadScreen {
     .size(@width: 100%, @height:  ~"calc(100% - @{height-topBar})", @min-height: 147px);
     .position(fixed, @top: @height-topBar);
-    z-index: 9999;
+    z-index: @z-index-initialLoadScreen;
     cursor: progress;
-    background-color: rgba(0, 0, 0, 0.15);
+    background-color: rgba(0, 0, 0, 0.3);
 
     &.sessionProgress .waitBox {
         .steps, .progressWrap, .progressNode {
@@ -672,7 +668,7 @@ body {
     // shows
     .size(@width: @width-userBox, @height: @height-topBar - 1px);
     .position(fixed, @top: 0, @right: 0);
-    z-index: @z-index-topBar + 1;
+    z-index: @z-index-topMenu + 1;
     padding-right: 10px;
     padding-left: 5px;
     background-color: @color-bg-topBar;
@@ -2360,12 +2356,12 @@ body.tooltipOff {
 }
 
 .ui-resizable-n, .ui-resizable-s {
-    .size (100%, 15px);
+    .size(100%, 15px);
     cursor: ns-resize;
 }
 
 .ui-resizable-e, .ui-resizable-w {
-    .size (15px, 100%);
+    .size(15px, 100%);
     cursor: ew-resize;
 }
 

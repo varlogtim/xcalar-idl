@@ -244,7 +244,7 @@ class ColMenu extends AbstractMenu {
             if (event.which !== 1) {
                 return;
             }
-            MainMenu.closeForms();
+            DagConfigNodeModal.Instance.closeForms();
         });
     }
 

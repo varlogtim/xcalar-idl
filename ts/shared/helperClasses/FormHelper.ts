@@ -53,7 +53,6 @@ class FormHelper {
     private id: string;
     private state: string;
     private mainMenuState: {
-        isPoppedOut: boolean,
         isBottomOpen: boolean,
         $activeBottomSection: JQuery,
         $activeDataflowMenu: JQuery
@@ -301,8 +300,8 @@ class FormHelper {
             deferred.resolve();
         }
 
-        if ($form.closest('.leftSection').length) {
-            MainMenu.setFormOpen();
+        if ($form.closest('#configNodeContainer').length) {
+            DagConfigNodeModal.Instance.setFormOpen();
         }
 
         return deferred.promise();
@@ -351,7 +350,6 @@ class FormHelper {
         tblMenu.updateExitOptions("#colMenu");
 
         if (this.mainMenuState != null) {
-            MainMenu.restoreState(this.mainMenuState, ignoreClose);
             this.mainMenuState = null;
         }
 
@@ -406,8 +404,8 @@ class FormHelper {
             deferred.resolve();
         }
 
-        if ($form.closest('.leftSection').length) {
-            MainMenu.setFormClose();
+        if ($form.closest('#configNodeContainer').length) {
+            DagConfigNodeModal.Instance.setFormClose();
         }
 
         return deferred.promise();

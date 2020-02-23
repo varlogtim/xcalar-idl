@@ -15,15 +15,7 @@ describe("Main Menu Test", function() {
         it("MainMenu.getState should work", function() {
             var state = MainMenu.getState();
             expect(state).to.be.an("object");
-            expect(Object.keys(state).length).to.equal(4);
-        });
-
-        it("should set form open and close", function() {
-            var isFormOpen = MainMenu.setFormClose();
-            expect(isFormOpen).to.be.false;
-
-            isFormOpen = MainMenu.setFormOpen();
-            expect(isFormOpen).to.be.true;
+            expect(Object.keys(state).length).to.equal(3);
         });
 
         it("MainMenu.openPanel should work", function() {

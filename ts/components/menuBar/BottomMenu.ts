@@ -3,7 +3,6 @@ namespace BottomMenu {
     let $bottomMenu: JQuery; //$("#bottomMenu");
     let _isMenuOpen: boolean = false;
     let menuAnimCheckers: XDDeferred<void>[] = [];
-    let _popup: PopupPanel;
 
     export function setup(): void {
         $bottomMenu = $("#bottomMenu");
@@ -38,17 +37,10 @@ namespace BottomMenu {
         return _isMenuOpen;
     };
 
-    export function isPoppedOut(): boolean {
-        return _popup ? !_popup.isDocked() : false;
-    };
-
     export function openSection(sectionIndex: number): void {
         openMenu(sectionIndex);
     };
 
-    export function openUDFMenuWithMainMenu(): void {
-        openMenu(0, true);
-    }
 
     // setup buttons to open bottom menu
     function setupButtons(): void {
@@ -80,15 +72,12 @@ namespace BottomMenu {
         _isMenuOpen = false;
         // recenter table titles if on workspace panel
         $("#bottomMenuBarTabs .sliderBtn.active").removeClass("active");
-        if (!isPoppedOut() && $("#sqlWorkSpacePanel").hasClass("active")) {
+        if ($("#sqlWorkSpacePanel").hasClass("active")) {
             checkAnimFinish()
             .then(function() {
                 TblFunc.moveFirstColumn();
                 DagCategoryBar.Instance.showOrHideArrows();
             });
-        }
-        if (isPoppedOut()) {
-            _popup.toggleDock();
         }
     }
 
@@ -104,12 +93,7 @@ namespace BottomMenu {
 
         if ($bottomMenu.hasClass("open") && $section.hasClass("active")) {
             // section is active, close right side bar
-            if (isPoppedOut()) {
-                // disable closing if popped out
-                return;
-            } else {
-                closeMenu();
-            }
+            closeMenu();
         } else {
             hasAnim = openMenu(sectionIndex);
         }
@@ -184,8 +168,6 @@ namespace BottomMenu {
             $("#udfButtonWrap").addClass("xc-hidden");
         }
 
-
-
         refreshEditor();
         return hasAnim;
     }
@@ -223,20 +205,6 @@ namespace BottomMenu {
                 DagCategoryBar.Instance.showOrHideArrows();
             });
         }
-    }
-
-    function _dock(): void {
-        $("#container").removeClass("bottomMenuOut");
-
-        checkAnimFinish()
-        .then(function() {
-            MainMenu.sizeRightPanel();
-            refreshEditor();
-            if ($("#sqlWorkSpacePanel").hasClass("active")) {
-                TblFunc.moveFirstColumn();
-                DagCategoryBar.Instance.showOrHideArrows();
-            }
-        });
     }
 
     function resolveMenuAnim(): void {

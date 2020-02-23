@@ -331,7 +331,6 @@ class SQLDagExecutor {
     }
 
     private _appendNodeToDataflow(): void {
-        DagViewManager.Instance.toggleSqlPreview(false);
         DagTabManager.Instance.openAndResetSQLExecuteTab();
         this._tempTab = <DagTabSQLExecute>DagViewManager.Instance.getActiveTab();
         this._tempGraph = this._tempTab.getGraph();

@@ -38,10 +38,9 @@ class SQLWorkSpace {
         // XXX the refresh is quite slow and seems not needed
         // so commented out. Uncomment it if it's actually necessary
         // this.refresh();
-        DagViewManager.Instance.toggleSqlPreview(true);
         if (this._firstTouch) {
             this.refresh();
-            SQLResultSpace.Instance.showTables(true);
+            SQLResultSpace.Instance.showTables(true, true);
             this._firstTouch = false;
         }
         PopupManager.checkAllContentUndocked();
@@ -182,15 +181,26 @@ class SQLWorkSpace {
                 lastLeft = ui.position.left;
             },
             resize: function(_event, ui) {
-                const left: number = ui.position.left;
-                const delta: number = left - lastLeft;
-                let pct = (resizableWidth - delta) / totalWidth;
-                pct = Math.min(pct, 0.98);
-                pct = Math.max(0.02, pct);
-                $resizableSection.css("width", `${pct * 100}%`);
+                const pct = getPct(ui);
+                $resizableSection.css("width", `${pct}%`);
                 $resizableSection.css("left", "0");
+            },
+            stop: function(_event, ui) {
+                const pct = getPct(ui);
+                UDFPanel.Instance.getPopup().trigger("ResizeDocked_BroadCast", {
+                    dockedWidth: pct,
+                });
             }
         });
+
+        function getPct(ui): number {
+            const left: number = ui.position.left;
+            const delta: number = left - lastLeft;
+            let pct = (resizableWidth - delta) / totalWidth;
+            pct = Math.min(pct, 0.98);
+            pct = Math.max(0.02, pct);
+            return pct * 100;
+        }
     }
 
     private _resizeNodeConfigSection(): void {
@@ -213,15 +223,26 @@ class SQLWorkSpace {
                 lastLeft = ui.position.left;
             },
             resize: function(_event, ui) {
-                const left: number = ui.position.left;
-                const delta: number = left - lastLeft;
-                let pct = (resizableWidth - delta) / totalWidth;
-                pct = Math.min(pct, 0.98);
-                pct = Math.max(0.02, pct);
-                $resizableSection.css("width", `${pct * 100}%`);
+                const pct = getPct(ui);
+                $resizableSection.css("width", `${pct}%`);
                 $resizableSection.css("left", "0");
+            },
+            stop: (_event, ui) => {
+                const pct = getPct(ui);
+                DagConfigNodeModal.Instance.getPopup().trigger("ResizeDocked_BroadCast", {
+                    dockedWidth: pct,
+                });
             }
         });
+
+        function getPct(ui) {
+            const left: number = ui.position.left;
+            const delta: number = left - lastLeft;
+            let pct = (resizableWidth - delta) / totalWidth;
+            pct = Math.min(pct, 0.98);
+            pct = Math.max(0.02, pct);
+            return pct * 100;
+        }
     }
 
     // handles vertical and horizontal resizing
@@ -251,25 +272,46 @@ class SQLWorkSpace {
             },
             resize: (_event, ui) => {
                 if (vertically) {
-                    const top: number = ui.position.top;
-                    const delta: number = top - lastTop;
-                    let pct = (bottomRightHeight - delta) / totalHeight;
-                    pct = Math.min(pct, 0.98);
-                    pct = Math.max(0.02, pct);
-                    $bottomRightPart.css("height", `${pct * 100}%`);
+                    const pct = getVertPct(ui);
+                    $bottomRightPart.css("height", `${pct}%`);
                     $bottomRightPart.css("top", "0");
                 } else {
-                    let pct = ui.size.width / bottomPartWidth;
-                    pct = Math.min(pct, 0.98);
-                    pct = Math.max(0.02, pct);
-                    $bottomRightPart.css("width", `${pct * 100}%`);
+                    const pct = getHorzPct(ui);
+                    $bottomRightPart.css("width", `${pct}%`);
                     $bottomRightPart.css("left", "0");
                 }
             },
-            stop: () => {
+            stop: (_event, ui) => {
                 $panel.removeClass("resizing");
+                if (vertically) {
+                    const pct = getVertPct(ui);
+                    SQLResultSpace.Instance.getPopup().trigger("ResizeDocked_BroadCast", {
+                        dockedHeight: pct,
+                    });
+                } else {
+                    const pct = getHorzPct(ui);
+                    SQLResultSpace.Instance.getPopup().trigger("ResizeDocked_BroadCast", {
+                        dockedWidth: pct,
+                    });
+                }
             }
         });
+
+        function getVertPct(ui) {
+            const top: number = ui.position.top;
+            const delta: number = top - lastTop;
+            let pct = (bottomRightHeight - delta) / totalHeight;
+            pct = Math.min(pct, 0.98);
+            pct = Math.max(0.02, pct);
+            return pct * 100;
+        }
+
+        function getHorzPct(ui) {
+            let pct = ui.size.width / bottomPartWidth;
+            pct = Math.min(pct, 0.98);
+            pct = Math.max(0.02, pct);
+            return pct * 100;
+        }
     }
 
     private _resizeDebugPart(): void {
@@ -294,21 +336,29 @@ class SQLWorkSpace {
                 lastTop = ui.position.top;
             },
             resize: function(_event, ui) {
-                const top: number = ui.position.top;
-                const delta: number = top - lastTop;
-                let pct = (debugHeight - delta) / totalHeight;
-                pct = Math.min(pct, 0.98);
-                pct = Math.max(0.02, pct);
-
-                $debugPart.css("height", `${pct * 100}%`);
+                const pct = getPct(ui);
+                $debugPart.css("height", `${pct}%`);
                 $debugPart.css("top", "0");
             },
-            stop: function() {
+            stop: function(_event, ui) {
+                const pct = getPct(ui);
                 $panel.removeClass("resizing");
                 SQLEditorSpace.Instance.refresh();
                 UDFPanel.Instance.refresh();
+                DebugPanel.Instance.getPopup().trigger("ResizeDocked_BroadCast", {
+                    dockedHeight: pct,
+                });
             }
         });
+
+        function getPct(ui) {
+            const top: number = ui.position.top;
+            const delta: number = top - lastTop;
+            let pct = (debugHeight - delta) / totalHeight;
+            pct = Math.min(pct, 0.98);
+            pct = Math.max(0.02, pct);
+            return pct * 100;
+        }
     }
 
     private _addEventListeners(): void {

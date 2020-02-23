@@ -232,12 +232,12 @@ class SetOpPanel extends BaseOpPanel {
         const minWidth: number = MainMenu.defaultWidth;
         return;
         if (reset) {
-            MainMenu.resize(0);
+            // MainMenu.resize(0);
         } else {
             const numList: number = this.setOpData.getNumList();
             let width: number = minWidth + Math.max(0, numList - 1) * sectionW;
             width = Math.min(width, $("#sqlWorkSpacePanel").width() * 0.5);
-            MainMenu.resize(width);
+            // MainMenu.resize(width);
         }
     }
 }

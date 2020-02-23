@@ -3116,58 +3116,6 @@
     }
 }
 
-#compileBackground {
-    background-color: transparent;
-    z-index: 99;
-}
-
-#dagStatsPanel {
-    background: white;
-    overflow: hidden;
-
-    .queryList {
-        height: 50%;
-        .col-query span {
-            width: 100%;
-        }
-        .row-header .col-rows {
-            padding-right: 21px;
-            .flex-basis(86px);
-        }
-    }
-    .dataflowWrap {
-        box-shadow: 0px 0px 0px 1px #bbbbbb;
-        top: 50%;
-        height: 50%;
-        .dataflowArea {
-            display: block;
-        }
-    }
-    .runStats, .nodeStats {
-        display: block !important;
-    }
-}
-
-#dataflowStatsBtn {
-    position: absolute;
-    right: 0;
-    top: 0;
-    z-index: 1;
-    margin-top: 8px;
-    margin-right: 8px;
-    border-radius: 3px;
-    padding: 4px 10px;
-    color: @color-hover-blue;
-    border: 1px solid @color-hover-blue;
-    background: white;
-    cursor: pointer;
-    opacity: 0.9;
-
-    .icon {
-        margin-right: 8px;
-    }
-}
-
 #dataflowMenu {
     &.dagStats {
         #dagList {

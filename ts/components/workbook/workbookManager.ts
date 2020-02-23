@@ -943,6 +943,7 @@ namespace WorkbookManager {
         const gStoredDatasetsKey: string = generateKey("gStoredDatasetsKey", version);
         const gStoredWalkthroughKey: string = generateKey("gStoredWalkthroughKey", version);
         const gIdCountKey: string = generateKey("gIdCount", version);
+        const gPopupManagerKey: string = generateKey("gPopupManagerKey", version);
 
         return {
             "gStorageKey": gStorageKey,
@@ -970,7 +971,8 @@ namespace WorkbookManager {
             "gTutorialKey": gTutorialKey,
             "gStoredDatasetsKey": gStoredDatasetsKey,
             "gStoredWalkthroughKey": gStoredWalkthroughKey,
-            "gIdCountKey": gIdCountKey
+            "gIdCountKey": gIdCountKey,
+            "gPopupManagerKey": gPopupManagerKey
         };
     }
 

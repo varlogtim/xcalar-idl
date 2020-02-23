@@ -94,11 +94,7 @@ class DagTabManager extends AbstractTabManager {
      * Tells us the index of dag tab
      * @param tabId The id we're looking for.
      */
-    public getTabIndex(tabId: string, isSqlPreview?: boolean): number {
-        if (isSqlPreview && this._sqlPreviewTab &&
-            this._sqlPreviewTab.getId() === tabId) {
-            return 0;
-        }
+    public getTabIndex(tabId: string): number {
         return this._activeUserDags.findIndex((dag) => dag.getId() === tabId);
     }
 
@@ -199,38 +195,7 @@ class DagTabManager extends AbstractTabManager {
         return tabId;
     }
 
-    public newStatsTab(dagTab) {
-        this._statsTab = dagTab;
-        dagTab.load()
-        .then(() => {
-            const $container = $("#dagStatsPanel .dataflowWrap .innerDataflowWrap");
-            $container.find(".dataflowArea").remove();
-            const tabId = dagTab.getId();
-            DagViewManager.Instance.addDataflowHTML($container, tabId, true, true, true);
-            DagViewManager.Instance.renderStatsDag(dagTab);
-            dagTab.focus(true);
-        });
-    }
-
-    public newSQLTab(SQLNode: DagNodeSQL, isSqlPreview?: boolean): string {
-        if (isSqlPreview) {
-            const validatedName = SQLNode.getSQLName();
-            const tabId = SQLNode.getId();
-            const newTab = new DagTabSQL({
-                id: tabId,
-                name: validatedName,
-                SQLNode: SQLNode
-            });
-            newTab.setGraph(newTab.getGraph());
-            this._sqlPreviewTab = <DagTab>newTab;
-
-            const $container = $("#sqlDataflowArea .dataflowWrap .innerDataflowWrap");
-            $container.empty();
-            DagViewManager.Instance.addDataflowHTML($container, tabId, true, false);
-
-            DagViewManager.Instance.renderSQLPreviewDag(<DagTab>newTab);
-            return;
-        }
+    public newSQLTab(SQLNode: DagNodeSQL): string {
         const activeTab: DagTab = DagViewManager.Instance.getActiveTab();
         const parentTabId = activeTab.getId();
         // the string to show on the tab

@@ -179,11 +179,11 @@ class DatasetColRenamePanel {
         const minWidth: number = MainMenu.defaultWidth;
         return;
         if (reset) {
-            MainMenu.resize(0);
+            // MainMenu.resize(0);
         } else {
             let width: number = minWidth + sectionW;
             width = Math.min(width, $("#sqlWorkSpacePanel").width() * 0.5);
-            MainMenu.resize(width);
+            // MainMenu.resize(width);
         }
     }
 }
