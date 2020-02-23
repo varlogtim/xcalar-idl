@@ -17,7 +17,7 @@
             <p class="mainInstructions instrText"><%= dicts.joinView.instr %></p>
             <section class="topDropdowns clearfix">
               <div class="subHeading clearfix">
-                <div><%= dicts.joinView.JoinType %></div>
+                <div><%= dicts.joinView.JoinType %>:</div>
               </div>
               <div data-xcid="joinType" class="dropDownList">
                 <div data-xcid="text" class="text"><%= dicts.joinView.InnerJoin %></div>
@@ -30,8 +30,14 @@
           <!-- Join Main Section -->
           <section>
             <div>
-                <div class="subHeading clearfix"><div><%= dicts.joinView.colSelectTitle %></div></div>
-                <p data-xcid="colInstruction" class="colSelectInstr instrText"></p>
+                <div class="subHeading clearfix">
+                  <div class="label"><%= dicts.joinView.colSelectTitle %>:</div>
+                  <i data-xcid="colInstruction" class="colSelectInstr instrText qMark icon xi-unknown"
+                    data-toggle="tooltip"
+                    data-container="body"
+                    data-placement="top">
+                  </i>
+                </div>
             </div>
             <div data-xcid="clauseArea">
               <div class="row row-subheading">
@@ -50,9 +56,14 @@
             </div>
             <section data-xcid="crossJoinFilter">
               <div class="subHeading clearfix">
-                <div class="text"><%= dicts.joinView.FilterEval %></div>
+                <div class="text">(Optional) <%= dicts.joinView.FilterEval %>:</div>
+                <i class="qMark icon xi-unknown"
+                data-toggle="tooltip"
+                data-container="body"
+                data-placement="top"
+                data-title="<%= dicts.joinView.FilterInstr %>">
+                </i>
               </div>
-              <p class="crossJoinFilterInstr instrText"><%= dicts.joinView.FilterInstr %></p>
               <input data-xcid="evalStr" type="text" spellcheck="false" placeholder="<%= dicts.joinView.Optional %>"/>
             </section>
             <section class="advancedSection collapsed" data-xcid="advancedSection">
@@ -89,7 +100,7 @@
               </div>
             </section>
             <div class="strPreview">
-              <span class="semibold prevTitle"><%= dicts.joinView.Preview %></span>
+              <span class="prevTitle"><%= dicts.joinView.Preview %></span>
               <div class="joinPreview" data-xcid="joinPreview">
                 <span class="joinType keyword">Inner Join</span>
                 <span class="highlighted">table1</span>,<span class="highlighted">table2</span>

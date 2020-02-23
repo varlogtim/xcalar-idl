@@ -95,7 +95,9 @@ class JoinOpPanelStep1 {
         if (this._modelRef.isCrossJoin()) {
             text = JoinTStr.DagColSelectInstrCross;
         }
-        this._$elemInstr.text(text);
+        xcTooltip.add(this._$elemInstr, {
+            title: text
+        });
         // Setup join options section
         this._updateJoinOptionsSection();
         // Setup main section

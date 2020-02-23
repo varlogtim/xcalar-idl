@@ -93,7 +93,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
         }
         const sourceList: HintDropdownProps = {
             type: 'column',
-            name: OpPanelTStr.SplitPanelFieldNameSourceColumn,
+            name: OpPanelTStr.SplitPanelFieldNameSourceColumn + ":",
             inputVal: this._dataModel.getSourceColName(),
             placeholder: OpPanelTStr.SplitPanelFieldNameSourceColumn,
             menuList: menuList,
@@ -125,7 +125,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
         // Delimiter
         const delimiterInfo: SimpleInputProps<string> = {
             type: 'string',
-            name: OpPanelTStr.SplitPanelFieldNameDelimiter,
+            name: OpPanelTStr.SplitPanelFieldNameDelimiter + ":",
             inputVal: this._dataModel.getDelimiter(),
             placeholder: OpPanelTStr.SplitPanelFieldNameDelimiter,
             valueCheck: { checkType: 'stringNoTrimNoEmptyValue', args: [] },
@@ -147,7 +147,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
         const range = { min: 1 };
         const destColCountInfo: SimpleInputProps<number> = {
             type: 'number',
-            name: OpPanelTStr.SplitPanelFieldNameColumnCount,
+            name: OpPanelTStr.SplitPanelFieldNameColumnCount + ":",
             inputVal: colCount, placeholder: `range: >=${range.min}`,
             valueCheck: { checkType: 'integerRange', args: [range] },
             onInput: (count: number) => {
@@ -172,7 +172,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
             const colName = colNames[i] || '';
             const destColInfo: SimpleInputProps<string> = {
                 type: 'string',
-                name: `${OpPanelTStr.SplitPanelFieldNameDestColumn} #${i + 1}`,
+                name: `${OpPanelTStr.SplitPanelFieldNameDestColumn} #${i + 1}:`,
                 inputVal: colName, placeholder: '',
                 valueCheck: {
                     checkType: 'stringColumnNameNoEmptyValue',

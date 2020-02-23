@@ -18,8 +18,13 @@
           <div class="exportColumnsSection formRow">
             <div class="subHeading clearfix">
               <div class="label"><%= dicts.project.colsToProject %>:</div>
+              <i class="qMark icon xi-unknown"
+                data-toggle="tooltip"
+                data-container="body"
+                data-placement="top"
+                data-title="<%= dicts.project.colInstr %>">
+              </i>
             </div>
-            <p class="instrText"><%= dicts.project.colInstr %></p>
             <div class="derivedSection columnGroup">
               <div class="subHeading"><%= dicts.project.derived %></div>
               <div class="checkboxWrap selectAllWrap" data-xcid="selAllDerive">

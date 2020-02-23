@@ -90,7 +90,7 @@ class BaseOpPanel {
     public static createAddClauseButton(typeId: string): HTML {
         const html: HTML =
         '<div class="addArgWrap addArgWrapLarge">' +
-            '<button class="btn btn-rounded addArg addExtraArg" data-typeid="' +
+            '<button class="btn btn-secondary addArg addExtraArg" data-typeid="' +
                 typeId + '">' +
                 '<span class="text">' + ExtTStr.AddClause + '</span>' +
             '</button>' +

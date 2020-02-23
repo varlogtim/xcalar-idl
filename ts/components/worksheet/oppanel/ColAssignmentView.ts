@@ -64,7 +64,7 @@ class ColAssignmentView {
                         '<i class="icon xi-ckbox-selected"></i>' +
                     '</div>' +
                 '</div>';
-            this._getView().find(".tableSection .header").after(html);
+            this._getView().find(".tableSection .header").append(html);
         }
     }
 

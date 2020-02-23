@@ -3,8 +3,13 @@
     <div class="joinSection">
         <div class="subHeading clearfix">
             <div><%= dicts.joinView.colKeepTitle %></div>
+            <i class="qMark icon xi-unknown"
+                data-toggle="tooltip"
+                data-container="body"
+                data-placement="top"
+                data-title="<%= dicts.joinView.colKeepInstr %>">
+            </i>
         </div>
-        <p class="instrText"><%= dicts.joinView.colKeepInstr %></p>
         <APP-TABLEKEEP></APP-TABLEKEEP>
         <APP-TABLEDROP></APP-TABLEDROP>
     </div>

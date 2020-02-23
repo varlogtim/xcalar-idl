@@ -3,8 +3,10 @@
   <!-- Header -->
   <header class="headerSection">
     <div class="row">
-        <div class="title"><%= dicts.SetOpPanel.header %></div>
-         <div class="subTitle"></div>
+        <div class="title">
+          <span class="modeList"></span>
+        </div>
+        <div class="subTitle"></div>
     </div>
     <i class="close icon xi-close" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Close %>"></i>
   </header>
@@ -14,29 +16,23 @@
       <p class="mainInstructions instrText"><%= dicts.SetOpPanel.Instr %></p>
       <!-- topSection -->
       <section class="topSection">
-        <div class="operationSection">
-          <div class="header"><%= dicts.SetOpPanel.Mode %>:</div>
-          <div class="modeList"></div>
-        </div>
         <div class="dedupSection radioButtonGroup">
           <div class="header"><%= dicts.SetOpPanel.IncludeAll %>:</div>
           <div class="radioButton xc-action active yes" data-option="yes">
-            <div>Yes</div>
             <div class="radio">
               <i class="icon xi-radio-selected"></i>
               <i class="icon xi-radio-empty"></i>
             </div>
+            <div>Yes</div>
           </div>
           <div class="radioButton xc-action no" data-option="no">
-            <div>No</div>
             <div class="radio">
               <i class="icon xi-radio-selected"></i>
               <i class="icon xi-radio-empty"></i>
             </div>
+            <div>No</div>
           </div>
         </div>
-        <div class="divider"></div>
-
       </section>
       include "colAssignmentView.html"
       include "opPanelAdvancedSection.html"

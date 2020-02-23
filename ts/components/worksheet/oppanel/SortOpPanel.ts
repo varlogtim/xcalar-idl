@@ -145,9 +145,9 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
             });
         });
 
-        const sortProps: ColumnComboProps  = {
+        const sortProps: ColumnComboProps = {
             type: 'columnCombo',
-            name: OpPanelTStr.SortColumnHeading,
+            name: OpPanelTStr.SortColumnHeading + ":",
             columnCombos: columnsLists,
             addMoreButton: {
                 btnText: "Add Column",

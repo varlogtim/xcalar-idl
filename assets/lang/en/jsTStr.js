@@ -1385,7 +1385,7 @@ ExtTStr = {
     "extListFail": "Failed to get installed extensions list",
     "tutListFail": "Failed to get tutorial list",
     "InvalidTableName": "Invalid table name, please use extension api to create a valid name",
-    "AddClause": "Add Another Argument",
+    "AddClause": "Add another argument",
     "LoadScriptFail": "Fail to load extension script",
     "LoadUDFFail": "Fail to load extension scalar function, please test the scalar function first and make sure it can be uploaded to Xcalar",
     "Instruction": "Instruction",

@@ -361,7 +361,7 @@ class AggOpPanel extends GeneralOpPanel {
         $rows.show().filter(":gt(" + (numArgs - 1) + ")").remove();
 
         const despText = operObj.fnDesc || "N/A";
-        const descriptionHtml = '<span class="semibold">' + OpFormTStr.Descript + ':</span> ' +
+        const descriptionHtml = '<span>' + OpFormTStr.Descript + ':</span> ' +
                     '<span class="instrText">' + despText + '</span>';
 
         $argsGroup.find('.descriptionText').html(descriptionHtml);

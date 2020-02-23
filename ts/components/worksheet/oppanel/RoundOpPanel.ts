@@ -90,7 +90,7 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
         }
         const sourceList: HintDropdownProps = {
             type: 'column',
-            name: OpPanelTStr.RoundPanelFieldNameSourceColumn,
+            name: OpPanelTStr.RoundPanelFieldNameSourceColumn + ":",
             inputVal: this._dataModel.getSourceColumn(),
             placeholder: OpPanelTStr.RoundPanelFieldNameSourceColumn,
             menuList: menuList,
@@ -123,7 +123,7 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
         const range = { min: 0 };
         const numDecimalsProp: SimpleInputProps<number> = {
             type: 'number',
-            name: OpPanelTStr.RoundPanelFieldNameNumDecimals,
+            name: OpPanelTStr.RoundPanelFieldNameNumDecimals + ":",
             inputVal: this._dataModel.getNumDecimals(),
             placeholder: `range: >=${range.min}`,
             valueCheck: { checkType: 'integerRange', args: [range] },
@@ -143,7 +143,7 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
         // Dest column
         const destColProp: SimpleInputProps<string> = {
             type: 'string',
-            name: OpPanelTStr.RoundPanelFieldNameDestColumn,
+            name: OpPanelTStr.RoundPanelFieldNameDestColumn + ":",
             inputVal: this._dataModel.getDestColumn(), placeholder: '',
             valueCheck: {
                 checkType: 'stringColumnNameNoEmptyPrefixValue',

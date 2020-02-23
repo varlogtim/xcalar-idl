@@ -2,15 +2,13 @@
     @title-height: 32px;
     @header-height: 58px;
 
-    // .size(@height: 600px, @width: 400px, @min-width: auto);
     overflow: hidden;
     height: 100%;
-    // z-index: @z-index-modalBackground - 2;
 
     > .undock {
         position: absolute;
-        top: 14px;
-        right: 40px;
+        top: 5px;
+        right: 32px;
         font-size: 14px;
     }
 
@@ -19,10 +17,11 @@
         flex-direction: column;
         > header {
             flex: 0 0 auto;
-            height: auto;
+            height: 24px;
             font-size: 16px;
-            line-height: 20px;
-            padding: 10px 20px 0px 20px;
+            line-height: 24px;
+            padding-left: 15px;
+            border-bottom: 1px solid @color-border-medium2;
 
             .row {
                 &:first-child {
@@ -37,13 +36,12 @@
             }
 
             .title {
-                margin-right: 10px;
-                margin-bottom: 4px;
+                margin-right: 8px;
             }
             .close {
                 position: absolute;
-                top: 6px;
-                right: 20px;
+                top: 0;
+                right: 8px;
             }
         }
     }
@@ -53,13 +51,13 @@
     }
 
     .opSection, .advancedEditor, .bottomSection {
-        padding-left: 20px;
-        padding-right: 20px;
+        padding-left: 15px;
+        padding-right: 15px;
     }
     .xc-colShema .listSection {
         padding: 0px;
         .addColumn {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         .part > div {
             width: 50% !important;
@@ -73,7 +71,7 @@
 
     @title-height: 32px;
     @header-height: 58px;
-    @listHeight: 26px;
+    @listHeight: 24px;
     @headingHeight: 30px;
     @standardFontSize: 12px;
     @commonMargin: 10px; // margin left used on text and input padding
@@ -84,7 +82,19 @@
     .divider {
         background-color: @color-bg-2;
         height: 1px;
-        margin: 10px 0;
+        margin: 4px 0;
+    }
+
+    .switch {
+        background-color: @color-bg-default;
+        position: relative;
+        top: 2px;
+        margin-left: 10px;
+        margin-right: 10px;
+
+        .slider {
+            background-color: @color-font-default;
+        }
     }
 
     > header {
@@ -93,7 +103,6 @@
         font-size: 22px;
 
         .title {
-            font-weight: 600;
             color: @color-font-darkGray;
             float: left;
             .textOverflowOneLine;
@@ -130,7 +139,7 @@
         }
 
         .close {
-            line-height: 30px;
+            line-height: 24px;
             float: right;
             font-size: 14px;
             color: @color-icon-default;
@@ -145,11 +154,9 @@
 
         .subTitle {
             font-size: 12px;
-            line-height: 16px;
-            padding-bottom: 4px;
             .textOverflowOneLine;
-            margin-right: 15px;
-            color: @color-font-link-blue;
+            margin-right: 8px;
+            color: @color-font-darkGray;
         }
     }
 
@@ -174,9 +181,8 @@
     }
 
     p {
-        padding: 0px 0px 10px 0px;
+        padding: 0px 0px 8px 0px;
         font-size: 11px;
-        color: @color-font-darkGray;
     }
 
     input {
@@ -187,10 +193,6 @@
     // TODO: remove styling if we change the default btn class styling
     .btn {
         width: 120px;
-    }
-
-    .instrText {
-        color: @color-font-darkGray;
     }
 
     .instrText-format {
@@ -206,29 +208,26 @@
         display: flex;
 
         &.addArgWrapSmall {
-            height: 20px;
+            @h: 16px;
+            height: @h;
 
             .btn {
-                .size(20px, 20px);
+                .size(@h, @h);
                 float: left;
                 padding: 0;
-                line-height: 20px;
+                line-height: @h - 2;
 
                 .icon {
-                    line-height: 20px;
+                    line-height: @h;
                     font-size: 9px;
                 }
-            }
-
-            .text {
-                line-height: 20px;
-                float: left;
             }
         }
 
         &.addArgWrapLarge {
             padding-left: 0px;
-            margin-top: 15px;
+            margin-top: 12px;
+            width: 100%;
 
             .btn {
                 height: 28px;
@@ -249,7 +248,7 @@
         .text {
             font-size: @standardFontSize;
             .size(@width: 100%, @height: @listHeight);
-            padding-right: 26px;
+            padding-right: 24px;
             padding-left: @commonMargin;
             .input-placeholder(@color-text-placeholder);
             font-size: @standardFontSize;
@@ -292,7 +291,8 @@
 
         .iconWrapper {
             .position(absolute, @top: 0px, @right: 0);
-            .size(@height: 26px);
+            .size(@height: 24px);
+            border-color: @color-border-medium2;
         }
     }
 
@@ -363,7 +363,7 @@
         .checkbox {
             float: right;
             position: relative;
-            margin-top: 4px;
+            margin-top: 2px;
             margin-right: 7px;
             padding: 1px;
         }
@@ -413,12 +413,12 @@
 
     .mainInstructions {
         padding-top: 4px;
-        padding-bottom: 10px;
+        padding-bottom: 4px;
         overflow: hidden;
     }
     .instructions {
-        padding-top: 10px;
-        padding-bottom: 10px;
+        padding-top: 8px;
+        padding-bottom: 8px;
         color: @color-font-darkGray;;
     }
     .tableInstruction {
@@ -452,14 +452,12 @@
                 font-weight: 400;
                 line-height: 23px;
                 font-size: 11px;
-                color: @color-font-dropdown-gray;
             }
             .checkbox {
                 margin-top: 5px;
                 float: left;
 
                 .icon {
-                    color: @color-font-dropdown-gray;
                     cursor: pointer;
                 }
             }
@@ -500,9 +498,6 @@
             font-size: 16px;
             position: relative;
             top: 2px;
-            left: 1px;
-            margin-right: 10px;
-            color: @color-font-form;
         }
 
         .advancedTitle {
@@ -510,32 +505,40 @@
                 width: 100%;
             }
             .text {
-                font-weight: 400;
                 cursor: pointer;
-                margin-left: 10px;
+                margin-left: 7px;
             }
         }
     }
 
     .subHeading {
-        margin-top: 6px;
+        margin-top: 4px;
         overflow: hidden;
 
-        .label {
-            width: 100%;
-        }
         > div, > span {
             float: left;
-            width: 50%;
+            width: auto;
             height: @headingHeight;
             line-height: @headingHeight + 4;
-            font-weight: 600;
+
+            &.checkboxWrap {
+                height: 24px;
+                line-height: 24px;
+                position: relative;
+                top: 8px;
+            }
         }
         > .focusTable {
             padding-left: 6px;
         }
         .altFnTitle {
             display: none;
+        }
+
+        .qMark {
+            float: left;
+            margin-left: 4px;
+            margin-top: 11px;
         }
     }
 
@@ -548,7 +551,6 @@
             line-height: @headingHeight - 6;
             padding-bottom: 4px;
             padding-left: 9px;
-            font-weight: 600;
         }
     }
 
@@ -585,11 +587,10 @@
                     background-color: @color-bg-2;
                 }
                 &.active {
-                    background-color: @color-bg-mapMenuActive;
+                    background-color: @color-bg-dagTabBar;
                 }
                 &.createNew {
                     color: @color-font-link-blue;
-                    font-weight: 600;
                     padding-left: 4px;
                 }
             }
@@ -603,7 +604,6 @@
 
                 .createNew {
                     color: @color-font-link-blue;
-                    font-weight: 600;
                     cursor: pointer;
                 }
             }
@@ -623,8 +623,8 @@
     .strPreview {
         overflow: hidden;
         text-overflow: ellipsis;
-        padding-top: 20px;
-        padding-bottom: 20px;
+        padding-top: 8px;
+        padding-bottom: 8px;
         user-select: text;
 
         .strPreviewGroup {
@@ -632,7 +632,7 @@
         }
 
         .aggCols, .groupByCols, .descArgs, .highlighted {
-            color: @color-bg-cardHeader;
+            color: @color-font-form;
         }
         .char {
             .transition(2s all ease-in);
@@ -648,7 +648,6 @@
 
     .group {
         border-top: 1px solid @color-border-medium2;
-        padding-top: 10px;
 
         &.firstGroup {
             border-width: 0px;
@@ -723,7 +722,6 @@
                     border: none !important;
                     outline: none;
                     font-size: @standardFontSize !important;
-                    font-weight: 600;
                     pointer-events: none;
                 }
                 .iconWrapper {
@@ -831,7 +829,7 @@
         &.inactive {
             visibility: hidden;
             overflow: hidden;
-            height: 40px;
+            // height: 40px;
             .row {
                 display: none;
             }
@@ -844,7 +842,6 @@
             padding: 6px 0px;
             padding-bottom: 4px;
             line-height: 14px;
-            font-weight: 600;
         }
         .cast {
             width: 100%;
@@ -864,7 +861,6 @@
             }
 
             .label {
-                font-weight: 600;
                 float: left;
                 display: block;
                 width: 40px;
@@ -1011,24 +1007,15 @@
 
         .checkbox {
             margin-right: 7px;
-            margin-top: 4px;
+            margin-top: 2px;
             float: left;
         }
     }
 
     .andOrToggle {
     	display: none;
-    	padding-top: 23px;
-    	padding-bottom: 23px;
-    	margin-bottom: -10px; // to counter .divider
-        margin-top: 20px;
-        margin-left: -20px;
-        width: ~"calc(100% + 40px)";
-        height: 86px;
-        background: @color-bg-list-hover;
 
         .instr {
-        	font-weight: 600;
         	text-align: center;
         }
         .hint {
@@ -1044,12 +1031,6 @@
         .switchWrap {
         	.switchLabel {
         		padding-top: 2px;
-        	}
-        	.xc-switch {
-        		margin-left: 10px;
-        		margin-right: 10px;
-        		position: relative;
-                top: 2px;
         	}
             margin: auto;
             width: 90px;
@@ -1078,7 +1059,7 @@
     .btnWrap {
         overflow: hidden;
         display: flex;
-        flex-direction: column;
+        flex-direction: row-reverse;
 
         .btn {
             max-width: 100%;
@@ -1118,7 +1099,6 @@
 
             .restoreOption {
                 float: left;
-                color: @color-bg-select-blue;
                 line-height: 30px;
                 height: 30px;
                 margin-left: 2px;
@@ -1138,15 +1118,6 @@
         .CodeMirror {
             height: ~"calc(100% - 30px)";
             border: 1px solid @color-border-medium2;
-
-            .CodeMirror-gutters {
-                background-color: @color-bg-list-hover;
-            }
-
-            .CodeMirror-linenumber {
-                color: @color-font-edge;
-                font-size: 11px;
-            }
 
             .argDesc {
                 background-color: @color-bg-white-eight;
@@ -1197,9 +1168,7 @@
                 .size(@width: 24px, @height: 14px);
                 .rounded(10px);
                 border: 1px solid @color-bg-cardHeader;
-                top: 2px;
-                margin-left: 10px;
-                margin-right: 10px;
+               
 
                 .slider {
                     border: 1px solid @color-bg-cardHeader;
@@ -1257,6 +1226,11 @@
         }
     }
 
+    .colSchemaSection {
+        position: relative;
+        top: -20px;
+    }
+
     .columnAssignmentSection {
         .size(@width: 100%);
         padding-top: 10px;
@@ -1278,15 +1252,12 @@
             }
         }
 
-        .searchArea .icon, .down .icon, .addCol, .editCol, .removeColInRow {
-            .font(@color: @color-bg-unselect-gray);
-        }
-
         .tableSection, .resultSection, .candidateSection {
             .addCol, .down {
                 .size(@width: 20px, @height: 100%);
                 .font(@size: 8px);
                 position: absolute;
+                color: @color-font-default;
 
                 &:before {
                     .size(8px, 8px);
@@ -1305,9 +1276,9 @@
                     margin-right: -1px;
 
                     > div, > input {
-                        .size(@height: 28px);
-                        line-height: 26px;
-                        .position(relative);
+                        height: 26px;
+                        line-height: 24px;
+                        position: relative;
                     }
 
                     .inputCol {
@@ -1335,9 +1306,6 @@
                     }
                     &.newTable {
                         opacity: 1;
-                    }
-                    .text {
-                        font-weight: 600;
                     }
                 }
                 .action-icon .icon {
@@ -1373,13 +1341,12 @@
 
             .lists {
                 text-align: center;
-                font-weight: 600;
             }
         }
 
         .resultSection {
             .resultCol {
-                border: 1px solid @color-table-hoverBg-gray;
+                border: 1px solid @color-border-medium;
                 margin-top: -1px;
                 &.cast {
                     height: 55px !important;
@@ -1408,14 +1375,13 @@
 
                 .typeList {
                     display: none;
-                    border-top: 1px solid @color-table-hoverBg-gray;
+                    border-top: 1px solid @color-border-medium;
 
                     .text {
                         padding-left: 15px;
                     }
 
                     li {
-                        color: @color-bg-select-blue;
                         padding-left: 15px;
                     }
                 }
@@ -1435,7 +1401,7 @@
                 }
 
                 ul {
-                    border-top: 1px solid @color-table-hoverBg-gray;
+                    border-top: 1px solid @color-border-medium;
 
                     li {
                         .position(relative);
@@ -1446,7 +1412,6 @@
                         }
 
                         &.used .colName, &.removeCol {
-                            color: @color-font-greyish-brown;
                             opacity: 0.7;
                         }
 
@@ -1481,7 +1446,7 @@
             }
 
             .inputCol {
-                border: 1px solid @color-table-hoverBg-gray;
+                border: 1px solid @color-border-medium;
                 margin-top: -1px;
 
                 &.cast {
@@ -1500,19 +1465,19 @@
             }
 
             .searchArea {
-                border: 1px solid @color-table-hoverBg-gray;
+                border: 1px solid @color-border-medium;
                 &.placeholder {
                     border-color: transparent;
                     width: 100%;
                     &::after {
                         content: "New Name";
                         padding-left: 10px;
-                        font-weight: 600;
                     }
                 }
 
                 .icon {
                     .position(absolute, @top: 7px, @right: 5px);
+                    color: @color-font-default;
                 }
             }
 
@@ -1528,7 +1493,6 @@
             .subHeading {
                 .text {
                     .size(@width: 100%);
-                    font-weight: 600;
                 }
             }
 
@@ -1546,7 +1510,7 @@
             }
 
             .inputCol {
-                border: 1px solid @color-table-hoverBg-gray;
+                border: 1px solid @color-border-medium;
                 margin-top: -1px;
                 cursor: pointer;
 
@@ -1611,7 +1575,7 @@
         .colNameSection {
             .iconWrapper {
                 left: 0px;
-                background-color: @color-bg-typeIcon;
+                background-color: @color-bg-dagTabBar;
                 .icon {
                     font-size: 14px;
                     opacity: 1;
@@ -1667,20 +1631,13 @@
                 &.groupByAll {
                     margin-top: 4px;
                     margin-bottom: -10px;
-
-                    .checkbox {
-                        float: right;
-                    }
                 }
 
                 .text {
                     float: left;
-                    font-weight: 400;
-                    line-height: 23px;
-                    font-size: 11px;
                 }
                 .checkbox {
-                    margin-top: 5px;
+                    margin-top: 3px;
                 }
             }
         }
@@ -1695,7 +1652,6 @@
                 padding: 6px;
                 padding-bottom: 4px;
                 line-height: 14px;
-                font-weight: 600;
             }
 
             &.inactive {
@@ -1754,10 +1710,9 @@
             .clear {
                 display: none;
                 .size(@width: 20px, @height: @listHeight);
-                .position(absolute, @top: 4px, @right: 0px);
+                .position(absolute, @top: 4px, @right: -3px);
 
                 .icon {
-                    color: @color-font-greyish-brown;
                     line-height: @listHeight;
                 }
             }
@@ -1777,15 +1732,12 @@
                 }
             }
         }
-        .catFuncHeadings {
-            margin-top: 4px;
-        }
         .icvContainer {
             margin-top: 10px;
         }
 
         .addExtraGroup {
-            margin-top: 20px;
+            margin-top: 12px;
             cursor: pointer;
         }
 
@@ -1796,11 +1748,10 @@
          // start minimized group styling
         .group.minimized {
             .clearfix;
-            padding-top: 4px;
             padding-bottom: 0px;
 
             &.firstGroup {
-                padding-top: 0px;
+                padding-top: 4px;
             }
 
             .subHeading, .descriptionText, .description, .minGroup  {
@@ -1831,7 +1782,6 @@
                 border: none !important;
                 outline: none;
                 font-size: @standardFontSize !important;
-                font-weight: 600;
                 pointer-events: none;
             }
 
@@ -1890,7 +1840,6 @@
             &.fnInputEmpty {
                 .altFnTitle {
                     display: block;
-                    font-weight: 600;
                     height: 20px;
                 }
                 .argsSection, .catFuncMenus {
@@ -1981,7 +1930,7 @@
 
         .iconWrapper {
             .position(absolute, @top: 0px, @right: 0);
-            .size(@height: 26px);
+            height: 24px;
         }
 
         &.functionsList {
@@ -2038,9 +1987,7 @@
         position: absolute;
         left: 7px;
         top: 5px;
-        color: @color-bg-unselect-gray;
         font-size: 14px;
-        opacity: 0.8;
         cursor: pointer;
     }
 
@@ -2052,42 +1999,34 @@
         padding-left: 26px;
     }
 
-    .disableKey {
-        margin-top: 10px;
-        float: right;
-        width: 135px;
-        .text {
-            float: left;
+    .btnWrap.formRow {
+        clear: both;
+        
+        .addArgWrap {
+            width: 100%;
+            margin-top: 8px;
         }
-        .checkBox {
+    }
+
+    .disableKey {
+        float: right;
+        .text {
             float: right;
-            margin-left: 10px;
         }
     }
 
     #publishIMDColumns {
+        clear: both;
+
         .selectAllWrap {
-            margin-bottom: 8px;
-            margin-right: 13px;
             float: right;
 
             .clearfix;
             .text {
-                float: left;
-                cursor: pointer;
-            }
-            .checkbox {
-                margin-left: 5px;
-                margin-right: 5px;
+                float: right;
             }
         }
         .columnsToPublish {
-            // ::-webkit-scrollbar-thumb {
-            //     background: @color-bg-2 !important;
-            // }
-            // ::-webkit-scrollbar-track {
-            //     background: @color-bg-defaultStrong;
-            // }
             .cols {
                 padding-top: 1px;
                 overflow-y: auto;
@@ -2116,15 +2055,6 @@
     @bottom-h: 117px;
     @rest-h: (@instr-h + @top-h + @bottom-h);
 
-    .header {
-        font-weight: 600;
-    }
-
-    .modeList {
-        float: left;
-        margin-left: 3px;
-        line-height: 26px;
-    }
     .subHeading {
         .size(@height: 24px);
         margin-top: 6px;
@@ -2183,16 +2113,11 @@
             }
 
             .radioButton {
-                margin-left: 10px;
-                width: 50px;
+                margin-left: 8px;
+                flex: 0 0 50px;
 
                 > div {
                     float: left;
-
-                    &.radio {
-                        margin-left: 5px;
-                        margin-top: 1px;
-                    }
                 }
             }
         }
@@ -2388,7 +2313,6 @@
                         }
 
                         &.active {
-                            font-weight: 600;
                             background-color: @color-bg-list-selected-blue;
                             border-top: 1px solid @color-border-medium2;
                             border-bottom: 1px solid @color-border-medium2;
@@ -2462,9 +2386,6 @@
     .tableSection {
         .header {
             margin-bottom: 15px;
-        }
-        .listSection {
-            font-weight: 600;
         }
     }
 
@@ -2550,7 +2471,6 @@
                 top: -35px;
                 position: relative;
                 padding-left: 0px;
-                font-weight: 600;
             }
         }
         .resultCol {
@@ -2576,7 +2496,7 @@
                 }
             }
             .typeList {
-                border-left: 1px solid @color-table-hoverBg-gray;
+                border-left: 1px solid @color-border-medium;
                 top: -1px !important;
                 &.originalType {
                     .text {
@@ -2618,11 +2538,6 @@
 .projectOpPanel {
     .prefixedSection, .derivedSection {
         margin-bottom: 10px;
-        .subHeading {
-            margin-top: 0px;
-            margin-left: 0px;
-            font-weight: 600;
-        }
         &.empty {
             display: none;
         }
@@ -2694,12 +2609,8 @@
 
     .btnWrap {
         .btn {
-            margin-top: 10px;
+            margin-left: 8px;
         }
-    }
-
-    .joinSection {
-        padding-bottom: 10px;
     }
 
     .advancedTitle {
@@ -2786,12 +2697,6 @@
             padding-left: 3px;
         }
 
-        .row-subheading {
-            .col {
-                font-weight: 600;
-            }
-        }
-
         .row-rename {
             margin-top: -1px;
         }
@@ -2855,10 +2760,6 @@
             .iconWrapper {
                 .col-middle-wrapper();
             }
-
-            .icon {
-                color: @color-font-dropdown-gray;
-            }
         }
 
         .removeIcon {
@@ -2889,13 +2790,13 @@
         }
 
         .addClause {
-            padding-top: 15px;
             .flex-display;
             .flex-wrap(wrap);
             .justify-content(center);
 
             .btn {
-                width: 200px;
+                width: auto;
+                padding: 0 8px;
             }
         }
 
@@ -2937,7 +2838,7 @@
 
                 .option {
                     .size(100%, 100%);
-                    background-color: @color-font-dropdown-gray;
+                    background-color: @color-icon-default;
                     .rounded(50%);
                     text-align: center;
                     .font(@line-height: 7px, @color: @color-font-defaultInverse);
@@ -2971,12 +2872,10 @@
         }
 
         .tableHeader {
-            margin-top: 6px;
             padding-top: 4px;
             padding-bottom: 4px;
             .title {
                 .size(@width: 100%);
-                font-weight: 600;
             }
         }
 
@@ -3011,13 +2910,12 @@
 
             .column-title {
                 border: none;
-                font-weight: 600;
                 overflow: hidden;
                 .title-text {
                     .col();
                 }
                 .title-icon {
-                    padding-left: 10px;
+                    padding-left: 8px;
                     .col();
                     .col-6();
                     .action-icon {
@@ -3031,10 +2929,9 @@
             }
 
             .actionWrap {
-                padding-left: 5px;
-                padding-right: 5px;
-                .size(@width: 18px);
-                color: @color-font-warm-grey-two;
+                padding-left: 4px;
+                padding-right: 4px;
+                .size(@width: 20px);
             }
 
             .colNameWrap {
@@ -3063,7 +2960,6 @@
                 }
                 .text {
                     font-size: 11px;
-                    color: @color-font-dropdown-gray;
                 }
             }
         }
@@ -3189,24 +3085,21 @@
                 left: 0px;
                 padding-left: 10px;
                 border: none;
-                height: 26px;
+                height: 24px;
                 outline-offset: -1px;
             }
         }
         .typeList {
-            border-left: 1px solid @color-table-hoverBg-gray;
+            border-left: 1px solid @color-border-medium;
             top: -1px !important;
             &.originalType {
                 .text {
-                    color: @color-font-greyish-brown;
+                    color: @color-font-darkGray;
                 }
             }
 
-            .text {
-                color: @color-font-select-blue;
-            }
             li.originalType {
-                color: @color-font-greyish-brown;
+                color: @color-font-darkGray;
             }
         }
     }
@@ -3335,50 +3228,13 @@
     }
 
     .selectAllWrap {
-        margin-bottom: 8px;
-        margin-right: 15px;
         float: right;
-
         .clearfix;
-        .text {
-            float: left;
-            cursor: pointer;
-        }
-        .checkbox {
-            margin-left: 5px;
-            margin-right: 5px;
-        }
-    }
-
-    .exportDriver {
-        #exportDriverList {
-            width: ~"calc(100% - 20px)";
-            #exportDriver {
-                color: @color-font-darkGray;
-            }
-        }
     }
 
     .argsSection {
-        .arg {
-            color: @color-font-darkGray;
-        }
-        .dropDownList {
-            .styleDropDownList(~"calc(100% - 20px)", @listHeight) !important;
-        }
         .exportDescription {
-            padding-top: 25px;
-        }
-    }
-
-    .checkboxArg {
-        p {
-            float: left;
-            width: ~"calc(100% - 30px)";
-        }
-
-        .checkbox {
-            font-size: 15px;
+            padding-top: 20px;
         }
     }
 }
@@ -3395,12 +3251,7 @@
     }
 
     .sourceSection {
-        border-top: 1px solid @color-bg-2;
-        border-bottom: 1px solid @color-bg-2;
-        padding-bottom: 16px;
-
         .qMark {
-            cursor: help;
             position: relative;
             top: -1px;
             left: 2px;
@@ -3409,6 +3260,7 @@
 
     .radioButton {
         height: auto;
+        flex: 0 0 150px;
     }
 
     .sourceTableName {
@@ -3466,7 +3318,6 @@
 #sqlOpPanel {
     @bottom-h: 85px;
     @title-h: 40px;
-    @dropAsYouGo-h: 40px;
     @instr-h: 44px;
 
     .list {
@@ -3486,12 +3337,12 @@
         @instruct-h: 34px;
         @add-id-h: 24px;
         @add-id-margin: 8px;
-        @instruct-margin-bot: 13px;
-        @instruct-margin-top: 5px;
+        @instruct-margin-bot: 8px;
+        @instruct-margin-top: 0px;
         @source-header-w: 60px;
         @source-header-h: 15px;
-        @padding-l: 15px;
-        padding: 2px @padding-l;
+        @padding-l: 0;
+        padding: 0 @padding-l;
         display: flex;
         flex-direction: column;
         flex: 1 1 auto;
@@ -3502,7 +3353,6 @@
         }
         .header {
             font-size: 11px;
-            font-weight: 600;
             display: flex;
             flex: 0 0 auto;
         }
@@ -3612,6 +3462,8 @@
 
     .editorWrapper {
         flex: 1 0 60px;
+        width: ~"calc(100% + 30px)";
+        margin-left: -15px;
     }
 
     .editSection {
@@ -3632,9 +3484,6 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0px 15px;
-        border-top: 1px solid @color-border-medium2;
-        font-weight: 600;
         flex: 0 0 auto;
     }
 
@@ -3643,17 +3492,14 @@
 
         .qMark {
             position: absolute;
-            left: 112px;
+            left: 92px;
         }
     }
 
     .dropAsYouGo {
-        height: @dropAsYouGo-h;
         flex: 0 0 auto;
-        padding: 0 5px 10px 5px;
 
         .checkbox {
-            float: left;
             top: 5px;
         }
 
@@ -3708,14 +3554,6 @@
         .description, .inputWrap {
             padding-left: 0;
             padding-right: 0;
-        }
-
-        .checkboxWrap .checkbox {
-            margin-left: 0;
-        }
-
-        .checkboxWrap .text {
-            margin-top: 3px;
         }
     }
 

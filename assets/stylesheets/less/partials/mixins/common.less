@@ -530,12 +530,12 @@
         }
 
         .addColumn {
-            margin-top: 20px;
+            margin-top: 12px;
             cursor: pointer;
 
             .text {
                 font-size: 12px;
-                margin-left: 10px;
+                margin-left: 8px;
             }
         }
     }
@@ -806,7 +806,7 @@
     .radioButton {
         .flex(1 1 auto);
         .size(@height: 20px);
-        .font(@size: 13px, @line-height: 20px);
+        .font(@size: 12px, @line-height: 20px);
         .noSelection;
         cursor: pointer;
 
@@ -967,7 +967,8 @@
 .input-box(@w, @h: 30px, @focus: false) {
     input {
         .size(@width: @w, @height: @h);
-        .font(@size: 14px, @line-height: @h);
+        font-size: 14px;
+        line-height: @h - 2;
         border: solid 1px @color-border-menugray;
         padding: 0 10px;
         text-align: left;

@@ -505,8 +505,11 @@ class ExportOpPanelModel extends BaseOpPanelModel {
             argHtml += '(Optional) '
         }
         argHtml += labelName + ':</div>' +
-            '</div>' +
-            '<p class="instrText">' + param.description + '</p>';
+                '<i class="qMark icon xi-unknown" ' +
+                xcTooltip.Attrs +
+                ' data-title="' + param.description + '">' +
+                '</i>' +
+            '</div>';
         if (param.type == "target") {
             argHtml += this._createTargetListHtml();
         } else if (param.type == "boolean") {

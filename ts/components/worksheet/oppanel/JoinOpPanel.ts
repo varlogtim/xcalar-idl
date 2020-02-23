@@ -8,7 +8,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
     private static _templateIDs = { navButton: 'navButton' };
     private static _templates = {
         'navButton':
-            `<button class="btn btn-rounded submit {{cssType}} {{cssDisabled}}" type="button" (click)="onClick">{{btnText}}</button>`
+            `<button class="btn btn-secondary submit {{cssType}} {{cssDisabled}}" type="button" (click)="onClick">{{btnText}}</button>`
     };
 
     public setup(): void {

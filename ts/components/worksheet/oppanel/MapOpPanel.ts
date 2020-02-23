@@ -493,13 +493,13 @@ class MapOpPanel extends GeneralOpPanel {
         } else {
             despText = operObj.fnDesc || "N/A";
         }
-        const descriptionHtml = '<span class="semibold">' + OpFormTStr.Descript + ':</span> ' +
+        const descriptionHtml = '<span>' + OpFormTStr.Descript + ':</span> ' +
                     '<span class="instrText instrText-format">' + despText + '</span>';
 
         $argsGroup.find('.descriptionText').html(descriptionHtml);
 
         this._$panel.find('.strPreview')
-                    .html('<span class="semibold">' + OpFormTStr.CMD + ':</span> <br>' +
+                    .html('<span>' + OpFormTStr.CMD + ':</span> <br>' +
                                 strPreview);
     }
 

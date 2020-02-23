@@ -39,7 +39,7 @@ describe("ColSchemaSection Test", function() {
                         '</div>' +
                     '</div>' +
                     '<div class="addColumn addArgWrap addArgWrapSmall">' +
-                        '<button class="addArg btn btn-100-rounded">' +
+                        '<button class="addArg btn btn-secondary btn-100-rounded">' +
                         '<i class="icon xi-plus"></i>' +
                         '</button>' +
                         '<span class="text">Add Column</span>' +

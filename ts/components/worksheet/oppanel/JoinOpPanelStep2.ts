@@ -117,10 +117,11 @@ class JoinOpPanelStep2 {
             return [];
         }
 
+        const header = XVM.isDataMart() ? "" : OpPanelTStr.JoinPanelRenameTitleDerived
         const elements = this._templateMgr.createElements(
             JoinOpPanelStep2._templateIds.renameTable,
             {
-                'renameHeader': OpPanelTStr.JoinPanelRenameTitleDerived,
+                'renameHeader': header,
                 'APP-LEFTRENAME': this._createRenameList({
                     isLeft: true, isPrefix: false,
                     renameInfoList: derivedLeftList,

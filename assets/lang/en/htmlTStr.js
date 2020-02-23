@@ -958,8 +958,8 @@ module.exports = {
 
     "joinView": {
         "header": "Join",
-        "instr": "Join the results of 2 flows.",
-        "JoinType": "Select a join type:",
+        "instr": "Join the results of 2 functions.",
+        "JoinType": "Select Join Type",
         "InnerJoin": "Inner Join",
         "LeftCols": "Input",
         "RightCols": "Input",
@@ -967,7 +967,7 @@ module.exports = {
         "DerivedHeader": "Derived Fields",
         "NewName": "New Name",
         "SmartSuggBtn": "Smart Suggest",
-        "ADDCLAUSE": "Add Another Column",
+        "ADDCLAUSE": "Add another column",
         "Preview": "Command Preview",
         "colSelectTitle": "Join By Columns",
         "colKeepTitle": "Column Selector",
@@ -1006,8 +1006,7 @@ module.exports = {
         "tableName": "Table Name",
         "createPublish": "Create Table",
         "publishIMD": "Publish Table",
-        "publishInstr": "Publish a Table for the input.",
-        "name": "Published Table Name",
+        "publishInstr": "Publish a table for the input.",
         "key": "Primary Key",
         "addKey": "Add Primary Key",
         "noKey": "No Primary Key",
@@ -1069,13 +1068,10 @@ module.exports = {
     },
 
     "IMDTableOp": {
-        "IMDTable": "Published Table",
         "SourceTable": "Source Table",
-        "IMDTableInstr": "Use a published table as the source of data",
-        "table": "Published Table",
-        "tableInstr": "Select a published table to use as a source.",
+        "IMDTableInstr": "Use a source table as the input",
+        "table": "Select a table",
         "columns": "Columns to import",
-        "colInstr": "Select the columns to import by checking the box next to the column name. Mandatory Columns are pre-checked and cannot be unselected. If you do not see a column in the list below, then it cannot be imported."
     },
 
     "UpdateIMDOp": {
@@ -1105,16 +1101,9 @@ module.exports = {
     },
 
     "smartCast": {
-        "header": "SMART CAST",
-        "instr": "Cast columns from one data type to another by selecting the columns from the current table. Click on the DETECT button to get " + bldVars.prodName + " to detect the appropriate types.",
-        "detect": "DETECT",
-        "clearAll": "CLEAR ALL",
-        "colInstrHeader": "Select Columns to Cast",
-        "colInstrText": "To cast a column, first select the column in the table. You will see a row appended for the column. Next click on the drop down and select its new type. To remove a column from being casted, click on the column in the table to deselect it. You can jump to the column by clicking on the column name in the table.",
+        "detect": "Detect",
+        "clearAll": "Clear all",
         "colName": "Column Name",
-        "newType": "New Type",
-        "cast": "CAST",
-        "NoCast": "No columns to cast"
     },
 
     "opsView": {
@@ -1138,7 +1127,7 @@ module.exports = {
         "additionalFunc": "Apply Additional Functions",
         "additionalMapFunc": "Apply an additional map function",
         "fieldsToGroup": "Fields to group on",
-        "AddAnotherColumn": "Add Another Column",
+        "AddAnotherColumn": "Add another column",
         "funcToGroup": "Function to apply to group",
         "includeSample": "Keep some columns",
         "includeSample2": "Include sample columns",

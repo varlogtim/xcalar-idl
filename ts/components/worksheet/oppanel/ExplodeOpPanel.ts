@@ -93,7 +93,7 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
         }
         const sourceList: HintDropdownProps = {
             type: 'column',
-            name: OpPanelTStr.ExplodePanelFieldNameSourceColumn,
+            name: OpPanelTStr.ExplodePanelFieldNameSourceColumn + ":",
             inputVal: this._dataModel.getSourceColumn(),
             placeholder: OpPanelTStr.ExplodePanelFieldNameSourceColumn,
             menuList: menuList,
@@ -125,7 +125,7 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
         // Delimiter
         const delimiterProps: SimpleInputProps<string> = {
             type: 'string',
-            name: OpPanelTStr.ExplodePanelFieldNameDelimiter,
+            name: OpPanelTStr.ExplodePanelFieldNameDelimiter + ":",
             inputVal: this._dataModel.getDelimiter(),
             placeholder: OpPanelTStr.ExplodePanelFieldNameDelimiter,
             valueCheck: { checkType: 'stringNoTrimNoEmptyValue', args: [] },
@@ -145,7 +145,7 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
         // Dest column
         const destColProp: SimpleInputProps<string> = {
             type: 'string',
-            name: OpPanelTStr.ExplodePanelFieldNameDestColumn,
+            name: OpPanelTStr.ExplodePanelFieldNameDestColumn + ":",
             inputVal: this._dataModel.getDestColumn(), placeholder: '',
             valueCheck: {
                 checkType: 'stringColumnNameNoEmptyPrefixValue',

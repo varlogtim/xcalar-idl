@@ -522,14 +522,14 @@ class GroupByOpPanel extends GeneralOpPanel {
         $rows.show().filter(":gt(" + (numArgs - 1) + ")").hide();
 
         const despText = operObj.fnDesc || "N/A";
-        const descriptionHtml = '<span class="semibold">' + OpFormTStr.Descript + ':</span> ' +
+        const descriptionHtml = '<span>' + OpFormTStr.Descript + ':</span> ' +
                     '<span class="instrText">' + despText + '</span>';
 
         $argsGroup.find('.descriptionText').html(descriptionHtml);
 
         const $strPreview = this._$panel.find('.strPreview');
         if ($strPreview.text() === "") {
-            const initialText = '<span class="semibold prevTitle">' + OpFormTStr.CMD +
+            const initialText = '<span class="prevTitle">' + OpFormTStr.CMD +
                                ':<br></span>' +
                                '<span class="aggColSection"></span>' +
                                'GROUP BY (' +
@@ -659,14 +659,14 @@ class GroupByOpPanel extends GeneralOpPanel {
         const $gbOnRow = $rows.eq(0);
         $gbOnRow.find(".arg").addClass("gbAgg").focus();
         $gbOnRow.before('<div class="row checkboxWrap distinct">' +
+            '<div class="checkbox">' +
+                '<i class="icon xi-ckbox-empty fa-11"></i>' +
+                '<i class="icon xi-ckbox-selected fa-11"></i>' +
+            '</div>' +
             '<div class="text">Distinct ' +
                 '<i class="hint qMark icon xi-unknown new" ' +
                 xcTooltip.Attrs + ' data-original-title="' +
                 TooltipTStr.Distinct + '"></i>' +
-            '</div>' +
-            '<div class="checkbox">' +
-                '<i class="icon xi-ckbox-empty fa-11"></i>' +
-                '<i class="icon xi-ckbox-selected fa-11"></i>' +
             '</div>' +
         '</div>');
 

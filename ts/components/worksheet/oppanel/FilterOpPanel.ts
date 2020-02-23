@@ -400,13 +400,13 @@ class FilterOpPanel extends GeneralOpPanel {
         $rows.show().filter(":gt(" + (numArgs - 1) + ")").remove();
 
         const despText = operObj.fnDesc || "N/A";
-        const descriptionHtml = '<span class="semibold">' + OpFormTStr.Descript + ':</span> ' +
+        const descriptionHtml = '<span>' + OpFormTStr.Descript + ':</span> ' +
                     '<span class="instrText">' + despText + '</span>';
 
         $argsGroup.find('.descriptionText').html(descriptionHtml);
 
         this._$panel.find('.strPreview')
-                        .html('<span class="semibold">' + OpFormTStr.CMD + ':</span> <br>' +
+                        .html('<span>' + OpFormTStr.CMD + ':</span> <br>' +
                                 strPreview);
         this._checkIfStringReplaceNeeded(true);
     }
@@ -905,7 +905,7 @@ class FilterOpPanel extends GeneralOpPanel {
                             '<div class="filterFnTitle">Filter Function</div>' +
                             '<div class="altFnTitle">No Filter Function Chosen</div>' +
                             '<i class="icon xi-close removeExtraGroup"></i>' +
-                            '<i class="icon xi-minus minGroup"></i>' +
+                            '<i class="icon xi-minus minGroup" ' + xcTooltip.Attrs + ' data-title="Minimize"></i>' +
                         '</div>' +
                         '<div data-fnlistnum="' + index + '" ' +
                             'class="dropDownList firstList functionsList">' +

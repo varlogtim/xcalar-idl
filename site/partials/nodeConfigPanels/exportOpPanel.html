@@ -17,8 +17,13 @@
                 <div id="exportOpColumns" class="exportColumnsSection formRow">
                     <div class="subHeading clearfix">
                         <div class="label"><%= dicts.exportView.colsToExport %>:</div>
+                        <i class="qMark icon xi-unknown"
+                            data-toggle="tooltip"
+                            data-container="body"
+                            data-placement="top"
+                            data-title="<%= dicts.exportView.colInstr %>">
+                        </i>
                     </div>
-                    <p class="instrText"><%= dicts.exportView.colInstr %></p>
                     <div class="columnOptions">
                         <div class="toggleColumnCollapse">
                             <i class="icon xi-minus" data-toggle="tooltip" data-container="body" data-original-title="Minimize column list"></i>
@@ -82,18 +87,8 @@
                 <div class="argsSection"></div>
             </section>
         </div>
-        <section class="advancedEditor">
-            <textarea></textarea>
-        </section>
-        <!-- Button Section -->
-        <section class="bottomSection">
-            <div class="btnWrap">
-                <button class="btn btn-submit btn-rounded submit confirm">
-                    <%= dicts.common.Save %>
-                </button>
-            </div>
-            include "../util/switcher.html"
-        </section>
+        include "opPanelAdvancedSection.html"
+        include "opPanelBottomSection.html"
     </div>
 </section>
 <!-- End of Export View -->
