@@ -1,6 +1,10 @@
 <div id="sqlTableListerArea" class="noBottom">
   <div class="topSection sectionBar">
     <span class="label sectionHeader"><%= dicts.common.Tables %></span>
+    <span class="searchbarArea">
+        <input type="text" placeholder="<%= dicts.SQL.SearchByName %>">
+        <i class="icon xi-search"></i>
+    </span>
     <span class="actionArea">
       <div class="xc-iconWrap-action refresh action"
         title="<%= dicts.common.Refresh %>" data-container="body"
@@ -13,10 +17,6 @@
           <span><%= dicts.dag.viewSchema %></span>
         </div>
       </div>
-    </span>
-    <span class="searchbarArea">
-      <input type="text" placeholder="<%= dicts.SQL.SearchByName %>">
-      <i class="icon xi-search"></i>
     </span>
   </div>
   <div class="mainSection xc-gridList"></div>

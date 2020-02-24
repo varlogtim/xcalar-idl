@@ -1,8 +1,8 @@
 class SQLTable {
     private _container: string;
     private _searchBar: TableSearchBar;
-
     private _currentViewer: XcTableViewer;
+    private _listScroller: ListScroller;
 
     public constructor(container: string) {
         this._container = container;
@@ -144,6 +144,18 @@ class SQLTable {
         $container.on("click", ".close", () => {
             this.close();
         });
+        this._listScroller = new ListScroller(
+            $container.find(".tableBar"),
+            $container.find(".tableBarWrap"),
+            false,
+            {
+                bounds: `#sqlTableArea`,
+                noPositionReset: true
+            });
+        $container.mouseenter(() => {
+            this._listScroller.showOrHideScrollers();
+        });
+
     }
 
     private _getContainer(): JQuery {
