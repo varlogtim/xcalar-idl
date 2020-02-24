@@ -323,8 +323,17 @@ class SQLEditorSpace {
     }
 
     private _executeSQL(sqls: string): void {
-        if (!sqls || !sqls.trim()) return;
+        if (!sqls || !sqls.trim()) {
+            return
+        }
+
         try {
+            const numStatemsnts = sqls.split(";").filter((sql) => sql.trim() !== "").length;
+            if (numStatemsnts > 1) {
+                // disallow multiple sql statement
+                throw new Error("Cannot have multiple statement in the SQL");
+            }
+
             let selectArray: SQLParserStruct[] = [];
             let lastShow: any = {type: "select"};
             let executorArray: SQLDagExecutor[] = [];

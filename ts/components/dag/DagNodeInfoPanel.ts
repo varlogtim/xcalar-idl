@@ -177,12 +177,14 @@ class DagNodeInfoPanel {
 
     private _updateLock(): void {
         const dagNodeType: DagNodeType = this._activeNode.getType();
-        const uneditable = (dagNodeType === DagNodeType.CustomInput ||
+        const tabType: DagTabType = DagViewManager.Instance.getActiveTab().getType();
+        const uneditable = (
+            dagNodeType === DagNodeType.CustomInput ||
             dagNodeType === DagNodeType.CustomOutput ||
             dagNodeType === DagNodeType.Custom ||
             DagViewManager.Instance.getActiveArea().hasClass("viewOnly") ||
-            !(DagViewManager.Instance.getActiveTab() instanceof DagTabUser ||
-            DagViewManager.Instance.getActiveTab() instanceof DagTabCustom));
+            !(tabType === DagTabType.User || tabType === DagTabType.Custom)
+        );
         if (uneditable || DagViewManager.Instance.isNodeLocked(this._activeNode.getId())) {
             xcUIHelper.disableElement(this._$panel.find(".editConfig"), "");
         } else {

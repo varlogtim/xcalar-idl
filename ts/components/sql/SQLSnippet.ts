@@ -92,9 +92,9 @@ class SQLSnippet {
      * SQLSnippet.Instance.delete
      * @param id
      */
-    public async delete(id: string): Promise<void> {
-        SQLTabManager.Instance.closeTab(id);
-        return this._deletSnippet(id);
+    public delete(id: string): void {
+        this._deletSnippet(id);
+        this._refresh();
     }
 
     /**
@@ -109,7 +109,7 @@ class SQLSnippet {
             }
         });
 
-        toDelete.forEach((id) => { this.delete(id); });
+        toDelete.forEach((id) => { this._deletSnippet(id); });
     }
 
     /**
@@ -124,7 +124,7 @@ class SQLSnippet {
             return;
         }
         snippetObj.name = newName;
-        DagList.Instance.refreshMenuList(ResourceMenu.KEY.SQL);
+        this._refresh();
         this._updateSnippets();
     }
 
@@ -213,10 +213,15 @@ class SQLSnippet {
     }
 
     private async _deletSnippet(id: string): Promise<void> {
+        SQLTabManager.Instance.closeTab(id);
         const index: number = this._snippets.findIndex((snippetObj) => snippetObj.id === id);
         if (index > -1) {
             this._snippets.splice(index, 1);
             return this._updateSnippets();
         }
+    }
+
+    private _refresh(): void {
+        DagList.Instance.refreshMenuList(ResourceMenu.KEY.SQL);
     }
 }

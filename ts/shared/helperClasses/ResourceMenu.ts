@@ -131,12 +131,18 @@ class ResourceMenu {
     private _renderUDFList(): void {
         const udfs = UDFPanel.Instance.listUDFs();
         const iconClassNames: string[] = ["xi-menu-udf"];
+        const defaultUDF = UDFFileManager.Instance.getDefaultUDFPath() + ".py";
         let html: HTML = udfs.map((udf) => {
+            const displayName: string = udf.displayName;
             const listClassNames: string[] = ["udf"];
-            if (UDFTabManager.Instance.isOpen(name)) {
+            const shortName: string = UDFPanel.parseModuleNameFromFileName(displayName);
+            if (UDFTabManager.Instance.isOpen(shortName)) {
                 listClassNames.push("open");
             }
-            return this._getListHTML(udf.displayName, listClassNames, iconClassNames);
+            if (displayName === defaultUDF) {
+                listClassNames.push("defaultUDF");
+            }
+            return this._getListHTML(displayName, listClassNames, iconClassNames);
         }).join("");
         html = this._getSQLUDFList() + html;
         this._getContainer().find(".udf ul").html(html);
@@ -393,6 +399,13 @@ class ResourceMenu {
             } else {
                 $menu.find("li.udfQuery").addClass("xc-disabled");
             }
+
+            if ($li.hasClass("defaultUDF")) {
+                $menu.find("li.udfDelete").addClass("xc-disabled");
+            } else {
+                $menu.find("li.udfDelete").removeClass("xc-disabled");
+            }
+
         } else if ($li.hasClass("sqlSnippet")) {
             $menu.find("li.sql").show();
         }
