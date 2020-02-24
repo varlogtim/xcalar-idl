@@ -381,7 +381,7 @@ namespace WorkbookPanel {
 
         $("#loadWizardbtn").click(function() {
             Alert.show({
-                title: "Comming Soon",
+                title: "Coming Soon",
                 msg: "Import Data Source Wizard will release in the next version.",
                 isAlert: true
             });
@@ -696,7 +696,7 @@ namespace WorkbookPanel {
         } else {
             $sibling.after($newCard);
         }
-        
+
 
         // need to remove "new" class from workbookcard a split second
         // after it's appended or it won't animate
@@ -1047,7 +1047,7 @@ namespace WorkbookPanel {
             let time = moment(modifiedTime);
             modifiedTimeDisplay = time.fromNow();
         }
-        
+
         if (workbookId === WorkbookManager.getActiveWKBK()) {
             extraClasses.push("open");
         }
