@@ -379,6 +379,8 @@
 #sqlWorkSpacePanel{
     > .mainContent {
         > .leftSection {
+            display: flex;
+            flex-direction: column;
             .transition(margin-left @time-menuAnim);
             min-width: 100px;
             .size(@height: ~"calc(100% - @{height-topBar} - @{height-bottomBar})");
@@ -422,6 +424,19 @@
             position: relative;
             bottom: 2px;
             left: 2px;
+        }
+    }
+    #dagNodeInfoPanel {
+        display: none;
+        height: 55%;
+    }
+    &.showingNodeInfo {
+        .menuSection {
+            height: 45%;
+            flex: 0 0 auto;
+        }
+        #dagNodeInfoPanel {
+            display: flex;
         }
     }
 }

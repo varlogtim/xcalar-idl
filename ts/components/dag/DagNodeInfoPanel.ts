@@ -28,10 +28,8 @@ class DagNodeInfoPanel {
             return false;
         }
 
-        $("#dataflowMenu").find(".menuSection").addClass("xc-hidden");
-        this._$panel.removeClass("xc-hidden");
+        $("#dataflowMenu").addClass("showingNodeInfo");
 
-        $("#dataflowInfoPanel").addClass("xc-hidden");
         if (this._activeNode === node && !needsRefresh) {
             return true;
         }
@@ -59,11 +57,9 @@ class DagNodeInfoPanel {
         }
         this._isShowing = false;
         this._activeNode = null;
-        this._$panel.addClass("xc-hidden");
         this._$panel.find(".row.restore").remove();
         xcTooltip.hideAll();
-        $("#dagList").removeClass("xc-hidden");
-        $("#dataflowInfoPanel").removeClass("xc-hidden");
+        $("#dataflowMenu").removeClass("showingNodeInfo");
         return true;
     }
 
