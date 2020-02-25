@@ -47,7 +47,7 @@ class LogicalOptimizer {
             opGraph.root = LogicalOptimizer.genOpGraph(opArray, index, opIdxMap,
                                                                             {});
         } catch (e) {
-            if (typeof SQLOpPanel !== "undefined") {
+            if (typeof OldSQLOpPanel !== "undefined") {
                 SQLUtil.throwError(e);
             }
             throw e;

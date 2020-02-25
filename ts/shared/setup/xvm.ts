@@ -545,7 +545,7 @@ namespace XVM {
             return PromiseHelper.resolve();
         }
         if (mode === XVM.Mode.SQL && !ignoreSQLChange &&
-            SQLOpPanel.Instance.hasUnsavedChange()) {
+            OldSQLOpPanel.Instance.hasUnsavedChange()) {
             Alert.show({
                 title: "SQL",
                 msg: SQLTStr.UnsavedSQL,

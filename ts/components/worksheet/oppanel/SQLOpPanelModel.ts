@@ -3,6 +3,7 @@ class SQLOpPanelModel extends BaseOpPanelModel {
     private _sqlQueryStr: string;
     private _identifiers: Map<number, string>;
     private _dropAsYouGo: boolean;
+    private _snippetId: string;
 
     public constructor(dagNode: DagNodeSQL) {
         super();
@@ -13,6 +14,7 @@ class SQLOpPanelModel extends BaseOpPanelModel {
 
     private _initialize(params: DagNodeSQLInputStruct): void {
         const self = this;
+        self._snippetId = params.snippetId;
         self._sqlQueryStr = params.sqlQueryStr;
         self._identifiers = new Map<number, string>();
         if (params.identifiersOrder && params.identifiers) {
@@ -26,11 +28,13 @@ class SQLOpPanelModel extends BaseOpPanelModel {
     public setDataModel(
         sqlQueryStr: string,
         identifiers: Map<number, string>,
-        dropAsYouGo: boolean
+        dropAsYouGo: boolean,
+        snippetId?: string
     ): void {
         this._sqlQueryStr = sqlQueryStr;
         this._identifiers = identifiers;
         this._dropAsYouGo = dropAsYouGo;
+        this._snippetId = snippetId;
     }
 
     /**
@@ -51,6 +55,7 @@ class SQLOpPanelModel extends BaseOpPanelModel {
             identifiers[key] = value;
         });
         return {
+            snippetId: this._snippetId,
             sqlQueryStr: this._sqlQueryStr,
             identifiers: identifiers,
             identifiersOrder: identifiersOrder,
@@ -60,6 +65,10 @@ class SQLOpPanelModel extends BaseOpPanelModel {
 
     public getSqlQueryString(): string {
         return this._sqlQueryStr;
+    }
+
+    public getSnippetId(): string {
+        return this._snippetId;
     }
 
     public getIdentifiers(): Map<number, string> {

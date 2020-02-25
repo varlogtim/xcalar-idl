@@ -26,6 +26,7 @@ class DagNodeSQL extends DagNode {
     // non-persistent
     private _queryObj: any;
     private _allowUpdateSQLHistory: boolean = false;
+    private _isDeprecated: boolean = false;
 
     public constructor(options: DagNodeSQLInfo, runtime?: DagRuntime) {
         super(options, runtime);
@@ -37,6 +38,9 @@ class DagNodeSQL extends DagNode {
                              // be 0
         this.display.icon = "&#xe957;";
         this.display.isHidden = options.isHidden;
+        if (options.input && options.input.sqlQueryStr && !options.input.hasOwnProperty("snippetId")) {
+            this._isDeprecated = true;
+        }
         this.input = this.getRuntime().accessible(new DagNodeSQLInput(options.input));
         const identifiers = new Map<number, string>();
         const identifiersOrder = this.input.getInput().identifiersOrder;
@@ -336,6 +340,7 @@ class DagNodeSQL extends DagNode {
             dropAsYouGo = true; // default to be true
         }
         this.input.setInput({
+            snippetId: input.snippetId,
             sqlQueryStr: input.sqlQueryStr,
             identifiers: input.identifiers,
             identifiersOrder: input.identifiersOrder,
@@ -646,8 +651,8 @@ class DagNodeSQL extends DagNode {
         let index = pos + 1;
         let identifiers;
         let identifiersNameMap;
-        if (typeof SQLOpPanel !== "undefined" && SQLOpPanel.Instance.isOpen()) {
-            identifiers = SQLOpPanel.Instance.extractIdentifiers(true).identifiers;
+        if (typeof OldSQLOpPanel !== "undefined" && OldSQLOpPanel.Instance.isOpen()) {
+            identifiers = OldSQLOpPanel.Instance.extractIdentifiers(true).identifiers;
         } else {
             identifiers = this.getIdentifiers();
         }
@@ -684,9 +689,9 @@ class DagNodeSQL extends DagNode {
         // reset this.identifiers and setParams
         this.setIdentifiers(identifiers);
         this.setIdentifiersNameMap(identifiersNameMap);
-        if (typeof SQLOpPanel !== "undefined" && SQLOpPanel.Instance.isOpen()) {
+        if (typeof OldSQLOpPanel !== "undefined" && OldSQLOpPanel.Instance.isOpen()) {
             // update panel if it's open
-            SQLOpPanel.Instance.updateIdentifiers(identifiers);
+            OldSQLOpPanel.Instance.updateIdentifiers(identifiers);
         }
     }
 
@@ -700,8 +705,8 @@ class DagNodeSQL extends DagNode {
         // when removing connection to a parent, also remove sql identifier
         let index = pos + 1;
         let identifiers;
-        if (typeof SQLOpPanel !== "undefined" && SQLOpPanel.Instance.isOpen()) {
-            identifiers = SQLOpPanel.Instance.extractIdentifiers(true).identifiers;
+        if (typeof OldSQLOpPanel !== "undefined" && OldSQLOpPanel.Instance.isOpen()) {
+            identifiers = OldSQLOpPanel.Instance.extractIdentifiers(true).identifiers;
         } else {
             identifiers = this.getIdentifiers();
         }
@@ -715,9 +720,9 @@ class DagNodeSQL extends DagNode {
             // reset this.identifiers and setParams
             this.setIdentifiers(identifiers);
         }
-        if (typeof SQLOpPanel !== "undefined" && SQLOpPanel.Instance.isOpen()) {
+        if (typeof OldSQLOpPanel !== "undefined" && OldSQLOpPanel.Instance.isOpen()) {
             // update panel if it's open
-            SQLOpPanel.Instance.updateIdentifiers(identifiers);
+            OldSQLOpPanel.Instance.updateIdentifiers(identifiers);
         }
         return wasSpliced;
     }
@@ -793,6 +798,10 @@ class DagNodeSQL extends DagNode {
 
     public isHidden(): boolean {
         return this.display.isHidden;
+    }
+
+    public isDeprecated(): boolean {
+        return this._isDeprecated;
     }
 
     private _getDerivedColName(colName: string, validate?: boolean): string {

@@ -32,6 +32,29 @@ class DagConfigNodeModal {
         });
     }
 
+    setupPanels(): void {
+        GeneralOpPanel.setup();
+        MapOpPanel.Instance.setup();
+        ProjectOpPanel.Instance.setup();
+        ExplodeOpPanel.Instance.setup();
+        DatasetOpPanel.Instance.setup();
+        FilterOpPanel.Instance.setup();
+        AggOpPanel.Instance.setup();
+        GroupByOpPanel.Instance.setup();
+        JoinOpPanel.Instance.setup();
+        PublishIMDOpPanel.Instance.setup();
+        UpdateIMDOpPanel.Instance.setup();
+        ExportOpPanel.Instance.setup();
+        IMDTableOpPanel.Instance.setup();
+        JupyterOpPanel.Instance.setup();
+        OldSQLOpPanel.Instance.setup();
+        SQLOpPanel.Instance.setup();
+        RoundOpPanel.Instance.setup();
+        RowNumOpPanel.Instance.setup();
+        SplitOpPanel.Instance.setup();
+        SortOpPanel.Instance.setup();
+    }
+
     public getPopup(): PopupPanel {
         return this._popup;
     }
@@ -134,7 +157,11 @@ class DagConfigNodeModal {
                 IMDTableOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.SQL):
-                SQLOpPanel.Instance.show(node, options);
+                if (node.isDeprecated()) {
+                    OldSQLOpPanel.Instance.show(node, options);
+                } else {
+                    SQLOpPanel.Instance.show(node, options);
+                }
                 break;
             case (DagNodeType.RowNum):
                 RowNumOpPanel.Instance.show(node, options);

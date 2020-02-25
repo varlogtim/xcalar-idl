@@ -424,7 +424,7 @@ namespace DagNodeMenu {
     }
 
     function exitOpPanel(ignoreSQLChange?: boolean): void {
-        if (!ignoreSQLChange && SQLOpPanel.Instance.hasUnsavedChange()) {
+        if (!ignoreSQLChange && OldSQLOpPanel.Instance.hasUnsavedChange()) {
             Alert.show({
                 title: "SQL",
                 msg: SQLTStr.UnsavedSQL,
@@ -457,7 +457,7 @@ namespace DagNodeMenu {
         dagNodeId: DagNodeId,
         ignoreSQLChange?: boolean
     ): void {
-        if (!ignoreSQLChange && SQLOpPanel.Instance.hasUnsavedChange()) {
+        if (!ignoreSQLChange && OldSQLOpPanel.Instance.hasUnsavedChange()) {
             Alert.show({
                 title: "SQL",
                 msg: SQLTStr.UnsavedSQL,
@@ -465,20 +465,20 @@ namespace DagNodeMenu {
                     expandSQLNode(dagNodeId, true);
                 }
             });
-        } else if (!SQLOpPanel.Instance.getAlertOff()) {
+        } else if (!OldSQLOpPanel.Instance.getAlertOff()) {
             Alert.show({
                 title: "SQL",
                 msg: SQLTStr.ExpandSQL,
                 onConfirm: (checked) => {
-                    SQLOpPanel.Instance.setAlertOff(checked);
+                    OldSQLOpPanel.Instance.setAlertOff(checked);
                     DagViewManager.Instance.expandSQLNode(dagNodeId);
-                    SQLOpPanel.Instance.close();
+                    OldSQLOpPanel.Instance.close();
                 },
                 isCheckBox: true
             });
         } else {
             DagViewManager.Instance.expandSQLNode(dagNodeId);
-            SQLOpPanel.Instance.close();
+            OldSQLOpPanel.Instance.close();
         }
     }
 
@@ -491,7 +491,7 @@ namespace DagNodeMenu {
         ignoreSQLChange?: boolean
     }) {
         if ((!options || !options.ignoreSQLChange) &&
-            SQLOpPanel.Instance.hasUnsavedChange()) {
+            OldSQLOpPanel.Instance.hasUnsavedChange()) {
             Alert.show({
                 title: "SQL",
                 msg: SQLTStr.UnsavedSQL,

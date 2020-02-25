@@ -117,14 +117,14 @@ class SQLUtil {
      * SQLUtil.lockProgress
      */
     public static lockProgress(): void {
-        $("#sqlOpPanel").find(".btn-submit").addClass("btn-disabled");
+        $(".sqlOpPanel").find(".btn-submit").addClass("btn-disabled");
     }
 
     /**
      * SQLUtil.resetProgress
      */
     public static resetProgress(): void {
-        $("#sqlOpPanel").find(".btn-submit").removeClass("btn-disabled");
+        $(".sqlOpPanel").find(".btn-submit").removeClass("btn-disabled");
     }
 
     private static _parseError(error: any): string {
@@ -151,7 +151,7 @@ class SQLUtil {
             if (!message) {
                 message = "Compilation Error";
             }
-            if (typeof SQLOpPanel !== "undefined") {
+            if (typeof OldSQLOpPanel !== "undefined") {
                 SQLUtil.throwError(message);
             }
             throw "SQL Assertion Failure: " + message;

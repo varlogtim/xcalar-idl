@@ -31,10 +31,10 @@ describe("SQLOpPanel Test", function() {
                 udfDisplayPathPrefix : UDFFileManager.Instance.getCurrWorkbookDisplayPath()
             };
 
-            sqlOpPanel = SQLOpPanel.Instance;
+            sqlOpPanel = oldSQLOpPanel.Instance;
             sqlEditor = sqlOpPanel.getSQLEditor();
             editor = sqlOpPanel._editor;
-            $sqlOpPanel = $('#sqlOpPanel');
+            $sqlOpPanel = $('#oldSqlOpPanel');
             done();
         });
 
@@ -44,14 +44,14 @@ describe("SQLOpPanel Test", function() {
 
         it ("Should be hidden at start", function () {
             sqlOpPanel.close();
-            expect($('#sqlOpPanel').hasClass("xc-hidden")).to.be.true;
+            expect($('#oldSqlOpPanel').hasClass("xc-hidden")).to.be.true;
         });
 
         it ("Should be visible when show is called", function () {
             DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
-            expect($('#sqlOpPanel').hasClass("xc-hidden")).to.be.false;
+            expect($('#oldSqlOpPanel').hasClass("xc-hidden")).to.be.false;
             if ($sqlOpPanel.find(".advancedEditor").is(":visible")) {
-                $("#sqlOpPanel .bottomSection .xc-switch").click();
+                $("#oldSqlOpPanel .bottomSection .xc-switch").click();
             }
         });
 
@@ -59,14 +59,14 @@ describe("SQLOpPanel Test", function() {
             DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
             sqlOpPanel.close();
             $('#formWaitingBG').remove();
-            expect($('#sqlOpPanel').hasClass("xc-hidden")).to.be.true;
+            expect($('#oldSqlOpPanel').hasClass("xc-hidden")).to.be.true;
         });
 
         it ("Should be hidden when close is clicked", function () {
             DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
-            $('#sqlOpPanel .close').click();
+            $('#oldSqlOpPanel .close').click();
             $('#formWaitingBG').remove();
-            expect($('#sqlOpPanel').hasClass("xc-hidden")).to.be.true;
+            expect($('#oldSqlOpPanel').hasClass("xc-hidden")).to.be.true;
         });
     });
 
@@ -136,10 +136,10 @@ describe("SQLOpPanel Test", function() {
             DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
             $('#formWaitingBG').remove();
             if (!sqlOpPanel._isAdvancedMode()) {
-                $("#sqlOpPanel .bottomSection .xc-switch").click();
+                $("#oldSqlOpPanel .bottomSection .xc-switch").click();
             }
             editor.setValue(JSON.stringify({}, null, 4));
-            $("#sqlOpPanel .bottomSection .btn-submit").click();
+            $("#oldSqlOpPanel .bottomSection .btn-submit").click();
             expect($("#statusBox").hasClass("active")).to.be.true;
             UnitTest.hasStatusBoxWithError(" should have required property 'sqlQueryString'");
             sqlOpPanel.close();
@@ -159,10 +159,10 @@ describe("SQLOpPanel Test", function() {
             DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
             $('#formWaitingBG').remove();
             if (!sqlOpPanel._isAdvancedMode()) {
-                $("#sqlOpPanel .bottomSection .xc-switch").click();
+                $("#oldSqlOpPanel .bottomSection .xc-switch").click();
             }
             editor.setValue(JSON.stringify(struct, null, 4));
-            $("#sqlOpPanel .bottomSection .btn-submit").click();
+            $("#oldSqlOpPanel .bottomSection .btn-submit").click();
             expect($("#alertModal").is(":visible")).to.be.false;
 
             node.compileSQL = () => {

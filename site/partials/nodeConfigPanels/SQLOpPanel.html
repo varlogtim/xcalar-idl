@@ -1,5 +1,5 @@
 <!-- SQL Section -->
-<section id="sqlOpPanel" class="xc-hidden opPanel">
+<section id="sqlOpPanel" class="xc-hidden opPanel sqlOpPanel">
   <header>
     <div class="row">
       <div class="title">SQL</div>
@@ -10,56 +10,74 @@
   <div class="mainContent">
     <!-- Operation panel-->
     <section class="opSection">
-        <p class="mainInstructions instrText">
-          Write a SQL snippet using the SQL Node input connections as the source tables.
-        </p>
-      <div class="tableTitle">
-        <div class="title">Table Mapping:</div>
-        <i class="qMark icon xi-unknown" data-toggle="tooltip"
-          data-container="body"
-          data-title="Select an input connection number in the drop-down and enter a unique table identifier name (for example, orders). You can use this table identifier in the SQL snippet below."
-          data-placement="top"></i>
-        <div class="maximize">
-          <i class="icon xi-minus" data-container="body"
-          data-title="Collapse"
-          data-placement="top"></i>
-        </div>
-      </div>
-      <div class="tableSection tableWrapper">
-        <div class="instruction">
-          Enter a unique table alias for each SQL Node input connection.
-        </div>
-        <div class="header">
-          <div class="sourceHeader">Connector</div>
-          <div class="destHeader">Table Alias</div>
-        </div>
-        <div class="identifiers">
-          <div class="tableInstruction instrText">
-            Connect with a parent node to add an identifier
-          </div>
-          <ul id="sqlIdentifiers"></ul>
-        </div>
-      </div>
-      <div class="dropAsYouGo checkboxSection">
-        <div class="checkbox">
-          <i class="icon xi-ckbox-empty"></i>
-          <i class="icon xi-ckbox-selected"></i>
-        </div>
-        <div class="text">Drop intermediate results</div>
-        <i class="qMark icon xi-unknown"
+      <p class="mainInstructions instrText">
+        Write a SQL snippet using the SQL Node input connections as the source tables.
+      </p>
+      <div class="snippetSelectionArea formRow">
+        <div class="subHeading clearfix">
+          <div class="label">SQl Query:</div>
+          <i class="qMark icon xi-unknown"
           data-toggle="tooltip"
           data-container="body"
-          data-title="If this check box is checked , the system drops all the intermediate results sets generated during the execution of this SQL snippet to optimize the memory consumption."
-          data-placement="top"></i>
+          data-placement="top"
+          data-title="Select an existing query">
+          </i>
+        </div>
+        <div class="snippetsList dropDownList">
+            <input class="text snippetInput" type="text" value="" spellcheck="false" disabled>
+            <div class="iconWrapper">
+                <i class="icon xi-arrow-down"></i>
+            </div>
+            <div class="list">
+                <ul class="snippetsUl"></ul>
+                include "../../util/menuScrollArea.html"
+            </div>
+        </div>
       </div>
-      <div class="editorTitle">
-        <div class="title">SQL Snippet:</div>
-      </div>
-      <div id="sqlSnippetEditWrapper" class="editorWrapper">
-        <div class="editSection">
-          <div class="editArea">
-            <textarea id="sqlEditor"></textarea>
+      <div class="nextForm xc-hidden">
+        <div class="tableTitle">
+          <div class="title">Table Mapping:</div>
+          <i class="qMark icon xi-unknown" data-toggle="tooltip"
+            data-container="body"
+            data-title="Select an input connection number in the drop-down and enter a unique table identifier name (for example, orders). You can use this table identifier in the SQL snippet below."
+            data-placement="auto"></i>
+          <div class="maximize">
+            <i class="icon xi-minus" data-container="body"
+            data-title="Collapse"
+            data-placement="top"></i>
           </div>
+        </div>
+        <div class="tableSection tableWrapper">
+          <div class="instruction">
+            Enter a unique table alias for each SQL Node input connection.
+          </div>
+          <div class="header">
+            <div class="sourceHeader">Connector</div>
+            <div class="destHeader">Table Alias</div>
+          </div>
+          <div class="identifiers">
+            <div class="tableInstruction instrText">
+              Connect with a parent node to add an identifier
+            </div>
+            <ul class="sqlIdentifiers"></ul>
+          </div>
+        </div>
+        <div class="dropAsYouGo checkboxSection">
+          <div class="checkbox">
+            <i class="icon xi-ckbox-empty"></i>
+            <i class="icon xi-ckbox-selected"></i>
+          </div>
+          <div class="text">Drop intermediate results</div>
+          <i class="qMark icon xi-unknown"
+            data-toggle="tooltip"
+            data-container="body"
+            data-title="If this check box is checked , the system drops all the intermediate results sets generated during the execution of this SQL snippet to optimize the memory consumption."
+            data-placement="top"></i>
+        </div>
+        <div class="editorTitle">
+          <div class="title">Query Preview:</div>
+        </div>
+        <div class="editorWrapper">
         </div>
       </div>
     </section>

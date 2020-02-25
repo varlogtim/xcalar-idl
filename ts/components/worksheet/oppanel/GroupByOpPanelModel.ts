@@ -258,7 +258,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
         isSubmit?: boolean
     ): {error: string} {
         try {
-            const param: DagNodeMapInput = <DagNodeMapInput>JSON.parse(paramStr);
+            const param: DagNodeGroupByInput = <DagNodeGroupByInput>JSON.parse(paramStr);
 
             let error = this.dagNode.validateParam(param);
             if (error != null) {

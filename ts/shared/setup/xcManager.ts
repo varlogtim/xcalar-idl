@@ -100,9 +100,8 @@ namespace xcManager {
                 MainMenu.setup();
                 setupModeArea();
                 XDFManager.Instance.setup();
-                setupOpPanels();
+                DagConfigNodeModal.Instance.setupPanels();
                 WorkbookPanel.initialize();
-                window["ajv"] = new Ajv(); // json schema validator
                 SQLWorkSpace.Instance.setup();
             } catch (e) {
                 return PromiseHelper.reject(e.message);
@@ -584,28 +583,6 @@ namespace xcManager {
             deferred.resolve();
         });
         return deferred.promise();
-    }
-
-    function setupOpPanels(): void {
-        GeneralOpPanel.setup();
-        MapOpPanel.Instance.setup();
-        ProjectOpPanel.Instance.setup();
-        ExplodeOpPanel.Instance.setup();
-        DatasetOpPanel.Instance.setup();
-        FilterOpPanel.Instance.setup();
-        AggOpPanel.Instance.setup();
-        GroupByOpPanel.Instance.setup();
-        JoinOpPanel.Instance.setup();
-        PublishIMDOpPanel.Instance.setup();
-        UpdateIMDOpPanel.Instance.setup();
-        ExportOpPanel.Instance.setup();
-        IMDTableOpPanel.Instance.setup();
-        JupyterOpPanel.Instance.setup();
-        SQLOpPanel.Instance.setup();
-        RoundOpPanel.Instance.setup();
-        RowNumOpPanel.Instance.setup();
-        SplitOpPanel.Instance.setup();
-        SortOpPanel.Instance.setup();
     }
 
     function setupSession(): XDPromise<void> {

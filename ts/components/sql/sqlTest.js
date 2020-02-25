@@ -168,9 +168,9 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                             // sqlNode.setSqlQueryString(query);
                             test.nodeMenuAction(sqlNodeElement, "configureNode");
                             // $("#sqlOpPanel .submit").click();
-                            return SQLOpPanel.Instance.configureSQL(query)
+                            return OldSQLOpPanel.Instance.configureSQL(query)
                             .then(function() {
-                                SQLOpPanel.Instance.close();
+                                OldSQLOpPanel.Instance.close();
                                 return test.executeNode(sqlNode.getId());
                             })
                             .then(function() {
@@ -199,7 +199,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                 } else if (testName === "cancelQuery") {
                     sqlNode.setSqlQueryString(sqlString);
                     test.nodeMenuAction(sqlNodeElement, "configureNode");
-                    $("#sqlOpPanel .submit").click();
+                    $("#oldSQLOpPanel .submit").click();
                     test.hasNodeWithState(sqlNode.getId(), DagNodeState.Configured)
                     .then(function() {
                         setTimeout(function() {
@@ -225,9 +225,9 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                     test.nodeMenuAction(sqlNodeElement, "configureNode");
                     // $("#sqlOpPanel .submit").click();
                     // test.hasNodeWithState(sqlNode.getId(), DagNodeState.Configured)
-                    return SQLOpPanel.Instance.configureSQL(sqlString)
+                    return OldSQLOpPanel.Instance.configureSQL(sqlString)
                     .then(function() {
-                        SQLOpPanel.Instance.close();
+                        OldSQLOpPanel.Instance.close();
                         return test.executeNode(sqlNode.getId());
                     })
                     .then(function() {

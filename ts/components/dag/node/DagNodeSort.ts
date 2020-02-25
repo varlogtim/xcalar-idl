@@ -35,7 +35,7 @@ class DagNodeSort extends DagNode {
 
      /**
      * Set sort node's parameters
-     * @param input {DagNodeMapInputStruct}
+     * @param input {DagNodeSortInputStruct}
      */
     public setParam(input: DagNodeSortInputStruct = <DagNodeSortInputStruct>{}) {
         this.input.setInput({

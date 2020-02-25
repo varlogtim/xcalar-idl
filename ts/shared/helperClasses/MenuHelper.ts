@@ -44,7 +44,7 @@ interface DropdownOptions {
 }
 
 interface FixedPositionOption {
-    selector: string, // selector of element to base positioning off of
+    selector: string, // selector of element to base positioning off of, relative to list
     rightMargin?: number,
     float?: boolean
 }

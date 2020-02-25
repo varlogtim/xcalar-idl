@@ -5,6 +5,12 @@
     overflow: hidden;
     height: 100%;
 
+    &.undocked {
+        .opPanelHeader.ui-draggable-handle {
+            .cursor-move;
+        }
+    }
+
     > .undock {
         position: absolute;
         top: 5px;
@@ -22,6 +28,7 @@
             line-height: 24px;
             padding-left: 15px;
             border-bottom: 1px solid @color-border-medium2;
+            overflow: hidden;
 
             .row {
                 &:first-child {
@@ -62,6 +69,10 @@
         .part > div {
             width: 50% !important;
         }
+    }
+
+    .checkboxSection {
+        font-size: 12px;
     }
 }
 
@@ -1168,7 +1179,7 @@
                 .size(@width: 24px, @height: 14px);
                 .rounded(10px);
                 border: 1px solid @color-bg-cardHeader;
-               
+
 
                 .slider {
                     border: 1px solid @color-bg-cardHeader;
@@ -2001,7 +2012,7 @@
 
     .btnWrap.formRow {
         clear: both;
-        
+
         .addArgWrap {
             width: 100%;
             margin-top: 8px;
@@ -3314,11 +3325,10 @@
     }
 
 }
-
-#sqlOpPanel {
+// old
+.sqlOpPanel {
     @bottom-h: 85px;
-    @title-h: 40px;
-    @instr-h: 44px;
+    @title-h: 32px;
 
     .list {
         text-transform: none;
@@ -3346,6 +3356,7 @@
         display: flex;
         flex-direction: column;
         flex: 1 1 auto;
+        margin-bottom: 8px;
 
         .title {
             font-size: 12px;
@@ -3357,16 +3368,17 @@
             flex: 0 0 auto;
         }
         .instruction {
-            margin-top: 5px;
-            margin-bottom: 13px;
+            margin-bottom: 8px;
             color: @color-font-darkGray;
             flex: 0 0 auto;
+            font-size: 11px;
         }
         .sourceHeader {
             .size(@source-header-w, @source-header-h);
         }
         .destHeader {
-            width: ~"calc(100% - @{source-header-w})";
+            margin-left: auto;
+            margin-right: auto;
         }
         .identifiers {
             @rest-h: @instruct-h + @add-id-h + @add-id-margin * 2 + @instruct-margin-bot + @instruct-margin-top + @source-header-h;
@@ -3374,23 +3386,24 @@
             flex-wrap: wrap;
             flex: 1 1 auto;
             overflow-y: auto;
-            margin-right: -@padding-l;
+            flex-direction: column;
+
             #sqlIdentifiers {
-                .size(~"calc(100% - @{padding-l})", 100%);
+                .size(100%, 100%);
                 padding: 6px 0px;
             }
             li {
                 display: flex;
                 align-items: center;
                 margin-top: 5px;
-                > .text {
-                    padding: 3px;
-                }
+
                 @source-w: 30px;
                 @source-margin-r: 11px;
                 .source {
                     max-width: @source-w;
                     margin-right: 11px;
+                    width: 30px;
+                    flex: 0 0 auto;
 
                     &:hover {
                         .icon {
@@ -3413,6 +3426,7 @@
                     }
                     .text {
                         padding-right: 0px;
+                        border: none;
                     }
                 }
                 @equal-w: 8px;
@@ -3431,7 +3445,7 @@
                 }
                 @input-w: (@source-w + @source-margin-r + @equal-w + @equal-margin-r + @trash-w + @trash-margin-l);
                 input {
-                    width: ~"calc(100% - @{input-w})";
+                    width: 100%;
                 }
                 .list {
                     width: @source-w;
@@ -3471,7 +3485,6 @@
         .position(relative);
         overflow: hidden;
         font-size: 14px;
-        border-top: 1px solid @color-border-medium2;
 
         .editArea {
             .size(@width: 100%, @height: 100%);
@@ -3513,7 +3526,6 @@
         }
     }
     .maximize {
-        margin-top: -20px;
         .icon {
             font-size: 10px;
             cursor: pointer;
@@ -3530,6 +3542,22 @@
 
     .CodeMirror {
         height: 100%;
+    }
+}
+
+#sqlOpPanel {
+    .nextForm {
+        display: flex;
+        flex-direction: column;
+        margin-top: 4px;
+    }
+    .editorWrapper {
+        white-space: pre-wrap;
+        width: 100%;
+        margin-left: 0px;
+    }
+    .nextForm {
+        margin-top: 4px;
     }
 }
 
