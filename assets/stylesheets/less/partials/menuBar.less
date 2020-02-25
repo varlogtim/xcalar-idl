@@ -428,15 +428,42 @@
     }
     #dagNodeInfoPanel {
         display: none;
-        height: 55%;
+    }
+    #tableSearchPanel {
+        display: none;
     }
     &.showingNodeInfo {
-        .menuSection {
+        #dagList {
             height: 45%;
             flex: 0 0 auto;
         }
         #dagNodeInfoPanel {
             display: flex;
+            height: 55%;
+        }
+    }
+    &.showingSearch {
+        #dagList {
+            height: 55%;
+            flex: 0 0 auto;
+        }
+        #tableSearchPanel {
+            display: block;
+            height: 45%;
+        }
+    }
+    &.showingNodeInfo.showingSearch {
+        #dagList {
+            height: 40%;
+            flex: 0 0 auto;
+        }
+        #tableSearchPanel {
+            display: block;
+            height: 30%;
+        }
+        #dagNodeInfoPanel {
+            display: flex;
+            height: 30%;
         }
     }
 }

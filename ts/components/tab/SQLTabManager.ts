@@ -261,9 +261,6 @@ class SQLTabManager extends AbstractTabManager {
     }
 
     private _getAppPath(snippetObj: SQLSnippetDurable): string {
-        if (snippetObj.app == null) {
-            return snippetObj.name;
-        }
-        return AppList.Instance.getAppPath(snippetObj.app, snippetObj.name);
+        return SQLSnippet.getAppPath(snippetObj);
     }
 }

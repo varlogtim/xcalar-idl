@@ -11,6 +11,17 @@ class SQLSnippet {
         return this._uid.gen();
     }
 
+    /**
+     * SQLSnippet.getAppPath
+     * @param snippetObj
+     */
+    public static getAppPath(snippetObj: SQLSnippetDurable): string {
+        if (snippetObj.app == null) {
+            return snippetObj.name;
+        }
+        return AppList.Instance.getAppPath(snippetObj.app, snippetObj.name);
+    }
+
     private _snippets: SQLSnippetDurable[];
     private _fetched: boolean;
 

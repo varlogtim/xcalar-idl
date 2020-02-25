@@ -2172,6 +2172,63 @@
     }
 }
 
+#tableSearchPanel {
+    @searchArea-h: 24px;
+    border-top: 1px solid @color-border-medium;
+
+    .qMark {
+        position: relative;
+        top: -2px;
+    }
+
+    .searchArea {
+        position: relative;
+        height: @searchArea-h;
+
+        &:hover {
+            .clear {
+                display: block;
+            }
+        }
+
+        input {
+            height: @searchArea-h;
+            line-height: @searchArea-h;
+            padding-right: 24px;
+            font-size: 12px;
+        }
+
+        .clear {
+            position: absolute;
+            right: 9px;
+            top: 5px;
+            display: none;
+        }
+    }
+
+    .resultArea {
+        @summary-h: 15px;
+        height: ~"calc(100% - @{searchArea-h})";
+        padding: 8px 0;
+
+        .summary {
+            padding: 0 15px;
+            height: @summary-h;
+            line-height: @summary-h;
+        }
+
+        .listSection {
+            height: ~"calc(100% - @{summary-h})";
+            overflow-y: auto;
+            padding-top: 4px;
+
+            li {
+                line-height: 24px;
+            }
+        }
+    }
+}
+
 // XXX TODO: move it to pop up style list
 #dagSearch {
     @width: 276px;

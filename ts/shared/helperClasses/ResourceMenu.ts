@@ -576,6 +576,11 @@ class ResourceMenu {
             DataSourceManager.startImport(true);
         });
 
+        $container.on("click", ".searchTable", (event) => {
+            event.stopPropagation();
+            TableSearchPanel.Instance.show();
+        });
+
         $container.on("click", ".addApp", (event) => {
             event.stopPropagation();
             CreateAppModal.Instance.show();

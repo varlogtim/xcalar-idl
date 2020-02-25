@@ -882,12 +882,7 @@ class DagTabManager extends AbstractTabManager {
     }
 
     private _getAppPath(dagTab: DagTab): string {
-        const app = dagTab.getApp();
-        if (app == null) {
-            return dagTab.getName();
-        } else {
-            return AppList.Instance.getAppPath(app, dagTab.getName());
-        }
+        return DagList.getAppPath(dagTab);
     }
 
     /**

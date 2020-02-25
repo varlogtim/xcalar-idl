@@ -7,6 +7,19 @@ class DagList extends Durable {
         return this._instance || (this._instance = new DagList());
     }
 
+    /**
+     * DagList.getAppPath
+     * @param dagTab
+     */
+    public static getAppPath(dagTab: DagTab): string {
+        const app = dagTab.getApp();
+        if (app == null) {
+            return dagTab.getName();
+        } else {
+            return AppList.Instance.getAppPath(app, dagTab.getName());
+        }
+    }
+
     private _dags: Map<string, DagTab>;
     private _resourceMenu: ResourceMenu;
     private _setup: boolean;
