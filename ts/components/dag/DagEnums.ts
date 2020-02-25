@@ -234,4 +234,5 @@ if (typeof exports !== 'undefined') {
     exports.DagNodeErrorType = DagNodeErrorType;
     exports.DagNodeLinkInErrorType = DagNodeLinkInErrorType;
     exports.DagNodeTooltip = DagNodeTooltip;
+    exports.DagTabType = DagTabType;
 }
