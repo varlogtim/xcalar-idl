@@ -27,11 +27,11 @@ class SQLResultSpace {
         $("#dagView .openResult").click(() => {
             const $resultSection = this._getResultSection();
             const $container = $resultSection.parent();
-            if ($container.hasClass("noResult")) {
-                this._toggleDisplay(true);
-            } else {
-                this._toggleDisplayExpanded(!$container.hasClass("flexColumn"));
-            }
+            this._toggleDisplay(true);
+        });
+
+        $("#dagView .stackResult").click(() => {
+            this._toggleDisplayExpanded(true);
         });
 
         $("#dagView .collapseResult").click(() => {

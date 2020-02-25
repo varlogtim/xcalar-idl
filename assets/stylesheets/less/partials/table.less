@@ -1402,16 +1402,14 @@ html.edge {
                 &:hover {
                     .sortIcon {
                         visibility: visible;
-                    }
-                    .sortIcon:hover {
-                        color: @color-font-greyish-brown;
-                        opacity: @opacity-hover;
-                        .sortHalf {
-                            background: rgba(0, 0, 0, 0.03);
+                        &:hover {
+                            color: @color-font-greyish-brown;
+                            opacity: @opacity-hover;
                         }
-                    }
-                    .sortIcon .sortHalf:hover {
-                        background: rgba(0, 0, 0, 0.15);
+
+                        .sortHalf:hover {
+                            background: @color-bg-opaque2;
+                        }
                     }
                 }
             }
@@ -1455,53 +1453,6 @@ html.edge {
             border-width: 0 0 1px 0;
             border-color: @color-bg-2;
 
-            .sortIcon {
-                .flex(0 1 20px);
-                color: @color-font-greyish-brown;
-                display: block;
-                .size(@height: 100%);
-                .vertical-align;
-                top: 35%;
-                z-index: @z-index-tableHeaderGrab;
-                position: relative;
-                visibility: hidden;
-
-                .icon {
-                    position: relative;
-                    top: -1px;
-                }
-                .xi-sort {
-                    top: 1px;
-                    pointer-events: none;
-                }
-
-                .sortHalf {
-                    position: absolute;
-                    top: 13%;
-                    left: 0px;
-                    height: 50%;
-                    width: 100%;
-                    &.sortDesc {
-                        top: 67%;
-                    }
-                }
-            }
-
-            .sortNum {
-                position: absolute;
-                left: 50%;
-                margin-left: 5px;
-                top: 6px;
-                font-size: 10px;
-                color: @color-font-greyish-brown;
-                font-family: @font-base;
-                pointer-events: none;
-            }
-
-            .xi-arrow-down + .sortNum {
-                margin-left: 3px;
-            }
-
             .prefix {
                 .flex(1 1 auto);
                 .font(@color: @color-font-darkGray, @size: 11px);
@@ -1514,13 +1465,53 @@ html.edge {
             }
         }
 
+        .sortIcon {
+            color: @color-font-greyish-brown;
+            display: block;
+            z-index: @z-index-tableHeaderGrab;
+            position: relative;
+            visibility: hidden;
+
+            .icon {
+                position: relative;
+                top: -1px;
+            }
+            .xi-sort {
+                top: 1px;
+                pointer-events: none;
+            }
+
+            .sortHalf {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                height: 50%;
+                width: 100%;
+                border-radius: 2px;
+
+                &.sortDesc {
+                    top: 50%;
+                }
+            }
+        }
+
+        .sortNum {
+            position: absolute;
+            left: -5px;
+            top: -2px;
+            font-size: 9px;
+            color: @color-font-greyish-brown;
+            font-family: @font-base;
+            pointer-events: none;
+        }
+
         .flexContainer {
             .position(relative);
 
             .flexWrap.flex-mid {
                 .editableHead, input.dataCol {
                     // padding-right: 18px;
-                    width: ~"calc(100% - 18px)";
+                    width: ~"calc(100% - 8px)";
                     .noSelection;
 
                     &.highlight {
@@ -1538,7 +1529,7 @@ html.edge {
 
         &:hover {
             .flexWrap.flex-right > .dropdownBox {
-                opacity: @opacity-hover;
+                opacity: 0.7;
             }
         }
 

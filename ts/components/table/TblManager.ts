@@ -1144,14 +1144,14 @@ class TblManager {
                         'data-container="body" ' +
                         'data-placement="top" data-original-title="' +
                         TooltipTStr.ClickToSortDesc + '"' +
-                            '><i class="icon xi-arrow-up fa-10"></i>';
+                            '><i class="icon xi-arrowtail-up fa-9"></i>';
                 sorted = true;
             } else if (order === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
                 sortIcon = '<div class="sortIcon" data-toggle="tooltip" ' +
                             'data-container="body" ' +
                             'data-placement="top" data-original-title="' +
                             TooltipTStr.ClickToSortAsc + '"><i class="icon ' +
-                            'xi-arrow-down fa-10"></i>';
+                            'xi-arrowtail-down fa-9"></i>';
                 sorted = true;
             }
 
@@ -1204,7 +1204,6 @@ class TblManager {
                     '</div>' +
                     '<div class="colGrab"></div>' +
                     '<div class="topHeader">' +
-                        sortIcon +
                         '<div class="' + prefixClass + '">' +
                             prefix +
                         '</div>' +
@@ -1235,6 +1234,7 @@ class TblManager {
                                 '">' +
                                 '<div class="innerBox"></div>' +
                             '</div>' +
+                            sortIcon +
                         '</div>' +
                     '</div>' +
                 '</div>' +

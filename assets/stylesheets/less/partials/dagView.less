@@ -1,24 +1,3 @@
-#dagViewContainer {
-    @header-h: 12px;
-    height: 100%;
-
-    .draggableHeader {
-        display: none;
-    }
-
-    &.undocked {
-        padding-top: @header-h;
-
-        .draggableHeader {
-            display: block;
-            position: absolute;
-            height: @header-h;
-            width: 100%;
-            top: 0;
-        }
-    }
-}
-
 #dagView {
     @category-height: 32px;
     @operator-height: 26px;
@@ -147,7 +126,7 @@
         .categorySection {
             .flex-display;
             position: relative;
-            width: ~"calc(100% - (@{labelWidth} + 67px))";
+            width: ~"calc(100% - (@{labelWidth} + 69px))";
 
 
             &.scrollable {
@@ -222,11 +201,13 @@
 
         .rightIconArea {
             margin-left: auto;
-            padding: 0px 8px;
+            padding: 0px 6px;
             box-shadow: 0.25px 0px 1px #849CB0;
 
             .icon {
                 font-size: 14px;
+                line-height: @category-height;
+                margin: 0px 2px;
             }
         }
     }

@@ -301,12 +301,26 @@
                     }
                 }
 
-                .openResult {
+                .openResult, .collapseResult {
+                    display: none;
+                }
+                .stackResult {
                     display: inline-block;
                 }
 
-                .collapseResult {
-                    display: none;
+                &.noResult {
+                    .openResult {
+                        display: inline-block;
+                    }
+                    .stackResult {
+                        display: none;
+                    }
+                }
+
+                .undocked {
+                    .stackResult, .collapseResult {
+                        display: none !important;
+                    }
                 }
 
                 &:not(.flexColumn) {
@@ -323,7 +337,7 @@
                 &.flexColumn {
                     height: 60%;
 
-                    .openResult {
+                    .openResult, .stackResult {
                         display: none;
                     }
 
@@ -753,7 +767,7 @@
 }
 
 #sqlTableArea {
-    @top-h: 36px;
+    @top-h: 32px;
     &.loading, &.error {
         .bottomSection button {
             pointer-events: none;

@@ -1491,7 +1491,7 @@ namespace ColManager {
                         'data-container="body" ' +
                         'data-placement="top" data-original-title="' +
                         TooltipTStr.ClickToSortDesc + '"' +
-                            '><i class="icon xi-arrow-up fa-10"></i>';
+                            '><i class="icon xi-arrow-up fa-9"></i>';
                 sorted = true;
             } else if (order ===
                 XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
@@ -1499,7 +1499,7 @@ namespace ColManager {
                             'data-container="body" ' +
                             'data-placement="top" data-original-title="' +
                             TooltipTStr.ClickToSortAsc + '"><i class="icon ' +
-                            'xi-arrow-down fa-10"></i>';
+                            'xi-arrow-down fa-9"></i>';
                 sorted = true;
             }
             if (sorted) {
