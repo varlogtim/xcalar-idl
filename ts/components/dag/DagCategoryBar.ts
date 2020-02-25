@@ -521,8 +521,11 @@ class DagCategoryBar {
 
         let table = "";
         let hasTable: boolean = false;
-        if (!(operator instanceof DagNodeExport) && !(operator instanceof DagNodePublishIMD)
-                && !(operator instanceof DagNodeInstruction)) {
+        if (!(operator instanceof DagNodeExport) &&
+            !(operator instanceof DagNodePublishIMD) &&
+            !(operator instanceof DagNodeInstruction) &&
+            !(operator instanceof DagNodeDFOut)
+        ) {
             hasTable = true;
             table = '<g class="table" transform="translate(' + (DagView.nodeWidth + 24) + ', 0)" display="none">' +
                         '<path class="tableLine" stroke="' + this._edgeColor + '" stroke-width="1px" fill="none" stroke-linecap="round" d="M-35,14L16,14"></path>' +

@@ -3405,7 +3405,8 @@ class DagView {
             node instanceof DagNodeCustomInput ||
             node instanceof DagNodeCustomOutput ||
             node instanceof DagNodePublishIMD ||
-            node instanceof DagNodeExport
+            node instanceof DagNodeExport ||
+            node instanceof DagNodeDFOut
         ) {
             return;
         }
