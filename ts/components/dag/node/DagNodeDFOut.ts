@@ -179,7 +179,7 @@ class DagNodeDFOut extends DagNodeOutOptimizable {
      * @returns {string}
      */
     public getDisplayNodeType(): string {
-        return this.optimized ? "Link Out Optimized" : "Link Out";
+        return this.optimized ? "Link Out Optimized" : "Function Output";
     }
 
     /**

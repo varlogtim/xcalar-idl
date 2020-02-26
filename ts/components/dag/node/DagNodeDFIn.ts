@@ -114,7 +114,7 @@ class DagNodeDFIn extends DagNodeIn {
      * @returns {string}
      */
     public getDisplayNodeType(): string {
-        return "Link In";
+        return "Function Input";
     }
 
     public getSource(): string {

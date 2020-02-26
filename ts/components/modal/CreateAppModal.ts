@@ -132,7 +132,7 @@ class CreateAppModal {
                         </div>
                         <div class="graphInfo listWrap xc-expand-list active">
                             <div class="graphName listInfo">
-                                <span class="text">Execution Plan ${index + 1}</span>
+                                <span class="text">Logical Plan ${index + 1}</span>
                                 <span class="expand">
                                     <i class="icon xi-down fa-12"></i>
                                 </span>
@@ -158,7 +158,7 @@ class CreateAppModal {
         const $input = $modal.find(".newName");
         const $checkbox = $modal.find(".graphList .checkbox.checked");
         if (!$checkbox.length) {
-            StatusBox.show("No execution plan selected.", $modal.find(".modalMain"));
+            StatusBox.show("No logical plan selected.", $modal.find(".modalMain"));
             return false;
         }
 
