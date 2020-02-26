@@ -6,7 +6,8 @@
  * For webpack, it defines the interface of the Xcrpc namespace(name is defined
  * in /webpack.config.js, interface is defined in ./Xcrpc.d.ts);
  */
-
+import * as xce from 'xcalar';
+export { xce };
 // Common libraries
 // These are top-level functions
 export * from './ServiceClient';

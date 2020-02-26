@@ -101,6 +101,51 @@ module.exports = function(env, argv) {
                     exclude: /node_modules/
                 }]
             }
+        },
+
+        // Load Wizard
+        {
+            entry: path.resolve(env.buildroot, "src/loadWizard/index.jsx"),
+            output: {
+                path: path.resolve(env.buildroot, "assets/js/loadWizard/"),
+                filename: "loadWizard.js"
+            },
+            resolve: {
+                extensions: [".ts", ".tsx", ".js", ".jsx", ".less"]
+            },
+            devtool: buildSourceMap ? 'eval' : '',
+            module: {
+                rules: [
+                    {
+                        test: /\.jsx?$/,
+                        loader: "babel-loader",
+                        options: {
+                            presets: ['react', 'es2015'],
+                            plugins: ["transform-object-rest-spread"]
+                        },
+                        exclude: /node_modules/
+                    },
+                    {
+                        test: /\.less$/,
+                        use: [
+                            {
+                            loader: 'style-loader', // creates style nodes from JS strings
+                            },
+                            {
+                            loader: 'css-loader', // translates CSS into CommonJS
+                            },
+                            {
+                            loader: 'less-loader', // compiles Less to CSS
+                            },
+                        ]
+                    },
+                    {
+                        test: /\.css$/,
+                        loaders: ['style-loader', 'css-loader'],
+                        exclude: /node_modules/
+                    }
+                ]
+            },
         }
     ];
 };
