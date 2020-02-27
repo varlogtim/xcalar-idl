@@ -573,15 +573,12 @@
         }
         &.state-Complete {
             .statusIcon {
-                fill: @color-icon-darkGreen;
-            }
-            .mainTableIcon {
-                // fill: @color-bg-tableIconActive;
+                fill: @color-dag-blue;
             }
         }
         &.state-Error {
             .statusIcon {
-                fill: @color-background-error;
+                fill: @color-dag-red;
             }
         }
     }
@@ -1889,10 +1886,10 @@
                 border: 1px solid shade(@color-dag-yellow, 10%);
             }
             &.state-qrFinished {
-                background-color: @color-dag-green;
+                background-color: @color-dag-blue;
             }
             &.state-qrError, &.state-qrCancelled {
-                background-color: @color-background-error;
+                background-color: @color-dag-red;
             }
         }
     }
@@ -2066,10 +2063,10 @@
             border: 1px solid shade(@color-dag-yellow, 10%);
         }
         &.state-Complete {
-            background-color: @color-dag-green;
+            background-color: @color-dag-blue;
         }
         &.state-Error {
-            background-color: @color-background-error;
+            background-color: @color-dag-red;
         }
     }
 
