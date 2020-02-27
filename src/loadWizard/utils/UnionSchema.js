@@ -1,4 +1,4 @@
-class UnionSchema {
+export class UnionSchema {
     normalize(columns) {
         var newcol = []
         const regex = /\(\d*\)/
@@ -19,12 +19,12 @@ class UnionSchema {
     }
 
     union(unionSchema, newSchema) {
-        var unionColumns = unionSchema.schema.columns
-        var newColumns = newSchema.schema.columns
+        var unionColumns = unionSchema.schema.columnsList
+        var newColumns = newSchema.schema.columnsList
         for (var column of newColumns) {
             if (!this.exists(unionColumns, column)) {
                 unionSchema.schema.numColumns += 1
-                unionSchema.schema.columns.push(column)
+                unionSchema.schema.columnsList.push(column)
             }
             if (!unionSchema.path.includes(newSchema.path)) {
                 unionSchema.path.push(newSchema.path)
@@ -34,15 +34,24 @@ class UnionSchema {
 
     process(schema) {
         var cols = []
-        for (var column of schema.schema.columns) {
+        for (var column of schema.schema.columnsList) {
             var defs = column.split("-")
             var col = {name: defs[0], mapping: defs[1], type: defs[2]}
             cols.push(col)
         }
-        schema.schema.columns = cols
+        schema.schema.columnsList = cols
     }
 
     getSchema(schemas) {
+        const newschemas = JSON.parse(JSON.stringify(schemas))
+        try {
+            return this._getSchema(newschemas)
+        } catch(err) {
+            return {error : err.message}
+        }
+    }
+
+    _getSchema(schemas) {
         try {
             var unionSchema = null
             var errSchemas = []
@@ -51,7 +60,7 @@ class UnionSchema {
                     errSchemas.push(schema)
                     continue
                 }
-                schema.schema.columns = this.normalize(schema.schema.columns)
+                schema.schema.columnsList = this.normalize(schema.schema.columnsList)
                 if (unionSchema == null) {
                     unionSchema = schema
                     unionSchema.path = [unionSchema.path]
@@ -69,4 +78,8 @@ class UnionSchema {
         }
     }
 }
-module.exports = UnionSchema
+/*
+if (typeof module !== 'undefined') {
+    module.exports = UnionSchema
+}
+*/

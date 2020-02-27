@@ -34,10 +34,10 @@ export class SupersetSchemas {
         var offset = 0
         var errSchemas = []
         for (var schema of schemas) {
-            //if (!schema.success) {
-                //errSchemas.push(schema)
-                //continue
-            //}
+            if (!schema.success) {
+                errSchemas.push(schema)
+                continue
+            }
             // schema["schema"]["columnsList"] = this.normalize(schema.schema.columnsList)
             // var normalizedSchema = this.normalize(schema.schema.columnsList)
             var found = false
@@ -69,7 +69,6 @@ export class SupersetSchemas {
                 stag = prefix + ++offset
                 orgSchemas[stag] = {path: [schema.path], schema : {numColumns : schema.schema.columnsList.length, columnsList : schema.schema.columnsList}}
             }
-            // orgSchemas[stag].protoSchema = schema.protoSchema
         }
         // for (var orgkey in orgSchemas) {
         //     this.process(orgSchemas[orgkey])
@@ -80,3 +79,8 @@ export class SupersetSchemas {
         return orgSchemas
     }
 }
+/*
+if (typeof module !== 'undefined') {
+    module.exports = SupersetSchemas
+}
+*/

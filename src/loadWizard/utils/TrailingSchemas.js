@@ -24,7 +24,7 @@ class ArmHead {
                 this.schema.path.push(schema.path)
             }
             if (this.schema.schema.numColumns <= schema.schema.numColumns) {
-                this.schema.schema.columns = schema.schema.columns
+                this.schema.schema.columnsList = schema.schema.columnsList
                 this.schema.schema.numColumns = schema.schema.numColumns
             }
         }
@@ -36,7 +36,7 @@ class ArmHead {
 }
 
 // Use an Octopus Trie :-)
-class TrailingSchemas {
+export class TrailingSchemas {
     constructor() {
         //list of ArmHead
         this.armheads = []
@@ -52,23 +52,24 @@ class TrailingSchemas {
     normalize(schemaDetail) {
         var newcol = []
         const regex = /\(\d*\)/
-        for (var column of schemaDetail.schema.columns) {
+        for (var column of schemaDetail.schema.columnsList) {
             var col = column.name + "-" + column.mapping + "-" + column.type.replace(regex, '')
             newcol.push(col)
         }
-        schema = {path : [schemaDetail.path], schema : {numColumns : schemaDetail.schema.numColumns, columns : newcol}}
+        schema = {path : [schemaDetail.path], schema : {numColumns : schemaDetail.schema.numColumns, columnsList : newcol}}
         return schema
     }
 
     //schemaDetail is tuple (schema, detail)
-    add(schemaDetail) {
+    add(inschemaDetail) {
+        const schemaDetail = JSON.parse(JSON.stringify(inschemaDetail))
         if (!schemaDetail.success) {
             this.errSchemas.push(schemaDetail)
             return
         }
         schema = this.normalize(schemaDetail)
         var newarm = []
-        for (var coldef of schema.schema.columns) {
+        for (var coldef of schema.schema.columnsList) {
             newarm.push(new TrieNode(coldef))
         }
         var newarmheads = []
@@ -119,12 +120,12 @@ class TrailingSchemas {
 
     process(schema) {
         var cols = []
-        for (var column of schema.schema.columns) {
+        for (var column of schema.schema.columnsList) {
             var defs = column.split("-")
             var col = {name: defs[0], mapping: defs[1], type: defs[2]}
             cols.push(col)
         }
-        schema.schema.columns = cols
+        schema.schema.columnsList = cols
     }
 
     index(schemas) {
@@ -155,4 +156,8 @@ class TrailingSchemas {
         }
     }
 }
-module.exports = TrailingSchemas
+/*
+if (typeof module !== 'undefined') {
+    module.exports = TrailingSchemas
+}
+*/

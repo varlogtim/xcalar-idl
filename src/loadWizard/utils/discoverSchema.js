@@ -37,10 +37,15 @@ var NUMBER_OF_XPUS = null;
 var DATASET_PREFIX = '.XcalarDS.'
 
 // Move to config file
-var icvColumnName = 'ICV';
-var fileRecordNumColumnName = 'FILE_RECORD_NUM';
-var dataColumnName = 'SOURCE_DATA';
-var pathColumnName = 'PATH';
+//var icvColumnName = 'ICV';
+//var fileRecordNumColumnName = 'FILE_RECORD_NUM';
+//var dataColumnName = 'SOURCE_DATA';
+//var pathColumnName = 'PATH';
+
+var icvColumnName = '_X_ICV';
+var fileRecordNumColumnName = '_X_FILE_RECORD_NUM';
+var dataColumnName = '_X_SOURCE_DATA';
+var pathColumnName = '_X_PATH';
 
 const filez = ['hi']
 
@@ -515,13 +520,29 @@ export async function addFileForDiscovery(path, inputSerialization) {
     return currentSchemaSuperset
 }
 
+function defaultInputSerialization(path) {
+    var inputSerialization = {};
+    if (path.toLowerCase().endsWith(".csv")) {
+        inputSerialization = {
+            // FieldDelimiter hard-coded still as we do not have all the code here
+            'CSV': {'FileHeaderInfo': 'USE', 'FieldDelimiter': ','}
+        }
+    } else if (path.toLowerCase().endsWith(".parquet")) {
+        inputSerialization = {
+            'Parquet': {}
+        }
+    } else if (path.toLowerCase().endsWith(".json") || path.toLowerCase().endsWith("*.jsonl")) {
+        inputSerialization = {
+            'JSON': {'Type' : 'LINES'}
+        }
+    }
+    return inputSerialization;
+}
+
 export async function discoverSingleFile(path, inputSerialization) {
     discoveredFilePathsSet.add(path)
     if (!inputSerialization) {
-        inputSerialization = {
-            // 'CSV': {'FileHeaderInfo': 'USE', 'FieldDelimiter': ','}
-            'Parquet': {}
-        };
+        inputSerialization = defaultInputSerialization(path);
     }
     const inputSerialJson = getInputSerial(inputSerialization);
 
@@ -531,19 +552,13 @@ export async function discoverSingleFile(path, inputSerialization) {
     console.log(discoveredFiles)
 }
 
-
-
 export async function createTableFromSchema(tableName, paths, schema, inputSerial=null) {
     if (inputSerial == null) {
-        inputSerial = {
-            // 'CSV': {'FileHeaderInfo': 'USE'}
-            'Parquet': {}
-        };
+        // there should be at least one path selected in GUI?
+        inputSerial = defaultInputSerialization(paths[0]);
     }
-    
     await createTableAndComplements(paths, schema, inputSerial, tableName);
 }
-
 
 export async function exampleCsvRun(tableName=null, paths=null, inputSerial=null) {
     // Defaults
