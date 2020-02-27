@@ -204,7 +204,11 @@ namespace DSForm {
         new MenuHelper($("#dsForm-target"), {
             onSelect: function($li) {
                 if ($li.hasClass("createNew")) {
-                    MainMenu.openPanel("datastorePanel", "targetButton");
+                    if (XVM.isDataMart()) {
+                        SourceModal.Instance.switchTab("connector");
+                    } else {
+                        MainMenu.openPanel("datastorePanel", "targetButton");
+                    }
                     DSTargetManager.showTargetCreateView();
                     return;
                 }

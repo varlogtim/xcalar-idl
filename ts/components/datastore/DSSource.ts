@@ -10,10 +10,7 @@ namespace DSSource {
      * DSSource.show
      */
     export function show(): void {
-        if (XVM.isDataMart()) {
-            // data mart only show the s3 form
-            DSS3Config.Instance.show();
-        } else if (XVM.isCloud()) {
+        if (XVM.isCloud()) {
             DataSourceManager.switchView(DataSourceManager.View.Source);
         } else {
             // on-prem will rediret to the old import screen

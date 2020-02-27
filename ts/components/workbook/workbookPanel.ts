@@ -380,11 +380,7 @@ namespace WorkbookPanel {
         });
 
         $("#loadWizardbtn").click(function() {
-            Alert.show({
-                title: "Coming Soon",
-                msg: "Import Data Source Wizard will release in the next version.",
-                isAlert: true
-            });
+            SourceModal.Instance.show();
         });
 
         $fileUpload.change(function() {

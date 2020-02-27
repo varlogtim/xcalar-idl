@@ -64,6 +64,21 @@ class DataSourceManager {
     }
 
     /**
+     * DataSourceManager.switchToConnectorView
+     */
+    public static switchToConnectorView(): void {
+        return this._switchToViewTarget();
+    }
+
+    /**
+     * DataSourceManager.swichToImportView
+     */
+    public static swichToImportView(): void {
+        this._switchToViewTableSource();
+        DataSourceManager.startImport(true);
+    }
+
+    /**
      * DataSourceManager.startImport
      * show the first step import screen
      * @param createTableMode
@@ -201,29 +216,16 @@ class DataSourceManager {
             if ($button.hasClass("active")) {
                 return;
             }
-            let $panel: JQuery = this._getPanel();
-            let $menu: JQuery = this._getMenu();
-            let wasInDatasetScreen: boolean = $panel.hasClass("in");
-            let wasInTableScreen: boolean = $panel.hasClass("table");
-            $panel.removeClass("in")
-                .removeClass("table")
-                .removeClass("imd")
-                .removeClass("target");
-            $menu.removeClass("xc-hidden");
-            $menu.find(".menuSection").addClass("xc-hidden");
-
-            let isAdmin: boolean = this._readOnlyForNoAdmin();
             let id: string = $button.attr("id");
-
             switch (id) {
                 case "targetButton":
-                    this._switchToViewTarget(isAdmin);
+                    this._switchToViewTarget();
                     break;
                 case "inButton":
-                    this._switchToViewDatasetSource(wasInTableScreen);
+                    this._switchToViewDatasetSource();
                     break;
                 case "sourceTblButton":
-                    this._switchToViewTableSource(wasInDatasetScreen);
+                    this._switchToViewTableSource();
                     break;
                 case "imdTab":
                     this._switchToViewIMD();
@@ -283,7 +285,7 @@ class DataSourceManager {
 
     // button switch styling handled in mainMenu.js
     private static _readOnlyForNoAdmin(): boolean {
-        let isAdmin: boolean = Admin.isAdmin() || XVM.isCloud();
+        let isAdmin: boolean = Admin.isAdmin() || XVM.isCloud() || XVM.isDataMart();
         let $panel = this._getPanel();
         let $menu = this._getMenu();
         if (!isAdmin) {
@@ -300,8 +302,10 @@ class DataSourceManager {
         return isAdmin;
     }
 
-    private static _switchToViewDatasetSource(wasInTableScreen: boolean): void {
+    private static _switchToViewDatasetSource(): void {
         let $panel = this._getPanel();
+        let wasInTableScreen: boolean = $panel.hasClass("table");
+        this._restPanelView();
         let $menu = this._getMenu();
         let $title = this._getTitleEl();
         $panel.addClass("in");
@@ -316,8 +320,10 @@ class DataSourceManager {
         }
     }
 
-    private static _switchToViewTableSource(wasInDatasetScreen: boolean): void {
+    private static _switchToViewTableSource(): void {
         let $panel = this._getPanel();
+        let wasInDatasetScreen: boolean = $panel.hasClass("in");
+        this._restPanelView();
         let $menu = this._getMenu();
         let $title = this._getTitleEl();
         $panel.addClass("table");
@@ -335,6 +341,7 @@ class DataSourceManager {
     }
 
     private static _switchToViewIMD(): void {
+        this._restPanelView();
         let $panel = this._getPanel();
         let $menu = this._getMenu();
         $panel.addClass("imd");
@@ -349,7 +356,9 @@ class DataSourceManager {
         }
     }
 
-    private static _switchToViewTarget(isAdmin: boolean): void {
+    private static _switchToViewTarget(): void {
+        this._restPanelView();
+        let isAdmin: boolean = this._readOnlyForNoAdmin();
         let $panel = this._getPanel();
         let $menu = this._getMenu();
         let $title = this._getTitleEl();
@@ -368,5 +377,16 @@ class DataSourceManager {
             });
             $targetView.removeClass("firstTouch");
         }
+    }
+
+    private static _restPanelView(): void {
+        let $panel: JQuery = this._getPanel();
+        let $menu: JQuery = this._getMenu();
+        $panel.removeClass("in")
+            .removeClass("table")
+            .removeClass("imd")
+            .removeClass("target");
+        $menu.removeClass("xc-hidden");
+        $menu.find(".menuSection").addClass("xc-hidden");
     }
 }

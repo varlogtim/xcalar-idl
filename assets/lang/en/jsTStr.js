@@ -1331,9 +1331,9 @@ ColTStr = {
     'SplitColWarn': 'Many Columns will generate',
     'RenameSpecialChar': 'Invalid name. Ensure name contains only alphanumeric, -, _ and space. It must start with a letter.',
     "PrefixInValid": 'Invalid name. Ensure name contains only alphanumeric, -, and _.',
-    'ColNameInvalidChar': 'Invalid name. Ensure name does not contain the ' +
+    'ColNameInvalidChar': 'Invalid column name. Ensure name does not contain the ' +
                           'following characters: ^.\',":()[]{}\\',
-    'ColNameInvalidCharSpace': 'Invalid name. Ensure name does not contain the ' +
+    'ColNameInvalidCharSpace': 'Invalid column name. Ensure name does not contain the ' +
                           'following characters: ^.\',":()[]{}\\ or space',
     'RenameStartInvalid': 'Invalid name: a name can only begin with a letter or underscore(_).',
     'ImmediateClash': 'Invalid name: this name already exists in at least one ' +

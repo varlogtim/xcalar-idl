@@ -171,7 +171,7 @@ namespace DSTargetManager {
                 return "<li>" + targetName + "</li>";
             }).join("");
             let classes = "createNew";
-            if (!XVM.isCloud()) {
+            if (!isModifiable()) {
                 classes += " adminOnly";
             }
             let dsFormHtml: HTML = `<li class="${classes}">+ Create New Connector</li>` + html;
@@ -512,6 +512,12 @@ namespace DSTargetManager {
             event.preventDefault();
             let targetName: string = $gridView.find(".grid-unit.active").data("name");
             const createTableMode: boolean = DataSourceManager.isCreateTableMode();
+            if (XVM.isDataMart()) {
+                SourceModal.Instance.switchTab("import");
+                DSForm.setDataTarget(targetName);
+                return;
+            }
+            
             if (createTableMode) {
                 MainMenu.openPanel("datastorePanel", "sourceTblButton");
             } else {
@@ -601,7 +607,7 @@ namespace DSTargetManager {
     }
 
     function isModifiable(): boolean {
-        return Admin.isAdmin() || XVM.isCloud();
+        return Admin.isAdmin() || XVM.isCloud() || XVM.isDataMart();
     }
 
     function isDefaultTarget(targetName: string): boolean {
