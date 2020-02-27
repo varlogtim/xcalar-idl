@@ -404,21 +404,20 @@ class DagViewManager {
 
     // for view only dataflows: i.e. optimized dataflow or abandoned dataflow
     public updateProgressDataflow(queryName, queryStateOutput): void {
-        const dagView: DagView = this.dagViewMap.get(queryName);
-        if (!dagView) {
+        const dagTab = <DagTabProgress>DagTabManager.Instance.getTabById(queryName);
+        if (!dagTab) {
             return;
         }
-
-        dagView.updateProgressDataflow(queryStateOutput);
+        const graph = dagTab.getGraph();
+        graph.updateSubGraphProgress(queryStateOutput.queryGraph.node, !(dagTab instanceof DagTabOptimized));
     }
 
-    public updateDFProgress(tabId: string, queryStateOutput: XcalarApiQueryStateOutputT, nodeIds: DagNodeId[]): void {
+    public updateDFProgress(tabId: string, queryStateOutput: XcalarApiQueryStateOutputT): void {
         const dagView: DagView = this.dagViewMap.get(tabId);
         if (!dagView) {
             return;
         }
-
-        dagView.updateDFProgress(queryStateOutput, nodeIds);
+        dagView.getGraph().updateProgress(queryStateOutput.queryGraph.node);
     }
 
     public updateDatasetProgress(tabId: string, nodeId: DagNodeId, stats: {
@@ -434,7 +433,6 @@ class DagViewManager {
 
         dagView.updateDatasetProgress(stats, nodeId);
     }
-
 
     /**
      * DagViewManager.Instance.resetActiveDagTab

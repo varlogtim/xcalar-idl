@@ -127,6 +127,7 @@ enum DagNodeEvents {
     PostTableUnpin = "PostTableUnpin",
     Hide = "Hide",
     Save = "Save",
+    UpdateProgress = "DagNodeUpdateProgress"
 }
 
 enum DagCategoryType {

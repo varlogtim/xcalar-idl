@@ -53,9 +53,9 @@ describe("DagNodeInfoPanel Test", function() {
     });
 
     it("should not show if no node", function() {
-        expect($panel.hasClass("xc-hidden")).to.be.true;
+        expect($("#dataflowMenu").hasClass("showingNodeInfo")).to.be.false;
         expect(DagNodeInfoPanel.Instance.show(null)).to.be.false;
-        expect($panel.hasClass("xc-hidden")).to.be.true;
+        expect($("#dataflowMenu").hasClass("showingNodeInfo")).to.be.false;
         expect(DagNodeInfoPanel.Instance.isOpen()).to.be.false;
     });
 
@@ -65,9 +65,9 @@ describe("DagNodeInfoPanel Test", function() {
         DagNodeInfoPanel.Instance._updateTitleSection = function() {
             called = true;
         }
-        expect($panel.hasClass("xc-hidden")).to.be.true;
+        expect($("#dataflowMenu").hasClass("showingNodeInfo")).to.be.false;
         expect(DagNodeInfoPanel.Instance.show(mapNode)).to.be.true;
-        expect($panel.hasClass("xc-hidden")).to.be.false;
+        expect($("#dataflowMenu").hasClass("showingNodeInfo")).to.be.true;
         expect(DagNodeInfoPanel.Instance.isOpen()).to.be.true;
         expect(called).to.be.true;
         DagNodeInfoPanel.Instance._updateTitleSection = cachedFn;
@@ -80,7 +80,7 @@ describe("DagNodeInfoPanel Test", function() {
             called = true;
         }
         expect(DagNodeInfoPanel.Instance.show(mapNode, false)).to.be.true;
-        expect($panel.hasClass("xc-hidden")).to.be.false;
+        expect($("#dataflowMenu").hasClass("showingNodeInfo")).to.be.true;
         expect(DagNodeInfoPanel.Instance.isOpen()).to.be.true;
         expect(called).to.be.false;
         DagNodeInfoPanel.Instance._updateTitleSection = cachedFn;

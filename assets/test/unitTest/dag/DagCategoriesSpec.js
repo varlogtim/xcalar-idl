@@ -285,8 +285,8 @@ describe("DagCategories Test", function() {
         });
 
         it("isExistOperatorName", function() {
-            expect(inCategory.isExistOperatorName("Link In")).to.be.true;
-            expect(inCategory.isExistOperatorName("Linkin")).to.be.false;
+            expect(inCategory.isExistOperatorName("Function Input")).to.be.true;
+            expect(inCategory.isExistOperatorName("FunctionInput")).to.be.false;
         });
 
         it('removeOperatorById', function() {

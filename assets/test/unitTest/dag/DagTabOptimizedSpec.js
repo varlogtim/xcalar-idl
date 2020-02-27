@@ -522,12 +522,13 @@ describe('DagTabOptimized Test', function() {
                 expect($dfArea.find('.nodeStats[data-id="' + nodeid + '"]').find(".progress").text()).to.equal("50%");
 
                 expect($dfArea.find(".runStats").length).to.equal(2);
-                expect($dfArea.find(".runStats").eq(0).hasClass("Processing")).to.be.true;
-                expect($dfArea.find(".runStats").eq(0).hasClass("Ready")).to.be.false;
-                expect($dfArea.find(".runStats").eq(1).hasClass("Ready")).to.be.true;
-                expect($dfArea.find(".runStats").eq(1).hasClass("Processing")).to.be.false;
-                expect($dfArea.find(".runStats").eq(0).text().trim().replace(/ /gi, "").replace(/\n/gi, "")).to.equal("RowsSkew633");
-                expect($dfArea.find(".runStats").eq(1).text().trim().replace(/ /gi, "").replace(/\n/gi, "")).to.equal("RowsSkew6100");
+
+                expect($dfArea.find(".runStats").eq(1).hasClass("Processing")).to.be.true;
+                expect($dfArea.find(".runStats").eq(1).hasClass("Ready")).to.be.false;
+                expect($dfArea.find(".runStats").eq(0).hasClass("Ready")).to.be.true;
+                expect($dfArea.find(".runStats").eq(0).hasClass("Processing")).to.be.false;
+                expect($dfArea.find(".runStats").eq(1).text().trim().replace(/ /gi, "").replace(/\n/gi, "")).to.equal("RowsSkew633");
+                expect($dfArea.find(".runStats").eq(0).text().trim().replace(/ /gi, "").replace(/\n/gi, "")).to.equal("RowsSkew6100");
 
                 DagNode.generateId = oldGenId;
                 done();

@@ -694,6 +694,17 @@ class DagNodeCustom extends DagNode {
         }
     }
 
+    /**
+     * @override
+     */
+    protected _updateSubGraphProgress(queryNodes: XcalarApiDagNodeT[]): void {
+        const subGraph = this.getSubGraph();
+        if (!subGraph) {
+            return;
+        }
+        subGraph.updateProgress(queryNodes);
+    }
+
     protected _getSerializeInfo(includeStats?: boolean): DagNodeCustomInfo {
         const nodeInfo = super._getSerializeInfo(includeStats) as DagNodeCustomInfo;
         // Input ports

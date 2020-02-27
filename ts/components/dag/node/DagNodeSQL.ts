@@ -510,6 +510,17 @@ class DagNodeSQL extends DagNode {
         return hint;
     }
 
+     /**
+     * @override
+     */
+    protected _updateSubGraphProgress(queryNodes: XcalarApiDagNodeT[]): void {
+        const subGraph = this.getSubGraph();
+        if (!subGraph) {
+            return;
+        }
+        subGraph.updateSQLSubGraphProgress(queryNodes);
+    }
+
     /**
      * Link an input node(in the sub graph) to a custom node's inPort.
      * Call this method when expanding the input ports.

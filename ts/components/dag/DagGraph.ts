@@ -609,7 +609,12 @@ class DagGraph extends Durable {
         })
         .registerEvents(DagNodeEvents.Save, () => {
             this.events.trigger(DagGraphEvents.Save, {tabId: this.parentTabId});
-        });
+        })
+        .registerEvents(DagNodeEvents.UpdateProgress, (info) => {
+            info.tabId = this.parentTabId;
+            info.graph = this;
+            this.events.trigger(DagNodeEvents.UpdateProgress, info);
+        })
     }
 
     /**
@@ -1904,6 +1909,119 @@ class DagGraph extends Durable {
             });
         }
         return trees;
+    }
+
+        // /**
+    //  *
+    //  * @param queryNodes queryState info
+    // */
+    public updateSQLSubGraphProgress(queryNodes: XcalarApiDagNodeT[]) {
+        const nodeIdInfos: Map<DagNodeId, Map<string, XcalarApiDagNodeT>> = new Map();
+
+        queryNodes.forEach((queryNodeInfo: XcalarApiDagNodeT) => {
+            if (queryNodeInfo["operation"] === XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects] ||
+                queryNodeInfo.api === XcalarApisT.XcalarApiDeleteObjects) {
+                return;
+            }
+            let tableName: string = queryNodeInfo.name.name;
+            if (queryNodeInfo.api === XcalarApisT.XcalarApiBulkLoad &&
+                tableName.startsWith(".XcalarLRQ.") &&
+                tableName.indexOf(gDSPrefix) > -1) {
+                tableName = tableName.slice(tableName.indexOf(gDSPrefix));
+            }
+            let nodeId: DagNodeId = this._getDagNodeIdFromQueryInfo(queryNodeInfo);
+            if (!nodeId) {
+                return;
+            }
+            let nodeIdInfo: Map<string, XcalarApiDagNodeT> = nodeIdInfos.get(nodeId);
+            if (!nodeIdInfo) {
+                nodeIdInfo = new Map()
+                nodeIdInfos.set(nodeId, nodeIdInfo);
+            }
+            nodeIdInfo.set(tableName, queryNodeInfo);
+            queryNodeInfo["index"] = parseInt(queryNodeInfo.dagNodeId);
+        });
+
+        for (let [nodeId, queryNodesMap] of nodeIdInfos) {
+            let node: DagNode = this.getNode(nodeId);
+            if (node != null) {
+                node.updateProgress(queryNodesMap, true, true);
+
+                if (node.getState() === DagNodeState.Complete) {
+                    let destTable: string;
+                    let lastNode;
+                    let latestId = -1;
+                    // find the last queryNode belonging to a dagNode
+                    // that is not a deleteNode and get it's destTable
+                    queryNodesMap.forEach((queryNode) => {
+                        let curId = parseInt(queryNode.dagNodeId);
+                        if (curId > latestId) {
+                            latestId = curId;
+                            lastNode = queryNode;
+                        }
+                    });
+                    if (lastNode) {
+                        destTable = lastNode.name.name;
+                    }
+
+                    if (node instanceof DagNodeAggregate) {
+                        // TODO resolve aggregates
+                        // this._resolveAggregates(this._currentTxId, node, queryNodesMap.keys().next().value);
+                    } else if (node instanceof DagNodeDFIn && !node.hasSource()) {
+                        // remove tables created from link in batch except for last
+                        try {
+                            let nodeAndGraph = node.getLinkedNodeAndGraph();
+                            if (nodeAndGraph.node && !nodeAndGraph.node.shouldLinkAfterExecution()) {
+                                queryNodesMap.forEach((_queryNode, tableName) => {
+                                    if (tableName !== destTable) {
+                                        DagUtil.deleteTable(tableName);
+                                    }
+                                });
+                            }
+                        } catch (e) {
+                            console.error(e);
+                        }
+                    }
+
+                    if (destTable) {
+                        node.setTable(destTable, true);
+                        DagTblManager.Instance.addTable(destTable);
+                        const tabId: string = this.getTabId();
+                        const tab: DagTab = DagServiceFactory.getDagListService().getDagTabById(tabId);
+                        if (tab != null) {
+                            tab.save(true); // save destTable to node
+                        }
+                    }
+                }
+
+                if ((node.getState() === DagNodeState.Complete ||
+                    node.getState() === DagNodeState.Error) &&
+                    node.getType() === DagNodeType.Map) {
+                    let nodeInfo = queryNodesMap.values().next().value;
+                    if (DagGraphExecutor.hasUDFError(nodeInfo)) {
+                        (<DagNodeMap>node).setUDFError(nodeInfo.opFailureInfo);
+                    }
+                }
+            }
+        }
+    }
+
+
+    // Looks at query's tag for list of dagNodeIds it belongs to. Then checks
+    // to see if the graph has that node id.
+    protected _getDagNodeIdFromQueryInfo(queryNodeInfo: XcalarApiDagNodeT): DagNodeId {
+        let nodeIdCandidates = [];
+        try {
+            nodeIdCandidates = JSON.parse(queryNodeInfo.comment).graph_node_locator || [];
+        } catch (e) {}
+        let nodeInfo: DagTagInfo;
+        for (let i = 0; i < nodeIdCandidates.length; i++) {
+            nodeInfo = nodeIdCandidates[i];
+            if (nodeInfo && this.hasNode(nodeInfo.nodeId)) {
+                return nodeInfo.nodeId;
+            }
+        }
+        return null;
     }
 
     protected _getDurable(includeStats?: boolean): DagGraphInfo {

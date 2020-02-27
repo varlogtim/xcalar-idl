@@ -159,8 +159,6 @@ abstract class DagTabProgress extends DagTab {
         }
     }
 
-
-
     protected _getAndUpdateStatuses(isLastTry?: boolean): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
 

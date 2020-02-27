@@ -254,52 +254,6 @@ class DagSubGraph extends DagGraph {
         }
     }
 
-    // /**
-    //  *
-    //  * @param queryNodes queryState info
-    // */
-    public updateSQLSubGraphProgress(queryNodes: XcalarApiDagNodeT[]) {
-        const nodeIdInfos: Map<DagNodeId, Map<string, XcalarApiDagNodeT>> = new Map();
-
-        queryNodes.forEach((queryNodeInfo: XcalarApiDagNodeT) => {
-            if (queryNodeInfo["operation"] === XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects] ||
-                queryNodeInfo.api === XcalarApisT.XcalarApiDeleteObjects) {
-                return;
-            }
-            let tableName: string = queryNodeInfo.name.name;
-            if (queryNodeInfo.api === XcalarApisT.XcalarApiBulkLoad &&
-                tableName.startsWith(".XcalarLRQ.") &&
-                tableName.indexOf(gDSPrefix) > -1) {
-                tableName = tableName.slice(tableName.indexOf(gDSPrefix));
-            }
-            let nodeId: DagNodeId = this._getDagNodeIdFromQueryInfo(queryNodeInfo);
-            if (!nodeId) {
-                return;
-            }
-            let nodeIdInfo: Map<string, XcalarApiDagNodeT> = nodeIdInfos.get(nodeId);
-            if (!nodeIdInfo) {
-                nodeIdInfo = new Map()
-                nodeIdInfos.set(nodeId, nodeIdInfo);
-            }
-            nodeIdInfo.set(tableName, queryNodeInfo);
-            queryNodeInfo["index"] = parseInt(queryNodeInfo.dagNodeId);
-        });
-
-        for (let [nodeId, queryNodesMap] of nodeIdInfos) {
-            let node: DagNode = this.getNode(nodeId);
-            if (node != null) {
-                node.updateProgress(queryNodesMap, true, true);
-                if ((node.getState() === DagNodeState.Complete ||
-                    node.getState() === DagNodeState.Error) &&
-                    node.getType() === DagNodeType.Map) {
-                    let nodeInfo = queryNodesMap.values().next().value;
-                    if (DagGraphExecutor.hasUDFError(nodeInfo)) {
-                        (<DagNodeMap>node).setUDFError(nodeInfo.opFailureInfo);
-                    }
-                }
-            }
-        }
-    }
 
     public getElapsedTime(): number {
         if (this.isComplete) {
@@ -395,22 +349,6 @@ class DagSubGraph extends DagGraph {
         return (nodeInfo.id == null);
     }
 
-    // Looks at query's tag for list of dagNodeIds it belongs to. Then checks
-    // to see if the graph has that node id.
-    private _getDagNodeIdFromQueryInfo(queryNodeInfo: XcalarApiDagNodeT): DagNodeId {
-        let nodeIdCandidates = [];
-        try {
-            nodeIdCandidates = JSON.parse(queryNodeInfo.comment).graph_node_locator || [];
-        } catch (e) {}
-        let nodeInfo: DagTagInfo;
-        for (let i = 0; i < nodeIdCandidates.length; i++) {
-            nodeInfo = nodeIdCandidates[i];
-            if (nodeInfo && this.hasNode(nodeInfo.nodeId)) {
-                return nodeInfo.nodeId;
-            }
-        }
-        return null;
-    }
 }
 
 if (typeof exports !== 'undefined') {

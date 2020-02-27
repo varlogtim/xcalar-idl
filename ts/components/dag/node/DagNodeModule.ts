@@ -163,6 +163,47 @@ class DagNodeModule extends DagNode {
         return tailNodes;
     }
 
+    public updateInnerNodeTables() {
+        const tab = this.getTab();
+        if (!tab) return;
+        const graph = tab.getGraph();
+        if (!graph) return;
+
+        const linkInNodes = <DagNodeDFIn[]>graph.getNodesByType(DagNodeType.DFIn);
+        linkInNodes.forEach((node) => {
+            let destTable: string;
+            if (node.hasSource()) {
+                destTable = node.getSource();
+            } else {
+                const res = node.getLinkedNodeAndGraph();
+                const linkOutNode: DagNodeDFOut = res.node;
+                destTable = linkOutNode.getTable();
+                if (!destTable && !linkOutNode.shouldLinkAfterExecution()) {
+                    // edge case where linkIn node uses a cached
+                    // table that's created by another linkIn node
+                    destTable = linkOutNode.getStoredQueryDest(tab.getId());
+                }
+            }
+            if (destTable) {
+                node.setTable(destTable, true);
+                node.beCompleteState();
+            }
+        });
+
+        const linkOutNodes = <DagNodeDFIn[]>graph.getNodesByType(DagNodeType.DFOut);
+        linkOutNodes.forEach((node) => {
+            let destTable;
+            if (node.getNumParent() === 1) {
+                destTable = node.getParents()[0].getTable();
+            }
+            if (destTable) {
+                node.setTable(destTable, true);
+                node.updateStepThroughProgress();
+                node.beCompleteState();
+            }
+        })
+    }
+
      /**
      * @override
      */
@@ -181,6 +222,20 @@ class DagNodeModule extends DagNode {
      */
     public updateStepThroughProgress(): Promise<void> {
         return super._updateProgressFromTable(null, null);
+    }
+
+
+       /**
+     * @override
+     */
+    protected _updateSubGraphProgress(queryNodes: XcalarApiDagNodeT[]): void {
+        const tab = this.getTab();
+        if (tab) {
+            const graph = tab.getGraph();
+            if (graph) {
+                graph.updateSQLSubGraphProgress(queryNodes);
+            }
+        }
     }
 
 

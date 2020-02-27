@@ -961,11 +961,15 @@ class DagGraphExecutor {
                     if (destTable) {
                         node.setTable(destTable, true);
                         DagTblManager.Instance.addTable(destTable);
+
                         const tabId: string = this._graph.getTabId();
                         const tab: DagTab = DagServiceFactory.getDagListService().getDagTabById(tabId);
                         if (tab != null) {
                             tab.save(true); // save destTable to node
                         }
+                    }
+                    if (node instanceof DagNodeModule) {
+                        node.updateInnerNodeTables();
                     }
                 }
 

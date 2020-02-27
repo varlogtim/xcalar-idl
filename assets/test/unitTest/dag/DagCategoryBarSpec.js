@@ -48,7 +48,7 @@ describe("DagCategoryBar Test", function() {
         expect($operatorBar.find(".category-in").find(".operator").length).to.equal(3);
         expect($operatorBar.find(".category-in").find(".operator").eq(0).find(".opTitle").text()).to.equal("Dataset");
         expect($operatorBar.find(".category-in").find(".operator").eq(1).find(".opTitle").text()).to.equal("SourceTable");
-        expect($operatorBar.find(".category-in").find(".operator").eq(2).find(".opTitle").text()).to.equal("Link In");
+        expect($operatorBar.find(".category-in").find(".operator").eq(2).find(".opTitle").text()).to.equal("FunctionInput");
 
         DagCategoryBar.Instance.updateCategories(new DagTabSQLFunc());
 
@@ -61,7 +61,7 @@ describe("DagCategoryBar Test", function() {
         expect($operatorBar.find(".category-in").find(".operator").length).to.equal(3);
         expect($operatorBar.find(".category-in").find(".operator").eq(0).find(".opTitle").text()).to.equal("Dataset");
         expect($operatorBar.find(".category-in").find(".operator").eq(1).find(".opTitle").text()).to.equal("SourceTable");
-        expect($operatorBar.find(".category-in").find(".operator").eq(2).find(".opTitle").text()).to.equal("Link In");
+        expect($operatorBar.find(".category-in").find(".operator").eq(2).find(".opTitle").text()).to.equal("FunctionInput");
 
     });
 
@@ -148,10 +148,10 @@ describe("DagCategoryBar Test", function() {
         it("selecting item", function() {
             expect($("#dagView").find(".categoryBar .category.active.category-in").length).to.equal(0);
 
-            $("#dagView .categoryBar .searchInput").val("Link Out").trigger(fakeEvent.input);
+            $("#dagView .categoryBar .searchInput").val("Function Out").trigger(fakeEvent.input);
             expect($("#dagView .searchArea ul").is(":visible")).to.be.true;
             let $lis = $("#dagView .searchArea li");
-            expect($lis.eq(0).text()).to.equal("Link Out");
+            expect($lis.eq(0).text()).to.equal("Function Output");
 
             expect($operatorBar.find(".operator.link.out .selection").length).to.equal(0);
 

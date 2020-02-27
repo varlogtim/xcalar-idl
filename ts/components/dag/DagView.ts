@@ -3091,49 +3091,35 @@ class DagView {
         tabId: string,
         stats: any,
         skewInfos?: any[],
-        times?: number[],
-        broadcast: boolean = true,
-        dagGraph?: DagGraph
+        times?: number[]
     ): void {
         const $dfArea: JQuery = DagViewManager.Instance.getAreaByTab(tabId);
         let pct: number = (stats.state === DgDagStateT.DgDagStateReady) ? 100 : stats.curStepPct;
         let step = (stats.curStep > 1) ? stats.curStep : null;// do not show step if on step 1
 
         const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
-        let graph: DagGraph;
-        if (dagGraph) {
-            graph = dagGraph;
-        }
         let node: DagNode;
-        if (graph || dagTab != null) {
-            if (!graph) {
-                graph = dagTab.getGraph();
-            }
+        const graph = dagTab.getGraph();
 
-            node = graph.getNode(nodeId);
-            // $dfArea.find('.nodeStats[data-id="' + nodeId + '"]').remove();
-            if (stats.started && node) {
-                const noPct = (node.getState() === DagNodeState.Complete ||
-                node.getState() === DagNodeState.Error);
-                DagViewManager.Instance.addProgressPct(nodeId, tabId, pct, step, times, stats.state, noPct);
-            }
+        node = graph.getNode(nodeId);
+        if (stats.started && node) {
+            const noPct = (node.getState() === DagNodeState.Complete ||
+            node.getState() === DagNodeState.Error);
+            DagViewManager.Instance.addProgressPct(nodeId, tabId, pct, step, times, stats.state, noPct);
         }
+
 
         if (skewInfos && stats.started) {
             $dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
-            if (!dagGraph && (dagTab == null || node == null)) {
+            if ((dagTab == null || node == null)) {
                 // sql graph may not have tab registered with dagTabManager
                 return;
-            }
-            if (!dagGraph) {
-                graph = dagTab.getGraph();
             }
 
             this._addProgressTooltip(graph, node, $dfArea, skewInfos, stats.state);
 
             if (stats.state === DgDagStateT.DgDagStateReady) {
                 const totalTime: number = times.reduce((a, b) => a + b, 0);
-                let graph: DagGraph = dagGraph || dagTab.getGraph();
                 let shouldUpdate: boolean = false;
                 if (node instanceof DagNodeCustom) {
                     // custom node need to update till all is done
@@ -3161,126 +3147,6 @@ class DagView {
                 }
             }
         }
-    }
-
-    // move this to DagViewSubGraph subclass
-    // used to update progress on ViewOnly dataflows - optimized / abandoned
-    public updateProgressDataflow(queryStateOutput: XcalarApiQueryStateOutputT) {
-        let completedNodeIds: Set<DagNodeId> = new Set();
-        this.graph.getAllNodes().forEach((node) => {
-            if (node.getState() === DagNodeState.Complete || node.getState() ===
-                DagNodeState.Error) {
-                completedNodeIds.add(node.getId());
-            }
-        });
-        (<DagSubGraph>this.graph).updateSubGraphProgress(queryStateOutput.queryGraph.node, !(this.dagTab instanceof DagTabOptimized));
-
-        this.graph.getAllNodes().forEach((node, nodeId) => {
-            if (completedNodeIds.has(nodeId)) {
-                return;
-            }
-
-            const overallStats = node.getOverallStats();
-            const nodeStats = node.getIndividualStats();
-
-            const times: number[] = [];
-            const skewInfos = [];
-            nodeStats.forEach((nodeStat) => {
-                if (nodeStat.type !== XcalarApisT.XcalarApiDeleteObjects) {
-                    const skewInfo = DagView._getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
-                    skewInfos.push(skewInfo);
-                }
-                if (nodeStat.elapsedTime != null) {
-                    times.push(nodeStat.elapsedTime);
-                }
-            });
-
-            this.updateNodeProgress(nodeId, this.tabId, overallStats, skewInfos, times, null, this.graph);
-            DagNodeInfoPanel.Instance.update(nodeId, "stats");
-        });
-    }
-
-    public updateDFProgress(queryStateOutput: XcalarApiQueryStateOutputT, nodeIds: DagNodeId[]) {
-        // should only update nodes that are currently in progress so we
-        // store a Set of completed nodes to check against it later
-        let completedNodeIds: Set<DagNodeId> = new Set();
-        nodeIds.filter((nodeId) => {
-            if (!this.graph.hasNode(nodeId)) {
-                return false;
-            }
-            let node = this.graph.getNode(nodeId);
-            if (node.getState() === DagNodeState.Complete || node.getState() ===
-                DagNodeState.Error) {
-                completedNodeIds.add(node.getId());
-            }
-        });
-        this.graph.updateProgress(queryStateOutput.queryGraph.node);
-        nodeIds.forEach((nodeId) => {
-            if (!this.graph.hasNode(nodeId)) {
-                return false;
-            }
-            if (completedNodeIds.has(nodeId)) {
-                return;
-            }
-            let node = this.graph.getNode(nodeId);
-            this._updateSubGraphProgress(node, queryStateOutput);
-
-            const overallStats = node.getOverallStats();
-            const nodeStats = node.getIndividualStats();
-            const times: number[] = [];
-            const skewInfos = [];
-            nodeStats.forEach((nodeStat) => {
-                if (nodeStat.type !== XcalarApisT.XcalarApiDeleteObjects) {
-                    const skewInfo = DagView._getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
-                    skewInfos.push(skewInfo);
-                }
-                if (nodeStat.elapsedTime != null) {
-                    times.push(nodeStat.elapsedTime);
-                }
-            });
-
-            this.updateNodeProgress(nodeId, this.tabId, overallStats, skewInfos, times);
-            DagNodeInfoPanel.Instance.update(nodeId, "stats");
-        });
-    }
-
-    private _updateSubGraphProgress(node: DagNode, queryStateOutput: XcalarApiQueryStateOutputT) {
-        if (node.getType() !== DagNodeType.SQL && node.getType() !== DagNodeType.Custom) {
-            return;
-        }
-
-        let subGraph = (<DagNodeSQL | DagNodeCustom>node).getSubGraph();
-        if (!subGraph) {
-            return;
-        }
-        const subTabId: string = subGraph.getTabId();
-        if (node.getType() === DagNodeType.SQL) {
-            subGraph.updateSQLSubGraphProgress(xcHelper.deepCopy(queryStateOutput.queryGraph.node));
-        } else {
-            subGraph.updateProgress(queryStateOutput.queryGraph.node);
-        }
-
-        subGraph.getAllNodes().forEach((node, nodeId) => {
-            this._updateSubGraphProgress(node, queryStateOutput);
-            const overallStats = node.getOverallStats();
-            const nodeStats = node.getIndividualStats();
-            const times: number[] = [];
-            const skewInfos = [];
-            nodeStats.forEach((nodeStat) => {
-                if (nodeStat.type !== XcalarApisT.XcalarApiDeleteObjects) {
-                    const skewInfo = DagView._getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
-                    skewInfos.push(skewInfo);
-                }
-                if (nodeStat.elapsedTime != null) {
-                    times.push(nodeStat.elapsedTime);
-                }
-            });
-            DagNodeInfoPanel.Instance.update(nodeId, "stats");
-            if (subTabId) {
-                this.updateNodeProgress(nodeId, subTabId, overallStats, skewInfos, times);
-            }
-        });
-
     }
 
     // for dataset activation
@@ -4069,6 +3935,26 @@ class DagView {
         this._registerGraphEvent(this.graph, DagNodeEvents.Hide, (info) => {
             const $node = this._getNode(info.nodeId);
             $node.remove();
+        });
+
+        this._registerGraphEvent(this.graph, DagNodeEvents.UpdateProgress, (info) => {
+            const times: number[] = [];
+            const skewInfos = [];
+            info.nodeStats.forEach((nodeStat) => {
+                if (nodeStat.type !== XcalarApisT.XcalarApiDeleteObjects) {
+                    const skewInfo = DagView._getSkewInfo("temp name",
+                                                            nodeStat.rows,
+                                                            nodeStat.skewValue,
+                                                            nodeStat.numRowsTotal,
+                                                            nodeStat.size);
+                    skewInfos.push(skewInfo);
+                }
+                if (nodeStat.elapsedTime != null) {
+                    times.push(nodeStat.elapsedTime);
+                }
+            });
+            this.updateNodeProgress(info.node.getId(), this.tabId, info.overallStats, skewInfos, times);
+            DagNodeInfoPanel.Instance.update(info.node.getId(), "stats");
         });
     }
 

@@ -811,10 +811,10 @@ abstract class DagNode extends Durable {
 
     /**
      *
-     * @param tableNameMap
+     * @param tableInfoMap: map<TableName, XcalarApiDagNodeT>
      * @param includesAllTables in the case of optimized dataflows and other subGraphs(SQL),
      * we know tableNameMap has the progress information for every node/table in the execution
-     * but for regular execution, the tableNameMap may only contain 1 of the operations
+     * but for regular execution, the tableInfoMap may only contain 1 of the operations
      * in a multi-operation node - includesAllTables would be false in this case so that we
      * don't set the node to completed if there are other operations that will occur for that node
      * @param trustIndex use the index provided
@@ -823,7 +823,12 @@ abstract class DagNode extends Durable {
         tableInfoMap: Map<string, XcalarApiDagNodeT>,
         includesAllTables?: boolean,
         trustIndex?: boolean
-    ): XDPromise<void> {
+    ): void {
+        let triggerEvent = true;
+        if (this.getState() === DagNodeState.Complete || this.getState() ===
+            DagNodeState.Error) {
+            triggerEvent = false;
+        }
         const errorStates: Set<DgDagStateT> = new Set([DgDagStateT.DgDagStateUnknown,
                              DgDagStateT.DgDagStateError,
                              DgDagStateT.DgDagStateArchiveError]);
@@ -844,7 +849,9 @@ abstract class DagNode extends Durable {
         }
 
         let tableCount: number = Object.keys(this.runStats.nodes).length;
+        const queryNodes: XcalarApiDagNodeT[] = [];
         tableInfoMap.forEach((queryNode, tableName) => {
+            queryNodes.push(queryNode);
             let tableRunStats: TableRunStats = this.runStats.nodes[tableName];
             if (!tableRunStats) {
                 let index: number;
@@ -932,7 +939,8 @@ abstract class DagNode extends Durable {
         });
 
         if (errorState != null) {
-            if (this.state !== DagNodeState.Error || this.error !== DgDagStateTStr[errorState]) {
+            if (this.state !== DagNodeState.Error ||
+                this.error !== DgDagStateTStr[errorState]) {
                 error = error || DgDagStateTStr[errorState];
                 this.beErrorState(error);
                 if (this instanceof DagNodeSQL) {
@@ -943,7 +951,8 @@ abstract class DagNode extends Durable {
                     });
                 }
             }
-        } else if (isComplete && includesAllTables && this.state !== DagNodeState.Complete) {
+        } else if (isComplete && includesAllTables &&
+                    this.state !== DagNodeState.Complete) {
             this.beCompleteState();
             if (this instanceof DagNodeSQL) {
                 this.setSQLQuery({
@@ -954,10 +963,24 @@ abstract class DagNode extends Durable {
             } else if (this instanceof DagNodePublishIMD) {
                 if (!(typeof PTblManager === "undefined")) {
                     let tableName = this.getParam(true).pubTableName;
-                    return PTblManager.Instance.addTable(tableName);
+                    PTblManager.Instance.addTable(tableName);
                 }
             }
         }
+
+        this._updateSubGraphProgress(queryNodes);
+
+        if (triggerEvent) {
+            this.events.trigger(DagNodeEvents.UpdateProgress, {
+                node: this,
+                overallStats: this.getOverallStats(),
+                nodeStats: this.getIndividualStats()
+            });
+        }
+    }
+
+    protected _updateSubGraphProgress(_queryNodes: XcalarApiDagNodeT[]) {
+        // to be overwritten by custom/sql node
     }
 
     public getOverallStats(formatted?: boolean): {

@@ -73,6 +73,7 @@ describe("SQL Dag Node Test", () => {
                 "description": "",
                 "title": "",
                 "input": {
+                    "snippetId": "",
                     "sqlQueryStr": "",
                     "identifiers": {},
                     "identifiersOrder": [],

@@ -1654,7 +1654,7 @@ describe("DagNodeExecutor Test", () => {
         });
     });
 
-    it("should work for _dfIn _linkWithBatch cachedTable", (done) => {
+    it.skip("should work for _dfIn _linkWithBatch cachedTable", (done) => {
         let nodeInfo =
             {
                 "version": 1,

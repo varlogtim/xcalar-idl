@@ -185,6 +185,8 @@ class DagNodeFactory {
                 return DagNodeSQLFuncOut;
             case DagNodeType.Deskew:
                 return DagNodeDeskew;
+            case DagNodeType.Module:
+                return DagNodeModule;
             default:
                 throw new Error("node type " + options.type + " not supported");
         }

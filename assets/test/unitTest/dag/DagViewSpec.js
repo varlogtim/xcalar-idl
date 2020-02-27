@@ -497,7 +497,7 @@ describe("DagView Test", () => {
             expect($node.find(".opProgress").length).to.equal(0);
         });
 
-        describe("updateSubGraphProgress", function() {
+        describe.skip("updateSubGraphProgress", function() {
             it("function should work", function() {
                 let dagView = DagViewManager.Instance.getActiveDagView();
                 const newNodeInfo = {
@@ -537,7 +537,8 @@ describe("DagView Test", () => {
         });
 
         after(() => {
-            DagViewManager.Instance.removeNodes([nodeId, nodeId2], tabId);
+            // DagViewManager.Instance.removeNodes([nodeId, nodeId2], tabId);
+            DagViewManager.Instance.removeNodes([nodeId], tabId);
         });
     });
 

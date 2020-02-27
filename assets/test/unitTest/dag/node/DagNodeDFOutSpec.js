@@ -65,7 +65,7 @@ describe("DagNodeDFOut Test", function() {
     });
 
     it("getDisplayNodeType should work", function() {
-        expect(node.getDisplayNodeType()).to.equal("Link Out");
+        expect(node.getDisplayNodeType()).to.equal("Function Output");
         expect(optimizedNode.getDisplayNodeType()).to.equal("Link Out Optimized");
     });
 
