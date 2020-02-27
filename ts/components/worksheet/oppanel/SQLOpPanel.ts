@@ -42,6 +42,7 @@ class SQLOpPanel extends BaseOpPanel {
     public show(dagNode: DagNodeSQL, options?): void {
         this._dagNode = dagNode;
         this._dataModel = new SQLOpPanelModel(dagNode);
+        this.$panel.find(".nextForm").addClass('xc-hidden');
         let error: string;
         try {
             this._updateUI();
@@ -50,8 +51,6 @@ class SQLOpPanel extends BaseOpPanel {
             // gets setup
             error = e;
         }
-
-        this.$panel.find(".nextForm").addClass('xc-hidden');
 
         super.showPanel(null, options)
         .then(() => {
