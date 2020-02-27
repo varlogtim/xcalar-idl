@@ -627,6 +627,12 @@
     float: left;
     .no-selection;
 
+    &.grey {
+        .text, .iconWrapper {
+            background-color: @color-bg-input;
+        }
+    }
+
     .text {
         border: 1px solid @color-border-menugray;
         border-right: none;

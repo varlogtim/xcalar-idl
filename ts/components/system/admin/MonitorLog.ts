@@ -272,6 +272,17 @@ class SystemLog {
             xcTooltip.changeText($btn, oldTitle, false, true);
             return false;
         });
+
+        const $logNameDropdown = this._getInputSection().find(".logName").find(".dropDownList");
+        new MenuHelper($logNameDropdown, {
+            onSelect: ($li) => {
+                $logNameDropdown.find(".text")
+                .text($li.text())
+                .data("option", $li.data("option"));
+            },
+            container: `#${this._id}`,
+            bounds: `#${this._id}`
+        }).setupListeners();
     }
 
     private _getHost(): XDPromise<void> {
@@ -295,10 +306,27 @@ class SystemLog {
         return deferred.promise();
     }
 
+    private _getLogNameFromOption(option: string): string {
+        switch (option) {
+            case "node":
+                return "node.*.log";
+            case "xpu":
+                return "xpu.log";
+            case "xcmonitor":
+                return "xcmonitor.log";
+            case "expserver":
+                return "expserver.out";
+            case "caddy":
+                return "caddy.out";
+            default:
+                return null;
+        }
+    }
+
     private _validateFileName(): string | null {
         let $inputSection = this._getInputSection();
-        let $fileName = $inputSection.find(".logName .xc-input");
-        let fileName: string = $inputSection.find(".logName .xc-input").val().trim();
+        let $fileName = $inputSection.find(".logName .dropDownList .text");
+        let fileName: string = this._getLogNameFromOption($fileName.data("option"));
         let isValid: boolean = xcHelper.validate([
             {
                 "$ele": $fileName // check if it"s empty

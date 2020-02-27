@@ -9,7 +9,22 @@
         <div class="logName column">
           <label class="text"><%= dicts.admin.logName %></label>
           <div class="inputWrap">
-            <input class="xc-input" type="text" spellcheck="false" placeholder="node.*.log" value="node.*.log">
+            <div class="dropDownList grey">
+              <div class="text"></div>
+              <div class="iconWrapper">
+                <i class="icon xi-arrow-down"></i>
+              </div>
+              <div class="list">
+                <ul>
+                  <li data-option="node">Xcalar cluster node log</li>
+                  <li data-option="xpu">Xcalar process unit(XPU) log</li>
+                  <li data-option="xcmonitor">Xcalar monitor log</li>
+                  <li data-option="expserver">Server log</li>
+                  <li data-option="caddy">HTTP request log</li>
+                </ul>
+                include "../../util/menuScrollArea.html"
+              </div>
+            </div>
           </div>
         </div>
         <div class="numLogs column">
@@ -24,7 +39,7 @@
         <div class="hostnamePattern column">
           <label class="text"><%= dicts.admin.hostnamePattern %></label>
           <div class="inputWrap">
-            <input class="xc-input" spellcheck="false" placeholder="Host Name Regex" data-toggle="tooltip" data-container="body" data-original-title="Enter a regex to find the correct hostname">
+            <input class="xc-input" spellcheck="false" placeholder="(Optional) Host Name Regex" data-toggle="tooltip" data-container="body" data-original-title="Enter a regex to find the correct hostname">
           </div>
         </div>
         <div class="buttons column">
@@ -53,11 +68,11 @@
       <section class="logSection">
         <section class="barSection xc-hidden">
           <div class="downloadLog">
-            <i class="icon xi-download fa-16" title="" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.admin.downloadLog %>">
+            <i class="icon xi-download xc-icon-action fa-16" title="" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.admin.downloadLog %>">
             </i>
           </div>
           <div class="copyLog">
-            <i class="icon xi-copy-clipboard fa-16" title="" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.admin.copyLog %>">
+            <i class="icon xi-copy-clipboard xc-icon-action fa-16" title="" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.admin.copyLog %>">
             </i>
           </div>
         </section>
