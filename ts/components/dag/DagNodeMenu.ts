@@ -366,11 +366,11 @@ namespace DagNodeMenu {
                 case ("unlockTable"):
                     DagViewManager.Instance.getActiveDag().getNode(nodeId).unpinTable();
                     break;
-                case ("restoreDataset"):
-                    _restoreDatasetFromNode(<DagNodeDataset>DagViewManager.Instance.getActiveDag().getNode(dagNodeIds[0]));
+                case ("restoreSource"):
+                    _restoreSourceFromNode(DagViewManager.Instance.getActiveDag().getNode(dagNodeIds[0]));
                     break;
-                case ("restoreAllDataset"):
-                    restoreAllDatasets();
+                case ("restoreAllSource"):
+                    restoreAllSource();
                     break;
                 default:
                     break;
@@ -857,9 +857,20 @@ namespace DagNodeMenu {
             const node: DagNodeDataset = <DagNodeDataset>dagNode;
             const dsName: string = node.getDSName();
             if (dsName != null && DS.getDSObj(dsName) == null) {
-                $menu.find(".restoreDataset").removeClass("xc-hidden");
+                $menu.find(".restoreSource").removeClass("xc-hidden");
             } else {
-                $menu.find(".restoreDataset").addClass("xc-hidden");
+                $menu.find(".restoreSource").addClass("xc-hidden");
+            }
+        }
+        // table option
+        if (dagNode != null && dagNodeType === DagNodeType.IMDTable) {
+            classes += " imdTableMenu";
+            const node: DagNodeIMDTable = <DagNodeIMDTable>dagNode;
+            const tableName: string = node.getSource();
+            if (!PTblManager.Instance.hasTable(tableName)) {
+                $menu.find(".restoreSource").removeClass("xc-hidden");
+            } else {
+                $menu.find(".restoreSource").addClass("xc-hidden");
             }
         }
 
@@ -1041,6 +1052,14 @@ namespace DagNodeMenu {
         }
     }
 
+    function _restoreSourceFromNode(node: DagNode): void {
+        if (node instanceof DagNodeDataset) {
+            _restoreDatasetFromNode(node);
+        } else if (node instanceof DagNodeIMDTable) {
+            _restoreTableFromNode(node);
+        }
+    }
+
     function _restoreDatasetFromNode(node: DagNodeDataset): void {
         try {
             const lodArgs = node.getLoadArgs();
@@ -1060,24 +1079,41 @@ namespace DagNodeMenu {
         }
     }
 
-    export function restoreAllDatasets(ignoreWarnings?: boolean): XDPromise<void> {
+    async function _restoreTableFromNode(node: DagNodeIMDTable): Promise<void> {
+        try {
+            await PTblManager.Instance.restoreTableFromNode(node);
+            node.beConfiguredState();
+        } catch (e) {
+            console.error(e);
+            let $node = DagViewManager.Instance.getNode(node.getId());
+            StatusBox.show(e.message, $node);
+        }
+    }
+
+    function restoreAllSource(ignoreWarnings?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         try {
             let tab: DagTab = DagViewManager.Instance.getActiveTab();
             let graph: DagGraph = tab.getGraph();
-            let dagNodes: DagNodeDataset[] = [];
+            const dsNodes: DagNodeDataset[] = [];
+            const tableNodes: DagNodeIMDTable[] = [];
             graph.getAllNodes().forEach((dagNode: DagNode) => {
                 if (dagNode instanceof DagNodeDataset) {
                     let dsName = dagNode.getDSName();
                     if (DS.getDSObj(dsName) == null) {
-                        dagNodes.push(dagNode);
+                        dsNodes.push(dagNode);
                     }
+                } else if (dagNode instanceof DagNodeIMDTable) {
+                    tableNodes.push(dagNode);
                 }
             });
-            if (dagNodes.length) {
-                DS.restoreSourceFromDagNode(dagNodes, false)
-                .then(deferred.resolve)
-                .fail(deferred.reject);
+            const promises: XDPromise<any>[] = tableNodes.map((node) => {
+                const promise = PTblManager.Instance.restoreTableFromNode(node);
+                return PromiseHelper.convertToJQuery(promise);
+            });
+            promises.push(DS.restoreSourceFromDagNode(dsNodes, false));
+            if (promises.length) {
+                return PromiseHelper.when(...promises);
             } else {
                 if (!ignoreWarnings) {
                     Alert.show({

@@ -1578,7 +1578,7 @@
         .unlockNodeTable, .lockNodeTable, .createCustom, .selectAllNodes, .viewUDFErrors, .viewSkew {
             display: list-item;
         }
-        .findLinkOut, .restoreDataset {
+        .findLinkOut, .restoreSource {
             display: none;
         }
         &.multiple {
@@ -1671,12 +1671,12 @@
         .removeAllNodes, .executeAllNodes, .createNodeOptimized,
         .resetAllNodes, .selectAllNodes, .pasteNodes,
         .autoAlign, .newComment, .download, .duplicateDf,
-        .restoreAllDataset {
+        .restoreAllSource {
             display: list-item;
         }
 
         &.nonEditableSubgraph {
-            .removeAllNodes, .newComment, .executeAllNodes, .pasteNodes, .restoreAllDataset {
+            .removeAllNodes, .newComment, .executeAllNodes, .pasteNodes, .restoreAllSource {
                 display: none;
             }
         }
@@ -1705,7 +1705,7 @@
         }
         &.nonEditableSubgraph {
             &.customTab, &.published {
-                .restoreAllDataset {
+                .restoreAllSource {
                     display: list-item;
                 }
             }
@@ -1744,8 +1744,8 @@
             display: list-item;
         }
     }
-    &.datasetMenu {
-        .restoreDataset {
+    &.datasetMenu, &.imdTableMenu {
+        .restoreSource {
             display: list-item;
             .icon {
                 color: darken(@color-operator-in, 10%);

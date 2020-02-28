@@ -883,8 +883,8 @@ module.exports = {
         "uploadInstr": "Upload a previously downloaded module. Your file should be of the format .xlrdf.tar.gz",
         "overwriteUdf": "Overwrite Scalar Function",
         "overwriteUdfHint": "Overwrite scalar function of the same module name with those inside this application builder module",
-        "restoreDS": "Restore datasets",
-        "restoreDSHint": "Restore datasets that are used in the module but are not in the cluster",
+        "restoreDS": "Restore sources",
+        "restoreDSHint": "Restore sources that are used in the module but are not in the cluster",
     },
 
     "sched": {
@@ -1373,8 +1373,8 @@ module.exports = {
         "zoom": "Zoom",
         "reset": "Reset",
         "resetAll": "Reset All",
-        "restoreDataset": "Restore Dataset",
-        "restoreAllDataset": "Restore All Datasets",
+        "restoreSource": "Restore Source",
+        "restoreAllSource": "Restore All Sources",
         "generateResult": "Generate Table",
         "viewResult": "View Table",
         "viewUDFErrors": "View customed function errors",

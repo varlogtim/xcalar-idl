@@ -397,6 +397,41 @@ class PTblManager {
     }
 
     /**
+     * PTblManager.Instance.restoreTableFromNode
+     * @param node
+     */
+    public async restoreTableFromNode(node: DagNodeIMDTable): Promise<void> {
+        let txId: number;
+        try {
+            const pbTableName: string = node.getSource();
+            if (this.hasTable(pbTableName)) {
+                return;
+            }
+            txId = Transaction.start({
+                "msg": "Restore: " + pbTableName,
+                "operation": SQLOps.RestoreTable,
+                "track": true,
+                "steps": 2
+            });
+            const {queryStr, destTables} = await node.getSubGraph().getQuery(null, true);
+            const destTable: string = destTables[destTables.length - 1];
+            await XIApi.query(txId, destTable, queryStr);
+            await XcalarPublishTable(destTable, pbTableName, txId);
+            await this.addTable(pbTableName);
+            node.beConfiguredState();
+            Transaction.done(txId);
+        } catch (e) {
+            console.error(e);
+            if (txId) {
+                Transaction.fail(txId, {
+                    error: e.message,
+                    failMsg: "Restore table failed"
+                });
+            }
+        }
+    }
+
+    /**
      * PTblManager.Instance.addDatasetTable
      * @param dsName
      */

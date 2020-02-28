@@ -167,7 +167,7 @@ class DagNodeInfoPanel {
         });
 
         this._$panel.on("click", ".restore .action", () => {
-            this._restoreDataset();
+            this._restoreSource();
         });
 
         this._$panel.on("click", ".skewStatsRow", function() {
@@ -234,7 +234,9 @@ class DagNodeInfoPanel {
         this._$panel.find(".statusSection").html(html);
         const error: string = this._activeNode.getError();
         if (this._activeNode.getState() === DagNodeState.Error && error) {
-            if (this._activeNode instanceof DagNodeDataset) {
+            if (this._activeNode instanceof DagNodeDataset ||
+                this._activeNode instanceof DagNodeIMDTable
+            ) {
                 this._renderRestoreButton();
             }
             this._$panel.find(".errorSection").text(error);
@@ -447,25 +449,40 @@ class DagNodeInfoPanel {
         }
     }
 
+    private _shouldRestore(node: DagNode): boolean {
+        try {
+            if (node instanceof DagNodeDataset) {
+                const dsName: string = node.getDSName();
+                if (DS.getDSObj(dsName) == null) {
+                    return true;
+                }
+            }
+            if (node instanceof DagNodeIMDTable) {
+                const tableName: string = node.getSource();
+                if (!PTblManager.Instance.hasTable(tableName)) {
+                    return true;
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
+
+        return false;
+    }
 
     private _renderRestoreButton(): void {
-        if (!(this._activeNode instanceof DagNodeDataset)) {
-            return;
-        }
-        const node: DagNodeDataset = <DagNodeDataset>this._activeNode;
-        const dsName: string = node.getDSName();
-        if (DS.getDSObj(dsName) != null) {
+        if (!this._shouldRestore(this._activeNode)) {
             return;
         }
         const html: HTML = '<div class="row restore">' +
                                 '<div>' +
                                     '<span class="action xc-action">' + DSTStr.Restore + '</span>' +
-                                    '<i class="icon xi-restore action xc-action"></i>' +
+                                    '<i class="icon xi-restore action xc-action fa-14"></i>' +
                                     '<i class="hint qMark icon xi-unknown"' +
                                     ' data-toggle="tooltip"' +
                                     ' data-container="body"' +
                                     ' data-placement="top"' +
-                                    ' data-title="' + TooltipTStr.RestoreDS + '"' +
+                                    ' data-title="' + TooltipTStr.RestoreSource + '"' +
                                     '>' +
                                 '</div>' +
                             '</div>';
@@ -474,9 +491,20 @@ class DagNodeInfoPanel {
         $section.prepend(html);
     }
 
-    private _restoreDataset(): void {
-        const node: DagNodeDataset = <DagNodeDataset>this._activeNode;
+    private _restoreSource(): void {
+        if (this._activeNode instanceof DagNodeDataset) {
+            this._restoreDataset(this._activeNode);
+        } else if (this._activeNode instanceof DagNodeIMDTable) {
+            this._restoreTable(this._activeNode);
+        }
+    }
+
+    private _restoreDataset(node: DagNodeDataset): void {
         DS.restoreSourceFromDagNode([node], false);
+    }
+
+    private _restoreTable(node: DagNodeIMDTable): void {
+        PTblManager.Instance.restoreTableFromNode(node);
     }
 
     private _viewUDFs() {

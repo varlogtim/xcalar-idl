@@ -243,13 +243,21 @@ class DFUploadModal {
         tab.load()
         .then(() => {
             const graph: DagGraph = tab.getGraph();
-            const dagNodes: DagNodeDataset[] = [];
+            const dsNodes: DagNodeDataset[] = [];
+            const tableNodes: DagNodeIMDTable[] = [];
             graph.getAllNodes().forEach((dagNode: DagNode) => {
                 if (dagNode instanceof DagNodeDataset) {
-                    dagNodes.push(dagNode);
+                    dsNodes.push(dagNode);
+                } else if (dagNode instanceof DagNodeIMDTable) {
+                    tableNodes.push(dagNode);
                 }
             });
-            return DS.restoreSourceFromDagNode(dagNodes, shared);
+            const promises: XDPromise<any>[] = tableNodes.map((node) => {
+                const promise = PTblManager.Instance.restoreTableFromNode(node);
+                return PromiseHelper.convertToJQuery(promise);
+            });
+            promises.push(DS.restoreSourceFromDagNode(dsNodes, shared));
+            return PromiseHelper.when(...promises);
         })
         .then(() => {
             deferred.resolve();

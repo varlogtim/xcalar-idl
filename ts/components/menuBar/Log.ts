@@ -805,6 +805,7 @@ namespace Log {
                 return UndoType.Invalid;
             case SQLOps.DSImport:
             case SQLOps.TableFromDS:
+            case SQLOps.RestoreTable:
             case SQLOps.DestroyDS:
             case SQLOps.DeleteTable:
             case SQLOps.DeleteAgg:

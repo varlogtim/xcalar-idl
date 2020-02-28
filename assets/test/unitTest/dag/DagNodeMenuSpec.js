@@ -54,7 +54,7 @@ describe("DagNodeMenu Test", function() {
                 "pasteNodes",
                 "selectAllNodes unavailable",
                 "newComment",
-                "restoreAllDataset",
+                "restoreAllSource",
                 "autoAlign unavailable",
                 "download",
                 "duplicateDf",
@@ -1082,7 +1082,7 @@ describe("DagNodeMenu Test", function() {
             };
             DagView.selectNode($dfArea.find(".operator"));
             $dfArea.find(".operator .main").contextmenu();
-            $menu.find(".restoreDataset").trigger(fakeEvent.mouseup);
+            $menu.find(".restoreSource").trigger(fakeEvent.mouseup);
             expect(called).to.be.true;
             DS.restoreSourceFromDagNode = cachedFn;
         });
@@ -1097,7 +1097,7 @@ describe("DagNodeMenu Test", function() {
             };
             DagView.selectNode($dfArea.find(".operator"));
             $dfArea.find(".operator .main").contextmenu();
-            $menu.find(".restoreDataset").trigger(fakeEvent.mouseup);
+            $menu.find(".restoreSource").trigger(fakeEvent.mouseup);
             UnitTest.hasStatusBoxWithError(ErrTStr.RestoreDSNoLoadArgs);
             expect(called).to.be.false;
             DS.restoreSourceFromDagNode = cachedFn;
@@ -1115,13 +1115,13 @@ describe("DagNodeMenu Test", function() {
             };
             DagView.selectNode($dfArea.find(".operator"));
             $dfArea.find(".operator .main").contextmenu();
-            $menu.find(".restoreDataset").trigger(fakeEvent.mouseup);
+            $menu.find(".restoreSource").trigger(fakeEvent.mouseup);
             UnitTest.hasStatusBoxWithError("");
             expect(called).to.be.false;
             DS.restoreSourceFromDagNode = cachedFn;
         });
 
-        it("restoreAllDataset", function() {
+        it("restoreAllSource", function() {
             var called = false;
             var cachedFn = DS.restoreSourceFromDagNode;
             node.getLoadArgs = () => "something";
@@ -1134,12 +1134,12 @@ describe("DagNodeMenu Test", function() {
             };
             DagView.selectNode($dfArea.find(".operator"));
             $dfArea.find(".operator .main").contextmenu();
-            $menu.find(".restoreAllDataset").trigger(fakeEvent.mouseup);
+            $menu.find(".restoreAllSource").trigger(fakeEvent.mouseup);
             expect(called).to.be.true;
             DS.restoreSourceFromDagNode = cachedFn;
         });
 
-        it("restoreAllDataset fail", function() {
+        it("restoreAllSource fail", function() {
             var called = false;
             var cachedFn = DS.restoreSourceFromDagNode;
             node.getLoadArgs = () => "something";
@@ -1152,7 +1152,7 @@ describe("DagNodeMenu Test", function() {
             };
             DagView.selectNode($dfArea.find(".operator"));
             $dfArea.find(".operator .main").contextmenu();
-            $menu.find(".restoreAllDataset").trigger(fakeEvent.mouseup);
+            $menu.find(".restoreAllSource").trigger(fakeEvent.mouseup);
             expect(called).to.be.false;
             UnitTest.hasAlertWithTitle(AlertTStr.Title);
             DS.restoreSourceFromDagNode = cachedFn;
