@@ -235,7 +235,7 @@ class MemoryAlert {
             text = CommonTxtTstr.XcalarMemUsage + ": " + percent;
         }
 
-        let iconPct = Math.round(Math.max(10,100 - (avgMemUsage * 100))) + "%";
+        let iconPct = Math.round(Math.max(15, 100 - (avgMemUsage * 100))) + "%";
         $memoryAlert.find(".memoryBoxFill").css("height", iconPct);
 
         xcTooltip.changeText($memoryAlert, text);

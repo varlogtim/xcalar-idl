@@ -1019,7 +1019,7 @@ class MapOpPanel extends GeneralOpPanel {
                         '<i class="icon fa-11 xi-close xc-action"></i>' +
                     '</div>' +
                 '</div>' +
-                '<div class="catFuncHeadings clearfix subHeading">' +
+                '<div class="catFuncHeadings clearfix subSubHeading">' +
                     '<div>Category</div>' +
                     '<div>Function</div>' +
                 '</div>' +

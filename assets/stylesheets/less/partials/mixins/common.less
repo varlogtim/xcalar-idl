@@ -1422,6 +1422,7 @@
                 font-size: 11px;
                 float: left;
                 line-height: @h;
+                display: flex; // needed when loading text is added
             }
         }
 
@@ -1644,7 +1645,7 @@
                 background-color: @color-dagTab-sql;
             }
             &.sql.active {
-                background-color: tint(@color-dagTab-sql, 55%);
+                background-color: tint(@color-dagTab-sql, 10%);
             }
 
             &.custom {
@@ -1652,7 +1653,7 @@
             }
 
             &.custom.active {
-                background-color: tint(@color-dagTab-custom, 58%);
+                background-color: tint(@color-dagTab-custom, 10%);
             }
 
             .dragArea {
@@ -1711,7 +1712,7 @@
                 background-color: transparent;
 
                 &:hover {
-                    background-color: @color-border-darkGray;
+                    background-color: @color-icon-default-hover;
 
                     .icon {
                         color: @color-font-defaultInverse;

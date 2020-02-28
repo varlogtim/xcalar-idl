@@ -118,7 +118,13 @@ class CreateAppModal {
 
         $modal.on("click", ".confirm", () => {
             this._submit();
-        })
+        });
+
+        $modal.on("click", ".fn", (event) => {
+            const tabId = $(event.target).closest(".fn").data("tabid");
+            const dagTab = DagList.Instance.getDagTabById(tabId);
+            DagTabManager.Instance.loadTab(dagTab);
+        });
     }
 
     private _renderGraphList(disjointGraphs) {
@@ -141,8 +147,12 @@ class CreateAppModal {
 
             // list all modules that are part of the disjointGraph
             moduleNodes.forEach((moduleNode) => {
+                const tabId = moduleNode.getTabId();
                 const fnName = moduleNode.getFnName();
-                html += `<li><div class="name">${fnName}<div></li>`;
+                html += `<li class="fn" data-tabid="${tabId}">
+                            <i class="icon xi-show"></i>
+                            <div class="name">${fnName}<div>
+                        </li>`;
             });
             html += `</ul></div></div>`;
             index++;

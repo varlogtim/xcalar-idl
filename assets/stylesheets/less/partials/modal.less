@@ -6691,7 +6691,7 @@ html.microsoft {
 #createAppModal {
     font-size: 12px;
     min-height: 300px;
-    min-width: 400px;
+    min-width: 380px;
 
     &.load {
         .loadingSection {
@@ -6738,6 +6738,7 @@ html.microsoft {
         height: 16px;
         width: auto;
         margin-top: 3px;
+        padding-left: 1px;
         padding-right: 8px;
 
         .icon {
@@ -6770,12 +6771,23 @@ html.microsoft {
             border-bottom: none;
             height: 24px;
             font-size: 11px;
-            padding: 0px 8px 0px 16px;
+            padding: 0px 8px 0px 0px;
             line-height: 20px;
+            cursor: pointer;
 
-           &:hover {
-               opacity: 1;
-           }
+            &:hover {
+                opacity: 1;
+                .icon {
+                   visibility: visible;
+                }
+            }
+
+            .icon {
+                visibility: hidden;
+                font-size: 12px;
+                line-height: 15px;
+                margin-right: 4px;
+            }
        }
     }
 
