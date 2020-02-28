@@ -735,7 +735,7 @@ namespace DSConfig {
         if (!XVM.isDataMart()) {
             return;
         }
-        const whiteList: string[] = [formatMap.CSV, formatMap.JSON, formatMap.PARQUET, formatMap.EXCEL.toUpperCase()];
+        const whiteList: string[] = [formatMap.CSV, formatMap.JSON, formatMap.PARQUET, formatMap.EXCEL.toUpperCase(), formatMap.UDF];
         $("#fileFormatMenu li").each((_index, el) => {
             const $li = $(el);
             const name: string = $li.attr("name");
@@ -743,6 +743,8 @@ namespace DSConfig {
                 $li.addClass("xc-hidden");
             }
         });
+
+        $("#dsForm-writeUDF").addClass("xc-hidden");
     }
 
     function updateSchema(): void {
@@ -4086,6 +4088,11 @@ namespace DSConfig {
         let resultSetId: string;
         let rowPosition: number = startRow - 1;
 
+        // XXX TODO: this only work when there is no session to it doesn't mess up things
+        // here we don't the regular way to set to a different session and rest back immediately
+        // because XcalarFetchData has several api calls inside
+        _setSession();
+
         XcalarMakeResultSetFromDataset(datasetName)
         .then((result) => {
             resultSetId = result.resultSetId;
@@ -4106,7 +4113,10 @@ namespace DSConfig {
             return parseResult(res);
         })
         .then(deferred.resolve)
-        .fail(deferred.reject);
+        .fail(deferred.reject)
+        .always(() => {
+            _resetSession();
+        });
 
         return deferred.promise();
 
@@ -4161,9 +4171,12 @@ namespace DSConfig {
         var tempDSName = getPreviewTableName(dsName);
         tableName = tempDSName;
 
+        _setSession();
+        const promise = XcalarDatasetLoad(tempDSName, options, txId);
+        _resetSession();
         // don't call XIApi.loadDataset because XcalarDatasetCreate
         // will move the UDF into shared space, which should not happen for temp preview
-        XcalarDatasetLoad(tempDSName, options, txId)
+        promise
         .then(() => {
             return getDataFromLoadUDF(tempDSName, 1, rowsToFetch);
         })
@@ -6890,6 +6903,14 @@ namespace DSConfig {
         return {};
     }
     // End === PreviewLoader component factory
+
+    function _setSession(): void {
+        WorkbookManager.switchToXDInternalSession();
+    }
+
+    function _resetSession(): void {
+        WorkbookManager.resetXDInternalSession();
+    }
 
     /* Unit Test Only */
     export let __testOnly__: any = {};

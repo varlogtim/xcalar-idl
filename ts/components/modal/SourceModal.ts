@@ -10,7 +10,8 @@ class SourceModal {
         this._addEventListeners();
         this._modalHelper = new ModalHelper(this._getModal(), {
             center: {verticalQuartile: true},
-            noResize: true
+            noResize: true,
+            noEnter: true
         });
         this._swtichTab("connector");
     }

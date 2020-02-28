@@ -230,6 +230,8 @@ class PTblManager {
         let currentMsg: string = TblTStr.Importing;
         this._refreshTblView(tableInfo, currentMsg, currentStep, totalStep);
         tableInfo.txId = txId;
+
+        WorkbookManager.switchToXDInternalSession();
         this._createDataset(txId, dsName, sourceArgs)
         .then(() => {
             hasDataset = true;
@@ -278,6 +280,7 @@ class PTblManager {
         })
         .always(() => {
             delete tableInfo.txId;
+            WorkbookManager.resetXDInternalSession();
         });
 
         return deferred.promise();

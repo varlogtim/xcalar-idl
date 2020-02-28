@@ -7,7 +7,10 @@ namespace WorkbookManager {
     let progressTimeout: any;
     const descriptionKey: string = "workBookDesc-1";
     const sysWkbkNamePattern: string = ".system_workbook_";
+    const xdInternalWkbkName: string = sysWkbkNamePattern + "xd";
     let _isSetup = false;
+    let _currentSession: string; 
+
     /**
     * WorkbookManager.setup
     * initial setup
@@ -355,6 +358,28 @@ namespace WorkbookManager {
         }, 1000);
 
         return deferred.promise();
+    }
+
+    /**
+     * WorkbookManager.switchToXDInternalSession
+     */
+    export function switchToXDInternalSession(): void {
+        // only set when no current session
+        if (!sessionName) {
+            _currentSession = sessionName;
+            setSessionName(xdInternalWkbkName);
+        }
+    }
+
+    /**
+     * WorkbookManager.resetXDInternalSession
+     */
+    export function resetXDInternalSession(): void {
+        // only reset when current session it not null
+        if (!_currentSession) {
+            setSessionName(_currentSession);
+            _currentSession = undefined;
+        }
     }
 
     function isActiveWorkbook(workbookName: string): XDPromise<boolean> {
@@ -980,7 +1005,9 @@ namespace WorkbookManager {
     function syncSessionInfo(info: {oldWorkbooks: object, sessionInfo: any, refreshing: boolean}): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const {oldWorkbooks, sessionInfo, refreshing} = info;
-        syncWorkbookMeta(oldWorkbooks, sessionInfo, refreshing)
+        const promise = PromiseHelper.convertToJQuery(syncWorkbookMeta(oldWorkbooks, sessionInfo, refreshing));
+
+        promise
         .then(function() {
             const activeWorkbooks: string[] = getActiveWorkbooks(sessionInfo);
             const activeId: string = getActiveWorkbookId(activeWorkbooks);
@@ -1017,7 +1044,7 @@ namespace WorkbookManager {
         return (sessionInfo.toLowerCase() === "has resources");
     }
 
-    function syncWorkbookMeta(oldWorkbooks: object, sessionInfo: any, refreshing: boolean): XDPromise<void> {
+    async function syncWorkbookMeta(oldWorkbooks: object, sessionInfo: any, refreshing: boolean): Promise<void> {
         try {
             if (oldWorkbooks == null) {
                 oldWorkbooks = {};
@@ -1028,10 +1055,14 @@ namespace WorkbookManager {
                 initializeVariable();
             }
 
+            let xdInternalSession: any;
             for (let i: number = 0; i < numSessions; i++) {
                 const wkbkName: string = sessions[i].name;
                 // Hide wkbk for system session usage: SDK-826
                 if (wkbkName.startsWith(sysWkbkNamePattern)) {
+                    if (wkbkName === xdInternalWkbkName) {
+                        xdInternalSession = sessions[i];
+                    }
                     continue;
                 }
                 const hasResouce: boolean = checkResource(sessions[i].info);
@@ -1068,17 +1099,34 @@ namespace WorkbookManager {
                 console.warn("Error!", oldWkbkId, "is missing.");
             }
 
+            await activateXDInternalSession(xdInternalSession);
+
             if (refreshing) {
-                return PromiseHelper.resolve();
+                return;
             } else {
-                return saveWorkbook();
+                await saveWorkbook();
+                return;
             }
         } catch (error) {
             console.error(error);
-            return PromiseHelper.reject("error");
+            throw new Error("error");
         }
     }
 
+    async function activateXDInternalSession(xdInternalSession): Promise<void> {
+        try {
+            if (xdInternalSession == null) {
+                await XcalarNewWorkbook(xdInternalWkbkName, false, undefined);
+                await XcalarActivateWorkbook(xdInternalWkbkName);
+                console.log("create and activate",xdInternalWkbkName)
+            } else if (xdInternalSession.state !== "Active") {
+                await XcalarActivateWorkbook(xdInternalWkbkName);
+                console.log("activate",xdInternalWkbkName)
+            }
+        } catch (e) {
+            console.error("activate xd internal session failed", e);
+        }
+    }
     /**
     * WorkbookManager.getKeysForUpgrade
     * gets all relevant keys when performing an upgrade

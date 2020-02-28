@@ -451,6 +451,7 @@ enum DataSourceSchemaEvent {
     GetHintSchema = "GetHintSchema",
     ChangeSchema = "ToggleSchema",
     ValidateSchema = "ValidateSchema",
+    ToggleAutoDetect = "ToggleAutoDetect"
 }
 
 enum ExportDriverPrettyNames {

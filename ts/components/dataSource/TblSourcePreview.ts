@@ -248,7 +248,7 @@ class TblSourcePreview {
                                     TblTStr.CreateDF +
                                 '</button>';
         if (XVM.isDataMart()) {
-            html = sqlButton;
+            html = "";
         } else if (XVM.isSQLMode()) {
             html = sqlButton;
         } else {
@@ -301,6 +301,12 @@ class TblSourcePreview {
             return PromiseHelper.resolve();
         }
         if (isSameTable) {
+            return PromiseHelper.resolve();
+        }
+
+        if (WorkbookManager.getActiveWKBK() == null) {
+            $tableArea.addClass("loading").removeClass("error");
+            $tableArea.find(".loadingSection").html("Table is created! Please go into a project and check.");
             return PromiseHelper.resolve();
         }
 
