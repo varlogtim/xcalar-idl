@@ -1,4 +1,5 @@
 import * as crypto from 'crypto';
+import * as Path from 'path';
 import { Session } from './sdk/Session';
 
 // Import global functions. This should be modulized in the future
@@ -123,8 +124,9 @@ async function createKeyListTable({ basePath='/xcfield/', namePattern='*', recur
     }
 }
 
-async function getForensicsStats(fullPath) {
-    const keyListTableName = getKeylistTableName(fullPath);
+async function getForensicsStats(bucketName, pathPrefix) {
+    const fullPath = Path.join(bucketName, pathPrefix);
+    const keyListTableName = getKeylistTableName(bucketName);
     const sql = `
         SELECT
             COUNT(*) as TOTAL_COUNT,
@@ -135,7 +137,7 @@ async function getForensicsStats(fullPath) {
             SUM(CASE WHEN path LIKE '%.csv' THEN 1 ELSE 0 END) AS CSV_COUNT,
             SUM(CASE WHEN path LIKE '%.json%' THEN 1 ELSE 0 END) AS JSON_COUNT,
             SUM(CASE WHEN path LIKE '%.parquet' THEN 1 ELSE 0 END) AS PARQUET_COUNT
-        from ${keyListTableName}`;
+        FROM ( SELECT * FROM ${keyListTableName} WHERE path LIKE '${fullPath}%')`;
 
     const session = new Session();
     const stats = {

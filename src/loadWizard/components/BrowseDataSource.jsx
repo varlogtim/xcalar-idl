@@ -47,7 +47,7 @@ export default function BrowseDataSource({props}) {
         <div>Select the data source that you want to import and then click the "Next" button.</div>
         <div className="fileBrowserPath">
             <Publish className="upFolderIcon" onClick={handleUpFolderClick}/>
-            <input value={bucket + path}></input>
+            <input value={bucket + path} readOnly></input>
         </div>
         <FilterTable
             data={data}

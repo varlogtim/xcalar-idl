@@ -23,7 +23,7 @@ function CreateTableButton(props) {
  */
 function GetForensicsButton(props) {
     const { isLoading = false, onClick = () => {} } = props || {};
-    const buttonText = isLoading ? 'Updating ...' : 'Get Deep Forensics';
+    const buttonText = isLoading ? 'Updating ...' : 'Get Forensics';
     const disableButton = isLoading;
 
     return (
@@ -66,7 +66,8 @@ class SourceData extends React.Component {
         this.metadataMap = new Map();
     }
 
-    async fetchForensics(fullPath) {
+    async fetchForensics(bucketName, pathPrefix) {
+        const fullPath = Path.join(bucketName, pathPrefix);
         this.setState({
             showForensics: true,
             forensicsMessage: ['Fetching S3 metadata ...'],
@@ -74,14 +75,14 @@ class SourceData extends React.Component {
         });
         try {
             const finalTableName = await S3Service.createKeyListTable({
-                basePath: fullPath
+                basePath: bucketName
             });
             this.setState({
                 showForensics: true,
                 forensicsMessage: [...this.state.forensicsMessage, `Query AWS done ... ${finalTableName}`],
                 isForensicsLoading: true
             });
-            const stats = await S3Service.getForensicsStats(fullPath);
+            const stats = await S3Service.getForensicsStats(bucketName, pathPrefix);
             this.metadataMap.set(fullPath, stats);
             this.setState({
                 showForensics: true,
@@ -143,7 +144,7 @@ class SourceData extends React.Component {
                     <b>{JSON.stringify(modelInfo)}</b>
                 </div>
                 <CreateTableButton isShow={ modelSelected === "untitled" } />
-                <GetForensicsButton isLoading={ this.state.isForensicsLoading } onClick={ () => { this.fetchForensics(fullPath) }}/>
+                <GetForensicsButton isLoading={ this.state.isForensicsLoading } onClick={ () => { this.fetchForensics(bucket, path) }}/>
                 <ForensicsContent isShow={ this.state.showForensics } stats={ forensicsStats } message={ this.state.forensicsMessage } />
                 <NavButtons
                     right={{

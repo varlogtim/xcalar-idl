@@ -3,7 +3,7 @@ import SchemaChart from './SchemaChart'
 import DiscoverTable from './DiscoverTable'
 import NavButtons from './NavButtons'
 
-    
+
 const EC = require('../utils/EtaCost.js')
 const EtaCost = new EC()
 
@@ -29,6 +29,10 @@ export default function DiscoverSchemas({props}) {
         totalCost,
         totalEta,
     } = dataWithEta
+
+    if (screen !== "SchemaDiscovery") {
+        return null;
+    }
 
   return (
     <div className="filesSelected" style={{display: screen === "SchemaDiscovery" ? "block" : "none"}}>
