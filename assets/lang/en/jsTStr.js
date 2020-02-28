@@ -96,7 +96,7 @@ TooltipTStr = {
     "SysOperation": "System generated operation",
     "NoUndoActiveForm": "Close active form to undo or redo",
     "FocusOnCol": "Click to focus on column",
-    "UnionSearch": "Search within this node",
+    "UnionSearch": "Search within this operator",
     "MapNoDelete": "Cannot remove. Map must have at least one operation.",
     "ClickToSortAsc": "Click to sort in ascending order",
     "ClickToSortDesc": "Click to sort in descending order",
@@ -107,12 +107,12 @@ TooltipTStr = {
     "AboutCopied": "Copied to clipboard!",
     "CancelSearch": "Cancel search",
     'Distinct': "Select to eliminate duplicate values",
-    'RestoreDS': "Dataset used for this node is not found, click the button to restore the dataset",
+    'RestoreDS': "Dataset used for this operator is not found, click the button to restore the dataset",
     'twodp': '2 decimal places',
     "MustBeInWorkbook": "You must be inside a project to perform this action.",
     "SelectToViewSchema": "Select a table to view schema",
-    "UDFErrorModalNoParent": "Parent node does not exist",
-    "UDFErrorModalNoTable": "Parent node requires an active table",
+    "UDFErrorModalNoParent": "Parent operator does not exist",
+    "UDFErrorModalNoTable": "Parent operator requires an active table",
     // Sync with htmlTStr
     "IcvRestriction": "Erroneous rows(ER) table only available for Map and Group By",
     "OnlyInOpMode": "Feature only available in Operational Cluster",
@@ -352,7 +352,7 @@ ErrTStr = {
     'InvalidUDFFunction': 'Invalid function name',
     'InvalidDFDownload': 'Invalid module to download',
     "NoPrimaryKey": "Published tables must have a primary key.",
-    'DsNotFound': 'Table not found. It may be caused by module change or errors in the module, please reconfigure the node and try execute again.',
+    'DsNotFound': 'Table not found. It may be caused by module change or errors in the module, please reconfigure the operator and try execute again.',
 
 };
 
@@ -369,11 +369,9 @@ ErrWRepTStr = {
     'InvalidOpsType': 'Data type is invalid. Expected: <type1>, Entered: <type2>.',
     'InvalidCol': 'Column "<name>" does not exist.',
     'InvalidColOnTable': 'Column "<col>" does not exist in table <table>.',
-    'InvalidColOnNode': 'Column "<col>" does not exist in node <node>.',
     'InvalidRange': 'Please enter a value between <num1> and <num2>.',
     'InvalidColType': 'Column "<name>" has an invalid type: <type>',
     'ColConflict': 'Column "<name>" already exists in table "<table>."',
-    'ColConflictInNode': 'Column "<name>" already exists in node "<node>."',
     'NoLessNum': 'Please enter a value greater than or equal to <num>',
     'NoBiggerNum': 'Please enter a value less than or equal to <num>',
     'IntInRange': 'Please input an integer between <lowerBound> and <upperBound>',
@@ -722,7 +720,7 @@ AggTStr = {
     'AggMsg': '{"Value": <val>}',
     'AggNotExistError': "The Aggregate '<aggName>' does not exist.",
     'AggNodeNotExistError': "The Aggregate '<aggName>' is created by a node that does not exist.",
-    'AggNodeMustExecuteError': "The Aggregate node for '<aggName>' must be " +
+    'AggNodeMustExecuteError': "The Aggregate operator for '<aggName>' must be " +
         "executed before the aggregate can be used.",
 };
 
@@ -759,8 +757,8 @@ JoinTStr = {
     'ModifyDesc': 'Would you like to modify the join?',
     "DagColSelectInstr": "Select the columns from input #1 and input #2 to join on by equality.",
     "DagColSelectInstrCross": "Cross join does not require join keys since it is " +
-                           "joining every record on the left node with " +
-                           "every record on the right node",
+                           "joining every record on the left input with " +
+                           "every record on the right input",
 
     //with replace
     'NoJoin': 'Cannot join <type>',
@@ -778,7 +776,7 @@ JoinTStr = {
 
 UnionTStr = {
     "ChooseType": "Select column type",
-    "OneTableToUnion2": "Need at least two parent nodes for the operation.",
+    "OneTableToUnion2": "Need at least two parent inputs for the operation.",
     "Cast": "Columns for the set operation have different types. Please select a type for the resultant column.",
     "AddCol": "Click to add",
     "Detect": "Auto detect column matches",
@@ -1054,7 +1052,7 @@ DFTStr = {
     "ExpandToEdit": "Expand to edit operation",
     "NoEdits": "No edits made",
     "RunEdits": "Run",
-    "AllExecuted": "All nodes have been executed",
+    "AllExecuted": "All operators have been executed",
     "ParamModalBasicInstr": "To convert this operation into a parameterized" +
                             " operation, please click the New Parameter button," +
                             " provide a name, and drag and drop the parameter into its appropriate place.",
@@ -1073,10 +1071,10 @@ DFTStr = {
     "InvalidDF": "Invalid module",
     "Share": "Share Module",
     "ShareFail": "Share Module Failed",
-    "AutoExecute": "Auto execute the module after configuration",
+    "AutoExecute": "Auto execute the operator after configuration",
     "AutoPreview": "Auto preview the results after execution",
-    "ShowProgressTips": "Show progress details for each operation",
-    "ShowConfigInfo": "Show configuration info",
+    "ShowProgressTips": "Show progress details for each operator",
+    "ShowConfigInfo": "Show configuration information",
     "ShowTableName": "Show table names",
     "NoEmptyDestName": "Please enter a destination module name.",
     "NoSlashUpload": "Cannot upload to this path.",
@@ -1085,13 +1083,13 @@ DFTStr = {
     "SetupFail": "Application Builder setup failure",
     "SetupFailsMsg": "Application Builder is not setup correctly, please try refresh the browser or contact Xcalar for technical support",
     "NotSetup": "Application Builder has not setup yet",
-    "Deprecated": "This node is deprecated, you can still use it in the current version, but it will be removed in the later version",
+    "Deprecated": "This operator is deprecated, you can still use it in the current version, but it will be removed in the later version",
     "ParamInUse": "Parameter in use",
     "Resources": "Resources",
     "TBModules": "Modules",
     "CloseModule": "Close",
-    "PinOperatorBar": "Show Operator Nodes Bar",
-    "ShowLabels": "Show operator node labels",
+    "PinOperatorBar": "Show operator bar",
+    "ShowLabels": "Show operators label",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     "ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized.",
@@ -1104,10 +1102,10 @@ DFTStr = {
 DFNodeLineageTStr = {
     "NoSourceTab": "Source module could not be found.",
     "SouceTabLoadErr": "Source module could not be loaded",
-    "NoSourceNode": "Source node could not be found.",
-    "NoSQLNode": "Cannot find source node in sql",
-    "MultipleNode": "More than 1 source node was found",
-    "NodeTooltip": "Click to focus on node",
+    "NoSourceNode": "Source operator could not be found.",
+    "NoSQLNode": "Cannot find source operator in sql",
+    "MultipleNode": "More than 1 source operator was found",
+    "NodeTooltip": "Click to focus on operator",
     "DFTooltip": "Click to swtich to the moduel",
 };
 
@@ -1524,7 +1522,7 @@ SQLTStr = {
     "queryTableBodyTextPreview": "Preview",
     "queryTableBodyTextProgress": "View Progress",
     "EditDescription": "Edit Description",
-    "EditNodeTitle": "Edit Node Title",
+    "EditNodeTitle": "Edit Operator Title",
     "NewComment": "New Comment",
     "EditComment": "Edit Comment",
     "CreateCustomOperation": "Create Custom Operation",
@@ -1548,7 +1546,7 @@ SQLTStr = {
     "NoUntitledSnippet": "Name cannot be \"Untitled \"",
     "NoDupSnippetName": "Query with name the same name already exists, please use Save As to overwrite it.",
     "PreviewError": "The corresponding plan for sql cannot be previewed",
-    "ExpandSQL": "Expanding SQL will delete the SQL node while inspecting will not. Do you want to conitnue?",
+    "ExpandSQL": "Expanding SQL will delete the SQL operator while inspecting will not. Do you want to conitnue?",
     "open": "Open",
     "download": "Download",
     "toDelete": "Delete",
@@ -1632,17 +1630,17 @@ DagTStr = {
     "DeleteDataflow": "Delete Module",
     "AddDescription": "Add Description",
     "EditDescription": "Edit Description",
-    "Reset": "Module node(s) reset",
-    "ResetMsg": "Are you sure you want to reset the selected node(s)?",
-    "ResetAllMsg": "Are you sure you want to reset all nodes?",
+    "Reset": "Module operator(s) reset",
+    "ResetMsg": "Are you sure you want to reset the selected operator(s)?",
+    "ResetAllMsg": "Are you sure you want to reset all operators in the module?",
     "CustomOpIncomplete": "Selected operator set is open",
     "CustomOpNoInput": "Cannot create a custom operator without input",
     "CustomOpNoOutput": "Cannot create a custom operator without output",
     "CustomOpTooManyOutput": "Cannot create a custom operator with more than one output",
     "CustomOpTypeNotSupport": "Cannot create a custom operator with this operation type",
-    "SortConnectWarning": "Having a sort node that is not the final node of the module can cause performance issues. We recommend only having sort nodes at the end of the module. Are you sure you want to continue?",
+    "SortConnectWarning": "Having a sort operator that is not the final operator of the module can cause performance issues. We recommend only having sort operators at the end of the module. Are you sure you want to continue?",
     "SortConnectWarningTitle": "Sort Warning",
-    "LargeDataflowMsg": "This module contains <num> nodes and may take some time to display. Do you still want to view this module?",
+    "LargeDataflowMsg": "This module contains <num> operators and may take some time to display. Do you still want to view this module?",
     "LabelTaken": "This label is taken. Please choose a different label.",
     "HeadTaken": "This function name is taken. Please choose a different name."
 };
@@ -1650,10 +1648,9 @@ DagTStr = {
 OpPanelTStr = {
     "DSLoadArgChange": "Dataset LoadArgs Change",
     "DSLoadArgChangeMsg": "Changes made to the loadArgs will only affect the optimized execution.",
-    "DFLinkOutNameDup": "The name has already been used by another link out node, please choose another name",
-    "DFLinkInSourceHint": "The Module Name and Link Out Reference Name are not appiled when source is specified",
+    "DFLinkOutNameDup": "The name has already been used by another function output operator, please choose another name",
     "DFLinkInNoDF": "Module doesn't exist",
-    "DFLinkInNoOut": "Link out node doesn't exist",
+    "DFLinkInNoOut": "Function output doesn't exist",
     "DFLinkInNoSchema": "No columns in schema",
     "CommonFieldNameErroneousRows": "Include only erroneous rows",
     "SplitPanelTitle": "Split Operation",

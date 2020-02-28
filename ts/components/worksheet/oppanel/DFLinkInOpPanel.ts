@@ -21,7 +21,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._dagNode = dagNode;
         this._app = options ? options.app : null;
-        super.showPanel("Link In", options)
+        super.showPanel("Func Input", options)
         .then(() => {
             this._initialize(dagNode);
             const model = $.extend(this._dagNode.getParam(), {
