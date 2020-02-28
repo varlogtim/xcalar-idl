@@ -113,7 +113,8 @@ module.exports = function(env, argv) {
             resolve: {
                 extensions: [".ts", ".tsx", ".js", ".jsx", ".less"]
             },
-            devtool: buildSourceMap ? 'eval' : '',
+            devtool: buildSourceMap ? 'eval-source-map' : '',
+            mode: mode,
             module: {
                 rules: [
                     {

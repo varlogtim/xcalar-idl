@@ -23,35 +23,41 @@ export default function modelPanel({screen, setBucket, setPath, modelSelected, s
     //     } catch (e) {
     //         console.error('Could not lookup modelKeysList', e)
     //     }
-    
+
     //     console.log(modelObjects)
 
     // })
 
-    const models = ['Untitled', 'Housing', 'Loans', 'Assets', 'Clients', 'xc-marketplace', 'xcfield', 'multi_schemas']
+    const models = ['Untitled', 'Housing', 'Loans', 'Assets', 'Clients', 'xc-marketplace', 'xcfield', 'multi_schemas', 'mdmdemo']
 
     function handleModelClick(modelName) {
         let bucket = '/' + modelName + '/'
         let path = 'data/'
-        let modelInfo = '{“FileNameRule” : "' + modelName + '*.csv"}'
+        let modelInfo = { FileNameRule : modelName + '*.csv' };
         if (modelName === 'newModel' || modelName === 'untitled') {
-            bucket = '/'
-            path = ''
-            modelInfo = '{“FileNameRule” : "*"}'
+            bucket = '/';
+            path = '';
+            modelInfo = {FileNameRule : "*"};
         }
         if (modelName === 'xc-marketplace' ) {
-            bucket = '/xcmarketplace-us-east-1/'
-            path = 'datasets/'
-            modelInfo = '{“FileNameRule” : "*"}'
+            bucket = '/xcmarketplace-us-east-1/';
+            path = 'datasets/';
+            modelInfo = {FileNameRule : "*"};
         }
         if (modelName === 'xcfield' ) {
-            bucket = '/xcfield/'
-            path = 'idm_demo/'
-            modelInfo = '{“FileNameRule” : "*"}'
+            bucket = '/xcfield/';
+            path = 'idm_demo/';
+            modelInfo = {FileNameRule : "*"};
         }
         if (modelName === 'multi_schemas' ) {
-            bucket = '/xcfield/'
-            path = 'instantdatamart/csv/'
+            bucket = '/xcfield/';
+            path = 'instantdatamart/csv/';
+            modelInfo = {FileNameRule : "*.csv"};
+        }
+        if (modelName === 'mdmdemo') {
+            bucket = '/xcfield/';
+            path = 'instantdatamart/mdmdemo/';
+            modelInfo = { FileNameRule: '*' };
         }
         setBucket(bucket)
         setPath(path)

@@ -26,6 +26,19 @@
 <script src="assets/js/thrift/XcalarApi.js" type="text/javascript"></script>
 
 <!-- Thrift API -->
+<script>
+    // Log hack
+    Log = { errorLog: () => {} };
+    // Transaction hack
+    Transaction = {
+        checkCanceled: () => false,
+        isSimulate: () => false,
+        startSubQuery: () => {},
+        log: () => {}
+    };
+</script>
+<script src="assets/js/shared/setup/xcGlobal.js" type="text/javascript"></script>
+<script src="assets/js/httpStatus.js" type="text/javascript"></script>
 <script src="assets/js/shared/util/xcHelper.js" type="text/javascript"></script>
 <script src="assets/js/promiseHelper.js" type="text/javascript"></script>
 <script src="assets/js/XcalarThrift.js" type="text/javascript"></script>

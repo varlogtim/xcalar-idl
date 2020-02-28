@@ -15,7 +15,7 @@ function App() {
     const [schemasObject, setSchemasObject] = React.useState({});
     const [bucket, setBucket] = React.useState('/');
     const [path, setPath] = React.useState('');
-    const [modelInfo, setModelInfo] = React.useState('{“FileNameRule” : "*"}');
+    const [modelInfo, setModelInfo] = React.useState({FileNameRule : "*"});
     const [modelSelected, setModelSelected] = React.useState('untitled');
     const [discoverSchemaCalls, setDiscoverSchemaCalls] = React.useState({});
     const [fileIdToStatus, setFileIdToStatus] = React.useState({});
@@ -51,20 +51,18 @@ function App() {
                     <div id="header">{screenName}</div>
 
                     <SourceData
-                        props = {{
-                            screen,
-                            bucket,
-                            setBucket,
-                            path,
-                            setPath,
-                            modelInfo,
-                            modelSelected,
-                            setScreen,
-                            setScreenName,
-                            setData,
-                            fileIdToFile,
-                            setFileIdToFile
-                        }}
+                        screen = { screen }
+                        bucket = { bucket }
+                        setBucket = { setBucket }
+                        path = { path }
+                        setPath = { setPath }
+                        modelInfo = { modelInfo }
+                        modelSelected = { modelSelected }
+                        setScreen = { setScreen }
+                        setScreenName = { setScreenName }
+                        setData = { setData }
+                        fileIdToFile = { fileIdToFile }
+                        setFileIdToFile = { setFileIdToFile }
                     />
 
                     <BrowseDataSource

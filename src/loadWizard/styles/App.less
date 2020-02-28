@@ -8,19 +8,18 @@ body {
     background-color: #eee;
 }
 
-
+.App {
+    padding: 10px;
+}
 
 .mainArea {
-    width: 100%;
     &.panelShown {
-        width: calc(~"100% - 300px");
-        margin-left: 300px;
+        padding-left: 300px;
     }
 }
 
 .container {
-    width: 1080px;
-    margin: 10px auto;
+    min-width: 640px;
     background-color: white;
     padding: 10px 20px;
 }
@@ -44,14 +43,14 @@ body {
         float: left;
         width: 200px;
     }
-    
+
     .bucketSelection, .pathSelection {
         input {
             width: 400px;
             font-size: 16px;
         }
     }
-    
+
     input, .bucketName {
         margin-left: 10px;
     }
@@ -70,7 +69,7 @@ body {
     .nextButton {
         float: right;
     }
-    
+
     .backButton {
         float: left;
     }
@@ -110,8 +109,7 @@ tr {
 
 
 #modelPanel {
-    position: absolute;
-    left: 10px;
+    position: fixed;
     width: 290px;
     height: calc(100% - 20px);
     background-color: white;
