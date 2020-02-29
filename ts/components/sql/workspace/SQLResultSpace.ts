@@ -25,8 +25,6 @@ class SQLResultSpace {
         });
 
         $("#dagView .openResult").click(() => {
-            const $resultSection = this._getResultSection();
-            const $container = $resultSection.parent();
             this._toggleDisplay(true);
         });
 

@@ -35,18 +35,9 @@ namespace Redo {
     };
 
     /* START BACKEND OPERATIONS */
-    redoFuncs[SQLOps.Sort] = function(options): XDPromise<string | void> {
+    redoFuncs[SQLOps.Sort] = function(options): XDPromise<XcViewer> {
         return TblManager.refreshTable([options.newTableName], null, [options.tableName]);
     };
-
-    redoFuncs[SQLOps.DFRerun] = function(options): XDPromise<string | void> {
-        return TblManager.refreshTable([options.newTableName], null, [options.tableName]);
-    };
-
-    redoFuncs[SQLOps.Finalize] = function(options): XDPromise<string | void> {
-        return TblManager.refreshTable([options.newTableName], null, [options.tableName]);
-    };
-
     /* END BACKEND OPERATIONS */
 
     /* Dag operations */

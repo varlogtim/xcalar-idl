@@ -234,7 +234,7 @@ namespace Transaction {
             const txLog: TXLog = txCache[txId] || canceledTxCache[txId];
             if (txLog && txLog.trackDataflow) {
                 try {
-                    DagViewManager.Instance.updateDFProgress(txLog.tabId, queryStateOutput, txLog.nodeIds);
+                    DagViewManager.Instance.updateDFProgress(txLog.tabId, queryStateOutput);
                     const parentTxId: number = txLog.parentTxId;
                     if (parentTxId != null) { // if this query is nested inside a custom node
                         Transaction.update(parentTxId, queryStateOutput);

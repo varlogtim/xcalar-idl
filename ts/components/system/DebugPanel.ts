@@ -57,7 +57,7 @@ class DebugPanel {
             noUndock: true
         });
         this._popup
-        .on("Show", (info: {restoring: boolean}) => {
+        .on("Show", () => {
             this.toggleDisplay(true);
         })
         .on("ResizeDocked", (state) => {

@@ -420,14 +420,6 @@ interface FileManagerPathItem {
     size: number;
 }
 
-interface Navigator {
-    clipboard: Clipboard
-}
-
-interface Clipboard {
-    readText: Function
-}
-
 declare namespace Base64 {
     function encode(input: string): string;
     function decode(input: string): string;
@@ -939,6 +931,7 @@ declare namespace xcMixpanel {
     export function pageUnloadEvent(): void;
     export function track(name: string, properties: any, jqueryEvent?: JQueryEventObject): void;
     export function menuItemClick(event: Event): void;
+    export function logout(): void;
 }
 
 declare namespace Msal {

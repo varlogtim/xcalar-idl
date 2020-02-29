@@ -9,7 +9,7 @@ class DeskewOpPanel extends BaseOpPanel {
         this._addEventListeners();
     }
 
-    public show(dagNode: DagNodeDeskew, options: {exitCallback?: Function}): XDPromise<void> {
+    public show(dagNode: DagNodeDeskew, options: ShowPanelInfo): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._dagNode = dagNode;
         // Show panel

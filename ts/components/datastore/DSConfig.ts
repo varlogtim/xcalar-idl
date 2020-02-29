@@ -6137,7 +6137,7 @@ namespace DSConfig {
         udfFunction: string,
         $container: JQuery
     }) {
-        const { udfModule, udfFunction, $container } = options;
+        const { udfModule, udfFunction } = options;
 
         // Constants
         // const ID_NUMROWS = 'dsForm-cfNumRows';
@@ -6160,7 +6160,7 @@ namespace DSConfig {
                 // }
             },
 
-            restore: function(udfQuery: {numRows: number}) {
+            restore: function() {
                 // const { numRows = null } = udfQuery || {};
                 // if (numRows != null) {
                 //     $elementNumRows.val(`${numRows < 0 ? '': numRows}`);

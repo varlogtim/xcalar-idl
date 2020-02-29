@@ -19,7 +19,6 @@ describe("MetaInfo Constructor Test", function() {
             "TILookup": {"test": table},
             "statsCols": {"testTable": {"testCol": profile}},
             "sqlcursor": -2,
-            "tablePrefix": {"testPrefix": "test"},
             "query": [query]
         });
 

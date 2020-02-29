@@ -32,19 +32,9 @@ namespace Undo {
     };
 
     /* START BACKEND OPERATIONS */
-    undoFuncs[SQLOps.Sort] = function(options): XDPromise<string | void> {
+    undoFuncs[SQLOps.Sort] = function(options): XDPromise<XcViewer> {
         return TblManager.refreshTable([options.tableName], null,
                                        [options.newTableName]);
-    };
-
-    undoFuncs[SQLOps.DFRerun] = function(options): XDPromise<string | void> {
-        return TblManager.refreshTable([options.tableName], null,
-                                [options.newTableName]);
-    };
-
-    undoFuncs[SQLOps.Finalize] = function(options): XDPromise<string | void>  {
-        return TblManager.refreshTable([options.tableName], null,
-                                        [options.newTableName]);
     };
     /* END BACKEND OPERATIONS */
 

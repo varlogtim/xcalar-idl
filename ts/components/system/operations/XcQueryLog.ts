@@ -282,7 +282,8 @@ class XcQueryLog {
                 "error": queryDurable.error,
                 "srcTables": null,
                 "cancelable": null,
-                "queryMeta": queryDurable.queryMeta
+                "queryMeta": queryDurable.queryMeta,
+                "dataflowId": undefined
             });
 
             queryList.push(query);

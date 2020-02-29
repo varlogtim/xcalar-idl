@@ -35,7 +35,7 @@ class DagView {
     private configLockedNodeIds: Set<DagNodeId> = new Set();
     private static dagEventNamespace = 'DagView';
     private static udfErrorColor = "#F15840";
-    private static mapNodeColor = "#89D0E0";
+    // private static mapNodeColor = "#89D0E0";
     private static textColor = "#000000";
     private static edgeColor = "#627483";
     private static dataflowNodeLimit = 1000; // point where dataflow starts to lag
@@ -3918,14 +3918,14 @@ class DagView {
         });
 
         let updateNumNodesTimeout;
-        this._registerGraphEvent(this.graph, DagGraphEvents.NewNode, (info) => {
+        this._registerGraphEvent(this.graph, DagGraphEvents.NewNode, () => {
             clearTimeout(updateNumNodesTimeout);
             updateNumNodesTimeout = setTimeout(() => {
                 DagGraphBar.Instance.updateNumNodes(this.dagTab);
             }, 0);
         });
 
-        this._registerGraphEvent(this.graph, DagGraphEvents.RemoveNode, (info) => {
+        this._registerGraphEvent(this.graph, DagGraphEvents.RemoveNode, () => {
             clearTimeout(updateNumNodesTimeout);
             updateNumNodesTimeout = setTimeout(() => {
                 DagGraphBar.Instance.updateNumNodes(this.dagTab);
@@ -4120,7 +4120,7 @@ class DagView {
         if (node instanceof DagNodeCustom) {
             const { input, output } = node.getNumIOPorts();
             this._updateConnectorIn($node, input);
-            this._updateConnectorOut($node, output, node);
+            this._updateConnectorOut($node, output);
         }
 
         if (!bulk) {
@@ -4172,7 +4172,7 @@ class DagView {
         DagCategoryBar.Instance.updateNodeConnectorIn(numInputs, g);
     }
 
-    private _updateConnectorOut($node: JQuery, numberOutputs: number, node: DagNodeCustom) {
+    private _updateConnectorOut($node: JQuery, numberOutputs: number) {
         const g = d3.select($node[0]);
         DagCategoryBar.Instance.updateNodeConnectorOut(numberOutputs, g);
     }
@@ -4315,7 +4315,7 @@ class DagView {
 
     private _updateOpTitle($node, node) {
         if (node.getType() === DagNodeType.Module) {
-            let {moduleName, fnName} = node.getFnName(true);
+            let {moduleName} = node.getFnName(true);
             if (!moduleName) {
                 moduleName = DagNodeType.Module;
             }

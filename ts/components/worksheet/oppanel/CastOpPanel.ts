@@ -19,7 +19,7 @@ class CastOpPanel extends BaseOpPanel {
         this._registerHandlers();
     }
 
-    public show(dagNode: DagNodeMap, options: {exitCallback?: Function}) {
+    public show(dagNode: DagNodeMap, options: ShowPanelInfo) {
         if (this._formHelper.isOpen()) {
             return PromiseHelper.reject();
         }

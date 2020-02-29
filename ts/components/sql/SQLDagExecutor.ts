@@ -343,7 +343,8 @@ class SQLDagExecutor {
             sqlQueryStr: this._sql,
             identifiers: this._identifiers,
             identifiersOrder: this._identifiersOrder,
-            dropAsYouGo: null
+            dropAsYouGo: null,
+            snippetId: undefined
         }, true);
         const queryId = xcHelper.randName("sqlQuery", 8);
         const identifiers = new Map<number, string>();

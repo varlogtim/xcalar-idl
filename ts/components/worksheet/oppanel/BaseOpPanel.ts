@@ -271,7 +271,7 @@ class BaseOpPanel {
         this._reset();
         this._formHelper.showView(formName, this);
         DagConfigNodeModal.Instance.setFormOpen();
-        options = options || {};
+        options = options || <ShowPanelInfo>{};
         this._exitCallback = options.exitCallback || function () { };
         this._closeCallback = options.closeCallback || function () { };
         if (options.nonConfigurable) {

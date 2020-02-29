@@ -1,14 +1,6 @@
 class TblManager {
     /**
      * TblManager.refreshTable
-     * This function takes in an array of newTable names to be added,
-     * an array of tableCols, worksheet that newTables will add to and an array
-     * of oldTable names that will be modified due to a function.
-     * Inside oldTables, if there is an anchor table, we move it to the start
-     * of the array. If there is a need for more than 1 piece of information,
-     * then oldTables need to be an array of structs
-     * txId is provided during a normal operation and is null during an undo,
-     * redo, or repeat etc.
      * @param newTableNames
      * @param tableCols
      * @param oldTableNames
@@ -17,10 +9,10 @@ class TblManager {
      */
     public static refreshTable(
         newTableNames: string[],
-        tableCols: ProgCol[],
+        tableCols: ProgCol[] | null,
         oldTableNames: string[] | string,
         txId?: number
-    ): XDPromise<string | void> {
+    ): XDPromise<XcViewer> {
         if (txId != null) {
             if (Transaction.checkCanceled(txId)) {
                 return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
@@ -132,7 +124,7 @@ class TblManager {
         return deferred.promise();
     }
 
-    private static _setTableMeta(tableName: string, tableCols: ProgCol[]): void {
+    private static _setTableMeta(tableName: string, tableCols: ProgCol[] | null): void {
         const tableId: TableId = xcHelper.getTableId(tableName);
         if (!gTables.hasOwnProperty(tableId)) {
             if (tableCols == null || tableCols.length === 0) {

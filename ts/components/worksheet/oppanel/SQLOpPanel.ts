@@ -2,17 +2,12 @@
  * The operation editing panel for SQL operator
  */
 class SQLOpPanel extends BaseOpPanel {
-    private static readonly _udfDefault: string =
-        "Example:\n" +
-        "select * from table_identifier";
-
     private _$elemPanel: JQuery; // The DOM element of the panel
     protected _dataModel: SQLOpPanelModel; // The key data structure
     protected _dagNode: DagNodeSQL;
 
     private _sqlEditor: SQLEditor;
     private _$sqlIdentifiers = $("#sqlOpPanel .sqlIdentifiers");
-    private _$tableWrapper: JQuery;
     private _sqlTables = {};
     private _alertOff: boolean = false;
 
@@ -22,7 +17,6 @@ class SQLOpPanel extends BaseOpPanel {
     public setup(): void {
         // HTML elements binding
         this._$elemPanel = $('#sqlOpPanel');
-        this._$tableWrapper = this._$elemPanel.find(".tableWrapper").eq(0);
         super.setup(this._$elemPanel);
 
         this._setupSQLEditor();

@@ -7,6 +7,7 @@ interface XcQueryOptions extends XcQueryDurable {
     srcTables: string[];
     state: string | QueryStateT;
     cancelable: boolean;
+    dataflowId: string;
 }
 
 class XcQuery extends Durable {
@@ -21,6 +22,7 @@ class XcQuery extends Durable {
     public id: number; // (integer) query id
     public cancelable: boolean; // can cancel or not
     public srcTables: string[];
+    public sqlNum: number;
 
     private time: number // date
     private elapsedTime: number; //(integer) time used,

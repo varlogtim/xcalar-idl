@@ -83,7 +83,7 @@ class DFUploadModal {
             $ele: $pathInput,
             error: DFTStr.DupDataflowName,
             check: () => {
-                return !DagList.Instance.isUniqueName(uploadTab.getName());
+                return !DagList.Instance.isUniqueName(uploadTab.getName(), null);
             }
         }])
 
@@ -352,7 +352,7 @@ class DFUploadModal {
     private _getUniquePath(name: string): string {
         let path: string = name;
         let cnt = 0;
-        while (!DagList.Instance.isUniqueName(path)) {
+        while (!DagList.Instance.isUniqueName(path, null)) {
             path = `${name}${++cnt}`;
         }
         return path;

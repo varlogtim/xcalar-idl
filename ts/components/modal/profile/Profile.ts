@@ -35,7 +35,6 @@ namespace Profile {
 
     let statsInfos = {};
     let baseStatsInfos = {};
-    let barChartStatsInfos = {};
     let bucketCache = {};
 
     // data with initial value

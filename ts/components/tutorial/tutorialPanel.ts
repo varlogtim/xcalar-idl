@@ -3,7 +3,6 @@ class TutorialPanel {
     private _$panel: JQuery;    // $("#tutorialDownloadPanel");
     private _tutSet: ExtCategorySet;
     private _isFirstTouch: boolean = true;
-    private currVer: number;
     private _categoryOrder: Map<string, number>;
     private _orderedCatLength: number;
     private tutorialObject = <any>{};

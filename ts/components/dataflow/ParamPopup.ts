@@ -116,7 +116,6 @@ class ParamPopup {
     }
 
     private show() {
-        const self = this;
         if (XVM.getLicenseMode() === XcalarMode.Mod) {
             xcTooltip.add($(this), {"title": TooltipTStr.OnlyInOpMode});
             xcTooltip.refresh($(this));

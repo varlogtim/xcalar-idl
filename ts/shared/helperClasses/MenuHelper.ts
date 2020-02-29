@@ -734,7 +734,7 @@ class MenuHelper {
                 if ($menu.is(":visible") && $menu.data('tableId') === tableId) {
                     return "closeMenu";
                 }
-                MenuHelper.updateTableDropdown($menu, options);
+                MenuHelper.updateTableDropdown($menu);
                 TblManager.unHighlightCells();
                 break;
             case ('colMenu'):
@@ -987,7 +987,7 @@ class MenuHelper {
         return true;
     }
 
-    private static updateTableDropdown($menu: JQuery, options: DropdownOptions): void {
+    private static updateTableDropdown($menu: JQuery): void {
         $menu.find('li').removeClass('unavailable');
     }
 

@@ -1456,7 +1456,7 @@ class DagViewManager {
     }
 
     private _getAreaByTab(tabId: string): JQuery {
-        const index: number = DagTabManager.Instance.getTabIndex(tabId, false);
+        const index: number = DagTabManager.Instance.getTabIndex(tabId);
         if (index < 0) {
             return $();
         }

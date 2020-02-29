@@ -190,23 +190,6 @@ namespace BottomMenu {
         return deferred.promise();
     }
 
-    function _undock(): void {
-        const offset: {left: number, top: number} = $bottomMenu.offset();
-        $bottomMenu.css({
-            "left": offset.left - 5,
-            "top": offset.top - 5
-        });
-        $("#container").addClass("bottomMenuOut");
-
-        if ($("#sqlWorkSpacePanel").hasClass("active")) {
-            checkAnimFinish()
-            .then(function() {
-                TblFunc.moveFirstColumn();
-                DagCategoryBar.Instance.showOrHideArrows();
-            });
-        }
-    }
-
     function resolveMenuAnim(): void {
         for (let i = 0; i < menuAnimCheckers.length; i++) {
             if (menuAnimCheckers[i]) {

@@ -7,7 +7,6 @@ class ProfileEngine {
 
     private _profileResultSetId: string;
     private _totalRows: number;
-    private _baseTableName: string;
     private _isBarChart: boolean;
 
     private readonly aggMap = {
@@ -27,7 +26,6 @@ class ProfileEngine {
         this._statsKeyMap = options.statsKeyMap;
         this._statsColName = options.statsColName;
         this._bucketColName = options.bucketColName;
-        this._baseTableName = options.baseTableName;
         this._isBarChart = options.isBarChart;
     }
 
@@ -647,7 +645,6 @@ class ProfileEngine {
         }
         if (this._isBarChart) {
             return PromiseHelper.resolve();
-            // return this._getBarChartStats(tableName, profileInfo);
         }
 
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
@@ -673,13 +670,6 @@ class ProfileEngine {
             }
         }
         return XIApi.checkOrder(tableName);
-    }
-
-    private _getBarChartStats(tableName: string,
-        tableOrder: number,
-        tableKeys: {name: string}[],
-        profileInfo: ProfileInfo) {
-
     }
 
     private _getStats(

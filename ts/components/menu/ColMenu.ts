@@ -384,12 +384,7 @@ class ColMenu extends AbstractMenu {
         }
     ): Promise<void> {
         const $colMenu: JQuery = this._getMenu();
-        if ($colMenu.hasClass("fromSQL")) {
-            this._createFromSQLTable(callback);
-        } else {
-            callback.bind(this)([]);
-        }
-        async function callback(newNodes: DagNode[], parentNodeId?: string) {
+        const callback = async(newNodes: DagNode[], parentNodeId?: string) => {
             try {
                 options = options || {};
                 const table: TableMeta = gTables[tableId];
@@ -404,6 +399,11 @@ class ColMenu extends AbstractMenu {
                 console.error("error", e);
                 Alert.error(ErrTStr.Error, ErrTStr.Unknown);
             }
+        }
+        if ($colMenu.hasClass("fromSQL")) {
+            this._createFromSQLTable(callback);
+        } else {
+            callback([]);
         }
     }
 

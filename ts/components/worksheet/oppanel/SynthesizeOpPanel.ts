@@ -8,7 +8,7 @@ class SynthesizeOpPanel extends BaseOpPanel {
         this._addEventListeners();
     }
 
-    public show(dagNode: DagNodeSynthesize, options: {exitCallback?: Function}) {
+    public show(dagNode: DagNodeSynthesize, options: ShowPanelInfo) {
         this._dagNode = dagNode;
         // Show panel
         super.showPanel("Synthesize", options)

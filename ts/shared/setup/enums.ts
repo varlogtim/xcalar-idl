@@ -312,8 +312,6 @@ enum SQLOps {
     ChangeType = "changeType",
     ChangeFormat = "changeFormat",
     Round = "round",
-    Finalize = "finalizeTable",
-    DFRerun = "Application Rerun",
     ExecSQL = "Execute SQL",
     RefreshTables = "refreshTables",
     // DF 2.0 operations

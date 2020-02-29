@@ -734,8 +734,7 @@ namespace FileBrowser {
         });
 
         $searchSection.on("keyup", "input", function(e) {
-            let keyCode = e.which;
-            if (keyCode === keyCode.Enter) {
+            if (e.which === keyCode.Enter) {
                 // Do a regular search
                 let searchKey = $(this).val();
                 if (searchKey.length > 0) {

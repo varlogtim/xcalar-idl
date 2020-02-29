@@ -74,7 +74,7 @@ class SQLDebugConfirmModal {
             $ele: $input,
             error: DFTStr.DupDataflowName,
             check: () => {
-                return !DagList.Instance.isUniqueName(name);
+                return !DagList.Instance.isUniqueName(name, null);
             }
         }, {
             $ele: $input,

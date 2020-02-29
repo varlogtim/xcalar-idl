@@ -337,12 +337,6 @@ class FormHelper {
     public hideView(): void {
         this.isFormOpen = false;
         FormHelper.activeForm = null;
-        let ignoreClose: boolean = false;
-        if (!this.$form.is(":visible")) {
-            // do not close the left panel if we've navigated away
-            ignoreClose = true;
-        }
-
         this.$form.addClass('xc-hidden');
         $("#container").removeClass("formOpen");
         const tblMenu: TableMenuManager = TableComponent.getMenu();

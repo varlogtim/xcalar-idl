@@ -1222,7 +1222,6 @@ namespace Log {
             case (SQLOps.DragResizeTableCol):
             case (SQLOps.DragResizeRow):
             case (SQLOps.ChangeFormat):
-            case (SQLOps.MarkPrefix):
             case (SQLOps.ConnectOperations):
             case (SQLOps.DisconnectOperations):
             case (SQLOps.RemoveOperations):
@@ -1264,8 +1263,6 @@ namespace Log {
             case (SQLOps.ProfileAgg):
             case (SQLOps.ProfileStats):
             case (SQLOps.Project):
-            case (SQLOps.Finalize):
-            case (SQLOps.DFRerun):
                 return true;
             default:
                 console.warn("XXX! Operation unexpected", operation);

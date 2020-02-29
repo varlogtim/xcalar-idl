@@ -49,7 +49,7 @@ class BarChartBuilder extends AbstractChartBuilder {
         // x range and y range
         let maxHeight: number = Math.max(max, nullCount);
 
-        let x = (d, i) => {
+        let x = (_d, i) => {
             return i * (width / dataLen);
         };
         let y = d3.scale.linear()

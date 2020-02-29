@@ -2,7 +2,6 @@ class MetaInfo extends Durable {
     private TILookup: {[key: string]: TableDurable}; // table meta
     private statsCols: any; // profile meta
     private sqlcursor: number; // log cursor position
-    private tablePrefix: object; // table prefix meta
     private query: XcQueryDurable[]; // query meta
 
     constructor(options?: MetaInfDurable) {
@@ -14,8 +13,6 @@ class MetaInfo extends Durable {
         // QueryManager is maintaining the query load/commit
         // but we still keep it here for backward compatible
         this.query = options.query || [];
-        // a simple key,value paris, no constructor
-        this.tablePrefix = options.tablePrefix;
         // a number, no constructor
         this.sqlcursor = options.sqlcursor;
     }

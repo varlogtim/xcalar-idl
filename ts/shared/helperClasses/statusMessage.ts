@@ -4,26 +4,27 @@ namespace StatusMessage {
     let hasSetup: boolean = false;
 
     interface Msg {
-        $span: JQuery,
-        msgId: number,
-        msg: string,
-        desiredRotations: number
+        $span: JQuery;
+        msgId: number;
+        msg: string;
+        desiredRotations: number;
     }
 
     interface MsgObject {
-        msg?: string
+        msg?: string;
+        operation?: string;
     }
 
     interface ShowDoneNotificationOptions {
-        indexNotification?: boolean,
-        newDataset?: boolean,
-        datasetId?: string,
-        title?: string
+        indexNotification?: boolean;
+        newDataset?: boolean;
+        datasetId?: string;
+        title?: string;
     }
 
     interface DoneNotificationListenersOptions {
-        newDataset?: boolean,
-        datasetId?: string
+        newDataset?: boolean;
+        datasetId?: string;
     }
 
     class StatusMsg {
@@ -33,7 +34,7 @@ namespace StatusMessage {
         private isFailed: boolean;
         private rotateInterval: number;
         private messages: number[];
-        private msgObjs: object;
+        private msgObjs: {[key: number]: MsgObject};
         private scrollSpeed: number;
         private rotationTime: number;
         private numRotations: number;

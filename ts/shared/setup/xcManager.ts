@@ -346,10 +346,10 @@ namespace xcManager {
             // as commit may only partially finished, which is dangerous
             return deferred.reject("Async unload");
         } else {
-            let promise = PromiseHelper.resolve();
+            let promise: XDPromise<void> = PromiseHelper.resolve();
             let currentUser = XcUser.CurrentUser;
             if (currentUser != null) {
-                promise =  currentUser.releaseSession();
+                promise = currentUser.releaseSession();
             }
             promise
             .fail(function(error) {

@@ -1467,14 +1467,10 @@ ProjectTStr = {
 
 SQLTStr = {
     "AddNewCol": "Add New Column",
-    "AddWS": "Create Worksheet",
     "ChangeFormat": "Change Format",
     "DelCol": "Delete Column",
     "DelWS": "Delete Worksheet",
     "HideCol": "Hide Column",
-    "HideWS": "Hide Worksheet",
-    "MakeTemp": "Send to Temporary List",
-    "MarkPrefix": "Mark Prefix",
     "MaximizeCols": "Unminimize Columns",
     "MaximizeTable": "Unminimize Table",
     "MinimizeCols": "Minimize Columns",

@@ -109,7 +109,7 @@ class SQLDataflowPreview {
             SQLUtil.getSQLStruct(sql)
             .then((sqlStruct) => {
                 try {
-                    let executor = new SQLDagExecutor(sqlStruct, tabName);
+                    let executor = new SQLDagExecutor(sqlStruct);
                     return executor.restoreDataflow();
                 } catch (e) {
                     return PromiseHelper.reject(e.message);
@@ -134,7 +134,7 @@ class SQLDataflowPreview {
             SQLUtil.getSQLStruct(sql)
             .then((sqlStruct) => {
                 try {
-                    let executor = new SQLDagExecutor(sqlStruct, tabName);
+                    let executor = new SQLDagExecutor(sqlStruct);
                     return executor.restoreDataflow2();
                 } catch (e) {
                     return PromiseHelper.reject(e.message);

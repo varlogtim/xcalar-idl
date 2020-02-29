@@ -236,7 +236,7 @@ namespace CloudLogin {
     function startCluster(): void {
         loadingWait(true);
         cloudLoginLambdaService.clusterStartRequest(localUsername, selectedClusterSize)
-        .then((clusterStartResponse) => {
+        .then(() => {
             getCluster();
         })
         .fail((error) => {
@@ -773,7 +773,7 @@ namespace CloudLogin {
 
     function cognitoResendConfirmationCode() {
         loadingWait(true);
-        cloudLoginCognitoService.resendConfirmationCode(function (err, result) {
+        cloudLoginCognitoService.resendConfirmationCode(function (err) {
             loadingWait(false);
             if (err) {
                 xcConsoleError(err);
@@ -916,7 +916,7 @@ namespace CloudLogin {
             if (checkVerifyForm()) {
                 var code = $("#verify-code").val();
                 loadingWait(true);
-                cloudLoginCognitoService.confirmRegistration(code, function (err, result) {
+                cloudLoginCognitoService.confirmRegistration(code, function (err) {
                     loadingWait(false);
                     if (err) {
                         xcConsoleError(err);

@@ -52,7 +52,9 @@ class DagNodeInstruction extends DagNode {
 
 
     protected _getSerializeInfo(_includeStats?: boolean): DagNodeInfo {
-        return {};
+        return {
+            type: undefined
+        };
     }
 
     protected _getColumnsUsedInInput() {

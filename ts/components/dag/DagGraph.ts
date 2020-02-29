@@ -75,8 +75,8 @@ class DagGraph extends Durable {
     /**
      * Generates the serializable version of this graph.
      */
-    public getSerializableObj(includeStats?: boolean, clearTables?: boolean): DagGraphInfo {
-        return this._getDurable(includeStats, clearTables);
+    public getSerializableObj(includeStats?: boolean): DagGraphInfo {
+        return this._getDurable(includeStats);
     }
 
     public rebuildGraph(graphJSON: {
@@ -1628,7 +1628,7 @@ class DagGraph extends Durable {
                 type: string,
                 description: string,
                 hint: string,
-                tag?: string
+                tag?: DagTagInfo[],
                 overallStats?: any,
                 operations?: any[]
             } = {

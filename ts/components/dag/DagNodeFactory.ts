@@ -104,7 +104,7 @@ class DagNodeFactory {
                 node = new DagNodeDeskew(options, runtime);
                 break;
             case DagNodeType.Module:
-                node = new DagNodeModule(options, runtime);
+                node = new DagNodeModule(<DagNodeModuleOptions>options, runtime);
                 break;
             case DagNodeType.Main:
                 node = new DagNodeMain(options, runtime);
