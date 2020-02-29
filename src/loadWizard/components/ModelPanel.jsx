@@ -65,8 +65,11 @@ export default function modelPanel({screen, setBucket, setPath, modelSelected, s
         setModelSelected(modelName)
     }
 
+    if (screen !== "SourceData") {
+        return null;
+    }
     return (
-        <div id="modelPanel" style={{display: screen === "SourceData" ? "block" : "none"}}>
+        <div className="modelPanel">
             <div className="modelPanelContent">
                 <div className="header">Import Models</div>
                 <div className="addModel" onClick={() => handleModelClick('untitled')}><span role="img" aria-label="plus">➕</span>Add Import Model</div>

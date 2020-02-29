@@ -78,6 +78,10 @@ class DataSourceManager {
         DataSourceManager.startImport(true);
     }
 
+    public static switchToLoadWizardView(): void {
+        this._switchToLoadWizard();
+    }
+
     /**
      * DataSourceManager.startImport
      * show the first step import screen
@@ -340,6 +344,12 @@ class DataSourceManager {
         }
     }
 
+    private static _switchToLoadWizard(): void {
+        const $panel = this._getPanel();
+        this._restPanelView();
+        $panel.addClass("load");
+    }
+
     private static _switchToViewIMD(): void {
         this._restPanelView();
         let $panel = this._getPanel();
@@ -385,7 +395,8 @@ class DataSourceManager {
         $panel.removeClass("in")
             .removeClass("table")
             .removeClass("imd")
-            .removeClass("target");
+            .removeClass("target")
+            .removeClass("load")
         $menu.removeClass("xc-hidden");
         $menu.find(".menuSection").addClass("xc-hidden");
     }

@@ -119,6 +119,20 @@ html.safari {
     .mainContent {
         position: relative;
     }
+
+    .loadWizard {
+        display: none;
+    }
+
+    &.load {
+        .subPanel {
+            overflow-y: auto;
+        }
+        .loadWizard {
+            display: block;
+        }
+    }
+
 }
 
 #datastore-in-view {

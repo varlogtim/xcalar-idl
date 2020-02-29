@@ -61,7 +61,7 @@ export default function Filter({
 
     const options = {
       filterType: "multiselect",
-      responsive: "stacked",
+      // responsive: "stacked",
       download: false,
       print: false,
       onRowsSelect: (currentRowsSelected, allRowsSelected) => {

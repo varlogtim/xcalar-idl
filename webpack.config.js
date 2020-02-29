@@ -105,10 +105,13 @@ module.exports = function(env, argv) {
 
         // Load Wizard
         {
-            entry: path.resolve(env.buildroot, "src/loadWizard/index.jsx"),
+            entry: {
+                loadWizard: path.resolve(env.buildroot, "src/loadWizard/index.jsx"),
+                loadWizardXD: path.resolve(env.buildroot, "src/loadWizard/index2.jsx")
+            },
             output: {
                 path: path.resolve(env.buildroot, "assets/js/loadWizard/"),
-                filename: "loadWizard.js"
+                filename: "[name].js"
             },
             resolve: {
                 extensions: [".ts", ".tsx", ".js", ".jsx", ".less"]

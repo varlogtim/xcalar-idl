@@ -32,7 +32,7 @@ const supersetSchemas = new SupersetSchemas()
 
 // GLOBAL THINGS...
 var AWS_TARGET_NAME = 'AWS Target';
-var AWS_S3_SELECT_PARSER_NAME = 'default:parse_s3_select_with_schema'; 
+var AWS_S3_SELECT_PARSER_NAME = 'default:parse_s3_select_with_schema';
 var NUMBER_OF_XPUS = null;
 var DATASET_PREFIX = '.XcalarDS.'
 
@@ -95,7 +95,7 @@ function getInputSerial(inputSerialObject) {
         },
         'Parquet': {}
     }
-    
+
     try {
         const inputSerialJson = JSON.stringify(inputSerialObject);
         var inputSerial = new proto.xcalar.compute.localtypes.Schema.InputSerialization();
@@ -116,7 +116,7 @@ async function checkTableName(tableName) {
     }
     // XXX this is bad that it is hard coded in two places.
     // This function is garbage, rewrite
-    const compName = tableName + '_COMPLEMENTS'; 
+    const compName = tableName + '_COMPLEMENTS';
     const pubTables = await XcalarListPublishedTables('*');
     for (let ii = 0; ii < pubTables.tables.length; ii++) {
         if(pubTables.tables[ii].name == compName ||
@@ -140,8 +140,6 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
      *     will also create the complements table, tableName + '_COMPLEMENTS'
      */
 
-    verbose = true;
-
     const myRandomName = randomName();
     const mySessionName = 'S' + myRandomName;
     const myDatasetName = 'DS' + myRandomName;
@@ -163,7 +161,7 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
     const sourceArgs = buildSourceLoadArgs(paths);
     const parseArgs = getParseArgs(schema, inputSerialJson);
     console.log("loadArgs: " + sourceArgs + ", parseArgs: " + parseArgs);
-    
+
     // Load that dataset!!
     await xcalarLoad(tHandle, myDatasetName, sourceArgs, parseArgs, 0);
 
@@ -195,18 +193,18 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
         // XXX
         // XXX
 
-        const datasetList = XcalarGetDatasets();
+        const datasetList = await XcalarGetDatasets();
         console.log("datasetList: " + JSON.stringify(datasetList));
         //await XcalarDatasetDelete(myDatasetName);
         // {numDatasets: 1, datasets: [ {loadArgs: asdf, datasetId: 123, name: "asdf", ... }]
         for(let ii = 0; ii < datasetList.datasets.length; ii++) {
-            if (datasetList.datasets[ii].name.contains(myDatasetName)) {
-                throw "Error deleting dataset: " + myDatasetName;
+            if (datasetList.datasets[ii].name.indexOf(myDatasetName) > 0) {
+                console.error("Error deleting dataset: " + myDatasetName);
+                break;
             }
         }
-
     }
-    return
+    return tableName;
 }
 
 
@@ -262,7 +260,7 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
             keyFieldName:"",
             ordering:"Unordered"})],
         datasetName
-    ); 
+    );
 
     // Build string-cast evals for map
     let allEvals = [];
@@ -315,7 +313,7 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
 
     // Project tables...
     console.log("Projecting columns for table and complements");
-    await xcalarProject(tHandle, 
+    await xcalarProject(tHandle,
         complementColumnNames.length, complementColumnNames,
         compNames[cc - 1], compNames[cc++]);
     await xcalarProject(tHandle,
@@ -340,11 +338,11 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
 
     // Delete Temp Tables...
     // All temp tables are prefixed with `datasetName`
-    // TODO: I think we might not need this because deleting the session 
+    // TODO: I think we might not need this because deleting the session
     // will remove all the temporary tables :(
     const tableList = await xcalarListTables(tHandle, datasetName + '*');
     console.log("DEBUG: tableList: " + JSON.stringify(tableList));
-    
+
     for (let ii = 0; ii < tableList.nodeInfo.length; ii++) {
         const tableData = tableList.nodeInfo[ii];
         await XcalarDeleteTable(tableData.name, null, false, true);
@@ -365,15 +363,15 @@ async function getNumXpus(){
     // to be the same for any number of files between one
     // and number of XPUs.
     //
-    // If more than number of XPUs needs to be sent to 
+    // If more than number of XPUs needs to be sent to
     // discoverSchema, it seems the best option is to
-    // make multiple calls. This allows the caller to 
+    // make multiple calls. This allows the caller to
     // start processing or displaying the data as soon
     // as possible.
     if (NUMBER_OF_XPUS === null) {
         topOut = await xcalarApiTop(tHandle, XcalarApisConstantsT.XcalarApiDefaultTepIntervalInMs,
             XcalarApisConstantsT.XcalarApiDefaultCacheValidityInMs);
-        // I copied this code, it appears that this is just grabbing 
+        // I copied this code, it appears that this is just grabbing
         // the core count of node zero? verify/change
         NUMBER_OF_XPUS = topOut.topOutputPerNode[0].numCores;
     }
@@ -429,7 +427,7 @@ function getParseArgs(schema, inputSerial) {
     // console.log(schema)
     const parseArgJson = {
         // calling schema.toObject() places the list of columns
-        // under the key 'columnsList' instead of 'columns' as 
+        // under the key 'columnsList' instead of 'columns' as
         // specified in the interface description. I cannot seem
         // to find any other method to convert this though so
         // I worked around it inside the parser
@@ -501,7 +499,7 @@ export async function discoverSchemas(paths, inputSerialization) {
     var client = new Xcrpc.xce.XceClient(xcHelper.getApiUrl());
     var discoverService = new Xcrpc.xce.DiscoverSchemasService(client); // handle failure
     const discoverResponse = await discoverService.discoverSchemas(discoverRequest);
- 
+
     // console.log("Discover Response: " + discoverResponse);
 
     return discoverResponse;
@@ -557,7 +555,7 @@ export async function createTableFromSchema(tableName, paths, schema, inputSeria
         // there should be at least one path selected in GUI?
         inputSerial = defaultInputSerialization(paths[0]);
     }
-    await createTableAndComplements(paths, schema, inputSerial, tableName);
+    return await createTableAndComplements(paths, schema, inputSerial, tableName);
 }
 
 export async function exampleCsvRun(tableName=null, paths=null, inputSerial=null) {
@@ -577,16 +575,16 @@ export async function exampleCsvRun(tableName=null, paths=null, inputSerial=null
     if (inputSerial == null) {
         inputSerial = {
             'CSV': {'FileHeaderInfo': 'USE'}
-            
+
         };
     }
 
-   
+
     const inputSerialJson = getInputSerial(inputSerial);
 
     const discoverResponse = await discoverSchemas(paths, inputSerialJson);
     const successfulPaths = getSuccessfulPaths(discoverResponse);
     const schema = getLastSchema(discoverResponse);
-    
+
     await createTableAndComplements(successfulPaths, schema, inputSerial, tableName);
 }

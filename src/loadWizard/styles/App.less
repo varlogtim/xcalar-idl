@@ -9,18 +9,22 @@ body {
 }
 
 .App {
+    height: 100%;
     padding: 10px;
 }
 
 .mainArea {
+    height: 100%;
     &.panelShown {
         padding-left: 300px;
     }
 }
 
 .container {
-    min-width: 640px;
-    background-color: white;
+    // min-width: 640px;
+    // background-color: white;
+    height: 100%;
+    overflow-y: auto;
     padding: 10px 20px;
 }
 
@@ -41,13 +45,14 @@ body {
     label {
         display: block;
         float: left;
-        width: 200px;
+        width: 120px;
     }
 
     .bucketSelection, .pathSelection {
+        padding-bottom: 5px;
         input {
-            width: 400px;
-            font-size: 16px;
+            width: 300px;
+            // font-size: 16px;
         }
     }
 
@@ -108,11 +113,11 @@ tr {
 }
 
 
-#modelPanel {
+.modelPanel {
     position: fixed;
     width: 290px;
     height: calc(100% - 20px);
-    background-color: white;
+    // background-color: white;
 
     .header {
         color: #44515C;
@@ -147,8 +152,8 @@ tr {
     }
 
     .addModel {
-        background-color: #eee;
-        width: 100px;
+        // background-color: #eee;
+        // width: 100px;
         padding: 5px 10px;
         margin: 0 0 20px 10px;
         cursor: pointer;
@@ -163,7 +168,7 @@ tr {
     }
 }
 
-#BrowseDataSourceScreen {
+.browseDataSourceScreen {
     .upFolderIcon {
         position: relative;
         top: 6px;

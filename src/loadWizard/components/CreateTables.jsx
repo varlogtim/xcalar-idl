@@ -17,8 +17,11 @@ export default function CreateTables({props}) {
     const [allTablesTotalCost, setAllTablesTotalCost] = React.useState(0);
     const [allTablesTotalEta, setAllTablesTotalEta] = React.useState(0);
 
+    if (screen !== "TableLoad") {
+        return null;
+    }
     return (
-        <div className="tableLoad" style={{display: screen === "TableLoad" ? "block" : "none"}}>
+        <div className="tableLoad">
             <div id="discoverAll">
                 <button onClick={() => {
 
@@ -48,11 +51,11 @@ export default function CreateTables({props}) {
                     name: 'Back',
                     toScreen: 'SchemaDiscovery',
                 }}
-                right={{
-                    name: 'Next',
-                    toScreen: 'TableLoad',
-                    onClick: () => alert('Going to Xcalar Design')
-                }}
+                // right={{
+                //     name: 'Next',
+                //     toScreen: 'TableLoad',
+                //     onClick: () => alert('Going to Xcalar Design')
+                // }}
                 setScreen={setScreen}
                 setScreenName={setScreenName}
             />

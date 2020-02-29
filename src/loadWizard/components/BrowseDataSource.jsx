@@ -42,8 +42,11 @@ export default function BrowseDataSource({props}) {
         // getS3Data(bucket + parentDirectory, setData, fileIdToFile, setFileIdToFile)
     }
 
+    if (screen !== "FilterData") {
+        return null;
+    }
   return (
-    <div id="BrowseDataSourceScreen" className="fileBrowser" style={{display: screen === "FilterData" ? "block" : "none"}}>
+    <div className="browseDataSourceScreen fileBrowser">
         <div>Select the data source that you want to import and then click the "Next" button.</div>
         <div className="fileBrowserPath">
             <Publish className="upFolderIcon" onClick={handleUpFolderClick}/>
