@@ -24,6 +24,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     }
     var xcConsole = require('./utils/expServerXcConsole.js');
     var cookieFilter = require('./utils/cookieFilter.js');
+    var sessionFilter = require('./utils/sessionFilter.js');
 
     var xlrRoot = null;
 
@@ -111,6 +112,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     var url = require('url');
     var socket = require('./controllers/socket.js').default.socketIoServer;
     var Xcrpc = require('xcalarsdk');
+
     var serverPort = process.env.XCE_EXP_PORT ?
         parseInt(process.env.XCE_EXP_PORT) : 12124;
     if (process.env.NODE_ENV === "test") {
@@ -130,13 +132,19 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         support.checkProxyAuthImpl = (req, res) => {return true;}
     }
 
+    var sessionFilterOptions = {
+        paths: [ '/service/xce' ],
+        sessionMiddleware: serverSession
+    };
+    var serverSessionFilter = sessionFilter(sessionFilterOptions);
+
     var payloadSizeLimit = '25mb';
     var app = express();
     var appJupyter = express();
 
     app.use(cookieFilter(cookieFilterOptions));
     app.use(serverCookieParser);
-    app.use(serverSession);
+    app.use(serverSessionFilter);
 
     // these header modifications must come before the
     // thrift proxy because a filter failure sends a

@@ -20,7 +20,7 @@ module.exports = function(options) {
                     }
                 }
 
-                var serializedCookies = []
+                var serializedCookies = [];
                 for (var prop in newCookies) {
                     serializedCookies.push(cookie.serialize(prop, newCookies[prop]));
                 }
@@ -33,5 +33,5 @@ module.exports = function(options) {
             }
         }
         next();
-    }
+    };
 }
