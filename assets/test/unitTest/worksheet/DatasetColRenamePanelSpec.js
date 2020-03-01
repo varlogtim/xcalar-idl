@@ -246,7 +246,7 @@ describe("DatasetColRenamePanel Test", function() {
             $renameSection.find(".resultSection .resultCol .resultInput").eq(0).val("sdf::abc").trigger("input").change();
             $renameSection.find(".confirmRename").click();
             expect($renameSection.is(":visible")).to.be.true;
-            UnitTest.hasStatusBoxWithError("Invalid name. Ensure name does not contain the following characters: ^.\',\":()[]{}\\");
+            UnitTest.hasStatusBoxWithError(ColTStr.ColNameInvalidChar);
 
         });
 

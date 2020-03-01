@@ -215,7 +215,7 @@ describe('SortOpPanelModel Test', () => {
                 error = e;
             }
             expect(error != null).to.equal(true);
-            expect(error.message).to.equal('Invalid name. Ensure name does not contain the following characters: ^.\',":()[]{}\\ or space');
+            expect(error.message).to.equal(ColTStr.ColNameInvalidCharSpace);
         });
 
         it('Case: columns already has key name', () => {

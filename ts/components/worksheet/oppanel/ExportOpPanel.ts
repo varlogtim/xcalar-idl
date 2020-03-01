@@ -415,7 +415,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         // Submit button
         this._$elemPanel.on(
             `click.submit.${ExportOpPanel._eventNamespace}`,
-            '.confirm',
+            '.submit',
             () => {
                 if (this._dataModel.isAdvMode()) {
                     try {

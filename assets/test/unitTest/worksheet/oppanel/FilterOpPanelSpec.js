@@ -9,7 +9,7 @@ describe("FilterOpPanel Test", function() {
     var prefix = "prefix";
     var openOptions = {};
 
-    before(function() {
+    before(function(done) {
         MainMenu.openPanel("sqlPanel");
         node = new DagNodeFilter({});
         const parentNode = new DagNodeFilter({});
@@ -34,6 +34,10 @@ describe("FilterOpPanel Test", function() {
         $functionsList = $functionsInput.siblings('.list');
         $argSection = $filterOpPanel.find('.argsSection').eq(0);
 
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
+        .always(function() {
+            done();
+        });
     });
 
     describe("Basic Filter Panel UI Tests", function() {
@@ -66,7 +70,7 @@ describe("FilterOpPanel Test", function() {
 
         before(function () {
             var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
-            filterOpPanel.show(node, $.extend({}, openOptions, {autofillColumnNames: [prefixCol]}));
+            DagConfigNodeModal.Instance.show(node, null, $(), $.extend({}, openOptions, {autofillColumnNames: [prefixCol]}));
             $functionsInput = $filterOpPanel.find('.functionsInput');
             $functionsList = $functionsInput.siblings('.list');
             $argSection = $filterOpPanel.find('.argsSection').eq(0);

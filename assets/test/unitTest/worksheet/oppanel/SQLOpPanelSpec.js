@@ -27,11 +27,12 @@ describe("SQLOpPanel Test", function() {
             node.getParents = function() {
                 return [parentNode];
             }
+            node._isDeprecated = true;
             openOptions = {
                 udfDisplayPathPrefix : UDFFileManager.Instance.getCurrWorkbookDisplayPath()
             };
 
-            sqlOpPanel = oldSQLOpPanel.Instance;
+            sqlOpPanel = OldSQLOpPanel.Instance;
             sqlEditor = sqlOpPanel.getSQLEditor();
             editor = sqlOpPanel._editor;
             $sqlOpPanel = $('#oldSqlOpPanel');
@@ -79,7 +80,7 @@ describe("SQLOpPanel Test", function() {
 
         describe("initial state", function() {
             it("should have 0 identifier", function() {
-                expect($sqlOpPanel.find("#sqlIdentifiers li").length).to.equal(0);
+                expect($sqlOpPanel.find(".sqlIdentifiers li").length).to.equal(0);
                 expect($sqlOpPanel.find(".tableInstruction").is(":visible")).to.be.true;
             });
             it("drop as you go should be checked", function() {
@@ -93,12 +94,12 @@ describe("SQLOpPanel Test", function() {
         describe("table mapping", function() {
             it("shoud have identifiers after connection changes", function() {
                 node.connectToParent(parentNode, 0);
-                expect($sqlOpPanel.find("#sqlIdentifiers li").length).to.equal(1);
-                expect($("#sqlIdentifiers").find("li .source").text().trim()).to.equal("1");
-                expect($("#sqlIdentifiers").find("li .dest").text().trim()).to.equal("");
+                expect($sqlOpPanel.find(".sqlIdentifiers li").length).to.equal(1);
+                expect($(".sqlIdentifiers").find("li .source").text().trim()).to.equal("1");
+                expect($(".sqlIdentifiers").find("li .dest").text().trim()).to.equal("");
                 expect($sqlOpPanel.find(".tableInstruction").is(":visible")).to.be.false;
                 node.disconnectFromParent(parentNode, 0);
-                expect($sqlOpPanel.find("#sqlIdentifiers li").length).to.equal(0);
+                expect($sqlOpPanel.find(".sqlIdentifiers li").length).to.equal(0);
                 expect($sqlOpPanel.find(".tableInstruction").is(":visible")).to.be.true;
             });
         });
@@ -107,7 +108,7 @@ describe("SQLOpPanel Test", function() {
     describe("submit", function() {
         it("should submit", function(done) {
             node.connectToParent(parentNode, 0);
-            $("#sqlIdentifiers").find(".dest").val("test").trigger("change");
+            $sqlOpPanel.find(".sqlIdentifiers").find(".dest").val("test").trigger("change");
             sqlEditor.setValue("Select * FROM test");
             let called = false;
             node.compileSQL = () => {

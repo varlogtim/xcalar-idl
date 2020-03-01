@@ -215,22 +215,6 @@ describe('PublishIMDOpPanel Test', () => {
         });
     });
 
-    describe("Final output", function() {
-        it ("final node should have correct input", function() {
-            opPanel.show(node, {});
-            expect(JSON.stringify(node.getParam())).to.equal('{"pubTableName":"","primaryKeys":[],"operator":"","columns":[]}');
-            var input = JSON.stringify(
-                {"pubTableName": "TEST", "primaryKeys": [], "operator": "", "columns": ["col#1"]},
-                null, 4);
-            editor.setValue(input);
-            $panel.find(".submit").click();
-            expect(JSON.stringify(node.getParam())).to.equal('{"pubTableName":"TEST","primaryKeys":[],"operator":"","columns":["col#1"]}');
-
-            opPanel.show(node, {});
-            $("#publishIMDOpPanel .bottomSection .btn-submit").click();
-        });
-    });
-
     function genProgCols(colPrefix, count) {
         const cols = new Array(count);
         for (let i = 0; i < count; i ++) {

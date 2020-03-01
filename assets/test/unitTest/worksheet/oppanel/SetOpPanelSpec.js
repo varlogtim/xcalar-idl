@@ -22,6 +22,7 @@ describe("SetOpPanel Test", function() {
             }),
             getTitle: () => "Node 1",
             validateNodes: () => null,
+            getType: () => DagNodeType.Set,
             getSubType: () => DagNodeSubType.Intersect,
         };
     });
@@ -30,10 +31,14 @@ describe("SetOpPanel Test", function() {
         MainMenu.openPanel("sqlPanel");
         opPanel = SetOpPanel.Instance;
         opPanel._updateMode(true);
-        opPanel.show(setNode, {})
+        DagConfigNodeModal.Instance.show(setNode, null, $(), {});
+
+        // in case or the async call of SetOpPanel.show
+        UnitTest.testFinish(() => $("#setOpPanel").is(":visible"))
         .then(() => {
-            expect($("#setOpPanel").is(":visible")).to.equal(true);
-            done();
+            setTimeout(() => {
+                done();
+            }, 1000);
         });
     })
 

@@ -1,4 +1,5 @@
-describe("JupyterOpPanel Test", function() {
+// jupyter related functions are deprecated
+describe.skip("JupyterOpPanel Test", function() {
     var jupyterOpPanel;
     var $jupyterOpPanel;
     var node;

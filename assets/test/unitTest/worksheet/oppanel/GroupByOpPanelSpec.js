@@ -67,14 +67,18 @@ describe("GroupByOpPanel Test", function() {
 
     describe("GroupBy Panel Tests", function() {
 
-        before(function () {
+        before(function(done) {
             var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
             var options = $.extend({}, openOptions, {autofillColumnNames: [prefixCol]});
-            groupByOpPanel.show(node, options);
-            $functionsInput = $groupByOpPanel.find('.functionsInput');
-            $functionsList = $functionsInput.siblings('.list');
-            $argSection = $groupByOpPanel.find('.argsSection').eq(0);
-            $groupByOpPanel.find(".gbOnArg").val(prefixCol).trigger("input").trigger("change");
+            DagConfigNodeModal.Instance.show(node, null, $(), options);
+            setTimeout(() => {
+                // group by op panel show is async, sos wait for it
+                $functionsInput = $groupByOpPanel.find('.functionsInput');
+                $functionsList = $functionsInput.siblings('.list');
+                $argSection = $groupByOpPanel.find('.argsSection').eq(0);
+                $groupByOpPanel.find(".gbOnArg").val(prefixCol).trigger("input").trigger("change");
+                done();
+            }, 1000);
         });
 
         describe("groupby functions input list", function() {
