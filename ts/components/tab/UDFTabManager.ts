@@ -210,6 +210,10 @@ class UDFTabManager extends AbstractTabManager {
             this.newTab();
         });
 
+        $("#udfSection").find(".hintSection .action").click(() => {
+            this.newTab();
+        });
+
         const $tabArea: JQuery = this._getTabArea();
         $tabArea.off("dblclick", ".dragArea"); // turn off dblick to rename
     }

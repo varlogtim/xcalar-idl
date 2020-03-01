@@ -94,7 +94,7 @@ class TableTabManager extends AbstractTabManager {
 
     protected _restoreTabs(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this._loadTab(this._getSQLTab());
+        // this._loadTab(this._getSQLTab());
         this._getKVStore().getAndParse()
         .then((restoreData: {tabs: {
             name: string,

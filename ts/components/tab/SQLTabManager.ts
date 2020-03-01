@@ -179,6 +179,14 @@ class SQLTabManager extends AbstractTabManager {
         this._getContainer().find(".addTab").click(() => {
             this.newTab();
         });
+
+        this._getView().find(".hintSection .action").click(() => {
+            this.newTab();
+        });
+    }
+
+    private _getView(): JQuery {
+        return $("#sqlViewContainer");
     }
 
     private _loadTab(id: string, index?: number): void {
@@ -226,7 +234,7 @@ class SQLTabManager extends AbstractTabManager {
 
     private _updateList(): void {
         ResourceMenu.Instance.render(ResourceMenu.KEY.SQL);
-        const $view = $("#sqlViewContainer");
+        const $view = this._getView();
         if (this._activeTabs.length === 0) {
             $view.addClass("hint");
         } else {

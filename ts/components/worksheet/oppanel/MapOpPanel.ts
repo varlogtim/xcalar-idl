@@ -313,12 +313,17 @@ class MapOpPanel extends GeneralOpPanel {
         let html = "";
         let categoryName;
         let operatorsMap = GeneralOpPanel.getOperatorsMap();
+        const udfCategory = FunctionCategoryTStr[FunctionCategoryTFromStr["User-defined functions"]].toLowerCase();
         for (let i = 0; i < Object.keys(operatorsMap).length; i++) {
             if (FunctionCategoryTStr[i] === 'Aggregate functions') {
                 continue;
             }
 
             categoryName = FunctionCategoryTStr[i].toLowerCase();
+            // XXX a hard code rename, should be finally changed by backend
+            if (categoryName === udfCategory) {
+                categoryName = "Scalar function functions";
+            }
             const searchStr = " functions";
             const categoryNameLen = categoryName.length;
             if (categoryName.lastIndexOf(searchStr) ===

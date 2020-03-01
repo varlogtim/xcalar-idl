@@ -1053,7 +1053,7 @@ module.exports = {
 
     "SQLEditor": {
         "Run": "Run",
-        "RunHint": "Select a portion of query to run selected",
+        "RunHint": "Execute SQL",
         "More": "More",
         "SQLFuncShortHint": "Table function takes one or more tables as input and output a table.",
         "NewSnippet": "New Query",

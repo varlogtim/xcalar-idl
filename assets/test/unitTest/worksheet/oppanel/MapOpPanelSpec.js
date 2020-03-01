@@ -97,7 +97,7 @@ describe("MapOpPanel Test", function() {
                 it('filter on input should update menus', function() {
                     $filterInput.val('add').trigger(fakeEvent.input);
                     var $catLis = $categoryMenu.find('li:visible').filter(function() {
-                        return ($(this).text().indexOf('user') === -1);
+                        return ($(this).text().indexOf('Scalar') === -1);
                     });
 
                     var $funcLis = $functionsMenu.find('li:visible').filter(function() {
@@ -155,7 +155,7 @@ describe("MapOpPanel Test", function() {
 
                 it('mapFilter keydown enter should work', function() {
                     $filterInput.val('aTAn2').trigger(fakeEvent.input);
-                    expect($categoryMenu.find('li').eq(7).hasClass('active')).to.be.true;
+                    expect($categoryMenu.find('li').eq(8).hasClass('active')).to.be.true;
                     expect($functionsMenu.find('li:visible').length).to.equal(1);
                     expect($functionsMenu.find('li:visible').eq(0).hasClass('active')).to.be.false;
                     expect($mapOpPanel.find('.argsSection').hasClass('inactive')).to.be.true;
@@ -180,7 +180,7 @@ describe("MapOpPanel Test", function() {
 
                 it('clicking on filtered category list should work', function() {
                     $filterInput.val('sub').trigger(fakeEvent.input);
-                    $categoryMenu.find('li:visible').eq(0).trigger(fakeEvent.click);
+                    $categoryMenu.find('li:visible').eq(1).trigger(fakeEvent.click);
                     expect($categoryMenu.find("li.active").text()).to.equal('arithmetic');
                     expect($functionsMenu.find('li:visible')).to.have.length(3);
                     expect($functionsMenu.find('li:visible').text()).to.equal("subsubIntegersubNumeric");
@@ -214,7 +214,7 @@ describe("MapOpPanel Test", function() {
 
                     // user-defined - default:splitWithDelim
                     $categoryMenu.find('li').filter(function() {
-                        return ($(this).text() === "user-defined");
+                        return ($(this).text() === "Scalar function");
                     }).trigger(fakeEvent.click);
 
                     $functionsMenu.find('li').filter(function() {
@@ -252,7 +252,7 @@ describe("MapOpPanel Test", function() {
 
             describe("special argument cases", function() {
                 it("addExtraArg should work", function() {
-                    $categoryMenu.find("li:contains('user-defined')").click();
+                    $categoryMenu.find("li:contains('Scalar function')").click();
                     $functionsMenu.find("li:contains('default:multiJoin')").click();
                     expect($mapOpPanel.find(".addExtraArg").length).to.equal(1);
                     expect($mapOpPanel.find(".arg:visible").length).to.equal(2);
@@ -357,7 +357,7 @@ describe("MapOpPanel Test", function() {
                     var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
                     var mapStr = 'default:splitWithDelim(' + prefixCol + ', 1, "-")';
                     var options = {
-                        category: "user-defined",
+                        category: "Scalar function",
                         func: "default:splitWithDelim",
                         args: [{
                             num: 0,

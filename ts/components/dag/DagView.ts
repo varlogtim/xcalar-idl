@@ -38,6 +38,7 @@ class DagView {
     // private static mapNodeColor = "#89D0E0";
     private static textColor = "#000000";
     private static edgeColor = "#627483";
+    private static iconColor = "#00000";
     private static dataflowNodeLimit = 1000; // point where dataflow starts to lag
     private static _nodeCache: Map<string, JQuery> = new Map(); // used to store nodes for drawing
 
@@ -60,6 +61,7 @@ class DagView {
         if (xcGlobal.darkMode) {
             DagView.textColor = "#FFFFFF";
             DagView.edgeColor = "#c9c9c9";
+            DagView.iconColor = "#000000";
         }
     }
 
@@ -554,7 +556,7 @@ class DagView {
                 .attr("cx", 3.5)
                 .attr("cy", 0)
                 .attr("r", 6)
-                .style("fill", DagView.edgeColor);
+                .style("fill", DagView.iconColor);
             g.append("text")
                 .attr("font-family", fontFamily)
                 .attr("font-size", fontSize)

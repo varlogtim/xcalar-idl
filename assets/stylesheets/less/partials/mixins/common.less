@@ -1509,7 +1509,11 @@
     }
 
     &.hint {
-        .contentSection {
+        .hintDisable {
+            .xc-disabled;
+        }
+
+        .hintHidden {
             display: none !important;
         }
 
@@ -1526,6 +1530,11 @@
         color: @color-font-default;
         .center-align;
         text-align: center;
+
+        .action {
+            text-decoration: underline;
+            color: @color-font-link-blue;
+        }
     }
 
     .contentSection {

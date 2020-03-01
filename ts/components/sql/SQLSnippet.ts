@@ -33,7 +33,7 @@ class SQLSnippet {
     /**
      * SQLSnippet.Instance.load
      */
-    public async load(): Promise<void> {
+    public async load(): Promise<boolean | null> {
         return this._fetchSnippets();
     }
 
@@ -173,9 +173,9 @@ class SQLSnippet {
         return new KVStore(snippetQueryKey, gKVScope.WKBK);
     }
 
-    private async _fetchSnippets(): Promise<void> {
+    private async _fetchSnippets(): Promise<boolean | null> {
         if (this._fetched) {
-            return;
+            return true;
         }
 
         try {
@@ -197,9 +197,13 @@ class SQLSnippet {
                 } else {
                     this._snippets = res.snippets;
                 }
+                return true;
+            } else {
+                return false;
             }
         } catch (e) {
             console.error("fail sql snippet fails", e);
+            return null;
         }
     }
 

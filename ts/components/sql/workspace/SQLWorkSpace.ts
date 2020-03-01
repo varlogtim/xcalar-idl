@@ -40,7 +40,7 @@ class SQLWorkSpace {
         // this.refresh();
         if (this._firstTouch) {
             this.refresh();
-            SQLResultSpace.Instance.showTables(true, true);
+            // SQLResultSpace.Instance.showTables(true, true);
             this._firstTouch = false;
         }
         PopupManager.checkAllContentUndocked();

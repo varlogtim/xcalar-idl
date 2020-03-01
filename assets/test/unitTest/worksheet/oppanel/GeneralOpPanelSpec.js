@@ -99,7 +99,7 @@ describe("GeneralOpPanel Test", function() {
 
         it("empty field checkbox should work on optional args", function() {
             $categoryMenu.find('li').filter(function() {
-                return ($(this).text() === "user-defined");
+                return ($(this).text() === "Scalar function");
             }).trigger(fakeEvent.click);
 
             $functionsMenu.find('li').filter(function() {

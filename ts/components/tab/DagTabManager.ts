@@ -481,11 +481,18 @@ class DagTabManager extends AbstractTabManager {
 
     protected _restoreTabs(): XDPromise<void> {
         const dagMaps: Map<string, DagTab> = DagList.Instance.getAllDags();
-        if (dagMaps.size === 0) {
-            DagList.Instance.reset();
-            return PromiseHelper.resolve();
-        }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        if (dagMaps.size === 0) {
+            this._loadSQLExecuteTab()
+            .then(() => {
+                deferred.resolve();
+            })
+            .fail((error) => {
+                DagList.Instance.reset();
+                deferred.reject(error);
+            });
+            return deferred.promise();
+        }
         this._loadSQLExecuteTab()
         .then(() => {
             return this._getKVStore().getAndParse();

@@ -80,6 +80,7 @@ abstract class AbstractTabManager {
         const $tabArea: JQuery = this._getTabArea();
         $tabArea.on("click", ".after", (event) => {
             event.stopPropagation();
+            xcTooltip.hideAll();
             const index: number = this._getTabIndexFromEl($(event.currentTarget));
             this._deleteTabAction(index, name);
             this._tabListScroller.showOrHideScrollers();

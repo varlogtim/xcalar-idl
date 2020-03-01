@@ -6,10 +6,10 @@
     <i class="icon xi-close close xc-icon-action" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Close %>"></i>
     <i class="icon xi_popout undock xc-icon-action" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.bottomMenu.popOutBtn %>"></i>
     <i class="icon xi-udf-manager toManager xc-icon-action" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.UDF.ToManager %>"></i>
-    <i class="icon xi-save saveFile xc-icon-action" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.UDF.SaveFile %>"></i>
+    <i class="icon xi-save saveFile xc-icon-action hintDisable" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.UDF.SaveFile %>"></i>
   </header>
   <!-- Content -->
-  <div class="menuContent">
+  <div class="menuContent hintHidden">
     <!-- Main Content -->
     <section class="mainSectionContainer">
       <!-- Section to write function -->
@@ -23,6 +23,9 @@
       </section>
     </section>
     <!-- End of Main Section -->
+  </div>
+  <div class="hintSection">
+    To get started, open an existing Scalar Function or <span class="newUDF action xc-action">create a new one</span>
   </div>
 </section>
 <!-- end of UDF Section -->

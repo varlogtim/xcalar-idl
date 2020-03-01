@@ -797,6 +797,7 @@ declare enum FunctionCategoryT {
 }
 
 declare enum FunctionCategoryTStr {}
+declare enum FunctionCategoryTFromStr{}
 
 declare enum DgDagStateT {
     DgDagStateReady,

@@ -208,11 +208,15 @@ class SQLEditorSpace {
     private async _loadSnippet(): Promise<void> {
         const deferred = PromiseHelper.deferred();
         const timer = this._startLoad(deferred.promise());
-        await SQLSnippet.Instance.load();
+        const loadRes = await SQLSnippet.Instance.load();
         await SQLTabManager.Instance.setup();
         deferred.resolve();
         this._stopLoad(timer);
         ResourceMenu.Instance.render(ResourceMenu.KEY.SQL);
+        if (loadRes === false) {
+            // when it's the new workbook
+            SQLTabManager.Instance.newTab();
+        }
     }
 
     private _startLoad(promise: XDPromise<any>): any {

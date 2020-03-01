@@ -2,6 +2,7 @@ class SQLResultSpace {
     private static _instance: SQLResultSpace;
     private _popup: PopupPanel;
     private _preventShow: boolean = false;
+    private _fetched: boolean = false;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -131,6 +132,10 @@ class SQLResultSpace {
      * @param reset
      */
     public showTables(reset: boolean, firstTouch?: boolean): void {
+        if (!this._fetched) {
+            reset = true;
+            this._fetched = true;
+        }
         this._sqlTableSchema.close();
         this._tableLister.show(reset);
         if (firstTouch && this._preventShow) {
