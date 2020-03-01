@@ -1,7 +1,7 @@
 describe("MetaInfo Constructor Test", function() {
     var metaInfos;
 
-    it("should have 6 attributs", function() {
+    it("should have 5 attributs", function() {
         var table = new TableMeta({
             "tableId": "test",
             "tableName": "testTable"
@@ -23,7 +23,7 @@ describe("MetaInfo Constructor Test", function() {
         });
 
         expect(metaInfos).to.be.an.instanceof(MetaInfo);
-        expect(Object.keys(metaInfos).length).to.equal(6);
+        expect(Object.keys(metaInfos).length).to.equal(5);
         expect(metaInfos.version).to.equal(Durable.Version);
     });
 

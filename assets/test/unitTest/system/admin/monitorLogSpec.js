@@ -157,14 +157,16 @@ describe("MonitorLog Test", function() {
 
     it("_validate should work", function() {
         let $inputSection = monitorLogCard._getInputSection();
-        let $fileName = $inputSection.find(".logName .xc-input");
+        let $fileName = $inputSection.find(".logName .dropDownList .text");
         let $lastNRow = $inputSection.find(".numLogs .xc-input");
         // case 1
-        $fileName.val("");
+        $fileName.text("");
+        $fileName.data("option", "");
         let res = monitorLogCard._validate();
         expect(res).to.equal(null);
         // case 2
-        $fileName.val("test");
+        $fileName.text("node");
+        $fileName.data("option", "node");
         $lastNRow.val("");
         res = monitorLogCard._validate();
         expect(res).to.equal(null);
@@ -182,10 +184,11 @@ describe("MonitorLog Test", function() {
         res = monitorLogCard._validate();
         expect(res).to.deep.equal({
             lastNRow: 100,
-            fileName: "test"
+            fileName: "node.*.log"
         });
 
-        $fileName.val("");
+        $fileName.text("");
+        $fileName.data("option", "");
         $lastNRow.val("");
         StatusBox.forceHide();
     });

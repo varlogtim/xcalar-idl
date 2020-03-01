@@ -1337,7 +1337,7 @@ namespace xcManager {
 
     function setupNonDataMart(): void {
         $("#jupyterTab").removeClass("xc-hidden");
-        $("#datastorePanel").appendTo($("#monitorPanel"));
+        $("#datastorePanel").insertAfter($("#monitorPanel"));
     }
 
     /* Unit Test Only */

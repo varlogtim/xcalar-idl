@@ -376,7 +376,7 @@ namespace WorkbookManager {
      */
     export function resetXDInternalSession(): void {
         // only reset when current session it not null
-        if (!_currentSession) {
+        if (_currentSession) {
             setSessionName(_currentSession);
             _currentSession = undefined;
         }
