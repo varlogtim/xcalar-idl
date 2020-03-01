@@ -19,6 +19,7 @@ export default function SourcePath({bucket, setBucket, path, setPath}) {
                     S3 Bucket Name:
                 </label>
                 <input
+                    className="xc-input"
                     list="buckets"
                     name="bucket"
                     value={bucket}
@@ -31,6 +32,7 @@ export default function SourcePath({bucket, setBucket, path, setPath}) {
                     Path:
                 </label>
                 <input
+                    className="xc-input"
                     type="text"
                     value={path}
                     onChange={onChange}

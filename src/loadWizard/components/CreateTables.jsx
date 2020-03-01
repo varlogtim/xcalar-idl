@@ -22,8 +22,9 @@ export default function CreateTables({props}) {
     }
     return (
         <div className="tableLoad">
-            <div id="discoverAll">
-                <button onClick={() => {
+            {/* XXX please verify if the id should be loadAll or discoverAll */}
+            <div id="loadAll">
+                <button className="btn btn-secondary" onClick={() => {
 
                     }}>Create All</button>
                     <span>Total Cost: $<b>{allTablesTotalCost.toFixed(8)}</b> </span>

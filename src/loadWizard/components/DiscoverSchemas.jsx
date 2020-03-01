@@ -38,7 +38,7 @@ export default function DiscoverSchemas({props}) {
     return (
         <div className="filesSelected">
             <div id="discoverAll">
-                <button onClick={() => {
+                <button className="btn btn-secondary" onClick={() => {
                     selectedData.forEach(file => {
                         if (!(file.fileId in fileToSchema) && file.fileId in discoverSchemaCalls) {
                             discoverSchemaCalls[file.fileId]();

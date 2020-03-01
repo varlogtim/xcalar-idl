@@ -72,12 +72,17 @@ export default function modelPanel({screen, setBucket, setPath, modelSelected, s
         <div className="modelPanel">
             <div className="modelPanelContent">
                 <div className="header">Import Models</div>
-                <div className="addModel" onClick={() => handleModelClick('untitled')}><span role="img" aria-label="plus">➕</span>Add Import Model</div>
-                <div className="modelList">
+                <button
+                    className="addModel btn btn-secondary"
+                    onClick={() => handleModelClick('untitled')}>
+                        <i className="icon xi-plus fa-11"></i>
+                        <span>Add Import Model</span>
+                </button>
+                <div className="modelList xc-grid listView">
                     {models.map(modelName => (
                         <div
                             key={modelName}
-                            className={"modelElement " + (modelSelected === modelName.toLowerCase() ? "active" : "")}
+                            className={"grid-unit modelElement " + (modelSelected === modelName.toLowerCase() ? "active" : "")}
                             onClick={() => handleModelClick(modelName.toLowerCase())}
                         >
                             <span className="icon">❖</span>

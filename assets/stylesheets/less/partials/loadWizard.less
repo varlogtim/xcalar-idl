@@ -1,0 +1,230 @@
+#loadWizard {
+    .App {
+        height: 100%;
+        display: flex;
+        flex-direction: row;
+
+        .modelPanel {
+            height: 100%;
+            flex: 0 0 210px;
+        }
+
+        .mainArea {
+            height: 100%;
+            flex: 1 1 auto;
+        }
+    }
+
+    .container {
+        height: 100%;
+        
+        .cardMain {
+            padding: 20px;
+            overflow-y: auto;
+            height: ~"calc(100% - 36px)";
+        }
+    }
+    
+    .box {
+        padding: 40px;
+        padding-top: 10px;
+    }
+    
+    #sourceForm {
+        width: 80%;
+        margin: 0 10%;
+        @w-label: 120px;
+
+        label {
+            display: block;
+            float: left;
+            width: 120px;
+            line-height: 30px;
+        }
+    
+        .bucketSelection, .pathSelection {
+            padding-bottom: 8px;
+            input {
+                width: ~"calc(100% - @{w-label})";
+            }
+        }
+    }
+
+    .modelInfo {
+        margin: 8px 0;
+    }
+
+    .createTableButton {
+        margin-right: 8px;
+        width: auto;
+    }
+    
+    .navButtons {
+        margin-top: 8px;
+        height: 24px;
+
+        .nextButton {
+            float: right;
+        }
+    
+        .backButton {
+            float: left;
+        }
+    }
+
+    .forensicsContent {
+        margin: 8px 0;
+        width: 100%;
+        max-height: 300px;
+        overflow: auto;
+
+        div, pre {
+            white-space: normal;
+            word-break: break-all;
+        }
+    }
+    
+    .browseDataSourceScreen {
+        border-bottom: none;
+
+        .upFolderIcon {
+            position: relative;
+            top: 6px;
+            margin-right: 4px;
+        }
+    
+        .fileBrowserPath {
+            padding: 12px 0;
+            input {
+                width: 50%;
+                outline: none;
+            }
+        }
+    }
+
+    // overwrite material UI style
+    .MuiPaper-root {
+        background-color: transparent;
+        margin: 4px 0;
+
+        .MuiSvgIcon-root {
+            fill: @color-font-default;
+        }
+
+        .MuiTableCell-root {
+            background-color: transparent;
+            color: @color-font-default;
+        }
+
+        .MuiTableCell-head {
+            color: @color-font-default;
+        }
+
+        .MuiTypography-root {
+            color: @color-font-default;
+        }
+    }
+
+    #discoverAll {
+        margin-bottom: 8px;
+    }
+    
+    #loadAll {
+        margin-bottom: 8px;
+        button {
+            margin-right: 4px;
+        }
+    }
+
+    tr {
+        border-bottom: 1px solid black;
+    }
+
+    .chartInfo {
+        margin-top: 8px;
+    }
+    
+    .chartArea {
+        #BucketChart{
+            width: 800px;
+            margin: 0 auto;
+            display: flex;
+            .recharts-pie-label-text {
+                font-size: 12px;
+            }
+        }
+    }
+    
+    #SchemaChart {
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        .recharts-pie-label-text {
+            font-size: 10px;
+        }
+    }
+
+    .tableLoad {
+        button {
+            background-color: @color-bg-default;
+            color: @color-font-default;
+        }
+    }
+
+    .modelPanel {
+        @h-header: 36px;
+        @h-button: 40px;
+        border-right: 1px solid @color-border-medium2;
+
+        .header {
+            font-size: 16px;
+            line-height: @h-header;
+            padding-left: 15px;
+            color: @color-font-darkGray;
+        }
+
+        .addModel {
+            margin: 8px 15px;
+
+            .icon {
+                margin-right: 4px;
+            }
+        }
+    
+        .modelList {
+            @h-rest: @h-header + @h-button;
+            width: 100%;
+            height: ~"calc(100% - @{h-rest})";
+            overflow-y: auto;
+        }
+
+        .modelElement {
+            padding-left: 15px;
+            padding-right: 4px;
+            line-height: 35px;
+
+            &:hover {
+                background-color: @color-bg-2;
+            }
+
+            &.active {
+                background-color: @color-bg-list-hover;
+            }
+
+            > span {
+                display: block;
+                float: left;
+                height: 35px;
+                line-height: 35px;
+            }
+
+            .icon {
+                font-size: 20px;
+            }
+
+            .modelName {
+                margin-left: 8px;
+            }
+        }
+    }
+}

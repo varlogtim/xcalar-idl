@@ -11,7 +11,7 @@ import * as S3Service from '../services/S3Service'
 function CreateTableButton(props) {
     const { isShow = false } = props || {};
     if (isShow) {
-        return (<button className="createTableButton">Create Table from Model</button>);
+        return (<button className="createTableButton btn btn-secondary">Create Table from Model</button>);
     } else {
         return null;
     }
@@ -27,7 +27,7 @@ function GetForensicsButton(props) {
     const disableButton = isLoading;
 
     return (
-        <button disabled={disableButton} className="getForensics" onClick={() => { onClick() }}>{buttonText}</button>
+        <button disabled={disableButton} className="getForensics btn btn-secondary" onClick={() => { onClick() }}>{buttonText}</button>
     );
 }
 
@@ -43,7 +43,7 @@ function ForensicsContent(props) {
     } = props || {};
     if (isShow) {
         return (
-            <div>
+            <div className="forensicsContent">
                 <div>{ message.map((m, i) => (<div key={i}>{m}</div>)) }</div>
                 <pre>{JSON.stringify(stats, null, '  ')}</pre>
             </div>

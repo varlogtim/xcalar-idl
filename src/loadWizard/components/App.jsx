@@ -47,9 +47,12 @@ function App() {
 
             <div className={"mainArea " + (screen === "SourceData" ? "panelShown" : "")}>
 
-                <div className="container">
-                    <div id="header">{screenName}</div>
-
+                <div className="container cardContainer">
+                    <div className="cardHeader">
+                        <header className="title">{screenName}</header>
+                    </div>
+                    {/* start of card main */}
+                    <div className="cardMain">
                     <SourceData
                         screen = { screen }
                         bucket = { bucket }
@@ -109,7 +112,8 @@ function App() {
                             setFileIdToStatus,
                         }}
                     />
-
+                    </div>
+                    {/* end of card main */}
                 </div>
             </div>
         </div>

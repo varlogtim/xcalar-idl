@@ -15,7 +15,7 @@ export default function NavButtons({left, right, setScreen, setScreenName}) {
 
     const leftButtons = left ?
     <div className="backButton">
-        <button onClick={() => {
+        <button className="btn btn-secondary" onClick={() => {
             if (left.onClick) {
                 left.onClick()
             }
@@ -27,7 +27,7 @@ export default function NavButtons({left, right, setScreen, setScreenName}) {
 
     const rightButtons = right ?
     <div className="nextButton">
-        <button onClick={() => {
+        <button className="btn" onClick={() => {
             if (right.onClick) {
                 right.onClick()
             }

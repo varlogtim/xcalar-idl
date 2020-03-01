@@ -4,7 +4,6 @@ import FilterTable from './FilterTable'
 import NavButtons from './NavButtons'
 import * as S3Service from '../services/S3Service';
 import expandS3Data from './expandS3Data'
-import { Publish } from '@material-ui/icons';
 
 export default function BrowseDataSource({props}) {
     const {
@@ -49,7 +48,7 @@ export default function BrowseDataSource({props}) {
     <div className="browseDataSourceScreen fileBrowser">
         <div>Select the data source that you want to import and then click the "Next" button.</div>
         <div className="fileBrowserPath">
-            <Publish className="upFolderIcon" onClick={handleUpFolderClick}/>
+            <i className="icon xi-upload-folder xc-icon-action upFolderIcon" onClick={handleUpFolderClick}></i>
             <input value={bucket + path} readOnly></input>
         </div>
         <FilterTable
