@@ -20,7 +20,14 @@ namespace WorkbookManager {
         setupSessionCancel();
         KVStore.setupWKBKKey();
         return setupWorkbooks();
-    };
+    }
+
+    /**
+     * WorkbookManager.hasSetup
+     */
+    export function hasSetup(): boolean {
+        return _isSetup;
+    }
 
     function setupWorkbooks(refreshing?: boolean): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();

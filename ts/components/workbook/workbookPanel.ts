@@ -42,6 +42,9 @@ namespace WorkbookPanel {
         let doneTimer: number = null;
         // open or close workbook view
         $("#homeBtn").click(function() {
+            if (!WorkbookManager.hasSetup()) {
+                return;
+            }
             $(this).blur();
             const $container: JQuery = $("#container");
             const $dialogWrap: JQuery = $("#dialogWrap");
