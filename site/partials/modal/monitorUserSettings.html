@@ -15,7 +15,7 @@
           <i class="icon xi-ckbox-selected fa-13"></i>
         </div>
       </div>
-      <div class="label">Show syntax highlighting</div>
+      <div class="label">Show syntax highlighting for editors</div>
     </div>
     <!-- show data col -->
     <div class="optionSet dataMart cloud onPrem">
@@ -51,6 +51,28 @@
         </div>
       </div>
       <div class="label"><%= dicts.monitor.hideSysOps %></div>
+    </div>
+    <!-- color theme -->
+    <div class="optionSet dataMart cloud onPrem">
+      <div class="optionSelector">
+        <div class="label">Editor theme:</div>
+        <div id="colorThemeSelector" class="dropDownList">
+            <div class="text"></div>
+            <div class="iconWrapper">
+              <i class="icon xi-arrow-down"></i>
+            </div>
+            <div class="list">
+              <ul>
+                <li data-option="xcalar-dark">Xcalar Dark</li>
+                <li data-option="3024-night">3024 Night</li>
+                <li data-option="ayu-dark">Ayu Dark</li>
+                <li data-option="erlang-dark">Erlang Dark</li>
+                <li data-option="midnight">Midnight</li>
+              </ul>
+              include "../../util/menuScrollArea.html"
+            </div>
+        </div>
+      </div>
     </div>
     <!-- health check interval -->
     <div class="optionSet dataMart cloud onPrem">

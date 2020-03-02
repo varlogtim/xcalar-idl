@@ -430,6 +430,17 @@ namespace UserSettings {
             }
         });
 
+        const $colorThemeDropdown = _getColorThemeDropdown();
+        new MenuHelper($colorThemeDropdown, {
+            onSelect: ($li) => {
+                const colorTheme = $li.data("option");
+                UserSettings.setPref("colorTheme", colorTheme, true);
+                _setColorTheme(colorTheme);
+            },
+            container: "#userSettingsModal",
+            bounds: "#userSettingsModal"
+        }).setupListeners();
+
         $("#userSettingsSave").click(function() {
             UserSettings.commit(true);
             close();
@@ -459,6 +470,7 @@ namespace UserSettings {
         let logOutInterval = UserSettings.getPref("logOutInterval");
         let enableInactivityCheck = UserSettings.getPref("enableInactivityCheck");
         let enableXcalarSupport: boolean = UserSettings.getPref("enableXcalarSupport") || false;
+        const colorTheme = UserSettings.getPref("colorTheme");
 
         if (!hideSyntaxHiglight) {
             $("#showSyntaxHighlight").addClass("checked");
@@ -516,11 +528,28 @@ namespace UserSettings {
             }
         }
 
+        _setColorTheme(colorTheme);
         DS.toggleSharing(disableDSShare);
         XcUser.CurrentUser.updateLogOutInterval(logOutInterval);
 
         monIntervalSlider.setSliderValue(graphInterval);
         commitIntervalSlider.setSliderValue(commitInterval);
         logOutIntervalSlider.setSliderValue(XcUser.CurrentUser.getLogOutTimeoutVal() / (1000 * 60));
+    }
+
+    function _getColorThemeDropdown(): JQuery {
+        return $("#colorThemeSelector");
+    }
+
+    function _setColorTheme(colorTheme: string): void {
+        colorTheme = colorTheme || CodeMirrorManager.Instance.getColorTheme();
+        const $colorThemeDropdown = _getColorThemeDropdown();
+        const $li = $colorThemeDropdown.find("li").filter((_index, e) => {
+            return $(e).data("option") === colorTheme;
+        });
+        if ($li.length) {
+            $colorThemeDropdown.find(".text").text($li.text());
+        }
+        CodeMirrorManager.Instance.setColorTheme(colorTheme);
     }
 }

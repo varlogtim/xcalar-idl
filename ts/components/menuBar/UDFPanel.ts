@@ -282,7 +282,7 @@ class UDFPanel {
             textArea as HTMLTextAreaElement,
             {
                 mode: this._mode,
-                theme: "xcalar-dark",
+                theme: CodeMirrorManager.Instance.getColorTheme(),
                 lineNumbers: true,
                 lineWrapping: true,
                 indentWithTabs: false,
@@ -292,6 +292,7 @@ class UDFPanel {
                 search: true
             }
         );
+        CodeMirrorManager.Instance.register(this.editor);
 
         this._setupAutocomplete(this.editor);
 

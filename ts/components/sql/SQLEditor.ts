@@ -256,7 +256,7 @@ class SQLEditor {
         this._editor = CodeMirror.fromTextArea(textArea as HTMLTextAreaElement,
             {
                 "mode": "text/x-sql",
-                "theme": "xcalar-dark",
+                "theme": CodeMirrorManager.Instance.getColorTheme(),
                 "lineNumbers": true,
                 "lineWrapping": true,
                 "smartIndent": true,
@@ -271,6 +271,7 @@ class SQLEditor {
                 "placeholder": ""
             }
         );
+        CodeMirrorManager.Instance.register(this._editor);
         this._addEventListeners();
         this._setupHintMenu();
         this.refresh();

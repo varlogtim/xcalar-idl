@@ -443,10 +443,9 @@ class BaseOpPanel {
             "autoCloseBrackets": true,
             "search": true,
             "gutters": ["CodeMirror-lint-markers"],
-            "theme": "xcalar-dark"
+            "theme": CodeMirrorManager.Instance.getColorTheme()
         });
-
-
+        CodeMirrorManager.Instance.register(this._editor);
         var keysToIgnore = [keyCode.Left, keyCode.Right, keyCode.Down,
         keyCode.Up, keyCode.Tab, keyCode.Enter,
         keyCode.Escape];
