@@ -1,4 +1,6 @@
 class ResourceMenu {
+    private static _instance: ResourceMenu;
+
     public static KEY = {
         Table: "Table",
         UDF: "UDF",
@@ -11,7 +13,11 @@ class ResourceMenu {
     private _container: string;
     private _stateOrder = {};
 
-    constructor(container: string) {
+    public static get Instance() {
+        return this._instance || (this._instance = new ResourceMenu("dagListSection"));
+    }
+
+    private constructor(container: string) {
         this._container = container;
         this._setupActionMenu();
         this._addEventListeners();
@@ -23,6 +29,10 @@ class ResourceMenu {
         this._stateOrder[QueryStateTStr[QueryStateT.qrProcessing]] = 4;
         this._stateOrder[QueryStateTStr[QueryStateT.qrFinished]] = 0;
         this._stateOrder[QueryStateTStr[QueryStateT.qrError]] = 1;
+    }
+
+    public getContainer(): JQuery {
+        return this._getContainer();
     }
 
     public render(key?: string): void {
@@ -44,6 +54,22 @@ class ResourceMenu {
             } else if (key === ResourceMenu.KEY.App) {
                 this._renderApps();
             }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    public focusOnList($li: JQuery): void {
+        try {
+            let $listWrap = $li.closest(".listWrap");
+            $listWrap.addClass("active");
+            if ($listWrap.hasClass("nested")) {
+                $listWrap = $listWrap.closest(".listWrap:not(.nested)");
+                $listWrap.addClass("active");
+            }
+            const $container = this._getContainer();
+            DagUtil.scrollIntoView($listWrap, $container);
+            $li.scrollintoview({duration: 0});
         } catch (e) {
             console.error(e);
         }

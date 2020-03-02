@@ -212,7 +212,7 @@ class SQLEditorSpace {
         await SQLTabManager.Instance.setup();
         deferred.resolve();
         this._stopLoad(timer);
-        DagList.Instance.refreshMenuList(ResourceMenu.KEY.SQL);
+        ResourceMenu.Instance.render(ResourceMenu.KEY.SQL);
     }
 
     private _startLoad(promise: XDPromise<any>): any {

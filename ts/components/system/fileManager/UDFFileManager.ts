@@ -924,7 +924,7 @@ class UDFFileManager {
             });
         }
         this.storedUDF = newStoredUDF;
-        DagList.Instance.refreshMenuList(ResourceMenu.KEY.UDF);
+        ResourceMenu.Instance.render(ResourceMenu.KEY.UDF);
     }
 
     private _bulkTask(operations: XDPromise<void>[], isDelete: boolean) {

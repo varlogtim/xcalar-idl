@@ -453,6 +453,14 @@ class PTblManager {
      * @param tableNames
      */
     public activateTables(tableNames: string[], noAlert?: boolean): XDPromise<void> {
+        tableNames = tableNames.filter((tableName) => {
+            // skip already activated table
+            const pbTableInfo = this.getTableByName(tableName);
+            return !pbTableInfo || !pbTableInfo.active;
+        });
+        if (tableNames.length === 0) {
+            return PromiseHelper.resolve();
+        }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let succeeds: string[] = [];
         let failures: string[] = [];
@@ -1309,7 +1317,7 @@ class PTblManager {
         }
     ): void {
         SQLResultSpace.Instance.refresh();
-        DagList.Instance.refreshMenuList(ResourceMenu.KEY.Table);
+        ResourceMenu.Instance.render(ResourceMenu.KEY.Table);
         XcSocket.Instance.sendMessage("refreshIMD", event, null);
     }
 }

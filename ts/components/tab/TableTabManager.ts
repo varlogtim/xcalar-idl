@@ -285,6 +285,7 @@ class TableTabManager extends AbstractTabManager {
                     break;
             }
             SQLResultSpace.Instance.switchTab(viewName);
+            this._focusOnList(tab);
         } catch (e) {
             this._handleErrorCase(e);
         }
@@ -353,5 +354,19 @@ class TableTabManager extends AbstractTabManager {
             errMsg = xcHelper.parseError(error);
         }
         SQLResultSpace.Instance.showError(errMsg);
+    }
+
+    private _focusOnList(tab: {name: string, type: TableTabType}): void {
+        const $list: JQuery = ResourceMenu.Instance.getContainer().find(".tableList");
+        $list.find("li.active").removeClass("active");
+        if (tab.type === TableTabType.PbTable) {
+            const $li: JQuery = $list.find('li').filter((_index, e) => {
+                return $(e).find(".name").text() === tab.name;
+            });
+            if ($li.length) {
+                $li.addClass("active");
+                ResourceMenu.Instance.focusOnList($li);
+            }
+        }
     }
 }

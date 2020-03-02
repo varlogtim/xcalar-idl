@@ -128,6 +128,7 @@ class UDFTabManager extends AbstractTabManager {
         } else {
             UDFPanel.Instance.openUDF(tab.name, tab.isNew);
         }
+        this._focusOnList(tab);
         return index;
     }
 
@@ -266,7 +267,7 @@ class UDFTabManager extends AbstractTabManager {
     }
 
     private _updateList(): void {
-        DagList.Instance.refreshMenuList(ResourceMenu.KEY.UDF);
+        ResourceMenu.Instance.render(ResourceMenu.KEY.UDF);
         const $view = $("#udfViewContainer");
         if (this._activeTabs.length === 0) {
             $view.addClass("hint");
@@ -295,6 +296,21 @@ class UDFTabManager extends AbstractTabManager {
         if (currentTab) {
             const editor = UDFPanel.Instance.getEditor();
             this._moduleCache.set(currentTab.name, editor.getValue());
+        }
+    }
+
+    private _focusOnList(tab: {name: string, isNew: boolean}): void {
+        const $list: JQuery = ResourceMenu.Instance.getContainer().find(".udf.listWrap");
+        $list.find("li.active").removeClass("active");
+        if (!tab.isNew) {
+            const udfPath = tab.name + ".py";
+            const $li: JQuery = $list.find('li.open').filter((_index, e) => {
+                return $(e).find(".name").text() === udfPath;
+            });
+            if ($li.length) {
+                $li.addClass("active");
+                ResourceMenu.Instance.focusOnList($li);
+            }
         }
     }
 }

@@ -78,6 +78,7 @@ class SQLTabManager extends AbstractTabManager {
         index = super._switchTabs(index);
         const id: string = this._activeTabs[index];
         SQLEditorSpace.Instance.openSnippet(id);
+        this._focusOnList(id);
         return index;
     }
 
@@ -224,7 +225,7 @@ class SQLTabManager extends AbstractTabManager {
     }
 
     private _updateList(): void {
-        DagList.Instance.refreshMenuList(ResourceMenu.KEY.SQL);
+        ResourceMenu.Instance.render(ResourceMenu.KEY.SQL);
         const $view = $("#sqlViewContainer");
         if (this._activeTabs.length === 0) {
             $view.addClass("hint");
@@ -262,5 +263,15 @@ class SQLTabManager extends AbstractTabManager {
 
     private _getAppPath(snippetObj: SQLSnippetDurable): string {
         return SQLSnippet.getAppPath(snippetObj);
+    }
+
+    private _focusOnList(id): void {
+        const $list: JQuery = ResourceMenu.Instance.getContainer().find(".sqlList");
+        const $li: JQuery = $list.find('li[data-id="' + id + '"]');
+        if ($li.length) {
+            $list.find("li.active").removeClass("active");
+            $li.addClass("active");
+            ResourceMenu.Instance.focusOnList($li);
+        }
     }
 }

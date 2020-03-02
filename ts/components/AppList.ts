@@ -175,7 +175,7 @@ class AppList extends Durable {
     }
 
     private _refreshMenuList(): void {
-        DagList.Instance.refreshMenuList(ResourceMenu.KEY.App);
+        ResourceMenu.Instance.render(ResourceMenu.KEY.App);
     }
 
     private _createApp(name: string, moduleNodes: Set<DagNodeModule>): boolean {

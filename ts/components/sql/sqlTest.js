@@ -351,6 +351,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
     function prepareSQLNode() {
         sqlNodeElement = test.createNode(DagNodeType.SQL);
         sqlNode = DagViewManager.Instance.getActiveDag().getNode(sqlNodeElement.data("nodeid"));
+        sqlNode._isDeprecated = true; // XXX hack way to force use old sql node panel
         var i = 0;
         var identifiers = new Map();
         for (table in tableNodesMap) {

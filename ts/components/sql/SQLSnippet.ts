@@ -233,6 +233,6 @@ class SQLSnippet {
     }
 
     private _refresh(): void {
-        DagList.Instance.refreshMenuList(ResourceMenu.KEY.SQL);
+        ResourceMenu.Instance.render(ResourceMenu.KEY.SQL);
     }
 }

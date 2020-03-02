@@ -583,8 +583,8 @@ class DagTabManager extends AbstractTabManager {
         //Use a chain to ensure all are run sequentially.
         PromiseHelper.chain(promises)
         .always(() => {
-            DagList.Instance.refreshMenuList(ResourceMenu.KEY.DF);
-            DagList.Instance.refreshMenuList(ResourceMenu.KEY.TableFunc);
+            ResourceMenu.Instance.render(ResourceMenu.KEY.DF);
+            ResourceMenu.Instance.render(ResourceMenu.KEY.TableFunc);
             if (this.getNumTabs() === 0) {
                 this.reset();
             }
@@ -728,9 +728,9 @@ class DagTabManager extends AbstractTabManager {
 
         DagViewManager.Instance.cleanupClosedTab(dagTab.getGraph());
         if (dagTab instanceof DagTabSQLFunc) {
-            DagList.Instance.refreshMenuList(ResourceMenu.KEY.TableFunc);
+            ResourceMenu.Instance.render(ResourceMenu.KEY.TableFunc);
         } else {
-            DagList.Instance.refreshMenuList(ResourceMenu.KEY.DF);
+            ResourceMenu.Instance.render(ResourceMenu.KEY.DF);
         }
         return true;
     }
@@ -855,9 +855,9 @@ class DagTabManager extends AbstractTabManager {
         dagTab.setOpen();
         if (!noUpdate) {
             if (dagTab instanceof DagTabSQLFunc) {
-                DagList.Instance.refreshMenuList(ResourceMenu.KEY.TableFunc);
+                ResourceMenu.Instance.render(ResourceMenu.KEY.TableFunc);
             } else {
-                DagList.Instance.refreshMenuList(ResourceMenu.KEY.DF);
+                ResourceMenu.Instance.render(ResourceMenu.KEY.DF);
             }
         }
         this._addTabHTML(dagTab, tabIndex);

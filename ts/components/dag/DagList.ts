@@ -21,13 +21,11 @@ class DagList extends Durable {
     }
 
     private _dags: Map<string, DagTab>;
-    private _resourceMenu: ResourceMenu;
     private _setup: boolean;
     private _stateOrder = {};
 
     private constructor() {
         super(null);
-        this._resourceMenu = new ResourceMenu("dagListSection");
         this._initialize();
         this._setupActionMenu();
         this._addEventListeners();
@@ -68,7 +66,7 @@ class DagList extends Durable {
         .then(() => {
             // for dag list, it's a render of whole thing,
             // for sql menu, it's only for table function
-            this._renderResourceList();
+            ResourceMenu.Instance.render();
             this._setup = true;
             deferred.resolve();
         })
@@ -159,8 +157,8 @@ class DagList extends Durable {
         .then(deferred.resolve)
         .fail(deferred.reject)
         .always(() => {
-            DagList.Instance.refreshMenuList(ResourceMenu.KEY.DF);
-            DagList.Instance.refreshMenuList(ResourceMenu.KEY.TableFunc);
+            ResourceMenu.Instance.render(ResourceMenu.KEY.DF);
+            ResourceMenu.Instance.render(ResourceMenu.KEY.TableFunc);
         });
         return promise;
     }
@@ -186,9 +184,9 @@ class DagList extends Durable {
             this._saveDagList(dagTab);
         }
         if (dagTab instanceof DagTabSQLFunc) {
-            DagList.Instance.refreshMenuList(ResourceMenu.KEY.TableFunc);
+            ResourceMenu.Instance.render(ResourceMenu.KEY.TableFunc);
         } else {
-            DagList.Instance.refreshMenuList(ResourceMenu.KEY.DF);
+            ResourceMenu.Instance.render(ResourceMenu.KEY.DF);
         }
         return true;
     }
@@ -234,7 +232,7 @@ class DagList extends Durable {
             $li.find(".name").text(newName);
         }
         // not support rename published df now
-        DagList.Instance.refreshMenuList(ResourceMenu.KEY.DF);
+        ResourceMenu.Instance.render(ResourceMenu.KEY.DF);
     }
 
     /**
@@ -269,14 +267,6 @@ class DagList extends Durable {
                 $li.addClass("abandonedQuery");
             }
         }
-    }
-
-    /**
-     * DagList.Instance.refreshMenuList
-     * @param key
-     */
-    public refreshMenuList(key: string): void {
-        this._resourceMenu.render(key);
     }
 
     /**
@@ -423,9 +413,9 @@ class DagList extends Durable {
             this._dags.delete(id);
             this._saveDagList(dagTab);
             if (dagTab instanceof DagTabSQLFunc) {
-                DagList.Instance.refreshMenuList(ResourceMenu.KEY.TableFunc);
+                ResourceMenu.Instance.render(ResourceMenu.KEY.TableFunc);
             } else {
-                DagList.Instance.refreshMenuList(ResourceMenu.KEY.DF);
+                ResourceMenu.Instance.render(ResourceMenu.KEY.DF);
             }
             Log.add(DagTStr.DeleteDataflow, {
                 "operation": SQLOps.DeleteDataflow,
@@ -449,6 +439,7 @@ class DagList extends Durable {
     }
 
     /**
+     * DagList.Instance.switchActiveDag
      * Switches the active dagList dag to the one with key.
      * @param id Dag id we want to note as active
      */
@@ -511,10 +502,6 @@ class DagList extends Durable {
     private _getKVStore(keyword: string): KVStore {
         let key: string = KVStore.getKey(keyword);
         return new KVStore(key, gKVScope.WKBK);
-    }
-
-    private _renderResourceList(): void {
-        this._resourceMenu.render();
     }
 
     private _iconHTML(type: string, icon: string, title: string): HTML {
@@ -895,15 +882,7 @@ class DagList extends Durable {
     private _focusOnDagList(id: string): void {
         try {
             const $li = this._getListElById(id);
-            let $listWrap = $li.closest(".listWrap");
-            $listWrap.addClass("active");
-            if ($listWrap.hasClass("nested")) {
-                $listWrap = $listWrap.closest(".listWrap:not(.nested)");
-                $listWrap.addClass("active");
-            }
-            const $section = this._getDagListSection();
-            DagUtil.scrollIntoView($listWrap, $section);
-            $li.scrollintoview({duration: 0});
+            ResourceMenu.Instance.focusOnList($li);
         } catch (e) {
             console.error(e);
         }
