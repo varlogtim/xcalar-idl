@@ -110,7 +110,8 @@ module.exports = {
         "ViewRawData": "View Raw Data",
         "InBeta": "In Beta",
         "Send": "Send",
-        "Node": "Node"
+        "Node": "Node",
+        "Update": "Update"
     },
 
     "paths": {

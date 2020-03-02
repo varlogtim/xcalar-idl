@@ -10,6 +10,7 @@ class SQLOpPanel extends BaseOpPanel {
     private _$sqlIdentifiers = $("#sqlOpPanel .sqlIdentifiers");
     private _sqlTables = {};
     private _alertOff: boolean = false;
+    private _ignoreQueryConfirm = false;
 
     /**
      * Initialization, should be called only once by xcManager
@@ -97,7 +98,7 @@ class SQLOpPanel extends BaseOpPanel {
         menuHelper.setupListeners();
     }
 
-    private _selectQuery(snippetId) {
+    private _selectQuery(snippetId: string, queryStr?: string): SQLSnippetDurable {
         if (snippetId) {
             this.$panel.find(".nextForm").removeClass('xc-hidden');
         }
@@ -105,19 +106,22 @@ class SQLOpPanel extends BaseOpPanel {
         const $input = $list.find("input");
 
         const snippets = SQLSnippet.Instance.list();
-        let queryStr = "";
         let queryName = "";
 
         let snippet = snippets.find(snippet => {
             return snippet.id === snippetId;
         });
         if (snippet) {
-            queryStr = snippet.snippet;
+            if (queryStr == null) {
+                queryStr = snippet.snippet;
+            }
             queryName = snippet.name;
         }
+        queryStr = queryStr || "";
         $input.val(queryName);
         $input.data("id", snippetId);
         this.$panel.find(".editorWrapper").text(queryStr);
+        return snippet;
     }
 
     private _setupSQLEditor(): void {
@@ -207,6 +211,10 @@ class SQLOpPanel extends BaseOpPanel {
                 self._sqlTables[key] = value;
             }
         });
+        this._$elemPanel.find(".refreshSnippet").on("click", () => {
+            const snippetId = this.$panel.find(".snippetsList input").data("id");
+            this._selectQuery(snippetId);
+        });
     }
 
     private _populateSourceIds($li: JQuery): void {
@@ -230,6 +238,7 @@ class SQLOpPanel extends BaseOpPanel {
 
     private configureSQL(
         snippetId: string,
+        query?: string,
         identifiers?: Map<number, string>,
         identifiersNameMap?: {}
     ): XDPromise<any> {
@@ -237,12 +246,17 @@ class SQLOpPanel extends BaseOpPanel {
         const deferred = PromiseHelper.deferred();
         const snippets = SQLSnippet.Instance.list();
         let sql = "";
-        let snippet = snippets.find(snippet => {
-            return snippet.id === snippetId;
-        });
-        if (snippet) {
-            sql = snippet.snippet;
+        if (query == null) {
+            let snippet = snippets.find(snippet => {
+                return snippet.id === snippetId;
+            });
+            if (snippet) {
+                sql = snippet.snippet;
+            }
+        } else {
+            sql = query;
         }
+
         const dropAsYouGo: boolean = this._isDropAsYouGo();
         if (!identifiers || !identifiersNameMap) {
             let retStruct = this.extractIdentifiers();
@@ -303,7 +317,8 @@ class SQLOpPanel extends BaseOpPanel {
 
     private _renderSnippet() {
         const snippetId: string = this._dataModel.getSnippetId();
-        this._selectQuery(snippetId);
+        const queryStr: string = this._dataModel.getSqlQueryString() || null;
+        this._selectQuery(snippetId, queryStr);
     }
 
     private _renderIdentifiers(): void {
@@ -402,11 +417,23 @@ class SQLOpPanel extends BaseOpPanel {
                 StatusBox.show(e, this._$elemPanel.find(".btn-submit"));
                 return;
             }
-
+            const query = this.$panel.find(".editorWrapper").text().replace(/;+$/, "");
             const snippetId = this.$panel.find(".snippetsList input").data("id");
-            this.configureSQL(snippetId, identifiers, identifiersNameMap)
+            this.configureSQL(snippetId, query, identifiers, identifiersNameMap)
             .then(() => {
                 this.close(true);
+                if (!this._ignoreQueryConfirm) {
+                    Alert.show({
+                        isAlert: true,
+                        title: AlertTStr.Title,
+                        // msg: "Any future modifications to the original SQL Query will not affect this operator.",
+                        msg: "The query in this operator will not be affected by any future modifications to the original SQL Query.",
+                        onCancel: (checked) => {
+                            this._ignoreQueryConfirm = checked;
+                        },
+                        isCheckBox: true
+                    })
+                }
             })
             .fail((err) => {
                 if (err === SQLErrTStr.EmptySQL) {
