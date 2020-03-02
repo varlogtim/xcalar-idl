@@ -1,6 +1,7 @@
 class DebugPanel {
     private static _instance: DebugPanel;
     private _systemLogCard: SystemLog;
+    private _shellPanel: ShellPanel;
     private _popup: PopupPanel;
 
     public static get Instance() {
@@ -10,6 +11,7 @@ class DebugPanel {
     private constructor() {
         this._addEventListeners();
         this._systemLogCard = new SystemLog("systemLogCard");
+        this._shellPanel = new ShellPanel("shellPanel");
     }
 
     /**
