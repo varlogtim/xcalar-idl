@@ -64,7 +64,6 @@ class DagTabOptimized extends DagTabProgress {
                             metaNotMatch = true;
                         }
                     } else {
-                        // optimized dataflow that generate by SDK
                         dagTabs.push(new DagTabOptimized({
                             id: DagTab.generateId(),
                             name: retinaName,
@@ -176,6 +175,10 @@ class DagTabOptimized extends DagTabProgress {
         : DagTabOptimized.XDPATH + this.getName();
     }
 
+    public getName(): string {
+        return this.getDisplayName();
+    }
+
     public load(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._isDoneExecuting = false;
@@ -213,6 +216,20 @@ class DagTabOptimized extends DagTabProgress {
         });
 
         return deferred.promise();
+    }
+
+    public getDisplayName() {
+        let activeWKBKId = WorkbookManager.getActiveWKBK();
+        let activeWKBNK = WorkbookManager.getWorkbook(activeWKBKId);
+        let sessionId: string = activeWKBNK ? activeWKBNK.sessionId : null;
+        let name: string = super.getName();
+        if (name.startsWith(XcUID.SDKPrefixOpt)) {
+            name = name.slice(XcUID.SDKPrefixOpt.length);
+            if (name.startsWith(sessionId + "-")) {
+                name = name.slice((sessionId + "-").length);
+            }
+        }
+        return name;
     }
 
     public endStatusCheck(): XDPromise<any> {

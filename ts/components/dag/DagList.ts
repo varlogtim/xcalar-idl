@@ -698,7 +698,7 @@ class DagList extends Durable {
             const activeWKBNK: string = WorkbookManager.getActiveWKBK();
             const workbook: WKBK = WorkbookManager.getWorkbook(activeWKBNK);
             const abandonedQueryPrefix: string = "table_DF2_" + workbook.sessionId + "_";
-            const sdkPrefix = XcUID.SDKPrefix + XcUser.getCurrentUserName() + "-" + workbook.sessionId + "-";
+            const sdkPrefix = XcUID.SDKPrefix + workbook.sessionId + "-";
 
             const oldQueries: Map<string, DagTabQuery> = oldQueryDags || new Map();
             queries.forEach((query) => {

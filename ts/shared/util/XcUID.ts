@@ -1,5 +1,6 @@
 class XcUID {
     public static SDKPrefix: string = "XcalarSDK-";
+    public static SDKPrefixOpt: string = "XcalarSDKOpt-";
     private _prefix: string;
     private _keepPrefix: boolean;
     private _count: number;
