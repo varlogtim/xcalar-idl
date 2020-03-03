@@ -11,6 +11,11 @@ function getCurrentSession() {
     return sessionName;
 }
 
+function getThriftHandler() {
+    // Global variable: tHandle
+    return tHandle;
+}
+
 function getCurrentUser() {
     // Global variables
     return {
@@ -33,7 +38,7 @@ function switchSession(callSession) {
     };
 }
 
-function switchUser(userName, userId) {
+function switchUser(userName, userId, hashFunc = hashFunc) {
     // Global variables
     const currentUser = getCurrentUser();
     setUserIdAndName(userName, userId, hashFunc);
@@ -44,8 +49,8 @@ function switchUser(userName, userId) {
     };
 }
 
-function callApiInSession(callSession, callUserName, callUserId, func) {
-    const restoreUser = switchUser(callUserName, callUserId);
+function callApiInSession(callSession, callUserName, callUserId, func, hashFunc = hashFunc) {
+    const restoreUser = switchUser(callUserName, callUserId, hashFunc);
     const restoreSession = switchSession(callSession);
     try {
         const result = PromiseHelper.convertToNative(func());
@@ -56,4 +61,4 @@ function callApiInSession(callSession, callUserName, callUserId, func) {
     }
 }
 
-export { callApiInSession, hashFunc };
+export { callApiInSession, hashFunc, getThriftHandler };

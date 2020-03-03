@@ -9,7 +9,7 @@ namespace WorkbookManager {
     const sysWkbkNamePattern: string = ".system_workbook_";
     const xdInternalWkbkName: string = sysWkbkNamePattern + "xd";
     let _isSetup = false;
-    let _currentSession: string; 
+    let _currentSession: string;
 
     /**
     * WorkbookManager.setup
@@ -365,6 +365,13 @@ namespace WorkbookManager {
         }, 1000);
 
         return deferred.promise();
+    }
+
+    /**
+     * WorkbookManager.getXDInternalSessionName
+     */
+    export function getXDInternalSessionName(): string {
+        return xdInternalWkbkName;
     }
 
     /**

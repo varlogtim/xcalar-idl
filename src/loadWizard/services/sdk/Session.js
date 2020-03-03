@@ -1,14 +1,15 @@
-import { callApiInSession, hashFunc } from './Api';
+import { callApiInSession } from './Api';
+import { LoginUser, User } from './User';
 import { Table } from './Table';
+import { Dataset } from './Dataset';
+import { PublishedTable } from './PublishedTable';
 
 const {
-    xcHelper,
+    xcHelper, WorkbookManager,
     XcalarNewWorkbook, XcalarActivateWorkbook, XcalarDeactivateWorkbook, XcalarDeleteWorkbook,
     Xcrpc
 } = global;
 
-const SESSION_PREFIX = 'LWS';
-const DEFAULT_USERNAME = "xcalar-lw-internal";
 
 function randomName() {
     const pattern = 'xxxxxxxxxxxxxyyyy';
@@ -18,20 +19,19 @@ function randomName() {
     });
 }
 
-function computeUserId(userName) {
-    return Number.parseInt("0x" + hashFunc(userName).substring(0, 5)) + 4000000;
-};
+class GlobalSession {
+    constructor({ user }) {
+        this.user = user;
+    }
+}
 
-class Session {
-    constructor({
-        userName = DEFAULT_USERNAME,
-        sessionName = `${SESSION_PREFIX}_${randomName()}`
-    } = {}) {
-        this.userName = userName;
-        this.userId = computeUserId(userName);
+class BaseSession {
+    constructor({ user, sessionName }) {
+        this.user = user;
         this.sessionName = sessionName;
         this.sessionId = null;
         this._tables = new Array();
+        this._datasets = new Array();
     }
 
     async create() {
@@ -57,6 +57,11 @@ class Session {
                 const table = this._tables.pop();
                 await table.destroy();
             }
+            // Cleanup datasets
+            while (this._datasets.length > 0) {
+                const dataset = this._datasets.pop();
+                await dataset.destroy();
+            }
             await this.deactivate();
             await this.delete();
         } catch(e) {
@@ -65,7 +70,7 @@ class Session {
     }
 
     callLegacyApi(apiCall) {
-        return callApiInSession(this.sessionName, this.userName, this.userId, apiCall);
+        return callApiInSession(this.sessionName, this.user.getUserName(), this.user.getUserId(), apiCall, this.user.getHashFunc());
     }
 
     async executeSql(sql) {
@@ -80,8 +85,8 @@ class Session {
         optimization.setRandomcrossjoin(false);
         optimization.setPushtoselect(true);
         const request = new proto.xcalar.compute.localtypes.Sql.SQLQueryRequest();
-        request.setUsername(this.userName);
-        request.setUserid(this.userId);
+        request.setUsername(this.user.getUserName());
+        request.setUserid(this.user.getUserId());
         request.setSessionname(this.sessionName);
         request.setQuerystring(sql);
         request.setQueryname(`XcalarLW-${Date.now()}`);
@@ -93,6 +98,66 @@ class Session {
         this._tables.push(table);
         return table;
     }
+
+    async createDataset({ name, sourceArgs, parseArgs, size = 0 }) {
+        const dataset = new Dataset({
+            session: this,
+            name: name,
+            sourceArgs: sourceArgs,
+            parseArgs: parseArgs,
+            size: size
+        });
+        await dataset.load();
+        this._datasets.push(dataset);
+
+        return dataset;
+    }
+
+    async getPublishedTable({ name }) {
+        const result = await PromiseHelper.convertToNative(XcalarListPublishedTables(name));
+        if (result.tables.length === 0) {
+            return null;
+        }
+        for (const tableInfo of result.tables) {
+            if (tableInfo.name === name) {
+                return new PublishedTable({ name: name });
+            }
+        }
+    }
 }
 
-export { Session };
+class XDSession extends BaseSession {
+    constructor() {
+        super({
+            user: new LoginUser(),
+            sessionName: WorkbookManager.getXDInternalSessionName()
+        });
+    }
+
+    async create() {}
+    async delete() {}
+    async activate() {}
+    async deactivate() {}
+
+    callLegacyApi(apiCall) {
+        WorkbookManager.switchToXDInternalSession();
+        try {
+            const result = PromiseHelper.convertToNative(apiCall());
+            return result;
+        } finally {
+            WorkbookManager.resetXDInternalSession();
+        }
+    }
+}
+
+const SESSION_PREFIX = 'LWS';
+class RandomSession extends BaseSession {
+    constructor() {
+        super({
+            user: new User(),
+            sessionName: `${SESSION_PREFIX}_${randomName()}`
+        });
+    }
+}
+
+export { XDSession, RandomSession, GlobalSession };

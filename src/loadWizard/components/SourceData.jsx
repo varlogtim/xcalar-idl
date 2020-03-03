@@ -75,7 +75,7 @@ class SourceData extends React.Component {
         });
         try {
             const finalTableName = await S3Service.createKeyListTable({
-                basePath: bucketName
+                bucketName: bucketName
             });
             this.setState({
                 showForensics: true,

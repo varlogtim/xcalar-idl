@@ -1,3 +1,6 @@
+import { getThriftHandler } from './Api';
+import { PublishedTable } from './PublishedTable';
+
 const {
     XcalarMakeResultSetFromTable,
     XcalarGetNextPage,
@@ -24,6 +27,18 @@ class Table {
         });
         this._cursors.push(cursor);
         return cursor;
+    }
+
+    async publish(publishedName) {
+        await this._session.callLegacyApi(
+            () => xcalarApiPublish(
+                getThriftHandler(),
+                this.getName(),
+                publishedName
+            )
+        );
+
+        return new PublishedTable({ name: publishedName });
     }
 
     async destroy() {
