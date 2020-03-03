@@ -57,8 +57,6 @@ window.FlightTest = (function(FlightTest, $) {
         //               defaultTimeout, TestCaseDisabled); // disabled
         // test.add(addDFToSchedTest, "AddDFToScheduleTest",
         //               defaultTimeout, TestCaseDisabled); // disabled
-        // test.add(IMDPanelTest, "IMDPanelTest",
-        //               defaultTimeout, TestCaseEnabled);
     }
 
     function flightTest(deferred, testName, currentTestNumber) {

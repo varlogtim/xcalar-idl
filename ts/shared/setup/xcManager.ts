@@ -53,7 +53,6 @@ namespace xcManager {
             TableComponent.setup();
             MonitorPanel.setup();
             JupyterPanel.setup();
-            IMDPanel.setup();
             setupModals();
             Admin.setup();
             xcSuggest.setup();

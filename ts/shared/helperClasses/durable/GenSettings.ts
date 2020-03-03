@@ -22,7 +22,6 @@ class GenSettings extends Durable {
             "monitorGraphInterval": 3, // in seconds
             "commitInterval": 120, // in seconds
             "hideSysOps": false,
-            "showIMD": false,
             "logOutInterval": 25, // in minutes
             "enableInactivityCheck": true
         };

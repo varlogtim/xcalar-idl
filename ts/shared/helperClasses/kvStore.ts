@@ -7,7 +7,7 @@ class KVStore {
 
     /**
      * KVStore.setupUserAndGlobalKey
-     * keys: gUserKey, gSettingsKey, gNotebookKey, gUserIMDKey,
+     * keys: gUserKey, gSettingsKey, gNotebookKey,
      */
     public static setupUserAndGlobalKey(): void {
         const globlKeys: any = WorkbookManager.getGlobalScopeKeys(Durable.Version);

@@ -15,7 +15,7 @@ assert = chai.assert;
 
 function getTestNameRegex() {
     var urlArgs = xcHelper.decodeFromUrl(window.location.href);
-    var test = urlArgs.test || "DagCategoryNode Test.*";
+    var test = urlArgs.test || ".*";
     var testNameRegex = new RegExp("Mocha Setup Test|" + test);
     return testNameRegex;
 }

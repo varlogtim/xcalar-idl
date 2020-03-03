@@ -558,10 +558,6 @@ class TblSource {
             this._refresh(true);
         });
 
-        $menuSection.find(".iconSection .imd").click(() => {
-            $("#imdTab").click();
-        });
-
         $menuSection.find(".sortSection").on("click", ".sortOption", (event) => {
             let key: string = $(event.currentTarget).data("key");
             this._setSortKey(key);

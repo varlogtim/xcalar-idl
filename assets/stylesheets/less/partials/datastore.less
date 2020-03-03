@@ -71,24 +71,6 @@ html.safari {
         }
     }
 
-    &.imd {
-        > .mainContent {
-            padding: 0px;
-        }
-
-        #imdBar {
-            display: flex;
-        }
-
-        #imdView {
-            display: block;
-        }
-
-        #datastoreBar {
-            display: none;
-        }
-    }
-
     &.out {
         .subPanel {
             &.out {
@@ -110,10 +92,6 @@ html.safari {
                 display: none;
             }
         }
-    }
-
-    #imdBar {
-        display: none;
     }
 
     .mainContent {
@@ -4695,20 +4673,6 @@ table.datasetTable {
                 margin-left: 8px;
                 padding: 0 12px;
                 width: auto;
-            }
-        }
-
-        .iconSection {
-            .imd {
-                background-color: @color-bg-cardHeader;
-                .rounded(100%);
-                .size(22px, 22px);
-                .font(@size: 16px, @color: @color-font-defaultInverse);
-                .position(relative, @top: -3px);
-
-                &:before {
-                    .position(relative, @top: 3px, @left: 3px);
-                }
             }
         }
 

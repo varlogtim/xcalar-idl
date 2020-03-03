@@ -130,7 +130,6 @@ interface GlobalKVKeySet {
 interface UserKVKeySet {
     gUserKey: string;
     wkbkKey: string;
-    gUserIMDKey: string;
 }
 
 interface WkbkKVKeySet {

@@ -379,24 +379,6 @@ module.exports = {
         "Skew": "Skew"
     },
 
-    "imdBar": {
-        "From": "From",
-        "To": "To",
-        "Scale": "Scale",
-        "ScaleUnit": "Per Tick",
-        "Filter": "Filter"
-    },
-
-    "IMDPanel": {
-        "emptyDetails": "Select a table from the published tables list to view details.",
-        "RefreshTables": "Generate Tables(s)",
-        "more": "more",
-        "back": "back",
-        "Coalesce": "Coalesce",
-        "CoalesceTip": "Conserve memory by combining updated tables into one.",
-        "ViewIMD": "View IMD",
-    },
-
     "fileManager": {
         "monitorMenuTitle": "Scalar Function Manager",
         "monitorMenuInstr": "You can manage scalar functions.",
@@ -524,7 +506,6 @@ module.exports = {
         "inactive": "Send to Temporary List",
         "WorksheetPanel": "Worksheet Panel",
         "DagTabManager": "Dag Tab Manager",
-        "IMDPanel": "IMD Panel"
     },
 
     "queryGraph": {
@@ -592,7 +573,6 @@ module.exports = {
         "Setup": "Administration",
         "showDataCol": "Show data column in table view",
         "showDataColHint": "Data Column shows the raw data for each row of the table",
-        "ShowIMD": "Show IMD screen",
         "InactivityShutdown": "Shut down cluster after inactivity",
         "EnableSupport": "Enable Xcalar support login",
         "EnableSupportHint": "This setting enables the Xcalar support to log into your Xcalar cluster and help you troubleshoot. By default, it is not enabled.",

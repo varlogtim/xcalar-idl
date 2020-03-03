@@ -504,7 +504,6 @@ class PTblManager {
         return deferred.promise();
     }
 
-    // XXX TODO, combine with deactivateTables in IMDPanel
     /**
      * PTblManager.Instance.deactivateTables
      * @param tableNames

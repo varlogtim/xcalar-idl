@@ -306,22 +306,6 @@ namespace MainMenu {
         });
     }
 
-    export function toggleIMDPanel(show: boolean): void {
-        let $icon = $("#datastoreMenu .iconSection .imd");
-        $icon.add($("#imdTab"));
-        if (show) {
-            $("#dataStoresTab").removeClass("wkbkMenuBarTabs");
-            $icon.removeClass("xc-hidden");
-        } else {
-            $("#dataStoresTab").addClass("wkbkMenuBarTabs");
-            $icon.addClass("xc-hidden");
-            // hide the imd panel
-            if ($("#datastorePanel").hasClass("imd")) {
-                $("#imdView").find(".tableView").click();
-            }
-        }
-    }
-
     export function setupPopup(): void {
         _popup = new PopupPanel("dataflowMenu", {
             noUndock: true
@@ -488,9 +472,6 @@ namespace MainMenu {
                     // when used to focus on table source
                     TblSource.Instance.refresh();
                 }
-                if (noWorkbook) {
-                    openIMDPanel();
-                }
                 DS.resize();
                 break;
             case ("monitorTab"):
@@ -528,19 +509,10 @@ namespace MainMenu {
         $(".tableDonePopupWrap").remove();
     }
 
-    function openIMDPanel(): void {
-        checkAnim();
-        IMDPanel.redraw();
-        $("#imdTab").click();
-    }
-
     function openMenu($curTab: JQuery): boolean {
         // Don't open side menu when the UDF panel is opening the file manager,
         // Otherwise the UDF panel will be blocked by the side menu.
         const id: string = $curTab.attr("id");
-        if (id === "dataStoresTab" && $("#imdTab").hasClass("active")) {
-            return;
-        }
         if (id === "helpTab") {
             return;
         }

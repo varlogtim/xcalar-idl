@@ -231,9 +231,6 @@ class DataSourceManager {
                 case "sourceTblButton":
                     this._switchToViewTableSource();
                     break;
-                case "imdTab":
-                    this._switchToViewIMD();
-                    break;
                 default:
                     console.error("invalid view");
                     return;
@@ -332,7 +329,6 @@ class DataSourceManager {
         let $title = this._getTitleEl();
         $panel.addClass("table");
         $("#sourceTblButton").removeClass("xc-hidden");
-        $("#imdTab").addClass("xc-hidden");
 
         const text: string = XVM.isDataMart() ? "Source & Load Data": CommonTxtTstr.Table;
         $title.text(text);
@@ -348,22 +344,6 @@ class DataSourceManager {
         const $panel = this._getPanel();
         this._restPanelView();
         $panel.addClass("load");
-    }
-
-    private static _switchToViewIMD(): void {
-        this._restPanelView();
-        let $panel = this._getPanel();
-        let $menu = this._getMenu();
-        $panel.addClass("imd");
-        $menu.addClass("xc-hidden");
-        $("#sourceTblButton").addClass("xc-hidden");
-        let $tab = $("#imdTab").removeClass("xc-hidden");
-        if ($tab.hasClass("firstTouch")) {
-            $tab.removeClass("firstTouch");
-            IMDPanel.active(true);
-        } else {
-            IMDPanel.active(false);
-        }
     }
 
     private static _switchToViewTarget(): void {
@@ -394,7 +374,6 @@ class DataSourceManager {
         let $menu: JQuery = this._getMenu();
         $panel.removeClass("in")
             .removeClass("table")
-            .removeClass("imd")
             .removeClass("target")
             .removeClass("load")
         $menu.removeClass("xc-hidden");

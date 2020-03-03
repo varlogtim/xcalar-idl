@@ -250,7 +250,6 @@ class XcSocket {
             if (!this._isRegistered) {
                 return;
             }
-            IMDPanel.updateInfo(arg);
             PTblManager.Instance.updateInfo(arg);
         });
 
