@@ -288,7 +288,7 @@ html.edge {
                 &.flex-left {
                     .position(relative);
                     .size(@height: @height-colHeader);
-                    .flex(0 1 20px);
+                    .flex(0 1 16px);
                     white-space: normal;
                     margin: 0;
                     overflow: hidden;
@@ -300,7 +300,7 @@ html.edge {
                     }
 
                     .type.icon {
-                        font-size: 13px;
+                        font-size: 12px;
                         font-weight: normal;
                     }
                 }
@@ -589,14 +589,6 @@ html.edge {
             display: none;
         }
 
-        .xcTheadWrap {
-            background-color: @color-font-black;
-
-            .tableTitle, thead {
-                opacity: 0.7;
-            }
-        }
-
         .xcTable {
             background-color: @color-font-black;
 
@@ -760,7 +752,7 @@ html.edge {
         }
     }
     &.hollowed {
-        .xcTheadWrap, .xcTbodyWrap {
+        .xcTbodyWrap {
             display: none;
         }
     }
@@ -892,195 +884,6 @@ html.edge {
                 pointer-events: initial !important;
                 // columnPicker class disables the select all behavior of the first
                 // column header, but we want it for export
-            }
-        }
-    }
-}
-
-.xcTheadWrap {
-    .position(relative, @left: 0%);
-    top: 0px !important;
-    width: ~"calc(100% - 5px)" !important;
-    z-index: @z-index-tableHeaderGrab; // to go on top of highlighted td cell
-    display: inline-block;
-
-    .tableTitle {
-        .position(relative);
-        .size(@width: 100%, @height: 35px);
-        .noSelection;
-        text-align: center;
-        display: block;
-        background: @color-bg-unselect-gray;
-        overflow: hidden;
-        color: @color-font-defaultInverse;
-        .transition(opacity 0.3s);
-
-        .tableGrab {
-            .position(absolute, @top: 0);
-            .size(@width: 100%, @height: 35px);
-            z-index: 2;
-            .cursor-move;
-        }
-
-        &.tblTitleSelected {
-            background: @color-bg-select-blue;
-            .text {
-                color: @color-font-defaultInverse;
-            }
-
-            .tableName {
-                color: @color-font-defaultInverse;
-                -webkit-text-fill-color: @color-font-defaultInverse;
-            }
-
-            .hashName {
-                .topPadding, .bottomPadding {
-                    background: @color-bg-select-blue !important;
-                }
-            }
-            .lockIcon {
-                background-color: @color-bg-select-blue;
-            }
-        }
-
-        &:hover {
-            .dropdownBox .innerBox {
-                opacity: 1;
-            }
-        }
-
-        .dropdownBox {
-            .position(absolute, @right: -3px, @bottom: 0px);
-            .size(25px, 36px);
-            z-index: @z-index-tableHeaderGrab;
-            border: none;
-            cursor: pointer;
-
-            .innerBox {
-                display: block;
-                .position(absolute, @right: 3px, @bottom: 4px);
-                .size(@width: 15px, @height: 11px);
-                border-top: 11px solid transparent;
-                border-right: 11px solid @color-font-edge;
-                opacity: 0.4;
-            }
-            &.dropdownBoxHidden {
-                display: none !important;
-            }
-        }
-
-        .lockIcon {
-            .position(absolute, @left: 7px, @top: 0px);
-            font-size: 18px;
-            .size(26px, 100%);
-            height: 100%;
-            cursor: pointer;
-            background-color: @color-bg-unselect-gray;
-            z-index: 2;
-            line-height: 35px;
-        }
-
-        .labelWrap {
-            .textOverflowOneLine;
-            position: absolute;
-            width: ~"calc(100% - 10px)";
-            height: 100%;
-            left: 0px;
-        }
-
-        .text {
-            .position(absolute, @top: 0);
-            .size(@width: auto, @max-width: ~"calc(100% - 10px)", @height: 25px);
-            .font(@weight: 600, @size: 15px, @line-height: 22px, @family: @font-base);
-            .rounded;
-            text-align: center;
-            background-color: transparent;
-            padding: 0 4px;
-            white-space: nowrap;
-            margin-top: 8px;
-            display: flex;
-            z-index: @z-index-tableHeaderInput; // used for editable table name
-
-            > input, > span {
-                float: left;
-                .size(@height: 20px);
-                line-height: 20px;
-            }
-
-            > input {
-                margin: 0;
-            }
-
-            .colNumBracket {
-                margin-left: 4px;
-            }
-
-            .hashName {
-                opacity: 0.7;
-                .noSelection;
-                font-weight: 200;
-
-                .hashPart {
-                    display: block;
-                    float: left;
-                }
-
-                .animWrap {
-                    display: inline-block;
-                    .position(relative);
-                    .size(@height: 20px);
-                    line-height: 20px;
-
-                    .animPart {
-                        display: block;
-                        .position(relative, @top: 0px);
-                        z-index: @z-index-table-title;
-                        float: left;
-
-                        .num {
-                            .size(@height: 20px);
-                            line-height: 20px;
-                        }
-                    }
-
-                    .topPadding, .bottomPadding {
-                        background: @color-bg-unselect-gray;
-                        .size(@width: 100%);
-                        .position(absolute, @left: 0);
-                        z-index: @z-index-table-title + 2;
-                    }
-
-                    .topPadding {
-                        .size(@height: 12px);
-                        .position(@top: -8px);
-                    }
-
-                    .bottomPadding {
-                        .size(@height: 10px);
-                        .position(@top: 20px);
-                    }
-                }
-            }
-        }
-
-        .tableName {
-            .font(@weight: 600, @size: 15px, @line-height: 22px, @family: @font-base);
-            .rounded;
-            height: 24px;
-            padding: 1px 0px;
-            margin: 1px 0px;
-            min-width: 15px !important;
-            color: @color-font-defaultInverse;
-            -webkit-text-fill-color: @color-font-defaultInverse;
-            // used for editable table name
-            &:focus {
-                background-color: @color-bg-default;
-                color: @color-font-default !important;
-                -webkit-text-fill-color: @color-font-default !important;
-                padding: 1px 4px;
-                margin: 1px 0px;
-                outline: none;
-                .rounded;
             }
         }
     }
@@ -1469,7 +1272,8 @@ html.edge {
             color: @color-font-greyish-brown;
             display: block;
             z-index: @z-index-tableHeaderGrab;
-            position: relative;
+            position: absolute;
+            right: 0px;
             visibility: hidden;
 
             .icon {
@@ -1510,8 +1314,10 @@ html.edge {
 
             .flexWrap.flex-mid {
                 .editableHead, input.dataCol {
-                    // padding-right: 18px;
-                    width: ~"calc(100% - 8px)";
+                    width: ~"calc(100% - 15px)";
+                    margin-left: 0px;
+                    padding: 0px;
+                    line-height: 18px;
                     .noSelection;
 
                     &.highlight {

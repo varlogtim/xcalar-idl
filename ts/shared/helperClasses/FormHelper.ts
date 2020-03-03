@@ -269,24 +269,6 @@ class FormHelper {
 
                 callback($target, event);
             });
-
-            this.$container.on("click.columnPicker", ".xcTheadWrap", function(event: JQueryEventObject) {
-                const callback: Function = columnPicker.headCallback;
-                if (callback == null || !(callback instanceof Function)) {
-                    return;
-                }
-                const $eventTarget: JQuery = $(event.target);
-                if ($eventTarget.closest('.dropdownBox').length) {
-                    return;
-                }
-                const $target: JQuery = $eventTarget.closest('.xcTheadWrap');
-                if ($target.length === 0) {
-                    // error case
-                    console.error("no header");
-                    return;
-                }
-                callback($target);
-            });
         }
 
         // this should be the last step

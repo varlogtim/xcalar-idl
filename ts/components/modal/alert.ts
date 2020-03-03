@@ -23,7 +23,8 @@ namespace Alert {
         expired?: boolean; // expire license case
         logout?: boolean; // want user to logout case
         msgTemplate?: string; // can include html tags
-        buttons?: AlertButton[]; // buttons to show instead of confirm button
+        buttons?: AlertButton[]; // buttons to show instead of confirm button,
+        isInfo? : boolean; // show nice info icon and not a warning icon
     }
 
     export interface AlertOptions extends BasicAlertOptions {
@@ -77,7 +78,7 @@ namespace Alert {
         // call it here because Alert.show() may be called when another alert is visible
         reset();
         setTitle(options.title);
-        setInfoIcon(false);
+        setInfoIcon(false, options.isInfo);
         setMessage(options.msg, options.msgTemplate);
         setDetail($modal, options.detail);
         setInstruction($modal, options.instr, options.instrTemplate);
@@ -381,14 +382,17 @@ namespace Alert {
         $("#alertHeader").find(".text").html(modalTitle);
     }
 
-    function setInfoIcon(isError: boolean) {
+    function setInfoIcon(isError: boolean, isInfo: boolean) {
         let $infoIcon = $("#alertHeader").find(".infoIcon");
+        $infoIcon.removeClass("info error xi-info-circle-outline xi-warning");
         if (isError) {
-            $infoIcon.addClass("error xi-info-circle")
-            .removeClass("xi-warning");
+            $infoIcon.addClass("error xi-info-circle-outline");
         } else {
-            $infoIcon.removeClass("error xi-info-circle")
-            .addClass("xi-warning");
+            if (isInfo) {
+                $infoIcon.addClass("info xi-info-circle-outline");
+            } else {
+                $infoIcon.addClass("xi-warning");
+            }
         }
     }
 

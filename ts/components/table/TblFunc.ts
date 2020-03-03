@@ -110,7 +110,7 @@ class TblFunc {
         let headerWidth: number = 0;
 
         if (fitAll || includeHeader) {
-            let extraPadding: number = 48;
+            let extraPadding: number = 38;
             if (options.datastore) {
                 extraPadding += 4;
             }
@@ -122,7 +122,7 @@ class TblFunc {
             }
             if (!$th.length) {
                 $th = $el;
-                extraPadding -= 40;
+                extraPadding -= 30;
             }
 
             headerWidth = xcUIHelper.getTextWidth($th) + extraPadding;
@@ -233,8 +233,6 @@ class TblFunc {
         if (!alreadyFocused && gActiveTableId) {
             TblManager.unHighlightCells(gActiveTableId);
         }
-        const $xcTheadWrap: JQuery = $('#xcTheadWrap-' + tableId);
-        $xcTheadWrap.find('.tableTitle').addClass('tblTitleSelected');
         // unhighlight any selected columns from all other tables
         $('.xcTable:not(#xcTable-' + tableId + ')').find('.selectedCell')
                                                    .removeClass('selectedCell');
@@ -249,10 +247,9 @@ class TblFunc {
     public static isTableScrollable(tableId: TableId): boolean {
         const $firstRow: JQuery = $('#xcTable-' + tableId).find('tbody tr:first');
         const topRowNum: number = RowManager.parseRowNum($firstRow);
-        const tHeadHeight: number = $('#xcTheadWrap-' + tableId).height();
         const tBodyHeight: number = $('#xcTable-' + tableId).height();
         const tableWrapHeight: number = $('#xcTableWrap-' + tableId).height();
-        if ((tHeadHeight + tBodyHeight) >= (tableWrapHeight)) {
+        if (tBodyHeight >= (tableWrapHeight)) {
             return true;
         }
         const table: TableMeta = gTables[tableId];

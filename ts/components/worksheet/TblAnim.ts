@@ -112,7 +112,6 @@ namespace TblAnim {
         rescol.index = colNum;
         rescol.newWidth = rescol.startWidth;
         rescol.table = $table;
-        rescol.tableHead = $el.closest('.xcTableWrap').find('.xcTheadWrap');
         if (options.minWidth != null) {
             rescol.minResizeWidth = options.minWidth;
         } else {
@@ -151,8 +150,6 @@ namespace TblAnim {
 
             $table.addClass('resizingCol');
             $table.closest(".xcTableWrap").addClass("resizingCol");
-            $('.xcTheadWrap').find('.dropdownBox')
-                            .addClass('dropdownBoxHidden');
 
             let cursorStyle: string = '<div id="resizeCursor"></div>';
             $('body').addClass('tooltipOff').append(cursorStyle);
@@ -191,7 +188,6 @@ namespace TblAnim {
         let isDatastore: boolean = rescol.isDatastore;
         $('#resizeCursor').remove();
         $('body').removeClass('tooltipOff');
-        $('.xcTheadWrap').find('.dropdownBox').removeClass('dropdownBoxHidden');
         rescol.table.closest('.xcTableWrap').find('.rowGrab')
                                             .width(rescol.table.width());
         rescol.table.removeClass('resizingCol');
@@ -230,8 +226,6 @@ namespace TblAnim {
             $(document).off('mousemove.onColResize');
             $(document).off('mouseup.endColResize');
             xcUIHelper.reenableTextSelection();
-            $('.xcTheadWrap').find('.dropdownBox')
-                             .removeClass('dropdownBoxHidden');
             clearTimeout(gRescol.timer);    //prevent single-click action
             gRescol.clicks = 0;      //after action performed, reset counter
 
@@ -921,8 +915,7 @@ namespace TblAnim {
         let tableTitleHeight: number = $tableWrap.find('.tableTitle').height();
 
         let xcTableWrapHeight: number = $tableWrap.height();
-        let theadHeight: number = dragInfo.$tableWrap.find(".xcTheadWrap").length ? 36 : 0;
-        let fauxColHeight: number = Math.min(fauxTableHeight, xcTableWrapHeight - theadHeight);
+        let fauxColHeight: number = Math.min(fauxTableHeight, xcTableWrapHeight);
         dragInfo.fauxCol.height(fauxColHeight);
         let firstRowOffset: number = $(topRowEl).offset().top - topPx - rowHeight;
         $fauxTable.css('margin-top', firstRowOffset);

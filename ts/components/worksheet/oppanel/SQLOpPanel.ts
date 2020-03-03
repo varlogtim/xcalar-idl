@@ -431,7 +431,8 @@ class SQLOpPanel extends BaseOpPanel {
                         onCancel: (checked) => {
                             this._ignoreQueryConfirm = checked;
                         },
-                        isCheckBox: true
+                        isCheckBox: true,
+                        isInfo: true
                     })
                 }
             })

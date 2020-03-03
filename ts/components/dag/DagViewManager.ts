@@ -1447,7 +1447,8 @@ class DagViewManager {
             Alert.show({
                 title: title,
                 msg: msg,
-                isAlert: true
+                isAlert: true,
+                isInfo: true
             });
         } catch (e) {
             console.error(e);

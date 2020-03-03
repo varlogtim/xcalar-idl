@@ -161,7 +161,7 @@ namespace DagNodeMenu {
                 const icon: string = categoryNode.getIcon();
                 const description: string = categoryNode.getDescription();
                 subMenuPart += `<li class="operator ${operatorName}" data-opid="${operator.getId()}"
-                                ${xcTooltip.Attrs} data-delay="500" data-original-title="${description}">
+                                ${xcTooltip.Attrs} data-delay="700" data-original-title="${description}">
                                     <i class="icon operatorIcon ${icon}">${icon}</i>
                                     <span class="label">${opDisplayName}</span>
                             </li>`;
@@ -171,7 +171,7 @@ namespace DagNodeMenu {
 
                 menuHtml += `<li class="category category-${categoryType} parentMenu"
                         data-submenu="category-${categoryType}"
-                        ${xcTooltip.Attrs} data-delay="500" data-original-title="${description}" >
+                        ${xcTooltip.Attrs} data-delay="700" data-original-title="${description}" >
                             <i class="icon categoryIcon ${icon}"></i>
                             <span class="label">${categoryName}</span>
                         </li>`;
@@ -1052,7 +1052,8 @@ namespace DagNodeMenu {
                 Alert.show({
                     title: "Original source for optimized application",
                     msg: `The original module is: "${srcTab.getName()}"`,
-                    isAlert: true
+                    isAlert: true,
+                    isInfo: true
                 });
             }
         } catch (e) {

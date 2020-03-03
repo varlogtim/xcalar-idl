@@ -739,7 +739,8 @@ class SupTicketModal {
                 Alert.show({
                     title: SuccessTStr.SubmitTicket,
                     msgTemplate: msg,
-                    isAlert: true
+                    isAlert: true,
+                    isInfo: true
                 });
 
                 if (!$modal.hasClass("bundleError")) {
@@ -907,7 +908,8 @@ class SupTicketModal {
         Alert.show({
             title: SuccessTStr.BundleGenerated,
             msg: alertMsg,
-            isAlert: true
+            isAlert: true,
+            isInfo: true
         });
     }
 

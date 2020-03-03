@@ -255,27 +255,6 @@ describe("TableManager Test", function() {
             $wrap.remove();
         });
 
-        it("TblManager.updateHeaderAndListInfo should work", function() {
-            var tableId = xcHelper.randName("testTable");
-            var $wrap = $('<div id="xcTheadWrap-' + tableId + '">' +
-                            '<div class="tableTitle">' +
-                                '<div class="text"></div>' +
-                            '</div>' +
-                          '</div>');
-            $("body").append($wrap);
-            var table = new TableMeta({
-                tableName: tableId,
-                tableId: tableId
-            });
-            gTables[tableId] = table;
-            TblManager.updateHeaderAndListInfo(tableId);
-            expect($wrap.find(".text").data("cols")).to.equal(-1);
-
-            // clear up
-            $wrap.remove();
-            delete gTables[tableId];
-        });
-
         it("should add and remove waiting cursor should work", function() {
             var id = xcHelper.randName("testId");
             var $wrap = $('<div id="xcTableWrap-' + id + '"></div>');
@@ -660,12 +639,6 @@ describe("TableManager Test", function() {
         });
 
         describe("Thead Listener Test", function() {
-            var $xcTheadWrap;
-
-            before(function() {
-                $xcTheadWrap = $("#xcTheadWrap-" + tableId);
-            });
-
             it("Should open tableMenu", function() {
                 var $menu = $("#tableMenu");
                 $("#sqlTableArea .tableMenu").click();

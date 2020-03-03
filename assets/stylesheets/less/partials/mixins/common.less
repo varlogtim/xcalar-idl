@@ -1506,6 +1506,9 @@
             width: 100%;
             top: 0;
         }
+        .contentSection {
+            overflow: hidden;
+        }
     }
 
     &.hint {
@@ -2796,11 +2799,18 @@ html.firefox {
         box-shadow: 0 0 0px 1px rgba(255,255,255,0.2),
                     0 1px 10px 1px rgba(0, 0, 0, 1);
         position: fixed !important;
-        overflow: hidden;
+        overflow: visible; // to allow resize handles to extend out
         background-color: @color-bg-default;
 
         > .ui-resizable-handle {
             display: block !important;
+        }
+
+        > .ui-resizable-e, > .ui-resizable-w {
+            width: 12px;
+        }
+        > .ui-resizable-n, > .ui-resizable-s {
+            height: 12px;
         }
 
         > .ui-draggable-handle {

@@ -1793,55 +1793,9 @@ class TblManager {
         if (gTables[tableId].modelingMode) {
             TblFunc.alignScrollBar($table);
         } else {
-            TblManager.updateTableHeader(tableId);
             // XXX TODO: possibly update the order of lineage
             TblFunc.matchHeaderSizes($table);
         }
-    }
-
-    /**
-     * TblManager.updateTableHeader
-     */
-    public static updateTableHeader(tableId: TableId): void {
-        const table: TableMeta = gTables[tableId];
-        if (table == null) {
-            console.error("error table");
-            return;
-        }
-        const fullTableName: string = table.getName();
-        const numCols: number = table.getNumCols() - 1; // skip DATA col
-        const $tHead: JQuery = $("#xcTheadWrap-" + tableId).find(".tableTitle .text");
-
-        $tHead.data("cols", numCols)
-              .data("title", fullTableName);
-
-        const tableName: string = xcHelper.getTableName(fullTableName);
-        const nameHtml: string =
-            '<input type="text" class="tableName" value="' + tableName + '" ' +
-            ' autocorrect="off" spellcheck="false">' +
-            '<span class="hashName">#' +
-                tableId +
-            '</span>';
-
-        const numColHtml: string = '<span class="colNumBracket" ' +
-                        'data-toggle="tooltip" ' +
-                        'data-placement="top" ' +
-                        'data-container="body" ' +
-                        'title="' + CommonTxtTstr.NumCol + '">' +
-                        ' [' + numCols + ']</span>';
-
-        $tHead.html(nameHtml + numColHtml);
-        const $tableName: JQuery = $tHead.find('.tableName');
-        TblManager.updateTableNameWidth($tableName);
-    }
-
-    /**
-     * TblManager.updateTableNameWidth
-     * @param $tableName
-     */
-    public static updateTableNameWidth($tableName: JQuery): void {
-        const width: number = xcUIHelper.getTextWidth($tableName, $tableName.val());
-        $tableName.width(width + 1);
     }
 
     /**
