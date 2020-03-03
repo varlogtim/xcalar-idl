@@ -326,7 +326,6 @@ class AppList extends Durable {
     private _createMainTab(app: string, moduleNodes: Set<DagNodeModule>): void {
         const graph = this._buildMainAppGraph(moduleNodes);
         const name: string = DagList.Instance.getValidName("Main", undefined, undefined, undefined, app);
-        // graph.addMainNode();
         const mainTab: DagTabMain = new DagTabMain({
             app,
             name: name,

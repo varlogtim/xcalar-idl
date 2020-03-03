@@ -4050,8 +4050,7 @@ class DagView {
         if ($categoryBarNode.closest(".category-hidden").length &&
             type !== DagNodeType.Synthesize &&
             type !== DagNodeType.DFOut &&
-            type !== DagNodeType.Export &&
-            type !== DagNodeType.Main
+            type !== DagNodeType.Export
         ) {
             $node.addClass("configDisabled");
         } else {

@@ -793,49 +793,6 @@ describe("DagNodeExecutor Test", () => {
         });
     });
 
-    it("should update IMD", (done) => {
-        const node = createNode(DagNodeType.UpdateIMD);
-        const parentNode = createNode();
-        let progCol = ColManager.newPullCol("test", "test", ColumnType.integer);
-        parentNode.getLineage().setColumns([progCol]);
-        parentNode.getLineage().columnsWithParamsReplaced = [progCol];
-        parentNode.setTable("parentTable");
-        node.setParam({
-            pubTableName: "testTable2",
-            operator: "testCol"
-        });
-        node.connectToParent(parentNode);
-
-        const executor = new DagNodeExecutor(node, txId);
-        const oldUpdate = XIApi.updatePubTable;
-
-        XIApi.updatePubTable = (txId, srcTableName, pubTableName, colInfo, imdCol) => {
-            expect(txId).to.equal(1);
-            expect(srcTableName).to.equal("parentTable");
-            expect(pubTableName).to.equal("testTable2");
-            expect(colInfo.length).to.equal(1);
-            expect(colInfo[0]).to.deep.include({
-                orig: "test",
-                new: "test",
-                type: 4
-            });
-            expect(imdCol).to.equal("testCol")
-            return PromiseHelper.resolve();
-        };
-
-        executor.run()
-        .then(() => {
-            done();
-        })
-        .fail((error) => {
-            console.error("fail", error);
-            done("fail");
-        })
-        .always(() => {
-            XIApi.updatePubTable = oldUpdate;
-        });
-    });
-
     it("should work for get IMDTable", (done) => {
         const node = createNode(DagNodeType.IMDTable);
         node.setParam({

@@ -23,7 +23,7 @@ class DagGraphExecutor {
     private _isLinkInBatch: boolean;
 
     public static readonly stepThroughTypes = new Set([DagNodeType.PublishIMD,
-        DagNodeType.IMDTable, DagNodeType.UpdateIMD,
+        DagNodeType.IMDTable,
         DagNodeType.Custom, DagNodeType.CustomInput, DagNodeType.CustomOutput]);
 
     public static hasUDFError(queryNode: XcalarApiDagNodeT): boolean {

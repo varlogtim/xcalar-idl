@@ -1874,13 +1874,6 @@ class DagGraph extends Durable {
         return this.nodeHeadsMap;
     }
 
-    public addMainNode() {
-        return this.newNode({
-            type: DagNodeType.Main,
-            display: {x: 80, y: 80}
-        });
-    }
-
     public getDisjointGraphs():  Set<Set<DagNode>> {
         const trees: Set<Set<DagNode>> = new Set();
         const seen: Set<DagNodeId> = new Set();

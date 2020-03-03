@@ -38,9 +38,6 @@ class DagCategories {
             new DagCategoryNodeSQL(DagNodeFactory.create({
                 type: DagNodeType.Module
             })),
-            new DagCategoryNode(DagNodeFactory.create({
-                type: DagNodeType.Main
-            }), DagCategoryType.Hidden),
         ]);
 
         let inCategory: DagCategory;
@@ -139,13 +136,6 @@ class DagCategories {
                 }))
             ]);
         }
-
-        if (typeof gUpdateIMDAccess !== "undefined" && gUpdateIMDAccess === true) {
-            outCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
-                type: DagNodeType.UpdateIMD
-            })));
-        }
-
 
         const sqlCategory = new DagCategory(DagCategoryType.SQL, [
             new DagCategoryNodeSQL(DagNodeFactory.create({

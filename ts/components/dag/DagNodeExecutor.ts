@@ -158,8 +158,6 @@ class DagNodeExecutor {
                     return this._dfOut();
                 case DagNodeType.PublishIMD:
                     return this._publishIMD();
-                case DagNodeType.UpdateIMD:
-                    return this._updateIMD();
                 case DagNodeType.Jupyter:
                     return this._jupyter();
                 case DagNodeType.IMDTable:
@@ -1191,29 +1189,6 @@ class DagNodeExecutor {
         })
         .then(() => {
             deferred.resolve();
-        })
-        .fail((err) => {
-            txLog.resetCurrentNodeInfo();
-            deferred.reject(err);
-        });
-        return deferred.promise();
-    }
-
-    private _updateIMD(): XDPromise<string> {
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        const node: DagNodeUpdateIMD = <DagNodeUpdateIMD>this.node;
-        const params: DagNodeUpdateIMDInputStruct = node.getParam(this.replaceParam);
-        let columns: ProgCol[] = node.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns(this.replaceParam, true);
-        })[0] || [];
-        let colInfo: ColRenameInfo[] = xcHelper.createColInfo(columns);
-        const txLog = Transaction.get(this.txId);
-        txLog.setCurrentNodeInfo(node.getId(), this.tabId);
-        XIApi.updatePubTable(this.txId, this._getParentNodeTable(0),
-            params.pubTableName, colInfo, params.operator)
-        .then((res) => {
-            txLog.resetCurrentNodeInfo();
-            deferred.resolve(res);
         })
         .fail((err) => {
             txLog.resetCurrentNodeInfo();

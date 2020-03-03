@@ -900,8 +900,7 @@ namespace DagNodeMenu {
             }
         }
 
-        if (dagNode != null && (dagNodeType === DagNodeType.PublishIMD ||
-                dagNodeType == DagNodeType.UpdateIMD)) {
+        if (dagNode != null && (dagNodeType === DagNodeType.PublishIMD)) {
             classes += " publishMenu";
         }
 

@@ -43,7 +43,6 @@ class DagConfigNodeModal {
         GroupByOpPanel.Instance.setup();
         JoinOpPanel.Instance.setup();
         PublishIMDOpPanel.Instance.setup();
-        UpdateIMDOpPanel.Instance.setup();
         ExportOpPanel.Instance.setup();
         IMDTableOpPanel.Instance.setup();
         JupyterOpPanel.Instance.setup();
@@ -147,9 +146,6 @@ class DagConfigNodeModal {
             case (DagNodeType.PublishIMD):
                 PublishIMDOpPanel.Instance.show(node, options);
                 break;
-            case (DagNodeType.UpdateIMD):
-                UpdateIMDOpPanel.Instance.show(node, options);
-                break;
             case (DagNodeType.Jupyter):
                 JupyterOpPanel.Instance.show(node, options);
                 break;
@@ -177,9 +173,6 @@ class DagConfigNodeModal {
                 break;
             case (DagNodeType.Deskew):
                 DeskewOpPanel.Instance.show(node, options);
-                break;
-            case (DagNodeType.Main):
-                MainOpPanel.Instance.show(node, options);
                 break;
             default:
                 this.close();

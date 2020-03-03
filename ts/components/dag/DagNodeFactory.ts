@@ -61,9 +61,6 @@ class DagNodeFactory {
             case DagNodeType.PublishIMD:
                 node = new DagNodePublishIMD(options, runtime);
                 break;
-            case DagNodeType.UpdateIMD:
-                node = new DagNodeUpdateIMD(options, runtime);
-                break;
             case DagNodeType.DFIn:
                 node = new DagNodeDFIn(<DagNodeInInfo>options, runtime);
                 break;
@@ -105,9 +102,6 @@ class DagNodeFactory {
                 break;
             case DagNodeType.Module:
                 node = new DagNodeModule(<DagNodeModuleOptions>options, runtime);
-                break;
-            case DagNodeType.Main:
-                node = new DagNodeMain(options, runtime);
                 break;
             default:
                 throw new Error("node type " + options.type + " not supported");
@@ -157,8 +151,6 @@ class DagNodeFactory {
                 return DagNodeIMDTable;
             case DagNodeType.PublishIMD:
                 return DagNodePublishIMD;
-            case DagNodeType.UpdateIMD:
-                return DagNodeUpdateIMD;
             case DagNodeType.DFIn:
                 return DagNodeDFIn;
             case DagNodeType.DFOut:

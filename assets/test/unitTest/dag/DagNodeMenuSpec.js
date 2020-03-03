@@ -771,24 +771,6 @@ describe("DagNodeMenu Test", function() {
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
-        it("should configure UpdateIMD", function() {
-            const newNodeInfo = {type: "updateIMD"};
-            node = DagViewManager.Instance.newNode(newNodeInfo);
-
-            var cacheFn = UpdateIMDOpPanel.Instance.show;
-            var called = false;
-            UpdateIMDOpPanel.Instance.show = function() {
-                called = true;
-            }
-            DagNodeMenu.execute("configureNode", {
-                node: node
-            });
-            expect(called).to.be.true;
-            UpdateIMDOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
-            DagViewManager.Instance.removeNodes([node.getId()], tabId);
-        });
-
         it("should configure Jupyter", function() {
             const newNodeInfo = {type: "Jupyter"};
             node = DagViewManager.Instance.newNode(newNodeInfo);

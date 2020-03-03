@@ -30,12 +30,10 @@ enum DagNodeType {
     Placeholder = "placeholder",
     Instruction = "instruction",
     Synthesize = "synthesize",
-    UpdateIMD = "updateIMD",
     SQLFuncIn = "SQLFuncIn",
     SQLFuncOut = "SQLFuncOut",
     Deskew = "Deskew",
-    Module = "Module",
-    Main = "Main"
+    Module = "Module"
 }
 
 enum DagNodeSubType {
@@ -189,7 +187,6 @@ DagNodeTooltip[DagNodeType.Deskew] = "Reduce the data skew by resharding the dat
 // DagNodeTooltip[DagNodeType.SubGraph] = "subGraph";
 // DagNodeTooltip[DagNodeType.Placeholder] = "placeholder";
 // DagNodeTooltip[DagNodeType.Synthesize] = "synthesize";
-// DagNodeTooltip[DagNodeType.UpdateIMD] = "updateIMD";
 // DagNodeTooltip[DagNodeType.SQLFuncIn] = "SQLFuncIn";
 // DagNodeTooltip[DagNodeType.SQLFuncOut] = "SQLFuncOut";
 

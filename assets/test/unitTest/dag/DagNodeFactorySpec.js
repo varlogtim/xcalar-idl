@@ -79,9 +79,6 @@ describe("DagNodeFactory Test", () => {
             "type": DagNodeType.PublishIMD,
             "expect": DagNodePublishIMD
         }, {
-            "type": DagNodeType.UpdateIMD,
-            "expect": DagNodeUpdateIMD
-        }, {
             "type": DagNodeType.DFIn,
             "expect": DagNodeDFIn
         }, {
