@@ -40,7 +40,7 @@ class TableMenu extends AbstractMenu {
             ["c", "corrAgg"],
             ["d", "deleteTable"],
             ["e", "exportTable"],
-            ["j", "jupyterTable"],
+            // ["j", "jupyterTable"],
             ["s", "multiCast"],
             ["x", "exitOp"],
         ];
