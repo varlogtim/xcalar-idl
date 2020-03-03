@@ -149,7 +149,7 @@
     include "../../util/menuScrollArea.html"
 </div>
 
-<div id="dagTableNodeMenu" class="menu">
+<div id="dagTableNodeMenu" class="menu" data-submenu="dagTableNodeSubMenu">
     <ul>
         <li class="viewResult unavailable" data-action="viewResult">
             <i class="icon xi-show"></i>
@@ -179,20 +179,26 @@
             <i class="icon xi-graph"></i>
             <span class="label">View Stats</span>
         </li>
+        <li class="addOperation parentMenu" data-submenu="addOperation">
+          <i class="icon xi-plus"></i>
+          <span class="label">Add Operation</span>
+        </li>
     </ul>
     include "../../util/menuScrollArea.html"
 </div>
 
+<div id="dagTableNodeSubMenu" class="menu subMenu" data-submenu="dagTableNodeSubSubMenu">
+  <ul class="addOperation"></ul>
+  include "../../util/menuScrollArea.html"
+</div>
+<div id="dagTableNodeSubSubMenu" class="menu subSubMenu">
+    <ul>
+    </ul>
+  include "../../util/menuScrollArea.html"
+</div>
+
 <div id="dagNodeInstructionMenu" class="menu" data-submenu="dagNodeInstructionSubMenu">
     <ul>
-        <li class="viewResult" data-action="viewResult">
-            <i class="icon xi-show"></i>
-            <span class="label"><%= dicts.dag.viewResult %></span>
-        </li>
-        <li class="sortByName parentMenu" data-submenu="sortByName">
-            <i class="icon xi-show"></i>
-            <span class="label"><%= dicts.dag.viewResult %></span>
-        </li>
     </ul>
     include "../../util/menuScrollArea.html"
 </div>

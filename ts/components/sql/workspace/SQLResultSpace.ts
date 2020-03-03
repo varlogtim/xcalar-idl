@@ -138,13 +138,13 @@ class SQLResultSpace {
         }
         this._sqlTableSchema.close();
         this._tableLister.show(reset);
-        if (firstTouch && this._preventShow) {
-            // if trying to show for the first time but prevented because
-            // user had the panel closed last time, don't show this time but
-            // allow afterwards
-            this._preventShow = false;
-            return;
-        }
+        // if (firstTouch && this._preventShow) {
+        //     // if trying to show for the first time but prevented because
+        //     // user had the panel closed last time, don't show this time but
+        //     // allow afterwards
+        //     this._preventShow = false;
+        //     return;
+        // }
         TableTabManager.Instance.openSQLTab();
     }
 
@@ -259,9 +259,9 @@ class SQLResultSpace {
     }
 
     private _toggleDisplay(display: boolean): void {
-        if (display && this._preventShow) {
-            return;
-        }
+        // if (display && this._preventShow) {
+        //     return;
+        // }
         const $resultSection = this._getResultSection();
         const $container = $resultSection.parent();
         if (display) {

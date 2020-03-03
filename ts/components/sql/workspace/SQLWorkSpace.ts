@@ -55,6 +55,8 @@ class SQLWorkSpace {
                 !$target.closest("#dataflowMenu").length &&
                 !$target.closest("#dagNodeMenu").length &&
                 !$target.closest("#dagTableNodeMenu").length &&
+                !$target.closest("#dagTableNodeSubMenu").length &&
+                !$target.closest("#dagTableNodeSubSubMenu").length &&
                 !$target.closest(".dagSchemaPopup").length &&
                 !$target.closest("#dagTabView").length &&
                 !$target.closest("#configNodeContainer").length

@@ -179,6 +179,9 @@ namespace DagNodeMenu {
         });
         _getInstructionMenu().find("ul").html(menuHtml);
         $("#dagNodeInstructionSubMenu").html(subMenuHtml);
+
+        _getDagTableSubMenu().find("ul").html(menuHtml);
+        $("#dagTableNodeSubSubMenu").html(subMenuHtml);
     }
 
 
@@ -421,6 +424,19 @@ namespace DagNodeMenu {
                     break;
             }
         });
+
+        $("#dagTableNodeSubSubMenu").on("mouseup", "li", function(event) {
+            if (event.which !== 1 || (isSystemMac && event.ctrlKey)) {
+                return;
+            }
+            const $li: JQuery = $(this);
+            const opid: string = $li.data('opid');
+            const newNodeInfo: DagNodeCopyInfo = DagCategoryBar.Instance.getOperatorInfo(opid);
+            const type: DagNodeType = newNodeInfo.type;
+            const subType: DagNodeSubType = newNodeInfo.subType;
+            const nodeId = DagViewManager.Instance.getSelectedNodeIds(true)[0];
+            DagViewManager.Instance.autoAddNode(type, subType, nodeId);
+        });
     }
 
     function exitOpPanel(ignoreSQLChange?: boolean): void {
@@ -447,6 +463,10 @@ namespace DagNodeMenu {
 
     function _getDagTableMenu(): JQuery {
         return $("#dagTableNodeMenu");
+    }
+
+    function _getDagTableSubMenu(): JQuery {
+        return $("#dagTableNodeSubMenu");
     }
 
     function _getInstructionMenu(): JQuery {
@@ -829,6 +849,7 @@ namespace DagNodeMenu {
             classes = "agg";
             $menu.find(".viewResult").removeClass("xc-hidden");
             $menu.find(".viewSkew").addClass("xc-hidden");
+            $menu.find('.viewResult .label').text("View Aggregate Value");
             if (state === DagNodeState.Complete &&
                 aggNode.getAggVal() != null
             ) {
@@ -836,10 +857,15 @@ namespace DagNodeMenu {
             } else {
                 $menu.find(".viewResult").addClass("unavailable");
             }
+        } else {
+            $menu.find('.viewResult .label').text("View Table");
         }
         // link node option
         if (dagNode != null && dagNodeType === DagNodeType.DFIn) {
             classes += " linkInMenu";
+        }
+        if (dagNode.isOutNode() || dagNode instanceof DagNodeSort) {
+            classes += " noChildAllowed";
         }
         if ((dagNode instanceof DagNodeDFOut || dagNode instanceof DagNodeExport) &&
             !dagNode.isOptimized()

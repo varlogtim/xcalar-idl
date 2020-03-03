@@ -1496,7 +1496,7 @@
     }
 }
 #dagNodeMenu, #dagNodeSubMenu, #dagTableNodeMenu, #dagNodeInstructionSubMenu,
-#dagNodeInstructionMenu {
+#dagNodeInstructionMenu, #dagTableNodeSubMenu, #dagTableNodeSubSubMenu {
     z-index: @z-index-popupUndocked + 5;
     border-radius: 5px;
     box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.2);
@@ -1575,7 +1575,7 @@
         .removeNode, .copyNodes, .cutNodes, .executeNode, .resetNode, .executeNodeOptimized,
         .viewOptimizedDataflow,
         .description, .configureNode, .viewResult, .generateResult, .viewSchema, .viewOptions, .customNodeOptions, .autoAlign,
-        .unlockNodeTable, .lockNodeTable, .createCustom, .selectAllNodes, .viewUDFErrors, .viewSkew {
+        .unlockNodeTable, .lockNodeTable, .createCustom, .selectAllNodes, .viewUDFErrors, .viewSkew, .addOperation {
             display: list-item;
         }
         .findLinkOut, .restoreSource {
@@ -1835,6 +1835,20 @@
         li {
             display: list-item;
         }
+    }
+}
+
+#dagTableNodeMenu {
+     &.noChildAllowed {
+        .addOperation {
+            display: none;
+        }
+    }
+}
+
+#dagTableNodeSubMenu {
+    .category-in {
+        display: none;
     }
 }
 

@@ -13,6 +13,7 @@ namespace xcMenu {
         keepOpen?: boolean;
         hotkeys?: Function;
         allowSelection?: boolean;
+        $subSubMenu?: JQuery;
     }
 
     /**
@@ -23,91 +24,25 @@ namespace xcMenu {
      */
     export function add($mainMenu: JQuery, options: xcMenu.Options = <xcMenu.Options>{}): void {
         let $subMenu: JQuery;
+        let $subSubMenu: JQuery;
         let $allMenus: JQuery = $mainMenu;
         const subMenuId: string = $mainMenu.data('submenu');
+        let subSubMenuId: string;
         let hideTimeout: NodeJS.Timer;
         let showTimeout: NodeJS.Timer;
         let subListScroller: MenuHelper;
+        let subSubListScroller: MenuHelper;
 
         if (subMenuId) {
             $subMenu = $('#' + subMenuId);
             $allMenus = $allMenus.add($subMenu);
-            subListScroller = new MenuHelper($subMenu, {
-                "bottomPadding": 4
-            });
-
-            // prevents input from closing unless you hover over a different li
-            // on the main column menu
-            // $subMenu.find('input').on({
-            $subMenu.on({
-                "focus": function() {
-                    $(this).parents('li').addClass('inputSelected')
-                           .parents('.subMenu').addClass('inputSelected');
-                },
-                "blur": function() {
-                    $(this).parents('li').removeClass('inputSelected')
-                           .parents('.subMenu').removeClass('inputSelected');
-                },
-                "keyup": function() {
-                    if ($subMenu.find('li.selected').length) {
-                        return;
-                    }
-                    const $input: JQuery = $(this);
-                    $input.parents('li').addClass('inputSelected')
-                    .parents('.subMenu').addClass('inputSelected');
-
-                }
-            }, 'input');
-
-            $subMenu.on('mouseup', 'li', function(event) {
-                if (event.which !== 1) {
-                    return;
-                }
-                const $li: JQuery = $(this);
-                event.stopPropagation();
-                if (typeof mixpanel !== "undefined") {
-                    xcMixpanel.menuItemClick(event);
-                }
-
-                if (!$li.hasClass('unavailable') &&
-                    $li.closest('input').length === 0 &&
-                    $li.closest('.clickable').length === 0) {
-                    // hide li if doesnt have an input field
-                    xcMenu.close($allMenus);
-                    clearTimeout(showTimeout);
-                }
-            });
-
-            $subMenu.on({
-                "mouseenter": function() {
-                    if ($(this).closest('.dropDownList').length) {
-                        return;
-                    }
-                    $subMenu.find('li').removeClass('selected');
-
-                    const $li: JQuery = $(this);
-                    const className: string = $li.parent().attr('class');
-                    $mainMenu.find('.' + className).addClass('selected');
-                    $li.addClass('selected');
-
-                    if (!$li.hasClass('inputSelected')) {
-                        $subMenu.find('.inputSelected').removeClass('inputSelected');
-                    }
-                    clearTimeout(hideTimeout);
-                },
-                "mouseleave": function() {
-                    $subMenu.find('li').removeClass('selected');
-                    const $li: JQuery = $(this);
-                    $li.find('.dropDownList').removeClass("open")
-                        .find('.list').hide();
-                    // $li.removeClass('selected');
-                    $('.tooltip').remove();
-                }
-            }, "li");
-
-            $subMenu.on('contextmenu', function(e) {
-                e.preventDefault();
-            });
+            subSubMenuId = $subMenu.data("submenu");
+            subListScroller = setupSubMenu($subMenu, $mainMenu);
+            if (subSubMenuId) {
+                $subSubMenu = $("#" + subSubMenuId);
+                $allMenus = $allMenus.add($subSubMenu);
+                subSubListScroller = setupSubMenu($subSubMenu, $subMenu);
+            }
         }
 
         $mainMenu.on('mouseup', 'li', function(event) {
@@ -161,10 +96,10 @@ namespace xcMenu {
                 clearTimeout(hideTimeout);
                 const subMenuClass: string = $li.data('submenu');
                 if (event.keyTriggered) { // mouseenter triggered by keypress
-                    showSubMenu($li, subMenuClass);
+                    showSubMenu($subMenu, $li, subMenuClass, subListScroller);
                 } else {
                     showTimeout = setTimeout(function() {
-                        showSubMenu($li, subMenuClass);
+                        showSubMenu($subMenu, $li, subMenuClass, subListScroller);
                     }, 150);
                 }
 
@@ -185,7 +120,7 @@ namespace xcMenu {
             e.preventDefault();
         });
 
-        function showSubMenu($li: JQuery, subMenuClass: string): void {
+        function showSubMenu($subMenu: JQuery, $li: JQuery, subMenuClass: string, subListScroller): void {
             if ($li.hasClass('selected')) {
                 $subMenu.show();
                 const $targetSubMenu: JQuery = $subMenu.find('ul.' + subMenuClass);
@@ -241,7 +176,112 @@ namespace xcMenu {
             $("html").attr("lang") === "en-US") {
             hotKeyFns.set($mainMenu.attr("id"), options.hotkeys);
         }
+
+        function setupSubMenu($subMenu, $parentMenu) {
+            const subListScroller = new MenuHelper($subMenu, {
+                "bottomPadding": 4
+            });
+
+            // prevents input from closing unless you hover over a different li
+            // on the main column menu
+            // $subMenu.find('input').on({
+            $subMenu.on({
+                "focus": function() {
+                    $(this).parents('li').addClass('inputSelected')
+                           .parents('.subMenu').addClass('inputSelected');
+                },
+                "blur": function() {
+                    $(this).parents('li').removeClass('inputSelected')
+                           .parents('.subMenu').removeClass('inputSelected');
+                },
+                "keyup": function() {
+                    if ($subMenu.find('li.selected').length) {
+                        return;
+                    }
+                    const $input: JQuery = $(this);
+                    $input.parents('li').addClass('inputSelected')
+                    .parents('.subMenu').addClass('inputSelected');
+
+                }
+            }, 'input');
+
+            $subMenu.on('mouseup', 'li', function(event) {
+                if (event.which !== 1) {
+                    return;
+                }
+                const $li: JQuery = $(this);
+                event.stopPropagation();
+                if (typeof mixpanel !== "undefined") {
+                    xcMixpanel.menuItemClick(event);
+                }
+
+                if (!$li.hasClass('unavailable') &&
+                    $li.closest('input').length === 0 &&
+                    $li.closest('.clickable').length === 0) {
+                    // hide li if doesnt have an input field
+                    xcMenu.close($allMenus);
+                    clearTimeout(showTimeout);
+                }
+            });
+
+            $subMenu.on({
+                "mouseenter": function(event) {
+                    if ($(this).closest('.dropDownList').length) {
+                        return;
+                    }
+                    $subMenu.find('li').removeClass('selected');
+
+                    const $li: JQuery = $(this);
+                    const className: string = $li.parent().attr('class');
+                    $parentMenu.find('.' + className).addClass('selected');
+                    $li.addClass('selected');
+
+                    if (!$li.hasClass('inputSelected')) {
+                        $subMenu.find('.inputSelected').removeClass('inputSelected');
+                    }
+                    const hasSubMenu: boolean = $li.hasClass('parentMenu');
+
+                    if (!hasSubMenu || $li.hasClass('unavailable')) {
+                        if ($subSubMenu && !$subMenu.hasClass("subSubMenu")) {
+                            if (event.keyTriggered) {
+                                $subSubMenu.hide();
+                            } else {
+                                clearTimeout(hideTimeout);
+                                hideTimeout = setTimeout(function() {
+                                    $subSubMenu.hide();
+                                }, 150);
+                            }
+                        }
+                        return;
+                    }
+                    clearTimeout(hideTimeout);
+                    const subMenuClass: string = $li.data('submenu');
+                    if (event.keyTriggered) { // mouseenter triggered by keypress
+                        showSubMenu($subSubMenu, $li, subMenuClass, subSubListScroller);
+                    } else {
+                        showTimeout = setTimeout(function() {
+                            showSubMenu($subSubMenu, $li, subMenuClass, subSubListScroller);
+                        }, 150);
+                    }
+                },
+                "mouseleave": function() {
+                    $subMenu.find('li').removeClass('selected');
+                    const $li: JQuery = $(this);
+                    $li.find('.dropDownList').removeClass("open")
+                        .find('.list').hide();
+                    // $li.removeClass('selected');
+                    $('.tooltip').remove();
+                }
+            }, "li");
+
+            $subMenu.on('contextmenu', function(e) {
+                e.preventDefault();
+            });
+            return subListScroller;
+        }
     };
+
+
 
     /**
      * xcMenu.show
@@ -397,7 +437,11 @@ namespace xcMenu {
                         return;
                     }
                     event.preventDefault();
-                    xcMenu.close($menu.add($subMenu));
+                    let $menus = $menu.add($subMenu);
+                    if (options.$subSubMenu) {
+                        $menus = $menus.add(options.$subSubMenu);
+                    }
+                    xcMenu.close();
                     return;
                 default:
                     return; // key not supported

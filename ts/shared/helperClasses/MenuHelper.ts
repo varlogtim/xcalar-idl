@@ -176,10 +176,15 @@ class MenuHelper {
         const menuId: string = $menu.attr('id');
         let $allMenus: JQuery;
         let $subMenu: JQuery;
+        let $subSubMenu: JQuery;
 
         if ($menu.data('submenu')) {
             $subMenu = $('#' + $menu.data('submenu'));
             $allMenus = $menu.add($subMenu);
+            if ($subMenu.data('submenu')) {
+                $subSubMenu = $('#' + $subMenu.data('submenu'));
+                $allMenus = $allMenus.add($subSubMenu);
+            }
         } else {
             $allMenus = $menu;
         }
@@ -241,6 +246,9 @@ class MenuHelper {
             $menu.attr("class", "menu " + className);
             if ($subMenu) {
                 $subMenu.attr("class", "menu subMenu " + className);
+                if ($subSubMenu) {
+                    $subSubMenu.attr("class", "menu subSubMenu " + className);
+                }
             }
             if (showingHotKeys) {
                 $menu.addClass("showingHotKeys");
@@ -250,7 +258,8 @@ class MenuHelper {
         // adjust menu height and position it properly
         MenuHelper.positionAndShowMenu(menuId, $menu, $dropdownIcon, options);
         xcMenu.addKeyboardNavigation($menu, $subMenu, {
-            allowSelection: options.allowSelection
+            allowSelection: options.allowSelection,
+            $subSubMenu: $subSubMenu
         });
     }
 
