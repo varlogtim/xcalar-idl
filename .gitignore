@@ -29,7 +29,6 @@ tags
 
 # assets/
 /assets/stylesheets/**/*.css
-/assets/widget/*.css
 /assets/customerPortal/*.css
 /assets/customerPortal/_table_render.html
 /assets/customerPortal/_error_license.html
@@ -47,8 +46,6 @@ tags
 /assets/js/constructor/DB_persConstructorV2.js
 /assets/js/constructor/E_persConstructor.js
 /assets/js/constructor/README
-/assets/lang/en/jsTStrXI.js
-/assets/lang/zh/jsTStrXI.js
 /assets/help/user
 /assets/js/shared/
 /assets/js/components/

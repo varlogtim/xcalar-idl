@@ -3,20 +3,6 @@ enum RowDirection {
     Bottom = 2
 }
 
-enum WSTableType {
-    Active = "tables",
-    TempHidden = "tempHiddenTables",
-    Undo = "undoneTables",
-    Lock = "lockedTables",
-    Pending = "pendingTables"
-}
-
-enum DelWSType {
-    Del = "drop tables",
-    Empty = "empty sheet",
-    Temp = "temp list"
-}
-
 enum TableType {
     Active = "active",
     Orphan = "orphaned",
@@ -93,10 +79,6 @@ enum DSFormat {
     SpecialJSON = "SpecialJSON",
     CSV = "CSV",
     XML = "XML"
-}
-
-enum FileProtocol {
-    nfs = "file:///"
 }
 
 var fakeEvent: any = {
@@ -489,8 +471,6 @@ enum UrlToTab {
 
 if (typeof global !== 'undefined') {
     global.RowDirection = RowDirection;
-    global.WSTableType = WSTableType;
-    global.DelWSType = DelWSType;
     global.TableType = TableType;
     global.ColDir = ColDir;
     global.ColFormat = ColFormat;
@@ -501,7 +481,6 @@ if (typeof global !== 'undefined') {
     global.ColumnSortOrder = ColumnSortOrder;
     global.DSObjTerm = DSObjTerm;
     global.DSFormat = DSFormat;
-    global.FileProtocol = FileProtocol;
     global.keyCode = keyCode;
     global.FltOp = FltOp;
     global.AggrOp = AggrOp;
