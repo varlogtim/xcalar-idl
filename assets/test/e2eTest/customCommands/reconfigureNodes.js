@@ -31,7 +31,7 @@ class ReconfigureNodes extends EventEmitter {
 
                 } else if (nodeInfo.type === "link out") {
                     this.api
-                        .openOpPanel(".operator:nth-child(" + (i + 1) + ")")
+                        .openOpPanel(".operator:nth-child(" + (i + 1) + ") .main")
                         .pause(pause)
                         .clearValue("#dfLinkOutPanel .linkOutName .inputWrap input")
                         .setValue("#dfLinkOutPanel .linkOutName .inputWrap input", input.name)
@@ -39,15 +39,15 @@ class ReconfigureNodes extends EventEmitter {
                         .waitForElementNotVisible('#dfLinkOutPanel');
                 } else if (nodeInfo.type === "publishIMD") {
                     this.api
-                        .openOpPanel(".operator:nth-child(" + (i + 1) + ")")
+                        .openOpPanel(".operator:nth-child(" + (i + 1) + ") .main")
                         .pause(pause)
                         .clearValue("#publishIMDOpPanel .IMDNameInput")
                         .setValue("#publishIMDOpPanel .IMDNameInput", input.pubTableName)
                         .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4))
-                        .executeNode(".operator:nth-child(" + (i + 1) + ")")
+                        .executeNode(".operator:nth-child(" + (i + 1) + ") .main")
                 } else if (nodeInfo.type !== "IMDTable" && nodeInfo.type !== "export") {
                     this.api
-                        .openOpPanel(".operator:nth-child(" + (i + 1) + ")")
+                        .openOpPanel(".operator:nth-child(" + (i + 1) + ") .main")
                         .pause(pause)
                         .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4));
                 }

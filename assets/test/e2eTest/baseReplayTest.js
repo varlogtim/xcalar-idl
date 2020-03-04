@@ -25,21 +25,21 @@ function replay(testConfig, tags) {
 
         after: function(browser) {
             if (testConfig.IMDNames && testConfig.IMDNames.length) {
-                browser
-                .click("#dataStoresTab")
-                .click("#sourceTblButton")
-                .click("#datastoreMenu .table .iconSection .refresh")
-                .waitForElementNotPresent("#datastoreMenu .refreshIcon", 50000)
-                .waitForElementPresent('#datastoreMenu .grid-unit[data-id="' + testConfig.IMDNames[0] + '"]')
+
+                browser.click("#dagList .refreshBtn")
+                .waitForElementNotPresent("#dagList .refreshIcon", 50000)
+                .waitForElementPresent('#dagList .tableList .table[data-name="' + testConfig.IMDNames[0] + '"]', 10000)
 
                 testConfig.IMDNames.forEach((IMDName) => {
                     browser
-                        .moveToElement('#datastoreMenu .grid-unit[data-id="' + IMDName + '"]', 20, 20)
-                        .mouseButtonClick("right")
-                        .moveToElement("#tableGridViewMenu li.delete", 10, 10)
+                        .execute(execFunctions.scrollIntoView, ['#dagList .tableList .table[data-name="' + IMDName + '"]'], () => {})
+                        .moveToElement('#dagList .tableList .table[data-name="' + IMDName + '"]', 30, 4)
+                        .moveToElement('#dagList .tableList .table[data-name="' + IMDName + '"] .dropDown', 4, 4)
+                        .mouseButtonClick("left")
+                        .moveToElement("#dagListMenu li.tableDelete", 10, 10)
                         .mouseButtonClick("left")
                         .click("#alertModal .confirm")
-                        .waitForElementNotPresent('#datastoreMenu .grid-unit[data-id="' + IMDName + '"]');
+                        .waitForElementNotPresent('#dagList .tableList .table[data-name="' + IMDName + '"]', 10000);
                 });
             }
             // if (testConfig.datasets && testConfig.datasets.length) {
@@ -55,24 +55,25 @@ function replay(testConfig, tags) {
                         }
                         browser
                         .execute(execFunctions.scrollIntoView, ["#dsListSection .grid-unit:last-child"], () => {})
-                            testConfig.datasets.forEach(datasetId => {
-                                browser
-                                .execute(execFunctions.scrollIntoView, [`#dsListSection .grid-unit[data-dsid="${datasetId}"]`], () => {})
-                                .moveToElement(`#dsListSection .grid-unit[data-dsid="${datasetId}"]`, 10, 10)
-                                .mouseButtonClick('right')
-                                .waitForElementVisible("#gridViewMenu", 1000)
-                                .click("#gridViewMenu .deactivate")
-                                .waitForElementVisible("#alertModal", 10000)
-                                .click("#alertModal .confirm")
-                                .waitForElementVisible(`#dsListSection .grid-unit[data-dsid="${datasetId}"].inActivated`, 20000)
-                                .moveToElement(`#dsListSection .grid-unit[data-dsid="${datasetId}"]`, 10, 10)
-                                .mouseButtonClick('right')
-                                .waitForElementVisible("#gridViewMenu", 1000)
-                                .click("#gridViewMenu .delete")
-                                .waitForElementVisible("#alertModal", 10000)
-                                .click("#alertModal .confirm")
-                                .waitForElementNotVisible("#modalBackground", 10000);
-                            });
+
+                        testConfig.datasets.forEach(datasetId => {
+                            browser
+                            .execute(execFunctions.scrollIntoView, [`#dsListSection .grid-unit[data-dsid="${datasetId}"]`], () => {})
+                            .moveToElement(`#dsListSection .grid-unit[data-dsid="${datasetId}"]`, 10, 10)
+                            .mouseButtonClick('right')
+                            .waitForElementVisible("#gridViewMenu", 1000)
+                            .click("#gridViewMenu .deactivate")
+                            .waitForElementVisible("#alertModal", 10000)
+                            .click("#alertModal .confirm")
+                            .waitForElementVisible(`#dsListSection .grid-unit[data-dsid="${datasetId}"].inActivated`, 20000)
+                            .moveToElement(`#dsListSection .grid-unit[data-dsid="${datasetId}"]`, 10, 10)
+                            .mouseButtonClick('right')
+                            .waitForElementVisible("#gridViewMenu", 1000)
+                            .click("#gridViewMenu .delete")
+                            .waitForElementVisible("#alertModal", 10000)
+                            .click("#alertModal .confirm")
+                            .waitForElementNotVisible("#modalBackground", 10000);
+                        });
 
                     });
                 });
@@ -101,6 +102,9 @@ function replay(testConfig, tags) {
         'get tabs and nodes': function(browser) {
             browser.execute(execFunctions.getDataflowInfo, [], function(result) {
                 testTabs = result.value;
+                if (Object.keys(testTabs).length === 0) {
+                    throw("NO DATAFLOW TABS DETECTED");
+                }
             });
         },
 
@@ -180,7 +184,7 @@ function replay(testConfig, tags) {
                     let input = JSON.parse(JSON.stringify(node.input));
                     if (node.type === "IMDTable") {
                         browser
-                            .openOpPanel(".operator:nth-child(" + (i + modifier) + ")")
+                            .openOpPanel(".operator:nth-child(" + (i + modifier) + ") .main")
                             .pause(8000) // need to check for listTables call to resolve
                             .setValue("#IMDTableOpPanel .pubTableInput", input.source)
                             .pause(1000)
@@ -192,7 +196,7 @@ function replay(testConfig, tags) {
                         pause = 6000;
                         input.driverArgs.file_path = "/home/jenkins/export_test/datasetTest.csv";
                         browser
-                            .openOpPanel(".operator:nth-child(" + (i + modifier) + ")")
+                            .openOpPanel(".operator:nth-child(" + (i + modifier) + ") .main")
                             .pause(pause)
                             .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4));
                     } else if (node.type === "custom") {
@@ -263,7 +267,7 @@ function replay(testConfig, tags) {
                         input.source = linkOutOptimizedTable;
                         input.schema = schema;
                         browser
-                        .openOpPanel('.operator[data-nodeid="' + linkInNodeId + '"]')
+                        .openOpPanel('.operator[data-nodeid="' + linkInNodeId + '"] .main')
                         .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4), 100000);
                     }
 

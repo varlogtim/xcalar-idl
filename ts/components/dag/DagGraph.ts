@@ -298,7 +298,8 @@ class DagGraph extends Durable {
         this.getAllNodes().forEach((node) => {
             const state: DagNodeState = node.getState();
             if (state === DagNodeState.Complete) {
-                // set table to empty first so it will not ulock that table
+                // set table to empty first so it will not unlock that table
+                // or delete the original table if this is a clone
                 node.setTable("");
                 node.beConfiguredState();
             }

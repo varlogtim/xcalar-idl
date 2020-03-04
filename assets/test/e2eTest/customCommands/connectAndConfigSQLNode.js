@@ -18,7 +18,7 @@ class ConnectAndConfigSQLNode extends EventEmitter {
         this.api.connectNodes(sqlNodeId, datasetNodeId, 1);
 
         this.api
-        .openOpPanel('.operator[data-nodeid="' + sqlNodeId + '"]')
+        .openOpPanel('.operator[data-nodeid="' + sqlNodeId + '"] .main')
         .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4), 20000);
 
         this.emit('complete');

@@ -21,8 +21,10 @@ class SwitchTab extends EventEmitter {
 
         self.api.perform(function() {
             if (elemFound != null) {
-                self.api.execute(execFunctions.scrollIntoView, [null, elemFound], () => {})
+                self.api.execute(execFunctions.scrollIntoView, [null, elemFound], () => {});
                 self.api.elementIdClick(elemFound);
+            } else {
+                console.log("tab not found");
             }
         });
 

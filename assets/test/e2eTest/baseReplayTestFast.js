@@ -26,21 +26,20 @@ function replay(testConfig, tags) {
 
         after: function(browser) {
             if (testConfig.IMDNames && testConfig.IMDNames.length) {
-                browser
-                .click("#dataStoresTab")
-                .click("#sourceTblButton")
-                .click("#datastoreMenu .table .iconSection .refresh")
-                .waitForElementNotPresent("#datastoreMenu .refreshIcon", 50000)
-                .waitForElementPresent('#datastoreMenu .grid-unit[data-id="' + testConfig.IMDNames[0] + '"]')
+                browser.click("#dagList .refreshBtn")
+                .waitForElementNotPresent("#dagList .refreshIcon", 50000)
+                .waitForElementPresent('#dagList .tableList .table[data-name="' + testConfig.IMDNames[0] + '"]', 10000)
 
                 testConfig.IMDNames.forEach((IMDName) => {
                     browser
-                        .moveToElement('#datastoreMenu .grid-unit[data-id="' + IMDName + '"]', 20, 20)
-                        .mouseButtonClick("right")
-                        .moveToElement("#tableGridViewMenu li.delete", 10, 10)
+                        .execute(execFunctions.scrollIntoView, ['#dagList .tableList .table[data-name="' + IMDName + '"]'], () => {})
+                        .moveToElement('#dagList .tableList .table[data-name="' + IMDName + '"]', 30, 4)
+                        .moveToElement('#dagList .tableList .table[data-name="' + IMDName + '"] .dropDown', 4, 4)
+                        .mouseButtonClick("left")
+                        .moveToElement("#dagListMenu li.tableDelete", 10, 10)
                         .mouseButtonClick("left")
                         .click("#alertModal .confirm")
-                        .waitForElementNotPresent('#datastoreMenu .grid-unit[data-id="' + IMDName + '"]');
+                        .waitForElementNotPresent('#dagList .tableList .table[data-name="' + IMDName + '"]', 10000);
                 });
             }
             // if (testConfig.datasets && testConfig.datasets.length) {
@@ -242,7 +241,7 @@ function replay(testConfig, tags) {
                         input.source = linkOutOptimizedTable;
                         input.schema = schema;
                         browser
-                        .openOpPanel('.operator[data-nodeid="' + linkInNodeId + '"]')
+                        .openOpPanel('.operator[data-nodeid="' + linkInNodeId + '"] .main')
                         .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4), 100000);
                     }
 
@@ -293,14 +292,16 @@ function replay(testConfig, tags) {
                            node.input.name === nodeName;
                 });
 
-                let linkOutNodeId = testNodeIdMapping.get(newTabName)[linkOutNode.nodeId];
+                let parentNodeId = linkOutNode.parents[0];
+
+                let linkOutNodeId = testNodeIdMapping.get(newTabName)[parentNodeId];
 
                 browser
                     .switchTab(newTabName)
-                    .moveToElement(`.dataflowArea.active .operator[data-nodeid="${linkOutNodeId}"] .main`, 10, 20)
+                    .moveToElement(`.dataflowArea.active .operator[data-nodeid="${linkOutNodeId}"] .mainTableIcon`, 10, 20)
                     .mouseButtonClick('right')
-                    .waitForElementVisible("#dagNodeMenu", 1000)
-                    .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
+                    .waitForElementVisible("#dagTableNodeMenu", 1000)
+                    .moveToElement("#dagTableNodeMenu li.viewResult", 10, 1)
                     .mouseButtonClick('left')
                     .waitForElementVisible('#sqlTableArea .totalRows', 20000)
 		    .pause(1000)
@@ -325,7 +326,7 @@ function replay(testConfig, tags) {
                         let datasetNodeId = testNodeIdMapping.get(newTabName)[datasetNode.nodeId];
                         // reset the dataset node so we can delete the dataset at cleanup
                         browser
-                        .moveToElement('.dataflowArea.active .operator[data-nodeid="' + datasetNodeId + '"]', 30, 15)
+                        .moveToElement('.dataflowArea.active .operator[data-nodeid="' + datasetNodeId + '"] .main', 30, 15)
                         .mouseButtonClick('right')
                         .waitForElementVisible("#dagNodeMenu", 1000)
                         .moveToElement("#dagNodeMenu li.resetNode", 10, 1)

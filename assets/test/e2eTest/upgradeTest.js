@@ -12,7 +12,7 @@ let datasetNodeId;
 
 let testTabs = {}; // { id: string, nodes: [] }
 module.exports = {
-    '@tags': ["upgrade test", "allTestsSkipped"],
+    '@tags': ["upgradeTest", "allTests"],
 
     before: function(browser) {
         console.log(browser.globals.buildTestUrl(browser, browser.globals.user));
@@ -25,58 +25,52 @@ module.exports = {
 
     after: function(browser) {
         if (testConfig.IMDNames && testConfig.IMDNames.length) {
-            browser
-            .click("#dataStoresTab");
 
-            browser.isVisible("#datastoreMenu .menuSection.table", (results) => {
-                if (results.value) {
-                    /* is visible, good */
-                } else {
-                    browser.click("#sourceTblButton")
-                }
+            browser.click("#dagList .refreshBtn")
+            .waitForElementNotPresent("#dagList .refreshIcon", 50000)
+            .waitForElementPresent('#dagList .tableList .table[data-name="' + testConfig.IMDNames[0] + '"]', 10000)
 
-                browser.click("#datastoreMenu .table .iconSection .refresh")
-                .waitForElementNotPresent("#datastoreMenu .refreshIcon", 50000)
-                .waitForElementPresent('#datastoreMenu .grid-unit[data-id="' + testConfig.IMDNames[0] + '"]', 10000)
-
-                testConfig.IMDNames.forEach((IMDName) => {
-                    browser
-                        .moveToElement('#datastoreMenu .grid-unit[data-id="' + IMDName + '"]', 20, 20)
-                        .mouseButtonClick("right")
-                        .moveToElement("#tableGridViewMenu li.delete", 10, 10)
-                        .mouseButtonClick("left")
-                        .click("#alertModal .confirm")
-                        .waitForElementNotPresent('#datastoreMenu .grid-unit[data-id="' + IMDName + '"]', 10000);
-                });
+            testConfig.IMDNames.forEach((IMDName) => {
+                browser
+                    .execute(execFunctions.scrollIntoView, ['#dagList .tableList .table[data-name="' + IMDName + '"]'], () => {})
+                    .moveToElement('#dagList .tableList .table[data-name="' + IMDName + '"]', 30, 4)
+                    .moveToElement('#dagList .tableList .table[data-name="' + IMDName + '"] .dropDown', 4, 4)
+                    .mouseButtonClick("left")
+                    .moveToElement("#dagListMenu li.tableDelete", 10, 10)
+                    .mouseButtonClick("left")
+                    .click("#alertModal .confirm")
+                    .waitForElementNotPresent('#dagList .tableList .table[data-name="' + IMDName + '"]', 10000);
             });
-
         }
-        browser
-        .click("#dataStoresTab");
-        browser.isVisible("#datastoreMenu .menuSection.in", (results) => {
-            if (results.value) {
-                /* is visible, good */
-            } else {
-                browser.click("#inButton");
-            }
-            browser
-            .execute(execFunctions.scrollIntoView, ["#dsListSection .grid-unit:last-child"], () => {})
-            .moveToElement("#dsListSection .grid-unit:last-child", 10, 10)
-            .mouseButtonClick('right')
-            .waitForElementVisible("#gridViewMenu", 1000)
-            .click("#gridViewMenu .deactivate")
-            .waitForElementVisible("#alertModal", 10000)
-            .click("#alertModal .confirm")
-            .waitForElementVisible("#dsListSection .grid-unit:last-child.inActivated", 60000)
-            .moveToElement("#dsListSection .grid-unit:last-child", 10, 10)
-            .mouseButtonClick('right')
-            .waitForElementVisible("#gridViewMenu", 1000)
-            .click("#gridViewMenu .delete")
-            .waitForElementVisible("#alertModal", 10000)
-            .click("#alertModal .confirm")
-            .waitForElementNotVisible("#modalBackground", 10000)
-            .pause(3000);
-        });
+        /* clean up and delete dataset */
+        /* disabled due to backend bug where dataset cannot be deactivated */
+        // browser
+        // .click("#dataStoresTab");
+        // browser.isVisible("#datastoreMenu .menuSection.in", (results) => {
+        //     if (results.value) {
+        //         /* is visible, good */
+        //     } else {
+        //         browser.click("#inButton");
+        //     }
+        //     browser
+        //     .execute(execFunctions.scrollIntoView, ["#dsListSection .grid-unit:last-child"], () => {})
+        //     .moveToElement("#dsListSection .grid-unit:last-child", 10, 10)
+        //     .mouseButtonClick('right')
+        //     .waitForElementVisible("#gridViewMenu", 1000)
+        //     .pause(1000 * 50)
+        //     .click("#gridViewMenu .deactivate")
+        //     .waitForElementVisible("#alertModal", 10000)
+        //     .click("#alertModal .confirm")
+        //     .waitForElementVisible("#dsListSection .grid-unit:last-child.inActivated", 60000)
+        //     .moveToElement("#dsListSection .grid-unit:last-child", 10, 10)
+        //     .mouseButtonClick('right')
+        //     .waitForElementVisible("#gridViewMenu", 1000)
+        //     .click("#gridViewMenu .delete")
+        //     .waitForElementVisible("#alertModal", 10000)
+        //     .click("#alertModal .confirm")
+        //     .waitForElementNotVisible("#modalBackground", 10000)
+        //     .pause(3000);
+        // });
 
         browser.deleteWorkbook(browser.globals.finalWorkbookName, testConfig.user);
     },
@@ -94,6 +88,13 @@ module.exports = {
                     }
                 };
             }, [])
+    },
+
+    'change settings': function(browser) {
+        browser.execute(execFunctions.disableAutoExec, []);
+        browser.execute(execFunctions.enableOperatorBar, []);
+        browser.execute(execFunctions.stackDataflow, []);
+        browser.execute(execFunctions.disableSqlPanelAlert, []);
     },
 
     'get tabs and nodes': function(browser) {
@@ -128,7 +129,7 @@ module.exports = {
                     "id": "dag_5C747F5F163D7BE2_1551162688304_36"
                 }
             ];
-            browser.switchTab(newTabName)
+            browser.switchTab(newTabName);
 
             const commandResult = { IMDNames: [], nodeElemIDs: [], nodeIDs: [] };
 
@@ -143,8 +144,11 @@ module.exports = {
             browser.perform(() => {
                 // Select the operation category
                 browser
-                    .moveToElement(".category." + nodeCategoryClass, 1, 1)
-                    .mouseButtonDown("left");
+                    .execute(execFunctions.scrollIntoView, [".category." + nodeCategoryClass], () => {})
+                    .moveToElement("#dagView .categorySection", 1, 1)
+                    .moveToElement(".category." + nodeCategoryClass + " .innerCategory", 1, 1)
+                    .mouseButtonDown("left")
+                    .mouseButtonUp();
                 // Create the node
                 browser.newNode(
                     nodeCategorySelector + ' .main',
@@ -183,7 +187,7 @@ module.exports = {
                     10);
 
                 browser
-                .openOpPanel('.operator[data-nodeid="' + commandResult.nodeIDs[0] + '"]')
+                .openOpPanel('.operator[data-nodeid="' + commandResult.nodeIDs[0] + '"] .main')
                 .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4));
 
             });
@@ -200,7 +204,7 @@ module.exports = {
 
             datasetNodes.forEach((datasetNode, i) => {
                 if (i < 2) { // only do top 2 datasets
-                    browser.executeNode('.operator[data-nodeid="' + datasetNode.nodeId + '"]');
+                    browser.executeNode('.operator[data-nodeid="' + datasetNode.nodeId + '"] .main');
                 }
 
             });
@@ -256,7 +260,7 @@ module.exports = {
                     if (!nodeInfo.schema || !nodeInfo.schema.length) {
                         nodeInfo.schema = input.schema;
                         browser
-                        .openOpPanel('.operator[data-nodeid="' + nodeInfo.nodeId + '"]')
+                        .openOpPanel('.operator[data-nodeid="' + nodeInfo.nodeId + '"] .main')
                         .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4))
                         // .restoreDataset('.dataflowArea.active .operator[data-nodeid="' + nodeInfo.nodeId + '"] .main');
                     }
@@ -270,7 +274,7 @@ module.exports = {
         for (const tabName of Object.keys(testTabs)) {
             const newTabName = tabName;
             browser.switchTab(newTabName);
-            browser.executeNode(".operator.publishIMD");
+            browser.executeNode(".operator.publishIMD .main");
             testConfig.IMDNames = ["PUBTESTE2E"];
             browser
             .pause(2000) // don't know why but need to wait for modalbackground to fade out
@@ -325,7 +329,7 @@ module.exports = {
                     ];
 
                     browser
-                    .openOpPanel('.operator[data-nodeid="' + nodeInfo.nodeId + '"]')
+                    .openOpPanel('.operator[data-nodeid="' + nodeInfo.nodeId + '"] .main')
                     .clearValue("#IMDTableOpPanel .pubTableInput")
                     .setValue("#IMDTableOpPanel .pubTableInput", input.source)
                     .moveToElement("#pubTableList li:not(.xc-hidden)", 2, 2)
@@ -350,7 +354,7 @@ module.exports = {
                 input.columns[0][1].columnType = "integer";
                 input.columns[1][1].columnType = "integer";
                 browser
-                .openOpPanel('.operator[data-nodeid="' + nodeInfo.nodeId + '"]')
+                .openOpPanel('.operator[data-nodeid="' + nodeInfo.nodeId + '"] .main')
                 .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4));
             });
 
@@ -383,7 +387,7 @@ module.exports = {
                 });
 
 
-            browser.executeNode('.operator[data-nodeid="' + finalNode.nodeId + '"]');
+            browser.executeNode('.operator[data-nodeid="' + finalNode.nodeId + '"] .main');
 
             // let selector = '.operator[data-nodeid="' + linkOutNode.nodeId + '"]';
             // XXX optimized execution failing due to udf
@@ -529,7 +533,7 @@ module.exports = {
                 }
 
                 browser
-                .openOpPanel('.operator[data-nodeid="' + commandResult.nodeIDs[0] + '"]')
+                .openOpPanel('.operator[data-nodeid="' + commandResult.nodeIDs[0] + '"] .main')
                 .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4))
                 .restoreDataset('.dataflowArea.active .operator[data-nodeid="' + commandResult.nodeIDs[0] + '"] .main', (res) => {
                     // console.log("dataset: " + res);
@@ -619,8 +623,11 @@ module.exports = {
             browser.perform(() => {
                 // Select the operation category
                 browser
-                    .moveToElement(".category." + nodeCategoryClass, 1, 1)
-                    .mouseButtonDown("left");
+                    .execute(execFunctions.scrollIntoView, [".category." + nodeCategoryClass], () => {})
+                    .moveToElement("#dagView .categorySection", 1, 1)
+                    .moveToElement(".category." + nodeCategoryClass + " .innerCategory", 1, 1)
+                    .mouseButtonDown("left")
+                    .mouseButtonUp();
                 // Create the node
                 browser.newNode(
                     nodeCategorySelector + ' .main',
@@ -671,7 +678,7 @@ module.exports = {
                     10);
 
                 browser
-                .openOpPanel('.operator[data-nodeid="' + commandResult.nodeIDs[0] + '"]')
+                .openOpPanel('.operator[data-nodeid="' + commandResult.nodeIDs[0] + '"] .main')
                 .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4), 20000);
 
             });
@@ -684,8 +691,8 @@ module.exports = {
             const newTabName = tabName;
             browser
                 .switchTab(newTabName)
-                .executeNode(".operator.sql")
-                .moveToElement(`.dataflowArea.active .operator.sql .table`, 10, 20)
+                .executeNode(".operator.sql .main")
+                .moveToElement(`.dataflowArea.active .operator.sql .mainTableIcon`, 4, 4)
                 .mouseButtonClick('right')
                 .waitForElementVisible("#dagTableNodeMenu", 1000)
                 .moveToElement("#dagTableNodeMenu li.viewResult", 10, 1)
@@ -844,7 +851,7 @@ module.exports = {
     //                 10);
 
     //             browser
-    //             .openOpPanel('.operator[data-nodeid="' + commandResult.nodeIDs[0] + '"]')
+    //             .openOpPanel('.operator[data-nodeid="' + commandResult.nodeIDs[0] + '"] .main')
     //             .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4), 20000);
 
     //         });
@@ -861,7 +868,7 @@ module.exports = {
     //             .moveToElement(`.dataflowArea.active ${'.operator[data-nodeid="' + secondSqlNodeId + '"]'} .main`, 10, 20)
     //             .mouseButtonClick('right')
     //             .waitForElementVisible("#dagNodeMenu", 1000)
-    //             .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
+    //             .moveToElement("#dagTableNodeMenu li.viewResult", 10, 1)
     //             .mouseButtonClick('left')
     //             .waitForElementVisible('#sqlTableArea .totalRows', 20000)
     //             .getText('#sqlTableArea .totalRows', ({value}) => {

@@ -8,7 +8,7 @@ class ActivateWorkbook extends EventEmitter {
             .click(workbookSelector || ".workbookBox:first-child .name.activate")
             .pause(500)
             .confirmAlert()
-            .pause(10000)
+            .pause(2000)
             .waitForElementNotVisible("#initialLoadScreen", 5 * 60 * 1000)
             .pause(3000);
 

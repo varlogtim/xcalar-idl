@@ -97,21 +97,24 @@ module.exports = {
             .waitForElementVisible('#container.noWorkbook', 10000);
     },
 
-    'new workbook': function(browser) {
-        browser
-            .click("#createWKBKbtn")
-            .waitForElementVisible('.workbookBox.noResource .name input', 10000)
+    'create new workbook and enter': function(browser) {
+        browser.cancelTooltipWalkthrough()
+            .waitForElementNotVisible("#initialLoadScreen", 2 * 60 * 1000)
+            .waitForElementNotVisible("#modalBackground", 10 * 1000)
+            .createAndEnterWorkbook();
 
     },
 
-    'activate workbook': function(browser) {
-        browser.getValue('.workbookBox.noResource .name input', function(result) {
-            browser.globals['gTestWorkbookName'] = result.value;
-            browser
-                .click(".workbookBox.noResource .name.activate")
-                .pause(1000)
-                .waitForElementNotVisible("#initialLoadScreen", 100000)
-         });
+    "remove intropopover": function(browser) {
+        browser.waitForElementNotVisible("#initialLoadScreen", 100000);
+        // close intro popup if visible
+
+        browser.isPresent("#intro-popover", (isPresent) => {
+            if (isPresent) {
+                browser.click("#intro-popover .cancel");
+                browser.pause(1000);
+            }
+        });
     },
 
     'create tables': function(browser) {

@@ -37,7 +37,7 @@ class RecreateNodes extends EventEmitter {
                     if (subNode.type == "customOutput") {
                         customOutputMap.set(nodeInfo.nodeId, subNode.parents[0]);
                     }
-                    subNode.display.x = nodeInfo.display.x + 120*si;
+                    subNode.display.x = nodeInfo.display.x + 160*si;
                     subNode.display.y = nodeInfo.display.y;
                     if (subNode.type != "customOutput" && subNode.type != "customInput") {
                         trueNodeInfos.push(subNode);
@@ -163,7 +163,7 @@ class RecreateNodes extends EventEmitter {
                 // Config the node via opPanel
                 if (nodeInfo.type === "link out") {
                     this.api
-                        .openOpPanel(".operator:nth-child(" + (i + 1) + ")")
+                        .openOpPanel(".operator:nth-child(" + (i + 1) + ") .main")
                         .pause(pause)
                         .setValue("#dfLinkOutPanel .linkOutName .inputWrap input", input.name);
                         if (input.linkAfterExecution) {
@@ -179,18 +179,18 @@ class RecreateNodes extends EventEmitter {
                 } else if (nodeInfo.type === "publishIMD") {
                     commandResult.IMDNames.push(input.pubTableName);
                     this.api
-                        .openOpPanel(".operator:nth-child(" + (i + 1) + ")")
+                        .openOpPanel(".operator:nth-child(" + (i + 1) + ") .main")
                         .pause(pause)
                         .setValue("#publishIMDOpPanel .IMDNameInput", input.pubTableName)
                         .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4))
-                        .executeNode(".operator:nth-child(" + (i + 1) + ")")
+                        .executeNode(".operator:nth-child(" + (i + 1) + ") .main")
                 } else if (nodeInfo.type !== "IMDTable" && nodeInfo.type !== "export") {
                     let waitTime;
                     if (nodeInfo.type === "sql") {
                         waitTime = 100000;
                     }
                     this.api
-                        .openOpPanel(".operator:nth-child(" + (i + 1) + ")")
+                        .openOpPanel(".operator:nth-child(" + (i + 1) + ") .main")
                         .pause(pause)
                         .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4), waitTime);
                 }

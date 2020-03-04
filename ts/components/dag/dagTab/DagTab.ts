@@ -78,7 +78,7 @@ abstract class DagTab extends Durable {
     public getId(): string {
         return this._id;
     }
-    
+
     /**
      * return an id that represent the app
      * @returns {string}

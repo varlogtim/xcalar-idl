@@ -31,7 +31,7 @@ class CreateResultDataset extends EventEmitter {
         this.api.perform(() => {
             this.api
                 .restoreDataset('.dataflowArea.active .operator[data-nodeid="' + datasetNodeId + '"] .main')
-                .openOpPanel('.operator[data-nodeid="' + datasetNodeId + '"]')
+                .openOpPanel('.operator[data-nodeid="' + datasetNodeId + '"] .main')
                 .submitDatasetPanel();
         });
         this.api.perform(() => {

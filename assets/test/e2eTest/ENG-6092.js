@@ -2,7 +2,7 @@ const testConfig = {
     user: 'dftest',
     workbook: 'ENG-6092'
 }
-const tags = ["linkInAgg", "allTestsSkipped"];
+const tags = ["linkInAgg", "allTests"];
 
 const execFunctions = require('./lib/execFunctions');
 module.exports = {
@@ -33,10 +33,18 @@ module.exports = {
         }, [])
     },
 
+    'change settings': function(browser) {
+        browser.execute(execFunctions.disableAutoExec, []);
+        browser.execute(execFunctions.enableOperatorBar, []);
+        browser.execute(execFunctions.stackDataflow, []);
+        browser.execute(execFunctions.disableSqlPanelAlert, []);
+    },
+
     'get tabs and nodes': function(browser) {
         browser.execute(execFunctions.getDataflowInfo, [], function(result) {
             testTabs = result.value;
         });
+        browser.switchTab("Module 1");
     },
 
     'clearAggs': function(browser) {
@@ -45,16 +53,15 @@ module.exports = {
 
     'restore dataset': function(browser) {
         browser.restoreDataset(".dataflowArea.active .dataset .main");
-
     },
 
     'execute aggregate': function(browser) {
         browser
-        .executeNode('.operator[data-type="singleValue"]')
-        .moveToElement(`.dataflowArea.active .operator[data-type="singleValue"] .main`, 10, 20)
+        .executeNode('.operator[data-type="singleValue"] .main')
+        .moveToElement(`.dataflowArea.active .operator[data-type="singleValue"] .mainTableIcon`, 10, 20)
         .mouseButtonClick('right')
-        .waitForElementVisible("#dagNodeMenu", 1000)
-        .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
+        .waitForElementVisible("#dagTableNodeMenu", 1000)
+        .moveToElement("#dagTableNodeMenu li.viewResult", 10, 1)
         .mouseButtonClick('left')
         .waitForElementVisible('#alertModal', 20000);
 
@@ -67,11 +74,11 @@ module.exports = {
 
     'execute link in': function(browser) {
         browser.switchTab("Module 2")
-        .executeNode('.operator.link.in')
-        .moveToElement(`.dataflowArea.active .operator.link.in .main`, 10, 20)
+        .executeNode('.operator.link.in .main')
+        .moveToElement(`.dataflowArea.active .operator.link.in .mainTableIcon`, 10, 20)
         .mouseButtonClick('right')
-        .waitForElementVisible("#dagNodeMenu", 1000)
-        .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
+        .waitForElementVisible("#dagTableNodeMenu", 1000)
+        .moveToElement("#dagTableNodeMenu li.viewResult", 10, 1)
         .mouseButtonClick('left')
         .waitForElementVisible('#sqlTableArea .totalRows', 20000)
         .pause(1000)

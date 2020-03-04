@@ -10,7 +10,7 @@ class ConfirmAlert extends EventEmitter {
             }
             this.api
                 .waitForElementNotVisible("#modalBackground", 10 * 1000)
-                .pause(3000);
+                .pause(1000);
 
             this.emit('complete');
         });

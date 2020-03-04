@@ -1,7 +1,7 @@
 module.exports = require('./baseReplayTestFast.js').replay(
    {
        user: 'dftest',
-       workbook: 'GroupBy',
+       workbook: 'GroupBy2',
        validation: [
 		  {dfName: 'Dataflow 1 (result)', nodeName: 'finalnode'},
 		  {dfName: 'distinct (result)', nodeName: 'finalnode'},

@@ -6,5 +6,5 @@ module.exports = require('./baseReplayTest.js').replay(
             {dfName: 'DF Test (result)', nodeName: 'validation1'}
         ]
     },
-    ["empty project dataflow replay", "dataflowEmptyProjectTest", "allTestsSkipped"]
+    ["empty project dataflow replay", "dataflowEmptyProjectTest", "allTests"]
 );

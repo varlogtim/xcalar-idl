@@ -243,7 +243,7 @@ class ResourceMenu {
         id: string = "",
     ): HTML {
         const iconClasses = ["gridIcon", "icon", ...iconClassNames];
-        return `<li class="${listClassNames.join(" ")}" data-id="${id}">` +
+        return `<li class="${listClassNames.join(" ")}" data-id="${id}" data-name="${name}">` +
                     `<i class="${iconClasses.join(" ")}"></i>` +
                     '<div class="name tooltipOverflow textOverflowOneLine" ' +
                     xcTooltip.Attrs +

@@ -102,7 +102,7 @@ function replay(testConfig, tags) {
                             .moveToElement(`.dataflowArea.active .operator[data-nodeid="${resultNodeId}"] .main`, 10, 20)
                             .mouseButtonClick('right')
                             .waitForElementVisible("#dagNodeMenu")
-                            .click('#dagNodeMenu li.viewResult')
+                            .click('#dagTableNodeMenu li.viewResult')
                         if (resultType === 'single value') {
                             browser
                                 .waitForElementVisible("#alertModal")

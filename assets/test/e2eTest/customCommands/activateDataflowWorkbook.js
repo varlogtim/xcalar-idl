@@ -8,12 +8,15 @@ class ActivateDataflowWorkbook extends EventEmitter {
             .cancelAlert()
 
         if (isUpgrade) {
-            this.api.waitForElementVisible("#dagListSection .fileName .name", 2 * 60 * 1000)
-            .click("#dagListSection .fileName .name");
-        }
+            this.api.waitForElementVisible("#dagListSection .dagListDetail .name", 2 * 60 * 1000)
+            .click("#dagListSection .dagListDetail .name");
 
-        this.api
+            this.api
+            .waitForElementVisible('.dataflowArea:not(:first-child).active.rendered', 100000);
+        } else {
+            this.api
             .waitForElementVisible('.dataflowArea.active.rendered', 100000);
+        }
 
         this.emit('complete');
         return this;
