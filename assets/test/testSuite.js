@@ -13,6 +13,7 @@ window.TestSuite = (function($, TestSuite) {
                             // internet
         this.testCases = [];
         this.testDS = [];
+        this.testPbTables = [];
 
         this.passes = 0;
         this.fails = 0;
@@ -324,6 +325,55 @@ window.TestSuite = (function($, TestSuite) {
             return deferred.promise();
         },
 
+        loadTable: async function(tableName, filePath, check, addRowNum) {
+            try {
+                // open Xcalar Connect modal
+                $("#loadWizardbtn").click();
+                await this.checkExists("#sourceModal:visible");
+                // switch to import panel
+                $("#sourceModal .sourceList li[data-tab=import]").click();
+                this.assert($("#dsForm-path").is(":visible"), "The import form should be visible");
+                // fill in connector and file path
+                $("#dsForm-target input").val(gDefaultSharedRoot);
+                $("#filePath").val(filePath);
+                // go to the next step, the source configuration
+                $("#dsForm-path").find(".confirm").click();
+                await this.checkExists(check);
+                // configurtion
+                $("#importDataForm").find(".dsName").eq(0).val(tableName);
+                // auto detect should fill in the form
+                var empties = $("#previewTable .editableHead[value='']");
+                var rand = Math.floor(Math.random() * 10000);
+                for (var i = 0; i < empties.length; i++) {
+                    empties.eq(i).val("Unused_" + rand + "_" + (i+1));
+                }
+                if (addRowNum) {
+                    $("#importDataForm .extraCols .rowNumber .xi-ckbox-selected").click();
+                    $("#importDataForm .extraCols .rowNumber :input").val("ROWNUM");
+                }
+
+                $("#importDataForm .buttonSection .createTable").click();
+                // confirm
+                if ($("#alertModal").is(":visible") &&
+                    $("#alertHeader").text().trim() === DSTStr.DetectInvalidCol) {
+                    $("#alertModal").find(".confirm").click();
+                }
+                // wait for table to loaded
+                await this.waitUntil(() => {
+                    const $li = $("#dagListSection .tableList li").filter((_index, el) => {
+                        return $(el).find(".name").text() === tableName;
+                    });
+                    return $li.length === 1;
+                }, 1000);
+                this.testPbTables.push(tableName);
+                $("#sourceModal .modalHeader .close").click();
+                await this.waitUntil(() => !$("#sourceModal").is(":visible"));
+            } catch (e) {
+                console.error("load table error", e);
+                throw e;
+            }
+        },
+
         // sorted: boolean to sort columns A-Z
         createTable: function(dsName, sorted) {
             var self = this;
@@ -498,12 +548,68 @@ window.TestSuite = (function($, TestSuite) {
             return deferred.promise();
         },
 
+        createTableNode: async function(tableName) {
+            try {
+                // create a source table opeator and open the panel
+                var nodeId = this.createNodeAndOpenPanel(null, DagNodeType.IMDTable);
+                var $panel = $("#IMDTableOpPanel");
+                this.assert($panel.hasClass("xc-hidden") === false, "table panel should show");
+                // check that the table is under the list
+                const $li = $("#pubTableList li").filter((_index, e) => $(e).text() === tableName);
+                this.assert($li.length === 1, "the table to select is under Table panel's list");
+
+                // select the table
+                $li.trigger(fakeEvent.mouseup)
+                this.assert($("#pubTableList .pubTableInput").val() === tableName, "correct table should be selected in the list");
+                // save the configuration
+                $panel.find(".bottomSection .submit").click();
+                await this.hasNodeWithState(nodeId, DagNodeState.Configured);
+                return nodeId;
+            } catch (e) {
+                console.error("create table node failed");
+                throw e;
+            }
+        },
+
         wait: function(time) {
             time = time || 0;
             var deferred = PromiseHelper.deferred();
             setTimeout(() => {
                 deferred.resolve();
             }, time);
+            return deferred.promise();
+        },
+
+        waitUntil: function(checkFunc, interval) {
+            var deferred = PromiseHelper.deferred();
+            var checkTime = interval || 200;
+            var outCnt = 80;
+            var timeCnt = 0;
+    
+            var timer = setInterval(function() {
+                var res = checkFunc();
+                if (res === true) {
+                    // make sure graphisc shows up
+                    clearInterval(timer);
+                    deferred.resolve();
+                } else if (res === null) {
+                    clearInterval(timer);
+                    deferred.reject("Check Error!");
+                } else {
+                    console.info("check not pass yet!");
+                    timeCnt += 1;
+                    if (timeCnt > outCnt) {
+                        clearInterval(timer);
+                        console.error("Time out!", checkFunc, JSON.stringify(checkFunc));
+                        deferred.reject("Time out");
+                    }
+                }
+            }, checkTime);
+    
+            window.onbeforeunload = function() {
+                return;
+           };
+    
             return deferred.promise();
         },
 
@@ -695,61 +801,17 @@ window.TestSuite = (function($, TestSuite) {
     };
 
     function cleanup(test) {
-        // XXX TODO: make it work
-        // XXX temporary disable it
-        return PromiseHelper.resolve();
-        var deferred = PromiseHelper.deferred();
-
-        deleteTables()
-        .then(function() {
-            deleteDagTabs();
-            return deleteDS(test);
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return deferred.promise();
+        const promise = deletePbTables(test);
+        return PromiseHelper.convertToJQuery(promise);
     }
 
-    function deleteDagTabs() {
-        // XXX TODO
+    function deletePbTables(test) {
+        const promise = test.testPbTables.map((tableName) => {
+            console.log("delete tableName");
+            return XcalarUnpublishTable(tableName, false);
+        });
+        return Promise.all(promise);
     }
-
-    // XXX TODO: update it
-    // function deleteTables() {
-    //     console.log("Delete Tables");
-    //     var deferred = PromiseHelper.deferred();
-
-    //     var $workspaceMenu = $("#workspaceMenu");
-    //     if (!$workspaceMenu.hasClass("active")) {
-    //         $("#workspaceTab .mainTab").click();
-    //     }
-
-    //     if ($workspaceMenu.find(".tables").hasClass("xc-hidden")) {
-    //         $("#tableListTab").click();
-    //     }
-
-    //     var $tabs = $("#tableListSectionTabs .tableListSectionTab");
-    //     var tabeTypes = [TableType.Active, TableType.Orphan];
-    //     var promises = [];
-
-    //     TableList.refreshOrphanList()
-    //     .then(function() {
-    //         tabeTypes.forEach(function(tableType, index) {
-    //             $tabs.eq(index).click();
-    //             var $section = $("#tableListSections .tableListSection:visible");
-    //             $section.find(".selectAll").click();
-    //             promises.push(TableList.tableBulkAction("delete",
-    //                                                     tableType));
-    //         });
-
-    //         return PromiseHelper.when.apply(this, promises);
-    //     })
-    //     .then(deferred.resolve)
-    //     .fail(deferred.reject);
-
-    //     return deferred.promise();
-    // }
 
     function deleteDS(test) {
         var deferred = PromiseHelper.deferred();
@@ -785,11 +847,6 @@ window.TestSuite = (function($, TestSuite) {
     function getFinishDSIcon(dsName) {
         return '#dsListSection .grid-unit[data-dsname="' +
                             dsName + '"]:not(.inactive):not(.fetching)';
-    }
-
-    function getInActivateDSIcon(dsName) {
-        return '#dsListSection .grid-unit[data-dsname="' +
-                            dsName + '"]:(.inActivate)';
     }
 
     return (TestSuite);

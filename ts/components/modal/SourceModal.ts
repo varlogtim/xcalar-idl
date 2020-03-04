@@ -21,6 +21,12 @@ class SourceModal {
      */
     public show(): void {
         this._modalHelper.setup();
+        const $list = this._getModal().find(".sourceList");
+        const $li = $list.find("li.active");
+        if ($li.length) {
+            const tab = $li.data("tab");
+            this._swtichTab(tab); // reset the tab
+        }
     }
 
     /**

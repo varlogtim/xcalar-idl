@@ -247,6 +247,7 @@ class PTblManager {
             return this._createTable(txId, dsName, tableName, finalSchema, newNames, primaryKeys);
         })
         .then(() => {
+            delete this._loadingTables[tableName];
             return PTblManager.Instance.addTable(tableName);
         })
         .then(() => {
@@ -254,7 +255,6 @@ class PTblManager {
                 noNotification: true,
                 noCommit: true
             });
-            delete this._loadingTables[tableName];
             deferred.resolve(tableName);
         })
         .fail((ret) => {

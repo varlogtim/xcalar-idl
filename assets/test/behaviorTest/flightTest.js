@@ -4,29 +4,14 @@ window.FlightTest = (function(FlightTest, $) {
     var TestCaseDisabled = false;
     var defaultTimeout = 720000; // 12min
 
-    // Globals
-    var startTableId;
-    var dfName;
-    var schedName;
-    var paramName;
-    var fileName;
-
     const MultiJoin = "Multi Join";
     const MultiGroupBy = "Multi GroupBy";
-
-    let flightDS = "flight" + randInt();
-    let airpotDS = "airport" + randInt();
-    let flightPrefix = "flight" + randInt();
-    let airportPrefix = "airport" + randInt();
 
     FlightTest.run = function(hasAnimation, toClean, noPopup, mode, timeDilation) {
         test = TestSuite.createTest();
         test.setMode(mode);
         initializeTests();
-        return  XVM.setMode(XVM.Mode.Advanced)
-        .then(() => {
-            return test.run(hasAnimation, toClean, noPopup, timeDilation);
-        });
+        return test.run(hasAnimation, toClean, noPopup, timeDilation);
     };
 
     // =============== ADD TESTS TO ACTIVATE THEM HERE ===================== //
@@ -36,30 +21,11 @@ window.FlightTest = (function(FlightTest, $) {
         test.add(multiGroupByTest, "MultiGroupByTest", defaultTimeout, TestCaseEnabled);
         test.add(multiJoinTest, "MultiJoinTest", defaultTimeout, TestCaseEnabled);
         test.add(profileTest, "ProfileTest", defaultTimeout, TestCaseEnabled);
-        test.add(corrTest, "CorrelationTest", defaultTimeout, TestCaseEnabled);
-        test.add(aggTest, "QuickAggregateTest", defaultTimeout, TestCaseEnabled);
+        test.add(corrAndQuickAggTest, "CorrelationAndQuickAggTest", defaultTimeout, TestCaseEnabled);
         test.add(jsonModalTest, "JsonModalTest", defaultTimeout, TestCaseEnabled);
-        // test.add(dfTest, "DFTest",
-        //               defaultTimeout, TestCaseEnabled);
-        // // Temporarily disabled due to thrift change
-        // test.add(retinaTest, "RetinaTest",
-        //               defaultTimeout, TestCaseEnabled);
-        // // interactive mode not run test
-        // var retinaEnabled = (XVM.getLicenseMode() === XcalarMode.Mod) ?
-        //                     TestCaseDisabled : TestCaseEnabled;
-        // // XXX temporarily disable it because of the expotNode bug by json query change
-
-        // test.add(runRetinaTest, "RunRetinaTest",
-        //               defaultTimeout, retinaEnabled);
-        // test.add(cancelRetinaTest, "CancelRetinaTest",
-        //               defaultTimeout, retinaEnabled);
-        // test.add(deleteRetinaTest, "DeleteRetinaTest",
-        //               defaultTimeout, TestCaseDisabled); // disabled
-        // test.add(addDFToSchedTest, "AddDFToScheduleTest",
-        //               defaultTimeout, TestCaseDisabled); // disabled
     }
 
-    function flightTest(deferred, testName, currentTestNumber) {
+    async function flightTest(deferred, testName, currentTestNumber) {
         /** This test replicates a simple version of Cheng's flight demo
         This tests all major functionality
         TEST MUST BE DONE ON A CLEAN BACKEND!
@@ -75,135 +41,160 @@ window.FlightTest = (function(FlightTest, $) {
         10. Aggregate on groupBy table to count number of unique airlines
         */
 
-        flightDS = "flight" + randInt();
-        airpotDS = "airport" + randInt();
-        flightPrefix = "flight" + randInt();
-        airportPrefix = "airport" + randInt();
+        const flightTable = ("flight" + randInt()).toUpperCase();
+        const airpotTable = ("airport" + randInt()).toUpperCase();
 
-        flightTestPart1(flightDS, airpotDS);
-
-        // Import dataset
-        function flightTestPart1() {
-            console.log("start flightTestPart1", "import dataset");
-            $("#dataStoresTab").click(); // main menu tab
-
-             // Import flight dataset
-            flightTestPart1Load1(flightDS)
-            .then(() => {
-                // import airports dataset
-                return flightTestPart1Load2();
-            })
-            .then(() => {
-                flightTestPart2();
-            })
-            .fail(function(error) {
-                console.error(error, "flightTestPart1");
-                test.fail(deferred, testName, currentTestNumber, error);
-            });
+        try {
+            await flightTestPart1();
+            let nodeId = await flightTestPart2(flightTable);
+            nodeId = await flightTestPart3(nodeId);
+            nodeId = await flightTestPart4(nodeId);
+            await flightTestPart5();
+            nodeId = await flightTestPart6(nodeId);
+            nodeId = await flightTestPart7(nodeId, airpotTable);
+            nodeId = await flightTestPart8(nodeId);
+            nodeId = await flightTestPart9(nodeId);
+            await flightTestPart10(nodeId);
+            console.log("flightTest finished");
+            test.pass(deferred, testName, currentTestNumber);
+        } catch (e) {
+            console.error("flightTest failed", e);
+            test.fail(deferred, testName, currentTestNumber, e);
         }
 
-        function flightTestPart1Load1() {
-            console.log("import flight dataset");
-            const check = "#previewTable td:eq(1):contains(19403)";
-            const url = testDataLoc + "flight/" + test.mode + "airlines";
-            return test.loadDS(flightDS, url, check);
+        // Import table
+        async function flightTestPart1() {
+            console.log("start flightTestPart1: load flight and airpot table");
+            try {
+                await flightTestPart1Load1();
+                await flightTestPart1Load2();
+                console.log("flightTestPart1 finished");
+            } catch (e) {
+                console.error("flightTestPart1 failed", e);
+                throw e;
+            }
         }
 
-        function flightTestPart1Load2() {
-            console.log("import airport dataset");
-            const check = "#previewTable td:eq(1):contains(00M)";
-            const url = testDataLoc + "flight/" + test.mode + "airports.csv";
-            return test.loadDS(airpotDS, url, check);
+        async function flightTestPart1Load1() {
+            try {
+                console.log("load flight table");
+                const check = "#previewTable td:eq(1):contains(19403)";
+                const url = testDataLoc + "flight/" + test.mode + "airlines";
+                await test.loadTable(flightTable, url, check);
+                console.log("flightTestPart1Load1 finished");
+            } catch (e) {
+                console.error("flightTestPart1Load1 failed", e);
+                throw e;
+            }
+        }
+
+        async function flightTestPart1Load2() {
+            try {
+                console.log("load airport table");
+                const check = "#previewTable td:eq(1):contains(00M)";
+                const url = testDataLoc + "flight/" + test.mode + "airports.csv";
+                await test.loadTable(airpotTable, url, check);
+                console.log("flightTestPart1Load2 finished");
+            } catch (e) {
+                console.error("flightTestPart1Load2 failed", e);
+                throw e;
+            }
         }
 
         // create dataset node
-        function flightTestPart2() {
-            console.log("start flightTestPart2", "create dataset node");
-            $("#sqlTab").click();
-            createNewTab();
-
-            test.createDatasetNode(flightDS, flightPrefix)
-            .then((nodeId) => {
-                flightTestPart3(nodeId);
-            })
-            .fail((error) => {
-                console.error(error, "flightTestPart2");
-                test.fail(deferred, testName, currentTestNumber, error);
-            });
+        async function flightTestPart2(tableName) {
+            try {
+                console.log("start flightTestPart2: create table node");
+                createNewTab();
+                const nodeId = await test.createTableNode(tableName);
+                console.log("flightTestPart2 finished");
+                return nodeId;
+            } catch (e) {
+                console.error("flightTestPart2 failed", e);
+                throw e;
+            }
         }
 
         // Change column type
-        function flightTestPart3(parentNodeId) {
-            console.log("start flightTestPart3", "change column type");
-            const colName = xcHelper.getPrefixColName(flightPrefix, "ArrDelay");
-            changeTypeToInteger(parentNodeId, colName)
-            .then((nodeId) => {
-                flightTestPart3_2(nodeId);
-            })
-            .fail((error) => {
-                console.error(error, "flightTestPart3");
-                test.fail(deferred, testName, currentTestNumber, error);
-            });
+        async function flightTestPart3(parentNodeId) {
+            try {
+                console.log("start flightTestPart3", "change column type");
+                const colName = "ARRDELAY";
+                const nodeId = await changeTypeToInteger(parentNodeId, colName);
+                const nextNodeId = await flightTestPart3_2(nodeId);
+                console.log("flightTestPart3 finished");
+                return nextNodeId;
+            } catch (e) {
+                console.error("flightTestPart3 failed", e);
+                throw e;
+            }
         }
 
         // Add genUnique (map to get uniqueNum)
-        function flightTestPart3_2(parentNodeId) {
-            console.log("start flightTestPart3_2", "map to get uniqueNum");
-            const nodeId = test.createNodeAndOpenPanel(parentNodeId, DagNodeType.Map);
-            const $panel = $("#mapOpPanel");
-            test.assert($panel.hasClass("xc-hidden") === false);
+        async function flightTestPart3_2(parentNodeId) {
+            try {
+                console.log("start flightTestPart3_2: map to get uniqueNum");
+                // create a map opeator and open the configuration panel
+                const nodeId = test.createNodeAndOpenPanel(parentNodeId, DagNodeType.Map);
+                const $panel = $("#mapOpPanel");
+                test.assert($panel.hasClass("xc-hidden") === false);
+                // select genUnique function
+                $panel.find(".categoryMenu li[data-category='5']")
+                    .trigger(fakeEvent.click);
+                $panel.find(".functionsMenu li:contains('genUnique')")
+                    .trigger(fakeEvent.click);
+                // save configuration
+                fillArgInPanel($panel.find(".colNameSection .arg"), "uniqueNum");
+                $panel.find(".submit").click();
 
-            $panel.find(".categoryMenu li[data-category='5']")
-                .trigger(fakeEvent.click);
-            $panel.find(".functionsMenu li:contains('genUnique')")
-                .trigger(fakeEvent.click);
-
-            fillArgInPanel($panel.find(".colNameSection .arg"), "uniqueNum");
-            $panel.find(".submit").click();
-
-            test.hasNodeWithState(nodeId, DagNodeState.Configured)
-            .then(() => {
-                flightTestPart4(nodeId);
-            })
-            .fail((error) => {
-                console.error(error, "flightTestPart3-2");
-                test.fail(deferred, testName, currentTestNumber);
-            });
+                await test.hasNodeWithState(nodeId, DagNodeState.Configured);
+                return nodeId;
+            } catch (e) {
+                console.error("flightTestPart3_2 failed", e);
+                throw e;
+            }
         }
 
         // Filter flight table
-        function flightTestPart4(parentNodeId) {
-            console.log("start flightTestPart4", "filter flight table");
-            const nodeId = test.createNodeAndOpenPanel(parentNodeId, DagNodeType.Filter);
-            const $panel = $("#filterOpPanel");
-            test.assert($panel.hasClass("xc-hidden") === false);
-            $panel.find(".functionsList input").val("gt")
-                .trigger(fakeEvent.enterKeydown);
+        async function flightTestPart4(parentNodeId) {
+            try {
+                console.log("start flightTestPart4: filter flight table");
+                // create a filter opeator and open the panel
+                const nodeId = test.createNodeAndOpenPanel(parentNodeId, DagNodeType.Filter);
+                const $panel = $("#filterOpPanel");
+                test.assert($panel.hasClass("xc-hidden") === false);
+                // select gt function
+                $panel.find(".functionsList input").val("gt")
+                    .trigger(fakeEvent.enterKeydown);
+                // filter gt(ARRDELAY, 0)
+                const $args = $panel.find(".arg");
+                fillArgInPanel($args.eq(0), "$ARRDELAY");
+                fillArgInPanel($args.eq(1), "0");
+                // save the configuration
+                $panel.find(".submit").click();
 
-            const $args = $panel.find(".arg");
-            fillArgInPanel($args.eq(0), "$ArrDelay");
-            fillArgInPanel($args.eq(1), "0");
-            $panel.find(".submit").click();
-
-            test.hasNodeWithState(nodeId, DagNodeState.Configured)
-            .then(() => {
-                flightTestPart5(nodeId);
-            })
-            .fail((error) => {
-                console.error(error, "flightTestPart4");
-                test.fail(deferred, testName, currentTestNumber, error);
-            });
+                await test.hasNodeWithState(nodeId, DagNodeState.Configured);
+                console.log("flightTestPart4 finished");
+                return nodeId;
+            } catch (e) {
+                console.error("flightTestPart4 failed", e);
+                throw e;
+            }
         }
 
-        // Upload python script
-        function flightTestPart5(parentNodeId) {
-            console.log("start flightTestPart5", "upload python");
-            $("#udfTab").click();
-            test.checkExists("#udf-fnSection .xc-waitingBG", null, {notExist: true})
-            .then(() => {
+        // Upload Scalar function
+        async function flightTestPart5() {
+            try {
+                console.log("start flightTestPart5: upload python scalar function");
+                if (!$("#udfViewContainer").is(":visible")) {
+                    $("#udfTab").click();
+                }
+                test.assert($("#udfViewContainer").is(":visible"), "show Scalar Function editor");
+                await test.checkExists("#udf-fnSection .xc-waitingBG", null, {notExist: true})
                 var udfDisplayName = "ymd.py";
                 var selector = '#dagListSection .udf.listWrap .udf .name:contains(' + udfDisplayName +')';
                 if (!$(selector).length) {
+                    // add ymd.py if not exist
                     $("#udfTabView .addTab").click();
                     var editor = UDFPanel.Instance.getEditor();
                     editor.setValue('def ymd(year, month, day):\n' +
@@ -212,337 +203,278 @@ window.FlightTest = (function(FlightTest, $) {
                         '    if int(day) < 10:\n' +
                         '        day = "0" + str(day)\n' +
                         '    return str(year) + str(month) + str(day)');
-                        // XXX a temp hack to fix test
-                        $("#udfSection .udf-fnName").val("New Module");
-                        $("#udfSection").removeClass("sqlMode")
-                        $("#udfSection").find(".saveFile").click();
-                        $("#fileManagerSaveAsModal .saveAs input").val("ymd.py");
-                        $("#fileManagerSaveAsModal .modalBottom .save").click();
-                    return test.checkExists(selector);
+                    // save ymd.py
+                    $("#udfSection").find(".saveFile").click();
+                    $("#fileManagerSaveAsModal .saveAs input").val("ymd.py");
+                    $("#fileManagerSaveAsModal .modalBottom .save").click();
+                    await test.checkExists(selector);
                 }
-            })
-            .then(() => {
-                flightTestPart6(parentNodeId);
-            })
-            .fail(function(error) {
-                console.error(error, "flightTestPart5");
-                test.fail(deferred, testName, currentTestNumber, error);
-            });
+                console.log("flightTestPart5 finished");
+            } catch (e) {
+                console.error("flightTestPart5 failed", e);
+                throw e;
+            }
         }
 
-        // Map on flight table
-        function flightTestPart6(parentNodeId) {
-            console.log("start flightTestPart6", "map on flight table with udf");
-            const nodeId = test.createNodeAndOpenPanel(parentNodeId, DagNodeType.Map);
-            test.wait(5000)
-            .then(() => {
+        // Scalar function on flight table
+        async function flightTestPart6(parentNodeId) {
+            try {
+                console.log("start flightTestPart6: map on flight table with scalar function");
+                // create a map opeartor for scalar function and open the panel
+                const nodeId = test.createNodeAndOpenPanel(parentNodeId, DagNodeType.Map);
+                await test.wait(5000);
                 const $panel = $("#mapOpPanel");
                 test.assert($panel.hasClass("xc-hidden") === false);
-
+                // select ymd function
                 $panel.find(".categoryMenu li[data-category='9']")
                     .trigger(fakeEvent.click);
                 $panel.find(".functionsMenu li:contains('ymd:ymd')")
                     .trigger(fakeEvent.click);
-                const year = xcHelper.getPrefixColName(flightPrefix, "Year");
-                const month = xcHelper.getPrefixColName(flightPrefix, "Month");
-                const day = xcHelper.getPrefixColName(flightPrefix, "DayofMonth");
+                const year = "YEAR";
+                const month = "MONTH";
+                const day = "DAYOFMONTH";
                 let $args = $panel.find(".arg");
                 fillArgInPanel($args.eq(0), gColPrefix + year);
                 $args = $panel.find(".arg");
                 fillArgInPanel($args.eq(1), gColPrefix + month);
                 fillArgInPanel($args.eq(2), gColPrefix + day);
                 fillArgInPanel($args.eq(3), "YearMonthDay");
+                // save the configuration
                 $panel.find(".submit").click();
-
-                return test.hasNodeWithState(nodeId, DagNodeState.Configured);
-            })
-            .then(() => {
-                flightTestPart7(nodeId);
-            })
-            .fail((error) => {
-                console.error(error, "flightTestPart6");
-                test.fail(deferred, testName, currentTestNumber, error);
-            });
+                await test.hasNodeWithState(nodeId, DagNodeState.Configured);
+                console.log("flightTestPart6 finished");
+                return nodeId;
+            } catch (e) {
+                console.error("flightTestPart6 failed", e);
+                throw e;
+            }
         }
 
         // Join flight table with airport table
-        function flightTestPart7(parentNodeId) {
-            console.log("start flightTestPart7", "join flight and airport table");
-            let nodeId;
-            const $panel = $("#joinOpPanel");
-            // XXX TODO: @Liang, I don't know why I have to do this dealy
-            // but without it the column selection doesn't work
+        async function flightTestPart7(parentNodeId, tableToJoin) {
+            try {
+                console.log("start flightTestPart7: join flight and airport table");
+                // XXX TODO: @Liang, I don't know why I have to do this dealy
+                // but without it the column selection doesn't work
 
-            // Liang: Init function of column dropdown is executed in async way(setTimout(0))
-            // So we have to push the UI check to the next event loop
-            // The in-depth reason is described in OpPanelComponentFactory.createHintDropdown()
-            test.createDatasetNode(airpotDS, airportPrefix)
-            .then((parentNodeId2) => {
+                // Liang: Init function of column dropdown is executed in async way(setTimout(0))
+                // So we have to push the UI check to the next event loop
+                // The in-depth reason is described in OpPanelComponentFactory.createHintDropdown()
+                // create table node for airport table
+                const parentNodeId2 = await test.createTableNode(tableToJoin)
                 const parents = [parentNodeId, parentNodeId2];
-                nodeId = test.createNodeAndOpenPanel(parents, DagNodeType.Join);
+                // create a join opeator and open the configuration
+                const nodeId = test.createNodeAndOpenPanel(parents, DagNodeType.Join);
+                const $panel = $("#joinOpPanel");
                 test.assert($panel.hasClass("xc-hidden") === false);
-                return dealyPromise(10);
-            })
-            .then(() => {
-                return test.checkExists("#joinOpPanel #formWaitingBG", null, {notExist: true});
-            })
-            .then(() => {
-                const $dropdown = $panel.find('.mainTable .joinClause .col-left .hintDropdown');
-                // Open the dropdown, so that all LIs are filled
-                $dropdown.find('.colNameMenuIcon').trigger(fakeEvent.mouseup);
+                await test.wait(1000);
+                // await test.checkExists("#joinOpPanel #formWaitingBG", null, {notExist: true});
 
-                return dealyPromise(10);
-            })
-            .then(() => {
-                const $dropdown = $panel.find('.mainTable .joinClause .col-left .hintDropdown');
+                // Open the dropdown, so that all left list are filled
+                const $dropdownLeft = $panel.find('.mainTable .joinClause .col-left .hintDropdown');
+                $dropdownLeft.find('.colNameMenuIcon').trigger(fakeEvent.mouseup);
+                await test.wait(10);
                 // Click a certain LI
-                $dropdown.find("li:contains(Dest)").trigger(fakeEvent.mouseup);
+                $dropdownLeft.find("li:contains(DEST)").trigger(fakeEvent.mouseup);
+                await test.wait(10);
 
-                return dealyPromise(10);
-            })
-            .then(() => {
-                const $dropdown = $panel.find('.mainTable .joinClause .col-right .hintDropdown');
-                // Open the dropdown, so that all LIs are filled
-                $dropdown.find('.colNameMenuIcon').trigger(fakeEvent.mouseup);
-
-                return dealyPromise(10);
-            })
-            .then(() => {
-                const $dropdown = $panel.find('.mainTable .joinClause .col-right .hintDropdown');
+                // Open the dropdown, so that all right list are filled
+                const $dropdownRight = $panel.find('.mainTable .joinClause .col-right .hintDropdown');
+                $dropdownRight.find('.colNameMenuIcon').trigger(fakeEvent.mouseup);
+                await test.wait(10);
                 // Click a certain LI
-                $dropdown.find("li:contains(iata)").trigger(fakeEvent.mouseup);
+                $dropdownRight.find("li:contains(IATA)").trigger(fakeEvent.mouseup);
+                await test.wait(10);
 
-                return dealyPromise(10);
-            })
-            .then(() => {
+                // save configuration
                 $panel.find(".bottomSection .btn:contains(Next)").click();
                 $panel.find(".bottomSection .btn:contains(Save)").click();
-                return dealyPromise(10);
-            })
-            .then(() => {
-                return test.hasNodeWithState(nodeId, DagNodeState.Configured);
-            })
-            .then(() => {
-                flightTestPart8(nodeId);
-            })
-            .fail((error) => {
-                console.error(error, "flightTestPart7");
-                test.fail(deferred, testName, currentTestNumber, error);
-            });
+                await test.wait(10);
+                
+                await test.hasNodeWithState(nodeId, DagNodeState.Configured);
+                console.log("flightTestPart7 finished");
+                return nodeId;
+            } catch (e) {
+                console.error("flightTestPart7 failed", e);
+                throw e;
+            }
         }
 
         // Group by
-        function flightTestPart8(parentNodeId) {
-            console.log("start flightTestPart8", "groupby joined table");
-            const nodeId = test.createNodeAndOpenPanel(parentNodeId, DagNodeType.GroupBy);
-            const $panel = $("#groupByOpPanel");
-            test.assert($panel.hasClass("xc-hidden") === false);
+        async function flightTestPart8(parentNodeId) {
+            try {
+                console.log("start flightTestPart8: groupby joined table");
+                // create a groupBy opeator and open the configuration panel
+                const nodeId = test.createNodeAndOpenPanel(parentNodeId, DagNodeType.GroupBy);
+                const $panel = $("#groupByOpPanel");
+                test.assert($panel.hasClass("xc-hidden") === false);
+                // select column to do agg aggreation
+                const gbColName = "UNIQUECARRIER";
+                fillArgInPanel($panel.find(".gbOnArg"), gColPrefix + gbColName);
+                $panel.find(".functionsList .functionsInput").val("avg")
+                            .trigger(fakeEvent.enterKeydown);
+                // select column to group by
+                fillArgInPanel($panel.find(".colNameSection .arg"), "uniqueNum");
+                const $args = $panel.find(".arg");
+                // give new column the name
+                fillArgInPanel($args.eq(1), gColPrefix + "ARRDELAY");
+                fillArgInPanel($panel.find(".colNameSection .arg"), "AvgDelay");
+                // save the configuration
+                $panel.find(".submit").click();
 
-            const gbColName = xcHelper.getPrefixColName(flightPrefix, "UniqueCarrier");
-            fillArgInPanel($panel.find(".gbOnArg"), gColPrefix + gbColName);
-            $panel.find(".functionsList .functionsInput").val("avg")
-                        .trigger(fakeEvent.enterKeydown);
-
-
-
-            fillArgInPanel($panel.find(".colNameSection .arg"), "uniqueNum");
-            const $args = $panel.find(".arg");
-            fillArgInPanel($args.eq(1), gColPrefix + "ArrDelay");
-            fillArgInPanel($panel.find(".colNameSection .arg"), "AvgDelay");
-            $panel.find(".submit").click();
-
-            test.hasNodeWithState(nodeId, DagNodeState.Configured)
-            .then(() => {
-                flightTestPart9(nodeId);
-            })
-            .fail((error) => {
-                console.error(error, "flightTestPart8");
-                test.fail(deferred, testName, currentTestNumber, error);
-            });
+                await test.hasNodeWithState(nodeId, DagNodeState.Configured);
+                console.log("flightTestPart8 finished");
+                return nodeId;
+            } catch (e) {
+                console.error("flightTestPart8 failed", e);
+                throw e;
+            }
         }
 
         // Aggregate
-        function flightTestPart9(parentNodeId) {
-            console.log("start flightTestPart9",
-                        "aggregate the groupBy table on avg of ArrDelay");
-            const nodeId = test.createNodeAndOpenPanel(parentNodeId, DagNodeType.Aggregate);
-            const $panel = $("#aggOpPanel");
-            test.assert($panel.hasClass("xc-hidden") === false);
+        async function flightTestPart9(parentNodeId) {
+            try {
+                console.log("start flightTestPart9: aggregate the groupBy table on avg of AvgDelay");
+                // create a Single value operator and open the configuration panel
+                const nodeId = test.createNodeAndOpenPanel(parentNodeId, DagNodeType.Aggregate);
+                const $panel = $("#aggOpPanel");
+                test.assert($panel.hasClass("xc-hidden") === false);
+                // select avg function
+                $panel.find(".functionsList .functionsInput").val("avg")
+                            .trigger(fakeEvent.enterKeydown);
+                const $args = $panel.find(".arg");
+                // select AvgDelay column
+                fillArgInPanel($args.eq(0), gColPrefix + "AvgDelay");
+                // create a testAgg constant
+                const aggName = gAggVarPrefix + xcHelper.randName("testAgg");
+                fillArgInPanel($args.eq(1), aggName);
+                // save configuration
+                $panel.find(".submit").click();
 
-            $panel.find(".functionsList .functionsInput").val("avg")
-                        .trigger(fakeEvent.enterKeydown);
-            const $args = $panel.find(".arg");
-            fillArgInPanel($args.eq(0), gColPrefix + "AvgDelay");
-            const aggName = gAggVarPrefix + xcHelper.randName("testAgg");
-            fillArgInPanel($args.eq(1), aggName);
-            $panel.find(".submit").click();
-
-            test.hasNodeWithState(nodeId, DagNodeState.Configured)
-            .then(() => {
-                flightTestPart10(nodeId);
-            })
-            .fail((error) => {
-                console.error(error, "flightTestPart9");
-                test.fail(deferred, testName, currentTestNumber, error);
-            });
+                await test.hasNodeWithState(nodeId, DagNodeState.Configured);
+                console.log("flightTestPart9 finished");
+                return nodeId;
+            } catch (e) {
+                console.error("flightTestPart9 failed", e);
+                throw e;
+            }
         }
 
         // execute the dataflow
-        function flightTestPart10(finalNodeId) {
-            console.log("start flightTestPart10", "execute the dataflow");
-            const $node = DagViewManager.Instance.getNode(finalNodeId);
-            test.nodeMenuAction($node, "executeNode");
-
-            test.executeNode(finalNodeId)
-            .then(() => {
-                let d = PromiseHelper.deferred();
-                setTimeout(() => {
-                    d.resolve(); // wait for aggregate to finish fetching
-                }, 3000);
-                return d.promise();
-            })
-            .then(() => {
+        async function flightTestPart10(finalNodeId) {
+            try {
+                console.log("start flightTestPart10: execute the dataflow");
+                // execute the last node
+                const $node = DagViewManager.Instance.getNode(finalNodeId);
+                test.nodeMenuAction($node, "executeNode");
+                await test.executeNode(finalNodeId);
+                await test.wait(3000); // wait for aggregate to finish fetching
+                // check result
                 test.nodeMenuAction($node, "viewResult");
-                return test.checkExists("#alertHeader:visible .text:contains(Agg)");
-            })
-            .then(function() {
-                test.assert($("#alertContent .text").html().split(":")[1].trim()
-                                            .indexOf("32.398") > -1);
+                await test.checkExists("#alertHeader:visible .text:contains(Agg)");
+                test.assert($("#alertContent .text").html().split(":")[1].trim().indexOf("32.398") > -1);
+                // close the modal
                 $("#alertActions .cancel").click();
-                test.pass(deferred, testName, currentTestNumber);
-            })
-            .fail(function(error) {
-                console.error(error, "flightTestPart10");
-                test.fail(deferred, testName, currentTestNumber, error);
-            });
+                console.log("flightTestPart10 finished");
+            } catch (e) {
+                console.error("flightTestPart10 failed", e);
+                throw e;
+            }
         }
     }
 
-    function linkInLinkOutTest(deferred, testName, currentTestNumber) {
+    async function linkInLinkOutTest(deferred, testName, currentTestNumber) {
         // Tests add new dataflow and run using link in link out
-        console.log("linkInLinkOutTest");
+        console.log("linkInLinkOutTest starts");
+        try {
+            console.log("find the map node before join")
+            const $dagView = $("#dagView .dataflowArea.active");
+            const $joinNode = $dagView.find("g.operator.join.state-Complete");
+            test.assert($joinNode.length === 1, "find only one join node");
 
-        console.log("find the map node before join")
-        const $dagView = $("#dagView .dataflowArea.active");
-        const $joinNode = $dagView.find("g.operator.join.state-Complete");
-        test.assert($joinNode.length === 1);
+            const joinNodeId = $joinNode.data("nodeid");
+            const mapNode = DagViewManager.Instance.getActiveDag().getNode(joinNodeId).getParents()[0];
+            const mapNodeId = mapNode.getId();
+            const $mapNode = DagViewManager.Instance.getNode(mapNodeId);
+            test.assert($mapNode.hasClass("map"), "find the map node");
 
-        const joinNodeId = $joinNode.data("nodeid");
-        const mapNode = DagViewManager.Instance.getActiveDag().getNode(joinNodeId).getParents()[0];
-        const mapNodeId = mapNode.getId();
-        const $mapNode = DagViewManager.Instance.getNode(mapNodeId);
-        test.assert($mapNode.hasClass("map"));
+            const dfName = $("#dagTabView .dagTab.active .name").text();
+            console.log("add link out node for map");
+            const linkOutName = await createLinkOutNode(mapNodeId, "mapNodeId");
 
-        const dfName = $("#dagTabView .dagTab.active .name").text();
-        let linkOutName;
-
-        console.log("add link out node for map");
-        createLinkOutNode(mapNodeId, "mapNodeId")
-        .then((reslinkOutName) => {
-            linkOutName = reslinkOutName;
             console.log("create new tab for multi join and link map node");
             createNewTab();
-            return renameTab($("#dagTabView .dagTab.active"), MultiJoin);
-        })
-        .then(() => {
-            return createLinkInNode(dfName, linkOutName);
-        })
-        .then(() => {
+            await renameTab($("#dagTabView .dagTab.active"), MultiJoin);
+            await createLinkInNode(dfName, linkOutName);
             console.log("create new tab for multi groupBy and link map node");
             createNewTab();
-            return renameTab($("#dagTabView .dagTab.active"), MultiGroupBy);
-        })
-        .then(() => {
-            return createLinkInNode(dfName, linkOutName);
-        })
-        .then(() => {
-            console.log(testName, "passed");
+            await renameTab($("#dagTabView .dagTab.active"), MultiGroupBy);
+            await createLinkInNode(dfName, linkOutName);
+            console.log("linkInLinkOutTest finished");
             test.pass(deferred, testName, currentTestNumber);
-        })
-        .fail(() => {
+        } catch (e) {
+            console.error("linkInLinkOutTest failed", e);
             test.fail(deferred, testName, currentTestNumber, "linkInLinkOutTest failed");
-        });
-    }
-
-    function multiGroupByTest(deferred, testName, currentTestNumber) {
-        console.log("multi grouBy Test");
-        // focus on multi groupBy Tab
-        console.log("focus on multi groupBy Tab");
-        const $tab = $("#dagTabView .dagTab").filter((_index, el) => {
-            return $(el).find(".name").text() === MultiGroupBy;
-        });
-        test.assert($tab.length === 1);
-        if (!$tab.hasClass("active")) {
-            $tab.click();
         }
-
-        console.log("find the link in node")
-        const $dagView = $("#dagView .dataflowArea.active");
-        const $linInNode = $dagView.find("g.operator.link.state-Complete");
-        test.assert($linInNode.length === 1);
-        const linkInNodeId = $linInNode.data("nodeid");
-
-        console.log("create group by node");
-        const nodeId = test.createNodeAndOpenPanel(linkInNodeId, DagNodeType.GroupBy);
-        const $panel = $("#groupByOpPanel");
-        console.log("choose Dest col as first group on field");
-
-        const col1 = xcHelper.getPrefixColName(flightPrefix, "Dest");
-        fillArgInPanel($panel.find(".gbOnRow.original input"), gColPrefix + col1);
-
-        const col2 = xcHelper.getPrefixColName(flightPrefix, "AirTime");
-        console.log("choose AirTime col as first group on field");
-        $panel.find(".addGroupArg").click();
-        fillArgInPanel($panel.find(".gbOnRow.extraArg input"), gColPrefix + col2);
-
-        console.log("count on ArrDelay");
-        $panel.find(".functionsList .functionsInput").val("count")
-                        .trigger(fakeEvent.enterKeydown);
-        fillArgInPanel($panel.find(".gbAgg"), gColPrefix + "ArrDelay");
-        fillArgInPanel($panel.find(".colNameSection .arg"), "ArrDelay_count");
-        $panel.find(".submit").click();
-
-        test.hasNodeWithState(nodeId, DagNodeState.Configured)
-        .then(() => {
-            console.log("execute group By");
-            return test.executeNode(nodeId);
-        })
-        .then(() => {
-            test.pass(deferred, testName, currentTestNumber);
-        })
-        .fail(() => {
-            test.fail(deferred, testName, currentTestNumber, "MultiGroupBy failed");
-        });
     }
 
-    function multiJoinTest(deferred, testName, currentTestNumber) {
-        console.log("multi join test");
-        // import schedule dataset
-        console.log("import schedule dataset");
-        $("#dataStoresTab").click();
-        const scheduleDS = "schedule" + Math.floor(Math.random() * 1000);
-        const url = testDataLoc + "indexJoin/schedule/schedule.json";
-        const check = "#previewTable td:eq(1):contains(1)";
-        const schedulePrefix = "schedule" + randInt();
-        let scheduleNodeId;
-        let joinNodeId;
+    async function multiGroupByTest(deferred, testName, currentTestNumber) {
+        try {
+            console.log("multiGroupByTest starts");
+            // focus on multi groupBy Tab
+            focusOnTab(MultiGroupBy);
+            console.log("find the link in node");
+            const $dagView = $("#dagView .dataflowArea.active");
+            const $linInNode = $dagView.find("g.operator.link.state-Complete");
+            test.assert($linInNode.length === 1);
+            const linkInNodeId = $linInNode.data("nodeid");
 
-        test.loadDS(scheduleDS, url, check)
-        .then(() => {
-            // focus on the multi join tab
-            $("#sqlTab").click();
-            console.log("focus on the multi join tab");
-            const $tab = $("#dagTabView .dagTab").filter((_index, el) => {
-                return $(el).find(".name").text() === MultiJoin;
-            });
-            test.assert($tab.length === 1);
-            if (!$tab.hasClass("active")) {
-                $tab.click();
-            }
-            return test.createDatasetNode(scheduleDS, schedulePrefix);
-        })
-        .then((nodeId) => {
-            scheduleNodeId = nodeId;
+            console.log("create groupBy operator and open the configuration");
+            const nodeId = test.createNodeAndOpenPanel(linkInNodeId, DagNodeType.GroupBy);
+            const $panel = $("#groupByOpPanel");
+            console.log("choose DEST col as first group on field");
+
+            const col1 = "DEST";
+            fillArgInPanel($panel.find(".gbOnRow.original input"), gColPrefix + col1);
+
+            const col2 = "AIRTIME";
+            console.log("choose AIRTIME col as first group on field");
+            $panel.find(".addGroupArg").click();
+            fillArgInPanel($panel.find(".gbOnRow.extraArg input"), gColPrefix + col2);
+
+            console.log("count on ARRDELAY");
+            $panel.find(".functionsList .functionsInput").val("count").trigger(fakeEvent.enterKeydown);
+            fillArgInPanel($panel.find(".gbAgg"), gColPrefix + "ARRDELAY");
+            fillArgInPanel($panel.find(".colNameSection .arg"), "ArrDelay_count");
+            $panel.find(".submit").click();
+
+            await test.hasNodeWithState(nodeId, DagNodeState.Configured);
+
+            console.log("execute group By");
+            await test.executeNode(nodeId);
+
+            console.log("multiGroupByTest finsihed");
+            test.pass(deferred, testName, currentTestNumber);
+        } catch (e) {
+            console.error("multiGroupByTest failed", e);
+            test.fail(deferred, testName, currentTestNumber, e);
+        }
+    }
+
+    async function multiJoinTest(deferred, testName, currentTestNumber) {
+        try {
+            console.log("multiJoinTest starts");
+            // load schedule table
+            console.log("load schedule table");
+            const scheduleTable = "SCHEDULE" + Math.floor(Math.random() * 1000);
+            const url = testDataLoc + "indexJoin/schedule/schedule.json";
+            const check = "#previewTable td:eq(1):contains(1)";
+            await test.loadTable(scheduleTable, url, check);
+
+            // focus on multi join tab
+            focusOnTab(MultiJoin);
+            // create table operator
+            const scheduleNodeId = await test.createTableNode(scheduleTable);
 
             console.log("find the link in node")
             const $dagView = $("#dagView .dataflowArea.active");
@@ -550,111 +482,90 @@ window.FlightTest = (function(FlightTest, $) {
             test.assert($linInNode.length === 1);
             const linkInNodeId = $linInNode.data("nodeid");
 
-            console.log("cast DayOfMonth into integer");
-            const col = xcHelper.getPrefixColName(flightPrefix, "DayofMonth");
-            return changeTypeToInteger(linkInNodeId, col);
-        })
-        .then(function(castNodeId) {
-            console.log("cast DayOfWeek into integer");
-            const col = xcHelper.getPrefixColName(flightPrefix, "DayOfWeek");
-            return changeTypeToInteger(castNodeId, col);
-        })
-        .then(function(flightNodeId) {
+            console.log("cast DAYOFMONTH into integer");
+            const castNodeId = await changeTypeToInteger(linkInNodeId, "DAYOFMONTH");
+
+            console.log("cast DAYOFWEEK into integer");
+            const flightNodeId = await changeTypeToInteger(castNodeId, "DAYOFWEEK");
+
             console.log("multi join with schedule and flight");
-            // join class_id, teancher_id with DayofMonth, DayOfWeek
-            const lCol1 = xcHelper.getPrefixColName(schedulePrefix, "class_id");
-            const lCol2 = xcHelper.getPrefixColName(schedulePrefix, "teacher_id");
+            // join CLASS_ID, TEACHER_ID with DAYOFMONTH, DAYOFWEEK
+            const lCol1 = "CLASS_ID";
+            const lCol2 = "TEACHER_ID";
             const lCols = [lCol1, lCol2];
-            const rCols = ["DayofMonth", "DayOfWeek"];
-            return mutiJoinHelper(scheduleNodeId, lCols, flightNodeId, rCols);
-        })
-        .then((nodeId) => {
-            joinNodeId = nodeId;
+            const rCols = ["DAYOFMONTH", "DAYOFWEEK"];
+            const joinNodeId = await mutiJoinHelper(scheduleNodeId, lCols, flightNodeId, rCols);
             console.log("execute multi join");
-            return test.executeNode(joinNodeId);
-        })
-        .then(() => {
+            await test.executeNode(joinNodeId);
+    
             console.log("preview multi join result");
             const $node = DagViewManager.Instance.getNode(joinNodeId);
             test.nodeMenuAction($node, "viewResult");
-            return test.checkExists("#sqlTableArea:visible .xcTableWrap");
-        })
-        .then(()  => {
+            await test.checkExists("#sqlTableArea:visible .xcTableWrap");
             test.assert($("#sqlTableArea .totalRows").text().indexOf("1,953") > -1);
+            console.log("multiJoinTest finished");
             test.pass(deferred, testName, currentTestNumber);
-        })
-        .fail((error) => {
-            test.fail(deferred, testName, currentTestNumber, error);
-        });
+        } catch (e) {
+            console.error("multiJoinTest failed", e);
+            test.fail(deferred, testName, currentTestNumber, e);
+        }
     }
 
-    function mutiJoinHelper(lNodeId, lCols, rNodeId, rCols) {
-        const deferred = PromiseHelper.deferred();
-        const nodeId = test.createNodeAndOpenPanel([lNodeId, rNodeId], DagNodeType.Join);
-        const $panel = $("#joinOpPanel");
-        test.assert($panel.hasClass("xc-hidden") === false);
+    async function mutiJoinHelper(lNodeId, lCols, rNodeId, rCols) {
+        try {
+            // create a join operator and open the configuration panel
+            const nodeId = test.createNodeAndOpenPanel([lNodeId, rNodeId], DagNodeType.Join);
+            const $panel = $("#joinOpPanel");
+            test.assert($panel.hasClass("xc-hidden") === false);
 
-        console.log("add multi clause");
-        for (let i = 1; i < lCols.length; i++) {
-            $panel.find(".addClause button").click();
-        }
+            console.log("add multi clause");
+            for (let i = 1; i < lCols.length; i++) {
+                $panel.find(".addClause button").click();
+            }
 
-        const selectDropdown = function(i) {
-            return PromiseHelper.resolve()
-            .then(() => {
-                const $dropdown = $panel.find('.mainTable .joinClause .col-left .hintDropdown').eq(i)
-                $dropdown.find('.colNameMenuIcon').trigger(fakeEvent.mouseup);
-                return dealyPromise(0);
-            })
-            .then(() => {
-                const $dropdown = $panel.find('.mainTable .joinClause .col-left .hintDropdown').eq(i)
-                $dropdown.find(`li:contains(${lCols[i]})`).trigger(fakeEvent.mouseup);
-                return dealyPromise(0);
-            })
-            .then(() => {
-                const $dropdown = $panel.find('.mainTable .joinClause .col-right .hintDropdown').eq(i)
-                $dropdown.find('.colNameMenuIcon').trigger(fakeEvent.mouseup);
-                return dealyPromise(0);
-            })
-            .then(() => {
-                const $dropdown = $panel.find('.mainTable .joinClause .col-right .hintDropdown').eq(i)
-                $dropdown.find(`li:contains(${rCols[i]})`).trigger(fakeEvent.mouseup);
-                return dealyPromise(0);
-            })
-        };
+            const selectDropdown = async function(i) {
+                const $dropdownLeft = $panel.find('.mainTable .joinClause .col-left .hintDropdown').eq(i)
+                $dropdownLeft.find('.colNameMenuIcon').trigger(fakeEvent.mouseup);
+                await test.wait(10);
 
-        const promises = [];
-        for (let i = 0; i< lCols.length; i++) {
-            promises.push(selectDropdown.bind(this, i));
-        }
+                $dropdownLeft.find(`li:contains(${lCols[i]})`).trigger(fakeEvent.mouseup);
+                await test.wait(10);
 
-        PromiseHelper.chain(promises)
-        .then(() => {
+                const $dropdownRight = $panel.find('.mainTable .joinClause .col-right .hintDropdown').eq(i)
+                $dropdownRight.find('.colNameMenuIcon').trigger(fakeEvent.mouseup);
+                await test.wait(10);
+
+                $dropdownRight.find(`li:contains(${rCols[i]})`).trigger(fakeEvent.mouseup);
+                await test.wait(10);
+            };
+
+            for (let i = 0; i< lCols.length; i++) {
+                await selectDropdown(i);
+            }
+
+            // save configuration
             $panel.find(".bottomSection .btn:contains(Next)").click();
             $panel.find(".bottomSection .btn:contains(Save)").click();
-            return dealyPromise(0);
-        })
-        .then(() => {
-            return test.hasNodeWithState(nodeId, DagNodeState.Configured);
-        })
-        .then(() => {
-            deferred.resolve(nodeId);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
+            await test.wait(10);
+            await test.hasNodeWithState(nodeId, DagNodeState.Configured);
+            return nodeId;
+        } catch (e) {
+            console.error("mutiJoinHelper failed", e);
+            throw e;
+        }
     }
 
-    function profileTest(deferred, testName, currentTestNumber) {
-        console.log("Profile Test");
-        const $table = $("#sqlTableArea .xcTable");
-        const $header = $table.find(".flexWrap.flex-mid input[value='Month']");
-        $header.parent().parent().find(".flex-right .innerBox").click();
-        $("#colMenu .profile").trigger(fakeEvent.mouseup);
-        test.checkExists([".modalHeader .text:contains('Profile')",
-                         "#profileModal[data-state='finished']"], null,
-                         {"asserts": [".barChart .area .xlabel:contains('205')"]})
-        .then(() => {
+    async function profileTest(deferred, testName, currentTestNumber) {
+        console.log("profileTest Test");
+        try {
+            const $table = $("#sqlTableArea .xcTable");
+            const $header = $table.find(".flexWrap.flex-mid input[value='MONTH']");
+            $header.parent().parent().find(".flex-right .innerBox").click();
+            $("#colMenu .profile").trigger(fakeEvent.mouseup);
+            await test.checkExists([".modalHeader .text:contains('Profile')",
+                            "#profileModal[data-state='finished']"], null,
+                            {"asserts": [".barChart .area .xlabel:contains('205')"]})
+
             test.assert($(".barChart .area").length === 8);
             test.assert($(".barChart .area .xlabel:contains('205')").length > 0);
             test.assert($(".barChart .area .xlabel:contains('207')").length > 0);
@@ -667,9 +578,8 @@ window.FlightTest = (function(FlightTest, $) {
 
             console.log("check genAgg")
             $("#profileModal .genAgg").click();
-            return test.checkExists("#profileModal .genAgg:not(:visible)");
-        })
-        .then(() => {
+            await test.checkExists("#profileModal .genAgg:not(:visible)");
+
             test.assert($("#profileModal .infoSection .min").eq(0).text() ===
                         Number(1).toLocaleString());
             test.assert($("#profileModal .infoSection .count").text() ===
@@ -683,66 +593,78 @@ window.FlightTest = (function(FlightTest, $) {
 
             console.log("check sort");
             $("#profileModal .sortSection .asc").click();
-            return test.checkExists("#profileModal[data-state='finished']", null, {
+            await test.checkExists("#profileModal[data-state='finished']", null, {
                 "asserts": [".barChart .area:first-child .xlabel:contains('134')"]
             });
-        })
-        .then(() => {
             test.assert($(".barChart .area .xlabel").eq(0).text() === "134");
             test.assert($(".barChart .area .xlabel").eq(7).text() === "626");
             $("#profileModal .close").click();
+            console.log("profileTest finished");
             test.pass(deferred, testName, currentTestNumber);
-        })
-        .fail((error) => {
+        } catch (e) {
+            console.error("profileTest failed", e);
             test.fail(deferred, testName, currentTestNumber, error);
-        });
+        }
     }
 
-    function corrTest(deferred, testName, currentTestNumber) {
-        console.log("Correlation Test");
-        $("#sqlTableArea .tableMenu").click();
-        $("#tableMenu .corrAgg").trigger(fakeEvent.mouseup);
-        test.checkExists("#aggModal-corr[data-state='finished']",
-                        null, {"asserts": [".aggTableField:contains('-0.4')"]})
-        .then(() => {
+    async function corrAndQuickAggTest(deferred, testName, currentTestNumber) {
+        console.log("corrAndQuickAggTest starts");
+        try {
+            await corrTest();
+            await quickAggTest();
+            console.log("corrAndQuickAggTest finished");
             test.pass(deferred, testName, currentTestNumber);
-        })
-        .fail((error) => {
+        } catch (e) {
+            console.error("corrAndQuickAggTest failed", e);
             test.fail(deferred, testName, currentTestNumber, error);
-        });
+        }
     }
 
-    function aggTest(deferred, testName, currentTestNumber) {
-        console.log("Quick Aggreation Test");
-        $("#aggTab").click();
-        test.checkExists("#aggModal .spinny", null, {notExist: true})
-        .then(() => {
+    async function corrTest() {
+        console.log("corrTest starts");
+        try {
+            $("#sqlTableArea .tableMenu").click();
+            $("#tableMenu .corrAgg").trigger(fakeEvent.mouseup);
+            await test.checkExists("#aggModal-corr[data-state='finished']",
+                            null, {"asserts": [".aggTableField:contains('-0.4')"]})
+            console.log("corrTest finished");
+        } catch (e) {
+            console.error("corrTest failed", e);
+            throw e;
+        }
+    }
+
+    async function quickAggTest() {
+        console.log("quickAggTest starts");
+        try {
+            $("#aggTab").click();
+            await test.checkExists("#aggModal .spinny", null, {notExist: true});
+
             test.assert($(".aggTableField:contains('4574')").length);
             test.assert($(".aggTableField:contains('334')").length);
             $("#aggModal .close").click();
-            test.pass(deferred, testName, currentTestNumber);
-        })
-        .fail((error) => {
-            test.fail(deferred, testName, currentTestNumber, error);
-        });
+            console.log("quickAggTest finished");
+        } catch (e) {
+            console.error("quickAggTest failed", e);
+            throw e;
+        }
     }
 
-    function jsonModalTest(deferred, testName, currentTestNumber) {
-        if ($("#alertActions").is(":visible")) {
-            $("#alertActions button:visible").click();
-        }
-        const $jsonModal = $("#jsonModal");
-        const $activeTable = $("#sqlTableArea .xcTable");
-        $activeTable.find('.jsonElement').eq(0).trigger(fakeEvent.mousedown);
-        $activeTable.find('.jsonElement').eq(0).trigger(fakeEvent.mousedown);
-        $activeTable.find('.jsonElement').eq(1).trigger(fakeEvent.mousedown);
-        $activeTable.find('.jsonElement').eq(1).trigger(fakeEvent.mousedown);
-        test.checkExists('.xcTable:visible')
-        .then(() => {
-            return test.checkExists(['#jsonModal .jsonWrap:eq(0)',
-                                    '#jsonModal .jsonWrap:eq(1)']);
-        })
-        .then(() => {
+    async function jsonModalTest(deferred, testName, currentTestNumber) {
+        console.log("jsonModalTest starts");
+        try {
+            if ($("#alertActions").is(":visible")) {
+                $("#alertActions button:visible").click();
+            }
+            const $jsonModal = $("#jsonModal");
+            const $activeTable = $("#sqlTableArea .xcTable");
+            $activeTable.find('.jsonElement').eq(0).trigger(fakeEvent.mousedown);
+            $activeTable.find('.jsonElement').eq(0).trigger(fakeEvent.mousedown);
+            $activeTable.find('.jsonElement').eq(1).trigger(fakeEvent.mousedown);
+            $activeTable.find('.jsonElement').eq(1).trigger(fakeEvent.mousedown);
+            await test.checkExists('.xcTable:visible');
+            await test.checkExists(['#jsonModal .jsonWrap:eq(0)', '#jsonModal .jsonWrap:eq(1)']);
+
             // compare matches on 2 data browser columns
             $jsonModal.find('.compareIcon').eq(0).trigger(fakeEvent.click);
             $jsonModal.find('.compareIcon').eq(1).trigger(fakeEvent.click);
@@ -770,12 +692,12 @@ window.FlightTest = (function(FlightTest, $) {
             const colName = $newTh.find('.editableHead').val();
             test.assert(colName.length > 1, "assert colname exists");
             test.assert(clickedName.indexOf(colName) > -1, "assert colName match in json modal");
-
+            console.log("jsonModalTest finished");
             test.pass(deferred, testName, currentTestNumber);
-        })
-        .fail((error) => {
+        } catch (e) {
+            console.error("jsonModalTest failed", e);
             test.fail(deferred, testName, currentTestNumber, error);
-        });
+        }
     }
 
     // ================ HELPER FUNCTION =====================================//
@@ -797,7 +719,6 @@ window.FlightTest = (function(FlightTest, $) {
         test.assert($panel.hasClass("xc-hidden") === false);
 
         // select column
-        let $lists = $panel.find(".resultSection .lists");
         const $li = $panel.find(".candidateSection .listSection .lists").eq(0).find(".inputCol").filter(function() {
             return $(this).find(".colName").text() === colName;
         });
@@ -817,83 +738,79 @@ window.FlightTest = (function(FlightTest, $) {
         return deferred.promise();
     }
 
-    function createLinkOutNode(parentNodeId, name) {
-        const deferred = PromiseHelper.deferred();
-        const nodeId = test.createNodeAndOpenPanel(parentNodeId, DagNodeType.DFOut);
-        const $panel = $("#dfLinkOutPanel");
-        const linkOutName = xcHelper.randName(name);
-        $panel.find(".linkOutName input").val(linkOutName);
-        $panel.find(".checkbox").click(); // check the checkbox
-        $panel.find(".submit").click();
-        test.hasNodeWithState(nodeId, DagNodeState.Configured)
-        .then(() => {
-            return test.executeNode(nodeId);
-        })
-        .then(() => {
-            deferred.resolve(linkOutName);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
+    async function createLinkOutNode(parentNodeId, name) {
+        try {
+            // create a link out opeator and open configuration
+            const nodeId = test.createNodeAndOpenPanel(parentNodeId, DagNodeType.DFOut);
+            const $panel = $("#dfLinkOutPanel");
+            const linkOutName = xcHelper.randName(name);
+            $panel.find(".linkOutName input").val(linkOutName);
+            $panel.find(".checkbox").click(); // check the checkbox
+            // save configuratiaon
+            $panel.find(".submit").click();
+            await test.hasNodeWithState(nodeId, DagNodeState.Configured);
+            await test.executeNode(nodeId); // execute link out
+            return linkOutName;
+        } catch (e) {
+            console.error("create link out node failed");
+            throw e;
+        }
     }
 
-    function createLinkInNode(dfName, linkOutName) {
-        const deferred = PromiseHelper.deferred();
-        const nodeId = test.createNodeAndOpenPanel(null, DagNodeType.DFIn);
-        const $panel = $("#dfLinkInPanel");
-        fillArgInPanel($panel.find(".dataflowName input"), dfName);
-        fillArgInPanel($panel.find(".linkOutNodeName input"), linkOutName);
-        $panel.find(".bottomSection .submit").click();
+    async function createLinkInNode(dfName, linkOutName) {
+        try {
+            // create a link in opeator and open the configuration panel
+            const nodeId = test.createNodeAndOpenPanel(null, DagNodeType.DFIn);
+            const $panel = $("#dfLinkInPanel");
+            fillArgInPanel($panel.find(".dataflowName input"), dfName);
+            fillArgInPanel($panel.find(".linkOutNodeName input"), linkOutName);
+            $panel.find(".bottomSection .submit").click();
 
-        test.hasNodeWithState(nodeId, DagNodeState.Configured)
-        .then(() => {
-            return test.executeNode(nodeId);
-        })
-        .then(() => {
-            deferred.resolve(nodeId);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
+            await test.hasNodeWithState(nodeId, DagNodeState.Configured);
+            await test.executeNode(nodeId);
+            return nodeId;
+        } catch (e) {
+            console.error("createLinkInNode failed", e);
+            throw e;
+        }
     }
 
-    function renameTab($tab, newName) {
+    async function renameTab($tab, newName) {
         // XXX TODO not sure why but run in sync way sometimes fail to rename
         // maybe related to the slowness of event propogation
-        const deferred = PromiseHelper.deferred();
-        $tab.find(".dragArea").dblclick();
-        dealyPromise(500)
-        .then(() => {
+        try {
+            $tab.find(".dragArea").dblclick();
+            await test.wait(500);
             $tab.find(".xc-input").text(newName);
-            return dealyPromise(500);
-        })
-        .then(() => {
+            await test.wait(500);
             $tab.find(".xc-input").focusout();
-            return dealyPromise(500);
-        })
-        .then(() => {
-            test.assert($tab.find(".name").text().includes(newName));
-        })
-        .always(() => {
+            await test.wait(500);
+        } catch (e) {
+            console.error("reaname moduel failed", e);
+            throw e;
+        } finally {
             if (test.assert($tab.find(".name").text().includes(newName))) {
-                deferred.resolve();
+                console.log("rename module finished");
+                return;
             } else {
-                deferred.reject();
+                throw new Error("reaname moduel failed");
             }
-        });
-        return deferred.promise();
-    }
-
-    function dealyPromise(dealyTime) {
-        const deferred = PromiseHelper.deferred();
-        setTimeout(() => {
-            deferred.resolve();
-        }, dealyTime);
-        return deferred.promise();
+        }
     }
 
     function createNewTab() {
         $("#tabButton").click();
+    }
+
+    function focusOnTab(tabName) {
+        console.log(`focus on the ${tabName} tab`);
+        const $tab = $("#dagTabView .dagTab").filter((_index, el) => {
+            return $(el).find(".name").text() === tabName;
+        });
+        test.assert($tab.length === 1);
+        if (!$tab.hasClass("active")) {
+            $tab.click();
+        }
     }
     return FlightTest;
 }({}, jQuery));
