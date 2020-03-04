@@ -28,7 +28,7 @@ class DagConfigNodeModal {
             this._refreshEditor();
         })
         .on("ResizeDocked", (state) => {
-            $("#configNodeContainer").parent().css("width", `${state.dockedWidth}%`);
+            this._getModal().css("width", `${state.dockedWidth}%`);
         });
     }
 
@@ -153,7 +153,7 @@ class DagConfigNodeModal {
                 IMDTableOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.SQL):
-                if (node.isDeprecated()) {
+                if (node.isDeprecated() || !XVM.isDataMart()) {
                     OldSQLOpPanel.Instance.show(node, options);
                 } else {
                     SQLOpPanel.Instance.show(node, options);
@@ -181,7 +181,7 @@ class DagConfigNodeModal {
                                 $node);
                 return;
         }
-
+        this.getPopup().getPanel().mousedown(); // if popped out, brings to front
         PopupManager.checkAllContentUndocked();
     }
 

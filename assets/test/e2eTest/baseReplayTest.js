@@ -90,8 +90,12 @@ function replay(testConfig, tags) {
             browser.execute(execFunctions.hackXcalarQueryCheck, []);
         },
 
-        'disable auto exec': function(browser) {
+        'change settings': function(browser) {
             browser.execute(execFunctions.disableAutoExec, []);
+            browser.execute(execFunctions.enableOperatorBar, []);
+            browser.execute(execFunctions.stackDataflow, []);
+            browser.execute(execFunctions.disableSqlPanelAlert, []);
+
         },
 
         'get tabs and nodes': function(browser) {
@@ -110,7 +114,7 @@ function replay(testConfig, tags) {
                     browser.pause(1000);
                 }
                 const tabNames = Object.keys(testTabs);
-                let newTabIndex = tabNames.length + 1;
+                let newTabIndex = tabNames.length + 2; // sqltab + 1
                 for (const tabName of tabNames) {
                     const selector = `#dagTabSectionTabs .dagTab:nth-child(${newTabIndex}).active`;
                     browser
@@ -308,15 +312,16 @@ function replay(testConfig, tags) {
                     return node.type === "link out" &&
                            node.input.name === nodeName;
                 });
+                let parentNodeId = linkOutNode.parents[0];
 
-                let linkOutNodeId = testNodeIdMapping.get(newTabName)[linkOutNode.nodeId];
+                let linkOutNodeId = testNodeIdMapping.get(newTabName)[parentNodeId];
 
                 browser
                     .switchTab(newTabName)
-                    .moveToElement(`.dataflowArea.active .operator[data-nodeid="${linkOutNodeId}"] .main`, 10, 20)
+                    .moveToElement(`.dataflowArea.active .operator[data-nodeid="${linkOutNodeId}"] .mainTableIcon`, 4, 4)
                     .mouseButtonClick('right')
-                    .waitForElementVisible("#dagNodeMenu", 1000)
-                    .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
+                    .waitForElementVisible("#dagTableNodeMenu", 1000)
+                    .moveToElement("#dagTableNodeMenu li.viewResult", 10, 1)
                     .mouseButtonClick('left')
                     .waitForElementVisible('#sqlTableArea .totalRows', 20000)
                     .pause(1000)
@@ -340,7 +345,7 @@ function replay(testConfig, tags) {
                         let datasetNodeId = testNodeIdMapping.get(newTabName)[datasetNode.nodeId];
                         // reset the dataset node so we can delete the dataset at cleanup
                         browser
-                        .moveToElement('.dataflowArea.active .operator[data-nodeid="' + datasetNodeId + '"]', 30, 15)
+                        .moveToElement('.dataflowArea.active .operator[data-nodeid="' + datasetNodeId + '"] .main', 30, 15)
                         .mouseButtonClick('right')
                         .waitForElementVisible("#dagNodeMenu", 1000)
                         .moveToElement("#dagNodeMenu li.resetNode", 10, 1)

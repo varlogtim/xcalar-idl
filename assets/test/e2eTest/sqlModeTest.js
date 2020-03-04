@@ -100,15 +100,15 @@ module.exports = {
     'new workbook': function(browser) {
         browser
             .click("#createWKBKbtn")
-            .waitForElementVisible('.workbookBox.noResource .subHeading input', 10000)
+            .waitForElementVisible('.workbookBox.noResource .name input', 10000)
 
     },
 
     'activate workbook': function(browser) {
-        browser.getValue('.workbookBox.noResource .subHeading input', function(result) {
+        browser.getValue('.workbookBox.noResource .name input', function(result) {
             browser.globals['gTestWorkbookName'] = result.value;
             browser
-                .click(".workbookBox.noResource .content.activate")
+                .click(".workbookBox.noResource .name.activate")
                 .pause(1000)
                 .waitForElementNotVisible("#initialLoadScreen", 100000)
          });

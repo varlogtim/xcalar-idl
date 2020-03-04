@@ -12,8 +12,8 @@ class ValidateSQLNode extends EventEmitter {
         this.api
             .moveToElement(`.dataflowArea.active ${sqlNodeSelector} .main`, 10, 20)
             .mouseButtonClick('right')
-            .waitForElementVisible("#dagNodeMenu", 1000)
-            .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
+            .waitForElementVisible("#dagTableNodeMenu", 1000)
+            .moveToElement("#dagTableNodeMenu li.viewResult", 10, 1)
             .mouseButtonClick('left')
             .waitForElementVisible('#sqlTableArea .totalRows', 20000)
             .getText('#sqlTableArea .totalRows', ({value}) => {

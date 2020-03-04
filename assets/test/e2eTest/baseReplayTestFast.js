@@ -1,5 +1,6 @@
 const execFunctions = require('./lib/execFunctions');
-
+// this replay does not recreate nodes from the workbook,
+// instead it just executes the nodes
 function replay(testConfig, tags) {
     let testTabs = new Map(); // { id: string, nodes: [] }
     const testTabMapping = new Map(); // WB tabName => newTabName
@@ -92,6 +93,7 @@ function replay(testConfig, tags) {
 
         'disable auto exec': function(browser) {
             browser.execute(execFunctions.disableAutoExec, []);
+            browser.execute(execFunctions.enableOperatorBar, []);
         },
 
         'get tabs and nodes': function(browser) {

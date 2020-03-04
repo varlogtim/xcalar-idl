@@ -1,5 +1,5 @@
 module.exports = {
-    '@tags': ["project browser test", "allTests"],
+    '@tags': ["project browser test", "allTestsSkipped"],
 
     before: function(browser) {
         browser.globals.currentUsername = browser.globals.user;

@@ -4,6 +4,9 @@ module.exports = {
         const dagTabs = DagTabManager.Instance.getTabs();
         let i = 0;
         for (const dagTab of dagTabs) {
+            if (dagTab.getId() === "DF_SQLExecute") {
+                continue;
+            }
             i++;
             const sortedNodes = dagTab.getGraph().getSortedNodes()
                 .map((node) => node.getNodeCopyInfo(true));
@@ -63,8 +66,13 @@ module.exports = {
         };
     },
 
-    scrollIntoView: function(selector) {
-        $(selector).scrollintoview({duration: 0});
+    scrollIntoView: function(selector, element) {
+        if (element) {
+            console.log(element);
+            console.log("9234852938562389642837462837462387462");
+        } else {
+            $(selector).scrollintoview({duration: 0});
+        }
     },
 
     getFinalWorkbookName: function() {
@@ -90,6 +98,21 @@ module.exports = {
 
     disableAutoExec: function() {
         UserSettings.setPref('dfAutoExecute', false, false);
+    },
+
+    enableOperatorBar: function() {
+        UserSettings.setPref('dfPinOperatorBar', true, false);
+        DagViewManager.Instance.pinOperatorBar(true);
+    },
+
+    disableSqlPanelAlert: function() {
+        SQLOpPanel.Instance._ignoreQueryConfirm = true;
+    },
+
+    stackDataflow: function() {
+        if ($(".stackResult").is(":visible")) {
+            $(".stackResult").click();
+        }
     },
 
     executeAllNonOptimized: function() {

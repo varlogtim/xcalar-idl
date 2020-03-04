@@ -1,5 +1,5 @@
 const EventEmitter = require('events');
-
+const execFunctions = require('../lib/execFunctions');
 class SwitchTab extends EventEmitter {
     command(tabName, cb) {
         const self = this;
@@ -21,6 +21,7 @@ class SwitchTab extends EventEmitter {
 
         self.api.perform(function() {
             if (elemFound != null) {
+                self.api.execute(execFunctions.scrollIntoView, [null, elemFound], () => {})
                 self.api.elementIdClick(elemFound);
             }
         });

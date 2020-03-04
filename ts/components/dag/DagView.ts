@@ -128,54 +128,6 @@ class DagView {
             startingWidth = (maxWidth + 1);
         });
 
-        // for (let i in trees) {
-            // const tree = trees[i];
-            // const nodes = {};
-            // let showingProgressTips: boolean = false;
-            // for (let j in tree) {
-            //     let node: DagNode = tree[j];
-            //     if (node.getChildren().length === 0) {
-            //         if (!showingProgressTips) {
-            //             showingProgressTips = DagView.$dagView.hasClass("showProgressTips") && searchForTooltip(node, new Set());
-            //             if (showingProgressTips && startingWidth > 0) { // don't adjust the first row of nodes
-            //                 startingWidth += (2/3); // must be divisible by 3 because vertNodeSpacing == 60
-            //             }
-            //         }
-            //         DagView._alignNodes(node, nodes, startingWidth, showingProgressTips);
-            //     }
-            // }
-
-            // for (let j in tree) {
-            //     let node: DagNode = tree[j];
-            //     if (node.getParents().length === 0) {
-            //         // adjust positions of nodes so that children will never be
-            //         // to the left of their parents
-            //         DagView._adjustPositions(node, nodes, new Set());
-            //     }
-            // }
-            // let maxDepth = 0;
-            // let maxWidth = 0;
-            // let minDepth = 0;
-            // for (let j in nodes) {
-            //     maxDepth = Math.max(nodes[j].depth, maxDepth);
-            //     minDepth = Math.min(nodes[j].depth, minDepth);
-            //     maxWidth = Math.max(nodes[j].width, maxWidth);
-            // }
-            // overallMaxDepth = Math.max(maxDepth - minDepth, overallMaxDepth);
-
-            // for (let j in nodes) {
-            //     allNodeInfos.push({
-            //         type: "dagNode",
-            //         id: j,
-            //         position: {
-            //             x: ((maxDepth - nodes[j].depth) * DagView.horzNodeSpacing) + (DagView.gridSpacing * 2),
-            //             y: Math.round((nodes[j].width * DagView.vertNodeSpacing) / DagView.gridSpacing) * DagView.gridSpacing + (DagView.gridSpacing * 2)
-            //         }
-            //     });
-            // }
-
-            // startingWidth = (maxWidth + 1);
-        // }
         const graphHeight = DagView.vertNodeSpacing * (startingWidth - 1) + DagView.gridSpacing;
         const graphWidth = DagView.horzNodeSpacing * overallMaxDepth + DagView.gridSpacing;
         let maxX = graphWidth;

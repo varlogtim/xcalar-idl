@@ -57,5 +57,5 @@ module.exports = require('./tutorialProjectBaseTest.js').replay(
             }
         ]
     },
-    ["tutorial project word count test", "allTests"]
+    ["tutorial project word count test", "allTestsSkipped"]
 );

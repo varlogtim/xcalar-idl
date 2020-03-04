@@ -6,5 +6,5 @@ module.exports = require('./baseReplayTest.js').replay(
 		  {dfName: 'Dataflow 3', nodeName: 'finalnode'}
        ]
    },
-   ["interactiveTest", "allTests"]
+   ["interactiveTest", "allTestsSkipped"]
 );

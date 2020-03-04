@@ -83,7 +83,7 @@ namespace XIApi {
         let isValid: boolean = isCorrectTableNameFormat(tableName);
         if (!isValid) {
             if (tableName != null) {
-                console.error("incorrect table name format");
+                console.error("incorrect table name format", tableName);
             }
             return false;
         }
@@ -98,7 +98,7 @@ namespace XIApi {
         }
         if (!isValid) {
             if (tableName != null) {
-                console.error("incorrect table name format");
+                console.error("incorrect table name format", tableName);
             }
         }
         return isValid;

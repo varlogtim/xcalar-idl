@@ -4,8 +4,9 @@ class ActivateWorkbook extends EventEmitter {
     command(workbookSelector) {
         this.api
             .pause(2000)
-            .click(workbookSelector || ".workbookBox .content.activate")
-            .pause(1000)
+            .click("#workbookPanel") // produce a needed blur on the workbook input
+            .click(workbookSelector || ".workbookBox:first-child .name.activate")
+            .pause(500)
             .confirmAlert()
             .pause(10000)
             .waitForElementNotVisible("#initialLoadScreen", 5 * 60 * 1000)

@@ -10,15 +10,15 @@ class RestoreDataset extends EventEmitter {
             .mouseButtonClick('right')
             .waitForElementVisible("#dagNodeMenu", 1000);
         let needRestore = false;
-        this.api.isVisible("#dagNodeMenu li.restoreDataset", (result) => {
+        this.api.isVisible("#dagNodeMenu li.restoreSource", (result) => {
             needRestore = result.value;
         });
         this.api.perform(() => {
             let datasetId = "";
             if (needRestore) {
                 console.log("restoring dataset");
-                this.api.execute(execFunctions.scrollIntoView, ["#dagNodeMenu li.restoreDataset"], () => {})
-                this.api.moveToElement("#dagNodeMenu li.restoreDataset", 10, 1)
+                this.api.execute(execFunctions.scrollIntoView, ["#dagNodeMenu li.restoreSource"], () => {})
+                this.api.moveToElement("#dagNodeMenu li.restoreSource", 10, 1)
                     .mouseButtonClick('left')
                     .waitForElementVisible("#dsListSection")
                     .pause(1000)
@@ -29,7 +29,7 @@ class RestoreDataset extends EventEmitter {
                         .mouseButtonClick('left')
                         // .saveScreenshot("nw1.png")
                         .waitForElementVisible('#dsTableContainer .datasetTable', 100000)
-                        .moveToElement('#modelingDataflowTab', 1, 1)
+                        .moveToElement('#sqlTab', 1, 1)
                         .mouseButtonClick('left');
                         if (cb) {
                             cb(commandResult);

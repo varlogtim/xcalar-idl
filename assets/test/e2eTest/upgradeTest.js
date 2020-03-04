@@ -12,7 +12,7 @@ let datasetNodeId;
 
 let testTabs = {}; // { id: string, nodes: [] }
 module.exports = {
-    '@tags': ["upgrade test", "allTests"],
+    '@tags': ["upgrade test", "allTestsSkipped"],
 
     before: function(browser) {
         console.log(browser.globals.buildTestUrl(browser, browser.globals.user));
@@ -289,7 +289,7 @@ module.exports = {
                     .click("#datastoreMenu .table .iconSection .refresh")
                     .waitForElementNotPresent("#datastoreMenu .refreshIcon", 50000)
                     .waitForElementPresent('#datastoreMenu .grid-unit[data-id="' + testConfig.IMDNames[0] + '"]', 10000)
-                    .click("#modelingDataflowTab");
+                    .click("#sqlTab");
                 }
 
                 const imdNodes = testTabs[tabName].nodes.filter((node) => {
@@ -685,10 +685,10 @@ module.exports = {
             browser
                 .switchTab(newTabName)
                 .executeNode(".operator.sql")
-                .moveToElement(`.dataflowArea.active .operator.sql .main`, 10, 20)
+                .moveToElement(`.dataflowArea.active .operator.sql .table`, 10, 20)
                 .mouseButtonClick('right')
-                .waitForElementVisible("#dagNodeMenu", 1000)
-                .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
+                .waitForElementVisible("#dagTableNodeMenu", 1000)
+                .moveToElement("#dagTableNodeMenu li.viewResult", 10, 1)
                 .mouseButtonClick('left')
                 .waitForElementVisible('#sqlTableArea .totalRows', 20000);
 
@@ -697,7 +697,7 @@ module.exports = {
             });
             // reset the dataset node so we can delete the dataset at cleanup
             browser
-            .moveToElement('.dataflowArea.active .operator[data-nodeid="' + datasetNodeId + '"]', 30, 15)
+            .moveToElement('.dataflowArea.active .operator[data-nodeid="' + datasetNodeId + '"] .main', 30, 15)
             .mouseButtonClick('right')
             .waitForElementVisible("#dagNodeMenu", 1000)
             .moveToElement("#dagNodeMenu li.resetNode", 10, 1)

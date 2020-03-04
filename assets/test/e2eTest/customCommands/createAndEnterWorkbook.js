@@ -5,7 +5,7 @@ class CreateAndEnterWorkbook extends EventEmitter {
     command(workbookName) {
         this.api
             .createNewWorkbook(workbookName)
-            .activateWorkbook('.lastCreate.workbookBox .content.activate');
+            .activateWorkbook('.lastCreate.workbookBox .name.activate');
 
         this.emit('complete');
         return this;

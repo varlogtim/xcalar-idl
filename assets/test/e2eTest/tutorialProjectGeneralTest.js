@@ -7,7 +7,7 @@
  */
 
 module.exports = {
-    '@tags': ["tutorial project general test", "allTests"],
+    '@tags': ["tutorial project general test", "allTestsSkipped"],
 
     before: function(browser) {
         browser

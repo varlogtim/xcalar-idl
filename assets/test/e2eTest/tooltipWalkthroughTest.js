@@ -1,5 +1,5 @@
 module.exports = {
-    '@tags': ["tooltip walkthrough test", "allTests"],
+    '@tags': ["tooltip walkthrough test", "allTestsSkipped"],
 
     before: function(browser) {
         // to auto start first-time user tooltip walkthrougs

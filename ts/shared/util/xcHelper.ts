@@ -1329,12 +1329,19 @@ namespace xcHelper {
 
     export function genTableNameFromNode(node: DagNode): string {
         try {
-            return node.getParents()
-            .map((parentNode) => {
-                const parentTable = parentNode.getTable();
-                return xcHelper.getTableName(parentTable);
-            })
-            .join("_") || "table";
+            let name: string = node.getParents()
+                .map((parentNode) => {
+                    const parentTable = parentNode.getTable();
+                    return xcHelper.getTableName(parentTable);
+                })
+                .join("_") || "table";
+            let shortenedName = name.slice(- (XcalarApisConstantsT.XcalarApiMaxFileNameLen - 80));
+            // max 175 characters to make space for prefixes/suffixes
+            if (shortenedName !== name) {
+                shortenedName = "t" + shortenedName;
+                // prefix with valid char "t" in case starts with invalid char
+            }
+            return shortenedName;
         } catch (e) {
             console.error("generate table name from node error", e);
             return "table";

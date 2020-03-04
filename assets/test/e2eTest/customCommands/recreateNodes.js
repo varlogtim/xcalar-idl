@@ -76,8 +76,10 @@ class RecreateNodes extends EventEmitter {
                 // Select the operation category
                 this.api
                     .execute(execFunctions.scrollIntoView, [".category." + nodeCategoryClass], () => {})
-                    .moveToElement(".category." + nodeCategoryClass, 1, 1)
-                    .mouseButtonDown("left");
+                    .moveToElement("#dagView .categorySection", 1, 1)
+                    .moveToElement(".category." + nodeCategoryClass + " .innerCategory", 1, 1)
+                    .mouseButtonDown("left")
+                    .mouseButtonUp();
                 // Create the node
                 this.api.newNode(
                     nodeCategorySelector + ' .main',
