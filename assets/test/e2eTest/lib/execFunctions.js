@@ -129,9 +129,6 @@ module.exports = {
                 return PromiseHelper.resolve(null);
             }
             const deferred = PromiseHelper.deferred();
-            if (insertError(arguments.callee, deferred)) {
-                return (deferred.promise());
-            }
             options = options || {};
             let noCleanup = options.noCleanup;
             let checkTime = options.checkTime || 1000; // 1s per check
