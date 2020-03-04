@@ -131,8 +131,8 @@ class DagList extends Durable {
     /**
      * DagList.Instance.refresh
      */
-    public refresh(): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+    public refresh(): XDPromise<any> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
         const promise: XDPromise<void> = deferred.promise();
         const $dagList: JQuery = this._geContainer();
         // delete shared dag and optimized list first
@@ -154,9 +154,13 @@ class DagList extends Durable {
         .then(() => {
             return this._fetchXcalarQueries(oldQueryDags, true);
         })
+        .then(() => {
+            return SQLResultSpace.Instance.refreshTables(true);
+        })
         .then(deferred.resolve)
         .fail(deferred.reject)
         .always(() => {
+            ResourceMenu.Instance.render(ResourceMenu.KEY.Table);
             ResourceMenu.Instance.render(ResourceMenu.KEY.DF);
             ResourceMenu.Instance.render(ResourceMenu.KEY.TableFunc);
         });

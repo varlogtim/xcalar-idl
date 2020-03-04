@@ -34,10 +34,12 @@ class SQLTableLister extends AbstractSQLResultView {
         this._getContainer().addClass("xc-hidden");
     }
 
-    public refresh(): void {
+    public refresh(fetch?: boolean):  XDPromise<void> {
         const $container = this._getContainer();
         if (!$container.hasClass("xc-hidden")) {
-            this._listTables(false);
+            return this._listTables(fetch || false);
+        } else {
+            return PromiseHelper.resolve();
         }
     }
 
@@ -324,7 +326,7 @@ class SQLTableLister extends AbstractSQLResultView {
 
         if (!tableOnFocus) {
             // no table
-            $btns.addClass("xc-disabled"); 
+            $btns.addClass("xc-disabled");
             xcTooltip.add($btns.parent(".tooltipWrapper"),
                 { "title": TooltipTStr.SelectToViewSchema});
         } else {

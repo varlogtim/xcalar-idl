@@ -157,8 +157,8 @@ class SQLResultSpace {
         this._sqlDataflowPreview.close();
     }
 
-    public refreshTables(): void {
-        this._tableLister.refresh();
+    public refreshTables(fetch?: boolean): XDPromise<void>  {
+        return this._tableLister.refresh(fetch);
     }
 
     public showSchema(tableInfo: PbTblInfo): void {

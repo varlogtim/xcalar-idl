@@ -133,6 +133,7 @@ namespace xcManager {
         })
         .then(function() {
             try {
+                TblSource.Instance.refresh();
                 // By default show panel
                 MainMenu.openDefaultPanel();
                 if (firstTimeUser) {
