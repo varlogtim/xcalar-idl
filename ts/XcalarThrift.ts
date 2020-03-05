@@ -3547,6 +3547,7 @@ XcalarQueryCheck = function(
                         });
                     }
                 } else if (state === QueryStateT.qrError) {
+                    addThriftErrorLogToQueryOutput(queryStateOutput, true);
                     // clean up query when done
                     XcalarQueryDelete(queryName)
                     .always(function() {
@@ -3565,11 +3566,26 @@ XcalarQueryCheck = function(
         }, checkTime);
     }
 
-    function addThriftErrorLogToQueryOutput(queryStateOutput) {
+    function addThriftErrorLogToQueryOutput(queryStateOutput, errorOnly?: boolean) {
         try {
             queryStateOutput.queryGraph.node.forEach((node) => {
-                if (node.status != null && node.status !== StatusT.StatusOk) {
+                if ((node.status != null && node.status !== StatusT.StatusOk && !errorOnly) || (
+                    errorOnly && node.state === DgDagStateT.DgDagStateError)) {
                     node.thriftError = thriftLog("XcalarQuery Node", node.status);
+                    if (node.state === DgDagStateT.DgDagStateError) {
+                        let operation = XcalarApisTStr[node.api];
+                        if (operation.startsWith("XcalarApi")) {
+                            operation = operation.slice("XcalarApi".length);
+                        }
+                        const input = JSON.stringify(xcHelper.getXcalarInputFromNode(node), null, 4);
+                        let log = `\nOperation: ${operation}\nArgs: ${input}\n`;
+                        if (!node.log) {
+                            log = (node.thriftError.log || node.thriftError.error) + log;
+                        } else {
+                            log = node.log + log;
+                        }
+                        node.log = log;
+                    }
                 }
             });
         } catch (e) {
@@ -3626,7 +3642,10 @@ XcalarQueryWithCheck = function(
                         " (queryName=" + queryName +
                         " queryString=" + queryString + ")");
         }
-        deferred.reject(thriftError, queryStateOutput);
+        deferred.reject({
+            thriftError,
+            queryStateOutput
+        });
     });
 
     return (deferred.promise());

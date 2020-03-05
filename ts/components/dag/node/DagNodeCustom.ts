@@ -694,6 +694,24 @@ class DagNodeCustom extends DagNode {
         }
     }
 
+       /**
+        * @override
+     * attach table to the node
+     * @param tableName the name of the table associated with the node
+     */
+    public setTable(tableName: string, popupEvent: boolean = false) {
+        super.setTable(tableName, popupEvent);
+        // if we're setting tableName to "" or null, then we should
+        // do so for the subGraph nodes as well
+        // TODO: we may want to set the actual table for the last node
+        // of the subGraph
+        if (!tableName) {
+            this.getSubGraph().getAllNodes().forEach((node, nodeId) => {
+                node.setTable(tableName, popupEvent);
+            });
+        }
+    }
+
     /**
      * @override
      */

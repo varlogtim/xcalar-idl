@@ -1238,7 +1238,6 @@ namespace XIApi {
         // step 1, concat all cols into one col
         XIApi.map(txId, [mapStr], curTableName, [concatColName])
         .then((tableAfterMap) => {
-            tempTables.push(curTableName);
             curTableName = tableAfterMap;
             // step 2: index on the concat column
             return XIApi.index(txId, [concatColName], curTableName);
@@ -1246,6 +1245,7 @@ namespace XIApi {
         .then((ret) => {
             const finalTableName = ret.newTableName;
             tempTables.push(curTableName);
+            tempTables.push(finalTableName);
             unionRenameInfo.tableName = finalTableName;
             const type: DfFieldTypeT = xcHelper.convertColTypeToFieldType(
                 ColumnType.string);
@@ -2210,7 +2210,8 @@ namespace XIApi {
                 const indexedTable = ret.newTableName;
                 const indexKeys = ret.newKeys;
                 newKeys = indexKeys;
-                if (clean) {
+                if (clean && indexedTable !== tableName) {
+                    // don't add starting table to tempTables
                     tempTables.push(indexedTable);
                 }
                 // table name may have changed after sort!
@@ -2253,7 +2254,10 @@ namespace XIApi {
             tempCols = tempCols.concat(resTempCols);
 
             if (clean) {
-                // remove intermediate table
+                // remove intermediate table, filter out finalTable from this list
+                tempTables = tempTables.filter(table => {
+                    return table !== finalTable;
+                });
                 const promise: XDPromise<void> = XIApi.deleteTableInBulk(txId, tempTables, true)
                 return PromiseHelper.alwaysResolve(promise);
             }
@@ -2479,37 +2483,48 @@ namespace XIApi {
                 udfSessionName: txLog.udfSessionName
             }, options);
             XcalarQueryWithCheck(queryName, queryStr, txId, options, scopeInfo)
-            .then((res) => {
-                let error: {error: string, log?: string} = null;
-                try {
-                    for (let i = 0; i < res.queryGraph.node.length; i++) {
-                        // XXX TODO: wire in status
-                        const nodeInfo = res.queryGraph.node[i];
-                        const state = nodeInfo.state;
-                        if (state === DgDagStateT.DgDagStateError) {
-                            error = {
-                                error: nodeInfo.thriftError.error || DgDagStateTStr[state],
-                                log: nodeInfo.log
-                            };
-                            break;
-                        }
-                    }
-                } catch (e) {
-                    console.error(e);
-                    // if cannot correctly parse the return structure,
-                    // still resolve it
-                }
-
+            .then((res: XcalarApiQueryStateOutputT) => {
+                let error = _handleQueryFail(res);
                 if (error == null) {
                     deferred.resolve(res);
                 } else {
                     deferred.reject(error);
                 }
             })
-            .fail(deferred.reject);
+            .fail((res: {thriftError: ThriftError, queryStateOutput: XcalarApiQueryStateOutputT}) => {
+                let error = _handleQueryFail(res.queryStateOutput);
+                if (error == null) {
+                    deferred.reject(res.thriftError);
+                } else {
+                    deferred.reject(error);
+                }
+            });
 
             return deferred.promise();
         }
+    }
+
+    function _handleQueryFail(res) {
+        let error: {error: string, log?: string} = null;
+        try {
+            for (let i = 0; i < res.queryGraph.node.length; i++) {
+                // XXX TODO: wire in status
+                const nodeInfo = res.queryGraph.node[i];
+                const state = nodeInfo.state;
+                if (state === DgDagStateT.DgDagStateError) {
+                    error = {
+                        error: nodeInfo.thriftError.error || DgDagStateTStr[state],
+                        log: nodeInfo.log
+                    };
+                    break;
+                }
+            }
+        } catch (e) {
+            console.error(e);
+            // if cannot correctly parse the return structure,
+            // still resolve it
+        }
+        return error;
     }
 
     // add nodeId and nested nodeIds as query tag to track
@@ -2804,6 +2819,8 @@ namespace XIApi {
         tables: string[],
         toIgnoreError: boolean = false
     ): XDPromise<void> {
+        const uniqueTempTables = new Set(tables);
+        tables = [...uniqueTempTables]; // remove duplicates
         const promises: XDPromise<void>[] = tables.map((tableName) => {
             return XIApi.deleteTable(txId, tableName, toIgnoreError);
         });
