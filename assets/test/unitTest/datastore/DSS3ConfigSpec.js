@@ -1,18 +1,15 @@
 describe("DSS3Config Test", function() {
-    let $mainTabCache;
     let $card;
     let $dropdown;
 
     before(function() {
-        $mainTabCache = $(".topMenuBarTab.active");
-        $("#dataStoresTab").click();
         $card = $("#dsForm-s3Config");
         $dropdown = $card.find(".dropDownList.connector");
     });
 
     it("should show the card", function() {
         DSS3Config.Instance.show();
-        assert.isTrue($card.is(":visible"));
+        UnitTest.assertDisplay($card);
     });
 
     it("should click the dropdown to show the list", function() {
@@ -109,10 +106,12 @@ describe("DSS3Config Test", function() {
         DataSourceManager.startImport = oldFunc;
     });
 
+    it("should close", function() {
+        DataSourceManager.startImport(XVM.isSQLMode());
+        UnitTest.assertHidden($card);
+    });
+
     after(function() {
         $dropdown.find("input").val("");
-        DataSourceManager.startImport(XVM.isSQLMode());
-        // go back to previous tab
-        $mainTabCache.click();
     });
 });

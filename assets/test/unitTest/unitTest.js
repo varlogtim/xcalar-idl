@@ -49,7 +49,6 @@ window.UnitTest = (function(UnitTest, $) {
             xcMixpanel.off();
             loginMixpanel.off();
             xcGlobal.setup();
-            gDataMart = false;
             setupTestDatasets();
             mocha.run(function() {
                 // used for puppeteer
@@ -133,10 +132,6 @@ window.UnitTest = (function(UnitTest, $) {
                         removeUserFromKVStore();
                     }
                     console.info("TEST FINISHED");
-                    // if (String(mocha.options.grep) === "/Mocha Setup Test|.*/") {
-                    //     UnitTest.getCoverage();
-                    // }
-
                 } else {
                     if (parseInt($("#mocha-stats").find(".failures em").text()) > 0) {
                         sendResultsToParent();
@@ -147,12 +142,6 @@ window.UnitTest = (function(UnitTest, $) {
                 }
             }, 10000);
         }
-
-        // Uncomment this to add button to increase blanket size.
-
-        // $('#toggleCoverageSize').click(function() {
-        //     $('#blanket-main').toggleClass('large');
-        // });
     };
 
     function getTestResult() {
@@ -491,7 +480,7 @@ window.UnitTest = (function(UnitTest, $) {
         }
     };
 
-    UnitTest.timeoutPromise = function(amtTime) {
+    UnitTest.wait = function(amtTime) {
         var waitTime = amtTime || 1000;
         var deferred = PromiseHelper.deferred();
         setTimeout(function() {
@@ -500,19 +489,12 @@ window.UnitTest = (function(UnitTest, $) {
         return deferred;
     };
 
-    UnitTest.wait = UnitTest.pause = UnitTest.timeoutPromise;
+    UnitTest.assertDisplay = function($el) {
+        expect($el.css("display")).not.to.equal("none");
+    };
 
-    UnitTest.removeOrphanTable = function() {
-        var deferred = PromiseHelper.deferred();
-
-        TblManager.refreshOrphanList()
-        .then(function() {
-            return TblManager.deleteTables(gOrphanTables, TableType.Orphan);
-        })
-        .then(deferred.resolve)
-        .fail(deferred.resolve);
-
-        return deferred.promise();
+    UnitTest.assertHidden = function($el) {
+        expect($el.css("display")).to.equal("none");
     };
 
     UnitTest.getCoverage = function() {

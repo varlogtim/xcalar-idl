@@ -210,16 +210,16 @@ describe("UserSettings Test", function() {
             expect(UserSettings.getPref("hideDataCol")).to.equal(hideDataCol);
         });
 
-        it("should toggle hideSysOps", function() {
-            var hideSysOps = UserSettings.getPref("hideSysOps") || false;
-            var $btn = $("#hideSysOps");
-            // case 1
-            $btn.click();
-            expect(UserSettings.getPref("hideSysOps")).to.equal(!hideSysOps);
-            // case 2
-            $btn.click();
-            expect(UserSettings.getPref("hideSysOps")).to.equal(hideSysOps);
-        });
+        // it("should toggle hideSysOps", function() {
+        //     var hideSysOps = UserSettings.getPref("hideSysOps") || false;
+        //     var $btn = $("#hideSysOps");
+        //     // case 1
+        //     $btn.click();
+        //     expect(UserSettings.getPref("hideSysOps")).to.equal(!hideSysOps);
+        //     // case 2
+        //     $btn.click();
+        //     expect(UserSettings.getPref("hideSysOps")).to.equal(hideSysOps);
+        // });
 
         it("should toggle enableXcalarSupport", function() {
             if (!XVM.isCloud()) {

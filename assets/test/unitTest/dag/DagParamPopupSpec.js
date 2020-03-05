@@ -4,10 +4,6 @@ describe("DagParamPopup Test", function() {
     let $tab;
     before(function(done) {
         UnitTest.onMinMode();
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
-        MainMenu.openPanel("sqlPanel", null);
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             $tab = $("#dagView .optionsMenu .parameters");

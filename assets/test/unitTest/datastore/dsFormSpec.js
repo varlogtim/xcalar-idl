@@ -1,5 +1,4 @@
 describe("Dataset-DSForm Test", function() {
-    var $mainTabCache;
     var $statusBox;
     var $filePath;
     var $pathCard;
@@ -9,8 +8,6 @@ describe("Dataset-DSForm Test", function() {
         $filePath = $("#filePath");
         $pathCard = $("#dsForm-path");
 
-        $mainTabCache = $(".topMenuBarTab.active");
-        $("#dataStoresTab").click();
         // turn off min mode, as it affectes DOM test
         UnitTest.onMinMode();
     });
@@ -18,19 +15,19 @@ describe("Dataset-DSForm Test", function() {
     describe("Basic APi Test", function() {
         it("Should not see form", function() {
             DSForm.hide();
-            assert.isFalse($("#dsFormView").is(":visible"));
+            UnitTest.assertHidden($("#dsFormView"));
         });
 
         it("Should see form", function() {
             DSForm.show();
-            assert.isTrue($("#dsFormView").is(":visible"));
+            UnitTest.assertDisplay($("#dsFormView"));
             expect($("#dsForm-path").hasClass("xc-hidden")).to.be.false;
         });
 
         it("Should trigger show from importDataButton button", function() {
             DSForm.hide();
             $("#importDataButton").click();
-            assert.isTrue($("#dsFormView").is(":visible"));
+            UnitTest.assertDisplay($("#dsFormView"));
         });
 
         it("should reset form when call resetForm()", function() {
@@ -143,13 +140,6 @@ describe("Dataset-DSForm Test", function() {
     });
 
     describe("UI Behavior Test", function() {
-        it("should select default shared root", function() {
-            if (!XVM.isCloud()) {
-                $('#dsForm-targetMenu li:contains(Default Shared Root)').trigger(fakeEvent.mouseup);
-                expect($("#dsForm-target").find(".text").val()).to.equal("Default Shared Root");
-            }
-        });
-
         it("should set the history path dropdown to empty", function() {
             $filePath.trigger(fakeEvent.click);
             expect($filePath.closest(".dropDownList").closest(".list").text()).to.equal("");
@@ -220,8 +210,6 @@ describe("Dataset-DSForm Test", function() {
     });
 
     after(function() {
-        // go back to previous tab
-        $mainTabCache.click();
         UnitTest.offMinMode();
     });
 });

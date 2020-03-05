@@ -289,7 +289,7 @@ describe('DagTabOptimized Test', function() {
                 queryStateCalled = false;
                 tab.unfocus();
                 expect(tab._queryCheckId).to.equal(1);
-                return UnitTest.timeoutPromise(3000);
+                return UnitTest.wait(3000);
             })
             .then(function() {
                 expect(queryStateCalled).to.be.false;
@@ -576,7 +576,7 @@ describe('DagTabOptimized Test', function() {
                 queryStateCalled = false;
                 expect(tab._isDoneExecuting).to.be.true;
                 expect(tab._inProgress).to.be.false;
-                return UnitTest.timeoutPromise(3000);
+                return UnitTest.wait(3000);
             })
             .then(function() {
                 expect(queryStateCalled).to.be.false;

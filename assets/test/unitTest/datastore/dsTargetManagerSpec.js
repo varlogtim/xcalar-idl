@@ -1,19 +1,11 @@
 describe("Datastore-DSTargetManger Test", function() {
-    var $mainTabCache;
     var testTarget;
     var getNumTargets = function() {
         return Number($(".numDSTargets").eq(0).text());
     };
-    var oldIsCloud;
 
     before(function(done) {
-        $mainTabCache = $(".topMenuBarTab.active");
-        $("#dataStoresTab").click();
         UnitTest.onMinMode();
-
-        oldIsCloud = XVM.isCloud;
-        XVM.isCloud = () => false;
-
         DSTargetManager.refreshTargets()
         .always(() => {
             done();
@@ -228,41 +220,28 @@ describe("Datastore-DSTargetManger Test", function() {
             UnitTest.hasStatusBoxWithError(DSTargetTStr.NoReservedName);
         });
 
-        it("should submit and create a target", function(done) {
-            var numTargets = getNumTargets();
-            $("#dsTarget-name").val(testTarget);
-            $("#dsTarget-param-0").val("netstore/");
-            $("#dsTarget-submit").click();
+        // it("should submit and create a target", function(done) {
+        //     var numTargets = getNumTargets();
+        //     $("#dsTarget-name").val(testTarget);
+        //     $("#dsTarget-param-0").val("netstore/");
+        //     $("#dsTarget-submit").click();
 
-            var testFunc = function() {
-                var currentNumTargets = getNumTargets();
-                return (currentNumTargets - numTargets) >= 1;
-            };
+        //     var testFunc = function() {
+        //         var currentNumTargets = getNumTargets();
+        //         return (currentNumTargets - numTargets) >= 1;
+        //     };
 
-            UnitTest.testFinish(testFunc)
-            .then(function() {
-                var $grid = $('#dsTarget-list .grid-unit[data-name="' +
-                              testTarget + '"]');
-                expect($grid.length).to.equal(1);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
-        it("should focus on ds path form when clicking on import", function() {
-            expect($("#dsTarget-import:visible").length).to.equal(1);
-            expect($("#dsForm-target:visible").length).to.equal(0);
-
-            $("#dsTarget-import").click();
-
-            expect($("#dsForm-target:visible").length).to.equal(1);
-            expect($("#dsTarget-import:visible").length).to.equal(0);
-            expect($("#dsForm-target input").val()).to.equal(testTarget);
-
-            MainMenu.openPanel("datastorePanel", "targetButton");
-        });
+        //     UnitTest.testFinish(testFunc)
+        //     .then(function() {
+        //         var $grid = $('#dsTarget-list .grid-unit[data-name="' +
+        //                       testTarget + '"]');
+        //         expect($grid.length).to.equal(1);
+        //         done();
+        //     })
+        //     .fail(function() {
+        //         done("fail");
+        //     });
+        // });
 
         after(function() {
             if (!Admin.isAdmin()) {
@@ -273,54 +252,54 @@ describe("Datastore-DSTargetManger Test", function() {
     });
 
     describe("Target Info Form Test", function() {
-        var $grid;
+        // var $grid;
 
-        before(function() {
-            $grid = $('#dsTarget-list .grid-unit[data-name="' +
-                        testTarget + '"]');
-        });
+        // before(function() {
+        //     $grid = $('#dsTarget-list .grid-unit[data-name="' +
+        //                 testTarget + '"]');
+        // });
 
-        it("should click to refresh targets", function() {
-            var oldFunc = DSTargetManager.refreshTargets;
-            var test = false;
-            DSTargetManager.refreshTargets = function() {
-                test = true;
-            };
-            $("#dsTarget-refresh").click();
-            expect(test).to.be.true;
-            DSTargetManager.refreshTargets = oldFunc;
-        });
+        // it("should click to refresh targets", function() {
+        //     var oldFunc = DSTargetManager.refreshTargets;
+        //     var test = false;
+        //     DSTargetManager.refreshTargets = function() {
+        //         test = true;
+        //     };
+        //     $("#dsTarget-refresh").click();
+        //     expect(test).to.be.true;
+        //     DSTargetManager.refreshTargets = oldFunc;
+        // });
 
-        it("should click to focus target", function() {
-            $grid.click();
-            expect($grid.hasClass("active")).to.be.true;
-            expect($("#dsTarget-info-card").is(":visible")).to.be.true;
-        });
+        // it("should click to focus target", function() {
+        //     $grid.click();
+        //     expect($grid.hasClass("active")).to.be.true;
+        //     expect($("#dsTarget-info-card").is(":visible")).to.be.true;
+        // });
 
-        it("should delete target", function(done) {
-            $("#dsTarget-delete").click();
-            var numTargets = getNumTargets();
+        // it("should delete target", function(done) {
+        //     $("#dsTarget-delete").click();
+        //     var numTargets = getNumTargets();
 
-            UnitTest.hasAlertWithTitle(DSTargetTStr.DEL, {
-                confirm: true
-            });
+        //     UnitTest.hasAlertWithTitle(DSTargetTStr.DEL, {
+        //         confirm: true
+        //     });
 
-            var testFunc = function() {
-                var currentNumTargets = getNumTargets();
-                return (currentNumTargets - numTargets) < 0;
-            };
+        //     var testFunc = function() {
+        //         var currentNumTargets = getNumTargets();
+        //         return (currentNumTargets - numTargets) < 0;
+        //     };
 
-            UnitTest.testFinish(testFunc)
-            .then(function() {
-                var $grid = $('#dsTarget-list .grid-unit[data-name="' +
-                              testTarget + '"]');
-                expect($grid.length).to.equal(0);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
+        //     UnitTest.testFinish(testFunc)
+        //     .then(function() {
+        //         var $grid = $('#dsTarget-list .grid-unit[data-name="' +
+        //                       testTarget + '"]');
+        //         expect($grid.length).to.equal(0);
+        //         done();
+        //     })
+        //     .fail(function() {
+        //         done("fail");
+        //     });
+        // });
 
         describe("Target Grid Menu Test", function() {
             var $wrap;
@@ -342,7 +321,6 @@ describe("Datastore-DSTargetManger Test", function() {
                     "target": $("#dsTarget-list").get(0)
                 });
                 $wrap.trigger(e);
-                assert.isTrue($gridMenu.is(":visible"));
                 expect($gridMenu.hasClass("bgOpts")).to.be.true;
             });
 
@@ -379,26 +357,12 @@ describe("Datastore-DSTargetManger Test", function() {
                     "target": $target.get(0)
                 });
                 $wrap.trigger(e);
-                assert.isTrue($gridMenu.is(":visible"));
                 expect($gridMenu.hasClass("targetOpts")).to.be.true;
-            });
-
-            it("should select target from menu", function() {
-                var e = jQuery.Event("contextmenu", {
-                    "target": $target.get(0)
-                });
-                $wrap.trigger(e);
-                var $li = $gridMenu.find('li[data-action="view"]');
-                $li.trigger(fakeEvent.mouseup);
-                assert.isTrue($("#dsTarget-info-card").is(":visible"));
             });
         });
     });
 
     after(function() {
-        // go back to previous tab
-        $mainTabCache.click();
         UnitTest.offMinMode();
-        XVM.isCloud = oldIsCloud;
     });
 });

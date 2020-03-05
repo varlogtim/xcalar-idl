@@ -59,7 +59,7 @@ class DagPanel {
     private _basicSetup(): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-        DagParamPopup.setup();
+        DagParamPopup.Instance.setup();
         this._updateSetupStatus("Initializing Aggregates");
 
         DagAggManager.Instance.setup()

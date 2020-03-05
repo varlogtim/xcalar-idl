@@ -13,9 +13,6 @@ describe("DagCategoryBar Test", function() {
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             oldPut = XcalarKeyPut;
-            if (XVM.isSQLMode()) {
-                $("#modeArea").click();
-            }
             $categories = $("#dagView .categories").find(".category");
             $operatorBar = $("#dagView .operatorBar");
             XcalarKeyPut = function() {
@@ -45,10 +42,9 @@ describe("DagCategoryBar Test", function() {
     });
 
     it("should update categories", function() {
-        expect($operatorBar.find(".category-in").find(".operator").length).to.equal(3);
-        expect($operatorBar.find(".category-in").find(".operator").eq(0).find(".opTitle").text()).to.equal("Dataset");
-        expect($operatorBar.find(".category-in").find(".operator").eq(1).find(".opTitle").text()).to.equal("SourceTable");
-        expect($operatorBar.find(".category-in").find(".operator").eq(2).find(".opTitle").text()).to.equal("FunctionInput");
+        expect($operatorBar.find(".category-in").find(".operator").length).to.equal(2);
+        expect($operatorBar.find(".category-in").find(".operator").eq(0).find(".opTitle").text()).to.equal("SourceTable");
+        expect($operatorBar.find(".category-in").find(".operator").eq(1).find(".opTitle").text()).to.equal("FunctionInput");
 
         DagCategoryBar.Instance.updateCategories(new DagTabSQLFunc());
 
@@ -58,10 +54,9 @@ describe("DagCategoryBar Test", function() {
 
     it("should switch back to advanced mode", function(){
         DagCategoryBar.Instance.updateCategories(new DagTabUser());
-        expect($operatorBar.find(".category-in").find(".operator").length).to.equal(3);
-        expect($operatorBar.find(".category-in").find(".operator").eq(0).find(".opTitle").text()).to.equal("Dataset");
-        expect($operatorBar.find(".category-in").find(".operator").eq(1).find(".opTitle").text()).to.equal("SourceTable");
-        expect($operatorBar.find(".category-in").find(".operator").eq(2).find(".opTitle").text()).to.equal("FunctionInput");
+        expect($operatorBar.find(".category-in").find(".operator").length).to.equal(2);
+        expect($operatorBar.find(".category-in").find(".operator").eq(0).find(".opTitle").text()).to.equal("SourceTable");
+        expect($operatorBar.find(".category-in").find(".operator").eq(1).find(".opTitle").text()).to.equal("FunctionInput");
 
     });
 
@@ -131,12 +126,9 @@ describe("DagCategoryBar Test", function() {
             expect($("#dagView .searchArea ul").is(":visible")).to.be.false;
             $("#dagView .categoryBar .searchInput").val("d").trigger(fakeEvent.input);
             expect($("#dagView .searchArea ul").is(":visible")).to.be.true;
-            expect($("#dagView .searchArea li").length).to.be.eq(4);
+            expect($("#dagView .searchArea li").length).to.be.eq(3);
             let $lis = $("#dagView .searchArea li");
 
-            expect($lis.filter(function() {
-                return $(this).text().indexOf("Dataset") > -1;
-            }).length).to.be.gt(0);
             expect($lis.filter(function() {
                 return $(this).text().indexOf("Round") > -1;
             }).length).to.be.gt(0);
@@ -172,7 +164,7 @@ describe("DagCategoryBar Test", function() {
             $("#dagView .categoryBar").find(".category-in").trigger(fakeEvent.mousedown);
 
             expect($("#dagView .dataflowArea.active .operator").length).to.equal(0);
-            $("#dagView .operatorBar .operator.dataset .main").trigger(e);
+            $("#dagView .operatorBar .operator.IMDTable .main").trigger(e);
             e = $.Event('mousemove', {pageX: 2, pageY: 1});
             $(document).trigger(e);
             e = $.Event('mousemove', {pageX: 400, pageY: 200});
@@ -181,20 +173,20 @@ describe("DagCategoryBar Test", function() {
             $(document).trigger(e);
 
             expect($("#dagView .dataflowArea.active .operator").length).to.equal(1);
-            expect($("#dagView .dataflowArea.active .operator.dataset").length).to.equal(1);
+            expect($("#dagView .dataflowArea.active .operator.IMDTable").length).to.equal(1);
         });
 
         it("double click should add node", function() {
             var called = false;
             var cache = DagViewManager.Instance.autoAddNode;
             DagViewManager.Instance.autoAddNode = function(type, subType, parentNodeId) {
-                expect(type).to.equal("dataset");
+                expect(type).to.equal(DagNodeType.IMDTable);
                 expect(subType).to.equal(null);
-                expect(parentNodeId).to.equal($("#dagView .dataflowArea.active .operator.dataset").data("nodeid"));
+                expect(parentNodeId).to.equal($("#dagView .dataflowArea.active .operator.IMDTable").data("nodeid"));
                 called = true;
             }
 
-            $("#dagView .operatorBar .operator.dataset .main").dblclick();
+            $("#dagView .operatorBar .operator.IMDTable .main").dblclick();
 
             expect(called).to.be.true;
             DagViewManager.Instance.autoAddNode = cache;

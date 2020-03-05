@@ -29,7 +29,9 @@
     include "partials/container.html"
     include "partials/script.html"
     <script>
-      $(document).ready(TestSuiteSetup.initialize);
+      $(document).ready(() => {
+        TestSuiteSetup.initialize();
+      });
     </script>
   </body>
 </html>

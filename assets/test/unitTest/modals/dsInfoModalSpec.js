@@ -1,4 +1,5 @@
-describe("DSInfoModal Test", function() {
+// this modal is deprecated since the data mart change
+describe.skip("DSInfoModal Test", function() {
     var $modal;
     var oldGetDSUsers;
     var ds;

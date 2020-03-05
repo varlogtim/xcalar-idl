@@ -28,13 +28,16 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         }
     };
 
-    TestSuiteSetup.initialize = function() {
+    TestSuiteSetup.initialize = function(isUnitTest) {
         var deferred = PromiseHelper.deferred();
         // in case of the auto login trigger of short cuts
         xcLocalStorage.removeItem("autoLogin");
         xcLocalStorage.setItem("xcalar-noModeSwitchAlert", "true");
         // keep the test to be non data mart feature
         gDataMart = false;
+        if (isUnitTest) {
+            gDataMart = true;
+        }
         var params = getUrlParameters();
         var runTest = hasUser && parseBooleanParam(params.test);
         var testType = params.type;

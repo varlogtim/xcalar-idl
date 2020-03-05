@@ -1,7 +1,6 @@
 class DagParamManager {
     private static _instance = null;
     private parameters = {};
-    private paramTab: DagParamPopup;
     private sqlNodesParamMap: {[nodeId: string]: Set<string>} = {};
     private sqlNodesMap: {[nodeId: string]: DagNodeSQL} = {};
 
@@ -13,7 +12,6 @@ class DagParamManager {
 
     public setup(): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
-        this.paramTab = new DagParamPopup($("#sqlWorkSpacePanel"), $("#dagView .optionsMenu .parameters"));
         var key = KVStore.getKey("gDagParamKey");
         var kvStore = new KVStore(key, gKVScope.WKBK);
         kvStore.get()
@@ -39,10 +37,6 @@ class DagParamManager {
 
     public getParamMap() {
         return this.parameters;
-    }
-
-    public getParamTab(): DagParamPopup {
-        return this.paramTab;
     }
 
     public updateParamMap(params: {paramName: string}): XDPromise<void> {

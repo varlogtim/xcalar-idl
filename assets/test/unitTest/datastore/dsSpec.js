@@ -1,4 +1,5 @@
-describe("Dataset-DS Test", function() {
+// DS is deprecated after notebook
+describe.skip("Dataset-DS Test", function() {
     var $mainTabCache;
     var $gridView;
     var $dsListFocusTrakcer;

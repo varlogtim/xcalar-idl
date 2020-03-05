@@ -273,7 +273,7 @@ describe.skip("Tooltip Manager Test", function() {
                 expect($("#dsFormView").hasClass("xc-hidden")).to.be.true;
                 var e = jQuery.Event("click.tooltip");
                 $("#inButton").trigger(e);
-                UnitTest.timeoutPromise(1)
+                UnitTest.wait(1)
                 .then(() => {
                     expect($("#dsFormView").hasClass("xc-hidden")).to.be.false;
                     TooltipManager.closeWalkthrough();
@@ -309,7 +309,7 @@ describe.skip("Tooltip Manager Test", function() {
                 expect($("#dsFormView").hasClass("xc-hidden")).to.be.true;
                 var e = jQuery.Event("click.tooltip");
                 $("#sourceTblButton").trigger(e);
-                UnitTest.timeoutPromise(1)
+                UnitTest.wait(1)
                 .then(() => {
                     expect($("#dsFormView").hasClass("xc-hidden")).to.be.false;
                     TooltipManager.closeWalkthrough();

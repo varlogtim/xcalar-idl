@@ -2878,9 +2878,12 @@ namespace DSConfig {
 
         if (!xcStringHelper.isStartWithLetter(name)) {
             // if still starts with number
-            name = "ds" + name;
+            name = "source" + name;
         }
-
+        if (isCreateTableMode()) {
+            // name may have prefix appended
+            name = name.toUpperCase();
+        }
         return isCreateTableMode() ? TblSource.Instance.getUniuqName(name) : DS.getUniqueName(name);
     }
 

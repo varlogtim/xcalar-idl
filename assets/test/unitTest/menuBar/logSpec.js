@@ -1,4 +1,11 @@
 describe("Xcalar Log Test", function() {
+    before(function(done) {
+        UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
+        .always(function() {
+            done();
+        });
+    });
+
     describe("Basic Function Test", function() {
         it("isBackendOperation should work", function() {
             var isBackendOperation = Log.__testOnly__.isBackendOperation;
@@ -219,41 +226,41 @@ describe("Xcalar Log Test", function() {
             });
         });
 
-        it("Should not restore in error case", function(done) {
-            var oldFunc = KVStore.prototype.get;
-            KVStore.prototype.get = function() {
-                return PromiseHelper.reject({"error": "test"});
-            };
+        // it("Should not restore in error case", function(done) {
+        //     var oldFunc = KVStore.prototype.get;
+        //     KVStore.prototype.get = function() {
+        //         return PromiseHelper.reject({"error": "test"});
+        //     };
 
-            Log.restore()
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(error).not.to.be.null;
-                expect(error.error).to.equal("test");
-                done();
-            })
-            .always(function() {
-                KVStore.prototype.get = oldFunc;
-            });
-        });
+        //     Log.restore()
+        //     .then(function() {
+        //         done("fail");
+        //     })
+        //     .fail(function(error) {
+        //         expect(error).not.to.be.null;
+        //         expect(error.error).to.equal("test");
+        //         done();
+        //     })
+        //     .always(function() {
+        //         KVStore.prototype.get = oldFunc;
+        //     });
+        // });
 
-        it("Should restore old log", function(done) {
-            var logs = Log.getLogs();
-            var len = logs.length;
+        // it("Should restore old log", function(done) {
+        //     var logs = Log.getLogs();
+        //     var len = logs.length;
 
-            Log.restore()
-            .then(function() {
-                if (len !== 0) {
-                    expect(logs.length).not.to.equal(len);
-                }
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
+        //     Log.restore()
+        //     .then(function() {
+        //         if (len !== 0) {
+        //             expect(logs.length).not.to.equal(len);
+        //         }
+        //         done();
+        //     })
+        //     .fail(function() {
+        //         done("fail");
+        //     });
+        // });
 
         after(function() {
             XcSupport.restartHeartbeatCheck();
@@ -285,6 +292,7 @@ describe("Xcalar Log Test", function() {
             var oldGetDag = DagViewManager.Instance.getActiveDag;
             var $undo = $("#undo");
             var isDisabled = $undo.hasClass("disabled");
+            var isLocked = $undo.hasClass("locked");
             var called = 0;
 
             Log.undo = function() {
@@ -301,11 +309,15 @@ describe("Xcalar Log Test", function() {
             expect(called).to.equal(0);
             // case 2
             $undo.removeClass("disabled");
+            $undo.removeClass("locked");
             $undo.click();
             expect(called).to.equal(2);
 
             if (isDisabled) {
                 $undo.addClass("disabled");
+            }
+            if (isLocked) {
+                $undo.addClass("locked");
             }
             Log.undo = curUndo;
             DagViewManager.Instance.getActiveDag = oldGetDag;

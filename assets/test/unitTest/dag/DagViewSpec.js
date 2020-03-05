@@ -12,7 +12,6 @@ describe("DagView Test", () => {
     // sharecustomoperator
     // editCustomOperator
 
-
     before(function(done) {
         console.clear();
         console.log("DagView Test");
@@ -310,23 +309,6 @@ describe("DagView Test", () => {
             });
         });
     });
-
-    // describe("drag select", function() {
-    //     it("drag select should select all nodes", function() {
-    //         $dfWrap.find(".operator").removeClass("selected");
-    //         expect($dfWrap.find(".operator.selected").length).to.equal(0);
-    //         let e = $.Event('mousedown', {pageX: 800, pageY: 500, which: 1,
-    //                     target: $dfWrap.find(".dataflowArea.active")});
-    //         $dfWrap.trigger(e);
-    //         e = $.Event('mousemove', {pageX: 0, pageY: 0});
-    //         $(document).trigger(e);
-    //         e = $.Event('mousemove', {pageX: 0, pageY: 0});
-    //         $(document).trigger(e);
-    //         e = $.Event('mouseup', {pageX: 0, pageY: 0});
-    //         $(document).trigger(e);
-    //         expect($dfWrap.find(".operator.selected").length).to.equal(2);
-    //     });
-    // });
 
     describe("node description", function() {
         it("editDescription should work", function() {
@@ -1253,10 +1235,6 @@ describe("DagView Test", () => {
             expect($dfArea.find(".operator").length).to.equal(4);
             expect($dfArea.find(".operator.groupBy").length).to.equal(1);
             node4 = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.groupBy").data("nodeid"));
-            expect(node4.getPosition().x).to.be.gt(100);
-            expect(node4.getPosition().y).to.be.gt(39);
-            expect(node4.getPosition().x).to.be.lt(10000);
-            expect(node4.getPosition().y).to.be.lt(10000);
             expect(node4.getParents().length).to.equal(0);
             expect(node4.getChildren().length).to.equal(0);
             Log.undo()

@@ -213,7 +213,7 @@ describe('JoinOpPanelStep2 Test', () => {
             // Table props
             const tableProps = elemProps.get(JoinOpPanelStep2._templateIds.renameTable);
             expect(tableProps != null).to.be.true;
-            expect(tableProps[0].renameHeader).to.equal(OpPanelTStr.JoinPanelRenameTitleDerived);
+            expect(tableProps[0].renameHeader).to.equal("");
         });
 
     });

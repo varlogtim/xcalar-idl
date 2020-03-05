@@ -34,7 +34,7 @@ describe("Mocha Setup Test", function() {
         params = getUrlParameters();
         if (params.hasOwnProperty("createWorkbook")) {
             TestSuiteSetup.setup();
-            TestSuiteSetup.initialize()
+            TestSuiteSetup.initialize(true)
             .always(function() {
                 expect("pass").to.equal("pass");
                 done();

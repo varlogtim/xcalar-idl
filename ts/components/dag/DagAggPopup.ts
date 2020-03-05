@@ -1,4 +1,4 @@
-// XXX TODO: resuse ParamPopup
+// XXX TODO: resuse with DagParamPopup
 class DagAggPopup {
     protected $panel: JQuery;
     private $retLists: JQuery;

@@ -21,7 +21,8 @@ describe('SplitOpPanel Test', () => {
                 ],
                 icv: false
             }),
-            getTitle: () => "Node 1"
+            getTitle: () => "Node 1",
+            validateParam: () => null
         };
 
         MainMenu.openPanel("sqlPanel");

@@ -823,7 +823,7 @@ describe("WorkbookPanel Test", function() {
 
             UnitTest.testFinish(checkFunc)
             .then(() => {
-                return UnitTest.pause(1000);
+                return UnitTest.wait(1000);
             })
             .then(function() {
                 expect($workbookPanel.is(":visible")).to.be.false;

@@ -163,7 +163,7 @@ describe("Cloud Login Test", () => {
                 loggedIn: true
             };
             cloudLoginFunctions.initialStatusCheck();
-            UnitTest.timeoutPromise(1)
+            UnitTest.wait(1)
             .then(() => {
                 expect(endpointsCalled.map(url => url.endsWith('/status'))).to.include(true);
                 expect(endpointsCalled.map(url => url.endsWith('/billing/get'))).to.include(true);
@@ -181,7 +181,7 @@ describe("Cloud Login Test", () => {
                 loggedIn: false
             };
             cloudLoginFunctions.initialStatusCheck();
-            UnitTest.timeoutPromise(1)
+            UnitTest.wait(1)
             .then(() => {
                 expect(endpointsCalled.map(url => url.endsWith('/status'))).to.include(true);
                 expect(endpointsCalled.map(url => url.endsWith('/billing/get'))).not.to.include(true);
@@ -198,7 +198,7 @@ describe("Cloud Login Test", () => {
             response = {
             };
             cloudLoginFunctions.cookieLogin();
-            UnitTest.timeoutPromise(1)
+            UnitTest.wait(1)
             .then(() => {
                 expect(endpointsCalled.map(url => url.endsWith('/login'))).to.include(true);
                 expect(endpointsCalled.map(url => url.endsWith('/billing/get'))).to.include(true);
@@ -217,7 +217,7 @@ describe("Cloud Login Test", () => {
                 credits: 0,
             };
             cloudLoginFunctions.cookieLogin();
-            UnitTest.timeoutPromise(1)
+            UnitTest.wait(1)
             .then(() => {
                 expect(endpointsCalled.map(url => url.endsWith('/login'))).to.include(true);
                 expect(endpointsCalled.map(url => url.endsWith('/billing/get'))).to.include(true);
@@ -237,7 +237,7 @@ describe("Cloud Login Test", () => {
                 credits: 100,
             };
             cloudLoginFunctions.cookieLogin();
-            UnitTest.timeoutPromise(1)
+            UnitTest.wait(1)
             .then(() => {
                 expect(endpointsCalled.map(url => url.endsWith('/login'))).to.include(true);
                 expect(endpointsCalled.map(url => url.endsWith('/billing/get'))).to.include(true);
@@ -255,7 +255,7 @@ describe("Cloud Login Test", () => {
             response = {
             };
             cloudLoginFunctions.cookieLogout();
-            UnitTest.timeoutPromise(1)
+            UnitTest.wait(1)
             .then(() => {
                 expect(endpointsCalled.map(url => url.endsWith('/logout'))).to.include(true);
                 // doesn't work because checkExpServerIsUp /getTime
@@ -276,7 +276,7 @@ describe("Cloud Login Test", () => {
                 status: ClusterLambdaApiStatusCode.OK,
             };
             cloudLoginFunctions.getCluster();
-            UnitTest.timeoutPromise(1)
+            UnitTest.wait(1)
             .then(() => {
                 expect(endpointsCalled.map(url => url.endsWith('/cluster/get'))).to.include(true);
                 endpointsCalled = [];
@@ -293,7 +293,7 @@ describe("Cloud Login Test", () => {
                 status: ClusterLambdaApiStatusCode.AUTH_ERROR,
             };
             cloudLoginFunctions.getCluster();
-            UnitTest.timeoutPromise(1)
+            UnitTest.wait(1)
             .then(() => {
                 expect(endpointsCalled.map(url => url.endsWith('/logout'))).to.include(true);
                 endpointsCalled = [];
@@ -309,7 +309,7 @@ describe("Cloud Login Test", () => {
             response = {
             };
             cloudLoginFunctions.startCluster();
-            UnitTest.timeoutPromise(1)
+            UnitTest.wait(1)
             .then(() => {
                 expect(endpointsCalled.map(url => url.endsWith('/cluster/start'))).to.include(true);
                 expect(endpointsCalled.map(url => url.endsWith('/cluster/get'))).to.include(true);
@@ -324,7 +324,7 @@ describe("Cloud Login Test", () => {
 
         it("handleExceptions calls logout", (done) => {
             cloudLoginFunctions.handleException({error: 'test'});
-            UnitTest.timeoutPromise(1)
+            UnitTest.wait(1)
             .then(() => {
                 expect(endpointsCalled.map(url => url.endsWith('/logout'))).to.include(true);
                 endpointsCalled = [];

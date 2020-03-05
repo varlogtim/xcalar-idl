@@ -101,24 +101,6 @@ describe('Memory Alert Test', () => {
                 });
         });
 
-        it('should have no table alert', (done) => {
-            const oldFunc = MemoryAlert.Instance.hasNoTables;
-            MemoryAlert.Instance.hasNoTables = () => true;
-
-            setMemUsage(0.7, 1);
-            MemoryAlert.Instance.detectUsage(fakeTopOutput)
-                .then(() => {
-                    expect($memoryAlert.hasClass('tableAlert')).to.be.false;
-                    done();
-                })
-                .fail(() => {
-                    done('fail');
-                })
-                .always(() => {
-                    MemoryAlert.Instance.hasNoTables = oldFunc;
-                });
-        });
-
         it('should have table alert', (done) => {
             const oldFunc = MemoryAlert.Instance.hasNoTables;
             MemoryAlert.Instance.hasNoTables = () => false;
@@ -331,40 +313,10 @@ describe('Memory Alert Test', () => {
                 .click();
             $memoryAlert.removeClass("yellow");
         });
-
-        it("should go to workbook monitor in meomryAlert", () => {
-            const oldFunc = WorkbookPanel.goToMonitor;
-            let test = false;
-            $("#container").addClass("switchingWkbk");
-            WorkbookPanel.goToMonitor = () => { test = true; };
-
-            $("#memoryAlert").click();
-            expect(test).to.be.true;
-
-            // clear up
-            WorkbookPanel.goToMonitor = oldFunc;
-            $("#container").removeClass("switchingWkbk");
-        });
-
-        it("should open meau in nromal meomryAlert", () => {
-            const oldFunc = MainMenu.openPanel;
-            let mainMenu, subMenu;
-
-            MainMenu.openPanel = (arg1, arg2) => {
-                mainMenu = arg1;
-                subMenu = arg2;
-            };
-
-            $memoryAlert.removeClass("yellow red").click();
-            expect(mainMenu).to.equal("monitorPanel");
-            expect(subMenu).to.equal("systemButton");
-
-            // clear up
-            MainMenu.openPanel = oldFunc;
-        });
     });
 
     after(function() {
+        $("#deleteTableModal .close").click();
         UnitTest.offMinMode();
     });
 });

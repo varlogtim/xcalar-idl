@@ -1,4 +1,5 @@
-describe("JupyterUDFModal Test", function() {
+// XXX this modal is deprecated since notebook change
+describe.skip("JupyterUDFModal Test", function() {
     var $modal;
     var tableId;
     var tableName;

@@ -1,13 +1,4 @@
 describe("Ephemeral Constructor Test", function() {
-    function timeoutPromise(timeTmp) {
-        var time = timeTmp || 200;
-        var deferred = PromiseHelper.deferred();
-        setTimeout(function() {
-            deferred.resolve();
-        }, time);
-        return deferred;
-    }
-
     before(function() {
         UnitTest.onMinMode();
     });
@@ -661,7 +652,7 @@ describe("Ephemeral Constructor Test", function() {
 
         it("ModalHelper setup should work", function(done) {
             modalHelper.setup();
-            timeoutPromise()
+            UnitTest.wait(200)
             .then(function() {
                 expect($fakeModal.is(":visible")).to.be.true;
                 done();
@@ -681,16 +672,16 @@ describe("Ephemeral Constructor Test", function() {
             modalHelper.setup();
             expect($fakeModal.is(":visible")).to.be.true;
             modalHelper.toggleBG("all", false);
-            timeoutPromise()
+            UnitTest.wait(200)
             .then(function() {
                 expect($modalBackground.hasClass("light")).to.be.true;
                 modalHelper.toggleBG("all", true);
-                return timeoutPromise(500);
+                return UnitTest.wait(500);
             })
             .then(function() {
                 expect($modalBackground.hasClass("light")).to.be.false;
                 modalHelper.toggleBG("all", false);
-                return timeoutPromise();
+                return UnitTest.wait(200);
             })
             .then(function() {
                 expect($modalBackground.hasClass("light")).to.be.true;
@@ -1075,88 +1066,6 @@ describe("Ephemeral Constructor Test", function() {
         });
 
     });
-
-    // describe("Menuhelper Constructor Test", function() {
-    //     // ONLY test here is piggyback onto colMenu to test scrolling features.
-    //     var $dragArea;
-    //     var tableName;
-    //     var testDs;
-
-    //     before(function(done) {
-    //         UnitTest.onMinMode();
-    //         var repStr = "";
-    //         for (i = 0; i < 100; i++) {
-    //             repStr += "<li>RandElt" + String(i) + "</li>";
-    //         }
-    //         $("#colMenu ul").append($(repStr));
-    //         var testDSObj = testDatasets.fakeYelp;
-    //         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-    //         .then(function(ds, tName, tPrefix) {
-    //             testDs = ds;
-    //             tableName = tName;
-    //             var prefix = tPrefix;
-    //             var tableId = xcHelper.getTableId(tableName);
-    //             var $table = $("#xcTable-" + tableId);
-    //             var table = gTables[tableId];
-    //             $colMenu = $("#colMenu");
-    //             var yelpColNum = table.getColNumByBackName(prefix +
-    //                                                   gPrefixSign +
-    //                                                   "yelping_since");
-    //             $dragArea = $table.find("th.col" + String(yelpColNum) +
-    //                                             " .dragArea");
-    //             done();
-    //         })
-    //         .fail(done);
-    //     });
-
-    //     it("Menu scrolling should work", function(done) {
-    //         $dragArea.contextmenu();
-    //         $("#colMenu").css("max-height", 100);
-    //         $("#colMenu ul").css("max-height", 100);
-    //         $("#colMenu .scrollArea").show();
-    //         var oldY = $("#colMenu li").last().position().top;
-    //         var newY;
-    //         $("#colMenu .scrollArea.bottom").mouseenter();
-
-    //         UnitTest.testFinish(function() {
-    //             return $("#colMenu li").last().position().top < oldY;
-    //         })
-    //         .then(function() {
-    //             $("#colMenu .scrollArea.bottom").mouseleave();
-    //             newY = $("#colMenu li").last().position().top;
-    //             expect(newY).to.be.below(oldY);
-    //             oldY = newY;
-    //             return timeoutPromise(100);
-    //         })
-    //         .then(function() {
-    //             newY = $("#colMenu li").last().position().top;
-    //             expect(oldY).to.equal(newY);
-
-    //             $("#colMenu .scrollArea.top").mouseenter();
-
-    //             return UnitTest.testFinish(function() {
-    //                 return $("#colMenu li").last().position().top > oldY;
-    //             });
-    //         })
-    //         .then(function() {
-    //             newY = $("#colMenu li").last().position().top;
-    //             expect(oldY).to.be.below(newY);
-    //             done();
-    //         });
-    //     });
-
-    //     after(function(done) {
-    //         $("#colMenu li").filter(function(idx, elt) {
-    //             return $(elt).text().startsWith("RandElt");
-    //         }).remove();
-    //         $("#colMenu").hide();
-    //         UnitTest.deleteAll(tableName, testDs)
-    //         .always(function(){
-    //             UnitTest.offMinMode();
-    //             done();
-    //         });
-    //     });
-    // });
 
     describe("InputSuggest Constructor Test", function() {
         var $container;

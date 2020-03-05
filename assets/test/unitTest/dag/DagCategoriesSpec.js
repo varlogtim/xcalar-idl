@@ -2,9 +2,6 @@ describe("DagCategories Test", function() {
     let dagCategories;
     before(function() {
         console.log("DagCategories Test");
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
         dagCategories = new DagCategories();
     });
 
@@ -26,17 +23,17 @@ describe("DagCategories Test", function() {
             expect(categories[8].type).to.equal(DagCategoryType.Custom);
             expect(categories[9].type).to.equal(DagCategoryType.Hidden);
 
-            expect(categories[0].operators.length).to.equal(3);
-            expect(categories[0].operators[0].node instanceof DagNodeDataset).to.be.true;
-            expect(categories[0].operators[1].node instanceof DagNodeIMDTable).to.be.true;
-            expect(categories[0].operators[2].node instanceof DagNodeDFIn).to.be.true;
+            expect(categories[0].operators.length).to.equal(2);
+            // in data mart DagNodeDataset is removed
+            expect(categories[0].operators[0].node instanceof DagNodeIMDTable).to.be.true;
+            expect(categories[0].operators[1].node instanceof DagNodeDFIn).to.be.true;
 
 
-            expect(categories[1].operators.length).to.equal(4);
+            expect(categories[1].operators.length).to.equal(3);
+            // in data mart DagNodeJupyter is removed
             expect(categories[1].operators[0].node instanceof DagNodeExport).to.be.true;
             expect(categories[1].operators[1].node instanceof DagNodeDFOut).to.be.true;
-            expect(categories[1].operators[2].node instanceof DagNodeJupyter).to.be.true;
-            expect(categories[1].operators[3].node instanceof DagNodePublishIMD).to.be.true;
+            expect(categories[1].operators[2].node instanceof DagNodePublishIMD).to.be.true;
 
             expect(categories[2].operators.length).to.equal(3);
             expect(categories[2].operators[0].node instanceof DagNodeSQL).to.be.true;
@@ -81,13 +78,17 @@ describe("DagCategories Test", function() {
             expect(categories[8].operators[1].node instanceof DagNodeCustomInput).to.be.true;
             expect(categories[8].operators[2].node instanceof DagNodeCustomOutput).to.be.true;
 
-            expect(categories[9].operators.length).to.equal(7);
+            // hidden categiries
+            expect(categories[9].operators.length).to.equal(9);
             expect(categories[9].operators[0].node instanceof DagNodeIndex).to.be.true;
             expect(categories[9].operators[1].node instanceof DagNodeSynthesize).to.be.true;
             expect(categories[9].operators[2].node instanceof DagNodePlaceholder).to.be.true;
             expect(categories[9].operators[3].node instanceof DagNodeInstruction).to.be.true;
             expect(categories[9].operators[4].node instanceof DagNodeDFOut).to.be.true;
             expect(categories[9].operators[5].node instanceof DagNodeExport).to.be.true;
+            expect(categories[9].operators[6].node instanceof DagNodeModule).to.be.true;
+            expect(categories[9].operators[7].node instanceof DagNodeDataset).to.be.true;
+            expect(categories[9].operators[8].node instanceof DagNodeJupyter).to.be.true;
         });
 
         it("update for sqlFunc should work", function() {

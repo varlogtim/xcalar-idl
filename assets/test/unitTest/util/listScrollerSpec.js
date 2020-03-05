@@ -1,16 +1,4 @@
 describe.skip("ListScroller Test", function() {
-    var $list;
-    var listScroller;
-
-    function timeoutPromise(timeTmp) {
-        var time = timeTmp || 200;
-        var deferred = PromiseHelper.deferred();
-        setTimeout(function() {
-            deferred.resolve();
-        }, time);
-        return deferred;
-    }
-
     before(function(done) {
         //Piggybacks onto dagTabManager to test horizontal scrolling
         UnitTest.onMinMode();
@@ -21,8 +9,7 @@ describe.skip("ListScroller Test", function() {
         }
         var dagTabManager = DagTabManager.Instance;
         dagTabManager.setup();
-        //dagTabManager.reset();
-        return timeoutPromise(100)
+        return UnitTest.wait(100)
         .then(() => {
             $("#dagTabSectionTabs ul").append(repStr);
             done();
@@ -44,7 +31,7 @@ describe.skip("ListScroller Test", function() {
             newX = $("#dagTabSectionTabs li").last().position().left;
             expect(newX).to.be.below(oldX);
             oldX = newX;
-            return timeoutPromise(100);
+            return UnitTest.wait(100);
         })
         .then(function() {
             newY = $("#dagTabSectionTabs li").last().position().left;

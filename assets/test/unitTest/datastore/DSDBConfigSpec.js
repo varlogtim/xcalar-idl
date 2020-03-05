@@ -1,18 +1,15 @@
 describe("DSDBConfig Test", function() {
-    let $mainTabCache;
     let $card;
     let $dropdown;
 
     before(function() {
-        $mainTabCache = $(".topMenuBarTab.active");
-        $("#dataStoresTab").click();
         $card = $("#dsForm-dbConfig");
         $dropdown = $card.find(".dropDownList.connector");
     });
 
     it("should show the card", function() {
         DSDBConfig.Instance.show();
-        assert.isTrue($card.is(":visible"));
+        UnitTest.assertDisplay($card);
     });
 
     it("should click the dropdown to show the list", function() {
@@ -87,10 +84,12 @@ describe("DSDBConfig Test", function() {
         DataSourceManager.startImport = oldFunc;
     });
 
+    it("should close", function() {
+        DataSourceManager.startImport(XVM.isSQLMode());
+        UnitTest.assertHidden($card);
+    });
+
     after(function() {
         $dropdown.find("input").val("");
-        DataSourceManager.startImport(XVM.isSQLMode());
-        // go back to previous tab
-        $mainTabCache.click();
     });
 });
