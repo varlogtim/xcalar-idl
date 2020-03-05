@@ -334,7 +334,7 @@ module.exports = {
         "RawDSSkipRows": "Skip the first specified number of rows in each file.",
         "RawDSExcelIndex": "Index of the worksheet in the Excel workbook. Indexing starts at 0 (first worksheet).",
         "RawDSUDFModule": "Select an existing import scalar function module or 'WRITE PARSER USING JUPYTER' to create a module.",
-        "RawDSUDFFunction": "Select import function from import module to apply to the dataset. Click 'Apply UDF' button to apply the import function to the dataset.",
+        "RawDSUDFFunction": "Select import function from import module to apply to the dataset. Click the 'Apply UDF' button to apply the import function to the dataset.",
         "RawDSXMLXPathName": "Name of column created from the XPath. Leave empty for default name.",
         "RawDSXMLXPath": "XPath that will become a record. For information about XPath, search for XML in online help.",
         "RawDSXMLExtraKeyValue": "The XPath relative to the element.",
@@ -352,7 +352,7 @@ module.exports = {
         "RawDSAdvTermStopAll": "Stop importing data as soon as the first error is encountered.",
         "RawDSAdvTermAllow": "Stop processing records within a file only when parser completes or cannot continue, and continue to the next file. Report all errors.",
         "RawDSAdvTermStopFile": "Stop importing data as soon as the first file level error is encountered. Record level errors are logged.",
-        "RawDSAdvTermStopRecord": "Stop importing data from current file when first error is encountered, and continue to the next file. Report encountered errors.",
+        "RawDSAdvTermStopRecord": "Stop importing data from the current file when the first error is encountered, and continue to the next file. Report encountered errors.",
         "RawDSJsonJmespath": "JSON query string. For information about JMESPath, search JMESPath online.",
         "RawDSPreviewRefresh": "Click to refresh the preview",
         "RawDSTableSchema": "Schema for the table being created",
@@ -652,7 +652,7 @@ module.exports = {
         "Target": "Connector",
         "Targets": "Connectors",
         "Retry": "Retry",
-        "RetryPoint": "Please try to import data with different configuration.",
+        "RetryPoint": "Please try to import data with a different configuration.",
         "TableInstr": "Dataset has been created. Click on the \"Create Module\" button below or the \"Application Builder\" button in the sidebar to start using it.",
         "DSInfo": "Dataset Information",
         "UsedBy": "Used By",
@@ -815,7 +815,7 @@ module.exports = {
 
     "aggModal": {
         "CorrAggTitle": "Correlation and Quick Aggregates",
-        "CorrAggInstr": "Viewing correlation coefficients for every pair of numerical columns. To view common aggregate functions for all numerical columns, please click on the vertical tab.",
+        "CorrAggInstr": "Viewing correlation coefficients for every pair of numeric columns. To view common aggregate functions for all numeric columns, please click on the vertical tab.",
         "CorrTitle": "Correlation",
         "header": "Quick Aggregates",
         "Progress": "Progress",
@@ -1019,12 +1019,12 @@ module.exports = {
         "DFName": "Module Name",
         "OutName": "Function Output Reference Name",
         "Schema": "Column Schema",
-        "OutHelp": "If this check box is checked, the Function Input operator that references this output triggers the execution of this opetator. Otherwise, the Function Input operator uses the existing table of this output."
+        "OutHelp": "If this checkbox is checked, the Function Input operator that references this output triggers the execution of this operator. Otherwise, the Function Input operator uses the existing table of this output."
     },
 
     "SQLFunc": {
         "Title": "Table Function",
-        "SwitchToUse": "Switch to developer mode to create table ceator function",
+        "SwitchToUse": "Switch to developer mode to create table creator function",
         "Input": "Input Table",
         "Output": "Output Table",
         "InputInstr": "Select an available table as test source, and choose the input schema for the function.",
@@ -1065,7 +1065,7 @@ module.exports = {
 
     "SynthesizeOp": {
         "title": "Synthesize",
-        "instr": "Please provide column information about columns to synthesize. Each column should inlcude source column name, dest column name, and dest column type."
+        "instr": "Please provide column information about columns to synthesize. Each column should include source column name, dest column name, and dest column type."
     },
 
     "jsonModal": {
@@ -1088,9 +1088,9 @@ module.exports = {
 
     "opsView": {
         "mapInstr": "Select a category e.g. Arithmetic Functions. Then select a function, e.g. add. Finally, enter any arguments if applicable. Column names must be prefixed by a $ sign, e.g. $column1.",
-        "filterInstr": "Select a function, e.g. isBoolean. Then, enter in any arguments if applicable. To add additional conditions, select \"Additional Conditions.\" Column names should be prefixed by a $ sign, e.g. $column1.",
+        "filterInstr": "Select a function, e.g. isBoolean. Then, enter any arguments if applicable. To add additional conditions, select \"Additional Conditions.\" Column names should be prefixed by a $ sign, e.g. $column1.",
         "groupbyInstr": "Summarizes table based on a formula. Add one or more columns to summarize. Then, select a function and enter arguments to create the summary formula. Column names should be prefixed by a $ sign, e.g. $column1.",
-        "aggInstr": "Select a function, e.g. sum. Then, enter in any arguments if applicable. Column names should be prefixed by a $ sign, e.g. $column1. Optional resultant aggregate names should be prefixed by a ^ sign.",
+        "aggInstr": "Select a function, e.g. sum. Then, enter any arguments if applicable. Column names should be prefixed by a $ sign, e.g. $column1. Optional resultant aggregate names should be prefixed by a ^ sign.",
         "DescripFunc": "Description of Function",
         "ArgList": "Argument List",
         "EmptyHint": "Select to allow empty field",
@@ -1358,7 +1358,7 @@ module.exports = {
         "restoreAllSource": "Restore All Sources",
         "generateResult": "Generate Table",
         "viewResult": "View Table",
-        "viewUDFErrors": "View customed function errors",
+        "viewUDFErrors": "View custom function errors",
         "autoAlign": "Auto Align",
         "copy": "Copy",
         "cut": "Cut",

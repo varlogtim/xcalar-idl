@@ -203,8 +203,8 @@ describe("AggModal Test", function() {
                 .to.equal(aggColLen);
                 assert.isTrue($quickAgg.is(":visible"));
                 expect($aggModal.find(".modalInstruction .text").text()).to
-                    .equal("Viewing aggregate functions on all numerical columns." +
-                        " To view correlation coefficients for every pair of numerical columns, please click on the vertical tab.");
+                    .equal("Viewing aggregate functions on all numeric columns." +
+                        " To view correlation coefficients for every pair of numeric columns, please click on the vertical tab.");
                 done();
             })
             .fail(function() {
@@ -243,8 +243,8 @@ describe("AggModal Test", function() {
                 .to.equal(aggColLen);
                 assert.isTrue($corr.is(":visible"));
                 expect($aggModal.find(".modalInstruction .text").text()).to
-                    .equal("Viewing correlation coefficients for every pair of numerical columns. " +
-                        "To view common aggregate functions on all numerical columns, please click on the vertical tab.");
+                    .equal("Viewing correlation coefficients for every pair of numeric columns. " +
+                        "To view common aggregate functions on all numeric columns, please click on the vertical tab.");
                 done();
             })
             .fail(function() {

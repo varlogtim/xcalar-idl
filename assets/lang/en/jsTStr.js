@@ -338,7 +338,7 @@ ErrTStr = {
     "RestoreDSNoLoadArgs": "No load args in the configuration, cannot restore dataset.",
     "ParseSchema": "Invalid text to parse as schema",
     'CannotCancel': "Cannot cancel the operation",
-    'NoBucketAccess': "You don't have access to the s3 bucket, please check your access permission or confiugre to use a valid bucket.",
+    'NoBucketAccess': "You don't have access to the s3 bucket, please check your access permission or configure to use a valid bucket.",
     // With replace
     'WorkbookExists': 'A project named <workbookName> already exists. Please' +
                       ' choose another name.',
@@ -377,7 +377,7 @@ ErrWRepTStr = {
     'IntInRange': 'Please input an integer between <lowerBound> and <upperBound>',
     'ResultSetNotDeleted': 'Table <name> was not deleted.',
     'ConstNotDeleted': 'Aggregate <name> was not deleted.',
-    'AggConflict': 'Aggregate <aggPrefix>"' + '<name>" already exists. ' +
+    'AggConflict': 'Aggregate "<aggPrefix><name>" already exists. ' +
                     'Please choose another name.',
     'OutputNotFound': '<name> Not Found',
     'OutputNotExists': '<name> no longer exists.',
@@ -411,7 +411,7 @@ SQLErrTStr = {
     "YMDIllegal": "YMDExpressions's grand child is either ts or cast. Instead it is: ",
     "IgnoreOneChild": "Ignored operators should only have 1 child. Instead it has: ",
     "ProjectOneChild": "Project operator should only have 1 child. Instead it has: ",
-    "ProjectAggAgg": "Project should not have agg inside an agg. Agg arry: ",
+    "ProjectAggAgg": "Project should not have agg inside an agg. Agg array: ",
     "GLChild": "GlobalLimit should have only 1 child. Instead it has: ",
     "GLLength": "GlobalLimit's limit expression should be of length 1. Instead it is: ",
     "GLDataType": "GlobalLimit's limitExpressoin datatype should be integer. Instead it is: ",
@@ -457,7 +457,7 @@ SQLErrTStr = {
     "GroupByNoReplacement": "Aggregate variable names are not replaced correctly in group by",
     "GrouyByFailure": "Group by failed",
     "JoinTwoChildren": "Join should only have 2 children. Instead it has: ",
-    "JoinAndTreeTwoChildren": "Join andTree should only have 2 chilren. Instead it has: ",
+    "JoinAndTreeTwoChildren": "Join andTree should only have 2 children. Instead it has: ",
     "NoLeftTblForJoin": "Missing left table for join",
     "NoRightTblForJoin": "Missing right table for join",
     "UnsupportedJoin": "Unsupported join type: ",
@@ -498,7 +498,7 @@ SQLErrTStr = {
     "FailedToRepublish": "Failed to republish schemas.",
     "InvalidOuterType": "Invalid outer join type: ",
     "InvalidSourceId": "Identifier key must be an integer and can't be greater than the number of its parents: ",
-    "InvalidParams": "Invalid input. Please doulbe check.",
+    "InvalidParams": "Invalid input. Please double check.",
     "InvalidIdentifier": "Invalid table identifier (only [a-zA-Z0-9_] are allowed)",
     "InvalidIdentifierMapping": "Table source and identifiers should be one-to-one mapping with no duplicate",
     "SourceUsed": "The source is already used for table identifier: ",
@@ -700,17 +700,17 @@ AggTStr = {
     'somePairs': 'pairs of selected',
     'all': 'all',
     'CorrInstr': 'Viewing correlation coefficients for <which> ' +
-                 'numerical columns. To view common aggregate functions ' +
-                 'on <which2> numerical columns, please click on the vertical '+
+                 'numeric columns. To view common aggregate functions ' +
+                 'on <which2> numeric columns, please click on the vertical '+
                  'tab.',
-    'AggTopInstr': 'Viewing aggregate functions on <which> numerical ' +
+    'AggTopInstr': 'Viewing aggregate functions on <which> numeric ' +
                  'columns. To view correlation coefficients for <which2> ' +
-                 'numerical columns, please click on the vertical '+
+                 'numeric columns, please click on the vertical '+
                  'tab.',
     'NoSupport': 'Not Supported',
     'DivByZeroExplain': 'Only one distinct value',
-    'NoCorr': 'No numerical columns to calculate correlations',
-    'NoAgg': 'No numerical columns to calculate quick aggregates',
+    'NoCorr': 'No numeric columns to calculate correlations',
+    'NoAgg': 'No numeric columns to calculate quick aggregates',
 
     // with replace
     'AggTitle': 'Aggregate: <op>',
@@ -878,7 +878,7 @@ WKBKTStr = {
     'DF': 'Modules',
     'State': 'State',
     'SessionId': "Session ID",
-    "CopySessionId": "Copy Session ID to clipborad",
+    "CopySessionId": "Copy Session ID to clipboard",
     'Creating': 'Creating Project',
     'Updating': "Updating Project",
     'SwitchErr': 'Switch Project Error',
@@ -889,7 +889,7 @@ WKBKTStr = {
     'DeactivateErr': 'Error occurred when deactivating project',
     'Refreshing': 'Refreshing in <time> seconds',
     'MoreActions': 'More Actions',
-    'SwitchWarn': 'The operation \"<op>\" is in progress in the current project, do you still want to continue switch to another project?'
+    'SwitchWarn': 'The operation \"<op>\" is in progress in the current project, do you still want to switch to another project?'
 };
 
 ModeTStr = {
@@ -1038,11 +1038,11 @@ DFTStr = {
     'NoFields': 'No fields present',
     'ParamModalFail': 'Parameter Creation Failed',
     'RunDone': 'Run Complete',
-    'Cancel': "Datafow execution is canceled",
+    'Cancel': "Dataflow execution is canceled",
     'Scheduled': 'Scheduled',
     'UpdateParamFail': 'Update Parameters Failed',
     'UploadErr': 'Upload Module Error',
-    'UpoladErrInstr': 'The module is succseefully uploaded, but some errors occurred when uploading the scalar functions in the module',
+    'UpoladErrInstr': 'The module is successfully uploaded, but some errors occurred when uploading the scalar functions in the module',
     'NewParam': 'New Parameter',
     'EnterNewParam': 'Enter New Parameter Here',
     "NewComment": "Add a comment",
@@ -1106,7 +1106,7 @@ DFNodeLineageTStr = {
     "NoSQLNode": "Cannot find source operator in sql",
     "MultipleNode": "More than 1 source operator was found",
     "NodeTooltip": "Click to focus on operator",
-    "DFTooltip": "Click to swtich to the moduel",
+    "DFTooltip": "Click to switch to the module",
 };
 
 DSTStr = {
@@ -1117,7 +1117,7 @@ DSTStr = {
     'TARGET': 'CONNECTORS',
     'Export': 'EXPORT FORM',
     'DeactivateDS': 'Permanently Delete Dataset(s)',
-    'DeactivateDSMsg': 'Are you sure you want to permananently delete the selected dataset(s)?',
+    'DeactivateDSMsg': 'Are you sure you want to permanently delete the selected dataset(s)?',
     'ActivateDS': 'Recreate Dataset(s)',
     'ActivateDSMsg': 'Are you sure you want to recreate the selected dataset(s)?',
     'DFActivateDSMsg': 'Recreating a dataset may take a long time. Are you sure you want to recreate it?',
@@ -1131,7 +1131,7 @@ DSTStr = {
     'NoParse': 'Cannot parse the data source.',
     'NoRecords': 'No records in data source.',
     'NoColumns': 'No Columns Selected',
-    'NoRecrodsHint': 'Please check the validation of path, pattern, and saclar function, and try again.',
+    'NoRecrodsHint': 'Please check the validation of path, pattern, and scalar function, and try again.',
     'CancelPoint': 'Cancel import data source',
     'DSSourceHint': 'Please try another path or use another connector.',
     'FileOversize': 'Too many files in the folder, cannot read, please import with the url directly',
@@ -1239,7 +1239,7 @@ DSFormTStr = {
     'ResucriveErr': 'No data source files in directory <path>. Please import with \"recursive\" option to include files in subdirectories.',
     'TooManyPreview': 'You are importing <num> datasets. This will take a while. Do you want to proceed?',
     'ReplaceSQLTitle': 'Switching the preview',
-    'ReplaceSQLMessage': 'Switching the preivew will replace the current SQL statement with:<br/><sql><br/>Are you sure you want to continue?',
+    'ReplaceSQLMessage': 'Switching the preview will replace the current SQL statement with:<br/><sql><br/>Are you sure you want to continue?',
     'SlowTargetPreview': 'You are importing datasets from connector \"<target>\". This will take a while. Do you want to proceed?'
 };
 
@@ -1329,11 +1329,11 @@ ResultSetTStr = {
 
 ColTStr = {
     'SplitColWarn': 'Many Columns will generate',
-    'RenameSpecialChar': 'Invalid name. Ensure name contains only alphanumeric, -, _ and space. It must start with a letter.',
-    "PrefixInValid": 'Invalid name. Ensure name contains only alphanumeric, -, and _.',
-    'ColNameInvalidChar': 'Invalid column name. Ensure name does not contain the ' +
+    'RenameSpecialChar': 'Invalid name. Ensure the name contains only alphanumeric, -, _ and space. It must start with a letter.',
+    "PrefixInValid": 'Invalid name. Ensure the name contains only alphanumeric, -, and _.',
+    'ColNameInvalidChar': 'Invalid column name. Ensure the name does not contain the ' +
                           'following characters: ^.\',":()[]{}\\',
-    'ColNameInvalidCharSpace': 'Invalid column name. Ensure name does not contain the ' +
+    'ColNameInvalidCharSpace': 'Invalid column name. Ensure the name does not contain the ' +
                           'following characters: ^.\',":()[]{}\\ or space',
     'RenameStartInvalid': 'Invalid name: a name can only begin with a letter or underscore(_).',
     'ImmediateClash': 'Invalid name: this name already exists in at least one ' +
@@ -1496,7 +1496,7 @@ SQLTStr = {
     "PasteOperations": "Paste Operations",
     "MoveOperations": "Move Operations",
     "DeleteHistory": "Delete SQL History",
-    "DeleteHistoryMsg": "Are you sure you want to delet the selected SQL history?",
+    "DeleteHistoryMsg": "Are you sure you want to delete the selected SQL history?",
     "queryHistStatusRun": "Running",
     "queryHistStatusDone": "Done",
     "queryHistStatusFail": "Failed",
@@ -1527,7 +1527,7 @@ SQLTStr = {
     "NewTab": "Add a new module tab",
     "DupTab": "Duplicate a module tab",
     "Func": "Table Functions",
-    "FuncInstr": "Table function can be used as part of the SQL query, the function can take one or more inputs tables and output a table. You can build any transformation & business logic between the inputs and output",
+    "FuncInstr": "Table function can be used as part of the SQL query, the function can take one or more input tables and output a table. You can build any transformation & business logic between the inputs and output",
     "DupFuncName": "Table function name already in use",
     "CreateFunc": "Create new table function",
     "CreateUDF": "Create new scalar function",
@@ -1535,14 +1535,14 @@ SQLTStr = {
     "DeleteSnippet": "Delete Query",
     "DeleteSnippetMsg": "Are you sure you want to delete query \"<name>\"?",
     "Execute": "Execute SQL",
-    "InExecute": "There are already some SQLs in exeuction, please cancel the SQLs in execution or wait until execution finishes.",
+    "InExecute": "There are already some SQLs in execution, please cancel the SQLs in execution or wait until execution finishes.",
     "DupColName": "Column name \"<col>\" is duplicated",
     "DupColNameCaseInsensitive": "Table function's output column name is case insensitive. Column \"<col1>\" duplicate with column \"<col2>\"",
     "UnsavedSQL": "You have unsaved SQL work. Are you sure you want to leave?",
     "NoUntitledSnippet": "Name cannot be \"Untitled \"",
     "NoDupSnippetName": "Query with name the same name already exists, please use Save As to overwrite it.",
     "PreviewError": "The corresponding plan for sql cannot be previewed",
-    "ExpandSQL": "Expanding SQL will delete the SQL operator while inspecting will not. Do you want to conitnue?",
+    "ExpandSQL": "Expanding SQL will delete the SQL operator while inspecting will not. Do you want to continue?",
     "open": "Open",
     "download": "Download",
     "toDelete": "Delete",
@@ -1602,7 +1602,7 @@ UploadTStr = {
 
 IMDTStr = {
     "Title": "Published Tables",
-    "DelTable": "Permananently Delete Tables",
+    "DelTable": "Permanently Delete Tables",
     "DelTableFail": "Permanent Deletion of Table Failed",
     "DelTableFailMsg": "You can click on the Force Delete button to forcibly delete these but it will make any dependent tables unusable.",
     "DataUnavailable":  "Only showing last 128 updates.",
