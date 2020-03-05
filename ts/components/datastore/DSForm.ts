@@ -40,6 +40,7 @@ namespace DSForm {
             $pathCard.find(".cardBottom .back").addClass("xc-hidden");
             // on prem don't reset form
         }
+        setPrivateS3Bucket();
     }
 
     /**
@@ -296,6 +297,17 @@ namespace DSForm {
         DSForm.show();
         setDataTarget(targetName);
         $filePath.val(path);
+    }
+
+    function setPrivateS3Bucket(): void {
+        const s3Bucket = DSTargetManager.getAvailableS3Bucket();
+        if (!s3Bucket) {
+            return;
+        }
+        const targetName = DSTargetManager.getPrivateS3Connector();
+        historyPathsSet[targetName] = historyPathsSet[targetName] || [];
+        historyPathsSet[targetName] = historyPathsSet[targetName].filter((path) => path !== s3Bucket);
+        historyPathsSet[targetName].unshift(s3Bucket);
     }
 
     /* Unit Test Only */

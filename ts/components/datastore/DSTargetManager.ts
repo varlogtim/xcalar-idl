@@ -14,6 +14,7 @@ namespace DSTargetManager {
     let udfFuncHint: InputDropdownHint;
     const xcalar_cloud_s3: string = "xcalar_cloud_s3_env";
     const xcalar_public_s3: string = "Public S3";
+    const xcalar_private_s3: string = "Private S3";
     // connectors for tutorial
     const xcalar_tutorial_export: string = "Tutorial Export";
     // connectors for IMD, generted by XCE
@@ -30,10 +31,12 @@ namespace DSTargetManager {
     const reservedList: string[] = [
         xcalar_cloud_s3,
         xcalar_public_s3,
+        xcalar_private_s3,
         xcalar_tutorial_export,
         xcalar_table_gen,
         xcalar_table_store
     ];
+    let availableS3Bucket: string = ""; 
 
     export const S3Connector: string = "s3fullaccount";
     export const DBConnector: string = "dsn";
@@ -161,6 +164,16 @@ namespace DSTargetManager {
     }
 
     /**
+     * DSTargetManager.initialize
+     */
+    export function initialize(): XDPromise<void> {
+        return DSTargetManager.refreshTargets(true)
+                .then(() => {
+                    return PromiseHelper.convertToJQuery(fetchAvailableS3Bucket());
+                });
+    }
+
+    /**
      * DSTargetManager.refreshTargets
      * @param noWaitIcon
      */
@@ -267,6 +280,13 @@ namespace DSTargetManager {
     }
 
     /**
+     * DSTargetManager.getAvailableS3Bucket
+     */
+    export function getAvailableS3Bucket(): string {
+        return availableS3Bucket;
+    }
+
+    /**
      * DSTargetManager.clickFirstGrid
      */
     export function clickFirstGrid(): void {
@@ -361,6 +381,13 @@ namespace DSTargetManager {
         return xcalar_public_s3;
     }
 
+    /**
+     * DSTargetManager.getPrivateS3Connector
+     */
+    export function getPrivateS3Connector(): string {
+        return xcalar_private_s3;
+    }
+
     function getConnectorList(): XDPromise<any> {
         let deferred: XDDeferred<any> = PromiseHelper.deferred();
         XcalarTargetList()
@@ -380,6 +407,7 @@ namespace DSTargetManager {
             hasNewConnectors = await createCloudS3Connector() || hasNewConnectors;
             hasNewConnectors = await createTutorialExportConnector() || hasNewConnectors;
             hasNewConnectors = await createPublicS3Connector() || hasNewConnectors;
+            hasNewConnectors = await createPrivateS3Connector() || hasNewConnectors;
         } catch (e) {
             // ingore error
         }
@@ -429,6 +457,25 @@ namespace DSTargetManager {
         }
     }
 
+     // a private s3 connector
+     async function createPrivateS3Connector(): Promise<boolean> {
+        if (!XVM.isDataMart()) {
+            return false;
+        }
+        const connectorName: string = xcalar_private_s3;
+        if (targetSet[connectorName] != null) {
+            return false;
+        }
+        try {
+            await createS3EnvConnector(connectorName, true);
+            return true;
+        } catch (e) {
+            // ingore the error
+            console.warn("create public s3 connector failed", e);
+            return false;
+        }
+    }
+
     async function createTutorialExportConnector(): Promise<boolean> {
         const connectorName: string = xcalar_tutorial_export;
         if (targetSet[connectorName] != null) {
@@ -461,6 +508,21 @@ namespace DSTargetManager {
         const auth_request: string = isPrivate ? "true" : "false";
         const params = {authenticate_requests: auth_request};
         return XcalarTargetCreate(connectorType, connectorName, params);
+    }
+
+    async function fetchAvailableS3Bucket(): Promise<void> {
+        if (!XVM.isDataMart()) {
+            return;
+        }
+        try {
+            const json = await $.getJSON("s3buckets.json");
+            const arg = json["s3buckets"];
+            const key = Object.keys(arg)[0];
+            const innerJSON = arg[key];
+            availableS3Bucket = innerJSON.bucket + "/" + innerJSON.prefix;
+        } catch (e) {
+            console.error("get available s3 bucket failed", e);
+        }
     }
 
     function addEventListeners(): void {
@@ -621,15 +683,16 @@ namespace DSTargetManager {
     }
 
     function isAccessibleTarget(targetType: string): boolean {
-        return !XVM.isCloud() || !cloudTargetBlackList.includes(targetType);
+        return !XVM.isDataMart() || !cloudTargetBlackList.includes(targetType);
     }
 
     function isWhiteListTarget(targetName: string): boolean {
         const whiteList: string[] = [
             xcalar_public_s3,
+            xcalar_private_s3,
             xcalar_tutorial_export
         ]
-        return XVM.isCloud() && whiteList.includes(targetName);
+        return XVM.isDataMart() && whiteList.includes(targetName);
     }
 
     function isReservedTargetName(targetName: string): boolean {
@@ -637,12 +700,8 @@ namespace DSTargetManager {
     }
 
     function isHiddenTarget(targetName: string): boolean {
-        if (XVM.isCloud()) {
-            return targetName === xcalar_table_gen ||
+        return targetName === xcalar_table_gen ||
                 targetName === xcalar_table_store;
-        } else {
-            return false;
-        }
     }
 
     function cacheTargets(targetList): string[] {

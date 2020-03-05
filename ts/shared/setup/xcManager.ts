@@ -701,7 +701,7 @@ namespace xcManager {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         setupConfigParams()
         .then(() => {
-            return PromiseHelper.alwaysResolve(DSTargetManager.refreshTargets(true));
+            return PromiseHelper.alwaysResolve(DSTargetManager.initialize());
         })
         .then(() => {
             TutorialPanel.Instance.setup();
