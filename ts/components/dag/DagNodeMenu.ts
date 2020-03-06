@@ -677,6 +677,9 @@ namespace DagNodeMenu {
         if (activeTab instanceof DagTabOptimized) {
             classes += " optimizedTab ";
         }
+        if (activeTab.getType() === DagTabType.User) {
+            classes += " userTab ";
+        }
 
         if ($dfArea.find(".comment.selected").length) {
             classes += " commentMenu ";

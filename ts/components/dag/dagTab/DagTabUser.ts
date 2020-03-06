@@ -85,6 +85,54 @@ class DagTabUser extends DagTab {
     }
 
     /**
+     * DagTabUser.viewOnlyAlert
+     */
+    public static viewOnlyAlert(dagTab: DagTabUser): XDPromise<void> {
+        try {
+            const deferred: XDDeferred<void> = PromiseHelper.deferred();
+            const path = DagList.getAppPath(dagTab);
+            const title = `Module ${path} is view only`;
+            let msg: string;
+            let buttons =[];
+            const appSourceTab = dagTab.getAppSourceTab();
+            const sourceTab = DagList.Instance.getDagTabById(appSourceTab);
+            if (sourceTab) {
+                msg = "Please edit on the origial module instead.";
+                buttons = [{
+                    name: "Edit original module",
+                    className: "larger",
+                    func: () => {
+                        DagTabManager.Instance.loadTab(sourceTab);
+                        deferred.resolve();
+                    }
+                }];
+            } else {
+                msg = "The original module has been deleted, do you want to create a new module for modification?";
+                buttons = [{
+                    name: "Create new module",
+                    className: "larger",
+                    func: () => {
+                        DagTabManager.Instance.convertNoEditableTab(dagTab);
+                        deferred.resolve();
+                    }
+                }];
+            }
+            Alert.show({
+                title,
+                msg,
+                buttons,
+                onCancel: () => {
+                    deferred.reject();
+                }
+            });
+            return deferred.promise();
+        } catch (e) {
+            console.error(e);
+            return PromiseHelper.resolve();
+        }
+    }
+
+    /**
      * DagTabUser.hasDataflowAsync
      * @param dataflowId
      */
@@ -192,7 +240,7 @@ class DagTabUser extends DagTab {
                 DagList.Instance.saveUserDagList();
             }
             this.setGraph(graph);
-
+            this.setAppSourceTab(dagInfo.appSourceTab);
             if (reset) {
                 return this._writeToKVStore();
             }
@@ -392,6 +440,16 @@ class DagTabUser extends DagTab {
             modules.push(this._getAppModuleFromHead(nodeId));
         });
         return modules;
+    }
+
+    /**
+     * @override
+     */
+    public isEditable(): boolean {
+        if (this._app) {
+            return false; // when it's inside an app, not editable
+        }
+        return true;
     }
 
     // XXX TODO: use public fuction for DagNodeModule instead public attribute

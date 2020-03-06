@@ -255,10 +255,10 @@ class DagTabManager extends AbstractTabManager {
     }
 
     /**
-     * DagTabManager.Instance.convertSQLExecuteTabToDF
+     * DagTabManager.Instance.convertNoEditableTab
      * @param dagTab
      */
-    public convertSQLExecuteTabToDF(dagTab: DagTabSQLExecute): void {
+    public convertNoEditableTab(dagTab: DagTab): void {
         const graphJSON = dagTab.getGraph().getSerializableObj(true);
         const name: string = DagList.Instance.getValidName();
         const graph: DagGraph = new DagGraph();

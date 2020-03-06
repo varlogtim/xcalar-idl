@@ -240,6 +240,7 @@ class AppList extends Durable {
             }
             const clonedTab = tab.clone();
             clonedTab.setApp(appId);
+            clonedTab.setAppSourceTab(tab.getId());
             oldIdToNewIdMap.set(tabId, clonedTab.getId());
             idToTabMap.set(clonedTab.getId(), clonedTab);
         });

@@ -4,6 +4,7 @@ interface DagTabOptions {
     id?: string;
     dagGraph?: DagGraph;
     app?: string;
+    appSourceTab?: string;
 }
 
 // dagTabs hold a user's dataflows and kvStore.
@@ -23,6 +24,7 @@ abstract class DagTab extends Durable {
     protected _saveCheckTimer: any; // ensures save not locked for more than 60 seconds
     protected _createdTime: number;
     protected _app: string;
+    protected _appSourceTab: string;
 
     public static generateId(): string {
         this.uid = this.uid || new XcUID(DagTab.KEY);
@@ -36,6 +38,7 @@ abstract class DagTab extends Durable {
         this._id = options.id || DagTab.generateId();
         this._dagGraph = options.dagGraph || null;
         this._app = options.app || null;
+        this._appSourceTab = options.appSourceTab || null;
         if (this._dagGraph != null) {
             this._dagGraph.setTabId(this._id);
         }
@@ -91,12 +94,27 @@ abstract class DagTab extends Durable {
         this._app = app;
     }
 
+    public getAppSourceTab(): string {
+        return this._appSourceTab;
+    }
+
+    public setAppSourceTab(tabId: string): void {
+        this._appSourceTab = tabId;
+    }
+
     /**
      * get tab's type specify by DagTabType
      * @returns {DagTabType}
      */
     public getType(): DagTabType {
         return this._type;
+    }
+
+    /**
+     * return true if the tab is editable
+     */
+    public isEditable(): boolean {
+        return true;
     }
 
     /**
@@ -270,6 +288,7 @@ abstract class DagTab extends Durable {
             name: this._name,
             id: this._id,
             app: this._app,
+            appSourceTab: this._appSourceTab,
             dag,
         };
     }

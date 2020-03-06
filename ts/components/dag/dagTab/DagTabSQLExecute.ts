@@ -11,7 +11,7 @@ class DagTabSQLExecute extends DagTabUser {
             const key: string = "noDagTabSQLExecuteAlert";
             const noAlert = xcLocalStorage.getItem(key) === "true";
             if (noAlert) {
-                DagTabManager.Instance.convertSQLExecuteTabToDF(dagTab);
+                DagTabManager.Instance.convertNoEditableTab(dagTab);
                 return PromiseHelper.resolve();
             }
             const deferred: XDDeferred<void> = PromiseHelper.deferred();
@@ -30,7 +30,7 @@ class DagTabSQLExecute extends DagTabUser {
                     className: "larger",
                     func: (hasChecked) => {
                         writeChecked(hasChecked);
-                        DagTabManager.Instance.convertSQLExecuteTabToDF(dagTab);
+                        DagTabManager.Instance.convertNoEditableTab(dagTab);
                         deferred.resolve();
                     }
                 }],
@@ -61,9 +61,8 @@ class DagTabSQLExecute extends DagTabUser {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._loadFromKVStore()
         .then((ret) => {
-            let { graph, dagInfo } = ret;
+            let { graph } = ret;
             this.setGraph(graph);
-            this.setApp(dagInfo.app);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);

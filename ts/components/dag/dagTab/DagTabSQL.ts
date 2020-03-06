@@ -27,6 +27,13 @@ class DagTabSQL extends DagTab {
         return this._SQLNode.getSubGraph();
     }
 
+    /**
+     * @override
+     */
+    public isEditable(): boolean {
+        return false;
+    }
+
     // do nothing
     public load(): XDPromise<void> {
         return PromiseHelper.resolve();

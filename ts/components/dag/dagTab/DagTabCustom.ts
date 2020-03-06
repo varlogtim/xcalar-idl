@@ -26,6 +26,13 @@ class DagTabCustom extends DagTab {
         return this._customNode.getSubGraph();
     }
 
+    /**
+     * @override
+     */
+    public isEditable(): boolean {
+        return false;
+    }
+
     // do nothing
     public load(): XDPromise<void> {
         return PromiseHelper.resolve();

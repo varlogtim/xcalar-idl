@@ -840,12 +840,15 @@ class DagViewManager {
             forceAdd?: boolean
         }
     ): Promise<DagNode | null> {
-        if (this.activeDagTab == null) {
+        const dagTab = this.activeDagTab;
+        if (dagTab == null) {
             return null;
         }
         try {
-            if (this.activeDagTab instanceof DagTabSQLExecute) {
-                await DagTabSQLExecute.viewOnlyAlert(this.activeDagTab);
+            if (dagTab instanceof DagTabSQLExecute) {
+                await DagTabSQLExecute.viewOnlyAlert(dagTab);
+            } else if (dagTab instanceof DagTabUser && !dagTab.isEditable()) {
+                await DagTabUser.viewOnlyAlert(dagTab);
             }
             return this.activeDagView.autoAddNode(newType, subType, parentNodeId, input, x, y, options);
         } catch (e) {

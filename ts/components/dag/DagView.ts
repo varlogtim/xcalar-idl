@@ -2965,11 +2965,14 @@ class DagView {
         if (showAlert && this.dagTab instanceof DagTabSQLExecute) {
             DagTabSQLExecute.viewOnlyAlert(this.dagTab);
         }
-        return (this.dagTab instanceof DagTabCustom ||
-            this.dagTab instanceof DagTabSQL ||
-            this.dagTab instanceof DagTabProgress ||
-            this.dagTab instanceof DagTabSQLExecute ||
-            (this.$dfArea && this.$dfArea.hasClass("largeHidden")));
+        if (showAlert && this.dagTab instanceof DagTabUser && !this.dagTab.isEditable()) {
+            // when it's inside an app, not editable
+            DagTabUser.viewOnlyAlert(this.dagTab);
+        }
+        return (
+                !this.dagTab.isEditable() ||
+                (this.$dfArea && this.$dfArea.hasClass("largeHidden"))
+            );
     }
 
     public isViewOnly(): boolean {

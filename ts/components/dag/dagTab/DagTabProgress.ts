@@ -56,6 +56,13 @@ abstract class DagTabProgress extends DagTab {
         return PromiseHelper.resolve();
     }
 
+    /**
+     * @override
+     */
+    public isEditable(): boolean {
+        return false;
+    }
+
     // do nothing
     public discardUnsavedChange(): XDPromise<void> {
         return PromiseHelper.resolve();
