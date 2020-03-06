@@ -67,7 +67,7 @@ export class TrailingSchemas {
             this.errSchemas.push(schemaDetail)
             return
         }
-        schema = this.normalize(schemaDetail)
+        const schema = this.normalize(schemaDetail)
         var newarm = []
         for (var coldef of schema.schema.columnsList) {
             newarm.push(new TrieNode(coldef))
@@ -139,21 +139,17 @@ export class TrailingSchemas {
     }
 
     getSchemas() {
-        try {
-            schemas = []
-            for (var armhead of this.armheads)
-                schemas.push(armhead.schema)
-            for (var schema of schemas) {
-                this.process(schema)
-            }
-            var indexedSchemas = this.index(schemas)
-            if (this.errSchemas.length > 0) {
-                indexedSchemas["error"] = this.errSchemas
-            }
-            return indexedSchemas
-        } catch (err) {
-            return {"error" : err.message}
+        const schemas = [];
+        for (var armhead of this.armheads)
+            schemas.push(armhead.schema)
+        for (var schema of schemas) {
+            this.process(schema)
         }
+        var indexedSchemas = this.index(schemas)
+        // if (this.errSchemas.length > 0) {
+        //     indexedSchemas["error"] = this.errSchemas
+        // }
+        return [indexedSchemas, [...this.errSchemas]];
     }
 }
 /*

@@ -44,38 +44,27 @@ export class UnionSchema {
 
     getSchema(schemas) {
         const newschemas = JSON.parse(JSON.stringify(schemas))
-        try {
-            return this._getSchema(newschemas)
-        } catch(err) {
-            return {error : err.message}
-        }
+        return this._getSchema(newschemas);
     }
 
     _getSchema(schemas) {
-        try {
-            var unionSchema = null
-            var errSchemas = []
-            for (var schema of schemas) {
-                if (!schema.success) {
-                    errSchemas.push(schema)
-                    continue
-                }
-                schema.schema.columnsList = this.normalize(schema.schema.columnsList)
-                if (unionSchema == null) {
-                    unionSchema = schema
-                    unionSchema.path = [unionSchema.path]
-                } else {
-                    this.union(unionSchema, schema)
-                }
+        var unionSchema = null
+        var errSchemas = []
+        for (var schema of schemas) {
+            if (!schema.success) {
+                errSchemas.push(schema)
+                continue
             }
-            this.process(unionSchema)
-            if (errSchemas.length > 0) {
-                unionSchema["error"] = errSchemas
+            schema.schema.columnsList = this.normalize(schema.schema.columnsList)
+            if (unionSchema == null) {
+                unionSchema = schema
+                unionSchema.path = [unionSchema.path]
+            } else {
+                this.union(unionSchema, schema)
             }
-            return {S1 : unionSchema}
-        } catch (err) {
-            return {"error" : err.message}
         }
+        this.process(unionSchema)
+        return [{S1 : unionSchema}, errSchemas];
     }
 }
 /*

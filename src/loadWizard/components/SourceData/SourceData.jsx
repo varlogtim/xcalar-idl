@@ -1,8 +1,15 @@
 import * as Path from 'path';
 import React from "react";
 import SourcePath from './SourcePath'
-import NavButtons from './NavButtons'
-import * as S3Service from '../services/S3Service'
+import NavButtons from '../NavButtons'
+import * as S3Service from '../../services/S3Service'
+
+const Texts = {
+    createTable: 'Create Table from Model',
+    updateForensics: 'Updating ...',
+    getForensics: 'Get Forensics',
+    navButtonRight: 'Browse'
+};
 
 /**
  * Pure Component: create table button
@@ -11,7 +18,7 @@ import * as S3Service from '../services/S3Service'
 function CreateTableButton(props) {
     const { isShow = false } = props || {};
     if (isShow) {
-        return (<button className="createTableButton btn btn-secondary">Create Table from Model</button>);
+        return (<button className="createTableButton btn btn-secondary">{Texts.createTable}</button>);
     } else {
         return null;
     }
@@ -23,7 +30,7 @@ function CreateTableButton(props) {
  */
 function GetForensicsButton(props) {
     const { isLoading = false, onClick = () => {} } = props || {};
-    const buttonText = isLoading ? 'Updating ...' : 'Get Forensics';
+    const buttonText = isLoading ? Texts.updateForensics : Texts.getForensics;
     const disableButton = isLoading;
 
     return (
@@ -114,51 +121,32 @@ class SourceData extends React.Component {
 
     render() {
         const {
-            screen,
             bucket,
-            setBucket,
             path,
-            setPath,
-            modelInfo,
-            modelSelected,
-            setScreen,
-            setScreenName,
-            setData,
-            fileIdToFile,
-            setFileIdToFile
+            onNextScreen,
+            onBucketChange,
+            onPathChange
         } = this.props;
-
-        if (screen !== 'SourceData') {
-            return null;
-        }
 
         const fullPath = Path.join(bucket, path);
         const forensicsStats = this.metadataMap.get(fullPath) || {};
 
         return (
             <div>
-                <SourcePath bucket={bucket} setBucket={setBucket} path={path} setPath={setPath} />
-                <div className="modelInfo">
+                <SourcePath
+                    bucket={bucket}
+                    onBucketChange={(newBucket) => { onBucketChange(newBucket); }}
+                    path={path}
+                    onPathChange={(newPath) => { onPathChange(newPath); }} />
+                {/* <div className="modelInfo">
                     Model rules:
                     <br/>
                     <b>{JSON.stringify(modelInfo)}</b>
-                </div>
-                <CreateTableButton isShow={ modelSelected === "untitled" } />
+                </div> */}
+                {/* <CreateTableButton isShow={ modelSelected === "untitled" } /> */}
                 <GetForensicsButton isLoading={ this.state.isForensicsLoading } onClick={ () => { this.fetchForensics(bucket, path) }}/>
                 <ForensicsContent isShow={ this.state.showForensics } stats={ forensicsStats } message={ this.state.forensicsMessage } />
-                <NavButtons
-                    right={{
-                        name: 'Next',
-                        toScreen: 'FilterData',
-                        onClick: () => {
-                            S3Service.listFiles(bucket + path, modelInfo.FileNamePattern).then((fileInfos) => {
-                                S3Service.populateFiles(fileInfos, setData, fileIdToFile, setFileIdToFile);
-                            })
-                        }
-                    }}
-                    setScreen={setScreen}
-                    setScreenName={setScreenName}
-                />
+                <NavButtons right={{ label: Texts.navButtonRight, onClick: () => { onNextScreen() } }} />
             </div>
         );
     }

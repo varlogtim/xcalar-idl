@@ -1,4 +1,7 @@
 
+/**
+ * @deprecated
+ */
 import prettyBytes from 'pretty-bytes'
 
 export default async function expandS3Data(userSelectedData, setSelectedData, fileIdToFile,  setFileIdToFile) {
@@ -33,7 +36,7 @@ export default async function expandS3Data(userSelectedData, setSelectedData, fi
             fileIdToFile[directory.fileId + '/' + file.name] = fileObject
         })
 
-        
+
         setFileIdToFile({...fileIdToFile})
         setSelectedData([...expandedData])
     })

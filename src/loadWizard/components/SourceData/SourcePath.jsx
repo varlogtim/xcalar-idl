@@ -1,41 +1,37 @@
 import React from "react";
 
-export default function SourcePath({bucket, setBucket, path, setPath}) {
+const Texts = {
+    bucketName: 'S3 Bucket Name:',
+    path: 'Path:'
+};
 
-  const handleSubmit = (evt) => {
-      evt.preventDefault();
-  }
-
-
-  function onChange(e) {
-    setPath(e.target.value)
-  }
-
+export default function SourcePath({
+    bucket,
+    onBucketChange,
+    path,
+    onPathChange
+}) {
   return (
     <div id="sourceForm">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => { e.preventDefault(); }}>
             <div className="bucketSelection">
-                <label>
-                    S3 Bucket Name:
-                </label>
+                <label>{Texts.bucketName}</label>
                 <input
                     className="xc-input"
                     list="buckets"
                     name="bucket"
                     value={bucket}
-                    onChange={e => setBucket(e.target.value)}
+                    onChange={(e) => { onBucketChange(e.target.value.trim()); }}
                 />
             </div>
 
             <div className="pathSelection">
-                <label>
-                    Path:
-                </label>
+                <label>{Texts.path}</label>
                 <input
                     className="xc-input"
                     type="text"
                     value={path}
-                    onChange={onChange}
+                    onChange={(e) => { onPathChange(e.target.value.trim()); }}
                 />
             </div>
         </form>

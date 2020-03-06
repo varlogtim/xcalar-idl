@@ -21,11 +21,7 @@ export class SupersetSchemas {
 
     getSchemas(schemas) {
         const newschemas = JSON.parse(JSON.stringify(schemas))
-        try {
-            return this._getSchemas(newschemas)
-        } catch(err) {
-            return {error : err.message}
-        }
+        return this._getSchemas(newschemas)
     }
 
     _getSchemas(schemas) {
@@ -73,10 +69,10 @@ export class SupersetSchemas {
         // for (var orgkey in orgSchemas) {
         //     this.process(orgSchemas[orgkey])
         // }
-        if (errSchemas.length > 0) {
-            orgSchemas["error"] = errSchemas
-        }
-        return orgSchemas
+        // if (errSchemas.length > 0) {
+        //     orgSchemas["error"] = errSchemas
+        // }
+        return [orgSchemas, errSchemas];
     }
 }
 /*

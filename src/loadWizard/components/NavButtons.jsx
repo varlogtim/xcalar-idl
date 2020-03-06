@@ -1,46 +1,40 @@
 import React from "react";
 
-export default function NavButtons({left, right, setScreen, setScreenName}) {
-    const screenNameToScreenDisplayName ={
-        "SourceData": "Select Data Source",
-        "FilterData": "Browse Data Source",
-        "SchemaDiscovery": "Discover Schemas",
-        "TableLoad": "Create Tables",
+function LeftButton(props) {
+    if (props == null) {
+        return null;
     }
 
-    function handleScreenChange(screenName) {
-        setScreen(screenName)
-        setScreenName(screenNameToScreenDisplayName[screenName])
+    const { label = '', onClick = () => {} } = props;
+    return (
+        <div className="backButton">
+            <button className="btn btn-secondary" onClick={ () => { onClick(); }}>
+                {label}
+            </button>
+        </div>
+    );
+}
+
+function RightButton(props) {
+    if (props == null) {
+        return null;
     }
 
-    const leftButtons = left ?
-    <div className="backButton">
-        <button className="btn btn-secondary" onClick={() => {
-            if (left.onClick) {
-                left.onClick()
-            }
-            handleScreenChange(left.toScreen)
-        }}>
-            {left.name}
-        </button>
-    </div> : ''
+    const { label = '', onClick = () => {} } = props;
+    return (
+        <div className="nextButton">
+            <button className="btn" onClick={ () => { onClick(); }}>
+                {label}
+            </button>
+        </div>
+    );
+}
 
-    const rightButtons = right ?
-    <div className="nextButton">
-        <button className="btn" onClick={() => {
-            if (right.onClick) {
-                right.onClick()
-            }
-            handleScreenChange(right.toScreen)
-        }}>
-            {right.name}
-        </button>
-    </div> : ''
-
+export default function NavButtons({ left, right }) {
     return (
         <div className="navButtons">
-            {leftButtons}
-            {rightButtons}
+            {left != null ? <LeftButton {...left} /> : null}
+            {right != null ? <RightButton {...right} /> : null}
         </div>
     );
 }

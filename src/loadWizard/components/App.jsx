@@ -1,123 +1,110 @@
 import React from 'react';
 import '../styles/App.less';
 import ModelPanel from './ModelPanel'
-import SourceData from './SourceData'
-import BrowseDataSource from './BrowseDataSource'
-import DiscoverSchemas from './DiscoverSchemas'
-import CreateTables from './CreateTables'
+import { LoadConfig, stepEnum } from './LoadConfig';
 
-function App() {
-    const [data, setData] = React.useState([]);
-    const [selectedData, setSelectedData] = React.useState([]);
-    const [fileToSchema, setFileToSchema] = React.useState({})
-    const [screen, setScreen] = React.useState('SourceData')
-    const [screenName, setScreenName] = React.useState('Select Data Source')
-    const [schemasObject, setSchemasObject] = React.useState({});
-    const [bucket, setBucket] = React.useState('/');
-    const [path, setPath] = React.useState('');
-    const [modelInfo, setModelInfo] = React.useState({FileNameRule : "*"});
-    const [modelSelected, setModelSelected] = React.useState('untitled');
-    const [discoverSchemaCalls, setDiscoverSchemaCalls] = React.useState({});
-    const [fileIdToStatus, setFileIdToStatus] = React.useState({});
-    const [schemaInfo, setSchemaInfo] = React.useState("");
-    const [fileIdToFile, setFileIdToFile] = React.useState({})
-
-
-    const schemaCellGeneralProps = {
-        fileToSchema,
-        setFileToSchema,
-        discoverSchemaCalls,
-        setDiscoverSchemaCalls,
-        schemasObject,
-        setSchemasObject,
-        setSchemaInfo,
-        fileIdToFile
+/**
+ * Component
+ */
+class App extends React.Component {
+    constructor(props) {
+        super(props);
+        // Inintial state
+        this.state = {
+            models: [this._getDefaultModel()],
+            currentModelName: 'untitled',
+            showModelPanel: true
+        };
     }
 
-    return (
-        <div className="App">
-            <ModelPanel
-                screen={screen}
-                setBucket={setBucket}
-                setPath={setPath}
-                modelSelected={modelSelected}
-                setModelInfo={setModelInfo}
-                setModelSelected={setModelSelected}
-            />
+    async componentDidMount() {
+        const loadedModels = await this._fetchModels();
+        const existingModelNames = new Set();
+        for (const { name } of this.state.models) {
+            existingModelNames.add(name);
+        }
 
-            <div className={"mainArea " + (screen === "SourceData" ? "panelShown" : "")}>
+        const newModels = new Array();
+        for (const model of loadedModels) {
+            if (!existingModelNames.has(model.name)) {
+                newModels.push(model);
+            }
+        }
 
-                <div className="container cardContainer">
-                    <div className="cardHeader">
-                        <header className="title">{screenName}</header>
-                    </div>
-                    {/* start of card main */}
-                    <div className="cardMain">
-                    <SourceData
-                        screen = { screen }
-                        bucket = { bucket }
-                        setBucket = { setBucket }
-                        path = { path }
-                        setPath = { setPath }
-                        modelInfo = { modelInfo }
-                        modelSelected = { modelSelected }
-                        setScreen = { setScreen }
-                        setScreenName = { setScreenName }
-                        setData = { setData }
-                        fileIdToFile = { fileIdToFile }
-                        setFileIdToFile = { setFileIdToFile }
+        if (newModels.length > 0) {
+            this.setState({
+                models: [...models.map((v) => ({...v})), ...newModels.map((v) => ({...v}))]
+            });
+        }
+    }
+
+    _getDefaultModel() {
+        return {
+            name: 'untitled', bucket: '/', path: '',
+            FileNameRule: '*'
+        };
+    }
+
+    async _fetchModels() {
+        // XXX TODO: Load models from kvstore/somewhere
+        const models = new Array()
+        // models.push({
+        //     name: 'mdmdemo', bucket: '/xcfield/', path: 'instantdatamart/mdmdemo/',
+        //     FileNameRule: '*'
+        // });
+        // models.push({
+        //     name: 'multi_schemas', bucket: '/xcfield/', path: 'instantdatamart/csv/',
+        //     FileNameRule : "*.csv"
+        // });
+        // models.push({
+        //     name: 'xcfield', bucket: '/xcfield/', path: '',
+        //     FileNameRule : "*.csv"
+        // });
+
+        return models;
+    }
+
+    _selectModel(modelName) {
+        let selectedModel = this.state.models[0];
+        for (const model of this.state.models) {
+            if (model.name === modelName) {
+                selectedModel = model;
+                break;
+            }
+        }
+
+        this.setState({
+            currentModelName: selectedModel.name
+        });
+    }
+
+    _toggleModelPanel(step) {
+        this.setState({
+            showModelPanel: step === stepEnum.SourceData
+        });
+    }
+
+    render() {
+        const showModelPanel = this.state.showModelPanel;
+        return (
+            <div className="App">
+                {
+                    showModelPanel
+                        ? <ModelPanel
+                            models={this.state.models.map((v) => v)}
+                            modelSelected={this.state.currentModelName}
+                            onSelectModel={(name) => { this._selectModel(name); }} />
+                        : null
+                }
+                <div className={"mainArea " + (showModelPanel ? "panelShown" : "")}>
+                    <LoadConfig
+                        onStepChange={ (step) => { this._toggleModelPanel(step); }}
                     />
-
-                    <BrowseDataSource
-                        props = {{
-                            screen,
-                            setScreen,
-                            setScreenName,
-                            bucket,
-                            path,
-                            data,
-                            setData,
-                            setSelectedData,
-                            setPath,
-                            fileIdToFile,
-                            setFileIdToFile
-                        }}
-                    />
-
-                    <DiscoverSchemas
-                        props = {{
-                            screen,
-                            selectedData,
-                            fileToSchema,
-                            discoverSchemaCalls,
-                            selectedData,
-                            schemaCellGeneralProps,
-                            setScreen,
-                            setScreenName,
-                            schemasObject,
-                            schemaInfo,
-                            bucket,
-                            path
-                        }}
-                    />
-
-                    <CreateTables
-                        props = {{
-                            screen,
-                            setScreen,
-                            setScreenName,
-                            schemasObject,
-                            setSchemasObject,
-                            fileIdToStatus,
-                            setFileIdToStatus,
-                        }}
-                    />
-                    </div>
-                    {/* end of card main */}
                 </div>
             </div>
-        </div>
-    );
+        );
+    }
+
 }
 
 export default App;

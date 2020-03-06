@@ -1,8 +1,15 @@
 import React from 'react'
 import styled from 'styled-components'
 import { useTable, useSortBy, usePagination } from 'react-table'
-import LoadCell from './LoadCell'
+import * as LoadCell from './LoadCell'
 import prettyBytes from 'pretty-bytes'
+
+const { Alert } = global;
+
+const Texts = {
+    createError: 'Error',
+    createErrorTitle: 'Create Table Failed',
+};
 
 const Styles = styled.div`
   table {
@@ -34,6 +41,10 @@ const Styles = styled.div`
 `;
 
 
+/**
+ * Component: Table
+ * @param {*} param0
+ */
 function Table({ columns, data }) {
   const {
     getTableProps,
@@ -148,75 +159,110 @@ function Table({ columns, data }) {
   )
 }
 
-function LoadTable({props}) {
-  const {
-    setSchemaLoadTableInfo,
-    schemasObject,
-    setSchemasObject,
-    fileIdToStatus,
-    setFileIdToStatus,
-    setAllTablesTotalCost,
-    setAllTablesTotalEta,
-  } = props
-  
-    const columns = React.useMemo(
-        () => [
-            {
-                Header: 'Schema',
-                accessor: 'schema',
-            },
-            {
-                Header: 'Size',
-                accessor: 'size',
-            },
-            {
-                Header: 'Count',
-                accessor: 'count',
-            },
-            {
-                Header: 'Cost',
-                accessor: 'cost',
-            },
-            {
-                Header: 'Time',
-                accessor: 'time',
-            },
-            {
-                Header: 'Create',
-                accessor: 'load',
-            },
-        ],
-        []
-      )
+function getFileSize(fileIds, fileInfos) {
+    return fileIds.reduce((total, fileId) => {
+        const fileInfo = fileInfos.get(fileId);
+        if (fileInfo != null) {
+            total += fileInfo.sizeInBytes;
+        }
+        return total;
+    }, 0);
+}
+
+function LoadTable({
+  schemas,
+  schemasInProgress,
+  schemasFailed,
+  tables,
+  files, // map fileId => fileInfo
+  onClickSchema = (schemaName) => {},
+  onClickCreateTable = (schemaName) => {}
+}) {
+    const columns = React.useMemo(() => [
+        {
+            Header: 'Schema',
+            accessor: 'schema',
+        },
+        {
+            Header: 'Size',
+            accessor: 'size',
+        },
+        {
+            Header: 'Count',
+            accessor: 'count',
+        },
+        {
+            Header: 'Cost',
+            accessor: 'cost',
+        },
+        {
+            Header: 'Time',
+            accessor: 'time',
+        },
+        {
+            Header: 'Create',
+            accessor: 'load',
+        }
+    ], []);
+
     const loadTableData = []
-    let totalCost = 0
-    let totalEta = 0
+    // let totalCost = 0
+    // let totalEta = 0
+    for (const [schemaName, { path, columns }] of schemas) {
+        const rowData = {
+            schema: <button onClick={() => { onClickSchema(schemaName); }}>{schemaName}</button>,
+            count: path.length,
+            size: prettyBytes(getFileSize(path, files)),
+            // "cost": '$' + schema.totalCost.toFixed(8),
+            cost: '$ 0', // XXX TODO: fix it
+            // "time": schema.totalEta.toFixed(8) + ' seconds',
+            time: '0 seconds', // XXX TODO: fix it
+            load: null,
+        };
 
-    for (let schemaName in schemasObject) {
-      if (schemaName !== 'No Schema Detected') {
-        const schema = schemasObject[schemaName]
-        totalCost += schema.totalCost
-        totalEta += schema.totalEta
+        if (schemasInProgress.has(schemaName)) {
+            rowData.load = <LoadCell.Loading />
+        } else if (schemasFailed.has(schemaName)) {
+            const errorMsg = schemasFailed.get(schemaName);
+            rowData.load = <LoadCell.Error
+                message={Texts.createError}
+                onClick={ () => {
+                    Alert.show({
+                        title: Texts.createErrorTitle,
+                        msg: errorMsg,
+                        isAlert: true
+                    });
+                }} />
+        } else if (tables.has(schemaName)) {
+            rowData.load = <LoadCell.Table name={tables.get(schemaName)} />
+        } else {
+            rowData.load = <LoadCell.Create onClick={() => { onClickCreateTable(schemaName); }} />
+        }
 
-        loadTableData.push({
-            "schema": <button onClick={() => setSchemaLoadTableInfo(JSON.stringify(schemasObject[schemaName].schema))}>{schemaName}</button>,
-            "count": schema.count,
-            "size": prettyBytes(schema.size),
-            "cost": '$' + schema.totalCost.toFixed(8),
-            "time": schema.totalEta.toFixed(8) + ' seconds',
-            "load": <LoadCell
-              schemasObject={schemasObject}
-              setSchemasObject={setSchemasObject}
-              schemaName={schemaName}
-              fileIdToStatus={fileIdToStatus}
-              setFileIdToStatus={setFileIdToStatus}
-            />,
-        })
-      }
+        loadTableData.push(rowData);
     }
+    // for (let schemaName in schemasObject) {
+    //   if (schemaName !== 'No Schema Detected') {
+    //     const schema = schemasObject[schemaName]
+    //     totalCost += schema.totalCost
+    //     totalEta += schema.totalEta
 
-    setAllTablesTotalCost(totalCost)
-    setAllTablesTotalEta(totalEta)
+    //     loadTableData.push({
+    //         "schema": <button onClick={() => { console.log('Show schemaInfo: ', schemaName)}}>{schemaName}</button>,
+    //         "count": schema.count,
+    //         "size": prettyBytes(schema.size),
+    //         "cost": '$' + schema.totalCost.toFixed(8),
+    //         "time": schema.totalEta.toFixed(8) + ' seconds',
+    //         "load": <LoadCell
+    //           schemasObject={schemasObject}
+    //           setSchemasObject={setSchemasObject}
+    //           schemaName={schemaName}
+    //           fileIdToStatus={fileIdToStatus}
+    //           setFileIdToStatus={setFileIdToStatus}
+    //         />,
+    //     })
+    //   }
+    // }
 
   return (
       <Styles>

@@ -1,6 +1,7 @@
 import * as crypto from 'crypto';
 import * as Path from 'path';
 import { XDSession } from './sdk/Session';
+import * as DiscoverSchema from '../utils/discoverSchema';
 
 // Import global functions. This should be modulized in the future
 const {
@@ -10,6 +11,41 @@ const {
 
 const DS_PREFIX = 'LWDS';
 
+// XXX TODO: Performance issue: result could be large
+async function flattenFileDir(fileDirList) {
+    const flattenFiles = new Map();
+
+    for (const fod of fileDirList) {
+        if (fod.directory) {
+            const s3Files = await XcalarListFiles({
+                "recursive": true,
+                "targetName": "AWS Target",
+                "path": fod.fullPath,
+                "fileNamePattern": "*"
+            });
+
+            for (const file of s3Files.files) {
+                const fullFilePath = Path.join(fod.fullPath, file.name);
+                const isDirectory = file.attr.isDirectory ? true : false;
+
+                flattenFiles.set(fullFilePath, {
+                    fileId: fullFilePath,
+                    fullPath: fullFilePath,
+                    directory: isDirectory,
+                    name: file.name,
+                    sizeInBytes: file.attr.size,
+                    type: isDirectory
+                        ? 'directory'
+                        : getFileExt(file.name)
+                });
+            }
+        } else {
+            flattenFiles.set(fod.fileId, {...fod});
+        }
+    }
+
+    return flattenFiles;
+}
 
 async function listFiles(path, namePattern = '*') {
     const fileInfos = new Map();
@@ -23,14 +59,15 @@ async function listFiles(path, namePattern = '*') {
         });
 
         // XXX TODO: add comment about why slice(1)?
-        for (const file of s3Files.files.slice(1)) {
-            const fullFilePath = path + file.name;
+        for (const file of s3Files.files) {
+            const fullFilePath = Path.join(path, file.name);
             const isDirectory = file.attr.isDirectory ? true : false;
 
             fileInfos.set(fullFilePath, {
                 fileId: fullFilePath,
+                fullPath: fullFilePath,
                 directory: isDirectory,
-                path: file.name,
+                name: file.name,
                 sizeInBytes: file.attr.size,
                 type: isDirectory
                     ? 'directory'
@@ -156,6 +193,18 @@ async function getForensicsStats(bucketName, pathPrefix) {
     return stats;
 }
 
+async function createTableFromSchema(tableName, filePaths, schema, inputSerialization) {
+    const finalTableName = await DiscoverSchema.createTableFromSchema(
+        tableName,
+        filePaths,
+        {
+            numColumns: schema.length,
+            columnsList: schema
+        },
+        inputSerialization
+    );
+    return finalTableName;
+}
 
 // === Helper functions: begin ===
 function getKeylistTableName(fullPath) {
@@ -196,4 +245,11 @@ function populateFiles(fileInfos, setData, fileIdToFile, setFileIdToFile) {
     setData(fileList);
 }
 
-export { listFiles, createKeyListTable, getForensicsStats, populateFiles };
+export {
+    listFiles,
+    createKeyListTable,
+    getForensicsStats,
+    populateFiles,
+    flattenFileDir,
+    createTableFromSchema
+};
