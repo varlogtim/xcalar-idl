@@ -113,6 +113,8 @@ TooltipTStr = {
     "SelectToViewSchema": "Select a table to view schema",
     "UDFErrorModalNoParent": "Parent operator does not exist",
     "UDFErrorModalNoTable": "Parent operator requires an active table",
+    "NoUDFRename": "Scalar Functions cannot be renamed",
+    "SaveUDFToName": "Save this Scalar Function to provide a new name",
     // Sync with htmlTStr
     "IcvRestriction": "Erroneous rows(ER) table only available for Map and Group By",
     "OnlyInOpMode": "Feature only available in Operational Cluster",
@@ -1278,7 +1280,7 @@ FileManagerTStr = {
     "ReplaceTitle": "Overwrite File",
     "ReplaceMsg": "already exists. Are you sure you want to overwrite it?",
     "COPYTO": "COPY FILE",
-    "SAVEAS": "Save AS",
+    "SAVEAS": "Save As",
 }
 
 UDFTStr = {

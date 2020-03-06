@@ -92,7 +92,6 @@ class DagPanel {
 
     private _beforeLoad(): void {
         DagList.Instance.toggleDisable(true);
-        DagTopBar.Instance.toggleDisable(true);
         DagGraphBar.Instance.toggleDisable(true);
         DagTabManager.Instance.toggleDisable(true);
         this._getDagViewEl().append(this._generateLoadingSection());
@@ -100,7 +99,6 @@ class DagPanel {
 
     private _afterLoad(): void {
         DagList.Instance.toggleDisable(false);
-        DagTopBar.Instance.toggleDisable(false);
         DagGraphBar.Instance.toggleDisable(false);
         DagTabManager.Instance.toggleDisable(false);
         this._getLoadSectionEl().remove();

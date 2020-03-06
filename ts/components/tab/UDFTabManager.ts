@@ -140,7 +140,7 @@ class UDFTabManager extends AbstractTabManager {
                 restoreData.tabs.forEach((tab) => {
                     this._loadTab(tab, undefined, false);
                 });
-                
+
             }
 
             if (this._activeTabs.length) {
@@ -189,7 +189,7 @@ class UDFTabManager extends AbstractTabManager {
             this._activeTabs.splice(newIndex, 0, tab);
             this._save();
         }
-    } 
+    }
 
     protected _getJSON(): {tabs: string[]} {
         const tabs: string[] = [];
@@ -216,6 +216,18 @@ class UDFTabManager extends AbstractTabManager {
 
         const $tabArea: JQuery = this._getTabArea();
         $tabArea.off("dblclick", ".dragArea"); // turn off dblick to rename
+        $tabArea.on("dblclick", ".dragArea", (event) => {
+            const activeTab = UDFTabManager.Instance.getActiveTab();
+            if (activeTab == null) {
+                // error case
+                return;
+            }
+            let title = activeTab.isNew ? TooltipTStr.SaveUDFToName : TooltipTStr.NoUDFRename;
+
+            xcTooltip.transient($(event.currentTarget), {
+                title: title
+            }, 4000);
+        });
     }
 
     private _getTabIndexByName(name: string): number {
@@ -246,7 +258,8 @@ class UDFTabManager extends AbstractTabManager {
         let html: HTML =
             '<li class="' + classNames.join(" ") + '">' +
                 '<div class="dragArea">' +
-                    '<i class="icon xi-ellipsis-v" ' + xcTooltip.Attrs + ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>' +
+                    '<i class="icon xi-ellipsis-v" ' + xcTooltip.Attrs +
+                    ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>' +
                 '</div>' +
                 '<div class="name">' +
                     name +

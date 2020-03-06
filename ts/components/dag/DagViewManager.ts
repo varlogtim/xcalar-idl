@@ -1418,7 +1418,6 @@ class DagViewManager {
             this.$dagView.find(".searchArea, .categoryWrap, .operatorWrap").removeClass("xc-disabled");
             this._deselectAllNodes();
         }
-        DagTopBar.Instance.setState(this.activeDagTab);
         DagGraphBar.Instance.setState(this.activeDagTab);
         this._checkNodeValidation();
     }

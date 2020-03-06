@@ -21,12 +21,6 @@ namespace BottomMenu {
             }
             resolveMenuAnim();
         });
-        $("#dagViewContent")[0].addEventListener(window["transitionEnd"], function(event) {
-            if (!$(event.target).is("#dagViewContent")) {
-                return;
-            }
-            resolveMenuAnim();
-        });
     };
 
     export function close(): void {

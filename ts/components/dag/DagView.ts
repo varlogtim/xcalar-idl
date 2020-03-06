@@ -89,7 +89,7 @@ class DagView {
                     if (!showingProgressTips) {
                         showingProgressTips = DagView.$dagView.hasClass("showProgressTips") && searchForTooltip(node, new Set());
                         if (showingProgressTips && startingWidth > 0) { // don't adjust the first row of nodes
-                            startingWidth += (2/3); // must be divisible by 3 because vertNodeSpacing == 60
+                            startingWidth += (1/3); // must be divisible by 3 because vertNodeSpacing == 60
                         }
                     }
                     DagView._alignNodes(node, nodes, startingWidth, showingProgressTips);
@@ -802,7 +802,7 @@ class DagView {
         let takenCoors = new Map();
         let widthUnit = 1;
         if (showingProgressTips) {
-            widthUnit += (2/3); // must be divisible by 3 because vertNodeSpacing == 60
+            widthUnit += (1/3); // must be divisible by 3 because vertNodeSpacing == 60
         }
         _alignHelper(node, 0, width);
 
@@ -3638,7 +3638,6 @@ class DagView {
         // when a graph gets locked during execution
         this._registerGraphEvent(this.graph, DagGraphEvents.LockChange, (info) => {
             this.lockUnlockHelper(info);
-            DagTopBar.Instance.setState(this.dagTab); // refresh the stop button status
             DagGraphBar.Instance.setState(this.dagTab); // refresh the stop button status
         });
 

@@ -236,7 +236,8 @@ namespace UserSettings {
     function setup(): void {
         const $modal = $("#userSettingsModal");
         modalHelper = new ModalHelper($modal, {
-            sizeToDefault: true
+            sizeToDefault: true,
+            noBackground: true
         });
 
         userPrefs = new UserPref();

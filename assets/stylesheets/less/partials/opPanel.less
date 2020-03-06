@@ -395,6 +395,7 @@
                 float: left;
                 border-right: 1px solid @color-border-medium2;
                 border-top: 1px solid @color-border-medium2;
+                border-left: 1px solid @color-border-medium2;
                 padding-right: 22px;
                 position: relative;
                 .flex(1 1 100px);
@@ -402,6 +403,7 @@
                 margin-top: -1px; // fixes double thickness of the bottom of a
                                 // cell's border when next to the top border
                                 // of another cell
+                margin-left: -1px; // to hide double thick borders
                 .text {
                     width: 100%;
                 }
@@ -2053,6 +2055,8 @@
                 .col {
                     border: 1px solid @color-border-medium2;
                     line-height: unset;
+                    margin-left: 0px;
+
                     .text {
                         padding-top: 4px;
                     }
@@ -3196,6 +3200,8 @@
                     border: 1px solid @color-bg-white-five;
                     min-width: 50%;
                     line-height: unset;
+                    margin-left: 0px;
+
                     .text {
                         padding-top: 4px;
                     }
