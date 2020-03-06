@@ -65,7 +65,8 @@ class DagGraphBar {
             $userAndPublishOnlyBtns.addClass("xc-disabled");
         }
 
-        const isViewOnly: boolean = (dagTab instanceof DagTabProgress);
+        const isViewOnly: boolean = (dagTab instanceof DagTabProgress ||
+        dagTab instanceof DagTabSQLExecute);
         if (isViewOnly) {
             $topBar.addClass("viewOnly");
         } else {

@@ -307,6 +307,24 @@
                 &:hover {
                     background-color: @color-bg-list-hover;
                 }
+                + .hintSection {
+                    display: none;
+                }
+            }
+
+            .hintSection {
+                font-size: 14px;
+                height: 20px;
+                max-width: 450px;
+                padding: 0 20px;
+                color: @color-font-default;
+                .center-align;
+                text-align: center;
+
+                .action {
+                    text-decoration: underline;
+                    color: @color-font-link-blue;
+                }
             }
         }
 

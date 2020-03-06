@@ -317,6 +317,9 @@ namespace WorkbookPanel {
         if (activeWorkbook != null) {
             html = _renderWorkbookHTML(activeWorkbook) + html;
         }
+        if (!html) {
+            html = `<div class="hintSection">Create or upload a new project to get started.</div>`;
+        }
 
         $contentSection.html(html);
     }
