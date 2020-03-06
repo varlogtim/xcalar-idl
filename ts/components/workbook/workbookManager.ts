@@ -131,6 +131,28 @@ namespace WorkbookManager {
         return deferred.promise();
     };
 
+    export function updateMemUsage(): XDPromise<any> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+
+        Admin.getMemUsage(XcUser.getCurrentUserName())
+        .then((res) => {
+            res = res || {};
+            const wkbks = wkbkSet.getAll();
+            for (let id in wkbks) {
+                const wkbk = wkbks[id];
+                const stats = res[wkbk.getName()];
+                if (stats) {
+                    wkbk.setMemUsed(stats["Total Memory"]);
+                }
+            }
+            deferred.resolve(res);
+        })
+        .fail((e) => {
+            deferred.reject(e);
+        });
+        return deferred.promise();
+    }
+
     /**
     * WorkbookManager.getActiveWKBK
     * gets active workbook

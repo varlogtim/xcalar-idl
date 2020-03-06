@@ -19,7 +19,7 @@ describe("WKBK Constructor Test", function() {
             "jupyterFolder": "testFolder"
         });
 
-        expect(Object.keys(wkbk).length).to.equal(10);
+        expect(Object.keys(wkbk).length).to.equal(11);
         expect(wkbk).to.have.property("version")
         .and.to.equal(Durable.Version);
         expect(wkbk).to.have.property("name")

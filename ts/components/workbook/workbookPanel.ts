@@ -291,6 +291,11 @@ namespace WorkbookPanel {
     * Creates the list of workbook cards
     */
     export function listWorkbookCards(): void {
+        _listWorkbookCards();
+        _updateMemUsage();
+    }
+
+    function _listWorkbookCards(): void {
         const $contentSection = _getContentSection();
         let html: string = "";
         let sorted: WKBK[] = [];
@@ -322,6 +327,15 @@ namespace WorkbookPanel {
         }
 
         $contentSection.html(html);
+    }
+
+    async function _updateMemUsage() {
+        try {
+            await WorkbookManager.updateMemUsage();
+            _listWorkbookCards();
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     /**
@@ -529,6 +543,11 @@ namespace WorkbookPanel {
         $workbookSection.on("mouseenter", ".tooltipOverflow", function() {
             const $div: JQuery = $(this).find(".workbookName");
             xcTooltip.auto(this, <HTMLElement>$div[0]);
+        });
+
+        $workbookSection.on("click", ".header .refreshMemUsed", () => {
+            xcUIHelper.showRefreshIcon($workbookSection, false, null);
+            _updateMemUsage();
         });
     }
 
@@ -1035,6 +1054,9 @@ namespace WorkbookPanel {
         const modifiedTime: number = workbook.getModifyTime();
         let modifiedTimeDisplay: string = "";
         let description: string = workbook.getDescription() || "";
+        let memUsed: number = workbook.getMemUsed() || 0;
+        let memUsageStr: string = <string>xcHelper.sizeTranslator(memUsed);
+
         description = xcStringHelper.escapeHTMLSpecialChar(description);
 
         extraClasses = extraClasses || [];
@@ -1122,6 +1144,9 @@ namespace WorkbookPanel {
                     ' data-title="' + WKBKTStr.CopySessionId + '"' +
                     '></i>' +
                 '</div>' +
+                '<div class="memUsage">' +
+                    memUsageStr +
+                '</div>' +
                 '<div class="state">' +
                     isActive +
                 '</div>' +
@@ -1151,6 +1176,13 @@ namespace WorkbookPanel {
             key: "sessionId",
             text: WKBKTStr.SessionId
         }, {
+            key: "memUsage",
+            text:"Memory Used",
+            icon: '<i class="icon xc-action xi-refresh refreshMemUsed" '+
+                    xcTooltip.Attrs +
+                    ' data-title="' + CommonTxtTstr.Refresh + '"' +
+                    '></i>'
+        }, {
             key: "state",
             text: WKBKTStr.State
         }];
@@ -1158,6 +1190,7 @@ namespace WorkbookPanel {
             const html: HTML =
             `<div class="title ${attr.key}">` +
                 attr.text +
+                (attr.icon || "") +
             '</div>';
             return html;
         }).join("");

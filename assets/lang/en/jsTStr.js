@@ -186,6 +186,7 @@ CommonTxtTstr = {
     'Overwrite': 'Overwrite',
     'percentage': 'percentage',
     'Preview': 'Preview',
+    'Refresh': 'Refresh',
     'Rename': 'Rename',
     'Retry': 'Retry',
     'RevertDefaultVal': 'Revert to default value',

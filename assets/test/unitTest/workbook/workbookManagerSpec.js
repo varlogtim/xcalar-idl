@@ -994,7 +994,7 @@ describe("WorkbookManager Test", function() {
         JupyterPanel.newWorkbook = oldJupyterNewWkbk;
         XcalarUploadWorkbook = oldXcalarUploadWorkbook;
         $("#container").removeClass("noWorkbook noMenuBar");
-        WorkbookPanel.hide();
+        WorkbookPanel.hide(true);
         UnitTest.offMinMode();
     });
 });

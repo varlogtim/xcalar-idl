@@ -1,6 +1,7 @@
 describe("WorkbookPanel Test", function() {
     var $workbookPanel;
     var oldCommitCheck;
+    var oldMemUsage;
     var menuAction = function($box, action) {
         $box.find(".dropDown").click();
         $("#wkbkMenu").find("." + action).click();
@@ -15,6 +16,10 @@ describe("WorkbookPanel Test", function() {
         XcUser.CurrentUser.commitCheck = function() {
             return PromiseHelper.resolve();
         };
+        oldMemUsage = WorkbookManager.updateMemUsage;
+        WorkbookManager.updateMemUsage = () => {
+            return PromiseHelper.resolve();
+        };
     });
 
     describe("Basic Api Test", function() {
@@ -22,13 +27,21 @@ describe("WorkbookPanel Test", function() {
             WorkbookPanel.show();
 
             var checkFunc = function() {
-                return $("#container").hasClass("workbookMode");
+                return $("#container").hasClass("workbookMode") &&
+                $("#workbookPanel").is(":visible");
             };
 
-            UnitTest.testFinish(checkFunc)
+            UnitTest.wait(1000)
+            .then(() => {
+                return UnitTest.testFinish(checkFunc)
+            })
             .then(function() {
                 expect($workbookPanel.find(".workbookBox.active").length)
                 .to.be.at.least(1);
+                return UnitTest.wait(1000);
+
+            })
+            .then(() => {
                 done();
             })
             .fail(function() {
@@ -39,7 +52,8 @@ describe("WorkbookPanel Test", function() {
         it("Should hide workbook", function(done) {
             WorkbookPanel.hide(true);
             var checkFunc = function() {
-                return !$("#container").hasClass("workbookMode");
+                return !$("#container").hasClass("workbookMode") &&
+                !$("#workbookPanel").is(":visible");
             };
             UnitTest.wait(1000)
             .then(() => {
@@ -214,7 +228,7 @@ describe("WorkbookPanel Test", function() {
                 $("#homeBtn").click();
                 setTimeout(() => {
                     done();
-                }, 200);
+                }, 1000);
             })
             .fail(() => {
                 done("fail")
@@ -337,7 +351,6 @@ describe("WorkbookPanel Test", function() {
     });
 
     describe("Advanced Workbook Behavior Test", function() {
-        // this.timeout(200000);
         var oldKVGet, oldKVPut, oldKVDelete;
         var oldXcalarPut, oldXcalarDelete;
         var oldWkbkNew, oldWkbkList, oldWkbkDelete;
@@ -400,10 +413,13 @@ describe("WorkbookPanel Test", function() {
             fakeMap = {};
         });
 
-        it("Should force show the workbook", function() {
+        it("Should force show the workbook", function(done) {
             WorkbookPanel.forceShow();
             expect($("#container").hasClass("noWorkbook")).to.be.true;
             $("#container").removeClass("noWorkbook");
+            setTimeout(() => {
+                done(); // allow time for updateMemUsage to resolve
+            }, 1);
         });
 
         it("should handle create workbook error case", function() {
@@ -857,6 +873,7 @@ describe("WorkbookPanel Test", function() {
 
             XcalarDownloadWorkbook = oldXcalarDownloadWorkbook;
             xcHelper.downloadAsFile = oldDownloadAsFile;
+            WorkbookManager.updateMemUsage = oldMemUsage;
         });
     });
 

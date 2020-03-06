@@ -270,7 +270,7 @@ namespace Admin {
                 }
             });
 
-            let promise = getMemUsage(username);
+            let promise = getMemUsage(username, true);
             xcUIHelper.showRefreshIcon($popup, false, promise);
 
             promise
@@ -420,7 +420,7 @@ namespace Admin {
         });
     }
 
-    function getMemUsage(username: string): XDPromise<any> {
+    export function getMemUsage(username: string, translateSize?: boolean ): XDPromise<any> {
         let deferred  = PromiseHelper.deferred();
         let user = new XcUser(username);
         user.getMemoryUsage()
@@ -445,8 +445,9 @@ namespace Admin {
                         sess.Breakdown[mem[i].tableMemory[j].tableName] =
                                             mem[i].tableMemory[j].totalBytes;
                     }
-                    sess["Total Memory"] = xcHelper.sizeTranslator(totalMem);
-
+                    let total = translateSize ?
+                                xcHelper.sizeTranslator(totalMem) : totalMem;
+                    sess["Total Memory"] = total;
                     data[mem[i].sessionName] = sess;
                 }
             } else {

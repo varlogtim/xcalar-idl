@@ -1,5 +1,6 @@
 interface WKBKOptions extends WKBKDurable {
     sessionId?: string;
+    memUsed?: number;
 }
 
 class WKBK extends Durable {
@@ -13,6 +14,7 @@ class WKBK extends Durable {
     private modified: number; // last modified time
     private resource: boolean; // true if it has resource,
     private description: string; // workbook description
+    private memUsed: number;
 
     constructor(options: WKBKOptions) {
         options = options || <WKBKOptions>{};
@@ -29,6 +31,7 @@ class WKBK extends Durable {
         this.created = options.created || time;
         this.modified = options.modified || time;
         this.resource = options.resource || false;
+        this.memUsed = options.memUsed || null;
         if (options.description) {
             this.description = options.description;
         }
@@ -93,6 +96,14 @@ class WKBK extends Durable {
 
     public setJupyterFolder(folderName: string): void {
         this.jupyterFolder = folderName;
+    }
+
+    public setMemUsed(memUsed: number): void {
+        this.memUsed = memUsed;
+    }
+
+    public getMemUsed(): number {
+        return this.memUsed;
     }
 
     // not used
