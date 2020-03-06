@@ -683,7 +683,8 @@ namespace DSTargetManager {
     }
 
     function isAccessibleTarget(targetType: string): boolean {
-        return !XVM.isDataMart() || !cloudTargetBlackList.includes(targetType);
+        // if change this to XVM.isDataMart, it will make default shared root not accessible
+        return !XVM.isCloud() || !cloudTargetBlackList.includes(targetType);
     }
 
     function isWhiteListTarget(targetName: string): boolean {
