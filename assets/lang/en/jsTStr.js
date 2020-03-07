@@ -880,6 +880,7 @@ WKBKTStr = {
     'SessionId': "Session ID",
     "CopySessionId": "Copy Session ID to clipboard",
     'Creating': 'Creating Project',
+    'Duplicating': 'Duplicating Project',
     'Updating': "Updating Project",
     'SwitchErr': 'Switch Project Error',
     'SwitchErrMsg': 'Error occurred while switching projects. Proceeding with the switch may cause problems to the project. Do you still want to continue?',

@@ -281,7 +281,7 @@ class ModalHelper {
             this.center(centerOptions);
         }
 
-        // Note: to find the visiable btn, must show the modal first
+        // Note: to find the visible btn, must show the modal first
         if (!options.noTabFocus) {
             this.refreshTabbing();
         }

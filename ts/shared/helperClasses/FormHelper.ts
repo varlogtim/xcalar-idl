@@ -133,7 +133,7 @@ class FormHelper {
         xcTooltip.hideAll();
         $(".selectedCell").removeClass("selectedCell");
 
-        // Note: to find the visiable btn, must show the form first
+        // Note: to find the visible btn, must show the form first
         if (!options.noTabFocus) {
             self.refreshTabbing();
         }

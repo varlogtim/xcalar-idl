@@ -108,7 +108,7 @@ namespace WorkbookPanel {
 
     /**
     * WorkbookPanel.initialize
-    * Sets up visiable workbook list
+    * Sets up visible workbook list
     */
     export function initialize(): void {
         try {
@@ -470,7 +470,7 @@ namespace WorkbookPanel {
 
             duplicatingWKBKs.push(currentWorkbookName);
 
-            const deferred1: XDPromise<JQuery> = createLoadingCard($dropDownCard);
+            const deferred1: XDPromise<JQuery> = createLoadingCard($dropDownCard, WKBKTStr.Duplicating);
             const deferred2: XDPromise<string> = WorkbookManager.copyWKBK(workbookId,
                                                     currentWorkbookName);
 
@@ -682,7 +682,7 @@ namespace WorkbookPanel {
         return  deferred.promise();
     }
 
-    function createLoadingCard($sibling: JQuery): XDPromise<JQuery> {
+    function createLoadingCard($sibling: JQuery, loadingText?: string): XDPromise<JQuery> {
         let deferred: XDDeferred<JQuery> = PromiseHelper.deferred();
         // placeholder
         const workbook: WKBK = new WKBK({
@@ -690,7 +690,7 @@ namespace WorkbookPanel {
             "name": ""
         });
         const extraClasses: string[] = ["loading", "new"];
-        const html: string = _renderWorkbookHTML(workbook, extraClasses);
+        const html: string = _renderWorkbookHTML(workbook, extraClasses, undefined, loadingText);
 
         const $newCard: JQuery = $(html);
         if ($sibling == null) {
@@ -1018,7 +1018,12 @@ namespace WorkbookPanel {
         return $workbookSection.find(".workbookList .content");
     }
 
-    function _renderWorkbookHTML(workbook: WKBK, extraClasses?: string[], isNewWKBK: boolean = false): string {
+    function _renderWorkbookHTML(
+        workbook: WKBK,
+        extraClasses?: string[],
+        isNewWKBK: boolean = false,
+        loadingText?: string
+    ): string {
         if (workbook == null) {
             // error case
             return "";
@@ -1070,7 +1075,7 @@ namespace WorkbookPanel {
             '</div>' +
             '<div class="animatedEllipsisWrapper">' +
                 '<div class="text">' +
-                    WKBKTStr.Creating +
+                    (loadingText || WKBKTStr.Creating) +
                 '</div>' +
                 '<div class="animatedEllipsis">' +
                     '<div>.</div>' +

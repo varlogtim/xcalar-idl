@@ -75,10 +75,14 @@ class DagSearch {
     }
 
     private _defaultPosition(): void {
-        const $popUp: JQuery = this._getPopup();
-        $popUp.css("top",  $("#dagView")[0].getBoundingClientRect().top + 60)
-              .css("right", "16px")
-              .css("left", "auto");
+        try {
+            const $popUp: JQuery = this._getPopup();
+            const rect = $("#dagView")[0].getBoundingClientRect();
+            $popUp.css("top",  rect.top + 60)
+                .css("left", "50px");
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     private _toggleAdvancedSection($section: JQuery, expand: boolean): void {
@@ -423,7 +427,7 @@ class DagSearch {
                         if ($("input:focus").length ||
                             $("textarea:focus").length ||
                             $('[contentEditable="true"]').length ||
-                            $(".modalBackground:visiable").length
+                            $(".modalBackground:visible").length
                         ) {
                             // do not open if we're focused on another input, such
                             // as codemirror

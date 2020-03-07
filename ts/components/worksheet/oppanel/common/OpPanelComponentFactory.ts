@@ -473,6 +473,7 @@ class OpPanelComponentFactory {
             return str.startsWith(gColPrefix) ? str : `${gColPrefix}${str}`;
         };
         const getColValueName = (str) => {
+            str = str || "";
             return str.startsWith(gColPrefix) ? str.substring(1) : str;
         }
         let cssClass = "";
@@ -491,10 +492,10 @@ class OpPanelComponentFactory {
 
                 delayTimeout = setTimeout((keyword: string)=> {
                     // Get the text in input box
-                    keyword = getColValueName(keyword);
+                    keyword = getColValueName(keyword).toLowerCase();
                     // Create new list of menu items
                     const filterMenuList = menuList.filter((col) => (
-                        col.colType == null || col.colName.includes(keyword)
+                        col.colType == null || col.colName.toLowerCase().includes(keyword)
                     ));
 
                     if (filterMenuList.length === 1 && filterMenuList[0].colName === keyword) {
