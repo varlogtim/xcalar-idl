@@ -227,4 +227,25 @@
             }
         }
     }
+
+    .SourceCSVArgSection {
+        .row {
+            margin-bottom: 4px;
+            width: 100%;
+            @label-w: 130px;
+
+            label {
+                width: @label-w;
+                display: inline-block;
+            }
+
+            input {
+                width: ~"calc(100% - @{label-w})";
+            
+                &.error {
+                    border-color: @color-error-border-light;
+                }
+            }
+        }
+    }
 }
