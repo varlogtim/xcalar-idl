@@ -220,9 +220,12 @@ class IMDTableOpPanel extends BaseOpPanel {
         this._$pubTableInput.on('blur', function() {
             self._changeSelectedTable(self._$pubTableInput.val());
             self._autoDetectSchema(true);
-        })
-    }
+        });
 
+        this._$elemPanel.find(".detect").click(function() {
+            self._autoDetectSchema(false);
+        });
+    }
 
     private _activateDropDown($list: JQuery, container: string) {
         let dropdownHelper: MenuHelper = new MenuHelper($list, {

@@ -1084,6 +1084,7 @@ module.exports = {
         "detect": "Detect",
         "clearAll": "Clear all",
         "colName": "Column Name",
+        "addColHint": "If you want to start modeling without any source, you can speicfy a non-existing source and modify the schema by adding/removing columns. Otherwise, you can specify an existing source and Xcalar will auto detect its schema."
     },
 
     "opsView": {
