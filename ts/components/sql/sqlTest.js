@@ -36,10 +36,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         test = TestSuite.createTest();
         test.setMode(mode);
         initializeTests(testName)
-        return XVM.setMode(XVM.Mode.Advanced)
-        .then(() => {
-            return test.run(hasAnimation, toClean, noPopup, timeDilation);
-        });
+        return test.run(hasAnimation, toClean, noPopup, timeDilation);
 
     };
     function initializeTests(testName) {
@@ -98,7 +95,6 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             var promiseArray = [];
             UserSettings.setPref("dfAutoPreview", false);
             UserSettings.setPref("dfAutoExecute", false);
-            $("#sqlTab").click();
             $("#dagView .newTab").click();
             testDagGraph = DagViewManager.Instance.getActiveDag();
             for (var i = 0; i < tableNames.length; i++) {
@@ -118,9 +114,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             })
             .fail(function(error) {
                 console.error(error, " failed");
-                setTimeout(function() {
-                    test.fail(deferred, testName, currentTestNumber, error);
-                }, 1000*60*60*60);
+                test.fail(deferred, testName, currentTestNumber, error);
             });
         }
     }
@@ -268,6 +262,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             }
         }
     }
+
     function checkResult(answerSet, queryName) {
         var table = "#sqlTableArea table";
         for (var row in answerSet[queryName]) {
@@ -330,24 +325,25 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         console.log("Case " + queryName + "  pass!");
         return true;
     }
+
     function prepareData(test, tableName, randId, dataPath, check, index) {
-        var deferred = PromiseHelper.deferred();
-        // Load datasets
-        loadDatasets(test, tableName, randId, dataPath, check)
-        .then(function() {
-            // Create import nodes
-            return test.createDatasetNode(tableName + "_" + randId, tableName);
+        const deferred = PromiseHelper.deferred();
+        const sourcTableName = (tableName + "_" + randId).toUpperCase();
+        PromiseHelper.convertToJQuery(test.loadTable(sourcTableName, dataPath, check))
+        .then(() => {
+            return PromiseHelper.convertToJQuery(test.createTableNode(sourcTableName))
         })
-        .then(function(nodeId) {
+        .then((nodeId) => {
             tableNodesMap[tableName] = nodeId;
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail((e) => {
+            console.error("prepareData failed", e);
+            deferred.reject(e);
+        });
         return deferred.promise();
     }
-    function loadDatasets(test, tableName, randId, dataPath, check) {
-        return test.loadDS(tableName + "_" + randId, dataPath, check);
-    }
+
     function prepareSQLNode() {
         sqlNodeElement = test.createNode(DagNodeType.SQL);
         sqlNode = DagViewManager.Instance.getActiveDag().getNode(sqlNodeElement.data("nodeid"));
