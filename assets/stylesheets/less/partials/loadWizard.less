@@ -43,9 +43,27 @@
         }
 
         .bucketSelection, .pathSelection {
-            padding-bottom: 8px;
-            input {
+            height: 30px;
+            margin-bottom: 8px;
+            > input {
                 width: ~"calc(100% - @{w-label})";
+            }
+        }
+
+        .bucketSelection {
+            > .dropDownList {
+                .styleDropDownList(~"calc(100% - @{w-label})", 30px);
+
+                .text {
+                    width: 100%;
+                    outline: none;
+                }
+
+                &.open {
+                    .list {
+                        display: block;
+                    }
+                }
             }
         }
     }
