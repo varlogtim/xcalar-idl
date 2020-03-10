@@ -753,10 +753,10 @@ describe('DagTabOptimized Test', function() {
                 expect(dagTabs[1].isFromSDK()).to.be.true;
                 done();
             })
-            .fail(() => {
+            .catch(() => {
                 done("fail");
             })
-            .always(() => {
+            .finally(() => {
                 XcalarListRetinas = oldList;
             });
         });
@@ -771,11 +771,11 @@ describe('DagTabOptimized Test', function() {
             .then(() => {
                 done("fail");
             })
-            .fail((e) => {
-                expect(e).not.to.be.empty;
+            .catch((e) => {
+                expect(e.message).to.equal("Cannot read property 'retinaDescs' of null");
                 done();
             })
-            .always(() => {
+            .finally(() => {
                 XcalarListRetinas = oldList;
             });
         });

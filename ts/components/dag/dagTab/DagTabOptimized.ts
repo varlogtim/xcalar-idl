@@ -29,65 +29,74 @@ class DagTabOptimized extends DagTabProgress {
     /**
      * DagTabOptimized.restore
      */
-    public static restore(
+    public static async restore(
         dagList: {name: string, id: string}[]
-    ): XDPromise<{dagTabs: DagTabOptimized[], metaNotMatch: boolean}> {
-        const deferred: XDDeferred<{dagTabs: DagTabOptimized[], metaNotMatch: boolean}> = PromiseHelper.deferred();
-        XcalarListRetinas()
-        .then((retinas) => {
-            try {
-                let dagListMap: Map<string, string> = new Map();
-                dagList.forEach((dag) => dagListMap.set(dag.id, dag.name));
-                let dagTabs: DagTabOptimized[] = [];
-                let metaNotMatch: boolean = false;
-                let activeWKBKId = WorkbookManager.getActiveWKBK();
-                let activeWKBNK = WorkbookManager.getWorkbook(activeWKBKId);
-                let sessionId: string = activeWKBNK ? activeWKBNK.sessionId : null;
-                let key: string = DagNode.KEY + "_" + sessionId;
+    ): Promise<{dagTabs: DagTabOptimized[], metaNotMatch: boolean}> {
+        try {
+            const retinas = await XcalarListRetinas();
+            let dagListMap: Map<string, string> = new Map();
+            dagList.forEach((dag) => dagListMap.set(dag.id, dag.name));
+            let dagTabs: DagTabOptimized[] = [];
+            let metaNotMatch: boolean = false;
+            let activeWKBKId = WorkbookManager.getActiveWKBK();
+            let activeWKBNK = WorkbookManager.getWorkbook(activeWKBKId);
+            let sessionId: string = activeWKBNK ? activeWKBNK.sessionId : null;
+            let key: string = DagNode.KEY + "_" + sessionId;
+            let optRetinas: Set<string> = new Set();
 
-                retinas.retinaDescs.forEach((retina) => {
-                    let retinaName: string = retina.retinaName;
-                    if (retinaName.startsWith(DagTabOptimized.KEY)) {
-                        if (dagListMap.has(retinaName) && retinaName.includes(key)) {
-                            let dagTabName: string = dagListMap.get(retinaName);
-                            dagTabs.push(new DagTabOptimized({
-                                id: retinaName,
-                                name: dagTabName
-                            }));
-                            dagListMap.delete(retinaName);
-                        } else if (retinaName.includes(key)) {
-                            console.warn("optimized application", retinaName, "is missing in meta");
-                            dagTabs.push(new DagTabOptimized({
-                                id: retinaName,
-                                name: retinaName
-                            }));
-                            metaNotMatch = true;
-                        }
-                    } else {
+            retinas.retinaDescs.forEach((retina) => {
+                let retinaName: string = retina.retinaName;
+                if (retinaName.startsWith(DagTabOptimized.KEY)) {
+                    if (dagListMap.has(retinaName) && retinaName.includes(key)) {
+                        let dagTabName: string = dagListMap.get(retinaName);
                         dagTabs.push(new DagTabOptimized({
-                            id: DagTab.generateId(),
-                            name: retinaName,
-                            fromSDK: true
+                            id: retinaName,
+                            name: dagTabName
                         }));
+                        dagListMap.delete(retinaName);
+                    } else if (retinaName.includes(key)) {
+                        console.warn("optimized application", retinaName, "is missing in meta");
+                        dagTabs.push(new DagTabOptimized({
+                            id: retinaName,
+                            name: retinaName
+                        }));
+                        metaNotMatch = true;
                     }
-                });
-
-                if (dagListMap.size > 0) {
-                    metaNotMatch = true;
+                } else {
+                    dagTabs.push(new DagTabOptimized({
+                        id: DagTab.generateId(),
+                        name: retinaName,
+                        fromSDK: true
+                    }));
+                    optRetinas.add(retinaName);
                 }
+            });
 
-                deferred.resolve({
-                    dagTabs,
-                    metaNotMatch
-                });
-            } catch (e) {
-                console.error(e);
-                deferred.reject(e.message);
+            const optQueries = await XcalarQueryList(XcUID.SDKPrefixOpt + "*");
+            optQueries.forEach((query) => {
+                if (!optRetinas.has(query.name)) {
+                    dagTabs.push(new DagTabOptimized({
+                        id: DagTab.generateId(),
+                        name: query.name,
+                        fromSDK: true,
+                        noRetina: true
+                    }));
+                }
+            });
+
+            if (dagListMap.size > 0) {
+                metaNotMatch = true;
             }
-        })
-        .fail(deferred.reject);
 
-        return deferred.promise();
+            return {
+                dagTabs,
+                metaNotMatch
+            }
+        } catch (e) {
+            console.error(e);
+            throw e;
+        }
+
     }
 
     /**
@@ -142,6 +151,7 @@ class DagTabOptimized extends DagTabProgress {
     }
 
     private _fromSDK: boolean;
+    private _noRetina: boolean;
     protected _state: string;
 
     constructor(options: {
@@ -150,13 +160,15 @@ class DagTabOptimized extends DagTabProgress {
         queryNodes?: any[],
         executor?: DagGraphExecutor,
         fromSDK?: boolean,
-        state?: string
+        state?: string,
+        noRetina?: boolean
     }) {
         super(options);
         const {queryNodes, executor} = options;
         this._fromSDK = options.fromSDK || false;
         this._state = options.state;
         this._type = DagTabType.Optimized;
+        this._noRetina = options.noRetina || false;
 
         if (queryNodes) {
             const graph: DagSubGraph = this._constructGraphFromQuery(queryNodes);
@@ -180,20 +192,13 @@ class DagTabOptimized extends DagTabProgress {
     }
 
     public load(): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._isDoneExecuting = false;
         this._hasQueryStateGraph = false; // reload query graph
-
-        XcalarGetRetinaJson(this._queryName)
-        .then((retina) => {
-            this._dagGraph = this._constructGraphFromQuery(retina.query);
-            this._dagGraph.startExecution(retina.query, null);
-            this.setGraph(this._dagGraph);
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
+        if (this._noRetina) {
+            return this._loadQueryJson();
+        } else {
+            return this._loadRetinaJson();
+        }
     }
 
     public delete(): XDPromise<any> {
@@ -204,7 +209,13 @@ class DagTabOptimized extends DagTabProgress {
         this._queryCheckId++;
 
         let retinaName: string = this._queryName;
-        XcalarDeleteRetina(retinaName)
+        let promise;
+        if (this._noRetina) {
+            promise = XcalarQueryDelete(retinaName);
+        } else {
+            promise = XcalarDeleteRetina(retinaName);
+        }
+        promise
         .then(() => {
             let tableName: string = DagTabOptimized.getOutputTableName(retinaName);
             DagUtil.deleteTable(tableName);
@@ -276,6 +287,35 @@ class DagTabOptimized extends DagTabProgress {
 
         return deferred.promise();
     }
+    private _loadRetinaJson() {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+
+        XcalarGetRetinaJson(this._queryName)
+        .then((retina) => {
+            this._dagGraph = this._constructGraphFromQuery(retina.query);
+            this._dagGraph.startExecution(retina.query, null);
+            this.setGraph(this._dagGraph);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    private _loadQueryJson() {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        XcalarQueryState(this._queryName)
+        .then((retina) => {
+            this._dagGraph = this._constructGraphFromQuery(retina.queryGraph.node);
+            this._dagGraph.startExecution(retina.queryGraph.node, null);
+            this.setGraph(this._dagGraph);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
 }
 
 if (typeof exports !== 'undefined') {

@@ -258,7 +258,8 @@ class DagList extends Durable {
             $li.find(".canBeDisabledIconWrap").addClass("xc-disabled");
             $li.find(".xi-duplicate").addClass("xc-disabled");
         }
-        if (dagTab instanceof DagTabQuery) {
+        if (dagTab instanceof DagTabQuery || (dagTab instanceof DagTabOptimized &&
+            dagTab.isFromSDK())) {
             const state: string = dagTab.getState();
             const $statusIcon: JQuery = $li.find(".statusIcon");
             const html = '<div class="statusIcon state-' + state +
@@ -644,7 +645,7 @@ class DagList extends Durable {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this.listOptimizedDagAsync()
         .then((res) => {
-            return DagTabOptimized.restore(res ? res.dags : []);
+            return PromiseHelper.convertToJQuery(DagTabOptimized.restore(res ? res.dags : []));
         })
         .then((ret) => {
             const {dagTabs, metaNotMatch} = ret;
