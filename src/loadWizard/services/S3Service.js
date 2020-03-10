@@ -131,17 +131,31 @@ async function createKeyListTable({ bucketName='/xcfield/', namePattern='*', rec
 async function getForensicsStats(bucketName, pathPrefix) {
     const fullPath = Path.join(bucketName, pathPrefix);
     const keyListTableName = getKeylistTableName(bucketName);
-    const sql = `
-        SELECT
+    const sql = `SELECT * FROM (SELECT * FROM
+        (SELECT *,(TOTAL_COUNT-CSV_COUNT-JSON_COUNT-PARQUET_COUNT-NOEXT_COUNT) AS UNSUPPORTED_COUNT FROM
+        (SELECT
             COUNT(*) as TOTAL_COUNT,
             MAX(LENGTH(path) - LENGTH(REPLACE(path, '/', ''))) AS MAX_DEPTH,
-            MAX(CAST(size as int)) AS LARGEST_FILE_SIZE,
-            MIN(CAST(size as int)) AS SMALLEST_FILE_SIZE,
             STDDEV(CAST(size as int)) AS STD_DEV,
-            SUM(CASE WHEN path LIKE '%.csv' THEN 1 ELSE 0 END) AS CSV_COUNT,
-            SUM(CASE WHEN path LIKE '%.json%' THEN 1 ELSE 0 END) AS JSON_COUNT,
-            SUM(CASE WHEN path LIKE '%.parquet' THEN 1 ELSE 0 END) AS PARQUET_COUNT
-        FROM ( SELECT * FROM ${keyListTableName} WHERE path LIKE '${fullPath}%')`;
+            SUM(CASE WHEN LOWER(path) LIKE '\%.csv' THEN 1 ELSE 0 END) AS CSV_COUNT,
+            SUM(CASE WHEN LOWER(path) LIKE '\%.json%' THEN 1 ELSE 0 END) AS JSON_COUNT,
+            SUM(CASE WHEN LOWER(path) LIKE '\%.parquet' THEN 1 ELSE 0 END) AS PARQUET_COUNT,
+            SUM(CASE WHEN LOWER(path) NOT LIKE '\%.\%' THEN 1 ELSE 0 END) AS NOEXT_COUNT
+        FROM ( SELECT * FROM ${keyListTableName} WHERE path LIKE '${fullPath}\%'))) JOIN (
+            SELECT a.PATH LARGEST_FILE, a.SIZE LARGEST_FILE_SIZE
+               FROM ${keyListTableName} a
+               INNER JOIN (
+                    SELECT MAX(CAST(SIZE AS INT)) LARGEST_FILE_SIZE
+                    FROM ${keyListTableName}
+            ) b ON a.SIZE = b.LARGEST_FILE_SIZE
+        )) JOIN (
+            SELECT a.PATH SMALLEST_FILE, a.SIZE SMALLEST_FILE_SIZE
+               FROM ${keyListTableName} a
+               INNER JOIN (
+                    SELECT MIN(CAST(SIZE AS INT)) SMALLEST_FILE_SIZE
+                    FROM ${keyListTableName}
+            ) b ON a.SIZE = b.SMALLEST_FILE_SIZE
+        )`;
 
     const session = new XDSession();
     const stats = {
@@ -179,10 +193,14 @@ async function getForensicsStats(bucketName, pathPrefix) {
             stats.file.count = result['TOTAL_COUNT'];
             stats.file.maxSize = result['LARGEST_FILE_SIZE'];
             stats.file.minSize = result['SMALLEST_FILE_SIZE'];
+            stats.file.largestFile = result['LARGEST_FILE'];
+            stats.file.smallestFile = result['SMALLEST_FILE'];
             stats.structure.depth = result['MAX_DEPTH'];
             stats.type.csv = result['CSV_COUNT'];
             stats.type.json = result['JSON_COUNT'];
             stats.type.parquet = result['PARQUET_COUNT'];
+            stats.type.unsupported = result['UNSUPPORTED_COUNT'];
+            stats.type.noext = result['NOEXT_COUNT'];
         }
     } catch(e) {
         console.error(e);
