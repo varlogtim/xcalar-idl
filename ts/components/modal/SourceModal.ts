@@ -13,7 +13,7 @@ class SourceModal {
             noResize: true,
             noEnter: true
         });
-        this._swtichTab("connector");
+        this._swtichTab("loadWizard");
     }
 
     /**
@@ -57,15 +57,7 @@ class SourceModal {
                 DataSourceManager.swichToImportView();
                 break;
             case "loadWizard":
-                if (typeof gEnableLW != 'undefined' && gEnableLW) {
-                    DataSourceManager.switchToLoadWizardView();
-                } else {
-                    Alert.show({
-                        title: "Coming Soon",
-                        msg: "Import Data Source Wizard will release in the next version.",
-                        isAlert: true
-                    });
-                }
+                DataSourceManager.switchToLoadWizardView();
                 break;
             default:
                 break;
