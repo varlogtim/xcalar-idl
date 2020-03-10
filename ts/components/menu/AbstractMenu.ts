@@ -11,7 +11,7 @@ abstract class AbstractMenu {
         this.subMenuId = subMenuId;
         this._setupHotKeys();
         xcMenu.add(this._getMenu(), {
-            hotkeys: this._hotKeyTrigger.bind(this)
+            // hotkeys: this._hotKeyTrigger.bind(this)
         });
         this._addMenuActions();
     }

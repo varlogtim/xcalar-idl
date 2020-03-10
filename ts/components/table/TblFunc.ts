@@ -566,11 +566,15 @@ class TblFunc {
             return;
         }
         const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
-        const isModelingMode = table.modelingMode;
         if ($tableWrap.length !== 0 && !$tableWrap.hasClass('tableLocked')) {
-            // XXX TODO Remove this hack
-            const $container: JQuery = isModelingMode ?
-            DagTable.Instance.getView() : $('#mainFrame');
+            if (DagTable.Instance.getView() == null) {
+                return;
+            }
+            // XXX hack
+            let $container: JQuery = DagTable.Instance.getView();
+            if ($container == null) {
+                $container = $("#sqlTableArea .tableSection .viewWrap");
+            }
             const iconNum: number = $('.lockedTableIcon[data-txid="' + txId +
                                     '"] .progress').length;
             // tableWrap may not exist during multijoin on self

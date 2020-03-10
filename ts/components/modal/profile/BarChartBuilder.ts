@@ -89,7 +89,9 @@ class BarChartBuilder extends AbstractChartBuilder {
                 return x(d[xName], i) + xWidth / 2;
             }
         };
-        let getLastTickX = (d, i) => x(d[xName], i) + xWidth - marginLeft / 2 - 3;
+        let getLastTickX = (d) => {
+            return x(d[xName], dataLen - 1) + xWidth;
+        };
 
 
         if (initial) {
@@ -265,7 +267,6 @@ class BarChartBuilder extends AbstractChartBuilder {
             .attr("width", xWidth)
             .attr("x", getTickX)
             .attr("y", tickHeight)
-            .attr("stroke", this._textColor)
             .text(getXAxis);
 
 
