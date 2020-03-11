@@ -39,7 +39,16 @@ function Schema({
     onClick
 }) {
     return (
-        <button onClick={() => { onClick(); }}>{schemaName}</button>
+        <button
+            className="schemaBtn btn btn-secondary"
+            data-toggle="tooltip"
+            data-placement="top"
+            data-container="body"
+            data-original-title="click to view schema"
+            onClick={() => { onClick(); }}
+        >
+                {schemaName}
+        </button>
     );
 }
 
@@ -51,7 +60,7 @@ function Discover({
     onClick
 }) {
     return (
-        <button onClick={() => { onClick(); }}>{Texts.discover}</button>
+        <button className="schemaBtn btn btn-secondary" onClick={() => { onClick(); }}>{Texts.discover}</button>
     );
 }
 

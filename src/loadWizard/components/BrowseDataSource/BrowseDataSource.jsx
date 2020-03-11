@@ -47,6 +47,10 @@ function BrowseDataSource({
         <div className="browseDataSourceScreen fileBrowser">
             <div className="fileBrowserPath">
                 <i className="icon xi-upload-folder xc-icon-action upFolderIcon"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    data-container="body"
+                    data-original-title="Go to parent directory"
                     onClick={() => {
                         if (rootFullPath === currentFullPath) {
                             return;

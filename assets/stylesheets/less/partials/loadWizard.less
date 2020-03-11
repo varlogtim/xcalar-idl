@@ -3,6 +3,7 @@
         height: 100%;
         display: flex;
         flex-direction: row;
+        overflow: hidden;
 
         .modelPanel {
             height: 100%;
@@ -20,8 +21,8 @@
 
         .cardMain {
             padding: 20px;
-            overflow-y: auto;
             height: ~"calc(100% - 36px)";
+            overflow: hidden;
         }
     }
 
@@ -31,8 +32,6 @@
     }
 
     .sourceForm {
-        width: 80%;
-        margin: 0 10%;
         @w-label: 120px;
 
         .label {
@@ -119,14 +118,15 @@
 
         .upFolderIcon {
             position: relative;
-            top: 6px;
+            top: 4px;
             margin-right: 4px;
         }
 
         .fileBrowserPath {
-            padding: 12px 0;
+            padding: 8px 0;
+            height: 46px;
             input {
-                width: 50%;
+                width: ~"calc(100% - 26px)";
                 outline: none;
             }
         }
@@ -134,15 +134,17 @@
 
     // overwrite material UI style
     .MuiPaper-root {
-        background-color: transparent;
+        background-color: @color-bg-modal;
         margin: 4px 0;
+        height: ~"calc(100% - 86px)";
+        overflow: auto;
 
         .MuiSvgIcon-root {
             fill: @color-font-default;
         }
 
         .MuiTableCell-root {
-            background-color: transparent;
+            background-color: @color-bg-modal;
             color: @color-font-default;
         }
 
@@ -152,6 +154,12 @@
 
         .MuiTypography-root {
             color: @color-font-default;
+        }
+    }
+
+    .filesSelected {
+        .MuiPaper-root {
+            padding: 0 4px;
         }
     }
 
@@ -256,8 +264,14 @@
     }
 
     .SourceCSVArgSection {
+        > div {
+            &:first-child {
+                margin-bottom: 8px;
+            }
+        }
+
         .row {
-            margin-bottom: 4px;
+            margin-top: 4px;
             width: 100%;
             @label-w: 130px;
 
@@ -274,5 +288,16 @@
                 }
             }
         }
+    }
+
+    .schemaBtn {
+        width: auto;
+        font-size: 10px;
+        height: 16px;
+        line-height: 14px;
+        padding-top: 0;
+        padding-bottom: 0;
+        position: relative;
+        top: -1px;
     }
 }
