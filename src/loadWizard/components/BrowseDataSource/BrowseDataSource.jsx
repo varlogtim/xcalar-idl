@@ -1,6 +1,6 @@
 import Path from 'path';
 import React from "react";
-// import BucketChart from './BucketChart'
+import BucketChart from './BucketChart';
 import FileListTable from './FileListTable'
 import NavButtons from '../NavButtons'
 
@@ -72,7 +72,7 @@ function BrowseDataSource({
                 left={{ label: Texts.navButtonLeft, onClick: () => { onPrevScreen() } }}
                 right={selectedFileDir.length > 0 ? { label: Texts.navButtonRight, onClick: () => { onNextScreen() } } : null}
             />
-            {/* <BucketChart data={userSelectedData.length ? userSelectedData : data}/> */}
+            {selectedFileDir.length > 0 ? <BucketChart fileList={selectedFileDir}/> : null}
         </div>
       );
 }
