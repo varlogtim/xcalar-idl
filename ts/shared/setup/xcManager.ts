@@ -48,7 +48,7 @@ namespace xcManager {
 
             StatusBox.setup();
             StatusMessage.setup();
-            BottomMenu.setup(); // async
+            Log.setup();
             DataSourceManager.setup();
             TableComponent.setup();
             MonitorPanel.setup();
@@ -97,7 +97,6 @@ namespace xcManager {
                 $("#bottomMenuBarTabs").removeClass("xc-hidden");
                 setupScreens();
                 MainMenu.setup();
-                setupModeArea();
                 XDFManager.Instance.setup();
                 DagConfigNodeModal.Instance.setupPanels();
                 WorkbookPanel.initialize();
@@ -180,11 +179,9 @@ namespace xcManager {
             if (!gMinModeOn) {
                 $("#initialLoadScreen").fadeOut(200, function() {
                     hideInitialLoadScreen();
-                    TableComponent.update();
                 });
             } else {
                 hideInitialLoadScreen();
-                TableComponent.update();
             }
             XcUser.creditUsageCheck();
         });
@@ -709,55 +706,6 @@ namespace xcManager {
         HelpMenu.Instance.setup();
     }
 
-    /**
-     * xcManager.setModeStatus
-     * @param isSQLMode
-     */
-    export function setModeStatus(): void {
-        let $modeArea: JQuery = $("#modeArea");
-        let $container: JQuery = $("#container");
-        let currentText: string;
-        let nextText: string;
-        if (XVM.isDataMart()) {
-            $modeArea.remove();
-            $container.removeClass("sqlMode")
-                    .removeClass("advMode");
-        } else if (XVM.isSQLMode()) {
-            currentText = ModeTStr.SQL;
-            nextText = ModeTStr.Advanced;
-            $modeArea.removeClass("on");
-            $container.addClass("sqlMode")
-                    .removeClass("advMode");
-        } else {
-            currentText = ModeTStr.Advanced;
-            nextText = ModeTStr.SQL;
-            $modeArea.addClass("on");
-            $container.removeClass("sqlMode")
-                    .addClass("advMode");
-        }
-        $modeArea.find(".text.current").text(currentText);
-        $modeArea.find(".text.next").text(nextText);
-    }
-
-    function setupModeArea(): void {
-        let $modeArea: JQuery = $("#modeArea").removeClass("xc-hidden");
-        xcManager.setModeStatus();
-
-        $modeArea.click(() => {
-            if ($("#initialLoadScreen").is(":visible")) {
-                return; // no switching when screen is locked
-            }
-            let modeToSwitch: XVM.Mode;
-            if (XVM.isSQLMode()) {
-                modeToSwitch = XVM.Mode.Advanced;
-            } else {
-                modeToSwitch = XVM.Mode.SQL;
-            }
-            XVM.setMode(modeToSwitch);
-            ModeAlertModal.Instance.show();
-        });
-    }
-
     function setupSocket(): XcSocket {
         const xcSocket: XcSocket = XcSocket.Instance;
         xcSocket.setup();
@@ -1250,52 +1198,6 @@ namespace xcManager {
                 event.preventDefault();
             }
         });
-    }
-
-    function showDatasetHint() {
-        var $numDatastores = $("#datastoreMenu .numDataStores:not(.tutor)");
-        var numDatastores = parseInt($numDatastores.text());
-        var msg;
-        var $tab;
-        if (numDatastores === 0) {
-            msg = TooltipTStr.ShowDatasetHint;
-            $tab = $('#dataStoresTab');
-        } else if (DagList.Instance.getAllDags().size === 0) {
-            msg = TooltipTStr.ShowDataflowHint;
-            $tab = $("#modelingDataflowTab");
-        } else {
-            // no need to hint
-            return;
-        }
-
-
-        var left = $tab.offset().left + $tab.outerWidth() + 7;
-        var top = $tab.offset().top + 2;
-        var $popup =
-                $('<div id="showDatasetHint" class="tableDonePopupWrap" ' +
-                    'style="top:' + top + 'px;left:' + left + 'px;">' +
-                    '<div class="tableDonePopup datastoreNotify">' +
-                    msg +
-                    '<div class="close">+</div></div></div>');
-        setTimeout(function() {
-            if ($tab.hasClass("firstTouch") &&
-                $("#modelingDataflowTab").hasClass("active")
-            ) {
-                showPopup();
-            }
-        }, 1000);
-
-        function showPopup() {
-            $("body").append($popup);
-            $popup.find(".tableDonePopup").fadeIn(500);
-
-            $popup.click(function(event) {
-                if (!$(event.target).closest(".close").length) {
-                    MainMenu.openPanel("datastorePanel", "inButton");
-                }
-                $("#showDatasetHint").remove();
-            });
-        }
     }
 
     function setupDataMart(): void {

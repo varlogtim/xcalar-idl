@@ -866,12 +866,11 @@ describe("Ephemeral Constructor Test", function() {
         it("FormHelper should be constructor", function() {
             formHelper = new FormHelper($fakeView);
             expect(formHelper).to.be.instanceof(FormHelper);
-            expect(Object.keys(formHelper).length).to.equal(8);
+            expect(Object.keys(formHelper).length).to.equal(7);
             expect(formHelper.$form).to.equal($fakeView);
             expect(formHelper.options).to.be.an("object");
             expect(formHelper.id).to.equal("fakeView");
             expect(formHelper.state).to.be.null;
-            expect(formHelper.mainMenuState).to.be.null;
             expect(formHelper.openTime).to.be.null;
             expect(formHelper.isFormOpen).to.be.false;
         });

@@ -6,9 +6,6 @@ describe("GeneralOpPanelModel Test", function() {
     var columns;
 
     before(function(done) {
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
         node = new DagNodeMap({});
         const parentNode = new DagNodeMap({});
         columns = [new ProgCol({

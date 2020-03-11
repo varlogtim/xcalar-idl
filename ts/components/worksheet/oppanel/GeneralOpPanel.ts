@@ -1779,15 +1779,10 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _checkPanelOpeningError() {
         if (this.model.modelError || BaseOpPanel.isLastModeAdvanced) {
             this._startInAdvancedMode();
-            BottomMenu.checkMenuAnimFinish()
-            .then(() => {
-                if (this.model.modelError) {
-                    StatusBox.show(this.model.modelError,
-                            this._$panel.find(".advancedEditor"),
-                            false, {'side': 'right'});
-                }
-            });
             if (this.model.modelError) {
+                StatusBox.show(this.model.modelError,
+                        this._$panel.find(".advancedEditor"),
+                        false, {'side': 'right'});
                 this._dagNode.beErrorState(this.model.modelError);
             }
         }

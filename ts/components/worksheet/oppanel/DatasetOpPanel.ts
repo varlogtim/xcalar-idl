@@ -594,12 +594,9 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             if (ds == null) {
                 if (atStart) {
                     this._startInAdvancedMode(input);
-                    BottomMenu.checkMenuAnimFinish()
-                    .then(() => {
-                        StatusBox.show(DSTStr.InvalidPriorDataset + input.source,
-                                    this._$elemPanel.find(".advancedEditor"),
-                                    false, {'side': 'right'});
-                    });
+                    StatusBox.show(DSTStr.InvalidPriorDataset + input.source,
+                        this._$elemPanel.find(".advancedEditor"),
+                        false, {'side': 'right'});
 
                     this._dagNode.beErrorState(DSTStr.InvalidPriorDataset + input.source);
                     return;

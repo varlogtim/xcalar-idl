@@ -238,7 +238,6 @@ class SQLModeState extends State {
     }
 
     public async takeOneAction(): Promise<SQLModeState> {
-        XVM.setMode(<XVM.Mode>this.mode);
         let randomAction = Util.pickRandom(this.availableActions);
         this.log(`take action ${randomAction.name}`);
         const newState = await randomAction.call(this);

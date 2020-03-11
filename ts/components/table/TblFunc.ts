@@ -178,11 +178,6 @@ class TblFunc {
     }
 
     public static repositionOnWinResize() {
-        const table: TableMeta = gTables[gActiveTableId];
-        if (table && table["resultSetCount"] !== 0) {
-            TableComponent.update();
-        }
-        // XXX TODO remove this hack
         // for Dag Table
         TblFunc.alignLockIcon();
 
@@ -213,31 +208,6 @@ class TblFunc {
         const rect: ClientRect = $tableWrap[0].getBoundingClientRect();
         const center: number = rect.width / 2;
         $lockTableIcon.css('left', center);
-    }
-
-    /**
-     * TblFunc.focusTable
-     * @param tableId
-     * @param focusDag
-     */
-    public static focusTable(tableId: TableId): void {
-        const table: TableMeta = gTables[tableId];
-        if (table && table.modelingMode) {
-            return;
-        }
-        if ($("#xcTableWrap-" + tableId).hasClass("tableLocked")) {
-            return;
-        }
-
-        const alreadyFocused: boolean = (gActiveTableId === tableId);
-        if (!alreadyFocused && gActiveTableId) {
-            TblManager.unHighlightCells(gActiveTableId);
-        }
-        // unhighlight any selected columns from all other tables
-        $('.xcTable:not(#xcTable-' + tableId + ')').find('.selectedCell')
-                                                   .removeClass('selectedCell');
-        gActiveTableId = tableId;
-        TableComponent.update();
     }
 
     /**
@@ -407,11 +377,13 @@ class TblFunc {
         scrollType: string,
         isUp: boolean
     ): boolean {
-        if (!$("#modelingDataflowTab").hasClass("active") ||
-            tableId == null)
-        {
-            return false;
-        }
+        // XXX temporary disable it for new notebook UX
+        return false;
+        // if (!$("#modelingDataflowTab").hasClass("active") ||
+        //     tableId == null)
+        // {
+        //     return false;
+        // }
 
         const $visibleMenu: JQuery = $('.menu:visible');
         if ($visibleMenu.length !== 0) {

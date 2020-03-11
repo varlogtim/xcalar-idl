@@ -25,9 +25,6 @@ describe("DagView Test", () => {
             XcalarKeyPut = function() {
                 return PromiseHelper.resolve();
             };
-            if (XVM.isSQLMode()) {
-                $("#modeArea").click();
-            }
             DagTabManager.Instance.newTab();
             tabId = DagViewManager.Instance.getActiveDag().getTabId();
             $dfArea = $dfWrap.find(".dataflowArea.active");

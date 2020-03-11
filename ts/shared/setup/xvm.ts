@@ -530,56 +530,6 @@ namespace XVM {
     }
 
     /**
-     * XVM.setMode
-     * @param mode
-     */
-    export function setMode(
-        mode: XVM.Mode,
-        ignoreSQLChange?: boolean
-    ): XDPromise<void> {
-        if (XVM.isDataMart()) {
-            // data mart don't have the concep of mode
-            return PromiseHelper.resolve();
-        }
-        if (mode === _mode) {
-            return PromiseHelper.resolve();
-        }
-        if (mode === XVM.Mode.SQL && !ignoreSQLChange &&
-            OldSQLOpPanel.Instance.hasUnsavedChange()) {
-            Alert.show({
-                title: "SQL",
-                msg: SQLTStr.UnsavedSQL,
-                onConfirm: () => {
-                    XVM.setMode(mode, true);
-                }
-            });
-            return PromiseHelper.resolve();
-        }
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        _mode = mode;
-
-        xcManager.setModeStatus();
-        TblSourcePreview.Instance.switchMode();
-        DSConfig.switchMode();
-        let allPanelsClosed = MainMenu.switchMode();
-        // if (allPanelsClosed) {
-        //     MainMenu.openDefaultPanel();
-        // }
-        PromiseHelper.alwaysResolve(TooltipWalkthroughs.checkFirstTimeTooltip())
-        .then(() => {
-            deferred.resolve();
-        });
-        return deferred.promise();
-    }
-
-    /**
-     * XVM.getMode
-     */
-    export function getMode(): XVM.Mode {
-        return _mode;
-    }
-
-    /**
      * XVM.isSQLMode
      */
     export function isSQLMode(): boolean {

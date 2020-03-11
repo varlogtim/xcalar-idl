@@ -17,7 +17,6 @@ class TableMeta extends Durable {
     public resultSetMax: number; // (integer, not persist) last row able to fetch
     public resultSetId: string; // result id
     public rowHeights: any; // row height cache
-    public modelingMode: boolean;
     public allImmediates: boolean;
     public scrollMeta: {isTableScrolling: boolean, isBarScrolling: boolean, base: number, scale: number};
 

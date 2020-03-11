@@ -81,16 +81,11 @@ describe.skip("JupyterPanel Test", function() {
 
         it("autofillImportUdf without stub should open udf panel", function(done) {
             var called1 = false;
-            var called2 = false;
             var called3 = false;
             var cacheFn1 = JupyterPanel.appendStub;
-            var cacheFn2 = BottomMenu.openSection;
             var cacheFn3 = UDFPanel.Instance.openUDF;
             JupyterPanel.appendStub = function() {
                 called1 = true;
-            };
-            BottomMenu.openSection = function() {
-                called2 = true;
             };
             UDFPanel.Instance.openUDF = function() {
                 called3 = true;
@@ -99,11 +94,9 @@ describe.skip("JupyterPanel Test", function() {
             target: "targ", filePath: "path"})
             .then(function() {
                 expect(called1).to.be.true;
-                expect(called2).to.be.true;
                 expect(called3).to.be.true;
 
                 JupyterPanel.appendStub = cacheFn1;
-                BottomMenu.openSection = cacheFn2;
                 UDFPanel.Instance.openUDF = cacheFn3;
                 done();
             })
@@ -261,17 +254,12 @@ describe.skip("JupyterPanel Test", function() {
     describe("Main functions", function() {
         it("JupyterPanel.autofillImportUdfModal should work", function() {
             var called1 = false;
-            var called2 = false;
             var called3 = false;
             var cacheFn1 = JupyterPanel.appendStub;
-            var cacheFn2 = BottomMenu.openSection;
             var cacheFn3 = UDFPanel.Instance.openUDF;
             JupyterPanel.appendStub = function(type) {
                 expect(type).to.equal("importUDF");
                 called1 = true;
-            };
-            BottomMenu.openSection = function() {
-                called2 = true;
             };
             UDFPanel.Instance.openUDF = function() {
                 called3 = true;
@@ -282,11 +270,9 @@ describe.skip("JupyterPanel Test", function() {
 
             JupyterPanel.autofillImportUdfModal(null, null, false);
             expect(called1).to.be.true;
-            expect(called2).to.be.true;
             expect(called3).to.be.true;
 
             JupyterPanel.appendStub = cacheFn1;
-            BottomMenu.openSection = cacheFn2;
             UDFPanel.Instance.openUDF = cacheFn3;
 
             JupyterPanel.__testOnly__.setCurNB(prevNB);

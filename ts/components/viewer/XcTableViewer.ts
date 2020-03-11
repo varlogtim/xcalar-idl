@@ -14,7 +14,6 @@ class XcTableViewer extends XcViewer {
         this.rowManager = new RowManager(table, this.getView());
         this.rowInput = new RowInput(this.rowManager);
         this.skew = new TableSkew(this.table);
-        this._setTableMode(true);
         this._options = options;
     }
 
@@ -316,10 +315,6 @@ class XcTableViewer extends XcViewer {
         });
     }
 
-    protected _setTableMode(modelingMode: boolean = false): void {
-        this.table.modelingMode = modelingMode;
-    }
-
     private _addScrollbar(): void {
         this._setupScrollMeta();
         this._setupScrollbar();
@@ -451,7 +446,6 @@ class XcTableViewer extends XcViewer {
             const tableId: TableId = this.table.getId();
             if (needsFocusing) {
                 needsFocusing = false;
-                TblFunc.focusTable(tableId);
                 clearElements();
             }
 

@@ -77,7 +77,6 @@ class StateMachine {
     async prepareData() {
         // load some datasets for functests
         if (this.stateName != 'Workbook' && xcSessionStorage.getItem("xdFuncTestFirstTimeInit") == undefined) {
-            XVM.setMode(XVM.Mode.Advanced); // Set it to advanced mode to load DS
             const nameBase = "AIRPORT" + Math.floor(Util.random() * 10000);
             const check = "#previewTable td:eq(1):contains(00M)";
             const url = "/netstore/datasets/" + "flight/" + this.test.mode + "airports.csv";
@@ -97,7 +96,7 @@ class StateMachine {
             let schema = dsSchema[ds.id].columns;
             await PTblManager.Instance.createTableFromDataset(ds.id, tblName, schema);
             DS.refresh(); // refresh gridview area
-            XVM.setMode(this.currentState.mode);
+            // XVM.setMode(this.currentState.mode);
             xcSessionStorage.setItem('xdFuncTestFirstTimeInit', 'false');
         }
     }

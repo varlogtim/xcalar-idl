@@ -12,12 +12,6 @@ describe("Main Menu Test", function() {
             expect(MainMenu.getOffset()).to.be.an("number");
         });
 
-        it("MainMenu.getState should work", function() {
-            var state = MainMenu.getState();
-            expect(state).to.be.an("object");
-            expect(Object.keys(state).length).to.equal(3);
-        });
-
         it("MainMenu.openPanel should work", function() {
             $(".topMenuBarTab.active").removeClass("active");
             MainMenu.openPanel("test");

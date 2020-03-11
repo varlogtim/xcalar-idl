@@ -983,26 +983,11 @@ class DagViewManager {
      * DagViewManager.Instance.createSQLFunc
      * @param isFromSQLMode
      */
-    public createSQLFunc(isFromSQLMode: boolean): void {
+    public createSQLFunc(): void {
         let onSubmit = (name, numInput) => {
-            const cb = () => {
-                DagView.newSQLFunc(name, numInput);
-            };
-            if (isFromSQLMode) {
-                XVM.setMode(XVM.Mode.Advanced)
-                .then(function() {
-                    cb();
-                });
-            } else {
-                cb();
-            }
+            DagView.newSQLFunc(name, numInput);
         };
         let onCancel: () => void = null;
-        if (isFromSQLMode) {
-            onCancel = () => {
-                XVM.setMode(XVM.Mode.SQL);
-            };
-        }
         SQLFuncSettingModal.Instance.show(onSubmit, onCancel, null);
     }
 

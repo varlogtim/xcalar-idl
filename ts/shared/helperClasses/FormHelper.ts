@@ -53,8 +53,6 @@ class FormHelper {
     private id: string;
     private state: string;
     private mainMenuState: {
-        isBottomOpen: boolean,
-        $activeBottomSection: JQuery,
         $activeDataflowMenu: JQuery
     };
     private openTime: number;
@@ -67,7 +65,6 @@ class FormHelper {
         this.options = options || {};
         this.id = $form.attr("id");
         this.state = null;
-        this.mainMenuState = null;
         this.openTime = null;
         this.isFormOpen = false;
         this.$container = $();
@@ -293,7 +290,6 @@ class FormHelper {
         this.isFormOpen = true;
         this.openTime = Date.now();
         FormHelper.activeForm = formPanel;
-        this.mainMenuState = MainMenu.getState();
         this.$form.removeClass("xc-hidden");
 
         $("#container").addClass("formOpen");
@@ -324,10 +320,6 @@ class FormHelper {
         const tblMenu: TableMenuManager = TableComponent.getMenu();
         tblMenu.updateExitOptions("#tableMenu");
         tblMenu.updateExitOptions("#colMenu");
-
-        if (this.mainMenuState != null) {
-            this.mainMenuState = null;
-        }
 
         StatusBox.forceHide();
         xcTooltip.hideAll();

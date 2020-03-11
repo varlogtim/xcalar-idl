@@ -9,9 +9,6 @@ describe.skip("AggModal Test", function() {
 
     before(function(done){
         console.log("AggModal Test");
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
         $aggModal = $("#aggModal");
         $quickAgg = $("#aggModal-quickAgg");
         $corr = $("#aggModal-corr");

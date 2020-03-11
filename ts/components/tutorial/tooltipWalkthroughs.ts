@@ -363,9 +363,6 @@ namespace TooltipWalkthroughs {
     }
 
     export function workbookWalkthrough(): void {
-        if ($("#bottomMenu").hasClass("open")) {
-            BottomMenu.close();
-        }
         TooltipManager.start({
             tooltipTitle: WKBKTStr.Location,
             background: true,

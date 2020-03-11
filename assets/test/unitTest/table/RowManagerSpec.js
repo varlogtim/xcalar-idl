@@ -16,10 +16,6 @@ describe.skip('RowManager Test', function() {
         UnitTest.onMinMode();
         var testDSObj = testDatasets.fakeYelp;
         let node;
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
-
 
         cachedUserPref = UserSettings.getPref;
         UserSettings.getPref = function(val) {

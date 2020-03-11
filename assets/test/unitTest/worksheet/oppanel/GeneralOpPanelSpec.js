@@ -11,9 +11,6 @@ describe("GeneralOpPanel Test", function() {
     var openOptions = {};
 
     before(function(done) {
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             MainMenu.openPanel("sqlPanel");

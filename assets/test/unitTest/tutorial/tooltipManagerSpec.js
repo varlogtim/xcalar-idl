@@ -3,9 +3,6 @@ describe.skip("Tooltip Manager Test", function() {
     let basicInfo;
 
     before(function(done) {
-        if (!XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
         basicTest = [{
             highlight_div: "#homeBtn",
             text: "test",
@@ -153,9 +150,6 @@ describe.skip("Tooltip Manager Test", function() {
 
     describe("Switch screens", function() {
         it("Should be able to switch to sql mode from adv mode", function(done) {
-            if (XVM.isSQLMode()) {
-                XVM.setMode("Advanced", true);
-            }
             expect($("#sqlTab").is(":visible")).to.be.false;
             basicInfo.startScreen = TooltipStartScreen.SQLWorkspace;
             TooltipManager.start(basicInfo, basicTest, 0);
@@ -167,29 +161,8 @@ describe.skip("Tooltip Manager Test", function() {
             });
         });
 
-        it("Should open the sql workspace", function(done) {
-            $("#monitorTab").click();
-            if (!XVM.isSQLMode()) {
-                $("#modeArea").click();
-            }
-            expect($("#modelingDataflowTab").is(":visible")).to.be.false;
-            basicInfo.startScreen = TooltipStartScreen.ADVModeDataflow;
-            TooltipManager.start(basicInfo, basicTest, 0);
-            UnitTest.testFinish(()=>$("#modelingDataflowTab").is(":visible"))
-            .then(() => {
-                expect($("#modelingDataflowTab").is(":visible")).to.be.true;
-                TooltipManager.closeWalkthrough();
-                return UnitTest.testFinish(()=>$("#intro-popover").length === 0)
-            }).then(() => {
-                done();
-            });
-        });
-
         it("Should open the dataflow screen", function(done) {
             $("#monitorTab").click();
-            if (XVM.isSQLMode()) {
-                $("#modeArea").click();
-            }
             expect($("#sqlTab").is(":visible")).to.be.false;
             basicInfo.startScreen = TooltipStartScreen.SQLWorkspace;
             TooltipManager.start(basicInfo, basicTest, 0);
@@ -248,9 +221,6 @@ describe.skip("Tooltip Manager Test", function() {
 
     describe("Should ensure open screens and panels", function() {
         before(function () {
-            if (XVM.isSQLMode()) {
-                $("#modeArea").click();
-            }
             basicInfo.startScreen = null;
         });
         it("Should open the dataset screen and panel when the dataset button is clicked", function(done) {
@@ -286,9 +256,6 @@ describe.skip("Tooltip Manager Test", function() {
         });
 
         it("Should open the table screen and panel when the table button is clicked", function(done) {
-            if (XVM.isSQLMode()) {
-                $("#modeArea").click();
-            }
             var buttonClick = [{
                 highlight_div: "#sourceTblButton",
                 interact_div: "#sourceTblButton",

@@ -10,9 +10,6 @@ describe('CastOpPanel Test', function() {
 
     before(function(done){
         console.clear();
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             if ($(".dataflowWrapBackground .newTab").is(":visible")) {

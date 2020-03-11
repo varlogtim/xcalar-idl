@@ -86,7 +86,6 @@ namespace JupyterPanel {
                             showImportUdfModal(s.target, s.filePath);
                         } else {
                             JupyterPanel.appendStub("importUDF", s);
-                            BottomMenu.openSection(0);
                             UDFPanel.Instance.openUDF(s.udfPanelModuleName);
                         }
                         break;
@@ -275,7 +274,6 @@ namespace JupyterPanel {
                     includeStub: false,
                 });
 
-                BottomMenu.openSection(0);
                 UDFPanel.Instance.openUDF(udfPanelModuleName);
             }
         }

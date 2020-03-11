@@ -12,16 +12,6 @@ namespace MainMenu {
     export let curSQLLeftWidth = defaultWidth;
     let _popup:  PopupPanel;
 
-    export let historyCursor: number = 0;
-    export const tabToPanelMap = {
-        dataStoresTab: "datastorePanel",
-        sqlTab: "sqlPanel",
-        modelingDataflowTab: "dagPanel",
-        jupyterTab: "jupyterPanel",
-        monitorTab: "monitorPanel",
-        helpTab: "helpPanel"
-    };
-
     export function setup() {
         if (hasSetUp) {
             return;
@@ -48,7 +38,7 @@ namespace MainMenu {
 
     export function switchMode(): boolean {
         const $sqlModeTabs: JQuery = $("#sqlTab");
-        const $advModeTabs: JQuery = $("#modelingDataflowTab, #jupyterTab, #inButton");
+        const $advModeTabs: JQuery = $("#jupyterTab, #inButton");
         let allPanelsClosed: boolean = false;
         if (XVM.isDataMart()) {
             // hide dataset in data mart
@@ -94,9 +84,6 @@ namespace MainMenu {
                 break;
             case ("jupyterPanel"):
                 $tab = $("#jupyterTab");
-                break;
-            case ("dagPanel"):
-                $tab = $("#modelingDataflowTab");
                 break;
             case ("sqlPanel"):
                 $tab = $("#sqlWorkSpace");
@@ -202,23 +189,21 @@ namespace MainMenu {
             }
             tabClickEvent($target, $curTab);
         });
+
+        $("#bottomMenuBarTabs").on("click", ".sliderBtn", function(event) {
+            // XXX temp hack
+            const $button = $(event.currentTarget);
+            const id = $button.attr("id");
+            if (id === "udfTab") {
+                UDFPanel.Instance.toggleDisplay();
+            } else if (id === "debugTab") {
+                DebugPanel.Instance.toggleDisplay();
+            }
+        });
     }
 
     export function getOffset(): number {
         return openOffset;
-    };
-
-    export function getState(): {
-        isBottomOpen: boolean,
-        $activeBottomSection: JQuery,
-        $activeDataflowMenu: JQuery
-    } {
-        const state = {
-            isBottomOpen: BottomMenu.isMenuOpen(),
-            $activeBottomSection: $("#bottomMenu").find(".menuSection.active"),
-            $activeDataflowMenu: $("#dataflowMenu").find(".menuSection:not(.xc-hidden)")
-        };
-        return (state);
     };
 
     // ensures right panels are not too small
@@ -404,9 +389,6 @@ namespace MainMenu {
         const curTab: string = $curTab.attr("id");
         $menuBar.find(".topMenuBarTab").removeClass("active");
         $curTab.addClass("active");
-        for (let i in tabToPanelMap) {
-            $container.removeClass(tabToPanelMap[i] + "-active");
-        }
 
         switch (curTab) {
             case ("dataStoresTab"):
@@ -446,9 +428,6 @@ namespace MainMenu {
                 JupyterPanel.sendInit(); // used to validate session if first
                 // time viewing a notebook
                 break;
-            case ("modelingDataflowTab"):
-                $("#modelingDagPanel").addClass("active");
-                break;
             case ("sqlTab"):
                 $("#sqlWorkSpacePanel").addClass("active");
                 SQLWorkSpace.Instance.focus();
@@ -462,7 +441,6 @@ namespace MainMenu {
                 break;
         }
 
-        $container.addClass(tabToPanelMap[curTab] + "-active");
         sizeRightPanel();
         StatusMessage.updateLocation(null, null);
         $(".tableDonePopupWrap").remove();

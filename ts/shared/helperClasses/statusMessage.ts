@@ -249,32 +249,6 @@ namespace StatusMessage {
 
         public updateLocation(force: boolean = false, text: string = ""): void {
             if (!this.isLoading || force) {
-                const curTab = $('.topMenuBarTab.active').attr('id');
-                let panelName: string;
-                switch (curTab) {
-                    case ("modelingDataflowTab"):
-                        panelName = DFTStr.DFs;
-                        break;
-                    case ("dataStoresTab"):
-                        panelName = DSTStr.Sources;
-                        break;
-                    case ("monitorTab"):
-                        panelName = MonitorTStr.System;
-                        break;
-                    case ("jupyterTab"):
-                        panelName = JupyterTStr.JupNotebook;
-                        break;
-                    case ("sqlTab"):
-                        panelName = SQLTStr.WorkSpace;
-                        break;
-                    default:
-                        panelName = "";
-                        break;
-                }
-                if (panelName && !XVM.isDataMart()) {
-                    text = text || StatusMessageTStr.Viewing + " " + panelName;
-                }
-
                 const locationHTML: string =
                     '<span id="viewLocation">' +
                         (text || "") +
@@ -473,17 +447,6 @@ namespace StatusMessage {
                     }
                     popupNeeded = true;
                 }
-            } else if (!$('#modelingDataflowTab').hasClass('active')) {
-                $popups = $('.tableDonePopup.workspaceNotify');
-                if ($popups.length !== 0) {
-                    $popupWrap = $popups.parent();
-                    $popupWrap.append($tableDonePopup);
-                    popupWrapExists = true;
-                } else {
-                    $popupNearTab = $('#modelingDataflowTab');
-                }
-                classes += ' workspaceNotify';
-                popupNeeded = true;
             } else {
                 if (!$("#sqlTableArea").is(":visible")) {
                     // when dag table is not visible
@@ -494,7 +457,7 @@ namespace StatusMessage {
                         $popupWrap.prepend($tableDonePopup);
                         popupWrapExists = true;
                     } else {
-                        $popupNearTab = $('#modelingDataflowTab');
+                        $popupNearTab = $('#sqlTab');
                     }
                     classes += ' worksheetNotify';
                 } else {
@@ -636,7 +599,6 @@ namespace StatusMessage {
                     MainMenu.openPanel("sqlPanel", null);
 
                     if ($tableWrap.length) {
-                        TblManager.centerFocusedTable($tableWrap, true);
                         $tableWrap.mousedown();
                     }
 

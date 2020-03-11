@@ -16,9 +16,6 @@ describe("DagComment Test", function() {
         XcalarKeyPut = function() {
             return PromiseHelper.resolve();
         };
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             DagTabManager.Instance.newTab();

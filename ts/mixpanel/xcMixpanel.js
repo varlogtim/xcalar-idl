@@ -388,8 +388,6 @@ window.xcMixpanel = (function($, xcMixpanel) {
                 setTimeout(() => { // allow time for click
                     mainMenuBarClick($target);
                 });
-            } else if ($target.closest("#modeArea").length) {
-                modeSwitchClick(event);
             } else if ($target.closest("li").length && $target.closest("ul")) {
                 if (xcMixpanel.forDev()) {
                     menuItemClick(event);
@@ -700,27 +698,27 @@ window.xcMixpanel = (function($, xcMixpanel) {
         return false;
     }
 
-    function modeSwitchClick(event) {
-        let currTime = Date.now();
-        let timeInLastMode = Math.round((currTime - lastModeTime) / 1000);
-        lastModeTime = currTime;
+    // function modeSwitchClick(event) {
+    //     let currTime = Date.now();
+    //     let timeInLastMode = Math.round((currTime - lastModeTime) / 1000);
+    //     lastModeTime = currTime;
 
-        if ($("#container").hasClass("sqlMode")) {
-            xcMixpanel.track("To Dataflow Mode", {
-                "timeInLastMode": timeInLastMode,
-                "lastMode": "sqlMode",
-                "currentMode": "dataflowMode",
-                "eventType": "click"
-            });
-        } else {
-            xcMixpanel.track("To SQL Mode", {
-                "timeInLastMode": timeInLastMode,
-                "lastMode": "dataflowMode",
-                "currentMode": "sqlMode",
-                "eventType": "click"
-            });
-        }
-    }
+    //     if ($("#container").hasClass("sqlMode")) {
+    //         xcMixpanel.track("To Dataflow Mode", {
+    //             "timeInLastMode": timeInLastMode,
+    //             "lastMode": "sqlMode",
+    //             "currentMode": "dataflowMode",
+    //             "eventType": "click"
+    //         });
+    //     } else {
+    //         xcMixpanel.track("To SQL Mode", {
+    //             "timeInLastMode": timeInLastMode,
+    //             "lastMode": "dataflowMode",
+    //             "currentMode": "sqlMode",
+    //             "eventType": "click"
+    //         });
+    //     }
+    // }
 
     function workbookPanelClick(event) {
         let $el = $(event.target);

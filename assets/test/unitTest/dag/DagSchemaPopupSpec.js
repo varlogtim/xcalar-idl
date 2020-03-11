@@ -15,9 +15,6 @@ describe("DagSchemaPopup Test", function() {
 
     before(function(done) {
         console.log("Dag Schema Popup Test");
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             $popup = $("#dagSchemaPopup");

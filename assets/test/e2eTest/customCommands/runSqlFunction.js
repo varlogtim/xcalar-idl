@@ -129,9 +129,9 @@ class RunSQLFunction extends EventEmitter {
         //     .click("#dagViewBar .xi-setting")
         //     .click("#dfSettingsModal .dfAutoExecute .checkbox")
         //     .click("#dfSettingsModal .confirm");
-        self.api
-            .click("#modeArea")
-            .pause(1000);
+        // self.api
+        //     .click("#modeArea")
+        //     .pause(1000);
         this.emit('complete');
         return this;
     }

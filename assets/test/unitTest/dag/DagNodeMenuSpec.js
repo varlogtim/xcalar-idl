@@ -9,9 +9,6 @@ describe("DagNodeMenu Test", function() {
     before(function(done) {
         $menu = $("#dagNodeMenu");
         UnitTest.onMinMode();
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
         if (!$("#sqlWorkSpacePanel").hasClass("active")) {
             MainMenu.openPanel("sqlPanel")
         }

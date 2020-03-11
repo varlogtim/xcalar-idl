@@ -85,47 +85,19 @@ namespace TooltipManager {
 
     function switchScreen(screen: TooltipStartScreen): JQueryPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let switchPromise;
         if (!$("#fileBrowser").hasClass("xc-hidden")) {
             // Close any file browser open, just in case.
             FileBrowser.close();
         }
         switch(screen) {
             case(TooltipStartScreen.SQLWorkspace):
-                if (!XVM.isSQLMode()) {
-                    switchPromise = XVM.setMode(XVM.Mode.SQL);
-                } else {
-                    switchPromise = PromiseHelper.resolve();
+                if (!$("#sqlTab").hasClass("active")) {
+                    MainMenu.openPanel("sqlPanel");
                 }
-                switchPromise
-                .then(() => {
-                    // Switch to SQL workspace if not open
-                    if (!$("#sqlTab").hasClass("active")) {
-                        MainMenu.openPanel("sqlPanel");
-                    }
-                    deferred.resolve();
-                })
-                .fail(deferred.reject);
+                deferred.resolve();
                 break;
             case (TooltipStartScreen.ADVModeDataflow):
-                if (!XVM.isAdvancedMode()) {
-                    switchPromise = XVM.setMode(XVM.Mode.Advanced);
-                } else {
-                    switchPromise = PromiseHelper.resolve();
-                }
-                switchPromise
-                .then(() => {
-                    // Switch to dataflow screen if not open
-                    if (!$("#modelingDataflowTab").hasClass("active")) {
-                        $("#dagButton").click();
-                    }
-                    // open dataflow list if not open
-                    if (!$("#dataflowMenu").hasClass("active")) {
-                        $("#dagButton").click();
-                    }
-                    deferred.resolve();
-                })
-                .fail(deferred.reject);
+                throw new Error("it's not supported any more");
                 break;
             case (TooltipStartScreen.Workbooks):
                 if (!WorkbookPanel.isWBMode()) {

@@ -525,10 +525,6 @@ namespace TblAnim {
         let $table = $('#xcTable-' + rowInfo.tableId);
         $table.find('tr').removeClass('notDragging dragging');
 
-        if (gTables[gActiveTableId] && gTables[gActiveTableId].resultSetCount !== 0) {
-            TableComponent.update();
-        }
-
         if (newRowHeight !== gRescol.minCellHeight) {
             if (rowObj[pageNum] == null) {
                 rowObj[pageNum] = {};

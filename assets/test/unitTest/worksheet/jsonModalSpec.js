@@ -10,9 +10,6 @@ describe.skip('JsonModal Test', function() {
     var tabId;
 
     before(function(done) {
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
         console.log("json modal test")
         UnitTest.onMinMode();
         var testDSObj = testDatasets.fakeYelp;

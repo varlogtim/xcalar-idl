@@ -10,7 +10,7 @@ class DagCategoryBar {
     private $categoryBar: JQuery;
     private $operatorBar: JQuery;
     private dagCategories: DagCategories;
-    private currentCategory: DagCategoryType = DagCategoryType.Favorites;
+    private currentCategory: DagCategoryType;
     private _listScrollers: ListScroller[] = [];
     private selectedOpId: string;
     private _closeBarTimer: NodeJS.Timeout;
@@ -275,7 +275,6 @@ class DagCategoryBar {
 
     public getCategoryIconMap() {
         const iconMap = {};
-        iconMap[DagCategoryType.Favorites] = "xi-recommend";
         iconMap[DagCategoryType.In] = "xi-horizontal-align-center";
         iconMap[DagCategoryType.Out] = "xi-horizontal-align-center";
         iconMap[DagCategoryType.SQL] = "xi-menu-sql";
@@ -853,8 +852,7 @@ class DagCategoryBar {
 
         let html: HTML = "";
         this.dagCategories.getCategories().forEach((category) => {
-            if (category.getType() === DagCategoryType.Favorites ||
-                category.getType() === DagCategoryType.Hidden) {
+            if (category.getType() === DagCategoryType.Hidden) {
                 return;
             }
             category.getOperators().forEach((categoryNode) => {

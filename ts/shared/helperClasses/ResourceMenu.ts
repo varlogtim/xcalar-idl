@@ -633,7 +633,7 @@ class ResourceMenu {
 
         $container.on("click", ".addTableFunc", (event) => {
             event.stopPropagation();
-            DagViewManager.Instance.createSQLFunc(true);
+            DagViewManager.Instance.createSQLFunc();
         });
 
         $container.on("click", ".tableList .table", (event) => {

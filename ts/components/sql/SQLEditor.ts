@@ -435,7 +435,7 @@ class SQLEditor {
         $subMenu.on("click", "li", (el) => {
             const $li = $(el.currentTarget);
             if ($li.hasClass("newSQLFunc")) {
-                DagViewManager.Instance.createSQLFunc(true);
+                DagViewManager.Instance.createSQLFunc();
             } else if ($li.hasClass("tableName") || $li.hasClass("columnName")) {
                 this._insertText($li.text());
             } else if ($li.hasClass("funcName") || $li.hasClass("udfName")) {

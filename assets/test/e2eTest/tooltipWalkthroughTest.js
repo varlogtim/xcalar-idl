@@ -82,7 +82,6 @@ module.exports = {
         browser
             .waitForElementVisible("#intro-popover")
 
-            .tooltipTest("#modeArea")
             .tooltipTest("#helpArea")
             .tooltipTest("#menuBar")
             .tooltipTest("#dataStoresTab")
@@ -156,7 +155,6 @@ module.exports = {
             .click('#tooltipModal .item:nth-of-type(3) button')
             .waitForElementVisible("#intro-popover")
 
-            .tooltipTest("#modeArea")
             .tooltipTest("#helpArea")
             .tooltipTest("#tabButton", "#tabButton")
             .tooltipTest(".dataflowMainArea")
@@ -199,7 +197,6 @@ module.exports = {
             .pause(1000)
             .click('#tooltipModal .item:nth-of-type(2) button')
             .waitForElementVisible("#intro-popover")
-            .tooltipTest("#modeArea")
             .tooltipTest("#helpArea")
             .tooltipTest("#menuBar")
             .tooltipTest("#dataStoresTab")
@@ -254,62 +251,6 @@ module.exports = {
         browser.execute(function() {
             XVM.isCloud = oldIsCloud;
         }, [], null);
-    },
-
-    'switching to developer mode shows messageModal': function(browser) {
-        browser
-            .waitForElementVisible("#modeArea")
-            .click("#modeArea")
-            .waitForElementVisible("#messageModal")
-            .expect.element('#messageModal .modalHeader .text').text.to.equal('You are switching to the Developer Mode workspace')
-    },
-
-    'clicking take tour starts developer walkthrough': function(browser) {
-        browser.expect.element('#messageModal .modalBottom .confirm').text.to.equal('Take a tour')
-        browser
-            .click("#messageModal .modalBottom .confirm")
-            .waitForElementVisible("#intro-popover")
-            .assert.cssClassPresent("#modeArea", "intro-highlightedElement")
-            .expect.element('#intro-popover .title').text.to.equal('Developer Mode')
-        browser
-            .click("#intro-popover .close")
-            .waitForElementNotPresent("#intro-popover")
-            .waitForElementNotPresent("#intro-visibleOverlay")
-    },
-
-    'switching back to SQL Mode shows messageModal': function(browser) {
-        browser
-            .waitForElementVisible("#modeArea")
-            .click("#modeArea")
-            .waitForElementVisible("#messageModal")
-            .expect.element('#messageModal .modalHeader .text').text.to.equal('You are switching to the SQL Mode workspace')
-    },
-
-    'clicking take tour starts sql walkthrough': function(browser) {
-        browser.expect.element('#messageModal .modalBottom .confirm').text.to.equal('Take a tour')
-        browser
-            .click("#messageModal .modalBottom .confirm")
-            .waitForElementVisible("#intro-popover")
-            .assert.cssClassPresent("#modeArea", "intro-highlightedElement")
-            .expect.element('#intro-popover .title').text.to.equal('SQL Mode')
-        browser
-            .click("#intro-popover .close")
-            .waitForElementNotPresent("#intro-popover")
-            .waitForElementNotPresent("#intro-visibleOverlay")
-    },
-
-    'switching to developer mode second time shows messageModal': function(browser) {
-        browser
-            .waitForElementVisible("#modeArea")
-            .click("#modeArea")
-            .waitForElementVisible("#messageModal")
-            .expect.element('#messageModal .modalHeader .text').text.to.equal('You are switching to the Developer Mode workspace')
-        browser
-            .assert.cssClassNotPresent("#messageModal .modalMain .checkbox", "checked")
-            .click("#messageModal .modalMain .checkbox")
-            .assert.cssClassPresent("#messageModal .modalMain .checkbox", "checked")
-            .click("#messageModal .modalBottom .cancel")
-            .waitForElementVisible("#modalBackground")
     },
 
     'switching to sql mode automatically shows no messageModal after clicking dont show in developer mode': function(browser) {

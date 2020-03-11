@@ -202,7 +202,6 @@ class TblManager {
         $("#xcTableWrap-" + tableId).remove();
         if (gActiveTableId === tableId) {
             gActiveTableId = null;
-            TableComponent.update();
         }
     }
 
@@ -283,135 +282,6 @@ class TblManager {
     }
 
     /**
-     * xcHelper.getFocusedTable
-     */
-    public static getFocusedTable(): TableId {
-        const $table: JQuery = $('.xcTableWrap .tblTitleSelected').closest('.xcTableWrap');
-        const $activeTable: JQuery = $table.filter(function() {
-            return !$(this).hasClass('inActive');
-        });
-        if ($activeTable.length === 0) {
-            return null;
-        }
-
-        return $activeTable.data("id");
-    }
-
-
-    /**
-     * TblManager.centerFocusedTable
-     * @param tableWrapOrId
-     * @param animate {boolean}, indicating whether to animate the scrolling
-     * @param options -
-     * onlyIfOffScreen: boolean, if true, will only animate table if visible
-     * alignLeft: boolean, if true, will align table to left of screen
-     * noClear: boolean, if true, will not deselect text
-     */
-    public static centerFocusedTable(
-        tableWrapOrId: JQuery | TableId,
-        animate: boolean,
-        options: CentFocusedTableOptions = <CentFocusedTableOptions>{}
-    ): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred<void>();
-        let $tableWrap: JQuery;
-        let tableId: TableId;
-
-        if (tableWrapOrId instanceof jQuery) {
-            $tableWrap = <JQuery>tableWrapOrId;
-            tableId = $tableWrap.data('id');
-        } else {
-            $tableWrap = $('#xcTableWrap-' + tableWrapOrId);
-            tableId = <TableId>tableWrapOrId;
-        }
-
-        if (!$tableWrap.length) {
-            deferred.reject();
-            return deferred.promise();
-        }
-
-        TblFunc.focusTable(tableId);
-
-        const tableRect: ClientRect = $tableWrap[0].getBoundingClientRect();
-        const tableWidth: number = tableRect.width;
-        const tableLeft: number = tableRect.left;
-        const tableRight: number = tableRect.right;
-        const mainMenuOffset: number = MainMenu.getOffset();
-
-        const $mainFrame: JQuery = $('#mainFrame');
-        const mainFrameRect: ClientRect = $mainFrame[0].getBoundingClientRect();
-        const mainFrameWidth: number = mainFrameRect.width;
-        const mainFrameRight: number = mainFrameRect.right;
-        // cases to center: if table is small enough to fit entirely within the
-        // window.
-        // otherwise align table to the left of the window
-        // cases to alignRight - if table is partially visible from the left
-        // side of the screen
-        // alignCenter takes precedence over alignRight and alignLeft
-
-        if (tableLeft < mainMenuOffset && tableRight > mainFrameRight) {
-            // table takes up the entire screen and more
-            // no need to center
-            deferred.resolve();
-            return deferred.promise();
-        }
-
-        // if this option is passed, it will not focus on the table if at least
-        // 150 px of it is visible. If the table is offscreen, no animation will
-        // be applied to the scrolling. If it's partially visible (0 - 150px),
-        // animation will be applied
-        if (options.onlyIfOffScreen) {
-            if (tableRight > mainMenuOffset &&
-                tableRight < (mainMenuOffset + 150)) {
-                // table is slightly visible on the left
-                animate = true;
-            } else if (tableLeft < mainFrameRight &&
-                      tableLeft > mainFrameRight - 150) {
-                // table is slightly visible on the right
-                animate = true;
-            } else if (tableRight < mainMenuOffset ||
-                        tableLeft > mainFrameRight) {
-                // table is offscreen, proceed to center the table
-                // no animation
-            } else {
-                // table is in view and at least 150 pixels are visible
-                deferred.resolve();
-                return deferred.promise();
-            }
-        }
-
-        var currentScrollPosition = $('#mainFrame').scrollLeft();
-        var leftPosition = currentScrollPosition + tableLeft - mainMenuOffset;
-        var scrollPosition;
-
-        if (tableWidth < mainFrameWidth) {
-            // table fits completely within window so we center it
-            scrollPosition = leftPosition + ((tableWidth - mainFrameWidth) / 2);
-        } else if (tableRight > mainMenuOffset && tableRight < mainFrameRight) {
-            // table is partially visible from the left side of the screen
-            // so we align the right edge of the table to the right of window
-            scrollPosition = leftPosition + (tableWidth - mainFrameWidth);
-        } else {
-            // align left by default
-            scrollPosition = leftPosition;
-        }
-
-        if (animate && !gMinModeOn) {
-            $('#mainFrame').animate({scrollLeft: scrollPosition}, 500, () => {
-                TblManager.alignTableEls();
-                if (!options.noClear) {
-                    xcUIHelper.removeSelectionRange();
-                }
-                deferred.resolve();
-            });
-        } else {
-            $('#mainFrame').scrollLeft(scrollPosition);
-            TblManager.alignTableEls();
-            deferred.resolve();
-        }
-        return deferred.promise();
-    }
-
-    /**
      * TblMangager.centerFocusedColumn
      * @param tableId
      * @param colNum
@@ -424,10 +294,7 @@ class TblManager {
         animate: boolean,
         noSelect: boolean
     ): void {
-        const table: TableMeta = gTables[tableId];
-        // XXX TODO: remove this hack
-        const modelingMode: boolean = (table && table.modelingMode);
-        let $contaianer: JQuery = modelingMode ? DagTable.Instance.getView() : $('#mainFrame');
+        let $contaianer: JQuery = DagTable.Instance.getView();
         const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
         if ($contaianer == null) {
             // table view in sql mode
@@ -445,7 +312,6 @@ class TblManager {
         const scrollPosition: number = leftPosition -
             ((containerWidth - colWidth) / 2);
 
-        TblFunc.focusTable(tableId);
         if (!noSelect) {
             $th.find('.flex-mid').mousedown();
         }
@@ -454,7 +320,6 @@ class TblManager {
             $contaianer.animate({
                 scrollLeft: scrollPosition
             }, 500, () => {
-                TblFunc.focusTable(tableId);
                 TblManager.alignTableEls();
                 xcUIHelper.removeSelectionRange();
             });
@@ -1796,12 +1661,7 @@ class TblManager {
      */
     public static updateHeaderAndListInfo(tableId: TableId): void {
         const $table: JQuery = $('#xcTable-' + tableId);
-        if (gTables[tableId].modelingMode) {
-            TblFunc.alignScrollBar($table);
-        } else {
-            // XXX TODO: possibly update the order of lineage
-            TblFunc.matchHeaderSizes($table);
-        }
+        TblFunc.alignScrollBar($table);
     }
 
     /**

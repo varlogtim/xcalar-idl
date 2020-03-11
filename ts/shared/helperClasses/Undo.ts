@@ -164,12 +164,10 @@ namespace Undo {
     /* USER STYLING/FORMATING OPERATIONS */
 
     undoFuncs[SQLOps.MinimizeCols] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         return ColManager.maximizeCols(options.colNums, options.tableId);
     };
 
     undoFuncs[SQLOps.MaximizeCols] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         return ColManager.minimizeCols(options.colNums, options.tableId);
     };
 
@@ -179,7 +177,6 @@ namespace Undo {
     };
 
     undoFuncs[SQLOps.PullCol] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         let colNum = options.colNum;
         if (options.direction === ColDir.Right) {
             colNum++;
@@ -188,26 +185,22 @@ namespace Undo {
     };
 
     undoFuncs[SQLOps.PullMultipleCols] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         return (ColManager.hideCol(options.colNums, options.tableId,
                                  {"noAnimate": true}));
     };
 
     undoFuncs[SQLOps.ReorderCol] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         ColManager.reorderCol(options.tableId, options.newColNum,
                               options.oldColNum, {"undoRedo": true});
         return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.SortTableCols] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         TblManager.orderAllColumns(options.tableId, options.originalOrder);
         return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.ResizeTableCols] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         TblManager.resizeColsToWidth(options.tableId, options.columnNums,
                                      options.oldColumnWidths,
                                      options.oldSizedTo, options.wasHidden);
@@ -215,21 +208,18 @@ namespace Undo {
     };
 
     undoFuncs[SQLOps.DragResizeTableCol] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         TblAnim.resizeColumn(options.tableId, options.colNum, options.toWidth,
                              options.fromWidth, options.oldSizedTo);
         return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.DragResizeRow] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         TblAnim.resizeRow(options.rowNum, options.tableId, options.toHeight,
                           options.fromHeight);
         return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.RenameCol] = function(options): XDPromise<void>  {
-        focusTableHelper(options);
         ColManager.renameCol(options.colNum, options.tableId, options.colName, {
             "keepEditable": options.wasNew,
             "prevWidth": options.prevWidth
@@ -238,7 +228,6 @@ namespace Undo {
     };
 
     undoFuncs[SQLOps.TextAlign] = function(options): XDPromise<void>  {
-        focusTableHelper(options);
         let numCols: number = options.colNums.length;
         let alignment: string;
         for (let i = 0; i < numCols; i++) {
@@ -259,7 +248,6 @@ namespace Undo {
     };
 
     undoFuncs[SQLOps.ChangeFormat] = function(options): XDPromise<void>  {
-        focusTableHelper(options);
         ColManager.format(options.colNums, options.tableId, options.oldFormats);
         return PromiseHelper.resolve(null);
     };
@@ -267,7 +255,6 @@ namespace Undo {
 
     // for undoing deleted table columns
     function undoDeleteColHelper(options: {progCols: ProgCol[], tableId: TableId, colNums: number[], columnDeltas: any}): void {
-        focusTableHelper(options);
         let progCols: ProgCol[] = options.progCols;
         let tableId: TableId = options.tableId;
         let currProgCols: ProgCol[] = gTables[tableId].tableCols;
@@ -303,12 +290,6 @@ namespace Undo {
         if (node) {
             let columnDeltas = xcHelper.deepCopy(options.columnDeltas)
             node.columnChange(DagColumnChangeType.Pull, colNames, columnDeltas);
-        }
-    }
-
-    function focusTableHelper(options) {
-        if (options.tableId !== gActiveTableId) {
-            TblFunc.focusTable(options.tableId);
         }
     }
 }

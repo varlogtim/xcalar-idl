@@ -170,7 +170,6 @@ class JSONModal {
             }
             this._getModal().hide().width(500);
             $(".xcTable").find(".jsonModalOpen").removeClass("jsonModalOpen");
-            $('#bottomMenu').removeClass('jsonModalOpen');
             xcTooltip.hideAll();
         }});
 
@@ -1552,8 +1551,6 @@ class JSONModal {
             $('.tableCover.jsonCover').remove();
             $tableWrap.find('.xcTbodyWrap').off('scroll.preventScrolling');
         } else {
-            $('#bottomMenu').addClass('jsonModalOpen');
-
             if (this._isDataCol) {
                 $tableWrap = $('.xcTableWrap:visible:not(.tableLocked)')
                                   .addClass('jsonModalOpen');

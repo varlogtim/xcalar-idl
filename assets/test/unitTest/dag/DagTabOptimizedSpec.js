@@ -8,9 +8,6 @@ describe('DagTabOptimized Test', function() {
     let queryStateCalled = false;
 
     before(function(done) {
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
         console.log("dag tab optimized test");
 
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())

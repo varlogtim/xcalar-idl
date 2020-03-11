@@ -22,10 +22,6 @@ describe("DatasetColRenamePanel Test", function() {
                 return cachedUserPref(val);
             }
         };
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
-
         node = new DagNodeDataset({
             "type": "dataset",
             "input": {

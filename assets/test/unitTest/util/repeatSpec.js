@@ -289,39 +289,8 @@
 //                 done();
 //             });
 //         });
-
-//         it("hide table should work", function(done) {
-//             TblManager.hideTable(tableId);
-//             TblFunc.focusTable(tableId2);
-//             Log.repeat()
-//             .then(function() {
-//                 var lastLog = Log.viewLastAction(true);
-//                 expect(lastLog.title).to.equal("Minimize Table");
-//                 expect(lastLog.options.tableId).to.equal(tableId2);
-//                 done();
-//             })
-//             .fail(function() {
-//                 done("fail");
-//             });
-//         });
-
-//         it("hide table should work", function(done) {
-//             TblManager.unHideTable(tableId);
-//             TblFunc.focusTable(tableId2);
-//             Log.repeat()
-//             .then(function() {
-//                 var lastLog = Log.viewLastAction(true);
-//                 expect(lastLog.title).to.equal("Unminimize Table");
-//                 expect(lastLog.options.tableId).to.equal(tableId2);
-//                 done();
-//             })
-//             .fail(function() {
-//                 done("fail");
-//             });
-//         });
 //         it("sort table cols should work", function(done) {
 //             TblManager.sortColumns(tableId, "name", "reverse");
-//             TblFunc.focusTable(tableId2);
 //             Log.repeat()
 //             .then(function() {
 //                 var lastLog = Log.viewLastAction(true);
@@ -338,7 +307,6 @@
 
 //         it("resize table cols should work", function(done) {
 //             TblManager.resizeColumns(tableId, "contents");
-//             TblFunc.focusTable(tableId2);
 //             $(".selectedCell").removeClass("selectedCell");
 
 //             Log.repeat()
@@ -354,33 +322,6 @@
 //             });
 //         });
 //     });
-
-//     describe("delete table", function() {
-//         it("delete should work", function(done) {
-//             TblManager.deleteTables([tableId], TableType.Active, true)
-//             .then(function() {
-//                 var deferred = PromiseHelper.deferred();
-//                 TblFunc.focusTable(tableId2);
-//                 Log.repeat()
-//                 .then(deferred.resolve)
-//                 .fail(deferred.reject);
-
-//                 UnitTest.hasAlertWithTitle(TblTStr.Del, {confirm: true});
-
-//                 return deferred.promise();
-//             })
-//             .then(function() {
-//                 var lastLog = Log.viewLastAction(true);
-//                 expect(lastLog.title).to.equal("Drop Tables");
-//                 expect(lastLog.options.tables[0]).to.equal(tableId2);
-//                 done();
-//             })
-//             .fail(function() {
-//                 done("fail");
-//             });
-//         });
-//     });
-
 //     after(function(done) {
 //         UnitTest.deleteAllTables()
 //         .then(function() {

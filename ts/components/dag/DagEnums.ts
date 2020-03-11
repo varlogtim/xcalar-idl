@@ -129,7 +129,6 @@ enum DagNodeEvents {
 }
 
 enum DagCategoryType {
-    Favorites = "favorites",
     In = "in",
     Out = "out",
     SQL = "SQL",
@@ -203,7 +202,6 @@ DagNodeTooltip[DagNodeSubType.DFOutOptimized] = "Exports the results of an optim
 
 const DagCategoryTooltip = {};
 
-// DagCategoryTooltip[DagCategoryType.Favorites] = "favorites";
 DagCategoryTooltip[DagCategoryType.In] = "These operators input data to the module";
 DagCategoryTooltip[DagCategoryType.Out] = "These operators output data from the module";
 DagCategoryTooltip[DagCategoryType.SQL] = "These operators apply SQL";

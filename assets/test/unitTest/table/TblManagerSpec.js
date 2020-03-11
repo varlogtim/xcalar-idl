@@ -62,44 +62,6 @@ describe.skip("TableManager Test", function() {
             });
         });
 
-
-        it("TblManager.getFocusedTable should work", function() {
-            var $oldTitle = $(".xcTableWrap .tblTitleSelected");
-            $oldTitle.removeClass("tblTitleSelected");
-
-            expect(TblManager.getFocusedTable()).to.equal(null);
-
-            var $fakeTable = $('<div class="xcTableWrap" data-id="test"><div class="tblTitleSelected"></div></div>');
-            $("#container").append($fakeTable);
-            expect(TblManager.getFocusedTable()).to.equal("test");
-
-            $fakeTable.remove();
-            $oldTitle.addClass("tblTitleSelected");
-        });
-
-        // it("TableManager.refreshTable should handle set meta error", function(done) {
-        //     var oldFunc = XcalarMakeResultSetFromTable;
-        //     XcalarMakeResultSetFromTable = function() {
-        //         return PromiseHelper.reject({"error": "test"});
-        //     };
-
-        //     var tableName = xcHelper.randName("test_orphan#ab");
-        //     var tableId = xcHelper.getTableId(tableName);
-
-        //     TblManager.refreshTable([tableName])
-        //     .then(function() {
-        //         done("fail");
-        //     })
-        //     .fail(function(error) {
-        //         expect(error).to.exist;
-        //         expect(gTables).not.to.ownProperty(tableId);
-        //         done();
-        //     })
-        //     .always(function() {
-        //         XcalarMakeResultSetFromTable = oldFunc;
-        //     });
-        // });
-
         it("TblManager.setOrphanedList should work", function() {
             var cache = gOrphanTables;
             TblManager.setOrphanedList({"a": true});
@@ -549,9 +511,6 @@ describe.skip("TableManager Test", function() {
         var dsName, tableName, tableId, nodeId;
 
         before(function(done){
-            if (XVM.isSQLMode()) {
-                $("#modeArea").click();
-            }
             UnitTest.addAll(testDatasets.sp500, "sp500_tableManager_test")
             .then(function(resDS, resTable, tPrefix, _nodeId, _tabId) {
                 dsName = resDS;

@@ -9,7 +9,6 @@ describe.skip("Tooltip Flight Test", function() {
 
     // flight tests for the built in tooltip walkthroughs
     it("should do the entire developer mode walkthrough successfully", function(done) {
-        XVM.setMode(XVM.Mode.Advanced);
         TooltipWalkthroughs.startWalkthrough("Developer Mode");
 
         UnitTest.testFinish(()=>$("#modeArea").hasClass("intro-highlightedElement"))

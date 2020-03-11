@@ -8,12 +8,6 @@ class DagCategories {
     private _initBasicLists(sqlFunc: boolean) {
         this.categories = [];
 
-        // const favoritesCategory = new DagCategory(DagCategoryType.Favorites, [
-        //     new DagCategoryNodeIn(DagNodeFactory.create({
-        //         type: DagNodeType.Dataset
-        //     }))
-        // ]);
-
         const hiddenCategory = new DagCategory(DagCategoryType.Hidden, [
             new DagCategoryNode(DagNodeFactory.create({
                 type: DagNodeType.Index

@@ -1909,7 +1909,6 @@ namespace ColManager {
                                      .find('.tblTitleSelected')
                                      .removeClass('tblTitleSelected');
                 if (initialTableId && initialTableId === gActiveTableId) {
-                    TblFunc.focusTable(initialTableId);
                 } else {
                     TableComponent.empty();
                 }

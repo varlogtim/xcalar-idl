@@ -8,9 +8,6 @@ describe('ColAssignmentView Test', function() {
 
     before(function(done){
         console.clear();
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
         console.log("Col assignmentView test");
 
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())

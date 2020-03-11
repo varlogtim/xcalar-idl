@@ -139,48 +139,40 @@ namespace Redo {
     /* USER STYLING/FORMATING OPERATIONS */
 
     redoFuncs[SQLOps.MinimizeCols] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         return ColManager.minimizeCols(options.colNums, options.tableId);
     };
 
     redoFuncs[SQLOps.MaximizeCols] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         return ColManager.maximizeCols(options.colNums, options.tableId);
     };
 
     redoFuncs[SQLOps.HideCol] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         return (ColManager.hideCol(options.colNums, options.tableId));
     };
 
     redoFuncs[SQLOps.PullCol] = function(options): XDPromise<number> {
-        focusTableHelper(options);
         return ColManager.pullCol(options.colNum, options.tableId,
                                         options.pullColOptions);
     };
 
     redoFuncs[SQLOps.PullMultipleCols] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         ColManager.unnest(options.tableId, options.colNum, options.rowNum,
                           options.colNames);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.ReorderCol] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         ColManager.reorderCol(options.tableId, options.oldColNum,
                               options.newColNum, {"undoRedo": true});
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.SortTableCols] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         TblManager.sortColumns(options.tableId, options.sortKey, options.direction);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.ResizeTableCols] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         var sizeTo: string[] = [];
         for (var i = 0; i < options.newColumnWidths.length; i++) {
             sizeTo.push(options.sizeTo);
@@ -191,21 +183,18 @@ namespace Redo {
     };
 
     redoFuncs[SQLOps.DragResizeTableCol] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         TblAnim.resizeColumn(options.tableId, options.colNum, options.fromWidth,
                              options.toWidth, options.sizedTo);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.DragResizeRow] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         TblAnim.resizeRow(options.rowNum, options.tableId, options.fromHeight,
                           options.toHeight);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.RenameCol] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         ColManager.renameCol(options.colNum, options.tableId, options.newName);
         var $th: JQuery = $('#xcTable-' + options.tableId)
                     .find('th.col' + options.colNum);
@@ -214,23 +203,15 @@ namespace Redo {
     };
 
     redoFuncs[SQLOps.TextAlign] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         ColManager.textAlign(options.colNums, options.tableId,
                              options.cachedAlignment);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.ChangeFormat] = function(options): XDPromise<void> {
-        focusTableHelper(options);
         ColManager.format(options.colNums, options.tableId, options.formats);
         return PromiseHelper.resolve(null);
     };
 
     /* END USER STYLING/FORMATING OPERATIONS */
-
-    function focusTableHelper(options): void {
-        if (options.tableId !== gActiveTableId) {
-            TblFunc.focusTable(options.tableId);
-        }
-    }
 }

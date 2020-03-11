@@ -755,15 +755,10 @@ class BaseOpPanel {
             errorStr = xcHelper.parseJSONError(error).error;
         }
 
-        BottomMenu.checkMenuAnimFinish()
-        .then(() => {
-            if (error) {
-                StatusBox.show(errorStr,
-                        this.$panel.find(".advancedEditor"),
-                        false, {'side': 'right'});
-            }
-        });
         if (error) {
+            StatusBox.show(errorStr,
+                    this.$panel.find(".advancedEditor"),
+                    false, {'side': 'right'});
             this._dagNode.beErrorState(errorStr);
         }
         this._updateMode(true);

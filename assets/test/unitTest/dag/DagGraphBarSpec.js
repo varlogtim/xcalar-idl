@@ -6,10 +6,6 @@ describe("DagGraphBar Test", function() {
 
     before(function() {
         console.log("DagGraphBar Test");
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
-
         oldActiveDag = DagViewManager.Instance.getActiveDag;
         oldActiveTab = DagViewManager.Instance.getActiveTab;
         DagViewManager.Instance.getActiveDag = function() {

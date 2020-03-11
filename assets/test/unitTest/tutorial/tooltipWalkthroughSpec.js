@@ -109,9 +109,6 @@ describe.skip("Tooltip Walkthrough Test", function() {
         WorkbookManager.getActiveWKBK = function() {
             return {};
         }
-        if (XVM.isSQLMode()) {
-            XVM.setMode("Advanced", true);
-        }
         let started = false;
         TooltipManager.start = function(obj, list, num) {
             if (obj.tooltipTitle == "Developer Mode") {
@@ -129,7 +126,6 @@ describe.skip("Tooltip Walkthrough Test", function() {
             return;
         }
         started = false;
-        XVM.setMode("SQL", true);
         TooltipWalkthroughs.setSeenSQL(false);
         TooltipWalkthroughs.checkFirstTimeTooltip();
         expect(started).to.be.true;

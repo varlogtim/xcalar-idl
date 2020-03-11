@@ -84,10 +84,6 @@ body {
             display: none;
         }
 
-        #modeArea {
-            display: none;
-        }
-
         #dataStoresTab {
             &.active {
                 .subTab {
@@ -684,62 +680,6 @@ div, section, ul {
             margin-right: 0;
         }
     }
-
-    #modeArea {
-        @modeArea-h: 26px;
-        @modeArea-radius: 13px;
-        float: left;
-        width: @width-toggleBtn;
-        height: @modeArea-h;
-        line-height: @modeArea-h;
-        .vertical-align;
-        cursor: pointer;
-        .rounded(@modeArea-radius);
-        background-color: @color-bg-default;
-        border: 1px solid @color-font-link-blue;
-
-        &.on {
-            .text {
-                &.next {
-                    left: 12px;
-                }
-            }
-
-            .slider {
-                left: 77px;
-                width: 118px;
-            }
-        }
-
-        .text {
-            font-size: 12px;
-            line-height: 25px;
-
-            &.next {
-                color: @color-bg-cancel-gray-hover;
-                font-weight: 400;
-                position: absolute;
-                left: 92px;
-            }
-
-            &.current {
-                color: @color-font-defaultInverse;
-                font-weight: 600;
-                width: 100%;
-                text-align: center;
-            }
-        }
-
-        .slider {
-            width: 85px;
-            height: @modeArea-h - 2px;
-            .rounded(@modeArea-radius);
-            background-color: @color-font-link-blue;
-            position: absolute;
-            left: 0px;
-            .transition(left 0.2s);
-        }
-    }
 }
 
 #userNameArea {
@@ -993,35 +933,10 @@ div, section, ul {
 
 
 #container {
-    &.dagPanel-active {
-        #mainTopBar {
-            width: ~"calc(100% - 500px)";
-        }
-    }
-    &.jupyterPanel-active {
-        #mainTopBar {
-            width: ~"calc(100% - 440px)";
-        }
-    }
-    &.helpPanel-active {
-        #mainTopBar {
-            width: 50%;
-        }
-    }
     &.dataMart {
         #mainTopBar {
             @userBoxWidth: @width-userBox - @width-toggleBtn;
             width: ~"calc(100% - @{userBoxWidth})";
-        }
-        &.dagPanel-active {
-            #mainTopBar {
-                width: ~"calc(100% - 310px)";
-            }
-        }
-        &.jupyterPanel-active {
-            #mainTopBar {
-                width: ~"calc(100% - 250px)";
-            }
         }
         #helpTopBar {
             padding-right: @width-userBox - @width-toggleBtn;

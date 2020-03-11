@@ -829,12 +829,6 @@ class AdvancedModeState extends State {
     }
 
     public async takeOneAction() {
-        try {
-            await XVM.setMode(<XVM.Mode>this.mode);
-        } catch (error) {
-            console.log(`Error switching mode to ${this.mode}`);
-            throw error
-        }
         let randomAction = Util.pickRandom(this.availableActions);
         let newState = this;
         try {

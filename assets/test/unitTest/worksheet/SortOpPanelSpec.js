@@ -10,9 +10,6 @@ describe('Sort Op Panel Test', function() {
 
     before(function(done){
         console.clear();
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
         console.log("Sort panel test");
 
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())

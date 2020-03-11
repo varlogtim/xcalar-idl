@@ -17,9 +17,6 @@ describe('DagTab Test', function() {
         oldGetAndParse = KVStore.getAndParse;
         oldDown = xcHelper.downloadAsFile;
         UnitTest.onMinMode();
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             var dagTabManager = DagTabManager.Instance;

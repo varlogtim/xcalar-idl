@@ -9,9 +9,6 @@ describe.skip('TblAnim Test', function() {
 
     before(function(done) {
         console.log("TblAnim Test");
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
         UnitTest.onMinMode();
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(() => {

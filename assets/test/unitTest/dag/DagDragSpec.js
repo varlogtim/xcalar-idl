@@ -7,9 +7,6 @@ describe("DagDrag Test", function() {
     var tabId;
 
     before (function(done) {
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             MainMenu.openPanel("sqlPanel");

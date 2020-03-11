@@ -59,9 +59,6 @@ class SQLDataflowPreview {
         })
         .then((resultTab) => {
             dagTab = resultTab;
-            return XVM.setMode(XVM.Mode.Advanced);
-        })
-        .then(() => {
             return DagTabManager.Instance.loadTab(<DagTab>dagTab);
         })
         .then(() => {

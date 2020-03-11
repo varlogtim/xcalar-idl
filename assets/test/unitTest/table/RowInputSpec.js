@@ -9,9 +9,6 @@ describe.skip("RowInput Test", function() {
 
     before(function(done) {
         console.clear();
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
         UnitTest.onMinMode();
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
@@ -139,17 +136,6 @@ describe.skip("RowInput Test", function() {
                 done("fail");
             });
         });
-
-        // it('clicking on rowinput area should focus on table', function() {
-        //     var cached = TblManager.centerfocusedTable;
-        //     var centerCalled = false;
-        //     TblManager.centerfocusedTable = function() {
-        //         centerCalled = true;
-        //     };
-        //     $("#rowInputArea").mousedown();
-        //     expect(centerCalled).to.be.true;
-        //     TblManager.centerfocusedTable = cached;
-        // });
 
         after(function() {
             RowManager.prototype.addRows = cachedAddRows;

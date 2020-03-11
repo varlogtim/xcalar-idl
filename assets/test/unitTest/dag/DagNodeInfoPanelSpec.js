@@ -10,9 +10,6 @@ describe("DagNodeInfoPanel Test", function() {
     let cachedUserPref;
 
     before(function(done) {
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
         test = TestSuite.createTest();
         UnitTest.onMinMode();
         if (!$("#sqlWorkSpacePanel").hasClass("active")) {
