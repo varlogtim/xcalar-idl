@@ -112,8 +112,15 @@ class LoadConfig extends React.Component {
         }
 
         // XXX TODO: Get table name from UI
-        const tableName = 'A' + Math.random().toString(36).substring(2, 15).toUpperCase();
-
+        let tableName = "";
+        try {
+            const path = schemaInfo.path[0];
+            tableName = this._getNameFromPath(path); 
+        } catch (e) {
+            console.error(e);
+            // when error, use schema name to create table name
+            tableName = (schemaName + Math.random().toString(36).substring(2, 15)).toUpperCase();
+        }
         // State: cleanup and +loading
         this.setState({
             createInProgress: this.state.createInProgress.add(schemaName),
@@ -146,6 +153,39 @@ class LoadConfig extends React.Component {
             });
         }
 
+    }
+
+    // XXX this is copied from DSConfig
+    _getNameFromPath(path) {
+        if (path.charAt(path.length - 1) === "/") {
+            // remove the last /
+            path = path.substring(0, path.length - 1);
+        }
+
+        let paths = path.split("/");
+        let splitLen = paths.length;
+        let name = paths[splitLen - 1];
+        name = name.toUpperCase();
+        // strip the suffix dot part and only keep a-zA-Z0-9.
+        let category = PatternCategory.PTblFix;
+        name = xcHelper.checkNamePattern(category,
+            PatternAction.Fix, name.split(".")[0], "");
+
+        if (!xcStringHelper.isStartWithLetter(name) && splitLen > 1) {
+            // when starts with number
+            let prefix = xcHelper.checkNamePattern(PatternCategory.Dataset,
+                PatternAction.Fix, paths[splitLen - 2], "");
+            if (xcStringHelper.isStartWithLetter(prefix)) {
+                name = prefix + name;
+            }
+        }
+
+        if (!xcStringHelper.isStartWithLetter(name)) {
+            // if still starts with number
+            name = "source" + name;
+        }
+        name = name.toUpperCase();
+        return TblSource.Instance.getUniuqName(name);
     }
 
     async _discoverFileSchema(fileId) {
