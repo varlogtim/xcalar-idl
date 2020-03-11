@@ -47,8 +47,10 @@ function BrowseDataSource({
         <div className="browseDataSourceScreen fileBrowser">
             <div className="fileBrowserPath">
                 <i className="icon xi-upload-folder xc-icon-action upFolderIcon"
-                    disabled={rootFullPath === currentFullPath}
                     onClick={() => {
+                        if (rootFullPath === currentFullPath) {
+                            return;
+                        }
                         const parentPath = Path.dirname(currentFullPath);
                         onPathChange(parentPath);
                     }}>

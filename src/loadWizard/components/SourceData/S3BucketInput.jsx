@@ -3,9 +3,7 @@ import * as React from "react";
 export default class S3BucketInput extends React.Component{
     constructor(props) {
         super(props);
-        // XXX TODO: value should come from props
         this.state = {
-            value: "/",
             showHint: false
         };
         this.onChange = this.onChange.bind(this);
@@ -15,10 +13,11 @@ export default class S3BucketInput extends React.Component{
     }
 
     render() {
+        const { bucket } = this.props;
         // Note: to test, set s3Bucket to a test value
         const s3Bucket = DSTargetManager.getAvailableS3Bucket();
         const classNames = ["dropDownList"];
-        const value = this.state.value;
+        const value = bucket;
         if (this.state.showHint && s3Bucket) {
             classNames.push("open");
         }
@@ -42,13 +41,17 @@ export default class S3BucketInput extends React.Component{
         )
     }
 
+    // componentWillUnmount() {
+    //     this._turnOffDropdownListeners();
+    // }
+
     onChange(value) {
-        // XXX TODO: pass value change to props
+        const { onChange } = this.props;
         this.setState({
-            value,
             showHint: false
         });
         this._turnOffDropdownListeners();
+        onChange(value);
     }
 
     onClick() {

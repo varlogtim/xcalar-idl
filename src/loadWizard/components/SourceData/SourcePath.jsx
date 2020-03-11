@@ -1,4 +1,5 @@
 import React from "react";
+import S3BucketInput from './S3BucketInput';
 import { FileType } from '../../services/SchemaService'
 
 const Texts = {
@@ -29,12 +30,18 @@ export default function SourcePath({
             <form onSubmit={(e) => { e.preventDefault(); }}>
                 <div className="bucketSelection">
                     <label className="label">{Texts.bucketName}</label>
-                    <input
+                    {/* <input
                         className="xc-input input"
                         list="buckets"
                         name="bucket"
                         value={bucket}
                         onChange={(e) => { onBucketChange(e.target.value.trim()); }}
+                    /> */}
+                    <S3BucketInput
+                        bucket={bucket}
+                        onChange={(newBucket) => {
+                            onBucketChange(newBucket.trim());
+                        }}
                     />
                 </div>
 
