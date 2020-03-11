@@ -7,7 +7,7 @@ import * as S3Service from '../../services/S3Service'
 const Texts = {
     createTable: 'Create Table from Model',
     updateForensics: 'Updating ...',
-    getForensics: 'Get Forensics',
+    getForensics: 'View Directory Info.',
     navButtonRight: 'Browse'
 };
 
@@ -123,9 +123,11 @@ class SourceData extends React.Component {
         const {
             bucket,
             path,
+            fileType,
             onNextScreen,
             onBucketChange,
-            onPathChange
+            onPathChange,
+            onFileTypeChange = (newType) => {}
         } = this.props;
 
         const fullPath = Path.join(bucket, path);
@@ -137,7 +139,10 @@ class SourceData extends React.Component {
                     bucket={bucket}
                     onBucketChange={(newBucket) => { onBucketChange(newBucket); }}
                     path={path}
-                    onPathChange={(newPath) => { onPathChange(newPath); }} />
+                    onPathChange={(newPath) => { onPathChange(newPath); }}
+                    fileType={fileType}
+                    onFileTypeChange={onFileTypeChange}
+                />
                 {/* <div className="modelInfo">
                     Model rules:
                     <br/>

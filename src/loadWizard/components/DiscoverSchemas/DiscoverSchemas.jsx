@@ -1,8 +1,10 @@
 import React from "react";
 // import SchemaChart from './SchemaChart'
 import DiscoverTable from './DiscoverTable'
+import SourceCSVArgSection from './SourceCSVArgSection';
 import NavButtons from '../NavButtons'
 import EC from '../../utils/EtaCost'
+import * as SchemaService from '../../services/SchemaService';
 
 const Texts = {
     Loading: 'Loading ...',
@@ -68,6 +70,7 @@ class DiscoverSchemas extends React.Component {
     }
     render() {
         const {
+            inputSerialization,
             isLoading,
             discoverFiles,
             inProgressFiles,
@@ -75,16 +78,25 @@ class DiscoverSchemas extends React.Component {
             fileSchemas,
             onDiscoverFile,
             onClickDiscoverAll,
+            onInputSerialChange,
             onPrevScreen,
             onNextScreen
         } = this.props;
         const schemaInfo = this.state.schemaShowing;
+        const needConfig = SchemaService.InputSerializationFactory.getFileType(inputSerialization).has(SchemaService.FileType.CSV);
 
         return (
             <div className="filesSelected">
-                {isLoading ? <div><span>{Texts.loading}</span></div> : null}
-                {isLoading ? null : <DiscoverAllButton onClick={onClickDiscoverAll} />}
-                {isLoading ? null : <CostEstimation files={discoverFiles} />}
+                {isLoading ? <div><span>{Texts.Loading}</span></div> : null}
+                {/* {isLoading ? null : <DiscoverAllButton onClick={onClickDiscoverAll} />} */}
+                {/* {isLoading ? null : <CostEstimation files={discoverFiles} />} */}
+                {(isLoading || !needConfig)? null : <SourceCSVArgSection
+                    config={inputSerialization}
+                    onConfigChange={(newConfig) => {
+                        this.setState({ schemaShowing: null });
+                        onInputSerialChange(newConfig);
+                    }}
+                />}
                 {isLoading ? null : <DiscoverTable
                     discoverFiles={discoverFiles}
                     inProgressFiles={inProgressFiles}
@@ -99,13 +111,13 @@ class DiscoverSchemas extends React.Component {
                     }}
                 />}
                 {isLoading || schemaInfo == null ? null : <pre>{JSON.stringify(schemaInfo, null, ' ')}</pre>}
-                <NavButtons
+                {isLoading ? null : <NavButtons
                     left={{ label: Texts.navButtonLeft, onClick: () => { onPrevScreen(); } }}
                     right={fileSchemas.size > 0
                         ? { label: Texts.navButtonRight, onClick: () => { onNextScreen(); }}
                         : null
                     }
-                />
+                />}
                 {/* <SchemaChart selectedData={selectedData} schemasObject={schemasObject}/> */}
             </div>
         );

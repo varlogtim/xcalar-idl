@@ -5,6 +5,31 @@ import { TrailingSchemas } from '../utils/TrailingSchemas';
 
 const { xcHelper, Xcrpc } = global;
 
+const FileType = {
+    CSV: 'csv',
+    JSON: 'json',
+    PARQUET: 'parquet'
+};
+const FileTypeFilter = new Map([
+    [FileType.CSV, ({type}) => {
+        const validTypes = new Set(['csv']);
+        return validTypes.has(`${type}`.toLowerCase());
+    }],
+    [FileType.JSON, ({type}) => {
+        const validTypes = new Set(['json', 'jsonl']);
+        return validTypes.has(`${type}`.toLowerCase());
+    }],
+    [FileType.PARQUET, ({type}) => {
+        const validTypes = new Set(['parquet']);
+        return validTypes.has(`${type}`.toLowerCase());
+    }]
+]);
+const FileTypeNamePattern = new Map([
+    [FileType.CSV, '*.csv'],
+    [FileType.JSON, '*.json'],
+    [FileType.PARQUET, '*.parquet']
+]);
+
 const CSVHeaderOption = {
     USE: 'USE',
     IGNORE: 'IGNORE',
@@ -48,7 +73,28 @@ class InputSerializationFactory {
             Parquet: {}
         };
     }
+
+    static getFileType(inputSerialization) {
+        const { CSV, JSON, Parquet } = inputSerialization || {};
+        const types = new Set();
+        if (CSV != null) {
+            types.add(FileType.CSV);
+        }
+        if (JSON != null) {
+            types.add(FileType.JSON);
+        }
+        if (Parquet != null) {
+            types.add(FileType.PARQUET);
+        }
+        return types;
+    }
 }
+
+const defaultInputSerialization = new Map([
+    [FileType.CSV, InputSerializationFactory.createCSV({})],
+    [FileType.JSON, InputSerializationFactory.createJSON()],
+    [FileType.PARQUET, InputSerializationFactory.createParquet()]
+]);
 
 class MergeFactory {
     constructor() {
@@ -136,15 +182,29 @@ class DiscoverWorker {
         this._errorFiles = new Set();
     }
 
+    reset({
+        mergePolicy, inputSerialization
+    }) {
+        if (mergePolicy != null) {
+            this._schemas.clear();
+            this._errorFiles.clear();
+            this._mergePolicy = mergePolicy;
+        }
+        if (inputSerialization != null) {
+            this.clear();
+            this._inputSerialization = {...inputSerialization};
+        }
+    }
+
     // XXX TODO: Move this into xcrpc framework
-    async _discover(paths) {
+    async _discover(paths, inputSerialization) {
         // Construct xcrpc request object
         const discoverRequest= new proto.xcalar.compute.localtypes.Schema.ListObjectSchemaRequest();
         discoverRequest.setNumObjects(paths.length);
         discoverRequest.setPathsList(paths);
 
         const inputSerializationObj = new proto.xcalar.compute.localtypes.Schema.InputSerialization();
-        inputSerializationObj.setArgs(JSON.stringify(this._inputSerialization));
+        inputSerializationObj.setArgs(JSON.stringify(inputSerialization));
         discoverRequest.setInputSerializationArgs(inputSerializationObj);
 
         // Call xcrpc api
@@ -176,7 +236,7 @@ class DiscoverWorker {
         const filesNeedDiscover = paths.filter((path) => (!this._discoveredFiles.has(path)));
 
         // Discover schema
-        const discoveredSchmas = await this._discover(filesNeedDiscover);
+        const discoveredSchmas = await this._discover(filesNeedDiscover, this._inputSerialization);
         for (const discoveredSchama of discoveredSchmas) {
             this._discoveredFiles.set(discoveredSchama.path, discoveredSchama);
         }
@@ -212,12 +272,13 @@ class DiscoverWorker {
     clear() {
         this._discoveredFiles.clear();
         this._schemas.clear();
-        this._errorSchemas = new Array();
+        this._errorFiles.clear();
     }
 }
 
 export {
-    InputSerializationFactory,
+    FileType, FileTypeFilter, FileTypeNamePattern,
+    InputSerializationFactory, defaultInputSerialization,
     CSVHeaderOption,
     MergePolicy,
     DiscoverWorker

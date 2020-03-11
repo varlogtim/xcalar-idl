@@ -12,7 +12,7 @@ const {
 const DS_PREFIX = 'LWDS';
 
 // XXX TODO: Performance issue: result could be large
-async function flattenFileDir(fileDirList) {
+async function flattenFileDir(fileDirList, fileNamePattern = '*') {
     const flattenFiles = new Map();
 
     for (const fod of fileDirList) {
@@ -21,7 +21,7 @@ async function flattenFileDir(fileDirList) {
                 "recursive": true,
                 "targetName": "AWS Target",
                 "path": fod.fullPath,
-                "fileNamePattern": "*"
+                "fileNamePattern": fileNamePattern
             });
 
             for (const file of s3Files.files) {
@@ -47,35 +47,33 @@ async function flattenFileDir(fileDirList) {
     return flattenFiles;
 }
 
-async function listFiles(path, namePattern = '*') {
+async function listFiles(path, filter = (fileInfo) => true) {
     const fileInfos = new Map();
 
-    try {
-        const s3Files = await XcalarListFiles({
-            "recursive": false,
-            "targetName": "AWS Target",
-            "path": path,
-            "fileNamePattern": namePattern
-        });
+    const s3Files = await XcalarListFiles({
+        "recursive": false,
+        "targetName": "AWS Target",
+        "path": path,
+        "fileNamePattern": '*'
+    });
 
-        // XXX TODO: add comment about why slice(1)?
-        for (const file of s3Files.files) {
-            const fullFilePath = Path.join(path, file.name);
-            const isDirectory = file.attr.isDirectory ? true : false;
-
-            fileInfos.set(fullFilePath, {
-                fileId: fullFilePath,
-                fullPath: fullFilePath,
-                directory: isDirectory,
-                name: file.name,
-                sizeInBytes: file.attr.size,
-                type: isDirectory
-                    ? 'directory'
-                    : getFileExt(file.name)
-            });
+    // XXX TODO: add comment about why slice(1)?
+    for (const file of s3Files.files) {
+        const fullFilePath = Path.join(path, file.name);
+        const isDirectory = file.attr.isDirectory ? true : false;
+        const fileInfo = {
+            fileId: fullFilePath,
+            fullPath: fullFilePath,
+            directory: isDirectory,
+            name: file.name,
+            sizeInBytes: file.attr.size,
+            type: isDirectory
+                ? 'directory'
+                : getFileExt(file.name)
+        };
+        if (filter(fileInfo)) {
+            fileInfos.set(fullFilePath, fileInfo);
         }
-    } catch(e) {
-        console.error(e);
     }
 
     return fileInfos;
@@ -231,9 +229,9 @@ function getKeylistTableName(fullPath) {
 }
 
 function getFileExt(fileName) {
-    return fileName.includes('.')
+    return (fileName.includes('.')
         ? fileName.split('.').pop()
-        : 'none';
+        : 'none').toLowerCase();
 }
 
 function randomName() {

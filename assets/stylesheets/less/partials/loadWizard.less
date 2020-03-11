@@ -30,23 +30,35 @@
         padding-top: 10px;
     }
 
-    #sourceForm {
+    .sourceForm {
         width: 80%;
         margin: 0 10%;
         @w-label: 120px;
 
-        label {
+        .label {
             display: block;
             float: left;
             width: 120px;
             line-height: 30px;
         }
 
-        .bucketSelection, .pathSelection {
+        .bucketSelection, .pathSelection, .fileTypeSelection {
             height: 30px;
             margin-bottom: 8px;
-            > input {
+            .input {
                 width: ~"calc(100% - @{w-label})";
+                line-height: 30px;
+            }
+        }
+
+        .fileTypeSelection {
+            input {
+                height: auto;
+                margin-right: 4px;
+            }
+
+            .option {
+                padding-right: 8px;
             }
         }
 
@@ -259,7 +271,7 @@
 
             input {
                 width: ~"calc(100% - @{label-w})";
-            
+
                 &.error {
                     border-color: @color-error-border-light;
                 }

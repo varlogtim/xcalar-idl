@@ -137,24 +137,24 @@ function DiscoverTable({
         {
             name: "fileId",
             label: "Path",
-            options: { filter: false, sort: true }
+            options: { filter: false, sort: false }
         },
         {
             name: "size",
             label: "Size",
-            options: { filter: false, sort: true }
+            options: { filter: false, sort: false }
         },
         {
             name: "type",
             label: "Type",
-            options: { filter: true, sort: true }
+            options: { filter: false, sort: false }
         },
         {
             name: "schema",
             label: "Schema",
             options: {
                 filter: false,
-                sort: true,
+                sort: false,
                 customBodyRender: (props) => {
                     return <MixedSchemaCell {...props} onClickSchema={onClickSchema} onDiscoverOne={onDiscoverOne} />
                 }
@@ -165,7 +165,7 @@ function DiscoverTable({
     const options = {
         responsive: "stacked",
         selectableRows: "none",
-        rowsPerPage: 50,
+        rowsPerPage: 20,
         rowsPerPageOptions: [],
         download: false,
         print: false,

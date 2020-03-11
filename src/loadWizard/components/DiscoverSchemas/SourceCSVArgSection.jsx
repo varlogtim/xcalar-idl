@@ -1,19 +1,27 @@
 import * as React from "react";
+import { InputSerializationFactory } from '../../services/SchemaService';
 
 // XXX TODO: getProps and onInputChange should change to a passed in props
 // instead of self-contained state
 export default class SourceCSVArgSection extends React.Component{
     constructor(props) {
         super(props);
+
         this.state = {
-            args: this.getCSVArgs()
+            args: this.getCSVArgs(props.config)
         };
         this.onInputChange = this.onInputChange.bind(this);
     }
 
     render() {
+        const { config, onConfigChange } = this.props;
+        const initConfig = this.getCSVArgs(config);
+        const isConfigChanged = this._isConfigChanged(initConfig, this.state.args);
+        const hasError = this._hasError(this.state.args);
+
         return (
             <div className="SourceCSVArgSection">
+                <div><b>Advanced Options:</b></div>
                 {
                     this.state.args.map((arg) => {
                         const options = {
@@ -23,8 +31,39 @@ export default class SourceCSVArgSection extends React.Component{
                         return <CSVArgRow key={arg.keyword} {...options}></CSVArgRow>
                     })
                 }
+                {
+                    isConfigChanged && !hasError
+                        ? <button
+                            className="btn btn-secondary"
+                            onClick={() => {
+                                onConfigChange(this.convert(this.state.args));
+                            }}>Done</button>
+                        : null
+                }
             </div>
         )
+    }
+
+    _hasError(args) {
+        for (const { error } of args) {
+            if (error) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    _isConfigChanged(c1, c2) {
+        const m2 = {};
+        for (const {keyword, value} of c2) {
+            m2[keyword] = value;
+        }
+        for (const {keyword, value} of c1) {
+            if (value !== m2[keyword]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     _delimiterTranslate(val) {
@@ -53,6 +92,18 @@ export default class SourceCSVArgSection extends React.Component{
         }
     }
 
+    convert(args) {
+        const map = {};
+        for (const arg of args) {
+            map[arg.keyword] = arg.value;
+        }
+        return InputSerializationFactory.createCSV({
+            recordDelimiter: map.recordDelimiter,
+            fieldDelimiter: map.fieldDelimiter,
+            quoteChar: map.quoteChar
+        });
+    }
+
     onInputChange(key, value) {
         const args = this.state.args;
         for (let arg of args) {
@@ -72,7 +123,6 @@ export default class SourceCSVArgSection extends React.Component{
                 break;
             }
         }
-        // XXX TODO: change to call this.props.onChange
         this.setState({ args });
     }
 
@@ -84,35 +134,35 @@ export default class SourceCSVArgSection extends React.Component{
      * error (boolean)
      * isNumber (boolean)
      */
-    getCSVArgs() {
-        // XXX TODO: change to return value from this.props
+    getCSVArgs(config) {
+        const csvConfig = config.CSV;
+        const {
+            RecordDelimiter,
+            FieldDelimiter,
+            QuoteCharacter
+        } = csvConfig;
+
         return [{
             "text": "Record Delimiter",
-            "keyword": "recordDelim",
-            "value": "\n",
+            "keyword": "recordDelimiter",
+            "value": RecordDelimiter,
             "error": false,
         }, {
             "text": "Field Delimiter",
-            "keyword": "fieldDelim",
-            "value": ",",
+            "keyword": "fieldDelimiter",
+            "value": FieldDelimiter,
             "error": false
         }, {
             "text": "Quoting Character",
             "keyword": "quoteChar",
-            "value": "\"",
+            "value": QuoteCharacter,
             "error": false,
-        }, {
-            "text": "Skip Rows",
-            "keyword": "skipRows",
-            "value": 0,
-            "error": false,
-            "isNumber": true
         }];
     }
 }
 /**
- * 
- * @param {text, keyword, default, onChange} props 
+ *
+ * @param {text, keyword, default, onChange} props
  */
 function CSVArgRow(props) {
     const {text, keyword, value, onChange, error, isNumber} = props;

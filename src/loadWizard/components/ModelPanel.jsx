@@ -1,8 +1,8 @@
 import React from "react";
 
 const Texts = {
-    importModels: 'Import Models',
-    newModel: 'Add Import Model',
+    importModels: 'Schema Model',
+    newModel: 'Add',
 }
 
 function ModelRow({ name, isSelected, onClick }) {
@@ -28,7 +28,7 @@ export default function ModelPanel({
                     className="addModel btn btn-secondary"
                     onClick={() => { onSelectModel();} }>
                         <i className="icon xi-plus fa-11"></i>
-                    <span>{Text.newModel}</span>
+                    <span>{Texts.newModel}</span>
                 </button>
                 <div className="modelList xc-grid listView">
                     {models.map(({ name: modelName }) => (

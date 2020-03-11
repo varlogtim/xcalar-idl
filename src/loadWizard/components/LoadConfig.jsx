@@ -48,6 +48,7 @@ function deleteEntry(setOrMap, key) {
     return setOrMap;
 }
 
+
 class LoadConfig extends React.Component {
     constructor(props) {
         super(props);
@@ -57,14 +58,15 @@ class LoadConfig extends React.Component {
         } = props;
         const defaultBucket = '/';
         const defaultHomePath = '';
+        const defaultFileType = FileTypeEnum.CSV;
+
         this.state = {
             currentStep: stepEnum.SourceData,
 
             // SourceData
             bucket: defaultBucket,
             homePath: defaultHomePath,
-            fileType: FileTypeEnum.CSV, // XXX TODO: UI
-            inputSerialization: SchemaService.InputSerializationFactory.createCSV({}), // XXX TODO: UI
+            fileType: defaultFileType,
 
             // BrowseDataSource
             browsePath: Path.join(defaultBucket, defaultHomePath),
@@ -79,6 +81,7 @@ class LoadConfig extends React.Component {
             discoverFileSchemas: new Map(),// Map<fileId, { name: schemaName, columns: [] }
             discoverInProgressFileIds: new Set(), // Set<fileId>
             discoverFailedFiles: new Map(), // Map<fileId, errMsg>
+            inputSerialization: SchemaService.defaultInputSerialization.get(defaultFileType),
 
             // CreateTable
             createInProgress: new Set(), // Set<schemaName>
@@ -249,6 +252,7 @@ class LoadConfig extends React.Component {
                 // XXX TODO: unsaved changes, what should we do?
                 console.log('Load config discarded');
             }
+            this._resetBrowseResult();
         }
         this.setState({
             bucket: bucket
@@ -263,10 +267,52 @@ class LoadConfig extends React.Component {
                 // XXX TODO: unsaved changes, what should we do?
                 console.log('Load config discarded');
             }
+            this._resetBrowseResult();
         }
         this.setState({
             homePath: path
         });
+    }
+
+    _resetBrowseResult(newFileType = null) {
+        this.setState({
+            selectedFileDir: new Array(),
+            discoverFileSchemas: new Map(),
+            discoverInProgressFileIds: new Set(),
+            discoverFailedFiles: new Map(),
+            createInProgress: new Set(),
+            createFailed: new Map(),
+            createTables: new Map()
+        });
+        let inputSerialization = this.state.inputSerialization;
+        if (newFileType != null) {
+            inputSerialization = SchemaService.defaultInputSerialization.get(newFileType);
+            this.setState({
+                inputSerialization: inputSerialization,
+            });
+        }
+        return inputSerialization;
+    }
+
+    _setFileType(fileType) {
+        this.setState({
+            fileType: fileType,
+        });
+        const inputSerialization = this._resetBrowseResult(fileType);
+        this._schemaWorker.reset({inputSerialization: inputSerialization});
+    }
+
+    _setInputSerialization(newOption) {
+        this.setState({
+            inputSerialization: newOption,
+            discoverFileSchemas: new Map(),
+            discoverInProgressFileIds: new Set(),
+            discoverFailedFiles: new Map(),
+            createInProgress: new Set(),
+            createFailed: new Map(),
+            createTables: new Map()
+        });
+        this._schemaWorker.reset({ inputSerialization: newOption });
     }
 
     async _browsePath(newFullPath) {
@@ -276,14 +322,17 @@ class LoadConfig extends React.Component {
                 browseIsLoading: true
             });
 
-            const fileMap = await S3Service.listFiles(Path.join(newFullPath, '/'));
+            const fileTypeFilter = SchemaService.FileTypeFilter.get(this.state.fileType);
+            const fileMap = await S3Service.listFiles(Path.join(newFullPath, '/'), ({ directory, type}) => {
+                return directory || fileTypeFilter({ type: type });
+            });
             this.setState({
                 brwoseFileMap: fileMap
             });
         } catch(e) {
             this._alert({
                 title: 'Browse path failed',
-                message: `${e.message || e}`
+                message: `${e.message || e.error || e}`
             });
             console.error(e);
             throw e;
@@ -321,7 +370,8 @@ class LoadConfig extends React.Component {
             this.setState({
                 discoverIsLoading: true
             });
-            const discoverFiles = await S3Service.flattenFileDir(this.state.selectedFileDir);
+            const fileNamePattern = SchemaService.FileTypeNamePattern.get(this.state.fileType);
+            const discoverFiles = await S3Service.flattenFileDir(this.state.selectedFileDir, fileNamePattern);
 
             // Sync discoverFileSchemas, discoverInProgressFileIds, discoverFailedFiles
             const removedFileIds = SetUtils.diff(this.state.discoverFiles.keys(), discoverFiles.keys());
@@ -371,6 +421,7 @@ class LoadConfig extends React.Component {
         const screenName = stepNames.get(this.state.currentStep);
         const bucket = this.state.bucket;
         const homePath = this.state.homePath;
+        const fileType = this.state.fileType;
 
         return (
             <div className="container cardContainer">
@@ -385,6 +436,7 @@ class LoadConfig extends React.Component {
                                 return (<SourceData
                                     bucket={bucket}
                                     path = {homePath}
+                                    fileType={fileType}
                                     onNextScreen={() => {
                                         try {
                                             this._changeStep(stepEnum.FilterData);
@@ -393,8 +445,9 @@ class LoadConfig extends React.Component {
                                             this._changeStep(stepEnum.SourceData);
                                         }
                                     }}
-                                    onBucketChange={ (newBucket) => { this._setBucket(newBucket); }}
-                                    onPathChange={ (newPath) => { this._setPath(newPath); }}
+                                    onBucketChange={(newBucket) => { this._setBucket(newBucket); }}
+                                    onPathChange={(newPath) => { this._setPath(newPath); }}
+                                    onFileTypeChange={(newType) => { this._setFileType(newType); }}
                                 />);
                             case stepEnum.FilterData:
                                 return (<BrowseDataSource
@@ -410,22 +463,24 @@ class LoadConfig extends React.Component {
                                     onPrevScreen={() => { this._changeStep(stepEnum.SourceData); }}
                                     onNextScreen={() => {
                                         try {
-                                            this._changeStep(stepEnum.DiscoverSchemas);
+                                            this._changeStep(stepEnum.SchemaDiscovery);
                                             this._flattenSelectedFiles();
                                         } catch(_) {
                                             this._changeStep(stepEnum.FilterData);
                                         }
                                     }}
                                 />);
-                            case stepEnum.DiscoverSchemas:
+                            case stepEnum.SchemaDiscovery:
                                 return (<DiscoverSchemas
+                                    inputSerialization={this.state.inputSerialization}
                                     isLoading={this.state.discoverIsLoading}
                                     discoverFiles={[...this.state.discoverFiles.values()]}
                                     fileSchemas={this.state.discoverFileSchemas}
                                     inProgressFiles={this.state.discoverInProgressFileIds}
-                                    failedFiles={this.state.discoverFailedFileIds}
+                                    failedFiles={this.state.discoverFailedFiles}
                                     onDiscoverFile={(fileId) => { this._discoverFileSchema(fileId); }}
                                     onClickDiscoverAll={() => { this._discoverAllFileSchemas(); }}
+                                    onInputSerialChange={(newConfig) => { this._setInputSerialization(newConfig); }}
                                     onPrevScreen = {() => { this._changeStep(stepEnum.FilterData); }}
                                     onNextScreen = {() => { this._changeStep(stepEnum.CreateTables); }}
                                 />);
@@ -437,7 +492,7 @@ class LoadConfig extends React.Component {
                                     schemasFailed={this.state.createFailed}
                                     tables={this.state.createTables}
                                     onClickCreateTable={(schemaName) => { this._createTableFromSchema(schemaName); }}
-                                    onPrevScreen = {() => { this._changeStep(stepEnum.DiscoverSchemas); }}
+                                    onPrevScreen = {() => { this._changeStep(stepEnum.SchemaDiscovery); }}
                                 />);
                             }
                             default:

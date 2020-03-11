@@ -191,14 +191,14 @@ function LoadTable({
             Header: 'Count',
             accessor: 'count',
         },
-        {
-            Header: 'Cost',
-            accessor: 'cost',
-        },
-        {
-            Header: 'Time',
-            accessor: 'time',
-        },
+        // {
+        //     Header: 'Cost',
+        //     accessor: 'cost',
+        // },
+        // {
+        //     Header: 'Time',
+        //     accessor: 'time',
+        // },
         {
             Header: 'Create',
             accessor: 'load',

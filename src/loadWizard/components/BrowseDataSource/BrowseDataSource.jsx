@@ -6,8 +6,7 @@ import NavButtons from '../NavButtons'
 
 const Texts = {
     navButtonLeft: 'Select Data Source',
-    navButtonRight: 'Discover Schema',
-    instruction: 'Select the data source that you want to import and then click the "Next" button.'
+    navButtonRight: 'Discover Schema'
 };
 
 function getSelectedIdsForCurrentView(fileMapViewing, selectedFiles) {
@@ -46,7 +45,6 @@ function BrowseDataSource({
 
     return (
         <div className="browseDataSourceScreen fileBrowser">
-            <div>{Texts.instruction}</div>
             <div className="fileBrowserPath">
                 <i className="icon xi-upload-folder xc-icon-action upFolderIcon"
                     disabled={rootFullPath === currentFullPath}

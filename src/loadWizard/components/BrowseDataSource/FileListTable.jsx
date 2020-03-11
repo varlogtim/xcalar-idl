@@ -67,11 +67,6 @@ function prepareCandidateList(fileMap, initialSelectedIds, onSelect, onDeselect,
     } = createFileList(fileMap, initialSelectedIds);
 
     const columnDefs = [
-        // {
-        //     name: "fileId",
-        //     label: '_fileId',
-        //     options: { display: "excluded" }
-        // },
         {
             name: "directory",
             label: <FileCopy/>,
@@ -111,6 +106,8 @@ function prepareCandidateList(fileMap, initialSelectedIds, onSelect, onDeselect,
         // responsive: "stacked",
         download: false,
         print: false,
+        rowsPerPage: 20,
+        rowsPerPageOptions: [],
         onRowsSelect: (_, allRowsSelected) => {
             const currentSelectedIds = new Set(allRowsSelected.map(row => fullList[row.dataIndex].fileId));
             const selectedFileIds = diffSet(currentSelectedIds, initialSelectedIds);
