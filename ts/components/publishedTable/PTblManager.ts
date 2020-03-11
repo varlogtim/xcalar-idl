@@ -48,6 +48,8 @@ class PTblManager {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._addOneTable(tableName)
         .then(() => {
+            delete this._loadingTables[tableName]; // delete before
+            // onTableChange or newList will contain loading table
             this._onTableChange({
                 "action": "add",
                 "tables": [tableName]

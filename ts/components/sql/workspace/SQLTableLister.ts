@@ -36,7 +36,7 @@ class SQLTableLister extends AbstractSQLResultView {
 
     public refresh(fetch?: boolean):  XDPromise<void> {
         const $container = this._getContainer();
-        if (!$container.hasClass("xc-hidden")) {
+        if (!$container.hasClass("xc-hidden") || fetch) {
             return this._listTables(fetch || false);
         } else {
             return PromiseHelper.resolve();
