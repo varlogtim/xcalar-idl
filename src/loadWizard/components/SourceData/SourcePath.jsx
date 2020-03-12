@@ -1,6 +1,7 @@
 import React from "react";
 import S3BucketInput from './S3BucketInput';
 import { FileType } from '../../services/SchemaService'
+import InputDropdown from "../../../components/widgets/InputDropDown"
 
 const Texts = {
     bucketName: 'S3 Bucket Name:',
@@ -25,6 +26,7 @@ export default function SourcePath({
     fileType = FileType.CSV,
     onFileTypeChange = (newType) => {}
 }) {
+    const s3Bucket = DSTargetManager.getAvailableS3Bucket();
     return (
         <div className="sourceForm">
             <form onSubmit={(e) => { e.preventDefault(); }}>
@@ -37,14 +39,25 @@ export default function SourcePath({
                         value={bucket}
                         onChange={(e) => { onBucketChange(e.target.value.trim()); }}
                     /> */}
-                    <S3BucketInput
+                     {/* <S3BucketInput
                         bucket={bucket}
                         onChange={(newBucket) => {
                             onBucketChange(newBucket.trim());
                         }}
+                    /> */}
+                    <InputDropdown
+                        val={bucket}
+                        onInputChange={(newBucket) => {
+                            onBucketChange(newBucket.trim());
+                        }}
+                        onSelect={(newBucket) => {
+                            onBucketChange(newBucket.trim());
+                        }}
+                        list={[
+                            {text: s3Bucket, value: s3Bucket}
+                        ]}
                     />
                 </div>
-
                 <div className="pathSelection">
                     <label className="label">{Texts.path}</label>
                     <input
@@ -54,25 +67,23 @@ export default function SourcePath({
                         onChange={(e) => { onPathChange(e.target.value.trim()); }}
                     />
                 </div>
-
                 <div className="fileTypeSelection">
                     <label className="label">{Texts.fileType}</label>
-                    <div className="input">{
-                        [FileType.CSV, FileType.JSON, FileType.PARQUET].map((type) => {
-                            const typeName = fileTypeNames.get(type);
-                            const isSelected = type === fileType;
-                            return (
-                                <label key={type} className="option">
-                                    <input type="checkbox" checked={isSelected} onClick={() => {
-                                        if (!isSelected) {
-                                            onFileTypeChange(type);
-                                        }
-                                    }}/>
-                                    <span>{typeName}</span>
-                                </label>
-                            )
-                        })
-                    }</div>
+                    <InputDropdown
+                        val={fileType}
+                        onInputChange={(type) => {
+                            onFileTypeChange(type);
+                        }}
+                        onSelect={(type) => {
+                            onFileTypeChange(type);
+                        }}
+                        list={
+                            [FileType.CSV, FileType.JSON, FileType.PARQUET].map((type) => {
+                                return {text: type, value: type};
+                            })
+                        }
+                        readOnly
+                    />
                 </div>
             </form>
         </div>
