@@ -137,6 +137,7 @@ class LoadConfig extends React.Component {
         });
 
         try {
+            WorkbookManager.switchToXDInternalSession();
             const finalTableName = await S3Service.createTableFromSchema(
                 tableName,
                 schemaInfo.path,
@@ -155,6 +156,7 @@ class LoadConfig extends React.Component {
                 createFailed: this.state.createFailed.set(schemaName, `${e.message || e.error || e}`),
             });
         } finally {
+            WorkbookManager.resetXDInternalSession();
             // Fallback: -loading
             this.setState({
                 createInProgress: deleteEntry(this.state.createInProgress, schemaName),
@@ -193,7 +195,7 @@ class LoadConfig extends React.Component {
             name = "source" + name;
         }
         name = name.toUpperCase();
-        return TblSource.Instance.getUniuqName(name);
+        return PTblManager.Instance.getUniqName(name);
     }
 
     async _discoverFileSchema(fileId) {

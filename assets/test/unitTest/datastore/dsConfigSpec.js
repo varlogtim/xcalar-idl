@@ -1228,7 +1228,7 @@ describe("Dataset-DSConfig Test", function() {
             var getNameFromPath = DSConfig.__testOnly__.getNameFromPath;
 
             var testName = xcHelper.randName("testName").toUpperCase();
-            var oldFunc = TblSource.Instance.getUniuqName;
+            var oldFunc = PTblManager.Instance.getUniqName;
 
             // basic
             var res = getNameFromPath(testName);
@@ -1254,14 +1254,14 @@ describe("Dataset-DSConfig Test", function() {
             res = getNameFromPath(test6);
             expect(res).to.equal("SOURCE123");
 
-            TblSource.Instance.getUniuqName = function() {
+            PTblManager.Instance.getUniqName = function() {
                 return testName + "1";
             };
 
             // names can be reused
             res = getNameFromPath(testName);
             expect(res).to.equal(testName + "1");
-            TblSource.Instance.getUniuqName = oldFunc;
+            PTblManager.Instance.getUniqName = oldFunc;
         });
 
         it("getSkipRows() should work", function() {

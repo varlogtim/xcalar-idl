@@ -2884,7 +2884,7 @@ namespace DSConfig {
             // name may have prefix appended
             name = name.toUpperCase();
         }
-        return isCreateTableMode() ? TblSource.Instance.getUniuqName(name) : DS.getUniqueName(name);
+        return isCreateTableMode() ? PTblManager.Instance.getUniqName(name) : DS.getUniqueName(name);
     }
 
     function getSkipRows(): number {

@@ -127,10 +127,6 @@ namespace xcManager {
             return setupTooltips();
         })
         .then(function() {
-            let promise = PTblManager.Instance.getTablesAsync();
-            return PromiseHelper.alwaysResolve(promise);
-        })
-        .then(function() {
             try {
                 TblSource.Instance.refresh();
                 // By default show panel
@@ -711,6 +707,11 @@ namespace xcManager {
         })
         .then(() => {
             FileBrowser.restore();
+        })
+        .then(() => {
+            // this is needed for load wizard with is independent of workbook
+            let promise = PTblManager.Instance.getTablesAsync();
+            return PromiseHelper.alwaysResolve(promise);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);

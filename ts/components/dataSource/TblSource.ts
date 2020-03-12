@@ -30,35 +30,6 @@ class TblSource {
     }
 
     /**
-     * TblSource.Instance.getUniuqName
-     */
-    public getUniuqName(name: string): string {
-        var originalName = name;
-        var tries = 1;
-        var validNameFound = false;
-        while (!validNameFound && tries < 20) {
-            if (this.hasTable(name)) {
-                validNameFound = false;
-            } else {
-                validNameFound = true;
-            }
-
-            if (!validNameFound) {
-                name = originalName + tries;
-                tries++;
-            }
-        }
-
-        if (!validNameFound) {
-            while (this.hasTable(name) && tries < 100) {
-                name = xcHelper.randName(name, 4);
-                tries++;
-            }
-        }
-        return name;
-    }
-
-    /**
      * TblSource.Instance.hasTable
      * @param tableName
      */

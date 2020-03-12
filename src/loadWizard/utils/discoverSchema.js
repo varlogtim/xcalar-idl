@@ -141,21 +141,15 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
      */
 
     const myRandomName = randomName();
-    const mySessionName = 'S' + myRandomName;
     const myDatasetName = 'DS' + myRandomName;
     const inputSerialJson = getInputSerial(inputSerialObject);
 
-    tableName = tableName.toUpperCase();
-    const compName = tableName + '_COMPLEMENTS';
+    tableName = PTblManager.Instance.getUniqName(tableName.toUpperCase());
+    const compName = PTblManager.Instance.getUniqName(tableName + '_COMPLEMENTS');
 
     // TODO: Must check to see if PubTables already exist with
     // a given name
-
-    // Create a temporary session
-    setSessionName(mySessionName);
-    await xcalarApiSessionNew(tHandle, mySessionName);
-    await xcalarApiSessionActivate(tHandle, mySessionName);
-    console.log("Created temporary session: " + mySessionName);
+    console.log("createTableAndComplements on session: " + sessionName);
 
     // make load args for BulkLoad.
     const sourceArgs = buildSourceLoadArgs(paths);
@@ -172,39 +166,32 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
         console.log("ERROR Converting Dataset to Table with Complements: " + JSON.stringify(e));
         alert("ERROR: " + JSON.stringify(e));
     } finally {
-        console.log("Cleaning up session");
-        // Inactivate session?
-        await xcalarApiSessionInact(tHandle, mySessionName);
-        console.log("Session deactivated");
+        await _cleanupDataset(myDatasetName);
+    }
+    return tableName;
+}
 
-        // Deleting Session - Hrmm?
-        await xcalarApiSessionDelete(tHandle, mySessionName);
-        console.log("Session Deleted");
-
+async function _cleanupDataset(datasetName) {
+    try {
+        console.log("Cleaning up dataset");
         // Deactivate Dataset
-        await XcalarDatasetDeactivate(myDatasetName);
+        await XcalarDatasetDeactivate(datasetName);
         console.log("Deactivated Dataset");
-        // This apparently deletes the dataset? verify?
-        // XXX
-        // XXX
-        // XXX Seriously, need to verify dataset is being deleted.
-        // XXX All of these Delete functions error and I can't find.
-        // XXX The dataset in the list. :(
-        // XXX
-        // XXX
+        await XcalarDatasetDelete(datasetName);
+        console.log("Delete Dataset");
 
         const datasetList = await XcalarGetDatasets();
         console.log("datasetList: " + JSON.stringify(datasetList));
-        //await XcalarDatasetDelete(myDatasetName);
         // {numDatasets: 1, datasets: [ {loadArgs: asdf, datasetId: 123, name: "asdf", ... }]
         for(let ii = 0; ii < datasetList.datasets.length; ii++) {
-            if (datasetList.datasets[ii].name.indexOf(myDatasetName) > 0) {
-                console.error("Error deleting dataset: " + myDatasetName);
+            if (datasetList.datasets[ii].name.indexOf(datasetName) > 0) {
+                console.error("Error deleting dataset: " + datasetName);
                 break;
             }
         }
+    } catch (e) {
+        console.error("clean up dataset fails");
     }
-    return tableName;
 }
 
 
@@ -214,7 +201,6 @@ async function getPublishedTableNames(tableName) {
 }
 
 async function datasetToTableWithComplements(datasetName, finalTableName, finalComplementsName) {
-    var deferred = jQuery.Deferred();
     // this is the function that divides the dataset into the
     // primary and complements table along with the requisite
     // steps to publish both tables.
@@ -331,11 +317,10 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
 
     // Publish tables...
     console.log("Publishing tables... :)");
-    await xcalarApiPublish(tHandle, tableNames[tt - 1], finalTableName);
-    await xcalarApiPublish(tHandle, compNames[cc - 1], finalComplementsName);
+    await createPublishTable(tableNames[tt - 1], finalTableName, false);
+    await createPublishTable(compNames[cc - 1], finalComplementsName, true);
     console.log("TABLE CREATED: '" + finalTableName + "'");
     console.log("COMPLEMENTS CREATED: '" + finalComplementsName + "'");
-
     // Delete Temp Tables...
     // All temp tables are prefixed with `datasetName`
     // TODO: I think we might not need this because deleting the session
@@ -351,7 +336,54 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
 
 }
 
+async function createPublishTable(resultSetName, pubTableName, deleteEmpty) {
+    await xcalarApiPublish(tHandle, resultSetName, pubTableName);
 
+    let hasDeleted = false;
+    if (deleteEmpty) {
+        hasDeleted = await deleteEmptyPbTable(pubTableName);
+    }
+    if (!hasDeleted) {
+        _savePublishedTableDataFlow(pubTableName, resultSetName)
+    }
+}
+
+// XXX TODO: use the one in xiApi.js
+// This will save the published table meta in kvstore
+// so XD know how to re-create it in batch job
+async function _savePublishedTableDataFlow(
+    pubTableName,
+    resultSetName,
+) {
+    try {
+        const pbTblInfo = new PbTblInfo({name: pubTableName});
+        await pbTblInfo.saveDataflow(resultSetName);
+        console.log("persisted the dataflow of published table " + pubTableName);
+    } catch (e) {
+        console.error("persist published table data flow failed", e);
+    }
+}
+
+// for complement table use only
+async function deleteEmptyPbTable(pubTableName) {
+    try {
+        const res = await XcalarListPublishedTables(pubTableName, false, false);
+        for (let i = 0; i < res.tables.length; i++) {
+            const table = res.tables[i];
+            if (table.name === pubTableName) {
+                if (table.numRowsTotal === 0) {
+                    console.log("Delete empty published table");
+                    await XcalarUnpublishTable(pubTableName);
+                    return true;
+                }
+                break;
+            }
+        }
+    } catch (e) {
+        console.error("deleteEmptyPbTable failed", e);
+    }
+    return false;
+}
 
 
 async function getNumXpus(){
