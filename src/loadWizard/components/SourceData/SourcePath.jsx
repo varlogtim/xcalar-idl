@@ -1,7 +1,7 @@
 import React from "react";
 import S3BucketInput from './S3BucketInput';
 import { FileType } from '../../services/SchemaService'
-import InputDropdown from "../../../components/widgets/InputDropDown"
+import InputDropdown from "../../../components/widgets/InputDropdown"
 
 const Texts = {
     bucketName: 'S3 Bucket Name:',
