@@ -51,8 +51,7 @@
         }
 
         .fileTypeSelection {
-            input {
-                height: auto;
+            .iconWrapper {
                 margin-right: 4px;
             }
 
@@ -66,7 +65,6 @@
                 .styleDropDownList(~"calc(100% - @{w-label})", 30px);
 
                 .text {
-                    width: 100%;
                     outline: none;
                 }
 
@@ -300,7 +298,6 @@
         position: relative;
         top: -1px;
     }
-
 
     .dropDownList {
         input:read-only {

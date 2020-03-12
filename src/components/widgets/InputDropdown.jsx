@@ -74,16 +74,19 @@ export default class InputDropdown extends React.Component {
         let readOnly = (this.props.readOnly === true) ? true : false;
 
         return (
-            <div className="dropDownList" ref={this.dropdownRef}>
+            <div className="dropDownList" ref={this.dropdownRef} onClick={this.onOuterListClick}>
                 <input
                     className="text"
                     type="text"
                     spellCheck={false}
                     value={this.props.val}
-                    onClick={this.onOuterListClick}
+                    // onClick={this.onOuterListClick}
                     onChange={e => this.onInputChange(e.target.value)}
                     readOnly={readOnly}
                 />
+                <div class="iconWrapper">
+                    <i class="icon xi-arrow-down"></i>
+                </div>
                 {this.state.open &&
                     <DropdownUL
                     list={this.props.list}
