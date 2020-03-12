@@ -1,14 +1,12 @@
 import * as Path from 'path';
 import React from "react";
 import SourcePath from './SourcePath'
-import NavButtons from '../NavButtons'
 import * as S3Service from '../../services/S3Service'
 
 const Texts = {
     createTable: 'Create Table from Model',
     updateForensics: 'Updating ...',
-    getForensics: 'View Directory Info',
-    navButtonRight: 'Browse'
+    getForensics: 'View Directory Info'
 };
 
 /**
@@ -144,6 +142,7 @@ class SourceData extends React.Component {
                     onPathChange={(newPath) => { onPathChange(newPath); }}
                     fileType={fileType}
                     onFileTypeChange={onFileTypeChange}
+                    onNextScreen={onNextScreen}
                 />
                 {/* <div className="modelInfo">
                     Model rules:
@@ -153,7 +152,6 @@ class SourceData extends React.Component {
                 {/* <CreateTableButton isShow={ modelSelected === "untitled" } /> */}
                 <GetForensicsButton isLoading={ this.state.isForensicsLoading } onClick={ () => { this.fetchForensics(bucket, path) }}/>
                 <ForensicsContent isShow={ this.state.showForensics } stats={ forensicsStats } message={ this.state.forensicsMessage } />
-                <NavButtons right={{ label: Texts.navButtonRight, onClick: () => { onNextScreen() } }} />
             </div>
         );
     }

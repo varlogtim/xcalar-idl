@@ -44,9 +44,13 @@
         .bucketSelection, .pathSelection, .fileTypeSelection {
             height: 30px;
             margin-bottom: 8px;
+            display: flex;
             .input {
                 width: ~"calc(100% - @{w-label})";
                 line-height: 30px;
+            }
+            .fieldWrap {
+                flex: 1 1 auto;
             }
         }
 
@@ -61,18 +65,27 @@
         }
 
         .bucketSelection {
-            > .dropDownList {
-                .styleDropDownList(~"calc(100% - @{w-label})", 30px);
+            .fieldWrap {
+                > .dropDownList {
+                    .styleDropDownList(~"calc(100% - @{w-label})", 30px);
 
-                .text {
-                    outline: none;
-                }
+                    .text {
+                        outline: none;
+                    }
 
-                &.open {
-                    .list {
-                        display: block;
+                    &.open {
+                        .list {
+                            display: block;
+                        }
                     }
                 }
+            }
+        }
+
+        .pathSelection {
+            .navButtons {
+                margin-top: 3px;
+                margin-left: 16px;
             }
         }
     }
