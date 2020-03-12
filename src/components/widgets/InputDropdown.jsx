@@ -84,8 +84,8 @@ export default class InputDropdown extends React.Component {
                     onChange={e => this.onInputChange(e.target.value)}
                     readOnly={readOnly}
                 />
-                <div class="iconWrapper">
-                    <i class="icon xi-arrow-down"></i>
+                <div className="iconWrapper">
+                    <i className="icon xi-arrow-down"></i>
                 </div>
                 {this.state.open &&
                     <DropdownUL

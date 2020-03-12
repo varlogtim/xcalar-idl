@@ -91,7 +91,8 @@ class LoadConfig extends React.Component {
             inputSerialization: SchemaService.defaultInputSerialization.get(defaultFileType),
 
             // CreateTable
-            createInProgress: new Set(), // Set<schemaName>
+            tableToCreate: new Map(), // Map<schemaName, tableName>, store a table name for user to update
+            createInProgress: new Map(), // Map<schemaName, tableName>
             createFailed: new Map(), // Map<schemaName, errorMsg>
             createTables: new Map() // Map<schemaName, tableName>
         };
@@ -111,29 +112,20 @@ class LoadConfig extends React.Component {
         });
     }
 
-    async _createTableFromSchema(schemaName) {
+    async _createTableFromSchema(schemaName, tableName) {
         const schemaFileMap = this._createSchemaFileMap(this.state.discoverFileSchemas);
         const schemaInfo = schemaFileMap.get(schemaName);
-        if (schemaInfo == null) {
+        if (!schemaInfo || !tableName) {
             console.error('Non-existing Schema: ', schemaName);
             return;
         }
 
-        // XXX TODO: Get table name from UI
-        let tableName = "";
-        try {
-            const path = schemaInfo.path[0];
-            tableName = this._getNameFromPath(path);
-        } catch (e) {
-            console.error(e);
-            // when error, use schema name to create table name
-            tableName = (schemaName + Math.random().toString(36).substring(2, 15)).toUpperCase();
-        }
         // State: cleanup and +loading
         this.setState({
-            createInProgress: this.state.createInProgress.add(schemaName),
+            createInProgress: this.state.createInProgress.set(schemaName, tableName),
             createFailed: deleteEntry(this.state.createFailed, schemaName),
-            createTables: deleteEntry(this.state.createTables, schemaName)
+            createTables: deleteEntry(this.state.createTables, schemaName),
+            tableToCreate: deleteEntry(this.state.tableToCreate, schemaName)
         });
 
         try {
@@ -462,7 +454,8 @@ class LoadConfig extends React.Component {
             discoverFileSchemas: new Map(),
             discoverInProgressFileIds: new Set(),
             discoverFailedFiles: new Map(),
-            createInProgress: new Set(),
+            tableToCreate: new Map(),
+            createInProgress: new Map(),
             createFailed: new Map(),
             createTables: new Map()
         });
@@ -490,7 +483,8 @@ class LoadConfig extends React.Component {
             discoverFileSchemas: new Map(),
             discoverInProgressFileIds: new Set(),
             discoverFailedFiles: new Map(),
-            createInProgress: new Set(),
+            tableToCreate: new Map(),
+            createInProgress: new Map(),
             createFailed: new Map(),
             createTables: new Map()
         });
@@ -673,13 +667,25 @@ class LoadConfig extends React.Component {
                                 />);
                             }
                             case stepEnum.CreateTables: {
+                                const schemaFileMap = this._createSchemaFileMap(this.state.discoverFileSchemas);
+                                schemaFileMap.forEach(({path}, schemaName) => {
+                                    if (!this.state.tableToCreate.has(schemaName)) {
+                                        const defaultTableName = this._getNameFromPath(path[0]);
+                                        this.state.tableToCreate.set(schemaName, defaultTableName);
+                                    }
+                                });
                                 return (<CreateTables
-                                    schemas={this._createSchemaFileMap(this.state.discoverFileSchemas)}
+                                    schemas={schemaFileMap}
                                     fileMetas={this.state.discoverFiles}
                                     schemasInProgress={this.state.createInProgress}
                                     schemasFailed={this.state.createFailed}
+                                    tablesInInput={this.state.tableToCreate}
                                     tables={this.state.createTables}
-                                    onClickCreateTable={(schemaName) => { this._createTableFromSchema(schemaName); }}
+                                    onTableNameChange={(schemaName, newTableName) => {
+                                        this.state.tableToCreate.set(schemaName, newTableName);
+                                        this.setState({tableToCreate: this.state.tableToCreate});
+                                    }}
+                                    onClickCreateTable={(schemaName, tableName) => { this._createTableFromSchema(schemaName, tableName); }}
                                     onPrevScreen = {() => { this._changeStep(stepEnum.SchemaDiscovery); }}
                                 />);
                             }

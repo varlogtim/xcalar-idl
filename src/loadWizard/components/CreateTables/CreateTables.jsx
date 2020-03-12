@@ -24,8 +24,10 @@ class CreateTables extends React.Component {
             fileMetas, // Map<fileId, fileInfo> see S3Service.listFiles
             schemasInProgress,  // Set<schemaName>
             schemasFailed,  // Map<schemaName, errorMsg>
+            tablesInInput, // Map<chemaName, tableName>
             tables, // Map<schemaName, tableName>
-            onClickCreateTable = (schemaName) => {},
+            onClickCreateTable = (schemaName, tableName) => {},
+            onTableNameChange,
             onPrevScreen
         } = this.props;
 
@@ -47,12 +49,14 @@ class CreateTables extends React.Component {
                         schemas={schemas}
                         schemasInProgress={schemasInProgress}
                         schemasFailed={schemasFailed}
+                        tablesInInput={tablesInInput}
                         tables={tables}
                         files={fileMetas}
                         onClickSchema={(schemaName) => {
                             this.setState({ schemaShowing: schemaName });
                         }}
                         onClickCreateTable={onClickCreateTable}
+                        onTableNameChange={onTableNameChange}
                     />
                 </div>
                 <NavButtons left={{ label: Texts.navButtonLeft, onClick: () => { onPrevScreen(); } }} />

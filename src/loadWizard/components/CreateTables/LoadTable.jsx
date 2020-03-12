@@ -169,14 +169,63 @@ function getFileSize(fileIds, fileInfos) {
     }, 0);
 }
 
+function validateTableName($input, tableName) {
+    let isValid = true;
+    // validate name
+    tableName = tableName.trim().toUpperCase();
+    isValid = xcHelper.validate([
+        {
+            "$ele": $input,
+            "error": "Table name cannot be empty",
+            "check": function() {
+              return tableName === "";
+            }
+        },
+        {
+            "$ele": $input,
+            "error": ErrTStr.TooLong,
+            "check": function() {
+                return (tableName.length >=
+                        XcalarApisConstantsT.XcalarApiMaxTableNameLen);
+            }
+        },
+        {
+            "$ele": $input,
+            "error": ErrTStr.TableStartsWithLetter,
+            "check": function() {
+                return !xcStringHelper.isStartWithLetter(tableName);
+            }
+        },
+        {
+            "$ele": $input,
+            "error": ErrTStr.TableConflict,
+            "check": function() {
+                return PTblManager.Instance.hasTable(tableName)
+            }
+
+        },
+        {
+            "$ele": $input,
+            "error": ErrTStr.InvalidPublishedTableName,
+            "check": function() {
+                return !xcHelper.checkNamePattern(PatternCategory.PTbl, PatternAction.Check, tableName);
+            }
+        }
+    ]);
+
+  return isValid ? tableName : null;
+}
+
 function LoadTable({
   schemas,
   schemasInProgress,
   schemasFailed,
+  tablesInInput,
   tables,
   files, // map fileId => fileInfo
   onClickSchema = (schemaName) => {},
-  onClickCreateTable = (schemaName) => {}
+  onClickCreateTable = (schemaName) => {},
+  onTableNameChange
 }) {
     const columns = React.useMemo(() => [
         {
@@ -200,6 +249,10 @@ function LoadTable({
         //     accessor: 'time',
         // },
         {
+          Header: 'Table Name',
+          accessor: "tableName",
+        },
+        {
             Header: 'Create',
             accessor: 'load',
         }
@@ -216,12 +269,14 @@ function LoadTable({
             // "cost": '$' + schema.totalCost.toFixed(8),
             cost: '$ 0', // XXX TODO: fix it
             // "time": schema.totalEta.toFixed(8) + ' seconds',
-            time: '0 seconds', // XXX TODO: fix it
+            time: '0 seconds', // XXX TODO: fix it,
+            tableName: null,
             load: null,
         };
 
         if (schemasInProgress.has(schemaName)) {
             rowData.load = <LoadCell.Loading />
+            rowData.tableName = schemasInProgress.get(schemaName);
         } else if (schemasFailed.has(schemaName)) {
             const errorMsg = schemasFailed.get(schemaName);
             rowData.load = <LoadCell.Error
@@ -234,9 +289,20 @@ function LoadTable({
                     });
                 }} />
         } else if (tables.has(schemaName)) {
-            rowData.load = <LoadCell.Table name={tables.get(schemaName)} />
+            rowData.load = <LoadCell.Success/>
+            rowData.tableName = tables.get(schemaName);
         } else {
-            rowData.load = <LoadCell.Create onClick={() => { onClickCreateTable(schemaName); }} />
+            const tableName = tablesInInput.get(schemaName);
+            rowData.tableName = <input className="xc-input tableInput" value={tableName} onChange={(e) => onTableNameChange(schemaName, e.target.value)}/>
+            rowData.load = <LoadCell.Create onClick={(e) => {
+              // XXX this is a hacky way to use jQuery in order to use xcHelper.validate
+              const $button = $(e.target);
+              const $input = $button.parent().prev().find(".tableInput");
+              const validTableName = validateTableName($input, tableName);
+              if (validTableName) {
+                  onClickCreateTable(schemaName, validTableName);
+              }
+            }} />
         }
 
         loadTableData.push(rowData);

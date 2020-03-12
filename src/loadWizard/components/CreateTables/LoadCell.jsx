@@ -3,14 +3,19 @@ import React from 'react';
 const Texts = {
     createButtonLabel: 'Create Table',
     creatingTable: 'Creating table ...',
+    created: 'Created',
 };
 
 function Create({ onClick }) {
-    return <button onClick={() => { onClick(); }}>{Texts.createButtonLabel}</button>
+    return <button onClick={onClick}>{Texts.createButtonLabel}</button>
 }
 
 function Loading() {
     return <span>{Texts.creatingTable}</span>
+}
+
+function Success() {
+    return <span>{Texts.created}</span>
 }
 
 function Error({
@@ -28,7 +33,7 @@ function Table({ name }) {
     );
 }
 
-export { Create, Loading, Error, Table };
+export { Create, Loading, Success, Error, Table };
 // function LoadCell({schemasObject, setSchemasObject, schemaName, fileIdToStatus, setFileIdToStatus}) {
 
 //     if (loadCellValue) {
