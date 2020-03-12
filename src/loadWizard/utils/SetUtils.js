@@ -14,4 +14,13 @@ function union(setA, setB) {
     return _union;
 }
 
-export { diff, union };
+function intersection(setA, setB) {
+    let _intersection = new Set()
+    for (let elem of setB) {
+        if (setA.has(elem)) {
+            _intersection.add(elem)
+        }
+    }
+    return _intersection
+}
+export { diff, union, intersection };

@@ -48,6 +48,12 @@ function deleteEntry(setOrMap, key) {
     return setOrMap;
 }
 
+function deleteEntries(setOrMap, keySet) {
+    for (const key of keySet) {
+        setOrMap.delete(key);
+    }
+    return setOrMap;
+}
 
 class LoadConfig extends React.Component {
     constructor(props) {
@@ -193,7 +199,7 @@ class LoadConfig extends React.Component {
     async _discoverFileSchema(fileId) {
         const file = this.state.discoverFiles.get(fileId);
         if (file == null) {
-            console.error('Discover unselected file:', file.fullPath);
+            console.error('Discover unselected file:', fileId);
             return;
         }
 
@@ -243,11 +249,83 @@ class LoadConfig extends React.Component {
         }
     }
 
+    async _discoverMultiFileSchema(fileIds) {
+        const filePaths = new Array();
+        for (const fileId of fileIds) {
+            const file = this.state.discoverFiles.get(fileId);
+            if (file == null) {
+                console.error('Discover unselected file:', fileId);
+                return;
+            }
+            filePaths.push(file.fullPath);
+        }
+
+        // State: +loading
+        this.setState({
+            discoverInProgressFileIds: SetUtils.union(this.state.discoverInProgressFileIds, new Set(fileIds)),
+            discoverFailedFiles: deleteEntries(this.state.discoverFailedFiles, fileIds)
+        });
+
+        try {
+            // Call service to discover files
+            await this._schemaWorker.discover(filePaths);
+
+            // Failed files
+            const failedFileIds = SetUtils.intersection(this._schemaWorker.getErrorFiles(), fileIds);
+            if (failedFileIds.size > 0) {
+                // State: -loading +failed
+                const { discoverFailedFiles, discoverInProgressFileIds } = this.state;
+                for (const fileId of failedFileIds) {
+                    discoverFailedFiles.set(fileId, 'Discover failed');
+                }
+                this.setState({
+                    discoverInProgressFileIds: deleteEntries(discoverInProgressFileIds, failedFileIds),
+                    discoverFailedFiles: discoverFailedFiles
+                });
+            }
+
+            // Success files
+            const successFileIds = SetUtils.diff(fileIds, failedFileIds);
+            if (successFileIds.size > 0) {
+                const schemas = this._schemaWorker.getSchemas();
+                const fileSchemaMap = new Map();
+                for (const [schemaName, { path, columns }] of schemas) {
+                    const schemaInfo = {
+                        name: schemaName,
+                        columns: columns.map((c) => ({...c}))
+                    };
+                    for (const filePath of path) {
+                        fileSchemaMap.set(filePath, schemaInfo);
+                    }
+                }
+                // State: -loading +discovered
+                this.setState({
+                    discoverInProgressFileIds: deleteEntries(this.state.discoverInProgressFileIds, successFileIds),
+                    discoverFileSchemas: fileSchemaMap
+                });
+            }
+        } catch(e) {
+            // State: -loading +failed
+            const { discoverInProgressFileIds, discoverFailedFiles } = this.state;
+            for (const fileId of fileIds) {
+                discoverFailedFiles.set(fileId, e.message || e.error || e);
+            }
+            this.setState({
+                discoverInProgressFileIds: deleteEntries(discoverInProgressFileIds, fileIds),
+                discoverFailedFiles: discoverFailedFiles
+            });
+        } finally {
+            // Fallback: -loading
+            this.setState({
+                discoverInProgressFileIds: deleteEntries(this.state.discoverInProgressFileIds, fileIds)
+            });
+        }
+    }
+
     async _discoverAllFileSchemas() {
         if (this.state.discoverCancelBatch != null) {
             return;
         }
-        console.log('Discover All');
 
         let isCanceled = false;
         this.setState({
@@ -257,14 +335,23 @@ class LoadConfig extends React.Component {
             }
         });
         try {
+            const stime = Date.now();
+            const waitForTasks = async(tasks) => {
+                while (tasks.length > 0) {
+                    await tasks.pop();
+                }
+            }
+
             const {
                 discoverFiles,
                 discoverFileSchemas,
                 discoverInProgressFileIds,
                 discoverFailedFiles
             } = this.state;
-            const batch = new Array();
-            const batchSize = 5;
+            const batch = new Set();
+            const batchSize = 128;
+            const plevel = 16;
+            const tasks = new Array();
             for (const [fileId] of discoverFiles.entries()) {
                 if (isCanceled) {
                     break;
@@ -275,18 +362,22 @@ class LoadConfig extends React.Component {
                 ) {
                     continue;
                 }
-                batch.push(this._discoverFileSchema(fileId));
-                if (batch.length >= batchSize) {
-                    await waitForBatch(batch);
+                batch.add(fileId);
+                if (batch.size >= batchSize) {
+                    tasks.push(this._discoverMultiFileSchema(new Set(batch)));
+                    batch.clear();
+                    if (tasks.length >= plevel) {
+                        await waitForTasks(tasks);
+                    }
                 }
             }
-            await waitForBatch(batch);
-
-            async function waitForBatch(batch) {
-                while(batch.length > 0) {
-                    await batch.pop();
-                }
+            if (batch.size > 0) {
+                tasks.push(this._discoverMultiFileSchema(new Set(batch)));
+                batch.clear();
+                await waitForTasks(tasks);
             }
+            const etime = Date.now();
+            console.log(`DiscoverAll took ${Math.ceil((etime - stime)/100)/10} seconds`);
         } finally {
             this.setState({
                 discoverCancelBatch: null
