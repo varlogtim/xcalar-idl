@@ -103,7 +103,6 @@ class LoadConfig extends React.Component {
             mergePolicy: this.state.discoverSchemaPolicy,
             inputSerialization: { ...this.state.inputSerialization }
         });
-        this._
     }
 
     async _createTableFromSchema(schemaName) {
@@ -118,7 +117,7 @@ class LoadConfig extends React.Component {
         let tableName = "";
         try {
             const path = schemaInfo.path[0];
-            tableName = this._getNameFromPath(path); 
+            tableName = this._getNameFromPath(path);
         } catch (e) {
             console.error(e);
             // when error, use schema name to create table name

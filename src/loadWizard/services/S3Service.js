@@ -133,13 +133,13 @@ async function getForensicsStats(bucketName, pathPrefix) {
         (SELECT *,(TOTAL_COUNT-CSV_COUNT-JSON_COUNT-PARQUET_COUNT-NOEXT_COUNT) AS UNSUPPORTED_COUNT FROM
         (SELECT
             COUNT(*) as TOTAL_COUNT,
-            MAX(LENGTH(path) - LENGTH(REPLACE(path, '/', ''))) AS MAX_DEPTH,
-            STDDEV(CAST(size as int)) AS STD_DEV,
-            SUM(CASE WHEN LOWER(path) LIKE '\%.csv' THEN 1 ELSE 0 END) AS CSV_COUNT,
-            SUM(CASE WHEN LOWER(path) LIKE '\%.json%' THEN 1 ELSE 0 END) AS JSON_COUNT,
-            SUM(CASE WHEN LOWER(path) LIKE '\%.parquet' THEN 1 ELSE 0 END) AS PARQUET_COUNT,
-            SUM(CASE WHEN LOWER(path) NOT LIKE '\%.\%' THEN 1 ELSE 0 END) AS NOEXT_COUNT
-        FROM ( SELECT * FROM ${keyListTableName} WHERE path LIKE '${fullPath}\%'))) JOIN (
+            MAX(LENGTH(PATH) - LENGTH(REPLACE(PATH, '/', ''))) AS MAX_DEPTH,
+            STDDEV(CAST(SIZE as int)) AS STD_DEV,
+            SUM(CASE WHEN LOWER(PATH) LIKE '\%.csv' THEN 1 ELSE 0 END) AS CSV_COUNT,
+            SUM(CASE WHEN LOWER(PATH) LIKE '\%.json%' THEN 1 ELSE 0 END) AS JSON_COUNT,
+            SUM(CASE WHEN LOWER(PATH) LIKE '\%.parquet' THEN 1 ELSE 0 END) AS PARQUET_COUNT,
+            SUM(CASE WHEN LOWER(PATH) NOT LIKE '\%.\%' THEN 1 ELSE 0 END) AS NOEXT_COUNT
+        FROM ( SELECT * FROM ${keyListTableName} WHERE PATH LIKE '${fullPath}\%'))) JOIN (
             SELECT a.PATH LARGEST_FILE, a.SIZE LARGEST_FILE_SIZE
                FROM ${keyListTableName} a
                INNER JOIN (
@@ -161,12 +161,14 @@ async function getForensicsStats(bucketName, pathPrefix) {
             count: 0,
             maxSize: 0,
             minSize: 0,
+            largestFile: '',
+            smallestFile: ''
         },
         structure: {
             depth: 0
         },
         type: {
-            csv: 0, json: 0, parquet: 0
+            csv: 0, json: 0, parquet: 0, unsupported: 0, noext: 0
         }
     }
 
@@ -200,8 +202,6 @@ async function getForensicsStats(bucketName, pathPrefix) {
             stats.type.unsupported = result['UNSUPPORTED_COUNT'];
             stats.type.noext = result['NOEXT_COUNT'];
         }
-    } catch(e) {
-        console.error(e);
     } finally {
         await session.destroy();
     }

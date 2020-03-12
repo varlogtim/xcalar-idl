@@ -32,9 +32,10 @@ function GetForensicsButton(props) {
     const { isLoading = false, onClick = () => {} } = props || {};
     const buttonText = isLoading ? Texts.updateForensics : Texts.getForensics;
     const disableButton = isLoading;
+    const classes = ['getForensics', 'btn', 'btn-secondary'].concat(disableButton ? ['btn-disabled'] : []);
 
     return (
-        <button disabled={disableButton} className="getForensics btn btn-secondary" onClick={() => { onClick() }}>{buttonText}</button>
+        <button className={classes.join(' ')} onClick={() => { onClick() }}>{buttonText}</button>
     );
 }
 
@@ -46,13 +47,13 @@ function ForensicsContent(props) {
     const {
         isShow = false,
         message = [],
-        stats = {}
+        stats
     } = props || {};
     if (isShow) {
         return (
             <div className="forensicsContent">
                 <div>{ message.map((m, i) => (<div key={i}>{m}</div>)) }</div>
-                <pre>{JSON.stringify(stats, null, '  ')}</pre>
+                {stats == null ? null : <pre>{JSON.stringify(stats, null, '  ')}</pre>}
             </div>
         );
     } else {
@@ -75,6 +76,7 @@ class SourceData extends React.Component {
 
     async fetchForensics(bucketName, pathPrefix) {
         const fullPath = Path.join(bucketName, pathPrefix);
+        this.metadataMap.delete(fullPath);
         this.setState({
             showForensics: true,
             forensicsMessage: ['Fetching S3 metadata ...'],
@@ -131,7 +133,7 @@ class SourceData extends React.Component {
         } = this.props;
 
         const fullPath = Path.join(bucket, path);
-        const forensicsStats = this.metadataMap.get(fullPath) || {};
+        const forensicsStats = this.metadataMap.get(fullPath);
 
         return (
             <div>

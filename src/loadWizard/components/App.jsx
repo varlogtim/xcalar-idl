@@ -85,7 +85,8 @@ class App extends React.Component {
     }
 
     render() {
-        const showModelPanel = this.state.showModelPanel;
+        // const showModelPanel = this.state.showModelPanel;
+        const showModelPanel = false;
         return (
             <div className="App">
                 {

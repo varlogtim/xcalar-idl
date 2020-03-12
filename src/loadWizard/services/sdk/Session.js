@@ -139,15 +139,15 @@ class XDSession extends BaseSession {
     async activate() {}
     async deactivate() {}
 
-    callLegacyApi(apiCall) {
-        WorkbookManager.switchToXDInternalSession();
-        try {
-            const result = PromiseHelper.convertToNative(apiCall());
-            return result;
-        } finally {
-            WorkbookManager.resetXDInternalSession();
-        }
-    }
+    // callLegacyApi(apiCall) {
+    //     WorkbookManager.switchToXDInternalSession();
+    //     try {
+    //         const result = PromiseHelper.convertToNative(apiCall());
+    //         return result;
+    //     } finally {
+    //         WorkbookManager.resetXDInternalSession();
+    //     }
+    // }
 }
 
 const SESSION_PREFIX = 'LWS';
