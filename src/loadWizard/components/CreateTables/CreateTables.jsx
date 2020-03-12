@@ -55,8 +55,8 @@ class CreateTables extends React.Component {
                         onClickCreateTable={onClickCreateTable}
                     />
                 </div>
-                {schemaInfo == null ? null : <pre>{JSON.stringify(schemaInfo, null, ' ')}</pre>}
                 <NavButtons left={{ label: Texts.navButtonLeft, onClick: () => { onPrevScreen(); } }} />
+                {schemaInfo == null ? null : <pre>{JSON.stringify(schemaInfo, null, ' ')}</pre>}
             </div>
         );
     }

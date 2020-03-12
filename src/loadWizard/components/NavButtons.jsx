@@ -5,10 +5,11 @@ function LeftButton(props) {
         return null;
     }
 
-    const { label = '', onClick = () => {} } = props;
+    const { label = '', onClick = () => {}, disabled = false } = props;
+    const btnClasses = ['btn', 'btn-secondary'].concat(disabled ? ['btn-disabled'] : []);
     return (
         <div className="backButton">
-            <button className="btn btn-secondary" onClick={ () => { onClick(); }}>
+            <button className={btnClasses.join(' ')} onClick={ () => { onClick(); }}>
                 {label}
             </button>
         </div>
@@ -20,10 +21,11 @@ function RightButton(props) {
         return null;
     }
 
-    const { label = '', onClick = () => {} } = props;
+    const { label = '', onClick = () => {}, disabled = false } = props;
+    const btnClasses = ['btn'].concat(disabled ? ['btn-disabled'] : []);
     return (
         <div className="nextButton">
-            <button className="btn" onClick={ () => { onClick(); }}>
+            <button className={btnClasses.join(' ')} onClick={ () => { onClick(); }}>
                 {label}
             </button>
         </div>

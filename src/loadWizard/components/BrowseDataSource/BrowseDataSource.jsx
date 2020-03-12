@@ -74,7 +74,11 @@ function BrowseDataSource({
             }
             <NavButtons
                 left={{ label: Texts.navButtonLeft, onClick: () => { onPrevScreen() } }}
-                right={selectedFileDir.length > 0 ? { label: Texts.navButtonRight, onClick: () => { onNextScreen() } } : null}
+                right={{
+                    label: Texts.navButtonRight,
+                    disabled: selectedFileDir.length === 0,
+                    onClick: () => { onNextScreen() }
+                }}
             />
             {selectedFileDir.length > 0 ? <BucketChart fileList={selectedFileDir}/> : null}
         </div>

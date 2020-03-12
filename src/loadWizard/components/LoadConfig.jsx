@@ -79,6 +79,7 @@ class LoadConfig extends React.Component {
             discoverIsLoading: false,
             discoverFiles: new Map(), // Map<fileId, { fileId, fullPath, direcotry ... }
             discoverFileSchemas: new Map(),// Map<fileId, { name: schemaName, columns: [] }
+            discoverCancelBatch: null, // () => {} Dynamic cancel function set by discoverAll
             discoverInProgressFileIds: new Set(), // Set<fileId>
             discoverFailedFiles: new Map(), // Map<fileId, errMsg>
             inputSerialization: SchemaService.defaultInputSerialization.get(defaultFileType),
@@ -97,10 +98,12 @@ class LoadConfig extends React.Component {
         // Event notification
         this._eventOnStepChange = onStepChange;
 
+        // Instance members
         this._schemaWorker = new SchemaService.DiscoverWorker({
             mergePolicy: this.state.discoverSchemaPolicy,
             inputSerialization: { ...this.state.inputSerialization }
         });
+        this._
     }
 
     async _createTableFromSchema(schemaName) {
@@ -242,7 +245,54 @@ class LoadConfig extends React.Component {
     }
 
     async _discoverAllFileSchemas() {
+        if (this.state.discoverCancelBatch != null) {
+            return;
+        }
         console.log('Discover All');
+
+        let isCanceled = false;
+        this.setState({
+            discoverCancelBatch: () => {
+                console.log('Cancel All');
+                isCanceled = true;
+            }
+        });
+        try {
+            const {
+                discoverFiles,
+                discoverFileSchemas,
+                discoverInProgressFileIds,
+                discoverFailedFiles
+            } = this.state;
+            const batch = new Array();
+            const batchSize = 5;
+            for (const [fileId] of discoverFiles.entries()) {
+                if (isCanceled) {
+                    break;
+                }
+                if (discoverFileSchemas.has(fileId) ||
+                    discoverInProgressFileIds.has(fileId) ||
+                    discoverFailedFiles.has(fileId)
+                ) {
+                    continue;
+                }
+                batch.push(this._discoverFileSchema(fileId));
+                if (batch.length >= batchSize) {
+                    await waitForBatch(batch);
+                }
+            }
+            await waitForBatch(batch);
+
+            async function waitForBatch(batch) {
+                while(batch.length > 0) {
+                    await batch.pop();
+                }
+            }
+        } finally {
+            this.setState({
+                discoverCancelBatch: null
+            });
+        }
     }
 
     /**
@@ -510,7 +560,11 @@ class LoadConfig extends React.Component {
                                         }
                                     }}
                                 />);
-                            case stepEnum.SchemaDiscovery:
+                            case stepEnum.SchemaDiscovery:{
+                                const { discoverCancelBatch } = this.state;
+                                const onClickDiscoverAll = discoverCancelBatch == null
+                                    ? () => { this._discoverAllFileSchemas(); }
+                                    : null;
                                 return (<DiscoverSchemas
                                     inputSerialization={this.state.inputSerialization}
                                     isLoading={this.state.discoverIsLoading}
@@ -519,11 +573,13 @@ class LoadConfig extends React.Component {
                                     inProgressFiles={this.state.discoverInProgressFileIds}
                                     failedFiles={this.state.discoverFailedFiles}
                                     onDiscoverFile={(fileId) => { this._discoverFileSchema(fileId); }}
-                                    onClickDiscoverAll={() => { this._discoverAllFileSchemas(); }}
+                                    onClickDiscoverAll={onClickDiscoverAll}
+                                    onCancelDiscoverAll={discoverCancelBatch}
                                     onInputSerialChange={(newConfig) => { this._setInputSerialization(newConfig); }}
                                     onPrevScreen = {() => { this._changeStep(stepEnum.FilterData); }}
                                     onNextScreen = {() => { this._changeStep(stepEnum.CreateTables); }}
                                 />);
+                            }
                             case stepEnum.CreateTables: {
                                 return (<CreateTables
                                     schemas={this._createSchemaFileMap(this.state.discoverFileSchemas)}
