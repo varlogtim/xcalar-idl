@@ -64,7 +64,7 @@ class InputSerializationFactory {
 
     static createJSON() {
         return { JSON: {
-            Type: ['LINES']
+            Type: 'LINES'
         }};
     }
 
