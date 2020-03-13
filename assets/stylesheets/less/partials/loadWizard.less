@@ -286,10 +286,25 @@
             background-color: @color-bg-default;
             color: @color-font-default;
         }
-    }
 
-    .tableInput {
-        text-transform: uppercase;
+        .tableInput {
+            text-transform: uppercase;
+        }
+
+        .error {
+            .label {
+                margin-right: 4px;
+            }
+
+            .action {
+                margin-left: 4px;
+                color: @color-font-link-blue;
+            }
+
+            pre {
+                user-select: text;
+            }
+        }
     }
 
     .modelPanel {

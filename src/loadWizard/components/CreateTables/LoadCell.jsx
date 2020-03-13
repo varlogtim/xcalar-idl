@@ -4,6 +4,7 @@ const Texts = {
     createButtonLabel: 'Create Table',
     creatingTable: 'Creating table ...',
     created: 'Created',
+    createError: 'Error'
 };
 
 function Create({ onClick }) {
@@ -19,12 +20,32 @@ function Success() {
 }
 
 function Error({
-    message,
-    onClick
+    error
 }) {
-    return (
-        <span onClick={() => { onClick(); }}>{message}</span>
-    );
+    const [toExpand, setExpandState] = React.useState(false);
+    if (error.length <= 20) {
+        // when error is too short
+        return (
+            <span>error</span>
+        )
+    } else if (toExpand) {
+        return (
+            <span className="error">
+                <pre>{error}</pre>
+                <span className="action xc-action" onClick={() => { setExpandState(false); }}>Collapse</span>
+            </span>
+        )
+    } else {
+        return (
+            <span className="error">
+                <span className="label">{Texts.createError}</span>
+                <span data-toggle="tooltip" data-title={error}>
+                    {"(" + error.substring(0, 7) + "...)"}
+                </span>
+                <span className="action xc-action" onClick={() => { setExpandState(true); }}>Expand</span>
+            </span>
+        )
+    }    
 }
 
 function Table({ name }) {

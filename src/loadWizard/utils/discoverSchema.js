@@ -79,29 +79,31 @@ function randomName() {
 function getInputSerial(inputSerialObject) {
     // See: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.select_object_content ... in the InputSerialization of the Request Syntax section
     // Definition
-    const InputSerialization = {
-        'CSV': {
-            'FileHeaderInfo': ['USE', 'IGNORE', 'NONE'],
-            'Comments': 'string',
-            'QuoteEscapeCharacter': 'string',
-            'RecordDelimiter': 'string',
-            'FieldDelimiter': 'string',
-            'QuoteCharacter': 'string',
-            'AllowQuotedRecordDelimiter': [true, false]
-        },
-        'CompressionType': ['NONE', 'GZIP', 'BZIP2'],
-        'JSON': {
-            'Type': ['LINES'] // ['DOCUMENT'] is not supported
-        },
-        'Parquet': {}
-    }
+    // const InputSerialization = {
+    //     'CSV': {
+    //         'FileHeaderInfo': ['USE', 'IGNORE', 'NONE'],
+    //         'Comments': 'string',
+    //         'QuoteEscapeCharacter': 'string',
+    //         'RecordDelimiter': 'string',
+    //         'FieldDelimiter': 'string',
+    //         'QuoteCharacter': 'string',
+    //         'AllowQuotedRecordDelimiter': [true, false]
+    //     },
+    //     'CompressionType': ['NONE', 'GZIP', 'BZIP2'],
+    //     'JSON': {
+    //         'Type': ['LINES'] // ['DOCUMENT'] is not supported
+    //     },
+    //     'Parquet': {}
+    // }
 
     try {
         const inputSerialJson = JSON.stringify(inputSerialObject);
         var inputSerial = new proto.xcalar.compute.localtypes.Schema.InputSerialization();
         inputSerial.setArgs(inputSerialJson);
         return inputSerial;
-    } catch (err) {
+    } catch (e) {
+        console.error("getInputSerial error: ", e);
+        throw e;
         // throw "getInputSerial() must be called with an object"
         //       " similar to the following: " + JSON.stringify(InputSerialization);
     }
@@ -127,10 +129,6 @@ async function checkTableName(tableName) {
     }
 }
 
-async function exampleJsonRun(tableName) {
-
-}
-
 async function createTableAndComplements(paths, schema, inputSerialObject, tableName) {
     /*
      * paths => list of paths to create the data from
@@ -149,39 +147,58 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
 
     // TODO: Must check to see if PubTables already exist with
     // a given name
-    console.log("createTableAndComplements on session: " + sessionName);
+    log("createTableAndComplements on session: " + sessionName);
 
     // make load args for BulkLoad.
     const sourceArgs = buildSourceLoadArgs(paths);
     const parseArgs = getParseArgs(schema, inputSerialJson);
-    console.log("loadArgs: " + sourceArgs + ", parseArgs: " + parseArgs);
-
     // Load that dataset!!
-    await xcalarLoad(tHandle, myDatasetName, sourceArgs, parseArgs, 0);
-
+    // await xcalarLoad(tHandle, myDatasetName, sourceArgs, parseArgs, 0);
+    const options = {
+        sources: sourceArgs,
+        ...parseArgs
+    };
+    await XcalarDatasetLoad(myDatasetName, options);
     // do a bunch of table operations
-    try {
-        await datasetToTableWithComplements(myDatasetName, tableName, compName);
-    } catch (e) {
-        console.log("ERROR Converting Dataset to Table with Complements: " + JSON.stringify(e));
-        alert("ERROR: " + JSON.stringify(e));
-    } finally {
-        await _cleanupDataset(myDatasetName);
-    }
+    await datasetToTableWithComplements(myDatasetName, tableName, compName);
+    // clean up dataset
+    await _cleanupDataset(myDatasetName);
+
     return tableName;
+}
+
+async function _cleanupTempTables(datasetName) {
+    try {
+        // Delete Temp Tables...
+        // All temp tables are prefixed with `datasetName`
+        // TODO: I think we might not need this because deleting the session
+        // will remove all the temporary tables :(
+        const tableList = await xcalarListTables(tHandle, datasetName + '*');
+        log("DEBUG: tableList: " + JSON.stringify(tableList));
+        
+        const promises = [];
+        for (let i = 0; i < tableList.nodeInfo.length; i++) {
+            const tableData = tableList.nodeInfo[i];
+            promises.push(XcalarDeleteTable(tableData.name, null, false, true));
+            log("DELETED: " + JSON.stringify(tableData.name));
+        }
+        await Promise.all(promises);
+    } catch (e) {
+        console.error("clean up temp table fails", e);
+    }
 }
 
 async function _cleanupDataset(datasetName) {
     try {
-        console.log("Cleaning up dataset");
+        log("Cleaning up dataset");
         // Deactivate Dataset
         await XcalarDatasetDeactivate(datasetName);
-        console.log("Deactivated Dataset");
+        log("Deactivated Dataset");
         await XcalarDatasetDelete(datasetName);
-        console.log("Delete Dataset");
+        log("Delete Dataset");
 
         const datasetList = await XcalarGetDatasets();
-        console.log("datasetList: " + JSON.stringify(datasetList));
+        log("datasetList: " + JSON.stringify(datasetList));
         // {numDatasets: 1, datasets: [ {loadArgs: asdf, datasetId: 123, name: "asdf", ... }]
         for(let ii = 0; ii < datasetList.datasets.length; ii++) {
             if (datasetList.datasets[ii].name.indexOf(datasetName) > 0) {
@@ -190,7 +207,7 @@ async function _cleanupDataset(datasetName) {
             }
         }
     } catch (e) {
-        console.error("clean up dataset fails");
+        console.error("clean up dataset fails", e);
     }
 }
 
@@ -209,7 +226,7 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
 
     let dsName = DATASET_PREFIX + datasetName;
     let datasetInfo = await xcalarGetDatasetsInfo(tHandle, dsName);
-    console.log("My Dataset Info: " + JSON.stringify(datasetInfo));
+    log("My Dataset Info: " + JSON.stringify(datasetInfo));
 
     // Build temp table names to use
     let indexedTableName = datasetName + "-indexed";
@@ -223,7 +240,7 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     let tt = 0;
     let cc = 0;
 
-    console.log("Determine names");
+    log("Determine names");
 
     // Determine the names of our table and complements columns
     let complementColumnNames = [icvColumnName, fileRecordNumColumnName, dataColumnName, pathColumnName];
@@ -233,8 +250,8 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
             tableColumnNames.push(column.name);
         }
     });
-    console.log("TABLE COLUMN NAMES: " + JSON.stringify(tableColumnNames));
-    console.log("COMPLEMENTS COLUMN NAMES: " + JSON.stringify(complementColumnNames));
+    log("TABLE COLUMN NAMES: " + JSON.stringify(tableColumnNames));
+    log("COMPLEMENTS COLUMN NAMES: " + JSON.stringify(complementColumnNames));
 
     // Index Dataset
     await xcalarIndex(
@@ -256,12 +273,12 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     });
 
     // Map-casting all columns to strings - make table of immediates
-    console.log("Mapping Table to produce immedates.");
+    log("Mapping Table to produce immedates.");
     await xcalarApiMap(tHandle, allColumnNames, allEvals, indexedTableName, mappedTableName);
 
     // Add Xcalar Row Number PK
     const xcalarRowNumPkName = "XcalarRowNumPk";
-    console.log("Adding Xcalar Row Number Primary Keys");
+    log("Adding Xcalar Row Number Primary Keys");
     await xcalarApiGetRowNum(tHandle, xcalarRowNumPkName, mappedTableName, compNames[cc++]);
     await xcalarApiGetRowNum(tHandle, xcalarRowNumPkName, mappedTableName, tableNames[tt++]);
 
@@ -270,12 +287,12 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
 
     // Filter
     // At this point we need to run two filters to split of the table and it's complements.
-    console.log("Filtering out the table and it's complements");
+    log("Filtering out the table and it's complements");
     await xcalarFilter(tHandle, "neq(" + icvColumnName + ", '')", compNames[cc - 1], compNames[cc++]);
     await xcalarFilter(tHandle, "eq(" + icvColumnName + ", '')", tableNames[tt - 1], tableNames[tt++]);
 
     // Index on Xcalar Row Number PK
-    console.log("Indexing on Xcalar Row Number Primary Key");
+    log("Indexing on Xcalar Row Number Primary Key");
     await xcalarIndex(
         tHandle,
         compNames[cc - 1],
@@ -298,7 +315,7 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     );
 
     // Project tables...
-    console.log("Projecting columns for table and complements");
+    log("Projecting columns for table and complements");
     await xcalarProject(tHandle,
         complementColumnNames.length, complementColumnNames,
         compNames[cc - 1], compNames[cc++]);
@@ -316,24 +333,12 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
         tableNames[tt - 1], tableNames[tt++]);
 
     // Publish tables...
-    console.log("Publishing tables... :)");
+    log("Publishing tables... :)");
     await createPublishTable(tableNames[tt - 1], finalTableName, false);
     await createPublishTable(compNames[cc - 1], finalComplementsName, true);
-    console.log("TABLE CREATED: '" + finalTableName + "'");
-    console.log("COMPLEMENTS CREATED: '" + finalComplementsName + "'");
-    // Delete Temp Tables...
-    // All temp tables are prefixed with `datasetName`
-    // TODO: I think we might not need this because deleting the session
-    // will remove all the temporary tables :(
-    const tableList = await xcalarListTables(tHandle, datasetName + '*');
-    console.log("DEBUG: tableList: " + JSON.stringify(tableList));
-
-    for (let ii = 0; ii < tableList.nodeInfo.length; ii++) {
-        const tableData = tableList.nodeInfo[ii];
-        await XcalarDeleteTable(tableData.name, null, false, true);
-        console.log("DELETED: " + JSON.stringify(tableData.name));
-    };
-
+    log("TABLE CREATED: '" + finalTableName + "'");
+    log("COMPLEMENTS CREATED: '" + finalComplementsName + "'");
+    await _cleanupTempTables(datasetName);
 }
 
 async function createPublishTable(resultSetName, pubTableName, deleteEmpty) {
@@ -372,7 +377,7 @@ async function deleteEmptyPbTable(pubTableName) {
             const table = res.tables[i];
             if (table.name === pubTableName) {
                 if (table.numRowsTotal === 0) {
-                    console.log("Delete empty published table");
+                    log("Delete empty published table");
                     await XcalarUnpublishTable(pubTableName);
                     return true;
                 }
@@ -452,12 +457,14 @@ function getParseArgs(schema, inputSerial) {
     // Uncaught (in promise) TypeError: Cannot read property 'toObject' of null
     //   at getParseArgs (VM237344 discover_schema_demo.js:363) (shown below)
     //   at ttuckerRunStuff (VM237344 discover_schema_demo.js:77)
-    var parseArgs = new ParseArgsT()
-    parseArgs.parserFnName = AWS_S3_SELECT_PARSER_NAME;
-    console.log("Input Serial: " + inputSerial);
+    var parseArgs = {};
+    const [moduleName, funcName] = AWS_S3_SELECT_PARSER_NAME.split(":");
+    parseArgs.moduleName = moduleName
+    parseArgs.funcName = funcName
+    log("Input Serial: " + inputSerial);
     // console.log('MY SCHEMA')
     // console.log(schema)
-    const parseArgJson = {
+    const udfQuery = {
         // calling schema.toObject() places the list of columns
         // under the key 'columnsList' instead of 'columns' as
         // specified in the interface description. I cannot seem
@@ -466,9 +473,9 @@ function getParseArgs(schema, inputSerial) {
         // 'schema': schema.toObject(),
         'schema': schema,
         'input_serialization_args': inputSerial.toString()
-    }
-    console.log("getParserArgs() parseArgJson: " + JSON.stringify(parseArgJson));
-    parseArgs.parserArgJson = JSON.stringify(parseArgJson)
+    };
+    log("getParserArgs() udfQuery: " + JSON.stringify(udfQuery));
+    parseArgs.udfQuery = udfQuery
     return parseArgs;
 }
 
@@ -506,7 +513,7 @@ function buildSourceLoadArgs(paths) {
     // Build SourceArgsList
     var sourceArgsList = []
     paths.forEach(function(path){
-        var myDataSourceArgs = new DataSourceArgsT()
+        var myDataSourceArgs = {};
         myDataSourceArgs.targetName = AWS_TARGET_NAME;
         myDataSourceArgs.path = path;
         myDataSourceArgs.fileNamePattern = '';
@@ -619,4 +626,11 @@ export async function exampleCsvRun(tableName=null, paths=null, inputSerial=null
     const schema = getLastSchema(discoverResponse);
 
     await createTableAndComplements(successfulPaths, schema, inputSerial, tableName);
+}
+
+
+function log() {
+    if (typeof verbose !== "undefined" && verbose === true) {
+        console.log.apply(this, arguments);
+    }
 }

@@ -143,9 +143,11 @@ class LoadConfig extends React.Component {
             });
         } catch(e) {
             // State: -loading + failed
+            let error = e.message || e.error || e;
+            error = xcHelper.parseError(error);
             this.setState({
                 createInProgress: deleteEntry(this.state.createInProgress, schemaName),
-                createFailed: this.state.createFailed.set(schemaName, `${e.message || e.error || e}`),
+                createFailed: this.state.createFailed.set(schemaName, error),
             });
         } finally {
             WorkbookManager.resetXDInternalSession();

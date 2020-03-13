@@ -4,13 +4,6 @@ import { useTable, useSortBy, usePagination } from 'react-table'
 import * as LoadCell from './LoadCell'
 import prettyBytes from 'pretty-bytes'
 
-const { Alert } = global;
-
-const Texts = {
-    createError: 'Error',
-    createErrorTitle: 'Create Table Failed',
-};
-
 const Styles = styled.div`
   table {
     width: 100%;
@@ -278,16 +271,7 @@ function LoadTable({
             rowData.load = <LoadCell.Loading />
             rowData.tableName = schemasInProgress.get(schemaName);
         } else if (schemasFailed.has(schemaName)) {
-            const errorMsg = schemasFailed.get(schemaName);
-            rowData.load = <LoadCell.Error
-                message={Texts.createError}
-                onClick={ () => {
-                    Alert.show({
-                        title: Texts.createErrorTitle,
-                        msg: errorMsg,
-                        isAlert: true
-                    });
-                }} />
+            rowData.load = <LoadCell.Error error={schemasFailed.get(schemaName)} />
         } else if (tables.has(schemaName)) {
             rowData.load = <LoadCell.Success/>
             rowData.tableName = tables.get(schemaName);
