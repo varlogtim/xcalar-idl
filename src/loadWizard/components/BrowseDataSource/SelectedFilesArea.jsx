@@ -3,7 +3,7 @@ import MUIDataTable from "mui-datatables";
 import prettyBytes from 'pretty-bytes';
 
 const Texts = {
-    selectListTitle: 'Selected Files/Folders'
+    selectListTitle: 'Selected Files/Directories'
 };
 
 

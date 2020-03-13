@@ -25,10 +25,10 @@ export class SupersetSchemas {
     }
 
     _getSchemas(schemas) {
-        var orgSchemas = {}
-        var prefix = "S"
-        var offset = 0
-        var errSchemas = []
+        var orgSchemas = {};
+        var prefix = "Schema ";
+        var offset = 0;
+        var errSchemas = [];
         for (var schema of schemas) {
             if (!schema.success) {
                 errSchemas.push(schema)
