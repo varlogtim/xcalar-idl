@@ -122,7 +122,8 @@ class LoadConfig extends React.Component {
 
         try {
             WorkbookManager.switchToXDInternalSession();
-            const finalTableName = await S3Service.createTableFromSchema(
+            // {table, complementTable}
+            const res = await S3Service.createTableFromSchema(
                 tableName,
                 schemaInfo.path,
                 schemaInfo.columns,
@@ -131,7 +132,7 @@ class LoadConfig extends React.Component {
             // State: -loading + created
             this.setState({
                 createInProgress: deleteEntry(this.state.createInProgress, schemaName),
-                createTables: this.state.createTables.set(schemaName, finalTableName)
+                createTables: this.state.createTables.set(schemaName, res)
             });
         } catch(e) {
             // State: -loading + failed

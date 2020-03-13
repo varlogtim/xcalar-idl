@@ -4,7 +4,9 @@ const Texts = {
     createButtonLabel: 'Create Table',
     creatingTable: 'Creating table ...',
     created: 'Created',
-    createError: 'Error'
+    createdWithComplement: 'Created with complement table',
+    createError: 'Error',
+    ComplementTableHint: 'Some rows in the source fails cannot be loaded, the failure reason is listed in the complement table.'
 };
 
 function Create({ onClick }) {
@@ -15,8 +17,17 @@ function Loading() {
     return <span>{Texts.creatingTable}</span>
 }
 
-function Success() {
-    return <span>{Texts.created}</span>
+function Success({ complementTable }) {
+    if (complementTable) {
+        return (
+            <span>
+                {Texts.createdWithComplement} {complementTable}
+                <i className="icon qMark xi-unknown" data-toggle="tooltip" data-container="body" data-title={Texts.ComplementTableHint}></i>
+            </span>
+        )
+    } else {
+        return <span>{Texts.created}</span>
+    }
 }
 
 function Error({
@@ -39,7 +50,7 @@ function Error({
         return (
             <span className="error">
                 <span className="label">{Texts.createError}</span>
-                <span data-toggle="tooltip" data-title={error}>
+                <span data-toggle="tooltip" data-container="body" data-title={error}>
                     {"(" + error.substring(0, 7) + "...)"}
                 </span>
                 <span className="action xc-action" onClick={() => { setExpandState(true); }}>Expand</span>

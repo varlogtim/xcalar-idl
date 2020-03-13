@@ -160,11 +160,14 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
     };
     await XcalarDatasetLoad(myDatasetName, options);
     // do a bunch of table operations
-    await datasetToTableWithComplements(myDatasetName, tableName, compName);
+    const hasDeleteComplement = await datasetToTableWithComplements(myDatasetName, tableName, compName);
     // clean up dataset
     await _cleanupDataset(myDatasetName);
 
-    return tableName;
+    return {
+        table: tableName,
+        complementTable: hasDeleteComplement ? null : compName
+    };
 }
 
 async function _cleanupTempTables(datasetName) {
@@ -335,22 +338,24 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     // Publish tables...
     log("Publishing tables... :)");
     await createPublishTable(tableNames[tt - 1], finalTableName, false);
-    await createPublishTable(compNames[cc - 1], finalComplementsName, true);
+    const hasDelete = await createPublishTable(compNames[cc - 1], finalComplementsName, true);
     log("TABLE CREATED: '" + finalTableName + "'");
     log("COMPLEMENTS CREATED: '" + finalComplementsName + "'");
     await _cleanupTempTables(datasetName);
+    return hasDelete;
 }
 
 async function createPublishTable(resultSetName, pubTableName, deleteEmpty) {
     await xcalarApiPublish(tHandle, resultSetName, pubTableName);
 
-    let hasDeleted = false;
+    let hasDelete = false;
     if (deleteEmpty) {
-        hasDeleted = await deleteEmptyPbTable(pubTableName);
+        hasDelete = await deleteEmptyPbTable(pubTableName);
     }
-    if (!hasDeleted) {
+    if (!hasDelete) {
         _savePublishedTableDataFlow(pubTableName, resultSetName)
     }
+    return hasDelete;
 }
 
 // XXX TODO: use the one in xiApi.js

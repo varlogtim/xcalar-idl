@@ -273,8 +273,9 @@ function LoadTable({
         } else if (schemasFailed.has(schemaName)) {
             rowData.load = <LoadCell.Error error={schemasFailed.get(schemaName)} />
         } else if (tables.has(schemaName)) {
-            rowData.load = <LoadCell.Success/>
-            rowData.tableName = tables.get(schemaName);
+            const createdRes = tables.get(schemaName);
+            rowData.load = <LoadCell.Success complementTable={createdRes.complementTable}/>
+            rowData.tableName = createdRes.table;
         } else {
             const tableName = tablesInInput.get(schemaName);
             rowData.tableName = <input className="xc-input tableInput" value={tableName} onChange={(e) => onTableNameChange(schemaName, e.target.value)}/>
