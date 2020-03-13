@@ -124,7 +124,7 @@ class SourceData extends React.Component {
             bucket,
             path,
             fileType,
-            onNextScreen,
+            onClickBrowse,
             onBucketChange,
             onPathChange,
             onFileTypeChange = (newType) => {}
@@ -142,7 +142,7 @@ class SourceData extends React.Component {
                     onPathChange={(newPath) => { onPathChange(newPath); }}
                     fileType={fileType}
                     onFileTypeChange={onFileTypeChange}
-                    onNextScreen={onNextScreen}
+                    onNextScreen={onClickBrowse}
                 />
                 {/* <div className="modelInfo">
                     Model rules:

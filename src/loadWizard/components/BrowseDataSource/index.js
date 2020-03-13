@@ -1,3 +1,2 @@
-import BrowserDataSource from './BrowseDataSource';
-
-export default BrowserDataSource;
+import { BrowseDataSourceModal } from './BrowseDataSource';
+export { BrowseDataSourceModal };

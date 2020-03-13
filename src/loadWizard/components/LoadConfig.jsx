@@ -2,7 +2,7 @@ import React from 'react';
 import crypto from 'crypto';
 import Path from 'path';
 import SourceData from './SourceData';
-import BrowseDataSource from './BrowseDataSource';
+import { BrowseDataSourceModal } from './BrowseDataSource';
 import DiscoverSchemas from './DiscoverSchemas';
 import CreateTables from './CreateTables';
 import * as S3Service from '../services/S3Service';
@@ -29,12 +29,6 @@ const stepEnum = {
     FilterData: 'FilterData',
     SchemaDiscovery: 'SchemaDiscovery',
     CreateTables: 'CreateTables'
-}
-
-const FileTypeEnum = {
-    CSV: 'csv',
-    JSON: 'json',
-    PARQUET: 'parquet'
 }
 
 const stepNames = new Map();
@@ -64,7 +58,7 @@ class LoadConfig extends React.Component {
         } = props;
         const defaultBucket = '/';
         const defaultHomePath = '';
-        const defaultFileType = FileTypeEnum.CSV;
+        const defaultFileType = SchemaService.FileType.CSV;
 
         this.state = {
             currentStep: stepEnum.SourceData,
@@ -75,9 +69,7 @@ class LoadConfig extends React.Component {
             fileType: defaultFileType,
 
             // BrowseDataSource
-            browsePath: Path.join(defaultBucket, defaultHomePath),
-            browseIsLoading: false,
-            brwoseFileMap: new Map(),
+            browseShow: false,
             selectedFileDir: new Array(),
 
             // DiscoverSchemas
@@ -413,9 +405,9 @@ class LoadConfig extends React.Component {
     }
 
     _isConfigChanged() {
+        const { selectedFileDir } = this.state;
         const configHash = this._getConfigHash({
-            selectedFilesDirs: this.state.selectedFilesDirs,
-            schemas: this.state.schemas
+            selectedFileDir: selectedFileDir
         });
         return configHash !== this._initConfigHash;
     }
@@ -452,17 +444,19 @@ class LoadConfig extends React.Component {
 
     _resetBrowseResult(newFileType = null) {
         this.setState({
-            selectedFileDir: new Array(),
-            discoverFileSchemas: new Map(),
+            selectedFileDir: new Array(), // Clear selected files/folders, XXX TODO: in case file type changes, we can preserve the folders
+            discoverFiles: new Map(), // Clear flattern files
+            discoverFileSchemas: new Map(), // Clear discovered schemas
             discoverInProgressFileIds: new Set(),
             discoverFailedFiles: new Map(),
             tableToCreate: new Map(),
             createInProgress: new Map(),
             createFailed: new Map(),
-            createTables: new Map()
+            createTables: new Map() // Clear tables
         });
         let inputSerialization = this.state.inputSerialization;
         if (newFileType != null) {
+            // Create the new input serialization according to the new fileType
             inputSerialization = SchemaService.defaultInputSerialization.get(newFileType);
             this.setState({
                 inputSerialization: inputSerialization,
@@ -472,6 +466,10 @@ class LoadConfig extends React.Component {
     }
 
     _setFileType(fileType) {
+        if (fileType === this.state.fileType) {
+            return;
+        }
+
         this.setState({
             fileType: fileType,
         });
@@ -493,63 +491,32 @@ class LoadConfig extends React.Component {
         this._schemaWorker.reset({ inputSerialization: newOption });
     }
 
-    async _browsePath(newFullPath) {
-        try {
+    _browseClose(selectedFileDir = null) {
+        if (selectedFileDir == null) {
             this.setState({
-                browsePath: newFullPath,
-                browseIsLoading: true
+                browseShow: false
             });
-
-            const fileTypeFilter = SchemaService.FileTypeFilter.get(this.state.fileType);
-            const fileMap = await S3Service.listFiles(Path.join(newFullPath, '/'), ({ directory, type}) => {
-                return directory || fileTypeFilter({ type: type });
-            });
+        } else {
             this.setState({
-                brwoseFileMap: fileMap
-            });
-        } catch(e) {
-            this._alert({
-                title: 'Browse path failed',
-                message: `${e.message || e.error || e}`
-            });
-            console.error(e);
-            throw e;
-        } finally {
-            this.setState({
-                browseIsLoading: false
+                browseShow: false,
+                selectedFileDir: selectedFileDir
             });
         }
     }
 
-    _browseSelectFiles(fileIds) {
-        const selectedFiles = [...this.state.selectedFileDir];
-        for (const fileId of fileIds) {
-            const fileObj = this.state.brwoseFileMap.get(fileId);
-            if (fileObj == null) {
-                console.error(`Selected file(${fileId}) not exist`);
-                continue;
-            }
-            selectedFiles.push({...fileObj});
-        }
+    _browseOpen() {
         this.setState({
-            selectedFileDir: selectedFiles
+            browseShow: true
         });
     }
 
-    _browseDeselectFiles(fileIds) {
-        const selectedFile = this.state.selectedFileDir.filter((f) => (!fileIds.has(f.fileId)));
-        this.setState({
-            selectedFileDir: selectedFile
-        });
-    }
-
-    async _flattenSelectedFiles() {
+    async _flattenSelectedFiles(selectedFileDir) {
         try {
             this.setState({
                 discoverIsLoading: true
             });
             const fileNamePattern = SchemaService.FileTypeNamePattern.get(this.state.fileType);
-            const discoverFiles = await S3Service.flattenFileDir(this.state.selectedFileDir, fileNamePattern);
+            const discoverFiles = await S3Service.flattenFileDir(selectedFileDir, fileNamePattern);
 
             // Sync discoverFileSchemas, discoverInProgressFileIds, discoverFailedFiles
             const removedFileIds = SetUtils.diff(this.state.discoverFiles.keys(), discoverFiles.keys());
@@ -596,110 +563,124 @@ class LoadConfig extends React.Component {
     };
 
     render() {
-        const screenName = stepNames.get(this.state.currentStep);
-        const bucket = this.state.bucket;
-        const homePath = this.state.homePath;
-        const fileType = this.state.fileType;
+        const {
+            bucket,
+            homePath,
+            fileType,
+            currentStep,
+            selectedFileDir, // Output of Browse
+            discoverFiles, // Input of Discover
+            discoverFileSchemas, // Output of Discover/Input of CreateTable
+            browseShow,
+            discoverIsLoading,
+            discoverCancelBatch,
+        } = this.state;
+        // const screenName = stepNames.get(currentStep);
+        const onClickDiscoverAll = discoverCancelBatch == null
+            ? () => { this._discoverAllFileSchemas(); }
+            : null;
+
+        const showBrowse = browseShow;
+        const showDiscover = currentStep === stepEnum.SchemaDiscovery && (discoverFiles.size > 0 || discoverIsLoading);
+        const showCreate = currentStep === stepEnum.CreateTables && discoverFileSchemas.size > 0;
 
         return (
             <div className="container cardContainer">
-                <div className="cardHeader">
+                {/* <div className="cardHeader">
                     <header className="title">{screenName}</header>
-                </div>
+                </div> */}
                 {/* start of card main */}
                 <div className="cardMain">
-                    { (() => {
-                        switch (this.state.currentStep) {
-                            case stepEnum.SourceData:
-                                return (<SourceData
-                                    bucket={bucket}
-                                    path = {homePath}
-                                    fileType={fileType}
-                                    onNextScreen={() => {
-                                        try {
-                                            this._changeStep(stepEnum.FilterData);
-                                            this._browsePath(Path.join(this.state.bucket, this.state.homePath));
-                                        } catch(_) {
-                                            this._changeStep(stepEnum.SourceData);
-                                        }
-                                    }}
-                                    onBucketChange={(newBucket) => { this._setBucket(newBucket); }}
-                                    onPathChange={(newPath) => { this._setPath(newPath); }}
-                                    onFileTypeChange={(newType) => { this._setFileType(newType); }}
-                                />);
-                            case stepEnum.FilterData:
-                                return (<BrowseDataSource
-                                    bucket={bucket}
-                                    homePath={homePath}
-                                    path={this.state.browsePath}
-                                    isLoading={this.state.browseIsLoading}
-                                    fileMapViewing={this.state.brwoseFileMap}
-                                    selectedFileDir={this.state.selectedFileDir}
-                                    onPathChange={(newPath) => { this._browsePath(newPath); }}
-                                    onSelectFiles={(fileIds) => { this._browseSelectFiles(fileIds); }}
-                                    onDeselectFiles={(fileIds) => { this._browseDeselectFiles(fileIds); }}
-                                    onPrevScreen={() => { this._changeStep(stepEnum.SourceData); }}
-                                    onNextScreen={() => {
-                                        try {
-                                            this._changeStep(stepEnum.SchemaDiscovery);
-                                            this._flattenSelectedFiles();
-                                        } catch(_) {
-                                            this._changeStep(stepEnum.FilterData);
-                                        }
-                                    }}
-                                />);
-                            case stepEnum.SchemaDiscovery:{
-                                const { discoverCancelBatch } = this.state;
-                                const onClickDiscoverAll = discoverCancelBatch == null
-                                    ? () => { this._discoverAllFileSchemas(); }
-                                    : null;
-                                return (<DiscoverSchemas
-                                    inputSerialization={this.state.inputSerialization}
-                                    isLoading={this.state.discoverIsLoading}
-                                    discoverFiles={[...this.state.discoverFiles.values()]}
-                                    fileSchemas={this.state.discoverFileSchemas}
-                                    inProgressFiles={this.state.discoverInProgressFileIds}
-                                    failedFiles={this.state.discoverFailedFiles}
-                                    onDiscoverFile={(fileId) => { this._discoverFileSchema(fileId); }}
-                                    onClickDiscoverAll={onClickDiscoverAll}
-                                    onCancelDiscoverAll={discoverCancelBatch}
-                                    onInputSerialChange={(newConfig) => { this._setInputSerialization(newConfig); }}
-                                    onPrevScreen = {() => { this._changeStep(stepEnum.FilterData); }}
-                                    onNextScreen = {() => { this._changeStep(stepEnum.CreateTables); }}
-                                />);
-                            }
-                            case stepEnum.CreateTables: {
-                                const schemaFileMap = this._createSchemaFileMap(this.state.discoverFileSchemas);
-                                schemaFileMap.forEach(({path}, schemaName) => {
-                                    if (!this.state.tableToCreate.has(schemaName)) {
-                                        const defaultTableName = this._getNameFromPath(path[0]);
-                                        this.state.tableToCreate.set(schemaName, defaultTableName);
-                                    }
-                                });
-                                return (<CreateTables
-                                    schemas={schemaFileMap}
-                                    fileMetas={this.state.discoverFiles}
-                                    schemasInProgress={this.state.createInProgress}
-                                    schemasFailed={this.state.createFailed}
-                                    tablesInInput={this.state.tableToCreate}
-                                    tables={this.state.createTables}
-                                    onTableNameChange={(schemaName, newTableName) => {
-                                        this.state.tableToCreate.set(schemaName, newTableName);
-                                        this.setState({tableToCreate: this.state.tableToCreate});
-                                    }}
-                                    onClickCreateTable={(schemaName, tableName) => { this._createTableFromSchema(schemaName, tableName); }}
-                                    onPrevScreen = {() => { this._changeStep(stepEnum.SchemaDiscovery); }}
-                                />);
-                            }
-                            default:
-                                return null;
+                    <SourceData
+                        bucket={bucket}
+                        path = {homePath}
+                        fileType={fileType}
+                        onClickBrowse={() => { this._browseOpen(); }}
+                        onBucketChange={(newBucket) => { this._setBucket(newBucket); }}
+                        onPathChange={(newPath) => { this._setPath(newPath); }}
+                        onFileTypeChange={(newType) => { this._setFileType(newType); }}
+                    />
+                    {
+                        showBrowse ? <BrowseDataSourceModal
+                            bucket={bucket}
+                            homePath={homePath}
+                            fileType={fileType}
+                            selectedFileDir={selectedFileDir}
+                            onCancel={() => { this._browseClose(); }}
+                            onDone={(selectedFileDir) => {
+                                try {
+                                    this._browseClose(selectedFileDir);
+                                    this._flattenSelectedFiles(selectedFileDir);
+                                    this._changeStep(stepEnum.SchemaDiscovery);
+                                } catch(_) {
+                                    // Do nothing
+                                }
+                            }}
+                        /> : null
+                    }
+                    {
+                        showDiscover ? <DiscoverSchemas
+                            inputSerialization={this.state.inputSerialization}
+                            isLoading={discoverIsLoading}
+                            discoverFiles={[...discoverFiles.values()]}
+                            fileSchemas={discoverFileSchemas}
+                            inProgressFiles={this.state.discoverInProgressFileIds}
+                            failedFiles={this.state.discoverFailedFiles}
+                            onDiscoverFile={(fileId) => { this._discoverFileSchema(fileId); }}
+                            onClickDiscoverAll={onClickDiscoverAll}
+                            onCancelDiscoverAll={discoverCancelBatch}
+                            onInputSerialChange={(newConfig) => { this._setInputSerialization(newConfig); }}
+                            onNextScreen = {() => { this._changeStep(stepEnum.CreateTables); }}
+                        >
+                            <SectionSeparate />
+                            <SectionTitle>{Texts.stepNameSchemaDiscover}</SectionTitle>
+                        </DiscoverSchemas> : null
+                    }
+                    {(() => {
+                        if (!showCreate) {
+                            return null;
                         }
+                        const schemaFileMap = this._createSchemaFileMap(this.state.discoverFileSchemas);
+                        schemaFileMap.forEach(({path}, schemaName) => {
+                            if (!this.state.tableToCreate.has(schemaName)) {
+                                const defaultTableName = this._getNameFromPath(path[0]);
+                                this.state.tableToCreate.set(schemaName, defaultTableName);
+                            }
+                        });
+                        return (
+                            <CreateTables
+                                schemas={schemaFileMap}
+                                fileMetas={this.state.discoverFiles}
+                                schemasInProgress={this.state.createInProgress}
+                                schemasFailed={this.state.createFailed}
+                                tablesInInput={this.state.tableToCreate}
+                                tables={this.state.createTables}
+                                onTableNameChange={(schemaName, newTableName) => {
+                                    this.state.tableToCreate.set(schemaName, newTableName);
+                                    this.setState({tableToCreate: this.state.tableToCreate});
+                                }}
+                                onClickCreateTable={(schemaName, tableName) => { this._createTableFromSchema(schemaName, tableName); }}
+                                onPrevScreen = {() => { this._changeStep(stepEnum.SchemaDiscovery); }}
+                            >
+                                <SectionSeparate />
+                                <SectionTitle>{Texts.stepNameCreateTables}</SectionTitle>
+                            </CreateTables>
+                        );
                     })()}
                 </div>
+
                 {/* end of card main */}
             </div>
         );
     }
+}
+
+function SectionSeparate() {
+    return <div className="sep"></div>
+}
+
+function SectionTitle({children}) {
+    return <div className="sectionTitle">{children}</div>
 }
 
 export { LoadConfig, stepEnum };

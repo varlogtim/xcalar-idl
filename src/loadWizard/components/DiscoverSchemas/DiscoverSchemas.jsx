@@ -143,19 +143,23 @@ class DiscoverSchemas extends React.Component {
             onClickDiscoverAll,
             onCancelDiscoverAll,
             onInputSerialChange,
-            onPrevScreen,
-            onNextScreen
+            onNextScreen,
+            children
         } = this.props;
         const schemaInfo = this.state.schemaShowing;
         const needConfig = SchemaService.InputSerializationFactory.getFileType(inputSerialization).has(SchemaService.FileType.CSV);
 
         if (isLoading) {
             return (
-                <div className="filesSelected"><span>{Texts.Loading}</span></div>
+                <div className="filesSelected">
+                    {children}
+                    <span>{Texts.Loading}</span>
+                </div>
             );
         } else {
             return (
                 <div className="filesSelected">
+                    {children}
                     <DiscoverAllSection
                         onClickDiscoverAll={onClickDiscoverAll}
                         onClickCancelAll={onCancelDiscoverAll}
@@ -184,10 +188,6 @@ class DiscoverSchemas extends React.Component {
                         }}
                     />
                     <NavButtons
-                        left={{
-                            label: Texts.navButtonLeft,
-                            onClick: () => { onPrevScreen(); }
-                        }}
                         right={{
                             label: Texts.navButtonRight,
                             disabled: fileSchemas.size === 0,

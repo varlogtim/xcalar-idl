@@ -28,7 +28,8 @@ class CreateTables extends React.Component {
             tables, // Map<schemaName, tableName>
             onClickCreateTable = (schemaName, tableName) => {},
             onTableNameChange,
-            onPrevScreen
+            onPrevScreen,
+            children
         } = this.props;
 
         const schemaInfo = this.state.schemaShowing != null
@@ -37,6 +38,7 @@ class CreateTables extends React.Component {
 
         return (
             <div className="tableLoad">
+                {children}
                 {/* XXX please verify if the id should be loadAll or discoverAll */}
                 {/* <div>
                     <button className="btn btn-secondary" onClick={() => {}}>{Texts.createTableAll}</button>

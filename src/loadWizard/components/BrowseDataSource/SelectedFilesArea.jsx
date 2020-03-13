@@ -1,8 +1,6 @@
 import React from "react";
 import MUIDataTable from "mui-datatables";
-import { Folder, FileCopy, InsertDriveFileOutlined } from '@material-ui/icons';
 import prettyBytes from 'pretty-bytes';
-import { diff as diffSet } from '../../utils/SetUtils';
 
 const Texts = {
     selectListTitle: 'Selected Files/Folders'
@@ -14,14 +12,13 @@ export default class SelectedFilesArea extends React.Component {
     render() {
         const {
             selectedFileDir,
-            onSelect,
             onDeselect,
         } = this.props;
         const {
             columns: candidateListColumns,
             options: candidateOptions,
             fileList
-        } = prepareCandidateList(selectedFileDir, onSelect, onDeselect);
+        } = prepareCandidateList(selectedFileDir, onDeselect);
 
         return (
             <div className="selectedFilesArea">
@@ -55,7 +52,7 @@ function createFileList(selectedFiles) {
 }
 
 
-function prepareCandidateList(selectedFileDir, onSelect, onDeselect, onPathChange) {
+function prepareCandidateList(selectedFileDir, onDeselect) {
     const {
         fileList: fullList,
         selectedIndices: initialSelectedIndices

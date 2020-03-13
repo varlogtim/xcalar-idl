@@ -24,6 +24,7 @@
             padding: 20px;
             height: ~"calc(100% - 36px)";
             overflow-y: auto;
+            position: relative;
         }
     }
 
@@ -408,6 +409,79 @@
         }
         .list {
             display: block;
+        }
+    }
+
+    .sep {
+        width: 100%;
+        padding: 0;
+        margin: 16px 0;
+        border-top: solid 1px #888;
+    }
+
+    .sectionTitle {
+        font-size: 20px;
+        font-weight: 600;
+        padding-bottom: 8px;
+    }
+
+    .modal {
+        position: absolute; /* Stay in place */
+        z-index: 200; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.5);
+
+        .modal-header {
+            padding: 8px 16px 0 24px;
+            height: 42px;
+            position: relative;
+
+            .text {
+                font-weight: 600;
+                font-size: 20px;
+                color: #DDDDDD;
+                display: inline-block;
+                padding-right: 24px;
+                line-height: 26px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .close {
+                cursor: pointer;
+                opacity: 1;
+                width: 18px;
+                height: 18px;
+                position: absolute;
+                top: 10px;
+                right: 24px;
+
+                &:hover,
+                &:focus {
+                  opacity: 0.6;
+                  text-decoration: none;
+                  cursor: pointer;
+                }
+            }
+        }
+
+        .modal-content {
+            background-color: #2e2e2e;
+            margin: 16px;
+            border: 1px solid #888;
+            border-radius: 16px;
+            font-size: 14px;
+        }
+
+        .modal-body {
+            border-top: 1px solid #888;
+            padding: 16px;
         }
     }
 }
