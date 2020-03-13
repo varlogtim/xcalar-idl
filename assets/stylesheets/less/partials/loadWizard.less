@@ -13,6 +13,7 @@
         .mainArea {
             height: 100%;
             flex: 1 1 auto;
+            overflow: hidden;
         }
     }
 
@@ -133,6 +134,23 @@
             margin-right: 4px;
         }
 
+        .fileListTableArea {
+            display: flex;
+        }
+
+        .fileListTableWrap {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .loadingText {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .fileBrowserPath {
             padding: 8px 0;
             height: 46px;
@@ -141,10 +159,59 @@
                 outline: none;
             }
         }
+
+        .MuiPaper-root {
+            td:first-child, th:first-child {
+                .MuiCheckbox-root {
+                    padding: 4px;
+                }
+            }
+        }
+
+        .selectedFilesArea {
+            min-width: 300px;
+            max-width: 400px;
+            flex: 0 0 30%;
+            border-left: 1px solid @color-border-medium2;
+
+            .MuiPaper-root {
+                height: 100%;
+            }
+            // turn the checkbox into a close icon
+            th:first-child, td:first-child {
+                position: initial; // override sticky
+                .MuiCheckbox-root {
+                    padding: 5px;
+                }
+                .Mui-checked .MuiIconButton-label {
+                    &:before {
+                        content: "\ea10"; //close icon
+                        font-family: 'icomoon' !important;
+                        color: @color-font-default;
+                        font-size: 16px;
+                    }
+                    svg {
+                        display: none;
+                    }
+                }
+            }
+            th:first-child {
+                .MuiCheckbox-root {
+                    padding: 4px 5px;
+                }
+            }
+
+            td.MuiTableCell-root {
+                border-bottom: 1px solid transparent;
+            }
+        }
     }
 
     // overwrite material UI style
     .MuiPaper-root {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
         background-color: @color-bg-modal;
         margin: 4px 0;
         height: ~"calc(100% - 86px)";
@@ -165,6 +232,10 @@
 
         .MuiTypography-root {
             color: @color-font-default;
+        }
+
+        > .MuiTable-root:nth-child(4) {
+            margin-top: auto;
         }
     }
 

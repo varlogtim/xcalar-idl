@@ -3,6 +3,7 @@ import React from "react";
 import BucketChart from './BucketChart';
 import FileListTable from './FileListTable'
 import NavButtons from '../NavButtons'
+import SelectedFilesArea from "./SelectedFilesArea"
 
 const Texts = {
     navButtonLeft: 'Select Data Source',
@@ -61,17 +62,27 @@ function BrowseDataSource({
                 </i>
                 <input value={currentFullPath} readOnly></input>
             </div>
-            {
-                isLoading
-                    ? <span>Loading ...</span>
-                    : <FileListTable
-                        fileMap={fileMapViewing}
-                        selectedIds={getSelectedIdsForCurrentView(fileMapViewing, selectedFileDir)}
-                        onPathChange={(newFullPath) => { onPathChange(newFullPath); }}
-                        onSelect={(fileIds) => { onSelectFiles(fileIds); }}
-                        onDeselect={(fileIds) => { onDeselectFiles(fileIds); }}
-                    />
-            }
+            <div className="fileListTableArea">
+                <div className="fileListTableWrap">
+                {
+                    isLoading
+                        ? <span className="loadingText">Loading ...</span>
+                        : <FileListTable
+                            fileMap={fileMapViewing}
+                            selectedIds={getSelectedIdsForCurrentView(fileMapViewing, selectedFileDir)}
+                            onPathChange={(newFullPath) => { onPathChange(newFullPath); }}
+                            onSelect={(fileIds) => { onSelectFiles(fileIds); }}
+                            onDeselect={(fileIds) => { onDeselectFiles(fileIds); }}
+                        />
+                }
+                </div>
+                <SelectedFilesArea
+                    fileMap={fileMapViewing}
+                    selectedFileDir={selectedFileDir}
+                    onSelect={(fileIds) => { onSelectFiles(fileIds); }}
+                    onDeselect={(fileIds) => { onDeselectFiles(fileIds); }}
+                />
+            </div>
             <NavButtons
                 left={{ label: Texts.navButtonLeft, onClick: () => { onPrevScreen() } }}
                 right={{
