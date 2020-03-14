@@ -26,7 +26,7 @@ export class ExactSchemas {
 
     _getSchemas(schemas) {
         var orgSchemas = {}
-        var prefix = "S"
+        var prefix = "Schema "
         var offset = 0
         var errSchemas = []
         for (var schema of schemas) {

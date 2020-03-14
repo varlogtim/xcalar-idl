@@ -21,7 +21,6 @@ export default class SourceCSVArgSection extends React.Component{
 
         return (
             <div className="SourceCSVArgSection">
-                <div><b>Advanced Options:</b></div>
                 {
                     this.state.args.map((arg) => {
                         const options = {

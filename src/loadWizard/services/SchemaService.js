@@ -111,7 +111,7 @@ class MergeFactory {
                     new Map(Object.entries(schemaMap).map(([name, schema]) => {
                         return [name, this._normalize(schema)];
                     })),
-                    errorSchemas.map((s) => this._normalize(s))
+                    errorSchemas.map((s) => this._normalizeError(s))
                 ];
             }],
             [ MergePolicy.SUPERSET, (schemas) => {
@@ -122,7 +122,7 @@ class MergeFactory {
                     new Map(Object.entries(schemaMap).map(([name, schema]) => {
                         return [name, this._normalize(schema)];
                     })),
-                    errorSchemas.map((s) => this._normalize(s))
+                    errorSchemas.map((s) => this._normalizeError(s))
                 ];
             }],
             [ MergePolicy.TRAILING, (schemas) => {
@@ -136,7 +136,7 @@ class MergeFactory {
                     new Map(Object.entries(schemaMap).map(([name, schema]) => {
                         return [name, this._normalize(schema)];
                     })),
-                    errorSchemas.map((s) => this._normalize(s))
+                    errorSchemas.map((s) => this._normalizeError(s))
                 ];
             }],
             [ MergePolicy.UNION, (schemas) => {
@@ -147,15 +147,22 @@ class MergeFactory {
                     new Map(Object.entries(schemaMap).map(([name, schema]) => {
                         return [name, this._normalize(schema)];
                     })),
-                    errorSchemas.map((s) => this._normalize(s))
+                    errorSchemas.map((s) => this._normalizeError(s))
                 ];
             }]
         ];
     }
 
+    _normalizeError({ path, status }) {
+        return {
+            path: path,
+            error: status
+        };
+    }
+
     _normalize({ path, schema }) {
         return {
-            path: Array.isArray(path) ? [...path] : path,
+            path: [...path],
             columns: schema.columnsList.map((c) => ({
                 name: c.name,
                 mapping: c.mapping,
@@ -179,7 +186,7 @@ class DiscoverWorker {
 
         this._discoveredFiles = new Map();
         this._schemas = new Map();
-        this._errorFiles = new Set();
+        this._errorFiles = new Map();
     }
 
     reset({
@@ -242,6 +249,10 @@ class DiscoverWorker {
         }
 
         // Merge schema
+        this.merge();
+    }
+
+    merge() {
         const merge = mergeFactory.get(this._mergePolicy);
         if (merge == null) {
             throw new Error('Merge type not supported:', this._mergePolicy);
@@ -250,7 +261,11 @@ class DiscoverWorker {
 
         // Cache the result
         this._schemas = schemas;
-        this._errorFiles = new Set(errorFiles.map((f) => f.path));
+        this._errorFiles = new Map(errorFiles.map(({ path, error }) => [path, error]));
+    }
+
+    getDiscoveredFiles() {
+        return new Set(this._discoveredFiles.keys());
     }
 
     getSchemas() {
@@ -266,7 +281,19 @@ class DiscoverWorker {
     }
 
     getErrorFiles() {
-        return new Set(this._errorFiles);
+        return new Set(this._errorFiles.keys());
+    }
+
+    getError(fileId) {
+        return this._errorFiles.get(fileId);
+    }
+
+    getErrors(fileIds = null) {
+        if (fileIds == null) {
+            return new Map(this._errorFiles);
+        } else {
+            return new Map([...this._errorFiles].filter(([fileId, _]) => fileIds.has(fileId)));
+        }
     }
 
     clear() {

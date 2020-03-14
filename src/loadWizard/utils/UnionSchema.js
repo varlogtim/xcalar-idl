@@ -64,7 +64,7 @@ export class UnionSchema {
             }
         }
         this.process(unionSchema)
-        return [{S1 : unionSchema}, errSchemas];
+        return [{"Schema 1" : unionSchema}, errSchemas];
     }
 }
 /*

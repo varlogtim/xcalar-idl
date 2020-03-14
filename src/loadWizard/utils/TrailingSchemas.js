@@ -56,8 +56,7 @@ export class TrailingSchemas {
             var col = column.name + "-" + column.mapping + "-" + column.type.replace(regex, '')
             newcol.push(col)
         }
-        schema = {path : [schemaDetail.path], schema : {numColumns : schemaDetail.schema.numColumns, columnsList : newcol}}
-        return schema
+        return {path : schemaDetail.path, schema : {numColumns : schemaDetail.schema.numColumns, columnsList : newcol}}
     }
 
     //schemaDetail is tuple (schema, detail)
@@ -132,7 +131,7 @@ export class TrailingSchemas {
         var indexedSchemas = {}
         var ind = 0
         for (var schema of schemas) {
-            var sind = "S" + ++ind
+            var sind = "Schema " + ++ind
             indexedSchemas[sind] = schema
         }
         return indexedSchemas

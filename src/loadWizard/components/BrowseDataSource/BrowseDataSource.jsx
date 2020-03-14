@@ -56,9 +56,12 @@ class BrowseDataSource extends React.Component {
         }
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         // browsePath
-        this._browsePath(this.state.path, this.props.fileType);
+        const success = await this._browsePath(this.state.path, this.props.fileType);
+        if (!success) {
+            this.props.onCancel();
+        }
     }
 
     async _browsePath(newFullPath, fileType) {
@@ -73,18 +76,18 @@ class BrowseDataSource extends React.Component {
             });
             this.setState({
                 path: newFullPath,
-                fileMapViewing: fileMap
+                fileMapViewing: fileMap,
+                isLoading: false
             });
+            return true;
         } catch(e) {
             Alert.show({
                 title: 'Browse path failed',
-                message: `${e.message || e.log || e.error || e}`
+                msg: `${e.message || e.log || e.error || e}`,
+                isAlert: true
             });
             console.error(e);
-        } finally {
-            this.setState({
-                isLoading: false
-            });
+            return false;
         }
     }
 

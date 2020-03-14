@@ -178,12 +178,14 @@ function DiscoverTable({
     };
 
     return (
-        <MUIDataTable
-            title={Texts.tableTitle}
-            data={tableRows}
-            columns={columns}
-            options={options}
-        />
+        <div className="discoverTable">
+            <MUIDataTable
+                title={Texts.tableTitle}
+                data={tableRows}
+                columns={columns}
+                options={options}
+            />
+        </div>
     );
 }
 

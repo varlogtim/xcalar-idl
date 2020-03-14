@@ -3,6 +3,8 @@ import React from "react";
 import DiscoverTable from './DiscoverTable'
 import SourceCSVArgSection from './SourceCSVArgSection';
 import NavButtons from '../NavButtons'
+import * as AdvOption from './AdvanceOption'
+import InputDropdown from '../../../components/widgets/InputDropdown'
 import EC from '../../utils/EtaCost'
 import * as SchemaService from '../../services/SchemaService';
 
@@ -11,6 +13,8 @@ const Texts = {
     discoverAll: 'Discover All',
     cancelDiscoverAll: 'Stop',
     stoppingDiscoverAll: 'Stopping',
+    advancedOptions: 'Advanced Options:',
+    optionSchema: 'Schema Comparison Algorithm:',
     navButtonLeft: 'Browse',
     navButtonRight: 'Create Table',
     totalCost: 'Total Cost: $',
@@ -134,6 +138,7 @@ class DiscoverSchemas extends React.Component {
     render() {
         const {
             inputSerialization,
+            schemaPolicy,
             isLoading,
             discoverFiles,
             inProgressFiles,
@@ -143,6 +148,7 @@ class DiscoverSchemas extends React.Component {
             onClickDiscoverAll,
             onCancelDiscoverAll,
             onInputSerialChange,
+            onSchemaPolicyChange,
             onNextScreen,
             children
         } = this.props;
@@ -157,6 +163,9 @@ class DiscoverSchemas extends React.Component {
                 </div>
             );
         } else {
+            const SchemaPolicy = SchemaService.MergePolicy;
+            const isDiscoverInProgress = inProgressFiles.size > 0;
+
             return (
                 <div className="filesSelected">
                     {children}
@@ -167,13 +176,45 @@ class DiscoverSchemas extends React.Component {
                         totalCount={discoverFiles.length}
                     />
                     {/* <CostEstimation files={discoverFiles} /> */}
-                    {(!needConfig)? null : <SourceCSVArgSection
+                    {/* {(!needConfig)? null : <SourceCSVArgSection
                         config={inputSerialization}
                         onConfigChange={(newConfig) => {
                             this.setState({ schemaShowing: null });
                             onInputSerialChange(newConfig);
                         }}
-                    />}
+                    />} */}
+                    <AdvOption.Container>
+                        <AdvOption.Title>{Texts.advancedOptions}</AdvOption.Title>
+                        {
+                            needConfig ? <AdvOption.Option><SourceCSVArgSection
+                                config={inputSerialization}
+                                onConfigChange={(newConfig) => {
+                                    this.setState({ schemaShowing: null });
+                                    onInputSerialChange(newConfig);
+                                }}
+                            /></AdvOption.Option> : null
+                        }
+                        <AdvOption.Option>
+                            <AdvOption.OptionLabel>{Texts.optionSchema}</AdvOption.OptionLabel>
+                            <AdvOption.OptionValue><InputDropdown
+                                val={schemaPolicy}
+                                onInputChange={(policy) => {
+                                    onSchemaPolicyChange(policy);
+                                }}
+                                onSelect={(policy) => {
+                                    onSchemaPolicyChange(policy);
+                                }}
+                                list={
+                                    [SchemaPolicy.SUPERSET, SchemaPolicy.EXACT, SchemaPolicy.UNION, SchemaPolicy.TRAILING]
+                                    .map((policy) => {
+                                        return {text: policy, value: policy};
+                                    })
+                                }
+                                readOnly
+                                disabled={isDiscoverInProgress}
+                            /></AdvOption.OptionValue>
+                        </AdvOption.Option>
+                    </AdvOption.Container>
                     <DiscoverTable
                         discoverFiles={discoverFiles}
                         inProgressFiles={inProgressFiles}

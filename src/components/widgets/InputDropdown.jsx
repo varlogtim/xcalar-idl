@@ -72,28 +72,47 @@ export default class InputDropdown extends React.Component {
 
     render() {
         let readOnly = (this.props.readOnly === true) ? true : false;
+        let disabled = (this.props.disabled === true) ? true : false;
 
-        return (
-            <div className="dropDownList" ref={this.dropdownRef} onClick={this.onOuterListClick}>
-                <input
-                    className="text"
-                    type="text"
-                    spellCheck={false}
-                    value={this.props.val}
-                    // onClick={this.onOuterListClick}
-                    onChange={e => this.onInputChange(e.target.value)}
-                    readOnly={readOnly}
-                />
-                <div className="iconWrapper">
-                    <i className="icon xi-arrow-down"></i>
-                </div>
-                {this.state.open &&
-                    <DropdownUL
-                    list={this.props.list}
-                    onItemClick={this.onItemClick}
+        if (disabled) {
+            return (
+                <div className="dropDownList">
+                    <input
+                        className="text"
+                        type="text"
+                        spellCheck={false}
+                        value={this.props.val}
+                        // onClick={this.onOuterListClick}
+                        readOnly={true}
                     />
-                }
-            </div>
-        )
+                    <div className="iconWrapper">
+                        <i className="icon xi-arrow-down"></i>
+                    </div>
+                </div>
+            );
+        } else {
+            return (
+                <div className="dropDownList" ref={this.dropdownRef} onClick={this.onOuterListClick}>
+                    <input
+                        className="text"
+                        type="text"
+                        spellCheck={false}
+                        value={this.props.val}
+                        // onClick={this.onOuterListClick}
+                        onChange={e => this.onInputChange(e.target.value)}
+                        readOnly={readOnly}
+                    />
+                    <div className="iconWrapper">
+                        <i className="icon xi-arrow-down"></i>
+                    </div>
+                    {this.state.open &&
+                        <DropdownUL
+                        list={this.props.list}
+                        onItemClick={this.onItemClick}
+                        />
+                    }
+                </div>
+            )
+        }
     }
 }
