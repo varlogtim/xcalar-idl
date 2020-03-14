@@ -82,6 +82,7 @@ namespace xcGlobal {
         gXcSupport = false; // if xcalar support user
         gXcalarRecordNum = "xcalarRecordNum";
         gDFSuffix = ".xlrdf.tar.gz";
+        gAppSuffix = ".xlrapp.tar.gz";
         gShowSQLDF = false;
         // Shut up the console logs
         verbose = false;

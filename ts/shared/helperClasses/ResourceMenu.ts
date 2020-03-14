@@ -558,6 +558,11 @@ class ResourceMenu {
             AppList.Instance.delete(app);
         });
 
+        $menu.on("click", ".appDownload", () => {
+            const app: string = $menu.data("id");
+            AppList.Instance.download(app);
+        });
+
         $menu.on("click", ".tableFuncQuery", () => {
             const name: string = $menu.data("name");
             SQLWorkSpace.Instance.tableFuncQuery(name);

@@ -40,6 +40,35 @@ class AppList extends Durable {
     }
 
     /**
+     * AppList.Instance.download
+     * @param appId
+     */
+    public async download(appId: string): Promise<void> {
+        const app: AppDurable = this._getAppById(appId);
+        if (app == null) {
+            // error case
+            console.error("app doesn't exist");
+            return;
+        }
+        try {
+            const name: string = xcHelper.randName("App");
+            const fakeTab: DagTabPublished = new DagTabPublished({
+                name,
+                dagGraph: null
+            });
+            await fakeTab.publishApp(appId);
+            await fakeTab.downloadApp(app.name);
+        } catch (e) {
+            console.error(e);
+            let error = e;
+            if (typeof e === "object") {
+                error = e.log || e.message;
+            }
+            Alert.error("Download App Failed", error);
+        }
+    }
+
+    /**
      * AppList.Instance.delete
      */
     public delete(appId: string): void {

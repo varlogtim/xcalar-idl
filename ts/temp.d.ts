@@ -501,6 +501,7 @@ declare var gUdfDefaultNoCheck: boolean;
 declare var gXcSupport: boolean;
 declare var gXcalarRecordNum: string;
 declare var gDFSuffix: string;
+declare var gAppSuffix: string;
 declare var gShowSQLDF: boolean;
 
 declare var gBuildNumber: number;

@@ -101,22 +101,32 @@ class DagTabPublished extends DagTab {
         return deferred.promise();
     }
 
+    public downloadApp(name: string): XDPromise<void> {
+        return this._downloadHelper(name + gAppSuffix);
+    }
+
     public download(name: string): XDPromise<void> {
         let fileName: string = name || this.getShortName();
         fileName += gDFSuffix;
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        DagTabPublished._switchSession(null);
-        const promise = XcalarDownloadWorkbook(this._getWKBKName(), "");
-        DagTabPublished._resetSession();
+        return this._downloadHelper(fileName);
+    }
 
-        promise
-        .then((file) => {
-            xcHelper.downloadAsFile(fileName, file.sessionContent, "application/gzip");
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
+    public async publishApp(appId: string): Promise<void> {
+        let hasCreatWKBK: boolean = false;
+        try {
+            const sessionId = await this._createWKBK();
+            hasCreatWKBK = true;
+            this._id = sessionId;
+            await this._activateWKBK();
+            await this._uploadAppModules(appId);
+        } catch (e) {
+            if (hasCreatWKBK) {
+                // if fails and workbook has created
+                // delete it as a rollback
+                this._deleteWKBK();
+            }
+            throw e;
+        }
     }
 
     public publish(): XDPromise<void> {
@@ -132,7 +142,8 @@ class DagTabPublished extends DagTab {
             return this._writeToKVStore();
         })
         .then(() => {
-            return this._uploadLocalUDFToShared();
+            const udfSet: Set<string> = this._dagGraph.getUsedUDFModules();
+            return this._uploadLocalUDFToShared(udfSet);
         })
         .then(() => {
             deferred.resolve();
@@ -250,7 +261,7 @@ class DagTabPublished extends DagTab {
         return promise;
     }
 
-    private _uploadLocalUDFToShared(): XDPromise<void> {
+    private _transerUDF(moduleName: string): XDPromise<void> {
         let downloadHelper = (moduleName: string): XDPromise<string> => {
             const deferred: XDDeferred<string> = PromiseHelper.deferred();
             const udfPath = UDFFileManager.Instance.getCurrWorkbookPath() + moduleName;
@@ -271,31 +282,79 @@ class DagTabPublished extends DagTab {
             return deferred.promise();
         };
 
-        let upload = (moduleName: string): XDPromise<void> => {
-            const deferred: XDDeferred<void> = PromiseHelper.deferred();
-            downloadHelper(moduleName)
-            .then((udfStr) => {
-                if (udfStr == null) {
-                    // nothing to upload
-                    return;
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        downloadHelper(moduleName)
+        .then((udfStr) => {
+            if (udfStr == null) {
+                // nothing to upload
+                return;
+            }
+            // XXX TODO: use absolute path
+            DagTabPublished._switchSession(this._getWKBKName());
+            const promise = XcalarUploadPython(moduleName, udfStr);
+            DagTabPublished._resetSession();
+            return promise;
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    private _downloadHelper(fileName: string): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        DagTabPublished._switchSession(null);
+        const promise = XcalarDownloadWorkbook(this._getWKBKName(), "");
+        DagTabPublished._resetSession();
+
+        promise
+        .then((file) => {
+            xcHelper.downloadAsFile(fileName, file.sessionContent, "application/gzip");
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    private async _uploadAppModules(appId: string): Promise<void> {
+        const udfSet: Set<string> = new Set();
+        const promies = [];
+        DagList.Instance.getAllDags().forEach((tab) => {
+            if (tab.getApp() === appId) {
+                if (tab instanceof DagTabUser) {
+                    promies.push(this._writeModudleToWKBKKVStore(tab, udfSet));
+                } else {
+                    // current valid tab in app is DagTabUser or DagTabMain
+                    throw new Error("Invalid type of module exist in the app");
                 }
-                // XXX TODO: use absolute path
-                DagTabPublished._switchSession(this._getWKBKName());
-                const promise = XcalarUploadPython(moduleName, udfStr);
-                DagTabPublished._resetSession();
-                return promise;
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
+            }
+        });
+        await Promise.all(promies);
+        await this._uploadLocalUDFToShared(udfSet);
+    }
 
-            return deferred.promise();
+    private async _writeModudleToWKBKKVStore(
+        tab: DagTabUser,
+        udfSet: Set<string>
+    ): Promise<void> {
+        if (tab.getGraph() == null) {
+            await tab.load();
         }
+        const tabUDFSet = tab.getGraph().getUsedUDFModules();
+        tabUDFSet.forEach((moduelName) => udfSet.add(moduelName));
+        const cloned = tab.clone();
+        DagTabPublished._switchSession(this._getWKBKName());
+        const promise = cloned.save();
+        DagTabPublished._resetSession();
+        await promise;
+    }
 
-        const udfSet: Set<string> = this._dagGraph.getUsedUDFModules();
+    private _uploadLocalUDFToShared(udfSet: Set<string>): XDPromise<void> {
         const promises: XDPromise<void>[] = [];
         udfSet.forEach((moduleName) => {
             if (moduleName !== "default") {
-                promises.push(upload(moduleName));
+                promises.push(this._transerUDF(moduleName));
             }
         });
         return PromiseHelper.when(...promises);
