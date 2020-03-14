@@ -16,6 +16,7 @@ function Body({
     return <section className="modal-body">{children}</section>
 }
 
+
 function Header({
     onClose,
     children
@@ -30,5 +31,11 @@ function Header({
     );
 }
 
+function Footer({
+    children
+}) {
+    return <section className="modal-footer">{children}</section>
+}
 
-export { Dialog, Header, Body };
+
+export { Dialog, Header, Body, Footer};

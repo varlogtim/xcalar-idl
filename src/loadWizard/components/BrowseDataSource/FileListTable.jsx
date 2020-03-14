@@ -1,5 +1,6 @@
 import React from "react";
 import MUIDataTable from "mui-datatables";
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import { Folder, FileCopy, InsertDriveFileOutlined } from '@material-ui/icons';
 import prettyBytes from 'pretty-bytes';
 import { diff as diffSet } from '../../utils/SetUtils';
@@ -27,13 +28,25 @@ function FileListTable({
         fileList
     } = prepareCandidateList(fileMap, selectedIds, onSelect, onDeselect, onPathChange);
 
+    const myTheme = createMuiTheme({
+        overrides: {
+          MUIDataTable: {
+            responsiveScrollMaxHeight: {
+              maxHeight: '100% !important',
+              flex: "1 1 auto"
+            }
+          }
+    }});
+
     return (
-      <MUIDataTable
-        title={Texts.fileListTitle}
-        data={fileList}
-        columns={candidateListColumns}
-        options={candidateOptions}
-      />
+          <MuiThemeProvider theme={myTheme}>
+            <MUIDataTable
+                title={Texts.fileListTitle}
+                data={fileList}
+                columns={candidateListColumns}
+                options={candidateOptions}
+            />
+          </MuiThemeProvider>
     );
 }
 
@@ -103,7 +116,8 @@ function prepareCandidateList(fileMap, initialSelectedIds, onSelect, onDeselect,
 
     const options = {
         filterType: "multiselect",
-        // responsive: "stacked",
+        elevation: 0,
+        responsive: "scrollMaxHeight",
         download: false,
         print: false,
         rowsPerPage: 20,
@@ -154,18 +168,8 @@ function prepareCandidateList(fileMap, initialSelectedIds, onSelect, onDeselect,
         textLabels: {
           body: {
             noMatch: "",
-          },
-        },
-        responsive: false,
-        // setRowProps: (row) => {
-        //   return {
-        //     className: classnames(
-        //       {
-        //         [this.props.classes.BusinessAnalystRow]: row[1] === "Business Analyst"
-        //       }),
-        //     style: {height: '10px',}
-        //   };
-        // },
+          }
+        }
     };
 
     return {

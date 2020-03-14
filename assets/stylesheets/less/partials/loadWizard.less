@@ -128,6 +128,9 @@
 
     .browseDataSourceScreen {
         border-bottom: none;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
 
         .upFolderIcon {
             position: relative;
@@ -137,6 +140,8 @@
 
         .fileListTableArea {
             display: flex;
+            overflow: hidden;
+            flex: 1 1 auto;
         }
 
         .fileListTableWrap {
@@ -156,8 +161,10 @@
             padding: 8px 0;
             height: 46px;
             input {
-                width: ~"calc(100% - 26px)";
+                width: ~"calc(100% - 34px)";
+                margin-left: 8px;
                 outline: none;
+                padding: 0px 8px;
             }
         }
 
@@ -167,6 +174,9 @@
                     padding: 4px;
                 }
             }
+            .MuiTableCell-root {
+                padding: 0 4px;
+            }
         }
 
         .selectedFilesArea {
@@ -174,15 +184,67 @@
             max-width: 400px;
             flex: 0 0 30%;
             border-left: 1px solid @color-border-medium2;
+            display: flex;
+            flex-direction: column;
+
+            .selectedFilesHeader {
+                // copied from MUIDatatable
+                font-size: 1.25rem;
+                font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+                font-weight: 500;
+                line-height: 1.6;
+                letter-spacing: 0.0075em;
+                padding-left: 24px;
+                display: flex;
+                position: relative;
+                align-items: center;
+                min-height: 64px;
+            }
+
+            .selectedFileDistribution {
+                padding: 4px 0px 20px;
+                min-height: 88px;
+                flex: 0 0 auto;
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    border-spacing: 0;
+                }
+
+                tr {
+                    border-bottom: none;
+                }
+
+                th {
+                    text-align: left;
+                    border-bottom: 1px solid rgba(224, 224, 224, 1);
+                    padding: 6px 4px 7px;
+                }
+                td {
+                    padding: 4px;
+                }
+                th, td {
+                    font-size: 14px;
+
+                    &:first-child {
+                        padding-left: 20px;
+                    }
+                }
+            }
 
             .MuiPaper-root {
-                height: 100%;
+                height: auto;
+
+                > .MuiTable-root:nth-child(3) {
+                    margin-top: auto;
+                }
             }
+
             // turn the checkbox into a close icon
             th:first-child, td:first-child {
-                position: initial; // override sticky
                 .MuiCheckbox-root {
-                    padding: 5px;
+                    padding: 2px;
                 }
                 .Mui-checked .MuiIconButton-label {
                     &:before {
@@ -198,7 +260,7 @@
             }
             th:first-child {
                 .MuiCheckbox-root {
-                    padding: 4px 5px;
+                    padding: 4px 2px;
                 }
             }
 
@@ -214,12 +276,16 @@
         display: flex;
         flex-direction: column;
         background-color: @color-bg-modal;
-        margin: 4px 0;
-        height: ~"calc(100% - 86px)";
+        margin: 4px 0 0;
+        height: 100%;
         overflow: auto;
 
         .MuiSvgIcon-root {
             fill: @color-font-default;
+        }
+
+        .Mui-disabled  .MuiSvgIcon-root {
+            opacity: @opacity-disabled;
         }
 
         .MuiTableCell-root {
@@ -238,6 +304,10 @@
         > .MuiTable-root:nth-child(4) {
             margin-top: auto;
         }
+
+        .MuiTableCell-footer {
+            border-bottom: none;
+        }
     }
 
     .filesSelected {
@@ -255,10 +325,6 @@
         button {
             margin-right: 4px;
         }
-    }
-
-    tr {
-        border-bottom: 1px solid black;
     }
 
     .chartArea {
@@ -471,14 +537,26 @@
         top: 0;
         width: 100%; /* Full width */
         height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
         background-color: rgb(0,0,0);
         background-color: rgba(0,0,0,0.5);
+
+        .modal-content {
+            background-color: #2e2e2e;
+            margin: 16px;
+            height: ~"calc(100% - 32px)";
+            border: 1px solid #888;
+            border-radius: 16px;
+            font-size: 14px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
 
         .modal-header {
             padding: 8px 16px 0 24px;
             height: 42px;
             position: relative;
+            flex: 0 0 auto;
 
             .text {
                 font-weight: 600;
@@ -510,17 +588,17 @@
             }
         }
 
-        .modal-content {
-            background-color: #2e2e2e;
-            margin: 16px;
-            border: 1px solid #888;
-            border-radius: 16px;
-            font-size: 14px;
-        }
-
         .modal-body {
             border-top: 1px solid #888;
             padding: 16px;
+            flex: 1 1 auto;
+            overflow: auto; // allow scrolling
+        }
+
+        .modal-footer {
+            border-top: 1px solid #888;
+            padding: 16px;
+            flex: 0 0 auto;
         }
     }
 }

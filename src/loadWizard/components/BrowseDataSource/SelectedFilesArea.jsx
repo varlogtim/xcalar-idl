@@ -1,11 +1,19 @@
 import React from "react";
 import MUIDataTable from "mui-datatables";
 import prettyBytes from 'pretty-bytes';
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 
 const Texts = {
     selectListTitle: 'Selected Files/Directories'
 };
 
+const typeList = {
+    "json": "#00cf18",
+    "csv": "#4287f5",
+    "parque": "#002483",
+    "directory": "#888",
+    "unsupported": "#333",
+};
 
 export default class SelectedFilesArea extends React.Component {
 
@@ -20,17 +28,105 @@ export default class SelectedFilesArea extends React.Component {
             fileList
         } = prepareCandidateList(selectedFileDir, onDeselect);
 
+        const myTheme = createMuiTheme({
+            overrides: {
+              MUIDataTable: {
+                responsiveScrollMaxHeight: {
+                  maxHeight: '100% !important',
+                  flex: "1 1 auto"
+                }
+            }
+        }});
+
         return (
             <div className="selectedFilesArea">
-                <MUIDataTable
-                    title={Texts.selectListTitle}
-                    data={fileList}
-                    columns={candidateListColumns}
-                    options={candidateOptions}
-                />
+                <div className="selectedFilesHeader">{Texts.selectListTitle}</div>
+                <SelectedFilesSummary fileList={selectedFileDir} />
+                <MuiThemeProvider theme={myTheme}>
+                    <MUIDataTable
+                        data={fileList}
+                        columns={candidateListColumns}
+                        options={candidateOptions}
+                    />
+                 </MuiThemeProvider>
             </div>
         );
     }
+}
+
+function SelectedFilesSummary({fileList}) {
+    const typeCount = {};
+    const typeSize = {};
+    for (const file of fileList) {
+        let fileType = file.type.toLowerCase();
+
+        if (!(fileType in typeList)) {
+            fileType = "unsupported";
+        }
+        if (fileType in typeCount) {
+            typeCount[fileType]++;
+            typeSize[fileType] += file.sizeInBytes;
+        } else {
+            typeCount[fileType] = 1;
+            typeSize[fileType] = file.sizeInBytes;
+        }
+    }
+
+    // Chart data for file count by types
+    const chartData = [];
+    let totalCountOfFiles = 0;
+    for (const [type, count] of Object.entries(typeCount)) {
+        chartData.push({
+            name: type,
+            value: count
+        });
+        totalCountOfFiles += typeCount[type];
+    }
+
+    // Chart data for file size by types
+    const totalCountOfDirectories = typeCount['directory'] || 0;
+    totalCountOfFiles -= totalCountOfDirectories;
+
+    const chartData2 = [];
+    for (const [type, size] of Object.entries(typeSize)) {
+        if (type !== 'directory') {
+            chartData2.push({
+                name: type,
+                value: size
+            });
+        }
+    }
+
+    return (
+        <div className="selectedFileDistribution">
+            <table >
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Count</th>
+                        <th>Total Size</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {chartData.map((item, i) => {
+                        let size;
+                        if (item.name === "directory") {
+                            size = "";
+                        } else {
+                            size = prettyBytes(typeSize[item.name]);
+                        }
+                        return (
+                            <tr key={i}>
+                                <td>{item.name}</td>
+                                <td>{item.value}</td>
+                                <td>{size}</td>
+                            </tr>
+                        )
+                    })}
+                </tbody>
+            </table>
+        </div>
+    )
 }
 
 function createFileList(selectedFiles) {
@@ -67,7 +163,9 @@ function prepareCandidateList(selectedFileDir, onDeselect) {
 
     const options = {
         filterType: "multiselect",
+        elevation: 0,
         // responsive: "stacked",
+        responsive: "scrollMaxHeight",
         download: false,
         print: false,
         search: false,
@@ -102,8 +200,7 @@ function prepareCandidateList(selectedFileDir, onDeselect) {
           body: {
             noMatch: "",
           },
-        },
-        responsive: false
+        }
     };
 
     return {

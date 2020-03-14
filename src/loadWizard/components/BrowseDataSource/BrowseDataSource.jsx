@@ -105,13 +105,15 @@ class BrowseDataSource extends React.Component {
         this.setState({
             selectedFileDir: selectedFiles
         });
+        this.props.setSelectedFileDir(selectedFiles);
     }
 
     _deselectFiles(fileIds) {
-        const selectedFile = this.state.selectedFileDir.filter((f) => (!fileIds.has(f.fileId)));
+        const selectedFiles = this.state.selectedFileDir.filter((f) => (!fileIds.has(f.fileId)));
         this.setState({
-            selectedFileDir: selectedFile
+            selectedFileDir: selectedFiles
         });
+        this.props.setSelectedFileDir(selectedFiles);
     }
 
     render() {
@@ -119,8 +121,6 @@ class BrowseDataSource extends React.Component {
             bucket, // string
             homePath, // string
             fileType, // SchemaService.FileType
-            onDone, // (Array<FileObject>) => void
-            onCancel,
         } = this.props;
 
         const {
@@ -151,9 +151,10 @@ class BrowseDataSource extends React.Component {
                     </i>
                     <input value={currentFullPath} readOnly></input>
                 </div>
-                {isLoading ? <span>{Texts.loading}</span> : null}
+
                 <div className="fileListTableArea">
                     <div className="fileListTableWrap">
+                    {isLoading ? <span className="loadingText">Loading ...</span> :
                         <FileListTable
                             fileMap={fileMapViewing}
                             selectedIds={getSelectedIdsForCurrentView(fileMapViewing, selectedFileDir)}
@@ -161,6 +162,7 @@ class BrowseDataSource extends React.Component {
                             onSelect={(fileIds) => { this._selectFiles(fileIds); }}
                             onDeselect={(fileIds) => { this._deselectFiles(fileIds); }}
                         />
+                    }
                     </div>
                     <SelectedFilesArea
                         fileMap={fileMapViewing}
@@ -169,24 +171,27 @@ class BrowseDataSource extends React.Component {
                         onDeselect={(fileIds) => { this._deselectFiles(fileIds); }}
                     />
                 </div>
-                <NavButtons
-                    left={{ label: Texts.navButtonLeft, onClick: () => { onCancel() } }}
-                    right={{
-                        label: Texts.navButtonRight,
-                        onClick: () => { onDone(selectedFileDir) }
-                    }}
-                />
-                {selectedFileDir.length > 0 ? <BucketChart fileList={selectedFileDir}/> : null}
             </div>
         );
     }
 }
 
-function BrowseDataSourceModal(browseProps) {
+function BrowseDataSourceModal(props) {
+    const [selectedFiles, setSelectedFileDir] = React.useState(props.selectedFileDir);
+
     return (
         <Modal.Dialog>
-            <Modal.Header onClose={browseProps.onCancel}>{Texts.title}</Modal.Header>
-            <Modal.Body><BrowseDataSource {...browseProps} /></Modal.Body>
+            <Modal.Header onClose={props.onCancel}>{Texts.title}</Modal.Header>
+            <Modal.Body><BrowseDataSource {...props} setSelectedFileDir={setSelectedFileDir} /></Modal.Body>
+            <Modal.Footer>
+                <NavButtons
+                    left={{ label: Texts.navButtonLeft, onClick: () => { props.onCancel() } }}
+                    right={{
+                        label: Texts.navButtonRight,
+                        onClick: () => { props.onDone(selectedFiles) }
+                    }}
+                />
+            </Modal.Footer>
         </Modal.Dialog>
     );
 }
