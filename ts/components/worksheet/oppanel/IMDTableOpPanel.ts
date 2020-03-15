@@ -9,6 +9,7 @@ class IMDTableOpPanel extends BaseOpPanel {
     private _schemaSection: ColSchemaSection;
     private _primaryKeys: string[];
     private _limitedRows: number;
+    private _pbDataFlowCache: Map<string, DagGraphInfo>
 
     // *******************
     // Constants
@@ -25,7 +26,7 @@ class IMDTableOpPanel extends BaseOpPanel {
         this._$pubTableInput = $('#IMDTableOpPanel .pubTableInput');
         this._$columns = $('#IMDTableOpPanel #IMDTableOpColumns .cols');
         this._schemaSection = new ColSchemaSection(this._$elemPanel.find(".colSchemaSection"));
-        this._setupEventListener();
+        this._addEventListeners();
     }
 
     /**
@@ -35,6 +36,7 @@ class IMDTableOpPanel extends BaseOpPanel {
      */
     public show(dagNode: DagNodeIMDTable, options?): void {
         this._dagNode = dagNode;
+        this._pbDataFlowCache = new Map();
         // Show panel
         super.showPanel("Table", options)
         .then(() => {
@@ -59,6 +61,7 @@ class IMDTableOpPanel extends BaseOpPanel {
         super.hidePanel(isSubmit);
         this._advMode = false;
         this._limitedRows = null;
+        this._pbDataFlowCache = new Map();
     }
 
     private _convertAdvConfigToModel() {
@@ -83,6 +86,7 @@ class IMDTableOpPanel extends BaseOpPanel {
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         if (toAdvancedMode) {
             let param: DagNodeIMDTableInputStruct = this._getParams();
+            this._addLoadArgsToAdvMod(param);
             const paramStr = JSON.stringify(param, null, 4);
             this._cachedBasicModeParam = paramStr;
             this._editor.setValue(paramStr);
@@ -122,6 +126,25 @@ class IMDTableOpPanel extends BaseOpPanel {
         if (this._selectedTable != null) {
             this._primaryKeys = this._selectedTable.keys;
         }
+        this._fetchPbTableSubGraph(source);
+    }
+
+    private async _fetchPbTableSubGraph(source: string): Promise<void> {
+        this.$panel.addClass("loading");
+        try {
+            if (this._pbDataFlowCache.has(source)) {
+                // cache exist
+                return;
+            }
+            const pbTblInfo = new PbTblInfo({name: source});
+            const subGraph = await pbTblInfo.getDataflow();
+            this._pbDataFlowCache.set(source, subGraph);
+          } catch (e) {
+            console.error("get published table graph failed", e);
+        } finally {
+            this.$panel.removeClass("loading");
+        }
+
     }
 
     private _restorePanel(input: DagNodeIMDTableInputStruct): void {
@@ -183,8 +206,7 @@ class IMDTableOpPanel extends BaseOpPanel {
     }
 
 
-    private _setupEventListener(): void {
-        const self = this;
+    private _addEventListeners(): void {
         // Close icon & Cancel button
         this._$elemPanel.on(
             `click.close.${IMDTableOpPanel._eventNamespace}`,
@@ -202,7 +224,7 @@ class IMDTableOpPanel extends BaseOpPanel {
         let $list = $('#pubTableList');
         this._activateDropDown($list, '#pubTableList');
         new MenuHelper($list, {
-            "onSelect": function($li) {
+            "onSelect": ($li) => {
                 if ($li.hasClass("hint")) {
                     return false;
                 }
@@ -211,19 +233,19 @@ class IMDTableOpPanel extends BaseOpPanel {
                     return true; // return true to keep dropdown open
                 }
 
-                self._$pubTableInput.val($li.text());
-                self._changeSelectedTable($li.text());
-                self._autoDetectSchema(true);
+                this._$pubTableInput.val($li.text());
+                this._changeSelectedTable($li.text());
+                this._autoDetectSchema(true);
             }
         }).setupListeners();
 
-        this._$pubTableInput.on('blur', function() {
-            self._changeSelectedTable(self._$pubTableInput.val());
-            self._autoDetectSchema(true);
+        this._$pubTableInput.on('blur', () => {
+            this._changeSelectedTable(this._$pubTableInput.val());
+            this._autoDetectSchema(true);
         });
 
-        this._$elemPanel.find(".detect").click(function() {
-            self._autoDetectSchema(false);
+        this._$elemPanel.find(".detect").click(() => {
+            this._autoDetectSchema(false);
         });
     }
 
@@ -267,11 +289,12 @@ class IMDTableOpPanel extends BaseOpPanel {
             return;
         }
         this._limitedRows = params.limitedRows;
-        //XX: TODO: Uncomment this out when backend truly supports aggregates in filter string
-        //const aggs: string[] = DagNode.getAggsFromEvalStrs([{evalString: params.filterString}]);
-        //this._dagNode.setAggregates(aggs);
-        // XXX TODO: add a waiting state for the async all
-        dagNode.setSubgraph();
+        if (params.source !== dagNode.getSource()) {
+            dagNode.setSubgraph(this._pbDataFlowCache.get(params.source));
+        }
+        if (this._advMode) {
+            dagNode.setLoadArgs(params["loadArgs"]);
+        }
         dagNode.setParam(params);
         this.close(true);
     }
@@ -290,5 +313,22 @@ class IMDTableOpPanel extends BaseOpPanel {
         this._schemaSection.setInitialSchema(schema);
         this._schemaSection.render(oldSchema || schema);
         return null;
+    }
+
+    private _addLoadArgsToAdvMod(param: DagNodeIMDTableInputStruct): void {
+        const source = param.source;
+        let loadArgs;
+        if (source === this._dagNode.getSource()) {
+            loadArgs = this._dagNode.getLoadArgs();
+        } else {
+            loadArgs = this._getLoadArgsFromPbGraph(this._pbDataFlowCache.get(source));
+        }
+        param["loadArgs"] = loadArgs;
+    }
+
+    private _getLoadArgsFromPbGraph(graph: DagGraphInfo): any {
+        const node: DagNodeIMDTable = <DagNodeIMDTable>DagNodeFactory.create({type: DagNodeType.IMDTable});
+        node.setSubgraph(graph);
+        return node.getLoadArgs();
     }
 }

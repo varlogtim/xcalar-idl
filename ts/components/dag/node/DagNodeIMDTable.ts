@@ -111,20 +111,12 @@ class DagNodeIMDTable extends DagNodeIn {
             limitedRows: limitedRows
         });
         super.setParam(null, noAutoExecute);
-        this.setSubgraph();
     }
 
-    // Note: due to the original implementation of setParam is not async
-    // the decision here is to call an extra save inside setSubGraph
-    // if it cause performance issue, then it needs to be improved
-    public async setSubgraph(): Promise<void> {
+    public setSubgraph(subGraph: DagGraphInfo): void {
       try {
-          const source: string = this.getParam().source;
-          const pbTblInfo = new PbTblInfo({name: source});
-          const subGraph = await pbTblInfo.getDataflow();
           this._subGraph = this.getRuntime().accessible(new DagSubGraph());
           this._subGraph.initFromJSON(subGraph);
-          this.events.trigger(DagNodeEvents.Save, {});
         } catch (e) {
           console.error("get published table graph failed", e);
       }
@@ -132,6 +124,46 @@ class DagNodeIMDTable extends DagNodeIn {
 
     public getSubGraph(): DagSubGraph {
         return this._subGraph;
+    }
+
+    public getLoadArgs(): object {
+        let loadArgs = {};
+        try {
+            if (!this._subGraph) {
+                return loadArgs;
+            }
+            const nodes = this._subGraph.getNodesByType(DagNodeType.Dataset);
+            nodes.forEach((node) => {
+                const parsedLoadArgs = JSON.parse(node.getParam().loadArgs);
+                loadArgs[node.getId()] = parsedLoadArgs.args.loadArgs.sourceArgsList;
+            });
+        } catch (e) {
+            console.error("get load args fails", e);
+        }
+
+        return loadArgs;
+    }
+
+    public setLoadArgs(loadArgs): boolean {
+        try {
+            if (!this._subGraph) {
+                return false;
+            }
+            const nodes = this._subGraph.getNodesByType(DagNodeType.Dataset);
+            nodes.forEach((node) => {
+                const param = node.getParam();
+                const parsedLoadArgs = JSON.parse(param.loadArgs);
+                parsedLoadArgs.args.loadArgs.sourceArgsList = loadArgs[node.getId()];
+                node.setParam({
+                    ...param,
+                    loadArgs: JSON.stringify(parsedLoadArgs)
+                }, true);
+            });
+            return true;
+        } catch (e) {
+            console.error("set load args fails");
+            return false;
+        }
     }
 
     public getSource(): string {

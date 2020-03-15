@@ -109,6 +109,12 @@ class DagNodeIMDTableInput extends DagNodeInput {
               100
             ],
             "minimum": 0,
+          },
+          "loadArgs": { // for config panel's advance mode to use
+            "$id": "#/properties/loadArgs",
+            "type": "object",
+            "title": "The LoadArgs Schema",
+            "default": {}
           }
         }
     };
