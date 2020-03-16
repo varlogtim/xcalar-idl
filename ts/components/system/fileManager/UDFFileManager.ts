@@ -225,11 +225,12 @@ class UDFFileManager {
                 classes: "dark"
             }
         );
+        let hasSQLUDF: boolean = false;
 
         this.list()
         .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
             const listXdfsObjUpdate: XcalarApiListXdfsOutputT = xcHelper.deepCopy(listXdfsObj);
-            this._updateStoredUDF(listXdfsObjUpdate);
+            hasSQLUDF = this._updateStoredUDF(listXdfsObjUpdate);
             this.filterWorkbookUDF(listXdfsObjUpdate);
             DSTargetManager.updateUDF(listXdfsObjUpdate);
 
@@ -241,6 +242,9 @@ class UDFFileManager {
             this.panels.forEach((panel: FileManagerPanel) =>
                 this._updatePanel(panel, false)
             );
+            if (!hasSQLUDF) {
+                this._createDefaultSQLUDF();
+            }
             deferred.resolve();
         })
         .fail(deferred.reject)
@@ -412,7 +416,8 @@ class UDFFileManager {
         uploadPath: string,
         entireString: string,
         absolutePath?: boolean,
-        overwiteShareUDF?: boolean
+        overwiteShareUDF?: boolean,
+        noNotification?: boolean
     ): XDPromise<any> {
         const uploadPathSplit: string[] = uploadPath.split("/");
         uploadPathSplit[uploadPathSplit.length - 1] = uploadPathSplit[
@@ -439,7 +444,9 @@ class UDFFileManager {
                 }
             })
             .then(() => {
-                xcUIHelper.showSuccess(SuccessTStr.UploadUDF);
+                if (!noNotification) {
+                    xcUIHelper.showSuccess(SuccessTStr.UploadUDF);
+                }
 
                 const xcSocket: XcSocket = XcSocket.Instance;
                 xcSocket.sendMessage("refreshUDF", {
@@ -463,14 +470,16 @@ class UDFFileManager {
                 if (syntaxErr != null) {
                     UDFPanel.Instance.updateHints(syntaxErr);
                 }
-                const errorMsg: string =
+                if (!noNotification) {
+                    const errorMsg: string =
                         error && typeof error === "object" && error.error
                             ? error.error
                             : error;
-                Alert.error(SideBarTStr.UploadError, null, {
-                    msgTemplate: "<pre>" + errorMsg + "</pre>",
-                    align: "left"
-                });
+                    Alert.error(SideBarTStr.UploadError, null, {
+                        msgTemplate: "<pre>" + errorMsg + "</pre>",
+                        align: "left"
+                    });
+                }
                 deferred.reject(error);
             })
             .always(() => {
@@ -897,7 +906,8 @@ class UDFFileManager {
     private _updateStoredUDF(
         listXdfsObj: XcalarApiListXdfsOutputT,
         prefix?: string
-    ) {
+    ): boolean {
+        let hasSQLUDF = false;
         this.storedSQLFuncs = [];
         const sqlUDFPath: string = UDFFileManager.Instance.getCurrWorkbookPath() + "sql";
         const newStoredUDF: Map<string, string> = new Map();
@@ -911,6 +921,7 @@ class UDFFileManager {
                     name: splits[1],
                     numArg: udf.numArgs
                 });
+                hasSQLUDF = true;
             }
         });
 
@@ -925,6 +936,14 @@ class UDFFileManager {
         }
         this.storedUDF = newStoredUDF;
         ResourceMenu.Instance.render(ResourceMenu.KEY.UDF);
+        return hasSQLUDF;
+    }
+
+    private _createDefaultSQLUDF(): XDPromise<void> {
+        const udf = UDFPanel.Instance.udfDefault + 
+                    'def sampleAddOne(col1):\n' +
+                    '    return col1 + 1\n';
+        return this.upload("sql", udf, false, false, true);
     }
 
     private _bulkTask(operations: XDPromise<void>[], isDelete: boolean) {
@@ -1024,6 +1043,8 @@ class UDFFileManager {
     }
 
     private _warnDatasetUDF(udfPath: string, entireString: string): XDPromise<boolean> {
+        return PromiseHelper.resolve(false);
+        // XXX dataset is not used anymore
         let shareUDFPath = this.getSharedUDFPath() + udfPath;
         if (shareUDFPath === this.getDefaultUDFPath()) {
             // when it's shared UDF, xcalar will handle it, no need to warn

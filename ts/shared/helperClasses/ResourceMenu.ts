@@ -170,7 +170,7 @@ class ResourceMenu {
             }
             return this._getListHTML(displayName, listClassNames, iconClassNames);
         }).join("");
-        html = this._getSQLUDFList() + html;
+        // html = this._getSQLUDFList() + html;
         this._getContainer().find(".udf ul").html(html);
     }
 

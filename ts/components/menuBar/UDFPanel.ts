@@ -25,7 +25,7 @@ class UDFPanel {
     };
     private _modalHelper: ModalHelper;
 
-    private readonly udfDefault: string =
+    public readonly udfDefault: string =
         "# PLEASE TAKE NOTE:\n" +
         "# \n" +
         "# Scalar function works on one or more\n" +
