@@ -1,0 +1,11 @@
+{
+   "app" : {
+       "path" : "bucketsmart.xlrapp.tar.gz",
+       "params" : [
+           {"myfile" : "/xcfield/instantdatamart/mdmdemo/000fccb/c86cc8b/969cffb/fec195e/3c7bbdf/4d93b0a/a9f7e3e/24fb51.csv"},
+           {"myfilter" : "7a"},
+           {"exppath" : "/xcfield/output/"}
+       ]
+   },
+   "schedule" : "cron(0 8 * * *)"
+}
