@@ -37,18 +37,20 @@ export default class SelectedFilesArea extends React.Component {
                 }
             }
         }});
-
+        console.log(selectedFileDir);
         return (
             <div className="selectedFilesArea">
                 <div className="selectedFilesHeader">{Texts.selectListTitle}</div>
                 <SelectedFilesSummary fileList={selectedFileDir} />
-                <MuiThemeProvider theme={myTheme}>
-                    <MUIDataTable
-                        data={fileList}
-                        columns={candidateListColumns}
-                        options={candidateOptions}
-                    />
-                 </MuiThemeProvider>
+                {selectedFileDir.length ?
+                    <MuiThemeProvider theme={myTheme}>
+                        <MUIDataTable
+                            data={fileList}
+                            columns={candidateListColumns}
+                            options={candidateOptions}
+                        />
+                    </MuiThemeProvider>
+                 : null }
             </div>
         );
     }
@@ -108,21 +110,25 @@ function SelectedFilesSummary({fileList}) {
                     </tr>
                 </thead>
                 <tbody>
-                    {chartData.map((item, i) => {
-                        let size;
-                        if (item.name === "directory") {
-                            size = "";
-                        } else {
-                            size = prettyBytes(typeSize[item.name]);
-                        }
-                        return (
-                            <tr key={i}>
-                                <td>{item.name}</td>
-                                <td>{item.value}</td>
-                                <td>{size}</td>
-                            </tr>
-                        )
-                    })}
+                    {chartData.length ?
+                        chartData.map((item, i) => {
+                            let size;
+                            if (item.name === "directory") {
+                                size = "";
+                            } else {
+                                size = prettyBytes(typeSize[item.name]);
+                            }
+                            return (
+                                <tr key={i}>
+                                    <td>{item.name}</td>
+                                    <td>{item.value}</td>
+                                    <td>{size}</td>
+                                </tr>
+                            )
+                        })
+                        :
+                        <tr><td className="noFilesSelected" colSpan="3">No Files Selected</td></tr>
+                    }
                 </tbody>
             </table>
         </div>
