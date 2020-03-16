@@ -85,21 +85,21 @@ function prepareCandidateList(fileMap, initialSelectedIds, onSelect, onDeselect,
             label: <FileCopy/>,
             options: {
                 filter: false,
-                sort: true,
+                sort: false,
                 customBodyRender: (isDirectory) => (isDirectory ? <Folder/> : <InsertDriveFileOutlined/>)
             }
         },
         {
             name: "name",
             label: "Path",
-            options: { filter: false, sort: true }
+            options: { filter: true, sort: false }
         },
         {
             name: "size",
             label: "Size",
             options: {
                 filter: false,
-                sort: true
+                sort: false
             }
         },
         {
@@ -109,7 +109,7 @@ function prepareCandidateList(fileMap, initialSelectedIds, onSelect, onDeselect,
             // filter: true,
             // filterList: selectedFilterList[3], //hardcoded
                 filter: false,
-                sort: true
+                sort: false
             }
         }
     ];
@@ -120,6 +120,7 @@ function prepareCandidateList(fileMap, initialSelectedIds, onSelect, onDeselect,
         responsive: "scrollMaxHeight",
         download: false,
         print: false,
+        sort: false, // XXX TODO: Disable sort for now, as it crashs browser
         rowsPerPage: 20,
         rowsPerPageOptions: [],
         onRowsSelect: (_, allRowsSelected) => {
