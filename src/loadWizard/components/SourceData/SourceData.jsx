@@ -6,7 +6,7 @@ import * as S3Service from '../../services/S3Service'
 const Texts = {
     createTable: 'Create Table from Model',
     updateForensics: 'Updating ...',
-    getForensics: 'View Directory Info'
+    getForensics: 'View Bucket Info'
 };
 
 /**

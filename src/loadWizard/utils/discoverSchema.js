@@ -163,6 +163,10 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
     const hasDeleteComplement = await datasetToTableWithComplements(myDatasetName, tableName, compName);
     // clean up dataset
     await _cleanupDataset(myDatasetName);
+    PTblManager.Instance.addTable(tableName);
+    if (!hasDeleteComplement) {
+        PTblManager.Instance.addTable(compName);
+    }
 
     return {
         table: tableName,

@@ -58,6 +58,7 @@ function Table({ columns, data }) {
     {
       columns,
       data,
+      autoResetPage: false
     },
     useSortBy,
     usePagination

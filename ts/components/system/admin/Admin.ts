@@ -48,6 +48,9 @@ namespace Admin {
      */
     export function isAdmin(): boolean {
         try {
+            if (XVM.isDataMart()) {
+                return false;
+            }
             return XcUser.CurrentUser.isAdmin();
         } catch (error) {
             console.error(error);
