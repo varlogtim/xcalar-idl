@@ -104,6 +104,9 @@ class MergeFactory {
     _init() {
         return [
             [ MergePolicy.EXACT, (schemas) => {
+                if (schemas.length === 0) {
+                    return [new Map(), []];
+                }
                 const merge = new ExactSchemas();
                 const [schemaMap, errorSchemas] = merge.getSchemas(schemas);
 
@@ -115,6 +118,9 @@ class MergeFactory {
                 ];
             }],
             [ MergePolicy.SUPERSET, (schemas) => {
+                if (schemas.length === 0) {
+                    return [new Map(), []];
+                }
                 const merge = new SupersetSchemas();
                 const [schemaMap, errorSchemas] = merge.getSchemas(schemas);
 
@@ -126,6 +132,9 @@ class MergeFactory {
                 ];
             }],
             [ MergePolicy.TRAILING, (schemas) => {
+                if (schemas.length === 0) {
+                    return [new Map(), []];
+                }
                 const merge = new TrailingSchemas();
                 for (const schema of schemas) {
                     merge.add(schema);
@@ -140,6 +149,9 @@ class MergeFactory {
                 ];
             }],
             [ MergePolicy.UNION, (schemas) => {
+                if (schemas.length === 0) {
+                    return [new Map(), []];
+                }
                 const merge = new UnionSchema();
                 const [schemaMap, errorSchemas] = merge.getSchema(schemas);
 
