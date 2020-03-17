@@ -32,7 +32,6 @@ class XcalarJob:
         path = config["app"]["path"]
         dfpath = "{}/{}".format("dataflows", os.path.basename(path))
         self.s3client.upload_file(path, self.workbucket, dfpath)
-        xc2str = "xc2"
         query = str(uuid.uuid4())
         parray = []
         if "params" in config["app"]:
@@ -43,8 +42,11 @@ class XcalarJob:
         paramarray = "{} {}".format("--params", ','.join(parray) if len(parray) > 0 else '')
 
         opti = config["app"]["optimized"] if "optimized" in config["app"] else ''
-        dataflow = "s3://{}/{}".format(self.workbucket, dfpath)
-        xcstr = f"{xc2str} workbook run --workbook-file {dataflow} --query-name {query} {opti} {paramarray} --sync"
+        workbook = "s3://{}/{}".format(self.workbucket, dfpath)
+        dataflow = config["app"]["dataflow"]
+        base_workbook = os.path.basename(workbook)
+        workbook_name = base_workbook.split('.')[0]
+        xcstr = f"xc2 workbook delete {workbook_name} && aws s3 cp {workbook} /var/tmp/ && xc2 workbook run --workbook-file /var/tmp/{base_workbook} --query-name {query} --dataflow-name {dataflow} {opti} {paramarray} --sync"
         jobjson = {}
         jobjson["command"] = xcstr
         jobjson["schedule"] = config["schedule"]
