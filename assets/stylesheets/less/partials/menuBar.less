@@ -25,11 +25,16 @@
     padding-top: @height-homeBtn;
     color: @color-font-defaultInverse;
     border-right: 1px solid @color-border-menuBar;
-    z-index: 1;
+    z-index: @z-index-menuBar;
 
     &.animating > div {
         pointer-events: none;
     }
+}
+
+#projectTab {
+    margin-bottom: 8px;
+    border-bottom: 1px solid @color-border-medium2;
 }
 
 #container {

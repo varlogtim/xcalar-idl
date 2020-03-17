@@ -27,10 +27,11 @@
 @z-index-statusBar: 2;
 @z-index-topMenu: 20;
 @z-index-bottomMenu: 21;
-@z-index-menuBar: 30;
+@z-index-workbook: 40;
+@z-index-menuBar: @z-index-workbook + 1;
 @z-index-homeBtn: @z-index-menuBar + 1;
 @z-index-opView: 34;
-@z-index-modalBackground: 40;
+@z-index-modalBackground: @z-index-homeBtn + 1;
 @z-index-modal: 50;
 @z-index-useMenu: 99;
 @z-index-locked: 1000;
@@ -45,7 +46,6 @@
 @z-index-operatorBar: 2;
 @z-index-categoryBar: @z-index-operatorBar + 1;
 @z-index-sqlBottomResizeHandler: @z-index-categoryBar + 1;
-@z-index-workbook: 40;
 
 /* Fonts */
 @font-base: "Open Sans", "Trebuchet MS", Arial, sans-serif;
@@ -53,7 +53,7 @@
 
 /* Sizes */
 @width-toggleBtn: 196px;
-@width-userBox: @width-toggleBtn + 110px;
+@width-userBox: @width-toggleBtn + 130px;
 @width-topBar: 100%;
 @width-homeBtn: 36px;
 @width-mainPanel: ~"calc(100% - @{width-homeBtn})";

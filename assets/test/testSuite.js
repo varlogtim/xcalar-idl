@@ -327,11 +327,11 @@ window.TestSuite = (function($, TestSuite) {
 
         loadTable: async function(tableName, filePath, check, addRowNum) {
             try {
-                // open Xcalar Connect modal
-                $("#loadWizardbtn").click();
-                await this.checkExists("#sourceModal:visible");
+                // open load screen
+                $("#loadScreenBtn").click();
+                await this.checkExists("#loadScreen:visible");
                 // switch to import panel
-                $("#sourceModal .sourceList li[data-tab=import]").click();
+                $("#loadScreen .sourceList li[data-tab=import]").click();
                 this.assert($("#dsForm-path").is(":visible"), "The import form should be visible");
                 // fill in connector and file path
                 $("#dsForm-target input").val(gDefaultSharedRoot);
@@ -366,8 +366,10 @@ window.TestSuite = (function($, TestSuite) {
                     return $li.length === 1;
                 }, 1000);
                 this.testPbTables.push(tableName);
-                $("#sourceModal .modalHeader .close").click();
-                await this.waitUntil(() => !$("#sourceModal").is(":visible"));
+                $("#homeBtn").click();
+                this.assert($("#homeScreen").is(":visible"), "Should back to home screen");
+                $("#notebookScreenBtn").click();
+                this.assert($("#sqlWorkSpacePanel").is(":visible"), "Should show notebook screen");
             } catch (e) {
                 console.error("load table error", e);
                 throw e;
@@ -583,6 +585,7 @@ window.TestSuite = (function($, TestSuite) {
         waitUntil: function(checkFunc, interval) {
             var deferred = PromiseHelper.deferred();
             var checkTime = interval || 200;
+            checkTime = checkTime * this.slowInternetFactor;
             var outCnt = 80;
             var timeCnt = 0;
     

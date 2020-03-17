@@ -575,7 +575,7 @@ namespace DSTargetManager {
             let targetName: string = $gridView.find(".grid-unit.active").data("name");
             const createTableMode: boolean = DataSourceManager.isCreateTableMode();
             if (XVM.isDataMart()) {
-                SourceModal.Instance.switchTab("import");
+                LoadScreen.switchTab("import");
                 DSForm.setDataTarget(targetName);
                 return;
             }

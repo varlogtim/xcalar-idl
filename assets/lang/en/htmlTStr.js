@@ -149,6 +149,7 @@ module.exports = {
     },
 
     "menuBar": {
+        "home": "Xcalar Home",
         "wb": "Projects",
         "ws": "Worksheets",
         "monitor": "System",

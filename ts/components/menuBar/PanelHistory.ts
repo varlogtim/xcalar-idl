@@ -8,10 +8,14 @@ class PanelHistory {
     public static get Instance() {
         return this._instance || (this._instance = new PanelHistory());
     }
-    constructor() {
+    
+    private constructor() {
         this._sessionID = Date.now();
     }
 
+    /**
+     * PanelHistory.Instance.setup
+     */
     public setup() {
         if (this._wasSetup) {
             return;
@@ -26,7 +30,7 @@ class PanelHistory {
         });
         if (!window.history.state) {
             window.history.pushState({
-                panel: "projects",
+                panel: UrlToTab.home,
                 cursor: this._cursor,
                 sessionID: this._sessionID
             }, "", window.location.href);
@@ -40,7 +44,7 @@ class PanelHistory {
     }
 
     public push(panel: string): void {
-        if (!XVM.isDataMart()) {
+        if (!XVM.isDataMart() || !panel) {
             return;
         }
         if (window.history.state && window.history.state.panel === panel) {
@@ -101,28 +105,7 @@ class PanelHistory {
             return;
         }
 
-        let tabId: string = UrlToTab[url];
-        let subTabId: string = null;
-        if (tabId === "settingsButton") { // handle sub tabs
-            subTabId = tabId;
-            tabId = "monitorTab";
-        } else if (tabId === "workbook") {
-            WorkbookPanel.show(false, true);
-            return;
-        }
-        const $container = $("#container");
-        if (WorkbookPanel.isWBMode() || ($container.hasClass("noWorkbook") ||
-            $container.hasClass("switchingWkbk"))) {
-            if (tabId !== "monitorTab" && tabId !== "helpTab" &&
-                ($container.hasClass("noWorkbook") ||
-                    $container.hasClass("switchingWkbk"))) {
-                this._handleHistoryChange(event, oldCursor);
-                return;
-            } else {
-                $container.removeClass("monitorMode setupMode");
-            }
-        }
-        MainMenu.openPanel(MainMenu.tabToPanelMap[tabId], subTabId, true);
+        HomeScreen.switch(UrlToTab[url]);
     }
 
     private _handleHistoryChange(event, oldCursor: number) {

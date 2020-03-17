@@ -449,23 +449,15 @@ enum VersionComparison {
 }
 
 enum TabToUrl {
-    dataStoresTab = "sources",
-    sqlTab = "query",
-    modelingDataflowTab = "btlogic",
-    jupyterTab = "jupyter",
-    settingsButton = "settings",
-    helpTab = "help",
-    workbook = "projects"
+    home = "home",
+    load = "load",
+    notebook = "notebook",
 }
 
 enum UrlToTab {
-    sources = "dataStoresTab",
-    query = "sqlTab",
-    btlogic = "modelingDataflowTab",
-    jupyter = "jupyterTab",
-    settings = "settingsButton",
-    help = "helpTab",
-    projects = "workbook"
+    home = "home",
+    load = "load",
+    notebook = "notebook",
 }
 
 

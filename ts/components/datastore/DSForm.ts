@@ -206,7 +206,7 @@ namespace DSForm {
             onSelect: function($li) {
                 if ($li.hasClass("createNew")) {
                     if (XVM.isDataMart()) {
-                        SourceModal.Instance.switchTab("connector");
+                        LoadScreen.switchTab("connector");
                     } else {
                         MainMenu.openPanel("datastorePanel", "targetButton");
                     }

@@ -95,7 +95,7 @@ namespace xcManager {
             try {
                 $("#topMenuBarTabs").removeClass("xc-hidden");
                 $("#bottomMenuBarTabs").removeClass("xc-hidden");
-                PanelHistory.Instance.setup();
+                setupScreens();
                 MainMenu.setup();
                 setupModeArea();
                 XDFManager.Instance.setup();
@@ -131,11 +131,6 @@ namespace xcManager {
                 TblSource.Instance.refresh();
                 // By default show panel
                 MainMenu.openDefaultPanel();
-                if (firstTimeUser) {
-                    // show hint to create datasets if no tables have been created
-                    // in this workbook
-                    showDatasetHint();
-                }
                 StatusMessage.updateLocation(false, null);
                 if (!isBrowserFirefox && !isBrowserIE) {
                     gMinModeOn = false; // turn off min mode
@@ -184,11 +179,11 @@ namespace xcManager {
 
             if (!gMinModeOn) {
                 $("#initialLoadScreen").fadeOut(200, function() {
-                    $("#initialLoadScreen").hide();
+                    hideInitialLoadScreen();
                     TableComponent.update();
                 });
             } else {
-                $("#initialLoadScreen").hide();
+                hideInitialLoadScreen();
                 TableComponent.update();
             }
             XcUser.creditUsageCheck();
@@ -197,11 +192,21 @@ namespace xcManager {
         return deferred.promise();
     };
 
+    function setupScreens(): void {
+        PanelHistory.Instance.setup();
+        LoadScreen.setup();
+        HomeScreen.setup();
+    }
+
+    function hideInitialLoadScreen(): void {
+        $("#initialLoadScreen").removeClass("full").hide();
+    }
+
     function handleSetupFail(error: string|object, firstTimeUser: boolean): void {
         // in case it's not setup yet
         $("#topMenuBarTabs").removeClass("xc-hidden");
         $("#bottomMenuBarTabs").removeClass("xc-hidden");
-        PanelHistory.Instance.setup();
+        setupScreens();
         MainMenu.setup();
         QueryManager.setup();
         Alert.setup();
@@ -212,7 +217,7 @@ namespace xcManager {
         const isNotNullObj: boolean = error && (typeof error === "object");
         if (error === WKBKTStr.NoWkbk){
             // when it's new workbook
-            $("#initialLoadScreen").hide();
+            hideInitialLoadScreen();
             WorkbookPanel.forceShow();
             locationText = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
             TooltipWalkthroughs.startWorkbookBrowserWalkthrough();
@@ -476,7 +481,7 @@ namespace xcManager {
         }
 
         function showForceAlert(deferred: XDDeferred<StatusT>): void {
-            $("#initialLoadScreen").hide();
+            hideInitialLoadScreen();
             Alert.show({
                 title: AlertTStr.UnexpectInit,
                 msg: AlertTStr.UnexpectInitMsg,

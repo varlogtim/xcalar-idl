@@ -68,7 +68,7 @@ module.exports = {
             .pause(5000)
             .expect.element("#helpPanel .topBar .title").text.to.equal(`HELP & SUPPORT: TUTORIALS`)
         browser
-            .click("#homeBtn")
+            .click("#projectTab")
             .waitForElementVisible('#workbookPanel')
             .expect.element("#workbookPanel .tutBox .tooltipBtn .tutText").text.to.equal(`Step-by-Step Walkthroughs`)
         browser
@@ -91,7 +91,7 @@ module.exports = {
     //         .waitForElementVisible("#monitorPanel .topBar .title")
     //         .expect.element("#monitorPanel .topBar .title").text.to.equal(`SYSTEM: MONITOR`)
     //     browser
-    //         .click("#homeBtn")
+    //         .click("#projectTab")
     //         .waitForElementVisible('#workbookPanel')
     //         .expect.element("#workbookPanel .monitorBox .monitorBtn").text.to.equal(`Monitor Cluster Health`)
     //     browser
@@ -99,7 +99,7 @@ module.exports = {
     //         .waitForElementVisible("#monitorPanel .topBar .title")
     //         .expect.element("#monitorPanel .topBar .title").text.to.equal(`SYSTEM: MONITOR`)
     //     browser
-    //         .click("#homeBtn")
+    //         .click("#projectTab")
     //         .waitForElementVisible('#workbookPanel')
     //         .expect.element('#workbookPanel .monitorBox .section:nth-of-type(2) .subHeading').text.to.equal(`News`)
     //     browser
@@ -152,7 +152,7 @@ module.exports = {
             .moveToElement('#dagView .operatorWrap .active .operator:nth-of-type(1)', undefined, undefined)
             .doubleClick()
             .waitForElementVisible(".dataflowArea.active rect.main", 20000)
-            .click("#homeBtn")
+            .click("#projectTab")
             .waitForElementVisible('#workbookPanel')
     },
 

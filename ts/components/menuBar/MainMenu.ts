@@ -22,15 +22,6 @@ namespace MainMenu {
         helpTab: "helpPanel"
     };
 
-    export const tabToPanelTitleMap = {
-        dataStoresTab: "Source & Load Data",
-        sqlTab: "Workspace",
-        modelingDataflowTab: "Business & Transformation Logic",
-        jupyterTab: "Jupyter Notebook",
-        monitorTab: "System",
-        helpTab: "Help & Support: Tutorials"
-    };
-
     export function setup() {
         if (hasSetUp) {
             return;
@@ -89,29 +80,10 @@ namespace MainMenu {
     };
 
     export function openDefaultPanel(): void {
-
-        if (XVM.isDataMart()) {
-            const params: {panel?: string} = xcHelper.decodeFromUrl(window.location.href);
-            if (params.panel) {
-                let tabId: string = UrlToTab[params.panel];
-                let subTabId: string = null;
-                if (tabId === "settingsButton") { // handle sub tabs
-                    subTabId = tabId;
-                    tabId = "monitorTab";
-                } else if (tabId === "workbook") {
-                    WorkbookPanel.show(true, true);
-                    return;
-                }
-
-                if (MainMenu.openPanel(MainMenu.tabToPanelMap[tabId], subTabId, true)) {
-                    return;
-                }
-            }
-        }
         MainMenu.openPanel("sqlPanel");
-    };
+    }
 
-    export function openPanel(panelId: string, subTabId?: string, ignoreHistory: boolean = false): boolean {
+    export function openPanel(panelId: string, subTabId?: string): boolean {
         let $tab: JQuery;
         switch (panelId) {
             case ("monitorPanel"):
@@ -146,7 +118,7 @@ namespace MainMenu {
                 subTabId = null;
             }
             if (!$tab.hasClass("active") || WorkbookPanel.isWBMode()) {
-                tabClickEvent($tab, $tab.closest(".topMenuBarTab"), subTabId, !ignoreHistory, true);
+                tabClickEvent($tab, $tab.closest(".topMenuBarTab"), true);
             }
             if ($subTab) {
                 $subTab.trigger({...fakeEvent.click, subTabId: subTabId});
@@ -158,9 +130,9 @@ namespace MainMenu {
         }
     };
 
-    function tabClickEvent($target: JQuery, $curTab: JQuery, subTabId?: string, addToHistory?: boolean, noToggle?: boolean) {
+    function tabClickEvent($target: JQuery, $curTab: JQuery, noToggle?: boolean) {
         const $tabs: JQuery = $menuBar.find(".topMenuBarTab");
-        WorkbookPanel.hide(true, true);
+        WorkbookPanel.hide(true);
         $menuBar.removeClass("animating");
 
         if ($curTab.hasClass("active")) {
@@ -168,13 +140,6 @@ namespace MainMenu {
                 const $subTab = $target.closest(".subTab");
                 $curTab.find(".subTab").removeClass("active");
                 $subTab.addClass("active");
-
-                if (addToHistory && subTabId) {
-                    let tabName = TabToUrl[subTabId];
-                    if (tabName) {
-                        PanelHistory.Instance.push(tabName);
-                    }
-                }
             } else if (!noToggle && $curTab.attr("id") === "sqlTab") {
                 toggleResourcePanel();
             }
@@ -199,17 +164,6 @@ namespace MainMenu {
 
             panelSwitchingHandler($curTab, lastTabId);
             xcUIHelper.hideSuccessBox();
-
-            if (addToHistory) {
-                let tabId: string ;
-                if (subTabId) {
-                    tabId = subTabId;
-                } else {
-                    tabId = $curTab.attr("id");
-                }
-                let tabName = TabToUrl[tabId];
-                PanelHistory.Instance.push(tabName);
-            }
         }
     }
 
@@ -242,7 +196,11 @@ namespace MainMenu {
         $tabs.click(function(event) {
             const $target: JQuery = $(event.target);
             const $curTab: JQuery = $(this);
-            tabClickEvent($target, $curTab, event["subTabId"], true);
+            if ($curTab.attr("id") === "projectTab") {
+                // XXX a temp solution
+                return;
+            }
+            tabClickEvent($target, $curTab);
         });
     }
 
@@ -447,7 +405,6 @@ namespace MainMenu {
         for (let i in tabToPanelMap) {
             $container.removeClass(tabToPanelMap[i] + "-active");
         }
-        $("#mainTopBar .panelName").text(tabToPanelTitleMap[curTab] || "");
 
         switch (curTab) {
             case ("dataStoresTab"):

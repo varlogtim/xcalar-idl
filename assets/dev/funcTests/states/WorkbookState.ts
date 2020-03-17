@@ -72,7 +72,7 @@ class WorkbookState extends State {
         } catch (error) {
             if (error["error"] != undefined && error["error"] === "Cannot switch to the same workbook") {
                 this.log(`Workbook ${randomWorkbook} already active!`);
-                $("#homeBtn").click(); // Go inside the workbook
+                $("#projectTab").click(); // Go inside the workbook
                 return this.stateMachine.statesMap.get(xcSessionStorage.getItem('xdFuncTestStateName'));
             } else {
                 this.log(`Error activating workbook ${randomWorkbook}`);

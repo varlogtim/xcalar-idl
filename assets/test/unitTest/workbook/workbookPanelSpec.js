@@ -103,7 +103,7 @@ describe("WorkbookPanel Test", function() {
 
     describe("Basic Behavior Test", function() {
         it("Should show workbook from home button", function(done) {
-            $("#homeBtn").click();
+            $("#projectTab").click();
             var checkFunc = function() {
                 return $("#container").hasClass("workbookMode");
             };
@@ -126,7 +126,7 @@ describe("WorkbookPanel Test", function() {
         });
 
         it("should click home button to back to workbook panel", function() {
-            $("#homeBtn").click();
+            $("#projectTab").click();
             expect($("#container").hasClass("monitorViewOpen")).to.be.true;
             expect($("#container").hasClass("workbookMode")).to.be.true;
         });
@@ -198,7 +198,7 @@ describe("WorkbookPanel Test", function() {
             };
 
             $container.addClass("noWorkbook");
-            $("#homeBtn").click();
+            $("#projectTab").click();
 
             UnitTest.testFinish(checkFunc)
             .then(function() {
@@ -216,7 +216,7 @@ describe("WorkbookPanel Test", function() {
         });
 
         it("Should not show dataset hint", function(done) {
-            $("#homeBtn").click();
+            $("#projectTab").click();
             expect($("#showDatasetHint").length)
             .to.equal(0);
 
@@ -225,7 +225,7 @@ describe("WorkbookPanel Test", function() {
             };
             UnitTest.testFinish(checkFunc)
             .then(() => {
-                $("#homeBtn").click();
+                $("#projectTab").click();
                 setTimeout(() => {
                     done();
                 }, 1000);
@@ -236,7 +236,7 @@ describe("WorkbookPanel Test", function() {
         });
 
         it("Should close workbook", function(done) {
-            $("#homeBtn").click();
+            $("#projectTab").click();
 
             var checkFunc = function() {
                 return !$("#container").hasClass("workbookMode");
@@ -831,7 +831,7 @@ describe("WorkbookPanel Test", function() {
         });
 
         it("Should close workbook 2", function(done) {
-            $("#homeBtn").click();
+            $("#projectTab").click();
 
             var checkFunc = function() {
                 return !$("#container").hasClass("workbookMode");
@@ -847,7 +847,7 @@ describe("WorkbookPanel Test", function() {
             })
             .fail(function() {
                 // try again
-                $("#homeBtn").click();
+                $("#projectTab").click();
 
                 UnitTest.testFinish(checkFunc)
                 .then(function() {

@@ -1,5 +1,5 @@
 <!-- Home / workbook button -->
-<div id="homeBtn" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.wb %>">
+<div id="homeBtn" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.home %>">
   <div class="logo xc-new-logo">
     <i class="icon xi-x-logo"></i>
   </div>
@@ -10,6 +10,13 @@
 <div id="menuBar" class="clearfix no-selection">
   <!-- maiu menu-->
   <div id="topMenuBarTabs" class="clearfix xc-hidden">
+    <div id="projectTab" class="topMenuBarTab">
+        <div class="tabGroup">
+            <div class="mainTab" data-delay="1" data-toggle="tooltip" data-placement="right" data-container="body" title="Projects">
+                <i class="icon xi-list-view"></i>
+            </div>
+        </div>
+    </div>
     <!-- datasets tab -->
     <!--  TODO: Currently Datasets/etc don't work if no workbook is activated. This will come later. -->
     <div id="dataStoresTab" class="topMenuBarTab firstTouch">

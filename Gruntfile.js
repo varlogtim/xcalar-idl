@@ -85,11 +85,11 @@ var Cloud = "Cloud"; // cloud builds
 var XPE = "XPE"; // for special builds of XD intended to be run by nwjs in MacOS app
 var productTypes = {
     XD: {
-        'name': 'Xcalar Data App Notebook', // default name to brand throughout GUIs for this product
+        'name': 'Xcalar', // default name to brand throughout GUIs for this product
         'target': 'xcalar-gui' // dirname for build target
     },
     Cloud: {
-        'name': 'Xcalar Data App Notebook', // default name to brand throughout GUIs for this product
+        'name': 'Xcalar', // default name to brand throughout GUIs for this product
         'target': 'xcalar-gui' // dirname for build target
     },
     XPE: {

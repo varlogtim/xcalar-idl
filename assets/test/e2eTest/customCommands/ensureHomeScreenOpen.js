@@ -8,7 +8,7 @@ class EnsureHomeScreenOpen extends EventEmitter {
             } else {
                 this.api
                     .waitForElementNotVisible("#modalBackground", 30000)
-                    .moveToElement("#homeBtn", 0, 0)
+                    .moveToElement("#projectTab", 0, 0)
                     .mouseButtonClick("left")
                     .waitForElementNotVisible("#modalBackground", 120000)
                     .waitForElementVisible("#workbookPanel", 120000)

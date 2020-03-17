@@ -38,7 +38,7 @@ class StateMachine {
             this.statesMap.set("AdvancedMode", new AdvancedModeState(this, verbosity));
             this.statesMap.set("SQLMode", new SQLModeState(this, verbosity));
         } else {
-            $("#homeBtn").click(); // Go back to the workbook panel;
+            $("#projectTab").click(); // Go back to the workbook panel;
         }
         this.currentState = this.statesMap.get(this.stateName);
         xcSessionStorage.removeItem('xdFuncTestStateName');
@@ -66,7 +66,7 @@ class StateMachine {
                 this.currentState.run = 0;
                 this.currentState = this.statesMap.get(Util.pickRandom([...this.statesMap.keys()]));
                 if (this.currentState.name == 'Workbook') {
-                    $("#homeBtn").click(); // Go back to the workbook panel;
+                    $("#projectTab").click(); // Go back to the workbook panel;
                 }
             }
             this.iterations -= 1;

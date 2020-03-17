@@ -562,9 +562,9 @@ namespace XVM {
         TblSourcePreview.Instance.switchMode();
         DSConfig.switchMode();
         let allPanelsClosed = MainMenu.switchMode();
-        if (allPanelsClosed) {
-            MainMenu.openDefaultPanel();
-        }
+        // if (allPanelsClosed) {
+        //     MainMenu.openDefaultPanel();
+        // }
         PromiseHelper.alwaysResolve(TooltipWalkthroughs.checkFirstTimeTooltip())
         .then(() => {
             deferred.resolve();

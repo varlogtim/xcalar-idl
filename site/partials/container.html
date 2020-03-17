@@ -2,7 +2,7 @@
 <!-- CONTAINER -->
 <div id="container" class="mainContainer" style="display:block;">
   <!-- initial background -->
-  <div id="initialLoadScreen">
+  <div id="initialLoadScreen" class="full">
     <div class="waitBox">
       <div class="top">
         <div class="cancel xc-action" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Cancel %>" data-tipclasses="zIndex10000">
@@ -77,6 +77,8 @@
   include "modelingDagPanel.html"
   include "sql/sqlWorkSpacePanel.html"
   include "workbook.html"
+  include "loadScreen.html"
+  include "homeScreen.html"
   include "help/help.html"
   include "tableMenus.html"
   <!-- END MAIN PANELS -->
@@ -117,7 +119,6 @@
 
   <!-- Modal Background -->
   <div id="modalBackground" class="modalBackground"></div>
-  include "modal/sourceModal.html"
   include "modal/schemaSelectionModal.html"
   include "modal/aggModal.html"
   include "modal/jsonModal.html"

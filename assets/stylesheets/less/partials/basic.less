@@ -222,11 +222,21 @@ body {
         #userBox {
             width: @width-userBox - @width-toggleBtn;
         }
+    }
 
-        #mainTopBar {
-            .panelName {
-                display: none;
-            }
+    .mainScreen {
+        z-index: @z-index-workbook + 1;
+        position: absolute;
+        top: @height-topBar - 2;
+        height: 100%;
+        background-color: @color-bg-body-gray;
+        display: block;
+
+        .topBar {
+            @w: @width-userBox - @width-toggleBtn;
+            position: fixed;
+            top: 0;
+            width: ~"calc(100% - @{w})";
         }
     }
 }
@@ -319,6 +329,14 @@ div, section, ul {
     z-index: @z-index-initialLoadScreen;
     cursor: progress;
     background-color: rgba(0, 0, 0, 0.3);
+
+    &.full {
+        background-color: @color-bg-modal;
+
+        .waitBox {
+            box-shadow: none;
+        }
+    }
 
     &.sessionProgress .waitBox {
         .steps, .progressWrap, .progressNode {
@@ -902,13 +920,6 @@ div, section, ul {
             .flex(1 2 0px);
             padding-right: 2px;
             border-right: none;
-        }
-
-        &.panelName {
-            text-transform: capitalize;
-            .font(@size: 18px, @color: @color-font-form, @line-height: 10px, @weight: 600);
-            margin-left: 1px;
-            overflow: visible;
         }
     }
 }

@@ -12,7 +12,6 @@ namespace WorkbookPanel {
     let downloadingWKBKs: string[];
     let duplicatingWKBKs: string[];
     let hasSetup = false;
-    let lastTab = null;
 
     /**
     * WorkbookPanel.setup
@@ -41,7 +40,7 @@ namespace WorkbookPanel {
         let closeTimer: number = null;
         let doneTimer: number = null;
         // open or close workbook view
-        $("#homeBtn").click(function() {
+        $("#projectTab").click(function() {
             if (!WorkbookManager.hasSetup()) {
                 return;
             }
@@ -123,7 +122,7 @@ namespace WorkbookPanel {
     * Shows the workbook panel
     * @param isForceShow - boolean, if true no transition animation is shown
     */
-    export function show(isForceShow: boolean = false, noHistory: boolean = false): void {
+    export function show(isForceShow: boolean = false): void {
         $workbookPanel.show();
         $("#container").addClass("workbookMode");
 
@@ -139,11 +138,6 @@ namespace WorkbookPanel {
         }
 
         WorkbookPanel.listWorkbookCards();
-
-        if (!noHistory) {
-            lastTab = PanelHistory.Instance.getCurrentPanel();
-            PanelHistory.Instance.push("projects");
-        }
     };
 
     /**
@@ -151,7 +145,7 @@ namespace WorkbookPanel {
     * hides the workbook panel
     * @param immediate - boolean, if true no transition animation is shown
     */
-    export function hide(immediate: boolean = false, noNav?: boolean): void {
+    export function hide(immediate: boolean = false): void {
         if (!hasSetup || $workbookPanel.hasClass("hidden")) {
             return;
         }
@@ -168,28 +162,7 @@ namespace WorkbookPanel {
 
         xcTooltip.hideAll();
         StatusBox.forceHide();
-
-        if (!noNav && XVM.isDataMart()) {
-            if (!lastTab) {
-                lastTab = "query";
-            }
-            let tabId: string = UrlToTab[lastTab];
-            let subTabId: string = null;
-            if (tabId === "settingsButton") { // handle sub tabs
-                subTabId = tabId;
-                tabId = "monitorTab";
-            } else if (tabId === "workbook") {
-                WorkbookPanel.show(true, true);
-                return;
-            }
-            MainMenu.openPanel(MainMenu.tabToPanelMap[tabId], subTabId);
-            if (subTabId) {
-                tabId = subTabId;
-            }
-            let tabName = TabToUrl[tabId];
-            PanelHistory.Instance.push(tabName);
-        }
-    };
+    }
 
     /**
     * WorkbookPanel.forceShow
@@ -397,10 +370,6 @@ namespace WorkbookPanel {
         $("#browseWKBKbtn").click(function() {
             StatusBox.forceHide();
             $("#WKBK_uploads").click();
-        });
-
-        $("#loadWizardbtn").click(function() {
-            SourceModal.Instance.show();
         });
 
         $fileUpload.change(function() {

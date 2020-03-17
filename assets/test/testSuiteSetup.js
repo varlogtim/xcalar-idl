@@ -50,7 +50,8 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
                 }
                 return;
             }
-
+            // make sure it's in the notebook screen
+            HomeScreen.switch(UrlToTab.notebook);
             if (toTest != null) {
                 // set the 2 options to false first
                 UserSettings.setPref("dfAutoExecute", false, false);

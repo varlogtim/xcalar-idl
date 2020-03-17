@@ -603,7 +603,7 @@ class ResourceMenu {
 
         $container.on("click", ".addTable", (event) => {
             event.stopPropagation();
-            SourceModal.Instance.show();
+            HomeScreen.switch(UrlToTab.load);
         });
 
         $container.on("click", ".searchTable", (event) => {

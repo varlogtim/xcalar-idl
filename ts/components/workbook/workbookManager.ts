@@ -350,7 +350,7 @@ namespace WorkbookManager {
     */
     export function gotoWorkbook(workbookId: string, replaceURL: boolean = false): void {
         setURL(workbookId, replaceURL);
-        PanelHistory.Instance.deletePanelParam();
+        // PanelHistory.Instance.deletePanelParam();
         xcManager.reload();
     }
 

@@ -17,7 +17,7 @@ describe("Mocha Setup Test", function() {
         });
     });
 
-    it("Should set up XI", function(done) {
+    it("Should set up correctly", function(done) {
         function transformToAssocArray(prmstr) {
             var params = {};
             var prmarr = prmstr.split("&");
@@ -83,6 +83,13 @@ describe("Mocha Setup Test", function() {
                  map[id] = true;
              }
          });
+    });
+
+    it("should go to notebook screen", () => {
+        if (!$("#sqlWorkSpacePanel").is(":visible")) {
+            $("#notebookScreenBtn").click();
+            expect($("#sqlWorkSpacePanel").is(":visible")).to.be.true;
+        }
     });
 
     after(function() {
