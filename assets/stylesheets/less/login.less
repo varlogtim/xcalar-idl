@@ -42,13 +42,31 @@ form {
         cursor: pointer;
     }
 }
-// #splashContainer {
-//     .flex-display;
-//     .flex-direction(column);
-//     .justify-content(center);
-//     .position(absolute, 0px);
-//     .size(100%, 100%);
-// }
+#splashContainer {
+    .flex-display;
+    .flex-direction(column);
+    .justify-content(center);
+    .position(absolute, 0px);
+    .size(100%, 100%);
+
+    #animation_container {
+        transform: translateX(70px);
+    }
+
+    img {
+        width: 200px;
+    }
+    .hiddenLogo {
+        position: absolute;
+        background-color: #ececec;
+        width: 3px;
+        height: 30px;
+        top: 178px;
+        left: 216px;
+        display: none;
+        // .image("../../images/logo/xcalar-white-lg.png");
+    }
+}
 
 #animation_container {
     margin: 0 auto;

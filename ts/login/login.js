@@ -2,7 +2,7 @@ Compatible.check();
 if (xcLocalStorage.getItem("noSplashLogin") === "true") {
     $("#loginContainer").show();
     $("#logo").show();
-    // $("#splashContainer").hide();
+    $("#splashContainer").hide();
 }
 
 var msalAgentApplication;
@@ -27,12 +27,12 @@ $(document).ready(function() {
 
     function attemptShowMissedSplashScreen() {
         if (canShowSplashScreen() && splashMissedHiding) {
-            // $("#splashContainer").fadeOut(1000);
-            // setTimeout(function() {
+            $("#splashContainer").fadeOut(1000);
+            setTimeout(function() {
                 $("#loginContainer").fadeIn(1000);
                 $("#logo").fadeIn(1000);
                 focusOnFirstEmptyInput();
-            // }, 800);
+            }, 800);
         }
     }
 
@@ -209,7 +209,7 @@ $(document).ready(function() {
         .then(function(res) {
             if (res &&
                 typeof res === "string" &&
-                res.includes("gCloud")    
+                res.includes("gCloud")
             ) {
                 deferred.resolve(true);
             } else {
@@ -282,7 +282,7 @@ $(document).ready(function() {
     }
 
     function cloudLoginFailureHanlder(redirect) {
-        // $("#splashContainer").hide();
+        $("#splashContainer").hide();
         $("#loginContainer").hide().addClass("xc-hidden");
         if (redirect) {
             window.location = paths.cloudLogin + "?logout";
@@ -419,21 +419,24 @@ $(document).ready(function() {
     }
 
     function showSplashScreen() {
-        // var animTime = 4200;
-        var animTime = 1000;
-        // init(); // 3rd party splash screen js
+        var animTime = 4200;
+        // var animTime = 1000;
+        init(); // 3rd party splash screen js
         $("#loginForm").show();
         $('#loadingBar .innerBar').removeClass('animated');
+        setTimeout(() => {
+            // $("#splashContainer .hiddenLogo").show();
+        }, 3000);
 
         setTimeout(function() {
             splashPromise.resolve();
             if (canShowSplashScreen()) {
-                // $("#splashContainer").fadeOut(1000);
-                // setTimeout(function() {
+                $("#splashContainer").fadeOut(1000);
+                setTimeout(function() {
                     $("#loginContainer").fadeIn(1000);
                     $("#logo").fadeIn(1000);
                     focusOnFirstEmptyInput();
-                // }, 800);
+                }, 800);
             } else {
                 splashMissedHiding = true;
             }
