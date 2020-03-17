@@ -14,8 +14,8 @@ class SQLTable {
         table: TableMeta,
         columns: {name: string, backName: string, type: ColumnType}[],
         callback?: Function
-    ): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+    ): XDPromise<XcPbTableViewer> {
+        const deferred: XDDeferred<XcPbTableViewer> = PromiseHelper.deferred();
         this._addColumnsToTable(table, columns);
         const viewer: XcTableViewer = new XcTableViewer(table, {
             fromSQL: true
@@ -82,7 +82,27 @@ class SQLTable {
         this._close();
     }
 
-    private _show(viewer: XcTableViewer): XDPromise<void> {
+    public replaceTable(table: TableMeta): XDPromise<XcPbTableViewer | XcTableViewer> {
+        if (!(this._currentViewer instanceof XcPbTableViewer)) {
+            return PromiseHelper.resolve(this._currentViewer); // invalid case
+        }
+        const currentViewer: XcPbTableViewer = <XcPbTableViewer>this._currentViewer;
+        const viewer = currentViewer.replace(table);
+        if (this._isSameViewer(viewer)) {
+            return PromiseHelper.resolve();
+        }
+        let deferred:XDDeferred<XcPbTableViewer | XcTableViewer>  = PromiseHelper.deferred();
+
+        this._show(viewer)
+        .then(() => {
+             viewer.updateToalNumRows(table.resultSetCount);
+            deferred.resolve(viewer);
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+
+    private _show(viewer: XcTableViewer): XDPromise<XcPbTableViewer | XcTableViewer> {
         if (this._isSameViewer(viewer)) {
             return PromiseHelper.resolve();
         }
@@ -96,10 +116,10 @@ class SQLTable {
         this._reset();
     }
 
-    private _showViewer(): XDPromise<void> {
+    private _showViewer(): XDPromise<XcPbTableViewer | XcTableViewer> {
         DagTable.Instance.close();
 
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const deferred: XDDeferred<XcPbTableViewer | XcTableViewer> = PromiseHelper.deferred();
         const $container: JQuery = this._getContainer();
         $container.removeClass("xc-hidden").addClass("loading");
 
@@ -113,7 +133,7 @@ class SQLTable {
         .then(() => {
             $container.removeClass("loading");
             TblFunc.alignScrollBar($container.find(".dataTable").eq(0));
-            deferred.resolve();
+            deferred.resolve(viewer);
         })
         .fail((error) => {
             this._error(error);

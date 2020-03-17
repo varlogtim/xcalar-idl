@@ -4,7 +4,7 @@ class XcPbTableViewer extends XcTableViewer {
             fromSQL: true
         });
     }
-    
+
     public getTitle(): string {
         const tableName: string = this.table.getName();
         return xcHelper.getTableName(tableName);
@@ -16,5 +16,9 @@ class XcPbTableViewer extends XcTableViewer {
         const totalRowsStr: string = xcStringHelper.numToStr(totalRows);
         const text: string = `${totalRowsStr} (show first ${displayRowsStr} rows)`;
         this.rowInput.updateTotalRowsText(text);
-    } 
+    }
+
+    public replace(table: TableMeta): XcPbTableViewer {
+        return new XcPbTableViewer(table);
+    }
 }

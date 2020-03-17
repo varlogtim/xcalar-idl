@@ -568,7 +568,10 @@ class TblFunc {
         const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
         if ($tableWrap.length !== 0 && !$tableWrap.hasClass('tableLocked')) {
             if (DagTable.Instance.getView() == null) {
-                return;
+                const isSqlTable: boolean = !$("#sqlTableArea").hasClass("dagTableMode");
+                if (!isSqlTable || !SQLResultSpace.Instance.getSQLTable()) {
+                    return null;
+                }
             }
             // XXX hack
             let $container: JQuery = DagTable.Instance.getView();

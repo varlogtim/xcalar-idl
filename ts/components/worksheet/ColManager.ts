@@ -235,9 +235,10 @@ namespace ColManager {
                 typeToCast: null
             });
         }
+        const isSqlTable: boolean = !$("#sqlTableArea").hasClass("dagTableMode");
 
         if (colNums.length > 1) {
-            return xcFunction.sort(tableId, colInfo);
+            return xcFunction.sort(tableId, colInfo, {isSqlTable: isSqlTable});
         }
         let colNum = colNums[0];
         let table = gTables[tableId];
@@ -271,7 +272,7 @@ namespace ColManager {
         let type = progCol.getType();
 
         if (type !== "string") {
-            return xcFunction.sort(tableId, colInfo);
+            return xcFunction.sort(tableId, colInfo, {isSqlTable: isSqlTable});
         }
 
         let $tds = $("#xcTable-" + tableId).find("tbody td.col" + colNum);
@@ -298,7 +299,7 @@ namespace ColManager {
                 "buttons": [{
                     "name": IndexTStr.NoCast,
                     "func": function() {
-                        xcFunction.sort(tableId, colInfo)
+                        xcFunction.sort(tableId, colInfo, {isSqlTable: isSqlTable})
                         .then(deferred.resolve)
                         .fail(deferred.reject);
                     }
@@ -307,7 +308,7 @@ namespace ColManager {
                     "name": IndexTStr.CastToNum,
                     "func": function() {
                         colInfo[0].typeToCast = suggType;
-                        xcFunction.sort(tableId, colInfo)
+                        xcFunction.sort(tableId, colInfo, {isSqlTable: isSqlTable})
                         .then(deferred.resolve)
                         .fail(deferred.reject);
                     }
@@ -316,7 +317,7 @@ namespace ColManager {
             });
             return deferred.promise();
         } else {
-            return xcFunction.sort(tableId, colInfo);
+            return xcFunction.sort(tableId, colInfo, {isSqlTable: isSqlTable});
         }
     };
 

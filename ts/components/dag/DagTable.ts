@@ -170,19 +170,25 @@ class DagTable {
 
     private _addEventListeners(): void {
         const $container: JQuery = this._getContainer();
-        $container.on("click", ".close", () => {
-            this.close();
-        });
 
         const $tableBar = $container.find(".tableBar");
         $tableBar.on("click", ".tableMenu", (event) => {
+
+            const isSqlTable: boolean = !$container.hasClass("dagTableMode");
+            let table = null;
+            if (isSqlTable) {
+                const sqlTable = SQLResultSpace.Instance.getSQLTable();
+                table = sqlTable ? sqlTable.getTable() : null;
+            } else {
+                table = this.getTable();
+            }
             const options: DropdownOptions = {
                 classes: "tableMenu",
                 offsetY: 3,
-                tableId: xcHelper.getTableId(this.getTable())
+                tableId: xcHelper.getTableId(table)
             };
             const tableMenu: TableMenu = TableComponent.getMenu().getTableMenu();
-            tableMenu.setUnavailableClasses(!$container.hasClass("dagTableMode"));
+            tableMenu.setUnavailableClasses(isSqlTable);
             MenuHelper.dropdownOpen($(event.target), $("#tableMenu"), options);
         });
     }

@@ -11,7 +11,7 @@ namespace xcFunction {
     }
 
     interface XcFuncSortOptions extends XcFuncOptions {
-
+        isSqlTable: boolean
     }
 
     /**
@@ -216,7 +216,7 @@ namespace xcFunction {
         .then((ret) => {
             finalTableName = ret.newTableName;
             // sort will filter out KNF, so it change the profile
-            return TblManager.refreshTable([finalTableName], finalTableCols, [tableName], txId);
+            return TblManager.refreshTable([finalTableName], finalTableCols, [tableName], txId, options.isSqlTable);
         })
         .then(() => {
             if (table.hasLock()) {
@@ -235,8 +235,7 @@ namespace xcFunction {
             if (table.hasLock()) {
                 TblFunc.unlockTable(tableId);
             }
-
-            if (error.error === SQLType.Cancel) {
+            if (error && error.error === SQLType.Cancel) {
                 Transaction.cancel(txId);
                 deferred.resolve();
             } else {

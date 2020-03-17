@@ -11,7 +11,8 @@ class TblManager {
         newTableNames: string[],
         tableCols: ProgCol[] | null,
         oldTableNames: string[] | string,
-        txId?: number
+        txId?: number,
+        isSqlTable?: boolean
     ): XDPromise<XcViewer> {
         if (txId != null) {
             if (Transaction.checkCanceled(txId)) {
@@ -51,7 +52,12 @@ class TblManager {
         });
 
         TblManager._setTableMeta(newTableName, tableCols);
-        return DagTable.Instance.replaceTable(gTables[newTableId]);
+        if (isSqlTable) {
+            const sqlTable = SQLResultSpace.Instance.getSQLTable();
+            return sqlTable ? sqlTable.replaceTable(gTables[newTableId]) : PromiseHelper.resolve();
+        } else {
+            return DagTable.Instance.replaceTable(gTables[newTableId]);
+        }
     }
 
     /**

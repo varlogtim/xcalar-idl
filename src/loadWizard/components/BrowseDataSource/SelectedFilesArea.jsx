@@ -37,7 +37,6 @@ export default class SelectedFilesArea extends React.Component {
                 }
             }
         }});
-        // console.log(selectedFileDir);
         return (
             <div className="selectedFilesArea">
                 <div className="selectedFilesHeader">{Texts.selectListTitle}</div>

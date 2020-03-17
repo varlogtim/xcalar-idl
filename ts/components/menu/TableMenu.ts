@@ -8,26 +8,24 @@ class TableMenu extends AbstractMenu {
     public setUnavailableClasses(isSqlTable: boolean): void {
         try {
             const $menu: JQuery = this._getMenu();
+            $menu.find("li").removeClass('xc-hidden');
             if (isSqlTable) {
-                $menu.find("li").addClass('xc-hidden');
-                $menu.find(".exportTableFromSQL, .saveTableFromSQL").removeClass("xc-hidden");
+                $menu.find(".exportTable, .saveTable").addClass("xc-hidden");
                 return;
             } else {
-                $menu.find("li").removeClass('xc-hidden');
                 $menu.find(".exportTableFromSQL, .saveTableFromSQL").addClass("xc-hidden");
             }
             const node: DagNode = DagTable.Instance.getBindNode();
-            if (node == null) {
-                return;
-            }
             let $lis: JQuery = $menu.find(".exportTable, .multiCast, .jupyterTable, .advancedOptions");
-            if (this._isViewOnlyTab(node)) {
+            if (node == null || this._isViewOnlyTab(node)) {
                 // when it's publish tab or it's dest node
                 $lis.addClass("xc-hidden");
             } else {
                 $lis.removeClass("xc-hidden");
             }
-            this._toggleTableMenuOptions(node);
+            if (node != null) {
+                this._toggleTableMenuOptions(node);
+            }
         } catch (e) {
             console.error(e);
         }
