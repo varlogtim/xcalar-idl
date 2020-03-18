@@ -603,8 +603,7 @@ class ResourceMenu {
 
         $container.on("click", ".addTable", (event) => {
             event.stopPropagation();
-            $("#dataStoresTab").click();
-            DataSourceManager.startImport(true);
+            SourceModal.Instance.show();
         });
 
         $container.on("click", ".searchTable", (event) => {

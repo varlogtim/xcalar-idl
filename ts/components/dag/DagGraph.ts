@@ -2360,7 +2360,7 @@ class DagGraph extends Durable {
         } else if (needLinkNodes.size != 0) {
             let node: DagNode = needLinkNodes.values().next().value[0];
             throw ({
-                "error": "Link In Node is dependent on link out made after it.",
+                "error": "Function input is dependent on function output made after it.",
                 "node": node
             });
         } else if (nodeInputMap.size > 0) {

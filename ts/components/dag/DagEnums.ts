@@ -59,30 +59,30 @@ enum DagNodeErrorType {
     Unconfigured = "Unconfigured",
     MissingSource = "Missing Source",
     Invalid = "Invalid Configuration",
-    NoGraph = "Cannot find linked graph",
-    NoNode = "Invalid node that is not in the graph specified",
-    NoAggNode = "Corresponding aggregate node either does not exist or has not been executed",
+    NoGraph = "Cannot find linked function",
+    NoNode = "Invalid operator that is not in the graph specified",
+    NoAggNode = "Corresponding aggregate operator either does not exist or has not been executed",
     AggNotExecute = "Must execute the aggregate manually before using it",
     CycleInLink = "Cycle In Link",
-    LinkOutNotExecute = "The linked node only allow linking after execution",
-    InvalidLinkOutColumns = "Link out node must export at least 1 column in order to create optimized application",
-    InvalidOptimizedOutNode = "Valid terminal nodes must be either Export or Link Out node",
-    InvalidOptimizedOutNodeCombo = "Optimized application cannot have both Export and Link Out nodes",
-    InvalidOptimizedLinkOutCount = "Optimized application cannot have multiple Link Out nodes",
-    InvalidOptimizedLinkOutOptimizedCount = "Optimized application cannot have multiple Link Out nodes",
-    InvalidOptimizedDuplicateExport = "Optimized application cannot have multiple export nodes originating from the same node",
+    LinkOutNotExecute = "The linked operator only allow linking after execution",
+    InvalidLinkOutColumns = "Function outut operator must export at least 1 column in order to create optimized application",
+    InvalidOptimizedOutNode = "Valid terminal operators must be either Export or Function Output",
+    InvalidOptimizedOutNodeCombo = "Optimized application cannot have both Export and Function Output operators",
+    InvalidOptimizedLinkOutCount = "Optimized application cannot have multiple Function Output operators",
+    InvalidOptimizedLinkOutOptimizedCount = "Optimized application cannot have multiple Function Output operators",
+    InvalidOptimizedDuplicateExport = "Optimized application cannot have multiple export operators originating from the same operator",
     Disjoint = "Multiple disjoint modules detected. Optimized execution can only occur on 1 continuous module.",
     NoColumn = "Invalid column in the schema:\n",
     NoColumns = "Invalid columns in the schema:\n",
-    NoAccessToSource = "Dataset does not exist or you have no rights to access it. Please change the node configuration or restore the dastaset.",
+    NoAccessToSource = "Dataset does not exist or you have no rights to access it. Please change the configuration or restore the dastaset.",
     InvalidSQLFunc = "Invalid Table Function",
     SQLFuncOutDupCol = "Table function's output has duplicate column name (the output's column name is case insensitivie)"
 }
 
 enum DagNodeLinkInErrorType {
-    NoGraph = "Cannot find linked graph",
-    NoLinkInGraph = "Cannot find the linked node",
-    MoreLinkGraph = "More than one link out node with the same name specified by the linked in node are found"
+    NoGraph = "Cannot find linked function",
+    NoLinkInGraph = "Cannot find the linked operator",
+    MoreLinkGraph = "More than one function output with the same name specified by the function input operator are found"
 }
 
 enum DagGraphEvents {

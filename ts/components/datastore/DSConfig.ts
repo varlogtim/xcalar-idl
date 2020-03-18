@@ -2865,12 +2865,16 @@ namespace DSConfig {
             category = PatternCategory.Dataset;
         }
         name = <string>xcHelper.checkNamePattern(category,
-            PatternAction.Fix, name.split(".")[0], "");
+            PatternAction.Fix, name.split(".")[0], "_");
 
         if (!xcStringHelper.isStartWithLetter(name) && splitLen > 1) {
             // when starts with number
-            let prefix: string = <string>xcHelper.checkNamePattern(PatternCategory.Dataset,
-                PatternAction.Fix, paths[splitLen - 2], "");
+            let folderName: string = paths[splitLen - 2];
+            if (isCreateTableMode()) {
+                folderName = folderName.toUpperCase();
+            }
+            let prefix: string = <string>xcHelper.checkNamePattern(category,
+                PatternAction.Fix, folderName, "_");
             if (xcStringHelper.isStartWithLetter(prefix)) {
                 name = prefix + name;
             }

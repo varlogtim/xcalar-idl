@@ -458,7 +458,7 @@ namespace UserSettings {
         let logOutInterval = UserSettings.getPref("logOutInterval");
         let enableInactivityCheck = UserSettings.getPref("enableInactivityCheck");
         let enableXcalarSupport: boolean = UserSettings.getPref("enableXcalarSupport") || false;
-        const colorTheme = UserSettings.getPref("colorTheme");
+        const colorTheme = UserSettings.getPref("colorTheme") || CodeMirrorManager.DefaultColorTheme;
 
         if (!hideSyntaxHiglight) {
             $("#showSyntaxHighlight").addClass("checked");

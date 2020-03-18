@@ -1,5 +1,6 @@
 class CodeMirrorManager {
     private static _instance: CodeMirrorManager;
+    public static readonly DefaultColorTheme: string = "xcalar-dark";
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -10,7 +11,7 @@ class CodeMirrorManager {
 
     private constructor() {
         this._editors = [];
-        this._colorTheme = "xcalar-dark"; // default theme
+        this._colorTheme = CodeMirrorManager.DefaultColorTheme; // default theme
     }
 
     /**

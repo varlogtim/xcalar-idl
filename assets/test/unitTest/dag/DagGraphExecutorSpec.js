@@ -1,4 +1,4 @@
-describe("Dag Graph Executor Test", () => {
+describe("DagGraphExecutor Test", () => {
     // XXX needs more tests
     before((done) => {
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
@@ -100,7 +100,7 @@ describe("Dag Graph Executor Test", () => {
             let executor = new DagGraphExecutor([null], graph, {});
             let res = executor.checkCanExecuteAll();
             expect(res.hasError).to.be.true;
-            expect(res.type).to.equal("Invalid node that is not in the graph specified");
+            expect(res.type).to.equal(DagNodeErrorType.NoNode);
             expect(res.node).to.be.null;
         });
         it("checkCanExecuteAll - should fail due to invalid dataset", () => {
@@ -142,7 +142,7 @@ describe("Dag Graph Executor Test", () => {
             let res = executor.checkCanExecuteAll();
 
             expect(res.hasError).to.be.true;
-            expect(res.type).to.equal("Cannot find the linked node");
+            expect(res.type).to.equal(DagNodeLinkInErrorType.NoLinkInGraph);
             expect(res.node).to.equal(linkInNode);
         });
 
@@ -175,7 +175,7 @@ describe("Dag Graph Executor Test", () => {
             let executor = new DagGraphExecutor([mapNode], graph, {});
             let res = executor.checkCanExecuteAll();
             expect(res.hasError).to.be.true;
-            expect(res.type).to.equal("Corresponding aggregate node either does not exist or has not been executed");
+            expect(res.type).to.equal(DagNodeErrorType.NoAggNode);
             expect(res.node).to.equal(mapNode);
         });
 

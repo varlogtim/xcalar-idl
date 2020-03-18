@@ -186,12 +186,14 @@ class LoadConfig extends React.Component {
         // strip the suffix dot part and only keep a-zA-Z0-9.
         let category = PatternCategory.PTblFix;
         name = xcHelper.checkNamePattern(category,
-            PatternAction.Fix, name.split(".")[0], "");
+            PatternAction.Fix, name.split(".")[0], "_");
 
         if (!xcStringHelper.isStartWithLetter(name) && splitLen > 1) {
             // when starts with number
-            let prefix = xcHelper.checkNamePattern(PatternCategory.Dataset,
-                PatternAction.Fix, paths[splitLen - 2], "");
+            let folderName = paths[splitLen - 2];
+            folderName = folderName.toUpperCase();
+            let prefix = xcHelper.checkNamePattern(category,
+                PatternAction.Fix, folderName, "_");
             if (xcStringHelper.isStartWithLetter(prefix)) {
                 name = prefix + name;
             }

@@ -260,7 +260,7 @@ describe("Dag Graph Test", () => {
             try {
                 graph.getSortedNodes();
             } catch (e) {
-                expect(e.error).to.equal("Link In Node is dependent on link out made after it.");
+                expect(e.error).to.equal("Function input is dependent on function output made after it.");
                 expect(e.node.getId()).to.equal(n7.getId());
             }
             n7.setParam({
