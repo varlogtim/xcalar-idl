@@ -173,7 +173,7 @@
         color: "#000000",
         opacity: 1.00,
         manifest: [
-            {src:"../images/login/splashLogo.png", id:"FINAL XCALAR VIDEO TO UPLOAD TO XCALAR PRODUCT_atlas_"}
+            {src:"/../assets/images/login/splashLogo.png", id:"FINAL XCALAR VIDEO TO UPLOAD TO XCALAR PRODUCT_atlas_"}
         ],
         preloads: []
     };
