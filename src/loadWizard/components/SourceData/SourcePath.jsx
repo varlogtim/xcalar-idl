@@ -28,7 +28,9 @@ export default function SourcePath({
     onFileTypeChange = (newType) => {},
     onNextScreen
 }) {
-    const s3Bucket = DSTargetManager.getAvailableS3Bucket();
+    // the getAvailableS3Bucket is async call, it may not be ready the first it's rendernder,
+    // so need to put it in the onOpen callback
+    const [s3Bucket, setS3Bucket] = React.useState(DSTargetManager.getAvailableS3Bucket());
     return (
         <div className="sourceForm">
             <form onSubmit={(e) => { e.preventDefault(); }}>
@@ -42,6 +44,9 @@ export default function SourcePath({
                             }}
                             onSelect={(newBucket) => {
                                 onBucketChange(newBucket.trim());
+                            }}
+                            onOpen={() => {
+                                setS3Bucket(DSTargetManager.getAvailableS3Bucket());
                             }}
                             list={[
                                 {text: s3Bucket, value: s3Bucket}

@@ -35,6 +35,9 @@ export default class InputDropdown extends React.Component {
             open: true
         });
         document.addEventListener('mousedown', this.handleClickOutside);
+        if (typeof this.props.onOpen === "function") {
+            this.props.onOpen();
+        }
     }
 
     closeDropdown() {

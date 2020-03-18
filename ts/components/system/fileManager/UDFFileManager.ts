@@ -1041,7 +1041,8 @@ class UDFFileManager {
 
         return deferred.promise();
     }
-
+ 
+    // XXX it should change to detect if published table use any dataset
     private _warnDatasetUDF(udfPath: string, entireString: string): XDPromise<boolean> {
         return PromiseHelper.resolve(false);
         // XXX dataset is not used anymore
