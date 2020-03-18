@@ -209,13 +209,20 @@ async function getForensicsStats(bucketName, pathPrefix) {
     return stats;
 }
 
-async function createTableFromSchema(tableName, filePaths, schema, inputSerialization) {
+/**
+ *
+ * @param {string} tableName
+ * @param {[{ path:string, size:number }]} fileInfos [{ path, size }]
+ * @param {[{name, mapping, type}]} schema
+ * @param {*} inputSerialization
+ */
+async function createTableFromSchema(tableName, fileInfos, schema, inputSerialization) {
     const finalTableName = await DiscoverSchema.createTableFromSchema(
         tableName,
-        filePaths,
+        fileInfos,
         {
             numColumns: schema.length,
-            columnsList: schema
+            columns: schema
         },
         inputSerialization
     );

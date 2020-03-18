@@ -1,3 +1,7 @@
+/**
+ * XXX TODO: This should be part of the service
+ */
+
 // initial version is written by Tim Tucker
 //
 //
@@ -27,6 +31,7 @@
 // Hellllllaaa good test case stuff in: xcalar-gui/ts/thrift/MgmtTest.js
 //
 // const SupersetSchemas = require('./SupersetSchemas.js');
+import * as crypto from 'crypto'
 import { SupersetSchemas } from './SupersetSchemas.js'
 const supersetSchemas = new SupersetSchemas()
 
@@ -151,14 +156,20 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
 
     // make load args for BulkLoad.
     const sourceArgs = buildSourceLoadArgs(paths);
-    const parseArgs = getParseArgs(schema, inputSerialJson);
+    const { parserArgs, loadStore } = getParseArgs(schema, inputSerialJson, paths);
     // Load that dataset!!
     // await xcalarLoad(tHandle, myDatasetName, sourceArgs, parseArgs, 0);
     const options = {
         sources: sourceArgs,
-        ...parseArgs
+        ...parserArgs
     };
-    await XcalarDatasetLoad(myDatasetName, options);
+
+    try {
+        await loadStore.save();
+        await XcalarDatasetLoad(myDatasetName, options);
+    } finally {
+        await loadStore.delete();
+    }
     // do a bunch of table operations
     const hasDeleteComplement = await datasetToTableWithComplements(myDatasetName, tableName, compName);
     // clean up dataset
@@ -174,6 +185,31 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
     };
 }
 
+function createLoadStore({ kvSchema, kvLoad }) {
+    const storeSchema = new KVStore(kvSchema.key, gKVScope.GLOB);
+    const storeLoad = new KVStore(kvLoad.key, gKVScope.GLOB);
+
+    return {
+        save: async () => {
+            await Promise.all([
+                storeSchema.put(kvSchema.value, false),
+                storeLoad.put(kvLoad.value, false)
+            ]);
+        },
+        delete: async () => {
+            try {
+                await Promise.all([
+                    storeSchema.delete(),
+                    storeLoad.delete()
+                ]);
+            } catch(e) {
+                // Don't fail the cleanup, just log the error
+                console.error(e);
+            }
+        }
+    };
+}
+
 async function _cleanupTempTables(datasetName) {
     try {
         // Delete Temp Tables...
@@ -182,7 +218,7 @@ async function _cleanupTempTables(datasetName) {
         // will remove all the temporary tables :(
         const tableList = await xcalarListTables(tHandle, datasetName + '*');
         log("DEBUG: tableList: " + JSON.stringify(tableList));
-        
+
         const promises = [];
         for (let i = 0; i < tableList.nodeInfo.length; i++) {
             const tableData = tableList.nodeInfo[i];
@@ -454,38 +490,54 @@ function getSuccessfulPaths(discoverResponse) {
 }
 
 
-function getParseArgs(schema, inputSerial) {
-    // console.log('schema!!!')
-    // console.log(schema)
-    // XXX
-    // XXX This can raise an error. schema will be null if inputSerial as invalid
-    // XXX
-    //
-    // An error occurred (InvalidJsonType) when calling the SelectObjectContent operation: The LINE jsonType is invalid. Please check the service documentation and try again.
-    //
-    // Uncaught (in promise) TypeError: Cannot read property 'toObject' of null
-    //   at getParseArgs (VM237344 discover_schema_demo.js:363) (shown below)
-    //   at ttuckerRunStuff (VM237344 discover_schema_demo.js:77)
-    var parseArgs = {};
+function getParseArgs(schema, inputSerial, paths) {
     const [moduleName, funcName] = AWS_S3_SELECT_PARSER_NAME.split(":");
-    parseArgs.moduleName = moduleName
-    parseArgs.funcName = funcName
-    log("Input Serial: " + inputSerial);
-    // console.log('MY SCHEMA')
-    // console.log(schema)
-    const udfQuery = {
-        // calling schema.toObject() places the list of columns
-        // under the key 'columnsList' instead of 'columns' as
-        // specified in the interface description. I cannot seem
-        // to find any other method to convert this though so
-        // I worked around it inside the parser
-        // 'schema': schema.toObject(),
-        'schema': schema,
-        'input_serialization_args': inputSerial.toString()
+    const kvSchema = generateSchemaKeyValue(schema);
+    const kvLoad = generateLoadKeyValue(paths);
+    const parserArgs = {
+        moduleName: moduleName,
+        funcName: funcName,
+        udfQuery: {
+            'load_from_kvstore': true,
+            'load_key': kvLoad.key,
+            'schema_key': kvSchema.key,
+            'input_serialization_args': inputSerial.toString()
+        }
     };
-    log("getParserArgs() udfQuery: " + JSON.stringify(udfQuery));
-    parseArgs.udfQuery = udfQuery
-    return parseArgs;
+
+    return {
+        parserArgs: parserArgs,
+        loadStore: createLoadStore({
+            kvSchema: kvSchema,
+            kvLoad: kvLoad
+        })
+    };
+}
+
+function hashFunc(str) {
+    return crypto.createHash('md5').update(str).digest('hex');
+}
+
+function generateSchemaKeyValue(schema) {
+    // This algorithm is not stable, as JSON.stringify doesn't guarantee the field order
+    // but it's good enough to generate 'unique' keys
+    const prefix = 'LoadWizard/Schema/';
+    const value = JSON.stringify(schema);
+    return {
+        key: `${prefix}${hashFunc(value)}`,
+        value: value
+    };
+}
+
+function generateLoadKeyValue(paths) {
+    // This algorithm is not stable, as the result will change when the order of paths changes
+    // but it's good enough to generate 'unique' keys
+    const prefix = 'LoadWizard/LoadList/';
+    const value = JSON.stringify(paths);
+    return {
+        key: `${prefix}${hashFunc(value)}`,
+        value: value
+    };
 }
 
 function getLastSchema(discoverResponse) {
@@ -514,23 +566,13 @@ function getSchemas(discoverResponse) {
     return schemas;
 }
 
-
-
-
-
-function buildSourceLoadArgs(paths) {
-    // Build SourceArgsList
-    var sourceArgsList = []
-    paths.forEach(function(path){
-        var myDataSourceArgs = {};
-        myDataSourceArgs.targetName = AWS_TARGET_NAME;
-        myDataSourceArgs.path = path;
-        myDataSourceArgs.fileNamePattern = '';
-        myDataSourceArgs.recursive = false;
-        sourceArgsList.push(myDataSourceArgs);
-    });
-
-    return sourceArgsList;
+function buildSourceLoadArgs() {
+    return [{
+        targetName: AWS_TARGET_NAME,
+        path: '',
+        fileNamePattern: '',
+        recursive: false
+    }];
 }
 
 export async function discoverSchemas(paths, inputSerialization) {
@@ -598,44 +640,47 @@ export async function discoverSingleFile(path, inputSerialization) {
     console.log(discoveredFiles)
 }
 
-export async function createTableFromSchema(tableName, paths, schema, inputSerial=null) {
-    if (inputSerial == null) {
-        // there should be at least one path selected in GUI?
-        inputSerial = defaultInputSerialization(paths[0]);
-    }
+/**
+ *
+ * @param {*} tableName
+ * @param {[{ path, size }]} paths
+ * @param {{ numColumns, columns }} schema
+ * @param {*} inputSerial
+ */
+export async function createTableFromSchema(tableName, paths, schema, inputSerial) {
     return await createTableAndComplements(paths, schema, inputSerial, tableName);
 }
 
-export async function exampleCsvRun(tableName=null, paths=null, inputSerial=null) {
-    // Defaults
-    checkTableName(tableName); // FIX ME
-    if (paths == null) {
-        paths = [
-            '/xcfield/idm_demo/element_list_0.csv',
-            '/xcfield/idm_demo/element_list_1.csv',
-            '/xcfield/idm_demo/element_list_2.csv',
-            '/xcfield/idm_demo/element_list_3.csv',
-            '/xcfield/idm_demo/element_list_4.csv',
-            '/xcfield/idm_demo/element_list_5.csv'
-            // '/xcmarketplace-us-east-1/datasets/POSQ3.csv'
-        ];
-    }
-    if (inputSerial == null) {
-        inputSerial = {
-            'CSV': {'FileHeaderInfo': 'USE'}
+// export async function exampleCsvRun(tableName=null, paths=null, inputSerial=null) {
+//     // Defaults
+//     checkTableName(tableName); // FIX ME
+//     if (paths == null) {
+//         paths = [
+//             '/xcfield/idm_demo/element_list_0.csv',
+//             '/xcfield/idm_demo/element_list_1.csv',
+//             '/xcfield/idm_demo/element_list_2.csv',
+//             '/xcfield/idm_demo/element_list_3.csv',
+//             '/xcfield/idm_demo/element_list_4.csv',
+//             '/xcfield/idm_demo/element_list_5.csv'
+//             // '/xcmarketplace-us-east-1/datasets/POSQ3.csv'
+//         ];
+//     }
+//     if (inputSerial == null) {
+//         inputSerial = {
+//             'CSV': {'FileHeaderInfo': 'USE'}
 
-        };
-    }
+//         };
+//     }
 
 
-    const inputSerialJson = getInputSerial(inputSerial);
+//     const inputSerialJson = getInputSerial(inputSerial);
 
-    const discoverResponse = await discoverSchemas(paths, inputSerialJson);
-    const successfulPaths = getSuccessfulPaths(discoverResponse);
-    const schema = getLastSchema(discoverResponse);
+//     const discoverResponse = await discoverSchemas(paths, inputSerialJson);
+//     const successfulPaths = getSuccessfulPaths(discoverResponse);
+//     const schema = getLastSchema(discoverResponse);
 
-    await createTableAndComplements(successfulPaths, schema, inputSerial, tableName);
-}
+//     await createTableAndComplements(successfulPaths, schema, inputSerial, tableName);
+// }
 
 
 function log() {

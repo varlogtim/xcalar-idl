@@ -105,9 +105,29 @@ class LoadConfig extends React.Component {
     }
 
     async _createTableFromSchema(schemaName, tableName) {
-        const schemaFileMap = this._createSchemaFileMap(this.state.discoverFileSchemas);
-        const schemaInfo = schemaFileMap.get(schemaName);
-        if (!schemaInfo || !tableName) {
+        if (!tableName) {
+            console.error('Table name empty');
+            return;
+        }
+
+        // Find all the files in the schema <schemaName>
+        const schemaInfo = {
+            files: [],
+            columns: null
+        };
+        for (const [fileId, { name: sName, columns }] of this.state.discoverFileSchemas) {
+            if (sName === schemaName) {
+                const fileInfo = this.state.discoverFiles.get(fileId);
+                if (fileInfo != null) {
+                    schemaInfo.files.push({
+                        path: fileInfo.fullPath,
+                        size: fileInfo.sizeInBytes
+                    });
+                    schemaInfo.columns = columns;
+                };
+            }
+        }
+        if (schemaInfo.columns == null) {
             console.error('Non-existing Schema: ', schemaName);
             return;
         }
@@ -125,7 +145,7 @@ class LoadConfig extends React.Component {
             // {table, complementTable}
             const res = await S3Service.createTableFromSchema(
                 tableName,
-                schemaInfo.path,
+                schemaInfo.files,
                 schemaInfo.columns,
                 this.state.inputSerialization
             );
