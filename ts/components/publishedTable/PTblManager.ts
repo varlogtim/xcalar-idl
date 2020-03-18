@@ -448,7 +448,11 @@ class PTblManager {
                 "track": true,
                 "steps": 2
             });
-            const {queryStr, destTables} = await node.getSubGraph().getQuery(null, true);
+            const subGraph = node.getSubGraph();
+            if (!subGraph || subGraph.getAllNodes().size === 0) {
+                throw(new Error("Table could not be found or is missing source details."));
+            }
+            const {queryStr, destTables} = await subGraph.getQuery(null, true);
             const destTable: string = destTables[destTables.length - 1];
             await XIApi.query(txId, destTable, queryStr);
             await XcalarPublishTable(destTable, pbTableName, txId);
@@ -459,7 +463,7 @@ class PTblManager {
             console.error(e);
             if (txId) {
                 Transaction.fail(txId, {
-                    error: e.message,
+                    error: e.message || e,
                     failMsg: "Restore table failed"
                 });
             }

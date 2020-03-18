@@ -1,7 +1,6 @@
 class SQLResultSpace {
     private static _instance: SQLResultSpace;
     private _popup: PopupPanel;
-    private _preventShow: boolean = false;
     private _fetched: boolean = false;
 
     public static get Instance() {
@@ -123,28 +122,24 @@ class SQLResultSpace {
      */
     public async viewPublishedTable(tableName: string): Promise<void> {
         DagTable.Instance.close();
-        this._sqlTable.showPublishedTable(tableName);
-        this._sqlDataflowPreview.close();
+        setTimeout(() => {
+            // so we close after the showPublishTable call
+            this._sqlDataflowPreview.close();
+        });
+        return this._sqlTable.showPublishedTable(tableName);
     }
 
     /**
      * SQLResultSpace.Instance.showTables
      * @param reset
      */
-    public showTables(reset: boolean, firstTouch?: boolean): void {
+    public showTables(reset: boolean): void {
         if (!this._fetched) {
             reset = true;
             this._fetched = true;
         }
         this._sqlTableSchema.close();
         this._tableLister.show(reset);
-        // if (firstTouch && this._preventShow) {
-        //     // if trying to show for the first time but prevented because
-        //     // user had the panel closed last time, don't show this time but
-        //     // allow afterwards
-        //     this._preventShow = false;
-        //     return;
-        // }
         TableTabManager.Instance.openSQLTab();
     }
 
@@ -208,9 +203,6 @@ class SQLResultSpace {
         this._popup
         .on("Hide", (info: {restoring: boolean}) => {
             this._toggleDisplay(false);
-            if (info && info.restoring) {
-                this._preventShow = true;
-            }
         })
         .on("ResizeDocked", (state) => {
             if (state.dockedWidth != null) {
@@ -259,9 +251,6 @@ class SQLResultSpace {
     }
 
     private _toggleDisplay(display: boolean): void {
-        // if (display && this._preventShow) {
-        //     return;
-        // }
         const $resultSection = this._getResultSection();
         const $container = $resultSection.parent();
         if (display) {
