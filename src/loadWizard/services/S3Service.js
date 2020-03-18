@@ -49,14 +49,12 @@ async function flattenFileDir(fileDirList, fileNamePattern = '*') {
 
 async function listFiles(path, filter = (fileInfo) => true) {
     const fileInfos = new Map();
-
     const s3Files = await XcalarListFiles({
         "recursive": false,
         "targetName": "AWS Target",
         "path": path,
         "fileNamePattern": '*'
     });
-
     // XXX TODO: add comment about why slice(1)?
     for (const file of s3Files.files) {
         const fullFilePath = Path.join(path, file.name);

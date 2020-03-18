@@ -91,13 +91,13 @@ class BrowseDataSource extends React.Component {
         }
     }
 
-    _selectFiles(fileIds) {
+    _selectFiles(newSelectedFileIds) {
         const { selectedFileDir, fileMapViewing } = this.state;
         const selectedFiles = [...selectedFileDir];
-        for (const fileId of fileIds) {
-            const fileObj = fileMapViewing.get(fileId);
+        for (const newSelectedFileId of newSelectedFileIds) {
+            const fileObj = fileMapViewing.get(newSelectedFileId);
             if (fileObj == null) {
-                console.error(`Selected file(${fileId}) not exist`);
+                console.error(`Selected file(${newSelectedFileId}) not exist`);
                 continue;
             }
             selectedFiles.push({...fileObj});
@@ -132,7 +132,6 @@ class BrowseDataSource extends React.Component {
 
         const rootFullPath = Path.join(bucket, homePath);
         const currentFullPath = path;
-
         return (
             <div className="browseDataSourceScreen">
                 <div className="fileBrowserPath">

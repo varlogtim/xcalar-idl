@@ -15,44 +15,131 @@ const typeList = {
     "unsupported": "#333",
 };
 
-export default class SelectedFilesArea extends React.Component {
+const rowsPerPage = 20;
 
-    render() {
-        const {
-            selectedFileDir,
-            onDeselect,
-        } = this.props;
-        const {
-            columns: candidateListColumns,
-            options: candidateOptions,
-            fileList
-        } = prepareCandidateList(selectedFileDir, onDeselect);
+export default function SelectedFilesArea({
+    selectedFileDir,
+    onDeselect,
+}) {
 
-        const myTheme = createMuiTheme({
-            overrides: {
-              MUIDataTable: {
-                responsiveScrollMaxHeight: {
-                  maxHeight: '100% !important',
-                  flex: "1 1 auto"
+    const [page, setPage] = React.useState(0);
+
+    const changePage = (page) => {
+        candidateOptions.page = page;
+        setPage(page);
+    };
+
+    const prepareCandidateList = (selectedFileDir, onDeselect, fullList, initialSelectedIndices) => {
+
+        const columnDefs = [
+            {
+                name: "fullPath",
+                label: "Clear All",
+                options: { filter: false, sort: false }
+            }
+        ];
+
+        const options = {
+            filterType: "multiselect",
+            elevation: 0,
+            responsive: "scrollMaxHeight",
+            download: false,
+            print: false,
+            search: false,
+            sort: false,
+            filter: false,
+            viewColumns: false,
+            rowsPerPage: rowsPerPage,
+            rowsPerPageOptions: [],
+            onRowsSelect: (currentRowsSelected, allRowsSelected) => {
+                let unselectedFileIds;
+                if (currentRowsSelected.length === allRowsSelected.length) {
+                    // clear all was clicked
+                    unselectedFileIds = selectedFileDir.map(fileInfo => {
+                        return fileInfo.fileId;
+                    });
+                } else {
+                    unselectedFileIds = currentRowsSelected.map(row => {
+                        return fullList[(page * rowsPerPage) + row.dataIndex].fileId;
+                    });
+                }
+                onDeselect(new Set(unselectedFileIds));
+            },
+            rowsSelected: initialSelectedIndices,
+            disableToolbarSelect: true,
+            setTableProps: () => {
+                return {
+                padding: "none",
+                size: "small",
+                };
+            },
+            textLabels: {
+                body: {
+                noMatch: "",
+                },
+            },
+            count: fullList.length,
+            page: 0,
+            serverSide: true,
+            onTableChange: (action, tableState) => {
+                if (action === "changePage") {
+                    changePage(tableState.page);
                 }
             }
-        }});
-        return (
-            <div className="selectedFilesArea">
-                <div className="selectedFilesHeader">{Texts.selectListTitle}</div>
-                <SelectedFilesSummary fileList={selectedFileDir} />
-                {selectedFileDir.length ?
-                    <MuiThemeProvider theme={myTheme}>
-                        <MUIDataTable
-                            data={fileList}
-                            columns={candidateListColumns}
-                            options={candidateOptions}
-                        />
-                    </MuiThemeProvider>
-                 : null }
-            </div>
-        );
+        };
+
+        return {
+            columns: columnDefs,
+            options: options,
+            fileList: fullList
+        };
+    };
+
+    const {
+        fileList: fullFileList,
+        selectedIndices: initialSelectedIndices
+    } = createFileList(selectedFileDir);
+
+    let pageFileList = fullFileList.slice(rowsPerPage * page, rowsPerPage * (page + 1));
+
+    const {
+        columns: candidateListColumns,
+        options: candidateOptions,
+        fileList
+    } = prepareCandidateList(selectedFileDir, onDeselect, fullFileList, initialSelectedIndices);
+
+    const myTheme = createMuiTheme({
+        overrides: {
+            MUIDataTable: {
+            responsiveScrollMaxHeight: {
+                maxHeight: '100% !important',
+                flex: "1 1 auto"
+            }
+        }
+    }});
+
+    if (page > (Math.max(Math.ceil(fullFileList.length / rowsPerPage) - 1, 0))) {
+        const newPage = (Math.max(Math.ceil(fullFileList.length / rowsPerPage) - 1, 0))
+        pageFileList = fullFileList.slice(rowsPerPage * newPage, rowsPerPage * (newPage + 1));
+        changePage(newPage);
     }
+
+    return (
+        <div className="selectedFilesArea">
+            <div className="selectedFilesHeader">{Texts.selectListTitle}</div>
+            <SelectedFilesSummary fileList={selectedFileDir} />
+            {selectedFileDir.length ?
+                <MuiThemeProvider theme={myTheme}>
+                    <MUIDataTable
+                        data={pageFileList}
+                        columns={candidateListColumns}
+                        options={candidateOptions}
+                    />
+                </MuiThemeProvider>
+                : null }
+        </div>
+    );
+
 }
 
 function SelectedFilesSummary({fileList}) {
@@ -149,68 +236,5 @@ function createFileList(selectedFiles) {
     return {
         fileList: fileList,
         selectedIndices: selectedIndices,
-    };
-}
-
-
-function prepareCandidateList(selectedFileDir, onDeselect) {
-    const {
-        fileList: fullList,
-        selectedIndices: initialSelectedIndices
-    } = createFileList(selectedFileDir);
-    const columnDefs = [
-        {
-            name: "fullPath",
-            label: "Clear All",
-            options: { filter: false, sort: false }
-        }
-    ];
-
-    const options = {
-        filterType: "multiselect",
-        elevation: 0,
-        // responsive: "stacked",
-        responsive: "scrollMaxHeight",
-        download: false,
-        print: false,
-        search: false,
-        sort: false,
-        filter: false,
-        viewColumns: false,
-        rowsPerPage: 20,
-        rowsPerPageOptions: [],
-        onRowsSelect: (currentRowsSelected, allRowsSelected) => {
-            let unselectedFileIds;
-            if (!currentRowsSelected.length && !allRowsSelected.length) {
-                // clear all was clicked
-                unselectedFileIds = selectedFileDir.map(fileInfo => {
-                    return fileInfo.fileId;
-                });
-            } else {
-                unselectedFileIds = currentRowsSelected.map(row => {
-                    return fullList[row.dataIndex].fileId;
-                });
-            }
-            onDeselect(new Set(unselectedFileIds));
-        },
-        rowsSelected: initialSelectedIndices,
-        disableToolbarSelect: true,
-        setTableProps: () => {
-          return {
-            padding: "none",
-            size: "small",
-          };
-        },
-        textLabels: {
-          body: {
-            noMatch: "",
-          },
-        }
-    };
-
-    return {
-        columns: columnDefs,
-        options: options,
-        fileList: fullList
     };
 }
