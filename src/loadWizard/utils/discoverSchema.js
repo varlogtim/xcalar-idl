@@ -172,8 +172,6 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
     }
     // do a bunch of table operations
     const hasDeleteComplement = await datasetToTableWithComplements(myDatasetName, tableName, compName);
-    // clean up dataset
-    await _cleanupDataset(myDatasetName);
     PTblManager.Instance.addTable(tableName);
     if (!hasDeleteComplement) {
         PTblManager.Instance.addTable(compName);
@@ -210,25 +208,8 @@ function createLoadStore({ kvSchema, kvLoad }) {
     };
 }
 
-async function _cleanupTempTables(datasetName) {
-    try {
-        // Delete Temp Tables...
-        // All temp tables are prefixed with `datasetName`
-        // TODO: I think we might not need this because deleting the session
-        // will remove all the temporary tables :(
-        const tableList = await xcalarListTables(tHandle, datasetName + '*');
-        log("DEBUG: tableList: " + JSON.stringify(tableList));
-
-        const promises = [];
-        for (let i = 0; i < tableList.nodeInfo.length; i++) {
-            const tableData = tableList.nodeInfo[i];
-            promises.push(XcalarDeleteTable(tableData.name, null, false, true));
-            log("DELETED: " + JSON.stringify(tableData.name));
-        }
-        await Promise.all(promises);
-    } catch (e) {
-        console.error("clean up temp table fails", e);
-    }
+function _deleteTempTable(tableName) {
+    return XcalarDeleteTable(tableName, null, false, true);
 }
 
 async function _cleanupDataset(datasetName) {
@@ -270,21 +251,6 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     let dsName = DATASET_PREFIX + datasetName;
     let datasetInfo = await xcalarGetDatasetsInfo(tHandle, dsName);
     log("My Dataset Info: " + JSON.stringify(datasetInfo));
-
-    // Build temp table names to use
-    let indexedTableName = datasetName + "-indexed";
-    let mappedTableName = indexedTableName + '-map';
-    let tableNames = [];
-    let compNames = [];
-    for (let xx = 0; xx < 20; xx++) {
-        tableNames.push(datasetName + '-table-' + xx);
-        compNames.push(datasetName + '-comp-' + xx);
-    }
-    let tt = 0;
-    let cc = 0;
-
-    log("Determine names");
-
     // Determine the names of our table and complements columns
     let complementColumnNames = [icvColumnName, fileRecordNumColumnName, dataColumnName, pathColumnName];
     let tableColumnNames = [];
@@ -296,10 +262,17 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     log("TABLE COLUMN NAMES: " + JSON.stringify(tableColumnNames));
     log("COMPLEMENTS COLUMN NAMES: " + JSON.stringify(complementColumnNames));
 
+    let deletePromises = [];
+    let srcTableName = null;
+    let destTableName = null;
+    let srcCompTableName = null;
+    let destCompTableName = null;
     // Index Dataset
+    destTableName = genTableName(datasetName + "_indexed");
     await xcalarIndex(
-        tHandle, dsName,
-        indexedTableName,
+        tHandle,
+        dsName,
+        destTableName,
         [new XcalarApiKeyT({
             name: "xcalarRecordNum",
             type:"DfInt64",
@@ -317,13 +290,19 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
 
     // Map-casting all columns to strings - make table of immediates
     log("Mapping Table to produce immedates.");
-    await xcalarApiMap(tHandle, allColumnNames, allEvals, indexedTableName, mappedTableName);
+    srcTableName = destTableName;
+    destTableName = genTableName(datasetName + "_map");
+    await xcalarApiMap(tHandle, allColumnNames, allEvals, srcTableName, destTableName);
+    deletePromises.push(_deleteTempTable(srcTableName));
 
     // Add Xcalar Row Number PK
     const xcalarRowNumPkName = "XcalarRowNumPk";
     log("Adding Xcalar Row Number Primary Keys");
-    await xcalarApiGetRowNum(tHandle, xcalarRowNumPkName, mappedTableName, compNames[cc++]);
-    await xcalarApiGetRowNum(tHandle, xcalarRowNumPkName, mappedTableName, tableNames[tt++]);
+    srcTableName = destTableName;
+    srcCompTableName = destTableName;
+    destTableName = genTableName(datasetName + "_rowNum");
+    await xcalarApiGetRowNum(tHandle, xcalarRowNumPkName, srcTableName, destTableName);
+    deletePromises.push(_deleteTempTable(srcTableName));
 
     complementColumnNames.push(xcalarRowNumPkName);
     tableColumnNames.push(xcalarRowNumPkName);
@@ -331,15 +310,25 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     // Filter
     // At this point we need to run two filters to split of the table and it's complements.
     log("Filtering out the table and it's complements");
-    await xcalarFilter(tHandle, "neq(" + icvColumnName + ", '')", compNames[cc - 1], compNames[cc++]);
-    await xcalarFilter(tHandle, "eq(" + icvColumnName + ", '')", tableNames[tt - 1], tableNames[tt++]);
+    srcTableName = destTableName;
+    srcCompTableName = destTableName;
+    destTableName = genTableName(datasetName + "_filter");
+    destCompTableName = genTableName(datasetName + "_comp_filter");
+    await xcalarFilter(tHandle, "neq(" + icvColumnName + ", '')", srcCompTableName, destCompTableName);
+    await xcalarFilter(tHandle, "eq(" + icvColumnName + ", '')", srcTableName, destTableName);
+    deletePromises.push(_deleteTempTable(srcTableName));
+    deletePromises.push(_deleteTempTable(srcCompTableName));
 
     // Index on Xcalar Row Number PK
     log("Indexing on Xcalar Row Number Primary Key");
+    srcTableName = destTableName;
+    srcCompTableName = destCompTableName;
+    destTableName = genTableName(datasetName + "_index");
+    destCompTableName = genTableName(datasetName + "_comp_index");
     await xcalarIndex(
         tHandle,
-        compNames[cc - 1],
-        compNames[cc++],
+        srcCompTableName,
+        destCompTableName,
         [new XcalarApiKeyT({
             name: xcalarRowNumPkName,
             type: "DfInt64",
@@ -348,41 +337,73 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     );
     await xcalarIndex(
         tHandle,
-        tableNames[tt - 1],
-        tableNames[tt++],
+        srcTableName,
+        destTableName,
         [new XcalarApiKeyT({
             name: xcalarRowNumPkName,
             type: "DfInt64",
             keyFieldName:"",
             ordering:"Unordered"})]
     );
+    deletePromises.push(_deleteTempTable(srcTableName));
+    deletePromises.push(_deleteTempTable(srcCompTableName));
 
     // Project tables...
     log("Projecting columns for table and complements");
+    srcTableName = destTableName;
+    srcCompTableName = destCompTableName;
+    destTableName = genTableName(datasetName + "_project");
+    destCompTableName = genTableName(datasetName + "_comp_project");
     await xcalarProject(tHandle,
         complementColumnNames.length, complementColumnNames,
-        compNames[cc - 1], compNames[cc++]);
+        srcCompTableName, destCompTableName);
     await xcalarProject(tHandle,
         tableColumnNames.length, tableColumnNames,
-        tableNames[tt - 1], tableNames[tt++]);
+        srcTableName, destTableName);
+    deletePromises.push(_deleteTempTable(srcTableName));
+    deletePromises.push(_deleteTempTable(srcCompTableName));
+
+    // at this point we don't rely on fat pointer, so dataset can be dropped
+    log("Delete dataset");
+    try {
+        await Promise.all(deletePromises);
+    } catch (e) {
+        cosnole.error("delete table fails", e);
+    }
+    await _cleanupDataset(datasetName);
 
     // Map on XcalarOpCode and XcalarRankOver
     // TODO: figure out if this is actually needed, I don't think it is?
+    srcTableName = destTableName;
+    srcCompTableName = destCompTableName;
+    destTableName = genTableName(datasetName + "_rankOver");
+    destCompTableName = genTableName(datasetName + "_comp_rankOver");
     await xcalarApiMap(tHandle,
         ['XcalarOpCode', 'XcalarRankOver'], ['int(1)', 'int(1)'],
-        compNames[cc - 1], compNames[cc++]);
+        srcCompTableName, destCompTableName);
     await xcalarApiMap(tHandle,
         ['XcalarOpCode', 'XcalarRankOver'], ['int(1)', 'int(1)'],
-        tableNames[tt - 1], tableNames[tt++]);
+        srcTableName, destTableName);
+    _deleteTempTable(srcTableName);
+    _deleteTempTable(srcCompTableName);
 
     // Publish tables...
     log("Publishing tables... :)");
-    await createPublishTable(tableNames[tt - 1], finalTableName, false);
-    const hasDelete = await createPublishTable(compNames[cc - 1], finalComplementsName, true);
+    srcTableName = destTableName;
+    srcCompTableName = destCompTableName;
+    await createPublishTable(srcTableName, finalTableName, false);
+    const hasDelete = await createPublishTable(srcCompTableName, finalComplementsName, true);
     log("TABLE CREATED: '" + finalTableName + "'");
     log("COMPLEMENTS CREATED: '" + finalComplementsName + "'");
-    await _cleanupTempTables(datasetName);
+    _deleteTempTable(srcTableName);
+    _deleteTempTable(srcCompTableName);
+
     return hasDelete;
+}
+
+function genTableName(prefix) {
+    const rand = Math.floor(Math.random() * 1000 + 1);
+    return prefix + "_" + rand;
 }
 
 async function createPublishTable(resultSetName, pubTableName, deleteEmpty) {
