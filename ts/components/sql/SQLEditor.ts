@@ -273,7 +273,10 @@ class SQLEditor {
         );
         CodeMirrorManager.Instance.register(this._editor);
         this._addEventListeners();
-        this._setupHintMenu();
+        if (id === "sqlEditorSpace-editor") {
+            this._setupHintMenu();
+        }
+
         this.refresh();
     }
 
