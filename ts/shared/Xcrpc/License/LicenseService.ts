@@ -20,21 +20,45 @@ class LicenseService {
             const licenseService = new ApiLicense(this._apiClient);
             const response = await licenseService.get(request);
 
-            return {
-                isLoaded: response.getLoaded(),
-                isExpired: response.getExpired(),
-                platform: response.getPlatform(),
-                product: response.getProduct(),
-                productFamily: response.getProductFamily(),
-                productVersion: response.getProductVersion(),
-                expiration: response.getExpiration(),
-                nodeCount: response.getNodeCount(),
-                userCount: response.getUserCount(),
-                attributes: response.getAttributes(),
-                licensee: response.getLicensee(),
-                compressedLicenseSize: response.getCompressedLicenseSize(),
-                compressedLicense: response.getCompressedLicense()
-            };
+            // This is a hack to make branch migration work, as xcrpc naming convention is different on trunk than 2.0
+            // Remove this hack once all xcrpc changes are done with cherry-pick
+            let parsedResponse = null;
+            try {
+                // Trunk version
+                parsedResponse = {
+                    isLoaded: response.getLoaded(),
+                    isExpired: response.getExpired(),
+                    platform: response.getPlatform(),
+                    product: response.getProduct(),
+                    productFamily: response.getProductFamily(),
+                    productVersion: response.getProductVersion(),
+                    expiration: response.getExpiration(),
+                    nodeCount: response.getNodeCount(),
+                    userCount: response.getUserCount(),
+                    attributes: response.getAttributes(),
+                    licensee: response.getLicensee(),
+                    compressedLicenseSize: response.getCompressedLicenseSize(),
+                    compressedLicense: response.getCompressedLicense()
+                };
+            } catch(_) {
+                // 2.0 version
+                parsedResponse = {
+                    isLoaded: response.getLoaded(),
+                    isExpired: response.getExpired(),
+                    platform: response.getPlatform(),
+                    product: response.getProduct(),
+                    productFamily: response.getProductfamily(),
+                    productVersion: response.getProductversion(),
+                    expiration: response.getExpiration(),
+                    nodeCount: response.getNodecount(),
+                    userCount: response.getUsercount(),
+                    attributes: response.getAttributes(),
+                    licensee: response.getLicensee(),
+                    compressedLicenseSize: response.getCompressedlicenseSize(),
+                    compressedLicense: response.getCompressedlicense()
+                };
+            }
+            return parsedResponse;
         } catch (e) {
             throw parseError(e);
         }
