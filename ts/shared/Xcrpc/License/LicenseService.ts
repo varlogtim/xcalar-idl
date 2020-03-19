@@ -54,7 +54,7 @@ class LicenseService {
                     userCount: response.getUsercount(),
                     attributes: response.getAttributes(),
                     licensee: response.getLicensee(),
-                    compressedLicenseSize: response.getCompressedlicenseSize(),
+                    compressedLicenseSize: response.getCompressedlicensesize(),
                     compressedLicense: response.getCompressedlicense()
                 };
             }
