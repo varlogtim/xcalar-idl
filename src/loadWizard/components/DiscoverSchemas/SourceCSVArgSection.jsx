@@ -1,5 +1,7 @@
 import * as React from "react";
-import { InputSerializationFactory } from '../../services/SchemaService';
+import * as AdvOption from './AdvanceOption'
+import InputDropdown from "../../../components/widgets/InputDropdown"
+import { InputSerializationFactory, CSVHeaderOption } from '../../services/SchemaService';
 
 // XXX TODO: getProps and onInputChange should change to a passed in props
 // instead of self-contained state
@@ -8,57 +10,80 @@ export default class SourceCSVArgSection extends React.Component{
         super(props);
 
         this.state = {
-            args: this.getCSVArgs(props.config)
+            csvConfig: {...props.config.CSV},
+            errorInputs: {}
         };
-        this.onInputChange = this.onInputChange.bind(this);
     }
 
     render() {
-        const { config, onConfigChange } = this.props;
-        const initConfig = this.getCSVArgs(config);
-        const isConfigChanged = this._isConfigChanged(initConfig, this.state.args);
-        const hasError = this._hasError(this.state.args);
+        const { config: initConfig, onConfigChange } = this.props;
+        const { csvConfig, errorInputs } = this.state;
+
+        const isConfigChanged = this._isConfigChanged(initConfig.CSV, csvConfig);
+        const hasError = Object.keys(errorInputs).length > 0;
+        const { FileHeaderInfo, AllowQuotedRecordDelimiter } = csvConfig;
 
         return (
-            <div className="SourceCSVArgSection">
+            <AdvOption.OptionGroup>
+                <CSVArgChoice
+                    label="Header Option:"
+                    value={FileHeaderInfo}
+                    options={
+                        [CSVHeaderOption.USE, CSVHeaderOption.IGNORE, CSVHeaderOption.NONE].map(
+                            (v) => ({text: v, value: v})
+                        )
+                    }
+                    onChange={(v) => {
+                        this.setState((state) => {
+                            state.csvConfig.FileHeaderInfo = v;
+                            return state;
+                        })
+                    }}
+                />
                 {
-                    this.state.args.map((arg) => {
+                    this.getCSVInputs(csvConfig, errorInputs).map((arg) => {
                         const options = {
                             ...arg,
-                            onChange: this.onInputChange
+                            onChange: (k, v) => this.onInputChange(k, v)
                         }
-                        return <CSVArgRow key={arg.keyword} {...options}></CSVArgRow>
+                        return <CSVArgInput key={arg.keyword} {...options}></CSVArgInput>
                     })
                 }
+                <CSVArgCheck
+                    label="Allow Quoted Record Delimiter:"
+                    checked={AllowQuotedRecordDelimiter}
+                    onChange={(checked) => {
+                        this.setState((state) => {
+                            state.csvConfig.AllowQuotedRecordDelimiter = checked;
+                            return state;
+                        })
+                    }}
+                />
                 {
                     isConfigChanged && !hasError
-                        ? <button
-                            className="btn btn-secondary"
-                            onClick={() => {
-                                onConfigChange(this.convert(this.state.args));
-                            }}>Done</button>
+                        ? <AdvOption.Option>
+                            <AdvOption.OptionLabel></AdvOption.OptionLabel>
+                            <AdvOption.OptionValue>
+                                <button
+                                className="btn btn-secondary"
+                                onClick={() => {
+                                    onConfigChange(this.convert(this.state.csvConfig));
+                                }}>Done</button>
+                            </AdvOption.OptionValue>
+                        </AdvOption.Option>
                         : null
                 }
-            </div>
+            </AdvOption.OptionGroup>
         )
     }
 
-    _hasError(args) {
-        for (const { error } of args) {
-            if (error) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     _isConfigChanged(c1, c2) {
-        const m2 = {};
-        for (const {keyword, value} of c2) {
-            m2[keyword] = value;
+        if (Object.keys(c1).length !== Object.keys(c2).length) {
+            return true;
         }
-        for (const {keyword, value} of c1) {
-            if (value !== m2[keyword]) {
+
+        for (const [key, value] of Object.entries(c2)) {
+            if (c1[key] !== value) {
                 return true;
             }
         }
@@ -91,38 +116,55 @@ export default class SourceCSVArgSection extends React.Component{
         }
     }
 
-    convert(args) {
-        const map = {};
-        for (const arg of args) {
-            map[arg.keyword] = arg.value;
-        }
+    convert(csvConfig) {
+        const {
+            FileHeaderInfo,
+            QuoteEscapeCharacter,
+            RecordDelimiter,
+            FieldDelimiter,
+            QuoteCharacter,
+            AllowQuotedRecordDelimiter
+        } = csvConfig;
         return InputSerializationFactory.createCSV({
-            recordDelimiter: map.recordDelimiter,
-            fieldDelimiter: map.fieldDelimiter,
-            quoteChar: map.quoteChar
+            headerOption: FileHeaderInfo,
+            recordDelimiter: RecordDelimiter,
+            fieldDelimiter: FieldDelimiter,
+            quoteChar: QuoteCharacter,
+            quoteEscapeChar: QuoteEscapeCharacter,
+            allowQuotedRecordDelimiter: AllowQuotedRecordDelimiter
         });
     }
 
-    onInputChange(key, value) {
-        const args = this.state.args;
-        for (let arg of args) {
-            if (arg.keyword === key) {
-                if (value === "") {
-                    // empty case
-                    arg.value = "";
-                    arg.error = true;
-                } else if (arg.isNumber) {
-                    arg.value = parseInt(value);
-                    arg.error = false;
-                } else {
-                    const {delim, error} = this._delimiterTranslate(value);
-                    arg.value = delim;
-                    arg.error = error;
-                }
-                break;
-            }
+    onInputChange(key, value, isNumber) {
+        if (this.state.csvConfig[key] == null) {
+            console.error('Key not found: ', key);
+            return;
         }
-        this.setState({ args });
+
+        let argValue = '';
+        let argError = false;
+        if (value === "") {
+            // empty case
+            argValue = "";
+            argError = true;
+        } else if (isNumber) {
+            argValue = parseInt(value);
+            argError = false;
+        } else {
+            const {delim, error} = this._delimiterTranslate(value);
+            argValue = delim;
+            argError = error;
+        }
+
+        this.setState((state) => {
+            if (argError) {
+                state.errorInputs[key] = 'anything';
+            } else {
+                delete state.errorInputs[key];
+            }
+            state.csvConfig[key] = argValue;
+            return state;
+        });
     }
 
     /**
@@ -133,29 +175,34 @@ export default class SourceCSVArgSection extends React.Component{
      * error (boolean)
      * isNumber (boolean)
      */
-    getCSVArgs(config) {
-        const csvConfig = config.CSV;
+    getCSVInputs(config, errors = {}) {
         const {
             RecordDelimiter,
             FieldDelimiter,
-            QuoteCharacter
-        } = csvConfig;
+            QuoteCharacter,
+            QuoteEscapeCharacter
+        } = config;
 
         return [{
             "text": "Record Delimiter",
-            "keyword": "recordDelimiter",
+            "keyword": "RecordDelimiter",
             "value": RecordDelimiter,
-            "error": false,
+            "error": errors['RecordDelimiter'] != null
         }, {
             "text": "Field Delimiter",
-            "keyword": "fieldDelimiter",
+            "keyword": "FieldDelimiter",
             "value": FieldDelimiter,
-            "error": false
+            "error": errors['FieldDelimiter'] != null
         }, {
             "text": "Quoting Character",
-            "keyword": "quoteChar",
+            "keyword": "QuoteCharacter",
             "value": QuoteCharacter,
-            "error": false,
+            "error": errors['QuoteCharacter'] != null,
+        }, {
+            "text": "Quoting Escape Character",
+            "keyword": "QuoteEscapeCharacter",
+            "value": QuoteEscapeCharacter,
+            "error": errors['QuoteEscapeCharacter'] != null,
         }];
     }
 }
@@ -163,7 +210,7 @@ export default class SourceCSVArgSection extends React.Component{
  *
  * @param {text, keyword, default, onChange} props
  */
-function CSVArgRow(props) {
+function CSVArgInput(props) {
     const {text, keyword, value, onChange, error, isNumber} = props;
     const strinfigyVal = (val) => {
         if (typeof val === "string") {
@@ -181,14 +228,62 @@ function CSVArgRow(props) {
         classNames.push("error");
     }
     return (
-        <div className="row">
-            <label>{text}:</label>
-            <input
-                className={classNames.join(" ")}
-                type={inputType}
-                value={strinfigyVal(value)}
-                onChange={e => onChange(keyword, e.target.value)}
-            />
-        </div>
+        <AdvOption.Option>
+            <AdvOption.OptionLabel>{text}:</AdvOption.OptionLabel>
+            <AdvOption.OptionValue>
+                <input
+                    className={classNames.join(" ")}
+                    type={inputType}
+                    value={strinfigyVal(value)}
+                    onChange={e => onChange(keyword, e.target.value, isNumber)}
+                />
+            </AdvOption.OptionValue>
+        </AdvOption.Option>
     )
+}
+
+function CSVArgChoice(props) {
+    const { label, value, options, onChange } = props;
+    return (
+        <AdvOption.Option>
+            <AdvOption.OptionLabel>{label}</AdvOption.OptionLabel>
+            <AdvOption.OptionValue>
+                <InputDropdown
+                    val={value}
+                    onInputChange={(v) => {
+                        if (v !== value) {
+                            onChange(v);
+                        }
+                    }}
+                    onSelect={(v) => {
+                        if (v !== value) {
+                            onChange(v);
+                        }
+                    }}
+                    list={
+                        options.map(({ text, value }) => {
+                            return {text: text, value: value};
+                        })
+                    }
+                    readOnly
+                />
+            </AdvOption.OptionValue>
+        </AdvOption.Option>
+    )
+}
+
+function CSVArgCheck(props) {
+    const { label, checked, onChange } = props;
+
+    const iconClasses = ['icon', checked ? 'xi-ckbox-selected' : 'xi-ckbox-empty'];
+    return (
+        <AdvOption.Option>
+            <AdvOption.OptionLabel onClick={() => {onChange(!checked)}}>{label}</AdvOption.OptionLabel>
+            <AdvOption.OptionValue>
+                <div className="csvArgs-chkbox">
+                    <i className={iconClasses.join(' ')}  onClick={() => { onChange(!checked); }} />
+                </div>
+            </AdvOption.OptionValue>
+        </AdvOption.Option>
+    );
 }

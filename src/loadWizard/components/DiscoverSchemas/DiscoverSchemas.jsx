@@ -176,13 +176,6 @@ class DiscoverSchemas extends React.Component {
                         totalCount={discoverFiles.length}
                     />
                     {/* <CostEstimation files={discoverFiles} /> */}
-                    {/* {(!needConfig)? null : <SourceCSVArgSection
-                        config={inputSerialization}
-                        onConfigChange={(newConfig) => {
-                            this.setState({ schemaShowing: null });
-                            onInputSerialChange(newConfig);
-                        }}
-                    />} */}
                     <AdvOption.Container>
                         <AdvOption.Title>{Texts.advancedOptions}</AdvOption.Title>
                         {
@@ -194,7 +187,7 @@ class DiscoverSchemas extends React.Component {
                                 }}
                             /></AdvOption.Option> : null
                         }
-                        <AdvOption.Option>
+                        <AdvOption.OptionGroup><AdvOption.Option>
                             <AdvOption.OptionLabel>{Texts.optionSchema}</AdvOption.OptionLabel>
                             <AdvOption.OptionValue><InputDropdown
                                 val={schemaPolicy}
@@ -213,7 +206,7 @@ class DiscoverSchemas extends React.Component {
                                 readOnly
                                 disabled={isDiscoverInProgress}
                             /></AdvOption.OptionValue>
-                        </AdvOption.Option>
+                        </AdvOption.Option></AdvOption.OptionGroup>
                     </AdvOption.Container>
                     <DiscoverTable
                         discoverFiles={discoverFiles}

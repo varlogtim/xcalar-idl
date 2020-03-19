@@ -8,12 +8,20 @@ function Title({ children }) {
     return <header className="advOption-header">{children}</header>
 }
 
+function OptionGroup({ children }) {
+    return <div className="advOption-group">{children}</div>
+}
+
 function Option({ children }) {
     return <div className="advOption-option">{children}</div>
 }
 
-function OptionLabel({ children }) {
-    return <label className="advOption-option-label">{children}</label>
+function OptionLabel({ onClick, children }) {
+    if (onClick != null) {
+        return <label className="advOption-option-label" onClick={onClick}>{children}</label>
+    } else {
+        return <label className="advOption-option-label">{children}</label>
+    }
 }
 
 function OptionValue({ children }) {
@@ -23,6 +31,7 @@ function OptionValue({ children }) {
 export {
     Container,
     Title,
+    OptionGroup,
     Option,
     OptionLabel,
     OptionValue

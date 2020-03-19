@@ -481,8 +481,12 @@
             font-weight: 600;
         }
 
+        .advOption-group {
+            flex-grow: 1;
+        }
+
         .advOption-option {
-            margin: 4px 0 8px 0;
+            margin: 4px 0;
             padding: 0;
             width: 100%;
             display: flex;
@@ -497,8 +501,15 @@
         }
 
         .advOption-option-value {
+            flex-grow: 1;
             .clearfix();
         }
+    }
+
+    .csvArgs-chkbox {
+        height: 30px;
+        display: flex;
+        align-items: center;
     }
 
     .schemaBtn {
