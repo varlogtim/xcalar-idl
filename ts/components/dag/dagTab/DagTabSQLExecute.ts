@@ -69,4 +69,11 @@ class DagTabSQLExecute extends DagTabUser {
 
         return deferred.promise();
     }
+
+    /**
+     * @override
+     */
+    public isEditable(): boolean {
+        return false;
+    }
 }

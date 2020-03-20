@@ -445,16 +445,29 @@ class SQLEditorSpace {
         }
         console.error(error);
         let errorMsg: string;
-        if (error instanceof Error) {
-            errorMsg = error.message;
-        } else if (typeof error === "string") {
-            errorMsg = error;
-        } else {
+        let detail: string;
+        try {
+            if (error instanceof Error) {
+                errorMsg = error.message;
+            } else if (typeof error === "string") {
+                errorMsg = error;
+            } else if (error.status != null) {
+                errorMsg = error.error;
+                detail = error.log;
+                if (error.status === StatusT.StatusAstNoSuchFunction) {
+                    errorMsg = error.error + "\n If there is any scalar function used in the SQL, please make sure it's defined in sql.py.";
+                }
+            } else {
+                errorMsg = JSON.stringify(error);
+            }
+        } catch (e) {
+            console.error(e);
             errorMsg = JSON.stringify(error);
         }
         Alert.show({
             title: SQLErrTStr.Err,
             msg: errorMsg,
+            detail: detail,
             isAlert: true,
             align: "left",
             preSpace: true,
