@@ -160,6 +160,7 @@ class BrowseDataSource extends React.Component {
                             onPathChange={(newFullPath) => { this._browsePath(newFullPath, fileType); }}
                             onSelect={(fileIds) => { this._selectFiles(fileIds); }}
                             onDeselect={(fileIds) => { this._deselectFiles(fileIds); }}
+                            fileType={fileType}
                         />
                     }
                     </div>

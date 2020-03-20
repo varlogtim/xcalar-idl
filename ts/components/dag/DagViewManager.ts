@@ -496,13 +496,6 @@ class DagViewManager {
         newDagView.render(noEvents);
     }
 
-    public addProgressPct(nodeId: DagNodeId, tabId: string, pct?: number, step?: number, times?: number[], state?: string, noPct?: boolean): void {
-        const dagView: DagView = this.dagViewMap.get(tabId);
-        if (dagView) {
-            dagView.addProgressPct(nodeId, pct, step, times, state, noPct);
-        }
-    }
-
     public getDagViewById(tabId: string): DagView {
         return this.dagViewMap.get(tabId);
     }

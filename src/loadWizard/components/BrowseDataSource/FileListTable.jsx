@@ -22,7 +22,8 @@ function FileListTable(props) {
         selectedIds,
         onSelect,
         onDeselect,
-        onPathChange
+        onPathChange,
+        fileType
     } = props;
 
     const [page, setPage] = React.useState(0);
@@ -182,7 +183,7 @@ function FileListTable(props) {
             },
             textLabels: {
               body: {
-                noMatch: "",
+                noMatch: `No ${fileType} files or directories found.`,
               }
             },
             count: fullFileList.length,
@@ -226,17 +227,24 @@ function FileListTable(props) {
     const myTheme = createMuiTheme({
         overrides: {
             MUIDataTable: {
-            responsiveScrollMaxHeight: {
-                maxHeight: '100% !important',
-                flex: "1 1 auto"
+                responsiveScrollMaxHeight: {
+                    maxHeight: '100% !important',
+                    flex: "1 1 auto"
+                },
+
+            },
+            MUIDataTableBody: {
+                emptyTitle: {
+                    display: "block"
+                }
             }
-            }
-    }});
+        }
+    });
 
     return (
         <MuiThemeProvider theme={myTheme}>
             <MUIDataTable
-                title={Texts.fileListTitle}
+                title={Texts.fileListTitle + " - " + fileType}
                 data={pageFileList}
                 columns={candidateListColumns}
                 options={candidateOptions}

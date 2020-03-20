@@ -1067,7 +1067,7 @@ class DagView {
     private _renderAllNodes(nodes) {
         let $nodes = $();
         nodes.forEach((node: DagNode) => {
-            this._addProgressTooltipForNode(node);
+            this._addProgressTooltips(node);
             $nodes = $nodes.add(this._drawNode(node, false, true));
         });
 
@@ -2425,7 +2425,7 @@ class DagView {
                     $svg: $svg
                 });
                 expandLogParam.options.actions.push(addLogParam.options);
-                this._addProgressTooltipForNode(node);
+                this._addProgressTooltips(node);
             });
             this.$dfArea.find(".edgeSvg").after($svg);
             DagAggManager.Instance.updateNodeIds(aggNodeUpdates);
@@ -3000,15 +3000,15 @@ class DagView {
         StatusMessage.updateLocation(true, text); // update operation time
     }
 
-    public addProgressPct(nodeId: DagNodeId, pct?: number, step?: number, times?: number[], state?: any, noPct?: boolean): void {
+    // for tooltip above the operator node - shows time and %
+    private _addOperatorProgressTooltip(nodeId: DagNodeId, pct?: number, step?: number, times?: number[], state?: any, noPct?: boolean): void {
         const node: DagNode = this.graph.getNode(nodeId);
         if (!node) return;
         if (node instanceof DagNodeSQLSubInput ||
             node instanceof DagNodeSQLSubOutput ||
             node instanceof DagNodeCustomInput ||
             node instanceof DagNodeCustomOutput ||
-            node instanceof DagNodePublishIMD ||
-            node instanceof DagNodeExport
+            node instanceof DagNodePublishIMD
         ) {
             return;
         }
@@ -3035,73 +3035,77 @@ class DagView {
     }
 
       /**
-     * updateNodeProgress
-     * @param nodeId
+     * _updateNodeProgress
+     * @param dagNode
      * @param tabId
      * @param progress
      * @param skewInfos
      * @param timeStrs
      * @param broadcast
      */
-    public updateNodeProgress(
-        nodeId: DagNodeId,
+    private _updateNodeProgress(
+        node: DagNode,
         tabId: string,
         stats: any,
         skewInfos?: any[],
         times?: number[]
     ): void {
-        const $dfArea: JQuery = DagViewManager.Instance.getAreaByTab(tabId);
+        if (!stats.started || !node) {
+            return;
+        }
         let pct: number = (stats.state === DgDagStateT.DgDagStateReady) ? 100 : stats.curStepPct;
         let step = (stats.curStep > 1) ? stats.curStep : null;// do not show step if on step 1
 
         const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
-        let node: DagNode;
+        let nodeId: string = node.getId();
         const graph = dagTab.getGraph();
 
-        node = graph.getNode(nodeId);
-        if (stats.started && node) {
-            const noPct = (node.getState() === DagNodeState.Complete ||
-            node.getState() === DagNodeState.Error);
-            DagViewManager.Instance.addProgressPct(nodeId, tabId, pct, step, times, stats.state, noPct);
+
+        const noPct = (node.getState() === DagNodeState.Complete ||
+                        node.getState() === DagNodeState.Error);
+
+        // for the tooltip above the operator node icon
+        this._addOperatorProgressTooltip(nodeId, pct, step, times, stats.state, noPct);
+
+        if (!skewInfos) {
+            return;
         }
 
+        this.$dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
+        if (dagTab == null) {
+            // sql graph may not have tab registered with dagTabManager
+            return;
+        }
 
-        if (skewInfos && stats.started) {
-            $dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
-            if ((dagTab == null || node == null)) {
-                // sql graph may not have tab registered with dagTabManager
-                return;
+        this._addTableTooltip(graph, node, this.$dfArea, skewInfos, stats.state);
+
+        if (stats.state !== DgDagStateT.DgDagStateReady) {
+            return;
+        }
+        const totalTime: number = times.reduce((a, b) => a + b, 0);
+        let shouldUpdate: boolean = false;
+        if (node instanceof DagNodeCustom) {
+            // custom node need to update till all is done
+            let subNodeCnt: number = 0;
+            node.getSubGraph().getAllNodes().forEach((node) => {
+                if (!(node instanceof DagNodeCustomInput) &&
+                    !(node instanceof DagNodeCustomOutput)
+                ) {
+                    subNodeCnt++;
+                }
+            });
+            if (subNodeCnt === times.length) {
+                shouldUpdate = true;
             }
+        } else {
+            shouldUpdate = true;
+        }
 
-            this._addProgressTooltip(graph, node, $dfArea, skewInfos, stats.state);
-
-            if (stats.state === DgDagStateT.DgDagStateReady) {
-                const totalTime: number = times.reduce((a, b) => a + b, 0);
-                let shouldUpdate: boolean = false;
-                if (node instanceof DagNodeCustom) {
-                    // custom node need to update till all is done
-                    let subNodeCnt: number = 0;
-                    node.getSubGraph().getAllNodes().forEach((node) => {
-                        if (!(node instanceof DagNodeCustomInput) &&
-                            !(node instanceof DagNodeCustomOutput)
-                        ) {
-                            subNodeCnt++;
-                        }
-                    });
-                    if (subNodeCnt === times.length) {
-                        shouldUpdate = true;
-                    }
-                } else {
-                    shouldUpdate = true;
-                }
-
-                if (shouldUpdate) {
-                    graph.updateOperationTime(totalTime);
-                    const dagView: DagView = DagViewManager.Instance.getDagViewById(tabId);
-                    if (dagView) {
-                        dagView.updateOperationTime(true);
-                    }
-                }
+        if (shouldUpdate) {
+            graph.updateOperationTime(totalTime);
+            const dagView: DagView = DagViewManager.Instance.getDagViewById(tabId);
+            if (dagView) {
+                dagView.updateOperationTime(true);
             }
         }
     }
@@ -3216,7 +3220,8 @@ class DagView {
         }
     }
 
-    private _addProgressTooltip(
+    // for the tooltip above the table icon
+    private _addTableTooltip(
         graph: DagGraph,
         node: DagNode,
         $dfArea: JQuery,
@@ -3234,6 +3239,9 @@ class DagView {
             return;
         }
         if (node instanceof DagNodeSQL && node.isHidden()) {
+            return;
+        }
+        if (node instanceof DagNodeModule && !this._shouldShowModuleTableIcon(node)) {
             return;
         }
 
@@ -3262,7 +3270,8 @@ class DagView {
         $tip.data("skewinfo", skewData);
     }
 
-    private _addProgressTooltipForNode(
+    // for both tooltips above the operator and table icons
+    private _addProgressTooltips(
         node: DagNode
     ): void {
         try {
@@ -3280,8 +3289,8 @@ class DagView {
                         times.push(nodeStat.elapsedTime);
                     }
                 });
-                this._addProgressTooltip(this.graph, node, this.$dfArea, skewInfos, overallStats.state);
-                this.addProgressPct(node.getId(), null, null, times, overallStats.state, true);
+                this._addTableTooltip(this.graph, node, this.$dfArea, skewInfos, overallStats.state);
+                this._addOperatorProgressTooltip(node.getId(), null, null, times, overallStats.state, true);
             }
         } catch (e) {
             console.error(e);
@@ -3855,7 +3864,7 @@ class DagView {
         });
 
         this._registerGraphEvent(this.graph, DagNodeEvents.ProgressChange, (info) => {
-            this._addProgressTooltipForNode(info.node);
+            this._addProgressTooltips(info.node);
             DagNodeInfoPanel.Instance.update(info.node.getId(), "stats");
         });
 
@@ -3909,7 +3918,7 @@ class DagView {
                     times.push(nodeStat.elapsedTime);
                 }
             });
-            this.updateNodeProgress(info.node.getId(), this.tabId, info.overallStats, skewInfos, times);
+            this._updateNodeProgress(info.node, this.tabId, info.overallStats, skewInfos, times);
             DagNodeInfoPanel.Instance.update(info.node.getId(), "stats");
         });
     }
@@ -5865,5 +5874,13 @@ class DagView {
         } catch (e) {
             console.error("focus on running node error", e);
         }
+    }
+
+    private _shouldShowModuleTableIcon(node: DagNodeModule) {
+        let tailNodes = node.getTailNodes();
+        if (tailNodes.length === 1 && tailNodes[0] instanceof DagNodeExport) {
+            return false;
+        }
+        return true;
     }
 }

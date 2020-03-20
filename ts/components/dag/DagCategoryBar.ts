@@ -574,7 +574,7 @@ class DagCategoryBar {
             '<svg class="opTitleWrap" width="' + (DagView.nodeWidth - 2) + '" height="' + DagView.nodeHeight + '" x="1" y="1">' +
                 opTitleHtml + '</svg>' +
             '<circle class="statusIcon" cx="' + (DagView.nodeWidth - 12) + '" cy="' + (DagView.nodeHeight - 2) + '" r="2.5" ' +
-                'stroke="' + this._borderColor + '" stroke-width="1" fill="white" />' +
+                'stroke="' + this._borderColor + '" stroke-width="0.5" fill="white" />' +
             '</g>';
 
         return html;

@@ -453,7 +453,7 @@ describe("DagView Test", () => {
         });
 
         it("should add progress", () => {
-            DagViewManager.Instance.addProgressPct(nodeId, tabId);
+            DagViewManager.Instance.getActiveDagView()._addOperatorProgressTooltip(nodeId);
             expect($('.nodeStats[data-id="' + nodeId + '"]').find(".progress").text()).to.equal("0%");
             expect($('.nodeStats[data-id="' + nodeId + '"]').find(".time").text()).to.equal("Time: 0ms");
         });
@@ -466,7 +466,7 @@ describe("DagView Test", () => {
                 called = true;
             }
 
-            dagView.updateNodeProgress(nodeId, tabId, {state: 5, curStep: 1, started: true}, [], [10], false);
+            dagView._updateNodeProgress(filterNode, tabId, {state: 5, curStep: 1, started: true}, [], [10], false);
 
             expect(called).to.be.true;
             expect(dagView.graph.getOperationTime()).to.equal(10);
@@ -505,16 +505,16 @@ describe("DagView Test", () => {
                         }
                     }
                 }
-                let cache = dagView.updateNodeProgress;
+                let cache = dagView._updateNodeProgress;
                 called2 = false;
-                dagView.updateNodeProgress = () => {
+                dagView._updateNodeProgress = () => {
                     called2 = true;
                 }
                 dagView._updateSubGraphProgress(node, {queryGraph: {node: null}});
                 expect(called).to.be.true;
                 expect(called2).to.be.true;
 
-                dagView.updateNodeProgress = cache;
+                dagView._updateNodeProgress = cache;
             });
         });
 

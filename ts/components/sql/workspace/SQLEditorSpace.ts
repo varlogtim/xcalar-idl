@@ -471,11 +471,13 @@ class SQLEditorSpace {
             curExecutor.compile(callback)
             .then(deferred.resolve)
             .fail((err) => {
-                if (curExecutor.getPublishName()) {
-                    deferred.reject(err);
-                } else {
-                    deferred.resolve(err);
-                }
+                deferred.reject(err);
+                // XXX not sure why we were resolving sometimes
+                // if (curExecutor.getPublishName()) {
+                //     deferred.reject(err);
+                // } else {
+                //     deferred.resolve(err);
+                // }
             });
             return deferred.promise();
         } catch (e) {
@@ -505,11 +507,13 @@ class SQLEditorSpace {
             curExecutor.execute(callback)
             .then(deferred.resolve)
             .fail((err) => {
-                if (curExecutor.getPublishName()) {
-                    deferred.reject(err);
-                } else {
-                    deferred.resolve(err);
-                }
+                deferred.reject(err);
+                 // XXX not sure why we were resolving sometimes
+                // if (curExecutor.getPublishName()) {
+                //     deferred.reject(err);
+                // } else {
+                //     deferred.resolve(err);
+                // }
             });
             return deferred.promise();
         } catch (e) {

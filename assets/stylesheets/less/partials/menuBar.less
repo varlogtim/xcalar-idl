@@ -655,16 +655,25 @@
         overflow: hidden;
         cursor: default;
         padding-left: 16px;
+        display: flex;
 
         h2 {
-            .font(@line-height: @height-sectionBar,  @size: 16px, @weight: 600);
+            .font(@line-height: @height-sectionBar, @weight: 600);
             display: inline-block;
+            .textOverflowOneLine;
+        }
+
+        .subHeader {
+            flex: 1 1 0px;
+            color: @color-bg-cancel-gray-hover;
+            margin: 0px auto 0px 8px;
+            padding-right: 4px;
+            line-height: @height-sectionBar;
             .textOverflowOneLine;
         }
 
         .icon {
             margin-top: 8px;
-            float: right;
             margin-right: 8px;
             font-size: 14px;
         }
