@@ -120,11 +120,14 @@ function FileListTable(props) {
         let columnDefs = [
             {
                 name: "directory",
-                label: <FileCopy/>,
+                label: <FileCopy style={{fontSize: 20, position: "relative", top: 1}}/>,
                 options: {
                     filter: false,
                     sort: false,
-                    customBodyRender: (isDirectory) => (isDirectory ? <Folder/> : <InsertDriveFileOutlined/>)
+                    customBodyRender: (isDirectory) => (
+                        isDirectory ? <Folder style={{fontSize: 20, position: "relative", top: 1}}/> :
+                                    <InsertDriveFileOutlined style={{fontSize: 20, position: "relative", top: 1}}/>
+                    )
                 }
             },
             {
@@ -160,6 +163,7 @@ function FileListTable(props) {
             print: false,
             filter: false,
             sort: false, // XXX TODO: Disable sort for now, as it crashs browser
+            viewColumns: false,
             rowsPerPage: rowsPerPage,
             rowsPerPageOptions: [],
             search: false,
@@ -235,7 +239,8 @@ function FileListTable(props) {
             },
             MUIDataTableBody: {
                 emptyTitle: {
-                    display: "block"
+                    display: "block",
+                    fontSize: "12px"
                 }
             }
         }

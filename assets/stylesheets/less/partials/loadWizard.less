@@ -171,7 +171,10 @@
         .MuiPaper-root {
             td:first-child, th:first-child {
                 .MuiCheckbox-root {
-                    padding: 4px;
+                    padding: 2px;
+                    .MuiSvgIcon-root {
+                        font-size: 22px;
+                    }
                 }
             }
             .MuiTableCell-root {
@@ -188,8 +191,7 @@
             flex-direction: column;
 
             .selectedFilesHeader {
-                // copied from MUIDatatable
-                font-size: 1.25rem;
+                font-size: 16px;
                 font-family: "Roboto", "Helvetica", "Arial", sans-serif;
                 font-weight: 500;
                 line-height: 1.6;
@@ -198,7 +200,7 @@
                 display: flex;
                 position: relative;
                 align-items: center;
-                min-height: 64px;
+                min-height: 40px;
             }
 
             .selectedFileDistribution {
@@ -218,14 +220,14 @@
 
                 th {
                     text-align: left;
-                    border-bottom: 1px solid rgba(224, 224, 224, 1);
+                    border-bottom: 1px solid @color-border-table;
                     padding: 6px 4px 7px;
                 }
                 td {
                     padding: 4px;
                 }
                 th, td {
-                    font-size: 14px;
+                    font-size: 12px;
 
                     &:first-child {
                         padding-left: 20px;
@@ -280,6 +282,14 @@
         height: 100%;
         overflow: auto;
 
+        .MuiToolbar-regular {
+            min-height: 40px;
+        }
+
+        .MuiTypography-h6 {
+            font-size: 16px;
+        }
+
         .MuiSvgIcon-root {
             fill: @color-font-default;
         }
@@ -291,6 +301,8 @@
         .MuiTableCell-root {
             background-color: @color-bg-modal;
             color: @color-font-default;
+            font-size: 12px;
+            border-bottom: 1px solid @color-border-table;
         }
 
         .MuiTableCell-head {
@@ -307,6 +319,15 @@
 
         .MuiTableCell-footer {
             border-bottom: none;
+        }
+        .MuiTablePagination-caption {
+            font-size: 12px;
+        }
+        .MuiTablePagination-toolbar {
+            min-height: 40px;
+        }
+        .MuiIconButton-root {
+            padding: 4px;
         }
     }
 
