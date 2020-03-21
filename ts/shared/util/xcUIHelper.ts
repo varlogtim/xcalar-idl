@@ -781,10 +781,9 @@ namespace xcUIHelper {
                         '<div class="text">' +
                             text +
                         '</div>' +
-                        '<div class="animatedEllipsis staticEllipsis">' +
-                          '<div>.</div>' +
-                          '<div>.</div>' +
-                          '<div>.</div>' +
+                        '<div class="wrap">' +
+                            '<div class="animatedEllipsis hiddenEllipsis">....</div>' +
+                            '<div class="animatedEllipsis staticEllipsis">....</div>' +
                         '</div>' +
                     '</div>';
             $btn.html(html)
@@ -1082,10 +1081,9 @@ namespace xcUIHelper {
         '<div class="' + sectionClass + '">' +
             '<div class="animatedEllipsisWrapper">' +
                 '<div class="text">' + text + '</div>' +
-                '<div class="animatedEllipsis staticEllipsis">' +
-                    '<div>.</div>' +
-                    '<div>.</div>' +
-                    '<div>.</div>' +
+                '<div class="wrap">' +
+                    '<div class="animatedEllipsis hiddenEllipsis">....</div>' +
+                    '<div class="animatedEllipsis staticEllipsis">....</div>' +
                 '</div>' +
             '</div>' +
         '</div>';

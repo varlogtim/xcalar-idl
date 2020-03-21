@@ -1,7 +1,9 @@
-import React from "react";
-import MUIDataTable from "mui-datatables";
+import React from 'react';
+import clsx from 'clsx';
+import { withStyles } from '@material-ui/core/styles';
+import TableCell from '@material-ui/core/TableCell';
+import { AutoSizer, Column, Table } from 'react-virtualized';
 import prettyBytes from 'pretty-bytes';
-import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 
 const Texts = {
     selectListTitle: 'Selected Files/Directories'
@@ -15,132 +17,222 @@ const typeList = {
     "unsupported": "#333",
 };
 
-const rowsPerPage = 20;
 
-export default function SelectedFilesArea({
-    selectedFileDir,
-    onDeselect,
-}) {
+const styles = theme => ({
+  flexContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    boxSizing: 'border-box',
+  },
+  table: {
+    // temporary right-to-left patch, waiting for
+    // https://github.com/bvaughn/react-virtualized/issues/454
+    '& .ReactVirtualized__Table__headerRow': {
+      flip: false,
+      paddingRight: theme.direction === 'rtl' ? '0px !important' : undefined,
+    },
+  },
+  tableRow: {
+    cursor: 'pointer',
+  },
+  tableRowHover: {
+    '&:hover': {
+    //   backgroundColor: theme.palette.grey[200],
+    },
+  },
+  tableCell: {
+    flex: 1,
+  },
+  noClick: {
+    cursor: 'initial',
+  },
+});
 
-    const [page, setPage] = React.useState(0);
-
-    const changePage = (page) => {
-        candidateOptions.page = page;
-        setPage(page);
-    };
-
-    const prepareCandidateList = (selectedFileDir, onDeselect, fullList, initialSelectedIndices) => {
-
-        const columnDefs = [
-            {
-                name: "fullPath",
-                label: "Clear All",
-                options: { filter: false, sort: false }
-            }
-        ];
-
-        const options = {
-            filterType: "multiselect",
-            elevation: 0,
-            responsive: "scrollMaxHeight",
-            download: false,
-            print: false,
-            search: false,
-            sort: false,
-            filter: false,
-            viewColumns: false,
-            rowsPerPage: rowsPerPage,
-            rowsPerPageOptions: [],
-            onRowsSelect: (currentRowsSelected, allRowsSelected) => {
-                let unselectedFileIds;
-                if (currentRowsSelected.length === allRowsSelected.length) {
-                    // clear all was clicked
-                    unselectedFileIds = selectedFileDir.map(fileInfo => {
-                        return fileInfo.fileId;
-                    });
-                } else {
-                    unselectedFileIds = currentRowsSelected.map(row => {
-                        return fullList[(page * rowsPerPage) + row.dataIndex].fileId;
-                    });
-                }
-                onDeselect(new Set(unselectedFileIds));
-            },
-            rowsSelected: initialSelectedIndices,
-            disableToolbarSelect: true,
-            setTableProps: () => {
-                return {
-                padding: "none",
-                size: "small",
-                };
-            },
-            textLabels: {
-                body: {
-                noMatch: "",
-                },
-            },
-            count: fullList.length,
-            page: 0,
-            serverSide: true,
-            onTableChange: (action, tableState) => {
-                if (action === "changePage") {
-                    changePage(tableState.page);
-                }
-            }
-        };
-
-        return {
-            columns: columnDefs,
-            options: options,
-            fileList: fullList
-        };
-    };
-
-    const {
-        fileList: fullFileList,
-        selectedIndices: initialSelectedIndices
-    } = createFileList(selectedFileDir);
-
-    let pageFileList = fullFileList.slice(rowsPerPage * page, rowsPerPage * (page + 1));
-
-    const {
-        columns: candidateListColumns,
-        options: candidateOptions,
-        fileList
-    } = prepareCandidateList(selectedFileDir, onDeselect, fullFileList, initialSelectedIndices);
-
-    const myTheme = createMuiTheme({
-        overrides: {
-            MUIDataTable: {
-            responsiveScrollMaxHeight: {
-                maxHeight: '100% !important',
-                flex: "1 1 auto"
-            }
-        }
-    }});
-
-    if (page > (Math.max(Math.ceil(fullFileList.length / rowsPerPage) - 1, 0))) {
-        const newPage = (Math.max(Math.ceil(fullFileList.length / rowsPerPage) - 1, 0))
-        pageFileList = fullFileList.slice(rowsPerPage * newPage, rowsPerPage * (newPage + 1));
-        changePage(newPage);
+class MuiVirtualizedTable extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.getRowClassName = this.getRowClassName.bind(this);
+        this.cellRenderer = this.cellRenderer.bind(this);
+        this.headerRenderer = this.headerRenderer.bind(this);
+        this.checkboxCellRenderer = this.checkboxCellRenderer.bind(this);
+        this.checkboxHeaderRenderer = this.checkboxHeaderRenderer.bind(this);
+        this.handleCheckboxClick = this.handleCheckboxClick.bind(this);
+        this.onSelectAllClick = this.onSelectAllClick.bind(this);
     }
 
-    return (
-        <div className="selectedFilesArea">
-            <div className="selectedFilesHeader">{Texts.selectListTitle}</div>
-            <SelectedFilesSummary fileList={selectedFileDir} />
-            {selectedFileDir.length ?
-                <MuiThemeProvider theme={myTheme}>
-                    <MUIDataTable
-                        data={pageFileList}
-                        columns={candidateListColumns}
-                        options={candidateOptions}
-                    />
-                </MuiThemeProvider>
-                : null }
-        </div>
-    );
+  getRowClassName({ index }) {
+    const { classes } = this.props;
 
+    return clsx(classes.tableRow, classes.flexContainer, {
+      [classes.tableRowHover]: index !== -1,
+    });
+  };
+
+    handleCheckboxClick(event, fileId) {
+        this.props.onDeselect(new Set([fileId]));
+    }
+
+    onSelectAllClick(a,b,c) {
+        this.props.onDeselect(this.props.selectedIds);
+    }
+
+
+  cellRenderer(info) {
+    const {cellData, columnIndex} = info;
+    const { classes, rowHeight } = this.props;
+    console.log(info);
+    let text = info.customRender ? info.customRender(info.rowData) : cellData;
+    return (
+      <TableCell
+        component="div"
+        className={clsx(classes.tableCell, classes.flexContainer, {
+          [classes.noClick]: true,
+        })}
+        variant="body"
+        style={{ height: rowHeight }}
+        align={'left'}
+      >
+        <div className="innerCell">{text}</div>
+      </TableCell>
+    );
+  }
+
+
+  headerRenderer({ label, columnIndex }) {
+    const { headerHeight, classes } = this.props;
+
+    return (
+      <TableCell
+        component="div"
+        className={clsx(classes.tableCell, classes.flexContainer)}
+        variant="head"
+        style={{ height: headerHeight }}
+        align={'left'}
+        onClick={this.onSelectAllClick}
+      >
+        <span>{label}</span>
+      </TableCell>
+    );
+  };
+
+  checkboxCellRenderer(info) {
+    const {
+        cellData: fileId,
+        columnIndex
+    } = info;
+    const { classes, rowHeight } = this.props;
+
+    return (
+      <TableCell
+        component="div"
+        className={clsx(classes.tableCell, classes.flexContainer, {
+          [classes.noClick]: false,
+        })}
+        variant="body"
+        style={{ height: rowHeight }}
+        align={'left'}
+        onClick={event => this.handleCheckboxClick(event, fileId)}
+      >
+        <i className="icon xi-close"></i>
+      </TableCell>
+    );
+  };
+
+  checkboxHeaderRenderer({ label, columnIndex }) {
+    const { headerHeight, classes } = this.props;
+    return (
+      <TableCell
+        component="div"
+        className={clsx(classes.tableCell, classes.flexContainer)}
+        variant="head"
+        style={{ height: headerHeight }}
+        align={'left'}
+        onClick={this.onSelectAllClick}
+      >
+        <i className="icon xi-close"></i>
+      </TableCell>
+    );
+  };
+
+  render() {
+    const { classes, columns, rowHeight, headerHeight, ...tableProps } = this.props;
+    return (
+      <AutoSizer>
+        {({ height, width }) => (
+          <Table
+            height={height}
+            width={width}
+            rowHeight={rowHeight}
+            gridStyle={{
+              direction: 'inherit',
+            }}
+            headerHeight={headerHeight}
+            className={classes.table}
+            size="small"
+            {...tableProps}
+            rowClassName={this.getRowClassName}
+          >
+            <Column
+                key={"fileId"}
+                headerRenderer={headerProps =>
+                this.checkboxHeaderRenderer({
+                    ...headerProps,
+                    columnIndex: 0,
+                })
+                }
+                className={classes.flexContainer}
+                cellRenderer={this.checkboxCellRenderer}
+                dataKey={"fileId"}
+                width={30}
+                label={"checkbox"}
+            />
+            {columns.map(({ dataKey, ...other }, index) => {
+                return (
+                    <Column
+                        key={dataKey}
+                        headerRenderer={headerProps =>
+                            this.headerRenderer({
+                                ...headerProps,
+                                columnIndex: index + 1,
+                            })
+                        }
+                        className={classes.flexContainer}
+                        cellRenderer={this.cellRenderer}
+                        dataKey={dataKey}
+                        flexGrow={1}
+                        {...other}
+                    />
+                );
+            })}
+          </Table>
+        )}
+      </AutoSizer>
+    );
+  }
 }
+
+MuiVirtualizedTable.defaultProps = {
+    headerHeight: 32,
+    rowHeight: 24,
+};
+
+// MuiVirtualizedTable.propTypes = {
+//   classes: PropTypes.object.isRequired,
+//   columns: PropTypes.arrayOf(
+//     PropTypes.shape({
+//       dataKey: PropTypes.string.isRequired,
+//       label: PropTypes.string.isRequired,
+//       numeric: PropTypes.bool,
+//       width: PropTypes.number.isRequired,
+//     }),
+//   ).isRequired,
+//   headerHeight: PropTypes.number,
+//   onRowClick: PropTypes.func,
+//   rowHeight: PropTypes.number,
+// };
+
+const VirtualizedTable = withStyles(styles)(MuiVirtualizedTable);
+
 
 function SelectedFilesSummary({fileList}) {
     const typeCount = {};
@@ -198,16 +290,11 @@ function SelectedFilesSummary({fileList}) {
                 <tbody>
                     {chartData.length ?
                         chartData.map((item, i) => {
-                            let size;
-                            if (item.name === "directory") {
-                                size = "";
-                            } else {
-                                size = prettyBytes(typeSize[item.name]);
-                            }
+                            const size = (item.name === "directory") ?  "" : prettyBytes(typeSize[item.name]);
                             return (
                                 <tr key={i}>
                                     <td>{item.name}</td>
-                                    <td>{item.value}</td>
+                                    <td>{item.value.toLocaleString()}</td>
                                     <td>{size}</td>
                                 </tr>
                             )
@@ -221,10 +308,15 @@ function SelectedFilesSummary({fileList}) {
     )
 }
 
-function createFileList(selectedFiles) {
-    const selectedIndices = [];
-    const fileList = selectedFiles.map((fileInfo, i) => {
-        selectedIndices.push(i);
+export default function ReactVirtualizedTable(props) {
+    const {
+        selectedFileDir,
+        onDeselect
+    } = props;
+
+    const selectedIds = new Set();
+    const fileList = selectedFileDir.map((fileInfo, i) => {
+        selectedIds.add(fileInfo.fileId);
         return  {
             size: fileInfo.directory
                 ? null
@@ -233,8 +325,27 @@ function createFileList(selectedFiles) {
         };
     });
 
-    return {
-        fileList: fileList,
-        selectedIndices: selectedIndices,
-    };
+    return (
+        <div className="selectedFilesArea">
+            <div className="selectedFilesHeader">{Texts.selectListTitle}</div>
+            <SelectedFilesSummary fileList={selectedFileDir} />
+            {selectedFileDir.length ?
+            <div className="innerTableWrap">
+                <VirtualizedTable
+                    selectedIds={selectedIds}
+                    fileList={fileList}
+                    onDeselect={onDeselect}
+                    rowCount={fileList.length}
+                    rowGetter={({ index }) => fileList[index]}
+                    columns={[
+                        {
+                            width: 200,
+                            label: 'Clear All',
+                            dataKey: 'name'
+                        }
+                    ]}
+                />
+            </div> : null }
+        </div>
+    );
 }

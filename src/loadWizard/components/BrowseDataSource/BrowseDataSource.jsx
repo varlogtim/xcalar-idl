@@ -1,12 +1,13 @@
 import Path from 'path';
 import React from "react";
 import BucketChart from './BucketChart';
-import FileListTable from './FileListTable'
 import NavButtons from '../NavButtons'
 import SelectedFilesArea from "./SelectedFilesArea"
 import * as Modal from './Modal'
 import * as SchemaService from '../../services/SchemaService'
 import * as S3Service from '../../services/S3Service'
+import FileBrowserTable from './FileBrowserTable'
+import LoadingText from '../../../components/widgets/LoadingText';
 
 const Texts = {
     title: "Browse Data Source",
@@ -153,21 +154,20 @@ class BrowseDataSource extends React.Component {
 
                 <div className="fileListTableArea">
                     <div className="fileListTableWrap">
-                    {isLoading ? <span className="loadingText">Loading ...</span> :
-                        <FileListTable
+                    {isLoading ? <LoadingText className="loadingText">Loading</LoadingText> :
+                        (
+                        fileMapViewing.size ? <FileBrowserTable
                             fileMap={fileMapViewing}
                             selectedIds={getSelectedIdsForCurrentView(fileMapViewing, selectedFileDir)}
                             onPathChange={(newFullPath) => { this._browsePath(newFullPath, fileType); }}
                             onSelect={(fileIds) => { this._selectFiles(fileIds); }}
                             onDeselect={(fileIds) => { this._deselectFiles(fileIds); }}
                             fileType={fileType}
-                        />
+                        /> : <div className="noFilesFound">No {fileType} files or directories found.</div>)
                     }
                     </div>
                     <SelectedFilesArea
-                        fileMap={fileMapViewing}
                         selectedFileDir={selectedFileDir}
-                        onSelect={(fileIds) => { this._selectFiles(fileIds); }}
                         onDeselect={(fileIds) => { this._deselectFiles(fileIds); }}
                     />
                 </div>

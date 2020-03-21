@@ -296,10 +296,9 @@ class SQLTableLister extends AbstractSQLResultView {
             '<div class="text">' +
                 text +
             '</div>' +
-            '<div class="animatedEllipsis staticEllipsis">' +
-                '<div>.</div>' +
-                '<div>.</div>' +
-                '<div>.</div>' +
+            '<div class="wrap">' +
+                '<div class="hiddenEllipsis">....</div>' +
+                '<div class="animatedEllipsis staticEllipsis">....</div>' +
             '</div>' +
         '</div>';
         return html;

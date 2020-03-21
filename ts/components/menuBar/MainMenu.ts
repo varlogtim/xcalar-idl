@@ -223,21 +223,23 @@ namespace MainMenu {
 
     // ensures right panels are not too small
     export function sizeRightPanel() {
-        let winWidth = $(window).width() - 60;
-        if (BottomMenu.isMenuOpen()) {
-            winWidth -= defaultWidth;
-        }
-        let halfWinWidth = Math.floor(winWidth / 2);
-        rightPanelMargin = $("#workbookPanel, #monitorPanel, #datastorePanel, #modelingDagPanel").find("> .mainContent > .leftSection").filter(":visible").outerWidth();
-        if (rightPanelMargin > halfWinWidth || (winWidth - rightPanelMargin) < minRightPanelWidth) {
-            rightPanelMargin = Math.min(halfWinWidth, winWidth - minRightPanelWidth);
-            rightPanelMargin = Math.max(defaultWidth, rightPanelMargin);
-            $resizableRightPanels.filter(":visible").css("margin-left", rightPanelMargin);
-        } else {
-            if (halfWinWidth > rightPanelMargin) {
-                $resizableRightPanels.filter(":visible").css("margin-left", rightPanelMargin);
-            }
-        }
+        // XXX has bugs in load wizard and may not be needed after new design
+        // of sql panel
+        // let winWidth = $(window).width() - 60;
+        // if (BottomMenu.isMenuOpen()) {
+        //     winWidth -= defaultWidth;
+        // }
+        // let halfWinWidth = Math.floor(winWidth / 2);
+        // rightPanelMargin = $("#workbookPanel, #monitorPanel, #datastorePanel, #modelingDagPanel").find("> .mainContent > .leftSection").filter(":visible").outerWidth();
+        // if (rightPanelMargin > halfWinWidth || (winWidth - rightPanelMargin) < minRightPanelWidth) {
+        //     rightPanelMargin = Math.min(halfWinWidth, winWidth - minRightPanelWidth);
+        //     rightPanelMargin = Math.max(defaultWidth, rightPanelMargin);
+        //     $resizableRightPanels.filter(":visible").css("margin-left", rightPanelMargin);
+        // } else {
+        //     if (halfWinWidth > rightPanelMargin) {
+        //         $resizableRightPanels.filter(":visible").css("margin-left", rightPanelMargin);
+        //     }
+        // }
         if ($("#sqlWorkSpacePanel").hasClass("active")) {
             TblFunc.moveFirstColumn();
             DagCategoryBar.Instance.showOrHideArrows();

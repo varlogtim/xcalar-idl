@@ -503,24 +503,7 @@ div, section, ul {
             margin-left: 15px;
 
             .animatedEllipsis {
-                animation: ellipsisLarge 2s steps(4, end) infinite;
-                -webkit-animation: ellipsisLarge 2s steps(4, end) infinite;
-                > div {
-                    font-weight: 400;
-                    margin-left: -1px;
-                }
-            }
-        }
-
-        @-webkit-keyframes ellipsisLarge {
-            to {
-                width: 34px;
-            }
-        }
-
-        @keyframes ellipsisLarge {
-            to {
-                width: 34px;
+                font-weight: 400;
             }
         }
     }
@@ -1126,10 +1109,6 @@ div, section, ul {
     .animatedEllipsis {
         float: none;
         vertical-align: bottom;
-
-        > div {
-            margin-left: 1px;
-        }
     }
 }
 
@@ -1221,40 +1200,46 @@ input {
 
 .animatedEllipsisWrapper {
     > div {
-        .size(@height: 100%);
+        .size(@height: inherit);
         float: left;
         display: inline-block;
         white-space: nowrap;
     }
 
-    .animatedEllipsis {
+    .wrap {
         margin-left: 3px;
+        position: relative;
     }
+
+    // used to give width to the container of the
+    // actual ellipsis
+    .hiddenEllipsis {
+        visibility: hidden;
+        width: auto;
+        animation: none;
+    }
+
+    .animatedEllipsis:not(.hiddenEllipsis) {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        animation: wrappedEllipsis 2s steps(4, end) infinite;
+        width: 0%;
+    }
+
 }
 
 .animatedEllipsis {
     animation: ellipsis 2s steps(4, end) infinite;
-    -webkit-animation: ellipsis 2s steps(4, end) infinite;
     text-align: left;
     overflow: hidden;
     width: 0px;
     display: inline-block;
-
-    > div {
-        display: inline;
-        margin-left: -1px;
-    }
 }
 
-@-webkit-keyframes ellipsis {
+@keyframes wrappedEllipsis {
     to {
-        width: 20px;
-    }
-}
-
-@keyframes ellipsis {
-    to {
-        width: 20px;
+        width: 100%;
     }
 }
 

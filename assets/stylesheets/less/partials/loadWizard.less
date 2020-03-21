@@ -148,9 +148,10 @@
             flex: 1 1 auto;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
-        .loadingText {
+        .loadingText, .noFilesFound {
             height: 100%;
             display: flex;
             align-items: center;
@@ -182,6 +183,32 @@
             }
         }
 
+        .outerTableWrap {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tableTopBar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+            font-weight: 500;
+            line-height: 1.6;
+            letter-spacing: 0.0075em;
+            padding: 0 20px 0px 10px;
+            min-height: 36px;
+
+            .numItems {
+                font-size: 12px;
+            }
+        }
+
+        .innerTableWrap {
+            flex: 1 1 auto;
+        }
+
         .selectedFilesArea {
             min-width: 300px;
             max-width: 400px;
@@ -196,7 +223,7 @@
                 font-weight: 500;
                 line-height: 1.6;
                 letter-spacing: 0.0075em;
-                padding-left: 24px;
+                padding-left: 20px;
                 display: flex;
                 position: relative;
                 align-items: center;
@@ -233,6 +260,15 @@
                         padding-left: 20px;
                     }
                 }
+
+                .noFilesSelected {
+                    text-align: center;
+                    padding-left: 0px !important;
+                }
+            }
+
+            .icon.xi-close {
+                font-size: 16px;
             }
 
             .MuiPaper-root {
@@ -266,7 +302,7 @@
                 }
             }
 
-            td.MuiTableCell-root {
+            .ReactVirtualized__Table__row .MuiTableCell-root {
                 border-bottom: 1px solid transparent;
             }
         }
@@ -304,6 +340,74 @@
             font-size: 12px;
             border-bottom: 1px solid @color-border-table;
         }
+
+        .MuiTableCell-head {
+            color: @color-font-default;
+        }
+
+        .MuiTypography-root {
+            color: @color-font-default;
+        }
+
+        > .MuiTable-root:nth-child(4) {
+            margin-top: auto;
+        }
+
+        .MuiTableCell-footer {
+            border-bottom: none;
+        }
+        .MuiTablePagination-caption {
+            font-size: 12px;
+        }
+        .MuiTablePagination-toolbar {
+            min-height: 40px;
+        }
+        .MuiIconButton-root {
+            padding: 4px;
+        }
+    }
+
+    .ReactVirtualized__Grid, .ReactVirtualized__Table__Grid {
+        outline: none;
+    }
+
+    .ReactVirtualized__Table {
+        .MuiToolbar-regular {
+            min-height: 40px;
+        }
+
+        .MuiTypography-h6 {
+            font-size: 16px;
+        }
+
+        .MuiSvgIcon-root {
+            fill: @color-font-default;
+        }
+
+        .Mui-disabled  .MuiSvgIcon-root {
+            opacity: @opacity-disabled;
+        }
+
+        .MuiTableCell-root {
+            background-color: @color-bg-modal;
+            color: @color-font-default;
+            font-size: 12px;
+            border-bottom: 1px solid @color-border-table;
+            padding: 0 4px;
+            width: 100%;
+        }
+
+        .ReactVirtualized__Table__headerColumn, .ReactVirtualized__Table__rowColumn {
+            &:first-child, &:nth-child(2) {
+                // checkbox column
+                min-width: 30px;
+            }
+        }
+
+        .innerCell {
+            .textOverflowOneLine;
+        }
+
 
         .MuiTableCell-head {
             color: @color-font-default;

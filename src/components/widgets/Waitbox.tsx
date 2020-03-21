@@ -11,10 +11,9 @@ export default function(props: WaitboxProps) {
             <div className="text">
                 {props.children || CommonTStr.PleaseWait}
             </div>
-            <div className="animatedEllipsis">
-                <div>.</div>
-                <div>.</div>
-                <div>.</div>
+            <div className="wrap">
+                <div className="animatedEllipsis hiddenEllipsis">....</div>
+                <div className="animatedEllipsis staticEllipsis">....</div>
             </div>
         </div>
     )

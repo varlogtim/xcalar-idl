@@ -316,7 +316,7 @@ describe("xcUIHelper Test", function() {
         var $btn = $("<button>test</button>");
         xcUIHelper.toggleBtnInProgress($btn);
         expect($btn.hasClass("btnInProgress")).to.be.true;
-        expect($btn.text()).to.equal("test...");
+        expect($btn.text()).to.equal("test........");
         expect($btn.find("icon").length).to.equal(0);
         xcUIHelper.toggleBtnInProgress($btn);
         expect($btn.hasClass("btnInProgress")).to.be.false;
@@ -328,7 +328,7 @@ describe("xcUIHelper Test", function() {
                 '</button>');
         xcUIHelper.toggleBtnInProgress($btn, false);
         expect($btn.hasClass("btnInProgress")).to.be.true;
-        expect($btn.text()).to.equal("test...");
+        expect($btn.text()).to.equal("test........");
         expect($btn.find(".icon").length).to.equal(0);
         xcUIHelper.toggleBtnInProgress($btn, false);
         expect($btn.hasClass("btnInProgress")).to.be.false;
