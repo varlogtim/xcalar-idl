@@ -28,7 +28,15 @@ class TableSearchBar {
     }
 
     private _clearHightInCell(): void {
-        const $view: JQuery = DagTable.Instance.getView();
+        let $view: JQuery = DagTable.Instance.getView();
+        if ($view == null) {
+            const isSqlTable: boolean = !$("#sqlTableArea").hasClass("dagTableMode");
+            if (!isSqlTable || !SQLResultSpace.Instance.getSQLTable()) {
+                return;
+            } else {
+                $view = $("#sqlTableArea .tableSection .viewWrap");
+            }
+        }
         if ($view != null) {
             $view.find(".editableHead.highlight").removeClass("highlight");
         }
