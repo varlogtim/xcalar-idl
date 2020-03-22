@@ -480,57 +480,22 @@ namespace xcManager {
             return def.promise();
         }
 
-        function showForceAlert(deferred: XDDeferred<StatusT>): void {
+        function forceOverwrite(deferred: XDDeferred<StatusT>): void {
             hideInitialLoadScreen();
-            Alert.show({
-                title: AlertTStr.UnexpectInit,
-                msg: AlertTStr.UnexpectInitMsg,
-                sizeToText: true,
-                hideButtons: ["cancel"],
-                buttons: [{
-                    name: CommonTxtTstr.Retry,
-                    className: "retry",
-                    func: function() {
-                        $("#initialLoadScreen").show();
-                        setTimeout(function() {
-                            XcalarKeyLookup(GlobalKVKeys.InitFlag,
-                                            gKVScope.GLOB)
-                            .then(function(ret) {
-                                if (ret && ret.value ===
-                                        InitFlagState.AlreadyInit) {
-                                    return deferred.resolve();
-                                } else {
-                                    showForceAlert(deferred);
-                                }
-                            })
-                            .fail(function(err) {
-                                console.error(err);
-                                showForceAlert(deferred);
-                            });
-                        }, 5000);
-                    }
-                },
-                {
-                    name: CommonTxtTstr.Overwrite,
-                    className: "force",
-                    func: function() {
-                        $("#initialLoadScreen").show();
-                        console.log("Force");
-                        actualOneTimeSetup(true)
-                        .then(function() {
-                            // Force unlock
-                            return XcalarKeyPut(
-                                          GlobalKVKeys.XdFlag,
-                                          "0", false, gKVScope.GLOB);
-                        })
-                        .then(deferred.resolve)
-                        .fail(function(err) {
-                            console.error(err, "SEVERE ERROR: Race " +
-                                          "conditions ahead");
-                            deferred.resolve();
-                        });
-                    }
-                }]
+            $("#initialLoadScreen").show();
+            console.error("error occurred, Force overwrite");
+            actualOneTimeSetup(true)
+            .then(function() {
+                // Force unlock
+                return XcalarKeyPut(
+                                GlobalKVKeys.XdFlag,
+                                "0", false, gKVScope.GLOB);
+            })
+            .then(deferred.resolve)
+            .fail(function(err) {
+                console.error(err, "SEVERE ERROR: Race " +
+                                "conditions ahead");
+                deferred.resolve();
             });
         }
 
@@ -564,16 +529,16 @@ namespace xcManager {
                                     // All good
                                     deferred.resolve();
                                 } else {
-                                    showForceAlert(deferred);
+                                    forceOverwrite(deferred);
                                 }
                             })
                             .fail(function(err) {
                                 console.error(err);
-                                showForceAlert(deferred);
+                                forceOverwrite(deferred);
                             });
                         }, 5000);
                     } else {
-                        showForceAlert(deferred);
+                        forceOverwrite(deferred);
                     }
                 });
             }

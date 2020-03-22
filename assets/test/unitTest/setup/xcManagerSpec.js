@@ -504,21 +504,7 @@ describe("xcManager Test", function() {
                 return PromiseHelper.reject(ConcurrencyEnum.OverLimit);
             };
 
-            var promise = oneTimeSetup();
-            var checkFunc = function() {
-                return hasAlert === true;
-            };
-
-            UnitTest.testFinish(checkFunc)
-            .then(function() {
-                expect(alertFuncs.length).to.equal(2);
-                alertFuncs[1].func();
-            })
-            .fail(function() {
-                done("fail");
-            });
-
-            promise
+            oneTimeSetup()
             .then(function() {
                 expect(Object.keys(keyMap).length).to.equal(2);
                 expect(keyMap[GlobalKVKeys.InitFlag])
@@ -531,49 +517,6 @@ describe("xcManager Test", function() {
             })
             .always(function() {
                 Concurrency.prototype.tryLock = curTryLock;
-                $("#initialLoadScreen").hide();
-            });
-        });
-
-        it("should reftry unlock", function(done) {
-            var curTryLock = Concurrency.prototype.tryLock;
-            var curKeyLookUp = XcalarKeyLookup;
-
-            Concurrency.prototype.tryLock = function() {
-                return PromiseHelper.reject();
-            };
-
-            var promise = oneTimeSetup();
-            var checkFunc = function() {
-                return hasAlert === true;
-            };
-
-            UnitTest.testFinish(checkFunc)
-            .then(function() {
-                XcalarKeyLookup = function() {
-                    return PromiseHelper.resolve({
-                        "value": InitFlagState.AlreadyInit
-                    });
-                };
-
-                expect(alertFuncs.length).to.equal(2);
-                alertFuncs[0].func();
-            })
-            .fail(function() {
-                done("fail");
-            });
-
-            promise
-            .then(function() {
-                expect(Object.keys(keyMap).length).to.equal(0);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                Concurrency.prototype.tryLock = curTryLock;
-                XcalarKeyLookup = curKeyLookUp;
                 $("#initialLoadScreen").hide();
             });
         });
