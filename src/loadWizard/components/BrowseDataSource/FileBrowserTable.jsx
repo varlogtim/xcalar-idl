@@ -1,11 +1,12 @@
 import React from 'react';
-import { Folder, FileCopy, InsertDriveFileOutlined } from '@material-ui/icons';
+import { Folder, FileCopy, InsertDriveFileOutlined, LensOutlined } from '@material-ui/icons';
 import prettyBytes from 'pretty-bytes';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
 import TableCell from '@material-ui/core/TableCell';
 import { AutoSizer, Column, Table } from 'react-virtualized';
 import Checkbox from '@material-ui/core/Checkbox';
+import { TableSortLabel } from '@material-ui/core';
 
 const Texts = {
     fileListTitle: 'File List',
@@ -45,6 +46,17 @@ const styles = theme => ({
 class MuiVirtualizedTable extends React.PureComponent {
     constructor(props) {
         super(props);
+        const sortBy = "";
+        const sortDirection = "ASC";
+
+        this.state = {
+            disableHeader: false,
+            overscanRowCount: 20,
+            scrollIndex: undefined,
+            sortBy: sortBy,
+            sortDirection: sortDirection,
+            sortedList: [...props.fileList]
+        };
         this.getRowClassName = this.getRowClassName.bind(this);
         this.cellRenderer = this.cellRenderer.bind(this);
         this.headerRenderer = this.headerRenderer.bind(this);
@@ -52,6 +64,7 @@ class MuiVirtualizedTable extends React.PureComponent {
         this.checkboxHeaderRenderer = this.checkboxHeaderRenderer.bind(this);
         this.handleCheckboxClick = this.handleCheckboxClick.bind(this);
         this.onSelectAllClick = this.onSelectAllClick.bind(this);
+        this.sort = this.sort.bind(this);
     }
 
   getRowClassName({ index }) {
@@ -108,21 +121,31 @@ class MuiVirtualizedTable extends React.PureComponent {
   }
 
 
-  headerRenderer({ label, columnIndex }) {
-    const { headerHeight, classes } = this.props;
+    headerRenderer(info) {
+        const { label, columnIndex, dataKey } = info;
+        const { headerHeight, classes } = this.props;
+        const {sortBy, sortDirection} = this.state;
+        return (
+        <TableCell
+            component="div"
+            className={clsx(classes.tableCell, classes.flexContainer)}
+            variant="head"
+            style={{ height: headerHeight }}
+            align={'left'}
+            sortDirection={sortBy === dataKey ? sortDirection.toLowerCase() : false}
+        >
+        {dataKey === "directory" ? <span>{label}</span> :
+            <TableSortLabel
+                active={sortBy === dataKey}
+                direction={sortBy === dataKey ? sortDirection.toLowerCase() : 'asc'}
+            >
+                <span>{label}</span>
+            </TableSortLabel>
+        }
 
-    return (
-      <TableCell
-        component="div"
-        className={clsx(classes.tableCell, classes.flexContainer, classes.noClick)}
-        variant="head"
-        style={{ height: headerHeight }}
-        align={'left'}
-      >
-        <span>{label}</span>
-      </TableCell>
-    );
-  };
+        </TableCell>
+        );
+    };
 
   checkboxCellRenderer(info) {
     const {
@@ -172,8 +195,49 @@ class MuiVirtualizedTable extends React.PureComponent {
     );
   };
 
+  sort(info) {
+    const {sortBy, sortDirection} = info;
+    if (sortBy === "fileId" || sortBy === "directory") {
+        return;
+    }
+    const sortedList = this.sortList({sortBy, sortDirection});
+
+    this.setState({sortBy, sortDirection, sortedList});
+  }
+
+    sortList(info) {
+        let {sortBy, sortDirection} = info;
+        if (sortBy === "size") {
+            sortBy = "sizeInBytes";
+        }
+        let list;
+        if (this.state && this.state.sortedList) {
+            list = [...this.state.sortedList];
+        } else {
+            list = [...this.props.fileList]
+        }
+        let order = (sortDirection === "ASC") ? -1 : 1;
+        list.sort((a,b) => {
+            if (a[sortBy] < b[sortBy]) {
+                return order;
+            } else if (a[sortBy] > b[sortBy]) {
+                return -order;
+            } else {
+                return 0;
+            }
+        });
+        return list;
+    }
+
   render() {
-    const { classes, columns, rowHeight, headerHeight, ...tableProps } = this.props;
+    const { classes, columns, rowHeight, headerHeight, fileList, ...tableProps } = this.props;
+    const {
+        overscanRowCount,
+        sortBy,
+        sortDirection,
+        sortedList
+    } = this.state;
+
     return (
       <AutoSizer>
         {({ height, width }) => (
@@ -189,6 +253,11 @@ class MuiVirtualizedTable extends React.PureComponent {
             size="small"
             {...tableProps}
             rowClassName={this.getRowClassName}
+            overscanRowCount={overscanRowCount}
+            sort={this.sort}
+            sortBy={sortBy}
+            sortDirection={sortDirection}
+            rowGetter={({index}) => sortedList[index]}
           >
             <Column
                   key={"fileId"}
@@ -302,7 +371,6 @@ export default function ReactVirtualizedTable(props) {
                     onSelect={onSelect}
                     onDeselect={onDeselect}
                     rowCount={fileList.length}
-                    rowGetter={({ index }) => fileList[index]}
                     onPathChange={(path) => {
                         onPathChange(path);
                     }}

@@ -305,6 +305,7 @@
             .ReactVirtualized__Table__row .MuiTableCell-root {
                 border-bottom: 1px solid transparent;
             }
+
         }
     }
 
@@ -367,7 +368,8 @@
         }
     }
 
-    .ReactVirtualized__Grid, .ReactVirtualized__Table__Grid {
+    .ReactVirtualized__Grid, .ReactVirtualized__Table__Grid,
+    .ReactVirtualized__Table__headerColumn {
         outline: none;
     }
 
@@ -432,6 +434,14 @@
         }
         .MuiIconButton-root {
             padding: 4px;
+        }
+
+        .MuiTableSortLabel-root:hover {
+            opacity: 0.8;
+            color: inherit;
+        }
+        .MuiTableSortLabel-root.MuiTableSortLabel-active {
+            color: inherit;
         }
     }
 
