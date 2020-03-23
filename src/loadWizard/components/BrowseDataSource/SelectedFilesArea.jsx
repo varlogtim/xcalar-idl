@@ -80,7 +80,6 @@ class MuiVirtualizedTable extends React.PureComponent {
   cellRenderer(info) {
     const {cellData, columnIndex} = info;
     const { classes, rowHeight } = this.props;
-    console.log(info);
     let text = info.customRender ? info.customRender(info.rowData) : cellData;
     return (
       <TableCell
@@ -310,25 +309,33 @@ function SelectedFilesSummary({fileList}) {
 
 export default function ReactVirtualizedTable(props) {
     const {
+        bucket,
         selectedFileDir,
         onDeselect
     } = props;
 
     const selectedIds = new Set();
-    const fileList = selectedFileDir.map((fileInfo, i) => {
-        selectedIds.add(fileInfo.fileId);
-        return  {
-            size: fileInfo.directory
-                ? null
-                : prettyBytes(fileInfo.sizeInBytes),
-            ...fileInfo
-        };
+    const fileList = [];
+    const filteredSelectedFileDir = []; // only files in current bucket
+    selectedFileDir.forEach((fileInfo, i) => {
+        if (fileInfo.fullPath.startsWith(bucket)) {
+            filteredSelectedFileDir.push(fileInfo);
+            selectedIds.add(fileInfo.fileId);
+            fileList.push(
+                {
+                    size: fileInfo.directory
+                        ? null
+                        : prettyBytes(fileInfo.sizeInBytes),
+                    ...fileInfo
+                }
+            );
+        }
     });
 
     return (
         <div className="selectedFilesArea">
             <div className="selectedFilesHeader">{Texts.selectListTitle}</div>
-            <SelectedFilesSummary fileList={selectedFileDir} />
+            <SelectedFilesSummary fileList={filteredSelectedFileDir} />
             {selectedFileDir.length ?
             <div className="innerTableWrap">
                 <VirtualizedTable
@@ -341,7 +348,7 @@ export default function ReactVirtualizedTable(props) {
                         {
                             width: 200,
                             label: 'Clear All',
-                            dataKey: 'name'
+                            dataKey: 'fullPath'
                         }
                     ]}
                 />

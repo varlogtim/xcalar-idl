@@ -1,6 +1,9 @@
+/*
+    Fast because this replay does not recreate nodes from the workbook,
+    instead it just executes the nodes
+*/
 const execFunctions = require('./lib/execFunctions');
-// this replay does not recreate nodes from the workbook,
-// instead it just executes the nodes
+
 function replay(testConfig, tags) {
     let testTabs = new Map(); // { id: string, nodes: [] }
     const testTabMapping = new Map(); // WB tabName => newTabName

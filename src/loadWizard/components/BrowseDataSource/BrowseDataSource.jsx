@@ -167,6 +167,7 @@ class BrowseDataSource extends React.Component {
                     }
                     </div>
                     <SelectedFilesArea
+                        bucket={bucket}
                         selectedFileDir={selectedFileDir}
                         onDeselect={(fileIds) => { this._deselectFiles(fileIds); }}
                     />
