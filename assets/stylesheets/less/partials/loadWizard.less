@@ -671,7 +671,7 @@
         width: 100%;
         padding: 0;
         margin: 16px 0;
-        border-top: solid 1px #888;
+        border-top: solid 1px @color-border-medium;
     }
 
     .sectionTitle {
@@ -681,20 +681,19 @@
     }
 
     .modal {
-        position: absolute; /* Stay in place */
-        z-index: 200; /* Sit on top */
+        position: fixed; /* Stay in place */
+        z-index: @z-index-modal; /* Sit on top */
         left: 0;
         top: 0;
         width: 100%; /* Full width */
         height: 100%; /* Full height */
-        background-color: rgb(0,0,0);
         background-color: rgba(0,0,0,0.5);
 
         .modal-content {
-            background-color: #2e2e2e;
-            margin: 16px;
-            height: ~"calc(100% - 32px)";
-            border: 1px solid #888;
+            background-color: @color-bg-modal;
+            margin: 28px 16px;
+            height: ~"calc(100% - 56px)";
+            border: 1px solid @color-border-medium;
             border-radius: 16px;
             font-size: 14px;
             overflow: hidden;
@@ -709,9 +708,6 @@
             flex: 0 0 auto;
 
             .text {
-                font-weight: 600;
-                font-size: 20px;
-                color: #DDDDDD;
                 display: inline-block;
                 padding-right: 24px;
                 line-height: 26px;
@@ -739,14 +735,14 @@
         }
 
         .modal-body {
-            border-top: 1px solid #888;
+            border-top: 1px solid @color-border-medium;
             padding: 16px;
             flex: 1 1 auto;
             overflow: auto; // allow scrolling
         }
 
         .modal-footer {
-            border-top: 1px solid #888;
+            border-top: 1px solid @color-border-medium;
             padding: 16px;
             flex: 0 0 auto;
         }
