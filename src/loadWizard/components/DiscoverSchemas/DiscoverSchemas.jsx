@@ -17,6 +17,7 @@ const Texts = {
     optionSchema: 'Schema Comparison Algorithm:',
     navButtonLeft: 'Browse',
     navButtonRight: 'Create Table',
+    CreateTableHint: 'Please disocver schema first',
     totalCost: 'Total Cost: $',
     totalTime: 'Total Time:',
     seconds: 'seconds',
@@ -225,6 +226,7 @@ class DiscoverSchemas extends React.Component {
                         right={{
                             label: Texts.navButtonRight,
                             disabled: fileSchemas.size === 0,
+                            tooltip: fileSchemas.size === 0 ? Texts.CreateTableHint : "",
                             onClick: () => { onNextScreen(); }
                         }}
                     />
