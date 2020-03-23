@@ -484,7 +484,7 @@ class LoadConfig extends React.Component {
 
     _setFileType(fileType) {
         if (fileType === this.state.fileType) {
-            return;
+            return false;
         }
 
         this.setState({
@@ -492,6 +492,7 @@ class LoadConfig extends React.Component {
         });
         const inputSerialization = this._resetBrowseResult(fileType);
         this._schemaWorker.reset({inputSerialization: inputSerialization});
+        return true;
     }
 
     _setSchemaPolicy(newPolicy) {
@@ -647,7 +648,7 @@ class LoadConfig extends React.Component {
             : null;
 
         const showBrowse = browseShow;
-        const showDiscover = currentStep === stepEnum.SchemaDiscovery && (discoverFiles.size > 0 || discoverIsLoading);
+        const showDiscover = currentStep === stepEnum.SchemaDiscovery;
         const showCreate = currentStep === stepEnum.CreateTables && discoverFileSchemas.size > 0;
 
         return (
@@ -664,7 +665,13 @@ class LoadConfig extends React.Component {
                         onClickBrowse={() => { this._browseOpen(); }}
                         onBucketChange={(newBucket) => { this._setBucket(newBucket); }}
                         onPathChange={(newPath) => { this._setPath(newPath); }}
-                        onFileTypeChange={(newType) => { this._setFileType(newType); }}
+                        onFileTypeChange={(newType) => {
+                            if (this._setFileType(newType)) {
+                                if (currentStep === stepEnum.SchemaDiscovery || currentStep === stepEnum.CreateTables) {
+                                    this._browseOpen();
+                                }
+                            }
+                        }}
                     />
                     {
                         showBrowse ? <BrowseDataSourceModal
