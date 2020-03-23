@@ -257,7 +257,8 @@ namespace Undo {
     function undoDeleteColHelper(options: {progCols: ProgCol[], tableId: TableId, colNums: number[], columnDeltas: any}): void {
         let progCols: ProgCol[] = options.progCols;
         let tableId: TableId = options.tableId;
-        let currProgCols: ProgCol[] = gTables[tableId].tableCols;
+        let table: TableMeta = gTables[tableId];
+        let currProgCols: ProgCol[] = table.tableCols;
         let colNums: number[] = options.colNums;
         let $table: JQuery = $('#xcTable-' + tableId);
         let dataIndex: number = ColManager.parseColNum($table.find('th.dataCol'));
@@ -281,7 +282,7 @@ namespace Undo {
 
         $table.html(tableHtml);
 
-        TblManager.pullRowsBulk(tableId, jsonData, rowNum, RowDirection.Bottom);
+        TblManager.pullRowsBulk(table, jsonData, rowNum, RowDirection.Bottom);
         TblManager.addColListeners($table, tableId);
         TblManager.updateHeaderAndListInfo(tableId);
         TblFunc.moveFirstColumn();

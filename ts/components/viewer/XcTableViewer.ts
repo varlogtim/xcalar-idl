@@ -136,7 +136,7 @@ class XcTableViewer extends XcViewer {
             }
 
             this._generateTableShell(tableId);
-            this._buildInitialTable(tableId, jsonData, isEmpty);
+            this._buildInitialTable(table, jsonData, isEmpty);
             initialTableBuilt = true;
 
             const $table: JQuery = $('#xcTable-' + tableId);
@@ -201,11 +201,12 @@ class XcTableViewer extends XcViewer {
     }
 
     private _buildInitialTable(
-        tableId: TableId,
+        table: TableMeta,
         jsonData: string[],
         isEmpty: boolean
     ): void {
         const numRows: number = jsonData.length;
+        const tableId: TableId = table.getId();
         const $table: JQuery = $("#xcTable-" + tableId);
         this._addScrollbar();
 
@@ -215,7 +216,7 @@ class XcTableViewer extends XcViewer {
             jsonData = [""];
         }
 
-        TblManager.pullRowsBulk(tableId, jsonData, 0);
+        TblManager.pullRowsBulk(table, jsonData, 0);
         this._addTableListeners(tableId);
         TblManager.addColListeners($table, tableId);
 

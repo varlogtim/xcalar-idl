@@ -103,12 +103,10 @@ class RowManager {
 
     public canScroll(): boolean {
         const table: TableMeta = this.table;
-        const $table: JQuery = this.$view.find(".xcTable");
-
         if (!table || table.hasLock()) {
             return false;
         }
-
+        const $table: JQuery = this.$view.find(".xcTable");
         if ($table.hasClass('scrolling')) {
             return false;
         }
@@ -179,6 +177,7 @@ class RowManager {
             TblManager.removeWaitingCursor(tableId);
             const rowToScrollTo: number = Math.min(targetRow, table.resultSetMax);
             this._positionScrollbar(rowToScrollTo, !noScrollBar);
+            deferred.resolve();
         });
 
         return deferred.promise();
@@ -495,7 +494,7 @@ class RowManager {
         }
 
         const tableId: TableId = table.getId();
-        TblManager.adjustRowHeights($rows, startIndex, tableId);
+        TblManager.adjustRowHeights($rows, startIndex, table);
 
         if (direction === RowDirection.Top) {
             const heightDiff: number = $table.height() - oldTableHeight;
@@ -574,8 +573,7 @@ class RowManager {
                 if (!info.bulk && rowToPrependTo != null) {
                     rowToPrependTo -= numRowsLacking;
                 }
-                const tableId: TableId = table.getId();
-                TblManager.pullRowsBulk(tableId, jsonData, startIndex,
+                TblManager.pullRowsBulk(table, jsonData, startIndex,
                                         direction, rowToPrependTo);
             }
             TblFunc.moveFirstColumn(null);

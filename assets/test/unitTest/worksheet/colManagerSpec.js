@@ -780,7 +780,8 @@ describe('ColManager Test', function() {
             var $table = $("#xcTable-" + tableId);
             var numRows = $table.find('tbody tr').length;
             var jsonData = ['{"a":"b"}'];
-            var $rows = ColManager.pullAllCols(numRows, jsonData, tableId,
+            var table = gTables[tableId];
+            var $rows = ColManager.pullAllCols(numRows, jsonData, table,
                                             RowDirection.Bottom);
             expect($rows.length).to.equal(1); // 1 row
             var newNumRows = numRows + 1;
@@ -794,7 +795,7 @@ describe('ColManager Test', function() {
             numRows = newNumRows;
 
             // same as before but placing row at index 0
-            $rows = ColManager.pullAllCols(0, jsonData, tableId,
+            $rows = ColManager.pullAllCols(0, jsonData, table,
                                             RowDirection.Bottom);
             expect($rows.length).to.equal(1); // 1 row
             newNumRows = numRows + 1;
@@ -810,7 +811,7 @@ describe('ColManager Test', function() {
             jsonData = ['{"' + colName1 + '":"testValue1"}', '{"' + colName2 + '":"testValue2"}'];
 
             // adding 2 rows now, Rowdirection top so prepended
-            $rows = ColManager.pullAllCols(0, jsonData, tableId,
+            $rows = ColManager.pullAllCols(0, jsonData, table,
                                             RowDirection.Top);
             expect($rows.length).to.equal(2); // 2 rows
             newNumRows = numRows + 2;
@@ -836,7 +837,7 @@ describe('ColManager Test', function() {
             numRows = newNumRows;
 
             jsonData = [""];
-            $rows = ColManager.pullAllCols(numRows, jsonData, tableId,
+            $rows = ColManager.pullAllCols(numRows, jsonData, table,
                                             RowDirection.Bottom);
             expect($rows.length).to.equal(1); // 1 row
             newNumRows = numRows + 1;
@@ -850,7 +851,7 @@ describe('ColManager Test', function() {
             numRows = newNumRows;
 
             jsonData = null;
-            $rows = ColManager.pullAllCols(numRows, jsonData, tableId,
+            $rows = ColManager.pullAllCols(numRows, jsonData, table,
                                             RowDirection.Bottom);
             expect($rows.length).to.equal(1); // 1 row
             newNumRows = numRows + 1;
@@ -865,7 +866,7 @@ describe('ColManager Test', function() {
 
             colName1 = xcHelper.getPrefixColName(prefix, 'average_stars');
             jsonData = ['{"' + colName1 + '":null}'];
-            $rows = ColManager.pullAllCols(numRows, jsonData, tableId,
+            $rows = ColManager.pullAllCols(numRows, jsonData, table,
                                             RowDirection.Bottom);
             expect($rows.length).to.equal(1); // 1 row
             newNumRows = numRows + 1;
@@ -881,7 +882,7 @@ describe('ColManager Test', function() {
 
             colName1 = xcHelper.getPrefixColName(prefix, 'average_stars');
             jsonData = ['{"' + colName1 + '":null, badJson}'];
-            $rows = ColManager.pullAllCols(numRows, jsonData, tableId,
+            $rows = ColManager.pullAllCols(numRows, jsonData, table,
                                             RowDirection.Bottom);
             expect($rows.length).to.equal(1); // 1 row
             newNumRows = numRows + 1;

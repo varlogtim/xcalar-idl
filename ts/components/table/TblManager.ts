@@ -870,17 +870,18 @@ class TblManager {
      * @param rowToPrependTo
      */
     public static pullRowsBulk(
-        tableId: TableId,
+        table: TableMeta,
         jsonData: string[],
         startIndex: number = 0,
         direction?: RowDirection,
         rowToPrependTo?: number
     ): void {
+        const tableId: TableId = table.getId();
         const $table: JQuery = $('#xcTable-' + tableId);
-        const $trs: JQuery = ColManager.pullAllCols(startIndex, jsonData, tableId,
+        const $trs: JQuery = ColManager.pullAllCols(startIndex, jsonData, table,
                                             direction, rowToPrependTo);
         TblManager._addRowListeners($trs);
-        TblManager.adjustRowHeights($trs, startIndex, tableId);
+        TblManager.adjustRowHeights($trs, startIndex, table);
 
         const idColWidth: number = xcUIHelper.getTextWidth($table.find('tr:last td:first'));
         const newWidth: number = Math.max(idColWidth, 22);
@@ -912,14 +913,14 @@ class TblManager {
      * TblManager.adjustRowHeights
      * @param $trs
      * @param rowIndex
-     * @param tableId
+     * @param table
      */
     public static adjustRowHeights(
         $trs: JQuery,
         rowIndex: number,
-        tableId: TableId
+        table: TableMeta
     ): void {
-        const rowObj: object[] = gTables[tableId].rowHeights;
+        const rowObj: object[] = table.rowHeights;
         const numRows: number = $trs.length;
         const pageNum: number = Math.floor(rowIndex / TableMeta.NumEntriesPerPage);
         const lastPageNum: number = pageNum + Math.ceil(numRows / TableMeta.NumEntriesPerPage);

@@ -911,11 +911,11 @@ namespace ColManager {
     export function pullAllCols(
         startIndex: number,
         jsonData,
-        tableId: TableId,
+        table: TableMeta,
         direction: number,
         rowToPrependTo: number
     ): JQuery {
-        let table = gTables[tableId];
+        let tableId: TableId = table.getId();
         let tableCols = table.tableCols;
         let numCols = table.getNumCols();
         let indexedColNums = [];
@@ -1776,7 +1776,7 @@ namespace ColManager {
         });
         $tbody.empty(); // remove tbody contents for pullrowsbulk
 
-        TblManager.pullRowsBulk(tableId, jsonData, rowNum, RowDirection.Bottom);
+        TblManager.pullRowsBulk(gTables[tableId], jsonData, rowNum, RowDirection.Bottom);
         TblManager.updateHeaderAndListInfo(tableId);
         TblFunc.moveFirstColumn();
     }
