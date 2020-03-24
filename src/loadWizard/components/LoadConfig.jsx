@@ -133,8 +133,10 @@ class LoadConfig extends React.Component {
         }
 
         // State: cleanup and +loading
+        let createInProgress = this.state.createInProgress;
+        createInProgress.set(schemaName, {table: tableName, message: ""});
         this.setState({
-            createInProgress: this.state.createInProgress.set(schemaName, tableName),
+            createInProgress: createInProgress,
             createFailed: deleteEntry(this.state.createFailed, schemaName),
             createTables: deleteEntry(this.state.createTables, schemaName),
             tableToCreate: deleteEntry(this.state.tableToCreate, schemaName)
@@ -147,7 +149,13 @@ class LoadConfig extends React.Component {
                 tableName,
                 schemaInfo.files,
                 schemaInfo.columns,
-                this.state.inputSerialization
+                this.state.inputSerialization,
+                (message) => {
+                    createInProgress.set(schemaName, {table: tableName, message});
+                    this.setState({
+                        createInProgress,
+                    });
+                }
             );
             // State: -loading + created
             this.setState({
@@ -164,10 +172,6 @@ class LoadConfig extends React.Component {
             });
         } finally {
             WorkbookManager.resetXDInternalSession();
-            // Fallback: -loading
-            this.setState({
-                createInProgress: deleteEntry(this.state.createInProgress, schemaName),
-            });
         }
 
     }

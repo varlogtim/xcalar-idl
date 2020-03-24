@@ -269,8 +269,9 @@ function LoadTable({
         };
 
         if (schemasInProgress.has(schemaName)) {
-            rowData.load = <LoadCell.Loading />
-            rowData.tableName = schemasInProgress.get(schemaName);
+            const {table, message} = schemasInProgress.get(schemaName);
+            rowData.load = <LoadCell.Loading message={message}/>
+            rowData.tableName = table;
         } else if (schemasFailed.has(schemaName)) {
             rowData.load = <LoadCell.Error error={schemasFailed.get(schemaName)} />
         } else if (tables.has(schemaName)) {

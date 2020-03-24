@@ -134,7 +134,13 @@ async function checkTableName(tableName) {
     }
 }
 
-async function createTableAndComplements(paths, schema, inputSerialObject, tableName) {
+function updateProgress(messge, cb) {
+    if (typeof cb === "function") {
+        cb(messge);
+    }
+}
+
+async function createTableAndComplements(paths, schema, inputSerialObject, tableName, progressCB) {
     /*
      * paths => list of paths to create the data from
      * schema => a schema object returned from a discoverSchema call
@@ -165,13 +171,15 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
     };
 
     try {
+        updateProgress("Progress 0%", progressCB);
         await loadStore.save();
         await XcalarDatasetLoad(myDatasetName, options);
     } finally {
         await loadStore.delete();
     }
     // do a bunch of table operations
-    const hasDeleteComplement = await datasetToTableWithComplements(myDatasetName, tableName, compName);
+    updateProgress("Progress: 30%", progressCB);
+    const hasDeleteComplement = await datasetToTableWithComplements(myDatasetName, tableName, compName, progressCB);
     PTblManager.Instance.addTable(tableName);
     if (!hasDeleteComplement) {
         PTblManager.Instance.addTable(compName);
@@ -241,7 +249,7 @@ async function getPublishedTableNames(tableName) {
     console.log("Published Tables: " + JSON.stringify(publishedTables))
 }
 
-async function datasetToTableWithComplements(datasetName, finalTableName, finalComplementsName) {
+async function datasetToTableWithComplements(datasetName, finalTableName, finalComplementsName, progressCB) {
     // this is the function that divides the dataset into the
     // primary and complements table along with the requisite
     // steps to publish both tables.
@@ -280,7 +288,7 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
             ordering:"Unordered"})],
         datasetName
     );
-
+    updateProgress("Progress: 35%", progressCB);
     // Build string-cast evals for map
     let allEvals = [];
     let allColumnNames = tableColumnNames.concat(complementColumnNames);
@@ -294,6 +302,7 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     destTableName = genTableName(datasetName + "_map");
     await xcalarApiMap(tHandle, allColumnNames, allEvals, srcTableName, destTableName);
     deletePromises.push(_deleteTempTable(srcTableName));
+    updateProgress("Progress: 38%", progressCB);
 
     // Add Xcalar Row Number PK
     const xcalarRowNumPkName = "XcalarRowNumPk";
@@ -306,6 +315,7 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
 
     complementColumnNames.push(xcalarRowNumPkName);
     tableColumnNames.push(xcalarRowNumPkName);
+    updateProgress("Progress: 40%", progressCB);
 
     // Filter
     // At this point we need to run two filters to split of the table and it's complements.
@@ -318,6 +328,7 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     await xcalarFilter(tHandle, "eq(" + icvColumnName + ", '')", srcTableName, destTableName);
     deletePromises.push(_deleteTempTable(srcTableName));
     deletePromises.push(_deleteTempTable(srcCompTableName));
+    updateProgress("Progress: 42%", progressCB);
 
     // Index on Xcalar Row Number PK
     log("Indexing on Xcalar Row Number Primary Key");
@@ -347,6 +358,7 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     );
     deletePromises.push(_deleteTempTable(srcTableName));
     deletePromises.push(_deleteTempTable(srcCompTableName));
+    updateProgress("Progress: 55%", progressCB);
 
     // Project tables...
     log("Projecting columns for table and complements");
@@ -362,6 +374,7 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
         srcTableName, destTableName);
     deletePromises.push(_deleteTempTable(srcTableName));
     deletePromises.push(_deleteTempTable(srcCompTableName));
+    updateProgress("Progress: 65%", progressCB);
 
     // at this point we don't rely on fat pointer, so dataset can be dropped
     log("Delete dataset");
@@ -386,6 +399,7 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
         srcTableName, destTableName);
     _deleteTempTable(srcTableName);
     _deleteTempTable(srcCompTableName);
+    updateProgress("Progress: 70%", progressCB);
 
     // Publish tables...
     log("Publishing tables... :)");
@@ -397,6 +411,7 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     log("COMPLEMENTS CREATED: '" + finalComplementsName + "'");
     _deleteTempTable(srcTableName);
     _deleteTempTable(srcCompTableName);
+    updateProgress("Progress: 100%", progressCB);
 
     return hasDelete;
 }
@@ -667,42 +682,17 @@ export async function discoverSingleFile(path, inputSerialization) {
  * @param {[{ path, size }]} paths
  * @param {{ numColumns, columns }} schema
  * @param {*} inputSerial
+ * @param {func} progressCB
  */
-export async function createTableFromSchema(tableName, paths, schema, inputSerial) {
-    return await createTableAndComplements(paths, schema, inputSerial, tableName);
+export async function createTableFromSchema(
+    tableName,
+    paths,
+    schema,
+    inputSerial,
+    progressCB
+) {
+    return await createTableAndComplements(paths, schema, inputSerial, tableName, progressCB);
 }
-
-// export async function exampleCsvRun(tableName=null, paths=null, inputSerial=null) {
-//     // Defaults
-//     checkTableName(tableName); // FIX ME
-//     if (paths == null) {
-//         paths = [
-//             '/xcfield/idm_demo/element_list_0.csv',
-//             '/xcfield/idm_demo/element_list_1.csv',
-//             '/xcfield/idm_demo/element_list_2.csv',
-//             '/xcfield/idm_demo/element_list_3.csv',
-//             '/xcfield/idm_demo/element_list_4.csv',
-//             '/xcfield/idm_demo/element_list_5.csv'
-//             // '/xcmarketplace-us-east-1/datasets/POSQ3.csv'
-//         ];
-//     }
-//     if (inputSerial == null) {
-//         inputSerial = {
-//             'CSV': {'FileHeaderInfo': 'USE'}
-
-//         };
-//     }
-
-
-//     const inputSerialJson = getInputSerial(inputSerial);
-
-//     const discoverResponse = await discoverSchemas(paths, inputSerialJson);
-//     const successfulPaths = getSuccessfulPaths(discoverResponse);
-//     const schema = getLastSchema(discoverResponse);
-
-//     await createTableAndComplements(successfulPaths, schema, inputSerial, tableName);
-// }
-
 
 function log() {
     if (typeof verbose !== "undefined" && verbose === true) {

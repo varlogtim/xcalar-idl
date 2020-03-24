@@ -13,8 +13,12 @@ function Create({ onClick }) {
     return <button onClick={onClick}>{Texts.createButtonLabel}</button>
 }
 
-function Loading() {
-    return <span>{Texts.creatingTable}</span>
+function Loading({ message }) {
+    let loadginMessage = Texts.creatingTable;
+    if (message) {
+        loadginMessage += " (" + message + ")";
+    }
+    return <span>{loadginMessage}</span>
 }
 
 function Success({ complementTable }) {
