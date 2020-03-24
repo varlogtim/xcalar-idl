@@ -22,11 +22,15 @@ export default class SourceCSVArgSection extends React.Component{
         const isConfigChanged = this._isConfigChanged(initConfig.CSV, csvConfig);
         const hasError = Object.keys(errorInputs).length > 0;
         const { FileHeaderInfo, AllowQuotedRecordDelimiter } = csvConfig;
-
+        const buttonClasses = ["btn", "btn-secondary"];
+        if (!isConfigChanged || hasError) {
+            buttonClasses.push("btn-disabled");
+        }
         return (
             <AdvOption.OptionGroup>
                 <CSVArgChoice
                     label="Header Option:"
+                    classNames={["fullRow"]}
                     value={FileHeaderInfo}
                     options={
                         [CSVHeaderOption.USE, CSVHeaderOption.IGNORE, CSVHeaderOption.NONE].map(
@@ -59,20 +63,18 @@ export default class SourceCSVArgSection extends React.Component{
                         })
                     }}
                 />
-                {
-                    isConfigChanged && !hasError
-                        ? <AdvOption.Option>
-                            <AdvOption.OptionLabel></AdvOption.OptionLabel>
-                            <AdvOption.OptionValue>
-                                <button
-                                className="btn btn-secondary"
-                                onClick={() => {
-                                    onConfigChange(this.convert(this.state.csvConfig));
-                                }}>Done</button>
-                            </AdvOption.OptionValue>
-                        </AdvOption.Option>
-                        : null
-                }
+                <AdvOption.Option>
+                    <AdvOption.OptionLabel></AdvOption.OptionLabel>
+                    <AdvOption.OptionValue>
+                        <button
+                        className={buttonClasses.join(" ")}
+                        onClick={() => {
+                            onConfigChange(this.convert(this.state.csvConfig));
+                        }}>
+                            Apply Changes
+                        </button>
+                    </AdvOption.OptionValue>
+                </AdvOption.Option>
             </AdvOption.OptionGroup>
         )
     }
@@ -245,7 +247,7 @@ function CSVArgInput(props) {
 function CSVArgChoice(props) {
     const { label, value, options, onChange } = props;
     return (
-        <AdvOption.Option>
+        <AdvOption.Option classNames={props.classNames}>
             <AdvOption.OptionLabel>{label}</AdvOption.OptionLabel>
             <AdvOption.OptionValue>
                 <InputDropdown

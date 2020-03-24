@@ -10,10 +10,11 @@ import * as SchemaService from '../../services/SchemaService';
 
 const Texts = {
     Loading: 'Loading ...',
+    discoverTitle: 'Discover Schema',
     discoverAll: 'Discover All',
     cancelDiscoverAll: 'Stop',
     stoppingDiscoverAll: 'Stopping',
-    advancedOptions: 'Advanced Options:',
+    advancedOptions: 'Configuration',
     optionSchema: 'Schema Comparison Algorithm:',
     navButtonLeft: 'Browse',
     navButtonRight: 'Create Table',
@@ -159,7 +160,6 @@ class DiscoverSchemas extends React.Component {
         if (isLoading) {
             return (
                 <div className="filesSelected">
-                    {children}
                     <span>{Texts.Loading}</span>
                 </div>
             );
@@ -168,47 +168,56 @@ class DiscoverSchemas extends React.Component {
             const isDiscoverInProgress = inProgressFiles.size > 0;
 
             return (
-                <div className="filesSelected">
-                    {children}
-                    <DiscoverAllSection
-                        onClickDiscoverAll={onClickDiscoverAll}
-                        onClickCancelAll={onCancelDiscoverAll}
-                        doneCount={fileSchemas.size + failedFiles.size}
-                        totalCount={discoverFiles.length}
-                    />
+                <React.Fragment>
                     {/* <CostEstimation files={discoverFiles} /> */}
+                    {
+                    needConfig ?
                     <AdvOption.Container>
                         <AdvOption.Title>{Texts.advancedOptions}</AdvOption.Title>
-                        {
-                            needConfig ? <AdvOption.Option><SourceCSVArgSection
-                                config={inputSerialization}
-                                onConfigChange={(newConfig) => {
-                                    this.setState({ schemaShowing: null });
-                                    onInputSerialChange(newConfig);
-                                }}
-                            /></AdvOption.Option> : null
-                        }
-                        <AdvOption.OptionGroup><AdvOption.Option>
-                            <AdvOption.OptionLabel>{Texts.optionSchema}</AdvOption.OptionLabel>
-                            <AdvOption.OptionValue><InputDropdown
-                                val={schemaPolicy}
-                                onInputChange={(policy) => {
-                                    onSchemaPolicyChange(policy);
-                                }}
-                                onSelect={(policy) => {
-                                    onSchemaPolicyChange(policy);
-                                }}
-                                list={
-                                    [SchemaPolicy.SUPERSET, SchemaPolicy.EXACT, SchemaPolicy.UNION, SchemaPolicy.TRAILING]
-                                    .map((policy) => {
-                                        return {text: policy, value: policy};
-                                    })
-                                }
-                                readOnly
-                                disabled={isDiscoverInProgress}
-                            /></AdvOption.OptionValue>
-                        </AdvOption.Option></AdvOption.OptionGroup>
-                    </AdvOption.Container>
+                        <SourceCSVArgSection
+                            config={inputSerialization}
+                            onConfigChange={(newConfig) => {
+                                this.setState({ schemaShowing: null });
+                                onInputSerialChange(newConfig);
+                            }}
+                        />
+                    </AdvOption.Container> : null
+                    }
+                <div className="filesSelected">
+                    <div class="header">{Texts.discoverTitle}</div>
+                    <div class="section">
+                        <AdvOption.Container>
+                            <AdvOption.OptionGroup>
+                                <AdvOption.Option>
+                                    <AdvOption.OptionLabel>{Texts.optionSchema}</AdvOption.OptionLabel>
+                                    <AdvOption.OptionValue>
+                                        <InputDropdown
+                                        val={schemaPolicy}
+                                        onInputChange={(policy) => {
+                                            onSchemaPolicyChange(policy);
+                                        }}
+                                        onSelect={(policy) => {
+                                            onSchemaPolicyChange(policy);
+                                        }}
+                                        list={
+                                            [SchemaPolicy.SUPERSET, SchemaPolicy.EXACT, SchemaPolicy.UNION, SchemaPolicy.TRAILING]
+                                            .map((policy) => {
+                                                return {text: policy, value: policy};
+                                            })
+                                        }
+                                        readOnly
+                                        disabled={isDiscoverInProgress}/>
+                                    </AdvOption.OptionValue>
+                                </AdvOption.Option>
+                            </AdvOption.OptionGroup>
+                        </AdvOption.Container>
+                        <DiscoverAllSection
+                            onClickDiscoverAll={onClickDiscoverAll}
+                            onClickCancelAll={onCancelDiscoverAll}
+                            doneCount={fileSchemas.size + failedFiles.size}
+                            totalCount={discoverFiles.length}
+                        />
+                    </div>
                     <DiscoverTable
                         discoverFiles={discoverFiles}
                         inProgressFiles={inProgressFiles}
@@ -233,6 +242,7 @@ class DiscoverSchemas extends React.Component {
                     {schemaInfo == null ? null : <pre>{JSON.stringify(schemaInfo, null, ' ')}</pre>}
                     {/* <SchemaChart selectedData={selectedData} schemasObject={schemasObject}/> */}
                 </div>
+                </React.Fragment>
             );
         }
     }

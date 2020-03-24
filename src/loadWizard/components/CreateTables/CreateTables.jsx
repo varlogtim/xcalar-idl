@@ -7,7 +7,7 @@ const Texts = {
     totalCost: 'Total Cost: $',
     totalTime: 'Total Time: ',
     timeSeconds: 'seconds',
-    navButtonLeft: 'Discover Schema',
+    navButtonLeft: 'Back',
     navButtonRight: 'Navigate to Notebook',
     navToNotebookHint: "Please create a table first",
 };

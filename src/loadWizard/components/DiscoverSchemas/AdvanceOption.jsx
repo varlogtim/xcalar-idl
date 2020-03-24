@@ -5,15 +5,16 @@ function Container({ children }) {
 }
 
 function Title({ children }) {
-    return <header className="advOption-header">{children}</header>
+    return <div className="header advOption-header">{children}</div>
 }
 
 function OptionGroup({ children }) {
     return <div className="advOption-group">{children}</div>
 }
 
-function Option({ children }) {
-    return <div className="advOption-option">{children}</div>
+function Option({ children, classNames = [] }) {
+    classNames = ["advOption-option", ...classNames]
+    return <div className={classNames.join(" ")}>{children}</div>
 }
 
 function OptionLabel({ onClick, children }) {

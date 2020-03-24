@@ -21,73 +21,104 @@
         height: 100%;
 
         .cardMain {
-            padding: 20px;
+            padding: 0;
             height: ~"calc(100% - 36px)";
             overflow-y: auto;
             position: relative;
+
+            > div {
+                padding: 8px 16px;
+                border-bottom: 1px solid @color-border-medium;
+
+                &:last-child {
+                    border-bottom: none;
+                }
+
+                .header {
+                    font-size: 16px;
+                    font-weight: 600;
+                    margin-bottom: 8px;
+                }        
+            }
         }
     }
 
-    .box {
-        padding: 40px;
-        padding-top: 10px;
+    .topSection {    
+        .getForensics {
+            margin-top: 8px;
+        }
     }
 
     .sourceForm {
-        @w-label: 120px;
+        @w-label: 70px;
+        @button-w: 120px;
+        @margin: 16px;
 
-        .label {
-            display: block;
-            float: left;
-            width: 120px;
-            line-height: 30px;
+        .row {
+            display: flex;
+            flex-direction: row;
+            height: 30px;
+            margin-bottom: 8px;
+
+            .bucketSelection {
+                flex: 1 1 auto;
+                padding-right: @button-w + @margin;
+            }
+
+            .pathSelection, .fileTypeSelection {
+                @w: @button-w / 2;
+                flex: 1 1 ~"calc(50% - @{w})";
+                margin-right: @margin;
+            }
+
+            .navButtons {
+                margin-left: 0;
+                margin-top: 3px;
+                width: @button-w;
+
+                button {
+                    width: @button-w;
+                }
+            }
         }
 
         .bucketSelection, .pathSelection, .fileTypeSelection {
             height: 30px;
-            margin-bottom: 8px;
-            display: flex;
-            .input {
-                width: ~"calc(100% - @{w-label})";
+
+            .label {
+                display: block;
+                float: left;
+                width: @w-label;
                 line-height: 30px;
             }
-            .fieldWrap {
-                flex: 1 1 auto;
-            }
         }
 
-        .fileTypeSelection {
-            .iconWrapper {
-                margin-right: 4px;
-            }
+        .bucketSelection, .fileTypeSelection {
+            .dropDownList {
+                .styleDropDownList(~"calc(100% - @{w-label})", 30px);
 
-            .option {
-                padding-right: 8px;
-            }
-        }
+                .text {
+                    outline: none;
+                }
 
-        .bucketSelection {
-            .fieldWrap {
-                > .dropDownList {
-                    .styleDropDownList(~"calc(100% - @{w-label})", 30px);
-
-                    .text {
-                        outline: none;
-                    }
-
-                    &.open {
-                        .list {
-                            display: block;
-                        }
+                &.open {
+                    .list {
+                        display: block;
                     }
                 }
             }
         }
 
         .pathSelection {
-            .navButtons {
-                margin-top: 3px;
-                margin-left: 16px;
+            .input {
+                width: ~"calc(100% - @{w-label})";
+                line-height: 30px;
+            }
+        }
+
+        .fileTypeSelection {
+            input, li {
+                text-transform: uppercase;
             }
         }
     }
@@ -446,19 +477,20 @@
     }
 
     .filesSelected {
+        .section {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+
+            > div {
+                flex: 1 1 auto;
+                height: 38px;
+                line-height: 38px;
+            }
+        }
+
         .MuiPaper-root {
             padding: 0 4px;
-        }
-    }
-
-    .discoverAll {
-        margin-bottom: 8px;
-    }
-
-    #loadAll {
-        margin-bottom: 8px;
-        button {
-            margin-right: 4px;
         }
     }
 
@@ -612,40 +644,54 @@
     .discoverTable {
         position: relative;
         z-index: 0;
+        margin-bottom: 16px;
 
         .MuiTableCell-paddingNone {
             padding: 2px;
         }
+
+        .MuiPaper-root {
+            box-shadow: none;
+            border: 1px solid @color-border-medium;
+        }
+
+        .MuiToolbar-gutters {
+            padding-left: 0;
+        }
     }
 
     .advOption {
-        .advOption-header {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
         .advOption-group {
-            flex-grow: 1;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
         }
 
         .advOption-option {
-            margin: 4px 0;
+            margin: 4px;
             padding: 0;
-            width: 100%;
+            min-width: 450px;
             display: flex;
             flex-direction: row;
+
+            &.fullRow {
+                width: 100%;;
+            }
         }
 
         .advOption-option-label {
-            font-size: 14px;
-            flex-basis: 220px;
             display: flex;
             align-items: center;
+            margin-right: 8px;
         }
 
         .advOption-option-value {
             flex-grow: 1;
             .clearfix();
+        }
+
+        button {
+            float: right;
         }
     }
 
@@ -680,12 +726,6 @@
         padding: 0;
         margin: 16px 0;
         border-top: solid 1px @color-border-medium;
-    }
-
-    .sectionTitle {
-        font-size: 20px;
-        font-weight: 600;
-        padding-bottom: 8px;
     }
 
     .modal {

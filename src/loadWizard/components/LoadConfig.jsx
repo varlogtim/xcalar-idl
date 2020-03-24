@@ -1,6 +1,5 @@
 import React from 'react';
 import crypto from 'crypto';
-import Path from 'path';
 import SourceData from './SourceData';
 import { BrowseDataSourceModal } from './BrowseDataSource';
 import DiscoverSchemas from './DiscoverSchemas';
@@ -711,8 +710,6 @@ class LoadConfig extends React.Component {
                             onSchemaPolicyChange={(newPolicy) => { this._setSchemaPolicy(newPolicy); }}
                             onNextScreen = {() => { this._changeStep(stepEnum.CreateTables); }}
                         >
-                            <SectionSeparate />
-                            <SectionTitle>{Texts.stepNameSchemaDiscover}</SectionTitle>
                         </DiscoverSchemas> : null
                     }
                     {(() => {
@@ -741,8 +738,7 @@ class LoadConfig extends React.Component {
                                 onClickCreateTable={(schemaName, tableName) => { this._createTableFromSchema(schemaName, tableName); }}
                                 onPrevScreen = {() => { this._changeStep(stepEnum.SchemaDiscovery); }}
                             >
-                                <SectionSeparate />
-                                <SectionTitle>{Texts.stepNameCreateTables}</SectionTitle>
+                                <div className="header">{Texts.stepNameCreateTables}</div>
                             </CreateTables>
                         );
                     })()}
@@ -752,14 +748,6 @@ class LoadConfig extends React.Component {
             </div>
         );
     }
-}
-
-function SectionSeparate() {
-    return <div className="sep"></div>
-}
-
-function SectionTitle({children}) {
-    return <div className="sectionTitle">{children}</div>
 }
 
 export { LoadConfig, stepEnum };

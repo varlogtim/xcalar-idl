@@ -1,23 +1,19 @@
 #loadScreen {
     z-index: @z-index-workbook + 1;
-    @h-header: 42px;
     @w-tabSection: 157px;
 
-    header {
-        padding-top: 8px;
+    > .topBar {
         padding-left: 8px;
-        height: @h-header;
-        font-weight: 600;
-        font-size: 20px;
-        line-height: 26px;
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 32px;
     }
 
     .contentSection {
-        height: ~"calc(100% - @{h-header})";
+        height: 100%;
         display: flex;
         flex-direction: row;
         padding: 0;
-        border-top: 1px solid @color-border-medium2;
 
         > .tabSection {
             flex: 0 0 @w-tabSection;
