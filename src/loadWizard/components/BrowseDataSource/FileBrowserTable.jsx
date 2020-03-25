@@ -1,5 +1,5 @@
 import React from 'react';
-import { Folder, FileCopy, InsertDriveFileOutlined, LensOutlined } from '@material-ui/icons';
+import { Folder, FileCopy, InsertDriveFileOutlined } from '@material-ui/icons';
 import prettyBytes from 'pretty-bytes';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
@@ -61,65 +61,63 @@ class MuiVirtualizedTable extends React.PureComponent {
         this.cellRenderer = this.cellRenderer.bind(this);
         this.headerRenderer = this.headerRenderer.bind(this);
         this.checkboxCellRenderer = this.checkboxCellRenderer.bind(this);
+        this.infoCellRenderer = this.infoCellRenderer.bind(this);
+        this.infoHeaderRenderer = this.infoHeaderRenderer.bind(this);
         this.checkboxHeaderRenderer = this.checkboxHeaderRenderer.bind(this);
+
         this.handleCheckboxClick = this.handleCheckboxClick.bind(this);
         this.onSelectAllClick = this.onSelectAllClick.bind(this);
         this.sort = this.sort.bind(this);
     }
 
-  getRowClassName({ index }) {
-    const { classes, onPathChange } = this.props;
+    getRowClassName({ index }) {
+        const { classes, onPathChange } = this.props;
 
-    return clsx(classes.tableRow, classes.flexContainer, {
-      [classes.tableRowHover]: index !== -1 && onPathChange != null,
-    });
-  };
-
- handleCheckboxClick(event, fileId) {
-    if (this.props.selectedIds.has(fileId)) {
-        this.props.onDeselect(new Set([fileId]));
-    } else {
-        this.props.onSelect(new Set([fileId]));
-    }
-  }
-
-  onSelectAllClick() {
-    if (this.props.selectedIds.size === 0) {
-        const fileIds = new Set();
-        this.props.fileList.forEach((file) => {
-            fileIds.add(file.fileId);
+        return clsx(classes.tableRow, classes.flexContainer, {
+        [classes.tableRowHover]: index !== -1 && onPathChange != null,
         });
-      this.props.onSelect(fileIds);
-    } else {
-        this.props.onDeselect(this.props.selectedIds);
+    };
+
+    handleCheckboxClick(event, fileId) {
+        if (this.props.selectedIds.has(fileId)) {
+            this.props.onDeselect(new Set([fileId]));
+        } else {
+            this.props.onSelect(new Set([fileId]));
+        }
     }
-}
 
+    onSelectAllClick() {
+        if (this.props.selectedIds.size === 0) {
+            const fileIds = new Set();
+            this.props.fileList.forEach((file) => {
+                fileIds.add(file.fileId);
+            });
+        this.props.onSelect(fileIds);
+        } else {
+            this.props.onDeselect(this.props.selectedIds);
+        }
+    }
 
-  cellRenderer(info) {
-    const {cellData} = info;
-    const { classes, rowHeight, onPathChange } = this.props;
-    let text = info.customRender ? info.customRender(info.rowData) : cellData;
-    return (
-      <TableCell
-        component="div"
-        className={clsx(classes.tableCell, classes.flexContainer, {
-          [classes.noClick]: onPathChange == null,
-        })}
-        variant="body"
-        style={{ height: rowHeight }}
-        align={'left'}
-        onClick={() => {
-            if (info.rowData.directory) {
-                onPathChange(info.rowData.fullPath);
-            }
-        }}
-      >
-        <div className="innerCell">{text}</div>
-      </TableCell>
-    );
-  }
-
+    checkboxHeaderRenderer({ label, columnIndex }) {
+        const { headerHeight, classes } = this.props;
+        return (
+        <TableCell
+            component="div"
+            className={clsx(classes.tableCell, classes.flexContainer, classes.noClick)}
+            variant="head"
+            style={{ height: headerHeight }}
+            align={'left'}
+        >
+            <Checkbox
+                size="small"
+                color="primary"
+                indeterminate={this.props.selectedIds.size > 0 && this.props.selectedIds.size < this.props.rowCount}
+                checked={this.props.rowCount > 0 && this.props.selectedIds.size === this.props.rowCount}
+                onChange={this.onSelectAllClick}
+            />
+        </TableCell>
+        );
+    };
 
     headerRenderer(info) {
         const { label, columnIndex, dataKey } = info;
@@ -147,63 +145,115 @@ class MuiVirtualizedTable extends React.PureComponent {
         );
     };
 
-  checkboxCellRenderer(info) {
-    const {
-        cellData: fileId,
-        columnIndex
-    } = info;
-    const {classes, rowHeight, onRowClick } = this.props;
+    infoHeaderRenderer(info) {
+        const { headerHeight, classes } = this.props;
+        return (
+        <TableCell
+            component="div"
+            className={clsx(classes.tableCell, classes.flexContainer, classes.noClick)}
+            variant="head"
+            style={{ height: headerHeight }}
+            align={'left'}
+        >
+            <span>Info</span>
+        </TableCell>
+        );
+    };
 
-    return (
-      <TableCell
-        component="div"
-        className={clsx(classes.tableCell, classes.flexContainer, {
-          [classes.noClick]: onRowClick == null,
-        })}
-        variant="body"
-        style={{ height: rowHeight }}
-        align={'left'}
-      >
-        <Checkbox
-            size="small"
-            color="primary"
-            checked={this.props.selectedIds.has(fileId)}
-            onChange={event => this.handleCheckboxClick(event, fileId)}
-        />
-      </TableCell>
-    );
-  };
+    checkboxCellRenderer(info) {
+        const {
+            cellData: fileId,
+            columnIndex
+        } = info;
+        const {classes, rowHeight, onRowClick } = this.props;
 
-  checkboxHeaderRenderer({ label, columnIndex }) {
-    const { headerHeight, classes } = this.props;
-    return (
-      <TableCell
-        component="div"
-        className={clsx(classes.tableCell, classes.flexContainer, classes.noClick)}
-        variant="head"
-        style={{ height: headerHeight }}
-        align={'left'}
-      >
-        <Checkbox
-            size="small"
-            color="primary"
-            indeterminate={this.props.selectedIds.size > 0 && this.props.selectedIds.size < this.props.rowCount}
-            checked={this.props.rowCount > 0 && this.props.selectedIds.size === this.props.rowCount}
-            onChange={this.onSelectAllClick}
-          />
-      </TableCell>
-    );
-  };
+        return (
+          <TableCell
+            component="div"
+            className={clsx(classes.tableCell, classes.flexContainer, {
+              [classes.noClick]: onRowClick == null,
+            })}
+            variant="body"
+            style={{ height: rowHeight }}
+            align={'left'}
+          >
+            <Checkbox
+                size="small"
+                color="primary"
+                checked={this.props.selectedIds.has(fileId)}
+                onChange={event => this.handleCheckboxClick(event, fileId)}
+            />
+          </TableCell>
+        );
+    };
 
-  sort(info) {
-    const {sortBy, sortDirection} = info;
-    if (sortBy === "fileId" || sortBy === "directory") {
-        return;
+    cellRenderer(info) {
+        const {cellData} = info;
+        const { classes, rowHeight, onPathChange } = this.props;
+        let text = info.customRender ? info.customRender(info.rowData) : cellData;
+        return (
+        <TableCell
+            component="div"
+            className={clsx(classes.tableCell, classes.flexContainer, {
+            [classes.noClick]: onPathChange == null,
+            })}
+            variant="body"
+            style={{ height: rowHeight }}
+            align={'left'}
+            onClick={() => {
+                if (info.rowData.directory) {
+                    onPathChange(info.rowData.fullPath);
+                }
+            }}
+        >
+            <div className="innerCell">{text}</div>
+        </TableCell>
+        );
     }
-    const sortedList = this.sortList({sortBy, sortDirection});
 
-    this.setState({sortBy, sortDirection, sortedList});
-  }
+    infoCellRenderer(info) {
+        const {
+            cellData: fileId,
+            columnIndex
+        } = info;
+        const {classes, rowHeight, onInfoClick } = this.props;
+        let tooltip = info.rowData.directory ? "View Directory Info" : "";
+        return (
+            <TableCell
+                component="div"
+                className={clsx(classes.tableCell, classes.flexContainer, {
+                    [classes.noClick]: info.rowData.directory == false})}
+                variant="body"
+                style={{ height: rowHeight }}
+                align={'left'}
+                onClick={() => {
+                    if (info.rowData.directory) {
+                        onInfoClick(info.rowData.fullPath);
+                    }
+                }}
+                data-toggle="tooltip"
+                data-container="body"
+                data-placement="auto top"
+                data-original-title={tooltip}
+                data-delay="100"
+            >
+                {info.rowData.directory ? <i
+                    className="icon xi-info-circle-outline"
+                    ></i>
+                : null}
+            </TableCell>
+        );
+    };
+
+    sort(info) {
+        const {sortBy, sortDirection} = info;
+        if (sortBy === "fileId" || sortBy === "directory" || sortBy === "fullPath") {
+            return;
+        }
+        const sortedList = this.sortList({sortBy, sortDirection});
+
+        this.setState({sortBy, sortDirection, sortedList});
+    }
 
     sortList(info) {
         let {sortBy, sortDirection} = info;
@@ -229,78 +279,86 @@ class MuiVirtualizedTable extends React.PureComponent {
         return list;
     }
 
-  render() {
-    const { classes, columns, rowHeight, headerHeight, fileList, ...tableProps } = this.props;
-    const {
-        overscanRowCount,
-        sortBy,
-        sortDirection,
-        sortedList
-    } = this.state;
+    render() {
+        const { classes, columns, rowHeight, headerHeight, fileList, ...tableProps } = this.props;
+        const {
+            overscanRowCount,
+            sortBy,
+            sortDirection,
+            sortedList
+        } = this.state;
 
-    return (
-      <AutoSizer>
-        {({ height, width }) => (
-          <Table
-            height={height}
-            width={width}
-            rowHeight={rowHeight}
-            gridStyle={{
-              direction: 'inherit',
-            }}
-            headerHeight={headerHeight}
-            className={classes.table}
-            size="small"
-            {...tableProps}
-            rowClassName={this.getRowClassName}
-            overscanRowCount={overscanRowCount}
-            sort={this.sort}
-            sortBy={sortBy}
-            sortDirection={sortDirection}
-            rowGetter={({index}) => sortedList[index]}
-          >
-            <Column
-                  key={"fileId"}
-                  headerRenderer={headerProps =>
-                    this.checkboxHeaderRenderer({
-                      ...headerProps,
-                      columnIndex: 0,
-                    })
-                  }
-                  className={classes.flexContainer}
-                  cellRenderer={this.checkboxCellRenderer}
-                  dataKey={"fileId"}
+        return (
+        <AutoSizer>
+            {({ height, width }) => (
+            <Table
+                height={height}
+                width={width}
+                rowHeight={rowHeight}
+                gridStyle={{
+                direction: 'inherit',
+                }}
+                headerHeight={headerHeight}
+                className={classes.table}
+                size="small"
+                {...tableProps}
+                rowClassName={this.getRowClassName}
+                overscanRowCount={overscanRowCount}
+                sort={this.sort}
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                rowGetter={({index}) => sortedList[index]}
+            >
+                <Column
+                    headerRenderer={headerProps =>
+                        this.checkboxHeaderRenderer({
+                        ...headerProps,
+                        columnIndex: 0,
+                        })
+                    }
+                    className={classes.flexContainer}
+                    cellRenderer={this.checkboxCellRenderer}
+                    dataKey={"fileId"}
+                        width={30}
+                        label={"checkbox"}
+                />
+                {columns.map(({ dataKey, ...other }, index) => {
+                    return (
+                        <Column
+                            key={dataKey}
+                            headerRenderer={headerProps =>
+                                this.headerRenderer({
+                                    ...headerProps,
+                                    columnIndex: index + 1,
+                                })
+                            }
+                            className={classes.flexContainer}
+                            cellRenderer={cellProps =>
+                                this.cellRenderer({
+                                    ...cellProps,
+                                    customRender: other.customRender
+                                })
+                            }
+                            dataKey={dataKey}
+                            flexGrow={(index === 1) ? 1: 0}
+                            {...other}
+                        />
+                    );
+                })}
+                <Column
+                    headerRenderer={headerProps =>
+                        this.infoHeaderRenderer(headerProps)
+                    }
+                    className={classes.flexContainer}
+                    cellRenderer={this.infoCellRenderer}
+                    dataKey={"fullPath"}
                     width={30}
-                    label={"checkbox"}
-            />
-            {columns.map(({ dataKey, ...other }, index) => {
-                return (
-                    <Column
-                        key={dataKey}
-                        headerRenderer={headerProps =>
-                            this.headerRenderer({
-                                ...headerProps,
-                                columnIndex: index + 1,
-                            })
-                        }
-                        className={classes.flexContainer}
-                        cellRenderer={cellProps =>
-                            this.cellRenderer({
-                                ...cellProps,
-                                customRender: other.customRender
-                            })
-                        }
-                        dataKey={dataKey}
-                        flexGrow={(index === 1) ? 1: 0}
-                        {...other}
-                    />
-                );
-            })}
-          </Table>
-        )}
-      </AutoSizer>
-    );
-  }
+                />
+            </Table>
+            )}
+        </AutoSizer>
+        );
+    }
 }
 
 MuiVirtualizedTable.defaultProps = {
@@ -317,6 +375,7 @@ export default function ReactVirtualizedTable(props) {
         onSelect,
         onDeselect,
         onPathChange,
+        onInfoClick,
         fileType
     } = props;
 
@@ -374,6 +433,7 @@ export default function ReactVirtualizedTable(props) {
                     onPathChange={(path) => {
                         onPathChange(path);
                     }}
+                    onInfoClick={onInfoClick}
                     columns={columns}
                 />
             </div>

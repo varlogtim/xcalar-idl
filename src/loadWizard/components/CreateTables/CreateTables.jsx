@@ -63,23 +63,6 @@ class CreateTables extends React.Component {
                         onTableNameChange={onTableNameChange}
                     />
                 </div>
-                <NavButtons
-                    left={{
-                        label: Texts.navButtonLeft,
-                        onClick: () => {
-                            onPrevScreen();
-                        }
-                    }}
-                    right={{
-                        label: Texts.navButtonRight,
-                        classNames: ["btn-secondary"],
-                        disabled: tables.size === 0,
-                        tooltip: tables.size === 0 ? Texts.navToNotebookHint : "",
-                        onClick: tables.size === 0 ? null : () => {
-                            this._navToNotebook();
-                        }
-                    }}
-                />
                 {schemaInfo == null ? null : <pre>{JSON.stringify(schemaInfo, null, ' ')}</pre>}
             </div>
         );

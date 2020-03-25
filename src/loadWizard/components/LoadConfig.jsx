@@ -4,9 +4,13 @@ import SourceData from './SourceData';
 import { BrowseDataSourceModal } from './BrowseDataSource';
 import DiscoverSchemas from './DiscoverSchemas';
 import CreateTables from './CreateTables';
+import Details from './Details';
 import * as S3Service from '../services/S3Service';
 import * as SchemaService from '../services/SchemaService';
 import * as SetUtils from '../utils/SetUtils';
+import NavButtons from './NavButtons'
+import getForensics from '../services/Forensics';
+import * as Path from 'path';
 
 const { Alert } = global;
 
@@ -17,7 +21,12 @@ const Texts = {
     stepNameSourceData: "Select Data Source",
     stepNameFilterData: "Browse Data Source",
     stepNameSchemaDiscover: "Discover Schemas",
-    stepNameCreateTables: "Create Tables"
+    stepNameCreateTables: "Create Tables",
+    navButtonLeft: 'Back',
+    navButtonRight: 'Navigate to Notebook',
+    navToNotebookHint: "Please create a table first",
+    navButtonRight2: 'Create Table',
+    CreateTableHint: 'Please discover schema first',
 };
 
 /**
@@ -47,6 +56,7 @@ function deleteEntries(setOrMap, keySet) {
     }
     return setOrMap;
 }
+
 
 class LoadConfig extends React.Component {
     constructor(props) {
@@ -85,8 +95,14 @@ class LoadConfig extends React.Component {
             tableToCreate: new Map(), // Map<schemaName, tableName>, store a table name for user to update
             createInProgress: new Map(), // Map<schemaName, tableName>
             createFailed: new Map(), // Map<schemaName, errorMsg>
-            createTables: new Map() // Map<schemaName, tableName>
+            createTables: new Map(), // Map<schemaName, tableName>
+            currentSchema: null,
+            showForensics: false,
+            forensicsMessage: [],
+            isForensicsLoading: false
         };
+
+        this.metadataMap = new Map();
 
         // Hash the config for detecting config change
         this._initConfigHash = this._getConfigHash({
@@ -101,6 +117,17 @@ class LoadConfig extends React.Component {
             mergePolicy: this.state.discoverSchemaPolicy,
             inputSerialization: { ...this.state.inputSerialization }
         });
+
+        this._fetchForensics = this._fetchForensics.bind(this);
+    }
+
+    _fetchForensics(bucket, path) {
+        const statusCallback = (state) => {
+            this.setState({
+                ...state
+            });
+        };
+        getForensics(bucket, path, this.metadataMap, statusCallback);
     }
 
     async _createTableFromSchema(schemaName, tableName) {
@@ -632,6 +659,10 @@ class LoadConfig extends React.Component {
         }
     };
 
+    _navToNotebook() {
+        HomeScreen.switch(UrlToTab.notebook);
+    }
+
     render() {
         const {
             bucket,
@@ -653,6 +684,8 @@ class LoadConfig extends React.Component {
         const showBrowse = browseShow;
         const showDiscover = currentStep === stepEnum.SchemaDiscovery;
         const showCreate = currentStep === stepEnum.CreateTables && discoverFileSchemas.size > 0;
+        const fullPath = Path.join(bucket, homePath);
+        const forensicsStats = this.metadataMap.get(fullPath);
 
         return (
             <div className="container cardContainer">
@@ -661,90 +694,136 @@ class LoadConfig extends React.Component {
                 </div> */}
                 {/* start of card main */}
                 <div className="cardMain">
-                    <SourceData
-                        bucket={bucket}
-                        path = {homePath}
-                        fileType={fileType}
-                        onClickBrowse={() => { this._browseOpen(); }}
-                        onBucketChange={(newBucket) => { this._setBucket(newBucket); }}
-                        onPathChange={(newPath) => { this._setPath(newPath); }}
-                        onFileTypeChange={(newType) => {
-                            if (this._setFileType(newType)) {
-                                if (currentStep === stepEnum.SchemaDiscovery || currentStep === stepEnum.CreateTables) {
-                                    this._browseOpen();
-                                }
-                            }
-                        }}
-                    />
-                    {
-                        showBrowse ? <BrowseDataSourceModal
+                    <div className="leftPart">
+                        <SourceData
                             bucket={bucket}
-                            homePath={homePath}
+                            path = {homePath}
                             fileType={fileType}
-                            selectedFileDir={selectedFileDir}
-                            onCancel={() => { this._browseClose(); }}
-                            onDone={(selectedFileDir) => {
-                                try {
-                                    this._browseClose(selectedFileDir);
-                                    this._flattenSelectedFiles(selectedFileDir);
+                            onClickBrowse={() => { this._browseOpen(); }}
+                            onBucketChange={(newBucket) => { this._setBucket(newBucket); }}
+                            onPathChange={(newPath) => { this._setPath(newPath); }}
+                            onFileTypeChange={(newType) => {
+                                if (this._setFileType(newType)) {
+                                    if (currentStep === stepEnum.SchemaDiscovery || currentStep === stepEnum.CreateTables) {
+                                        this._browseOpen();
+                                    }
+                                }
+                            }}
+                            isForensicsLoading={this.state.isForensicsLoading}
+                            fetchForensics={this._fetchForensics}
+                        />
+                        {
+                            showBrowse ? <BrowseDataSourceModal
+                                bucket={bucket}
+                                homePath={homePath}
+                                fileType={fileType}
+                                selectedFileDir={selectedFileDir}
+                                onCancel={() => { this._browseClose(); }}
+                                onDone={(selectedFileDir) => {
+                                    try {
+                                        this._browseClose(selectedFileDir);
+                                        this._flattenSelectedFiles(selectedFileDir);
+                                        this._changeStep(stepEnum.SchemaDiscovery);
+                                    } catch(_) {
+                                        // Do nothing
+                                    }
+                                }}
+                            /> : null
+                        }
+                        {
+                            showDiscover ? <DiscoverSchemas
+                                inputSerialization={this.state.inputSerialization}
+                                schemaPolicy={this.state.discoverSchemaPolicy}
+                                isLoading={discoverIsLoading}
+                                discoverFiles={[...discoverFiles.values()]}
+                                fileSchemas={discoverFileSchemas}
+                                inProgressFiles={this.state.discoverInProgressFileIds}
+                                failedFiles={this.state.discoverFailedFiles}
+                                onDiscoverFile={(fileId) => { this._discoverFileSchema(fileId); }}
+                                onClickDiscoverAll={onClickDiscoverAll}
+                                onCancelDiscoverAll={discoverCancelBatch}
+                                onInputSerialChange={(newConfig) => { this._setInputSerialization(newConfig); }}
+                                onSchemaPolicyChange={(newPolicy) => { this._setSchemaPolicy(newPolicy); }}
+                                onNextScreen = {() => { this._changeStep(stepEnum.CreateTables); }}
+                                onShowSchema={(schema) => {
+                                    this.setState({
+                                        currentSchema: schema
+                                    });
+                                }}
+                            >
+                            </DiscoverSchemas> : null
+                        }
+                        {(() => {
+                            if (!showCreate) {
+                                return null;
+                            }
+                            const schemaFileMap = this._createSchemaFileMap(this.state.discoverFileSchemas);
+                            schemaFileMap.forEach(({path}, schemaName) => {
+                                if (!this.state.tableToCreate.has(schemaName)) {
+                                    const defaultTableName = this._getNameFromPath(path[0]);
+                                    this.state.tableToCreate.set(schemaName, defaultTableName);
+                                }
+                            });
+                            return (
+                                <CreateTables
+                                    schemas={schemaFileMap}
+                                    fileMetas={this.state.discoverFiles}
+                                    schemasInProgress={this.state.createInProgress}
+                                    schemasFailed={this.state.createFailed}
+                                    tablesInInput={this.state.tableToCreate}
+                                    tables={this.state.createTables}
+                                    onTableNameChange={(schemaName, newTableName) => {
+                                        this.state.tableToCreate.set(schemaName, newTableName);
+                                        this.setState({tableToCreate: this.state.tableToCreate});
+                                    }}
+                                    onClickCreateTable={(schemaName, tableName) => { this._createTableFromSchema(schemaName, tableName); }}
+                                    onPrevScreen = {() => { this._changeStep(stepEnum.SchemaDiscovery); }}
+                                >
+                                    <div className="header">{Texts.stepNameCreateTables}</div>
+                                </CreateTables>
+                            );
+                        })()}
+                    </div> {/* end of left part */}
+                    <Details
+                        currentSchema={this.state.currentSchema}
+                        selectedFileDir={this.state.selectedFileDir}
+                        discoverFileSchemas={this.state.discoverFileSchemas}
+                        showForensics={this.state.showForensics}
+                        forensicsMessage={this.state.forensicsMessage}
+                        forensicsStats={forensicsStats}
+                    />
+                </div>{/* end of card main */}
+                <div className="cardBottom">
+                     { showDiscover ?
+                            <NavButtons
+                                right={{
+                                    label: Texts.navButtonRight2,
+                                    disabled: discoverFileSchemas.size === 0,
+                                    tooltip: discoverFileSchemas.size === 0 ? Texts.CreateTableHint : "",
+                                    onClick: () => { this._changeStep(stepEnum.CreateTables); }
+                                }}
+                            /> : null
+                    }
+                    {showCreate ?
+                        <NavButtons
+                            left={{
+                                label: Texts.navButtonLeft,
+                                onClick: () => {
                                     this._changeStep(stepEnum.SchemaDiscovery);
-                                } catch(_) {
-                                    // Do nothing
+                                }
+                            }}
+                            right={{
+                                label: Texts.navButtonRight,
+                                classNames: ["btn-secondary", "autoWidth"],
+                                disabled: this.state.createTables.size === 0,
+                                tooltip: this.state.createTables.size === 0 ? Texts.navToNotebookHint : "",
+                                onClick: this.state.createTables.size === 0 ? null : () => {
+                                    this._navToNotebook();
                                 }
                             }}
                         /> : null
                     }
-                    {
-                        showDiscover ? <DiscoverSchemas
-                            inputSerialization={this.state.inputSerialization}
-                            schemaPolicy={this.state.discoverSchemaPolicy}
-                            isLoading={discoverIsLoading}
-                            discoverFiles={[...discoverFiles.values()]}
-                            fileSchemas={discoverFileSchemas}
-                            inProgressFiles={this.state.discoverInProgressFileIds}
-                            failedFiles={this.state.discoverFailedFiles}
-                            onDiscoverFile={(fileId) => { this._discoverFileSchema(fileId); }}
-                            onClickDiscoverAll={onClickDiscoverAll}
-                            onCancelDiscoverAll={discoverCancelBatch}
-                            onInputSerialChange={(newConfig) => { this._setInputSerialization(newConfig); }}
-                            onSchemaPolicyChange={(newPolicy) => { this._setSchemaPolicy(newPolicy); }}
-                            onNextScreen = {() => { this._changeStep(stepEnum.CreateTables); }}
-                        >
-                        </DiscoverSchemas> : null
-                    }
-                    {(() => {
-                        if (!showCreate) {
-                            return null;
-                        }
-                        const schemaFileMap = this._createSchemaFileMap(this.state.discoverFileSchemas);
-                        schemaFileMap.forEach(({path}, schemaName) => {
-                            if (!this.state.tableToCreate.has(schemaName)) {
-                                const defaultTableName = this._getNameFromPath(path[0]);
-                                this.state.tableToCreate.set(schemaName, defaultTableName);
-                            }
-                        });
-                        return (
-                            <CreateTables
-                                schemas={schemaFileMap}
-                                fileMetas={this.state.discoverFiles}
-                                schemasInProgress={this.state.createInProgress}
-                                schemasFailed={this.state.createFailed}
-                                tablesInInput={this.state.tableToCreate}
-                                tables={this.state.createTables}
-                                onTableNameChange={(schemaName, newTableName) => {
-                                    this.state.tableToCreate.set(schemaName, newTableName);
-                                    this.setState({tableToCreate: this.state.tableToCreate});
-                                }}
-                                onClickCreateTable={(schemaName, tableName) => { this._createTableFromSchema(schemaName, tableName); }}
-                                onPrevScreen = {() => { this._changeStep(stepEnum.SchemaDiscovery); }}
-                            >
-                                <div className="header">{Texts.stepNameCreateTables}</div>
-                            </CreateTables>
-                        );
-                    })()}
                 </div>
-
-                {/* end of card main */}
             </div>
         );
     }

@@ -142,14 +142,14 @@ async function getForensicsStats(bucketName, pathPrefix) {
                FROM ${keyListTableName} a
                INNER JOIN (
                     SELECT MAX(CAST(SIZE AS INT)) LARGEST_FILE_SIZE
-                    FROM ${keyListTableName}
+                    FROM ${keyListTableName} WHERE PATH LIKE '${fullPath}\%'
             ) b ON a.SIZE = b.LARGEST_FILE_SIZE
         )) JOIN (
             SELECT a.PATH SMALLEST_FILE, a.SIZE SMALLEST_FILE_SIZE
                FROM ${keyListTableName} a
                INNER JOIN (
                     SELECT MIN(CAST(SIZE AS INT)) SMALLEST_FILE_SIZE
-                    FROM ${keyListTableName}
+                    FROM ${keyListTableName} WHERE PATH LIKE '${fullPath}\%'
             ) b ON a.SIZE = b.SMALLEST_FILE_SIZE
         )`;
 

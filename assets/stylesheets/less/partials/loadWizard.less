@@ -21,34 +21,125 @@
 
     .container {
         height: 100%;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 0px;
 
         .cardMain {
             padding: 0;
-            height: ~"calc(100% - 36px)";
-            overflow-y: auto;
+            overflow: hidden;
             position: relative;
+            flex: 1 1 auto;
+            display: flex;
 
-            > div {
-                padding: 8px 16px;
-                border-bottom: 1px solid @color-border-medium;
+            .leftPart {
+                overflow-y: auto;
+                position: relative;
+                flex: 1 1 auto;
 
-                &:last-child {
-                    border-bottom: none;
+                > div {
+                    padding: 8px 16px;
+                    border-bottom: 1px solid @color-border-medium;
+
+                    &:last-child {
+                        border-bottom: none;
+                    }
+
+                    .header {
+                        font-size: 16px;
+                        font-weight: 600;
+                        margin-bottom: 8px;
+                    }
+                }
+            }
+
+            .rightPart {
+                display: none !important;
+                height: 100% !important;
+                flex-direction: column;
+                border-left: 1px solid @color-border-medium2;
+                background-color: @color-bg-leftPanel;
+                .innerRightPart {
+                    width: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    overflow: auto;
+
+                    > div {
+                        border-bottom: 1px solid @color-border-medium2;
+                        padding: 12px;
+                    }
+                }
+                &.active {
+                    display: flex !important;
                 }
 
-                .header {
-                    font-size: 16px;
-                    font-weight: 600;
-                    margin-bottom: 8px;
-                }        
+                .forensicsContent {
+                    margin: 0px;
+                    max-height: none;
+                    flex: 0 0 auto;
+                    overflow: visible;
+                }
+
+                .schemaPreview {
+                    padding-top: 8px;
+                    .schemaHeader {
+                        display: flex;
+                        cursor: pointer;
+                        align-items: center;
+                        padding-right: 4px;
+                    }
+                    .xi-down {
+                        font-size: 14px;
+                        transform: rotate(270deg);
+                        margin-left: auto;
+                    }
+                    &.active {
+                        .xi-down {
+                            transform: rotate(0deg);
+                        }
+                        .schemaJson {
+                            display: block;
+                        }
+                    }
+                    .schemaJson {
+                        display: none;
+                    }
+                }
+                .chartInfo {
+                    padding-top: 8px;
+                }
+            }
+        }
+        .cardBottom {
+            display: flex;
+            flex: 0 0 auto;
+            padding: 18px 10px 0px 8px;
+            min-height: 60px;
+            border-top: 1px solid @color-border-medium2;
+
+            .navButtons {
+                margin-top: 0px;
+                width: 100%;
+
+                .btn.autoWidth {
+                    width: auto;
+                }
             }
         }
     }
 
-    .topSection {    
+    .topSection {
         .getForensics {
             margin-top: 8px;
         }
+    }
+
+    .react-draggable {
+        position: relative !important;
+        transform: translate(0, 0) !important;
+        display: flex !important;
+        flex: 0 0 auto;
     }
 
     .sourceForm {
@@ -148,7 +239,6 @@
     .forensicsContent {
         margin: 8px 0;
         width: 100%;
-        max-height: 300px;
         overflow: auto;
 
         div, pre {
@@ -240,13 +330,54 @@
             flex: 1 1 auto;
         }
 
-        .selectedFilesArea {
-            min-width: 300px;
-            max-width: 400px;
-            flex: 0 0 30%;
+        .rightAreaResizable {
+            height: 100% !important;
+            flex-direction: column;
             border-left: 1px solid @color-border-medium2;
+        }
+
+        .rightArea {
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            font-size: 12px;
+
+            .react-draggable {
+                width: 100% !important;
+                border-bottom: 1px solid @color-border-medium2;
+                max-height: 90% !important;
+                min-height: 50px !important;
+            }
+
+            .forensicsContent {
+                max-height: none;
+            }
+
+            .forensicMessages {
+                padding: 10px;
+                font-size: 12px;
+            }
+
+            .pieHeader {
+                padding: 0 10px;
+                .textOverflowOneLine;
+            }
+            .chartArea {
+                padding-top: 0px;
+            }
+
+            .recharts-pie-label-text {
+                font-size: 11px;
+            }
+        }
+
+        .selectedFilesArea {
+            flex: 1 1 60%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
 
             .selectedFilesHeader {
                 font-size: 16px;
@@ -441,6 +572,9 @@
             .textOverflowOneLine;
         }
 
+        .xi-info-circle-outline {
+            font-size: 16px;
+        }
 
         .MuiTableCell-head {
             color: @color-font-default;
@@ -510,8 +644,12 @@
         width: 100%;
         margin: 0 auto;
         display: flex;
+        flex-direction: column;
         .recharts-pie-label-text {
-            font-size: 10px;
+            font-size: 11px;
+        }
+        .recharts-wrapper {
+            margin-bottom: -50px;
         }
     }
 

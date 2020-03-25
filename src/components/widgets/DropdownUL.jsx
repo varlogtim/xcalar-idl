@@ -24,7 +24,7 @@ export default function DropdownUL(props) {
             )
         });
     } else {
-        listHTML = (<li class="hint">{props.hint || ""}</li>)
+        listHTML = (<li className="hint">{props.hint || ""}</li>)
     }
     return (
         <div className="list">

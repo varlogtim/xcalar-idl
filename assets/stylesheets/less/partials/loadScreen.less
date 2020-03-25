@@ -10,7 +10,7 @@
     }
 
     .contentSection {
-        height: 100%;
+        height: ~"calc(100% - 32px)";
         display: flex;
         flex-direction: row;
         padding: 0;
@@ -42,8 +42,6 @@
     #datastorePanel {
         display: block;
         padding-left: 0;
-        padding-bottom: 12px;
-
         &.table, &.load {
             .rightSection {
                 margin-left: 0;

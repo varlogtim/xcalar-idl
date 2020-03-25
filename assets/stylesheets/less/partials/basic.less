@@ -651,9 +651,7 @@ div, section, ul {
 
 /* =========== TOP RIGHT CORNER =========== */
 #userBox {
-    // height is slightly shorter than topBar height so topBar bottom border
-    // shows
-    .size(@width: @width-userBox, @height: @height-topBar - 1px);
+    .size(@width: @width-userBox, @height: @height-topBar);
     .position(fixed, @top: 0, @right: 0);
     z-index: @z-index-topMenu + 1;
     padding-right: 10px;

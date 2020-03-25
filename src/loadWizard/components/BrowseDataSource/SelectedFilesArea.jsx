@@ -232,7 +232,6 @@ MuiVirtualizedTable.defaultProps = {
 
 const VirtualizedTable = withStyles(styles)(MuiVirtualizedTable);
 
-
 function SelectedFilesSummary({fileList}) {
     const typeCount = {};
     const typeSize = {};

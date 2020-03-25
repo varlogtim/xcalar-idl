@@ -1,8 +1,6 @@
 import React from "react";
-// import SchemaChart from './SchemaChart'
 import DiscoverTable from './DiscoverTable'
 import SourceCSVArgSection from './SourceCSVArgSection';
-import NavButtons from '../NavButtons'
 import * as AdvOption from './AdvanceOption'
 import InputDropdown from '../../../components/widgets/InputDropdown'
 import EC from '../../utils/EtaCost'
@@ -18,7 +16,7 @@ const Texts = {
     optionSchema: 'Schema Comparison Algorithm:',
     navButtonLeft: 'Browse',
     navButtonRight: 'Create Table',
-    CreateTableHint: 'Please disocver schema first',
+    CreateTableHint: 'Please discover schema first',
     totalCost: 'Total Cost: $',
     totalTime: 'Total Time:',
     seconds: 'seconds',
@@ -131,12 +129,6 @@ function CostEstimation({ files }) {
 }
 
 class DiscoverSchemas extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            schemaShowing: null
-        };
-    }
     render() {
         const {
             inputSerialization,
@@ -151,10 +143,11 @@ class DiscoverSchemas extends React.Component {
             onCancelDiscoverAll,
             onInputSerialChange,
             onSchemaPolicyChange,
+            onShowSchema,
             onNextScreen,
             children
         } = this.props;
-        const schemaInfo = this.state.schemaShowing;
+        console.log(this.props);
         const needConfig = SchemaService.InputSerializationFactory.getFileType(inputSerialization).has(SchemaService.FileType.CSV);
 
         if (isLoading) {
@@ -177,15 +170,15 @@ class DiscoverSchemas extends React.Component {
                         <SourceCSVArgSection
                             config={inputSerialization}
                             onConfigChange={(newConfig) => {
-                                this.setState({ schemaShowing: null });
+                                onShowSchema(null);
                                 onInputSerialChange(newConfig);
                             }}
                         />
                     </AdvOption.Container> : null
                     }
                 <div className="filesSelected">
-                    <div class="header">{Texts.discoverTitle}</div>
-                    <div class="section">
+                    <div className="header">{Texts.discoverTitle}</div>
+                    <div className="section">
                         <AdvOption.Container>
                             <AdvOption.OptionGroup>
                                 <AdvOption.Option>
@@ -225,22 +218,10 @@ class DiscoverSchemas extends React.Component {
                         fileSchemas={fileSchemas}
                         onDiscoverOne={onDiscoverFile}
                         onClickSchema={({name, columns}) => {
-                            this.setState({ schemaShowing: {
-                                name: name,
-                                columns: columns
-                            }});
+                            onShowSchema({name: name,columns: columns})
                         }}
                     />
-                    <NavButtons
-                        right={{
-                            label: Texts.navButtonRight,
-                            disabled: fileSchemas.size === 0,
-                            tooltip: fileSchemas.size === 0 ? Texts.CreateTableHint : "",
-                            onClick: () => { onNextScreen(); }
-                        }}
-                    />
-                    {schemaInfo == null ? null : <pre>{JSON.stringify(schemaInfo, null, ' ')}</pre>}
-                    {/* <SchemaChart selectedData={selectedData} schemasObject={schemasObject}/> */}
+
                 </div>
                 </React.Fragment>
             );

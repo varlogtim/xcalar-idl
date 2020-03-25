@@ -1,7 +1,7 @@
 import * as Path from 'path';
 import React from "react";
 import SourcePath from './SourcePath'
-import * as S3Service from '../../services/S3Service'
+import getForensics from '../../services/Forensics';
 
 const Texts = {
     createTable: 'Create Table from Model',
@@ -37,86 +37,11 @@ function GetForensicsButton(props) {
     );
 }
 
-/**
- * Pure Component: forensics information
- * @param {*} props
- */
-function ForensicsContent(props) {
-    const {
-        isShow = false,
-        message = [],
-        stats
-    } = props || {};
-    if (isShow) {
-        return (
-            <div className="forensicsContent">
-                <div>{ message.map((m, i) => (<div key={i}>{m}</div>)) }</div>
-                {stats == null ? null : <pre>{JSON.stringify(stats, null, '  ')}</pre>}
-            </div>
-        );
-    } else {
-        return null;
-    }
-}
+
 
 class SourceData extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            showForensics: false,
-            forensicsMessage: [],
-            isForensicsLoading: false
-        };
-
-        this.metadataMap = new Map();
-    }
-
-    async fetchForensics(bucketName, pathPrefix) {
-        const fullPath = Path.join(bucketName, pathPrefix);
-        this.metadataMap.delete(fullPath);
-        this.setState({
-            showForensics: true,
-            forensicsMessage: ['Fetching S3 metadata ...'],
-            isForensicsLoading: true
-        });
-        try {
-            const finalTableName = await S3Service.createKeyListTable({
-                bucketName: bucketName
-            });
-            this.setState({
-                showForensics: true,
-                forensicsMessage: [...this.state.forensicsMessage, `Query AWS done ... ${finalTableName}`],
-                isForensicsLoading: true
-            });
-            const stats = await S3Service.getForensicsStats(bucketName, pathPrefix);
-            this.metadataMap.set(fullPath, stats);
-            this.setState({
-                showForensics: true,
-                forensicsMessage: [...this.state.forensicsMessage, 'Calculation done ...'],
-                isForensicsLoading: false
-            });
-            this.clearMessage(2000);
-        } catch (e) {
-            console.error(e);
-            this.setState({
-                showForensics: true,
-                forensicsMessage: [...this.state.forensicsMessage, `Fetch error: ${JSON.stringify(e)}`],
-                isForensicsLoading: false
-            });
-            this.clearMessage(5000);
-        }
-    }
-
-    clearMessage(delay) {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                this.setState({
-                    forensicsMessage: []
-                });
-                resolve();
-            }, delay);
-        });
+    fetchForensics(bucket, path) {
+        this.props.fetchForensics(bucket, path);
     }
 
     render() {
@@ -131,14 +56,13 @@ class SourceData extends React.Component {
         } = this.props;
 
         const fullPath = Path.join(bucket, path);
-        const forensicsStats = this.metadataMap.get(fullPath);
 
         return (
             <div className="topSection">
                 <SourcePath
                     bucket={bucket}
-                    onBucketChange={(newBucket) => { onBucketChange(newBucket); }}
                     path={path}
+                    onBucketChange={(newBucket) => { onBucketChange(newBucket); }}
                     onPathChange={(newPath) => { onPathChange(newPath); }}
                     fileType={fileType}
                     onFileTypeChange={onFileTypeChange}
@@ -150,8 +74,7 @@ class SourceData extends React.Component {
                     <b>{JSON.stringify(modelInfo)}</b>
                 </div> */}
                 {/* <CreateTableButton isShow={ modelSelected === "untitled" } /> */}
-                <GetForensicsButton isLoading={ this.state.isForensicsLoading } onClick={ () => { this.fetchForensics(bucket, path) }}/>
-                <ForensicsContent isShow={ this.state.showForensics } stats={ forensicsStats } message={ this.state.forensicsMessage } />
+                <GetForensicsButton isLoading={ this.props.isForensicsLoading } onClick={ () => { this.fetchForensics(bucket, path) }}/>
             </div>
         );
     }

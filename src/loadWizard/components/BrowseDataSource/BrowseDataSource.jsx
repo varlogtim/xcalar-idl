@@ -1,19 +1,33 @@
 import Path from 'path';
 import React from "react";
-import BucketChart from './BucketChart';
 import NavButtons from '../NavButtons'
 import SelectedFilesArea from "./SelectedFilesArea"
 import * as Modal from './Modal'
 import * as SchemaService from '../../services/SchemaService'
 import * as S3Service from '../../services/S3Service'
+import getForensics from '../../services/Forensics';
 import FileBrowserTable from './FileBrowserTable'
 import LoadingText from '../../../components/widgets/LoadingText';
+import { Rnd } from "react-rnd";
+import {
+    PieChart, Pie, Cell, Label, ResponsiveContainer
+} from 'recharts';
+import prettyBytes from 'pretty-bytes'
+const typeList = {
+    "JSON": "#00cf18",
+    "CSV": "#4287f5",
+    "PARQUE": "#002483",
+    "DIRECTORY": "#888",
+    "UNSUPPORTED": "#BBB",
+};
 
 const Texts = {
     title: "Browse Data Source",
     loading: "Loading ...",
     navButtonLeft: 'Cancel',
-    navButtonRight: 'Done'
+    navButtonRight: 'Done',
+    updateForensics: 'Updating ...',
+    getForensics: 'View Bucket Info'
 };
 
 function getSelectedIdsForCurrentView(fileMapViewing, selectedFiles) {
@@ -49,11 +63,17 @@ class BrowseDataSource extends React.Component {
         super(props);
 
         const { bucket, homePath, selectedFileDir } = props;
+
+        this.metadataMap = new Map();
         this.state = {
             isLoading: true,
             path: Path.join(bucket, homePath),
             fileMapViewing: new Map(),
-            selectedFileDir: selectedFileDir.map((v) => ({...v}))
+            selectedFileDir: selectedFileDir.map((v) => ({...v})),
+            showForensics: false,
+            forensicsMessage: [],
+            isForensicsLoading: false,
+            forensicsPath: ""
         }
     }
 
@@ -117,6 +137,23 @@ class BrowseDataSource extends React.Component {
         this.props.setSelectedFileDir(selectedFiles);
     }
 
+    _fetchForensics(path) {
+        const statusCallback = (state) => {
+            this.setState({
+                ...state
+            });
+        };
+        const { bucket } = this.props;
+        this.setState({
+            forensicsPath: path
+        });
+        if (path.startsWith(bucket)) {
+            path = path.slice(bucket.length);
+        }
+
+        getForensics(bucket, path, this.metadataMap, statusCallback);
+    }
+
     render() {
         const {
             bucket, // string
@@ -133,6 +170,8 @@ class BrowseDataSource extends React.Component {
 
         const rootFullPath = Path.join(bucket, homePath);
         const currentFullPath = path;
+        const forensicsStats = this.metadataMap.get(this.state.forensicsPath);
+
         return (
             <div className="browseDataSourceScreen">
                 <div className="fileBrowserPath">
@@ -153,6 +192,7 @@ class BrowseDataSource extends React.Component {
                 </div>
 
                 <div className="fileListTableArea">
+
                     <div className="fileListTableWrap">
                     {isLoading ? <LoadingText className="loadingText">Loading</LoadingText> :
                         (
@@ -162,20 +202,91 @@ class BrowseDataSource extends React.Component {
                             onPathChange={(newFullPath) => { this._browsePath(newFullPath, fileType); }}
                             onSelect={(fileIds) => { this._selectFiles(fileIds); }}
                             onDeselect={(fileIds) => { this._deselectFiles(fileIds); }}
+                            onInfoClick={(path) => { this._fetchForensics(path); }}
                             fileType={fileType}
                         /> : <div className="noFilesFound">No {fileType} files or directories found.</div>)
                     }
                     </div>
-                    <SelectedFilesArea
-                        bucket={bucket}
-                        selectedFileDir={selectedFileDir}
-                        onDeselect={(fileIds) => { this._deselectFiles(fileIds); }}
-                    />
+                    <Rnd
+                        className="rightAreaResizable"
+                        default={{width: 300}}
+                        minWidth={100}
+                        maxWidth={"50%"}
+                        bounds="parent"
+                        disableDragging={true}
+                        resizeHandleWrapperClass="resizeHandles"
+                        enableResizing={{ top:false, right:false, bottom:false, left:true, topRight:false, bottomRight:false, bottomLeft:false, topLeft:false }}
+                    >
+                        <div className="rightArea">
+                            {this.state.showForensics ?
+                                <Rnd
+                                    bounds="parent"
+                                    disableDragging={true}
+                                    resizeHandleWrapperClass="resizeHandles"
+                                    enableResizing={{ top:false, right:false, bottom:true, left:false, topRight:false, bottomRight:false, bottomLeft:false, topLeft:false }}
+                                >
+                                    <ForensicsContent
+                                        path={this.state.forensicsPath}
+                                        isShow={ this.state.showForensics }
+                                        stats={ forensicsStats }
+                                        message={ this.state.forensicsMessage }
+                                    />
+                                </Rnd> : null
+                            }
+                            <SelectedFilesArea
+                                bucket={bucket}
+                                selectedFileDir={selectedFileDir}
+                                onDeselect={(fileIds) => { this._deselectFiles(fileIds); }}
+                            />
+                        </div>
+
+                        </Rnd>
                 </div>
             </div>
         );
     }
 }
+
+/**
+ * Pure Component: forensics information
+ * @param {*} props
+ */
+function ForensicsContent(props) {
+    const {
+        isShow = false,
+        message = [],
+        stats,
+        path = ""
+    } = props || {};
+
+    let pieCharts = null;
+    if (stats && Object.keys(stats).length) {
+         // TODO need better stats for pie charts
+        // pieCharts = <React.Fragment>
+        //                 <div className="pieHeader">{path}</div>
+        //                 <BucketChart stats={stats} />
+        //             </React.Fragment>;
+        pieCharts = <React.Fragment>
+                        <div className="pieHeader">{path}</div>
+                        <pre>{JSON.stringify(stats, null, '  ')}</pre>
+                    </React.Fragment>;
+    }
+
+    if (isShow) {
+        return (
+            <div className="forensicsContent">
+                {message.length ?
+                    <div className="forensicMessages">{ message.map((m, i) => (<div key={i}>{m}</div>)) }</div>
+                    : null
+                }
+                {pieCharts}
+            </div>
+        );
+    } else {
+        return null;
+    }
+}
+
 
 function BrowseDataSourceModal(props) {
     const [selectedFiles, setSelectedFileDir] = React.useState(props.selectedFileDir);
@@ -194,6 +305,57 @@ function BrowseDataSourceModal(props) {
                 />
             </Modal.Footer>
         </Modal.Dialog>
+    );
+}
+
+function BucketChart({stats}) {
+    const typeCount = {};
+    const typeSize = {};
+    const chartData = [];
+    for (const file in stats.type) {
+        let fileType = file.toUpperCase();
+        if (!(fileType in typeList)) {
+            fileType = "UNSUPPORTED";
+        }
+        if (fileType in typeCount) {
+            typeCount[fileType] += stats.type[file];
+        } else {
+            typeCount[fileType] = stats.type[file];
+        }
+
+    }
+
+    for (const [type, count] of Object.entries(typeCount)) {
+        chartData.push({
+            name: type,
+            value: count
+        });
+    }
+
+    return (
+        <div className="chartArea">
+            <ResponsiveContainer height={200} width="100%">
+                <PieChart height={200}>
+                    <Pie
+                        dataKey="value"
+                        isAnimationActive={false}
+                        data={chartData}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius="50%"
+                        fill="#8884d8"
+                        label={({name, value}) => name + ': ' + value.toLocaleString()}
+                    >
+                        {/* <Label position="top">Count</Label> */}
+                        {
+                            chartData.map((entry, index) =>
+                                <Cell key={entry.name} fill={typeList[entry.name.toUpperCase()]}/>
+                            )
+                        }
+                    </Pie>
+                </PieChart>
+            </ResponsiveContainer>
+        </div>
     );
 }
 
