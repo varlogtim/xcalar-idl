@@ -16,11 +16,7 @@ namespace xcManager {
         Compatible.check();
         xcGlobal.setup();
 
-        if (XVM.isDataMart()) {
-            setupDataMart();
-        } else {
-            setupNonDataMart();
-        }
+        setupDataMart();
 
         let xcSocket: XcSocket;
         let firstTimeUser: boolean;
@@ -1207,11 +1203,6 @@ namespace xcManager {
         $("#monitorTab").addClass("xc-hidden");
         $("#bottomMenuBarTabs").addClass("dataMart");
         $("#helpAreaMenu").find(".tutorials, .walkthroughs, .discourse, .divider").remove();
-    }
-
-    function setupNonDataMart(): void {
-        $("#jupyterTab").removeClass("xc-hidden");
-        $("#datastorePanel").insertAfter($("#monitorPanel"));
     }
 
     /* Unit Test Only */

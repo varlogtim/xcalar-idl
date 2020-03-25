@@ -117,7 +117,6 @@ class JoinOpPanelStep2 {
             return [];
         }
 
-        // const header = XVM.isDataMart() ? "" : OpPanelTStr.JoinPanelRenameTitleDerived
         const header = "";
         const elements = this._templateMgr.createElements(
             JoinOpPanelStep2._templateIds.renameTable,

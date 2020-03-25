@@ -21,10 +21,6 @@ class PanelHistory {
             return;
         }
         this._wasSetup = true;
-        if (!XVM.isDataMart()) {
-            return;
-        }
-
         window.addEventListener('popstate', (event) => {
             this._popStateEvent(event);
         });
@@ -44,7 +40,7 @@ class PanelHistory {
     }
 
     public push(panel: string): void {
-        if (!XVM.isDataMart() || !panel) {
+        if (!panel) {
             return;
         }
         if (window.history.state && window.history.state.panel === panel) {
@@ -59,9 +55,6 @@ class PanelHistory {
     }
 
     public deletePanelParam(): void {
-        if (!XVM.isDataMart()) {
-            return;
-        }
         const newHref: string = xcHelper.deleteURLParam("panel");
         window.history.replaceState("", "", newHref);
     }

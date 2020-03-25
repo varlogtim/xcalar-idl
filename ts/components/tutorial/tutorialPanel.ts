@@ -62,9 +62,7 @@ class TutorialPanel {
 
     public isTutorialWorkbook(): XDPromise<boolean> {
         // No tutorial in data mart
-        if (XVM.isDataMart()) {
-            return PromiseHelper.resolve(false);
-        }
+        return PromiseHelper.resolve(false);
 
         const deferred: XDDeferred<boolean> = PromiseHelper.deferred();
         let key: string = KVStore.getKey("gTutorialKey");

@@ -573,20 +573,7 @@ namespace DSTargetManager {
         $("#dsTarget-import").click(function(event) {
             event.preventDefault();
             let targetName: string = $gridView.find(".grid-unit.active").data("name");
-            const createTableMode: boolean = DataSourceManager.isCreateTableMode();
-            if (XVM.isDataMart()) {
-                LoadScreen.switchTab("import");
-                DSForm.setDataTarget(targetName);
-                return;
-            }
-            
-            if (createTableMode) {
-                MainMenu.openPanel("datastorePanel", "sourceTblButton");
-            } else {
-                MainMenu.openPanel("datastorePanel", "inButton");
-            }
-            DataSourceManager.setMode(createTableMode);
-            DSForm.show();
+            LoadScreen.switchTab("import");
             DSForm.setDataTarget(targetName);
         });
     }

@@ -153,7 +153,7 @@ class DagConfigNodeModal {
                 IMDTableOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.SQL):
-                if (node.isDeprecated() || !XVM.isDataMart()) {
+                if (node.isDeprecated()) {
                     OldSQLOpPanel.Instance.show(node, options);
                 } else {
                     SQLOpPanel.Instance.show(node, options);

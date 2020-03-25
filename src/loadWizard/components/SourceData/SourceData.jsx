@@ -134,7 +134,7 @@ class SourceData extends React.Component {
         const forensicsStats = this.metadataMap.get(fullPath);
 
         return (
-            <div class="topSection">
+            <div className="topSection">
                 <SourcePath
                     bucket={bucket}
                     onBucketChange={(newBucket) => { onBucketChange(newBucket); }}

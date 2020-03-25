@@ -63,9 +63,13 @@ namespace Log {
     };
 
     export function restore(oldLogCursor: number, isKVEmpty?: boolean): XDPromise<void> {
+        // log is not restored since data mart
+        updateUndoRedoState();
+        return PromiseHelper.resolve();
+        
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-        if (isKVEmpty || XVM.isDataMart()) {
+        if (isKVEmpty) {
             // data mart don't restore
             updateUndoRedoState();
             return deferred.resolve().promise();
@@ -161,10 +165,8 @@ namespace Log {
     };
 
     export function commit(): XDPromise<void> {
-        if (XVM.isDataMart()) {
-            // data mart don't commit log
-            return PromiseHelper.resolve();
-        }
+        // data mart don't commit log
+        return PromiseHelper.resolve();
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         commitLogs()
@@ -181,10 +183,9 @@ namespace Log {
     };
 
     export function commitErrors(): XDPromise<void> {
-        if (XVM.isDataMart()) {
-            // data mart don't commit log
-            return PromiseHelper.resolve();
-        }
+        // data mart don't commit log
+        return PromiseHelper.resolve();
+
         if (errToCommit === "") {
             return PromiseHelper.resolve();
         }

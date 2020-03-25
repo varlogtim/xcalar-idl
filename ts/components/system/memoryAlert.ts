@@ -19,34 +19,12 @@ class MemoryAlert {
         this._getMemoryAlertEl().click((e) => {
             if ($("#container").hasClass("noWorkbook") ||
                 $("#container").hasClass("switchingWkbk")) {
-                if (!XVM.isDataMart()) {
-                    WorkbookPanel.goToMonitor();
-                }
                 return;
             }
             let $el = $(e.currentTarget);
             $el.blur();
 
-            if (XVM.isDataMart()) {
-                $("#monitor-delete").click();
-            } else if (!$el.hasClass("yellow") && !$el.hasClass("red")) {
-                MainMenu.openPanel("monitorPanel", "systemButton");
-                return false;
-            } else if ($el.hasClass("tableAlert")) {
-                MainMenu.openPanel("monitorPanel", "systemButton");
-                $("#monitor-delete").click();
-            } else {
-                // go to datastore panel
-                var $datastoreTab = $("#dataStoresTab");
-                if (!$datastoreTab.hasClass("active")) {
-                    $datastoreTab.click();
-                }
-
-                var $inButton = $("#inButton");
-                if (!$inButton.hasClass("active")) {
-                    $inButton.click();
-                }
-            }
+            $("#monitor-delete").click();
         });
     }
 
@@ -221,16 +199,8 @@ class MemoryAlert {
         if (shouldAlert) {
             // we want user to drop table first and only when no tables
             // let them drop ds
-            if (XVM.isDataMart()) {
-                text = TooltipTStr.LowMemInTable + highestUsageText + avgUsageText;
-                $memoryAlert.addClass("tableAlert");
-            } else if (this.hasNoTables()) {
-                text = TooltipTStr.LowMemInDS + highestUsageText + avgUsageText;
-                $memoryAlert.removeClass("tableAlert");
-            } else {
-                text = TooltipTStr.LowMemInTable + highestUsageText + avgUsageText;
-                $memoryAlert.addClass("tableAlert");
-            }
+            text = TooltipTStr.LowMemInTable + highestUsageText + avgUsageText;
+            $memoryAlert.addClass("tableAlert");
         } else {
             text = CommonTxtTstr.XcalarMemUsage + ": " + percent;
         }

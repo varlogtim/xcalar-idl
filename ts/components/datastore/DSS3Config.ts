@@ -10,9 +10,7 @@ class DSS3Config extends DSConnectorPanel {
     private constructor() {
         super();
         this._connector = DSTargetManager.S3Connector;
-        if (XVM.isDataMart()) {
-            this._getCard().find(".back").text(CommonTxtTstr.Clear);
-        }
+        this._getCard().find(".back").text(CommonTxtTstr.Clear);
     }
 
     /**

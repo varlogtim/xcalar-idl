@@ -43,7 +43,7 @@ class DataSourceManager {
     }
 
     public static isCreateTableMode(): boolean {
-        return XVM.isSQLMode() || XVM.isDataMart();
+        return true;
     }
 
     /**
@@ -330,7 +330,7 @@ class DataSourceManager {
         $panel.addClass("table");
         $("#sourceTblButton").removeClass("xc-hidden");
 
-        const text: string = XVM.isDataMart() ? "Source & Load Data": CommonTxtTstr.Table;
+        const text: string = "Source & Load Data";
         $title.text(text);
         $menu.find(".table").removeClass("xc-hidden");
         TblSource.Instance.refresh(); // update every time switch to the tab

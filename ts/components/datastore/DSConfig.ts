@@ -732,9 +732,6 @@ namespace DSConfig {
     }
 
     function setupDataMartConfig(): void {
-        if (!XVM.isDataMart()) {
-            return;
-        }
         const whiteList: string[] = [formatMap.CSV, formatMap.JSON, formatMap.PARQUET, formatMap.EXCEL.toUpperCase(), formatMap.UDF];
         $("#fileFormatMenu li").each((_index, el) => {
             const $li = $(el);

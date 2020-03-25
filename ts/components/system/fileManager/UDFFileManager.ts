@@ -457,9 +457,7 @@ class UDFFileManager {
             })
             .then(deferred.resolve)
             .then(() => {
-                if (XVM.isDataMart() || XVM.isSQLMode()) {
-                    SQLResultSpace.Instance.refresh();
-                }
+                SQLResultSpace.Instance.refresh();
             })
             .fail((error) => {
                 // XXX might not actually be a syntax error

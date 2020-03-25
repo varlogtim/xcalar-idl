@@ -51,9 +51,9 @@ abstract class DSConnectorPanel {
         let $path = $pathSection.find(".content").eq(0).clone();
         $path.find("input").val("");
         $pathSection.append($path);
-        if (!XVM.isDataMart()) {
-            this._getMultiDSSection().removeClass("xc-hidden");
-        }
+        // if (!XVM.isDataMart()) {
+        //     this._getMultiDSSection().removeClass("xc-hidden");
+        // }
         return $path;
     }
 

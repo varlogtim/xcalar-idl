@@ -217,9 +217,6 @@ class DagView {
      */
     public static async newTabFromSource(type: DagNodeType, config: any): Promise<void> {
         try {
-            if (!XVM.isDataMart()) {
-                MainMenu.openPanel("sqlPanel");
-            }
             DagTabManager.Instance.newTab();
             let position: number = DagView.gridSpacing * 2;
             let node: DagNode = await DagViewManager.Instance.autoAddNode(type, null, null, config,

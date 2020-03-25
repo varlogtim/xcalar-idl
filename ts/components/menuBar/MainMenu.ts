@@ -21,7 +21,6 @@ namespace MainMenu {
         setupTabbing();
         setupDataflowResizable();
         setupDatastoreResizable();
-        MainMenu.switchMode();
         $resizableRightPanels = $("#workbookPanel, #monitorPanel, #datastorePanel, #modelingDagPanel")
                 .find("> .mainContent > .rightSection");
 
@@ -34,40 +33,7 @@ namespace MainMenu {
 
     export function registerPanels(panel): void {
         formPanels.push(panel);
-    };
-
-    export function switchMode(): boolean {
-        const $sqlModeTabs: JQuery = $("#sqlTab");
-        const $advModeTabs: JQuery = $("#jupyterTab, #inButton");
-        let allPanelsClosed: boolean = false;
-        if (XVM.isDataMart()) {
-            // hide dataset in data mart
-            $("#inButton").addClass("xc-hidden");
-        } else if (XVM.isSQLMode()) {
-            $("#inButton").addClass("xc-hidden");
-            $sqlModeTabs.removeClass("xc-hidden");
-            $advModeTabs.addClass("xc-hidden");
-            if ($advModeTabs.hasClass("active")) {
-                $advModeTabs.removeClass("active");
-                DagViewManager.Instance.hide(); // turn off listeners
-                DagConfigNodeModal.Instance.closeForms();
-                closeMainPanels();
-                allPanelsClosed = true;
-            }
-        } else {
-            $("#inButton").removeClass("xc-hidden");
-            $sqlModeTabs.addClass("xc-hidden");
-            $advModeTabs.removeClass("xc-hidden");
-            if ($sqlModeTabs.hasClass("active")) {
-                $sqlModeTabs.removeClass("active");
-                DagConfigNodeModal.Instance.closeForms();
-                closeMainPanels();
-                allPanelsClosed = true;
-            }
-        }
-
-        return allPanelsClosed;
-    };
+    }
 
     export function openDefaultPanel(): void {
         MainMenu.openPanel("sqlPanel");

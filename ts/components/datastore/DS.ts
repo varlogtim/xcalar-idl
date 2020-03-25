@@ -64,10 +64,9 @@ namespace DS {
         oldHomeFolder: DSDurable,
         atStartUp: boolean
     ): XDPromise<void> {
-        if (XVM.isDataMart()) {
-            // data mart doesn't restore
-            return PromiseHelper.resolve();
-        }
+        // data mart doesn't restore
+        return PromiseHelper.resolve();
+
         restoreSortKey();
         return restoreDS(oldHomeFolder, atStartUp);
     }
@@ -378,9 +377,9 @@ namespace DS {
      * DS.getHomeDir
      */
     export function getHomeDir(toPersist: boolean): DSDurable {
-        if (XVM.isDataMart()) {
-            return homeFolder;
-        }
+        // XXX disabled in data mart
+        return homeFolder;
+
         if (toPersist) {
             let copy = removeNonpersistDSObjAttributes(homeFolder);
             for (var i = 0, len = copy.eles.length; i < len; i++) {

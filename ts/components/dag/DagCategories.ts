@@ -51,24 +51,12 @@ class DagCategories {
             hiddenCategory.add(new DagCategoryNodeIn(DagNodeFactory.create({
                 type: DagNodeType.DFIn
             })));
-        } else if (XVM.isDataMart()) {
+        } else {
             hiddenCategory.add(new DagCategoryNodeIn(DagNodeFactory.create({
                 type: DagNodeType.Dataset
             })));
 
             inCategory = new DagCategory(DagCategoryType.In, [
-                new DagCategoryNodeIn(DagNodeFactory.create({
-                    type: DagNodeType.IMDTable
-                })),
-                new DagCategoryNodeIn(DagNodeFactory.create({
-                    type: DagNodeType.DFIn
-                })),
-            ]);
-        } else {
-            inCategory = new DagCategory(DagCategoryType.In, [
-                new DagCategoryNodeIn(DagNodeFactory.create({
-                    type: DagNodeType.Dataset
-                })),
                 new DagCategoryNodeIn(DagNodeFactory.create({
                     type: DagNodeType.IMDTable
                 })),
@@ -98,7 +86,7 @@ class DagCategories {
             hiddenCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.PublishIMD
             })));
-        } else if (XVM.isDataMart()) {
+        } else {
             outCategory = new DagCategory(DagCategoryType.Out, [
                 new DagCategoryNodeOut(DagNodeFactory.create({
                     type: DagNodeType.Export
@@ -114,21 +102,6 @@ class DagCategories {
             hiddenCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.Jupyter
             })));
-        } else {
-            outCategory = new DagCategory(DagCategoryType.Out, [
-                new DagCategoryNodeOut(DagNodeFactory.create({
-                    type: DagNodeType.Export
-                })),
-                new DagCategoryNodeOut(DagNodeFactory.create({
-                    type: DagNodeType.DFOut
-                })),
-                new DagCategoryNodeOut(DagNodeFactory.create({
-                    type: DagNodeType.Jupyter
-                })),
-                new DagCategoryNodeOut(DagNodeFactory.create({
-                    type: DagNodeType.PublishIMD
-                }))
-            ]);
         }
 
         const sqlCategory = new DagCategory(DagCategoryType.SQL, [

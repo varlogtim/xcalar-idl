@@ -238,6 +238,8 @@ class TblSourcePreview {
     }
 
     private _getNextStepButton(): HTML {
+        // XXX disabled in data mart
+        return "";
         let html: HTML;
         const sqlButton: HTML = '<button class="nextStep writeSQL btn btn-submit iconBtn">' +
                                     '<i class="icon xi-newSQL"></i>' +
@@ -247,9 +249,7 @@ class TblSourcePreview {
                                     '<i class="icon xi-dfg2"></i>' +
                                     TblTStr.CreateDF +
                                 '</button>';
-        if (XVM.isDataMart()) {
-            html = "";
-        } else if (XVM.isSQLMode()) {
+        if (XVM.isSQLMode()) {
             html = sqlButton;
         } else {
             html = dfButton;
