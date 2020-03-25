@@ -5,6 +5,7 @@ import NavButtons from '../NavButtons'
 
 const Texts = {
     bucketName: 'S3 Bucket:',
+    noBuckets: 'No bucket to select',
     path: 'Path:',
     fileType: 'File Type:',
     typeCsv: 'CSV',
@@ -28,7 +29,7 @@ export default function SourcePath({
     return (
         <div className="sourceForm">
             <form onSubmit={(e) => { e.preventDefault(); }}>
-                <div class="row">
+                <div className="row">
                     <div className="bucketSelection">
                         <label className="label">{Texts.bucketName}</label>
                         <InputDropdown
@@ -42,13 +43,12 @@ export default function SourcePath({
                             onOpen={() => {
                                 setS3Bucket(DSTargetManager.getAvailableS3Bucket());
                             }}
-                            list={[
-                                {text: s3Bucket, value: s3Bucket}
-                            ]}
+                            list={s3Bucket ? [{text: s3Bucket, value: s3Bucket}] : []}
+                            hint={Texts.noBuckets}
                         />
                     </div>
                 </div>
-                <div class="row">
+                <div className="row">
                     <div className="pathSelection">
                         <label className="label">{Texts.path}</label>
                         <input

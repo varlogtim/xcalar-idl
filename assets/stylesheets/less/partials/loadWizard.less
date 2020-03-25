@@ -1,4 +1,6 @@
 #loadWizard {
+    @min-width: 450px;
+
     .App {
         height: 100%;
         display: flex;
@@ -61,13 +63,11 @@
             margin-bottom: 8px;
 
             .bucketSelection {
-                flex: 1 1 auto;
-                padding-right: @button-w + @margin;
+                min-width: @min-width * 2 + @margin;
             }
 
             .pathSelection, .fileTypeSelection {
-                @w: @button-w / 2;
-                flex: 1 1 ~"calc(50% - @{w})";
+                min-width: @min-width;
                 margin-right: @margin;
             }
 
@@ -670,7 +670,7 @@
         .advOption-option {
             margin: 4px;
             padding: 0;
-            min-width: 450px;
+            min-width: @min-width;
             display: flex;
             flex-direction: row;
 

@@ -5,6 +5,7 @@ import DropdownUL from "./DropdownUL";
 //     onInputChange: Function,
 //     val: string,
 //     list: {value: string, text: string, icon?: string}[],
+//     hint: string
 //     readOnly?: boolean
 // };
 
@@ -111,6 +112,7 @@ export default class InputDropdown extends React.Component {
                     {this.state.open &&
                         <DropdownUL
                         list={this.props.list}
+                        hint={this.props.hint}
                         onItemClick={this.onItemClick}
                         />
                     }
