@@ -15,23 +15,10 @@ class UserMenu {
 
         $("#userNameArea").click(function() {
             const $target: JQuery = $(this);
-            if (XVM.isCloud()) {
-                $menu.find(".credits").show();
-            } else {
-                $menu.find(".credits").hide();
-            }
             MenuHelper.dropdownOpen($target, $menu, <DropdownOptions>{
                 "offsetY": -1,
                 "toggle": true
             });
-            XcUser.creditUsageCheck();
-        });
-
-        $menu.on("mouseup", ".credits", function(event: JQueryEventObject): void {
-            if (event.which !== 1) {
-                return;
-            }
-            window.open(paths.cloudCredit);
         });
 
         $menu.on("mouseup", ".about", function(event: JQueryEventObject): void {
@@ -59,11 +46,7 @@ class UserMenu {
             if (event.which !== 1) {
                 return;
             }
-            if (XVM.isCloud()) {
-                LogoutModal.Instance.show();
-            } else {
-                XcUser.CurrentUser.logout();
-            }
+            XcUser.CurrentUser.logout();
         });
     }
 

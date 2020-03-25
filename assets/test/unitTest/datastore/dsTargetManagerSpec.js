@@ -74,10 +74,6 @@ describe("Datastore-DSTargetManger Test", function() {
             expect(html.split("formRow").length).to.equal(6);
         });
 
-        it("DSTargetManager.getCloudS3Connector should work", function() {
-            expect(DSTargetManager.getCloudS3Connector()).to.equal("xcalar_cloud_s3_env");
-        });
-
         it("DSTargetManager.getPublicS3Connector should work", function() {
             expect(DSTargetManager.getPublicS3Connector()).to.equal("Public S3");
         });
@@ -213,7 +209,7 @@ describe("Datastore-DSTargetManger Test", function() {
         });
 
         it("should not use reserved name in form", function() {
-            var connector = DSTargetManager.getCloudS3Connector();
+            var connector = DSTargetManager.getPublicS3Connector();
             var $name = $("#dsTarget-name");
             $name.val(connector);
             $("#dsTarget-submit").click();

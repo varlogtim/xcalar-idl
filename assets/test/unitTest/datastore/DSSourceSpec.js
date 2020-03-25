@@ -5,30 +5,10 @@ describe("DSSource Test", function() {
         $card = $("#dsForm-source");
     });
 
-    it("should switch to source panel if it's cloud", function() {
-        let oldIsCloud = XVM.isCloud;
-        let oldFormShow = DSForm.show;
-        let oldSwitch = DataSourceManager.switchView;
-        let test1 = false, test2 = false;
-        XVM.isCloud = () => true;
-        DSForm.show = () => test1 = true;
-        DataSourceManager.switchView = () => test2 = true;
-
-        DSSource.show();
-        expect(test1).to.be.false;
-        expect(test2).to.be.true;
-
-        XVM.isCloud = oldIsCloud;
-        DSForm.show = oldFormShow;
-        DataSourceManager.switchView = oldSwitch;
-    });
-
     it("should switch to form panel if it's on prem", function() {
-        let oldIsCloud = XVM.isCloud;
         let oldFormShow = DSForm.show;
         let oldSwitch = DataSourceManager.switchView;
         let test1 = false, test2 = false;
-        XVM.isCloud = () => false;
         DSForm.show = () => test1 = true;
         DataSourceManager.switchView = () => test2 = true;
 
@@ -36,7 +16,6 @@ describe("DSSource Test", function() {
         expect(test1).to.be.true;
         expect(test2).to.be.false;
 
-        XVM.isCloud = oldIsCloud;
         DSForm.show = oldFormShow;
         DataSourceManager.switchView = oldSwitch;
     });
@@ -50,17 +29,6 @@ describe("DSSource Test", function() {
         expect(called).to.be.true;
 
         DSForm.show = oldFormShow;
-    });
-
-    it("should show cloud browser if click file part", function() {
-        let oldFunc = CloudFileBrowser.show;
-        let called = false;
-        CloudFileBrowser.show = () => called = true;
-
-        $card.find(".location.file").click();
-        expect(called).to.be.true;
-
-        CloudFileBrowser.show = oldFunc;
     });
 
     it("should show s3 config panel if click s3 part", function() {

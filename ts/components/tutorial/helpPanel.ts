@@ -6,11 +6,7 @@ class HelpPanel {
     }
 
     public getHelpDocBaseURL(): string {
-        if (XVM.isCloud()) {
-            return "assets/help/Cloud/Content/";
-        } else {
-            return "assets/help/XD/Content/";
-        }
+        return "assets/help/XD/Content/";
     }
 
     /**
@@ -56,11 +52,7 @@ class HelpPanel {
 
     private _openHelpDocs(): void {
         let url = this.getHelpDocBaseURL();
-        if (XVM.isCloud()) {
-            url += "Home_cloud.htm";
-        } else {
-            url += "Home.htm";
-        }
+        url += "Home.htm";
         window.open(url);
     }
 }

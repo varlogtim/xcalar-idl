@@ -65,7 +65,7 @@ namespace TooltipWalkthroughs {
         setupInitialWalkthroughCheck()
         .then(() => {
             // cloud admin don't show workthrought as it's for support
-            if (showWorkbook && !(XVM.isCloud() && Admin.isAdmin())) {
+            if (showWorkbook) {
                 workbookWalkthrough();
             }
         })
@@ -144,28 +144,6 @@ namespace TooltipWalkthroughs {
     export function SQLModeWalkthrough(): void {
         // NOTE: If this is changed, please change the associated unit test
         // at tooltipFLightSpec.js
-        let cloudSteps: TooltipInfo[] = [{
-            highlight_div: "#dsForm-source .location.file",
-            interact_div: "#dsForm-source .location.file",
-            text: "The File Browser enables you to upload a file from your computer to your private Amazon S3 bucket created by Xcalar.",
-            type: TooltipType.Text
-        }, {
-            highlight_div: "#dsForm-source .location.s3",
-            interact_div: "#dsForm-source .location.s3",
-            text: "The Amazon S3 Location enables you to select an Amazon S3 connector to connect to your data source.",
-            type: TooltipType.Text
-        }, {
-            highlight_div: "#dsForm-source .location.database",
-            interact_div: "#dsForm-source .location.database",
-            text: "The Database Location enables you to select a database connector to connect to your data source.",
-            type: TooltipType.Text
-        }, {
-            highlight_div: "#dsForm-source .more",
-            interact_div: "#dsForm-source .more",
-            text: "The All Connectors button enables you to select advanced connectors to connect to your data source.",
-            type: TooltipType.Text
-        }];
-
         let onPremSteps: TooltipInfo[] = [{
             highlight_div: "#dsForm-target",
             text: "This dropdown enables you to choose a connector to access your data. Connectors must be created before data can be imported from them.",
@@ -193,7 +171,7 @@ namespace TooltipWalkthroughs {
             type: TooltipType.Text
         }];
 
-        let dataStoreSteps: TooltipInfo[] = XVM.isCloud() ? cloudSteps : onPremSteps;
+        let dataStoreSteps: TooltipInfo[] = onPremSteps;
         let steps: TooltipInfo[] = [{
             highlight_div: "#modeArea",
             text: "Welcome to Xcalar Design. This tooltip walk-through will familiarize you with the user interface of Xcalar Design and its SQL Mode.",

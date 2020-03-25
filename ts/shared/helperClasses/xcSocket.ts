@@ -188,33 +188,29 @@ class XcSocket {
             XcUser.checkCurrentUser();
         });
 
-        socket.on('clusterStopWarning', () => {
-            if (XVM.isCloud()) {
-                XcUser.clusterStopWarning();
-            }
-        });
+        // socket.on('clusterStopWarning', () => {
+        //     if (XVM.isCloud()) {
+        //         XcUser.clusterStopWarning();
+        //     }
+        // });
 
-        socket.on("logoutMessage", (data) => {
-            if (XVM.isCloud()) {
-                if (data && data.noCredits) {
-                    LogoutModal.Instance.show(true);
-                } else {
-                    XcUser.logout();
-                }
-            }
-        });
+        // socket.on("logoutMessage", (data) => {
+        //     if (XVM.isCloud()) {
+        //         XcUser.logout();
+        //     }
+        // });
 
-        socket.on("lowCreditWarning", () => {
-            if (XVM.isCloud()) {
-                MessageModal.Instance.show({
-                    title: "You are out of credits...",
-                    msg: AlertTStr.ShutDownCredits,
-                    sizeToText: true,
-                    size: "medium",
-                    isAlert: true
-                });
-            }
-        });
+        // socket.on("lowCreditWarning", () => {
+        //     if (XVM.isCloud()) {
+        //         MessageModal.Instance.show({
+        //             title: "You are out of credits...",
+        //             msg: AlertTStr.ShutDownCredits,
+        //             sizeToText: true,
+        //             size: "medium",
+        //             isAlert: true
+        //         });
+        //     }
+        // });
 
         socket.on("updateUserActivity", (args) => {
             XcUser.CurrentUser.updateUserActivity(args);

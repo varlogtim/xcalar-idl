@@ -23,7 +23,6 @@ class GenSettings extends Durable {
             "commitInterval": 120, // in seconds
             "hideSysOps": false,
             "logOutInterval": 25, // in minutes
-            "enableInactivityCheck": true
         };
         defaultSettings = Object.assign({}, defaultSettings, userConfigParms);
         this.baseSettings = Object.assign({}, defaultSettings,

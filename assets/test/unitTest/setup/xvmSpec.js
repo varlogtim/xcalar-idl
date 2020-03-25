@@ -5,9 +5,7 @@ describe('XVM Test', () => {
 
     describe('Basic Function Test', () => {
         it('showInvalidLicenseAlert should work', () => {
-            const oldIsCloud = XVM.isCloud;
             const oldFunc = Alert.show;
-            XVM.isCloud = () => false;
             let testArg;
             Alert.show = (arg) => { testArg = arg };
             XVM.__testOnly__.showInvalidLicenseAlert('test');
@@ -18,7 +16,6 @@ describe('XVM Test', () => {
             expect(testArg.msg).to.equal(AlertTStr.LicenseErrMsg);
             expect(testArg.detail).to.equal("test");
             Alert.show = oldFunc;
-            XVM.isCloud = oldIsCloud;
         });
 
         it('parseLicense should catch error case', () => {
@@ -129,10 +126,6 @@ describe('XVM Test', () => {
 
         it('XVM.getMaxNodes should work', () => {
             expect(XVM.getMaxNodes()).to.be.a('number');
-        });
-
-        it("XVM.isCloud should work", function() {
-            expect(XVM.isCloud()).to.be.a("boolean");
         });
 
         it('XVM.checkMaxUsers should work', () => {

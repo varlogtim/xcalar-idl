@@ -43,22 +43,10 @@ describe.skip("DataSourceManager Test", function() {
             "$ele": $("#dsForm-path")
         }];
 
-        let oldIsCloud = XVM.isCloud;
-        // test cloud
-        XVM.isCloud = () => true;
         tests.forEach(function(test) {
             DataSourceManager.switchView(test.view);
             assert.isTrue(test.$ele.is(":visible"));
         });
-
-        // test on non-cloud case
-        XVM.isCloud = () => false;
-        tests.forEach(function(test) {
-            DataSourceManager.switchView(test.view);
-            assert.isTrue(test.$ele.is(":visible"));
-        });
-
-        XVM.isCloud = oldIsCloud;
     });
 
     it("DataSourceManager.setMode should work", function() {

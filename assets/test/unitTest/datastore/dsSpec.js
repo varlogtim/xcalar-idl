@@ -219,18 +219,11 @@ describe.skip("Dataset-DS Test", function() {
         // });
 
         it('DS.toggleSharing should toggle sharing', () => {
-            let oldIsCloud = XVM.isCloud;
             const disable = $gridView.hasClass('disableShare');
-            XVM.isCloud = () => false;
             // case 1
             DS.toggleSharing(false);
             expect($gridView.hasClass('disableShare')).to.be.false;
-            // case 2, cloud deployment always disable share
-            XVM.isCloud = () => true;
-            DS.toggleSharing(false);
-            expect($gridView.hasClass('disableShare')).to.be.true; // still disabled
-            // case 3
-            XVM.isCloud = () => false;
+            // case 2
             DS.toggleSharing(true);
             expect($gridView.hasClass('disableShare')).to.be.true;
 
@@ -238,9 +231,6 @@ describe.skip("Dataset-DS Test", function() {
             if (!disable) {
                 DS.toggleSharing(false);
             }
-
-
-            XVM.isCloud = oldIsCloud;
         });
 
         it('should alert sample size limit', () => {
@@ -353,7 +343,6 @@ describe.skip("Dataset-DS Test", function() {
         });
 
         it('should share ds', () => {
-            let oldIsCloud = XVM.isCloud;
             const oldAlert = Alert.show;
             let test = false;
             Alert.show = () => { test = true; };
@@ -361,19 +350,12 @@ describe.skip("Dataset-DS Test", function() {
             const $grid = $('<div class="grid-unit shared" ' +
                             'data-dsname="' + dsName + '"></div>');
             $gridView.append($grid);
-            // case 1, cloud deployment should not allow sharing
-            XVM.isCloud = () => true;
-            DS.toggleSharing(false);
-            DS.__testOnly__.shareDS(dsId);
-            expect(test).to.be.false;
-            // case 2, on prem deployment
-            XVM.isCloud = () => false;
+            // on prem deployment
             DS.toggleSharing(false);
             DS.__testOnly__.shareDS(dsId);
             expect(test).to.be.true;
 
             Alert.show = oldAlert;
-            XVM.isCloud = oldIsCloud;
             $grid.remove();
         });
 

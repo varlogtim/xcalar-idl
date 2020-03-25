@@ -32,9 +32,6 @@ namespace xcManager {
         })
         .then(function() {
             XVM.setup();
-            return CloudManager.Instance.setup();
-        })
-        .then(function() {
             // xcrpc default service setup
             Xcrpc.createClient(Xcrpc.DEFAULT_CLIENT_NAME, xcHelper.getApiUrl());
 
@@ -179,7 +176,6 @@ namespace xcManager {
             } else {
                 hideInitialLoadScreen();
             }
-            XcUser.creditUsageCheck();
         });
 
         return deferred.promise();
@@ -617,10 +613,6 @@ namespace xcManager {
     }
 
     function hotPatch(): XDPromise<void> {
-        if (XVM.isCloud()) {
-            // cloud don't need to use hotpatch
-            return PromiseHelper.resolve();
-        }
         if (XVM.isDataMart()) {
             // data mart cannot use hotpatch, as VPC may block external internet
             return PromiseHelper.resolve();
@@ -1038,10 +1030,6 @@ namespace xcManager {
 
         if (msalUser != null) {
             msalAgentApplication.logout();
-        } else if (XVM.isCloud() &&
-            window.location.hostname !== "localhost"
-        ) {
-            window.location = <any>(paths.cloudLogin + "?logout");
         } else {
             window["location"]["href"] = paths.dologout;
         }

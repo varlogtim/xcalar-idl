@@ -300,7 +300,7 @@ var htmlTemplateMapping = {
     "index.html": ["index.html"],
     "install.html": ["install.html", "install-tarball.html"],
     "login.html": ["assets/htmlFiles/login.html"],
-    "cloudLogin.html": ["cloudLogin/cloudLogin.html"],
+    // "cloudLogin.html": ["cloudLogin/cloudLogin.html"],
     "testSuite.html": ["testSuite.html"],
     "unitTest.html": ["unitTest.html"],
     "unitTestInstaller.html": ["unitTestInstaller.html"],
@@ -815,7 +815,7 @@ DONT_TEMPLATE_HTML = DONT_TEMPLATE_HTML.concat([ // xpeInstaller included files
  (want to be able to debug these in the field regularly
  and if you minify them putting breakpointst becomes really difficult)
 */
-var DONT_MINIFY = ['3rd', 'assets/js/unused', 'assets/js/worker', 'config.js'];
+var DONT_MINIFY = ['3rd', 'assets/unused', 'assets/js/worker', 'config.js'];
 // at end of bld will chmod everything to 777.  dont chmod what's in here (it fails on symlinks which is why im adding this)
 var DONT_CHMOD = ['xu.css', UNIT_TEST_FOLDER];
 /** project src files and dirs to explicitally exclude from bld.
@@ -844,6 +844,7 @@ var DONT_RSYNC = [
         'assets/help/XD/Content/B_CommonTasks/A_ManageDatasetRef.htm',
         'assets/video/demoVid*',  // removes some ancient video files, no longer used
         'assets/js/constructor/README',
+        'assets/unused',
         'assets/misc',
         UNIT_TEST_FOLDER, // will just put symlink to this in dev blds
         "'/external'", // this contains the web site, which we do not need
@@ -1520,15 +1521,15 @@ module.exports = function(grunt) {
                       dest: BLDROOT + "assets/htmlFiles/login.html" }
                 ],
             },
-            cloudLogin: {
-                options: {
-                    minify: false
-                },
-                files: [
-                    { src: BLDROOT + "cloudLogin/cloudLogin.html",
-                      dest: BLDROOT + "cloudLogin/cloudLogin.html" }
-                ],
-            }
+            // cloudLogin: {
+            //     options: {
+            //         minify: false
+            //     },
+            //     files: [
+            //         { src: BLDROOT + "cloudLogin/cloudLogin.html",
+            //           dest: BLDROOT + "cloudLogin/cloudLogin.html" }
+            //     ],
+            // }
         },
 
 
@@ -1570,16 +1571,16 @@ module.exports = function(grunt) {
                 pattern: 'raleway.css',
                 replacement: 'raleway.css.new'
             },
-            opensans_css_cloudLogin: {
-                path: BLDROOT + 'cloudLogin/cloudLogin.html',
-                pattern: 'opensans.css',
-                replacement: 'opensans.css.new'
-            },
-            raleway_css_cloudLogin: {
-                path: BLDROOT + 'cloudLogin/cloudLogin.html',
-                pattern: 'raleway.css',
-                replacement: 'raleway.css.new'
-            }
+            // opensans_css_cloudLogin: {
+            //     path: BLDROOT + 'cloudLogin/cloudLogin.html',
+            //     pattern: 'opensans.css',
+            //     replacement: 'opensans.css.new'
+            // },
+            // raleway_css_cloudLogin: {
+            //     path: BLDROOT + 'cloudLogin/cloudLogin.html',
+            //     pattern: 'raleway.css',
+            //     replacement: 'raleway.css.new'
+            // }
         },
 
         /**
@@ -2000,10 +2001,11 @@ module.exports = function(grunt) {
      * grunt cloud_login
      */
     grunt.task.registerTask(CLOUD_LOGIN, "Build Cloud login page", function() {
-        var config = grunt.config('assets_inline');
-        config.cloudLogin.options.minify = true;
-        grunt.config('assets_inline', config);
-        grunt.task.run(DEV);
+        return;
+        // var config = grunt.config('assets_inline');
+        // config.cloudLogin.options.minify = true;
+        // grunt.config('assets_inline', config);
+        // grunt.task.run(DEV);
     });
 
                 /**
@@ -4393,14 +4395,14 @@ module.exports = function(grunt) {
                 grunt.task.run('assets_inline:login');
 
             } else if (BLDTYPE === CLOUD_LOGIN) {
-                grunt.task.run('embedFonts');
-                grunt.task.run('sed:opensans_css');
-                grunt.task.run('sed:raleway_css');
+                // grunt.task.run('embedFonts');
+                // grunt.task.run('sed:opensans_css');
+                // grunt.task.run('sed:raleway_css');
 
-                // build for cloudLogin assets
-                grunt.task.run('sed:opensans_css_cloudLogin');
-                grunt.task.run('sed:raleway_css_cloudLogin');
-                grunt.task.run('assets_inline:cloudLogin');
+                // // build for cloudLogin assets
+                // grunt.task.run('sed:opensans_css_cloudLogin');
+                // grunt.task.run('sed:raleway_css_cloudLogin');
+                // grunt.task.run('assets_inline:cloudLogin');
             }
 
             // sym link from bld to src unit test dir

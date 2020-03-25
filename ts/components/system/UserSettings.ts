@@ -246,9 +246,6 @@ namespace UserSettings {
         if (XVM.isDataMart()) {
             // data mart options
             $("#userSettingsModal .optionSet:not(.dataMart)").remove();
-        } else if (XVM.isCloud()) {
-            // cloud options
-            $("#userSettingsModal .optionSet:not(.cloud)").remove();
         } else {
             // remove cloud only settings
             $("#userSettingsModal .optionSet:not(.onPrem)").remove();
@@ -368,29 +365,6 @@ namespace UserSettings {
             }
         });
 
-        $("#enableInactivityCheck").click(function() {
-            let $checkbox = $(this);
-            $checkbox.toggleClass("checked");
-            if ($checkbox.hasClass("checked")) {
-                UserSettings.setPref("enableInactivityCheck", true, true);
-                XcUser.CurrentUser.enableIdleCheck();
-            } else {
-                UserSettings.setPref("enableInactivityCheck", false, true);
-                XcUser.CurrentUser.disableIdleCheck();
-            }
-        });
-
-        $("#enableXcalarSupport").click(function() {
-            let $checkbox = $(this);
-            $checkbox.toggleClass("checked");
-            if ($checkbox.hasClass("checked")) {
-                UserSettings.setPref("enableXcalarSupport", true, true);
-            } else {
-                UserSettings.setPref("enableXcalarSupport", false, true);
-            }
-            UserSettings.commit(false, false, false, true);
-        });
-
         monIntervalSlider = new RangeSlider($('#monitorIntervalSlider'),
         'monitorGraphInterval', {
             minVal: 1,
@@ -456,8 +430,6 @@ namespace UserSettings {
         let hideSysOps = UserSettings.getPref("hideSysOps");
         let disableDSShare = UserSettings.getPref("disableDSShare");
         let logOutInterval = UserSettings.getPref("logOutInterval");
-        let enableInactivityCheck = UserSettings.getPref("enableInactivityCheck");
-        let enableXcalarSupport: boolean = UserSettings.getPref("enableXcalarSupport") || false;
         const colorTheme = UserSettings.getPref("colorTheme") || CodeMirrorManager.DefaultColorTheme;
 
         if (!hideSyntaxHiglight) {
@@ -482,30 +454,6 @@ namespace UserSettings {
             $("#disableDSShare").addClass("checked");
         } else {
             $("#disableDSShare").removeClass("checked");
-        }
-        if (XVM.isCloud()) {
-            if (enableInactivityCheck || enableInactivityCheck == null) {
-                $("#enableInactivityCheck").addClass("checked");
-                XcUser.CurrentUser.enableIdleCheck();
-            } else {
-                $("#enableInactivityCheck").removeClass("checked");
-                XcUser.CurrentUser.disableIdleCheck();
-            }
-
-            if (enableXcalarSupport) {
-                $("#enableXcalarSupport").addClass("checked");
-            } else {
-                $("#enableXcalarSupport").removeClass("checked");
-                if (XVM.isCloud() && Admin.isAdmin()) {
-                    // don't allow admin to login as user not allow
-                    Alert.show({
-                        "title": "Access Denied",
-                        "msg": "The cloud user doesn't enable Xcalar support!",
-                        // XXX TODO: enable it when auth work is done
-                        // "lockScreen": true
-                    });
-                }
-            }
         }
 
         _setColorTheme(colorTheme);

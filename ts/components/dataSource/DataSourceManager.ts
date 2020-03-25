@@ -286,7 +286,7 @@ class DataSourceManager {
 
     // button switch styling handled in mainMenu.js
     private static _readOnlyForNoAdmin(): boolean {
-        let isAdmin: boolean = Admin.isAdmin() || XVM.isCloud() || XVM.isDataMart();
+        let isAdmin: boolean = Admin.isAdmin() || XVM.isDataMart();
         let $panel = this._getPanel();
         let $menu = this._getMenu();
         if (!isAdmin) {

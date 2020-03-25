@@ -8,7 +8,7 @@
   </header>
   <div class="optionsContainer modalMain">
     <!-- show data col -->
-    <div class="optionSet dataMart cloud onPrem">
+    <div class="optionSet dataMart onPrem">
       <div class="optionSelector">
         <div id="showDataColBox" class="checkbox">
           <i class="icon xi-ckbox-empty fa-13"></i>
@@ -23,7 +23,7 @@
       data-placement="top"></i>
     </div>
     <!-- hide system op logs -->
-    <div class="optionSet cloud onPrem">
+    <div class="optionSet onPrem">
       <div class="optionSelector">
         <div id="hideSysOps" class="checkbox">
           <i class="icon xi-ckbox-empty fa-13"></i>
@@ -33,7 +33,7 @@
       <div class="label"><%= dicts.monitor.hideSysOps %></div>
     </div>
     <!-- show syntax highlight -->
-    <div class="optionSet dataMart cloud onPrem">
+    <div class="optionSet dataMart onPrem">
       <div class="optionSelector">
         <div id="showSyntaxHighlight" class="checkbox">
           <i class="icon xi-ckbox-empty fa-13"></i>
@@ -43,7 +43,7 @@
       <div class="label">Show syntax highlighting for editors</div>
     </div>
     <!-- color theme -->
-    <div class="optionSet dataMart cloud onPrem">
+    <div class="optionSet dataMart onPrem">
       <div class="optionSelector">
         <div class="label">Editor theme:</div>
         <div id="colorThemeSelector" class="dropDownList">
@@ -65,7 +65,7 @@
       </div>
     </div>
     <!-- health check interval -->
-    <div class="optionSet dataMart cloud onPrem">
+    <div class="optionSet dataMart onPrem">
       <div class="label"><%= dicts.monitor.commitInterval %></div>
       <div id="commitIntervalSlider" class="optionSelector rangeSliderWrap">
         <div class="rangeSlider">
@@ -89,7 +89,7 @@
       <div class="label"><%= dicts.monitor.DISABLESHARE %></div>
     </div>
     <!-- logout interval -->
-    <div class="optionSet dataMart cloud onPrem">
+    <div class="optionSet dataMart onPrem">
       <div class="label"><%= dicts.monitor.logOutInterval %></div>
       <div id="logOutIntervalSlider" class="optionSelector rangeSliderWrap">
         <div class="rangeSlider">
@@ -101,31 +101,6 @@
         <input class="value" value="25" type="number" min="10" max="120">
         <span><%= dicts.common.minutes %></span>
       </div>
-    </div>
-    <!-- cloud inactivity shut down -->
-    <div class="optionSet cloud">
-      <div class="optionSelector">
-        <div id="enableInactivityCheck" class="checkbox">
-          <i class="icon xi-ckbox-empty fa-13"></i>
-          <i class="icon xi-ckbox-selected fa-13"></i>
-        </div>
-      </div>
-      <div class="label"><%= dicts.monitor.InactivityShutdown %></div>
-    </div>
-    <!-- enable cloud support -->
-    <div class="optionSet cloud">
-      <div class="optionSelector">
-        <div id="enableXcalarSupport" class="checkbox">
-          <i class="icon xi-ckbox-empty fa-13"></i>
-          <i class="icon xi-ckbox-selected fa-13"></i>
-        </div>
-      </div>
-      <div class="label"><%= dicts.monitor.EnableSupport %></div>
-      <i class="qMark icon xi-unknown"
-      data-toggle="tooltip"
-      data-container="body"
-      data-title="<%= dicts.monitor.EnableSupportHint %>"
-      data-placement="top"></i>
     </div>
   </div>
   <div class="modalBottom">

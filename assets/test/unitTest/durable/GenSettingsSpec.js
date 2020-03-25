@@ -15,7 +15,7 @@ describe("GenSettings Constructor Test", function() {
         var genSettings = new GenSettings();
         var baseSettings = genSettings.getBaseSettings();
 
-        expect(Object.keys(baseSettings).length).to.equal(6);
+        expect(Object.keys(baseSettings).length).to.equal(5);
         expect(baseSettings).to.have.property("hideDataCol")
         .and.to.be.false;
         expect(baseSettings).to.have.property("monitorGraphInterval")
@@ -25,7 +25,6 @@ describe("GenSettings Constructor Test", function() {
         expect(baseSettings).to.have.property("hideSysOps").and.to.be.false;
         expect(baseSettings).to.have.property("logOutInterval")
         .and.to.equal(25);
-        expect(baseSettings).to.have.property("enableInactivityCheck").and.to.be.true;
     });
 
     it("GenSettings heirarchy should work", function() {
@@ -48,7 +47,7 @@ describe("GenSettings Constructor Test", function() {
         expect(Object.keys(adminAndXc.xcSettings)).to.have.length(1);
 
         var baseSettings = genSettings.getBaseSettings();
-        expect(Object.keys(baseSettings)).to.have.length(6);
+        expect(Object.keys(baseSettings)).to.have.length(5);
         expect(baseSettings["hideDataCol"]).to.be.false;
         expect(baseSettings["monitorGraphInterval"]).to.equal(9);
         expect(baseSettings["commitInterval"]).to.equal(600);

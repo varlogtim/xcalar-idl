@@ -8,7 +8,7 @@ class AboutModal {
 
     private constructor() {
         const $modal: JQuery = this._getModal();
-        if (XVM.isCloud() || XVM.isDataMart()) {
+        if (XVM.isDataMart()) {
             $modal.addClass("noLicense");
         } else {
             $modal.removeClass("noLicense");
@@ -60,7 +60,7 @@ class AboutModal {
         $modal.find(".frontVersion").text(frontVers);
         $modal.find(".buildNumber").text(buildNumber);
         
-        if (XVM.isCloud() || XVM.isDataMart()) {
+        if (XVM.isDataMart()) {
             $modal.addClass("noLicense");
             $modal.find(".licensee").text("");
             $modal.find(".expiration").text("");

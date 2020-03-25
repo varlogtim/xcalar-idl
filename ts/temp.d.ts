@@ -434,7 +434,6 @@ interface Window {
 }
 
 declare var csLookup: string;
-declare var csLookupCloud: string;
 declare var planServer: string;
 declare var unitTestMode: boolean;
 declare var isBrowserIE: boolean;

@@ -3,9 +3,6 @@ class XcUser {
     public static lastCreditWarningLimit: number; // XXX temporary
     private static _currentUser: XcUser;
     private static _isLogoutTimerOn: boolean = false;
-    private static readonly _logOutWarningTime = 60; // in seconds
-    private static _creditUsageInterval = null;
-    private static readonly _creditUsageCheckTime = 1 * 60 * 1000;
     private static _isIdleCheckOn = true;
     private static _clusterStopCountdown: number;
     public static readonly firstCreditWarningTime: number = 20; // minutes
@@ -133,86 +130,10 @@ class XcUser {
         this._isLogoutTimerOn = on;
     }
 
-    // alert for when cluster is going to shut down in 60 seconds
-    public static clusterStopWarning() {
-        const interval = 1000; // 60sec, 59sec, 58sec etc
-        let timeLeft = this._logOutWarningTime;
-        XcUser.toggleLogoutTimer(true); // declares countdown timer to be on
-
-        const alertId = Alert.show({
-            title: "Cluster Inactivity",
-            msg: "Cluster has been inactive and will shut down in 60 seconds.",
-            isAlert: true,
-            buttons: [
-                {
-                    name: "Keep Using",
-                    className: "keepUsing btn-primary",
-                    func: () => {
-                        clearTimeout(this._clusterStopCountdown);
-                        this.toggleLogoutTimer(false);
-                        XcUser.CurrentUser._isIdle = false;
-                        XcUser.CurrentUser.idleCheck();
-                        XcSocket.Instance.sendMessage("updateUserActivity", {
-                            isCloud: XVM.isCloud(),
-                            removeClusterStopCountdown: true
-                        });
-                    }
-                }
-            ]
-        });
-
-        const updateTimer = () => {
-            this._clusterStopCountdown = window.setTimeout(() => {
-                timeLeft--;
-                timeLeft = Math.max(timeLeft, 0);
-                if (timeLeft === 0) {
-                    Alert.updateMsg(alertId, `Cluster is shutting down.`);
-                    return;
-                }
-                let msg = `Cluster has been inactive and will shut down in ${timeLeft} seconds.`;
-                if (Alert.updateMsg(alertId, msg) && timeLeft > 0) {
-                    updateTimer();
-                }
-            }, interval);
-        }
-        updateTimer();
-    }
-
     public static logout(): void {
         if (XcUser.CurrentUser) {
             XcUser.CurrentUser.logout();
         }
-    }
-
-    private static _checkCreditUsageHelper() {
-        xcHelper.sendRequest("GET", "/service/getCredits")
-        .then((num) => {
-            try {
-                num = JSON.parse(num);
-            } catch (e) {
-               // ignore
-            }
-            UserMenu.Instance.updateCredits(num);
-        })
-        .fail(() => {
-            UserMenu.Instance.updateCredits(null);
-        });
-    }
-
-    public static creditUsageCheck() {
-        if (!XVM.isCloud()) {
-            return;
-        }
-        this._checkCreditUsageHelper();
-        clearInterval(this._creditUsageInterval);
-        this._creditUsageInterval = setInterval(() => {
-            this._checkCreditUsageHelper();
-        }, this._creditUsageCheckTime);
-    }
-
-    public static setClusterPrice(price) {
-        this.firstCreditWarningLimit = price * this.firstCreditWarningTime; // 20 minutes worth of credit
-        this.lastCreditWarningLimit = price * this.lastCreditWarningTime; // 1 minute worth of credit
     }
 
     private _username: string;
@@ -433,12 +354,9 @@ class XcUser {
             throw "Invalid User";
         }
         this._idleTimeLimit = val;
-        if (XcUser._isIdleCheckOn || !XVM.isCloud()) {
+        if (XcUser._isIdleCheckOn) {
             this._isIdle = false;
             this.idleCheck();
-        }
-        if (XVM.isCloud()) {
-            xcHelper.sendRequest("POST", "/service/updateLogoutInterval", {time: val});
         }
     }
 
@@ -464,18 +382,12 @@ class XcUser {
         console.info("idle check is disabled!");
         clearTimeout(this._idleChckTimer);
         clearTimeout(this._activityTimer);
-        if (XVM.isCloud()) {
-            xcHelper.sendRequest("POST", "/service/disableIdleCheck");
-        }
     }
 
     public enableIdleCheck(): void {
         XcUser._isIdleCheckOn = true;
         this._isIdle = false;
         this.idleCheck();
-        if (XVM.isCloud()) {
-            xcHelper.sendRequest("POST", "/service/enableIdleCheck");
-        }
     }
 
     // received from socket, will not produce a rebroadcast
@@ -574,9 +486,7 @@ class XcUser {
         // tell expServer there was activity, as long as we didn't
         // already do it in the past 30 seconds
         if (Date.now() - this._lastSocketUpdate > (30 * 1000)) {
-            XcSocket.Instance.sendMessage("updateUserActivity", {
-                isCloud: XVM.isCloud()
-            });
+            XcSocket.Instance.sendMessage("updateUserActivity");
             this._lastSocketUpdate = Date.now();
         }
     }

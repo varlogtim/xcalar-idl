@@ -6,7 +6,7 @@ class CSHelp {
         $(document).on("click", ".csHelp", function() {
             const topic = $(this).attr("data-topic");
             const helpBaseUrl = HelpPanel.Instance.getHelpDocBaseURL();
-            const lookup = XVM.isCloud() ? csLookupCloud : csLookup;
+            const lookup = csLookup;
             const url = helpBaseUrl + "ContentXDHelp/" + lookup[topic];
             window.open(url, "xcalar");
         });

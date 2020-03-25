@@ -179,59 +179,7 @@ module.exports = {
             .waitForElementNotPresent("#intro-visibleOverlay")
     },
 
-    'should do the entire Sql mode walkthrough for cloud successfully': function(browser) {
-        let oldIsCloud
-        browser.execute(function() {
-            oldIsCloud = XVM.isCloud;
-            XVM.isCloud = () => true;
-        }, [], null);
-
-        browser
-            .waitForElementVisible("#helpArea")
-            .click("#helpArea")
-            .waitForElementVisible("#helpAreaMenu .walkthroughs")
-            .click("#helpAreaMenu .walkthroughs")
-            .waitForElementVisible("#tooltipModal")
-            .expect.element('#tooltipModal .item:nth-of-type(2) .tooltipName').text.to.equal('SQL Mode')
-        browser.assert.cssClassNotPresent('#tooltipModal .item:nth-of-type(2) button', 'xc-disabled')
-            .pause(1000)
-            .click('#tooltipModal .item:nth-of-type(2) button')
-            .waitForElementVisible("#intro-popover")
-            .tooltipTest("#helpArea")
-            .tooltipTest("#menuBar")
-            .tooltipTest("#dataStoresTab")
-            .tooltipTest("#sqlTab")
-            .tooltipTest("#monitorTab")
-            .tooltipTest("#dataStoresTab", "#dataStoresTab .mainTab")
-            .tooltipTest("#sourceTblButton", "#sourceTblButton")
-
-            .assert.cssClassNotPresent("#bottomMenu", "open")
-            .assert.cssClassNotPresent("#dsFormView", "xc-hidden")
-            .tooltipTest("#dsForm-source .location.file")
-            .tooltipTest("#dsForm-source .location.s3")
-            .tooltipTest("#dsForm-source .location.database")
-            .tooltipTest("#dsForm-source .more")
-            .tooltipTest("#sqlWorkSpace", "#sqlWorkSpace")
-            .tooltipTest("#sqlEditorSpace")
-            .tooltipTest("#sqlTableListerArea")
-            .tooltipTest("#sqlWorkSpacePanel .historySection")
-            .tooltipTest("#helpArea")
-
-            .waitForElementNotPresent("#intro-popover")
-            .waitForElementNotPresent("#intro-visibleOverlay")
-
-        browser.execute(function() {
-            XVM.isCloud = oldIsCloud;
-        }, [], null);
-    },
-
     "should start Sql mode walkthrough for on prem successfully": function(browser) {
-        let oldIsCloud
-        browser.execute(function() {
-            oldIsCloud = XVM.isCloud;
-            XVM.isCloud = () => false;
-        }, [], null);
-
         browser
             .waitForElementVisible("#helpArea")
             .click("#helpArea")
@@ -247,10 +195,6 @@ module.exports = {
             .click("#intro-popover .close")
             .waitForElementNotPresent("#intro-popover")
             .waitForElementNotPresent("#intro-visibleOverlay")
-
-        browser.execute(function() {
-            XVM.isCloud = oldIsCloud;
-        }, [], null);
     },
 
     'switching to sql mode automatically shows no messageModal after clicking dont show in developer mode': function(browser) {

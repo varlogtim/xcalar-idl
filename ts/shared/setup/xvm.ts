@@ -16,7 +16,6 @@ namespace XVM {
     let numUsers: number = -1; // Set, but not used
     let numNodes: number = -1; // Set, but not used
     let _mode: XVM.Mode;
-    let _cloud: boolean;
 
     export enum Mode {
         SQL = "SQL",
@@ -236,16 +235,6 @@ namespace XVM {
     }
 
     /**
-     * XVM.isCloud
-     */
-    export function isCloud(): boolean {
-        if (_cloud === undefined) {
-            _cloud = (typeof gCloud !== "undefined" && gCloud === true) || false;
-        }
-        return _cloud;
-    }
-
-    /**
      * XVM.isDataMart
      */
     export function isDataMart(): boolean {
@@ -256,7 +245,7 @@ namespace XVM {
      * XVM.isSingleUser
      */
     export function isSingleUser(): boolean {
-        return XVM.isCloud() || XVM.isDataMart();
+        return XVM.isDataMart();
     }
 
     /**

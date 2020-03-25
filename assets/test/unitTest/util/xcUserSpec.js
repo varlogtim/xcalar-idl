@@ -505,34 +505,4 @@ describe('XcUser Test', () => {
             UserSettings.revertDefault();
         });
     });
-
-    describe("credit usage check", () => {
-        it("should update usermenu", (done) => {
-            let oldIsCloud = XVM.isCloud;
-            XVM.isCloud = () => true;
-            let oldTime = XcUser._creditUsageCheckTime;
-            XcUser._creditUsageCheckTime = 20;
-            let oldRequest = xcHelper.sendRequest;
-            xcHelper.sendRequest = () => {
-                return PromiseHelper.resolve(5);
-            };
-
-            let oldUpdateCredits = UserMenu.Instance.updateCredits;
-            let count = 0;
-            UserMenu.Instance.updateCredits = () => {
-                count++;
-            };
-            XcUser.creditUsageCheck();
-            setTimeout(() => {
-                expect(count).to.be.gt(2);
-                expect(count).to.be.lt(10);
-                XcUser._creditUsageCheckTime = oldTime;
-                xcHelper.sendRequest = oldRequest;
-                UserMenu.Instance.updateCredits = oldUpdateCredits;
-                XVM.isCloud = oldIsCloud;
-                clearInterval(XcUser._creditUsageInterval);
-                done();
-            }, 100);
-        });
-    });
 });

@@ -1654,10 +1654,6 @@ namespace DS {
             let created = false;
             let displayError = null;
             if (typeof error === "object") {
-                if (isDifferentCloudBucketError(restoreArgs)) {
-                    error.error = ErrTStr.NoBucketAccess + "\n" + error.error;
-                }
-
                 created = error.created;
                 displayError = error.error;
             }
@@ -1691,16 +1687,6 @@ namespace DS {
         });
 
         return deferred.promise();
-    }
-
-    function isDifferentCloudBucketError(restoreArgs: any): boolean {
-        try {
-            let connector: string = restoreArgs.sourceArgsList[0].targetName;
-            return connector === DSTargetManager.getCloudS3Connector();
-        } catch (e) {
-            console.error(e);
-            return false;
-        }
     }
 
     function alertSampleSizeLimit(dsName: string): void {

@@ -31,15 +31,8 @@ namespace DSForm {
         DataSourceManager.switchView(DataSourceManager.View.Path);
         $filePath.focus();
 
-        if (XVM.isCloud()) {
-            $pathCard.find(".cardBottom .clear").addClass("xc-hidden");
-            $pathCard.find(".cardBottom .back").removeClass("xc-hidden");
-            resetForm();
-        } else {
-            $pathCard.find(".cardBottom .clear").removeClass("xc-hidden");
-            $pathCard.find(".cardBottom .back").addClass("xc-hidden");
-            // on prem don't reset form
-        }
+        $pathCard.find(".cardBottom .clear").removeClass("xc-hidden");
+        $pathCard.find(".cardBottom .back").addClass("xc-hidden");
         setPrivateS3Bucket();
     }
 

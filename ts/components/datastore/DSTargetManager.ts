@@ -12,7 +12,6 @@ namespace DSTargetManager {
     let udfFuncListItems: string;
     let udfModuleHint: InputDropdownHint;
     let udfFuncHint: InputDropdownHint;
-    const xcalar_cloud_s3: string = "xcalar_cloud_s3_env";
     const xcalar_public_s3: string = "Public S3";
     const xcalar_private_s3: string = "Private S3";
     // connectors for tutorial
@@ -29,7 +28,6 @@ namespace DSTargetManager {
         "s3environ"
     ];
     const reservedList: string[] = [
-        xcalar_cloud_s3,
         xcalar_public_s3,
         xcalar_private_s3,
         xcalar_tutorial_export,
@@ -368,13 +366,6 @@ namespace DSTargetManager {
     }
 
     /**
-     * DSTargetManager.getCloudS3Connector
-     */
-    export function getCloudS3Connector(): string {
-        return xcalar_cloud_s3;
-    }
-
-    /**
      * DSTargetManager.getPublicS3Connector
      */
     export function getPublicS3Connector(): string {
@@ -404,7 +395,6 @@ namespace DSTargetManager {
     async function defaultConnectorsSetup(): Promise<void> {
         let hasNewConnectors: boolean = false;
         try {
-            hasNewConnectors = await createCloudS3Connector() || hasNewConnectors;
             hasNewConnectors = await createTutorialExportConnector() || hasNewConnectors;
             hasNewConnectors = await createPublicS3Connector() || hasNewConnectors;
             hasNewConnectors = await createPrivateS3Connector() || hasNewConnectors;
@@ -415,29 +405,6 @@ namespace DSTargetManager {
         if (hasNewConnectors) {
             // refresh the list
             await getConnectorList();
-        }
-    }
-
-    // for cloud file upload use
-    async function createCloudS3Connector(): Promise<boolean> {
-        if (!XVM.isCloud()) {
-            return false;
-        }
-
-        const connectorName: string = xcalar_cloud_s3;
-        if (targetSet[connectorName] != null) {
-            // has the s3Target created, but remove it from cache
-            delete targetSet[connectorName];
-            return false;
-        }
-
-        try {
-            await createS3EnvConnector(connectorName, true);
-            return true;
-        } catch (e) {
-            // ingore the error
-            console.warn("create cloud connectors failed", e);
-            return false;
         }
     }
 
@@ -656,7 +623,7 @@ namespace DSTargetManager {
     }
 
     function isModifiable(): boolean {
-        return Admin.isAdmin() || XVM.isCloud() || XVM.isDataMart();
+        return Admin.isAdmin() || XVM.isDataMart();
     }
 
     function isDefaultTarget(targetName: string): boolean {
@@ -670,8 +637,9 @@ namespace DSTargetManager {
     }
 
     function isAccessibleTarget(targetType: string): boolean {
+        return true;
         // if change this to XVM.isDataMart, it will make default shared root not accessible
-        return !XVM.isCloud() || !cloudTargetBlackList.includes(targetType);
+        return !XVM.isDataMart() || !cloudTargetBlackList.includes(targetType);
     }
 
     function isWhiteListTarget(targetName: string): boolean {
