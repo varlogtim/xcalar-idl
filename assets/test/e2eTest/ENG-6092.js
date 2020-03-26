@@ -2,7 +2,7 @@ const testConfig = {
     user: 'dftest',
     workbook: 'ENG-6092'
 }
-const tags = ["linkInAgg", "allTests"];
+const tags = ["linkInAgg", "allTestsSkipped"];
 
 const execFunctions = require('./lib/execFunctions');
 module.exports = {

@@ -69,7 +69,6 @@ module.exports = {
     scrollIntoView: function(selector, element) {
         if (element) {
             console.log(element);
-            console.log("9234852938562389642837462837462387462");
         } else {
             $(selector).scrollintoview({duration: 0});
         }
@@ -144,6 +143,11 @@ module.exports = {
     clearConsole: function() {
         console.clear();
     },
+
+    setIMDTableSubGraph: function(nodeId, subGraphJson) {
+        DagViewManager.Instance.getActiveDag().getNode(nodeId).setSubgraph(subGraphJson);
+    },
+
 
     // change xcalarQueryCheck so that we console error query failures
     hackXcalarQueryCheck: function() {

@@ -32,3 +32,4 @@ class SubmitAdvancedPanel extends EventEmitter {
 }
 
 module.exports = SubmitAdvancedPanel;
+

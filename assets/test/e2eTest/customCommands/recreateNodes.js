@@ -184,6 +184,13 @@ class RecreateNodes extends EventEmitter {
                         .setValue("#publishIMDOpPanel .IMDNameInput", input.pubTableName)
                         .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4))
                         .executeNode(".operator:nth-child(" + (i + 1) + ") .main")
+                } else if (nodeInfo.type === "IMDTable" && nodeInfo.subGraph && nodeInfo.subGraph.nodes.length) {
+                    this.api.openOpPanel(".operator:nth-child(" + (i + 1) + ") .main")
+                    .setValue("#IMDTableOpPanel .pubTableInput", input.source)
+                    .pause(1000)
+                    .click("#IMDTableOpPanel")
+                    .submitAdvancedPanel("#IMDTableOpPanel", JSON.stringify(input, null, 4));
+                    this.api.execute(execFunctions.setIMDTableSubGraph, [commandResult.nodeIDs[i], nodeInfo.subGraph], () => {});
                 } else if (nodeInfo.type !== "IMDTable" && nodeInfo.type !== "export") {
                     let waitTime;
                     if (nodeInfo.type === "sql") {
@@ -203,6 +210,13 @@ class RecreateNodes extends EventEmitter {
                         if (res && res.datasetId) {
                             // console.log("restoring", res.datasetId);
                             commandResult.datasets.push(res.datasetId);
+                        }
+                    });
+                } else if (nodeInfo.type === "IMDTable") {
+                    this.api.restoreIMDTable(".dataflowArea.active .operator:nth-child(" + (i + 1) + ") .main", nodeInfo.input.source, (res) => {
+                        if (res && res.datasetId) {
+                            // console.log("restoring", res.datasetId);
+                            // commandResult.datasets.push(res.datasetId);
                         }
                     });
                 }

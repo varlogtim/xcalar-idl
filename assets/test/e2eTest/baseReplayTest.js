@@ -183,15 +183,15 @@ function replay(testConfig, tags) {
                 testTabs[tabName].nodes.forEach((node, i) => {
                     let input = JSON.parse(JSON.stringify(node.input));
                     if (node.type === "IMDTable") {
-                        browser
-                            .openOpPanel(".operator:nth-child(" + (i + modifier) + ") .main")
-                            .pause(8000) // need to check for listTables call to resolve
-                            .setValue("#IMDTableOpPanel .pubTableInput", input.source)
-                            .pause(1000)
-                            .moveToElement("#pubTableList li:not(.xc-hidden)", 2, 2)
-                            .mouseButtonUp("left")
-                            .click("#IMDTableOpPanel .next")
-                            .submitAdvancedPanel("#IMDTableOpPanel", JSON.stringify(input, null, 4));
+                        // browser
+                        //     .openOpPanel(".operator:nth-child(" + (i + modifier) + ") .main")
+                        //     .pause(8000) // need to check for listTables call to resolve
+                        //     .setValue("#IMDTableOpPanel .pubTableInput", input.source)
+                        //     .pause(1000)
+                        //     .moveToElement("#pubTableList li:not(.xc-hidden)", 2, 2)
+                        //     .mouseButtonUp("left")
+                        //     .click("#IMDTableOpPanel .next")
+                        //     .submitAdvancedPanel("#IMDTableOpPanel", JSON.stringify(input, null, 4));
                     } else if (node.type === "export") {
                         pause = 6000;
                         input.driverArgs.file_path = "/home/jenkins/export_test/datasetTest.csv";

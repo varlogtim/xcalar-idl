@@ -12,7 +12,7 @@ let datasetNodeId;
 
 let testTabs = {}; // { id: string, nodes: [] }
 module.exports = {
-    '@tags': ["upgradeTest", "allTests"],
+    '@tags': ["upgradeTest", "allTestsSkipped"],
 
     before: function(browser) {
         console.log(browser.globals.buildTestUrl(browser, browser.globals.user));
