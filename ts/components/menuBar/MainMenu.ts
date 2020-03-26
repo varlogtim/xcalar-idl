@@ -6,7 +6,6 @@ namespace MainMenu {
     export const minWidth: number = 100;
     let hasSetUp: boolean = false;
     const formPanels: BaseOpPanel[] = [];
-    let rightPanelMargin: number = defaultWidth;
     let $resizableRightPanels: JQuery;
     const minRightPanelWidth = 600;
     export let curSQLLeftWidth = defaultWidth;
@@ -53,9 +52,6 @@ namespace MainMenu {
                 break;
             case ("sqlPanel"):
                 $tab = $("#sqlWorkSpace");
-                break;
-            case ("helpPanel"):
-                $tab = $("#helpTab");
                 break;
             default:
                 break;
@@ -112,7 +108,7 @@ namespace MainMenu {
             const $subTab: JQuery = $curTab.find(".subTab.active");
             if (!$curTab.hasClass("noLeftPanel") &&
                 !$subTab.hasClass("noLeftPanel")) {
-                openMenu($curTab);
+                openMenu();
             }
 
             panelSwitchingHandler($curTab, lastTabId);
@@ -399,9 +395,6 @@ namespace MainMenu {
                 SQLWorkSpace.Instance.focus();
                 DagViewManager.Instance.show();
                 break;
-            case ("helpTab"):
-                $("#helpPanel").addClass("active");
-                break;
             default:
                 $(".underConstruction").addClass("active");
                 break;
@@ -412,14 +405,9 @@ namespace MainMenu {
         $(".tableDonePopupWrap").remove();
     }
 
-    function openMenu($curTab: JQuery): boolean {
+    function openMenu(): void {
         // Don't open side menu when the UDF panel is opening the file manager,
         // Otherwise the UDF panel will be blocked by the side menu.
-        const id: string = $curTab.attr("id");
-        if (id === "helpTab") {
-            return;
-        }
-
         checkAnim();
 
         if ($("#monitor-queries").hasClass("active")) {

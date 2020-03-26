@@ -139,31 +139,6 @@ namespace DS {
         return deferred.promise();
     }
 
-    /**
-     * DS.restoreTutorialDS
-     */
-    export function restoreTutorialDS(loadArgs: any): XDPromise<string> {
-        let deferred: XDDeferred<string> = PromiseHelper.deferred();
-        let folder = DS.getDSObj(DSObjTerm.TutorialFolderId);
-        if (folder == null) {
-            createTutorialFolder();
-        }
-
-        restoreSourceFromLoadArgs(loadArgs)
-        .then((dsObj) => {
-            // Place it into the tutorial workbook
-            dropHelper(loadArgs.args.dest, DSObjTerm.TutorialFolderId);
-            deferred.resolve(dsObj.getId());
-        })
-        .fail(deferred.reject);
-        return deferred.promise();
-    }
-
-    function restoreSourceFromLoadArgs(loadArgs: any): XDPromise<DSObj> {
-        let newDSName = getNewDSName(loadArgs.args.dest);
-        return restoreDatasetHelper(newDSName, JSON.stringify(loadArgs));
-    }
-
     function loadArgsAdapter(loadArgsStr: string): string | null {
         try {
             if (loadArgsStr == null) {
@@ -1173,21 +1148,6 @@ namespace DS {
         return folder;
     }
 
-    function createTutorialFolder(): DSObj {
-        let folder = createDS({
-            "id": DSObjTerm.TutorialFolderId,
-            "name": DSObjTerm.TutorialFolder,
-            "parentId": homeDirId,
-            "isFolder": true,
-            "uneditable": true,
-            "user": DSObjTerm.TutorialFolder
-        });
-        let $grid = DS.getGrid(DSObjTerm.TutorialFolderId);
-        // grid should be the first on in grid view
-        $grid.prependTo($gridView);
-        return folder;
-    }
-
     function isInSharedFolder(dirId: string): boolean {
         let dsObj: DSObj;
         while (dirId !== homeDirId && dirId !== DSObjTerm.SharedFolderId) {
@@ -1195,15 +1155,6 @@ namespace DS {
             dirId = dsObj.getParentId();
         }
         return (dirId === DSObjTerm.SharedFolderId);
-    }
-
-    function isInTutorialFolder(dirId: string): boolean {
-        let dsObj: DSObj;
-        while (dirId !== homeDirId && dirId !== DSObjTerm.TutorialFolderId) {
-            dsObj = DS.getDSObj(dirId);
-            dirId = dsObj.getParentId();
-        }
-        return (dirId === DSObjTerm.TutorialFolderId);
     }
 
     // XXX TODO, imporve it to accept multiple dsIds,
@@ -2957,13 +2908,6 @@ namespace DS {
                 $gridMenu.find(".multiActivate, .multiDeactivate, .activate").addClass("disabled");
             } else {
                 $gridMenu.find(".multiActivate, .multiDeactivate, .activate").removeClass("disabled");
-            }
-
-            if (isInTutorialFolder(curDirId)) {
-                classes += " tutorialDir";
-                if (curDirId === DSObjTerm.TutorialFolderId) {
-                    classes += " tutorialHomeDir";
-                }
             }
 
             if ($grid.length && totalSelected > 1) {

@@ -1,8 +1,6 @@
 namespace WorkbookPanel {
     let $workbookPanel: JQuery; // $("#workbookPanel")
-    let $workbookTopbar: JQuery; // $workbookPanel.find(".topSection")
     let $workbookSection: JQuery; // $workbookPanel.find(".bottomSection")
-    let $welcomeCard: JQuery; // $workbookTopbar.find(".welcomeBox")
     let $wkbkMenu: JQuery; //$workbookPanel.find("#wkbkMenu")
     const sortkey: string = "modified"; // No longer user configurable
     const newBoxSlideTime: number = 700;
@@ -23,9 +21,7 @@ namespace WorkbookPanel {
         }
         hasSetup = true;
         $workbookPanel = $("#workbookPanel");
-        $workbookTopbar = $workbookPanel.find(".topSection");
         $workbookSection = $workbookPanel.find(".bottomSection");
-        $welcomeCard = $workbookTopbar.find(".welcomeBox");
         $fileUpload = $("#WKBK_uploads");
         $wkbkMenu = $workbookPanel.find("#wkbkMenu");
         xcMenu.add($wkbkMenu);
@@ -33,7 +29,6 @@ namespace WorkbookPanel {
         duplicatingWKBKs = [];
 
         _renderHeader();
-        addTopbarEvents();
         addWorkbookEvents();
         setupDragDrop();
 
@@ -47,8 +42,6 @@ namespace WorkbookPanel {
             $(this).blur();
             const $container: JQuery = $("#container");
             const $dialogWrap: JQuery = $("#dialogWrap");
-            //remove the dataset hint
-            $("#showDatasetHint").remove();
 
             if (WorkbookPanel.isWBMode()) {
                 if (!$workbookPanel.is(":visible")) {
@@ -98,19 +91,7 @@ namespace WorkbookPanel {
                 xcMenu.close();
             }
         });
-    };
-
-    /**
-    * WorkbookPanel.initialize
-    * Sets up visible workbook list
-    */
-    export function initialize(): void {
-        try {
-            getWorkbookInfo();
-        } catch (error) {
-            Alert.error(ThriftTStr.SetupErr, error);
-        }
-    };
+    }
 
     /**
     * WorkbookPanel.show
@@ -122,7 +103,6 @@ namespace WorkbookPanel {
         $("#container").addClass("workbookMode");
 
         if (isForceShow) {
-            getWorkbookInfo(isForceShow);
             $workbookPanel.removeClass("hidden"); // no animation if force show
             $("#container").addClass("wkbkViewOpen");
         } else {
@@ -323,28 +303,6 @@ namespace WorkbookPanel {
                 }
             }
         }
-    }
-
-    function addTopbarEvents(): void {
-        // Events for the top bar, welcome message, news, etc
-
-        $workbookTopbar.find(".tutorialBtn").click(function() {
-            HelpPanel.Instance.openHelpResource("tutorialResource");
-        });
-
-        $workbookTopbar.find(".tooltipBtn").click(function() {
-            HelpPanel.Instance.openHelpResource("tooltipResource");
-        });
-
-        $workbookTopbar.find(".docsBtn").click(function() {
-            HelpPanel.Instance.openHelpResource("docsResource");
-        });
-
-        // go to monitor panel
-        $workbookTopbar.find(".monitorBtn, .monitorLink").click(function(e) {
-            e.preventDefault(); // prevent monitor link from actually navigating
-            WorkbookPanel.goToMonitor();
-        });
     }
 
     function addWorkbookEvents(): void {
@@ -562,20 +520,6 @@ namespace WorkbookPanel {
         const workbook: WKBK = WorkbookManager.getWorkbook(workbookId);
         const $updateCard: JQuery = $(_renderWorkbookHTML(workbook));
         $card.replaceWith($updateCard);
-    }
-
-    function getWorkbookInfo(isForceMode: boolean = false): void {
-        const $welcomeMsg: JQuery = $welcomeCard.find(".description");
-        const $welcomeUser: JQuery = $welcomeCard.find(".heading .username");
-        const user: string = XcUser.getCurrentUserName();
-        $welcomeUser.text(user);
-
-        if (isForceMode) {
-            // forceMode does not have any workbook info
-            $welcomeMsg.text(WKBKTStr.NewWKBKInstr);
-            return;
-        }
-        $welcomeMsg.text(WKBKTStr.CurWKBKInstr);
     }
 
     /**

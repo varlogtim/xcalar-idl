@@ -10,7 +10,6 @@ describe("xcManager Test", function() {
         var oldAlertError;
         var title;
         var oldSocketInit;
-        var oldTooltipuser;
         var workbookWalkthroughStarted;
 
         before(function() {
@@ -18,17 +17,12 @@ describe("xcManager Test", function() {
             oldAlert = Alert.show;
             oldAlertError = Alert.error;
             oldSocketInit = XcSocket.prototype.setup;
-            oldStartWorkbookBrowserWalkthrough = TooltipWalkthroughs.startWorkbookBrowserWalkthrough;
             Alert.show = function(options) {
                 title = options.title;
             };
 
             Alert.error = function(error) {
                 title = error;
-            };
-
-            TooltipWalkthroughs.startWorkbookBrowserWalkthrough = function() {
-                workbookWalkthroughStarted = true;
             };
 
             XcSocket.prototype.setup = function(){};
@@ -113,7 +107,6 @@ describe("xcManager Test", function() {
             Alert.show = oldAlert;
             Alert.error = oldAlertError;
             XcSocket.prototype.setup = oldSocketInit;
-            TooltipWalkthroughs.startWorkbookBrowserWalkthrough = oldStartWorkbookBrowserWalkthrough;
         });
     });
 

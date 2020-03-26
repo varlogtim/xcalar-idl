@@ -20,7 +20,6 @@ namespace xcManager {
 
         let xcSocket: XcSocket;
         let firstTimeUser: boolean;
-        let isTutorial: boolean = false;
         setupThrift("");
 
         xcTimeHelper.setup()
@@ -37,7 +36,6 @@ namespace xcManager {
 
             setupUserArea();
             xcTooltip.setup();
-            CSHelp.setup();
 
             StatusBox.setup();
             StatusMessage.setup();
@@ -92,31 +90,13 @@ namespace xcManager {
                 MainMenu.setup();
                 XDFManager.Instance.setup();
                 DagConfigNodeModal.Instance.setupPanels();
-                WorkbookPanel.initialize();
                 SQLWorkSpace.Instance.setup();
             } catch (e) {
                 return PromiseHelper.reject(e.message);
             }
-            return TutorialPanel.Instance.isTutorialWorkbook();
-        })
-        .then(function(res: boolean) {
-            isTutorial = res;
-            if (isTutorial || loadAll) {
-                // if it's tutorial or loadAll is true
-                // wait for DagPanel setup to finish first
-                return DagPanel.Instance.setup();
-            } else {
-                DagPanel.Instance.setup(); // async setup
-                return;
-            }
         })
         .then(function() {
-            if (isTutorial) {
-                return TutorialPanel.Instance.setupTutorial();
-            }
-        })
-        .then(function() {
-            return setupTooltips();
+            DagPanel.Instance.setup(); // async setup
         })
         .then(function() {
             try {
@@ -152,7 +132,6 @@ namespace xcManager {
                 console.error(e);
                 return PromiseHelper.reject(e);
             }
-            return TooltipWalkthroughs.checkFirstTimeTooltip();
         })
         .then(function() {
             deferred.resolve();
@@ -209,7 +188,6 @@ namespace xcManager {
             hideInitialLoadScreen();
             WorkbookPanel.forceShow();
             locationText = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
-            TooltipWalkthroughs.startWorkbookBrowserWalkthrough();
             // start socket (no workbook is also a valid login case)
             let userExists: boolean = false;
             XcUser.CurrentUser.holdSession(null, false)
@@ -223,7 +201,6 @@ namespace xcManager {
                 if (firstTimeUser && !userExists) {
                     Admin.addNewUser();
                     // when it's new user first time login
-                    // TooltipWalkthroughs.newUserPopup();
                 }
                 JupyterPanel.initialize(true);
             });
@@ -655,9 +632,6 @@ namespace xcManager {
             return PromiseHelper.alwaysResolve(DSTargetManager.initialize());
         })
         .then(() => {
-            TutorialPanel.Instance.setup();
-        })
-        .then(() => {
             return KVStore.restoreUserAndGlobalInfo();
         })
         .then(() => {
@@ -1039,11 +1013,6 @@ namespace xcManager {
         return window.devicePixelRatio > 1;
     }
 
-    function setupTooltips(): XDPromise<void> {
-        return PromiseHelper.alwaysResolve(
-            TooltipWalkthroughs.setupInitialWalkthroughCheck());
-    }
-
     function reImplementMouseWheel(e: JQueryEventObject): void {
         let deltaX: number = e.originalEvent["wheelDeltaX"] * -1;
         let deltaY: number = e.originalEvent["wheelDeltaY"];
@@ -1190,7 +1159,6 @@ namespace xcManager {
         $("#dataStoresTab").addClass("xc-hidden");
         $("#monitorTab").addClass("xc-hidden");
         $("#bottomMenuBarTabs").addClass("dataMart");
-        $("#helpAreaMenu").find(".tutorials, .walkthroughs, .discourse, .divider").remove();
     }
 
     /* Unit Test Only */

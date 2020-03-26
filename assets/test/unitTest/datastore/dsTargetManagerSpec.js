@@ -15,7 +15,6 @@ describe("Datastore-DSTargetManger Test", function() {
     it("should have default connectors", function() {
         const targetSet = DSTargetManager.getAllTargets();
         expect(targetSet).to.have.property(DSTargetManager.getPublicS3Connector());
-        expect(targetSet).to.have.property("Tutorial Export");
     });
 
     describe("Public API Test", function() {

@@ -119,63 +119,6 @@ describe("WorkbookPanel Test", function() {
             });
         });
 
-        it("Should access monitor", function() {
-            $workbookPanel.find(".monitorBtn, .monitorLink").click();
-            expect($("#container").hasClass("monitorViewOpen")).to.be.true;
-            expect($("#container").hasClass("workbookMode")).to.be.false;
-        });
-
-        it("should click home button to back to workbook panel", function() {
-            $("#projectTab").click();
-            expect($("#container").hasClass("monitorViewOpen")).to.be.true;
-            expect($("#container").hasClass("workbookMode")).to.be.true;
-        });
-
-        // it("Should access docs", function() {
-        //     var oldHelpPanelOpen = HelpPanel.Instance.openHelpResource;
-        //     var called = false;
-
-        //     HelpPanel.Instance.openHelpResource = function(resource) {
-        //         if (resource == "docsResource") {
-        //             called = true;
-        //         }
-        //         return;
-        //     }
-        //     $workbookPanel.find(".docsBtn").click();
-        //     expect(called).to.be.true;
-        //     HelpPanel.Instance.openHelpResource = oldHelpPanelOpen;
-        // });
-
-        it("Should access tutorials", function() {
-            var oldHelpPanelOpen = HelpPanel.Instance.openHelpResource;
-            var called = false;
-
-            HelpPanel.Instance.openHelpResource = function(resource) {
-                if (resource == "tutorialResource") {
-                    called = true;
-                }
-                return;
-            }
-            $workbookPanel.find(".tutorialBtn").click();
-            expect(called).to.be.true;
-            HelpPanel.Instance.openHelpResource = oldHelpPanelOpen;
-        });
-
-        it("Should access tooltips", function() {
-            var oldHelpPanelOpen = HelpPanel.Instance.openHelpResource;
-            var called = false;
-
-            HelpPanel.Instance.openHelpResource = function(resource) {
-                if (resource == "tooltipResource") {
-                    called = true;
-                }
-                return;
-            }
-            $workbookPanel.find(".tooltipBtn").click();
-            expect(called).to.be.true;
-            HelpPanel.Instance.openHelpResource = oldHelpPanelOpen;
-        });
-
         it("should mouseenter to triger tooltipoverflow", function() {
             var $div = $('<div class="tooltipOverflow"><input></div>');
             var $workbookSection = $workbookPanel.find(".bottomSection");
@@ -212,26 +155,6 @@ describe("WorkbookPanel Test", function() {
             .always(function() {
                 $container.removeClass("noWorkbook");
                 $dialogWrap.removeClass("doneCloseAttempt");
-            });
-        });
-
-        it("Should not show dataset hint", function(done) {
-            $("#projectTab").click();
-            expect($("#showDatasetHint").length)
-            .to.equal(0);
-
-            var checkFunc = function() {
-                return !$("#workbookPanel").is(":visible");
-            };
-            UnitTest.testFinish(checkFunc)
-            .then(() => {
-                $("#projectTab").click();
-                setTimeout(() => {
-                    done();
-                }, 1000);
-            })
-            .fail(() => {
-                done("fail")
             });
         });
 

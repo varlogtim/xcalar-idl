@@ -100,7 +100,6 @@ TooltipTStr = {
     "MapNoDelete": "Cannot remove. Map must have at least one operation.",
     "ClickToSortAsc": "Click to sort in ascending order",
     "ClickToSortDesc": "Click to sort in descending order",
-    "ShowDatasetHint": "Begin by creating a new dataset here!",
     "ShowDataflowHint": "Create a module and import an existing dataset!",
     "ParquetCannotRemovePartition": "Partition key must be added as part of the dataset",
     "AboutCopy": "Click to copy",
@@ -312,7 +311,6 @@ ErrTStr = {
     'SelectOption': 'Please select an option.',
     'NotDisplayRows': 'Could not display rows',
     'AppInstallFailed': 'App Installation Failed',
-    'TutDownloadFailure': 'Tutorial Download Failed',
     'ErrorModalDownloadFailure' : 'Error logs failed to be downloaded',
     'CannotDropLocked': 'Cannot delete pinned tables',
     'RefreshBrowser': 'Refresh Browser',
@@ -832,11 +830,6 @@ WKBKTStr = {
     'NoMeta': 'No Meta',
     'Location': 'Project Browser',
     'NewWKBK': 'New Project',
-    'NewWKBKInstr': 'To get started with ' + autogenVars.prodName + ', create a new ' +
-                 'project or upload an existing project. Click the ' +
-                 'project card to activate the project and start working with your data. ' +
-                 'To learn more about using ' + autogenVars.prodName + ', check out ' +
-                 'the ' + autogenVars.prodName + ' tutorials. ',
     'CurWKBKInstr': 'To continue working with your existing projects, ' +
                   'click on the project\'s card. ' +
                   'To edit the name, add a description, or create a duplicate ' +
@@ -907,7 +900,6 @@ MonitorTStr = {
     "CurVal": "Current Value",
     "NewVal": "New Value",
     'ClusterStatus': 'Cluster Status',
-    'Tut': 'Tutorials',
     'FileManagerTitle': 'SCALAR FUNCTION MANAGER',
     'GetHostsFail': 'Could not get hosts',
     'GetLogsFail': 'Could not get logs',
@@ -1378,14 +1370,12 @@ ExtTStr = {
     "Report": "Report Error",
     "Website": "Website",
     "Version": "Version",
-    "tutName": "Tutorial Name",
     "Install": "Install",
     "Installed": "Installed",
     "More": "View More",
     "Less": "Hide Detail",
     "XcCategory": "Xcalar Extensions",
     "extListFail": "Failed to get installed extensions list",
-    "tutListFail": "Failed to get tutorial list",
     "InvalidTableName": "Invalid table name, please use extension api to create a valid name",
     "AddClause": "Add another argument",
     "LoadScriptFail": "Fail to load extension script",
@@ -1592,10 +1582,6 @@ JupyterTStr = {
     "NoSnippetOtherWkbk": "Cannot add snippets to a notebook belonging to another Xcalar project",
     // with replace
     "SampleNumError": "Please select 1 to <number> rows to sample."
-};
-introTStr = {
-    "watermark": "Tutorial",
-    "subWatermark": "You will be returned to your work when the tutorial completes."
 };
 
 UploadTStr = {

@@ -154,10 +154,6 @@ body {
                     }
                 }
 
-                #tutorial-search {
-                    display: none;
-                }
-
                 .monitorSection {
                     display: none !important;
                 }
@@ -1582,27 +1578,6 @@ input {
     }
 }
 
-#showDatasetHint {
-    .tableDonePopup {
-        text-transform: none;
-        font-size: 13px;
-        animation: glow 3s 0.5s infinite linear;
-        -webkit-animation: glow 3s 0.5s infinite linear;
-
-        @-webkit-keyframes glow {
-            50% {
-                box-shadow: 0px 0px 6px 3px rgba(255, 255, 255, 0.5);
-            }
-        }
-
-        @keyframes glow {
-            50% {
-                box-shadow: 0px 0px 6px 3px rgba(255, 255, 255, 0.5);
-            }
-        }
-    }
-}
-
 .xc-waitingBG {
     .size(@width: 100%, @height: 100%);
     .position(absolute, @top: 0, @left: 0);
@@ -1814,11 +1789,6 @@ input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: textfield;
 
-}
-
-// XXX deprecated help since 2.2
-.csHelp {
-    display: none;
 }
 
 .staticEllipsis {
@@ -2056,59 +2026,6 @@ input[type=number]::-webkit-outer-spin-button {
         .tooltip-arrow {
             border-top-color: @color-error-border-light;
             border-left-color: transparent;
-        }
-    }
-}
-
-.tooltip.tutorial {
-    @deep-yellow: @color-turbo;
-    pointer-events: initial;
-
-    opacity: 1 !important;
-    display: block !important;
-
-    &.z-10 {
-        z-index: 10 !important;
-    }
-
-    &.z-0 {
-        z-index: 0;
-    }
-
-    .tooltip-inner, .tooltip-arrow {
-        color: @color-font-form;
-        opacity: 1 !important;
-    }
-
-    .tooltip-arrow {
-        background-color: transparent !important;
-        border-top-color: @deep-yellow;
-    }
-
-    .tooltip-inner {
-        background-color: @color-chileanHeath;
-        border: 1px solid @deep-yellow;
-        box-shadow: 0 2px 2px 1px rgba(0, 0, 0, 0.2);
-    }
-
-    &.right {
-        .tooltip-arrow {
-            border-color: transparent;
-            border-right-color: @deep-yellow;
-        }
-    }
-
-    &.left {
-        .tooltip-arrow {
-            border-color: transparent;
-            border-left-color: @deep-yellow;
-        }
-    }
-
-    &.bottom {
-        .tooltip-arrow {
-            border-color: transparent;
-            border-bottom-color: @deep-yellow;
         }
     }
 }

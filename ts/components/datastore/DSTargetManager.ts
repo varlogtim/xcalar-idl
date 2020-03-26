@@ -14,8 +14,6 @@ namespace DSTargetManager {
     let udfFuncHint: InputDropdownHint;
     const xcalar_public_s3: string = "Public S3";
     const xcalar_private_s3: string = "Private S3";
-    // connectors for tutorial
-    const xcalar_tutorial_export: string = "Tutorial Export";
     // connectors for IMD, generted by XCE
     const xcalar_table_gen: string = "TableGen";
     const xcalar_table_store: string = "TableStore";
@@ -30,7 +28,6 @@ namespace DSTargetManager {
     const reservedList: string[] = [
         xcalar_public_s3,
         xcalar_private_s3,
-        xcalar_tutorial_export,
         xcalar_table_gen,
         xcalar_table_store
     ];
@@ -395,7 +392,6 @@ namespace DSTargetManager {
     async function defaultConnectorsSetup(): Promise<void> {
         let hasNewConnectors: boolean = false;
         try {
-            hasNewConnectors = await createTutorialExportConnector() || hasNewConnectors;
             hasNewConnectors = await createPublicS3Connector() || hasNewConnectors;
             hasNewConnectors = await createPrivateS3Connector() || hasNewConnectors;
         } catch (e) {
@@ -441,30 +437,6 @@ namespace DSTargetManager {
             console.warn("create public s3 connector failed", e);
             return false;
         }
-    }
-
-    async function createTutorialExportConnector(): Promise<boolean> {
-        const connectorName: string = xcalar_tutorial_export;
-        if (targetSet[connectorName] != null) {
-            return false;
-        }
-        try {
-            const connectorType: string = "shared";
-            const mountpoint: string = await getRootExportMountPoint();
-            const params = { mountpoint };
-            await XcalarTargetCreate(connectorType, connectorName, params);
-            return true;
-        } catch (e) {
-            // ingore the error
-            console.warn("create tutorial export connector failed", e);
-            return false;
-        }
-    }
-
-    async function getRootExportMountPoint(): Promise<string> {
-        const params = await XcalarGetConfigParams();
-        const xcalarRootCompletePath = params.parameter.filter((arg) => arg.paramName === "XcalarRootCompletePath")[0];
-        return xcalarRootCompletePath.paramValue + "/export/";
     }
 
     async function createS3EnvConnector(
@@ -645,8 +617,7 @@ namespace DSTargetManager {
     function isWhiteListTarget(targetName: string): boolean {
         const whiteList: string[] = [
             xcalar_public_s3,
-            xcalar_private_s3,
-            xcalar_tutorial_export
+            xcalar_private_s3
         ]
         return XVM.isDataMart() && whiteList.includes(targetName);
     }
@@ -781,7 +752,7 @@ namespace DSTargetManager {
             }
         } catch (e) {
             // it can happen if it's on cloud and the connector type
-            // is in black list (like the Tutorial Export Connector)
+            // is in black list
             if (isAccessibleTarget(target.type_id)) {
                 console.error(e);
             }

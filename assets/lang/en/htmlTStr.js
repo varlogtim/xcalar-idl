@@ -101,7 +101,6 @@ module.exports = {
         "TableName": "Table name",
         "Tables": "Tables",
         "TableMenu": "Menu",
-        "Tutorials": "Tutorials",
         "Learn": "Learning Xcalar",
         "Type": "Type",
         "URL": "URL",
@@ -155,7 +154,6 @@ module.exports = {
         "monitor": "System",
         "source": "Sources",
         "discourse": "Discourse",
-        "tuts": "Tutorial Projects",
         "user": "User",
         "tutorUser": "John Smith",
         "unknown": "Unknown",
@@ -165,7 +163,6 @@ module.exports = {
         "Help": "Help",
         "HelpDocs": "Help Documentation",
         "LiveHelp": "Live Chat",
-        "Tutorials": "Tutorials",
         "Walkthroughs": "Walkthroughs"
     },
 
@@ -314,7 +311,6 @@ module.exports = {
         "SelectCol": "Please select a column first.",
         "SelectFile": "Select a .tar.gz file first",
         "OnlyInOpMode": "Feature only available in Operational mode",
-        "CSHelp": "Click to open up Xcalar Help for more information",
         "ProfileSortInc": "Ascending by frequency",
         "ProfileSortDec": "Descending by frequency",
         "ProfileSortAsc": "Ascending alphabetically by value",
@@ -462,8 +458,6 @@ module.exports = {
         "HelpTopics": "Help Topics",
         "SearchRes": "Results",
         "SearchDiscourse": "SEARCH DISCOURSE",
-        "dsTutor1": "Datasets Tutorial - Part 1",
-        "dsTutor2": "Datasets Tutorial - Part 2",
         "collapseAll": "Collapse all",
         "expandAll": "Expand all"
     },
@@ -1177,7 +1171,6 @@ module.exports = {
         "hello": "Hello",
         "monitorStatus": "Monitor the status of your Xcalar Cluster",
         "monitorClusterHealth": "Monitor Cluster Health",
-        "tutorialMarketplace":"Tutorials To Get You Started",
         "tooltips": "Step-by-Step Walkthroughs",
         "news": "News",
         "newWKBK": "New Project",
@@ -1185,7 +1178,6 @@ module.exports = {
         "noActive": "No active worksheets. Please create one first.",
         "learnMore": "Learn more about " + bldVars.prodName,
         "walkthroughs": "Available Walkthroughs",
-        "tuts": "Tutorials",
         "viewNewHelpDoc": "View our help documentation",
         "viewNews": "View Xcalar's most recent announcements",
         "visit": "Visit",
@@ -1199,12 +1191,6 @@ module.exports = {
         "uploadFile": "Source File",
         "uploadTip": "Open file browser",
         "searchHint": "Filter by name/session ID",
-    },
-
-    "tutorial": {
-        "LoadErr": "Sorry, cannot load tutorials.",
-        "NotFound": "No Tutorials Found",
-        "SearchHint": "Search for Tutorials",
     },
 
     "aboutModal": {
@@ -1326,13 +1312,6 @@ module.exports = {
         "CodeSnippets": "Code Snippets",
         "NumRows": "number of rows",
         "UDFModuleTableHelp": "Table must be present in an active module"
-    },
-
-    "introTStr": {
-        "wa1Tip": "Start datasets walkthrough",
-        "wa2Tip": "Start import datasource walkthrough",
-        "wa3Tip": "Start browse datasource walkthrough",
-        "wa4Tip": "Start browse datasource walkthrough two"
     },
 
     "dag": {

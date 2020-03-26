@@ -149,7 +149,6 @@ interface WkbkKVKeySet {
     gOptimizedDagListKey: string;
     gSQLSnippetKey: string;
     gSQLSnippetQueryKey: string;
-    gTutorialKey: string;
     gStoredDatasetsKey: string;
     gStoredWalkthroughKey: string;
 }
