@@ -425,15 +425,6 @@ describe("Ephemeral Constructor Test", function() {
         });
     });
 
-    describe("Corrector Constructor Test", function() {
-        it("Corrector Should work", function() {
-            var corrector = new Corrector(["test", "yelp", "hello"]);
-            expect(corrector.correct("ylp")).to.equal("yelp");
-            expect(corrector.suggest("ylp")).to.equal("yelp");
-            expect(corrector.suggest("t")).to.equal("test");
-        });
-    });
-
     describe("Searchbar test", function() {
         var searchHelper;
         var $searchArea;

@@ -16,7 +16,6 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
     var tableNodesMap = [];
     var sqlNode;
     var sqlNodeElement;
-    var testDagGraph;
     $.getJSON("assets/test/json/SQLTest-a.json", function(data) {
         sqlTestCases = data.xcTest.testCases;
         sqlTestAnswers = data.xcTest.answers;
@@ -87,6 +86,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                 var error = "Test case doesn't exist";
                 test.fail(deferred, testName, currentTestNumber, error);
             }
+            console.log("set up tables: " + tableNames.join(", "));
             var checkList = [];
             for (var i = 0; i < tableNames.length; i++) {
                 checkList.push("#previewTable td:eq(1):contains('')");
@@ -96,7 +96,6 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             UserSettings.setPref("dfAutoPreview", false);
             UserSettings.setPref("dfAutoExecute", false);
             $("#dagView .newTab").click();
-            testDagGraph = DagViewManager.Instance.getActiveDag();
             for (var i = 0; i < tableNames.length; i++) {
                 var dataPath = dataSource + tableNames[i];
                 var tableName = tableNames[i].substring(0, tableNames[i].indexOf("."));
@@ -107,9 +106,17 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             // Remove all immediates
             PromiseHelper.chain(promiseArray)
             .then(function() {
-                prepareSQLNode();
+                console.log("start prepare SQL Node");
+                try {
+                    prepareSQLNode();
+                } catch (e) {
+                    console.error(e.message);
+                    console.error("prepare sql node error " + JSON.stringify(e));
+                    return PromiseHelper.reject(e);
+                }
             })
             .then(function() {
+                console.log("setUpTpchDatasets complete");
                 test.pass(deferred, testName, currentTestNumber);
             })
             .fail(function(error) {
@@ -150,7 +157,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             if (queries[testName][0].xcalarOpts && queries[testName][0].xcalarOpts.enforce === false) {
                 enforce = false;
             }
-            console.log(sqlString);
+            console.log("SQL: " + sqlString);
             outerPromise.then(function() {
                 if (testType === "tableau") {
                     var curPromise = PromiseHelper.resolve();
@@ -329,11 +336,14 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
     function prepareData(test, tableName, randId, dataPath, check, index) {
         const deferred = PromiseHelper.deferred();
         const sourcTableName = (tableName + "_" + randId).toUpperCase();
+        console.log("load table " + sourcTableName + " from " + dataPath);
         PromiseHelper.convertToJQuery(test.loadTable(sourcTableName, dataPath, check))
         .then(() => {
+            console.log("Table " + sourcTableName + " is loaded")
             return PromiseHelper.convertToJQuery(test.createTableNode(sourcTableName))
         })
         .then((nodeId) => {
+            console.log("Table node for " + sourcTableName + " added");
             tableNodesMap[tableName] = nodeId;
             deferred.resolve();
         })
@@ -346,16 +356,23 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
 
     function prepareSQLNode() {
         sqlNodeElement = test.createNode(DagNodeType.SQL);
-        sqlNode = DagViewManager.Instance.getActiveDag().getNode(sqlNodeElement.data("nodeid"));
+        var sqlNodeId = sqlNodeElement.data("nodeid");
+        console.log("create sql node: " + sqlNodeId);
+        var testDagGraph = DagViewManager.Instance.getActiveDag();
+        console.log("test dag grah", testDagGraph);
+        sqlNode = testDagGraph.getNode(sqlNodeId);
+        console.log("find sql node");
         sqlNode._isDeprecated = true; // XXX hack way to force use old sql node panel
         var i = 0;
         var identifiers = new Map();
-        for (table in tableNodesMap) {
+        for (var table in tableNodesMap) {
             testDagGraph.connect(tableNodesMap[table], sqlNode.id, i);
             identifiers.set(i + 1, table);
             i++;
         }
+        console.log("set identifiers")
         sqlNode.setIdentifiers(identifiers);
+        console.log("sql node added");
     }
     function checkConfigure() {
         var deferred = PromiseHelper.deferred();

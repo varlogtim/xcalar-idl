@@ -18,6 +18,7 @@ class RunSQLFunction extends EventEmitter {
             if (value == null) return;
             let childId;
             let parentId;
+            // XXX this is broken in notebook
             self.api
                 .click(".historySection .body .row .col-action .xi-search:nth-child(" + value + ")")
                 .waitForElementVisible("#sqlDataflowArea .dataflowArea", 10000)

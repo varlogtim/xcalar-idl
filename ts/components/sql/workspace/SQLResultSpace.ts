@@ -10,13 +10,11 @@ class SQLResultSpace {
     private _sqlTable: SQLTable;
     private _tableLister: SQLTableLister;
     private _sqlTableSchema: SQLTableSchema;
-    private _sqlDataflowPreview: SQLDataflowPreview;
 
     private constructor() {
         this._sqlTable = new SQLTable("sqlTableArea");
         this._tableLister = new SQLTableLister("sqlTableListerArea");
         this._sqlTableSchema = new SQLTableSchema("sqlTableSchemaArea");
-        this._sqlDataflowPreview = new SQLDataflowPreview("sqlDataflowArea");
     }
 
     private _setupListeners() {
@@ -81,7 +79,6 @@ class SQLResultSpace {
         this._sqlTable.close();
         this._tableLister.close();
         this._sqlTableSchema.close();
-        this._sqlDataflowPreview.close();
 
         this._setupListeners();
     }
@@ -113,7 +110,6 @@ class SQLResultSpace {
     ): void {
         DagTable.Instance.close();
         this._sqlTable.show(table, columns, callback);
-        this._sqlDataflowPreview.close();
     }
 
     /**
@@ -122,10 +118,6 @@ class SQLResultSpace {
      */
     public async viewPublishedTable(tableName: string): Promise<void> {
         DagTable.Instance.close();
-        setTimeout(() => {
-            // so we close after the showPublishTable call
-            this._sqlDataflowPreview.close();
-        });
         return this._sqlTable.showPublishedTable(tableName);
     }
 
@@ -149,7 +141,6 @@ class SQLResultSpace {
      */
     public showDagTable(): void {
         this._sqlTable.close();
-        this._sqlDataflowPreview.close();
     }
 
     public refreshTables(fetch?: boolean): XDPromise<void>  {
@@ -201,7 +192,7 @@ class SQLResultSpace {
             noUndock: true
         });
         this._popup
-        .on("Hide", (info: {restoring: boolean}) => {
+        .on("Hide", (_info: {restoring: boolean}) => {
             this._toggleDisplay(false);
         })
         .on("ResizeDocked", (state) => {
@@ -228,9 +219,7 @@ class SQLResultSpace {
 
         switch (tab) {
             case "result":
-                if ($("#sqlTableArea").hasClass("xc-hidden") &&
-                    $("#sqlDataflowArea").hasClass("xc-hidden")
-                ) {
+                if ($("#sqlTableArea").hasClass("xc-hidden")) {
                     $contentSection.find(".section.result .hintArea").removeClass("xc-hidden");
                 } else {
                     $contentSection.find(".section.result .hintArea").addClass("xc-hidden");

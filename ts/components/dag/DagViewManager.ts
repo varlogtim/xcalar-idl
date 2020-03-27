@@ -483,8 +483,6 @@ class DagViewManager {
         let containerSelector;
         if ($dfArea.closest("#dagView").length) {
             containerSelector = "#dagView";
-        } else if ($dfArea.length) {
-            containerSelector = "#sqlDataflowArea";
         } else {
             containerSelector = this.containerSelector;
         }
@@ -1301,19 +1299,15 @@ class DagViewManager {
             }
         });
 
-        // add listeners to dagView and sqlMode graph
-        $dfWraps = $dfWraps.add($("#sqlDataflowArea .dataflowWrap .innerDataflowWrap"));
 
         $dfWraps.on("mousedown", operatorSelector, function (event) {
-            const preventDrag = $(this).closest("#sqlDataflowArea").length > 0;
-            self.activeDagView.operatorMousedown(event, $(this), preventDrag);
+            self.activeDagView.operatorMousedown(event, $(this), false);
         });
 
         $dfWraps.on("click", ".descriptionIcon", function () {
             const nodeId: DagNodeId = $(this).closest(".operator")
                 .data("nodeid");
-            const viewOnly: boolean = $(this).closest("#sqlDataflowArea").length > 0;
-            DagDescriptionModal.Instance.show(nodeId, viewOnly);
+            DagDescriptionModal.Instance.show(nodeId, false);
         });
 
         // add classes to skewTh and skewTd because we can't use

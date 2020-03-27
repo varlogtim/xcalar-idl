@@ -174,6 +174,31 @@ abstract class AbstractMenu {
         $menu.removeClass("showingHotKeys");
     }
 
+    // being used by column menu to create dataflow nodes
+    private _restoreDataflow2(sql: string): XDPromise<DagNode[]> {
+        try {
+            const deferred: XDDeferred<DagNode[]> = PromiseHelper.deferred();
+            SQLUtil.getSQLStruct(sql)
+            .then((sqlStruct) => {
+                try {
+                    let executor = new SQLDagExecutor(sqlStruct);
+                    return executor.restoreDataflow2();
+                } catch (e) {
+                    return PromiseHelper.reject(e.message);
+                }
+            })
+            .then((dagNodes: DagNode[]) => {
+                deferred.resolve(dagNodes);
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        } catch (e) {
+            console.error(e);
+            return PromiseHelper.reject(e.message);
+        }
+    }
+
     protected async _createFromSQLTable(callback) {
         /*
             check if sql statement exists, if so then we create a dataflow, and copy
@@ -196,8 +221,7 @@ abstract class AbstractMenu {
             }
 
             if (sqlString) {
-                const name: string = "SQL " + moment(new Date()).format("HH:mm:ss ll");
-                SQLDataflowPreview.restoreDataflow2(sqlString, name)
+                this._restoreDataflow2(sqlString)
                 .then((newNodes) => {
                     if (DagTabManager.Instance.getNumTabs() === 0) {
                         DagTabManager.Instance.newTab();

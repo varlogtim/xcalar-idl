@@ -25,13 +25,11 @@ describe("SQLResultSpace Test", function() {
         let oldSQLTable;
         let oldSQLSchema;
         let oldTableLister;
-        let oldDataflowPreview;
 
         before(function() {
             oldSQLTable = sqlResultSpace._sqlTable;
             oldSQLSchema = sqlResultSpace._sqlTableSchema;
             oldTableLister = sqlResultSpace._tableLister;
-            oldDataflowPreview = sqlResultSpace._sqlDataflowPreview;
         
             sqlResultSpace._sqlTable = {
                 show: () => {},
@@ -45,11 +43,6 @@ describe("SQLResultSpace Test", function() {
             };
 
             sqlResultSpace._tableLister = {
-                show: () => {},
-                close: () => {}
-            };
-
-            sqlResultSpace._sqlDataflowPreview = {
                 show: () => {},
                 close: () => {}
             };
@@ -96,7 +89,6 @@ describe("SQLResultSpace Test", function() {
             sqlResultSpace._sqlTable = oldSQLTable;
             sqlResultSpace._sqlTableSchema = oldSQLSchema;
             sqlResultSpace._tableLister = oldTableLister;
-            sqlResultSpace._sqlDataflowPreview = oldDataflowPreview;
         });
     });
 

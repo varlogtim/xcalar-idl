@@ -327,12 +327,15 @@ window.TestSuite = (function($, TestSuite) {
 
         loadTable: async function(tableName, filePath, check, addRowNum) {
             try {
+                console.log("start load table " + tableName);
                 // open load screen
                 $("#loadScreenBtn").click();
                 await this.checkExists("#loadScreen:visible");
+                console.log("in load screen");
                 // switch to import panel
                 $("#loadScreen .sourceList li[data-tab=import]").click();
                 this.assert($("#dsForm-path").is(":visible"), "The import form should be visible");
+                console.log("in import panel");
                 // fill in connector and file path
                 $("#dsForm-target input").val(gDefaultSharedRoot);
                 $("#filePath").val(filePath);
@@ -340,6 +343,7 @@ window.TestSuite = (function($, TestSuite) {
                 $("#dsForm-path").find(".confirm").click();
                 await this.checkExists(check);
                 // configurtion
+                console.log("in configuration panel");
                 $("#importDataForm").find(".dsName").eq(0).val(tableName);
                 // auto detect should fill in the form
                 var empties = $("#previewTable .editableHead[value='']");
@@ -354,6 +358,7 @@ window.TestSuite = (function($, TestSuite) {
 
                 $("#importDataForm .buttonSection .createTable").click();
                 // confirm
+                console.log("confirm in configuration panel");
                 if ($("#alertModal").is(":visible") &&
                     $("#alertHeader").text().trim() === DSTStr.DetectInvalidCol) {
                     $("#alertModal").find(".confirm").click();
@@ -365,6 +370,7 @@ window.TestSuite = (function($, TestSuite) {
                     });
                     return $li.length === 1;
                 }, 1000);
+                console.log("table " + tableName + " loaded");
                 this.testPbTables.push(tableName);
                 $("#homeBtn").click();
                 this.assert($("#homeScreen").is(":visible"), "Should back to home screen");
