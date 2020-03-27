@@ -70,15 +70,9 @@ schemaCellRender.set(DiscoverStatusEnum.DONE, (props) => {
 schemaCellRender.set(DiscoverStatusEnum.FAIL, (props) => {
     const { errorMsg } = props;
     return (
-        <SchemaCell.Error
-            message={Texts.discoverErrorLable}
-            onClick={() => {
-                Alert.show({
-                    title: Texts.discoverErrorTitle,
-                    msg: errorMsg,
-                    isAlert: true
-                });
-            }}
+        <SchemaCell.InlineError
+            errorTitle={Texts.discoverErrorLable}
+            errorMsg={errorMsg}
         />
     );
 });

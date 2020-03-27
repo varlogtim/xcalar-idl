@@ -5,7 +5,9 @@ import React from 'react';
 
 const Texts = {
     discovering: 'Discovering ...',
-    discover: 'Discover'
+    discover: 'Discover',
+    expandError: 'Expand',
+    collapseError: 'Collapse'
 };
 
 /**
@@ -28,6 +30,49 @@ function Error({
     return (
         <span onClick={() => { onClick(); }}>{message}</span>
     );
+}
+
+class InlineError extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.state = {
+            expanded: false
+        };
+    }
+
+    showError(isShown) {
+        this.setState({ expanded: isShown });
+    }
+
+    render() {
+        const { errorMsg = '', errorTitle = '' } = this.props;
+        const { expanded } = this.state;
+
+        if (errorMsg.length <= 20) {
+            // when error is too short
+            return (
+                <span>errorMsg</span>
+            )
+        } else if (expanded) {
+            return (
+                <div className="error">
+                    <span>{errorMsg}</span>
+                    <span className="action xc-action" onClick={() => { this.showError(false); }}>{Texts.collapseError}</span>
+                </div>
+            )
+        } else {
+            return (
+                <div className="error">
+                    <span className="label">{errorTitle}</span>
+                    <span data-toggle="tooltip" data-container="body" data-title={errorMsg}>
+                        {"(" + errorMsg.substring(0, 7) + "...)"}
+                    </span>
+                    <span className="action xc-action" onClick={() => { this.showError(true); }}>{Texts.expandError}</span>
+                </div>
+            )
+        }
+
+    }
 }
 
 /**
@@ -68,5 +113,6 @@ export {
     Loading,
     Error,
     Schema,
-    Discover
+    Discover,
+    InlineError
 };
