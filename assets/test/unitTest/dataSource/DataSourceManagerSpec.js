@@ -87,7 +87,7 @@ describe.skip("DataSourceManager Test", function() {
         let called = false;
         DSSource.show = () => called = true;
 
-        DataSourceManager.startImport(XVM.isSQLMode());
+        DataSourceManager.startImport(true);
         expect(called).to.be.true;
 
         DSSource.show = oldFunc;
@@ -95,7 +95,7 @@ describe.skip("DataSourceManager Test", function() {
 
     after(function() {
         // restore to initial screen
-        DataSourceManager.startImport(XVM.isSQLMode());
+        DataSourceManager.startImport(true);
         // go back to previous tab
         $mainTabCache.click();
         UnitTest.offMinMode();

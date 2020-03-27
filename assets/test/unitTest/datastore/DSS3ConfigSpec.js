@@ -107,7 +107,7 @@ describe("DSS3Config Test", function() {
     });
 
     it("should close", function() {
-        DataSourceManager.startImport(XVM.isSQLMode());
+        DataSourceManager.startImport(true);
         UnitTest.assertHidden($card);
     });
 

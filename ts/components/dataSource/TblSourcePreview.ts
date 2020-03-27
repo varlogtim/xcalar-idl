@@ -89,14 +89,6 @@ class TblSourcePreview {
         }
     }
 
-    /**
-     * TblSourcePreview.Instance.switchMode
-     */
-    public switchMode(): void {
-        let $infoSection = this._getInfoSection();
-        $infoSection.find(".nextStep").replaceWith(this._getNextStepButton());
-    }
-
     private _getContainer(): JQuery {
         return $("#" + this._container);
     }
@@ -224,7 +216,6 @@ class TblSourcePreview {
             tableInfo.state == null
         ) {
             // when it's a normal table
-            html = this._getNextStepButton() + html;
             html += '<span class="action xc-action"></span>';
         }
 
@@ -235,26 +226,6 @@ class TblSourcePreview {
         } else {
             DataSourceManager.switchStep(null);
         }
-    }
-
-    private _getNextStepButton(): HTML {
-        // XXX disabled in data mart
-        return "";
-        let html: HTML;
-        const sqlButton: HTML = '<button class="nextStep writeSQL btn btn-submit iconBtn">' +
-                                    '<i class="icon xi-newSQL"></i>' +
-                                    TblTStr.WriteSQL +
-                                '</button>';
-        const dfButton: HTML = '<button class="nextStep createDF btn btn-submit iconBtn">' +
-                                    '<i class="icon xi-dfg2"></i>' +
-                                    TblTStr.CreateDF +
-                                '</button>';
-        if (XVM.isSQLMode()) {
-            html = sqlButton;
-        } else {
-            html = dfButton;
-        }
-        return html;
     }
 
     private _updateTableAction(toViewTable: boolean): void {

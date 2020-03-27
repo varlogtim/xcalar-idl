@@ -15,12 +15,6 @@ namespace XVM {
     // let expirationDate: Date = null;
     let numUsers: number = -1; // Set, but not used
     let numNodes: number = -1; // Set, but not used
-    let _mode: XVM.Mode;
-
-    export enum Mode {
-        SQL = "SQL",
-        Advanced = "Advanced"
-    }
 
     /* ==================== Helper Function ================================= */
     function showInvalidLicenseAlert(error: string): void {
@@ -117,7 +111,6 @@ namespace XVM {
     export function setup(): void {
         const key: string = "xcalar-version-" + XcUser.getCurrentUserName();
         kvVersionStore = new KVStore(key, gKVScope.USER);
-        _mode = XVM.Mode.SQL;
     }
 
     /**
@@ -501,14 +494,6 @@ namespace XVM {
         return deferred.promise();
     }
 
-    /**
-     * XVM.rmKVVersion
-     * XXX it's not used anywhere, just for testing upgrade
-     */
-    // export function rmKVVersio(): XDPromise<void> {
-    //     return kvVersionStore.delete();
-    // }
-
     // commit kvVersion
     /**
      * XVM.commitKVVersion
@@ -516,20 +501,6 @@ namespace XVM {
     export function commitKVVersion(): XDPromise<void> {
         let versionInfo: string = kvVersion.serialize();
         return kvVersionStore.put(versionInfo, true);
-    }
-
-    /**
-     * XVM.isSQLMode
-     */
-    export function isSQLMode(): boolean {
-        return _mode === XVM.Mode.SQL;
-    }
-
-    /**
-     * XVM.isAdvancedMode
-     */
-    export function isAdvancedMode(): boolean {
-        return !XVM.isSQLMode();
     }
 
     /* Unit Test Only */

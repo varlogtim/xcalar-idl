@@ -276,7 +276,6 @@ window.xcMixpanel = (function($, xcMixpanel) {
         xcMixpanel.track("Logout", {
             "duration":  Math.round((currTime - pageLoadTime) / 1000),
             "timeInLastMode": timeInLastMode,
-            "lastMode": XVM.isSQLMode() ? "sqlMode" : "dataflowMode",
             "timeInLastPanel": timeInLastPanel,
             "lastPanel": currentPanel,
             "eventType": "logout"
@@ -294,7 +293,6 @@ window.xcMixpanel = (function($, xcMixpanel) {
         xcMixpanel.track("User Leave", {
             "duration":  Math.round((currTime - pageLoadTime) / 1000),
             "timeInLastMode": timeInLastMode,
-            "lastMode": XVM.isSQLMode() ? "sqlMode" : "dataflowMode",
             "timeInLastPanel": timeInLastPanel,
             "lastPanel": currentPanel,
             "eventType": "pageUnload"
@@ -765,7 +763,6 @@ window.xcMixpanel = (function($, xcMixpanel) {
             "timeStamp": Date.now(),
             "windowHeight": $(window).height(),
             "windowWidth": $(window).width(),
-            "currentMode": XVM.isSQLMode() ? "sqlMode" : "dataflowMode",
             "currentPanel": currentPanel,
             "currentSubPanel": currentSubPanel,
             "xdURL": window.location.host

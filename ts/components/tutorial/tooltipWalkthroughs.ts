@@ -488,7 +488,7 @@ namespace TooltipWalkthroughs {
      * if so, starts them.
      */
     export function checkFirstTimeTooltip(): JQueryPromise<void> {
-        if (XVM.isSQLMode() && !seenSQL) {
+        if (!seenSQL) {
             seenSQL = true;
             TooltipWalkthroughs.startWalkthrough(SQLModeName);
             return storeTooltipObj();

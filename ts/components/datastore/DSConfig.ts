@@ -600,20 +600,6 @@ namespace DSConfig {
     }
 
     /**
-     * DSConfig.switchMode
-     */
-    export function switchMode(): void {
-        if (XVM.isSQLMode()) {
-            // if switch to sql mode but in the preview of dataset
-            if (!$previewCard.hasClass("xc-hidden") &&
-                !$previewCard.hasClass("createTable")
-            ) {
-                DataSourceManager.startImport(true);
-            }
-        }
-    }
-
-    /**
      * DSConfig.update
      */
     export function update(listXdfsObj?: any): void {
