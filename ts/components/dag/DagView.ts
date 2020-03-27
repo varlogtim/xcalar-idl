@@ -4615,7 +4615,8 @@ class DagView {
         let numParents = childNode.getMaxParents();
         let numConnections = connectorIndex;
         let isMulti = false;
-        if (numParents === -1 || numParents > 1) {
+        if (numParents === -1 || numParents > 1 ||
+            childNode instanceof DagNodeModule) {
             if (!(childNode instanceof DagNodeJoin)) {
                 numParents = childNode.getNumParent();
             }
