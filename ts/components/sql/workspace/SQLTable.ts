@@ -149,10 +149,9 @@ class SQLTable {
         let html: HTML =
             '<div class="animatedEllipsisWrapper">' +
                 '<div class="text">Loading</div>' +
-                '<div class="animatedEllipsis">' +
-                    '<div>.</div>' +
-                    '<div>.</div>' +
-                    '<div>.</div>' +
+                '<div class="wrap">' +
+                    '<div class="animatedEllipsis hiddenEllipsis">....</div>' +
+                    '<div class="animatedEllipsis staticEllipsis">....</div>' +
                 '</div>' +
             '</div>';
         const $container: JQuery = this._getContainer();

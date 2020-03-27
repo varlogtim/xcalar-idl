@@ -1007,10 +1007,9 @@ namespace WorkbookPanel {
                 '<div class="text">' +
                     (loadingText || WKBKTStr.Creating) +
                 '</div>' +
-                '<div class="animatedEllipsis">' +
-                    '<div>.</div>' +
-                    '<div>.</div>' +
-                    '<div>.</div>' +
+                '<div class="wrap">' +
+                    '<div class="animatedEllipsis hiddenEllipsis">....</div>' +
+                    '<div class="animatedEllipsis staticEllipsis">....</div>' +
                 '</div>' +
             '</div>' +
         '</div>';

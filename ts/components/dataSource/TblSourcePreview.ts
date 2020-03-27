@@ -138,10 +138,9 @@ class TblSourcePreview {
             '<div class="text">' +
             text +
             '</div>' +
-            '<div class="animatedEllipsis">' +
-                '<div>.</div>' +
-                '<div>.</div>' +
-                '<div>.</div>' +
+            '<div class="wrap">' +
+                '<div class="animatedEllipsis hiddenEllipsis">....</div>' +
+                '<div class="animatedEllipsis staticEllipsis">....</div>' +
             '</div>' +
         '</div>';
         return html;

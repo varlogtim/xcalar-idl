@@ -81,29 +81,41 @@
                     overflow: visible;
                 }
 
-                .schemaPreview {
+                .xc-expand-list {
                     padding-top: 8px;
-                    .schemaHeader {
-                        display: flex;
-                        cursor: pointer;
-                        align-items: center;
-                        padding-right: 4px;
-                    }
-                    .xi-down {
-                        font-size: 14px;
-                        transform: rotate(270deg);
-                        margin-left: auto;
-                    }
+
                     &.active {
                         .xi-down {
                             transform: rotate(0deg);
                         }
-                        .schemaJson {
+                        > ul {
                             display: block;
                         }
                     }
-                    .schemaJson {
+
+                    .listInfo {
+                        display: flex;
+                        cursor: pointer;
+                        align-items: center;
+                        padding: 0px;
+                    }
+
+                    .expand {
+                        margin-left: auto;
+                    }
+
+                    .xi-down {
+                        font-size: 14px;
+                        transform: rotate(270deg);
+                    }
+
+                    > ul {
                         display: none;
+                    }
+
+                    li {
+                        height: auto;
+                        border: none;
                     }
                 }
                 .chartInfo {
@@ -645,10 +657,10 @@
 
     #SchemaChart {
         width: 100%;
-        margin: 0 auto;
         display: flex;
         flex-wrap: wrap;
         overflow: hidden;
+        justify-content: space-evenly;
 
         .recharts-pie-label-text {
             font-size: 11px;

@@ -6,7 +6,7 @@ const Texts = {
     created: 'Created',
     createdWithComplement: 'Created with complement table',
     createError: 'Error',
-    ComplementTableHint: 'Some rows in the source fails cannot be loaded, the failure reason is listed in the complement table.'
+    ComplementTableHint: 'Some rows in the source files cannot be loaded, the failure reason is listed in the complement table.'
 };
 
 function Create({ onClick }) {
@@ -60,7 +60,7 @@ function Error({
                 <span className="action xc-action" onClick={() => { setExpandState(true); }}>Expand</span>
             </span>
         )
-    }    
+    }
 }
 
 function Table({ name }) {

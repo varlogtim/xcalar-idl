@@ -3,7 +3,7 @@ import { Rnd } from "react-rnd";
 import getForensics from '../../services/Forensics';
 import * as Path from 'path';
 import SchemaChart from '../DiscoverSchemas/SchemaChart2'
-
+import Collapsible from '../../../components/widgets/Collapsible'
 
 /**
  * UI texts for this component
@@ -37,31 +37,11 @@ function ForensicsContent(props) {
         return null;
     }
 }
-
-
 export default class Details extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            schemaExpanded: true
-        };
-        this.onSchemaHeaderClick = this.onSchemaHeaderClick.bind(this);
-    }
-
-    onSchemaHeaderClick() {
-        this.setState({
-            schemaExpanded: !this.state.schemaExpanded
-        });
-    }
-
     render() {
         let rightPartClasses = "rightPart";
         if (this.props.currentSchema != null || this.props.showForensics) {
             rightPartClasses += " active";
-        }
-        let schemaClasses = "schemaPreview";
-        if (this.state.schemaExpanded) {
-            schemaClasses += " active";
         }
         return (
             <Rnd
@@ -78,13 +58,14 @@ export default class Details extends React.Component {
                     <ForensicsContent isShow={ this.props.showForensics } stats={ this.props.forensicsStats } message={ this.props.forensicsMessage } />
                     {this.props.currentSchema == null ? null :
                         <React.Fragment>
-                            <div className={schemaClasses}>
-                                <div className="schemaHeader" onClick={this.onSchemaHeaderClick}>
-                                    <span>{this.props.currentSchema.name} - columns</span>
-                                    <i className="icon xi-down"></i>
-                                </div>
-                                <pre className="schemaJson">{JSON.stringify(this.props.currentSchema.columns, null, ' ')}</pre>
-                            </div>
+                            <Collapsible className="schemaPreview">
+                                <Collapsible.Header>{this.props.currentSchema.name} - columns</Collapsible.Header>
+                                <Collapsible.List>
+                                    <Collapsible.Item>
+                                        <pre className="schemaJson">{JSON.stringify(this.props.currentSchema.columns, null, ' ')}</pre>
+                                    </Collapsible.Item>
+                                </Collapsible.List>
+                            </Collapsible>
                             <SchemaChart
                                 selectedData={this.props.selectedFileDir}
                                 schemasFileMap={this.props.discoverFileSchemas}

@@ -100,10 +100,9 @@ class DSInfoModal {
     private _addWaitingSection($section: JQuery): void {
         let html: HTML =
             '<div class="animatedEllipsisWrapper">' +
-                '<div class="animatedEllipsis">' +
-                    '<div>.</div>' +
-                    '<div>.</div>' +
-                    '<div>.</div>' +
+                '<div class="wrap">' +
+                    '<div class="animatedEllipsis hiddenEllipsis">....</div>' +
+                    '<div class="animatedEllipsis staticEllipsis">....</div>' +
                 '</div>' +
             '</div>';
         $section.html(html);

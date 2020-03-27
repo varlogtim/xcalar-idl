@@ -147,7 +147,7 @@ class DiscoverSchemas extends React.Component {
             onNextScreen,
             children
         } = this.props;
-        console.log(this.props);
+
         const needConfig = SchemaService.InputSerializationFactory.getFileType(inputSerialization).has(SchemaService.FileType.CSV);
 
         if (isLoading) {
