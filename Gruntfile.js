@@ -1056,7 +1056,7 @@ module.exports = function(grunt) {
                     files:false, // do NOT clean empty files.  Make sure to have this; default is true, and make empty config file on some builds and you want to keep it!
                 },
                 cwd: BLDROOT,
-                src: ["**/*", "!3rd/**/*", "!services/expServer/node_modules/**/*", "!services/xpeServer/node_modules/**/*"],
+                src: ["**/*", "!3rd/**/*", "!services/expServer/node_modules/**/*", "!services/xpeServer/node_modules/**/*", "!services/terminalServer/node_modules/**/*"],
                 expand: true,
             },
         },
@@ -2155,6 +2155,7 @@ module.exports = function(grunt) {
         grunt.task.run("build_js"); // build js before html (built html will search for some js
             // files to autogen script tags for, that only get generated here)
         grunt.task.run("update_exp_module"); // update expServer's node_module;
+        grunt.task.run("update_terminalServer_module"); // update terminalServer's module
         grunt.task.run("update_integration_test_xcrpc_module"); // update integration test xcrpc's node_module
             // relying on xcrpc jsClient and jsSDK, so keep this after js build
         grunt.task.run("remove_exp_crypto"); // remove external crypto module
@@ -2287,6 +2288,15 @@ module.exports = function(grunt) {
                 pkgName: confJSON.name
             };
         }
+    });
+
+    grunt.task.registerTask("update_terminalServer_module", "Update terminalServer's dependencies", function() {
+        var termServerBldPath = path.join(BLDROOT, 'services/terminalServer/');
+
+        var cmdsets = [];
+        cmdsets.push([termServerBldPath, ['npm install --no-save']]);
+
+        runCmds(cmdsets);
     });
 
     grunt.task.registerTask("update_integration_test_xcrpc_module", "Update integration test xcrpc's dependencies", function() {
