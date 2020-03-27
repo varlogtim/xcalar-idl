@@ -13,13 +13,6 @@ const Texts = {
 };
 
 class CreateTables extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            schemaShowing: null
-        };
-    }
-
     render() {
         const {
             schemas, // Map<schemaName, {path: [], columns: []}>
@@ -30,13 +23,10 @@ class CreateTables extends React.Component {
             tables, // Map<schemaName, tableName>
             onClickCreateTable = (schemaName, tableName) => {},
             onTableNameChange,
+            onShowSchema,
             onPrevScreen,
             children
         } = this.props;
-
-        const schemaInfo = this.state.schemaShowing != null
-            ? schemas.get(this.state.schemaShowing)
-            : null;
 
         return (
             <div className="tableLoad">
@@ -57,13 +47,12 @@ class CreateTables extends React.Component {
                         tables={tables}
                         files={fileMetas}
                         onClickSchema={(schemaName) => {
-                            this.setState({ schemaShowing: schemaName });
+                            this.props.onShowSchema(schemas.get(schemaName));
                         }}
                         onClickCreateTable={onClickCreateTable}
                         onTableNameChange={onTableNameChange}
                     />
                 </div>
-                {schemaInfo == null ? null : <pre>{JSON.stringify(schemaInfo, null, ' ')}</pre>}
             </div>
         );
     }

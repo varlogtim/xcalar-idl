@@ -77,6 +77,7 @@ export default function SchemaChart({selectedData, schemasFileMap}) {
     return (
         <div>
             <div className="chartInfo">
+                <div className="schemaSummaryHeader">Summary</div>
                 <div>Total number of files: {totalCountOfFiles}</div>
                 <div>Total number of directories: {totalCountOfDirectories}</div>
             </div>
