@@ -106,7 +106,7 @@ module.exports = function(env, argv) {
         // Load Wizard
         {
             entry: {
-                loadWizard: path.resolve(env.buildroot, "src/loadWizard/index.jsx"),
+                // loadWizard: path.resolve(env.buildroot, "src/loadWizard/index.jsx"),
                 loadWizardXD: path.resolve(env.buildroot, "src/loadWizard/index2.jsx")
             },
             output: {
@@ -118,6 +118,18 @@ module.exports = function(env, argv) {
             },
             devtool: buildSourceMap ? 'eval-source-map' : '',
             mode: mode,
+            optimization: {
+                splitChunks: {
+                    cacheGroups: {
+                        defaultVendors: {
+                            // test: /[\\/]node_modules[\\/](react|react-dom|react-table|react-virtualized|recharts)[\\/]/,
+                            test: /[\\/]node_modules[\\/]/,
+                            name: "vendors",
+                            chunks: 'initial'
+                        }
+                    },
+                },
+            },
             module: {
                 rules: [
                     {
