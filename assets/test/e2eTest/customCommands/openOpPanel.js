@@ -13,6 +13,7 @@ class OpenOpPanel extends EventEmitter {
             .moveToElement("#dagNodeMenu li.configureNode", 10, 1)
             .mouseButtonClick('left')
             .waitForElementNotPresent("#formWaitingBG")
+            .waitForElementNotPresent(".opPanel.loading")
             .element('css selector', ".opPanel:not(.xc-hidden) .advancedEditor", (result) => {
                 if (result.status !== -1) {
                     // it exists

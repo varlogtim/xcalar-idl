@@ -10,7 +10,8 @@ function replay(testConfig, tags) {
 
 
     function buildTestUrl(browser, testConfig) {
-        return `${browser.globals.launchUrl}testSuite.html?test=n&noPopup=y&animation=y&cleanup=y&close=y&user=${browser.globals.user}&id=0`
+        let user = testConfig.user || browser.globals.user;
+        return `${browser.globals.launchUrl}testSuite.html?test=n&noPopup=y&animation=y&cleanup=y&close=y&user=${user}&id=0`
     }
 
     return {
@@ -78,7 +79,8 @@ function replay(testConfig, tags) {
                     });
                 });
             }
-            browser.deleteWorkbook(browser.globals.finalWorkbookName, browser.globals.user);
+            let user = testConfig.user || browser.globals.user;
+            browser.deleteWorkbook(browser.globals.finalWorkbookName, user);
         },
 
         'upload and enter workbook': function(browser) {

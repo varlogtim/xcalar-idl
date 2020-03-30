@@ -86,7 +86,7 @@ class IMDTableOpPanel extends BaseOpPanel {
      */
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         if (toAdvancedMode) {
-            let param: DagNodeIMDTableInputStruct = this._getParams();
+            let param: DagNodeIMDTableInputStruct = this._getParams(true);
             this._addLoadArgsToAdvMod(param);
             const paramStr = JSON.stringify(param, null, 4);
             this._cachedBasicModeParam = paramStr;
@@ -109,11 +109,11 @@ class IMDTableOpPanel extends BaseOpPanel {
         return null;
     }
 
-    private _getParams(): DagNodeIMDTableInputStruct {
+    private _getParams(ingoreError = false): DagNodeIMDTableInputStruct {
         return {
             source: this._$pubTableInput.val(),
             version: -1,
-            schema: this._schemaSection.getSchema(false),
+            schema: this._schemaSection.getSchema(ingoreError),
             filterString: "",
             limitedRows: this._limitedRows
         }

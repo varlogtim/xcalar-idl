@@ -26,7 +26,7 @@ class ColSchemaSection {
 
     public render(schema: ColSchema[]): void {
         this.clear();
-        if (schema.length > 0) {
+        if (schema && schema.length > 0) {
             this._addList(schema);
         }
     }
