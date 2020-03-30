@@ -270,7 +270,7 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     log("TABLE COLUMN NAMES: " + JSON.stringify(tableColumnNames));
     log("COMPLEMENTS COLUMN NAMES: " + JSON.stringify(complementColumnNames));
 
-    let deletePromises = [];
+    let tablesToDelete = [];
     let srcTableName = null;
     let destTableName = null;
     let srcCompTableName = null;
@@ -301,7 +301,7 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     srcTableName = destTableName;
     destTableName = genTableName(datasetName + "_map");
     await xcalarApiMap(tHandle, allColumnNames, allEvals, srcTableName, destTableName);
-    deletePromises.push(_deleteTempTable(srcTableName));
+    tablesToDelete.push(srcTableName);
     updateProgress("Progress: 38%", progressCB);
 
     // Add Xcalar Row Number PK
@@ -311,7 +311,7 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     srcCompTableName = destTableName;
     destTableName = genTableName(datasetName + "_rowNum");
     await xcalarApiGetRowNum(tHandle, xcalarRowNumPkName, srcTableName, destTableName);
-    deletePromises.push(_deleteTempTable(srcTableName));
+    tablesToDelete.push(srcTableName);
 
     complementColumnNames.push(xcalarRowNumPkName);
     tableColumnNames.push(xcalarRowNumPkName);
@@ -326,8 +326,8 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     destCompTableName = genTableName(datasetName + "_comp_filter");
     await xcalarFilter(tHandle, "neq(" + icvColumnName + ", '')", srcCompTableName, destCompTableName);
     await xcalarFilter(tHandle, "eq(" + icvColumnName + ", '')", srcTableName, destTableName);
-    deletePromises.push(_deleteTempTable(srcTableName));
-    deletePromises.push(_deleteTempTable(srcCompTableName));
+    tablesToDelete.push(srcTableName);
+    tablesToDelete.push(srcCompTableName);
     updateProgress("Progress: 42%", progressCB);
 
     // Index on Xcalar Row Number PK
@@ -356,8 +356,8 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
             keyFieldName:"",
             ordering:"Unordered"})]
     );
-    deletePromises.push(_deleteTempTable(srcTableName));
-    deletePromises.push(_deleteTempTable(srcCompTableName));
+    tablesToDelete.push(srcTableName);
+    tablesToDelete.push(srcCompTableName);
     updateProgress("Progress: 55%", progressCB);
 
     // Project tables...
@@ -372,18 +372,9 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     await xcalarProject(tHandle,
         tableColumnNames.length, tableColumnNames,
         srcTableName, destTableName);
-    deletePromises.push(_deleteTempTable(srcTableName));
-    deletePromises.push(_deleteTempTable(srcCompTableName));
+    tablesToDelete.push(srcTableName);
+    tablesToDelete.push(srcCompTableName);
     updateProgress("Progress: 65%", progressCB);
-
-    // at this point we don't rely on fat pointer, so dataset can be dropped
-    log("Delete dataset");
-    try {
-        await Promise.all(deletePromises);
-    } catch (e) {
-        cosnole.error("delete table fails", e);
-    }
-    await _cleanupDataset(datasetName);
 
     // Map on XcalarOpCode and XcalarRankOver
     // TODO: figure out if this is actually needed, I don't think it is?
@@ -397,8 +388,8 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     await xcalarApiMap(tHandle,
         ['XcalarOpCode', 'XcalarRankOver'], ['int(1)', 'int(1)'],
         srcTableName, destTableName);
-    _deleteTempTable(srcTableName);
-    _deleteTempTable(srcCompTableName);
+    tablesToDelete.push(srcTableName);
+    tablesToDelete.push(srcCompTableName);
     updateProgress("Progress: 70%", progressCB);
 
     // Publish tables...
@@ -409,8 +400,17 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     const hasDelete = await createPublishTable(srcCompTableName, finalComplementsName, true);
     log("TABLE CREATED: '" + finalTableName + "'");
     log("COMPLEMENTS CREATED: '" + finalComplementsName + "'");
-    _deleteTempTable(srcTableName);
-    _deleteTempTable(srcCompTableName);
+    tablesToDelete.push(srcTableName);
+    tablesToDelete.push(srcCompTableName);
+    // at this point we don't rely on fat pointer, so dataset can be dropped
+    log("Delete dataset");
+    try {
+        const deletePromises = tablesToDelete.map((table) => _deleteTempTable(table));
+        await Promise.all(deletePromises);
+    } catch (e) {
+        cosnole.error("delete table fails", e);
+    }
+    await _cleanupDataset(datasetName);
     updateProgress("Progress: 100%", progressCB);
 
     return hasDelete;
@@ -429,7 +429,7 @@ async function createPublishTable(resultSetName, pubTableName, deleteEmpty) {
         hasDelete = await deleteEmptyPbTable(pubTableName);
     }
     if (!hasDelete) {
-        _savePublishedTableDataFlow(pubTableName, resultSetName)
+        await _savePublishedTableDataFlow(pubTableName, resultSetName)
     }
     return hasDelete;
 }

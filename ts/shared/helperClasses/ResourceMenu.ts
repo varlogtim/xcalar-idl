@@ -491,12 +491,21 @@ class ResourceMenu {
                 source: tableName,
                 schema: tableInfo.getSchema()
             };
-            let node: DagNode = await DagViewManager.Instance.autoAddNode(DagNodeType.IMDTable,
+            
+            let node: DagNodeIMDTable = <DagNodeIMDTable>await DagViewManager.Instance.autoAddNode(DagNodeType.IMDTable,
                 null, null, input, undefined, undefined, {
                     configured: true,
                     forceAdd: true
             });
             if (node != null) {
+                try {
+                    const pbTblInfo = new PbTblInfo({name: tableName});
+                    const subGraph = await pbTblInfo.getDataflow();
+                    node.setSubgraph(subGraph);
+                } catch (e) {
+                    console.error(e);
+                }
+
                 DagNodeMenu.execute("configureNode", {
                     node: node,
                     exitCallback: () => {

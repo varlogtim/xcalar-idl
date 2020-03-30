@@ -75,8 +75,9 @@ class IMDTableOpPanel extends BaseOpPanel {
             if (this._checkOpArgs(args)) {
                 return args;
             }
+        } else {
+            return args;
         }
-        return null;
     }
 
     /**
