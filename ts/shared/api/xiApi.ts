@@ -1733,7 +1733,7 @@ namespace XIApi {
             indexHelper(txId, keyInfos, tableName, newTableName, dhtName)
             .then((ret) => {
                 const {newTableName, newKeys} = ret;
-                if (noCache) {
+                if (!noCache) {
                     XIApi.cacheIndexTable(tableName, colNames,
                         newTableName, newKeys, tempCols);
                 }

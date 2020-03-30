@@ -2232,8 +2232,11 @@ namespace DS {
         return deferred.promise();
     }
 
-
-    function getSchemaMeta(
+    /**
+     * DS.getSchemaMeta
+     * @param schemaArray
+     */
+    export function getSchemaMeta(
         schemaArray: {name: string, type: string}[]
     ): ColSchema[] {
         let columns: ColSchema[] = [];
