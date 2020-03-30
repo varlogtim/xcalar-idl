@@ -12,7 +12,7 @@ const Texts = {
 const typeList = {
     "json": "#00cf18",
     "csv": "#4287f5",
-    "parque": "#002483",
+    "parquet": "#002483",
     "directory": "#888",
     "unsupported": "#333",
 };

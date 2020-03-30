@@ -12,11 +12,11 @@ import { Rnd } from "react-rnd";
 import {
     PieChart, Pie, Cell, Label, ResponsiveContainer
 } from 'recharts';
-import prettyBytes from 'pretty-bytes'
+
 const typeList = {
     "JSON": "#00cf18",
     "CSV": "#4287f5",
-    "PARQUE": "#002483",
+    "PARQUET": "#002483",
     "DIRECTORY": "#888",
     "UNSUPPORTED": "#BBB",
 };

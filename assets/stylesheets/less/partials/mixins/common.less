@@ -130,6 +130,50 @@
     }
 }
 
+// React version
+.copyableText {
+    position: relative;
+    cursor: pointer;
+
+    &:hover {
+        .xi-copy-clipboard {
+            // display: block;
+            opacity: 1;
+        }
+        > .text {
+            width: ~"calc(100% - 20px)";
+        }
+    }
+    &.copying {
+        .xi-copy-clipboard {
+            opacity: 0;
+        }
+        .xi-tick {
+            opacity: 1;
+        }
+        > .text {
+            width: ~"calc(100% - 20px)";
+        }
+    }
+    .xi-copy-clipboard, .xi-tick {
+        position: absolute;
+        top: 1px;
+        right: 0px;
+        font-size: 14px;
+        transition: opacity 0.3s linear;
+        opacity: 0;
+
+    }
+
+    .text {
+        .textOverflowOneLine;
+    }
+
+    .rtl {
+        direction: rtl;
+    }
+}
+
 .noTransition {
     -webkit-transition: 0s !important;
     -moz-transition: 0s !important;
@@ -2020,6 +2064,15 @@
             .icon {
                 .position(relative, @top: 3px);
                 color: @color-icon-default;
+            }
+            .copyableText {
+                .xi-copy-clipboard, .xi-tick {
+                    position: absolute;
+                    top: 1px;
+                    right: 0px;
+                    font-size: 14px;
+                    transition: opacity 0.3s linear;
+                }
             }
         }
     }
