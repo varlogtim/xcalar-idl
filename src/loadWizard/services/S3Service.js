@@ -78,6 +78,7 @@ async function listFiles(path, filter = (fileInfo) => true) {
 }
 
 async function createKeyListTable({ bucketName='/xcfield/', namePattern='*', recursive=true }) {
+    bucketName = Path.join("/", bucketName, "/");
     const finalTableName = getKeylistTableName(bucketName);
     const myDatasetName = DS_PREFIX + randomName();
 
@@ -124,8 +125,11 @@ async function createKeyListTable({ bucketName='/xcfield/', namePattern='*', rec
     }
 }
 
-async function getForensicsStats(bucketName, pathPrefix) {
-    const fullPath = Path.join(bucketName, pathPrefix);
+async function getForensicsStats(bucket, pathPrefix) {
+    let bucketName = bucket
+    bucketName = Path.join("/", bucket, "/");
+    let fullPath = Path.join(bucketName, pathPrefix);
+    fullPath = Path.join(fullPath, "/");
     const keyListTableName = getKeylistTableName(bucketName);
     const sql = `SELECT * FROM (SELECT * FROM
         (SELECT *,(TOTAL_COUNT-CSV_COUNT-JSON_COUNT-PARQUET_COUNT-NOEXT_COUNT) AS UNSUPPORTED_COUNT FROM
@@ -153,6 +157,26 @@ async function getForensicsStats(bucketName, pathPrefix) {
             ) b ON a.SIZE = b.SMALLEST_FILE_SIZE
         )`;
 
+    const childrenSql = `
+        WITH FILTERLIST AS
+        (
+           SELECT LENGTH(REPLACE(PATH, '${fullPath}', '')) - LENGTH(REPLACE(REPLACE(PATH, '${fullPath}', ''), '/', '')) AS DIFFLEN, * FROM ${keyListTableName} where PATH like '${fullPath}\%' and PATH NOT LIKE '${fullPath}\%/'
+        ),
+        DIRLIST AS
+        (
+            SELECT REPLACE(PATH, SUBSTRING_INDEX(PATH, '/', -1), '') PATH, 'True' ISDIR, SIZE, MTIME FROM ${keyListTableName} WHERE PATH LIKE '${fullPath}\%'
+        ),
+        DIRCHILDREN AS (
+            SELECT * FROM DIRLIST WHERE (LENGTH(REPLACE(PATH, '${fullPath}', '')) - LENGTH(REPLACE(REPLACE(PATH, '${fullPath}', ''), '/', ''))) = 1
+        ),
+        UNIONCHILDREN AS
+        (
+            SELECT PATH, SIZE, ISDIR FROM FILTERLIST WHERE DIFFLEN = 0
+                UNION
+            SELECT DISTINCT PATH, 0 SIZE, ISDIR FROM DIRCHILDREN
+        )
+        SELECT sxdf_concatDelim("|", '', FALSE, COLLECT_LIST(CONCAT(PATH, "|"))) AS CHILDREN FROM UNIONCHILDREN`;
+
     const session = new XDSession();
     const stats = {
         file: {
@@ -160,7 +184,8 @@ async function getForensicsStats(bucketName, pathPrefix) {
             maxSize: 0,
             minSize: 0,
             largestFile: '',
-            smallestFile: ''
+            smallestFile: '',
+            children: ''
         },
         structure: {
             depth: 0
@@ -179,11 +204,16 @@ async function getForensicsStats(bucketName, pathPrefix) {
         // execute sql
         const table = await session.executeSql(sql);
         console.log(`Sql result table: ${table.getName()}`);
+        const ctable = await session.executeSql(childrenSql);
+        console.log(`Sql result table: ${ctable.getName()}`);
 
         // fetch the result
         const cursor = table.createCursor();
         await cursor.open();
         const rows = await cursor.fetch(1);
+        const ccursor = ctable.createCursor();
+        await ccursor.open();
+        const crows = await ccursor.fetch(1);
 
         // Parse result
         if (rows.length > 0) {
@@ -199,6 +229,10 @@ async function getForensicsStats(bucketName, pathPrefix) {
             stats.type.parquet = result['PARQUET_COUNT'];
             stats.type.unsupported = result['UNSUPPORTED_COUNT'];
             stats.type.noext = result['NOEXT_COUNT'];
+        }
+        if (crows.length > 0) {
+            const result = JSON.parse(crows[0]);
+            stats.file.children = result['CHILDREN'];
         }
     } finally {
         await session.destroy();
