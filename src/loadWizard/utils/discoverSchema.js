@@ -160,8 +160,9 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
     log("createTableAndComplements on session: " + sessionName);
 
     // make load args for BulkLoad.
-    const sourceArgs = buildSourceLoadArgs(paths);
-    const { parserArgs, loadStore } = getParseArgs(schema, inputSerialJson, paths);
+    const sourceArgs = buildSourceLoadArgsNoKV(paths);
+    const parserArgs = getParseArgsNoKV(schema, inputSerialJson);
+    // const { parserArgs, loadStore } = getParseArgs(schema, inputSerialJson, paths);
     // Load that dataset!!
     // await xcalarLoad(tHandle, myDatasetName, sourceArgs, parseArgs, 0);
     const options = {
@@ -177,10 +178,10 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
 
     try {
         updateProgress("Progress 0%", progressCB);
-        await loadStore.save();
+        // await loadStore.save();
         await XcalarDatasetLoad(myDatasetName, options, txId);
     } finally {
-        await loadStore.delete();
+        // await loadStore.delete();
     }
     // do a bunch of table operations
     updateProgress("Progress: 30%", progressCB);
@@ -297,7 +298,7 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     const colInfos = xcHelper.getColRenameInfosFromSchema(columnSchema);
     destTableName = genTableName(datasetName + "_synthesize");
     await XcalarSynthesize(parsedDsName, destTableName, colInfos, true, txId);
-    
+
     _cleanupDataset(datasetName);
 
     updateProgress("Progress: 35%", progressCB);
@@ -325,7 +326,7 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     destCompTableName = genTableName(datasetName + "_comp_filter");
     await XcalarFilter("eq(" + icvColumnName + ", '')", srcTableName, destTableName, txId);
     await XcalarFilter("neq(" + icvColumnName + ", '')", srcCompTableName, destCompTableName, txId);
-    
+
     _deleteTempTable(srcTableName, txId);
 
     updateProgress("Progress: 42%", progressCB);
@@ -500,6 +501,12 @@ function getSuccessfulPaths(discoverResponse) {
 }
 
 
+/**
+ * Get parser args with kvstore solution
+ * @param {*} schema
+ * @param {*} inputSerial
+ * @param {*} paths
+ */
 function getParseArgs(schema, inputSerial, paths) {
     const [moduleName, funcName] = AWS_S3_SELECT_PARSER_NAME.split(":");
     const kvSchema = generateSchemaKeyValue(schema);
@@ -522,6 +529,26 @@ function getParseArgs(schema, inputSerial, paths) {
             kvLoad: kvLoad
         })
     };
+}
+
+/**
+ * Get parser args w/o kvstore solution
+ * @param {*} schema
+ * @param {*} inputSerial
+ * @param {*} paths
+ */
+function getParseArgsNoKV(schema, inputSerial) {
+    const [moduleName, funcName] = AWS_S3_SELECT_PARSER_NAME.split(":");
+    const parserArgs = {
+        moduleName: moduleName,
+        funcName: funcName,
+        udfQuery: {
+            'schema': schema,
+            'input_serialization_args': inputSerial.toString()
+        }
+    };
+
+    return parserArgs;
 }
 
 function hashFunc(str) {
@@ -576,6 +603,10 @@ function getSchemas(discoverResponse) {
     return schemas;
 }
 
+/**
+ * Build source args with kvstore solution
+ * @param {*} paths
+ */
 function buildSourceLoadArgs() {
     return [{
         targetName: AWS_TARGET_NAME,
@@ -583,6 +614,19 @@ function buildSourceLoadArgs() {
         fileNamePattern: '',
         recursive: false
     }];
+}
+
+/**
+ * Build source args w/o kvstore solution
+ * @param {*} paths
+ */
+function buildSourceLoadArgsNoKV(paths) {
+    return paths.map(({path}) => ({
+        targetName: AWS_TARGET_NAME,
+        path: path,
+        fileNamePattern: '',
+        recursive: false
+    }));
 }
 
 export async function discoverSchemas(paths, inputSerialization) {
