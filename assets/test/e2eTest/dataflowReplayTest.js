@@ -2,7 +2,7 @@
 module.exports = require('./baseReplayTest.js').replay(
     {
         user: 'dftest',
-        workbook: 'Test-Dataflow-Join',
+        workbook: 'Test-Dataflow-Join2',
         validation: [
             {dfName: 'DF Test (result)', nodeName: 'validation1'}
         ]

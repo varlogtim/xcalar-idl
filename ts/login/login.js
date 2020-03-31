@@ -494,10 +494,9 @@ $(document).ready(function() {
                         '<div class="text">' +
                             'LOGGING IN' +
                         '</div>' +
-                        '<div class="animatedEllipsis">' +
-                          '<div>.</div>' +
-                          '<div>.</div>' +
-                          '<div>.</div>' +
+                        '<div class="wrap">' +
+                            '<div class="animatedEllipsis hiddenEllipsis">....</div>' +
+                            '<div class="animatedEllipsis staticEllipsis">....</div>' +
                         '</div>' +
                     '</div>';
             $btn.html(html)
