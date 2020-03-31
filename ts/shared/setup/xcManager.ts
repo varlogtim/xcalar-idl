@@ -5,14 +5,13 @@ namespace xcManager {
      * xcManager.setup
      * Sets up most services for XD
      */
-    export function setup(loadAll: boolean = false): XDPromise<void> {
+    export function setup(): XDPromise<void> {
         setupStatus = SetupStatus["Setup"];
         // use promise for better unit test
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         gMinModeOn = true; // startup use min mode;
         $("body").addClass("xc-setup");
         $("#favicon").attr("href", paths.favicon);
-
         Compatible.check();
         xcGlobal.setup();
 

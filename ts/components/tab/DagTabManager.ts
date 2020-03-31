@@ -15,6 +15,7 @@ class DagTabManager extends AbstractTabManager {
     private _hiddenDags: Map<string, DagTab>; // used to store undone tabs
     private _statsTab: DagTab;
     private _event: XcEvent;
+    private _cacheKey: string = "xcalar-active-tab";
 
     private constructor() {
         super("dagTabView", "gDagManagerKey")
@@ -557,7 +558,7 @@ class DagTabManager extends AbstractTabManager {
     }
 
     // always resolves so that chain doesn't end early
-    private _loadDagTabHelper(id: string): XDPromise<void> {
+    private _loadDagTabHelper(id: string, activeTabId: string): XDPromise<void> {
         const dagTab: DagTab = DagList.Instance.getDagTabById(id);
         if (dagTab == null) {
             return PromiseHelper.resolve();
@@ -567,7 +568,12 @@ class DagTabManager extends AbstractTabManager {
         this._loadOneTab(dagTab, false, true)
         .then(()=> {
             this._addDagTab(dagTab, null, true);
-            if (this.getTabByIndex(0) === dagTab) {
+            if (activeTabId && activeTabId === dagTab.getId()) {
+                const index = this.getTabIndex(activeTabId);
+                // if it's the cached active tab
+                this._switchTabs(index);
+                this._event.dispatchEvent("afterFirstTabLoad");
+            } else if (!activeTabId && this.getTabByIndex(0) === dagTab) {
                 // if it's the first tab
                 this._switchTabs(0);
                 this._event.dispatchEvent("afterFirstTabLoad");
@@ -584,8 +590,12 @@ class DagTabManager extends AbstractTabManager {
     //loadDagTabs handles loading dag tabs from prior sessions.
     private _loadDagTabs(dagTabIds: string[]): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let cachedTabId: string | null = this._getCachedActiveTab();
+        if (!cachedTabId || !dagTabIds.includes(cachedTabId)) {
+            cachedTabId = null;
+        }
         let promises = dagTabIds.map((id) => {
-            return () => this._loadDagTabHelper(id);
+            return () => this._loadDagTabHelper(id, cachedTabId);
         });
         //Use a chain to ensure all are run sequentially.
         PromiseHelper.chain(promises)
@@ -606,7 +616,7 @@ class DagTabManager extends AbstractTabManager {
      * @override
      * @param index
      */
-    protected _switchTabs(index?: number): number {
+    protected _switchTabs(index?: number, cache: boolean = true): number {
         index = super._switchTabs(index);
 
         const $dataflowAreas: JQuery = this._getDataflowArea();
@@ -620,6 +630,9 @@ class DagTabManager extends AbstractTabManager {
         }
 
         this._activeTab = dagTab;
+        if (cache) {
+            this._cacheActiveTab();
+        }
         const tabId: string = dagTab.getId();
         let parentTabId = this._getParentTabId(tabId);
         if (parentTabId != null) {
@@ -1036,7 +1049,24 @@ class DagTabManager extends AbstractTabManager {
     private _addSQLExecuteTab(dagTab: DagTabSQLExecute): void {
         // always add the tab at the front
         this._addDagTab(dagTab, 0);
-        this._switchTabs(0);
+        this._switchTabs(0, false);
+    }
+
+    private _cacheActiveTab(): void {
+        try {
+            xcSessionStorage.setItem(this._cacheKey, this._activeTab.getId());
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    private _getCachedActiveTab(): string | null {
+        try {
+            return xcSessionStorage.getItem(this._cacheKey);
+        } catch (e) {
+            console.error(e);
+            return null;
+        }
     }
 
     /**

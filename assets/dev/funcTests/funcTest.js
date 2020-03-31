@@ -139,7 +139,7 @@ window.FuncTestSuite = (function($, FuncTestSuite) {
 
     FuncTestSuite.run = function() {
         var deferred = PromiseHelper.deferred();
-        xcManager.setup(true)
+        xcManager.setup()
         .then(function(){
             return runFuncTest();
         })
