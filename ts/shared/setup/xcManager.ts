@@ -367,11 +367,7 @@ namespace xcManager {
                 markUserUnload();
             }
         }; // Do not enable prompt
-        window.onunload = function() {
-            // do not call unload again, but keep auto-sending email for liveHelp
-            // auto-send check is then implemented in liveHelpModal.js
-            LiveHelpModal.Instance.userLeft();
-        };
+        window.onunload = function() {};
     };
 
     function markUserUnload(): void {
@@ -717,7 +713,6 @@ namespace xcManager {
             }
         };
         window.onunload = function(): void {
-            LiveHelpModal.Instance.userLeft();
             if (typeof mixpanel !== "undefined") {
                 xcMixpanel.pageUnloadEvent();
             }
