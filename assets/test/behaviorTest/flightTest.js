@@ -101,7 +101,7 @@ window.FlightTest = (function(FlightTest, $) {
             }
         }
 
-        // create dataset node
+        // create table node
         async function flightTestPart2(tableName) {
             try {
                 console.log("start flightTestPart2: create table node");

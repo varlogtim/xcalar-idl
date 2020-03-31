@@ -1503,6 +1503,44 @@
             }
         }
     }
+
+    .tableList {
+        .table {
+            &.loading {
+                pointer-events: none;
+            }
+    
+            &.deactivating {
+                .gridIcon {
+                    visibility: hidden;
+                }
+            }
+    
+            .deactivatingIcon {
+                position: absolute;
+                top: 6px;
+                left: 20px;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                display: inline-block;
+                background-color: @color-error-red;
+                z-index: 0;
+                .deactivating {
+                    .position(absolute, @top: 1.5px, @right: 1.5px);
+                    font-size: 9px;
+                    color: @color-font-defaultInverse;
+                }
+            }
+
+            .waitingIcon {
+                width: 20px;
+                height: 20px;
+                background-size: 20px 20px;
+                left: 15px;
+            }
+        }
+    }
 }
 
 .xc-resizeHandler {

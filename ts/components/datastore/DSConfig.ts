@@ -2158,7 +2158,7 @@ namespace DSConfig {
                             return false;
                         }
                         let hasName = isCreateTableMode() ?
-                        TblSource.Instance.hasTable(name) : DS.has(name);
+                        PTblManager.Instance.hasTable(name) : DS.has(name);
                         return hasName || dsNames.includes(dsName); // already used
                     }
 

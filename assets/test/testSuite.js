@@ -360,7 +360,7 @@ window.TestSuite = (function($, TestSuite) {
                 }
                 // wait for table to loaded
                 await this.waitUntil(() => {
-                    const $li = $("#dagListSection .tableList li").filter((_index, el) => {
+                    const $li = $("#dagListSection .tableList li:not(.loading)").filter((_index, el) => {
                         return $(el).find(".name").text() === tableName;
                     });
                     return $li.length === 1;
@@ -558,11 +558,19 @@ window.TestSuite = (function($, TestSuite) {
                 this.assert($panel.hasClass("xc-hidden") === false, "table panel should show");
                 // check that the table is under the list
                 const $li = $("#pubTableList li").filter((_index, e) => $(e).text() === tableName);
+                if ($li.length !== 1) {
+                    const list = [];
+                    $("#pubTableList li").each((_index, e) => list.push($(e).text()));
+                    console.log("#pubTableList li:", JSON.stringify(list));
+                }
                 this.assert($li.length === 1, "the table to select is under Table panel's list");
 
                 // select the table
                 $li.trigger(fakeEvent.mouseup)
                 this.assert($("#pubTableList .pubTableInput").val() === tableName, "correct table should be selected in the list");
+                if ($panel.hasClass("loading")) {
+                    this.waitUntil(() => !$panel.hasClass("loading"));
+                }
                 // save the configuration
                 $panel.find(".bottomSection .submit").click();
                 await this.hasNodeWithState(nodeId, DagNodeState.Configured);

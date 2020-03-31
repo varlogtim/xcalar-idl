@@ -1818,12 +1818,12 @@ describe("Dataset-DSConfig Test", function() {
             UnitTest.hasStatusBoxWithError(ErrTStr.TableStartsWithLetter);
 
             // test4
-            var oldhas = TblSource.Instance.hasTable;
-            TblSource.Instance.hasTable = function() {return true; };
+            var oldhas = PTblManager.Instance.hasTable;
+            PTblManager.Instance.hasTable = function() {return true; };
             $dsName.val("test");
             expect(validateForm()).to.be.null;
             UnitTest.hasStatusBoxWithError(ErrTStr.TableConflict);
-            TblSource.Instance.hasTable = oldhas;
+            PTblManager.Instance.hasTable = oldhas;
 
             // test5
             $dsName.val("test*test");

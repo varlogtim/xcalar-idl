@@ -160,7 +160,7 @@ class DagList extends Durable {
         .then(deferred.resolve)
         .fail(deferred.reject)
         .always(() => {
-            ResourceMenu.Instance.render(ResourceMenu.KEY.Table);
+            TblSource.Instance.refresh();
             ResourceMenu.Instance.render(ResourceMenu.KEY.DF);
             ResourceMenu.Instance.render(ResourceMenu.KEY.TableFunc);
         });

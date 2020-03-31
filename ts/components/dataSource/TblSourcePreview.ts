@@ -68,7 +68,6 @@ class TblSourcePreview {
         this._getInfoSection().empty();
         this._schemaSection.clear();
         this._closeTable();
-        TblSource.Instance.clear();
 
         this._tableInfo = null;
     }
@@ -453,15 +452,6 @@ class TblSourcePreview {
         }
     }
 
-    private _createTable(tableInfo: PbTblInfo): void {
-        let res = this._dataSourceSchema.validate();
-        if (res == null) {
-            // error case
-            return;
-        }
-        TblSource.Instance.createTableFromDataset(tableInfo, res.schema, res.primaryKeys);
-    }
-
     private _createDF(tableInfo: PbTblInfo): void {
         if (tableInfo == null) {
             return;
@@ -502,13 +492,6 @@ class TblSourcePreview {
 
         $infoSection.on("click", ".writeSQL", () => {
             this._writeSQL(this._tableInfo);
-        });
-
-        let $bottomSection = $container.find(".bottomSection");
-        $bottomSection.find(".createTable").click(() => {
-            if (this._viewer instanceof XcDatasetViewer) {
-                this._createTable(this._tableInfo);
-            }
         });
     }
 }

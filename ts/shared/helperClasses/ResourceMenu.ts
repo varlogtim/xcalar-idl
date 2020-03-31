@@ -96,7 +96,7 @@ class ResourceMenu {
     }
 
     private _renderTableList(): void {
-        const tables: PbTblInfo[] = SQLResultSpace.Instance.getAvailableTables();
+        const tables: PbTblInfo[] = PTblManager.Instance.getAvailableTables();
         tables.sort((a, b) => xcHelper.sortVals(a.name, b.name));
         const iconClassNames: string[] = ["xi-table-outline"];
         const html: HTML = tables.map((table) => {

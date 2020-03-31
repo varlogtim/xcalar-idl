@@ -1352,7 +1352,7 @@ class PTblManager {
         }
     ): void {
         SQLResultSpace.Instance.refresh();
-        ResourceMenu.Instance.render(ResourceMenu.KEY.Table);
+        TblSource.Instance.refresh();
         XcSocket.Instance.sendMessage("refreshIMD", event, null);
     }
 }

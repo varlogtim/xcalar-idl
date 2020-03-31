@@ -333,7 +333,6 @@ class DataSourceManager {
         const text: string = "Source & Load Data";
         $title.text(text);
         $menu.find(".table").removeClass("xc-hidden");
-        TblSource.Instance.refresh(); // update every time switch to the tab
 
         if (wasInDatasetScreen) {
             DataSourceManager.startImport(true);
