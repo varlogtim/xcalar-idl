@@ -1576,7 +1576,7 @@
 
     &.operatorMenu {
         .removeNode, .copyNodes, .cutNodes, .executeNode, .resetNode, .executeNodeOptimized,
-        .viewOptimizedDataflow,
+        .viewOptimizedDataflow, .deleteTable,
         .description, .configureNode, .viewResult, .generateResult, .viewSchema, .viewOptions, .customNodeOptions, .autoAlign,
         .unlockNodeTable, .lockNodeTable, .createCustom, .selectAllNodes, .viewUDFErrors, .viewSkew, .addOperation {
             display: list-item;
@@ -1851,9 +1851,16 @@
 }
 
 #dagTableNodeMenu {
-     &.noChildAllowed {
+    &.noChildAllowed {
         .addOperation {
             display: none;
+        }
+    }
+    li {
+        .icon {
+            &.xi-trash {
+                color: inherit;
+            }
         }
     }
 }

@@ -1599,6 +1599,8 @@ DagTStr = {
     "Reset": "Module operator(s) reset",
     "ResetMsg": "Are you sure you want to reset the selected operator(s)?",
     "ResetAllMsg": "Are you sure you want to reset all operators in the module?",
+    "DeleteTable": "Delete Table",
+    "DeleteTableMsg": "Are you sure you want to delete the selected table?",
     "CustomOpIncomplete": "Selected operator set is open",
     "CustomOpNoInput": "Cannot create a custom operator without input",
     "CustomOpNoOutput": "Cannot create a custom operator without output",

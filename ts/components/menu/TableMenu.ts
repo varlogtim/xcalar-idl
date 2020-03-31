@@ -124,14 +124,17 @@ class TableMenu extends AbstractMenu {
             if (this._isInvalidTrigger(event)) {
                 return;
             }
+            const tableId: TableId = $tableMenu.data('tableId');
             const valArray: string[] = [];
-            const tblName: string = $(".tblTitleSelected .tableName").val();
-            const tblId: string = $(".tblTitleSelected .hashName").text();
-            valArray.push(tblName + tblId);
+            try {
+                valArray.push(gTables[tableId].getName());
+            } catch (e) {
+                console.error(e);
+            }
+
             this._copyToClipboard(valArray);
         });
 
-        // xx currently not visible
         $tableMenu.on('mouseup', '.copyColNames', (event) => {
             if (this._isInvalidTrigger(event)) {
                 return;
@@ -148,7 +151,13 @@ class TableMenu extends AbstractMenu {
             };
 
             const tableId: TableId = $tableMenu.data('tableId');
-            const allColNames: string[] = getAllColNames(tableId);
+            let allColNames: string[] = [];
+            try {
+                allColNames = getAllColNames(tableId);
+            } catch(e) {
+                console.error(e);
+            }
+
             this._copyToClipboard(allColNames, true);
         });
 

@@ -882,8 +882,8 @@ class DagViewManager {
         return this.dagViewMap.get(tabId).viewOptimizedDataflow(dagNode);
     }
 
-    public reset(nodeIds?: DagNodeId[], bypassAlert?: boolean): void {
-        this.activeDagView.reset(nodeIds, bypassAlert);
+    public reset(nodeIds?: DagNodeId[], bypassAlert?: boolean, tableMsg?: boolean): void {
+        this.activeDagView.reset(nodeIds, bypassAlert, tableMsg);
     }
 
       /**

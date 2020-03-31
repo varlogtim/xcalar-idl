@@ -1989,7 +1989,7 @@ class DagView {
      * @param nodeIds
      * if no nodeIds passed, will reset all
      */
-    public reset(nodeIds?: DagNodeId[], bypassAlert?: boolean): void {
+    public reset(nodeIds?: DagNodeId[], bypassAlert?: boolean, tableMsg?: boolean): void {
         if (bypassAlert) {
             this.dagTab.turnOffSave();
             this.graph.reset(nodeIds);
@@ -1997,10 +1997,14 @@ class DagView {
             this.dagTab.save();
             return;
         }
-        const msg: string = nodeIds ? DagTStr.ResetMsg : DagTStr.ResetAllMsg;
-
+        let msg: string = nodeIds ? DagTStr.ResetMsg : DagTStr.ResetAllMsg;
+        let title: string = DagTStr.Reset;
+        if (tableMsg) {
+            msg = DagTStr.DeleteTableMsg;
+            title = DagTStr.DeleteTable;
+        }
         Alert.show({
-            title: DagTStr.Reset,
+            title: title,
             msg: msg,
             onConfirm: () => {
                 this.dagTab.turnOffSave();
