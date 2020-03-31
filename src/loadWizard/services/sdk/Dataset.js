@@ -23,8 +23,12 @@ class Dataset {
     }
 
     async load() {
+        const option = {
+            sources: this._sourceArgs,
+            ...this._parseArgs
+        };
         await this._session.callLegacyApi(
-            () => xcalarLoad(getThriftHandler(), this._name, this._sourceArgs, this._parseArgs, this._size)
+            () => XcalarDatasetLoad(this._name, option)
         );
     }
 

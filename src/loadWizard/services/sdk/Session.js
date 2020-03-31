@@ -120,7 +120,11 @@ class BaseSession {
         }
         for (const tableInfo of result.tables) {
             if (tableInfo.name === name) {
-                return new PublishedTable({ name: name });
+                return new PublishedTable({
+                    session: this,
+                    name: name,
+                    isActive: tableInfo.active
+                });
             }
         }
     }

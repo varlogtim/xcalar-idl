@@ -77,7 +77,7 @@ async function listFiles(path, filter = (fileInfo) => true) {
     return fileInfos;
 }
 
-async function createKeyListTable({ bucketName='/xcfield/', namePattern='*', recursive=true }) {
+async function createKeyListTable({ bucketName='/xcfield/' }) {
     bucketName = Path.join("/", bucketName, "/");
     const finalTableName = getKeylistTableName(bucketName);
     const myDatasetName = DS_PREFIX + randomName();
@@ -90,29 +90,32 @@ async function createKeyListTable({ bucketName='/xcfield/', namePattern='*', rec
         // Check if we already have a table
         const existingTable = await session.getPublishedTable({ name: finalTableName });
         if (existingTable != null) {
+            await existingTable.activate();
             return finalTableName;
         }
 
         // load key list to dataset
-        const udfParserArgs = {
-            's3_path': bucketName,
-            's3_name_pattern': namePattern,
-            's3_recursive': recursive
-        }
-        let parseArgs = new ParseArgsT()
-        parseArgs.parserFnName = 'default:generateS3KeyList';
-        parseArgs.parserArgJson = JSON.stringify(udfParserArgs);
+        const parserArgs = {
+            moduleName: 'default',
+            funcName: 'generateS3KeyList',
+            udfQuery: {
+                's3_path': bucketName,
+                's3_name_pattern': '*',
+                's3_recursive': true
+            }
+        };
 
-        let dummySourceArgs = new DataSourceArgsT();
-        dummySourceArgs.targetName = 'Default Shared Root';
-        dummySourceArgs.path = '/etc/hosts';
-        dummySourceArgs.fileNamePattern = '';
-        dummySourceArgs.recursive = false;
+        const sourceArgs = [{
+            targetName: 'Default Shared Root',
+            path: '/etc/hosts', // Dummy path
+            fileNamePattern: '',
+            recursive: false
+        }];
 
         const keylistDataset = await session.createDataset({
             name: myDatasetName,
-            sourceArgs: [dummySourceArgs],
-            parseArgs: parseArgs
+            sourceArgs: sourceArgs,
+            parseArgs: parserArgs
         });
 
         // Create published table from dataset
@@ -120,6 +123,7 @@ async function createKeyListTable({ bucketName='/xcfield/', namePattern='*', rec
         return keylistTable.getName();
     } catch(e) {
         console.error('ERROR: Creating published table: ', e);
+        throw e;
     } finally {
         await session.destroy();
     }
