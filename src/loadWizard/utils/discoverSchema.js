@@ -544,7 +544,7 @@ function getParseArgsNoKV(schema, inputSerial) {
         funcName: funcName,
         udfQuery: {
             'schema': schema,
-            'input_serialization_args': inputSerial.toString()
+            'input_serialization': inputSerial.toString()
         }
     };
 
