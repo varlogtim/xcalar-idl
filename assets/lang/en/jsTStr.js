@@ -1366,38 +1366,7 @@ SideBarTStr = {
 };
 
 ExtTStr = {
-    "Author": "Author",
-    "Report": "Report Error",
-    "Website": "Website",
-    "Version": "Version",
-    "Install": "Install",
-    "Installed": "Installed",
-    "More": "View More",
-    "Less": "Hide Detail",
-    "XcCategory": "Xcalar Extensions",
-    "extListFail": "Failed to get installed extensions list",
-    "InvalidTableName": "Invalid table name, please use extension api to create a valid name",
-    "AddClause": "Add another argument",
-    "LoadScriptFail": "Fail to load extension script",
-    "LoadUDFFail": "Fail to load extension scalar function, please test the scalar function first and make sure it can be uploaded to Xcalar",
-    "Instruction": "Instruction",
-    "NoScript": "The extension file was not found on the server",
-    "ParseFail": "Cannot parse the extension, please check syntax",
-    "FindExtFail": "Extension file is loaded but cannot find the extension module, please check the name conventions"
-};
-
-DaysTStr = {
-    'Sunday': 'Sunday',
-    'Monday': 'Monday',
-    'Tuesday': 'Tuesday',
-    'Wednesday': 'Wednesday',
-    'Thursday': 'Thursday',
-    'Friday': 'Friday',
-    'Saturday': 'Saturday',
-    'Today': 'Today',
-    'Yesterday': 'Yesterday',
-    'LastWeek': 'Last week',
-    'Older': 'Older'
+    "AddClause": "Add another argument"
 };
 
 OpModalTStr = {
