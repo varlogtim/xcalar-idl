@@ -82,7 +82,7 @@ export default function SchemaChart({selectedData, schemasFileMap}) {
                 <div>Total number of directories: {totalCountOfDirectories}</div>
             </div>
             <div id="SchemaChart">
-                <PieChart width={250} height={250}>
+                <PieChart width={280} height={250}>
                     <Pie
                         dataKey="value"
                         isAnimationActive={false}
@@ -123,7 +123,7 @@ export default function SchemaChart({selectedData, schemasFileMap}) {
                 </PieChart> */}
 
 
-                <PieChart width={250} height={250}>
+                <PieChart width={280} height={250}>
                     <Pie
                         dataKey="value"
                         isAnimationActive={false}

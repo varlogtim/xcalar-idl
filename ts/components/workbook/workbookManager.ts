@@ -647,6 +647,7 @@ namespace WorkbookManager {
         .then(function() {
             // no need to save as resource will be synced in setup
             wkbk.setResource(false);
+            wkbk.setMemUsed(0);
 
             if (isCurrentWKBK) {
                 setActiveWKBK(null);

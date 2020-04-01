@@ -9,7 +9,7 @@ class SubmitAdvancedPanel extends EventEmitter {
             } else {
                 this.api
                 .waitForElementNotPresent("#formWaitingBG", 3000)
-                .waitForElementNotPresent(".opPanel.loading", 1000 * 30)
+                .waitForElementNotPresent(".opPanel.loading", 1000 * 60 * 2)
                 .click(panelSelector + " .bottomSection .switch");
             }
 

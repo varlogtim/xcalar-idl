@@ -2454,13 +2454,17 @@ class TblManager {
     }
 
     private static _isMultiColumn(): boolean {
-        let tableId;
-        // XXX TODO: remove it
-        if ($("#dagViewTableArea").is(":visible")) {
-            tableId = xcHelper.getTableId(DagTable.Instance.getTable());
+        let tableName;
+        const isSqlTable: boolean = !$("#sqlTableArea").hasClass("dagTableMode");
+        if (isSqlTable) {
+            let sqlTable = SQLResultSpace.Instance.getSQLTable();
+            if (sqlTable) {
+                tableName = sqlTable.getTable();
+            }
         } else {
-            tableId = gActiveTableId;
+            tableName = DagTable.Instance.getTable();
         }
+        let tableId = xcHelper.getTableId(tableName);
         const table: TableMeta = gTables[tableId];
         if (!table) {
             return false;
