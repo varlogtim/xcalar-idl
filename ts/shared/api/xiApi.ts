@@ -1245,7 +1245,6 @@ namespace XIApi {
         .then((ret) => {
             const finalTableName = ret.newTableName;
             tempTables.push(curTableName);
-            tempTables.push(finalTableName);
             unionRenameInfo.tableName = finalTableName;
             const type: DfFieldTypeT = xcHelper.convertColTypeToFieldType(
                 ColumnType.string);
