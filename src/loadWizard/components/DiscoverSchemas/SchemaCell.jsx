@@ -47,16 +47,17 @@ class InlineError extends React.PureComponent {
     render() {
         const { errorMsg = '', errorTitle = '' } = this.props;
         const { expanded } = this.state;
+        const safeErrorMsg = `${errorMsg}`;
 
-        if (errorMsg.length <= 20) {
+        if (safeErrorMsg.length <= 20) {
             // when error is too short
             return (
-                <span>errorMsg</span>
+                <span>{safeErrorMsg}</span>
             )
         } else if (expanded) {
             return (
                 <div className="error">
-                    <span>{errorMsg}</span>
+                    <span>{safeErrorMsg}</span>
                     <span className="action xc-action" onClick={() => { this.showError(false); }}>{Texts.collapseError}</span>
                 </div>
             )
@@ -64,8 +65,8 @@ class InlineError extends React.PureComponent {
             return (
                 <div className="error">
                     <span className="label">{errorTitle}</span>
-                    <span data-toggle="tooltip" data-container="body" data-title={errorMsg}>
-                        {"(" + errorMsg.substring(0, 7) + "...)"}
+                    <span data-toggle="tooltip" data-container="body" data-title={safeErrorMsg}>
+                        {"(" + safeErrorMsg.substring(0, 7) + "...)"}
                     </span>
                     <span className="action xc-action" onClick={() => { this.showError(true); }}>{Texts.expandError}</span>
                 </div>

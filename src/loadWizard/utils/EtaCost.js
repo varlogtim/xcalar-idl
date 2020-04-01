@@ -3,7 +3,7 @@
 // All costs in dollars, time in secs
 class EtaCost {
 
-    constructor() {
+    constructor({ numCores = 32 } = {}) {
         this.costPerGB = 0.01
         this.pcplCost1K = 0.0055  // PUT/COPY/POST/LIST (Deletes are free)
         this.gsCost1K = 0.00044  // GET/SELECT
@@ -13,7 +13,7 @@ class EtaCost {
         this.numGs = 2
         this.bandwidthGBps = 10/8 // assuming AWS 10 gig network
         this.sampleSize = 1000
-        this.numCores = 32
+        this.numCores = numCores;
     }
 
     // input {files : [{file : "/foo/bar/foo.csv", sizeInBytes : 423422}, {file : "/foo/bar/foo1.csv", sizeInBytes : 54333}]}
@@ -65,6 +65,10 @@ class EtaCost {
             fileCost: fileCostInDollars,
             fileEta: fileEtaInSecs,
         }
+    }
+
+    loadEtaBySize(sizeInBytes) {
+        return sizeInBytes / (this.bandwidthGBps * this.oneGig);
     }
 }
 module.exports = EtaCost

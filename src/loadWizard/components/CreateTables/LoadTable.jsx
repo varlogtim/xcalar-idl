@@ -3,6 +3,9 @@ import styled from 'styled-components'
 import { useTable, useSortBy, usePagination } from 'react-table'
 import * as LoadCell from './LoadCell'
 import prettyBytes from 'pretty-bytes'
+import EtaCost from '../../utils/EtaCost'
+
+const { xcTimeHelper } = global;
 
 const Styles = styled.div`
   table {
@@ -238,10 +241,10 @@ function LoadTable({
         //     Header: 'Cost',
         //     accessor: 'cost',
         // },
-        // {
-        //     Header: 'Time',
-        //     accessor: 'time',
-        // },
+        {
+            Header: 'Time',
+            accessor: 'time',
+        },
         {
           Header: 'Table Name',
           accessor: "tableName",
@@ -255,15 +258,15 @@ function LoadTable({
     const loadTableData = []
     // let totalCost = 0
     // let totalEta = 0
+    const etaCost = new EtaCost();
     for (const [schemaName, { path, columns }] of schemas) {
+        const totalFileSize = getFileSize(path, files);
         const rowData = {
             schema: <button onClick={() => { onClickSchema(schemaName); }}>{schemaName}</button>,
             count: path.length,
-            size: prettyBytes(getFileSize(path, files)),
-            // "cost": '$' + schema.totalCost.toFixed(8),
+            size: prettyBytes(totalFileSize),
             cost: '$ 0', // XXX TODO: fix it
-            // "time": schema.totalEta.toFixed(8) + ' seconds',
-            time: '0 seconds', // XXX TODO: fix it,
+            "time": xcTimeHelper.getElapsedTimeStr(Math.ceil(etaCost.loadEtaBySize(totalFileSize) * 1000)),
             tableName: null,
             load: null,
         };
