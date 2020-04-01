@@ -15,7 +15,7 @@
     "PublishedTableVersionSignature" : 79084648,
     "QueryVersionSignature" : 135967886,
     "ResultSetVersionSignature" : 113302714,
-    "SchemaVersionSignature" : 2177000,
+    "SchemaDiscoverVersionSignature" : 18266714,
     "ServiceVersionSignature" : 59787815,
     "SessionVersionSignature" : 5607803,
     "SqlVersionSignature" : 146971870,
@@ -28,6 +28,6 @@
     "WorkbookVersionSignature" : 57235854,
     "XDFVersionSignature" : 188684344,
     "XcalarEnumTypeVersionSignature" : 222419149,
-    "ProtoAPIVersionSignature" : 23855351
+    "ProtoAPIVersionSignature" : 44739472
 }
 

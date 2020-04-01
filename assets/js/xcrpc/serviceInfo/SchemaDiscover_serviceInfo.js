@@ -10,8 +10,8 @@
 //
 
 const _serviceInfo = {
-    "DiscoverSchemas" : {
-        "DiscoverSchemas" : ["xcalar.compute.localtypes.Schema.ListObjectSchemaRequest", "xcalar.compute.localtypes.Schema.ListObjectSchemaResponse"],
+    "SchemaDiscover" : {
+        "SchemaDiscover" : ["xcalar.compute.localtypes.SchemaDiscover.SchemaDiscoverRequest", "xcalar.compute.localtypes.SchemaDiscover.SchemaDiscoverResponse"],
     },
 };
 

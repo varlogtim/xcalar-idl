@@ -12,14 +12,14 @@
 var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
-var schema = require("./xcalar/compute/localtypes/Schema_pb");
+var schemaDiscover = require("./xcalar/compute/localtypes/SchemaDiscover_pb");
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructors
 ////////////////////////////////////////////////////////////////////////////////
 
-function DiscoverSchemasService(client) {
+function SchemaDiscoverService(client) {
     this.client = client;
 }
 
@@ -27,33 +27,33 @@ function DiscoverSchemasService(client) {
 // Definitions
 ////////////////////////////////////////////////////////////////////////////////
 
-DiscoverSchemasService.prototype = {
-    discoverSchemas: async function(listObjectSchemaRequest) {
+SchemaDiscoverService.prototype = {
+    schemaDiscover: async function(schemaDiscoverRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
         var anyWrapper = new proto.google.protobuf.Any();
-        anyWrapper.setValue(listObjectSchemaRequest.serializeBinary());
-        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Schema.ListObjectSchemaRequest");
-        //anyWrapper.pack(listObjectSchemaRequest.serializeBinary(), "ListObjectSchemaRequest");
+        anyWrapper.setValue(schemaDiscoverRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.SchemaDiscover.SchemaDiscoverRequest");
+        //anyWrapper.pack(schemaDiscoverRequest.serializeBinary(), "SchemaDiscoverRequest");
 
         try {
-            var responseData = await this.client.execute("DiscoverSchemas", "DiscoverSchemas", anyWrapper);
+            var responseData = await this.client.execute("SchemaDiscover", "SchemaDiscover", anyWrapper);
             var specificBytes = responseData.getValue();
             // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var listObjectSchemaResponse =
-            //    responseData.unpack(schema.ListObjectSchemaResponse.deserializeBinary,
-            //                        "ListObjectSchemaResponse");
-            var listObjectSchemaResponse = schema.ListObjectSchemaResponse.deserializeBinary(specificBytes);
-            return listObjectSchemaResponse;
+            //var schemaDiscoverResponse =
+            //    responseData.unpack(schemaDiscover.SchemaDiscoverResponse.deserializeBinary,
+            //                        "SchemaDiscoverResponse");
+            var schemaDiscoverResponse = schemaDiscover.SchemaDiscoverResponse.deserializeBinary(specificBytes);
+            return schemaDiscoverResponse;
         } catch(error) {
             if (error.response != null) {
                 const specificBytes = error.response.getValue();
-                error.response = schema.ListObjectSchemaResponse.deserializeBinary(specificBytes);
+                error.response = schemaDiscover.SchemaDiscoverResponse.deserializeBinary(specificBytes);
             }
             throw error;
         }
     },
 };
 
-exports.DiscoverSchemasService = DiscoverSchemasService;
+exports.SchemaDiscoverService = SchemaDiscoverService;
