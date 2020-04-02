@@ -1,5 +1,4 @@
 import React from 'react';
-// import {addFileForDiscovery} from '../../utils/discoverSchema'
 // const EC = require('../utils/EtaCost.js')
 // const EtaCost = new EC()
 

@@ -218,28 +218,27 @@ class DiscoverWorker {
     // XXX TODO: Move this into xcrpc framework
     async _discover(paths, inputSerialization) {
         // Construct xcrpc request object
-        const discoverRequest= new proto.xcalar.compute.localtypes.Schema.ListObjectSchemaRequest();
-        discoverRequest.setNumObjects(paths.length);
+        const discoverRequest= new proto.xcalar.compute.localtypes.SchemaDiscover.SchemaDiscoverRequest();
         discoverRequest.setPathsList(paths);
 
-        const inputSerializationObj = new proto.xcalar.compute.localtypes.Schema.InputSerialization();
+        const inputSerializationObj = new proto.xcalar.compute.localtypes.SchemaDiscover.InputSerialization();
         inputSerializationObj.setArgs(JSON.stringify(inputSerialization));
-        discoverRequest.setInputSerializationArgs(inputSerializationObj);
+        discoverRequest.setInputSerialization(inputSerializationObj);
 
         // Call xcrpc api
         const client = new Xcrpc.xce.XceClient(xcHelper.getApiUrl());
-        const service = new Xcrpc.xce.DiscoverSchemasService(client);
-        const response = await service.discoverSchemas(discoverRequest);
+        const service = new Xcrpc.xce.SchemaDiscoverService(client);
+        const response = await service.schemaDiscover(discoverRequest);
 
         // Parse response
-        const result = response.getObjectSchemaList().map((objectSchema) => {
+        const result = response.getFileSchemasList().map((objectSchema) => {
             const schema = objectSchema.getSchema();
             return {
                 path: objectSchema.getPath(),
                 success: objectSchema.getSuccess(),
                 status: objectSchema.getStatus(),
                 schema: {
-                    numColumns: schema.getNumColumns(),
+                    numColumns: schema.getColumnsList().length,
                     columnsList: schema.getColumnsList().map((c) => ({
                         name: c.getName(),
                         mapping: c.getMapping(),

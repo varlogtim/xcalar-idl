@@ -30,46 +30,17 @@
 // var disco = new Xcrpc.xce.DiscoverSchemasService(client)
 // Hellllllaaa good test case stuff in: xcalar-gui/ts/thrift/MgmtTest.js
 //
-// const SupersetSchemas = require('./SupersetSchemas.js');
 import * as crypto from 'crypto'
-import { SupersetSchemas } from './SupersetSchemas.js'
-const supersetSchemas = new SupersetSchemas()
 
 // GLOBAL THINGS...
 var AWS_TARGET_NAME = 'AWS Target';
 var AWS_S3_SELECT_PARSER_NAME = 'default:parse_s3_select_with_schema';
 var NUMBER_OF_XPUS = null;
 
-// Move to config file
-//var icvColumnName = 'ICV';
-//var fileRecordNumColumnName = 'FILE_RECORD_NUM';
-//var dataColumnName = 'SOURCE_DATA';
-//var pathColumnName = 'PATH';
-
 var icvColumnName = '_X_ICV';
 var fileRecordNumColumnName = '_X_FILE_RECORD_NUM';
 var dataColumnName = '_X_SOURCE_DATA';
 var pathColumnName = '_X_PATH';
-
-const filez = ['hi']
-
-function getPaths() {
-    var paths = [
-        '/xcfield/idm_demo/element_list_0.csv',
-        '/xcfield/idm_demo/element_list_1.csv',
-        '/xcfield/idm_demo/element_list_2.csv',
-        '/xcfield/idm_demo/element_list_3.csv',
-        '/xcfield/idm_demo/element_list_4.csv',
-        '/xcfield/idm_demo/element_list_5.csv',
-        '/xcfield/idm_demo/employees_0.csv',
-        '/xcfield/idm_demo/employees_1.csv',
-        '/xcfield/idm_demo/male_cricket_players_0.jsonl',
-        '/xcfield/idm_demo/male_cricket_players_1.jsonl',
-        '/xcfield/idm_demo/male_cricket_players_2.jsonl',
-    ];
-    paths = [ '/xcfield/instantdatamart/csv/keylist.csv'];
-    return paths;
-}
 
 function randomName() {
     let pattern = 'xxxxxxxxxxxxxyyyy';
@@ -102,7 +73,7 @@ function getInputSerial(inputSerialObject) {
 
     try {
         const inputSerialJson = JSON.stringify(inputSerialObject);
-        var inputSerial = new proto.xcalar.compute.localtypes.Schema.InputSerialization();
+        var inputSerial = new proto.xcalar.compute.localtypes.SchemaDiscover.InputSerialization();
         inputSerial.setArgs(inputSerialJson);
         return inputSerial;
     } catch (e) {
@@ -110,26 +81,6 @@ function getInputSerial(inputSerialObject) {
         throw e;
         // throw "getInputSerial() must be called with an object"
         //       " similar to the following: " + JSON.stringify(InputSerialization);
-    }
-}
-
-async function checkTableName(tableName) {
-    if (tableName == null) {
-        throw "tableName must not be null";
-    }
-    if (tableName.toUpperCase() != tableName) {
-        throw "tableName must be INCAPITALLETTERS";
-    }
-    // XXX this is bad that it is hard coded in two places.
-    // This function is garbage, rewrite
-    const compName = tableName + '_COMPLEMENTS';
-    const pubTables = await XcalarListPublishedTables('*');
-    for (let ii = 0; ii < pubTables.tables.length; ii++) {
-        if(pubTables.tables[ii].name == compName ||
-           pubTables.tables[ii].name == tableName) {
-            throw "Published table or complements " +
-                "already exists with name: '" + tableName + "'";
-        }
     }
 }
 
@@ -255,11 +206,6 @@ async function _cleanupDataset(datasetName) {
 }
 
 
-async function getPublishedTableNames(tableName) {
-    let publishedTables = await xcalarListPublishedTables(tHandle, tableName);
-    console.log("Published Tables: " + JSON.stringify(publishedTables))
-}
-
 async function datasetToTableWithComplements(datasetName, finalTableName, finalComplementsName, progressCB, txId) {
     // this is the function that divides the dataset into the
     // primary and complements table along with the requisite
@@ -271,6 +217,7 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     log("My Dataset Info: " + JSON.stringify(datasetInfo));
     // Determine the names of our table and complements columns
     let complementColumnNames = [icvColumnName, fileRecordNumColumnName, dataColumnName, pathColumnName];
+    const internalTableColumnNames = new Set([pathColumnName]);
     const complementColumnSchema = [];
     const tableColumnNames = [];
     const tableColumnSchema = [];
@@ -281,6 +228,10 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
         }
         if (complementColumnNames.includes(column.name)) {
             complementColumnSchema.push(column);
+            if (internalTableColumnNames.has(column.name)) {
+                tableColumnNames.push(column.name);
+                tableColumnSchema.push(column);
+            }
         } else {
             tableColumnNames.push(column.name);
             tableColumnSchema.push(column);
@@ -471,36 +422,6 @@ async function getNumXpus(){
     return NUMBER_OF_XPUS
 }
 
-
-
-async function logTables() {
-    listTables = await xcalarListTables(tHandle, "*", SourceTypeT.SrcTable);
-    console.log("LIST TABLES: " + JSON.stringify(listTables));
-}
-
-
-async function showTableMeta(tablePattern, dataset=null) {
-    listTables = await xcalarListTables(tHandle, tablePattern, SourceTypeT.SrcTable);
-    //LIST TABLES: {"numNodes":5,"nodeInfo":[{"name":"_tmp-complements-ttuckerds-1","dagNodeId":"897","state":5,"size":0,"api":17,"pinned":false},{"name":"_tmp-table-ttuckerds-0","dagNodeId":"873","state":5,"size":4063232,"api":18,"pinned":false},{"name":"_tmp-complements-ttuckerds-0","dagNodeId":"850","state":5,"size":0,"api":18,"pinned":false},{"name":"_tmp-table-ttuckerds-1","dagNodeId":"924","state":5,"size":4063232,"api":17,"pinned":false},{"name":"ttuckerds-indexed","dagNodeId":"829","state":5,"size":4063232,"api":3,"pinned":false}]}
-    listTables.nodeInfo.forEach(async function(info){
-        tableMeta = await xcalarGetTableMeta(tHandle, info.name, dataset);
-        console.log("TABLE NAME: " + JSON.stringify(info.name) + ", TABLE META: " + JSON.stringify(tableMeta));
-    });
-}
-
-function getSuccessfulPaths(discoverResponse) {
-    const schemas = discoverResponse.getObjectSchemaList();
-    const paths = []
-    schemas.forEach(function(s) {
-        const success = s.getSuccess();
-        if (success) {
-            paths.push(s.getPath());
-        }
-    });
-    return paths;
-}
-
-
 /**
  * Get parser args with kvstore solution
  * @param {*} schema
@@ -577,32 +498,6 @@ function generateLoadKeyValue(paths) {
     };
 }
 
-function getLastSchema(discoverResponse) {
-    const schemas = discoverResponse.getObjectSchemaList();
-    let schema = null;
-    schemas.forEach(function(s) {
-        const success = s.getSuccess();
-        if (success) {
-            // This is lame
-            schema = s.getSchema();
-        }
-    });
-    return schema;
-}
-
-function getSchemas(discoverResponse) {
-    const schemas = discoverResponse.getObjectSchemaList();
-    // const schema = [];
-    // schemas.forEach(function(s) {
-    //     const success = s.getSuccess();
-    //     if (success) {
-    //         // This is lame
-    //         schema = s.getSchema();
-    //     }
-    // });
-    return schemas;
-}
-
 /**
  * Build source args with kvstore solution
  * @param {*} paths
@@ -627,71 +522,6 @@ function buildSourceLoadArgsNoKV(paths) {
         fileNamePattern: '',
         recursive: false
     }));
-}
-
-export async function discoverSchemas(paths, inputSerialization) {
-    console.log("discoverSchemas() called");
-
-    // Build Discover Schema Request Object
-    var discoverRequest= new proto.xcalar.compute.localtypes.Schema.ListObjectSchemaRequest();
-    discoverRequest.setNumObjects(paths.length);
-    discoverRequest.setPathsList(paths);
-
-    discoverRequest.setInputSerializationArgs(inputSerialization);
-
-    // Build the XCE Client and Discover Schema
-    var client = new Xcrpc.xce.XceClient(xcHelper.getApiUrl());
-    var discoverService = new Xcrpc.xce.DiscoverSchemasService(client); // handle failure
-    const discoverResponse = await discoverService.discoverSchemas(discoverRequest);
-
-    // console.log("Discover Response: " + discoverResponse);
-
-    return discoverResponse;
-}
-const discoveredFiles = []
-const discoveredFilePathsSet = new Set()
-let currentSchemaSuperset
-
-
-export async function addFileForDiscovery(path, inputSerialization) {
-    if (!discoveredFilePathsSet.has(path)) {
-        await discoverSingleFile(path, inputSerialization)
-        currentSchemaSuperset = supersetSchemas.getSchemas(discoveredFiles);
-    }
-    console.log(currentSchemaSuperset)
-    return currentSchemaSuperset
-}
-
-function defaultInputSerialization(path) {
-    var inputSerialization = {};
-    if (path.toLowerCase().endsWith(".csv")) {
-        inputSerialization = {
-            // FieldDelimiter hard-coded still as we do not have all the code here
-            'CSV': {'FileHeaderInfo': 'USE', 'FieldDelimiter': ','}
-        }
-    } else if (path.toLowerCase().endsWith(".parquet")) {
-        inputSerialization = {
-            'Parquet': {}
-        }
-    } else if (path.toLowerCase().endsWith(".json") || path.toLowerCase().endsWith("*.jsonl")) {
-        inputSerialization = {
-            'JSON': {'Type' : 'LINES'}
-        }
-    }
-    return inputSerialization;
-}
-
-export async function discoverSingleFile(path, inputSerialization) {
-    discoveredFilePathsSet.add(path)
-    if (!inputSerialization) {
-        inputSerialization = defaultInputSerialization(path);
-    }
-    const inputSerialJson = getInputSerial(inputSerialization);
-
-    const discoverProtoResponse = await discoverSchemas([path], inputSerialJson);
-    const discoveredFile = await discoverProtoResponse.getObjectSchemaList()[0].toObject()
-    discoveredFiles.push(discoveredFile)
-    console.log(discoveredFiles)
 }
 
 /**
