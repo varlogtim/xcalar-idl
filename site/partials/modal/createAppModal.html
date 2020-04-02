@@ -1,18 +1,18 @@
 <div id="createAppModal" class="modalContainer flex">
   <header class="modalHeader">
-    <span class="text">Create an App</span>
+    <span class="text"><%= dicts.App.Create %></span>
     <div class="close" data-container="body" data-toggle="tooltip"
     data-original-title="<%= dicts.common.Close %>">
         <i class="icon xi-close"></i>
     </div>
   </header>
 
-  <div class="modalInstruction">To create an app, select from the list of logical plans below and provide a name for your app.</div>
+  <div class="modalInstruction"><%= dicts.App.CreateInstr %></div>
   <div class="modalMain">
     <div class="graphList"></div>
     <div class="loadingSection">
       <div class="animatedEllipsisWrapper">
-        <div class="text">Loading data, please wait</div>
+        <div class="text"><%= dicts.App.Loading %></div>
         <div class="wrap">
           <div class="animatedEllipsis hiddenEllipsis">....</div>
           <div class="animatedEllipsis staticEllipsis">....</div>
@@ -22,13 +22,13 @@
   </div>
   <div class="modalBottomMain">
     <div class="inputWrap">
-        <label>App name:</label>
-        <input type="text" class="newName xc-input white textOverflow" spellcheck="false" placeholder="myApp">
+        <label><%= dicts.App.Name %>:</label>
+        <input type="text" class="newName xc-input white textOverflow" spellcheck="false">
     </div>
 
   </div>
   <div class="modalBottom">
-    <button class="btn confirm btn-submit btn-rounded">Create</button>
+    <button class="btn confirm btn-submit btn-rounded"><%= dicts.common.Create %></button>
     <button class="btn cancel btn-secondary btn-rounded"><%= dicts.common.Cancel %></button>
   </div>
 </div>

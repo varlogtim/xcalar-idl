@@ -64,7 +64,7 @@ class AppList extends Durable {
             if (typeof e === "object") {
                 error = e.log || e.message;
             }
-            Alert.error("Download App Failed", error);
+            Alert.error(AppTStr.DownloadFailed, error);
         }
     }
 
@@ -76,9 +76,11 @@ class AppList extends Durable {
         if (app == null) {
             return;
         }
-        const msg = `Are you sure you want to delete app "${app.name}"?`;
+        const msg = xcStringHelper.replaceMsg(AppTStr.DeleteMsg, {
+            name: app.name
+        });
         Alert.show({
-            title: "Delete App",
+            title: AppTStr.Delete,
             msg,
             onConfirm: () => {
                 this._deleteApp(app.id);
@@ -134,7 +136,7 @@ class AppList extends Durable {
 
         for (let app of this._apps) {
             if (name === app.name) {
-                return "App name already in use.";
+                return AppTStr.NameConflict;
             }
         }
 

@@ -1,8 +1,6 @@
 <div id="systemLogCard" class="cardContainer">
   <!-- Header -->
-  <header class="cardHeader">
-
-  </header>
+  <header class="cardHeader"></header>
   <!-- Main Section -->
   <div class="cardMain">
       <section class="inputSection">
@@ -16,11 +14,11 @@
               </div>
               <div class="list">
                 <ul>
-                  <li data-option="node">Xcalar cluster node log</li>
-                  <li data-option="xpu">Xcalar process unit(XPU) log</li>
-                  <li data-option="xcmonitor">Xcalar monitor log</li>
-                  <li data-option="expserver">Server log</li>
-                  <li data-option="caddy">HTTP request log</li>
+                  <li data-option="node"><%= dicts.Debug.NodeLog %></li>
+                  <li data-option="xpu"><%= dicts.Debug.XPULog %></li>
+                  <li data-option="xcmonitor"><%= dicts.Debug.MonitorLog %></li>
+                  <li data-option="expserver"><%= dicts.Debug.ExpServerLog %></li>
+                  <li data-option="caddy"><%= dicts.Debug.CaddyLog %></li>
                 </ul>
                 include "../../util/menuScrollArea.html"
               </div>
@@ -79,15 +77,5 @@
         <div class="content">
         </div>
       </section>
-      <!-- <div class="formGroup removeSessGroup">
-        <label>
-          <span class="text">Remove Session Files:</span>
-          <div class="inputWrap">
-            <input class="xc-input" type="text" spellcheck="false" placeholder="pattern">
-            <div class="btn btn-small inputAction xc-action removeSessionFiles">
-              <i class="icon xi-tick fa-11"></i>
-            </div>
-          </div>
-        </label>
-      </div> -->
+  </div>
 </div>

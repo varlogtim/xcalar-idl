@@ -158,7 +158,7 @@ class CreateAppModal {
             index++;
         });
         if (!html) {
-            html = `<div class="emptyMsg">No module functions found.</div>`;
+            html = `<div class="emptyMsg">${AppTStr.EmptyMsg}</div>`;
         }
         this._getModal().find(".graphList").html(html);
     }
@@ -168,7 +168,7 @@ class CreateAppModal {
         const $input = $modal.find(".newName");
         const $checkbox = $modal.find(".graphList .checkbox.checked");
         if (!$checkbox.length) {
-            StatusBox.show("No logical plan selected.", $modal.find(".modalMain"));
+            StatusBox.show(AppTStr.NoLogicalPlan, $modal.find(".modalMain"));
             return false;
         }
 
@@ -187,7 +187,7 @@ class CreateAppModal {
 
         setTimeout(() => {
             if (succeed) {
-                xcUIHelper.showSuccess("App Created.");
+                xcUIHelper.showSuccess(AppTStr.Created);
                 // TODO move this logic into ResourceMenu or DagList
                 if (!$("#dagList .apps").hasClass("active")) {
                     $("#dagList .apps").children(".listInfo").click();
@@ -196,7 +196,7 @@ class CreateAppModal {
                     return $(this).text() === newName;
                 }).click();
             } else {
-                xcUIHelper.showFail("App Creation Failed.");
+                xcUIHelper.showFail(AppTStr.CreateFailed);
             }
         }, 300);
 

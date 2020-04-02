@@ -110,7 +110,8 @@ module.exports = {
         "InBeta": "In Beta",
         "Send": "Send",
         "Node": "Node",
-        "Update": "Update"
+        "Update": "Update",
+        "Unavailable": "This feature will be available soon",
     },
 
     "paths": {
@@ -396,6 +397,15 @@ module.exports = {
         "Size": "Size"
     },
 
+    "App": {
+        "Header": "Apps",
+        "Add": "Add App",
+        "Create":" Create an App",
+        "CreateInstr": "To create an app, select from the list of logical plans below and provide a name for your app.",
+        "Loading": "Loading data, please wait",
+        "Name": "App name",
+    },
+
     "UDF": {
         "Func": "Scalar Function",
         "Header": "Scalar Function",
@@ -405,6 +415,7 @@ module.exports = {
         "NameHint": "Module name (lowercase)",
         "ToManager": "Open Scalar Function Manager",
         "SaveFile": "Save Scalar Function",
+        "Add": "New Scalar Function Module"
     },
 
     "SQL": {
@@ -413,7 +424,7 @@ module.exports = {
         "Schema": "Tables and Schemas available to SQL",
         "SchemaInst": "Select and click a table to view columns.",
         "ColumnInst": "Select and click a table in order to view and select columns.",
-        "AddNew": "New Query",
+        "Add": "New SQL",
         "queryHistSQLModalTitle": "SQL Query",
         "AddFunc": "New Table Function",
         "SQLFuncHint": "Tips: A table function takes one or more tables as inputs and outputs a table. Table functions can be called in a query, e.g, select * from fn(Table1, Table2...). You can visually create a table function using the graph interface in the Transformation & Business Logic Panel.",
@@ -429,6 +440,21 @@ module.exports = {
         "SearchByQuery": "Filter by query",
         "SearchByName": "Filter by name",
         "SchemaBack": "Back to show tables",
+        "ResultLoading": "Result is loading, please wait...",
+        "ResultHint": "No results. To get started with building a data app, run a SQL query or edit operators in the App Builder.",
+    },
+
+    "Debug": {
+        "NotebookOutput": "Notebook Outpu",
+        "SQLHistory": "SQL History",
+        "Console": "Console",
+        "SystemLog": "System Log",
+        "ScalarLog": "Scalar Function Log",
+        "NodeLog": "Xcalar cluster node log",
+        "XPULog": "Xcalar process unit(XPU) log",
+        "MonitorLog": "Xcalar monitor log",
+        "ExpServerLog": "Server log",
+        "CaddyLog": "HTTP request log"
     },
 
     "resouceMenu": {

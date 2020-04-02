@@ -8,7 +8,7 @@
     include "sqlTableArea.html"
     <!-- include "../worksheet/dagViewTableArea.html" -->
     <div class="hintArea">
-      <div class="hint">Result is loading, please wait...</div>
+      <div class="hint"><%= dicts.SQL.ResultLoading %></div>
     </div>
   </div>
   <div class="hintHidden section sql">
@@ -17,6 +17,6 @@
   </div>
   <div class="hintHidden section error"></div>
   <div class="hintSection">
-    No results. To get started with building a data app, run a SQL query or edit operators in the app builder.
+    <%= dicts.SQL.ResultHint %>
   </div>
 </div>

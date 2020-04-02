@@ -1276,6 +1276,17 @@ FileManagerTStr = {
     "SAVEAS": "Save As",
 }
 
+AppTStr = {
+    "Created": "App Created.",
+    "CreateFailed": "App Creation Failed.",
+    "NoLogicalPlan": "No logical plan selected",
+    "EmptyMsg": "No module functions found.",
+    "DownloadFailed": "Download App Failed",
+    "Delete": "Delete App",
+    "DeleteMsg": "Are you sure you want to delete app \"<name>\"?",
+    "NameConflict": "App name already in use.",
+}
+
 UDFTStr = {
     "Del": "Delete Scalar Function",
     "DelMsg": "Are you sure you want to delete scalar function <name>?",
