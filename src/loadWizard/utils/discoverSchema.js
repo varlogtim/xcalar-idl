@@ -111,6 +111,7 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
     log("createTableAndComplements on session: " + sessionName);
 
     // make load args for BulkLoad.
+    const schemaSet = getSchemaSet(schema);
     const sourceArgs = buildSourceLoadArgsNoKV(paths);
     const parserArgs = getParseArgsNoKV(schema, inputSerialJson);
     // const { parserArgs, loadStore } = getParseArgs(schema, inputSerialJson, paths);
@@ -136,7 +137,7 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
     }
     // do a bunch of table operations
     updateProgress("Progress: 30%", progressCB);
-    const hasDeleteComplement = await datasetToTableWithComplements(myDatasetName, tableName, compName, progressCB, txId);
+    const hasDeleteComplement = await datasetToTableWithComplements(myDatasetName, schemaSet, tableName, compName, progressCB, txId);
     PTblManager.Instance.addTable(tableName);
     if (!hasDeleteComplement) {
         PTblManager.Instance.addTable(compName);
@@ -151,6 +152,34 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
         table: tableName,
         complementTable: hasDeleteComplement ? null : compName
     };
+}
+
+function getSchemaSet(schema) {
+    const map = new Map();
+    try {
+        // type is from https://docs.aws.amazon.com/kinesisanalytics/latest/sqlref/sql-reference-data-types.html
+        schema.columns.forEach((schema) => {
+            let type = null;
+            switch (schema.type) {
+                case "BOOLEAN":
+                    type = ColumnType.boolean;
+                    break;
+                case "INTEGER":
+                    type = ColumnType.integer;
+                    break;
+                case "REAL":
+                case "DOUBLE":
+                    type = ColumnType.float;
+                    break;
+                default:
+                    break;
+            }
+            map.set(schema.name.toUpperCase(), type);
+        });
+    } catch (e) {
+        console.error(e);
+    }
+    return map;
 }
 
 function createLoadStore({ kvSchema, kvLoad }) {
@@ -206,7 +235,7 @@ async function _cleanupDataset(datasetName) {
 }
 
 
-async function datasetToTableWithComplements(datasetName, finalTableName, finalComplementsName, progressCB, txId) {
+async function datasetToTableWithComplements(datasetName, schemaSet, finalTableName, finalComplementsName, progressCB, txId) {
     // this is the function that divides the dataset into the
     // primary and complements table along with the requisite
     // steps to publish both tables.
@@ -223,8 +252,14 @@ async function datasetToTableWithComplements(datasetName, finalTableName, finalC
     const tableColumnSchema = [];
     const columnSchema = DS.getSchemaMeta(datasetInfo.datasets[0].columns);
     columnSchema.forEach(function(column){
-        if (column.type == null) {
-            column.type = ColumnType.string;
+        if (column.type == null || column.type === ColumnType.mixed) {
+            if (schemaSet.has(column.name)) {
+                column.type = schemaSet.get(column.name);
+            }
+
+            if (!column.type) {
+                column.type = ColumnType.string;
+            }
         }
         if (complementColumnNames.includes(column.name)) {
             complementColumnSchema.push(column);
