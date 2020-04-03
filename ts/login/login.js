@@ -204,6 +204,8 @@ $(document).ready(function() {
     }
 
     function isCloud() {
+        return PromiseHelper.resolve(false);
+
         var deferred = PromiseHelper.deferred();
         $.getScript("/" + paths.cloudEnv)
         .then(function(res) {

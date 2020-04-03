@@ -5,6 +5,9 @@ class LoadScreen {
     public static setup(): void {
         this._addEventListeners();
         this._swtichTab("loadWizard");
+        if (!XVM.isDataMart()) {
+            this._getContainer().addClass("onPrem");
+        }
     }
 
     /**

@@ -476,6 +476,7 @@ declare var gKVScope: {
     USER: number,
     WKBK: number
 };
+declare var gDataMart: boolean;
 declare var gTables: object;
 declare var gOrphanTables: string[];
 declare var gDroppedTables: object;

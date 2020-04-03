@@ -7,8 +7,8 @@ var Status = {
     "Incomplete": 4
 };
 
-// flag for Data Mart product
-var gDataMart = true;
+// flag for Data Mart product, on cloud it will be defined
+// var gDataMart = true;
 
 /** START DEBUG ONLY **/
 // for XD dev which is on localhost, set to false by default

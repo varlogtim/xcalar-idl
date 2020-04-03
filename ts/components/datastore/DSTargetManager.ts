@@ -80,6 +80,19 @@ namespace DSTargetManager {
     }
 
     /**
+     * DSTargetManager.isAWSTarget
+     * @param targetName
+     */
+    export function isAWSTarget(targetName: string): boolean {
+        let target = DSTargetManager.getTarget(targetName);
+        if (target && target.type_id === "aws") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * DSTargetManager.isDatabaseTarget
      * @param targetName
      */
@@ -406,6 +419,10 @@ namespace DSTargetManager {
 
     // a public s3 connector
     async function createPublicS3Connector(): Promise<boolean> {
+        if (XVM.isDataMart()) {
+            // data mart don't need to have it
+            return false;
+        }
         const connectorName: string = xcalar_public_s3;
         if (targetSet[connectorName] != null) {
             return false;
@@ -422,7 +439,8 @@ namespace DSTargetManager {
 
      // a private s3 connector
      async function createPrivateS3Connector(): Promise<boolean> {
-        if (!XVM.isDataMart()) {
+        if (XVM.isDataMart()) {
+            // data mart don't need to have it
             return false;
         }
         const connectorName: string = xcalar_private_s3;
