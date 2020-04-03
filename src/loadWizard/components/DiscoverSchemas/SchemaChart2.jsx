@@ -65,12 +65,35 @@ export default function SchemaChart({selectedData, schemasFileMap}) {
 
     const byCountChartData = []
     const bySizeChartData = [];
+
     schemaMap.forEach((val, key) => {
         byCountChartData.push({
             name: key,
             value: val.path.length
         });
     });
+    byCountChartData.sort((a, b) => {
+        if (a.value < b.value) {
+            return 1;
+        } else {
+            return -1;
+        }
+    });
+    let limit = 10;
+    if (byCountChartData.length > limit) {
+        let other = 0;
+        let originalLength = byCountChartData.length;
+        for (let i = limit; i < originalLength; i++) {
+            other += byCountChartData[i].value;
+        }
+        let numNotListed = originalLength - limit;
+
+        byCountChartData.length = limit;
+        byCountChartData.push({
+            name: "other (" + numNotListed + " schemas)",
+            value: other
+        });
+    }
 
     const colors = ['#00C49F', '#FFBB28', '#FF8042', '#0088FE'];
 

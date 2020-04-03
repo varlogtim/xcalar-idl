@@ -1087,6 +1087,8 @@
     resize: none;
     padding: 8px;
     border: 1px solid @color-border-menugray;
+    background-color: @color-bg-default;
+
     &:focus {
         outline: none;
         border-color: @color-border-softBlue;
@@ -1509,13 +1511,13 @@
             &.loading {
                 pointer-events: none;
             }
-    
+
             &.deactivating {
                 .gridIcon {
                     visibility: hidden;
                 }
             }
-    
+
             .deactivatingIcon {
                 position: absolute;
                 top: 6px;
