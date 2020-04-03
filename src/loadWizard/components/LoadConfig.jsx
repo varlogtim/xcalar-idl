@@ -27,6 +27,9 @@ const Texts = {
     navToNotebookHint: "Please create a table first",
     navButtonRight2: 'Create Table',
     CreateTableHint: 'Please discover schema first',
+    ResetInDiscoverLoading: 'Cannot reset when selected files are loading.',
+    ResetInDiscoverBatch: "Cannot reset when discovering schema, please cancel discover schema first.",
+    ResetInCreating: 'Canot reset when table is creating.'
 };
 
 /**
@@ -119,6 +122,7 @@ class LoadConfig extends React.Component {
         });
 
         this._fetchForensics = this._fetchForensics.bind(this);
+        this._resetAll = this._resetAll.bind(this);
     }
 
     _fetchForensics(bucket, path) {
@@ -128,6 +132,36 @@ class LoadConfig extends React.Component {
             });
         };
         getForensics(bucket, path, this.metadataMap, statusCallback);
+    }
+
+    _resetAll(element) {
+        if (!this._validateResetAll(element)) {
+            return;
+        }
+        const inputSerialization = this._resetBrowseResult();
+        this._schemaWorker.reset({ inputSerialization })
+        this.setState({
+            currentStep: stepEnum.SourceData,
+            currentSchema: null
+        })
+    }
+
+    _validateResetAll(element) {
+        let error = null;
+        if (this.state.discoverIsLoading) {
+            error = Texts.ResetInDiscoverLoading;
+        } else if (this.state.discoverCancelBatch != null) {
+            error = Texts.ResetInDiscoverBatch;
+        } else if (this.state.createInProgress.size > 0) {
+            error = Texts.ResetInCreating;
+        }
+        if (error) {
+            const $el = $(element);
+            StatusBox.show(error, $el);
+            return false;
+        } else {
+            return true;
+        }
     }
 
     async _createTableFromSchema(schemaName, tableName) {
@@ -711,6 +745,8 @@ class LoadConfig extends React.Component {
                             }}
                             isForensicsLoading={this.state.isForensicsLoading}
                             fetchForensics={this._fetchForensics}
+                            canReset={showDiscover || showCreate}
+                            onReset={this._resetAll}
                         />
                         {
                             showBrowse ? <BrowseDataSourceModal

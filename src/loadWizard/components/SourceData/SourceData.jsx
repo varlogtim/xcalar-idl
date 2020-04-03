@@ -1,26 +1,12 @@
 import * as Path from 'path';
 import React from "react";
 import SourcePath from './SourcePath'
-import getForensics from '../../services/Forensics';
 
 const Texts = {
-    createTable: 'Create Table from Model',
     updateForensics: 'Updating ...',
-    getForensics: 'View Bucket Info'
+    getForensics: 'View Bucket Info',
+    Reset: "Reset Selected Files"
 };
-
-/**
- * Pure Component: create table button
- * @param {*} props
- */
-function CreateTableButton(props) {
-    const { isShow = false } = props || {};
-    if (isShow) {
-        return (<button className="createTableButton btn btn-secondary">{Texts.createTable}</button>);
-    } else {
-        return null;
-    }
-}
 
 /**
  * Pure Component: get forensics button
@@ -37,7 +23,24 @@ function GetForensicsButton(props) {
     );
 }
 
-
+function ResetButton(props) {
+    const {canReset, onReset} = props;
+    const classNames = ["resetAll", "xc-action"];
+    if (canReset) {
+        return (
+            <div className={classNames.join(" ")} onClick={(e) => onReset(e.target)}>
+                {Texts.Reset}
+            </div>
+        )
+    } else {
+        classNames.push("xc-disabled");
+        return (
+            <div className={classNames.join(" ")}>
+                {Texts.Reset}
+            </div>
+        )
+    }
+}
 
 class SourceData extends React.Component {
     fetchForensics(bucket, path) {
@@ -55,7 +58,7 @@ class SourceData extends React.Component {
             onFileTypeChange = (newType) => {}
         } = this.props;
 
-        const fullPath = Path.join(bucket, path);
+        // const fullPath = Path.join(bucket, path);
 
         return (
             <div className="topSection">
@@ -73,8 +76,10 @@ class SourceData extends React.Component {
                     <br/>
                     <b>{JSON.stringify(modelInfo)}</b>
                 </div> */}
-                {/* <CreateTableButton isShow={ modelSelected === "untitled" } /> */}
-                <GetForensicsButton isLoading={ this.props.isForensicsLoading } onClick={ () => { this.fetchForensics(bucket, path) }}/>
+                <div className="formActions">
+                    <GetForensicsButton isLoading={ this.props.isForensicsLoading } onClick={ () => { this.fetchForensics(bucket, path) }}/>
+                    <ResetButton canReset={this.props.canReset} onReset={this.props.onReset} />
+                </div>
             </div>
         );
     }

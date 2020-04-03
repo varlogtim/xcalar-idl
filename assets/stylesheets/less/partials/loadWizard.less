@@ -152,12 +152,6 @@
         }
     }
 
-    .topSection {
-        .getForensics {
-            margin-top: 8px;
-        }
-    }
-
     .react-draggable {
         position: relative !important;
         transform: translate(0, 0) !important;
@@ -165,88 +159,93 @@
         flex: 0 0 auto;
     }
 
-    .sourceForm {
+    .topSection {
         @w-label: 70px;
         @button-w: 120px;
         @margin: 16px;
+        @max-width: @min-width * 2 + @margin;
 
-        .row {
-            display: flex;
-            flex-direction: row;
-            height: 30px;
-            margin-bottom: 8px;
-            max-width: @min-width * 2 + @margin;
+        .formActions {
+            padding-top: 8px;
+            height: 32px;
+            max-width: @max-width;
 
-            .bucketSelection {
-                width: 100%;
-                max-width: @min-width * 2 + @margin;
+            .resetAll {
+                float: right;
+                text-decoration: underline;
             }
+        }
 
-            .pathSelection, .fileTypeSelection {
-                min-width: 200px;
-                margin-right: @margin;
-                flex: 1 1 auto;
-            }
-
-            .navButtons {
-                margin-left: 0;
-                margin-top: 3px;
-                width: @button-w;
-
-                button {
+        .sourceForm {
+            .row {
+                display: flex;
+                flex-direction: row;
+                height: 30px;
+                margin-bottom: 8px;
+                max-width: @max-width;
+    
+                .bucketSelection {
+                    width: 100%;
+                    max-width: @max-width;
+                }
+    
+                .pathSelection, .fileTypeSelection {
+                    min-width: 200px;
+                    margin-right: @margin;
+                    flex: 1 1 auto;
+                }
+    
+                .navButtons {
+                    margin-left: 0;
+                    margin-top: 3px;
                     width: @button-w;
-                }
-            }
-        }
-
-        .bucketSelection, .pathSelection, .fileTypeSelection {
-            height: 30px;
-
-            .label {
-                display: block;
-                float: left;
-                width: @w-label;
-                line-height: 30px;
-            }
-        }
-
-        .bucketSelection, .fileTypeSelection {
-            .dropDownList {
-                .styleDropDownList(~"calc(100% - @{w-label})", 30px);
-
-                .text {
-                    outline: none;
-                }
-
-                &.open {
-                    .list {
-                        display: block;
+    
+                    button {
+                        width: @button-w;
                     }
                 }
             }
-        }
-
-        .pathSelection {
-            .input {
-                width: ~"calc(100% - @{w-label})";
-                line-height: 30px;
+    
+            .bucketSelection, .pathSelection, .fileTypeSelection {
+                height: 30px;
+    
+                .label {
+                    display: block;
+                    float: left;
+                    width: @w-label;
+                    line-height: 30px;
+                }
+            }
+    
+            .bucketSelection, .fileTypeSelection {
+                .dropDownList {
+                    .styleDropDownList(~"calc(100% - @{w-label})", 30px);
+    
+                    .text {
+                        outline: none;
+                    }
+    
+                    &.open {
+                        .list {
+                            display: block;
+                        }
+                    }
+                }
+            }
+    
+            .pathSelection {
+                .input {
+                    width: ~"calc(100% - @{w-label})";
+                    line-height: 30px;
+                }
+            }
+    
+            .fileTypeSelection {
+                input, li {
+                    text-transform: uppercase;
+                }
             }
         }
-
-        .fileTypeSelection {
-            input, li {
-                text-transform: uppercase;
-            }
-        }
-    }
-
-    .modelInfo {
-        margin: 8px 0;
-    }
-
-    .createTableButton {
-        margin-right: 8px;
-        width: auto;
     }
 
     .navButtons {
