@@ -160,6 +160,7 @@ class SQLEditorSpace {
         })
         .on("change", () => {
             this._saveSnippetChange();
+            SQLOpPanel.Instance.updateSnippet(this._currentSnippetId);
         });
 
         CodeMirror.commands.autocompleteSQLInVDW = function(cmeditor) {

@@ -11,6 +11,10 @@ class SQLOpPanel extends BaseOpPanel {
     private _sqlTables = {};
     private _alertOff: boolean = false;
     private _ignoreQueryConfirm = false;
+    private _identifiers: string[] = [];
+    private _connectors: {label: string, nodeId: string}[] = [];
+    private _queryStr = "";
+    private _graph: DagGraph;
 
     /**
      * Initialization, should be called only once by xcManager
@@ -29,7 +33,6 @@ class SQLOpPanel extends BaseOpPanel {
         return this._sqlEditor.getEditor();
     };
 
-
         /**
      * Show the panel with information from dagNode
      * @param dagNode DagNode object
@@ -38,7 +41,33 @@ class SQLOpPanel extends BaseOpPanel {
         this._dagNode = dagNode;
         this._dataModel = new SQLOpPanelModel(dagNode);
         this.$panel.find(".nextForm").addClass('xc-hidden');
+        this._queryStr = "";
         let error: string;
+        this._graph = DagViewManager.Instance.getActiveDag();
+        this._identifiers = [];
+        this._connectors = [];
+        this._dataModel.getIdentifiers().forEach((value, key) => {
+            this._identifiers[key - 1] = value;
+            const parentNode =  this._dagNode.getParents()[key - 1];
+            if (parentNode) {
+                this._connectors[key - 1] = {
+                    label: parentNode.getTitle(),
+                    nodeId: parentNode.getId()
+                }
+            } else {
+                this._connectors[key - 1] = {
+                    label: "",
+                    nodeId: null
+                }
+            }
+        });
+        this._dagNode.getParents().forEach((parentNode, i) => {
+            this._connectors[i] = {
+                label: parentNode.getTitle(),
+                nodeId: parentNode.getId()
+            };
+        });
+
         try {
             this._updateUI();
         } catch (e) {
@@ -62,6 +91,10 @@ class SQLOpPanel extends BaseOpPanel {
      */
     public close(isSubmit?: boolean): void {
         super.hidePanel(isSubmit);
+        this._identifiers = [];
+        this._connectors = [];
+        this._graph = null;
+        this.updateIdentifiersList();
     }
 
     private _setupQuerySelector(): void {
@@ -87,11 +120,14 @@ class SQLOpPanel extends BaseOpPanel {
                 if ($li.hasClass("unavailable")) {
                     return true; // return true to keep dropdown open
                 }
+                const snippetId: string = $li.data("id");
                 if ($li.hasClass("createNew")) {
                     $("#sqlEditorSpace").mousedown(); // bring sql panel to front
                     SQLTabManager.Instance.newTab();
+                } else {
+                    SQLTabManager.Instance.openTab(snippetId);
                 }
-                const snippetId: string = $li.data("id");
+
                 this._selectQuery(snippetId);
             }
         });
@@ -121,6 +157,23 @@ class SQLOpPanel extends BaseOpPanel {
         $input.val(queryName);
         $input.data("id", snippetId);
         this.$panel.find(".editorWrapper").text(queryStr);
+        this._queryStr = queryStr;
+        this._$elemPanel.find(".identifiersSection").addClass("disabled");
+        SQLUtil.getSQLStruct(queryStr)
+        .then((ret) => {
+            if (this._formHelper.isOpen() && this._queryStr === queryStr) {
+                this._identifiers = ret.identifiers;
+                this.updateIdentifiersList();
+            }
+        })
+        .fail((e) => {
+            this._identifiers = [];
+            this.updateIdentifiersList();
+            console.error(e);
+        })
+        .always(() => {
+            this._$elemPanel.find(".identifiersSection").removeClass("disabled");
+        });
         return snippet;
     }
 
@@ -227,6 +280,16 @@ class SQLOpPanel extends BaseOpPanel {
         $ul.html(content).css({top: topOff + "px"});
     }
 
+    public updateSnippet(snippetId) {
+        if (!this._formHelper.isOpen()) {
+            return;
+        }
+        const currSnippetId = this.$panel.find(".snippetsList input").data("id");
+        if (snippetId !== currSnippetId) {
+            return;
+        }
+        this._selectQuery(snippetId);
+    }
 
     public getAlertOff(): boolean {
         return this._alertOff;
@@ -315,10 +378,157 @@ class SQLOpPanel extends BaseOpPanel {
         this._renderIdentifiers();
     }
 
+    public updateNodeParents() {
+        let parents = this._dagNode.getParents();
+        this._connectors = [];
+        this._identifiers.forEach((identifier, i) => {
+            const parentNode = parents[i];
+            if (parentNode) {
+                this._connectors[i] = {
+                    label: parentNode.getTitle(),
+                    nodeId: parentNode.getId()
+                }
+            } else {
+                this._connectors[i] = {
+                    label: "",
+                    nodeId: null
+                }
+            }
+        });
+        parents.forEach((parentNode, i) => {
+            this._connectors[i] = {
+                label: parentNode.getTitle(),
+                nodeId: parentNode.getId()
+            };
+        });
+        this.updateIdentifiersList();
+    }
+
+    public updateIdentifiersList() {
+        let leftCol = "";
+        let rightCol = "";
+        this._identifiers.forEach((identifier, i) => {
+            leftCol += `<div class="source">
+                    ${identifier}
+                    </div>`;
+            let connectorName = "";
+            if (this._connectors[i]) {
+                connectorName = this._connectors[i].label;
+            }
+            rightCol +=
+                `<div class="dest">
+                    <div class="dropDownList">
+                        <input class="text" type="text" value="${connectorName}" spellcheck="false" readonly>
+                        <div class="iconWrapper">
+                            <i class="icon xi-arrow-down"></i>
+                        </div>
+                        <div class="list">
+                            <ul>
+                            </ul>
+                            <div class="scrollArea top stopped" style="display: none;">
+                                <i class="arrow icon xi-arrow-up"></i>
+                            </div>
+                            <div class="scrollArea bottom" style="display: none;">
+                                <i class="arrow icon xi-arrow-down"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        });
+        let html = `<div class="col">${leftCol}</div><div class="col">${rightCol}</div>`;
+        this._$elemPanel.find(".identifiersList").html(html);
+        this._$elemPanel.find(".identifiersList .dest").each((index, el) => {
+
+            const $dropDownList: JQuery = $(el).find(".dropDownList");
+            new MenuHelper($dropDownList, {
+                fixedPosition: {
+                    selector: "input"
+                },
+                onOpen: () => {
+                    const nodes = this._graph.getAllNodes();
+                    let html = "";
+                    let nodeInfos = [];
+                    nodes.forEach(node => {
+                        if (node === this._dagNode) {
+                            return;
+                        }
+                        nodeInfos.push({
+                            id: node.getId(),
+                            label: node.getTitle()
+                        });
+                    });
+                    nodeInfos.sort((a, b) => {
+                        if (a.label < b.label) {
+                            return -1;
+                        } else {
+                            return 1;
+                        }
+                    });
+
+                    nodeInfos.forEach((nodeInfo) => {
+                        html += `<li data-id="${nodeInfo.id}">${xcStringHelper.escapeHTMLSpecialChar(nodeInfo.label)}</li>`;
+                    });
+                    if (!nodeInfos.length) {
+                        html += `<li data-id="" class="hint">No tables found</li>`
+                    }
+                    $dropDownList.find("ul").html(html);
+                },
+                onSelect: ($li) => {
+                    let val;
+                    if ($li.hasClass("hint")) {
+                        return;
+                    } else {
+                        val = $li.text().trim();
+                    }
+                    $dropDownList.find("input").val(val);
+                    this._setConnector(index, val, $li.data('id'));
+                }
+            }).setupListeners();
+        });
+
+        if (this._identifiers.length === 0) {
+            this._$elemPanel.find(".tableInstruction").removeClass("xc-hidden");
+        } else {
+            this._$elemPanel.find(".tableInstruction").addClass("xc-hidden");
+        }
+    }
+
+    private _setConnector(index, label, nodeId) {
+        let oldNodeId;
+        let needsConnection = true;
+        if (this._connectors[index] && this._connectors[index].nodeId) {
+            oldNodeId = this._connectors[index].nodeId;
+            let oldNode = this._graph.getNode(oldNodeId);
+            let parentNode = this._dagNode.getParents()[index]
+            if (parentNode && (parentNode === oldNode)) {
+                DagViewManager.Instance.disconnectNodes(oldNodeId, this._dagNode.getId(),
+                index, this._graph.getTabId());
+                if (nodeId && (nodeId !== this._dagNode.getId())) {
+                    DagViewManager.Instance.connectNodes(nodeId, this._dagNode.getId(),
+                    index, this._graph.getTabId(), false, true);
+                    needsConnection = false;
+                }
+            }
+        }
+        if (needsConnection && nodeId && (nodeId !== this._dagNode.getId())) {
+            let index = this._dagNode.getNextOpenConnectionIndex();
+            DagViewManager.Instance.connectNodes(nodeId, this._dagNode.getId(),
+                index, this._graph.getTabId());
+        }
+
+        this._connectors[index] = {
+            label: label,
+            nodeId: nodeId
+        };
+    }
+
     private _renderSnippet() {
         const snippetId: string = this._dataModel.getSnippetId();
         const queryStr: string = this._dataModel.getSqlQueryString() || null;
         this._selectQuery(snippetId, queryStr);
+        if (snippetId) {
+            SQLTabManager.Instance.openTab(snippetId);
+        }
     }
 
     private _renderIdentifiers(): void {
@@ -349,36 +559,16 @@ class SQLOpPanel extends BaseOpPanel {
         identifiers: Map<number, string>,
         identifiersNameMap: {}
     } {
-        const identifiers = new Map<number, string>();
-        const identifiersNameMap = {};
-        const valueSet = new Set();
-        const sqlNode = this._dagNode;
-        this._$sqlIdentifiers.find(">li").each(function() {
-            const $li = $(this);
-            const key = parseInt($li.find(".source .text").text());
-            const value = $li.find(".dest.text").val().trim();
-            if (key && xcHelper.checkNamePattern(PatternCategory.Dataset,
-                                                 PatternAction.Check, value)) {
-                if (validate && value) {
-                    if (identifiers.has(key) || valueSet.has(value)) {
-                        const duplicates = identifiers.has(key) ?
-                            "Check source \"" + key + "\"" :
-                            "Check identifier \"" + value + "\"";
-                        throw SQLErrTStr.InvalidIdentifierMapping + ". " + duplicates;
-                    }
-                    if (!xcHelper.checkNamePattern(PatternCategory.SQLIdentifier,
-                        PatternAction.Check, value)) {
-                        throw SQLErrTStr.InvalidIdentifier + ": " + value;
-                    }
-                }
-                identifiers.set(key, value);
-                valueSet.add(value);
-                let parentNode = sqlNode.getParents()[key - 1];
-                if (parentNode) {
-                    identifiersNameMap[parentNode.getId()] = value;
-                }
+        let identifiers = new Map<number, string>();
+        let identifiersNameMap = {};
+        this._identifiers.forEach((identifier, index) => {
+            identifiers.set(index + 1, identifier);
+            if (!this._connectors[index] || !this._connectors[index].label) {
+                throw "Query Table \'" + identifier + "\' does not have a corresponding module table.";
             }
+            identifiersNameMap[this._connectors[index].nodeId] = identifier;
         });
+
         return {
             identifiers: identifiers,
             identifiersNameMap: identifiersNameMap
@@ -460,7 +650,6 @@ class SQLOpPanel extends BaseOpPanel {
      * @param toAdvancedMode
      */
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
-
         if (toAdvancedMode) {
             const identifiers = {};
             const identifiersOrder = [];
@@ -526,6 +715,11 @@ class SQLOpPanel extends BaseOpPanel {
                     this._$sqlIdentifiers.siblings(".tableInstruction").addClass("xc-hidden");
                 } else {
                     this._$sqlIdentifiers.siblings(".tableInstruction").removeClass("xc-hidden");
+                }
+                if (this._identifiers.length === 0) {
+                    this._$elemPanel.find(".tableInstruction").removeClass("xc-hidden");
+                } else {
+                    this._$elemPanel.find(".tableInstruction").addClass("xc-hidden");
                 }
             } catch (e) {
                 return {error: e};

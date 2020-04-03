@@ -3565,6 +3565,35 @@
         width: 100%;
         margin-left: 0px;
     }
+    .identifiersSection {
+        &.disabled {
+            pointer-events: none;
+        }
+        .header, .identifiersList {
+            display: flex;
+            > div {
+                width: 50%;
+            }
+        }
+        .header {
+            padding: 4px 0px;
+        }
+        li.hint {
+            opacity: 0.5;
+            font-style: italic;
+        }
+        .col {
+            > div {
+                height: 28px;
+                padding-top: 2px;
+                line-height: 24px;
+            }
+        }
+        .source {
+            .textOverflowOneLine;
+            padding-right: 4px;
+        }
+    }
     .nextForm {
         margin-top: 4px;
     }

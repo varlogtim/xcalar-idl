@@ -49,17 +49,17 @@
         </div>
         <div class="tableSection tableWrapper">
           <div class="instruction">
-            Enter a unique table alias for each SQL Node input connection.
+            Match each table in your SQL query with a table from the App Builder.
           </div>
-          <div class="header">
-            <div class="sourceHeader">Connector</div>
-            <div class="destHeader">Table Alias</div>
-          </div>
-          <div class="identifiers">
-            <div class="tableInstruction instrText">
-              Connect with a parent node to add an identifier
+          <div class="identifiersSection">
+            <div class="header">
+              <div class="sourceHeader">SQL Query Tables</div>
+              <div class="destHeader">Module Tables (by label)</div>
             </div>
-            <ul class="sqlIdentifiers"></ul>
+            <div class="tableInstruction instrText">
+              Use the SQL Editor to write a SQL query that takes in source tables.
+            </div>
+            <div class="identifiersList"></div>
           </div>
         </div>
         <div class="dropAsYouGo checkboxSection">
@@ -74,11 +74,11 @@
             data-title="If this check box is checked , the system drops all the intermediate results sets generated during the execution of this SQL snippet to optimize the memory consumption."
             data-placement="top"></i>
         </div>
-        <div class="editorTitle">
+        <div class="editorTitle xc-hidden">
           <div class="title">Query Preview:</div>
-          <div class="refreshSnippet">Update
+          <!-- <div class="refreshSnippet">Update
             <i class="icon xi-refresh" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Update %>"></i>
-          </div>
+          </div> -->
         </div>
         <div class="editorWrapper">
         </div>

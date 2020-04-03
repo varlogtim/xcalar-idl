@@ -659,6 +659,14 @@ class DagNodeSQL extends DagNode {
     ): void {
         super.connectToParent(parentNode, pos, spliceIn);
         if (!updateConfig) return;
+
+        if (typeof SQLOpPanel !== "undefined" && SQLOpPanel.Instance.isOpen()) {
+            SQLOpPanel.Instance.updateNodeParents();
+        }
+        if (!this._isDeprecated) {
+            return;
+        }
+
         let index = pos + 1;
         let identifiers;
         let identifiersNameMap;
@@ -667,8 +675,10 @@ class DagNodeSQL extends DagNode {
         } else {
             identifiers = this.getIdentifiers();
         }
+
         identifiersNameMap = this.getIdentifiersNameMap();
         let identifier = "";
+
         const parentNodeId = parentNode.getId();
         if (parentNode instanceof DagNodeIMDTable) {
             identifier = parentNode.getParam().source;
@@ -713,6 +723,14 @@ class DagNodeSQL extends DagNode {
     ): boolean {
         const wasSpliced = super.disconnectFromParent(parentNode, pos);
         if (!updateConfig) return wasSpliced;
+
+        if (typeof SQLOpPanel !== "undefined" && SQLOpPanel.Instance.isOpen()) {
+            SQLOpPanel.Instance.updateNodeParents();
+        }
+        if (!this._isDeprecated) {
+            return wasSpliced;
+        }
+
         // when removing connection to a parent, also remove sql identifier
         let index = pos + 1;
         let identifiers;
@@ -721,6 +739,7 @@ class DagNodeSQL extends DagNode {
         } else {
             identifiers = this.getIdentifiers();
         }
+
         if (identifiers.has(index)) {
             // decrement other identifiers
             while (identifiers.has(index + 1)) {

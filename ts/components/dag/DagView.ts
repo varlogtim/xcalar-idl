@@ -5663,9 +5663,6 @@ class DagView {
         return this.dagTab.save();
     }
 
-        // force connect can be true if undoing an operation where we are connecting
-    // to an index that is currently taken, in which case we have to move the
-    // other indices
     private _connectNodesNoPersist(
         parentNodeId: DagNodeId,
         childNodeId: DagNodeId,
