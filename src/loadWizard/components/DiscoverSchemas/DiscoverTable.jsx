@@ -11,6 +11,8 @@ const Texts = {
     discoverErrorTitle: 'Discover Schema Error'
 };
 
+const rowsPerPage = 20;
+
 const DiscoverStatusEnum = {
     DONE: 'done',
     FAIL: 'fail',
@@ -117,15 +119,34 @@ function DiscoverTable({
     onDiscoverOne = (fileId) => {},
     onClickSchema = ({name, columns}) => {}
 } = {}) {
-    const tableRows = discoverFiles.map((file) => {
-        const rowData = {
-            fileId: file.fileId,
-            size: prettyBytes(file.sizeInBytes),
-            type: file.type,
-            schema: createSchemaCellProps(file.fileId, inProgressFiles, failedFiles, fileSchemas)
-        };
-        return rowData;
-    });
+    const [page, setPage] = React.useState(0);
+    let tableRows;
+    let pageRows;
+
+    const changePage = (page) => {
+        setPage(page);
+        tableRows = getTableRows();
+    };
+
+    const gotoPage = (page) => {
+        setPage(page);
+        tableRows = getTableRows();
+    }
+
+    const getTableRows = () => {
+        pageRows = discoverFiles.slice(rowsPerPage * page, rowsPerPage * (page + 1));
+        return pageRows.map((file) => {
+            const rowData = {
+                fileId: file.fileId,
+                size: prettyBytes(file.sizeInBytes),
+                type: file.type,
+                schema: createSchemaCellProps(file.fileId, inProgressFiles, failedFiles, fileSchemas)
+            };
+            return rowData;
+        });
+    }
+
+    tableRows = getTableRows();
 
     const columns = [
         {
@@ -157,14 +178,24 @@ function DiscoverTable({
     ];
 
     const options = {
-        responsive: "stacked",
+        responsive: "scrollMaxHeight",
         selectableRows: "none",
-        rowsPerPage: 20,
+        rowsPerPage: rowsPerPage,
         rowsPerPageOptions: [],
         download: false,
         print: false,
         disableToolbarSelect: true,
         searchOpen: false,
+        search: false,
+        filter: false,
+        count: discoverFiles.length,
+        page: page,
+        serverSide: true,
+        onTableChange: (action, tableState) => {
+            if (action === "changePage") {
+                changePage(tableState.page);
+            }
+        },
         setTableProps: () => ({
             padding: "none",
             size: "small",
@@ -179,6 +210,19 @@ function DiscoverTable({
                 columns={columns}
                 options={options}
             />
+            <span>
+          {/* Go to page:
+          <input
+            type="number"
+            defaultValue={page + 1}
+            onChange={e => {
+              const page = e.target.value ? Number(e.target.value) - 1 : 0
+              gotoPage(page);
+            }}
+            style={{ width: '100px' }}
+            // value={page + 1}
+          /> */}
+        </span>
         </div>
     );
 }
