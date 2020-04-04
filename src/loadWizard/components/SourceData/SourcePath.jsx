@@ -11,8 +11,25 @@ const Texts = {
     typeCsv: 'CSV',
     typeJson: 'JSON',
     typeParquet: 'Parquet',
-    navButtonRight: 'Browse'
+    navButtonRight: 'Browse',
+    updateForensics: 'Updating ...',
+    getForensics: 'View Bucket Info'
 };
+
+/**
+ * Pure Component: get forensics button
+ * @param {*} props
+ */
+function GetForensicsButton(props) {
+    const { isLoading = false, onClick = () => {} } = props || {};
+    const buttonText = isLoading ? Texts.updateForensics : Texts.getForensics;
+    const disableButton = isLoading;
+    const classes = ['getForensics', 'btn', 'btn-secondary'].concat(disableButton ? ['btn-disabled'] : []);
+
+    return (
+        <button type="button" className={classes.join(' ')} onClick={() => { onClick() }}>{buttonText}</button>
+    );
+}
 
 export default function SourcePath({
     bucket,
@@ -21,7 +38,9 @@ export default function SourcePath({
     onPathChange,
     fileType = FileType.CSV,
     onFileTypeChange = (newType) => {},
-    onNextScreen
+    onNextScreen,
+    isForensicsLoading,
+    fetchForensics
 }) {
     // the getAvailableS3Bucket is async call, it may not be ready the first it's rendernder,
     // so need to put it in the onOpen callback
@@ -47,6 +66,7 @@ export default function SourcePath({
                             hint={Texts.noBuckets}
                         />
                     </div>
+                    <GetForensicsButton isLoading={ isForensicsLoading } onClick={ () => { fetchForensics(bucket, path) }}/>
                 </div>
                 <div className="row">
                     <div className="pathSelection">
@@ -56,6 +76,7 @@ export default function SourcePath({
                             type="text"
                             value={path}
                             onChange={(e) => { onPathChange(e.target.value.trim()); }}
+                            spellCheck="false"
                         />
                     </div>
                     <div className="fileTypeSelection">

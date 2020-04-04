@@ -7,6 +7,7 @@ import TableCell from '@material-ui/core/TableCell';
 import { AutoSizer, Column, Table } from 'react-virtualized';
 import Checkbox from '@material-ui/core/Checkbox';
 import { TableSortLabel } from '@material-ui/core';
+import * as S3Service from '../../services/S3Service';
 
 const Texts = {
     fileListTitle: 'File List',
@@ -203,6 +204,14 @@ class MuiVirtualizedTable extends React.PureComponent {
             onClick={() => {
                 if (info.rowData.directory) {
                     onPathChange(info.rowData.fullPath);
+                } else {
+                    //  S3Service.previewFile(info.rowData.fullPath, info.rowData.name)
+                    //  .then((a) => {
+                    //      console.log(a);
+                    //  })
+                    //  .catch((e) => {
+                    //      console.log(e)
+                    //  });
                 }
             }}
         >

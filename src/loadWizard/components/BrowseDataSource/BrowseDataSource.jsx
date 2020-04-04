@@ -90,7 +90,8 @@ class BrowseDataSource extends React.Component {
             this.setState({
                 isLoading: true
             });
-
+            let homePath = newFullPath.slice(this.props.bucket.length);
+            this.props.onPathChange(homePath);
             const fileTypeFilter = SchemaService.FileTypeFilter.get(fileType);
             const fileMap = await S3Service.listFiles(Path.join(newFullPath, '/'), ({ directory, type}) => {
                 return directory || fileTypeFilter({ type: type });
@@ -168,7 +169,7 @@ class BrowseDataSource extends React.Component {
             selectedFileDir
         } = this.state;
 
-        const rootFullPath = Path.join(bucket, homePath);
+        const rootFullPath = Path.join(bucket);
         const currentFullPath = path;
         const forensicsStats = this.metadataMap.get(this.state.forensicsPath);
 

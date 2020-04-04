@@ -47,6 +47,18 @@ async function flattenFileDir(fileDirList, fileNamePattern = '*') {
     return flattenFiles;
 }
 
+async function previewFile(fileDir, fileName = '') {
+    const preview = await XcalarPreview({
+        "recursive": false,
+        "targetName": "AWS Target",
+        "path": fileDir,
+        "fileName": fileName,
+        "fileNamePattern": ""
+    }, 1000, 0);
+
+    return preview;
+}
+
 async function listFiles(path, filter = (fileInfo) => true) {
     const fileInfos = new Map();
     const s3Files = await XcalarListFiles({
@@ -311,5 +323,6 @@ export {
     getForensicsStats,
     populateFiles,
     flattenFileDir,
-    createTableFromSchema
+    createTableFromSchema,
+    previewFile
 };

@@ -3,25 +3,10 @@ import React from "react";
 import SourcePath from './SourcePath'
 
 const Texts = {
-    updateForensics: 'Updating ...',
-    getForensics: 'View Bucket Info',
     Reset: "Reset Selected Files"
 };
 
-/**
- * Pure Component: get forensics button
- * @param {*} props
- */
-function GetForensicsButton(props) {
-    const { isLoading = false, onClick = () => {} } = props || {};
-    const buttonText = isLoading ? Texts.updateForensics : Texts.getForensics;
-    const disableButton = isLoading;
-    const classes = ['getForensics', 'btn', 'btn-secondary'].concat(disableButton ? ['btn-disabled'] : []);
 
-    return (
-        <button className={classes.join(' ')} onClick={() => { onClick() }}>{buttonText}</button>
-    );
-}
 
 function ResetButton(props) {
     const {canReset, onReset} = props;
@@ -43,10 +28,6 @@ function ResetButton(props) {
 }
 
 class SourceData extends React.Component {
-    fetchForensics(bucket, path) {
-        this.props.fetchForensics(bucket, path);
-    }
-
     render() {
         const {
             bucket,
@@ -55,6 +36,8 @@ class SourceData extends React.Component {
             onClickBrowse,
             onBucketChange,
             onPathChange,
+            fetchForensics,
+            isForensicsLoading,
             onFileTypeChange = (newType) => {}
         } = this.props;
 
@@ -70,6 +53,8 @@ class SourceData extends React.Component {
                     fileType={fileType}
                     onFileTypeChange={onFileTypeChange}
                     onNextScreen={onClickBrowse}
+                    fetchForensics={fetchForensics}
+                    isForensicsLoading={isForensicsLoading}
                 />
                 {/* <div className="modelInfo">
                     Model rules:
@@ -77,7 +62,6 @@ class SourceData extends React.Component {
                     <b>{JSON.stringify(modelInfo)}</b>
                 </div> */}
                 <div className="formActions">
-                    <GetForensicsButton isLoading={ this.props.isForensicsLoading } onClick={ () => { this.fetchForensics(bucket, path) }}/>
                     <ResetButton canReset={this.props.canReset} onReset={this.props.onReset} />
                 </div>
             </div>

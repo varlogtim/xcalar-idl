@@ -162,7 +162,7 @@
 
     .topSection {
         @w-label: 70px;
-        @button-w: 120px;
+        @button-w: 130px;
         @margin: 16px;
         @max-width: @min-width * 2 + @margin;
 
@@ -178,38 +178,49 @@
         }
 
         .sourceForm {
+            min-width: 564px;
+
             .row {
                 display: flex;
                 flex-direction: row;
                 height: 30px;
                 margin-bottom: 8px;
                 max-width: @max-width;
-    
+
                 .bucketSelection {
                     width: 100%;
                     max-width: @max-width;
                 }
-    
+
                 .pathSelection, .fileTypeSelection {
                     min-width: 200px;
                     margin-right: @margin;
+                    flex: 0 1 auto;
+                }
+
+                .pathSelection {
                     flex: 1 1 auto;
                 }
-    
+
                 .navButtons {
                     margin-left: 0;
                     margin-top: 3px;
                     width: @button-w;
-    
+
                     button {
                         width: @button-w;
                     }
                 }
+                .getForensics {
+                    min-width: @button-w;
+                    margin-left: 16px;
+                    margin-top: 3px;
+                }
             }
-    
+
             .bucketSelection, .pathSelection, .fileTypeSelection {
                 height: 30px;
-    
+
                 .label {
                     display: block;
                     float: left;
@@ -217,15 +228,15 @@
                     line-height: 30px;
                 }
             }
-    
+
             .bucketSelection, .fileTypeSelection {
                 .dropDownList {
                     .styleDropDownList(~"calc(100% - @{w-label})", 30px);
-    
+
                     .text {
                         outline: none;
                     }
-    
+
                     &.open {
                         .list {
                             display: block;
@@ -233,14 +244,14 @@
                     }
                 }
             }
-    
+
             .pathSelection {
                 .input {
                     width: ~"calc(100% - @{w-label})";
                     line-height: 30px;
                 }
             }
-    
+
             .fileTypeSelection {
                 input, li {
                     text-transform: uppercase;

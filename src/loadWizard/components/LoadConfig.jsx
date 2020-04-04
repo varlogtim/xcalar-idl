@@ -754,6 +754,7 @@ class LoadConfig extends React.Component {
                                 homePath={homePath}
                                 fileType={fileType}
                                 selectedFileDir={selectedFileDir}
+                                onPathChange={(newPath) => { this._setPath(newPath); }}
                                 onCancel={() => { this._browseClose(); }}
                                 onDone={(selectedFileDir) => {
                                     try {
