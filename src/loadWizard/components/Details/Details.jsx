@@ -131,7 +131,8 @@ function BucketChart({stats}) {
 export default class Details extends React.Component {
     render() {
         let rightPartClasses = "rightPart";
-        if (this.props.currentSchema != null || this.props.showForensics) {
+        if (this.props.currentSchema != null || this.props.showForensics ||
+            this.props.discoverFileSchemas.size > 0) {
             rightPartClasses += " active";
         }
         return (
@@ -148,21 +149,21 @@ export default class Details extends React.Component {
                 <div className="innerRightPart">
                     <ForensicsContent isShow={ this.props.showForensics } stats={ this.props.forensicsStats } message={ this.props.forensicsMessage } />
                     {this.props.currentSchema == null ? null :
-                        <React.Fragment>
-                            <Collapsible className="schemaPreview">
-                                <Collapsible.Header>{this.props.currentSchema.name} - columns</Collapsible.Header>
-                                <Collapsible.List>
-                                    <Collapsible.Item>
-                                        <pre className="schemaJson">{JSON.stringify(this.props.currentSchema.columns, null, ' ')}</pre>
-                                    </Collapsible.Item>
-                                </Collapsible.List>
-                            </Collapsible>
-                            <SchemaChart
-                                selectedData={this.props.selectedFileDir}
-                                schemasFileMap={this.props.discoverFileSchemas}
-                            />
-                        </React.Fragment>
+                        <Collapsible className="schemaPreview">
+                            <Collapsible.Header>{this.props.currentSchema.name} - columns</Collapsible.Header>
+                            <Collapsible.List>
+                                <Collapsible.Item>
+                                    <pre className="schemaJson">{JSON.stringify(this.props.currentSchema.columns, null, ' ')}</pre>
+                                </Collapsible.Item>
+                            </Collapsible.List>
+                        </Collapsible>
                     }
+                    {this.props.discoverFileSchemas.size > 0 &&
+                        <SchemaChart
+                            selectedData={this.props.selectedFileDir}
+                            schemasFileMap={this.props.discoverFileSchemas}
+                        />
+                     }
                 </div>
             </Rnd>
         )

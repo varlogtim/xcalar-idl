@@ -80,14 +80,13 @@ export default function SchemaChart({selectedData, schemasFileMap}) {
         }
     });
     let limit = 10;
+    let numSchemas = byCountChartData.length;
     if (byCountChartData.length > limit) {
         let other = 0;
-        let originalLength = byCountChartData.length;
-        for (let i = limit; i < originalLength; i++) {
+        for (let i = limit; i < numSchemas; i++) {
             other += byCountChartData[i].value;
         }
-        let numNotListed = originalLength - limit;
-
+        let numNotListed = numSchemas - limit;
         byCountChartData.length = limit;
         byCountChartData.push({
             name: "other (" + numNotListed + " schemas)",
@@ -103,6 +102,7 @@ export default function SchemaChart({selectedData, schemasFileMap}) {
                 <div className="schemaSummaryHeader">Summary</div>
                 <div>Total number of files: {totalCountOfFiles}</div>
                 <div>Total number of directories: {totalCountOfDirectories}</div>
+                <div>Discovered schemas: {numSchemas}</div>
             </div>
             <div id="SchemaChart">
                 <PieChart width={280} height={250}>
