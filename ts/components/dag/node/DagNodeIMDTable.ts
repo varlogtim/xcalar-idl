@@ -126,6 +126,18 @@ class DagNodeIMDTable extends DagNodeIn {
         return this._subGraph;
     }
 
+    public async fetchAndSetSubgraph(tableName: string): Promise<void> {
+        try {
+          if (typeof PbTblInfo !== "undefined") {
+              const pbTblInfo = new PbTblInfo({name: tableName});
+              const subGraph = await pbTblInfo.getDataflow();
+              this.setSubgraph(subGraph);
+          }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     public getLoadArgs(): object {
         let loadArgs = {};
         try {

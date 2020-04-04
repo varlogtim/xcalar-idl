@@ -498,14 +498,7 @@ class ResourceMenu {
                     forceAdd: true
             });
             if (node != null) {
-                try {
-                    const pbTblInfo = new PbTblInfo({name: tableName});
-                    const subGraph = await pbTblInfo.getDataflow();
-                    node.setSubgraph(subGraph);
-                } catch (e) {
-                    console.error(e);
-                }
-
+                await node.fetchAndSetSubgraph(tableName);
                 DagNodeMenu.execute("configureNode", {
                     node: node,
                     exitCallback: () => {

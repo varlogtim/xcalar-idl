@@ -199,6 +199,10 @@ class DagNodeSQL extends DagNode {
         dagInfoList.forEach((dagNodeInfo: DagNodeInfo) => {
             const parents: DagNodeId[] = dagNodeInfo.parents;
             const node: DagNode = DagNodeFactory.create(dagNodeInfo);
+            if (node instanceof DagNodeIMDTable) {
+                const imdInput: DagNodeIMDTableInputStruct = <DagNodeIMDTableInputStruct>dagNodeInfo.input;
+                node.fetchAndSetSubgraph(imdInput.source);
+            }
             this.subGraph.addNode(node);
             const nodeId: string = node.getId();
             this.subGraphNodeIds.push(nodeId);
