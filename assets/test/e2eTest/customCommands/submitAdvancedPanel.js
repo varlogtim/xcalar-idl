@@ -9,7 +9,8 @@ class SubmitAdvancedPanel extends EventEmitter {
             } else {
                 this.api
                 .waitForElementNotPresent("#formWaitingBG", 3000)
-                .waitForElementNotPresent(".opPanel.loading", 1000 * 60 * 2)
+                .waitForElementNotPresent(".opPanel.loading", 1000 * 60 * 2) // imd panel
+                .waitForElementNotPresent(".opPanel .identifiersSection.disabled", 1000 * 60 * 2) // sql panel
                 .click(panelSelector + " .bottomSection .switch");
             }
 

@@ -721,6 +721,23 @@ class SQLOpPanel extends BaseOpPanel {
                 } else {
                     this._$elemPanel.find(".tableInstruction").addClass("xc-hidden");
                 }
+                let identifiersArr = [];
+                for (let i in identifiers) {
+                    identifiersArr.push({
+                        index: i,
+                        identifier: identifiers[i]
+                    });
+                }
+                identifiersArr.sort((a,b) => {
+                    if (a.index < b.index) {
+                        return -1;
+                    } else {
+                        return 1;
+                    }
+                });
+                this._identifiers = identifiersArr.map((i) => {
+                    return i.identifier
+                });
             } catch (e) {
                 return {error: e};
             }
