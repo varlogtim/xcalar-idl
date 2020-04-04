@@ -158,6 +158,7 @@ class DiscoverSchemas extends React.Component {
             );
         } else {
             const SchemaPolicy = SchemaService.MergePolicy;
+            const SchemaPolicyHint = SchemaService.MergePolicyHint;
             const isDiscoverInProgress = inProgressFiles.size > 0;
 
             return (
@@ -193,9 +194,33 @@ class DiscoverSchemas extends React.Component {
                                             onSchemaPolicyChange(policy);
                                         }}
                                         list={
-                                            [SchemaPolicy.SUPERSET, SchemaPolicy.EXACT, SchemaPolicy.UNION, SchemaPolicy.TRAILING]
-                                            .map((policy) => {
-                                                return {text: policy, value: policy};
+                                            [{
+                                                policy: SchemaPolicy.SUPERSET,
+                                                hint: SchemaPolicyHint.SUPERSET
+                                            },
+                                            {
+                                                policy: SchemaPolicy.EXACT,
+                                                hint: SchemaPolicyHint.EXACT
+                                            },
+                                            // union is not available for now
+                                            // {
+                                            //     policy: SchemaPolicy.UNION,
+                                            //     hint: SchemaPolicyHint.UNION
+                                            // },
+                                            {
+                                                policy: SchemaPolicy.TRAILING,
+                                                hint: SchemaPolicyHint.TRAILING
+                                            }]
+                                            .map((schema) => {
+                                                return {
+                                                    text: (
+                                                        <span>
+                                                            <span>{schema.policy}</span>
+                                                            <i className="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title={schema.hint} data-placement="top"></i>
+                                                        </span>
+                                                    ),
+                                                    value: schema.policy
+                                                };
                                             })
                                         }
                                         readOnly

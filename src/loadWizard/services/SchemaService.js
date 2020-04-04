@@ -43,6 +43,13 @@ const MergePolicy = {
     TRAILING: 'trailing'
 };
 
+const MergePolicyHint = {
+    SUPERSET: 'eg. Schemas [{A,B}, {A,L,M}, {A,C,B}] will be reduced to [{A,B,C},{A,L,M}]',
+    EXACT: 'eg. Schemas [{A,B},{B,A},{C,D}] will be reduced to [{A,B},{C,D}]',
+    UNION: 'eg. Schemas [{A,B},{A,L,M},{M,N}] is reduced to single schema {A,B,L,M,N}',
+    TRAILING: 'eg. Schemas [{A,B},{A,L},{A,B,C}] will be reduced to [{A,B,C},{A,L}]'
+};
+
 class InputSerializationFactory {
     static createCSV({
         headerOption = CSVHeaderOption.USE,
@@ -319,5 +326,6 @@ export {
     InputSerializationFactory, defaultInputSerialization,
     CSVHeaderOption,
     MergePolicy,
+    MergePolicyHint,
     DiscoverWorker
 };
