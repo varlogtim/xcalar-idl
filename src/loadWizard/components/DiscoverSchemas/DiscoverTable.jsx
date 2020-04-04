@@ -122,6 +122,7 @@ function DiscoverTable({
     const [page, setPage] = React.useState(0);
     let tableRows;
     let pageRows;
+    const tableRef = React.createRef();
 
     const changePage = (page) => {
         setPage(page);
@@ -129,9 +130,9 @@ function DiscoverTable({
     };
 
     const gotoPage = (page) => {
-        setPage(page);
-        tableRows = getTableRows();
-    }
+        page = Math.max(0, page);
+        tableRef.current.changePage(page);
+    };
 
     const getTableRows = () => {
         pageRows = discoverFiles.slice(rowsPerPage * page, rowsPerPage * (page + 1));
@@ -205,24 +206,27 @@ function DiscoverTable({
     return (
         <div className="discoverTable">
             <MUIDataTable
+                innerRef={tableRef}
                 title={Texts.tableTitle}
                 data={tableRows}
                 columns={columns}
                 options={options}
             />
-            <span>
-          {/* Go to page:
-          <input
-            type="number"
-            defaultValue={page + 1}
-            onChange={e => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0
-              gotoPage(page);
-            }}
-            style={{ width: '100px' }}
-            // value={page + 1}
-          /> */}
-        </span>
+            {(discoverFiles.length > rowsPerPage) &&
+                <div className="pageInputArea">
+                    <div className="label">Go to page:</div>
+                    <input
+                        type="number"
+                        defaultValue={page + 1}
+                        min={1}
+                        onChange={e => {
+                            const page = e.target.value ? Number(e.target.value) - 1 : 0
+                            gotoPage(page);
+                        }}
+                        style={{ width: '80px' }}
+                    />
+                </div>
+            }
         </div>
     );
 }
