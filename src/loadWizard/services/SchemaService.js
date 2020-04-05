@@ -222,6 +222,36 @@ class DiscoverWorker {
         }
     }
 
+    /**
+     * Restore the worker
+     * @param {Map<string, {columns: Array<{name: string, mapping: string, type: string}>}>} discoveredFiles
+     * @param {Map<string, string>} errorFiles
+     */
+    restore(discoveredFiles, errorFiles) {
+        // const start = Date.now();
+        for (const [path, { columns }] of discoveredFiles) {
+            this._discoveredFiles.set(path, {
+                path: path,
+                success: true,
+                status: '',
+                schema: {
+                    numColumns: columns.length,
+                    columnsList: columns.map(({ name, mapping, type}) => ({
+                        name: name,
+                        mapping: mapping,
+                        type: type
+                    }))
+                }
+            });
+        }
+
+        for (const [path, errMsg] of errorFiles) {
+            this._errorFiles.set(path, errMsg);
+        }
+        // const end = Date.now();
+        // console.log(`Restore ${discoveredFiles.size} files in ${end - start} ms`);
+    }
+
     // XXX TODO: Move this into xcrpc framework
     async _discover(paths, inputSerialization) {
         // Construct xcrpc request object
@@ -271,6 +301,7 @@ class DiscoverWorker {
     }
 
     merge() {
+        const start = Date.now();
         const merge = mergeFactory.get(this._mergePolicy);
         if (merge == null) {
             throw new Error('Merge type not supported:', this._mergePolicy);
@@ -280,6 +311,8 @@ class DiscoverWorker {
         // Cache the result
         this._schemas = schemas;
         this._errorFiles = new Map(errorFiles.map(({ path, error }) => [path, error]));
+        const end = Date.now();
+        console.log(`${this._mergePolicy}(${this._discoveredFiles.size}) took ${end - start} ms`);
     }
 
     getDiscoveredFiles() {

@@ -115,12 +115,6 @@ class LoadConfig extends React.Component {
         // Event notification
         this._eventOnStepChange = onStepChange;
 
-        // Instance members
-        this._schemaWorker = new SchemaService.DiscoverWorker({
-            mergePolicy: this.state.discoverSchemaPolicy,
-            inputSerialization: { ...this.state.inputSerialization }
-        });
-
         this._fetchForensics = this._fetchForensics.bind(this);
         this._resetAll = this._resetAll.bind(this);
     }
@@ -139,7 +133,6 @@ class LoadConfig extends React.Component {
             return;
         }
         const inputSerialization = this._resetBrowseResult();
-        this._schemaWorker.reset({ inputSerialization })
         this.setState({
             currentStep: stepEnum.SourceData,
             currentSchema: null
@@ -292,6 +285,12 @@ class LoadConfig extends React.Component {
             return;
         }
 
+        const schemaWorker = new SchemaService.DiscoverWorker({
+            mergePolicy: this.state.discoverSchemaPolicy,
+            inputSerialization: { ...this.state.inputSerialization }
+        });
+        schemaWorker.restore(this.state.discoverFileSchemas, this.state.discoverFailedFiles);
+
         // State: +loading
         this.setState({
             discoverInProgressFileIds: this.state.discoverInProgressFileIds.add(fileId),
@@ -299,15 +298,15 @@ class LoadConfig extends React.Component {
         });
 
         try {
-            await this._schemaWorker.discover([file.fullPath]);
-            if (this._schemaWorker.getErrorFiles().has(fileId)) {
+            await schemaWorker.discover([file.fullPath]);
+            if (schemaWorker.getErrorFiles().has(fileId)) {
                 // State: -loading +failed
                 this.setState({
                     discoverInProgressFileIds: deleteEntry(this.state.discoverInProgressFileIds, fileId),
-                    discoverFailedFiles: this.state.discoverFailedFiles.set(fileId, this._schemaWorker.getError(fileId) || 'Discover Failed')
+                    discoverFailedFiles: this.state.discoverFailedFiles.set(fileId, schemaWorker.getError(fileId) || 'Discover Failed')
                 });
             } else {
-                const fileSchemaMap = this._convertSchemaMergeResult(this._schemaWorker.getSchemas());
+                const fileSchemaMap = this._convertSchemaMergeResult(schemaWorker.getSchemas());
                 // State: -loading +discovered
                 this.setState({
                     discoverInProgressFileIds: deleteEntry(this.state.discoverInProgressFileIds, fileId),
@@ -328,7 +327,7 @@ class LoadConfig extends React.Component {
         }
     }
 
-    async _discoverMultiFileSchema(fileIds) {
+    async _discoverMultiFileSchema(fileIds, schemaWorker) {
         const filePaths = new Array();
         for (const fileId of fileIds) {
             const file = this.state.discoverFiles.get(fileId);
@@ -347,15 +346,15 @@ class LoadConfig extends React.Component {
 
         try {
             // Call service to discover files
-            await this._schemaWorker.discover(filePaths);
+            await schemaWorker.discover(filePaths);
 
             // Failed files
-            const failedFileIds = SetUtils.intersection(this._schemaWorker.getErrorFiles(), fileIds);
+            const failedFileIds = SetUtils.intersection(schemaWorker.getErrorFiles(), fileIds);
             if (failedFileIds.size > 0) {
                 // State: -loading +failed
                 const { discoverFailedFiles, discoverInProgressFileIds } = this.state;
                 for (const fileId of failedFileIds) {
-                    discoverFailedFiles.set(fileId, this._schemaWorker.getError(fileId) || 'Discover Failed');
+                    discoverFailedFiles.set(fileId, schemaWorker.getError(fileId) || 'Discover Failed');
                 }
                 this.setState({
                     discoverInProgressFileIds: deleteEntries(discoverInProgressFileIds, failedFileIds),
@@ -366,7 +365,7 @@ class LoadConfig extends React.Component {
             // Success files
             const successFileIds = SetUtils.diff(fileIds, failedFileIds);
             if (successFileIds.size > 0) {
-                const fileSchemaMap = this._convertSchemaMergeResult(this._schemaWorker.getSchemas());
+                const fileSchemaMap = this._convertSchemaMergeResult(schemaWorker.getSchemas());
                 // State: -loading +discovered
                 this.setState({
                     discoverInProgressFileIds: deleteEntries(this.state.discoverInProgressFileIds, successFileIds),
@@ -412,11 +411,19 @@ class LoadConfig extends React.Component {
             }
 
             const {
+                discoverSchemaPolicy,
+                inputSerialization,
                 discoverFiles,
                 discoverFileSchemas,
                 discoverInProgressFileIds,
                 discoverFailedFiles
             } = this.state;
+            const schemaWorker = new SchemaService.DiscoverWorker({
+                mergePolicy: discoverSchemaPolicy,
+                inputSerialization: { ...inputSerialization }
+            });
+            schemaWorker.restore(discoverFileSchemas, discoverFailedFiles);
+
             const batch = new Set();
             const batchSize = 128;
             const plevel = 16;
@@ -433,7 +440,7 @@ class LoadConfig extends React.Component {
                 }
                 batch.add(fileId);
                 if (batch.size >= batchSize) {
-                    tasks.push(this._discoverMultiFileSchema(new Set(batch)));
+                    tasks.push(this._discoverMultiFileSchema(new Set(batch), schemaWorker));
                     batch.clear();
                     if (tasks.length >= plevel) {
                         await waitForTasks(tasks);
@@ -441,7 +448,7 @@ class LoadConfig extends React.Component {
                 }
             }
             if (batch.size > 0) {
-                tasks.push(this._discoverMultiFileSchema(new Set(batch)));
+                tasks.push(this._discoverMultiFileSchema(new Set(batch), schemaWorker));
                 batch.clear();
                 await waitForTasks(tasks);
             }
@@ -495,7 +502,7 @@ class LoadConfig extends React.Component {
 
     _setBucket(bucket) {
         bucket = bucket.trim();
-        const isBucketChanged = bucket === this.state.bucket;
+        const isBucketChanged = bucket !== this.state.bucket;
         if (isBucketChanged) {
             if (this._isConfigChanged()) {
                 // XXX TODO: unsaved changes, what should we do?
@@ -510,7 +517,7 @@ class LoadConfig extends React.Component {
 
     _setPath(path) {
         path = path.trim();
-        const isPathChanged = path === this.state.homePath;
+        const isPathChanged = path !== this.state.homePath;
         if (isPathChanged) {
             if (this._isConfigChanged()) {
                 // XXX TODO: unsaved changes, what should we do?
@@ -555,7 +562,6 @@ class LoadConfig extends React.Component {
             fileType: fileType,
         });
         const inputSerialization = this._resetBrowseResult(fileType);
-        this._schemaWorker.reset({inputSerialization: inputSerialization});
         return true;
     }
 
@@ -565,10 +571,20 @@ class LoadConfig extends React.Component {
             return;
         }
 
+        const schemaWorker = new SchemaService.DiscoverWorker({
+            mergePolicy: newPolicy,
+            inputSerialization: { ...this.state.inputSerialization }
+        });
+        schemaWorker.restore(this.state.discoverFileSchemas, this.state.discoverFailedFiles);
+
+        // Put discovered files back to in-progress,
+        // because we'll re-compare them based on the new merge policy
+        const inProgressFiles = new Set(this.state.discoverFileSchemas.keys());
+
         this.setState({
             discoverSchemaPolicy: newPolicy,
             discoverFileSchemas: new Map(), // Clear discovered schemas
-            discoverInProgressFileIds: this._schemaWorker.getDiscoveredFiles(),
+            discoverInProgressFileIds: inProgressFiles,
             discoverFailedFiles: new Map(),
             tableToCreate: new Map(),
             createInProgress: new Map(),
@@ -580,14 +596,13 @@ class LoadConfig extends React.Component {
         setTimeout(() => {
             try {
                 const { discoverFiles } = this.state;
-                this._schemaWorker.reset({ mergePolicy: newPolicy });
-                this._schemaWorker.merge();
+                schemaWorker.merge();
                 // Successful files
-                const fileSchemaMap = this._convertSchemaMergeResult(this._schemaWorker.getSchemas());
+                const fileSchemaMap = this._convertSchemaMergeResult(schemaWorker.getSchemas());
                 // Failed files
-                const errorDetails = this._schemaWorker.getErrors();
+                const errorDetails = schemaWorker.getErrors();
                 const failedFiles = new Map(
-                    [...SetUtils.intersection(this._schemaWorker.getErrorFiles(), discoverFiles)]
+                    [...SetUtils.intersection(schemaWorker.getErrorFiles(), discoverFiles)]
                         .map((fileId) => [fileId, errorDetails.get(fileId)])
                 );
                 this.setState({
@@ -619,7 +634,6 @@ class LoadConfig extends React.Component {
             createFailed: new Map(),
             createTables: new Map()
         });
-        this._schemaWorker.reset({ inputSerialization: newOption });
     }
 
     _browseClose(selectedFileDir = null) {
