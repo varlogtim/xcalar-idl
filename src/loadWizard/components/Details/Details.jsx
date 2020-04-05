@@ -150,9 +150,21 @@ export default class Details extends React.Component {
                     <ForensicsContent isShow={ this.props.showForensics } stats={ this.props.forensicsStats } message={ this.props.forensicsMessage } />
                     {this.props.currentSchema == null ? null :
                         <Collapsible className="schemaPreview">
-                            <Collapsible.Header>{this.props.currentSchema.name} - columns</Collapsible.Header>
+                            <Collapsible.Header>{this.props.currentSchema.name}</Collapsible.Header>
                             <Collapsible.List>
+                                {
+                                    this.props.currentSchema.path &&
+                                    <Collapsible.Item>
+                                        <div>Paths:</div>
+                                        {
+                                            this.props.currentSchema.path.map((path, i) => {
+                                                return <div key={i}>{path}</div>;
+                                            })
+                                        }
+                                     </Collapsible.Item>
+                                }
                                 <Collapsible.Item>
+                                    <div>Columns:</div>
                                     <pre className="schemaJson">{JSON.stringify(this.props.currentSchema.columns, null, ' ')}</pre>
                                 </Collapsible.Item>
                             </Collapsible.List>

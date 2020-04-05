@@ -47,7 +47,7 @@ class CreateTables extends React.Component {
                         tables={tables}
                         files={fileMetas}
                         onClickSchema={(schemaName) => {
-                            this.props.onShowSchema(schemas.get(schemaName));
+                            this.props.onShowSchema(schemas.get(schemaName), schemaName);
                         }}
                         onClickCreateTable={onClickCreateTable}
                         onTableNameChange={onTableNameChange}

@@ -817,7 +817,8 @@ class LoadConfig extends React.Component {
                                     }}
                                     onClickCreateTable={(schemaName, tableName) => { this._createTableFromSchema(schemaName, tableName); }}
                                     onPrevScreen = {() => { this._changeStep(stepEnum.SchemaDiscovery); }}
-                                    onShowSchema={(schema) => {
+                                    onShowSchema={(schema, schemaName) => {
+                                        schema.name = schemaName
                                         this.setState({
                                             currentSchema: schema
                                         });
