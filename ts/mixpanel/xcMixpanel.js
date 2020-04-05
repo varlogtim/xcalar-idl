@@ -53,6 +53,10 @@ window.xcMixpanel = (function($, xcMixpanel) {
     let lastSubPanelTime = currTime;
     let lastMouseMoveTime = currTime;
     let pageLoaded = false;
+    let distinct_id;
+    let devToken = "8d64739b0382a6a440afaab1a57f5051"; //Internal
+    let cloudToken = "89d255f7b75dc2252dc77bb818cbeeca"; // Cloud
+    let currentToken; // assigned in Init
     let off = false; // XXXX TODO: change it to false to turn it on
 
     xcMixpanel.setup = function() {
@@ -144,10 +148,15 @@ window.xcMixpanel = (function($, xcMixpanel) {
         }
         // XXX TODO: use only one id, remove the check of xcMixpanel.forDev
         if (xcMixpanel.forDev()) {
-            window.mixpanel.init("8d64739b0382a6a440afaab1a57f5051");
+            currentToken = devToken;
         } else {
-            window.mixpanel.init("89d255f7b75dc2252dc77bb818cbeeca");
+            currentToken = cloudToken;
         }
+        window.mixpanel.init(currentToken, {
+            loaded: function(mixpanel) {
+                distinct_id = mixpanel.get_distinct_id();
+            }
+        });
     };
     xcMixpanel.addListeners = function() {
         let entries = Object.entries(events);
@@ -225,7 +234,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
             let currTime = Date.now();
             pageLoadTime = lastModeTime = lastPanelTime = currTime;
             let $mainPanel = $(".mainPanel.active");
-            currentPanel = $mainPanel.attr("id");
+            currentPanel = PanelHistory.Instance.getCurrentPanel();
             currentSubPanel = $mainPanel.find(".subPanel:visible").attr("id");
 
             const userIdUnique = XcUser.CurrentUser._userIdUnique;
@@ -382,11 +391,12 @@ window.xcMixpanel = (function($, xcMixpanel) {
                 return;
             }
             const $target = $(event.target);
-            if ($target.closest("#topMenuBarTabs").length) {
-                setTimeout(() => { // allow time for click
-                    mainMenuBarClick($target);
-                });
-            } else if ($target.closest("li").length && $target.closest("ul")) {
+            // if ($target.closest("#topMenuBarTabs").length) {
+            //     setTimeout(() => { // allow time for click
+            //         mainMenuBarClick($target);
+            //     });
+            // } else
+            if ($target.closest("li").length && $target.closest("ul")) {
                 if (xcMixpanel.forDev()) {
                     menuItemClick(event);
                 }
@@ -547,6 +557,24 @@ window.xcMixpanel = (function($, xcMixpanel) {
         return pathArray;
     }
 
+    xcMixpanel.switchScreen = function(newPanel) {
+        if (!events.panelSwitch) {
+            return;
+        }
+        let currTime = Date.now();
+        let lastPanel = currentPanel;
+        currentPanel = PanelHistory.Instance.getCurrentPanel();
+        let timeInLastPanel = Math.round((currTime - lastPanelTime) / 1000);
+        lastPanelTime = currTime;
+
+        xcMixpanel.track("Panel Switch", {
+            "timeInLastPanel": timeInLastPanel,
+            "lastPanel": lastPanel,
+            "newPanel": newPanel,
+            "eventType": "click"
+        });
+    }
+
     function mainMenuBarClick($target) {
         if (!events.panelSwitch) {
             return;
@@ -599,7 +627,6 @@ window.xcMixpanel = (function($, xcMixpanel) {
             }
         } else if ($target.closest(".subTab").length) { // sub tab click
             let $mainPanel = $(".mainPanel.active");
-            currentPanel = $mainPanel.attr("id");
             let lastSubPanel = currentSubPanel;
             currentSubPanel = $mainPanel.find(".subPanel:visible").attr("id");
             if (lastSubPanel === currentSubPanel) { // toggling left panel
@@ -749,6 +776,16 @@ window.xcMixpanel = (function($, xcMixpanel) {
         let eventName = "Other Click";
         if ($el.closest("#homeBtn").length) {
             eventName = "Btn- xdIcon";
+        } else {
+            let $modal;
+            if ($el.closest(".modal").length) {
+                $modal = $el.closest(".modal");
+            } else {
+                $modal = $el.closest(".modalContainer");
+            }
+            if ($modal.length) {
+                eventName = "Modal";
+            }
         }
 
         xcMixpanel.track(eventName, eventProperties, event);
@@ -802,7 +839,23 @@ window.xcMixpanel = (function($, xcMixpanel) {
                 return;
             }
         }
-        mixpanel.track(eventName, properties);
+        if (eventName === "User Leave") {
+            let data = {
+                event: 'User Leave',
+                properties: {
+                  token: currentToken,
+                  distinct_id: distinct_id,
+                  ...properties,
+                  ...mixpanel._.info.properties(),
+                  ...mixpanel['persistence'].properties()
+                }
+            };
+            let newdata = btoa(JSON.stringify(data));
+            navigator.sendBeacon('https://api.mixpanel.com/track/?data=' + newdata);
+        } else {
+            mixpanel.track(eventName, properties);
+        }
+
     }
 
     const eventMap = {

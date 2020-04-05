@@ -72,6 +72,10 @@ class HomeScreen {
 
         if (addHistory) {
             PanelHistory.Instance.push(TabToUrl[id]);
+
+            if (typeof mixpanel !== "undefined") {
+                xcMixpanel.switchScreen(id);
+            }
         }
     }
 
@@ -87,7 +91,7 @@ class HomeScreen {
                 });
                 return;
             }
-            
+
             this._switchScreen(id);
         });
 

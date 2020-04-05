@@ -1,10 +1,12 @@
 import React from 'react';
 
 function Dialog({
-    children
+    children,
+    id
 }) {
+    let modalId = id ||"";
     return (
-        <div className='modal' onClick={(e) => { e.stopPropagation(); }}>
+        <div id={modalId} className='modal' onClick={(e) => { e.stopPropagation(); }}>
             <section className="modal-content">{children}</section>
         </div>
     );

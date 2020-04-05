@@ -445,7 +445,7 @@ module.exports = {
     },
 
     "Debug": {
-        "NotebookOutput": "Notebook Outpu",
+        "NotebookOutput": "Notebook Output",
         "SQLHistory": "SQL History",
         "Console": "Console",
         "SystemLog": "System Log",

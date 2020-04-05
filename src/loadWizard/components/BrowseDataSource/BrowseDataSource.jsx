@@ -298,7 +298,7 @@ function BrowseDataSourceModal(props) {
     const [selectedFiles, setSelectedFileDir] = React.useState(props.selectedFileDir);
 
     return (
-        <Modal.Dialog>
+        <Modal.Dialog id="fileBrowserModal">
             <Modal.Header onClose={props.onCancel}>{Texts.title}</Modal.Header>
             <Modal.Body><BrowseDataSource {...props} setSelectedFileDir={setSelectedFileDir} /></Modal.Body>
             <Modal.Footer>
