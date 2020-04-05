@@ -166,11 +166,17 @@ function getFileSize(fileIds, fileInfos) {
     }, 0);
 }
 
-function validateTableName($input, tableName) {
+function validateCreate($input, tableName, path) {
     let isValid = true;
     // validate name
     tableName = tableName.trim().toUpperCase();
-    isValid = xcHelper.validate([
+    isValid = xcHelper.validate([{
+            "$ele": $input,
+            "error": "There are more than 127 files included in the scheam, it's over Xcalar's limit. Please click the schema button to check and select smaller number of files.",
+            "check": function() {
+              return path && path.length > 127;
+            }
+        },
         {
             "$ele": $input,
             "error": "Table name cannot be empty",
@@ -288,7 +294,7 @@ function LoadTable({
               // XXX this is a hacky way to use jQuery in order to use xcHelper.validate
               const $button = $(e.target);
               const $input = $button.parent().prev().find(".tableInput");
-              const validTableName = validateTableName($input, tableName);
+              const validTableName = validateCreate($input, tableName, path);
               if (validTableName) {
                   onClickCreateTable(schemaName, validTableName);
               }
