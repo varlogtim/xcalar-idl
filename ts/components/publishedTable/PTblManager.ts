@@ -214,6 +214,24 @@ class PTblManager {
     }
 
     /**
+     * PTblManager.Instance.addLoadingTable
+     * @param tableName
+     */
+    public addLoadingTable(tableName: string): void {
+        const tableInfo = new PbTblInfo({name: tableName});
+        tableInfo.state = PbTblState.Loading;
+        this._loadingTables[tableName] = tableInfo;
+    }
+
+    /**
+     * PTblManager.Instance.removeLoadingTable
+     * @param tableName
+     */
+    public removeLoadingTable(tableName: string): void {
+        delete this._loadingTables[tableName];
+    }
+
+    /**
      * PTblManager.Instance.createTableFromSource
      * @param tableInfo
      * @param args

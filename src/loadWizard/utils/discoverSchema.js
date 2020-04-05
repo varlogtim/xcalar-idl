@@ -111,61 +111,71 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
      * tableName => the name of the final table to be created. This function
      *     will also create the complements table, tableName + '_COMPLEMENTS'
      */
-
-    const myRandomName = randomName();
-    const myDatasetName = 'DS' + myRandomName;
-    const inputSerialJson = getInputSerial(inputSerialObject);
-
     tableName = PTblManager.Instance.getUniqName(tableName.toUpperCase());
     const compName = PTblManager.Instance.getUniqName(tableName + '_COMPLEMENTS');
-
-    // TODO: Must check to see if PubTables already exist with
-    // a given name
-    log("createTableAndComplements on session: " + sessionName);
-
-    // make load args for BulkLoad.
-    const schemaSet = getSchemaSet(schema);
-    const sourceArgs = buildSourceLoadArgsNoKV(paths);
-    const parserArgs = getParseArgsNoKV(schema, inputSerialJson);
-    const options = {
-        sources: sourceArgs,
-        ...parserArgs
-    };
-
-    let txId = Transaction.start({
-        "msg": TblTStr.Create + ": " + tableName,
-        "operation": SQLOps.TableFromDS,
-        "track": false
-    });
-
-    let hasCreateDataset = false;
-    let timer = null;
     try {
-        timer = updateProgress(progressCB, 0, 30);
-        // await loadStore.save();
-        await XcalarDatasetCreate(myDatasetName, options)
-        await XcalarDatasetActivate(myDatasetName, txId);
-        hasCreateDataset = true;
-    } finally {
-        // await loadStore.delete();
-        clearInterval(timer);
-    }
-    // do a bunch of table operations
-    let hasDeleteComplement = await datasetToTableWithComplements(myDatasetName, schemaSet, tableName, compName, progressCB, txId);
-    PTblManager.Instance.addTable(tableName);
-    if (!hasDeleteComplement) {
-        PTblManager.Instance.addTable(compName);
-    }
+        PTblManager.Instance.addLoadingTable(tableName);
+        PTblManager.Instance.addLoadingTable(compName);
 
-    Transaction.done(txId, {
-        noNotification: true,
-        noCommit: true
-    });
+        const myRandomName = randomName();
+        const myDatasetName = 'DS' + myRandomName;
+        const inputSerialJson = getInputSerial(inputSerialObject);
 
-    return {
-        table: tableName,
-        complementTable: hasDeleteComplement ? null : compName
-    };
+        // TODO: Must check to see if PubTables already exist with
+        // a given name
+        log("createTableAndComplements on session: " + sessionName);
+
+        // make load args for BulkLoad.
+        const schemaSet = getSchemaSet(schema);
+        const sourceArgs = buildSourceLoadArgsNoKV(paths);
+        const parserArgs = getParseArgsNoKV(schema, inputSerialJson);
+        const options = {
+            sources: sourceArgs,
+            ...parserArgs
+        };
+
+        let txId = Transaction.start({
+            "msg": TblTStr.Create + ": " + tableName,
+            "operation": SQLOps.TableFromDS,
+            "track": false
+        });
+
+        let hasCreateDataset = false;
+        let timer = null;
+        try {
+            timer = updateProgress(progressCB, 0, 30);
+            // await loadStore.save();
+            await XcalarDatasetCreate(myDatasetName, options)
+            await XcalarDatasetActivate(myDatasetName, txId);
+            hasCreateDataset = true;
+        } finally {
+            // await loadStore.delete();
+            clearInterval(timer);
+        }
+        // do a bunch of table operations
+        let hasDeleteComplement = await datasetToTableWithComplements(myDatasetName, schemaSet, tableName, compName, progressCB, txId);
+        PTblManager.Instance.removeLoadingTable(tableName);
+        PTblManager.Instance.removeLoadingTable(compName);
+
+        PTblManager.Instance.addTable(tableName);
+        if (!hasDeleteComplement) {
+            PTblManager.Instance.addTable(compName);
+        }
+
+        Transaction.done(txId, {
+            noNotification: true,
+            noCommit: true
+        });
+
+        return {
+            table: tableName,
+            complementTable: hasDeleteComplement ? null : compName
+        };
+    } catch (e) {
+        PTblManager.Instance.removeLoadingTable(tableName);
+        PTblManager.Instance.removeLoadingTable(compName);
+        throw e;
+    }
 }
 
 function getSchemaSet(schema) {
