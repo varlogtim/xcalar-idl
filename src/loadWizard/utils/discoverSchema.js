@@ -84,10 +84,23 @@ function getInputSerial(inputSerialObject) {
     }
 }
 
-function updateProgress(messge, cb) {
-    if (typeof cb === "function") {
-        cb(messge);
+function updateProgress(cb, startProgress, endProgress) {
+    if (typeof cb !== "function") {
+        return;
     }
+    let currentProgress = startProgress;
+    let callCb = (progress) => {
+        const message = `Progress ${progress}%`;
+        cb(message);
+    }
+    let timer = setInterval(() => {
+        if (currentProgress <= endProgress) {
+            callCb(currentProgress);
+            currentProgress++;
+        }
+    }, 5000);
+    callCb(currentProgress);
+    return timer;
 }
 
 async function createTableAndComplements(paths, schema, inputSerialObject, tableName, progressCB) {
@@ -114,9 +127,6 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
     const schemaSet = getSchemaSet(schema);
     const sourceArgs = buildSourceLoadArgsNoKV(paths);
     const parserArgs = getParseArgsNoKV(schema, inputSerialJson);
-    // const { parserArgs, loadStore } = getParseArgs(schema, inputSerialJson, paths);
-    // Load that dataset!!
-    // await xcalarLoad(tHandle, myDatasetName, sourceArgs, parseArgs, 0);
     const options = {
         sources: sourceArgs,
         ...parserArgs
@@ -128,17 +138,20 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
         "track": false
     });
 
+    let hasCreateDataset = false;
+    let timer = null;
     try {
-        updateProgress("Progress 0%", progressCB);
+        timer = updateProgress(progressCB, 0, 30);
         // await loadStore.save();
         await XcalarDatasetCreate(myDatasetName, options)
         await XcalarDatasetActivate(myDatasetName, txId);
+        hasCreateDataset = true;
     } finally {
         // await loadStore.delete();
+        clearInterval(timer);
     }
     // do a bunch of table operations
-    updateProgress("Progress: 30%", progressCB);
-    const hasDeleteComplement = await datasetToTableWithComplements(myDatasetName, schemaSet, tableName, compName, progressCB, txId);
+    let hasDeleteComplement = await datasetToTableWithComplements(myDatasetName, schemaSet, tableName, compName, progressCB, txId);
     PTblManager.Instance.addTable(tableName);
     if (!hasDeleteComplement) {
         PTblManager.Instance.addTable(compName);
@@ -238,139 +251,152 @@ async function datasetToTableWithComplements(datasetName, schemaSet, finalTableN
     // steps to publish both tables.
     //
     // TODO: Should remove tables as they are no longer needed.
+    let timer = null;
+    try {
+        let datasetInfo = await XcalarGetDatasetsInfo(datasetName);
+        log("My Dataset Info: " + JSON.stringify(datasetInfo));
+        // Determine the names of our table and complements columns
+        let complementColumnNames = [icvColumnName, fileRecordNumColumnName, dataColumnName, pathColumnName];
+        const internalTableColumnNames = new Set([pathColumnName]);
+        const complementColumnSchema = [];
+        const tableColumnNames = [];
+        const tableColumnSchema = [];
+        const columnSchema = DS.getSchemaMeta(datasetInfo.datasets[0].columns);
+        columnSchema.forEach(function(column){
+            if (column.type == null || column.type === ColumnType.mixed) {
+                if (schemaSet.has(column.name)) {
+                    column.type = schemaSet.get(column.name);
+                }
 
-    let datasetInfo = await XcalarGetDatasetsInfo(datasetName);
-    log("My Dataset Info: " + JSON.stringify(datasetInfo));
-    // Determine the names of our table and complements columns
-    let complementColumnNames = [icvColumnName, fileRecordNumColumnName, dataColumnName, pathColumnName];
-    const internalTableColumnNames = new Set([pathColumnName]);
-    const complementColumnSchema = [];
-    const tableColumnNames = [];
-    const tableColumnSchema = [];
-    const columnSchema = DS.getSchemaMeta(datasetInfo.datasets[0].columns);
-    columnSchema.forEach(function(column){
-        if (column.type == null || column.type === ColumnType.mixed) {
-            if (schemaSet.has(column.name)) {
-                column.type = schemaSet.get(column.name);
+                if (!column.type) {
+                    column.type = ColumnType.string;
+                }
             }
-
-            if (!column.type) {
-                column.type = ColumnType.string;
-            }
-        }
-        if (complementColumnNames.includes(column.name)) {
-            complementColumnSchema.push(column);
-            if (internalTableColumnNames.has(column.name)) {
+            if (complementColumnNames.includes(column.name)) {
+                complementColumnSchema.push(column);
+                if (internalTableColumnNames.has(column.name)) {
+                    tableColumnNames.push(column.name);
+                    tableColumnSchema.push(column);
+                }
+            } else {
                 tableColumnNames.push(column.name);
                 tableColumnSchema.push(column);
             }
-        } else {
-            tableColumnNames.push(column.name);
-            tableColumnSchema.push(column);
+        });
+        log("TABLE COLUMNS: " + JSON.stringify(tableColumnSchema));
+        log("COMPLEMENTS COLUMNS: " + JSON.stringify(complementColumnSchema));
+
+        let srcTableName = null;
+        let destTableName = null;
+        let srcCompTableName = null;
+        let destCompTableName = null;
+        // synthesize Dataset
+        log("Synthesize Dataset");
+        timer = updateProgress(progressCB, 30, 35);
+        const parsedDsName = parseDS(datasetName);
+        const colInfos = xcHelper.getColRenameInfosFromSchema(columnSchema);
+        destTableName = genTableName(datasetName + "_synthesize");
+        await XcalarSynthesize(parsedDsName, destTableName, colInfos, true, txId);
+
+        // Add Xcalar Row Number PK
+        log("Adding Xcalar Row Number Primary Keys");
+        clearInterval(timer);
+        timer = updateProgress(progressCB, 35, 40);
+        const xcalarRowNumPkName = "XcalarRankOver";
+        srcTableName = destTableName;
+        srcCompTableName = destTableName;
+        destTableName = genTableName(datasetName + "_rowNum");
+        await XcalarGenRowNum(srcTableName, destTableName, xcalarRowNumPkName, txId);
+
+        _deleteTempTable(srcTableName, txId);
+
+        complementColumnNames.push(xcalarRowNumPkName);
+        tableColumnNames.push(xcalarRowNumPkName);
+
+        // Filter
+        // At this point we need to run two filters to split of the table and it's complements.
+        log("Filtering out the table and it's complements");
+        clearInterval(timer);
+        timer = updateProgress(progressCB, 40, 42);
+        srcTableName = destTableName;
+        srcCompTableName = destTableName;
+        destTableName = genTableName(datasetName + "_filter");
+        destCompTableName = genTableName(datasetName + "_comp_filter");
+        await XcalarFilter("eq(" + icvColumnName + ", '')", srcTableName, destTableName, txId);
+        await XcalarFilter("neq(" + icvColumnName + ", '')", srcCompTableName, destCompTableName, txId);
+
+        _deleteTempTable(srcTableName, txId);
+
+        // Project tables...
+        log("Projecting columns for table and complements");
+        clearInterval(timer);
+        timer = updateProgress(progressCB, 42, 45);
+        srcTableName = destTableName;
+        srcCompTableName = destCompTableName;
+        destTableName = genTableName(datasetName + "_project");
+        destCompTableName = genTableName(datasetName + "_comp_project");
+        await XcalarProject(tableColumnNames, srcTableName, destTableName, txId);
+        await XcalarProject(complementColumnNames, srcCompTableName, destCompTableName, txId);
+
+        _deleteTempTable(srcTableName, txId);
+        _deleteTempTable(srcCompTableName, txId);
+
+        // Index on Xcalar Row Number PK
+        log("Indexing on Xcalar Row Number Primary Key");
+        clearInterval(timer);
+        timer = updateProgress(progressCB, 45, 65);
+        srcTableName = destTableName;
+        srcCompTableName = destCompTableName;
+        destTableName = genTableName(datasetName + "_index");
+        destCompTableName = genTableName(datasetName + "_comp_index");
+        await xcalarIndex(
+            tHandle,
+            srcTableName,
+            destTableName,
+            [new XcalarApiKeyT({
+                name: xcalarRowNumPkName,
+                type: "DfInt64",
+                keyFieldName:"",
+                ordering:"Unordered"})]
+        );
+        await xcalarIndex(
+            tHandle,
+            srcCompTableName,
+            destCompTableName,
+            [new XcalarApiKeyT({
+                name: xcalarRowNumPkName,
+                type: "DfInt64",
+                keyFieldName:"",
+                ordering:"Unordered"})]
+        );
+
+        _deleteTempTable(srcTableName, txId);
+        _deleteTempTable(srcCompTableName, txId);
+
+        // Publish tables...
+        log("Publishing tables... :)");
+        clearInterval(timer);
+        timer = updateProgress(progressCB, 65, 100);
+        srcTableName = destTableName;
+        srcCompTableName = destCompTableName;
+        await createPublishTable(srcTableName, finalTableName, false, txId);
+        const hasDelete = await createPublishTable(srcCompTableName, finalComplementsName, true, txId);
+        log("TABLE CREATED: '" + finalTableName + "'");
+        log("COMPLEMENTS CREATED: '" + finalComplementsName + "'");
+        clearInterval(timer);
+        timer = updateProgress(progressCB, 100, 100);
+        clearInterval(timer);
+        _cleanupDataset(txId, datasetName);
+        return hasDelete;
+    } catch (e) {
+        clearInterval(timer);
+        await _deleteTempTable(srcTableName, txId);
+        if (srcCompTableName !== srcTableName) {
+            await _deleteTempTable(srcCompTableName, txId);
         }
-    });
-    log("TABLE COLUMNS: " + JSON.stringify(tableColumnSchema));
-    log("COMPLEMENTS COLUMNS: " + JSON.stringify(complementColumnSchema));
-
-    let srcTableName = null;
-    let destTableName = null;
-    let srcCompTableName = null;
-    let destCompTableName = null;
-    // synthesize Dataset
-    const parsedDsName = parseDS(datasetName);
-    const colInfos = xcHelper.getColRenameInfosFromSchema(columnSchema);
-    destTableName = genTableName(datasetName + "_synthesize");
-    await XcalarSynthesize(parsedDsName, destTableName, colInfos, true, txId);
-
-    _cleanupDataset(txId, datasetName);
-
-    updateProgress("Progress: 35%", progressCB);
-
-    // Add Xcalar Row Number PK
-    const xcalarRowNumPkName = "XcalarRankOver";
-    log("Adding Xcalar Row Number Primary Keys");
-    srcTableName = destTableName;
-    srcCompTableName = destTableName;
-    destTableName = genTableName(datasetName + "_rowNum");
-    await XcalarGenRowNum(srcTableName, destTableName, xcalarRowNumPkName, txId);
-
-    _deleteTempTable(srcTableName, txId);
-
-    complementColumnNames.push(xcalarRowNumPkName);
-    tableColumnNames.push(xcalarRowNumPkName);
-    updateProgress("Progress: 40%", progressCB);
-
-    // Filter
-    // At this point we need to run two filters to split of the table and it's complements.
-    log("Filtering out the table and it's complements");
-    srcTableName = destTableName;
-    srcCompTableName = destTableName;
-    destTableName = genTableName(datasetName + "_filter");
-    destCompTableName = genTableName(datasetName + "_comp_filter");
-    await XcalarFilter("eq(" + icvColumnName + ", '')", srcTableName, destTableName, txId);
-    await XcalarFilter("neq(" + icvColumnName + ", '')", srcCompTableName, destCompTableName, txId);
-
-    _deleteTempTable(srcTableName, txId);
-
-    updateProgress("Progress: 42%", progressCB);
-
-    // Project tables...
-    log("Projecting columns for table and complements");
-    srcTableName = destTableName;
-    srcCompTableName = destCompTableName;
-    destTableName = genTableName(datasetName + "_project");
-    destCompTableName = genTableName(datasetName + "_comp_project");
-    await XcalarProject(tableColumnNames, srcTableName, destTableName, txId);
-    await XcalarProject(complementColumnNames, srcCompTableName, destCompTableName, txId);
-
-    _deleteTempTable(srcTableName, txId);
-    _deleteTempTable(srcCompTableName, txId);
-
-    updateProgress("Progress: 45%", progressCB);
-
-    // Index on Xcalar Row Number PK
-    log("Indexing on Xcalar Row Number Primary Key");
-    srcTableName = destTableName;
-    srcCompTableName = destCompTableName;
-    destTableName = genTableName(datasetName + "_index");
-    destCompTableName = genTableName(datasetName + "_comp_index");
-    await xcalarIndex(
-        tHandle,
-        srcTableName,
-        destTableName,
-        [new XcalarApiKeyT({
-            name: xcalarRowNumPkName,
-            type: "DfInt64",
-            keyFieldName:"",
-            ordering:"Unordered"})]
-    );
-    await xcalarIndex(
-        tHandle,
-        srcCompTableName,
-        destCompTableName,
-        [new XcalarApiKeyT({
-            name: xcalarRowNumPkName,
-            type: "DfInt64",
-            keyFieldName:"",
-            ordering:"Unordered"})]
-    );
-
-    _deleteTempTable(srcTableName, txId);
-    _deleteTempTable(srcCompTableName, txId);
-
-    updateProgress("Progress: 65%", progressCB);
-
-    // Publish tables...
-    log("Publishing tables... :)");
-    srcTableName = destTableName;
-    srcCompTableName = destCompTableName;
-    await createPublishTable(srcTableName, finalTableName, false, txId);
-    const hasDelete = await createPublishTable(srcCompTableName, finalComplementsName, true, txId);
-    log("TABLE CREATED: '" + finalTableName + "'");
-    log("COMPLEMENTS CREATED: '" + finalComplementsName + "'");
-    updateProgress("Progress: 100%", progressCB);
-
-    return hasDelete;
+        _cleanupDataset(txId, datasetName);
+        throw e;
+    }
 }
 
 function genTableName(prefix) {

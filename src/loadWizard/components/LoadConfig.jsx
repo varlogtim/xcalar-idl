@@ -29,7 +29,7 @@ const Texts = {
     CreateTableHint: 'Please discover schema first',
     ResetInDiscoverLoading: 'Cannot reset when selected files are loading.',
     ResetInDiscoverBatch: "Cannot reset when discovering schema, please cancel discover schema first.",
-    ResetInCreating: 'Canot reset when table is creating.'
+    ResetInCreating: 'Cannot reset when table is creating.'
 };
 
 /**
