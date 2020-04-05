@@ -56,7 +56,8 @@ class MuiVirtualizedTable extends React.PureComponent {
             scrollIndex: undefined,
             sortBy: sortBy,
             sortDirection: sortDirection,
-            sortedList: [...props.fileList]
+            sortedList: [...props.fileList],
+            lastClickedIndex: null
         };
         this.getRowClassName = this.getRowClassName.bind(this);
         this.cellRenderer = this.cellRenderer.bind(this);
@@ -79,12 +80,49 @@ class MuiVirtualizedTable extends React.PureComponent {
         });
     };
 
-    handleCheckboxClick(event, fileId) {
-        if (this.props.selectedIds.has(fileId)) {
-            this.props.onDeselect(new Set([fileId]));
-        } else {
-            this.props.onSelect(new Set([fileId]));
+    handleCheckboxClick(event, fileId, rowIndex) {
+        let toSelect = !this.props.selectedIds.has(fileId);
+        let multiSelectList = [];
+        // for shift click multi select
+        if (event.nativeEvent.shiftKey &&
+            this.state.lastClickedIndex != null) {
+            let min;
+            let max;
+            if (rowIndex > this.state.lastClickedIndex) {
+                min = this.state.lastClickedIndex;
+                max = rowIndex;
+            } else {
+                max = this.state.lastClickedIndex;
+                min = rowIndex;
+            }
+            for (let i = min; i <= max; i++) {
+                multiSelectList.push(this.state.sortedList[i].fileId);
+            }
         }
+        // check for multi select
+        if (toSelect) {
+            let selectedList = new Set();
+            multiSelectList.forEach((fileId) => {
+                if (!this.props.selectedIds.has(fileId)) {
+                    selectedList.add(fileId);
+                }
+            });
+            selectedList.add(fileId);
+            this.props.onSelect(selectedList);
+        } else {
+            let selectedList = new Set();
+            multiSelectList.forEach((fileId) => {
+                if (this.props.selectedIds.has(fileId)) {
+                    selectedList.add(fileId);
+                }
+            });
+            selectedList.add(fileId);
+            this.props.onDeselect(selectedList);
+        }
+
+        this.setState({
+            lastClickedIndex: rowIndex
+        });
     }
 
     onSelectAllClick() {
@@ -93,10 +131,13 @@ class MuiVirtualizedTable extends React.PureComponent {
             this.props.fileList.forEach((file) => {
                 fileIds.add(file.fileId);
             });
-        this.props.onSelect(fileIds);
+            this.props.onSelect(fileIds);
         } else {
             this.props.onDeselect(this.props.selectedIds);
         }
+        this.setState({
+            lastClickedIndex: null
+        });
     }
 
     checkboxHeaderRenderer({ label, columnIndex }) {
@@ -164,7 +205,8 @@ class MuiVirtualizedTable extends React.PureComponent {
     checkboxCellRenderer(info) {
         const {
             cellData: fileId,
-            columnIndex
+            columnIndex,
+            rowIndex
         } = info;
         const {classes, rowHeight, onRowClick } = this.props;
 
@@ -182,7 +224,7 @@ class MuiVirtualizedTable extends React.PureComponent {
                 size="small"
                 color="primary"
                 checked={this.props.selectedIds.has(fileId)}
-                onChange={event => this.handleCheckboxClick(event, fileId)}
+                onChange={event => this.handleCheckboxClick(event, fileId, rowIndex)}
             />
           </TableCell>
         );
