@@ -42,7 +42,6 @@ export default function SchemaChart({selectedData, schemasFileMap}) {
 
     const totalCountOfDirectories = typeCount['DIRECTORY'] || 0;
     totalCountOfFiles -= totalCountOfDirectories;
-
     const sizeFilesChartData = [];
     Object.keys(typeSize).forEach(type => {
         if (type !== 'DIRECTORY') {
@@ -100,9 +99,11 @@ export default function SchemaChart({selectedData, schemasFileMap}) {
         <div>
             <div className="chartInfo">
                 <div className="schemaSummaryHeader">Summary</div>
-                <div>Total number of files: {totalCountOfFiles}</div>
+                {/* <div>Total number of files: {totalCountOfFiles}</div>
                 <div>Total number of directories: {totalCountOfDirectories}</div>
-                <div>Discovered schemas: {numSchemas}</div>
+                 */}
+                <div>Discovered files: {(schemasFileMap.size).toLocaleString()}</div>
+                <div>Discovered schemas: {numSchemas.toLocaleString()}</div>
             </div>
             <div id="SchemaChart">
                 <PieChart width={280} height={250}>
