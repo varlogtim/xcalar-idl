@@ -262,6 +262,10 @@ async function datasetToTableWithComplements(datasetName, schemaSet, finalTableN
     //
     // TODO: Should remove tables as they are no longer needed.
     let timer = null;
+    let srcTableName = null;
+    let destTableName = null;
+    let srcCompTableName = null;
+    let destCompTableName = null;
     try {
         let datasetInfo = await XcalarGetDatasetsInfo(datasetName);
         log("My Dataset Info: " + JSON.stringify(datasetInfo));
@@ -296,10 +300,6 @@ async function datasetToTableWithComplements(datasetName, schemaSet, finalTableN
         log("TABLE COLUMNS: " + JSON.stringify(tableColumnSchema));
         log("COMPLEMENTS COLUMNS: " + JSON.stringify(complementColumnSchema));
 
-        let srcTableName = null;
-        let destTableName = null;
-        let srcCompTableName = null;
-        let destCompTableName = null;
         // synthesize Dataset
         log("Synthesize Dataset");
         timer = updateProgress(progressCB, 30, 35);
@@ -400,11 +400,15 @@ async function datasetToTableWithComplements(datasetName, schemaSet, finalTableN
         return hasDelete;
     } catch (e) {
         clearInterval(timer);
-        await _deleteTempTable(srcTableName, txId);
-        if (srcCompTableName !== srcTableName) {
-            await _deleteTempTable(srcCompTableName, txId);
+        try {
+            await _deleteTempTable(srcTableName, txId);
+            if (srcCompTableName !== srcTableName) {
+                await _deleteTempTable(srcCompTableName, txId);
+            }
+            _cleanupDataset(txId, datasetName);
+        } catch (e) {
+            console.error(e);
         }
-        _cleanupDataset(txId, datasetName);
         throw e;
     }
 }
