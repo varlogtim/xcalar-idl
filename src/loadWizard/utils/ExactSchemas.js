@@ -1,14 +1,7 @@
-export class ExactSchemas {
-    normalize(columns) {
-        var newcol = []
-        const regex = /\(\d*\)/
-        for (var column of columns) {
-            var col = column.name + "-" + column.mapping + "-" + column.type.replace(regex, '')
-            newcol.push(col)
-        }
-        return newcol
-    }
+import { getColumnsSignature } from './SchemaCommon'
+import * as SetUtils from './SetUtils'
 
+export class ExactSchemas {
     process(schema) {
         var cols = []
         for (var column of schema.schema.columnsList) {
@@ -44,7 +37,9 @@ export class ExactSchemas {
                 for (var orgkey in orgSchemas) {
                     var orgSchema = orgSchemas[orgkey]
                     if (schema.schema.columnsList.length == orgSchema.schema.columnsList.length) {
-                        if (this.normalize(schema.schema.columnsList).every(val => this.normalize(orgSchema.schema.columnsList).includes(val)) && this.normalize(orgSchema.schema.columnsList).every(val => this.normalize(schema.schema.columnsList).includes(val))) {
+                        const matchingset = new Set(getColumnsSignature(orgSchema.schema.columnsList));
+                        const currentset = new Set(getColumnsSignature(schema.schema.columnsList));
+                        if (SetUtils.diff(matchingset, currentset).size === 0) {
                             orgSchema.path.push(schema.path)
                             found = true
                         }

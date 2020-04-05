@@ -1,14 +1,6 @@
-export class SupersetSchemas {
-    normalize(columns) {
-        var newcol = []
-        const regex = /\(\d*\)/
-        for (var column of columns) {
-            var col = column.name + "-" + column.mapping + "-" + column.type.replace(regex, '')
-            newcol.push(col)
-        }
-        return newcol
-    }
+import { getColumnsSignature } from './SchemaCommon'
 
+export class SupersetSchemas {
     process(schema) {
         var cols = []
         for (var column of schema.schema.columnsList) {
@@ -25,45 +17,58 @@ export class SupersetSchemas {
     }
 
     _getSchemas(schemas) {
-        var orgSchemas = {};
-        var prefix = "Schema ";
-        var offset = 0;
-        var errSchemas = [];
-        for (var schema of schemas) {
+        const orgSchemas = {};
+        const prefix = "Schema ";
+        let offset = 0;
+        const errSchemas = [];
+        for (const schema of schemas) {
             if (!schema.success) {
-                errSchemas.push(schema)
-                continue
+                errSchemas.push(schema);
+                continue;
             }
             // schema["schema"]["columnsList"] = this.normalize(schema.schema.columnsList)
             // var normalizedSchema = this.normalize(schema.schema.columnsList)
-            var found = false
+            let found = false;
             if (Object.keys(orgSchemas).length == 0) {
-                var stag = prefix + ++offset
-                orgSchemas[stag] = {path: [schema.path], schema : {numColumns : schema.schema.columnsList.length, columnsList : schema.schema.columnsList}}
-                found = true
+                const stag = prefix + ++offset;
+                orgSchemas[stag] = {
+                    path: [schema.path],
+                    schema: {
+                        numColumns: schema.schema.columnsList.length,
+                        columnsList: schema.schema.columnsList
+                    }
+                };
+                found = true;
             } else {
-                for (var orgkey in orgSchemas) {
-                    var orgSchema = orgSchemas[orgkey]
+                for (const orgSchema of Object.values(orgSchemas)) {
                     if (schema.schema.columnsList.length <= orgSchema.schema.columnsList.length) {
-                        if (this.normalize(schema.schema.columnsList).every(val => this.normalize(orgSchema.schema.columnsList).includes(val))) {
-                            orgSchema.path.push(schema.path)
-                            found = true
-                            break
+                        const superset = new Set(getColumnsSignature(orgSchema.schema.columnsList));
+                        if (getColumnsSignature(schema.schema.columnsList).every(val => superset.has(val))) {
+                            orgSchema.path.push(schema.path);
+                            found = true;
+                            break;
                         }
                     } else {
-                        if (this.normalize(orgSchema.schema.columnsList).every(val => this.normalize(schema.schema.columnsList).includes(val))) {
-                            orgSchema.path.push(schema.path)
-                            orgSchema.schema.columnsList = schema.schema.columnsList
-                            orgSchema.schema.numColumns = schema.schema.columnsList.length
-                            found = true
-                            break
+                        const superset = new Set(getColumnsSignature(schema.schema.columnsList));
+                        if (getColumnsSignature(orgSchema.schema.columnsList).every(val => superset.has(val))) {
+                            orgSchema.path.push(schema.path);
+                            orgSchema.schema.columnsList = schema.schema.columnsList;
+                            orgSchema.schema.numColumns = schema.schema.columnsList.length;
+                            found = true;
+                            break;
                         }
                     }
                 }
             }
             if (!found) {
-                stag = prefix + ++offset
-                orgSchemas[stag] = {path: [schema.path], schema : {numColumns : schema.schema.columnsList.length, columnsList : schema.schema.columnsList}}
+                const stag = prefix + ++offset;
+                orgSchemas[stag] = {
+                    path: [schema.path],
+                    schema : {
+                        numColumns: schema.schema.columnsList.length,
+                        columnsList: schema.schema.columnsList
+                    }
+                };
             }
         }
         // for (var orgkey in orgSchemas) {
@@ -75,8 +80,3 @@ export class SupersetSchemas {
         return [orgSchemas, errSchemas];
     }
 }
-/*
-if (typeof module !== 'undefined') {
-    module.exports = SupersetSchemas
-}
-*/

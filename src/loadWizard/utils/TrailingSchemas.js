@@ -1,3 +1,5 @@
+import { getColumnsSignature } from './SchemaCommon'
+
 class TrieNode {
     constructor(coldef) {
         this.coldef = coldef
@@ -50,12 +52,7 @@ export class TrailingSchemas {
     }
 
     normalize(schemaDetail) {
-        var newcol = []
-        const regex = /\(\d*\)/
-        for (var column of schemaDetail.schema.columnsList) {
-            var col = column.name + "-" + column.mapping + "-" + column.type.replace(regex, '')
-            newcol.push(col)
-        }
+        const newcol = getColumnsSignature(schemaDetail.schema.columnsList);
         return {path : schemaDetail.path, schema : {numColumns : schemaDetail.schema.numColumns, columnsList : newcol}}
     }
 

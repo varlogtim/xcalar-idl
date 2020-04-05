@@ -1,14 +1,6 @@
-export class UnionSchema {
-    normalize(columns) {
-        var newcol = []
-        const regex = /\(\d*\)/
-        for (var column of columns) {
-            var col = column.name + "-" + column.mapping + "-" + column.type.replace(regex, '')
-            newcol.push(col)
-        }
-        return newcol
-    }
+import { getColumnsSignature } from './SchemaCommon'
 
+export class UnionSchema {
     exists(unionCols, newCol) {
         for (var unionCol of unionCols) {
             if (unionCol === newCol) {
@@ -55,7 +47,7 @@ export class UnionSchema {
                 errSchemas.push(schema)
                 continue
             }
-            schema.schema.columnsList = this.normalize(schema.schema.columnsList)
+            schema.schema.columnsList = getColumnsSignature(schema.schema.columnsList)
             if (unionSchema == null) {
                 unionSchema = schema
                 unionSchema.path = [unionSchema.path]
@@ -67,8 +59,3 @@ export class UnionSchema {
         return [{"Schema 1" : unionSchema}, errSchemas];
     }
 }
-/*
-if (typeof module !== 'undefined') {
-    module.exports = UnionSchema
-}
-*/
