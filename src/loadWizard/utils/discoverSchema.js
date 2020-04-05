@@ -131,7 +131,8 @@ async function createTableAndComplements(paths, schema, inputSerialObject, table
     try {
         updateProgress("Progress 0%", progressCB);
         // await loadStore.save();
-        await XcalarDatasetLoad(myDatasetName, options, txId);
+        await XcalarDatasetCreate(myDatasetName, options)
+        await XcalarDatasetActivate(myDatasetName, txId);
     } finally {
         // await loadStore.delete();
     }
@@ -211,24 +212,20 @@ function _deleteTempTable(tableName, txId) {
     return XcalarDeleteTable(tableName, txId, false, false);
 }
 
-async function _cleanupDataset(datasetName) {
+async function _cleanupDataset(txId, datasetName) {
     try {
-        log("Cleaning up dataset");
-        // Deactivate Dataset
-        await XcalarDatasetDeactivate(datasetName);
-        log("Deactivated Dataset");
-        await XcalarDatasetDelete(datasetName);
-        log("Delete Dataset");
-
-        const datasetList = await XcalarGetDatasets();
-        log("datasetList: " + JSON.stringify(datasetList));
+        log("Delete dataset");
+        await XIApi.deleteDataset(txId, datasetName, true);
+        log("Delete dataset succeed");
+        // const datasetList = await XcalarGetDatasets();
+        // log("datasetList: " + JSON.stringify(datasetList));
         // {numDatasets: 1, datasets: [ {loadArgs: asdf, datasetId: 123, name: "asdf", ... }]
-        for(let ii = 0; ii < datasetList.datasets.length; ii++) {
-            if (datasetList.datasets[ii].name.indexOf(datasetName) > 0) {
-                console.error("Error deleting dataset: " + datasetName);
-                break;
-            }
-        }
+        // for(let ii = 0; ii < datasetList.datasets.length; ii++) {
+        //     if (datasetList.datasets[ii].name.indexOf(datasetName) > 0) {
+        //         console.error("Error deleting dataset: " + datasetName);
+        //         break;
+        //     }
+        // }
     } catch (e) {
         console.error("clean up dataset fails", e);
     }
@@ -285,7 +282,7 @@ async function datasetToTableWithComplements(datasetName, schemaSet, finalTableN
     destTableName = genTableName(datasetName + "_synthesize");
     await XcalarSynthesize(parsedDsName, destTableName, colInfos, true, txId);
 
-    _cleanupDataset(datasetName);
+    _cleanupDataset(txId, datasetName);
 
     updateProgress("Progress: 35%", progressCB);
 
@@ -405,7 +402,7 @@ async function _savePublishedTableDataFlow(
     try {
         const pbTblInfo = new PbTblInfo({name: pubTableName});
         await pbTblInfo.saveDataflow(resultSetName);
-        console.log("persisted the dataflow of published table " + pubTableName);
+        log("persisted the dataflow of published table " + pubTableName);
     } catch (e) {
         console.error("persist published table data flow failed", e);
     }
