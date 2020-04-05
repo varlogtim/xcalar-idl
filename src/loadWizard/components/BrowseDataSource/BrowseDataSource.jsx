@@ -88,7 +88,8 @@ class BrowseDataSource extends React.Component {
     async _browsePath(newFullPath, fileType) {
         try {
             this.setState({
-                isLoading: true
+                isLoading: true,
+                path: newFullPath,
             });
             let homePath = newFullPath.slice(this.props.bucket.length);
             this.props.onPathChange(homePath);
@@ -96,7 +97,10 @@ class BrowseDataSource extends React.Component {
             const fileMap = await S3Service.listFiles(Path.join(newFullPath, '/'), ({ directory, type}) => {
                 return directory || fileTypeFilter({ type: type });
             });
-            // console.log(this.props.homePath, newFullPath)
+            if (this.props.homePath && !newFullPath.endsWith(this.props.homePath)) {
+                // navigated away while files were loading
+                return false;
+            }
             this.setState({
                 path: newFullPath,
                 fileMapViewing: fileMap,
