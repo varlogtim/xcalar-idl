@@ -118,12 +118,13 @@ class PTblManager {
      * PTblManager.Instance.getUniqName
      * @param name
      */
-    public getUniqName(name: string): string {
+    public getUniqName(name: string, nameSet?: Set<string>): string {
         var originalName = name;
         var tries = 1;
         var validNameFound = false;
+        nameSet = nameSet || new Set();
         while (!validNameFound && tries < 20) {
-            if (this.hasTable(name)) {
+            if (this.hasTable(name) || nameSet.has(name)) {
                 validNameFound = false;
             } else {
                 validNameFound = true;
@@ -136,7 +137,10 @@ class PTblManager {
         }
 
         if (!validNameFound) {
-            while (this.hasTable(name) && tries < 100) {
+            while (
+                (this.hasTable(name) || nameSet.has(name))
+                && tries < 100
+            ) {
                 name = xcHelper.randName(name, 4);
                 tries++;
             }

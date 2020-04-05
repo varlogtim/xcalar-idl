@@ -237,7 +237,7 @@ class LoadConfig extends React.Component {
     }
 
     // XXX this is copied from DSConfig
-    _getNameFromPath(path) {
+    _getNameFromPath(path, nameSet) {
         if (path.charAt(path.length - 1) === "/") {
             // remove the last /
             path = path.substring(0, path.length - 1);
@@ -268,7 +268,7 @@ class LoadConfig extends React.Component {
             name = "source" + name;
         }
         name = name.toUpperCase();
-        return PTblManager.Instance.getUniqName(name);
+        return PTblManager.Instance.getUniqName(name, nameSet);
     }
 
     _convertSchemaMergeResult(schemas) {
@@ -795,9 +795,11 @@ class LoadConfig extends React.Component {
                                 return null;
                             }
                             const schemaFileMap = this._createSchemaFileMap(this.state.discoverFileSchemas);
+                            let nameSet = new Set();
                             schemaFileMap.forEach(({path}, schemaName) => {
                                 if (!this.state.tableToCreate.has(schemaName)) {
-                                    const defaultTableName = this._getNameFromPath(path[0]);
+                                    const defaultTableName = this._getNameFromPath(path[0], nameSet);
+                                    nameSet.add(defaultTableName);
                                     this.state.tableToCreate.set(schemaName, defaultTableName);
                                 }
                             });
