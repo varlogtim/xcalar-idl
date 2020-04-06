@@ -291,6 +291,14 @@ function getColRenameMsg(colRenames: ColRenameInfo[]): any[] {
     return ret
 }
 
+function getColRenameMsg2(colRename) {
+    var colRenameMsg = new df_pb.ColRenameInfo();
+    colRenameMsg.setOrig(colRename['orig']);
+    colRenameMsg.setNew(colRename['new']);
+    colRenameMsg.setType(colRename['type']);
+    return colRenameMsg;
+}
+
 function join(joinReq: any): Promise<any> {
     let deferred: any = PromiseHelper.deferred();
     //Translate from protobuf message to xiapi arguments
@@ -325,10 +333,21 @@ function join(joinReq: any): Promise<any> {
                 const lRename: ColRenameInfo[] = ret.lRename;
                 const rRename: ColRenameInfo[] = ret.rRename;
                 let joinRes: any = new df_pb.JoinResponse();
-                joinRes.setQuerystr(Transaction.done(txId));
-                joinRes.setNewtablename(newTableName);
-                joinRes.setLrenameList(getColRenameMsg(lRename));
-                joinRes.setRrenameList(getColRenameMsg(rRename));
+                if (typeof joinRes.setRrename === 'function') {
+                    // XXX TODO: Source Tree Merge backward compatible
+                    // remove this after protobuf def is ported
+                    const tempCols = ret.tempCols;
+                    joinRes.setQuerystr(Transaction.done(txId));
+                    joinRes.setNewtablename(newTableName);
+                    joinRes.setTempcolsList(tempCols);
+                    joinRes.setLrename(getColRenameMsg2(lRename));
+                    joinRes.setRrename(getColRenameMsg2(rRename));
+                } else {
+                    joinRes.setQuerystr(Transaction.done(txId));
+                    joinRes.setNewtablename(newTableName);
+                    joinRes.setLrenameList(getColRenameMsg(lRename));
+                    joinRes.setRrenameList(getColRenameMsg(rRename));
+                }
                 deferred.resolve(joinRes);
             })
         .fail(function (err: any): void {
