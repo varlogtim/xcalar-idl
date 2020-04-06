@@ -185,15 +185,24 @@ function getSchemaSet(schema) {
         schema.columns.forEach((schema) => {
             let type = null;
             switch (schema.type) {
-                case "BOOLEAN":
+                case DfFieldTypeTStr[DfFieldTypeT.DfBoolean]:
                     type = ColumnType.boolean;
                     break;
-                case "INTEGER":
+                case DfFieldTypeTStr[DfFieldTypeT.DfInt32]:
+                case DfFieldTypeTStr[DfFieldTypeT.DfInt64]:
+                case DfFieldTypeTStr[DfFieldTypeT.DfUInt32]:
+                case DfFieldTypeTStr[DfFieldTypeT.DfUInt64]:
                     type = ColumnType.integer;
                     break;
-                case "REAL":
-                case "DOUBLE":
+                case DfFieldTypeTStr[DfFieldTypeT.DfFloat32]:
+                case DfFieldTypeTStr[DfFieldTypeT.DfFloat64]:
                     type = ColumnType.float;
+                    break;
+                case DfFieldTypeTStr[DfFieldTypeT.DfMoney]:
+                    type = ColumnType.money;
+                    break;
+                case DfFieldTypeTStr[DfFieldTypeT.DfTimespec]:
+                    type = ColumnType.timestamp;
                     break;
                 default:
                     break;
