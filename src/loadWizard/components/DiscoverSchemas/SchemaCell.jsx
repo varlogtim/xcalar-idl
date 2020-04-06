@@ -44,26 +44,27 @@ class InlineError extends React.PureComponent {
     }
 
     render() {
-        const { errorMsg = '', errorTitle = '' } = this.props;
+        const { errorMsg = '', errorTitle = '', onRetry} = this.props;
         const { expanded } = this.state;
         const safeErrorMsg = `${errorMsg}`;
 
         if (safeErrorMsg.length <= 20) {
             // when error is too short
             return (
-                <span>{safeErrorMsg}</span>
+                <span>{safeErrorMsg} <Discover btnText="Retry" onClick={() => { onRetry(); }}/>
+                </span>
             )
         } else if (expanded) {
             return (
                 <div className="error">
-                    <span>{safeErrorMsg}</span>
+                    <span>{safeErrorMsg} <Discover btnText="Retry" onClick={() => { onRetry(); }}/></span>
                     <span className="action xc-action" onClick={() => { this.showError(false); }}>{Texts.collapseError}</span>
                 </div>
             )
         } else {
             return (
                 <div className="error">
-                    <span className="label">{errorTitle}</span>
+                    <span className="label">{errorTitle} <Discover btnText="Retry" onClick={() => { onRetry(); }}/></span>
                     <span data-toggle="tooltip" data-container="body" data-title={safeErrorMsg}>
                         {"(" + safeErrorMsg.substring(0, 7) + "...)"}
                     </span>
@@ -102,10 +103,11 @@ function Schema({
  * @param {*} param0
  */
 function Discover({
-    onClick
+    onClick,
+    btnText
 }) {
     return (
-        <button className="schemaBtn btn btn-secondary" onClick={() => { onClick(); }}>{Texts.discover}</button>
+        <button className="schemaBtn btn btn-secondary" onClick={() => { onClick(); }}>{btnText || Texts.discover}</button>
     );
 }
 

@@ -31,7 +31,8 @@ function createSchemaCellProps(fileId, inProgressFiles, failedFiles, fileSchemas
     if (errorMsg != null) {
         return {
             status: DiscoverStatusEnum.FAIL,
-            errorMsg: errorMsg
+            errorMsg: errorMsg,
+            fileId: fileId
         };
     }
 
@@ -70,11 +71,12 @@ schemaCellRender.set(DiscoverStatusEnum.DONE, (props) => {
     );
 });
 schemaCellRender.set(DiscoverStatusEnum.FAIL, (props) => {
-    const { errorMsg } = props;
+    const { errorMsg, fileId, onDiscoverOne } = props;
     return (
         <SchemaCell.InlineError
             errorTitle={Texts.discoverErrorLable}
             errorMsg={errorMsg}
+            onRetry={() => { onDiscoverOne(fileId); }}
         />
     );
 });
@@ -172,6 +174,7 @@ function DiscoverTable({
                 filter: false,
                 sort: false,
                 customBodyRender: (props) => {
+                    console.log(props);
                     return <MixedSchemaCell {...props} onClickSchema={onClickSchema} onDiscoverOne={onDiscoverOne} />
                 }
             }

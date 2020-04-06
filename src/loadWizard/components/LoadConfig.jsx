@@ -279,7 +279,7 @@ class LoadConfig extends React.Component {
     }
 
     async _discoverFileSchema(fileId) {
-        const file = this.state.discoverFiles.get(fileId);
+        let file = this.state.discoverFiles.get(fileId);
         if (file == null) {
             console.error('Discover unselected file:', fileId);
             return;
