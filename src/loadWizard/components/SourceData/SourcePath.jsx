@@ -1,4 +1,5 @@
 import React from "react";
+import * as Path from 'path'
 import { FileType } from '../../services/SchemaService'
 import InputDropdown from "../../../components/widgets/InputDropdown"
 import NavButtons from '../NavButtons'
@@ -21,14 +22,25 @@ const Texts = {
  * @param {*} props
  */
 function GetForensicsButton(props) {
-    const { isLoading = false, onClick = () => {} } = props || {};
+    const { isLoading = false, disabled = false, onClick = () => {} } = props || {};
     const buttonText = isLoading ? Texts.updateForensics : Texts.getForensics;
-    const disableButton = isLoading;
+    const disableButton = isLoading || disabled;
     const classes = ['getForensics', 'btn', 'btn-secondary'].concat(disableButton ? ['btn-disabled'] : []);
 
     return (
         <button type="button" className={classes.join(' ')} onClick={() => { onClick() }}>{buttonText}</button>
     );
+}
+
+function isBucketNameInvalid(bucketName) {
+    if (bucketName == null) {
+        return true;
+    }
+    bucketName = Path.join('/', bucketName.trim());
+    if (bucketName === '/') {
+        return true;
+    }
+    return false;
 }
 
 export default function SourcePath({
@@ -45,6 +57,8 @@ export default function SourcePath({
     // the getAvailableS3Bucket is async call, it may not be ready the first it's rendernder,
     // so need to put it in the onOpen callback
     const [s3Bucket, setS3Bucket] = React.useState(DSTargetManager.getAvailableS3Bucket());
+
+    const isBucketInvalid = isBucketNameInvalid(bucket);
     return (
         <div className="sourceForm">
             <form onSubmit={(e) => { e.preventDefault(); }}>
@@ -66,7 +80,11 @@ export default function SourcePath({
                             hint={Texts.noBuckets}
                         />
                     </div>
-                    <GetForensicsButton isLoading={ isForensicsLoading } onClick={ () => { fetchForensics(bucket, path) }}/>
+                    <GetForensicsButton
+                        isLoading={ isForensicsLoading }
+                        disabled={isBucketInvalid}
+                        onClick={ () => { fetchForensics(bucket, path) }}
+                    />
                 </div>
                 <div className="row">
                     <div className="pathSelection">
@@ -99,7 +117,7 @@ export default function SourcePath({
                     </div>
                     <NavButtons right={{
                         label: Texts.navButtonRight,
-                        classNames: ["btn-secondary", "browse"],
+                        classNames: ["btn-secondary", "browse"].concat(isBucketInvalid ? ['btn-disabled'] : []),
                         onClick: () => { onNextScreen() }
                         }
                     }/>
