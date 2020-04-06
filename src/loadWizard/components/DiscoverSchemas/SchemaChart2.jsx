@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import prettyBytes from 'pretty-bytes'
 
-export default function SchemaChart({selectedData, schemasFileMap}) {
+export default function SchemaChart({selectedData, schemasFileMap, failedFiles}) {
 
     const typeList = {
         "JSON": "#00cf18",
@@ -104,6 +104,7 @@ export default function SchemaChart({selectedData, schemasFileMap}) {
                  */}
                 <div>Discovered files: {(schemasFileMap.size).toLocaleString()}</div>
                 <div>Discovered schemas: {numSchemas.toLocaleString()}</div>
+                <div>Failed discovery: {(failedFiles.size).toLocaleString()}</div>
             </div>
             <div id="SchemaChart">
                 <PieChart width={280} height={250}>

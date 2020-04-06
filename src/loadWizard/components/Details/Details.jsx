@@ -174,6 +174,7 @@ export default class Details extends React.Component {
                         <SchemaChart
                             selectedData={this.props.selectedFileDir}
                             schemasFileMap={this.props.discoverFileSchemas}
+                            failedFiles={this.props.discoverFailedFiles}
                         />
                      }
                 </div>

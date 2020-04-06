@@ -851,6 +851,7 @@ class LoadConfig extends React.Component {
                         currentSchema={this.state.currentSchema}
                         selectedFileDir={this.state.selectedFileDir}
                         discoverFileSchemas={this.state.discoverFileSchemas}
+                        discoverFailedFiles={this.state.discoverFailedFiles}
                         showForensics={this.state.showForensics}
                         forensicsMessage={this.state.forensicsMessage}
                         forensicsStats={forensicsStats}
