@@ -40,14 +40,11 @@ class MuiVirtualizedTable extends React.PureComponent {
         });
     };
 
-    // XXX refactor to not depend on selectedIds/fileId
     handleCheckboxClick(event, rowData, rowIndex) {
-        const fileId = rowData.fileId;
         let toSelect = !this.props.isSelected(rowData);
         let multiSelectList = [];
         // for shift click multi select
-        if (event.nativeEvent.shiftKey &&
-            this.state.lastClickedIndex != null) {
+        if (event.nativeEvent.shiftKey && this.state.lastClickedIndex != null) {
             let min;
             let max;
             if (rowIndex > this.state.lastClickedIndex) {
@@ -58,27 +55,26 @@ class MuiVirtualizedTable extends React.PureComponent {
                 min = rowIndex;
             }
             for (let i = min; i <= max; i++) {
-                multiSelectList.push(this.state.sortedList[i].fileId);
+                multiSelectList.push(this.state.sortedList[i]);
             }
         }
         // check for multi select
+        let selectedList = new Set();
         if (toSelect) {
-            let selectedList = new Set();
-            multiSelectList.forEach((fileId) => {
-                if (!this.props.selectedIds.has(fileId)) {
-                    selectedList.add(fileId);
+            multiSelectList.forEach(row => {
+                if (!this.props.isSelected(row)) {
+                    selectedList.add(row);
                 }
             });
-            selectedList.add(fileId);
+            selectedList.add(rowData);
             this.props.onSelect(selectedList);
         } else {
-            let selectedList = new Set();
-            multiSelectList.forEach((fileId) => {
-                if (this.props.selectedIds.has(fileId)) {
-                    selectedList.add(fileId);
+            multiSelectList.forEach(row => {
+                if (this.props.isSelected(row)) {
+                    selectedList.add(row);
                 }
             });
-            selectedList.add(fileId);
+            selectedList.add(rowData);
             this.props.onDeselect(selectedList);
         }
 
@@ -87,23 +83,26 @@ class MuiVirtualizedTable extends React.PureComponent {
         });
     }
 
-    // XXX refactor to not depend on selectedIds/fileId
     onSelectAllClick() {
-        if (this.props.selectedIds.size === 0) {
-            const fileIds = new Set();
+        const files = new Set();
+        if (this.props.getNumSelected() === 0) {
             this.props.fileList.forEach((file) => {
-                fileIds.add(file.fileId);
+                files.add(file);
             });
-            this.props.onSelect(fileIds);
+            this.props.onSelect(files);
         } else {
-            this.props.onDeselect(this.props.selectedIds);
+            this.props.fileList.forEach((file) => {
+                if (this.props.isSelected(file)) {
+                    files.add(file);
+                }
+            });
+            this.props.onDeselect(files);
         }
         this.setState({
             lastClickedIndex: null
         });
     }
 
-    // XXX refactor to not depend on selectedIds/fileId
     checkboxHeaderRenderer({ label, columnIndex }) {
         const { headerHeight, classes } = this.props;
         return (
@@ -117,8 +116,8 @@ class MuiVirtualizedTable extends React.PureComponent {
                 <Checkbox
                     size="small"
                     color="primary"
-                    indeterminate={this.props.selectedIds.size > 0 && this.props.selectedIds.size < this.props.rowCount}
-                    checked={this.props.rowCount > 0 && this.props.selectedIds.size === this.props.rowCount}
+                    indeterminate={this.props.getNumSelected() > 0 && this.props.getNumSelected() < this.props.rowCount}
+                    checked={this.props.rowCount > 0 && this.props.getNumSelected() === this.props.rowCount}
                     onChange={this.onSelectAllClick}
                 />
             </TableCell>
@@ -133,24 +132,23 @@ class MuiVirtualizedTable extends React.PureComponent {
             return info.customHeadRender(info.rowData, classes);
         }
         return (
-        <TableCell
-            component="div"
-            className={clsx(classes.tableCell, classes.flexContainer)}
-            variant="head"
-            style={{ height: headerHeight }}
-            align={'left'}
-            sortDirection={sortBy === dataKey ? sortDirection.toLowerCase() : false}
-        >
-        {dataKey === "directory" ? <span>{label}</span> :
-            <TableSortLabel
-                active={sortBy === dataKey}
-                direction={sortBy === dataKey ? sortDirection.toLowerCase() : 'asc'}
+            <TableCell
+                component="div"
+                className={clsx(classes.tableCell, classes.flexContainer)}
+                variant="head"
+                style={{ height: headerHeight }}
+                align={'left'}
+                sortDirection={sortBy === dataKey ? sortDirection.toLowerCase() : false}
             >
-                <span>{label}</span>
-            </TableSortLabel>
-        }
-
-        </TableCell>
+            {dataKey === "directory" ? <span>{label}</span> :
+                <TableSortLabel
+                    active={sortBy === dataKey}
+                    direction={sortBy === dataKey ? sortDirection.toLowerCase() : 'asc'}
+                >
+                    <span>{label}</span>
+                </TableSortLabel>
+            }
+            </TableCell>
         );
     };
 
@@ -209,7 +207,6 @@ class MuiVirtualizedTable extends React.PureComponent {
     }
 
     sort(info) {
-        console.log(this.props, info);
         const {sortBy, sortDirection} = info;
         if (!this.props.sortableFields.has(sortBy)) {
             return;
@@ -321,6 +318,13 @@ class MuiVirtualizedTable extends React.PureComponent {
 MuiVirtualizedTable.defaultProps = {
     headerHeight: 40,
     rowHeight: 24,
+    fileList: [],
+    rowCount: 0,
+    columns: [],
+    onSelect: ()=>{},
+    onDeselect: ()=>{},
+    isSelected: ()=>{},
+    getNumSelected: ()=>0
 };
 
 const styles = theme => ({

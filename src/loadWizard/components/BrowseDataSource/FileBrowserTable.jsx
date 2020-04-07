@@ -10,7 +10,7 @@ const Texts = {
     selectListTitle: 'Selected Files'
 };
 
-export default function ReactVirtualizedTable(props) {
+export default function FileBrowserTable(props) {
     const {
         fileMap,
         selectedIds,
@@ -109,7 +109,7 @@ export default function ReactVirtualizedTable(props) {
     return (
         <div className="outerTableWrap" style={{height: "100%"}}>
             <div className="tableTopBar">
-                <div className="header">{Texts.fileListTitle + " - " + fileType}</div>
+                <div className="header">{fileType.toUpperCase()}</div>
                 <div className="numItems">{(fileList.length).toLocaleString()} items</div>
             </div>
             <div className="innerTableWrap">
@@ -137,6 +137,11 @@ export default function ReactVirtualizedTable(props) {
                     isSelected={(rowData) => {
                         return selectedIds.has(rowData.fileId);
                     }}
+                    getNumSelected= {() => {
+                        return selectedIds.size
+                    }}
+                    rowHeight={24}
+                    headerHeight={40}
                 />
             </div>
         </div>

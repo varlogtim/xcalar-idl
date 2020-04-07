@@ -68,12 +68,18 @@ class MuiVirtualizedTable extends React.PureComponent {
     });
   };
 
-    handleCheckboxClick(event, fileId) {
-        this.props.onDeselect(new Set([fileId]));
+    handleCheckboxClick(event, rowData) {
+        this.props.onDeselect(new Set([rowData]));
     }
 
-    onSelectAllClick(a,b,c) {
-        this.props.onDeselect(this.props.selectedIds);
+    onSelectAllClick() {
+        const files = new Set();
+        this.props.fileList.forEach((file) => {
+            if (this.props.isSelected(file)) {
+                files.add(file);
+            }
+        });
+        this.props.onDeselect(files);
     }
 
 
@@ -130,7 +136,7 @@ class MuiVirtualizedTable extends React.PureComponent {
         variant="body"
         style={{ height: rowHeight }}
         align={'left'}
-        onClick={event => this.handleCheckboxClick(event, fileId)}
+        onClick={event => this.handleCheckboxClick(event, info.rowData)}
       >
         <i className="icon xi-close"></i>
       </TableCell>
@@ -350,6 +356,9 @@ export default function ReactVirtualizedTable(props) {
                             dataKey: 'fullPath'
                         }
                     ]}
+                    isSelected={(rowData) => {
+                        return selectedIds.has(rowData.fileId);
+                    }}
                 />
             </div> : null }
         </div>

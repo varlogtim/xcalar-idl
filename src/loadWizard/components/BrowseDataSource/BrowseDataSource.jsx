@@ -118,10 +118,11 @@ class BrowseDataSource extends React.Component {
         }
     }
 
-    _selectFiles(newSelectedFileIds) {
+    _selectFiles(newSelectedFiles) {
         const { selectedFileDir, fileMapViewing } = this.state;
         const selectedFiles = [...selectedFileDir];
-        for (const newSelectedFileId of newSelectedFileIds) {
+        for (const newSelectedFile of newSelectedFiles) {
+            let newSelectedFileId = newSelectedFile.fileId;
             const fileObj = fileMapViewing.get(newSelectedFileId);
             if (fileObj == null) {
                 console.error(`Selected file(${newSelectedFileId}) not exist`);
@@ -135,8 +136,15 @@ class BrowseDataSource extends React.Component {
         this.props.setSelectedFileDir(selectedFiles);
     }
 
-    _deselectFiles(fileIds) {
-        const selectedFiles = this.state.selectedFileDir.filter((f) => (!fileIds.has(f.fileId)));
+
+    _deselectFiles(files) {
+        const fileIds = new Set();
+        files.forEach((f) => {
+            fileIds.add(f.fileId);
+        });
+        const selectedFiles = this.state.selectedFileDir.filter((f) => {
+            return (!fileIds.has(f.fileId));
+        });
         this.setState({
             selectedFileDir: selectedFiles
         });
@@ -206,8 +214,8 @@ class BrowseDataSource extends React.Component {
                             fileMap={fileMapViewing}
                             selectedIds={getSelectedIdsForCurrentView(fileMapViewing, selectedFileDir)}
                             onPathChange={(newFullPath) => { this._browsePath(newFullPath, fileType); }}
-                            onSelect={(fileIds) => { this._selectFiles(fileIds); }}
-                            onDeselect={(fileIds) => { this._deselectFiles(fileIds); }}
+                            onSelect={(files) => { this._selectFiles(files); }}
+                            onDeselect={(files) => { this._deselectFiles(files); }}
                             onInfoClick={(path) => { this._fetchForensics(path); }}
                             fileType={fileType}
                         /> : <div className="noFilesFound">No {fileType} files or directories found.</div>)
@@ -242,7 +250,7 @@ class BrowseDataSource extends React.Component {
                             <SelectedFilesArea
                                 bucket={bucket}
                                 selectedFileDir={selectedFileDir}
-                                onDeselect={(fileIds) => { this._deselectFiles(fileIds); }}
+                                onDeselect={(files) => { this._deselectFiles(files); }}
                             />
                         </div>
 
