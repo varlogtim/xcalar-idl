@@ -1,4 +1,3 @@
-
 (function (cjs, an) {
 
     var p; // shortcut to reference prototypes
@@ -41,35 +40,35 @@
         // Layer_2
         this.shape = new cjs.Shape();
         this.shape.graphics.f("#FFFFFF").s().p("A7rlaMA12gADIBhK3Mg12AAEg");
-        this.shape.setTransform(180.825,29);
+        this.shape.setTransform(180.825,27);
 
         this.shape_1 = new cjs.Shape();
-        this.shape_1.graphics.lf(["rgba(255,255,255,0.859)","rgba(255,255,255,0.984)","#FFFFFF","rgba(223,232,236,0.859)"],[0,0.094,0.682,1],-4.8,-38.1,4.9,66.6).s().p("A7rmoMA12gAEIBhNVMg12AAEg");
-        this.shape_1.setTransform(180.825,25.025);
+        this.shape_1.graphics.lf(["rgba(255,255,255,0.859)","rgba(255,255,255,0.984)","#FFFFFF","rgba(223,232,236,0.859)"],[0,0.094,0.729,1],-4.8,-47.6,4.9,76.8).s().p("A7rnAMA12gAFIBhOHMg12AADg");
+        this.shape_1.setTransform(180.825,21.9);
 
         this.shape_2 = new cjs.Shape();
-        this.shape_2.graphics.lf(["rgba(255,255,255,0.714)","rgba(255,255,255,0.969)","#FFFFFF","rgba(191,209,217,0.714)"],[0,0.094,0.682,1],-4.8,-34.1,4.9,70.6).s().p("A7rn3MA12gAFIBhP0Mg12AAFg");
-        this.shape_2.setTransform(180.825,21.075);
+        this.shape_2.graphics.lf(["rgba(255,255,255,0.714)","rgba(255,255,255,0.969)","#FFFFFF","rgba(191,209,217,0.714)"],[0,0.094,0.729,1],-4.8,-42.5,4.9,81.9).s().p("A7ronMA12gAGIBhRVMg12AAFg");
+        this.shape_2.setTransform(180.825,16.8);
 
         this.shape_3 = new cjs.Shape();
-        this.shape_3.graphics.lf(["rgba(255,255,255,0.573)","rgba(255,255,255,0.953)","#FFFFFF","rgba(159,186,198,0.573)"],[0,0.094,0.682,1],-4.8,-30.1,4.9,74.6).s().p("A7rpFMA12gAGIBhSRMg12AAGg");
-        this.shape_3.setTransform(180.825,17.1);
+        this.shape_3.graphics.lf(["rgba(255,255,255,0.573)","rgba(255,255,255,0.953)","#FFFFFF","rgba(159,186,198,0.573)"],[0,0.094,0.729,1],-4.8,-37.4,4.9,87).s().p("A7rqOMA12gAGIBhUjMg12AAGg");
+        this.shape_3.setTransform(180.825,11.7);
 
         this.shape_4 = new cjs.Shape();
-        this.shape_4.graphics.lf(["rgba(255,255,255,0.427)","rgba(255,255,255,0.933)","#FFFFFF","rgba(127,162,179,0.427)"],[0,0.094,0.682,1],-4.8,-26.2,4.9,78.5).s().p("A7rqUMA12gAHIBhUxMg12AAGg");
-        this.shape_4.setTransform(180.825,13.125);
+        this.shape_4.graphics.lf(["rgba(255,255,255,0.427)","rgba(255,255,255,0.933)","#FFFFFF","rgba(127,162,179,0.427)"],[0,0.094,0.729,1],-4.8,-32.3,4.9,92.1).s().p("A7rr0MA12gAIIBhXyMg12AAHg");
+        this.shape_4.setTransform(180.825,6.575);
 
         this.shape_5 = new cjs.Shape();
-        this.shape_5.graphics.lf(["rgba(255,255,255,0.286)","rgba(255,255,255,0.918)","#FFFFFF","rgba(95,139,160,0.286)"],[0,0.094,0.682,1],-4.8,-22.2,4.9,82.5).s().p("A7rrjMA12gAHIBhXOMg12AAHg");
-        this.shape_5.setTransform(180.825,9.15);
+        this.shape_5.graphics.lf(["rgba(255,255,255,0.286)","rgba(255,255,255,0.918)","#FFFFFF","rgba(95,139,160,0.286)"],[0,0.094,0.729,1],-4.8,-27.2,4.9,97.2).s().p("A7rtbMA12gAIIBhbAMg12AAHg");
+        this.shape_5.setTransform(180.825,1.475);
 
         this.shape_6 = new cjs.Shape();
-        this.shape_6.graphics.lf(["rgba(255,255,255,0.141)","rgba(255,255,255,0.902)","#FFFFFF","rgba(63,116,141,0.141)"],[0,0.094,0.682,1],-4.8,-18.2,4.9,86.5).s().p("A7rsyMA12gAIIBhZtMg12AAHg");
-        this.shape_6.setTransform(180.825,5.2);
+        this.shape_6.graphics.lf(["rgba(255,255,255,0.141)","rgba(255,255,255,0.902)","#FFFFFF","rgba(63,116,141,0.141)"],[0,0.094,0.729,1],-4.8,-22.1,4.9,102.3).s().p("A7rvCMA12gAJIBheOMg12AAJg");
+        this.shape_6.setTransform(180.825,-3.625);
 
         this.shape_7 = new cjs.Shape();
-        this.shape_7.graphics.lf(["rgba(255,255,255,0)","rgba(255,255,255,0.886)","#FFFFFF","rgba(31,93,122,0)"],[0,0.094,0.682,1],-4.8,-14.3,4.9,90.4).s().p("A7ruAMA12gAJIBhcLMg12AAIg");
-        this.shape_7.setTransform(180.825,1.225);
+        this.shape_7.graphics.lf(["rgba(255,255,255,0)","rgba(255,255,255,0.886)","#FFFFFF","rgba(31,93,122,0)"],[0,0.094,0.729,1],-4.8,-17,4.9,107.4).s().p("A7rwoMA12gALMABhAhdMg12AAKg");
+        this.shape_7.setTransform(180.825,-8.725);
 
         var maskedShapeInstanceList = [this.shape,this.shape_1,this.shape_2,this.shape_3,this.shape_4,this.shape_5,this.shape_6,this.shape_7];
 
@@ -117,7 +116,7 @@
 
 
     // stage content:
-    (lib.testrun5 = function(mode,startPosition,loop) {
+    (lib.FINALSPLASHVIDEOSENTTORUDYrevised01 = function(mode,startPosition,loop) {
         this.initialize(mode,startPosition,loop,{});
 
         // timeline functions:
@@ -269,9 +268,8 @@
     }
 
 
-    })(createjs = createjs||{}, AdobeAn = AdobeAn||{});
+})(createjs = createjs||{}, AdobeAn = AdobeAn||{});
 var createjs, AdobeAn;
-
 
 var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
 function init() {
@@ -299,7 +297,7 @@ function handleComplete(evt,comp) {
 	for(i=0; i<ssMetadata.length; i++) {
 		ss[ssMetadata[i].name] = new createjs.SpriteSheet( {"images": [queue.getResult(ssMetadata[i].name)], "frames": ssMetadata[i].frames} )
 	}
-	exportRoot = new lib.testrun5();
+	exportRoot = new lib.FINALSPLASHVIDEOSENTTORUDYrevised01();
 	stage = new lib.Stage(canvas);
 	//Registers the "tick" event listener.
 	fnStartAnimation = function() {
