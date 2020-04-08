@@ -39,6 +39,7 @@ abstract class AbstractMenu {
         }
 
         xcUIHelper.copyToClipboard(str);
+        xcUIHelper.showSuccess("Copied.");
     }
 
     protected _isInvalidTrigger(event: JQueryEventObject): boolean {

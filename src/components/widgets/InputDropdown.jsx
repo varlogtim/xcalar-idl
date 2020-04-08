@@ -25,6 +25,7 @@ export default class InputDropdown extends React.Component {
         this.onOuterListClick = this.onOuterListClick.bind(this);
         this.handleClickOutside = this.handleClickOutside.bind(this);
         this.onItemClick = this.onItemClick.bind(this);
+        this.closeDropdown = this.closeDropdown.bind(this);
     }
 
     componentWillUnmount() {
@@ -50,7 +51,9 @@ export default class InputDropdown extends React.Component {
 
     onInputChange(value) {
         this.closeDropdown();
-        this.props.onInputChange(value);
+        if (this.props.onInputChange) {
+            this.props.onInputChange(value);
+        }
     }
 
     onItemClick(value) {
@@ -80,7 +83,7 @@ export default class InputDropdown extends React.Component {
 
         if (disabled) {
             return (
-                <div className="dropDownList">
+                <div className="dropDownList selectList">
                     <input
                         className="text"
                         type="text"
@@ -96,7 +99,7 @@ export default class InputDropdown extends React.Component {
             );
         } else {
             return (
-                <div className="dropDownList" ref={this.dropdownRef} onClick={this.onOuterListClick}>
+                <div className="dropDownList selectList" ref={this.dropdownRef} onClick={this.onOuterListClick}>
                     <input
                         className="text"
                         type="text"
@@ -111,9 +114,10 @@ export default class InputDropdown extends React.Component {
                     </div>
                     {this.state.open &&
                         <DropdownUL
-                        list={this.props.list}
-                        hint={this.props.hint}
-                        onItemClick={this.onItemClick}
+                            list={this.props.list}
+                            hint={this.props.hint}
+                            onItemClick={this.onItemClick}
+                            onEscape={this.closeDropdown}
                         />
                     }
                 </div>

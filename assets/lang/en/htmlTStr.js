@@ -472,7 +472,7 @@ module.exports = {
         "UDFs": "Scalar Functions",
         "AddUDF": "Add Scalar Function",
         "UseInSQL": "Use in SQL",
-        "UseInModule": "Use in Module",
+        "UseInModule": "Add to Module",
         "Edit": "Edit"
     },
 

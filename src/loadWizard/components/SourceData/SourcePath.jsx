@@ -101,14 +101,9 @@ export default function SourcePath({
                         <label className="label">{Texts.fileType}</label>
                         <InputDropdown
                             val={fileType}
-                            onInputChange={(type) => {
-                                onFileTypeChange(type);
-                            }}
-                            onSelect={(type) => {
-                                onFileTypeChange(type);
-                            }}
+                            onSelect={onFileTypeChange}
                             list={
-                                [FileType.CSV, FileType.JSON, FileType.PARQUET].map((type) => {
+                                [FileType.CSV, FileType.JSON, FileType.PARQUET].map((type, i) => {
                                     return {text: type, value: type};
                                 })
                             }

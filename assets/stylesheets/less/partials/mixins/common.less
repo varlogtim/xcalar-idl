@@ -769,6 +769,19 @@
     }
 }
 
+.selectList {
+    .list {
+        li {
+            &:hover, .hover {
+                background-color: initial; // to override .dropDownList
+            }
+            &.selected {
+                background-color: @color-bg-list-hover;
+            }
+        }
+    }
+}
+
 .backToWB {
     float: left;
     padding-right: 7px;
