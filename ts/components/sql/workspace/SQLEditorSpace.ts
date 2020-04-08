@@ -336,7 +336,7 @@ class SQLEditorSpace {
             const numStatemsnts = sqls.split(";").filter((sql) => sql.trim() !== "").length;
             if (numStatemsnts > 1) {
                 // disallow multiple sql statement
-                throw new Error("Cannot have multiple statement in the SQL");
+                throw new Error("Cannot have multiple statement in the SQL, please selected one statement and execute.");
             }
 
             let selectArray: SQLParserStruct[] = [];

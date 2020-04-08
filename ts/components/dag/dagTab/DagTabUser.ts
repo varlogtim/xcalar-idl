@@ -90,8 +90,8 @@ class DagTabUser extends DagTab {
     public static viewOnlyAlert(dagTab: DagTabUser): XDPromise<void> {
         try {
             const deferred: XDDeferred<void> = PromiseHelper.deferred();
-            const path = DagList.getAppPath(dagTab);
-            const title = `Module ${path} is view only`;
+            // const path = DagList.getAppPath(dagTab);
+            const title = `Current module is view only`;
             let msg: string;
             let buttons =[];
             const appSourceTab = dagTab.getAppSourceTab();
