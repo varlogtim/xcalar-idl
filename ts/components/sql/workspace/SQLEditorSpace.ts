@@ -440,6 +440,16 @@ class SQLEditorSpace {
         }
     }
     private _throwError(error: any): void {
+        if (error instanceof Array) {
+            let errorMsg = null;
+            for (let i = 0; i < error.length; i++) {
+                if (error[i] != null) {
+                    errorMsg = error[i];
+                    break;
+                }
+            }
+            error = errorMsg;
+        }
         if (!error) {
             // if error is null, it should have an alert in sql node
             return;
