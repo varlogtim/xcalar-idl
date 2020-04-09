@@ -4419,7 +4419,11 @@ module.exports = function(grunt) {
             // (tests are run from the bld dest;
             // would need to re-build every time change make to a unit
             // test that you want reflected)
-            if (BLDTYPE == DEV || BLDTYPE == DEBUG || BLDTYPE === CLOUD_LOGIN) {
+            if (BLDTYPE == DEV ||
+                BLDTYPE == DEBUG ||
+                BLDTYPE === CLOUD_LOGIN ||
+                BLDTYPE === TRUNK
+            ) {
                 var symlinkTo = SRCROOT + UNIT_TEST_FOLDER;
                 var symlinkPath = BLDROOT + UNIT_TEST_FOLDER;
                 // need to check if the symlink already exists;
