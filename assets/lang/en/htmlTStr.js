@@ -441,7 +441,7 @@ module.exports = {
         "SearchByName": "Filter by name",
         "SchemaBack": "Back to show tables",
         "ResultLoading": "Result is loading, please wait...",
-        "ResultHint": "No results. To get started with building a data app, run a SQL query or edit operators in the App Builder.",
+        "ResultHint": "No results. To get started with building a data app, run a SQL statement or edit operators in the App Builder.",
     },
 
     "Debug": {

@@ -1502,6 +1502,7 @@ SQLTStr = {
     "ExpandSQLOperation": "Expand SQL Operation",
     "NewTab": "Add a new module tab",
     "DupTab": "Duplicate a module tab",
+    "CreateFuncHint": "Select a portion of query to convert",
     "Func": "Table Functions",
     "FuncInstr": "Table function can be used as part of the SQL query, the function can take one or more input tables and output a table. You can build any transformation & business logic between the inputs and output",
     "DupFuncName": "Table function name already in use",
@@ -1532,7 +1533,7 @@ SQLTStr = {
     "OpenQueryMsg": "You will lose any unsaved changes to open this query. Click Cancel if you want to save your current query?",
     "DebugPlan": "Debug Plan",
     "ReadOnly": "Current module doesn't support the use of SQL Editor",
-    "SnippetHint": "Run a SQL query to get started, add/modify the operators in the app builder to build a data app"
+    "SnippetHint": "Run a SQL statement to get started, add/modify the operators in the app builder to build a data app"
 };
 
 LoginConfigTStr = {

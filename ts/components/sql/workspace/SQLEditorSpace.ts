@@ -657,7 +657,7 @@ class SQLEditorSpace {
         } else {
             $li.addClass("unavailable");
             xcTooltip.add($li, {
-                title: "Select a portion of query to convert"
+                title: SQLTStr.CreateFuncHint
             });
         }
     }
