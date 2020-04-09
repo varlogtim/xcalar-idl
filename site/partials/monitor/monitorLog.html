@@ -9,13 +9,13 @@
         <div class="logName column">
           <label class="text"><%= dicts.admin.logName %></label>
           <div class="inputWrap">
-            <input class="xc-input" type="text" spellcheck="false" placeholder="node.*.log" value="node.*.log">
+            <input class="xc-input" type="text" spellcheck="false" autocomplete="off" placeholder="node.*.log" value="node.*.log">
           </div>
         </div>
         <div class="lastRow column">
           <label class="text"><%= dicts.admin.lastNRow %></label>
           <div class="inputWrap">
-            <input class="xc-input" type="number" min="1" max="500" spellcheck="false" placeholder="1 to 500" data-toggle="tooltip" data-container="body" data-original-title="Number of rows to fetch">
+            <input class="xc-input" type="number" min="1" max="500" spellcheck="false" autocomplete="off" placeholder="1 to 500" data-toggle="tooltip" data-container="body" data-original-title="Number of rows to fetch">
             <div class="btn btn-small inputAction xc-action getRecentLogs">
               <i class="icon xi-tick fa-11"></i>
             </div>
@@ -24,7 +24,7 @@
         <div class="hostnamePattern column">
           <label class="text"><%= dicts.admin.hostnamePattern %></label>
           <div class="inputWrap">
-            <input class="xc-input" spellcheck="false" placeholder="Host Name Regex" data-toggle="tooltip" data-container="body" data-original-title="Enter a regex to find the correct hostname">
+            <input class="xc-input" spellcheck="false" autocomplete="off" placeholder="Host Name Regex" data-toggle="tooltip" data-container="body" data-original-title="Enter a regex to find the correct hostname">
           </div>
         </div>
         <div class="buttons column">

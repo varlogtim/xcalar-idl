@@ -1154,7 +1154,7 @@ namespace WorkbookManager {
                 console.log("create and activate",xdInternalWkbkName)
             } else if (xdInternalSession.state !== "Active") {
                 await XcalarActivateWorkbook(xdInternalWkbkName);
-                console.log("activate",xdInternalWkbkName)
+                // console.log("activate",xdInternalWkbkName);
             }
         } catch (e) {
             console.error("activate xd internal session failed", e);

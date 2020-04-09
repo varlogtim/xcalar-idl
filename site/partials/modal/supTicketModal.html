@@ -23,7 +23,7 @@
     <div class="formRow">
       <span class="label">1. <%= dicts.supportTicket.TypeIssue %>:</span>
       <div class="dropDownList yesclickable issueList">
-        <input class="text" type="text" spellcheck="false" disabled="disabled" value="<%= dicts.common.New %>">
+        <input class="text" type="text" spellcheck="false" autocomplete="off" disabled="disabled" value="<%= dicts.common.New %>">
         <div class="iconWrapper">
           <i class="icon xi-arrow-down"></i>
         </div>
@@ -41,7 +41,7 @@
     <div class="formRow">
       <span class="label">2. <%= dicts.supportTicket.Severity %>:</span>
       <div class="dropDownList yesclickable severityList">
-        <input class="text" type="text" spellcheck="false" disabled="disabled" value="4 - <%= dicts.supportTicket.Severity4 %>" data-val="4">
+        <input class="text" type="text" spellcheck="false" autocomplete="off" disabled="disabled" value="4 - <%= dicts.supportTicket.Severity4 %>" data-val="4">
         <div class="iconWrapper">
           <i class="icon xi-arrow-down"></i>
         </div>
@@ -83,7 +83,7 @@
     </div>
     <div class="formRow customTicketRow">
       <span class="label"><%= dicts.supportTicket.ExistingTicketId %>: </span>
-      <input type="text" class="xc-input" spellcheck="false">
+      <input type="text" class="xc-input" spellcheck="false" autocomplete="off">
       <i class="icon xi-unknown qMark" data-toggle="tooltip" data-container="body" data-delay="1" data-placement="top" title="<%= dicts.TooltipTStr.CustomTicketId %>"></i>
     </div>
   </section>
@@ -103,7 +103,7 @@
     <div class="commentArea">
       <div class="subjectArea">
         <div class="text"><%= dicts.supportTicket.Subject %>:</div>
-        <input type="text" class="xc-input subjectInput" spellcheck="false">
+        <input type="text" class="xc-input subjectInput" spellcheck="false" autocomplete="off">
         <div class="textLimitArea"><span class="remainingChar">100</span> <%= dicts.supportTicket.CharRemaining %></div>
       </div>
       <div class="descriptionArea">

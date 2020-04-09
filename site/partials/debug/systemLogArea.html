@@ -28,7 +28,7 @@
         <div class="numLogs column">
           <label class="text"><%= dicts.admin.lastNRow %></label>
           <div class="inputWrap">
-            <input class="xc-input" type="number" min="1" max="500" spellcheck="false" placeholder="1 to 500" data-toggle="tooltip" data-container="body" data-original-title="Number of rows to fetch">
+            <input class="xc-input" type="number" min="1" max="500" autocomplete="off" spellcheck="false" placeholder="1 to 500" data-toggle="tooltip" data-container="body" data-original-title="Number of rows to fetch">
             <div class="btn btn-small inputAction xc-action getRecentLogs">
               <i class="icon xi-tick fa-11"></i>
             </div>
@@ -37,7 +37,7 @@
         <div class="hostnamePattern column">
           <label class="text"><%= dicts.admin.hostnamePattern %></label>
           <div class="inputWrap">
-            <input class="xc-input" spellcheck="false" placeholder="(Optional) Host Name Regex" data-toggle="tooltip" data-container="body" data-original-title="Enter a regex to find the correct hostname">
+            <input class="xc-input" autocomplete="off" spellcheck="false" placeholder="(Optional) Host Name Regex" data-toggle="tooltip" data-container="body" data-original-title="Enter a regex to find the correct hostname">
           </div>
         </div>
         <div class="buttons column">
