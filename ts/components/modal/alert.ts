@@ -39,7 +39,9 @@ namespace Alert {
         size?: string; // "small", "medium", "large" (widths)
     }
 
-    export interface AlertErrorOptions extends BasicAlertOptions {}
+    export interface AlertErrorOptions extends BasicAlertOptions {
+        isCheckBox?: boolean; // if checkbox is enabled or disabled
+    }
     /**
      * Alert.setup
      */

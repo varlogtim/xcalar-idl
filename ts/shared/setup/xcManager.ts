@@ -44,11 +44,13 @@ namespace xcManager {
             MonitorPanel.setup();
             JupyterPanel.setup();
             setupModals();
+            browserAlert();
             Admin.setup();
             xcSuggest.setup();
             documentReadyGeneralFunction();
 
             xcSocket = setupSocket();
+
             try {
                 // In case mixpanel is not loaded
                 xcMixpanel.setup();
@@ -117,12 +119,6 @@ namespace xcManager {
                 // start heartbeat check
                 XcSupport.heartbeatCheck();
 
-                if (!window["isBrowserSupported"]) {
-                    Alert.error(AlertTStr.UnsupportedBrowser, "", {
-                        msgTemplate: AlertTStr.BrowserVersions,
-                        sizeToText: true
-                    });
-                }
 
                 if (typeof mixpanel !== "undefined") {
                     xcMixpanel.pageLoadEvent();
@@ -374,6 +370,27 @@ namespace xcManager {
         const xcSocket: XcSocket = XcSocket.Instance;
         if (xcSocket.isResigered() && WorkbookManager.getLastActiveWKBK()) {
             xcSessionStorage.setItem(WorkbookManager.getLastActiveWKBK(), String(new Date().getTime()));
+        }
+    }
+
+    function browserAlert() {
+        if (!window["isBrowserSupported"]) {
+            Alert.error(AlertTStr.UnsupportedBrowser, "", {
+                msgTemplate: AlertTStr.BrowserVersions,
+                sizeToText: true
+            });
+        } else if (!window["isBrowserChrome"] &&
+            !xcLocalStorage.getItem("ignoreNotChrome")){
+            Alert.error(AlertTStr.BrowserWarning, "", {
+                msgTemplate: AlertTStr.NotChrome,
+                sizeToText: true,
+                isCheckBox: true,
+                onCancel: (checked) => {
+                    if (checked) {
+                        xcLocalStorage.setItem("ignoreNotChrome", "true");
+                    }
+                }
+            });
         }
     }
 

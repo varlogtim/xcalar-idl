@@ -664,6 +664,8 @@ AlertTStr = {
     "SendSchemaDateDetectedMsg": "Do you want to send schema of column(s) below as date type?",
     "UnsupportedBrowser": "Unsupported Browser",
     "BrowserVersions": "You are running an unsupported browser. Please use one of the following browsers:<br>Chrome (version 65+)<br>Firefox (version 59+)<br>Safari (version 11.1+)",
+    "BrowserWarning": "Browser Warning",
+    "NotChrome": "In order to have a seamless experience, we recommend you access Xcalar Cloud through Google Chrome.",
     "queryHistorySQLErrorTitle": "SQL Error",
     "queryHistoryReadErrorTitle": "Read query history failed",
     "AutoTblManagerError": "Automatic Table Manager failed to setup.",
