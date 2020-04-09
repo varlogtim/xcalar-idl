@@ -95,6 +95,7 @@ export default function SourcePath({
                             value={path}
                             onChange={(e) => { onPathChange(e.target.value.trim()); }}
                             spellCheck="false"
+                            placeholder="optional"
                         />
                     </div>
                     <div className="fileTypeSelection">

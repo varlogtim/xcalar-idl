@@ -11,9 +11,13 @@ export default class DropdownUL extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            selectedIndex: 0
+            selectedIndex: 0,
+            disableMouseEnter: false
         };
         this.listHighlight = this.listHighlight.bind(this);
+        this.liRefs = this.props.list.map(() => {
+            return React.createRef();
+        });
     }
     componentDidMount() {
         document.addEventListener("keydown", this.listHighlight);
@@ -25,15 +29,18 @@ export default class DropdownUL extends React.Component {
     listHighlight(event) {
         const keyCodeNum = event.which;
         let direction;
-        let lateral = false;
+        let horizontal = false;
+        let vertical = false;
         let enter;
 
         switch (keyCodeNum) {
             case (keyCode.Up):
                 direction = -1;
+                vertical = true;
                 break;
             case (keyCode.Down):
                 direction = 1;
+                vertical = true;
                 break;
             case (keyCode.Left):
                 // TODO: check for inputs inside of lis
@@ -45,14 +52,14 @@ export default class DropdownUL extends React.Component {
                 //         return;
                 //     }
                 // }
-                lateral = true;
+                horizontal = true;
                 break;
             case (keyCode.Right):
                 // TODO: check for inputs inside of lis
                 // if ($(event.target).is('input')) {
                 //     return;
                 // }
-                lateral = true;
+                horizontal = true;
                 break;
             case (keyCode.Enter):
                 enter = true;
@@ -82,11 +89,10 @@ export default class DropdownUL extends React.Component {
             }
         }
 
-        if (lateral) {
+        if (horizontal) {
             //TODO:
-        } else {
+        } else if (vertical) {
             // skips over unavailable list items
-
             let list = this.props.list.filter((item) => {
                 return !item.unavailable;
             });
@@ -96,13 +102,23 @@ export default class DropdownUL extends React.Component {
             let newIndex = (curIndex + direction + numLis) % numLis;
             newIndex = this.props.list.indexOf(list[newIndex]);
             this.setState({
-                selectedIndex: newIndex
+                selectedIndex: newIndex,
+                disableMouseEnter: true
             });
-            // TODO: adjust scroll position if has scrollbar
+            const element = this.liRefs[newIndex].current;
+            // TODO: remove dependency on jquery
+            $(element).scrollintoview({duration: 0});
+            setTimeout(() => {
+                // settimeout so mousenter isn't triggered on scroll
+                this.setState({disableMouseEnter: false});
+            }, 0);
         }
     }
 
     onItemMouseEnter(index) {
+        if (this.state.disableMouseEnter) {
+            return;
+        }
         this.setState({
             selectedIndex: index
         });
@@ -113,22 +129,27 @@ export default class DropdownUL extends React.Component {
         let listHTML;
         if (list.length) {
             listHTML = list.map((item, i) => {
+                let className = "";
+                if (this.state.selectedIndex === i) {
+                    className += " selected";
+                }
                 return (
-                    <ListItem
+                    <li
                         key={i}
-                        onItemClick={() => onItemClick(item.value)}
-                        text={item.text}
-                        icon={item.icon}
+                        ref={this.liRefs[i]}
+                        className={className}
+                        onClick={() => onItemClick(item.value)}
                         onMouseEnter={() => {this.onItemMouseEnter(i)}}
-                        isSelected={this.state.selectedIndex === i}
-                    />
+                    >
+                        {item.icon ? <i className={"icon " + item.icon}></i> : null}
+                        <span>{item.text}</span>
+                    </li>
                 )
             });
         } else {
-            listHTML = <ListItem
+            listHTML = <li
                             className="hint"
-                            text={hint}
-                        />
+                        >{hint}</li>
         }
 
         return (
@@ -147,30 +168,4 @@ DropdownUL.defaultProps = {
     hint: "Empty",
     onItemClick: () => null,
     onEscape: () => null,
-}
-
-function ListItem({className, onItemClick, onMouseEnter, icon, text, isSelected }) {
-    if (isSelected) {
-        className += " selected";
-    }
-
-    return (
-        <li
-            className={className}
-            onClick={onItemClick}
-            onMouseEnter={onMouseEnter}
-        >
-            {icon ? <i className={"icon " + icon}></i> : null}
-            <span>{text}</span>
-        </li>
-    )
-}
-
-ListItem.defaultProps = {
-    text: "",
-    onItemClick: () => null,
-    className: "",
-    index: 0,
-    onMouseEnter: () => null,
-    isSelected: false
 };

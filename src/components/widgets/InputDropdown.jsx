@@ -20,7 +20,7 @@ export default class InputDropdown extends React.Component {
         super(props);
         this.state = {
             open: false
-        }
+        };
         this.dropdownRef = React.createRef();
         this.onOuterListClick = this.onOuterListClick.bind(this);
         this.handleClickOutside = this.handleClickOutside.bind(this);
