@@ -80,7 +80,7 @@ enum DagNodeErrorType {
 }
 
 enum DagNodeLinkInErrorType {
-    NoGraph = "Cannot find linked graph",
+    NoGraph = "Cannot find linked function",
     NoLinkInGraph = "Cannot find the linked operator",
     MoreLinkGraph = "More than one function output with the same name specified by the function input operator are found"
 }
