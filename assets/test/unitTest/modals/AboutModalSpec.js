@@ -18,9 +18,12 @@ describe("AboutModal Test", function() {
     });
 
     it("should not show license section in cloud deployment", function() {
+        var oldIsDataMart = XVM.isDataMart;
+        XVM.isDataMart = () => true;
         AboutModal.Instance.show();
         expect($modal.find(".expiration").text()).to.equal("");
         expect($modal.find(".keyValue").text()).to.equal("");
+        XVM.isDataMart = oldIsDataMart
     });
 
     it("Should clean the modal", function() {

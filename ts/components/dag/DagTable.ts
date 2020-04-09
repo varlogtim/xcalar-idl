@@ -1,7 +1,6 @@
 class DagTable {
     private static _instance: DagTable;
     private readonly _container: string = "sqlTableArea";
-    private _searchBar: TableSearchBar;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -13,7 +12,6 @@ class DagTable {
 
     private constructor() {
         this._addEventListeners();
-        this._searchBar = SQLResultSpace.Instance.getSQLTable().getSearchBar();
         this._viewers = new Map();
     }
 
@@ -99,7 +97,7 @@ class DagTable {
     }
 
     public getSearchBar(): TableSearchBar {
-        return this._searchBar;
+        return SQLResultSpace.Instance.getSQLTable().getSearchBar();
     }
 
     /**

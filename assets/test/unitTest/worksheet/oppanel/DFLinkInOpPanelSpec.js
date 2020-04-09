@@ -83,7 +83,7 @@ describe("DFLinkInOpPanel Test", function() {
             $dfInput.val("df1");
             $linkOutInput.val("test1");
             let res = panel._autoDetectSchema();
-            expect(res.error).to.equal(DagNodeErrorType.NoGraph);
+            expect(res.error).to.equal(DagNodeLinkInErrorType.NoGraph);
         });
     });
 

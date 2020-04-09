@@ -10,7 +10,6 @@ describe("xcManager Test", function() {
         var oldAlertError;
         var title;
         var oldSocketInit;
-        var workbookWalkthroughStarted;
 
         before(function() {
             handleSetupFail = xcManager.__testOnly__.handleSetupFail;
@@ -39,7 +38,7 @@ describe("xcManager Test", function() {
 
             handleSetupFail(WKBKTStr.NoWkbk, true);
             UnitTest.testFinish(function() {
-                return workbookWalkthroughStarted === true;
+                return !$("#initialLoadScreen").hasClass("full");
             })
             .then(function() {
                 expect(test).to.be.true;
