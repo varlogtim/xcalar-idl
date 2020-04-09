@@ -130,6 +130,7 @@ abstract class DagTabProgress extends DagTab {
     private _statusCheck() {
         const checkId = this._queryCheckId;
         let numFails = 0;
+        let numNotReady = 0;
         const self = this;
 
         // shorter timeout on the first call
@@ -158,6 +159,9 @@ abstract class DagTabProgress extends DagTab {
                 if (ret && ret.status === StatusT.StatusQrQueryNotExist) {
                     numFails++;
                     nextCheckTime *= numFails;
+                } else if (ret && ret.queryState === QueryStateTStr[QueryStateT.qrNotStarted]) {
+                    numNotReady++;
+                    nextCheckTime *= numNotReady;
                 } else {
                     numFails = 0;
                 }
@@ -173,6 +177,9 @@ abstract class DagTabProgress extends DagTab {
         XcalarQueryState(this._queryName)
         .then((queryStateOutput) => {
             this._state = QueryStateTStr[queryStateOutput.queryState];
+            if (this._state === QueryStateTStr[QueryStateT.qrNotStarted]) {
+                return deferred.resolve({queryState: this._state});
+            }
             DagList.Instance.updateDagState(this._id);
             if (this._isDeleted) {
                 return deferred.reject();
