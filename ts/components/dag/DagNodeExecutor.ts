@@ -1080,6 +1080,17 @@ class DagNodeExecutor {
                     linkOutNode.setTable(destTable);
                 }
 
+                let jsonQuery;
+                try {
+                    jsonQuery = JSON.parse(queryStr);
+                } catch(e) {
+                    console.error(e);
+                }
+                // if no query, don't call XIApi.query - just resolve
+                if (jsonQuery && jsonQuery instanceof Array && jsonQuery.length === 0) {
+                    noQueryNeeded = true;
+                    return PromiseHelper.resolve();
+                }
                 return XIApi.query(this.txId, destTable, queryStr);
             } else {
                 noQueryNeeded = true;

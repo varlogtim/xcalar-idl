@@ -1596,10 +1596,9 @@ describe("DagNodeExecutor Test", () => {
             called = true;
         };
 
-
         executor.run()
         .then(() => {
-            expect(called).to.be.true;
+            expect(called).to.be.false;
             done();
         })
         .fail((error) => {
@@ -1738,7 +1737,7 @@ describe("DagNodeExecutor Test", () => {
 
         executor.run()
         .then(() => {
-            expect(called).to.be.true;
+            expect(called).to.be.false;
             expect(called2).to.be.true;
             done();
         })

@@ -574,7 +574,7 @@ class DagTblManager {
         let tableNames = new Set(backTableNames);
         for (let tableId in gTables) {
             let tableName = gTables[tableId].getName();
-            if (!tableNames.has(tableName)) {
+            if (!tableNames.has(tableName) && !xcHelper.isGlobalTable(tableName)) {
                 const visibleTable = DagTable.Instance.getTable();
                 if (visibleTable === tableName) {
                     DagTable.Instance.close();
