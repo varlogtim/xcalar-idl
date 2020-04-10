@@ -1160,7 +1160,7 @@ module.exports = function(grunt) {
                         BLDROOT + "assets/js/shared/util/xcStringHelper.js",
                         BLDROOT + "assets/js/shared/util/xcTimeHelper.js",
                         BLDROOT + "assets/js/shared/helperClasses/kvStore.js",
-                        BLDROOT + "assets/js/components/publishedTables/PbTblInfo.js",
+                        BLDROOT + "assets/js/components/publishedTable/PbTblInfo.js",
                     ],
                     dest: BLDROOT + "/services/expServer/dagHelper/"
                  },
