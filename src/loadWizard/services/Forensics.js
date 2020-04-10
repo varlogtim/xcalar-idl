@@ -34,7 +34,7 @@ export default function getForensics(bucketName, pathPrefix, metadataMap, status
                 isForensicsLoading: false
             };
             statusCallback(state);
-            clearMessage(2000);
+            // clearMessage(2000);
         } catch (e) {
             console.error(e);
             state = {
@@ -43,7 +43,7 @@ export default function getForensics(bucketName, pathPrefix, metadataMap, status
                 isForensicsLoading: false
             };
             statusCallback(state);
-            clearMessage(5000);
+            // clearMessage(5000);
         }
     }
 
