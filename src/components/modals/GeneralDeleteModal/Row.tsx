@@ -2,12 +2,18 @@ import * as React from "react";
 import dict from "../../../lang";
 import Checkbox from "../../widgets/Checkbox";
 import Tooltipbox from "../../widgets/Tooltipbox";
-import { id, TableAttrs } from "../../../services/DeleteTableModalService";
+import { DeleteItems } from "./GeneralDeleteModal";
 
 const {TooltipTStr} = dict;
 
-export default function Row(props: {table: TableAttrs, onClick: any}) {
-    const {table, onClick} = props;
+type RowProps = {
+    id: string;
+    table: DeleteItems,
+    onClick: any
+};
+
+export default function Row(props: RowProps) {
+    const {id, table, onClick} = props;
     let {name, sizeText, locked, checked, date, dateTip} = table;
     let container = `#${id}`;
     return (

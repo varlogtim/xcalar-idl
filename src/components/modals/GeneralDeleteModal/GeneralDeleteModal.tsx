@@ -3,20 +3,41 @@ import dict from "../../../lang";
 import Modal from "../Modal";
 import Waitbox from "../../widgets/Waitbox";
 import Content from "./Content";
-import service, { id, TableAttrs } from "../../../services/DeleteTableModalService";
 
-const {CommonTStr, DeleteTableModalTStr, StatusMessageTStr} = dict;
+const {CommonTStr, StatusMessageTStr} = dict;
 
-type DeleteTableModalState = {
+export interface DeleteItems {
+    tableId: string;
+    name: string;
+    size: number;
+    sizeText: string;
+    locked: boolean;
+    checked: boolean;
+    date: string;
+    dateTip: object;
+};
+
+type GeneralDeleteProps = {
+    triggerButton: string;
+    id: string;
+    header: string;
+    instruct: string;
+    fetchList: () => Promise<DeleteItems[]>;
+    sortList: (oldList: DeleteItems[], key: string, reversetSort: boolean) => DeleteItems[];
+    onConfirm: (listToDelete: string[]) => Promise<void>;
+    onSubmit: (listToDelete: string[]) => Promise<void>;
+};
+
+type GeneralDeleteModalState = {
     display: boolean;
     isFetching: boolean;
     submitStatus: string;
-    tables: TableAttrs[];
+    items: DeleteItems[];
     sortKey: string;
     reverseSort: boolean;
     error: any;
 };
-export default class DeleteTableModal extends React.Component<{}, DeleteTableModalState> {
+export default class GeneralDeleteModal extends React.Component<GeneralDeleteProps, GeneralDeleteModalState> {
     constructor(props) {
         super(props);
         this._selectTable = this._selectTable.bind(this);
@@ -26,23 +47,23 @@ export default class DeleteTableModal extends React.Component<{}, DeleteTableMod
     }
 
     componentDidMount() {
-        document.getElementById("monitor-delete").addEventListener("click", () => {
+        document.getElementById(this.props.triggerButton).addEventListener("click", () => {
             this._show();
         });
     }
 
     render() {
         const [classNames, waitingMessage] = this._getClassesAndWaitingMessage();
-        const checkedTables = this.state.tables.filter((table) => !table.locked && table.checked);
+        const selectedItems = this.state.items.filter((item) => !item.locked && item.checked);
         return (
             <Modal
-                id={id} 
-                header={DeleteTableModalTStr.header}
-                instruct={DeleteTableModalTStr.instr}
+                id={this.props.id} 
+                header={this.props.header}
+                instruct={this.props.instruct}
                 display={this.state.display}
                 confirm={{
-                    text: DeleteTableModalTStr.Confirm,
-                    disabled: checkedTables.length === 0,
+                    text: CommonTStr.Confirm,
+                    disabled: selectedItems.length === 0,
                     callback: () => this._submit()
                 }}
                 close={{
@@ -60,7 +81,8 @@ export default class DeleteTableModal extends React.Component<{}, DeleteTableMod
                     </div>
                 </section>}
                 <Content
-                    tables={...this.state.tables}
+                    id={this.props.id}
+                    tables={...this.state.items}
                     sortKey={this.state.sortKey}
                     onCheckboxClick={this._selectTable}
                     onSelectAllClick={this._selectAllTables}
@@ -70,10 +92,10 @@ export default class DeleteTableModal extends React.Component<{}, DeleteTableMod
         )
     }
 
-    private _getDefultState(): DeleteTableModalState {
+    private _getDefultState(): GeneralDeleteModalState {
         return {
             display: false,
-            tables: [],
+            items: [],
             error: null,
             sortKey: "name",
             reverseSort: false,
@@ -123,10 +145,10 @@ export default class DeleteTableModal extends React.Component<{}, DeleteTableMod
     private async _fetch(): Promise<void> {
         this.setState({isFetching: true});
         try {
-            let tables: TableAttrs[] = await service.getTableList();
+            const items: DeleteItems[] = await this.props.fetchList();
             this.setState({
                 isFetching: false,
-                tables: service.sortTables(tables, this.state.sortKey, this.state.reverseSort)
+                items: this.props.sortList(items, this.state.sortKey, this.state.reverseSort)
             })
         } catch (e) {
             this.setState({
@@ -137,23 +159,23 @@ export default class DeleteTableModal extends React.Component<{}, DeleteTableMod
     }
 
     private async _submit() {
-        let tables: string[] = [];
-        this.state.tables.forEach((table) => {
-            if (!table.locked && table.checked) {
-                tables.push(table.name);
+        const items: string[] = [];
+        this.state.items.forEach((item) => {
+            if (!item.locked && item.checked) {
+                items.push(item.name);
             }
         });
 
-        if (tables.length === 0) {
+        if (items.length === 0) {
             return;
         }
 
         this.setState({ submitStatus: "confirm"} );
 
         try {
-            await service.deleteTablesConfirm(tables);
+            await this.props.onConfirm(items);
             this.setState({ submitStatus: "pending"} );
-            await service.deleteTables(tables);
+            await this.props.onSubmit(items);
             this.setState({ submitStatus: null} );
             this._fetch();
         } catch (cancel) {
@@ -167,30 +189,30 @@ export default class DeleteTableModal extends React.Component<{}, DeleteTableMod
     }
 
     private _selectTable(index: number): void {
-        let tables = this.state.tables.map((table, i) => {
+        const items = this.state.items.map((item, i) => {
             if (i === index) {
-                table.checked = !table.checked;
+                item.checked = !item.checked;
             }
-            return table;
+            return item;
         });
-        this.setState({ tables });
+        this.setState({ items });
     }
 
     private _selectAllTables(checked: boolean): void {
-        let tables = this.state.tables.map((table, i) => {
-            table.checked = table.locked ? false : checked;
-            return table;
+        const items = this.state.items.map((item) => {
+            item.checked = item.locked ? false : checked;
+            return item;
         });
-        this.setState({ tables });
+        this.setState({ items });
     }
 
     private _sort(key: string): void {
-        let reverseSort = (key === this.state.sortKey) ? !this.state.reverseSort : false;
-        let tables = service.sortTables(this.state.tables, key, reverseSort);
+        const reverseSort = (key === this.state.sortKey) ? !this.state.reverseSort : false;
+        const items = this.props.sortList(this.state.items, key, reverseSort);
         this.setState({
             sortKey: key,
             reverseSort,
-            tables
+            items
         });
     }
 }

@@ -603,6 +603,10 @@ class ResourceMenu {
             }
         });
 
+        $container.on("click", ".deleteTables", (event) => {
+            event.stopPropagation();
+        });
+
         $container.on("click", ".addTable", (event) => {
             event.stopPropagation();
             HomeScreen.switch(UrlToTab.load);

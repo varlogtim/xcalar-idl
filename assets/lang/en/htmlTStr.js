@@ -461,6 +461,7 @@ module.exports = {
         "Resources": "Resources",
         "Tables": "Tables",
         "AddTable": "Add Table",
+        "DeleteTables": "Delete Tables",
         "SearchTable": "Search Table in SQL Queries and Modules",
         "SQL": "SQL Queries",
         "AddSQL": "New SQL Query",

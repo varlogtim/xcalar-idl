@@ -3,6 +3,7 @@ export default {
         "Confirm": "Confirm",
         "Close": "Close",
         "Cancel": "Cancel",
+        "Delete": "Delete",
         "DateModified": "Date Modified",
         "Loading": "Loading",
         "Maximize": "Maximize",
@@ -14,8 +15,12 @@ export default {
     "DeleteTableModalTStr": {
         "header": "Permanently Delete Tables",
         "instr": "To free space in this application please delete old or unnecessary tables.",
-        "Confirm": "Delete",
         "Tables": "Tables"
+    },
+
+    "DeletePbTableModalTStr": {
+        "header": "Permanently Delete Published Tables",
+        "instr": "To free space in this application please delete unused published tables.",
     },
 
     "TooltipTStr": {

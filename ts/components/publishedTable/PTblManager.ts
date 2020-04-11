@@ -1378,3 +1378,11 @@ class PTblManager {
         XcSocket.Instance.sendMessage("refreshIMD", event, null);
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.PTblManager = PTblManager;
+};
+
+if (typeof runEntity !== "undefined") {
+    runEntity.PTblManager = PTblManager;
+}

@@ -1,32 +1,21 @@
 import dict from "../lang";
-
-export interface TableAttrs {
-    "tableId": string,
-    "name": string,
-    "size": number,
-    "sizeText": string,
-    "locked": boolean,
-    "checked": boolean,
-    "date": string,
-    "dateTip": object
-}
+import { DeleteItems } from "../components/modals/GeneralDeleteModal/GeneralDeleteModal";
 
 export const id: string = "deleteTableModal";
 const ResultSetTStr = dict.ResultSetTStr;
 const UNKNWON_TIME: number = -1;
 
 class DeleteTableModalService {
-    public getTableList(): Promise<TableAttrs[]> {
+    public getTableList(): Promise<DeleteItems[]> {
         let XcalarGetTables = window["XcalarGetTables"];
         let xcHelper = window["xcHelper"];
         let DagTblManager = window["DagTblManager"];
         return new Promise((resolve, reject) => {
             XcalarGetTables("*")
             .then((result) => {
-                let numNodes = result.numNodes;
                 let nodeInfo = result.nodeInfo;
-                let tables: TableAttrs[] = [];
-                for (let i = 0; i < numNodes; i++) {
+                let tables: DeleteItems[] = [];
+                for (let i = 0; i < nodeInfo.length; i++) {
                     let node = nodeInfo[i];
                     tables.push({
                         "tableId": node.dagNodeId,
@@ -46,7 +35,7 @@ class DeleteTableModalService {
         });
     }
 
-    public deleteTablesConfirm(tableNames: string[]) {
+    public deleteTablesConfirm(tableNames: string[]): Promise<void> {
         if (tableNames.length === 0) {
             return new Promise((resolve) => {
                 resolve();
@@ -69,7 +58,7 @@ class DeleteTableModalService {
         }
     }
 
-    public deleteTables(tableNames: string[]) {
+    public deleteTables(tableNames: string[]): Promise<void> {
         // XXX TODO: remove window hack
         let DagTblManager = window["DagTblManager"];
         let MemoryAlert = window["MemoryAlert"];
@@ -98,10 +87,10 @@ class DeleteTableModalService {
     }
 
     public sortTables(
-        tables: TableAttrs[] = [],
+        tables: DeleteItems[] = [],
         sortKey: string,
         reverseSort: boolean
-    ): TableAttrs[] {
+    ): DeleteItems[] {
         if (tables == null || tables.length === 0) {
             return tables;
         }
@@ -133,14 +122,14 @@ class DeleteTableModalService {
         }
         return {
             date: date_str,
-            dateTip
+            dateTip // XXX to do, put into general modal
         }
     }
 
     private _sortTables(
-        tables: TableAttrs[],
+        tables: DeleteItems[],
         sortKey: string
-    ): TableAttrs[] {
+    ): DeleteItems[] {
         // sort by name first, no matter what case
         tables.sort((a, b) =>  a.name.localeCompare(b.name));
 

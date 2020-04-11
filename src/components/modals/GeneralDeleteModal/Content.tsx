@@ -1,14 +1,15 @@
 import * as React from "react";
 import dict from "../../../lang";
 import Checkbox from "../../widgets/Checkbox";
-import { TableAttrs } from "../../../services/DeleteTableModalService";
+import { DeleteItems } from "./GeneralDeleteModal";
 import Row from "./Row";
 import Title from "./Title";
 
 const {CommonTStr, DeleteTableModalTStr} = dict;
 
 type ContentProps = {
-    tables: TableAttrs[];
+    id: string;
+    tables: DeleteItems[];
     sortKey: string;
     onSelectAllClick;
     onCheckboxClick;
@@ -66,7 +67,7 @@ export default function Content(props: ContentProps) {
                 <ul>
                 {
                     tables.map((table, i) => {
-                        return <Row table={table} onClick={() => props.onCheckboxClick(i)}/>;
+                        return <Row id={props.id} table={table} onClick={() => props.onCheckboxClick(i)}/>;
                     })
                 }
                 </ul>
