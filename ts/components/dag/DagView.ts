@@ -2965,8 +2965,7 @@ class DagView {
     public isDisableActions(showAlert: boolean = false): boolean {
         if (showAlert && this.dagTab instanceof DagTabSQLExecute) {
             DagTabSQLExecute.viewOnlyAlert(this.dagTab);
-        }
-        if (showAlert && this.dagTab instanceof DagTabUser && !this.dagTab.isEditable()) {
+        } else if (showAlert && this.dagTab instanceof DagTabUser && !this.dagTab.isEditable()) {
             // when it's inside an app, not editable
             DagTabUser.viewOnlyAlert(this.dagTab);
         }

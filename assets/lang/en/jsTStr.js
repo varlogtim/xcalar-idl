@@ -1279,6 +1279,7 @@ FileManagerTStr = {
 }
 
 AppTStr = {
+    "Builder": "App Builder",
     "Created": "App Created.",
     "CreateFailed": "App Creation Failed.",
     "NoLogicalPlan": "No logical plan selected",
@@ -1533,7 +1534,8 @@ SQLTStr = {
     "OpenQueryMsg": "You will lose any unsaved changes to open this query. Click Cancel if you want to save your current query?",
     "DebugPlan": "Debug Plan",
     "ReadOnly": "Current module doesn't support the use of SQL Editor",
-    "SnippetHint": "Run a SQL statement to get started, add/modify the operators in the app builder to build a data app"
+    "SnippetHint": "Run a SQL statement to get started, add/modify the operators in the app builder to build a data app",
+    "Graph": "SQL Graph"
 };
 
 LoginConfigTStr = {

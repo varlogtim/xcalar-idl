@@ -1350,6 +1350,7 @@ module.exports = {
         "description": "Add Description",
         "comment": "New Comment",
         "execute": "Execute",
+        "executeHint": "Select a function to execute",
         "executeAll": "Execute All",
         "executeAllNodes": "Execute all operator operators",
         "executeOptimized": "Execute Optimized",
@@ -1389,7 +1390,9 @@ module.exports = {
         "returnToQuery": "Back to query",
         "returnToQueryPanel": "Return to the Query panel",
         "NumOperatorNodes": "No. operators",
-        "ViewOnly": "View only"
+        "ViewOnly": "View only",
+        "ViewOnlyHint": "Click to convert SQL graph to module and edit",
+        "UseInSQL": "Use In SQL"
     },
 
     "dagSearch": {

@@ -27,6 +27,7 @@ class DagGraphBar {
 
     public reset(): void {
         this._checkZoom();
+        this._updateHeader();
     }
 
     public lock(): void {
@@ -207,6 +208,13 @@ class DagGraphBar {
             this._updateZoom();
         });
 
+        $topBar.find(".editSQLGraph").click(() => {
+            const dagTab = DagViewManager.Instance.getActiveTab();
+            if (dagTab instanceof DagTabSQLExecute) {
+                DagTabManager.Instance.convertNoEditableTab(dagTab);
+            }
+        });
+
         this._setupRunButton();
     }
 
@@ -277,6 +285,16 @@ class DagGraphBar {
             $zoomOut.addClass("disabled");
         } else if (scaleIndex === DagView.zoomLevels.length - 1) {
             $zoomIn.addClass("disabled");
+        }
+    }
+
+    private _updateHeader(): void {
+        const $header = $("#dagView .categoryBar .sectionHeader");
+        const dagTab = DagViewManager.Instance.getActiveTab();
+        if (dagTab instanceof DagTabSQLExecute) {
+            $header.text(SQLTStr.Graph);
+        } else {
+            $header.text(AppTStr.Builder);
         }
     }
 
