@@ -124,12 +124,6 @@ class CreatePublishTableModal {
         } else {
             this._$modal.find(".selectAllWrap .checkbox").eq(0).removeClass("checked");
         }
-
-        if (columnList.length > 9) {
-            this._$publishColList.css("overflow-y", "auto");
-        } else {
-            this._$publishColList.css("overflow-y", "hidden");
-        }
     }
 
     private _replicateColumnHints(): void {
