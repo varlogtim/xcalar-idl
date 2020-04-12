@@ -210,17 +210,6 @@ describe("UserSettings Test", function() {
             expect(UserSettings.getPref("hideDataCol")).to.equal(hideDataCol);
         });
 
-        // it("should toggle hideSysOps", function() {
-        //     var hideSysOps = UserSettings.getPref("hideSysOps") || false;
-        //     var $btn = $("#hideSysOps");
-        //     // case 1
-        //     $btn.click();
-        //     expect(UserSettings.getPref("hideSysOps")).to.equal(!hideSysOps);
-        //     // case 2
-        //     $btn.click();
-        //     expect(UserSettings.getPref("hideSysOps")).to.equal(hideSysOps);
-        // });
-
         it("should reveal the right value on the slider", function() {
             var $bar = $("#commitIntervalSlider").find(".ui-resizable-e").eq(0);
             var pageX = $bar.offset().left;

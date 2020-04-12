@@ -242,19 +242,6 @@ namespace UserSettings {
 
         userPrefs = new UserPref();
         addEventListeners();
-
-        if (XVM.isDataMart()) {
-            // data mart options
-            $("#userSettingsModal .optionSet:not(.dataMart)").remove();
-        } else {
-            // remove cloud only settings
-            $("#userSettingsModal .optionSet:not(.onPrem)").remove();
-        }
-
-        if (!Admin.isAdmin()) {
-            // remove admin only settings
-            $("#userSettingsModal .optionSet.admin").remove();
-        }
     }
 
     function saveLastPrefs(): void {
@@ -341,30 +328,6 @@ namespace UserSettings {
             }
         });
 
-        $("#hideSysOps").click(function() {
-            let $checkbox = $(this);
-            $checkbox.toggleClass("checked");
-            if ($checkbox.hasClass("checked")) {
-                UserSettings.setPref("hideSysOps", true, true);
-                QueryManager.toggleSysOps(true);
-            } else {
-                UserSettings.setPref("hideSysOps", false, true);
-                QueryManager.toggleSysOps(false);
-            }
-        });
-
-        $("#disableDSShare").click(function() {
-            let $checkbox = $(this);
-            $checkbox.toggleClass("checked");
-            if ($checkbox.hasClass("checked")) {
-                UserSettings.setPref("disableDSShare", true, true);
-                DS.toggleSharing(true);
-            } else {
-                UserSettings.setPref("disableDSShare", false, true);
-                DS.toggleSharing(false);
-            }
-        });
-
         monIntervalSlider = new RangeSlider($('#monitorIntervalSlider'),
         'monitorGraphInterval', {
             minVal: 1,
@@ -427,8 +390,6 @@ namespace UserSettings {
         let hideDataCol = UserSettings.getPref("hideDataCol");
         let graphInterval = UserSettings.getPref("monitorGraphInterval");
         let commitInterval = UserSettings.getPref("commitInterval");
-        let hideSysOps = UserSettings.getPref("hideSysOps");
-        let disableDSShare = UserSettings.getPref("disableDSShare");
         let logOutInterval = UserSettings.getPref("logOutInterval");
         const colorTheme = UserSettings.getPref("colorTheme") || CodeMirrorManager.DefaultColorTheme;
 
@@ -444,20 +405,7 @@ namespace UserSettings {
             $("#showDataColBox").removeClass("checked");
         }
 
-        if (hideSysOps) {
-            $("#hideSysOps").addClass("checked");
-        } else {
-            $("#hideSysOps").removeClass("checked");
-        }
-
-        if (disableDSShare) {
-            $("#disableDSShare").addClass("checked");
-        } else {
-            $("#disableDSShare").removeClass("checked");
-        }
-
         _setColorTheme(colorTheme);
-        DS.toggleSharing(disableDSShare);
         XcUser.CurrentUser.updateLogOutInterval(logOutInterval);
 
         monIntervalSlider.setSliderValue(graphInterval);

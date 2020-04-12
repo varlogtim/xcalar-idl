@@ -21,7 +21,6 @@ class GenSettings extends Durable {
             "hideDataCol": false,
             "monitorGraphInterval": 3, // in seconds
             "commitInterval": 120, // in seconds
-            "hideSysOps": false,
             "logOutInterval": 25, // in minutes
         };
         defaultSettings = Object.assign({}, defaultSettings, userConfigParms);

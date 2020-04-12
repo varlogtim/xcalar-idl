@@ -557,7 +557,6 @@ module.exports = {
         "graphInterval": "Graph Interval",
         "commitInterval": "Health check interval",
         "GTotal": "Total",
-        "hideSysOps": "Hide system generated operations from operations list",
         "logOutInterval": "Logout timeout interval",
         "DISABLESHARE": "Disable dataset sharing",
         "Install": "Install",

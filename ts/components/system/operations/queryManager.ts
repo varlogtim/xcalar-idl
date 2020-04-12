@@ -128,12 +128,6 @@ namespace QueryManager {
             "startTime": CommonTxtTstr.NA,
             "elapsed": CommonTxtTstr.NA,
         }, id, QueryStatus.Run, true);
-
-        if (UserSettings.getPref("hideSysOps") &&
-            sysQueryTypes.indexOf(name) > -1
-        ) {
-            updateQueryTextDisplay("");
-        }
     };
 
     // queryName will be empty if subquery doesn't belong to a xcalarQuery
@@ -669,7 +663,6 @@ namespace QueryManager {
      * @param queries
      */
     export function upgrade(queriesUnsorted: XcQueryDurable[]): void {
-        QueryManager.toggleSysOps(UserSettings.getPref("hideSysOps"));
         if (!queriesUnsorted) {
             return;
         }
@@ -687,22 +680,6 @@ namespace QueryManager {
             focusOnQuery($queryList.find(".query").first());
         }
     }
-
-    /**
-     * QueryManager.toggleSysOps
-     * @param hide
-     */
-    export function toggleSysOps(hide?: boolean): void {
-        if (hide) {
-            $queryList.addClass("hideSysOps");
-            if ($queryList.find(".sysType.active").length) {
-                setDisplayToDefault();
-                $queryList.find(".active").removeClass("active");
-            }
-        } else {
-            $queryList.removeClass("hideSysOps");
-        }
-    };
 
     /**
      * QueryManager.getAllDstTables
@@ -1337,8 +1314,7 @@ namespace QueryManager {
     }
 
     function focusOnQuery($target: JQuery): void {
-        if ($target.hasClass("active") || ($target.hasClass("sysType") &&
-            UserSettings.getPref("hideSysOps"))) {
+        if ($target.hasClass("active")) {
             return;
         }
 

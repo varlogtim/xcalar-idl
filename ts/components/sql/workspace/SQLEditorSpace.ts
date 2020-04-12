@@ -125,7 +125,9 @@ class SQLEditorSpace {
      * @param on
      */
     public toggleSyntaxHighlight(on: boolean): void {
-        this._sqlEditor.toggleSyntaxHighlight(on);
+        if (this._sqlEditor != null) {
+            this._sqlEditor.toggleSyntaxHighlight(on);
+        }
     }
 
     private _setSnippet(snippet: string): void {

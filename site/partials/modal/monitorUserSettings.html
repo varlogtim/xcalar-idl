@@ -7,43 +7,8 @@
     </div>
   </header>
   <div class="optionsContainer modalMain">
-    <!-- show data col -->
-    <div class="optionSet dataMart onPrem">
-      <div class="optionSelector">
-        <div id="showDataColBox" class="checkbox">
-          <i class="icon xi-ckbox-empty fa-13"></i>
-          <i class="icon xi-ckbox-selected fa-13"></i>
-        </div>
-      </div>
-      <div class="label"><%= dicts.monitor.showDataCol %></div>
-      <i class="qMark icon xi-unknown"
-      data-toggle="tooltip"
-      data-container="body"
-      data-title="<%= dicts.monitor.showDataColHint %>"
-      data-placement="top"></i>
-    </div>
-    <!-- hide system op logs -->
-    <div class="optionSet onPrem">
-      <div class="optionSelector">
-        <div id="hideSysOps" class="checkbox">
-          <i class="icon xi-ckbox-empty fa-13"></i>
-          <i class="icon xi-ckbox-selected fa-13"></i>
-        </div>
-      </div>
-      <div class="label"><%= dicts.monitor.hideSysOps %></div>
-    </div>
-    <!-- show syntax highlight -->
-    <div class="optionSet dataMart onPrem">
-      <div class="optionSelector">
-        <div id="showSyntaxHighlight" class="checkbox">
-          <i class="icon xi-ckbox-empty fa-13"></i>
-          <i class="icon xi-ckbox-selected fa-13"></i>
-        </div>
-      </div>
-      <div class="label">Show syntax highlighting for editors</div>
-    </div>
     <!-- color theme -->
-    <div class="optionSet dataMart onPrem">
+    <div class="optionSet">
       <div class="optionSelector">
         <div class="label">Editor theme:</div>
         <div id="colorThemeSelector" class="dropDownList">
@@ -64,8 +29,33 @@
         </div>
       </div>
     </div>
+    <!-- show syntax highlight -->
+    <div class="optionSet">
+      <div class="optionSelector">
+        <div id="showSyntaxHighlight" class="checkbox">
+          <i class="icon xi-ckbox-empty fa-13"></i>
+          <i class="icon xi-ckbox-selected fa-13"></i>
+        </div>
+      </div>
+      <div class="label">Show syntax highlighting for editors</div>
+    </div>
+     <!-- show data col -->
+     <div class="optionSet">
+      <div class="optionSelector">
+        <div id="showDataColBox" class="checkbox">
+          <i class="icon xi-ckbox-empty fa-13"></i>
+          <i class="icon xi-ckbox-selected fa-13"></i>
+        </div>
+      </div>
+      <div class="label"><%= dicts.monitor.showDataCol %></div>
+      <i class="qMark icon xi-unknown"
+      data-toggle="tooltip"
+      data-container="body"
+      data-title="<%= dicts.monitor.showDataColHint %>"
+      data-placement="top"></i>
+    </div>
     <!-- health check interval -->
-    <div class="optionSet dataMart onPrem">
+    <div class="optionSet">
       <div class="label"><%= dicts.monitor.commitInterval %></div>
       <div id="commitIntervalSlider" class="optionSelector rangeSliderWrap">
         <div class="rangeSlider">
@@ -78,18 +68,8 @@
         <span><%= dicts.common.seconds %></span>
       </div>
     </div>
-    <!-- disable dataset sharing -->
-    <div class="optionSet admin onPrem">
-      <div class="optionSelector">
-        <div id="disableDSShare" class="checkbox">
-          <i class="icon xi-ckbox-empty fa-13"></i>
-          <i class="icon xi-ckbox-selected fa-13"></i>
-        </div>
-      </div>
-      <div class="label"><%= dicts.monitor.DISABLESHARE %></div>
-    </div>
     <!-- logout interval -->
-    <div class="optionSet dataMart onPrem">
+    <div class="optionSet">
       <div class="label"><%= dicts.monitor.logOutInterval %></div>
       <div id="logOutIntervalSlider" class="optionSelector rangeSliderWrap">
         <div class="rangeSlider">

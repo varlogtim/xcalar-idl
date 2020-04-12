@@ -348,24 +348,6 @@ describe("Admin Test", function() {
                 $settings.click();
             };
         });
-        it("should toggle disableDSShare", function() {
-            var $btn = $("#disableDSShare");
-            if (!$btn.length) {
-                // non-admin mode has no this option
-                return;
-            }
-            UserSettings.setPref("disableDSShare", false, true);
-            var disableDSShare = UserSettings.getPref("disableDSShare");
-
-            // case 1
-            $btn.click();
-            expect(UserSettings.getPref("disableDSShare"))
-            .to.equal(!disableDSShare);
-            // case 2
-            $btn.click();
-            expect(UserSettings.getPref("disableDSShare"))
-            .to.equal(disableDSShare);
-        });
 
         it("should reveal the right value on the slider and update in XcUser", function() {
             var $silder = $("#logOutIntervalSlider");
