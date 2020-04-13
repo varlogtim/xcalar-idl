@@ -250,6 +250,7 @@ var BLD_FLAG_RC_SHORT = 'rc';
 var BLD_FLAG_RC_LONG = 'removedebugcomments';
 var FASTCOPY = 'fastcopy';
 var DO_CLEAN = 'clean';
+var BLD_XD_ONLY = "XD"
 // cli options for building cloud login page
 var AUTH_LAMBDA = 'XCE_SAAS_AUTH_LAMBDA_URL';
 var MAIN_LAMBDA = 'XCE_SAAS_MAIN_LAMBDA_URL';
@@ -407,7 +408,8 @@ var VALID_OPTIONS = {
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in the project souce @ " + reactMapping.src + " as a result of any changes"},
     [WATCH_FLAG_INITIAL_BUILD_CSS]:
         { [FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Build CSS portion of build before you start watch task" },
-
+    [BLD_XD_ONLY]:
+        {[FLAG_KEY]: true, [DESC_KEY]: "Skip sever side module update"},
 };
 
 // add in grunt options/flags you want available to user (grunt --version works even if you don't add here)
@@ -2154,12 +2156,16 @@ module.exports = function(grunt) {
         // grunt.task.run("build_parser");
         grunt.task.run("build_js"); // build js before html (built html will search for some js
             // files to autogen script tags for, that only get generated here)
-        grunt.task.run("update_exp_module"); // update expServer's node_module;
-        grunt.task.run("update_terminalServer_module"); // update terminalServer's module
-        grunt.task.run("update_integration_test_xcrpc_module"); // update integration test xcrpc's node_module
+        if (grunt.option(BLD_XD_ONLY)) {
+            grunt.log.writeln("Skip server module update");
+        } else {
+            grunt.task.run("update_exp_module"); // update expServer's node_module;
+            grunt.task.run("update_terminalServer_module"); // update terminalServer's module
+            grunt.task.run("update_integration_test_xcrpc_module"); // update integration test xcrpc's node_module
             // relying on xcrpc jsClient and jsSDK, so keep this after js build
-        grunt.task.run("remove_exp_crypto"); // remove external crypto module
-            // keep right after update_exp_module, as it cleared npm cache
+            grunt.task.run("remove_exp_crypto"); // remove external crypto module
+        }
+        // keep right after update_exp_module, as it cleared npm cache
         grunt.task.run("browserify_package"); // keep after build js because it builds from js files;
             // relying on xd js files(jsSDK)
         grunt.task.run("build_html");
