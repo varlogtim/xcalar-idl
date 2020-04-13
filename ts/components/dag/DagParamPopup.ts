@@ -217,6 +217,14 @@ class DagParamPopup {
         isInUse: boolean
     ) {
         const $paramList: JQuery = this._getParamList();
+        if (val != null) {
+            try {
+                val = val.toString();
+            } catch(e) {
+                console.log(val, e);
+                val = "";
+            }
+        }
         let $row: JQuery = $paramList.find(".unfilled:first");
 
         if (!$row.length) {
@@ -229,7 +237,7 @@ class DagParamPopup {
         $row.find(".paramName").append('<i class="icon xi-copy-clipboard"></i>');
         if (val != null) {
             $row.find(".paramVal").val(val);
-            if (val.trim() === "" && isEmpty) {
+            if (isEmpty && val.trim() === "") {
                 $row.find(".paramNoValueWrap .checkbox").addClass("checked");
             }
         } else if (isEmpty) {
@@ -290,12 +298,12 @@ class DagParamPopup {
 
     private _addEventListeners() {
         const $container = this._getContainer();;
- 
+
          // toggle open retina pop up
         this._getTriggerBtn().click(() => {
             this._show();
         });
- 
+
         $container.on("click", ".close", () => {
             this._close();
         });
@@ -305,23 +313,23 @@ class DagParamPopup {
             var $row: JQuery = $(event.currentTarget).closest(".row");
             this._deleteParam($row);
         });
- 
+
         $container.on("keypress", ".newParam", (event) => {
             if (event.which === keyCode.Enter) {
                 this._submitNewParam();
             }
         });
- 
+
         $container.on("click", ".submitNewParam", () => {
             this._submitNewParam();
         });
- 
+
         $container.on("keypress", ".paramVal", (event) => {
             if (event.which === keyCode.Enter) {
                 $(event.currentTarget).blur();
             }
         });
- 
+
         $container.on("input", ".paramVal", (event) => {
             const $val = $(event.currentTarget);
             if ($val.val().trim() !== "") {
@@ -334,11 +342,11 @@ class DagParamPopup {
             }
             this._hasChange = true;
         });
- 
+
         $container.on("click", ".checkbox", (event) => {
             $(event.currentTarget).toggleClass("checked");
         });
- 
+
         $container.on("mouseup", ".paramNameWrap", (event) => {
             const $el = $(event.currentTarget);
             if ($el.closest($container).length) {
