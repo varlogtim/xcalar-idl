@@ -2,7 +2,8 @@ namespace WorkbookPanel {
     let $workbookPanel: JQuery; // $("#workbookPanel")
     let $workbookSection: JQuery; // $workbookPanel.find(".bottomSection")
     let $wkbkMenu: JQuery; //$workbookPanel.find("#wkbkMenu")
-    const sortkey: string = "modified"; // No longer user configurable
+    let sortkey: string = "modified";
+    let sortAsc: boolean = true;
     const newBoxSlideTime: number = 700;
     let $fileUpload: JQuery;
     let $dropDownCard: JQuery;   //stores the most recently clicked parent of the dropDown Menu
@@ -255,25 +256,19 @@ namespace WorkbookPanel {
 
         const activeWKBKId: string = WorkbookManager.getActiveWKBK();
         // sort by workbook.name
-        const isNum: boolean = (sortkey === "created" || sortkey === "modified");
+        const isNum: boolean = (sortkey === "created" || sortkey === "modified" || sortkey === "memUsed");
         let activeWorkbook: WKBK;
 
-        sorted = sortObj(sorted, sortkey, isNum);
+        let isRevSort = !sortAsc;
+        sorted = sortObj(sorted, sortkey, isNum, isRevSort);
         sorted.forEach(function(workbook) {
-            if (workbook.getId() === activeWKBKId) {
-                activeWorkbook = workbook;
-            } else {
-                html = _renderWorkbookHTML(workbook) + html;
-            }
+            html = _renderWorkbookHTML(workbook) + html;
         });
-        // active workbook always comes first
-        if (activeWorkbook != null) {
-            html = _renderWorkbookHTML(activeWorkbook) + html;
-        }
+
         if (!html) {
             html = `<div class="hintSection">Create or upload a new project to get started.</div>`;
         }
-
+        _renderHeader();
         $contentSection.html(html);
     }
 
@@ -471,6 +466,20 @@ namespace WorkbookPanel {
             xcUIHelper.showRefreshIcon($workbookSection, false, null);
             _updateMemUsage();
         });
+
+        $workbookSection.on("click", ".header .title", function(e) {
+            if ($(e.target).closest(".refreshMemUsed").length) {
+                return;
+            }
+            let key = $(this).data("key");
+            if (key === sortkey) {
+                sortAsc = !sortAsc;
+            } else {
+                sortAsc = true;
+            }
+            sortkey = key;
+            _listWorkbookCards();
+        });
     }
 
     function _changeInputToDiv($input: JQuery): void {
@@ -620,12 +629,7 @@ namespace WorkbookPanel {
         const html: string = _renderWorkbookHTML(workbook, extraClasses, undefined, loadingText);
 
         const $newCard: JQuery = $(html);
-        if ($sibling == null) {
-            _getContentSection().prepend($newCard);
-        } else {
-            $sibling.after($newCard);
-        }
-
+        _getContentSection().prepend($newCard);
 
         // need to remove "new" class from workbookcard a split second
         // after it's appended or it won't animate
@@ -1069,21 +1073,27 @@ namespace WorkbookPanel {
     function _renderHeader(): void {
         const attributes = [{
             key: "name",
+            dataKey: "name",
             text: "Name"
         }, {
             key: "createdTime",
+            dataKey: "created",
             text: TimeTStr.Created
         }, {
             key: "modifiedTime",
+            dataKey: "modified",
             text: TimeTStr.LastSaved
         }, {
             key: "description",
+            dataKey: "description",
             text: "Description"
         }, {
             key: "sessionId",
+            dataKey: "sessionId",
             text: WKBKTStr.SessionId
         }, {
             key: "memUsage",
+            dataKey: "memUsed",
             text:"Memory Used",
             icon: '<i class="icon xc-action xi-refresh refreshMemUsed" '+
                     xcTooltip.Attrs +
@@ -1091,14 +1101,31 @@ namespace WorkbookPanel {
                     '></i>'
         }, {
             key: "state",
+            dataKey: "resource",
             text: WKBKTStr.State
         }];
         const header: HTML = attributes.map((attr) => {
+            let sortIcons = "";
+            if (sortkey === attr.dataKey) {
+                if (sortAsc) {
+                    sortIcons = `<i class="icon xi-arrow-up"></i>`;
+                } else {
+                    sortIcons = `<i class="icon xi-arrow-down"></i>`;
+                }
+            } else {
+                sortIcons = `<span class="sortIconWrap">
+                    <i class="icon xi-arrow-up"></i>
+                    <i class="icon xi-arrow-down"></i>
+                </span>`;
+            }
             const html: HTML =
-            `<div class="title ${attr.key}">` +
-                attr.text +
+            `<div class="title ${attr.key}" data-key="${attr.dataKey}">` +
+                `<div class="label">${attr.text}</div>` +
                 (attr.icon || "") +
-            '</div>';
+                `<div class="sort">
+                    ${sortIcons}
+                </div>` +
+            `</div>`;
             return html;
         }).join("");
         $workbookSection.find(".workbookList .header").html('<div class="row">' + header + '</div>');
@@ -1174,14 +1201,31 @@ namespace WorkbookPanel {
         return wbName + numbering;
     }
 
-    function sortObj(objs: WKBK[], key: string, isNum: boolean): WKBK[] {
+    function sortObj(objs: WKBK[], key: string, isNum: boolean, revSort?: boolean): WKBK[] {
         if (isNum) {
             objs.sort(function(a, b) {
-                return (a[key] - b[key]);
+                if (revSort) {
+                    return (b[key] - a[key]);
+                } else {
+                    return (a[key] - b[key]);
+                }
             });
         } else {
             objs.sort(function(a, b) {
-                return a[key].localeCompare(b[key]);
+                if (a[key] && a[key].localeCompare && b[key] && b[key].localeCompare) {
+                    if (revSort) {
+                        return a[key].localeCompare(b[key]);
+                    } else {
+                        return b[key].localeCompare(a[key]);
+                    }
+                } else {
+                    let compare = (b[key] > a[key]);
+                    let num = compare ? -1 : 1;
+                    if (revSort) {
+                        num = -num;
+                    }
+                    return num;
+                }
             });
         }
 

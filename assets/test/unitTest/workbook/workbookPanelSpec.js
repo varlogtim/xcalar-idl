@@ -3,6 +3,9 @@ describe("WorkbookPanel Test", function() {
     var oldCommitCheck;
     var oldMemUsage;
     var menuAction = function($box, action) {
+       if (!$box.length) {
+           console.error("element not found", $box);
+       }
         $box.find(".dropDown").click();
         $("#wkbkMenu").find("." + action).click();
         $("#wkbkMenu").hide();
@@ -566,7 +569,7 @@ describe("WorkbookPanel Test", function() {
 
                 if (diff === 1) {
                     // has a fadeIn animation, so need to wait for it
-                    var $dupBox = $workbookPanel.find(".workbookBox").eq(1);
+                    var $dupBox = $workbookPanel.find(".workbookBox").eq(0);
                     if ($dupBox.find(".workbookName").text()) {
                         return true;
                     }
@@ -577,7 +580,7 @@ describe("WorkbookPanel Test", function() {
             UnitTest.testFinish(checkFunc)
             .then(function() {
                 var name = $box.find(".workbookName").text();
-                var $dupBox = $workbookPanel.find(".workbookBox").eq(1);
+                var $dupBox = $workbookPanel.find(".workbookBox").eq(0);
                 var dupName = $dupBox.find(".workbookName").text();
 
                 expect(dupName.startsWith(name)).to.be.true;
@@ -695,7 +698,7 @@ describe("WorkbookPanel Test", function() {
                 var $boxs = $workbookPanel.find(".workbookBox");
                 var wkbkNum = $boxs.length;
 
-                menuAction($boxs.eq(1), "delete");
+                menuAction($boxs.eq(0), "delete");
 
                 assert.isTrue($("#alertModal").is(":visible"));
                 $("#alertModal").find(".confirm").click();
@@ -728,6 +731,7 @@ describe("WorkbookPanel Test", function() {
 
             var $box = $workbookPanel.find('[data-workbook-id="' +
                                             activeWkbkId + '"]');
+
             menuAction($box, "deactivate");
 
             UnitTest.hasAlertWithTitle(WKBKTStr.Deactivate, {
@@ -736,7 +740,7 @@ describe("WorkbookPanel Test", function() {
 
             var checkFunc = function() {
                 var $newBox = $workbookPanel.find('[data-workbook-id="' +
-                                                  activeWkbkId + '"]');
+                                                activeWkbkId + '"]');
                 return $newBox.hasClass("noResource");
             };
 

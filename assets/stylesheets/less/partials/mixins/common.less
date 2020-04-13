@@ -1206,10 +1206,29 @@
         //     background: @color-bg-topBarGray4;
         // }
 
+
         .row {
             cursor: pointer;
             font-weight: 600;
         }
+
+        .title {
+            position: relative;
+
+            .sort {
+                .position(absolute, @top: 0px, @right: 10px);
+                color: @color-icon-default;
+
+                .sortIconWrap {
+                    .position(relative, @top: 5px);
+
+                    .icon {
+                        display: block;
+                    }
+                }
+            }
+        }
+
     }
 
     .content {
@@ -2922,4 +2941,5 @@ html.firefox {
     font-size: 16px;
     font-weight: 600;
     color: @color-font-darkGray;
+    white-space: nowrap;
 }

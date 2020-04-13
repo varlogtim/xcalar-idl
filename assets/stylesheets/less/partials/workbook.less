@@ -147,9 +147,35 @@
             .row {
                 cursor: default;
             }
-            .icon {
-                font-size: 12px;
-                margin-left: 8px;
+
+            .title {
+                display: flex;
+                cursor: pointer;
+
+                > .icon {
+                    font-size: 12px;
+                    margin-left: 8px;
+                    margin-right: 8px;
+                    line-height:40px;
+                }
+
+                .label {
+                    flex: 0 1 auto;
+                    .textOverflowOneLine;
+                }
+            }
+
+            .sort {
+                position:relative;
+                margin-left: auto;
+                right: 0px;
+
+                .icon {
+                    font-size: 9px;
+                }
+                .sortIconWrap {
+                    top: 12px;
+                }
             }
         }
 
@@ -215,7 +241,7 @@
             }
 
             &.open {
-                background-color: @color-bg-dropdown-hover-gray
+                background-color: @color-bg-pinkish-grey;
             }
 
             .name {
