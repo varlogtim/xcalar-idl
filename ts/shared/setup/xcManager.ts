@@ -42,7 +42,6 @@ namespace xcManager {
             DataSourceManager.setup();
             TableComponent.setup();
             MonitorPanel.setup();
-            JupyterPanel.setup();
             setupModals();
             browserAlert();
             Admin.setup();
@@ -198,7 +197,6 @@ namespace xcManager {
                     Admin.addNewUser();
                     // when it's new user first time login
                 }
-                JupyterPanel.initialize(true);
             });
         } else if (error === WKBKTStr.Hold) {
             // when seesion is hold by others and user choose to not login
@@ -535,9 +533,6 @@ namespace xcManager {
         WorkbookManager.setup()
         .then((wkbkId) => {
             return XcUser.CurrentUser.holdSession(wkbkId, false);
-        })
-        .then(() => {
-            JupyterPanel.initialize();
         })
         .then(() => {
             // restores table info, dataset info, settings etc

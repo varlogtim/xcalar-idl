@@ -107,12 +107,6 @@ setupHostName = function(): void {
         (window as any).planServer === "") {
         (window as any).planServer = hostname + "/sql";
     }
-
-    if ((window as any).jupyterNotebooksPath == null ||
-        (window as any).jupyterNotebooksPath === "") {
-        // window.jupyterNotebooksPath = "var/opt/xcalar/jupyterNotebooks/";
-        (window as any).jupyterNotebooksPath = "jupyterNotebooks/";
-    }
 };
 
 // ========================== HELPER FUNCTIONS ============================= //

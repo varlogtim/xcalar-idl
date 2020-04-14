@@ -1,7 +1,6 @@
 describe("WorkbookManager Test", function() {
     var oldKVGet, oldCommitCheck;
     var oldXcalarPut, oldXcalarDelete;
-    var oldJupyterNewWkbk;
     var fakeMap = {};
     var oldXcalarUploadWorkbook;
 
@@ -12,7 +11,6 @@ describe("WorkbookManager Test", function() {
         oldCommitCheck = XcUser.CurrentUser.commitCheck;
         oldXcalarPut = XcalarKeyPut;
         oldXcalarDelete = XcalarKeyDelete;
-        oldJupyterNewWkbk = JupyterPanel.newWorkbook;
         oldXcalarUploadWorkbook = XcalarUploadWorkbook;
 
         XcalarKeyPut = function(key, value) {
@@ -36,10 +34,6 @@ describe("WorkbookManager Test", function() {
         XcUser.CurrentUser.commitCheck = function() {
             return PromiseHelper.resolve();
         };
-
-        JupyterPanel.newWorkbook = function() {
-            return PromiseHelper.resolve();
-        }
 
         generateKey = WorkbookManager.__testOnly__.generateKey;
     });
@@ -94,14 +88,8 @@ describe("WorkbookManager Test", function() {
             workbooks[oldId] = new WKBK({id: oldId, name: "old"});
             workbooks[newId] = new WKBK({id: newId, name: "new"});
 
-            const oldFunc = JupyterPanel.copyWorkbook;
-            let test = false;
-            JupyterPanel.copyWorkbook = () => { test = true };
-
             const res = WorkbookManager.__testOnly__.copyHelper(oldId, newId);
             expect(res).to.equal(true);
-            expect(test).to.equal(true);
-            JupyterPanel.copyWorkbook = oldFunc;
         });
 
         it("copyHelper should work handle error case", function() {
@@ -833,12 +821,10 @@ describe("WorkbookManager Test", function() {
         var oldDeactive;
 
         before(function() {
-            oldUpdateFolderName = JupyterPanel.updateFolderName;
             oldActiveWkbkId = WorkbookManager.getActiveWKBK();
 
             oldXcSocket = XcSocket.unregisterUserSession;
             XcSocket.unregisterUserSession = function() {};
-            JupyterPanel.updateFolderName = function() {};
 
             oldRemoveUnload = xcManager.removeUnloadPrompt;
             oldReload = xcManager.reload;
@@ -890,7 +876,6 @@ describe("WorkbookManager Test", function() {
             xcManager.reload = oldReload;
             XcalarActivateWorkbook = oldActivate;
             XcalarDeactivateWorkbook = oldDeactive;
-            JupyterPanel.updateFolderName = oldUpdateFolderName;
         });
     });
     describe("socket update test", function() {
@@ -912,20 +897,16 @@ describe("WorkbookManager Test", function() {
             oldGetWKBK = WorkbookManager.getWorkbook;
             oldWKBKAsync = WorkbookManager.getWKBKsAsync;
             oldHoldSession = XcUser.CurrentUser.holdSession;
-            oldUpdateFolderName = JupyterPanel.updateFolderName;
             oldUpdateWorkbooks = WorkbookPanel.updateWorkbooks;
             WorkbookManager.getWorkbook = function() {
-                return {"jupyterFolder": "temp"};
+                return {};
             };
             WorkbookManager.getWKBKsAsync = function() {
                 return PromiseHelper.reject();
             };
-            JupyterPanel.updateFolderName = function() {
-                passed = true;
-            };
             WorkbookPanel.updateWorkbooks = function() {};
             XcUser.CurrentUser.holdSession = function(){};
-            WorkbookInfoModal.update = function() {};
+            WorkbookInfoModal.update = () => { passed = true; }
         });
 
         beforeEach(function() {
@@ -979,7 +960,6 @@ describe("WorkbookManager Test", function() {
         after(function() {
             WorkbookManager.getWorkbook = oldGetWKBK;
             WorkbookManager.getWKBKsAsync = oldWKBKAsync;
-            JupyterPanel.updateFolderName = oldUpdateFolderName;
             XcUser.CurrentUser.holdSession = oldHoldSession;
             WorkbookPanel.updateWorkbooks = oldUpdateWorkbooks;
         });
@@ -991,7 +971,6 @@ describe("WorkbookManager Test", function() {
         XcUser.CurrentUser.commitCheck = oldCommitCheck;
         XcalarKeyPut = oldXcalarPut;
         XcalarKeyDelete = oldXcalarDelete;
-        JupyterPanel.newWorkbook = oldJupyterNewWkbk;
         XcalarUploadWorkbook = oldXcalarUploadWorkbook;
         $("#container").removeClass("noWorkbook noMenuBar");
         WorkbookPanel.hide(true);

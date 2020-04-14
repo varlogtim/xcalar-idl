@@ -15,11 +15,10 @@ describe("WKBK Constructor Test", function() {
             "modified": 2234,
             "resource": true,
             "description": "testDescription",
-            "sessionId": 'testSessionId',
-            "jupyterFolder": "testFolder"
+            "sessionId": 'testSessionId'
         });
 
-        expect(Object.keys(wkbk).length).to.equal(11);
+        expect(Object.keys(wkbk).length).to.equal(10);
         expect(wkbk).to.have.property("version")
         .and.to.equal(Durable.Version);
         expect(wkbk).to.have.property("name")
@@ -38,8 +37,6 @@ describe("WKBK Constructor Test", function() {
         .and.to.equal("testDescription");
         expect(wkbk).to.have.property("sessionId")
         .and.to.equal("testSessionId");
-        expect(wkbk).to.have.property("jupyterFolder")
-        .and.to.equal("testFolder");
     });
 
     it("WKBK Basic function should work", function() {

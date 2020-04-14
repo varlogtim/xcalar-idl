@@ -497,23 +497,6 @@ namespace DSConfig {
             let format: string = $(this).data("format");
             changeFormat(format);
         });
-
-        $("#dsPreview-debugUDF").click(function() {
-            $(this).blur();
-            let moduleName: string = $("#udfArgs-moduleList input").val();
-            let modulePath: string = $("#udfArgs-moduleList input").data("module");
-            let udfPanelModuleName: string = moduleName;
-            let currWorkbookPath = UDFFileManager.Instance.getCurrWorkbookPath();
-            if (!modulePath.startsWith(currWorkbookPath)) {
-                udfPanelModuleName = modulePath;
-            }
-            let funcName = $("#udfArgs-funcList input").val();
-            let pathIndex = loadArgs.getPreivewIndex();
-            let path = loadArgs.files[pathIndex].path;
-            JupyterPanel.autofillImportUdfModal(loadArgs.targetName,
-                                                path, false,
-                                                moduleName, funcName, udfPanelModuleName);
-        });
     }
 
     /**
@@ -726,8 +709,6 @@ namespace DSConfig {
                 $li.addClass("xc-hidden");
             }
         });
-
-        $("#dsForm-writeUDF").addClass("xc-hidden");
     }
 
     function updateSchema(): void {
@@ -978,13 +959,6 @@ namespace DSConfig {
             showPreview();
         });
 
-        $("#dsForm-writeUDF").click(function() {
-            $(this).blur();
-            let pathIndex = loadArgs.getPreivewIndex();
-            let path = loadArgs.files[pathIndex].path;
-            JupyterPanel.autofillImportUdfModal(loadArgs.targetName,
-            path, true, null, null, null);
-        });
         // dropdown list for udf modules and function names
         let moduleMenuHelper = new MenuHelper($udfModuleList, {
             "onSelect": function($li) {

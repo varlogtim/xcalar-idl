@@ -197,7 +197,6 @@ namespace DSTargetManager {
             }
             let dsFormHtml: HTML = `<li class="${classes}">+ Create New Connector</li>` + html;
             $("#dsForm-targetMenu ul").html(dsFormHtml);
-            JupyterUDFModal.Instance.refreshTarget(html);
 
             let $input = $("#dsForm-target input");
             let targetName = $input.val();

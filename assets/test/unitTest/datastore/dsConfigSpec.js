@@ -2511,19 +2511,6 @@ describe("Dataset-DSConfig Test", function() {
             $errorSection.find(".content").empty();
         });
 
-        it("should click debugUDF to debug", function() {
-            loadArgs.set({files: [{}]});
-            loadArgs.setPreviewingSource(0, "test");
-            var oldFunc = JupyterPanel.autofillImportUdfModal;
-            var test = false;
-            JupyterPanel.autofillImportUdfModal = function() {
-                test = true;
-            };
-            $("#dsPreview-debugUDF").click();
-            expect(test).to.be.true;
-            JupyterPanel.autofillImportUdfModal = oldFunc;
-        });
-
         after(function() {
             DSConfig.__testOnly__.resetForm();
         });
@@ -2846,21 +2833,6 @@ describe("Dataset-DSConfig Test", function() {
 
             DSConfig.__testOnly__.setCB(null);
             DataSourceManager.startImport = oldForm;
-        });
-
-        it("should click dsForm-writeUDF to trigger jupyer", function() {
-            var loadArgs = DSConfig.__testOnly__.get().loadArgs;
-            var test = false;
-            var oldFunc = JupyterPanel.autofillImportUdfModal;
-            JupyterPanel.autofillImportUdfModal = function() {
-                test = true;
-            };
-
-            loadArgs.set({files: [{}]});
-            loadArgs.setPreviewingSource(0, "testFile");
-            $("#dsForm-writeUDF").click();
-            expect(test).to.be.true;
-            JupyterPanel.autofillImportUdfModal = oldFunc;
         });
 
         it('should click label to copy dataset name', () => {

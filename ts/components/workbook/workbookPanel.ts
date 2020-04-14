@@ -805,9 +805,6 @@ namespace WorkbookPanel {
         let msg: string = xcStringHelper.replaceMsg(WKBKTStr.DeleteMsg, {
             name: workbook.getName()
         });
-        if (workbook.jupyterFolder) {
-            msg += "\nThe following Jupyter folder will also be deleted: " + workbook.jupyterFolder + ".";
-        }
 
         Alert.show({
             "title": WKBKTStr.Delete,

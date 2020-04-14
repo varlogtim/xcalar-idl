@@ -1560,15 +1560,6 @@ LoginConfigTStr = {
     "veryStrong": "Very Strong"
 };
 
-JupyterTStr = {
-    "JupNotebook": "Jupyter Notebook",
-    "PrefixNoRename": "Object and array type columns cannot be renamed",
-    "DSFormInactive": "From the Dataset panel, select a dataset and apply the Custom Format type.",
-    "NoSnippetOtherWkbk": "Cannot add snippets to a notebook belonging to another Xcalar project",
-    // with replace
-    "SampleNumError": "Please select 1 to <number> rows to sample."
-};
-
 UploadTStr = {
     'InvalidUpload': 'Invalid Upload',
     'InvalidFolderDesc': 'Cannot upload folders.',
@@ -1637,11 +1628,6 @@ OpPanelTStr = {
     "RoundPanelFieldNameSourceColumn": "Column to round",
     "RoundPanelFieldNameNumDecimals": "Num of decimals to keep",
     "RoundPanelFieldNameDestColumn": "New resultant column name",
-    "JupyterPanelTitle": "Jupyter",
-    "JupyterPanelInstr": "Create Jupyter notebook from the module.",
-    "JupyterPanelFieldNameRename": "Rename columns",
-    "JupyterPanelFieldNameExportAll": "Export all rows",
-    "JupyterPanelFieldNameNumRows": "Number of rows",
     "RowNumPanelTitle": "Row Number",
     "RowNumPanelInstr": "Generate a column of row number.",
     "RowNumPanelFieldNameDestColumn": "New resultant column name",

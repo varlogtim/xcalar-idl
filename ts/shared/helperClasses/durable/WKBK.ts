@@ -5,7 +5,6 @@ interface WKBKOptions extends WKBKDurable {
 
 class WKBK extends Durable {
     public sessionId: string; // backend id, not persisted
-    public jupyterFolder: string; // name of corresponding jupyter folder
     public name: string; // workbook name
 
     private id: string; // workbook id
@@ -34,9 +33,6 @@ class WKBK extends Durable {
         this.memUsed = options.memUsed || null;
         if (options.description) {
             this.description = options.description;
-        }
-        if (options.jupyterFolder) {
-            this.jupyterFolder = options.jupyterFolder;
         }
         if (options.sessionId) {
             this.sessionId = options.sessionId;
@@ -92,10 +88,6 @@ class WKBK extends Durable {
     // not used
     public serialize(): string {
         return null;
-    }
-
-    public setJupyterFolder(folderName: string): void {
-        this.jupyterFolder = folderName;
     }
 
     public setMemUsed(memUsed: number): void {

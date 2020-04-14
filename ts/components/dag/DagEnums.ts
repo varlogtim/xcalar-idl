@@ -13,7 +13,6 @@ enum DagNodeType {
     IMDTable = "IMDTable",
     Index = "index",
     Join = "join",
-    Jupyter = "Jupyter",
     Map = "map",
     Project = "project",
     PublishIMD = "publishIMD",

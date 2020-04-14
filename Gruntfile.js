@@ -2170,8 +2170,6 @@ module.exports = function(grunt) {
             // relying on xd js files(jsSDK)
         grunt.task.run("build_html");
         grunt.task.run("constructor_files");
-        // Update js files that will get used outside xcalar-gui to display correct branding
-        grunt.task.run("update_prod_name_outside_js");
         // Generate TS definition for jsTStr.js in dev build
         if (BLDTYPE === DEV) {
             grunt.task.run("generate_tsdef");
@@ -3717,35 +3715,6 @@ module.exports = function(grunt) {
                     }
                 }
             }
-        }
-    });
-
-    /**
-     * There are some js files which will get included in the backend by the installer;
-     * those can not rely on jsTStr, etc., without altering the installer to include them too.
-     * Go through those files and search/replace to add in the proper product Name.
-     *
-     * (My understanding is there are many files you wouldn't want to do the update on,
-     * which is why we'd rather just specify which to do rather than doing all w exclusions)
-     */
-    grunt.task.registerTask("update_prod_name_outside_js", function() {
-
-        // file you want to replace in : file to map it to (if same will just update curr file w new version)
-        var jsFilesToUpdate = {
-            "assets/jupyter/ipython/nbextensions/xcalar.js": "assets/jupyter/ipython/nbextensions/xcalar.js",
-            "assets/jupyter/jupyter/custom/custom.js": "assets/jupyter/jupyter/custom/custom.js"
-        }
-
-        // string occurences to to search for in the files - the default XD string
-        var regularStr = productTypes[XD]['name'];
-        // what to replace those occurances with
-        var replaceStr = PROD_NAME;
-
-        // go through each file; create new file w/ the updated text and save that
-        for (var jsFile of Object.keys(jsFilesToUpdate)) {
-            var jsFileFullSrc = BLDROOT + jsFile;
-            var jsFileFullDest = BLDROOT + jsFilesToUpdate[jsFile];
-            replaceStrOccurancesInFile(jsFileFullSrc, jsFileFullDest, regularStr, replaceStr, !KEEPSRC); // last option allows you to delete original file, if dest =/= src
         }
     });
 

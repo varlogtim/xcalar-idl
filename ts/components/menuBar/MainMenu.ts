@@ -47,9 +47,6 @@ namespace MainMenu {
             case ("datastorePanel"):
                 $tab = $("#dataStoresTab");
                 break;
-            case ("jupyterPanel"):
-                $tab = $("#jupyterTab");
-                break;
             case ("sqlPanel"):
                 $tab = $("#sqlWorkSpace");
                 break;
@@ -384,11 +381,6 @@ namespace MainMenu {
                 if ($curTab.hasClass("firstTouch")) {
                     $curTab.removeClass("firstTouch");
                 }
-                break;
-            case ("jupyterTab"):
-                $("#jupyterPanel").addClass("active");
-                JupyterPanel.sendInit(); // used to validate session if first
-                // time viewing a notebook
                 break;
             case ("sqlTab"):
                 $("#sqlWorkSpacePanel").addClass("active");

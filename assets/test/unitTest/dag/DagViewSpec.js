@@ -739,29 +739,6 @@ describe("DagView Test", () => {
                     },
                     {
                         "version": 1,
-                        "type": "Jupyter",
-                        "subType": null,
-                        "display": {
-                            "x": 0,
-                            "y": 0
-                        },
-                        "description": "",
-                        "title": "Node 7",
-                        "hasTitleChange": false,
-                        "input": {
-                            "numExportRows": 1000,
-                            "renames": []
-                        },
-                        "id": "dag_5CABD7531B05A85D_1555102717675_38",
-                        "state": "Unused",
-                        "configured": false,
-                        "aggregates": [],
-                        "parents": [
-                            "dag_5CABD7531B05A85D_1555095773638_37"
-                        ]
-                    },
-                    {
-                        "version": 1,
                         "type": "filter",
                         "subType": null,
                         "table": "table_DF2_5CABD7531B05A85D_1555095768253_0_dag_5CABD7531B05A85D_1555107981101_36#t_1555108259739_1",

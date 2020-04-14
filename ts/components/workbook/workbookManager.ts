@@ -533,23 +533,13 @@ namespace WorkbookManager {
     */
     export function downloadWKBK(workbookName: string): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let jupyterFolderPath: string = "";
-        const wkbk: WKBK = wkbkSet.get(getWKBKId(workbookName));
-
-        if (wkbk) {
-            const folderName: string = wkbk.jupyterFolder;
-            if (folderName) {
-                jupyterFolderPath = window['jupyterNotebooksPath'] + folderName +
-                                    "/";
-            }
-        }
         const $bg: JQuery = $("#initialLoadScreen");
         let timer = null;
         timer = setTimeout(() => {
             $bg.show();
         }, 1000);
 
-        XcalarDownloadWorkbook(workbookName, jupyterFolderPath)
+        XcalarDownloadWorkbook(workbookName, "")
         .then(function(file) {
             xcHelper.downloadAsFile(workbookName + ".xlrwb.tar.gz", file.sessionContent, "application/gzip");
             deferred.resolve();
@@ -576,8 +566,6 @@ namespace WorkbookManager {
     export function uploadWKBK(workbookName: string, workbookContent: File, parsed?: string): XDPromise<string> {
         let deferred: XDDeferred<string> = PromiseHelper.deferred();
 
-        let jupFolderName: string;
-        let parsedWorkbookContent: any;
         let promise;
         if (parsed) {
             promise = PromiseHelper.resolve(parsed);
@@ -587,33 +575,16 @@ namespace WorkbookManager {
 
         promise
         .then(function(res) {
-            parsedWorkbookContent = res;
-            return JupyterPanel.newWorkbook(workbookName);
-        })
-        .then(function(folderName) {
-            let jupyterFolderPath: string;
-            if (typeof folderName !== "string") {
-                // it's an error so default to "";
-                folderName = "";
-            }
-            jupFolderName = folderName;
-            if (!folderName) { // can be empty due to error or if not found
-                jupyterFolderPath = "";
-            } else {
-                jupyterFolderPath = window['jupyterNotebooksPath'] + folderName +
-                                    "/";
-            }
-            return XcalarUploadWorkbook(workbookName, parsedWorkbookContent,
-                                        jupyterFolderPath);
+            let parsedWorkbookContent = res;
+            return XcalarUploadWorkbook(workbookName, parsedWorkbookContent, "");
         })
         .then(function() {
-            return finishCreatingWKBK(workbookName, null, null, jupFolderName);
+            return finishCreatingWKBK(workbookName, null, null);
         })
         .then(function(wkbkId) {
             deferred.resolve(wkbkId);
         })
         .fail(function(err) {
-            // XXX need to remove jupyter folder
             deferred.reject(err);
         });
 
@@ -773,19 +744,12 @@ namespace WorkbookManager {
             return XcalarRenameWorkbook(newName, srcWKBK.getName());
         })
         .then(function() {
-            return JupyterPanel.renameWorkbook(srcWKBK.jupyterFolder, newName);
-        })
-        .then(function(folderName) {
-            if (typeof folderName !== "string") {
-                folderName = srcWKBK.jupyterFolder;
-            }
             const options: WKBKOptions = {
                 "id": newWKBKId,
                 "name": newName,
                 "description": description || srcWKBK.getDescription(),
                 "created": srcWKBK.getCreateTime(),
                 "resource": srcWKBK.hasResource(),
-                "jupyterFolder": folderName,
                 "sessionId": srcWKBK.sessionId,
                 "modified": undefined,
                 "noMeta": false
@@ -844,7 +808,6 @@ namespace WorkbookManager {
 
         XcalarDeleteWorkbook(workbook.getName())
         .then(function() {
-            JupyterPanel.deleteWorkbook(workbookId);
             wkbkSet.delete(workbook.getId());
             return WorkbookManager.commit();
         })
@@ -1216,9 +1179,7 @@ namespace WorkbookManager {
                 if (activeWkbk && activeWkbk === info.triggerWkbk) {
                     $("#mainTopBar .wkbkName").text(info.newName);
                     const newWKBKId: string = getWKBKId(info.newName);
-                    resetActiveWKBK(newWKBKId);
-                    const newFoldername: string = WorkbookManager.getWorkbook(newWKBKId).jupyterFolder;
-                    JupyterPanel.updateFolderName(newFoldername);
+                    resetActiveWKBK(newWKBKId);                
                 }
                 WorkbookPanel.updateWorkbooks(info);
                 WorkbookInfoModal.update(info);
@@ -1276,41 +1237,23 @@ namespace WorkbookManager {
         return PromiseHelper.alwaysResolve(promise);
     }
 
-    // if upload, jupFolderName should be provided
-    function finishCreatingWKBK(wkbkName: string, isCopy: boolean, copySrc: WKBK, jupFolderName?: string): XDPromise<string> {
+    function finishCreatingWKBK(wkbkName: string, isCopy: boolean, copySrc: WKBK): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        let wkbk: WKBK;
+        // XXX for uploads, we should include description
+        const options: WKBKOptions = {
+            "id": getWKBKId(wkbkName),
+            "name": wkbkName,
+            "resource": false
+        };
 
-        let jupyterPromise: XDPromise<string>;
-        if (!jupFolderName) {
-            jupyterPromise = JupyterPanel.newWorkbook(wkbkName);
-        } else {
-            jupyterPromise = PromiseHelper.resolve(jupFolderName);
+        if (isCopy) {
+            options.modified = copySrc.getModifyTime();
         }
 
-        jupyterPromise
-        .then(function(folderName) {
-            // when create new wkbk, we always deactiveate it
-            if (typeof folderName !== "string") {
-                folderName = "";
-            }
+        let wkbk: WKBK = new WKBK(options);
+        wkbkSet.put(wkbk.getId(), wkbk);
 
-            // XXX for uploads, we should include description
-            const options: WKBKOptions = {
-                "id": getWKBKId(wkbkName),
-                "name": wkbkName,
-                "resource": false,
-                "jupyterFolder": folderName
-            };
-
-            if (isCopy) {
-                options.modified = copySrc.getModifyTime();
-            }
-
-            wkbk = new WKBK(options);
-            wkbkSet.put(wkbk.getId(), wkbk);
-            return saveWorkbook();
-        })
+        saveWorkbook()
         .then(function() {
             // If workbook is active, make it inactive so that our UX is linear
             return XcalarListWorkbooks(wkbkName, true);
@@ -1371,7 +1314,6 @@ namespace WorkbookManager {
         if (oldWKBK == null || newWKBK == null) {
             return false;
         }
-        JupyterPanel.copyWorkbook(oldWKBK.jupyterFolder, newWKBK.jupyterFolder);
         return true;
     }
 

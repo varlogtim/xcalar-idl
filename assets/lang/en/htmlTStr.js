@@ -221,7 +221,6 @@ module.exports = {
         "MaximizeCol": "Unminimize column",
         "MaximizeColPlura": "Unminimize columns",
         "Join": "Join",
-        "Jupyter": "Convert to Jupyter DF",
         "ActivateDS": "Recreate dataset",
         "DeactivateDS": "Delete dataset",
         "Map": "Map",
@@ -331,7 +330,7 @@ module.exports = {
         "RawDSQuote": "Character used as a quote mark. A pair of quote marks surround an entire field's content. Delimiter characters between quote marks are interpreted literally, not as delimiters. The import process omits quote marks from imported field content. To treat all delimiter characters identically, leave the Quoting Character field empty.",
         "RawDSSkipRows": "Skip the first specified number of rows in each file.",
         "RawDSExcelIndex": "Index of the worksheet in the Excel workbook. Indexing starts at 0 (first worksheet).",
-        "RawDSUDFModule": "Select an existing import scalar function module or 'WRITE PARSER USING JUPYTER' to create a module.",
+        "RawDSUDFModule": "Select an existing import scalar function module.",
         "RawDSUDFFunction": "Select import function from import module to apply to the dataset. Click the 'Apply UDF' button to apply the import function to the dataset.",
         "RawDSXMLXPathName": "Name of column created from the XPath. Leave empty for default name.",
         "RawDSXMLXPath": "XPath that will become a record. For information about XPath, search for XML in online help.",
@@ -726,8 +725,6 @@ module.exports = {
         "REDETECT": "REDETECT FORMAT",
         "Minimize": "Toggle minimization of the form",
         "Parser": "Visual Parser",
-        "WriteParser": "Write Parser Using Jupyter",
-        "DebugParser": "Debug Import Scalar Function Using Jupyter",
         "Module": "Module",
         "Function": "Function",
         "SeeMore": "See More",
@@ -1319,25 +1316,6 @@ module.exports = {
         "EmailError": "Invalid email address",
         "LeaveConMsg": "You are about to leave the conversation. Confirm?",
         "SubmitTicket": "Do you want to create a support ticket? "
-    },
-
-    "jupyter": {
-        "RenameCols": "Prefixed columns or column names with spaces were found in your table. You can rename these columns before publishing your tables to Jupyter.",
-        "OriginalName": "Original Name",
-        "NewName": "New Name",
-        "PUBLISH": "Convert",
-        "TemplateInstr": "Fill in the fields below prior to creating a scalar function template.",
-        "TemplateInstrMapUDF": "Fill in the fields below prior to creating a Map Scalar Function" +
-                    ". An additional cell will be provided to test your scalar function.",
-        "TemplateInstrImportUDF": "Fill in the fields below prior to creating an Import Scalar Function.",
-        "ConnectWB": "Connect to Xcalar Project",
-        "CreateUDF": "Create Map Saclar Function",
-        "CreateImportUDF": "Create Import Scalar Function",
-        "UDFTemplate": "Scalar Function Template",
-        "JupyterNotebook": "Jupyter Notebook",
-        "CodeSnippets": "Code Snippets",
-        "NumRows": "number of rows",
-        "UDFModuleTableHelp": "Table must be present in an active module"
     },
 
     "dag": {
