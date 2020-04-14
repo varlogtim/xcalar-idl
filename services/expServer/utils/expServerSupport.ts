@@ -89,11 +89,23 @@ class ExpServerSupport {
         // we need to fix this eventually, but for now ignore untrusted certs
         process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 
+        const useSystemd = process.env.XCE_USE_SYSTEMD || '0';
+        const usrnodeSystemUnit = process.env.XCE_USRNODE_UNIT ||
+            'xcalar-usrnode.service';
         const defaultXcalarDir: string = process.env.XLRDIR || "/opt/xcalar";
         const defaultXcalarctl: string = defaultXcalarDir + "/bin/xcalarctl";
-        this._defaultStartCommand = defaultXcalarctl + " start";
-        this._defaultStopCommand = defaultXcalarctl + " stop";
-        this._defaultStatusCommand = defaultXcalarctl + " status";
+	const defaultSystemctl = "sudo /usr/bin/systemctl";
+	const defaultSystemdCgls = "systemd-cgls";
+        this._defaultStartCommand = useSystemd == '0' ?
+            defaultXcalarctl + " start" :
+            defaultSystemctl + ' start ' + usrnodeSystemUnit +
+            ' && usrnode-service-responding.sh';
+        this._defaultStopCommand = useSystemd == '0' ?
+            defaultXcalarctl + " stop" :
+            defaultSystemctl + ' stop ' + usrnodeSystemUnit;
+        this._defaultStatusCommand = useSystemd == '0' ?
+            defaultXcalarctl + " status" :
+            defaultSystemdCgls + ' --all /xcalar.slice | iconv -f utf-8 -t ascii//TRANSLIT';
         this._supportBundleCommand = defaultXcalarDir +
             "/scripts/support-generate.sh";
         if (process.env.TMPDIR) {
