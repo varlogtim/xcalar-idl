@@ -13,9 +13,11 @@ type RowProps = {
 };
 
 export default function Row(props: RowProps) {
+    const xcHelper = window["xcHelper"];
     const {id, table, onClick} = props;
-    let {name, sizeText, locked, checked, date, dateTip} = table;
-    let container = `#${id}`;
+    const {name, locked, checked, size, date} = table;
+    const container = `#${id}`;
+    const {date_str, date_tip}= getDateString(date, container);
     return (
         <div className="grid-unit" key={name}>
             {
@@ -31,8 +33,26 @@ export default function Row(props: RowProps) {
             <Tooltipbox className="name" container={container} title={name}>
                 {name}
             </Tooltipbox>
-            <div>{sizeText}</div>
-            <div {...dateTip}>{date}</div>
+            <div>{xcHelper.sizeTranslator(size)}</div>
+            <div {...date_tip}>{date_str}</div>
         </div>
     );
+}
+
+function getDateString(date: number, container: string): {date_str: string, date_tip: object} {
+    const xcTimeHelper = window["xcTimeHelper"];
+    const moment = window["moment"];
+    let date_tip = null;
+    let date_str = "--";
+    if (date !== -1) {
+        let time = moment(date);
+        date_tip = xcTimeHelper.reactGetDateTip(time, {
+            container: container
+        });
+        date_str = time.calendar();
+    }
+    return {
+        date_str,
+        date_tip
+    };
 }

@@ -16,15 +16,14 @@ class DeleteTableModalService {
                 let nodeInfo = result.nodeInfo;
                 let tables: DeleteItems[] = [];
                 for (let i = 0; i < nodeInfo.length; i++) {
-                    let node = nodeInfo[i];
+                    const node = nodeInfo[i];
                     tables.push({
                         "tableId": node.dagNodeId,
                         "name": node.name,
                         "size": node.size,
-                        "sizeText": xcHelper.sizeTranslator(node.size),
                         "locked": DagTblManager.Instance.hasLock(node.name) || node.pinned,
                         "checked": false,
-                        ...this._getDateInfo(node.name)
+                        "date": DagTblManager.Instance.getTimeStamp(node.name)
                     });
                 }
                 resolve(tables);
@@ -100,30 +99,6 @@ class DeleteTableModalService {
         }
 
         return tables;
-    }
-
-    private _getDateInfo(tableName): {date: string, dateTip: object} {
-        let DagTblManager = window["DagTblManager"];
-        let xcTimeHelper = window["xcTimeHelper"];
-        let moment = window["moment"];
-        let date: string | number = DagTblManager.Instance.getTimeStamp(tableName);
-        let container = `#${id}`;
-        let date_str: string;
-        let dateTip: object = {};
-
-        if (date !== -1) {
-            let time = moment(date);
-            dateTip = xcTimeHelper.reactGetDateTip(time, {
-                container: container
-            });
-            date_str = time.calendar();
-        } else {
-            date_str = "--";
-        }
-        return {
-            date: date_str,
-            dateTip // XXX to do, put into general modal
-        }
     }
 
     private _sortTables(

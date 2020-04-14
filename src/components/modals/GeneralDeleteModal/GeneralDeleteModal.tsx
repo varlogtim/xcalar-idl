@@ -10,11 +10,9 @@ export interface DeleteItems {
     tableId: string;
     name: string;
     size: number;
-    sizeText: string;
     locked: boolean;
     checked: boolean;
-    date: string;
-    dateTip: object;
+    date: number;
 };
 
 type GeneralDeleteProps = {

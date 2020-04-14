@@ -5,8 +5,6 @@ const UNKNWON_TIME: number = -1;
 class DeleteTableModalService {
     public getTableList(): Promise<DeleteItems[]> {
         const PTblManager = window["PTblManager"];
-        const xcHelper = window["xcHelper"];
-        const moment = window["moment"];
         return new Promise((resolve, reject) => {
             PTblManager.Instance.getTablesAsync(true)
             .then((pbTables) => {
@@ -15,11 +13,9 @@ class DeleteTableModalService {
                         "tableId": pbTable.name,
                         "name": pbTable.name,
                         "size": pbTable.size,
-                        "sizeText": xcHelper.sizeTranslator(pbTable.size),
                         "locked": false,
                         "checked": false,
-                        "date": moment(pbTable.createTime * 1000).calendar(),
-                        "dateTip": null
+                        "date": pbTable.createTime * 1000,
                     }
                 });
                 resolve(tables);
