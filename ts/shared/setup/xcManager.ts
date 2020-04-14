@@ -93,6 +93,7 @@ namespace xcManager {
                 DagConfigNodeModal.Instance.setupPanels();
                 SQLWorkSpace.Instance.setup();
             } catch (e) {
+                console.error(e);
                 return PromiseHelper.reject(e.message);
             }
         })

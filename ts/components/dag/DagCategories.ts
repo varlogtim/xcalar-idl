@@ -81,9 +81,6 @@ class DagCategories {
                 type: DagNodeType.DFOut
             })));
             hiddenCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
-                type: DagNodeType.Jupyter
-            })));
-            hiddenCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.PublishIMD
             })));
         } else {
@@ -98,10 +95,6 @@ class DagCategories {
                     type: DagNodeType.PublishIMD
                 }))
             ]);
-
-            hiddenCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
-                type: DagNodeType.Jupyter
-            })));
         }
 
         const sqlCategory = new DagCategory(DagCategoryType.SQL, [

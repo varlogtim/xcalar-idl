@@ -67,9 +67,6 @@ class DagNodeFactory {
             case DagNodeType.DFOut:
                 node = new DagNodeDFOut(options, runtime);
                 break;
-            case DagNodeType.Jupyter:
-                node = new DagNodeJupyter(options, runtime);
-                break;
             case DagNodeType.Split:
                 node = new DagNodeSplit(<DagNodeMapInfo>options, runtime);
                 break;
@@ -155,8 +152,6 @@ class DagNodeFactory {
                 return DagNodeDFIn;
             case DagNodeType.DFOut:
                 return DagNodeDFOut;
-            case DagNodeType.Jupyter:
-                return DagNodeJupyter;
             case DagNodeType.Split:
                 return DagNodeSplit;
             case DagNodeType.Round:

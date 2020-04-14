@@ -85,9 +85,6 @@ describe("DagNodeFactory Test", () => {
             "type": DagNodeType.DFOut,
             "expect": DagNodeDFOut
         }, {
-            "type": DagNodeType.Jupyter,
-            "expect": DagNodeJupyter
-        }, {
             "type": DagNodeType.Split,
             "expect": DagNodeSplit
         }, {

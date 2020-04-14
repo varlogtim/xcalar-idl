@@ -848,52 +848,6 @@ describe("DagNodeExecutor Test", () => {
         });
     });
 
-    it("should work for jupyter", (done) => {
-        const node = createNode(DagNodeType.Jupyter);
-        const parentNode = createNode();
-        let progCol = ColManager.newPullCol("test", "test", ColumnType.integer);
-        parentNode.getLineage().setColumns([progCol]);
-        parentNode.getLineage().columnsWithParamsReplaced = [progCol];
-        parentNode.setTable("testTable");
-        node.setParam({
-            numExportRows: 1,
-            renames: [{
-                sourceColumn: "test",
-                destColumn: "rename"
-            }]
-        });
-        node.connectToParent(parentNode);
-
-        const executor = new DagNodeExecutor(node, txId);
-        const oldSynthesize = XIApi.synthesize;
-
-        XIApi.synthesize = (txId, colInfos, tableName, newTableName) => {
-            expect(txId).to.equal(1);
-            expect(colInfos.length).to.equal(1);
-            expect(colInfos[0]).to.deep.equal({
-                orig: "test",
-                new: "rename",
-                type: 4
-            });
-            expect(tableName).to.equal("testTable");
-            expect(newTableName).not.to.be.empty;
-            expect(newTableName).to.be.a("string");
-            return PromiseHelper.resolve();
-        };
-
-        executor.run()
-        .then(() => {
-            done();
-        })
-        .fail((error) => {
-            console.error("fail", error);
-            done("fail");
-        })
-        .always(() => {
-            XIApi.synthesize = oldSynthesize;
-        });
-    });
-
     it("should work for rowNum", (done) => {
         const node = createNode(DagNodeType.RowNum);
         const parentNode = createNode();

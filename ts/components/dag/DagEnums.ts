@@ -169,7 +169,6 @@ DagNodeTooltip[DagNodeType.GroupBy] = "Summarizes tables using an aggregate func
 DagNodeTooltip[DagNodeType.IMDTable] = "Sources data from a published IMD Table";
 // DagNodeTooltip[DagNodeType.Index] = "index";
 DagNodeTooltip[DagNodeType.Join] = "Joins two tables on a set of common columns";
-DagNodeTooltip[DagNodeType.Jupyter] = "Converts the results of a module into a Pandas Dataframe inside a Jupyter Notebook";
 DagNodeTooltip[DagNodeType.Map] = "Applies a selected function across a column";
 DagNodeTooltip[DagNodeType.Project] = "Removes columns from the table";
 DagNodeTooltip[DagNodeType.PublishIMD] = "Publishes the results of the module as a published table and enables it for inserts, modifies and deletes";

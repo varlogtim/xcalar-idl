@@ -107,8 +107,6 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.DagNodeIndexInput = require("../../dagHelper/nodeInput/DagNodeIndexInput.js").DagNodeIndexInput
     global.DagNodeJoinInput = require("../../dagHelper/nodeInput/DagNodeJoinInput.js").DagNodeJoinInput
     global.DagNodeJoin = require("../../dagHelper/node/DagNodeJoin.js").DagNodeJoin
-    global.DagNodeJupyter = require("../../dagHelper/node/DagNodeJupyter.js").DagNodeJupyter
-    global.DagNodeJupyterInput = require("../../dagHelper/nodeInput/DagNodeJupyterInput.js").DagNodeJupyterInput
     global.DagNodePlaceholder = require("../../dagHelper/node/DagNodePlaceholder.js").DagNodePlaceholder
     global.DagNodePlaceholderInput = require("../../dagHelper/nodeInput/DagNodePlaceholderInput.js").DagNodePlaceholderInput
     global.DagNodeProject = require("../../dagHelper/node/DagNodeProject.js").DagNodeProject

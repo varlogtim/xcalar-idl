@@ -158,8 +158,6 @@ class DagNodeExecutor {
                     return this._dfOut();
                 case DagNodeType.PublishIMD:
                     return this._publishIMD();
-                case DagNodeType.Jupyter:
-                    return this._jupyter();
                 case DagNodeType.IMDTable:
                     return this._IMDTable();
                 case DagNodeType.SQL:
@@ -1283,34 +1281,6 @@ class DagNodeExecutor {
                 PTblManager.Instance.activateTables([tableName], true)
             );
         }
-    }
-
-    private _jupyter(): XDPromise<string> {
-        const node: DagNodeJupyter = <DagNodeJupyter>this.node;
-        const params: DagNodeJupyterInputStruct = node.getParam();
-        const colMap: Map<string, ProgCol> = new Map();
-        for (const colInfo of node.getParents()[0].getLineage().getColumns(this.replaceParam, true)) {
-            colMap.set(colInfo.getBackColName(), colInfo);
-        }
-
-        // Prepare parameters for synthesize API call
-        const colRenames: ColRenameInfo[] = [];
-        for (const { sourceColumn, destColumn } of params.renames) {
-            if (!colMap.has(sourceColumn)) {
-                return PromiseHelper.reject(`Source column ${sourceColumn} doesn't exist`);
-            }
-            const sourceColType = colMap.get(sourceColumn).getType();
-            colRenames.push({
-                orig: sourceColumn,
-                new: destColumn,
-                type: xcHelper.convertColTypeToFieldType(sourceColType)
-            });
-        }
-
-        const srcTable: string = this._getParentNodeTable(0);
-        const desTable: string = this._generateTableName();
-
-        return XIApi.synthesize(this.txId, colRenames, srcTable, desTable);
     }
 
     private _rowNum(): XDPromise<string> {

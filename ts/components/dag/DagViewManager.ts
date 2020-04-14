@@ -328,10 +328,7 @@ class DagViewManager {
     public viewResult(dagNode: DagNode, tabId?: string): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         try {
-            if (dagNode instanceof DagNodeJupyter) {
-                dagNode.showJupyterNotebook();
-                deferred.resolve();
-            } else if (dagNode instanceof DagNodeAggregate) {
+            if (dagNode instanceof DagNodeAggregate) {
                 this._viewAgg(dagNode);
                 deferred.resolve();
             } else {

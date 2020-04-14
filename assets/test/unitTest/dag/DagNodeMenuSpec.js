@@ -768,24 +768,6 @@ describe("DagNodeMenu Test", function() {
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
-        it("should configure Jupyter", function() {
-            const newNodeInfo = {type: "Jupyter"};
-            node = DagViewManager.Instance.newNode(newNodeInfo);
-
-            var cacheFn = JupyterOpPanel.Instance.show;
-            var called = false;
-            JupyterOpPanel.Instance.show = function() {
-                called = true;
-            }
-            DagNodeMenu.execute("configureNode", {
-                node: node
-            });
-            expect(called).to.be.true;
-            JupyterOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
-            DagViewManager.Instance.removeNodes([node.getId()], tabId);
-        });
-
         it("should configure IMDTable", function() {
             const newNodeInfo = {type: "IMDTable"};
             node = DagViewManager.Instance.newNode(newNodeInfo);

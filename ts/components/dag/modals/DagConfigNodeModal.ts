@@ -45,7 +45,6 @@ class DagConfigNodeModal {
         PublishIMDOpPanel.Instance.setup();
         ExportOpPanel.Instance.setup();
         IMDTableOpPanel.Instance.setup();
-        JupyterOpPanel.Instance.setup();
         OldSQLOpPanel.Instance.setup();
         SQLOpPanel.Instance.setup();
         RoundOpPanel.Instance.setup();
@@ -145,9 +144,6 @@ class DagConfigNodeModal {
                 break;
             case (DagNodeType.PublishIMD):
                 PublishIMDOpPanel.Instance.show(node, options);
-                break;
-            case (DagNodeType.Jupyter):
-                JupyterOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.IMDTable):
                 IMDTableOpPanel.Instance.show(node, options);

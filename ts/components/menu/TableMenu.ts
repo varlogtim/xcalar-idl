@@ -16,7 +16,7 @@ class TableMenu extends AbstractMenu {
                 $menu.find(".exportTableFromSQL, .saveTableFromSQL").addClass("xc-hidden");
             }
             const node: DagNode = DagTable.Instance.getBindNode();
-            let $lis: JQuery = $menu.find(".exportTable, .multiCast, .jupyterTable, .advancedOptions");
+            let $lis: JQuery = $menu.find(".exportTable, .multiCast, .advancedOptions");
             if (node == null || this._isViewOnlyTab(node)) {
                 // when it's publish tab or it's dest node
                 $lis.addClass("xc-hidden");
@@ -38,7 +38,6 @@ class TableMenu extends AbstractMenu {
             ["c", "corrAgg"],
             ["d", "deleteTable"],
             ["e", "exportTable"],
-            // ["j", "jupyterTable"],
             ["s", "multiCast"],
             ["x", "exitOp"],
         ];
@@ -177,13 +176,6 @@ class TableMenu extends AbstractMenu {
             }
             const tableId: TableId = $tableMenu.data('tableId');
             AggModal.Instance.corrAgg(tableId);
-        });
-
-        $tableMenu.on('mouseup', '.jupyterTable', (event) => {
-            if (this._isInvalidTrigger(event)) {
-                return;
-            }
-            this._createNodeAndShowForm(DagNodeType.Jupyter);
         });
 
         $tableMenu.on("mouseup", ".exportTableFromSQL", (event) => {
@@ -397,7 +389,6 @@ class TableMenu extends AbstractMenu {
     ): object {
         switch (type) {
             case DagNodeType.Export:
-            case DagNodeType.Jupyter:
                 return null;
             case DagNodeType.Map:
                 if (options.subType === DagNodeSubType.Cast) {
