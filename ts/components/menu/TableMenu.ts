@@ -258,13 +258,6 @@ class TableMenu extends AbstractMenu {
             this._sortHelper(ColumnSortType.type, $(event.currentTarget));
         });
 
-        $subMenu.on("mouseup", ".sortByPrefix li", (event) => {
-            if (event.which !== 1) {
-                return;
-            }
-            this._sortHelper(ColumnSortType.prefix, $(event.currentTarget));
-        });
-
         $subMenu.on('mouseup', '.resizeCols li', (event) => {
             if (event.which !== 1) {
                 return;

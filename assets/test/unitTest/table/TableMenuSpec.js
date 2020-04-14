@@ -301,29 +301,6 @@ describe('TableMenu Test', function() {
                 }, 10);
             });
 
-            it('sortForward by prefix', function(done) {
-                var cachedFunc = TblManager.sortColumns;
-                var called = false;
-                TblManager.sortColumns = function(tId, sortType, dir) {
-                    expect(tId).to.equal(tableId);
-                    expect(sortType).to.equal(ColumnSortType.prefix);
-                    expect(dir).to.equal('forward');
-                    called = true;
-                };
-
-                $tableSubMenu.find('.sortByPrefix .sortForward')
-                .trigger(rightMouseup);
-                expect(called).to.be.false;
-
-                $tableSubMenu.find('.sortByPrefix .sortForward')
-                .trigger(fakeEvent.mouseup);
-                setTimeout(function() {
-                    expect(called).to.be.true;
-                    TblManager.sortColumns = cachedFunc;
-                    done();
-                }, 10);
-            });
-
             it('resizeCols', function(done) {
                 var cachedFunc = TblManager.resizeColumns;
                 var called = false;

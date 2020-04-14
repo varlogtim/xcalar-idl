@@ -839,6 +839,8 @@ namespace XIApi {
         let newIndexTable: string;
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        // XXX BUG: if eval string has a cast, we need to extract the column name
+        // otherwise we're saying column name == "int(myCol)"
         XIApi.index(txId, newGroupOnCols, origTableName)
         .then((ret) => {
             const indexedTableName = ret.newTableName;
@@ -2471,6 +2473,7 @@ namespace XIApi {
                 }
                 queryStr = "[" + queryStr + "]";
             }
+            queryStr = _removeDuplicateDeleteQueries(queryStr);
 
             const deferred: XDDeferred<any> = PromiseHelper.deferred();
             const txLog = Transaction.get(txId);
@@ -2552,6 +2555,33 @@ namespace XIApi {
             console.error(e);
         }
         return queryStr;
+    }
+
+    // when building a large query, some of the apis add tables to
+    // delete from the cache and temp tables and sometimes they get called to
+    // delete twice. This would cause a query failure if we don't fix it here --
+    // it's difficult fo fix at the source (this happens with some groupby calls)
+    function _removeDuplicateDeleteQueries(queryStr: string): string {
+        try {
+            let query: any[] = JSON.parse(queryStr);
+            let tablesToDelete: Set<string> = new Set();
+            let newQuery: any[] = [];
+            query.forEach((q) => {
+                if (q.operation === XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
+                    if (!tablesToDelete.has(q.args.namePattern)) {
+                        tablesToDelete.add(q.args.namePattern);
+                        newQuery.push(q);
+                    }
+                } else {
+                    newQuery.push(q);
+                }
+            });
+            let newQueryStr: string = JSON.stringify(newQuery);
+            return newQueryStr;
+        } catch(e) {
+            console.error(e);
+            return queryStr;
+        }
     }
 
     /**
