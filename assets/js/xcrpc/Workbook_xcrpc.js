@@ -37,22 +37,14 @@ WorkbookService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest");
         //anyWrapper.pack(convertKvsToQueryRequest.serializeBinary(), "ConvertKvsToQueryRequest");
 
-        try {
-            var responseData = await this.client.execute("Workbook", "ConvertKvsToQuery", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var convertKvsToQueryResponse =
-            //    responseData.unpack(workbook.ConvertKvsToQueryResponse.deserializeBinary,
-            //                        "ConvertKvsToQueryResponse");
-            var convertKvsToQueryResponse = workbook.ConvertKvsToQueryResponse.deserializeBinary(specificBytes);
-            return convertKvsToQueryResponse;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = workbook.ConvertKvsToQueryResponse.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
+        var responseData = await this.client.execute("Workbook", "ConvertKvsToQuery", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var convertKvsToQueryResponse =
+        //    responseData.unpack(workbook.ConvertKvsToQueryResponse.deserializeBinary,
+        //                        "ConvertKvsToQueryResponse");
+        var convertKvsToQueryResponse = workbook.ConvertKvsToQueryResponse.deserializeBinary(specificBytes);
+        return convertKvsToQueryResponse;
     },
 };
 

@@ -72,8 +72,7 @@ proto.xcalar.compute.localtypes.ResultSet.ResultSetMakeRequest.toObject = functi
   var f, obj = {
     name: jspb.Message.getFieldWithDefault(msg, 1, ""),
     scope: (f = msg.getScope()) && xcalar_compute_localtypes_Workbook_pb.WorkbookScope.toObject(includeInstance, f),
-    errorDataset: jspb.Message.getFieldWithDefault(msg, 3, false),
-    makeType: jspb.Message.getFieldWithDefault(msg, 4, 0)
+    errorDataset: jspb.Message.getFieldWithDefault(msg, 3, false)
   };
 
   if (includeInstance) {
@@ -123,10 +122,6 @@ proto.xcalar.compute.localtypes.ResultSet.ResultSetMakeRequest.deserializeBinary
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setErrorDataset(value);
       break;
-    case 4:
-      var value = /** @type {!proto.xcalar.compute.localtypes.ResultSet.MakeType} */ (reader.readEnum());
-      msg.setMakeType(value);
-      break;
     default:
       reader.skipField();
       break;
@@ -175,13 +170,6 @@ proto.xcalar.compute.localtypes.ResultSet.ResultSetMakeRequest.serializeBinaryTo
   if (f) {
     writer.writeBool(
       3,
-      f
-    );
-  }
-  f = message.getMakeType();
-  if (f !== 0.0) {
-    writer.writeEnum(
-      4,
       f
     );
   }
@@ -247,21 +235,6 @@ proto.xcalar.compute.localtypes.ResultSet.ResultSetMakeRequest.prototype.getErro
 /** @param {boolean} value */
 proto.xcalar.compute.localtypes.ResultSet.ResultSetMakeRequest.prototype.setErrorDataset = function(value) {
   jspb.Message.setProto3BooleanField(this, 3, value);
-};
-
-
-/**
- * optional MakeType make_type = 4;
- * @return {!proto.xcalar.compute.localtypes.ResultSet.MakeType}
- */
-proto.xcalar.compute.localtypes.ResultSet.ResultSetMakeRequest.prototype.getMakeType = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.ResultSet.MakeType} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
-};
-
-
-/** @param {!proto.xcalar.compute.localtypes.ResultSet.MakeType} value */
-proto.xcalar.compute.localtypes.ResultSet.ResultSetMakeRequest.prototype.setMakeType = function(value) {
-  jspb.Message.setProto3EnumField(this, 4, value);
 };
 
 

@@ -153,7 +153,7 @@ window.Function.prototype.bind = function() {
     });
 };
 
-(function($, TestSuite) {
+testSuiteFn = (function($, TestSuite) {
     "use strict";
 
     if (!jQuery || typeof jQuery.Deferred !== "function") {
@@ -350,11 +350,8 @@ window.Function.prototype.bind = function() {
                 (function trapFn(testCase, currentTestNumber) {
                     return function() {
                         if (testCase.testCaseEnabled) {
-                            console.log("====================Test ",
-                                        testCase.currentTestNumber,
-                                        " Begin====================");
-                            console.log("Testing: ", testCase.testName,
-                                        "                     ");
+                            console.log("====================Test " +  testCase.currentTestNumber + " Begin====================");
+                            console.log("Testing: " + testCase.testName);
                             setTimeout(function() {
                                 if (testCase.deferred.state() == "pending") {
                                     var reason = "Timed out after " +
@@ -380,9 +377,9 @@ window.Function.prototype.bind = function() {
         });
 
         deferred.always(function() {
-            console.log("# pass", passes);
-            console.log("# fail", fails);
-            console.log("# skips", skips);
+            console.log("# pass " + passes);
+            console.log("# fail " + fails);
+            console.log("# skips " + skips);
             console.log("==========================================");
             console.log("1.." + testCases.length + "\n");
             phantom.exit(returnValue);
@@ -517,13 +514,20 @@ window.Function.prototype.bind = function() {
                 }
             }
 
-            // Revert to default RuntimeMixedModeMinCores
-            xcalarSetConfigParam(thriftHandle, paramName, defaultRuntimeMixedModeMinCores);
+            // Revert to original runtime params
+            var sc0 = new XcalarApiSchedParamT({schedName:nameSc[0], cpusReservedInPercent:100, runtimeType:rtTypeSc[0]});
+            var sc1 = new XcalarApiSchedParamT({schedName:nameSc[1], cpusReservedInPercent:100, runtimeType:rtTypeSc[1]});
+            var sc2 = new XcalarApiSchedParamT({schedName:nameSc[2], cpusReservedInPercent:100, runtimeType:rtTypeSc[2]});
+            return xcalarRuntimeSetParam(thriftHandle, [sc0, sc1, sc2]);
         })
         .then(function(result) {
             return xcalarCgroupGetParams(thriftHandle, "xcalar_xce", "memory");
         })
         .then(function(result) {
+            // Revert to default RuntimeMixedModeMinCores
+            xcalarSetConfigParam(thriftHandle, paramName, defaultRuntimeMixedModeMinCores);
+        })
+        .then(function(reason) {
             test.pass();
         })
         .fail(function(reason) {
@@ -537,7 +541,7 @@ window.Function.prototype.bind = function() {
         .then(function(result) {
             var getConfigParamsOutput = result;
             test.assert(getConfigParamsOutput.numParams > 0);
-            console.log("Number of parameters #", getConfigParamsOutput.numParams);
+            console.log("Number of parameters #" + getConfigParamsOutput.numParams);
             for (var ii = 0; ii < getConfigParamsOutput.numParams; ii++) {
                 console.log(
                     "Name: " + getConfigParamsOutput.parameter[ii].paramName +
@@ -1362,7 +1366,7 @@ window.Function.prototype.bind = function() {
         test.trivial(xcalarIndex(thriftHandle,
                                  origStrTable,
                                  "yelp/user-yelping_since",
-                                 [new XcalarApiKeyT({name:"yelp_user::yelping_since", type:"DfString", keyFieldName:"", ordering:"Unordered"})]));
+                                 [new XcalarApiKeyT({name:"yelp_user::yelping_since", type:"Df string", keyFieldName:"", ordering:"Unordered"})]));
     }
 
     function testGetTableRefCount(test) {
@@ -2136,7 +2140,7 @@ window.Function.prototype.bind = function() {
             }
 
             table = new XcalarApiNamedInputT();
-            table.name = tableName;
+            table.name = "";
             table.nodeId = nodeId;
 
             return xcalarTagDagNodes(thriftHandle, "testTag2", [table])
@@ -2261,6 +2265,62 @@ window.Function.prototype.bind = function() {
                 test.fail(StatusTStr[status]);
             }
         });
+    }
+
+    function testAddExportTarget(test) {
+        var target = new ExExportTargetT();
+        target.hdr = new ExExportTargetHdrT();
+        target.hdr.name = "Mgmtd Export Target";
+        target.hdr.type = ExTargetTypeT.ExTargetSFType;
+        target.specificInput = new ExAddTargetSpecificInputT();
+        target.specificInput.sfInput = new ExAddTargetSFInputT();
+        target.specificInput.sfInput.url = "/tmp/mgmtdTest";
+
+        xcalarAddExportTarget(thriftHandle, target)
+        .done(function(status) {
+            printResult(status);
+            test.pass();
+        })
+        .fail(function(reason) {
+            // Don't fail if this test has been run before
+            if (reason.xcalarStatus !== StatusT.StatusExTargetAlreadyExists) {
+                test.fail(StatusTStr[reason.xcalarStatus]);
+            } else {
+                test.pass();
+            }
+        });
+    }
+
+    function testRemoveExportTarget(test) {
+        var target = new ExExportTargetT();
+        target.hdr = new ExExportTargetHdrT();
+        target.hdr.name = "Mgmtd Export Target";
+        target.hdr.type = ExTargetTypeT.ExTargetSFType;
+        target.specificInput = new ExAddTargetSpecificInputT();
+        target.specificInput.sfInput = new ExAddTargetSFInputT();
+        target.specificInput.sfInput.url = "/tmp/mgmtdTest";
+
+        // testAddExportTarget might not be run, so add manually here
+        xcalarAddExportTarget(thriftHandle, target)
+        .fail(function(reason) {
+            // Don't fail if this test has been run before
+            if (reason.xcalarStatus != StatusT.StatusExTargetAlreadyExists) {
+                test.fail(StatusTStr[reason.xcalarStatus]);
+            }
+        }).always(function() {
+            xcalarRemoveExportTarget(thriftHandle, target.hdr)
+            .then(function(result) {
+                printResult(result.xcalarStatus);
+                test.pass();
+            })
+            .fail(function(result) {
+                test.fail(StatusTStr[result.xcalarStatus]);
+            });
+        });
+    }
+
+    function testListExportTargets(test) {
+        test.trivial(xcalarListExportTargets(thriftHandle, "*", "*"));
     }
 
     function testExportCSV(test) {
@@ -2551,20 +2611,21 @@ window.Function.prototype.bind = function() {
 
     function testCancelRetina(test) {
         var parameters = [];
+        var cancelQueryName = "CancelQuery";
         parameters.push(new XcalarApiParameterT({ paramName: "foo",
                                                   paramValue: "1000" }));
 
         function retinaAndCancel() {
             console.log("starting executeRetina and cancel");
 
-            xcalarExecuteRetina(thriftHandle, retinaName, parameters)
+            xcalarExecuteRetina(thriftHandle, retinaName, parameters, false, "", cancelQueryName)
             .then(function(status) {
                 console.log("Retina succeeded when it was supposed to be cancelled. Trying again");
                 retinaAndCancel();
             })
             .fail(function(reason) {
                 if (reason.xcalarStatus === StatusT.StatusCanceled) {
-                    xcalarQueryState(thriftHandle, retinaName, false)
+                    xcalarQueryState(thriftHandle, cancelQueryName, false)
                     .then(function(result) {
                         var qrStateOutput = result;
                         if (qrStateOutput.queryState != QueryStateT.qrCancelled) {
@@ -2590,7 +2651,7 @@ window.Function.prototype.bind = function() {
             }, 100);
 
             function cancelRetina() {
-                xcalarQueryCancel(thriftHandle, retinaName)
+                xcalarQueryCancel(thriftHandle, cancelQueryName)
                 .then(function(cancelStatus) {
                     console.log("Retina cancel succeeded");
                 })
@@ -2741,7 +2802,7 @@ window.Function.prototype.bind = function() {
             test.fail(reason);
         })
         .fail(function(reason) {
-            if (reason.xcalarStatus === StatusT.StatusParameterTooLong) {
+            if (reason.xcalarStatus === StatusT.StatusEvalStringTooLong) {
                 test.pass();
             } else {
                 reason = "Map returned status " + StatusTStr[reason.xcalarStatus] + " (" + reason + ")";
@@ -2763,7 +2824,7 @@ window.Function.prototype.bind = function() {
             test.fail(reason);
         })
         .fail(function(reason) {
-            if (reason.xcalarStatus === StatusT.StatusParameterTooLong) {
+            if (reason.xcalarStatus === StatusT.StatusEvalStringTooLong) {
                 test.pass();
             } else {
                 test.fail(reason);
@@ -3348,54 +3409,6 @@ window.Function.prototype.bind = function() {
         });
     }
 
-    function testPyExecOnLoadExceedLimit(test) {
-
-        var content = fs.read(system.env.MGMTDTEST_DIR +
-            '/PyExecOnLoadTest.py');
-
-        xcalarApiUdfDelete(thriftHandle, "PyExecOnLoadTest")
-            .always(function() {
-                xcalarApiUdfAdd(thriftHandle, UdfTypeT.UdfTypePython,
-                    "PyExecOnLoadTest", content)
-                    .done(function(uploadPythonOutput) {
-                        if (status == StatusT.StatusOk) {
-                            var sourceArgs = new DataSourceArgsT();
-                            sourceArgs.targetName = targetName;
-                            sourceArgs.path = qaTestDir + "/yelp/user";
-                            sourceArgs.fileNamePattern = "";
-                            sourceArgs.recursive = false;
-                            var parseArgs = new ParseArgsT();
-                            parseArgs.parserFnName = "PyExecOnLoadTest:poorManCsvToJson2";
-                            parseArgs.parserArgJson = "{}";
-
-                            xcalarLoad(thriftHandle, "movie_1", [sourceArgs], parseArgs, 0)
-                                .done(function(result) {
-                                    printResult(result);
-                                    loadOutput = result;
-                                    moviesDataset = loadOutput.dataset.name;
-                                    moviesDatasetSet = true;
-                                    origDataset = loadOutput.dataset.name;
-                                    test.fail();
-                                })
-                                .fail(function(reason) {
-                                    if (reason.xcalarStatus == StatusT.StatusFieldLimitExceeded){
-                                        test.pass();
-                                    }
-                                    else {
-                                        test.fail(StatusTStr[reason.xcalarStatus]);
-                                    }
-                                });
-                        } else {
-                            var reason = "status = " + status;
-                            test.fail(reason);
-                        }
-                    })
-                    .fail(function(status) {
-                        test.fail(StatusTStr[status]);
-                    });
-            });
-    }
-
     function testArchiveTable(test) {
         xcalarArchiveTables(thriftHandle, ["yelp/user-name"])
         .then(function(status) {
@@ -3733,6 +3746,32 @@ window.Function.prototype.bind = function() {
         });
     }
 
+    function testBulkDeletePublishedTables(test) {
+        xcalarListPublishedTables(thriftHandle, "*", true, -1, true)
+        .then(function(listTablesOutput) {
+            printResult(listTablesOutput);
+
+            if (listTablesOutput.numTables > 0) {
+                var pt = listTablesOutput.tables[0]
+                xcalarUnpublish(thriftHandle, pt.name, false)
+                .then(function() {
+                    xcalarListPublishedTables(thriftHandle, "*", true, -1, true)
+                    .then(function(listTablesOutput2) {
+                        test.assert(listTablesOutput2.numTables < listTablesOutput.numTables);
+                        testBulkDeletePublishedTables(test);
+                    })
+                    .fail(test.fail);
+                })
+                .fail(test.fail);
+            } else if (listTablesOutput.numTables == 0) {
+                test.pass();
+            } else {
+                test.fail("listTablesOutput.numTables == " + listTablesOutput.numTables);
+            }
+        })
+        .fail(test.fail);
+    }
+
     // Witness to bug 103
     function testBulkDeleteTables(test) {
         xcalarDeleteDagNodes(thriftHandle, "*", SourceTypeT.SrcTable)
@@ -3952,7 +3991,35 @@ window.Function.prototype.bind = function() {
         var content = file.read();
 
         xcalarApiImportRetina(thriftHandle, importRetinaName, true, content)
-        .done(function() {
+        .done(function(importRetinaOutput) {
+            console.log("numUdfs: " , importRetinaOutput.numUdfModules);
+            if (importRetinaOutput.numUdfModules != 3) {
+                test.fail("Number of Udf modules is wrong!");
+            } else {
+                var udfUploadFailed = false;
+                for (var ii = 0; ii < importRetinaOutput.numUdfModules; ii++) {
+                    console.log("udf[" + ii + "].moduleName = ",
+                                importRetinaOutput.udfModuleStatuses[ii].moduleName);
+                    console.log("udf[" + ii + "].status = ",
+                                StatusTStr[importRetinaOutput.udfModuleStatuses[ii].status],
+                                " (", importRetinaOutput.udfModuleStatuses[ii].status, ")");
+                    if (!(importRetinaOutput.udfModuleStatuses[ii].status == StatusT.StatusOk ||
+                        importRetinaOutput.udfModuleStatuses[ii].status == StatusT.StatusUdfModuleOverwrittenSuccessfully ||
+                        (importRetinaOutput.udfModuleStatuses[ii].moduleName == "default" &&
+                         importRetinaOutput.udfModuleStatuses[ii].status == StatusT.StatusUdfModuleAlreadyExists))) {
+                        udfUploadFailed = true;
+                    }
+                    console.log("udf[" + ii + "].error.message = ",
+                                importRetinaOutput.udfModuleStatuses[ii].error.message);
+                    console.log("udf[" + ii + "].error.traceback = ",
+                                importRetinaOutput.udfModuleStatuses[ii].error.traceback);
+                }
+
+                if (udfUploadFailed) {
+                    test.fail("Udf import failed");
+                }
+            }
+
             xcalarListRetinas(thriftHandle)
             .then(function(listRetinasOutput) {
                 for (var ii = 0; ii < listRetinasOutput.numRetinas; ii++) {
@@ -4369,7 +4436,7 @@ window.Function.prototype.bind = function() {
     fails             = 0;
     skips             = 0;
     returnValue       = 0;
-    defaultTimeout    = 600000; // 600s
+    defaultTimeout    = 256000000;
     disableIsPass     = true;
 
     var content = fs.read(system.env.MGMTDTEST_DIR + '/test-config.cfg');
@@ -4403,7 +4470,7 @@ window.Function.prototype.bind = function() {
     addTestCase(testGetVersion, "getVersion", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetConfigParams, "getConfigParams", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSetConfigParam, "setConfigParam", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testRuntimeParams, "runtimeParams", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testRuntimeParams, "runtimeParams", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testFuncDriverList, "listFuncTests", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testFuncDriverRun, "runFuncTests", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testTarget, "test target operations", defaultTimeout, TestCaseEnabled, "");
@@ -4502,6 +4569,9 @@ window.Function.prototype.bind = function() {
     addTestCase(testFreeResultSetAggregate, "result set free of aggregate", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testMap, "map", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testDestroyDatasetInUse, "destroy dataset in use", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testAddExportTarget, "add export target", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testRemoveExportTarget, "remove export target", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testListExportTargets, "list export targets", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testDriver, "test driver operations", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testExportCSV, "export csv", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testExportCancel, "export cancel", defaultTimeout, TestCaseDisabled, "");
@@ -4520,9 +4590,6 @@ window.Function.prototype.bind = function() {
     addTestCase(testDeleteRetina, "deleteRetina", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testListFiles, "list files", defaultTimeout, TestCaseEnabled, "");
-
-
-    addTestCase(testPyExecOnLoadExceedLimit, "python during load exceed limits", defaultTimeout, TestCaseEnabled, "");
 
     // This pair must go together
     addTestCase(testPyExecOnLoad, "python during load", defaultTimeout, TestCaseEnabled, "");
@@ -4563,12 +4630,13 @@ window.Function.prototype.bind = function() {
 
     addTestCase(testCreateDht, "create DHT test", defaultTimeout, TestCaseEnabled, "");
 
-    addTestCase(testArchiveTable, "archive table", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testArchiveTable, "archive table", defaultTimeout, TestCaseDisabled, "");
 
     // XXX re-enable when the query-DAG bug is fixed
     addTestCase(testDeleteTable, "delete table", defaultTimeout, TestCaseDisabled, "");
 
     addTestCase(testBulkDeleteTables, "bulk delete tables", defaultTimeout, TestCaseEnabled, "103");
+    addTestCase(testBulkDeletePublishedTables, "bulk delete published tables", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testBulkDeleteExport, "bulk delete export node", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testBulkDeleteConstants, "bulk delete constant node", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testBulkDeleteDataset, "bulk delete datasets", defaultTimeout, TestCaseEnabled, "2314");
@@ -4597,4 +4665,4 @@ window.Function.prototype.bind = function() {
 
     runTestSuite(testCases);
 
-})($, {});
+});

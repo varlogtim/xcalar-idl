@@ -38,22 +38,14 @@ ResultSetService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.ResultSet.ResultSetMakeRequest");
         //anyWrapper.pack(resultSetMakeRequest.serializeBinary(), "ResultSetMakeRequest");
 
-        try {
-            var responseData = await this.client.execute("ResultSet", "Make", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var resultSetMakeResponse =
-            //    responseData.unpack(resultSet.ResultSetMakeResponse.deserializeBinary,
-            //                        "ResultSetMakeResponse");
-            var resultSetMakeResponse = resultSet.ResultSetMakeResponse.deserializeBinary(specificBytes);
-            return resultSetMakeResponse;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = resultSet.ResultSetMakeResponse.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
+        var responseData = await this.client.execute("ResultSet", "Make", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var resultSetMakeResponse =
+        //    responseData.unpack(resultSet.ResultSetMakeResponse.deserializeBinary,
+        //                        "ResultSetMakeResponse");
+        var resultSetMakeResponse = resultSet.ResultSetMakeResponse.deserializeBinary(specificBytes);
+        return resultSetMakeResponse;
     },
     release: async function(resultSetReleaseRequest) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -64,22 +56,14 @@ ResultSetService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.ResultSet.ResultSetReleaseRequest");
         //anyWrapper.pack(resultSetReleaseRequest.serializeBinary(), "ResultSetReleaseRequest");
 
-        try {
-            var responseData = await this.client.execute("ResultSet", "Release", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            return empty;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
+        var responseData = await this.client.execute("ResultSet", "Release", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var empty =
+        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+        //                        "Empty");
+        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+        return empty;
     },
     next: async function(resultSetNextRequest) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -90,22 +74,14 @@ ResultSetService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.ResultSet.ResultSetNextRequest");
         //anyWrapper.pack(resultSetNextRequest.serializeBinary(), "ResultSetNextRequest");
 
-        try {
-            var responseData = await this.client.execute("ResultSet", "Next", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var resultSetNextResponse =
-            //    responseData.unpack(resultSet.ResultSetNextResponse.deserializeBinary,
-            //                        "ResultSetNextResponse");
-            var resultSetNextResponse = resultSet.ResultSetNextResponse.deserializeBinary(specificBytes);
-            return resultSetNextResponse;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = resultSet.ResultSetNextResponse.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
+        var responseData = await this.client.execute("ResultSet", "Next", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var resultSetNextResponse =
+        //    responseData.unpack(resultSet.ResultSetNextResponse.deserializeBinary,
+        //                        "ResultSetNextResponse");
+        var resultSetNextResponse = resultSet.ResultSetNextResponse.deserializeBinary(specificBytes);
+        return resultSetNextResponse;
     },
     seek: async function(resultSetSeekRequest) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -116,22 +92,14 @@ ResultSetService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.ResultSet.ResultSetSeekRequest");
         //anyWrapper.pack(resultSetSeekRequest.serializeBinary(), "ResultSetSeekRequest");
 
-        try {
-            var responseData = await this.client.execute("ResultSet", "Seek", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            return empty;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
+        var responseData = await this.client.execute("ResultSet", "Seek", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var empty =
+        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+        //                        "Empty");
+        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+        return empty;
     },
 };
 

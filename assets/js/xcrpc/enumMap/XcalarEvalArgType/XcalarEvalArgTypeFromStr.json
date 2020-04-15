@@ -1,7 +1,6 @@
 {
     "optional" : 0,
     "required" : 1,
-    "variable" : 2,
-    "udf" : 3
+    "variable" : 2
 }
 

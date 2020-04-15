@@ -37,22 +37,14 @@ UserDefinedFunctionService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.UDF.GetResolutionRequest");
         //anyWrapper.pack(getResolutionRequest.serializeBinary(), "GetResolutionRequest");
 
-        try {
-            var responseData = await this.client.execute("UserDefinedFunction", "GetResolution", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var getResolutionResponse =
-            //    responseData.unpack(uDF.GetResolutionResponse.deserializeBinary,
-            //                        "GetResolutionResponse");
-            var getResolutionResponse = uDF.GetResolutionResponse.deserializeBinary(specificBytes);
-            return getResolutionResponse;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = uDF.GetResolutionResponse.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
+        var responseData = await this.client.execute("UserDefinedFunction", "GetResolution", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var getResolutionResponse =
+        //    responseData.unpack(uDF.GetResolutionResponse.deserializeBinary,
+        //                        "GetResolutionResponse");
+        var getResolutionResponse = uDF.GetResolutionResponse.deserializeBinary(specificBytes);
+        return getResolutionResponse;
     },
 };
 

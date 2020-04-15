@@ -13,9 +13,9 @@ const _serviceInfo = {
     "Table" : {
         "AddIndex" : ["xcalar.compute.localtypes.Table.IndexRequest", "google.protobuf.Empty"],
         "RemoveIndex" : ["xcalar.compute.localtypes.Table.IndexRequest", "google.protobuf.Empty"],
-        "PublishTable" : ["xcalar.compute.localtypes.Table.PublishRequest", "google.protobuf.Empty"],
+        "PublishTable" : ["xcalar.compute.localtypes.Table.PublishRequest", "xcalar.compute.localtypes.Table.PublishResponse"],
         "UnpublishTable" : ["xcalar.compute.localtypes.Table.UnpublishRequest", "google.protobuf.Empty"],
-        "ListNsTables" : ["xcalar.compute.localtypes.Table.ListNsTablesRequest", "xcalar.compute.localtypes.Table.ListNsTablesResponse"],
+        "ListTables" : ["xcalar.compute.localtypes.Table.ListTablesRequest", "xcalar.compute.localtypes.Table.ListTablesResponse"],
     },
 };
 

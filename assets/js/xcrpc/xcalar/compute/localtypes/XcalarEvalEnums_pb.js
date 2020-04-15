@@ -19,8 +19,7 @@ goog.exportSymbol('proto.xcalar.compute.localtypes.XcalarEnumType.XcalarEvalArgT
 proto.xcalar.compute.localtypes.XcalarEnumType.XcalarEvalArgType = {
   OPTIONAL_ARG: 0,
   REQUIRED_ARG: 1,
-  VARIABLE_ARG: 2,
-  UDF_ARG: 3
+  VARIABLE_ARG: 2
 };
 
 /**

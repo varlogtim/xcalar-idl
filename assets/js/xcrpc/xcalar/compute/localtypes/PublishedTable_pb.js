@@ -12,16 +12,15 @@ var goog = jspb;
 var global = Function('return this')();
 
 var xcalar_compute_localtypes_ColumnAttribute_pb = require('../../../xcalar/compute/localtypes/ColumnAttribute_pb.js');
-var xcalar_compute_localtypes_Operator_pb = require('../../../xcalar/compute/localtypes/Operator_pb.js');
-var xcalar_compute_localtypes_Workbook_pb = require('../../../xcalar/compute/localtypes/Workbook_pb.js');
+goog.exportSymbol('proto.xcalar.compute.localtypes.PublishedTable.Column', null, global);
+goog.exportSymbol('proto.xcalar.compute.localtypes.PublishedTable.GroupByEval', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.IndexInfo', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo', null, global);
-goog.exportSymbol('proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs', null, global);
-goog.exportSymbol('proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg', null, global);
+goog.exportSymbol('proto.xcalar.compute.localtypes.PublishedTable.MapEval', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.PublishedTable.SelectRequest', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.PublishedTable.SelectResponse', null, global);
 
@@ -35,12 +34,12 @@ goog.exportSymbol('proto.xcalar.compute.localtypes.PublishedTable.SelectResponse
  * @extends {jspb.Message}
  * @constructor
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg = function(opt_data) {
+proto.xcalar.compute.localtypes.PublishedTable.Column = function(opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg, jspb.Message);
+goog.inherits(proto.xcalar.compute.localtypes.PublishedTable.Column, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
-  proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.displayName = 'proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg';
+  proto.xcalar.compute.localtypes.PublishedTable.Column.displayName = 'proto.xcalar.compute.localtypes.PublishedTable.Column';
 }
 
 
@@ -55,8 +54,8 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
  *     for transitional soy proto support: http://goto/soy-param-migration
  * @return {!Object}
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.prototype.toObject = function(opt_includeInstance) {
-  return proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.toObject(opt_includeInstance, this);
+proto.xcalar.compute.localtypes.PublishedTable.Column.prototype.toObject = function(opt_includeInstance) {
+  return proto.xcalar.compute.localtypes.PublishedTable.Column.toObject(opt_includeInstance, this);
 };
 
 
@@ -65,15 +64,14 @@ proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.prototype.to
  * @param {boolean|undefined} includeInstance Whether to include the JSPB
  *     instance for transitional soy proto support:
  *     http://goto/soy-param-migration
- * @param {!proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg} msg The msg instance to transform.
+ * @param {!proto.xcalar.compute.localtypes.PublishedTable.Column} msg The msg instance to transform.
  * @return {!Object}
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.toObject = function(includeInstance, msg) {
+proto.xcalar.compute.localtypes.PublishedTable.Column.toObject = function(includeInstance, msg) {
   var f, obj = {
-    func: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    arg: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    newField: jspb.Message.getFieldWithDefault(msg, 3, "")
+    sourcename: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    destname: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -87,23 +85,23 @@ proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.toObject = f
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg}
+ * @return {!proto.xcalar.compute.localtypes.PublishedTable.Column}
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.deserializeBinary = function(bytes) {
+proto.xcalar.compute.localtypes.PublishedTable.Column.deserializeBinary = function(bytes) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg;
-  return proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.xcalar.compute.localtypes.PublishedTable.Column;
+  return proto.xcalar.compute.localtypes.PublishedTable.Column.deserializeBinaryFromReader(msg, reader);
 };
 
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg} msg The message object to deserialize into.
+ * @param {!proto.xcalar.compute.localtypes.PublishedTable.Column} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg}
+ * @return {!proto.xcalar.compute.localtypes.PublishedTable.Column}
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.deserializeBinaryFromReader = function(msg, reader) {
+proto.xcalar.compute.localtypes.PublishedTable.Column.deserializeBinaryFromReader = function(msg, reader) {
   while (reader.nextField()) {
     if (reader.isEndGroup()) {
       break;
@@ -112,15 +110,11 @@ proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.deserializeB
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setFunc(value);
+      msg.setSourcename(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setArg(value);
-      break;
-    case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setNewField(value);
+      msg.setDestname(value);
       break;
     default:
       reader.skipField();
@@ -135,9 +129,9 @@ proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.deserializeB
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.prototype.serializeBinary = function() {
+proto.xcalar.compute.localtypes.PublishedTable.Column.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.serializeBinaryToWriter(this, writer);
+  proto.xcalar.compute.localtypes.PublishedTable.Column.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
@@ -145,78 +139,56 @@ proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.prototype.se
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg} message
+ * @param {!proto.xcalar.compute.localtypes.PublishedTable.Column} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.serializeBinaryToWriter = function(message, writer) {
+proto.xcalar.compute.localtypes.PublishedTable.Column.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getFunc();
+  f = message.getSourcename();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = message.getArg();
+  f = message.getDestname();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = message.getNewField();
-  if (f.length > 0) {
-    writer.writeString(
-      3,
-      f
-    );
-  }
 };
 
 
 /**
- * optional string func = 1;
+ * optional string sourceName = 1;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.prototype.getFunc = function() {
+proto.xcalar.compute.localtypes.PublishedTable.Column.prototype.getSourcename = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.prototype.setFunc = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.Column.prototype.setSourcename = function(value) {
   jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
 /**
- * optional string arg = 2;
+ * optional string destName = 2;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.prototype.getArg = function() {
+proto.xcalar.compute.localtypes.PublishedTable.Column.prototype.getDestname = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.prototype.setArg = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.Column.prototype.setDestname = function(value) {
   jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-/**
- * optional string new_field = 3;
- * @return {string}
- */
-proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.prototype.getNewField = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
-};
-
-
-/** @param {string} value */
-proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.prototype.setNewField = function(value) {
-  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -231,20 +203,13 @@ proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.prototype.se
  * @extends {jspb.Message}
  * @constructor
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.repeatedFields_, null);
+proto.xcalar.compute.localtypes.PublishedTable.MapEval = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs, jspb.Message);
+goog.inherits(proto.xcalar.compute.localtypes.PublishedTable.MapEval, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
-  proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.displayName = 'proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs';
+  proto.xcalar.compute.localtypes.PublishedTable.MapEval.displayName = 'proto.xcalar.compute.localtypes.PublishedTable.MapEval';
 }
-/**
- * List of repeated fields within this message type.
- * @private {!Array<number>}
- * @const
- */
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.repeatedFields_ = [1,3,4];
-
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -258,8 +223,8 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
  *     for transitional soy proto support: http://goto/soy-param-migration
  * @return {!Object}
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.prototype.toObject = function(opt_includeInstance) {
-  return proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.toObject(opt_includeInstance, this);
+proto.xcalar.compute.localtypes.PublishedTable.MapEval.prototype.toObject = function(opt_includeInstance) {
+  return proto.xcalar.compute.localtypes.PublishedTable.MapEval.toObject(opt_includeInstance, this);
 };
 
 
@@ -268,18 +233,14 @@ proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.prototype.toObject
  * @param {boolean|undefined} includeInstance Whether to include the JSPB
  *     instance for transitional soy proto support:
  *     http://goto/soy-param-migration
- * @param {!proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs} msg The msg instance to transform.
+ * @param {!proto.xcalar.compute.localtypes.PublishedTable.MapEval} msg The msg instance to transform.
  * @return {!Object}
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.toObject = function(includeInstance, msg) {
+proto.xcalar.compute.localtypes.PublishedTable.MapEval.toObject = function(includeInstance, msg) {
   var f, obj = {
-    mapList: jspb.Message.toObjectList(msg.getMapList(),
-    xcalar_compute_localtypes_Operator_pb.XcalarApiEval.toObject, includeInstance),
-    filter: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    groupByKeyList: jspb.Message.getRepeatedField(msg, 3),
-    groupByList: jspb.Message.toObjectList(msg.getGroupByList(),
-    proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.toObject, includeInstance)
+    evalstring: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    newfield: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -293,23 +254,23 @@ proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.toObject = functio
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs}
+ * @return {!proto.xcalar.compute.localtypes.PublishedTable.MapEval}
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.deserializeBinary = function(bytes) {
+proto.xcalar.compute.localtypes.PublishedTable.MapEval.deserializeBinary = function(bytes) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs;
-  return proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.xcalar.compute.localtypes.PublishedTable.MapEval;
+  return proto.xcalar.compute.localtypes.PublishedTable.MapEval.deserializeBinaryFromReader(msg, reader);
 };
 
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs} msg The message object to deserialize into.
+ * @param {!proto.xcalar.compute.localtypes.PublishedTable.MapEval} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs}
+ * @return {!proto.xcalar.compute.localtypes.PublishedTable.MapEval}
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.deserializeBinaryFromReader = function(msg, reader) {
+proto.xcalar.compute.localtypes.PublishedTable.MapEval.deserializeBinaryFromReader = function(msg, reader) {
   while (reader.nextField()) {
     if (reader.isEndGroup()) {
       break;
@@ -317,22 +278,12 @@ proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.deserializeBinaryF
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = new xcalar_compute_localtypes_Operator_pb.XcalarApiEval;
-      reader.readMessage(value,xcalar_compute_localtypes_Operator_pb.XcalarApiEval.deserializeBinaryFromReader);
-      msg.addMap(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setEvalstring(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setFilter(value);
-      break;
-    case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.addGroupByKey(value);
-      break;
-    case 4:
-      var value = new proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg;
-      reader.readMessage(value,proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.deserializeBinaryFromReader);
-      msg.addGroupBy(value);
+      msg.setNewfield(value);
       break;
     default:
       reader.skipField();
@@ -347,9 +298,9 @@ proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.deserializeBinaryF
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.prototype.serializeBinary = function() {
+proto.xcalar.compute.localtypes.PublishedTable.MapEval.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.serializeBinaryToWriter(this, writer);
+  proto.xcalar.compute.localtypes.PublishedTable.MapEval.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
@@ -357,148 +308,225 @@ proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.prototype.serializ
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs} message
+ * @param {!proto.xcalar.compute.localtypes.PublishedTable.MapEval} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.serializeBinaryToWriter = function(message, writer) {
+proto.xcalar.compute.localtypes.PublishedTable.MapEval.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getMapList();
+  f = message.getEvalstring();
   if (f.length > 0) {
-    writer.writeRepeatedMessage(
+    writer.writeString(
       1,
-      f,
-      xcalar_compute_localtypes_Operator_pb.XcalarApiEval.serializeBinaryToWriter
+      f
     );
   }
-  f = message.getFilter();
+  f = message.getNewfield();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = message.getGroupByKeyList();
-  if (f.length > 0) {
-    writer.writeRepeatedString(
-      3,
-      f
-    );
-  }
-  f = message.getGroupByList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      4,
-      f,
-      proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg.serializeBinaryToWriter
-    );
-  }
 };
 
 
 /**
- * repeated xcalar.compute.localtypes.Operator.XcalarApiEval map = 1;
- * @return {!Array<!proto.xcalar.compute.localtypes.Operator.XcalarApiEval>}
- */
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.prototype.getMapList = function() {
-  return /** @type{!Array<!proto.xcalar.compute.localtypes.Operator.XcalarApiEval>} */ (
-    jspb.Message.getRepeatedWrapperField(this, xcalar_compute_localtypes_Operator_pb.XcalarApiEval, 1));
-};
-
-
-/** @param {!Array<!proto.xcalar.compute.localtypes.Operator.XcalarApiEval>} value */
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.prototype.setMapList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 1, value);
-};
-
-
-/**
- * @param {!proto.xcalar.compute.localtypes.Operator.XcalarApiEval=} opt_value
- * @param {number=} opt_index
- * @return {!proto.xcalar.compute.localtypes.Operator.XcalarApiEval}
- */
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.prototype.addMap = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.xcalar.compute.localtypes.Operator.XcalarApiEval, opt_index);
-};
-
-
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.prototype.clearMapList = function() {
-  this.setMapList([]);
-};
-
-
-/**
- * optional string filter = 2;
+ * optional string evalString = 1;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.prototype.getFilter = function() {
+proto.xcalar.compute.localtypes.PublishedTable.MapEval.prototype.getEvalstring = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.PublishedTable.MapEval.prototype.setEvalstring = function(value) {
+  jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional string newField = 2;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.PublishedTable.MapEval.prototype.getNewfield = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.prototype.setFilter = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.MapEval.prototype.setNewfield = function(value) {
   jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
-/**
- * repeated string group_by_key = 3;
- * @return {!Array<string>}
- */
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.prototype.getGroupByKeyList = function() {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 3));
-};
-
-
-/** @param {!Array<string>} value */
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.prototype.setGroupByKeyList = function(value) {
-  jspb.Message.setField(this, 3, value || []);
-};
-
 
 /**
- * @param {!string} value
- * @param {number=} opt_index
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.prototype.addGroupByKey = function(value, opt_index) {
-  jspb.Message.addToRepeatedField(this, 3, value, opt_index);
+proto.xcalar.compute.localtypes.PublishedTable.GroupByEval = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
+goog.inherits(proto.xcalar.compute.localtypes.PublishedTable.GroupByEval, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.xcalar.compute.localtypes.PublishedTable.GroupByEval.displayName = 'proto.xcalar.compute.localtypes.PublishedTable.GroupByEval';
+}
 
 
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.prototype.clearGroupByKeyList = function() {
-  this.setGroupByKeyList([]);
-};
-
-
+if (jspb.Message.GENERATE_TO_OBJECT) {
 /**
- * repeated SelectGroupByEvalArg group_by = 4;
- * @return {!Array<!proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg>}
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.prototype.getGroupByList = function() {
-  return /** @type{!Array<!proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg, 4));
-};
-
-
-/** @param {!Array<!proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg>} value */
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.prototype.setGroupByList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 4, value);
+proto.xcalar.compute.localtypes.PublishedTable.GroupByEval.prototype.toObject = function(opt_includeInstance) {
+  return proto.xcalar.compute.localtypes.PublishedTable.GroupByEval.toObject(opt_includeInstance, this);
 };
 
 
 /**
- * @param {!proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg=} opt_value
- * @param {number=} opt_index
- * @return {!proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg}
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.xcalar.compute.localtypes.PublishedTable.GroupByEval} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.prototype.addGroupBy = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 4, opt_value, proto.xcalar.compute.localtypes.PublishedTable.SelectGroupByEvalArg, opt_index);
+proto.xcalar.compute.localtypes.PublishedTable.GroupByEval.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    evalstring: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    newfield: jspb.Message.getFieldWithDefault(msg, 2, "")
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.xcalar.compute.localtypes.PublishedTable.GroupByEval}
+ */
+proto.xcalar.compute.localtypes.PublishedTable.GroupByEval.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.xcalar.compute.localtypes.PublishedTable.GroupByEval;
+  return proto.xcalar.compute.localtypes.PublishedTable.GroupByEval.deserializeBinaryFromReader(msg, reader);
 };
 
 
-proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.prototype.clearGroupByList = function() {
-  this.setGroupByList([]);
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.xcalar.compute.localtypes.PublishedTable.GroupByEval} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.xcalar.compute.localtypes.PublishedTable.GroupByEval}
+ */
+proto.xcalar.compute.localtypes.PublishedTable.GroupByEval.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setEvalstring(value);
+      break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setNewfield(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.xcalar.compute.localtypes.PublishedTable.GroupByEval.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  proto.xcalar.compute.localtypes.PublishedTable.GroupByEval.serializeBinaryToWriter(this, writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.PublishedTable.GroupByEval} message
+ * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.PublishedTable.GroupByEval.serializeBinaryToWriter = function(message, writer) {
+  var f = undefined;
+  f = message.getEvalstring();
+  if (f.length > 0) {
+    writer.writeString(
+      1,
+      f
+    );
+  }
+  f = message.getNewfield();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
+};
+
+
+/**
+ * optional string evalString = 1;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.PublishedTable.GroupByEval.prototype.getEvalstring = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.PublishedTable.GroupByEval.prototype.setEvalstring = function(value) {
+  jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional string newField = 2;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.PublishedTable.GroupByEval.prototype.getNewfield = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.PublishedTable.GroupByEval.prototype.setNewfield = function(value) {
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -525,7 +553,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<number>}
  * @const
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.repeatedFields_ = [6];
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.repeatedFields_ = [6,7,8,9];
 
 
 
@@ -558,13 +586,16 @@ proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.toObject = function
   var f, obj = {
     source: jspb.Message.getFieldWithDefault(msg, 1, ""),
     dest: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    minBatchId: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    maxBatchId: jspb.Message.getFieldWithDefault(msg, 4, 0),
-    eval: (f = msg.getEval()) && proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.toObject(includeInstance, f),
+    minbatchid: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    maxbatchid: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    filterstring: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    mapsList: jspb.Message.toObjectList(msg.getMapsList(),
+    proto.xcalar.compute.localtypes.PublishedTable.MapEval.toObject, includeInstance),
+    groupbysList: jspb.Message.toObjectList(msg.getGroupbysList(),
+    proto.xcalar.compute.localtypes.PublishedTable.GroupByEval.toObject, includeInstance),
+    groupkeysList: jspb.Message.getRepeatedField(msg, 8),
     columnsList: jspb.Message.toObjectList(msg.getColumnsList(),
-    xcalar_compute_localtypes_Operator_pb.XcalarApiColumn.toObject, includeInstance),
-    limitRows: jspb.Message.getFieldWithDefault(msg, 7, 0),
-    scope: (f = msg.getScope()) && xcalar_compute_localtypes_Workbook_pb.WorkbookScope.toObject(includeInstance, f)
+    proto.xcalar.compute.localtypes.PublishedTable.Column.toObject, includeInstance)
   };
 
   if (includeInstance) {
@@ -611,30 +642,34 @@ proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.deserializeBinaryFr
       break;
     case 3:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setMinBatchId(value);
+      msg.setMinbatchid(value);
       break;
     case 4:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setMaxBatchId(value);
+      msg.setMaxbatchid(value);
       break;
     case 5:
-      var value = new proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs;
-      reader.readMessage(value,proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.deserializeBinaryFromReader);
-      msg.setEval(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setFilterstring(value);
       break;
     case 6:
-      var value = new xcalar_compute_localtypes_Operator_pb.XcalarApiColumn;
-      reader.readMessage(value,xcalar_compute_localtypes_Operator_pb.XcalarApiColumn.deserializeBinaryFromReader);
-      msg.addColumns(value);
+      var value = new proto.xcalar.compute.localtypes.PublishedTable.MapEval;
+      reader.readMessage(value,proto.xcalar.compute.localtypes.PublishedTable.MapEval.deserializeBinaryFromReader);
+      msg.addMaps(value);
       break;
     case 7:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setLimitRows(value);
+      var value = new proto.xcalar.compute.localtypes.PublishedTable.GroupByEval;
+      reader.readMessage(value,proto.xcalar.compute.localtypes.PublishedTable.GroupByEval.deserializeBinaryFromReader);
+      msg.addGroupbys(value);
       break;
     case 8:
-      var value = new xcalar_compute_localtypes_Workbook_pb.WorkbookScope;
-      reader.readMessage(value,xcalar_compute_localtypes_Workbook_pb.WorkbookScope.deserializeBinaryFromReader);
-      msg.setScope(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.addGroupkeys(value);
+      break;
+    case 9:
+      var value = new proto.xcalar.compute.localtypes.PublishedTable.Column;
+      reader.readMessage(value,proto.xcalar.compute.localtypes.PublishedTable.Column.deserializeBinaryFromReader);
+      msg.addColumns(value);
       break;
     default:
       reader.skipField();
@@ -679,49 +714,56 @@ proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.serializeBinaryToWr
       f
     );
   }
-  f = message.getMinBatchId();
+  f = message.getMinbatchid();
   if (f !== 0) {
     writer.writeInt64(
       3,
       f
     );
   }
-  f = message.getMaxBatchId();
+  f = message.getMaxbatchid();
   if (f !== 0) {
     writer.writeInt64(
       4,
       f
     );
   }
-  f = message.getEval();
-  if (f != null) {
-    writer.writeMessage(
+  f = message.getFilterstring();
+  if (f.length > 0) {
+    writer.writeString(
       5,
+      f
+    );
+  }
+  f = message.getMapsList();
+  if (f.length > 0) {
+    writer.writeRepeatedMessage(
+      6,
       f,
-      proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs.serializeBinaryToWriter
+      proto.xcalar.compute.localtypes.PublishedTable.MapEval.serializeBinaryToWriter
+    );
+  }
+  f = message.getGroupbysList();
+  if (f.length > 0) {
+    writer.writeRepeatedMessage(
+      7,
+      f,
+      proto.xcalar.compute.localtypes.PublishedTable.GroupByEval.serializeBinaryToWriter
+    );
+  }
+  f = message.getGroupkeysList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      8,
+      f
     );
   }
   f = message.getColumnsList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
-      6,
+      9,
       f,
-      xcalar_compute_localtypes_Operator_pb.XcalarApiColumn.serializeBinaryToWriter
-    );
-  }
-  f = message.getLimitRows();
-  if (f !== 0) {
-    writer.writeInt64(
-      7,
-      f
-    );
-  }
-  f = message.getScope();
-  if (f != null) {
-    writer.writeMessage(
-      8,
-      f,
-      xcalar_compute_localtypes_Workbook_pb.WorkbookScope.serializeBinaryToWriter
+      proto.xcalar.compute.localtypes.PublishedTable.Column.serializeBinaryToWriter
     );
   }
 };
@@ -758,138 +800,169 @@ proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.setDest =
 
 
 /**
- * optional int64 min_batch_id = 3;
+ * optional int64 minBatchId = 3;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.getMinBatchId = function() {
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.getMinbatchid = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.setMinBatchId = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.setMinbatchid = function(value) {
   jspb.Message.setProto3IntField(this, 3, value);
 };
 
 
 /**
- * optional int64 max_batch_id = 4;
+ * optional int64 maxBatchId = 4;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.getMaxBatchId = function() {
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.getMaxbatchid = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.setMaxBatchId = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.setMaxbatchid = function(value) {
   jspb.Message.setProto3IntField(this, 4, value);
 };
 
 
 /**
- * optional SelectEvalArgs eval = 5;
- * @return {?proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs}
+ * optional string filterString = 5;
+ * @return {string}
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.getEval = function() {
-  return /** @type{?proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs} */ (
-    jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs, 5));
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.getFilterstring = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
 };
 
 
-/** @param {?proto.xcalar.compute.localtypes.PublishedTable.SelectEvalArgs|undefined} value */
-proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.setEval = function(value) {
-  jspb.Message.setWrapperField(this, 5, value);
-};
-
-
-proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.clearEval = function() {
-  this.setEval(undefined);
+/** @param {string} value */
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.setFilterstring = function(value) {
+  jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
 /**
- * Returns whether this field is set.
- * @return {!boolean}
+ * repeated MapEval maps = 6;
+ * @return {!Array<!proto.xcalar.compute.localtypes.PublishedTable.MapEval>}
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.hasEval = function() {
-  return jspb.Message.getField(this, 5) != null;
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.getMapsList = function() {
+  return /** @type{!Array<!proto.xcalar.compute.localtypes.PublishedTable.MapEval>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.PublishedTable.MapEval, 6));
 };
 
 
-/**
- * repeated xcalar.compute.localtypes.Operator.XcalarApiColumn columns = 6;
- * @return {!Array<!proto.xcalar.compute.localtypes.Operator.XcalarApiColumn>}
- */
-proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.getColumnsList = function() {
-  return /** @type{!Array<!proto.xcalar.compute.localtypes.Operator.XcalarApiColumn>} */ (
-    jspb.Message.getRepeatedWrapperField(this, xcalar_compute_localtypes_Operator_pb.XcalarApiColumn, 6));
-};
-
-
-/** @param {!Array<!proto.xcalar.compute.localtypes.Operator.XcalarApiColumn>} value */
-proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.setColumnsList = function(value) {
+/** @param {!Array<!proto.xcalar.compute.localtypes.PublishedTable.MapEval>} value */
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.setMapsList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 6, value);
 };
 
 
 /**
- * @param {!proto.xcalar.compute.localtypes.Operator.XcalarApiColumn=} opt_value
+ * @param {!proto.xcalar.compute.localtypes.PublishedTable.MapEval=} opt_value
  * @param {number=} opt_index
- * @return {!proto.xcalar.compute.localtypes.Operator.XcalarApiColumn}
+ * @return {!proto.xcalar.compute.localtypes.PublishedTable.MapEval}
+ */
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.addMaps = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 6, opt_value, proto.xcalar.compute.localtypes.PublishedTable.MapEval, opt_index);
+};
+
+
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.clearMapsList = function() {
+  this.setMapsList([]);
+};
+
+
+/**
+ * repeated GroupByEval groupBys = 7;
+ * @return {!Array<!proto.xcalar.compute.localtypes.PublishedTable.GroupByEval>}
+ */
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.getGroupbysList = function() {
+  return /** @type{!Array<!proto.xcalar.compute.localtypes.PublishedTable.GroupByEval>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.PublishedTable.GroupByEval, 7));
+};
+
+
+/** @param {!Array<!proto.xcalar.compute.localtypes.PublishedTable.GroupByEval>} value */
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.setGroupbysList = function(value) {
+  jspb.Message.setRepeatedWrapperField(this, 7, value);
+};
+
+
+/**
+ * @param {!proto.xcalar.compute.localtypes.PublishedTable.GroupByEval=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.xcalar.compute.localtypes.PublishedTable.GroupByEval}
+ */
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.addGroupbys = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 7, opt_value, proto.xcalar.compute.localtypes.PublishedTable.GroupByEval, opt_index);
+};
+
+
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.clearGroupbysList = function() {
+  this.setGroupbysList([]);
+};
+
+
+/**
+ * repeated string groupKeys = 8;
+ * @return {!Array<string>}
+ */
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.getGroupkeysList = function() {
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 8));
+};
+
+
+/** @param {!Array<string>} value */
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.setGroupkeysList = function(value) {
+  jspb.Message.setField(this, 8, value || []);
+};
+
+
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.addGroupkeys = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 8, value, opt_index);
+};
+
+
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.clearGroupkeysList = function() {
+  this.setGroupkeysList([]);
+};
+
+
+/**
+ * repeated Column columns = 9;
+ * @return {!Array<!proto.xcalar.compute.localtypes.PublishedTable.Column>}
+ */
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.getColumnsList = function() {
+  return /** @type{!Array<!proto.xcalar.compute.localtypes.PublishedTable.Column>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.PublishedTable.Column, 9));
+};
+
+
+/** @param {!Array<!proto.xcalar.compute.localtypes.PublishedTable.Column>} value */
+proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.setColumnsList = function(value) {
+  jspb.Message.setRepeatedWrapperField(this, 9, value);
+};
+
+
+/**
+ * @param {!proto.xcalar.compute.localtypes.PublishedTable.Column=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.xcalar.compute.localtypes.PublishedTable.Column}
  */
 proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.addColumns = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 6, opt_value, proto.xcalar.compute.localtypes.Operator.XcalarApiColumn, opt_index);
+  return jspb.Message.addToRepeatedWrapperField(this, 9, opt_value, proto.xcalar.compute.localtypes.PublishedTable.Column, opt_index);
 };
 
 
 proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.clearColumnsList = function() {
   this.setColumnsList([]);
-};
-
-
-/**
- * optional int64 limit_rows = 7;
- * @return {number}
- */
-proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.getLimitRows = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 7, 0));
-};
-
-
-/** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.setLimitRows = function(value) {
-  jspb.Message.setProto3IntField(this, 7, value);
-};
-
-
-/**
- * optional xcalar.compute.localtypes.Workbook.WorkbookScope scope = 8;
- * @return {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope}
- */
-proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.getScope = function() {
-  return /** @type{?proto.xcalar.compute.localtypes.Workbook.WorkbookScope} */ (
-    jspb.Message.getWrapperField(this, xcalar_compute_localtypes_Workbook_pb.WorkbookScope, 8));
-};
-
-
-/** @param {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope|undefined} value */
-proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.setScope = function(value) {
-  jspb.Message.setWrapperField(this, 8, value);
-};
-
-
-proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.clearScope = function() {
-  this.setScope(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {!boolean}
- */
-proto.xcalar.compute.localtypes.PublishedTable.SelectRequest.prototype.hasScope = function() {
-  return jspb.Message.getField(this, 8) != null;
 };
 
 
@@ -940,7 +1013,7 @@ proto.xcalar.compute.localtypes.PublishedTable.SelectResponse.prototype.toObject
  */
 proto.xcalar.compute.localtypes.PublishedTable.SelectResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    tableName: jspb.Message.getFieldWithDefault(msg, 1, "")
+    tablename: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -979,7 +1052,7 @@ proto.xcalar.compute.localtypes.PublishedTable.SelectResponse.deserializeBinaryF
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setTableName(value);
+      msg.setTablename(value);
       break;
     default:
       reader.skipField();
@@ -1010,7 +1083,7 @@ proto.xcalar.compute.localtypes.PublishedTable.SelectResponse.prototype.serializ
  */
 proto.xcalar.compute.localtypes.PublishedTable.SelectResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getTableName();
+  f = message.getTablename();
   if (f.length > 0) {
     writer.writeString(
       1,
@@ -1021,16 +1094,16 @@ proto.xcalar.compute.localtypes.PublishedTable.SelectResponse.serializeBinaryToW
 
 
 /**
- * optional string table_name = 1;
+ * optional string tableName = 1;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.PublishedTable.SelectResponse.prototype.getTableName = function() {
+proto.xcalar.compute.localtypes.PublishedTable.SelectResponse.prototype.getTablename = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.PublishedTable.SelectResponse.prototype.setTableName = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.SelectResponse.prototype.setTablename = function(value) {
   jspb.Message.setProto3StringField(this, 1, value);
 };
 
@@ -1082,10 +1155,10 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.prototype.toObj
  */
 proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    namePattern: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    updateStartBatchId: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    maxUpdateCount: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    maxSelectCount: jspb.Message.getFieldWithDefault(msg, 4, 0)
+    namepattern: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    updatestartbatchid: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    maxupdatecount: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    maxselectcount: jspb.Message.getFieldWithDefault(msg, 4, 0)
   };
 
   if (includeInstance) {
@@ -1124,19 +1197,19 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.deserializeBina
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setNamePattern(value);
+      msg.setNamepattern(value);
       break;
     case 2:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setUpdateStartBatchId(value);
+      msg.setUpdatestartbatchid(value);
       break;
     case 3:
       var value = /** @type {number} */ (reader.readInt32());
-      msg.setMaxUpdateCount(value);
+      msg.setMaxupdatecount(value);
       break;
     case 4:
       var value = /** @type {number} */ (reader.readInt32());
-      msg.setMaxSelectCount(value);
+      msg.setMaxselectcount(value);
       break;
     default:
       reader.skipField();
@@ -1167,28 +1240,28 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.prototype.seria
  */
 proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getNamePattern();
+  f = message.getNamepattern();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = message.getUpdateStartBatchId();
+  f = message.getUpdatestartbatchid();
   if (f !== 0) {
     writer.writeInt64(
       2,
       f
     );
   }
-  f = message.getMaxUpdateCount();
+  f = message.getMaxupdatecount();
   if (f !== 0) {
     writer.writeInt32(
       3,
       f
     );
   }
-  f = message.getMaxSelectCount();
+  f = message.getMaxselectcount();
   if (f !== 0) {
     writer.writeInt32(
       4,
@@ -1199,61 +1272,61 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.serializeBinary
 
 
 /**
- * optional string name_pattern = 1;
+ * optional string namePattern = 1;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.prototype.getNamePattern = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.prototype.getNamepattern = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.prototype.setNamePattern = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.prototype.setNamepattern = function(value) {
   jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
 /**
- * optional int64 update_start_batch_id = 2;
+ * optional int64 updateStartBatchId = 2;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.prototype.getUpdateStartBatchId = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.prototype.getUpdatestartbatchid = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.prototype.setUpdateStartBatchId = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.prototype.setUpdatestartbatchid = function(value) {
   jspb.Message.setProto3IntField(this, 2, value);
 };
 
 
 /**
- * optional int32 max_update_count = 3;
+ * optional int32 maxUpdateCount = 3;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.prototype.getMaxUpdateCount = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.prototype.getMaxupdatecount = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.prototype.setMaxUpdateCount = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.prototype.setMaxupdatecount = function(value) {
   jspb.Message.setProto3IntField(this, 3, value);
 };
 
 
 /**
- * optional int32 max_select_count = 4;
+ * optional int32 maxSelectCount = 4;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.prototype.getMaxSelectCount = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.prototype.getMaxselectcount = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.prototype.setMaxSelectCount = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest.prototype.setMaxselectcount = function(value) {
   jspb.Message.setProto3IntField(this, 4, value);
 };
 
@@ -1442,13 +1515,13 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.pro
  */
 proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.toObject = function(includeInstance, msg) {
   var f, obj = {
-    srcTableName: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    batchId: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    startTs: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    numRows: jspb.Message.getFieldWithDefault(msg, 4, 0),
-    numInserts: jspb.Message.getFieldWithDefault(msg, 5, 0),
-    numUpdates: jspb.Message.getFieldWithDefault(msg, 6, 0),
-    numDeletes: jspb.Message.getFieldWithDefault(msg, 7, 0),
+    srctablename: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    batchid: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    startts: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    numrows: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    numinserts: jspb.Message.getFieldWithDefault(msg, 5, 0),
+    numupdates: jspb.Message.getFieldWithDefault(msg, 6, 0),
+    numdeletes: jspb.Message.getFieldWithDefault(msg, 7, 0),
     size: jspb.Message.getFieldWithDefault(msg, 8, 0)
   };
 
@@ -1488,31 +1561,31 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.des
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setSrcTableName(value);
+      msg.setSrctablename(value);
       break;
     case 2:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setBatchId(value);
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setBatchid(value);
       break;
     case 3:
       var value = /** @type {number} */ (reader.readUint64());
-      msg.setStartTs(value);
+      msg.setStartts(value);
       break;
     case 4:
       var value = /** @type {number} */ (reader.readUint64());
-      msg.setNumRows(value);
+      msg.setNumrows(value);
       break;
     case 5:
       var value = /** @type {number} */ (reader.readUint64());
-      msg.setNumInserts(value);
+      msg.setNuminserts(value);
       break;
     case 6:
       var value = /** @type {number} */ (reader.readUint64());
-      msg.setNumUpdates(value);
+      msg.setNumupdates(value);
       break;
     case 7:
       var value = /** @type {number} */ (reader.readUint64());
-      msg.setNumDeletes(value);
+      msg.setNumdeletes(value);
       break;
     case 8:
       var value = /** @type {number} */ (reader.readUint64());
@@ -1547,49 +1620,49 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.pro
  */
 proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getSrcTableName();
+  f = message.getSrctablename();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = message.getBatchId();
+  f = message.getBatchid();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeUint64(
       2,
       f
     );
   }
-  f = message.getStartTs();
+  f = message.getStartts();
   if (f !== 0) {
     writer.writeUint64(
       3,
       f
     );
   }
-  f = message.getNumRows();
+  f = message.getNumrows();
   if (f !== 0) {
     writer.writeUint64(
       4,
       f
     );
   }
-  f = message.getNumInserts();
+  f = message.getNuminserts();
   if (f !== 0) {
     writer.writeUint64(
       5,
       f
     );
   }
-  f = message.getNumUpdates();
+  f = message.getNumupdates();
   if (f !== 0) {
     writer.writeUint64(
       6,
       f
     );
   }
-  f = message.getNumDeletes();
+  f = message.getNumdeletes();
   if (f !== 0) {
     writer.writeUint64(
       7,
@@ -1607,106 +1680,106 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.ser
 
 
 /**
- * optional string src_table_name = 1;
+ * optional string srcTableName = 1;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.getSrcTableName = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.getSrctablename = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.setSrcTableName = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.setSrctablename = function(value) {
   jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
 /**
- * optional int64 batch_id = 2;
+ * optional uint64 batchId = 2;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.getBatchId = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.getBatchid = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.setBatchId = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.setBatchid = function(value) {
   jspb.Message.setProto3IntField(this, 2, value);
 };
 
 
 /**
- * optional uint64 start_ts = 3;
+ * optional uint64 startTS = 3;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.getStartTs = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.getStartts = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.setStartTs = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.setStartts = function(value) {
   jspb.Message.setProto3IntField(this, 3, value);
 };
 
 
 /**
- * optional uint64 num_rows = 4;
+ * optional uint64 numRows = 4;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.getNumRows = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.getNumrows = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.setNumRows = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.setNumrows = function(value) {
   jspb.Message.setProto3IntField(this, 4, value);
 };
 
 
 /**
- * optional uint64 num_inserts = 5;
+ * optional uint64 numInserts = 5;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.getNumInserts = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.getNuminserts = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.setNumInserts = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.setNuminserts = function(value) {
   jspb.Message.setProto3IntField(this, 5, value);
 };
 
 
 /**
- * optional uint64 num_updates = 6;
+ * optional uint64 numUpdates = 6;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.getNumUpdates = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.getNumupdates = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.setNumUpdates = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.setNumupdates = function(value) {
   jspb.Message.setProto3IntField(this, 6, value);
 };
 
 
 /**
- * optional uint64 num_deletes = 7;
+ * optional uint64 numDeletes = 7;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.getNumDeletes = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.getNumdeletes = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 7, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.setNumDeletes = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.setNumdeletes = function(value) {
   jspb.Message.setProto3IntField(this, 7, value);
 };
 
@@ -1773,9 +1846,9 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.pro
  */
 proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.toObject = function(includeInstance, msg) {
   var f, obj = {
-    dstTableName: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    minBatchId: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    maxBatchId: jspb.Message.getFieldWithDefault(msg, 3, 0)
+    dsttablename: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    minbatchid: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    maxbatchid: jspb.Message.getFieldWithDefault(msg, 3, 0)
   };
 
   if (includeInstance) {
@@ -1814,15 +1887,15 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.des
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setDstTableName(value);
+      msg.setDsttablename(value);
       break;
     case 2:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setMinBatchId(value);
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setMinbatchid(value);
       break;
     case 3:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setMaxBatchId(value);
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setMaxbatchid(value);
       break;
     default:
       reader.skipField();
@@ -1853,23 +1926,23 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.pro
  */
 proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getDstTableName();
+  f = message.getDsttablename();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = message.getMinBatchId();
+  f = message.getMinbatchid();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeUint64(
       2,
       f
     );
   }
-  f = message.getMaxBatchId();
+  f = message.getMaxbatchid();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeUint64(
       3,
       f
     );
@@ -1878,46 +1951,46 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.ser
 
 
 /**
- * optional string dst_table_name = 1;
+ * optional string dstTableName = 1;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.prototype.getDstTableName = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.prototype.getDsttablename = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.prototype.setDstTableName = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.prototype.setDsttablename = function(value) {
   jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
 /**
- * optional int64 min_batch_id = 2;
+ * optional uint64 minBatchId = 2;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.prototype.getMinBatchId = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.prototype.getMinbatchid = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.prototype.setMinBatchId = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.prototype.setMinbatchid = function(value) {
   jspb.Message.setProto3IntField(this, 2, value);
 };
 
 
 /**
- * optional int64 max_batch_id = 3;
+ * optional uint64 maxBatchId = 3;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.prototype.getMaxBatchId = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.prototype.getMaxbatchid = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.prototype.setMaxBatchId = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.prototype.setMaxbatchid = function(value) {
   jspb.Message.setProto3IntField(this, 3, value);
 };
 
@@ -1970,8 +2043,8 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.IndexInfo.prot
 proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.IndexInfo.toObject = function(includeInstance, msg) {
   var f, obj = {
     key: (f = msg.getKey()) && xcalar_compute_localtypes_ColumnAttribute_pb.ColumnAttributeProto.toObject(includeInstance, f),
-    uptimeMs: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    sizeEstimate: jspb.Message.getFieldWithDefault(msg, 3, 0)
+    uptimems: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    sizeestimate: jspb.Message.getFieldWithDefault(msg, 3, 0)
   };
 
   if (includeInstance) {
@@ -2015,11 +2088,11 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.IndexInfo.dese
       break;
     case 2:
       var value = /** @type {number} */ (reader.readUint64());
-      msg.setUptimeMs(value);
+      msg.setUptimems(value);
       break;
     case 3:
       var value = /** @type {number} */ (reader.readUint64());
-      msg.setSizeEstimate(value);
+      msg.setSizeestimate(value);
       break;
     default:
       reader.skipField();
@@ -2058,14 +2131,14 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.IndexInfo.seri
       xcalar_compute_localtypes_ColumnAttribute_pb.ColumnAttributeProto.serializeBinaryToWriter
     );
   }
-  f = message.getUptimeMs();
+  f = message.getUptimems();
   if (f !== 0) {
     writer.writeUint64(
       2,
       f
     );
   }
-  f = message.getSizeEstimate();
+  f = message.getSizeestimate();
   if (f !== 0) {
     writer.writeUint64(
       3,
@@ -2106,31 +2179,31 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.IndexInfo.prot
 
 
 /**
- * optional uint64 uptime_ms = 2;
+ * optional uint64 uptimeMS = 2;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.IndexInfo.prototype.getUptimeMs = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.IndexInfo.prototype.getUptimems = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.IndexInfo.prototype.setUptimeMs = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.IndexInfo.prototype.setUptimems = function(value) {
   jspb.Message.setProto3IntField(this, 2, value);
 };
 
 
 /**
- * optional uint64 size_estimate = 3;
+ * optional uint64 sizeEstimate = 3;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.IndexInfo.prototype.getSizeEstimate = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.IndexInfo.prototype.getSizeestimate = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.IndexInfo.prototype.setSizeEstimate = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.IndexInfo.prototype.setSizeestimate = function(value) {
   jspb.Message.setProto3IntField(this, 3, value);
 };
 
@@ -2190,16 +2263,16 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prot
 proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.toObject = function(includeInstance, msg) {
   var f, obj = {
     name: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    numPersistedUpdates: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    sizeTotal: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    numRowsTotal: jspb.Message.getFieldWithDefault(msg, 4, 0),
-    oldestBatchId: jspb.Message.getFieldWithDefault(msg, 5, 0),
-    nextBatchId: jspb.Message.getFieldWithDefault(msg, 6, 0),
-    srcTableName: jspb.Message.getFieldWithDefault(msg, 7, ""),
+    numpersistedupdates: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    sizetotal: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    numrowstotal: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    oldestbatchid: jspb.Message.getFieldWithDefault(msg, 5, 0),
+    nextbatchid: jspb.Message.getFieldWithDefault(msg, 6, 0),
+    srctablename: jspb.Message.getFieldWithDefault(msg, 7, ""),
     active: jspb.Message.getFieldWithDefault(msg, 8, false),
     restoring: jspb.Message.getFieldWithDefault(msg, 9, false),
-    userIdName: jspb.Message.getFieldWithDefault(msg, 10, ""),
-    sessionName: jspb.Message.getFieldWithDefault(msg, 11, ""),
+    useridname: jspb.Message.getFieldWithDefault(msg, 10, ""),
+    sessionname: jspb.Message.getFieldWithDefault(msg, 11, ""),
     keysList: jspb.Message.toObjectList(msg.getKeysList(),
     xcalar_compute_localtypes_ColumnAttribute_pb.ColumnAttributeProto.toObject, includeInstance),
     valuesList: jspb.Message.toObjectList(msg.getValuesList(),
@@ -2251,28 +2324,28 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.dese
       msg.setName(value);
       break;
     case 2:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setNumPersistedUpdates(value);
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setNumpersistedupdates(value);
       break;
     case 3:
       var value = /** @type {number} */ (reader.readUint64());
-      msg.setSizeTotal(value);
+      msg.setSizetotal(value);
       break;
     case 4:
       var value = /** @type {number} */ (reader.readUint64());
-      msg.setNumRowsTotal(value);
+      msg.setNumrowstotal(value);
       break;
     case 5:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setOldestBatchId(value);
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setOldestbatchid(value);
       break;
     case 6:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setNextBatchId(value);
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setNextbatchid(value);
       break;
     case 7:
       var value = /** @type {string} */ (reader.readString());
-      msg.setSrcTableName(value);
+      msg.setSrctablename(value);
       break;
     case 8:
       var value = /** @type {boolean} */ (reader.readBool());
@@ -2284,11 +2357,11 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.dese
       break;
     case 10:
       var value = /** @type {string} */ (reader.readString());
-      msg.setUserIdName(value);
+      msg.setUseridname(value);
       break;
     case 11:
       var value = /** @type {string} */ (reader.readString());
-      msg.setSessionName(value);
+      msg.setSessionname(value);
       break;
     case 12:
       var value = new xcalar_compute_localtypes_ColumnAttribute_pb.ColumnAttributeProto;
@@ -2351,42 +2424,42 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.seri
       f
     );
   }
-  f = message.getNumPersistedUpdates();
+  f = message.getNumpersistedupdates();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeUint32(
       2,
       f
     );
   }
-  f = message.getSizeTotal();
+  f = message.getSizetotal();
   if (f !== 0) {
     writer.writeUint64(
       3,
       f
     );
   }
-  f = message.getNumRowsTotal();
+  f = message.getNumrowstotal();
   if (f !== 0) {
     writer.writeUint64(
       4,
       f
     );
   }
-  f = message.getOldestBatchId();
+  f = message.getOldestbatchid();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeUint64(
       5,
       f
     );
   }
-  f = message.getNextBatchId();
+  f = message.getNextbatchid();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeUint64(
       6,
       f
     );
   }
-  f = message.getSrcTableName();
+  f = message.getSrctablename();
   if (f.length > 0) {
     writer.writeString(
       7,
@@ -2407,14 +2480,14 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.seri
       f
     );
   }
-  f = message.getUserIdName();
+  f = message.getUseridname();
   if (f.length > 0) {
     writer.writeString(
       10,
       f
     );
   }
-  f = message.getSessionName();
+  f = message.getSessionname();
   if (f.length > 0) {
     writer.writeString(
       11,
@@ -2480,91 +2553,91 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prot
 
 
 /**
- * optional int64 num_persisted_updates = 2;
+ * optional uint32 numPersistedUpdates = 2;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.getNumPersistedUpdates = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.getNumpersistedupdates = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.setNumPersistedUpdates = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.setNumpersistedupdates = function(value) {
   jspb.Message.setProto3IntField(this, 2, value);
 };
 
 
 /**
- * optional uint64 size_total = 3;
+ * optional uint64 sizeTotal = 3;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.getSizeTotal = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.getSizetotal = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.setSizeTotal = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.setSizetotal = function(value) {
   jspb.Message.setProto3IntField(this, 3, value);
 };
 
 
 /**
- * optional uint64 num_rows_total = 4;
+ * optional uint64 numRowsTotal = 4;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.getNumRowsTotal = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.getNumrowstotal = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.setNumRowsTotal = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.setNumrowstotal = function(value) {
   jspb.Message.setProto3IntField(this, 4, value);
 };
 
 
 /**
- * optional int64 oldest_batch_id = 5;
+ * optional uint64 oldestBatchId = 5;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.getOldestBatchId = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.getOldestbatchid = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.setOldestBatchId = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.setOldestbatchid = function(value) {
   jspb.Message.setProto3IntField(this, 5, value);
 };
 
 
 /**
- * optional int64 next_batch_id = 6;
+ * optional uint64 nextBatchId = 6;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.getNextBatchId = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.getNextbatchid = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.setNextBatchId = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.setNextbatchid = function(value) {
   jspb.Message.setProto3IntField(this, 6, value);
 };
 
 
 /**
- * optional string src_table_name = 7;
+ * optional string srcTableName = 7;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.getSrcTableName = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.getSrctablename = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.setSrcTableName = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.setSrctablename = function(value) {
   jspb.Message.setProto3StringField(this, 7, value);
 };
 
@@ -2604,31 +2677,31 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prot
 
 
 /**
- * optional string user_id_name = 10;
+ * optional string userIdName = 10;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.getUserIdName = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.getUseridname = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 10, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.setUserIdName = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.setUseridname = function(value) {
   jspb.Message.setProto3StringField(this, 10, value);
 };
 
 
 /**
- * optional string session_name = 11;
+ * optional string sessionName = 11;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.getSessionName = function() {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.getSessionname = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.setSessionName = function(value) {
+proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.setSessionname = function(value) {
   jspb.Message.setProto3StringField(this, 11, value);
 };
 

@@ -11,7 +11,6 @@
 
 const _serviceInfo = {
     "File" : {
-        "List" : ["xcalar.compute.localtypes.File.ListRequest", "xcalar.compute.localtypes.File.ListResponse"],
         "Remove" : ["xcalar.compute.localtypes.File.RemoveRequest", "google.protobuf.Empty"],
     },
 };

@@ -10,8 +10,8 @@
 //
 
 const _serviceInfo = {
-    "DataSet" : {
-        "Create" : ["xcalar.compute.localtypes.Operator.BulkLoadRequest", "google.protobuf.Empty"],
+    "App" : {
+        "AppStatus" : ["xcalar.compute.localtypes.App.AppStatusRequest", "xcalar.compute.localtypes.App.AppStatusResponse"],
     },
 };
 

@@ -12,14 +12,14 @@
 var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
-var xDF = require("./xcalar/compute/localtypes/XDF_pb");
+var app = require("./xcalar/compute/localtypes/App_pb");
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructors
 ////////////////////////////////////////////////////////////////////////////////
 
-function XDFService(client) {
+function AppService(client) {
     this.client = client;
 }
 
@@ -27,33 +27,25 @@ function XDFService(client) {
 // Definitions
 ////////////////////////////////////////////////////////////////////////////////
 
-XDFService.prototype = {
-    listXdfs: async function(listXdfsRequest) {
+AppService.prototype = {
+    appStatus: async function(appStatusRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
         var anyWrapper = new proto.google.protobuf.Any();
-        anyWrapper.setValue(listXdfsRequest.serializeBinary());
-        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.XDF.ListXdfsRequest");
-        //anyWrapper.pack(listXdfsRequest.serializeBinary(), "ListXdfsRequest");
+        anyWrapper.setValue(appStatusRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.App.AppStatusRequest");
+        //anyWrapper.pack(appStatusRequest.serializeBinary(), "AppStatusRequest");
 
-        try {
-            var responseData = await this.client.execute("XDF", "ListXdfs", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var listXdfsResponse =
-            //    responseData.unpack(xDF.ListXdfsResponse.deserializeBinary,
-            //                        "ListXdfsResponse");
-            var listXdfsResponse = xDF.ListXdfsResponse.deserializeBinary(specificBytes);
-            return listXdfsResponse;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = xDF.ListXdfsResponse.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
+        var responseData = await this.client.execute("App", "AppStatus", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var appStatusResponse =
+        //    responseData.unpack(app.AppStatusResponse.deserializeBinary,
+        //                        "AppStatusResponse");
+        var appStatusResponse = app.AppStatusResponse.deserializeBinary(specificBytes);
+        return appStatusResponse;
     },
 };
 
-exports.XDFService = XDFService;
+exports.AppService = AppService;

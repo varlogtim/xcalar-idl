@@ -37,22 +37,14 @@ SchemaDiscoverService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.SchemaDiscover.SchemaDiscoverRequest");
         //anyWrapper.pack(schemaDiscoverRequest.serializeBinary(), "SchemaDiscoverRequest");
 
-        try {
-            var responseData = await this.client.execute("SchemaDiscover", "SchemaDiscover", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var schemaDiscoverResponse =
-            //    responseData.unpack(schemaDiscover.SchemaDiscoverResponse.deserializeBinary,
-            //                        "SchemaDiscoverResponse");
-            var schemaDiscoverResponse = schemaDiscover.SchemaDiscoverResponse.deserializeBinary(specificBytes);
-            return schemaDiscoverResponse;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = schemaDiscover.SchemaDiscoverResponse.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
+        var responseData = await this.client.execute("SchemaDiscover", "SchemaDiscover", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var schemaDiscoverResponse =
+        //    responseData.unpack(schemaDiscover.SchemaDiscoverResponse.deserializeBinary,
+        //                        "SchemaDiscoverResponse");
+        var schemaDiscoverResponse = schemaDiscover.SchemaDiscoverResponse.deserializeBinary(specificBytes);
+        return schemaDiscoverResponse;
     },
 };
 

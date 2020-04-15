@@ -14,9 +14,10 @@ var global = Function('return this')();
 var xcalar_compute_localtypes_Workbook_pb = require('../../../xcalar/compute/localtypes/Workbook_pb.js');
 var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js');
 goog.exportSymbol('proto.xcalar.compute.localtypes.Table.IndexRequest', null, global);
-goog.exportSymbol('proto.xcalar.compute.localtypes.Table.ListNsTablesRequest', null, global);
-goog.exportSymbol('proto.xcalar.compute.localtypes.Table.ListNsTablesResponse', null, global);
+goog.exportSymbol('proto.xcalar.compute.localtypes.Table.ListTablesRequest', null, global);
+goog.exportSymbol('proto.xcalar.compute.localtypes.Table.ListTablesResponse', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Table.PublishRequest', null, global);
+goog.exportSymbol('proto.xcalar.compute.localtypes.Table.PublishResponse', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Table.UnpublishRequest', null, global);
 
 /**
@@ -384,6 +385,148 @@ proto.xcalar.compute.localtypes.Table.PublishRequest.prototype.setTableName = fu
  * @extends {jspb.Message}
  * @constructor
  */
+proto.xcalar.compute.localtypes.Table.PublishResponse = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+};
+goog.inherits(proto.xcalar.compute.localtypes.Table.PublishResponse, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.xcalar.compute.localtypes.Table.PublishResponse.displayName = 'proto.xcalar.compute.localtypes.Table.PublishResponse';
+}
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.xcalar.compute.localtypes.Table.PublishResponse.prototype.toObject = function(opt_includeInstance) {
+  return proto.xcalar.compute.localtypes.Table.PublishResponse.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.xcalar.compute.localtypes.Table.PublishResponse} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Table.PublishResponse.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    fullyQualTableName: jspb.Message.getFieldWithDefault(msg, 1, "")
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.xcalar.compute.localtypes.Table.PublishResponse}
+ */
+proto.xcalar.compute.localtypes.Table.PublishResponse.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.xcalar.compute.localtypes.Table.PublishResponse;
+  return proto.xcalar.compute.localtypes.Table.PublishResponse.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.xcalar.compute.localtypes.Table.PublishResponse} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.xcalar.compute.localtypes.Table.PublishResponse}
+ */
+proto.xcalar.compute.localtypes.Table.PublishResponse.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setFullyQualTableName(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.xcalar.compute.localtypes.Table.PublishResponse.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  proto.xcalar.compute.localtypes.Table.PublishResponse.serializeBinaryToWriter(this, writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Table.PublishResponse} message
+ * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Table.PublishResponse.serializeBinaryToWriter = function(message, writer) {
+  var f = undefined;
+  f = message.getFullyQualTableName();
+  if (f.length > 0) {
+    writer.writeString(
+      1,
+      f
+    );
+  }
+};
+
+
+/**
+ * optional string fully_qual_table_name = 1;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Table.PublishResponse.prototype.getFullyQualTableName = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.Table.PublishResponse.prototype.setFullyQualTableName = function(value) {
+  jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
 proto.xcalar.compute.localtypes.Table.UnpublishRequest = function(opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
@@ -570,12 +713,12 @@ proto.xcalar.compute.localtypes.Table.UnpublishRequest.prototype.setTableName = 
  * @extends {jspb.Message}
  * @constructor
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesRequest = function(opt_data) {
+proto.xcalar.compute.localtypes.Table.ListTablesRequest = function(opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.xcalar.compute.localtypes.Table.ListNsTablesRequest, jspb.Message);
+goog.inherits(proto.xcalar.compute.localtypes.Table.ListTablesRequest, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
-  proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.displayName = 'proto.xcalar.compute.localtypes.Table.ListNsTablesRequest';
+  proto.xcalar.compute.localtypes.Table.ListTablesRequest.displayName = 'proto.xcalar.compute.localtypes.Table.ListTablesRequest';
 }
 
 
@@ -590,8 +733,8 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
  *     for transitional soy proto support: http://goto/soy-param-migration
  * @return {!Object}
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.prototype.toObject = function(opt_includeInstance) {
-  return proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.toObject(opt_includeInstance, this);
+proto.xcalar.compute.localtypes.Table.ListTablesRequest.prototype.toObject = function(opt_includeInstance) {
+  return proto.xcalar.compute.localtypes.Table.ListTablesRequest.toObject(opt_includeInstance, this);
 };
 
 
@@ -600,14 +743,14 @@ proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.prototype.toObject = f
  * @param {boolean|undefined} includeInstance Whether to include the JSPB
  *     instance for transitional soy proto support:
  *     http://goto/soy-param-migration
- * @param {!proto.xcalar.compute.localtypes.Table.ListNsTablesRequest} msg The msg instance to transform.
+ * @param {!proto.xcalar.compute.localtypes.Table.ListTablesRequest} msg The msg instance to transform.
  * @return {!Object}
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.toObject = function(includeInstance, msg) {
+proto.xcalar.compute.localtypes.Table.ListTablesRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     scope: (f = msg.getScope()) && xcalar_compute_localtypes_Workbook_pb.WorkbookScope.toObject(includeInstance, f),
-    isGlobal: jspb.Message.getFieldWithDefault(msg, 2, false)
+    pattern: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -621,23 +764,23 @@ proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.toObject = function(in
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.xcalar.compute.localtypes.Table.ListNsTablesRequest}
+ * @return {!proto.xcalar.compute.localtypes.Table.ListTablesRequest}
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.deserializeBinary = function(bytes) {
+proto.xcalar.compute.localtypes.Table.ListTablesRequest.deserializeBinary = function(bytes) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.xcalar.compute.localtypes.Table.ListNsTablesRequest;
-  return proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.xcalar.compute.localtypes.Table.ListTablesRequest;
+  return proto.xcalar.compute.localtypes.Table.ListTablesRequest.deserializeBinaryFromReader(msg, reader);
 };
 
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.xcalar.compute.localtypes.Table.ListNsTablesRequest} msg The message object to deserialize into.
+ * @param {!proto.xcalar.compute.localtypes.Table.ListTablesRequest} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.xcalar.compute.localtypes.Table.ListNsTablesRequest}
+ * @return {!proto.xcalar.compute.localtypes.Table.ListTablesRequest}
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.deserializeBinaryFromReader = function(msg, reader) {
+proto.xcalar.compute.localtypes.Table.ListTablesRequest.deserializeBinaryFromReader = function(msg, reader) {
   while (reader.nextField()) {
     if (reader.isEndGroup()) {
       break;
@@ -650,8 +793,8 @@ proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.deserializeBinaryFromR
       msg.setScope(value);
       break;
     case 2:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setIsGlobal(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setPattern(value);
       break;
     default:
       reader.skipField();
@@ -666,9 +809,9 @@ proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.deserializeBinaryFromR
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.prototype.serializeBinary = function() {
+proto.xcalar.compute.localtypes.Table.ListTablesRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.serializeBinaryToWriter(this, writer);
+  proto.xcalar.compute.localtypes.Table.ListTablesRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
@@ -676,11 +819,11 @@ proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.prototype.serializeBin
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Table.ListNsTablesRequest} message
+ * @param {!proto.xcalar.compute.localtypes.Table.ListTablesRequest} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.serializeBinaryToWriter = function(message, writer) {
+proto.xcalar.compute.localtypes.Table.ListTablesRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
   f = message.getScope();
   if (f != null) {
@@ -690,9 +833,9 @@ proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.serializeBinaryToWrite
       xcalar_compute_localtypes_Workbook_pb.WorkbookScope.serializeBinaryToWriter
     );
   }
-  f = message.getIsGlobal();
-  if (f) {
-    writer.writeBool(
+  f = message.getPattern();
+  if (f.length > 0) {
+    writer.writeString(
       2,
       f
     );
@@ -704,19 +847,19 @@ proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.serializeBinaryToWrite
  * optional xcalar.compute.localtypes.Workbook.WorkbookScope scope = 1;
  * @return {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope}
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.prototype.getScope = function() {
+proto.xcalar.compute.localtypes.Table.ListTablesRequest.prototype.getScope = function() {
   return /** @type{?proto.xcalar.compute.localtypes.Workbook.WorkbookScope} */ (
     jspb.Message.getWrapperField(this, xcalar_compute_localtypes_Workbook_pb.WorkbookScope, 1));
 };
 
 
 /** @param {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope|undefined} value */
-proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.prototype.setScope = function(value) {
+proto.xcalar.compute.localtypes.Table.ListTablesRequest.prototype.setScope = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
 
 
-proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.prototype.clearScope = function() {
+proto.xcalar.compute.localtypes.Table.ListTablesRequest.prototype.clearScope = function() {
   this.setScope(undefined);
 };
 
@@ -725,25 +868,23 @@ proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.prototype.clearScope =
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.prototype.hasScope = function() {
+proto.xcalar.compute.localtypes.Table.ListTablesRequest.prototype.hasScope = function() {
   return jspb.Message.getField(this, 1) != null;
 };
 
 
 /**
- * optional bool is_global = 2;
- * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
- * You should avoid comparisons like {@code val === true/false} in those cases.
- * @return {boolean}
+ * optional string pattern = 2;
+ * @return {string}
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.prototype.getIsGlobal = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 2, false));
+proto.xcalar.compute.localtypes.Table.ListTablesRequest.prototype.getPattern = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {boolean} value */
-proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.prototype.setIsGlobal = function(value) {
-  jspb.Message.setProto3BooleanField(this, 2, value);
+/** @param {string} value */
+proto.xcalar.compute.localtypes.Table.ListTablesRequest.prototype.setPattern = function(value) {
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -758,19 +899,19 @@ proto.xcalar.compute.localtypes.Table.ListNsTablesRequest.prototype.setIsGlobal 
  * @extends {jspb.Message}
  * @constructor
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesResponse = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.repeatedFields_, null);
+proto.xcalar.compute.localtypes.Table.ListTablesResponse = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.xcalar.compute.localtypes.Table.ListTablesResponse.repeatedFields_, null);
 };
-goog.inherits(proto.xcalar.compute.localtypes.Table.ListNsTablesResponse, jspb.Message);
+goog.inherits(proto.xcalar.compute.localtypes.Table.ListTablesResponse, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
-  proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.displayName = 'proto.xcalar.compute.localtypes.Table.ListNsTablesResponse';
+  proto.xcalar.compute.localtypes.Table.ListTablesResponse.displayName = 'proto.xcalar.compute.localtypes.Table.ListTablesResponse';
 }
 /**
  * List of repeated fields within this message type.
  * @private {!Array<number>}
  * @const
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.repeatedFields_ = [2];
+proto.xcalar.compute.localtypes.Table.ListTablesResponse.repeatedFields_ = [2];
 
 
 
@@ -785,8 +926,8 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
  *     for transitional soy proto support: http://goto/soy-param-migration
  * @return {!Object}
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.prototype.toObject = function(opt_includeInstance) {
-  return proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.toObject(opt_includeInstance, this);
+proto.xcalar.compute.localtypes.Table.ListTablesResponse.prototype.toObject = function(opt_includeInstance) {
+  return proto.xcalar.compute.localtypes.Table.ListTablesResponse.toObject(opt_includeInstance, this);
 };
 
 
@@ -795,11 +936,11 @@ proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.prototype.toObject = 
  * @param {boolean|undefined} includeInstance Whether to include the JSPB
  *     instance for transitional soy proto support:
  *     http://goto/soy-param-migration
- * @param {!proto.xcalar.compute.localtypes.Table.ListNsTablesResponse} msg The msg instance to transform.
+ * @param {!proto.xcalar.compute.localtypes.Table.ListTablesResponse} msg The msg instance to transform.
  * @return {!Object}
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.toObject = function(includeInstance, msg) {
+proto.xcalar.compute.localtypes.Table.ListTablesResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
     scope: (f = msg.getScope()) && xcalar_compute_localtypes_Workbook_pb.WorkbookScope.toObject(includeInstance, f),
     tableNamesList: jspb.Message.getRepeatedField(msg, 2)
@@ -816,23 +957,23 @@ proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.toObject = function(i
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.xcalar.compute.localtypes.Table.ListNsTablesResponse}
+ * @return {!proto.xcalar.compute.localtypes.Table.ListTablesResponse}
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.deserializeBinary = function(bytes) {
+proto.xcalar.compute.localtypes.Table.ListTablesResponse.deserializeBinary = function(bytes) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.xcalar.compute.localtypes.Table.ListNsTablesResponse;
-  return proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.xcalar.compute.localtypes.Table.ListTablesResponse;
+  return proto.xcalar.compute.localtypes.Table.ListTablesResponse.deserializeBinaryFromReader(msg, reader);
 };
 
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.xcalar.compute.localtypes.Table.ListNsTablesResponse} msg The message object to deserialize into.
+ * @param {!proto.xcalar.compute.localtypes.Table.ListTablesResponse} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.xcalar.compute.localtypes.Table.ListNsTablesResponse}
+ * @return {!proto.xcalar.compute.localtypes.Table.ListTablesResponse}
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.deserializeBinaryFromReader = function(msg, reader) {
+proto.xcalar.compute.localtypes.Table.ListTablesResponse.deserializeBinaryFromReader = function(msg, reader) {
   while (reader.nextField()) {
     if (reader.isEndGroup()) {
       break;
@@ -861,9 +1002,9 @@ proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.deserializeBinaryFrom
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.prototype.serializeBinary = function() {
+proto.xcalar.compute.localtypes.Table.ListTablesResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.serializeBinaryToWriter(this, writer);
+  proto.xcalar.compute.localtypes.Table.ListTablesResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
@@ -871,11 +1012,11 @@ proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.prototype.serializeBi
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Table.ListNsTablesResponse} message
+ * @param {!proto.xcalar.compute.localtypes.Table.ListTablesResponse} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.serializeBinaryToWriter = function(message, writer) {
+proto.xcalar.compute.localtypes.Table.ListTablesResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
   f = message.getScope();
   if (f != null) {
@@ -899,19 +1040,19 @@ proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.serializeBinaryToWrit
  * optional xcalar.compute.localtypes.Workbook.WorkbookScope scope = 1;
  * @return {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope}
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.prototype.getScope = function() {
+proto.xcalar.compute.localtypes.Table.ListTablesResponse.prototype.getScope = function() {
   return /** @type{?proto.xcalar.compute.localtypes.Workbook.WorkbookScope} */ (
     jspb.Message.getWrapperField(this, xcalar_compute_localtypes_Workbook_pb.WorkbookScope, 1));
 };
 
 
 /** @param {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope|undefined} value */
-proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.prototype.setScope = function(value) {
+proto.xcalar.compute.localtypes.Table.ListTablesResponse.prototype.setScope = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
 
 
-proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.prototype.clearScope = function() {
+proto.xcalar.compute.localtypes.Table.ListTablesResponse.prototype.clearScope = function() {
   this.setScope(undefined);
 };
 
@@ -920,7 +1061,7 @@ proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.prototype.clearScope 
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.prototype.hasScope = function() {
+proto.xcalar.compute.localtypes.Table.ListTablesResponse.prototype.hasScope = function() {
   return jspb.Message.getField(this, 1) != null;
 };
 
@@ -929,13 +1070,13 @@ proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.prototype.hasScope = 
  * repeated string table_names = 2;
  * @return {!Array<string>}
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.prototype.getTableNamesList = function() {
+proto.xcalar.compute.localtypes.Table.ListTablesResponse.prototype.getTableNamesList = function() {
   return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 2));
 };
 
 
 /** @param {!Array<string>} value */
-proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.prototype.setTableNamesList = function(value) {
+proto.xcalar.compute.localtypes.Table.ListTablesResponse.prototype.setTableNamesList = function(value) {
   jspb.Message.setField(this, 2, value || []);
 };
 
@@ -944,12 +1085,12 @@ proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.prototype.setTableNam
  * @param {!string} value
  * @param {number=} opt_index
  */
-proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.prototype.addTableNames = function(value, opt_index) {
+proto.xcalar.compute.localtypes.Table.ListTablesResponse.prototype.addTableNames = function(value, opt_index) {
   jspb.Message.addToRepeatedField(this, 2, value, opt_index);
 };
 
 
-proto.xcalar.compute.localtypes.Table.ListNsTablesResponse.prototype.clearTableNamesList = function() {
+proto.xcalar.compute.localtypes.Table.ListTablesResponse.prototype.clearTableNamesList = function() {
   this.setTableNamesList([]);
 };
 

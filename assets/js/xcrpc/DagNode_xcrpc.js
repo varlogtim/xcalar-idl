@@ -12,7 +12,6 @@
 var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
-var dagNode = require("./xcalar/compute/localtypes/DagNode_pb");
 var proto_empty = require("google-protobuf/google/protobuf/empty_pb");
 
 
@@ -29,136 +28,6 @@ function DagNodeService(client) {
 ////////////////////////////////////////////////////////////////////////////////
 
 DagNodeService.prototype = {
-    list: async function(listRequest) {
-        // XXX we want to use Any.pack() here, but it is only available
-        // in protobuf 3.2
-        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
-        var anyWrapper = new proto.google.protobuf.Any();
-        anyWrapper.setValue(listRequest.serializeBinary());
-        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.DagNode.ListRequest");
-        //anyWrapper.pack(listRequest.serializeBinary(), "ListRequest");
-
-        try {
-            var responseData = await this.client.execute("DagNode", "List", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var listResponse =
-            //    responseData.unpack(dagNode.ListResponse.deserializeBinary,
-            //                        "ListResponse");
-            var listResponse = dagNode.ListResponse.deserializeBinary(specificBytes);
-            return listResponse;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = dagNode.ListResponse.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
-    },
-    deleteObjects: async function(deleteRequest) {
-        // XXX we want to use Any.pack() here, but it is only available
-        // in protobuf 3.2
-        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
-        var anyWrapper = new proto.google.protobuf.Any();
-        anyWrapper.setValue(deleteRequest.serializeBinary());
-        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.DagNode.DeleteRequest");
-        //anyWrapper.pack(deleteRequest.serializeBinary(), "DeleteRequest");
-
-        try {
-            var responseData = await this.client.execute("DagNode", "DeleteObjects", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var deleteResponse =
-            //    responseData.unpack(dagNode.DeleteResponse.deserializeBinary,
-            //                        "DeleteResponse");
-            var deleteResponse = dagNode.DeleteResponse.deserializeBinary(specificBytes);
-            return deleteResponse;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = dagNode.DeleteResponse.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
-    },
-    tag: async function(tagRequest) {
-        // XXX we want to use Any.pack() here, but it is only available
-        // in protobuf 3.2
-        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
-        var anyWrapper = new proto.google.protobuf.Any();
-        anyWrapper.setValue(tagRequest.serializeBinary());
-        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.DagNode.TagRequest");
-        //anyWrapper.pack(tagRequest.serializeBinary(), "TagRequest");
-
-        try {
-            var responseData = await this.client.execute("DagNode", "Tag", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            return empty;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
-    },
-    comment: async function(commentRequest) {
-        // XXX we want to use Any.pack() here, but it is only available
-        // in protobuf 3.2
-        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
-        var anyWrapper = new proto.google.protobuf.Any();
-        anyWrapper.setValue(commentRequest.serializeBinary());
-        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.DagNode.CommentRequest");
-        //anyWrapper.pack(commentRequest.serializeBinary(), "CommentRequest");
-
-        try {
-            var responseData = await this.client.execute("DagNode", "Comment", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            return empty;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
-    },
-    rename: async function(renameRequest) {
-        // XXX we want to use Any.pack() here, but it is only available
-        // in protobuf 3.2
-        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
-        var anyWrapper = new proto.google.protobuf.Any();
-        anyWrapper.setValue(renameRequest.serializeBinary());
-        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.DagNode.RenameRequest");
-        //anyWrapper.pack(renameRequest.serializeBinary(), "RenameRequest");
-
-        try {
-            var responseData = await this.client.execute("DagNode", "Rename", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            return empty;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
-    },
     pin: async function(dagNodeInputMsg) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
@@ -168,22 +37,14 @@ DagNodeService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.DagNode.DagNodeInputMsg");
         //anyWrapper.pack(dagNodeInputMsg.serializeBinary(), "DagNodeInputMsg");
 
-        try {
-            var responseData = await this.client.execute("DagNode", "Pin", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            return empty;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
+        var responseData = await this.client.execute("DagNode", "Pin", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var empty =
+        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+        //                        "Empty");
+        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+        return empty;
     },
     unpin: async function(dagNodeInputMsg) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -194,22 +55,14 @@ DagNodeService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.DagNode.DagNodeInputMsg");
         //anyWrapper.pack(dagNodeInputMsg.serializeBinary(), "DagNodeInputMsg");
 
-        try {
-            var responseData = await this.client.execute("DagNode", "Unpin", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            return empty;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
+        var responseData = await this.client.execute("DagNode", "Unpin", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var empty =
+        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+        //                        "Empty");
+        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+        return empty;
     },
 };
 

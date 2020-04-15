@@ -8,8 +8,7 @@
 XcalarEvalArgTypeT = {
   'OptionalArg' : 0,
   'RequiredArg' : 1,
-  'VariableArg' : 2,
-  'UdfArg' : 3
+  'VariableArg' : 2
 };
 AccumulatorTypeT = {
   'AccumulatorMax' : 0,
@@ -24,14 +23,12 @@ AccumulatorTypeT = {
 XcalarEvalArgTypeTStr = {
   0 : 'optional',
   1 : 'required',
-  2 : 'variable',
-  3 : 'udf'
+  2 : 'variable'
 };
 XcalarEvalArgTypeTFromStr = {
   'optional' : 0,
   'required' : 1,
-  'variable' : 2,
-  'udf' : 3
+  'variable' : 2
 };
 AccumulatorTypeTStr = {
   0 : 'max',

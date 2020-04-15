@@ -13,7 +13,6 @@ var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
 var version = require("./xcalar/compute/localtypes/Version_pb");
-var proto_empty = require("google-protobuf/google/protobuf/empty_pb");
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -38,22 +37,14 @@ VersionService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/google.protobuf.Empty");
         //anyWrapper.pack(empty.serializeBinary(), "Empty");
 
-        try {
-            var responseData = await this.client.execute("Version", "GetVersion", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var getVersionResponse =
-            //    responseData.unpack(version.GetVersionResponse.deserializeBinary,
-            //                        "GetVersionResponse");
-            var getVersionResponse = version.GetVersionResponse.deserializeBinary(specificBytes);
-            return getVersionResponse;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = version.GetVersionResponse.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
+        var responseData = await this.client.execute("Version", "GetVersion", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var getVersionResponse =
+        //    responseData.unpack(version.GetVersionResponse.deserializeBinary,
+        //                        "GetVersionResponse");
+        var getVersionResponse = version.GetVersionResponse.deserializeBinary(specificBytes);
+        return getVersionResponse;
     },
 };
 

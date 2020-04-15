@@ -25,14 +25,6 @@ const _serviceInfo = {
         "Sort" : ["xcalar.compute.localtypes.Dataflow.SortRequest", "xcalar.compute.localtypes.Dataflow.SortResponse"],
         "Synthesize" : ["xcalar.compute.localtypes.Dataflow.SynthesizeRequest", "xcalar.compute.localtypes.Dataflow.SynthesizeResponse"],
         "Execute" : ["xcalar.compute.localtypes.Dataflow.ExecuteRequest", "xcalar.compute.localtypes.Dataflow.ExecuteResponse"],
-        "ListParametersInDataflow" : ["xcalar.compute.localtypes.Dataflow.ListParametersInDataflowRequest", "xcalar.compute.localtypes.Dataflow.ListParametersInDataflowResponse"],
-        "List" : ["xcalar.compute.localtypes.Dataflow.ListRequest", "xcalar.compute.localtypes.Dataflow.ListResponse"],
-        "Update" : ["xcalar.compute.localtypes.Dataflow.UpdateRequest", "google.protobuf.Empty"],
-        "GetDataflowJson" : ["xcalar.compute.localtypes.Dataflow.GetDataflowJsonRequest", "xcalar.compute.localtypes.Dataflow.GetDataflowJsonResponse"],
-        "ImportDataflow" : ["xcalar.compute.localtypes.Dataflow.ImportRequest", "google.protobuf.Empty"],
-        "ExportDataflow" : ["xcalar.compute.localtypes.Dataflow.ExportRequest", "xcalar.compute.localtypes.Dataflow.ExportResponse"],
-        "DeleteDataflow" : ["xcalar.compute.localtypes.Dataflow.DeleteRequest", "google.protobuf.Empty"],
-        "GetDataflowState" : ["xcalar.compute.localtypes.Dataflow.GetDataflowStateRequest", "xcalar.compute.localtypes.Dataflow.GetDataflowStateResponse"],
     },
 };
 

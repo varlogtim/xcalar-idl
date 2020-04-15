@@ -391,7 +391,7 @@ proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.toObject = fu
  */
 proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    udfModule: (f = msg.getUdfModule()) && proto.xcalar.compute.localtypes.UDF.UdfModule.toObject(includeInstance, f)
+    udfmodule: (f = msg.getUdfmodule()) && proto.xcalar.compute.localtypes.UDF.UdfModule.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -431,7 +431,7 @@ proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.deserializeBinaryFromRe
     case 1:
       var value = new proto.xcalar.compute.localtypes.UDF.UdfModule;
       reader.readMessage(value,proto.xcalar.compute.localtypes.UDF.UdfModule.deserializeBinaryFromReader);
-      msg.setUdfModule(value);
+      msg.setUdfmodule(value);
       break;
     default:
       reader.skipField();
@@ -462,7 +462,7 @@ proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.serializeBina
  */
 proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getUdfModule();
+  f = message.getUdfmodule();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -474,23 +474,23 @@ proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.serializeBinaryToWriter
 
 
 /**
- * optional UdfModule udf_module = 1;
+ * optional UdfModule udfModule = 1;
  * @return {?proto.xcalar.compute.localtypes.UDF.UdfModule}
  */
-proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.getUdfModule = function() {
+proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.getUdfmodule = function() {
   return /** @type{?proto.xcalar.compute.localtypes.UDF.UdfModule} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.UDF.UdfModule, 1));
 };
 
 
 /** @param {?proto.xcalar.compute.localtypes.UDF.UdfModule|undefined} value */
-proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.setUdfModule = function(value) {
+proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.setUdfmodule = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
 
 
-proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.clearUdfModule = function() {
-  this.setUdfModule(undefined);
+proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.clearUdfmodule = function() {
+  this.setUdfmodule(undefined);
 };
 
 
@@ -498,7 +498,7 @@ proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.clearUdfModul
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.hasUdfModule = function() {
+proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.hasUdfmodule = function() {
   return jspb.Message.getField(this, 1) != null;
 };
 
@@ -550,7 +550,7 @@ proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.toObject = f
  */
 proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    fqModName: (f = msg.getFqModName()) && proto.xcalar.compute.localtypes.UDF.FQname.toObject(includeInstance, f)
+    fqmodname: (f = msg.getFqmodname()) && proto.xcalar.compute.localtypes.UDF.FQname.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -590,7 +590,7 @@ proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.deserializeBinaryFromR
     case 1:
       var value = new proto.xcalar.compute.localtypes.UDF.FQname;
       reader.readMessage(value,proto.xcalar.compute.localtypes.UDF.FQname.deserializeBinaryFromReader);
-      msg.setFqModName(value);
+      msg.setFqmodname(value);
       break;
     default:
       reader.skipField();
@@ -621,7 +621,7 @@ proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.serializeBin
  */
 proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getFqModName();
+  f = message.getFqmodname();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -633,23 +633,23 @@ proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.serializeBinaryToWrite
 
 
 /**
- * optional FQname fq_mod_name = 1;
+ * optional FQname fqModName = 1;
  * @return {?proto.xcalar.compute.localtypes.UDF.FQname}
  */
-proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.getFqModName = function() {
+proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.getFqmodname = function() {
   return /** @type{?proto.xcalar.compute.localtypes.UDF.FQname} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.UDF.FQname, 1));
 };
 
 
 /** @param {?proto.xcalar.compute.localtypes.UDF.FQname|undefined} value */
-proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.setFqModName = function(value) {
+proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.setFqmodname = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
 
 
-proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.clearFqModName = function() {
-  this.setFqModName(undefined);
+proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.clearFqmodname = function() {
+  this.setFqmodname(undefined);
 };
 
 
@@ -657,7 +657,7 @@ proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.clearFqModNa
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.hasFqModName = function() {
+proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.hasFqmodname = function() {
   return jspb.Message.getField(this, 1) != null;
 };
 

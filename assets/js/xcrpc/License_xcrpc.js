@@ -38,22 +38,14 @@ LicenseService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.License.CreateRequest");
         //anyWrapper.pack(createRequest.serializeBinary(), "CreateRequest");
 
-        try {
-            var responseData = await this.client.execute("License", "Create", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            return empty;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
+        var responseData = await this.client.execute("License", "Create", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var empty =
+        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+        //                        "Empty");
+        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+        return empty;
     },
     destroy: async function(destroyRequest) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -64,22 +56,14 @@ LicenseService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.License.DestroyRequest");
         //anyWrapper.pack(destroyRequest.serializeBinary(), "DestroyRequest");
 
-        try {
-            var responseData = await this.client.execute("License", "Destroy", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            return empty;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
+        var responseData = await this.client.execute("License", "Destroy", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var empty =
+        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+        //                        "Empty");
+        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+        return empty;
     },
     get: async function(getRequest) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -90,22 +74,14 @@ LicenseService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.License.GetRequest");
         //anyWrapper.pack(getRequest.serializeBinary(), "GetRequest");
 
-        try {
-            var responseData = await this.client.execute("License", "Get", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var getResponse =
-            //    responseData.unpack(license.GetResponse.deserializeBinary,
-            //                        "GetResponse");
-            var getResponse = license.GetResponse.deserializeBinary(specificBytes);
-            return getResponse;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = license.GetResponse.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
+        var responseData = await this.client.execute("License", "Get", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var getResponse =
+        //    responseData.unpack(license.GetResponse.deserializeBinary,
+        //                        "GetResponse");
+        var getResponse = license.GetResponse.deserializeBinary(specificBytes);
+        return getResponse;
     },
     validate: async function(validateRequest) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -116,22 +92,14 @@ LicenseService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.License.ValidateRequest");
         //anyWrapper.pack(validateRequest.serializeBinary(), "ValidateRequest");
 
-        try {
-            var responseData = await this.client.execute("License", "Validate", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var validateResponse =
-            //    responseData.unpack(license.ValidateResponse.deserializeBinary,
-            //                        "ValidateResponse");
-            var validateResponse = license.ValidateResponse.deserializeBinary(specificBytes);
-            return validateResponse;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = license.ValidateResponse.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
+        var responseData = await this.client.execute("License", "Validate", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var validateResponse =
+        //    responseData.unpack(license.ValidateResponse.deserializeBinary,
+        //                        "ValidateResponse");
+        var validateResponse = license.ValidateResponse.deserializeBinary(specificBytes);
+        return validateResponse;
     },
     update: async function(updateRequest) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -142,22 +110,14 @@ LicenseService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.License.UpdateRequest");
         //anyWrapper.pack(updateRequest.serializeBinary(), "UpdateRequest");
 
-        try {
-            var responseData = await this.client.execute("License", "Update", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            return empty;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
+        var responseData = await this.client.execute("License", "Update", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var empty =
+        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+        //                        "Empty");
+        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+        return empty;
     },
 };
 

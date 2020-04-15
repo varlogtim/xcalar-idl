@@ -11,18 +11,6 @@
 
 const _serviceInfo = {
     "Operator" : {
-        "OpAggregate" : ["xcalar.compute.localtypes.Operator.AggRequest", "xcalar.compute.localtypes.Operator.AggResponse"],
-        "OpIndex" : ["xcalar.compute.localtypes.Operator.IndexRequest", "xcalar.compute.localtypes.Operator.IndexResponse"],
-        "OpProject" : ["xcalar.compute.localtypes.Operator.ProjectRequest", "xcalar.compute.localtypes.Operator.ProjectResponse"],
-        "OpGetRowNum" : ["xcalar.compute.localtypes.Operator.GetRowNumRequest", "xcalar.compute.localtypes.Operator.GetRowNumResponse"],
-        "OpFilter" : ["xcalar.compute.localtypes.Operator.FilterRequest", "xcalar.compute.localtypes.Operator.FilterResponse"],
-        "OpJoin" : ["xcalar.compute.localtypes.Operator.JoinRequest", "xcalar.compute.localtypes.Operator.JoinResponse"],
-        "OpMap" : ["xcalar.compute.localtypes.Operator.MapRequest", "xcalar.compute.localtypes.Operator.MapResponse"],
-        "OpGroupBy" : ["xcalar.compute.localtypes.Operator.GroupByRequest", "xcalar.compute.localtypes.Operator.GroupByResponse"],
-        "OpUnion" : ["xcalar.compute.localtypes.Operator.UnionRequest", "xcalar.compute.localtypes.Operator.UnionResponse"],
-        "OpExport" : ["xcalar.compute.localtypes.Operator.ExportRequest", "xcalar.compute.localtypes.Operator.ExportResponse"],
-        "OpSynthesize" : ["xcalar.compute.localtypes.Operator.SynthesizeRequest", "xcalar.compute.localtypes.Operator.SynthesizeResponse"],
-        "OpBulkLoad" : ["xcalar.compute.localtypes.Operator.BulkLoadRequest", "xcalar.compute.localtypes.Operator.BulkLoadResponse"],
         "OpMerge" : ["xcalar.compute.localtypes.Operator.MergeRequest", "google.protobuf.Empty"],
     },
 };

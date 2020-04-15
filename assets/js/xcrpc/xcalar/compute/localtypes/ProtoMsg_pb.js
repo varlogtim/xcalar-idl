@@ -361,8 +361,8 @@ proto.ProtoTestRequest.prototype.toObject = function(opt_includeInstance) {
  */
 proto.ProtoTestRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    testInt: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    testString: jspb.Message.getFieldWithDefault(msg, 2, "")
+    testint: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    teststring: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -401,11 +401,11 @@ proto.ProtoTestRequest.deserializeBinaryFromReader = function(msg, reader) {
     switch (field) {
     case 1:
       var value = /** @type {number} */ (reader.readUint64());
-      msg.setTestInt(value);
+      msg.setTestint(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setTestString(value);
+      msg.setTeststring(value);
       break;
     default:
       reader.skipField();
@@ -436,14 +436,14 @@ proto.ProtoTestRequest.prototype.serializeBinary = function() {
  */
 proto.ProtoTestRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getTestInt();
+  f = message.getTestint();
   if (f !== 0) {
     writer.writeUint64(
       1,
       f
     );
   }
-  f = message.getTestString();
+  f = message.getTeststring();
   if (f.length > 0) {
     writer.writeString(
       2,
@@ -454,31 +454,31 @@ proto.ProtoTestRequest.serializeBinaryToWriter = function(message, writer) {
 
 
 /**
- * optional uint64 test_int = 1;
+ * optional uint64 testInt = 1;
  * @return {number}
  */
-proto.ProtoTestRequest.prototype.getTestInt = function() {
+proto.ProtoTestRequest.prototype.getTestint = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
 };
 
 
 /** @param {number} value */
-proto.ProtoTestRequest.prototype.setTestInt = function(value) {
+proto.ProtoTestRequest.prototype.setTestint = function(value) {
   jspb.Message.setProto3IntField(this, 1, value);
 };
 
 
 /**
- * optional string test_string = 2;
+ * optional string testString = 2;
  * @return {string}
  */
-proto.ProtoTestRequest.prototype.getTestString = function() {
+proto.ProtoTestRequest.prototype.getTeststring = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
 /** @param {string} value */
-proto.ProtoTestRequest.prototype.setTestString = function(value) {
+proto.ProtoTestRequest.prototype.setTeststring = function(value) {
   jspb.Message.setProto3StringField(this, 2, value);
 };
 
@@ -782,9 +782,9 @@ proto.ProtoRequestMsg.prototype.toObject = function(opt_includeInstance) {
  */
 proto.ProtoRequestMsg.toObject = function(includeInstance, msg) {
   var f, obj = {
-    requestId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    requestid: jspb.Message.getFieldWithDefault(msg, 1, 0),
     target: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    childId: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    childid: jspb.Message.getFieldWithDefault(msg, 3, 0),
     api: (f = msg.getApi()) && proto.ProtoApiRequest.toObject(includeInstance, f),
     parent: (f = msg.getParent()) && xcalar_compute_localtypes_ParentChild_pb.ProtoParentRequest.toObject(includeInstance, f),
     child: (f = msg.getChild()) && xcalar_compute_localtypes_ParentChild_pb.ProtoChildRequest.toObject(includeInstance, f),
@@ -828,7 +828,7 @@ proto.ProtoRequestMsg.deserializeBinaryFromReader = function(msg, reader) {
     switch (field) {
     case 1:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setRequestId(value);
+      msg.setRequestid(value);
       break;
     case 2:
       var value = /** @type {!proto.ProtoMsgTarget} */ (reader.readEnum());
@@ -836,7 +836,7 @@ proto.ProtoRequestMsg.deserializeBinaryFromReader = function(msg, reader) {
       break;
     case 3:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setChildId(value);
+      msg.setChildid(value);
       break;
     case 4:
       var value = new proto.ProtoApiRequest;
@@ -892,7 +892,7 @@ proto.ProtoRequestMsg.prototype.serializeBinary = function() {
  */
 proto.ProtoRequestMsg.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getRequestId();
+  f = message.getRequestid();
   if (f !== 0) {
     writer.writeInt64(
       1,
@@ -906,7 +906,7 @@ proto.ProtoRequestMsg.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getChildId();
+  f = message.getChildid();
   if (f !== 0) {
     writer.writeInt64(
       3,
@@ -957,16 +957,16 @@ proto.ProtoRequestMsg.serializeBinaryToWriter = function(message, writer) {
 
 
 /**
- * optional int64 request_id = 1;
+ * optional int64 requestId = 1;
  * @return {number}
  */
-proto.ProtoRequestMsg.prototype.getRequestId = function() {
+proto.ProtoRequestMsg.prototype.getRequestid = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
 };
 
 
 /** @param {number} value */
-proto.ProtoRequestMsg.prototype.setRequestId = function(value) {
+proto.ProtoRequestMsg.prototype.setRequestid = function(value) {
   jspb.Message.setProto3IntField(this, 1, value);
 };
 
@@ -987,16 +987,16 @@ proto.ProtoRequestMsg.prototype.setTarget = function(value) {
 
 
 /**
- * optional int64 child_id = 3;
+ * optional int64 childId = 3;
  * @return {number}
  */
-proto.ProtoRequestMsg.prototype.getChildId = function() {
+proto.ProtoRequestMsg.prototype.getChildid = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
 /** @param {number} value */
-proto.ProtoRequestMsg.prototype.setChildId = function(value) {
+proto.ProtoRequestMsg.prototype.setChildid = function(value) {
   jspb.Message.setProto3IntField(this, 3, value);
 };
 
@@ -1185,7 +1185,7 @@ proto.ProtoResponseMsg.oneofGroups_ = [[4,5,6]];
 proto.ProtoResponseMsg.PayloadCase = {
   PAYLOAD_NOT_SET: 0,
   API: 4,
-  PARENT_CHILD: 5,
+  PARENTCHILD: 5,
   SERVIC: 6
 };
 
@@ -1229,7 +1229,7 @@ proto.ProtoResponseMsg.toObject = function(includeInstance, msg) {
     status: jspb.Message.getFieldWithDefault(msg, 2, 0),
     error: jspb.Message.getFieldWithDefault(msg, 3, ""),
     api: (f = msg.getApi()) && proto.ProtoApiResponse.toObject(includeInstance, f),
-    parentChild: (f = msg.getParentChild()) && xcalar_compute_localtypes_ParentChild_pb.ProtoParentChildResponse.toObject(includeInstance, f),
+    parentchild: (f = msg.getParentchild()) && xcalar_compute_localtypes_ParentChild_pb.ProtoParentChildResponse.toObject(includeInstance, f),
     servic: (f = msg.getServic()) && xcalar_compute_localtypes_Service_pb.ServiceResponse.toObject(includeInstance, f)
   };
 
@@ -1287,7 +1287,7 @@ proto.ProtoResponseMsg.deserializeBinaryFromReader = function(msg, reader) {
     case 5:
       var value = new xcalar_compute_localtypes_ParentChild_pb.ProtoParentChildResponse;
       reader.readMessage(value,xcalar_compute_localtypes_ParentChild_pb.ProtoParentChildResponse.deserializeBinaryFromReader);
-      msg.setParentChild(value);
+      msg.setParentchild(value);
       break;
     case 6:
       var value = new xcalar_compute_localtypes_Service_pb.ServiceResponse;
@@ -1352,7 +1352,7 @@ proto.ProtoResponseMsg.serializeBinaryToWriter = function(message, writer) {
       proto.ProtoApiResponse.serializeBinaryToWriter
     );
   }
-  f = message.getParentChild();
+  f = message.getParentchild();
   if (f != null) {
     writer.writeMessage(
       5,
@@ -1447,23 +1447,23 @@ proto.ProtoResponseMsg.prototype.hasApi = function() {
 
 
 /**
- * optional ProtoParentChildResponse parent_child = 5;
+ * optional ProtoParentChildResponse parentChild = 5;
  * @return {?proto.ProtoParentChildResponse}
  */
-proto.ProtoResponseMsg.prototype.getParentChild = function() {
+proto.ProtoResponseMsg.prototype.getParentchild = function() {
   return /** @type{?proto.ProtoParentChildResponse} */ (
     jspb.Message.getWrapperField(this, xcalar_compute_localtypes_ParentChild_pb.ProtoParentChildResponse, 5));
 };
 
 
 /** @param {?proto.ProtoParentChildResponse|undefined} value */
-proto.ProtoResponseMsg.prototype.setParentChild = function(value) {
+proto.ProtoResponseMsg.prototype.setParentchild = function(value) {
   jspb.Message.setOneofWrapperField(this, 5, proto.ProtoResponseMsg.oneofGroups_[0], value);
 };
 
 
-proto.ProtoResponseMsg.prototype.clearParentChild = function() {
-  this.setParentChild(undefined);
+proto.ProtoResponseMsg.prototype.clearParentchild = function() {
+  this.setParentchild(undefined);
 };
 
 
@@ -1471,7 +1471,7 @@ proto.ProtoResponseMsg.prototype.clearParentChild = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ProtoResponseMsg.prototype.hasParentChild = function() {
+proto.ProtoResponseMsg.prototype.hasParentchild = function() {
   return jspb.Message.getField(this, 5) != null;
 };
 
@@ -1766,31 +1766,31 @@ proto.ProtoMsg.prototype.hasResponse = function() {
  * @enum {number}
  */
 proto.ProtoApiFunc = {
-  API_FUNC_INVALID: 0,
-  API_FUNC_GET_VERSION: 1,
-  API_FUNC_GET_BUF_CACHE_ADDR: 2,
-  API_FUNC_GET_XDB_ID: 3
+  APIFUNCINVALID: 0,
+  APIFUNCGETVERSION: 1,
+  APIFUNCGETBUFCACHEADDR: 2,
+  APIFUNCGETXDBID: 3
 };
 
 /**
  * @enum {number}
  */
 proto.ProtoMsgTarget = {
-  PROTO_MSG_TARGET_INVALID: 0,
-  PROTO_MSG_TARGET_PARENT: 1,
-  PROTO_MSG_TARGET_CHILD: 2,
-  PROTO_MSG_TARGET_API: 3,
-  PROTO_MSG_TARGET_SERVICE: 4,
-  PROTO_MSG_TARGET_TEST: 5
+  PROTOMSGTARGETINVALID: 0,
+  PROTOMSGTARGETPARENT: 1,
+  PROTOMSGTARGETCHILD: 2,
+  PROTOMSGTARGETAPI: 3,
+  PROTOMSGTARGETSERVICE: 4,
+  PROTOMSGTARGETTEST: 5
 };
 
 /**
  * @enum {number}
  */
 proto.ProtoMsgType = {
-  PROTO_MSG_TYPE_INVALID: 0,
-  PROTO_MSG_TYPE_REQUEST: 1,
-  PROTO_MSG_TYPE_RESPONSE: 2
+  PROTOMSGTYPEINVALID: 0,
+  PROTOMSGTYPEREQUEST: 1,
+  PROTOMSGTYPERESPONSE: 2
 };
 
 goog.object.extend(exports, proto);

@@ -4,11 +4,11 @@ var request = require('request-promise-native');
 
 function serializeRequest(serviceRequest) {
     var msg = new protoMsg.ProtoMsg();
-    msg.setType(protoMsg.ProtoMsgType.PROTO_MSG_TYPE_REQUEST);
+    msg.setType(protoMsg.ProtoMsgType.PROTOMSGTYPEREQUEST);
     msg.setRequest(new protoMsg.ProtoRequestMsg());
-    msg.getRequest().setRequestId(0);
-    msg.getRequest().setChildId(0);
-    msg.getRequest().setTarget(protoMsg.ProtoMsgTarget.PROTO_MSG_TARGET_SERVICE);
+    msg.getRequest().setRequestid(0);
+    msg.getRequest().setChildid(0);
+    msg.getRequest().setTarget(protoMsg.ProtoMsgTarget.PROTOMSGTARGETSERVICE);
 
     msg.getRequest().setServic(serviceRequest);
 
@@ -49,14 +49,10 @@ function XceClient(serviceUrl) {
             var respMsg = protoMsg.ProtoMsg.deserializeBinary(byteBuffer).getResponse();
             if (respMsg.getStatus() != 0) {
                 // If we get a status code other than StatusOk, this failed
-                const error = {
+                throw {
                     "status": respMsg.getStatus(),
-                    "error": respMsg.getError(),
-                }
-                if (respMsg.hasServic()) {
-                    error.response = respMsg.getServic().getBody();
-                }
-                throw error;
+                    "error": respMsg.getError()
+                };
             }
 
             // Unpack all of the layers of the successful response, except

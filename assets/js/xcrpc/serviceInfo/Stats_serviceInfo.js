@@ -12,9 +12,7 @@
 const _serviceInfo = {
     "Stats" : {
         "GetStats" : ["xcalar.compute.localtypes.Stats.GetStatsRequest", "xcalar.compute.localtypes.Stats.GetStatsResponse"],
-        "ResetStat" : ["xcalar.compute.localtypes.Stats.ResetStatRequest", "google.protobuf.Empty"],
-        "GetStatGroupIdMap" : ["xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest", "xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse"],
-        "GetStatFromNodeId" : ["xcalar.compute.localtypes.Stats.GetStatFromNodeIdRequest", "xcalar.compute.localtypes.Stats.GetStatFromNodeIdResponse"],
+        "GetLibstats" : ["xcalar.compute.localtypes.Stats.GetLibstatsRequest", "xcalar.compute.localtypes.Stats.GetLibstatsResponse"],
     },
 };
 

@@ -11,10 +11,7 @@
 
 const _serviceInfo = {
     "Query" : {
-        "Execute" : ["xcalar.compute.localtypes.Query.ExecuteRequest", "xcalar.compute.localtypes.Query.ExecuteResponse"],
         "List" : ["xcalar.compute.localtypes.Query.ListRequest", "xcalar.compute.localtypes.Query.ListResponse"],
-        "DeleteQuery" : ["xcalar.compute.localtypes.Query.DeleteRequest", "xcalar.compute.localtypes.Query.DeleteResponse"],
-        "Cancel" : ["xcalar.compute.localtypes.Query.CancelRequest", "xcalar.compute.localtypes.Query.CancelResponse"],
     },
 };
 

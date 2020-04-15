@@ -1578,12 +1578,12 @@ proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.toObject = function(in
   var f, obj = {
     scope: (f = msg.getScope()) && xcalar_compute_localtypes_Workbook_pb.WorkbookScope.toObject(includeInstance, f),
     persist: jspb.Message.getFieldWithDefault(msg, 2, false),
-    countSecondaryPairs: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    keyCompare: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    valueCompare: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    valueReplace: jspb.Message.getFieldWithDefault(msg, 6, ""),
-    keySecondary: jspb.Message.getFieldWithDefault(msg, 7, ""),
-    valueSecondary: jspb.Message.getFieldWithDefault(msg, 8, "")
+    countsecondarypairs: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    keycompare: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    valuecompare: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    valuereplace: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    keysecondary: jspb.Message.getFieldWithDefault(msg, 7, ""),
+    valuesecondary: jspb.Message.getFieldWithDefault(msg, 8, "")
   };
 
   if (includeInstance) {
@@ -1631,27 +1631,27 @@ proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.deserializeBinaryFromR
       break;
     case 3:
       var value = /** @type {number} */ (reader.readUint32());
-      msg.setCountSecondaryPairs(value);
+      msg.setCountsecondarypairs(value);
       break;
     case 4:
       var value = /** @type {string} */ (reader.readString());
-      msg.setKeyCompare(value);
+      msg.setKeycompare(value);
       break;
     case 5:
       var value = /** @type {string} */ (reader.readString());
-      msg.setValueCompare(value);
+      msg.setValuecompare(value);
       break;
     case 6:
       var value = /** @type {string} */ (reader.readString());
-      msg.setValueReplace(value);
+      msg.setValuereplace(value);
       break;
     case 7:
       var value = /** @type {string} */ (reader.readString());
-      msg.setKeySecondary(value);
+      msg.setKeysecondary(value);
       break;
     case 8:
       var value = /** @type {string} */ (reader.readString());
-      msg.setValueSecondary(value);
+      msg.setValuesecondary(value);
       break;
     default:
       reader.skipField();
@@ -1697,42 +1697,42 @@ proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.serializeBinaryToWrite
       f
     );
   }
-  f = message.getCountSecondaryPairs();
+  f = message.getCountsecondarypairs();
   if (f !== 0) {
     writer.writeUint32(
       3,
       f
     );
   }
-  f = message.getKeyCompare();
+  f = message.getKeycompare();
   if (f.length > 0) {
     writer.writeString(
       4,
       f
     );
   }
-  f = message.getValueCompare();
+  f = message.getValuecompare();
   if (f.length > 0) {
     writer.writeString(
       5,
       f
     );
   }
-  f = message.getValueReplace();
+  f = message.getValuereplace();
   if (f.length > 0) {
     writer.writeString(
       6,
       f
     );
   }
-  f = message.getKeySecondary();
+  f = message.getKeysecondary();
   if (f.length > 0) {
     writer.writeString(
       7,
       f
     );
   }
-  f = message.getValueSecondary();
+  f = message.getValuesecondary();
   if (f.length > 0) {
     writer.writeString(
       8,
@@ -1790,91 +1790,91 @@ proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setPersist =
 
 
 /**
- * optional uint32 count_secondary_pairs = 3;
+ * optional uint32 countSecondaryPairs = 3;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getCountSecondaryPairs = function() {
+proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getCountsecondarypairs = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setCountSecondaryPairs = function(value) {
+proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setCountsecondarypairs = function(value) {
   jspb.Message.setProto3IntField(this, 3, value);
 };
 
 
 /**
- * optional string key_compare = 4;
+ * optional string keyCompare = 4;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getKeyCompare = function() {
+proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getKeycompare = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setKeyCompare = function(value) {
+proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setKeycompare = function(value) {
   jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
 /**
- * optional string value_compare = 5;
+ * optional string valueCompare = 5;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getValueCompare = function() {
+proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getValuecompare = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setValueCompare = function(value) {
+proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setValuecompare = function(value) {
   jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
 /**
- * optional string value_replace = 6;
+ * optional string valueReplace = 6;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getValueReplace = function() {
+proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getValuereplace = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setValueReplace = function(value) {
+proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setValuereplace = function(value) {
   jspb.Message.setProto3StringField(this, 6, value);
 };
 
 
 /**
- * optional string key_secondary = 7;
+ * optional string keySecondary = 7;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getKeySecondary = function() {
+proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getKeysecondary = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setKeySecondary = function(value) {
+proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setKeysecondary = function(value) {
   jspb.Message.setProto3StringField(this, 7, value);
 };
 
 
 /**
- * optional string value_secondary = 8;
+ * optional string valueSecondary = 8;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getValueSecondary = function() {
+proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getValuesecondary = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setValueSecondary = function(value) {
+proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setValuesecondary = function(value) {
   jspb.Message.setProto3StringField(this, 8, value);
 };
 
@@ -1927,7 +1927,7 @@ proto.xcalar.compute.localtypes.KvStore.ListRequest.prototype.toObject = functio
 proto.xcalar.compute.localtypes.KvStore.ListRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     scope: (f = msg.getScope()) && xcalar_compute_localtypes_Workbook_pb.WorkbookScope.toObject(includeInstance, f),
-    keyRegex: jspb.Message.getFieldWithDefault(msg, 2, "")
+    keyregex: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -1971,7 +1971,7 @@ proto.xcalar.compute.localtypes.KvStore.ListRequest.deserializeBinaryFromReader 
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setKeyRegex(value);
+      msg.setKeyregex(value);
       break;
     default:
       reader.skipField();
@@ -2010,7 +2010,7 @@ proto.xcalar.compute.localtypes.KvStore.ListRequest.serializeBinaryToWriter = fu
       xcalar_compute_localtypes_Workbook_pb.WorkbookScope.serializeBinaryToWriter
     );
   }
-  f = message.getKeyRegex();
+  f = message.getKeyregex();
   if (f.length > 0) {
     writer.writeString(
       2,
@@ -2051,16 +2051,16 @@ proto.xcalar.compute.localtypes.KvStore.ListRequest.prototype.hasScope = functio
 
 
 /**
- * optional string key_regex = 2;
+ * optional string keyRegex = 2;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.KvStore.ListRequest.prototype.getKeyRegex = function() {
+proto.xcalar.compute.localtypes.KvStore.ListRequest.prototype.getKeyregex = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.KvStore.ListRequest.prototype.setKeyRegex = function(value) {
+proto.xcalar.compute.localtypes.KvStore.ListRequest.prototype.setKeyregex = function(value) {
   jspb.Message.setProto3StringField(this, 2, value);
 };
 

@@ -604,15 +604,15 @@ proto.xcalar.compute.localtypes.License.GetResponse.toObject = function(includeI
     expired: jspb.Message.getFieldWithDefault(msg, 2, false),
     platform: jspb.Message.getFieldWithDefault(msg, 3, ""),
     product: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    productFamily: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    productVersion: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    productfamily: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    productversion: jspb.Message.getFieldWithDefault(msg, 6, ""),
     expiration: jspb.Message.getFieldWithDefault(msg, 7, ""),
-    nodeCount: jspb.Message.getFieldWithDefault(msg, 8, 0),
-    userCount: jspb.Message.getFieldWithDefault(msg, 9, 0),
+    nodecount: jspb.Message.getFieldWithDefault(msg, 8, 0),
+    usercount: jspb.Message.getFieldWithDefault(msg, 9, 0),
     attributes: jspb.Message.getFieldWithDefault(msg, 10, ""),
     licensee: jspb.Message.getFieldWithDefault(msg, 11, ""),
-    compressedLicenseSize: jspb.Message.getFieldWithDefault(msg, 12, 0),
-    compressedLicense: jspb.Message.getFieldWithDefault(msg, 13, "")
+    compressedlicensesize: jspb.Message.getFieldWithDefault(msg, 12, 0),
+    compressedlicense: jspb.Message.getFieldWithDefault(msg, 13, "")
   };
 
   if (includeInstance) {
@@ -667,11 +667,11 @@ proto.xcalar.compute.localtypes.License.GetResponse.deserializeBinaryFromReader 
       break;
     case 5:
       var value = /** @type {string} */ (reader.readString());
-      msg.setProductFamily(value);
+      msg.setProductfamily(value);
       break;
     case 6:
       var value = /** @type {string} */ (reader.readString());
-      msg.setProductVersion(value);
+      msg.setProductversion(value);
       break;
     case 7:
       var value = /** @type {string} */ (reader.readString());
@@ -679,11 +679,11 @@ proto.xcalar.compute.localtypes.License.GetResponse.deserializeBinaryFromReader 
       break;
     case 8:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setNodeCount(value);
+      msg.setNodecount(value);
       break;
     case 9:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setUserCount(value);
+      msg.setUsercount(value);
       break;
     case 10:
       var value = /** @type {string} */ (reader.readString());
@@ -695,11 +695,11 @@ proto.xcalar.compute.localtypes.License.GetResponse.deserializeBinaryFromReader 
       break;
     case 12:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setCompressedLicenseSize(value);
+      msg.setCompressedlicensesize(value);
       break;
     case 13:
       var value = /** @type {string} */ (reader.readString());
-      msg.setCompressedLicense(value);
+      msg.setCompressedlicense(value);
       break;
     default:
       reader.skipField();
@@ -758,14 +758,14 @@ proto.xcalar.compute.localtypes.License.GetResponse.serializeBinaryToWriter = fu
       f
     );
   }
-  f = message.getProductFamily();
+  f = message.getProductfamily();
   if (f.length > 0) {
     writer.writeString(
       5,
       f
     );
   }
-  f = message.getProductVersion();
+  f = message.getProductversion();
   if (f.length > 0) {
     writer.writeString(
       6,
@@ -779,14 +779,14 @@ proto.xcalar.compute.localtypes.License.GetResponse.serializeBinaryToWriter = fu
       f
     );
   }
-  f = message.getNodeCount();
+  f = message.getNodecount();
   if (f !== 0) {
     writer.writeInt64(
       8,
       f
     );
   }
-  f = message.getUserCount();
+  f = message.getUsercount();
   if (f !== 0) {
     writer.writeInt64(
       9,
@@ -807,14 +807,14 @@ proto.xcalar.compute.localtypes.License.GetResponse.serializeBinaryToWriter = fu
       f
     );
   }
-  f = message.getCompressedLicenseSize();
+  f = message.getCompressedlicensesize();
   if (f !== 0) {
     writer.writeInt64(
       12,
       f
     );
   }
-  f = message.getCompressedLicense();
+  f = message.getCompressedlicense();
   if (f.length > 0) {
     writer.writeString(
       13,
@@ -889,31 +889,31 @@ proto.xcalar.compute.localtypes.License.GetResponse.prototype.setProduct = funct
 
 
 /**
- * optional string product_family = 5;
+ * optional string productFamily = 5;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.License.GetResponse.prototype.getProductFamily = function() {
+proto.xcalar.compute.localtypes.License.GetResponse.prototype.getProductfamily = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.License.GetResponse.prototype.setProductFamily = function(value) {
+proto.xcalar.compute.localtypes.License.GetResponse.prototype.setProductfamily = function(value) {
   jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
 /**
- * optional string product_version = 6;
+ * optional string productVersion = 6;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.License.GetResponse.prototype.getProductVersion = function() {
+proto.xcalar.compute.localtypes.License.GetResponse.prototype.getProductversion = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.License.GetResponse.prototype.setProductVersion = function(value) {
+proto.xcalar.compute.localtypes.License.GetResponse.prototype.setProductversion = function(value) {
   jspb.Message.setProto3StringField(this, 6, value);
 };
 
@@ -934,31 +934,31 @@ proto.xcalar.compute.localtypes.License.GetResponse.prototype.setExpiration = fu
 
 
 /**
- * optional int64 node_count = 8;
+ * optional int64 nodeCount = 8;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.License.GetResponse.prototype.getNodeCount = function() {
+proto.xcalar.compute.localtypes.License.GetResponse.prototype.getNodecount = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 8, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.License.GetResponse.prototype.setNodeCount = function(value) {
+proto.xcalar.compute.localtypes.License.GetResponse.prototype.setNodecount = function(value) {
   jspb.Message.setProto3IntField(this, 8, value);
 };
 
 
 /**
- * optional int64 user_count = 9;
+ * optional int64 userCount = 9;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.License.GetResponse.prototype.getUserCount = function() {
+proto.xcalar.compute.localtypes.License.GetResponse.prototype.getUsercount = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 9, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.License.GetResponse.prototype.setUserCount = function(value) {
+proto.xcalar.compute.localtypes.License.GetResponse.prototype.setUsercount = function(value) {
   jspb.Message.setProto3IntField(this, 9, value);
 };
 
@@ -994,31 +994,31 @@ proto.xcalar.compute.localtypes.License.GetResponse.prototype.setLicensee = func
 
 
 /**
- * optional int64 compressed_license_size = 12;
+ * optional int64 compressedLicenseSize = 12;
  * @return {number}
  */
-proto.xcalar.compute.localtypes.License.GetResponse.prototype.getCompressedLicenseSize = function() {
+proto.xcalar.compute.localtypes.License.GetResponse.prototype.getCompressedlicensesize = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 12, 0));
 };
 
 
 /** @param {number} value */
-proto.xcalar.compute.localtypes.License.GetResponse.prototype.setCompressedLicenseSize = function(value) {
+proto.xcalar.compute.localtypes.License.GetResponse.prototype.setCompressedlicensesize = function(value) {
   jspb.Message.setProto3IntField(this, 12, value);
 };
 
 
 /**
- * optional string compressed_license = 13;
+ * optional string compressedLicense = 13;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.License.GetResponse.prototype.getCompressedLicense = function() {
+proto.xcalar.compute.localtypes.License.GetResponse.prototype.getCompressedlicense = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 13, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.License.GetResponse.prototype.setCompressedLicense = function(value) {
+proto.xcalar.compute.localtypes.License.GetResponse.prototype.setCompressedlicense = function(value) {
   jspb.Message.setProto3StringField(this, 13, value);
 };
 
@@ -1070,7 +1070,7 @@ proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.toObject = funct
  */
 proto.xcalar.compute.localtypes.License.UpdateRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    licenseValue: (f = msg.getLicenseValue()) && proto.xcalar.compute.localtypes.License.LicenseValue.toObject(includeInstance, f)
+    licensevalue: (f = msg.getLicensevalue()) && proto.xcalar.compute.localtypes.License.LicenseValue.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -1110,7 +1110,7 @@ proto.xcalar.compute.localtypes.License.UpdateRequest.deserializeBinaryFromReade
     case 1:
       var value = new proto.xcalar.compute.localtypes.License.LicenseValue;
       reader.readMessage(value,proto.xcalar.compute.localtypes.License.LicenseValue.deserializeBinaryFromReader);
-      msg.setLicenseValue(value);
+      msg.setLicensevalue(value);
       break;
     default:
       reader.skipField();
@@ -1141,7 +1141,7 @@ proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.serializeBinary 
  */
 proto.xcalar.compute.localtypes.License.UpdateRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getLicenseValue();
+  f = message.getLicensevalue();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -1153,23 +1153,23 @@ proto.xcalar.compute.localtypes.License.UpdateRequest.serializeBinaryToWriter = 
 
 
 /**
- * optional LicenseValue license_value = 1;
+ * optional LicenseValue licenseValue = 1;
  * @return {?proto.xcalar.compute.localtypes.License.LicenseValue}
  */
-proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.getLicenseValue = function() {
+proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.getLicensevalue = function() {
   return /** @type{?proto.xcalar.compute.localtypes.License.LicenseValue} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.License.LicenseValue, 1));
 };
 
 
 /** @param {?proto.xcalar.compute.localtypes.License.LicenseValue|undefined} value */
-proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.setLicenseValue = function(value) {
+proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.setLicensevalue = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
 
 
-proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.clearLicenseValue = function() {
-  this.setLicenseValue(undefined);
+proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.clearLicensevalue = function() {
+  this.setLicensevalue(undefined);
 };
 
 
@@ -1177,7 +1177,7 @@ proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.clearLicenseValu
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.hasLicenseValue = function() {
+proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.hasLicensevalue = function() {
   return jspb.Message.getField(this, 1) != null;
 };
 
@@ -1345,7 +1345,7 @@ proto.xcalar.compute.localtypes.License.ValidateResponse.prototype.toObject = fu
  */
 proto.xcalar.compute.localtypes.License.ValidateResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    isLicenseCompliant: jspb.Message.getFieldWithDefault(msg, 1, false)
+    islicensecompliant: jspb.Message.getFieldWithDefault(msg, 1, false)
   };
 
   if (includeInstance) {
@@ -1384,7 +1384,7 @@ proto.xcalar.compute.localtypes.License.ValidateResponse.deserializeBinaryFromRe
     switch (field) {
     case 1:
       var value = /** @type {boolean} */ (reader.readBool());
-      msg.setIsLicenseCompliant(value);
+      msg.setIslicensecompliant(value);
       break;
     default:
       reader.skipField();
@@ -1415,7 +1415,7 @@ proto.xcalar.compute.localtypes.License.ValidateResponse.prototype.serializeBina
  */
 proto.xcalar.compute.localtypes.License.ValidateResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getIsLicenseCompliant();
+  f = message.getIslicensecompliant();
   if (f) {
     writer.writeBool(
       1,
@@ -1426,18 +1426,18 @@ proto.xcalar.compute.localtypes.License.ValidateResponse.serializeBinaryToWriter
 
 
 /**
- * optional bool is_license_compliant = 1;
+ * optional bool isLicenseCompliant = 1;
  * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
  * You should avoid comparisons like {@code val === true/false} in those cases.
  * @return {boolean}
  */
-proto.xcalar.compute.localtypes.License.ValidateResponse.prototype.getIsLicenseCompliant = function() {
+proto.xcalar.compute.localtypes.License.ValidateResponse.prototype.getIslicensecompliant = function() {
   return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 1, false));
 };
 
 
 /** @param {boolean} value */
-proto.xcalar.compute.localtypes.License.ValidateResponse.prototype.setIsLicenseCompliant = function(value) {
+proto.xcalar.compute.localtypes.License.ValidateResponse.prototype.setIslicensecompliant = function(value) {
   jspb.Message.setProto3BooleanField(this, 1, value);
 };
 

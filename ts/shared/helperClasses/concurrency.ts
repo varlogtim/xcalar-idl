@@ -174,7 +174,8 @@ class Concurrency {
                 }
             })
             .fail((tError) => {
-                if (tError.status === Xcrpc.Error.status.STATUS_KV_ENTRY_NOT_EQUAL) {
+                // XXX TODO: use the xcrpc status once the query status enum(xcrpc) is ready
+                if (tError.status === StatusT.StatusKvEntryNotEqual) {
                     // Locked state. Exp backoff until time limit, and then ask the
                     // user for force / give up
                     console.log("Retrying with timeout: " + timeout / 1000);

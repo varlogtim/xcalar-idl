@@ -10,9 +10,6 @@
 //
 
 const _serviceInfo = {
-    "XDF" : {
-        "ListXdfs" : ["xcalar.compute.localtypes.XDF.ListXdfsRequest", "xcalar.compute.localtypes.XDF.ListXdfsResponse"],
-    },
 };
 
 exports.serviceInfo = _serviceInfo;

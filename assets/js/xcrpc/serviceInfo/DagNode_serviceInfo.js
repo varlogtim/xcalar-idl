@@ -11,11 +11,6 @@
 
 const _serviceInfo = {
     "DagNode" : {
-        "List" : ["xcalar.compute.localtypes.DagNode.ListRequest", "xcalar.compute.localtypes.DagNode.ListResponse"],
-        "DeleteObjects" : ["xcalar.compute.localtypes.DagNode.DeleteRequest", "xcalar.compute.localtypes.DagNode.DeleteResponse"],
-        "Tag" : ["xcalar.compute.localtypes.DagNode.TagRequest", "google.protobuf.Empty"],
-        "Comment" : ["xcalar.compute.localtypes.DagNode.CommentRequest", "google.protobuf.Empty"],
-        "Rename" : ["xcalar.compute.localtypes.DagNode.RenameRequest", "google.protobuf.Empty"],
         "Pin" : ["xcalar.compute.localtypes.DagNode.DagNodeInputMsg", "google.protobuf.Empty"],
         "Unpin" : ["xcalar.compute.localtypes.DagNode.DagNodeInputMsg", "google.protobuf.Empty"],
     },

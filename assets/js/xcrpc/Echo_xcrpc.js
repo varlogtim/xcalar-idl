@@ -38,22 +38,14 @@ EchoService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Echo.EchoRequest");
         //anyWrapper.pack(echoRequest.serializeBinary(), "EchoRequest");
 
-        try {
-            var responseData = await this.client.execute("Echo", "EchoMessage", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var echoResponse =
-            //    responseData.unpack(echo.EchoResponse.deserializeBinary,
-            //                        "EchoResponse");
-            var echoResponse = echo.EchoResponse.deserializeBinary(specificBytes);
-            return echoResponse;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = echo.EchoResponse.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
+        var responseData = await this.client.execute("Echo", "EchoMessage", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var echoResponse =
+        //    responseData.unpack(echo.EchoResponse.deserializeBinary,
+        //                        "EchoResponse");
+        var echoResponse = echo.EchoResponse.deserializeBinary(specificBytes);
+        return echoResponse;
     },
     echoErrorMessage: async function(echoErrorRequest) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -64,22 +56,14 @@ EchoService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Echo.EchoErrorRequest");
         //anyWrapper.pack(echoErrorRequest.serializeBinary(), "EchoErrorRequest");
 
-        try {
-            var responseData = await this.client.execute("Echo", "EchoErrorMessage", anyWrapper);
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            return empty;
-        } catch(error) {
-            if (error.response != null) {
-                const specificBytes = error.response.getValue();
-                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
-            }
-            throw error;
-        }
+        var responseData = await this.client.execute("Echo", "EchoErrorMessage", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var empty =
+        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+        //                        "Empty");
+        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+        return empty;
     },
 };
 
