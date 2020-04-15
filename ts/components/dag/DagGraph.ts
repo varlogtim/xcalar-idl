@@ -730,7 +730,11 @@ class DagGraph extends Durable {
         } catch (e) {
             if (connectedToParent) {
                 // error handler
-                childNode.disconnectFromParent(parentNode, childPos);
+                if (childNode instanceof DagNodeSQL) {
+                    childNode.disconnectFromParent(parentNode, childPos, updateConfig);
+                } else {
+                    childNode.disconnectFromParent(parentNode, childPos);
+                }
             }
             return false;
         }

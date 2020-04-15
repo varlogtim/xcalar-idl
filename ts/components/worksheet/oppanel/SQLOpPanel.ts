@@ -448,8 +448,13 @@ class SQLOpPanel extends BaseOpPanel {
                     const nodes = this._graph.getAllNodes();
                     let html = "";
                     let nodeInfos = [];
+                    let connectorIndex = this._dagNode.getNextOpenConnectionIndex();
                     nodes.forEach(node => {
                         if (node === this._dagNode) {
+                            return;
+                        }
+                        if (!this._graph.canConnect(node.getId(), this._dagNode.getId(),
+                            connectorIndex)) {
                             return;
                         }
                         nodeInfos.push({

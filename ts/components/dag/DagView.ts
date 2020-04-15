@@ -8,7 +8,9 @@ class DagView {
     public static readonly vertPadding = 100;
     public static readonly nodeHeight = 26;
     public static readonly nodeWidth = 80;
-    public static readonly nodeAndTableWidth = DagView.nodeWidth + 57;
+    public static readonly tableWidth = 25;
+    public static readonly tableHeight = 25;
+    public static readonly nodeAndTableWidth = DagView.nodeWidth + DagView.tableWidth + 32;
     public static readonly gridSpacing = 20;
     public static zoomLevels = [.25, .5, .75, 1, 1.5, 2];
     public static iconOrder = ["tableIcon", "columnIcon", "descriptionIcon", "lockIcon", "aggregateIcon", "paramIcon"];
@@ -256,10 +258,10 @@ class DagView {
     }
 
     // ok to pass in multiple nodes
-    public static selectNode($node: JQuery): JQuery {
+    public static selectNode($node: JQuery, onTableIcon?: boolean): JQuery {
         $node.addClass("selected");
         if ($node.hasClass("operator")) {
-            DagView._setSelectedStyle($node);
+            DagView._setSelectedStyle($node, onTableIcon);
         }
         return $node;
     }
@@ -753,27 +755,39 @@ class DagView {
      * DagView.addSelection
      * @param $operator
      */
-    public static addSelection($operator: JQuery, className: string): void {
+    public static addSelection($operator: JQuery, className: string, onTableIcon?: boolean): void {
         const rect = d3.select($operator[0]).insert('rect', ':first-child');
+
+        if (onTableIcon) {
+            rect.attr('x', DagView.nodeWidth + 15)
+            .attr('y', '-6')
+            .attr('width', DagView.tableWidth + 17)
+            .attr('height', DagView.tableHeight + 13)
+            .attr('rx', '12')
+            .attr('ry', '13');
+
+        } else {
+            rect.attr('x', '-3')
+            .attr('y', '-5')
+            .attr('width', DagView.nodeWidth + 5)
+            .attr('height', DagView.nodeHeight + 10)
+            .attr('rx', '16')
+            .attr('ry', '43');
+        }
+
         rect.classed(className, true);
-        rect.attr('x', '-3')
-        .attr('y', '-5')
-        .attr('width', DagView.nodeWidth + 5)
-        .attr('height', DagView.nodeHeight + 10)
-        .attr('fill', 'rgba(150, 225, 255, 0.2)')
+        rect.attr('fill', 'rgba(150, 225, 255, 0.2)')
         .attr('stroke', 'rgba(0, 188, 255, 0.78)')
-        .attr('stroke-width', '1')
-        .attr('rx', '16')
-        .attr('ry', '43');
+        .attr('stroke-width', '1');
     }
 
-    private static _setSelectedStyle($operators: JQuery): void {
+    private static _setSelectedStyle($operators: JQuery, onTableIcon?: boolean): void {
         $operators.each(function() {
             const $operator = $(this);
             if ($operator.find('.selection').length > 0) {
                 return;
             }
-            DagView.addSelection($operator, "selection");
+            DagView.addSelection($operator, "selection", onTableIcon);
         });
     }
 
@@ -5008,6 +5022,8 @@ class DagView {
             $operator = $opMain;
             isDagNode = false;
         }
+        const $eventTarget = $(event.target);
+        const isTableNode = $eventTarget.closest(".table").length > 0;
 
         // if not shift clicking, deselect other nodes
         // if shiftx clicking, and this is selected, then deselect it
@@ -5021,7 +5037,7 @@ class DagView {
             return;
         }
 
-        DagView.selectNode($operator);
+        DagView.selectNode($operator, isTableNode);
 
         const nodeId: DagNodeId = $operator.data("nodeid");
         if (isDagNode) {
@@ -5038,11 +5054,11 @@ class DagView {
         if (event.which !== 1 || (isSystemMac && event.ctrlKey)) {
             return;
         }
-        if ($(event.target).closest(".ui-resizable-handle").length ||
-            $(event.target).is("textarea")) {
+        if ($eventTarget.closest(".ui-resizable-handle").length ||
+            $eventTarget.is("textarea")) {
             if (!event.shiftKey) {
                 this.deselectNodes();
-                DagView.selectNode($operator);
+                DagView.selectNode($operator, isTableNode);
             }
             return;
         }
@@ -5113,7 +5129,7 @@ class DagView {
         function dragFail() {
             if (!event.shiftKey) {
                 this._deselectAllNodes();
-                DagView.selectNode($operator);
+                DagView.selectNode($operator, isTableNode);
             }
             // if no drag, treat as right click and open menu
             if (!event.shiftKey && !$opMain.hasClass("comment")) {
