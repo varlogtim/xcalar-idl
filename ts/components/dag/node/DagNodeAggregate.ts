@@ -2,6 +2,7 @@ class DagNodeAggregate extends DagNode {
     protected input: DagNodeAggregateInput;
     private aggVal: string | number; // non-persistent
     private graph: DagGraph; // non-persistent
+    private fetchValPromimse: Promise<void>; // non-persistent
 
     public constructor(options: DagNodeAggregateInfo, runtime?: DagRuntime) {
         super(options, runtime);
@@ -178,6 +179,31 @@ class DagNodeAggregate extends DagNode {
      */
     public getAggVal(): string | number {
         return this.aggVal;
+    }
+
+    public async fetchAggVal(txId, dstAggName: string): Promise<void> {
+        let value;
+        const promise = XIApi.getAggValue(txId, dstAggName);
+        this.fetchValPromimse = promise;
+        try {
+            value = await promise;
+            this.setAggVal(value);
+        } catch (e) {
+            throw e;
+        } finally {
+            this.fetchValPromimse = undefined;
+        }
+        return value;
+    }
+
+    public async waitForFetchingAggVal(): Promise<void> {
+        if (this.fetchValPromimse != null) {
+            try {
+                await this.fetchValPromimse;
+            } catch (e) {
+                console.error(e);
+            }
+        }
     }
 
     public getAggName(): string {

@@ -1407,32 +1407,57 @@ class DagViewManager {
     }
 
 
-    private _viewAgg(dagNode: DagNodeAggregate): void {
+    private async _viewAgg(dagNode: DagNodeAggregate): void {
         try {
-            let aggVal: string | number = dagNode.getAggVal();
             const evalStr: string = dagNode.getParam().evalString;
             const op: string = evalStr.substring(0, evalStr.indexOf("("));
             const title: string = xcStringHelper.replaceMsg(AggTStr.AggTitle, {
                 op: op
             });
-            if (typeof aggVal === "string") {
-                aggVal = `"${aggVal}"`;
-            } else {
-                aggVal = xcStringHelper.numToStr(<number>aggVal);
+            let alertId: string = null;
+            if (dagNode.getAggVal() == null) {
+                // if aggVal is not ready yet, wait for it
+                alertId = Alert.show({
+                    title: title,
+                    msg: "Fetching aggregate value, please wait...",
+                    isAlert: true,
+                    isInfo: true
+                });
+                await dagNode.waitForFetchingAggVal();
             }
+
+            const aggVal = this._getAggValueFromNode(dagNode);
             const msg: string = xcStringHelper.replaceMsg(AggTStr.AggMsg, {
                 val: aggVal
             });
-            Alert.show({
-                title: title,
-                msg: msg,
-                isAlert: true,
-                isInfo: true
-            });
+            if (aggVal == null) {
+                // error case
+                Alert.error(AlertTStr.Error, "Aggregate value is empty, please reset and try agin");
+            } else if (alertId != null) {
+                // when the value is fetched first
+                Alert.updateMsg(alertId, msg);
+            } else {
+                Alert.show({
+                    title: title,
+                    msg: msg,
+                    isAlert: true,
+                    isInfo: true
+                });
+            }
         } catch (e) {
             console.error(e);
             Alert.error(AlertTStr.Error, ErrTStr.Unknown);
         }
+    }
+
+    private _getAggValueFromNode(dagNode: DagNodeAggregate): string {
+        let aggVal: string | number = dagNode.getAggVal();
+        if (typeof aggVal === "string") {
+            aggVal = `"${aggVal}"`;
+        } else {
+            aggVal = xcStringHelper.numToStr(<number>aggVal);
+        }
+        return aggVal;
     }
 
     private _getAreaByTab(tabId: string): JQuery {

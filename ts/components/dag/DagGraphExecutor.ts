@@ -1515,11 +1515,10 @@ class DagGraphExecutor {
         }
         let value;
         try {
-            value = await XIApi.getAggValue(txId, dstAggName);
+            value = await node.fetchAggVal(txId, dstAggName);
         } catch (e) {
             return Promise.resolve();
         }
-        node.setAggVal(value);
         if (value) {
             let unwrappedName = node.getParam(true).dest;
             const tableName: string = node.getParents()[0].getTable();
