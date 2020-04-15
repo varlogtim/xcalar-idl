@@ -14,7 +14,7 @@ const Texts = {
     typeParquet: 'Parquet',
     navButtonRight: 'Browse',
     updateForensics: 'Updating ...',
-    getForensics: 'View Bucket Info'
+    getForensics: 'Get Directory Info'
 };
 
 /**

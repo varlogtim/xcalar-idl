@@ -27,7 +27,7 @@ const Texts = {
     navButtonLeft: 'Cancel',
     navButtonRight: 'Done',
     updateForensics: 'Updating ...',
-    getForensics: 'View Bucket Info'
+    getForensics: 'Get Directory Info'
 };
 
 function getSelectedIdsForCurrentView(fileMapViewing, selectedFiles) {

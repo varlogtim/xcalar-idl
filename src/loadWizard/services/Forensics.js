@@ -22,19 +22,22 @@ export default function getForensics(bucketName, pathPrefix, metadataMap, status
             });
             state = {
                 showForensics: true,
-                forensicsMessage: [...state.forensicsMessage, `Query AWS done ... ${finalTableName}`],
+                forensicsMessage: [...state.forensicsMessage, `Query AWS done ${finalTableName}`, "Calculating..."],
                 isForensicsLoading: true
             };
             statusCallback(state);
             const stats = await S3Service.getForensicsStats(bucketName, pathPrefix);
             metadataMap.set(fullPath, stats);
+            let messages = [...state.forensicsMessage];
+            messages.pop();
+            messages.push("Calculation done.")
             state = {
                 showForensics: true,
-                forensicsMessage: [...state.forensicsMessage, 'Calculation done ...'],
+                forensicsMessage: messages,
                 isForensicsLoading: false
             };
             statusCallback(state);
-            // clearMessage(2000);
+            clearMessage(2000);
         } catch (e) {
             console.error(e);
             state = {
@@ -43,7 +46,6 @@ export default function getForensics(bucketName, pathPrefix, metadataMap, status
                 isForensicsLoading: false
             };
             statusCallback(state);
-            // clearMessage(5000);
         }
     }
 

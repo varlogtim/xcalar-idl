@@ -76,7 +76,7 @@ export default function FileBrowserTable(props) {
                 )
             },
             customCellRender: (data, classes) => {
-                let tooltip = data.directory ? "View Directory Info" : "";
+                let tooltip = data.directory ? "Get Directory Info" : "";
                 return (
                     <TableCell
                         component="div"
