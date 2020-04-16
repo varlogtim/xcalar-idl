@@ -1,4 +1,29 @@
 {
-    "ProtoAPIVersionSignature" : 222419149
+    "AppVersionSignature" : 167821279,
+    "CgroupVersionSignature" : 29782908,
+    "ColumnAttributeVersionSignature" : 199286749,
+    "DagNodeVersionSignature" : 53874566,
+    "DataflowVersionSignature" : 15023551,
+    "EchoVersionSignature" : 3466616,
+    "FileVersionSignature" : 51153848,
+    "KvStoreVersionSignature" : 141055042,
+    "LicenseVersionSignature" : 237899198,
+    "OperatorVersionSignature" : 40095163,
+    "ParentChildVersionSignature" : 240707532,
+    "ProtoFieldValueVersionSignature" : 208059654,
+    "ProtoMsgVersionSignature" : 222042168,
+    "PublishedTableVersionSignature" : 45841705,
+    "QueryVersionSignature" : 54870786,
+    "ResultSetVersionSignature" : 86433570,
+    "SchemaDiscoverVersionSignature" : 47404409,
+    "ServiceVersionSignature" : 59787815,
+    "SqlVersionSignature" : 146971870,
+    "StatsVersionSignature" : 114642334,
+    "TableVersionSignature" : 247139984,
+    "TableMetaVersionSignature" : 45672993,
+    "UDFVersionSignature" : 111659210,
+    "VersionVersionSignature" : 204259992,
+    "WorkbookVersionSignature" : 57235854,
+    "ProtoAPIVersionSignature" : 205209707
 }
 
