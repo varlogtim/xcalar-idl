@@ -43,7 +43,8 @@ class DagNodePublishIMD extends DagNode {
             pubTableName: input.pubTableName,
             primaryKeys: input.primaryKeys,
             operator: input.operator,
-            columns: input.columns
+            columns: input.columns,
+            overwrite: input.overwrite || false
         });
         super.setParam();
     }

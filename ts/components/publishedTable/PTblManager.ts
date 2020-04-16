@@ -408,12 +408,14 @@ class PTblManager {
      * @param columns
      * @param viewName
      * @param tableName
+     * @param overwrite
      */
     public createTableFromView(
         pks: string[],
         columns: ProgCol[],
         viewName: string,
-        tableName: string
+        tableName: string,
+        overwrite: boolean = false
     ): XDPromise<void> {
         const deferred:XDDeferred<void> = PromiseHelper.deferred();
         const txId: number = Transaction.start({
@@ -429,7 +431,7 @@ class PTblManager {
         // Primarily used when checking for duplicates
         tableInfo.loadMsg = "Creating Table";
         this._loadingTables[tableName] = tableInfo;
-        XIApi.publishTable(txId, pks, viewName, tableName, xcHelper.createColInfo(columns))
+        XIApi.publishTable(txId, pks, viewName, tableName, xcHelper.createColInfo(columns), undefined, overwrite)
         .then(() => {
             // need to update the status and activated tables
             return PTblManager.Instance.addTable(tableName);

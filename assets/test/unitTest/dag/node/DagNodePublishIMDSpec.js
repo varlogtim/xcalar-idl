@@ -9,22 +9,24 @@ describe("PublishIMD Dag Node Test", () => {
         expect(node.getType()).to.equal(DagNodeType.PublishIMD);
     });
 
-    it("should get parameter", () => {
+    it("PublishIMD node should get parameter", () => {
         const param = node.getParam();
         expect(param).to.deep.equal({
             pubTableName: "",
             primaryKeys: [],
             operator: "",
-            columns: []
+            columns: [],
+            overwrite: false
         });
     });
 
-    it("should set parameter", () => {
+    it("PublishIMD node should set parameter", () => {
         const testParam = {
             pubTableName: "testTable2",
             primaryKeys: ["pk"],
             operator: "testCol",
-            columns: ["test"]
+            columns: ["test"],
+            overwrite: true
         };
         node.setParam(testParam);
         const param = node.getParam();

@@ -3100,7 +3100,8 @@ namespace XIApi {
         srcTableName: string,
         pubTableName: string,
         colInfo: ColRenameInfo[],
-        imdCol?: string
+        imdCol?: string,
+        overwrite?: boolean
     ): XDPromise<void> {
         if (txId == null || primaryKeys == null ||
             srcTableName == null || pubTableName == null ||
@@ -3160,14 +3161,18 @@ namespace XIApi {
         pubTableName = pubTableName.toUpperCase();
 
         let tableToDelete = null;
-        let pubTableListPromise;
-        if (typeof PTblManager !== "undefined") {
-            pubTableListPromise = PromiseHelper.resolve({tables: PTblManager.Instance.getTables()});
-        } else {
-            pubTableListPromise = XcalarListPublishedTables("*", false, true);
-        }
+        let deleteTablePromise = overwrite ? _deletePublishedTable(pubTableName) : PromiseHelper.resolve();
 
-        pubTableListPromise
+        deleteTablePromise
+        .then(() => {
+            let pubTableListPromise;
+            if (typeof PTblManager !== "undefined") {
+                pubTableListPromise = PromiseHelper.resolve({tables: PTblManager.Instance.getTables()});
+            } else {
+                pubTableListPromise = XcalarListPublishedTables("*", false, true);
+            }
+            return pubTableListPromise;
+        })
         .then((result) => {
             if (result == null || result.tables == null) {
                 result = {tables: []};
@@ -3210,6 +3215,14 @@ namespace XIApi {
         });
 
         return deferred.promise();
+    }
+
+    function _deletePublishedTable(tableName: string): XDPromise<void> {
+        if (typeof PTblManager !== "undefined") {
+            return PTblManager.Instance.deleteTablesOnConfirm([tableName], false, true);
+        } else {
+            return XcalarUnpublishTable(tableName, false);
+        }
     }
 
     async function _savePublishedTableDataFlow(

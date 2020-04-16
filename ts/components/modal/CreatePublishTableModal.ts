@@ -206,6 +206,22 @@ class CreatePublishTableModal {
         }
     }
 
+    private _getOverwriteCheckbox(): JQuery {
+        return this._$modal.find(".IMDOverwrite .checkbox");
+    }
+
+    private _isOverwrite(): boolean {
+        return this._getOverwriteCheckbox().hasClass("checked");
+    }
+
+    private _toggleOverwrite(overwrite: boolean): void {
+        const $checkbox: JQuery = this._getOverwriteCheckbox();
+        if (overwrite) {
+            $checkbox.addClass("checked");
+        } else {
+            $checkbox.removeClass("checked");
+        }
+    }
 
     private _addEventListeners(): void {
         const self = this;
@@ -216,6 +232,11 @@ class CreatePublishTableModal {
         this._$modal.on("click", ".confirm", function(event) {
             $(event.currentTarget).blur();
             self._submitForm();
+        });
+
+        this._$modal.on('click', '.IMDOverwrite .checkboxWrap', (event) => {
+            const $checkbox = $(event.currentTarget).find(".checkbox");
+            this._toggleOverwrite(!$checkbox.hasClass("checked"));
         });
 
         this._$modal.on("click", ".addKeyArg", function() {
@@ -376,9 +397,10 @@ class CreatePublishTableModal {
             return;
         }
 
+        const overwrite: boolean = this._isOverwrite();
         let id = this._id;
         this._$modal.addClass("creating");
-        PTblManager.Instance.createTableFromView(keys, columns, this._tableName, name)
+        PTblManager.Instance.createTableFromView(keys, columns, this._tableName, name, overwrite)
         .then(() => {
             if (id === this._id) {
                 this._closeModal();

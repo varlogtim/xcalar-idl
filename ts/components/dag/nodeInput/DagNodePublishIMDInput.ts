@@ -71,6 +71,12 @@ class DagNodePublishIMDInput extends DagNodeInput {
               "pattern": "^(.*)$"
             }
           },
+          "overwrite": {
+            "$id": "#/properties/overwrite",
+            "type": "boolean",
+            "title": "Overwrite Schema",
+            "default": false
+          },
         }
     };
 
@@ -80,7 +86,8 @@ class DagNodePublishIMDInput extends DagNodeInput {
             pubTableName: input.pubTableName || "",
             primaryKeys: input.primaryKeys || [],
             operator: input.operator || "",
-            columns: input.columns || []
+            columns: input.columns || [],
+            overwrite: input.overwrite || false
         };
     }
 }

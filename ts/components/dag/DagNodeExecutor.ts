@@ -1194,7 +1194,7 @@ class DagNodeExecutor {
         txLog.setCurrentNodeInfo(node.getId(), this.tabId);
         XIApi.publishTable(this.txId, params.primaryKeys,
             this._getParentNodeTable(0), tableName,
-            colInfo, params.operator)
+            colInfo, params.operator, params.overwrite)
         .then(() => {
             txLog.resetCurrentNodeInfo();
             if (!(typeof PTblManager === "undefined")) {

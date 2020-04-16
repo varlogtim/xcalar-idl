@@ -1016,6 +1016,7 @@ module.exports = {
         "colsInTable": "Columns in Table",
         "creatingTable": "Creating table",
         "creatingHint": "You can close the modal and check the table under the Sources tab.",
+        "overwrite": "Overwrite existing table"
     },
 
     "SetOpPanel": {

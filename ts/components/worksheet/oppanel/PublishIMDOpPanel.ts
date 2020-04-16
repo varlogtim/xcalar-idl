@@ -109,6 +109,10 @@ class PublishIMDOpPanel extends BaseOpPanel {
         this._restorePanel(param);
     }
 
+    private _getOverwriteCheckbox(): JQuery {
+        return this._$elemPanel.find(".IMDOverwrite .checkbox");
+    }
+
     private _convertAdvConfigToModel() {
         const dagInput = <DagNodePublishIMDInputStruct>JSON.parse(this._editor.getValue());
 
@@ -172,7 +176,8 @@ class PublishIMDOpPanel extends BaseOpPanel {
             pubTableName: typeof(this._$nameInput.val()) === "string" ? this._$nameInput.val().toUpperCase() : this._$nameInput.val(),
             primaryKeys: keys,
             operator: this._$operatorInput.val(),
-            columns: columns
+            columns: columns,
+            overwrite: this._isOverwrite()
         }
     }
 
@@ -222,6 +227,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
         if (input.operator != "") {
             this._toggleColumnKey(input.operator.substr(1), true, false);
         }
+        this._toggleOverwrite(input.overwrite);
     }
 
     private _replicateColumnHints(): void {
@@ -326,6 +332,18 @@ class PublishIMDOpPanel extends BaseOpPanel {
         return true;
     }
 
+    private _isOverwrite(): boolean {
+        return this._getOverwriteCheckbox().hasClass("checked");
+    }
+
+    private _toggleOverwrite(overwrite: boolean): void {
+        const $checkbox: JQuery = this._getOverwriteCheckbox();
+        if (overwrite) {
+            $checkbox.addClass("checked");
+        } else {
+            $checkbox.removeClass("checked");
+        }
+    }
 
     private _setupEventListener(): void {
         const self = this;
@@ -348,17 +366,22 @@ class PublishIMDOpPanel extends BaseOpPanel {
             self._addKeyField();
         });
 
-        this._$elemPanel.on('click', '.IMDKey .disableKey .checkbox', function () {
-            let $box: JQuery = $(this);
+        this._$elemPanel.on('click', '.IMDOverwrite .checkboxWrap', (event) => {
+            const $checkbox = $(event.currentTarget).find(".checkbox");
+            this._toggleOverwrite(!$checkbox.hasClass("checked"));
+        });
+
+        this._$elemPanel.on('click', '.IMDKey .disableKey', (event) => {
+            let $box: JQuery = $(event.currentTarget).find(".checkbox");
             event.stopPropagation();
             if ($box.hasClass("checked")) {
                 $box.removeClass("checked");
-                self._$elemPanel.find('.IMDKey .primaryKeyList').removeClass("xc-disabled");
-                self._$elemPanel.find('.addArgWrap').removeClass("xc-disabled");
+                this._$elemPanel.find('.IMDKey .primaryKeyList').removeClass("xc-disabled");
+                this._$elemPanel.find('.addArgWrap').removeClass("xc-disabled");
             } else {
                 $box.addClass("checked");
-                self._$elemPanel.find('.IMDKey .primaryKeyList').addClass("xc-disabled");
-                self._$elemPanel.find('.addArgWrap').addClass("xc-disabled");
+                this._$elemPanel.find('.IMDKey .primaryKeyList').addClass("xc-disabled");
+                this._$elemPanel.find('.addArgWrap').addClass("xc-disabled");
             }
         });
 
@@ -596,6 +619,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
         let operator: string = "";
         let name: string = "";
         let columns: string[] = [];
+        let overwrite: boolean;
 
         if (this._advMode) {
             try {
@@ -604,6 +628,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
                 operator = newModel.operator;
                 name = typeof(newModel.pubTableName) === "string" ? newModel.pubTableName.toUpperCase() : newModel.pubTableName;
                 columns = newModel.columns;
+                overwrite = newModel.overwrite;
                 this._$nameInput.val(name);
             } catch (e) {
                 StatusBox.show(e, $("#publishIMDOpPanel .advancedEditor"),
@@ -615,6 +640,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
             operator = this._$operatorInput.val();
             name = typeof(this._$nameInput.val()) === "string" ? this._$nameInput.val().toUpperCase() : this._$nameInput.val();
             this._$nameInput.val(name);
+            overwrite = this._isOverwrite();
             let $cols = this._$publishColList.find(".col.checked");
             for (let i = 0; i < $cols.length; i++) {
                 columns.push(this._columns[$cols.eq(i).data("colnum") - 1].getFrontColName());
@@ -632,7 +658,8 @@ class PublishIMDOpPanel extends BaseOpPanel {
             pubTableName: name,
             primaryKeys: keys,
             operator: operator,
-            columns: columns
+            columns: columns,
+            overwrite: overwrite
         });
         this.close(true);
     }
