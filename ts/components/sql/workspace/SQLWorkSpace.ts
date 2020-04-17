@@ -155,10 +155,20 @@ class SQLWorkSpace {
                 $bottomPart.css("height", `${pct * 100}%`);
                 $bottomPart.css("top", "0");
             },
-            stop: function() {
+            stop: function(_event, ui) {
                 $panel.removeClass("resizing");
                 SQLEditorSpace.Instance.refresh();
                 UDFPanel.Instance.refresh();
+
+                const top: number = ui.position.top;
+                const delta: number = top - lastTop;
+                let pct = (bottomHeight - delta) / totalHeight;
+                pct = Math.min(pct, 0.98);
+                pct = Math.max(0.02, pct);
+
+                DagPanel.Instance.getBottomContainerPopup().trigger("ResizeDocked_BroadCast", {
+                    dockedHeight: pct * 100,
+                });
             }
         });
     }
@@ -192,6 +202,7 @@ class SQLWorkSpace {
                 UDFPanel.Instance.getPopup().trigger("ResizeDocked_BroadCast", {
                     dockedWidth: pct,
                 });
+                SQLEditorSpace.Instance.refresh();
             }
         });
 
@@ -234,6 +245,7 @@ class SQLWorkSpace {
                 DagConfigNodeModal.Instance.getPopup().trigger("ResizeDocked_BroadCast", {
                     dockedWidth: pct,
                 });
+                SQLEditorSpace.Instance.refresh();
             }
         });
 

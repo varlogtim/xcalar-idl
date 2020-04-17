@@ -83,10 +83,16 @@ namespace xcMenu {
                     if ($subMenu) {
                         if (event.keyTriggered) {
                             $subMenu.hide();
+                            if ($subSubMenu) {
+                                $subSubMenu.hide();
+                            }
                         } else {
                             clearTimeout(hideTimeout);
                             hideTimeout = setTimeout(function() {
                                 $subMenu.hide();
+                                if ($subSubMenu) {
+                                    $subSubMenu.hide();
+                                }
                             }, 150);
                         }
                     }

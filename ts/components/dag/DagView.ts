@@ -1852,9 +1852,9 @@ class DagView {
                 y = y || (position.y + DagView.vertNodeSpacing * parentNode.getChildren().length);
             } else {
                 const scale = this.graph.getScale();
-                x = x || Math.round((this.$dfArea.scrollLeft() + (this.$dfArea.width() / 2)) /
+                x = x || Math.round((this.$dfArea.scrollLeft() + 100) /
                     scale / DagView.gridSpacing) * DagView.gridSpacing - DagView.gridSpacing;
-                y = y || Math.round((this.$dfArea.scrollTop() + (this.$dfArea.height() / 2)) /
+                y = y || Math.round((this.$dfArea.scrollTop() + 100) /
                     scale / DagView.gridSpacing) * DagView.gridSpacing - DagView.gridSpacing;
             }
         }

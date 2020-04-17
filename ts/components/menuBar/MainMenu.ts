@@ -20,7 +20,7 @@ namespace MainMenu {
         setupTabbing();
         setupDataflowResizable();
         setupDatastoreResizable();
-        $resizableRightPanels = $("#workbookPanel, #monitorPanel, #datastorePanel, #modelingDagPanel")
+        $resizableRightPanels = $("#workbookPanel, #monitorPanel, #datastorePanel")
                 .find("> .mainContent > .rightSection");
 
         let winResizeTimer: number;
@@ -177,7 +177,7 @@ namespace MainMenu {
         //     winWidth -= defaultWidth;
         // }
         // let halfWinWidth = Math.floor(winWidth / 2);
-        // rightPanelMargin = $("#workbookPanel, #monitorPanel, #datastorePanel, #modelingDagPanel").find("> .mainContent > .leftSection").filter(":visible").outerWidth();
+        // rightPanelMargin = $("#workbookPanel, #monitorPanel, #datastorePanel").find("> .mainContent > .leftSection").filter(":visible").outerWidth();
         // if (rightPanelMargin > halfWinWidth || (winWidth - rightPanelMargin) < minRightPanelWidth) {
         //     rightPanelMargin = Math.min(halfWinWidth, winWidth - minRightPanelWidth);
         //     rightPanelMargin = Math.max(defaultWidth, rightPanelMargin);

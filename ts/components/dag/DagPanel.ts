@@ -2,6 +2,7 @@ class DagPanel {
     private static _instance: DagPanel;
     private _setup: boolean = false;
     private _popup: PopupPanel;
+    private _bottomContainerPopup: PopupPanel;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -124,6 +125,18 @@ class DagPanel {
         .on("Dock", () => {
             this._dock();
         });
+
+        this._bottomContainerPopup = new PopupPanel("notebookBottomContainer", {
+            noUndock: true
+        });
+        this._bottomContainerPopup
+        .on("ResizeDocked", (state) => {
+            $("#notebookBottomContainer").css("height", `${state.dockedHeight}%`);
+        });
+    }
+
+    public getBottomContainerPopup() {
+        return this._bottomContainerPopup;
     }
 
     private _undock(): void {

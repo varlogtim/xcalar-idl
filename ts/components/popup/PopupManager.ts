@@ -58,7 +58,7 @@ class PopupManager {
             dockedWidth: 50,
             dockedHeight: 50
         },
-        bottomContainer: {
+        notebookBottomContainer: {
             dockedHeight: 50
         },
         debugViewContainer: {
@@ -254,7 +254,7 @@ class PopupManager {
             const popup = this._popupMap.get(popupId);
             if (popup) {
                 popup.getPanel().css("z-index", zIndex);
-                this._stack.push(popup); 
+                this._stack.push(popup);
             }
         });
         this._state.stack = stack;

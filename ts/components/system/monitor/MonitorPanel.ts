@@ -98,7 +98,9 @@ namespace MonitorPanel {
      * MonitorPanel.tableUsageChange
      */
     export function tableUsageChange(): void {
-        monitorGraph.tableUsageChange();
+        if (monitorGraph) {
+            monitorGraph.tableUsageChange();
+        }
     }
 
     function _getPanel(): JQuery {
