@@ -626,7 +626,7 @@ window.FlightTest = (function(FlightTest, $) {
             $("#sqlTableArea .tableMenu").click();
             $("#tableMenu .corrAgg").trigger(fakeEvent.mouseup);
             await test.checkExists("#aggModal-corr[data-state='finished']",
-                            null, {"asserts": [".aggTableField:contains('-0.4')"]})
+                            defaultTimeout, {"asserts": [".aggTableField:contains('-0.4')"]})
             console.log("corrTest finished");
         } catch (e) {
             console.error("corrTest failed", e);
