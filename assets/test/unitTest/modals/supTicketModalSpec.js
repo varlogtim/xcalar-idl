@@ -609,6 +609,7 @@ describe("SupTicketModal Test", function() {
             var cache1 = XcalarSupportGenerate;
             var cache2 = adminTools.fileTicket;
             var cache3 = adminTools.getLicense;
+            var cache4 = XcalarSetConfigParams;
             var cache5 = SupTicketModal.Instance.fetchLicenseInfo;
             var supGenCalled = false;
             XcalarSupportGenerate = function() {
@@ -624,6 +625,9 @@ describe("SupTicketModal Test", function() {
             SupTicketModal.Instance.fetchLicenseInfo = function() {
                 return PromiseHelper.resolve({key: "key", "expiration": ""});
             };
+            XcalarSetConfigParams = () => {
+                return PromiseHelper.resolve();
+            };
             var $dropdown = $modal.find(".issueList");
             $dropdown.find("li").eq(0).trigger(fakeEvent.mouseup);
             $modal.find(".genBundleBox .checkbox").addClass("checked");
@@ -634,6 +638,7 @@ describe("SupTicketModal Test", function() {
             XcalarSupportGenerate = cache1;
             adminTools.fileTicket = cache2;
             adminTools.getLicense = cache3;
+            XcalarSetConfigParams = cache4;
             SupTicketModal.Instance.fetchLicenseInfo = cache5;
         });
 

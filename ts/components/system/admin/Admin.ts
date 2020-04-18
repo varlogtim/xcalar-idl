@@ -187,6 +187,12 @@ namespace Admin {
         }
     }
 
+    export function getConfigParam(paramName: string): any {
+        if (monitorConfig != null) {
+            return monitorConfig.getParam(paramName);
+        }
+    }
+
     function addUserListListeners() {
         searchHelper = new SearchBar($("#adminUserSearch"), {
             "$list": $userList.find('ul'),

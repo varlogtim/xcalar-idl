@@ -632,14 +632,13 @@ module.exports = {
     },
 
     "supportTicket": {
-        "GenSub": "Generate Support Bundle",
         "GenSupInstr": "Please fill out the form below. This requires Internet access.",
         "TypeIssue": "Type of issue",
         "Comments": "Comments",
         "FileTicketBtn": "File Ticket",
         "GenBundleTip": "This will be slow",
         "AdditionalInfo": "Additional (new) information",
-        "GenBundle": "Generate Support Bundle",
+        "GenBundle": "Send Support Bundle to Xcalar",
         "Severity": "Severity",
         "Severity1": "Cluster is down",
         "Severity2": "Functionality is compromised",
@@ -651,7 +650,8 @@ module.exports = {
         "BundleComplete": "Ticket download completed.",
         "DownloadZendesk": "Please upload your ticket to Zendesk.",
         "ExistingTicketId": "Or enter an existing ticket ID",
-        "CloseForm": "Click to close this form. Any submitted tickets will still be processed."
+        "CloseForm": "Click to close this form. Any submitted tickets will still be processed.",
+        "Email": "Email"
     },
 
     "query": {

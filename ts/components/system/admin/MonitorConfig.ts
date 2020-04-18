@@ -47,6 +47,13 @@ class MonitorConfig {
         return this;
     }
 
+    public getParam(paramName: string) {
+        if (!paramName || typeof paramName !== "string") {
+            return null;
+        }
+        return this._paramsCache[paramName.toLowerCase()];
+    }
+
     private _getCard(): JQuery {
         return $(`#${this._id}`);
     }

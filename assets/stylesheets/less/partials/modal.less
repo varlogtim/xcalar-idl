@@ -261,7 +261,7 @@
 #modalWaitingBG {
     .size(@width: 100%, @height: ~"calc(100% - 36px)");
     .position(absolute, @top: 36px, @left: 0);
-    background-color: rgba(255,255,255, 0.5);
+    background-color: @color-bg-modalWaiting;
     z-index: 101; // higher than the resizable grabbers
 
     .waitingIcon {
@@ -3169,6 +3169,8 @@ html.microsoft {
 #supTicketModal {
     @sidePadding: 23px;
     @fontSize: 13px;
+    .flex-direction(column);
+    .size( @height: 620px, @min-width: 480px, @min-height: 620px);
 
     &.locked {
         z-index: @z-index-locked + 2;
@@ -3220,9 +3222,6 @@ html.microsoft {
         }
     }
 
-    .flex-direction(column);
-    .size( @height: 560px, @min-width: 480px, @min-height: 560px);
-
     .modalMain {
         border-bottom: 1px solid @color-bg-pinkish-grey2;
         padding: 20px @sidePadding;
@@ -3262,12 +3261,12 @@ html.microsoft {
 
         &.genBundleRow {
             .flex-display;
+            .justify-content(space-between);
             > .label {
                 .flex(0 0 auto);
             }
             .options {
                 .flex-display;
-                .flex(1 1 auto);
                 .flex-wrap(wrap);
             }
             .checkboxSection {
@@ -3563,10 +3562,13 @@ html.microsoft {
         .flex-direction(column);
         .flex(1 0 auto);
     }
-    .subjectInput {
+    .subjectInput, .emailInput {
         font-size: @fontSize;
         background: @color-bg-default;
         margin-top: 10px;
+    }
+    .emailInput {
+        margin-bottom: 12px;
     }
     .bundleArea, .downloadMsg {
         display: none;

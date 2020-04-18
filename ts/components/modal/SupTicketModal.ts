@@ -35,6 +35,11 @@ class SupTicketModal {
             Alert.hide();
         }
         this._updateTimes();
+        if (XVM.isDataMart()) {
+            $modal.find(".emailArea").removeClass("xc-hidden");
+        } else {
+            $modal.find(".emailArea").addClass("xc-hidden");
+        }
     }
 
     /**
@@ -306,6 +311,7 @@ class SupTicketModal {
                     $ticketIdSection.removeClass("xc-hidden");
                     $severitySection.addClass("xc-hidden");
                     $modal.find(".subjectArea").addClass("xc-hidden");
+                    $modal.find(".emailArea").addClass("xc-hidden");
                     $commentSection.addClass("inactive");
                     $ticketIdSection.removeClass("inactive");
                     $ticketIdSection.find(".tableBody .row").removeClass("xc-hidden");
@@ -320,6 +326,9 @@ class SupTicketModal {
                     $ticketIdSection.addClass("xc-hidden");
                     $severitySection.removeClass("xc-hidden");
                     $modal.find(".subjectArea").removeClass("xc-hidden");
+                    if (XVM.isDataMart()) {
+                        $modal.find(".emailArea").removeClass("xc-hidden");
+                    }
                     $commentSection.removeClass("inactive");
                     $modal.find(".confirm").text(CommonTxtTstr.FileTicket);
                 }
@@ -640,6 +649,10 @@ class SupTicketModal {
         if ($modal.find('.genBundleBox .checkbox').hasClass('checked')) {
             genBundle = true;
         }
+        let email = $modal.find(".emailInput").val().trim();
+        if (!XVM.isDataMart() || ticketId) {
+            email = null;
+        }
         let subject = $modal.find(".subjectInput").val().trim();
         let comment = $modal.find('.xc-textArea').val().trim();
         let severity = this._getServerityList().find(".text").data("val");
@@ -655,6 +668,7 @@ class SupTicketModal {
             "type": issueType,
             "ticketId": ticketId,
             "server": document.location.href,
+            "email": email,
             "subject": subject,
             "comment": comment,
             "severity": severity,
@@ -668,6 +682,10 @@ class SupTicketModal {
                 "thriftVersion": XVM.getSHA()
             }
         };
+        if (XVM.isDataMart()) {
+            ticketObj.isDataMart = true;
+            // allows for handling of aws marketplace
+        }
 
         if (download) {
             ticketObj.xiLog = this._reverseLogs(Log.getAllLogs(true));
@@ -775,6 +793,8 @@ class SupTicketModal {
                 let error = parsedLog.error;
                 if (typeof error === "object") {
                     detail = JSON.stringify(error);
+                } else if (parsedLog.errorMessage) {
+                    detail = parsedLog.errorMessage;
                 } else {
                     detail = error;
                 }
@@ -783,13 +803,14 @@ class SupTicketModal {
                 console.warn(err);
             }
         }
-
-        if (detail.indexOf("User does not belong") > -1) {
-            this._ticketIDError(genBundle, bundleSendAttempted, {orgMisMatch: true});
-            return;
-        } else if (detail.indexOf("Ticket could not be found") > -1) {
-            this._ticketIDError(genBundle, bundleSendAttempted, {ticketNotFound: true});
-            return;
+        if (typeof detail === "string") {
+            if (detail.indexOf("User does not belong") > -1) {
+                this._ticketIDError(genBundle, bundleSendAttempted, {orgMisMatch: true});
+                return;
+            } else if (detail.indexOf("Ticket could not be found") > -1) {
+                this._ticketIDError(genBundle, bundleSendAttempted, {ticketNotFound: true});
+                return;
+            }
         }
 
         let $modal = this._getModal();
@@ -917,8 +938,16 @@ class SupTicketModal {
         let deferred: XDDeferred<any> = PromiseHelper.deferred();
         $("#helpAreaMenu").find(".supTicket").addClass("xc-disabled");
         let mgmtdRet;
-        // xcalarSupportGenerate has an alert on success
-        XcalarSupportGenerate(false, ticketId)
+        let prevConfig = Admin.getConfigParam("SendSupportBundle");
+        let restoreConfig = false;
+        if (prevConfig && prevConfig.paramValue === "false") {
+            restoreConfig = true;
+        }
+        PromiseHelper.alwaysResolve(XcalarSetConfigParams("SendSupportBundle", "true"))
+        .then(() => {
+            // xcalarSupportGenerate has an alert on success
+            return XcalarSupportGenerate(false, ticketId);
+        })
         .then((ret) => {
             mgmtdRet = ret;
             deferred.resolve(ret);
@@ -965,6 +994,9 @@ class SupTicketModal {
         })
         .always(() => {
             $("#helpAreaMenu").find(".supTicket").removeClass("xc-disabled");
+            if (restoreConfig) {
+                XcalarSetConfigParams("SendSupportBundle", "false");
+            }
         });
 
         return deferred.promise();

@@ -91,7 +91,7 @@
     <div class="formRow genBundleRow">
       <span class="label">3. <%= dicts.supportTicket.AdditionalInfo %>:</span>
       <div class="options">
-        <div class="checkboxSection genBundleBox" data-toggle="tooltip" data-container="#supTicketModal" data-placement="right" data-original-title="<%= dicts.supportTicket.GenBundleTip %>">
+        <div class="checkboxSection genBundleBox" data-toggle="tooltip" data-container="#supTicketModal" data-placement="top" data-original-title="<%= dicts.supportTicket.GenBundleTip %>">
           <div class="text"><%= dicts.supportTicket.GenBundle %>?</div>
           <div class="checkbox">
             <i class="icon xi-ckbox-empty"></i>
@@ -101,6 +101,10 @@
       </div>
     </div>
     <div class="commentArea">
+      <div class="emailArea">
+        <div class="text"><%= dicts.supportTicket.Email %>:</div>
+        <input type="email" class="xc-input emailInput" spellcheck="false" autocomplete="off">
+      </div>
       <div class="subjectArea">
         <div class="text"><%= dicts.supportTicket.Subject %>:</div>
         <input type="text" class="xc-input subjectInput" spellcheck="false" autocomplete="off">

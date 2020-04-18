@@ -530,8 +530,8 @@ class ModalHelper {
                                 '</div>';
         $modal.append(waitingBg);
         const $waitingBg: JQuery =  $('#modalWaitingBG');
-        const modalHeaderHeight: number = $modal.find('.modalHeader').height();
-        const modalHeight: number = $modal.height();
+        const modalHeaderHeight: number = $modal.find('.modalHeader').outerHeight();
+        const modalHeight: number = $modal.outerHeight();
 
         $waitingBg.height(modalHeight - modalHeaderHeight)
                   .css('top', modalHeaderHeight);
