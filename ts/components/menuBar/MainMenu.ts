@@ -142,22 +142,23 @@ namespace MainMenu {
         $tabs.click(function(event) {
             const $target: JQuery = $(event.target);
             const $curTab: JQuery = $(this);
-            if ($curTab.attr("id") === "projectTab") {
+            const id: string = $curTab.attr("id");
+            if (id === "projectTab" ||
+                id === "udfTab" ||
+                id === "debugTab"
+            ) {
                 // XXX a temp solution
                 return;
             }
             tabClickEvent($target, $curTab);
         });
 
-        $("#bottomMenuBarTabs").on("click", ".sliderBtn", function(event) {
-            // XXX temp hack
-            const $button = $(event.currentTarget);
-            const id = $button.attr("id");
-            if (id === "udfTab") {
-                UDFPanel.Instance.toggleDisplay();
-            } else if (id === "debugTab") {
-                DebugPanel.Instance.toggleDisplay();
-            }
+        $("#udfTab").click(() => {
+            UDFPanel.Instance.toggleDisplay();
+        });
+
+        $("#debugTab").click(() => {
+            DebugPanel.Instance.toggleDisplay();
         });
     }
 

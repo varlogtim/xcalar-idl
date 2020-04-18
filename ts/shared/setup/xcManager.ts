@@ -85,7 +85,6 @@ namespace xcManager {
         .then(function() {
             try {
                 $("#topMenuBarTabs").removeClass("xc-hidden");
-                $("#bottomMenuBarTabs").removeClass("xc-hidden");
                 setupScreens();
                 MainMenu.setup();
                 XDFManager.Instance.setup();
@@ -168,7 +167,6 @@ namespace xcManager {
     function handleSetupFail(error: string|object, firstTimeUser: boolean): void {
         // in case it's not setup yet
         $("#topMenuBarTabs").removeClass("xc-hidden");
-        $("#bottomMenuBarTabs").removeClass("xc-hidden");
         setupScreens();
         MainMenu.setup();
         QueryManager.setup();
@@ -1165,7 +1163,6 @@ namespace xcManager {
         $("#workbookPanel").addClass("dataMart");
         $("#dataStoresTab").addClass("xc-hidden");
         $("#monitorTab").addClass("xc-hidden");
-        $("#bottomMenuBarTabs").addClass("dataMart");
     }
 
     /* Unit Test Only */
