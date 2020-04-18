@@ -212,16 +212,6 @@ body {
         }
     }
 
-    &.dataMart {
-        .topBar {
-            padding-right: @width-userBox - @width-toggleBtn;
-        }
-
-        #userBox {
-            width: @width-userBox - @width-toggleBtn;
-        }
-    }
-
     .mainScreen {
         z-index: @z-index-workbook + 1;
         position: absolute;
@@ -231,7 +221,7 @@ body {
         display: block;
 
         .topBar {
-            @w: @width-userBox - @width-toggleBtn;
+            @w: @width-userBox;
             position: fixed;
             top: 0;
             width: ~"calc(100% - @{w})";
@@ -653,7 +643,8 @@ div, section, ul {
 
 /* =========== TOP RIGHT CORNER =========== */
 #userBox {
-    .size(@width: @width-userBox, @height: @height-topBar);
+    width: @width-userBox;
+    height: @height-topBar;
     .position(fixed, @top: 0, @right: 0);
     z-index: @z-index-topMenu + 1;
     padding-right: 10px;
@@ -783,8 +774,10 @@ div, section, ul {
 /* =========== END TOP RIGHT CORNER =========== */
 
 #mainTopBar {
+    @userBoxWidth: @width-userBox;
+    width: ~"calc(100% - @{userBoxWidth})";
+    height: @height-topBar;
     .position(absolute, @top: 0);
-    .size(@width: ~"calc(100% - 305px)", @height: @height-topBar);
     margin-left:  0;
     padding-left: @width-homeBtn;
     background-color: @color-bg-topBar;
@@ -897,20 +890,6 @@ div, section, ul {
         > div {
             width: 4px;
             height: 4px;
-        }
-    }
-}
-
-
-#container {
-    &.dataMart {
-        #mainTopBar {
-            @userBoxWidth: @width-userBox - @width-toggleBtn;
-            width: ~"calc(100% - @{userBoxWidth})";
-        }
-        #helpTopBar {
-            padding-right: @width-userBox - @width-toggleBtn;
-            min-width: 300px;
         }
     }
 }

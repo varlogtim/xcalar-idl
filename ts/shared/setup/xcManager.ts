@@ -15,8 +15,6 @@ namespace xcManager {
         Compatible.check();
         xcGlobal.setup();
 
-        setupDataMart();
-
         let xcSocket: XcSocket;
         let firstTimeUser: boolean;
         setupThrift("");
@@ -1156,13 +1154,6 @@ namespace xcManager {
                 event.preventDefault();
             }
         });
-    }
-
-    function setupDataMart(): void {
-        $("#container").addClass("dataMart");
-        $("#workbookPanel").addClass("dataMart");
-        $("#dataStoresTab").addClass("xc-hidden");
-        $("#monitorTab").addClass("xc-hidden");
     }
 
     /* Unit Test Only */
