@@ -203,6 +203,96 @@ $(document).ready(function() {
         return params;
     }
 
+    function isCloud() {
+        return PromiseHelper.resolve(false);
+
+        var deferred = PromiseHelper.deferred();
+        $.getScript("/" + paths.cloudEnv)
+        .then(function(res) {
+            if (res &&
+                typeof res === "string" &&
+                res.includes("gCloud")
+            ) {
+                deferred.resolve(true);
+            } else {
+                deferred.resolve(false);
+            }
+        })
+        .fail(function() {
+            console.error("get script error");
+            deferred.reject();
+        });
+
+        return deferred.promise();
+    }
+
+    function cloudLogin() {
+        // pattern is url?cloudId=sessionId
+        // for admin access: pattern is url?admin=true
+        var param = urlParam;
+        var sessionId = param["cloudId"];
+        if (sessionId) {
+            var json = {"sessionId": decodeURIComponent(sessionId)};
+            HTTPService.Instance.ajax({
+                "type": "POST",
+                "data": JSON.stringify(json),
+                "contentType": "application/json",
+                "url": hostname + "/app/login",
+                "success": function(res) {
+                    if (res.status === httpStatus.OK) {
+                        // console.log('success');
+                        // redirect();
+
+                        // XXX TODO: remove this hack after login call
+                        // can return login status
+                        HTTPService.Instance.ajax({
+                            "type": "GET",
+                            "contentType": "application/json",
+                            "url": hostname + "/app/auth/sessionStatus",
+                            "success": function(data) {
+                                try {
+                                    if (data.loggedIn === true) {
+                                        splashPromise.promise()
+                                        .always(function() {
+                                            redirect();
+                                        });
+                                    } else {
+                                        cloudLoginFailureHanlder();
+                                    }
+                                } catch (e) {
+                                    cloudLoginFailureHanlder();
+                                }
+                            },
+                            "error": function(e) {
+                                console.error(e);
+                                cloudLoginFailureHanlder();
+                            }
+                        });
+
+                    } else {
+                        cloudLoginFailureHanlder();
+                    }
+                },
+                "error": function() {
+                    cloudLoginFailureHanlder();
+                }
+            });
+        } else if (!param.hasOwnProperty("admin")) {
+            // if url includes amdin, then we can allow normal login
+            cloudLoginFailureHanlder(true);
+        }
+    }
+
+    function cloudLoginFailureHanlder(redirect) {
+        $("#splashContainer").hide();
+        $("#loginContainer").hide().addClass("xc-hidden");
+        if (redirect) {
+            window.location = paths.cloudLogin + "?logout";
+        } else {
+            alert("Ooops...something went wrong, cannot login into the cluster. Please contact Xcalar Support for help");
+        }
+    }
+
     function redirect() {
         window.location = paths.indexAbsolute;
     }
@@ -216,6 +306,13 @@ $(document).ready(function() {
                 try {
                     if (data.loggedIn === true) {
                         redirect();
+                    } else {
+                        isCloud()
+                        .then(function(cloud) {
+                            if (cloud) {
+                                cloudLogin();
+                            }
+                        });
                     }
                 } catch (e) {
                     console.error(e);
@@ -223,6 +320,12 @@ $(document).ready(function() {
             },
             "error": function(e) {
                 console.error(e);
+                isCloud()
+                .then(function(cloud) {
+                    if (cloud) {
+                        cloudLoginFailureHanlder();
+                    }
+                });
             }
         });
     }
