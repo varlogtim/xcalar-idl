@@ -146,7 +146,7 @@ function getCoverage(coverage, testType) {
         '/xcrpc/', '/shared/Xcrpc/'
     ];
     const excludeFiles = ['config.js', 'loginConfig.js', 'compatible.js',
-    'XcalarThrift.js', 'SQLCompiler.js', 'sqlCache.js', 'sqlTest.js', 'logicalOptimizer.js',
+    'XcalarThrift.js', 'SQLCompiler.js', 'sqlTest.js', 'logicalOptimizer.js',
     'upgrader.js', 'librpc.js'];
 
     let entryMap = {};
