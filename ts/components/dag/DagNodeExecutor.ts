@@ -209,9 +209,12 @@ class DagNodeExecutor {
             }
             return prefix + Authentication.getTableId();
         } catch (e) {
-            console.error("generate table name error", e);
+            if (!xcHelper.isNodeJs()) {
+                console.error("generate table name error", e);
+            }
             // when has error case, use the old behavior
             // XXX TODO: deprecate it
+            // when it's node js, code will also go here
             return DagNodeExecutor.getTableNamePrefix(tabId) +
             "_" + this.node.getId() + Authentication.getHashId();
         }
