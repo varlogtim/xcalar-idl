@@ -66,7 +66,7 @@ namespace Log {
         // log is not restored since data mart
         updateUndoRedoState();
         return PromiseHelper.resolve();
-        
+
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         if (isKVEmpty) {
@@ -746,7 +746,6 @@ namespace Log {
             .then(function() {
                 // XXX test
                 console.info("Overwrite log");
-                dropUndoneTables();
                 DagTabManager.Instance.deleteHiddenTabs();
                 shouldOverWrite = false;
             })
@@ -762,30 +761,6 @@ namespace Log {
         }
 
         showLog(log, logCursor);
-    }
-
-    // XXX TODO: update it if necessary
-    function dropUndoneTables(): XDPromise<void> {
-        let deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let tables: TableId[] = [];
-        let table: TableMeta;
-        for (let tableId in gTables) {
-            table = gTables[tableId];
-            if (table.getType() === TableType.Undone) {
-                tables.push(table.getId());
-            }
-        }
-
-        if (tables.length) {
-            TblManager.deleteTables(tables, TableType.Undone, true, true)
-            .always(function() {
-                // just resolve even if it fails
-                deferred.resolve();
-            });
-        } else {
-            deferred.resolve();
-        }
-        return deferred.promise();
     }
 
     function getUndoType(xcLog: XcLog): number {

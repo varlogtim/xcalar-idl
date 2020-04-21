@@ -49,15 +49,6 @@ describe("MonitorPanel Test", function() {
         });
     });
 
-    describe("tab switching", function() {
-        it("tab switching should work", function() {
-            if (!$("#monitorTab").hasClass("active")) {
-                $("#monitorTab .mainTab").click();
-            }
-            $("#queriesButton").click();
-            expect($("#monitor-queries").is(":visible")).to.be.true;
-        });
-    });
 
     it("MonitorPanel.inActive should work", function() {
         var monitorGraph = MonitorPanel.getGraph();

@@ -404,9 +404,6 @@ class TblManager {
             // delete orphaned
             tableNames = <string[]>tables;
             promise = TblManager._delOrphanedHelper(tableNames, txId);
-        } else if (tableType === TableType.Undone) {
-            tableNames = tables.map((tableId) => gTables[tableId].getName());
-            promise = TblManager._delUndoneTableHelper(tables, txId);
         } else {
             tableNames = tables.map((tableId) =>  gTables[tableId].getName());
             promise = TblManager._delActiveTableHelper(tables, txId);
@@ -429,9 +426,6 @@ class TblManager {
                     }
                 }
 
-                if (tableType === TableType.Undone) {
-                    KVStore.commit();
-                }
                 deferred.resolve(res);
             } else {
                 if (!noLog) {
@@ -455,10 +449,6 @@ class TblManager {
                     Transaction.done(txId, {
                         title: ResultSetTStr.Del
                     });
-                }
-
-                if (tableType === TableType.Undone) {
-                    KVStore.commit();
                 }
                 deferred.resolve(tableNames);
             }
@@ -720,10 +710,6 @@ class TblManager {
     }
 
     private static _sendTableToDropped(table: TableMeta): void {
-        if (table.getType() === TableType.Undone) {
-            // has no descendants so we don't need to keep meta
-            return;
-        }
         table.beDropped();
         gDroppedTables[table.tableId] = table;
     }
@@ -775,10 +761,7 @@ class TblManager {
             currentTableType = TableType.Orphan;
         }
 
-        if (currentTableType === expectTableType ||
-            (currentTableType === TableType.Undone &&
-            expectTableType === TableType.Orphan)
-        ) {
+        if (currentTableType === expectTableType) {
             return true;
         } else {
             console.warn("Table", tableIdOrName, "'s' type mismatch",

@@ -146,11 +146,6 @@ namespace MonitorPanel {
                     $("#monitor-system").addClass("active");
                     title += MonitorTStr.Monitor;
                     break;
-                case ("queriesButton"):
-                    $("#monitor-queries").addClass("active");
-                    title += MonitorTStr.Queries;
-                    QueryManager.showLogs();
-                    break;
                 case ("setupButton"):
                     $("#monitor-setup").addClass("active");
                     title += MonitorTStr.Setup;

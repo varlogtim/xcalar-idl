@@ -26,7 +26,7 @@ class ProgressCircle  {
         this.txId = txId;
         this.iconNum = iconNum;
         this.options = options || {};
-        this.__reset();
+        this._reset();
         this.status = "inProgress";
         this.progress = 0;
         this.hasText = hasText;
@@ -40,7 +40,7 @@ class ProgressCircle  {
         let step: number;
         if (this.options.steps) {
             step = pctOrStep;
-            pct =  pct = Math.floor(100 * step / this.options.steps);
+            pct = Math.floor(100 * step / this.options.steps);
         } else {
             pct = pctOrStep;
             if (isNaN(pct)) {
@@ -53,7 +53,7 @@ class ProgressCircle  {
         this.step = step;
 
         if (prevPct > pct) {
-            this.__reset();
+            this._reset();
         } else if (prevPct === pct) {
             // let the animation continue/finish
             return;
@@ -63,58 +63,58 @@ class ProgressCircle  {
         const pie: Function = this.pie;
         const arc: Function = this.arc;
         const paths = svg.selectAll("path").data(pie([pct, 100 - pct]));
-
-        if (duration == null) {
-            duration = 2000;
-        }
+        duration = (duration == null) ? 2000 : duration;
 
         paths.transition()
             .ease("linear")
             .duration(duration)
-            .attrTween("d", arcTween);
-
-        function arcTween(a) {
-            const i = d3.interpolate(this._current, a);
-            this._current = i(0);
-            return (function(t) {
-                return (arc(i(t)));
-            });
-        }
-
-        if (!this.hasText) {
-            return;
-        }
-
-        if (this.options.steps) {
-            d3.select('.lockedTableIcon[data-txid="' + this.txId +
-                    '"] .stepText .currentStep')
-            .transition()
-            .duration(duration)
-            .ease("linear")
-            .tween("text", function() {
-                const num: number = this.textContent || 0;
-                const i: Function = d3.interpolateNumber(num, step);
+            .attrTween("d", function(a) {
+                const i = d3.interpolate(this._current, a);
+                this._current = i(0);
                 return (function(t) {
-                    this.textContent = Math.ceil(i(t));
+                    return (arc(i(t)));
                 });
             });
-        } else {
-                d3.select('.lockedTableIcon[data-txid="' + this.txId +
-                    '"] .pctText .num')
-            .transition()
-            .duration(duration)
-            .ease("linear")
-            .tween("text", function() {
-                const num: number = this.textContent || 0;
-                const i: Function = d3.interpolateNumber(num, pct);
-                return (function(t) {
-                    this.textContent = Math.ceil(i(t));
-                });
-            });
+
+        if (this.hasText) {
+            this._updateText(pct, step, duration);
         }
     }
 
-    private __reset(): void {
+    public increment(): void {
+        this.update(++this.step);
+    }
+
+    public done(): void {
+        this.status = "completing";
+        this.update(100, 500);
+        this.status = "done";
+    }
+
+    private _updateText(pct, step, duration) {
+        let destNum = pct;
+        let selector = '.lockedTableIcon[data-txid="' + this.txId +
+                        '"] .pctText .num';
+        if (this.options.steps) {
+            destNum = step;
+            selector = '.lockedTableIcon[data-txid="' + this.txId +
+                        '"] .stepText .currentStep';
+        }
+
+        d3.select(selector)
+        .transition()
+        .duration(duration)
+        .ease("linear")
+        .tween("text", function() {
+            const num: number = this.textContent || 0;
+            const i: Function = d3.interpolateNumber(num, destNum);
+            return (function(t) {
+                this.textContent = Math.ceil(i(t));
+            });
+        });
+    }
+
+    private _reset(): void {
         const radius: number = 32;
         const diam: number = radius * 2;
         const thick: number = 7;
@@ -152,13 +152,4 @@ class ProgressCircle  {
         this.prevPct = 0;
     }
 
-    public increment(): void {
-        this.update(++this.step);
-    }
-
-    public done(): void {
-        this.status = "completing";
-        this.update(100, 500);
-        this.status = "done";
-    }
 };

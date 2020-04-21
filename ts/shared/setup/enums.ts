@@ -9,7 +9,6 @@ enum TableType {
     WSHidden = "hidden",
     Unknown = "unknown source",
     Trash = "trashed",
-    Undone = "undone",
     Aggregate = "aggregate",
     Dropped = "dropped"
 }

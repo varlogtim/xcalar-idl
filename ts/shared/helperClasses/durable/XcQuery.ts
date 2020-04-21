@@ -226,6 +226,10 @@ class XcQuery extends Durable {
         this.subQueries.push(subQuery);
     }
 
+    public setState(state:  string | QueryStateT): void {
+        this.state = state;
+    }
+
     public getState(): string | QueryStateT {
         return this.state;
     }

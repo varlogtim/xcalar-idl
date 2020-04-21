@@ -534,22 +534,6 @@ describe('QueryManager Test', function() {
         });
     });
 
-    describe("Focusing", function() {
-        it("should scroll to focused item", function() {
-            var lis = "";
-            for (var i = 0; i < 100; i++) {
-                lis += "<div class='xc-query query'></div>";
-            }
-            lis += "<div class='xc-query query active'></div>";
-            var $lis = $(lis);
-            $queryList.append($lis);
-            var scrollTop = $queryList.scrollTop();
-            QueryManager.scrollToFocused();
-            expect($queryList.scrollTop()).to.be.gt(scrollTop + 4000);
-            $lis.remove();
-        });
-    });
-
     describe('Canceling', function() {
         it("QueryManager.cancelDS should work", function() {
             var dsCancelCache = DS.cancel;

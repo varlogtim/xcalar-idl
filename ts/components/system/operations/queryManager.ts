@@ -1,6 +1,7 @@
 namespace QueryManager {
-    let $queryList: JQuery;   // $("#monitor-queryList")
-    let $queryDetail: JQuery; // $("#monitor-queryDetail")
+    let hasMoreQueries: boolean = true;
+    let hasNoMoreQueries: boolean = false;
+    let disableLoadMoreQuries: boolean = false;
     let queryLog: XcQueryLog;
     let queryCheckList: {[key: number]: number} = {}; // setTimeout timers
     let canceledQueries: {[key: number]: XcQuery} = {}; // for canceled queries that have been deleted
@@ -17,7 +18,6 @@ namespace QueryManager {
 
     // constant
     const checkInterval: number = 2000; // check query every 2s
-    let infList: InfList;
     let hasSetup = false;
 
     export interface AddQueryOptions {
@@ -40,11 +40,6 @@ namespace QueryManager {
         queryName?: string
     }
 
-    interface TimeObj {
-        tip: string,
-        text: string
-    }
-
     export interface QueryParser {
         query: string;
         name: string;
@@ -61,11 +56,7 @@ namespace QueryManager {
             return;
         }
         hasSetup = true;
-        $queryList = $("#monitor-queryList");
-        $queryDetail = $("#monitor-queryDetail");
-        infList = new InfList($queryList, {numInitial: 30});
         queryLog = new XcQueryLog();
-        addEventHandlers();
     };
 
     // if numSteps is unknown, should take in -1
@@ -115,19 +106,10 @@ namespace QueryManager {
         });
 
         queryLog.add(id, mainQuery, true);
-        const $query: JQuery = $(getQueryHTML(mainQuery));
-        showQueryHintNomore(false);
-        $queryList.prepend($query); // Latest on the top
-
-        focusOnQuery($query);
+        hasNoMoreQueries = false;
+        updateView(id, 0, false, false);
 
         DebugPanel.Instance.addOutput(`Execute ${name}`);
-        updateStatusDetail({
-            "start": getQueryTime(time),
-            "op": name,
-            "startTime": CommonTxtTstr.NA,
-            "elapsed": CommonTxtTstr.NA,
-        }, id, QueryStatus.Run, true);
     };
 
     // queryName will be empty if subquery doesn't belong to a xcalarQuery
@@ -177,34 +159,11 @@ namespace QueryManager {
                 operationCheck(subQuery, 10);
             }
         }
-        const $query: JQuery = $queryList.find('.query[data-id="' + id + '"]');
-        if ($query.hasClass('active')) {
-            updateQueryTextDisplay(mainQuery.getQuery(), undefined, undefined, mainQuery.getQueryMeta());
-        }
-    };
-
-    /**
-     * QueryManager.scrollToFocused
-     */
-    export function scrollToFocused(): boolean {
-        const $activeLi: JQuery = $queryList.find('.active');
-        if ($activeLi.length &&
-            !$('#monitorMenu').find('.menuSection.query')
-            .hasClass('xc-hidden')) {
-            const listHeight: number = $queryList.height();
-            const liHeight: number = $activeLi.height();
-            let position: JQueryCoordinates = $activeLi.position();
-            if (position.top < 0 || position.top + liHeight > listHeight) {
-                const scrollTop: number = $queryList.scrollTop();
-                $queryList.scrollTop(scrollTop + position.top);
-            }
-            return true;
-        }
-        return false;
     };
 
     /**
      * QueryManager.showLogs
+     * should be called at least once initially to show past saved logs
      */
     export function showLogs(): XDPromise<void> {
         const numMoreLogs = 20 - queryLog.size();
@@ -214,14 +173,6 @@ namespace QueryManager {
         } else {
             promise = PromiseHelper.resolve();
         }
-        promise = promise.then(() => {
-            if (!scrollToFocused()) {
-                const $queryElems = $queryList.find(".query");
-                if ($queryElems.length > 0) {
-                    focusOnQuery($queryElems.first());
-                }
-            }
-        });
         return promise;
     }
 
@@ -235,7 +186,7 @@ namespace QueryManager {
         }
 
         const mainQuery: XcQuery = queryLog.getForUpdate(id);
-        mainQuery.state = QueryStatus.Done;
+        mainQuery.setState(QueryStatus.Done);
         if (mainQuery.name === SQLOps.Aggr) {
             mainQuery.outputTableState = "unavailable";
         } else {
@@ -244,16 +195,9 @@ namespace QueryManager {
 
         mainQuery.setElapsedTime();
         clearIntervalHelper(id);
-        updateQueryBar(id, 100);
+        updateView(id, 100);
 
         const elapsed = xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(), null, true);
-        updateStatusDetail({
-            "start": getQueryTime(mainQuery.getTime()),
-            "elapsed": elapsed,
-            "opTime": xcTimeHelper.getElapsedTimeStr(mainQuery.getOpTime()),
-            "total": elapsed
-        }, id);
-        updateOutputSection(id);
         const debugOutput = `Execute ${mainQuery.name} finished in ${elapsed}. ` +
                             `Query: ${mainQuery.getQuery()},`;
         DebugPanel.Instance.addOutput(debugOutput);
@@ -359,11 +303,6 @@ namespace QueryManager {
             }
 
             queryLog.remove(id);
-            const $query:JQuery = $queryList.find('.query[data-id="' + id + '"]');
-            if ($query.hasClass('active')) {
-                setDisplayToDefault();
-            }
-            $query.remove();
         });
 
         xcTooltip.hideAll();
@@ -382,26 +321,19 @@ namespace QueryManager {
         if (mainQuery == null) {
             // error case
             console.warn('invalid operation', 'transaction id: ' + id);
-            deferred.reject('invalid operation');
-            return deferred.promise();
+            return PromiseHelper.reject("invalid operation");
         } else if (mainQuery.state === QueryStatus.Done) {
             console.warn('operation is done, cannot cancel');
-            deferred.reject('operation is done, cannot cancel');
-            return deferred.promise();
+            return PromiseHelper.reject('operation is done, cannot cancel');
         } else if (mainQuery.state === QueryStatus.Cancel ||
                    mainQuery.state === QueryStatus.Error) {
-            deferred.reject("already canceled");
-            return deferred.promise();
+            return PromiseHelper.reject("already canceled");
         }
 
         const prevState: string | number = mainQuery.getState();
 
-        const $query: JQuery = $queryList.find('.query[data-id="' + id + '"]');
-        $query.find('.cancelIcon').addClass('disabled');
-
         if (!Transaction.isCancelable(id)) {
-            deferred.reject('building new table, cannot cancel');
-            return deferred.promise();
+            return PromiseHelper.reject('building new table, cannot cancel');
         }
 
         $('.lockedTableIcon[data-txid="' + id + '"]').remove();
@@ -474,33 +406,6 @@ namespace QueryManager {
         // eventually calls QueryManager.cancelQuery
     };
 
-    // XXX TODO: update it
-    /**
-     * QueryManager.cancelDF
-     * @param id
-     */
-    export function cancelDF(id: number) {
-        if (Transaction.isSimulate(id)) {
-            return;
-        }
-        const mainQuery: XcQuery = queryLog.get(id);
-        if (!mainQuery) {
-            return;
-        }
-        if (mainQuery.subQueries[0]) {
-            const retName: string = mainQuery.subQueries[0].retName;
-            _cancelDF(retName, id);
-        }
-    }
-
-    function _cancelDF(retName, txId) {
-        if (txId) {
-            QueryManager.cancelQuery(txId);
-        }
-
-        return XcalarQueryCancel(retName)
-    };
-
     // this gets called after cancel is successful. It cleans up and updates
     // the query state and views
     /**
@@ -514,24 +419,10 @@ namespace QueryManager {
         clearIntervalHelper(id);
 
         const mainQuery: XcQuery = queryLog.getForUpdate(id);
-        mainQuery.state = QueryStatus.Cancel;
+        mainQuery.setState(QueryStatus.Cancel);
         mainQuery.outputTableState = "deleted";
         mainQuery.setElapsedTime();
-        updateQueryBar(id, null, false, true, true);
-        updateStatusDetail({
-            "start": getQueryTime(mainQuery.getTime()),
-            "elapsed": xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
-                                                  true, true),
-            "opTime": xcTimeHelper.getElapsedTimeStr(mainQuery.getOpTime()),
-            "total": CommonTxtTstr.NA
-        }, id);
-        updateOutputSection(id, true);
-        const $query: JQuery = $('.query[data-id="' + id + '"]');
-        $query.addClass(QueryStatus.Cancel).find('.querySteps')
-              .text(xcStringHelper.capitalize(QueryStatus.Cancel));
-        if ($query.hasClass('active')) {
-            updateHeadingSection(mainQuery);
-        }
+        updateView(id, null, false, true);
     };
 
     /**
@@ -567,7 +458,7 @@ namespace QueryManager {
         }
 
         const mainQuery: XcQuery = queryLog.getForUpdate(id);
-        mainQuery.state = QueryStatus.Error;
+        mainQuery.setState(QueryStatus.Error);
         mainQuery.outputTableState = "unavailable";
         mainQuery.sqlNum = Log.getErrorLogs().length - 1;
         if (error) {
@@ -585,26 +476,11 @@ namespace QueryManager {
                 }
             }
         }
-        updateQueryTextDisplay(mainQuery.getQuery(), false, mainQuery.error, mainQuery.getQueryMeta());
 
         mainQuery.setElapsedTime();
         clearIntervalHelper(id);
-        updateQueryBar(id, null, true, false, true);
+        updateView(id, null, true, false);
         const elapsed = xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(), null, true);
-        updateStatusDetail({
-            "start": getQueryTime(mainQuery.getTime()),
-            "elapsed": elapsed,
-            "opTime": xcTimeHelper.getElapsedTimeStr(mainQuery.getOpTime()),
-            "total": CommonTxtTstr.NA
-        }, id, QueryStatus.Error);
-        updateOutputSection(id);
-        const $query: JQuery = $('.query[data-id="' + id + '"]');
-        $query.addClass(QueryStatus.Error).find('.querySteps')
-              .text(xcStringHelper.capitalize(QueryStatus.Error));
-        if ($query.hasClass('active')) {
-            updateHeadingSection(mainQuery);
-        }
-
         const debugOutput = `Execute ${mainQuery.name} fails after ${elapsed}. ` +
                             `Query: ${mainQuery.getQuery()}. ` +
                             `Error: ${mainQuery.error}.`;
@@ -635,22 +511,10 @@ namespace QueryManager {
 
     export async function loadMore(count: number = 20): Promise<void> {
         try {
-            enableQueryHintLoadmore(false);
-
+            disableLoadMoreQuries = true;
             const queries = await queryLog.loadMore(count);
-
-            let html: string = "";
-            for (const query of queries) {
-                html += getQueryHTML(query, true);
-            }
-
             updateQueryHintSection(queries.length >= count);
-            if (html) {
-                $(html).insertBefore(getQueryHintSection());
-                infList.restore(".query");
-            }
-
-            enableQueryHintLoadmore(true);
+            disableLoadMoreQuries = false;
         } catch(e) {
             console.warn(e);
             throw e;
@@ -666,19 +530,7 @@ namespace QueryManager {
         if (!queriesUnsorted) {
             return;
         }
-
-        let html: string = "";
-        const queries = queryLog.upgrade(queriesUnsorted);
-        for (const query of queries) {
-            html += getQueryHTML(query, true);
-        }
-
-        if (html) {
-            $(html).insertBefore(getQueryHintSection());
-            infList.restore(".query");
-
-            focusOnQuery($queryList.find(".query").first());
-        }
+        queryLog.upgrade(queriesUnsorted);
     }
 
     /**
@@ -751,36 +603,12 @@ namespace QueryManager {
     }
 
     function updateQueryHintSection(hasMore: boolean): void {
-        showQueryHintLoadmore(hasMore);
-        showQueryHintNomore(queryLog.size() <= 0);
+        hasMoreQueries = hasMore;
+        hasNoMoreQueries = (queryLog.size() <= 0);
     }
 
-    function showQueryHintNomore(isShow: boolean): void {
-        if (isShow) {
-            $queryList.find('.hint.nomore').removeClass('xc-hidden');
-        } else {
-            $queryList.find('.hint.nomore').addClass('xc-hidden');
-        }
-    }
-
-    function enableQueryHintLoadmore(isEnable: boolean): void {
-        if (isEnable) {
-            $queryList.find('.hint.loadmore').removeClass('xc-disabled');
-        } else {
-            $queryList.find('.hint.loadmore').addClass('xc-disabled');
-        }
-    }
-
-    function showQueryHintLoadmore(hasMore: boolean): void {
-        if (hasMore) {
-            $queryList.find('.hint.loadmore').removeClass('xc-hidden');
-        } else {
-            $queryList.find('.hint.loadmore').addClass('xc-hidden');
-        }
-    }
-
-    function getQueryHintSection(): JQuery {
-        return $queryList.find('.hint.loadmore');
+    export function checkHasMoreQueries() {
+        return hasMoreQueries && !hasNoMoreQueries && !disableLoadMoreQuries;
     }
 
     /**
@@ -1087,7 +915,6 @@ namespace QueryManager {
     }
 
 
-
     function checkCycle(callback: Function, id: number, adjustTime: number): number {
         clearIntervalHelper(id);
 
@@ -1152,7 +979,7 @@ namespace QueryManager {
 
     // checks a group of subqueries by checking the single query name they're
     // associated with
-    function xcalarQueryCheck(id: number, doNotAnimate?: boolean): void {
+    function xcalarQueryCheck(id: number): void {
         if (!queryLog.has(id)) {
             console.error("error case");
             return;
@@ -1213,7 +1040,7 @@ namespace QueryManager {
                     const subQuery: XcSubQuery = mainQuery.subQueries[currStep];
                     if (subQuery) {
                         if (subQuery.queryName) {
-                            xcalarQueryCheck(id, doNotAnimate);
+                            xcalarQueryCheck(id);
                         } else {
                             operationCheck(subQuery);
                         }
@@ -1222,7 +1049,7 @@ namespace QueryManager {
                 } else if (state === QueryStateT.qrError ||
                            state === QueryStateT.qrCancelled) {
                     clearIntervalHelper(id);
-                    updateQueryBar(id, res, true, false, doNotAnimate);
+                    updateView(id, res, true, false);
                     deferred.reject(); // ends cycle
                 } else {
                     try {
@@ -1233,29 +1060,18 @@ namespace QueryManager {
                             progress = getQueryProgress(res);
                         }
                         const pct: number = parseFloat((100 * progress).toFixed(2));
-                        updateQueryBar(id, pct, false, false, doNotAnimate);
+                        updateView(id, pct, false, false);
                         mainQuery.setElapsedTime();
-                        updateStatusDetail({
-                            "start": getQueryTime(mainQuery.getTime()),
-                            "elapsed": xcTimeHelper.getElapsedTimeStr(
-                                        mainQuery.getElapsedTime(), true, true),
-                            "opTime": xcTimeHelper.getElapsedTimeStr(
-                                        mainQuery.getOpTime(), true),
-                            "total": xcTimeHelper.getElapsedTimeStr(
-                                        mainQuery.getElapsedTime(), null, true),
-                        }, id);
                     } catch (e) {
                         console.error(e);
                     }
-                    // only stop animation the first time, do not persist it
-                    doNotAnimate = false;
                     deferred.resolve();// continues cycle
                 }
             })
             .fail(function(error) {
                 if (!error || error.status !== StatusT.StatusQrQueryNotExist) {
                     console.error("Check failed", error, queryName);
-                    updateQueryBar(id, null, error, false, doNotAnimate);
+                    updateView(id, null, error, false);
                 }
                 clearIntervalHelper(id);
                 deferred.reject();
@@ -1300,281 +1116,11 @@ namespace QueryManager {
     function incrementStep(mainQuery: XcQuery): void {
         mainQuery.currStep++;
         const id: number = mainQuery.getId();
-        const $query: JQuery = $queryList.find('.query[data-id="' + id + '"]');
-
-        if ($query.hasClass('active')) {
-            updateQueryTextDisplay(mainQuery.getQuery(), undefined, undefined, mainQuery.getQueryMeta());
-        }
 
         if (mainQuery.numSteps !== -1 &&
             mainQuery.currStep >= mainQuery.numSteps) {
             // show finished state for the entire query
-            updateQueryBar(id, 100);
-        }
-    }
-
-    function focusOnQuery($target: JQuery): void {
-        if ($target.hasClass("active")) {
-            return;
-        }
-
-        const queryId: number = parseInt($target.data("id"));
-        $target.siblings(".active").removeClass("active");
-        $target.addClass("active");
-
-        // update right section
-        const mainQuery: XcQuery = queryLog.get(queryId);
-        let query: string = (mainQuery == null) ? "" : mainQuery.getQuery();
-        let startTime: string | object;
-
-        if (mainQuery == null) {
-            console.error("cannot find query", queryId);
-            query = "";
-            startTime = CommonTxtTstr.NA;
-        } else {
-            query = mainQuery.getQuery();
-            startTime = getQueryTime(mainQuery.getTime());
-        }
-
-        let totalTime: string = CommonTxtTstr.NA;
-        let elapsedTime: string;
-        let opTime: string;
-        if (mainQuery.getState() === QueryStatus.Done ||
-            mainQuery.getState() === QueryStatus.Cancel ||
-            mainQuery.getState() === QueryStatus.Error) {
-            elapsedTime = xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
-                                                    null, true);
-            opTime = xcTimeHelper.getElapsedTimeStr(mainQuery.getOpTime());
-            if (mainQuery.getState() === QueryStatus.Done) {
-                totalTime = elapsedTime;
-            }
-        } else {
-            if (mainQuery !== null) {
-                mainQuery.setElapsedTime();
-                queryLog.setUpdated(queryId);
-            }
-            elapsedTime = xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
-                                                     true, true);
-            opTime = xcTimeHelper.getElapsedTimeStr(mainQuery.getOpTime(), true);
-        }
-        updateHeadingSection(mainQuery);
-        updateStatusDetail({
-            "start": startTime,
-            "elapsed": elapsedTime,
-            "opTime": opTime,
-            "total": totalTime
-        }, queryId);
-
-        let error = mainQuery ? mainQuery.error : null;
-        let queryMeta = mainQuery ? mainQuery.getQueryMeta() : "";
-        updateQueryTextDisplay(query, false, error, queryMeta);
-        updateOutputSection(queryId);
-    }
-
-    function updateHeadingSection(mainQuery: XcQuery): void {
-        let state: string | number = mainQuery.getState();
-        const id: number = mainQuery.id;
-        const $text: JQuery = $queryDetail.find(".op .text");
-        let name: string = mainQuery.name;
-        if (sysQueryTypes.indexOf(name) > -1) {
-            name = "Sys-" + name;
-        }
-        $text.text(name);
-
-        if (state === QueryStateT.qrNotStarted ||
-            state === QueryStateT.qrProcessing) {
-            state = QueryStatus.Run;
-        } else if (state === QueryStateT.qrFinished ||
-                   state === QueryStatus.Done) {
-            state = QueryStatus.Done;
-        } else if (state === QueryStateT.qrCancelled ||
-                   state === QueryStatus.Cancel) {
-            state = QueryStatus.Cancel;
-        } else if (state === QueryStateT.qrError ||
-                    state === QueryStatus.Error) {
-            state = QueryStatus.Error;
-        }
-
-        $queryDetail.find(".querySection")
-                    .removeClass(QueryStatus.Run)
-                    .removeClass(QueryStatus.Done)
-                    .removeClass(QueryStatus.Error)
-                    .removeClass(QueryStatus.Cancel)
-                    .removeClass(QueryStatus.RM)
-                    .addClass(state + "");
-        if (state === QueryStatus.Run) {
-            // we need to update the extraProgressBar even if we don't
-            // have status data otherwise we'll have the progressBar of the
-            // previous query
-            const $progressBar: JQuery = $queryList.find('.query[data-id="' + id + '"]')
-                                         .find(".progressBar");
-            let prevProgress: number = 100 * $progressBar.width() /
-                                             $progressBar.parent().width();
-            prevProgress = prevProgress || 0; // in case of 0/0 NaN;
-            updateQueryBar(id, prevProgress, false, false, true);
-        } else if (state === QueryStatus.Done) {
-            updateQueryBar(id, 100, false, false, true);
-        } else if (state === QueryStatus.Cancel) {
-            updateQueryBar(id, null, false, true, true);
-        } else if (state === QueryStatus.Error) {
-            updateQueryBar(id, null, true, false, true);
-        }
-    }
-
-    function updateQueryTextDisplay(
-        query: string,
-        blank?: boolean,
-        errorText?: string,
-        queryMeta?: string
-    ): void {
-        let queryString: string = "";
-        if (query) {
-            let querySplit: string[] = [];
-            try {
-                querySplit = JSON.parse('[' + query + ']');
-            } catch (error) {
-                console.error(error);
-            }
-            for (let i = 0; i < querySplit.length; i++) {
-                const subQuery: string = querySplit[i];
-                queryString += '<div class="queryRow"><pre>' + JSON.stringify(subQuery, null, 2);
-                if (i + 1 < querySplit.length) {
-                    queryString += ',</pre></div>';
-                } else {
-                    queryString += '</pre></div>';
-                }
-            }
-        } else if (!query && !blank) {
-            queryString = '<div class="queryRow"></div>';
-        } else {
-            query = xcStringHelper.escapeHTMLSpecialChar(query);
-            queryString = '<div class="queryRow">' + query + '</div>';
-        }
-        if (errorText) {
-            queryString += '<div class="queryRow errorRow">' +
-                           xcStringHelper.escapeHTMLSpecialChar(errorText) + '</div>';
-        }
-        if (queryMeta) {
-            queryString = '<div class="queryRow">' + queryMeta + '</div>' +
-                            queryString;
-        }
-
-        $queryDetail.find(".operationSection .content").html(queryString);
-    }
-
-    // updates the status text in the main card
-    function updateStatusDetail(info: object, id, status?: string, reset?: boolean): void {
-        if (id != null) {
-            // do not update detail if not focused on this query bar
-            if (!$queryList.find('.query[data-id="' + id + '"]')
-                           .hasClass('active')) {
-                return;
-            }
-        }
-
-        const $statusDetail: JQuery = $queryDetail.find(".statusSection");
-        const $query: JQuery = $queryDetail.find(".querySection");
-        for (const i in info) {
-            if (i === "op") {
-                let name: string = info[i];
-                if (sysQueryTypes.indexOf(name) > -1) {
-                    name = "Sys-" + name;
-                }
-
-                $query.find(".op .text").text(name);
-            } else if (i === "start") {
-                $statusDetail.find("." + i).find(".text").text(info[i].text);
-                xcTooltip.add($statusDetail.find("." + i).find(".text"), {
-                    title: info[i].tip
-                });
-            } else {
-                $statusDetail.find("." + i).find(".text").text(info[i]);
-            }
-        }
-
-        $query.removeClass("xc-hidden");
-        if (status != null) {
-            if (status === QueryStatus.RM) {
-                $query.addClass("xc-hidden");
-            } else {
-                $query.removeClass(QueryStatus.Run)
-                        .removeClass(QueryStatus.Done)
-                        .removeClass(QueryStatus.Error)
-                        .removeClass(QueryStatus.Cancel)
-                        .addClass(status);
-            }
-        }
-
-        if (reset) {
-            $query.find(".progressBar").width(0);
-        }
-    }
-
-    // enables or disbles the view output button
-    function updateOutputSection(id: number, forceInactive?: boolean): void {
-        const $focusOutputBtn: JQuery = $("#monitor-inspect");
-        if (forceInactive) {
-            $focusOutputBtn.addClass('btn-disabled');
-            $queryDetail.find('.outputSection').find('.text')
-                         .text(CommonTxtTstr.NA);
-            return;
-        }
-        // do not update detail if not focused on this query bar
-        if (!$queryList.find('.query[data-id="' + id + '"]').hasClass('active')) {
-            return;
-        }
-        const mainQuery: XcQuery = queryLog.get(id);
-        const queryState: string | number = mainQuery.getState();
-        const dstTableState: string | number = mainQuery.getOutputTableState();
-
-        if (queryState === QueryStatus.Done && mainQuery.getOutputTableName() &&
-            sysQueryTypes.indexOf(mainQuery.getName()) === -1 &&
-            noOutputs.indexOf(mainQuery.getName()) === -1) {
-            const dstTableName: string = mainQuery.getOutputTableName();
-
-            if (dstTableState === "active" || dstTableState === "exported" ||
-             dstTableState === TableType.Undone) {
-                if (dstTableState === "exported") {
-                    $focusOutputBtn.addClass('btn-disabled');
-                } else { // either active or undone
-                    if (checkIfTableIsUndone(dstTableName)) {
-                        mainQuery.outputTableState = TableType.Undone;
-                        $focusOutputBtn.addClass('btn-disabled');
-                    } else {
-                        mainQuery.outputTableState = "active";
-                        $focusOutputBtn.removeClass('btn-disabled');
-                    }
-                    queryLog.setUpdated(id);
-                }
-            } else {
-                $focusOutputBtn.addClass('btn-disabled');
-            }
-
-            if (dstTableName.indexOf(gDSPrefix) < 0) {
-                $queryDetail.find('.outputSection').find('.text')
-                                               .text(dstTableName);
-            } else {
-                $queryDetail.find('.outputSection').find('.text')
-                            .text(dstTableName.slice(gDSPrefix.length));
-            }
-
-        } else {
-            $focusOutputBtn.addClass('btn-disabled');
-            $queryDetail.find('.outputSection').find('.text')
-                         .text(CommonTxtTstr.NA);
-        }
-    }
-
-    function checkIfTableIsUndone(tableName: string): boolean {
-        if (tableName.startsWith(gDSPrefix)) {
-            return false;
-        }
-
-        const tableId: TableId = xcHelper.getTableId(tableName);
-        if (gTables[tableId]) {
-            return gTables[tableId].getType() === TableType.Undone;
-        } else {
-            return false;
+            updateView(id, 100);
         }
     }
 
@@ -1584,23 +1130,18 @@ namespace QueryManager {
             console.error("error case");
             return;
         }
-        // only stop animation the first time, do not persist it
-        const doNotAnimate: boolean = false;
+
         const startTime: number = Date.now();
         const check = () => {
-            operationCheckHelper(subQuery, id, subQuery.index, doNotAnimate)
+            operationCheckHelper(subQuery, id, subQuery.index)
             .then(() => {
                 const elapsedTime: number = Date.now() - startTime;
-                checkCycle(() => {
-                    return operationCheckHelper(subQuery, id, subQuery.index,
-                                                doNotAnimate);
-                }, id, elapsedTime);
+                checkCycle(() => operationCheckHelper(subQuery, id, subQuery.index),
+                 id, elapsedTime);
             });
         };
         if (delay) {
-            setTimeout(() => {
-                check();
-            }, delay);
+            setTimeout(check, delay);
         } else {
             check();
         }
@@ -1609,8 +1150,7 @@ namespace QueryManager {
     function operationCheckHelper(
         subQuery: XcSubQuery,
         id: number,
-        step: number,
-        doNotAnimate: boolean
+        step: number
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (subQuery.state === QueryStatus.Done) {
@@ -1635,30 +1175,12 @@ namespace QueryManager {
             const currStep: number = mainQuery.currStep;
             // check for edge case where percentage is old
             // and mainQuery already incremented to the next step
-            if (currStep !== step) {
-                const numSteps: number = mainQuery.numSteps;
-                const $query: JQuery = $queryList.find('.query[data-id="' + id + '"]');
-                if (numSteps === -1) {
-                    $query.find('.querySteps').text('step ' + (currStep + 1));
-                } else if (currStep < numSteps) {
-                    $query.find('.querySteps').text('step ' + (currStep + 1) +
-                                                    ' of ' + numSteps);
-                }
-            } else {
-                updateQueryBar(id, res, false, false, doNotAnimate);
+            if (currStep === step) {
+                updateView(id, res, false, false);
             }
 
             mainQuery.setElapsedTime();
             queryLog.setUpdated(id);
-            updateStatusDetail({
-                "start": getQueryTime(mainQuery.getTime()),
-                "elapsed": xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
-                                                      true, true),
-                "opTime": xcTimeHelper.getElapsedTimeStr(mainQuery.getOpTime(),
-                                                      true),
-                "total": xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
-                                                    null, true),
-            }, id);
             deferred.resolve();
         })
         .fail(function(error) {
@@ -1690,511 +1212,98 @@ namespace QueryManager {
         return deferred.promise();
     }
 
-    function updateQueryBar(
+    function updateView(
         id: number,
         progress: string | number,
         isError?: boolean,
-        isCanceled?: boolean,
-        doNotAnimate?: boolean
+        isCanceled?: boolean
     ): void {
-        const $query: JQuery = $queryList.find('.query[data-id="' + id + '"]');
-        if (progress == null && !isCanceled) {
-            $query.removeClass("processing");
-        }
-        if ($query.hasClass("done") && !doNotAnimate) {
-            return;
-        }
         const mainQuery: XcQuery = queryLog.get(id);
         const currStep: number = mainQuery.currStep;
         const numSteps: number = mainQuery.numSteps;
 
-        const $progressBar: JQuery = $query.find(".progressBar");
-        let $extraProgressBar: JQuery = null;
-        let $extraStepText: JQuery = null;
-        if ($query.hasClass("active")) {
-            $extraProgressBar = $queryDetail.find(".progressBar");
-            $extraStepText = $queryDetail.find(".querySteps");
-            if (mainQuery.cancelable) {
-                $queryDetail.find('.cancelIcon').removeClass('xc-disabled');
-            } else {
-                $queryDetail.find('.cancelIcon').addClass('xc-disabled');
-            }
-        }
-
-        let newClass: string = null;
         progress = Math.min(Math.max(parseFloat(progress + ""), 0), 100);
         let progressNum = progress;
+        let inProgress = false;
         if (progress >= 100 && ((numSteps > 0 && currStep >= numSteps) ||
             (mainQuery.state === QueryStatus.Done))) {
             progress = "100%";
-            newClass = "done";
-            $query.find('.cancelIcon').addClass('disabled');
-        } else if (isError) {
+        } else if (isError || isCanceled) {
             progress = "0%";
-            newClass = QueryStatus.Error;
-        } else if (isCanceled) {
-            progress = "0%";
-            newClass = QueryStatus.Cancel;
         } else {
             progress = progress + "%";
+            inProgress = true;
         }
 
-        const $lockIcon: JQuery = $('.lockedTableIcon[data-txid="' + id + '"]');
         const progressCircles: ProgressCircle[] = [];
-        if ($lockIcon.length) {
-            $lockIcon.each(function() {
-                progressCircles.push($(this).data("progresscircle"));
-            });
-        }
+        const $lockIcon: JQuery = $('.lockedTableIcon[data-txid="' + id + '"]');
+        $lockIcon.each(function() {
+            progressCircles.push($(this).data("progresscircle"));
+        });
 
-        // set width to 0 if new step is started unless it's past the last step
-        if (parseInt($progressBar.data('step')) !== currStep &&
-            currStep !== numSteps) {
-            $progressBar.data('step', currStep);
-            if (!$query.hasClass("done")) {
-                $progressBar.stop().width(0).data('step', currStep);
-
-                for (let i = 0; i < progressCircles.length; i++) {
-                    progressCircles[i].update(0, 0);
-                }
-                if ($extraProgressBar != null) {
-                    $extraProgressBar.stop().width(0);
-                }
-            }
-        }
+        let interval = (isCanceled || isError) ? 0 : checkInterval;
+        progressCircles.forEach(progressCircle => {
+            progressCircle.update(parseInt(progress), interval);
+        });
 
         if (mainQuery.name === "activate dataset" && mainQuery.subQueries[0]) {
-            let finished = newClass != null;
             let dsName = xcHelper.parseDSName(mainQuery.subQueries[0].dstTable).dsName;
-            updateDatasetActivationProgress(id, progressNum, dsName, finished);
-        }
-
-        // .stop() stops any previous animation;
-        if (isCanceled || isError) {
-            $progressBar.stop().width(progress);
-            for (let i = 0; i < progressCircles.length; i++) {
-                progressCircles[i].update(parseInt(progress), 0);
-            }
-        } else {
-            $progressBar.stop().animate({"width": progress}, checkInterval,
-                                        "linear", progressBarContinuation);
-            for (let i = 0; i < progressCircles.length; i++) {
-                progressCircles[i].update(parseInt(progress), checkInterval);
-            }
-        }
-
-        progressBarContinuation();
-
-        if ($extraProgressBar != null) {
-            if (doNotAnimate) {
-                if (isCanceled) {
-                    $extraProgressBar.stop().width(progress);
-                } else {
-                    let prevProgress: number = 100 * $progressBar.width() /
-                                             $progressBar.parent().width();
-                    prevProgress = prevProgress || 0; // in case of NaN 0/0
-                    // set extraProgressBar's to match progressBar's width
-                    // and then animate extraProgressBar to it's actual pct
-                    $extraProgressBar.stop().width(prevProgress + '%')
-                                      .animate({"width": progress},
-                                            checkInterval, "linear",
-                                            progressBarContinuation);
-                }
-            } else {
-                $extraProgressBar.stop().animate({"width": progress},
-                                                 checkInterval,
-                                                 "linear",
-                                                 extraProgressBarContinuation);
-            }
-            extraProgressBarContinuation();
-        }
-
-        updateQueryStepsDisplay(mainQuery, $query, newClass, $extraStepText);
-
-        function progressBarContinuation() {
-            if (newClass != null) {
-                $query.removeClass("processing").addClass(newClass);
-                if (newClass === "done") {
-                    $query.find('.querySteps').text(StatusMessageTStr.Completed);
-                    clearIntervalHelper(id);
-                }
-            }
-        }
-
-        function extraProgressBarContinuation() {
-            if (newClass != null && $query.hasClass("active")) {
-                $queryDetail.find(".query").removeClass("processing")
-                            .addClass(newClass);
-            }
+            updateDatasetActivationProgress(id, progressNum, dsName, !inProgress);
         }
     }
 
-    // $extraStepText -> the main panel $queryDetail.find(".querySteps");
-    function updateQueryStepsDisplay(
-        mainQuery: XcQuery,
-        $query: JQuery,
-        newClass: string,
-        $extraStepText: JQuery
-    ): void {
-        let displayedStep: number;
-        let stepText: string;
-        // if query stopped in some way or another
-        if (newClass !== null) {
-            if (newClass === QueryStatus.Done ||
-                newClass === QueryStatus.Cancel ||
-                newClass === QueryStatus.Error) {
-                if (newClass === QueryStatus.Done) {
-                    $query.find('.querySteps').text(StatusMessageTStr.Completed);
-                } else {
-                    newClass = xcStringHelper.capitalize(newClass);
-                    $query.find('.querySteps').text(newClass);
-                }
-            }
-        } else if (mainQuery.currStep <= mainQuery.numSteps) {
-            // in progress and if total number of steps IS known
-            displayedStep = Math.min(mainQuery.currStep + 1,
-                                     mainQuery.numSteps);
-            stepText = 'step ' + displayedStep + ' of ' +
-                                            mainQuery.numSteps;
-        } else if (mainQuery.numSteps === -1) {
-            // in progress and if total number of steps is NOT known
-            displayedStep = Math.min(mainQuery.currStep + 1,
-                                     mainQuery.subQueries.length);
-            if (displayedStep > 0) {
-                stepText = 'step ' + displayedStep;
-            }
-        }
-        if (stepText) {
-            $query.find('.querySteps').text(stepText);
-            if ($extraStepText) {
-                $extraStepText.text(stepText);
-            }
-        } else if ($extraStepText) {
-            $extraStepText.text("");
-        }
-    }
+    export function focusOnOutput(queryId): void {
+        const mainQuery: XcQuery = queryLog.get(queryId);
+        const tableName: string = mainQuery.getOutputTableName();
 
-    function getQueryTime(time: number): TimeObj {
-        const momTime: moment.Moment = moment(time);
-        const timeObj: TimeObj = {
-            text: momTime.calendar(),
-            tip: momTime.format("h:mm:ss A M-D-Y")
-        };
-        return timeObj;
-    }
-
-    function addEventHandlers(): void {
-        const $querySideBar: JQuery = $("#monitorMenu-query");
-
-        $querySideBar.on("click", ".filterSection .xc-action", function() {
-            filterQuery($(this));
-        });
-
-        $querySideBar.find(".bulkOptionsSection").click(function(event) {
-            if (!$(event.target).closest('.bulkOptions').length) {
-                if ($querySideBar.hasClass("bulkOptionsOpen")) {
-                    $querySideBar.removeClass("bulkOptionsOpen");
-                    $queryList.find(".checkbox").removeClass("checked");
-                } else {
-                    $querySideBar.addClass("bulkOptionsOpen");
-                    $queryList.find(".checkbox").filter(function() {
-                        return !$(this).closest(".processing").length &&
-                            $(this).is(":visible");
-                    }).addClass("checked");
-                    xcTooltip.hideAll();
-                }
-            }
-        });
-
-        $queryList.on("click", ".checkbox", function() {
-            const $checkbox: JQuery = $(this);
-            if ($checkbox.hasClass("checked")) {
-                $checkbox.removeClass("checked");
+        if (!tableName) {
+            let type: string;
+            if (mainQuery.getName() === SQLOps.DSImport) {
+                type = "dataset";
             } else {
-                $checkbox.addClass("checked");
+                type = "table";
             }
-        });
-
-        $queryList.on("click", ".query", function(event) {
-            const $clickTarget: JQuery = $(event.target);
-            const id: number = $clickTarget.closest('.query').data('id');
-
-            if ($clickTarget.hasClass('deleteIcon')) {
-                QueryManager.removeQuery(id, true);
-            } else if ($clickTarget.hasClass('cancelIcon')) {
-                const mainQuery: XcQuery = queryLog.get(id);
-                let qName: string;
-                if (mainQuery) {
-                    qName = mainQuery.name;
-                }
-                // special handling for canceling importDataSource
-                if (qName === SQLOps.DSImport) {
-                    QueryManager.cancelDS(id);
-                } else if (qName === SQLOps.Retina) {
-                    QueryManager.cancelDF(id);
-                } else {
-                    QueryManager.cancelQuery(id);
-                }
-            } else if (!$clickTarget.closest(".checkbox").length) {
-                focusOnQuery($(this));
-            }
-        });
-
-        $queryList.on("click", ".hint.loadmore", function() {
-            loadMore(20);
-        });
-
-        $queryDetail.on("click", ".cancelIcon", function() {
-            $queryList.find(".query.active .cancelIcon").click();
-        });
-
-        $queryDetail.on("click", ".deleteIcon", function() {
-            $queryList.find(".query.active .deleteIcon").click();
-        });
-
-        $("#monitor-inspect").on('click', function() {
-            focusOnOutput();
-        });
-
-        $queryDetail.on("click", ".copy", function() {
-            let text = $queryDetail.find(".operationSection .content").text();
-            xcUIHelper.copyToClipboard(text);
-            let $el = $(this);
-            xcTooltip.changeText($el, TooltipTStr.AboutCopied);
-            xcTooltip.refresh($el, 1000);
-            setTimeout(() => {
-                xcTooltip.changeText($el, TooltipTStr.AboutCopy);
-            }, 1000);
-        });
-
-        bulkOptions();
-
-        function focusOnOutput(): void {
-            const queryId: number = parseInt($queryList.find('.query.active').data('id'));
-            const mainQuery: XcQuery = queryLog.get(queryId);
-            const tableName: string = mainQuery.getOutputTableName();
-
-            if (!tableName) {
-                let type: string;
-                if (mainQuery.getName() === SQLOps.DSImport) {
-                    type = "dataset";
-                } else {
-                    type = "table";
-                }
-                focusOutputErrorHandler(type, mainQuery);
-                return;
-            }
-
-            if (tableName.indexOf(gDSPrefix) > -1) {
-                const dsId: string = tableName.slice(gDSPrefix.length);
-                let $grid: JQuery = DS.getGrid(dsId);
-                if ($grid.length) {
-                    focusOnDSGrid($grid, dsId);
-                } else {
-                    DS.restore(DS.getHomeDir(true), false)
-                    .then(function() {
-                        $grid = DS.getGrid(dsId);
-                        if ($grid.length) {
-                            focusOnDSGrid($grid, dsId);
-                        } else {
-                            focusOutputErrorHandler('dataset', mainQuery);
-                        }
-                    })
-                    .fail(function() {
-                        focusOutputErrorHandler('dataset', mainQuery);
-                    });
-                }
-                return;
-            }
-
-            const tableId: TableId = xcHelper.getTableId(tableName);
-
-            if (tableId == null) {
-                focusOutputErrorHandler('output', mainQuery);
-                return;
-            }
-        }
-
-        function focusOnDSGrid($grid: JQuery, dsId: string): void {
-            // switch to correct panels
-            const $datastoreTab: JQuery = $("#dataStoresTab");
-            if (!$datastoreTab.hasClass("active")) {
-                $datastoreTab.click();
-            }
-
-
-            const $inButton: JQuery = $("#inButton");
-            if (!$inButton.hasClass("active")) {
-                $inButton.click();
-            }
-
-            const folderId: string = DS.getDSObj(dsId).parentId;
-            DS.goToDir(folderId);
-            DS.focusOn($grid);
-        }
-
-        function focusOutputErrorHandler(
-            type: string,
-            mainQuery: XcQuery,
-            status?: string
-        ): void {
-            const typeUpper: string = type[0].toUpperCase() + type.slice(1);
-            const title: string = xcStringHelper.replaceMsg(ErrWRepTStr.OutputNotFound, {
-                "name": typeUpper
-            });
-            let desc: string;
-            if (type === "output") {
-                desc =ErrTStr.OutputNotFoundMsg;
-            } else {
-                desc = xcStringHelper.replaceMsg(ErrWRepTStr.OutputNotExists, {
-                    "name": typeUpper
-                });
-            }
-
-            Alert.error(title, desc);
-            if (status) {
-                mainQuery.outputTableState = status;
-            } else {
-                mainQuery.outputTableState = 'deleted';
-            }
-
-            $('#monitor-inspect').addClass('btn-disabled');
-            $queryDetail.find('.outputSection').find('.text')
-                                               .text(CommonTxtTstr.NA);
-        }
-
-        function bulkOptions(): void {
-            $querySideBar.find(".bulkOptions").on("click", "li", function() {
-                const action: string = $(this).data('action');
-
-                switch (action) {
-                    case ("deleteAll"):
-                        const ids: number[] = [];
-                        $queryList.find(".checkbox.checked").each(function() {
-                            const id: number = $(this).closest(".query").data("id");
-                            ids.push(id);
-                        });
-                        QueryManager.removeQuery(ids, true);
-                        $querySideBar.removeClass("bulkOptionsOpen");
-                        break;
-                    case ("clearAll"):
-                        $queryList.find(".checkbox.checked")
-                                  .removeClass("checked");
-                        break;
-                    case ("selectAll"):
-                        $queryList.find(".checkbox").filter(function() {
-                            return !$(this).closest(".processing").length &&
-                                $(this).is(":visible");
-                        }).addClass("checked");
-                        break;
-                    default:
-                        break;
-                }
-            });
-        }
-    }
-
-    function filterQuery($el: JQuery): void {
-        if ($el.hasClass("active")) {
+            focusOutputErrorHandler(type, mainQuery);
             return;
         }
 
-        $el.addClass("active").siblings().removeClass("active");
-        const $queries: JQuery = $queryList.find(".query").addClass("xc-hidden");
-        if ($el.hasClass("error")) {
-            $queryList.find(".query.error").removeClass("xc-hidden");
-        } else if ($el.hasClass("processing")) {
-            $queryList.find(".query.processing").removeClass("xc-hidden");
-        } else if ($el.hasClass("done")) {
-            $queryList.find(".query.done").removeClass("xc-hidden");
-        } else {
-            $queries.removeClass("xc-hidden");
+        if (tableName.indexOf(gDSPrefix) > -1) {
+            focusOutputErrorHandler('dataset', mainQuery);
+            return;
         }
-        QueryManager.scrollToFocused();
+
+        const tableId: TableId = xcHelper.getTableId(tableName);
+
+        if (tableId == null) {
+            focusOutputErrorHandler('output', mainQuery);
+            return;
+        }
     }
 
-    function getQueryHTML(xcQuery: XcQuery, restored?: boolean): string {
-        const id: number = xcQuery.getId();
-        const time: number = xcQuery.getTime();
-        const dateObj : TimeObj = getQueryTime(time);
-        const cancelClass: string = xcQuery.cancelable ? "" : " disabled";
-        let statusClass: string | number = "";
-        let pct: number;
-        let step: string = "";
-        let stepClass = "";
-        const originalName: string = xcQuery.getName();
-        let name: string = originalName;
-        let tooltip: string = "";
-        if (sysQueryTypes.indexOf(name) > -1) {
-            name = "Sys-" + name;
-            tooltip = TooltipTStr.SysOperation;
-        }
-        if (restored) {
-            statusClass = xcQuery.state;
-            if (xcQuery.state === QueryStatus.Done) {
-                step = "completed";
-                pct = 100;
-                stepClass = "done";
-            } else if (xcQuery.state === QueryStatus.Cancel) {
-                step = QueryStatus.Cancel;
-                pct = 0;
-            } else if (xcQuery.state === QueryStatus.Error) {
-                step = QueryStatus.Error;
-                pct = 0;
-                stepClass = "error";
-            }
+    function focusOutputErrorHandler(
+        type: string,
+        mainQuery: XcQuery,
+        status?: string
+    ): void {
+        const typeUpper: string = type[0].toUpperCase() + type.slice(1);
+        const title: string = xcStringHelper.replaceMsg(ErrWRepTStr.OutputNotFound, {
+            "name": typeUpper
+        });
+        let desc: string;
+        if (type === "output") {
+            desc =ErrTStr.OutputNotFoundMsg;
         } else {
-            statusClass = "processing";
-            pct = 0;
-            step = "";
+            desc = xcStringHelper.replaceMsg(ErrWRepTStr.OutputNotExists, {
+                "name": typeUpper
+            });
         }
-        if (sysQueryTypes.indexOf(originalName) > -1) {
-            statusClass += " sysType";
+
+        Alert.error(title, desc);
+        if (status) {
+            mainQuery.outputTableState = status;
+        } else {
+            mainQuery.outputTableState = 'deleted';
         }
-        const html: string =
-            '<div class="xc-query query no-selection ' + statusClass +
-            '" data-id="' + id + '">' +
-                '<div class="queryInfo">' +
-                    '<div class="leftPart">' +
-                        '<i class="icon queryIcon processing xi-progress"></i>' +
-                        '<i class="icon queryIcon error xi-error"></i>' +
-                        '<i class="icon queryIcon done xi-success"></i>' +
-                    '</div>' +
-                    '<div class="middlePart name" data-original-title="' +
-                        tooltip + '" data-toggle="tooltip" ' +
-                        'data-placement="top" data-container="body">' +
-                        name +
-                    '</div>' +
-                    '<div class="rightPart">' +
-                        '<i class="icon xi-trash xc-action deleteIcon" ' +
-                        'data-container="body" data-toggle="tooltip" ' +
-                        'title="' + TooltipTStr.RemoveQuery + '"></i>' +
-                        '<i class="icon xi-cancel xc-action cancelIcon ' +
-                        cancelClass + '" ' +
-                        'data-container="body" data-toggle="tooltip" ' +
-                        'title="' + TooltipTStr.CancelQuery + '"></i>' +
-                        '<div class="checkbox">' +
-                          '<i class="icon xi-ckbox-empty fa-13"></i>' +
-                          '<i class="icon xi-ckbox-selected fa-13"></i>' +
-                        '</div>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="queryInfo">' +
-                    '<div class="middlePart date" data-toggle="tooltip" ' +
-                    'data-container="body" data-placement="top" ' +
-                    'data-original-title="' + dateObj.tip + '">' +
-                        CommonTxtTstr.StartTime + ": " + dateObj.text +
-                    '</div>' +
-                    '<div class="rightPart querySteps ' + stepClass + '">' +
-                        step +
-                    '</div>' +
-                '</div>' +
-                '<div class="queryProgress">' +
-                    '<div class="progressBar" style="width:' + pct +
-                        '%" data-step="0"></div>' +
-                '</div>' +
-            '</div>';
-        return html;
     }
 
     // XXX can some of the src tables be simultaneously used by another operation
@@ -2285,17 +1394,12 @@ namespace QueryManager {
         // delete tables not found in gTables
         for (let i = 0; i < backendTables.length; i++) {
             const tableName: string = backendTables[i];
-            deleteTableHelper(tableName);
+            XcalarDeleteTable(tableName);
         }
 
         for (let i = 0; i < dstDatasets.length; i++) {
             deleteDatasetHelper(dstDatasets[i]);
         }
-    }
-
-    function deleteTableHelper(tableName: string): void {
-        XcalarDeleteTable(tableName)
-;
     }
 
     function deleteDatasetHelper(dsName: string): void {
@@ -2306,17 +1410,6 @@ namespace QueryManager {
     function clearIntervalHelper(id: number): void {
         clearTimeout(queryCheckList[id]);
         delete queryCheckList[id];
-    }
-
-    function setDisplayToDefault(): void {
-        updateQueryTextDisplay("", true);
-        updateStatusDetail({
-            "start": CommonTxtTstr.NA,
-            "elapsed": CommonTxtTstr.NA,
-            "opTime": CommonTxtTstr.NA,
-            "total": CommonTxtTstr.NA,
-        }, null, QueryStatus.RM);
-        updateOutputSection(null, true);
     }
 
     function updateDatasetActivationProgress(txId: number, progress: number, dsName: string, finished: boolean) {

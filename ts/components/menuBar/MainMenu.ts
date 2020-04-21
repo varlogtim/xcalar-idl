@@ -403,9 +403,6 @@ namespace MainMenu {
         // Otherwise the UDF panel will be blocked by the side menu.
         checkAnim();
 
-        if ($("#monitor-queries").hasClass("active")) {
-            QueryManager.scrollToFocused();
-        }
         if ($("#sqlWorkSpacePanel").hasClass("active")) {
             DagCategoryBar.Instance.showOrHideArrows();
         }
