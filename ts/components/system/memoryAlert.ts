@@ -136,7 +136,10 @@ class MemoryAlert {
                 className: "clear memory",
                 func: (checked) => {
                     this._turnOffRedMemoryAlert = checked;
-                    DagTblManager.Instance.emergencyClear();
+                    DagTblManager.Instance.emergencyClear()
+                    .always(() => {
+                        MemoryAlert.Instance.check();
+                    });
                     this.disableAlertInPeriod();
                 }
             }],
