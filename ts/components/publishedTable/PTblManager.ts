@@ -481,6 +481,7 @@ class PTblManager {
             await XIApi.query(txId, destTable, queryStr);
             await XcalarPublishTable(destTable, pbTableName, txId);
             await this.addTable(pbTableName);
+            await XIApi.deleteTableInBulk(txId, destTables, true);
             node.beConfiguredState();
             Transaction.done(txId);
         } catch (e) {
