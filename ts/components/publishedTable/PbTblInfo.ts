@@ -206,13 +206,43 @@ class PbTblInfo {
         return cols;
     }
 
-    public async saveDataflow(resultSetName: string): Promise<void> {
+    public async saveDataflow(resultSetName: string, addSchemaToSource: boolean = false): Promise<void> {
         const dag: {node: any[]} = await XcalarGetDag(resultSetName);
         const convert = new DagQueryConverter({query: dag.node});
         let subGraph: DagSubGraph = convert.convertToSubGraph();
+        if (addSchemaToSource) {
+            this._addSchemaToSourceNode(subGraph);
+        }
         subGraph = await this._normalizeSubgraph(subGraph);
         const serializedStr: string = JSON.stringify(subGraph.getSerializableObj());
         await this._getKVStore().put(serializedStr, true);
+    }
+
+    private _addSchemaToSourceNode(graph: DagGraph): void {
+        try {
+            const nodes = graph.getAllNodes();
+            for (let [nodeId, node] of nodes) {
+                if (node instanceof DagNodeDataset) {
+                    const childNode: DagNode = node.getChildren()[0];
+                    if (childNode instanceof DagNodeSynthesize) {
+                        const params: DagNodeSynthesizeInputStruct = <DagNodeSynthesizeInputStruct>childNode.getParam();
+                        const colInfos = params.colsInfo;
+                        const schema: ColSchema[] = colInfos.map((colInfo) => {
+                            const dfField = DfFieldTypeT[colInfo.columnType];
+                            const columnType: ColumnType = dfField ? xcHelper.convertFieldTypeToColType(dfField) : <ColumnType>colInfo.columnType;
+                            return {
+                                name: colInfo.sourceColumn,
+                                type: columnType
+                            };
+                        });
+                        node.setSchema(schema)
+                    }
+                    break;
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     public async getDataflow(): Promise<DagGraphInfo> {

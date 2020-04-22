@@ -1077,7 +1077,7 @@ namespace DS {
             options.activated = options.activated || false;
         }
         let dsObj = new DSObj(options);
-        dsObj.addToParent();
+        // dsObj.addToParent();
         let $ds = options.uneditable ? $(getUneditableDSHTML(dsObj)) :
                                        $(getDSHTML(dsObj));
 
@@ -1149,6 +1149,7 @@ namespace DS {
     }
 
     function isInSharedFolder(dirId: string): boolean {
+        return false
         let dsObj: DSObj;
         while (dirId !== homeDirId && dirId !== DSObjTerm.SharedFolderId) {
             dsObj = DS.getDSObj(dirId);

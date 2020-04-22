@@ -450,7 +450,7 @@ async function _savePublishedTableDataFlow(
 ) {
     try {
         const pbTblInfo = new PbTblInfo({name: pubTableName});
-        await pbTblInfo.saveDataflow(resultSetName);
+        await pbTblInfo.saveDataflow(resultSetName, true);
         log("persisted the dataflow of published table " + pubTableName);
     } catch (e) {
         console.error("persist published table data flow failed", e);
