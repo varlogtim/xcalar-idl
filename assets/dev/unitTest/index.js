@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const exec = require("child_process").execSync;
+const spawn = require('child_process').spawn;
 
 const commandLineArgs = process.argv;
 
@@ -29,18 +30,35 @@ async function runTest(testType, hostname) {
             });
         } else if (testType === "expServer") {
             let exitCode = 0;
-            try {
-                let mochaTest = "npm test --prefix ../../../xcalar-gui/services/expServer";
-                const output = exec(mochaTest, {encoding: 'utf8'});
-                console.log(output)
-                console.log("Expserver test passed.");
-            } catch (error) {
-                console.log(error.stderr, error.stdout);
-                console.log("Expserver test failed.");
-                exitCode = error.status;
-            }
-            process.exit(exitCode);
+            // try {
+            //     let mochaTest = "npm test --prefix ../../../xcalar-gui/services/expServer";
+            //     const output = exec(mochaTest, {encoding: 'utf8'});
+            //     console.log(output)
+            //     console.log("Expserver test passed.");
+            // } catch (error) {
+            //     console.log(error.stderr, error.stdout);
+            //     console.log("Expserver test failed.");
+            //     exitCode = error.status;
+            // }
+            // process.exit(exitCode);
 
+            const mochaTest = "npm test --prefix ../../../xcalar-gui/services/expServer";
+            const expServerTest = spawn('npm', ['test', '--prefix', '../../../xcalar-gui/services/expServer']);
+
+            expServerTest.stdout.on('data', function (data) {
+                console.log('ExpServerTest: ' + data.toString());
+            });
+
+            expServerTest.stderr.on('data', function (data) {
+                console.log('ExpServerTest Error: ' + data.toString());
+            });
+
+            expServerTest.on('exit', function (code) {
+                console.log('ExpServerTest exited with code ' + code.toString());
+                exitCode = code;
+                process.exit(exitCode);
+            });
+            return;
         } else if(testType === "xcrpcTest") {
             let exitCode = 0;
             try {
