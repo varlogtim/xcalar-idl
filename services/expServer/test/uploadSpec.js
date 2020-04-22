@@ -1,4 +1,4 @@
-describe('ExpServer Upload Test', function() {
+describe.skip('ExpServer Upload Test', function() {
     // Test setup
     var expect = require('chai').expect;
 

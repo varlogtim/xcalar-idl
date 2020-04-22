@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node --experimental-worker expServer.js",
     "debug": "node --experimental-worker --inspect expServer.js",
-    "test": "NODE_ENV=test XCE_INSTALLER_ROOT=/tmp TMPDIR=/tmp nyc ../../../node_modules/mocha/bin/_mocha './test/**/*Spec.js'"
+    "test": "NODE_ENV=test XCE_INSTALLER_ROOT=/tmp TMPDIR=/tmp nyc ../../../node_modules/mocha/bin/_mocha './test/**/*Spec.js' --bail"
   },
   "repository": {
     "type": "git",

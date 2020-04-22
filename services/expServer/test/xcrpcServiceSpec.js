@@ -204,7 +204,7 @@ function serializeRequest(serviceReq) {
     let msg = new proto.ProtoMsg();
     msg.setType(1);
     let request = new proto.ProtoRequestMsg();
-    request.setRequestId(0);
+    request.setRequestid(0);
     request.setChild(0);
     request.setTarget(4);
     request.setServic(serviceReq);
