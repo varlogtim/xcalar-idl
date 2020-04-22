@@ -157,7 +157,6 @@ class SQLWorkSpace {
             },
             stop: function(_event, ui) {
                 $panel.removeClass("resizing");
-                SQLEditorSpace.Instance.refresh();
                 UDFPanel.Instance.refresh();
 
                 const top: number = ui.position.top;
@@ -202,7 +201,6 @@ class SQLWorkSpace {
                 UDFPanel.Instance.getPopup().trigger("ResizeDocked_BroadCast", {
                     dockedWidth: pct,
                 });
-                SQLEditorSpace.Instance.refresh();
             }
         });
 
@@ -245,7 +243,6 @@ class SQLWorkSpace {
                 DagConfigNodeModal.Instance.getPopup().trigger("ResizeDocked_BroadCast", {
                     dockedWidth: pct,
                 });
-                SQLEditorSpace.Instance.refresh();
             }
         });
 
@@ -357,7 +354,6 @@ class SQLWorkSpace {
             stop: function(_event, ui) {
                 const pct = getPct(ui);
                 $panel.removeClass("resizing");
-                SQLEditorSpace.Instance.refresh();
                 UDFPanel.Instance.refresh();
                 DebugPanel.Instance.getPopup().trigger("ResizeDocked_BroadCast", {
                     dockedHeight: pct,

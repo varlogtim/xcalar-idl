@@ -179,11 +179,13 @@ class DagConfigNodeModal {
         }
         this.getPopup().getPanel().mousedown(); // if popped out, brings to front
         PopupManager.checkAllContentUndocked();
+        this._popup.trigger("Show_BroadCast");
     }
 
     public close(): void {
         this._getModal().addClass("xc-hidden");
         PopupManager.checkAllContentUndocked();
+        this._popup.trigger("Hide_BroadCast");
     }
 
     private _unlock(node, tabId: string) {
