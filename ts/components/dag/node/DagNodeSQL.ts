@@ -1722,7 +1722,10 @@ class DagNodeSQL extends DagNode {
                         Authentication.getTableId();
             }
         } catch (e) {
-            console.error("generate table name error", e);
+            // in noed js env it's normal to have code here
+            if (!xcHelper.isNodeJs()) {
+                console.error("generate table name error", e);
+            }
             // when has error case, use the old behavior
             // XXX TODO: deprecate it
             if (isAgg) {

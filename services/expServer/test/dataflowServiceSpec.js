@@ -185,20 +185,32 @@ describe("sdk dataflow service Test", () => {
                     "req.setOptions(options);",
                 ret: {
                     newTableName: "newTableName",
-                    lRename: [
-                        {
+                    // this fit getColRenameMsg2
+                    lRename: {
                             orig: "lorig",
                             new: "lnew",
                             type: "ltype"
-                        }
-                    ],
-                    rRename: [
-                        {
+                    },
+                    rRename: {
                             orig: 'rorig',
                             new: 'rnew',
                             type: 'rtype'
-                        }
-                    ]
+                    }
+                    // this fit getColRenameMsg
+                    // lRename: [
+                    //     {
+                    //         orig: "lorig",
+                    //         new: "lnew",
+                    //         type: "ltype"
+                    //     }
+                    // ],
+                    // rRename: [
+                    //     {
+                    //         orig: 'rorig',
+                    //         new: 'rnew',
+                    //         type: 'rtype'
+                    //     }
+                    // ]
                 },
                 resp_results: [
                     {
@@ -206,20 +218,20 @@ describe("sdk dataflow service Test", () => {
                         res: "newTableName"
                     },
                     {
-                        eval: "resp.getLrenameList()",
+                        eval: "resp.getLrename()",
                         res: eval("let tmp = new df_pb.ColRenameInfo();" +
                             "tmp.setOrig('lorig');" +
                             "tmp.setNew('lnew');" +
                             "tmp.setType('ltype');" +
-                            "[tmp]")
+                            "tmp")
                     },
                     {
-                        eval: 'resp.getRrenameList()',
+                        eval: 'resp.getRrename()',
                         res: eval("let tmp = new df_pb.ColRenameInfo();" +
                             "tmp.setOrig('rorig');" +
                             "tmp.setNew('rnew');" +
                             "tmp.setType('rtype');" +
-                            "[tmp]")
+                            "tmp")
                     }
                 ]
             },
