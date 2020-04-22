@@ -901,7 +901,8 @@ namespace DagNodeMenu {
             classes += " imdTableMenu";
             const node: DagNodeIMDTable = <DagNodeIMDTable>dagNode;
             const tableName: string = node.getSource();
-            if (!PTblManager.Instance.hasTable(tableName)) {
+            if (node.getState() !== DagNodeState.Unused &&
+                !PTblManager.Instance.hasTable(tableName)) {
                 $menu.find(".restoreSource").removeClass("xc-hidden");
             } else {
                 $menu.find(".restoreSource").addClass("xc-hidden");

@@ -177,7 +177,8 @@ class DagConfigNodeModal {
                                 $node);
                 return;
         }
-        this.getPopup().getPanel().mousedown(); // if popped out, brings to front
+
+        this._popup.bringToFront();
         PopupManager.checkAllContentUndocked();
         this._popup.trigger("Show_BroadCast");
     }

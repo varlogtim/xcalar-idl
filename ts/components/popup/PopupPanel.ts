@@ -82,6 +82,12 @@ class PopupPanel {
         return this._id;
     }
 
+    public bringToFront() {
+        if (!this._isDocked) {
+            this._event.dispatchEvent("BringFront_BroadCast");
+        }
+    }
+
     private _getPopupButton(): JQuery {
         return this.getPanel().find(".undock");
     }
