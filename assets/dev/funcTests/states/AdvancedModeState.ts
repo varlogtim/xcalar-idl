@@ -7,7 +7,7 @@ Tab operations
 * getTab - Pick an existing tab randomly and switches to it
 
 IN node operations
-* addDatasetNode - Adds a dataset node choosing a random dataset loaded
+* addTableNode - Adds a table node choosing a random dataset loaded
 * addLinkInNode - adds a link-in node chosing a random link-out nodes available
 * addTableLinkInNode - adds a link-in node chosing a random xd table available
 * addInputCustomNode - Adds a input custom node choosing a random custom nodes available.
@@ -84,7 +84,7 @@ class AdvancedModeState extends State {
     private async createTab() {
         if (this.availableActions.length == 1) {
             // In nodes
-            this.addAction(this.addDatasetNode);
+            this.addAction(this.addTableNode);
             this.addAction(this.addLinkInNode);
             // TODO: where is this method ?
             // this.addAction(this.addTableLinkInNode);
@@ -123,7 +123,7 @@ class AdvancedModeState extends State {
         }
         let newTabId = this.dagTabManager.newTab();
         this.currentTab = this.dagTabManager.getTabById(newTabId);
-        await this.addDatasetNode();
+        await this.addTableNode();
         return this;
     }
 
@@ -134,23 +134,26 @@ class AdvancedModeState extends State {
     }
 
     // In nodes
-    private async addDatasetNode() {
-        this.log(`Adding dataset node.. in WKBK ${this.currentWKBKId}`);
-        let datasetsLoaded = DS.listDatasets(false);
-        console.log("************* Num datasets: " + datasetsLoaded.length);
-        let ds = Util.pickRandom(datasetsLoaded);
-        const dsNode: DagNodeIn = <DagNodeIn>this.dagViewManager.newNode({type:DagNodeType.Dataset});
-        let dsArgs = await DS.getLoadArgsFromDS(ds.id);
-        let dsSchema = await DS.getDSBasicInfo(ds.id);
-
-        dsNode.setParam({
-            'source': ds.id,
-            'prefix': Util.randName(xcHelper.parseDSName(ds.id)["dsName"]),
-            'synthesize': this._getRandomLiteral(ColumnType.boolean),
-            'loadArgs': dsArgs
+    private async addTableNode() {
+        this.log(`Adding table node.. in WKBK ${this.currentWKBKId}`);
+        let tableLoaded = PTblManager.Instance.getTables();
+        console.log("************* Num tables: " + tableLoaded.length);
+        let pTblInfo = Util.pickRandom(tableLoaded);
+        const tableName = pTblInfo.name;
+        const tableNode: DagNodeIMDTable = <DagNodeIn>this.dagViewManager.newNode({type:DagNodeType.IMDTable});
+        const schma: ColSchema[] = pTblInfo.getSchema().map((pTblSchema) => {
+            return {
+                name: pTblSchema.name,
+                type: pTblSchema.type
+            };
         });
-        dsNode.setSchema(dsSchema[ds.id].columns, true);
-        this.log(`dataset node with id ${ds.id} added in WKBK ${this.currentWKBKId}`);
+        await tableNode.fetchAndSetSubgraph(tableName);
+        tableNode.setParam({
+            "source": tableName,
+            "version": -1,
+            "schema": schma
+        });
+        this.log(`Table node with table ${tableName} added in WKBK ${this.currentWKBKId}`);
         return this;
     }
 
@@ -186,7 +189,7 @@ class AdvancedModeState extends State {
         let customNodes = customNodesInfo.filter((nodeInfo) => nodeInfo.inPorts.length == 0);
         if (customNodes.length == 0) {
             this.log(`No input custom nodes available to add in WKBK ${this.currentWKBKId}`);
-            return this.addDatasetNode();
+            return this.addTableNode();
         }
         this.dagViewManager.newNode(Util.pickRandom(customNodes));
         this.log(`Input custom node added in WKBK ${this.currentWKBKId}`);
@@ -199,7 +202,7 @@ class AdvancedModeState extends State {
         let customNodes = customNodesInfo.filter((nodeInfo) => nodeInfo.inPorts.length > 0);
         if (customNodes.length == 0) {
             this.log(`No custom nodes available to add in WKBK ${this.currentWKBKId}`);
-            return this.addDatasetNode();
+            return this.addTableNode();
         }
         this.dagViewManager.newNode(Util.pickRandom(customNodes));
         this.log(`Custom node added in WKBK ${this.currentWKBKId}`);
@@ -694,8 +697,8 @@ class AdvancedModeState extends State {
         let idx = 1;
         let ignoreActions = new Set(["createTab", "addLinkInNode", "addTableLinkInNode", "createSQLFunc",
                         "addLinkOutNode", "addOptimizedLinkOutNode", "getTab", "createCustomNode",
-                        "addDatasetNode", "addCustomNode", "addSQLNode"]);
-        let randomAction = this.addDatasetNode;
+                        "addTableNode", "addCustomNode", "addSQLNode"]);
+        let randomAction = this.addTableNode;
         await randomAction.call(this);
         while (idx < nodesCount) {
             randomAction = Util.pickRandom(this.availableActions);
@@ -750,7 +753,7 @@ class AdvancedModeState extends State {
             let count = 1;
             let ignoreActions = new Set(["createTab", "addLinkInNode", "addTableLinkInNode", "addCustomNode",
                                     "addLinkOutNode", "addOptimizedLinkOutNode", "getTab", "createCustomNodes",
-                                    "addDatasetNode", "createSQLFunc", "addSQLNode"]);
+                                    "addTableNode", "createSQLFunc", "addSQLNode"]);
             while (count < nodesCount) {
                 let randomAction = Util.pickRandom(this.availableActions);
                 if (ignoreActions.has(randomAction.name)) {

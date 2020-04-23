@@ -48,6 +48,8 @@ class StateMachine {
         if (typeof window !== "undefined") {
             window.verbose = true;
         }
+        // make sure it's in notebook panel
+        $("#notebookScreenBtn").click();
         await this.prepareData();
         let maxRun = new Map();
         maxRun.set("SQLMode", Util.getRandomInt(40) + 20);
@@ -75,34 +77,24 @@ class StateMachine {
     }
 
     async prepareData() {
-        // load some datasets for functests
-        if (this.stateName != 'Workbook' && xcSessionStorage.getItem("xdFuncTestFirstTimeInit") == undefined) {
-            const nameBase = "AIRPORT" + Math.floor(Util.random() * 10000);
-            const check = "#previewTable td:eq(1):contains(00M)";
-            const url = "/netstore/datasets/" + "flight/" + this.test.mode + "airports.csv";
-            const dsName = nameBase;
-            await this.test.loadDS(dsName, url, check, true);
-
-            // publish table
-
-            // Need to append the suffix to publish table out from it
-            const tmpDSName = nameBase + PTblManager.DSSuffix;
-            await this.test.loadDS(tmpDSName, url, check, true);
-            const tblName = nameBase;
-
-            PTblManager.Instance.addDatasetTable(tmpDSName);
-            let ds = DS.listDatasets().filter((ds) => {return ds.id.endsWith(tmpDSName)})[0];
-            let dsSchema = await DS.getDSBasicInfo(ds.id);
-            let schema = dsSchema[ds.id].columns;
-            await PTblManager.Instance.createTableFromDataset(ds.id, tblName, schema);
-            DS.refresh(); // refresh gridview area
-            // XVM.setMode(this.currentState.mode);
-            xcSessionStorage.setItem('xdFuncTestFirstTimeInit', 'false');
+        try {
+            // load some tables (published tables) for functests
+            if (this.stateName != 'Workbook' && xcSessionStorage.getItem("xdFuncTestFirstTimeInit") == undefined) {
+                const nameBase = "AIRPORT" + Math.floor(Util.random() * 10000);
+                const check = "#previewTable td:eq(1):contains(00M)";
+                const url = "/netstore/datasets/flight/" + this.test.mode + "airports.csv";
+                const tblName = nameBase;
+                await this.test.loadTable(tblName, url, check, true);
+                xcSessionStorage.setItem('xdFuncTestFirstTimeInit', 'false');
+            }
+        } catch (e) {
+            console.error("Prepare data failed", e);
+            throw e;
         }
     }
 }
 
-window.FuncTestSuite = (function($, FuncTestSuite) {
+window.FuncTestSuite = (function(FuncTestSuite) {
     var test;
     var TestCaseEnabled = true;
     var defaultTimeout = 72000000; // 1200min
@@ -137,25 +129,23 @@ window.FuncTestSuite = (function($, FuncTestSuite) {
         xcSessionStorage.setItem('xdFuncTestIterations', iterations);
     };
 
-    FuncTestSuite.run = function() {
-        var deferred = PromiseHelper.deferred();
-        xcManager.setup()
-        .then(function(){
-            return runFuncTest();
-        })
-        .fail(function(err){
+    FuncTestSuite.run = async function() {
+        try {
+            await xcManager.setup();
+            await runFuncTest();
+        } catch (err) {
             if (err === WKBKTStr.NoWkbk) {
                 // No workbook should be fine
-                return runFuncTest();
+                await runFuncTest();
             } else {
                 err = wrapFailError(err);
-                deferred.reject(err);
+                throw err
             }
-        })
-        return deferred.promise();
+        }
+        return;
     }
 
-    function runFuncTest() {
+    async function runFuncTest() {
         var params = getUrlParameters();
 
         var clean = parseBooleanParam(params.cleanup);
@@ -167,6 +157,11 @@ window.FuncTestSuite = (function($, FuncTestSuite) {
 
         test = TestSuite.createTest();
         test.setMode(mode);
+        if (WorkbookManager.getActiveWKBK() != null) {
+            await test.waitUntil(() => {
+                return DagPanel.Instance.hasSetup();
+            });
+        }
         initializeTests();
         var iterations = getIterations(params);
         if (!xcSessionStorage.getItem('xdFuncTestTotalRun')) {
@@ -285,4 +280,4 @@ window.FuncTestSuite = (function($, FuncTestSuite) {
     /* -------------------------------Helper Function------------------------------- */
 
     return (FuncTestSuite);
-}(jQuery, {}));
+}({}));

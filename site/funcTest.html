@@ -23,7 +23,9 @@
     FuncTestSuite.setup();
   </script>
   <script>
-    $(document).ready(FuncTestSuite.run);
+    $(document).ready(() => {
+      FuncTestSuite.run()
+    });
   </script>
 </body>
 
