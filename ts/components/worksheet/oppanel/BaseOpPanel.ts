@@ -263,7 +263,7 @@ class BaseOpPanel {
     }
 
     protected showPanel(formName?: string, options?: ShowPanelInfo): XDPromise<void> {
-        if (this._formHelper.isOpen()) {
+        if (this.isOpen()) {
             return PromiseHelper.reject();
         }
         this._formCount++;
@@ -306,7 +306,7 @@ class BaseOpPanel {
 
     protected hidePanel(isSubmit?: boolean): boolean {
         this._clearColumnPickerTarget();
-        if (!this._formHelper.isOpen()) {
+        if (!this.isOpen()) {
             return false;
         }
         this._formCount++;

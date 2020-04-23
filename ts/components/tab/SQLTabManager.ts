@@ -27,9 +27,10 @@ class SQLTabManager extends AbstractTabManager {
     /**
      * SQLTabManager.Instance.newTab
      */
-    public newTab(): void {
+    public newTab(): string {
         const id: string = SQLSnippet.Instance.create(null);
         this.openTab(id);
+        return id;
     }
 
     /**
@@ -59,7 +60,7 @@ class SQLTabManager extends AbstractTabManager {
         if (index > -1) {
             this._deleteTabAction(index);
             this._tabListScroller.showOrHideScrollers();
-        } 
+        }
     }
 
     /**
@@ -165,7 +166,7 @@ class SQLTabManager extends AbstractTabManager {
             this._activeTabs.splice(newIndex, 0, tab);
             this._save();
         }
-    } 
+    }
 
     protected _getJSON(): {tabs: string[]} {
         return {

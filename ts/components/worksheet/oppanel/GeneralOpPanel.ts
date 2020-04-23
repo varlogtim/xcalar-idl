@@ -508,7 +508,7 @@ class GeneralOpPanel extends BaseOpPanel {
     public show(node: DagNode, options?: ShowPanelInfo): XDPromise<void> {
         const self = this;
         this._dagNode = node;
-        if (this._formHelper.isOpen()) {
+        if (this.isOpen()) {
             return PromiseHelper.reject();
         }
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
@@ -545,7 +545,7 @@ class GeneralOpPanel extends BaseOpPanel {
     }
 
     public close(isSubmit?: boolean): void {
-        if (!this._formHelper.isOpen()) {
+        if (!this.isOpen()) {
             return;
         }
         // highlighted column sticks out if we don't close it early

@@ -20,7 +20,7 @@ class CastOpPanel extends BaseOpPanel {
     }
 
     public show(dagNode: DagNodeMap, options: ShowPanelInfo) {
-        if (this._formHelper.isOpen()) {
+        if (this.isOpen()) {
             return PromiseHelper.reject();
         }
         this._reset();
@@ -54,7 +54,7 @@ class CastOpPanel extends BaseOpPanel {
     }
 
     public close(isSubmit?: boolean): boolean {
-        if (!this._formHelper.isOpen()) {
+        if (!this.isOpen()) {
             return false;
         }
 

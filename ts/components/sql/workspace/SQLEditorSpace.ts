@@ -179,6 +179,7 @@ class SQLEditorSpace {
     private _getAutoCompleteHint(): any {
         let arcTables = {};
         try {
+
             let tables: PbTblInfo[] = SQLResultSpace.Instance.getAvailableTables();
             tables.forEach((table) => {
                 arcTables[table.name] = [];
@@ -190,10 +191,17 @@ class SQLEditorSpace {
                         !upperName.startsWith("XCALARBATCHID") &&
                         !upperName.startsWith("XCALARROWNUMPK")) {
                         arcTables[table.name].push(col.name);
-                        arcTables[col.name] = [];
+                        if (!arcTables[col.name]) { // prevent table/column name collision
+                            arcTables[col.name] = [];
+                        }
                     }
                 });
             });
+            if (SQLOpPanel.Instance.isOpen()) {
+                let sqlOpPanelTables = SQLOpPanel.Instance.getAutoCompleteList();
+                arcTables = {...arcTables, ...sqlOpPanelTables};
+            }
+
             const sqlFuncs = DagTabSQLFunc.listFuncs();
             sqlFuncs.forEach((sqlFunc) => {
                 arcTables[sqlFunc + "()"] = [];
@@ -619,6 +627,10 @@ class SQLEditorSpace {
         .on("Resize", () => {
             this.refresh();
         });
+    }
+
+    public bringToFront() {
+        this._popup.bringToFront();
     }
 
     private _addEventListeners(): void {

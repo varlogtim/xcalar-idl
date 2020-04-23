@@ -26,7 +26,7 @@ class DeskewOpPanel extends BaseOpPanel {
     }
 
     public close(isSubmit?: boolean): boolean {
-        if (!this._formHelper.isOpen()) {
+        if (!this.isOpen()) {
             return false;
         }
         this._clear();

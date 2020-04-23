@@ -27,7 +27,7 @@ class DFLinkOutOpPanel extends BaseOpPanel {
     }
 
     public close(isSubmit?: boolean): void {
-        if (!this._formHelper.isOpen()) {
+        if (!this.isOpen()) {
             return;
         }
         super.hidePanel(isSubmit);

@@ -480,7 +480,7 @@ class SQLEditor {
                 const coords = cm.cursorCoords(true);
                 MenuHelper.dropdownOpen(null, $menu, {
                     "mouseCoors": {
-                        "x": coords.left + 10,
+                        "x": coords.left + 4,
                         "y": coords.top + 20
                     },
                     "classes": classNames.join(" "),
@@ -515,7 +515,7 @@ class SQLEditor {
 
     // XXX TODO: combine with _getAutoCompleteHint in SQLEditorSpace.ts
     private _renderColumnHint(): void {
-        const columnSet: Set<string> = new Set();
+        let columnSet: Set<string> = new Set();
         SQLResultSpace.Instance.getAvailableTables().forEach((table: PbTblInfo) => {
             const tableName: string = table.name;
             table.columns.forEach((col) => {
@@ -529,6 +529,11 @@ class SQLEditor {
                 }
             });
         });
+
+        if (SQLOpPanel.Instance.isOpen()) {
+            let sqlOpPanelColumns = SQLOpPanel.Instance.getColumnHintList();
+            columnSet = new Set([...columnSet, ...sqlOpPanelColumns]);
+        }
 
         const columns: string[] = [];
         columnSet.forEach((name) => columns.push(name));
@@ -558,6 +563,7 @@ class SQLEditor {
         let saveTimer = null;
         self._editor.on("change", function() {
             // the change even will cause a save data to KV
+            // and parse the sql
             clearTimeout(saveTimer);
             saveTimer = setTimeout(function() {
                 self._event.dispatchEvent("change");

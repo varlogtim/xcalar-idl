@@ -47,7 +47,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
      * Close the view
      */
     public close(isSubmit?: boolean): void {
-        if (!this._formHelper.isOpen()) {
+        if (!this.isOpen()) {
             return;
         }
         this._clear();

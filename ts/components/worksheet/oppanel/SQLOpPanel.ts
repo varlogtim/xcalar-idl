@@ -120,21 +120,21 @@ class SQLOpPanel extends BaseOpPanel {
                 if ($li.hasClass("unavailable")) {
                     return true; // return true to keep dropdown open
                 }
-                const snippetId: string = $li.data("id");
+                let snippetId: string = $li.data("id");
                 if ($li.hasClass("createNew")) {
-                    $("#sqlEditorSpace").mousedown(); // bring sql panel to front
-                    SQLTabManager.Instance.newTab();
+                    SQLEditorSpace.Instance.bringToFront();
+                    snippetId = SQLTabManager.Instance.newTab();
                 } else {
                     SQLTabManager.Instance.openTab(snippetId);
                 }
 
-                this._selectQuery(snippetId);
+                this._selectQuery(snippetId, null, true);
             }
         });
         menuHelper.setupListeners();
     }
 
-    private _selectQuery(snippetId: string, queryStr?: string): SQLSnippetDurable {
+    private _selectQuery(snippetId: string, queryStr?: string, forceUpdate?: boolean): SQLSnippetDurable {
         if (snippetId) {
             this.$panel.find(".nextForm").removeClass('xc-hidden');
         }
@@ -161,7 +161,13 @@ class SQLOpPanel extends BaseOpPanel {
         this._$elemPanel.find(".identifiersSection").addClass("disabled");
         SQLUtil.getSQLStruct(queryStr)
         .then((ret) => {
-            if (this._formHelper.isOpen() && this._queryStr === queryStr) {
+            if (this.isOpen() && this._queryStr === queryStr) {
+                if (!forceUpdate && !ret.identifiers.length && this._identifiers.length &&
+                    (ret.sql.toLowerCase().includes(" from ") ||
+                    (queryStr.toLowerCase().includes("from") &&
+                    queryStr.toLowerCase().includes("select")))) {
+                    return;
+                }
                 this._identifiers = ret.identifiers;
                 this.updateIdentifiersList();
             }
@@ -264,10 +270,6 @@ class SQLOpPanel extends BaseOpPanel {
                 self._sqlTables[key] = value;
             }
         });
-        this._$elemPanel.find(".refreshSnippet").on("click", () => {
-            const snippetId = this.$panel.find(".snippetsList input").data("id");
-            this._selectQuery(snippetId);
-        });
     }
 
     private _populateSourceIds($li: JQuery): void {
@@ -281,14 +283,16 @@ class SQLOpPanel extends BaseOpPanel {
     }
 
     public updateSnippet(snippetId) {
-        if (!this._formHelper.isOpen()) {
-            return;
-        }
-        const currSnippetId = this.$panel.find(".snippetsList input").data("id");
-        if (snippetId !== currSnippetId) {
+        if (!this.hasActiveSnippet(snippetId)) {
             return;
         }
         this._selectQuery(snippetId);
+    }
+
+
+    public hasActiveSnippet(snippetId) {
+        return (this.isOpen() &&
+        this.$panel.find(".snippetsList input").data("id") === snippetId);
     }
 
     public getAlertOff(): boolean {
@@ -498,6 +502,58 @@ class SQLOpPanel extends BaseOpPanel {
         }
     }
 
+    public getAutoCompleteList() {
+        const acTables = {};
+        this._dagNode.getParents().forEach((parent, index) => {
+            let tableName = this._identifiers[index];
+            let tableColumns = [];
+            if (tableName) {
+                acTables[tableName] = tableColumns;
+            }
+
+            parent.getLineage().getColumns(false, true).forEach((parentCol) => {
+                let colName = xcHelper.cleanseSQLColName(parentCol.name);
+                let upperName = colName.toUpperCase();
+                if (colName != "DATA" &&
+                    !upperName.startsWith("XCALARRANKOVER") &&
+                    !upperName.startsWith("XCALAROPCODE") &&
+                    !upperName.startsWith("XCALARBATCHID") &&
+                    !upperName.startsWith("XCALARROWNUMPK")) {
+                    tableColumns.push(colName);
+                    if (!acTables[colName]) {
+                        acTables[colName] = [];
+                    }
+                }
+            });
+        });
+        return acTables;
+    }
+
+    public getColumnHintList(): Set<string> {
+        const columnSet: Set<string> = new Set();
+        this._dagNode.getParents().forEach((parent, index) => {
+            let tableName = this._identifiers[index];
+            if (tableName) {
+                tableName += ".";
+            } else {
+                tableName = "";
+            }
+
+            parent.getLineage().getColumns(false, true).forEach((parentCol) => {
+                let colName = xcHelper.cleanseSQLColName(parentCol.name);
+                let upperName = colName.toUpperCase();
+                if (colName != "DATA" &&
+                    !upperName.startsWith("XCALARRANKOVER") &&
+                    !upperName.startsWith("XCALAROPCODE") &&
+                    !upperName.startsWith("XCALARBATCHID") &&
+                    !upperName.startsWith("XCALARROWNUMPK")) {
+                    columnSet.add(tableName + colName); // includes "."
+                }
+            });
+        });
+        return columnSet;
+    }
+
     private _setConnector(index, label, nodeId) {
         let oldNodeId;
         let needsConnection = true;
@@ -705,7 +761,7 @@ class SQLOpPanel extends BaseOpPanel {
                     this._toggleDropAsYouGo(advancedParams.dropAsYouGo);
                 }
                 const snippetId = advancedParams.snippetId;
-                this._selectQuery(snippetId);
+                this._selectQuery(snippetId, null, true);
                 this._$sqlIdentifiers.html("");
                 this._sqlTables = {};
                 if (Object.keys(identifiers).length > 0) {
