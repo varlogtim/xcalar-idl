@@ -5869,6 +5869,93 @@ html.microsoft {
 }
 
 /* ========== End Of Log Section ========== */
+#adminSetupModal {
+    width: 96%;
+    height: 96%;
+
+    .modalMain {
+        height: ~"calc(100% - @{modal-header-h})";
+        display: flex;
+        padding-left: 0;
+        padding-right: 0;
+
+        > .rightSection {
+            overflow: auto;
+            flex: 1 1 auto;
+        }
+
+        .cardMain {
+            padding: 30px 60px;
+        }
+        .optionsArea {
+            @rowHeight: 48px;
+            .optionRow {
+                height: @rowHeight;
+                font-size: 12px;
+                white-space: nowrap;
+                overflow: hidden;
+    
+                .input-box(@w: ~"calc(100% - 50px)" , @h: 30px, @focus: true);
+                .flex-display;
+            }
+    
+            .optionRow > div {
+                // float: left;
+                margin-left: 28px;
+                line-height: @rowHeight;
+                display: inline-block;
+            }
+    
+            .nameArea {
+                margin-left: 0px;
+                .flex(0 1 310px);
+                .textOverflowOneLine;
+            }
+            .valueArea {
+                .flex(1 1 400px);
+                margin-left: 12px !important;
+            }
+            .buttonArea {
+                min-width: 90px;
+                .flex(0 1 150px);
+                margin-left: 20px !important;
+                button {
+                    width: 100%;
+                    max-width: 150px;
+                }
+            }
+    
+            .label {
+                font-weight: 600;
+                margin-right: 5px;
+            }
+    
+            .name {
+                color: @color-font-select-blue;
+                font-weight: 600;
+            }
+    
+            input {
+                color: @color-font-warm-grey-two;
+                font-size: 12px !important;
+                &:focus {
+                    color: @color-font-gray36;
+                }
+            }
+    
+        }
+    
+        .cardBottom {
+            padding: 10px 60px 20px 60px;
+            .btn {
+                letter-spacing: normal;
+                width: 160px; // decrease width if we decide to lower font weight
+                margin-bottom: 10px;
+            }
+        }
+    }
+}
+
 #userSettingsModal {
     .size(@height: 450px, @min-height: 300px, @max-height: 800px, @min-width: 650px);
     @rowHeight: 50px;

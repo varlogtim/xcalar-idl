@@ -62,9 +62,6 @@ describe("Admin Test", function() {
         it("container should have admin class", function() {
             expect($("#container").hasClass("admin")).to.be.true;
         });
-        it("xcSupport", function() {
-            expect(Admin.isXcSupport()).to.be.false;
-        });
         // XXX fails jenkins
         it.skip("adminbar should toggle", function() {
             expect($("#adminStatusBar").hasClass("active")).to.be.true;
@@ -406,17 +403,6 @@ describe("Admin Test", function() {
         beforeEach(function() {
             msg = null;
             title = null;
-        });
-
-        it("admin.showSupport should work", function() {
-            $("#sqlTab").click();
-            expect($("#monitor-setup").is(":visible")).to.be.false;
-            Admin.showSupport();
-            expect($("#monitor-setup").is(":visible")).to.be.true;
-            expect($("#container").hasClass("supportOnly")).to.be.true;
-            expect($("#configCard").hasClass("xc-hidden")).to.be.true;
-            $("#container").removeClass("supportOnly");
-            $("#configCard").removeClass("xc-hidden");
         });
 
         it("startNode when node already start should work", function(done) {

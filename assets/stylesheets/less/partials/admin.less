@@ -1,4 +1,4 @@
-// used for admin and xcSupport
+// used for admin 
 #container.admin {
     .adminOnly {
         display: block;
@@ -49,37 +49,12 @@
     .monitorLogColorSchema();
 }
 
-// #container.xcSupport {
-#container.admin { // xx temporarily available to not just xcSupport
+#container.admin {
     @menuWidth: @width-bottomMenu;
     #monitorLogCard {
         display: block;
         .flex-display;
         .flex-direction(column);
-    }
-    &.supportOnly {
-        #monitorLogCard {
-            max-height: ~"calc(100% - 5px)";
-        }
-
-        #monitorPanel {
-            display: block;
-        }
-        #mainMenu {
-            z-index: 31;
-            .menuSection.setup {
-                display: block;
-            }
-        }
-
-        &.noWorkbook {
-            #mainTopBar {
-                display: none;
-            }
-            #monitorPanel {
-                height: 100%;
-            }
-        }
     }
 }
 

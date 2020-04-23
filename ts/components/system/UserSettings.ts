@@ -94,7 +94,7 @@ namespace UserSettings {
             userInfos.update();
 
             // if regular user, we will only commit userInfos with gUserKey.
-            // if admin or xcSupport, we may commit userInfos/gUserKey
+            // if admin, we may commit userInfos/gUserKey
             // if there is a ds folder change, or we may commit genSettings
             // if there is a settings change, or both
 
@@ -112,11 +112,7 @@ namespace UserSettings {
             }
 
             if (userPrefHasChange || revertedToDefault) {
-                if (Admin.isXcSupport() && !isPersonalChange) {
-                    genSettings.updateXcSettings(UserSettings.getPref('general'));
-                    userPrefPromise = settingsStore.putWithMutex(
-                        JSON.stringify(genSettings.getAdminAndXcSettings()), true);
-                } else if (Admin.isAdmin() && !isPersonalChange || isGeneralChange) {
+                if (Admin.isAdmin() && !isPersonalChange || isGeneralChange) {
                     genSettings.updateAdminSettings(UserSettings.getPref('general'));
                     userPrefPromise = settingsStore.putWithMutex(
                         JSON.stringify(genSettings.getAdminAndXcSettings()), true);

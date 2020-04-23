@@ -71,7 +71,7 @@ namespace Alert {
             $modal.find(".btn.logout").remove();
         }
 
-        if (isModalLocked($modal, options.lockScreen)) {
+        if (isModalLocked($modal)) {
             return $modal.data("id");
         }
 
@@ -146,12 +146,12 @@ namespace Alert {
             isAlert: true
         });
         const $modal = getModal();
-        if (isModalLocked($modal, alertOptions.lockScreen)) {
+        if (isModalLocked($modal)) {
             return $modal.data("id");
         }
 
         const id: string = Alert.show(alertOptions);
-        setInfoIcon(true);
+        setInfoIcon(true, false);
         if (typeof mixpanel !== "undefined") {
             let errorMsg: string = msg;
             if (msg == null && options && options.msgTemplate) {
@@ -246,7 +246,7 @@ namespace Alert {
         const $modal = getModal();
         const $btnSection = getButtonSection();
         $btnSection.find(".funcBtn").remove();
-        $btnSection.find(".downloadLog, .logout, .genSub, .adminSupport").remove();
+        $btnSection.find(".downloadLog, .logout, .genSub").remove();
         // remove all event listener
         $modal.off(".alert");
         $modal.find(".confirm, .cancel, .close").show();
@@ -280,7 +280,7 @@ namespace Alert {
         return extraOptions;
     }
 
-    function isModalLocked($modal: JQuery, lockScreen: boolean): boolean {
+    function isModalLocked($modal: JQuery): boolean {
         if ($modal.hasClass("locked")) {
             // this handle the case that some modal failure handler
             // may close the modal and it will hide modalBackground
@@ -288,9 +288,6 @@ namespace Alert {
             $modalBg.show();
             $modalBg.addClass("locked");
             // alert modal is already opened and locked due to connection error
-            return true;
-        } else if ($("#container").hasClass("supportOnly") && lockScreen) {
-            // do not show any more modals that lock the screen
             return true;
         } else {
             return false;
@@ -540,19 +537,16 @@ namespace Alert {
 
             const $downloadLogBtn: JQuery = supportButton("log");
             const $logoutBtn: JQuery = supportButton(null);
-            const $adminSupportBtn: JQuery = supportButton("adminSupport");
             const $supportBtn: JQuery = supportButton("support");
 
             if (options.expired) {
                 $btnSection.prepend($logoutBtn);
             } else if (options.logout) {
-                $btnSection.prepend($adminSupportBtn, $logoutBtn, $downloadLogBtn,
-                                    $supportBtn);
+                $btnSection.prepend($logoutBtn, $downloadLogBtn, $supportBtn);
             } else if (options.noLogout) {
-                $btnSection.prepend($adminSupportBtn, $downloadLogBtn, $supportBtn);
+                $btnSection.prepend($downloadLogBtn, $supportBtn);
             } else {
-                $btnSection.prepend($adminSupportBtn, $downloadLogBtn, $logoutBtn,
-                                    $supportBtn);
+                $btnSection.prepend($downloadLogBtn, $logoutBtn, $supportBtn);
             }
         }
 
@@ -612,19 +606,6 @@ namespace Alert {
                     SupTicketModal.Instance.show();
                     $(this).blur();
                     MonitorPanel.stop();
-                });
-                break;
-            case 'adminSupport':
-                html = '<button type="button" ' +
-                        'class="btn btn-secondary adminOnly adminSupport" ' +
-                        'data-toggle="tooltip" ' +
-                        'title="' + "Support Tools" + '">' +
-                            MonitorTStr.SupportTools +
-                        '</button>';
-                $btn = $(html);
-
-                $btn.click(function() {
-                    Admin.showSupport();
                 });
                 break;
             default:

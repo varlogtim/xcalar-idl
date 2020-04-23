@@ -116,43 +116,6 @@ describe("UserSettings Test", function() {
             });
         });
 
-        it("should commit dsChange in XcSupport case", function(done) {
-            var oldCache = gXcSupport;
-            gXcSupport = true;
-            UserSettings.commit(false, true)
-            .then(function() {
-                expect(testKey).to.equal(KVStore.getKey("gUserKey"));
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                gXcSupport = oldCache;
-            });
-        });
-
-        it("should commit prefChange in XcSupport case", function(done) {
-            // cause a change in user prefs
-            $("#dataViewBtn").toggleClass("listView");
-
-            var oldCache = gXcSupport;
-            gXcSupport = true;
-
-            UserSettings.commit()
-            .then(function() {
-                expect(testKey).to.equal(KVStore.getKey("gSettingsKey"));
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                gXcSupport = oldCache;
-               // do not change list view back until other tests are done
-            });
-        });
-
         it("should commit admin settings", function(done) {
             var oldFunc = Admin.isAdmin;
             Admin.isAdmin = () => true;

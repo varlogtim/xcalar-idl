@@ -362,7 +362,7 @@ class MonitorConfig {
         let html: HTML = "";
         for (let name in this._paramsCache) {
             let paramObj = this._paramsCache[name];
-            if (paramObj.visible || Admin.isXcSupport()) {
+            if (paramObj.visible) {
                 html += this._getInputRowHtml(paramObj);
             }
         }

@@ -497,7 +497,6 @@ declare var gLongTestSuite: number;
 declare var gMaxDSColsSpec: number;
 declare var gMaxSampleSize: number;
 declare var gUdfDefaultNoCheck: boolean;
-declare var gXcSupport: boolean;
 declare var gXcalarRecordNum: string;
 declare var gDFSuffix: string;
 declare var gAppSuffix: string;

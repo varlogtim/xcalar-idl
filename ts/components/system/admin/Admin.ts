@@ -8,6 +8,7 @@ namespace Admin {
     let $userList; // $menuPanel.find('.userList');
     let adminAlertCard: AdminAlertCard;
     let monitorConfig: MonitorConfig;
+    let modalHelper: ModalHelper;
 
     /**
      * Admin.setup
@@ -17,17 +18,13 @@ namespace Admin {
         let isAdmin: boolean = Admin.isAdmin();
         setupAdminStatusBar(posingAsUser);
         setupMonitorConfig();
+        modalHelper = new ModalHelper(_getModal(), {
+            sizeToDefault: true
+        });
 
         if (isAdmin) {
             $('#container').addClass('admin');
             $("#userNameArea").html('<i class="icon xi-user-setting"></i>');
-        }
-        if (xcLocalStorage.getItem("xcSupport") === "true" &&
-            xcSessionStorage.getItem("usingAs") !== "true" &&
-            typeof gXcSupport !== "undefined"
-        ) {
-            gXcSupport = true;
-            $('#container').addClass('admin xcSupport');
         }
 
 
@@ -36,10 +33,18 @@ namespace Admin {
 
 
         if (isAdmin) {
-            addUserListListeners();
-            addMonitorMenuSupportListeners();
+            _addEventListeners();
             refreshUserList(true, false);
             adminAlertCard = new AdminAlertCard("adminAlertCard");
+        }
+    }
+
+    /**
+     * Admin.showModal
+     */
+    export function showModal(): void {
+        if (Admin.isAdmin()) {
+            modalHelper.setup();
         }
     }
 
@@ -56,13 +61,6 @@ namespace Admin {
             console.error(error);
             return false;
         }
-    }
-
-    /**
-     * Admin.isXcSupport
-     */
-    export function isXcSupport(): boolean {
-        return (typeof gXcSupport !== "undefined" && gXcSupport);
     }
 
     // will not add user if already exists in kvstore
@@ -144,20 +142,6 @@ namespace Admin {
     }
 
     /**
-     * Admin.showSupport
-     */
-    export function showSupport(): void {
-        Alert.forceClose();
-
-        MainMenu.openPanel("monitorPanel", "setupButton");
-        MonitorPanel.stop();
-        $('#container').addClass('supportOnly');
-        $("#container").removeClass("monitorMode setupMode");
-        $('#configCard').addClass('xc-hidden');
-        StatusMessage.updateLocation();
-    }
-
-    /**
      * Admin.updateLoggedInUsers
      * @param users
      */
@@ -191,6 +175,19 @@ namespace Admin {
         if (monitorConfig != null) {
             return monitorConfig.getParam(paramName);
         }
+    }
+
+    function _getModal(): JQuery {
+        return $("#adminSetupModal");
+    }
+
+    function _addEventListeners(): void {
+        addUserListListeners();
+        addMonitorMenuSupportListeners();
+
+        _getModal().on("click", ".close", () => {
+            modalHelper.clear();
+        });
     }
 
     function addUserListListeners() {
@@ -863,15 +860,11 @@ namespace Admin {
         .then(adminTools.clusterStop)
         .then(function() {
             exitSetupMode();
-            if ($('#container').hasClass('supportOnly')) {
-                xcUIHelper.showSuccess(SuccessTStr.StopCluster);
-            } else {
-                Alert.show({
-                    "title": MonitorTStr.StopNodes,
-                    "msg": SuccessTStr.StopCluster,
-                    "lockScreen": true
-                });
-            }
+            Alert.show({
+                "title": MonitorTStr.StopNodes,
+                "msg": SuccessTStr.StopCluster,
+                "lockScreen": true
+            });
             deferred.resolve();
         })
         .fail(function(err) {

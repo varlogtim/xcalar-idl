@@ -79,7 +79,6 @@ namespace xcGlobal {
         // datasets will abide by this limit. If you don't want
         // to use it anymore, just set it back to 0
         gUdfDefaultNoCheck = false; // when set true, allow update default udf
-        gXcSupport = false; // if xcalar support user
         gXcalarRecordNum = "xcalarRecordNum";
         gDFSuffix = ".xlrdf.tar.gz";
         gAppSuffix = ".xlrapp.tar.gz";

@@ -360,18 +360,6 @@ describe("Alert Modal Test", function() {
         closeModal();
     });
 
-    it("should return id with lokcScreen", function() {
-        var id = xcHelper.randName("id");
-        $("#container").addClass("supportOnly");
-        $alertModal.data("id", id);
-
-        var res = Alert.show({lockScreen: true});
-        expect(res).to.equal(id);
-
-        $alertModal.removeData("id");
-        $("#container").removeClass("supportOnly");
-    });
-
     it("should apply highZindex, ultraHighZindex and align options", function() {
         expect($alertModal.hasClass("highZindex")).to.be.false;
         expect($alertModal.hasClass("ultraHighZindex")).to.be.false;

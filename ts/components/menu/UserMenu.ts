@@ -32,7 +32,7 @@ class UserMenu {
             if (event.which !== 1) {
                 return;
             }
-            MainMenu.openPanel("monitorPanel", "setupButton");
+            Admin.showModal();
         });
 
         $menu.on('mouseup', ".preferences", function(event: JQueryEventObject): void {
