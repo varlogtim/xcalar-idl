@@ -213,6 +213,7 @@ namespace DagNodeMenu {
             const tabId = DagViewManager.Instance.getActiveDag().getTabId();
             const parentNodeId: DagNodeId = curParentNodeId
             const connectorIndex: number = curConnectorIndex;
+            let dagTab: DagTab;
             switch (action) {
                 case ("removeNode"):
                     DagViewManager.Instance.removeNodes(nodeIds, tabId);
@@ -245,7 +246,7 @@ namespace DagNodeMenu {
                     _findOptimizedSource(tabId);
                     break;
                 case ("download"):
-                    let dagTab: DagTab = DagList.Instance.getDagTabById(tabId);
+                    dagTab = DagList.Instance.getDagTabById(tabId);
                     if (dagTab == null) {
                         // when it's sub tab
                         dagTab = DagTabManager.Instance.getTabById(tabId);
@@ -255,7 +256,7 @@ namespace DagNodeMenu {
                     }
                     break;
                 case ("duplicateDf"): {
-                    const dagTab: DagTab = DagList.Instance.getDagTabById(tabId);
+                    dagTab = DagList.Instance.getDagTabById(tabId);
                     DagTabManager.Instance.duplicateTab(dagTab);
                     break;
                 }
@@ -376,6 +377,12 @@ namespace DagNodeMenu {
                     break;
                 case ("restoreAllSource"):
                     restoreAllSource();
+                    break
+                case ("editSQLGraph"):
+                    dagTab = DagViewManager.Instance.getActiveTab();
+                    if (dagTab instanceof DagTabSQLExecute) {
+                        DagTabManager.Instance.convertNoEditableTab(dagTab);
+                    }
                     break;
                 default:
                     break;

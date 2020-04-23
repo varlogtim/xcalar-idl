@@ -1370,8 +1370,9 @@ module.exports = {
         "returnToQueryPanel": "Return to the Query panel",
         "NumOperatorNodes": "No. operators",
         "ViewOnly": "View only",
-        "ViewOnlyHint": "Click to convert SQL graph to module and edit",
-        "UseInSQL": "Use In SQL"
+        "ViewOnlyHint": "This SQL Graph is uneditable. Click to convert to module and edit.",
+        "UseInSQL": "Use In SQL",
+        "convert": "Convert to Editable Module",
     },
 
     "dagSearch": {
