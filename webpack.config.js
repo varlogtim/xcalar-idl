@@ -1,5 +1,29 @@
 const path = require('path');
 
+class PrintChunksPlugin {
+    constructor({ fileName } = {}) {
+        this._fileName = fileName;
+    }
+
+    apply (compiler) {
+        compiler.plugin('compilation', compilation => {
+            compilation.plugin('after-optimize-chunk-assets', chunks => {
+                const chunkInfos = chunks.map(chunk => ({
+                    id: chunk.id,
+                    name: chunk.name,
+                    modules: Array.from(chunk._modules).map(m => m.id)
+                }));
+
+                if (this._fileName != null) {
+                    require("fs").writeFileSync(this._fileName, JSON.stringify(chunkInfos, null, '  '));
+                } else {
+                    console.log(JSON.stringify(chunkInfos, null, '  '));
+                }
+            })
+        })
+    }
+}
+
 module.exports = function(env, argv) {
     const mode = env.production ? 'production' : 'development';
     const buildSourceMap = env.srcmap;
@@ -130,6 +154,9 @@ module.exports = function(env, argv) {
                     },
                 },
             },
+            // plugins: [
+            //     new PrintChunksPlugin({fileName: path.resolve(env.buildroot, "loadwizard_stats.json")}),
+            // ],
             module: {
                 rules: [
                     {
