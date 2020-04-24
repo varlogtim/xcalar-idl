@@ -562,6 +562,7 @@ window.TestSuite = (function($, TestSuite) {
                 var nodeId = this.createNodeAndOpenPanel(null, DagNodeType.IMDTable);
                 var $panel = $("#IMDTableOpPanel");
                 this.assert($panel.hasClass("xc-hidden") === false, "table panel should show");
+                $("#pubTableList").find(".iconWrapper").click(); // open list
                 // check that the table is under the list
                 const $li = $("#pubTableList li").filter((_index, e) => $(e).text() === tableName);
                 if ($li.length !== 1) {

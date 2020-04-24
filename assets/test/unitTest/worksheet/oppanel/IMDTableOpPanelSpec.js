@@ -68,7 +68,6 @@ describe('IMDTableOpPanel Test', () => {
                 })];
             };
             node = new DagNodeIMDTable({});
-            MainMenu.openPanel("sqlPanel");
             IMDTableOpPanel.Instance.show(node, {});
             $panel = $("#IMDTableOpPanel");
             opPanel = IMDTableOpPanel.Instance;
@@ -78,7 +77,11 @@ describe('IMDTableOpPanel Test', () => {
 
         describe('Basic UI Tests', () => {
             it('Published Table Dropdown', () => {
+                // open dropdown list
+                $tableList.find(".iconWrapper").click();
                 expect($tableList.find("li").length).to.equal(3);
+                // close dropdown list
+                $tableList.find(".iconWrapper").click();
             });
 
             it ("Should be hidden at start", function () {

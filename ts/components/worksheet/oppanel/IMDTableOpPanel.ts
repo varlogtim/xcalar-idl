@@ -4,10 +4,8 @@ class IMDTableOpPanel extends BaseOpPanel {
     protected _dagNode: DagNodeIMDTable;
     private _$pubTableInput: JQuery; // $('#IMDTableOpPanel .pubTableInput')
     private _$columns: JQuery; // $('#IMDTableOpColumns')
-    private _tables: PbTblInfo[];
     private _selectedTable: PbTblInfo;
     private _schemaSection: ColSchemaSection;
-    private _primaryKeys: string[];
     private _limitedRows: number;
     private _pbDataFlowCache: Map<string, DagGraphInfo>
 
@@ -41,11 +39,8 @@ class IMDTableOpPanel extends BaseOpPanel {
         super.showPanel("Table", options)
         .then(() => {
             this._selectedTable = null;
-            this._primaryKeys = [];
             this._$columns.empty();
 
-            this._tables = PTblManager.Instance.getAvailableTables();
-            this._updateTableList();
             this._restorePanel(this._dagNode.getParam());
             if (BaseOpPanel.isLastModeAdvanced) {
                 this._switchMode(true);
@@ -123,10 +118,7 @@ class IMDTableOpPanel extends BaseOpPanel {
         if (source == "") {
             return;
         }
-        this._selectedTable = this._tables.find((table) => table.name === source);
-        if (this._selectedTable != null) {
-            this._primaryKeys = this._selectedTable.keys;
-        }
+        this._selectedTable = PTblManager.Instance.getAvailableTables().find((table) => table.name === source);
         this._fetchPbTableSubGraph(source);
     }
 
@@ -155,14 +147,14 @@ class IMDTableOpPanel extends BaseOpPanel {
         this._schemaSection.render(input.schema);
     }
 
-    private _updateTableList(): void {
-        let $list: JQuery = $('#pubTableList .pubTables');
-        $list.empty();
+    private _updateTableList($ul: JQuery): void {
         let html = '';
-        this._tables.forEach((table) => {
-            html += '<li>' + table.name + '</li>';
+        const tableNames: string[] = PTblManager.Instance.getAvailableTables().map((pTblInfo) => pTblInfo.name);
+        tableNames.sort();
+        tableNames.forEach((name) => {
+            html += '<li>' + name + '</li>';
         });
-        $list.append(html);
+        $ul.html(html);
     }
 
     private _checkOpArgs(input: DagNodeIMDTableInputStruct): boolean {
@@ -181,20 +173,6 @@ class IMDTableOpPanel extends BaseOpPanel {
             error = "Table must have columns.";
             $location = this._$elemPanel.find(".colSchemaSection");
         }
-        // XXX TODO: enable it if schema must include primary key
-        // otherwise remove it
-        // else {
-        //     for (let i = 0; i < this._primaryKeys.length; i++) {
-        //         let key: string = this._primaryKeys[i];
-        //         if (!input.schema.find((col: ColSchema) => {
-        //             return (col.name == key);
-        //         })) {
-        //             error = "Schema must include primary key: " + key;
-        //             $location = this._$elemPanel.find(".colSchemaSection");
-        //             break;
-        //         }
-        //     }
-        // }
 
         if (error != "") {
             if (this._advMode) {
@@ -222,23 +200,7 @@ class IMDTableOpPanel extends BaseOpPanel {
             () => { this._submitForm(this._dagNode); }
         );
 
-        let $list = $('#pubTableList');
-        this._activateDropDown($list, '#pubTableList');
-        new MenuHelper($list, {
-            "onSelect": ($li) => {
-                if ($li.hasClass("hint")) {
-                    return false;
-                }
-
-                if ($li.hasClass("unavailable")) {
-                    return true; // return true to keep dropdown open
-                }
-
-                this._$pubTableInput.val($li.text());
-                this._changeSelectedTable($li.text());
-                this._autoDetectSchema(true);
-            }
-        }).setupListeners();
+        this._addTableListDropDown();
 
         this._$pubTableInput.on('blur', () => {
             this._changeSelectedTable(this._$pubTableInput.val());
@@ -250,15 +212,28 @@ class IMDTableOpPanel extends BaseOpPanel {
         });
     }
 
-    private _activateDropDown($list: JQuery, container: string) {
+    private _addTableListDropDown() {
+        let $list = $('#pubTableList');
         let dropdownHelper: MenuHelper = new MenuHelper($list, {
-            "onOpen": function() {
-                var $lis = $list.find('li').sort(xcUIHelper.sortHTML);
-                $lis.prependTo($list.find('ul'));
+            onOpen: () => {
+                this._updateTableList($list.find(".pubTables"));
             },
-            "container": container
+            onSelect: ($li) => {
+                if ($li.hasClass("hint")) {
+                    return false;
+                }
+
+                if ($li.hasClass("unavailable")) {
+                    return true; // return true to keep dropdown open
+                }
+
+                this._$pubTableInput.val($li.text());
+                this._changeSelectedTable($li.text());
+                this._autoDetectSchema(true);
+            },
+            container: "#IMDTableOpPanel",
+            bounds: "#IMDTableOpPanel"
         });
-        dropdownHelper.setupListeners();
         new InputDropdownHint($list, {
             "menuHelper": dropdownHelper,
             "preventClearOnBlur": true,
