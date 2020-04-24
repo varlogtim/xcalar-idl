@@ -12,7 +12,7 @@ class DagView {
     public static readonly tableHeight = 25;
     public static readonly nodeAndTableWidth = DagView.nodeWidth + DagView.tableWidth + 32;
     public static readonly gridSpacing = 20;
-    public static zoomLevels = [.25, .5, .75, 1, 1.5, 2];
+    public static zoomLevels = [.25, .5, .75, 1, 1.2, 1.5, 2];
     public static iconOrder = ["tableIcon", "columnIcon", "descriptionIcon", "lockIcon", "aggregateIcon", "paramIcon"];
     public static iconMap = {
         "descriptionIcon": "\ue966", // xi-info-no-bg

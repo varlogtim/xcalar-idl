@@ -1328,6 +1328,7 @@ module.exports = {
         "configure": "Configure",
         "description": "Add Description",
         "comment": "New Comment",
+        "configuringOperator": "Configuring Operator",
         "execute": "Execute",
         "executeHint": "Select a function to execute",
         "executeAll": "Execute All",

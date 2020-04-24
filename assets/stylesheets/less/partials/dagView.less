@@ -1121,9 +1121,15 @@
     flex-wrap: nowrap;
 
     &.locked {
-        .run, .stop, .undo, .redo {
+        .undo, .redo, .configuring {
             pointer-events: none;
             opacity: @opacity-disabled;
+        }
+        .run, .stop {
+            display: none !important;
+        }
+        .configuring {
+            .flex-display !important;
         }
     }
 
@@ -1213,7 +1219,7 @@
             }
         }
 
-        &.run, &.stop, &.listFns {
+        &.run, &.stop, &.listFns, &.configuring {
             .rounded(4px);
             line-height: @dagGraphBarHeight - 8px;
             height: @dagGraphBarHeight - 8px;
@@ -1243,7 +1249,7 @@
             }
         }
 
-        &.run, &.listFns {
+        &.run, &.listFns, &.configuring {
             overflow: visible;
 
             &.running {
@@ -1358,6 +1364,9 @@
                 right: 2px;
                 cursor: default;
             }
+        }
+        &.configuring {
+            display: none;
         }
         .animatedEllipsisWrapper {
             display: none;

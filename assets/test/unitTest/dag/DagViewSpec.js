@@ -1255,6 +1255,11 @@ describe("DagView Test", () => {
         it("should zoom out", function() {
             expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1.5);
             DagViewManager.Instance.zoom(false);
+            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1.2);
+        });
+        it("should zoom out", function() {
+            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1.2);
+            DagViewManager.Instance.zoom(false);
             expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1);
         });
         it("should zoom out", function() {
