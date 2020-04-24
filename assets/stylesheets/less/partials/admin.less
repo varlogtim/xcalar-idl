@@ -3,14 +3,6 @@
     .adminOnly {
         display: block;
     }
-    #setupButton {
-        display: none; // or else will show when other main tab is active
-    }
-    #monitorTab.active {
-        #setupButton {
-            display: block;
-        }
-    }
 
     #userNameArea {
         .icon {
@@ -37,13 +29,6 @@
                 .xc-disabled;
             }
         }
-        #monitorMenu {
-            .titleSection {
-                .xi-close {
-                    .xc-disabled;
-                }
-            }
-        }
     }
 
     .monitorLogColorSchema();
@@ -67,9 +52,6 @@
 
 .adminOnly {
     display: none;
-    &#setupButton {
-        display: none;
-    }
 }
 #adminStatusBar {
     @barHeight: 42px;
@@ -130,12 +112,6 @@
             opacity: 1;
         }
     }
-}
-
-#adminViewBtn {
-    .position(absolute, @right: 39px, @bottom: 2px);
-    .size(29px, 29px);
-    z-index: @z-index-statusBar + 1;
 }
 
 //  main menu in monitor/setup panel

@@ -78,10 +78,6 @@ describe('QueryManager Test', function() {
             $("#monitorTab .mainTab").click();
         }
 
-        if (!$("#monitorMenu .menuSection.query").is(":visible")) {
-            $("#queriesButton").click();
-        }
-
         $queryList.find(".xc-query").remove(); // clear the list
         QueryManager.showLogs = cacheShowLogs;
     });

@@ -5,7 +5,6 @@ namespace MonitorPanel {
     const tabToPanelMap = {
         systemButton: "systemSubPanel",
         queriesButton: "queriesSubPanel",
-        setupButton: "setupSubPanel",
         logButton: "logSubPanel"
     };
 
@@ -53,9 +52,6 @@ namespace MonitorPanel {
                 break;
             case ("queriesButton"):
                 title += MonitorTStr.Queries;
-                break;
-            case ("setupButton"):
-                title += MonitorTStr.Setup;
                 break;
             case ("logButton"):
                 title += MonitorTStr.Logs;
@@ -145,10 +141,6 @@ namespace MonitorPanel {
                 case ("systemButton"):
                     $("#monitor-system").addClass("active");
                     title += MonitorTStr.Monitor;
-                    break;
-                case ("setupButton"):
-                    $("#monitor-setup").addClass("active");
-                    title += MonitorTStr.Setup;
                     break;
                 case ("logButton"):
                     $("#monitor-xd-log").addClass("active");

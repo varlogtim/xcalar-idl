@@ -51,11 +51,10 @@ describe("Admin Test", function() {
         } else {
             Admin.__testOnly__.setPosingAs();
         }
-        $("#monitorTab").click();
-        $("#setupButton").click();
 
         oldSend = XcSocket.Instance.sendMessage;
         XcSocket.Instance.sendMessage = function(){};
+        Admin.showModal();
     });
 
     describe("check initial state", function() {
@@ -378,10 +377,6 @@ describe("Admin Test", function() {
             $bar.trigger({ type: "mousemove", which: 1, pageX: pageX, pageY: pageY});
             $bar.trigger({ type: "mouseup", which: 1, pageX: pageX, pageY: pageY});
         });
-        after(function() {
-            $("#monitorTab").click();
-            $("#setupButton").click();
-        });
     });
 
     describe("admin functions", function() {
@@ -611,6 +606,7 @@ describe("Admin Test", function() {
     });
 
     after(function() {
+        $("#adminSetupModal").find(".close").click();
         xcLocalStorage.getItem = cachedGetItem;
         $("#container").removeClass("admin posingAsUser");
         xcSessionStorage.removeItem("usingAs");

@@ -772,9 +772,6 @@ namespace Admin {
             $adminBar.on('click', '.xi-close', function() {
                 Admin.userToAdmin();
             });
-            $('#adminViewBtn').on('click', function() {
-                $adminBar.removeClass('xc-hidden');
-            });
         } else {
             $("#adminStatusBar").hide();
         }
