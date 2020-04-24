@@ -567,7 +567,7 @@ class SQLEditor {
             clearTimeout(saveTimer);
             saveTimer = setTimeout(function() {
                 self._event.dispatchEvent("change");
-            }, 500); // 0.5s interval
+            }, 1000); // 1s interval
         });
 
         self._editor.on("keyup", function(_cm, e) {

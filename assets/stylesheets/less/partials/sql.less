@@ -661,15 +661,16 @@
         border-bottom: 1px solid @color-border-medium2;
         display: flex;
         flex-wrap: wrap;
-        padding: 4px 32px 4px 16px;
+        padding: 0px 32px 4px 16px;
 
         .title {
-            line-height: 24px;
+            line-height: 32px;
             margin-right: auto;
         }
 
         button, > i {
             flex: 0 0 auto;
+            margin-top: 4px;
             margin-right: 8px;
             margin-bottom: 4px;
 
@@ -687,7 +688,7 @@
                 width: 24px;
                 height: 20px;
                 margin-left: 4px;
-                margin-top: 2px;
+                margin-top: 6px;
                 outline: none;
                 border-radius: 4px;
                 border: none;
@@ -743,6 +744,23 @@
         }
         .CodeMirror-gutters {
             background-color: @color-editor-gutter;
+        }
+    }
+
+    .savingText {
+        display: none;
+    }
+    &.saving {
+        .sectionHeader {
+            margin-right: 0px;
+        }
+        .savingText {
+            display: block;
+            color: @color-bg-cancel-gray-hover;
+            margin: 0px auto 0px 8px;
+            padding-right: 4px;
+            line-height: @height-sectionBar + 2px;
+            .textOverflowOneLine;
         }
     }
 }

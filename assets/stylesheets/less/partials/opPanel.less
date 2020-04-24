@@ -3563,6 +3563,8 @@
 }
 // new
 #sqlOpPanel {
+    @title-h: 32px;
+
     .nextForm {
         display: flex;
         flex-direction: column;
@@ -3607,8 +3609,26 @@
     }
     .editorTitle {
         flex-wrap: wrap;
+        display: none;
+        border-top: 1px solid @color-border-medium2;
+        margin-bottom: 4px;
+        min-height: @title-h;
+        height: auto;
+        padding-top: 4px;
+
+        .xi-error-outline {
+            margin-right: 4px;
+            font-size: 14px;
+            position: relative;
+            top: 1px;
+        }
+
         .refreshSnippet {
             cursor: pointer;
+            border: 1px solid @color-font-default;
+            border-radius: 4px;
+            padding: 4px;
+
             .icon {
                 font-size: 12px;
                 position: relative;
@@ -3616,9 +3636,24 @@
                 margin-left: 2px;
             }
         }
+
     }
+
     .editorWrapper {
         display: none;
+    }
+    &.queryNotUpdated {
+        .editorTitle {
+            display: flex;
+        }
+        .editorWrapper {
+            display: block;
+        }
+    }
+    .snippetUpdated {
+        display: none;
+        padding: 30px 0px 20px;
+        text-align: center;
     }
 }
 

@@ -45,31 +45,7 @@
   </div>
   include "mainTopBar.html"
   include "statusBar.html"
-
-  <!-- Fixed positioned StatusBox -->
-  <div id="statusBox">
-    <div class="arrow"></div>
-    <div class="boxInnerWrap">
-      <div class="vertBar">
-        <i class="icon xi-error-outline"></i>
-        <i class="icon xi-info-circle"></i>
-      </div>
-      <div class="content">
-        <i id="statusBoxClose" class="close xc-action icon xi-close fa-12"></i>
-        <div class="title">
-          <span class="titleText"></span>
-        </div>
-        <div class="message textOverflow"></div>
-        <div class="detail">
-          <div class="detailTitle">
-            <span class="detailAction xc-action"><%= dicts.MenuTStr.ViewDetails %></span>
-          </div>
-          <div class="detailContent textOverflow"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- End Of StatusBox -->
+  include "util/statusBox.html"
 
   <!-- START MAIN PANELS -->
   include "monitor/monitor.html"

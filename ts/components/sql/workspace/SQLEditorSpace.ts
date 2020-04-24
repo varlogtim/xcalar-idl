@@ -603,8 +603,15 @@ class SQLEditorSpace {
         }
     }
 
-    private _saveSnippet(id: string, snippet: string): void {
-        SQLSnippet.Instance.update(id, snippet);
+    private async _saveSnippet(id: string, snippet: string): Promise<void> {
+        let $section = this._getEditorSpaceEl();
+        $section.addClass("saving");
+        let startTime = Date.now();
+        await SQLSnippet.Instance.update(id, snippet);
+        let endTime = Date.now();
+        setTimeout(() => {
+            $section.removeClass("saving");
+        }, Math.max(0, 1000 - (endTime - startTime)));
     }
 
     private _downlodSnippet(): void {

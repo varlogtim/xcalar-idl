@@ -15,6 +15,7 @@ class SQLOpPanel extends BaseOpPanel {
     private _connectors: {label: string, nodeId: string}[] = [];
     private _queryStr = "";
     private _graph: DagGraph;
+    private _isQueryUpdated: boolean = false;
 
     /**
      * Initialization, should be called only once by xcManager
@@ -129,6 +130,8 @@ class SQLOpPanel extends BaseOpPanel {
                 }
 
                 this._selectQuery(snippetId, null, true);
+                this._isQueryUpdated = true;
+                this._$elemPanel.removeClass("queryNotUpdated");
             }
         });
         menuHelper.setupListeners();
@@ -140,13 +143,8 @@ class SQLOpPanel extends BaseOpPanel {
         }
         const $list = this.$panel.find(".snippetsList");
         const $input = $list.find("input");
-
-        const snippets = SQLSnippet.Instance.list();
         let queryName = "";
-
-        let snippet = snippets.find(snippet => {
-            return snippet.id === snippetId;
-        });
+        let snippet = SQLSnippet.Instance.getSnippetObj(snippetId);
         if (snippet) {
             if (queryStr == null) {
                 queryStr = snippet.snippet;
@@ -270,6 +268,17 @@ class SQLOpPanel extends BaseOpPanel {
                 self._sqlTables[key] = value;
             }
         });
+        self._$elemPanel.find(".refreshSnippet").on("click", () => {
+            this._isQueryUpdated = true;
+            this._$elemPanel.removeClass("queryNotUpdated");
+            const snippetId = this.$panel.find(".snippetsList input").data("id");
+            this._selectQuery(snippetId, null, true);
+            this._$elemPanel.find(".snippetUpdated").fadeIn(800, () => {
+                setTimeout(() => {
+                    this._$elemPanel.find(".snippetUpdated").fadeOut(800);
+                }, 2000);
+            });
+        });
     }
 
     private _populateSourceIds($li: JQuery): void {
@@ -284,6 +293,9 @@ class SQLOpPanel extends BaseOpPanel {
 
     public updateSnippet(snippetId) {
         if (!this.hasActiveSnippet(snippetId)) {
+            return;
+        }
+        if (!this._isQueryUpdated) {
             return;
         }
         this._selectQuery(snippetId);
@@ -369,6 +381,7 @@ class SQLOpPanel extends BaseOpPanel {
         return deferred.promise();
     };
 
+    // currently only called whenever the form opens
     protected _updateUI() {
         this._renderSnippet();
         this._renderIdentifiers();
@@ -588,7 +601,20 @@ class SQLOpPanel extends BaseOpPanel {
         const queryStr: string = this._dataModel.getSqlQueryString() || null;
         this._selectQuery(snippetId, queryStr);
         if (snippetId) {
+            let snippet = SQLSnippet.Instance.getSnippetObj(snippetId);
+            if (snippet) {
+                this._isQueryUpdated = (snippet.snippet === queryStr);
+            } else {
+                this._isQueryUpdated = true;
+            }
             SQLTabManager.Instance.openTab(snippetId);
+        } else {
+            this._isQueryUpdated = true;
+        }
+        if (this._isQueryUpdated) {
+            this._$elemPanel.removeClass("queryNotUpdated");
+        } else {
+            this._$elemPanel.addClass("queryNotUpdated");
         }
     }
 
@@ -677,8 +703,8 @@ class SQLOpPanel extends BaseOpPanel {
                     Alert.show({
                         isAlert: true,
                         title: AlertTStr.Title,
-                        // msg: "Any future modifications to the original SQL Query will not affect this operator.",
-                        msg: "The query in this operator will not be affected by any future modifications to the original SQL Query.",
+                        msg: "Any future modifications to the original SQL statment will not affect this operator.",
+                        // msg: "The SQL statement in this operator will not be affected by any future modifications to the original SQL statement.",
                         onCancel: (checked) => {
                             this._ignoreQueryConfirm = checked;
                         },

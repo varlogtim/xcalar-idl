@@ -37,10 +37,10 @@
       <div class="nextForm xc-hidden">
         <div class="tableTitle">
           <div class="title">Table Mapping:</div>
-          <i class="qMark icon xi-unknown" data-toggle="tooltip"
+          <!-- <i class="qMark icon xi-unknown" data-toggle="tooltip"
             data-container="body"
             data-title="Select an input connection number in the drop-down and enter a unique table identifier name (for example, orders). You can use this table identifier in the SQL snippet below."
-            data-placement="auto"></i>
+            data-placement="auto"></i> -->
           <div class="maximize">
             <i class="icon xi-minus" data-container="body"
             data-title="Collapse"
@@ -57,7 +57,7 @@
               <div class="destHeader">Module Tables (by label)</div>
             </div>
             <div class="tableInstruction instrText">
-              Use the SQL Editor to write a SQL query that takes in source tables.
+              No Tables found. Use the SQL Editor to write a SQL query that takes in source tables.
             </div>
             <div class="identifiersList"></div>
           </div>
@@ -74,11 +74,14 @@
             data-title="If this check box is checked , the system drops all the intermediate results sets generated during the execution of this SQL snippet to optimize the memory consumption."
             data-placement="top"></i>
         </div>
-        <div class="editorTitle xc-hidden">
-          <div class="title">Query Preview:</div>
-          <!-- <div class="refreshSnippet">Update
+        <div class="editorTitle">
+          <div class="title"><i class="icon xi-error-outline"></i>SQL Node is using an old query:</div>
+          <div class="refreshSnippet">Update
             <i class="icon xi-refresh" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Update %>"></i>
-          </div> -->
+          </div>
+        </div>
+        <div class="snippetUpdated">
+          SQL Query is now up to date.
         </div>
         <div class="editorWrapper">
         </div>
