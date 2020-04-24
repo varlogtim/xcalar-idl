@@ -2766,7 +2766,7 @@ class DagView {
                     graph.addNode(node);
                     nodesArray.push(node);
                     if (node instanceof DagNodeIMDTable) {
-                        node.setSubgraph();
+                        node.fetchAndSetSubgraph(node.getParam().source);
                     }
                 });
 
