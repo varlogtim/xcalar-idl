@@ -502,7 +502,11 @@ class DagNodeSQL extends DagNode {
     protected _genParamHint(): string {
         let hint: string = "";
         const input: DagNodeSQLInputStruct = this.getParam();
-        if (input.sqlQueryStr) {
+        if (input.snippetId && SQLSnippet.Instance.getSnippetObj(input.snippetId)) {
+            const snippet = SQLSnippet.Instance.getSnippetObj(input.snippetId);
+            hint = snippet.name.slice(0, 20);
+        }
+        if (!hint && input.sqlQueryStr) {
             let str: string = input.sqlQueryStr.slice(0, 20);
             if (str.length < input.sqlQueryStr.length) {
                 // when it's part of the query
