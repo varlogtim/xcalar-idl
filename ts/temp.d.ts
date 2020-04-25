@@ -134,10 +134,6 @@ interface UserKVKeySet {
 
 interface WkbkKVKeySet {
     gStorageKey: string;
-    gLogKey: string;
-    gErrKey: string;
-    gOverwrittenLogKey: string;
-    gNotebookKey: string;
     gDagManagerKey: string;
     gSQLManagerKey: string;
     gUDFManagerKey: string;

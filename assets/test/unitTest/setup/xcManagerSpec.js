@@ -125,21 +125,6 @@ describe("xcManager Test", function() {
             // clear up
             Log.errorLog = oldFunc;
         });
-
-        // no valid as unit test set window.beforeunload to undefined
-        // it("window.beforeunload should work", function() {
-        //     var oldUnLoad = xcManager.unload;
-        //     var oldLogCheck = Log.hasUncommitChange;
-
-        //     xcManager.unload = function() {};
-        //     Log.hasUncommitChange = function() { return true; };
-
-        //     var res = window.onbeforeunload();
-        //     expect(res).to.equal(CommonTxtTstr.LogoutWarn);
-
-        //     xcManager.unload = oldUnLoad;
-        //     Log.hasUncommitChange = oldLogCheck;
-        // });
     });
 
     describe("Public API Test", function() {

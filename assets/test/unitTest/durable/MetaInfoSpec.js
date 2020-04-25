@@ -1,7 +1,7 @@
 describe("MetaInfo Constructor Test", function() {
     var metaInfos;
 
-    it("should have 5 attributs", function() {
+    it("should have 4 attributs", function() {
         var table = new TableMeta({
             "tableId": "test",
             "tableName": "testTable"
@@ -18,12 +18,11 @@ describe("MetaInfo Constructor Test", function() {
         metaInfos = new MetaInfo({
             "TILookup": {"test": table},
             "statsCols": {"testTable": {"testCol": profile}},
-            "sqlcursor": -2,
             "query": [query]
         });
 
         expect(metaInfos).to.be.an.instanceof(MetaInfo);
-        expect(Object.keys(metaInfos).length).to.equal(5);
+        expect(Object.keys(metaInfos).length).to.equal(4);
         expect(metaInfos.version).to.equal(Durable.Version);
     });
 
@@ -35,10 +34,6 @@ describe("MetaInfo Constructor Test", function() {
     it("should get stats meta", function() {
         var profileMeta = metaInfos.getStatsMeta();
         expect(profileMeta["testTable"]["testCol"]).to.exist;
-    });
-
-    it("should get log cursor meta", function() {
-        expect(metaInfos.getLogCMeta()).to.equal(-2);
     });
 
     it("should get query meta", function() {
@@ -53,7 +48,6 @@ describe("MetaInfo Constructor Test", function() {
         let newMetaInfo = new MetaInfo(parsed);
         expect(newMetaInfo.getTableMeta()).not.to.have.property("test");
         expect(newMetaInfo.getStatsMeta()).not.to.have.property("testTable");
-        expect(newMetaInfo.getLogCMeta()).not.to.equal(-2);
         expect(newMetaInfo.getQueryMeta().length).to.equal(0);
     });
 });

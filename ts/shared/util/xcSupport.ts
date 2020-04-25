@@ -5,11 +5,8 @@ namespace XcSupport {
     var _heartbeatLock: number = 0;
 
     function autoSave(): XDPromise<void> {
-        if (Log.hasUncommitChange()) {
-            return KVStore.commit();
-        } else {
-            return PromiseHelper.resolve();
-        }
+        // XXX disabled since data mart
+        return PromiseHelper.resolve();
     }
 
     function checkXcalarState(): XDPromise<void> {

@@ -5,7 +5,6 @@ namespace MonitorPanel {
     const tabToPanelMap = {
         systemButton: "systemSubPanel",
         queriesButton: "queriesSubPanel",
-        logButton: "logSubPanel"
     };
 
     /**
@@ -52,9 +51,6 @@ namespace MonitorPanel {
                 break;
             case ("queriesButton"):
                 title += MonitorTStr.Queries;
-                break;
-            case ("logButton"):
-                title += MonitorTStr.Logs;
                 break;
             default:
                 break;
@@ -141,15 +137,6 @@ namespace MonitorPanel {
                 case ("systemButton"):
                     $("#monitor-system").addClass("active");
                     title += MonitorTStr.Monitor;
-                    break;
-                case ("logButton"):
-                    $("#monitor-xd-log").addClass("active");
-                    title += MonitorTStr.Logs;
-                    let $section = $("#logSection");
-                    if ($section.hasClass("firstTouch")) {
-                        $section.removeClass("firstTouch");
-                        Log.scrollToBottom();
-                    }
                     break;
                 default:
                     break;

@@ -1,7 +1,6 @@
 class UserPref extends Durable {
     public datasetListView: boolean; // ds use list/grid view
     public browserListView: boolean; // browser use list/grid view
-    public logCollapsed: boolean;
     public general: object; // holds general settings
     public dsSortKey: string; // ds grid view sort key
     public dfAutoExecute: boolean; // DF 2.0 settings
@@ -18,7 +17,6 @@ class UserPref extends Durable {
 
         this.datasetListView = options.datasetListView || false;
         this.browserListView = options.browserListView || false;
-        this.logCollapsed = options.logCollapsed || false;
         this.general = options.general || {}; // holds general settings that can
         // be set by user but if a setting is not set, will default to those in
         // GenSettings
@@ -39,8 +37,6 @@ class UserPref extends Durable {
         this.browserListView = $("#fileBrowserGridView")
                                 .hasClass("listView");
         this.dsSortKey = DS.getSortKey();
-        this.logCollapsed = $("#log-TextArea").find(".expanded").length === 0 &&
-                            $("#log-TextArea").find(".collapsed").length !== 0;
     }
 
     // not used

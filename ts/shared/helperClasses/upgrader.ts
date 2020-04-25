@@ -191,116 +191,16 @@ class Upgrader {
         return deferred.promise();
     }
 
-    // Special case: after upgrade, Log.upgrade already return a string
-    private _upgradeLogMetaHelper(
-        key: string,
-        wkbkName: string
-    ): XDPromise<string> {
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        const kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
-        const currentSession: string = sessionName;
-        setSessionName(wkbkName);
-
-        kvStore.get()
-            .then((oldLog) => {
-                deferred.resolve(Log.upgrade(oldLog));
-            })
-            .fail(deferred.reject);
-
-        setSessionName(currentSession);
-        return deferred.promise();
-    }
-
-    private _upgradeLogMeta(
-        gLogKey: string,
-        wkbkName: string
-    ): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const wkbkContainer: Map<string, string> = this._wkbksCache.get(wkbkName);
-
-        this._upgradeLogMetaHelper(gLogKey, wkbkName)
-            .then((newLog) => {
-                wkbkContainer.set('log', newLog);
-                deferred.resolve();
-            })
-            .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    private _upgradeErrorLogMeta(
-        gErrKey: string,
-        wkbkName: string
-    ): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const wkbkContainer: Map<string, string> = this._wkbksCache.get(wkbkName);
-
-        this._upgradeLogMetaHelper(gErrKey, wkbkName)
-            .then((newErrorLog) => {
-                wkbkContainer.set('errorLog', newErrorLog);
-                deferred.resolve();
-            })
-            .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    private _upgradeOverwrittenLogMeta(
-        gOverwrittenLogKey: string,
-        wkbkName: string
-    ): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const wkbkContainer: Map<string, string> = this._wkbksCache.get(wkbkName);
-
-        this._upgradeLogMetaHelper(gOverwrittenLogKey, wkbkName)
-            .then((newOverwrittenLog) => {
-                wkbkContainer.set('overwrittenLog', newOverwrittenLog);
-                deferred.resolve();
-            })
-            .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    private _upgradeNotbookMeta(
-        gNotebookKey: string,
-        wkbkName: string
-    ): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const wkbkContainer: Map<string, string> = this._wkbksCache.get(wkbkName);
-        const kvStore: KVStore = new KVStore(gNotebookKey, gKVScope.WKBK);
-        const currentSession: string = sessionName;
-        setSessionName(wkbkName);
-
-        kvStore.get()
-            .then((notebook) => {
-                wkbkContainer.set('notebook', notebook);
-                deferred.resolve();
-            })
-            .fail(deferred.reject);
-
-        setSessionName(currentSession);
-        return deferred.promise();
-    }
-
     /*
      * Wkbk keys:
      *  gStorageKey, for MetaInfo
-     *  gLogKey, for XcLog
-     *  gErrKey, for XcLog (error log)
-     *  gOverwrittenLogKey, for XcLog
-     *  gNotebookKey XXX not sure how to handle upgrade yet
      */
     private _upgradeOneWkbk(
         wkbkInfoKeys: WkbkKVKeySet,
         wkbkName: string
     ): XDPromise<void> {
         const def1: XDPromise<void> = this._upgradeStorageMeta(wkbkInfoKeys.gStorageKey, wkbkName);
-        const def3: XDPromise<void> = this._upgradeLogMeta(wkbkInfoKeys.gLogKey, wkbkName);
-        const def4: XDPromise<void> = this._upgradeErrorLogMeta(wkbkInfoKeys.gErrKey, wkbkName);
-        const def5: XDPromise<void> = this._upgradeOverwrittenLogMeta(wkbkInfoKeys.gOverwrittenLogKey, wkbkName);
-        const def6: XDPromise<void> = this._upgradeNotbookMeta(wkbkInfoKeys.gNotebookKey, wkbkName);
-        return PromiseHelper.when(def1, def3, def4, def5, def6);
+        return PromiseHelper.when(def1);
     }
 
     private _upgradeWkbkInfos(wkbks: object) {
@@ -409,29 +309,10 @@ class Upgrader {
         const metaKey: string = wkbkInfoKeys.gStorageKey;
         const meta: object = wkbkContainer.get('meta');
 
-        const logKey: string = wkbkInfoKeys.gLogKey;
-        const log: string = wkbkContainer.get('log');
-
-        const errorKey: string = wkbkInfoKeys.gErrKey;
-        const errorLog: string = wkbkContainer.get('errorLog');
-
-        const overwrittenKey: string = wkbkInfoKeys.gOverwrittenLogKey;
-        const overwrittenLog: string = wkbkContainer.get('overwrittenLog');
-
-        const notebookKey: string = wkbkInfoKeys.gNotebookKey;
-        const notebook: object = wkbkContainer.get('notebook');
 
         const def1: XDPromise<void> = this._writeHelper(metaKey, meta,
             gKVScope.WKBK, false, false, wkbkName);
-        const def3: XDPromise<void> = this._writeHelper(logKey, log,
-            gKVScope.WKBK, true, false, wkbkName);
-        const def4: XDPromise<void> = this._writeHelper(errorKey, errorLog,
-            gKVScope.WKBK, true, false, wkbkName);
-        const def5: XDPromise<void> = this._writeHelper(overwrittenKey, overwrittenLog,
-            gKVScope.WKBK, true, false, wkbkName);
-        const def6: XDPromise<void> = this._writeHelper(notebookKey, notebook,
-            gKVScope.WKBK, true, false, wkbkName);
-        return PromiseHelper.when(def1, def3, def4, def5, def6);
+        return PromiseHelper.when(def1);
     }
 
     private _writeWkbkInfo(wkbks: object): XDPromise<void> {

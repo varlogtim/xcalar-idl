@@ -7,7 +7,7 @@ class KVStore {
 
     /**
      * KVStore.setupUserAndGlobalKey
-     * keys: gUserKey, gSettingsKey, gNotebookKey,
+     * keys: gUserKey, gSettingsKey,
      */
     public static setupUserAndGlobalKey(): void {
         const globlKeys: any = WorkbookManager.getGlobalScopeKeys(Durable.Version);
@@ -20,7 +20,7 @@ class KVStore {
 
     /**
      * KVStore.setupWKBKKey
-     * keys: gStorageKey, gLogKey, gErrKey, commitKey
+     * keys: gStorageKey, commitKey
      * @param keys
      */
     public static setupWKBKKey() {
@@ -208,8 +208,7 @@ class KVStore {
             console.info("KVStore is empty!");
             promise = PromiseHelper.resolve();
         } else {
-            const oldLogCursor: number = metaInfo.getLogCMeta();
-            promise = Log.restore(oldLogCursor);
+            promise = PromiseHelper.resolve();
         }
 
         promise
@@ -245,9 +244,6 @@ class KVStore {
         storageStore.put(metaInfo.serialize(), true)
         .then(() => {
             return QueryManager.commit();
-        })
-        .then(() => {
-            return Log.commit();
         })
         .then(() => {
             return WorkbookManager.commit();

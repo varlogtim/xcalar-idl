@@ -715,11 +715,7 @@ namespace xcManager {
         window.onbeforeunload = function(): string {
             xcManager.unload(true);
             markUserUnload();
-            if (Log.hasUncommitChange()) {
-                return CommonTxtTstr.LogoutWarn;
-            } else {
-                return CommonTxtTstr.LeaveWarn;
-            }
+            return CommonTxtTstr.LeaveWarn;
         };
         window.onunload = function(): void {
             if (typeof mixpanel !== "undefined") {
@@ -937,8 +933,6 @@ namespace xcManager {
                 !(isBrowserIE && (msg === "Unspecified error." ||
                     (stack[1] && stack[1].indexOf("__BROWSERTOOLS") > -1)))) {
 
-                const promise = Log.commitErrors();
-
                 if (typeof mixpanel !== "undefined") {
                     xcMixpanel.errorEvent("XDCrash", {
                         msg: msg,
@@ -956,10 +950,7 @@ namespace xcManager {
                         name: "Refresh",
                         func: function() {
                             // wait for commit to finish before refreshing
-                            promise
-                            .always(function() {
-                                xcManager.reload();
-                            });
+                            xcManager.reload();
                         }
                     }]
                 });

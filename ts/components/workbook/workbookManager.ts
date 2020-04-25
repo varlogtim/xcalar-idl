@@ -943,10 +943,6 @@ namespace WorkbookManager {
         const gStorageKey: string = generateKey("gInfo", version);
         const gQueryListPrefix: string = generateKey("/XD/QueryLog", version);
         const gQueryArchivePrefix: string = generateKey("/XD/QueryArchive", version);
-        const gLogKey: string = generateKey("gLog", version);
-        const gErrKey: string = generateKey("gErr", version);
-        const gOverwrittenLogKey: string = generateKey("gOverwritten", version);
-        const gNotebookKey: string = generateKey("gNotebook", version);
         const gSQLManagerKey: string = generateKey("gSQLManagerKey", version);
         const gDagManagerKey: string = generateKey("gDagManagerKey", version);
         const gUDFManagerKey: string = generateKey("gUDFManagerKey", version);
@@ -971,10 +967,6 @@ namespace WorkbookManager {
             "gStorageKey": gStorageKey,
             "gQueryListPrefix": gQueryListPrefix,
             "gQueryArchivePrefix": gQueryArchivePrefix,
-            "gLogKey": gLogKey,
-            "gErrKey": gErrKey,
-            "gOverwrittenLogKey": gOverwrittenLogKey,
-            "gNotebookKey": gNotebookKey,
             "gSQLQuery": gSQLQueryKey,
             "gSQLQueries": gSQLQueriesKey,
             "gSQLManagerKey": gSQLManagerKey,

@@ -37,14 +37,10 @@ describe('XcSupport Test', () => {
             const checkXcalarState = XcSupport.__testOnly__.checkXcalarState;
             const oldCommitCheck = XcUser.CurrentUser.commitCheck;
             const oldMemCheck = MemoryAlert.Instance.check;
-            const oldLogCommit = Log.hasUncommitChange;
-            const oldCommit = KVStore.commit;
             let test = false;
 
             XcUser.CurrentUser.commitCheck = () => PromiseHelper.resolve();
-            MemoryAlert.Instance.check = () => PromiseHelper.resolve();
-            Log.hasUncommitChange = () => true;
-            KVStore.commit = () => {
+            MemoryAlert.Instance.check = () => {
                 test = true;
                 return PromiseHelper.resolve();
             };
@@ -60,40 +56,6 @@ describe('XcSupport Test', () => {
             .always(() => {
                 XcUser.CurrentUser.commitCheck = oldCommitCheck;
                 MemoryAlert.Instance.check = oldMemCheck;
-                Log.hasUncommitChange = oldLogCommit;
-                KVStore.commit = oldCommit;
-            });
-        });
-
-        it ('checkXcalarState should work but not auto save if not necessary', (done) => {
-            const checkXcalarState = XcSupport.__testOnly__.checkXcalarState;
-            const oldCommitCheck = XcUser.CurrentUser.commitCheck;
-            const oldMemCheck = MemoryAlert.Instance.check;
-            const oldLogCommit = Log.hasUncommitChange;
-            const oldCommit = KVStore.commit;
-            let test = false;
-
-            XcUser.CurrentUser.commitCheck = () => PromiseHelper.resolve();
-            MemoryAlert.Instance.check = () => PromiseHelper.resolve();
-            Log.hasUncommitChange = () => false;
-            KVStore.commit = () => {
-                test = true;
-                return PromiseHelper.resolve();
-            };
-
-            checkXcalarState()
-            .then(() => {
-                expect(test).to.be.false;
-                done();
-            })
-            .fail(() => {
-                done('fail');
-            })
-            .always(() => {
-                XcUser.CurrentUser.commitCheck = oldCommitCheck;
-                MemoryAlert.Instance.check = oldMemCheck;
-                Log.hasUncommitChange = oldLogCommit;
-                KVStore.commit = oldCommit;
             });
         });
 

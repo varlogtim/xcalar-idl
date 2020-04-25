@@ -3,14 +3,12 @@ describe("UserPref Constructor Test", function() {
         var userPref = new UserPref();
 
         expect(userPref).to.be.an.instanceof(UserPref);
-        expect(Object.keys(userPref).length).to.equal(13);
+        expect(Object.keys(userPref).length).to.equal(12);
         expect(userPref).to.have.property("version")
         .and.to.equal(Durable.Version);
         expect(userPref).to.have.property("datasetListView")
         .and.to.be.false;
         expect(userPref).to.have.property("browserListView")
-        .and.to.be.false;
-        expect(userPref).to.have.property("logCollapsed")
         .and.to.be.false;
         expect(userPref).to.have.property("general").and.to.be.empty;
         expect(userPref).to.have.property("dsSortKey").and.to.be.undefined;

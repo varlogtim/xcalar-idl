@@ -1,7 +1,6 @@
 class MetaInfo extends Durable {
     private TILookup: {[key: string]: TableDurable}; // table meta
     private statsCols: any; // profile meta
-    private sqlcursor: number; // log cursor position
     private query: XcQueryDurable[]; // query meta
 
     constructor(options?: MetaInfDurable) {
@@ -13,8 +12,6 @@ class MetaInfo extends Durable {
         // QueryManager is maintaining the query load/commit
         // but we still keep it here for backward compatible
         this.query = options.query || [];
-        // a number, no constructor
-        this.sqlcursor = options.sqlcursor;
     }
 
     public getTableMeta() {
@@ -23,10 +20,6 @@ class MetaInfo extends Durable {
 
     public getStatsMeta() {
         return this.statsCols;
-    }
-
-    public getLogCMeta(): number {
-        return this.sqlcursor;
     }
 
     public getQueryMeta() {
@@ -42,8 +35,7 @@ class MetaInfo extends Durable {
         return {
             "version": this.version,
             "TILookup": this._saveTables(),
-            "statsCols": Profile.getCache(),
-            "sqlcursor": Log.getCursor()
+            "statsCols": Profile.getCache()
         }
     }
 

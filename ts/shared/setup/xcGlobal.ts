@@ -44,8 +44,7 @@ namespace xcGlobal {
          * and kvVersion info
          *
          * "WKBK": workbook scope
-         * keys including: gStorageKey, gLogKey, gErrKey,
-         * gOverwrittenLogKey, gNotebookKey, commitKey(non-persistent)
+         * keys including: gStorageKey,
          */
         gKVScope = {
             "GLOB": XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
