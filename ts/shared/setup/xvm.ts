@@ -464,32 +464,19 @@ namespace XVM {
         let firstUser: boolean = false;
 
         kvVersionStore.get()
-            .then(function (res) {
-                let versionInfo: KVVersionDurable = parseKVStoreVersionInfo(res);
-                checkVersionInfo(versionInfo);
-                if (versionInfo == null) {
-                    // when it's a first time set up
-                    firstUser = true;
-                    return firstUserCheck();
-                }
-
-                const version: number = versionInfo.version;
-                let needUpgrade: boolean = false;
-                if (isNaN(version) || version > Durable.Version) {
-                    xcConsole.error('Error of KVVersion', res);
-                } else if (version < Durable.Version) {
-                    needUpgrade = true;
-                }
-
-                if (needUpgrade) {
-                    const upgrader = new Upgrader(version);
-                    return upgrader.exec();
-                }
-            })
-            .then(function () {
-                deferred.resolve(firstUser);
-            })
-            .fail(deferred.reject);
+        .then(function(res) {
+            let versionInfo: KVVersionDurable = parseKVStoreVersionInfo(res);
+            checkVersionInfo(versionInfo);
+            if (versionInfo == null) {
+                // when it's a first time set up
+                firstUser = true;
+                return firstUserCheck();
+            }
+        })
+        .then(function() {
+            deferred.resolve(firstUser);
+        })
+        .fail(deferred.reject);
 
         return deferred.promise();
     }
