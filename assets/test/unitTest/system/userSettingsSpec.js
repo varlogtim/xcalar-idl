@@ -6,17 +6,17 @@ describe("UserSettings Test", function() {
         });
 
         it("UserSettings.getPref should work", function() {
-            var res = UserSettings.getPref("datasetListView");
+            var res = UserSettings.getPref("dfAutoExecute");
             expect(res).not.to.be.null;
         });
 
         it("UserSettings.setPref should work", function() {
-            var oldCache = UserSettings.getPref("datasetListView");
-            UserSettings.setPref("datasetListView", true);
-            var res = UserSettings.getPref("datasetListView");
+            var oldCache = UserSettings.getPref("dfAutoExecute");
+            UserSettings.setPref("dfAutoExecute", true, false);
+            var res = UserSettings.getPref("dfAutoExecute");
             expect(res).to.equal(true);
             // change back
-            UserSettings.setPref("datasetListView", oldCache);
+            UserSettings.setPref("dfAutoExecute", oldCache, false);
 
             // case 2
             oldCache = UserSettings.getPref("general");
@@ -134,9 +134,8 @@ describe("UserSettings Test", function() {
         });
 
         it("should commit prefChange in Admin case", function(done) {
-            // cause a change in user prefs, we're actually changing it back
-            // since this is toggled a 2nd time
-            $("#dataViewBtn").toggleClass("listView");
+            let autoPreview = UserSettings.getPref("dfAutoPreview");
+            UserSettings.setPref("dfAutoPreview", !autoPreview);
 
             var oldFunc = Admin.isAdmin;
             Admin.isAdmin = () => true;
@@ -151,6 +150,7 @@ describe("UserSettings Test", function() {
             })
             .always(function() {
                 Admin.isAdmin = oldFunc;
+                UserSettings.setPref("dfAutoPreview", autoPreview);
             });
         });
 

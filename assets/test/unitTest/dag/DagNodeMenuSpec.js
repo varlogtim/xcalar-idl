@@ -1519,4 +1519,8 @@ describe("DagNodeMenu Test", function() {
             });
         });
     });
+
+    after(function() {
+        UserSettings.getPref = cachedUserPref;
+    });
 });

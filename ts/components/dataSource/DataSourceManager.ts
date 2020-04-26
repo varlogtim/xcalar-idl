@@ -36,9 +36,7 @@ class DataSourceManager {
     }
 
     public static initialize(): void {
-        // restore list view if saved and ellipsis the icon
-        let preference: boolean = UserSettings.getPref('datasetListView');
-        this._toggleViewDisplay(preference, true);
+        this._toggleViewDisplay(true, true);
         DataSourceManager.startImport(DataSourceManager.isCreateTableMode());
     }
 

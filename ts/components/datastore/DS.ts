@@ -67,7 +67,6 @@ namespace DS {
         // data mart doesn't restore
         return PromiseHelper.resolve();
 
-        restoreSortKey();
         return restoreDS(oldHomeFolder, atStartUp);
     }
 
@@ -1829,11 +1828,6 @@ namespace DS {
                 $grid.hide();
             }
         }
-    }
-
-    function restoreSortKey(): void {
-        sortKey = UserSettings.getPref("dsSortKey");
-        highlighSortKey(sortKey);
     }
 
     function highlighSortKey(key: string): void {

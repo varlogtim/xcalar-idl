@@ -30,19 +30,9 @@ namespace UserSettings {
         userPrefs = userInfos.getPrefInfo();
 
         saveLastPrefs();
-
-        let dsInfo = userInfos.getDSInfo();
         genSettings = new GenSettings(<any>{}, prevSettings);
-        DS.restore(dsInfo, true)
-        .then(() => {
-            restoreSettingsPanel();
-            deferred.resolve();
-        })
-        .fail((error) => {
-            console.error("Restore user info failed", error);
-            deferred.reject(error);
-        });
-
+        restoreSettingsPanel();
+        deferred.resolve();
         return deferred.promise();
     }
 
@@ -87,7 +77,6 @@ namespace UserSettings {
         }
 
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
-        userPrefs.update();
         let userPrefHasChange = userPrefChangeCheck();
         let shouldCommit: boolean = hasDSChange || userPrefHasChange || revertedToDefault;
         if (shouldCommit) {

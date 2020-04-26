@@ -92,12 +92,15 @@ describe("DagUDFErrorModal Test", function() {
 
     describe("submitting", function() {
         it("genErrorTable should work", async function(done) {
+            let oldFunc = UserSettings.getPref;
             let called = false;
             let called2 = false;
             let called3 = false;
             let cacheRun =  DagViewManager.Instance.run;
             let cachePreview = DagViewManager.Instance.viewResult;
             let cacheAdd = DagViewManager.Instance.autoAddNode;
+            UserSettings.getPref = () => false;
+
             DagViewManager.Instance.run = () => {
                 called = true;
                 return PromiseHelper.resolve();
@@ -117,6 +120,7 @@ describe("DagUDFErrorModal Test", function() {
             DagViewManager.Instance.run = cacheRun;
             DagViewManager.Instance.viewResult = cachePreview;
             DagViewManager.Instance.autoAddNode = cacheAdd;
+            UserSettings.getPref = oldFunc;
             done();
         });
 
