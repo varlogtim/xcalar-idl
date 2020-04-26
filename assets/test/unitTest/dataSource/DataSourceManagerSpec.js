@@ -27,12 +27,6 @@ describe.skip("DataSourceManager Test", function() {
         // error case
         DataSourceManager.switchView(null);
         var tests = [{
-            "view": DataSourceManager.View.Source,
-            "$ele": $("#dsForm-source")
-        }, {
-            "view": DataSourceManager.View.S3,
-            "$ele": $("#dsForm-s3Config")
-        }, {
             "view": DataSourceManager.View.Browser,
             "$ele": $("#fileBrowser")
         }, {
@@ -83,14 +77,14 @@ describe.skip("DataSourceManager Test", function() {
     });
 
     it("DataSourceManager.startImport should work", function() {
-        let oldFunc = DSSource.show;
+        let oldFunc = DSForm.show;
         let called = false;
-        DSSource.show = () => called = true;
+        DSForm.show = () => called = true;
 
         DataSourceManager.startImport(true);
         expect(called).to.be.true;
 
-        DSSource.show = oldFunc;
+        DSForm.show = oldFunc;
     });
 
     after(function() {

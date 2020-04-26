@@ -6,9 +6,6 @@ class DataSourceManager {
      * DataSourceManager.View
      */
     public static View =  {
-        "Source": "DSSource",
-        "DB": "DB",
-        "S3": "S3Config",
         "Path": "DSForm",
         "Browser": "FileBrowser",
         "Preview": "DSConfig"
@@ -26,7 +23,6 @@ class DataSourceManager {
     public static setup(): void {
         DS.setup();
         this._setupViews();
-        DSSource.setup();
         DSForm.setup();
         DSConfig.setup();
         FileBrowser.setup();
@@ -86,7 +82,7 @@ class DataSourceManager {
      */
     public static startImport(createTableMode: boolean): void {
         DataSourceManager.setMode(createTableMode);
-        DSSource.show();
+        DSForm.show();
     }
 
     /**
@@ -115,18 +111,6 @@ class DataSourceManager {
         let step = null;
 
         switch (view) {
-            case DataSourceManager.View.Source:
-                $cardToSwitch = $("#dsForm-source");
-                step = DataSourceManager.ImportSteps.Source;
-                break;
-            case DataSourceManager.View.S3:
-                step = DataSourceManager.ImportSteps.Source;
-                $cardToSwitch = $("#dsForm-s3Config");
-                break;
-            case DataSourceManager.View.DB:
-                step = DataSourceManager.ImportSteps.Source;
-                $cardToSwitch = $("#dsForm-dbConfig");
-                break;
             case DataSourceManager.View.Path:
                 step = DataSourceManager.ImportSteps.Source;
                 $cardToSwitch = $("#dsForm-path");

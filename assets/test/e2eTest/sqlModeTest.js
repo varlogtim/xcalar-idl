@@ -118,6 +118,7 @@ module.exports = {
     },
 
     'create tables': function(browser) {
+        throw "the test is broken"
         browser.click("#dataStoresTab");
         testConfig.queries.forEach((query) => {
             query.files.forEach((fileName) => {
