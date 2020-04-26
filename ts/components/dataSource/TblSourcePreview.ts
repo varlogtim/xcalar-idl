@@ -452,29 +452,6 @@ class TblSourcePreview {
         }
     }
 
-    private _createDF(tableInfo: PbTblInfo): void {
-        if (tableInfo == null) {
-            return;
-        }
-
-        let tableName: string = tableInfo.name;
-        DagView.newTabFromSource(DagNodeType.IMDTable, {
-            source: tableName,
-            schema: tableInfo.getSchema()
-        });
-    }
-
-    private _writeSQL(tableInfo: PbTblInfo): void {
-        if (tableInfo == null) {
-            return;
-        }
-        let tableName: string = tableInfo.name;
-        let sql: string =
-        `-- This is a sample code to start\n` +
-        `select * from ${tableName};`;
-        SQLWorkSpace.Instance.newSQL(sql);
-    }
-
     private _addEventListeners(): void {
         let $infoSection = this._getInfoSection();
         $infoSection.on("click", ".viewTable", () => {
@@ -483,14 +460,6 @@ class TblSourcePreview {
 
         $infoSection.on("click", ".viewSchema", () => {
             this._viewSchema(this._tableInfo);
-        });
-
-        $infoSection.on("click", ".createDF", () => {
-            this._createDF(this._tableInfo);
-        });
-
-        $infoSection.on("click", ".writeSQL", () => {
-            this._writeSQL(this._tableInfo);
         });
     }
 }

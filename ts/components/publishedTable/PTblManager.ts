@@ -341,68 +341,6 @@ class PTblManager {
     }
 
     /**
-     * PTblManager.Instance.createTableFromDataset
-     * @param dsName
-     * @param tableName
-     * @param schema
-     * @param primaryKeys
-     * @param noDatasetDeletion? {optional}
-     */
-    public createTableFromDataset(
-        dsName: string,
-        tableName: string,
-        schema: ColSchema[],
-        primaryKeys: string[],
-        noDatasetDeletion?: boolean
-    ): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let txId = Transaction.start({
-            "msg": TblTStr.Create + ": " + tableName,
-            "operation": SQLOps.TableFromDS,
-            "track": true,
-            "steps": 1
-        });
-        const tableInfo: PbTblInfo = this._datasetTables[tableName];
-        let oldState = null;
-        if (tableInfo != null) {
-            oldState = tableInfo.state;
-            tableInfo.state = PbTblState.Loading;
-        }
-
-        delete this._datasetTables[tableName];
-        this._loadingTables[tableName] = tableInfo;
-        this._refreshTblView(tableInfo, TblTStr.Creating, 1, 1);
-
-        this._createTable(txId, dsName, tableName, schema, [], primaryKeys, noDatasetDeletion)
-        .then(() => {
-            return PTblManager.Instance.addTable(tableName);
-        })
-        .then(() => {
-            delete this._loadingTables[tableName];
-            Transaction.done(txId, {
-                noCommit: true,
-                noNotification: true
-            });
-            deferred.resolve();
-        })
-        .fail((error) => {
-            delete this._loadingTables[tableName];
-            if (tableInfo != null) {
-                this._datasetTables[tableName] = tableInfo;
-                tableInfo.state = oldState;
-            }
-            Transaction.fail(txId, {
-                error: error,
-                noNotification: true,
-                noAlert: true
-            });
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
-    }
-
-    /**
      * PTblManager.Instance.createTableFromView
      * @param pks
      * @param columns
