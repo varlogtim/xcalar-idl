@@ -84,7 +84,6 @@ namespace xcManager {
             try {
                 $("#topMenuBarTabs").removeClass("xc-hidden");
                 setupScreens();
-                MainMenu.setup();
                 XDFManager.Instance.setup();
                 DagConfigNodeModal.Instance.setupPanels();
                 SQLWorkSpace.Instance.setup();
@@ -99,8 +98,7 @@ namespace xcManager {
         .then(function() {
             try {
                 TblSource.Instance.refresh();
-                // By default show panel
-                MainMenu.openDefaultPanel();
+                MainMenu.setup(true);
                 StatusMessage.updateLocation(false, null);
                 if (!isBrowserFirefox && !isBrowserIE) {
                     gMinModeOn = false; // turn off min mode
@@ -166,7 +164,7 @@ namespace xcManager {
         // in case it's not setup yet
         $("#topMenuBarTabs").removeClass("xc-hidden");
         setupScreens();
-        MainMenu.setup();
+        MainMenu.setup(false);
         QueryManager.setup();
         Alert.setup();
         StatusMessage.setup();

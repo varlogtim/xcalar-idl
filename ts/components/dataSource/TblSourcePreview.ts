@@ -476,7 +476,6 @@ class TblSourcePreview {
     }
 
     private _addEventListeners(): void {
-        let $container = this._getContainer();
         let $infoSection = this._getInfoSection();
         $infoSection.on("click", ".viewTable", () => {
             this._viewTableResult(this._tableInfo, false);

@@ -169,8 +169,6 @@ describe.skip('TblAnim Test', function() {
         var startX = 0;
 
         before(function() {
-            MainMenu.openPanel("datastorePanel");
-
             $el = $('#dsTableContainer .datasetTable').find('.colGrab').eq(0);
             $th = $el.closest('th');
             startWidth = $th.outerWidth();

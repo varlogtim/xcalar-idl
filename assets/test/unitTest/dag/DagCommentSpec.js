@@ -21,7 +21,6 @@ describe("DagComment Test", function() {
             DagTabManager.Instance.newTab();
             tabId = DagViewManager.Instance.getActiveDag().getTabId();
             $dfArea = $dfWrap.find(".dataflowArea.active");
-            MainMenu.openPanel("sqlPanel", null);
             cachedUserPref = UserSettings.getPref;
             UserSettings.getPref = function(val) {
                 if (val === "dfAutoExecute" || val === "dfAutoPreview") {

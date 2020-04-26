@@ -1,4 +1,4 @@
-describe("Main Menu Test", function() {
+describe("MainMenu Test", function() {
     var $menuBar;
     var $mainMenu;
 
@@ -11,19 +11,6 @@ describe("Main Menu Test", function() {
         it("MainMenu.getOffset should work", function() {
             expect(MainMenu.getOffset()).to.be.an("number");
         });
-
-        it("MainMenu.openPanel should work", function() {
-            $(".topMenuBarTab.active").removeClass("active");
-            MainMenu.openPanel("test");
-            expect($(".topMenuBarTab.active").length).to.equal(0);
-
-            MainMenu.openPanel("monitorPanel");
-            expect($("#monitorTab").hasClass("active")).to.be.true;
-
-            MainMenu.openPanel("datastorePanel");
-            expect($("#dataStoresTab").hasClass("active")).to.be.true;
-        });
-
     });
 
     describe.skip("UI Behavior Test", function() {

@@ -25,7 +25,6 @@ describe('SplitOpPanel Test', () => {
             validateParam: () => null
         };
 
-        MainMenu.openPanel("sqlPanel");
         SplitOpPanel.Instance.show(splitNode, {});
         if ($("#splitOpPanel").find(".advancedEditor").is(":visible")) {
             $("#splitOpPanel .bottomSection .xc-switch").click();

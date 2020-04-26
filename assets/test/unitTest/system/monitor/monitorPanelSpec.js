@@ -1,4 +1,5 @@
-describe("MonitorPanel Test", function() {
+// monitor panel is not used in new notebook UX
+describe.skip("MonitorPanel Test", function() {
     var $mainTabCache;
     var $monitorPanel;
     var $monitorMenu;

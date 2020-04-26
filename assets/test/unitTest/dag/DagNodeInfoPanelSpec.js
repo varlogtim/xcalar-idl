@@ -12,10 +12,6 @@ describe("DagNodeInfoPanel Test", function() {
     before(function(done) {
         test = TestSuite.createTest();
         UnitTest.onMinMode();
-        if (!$("#sqlWorkSpacePanel").hasClass("active")) {
-            MainMenu.openPanel("sqlPanel");
-        }
-
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .then(() => {
             cachedUserPref = UserSettings.getPref;

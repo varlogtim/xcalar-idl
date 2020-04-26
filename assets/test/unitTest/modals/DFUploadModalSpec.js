@@ -1,5 +1,4 @@
 describe("DFUploadModal Test", function() {
-    var $mainTabCache;
     var $modal;
     var $sourcePath;
     var $destPath;
@@ -8,11 +7,6 @@ describe("DFUploadModal Test", function() {
         $modal = $("#dfUploadModal");
         $sourcePath = $modal.find(".source .path");
         $destPath = $modal.find(".dest .path");
-
-        $mainTabCache = $(".topMenuBarTab.active");
-        if ($mainTabCache.attr("id") !== "sqlTab") {
-            $("#sqlTab").click();
-        }
     });
 
     describe("Upload Dataflow Api Test", function() {
@@ -224,8 +218,5 @@ describe("DFUploadModal Test", function() {
 
     after(function() {
         DFUploadModal.Instance._close();
-        if ($mainTabCache.attr("id") !== "sqlTab") {
-            $mainTabCache.click();
-        }
     });
 });

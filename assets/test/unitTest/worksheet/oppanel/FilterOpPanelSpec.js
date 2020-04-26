@@ -10,7 +10,6 @@ describe("FilterOpPanel Test", function() {
     var openOptions = {};
 
     before(function(done) {
-        MainMenu.openPanel("sqlPanel");
         node = new DagNodeFilter({});
         const parentNode = new DagNodeFilter({});
         parentNode.getLineage = function() {

@@ -18,7 +18,6 @@ describe("DagSchemaPopup Test", function() {
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             $popup = $("#dagSchemaPopup");
-            MainMenu.openPanel("sqlPanel");
             DagTabManager.Instance.newTab();
             tabId = DagViewManager.Instance.getActiveDag().getTabId();
             dagGraph = DagViewManager.Instance.getActiveDag();

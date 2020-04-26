@@ -9,7 +9,6 @@ describe("DagDrag Test", function() {
     before (function(done) {
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
-            MainMenu.openPanel("sqlPanel");
             $dagView = $("#dagView");
             $dfWrap = $dagView.find(".dataflowWrap");
             $operatorBar = $dagView.find(".operatorWrap");

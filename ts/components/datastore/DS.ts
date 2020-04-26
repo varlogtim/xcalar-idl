@@ -106,11 +106,6 @@ namespace DS {
             nodeArray.push(dagNode);
         });
 
-        if (nameToDagMap.size > 0) {
-            // go to dataset panel to restore
-            MainMenu.openPanel("datastorePanel", "inButton");
-        }
-
         nameToDagMap.forEach((dagNodes) => {
             let promise = restoreSourceFromDagNodeHelper(dagNodes, share, failures);
             promises.push(promise);

@@ -9,9 +9,6 @@ describe("DagNodeMenu Test", function() {
     before(function(done) {
         $menu = $("#dagNodeMenu");
         UnitTest.onMinMode();
-        if (!$("#sqlWorkSpacePanel").hasClass("active")) {
-            MainMenu.openPanel("sqlPanel")
-        }
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
 

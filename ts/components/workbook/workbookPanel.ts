@@ -152,14 +152,6 @@ namespace WorkbookPanel {
     };
 
     /**
-    * WorkbookPanel.goToMonitor
-    * Shows the monitor panel
-    */
-    export function goToMonitor(): void {
-        MainMenu.openPanel("monitorPanel", "systemButton");
-    };
-
-    /**
     * WorkbookPanel.isWBMode
     * checks if the window is in the workbook panel
     */

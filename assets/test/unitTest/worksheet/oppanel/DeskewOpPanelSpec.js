@@ -8,7 +8,6 @@ describe("DeskewOpPanel Test", function() {
     before(function(done) {
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
-            MainMenu.openPanel("sqlPanel");
             node = new DagNodeDeskew({});
             const parentNode = new DagNodeFilter({});
             parentNode.getLineage = function() {

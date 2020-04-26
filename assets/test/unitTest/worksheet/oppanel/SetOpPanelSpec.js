@@ -28,7 +28,6 @@ describe("SetOpPanel Test", function() {
     });
 
     it('show should work', (done) => {
-        MainMenu.openPanel("sqlPanel");
         opPanel = SetOpPanel.Instance;
         opPanel._updateMode(true);
         DagConfigNodeModal.Instance.show(setNode, null, $(), {});

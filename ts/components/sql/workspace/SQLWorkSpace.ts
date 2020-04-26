@@ -87,7 +87,6 @@ class SQLWorkSpace {
      */
     public newSQL(sql: string): void {
         try {
-            MainMenu.openPanel("sqlPanel");
             SQLEditorSpace.Instance.newSQL(sql);
         } catch (e) {
             console.error(e);

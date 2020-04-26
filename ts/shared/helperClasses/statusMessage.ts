@@ -595,8 +595,6 @@ namespace StatusMessage {
                 if ($popup.data('tableid') != null) {
                     const tableId: string = $popup.data('tableid');
                     const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
-                    // XXX TODO: update it
-                    MainMenu.openPanel("sqlPanel", null);
 
                     if ($tableWrap.length) {
                         $tableWrap.mousedown();

@@ -6,115 +6,51 @@ namespace MainMenu {
     export const minWidth: number = 100;
     let hasSetUp: boolean = false;
     const formPanels: BaseOpPanel[] = [];
-    let $resizableRightPanels: JQuery;
     const minRightPanelWidth = 600;
     export let curSQLLeftWidth = defaultWidth;
     let _popup:  PopupPanel;
 
-    export function setup() {
+    /**
+     * MainMenu.setup
+     */
+    export function setup(openNotebookPanel: boolean) {
         if (hasSetUp) {
             return;
         }
         hasSetUp = true;
         $menuBar = $("#menuBar");
-        setupTabbing();
+        addEventListeners();
         setupDataflowResizable();
-        setupDatastoreResizable();
-        $resizableRightPanels = $("#workbookPanel, #monitorPanel, #datastorePanel")
-                .find("> .mainContent > .rightSection");
 
         let winResizeTimer: number;
         $(window).on("resize.mainMenu", () => {
             clearTimeout(winResizeTimer);
             winResizeTimer = <any>setTimeout(sizeRightPanel, 100);
         });
-    };
 
+        if (openNotebookPanel) {
+            openPanel();
+        }
+    }
+
+    /**
+     * MainMenu.registerPanels
+     * @param panel
+     */
     export function registerPanels(panel): void {
         formPanels.push(panel);
     }
 
-    export function openDefaultPanel(): void {
-        MainMenu.openPanel("sqlPanel");
-    }
-
-    export function openPanel(panelId: string, subTabId?: string): boolean {
-        let $tab: JQuery;
-        switch (panelId) {
-            case ("monitorPanel"):
-                $tab = $("#monitorTab");
-                break;
-            case ("datastorePanel"):
-                $tab = $("#dataStoresTab");
-                break;
-            case ("sqlPanel"):
-                $tab = $("#sqlWorkSpace");
-                break;
-            default:
-                break;
-        }
-        if ($tab) {
-            let $subTab: JQuery;
-            if (subTabId && $tab.find("#" + subTabId).length) {
-                $subTab = $tab.find("#" + subTabId);
-                if ($subTab.hasClass("active")) {
-                    $subTab = null;
-                }
-            } else {
-                subTabId = null;
-            }
-            if (!$tab.hasClass("active") || WorkbookPanel.isWBMode()) {
-                tabClickEvent($tab, $tab.closest(".topMenuBarTab"), true);
-            }
-            if ($subTab) {
-                $subTab.trigger({...fakeEvent.click, subTabId: subTabId});
-            }
-
-            return true;
-        } else {
-            return false;
-        }
-    };
-
-    function tabClickEvent($target: JQuery, $curTab: JQuery, noToggle?: boolean) {
-        const $tabs: JQuery = $menuBar.find(".topMenuBarTab");
-        WorkbookPanel.hide(true);
-        $menuBar.removeClass("animating");
-
-        if ($curTab.hasClass("active")) {
-            if ($target.closest(".subTab").length) {
-                const $subTab = $target.closest(".subTab");
-                $curTab.find(".subTab").removeClass("active");
-                $subTab.addClass("active");
-            } else if (!noToggle && $curTab.attr("id") === "sqlTab") {
-                toggleResourcePanel();
-            }
-        } else { // this tab was inactive, will make active
-            const $lastActiveTab: JQuery = $tabs.filter(".active");
-            const lastTabId: string = $lastActiveTab.attr("id");
-            $lastActiveTab.addClass("noTransition")
-                          .find(".icon")
-                          .addClass("noTransition");
-            // we dont want transition when active tab goes to inactive
-            setTimeout(function() {
-                $tabs.removeClass("noTransition")
-                     .find(".icon")
-                     .removeClass("noTransition");
-            }, 100);
-
-            const $subTab: JQuery = $curTab.find(".subTab.active");
-            if (!$curTab.hasClass("noLeftPanel") &&
-                !$subTab.hasClass("noLeftPanel")) {
-                openMenu();
-            }
-
-            panelSwitchingHandler($curTab, lastTabId);
+    function openPanel(): void {
+        let $tab: JQuery = $("#sqlTab");
+        if (!$tab.hasClass("active") || WorkbookPanel.isWBMode()) {
+            WorkbookPanel.hide(true);
+            panelSwitchingHandler($tab);
             xcUIHelper.hideSuccessBox();
         }
     }
 
-    // not used
-    export function showResourcePanel() {
+    function showResourcePanel() {
         const $tab = $("#sqlTab");
         $tab.addClass("showing");
         $("#sqlWorkSpacePanel").removeClass("hidingLeftPanel");
@@ -129,28 +65,16 @@ namespace MainMenu {
             $tab.removeClass("showing");
             $("#sqlWorkSpacePanel").addClass("hidingLeftPanel");
         } else {
-            MainMenu.showResourcePanel();
+            showResourcePanel();
         }
         TblFunc.moveFirstColumn();
         DagCategoryBar.Instance.showOrHideArrows();
         SQLEditorSpace.Instance.refresh();
     }
 
-    function setupTabbing(): void {
-        const $tabs: JQuery = $menuBar.find(".topMenuBarTab");
-
-        $tabs.click(function(event) {
-            const $target: JQuery = $(event.target);
-            const $curTab: JQuery = $(this);
-            const id: string = $curTab.attr("id");
-            if (id === "projectTab" ||
-                id === "udfTab" ||
-                id === "debugTab"
-            ) {
-                // XXX a temp solution
-                return;
-            }
-            tabClickEvent($target, $curTab);
+    function addEventListeners(): void {
+        $("#sqlTab").click(() => {
+            toggleResourcePanel();
         });
 
         $("#udfTab").click(() => {
@@ -162,35 +86,26 @@ namespace MainMenu {
         });
     }
 
+    /**
+     * MainMenu.getOffset
+     */
     export function getOffset(): number {
         return openOffset;
-    };
+    }
 
     // ensures right panels are not too small
-    export function sizeRightPanel() {
-        // XXX has bugs in load wizard and may not be needed after new design
-        // of sql panel
-        // let winWidth = $(window).width() - 60;
-        // if (BottomMenu.isMenuOpen()) {
-        //     winWidth -= defaultWidth;
-        // }
-        // let halfWinWidth = Math.floor(winWidth / 2);
-        // rightPanelMargin = $("#workbookPanel, #monitorPanel, #datastorePanel").find("> .mainContent > .leftSection").filter(":visible").outerWidth();
-        // if (rightPanelMargin > halfWinWidth || (winWidth - rightPanelMargin) < minRightPanelWidth) {
-        //     rightPanelMargin = Math.min(halfWinWidth, winWidth - minRightPanelWidth);
-        //     rightPanelMargin = Math.max(defaultWidth, rightPanelMargin);
-        //     $resizableRightPanels.filter(":visible").css("margin-left", rightPanelMargin);
-        // } else {
-        //     if (halfWinWidth > rightPanelMargin) {
-        //         $resizableRightPanels.filter(":visible").css("margin-left", rightPanelMargin);
-        //     }
-        // }
+    function sizeRightPanel() {
         if ($("#sqlWorkSpacePanel").hasClass("active")) {
             TblFunc.moveFirstColumn();
             DagCategoryBar.Instance.showOrHideArrows();
         }
     }
+
     // XXX for dagpanel only, move this function
+    /**
+     * MainMenu.resize
+     * @param width
+     */
     export function resize(width: number): void {
         _resize($("#dataflowMenu"), width);
         curSQLLeftWidth = Math.min(width, minWidth);
@@ -211,6 +126,9 @@ namespace MainMenu {
         });
     }
 
+    /**
+     * MainMenu.setupPopup
+     */
     export function setupPopup(): void {
         _popup = new PopupPanel("dataflowMenu", {
             noUndock: true
@@ -234,12 +152,6 @@ namespace MainMenu {
         _setupResizable($menu, minWidth, undefined, onStop);
     }
 
-    function setupDatastoreResizable(): void {
-        const $menu = $("#datastoreMenu");
-        const onResize = () => { DS.resize(); };
-        _setupResizable($menu, defaultWidth, onResize, null);
-    }
-
     function _setupResizable(
         $menu: JQuery,
         minWidth: number,
@@ -251,7 +163,6 @@ namespace MainMenu {
         let $ghost: JQuery;
         $menu.resizable({
             "handles": "e",
-            // "minWidth": defaultWidth,
             "minWidth": minWidth,
             "distance": 2,
             "helper": "mainMenuGhost",
@@ -336,85 +247,22 @@ namespace MainMenu {
         $(".mainPanel").removeClass("active");
     }
 
-    function panelSwitchingHandler($curTab: JQuery, lastTabId: string): void {
-        if (lastTabId === "monitorTab") {
-            MonitorPanel.inActive();
-        } else if (lastTabId === "sqlTab") {
-            SQLWorkSpace.Instance.unfocus();
-            DagViewManager.Instance.hide();
-        }
+    function panelSwitchingHandler($curTab: JQuery): void {
+        SQLWorkSpace.Instance.unfocus();
+        DagViewManager.Instance.hide();
+
         closeMainPanels();
         const $container = $("#container");
         $container.removeClass("monitorViewOpen");
-        const curTab: string = $curTab.attr("id");
         $menuBar.find(".topMenuBarTab").removeClass("active");
         $curTab.addClass("active");
 
-        switch (curTab) {
-            case ("dataStoresTab"):
-                let noWorkbook: boolean = $container.hasClass("noWorkbook");
-                $("#datastorePanel").addClass("active");
-                DSTable.refresh();
-                if ($curTab.hasClass("firstTouch")) {
-                    $curTab.removeClass("firstTouch");
-                    DataSourceManager.initialize();
-                    DSForm.initialize();
-                    if (DataSourceManager.isCreateTableMode() && !noWorkbook) {
-                        $("#sourceTblButton").click(); // switch to source panel
-                    }
-                }
-                if ($curTab.find(".subTab.active").length === 0 && !noWorkbook) {
-                    if (DataSourceManager.isCreateTableMode()) {
-                        $("#sourceTblButton").click(); // switch to source panel
-                    } else {
-                        $("#inButton").click();
-                    }
-                } else if ($("#sourceTblButton").hasClass("active")) {
-                    // when used to focus on table source
-                    TblSource.Instance.refresh();
-                }
-                DS.resize();
-                break;
-            case ("monitorTab"):
-                $("#monitorPanel").addClass("active");
-                $("#container").addClass("monitorViewOpen");
-                MonitorPanel.active();
-                if ($curTab.hasClass("firstTouch")) {
-                    $curTab.removeClass("firstTouch");
-                }
-                break;
-            case ("sqlTab"):
-                $("#sqlWorkSpacePanel").addClass("active");
-                SQLWorkSpace.Instance.focus();
-                DagViewManager.Instance.show();
-                break;
-            default:
-                $(".underConstruction").addClass("active");
-                break;
-        }
+        $("#sqlWorkSpacePanel").addClass("active");
+        SQLWorkSpace.Instance.focus();
+        DagViewManager.Instance.show();
 
         sizeRightPanel();
         StatusMessage.updateLocation(null, null);
         $(".tableDonePopupWrap").remove();
-    }
-
-    function openMenu(): void {
-        // Don't open side menu when the UDF panel is opening the file manager,
-        // Otherwise the UDF panel will be blocked by the side menu.
-        checkAnim();
-
-        if ($("#sqlWorkSpacePanel").hasClass("active")) {
-            DagCategoryBar.Instance.showOrHideArrows();
-        }
-    }
-
-    // turns off animation during open or close
-    function checkAnim(): void {
-        $("#container").addClass("noMenuAnim");
-        // noAnim classes only need to take effect for a split second
-        // to get rid of transition animations
-        setTimeout(function() {
-            $("#container").removeClass("noMenuAnim");
-        }, 0);
     }
 }

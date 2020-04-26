@@ -22,7 +22,6 @@ describe('ExplodeOpPanel Test', () => {
             getTitle: () => "Node 1"
         };
 
-        MainMenu.openPanel("sqlPanel");
         ExplodeOpPanel.Instance.show(explodeNode, {});
         if ($("#explodeOpPanel").find(".advancedEditor").is(":visible")) {
             $("#explodeOpPanel .bottomSection .xc-switch").click();

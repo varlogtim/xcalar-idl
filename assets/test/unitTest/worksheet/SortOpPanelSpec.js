@@ -14,7 +14,6 @@ describe('Sort Op Panel Test', function() {
 
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
-            MainMenu.openPanel("sqlPanel");
             node = new DagNodeSort({});
             const parentNode = new DagNodeMap({});
             parentNode.getLineage = function() {

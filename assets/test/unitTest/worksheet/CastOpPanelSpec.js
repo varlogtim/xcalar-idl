@@ -16,7 +16,6 @@ describe('CastOpPanel Test', function() {
                 $(".dataflowWrapBackground .newTab").click();
             }
             console.log("Cast panel test");
-            MainMenu.openPanel("sqlPanel");
             node = new DagNodeMap({subType: "cast"});
             const parentNode = new DagNodeFilter({});
             parentNode.getLineage = function() {

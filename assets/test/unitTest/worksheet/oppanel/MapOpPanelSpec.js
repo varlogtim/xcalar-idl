@@ -10,7 +10,6 @@ describe("MapOpPanel Test", function() {
     var openOptions = {};
 
     before(function(done) {
-        MainMenu.openPanel("sqlPanel");
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             node = new DagNodeMap({});

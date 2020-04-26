@@ -86,19 +86,6 @@ describe("Dataset Operator Panel Test", function() {
             $('#datasetOpPanel .close.icon.xi-close').click();
             expect($('#datasetOpPanel').hasClass("xc-hidden")).to.be.true;
         });
-
-        it("should navigate to dataset panel when click link", function() {
-            let testPanelId, testSubId;
-            let oldFunc = MainMenu.openPanel;
-            MainMenu.openPanel = (panelId, subId) => {
-                testPanelId = panelId;
-                testSubId = subId;
-            };
-            $('#datasetOpPanel .instrText .link').click();
-            expect(testPanelId).to.equal("datastorePanel");
-            expect(testSubId).to.equal("inButton");
-            MainMenu.openPanel = oldFunc;
-        });
     });
 
     describe("Standard Dataset Panel Tests", function() {
