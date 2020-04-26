@@ -134,13 +134,6 @@ class ProfileEngine {
             finalTable = this._getNewName(tableName, ".profile.final", true);
             colName = newKeyFieldName;
 
-            // const groupbyTable = this._baseTableName;
-            // const newKeyFieldName = "unitTestDsTable5102::yelping_since";
-
-            // finalTable = this._getNewName(tableName, ".profile.final", true);
-            // colName = newKeyFieldName;
-
-
             return this._sortGroupby(txId, colName, groupbyTable, finalTable);
         })
         .then((ret: {maxVal:number, sumVal: number}) => {

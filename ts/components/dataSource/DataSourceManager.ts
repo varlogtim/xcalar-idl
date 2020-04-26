@@ -30,7 +30,6 @@ class DataSourceManager {
         DSForm.setup();
         DSConfig.setup();
         FileBrowser.setup();
-        DSTable.setup();
         DSTargetManager.setup();
         this._setupMenus();
     }
@@ -155,7 +154,6 @@ class DataSourceManager {
         let $dsFormView = $("#dsFormView");
         if (!$dsFormView.is(":visible")) {
             $dsFormView.removeClass("xc-hidden");
-            DSTable.hide();
             TblSourcePreview.Instance.close();
         }
 
@@ -311,7 +309,6 @@ class DataSourceManager {
         $title.text(DSTStr.IN);
         $menu.find(".in").removeClass("xc-hidden");
 
-        DSTable.refresh();
         DS.resize();
 
         if (wasInTableScreen) {

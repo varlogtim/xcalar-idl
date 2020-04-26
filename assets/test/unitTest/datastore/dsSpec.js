@@ -832,65 +832,6 @@ describe.skip("Dataset-DS Test", function() {
             expect(DS.has(dsName)).to.be.true;
         });
 
-        it("should handle focus on error", function(done) {
-            var oldFunc = DSTable.show;
-
-            DSTable.show = function() {
-                return PromiseHelper.reject("test");
-            };
-
-            var $grid = $('<div data-id="test"></div>');
-            DS.focusOn($grid)
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(error).to.equal("test");
-                done();
-            })
-            .always(function() {
-                DSTable.show = oldFunc;
-            });
-        });
-
-        it("should handle not focus on unlistable ds", function(done) {
-            var oldFunc = DSTable.showError;
-            var test = false;
-            DSTable.showError = function() {
-                test = true;
-            };
-
-            var $grid = $('<div class="active unlistable" data-dsid="test"></div>');
-            DS.focusOn($grid)
-            .then(function() {
-                expect(test).to.be.true;
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                DSTable.showError = oldFunc;
-            });
-        });
-
-        it("Should Focus on ds", function(done) {
-            var $grid = DS.getGrid(testDS.getId());
-            var oldTableShow = DSTable.show;
-            DSTable.show = () => PromiseHelper.resolve();
-            DS.focusOn($grid)
-            .then(function() {
-                assert.isTrue($grid.hasClass("active"), "focus on ds");
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(() => {
-                DSTable.show = oldTableShow;
-            });
-        });
-
         it("Should not multi focs on fetching grid", function(done) {
             var $grid = DS.getGrid(testDS.getId());
             expect($grid.hasClass("active")).to.be.true;

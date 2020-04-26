@@ -81,8 +81,6 @@ class TblFunc {
         $th.outerWidth(newWidth);
         if (table != null) {
             table.tableCols[colNum - 1].width = newWidth;
-        } else if (datastore) {
-            DSTable.resize();
         }
         if (!options.multipleCols) {
             TblFunc.matchHeaderSizes($table);
@@ -299,10 +297,8 @@ class TblFunc {
             let scrollLeft: number;
 
             if (datasetPreview) {
-                const $container: JQuery = $targetTable.closest("#dsTableContainer").length
-                                ? $('#dsTableContainer') : $targetTable.closest(".datasetTableWrap");
-                scrollLeft = -($targetTable.offset().left -
-                                $container.offset().left);
+                // this is an unsupported case
+                return;
             } else if (dagView) {
                 scrollLeft = $sqlTableArea.offset().left -
                 $targetTable.offset().left;

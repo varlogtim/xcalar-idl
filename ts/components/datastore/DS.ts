@@ -578,7 +578,6 @@ namespace DS {
         if ($grid.hasClass("folder")) {
             return PromiseHelper.resolve();
         } else if ($grid.hasClass("unlistable")) {
-            DSTable.showError(dsId, ErrTStr.MakrForDel, true, false, false);
             return PromiseHelper.resolve();
         } else if ($grid.hasClass("inActivated") && !isLoading) {
             let dsObj = DS.getDSObj(dsId);
@@ -586,26 +585,13 @@ namespace DS {
             if (dsObj) {
                 error = dsObj.getError() || error;
             }
-            DSTable.showError(dsId, error, false, true, false);
             return PromiseHelper.resolve();
         }
 
-        $grid.addClass("fetching");
-        // when switch to a ds, should clear others' ref count first!!
-        DSTable.show(dsId, isLoading)
-        .then(() => {
-            deferred.resolve(isLoading);
-        })
-        .fail((error) => {
-            console.error("Focus on ds fails!", error);
-            deferred.reject(error);
-        })
-        .always(() => {
-            $grid.removeClass("fetching");
-            if (!isLoading) {
-                $grid.removeClass("notSeen");
-            }
-        });
+        if (!isLoading) {
+            $grid.removeClass("notSeen");
+        }
+        deferred.resolve(isLoading);
 
         return deferred.promise();
     }
@@ -1438,7 +1424,6 @@ namespace DS {
                 case "delete":
                     dsIds = arg.dsIds || [];
                     dsIds.forEach(removeDS);
-                    cleanFocusedDSIfNecessary();
                     break;
                 case "activate":
                     dsIds = arg.dsIds || [];
@@ -1571,15 +1556,7 @@ namespace DS {
             updateDSMeta(dsInfo, dsObj, $grid);
             finishImport($grid);
             if ($grid.hasClass("active")) {
-                // re-focus to trigger DSTable.show()
-                if (gMinModeOn) {
-                    DS.focusOn($grid);
-                } else {
-                    DSTable.getViewWrap().fadeOut(200, function() {
-                        DS.focusOn($grid);
-                        DSTable.getViewWrap().fadeIn();
-                    });
-                }
+                DS.focusOn($grid);
             }
 
             if (dsInfo && dsInfo.downSampled === true) {
@@ -1614,7 +1591,7 @@ namespace DS {
                     focusOnForm();
                 }
             } else {
-                handleImportError(dsObj, displayError, created, true);
+                handleImportError(dsObj, displayError, created);
             }
 
             if (created) {
@@ -1629,7 +1606,7 @@ namespace DS {
             deferred.reject(error);
         })
         .always(() => {
-            loadCleanup(txId);
+            loadCleanup();
         });
 
         return deferred.promise();
@@ -1660,23 +1637,20 @@ namespace DS {
         refreshDS();
     }
 
-    function loadCleanup(txId: number): void {
-        $("#dsTableContainer").find('.lockedTableIcon[data-txid="' + txId + '"]').remove();
+    function loadCleanup(): void {
         xcTooltip.hideAll();
     }
 
     function handleImportError(
         dsObj: DSObj,
         error: string,
-        created: boolean,
-        isImportError: boolean
+        created: boolean
     ): void {
         let dsId = dsObj.getId();
         let $grid = DS.getGrid(dsId);
         if ($grid.hasClass("active")) {
             dsObj.setError(error);
             cacheErrorDS(dsId, dsObj);
-            DSTable.showError(dsId, error, false, false, isImportError);
         }
         if (!created) {
             removeDS(dsId);
@@ -1697,9 +1671,7 @@ namespace DS {
         options = options || {};
         let dsName = dsObj.getFullName();
         let dsId = dsObj.getId();
-        let isShowDSTable: boolean = (DSTable.getId() === dsId ||
-                            $("#dsTableContainer").data("id") === dsId);
-        let noDeFocus: boolean = (options.noDeFocus || !isShowDSTable ||  false);
+        let noDeFocus: boolean = (options.noDeFocus ||  false);
         let failToShow: boolean = options.failToShow || false;
 
         $grid.removeClass("active")
@@ -3010,7 +2982,6 @@ namespace DS {
 
         promise
         .then(() => {
-            cleanFocusedDSIfNecessary();
             curDirId = dir;
             refreshDS();
             commitDSChange();
@@ -3019,20 +2990,6 @@ namespace DS {
         .fail(deferred.reject);
 
         return deferred.promise();
-    }
-
-    function cleanFocusedDSIfNecessary(): void {
-        let dsId = DSTable.getId();
-        if (dsId == null) {
-            return;
-        }
-
-        let dsObj = DS.getDSObj(dsId);
-        if (dsObj == null) {
-            // clear data table
-            DSTable.clear();
-            focusOnForm();
-        }
     }
 
     function renameHelper($label: JQuery, dsId: string): void {
@@ -3328,7 +3285,6 @@ namespace DS {
         if (!noAlert) {
             $grid.data("txid", txId);
             $grid.addClass("loading");
-            DSTable.setupViewBeforeLoading(dsObj);
         }
 
         let datasetName = dsObj.getFullName();
@@ -3362,7 +3318,7 @@ namespace DS {
                         focusOnForm();
                     }
                 } else if (!noAlert) {
-                    handleImportError(dsObj, displayError, true, false);
+                    handleImportError(dsObj, displayError, true);
                 }
 
                 if (txId != null) {
@@ -3380,7 +3336,7 @@ namespace DS {
         })
         .always(() => {
             finishActivate($grid);
-            loadCleanup(txId);
+            loadCleanup();
         });
 
         return deferred.promise();
@@ -3528,12 +3484,6 @@ namespace DS {
         let $grid = DS.getGrid(dsId);
         dsObj.deactivate();
         $grid.addClass("inActivated");
-        let isShowDSTable: boolean = (DSTable.getId() === dsId ||
-                            $("#dsTableContainer").data("id") === dsId);
-        if (isShowDSTable) {
-            $grid.removeClass("active");
-            DS.focusOn($grid); // re-focus on the ds
-        }
     }
 
     function deleteTempDS(dsName: string): void {
