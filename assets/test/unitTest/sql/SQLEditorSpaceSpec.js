@@ -128,7 +128,8 @@ describe("SQLEditorSpace Test", function() {
                         functions: {},
                         command: {
                             type: "showTables"
-                        }
+                        },
+                        parameters: []
                     }]
                 };
                 return PromiseHelper.resolve(JSON.stringify(ret));
@@ -165,7 +166,8 @@ describe("SQLEditorSpace Test", function() {
                         command: {
                             type: "describeTable",
                             args: ["A"]
-                        }
+                        },
+                        parameters: []
                     }]
                 };
                 return PromiseHelper.resolve(JSON.stringify(ret));
@@ -203,7 +205,8 @@ describe("SQLEditorSpace Test", function() {
                         command: {
                             type: "describeTable",
                             args: ["A"]
-                        }
+                        },
+                        parameters: []
                     }]
                 };
                 return PromiseHelper.resolve(JSON.stringify(ret));

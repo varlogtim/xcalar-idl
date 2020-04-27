@@ -359,10 +359,10 @@ class SQLEditorSpace {
                 ops: ["identifier", "sqlfunc", "parameters"],
                 isMulti: (sqls.indexOf(";") > -1)
             };
+            let sqlStructArray: SQLParserStruct[];
             SQLUtil.sendToPlanner("", "parse", struct)
             .then((ret) => {
                 const sqlParseRet = JSON.parse(ret).ret;
-                let sqlStructArray: SQLParserStruct[];
                 if (!(sqlParseRet instanceof Array)) { // Remove this after parser change in
                     if (sqlParseRet.errorMsg) {
                         return PromiseHelper.reject(sqlParseRet.errorMsg);
@@ -371,6 +371,9 @@ class SQLEditorSpace {
                 } else {
                     sqlStructArray = sqlParseRet;
                 }
+                return this._validateParameters(sqlStructArray);
+            })
+            .then(() => {
                 if (!struct.isMulti && sqlStructArray.length === 1 &&
                     Object.keys(sqlStructArray[0].functions).length === 0 &&
                     sqlStructArray[0].command.type !== "createTable") {
@@ -449,6 +452,7 @@ class SQLEditorSpace {
             this._throwError(e);
         }
     }
+
     private _throwError(error: any): void {
         if (error instanceof Array) {
             let errorMsg = null;
@@ -553,6 +557,52 @@ class SQLEditorSpace {
         } catch (e) {
             this._throwError(e);
         }
+    }
+
+    private _validateParameters(sqlStructArray) {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        const allParameters = DagParamManager.Instance.getParamMap();
+        const noValues = [];
+        const seen = new Set();
+        let hasUpperCaseProblem = false;
+
+        sqlStructArray.forEach((struct) => {
+            let statement = struct.sql;
+            struct.parameters.forEach((parameter) => {
+                if (seen.has(parameter)) {
+                    return;
+                }
+                if (!allParameters[parameter]) {
+                    if (!statement.includes(parameter)) {
+                        hasUpperCaseProblem = true;
+                    }
+                    noValues.push(parameter);
+                }
+                seen.add(parameter);
+            })
+        });
+
+        if (noValues.length) {
+            let msg = `The following parameters do not have a value assigned: ${noValues.join(", ")}.`;
+
+            if (hasUpperCaseProblem) {
+                msg += `\n Note: SQL parameters must be in uppercase.`;
+            }
+            msg += `\n Do you wish to continue?`;
+            Alert.show({
+                "title": "Confirmation",
+                "msgTemplate": msg,
+                "onConfirm": function() {
+                    deferred.resolve();
+                },
+                "onCancel": function() {
+                    deferred.reject(null); // should not show error
+                }
+            });
+        } else {
+            deferred.resolve();
+        }
+        return deferred.promise();
     }
 
     private _addExecutor(executor: SQLDagExecutor): void {
