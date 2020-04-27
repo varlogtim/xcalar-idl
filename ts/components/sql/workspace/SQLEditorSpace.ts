@@ -588,7 +588,7 @@ class SQLEditorSpace {
             if (hasUpperCaseProblem) {
                 msg += `\n Note: SQL parameters must be in uppercase.`;
             }
-            msg += `\n Do you wish to continue?`;
+            msg += `\n Do you want to continue?`;
             Alert.show({
                 "title": "Confirmation",
                 "msgTemplate": msg,

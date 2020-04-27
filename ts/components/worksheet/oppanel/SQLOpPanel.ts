@@ -11,6 +11,7 @@ class SQLOpPanel extends BaseOpPanel {
     private _sqlTables = {};
     private _alertOff: boolean = false;
     private _ignoreQueryConfirm = false;
+    private _ignoreUpdateConfirm = false;
     private _identifiers: string[] = [];
     private _connectors: {label: string, nodeId: string}[] = [];
     private _queryStr = "";
@@ -323,12 +324,10 @@ class SQLOpPanel extends BaseOpPanel {
     ): XDPromise<any> {
         const self = this;
         const deferred = PromiseHelper.deferred();
-        const snippets = SQLSnippet.Instance.list();
+
         let sql = "";
         if (query == null) {
-            let snippet = snippets.find(snippet => {
-                return snippet.id === snippetId;
-            });
+            let snippet = SQLSnippet.Instance.getSnippetObj(snippetId);
             if (snippet) {
                 sql = snippet.snippet;
             }
@@ -421,9 +420,10 @@ class SQLOpPanel extends BaseOpPanel {
         this.updateIdentifiersList();
     }
 
-    public updateIdentifiersList() {
+    private updateIdentifiersList() {
         let leftCol = "";
         let rightCol = "";
+        let seenConnectors = new Set();
         this._identifiers.forEach((identifier, i) => {
             leftCol += `<div class="source">
                     ${identifier}
@@ -431,7 +431,37 @@ class SQLOpPanel extends BaseOpPanel {
             let connectorName = "";
             if (this._connectors[i]) {
                 connectorName = this._connectors[i].label;
+                seenConnectors.add(i);
             }
+            rightCol +=
+                `<div class="dest">
+                    <div class="dropDownList">
+                        <input class="text" type="text" value="${connectorName}" spellcheck="false" readonly>
+                        <div class="iconWrapper">
+                            <i class="icon xi-arrow-down"></i>
+                        </div>
+                        <div class="list">
+                            <ul>
+                            </ul>
+                            <div class="scrollArea top stopped" style="display: none;">
+                                <i class="arrow icon xi-arrow-up"></i>
+                            </div>
+                            <div class="scrollArea bottom" style="display: none;">
+                                <i class="arrow icon xi-arrow-down"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        });
+
+        this._connectors.forEach((connector, index) => {
+            let connectorName = connector.label;
+            if (seenConnectors.has(index)) {
+                return;
+            }
+            leftCol += `<div class="source notSpecified">
+                Not Specified
+            </div>`;
             rightCol +=
                 `<div class="dest">
                     <div class="dropDownList">
@@ -455,7 +485,6 @@ class SQLOpPanel extends BaseOpPanel {
         let html = `<div class="col">${leftCol}</div><div class="col">${rightCol}</div>`;
         this._$elemPanel.find(".identifiersList").html(html);
         this._$elemPanel.find(".identifiersList .dest").each((index, el) => {
-
             const $dropDownList: JQuery = $(el).find(".dropDownList");
             new MenuHelper($dropDownList, {
                 fixedPosition: {
@@ -677,52 +706,7 @@ class SQLOpPanel extends BaseOpPanel {
 
         // Submit button
         self._$elemPanel.on('click', '.submit', () => {
-            if (this._isAdvancedMode()) {
-                const failure = this._switchMode(false);
-                if (failure) {
-                    StatusBox.show(failure.error, this._$elemPanel.find(".advancedEditor"));
-                    return;
-                }
-            }
-            let identifiers;
-            let identifiersNameMap;
-            try {
-                let retStruct = this.extractIdentifiers(true);
-                identifiers = retStruct.identifiers;
-                identifiersNameMap = retStruct.identifiersNameMap;
-            } catch (e) {
-                StatusBox.show(e, this._$elemPanel.find(".btn-submit"));
-                return;
-            }
-            const query = this.$panel.find(".editorWrapper").text().replace(/;+$/, "");
-            const snippetId = this.$panel.find(".snippetsList input").data("id");
-            this.configureSQL(snippetId, query, identifiers, identifiersNameMap)
-            .then(() => {
-                this.close(true);
-                if (!this._ignoreQueryConfirm) {
-                    Alert.show({
-                        isAlert: true,
-                        title: AlertTStr.Title,
-                        msg: "Any future modifications to the original SQL statment will not affect this operator.",
-                        // msg: "The SQL statement in this operator will not be affected by any future modifications to the original SQL statement.",
-                        onCancel: (checked) => {
-                            this._ignoreQueryConfirm = checked;
-                        },
-                        isCheckBox: true,
-                        isInfo: true
-                    })
-                }
-            })
-            .fail((err) => {
-                if (err === SQLErrTStr.EmptySQL) {
-                    Alert.show({
-                        title: SQLErrTStr.Err,
-                        msg: err,
-                        isAlert: true
-                    });
-                }
-                this._dagNode.beErrorState();
-            });
+            this.submit();
         });
         this._addEventListeners();
     }
@@ -730,7 +714,6 @@ class SQLOpPanel extends BaseOpPanel {
     protected _updateMode(toAdvancedMode: boolean) {
         super._updateMode(toAdvancedMode);
     }
-
 
     /**
      * @override BaseOpPanel._switchMode
@@ -854,6 +837,89 @@ class SQLOpPanel extends BaseOpPanel {
             return true;
         }
         return false;
+    }
+
+    private _confirmOutdatedQuery() {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        if (this._ignoreUpdateConfirm) {
+            return PromiseHelper.resolve();
+        }
+        Alert.show({
+            "title": "Query out of sync",
+            "msg": "SQL query has not been updated. Do you want to continue?",
+            "onConfirm": (checked) => {
+                this._ignoreUpdateConfirm = checked;
+                deferred.resolve();
+            },
+            "onCancel": (checked) => {
+                this._ignoreUpdateConfirm = checked;
+                deferred.reject("cancel"); // should not show error
+            },
+            isCheckBox: true,
+            isInfo: true
+        });
+        return deferred.promise();
+    }
+
+    private submit() {
+        if (this._isAdvancedMode()) {
+            const failure = this._switchMode(false);
+            if (failure) {
+                StatusBox.show(failure.error, this._$elemPanel.find(".advancedEditor"));
+                return;
+            }
+        }
+        let identifiers;
+        let identifiersNameMap;
+        try {
+            let retStruct = this.extractIdentifiers(true);
+            identifiers = retStruct.identifiers;
+            identifiersNameMap = retStruct.identifiersNameMap;
+        } catch (e) {
+            StatusBox.show(e, this._$elemPanel.find(".btn-submit"));
+            return;
+        }
+        const query = this.$panel.find(".editorWrapper").text().replace(/;+$/, "");
+        const snippetId = this.$panel.find(".snippetsList input").data("id");
+        let promise;
+        if (!this._isQueryUpdated) {
+            promise = this._confirmOutdatedQuery();
+        } else {
+            promise = PromiseHelper.resolve();
+        }
+        promise
+        .then(() => {
+            return this.configureSQL(snippetId, query, identifiers, identifiersNameMap);
+        })
+        .then(() => {
+            this.close(true);
+            if (!this._ignoreQueryConfirm && this._isQueryUpdated &&
+                !this._ignoreUpdateConfirm) {
+                Alert.show({
+                    isAlert: true,
+                    title: AlertTStr.Title,
+                    msg: "Any future modifications to the original SQL statment will not affect this operator.",
+                    // msg: "The SQL statement in this operator will not be affected by any future modifications to the original SQL statement.",
+                    onCancel: (checked) => {
+                        this._ignoreQueryConfirm = checked;
+                    },
+                    isCheckBox: true,
+                    isInfo: true
+                })
+            }
+        })
+        .fail((err) => {
+            if (err === SQLErrTStr.EmptySQL) {
+                Alert.show({
+                    title: SQLErrTStr.Err,
+                    msg: err,
+                    isAlert: true
+                });
+            }
+            if (err !== "Cancel") {
+                this._dagNode.beErrorState();
+            }
+        });
     }
 
     private _validateAdvancedParams(advancedParams): any {

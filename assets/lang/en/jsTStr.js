@@ -1086,8 +1086,8 @@ DFTStr = {
     "Resources": "Resources",
     "TBModules": "Modules",
     "CloseModule": "Close",
-    "PinOperatorBar": "Show operator bar",
-    "ShowLabels": "Show operators label",
+    "PinOperatorBar": "Pin operator bar",
+    "ShowLabels": "Show operator labels",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     "ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized.",

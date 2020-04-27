@@ -1329,12 +1329,17 @@ namespace xcHelper {
 
     export function genTableNameFromNode(node: DagNode): string {
         try {
-            let name: string = node.getParents()
-                .map((parentNode) => {
-                    const parentTable = parentNode.getTable();
-                    return xcHelper.getTableName(parentTable);
-                })
-                .join("_") || "table";
+
+            let names: string[] = [];
+            node.getParents().forEach((parentNode) => {
+                const parentTable = parentNode.getTable();
+                if (!parentTable) {
+                    return;
+                } else {
+                    names.push(xcHelper.getTableName(parentTable));
+                }
+            });
+            let name = names.join("_") || "table";
             let shortenedName = name.slice(- (XcalarApisConstantsT.XcalarApiMaxFileNameLen - 80));
             // max 175 characters to make space for prefixes/suffixes
             if (shortenedName !== name) {
