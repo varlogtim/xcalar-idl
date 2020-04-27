@@ -69,44 +69,22 @@
               <span class="text"><%= dicts.common.AddCol %></span>
             </div>
           </div>
-          <div class="IMDOperator formRow">
-              <div class="subHeading clearfix">
-                <div class="label">(Optional) <%= dicts.publishIMDOp.operator %>:</div>
-                <i class="qMark icon xi-unknown"
-                data-toggle="tooltip"
-                data-container="body"
-                data-placement="top"
-                data-title="<%= dicts.publishIMDOp.operatorInstr %>">
-                </i>
-              </div>
-              <div id="IMDOperatorList" class="dropDownList">
-                  <input class="text IMDOperatorInput" placeholder="Optional" type="text"
-                    value="" spellcheck="false" autocomplete="off">
-                  <div class="iconWrapper">
-                    <i class="icon xi-arrow-down"></i>
-                  </div>
-                  <div class="list">
-                    <ul class="IMDOperatorColumns"></ul>
-                    include "../../util/menuScrollArea.html"
-                  </div>
+          <div id="publishIMDColumns" class="publishColumnsSection formRow">
+            <div class="subHeading clearfix">
+              <div class="label"><%= dicts.publishIMDOp.colsInTable %>:</div>
+              <div class="checkboxWrap selectAllWrap">
+                <div class="text"><%= dicts.common.SelectAll %></div>
+                <div class="checkbox">
+                  <i class="icon xi-ckbox-empty fa-13"></i>
+                  <i class="icon xi-ckbox-selected fa-13"></i>
+                </div>
               </div>
             </div>
-            <div id="publishIMDColumns" class="publishColumnsSection formRow">
-                <div class="subHeading clearfix">
-                  <div class="label"><%= dicts.publishIMDOp.colsInTable %>:</div>
-                  <div class="checkboxWrap selectAllWrap">
-                    <div class="text"><%= dicts.common.SelectAll %></div>
-                    <div class="checkbox">
-                      <i class="icon xi-ckbox-empty fa-13"></i>
-                      <i class="icon xi-ckbox-selected fa-13"></i>
-                    </div>
-                  </div>
-                </div>
-                <div class="columnsToPublish columnsWrap flexWrap clearfix">
-                    <ul class="cols"></ul>
-                    <div class="hint noColsHint empty"><%= dicts.dataflow.noColsHint %></div>
-                </div>
+            <div class="columnsToPublish columnsWrap flexWrap clearfix">
+              <ul class="cols"></ul>
+              <div class="hint noColsHint empty"><%= dicts.dataflow.noColsHint %></div>
             </div>
+          </div>
       </div>
       include "opPanelAdvancedSection.html"
       include "opPanelBottomSection.html"

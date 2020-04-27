@@ -6,9 +6,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
     private _$nameInput: JQuery; // $('#publishIMDOpPanel .IMDNameInput')
     private _$primaryKeys: JQuery; // $('#publishIMDOpPanel .IMDKey')
     private _$publishColList: JQuery; // $('#publishIMDOpPanel .publishColumnsSection .cols')
-    private _$operatorInput: JQuery; // $('#publishIMDOpPanel .IMDOperatorInput')
     private _currentKeys: string[];
-    private _currentOpCode: string;
     private _selectedCols: Set<string>;
     protected codeMirrorOnlyColumns = true;
 
@@ -27,10 +25,8 @@ class PublishIMDOpPanel extends BaseOpPanel {
         this._$nameInput = $('#publishIMDOpPanel .IMDNameInput');
         this._$primaryKeys = $('#publishIMDOpPanel .IMDKey');
         this._$publishColList = $('#publishIMDOpPanel .publishColumnsSection .cols');
-        this._$operatorInput = $('#publishIMDOpPanel .IMDOperatorInput');
         this._setupEventListener();
         this._currentKeys = [];
-        this._currentOpCode = "";
         this._selectedCols = new Set();
     }
 
@@ -175,7 +171,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
         return {
             pubTableName: typeof(this._$nameInput.val()) === "string" ? this._$nameInput.val().toUpperCase() : this._$nameInput.val(),
             primaryKeys: keys,
-            operator: this._$operatorInput.val(),
+            operator: "",
             columns: columns,
             overwrite: this._isOverwrite()
         }
@@ -218,8 +214,6 @@ class PublishIMDOpPanel extends BaseOpPanel {
             this._selectedCols.add(col);
         });
 
-        this._$operatorInput.val(input.operator);
-        this._currentOpCode = input.operator;
         this._renderColumns();
         for(let i = 0; i < keyList.length; i++) {
             this._toggleColumnKey(keyList[i].substr(1), true, true);
@@ -244,9 +238,6 @@ class PublishIMDOpPanel extends BaseOpPanel {
             html += '<li data-value="$' + column.getBackColName() + '">' +
                 column.getBackColName() + '</li>';
         });
-        $list.empty();
-        $list.append(html);
-        $list = $('#IMDOperatorList .IMDOperatorColumns');
         $list.empty();
         $list.append(html);
     }
@@ -320,7 +311,6 @@ class PublishIMDOpPanel extends BaseOpPanel {
         }))
         if (operator != "" && !xcHelper.hasValidColPrefix(operator)) {
             error = ErrTStr.ColInModal;
-            $location = this._$operatorInput;
         }
         if (error != "") {
             if (this._advMode) {
@@ -411,17 +401,6 @@ class PublishIMDOpPanel extends BaseOpPanel {
             }
         });
 
-        this._$elemPanel.find("#IMDOperatorList").on('blur', '.IMDOperatorInput', function() {
-            let $input = $(this);
-            let oldVal = self._currentOpCode;
-            if (oldVal != $input.val()) {
-                if (oldVal.charAt(0) === '$') {
-                    oldVal = oldVal.substr(1);
-                }
-                self._toggleColumnKey(oldVal, false, false);
-            }
-        });
-
         let $list = $('#publishIMDOpPanel .IMDKey .primaryKeyList');
         this._activateDropDown($list, '#publishIMDOpPanel .IMDKey .primaryKeyList');
         let expList: MenuHelper = new MenuHelper($list, {
@@ -447,31 +426,6 @@ class PublishIMDOpPanel extends BaseOpPanel {
                 self._currentKeys[index] = $li.data("value");
                 let colName: string = $li.text();
                 self._toggleColumnKey(colName, true, true);
-            }
-        });
-        expList.setupListeners();
-
-        $list = $('#IMDOperatorList');
-        this._activateDropDown($list, '#IMDOperatorList');
-        expList = new MenuHelper($list, {
-            "onSelect": function($li) {
-                if ($li.hasClass("hint")) {
-                    return false;
-                }
-
-                if ($li.hasClass("unavailable")) {
-                    return true; // return true to keep dropdown open
-                }
-
-                let oldVal = self._$operatorInput.val();
-                if (oldVal != "") {
-                    self._toggleColumnKey(oldVal.substr(1), false, false);
-                }
-
-                self._$operatorInput.val("$" + $li.text());
-                let colName: string = $li.text();
-                self._currentOpCode = $li.data("value");
-                self._toggleColumnKey(colName, true, false);
             }
         });
         expList.setupListeners();
@@ -637,7 +591,6 @@ class PublishIMDOpPanel extends BaseOpPanel {
             }
         } else {
             keys = this._getKeyValues();
-            operator = this._$operatorInput.val();
             name = typeof(this._$nameInput.val()) === "string" ? this._$nameInput.val().toUpperCase() : this._$nameInput.val();
             this._$nameInput.val(name);
             overwrite = this._isOverwrite();

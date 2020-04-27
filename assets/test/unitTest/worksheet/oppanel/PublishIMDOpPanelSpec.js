@@ -60,10 +60,6 @@ describe('PublishIMDOpPanel Test', () => {
             expect($panel.find(".primaryKeyColumns li").length).to.equal(18);
         });
 
-        it('opCode dropdown', () => {
-            expect($panel.find(".IMDOperatorColumns li").length).to.equal(9);
-        });
-
         it ("Should be hidden at start", function () {
             opPanel.close();
             expect($('#publishIMDOpPanel').hasClass("xc-hidden")).to.be.true;
@@ -129,18 +125,6 @@ describe('PublishIMDOpPanel Test', () => {
             expect($columns.find('[data-original-title="col#1"]').parent().hasClass("active")).to.be.false;
         });
 
-        it("Should check and uncheck columns corresponding to the opcodes", () => {
-            expect($columns.find(".col .checked").length).to.equal(0);
-            $panel.find('.IMDOperatorInput').click();
-            $panel.find('.IMDOperatorColumns [data-value="$col#1"]').trigger(fakeEvent.mouseup);
-            expect($columns.find(".col .checked").length).to.equal(1);
-            expect($columns.find('[data-original-title="col#1"]').parent().hasClass("active")).to.be.true;
-            $panel.find('.IMDOperatorInput').val('');
-            $panel.find('.IMDOperatorInput').blur();
-            expect($columns.find(".col .checked").length).to.equal(0);
-            expect($columns.find('[data-original-title="col#1"]').parent().hasClass("active")).to.be.false;
-        });
-
         it("Should be unable to uncheck a key", () => {
             $panel.find('.primaryKeyInput').click();
             $panel.find('.primaryKeyColumns [data-value="$col#1"]').trigger(fakeEvent.mouseup);
@@ -150,17 +134,6 @@ describe('PublishIMDOpPanel Test', () => {
             $panel.find('.primaryKeyInput').val('');
             $panel.find('.primaryKeyInput').blur();
         });
-
-        it("Should be unable to uncheck an opcode", () => {
-            $panel.find('.IMDOperatorInput').click();
-            $panel.find('.IMDOperatorColumns [data-value="$col#1"]').trigger(fakeEvent.mouseup);
-            expect($columns.find(".col .checked").length).to.equal(1);
-            $columns.find('[data-original-title="col#1"]').parent().find(".checkbox").click();
-            expect($columns.find(".col .checked").length).to.equal(1);
-            $panel.find('.IMDOperatorInput').val('');
-            $panel.find('.IMDOperatorInput').blur();
-        });
-
     });
 
     describe("Advanced Mode related Publish IMD Op Panel Tests", function() {
