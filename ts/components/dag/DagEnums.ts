@@ -118,6 +118,7 @@ enum DagNodeEvents {
     StartSQLCompile = "StartSQLCompile",
     EndSQLCompile = "EndSQLCompile",
     UDFErrorChange = "UDFErrorChange",
+    SubGraphUDFErrorChange = "SubGraphUDFErrorChange",
     PreTablePin = "PreTablePin",
     PostTablePin = "PostTablePin",
     PreTableUnpin = "PreTableUnpin",

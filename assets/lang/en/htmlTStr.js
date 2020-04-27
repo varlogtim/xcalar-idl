@@ -1355,7 +1355,7 @@ module.exports = {
         "schema": "Schema",
         "createCustomNode": "Create Custom Operator",
         "shareCustomNode": "Share Custom Operator",
-        "editCustomNode": "Edit",
+        "editCustomNode": "Inspect / Edit",
         "expandCustomNode": "Expand",
         "lockTable": "Pin Table",
         "unlockTable": "Unpin Table",

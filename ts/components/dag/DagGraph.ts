@@ -603,6 +603,7 @@ class DagGraph extends Durable {
         })
         .registerEvents(DagNodeEvents.UDFErrorChange, (info) => {
             this.events.trigger(DagNodeEvents.UDFErrorChange, info);
+            this.events.trigger(DagNodeEvents.SubGraphUDFErrorChange, info);
             this.events.trigger(DagGraphEvents.Save, {tabId: this.parentTabId});
         })
         .registerEvents(DagNodeEvents.Hide, info => {

@@ -53,7 +53,7 @@ describe("SQL Dag Node Test", () => {
     });
 
     describe("various functions", () => {
-        it("getSeralizeInfo should work", () => {
+        it("getSerializeInfo should work", () => {
             let res = node._getSerializeInfo();
             let id = node.getId();
             console.log(res);
@@ -84,7 +84,8 @@ describe("SQL Dag Node Test", () => {
                 "configured": false,
                 "aggregates": [],
                 "tag": [],
-                "isHidden": undefined
+                "isHidden": undefined,
+                "udfErrors": {}
             });
         });
 

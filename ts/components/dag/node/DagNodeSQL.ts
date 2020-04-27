@@ -27,6 +27,7 @@ class DagNodeSQL extends DagNode {
     private _queryObj: any;
     private _allowUpdateSQLHistory: boolean = false;
     private _isDeprecated: boolean = false;
+    protected _udfErrorsMap: {}; // nodeId to MapUDFFailureInfo
 
     public constructor(options: DagNodeSQLInfo, runtime?: DagRuntime) {
         super(options, runtime);
@@ -61,6 +62,7 @@ class DagNodeSQL extends DagNode {
         };
         this.aggregatesCreated = [];
         this.subGraphNodeIds = options.subGraphNodeIds;
+        this._udfErrorsMap = options.udfErrors || {};
     }
 
     public static readonly specificSchema = {
@@ -164,6 +166,7 @@ class DagNodeSQL extends DagNode {
         // XXX TODO: decouple with UI code
         this.getRuntime().getDagTabService().removeTabByNode(this);
         this.subGraph = this.getRuntime().accessible(new DagSubGraph());
+        this._setupSubGraphEvents();
         this.subInputNodes = [];
         this.subOutputNodes = [];
         const connections: NodeConnection[] = [];
@@ -198,6 +201,9 @@ class DagNodeSQL extends DagNode {
 
         dagInfoList.forEach((dagNodeInfo: DagNodeInfo) => {
             const parents: DagNodeId[] = dagNodeInfo.parents;
+            if (this._udfErrorsMap[dagNodeInfo.id]) {
+                dagNodeInfo["udfError"] = this._udfErrorsMap[dagNodeInfo.id];
+            }
             const node: DagNode = DagNodeFactory.create(dagNodeInfo);
             if (node instanceof DagNodeIMDTable) {
                 const imdInput: DagNodeIMDTableInputStruct = <DagNodeIMDTableInputStruct>dagNodeInfo.input;
@@ -385,6 +391,10 @@ class DagNodeSQL extends DagNode {
         return resultNodes;
     }
 
+    public getUDFErrors(): any {
+        return this._udfErrorsMap;
+    }
+
     /**
      * DFS to get lineage changes from sub graph
      * @param columnMapList a column map {finalColName: [finalProgColumn,
@@ -490,6 +500,7 @@ class DagNodeSQL extends DagNode {
         nodeInfo.columns = this.columns;
         nodeInfo.identifiersNameMap = this.identifiersNameMap;
         nodeInfo.isHidden = this.display.isHidden;
+        nodeInfo.udfErrors = this._udfErrorsMap;
         if (!forCopy && this.subGraphNodeIds) {
             nodeInfo.subGraphNodeIds = this.subGraphNodeIds;
         }
@@ -780,6 +791,10 @@ class DagNodeSQL extends DagNode {
                     node.beConfiguredState();
                 });
             }
+            this._udfErrorsMap = {};
+            this.events.trigger(DagNodeEvents.UDFErrorChange, {
+                node: this
+            });
         }
     }
 
@@ -1740,6 +1755,23 @@ class DagNodeSQL extends DagNode {
                     + (tag ? "_" + tag : "") + Authentication.getHashId();
             }
         }
+    }
+
+    private _setupSubGraphEvents() {
+        // Listen to sub graph changes
+        const subGraph = this.getSubGraph();
+        subGraph.events.on(DagNodeEvents.SubGraphUDFErrorChange, (info) => {
+            let mapNode = info.node;
+            if (!mapNode.getUDFError()) {
+                delete this._udfErrorsMap[info.node.getId()];
+            } else {
+                this._udfErrorsMap[info.node.getId()] = info.node.getUDFError();
+            }
+            // console.log("sql", info.node);
+            this.events.trigger(DagNodeEvents.UDFErrorChange, {
+                node: this
+            });
+        });
     }
 }
 

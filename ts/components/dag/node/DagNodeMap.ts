@@ -178,6 +178,7 @@ class DagNodeMap extends DagNode {
             return; // do not trigger event if nothing is changed
         }
         this._udfError = udfError;
+        this._cleanUDFError();
         this.events.trigger(DagNodeEvents.UDFErrorChange, {
             node: this
         });
@@ -252,6 +253,18 @@ class DagNodeMap extends DagNode {
             arg["args"].forEach((subArg) => {
                 this._getUDFFromArg(subArg, set);
             });
+        }
+    }
+
+    private _cleanUDFError() {
+        if (this._udfError && this._udfError.opFailureSummary) {
+            let newFailureSummary = [];
+            this._udfError.opFailureSummary.forEach((summary) => {
+                if (!(summary.failureSummInfo && !summary.failureSummName)) {
+                    newFailureSummary.push(summary);
+                }
+            });
+            this._udfError.opFailureSummary = newFailureSummary;
         }
     }
 }

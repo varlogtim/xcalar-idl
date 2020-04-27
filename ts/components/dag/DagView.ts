@@ -3883,16 +3883,26 @@ class DagView {
         });
 
         this._registerGraphEvent(this.graph, DagNodeEvents.UDFErrorChange, (info) => {
-            const node: DagNodeMap = info.node;
+            const node: DagNodeMap | DagNodeSQL = info.node;
             const $node: JQuery = this._getNode(node.getId());
-            if ((<DagNodeMap>node).hasUDFError()) {
-                this._updateNodeUDFErrorIcon($node, node);
-            } else {
-                this._removeNodeUDFErrorIcon($node);
-                if (DagUDFErrorModal.Instance.getNode() === node) {
-                    DagUDFErrorModal.Instance.close();
+            if (node instanceof DagNodeMap) {
+                if (node.hasUDFError()) {
+                    this._updateNodeUDFErrorIcon($node, node);
+                } else {
+                    this._removeNodeUDFErrorIcon($node);
+                    if (DagUDFErrorModal.Instance.getNode() === node) {
+                        DagUDFErrorModal.Instance.close();
+                    }
+                }
+            } else if (node instanceof DagNodeSQL) {
+                let udfErrors = node.getUDFErrors();
+                if (Object.keys(udfErrors).length) {
+                    this._updateNodeUDFErrorIcon($node, node);
+                } else {
+                    this._removeNodeUDFErrorIcon($node);
                 }
             }
+
             this.dagTab.save();
         });
 
@@ -4093,6 +4103,9 @@ class DagView {
             this._updateNodeUDFErrorIcon($node, node);
         }
 
+        if (node instanceof DagNodeSQL && Object.keys(node.getUDFErrors()).length) {
+            this._updateNodeUDFErrorIcon($node, node);
+        }
 
         // Update connector UI according to the number of I/O ports
         if (node instanceof DagNodeCustom) {
@@ -4107,7 +4120,7 @@ class DagView {
         return $node;
     }
 
-    private _updateNodeUDFErrorIcon($node: JQuery, node: DagNodeMap) {
+    private _updateNodeUDFErrorIcon($node: JQuery, node: DagNodeMap | DagNodeSQL) {
         if ($node.find("iconArea").length) {
             $node.find("iconArea").remove();
         }
@@ -4135,8 +4148,13 @@ class DagView {
             .attr("font-family", "icomoon")
             .text("\uea70");
 
-        let numFailed = xcStringHelper.numToStr(node.getUDFError().numRowsFailedTotal);
-        xcTooltip.add($node.find(".iconArea"), {title: numFailed + " rows failed. Click to view details."});
+        if (node instanceof DagNodeMap) {
+            let numFailed = xcStringHelper.numToStr(node.getUDFError().numRowsFailedTotal);
+            xcTooltip.add($node.find(".iconArea"), {title: numFailed + " rows failed. Click to view details."});
+        } else if (node instanceof DagNodeSQL) {
+            let numFailed = xcStringHelper.numToStr(Object.keys(node.getUDFErrors()).length);
+            xcTooltip.add($node.find(".iconArea"), {title: numFailed + " map operator(s) with errors. Inspect to view details."});
+        }
     }
 
     private _removeNodeUDFErrorIcon($node: JQuery): void {
@@ -4186,6 +4204,12 @@ class DagView {
         if (node.getType() === DagNodeType.Map && node.getSubType() == null) {
             if ((<DagNodeMap>node).hasUDFError()) {
                 this._updateNodeUDFErrorIcon($node, <DagNodeMap>node);
+            } else {
+                this._removeNodeUDFErrorIcon($node);
+            }
+        } else if (node.getType() === DagNodeType.SQL) {
+            if (Object.keys((<DagNodeSQL>node).getUDFErrors()).length) {
+                this._updateNodeUDFErrorIcon($node, <DagNodeSQL>node);
             } else {
                 this._removeNodeUDFErrorIcon($node);
             }
@@ -5134,7 +5158,11 @@ class DagView {
             // if no drag, treat as right click and open menu
             if (!event.shiftKey && !$opMain.hasClass("comment")) {
                 if ($opMain.hasClass("iconArea")) {
-                    DagUDFErrorModal.Instance.show(nodeId);
+                    if ($opMain.closest(".map").length) {
+                        DagUDFErrorModal.Instance.show(nodeId);
+                    } else if ($opMain.closest(".sql").length) {
+                        DagViewManager.Instance.inspectSQLNode(nodeId, this.tabId);
+                    }
                 } else {
                     let contextMenuEvent = $.Event("contextmenu", {
                         pageX: event.pageX,
