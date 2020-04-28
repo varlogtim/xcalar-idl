@@ -235,6 +235,13 @@ namespace XVM {
     }
 
     /**
+     * XVM.isDev
+     */
+    export function isDev(): boolean {
+        return (typeof gDev !== "undefined" && gDev === true);
+    }
+
+    /**
      * XVM.isSingleUser
      */
     export function isSingleUser(): boolean {

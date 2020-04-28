@@ -2844,10 +2844,10 @@ module.exports = function(grunt) {
     // filepaths rel to 'cwd' attr of scriptlinker targets
     function getExtraIndexTags() {
         var extraTags = [];
-        if (IS_WATCH_TASK || BLDTYPE == DEV) {
+        if (IS_WATCH_TASK || BLDTYPE == DEV || BLDTYPE == TRUNK) {
             extraTags = extraTags.concat(
                 ['assets/dev/shortcuts.js',
-                'assets/js/env/devEnv.js']);
+                'assets/dev/devEnv.js']);
         }
 
         if (PRODUCT === XPE) {

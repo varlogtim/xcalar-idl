@@ -430,6 +430,7 @@ interface Window {
 
 declare var csLookup: string;
 declare var planServer: string;
+declare var gDev: boolean;
 declare var unitTestMode: boolean;
 declare var isBrowserIE: boolean;
 declare var isBrowserChrome: boolean;
