@@ -173,6 +173,7 @@ declare enum SQLErrTStr {
     NoRightRowNumCol,
     Warning,
     MultiQueries,
+    DuplicateParamNames
 }
 
 declare enum SQLStatus {

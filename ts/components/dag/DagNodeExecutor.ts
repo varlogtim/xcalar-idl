@@ -1477,7 +1477,8 @@ class DagNodeExecutor {
             });
             node.updateSQLQueryHistory();
             let finalQueryStrParamReplaced: string = DagNodeInput.replaceParameters(
-                    finalQueryStr, this.getRuntime().getDagParamService().getParamMap());
+                    finalQueryStr,
+                    this.getRuntime().getDagParamService().getParamMap(), true);
 
             return XIApi.query(self.txId, queryId, finalQueryStrParamReplaced, options);
         })

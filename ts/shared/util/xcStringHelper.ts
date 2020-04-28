@@ -109,16 +109,48 @@ namespace xcStringHelper {
      * @param txt Template string
      * @param replaces An object. key is the string/regex to be replaced. value is the string to replace with.
      * @param isGlobal true: replace all matches; false: replace the first math
+     * @param isSQLMatch true: do case insensitive match with a check; false: case sensitive
      * @example replaceTemplate('Replace <me>', {'<me>': 'you'}). The output is 'Replace you'.
      */
     export function replaceTemplate(
         txt: string,
         replaces: object = {},
-        isGlobal: boolean = false
+        isGlobal: boolean = false,
+        isSQLMatch: boolean = false
     ): string {
         try {
-            const flag = isGlobal ? 'g' : undefined;
+            let flag;
+            if (isGlobal && isSQLMatch) {
+                flag = 'ig';
+            } else if (isGlobal) {
+                flag = 'g';
+            } else if (isSQLMatch) {
+                // Should not hit this case
+                flag = 'i';
+            } else {
+                flag = undefined;
+            }
             for (let key in replaces) {
+                if (isSQLMatch && txt.match(new RegExp(key, flag)) && !Alert.isOpen()) {
+                    // Check if duplicate (case insensitive) exist in param list
+                    let findDup: boolean = false;
+                    for (let key2 in replaces) {
+                        if (key != key2 && key.match(new RegExp(key2, 'i'))) {
+                            findDup = true;
+                            break;
+                        }
+                    }
+                    if (findDup) {
+                        Alert.show({
+                            title: SQLErrTStr.Warning,
+                            msg: SQLErrTStr.DuplicateParamNames + key.toUpperCase(),
+                            isAlert: true,
+                            align: "left",
+                            preSpace: true,
+                            sizeToText: true
+                        });
+                    }
+                }
                 const str: string = replaces[key];
                 if (str == null) {
                     continue;

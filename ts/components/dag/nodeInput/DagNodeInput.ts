@@ -229,7 +229,7 @@ class DagNodeInput {
         return msg;
     }
 
-    public static replaceParameters(input, paramMap) {
+    public static replaceParameters(input, paramMap, isSQLMatch = false) {
         // can provide custom input but if not, use the instance's input
         if (!input) {
             return input;
@@ -262,7 +262,8 @@ class DagNodeInput {
                     }
                 }
             } else if (typeof value === "string") {
-                return xcStringHelper.replaceTemplate(value, paramMap, true);
+                return xcStringHelper.replaceTemplate(value, paramMap,
+                                                      true, isSQLMatch);
             }
         }
     }
