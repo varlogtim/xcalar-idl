@@ -3120,7 +3120,13 @@ module.exports = function(grunt) {
     function genHTML(htmlFilepath, outputFiles, srcRoot=HTML_STAGING_I_ABS, destRoot=HTML_STAGING_II_ABS) {
         lang = "en";
         landCode = (lang === "en") ? "en-US" : "zh-CN";
-        dicts = require(BLDROOT + 'assets/lang/' + lang + '/htmlTStr.js');
+
+        function requireUncached(path) {
+            delete require.cache[require.resolve(path)];
+            return require(path);
+        }
+
+        dicts = requireUncached(BLDROOT + 'assets/lang/' + lang + '/htmlTStr.js');
         /**
             htmlFilepath, if abs., should be within staging dir.
             But want to know (1) dest it will go in final bld
