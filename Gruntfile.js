@@ -3448,7 +3448,7 @@ module.exports = function(grunt) {
             [typescriptMapping.dest]: [typescriptMapping.src + "/."],
             [expServerTSMapping.dest]: [expServerTSMapping.src + "/."],
         };
-        if (BLDTYPE === DEV) {
+        if (BLDTYPE === DEV || BLDTYPE === TRUNK) {
             tsBuilds["assets/dev/funcTests/states"] = ["/assets/dev/funcTests/states/."];
         }
 
@@ -5640,7 +5640,7 @@ module.exports = function(grunt) {
         HTML_STAGING_II_ABS = BLDROOT + htmlStagingDirII;
         TS_WATCH_STAGING = BLDROOT + 'tswatchtmp/';
 
-        if (BLDTYPE !== DEV) {
+        if (BLDTYPE !== DEV && BLDTYPE !== TRUNK) {
             DONT_RSYNC.push('assets/dev');
         }
 
