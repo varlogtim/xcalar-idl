@@ -37,6 +37,10 @@ class SQLEditorSpace {
         this._saveSnippetChange();
     }
 
+    public getEditor(): SQLEditor {
+        return this._sqlEditor;
+    }
+
     /**
      * SQLEditorSpace.Instance.newSQL
      * @param sql
@@ -648,6 +652,9 @@ class SQLEditorSpace {
             case "convertToSQLFuc":
                 this._convertToSQLFunc();
                 break;
+            case "viewShortcuts":
+                // handled in SQLEditorShortcutsModal
+                break;
             default:
                 break;
         }
@@ -774,4 +781,8 @@ class SQLEditorSpace {
         };
         SQLFuncSettingModal.Instance.show(onSubmit, () => {}, numInput);
     }
+}
+
+if (typeof window !== undefined) {
+    window["SQLEditorSpace"] = SQLEditorSpace;
 }

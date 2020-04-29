@@ -1305,9 +1305,21 @@ class DagView {
      * @param nodeId
      */
     public lockConfigNode(nodeId: DagNodeId): string {
-        this._getNode(nodeId).addClass("configLocked");
         this.configLockedNodeIds.add(nodeId);
         this.graph.setGraphNoDelete();
+        this.$dfArea.addClass("configLocked");
+
+        const $node = this._getNode(nodeId);
+        $node.addClass("configLocked");
+
+        const g = d3.select($node.get(0)).append("g")
+            .attr("class", "configIcon")
+            .attr("transform", `translate(${DagView.nodeWidth - 22}, 8)`);
+        g.append("text")
+            .attr("font-family", "icomoon")
+            .attr("font-size", 13)
+            .attr("fill", "white")
+            .text(_d => "\ue9a7");
         return this.tabId;
     }
 
@@ -1317,11 +1329,14 @@ class DagView {
      * @param nodeId
      */
     public unlockConfigNode(nodeId: DagNodeId): void {
-        this._getNode(nodeId).removeClass("configLocked");
         this.configLockedNodeIds.delete(nodeId);
         if (this.graph != null && (!Object.keys(this.lockedNodeIds).length && !this.configLockedNodeIds.size) ) {
             this.graph.unsetGraphNoDelete();
+            this.$dfArea.removeClass("configLocked");
         }
+        const $node = this._getNode(nodeId);
+        $node.removeClass("configLocked");
+        $node.find(".configIcon").remove();
     }
 
     /**

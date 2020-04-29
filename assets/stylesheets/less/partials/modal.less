@@ -1894,6 +1894,40 @@ html.microsoft {
     }
 }
 
+#SQLEditorShortcutsModal {
+    .size(@height: 500px, @min-height: 400px, @min-width:300px);
+
+    .modalMain {
+        font-size: 13px;
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+        }
+        .name {
+            .textOverflowOneLine;
+            margin: 2px;
+            padding: 2px;
+        }
+        .keyGroup {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .key {
+            background: @color-bg-opaque05;
+            padding: 2px 4px;
+            margin: 2px;
+            border-radius: 4px;
+            min-width: 16px;
+            text-align: center;
+        }
+        .plus {
+            padding-top: 2px;
+            opacity: 0.8;
+        }
+    }
+}
+
 #schemaSelectionModal {
     @h-without-main: @modal-header-h + @modal-bottom-h;
     .size(@height: 600px);
@@ -5894,18 +5928,18 @@ html.microsoft {
                 font-size: 12px;
                 white-space: nowrap;
                 overflow: hidden;
-    
+
                 .input-box(@w: ~"calc(100% - 50px)" , @h: 30px, @focus: true);
                 .flex-display;
             }
-    
+
             .optionRow > div {
                 // float: left;
                 margin-left: 28px;
                 line-height: @rowHeight;
                 display: inline-block;
             }
-    
+
             .nameArea {
                 margin-left: 0px;
                 .flex(0 1 310px);
@@ -5924,17 +5958,17 @@ html.microsoft {
                     max-width: 150px;
                 }
             }
-    
+
             .label {
                 font-weight: 600;
                 margin-right: 5px;
             }
-    
+
             .name {
                 color: @color-font-select-blue;
                 font-weight: 600;
             }
-    
+
             input {
                 color: @color-font-warm-grey-two;
                 font-size: 12px !important;
@@ -5942,9 +5976,9 @@ html.microsoft {
                     color: @color-font-gray36;
                 }
             }
-    
+
         }
-    
+
         .cardBottom {
             padding: 10px 60px 20px 60px;
             .btn {

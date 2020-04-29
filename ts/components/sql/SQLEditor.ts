@@ -203,6 +203,8 @@ class SQLEditor {
         "year"
     ];
 
+    private _shortcutKeys = [];
+
     public constructor(id: string) {
         this._event = new XcEvent();
         this._setup(id);
@@ -243,6 +245,10 @@ class SQLEditor {
         } else {
             this._editor.setOption("mode", null);
         }
+    }
+
+    public getShortcutKeys() {
+        return this._shortcutKeys;
     }
 
     private _setup(id: string): void {
@@ -289,39 +295,53 @@ class SQLEditor {
             this._event.dispatchEvent("cancelExecute");
         };
 
-        const extraKeys = {
-            "F5": executeTrigger,
-            "Alt-X": executeTrigger,
-            "Ctrl-Space": "autocomplete", // Need to write autocomplete code
-            "Ctrl--": this._toggleComment.bind(this)
-        };
+        let cButton = isSystemMac ? "Cmd" : "Ctrl";
 
-        let cButton = "Ctrl";
+        this._shortcutKeys = [
+            {name: "Execute", keys: ["F5", "Alt-X", cButton + "-E"], fn: executeTrigger},
+            {name: "Autocomplete", keys: ["Ctrl-Space"], fn: "autocomplete"},
+            {name: "Toggle Comment", keys: ["Ctrl--"], fn: this._toggleComment.bind(this)},
+        ]
+
+        let systemKeys;
         if (isSystemMac) {
-            cButton = "Cmd";
-            extraKeys[cButton + "-Alt-F"] = "replace";
-            extraKeys["Shift-" + cButton + "-Backspace"] = "delWordAfter";
-            extraKeys["F6"] = cancelExec;
-            extraKeys["F3"] = "findNext";
-            extraKeys["Shift-F3"] = "findPrev";
+            systemKeys = [
+                {name: "Replace", keys: [cButton + "-Alt-F"], fn: "replace"},
+                {name: "Delete Word After", keys: ["Shift-" + cButton + "-Backspace"], fn: "delWordAfter"},
+                {name: "Cancel Execution", keys: ["F6"], fn: cancelExec},
+                {name: "Find Next", keys: ["F3"], fn: "findNext"},
+                {name: "Find Prev", keys: ["Shift-F3"], fn: "findPrev"},
+            ];
         } else {
-            extraKeys[cButton + "-H"] = "replace";
-            extraKeys[cButton + "-Delete"] = "delWordAfter";
-            extraKeys["Ctrl-Alt-C"] = cancelExec;
-            extraKeys["Ctrl-Alt-G"] = "findNext";
-            extraKeys["Shift-Ctrl-Alt-G"] = "findPrev";
+            systemKeys = [
+                {name: "Replace", keys: [cButton + "-H"], fn: "replace"},
+                {name: "Delete Word After", keys: [cButton + "-Delete"], fn: "delWordAfter"},
+                {name: "Cancel Execution", keys: ["Ctrl-Alt-C"], fn: cancelExec},
+                {name: "Find Next", keys: ["Ctrl-Alt-G"], fn: "findNext"},
+                {name: "Find Prev", keys: ["Shift-Ctrl-Alt-G"], fn: "findPrev"},
+            ];
         }
-        extraKeys[cButton + "-E"] = executeTrigger;
-        extraKeys[cButton + "-Left"] = "goWordLeft";
-        extraKeys[cButton + "-Right"] = "goWordRight";
-        extraKeys[cButton + "-Backspace"] = "delWordBefore";
-        extraKeys["Shift-" + cButton + "-U"] = this._convertTextCase.bind(this, true);
-        extraKeys["Shift-" + cButton + "-L"] = this._convertTextCase.bind(this, false);
-        extraKeys["Shift-" + cButton + "-K"] = "deleteLine";
-        extraKeys[cButton + "-Up"] = this._scrollLine.bind(this, true);
-        extraKeys[cButton + "-Down"] = this._scrollLine.bind(this, false);
-        extraKeys[cButton + "-Enter"] = this._insertLine.bind(this, true);
-        extraKeys["Shift-" + cButton + "-Enter"] = this._insertLine.bind(this, false);
+        let otherKeys = [
+            {name: "Go Word Left", keys: [cButton + "-Left"], fn: "goWordLeft"},
+            {name: "Go Word Right", keys: [cButton + "-Right"], fn: "goWordRight"},
+            {name: "Delete Word Before", keys: [cButton + "-Backspace"] , fn: "delWordBefore"},
+            {name: "Convert To Uppercase", keys: ["Shift-" + cButton + "-U"] , fn: this._convertTextCase.bind(this, true)},
+            {name: "Convert To Lowercase", keys: ["Shift-" + cButton + "-L"] , fn: this._convertTextCase.bind(this, false)},
+            {name: "Delete Line", keys: ["Shift-" + cButton + "-K"] , fn: "deleteLine"},
+            {name: "Scroll Up", keys: [cButton + "-Up"] , fn: this._scrollLine.bind(this, true)},
+            {name: "Scroll Down", keys: [cButton + "-Down"] , fn: this._scrollLine.bind(this, false)},
+            {name: "Insert Line From", keys: [cButton + "-Enter"], fn: this._insertLine.bind(this, true)},
+            {name: "Insert Line To", keys: ["Shift-" + cButton + "-Enter"], fn: this._insertLine.bind(this, false)}
+        ]
+        this._shortcutKeys = [...this._shortcutKeys, ...systemKeys, ...otherKeys];
+
+        const extraKeys = {};
+        this._shortcutKeys.forEach((keyInfo) => {
+            keyInfo.keys.forEach(key => {
+                extraKeys[key] = keyInfo.fn;
+            });
+        });
+
         return extraKeys;
     }
 

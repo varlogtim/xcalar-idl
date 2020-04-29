@@ -27,7 +27,7 @@ type GeneralDeleteProps = {
 };
 
 type GeneralDeleteModalState = {
-    display: boolean;
+    show: boolean;
     isFetching: boolean;
     submitStatus: string;
     items: DeleteItems[];
@@ -55,10 +55,10 @@ export default class GeneralDeleteModal extends React.Component<GeneralDeletePro
         const selectedItems = this.state.items.filter((item) => !item.locked && item.checked);
         return (
             <Modal
-                id={this.props.id} 
+                id={this.props.id}
                 header={this.props.header}
                 instruct={this.props.instruct}
-                display={this.state.display}
+                show={this.state.show}
                 confirm={{
                     text: CommonTStr.Confirm,
                     disabled: selectedItems.length === 0,
@@ -92,7 +92,7 @@ export default class GeneralDeleteModal extends React.Component<GeneralDeletePro
 
     private _getDefultState(): GeneralDeleteModalState {
         return {
-            display: false,
+            show: false,
             items: [],
             error: null,
             sortKey: "name",
@@ -132,7 +132,7 @@ export default class GeneralDeleteModal extends React.Component<GeneralDeletePro
     }
 
     private _show(): void {
-        this.setState({display: true});
+        this.setState({show: true});
         this._fetch();
     }
 

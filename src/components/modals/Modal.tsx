@@ -9,10 +9,10 @@ const CommonTStr = dict.CommonTStr;
 type ModalProps = {
     id: string;
     header: string;
-    instruct: string;
-    display: boolean;
+    instruct?: string;
+    show: boolean;
     children: any;
-    confirm: {
+    confirm?: {
         text?: string,
         disabled?: boolean,
         callback: any
@@ -25,8 +25,10 @@ type ModalProps = {
     className?: string;
     options?: {
         locked?: boolean
-        verticalQuartile?: boolean
+        verticalQuartile?: boolean,
+        noBackground?: boolean
     };
+    flex?: boolean
 }
 
 type ModalState = {
@@ -50,17 +52,17 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
     }
 
     componentDidUpdate(prevProps) {
-        if (!prevProps.display && this.props.display) {
+        if (!prevProps.show && this.props.show) {
             // when show
             document.addEventListener("keydown", this._handleKeyboardEvent);
-        } else if (prevProps.display && !this.props.display) {
+        } else if (prevProps.show && !this.props.show) {
             // when hide
             document.removeEventListener("keydown", this._handleKeyboardEvent);
         }
     }
 
     render() {
-        if (!this.props.display) {
+        if (!this.props.show) {
             return null;
         }
 
@@ -85,6 +87,12 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
         if (!gMinModeOn) {
             modalClassNames.push("anim");
             modalBgClassNames.push("anim");
+        }
+        if (this.props.flex) {
+            modalClassNames.push("flex visible");
+        }
+        if (options.noBackground) {
+            modalClassNames.push("noBackground");
         }
 
         return (
@@ -118,7 +126,7 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
                             data-toggle="tooltip"
                             data-container="body"
                             data-placement="top auto"
-                            data-tipclasses="highZindex" 
+                            data-tipclasses="highZindex"
                             data-original-title={CommonTStr.Maximize}
                             onClick={() => this._enterFullScreen()}
                         >
@@ -131,26 +139,30 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
                             data-toggle="tooltip"
                             data-container="body"
                             data-placement="top auto"
-                            data-tipclasses="highZindex" 
+                            data-tipclasses="highZindex"
                             data-original-title={CommonTStr.Close}
                         >
                             <i className="icon xi-close"></i>
                         </div>
                     </header>
+                    { instruct ?
                     <section className="modalInstruction oneLine">
                         <div className="text">{instruct}</div>
                     </section>
+                    : null }
                     <section className="modalMain">
                         {children}
                     </section>
                     <section className="modalBottom">
-                        <Button
-                            className={"confirm" + (confirm.disabled ? " xc-disabled" : "")}
-                            onClick={this._handleConfirm}
-                            ref={this._confirmRef}
-                        >
-                            {confirm.text || CommonTStr.Confirm}
-                        </Button>
+                        {confirm &&
+                            <Button
+                                className={"confirm" + (confirm.disabled ? " xc-disabled" : "")}
+                                onClick={this._handleConfirm}
+                                ref={this._confirmRef}
+                            >
+                                {confirm.text || CommonTStr.Confirm}
+                            </Button>
+                        }
                         <Button
                             className="cancel"
                             onClick={close.callback}
@@ -159,7 +171,10 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
                         </Button>
                     </section>
                 </Rnd>
-                <div className={modalBgClassNames.join(" ")} style={{display: "block"}}></div>
+                {!options.noBackground &&
+                    <div className={modalBgClassNames.join(" ")} style={{display: "block"}}></div>
+                }
+
             </React.Fragment>
         );
     }
