@@ -791,7 +791,7 @@ class SupTicketModal {
             try {
                 let parsedLog = JSON.parse(logs);
                 let error = parsedLog.error;
-                if (typeof error === "object") {
+                if (error && typeof error === "object") {
                     detail = JSON.stringify(error);
                 } else if (parsedLog.errorMessage) {
                     detail = parsedLog.errorMessage;

@@ -347,7 +347,7 @@ class PbTblInfo {
             deferred.resolve(result);
         })
         .fail((error) => {
-            if (typeof error === "object" && error.hasError) {
+            if (error && typeof error === "object" && error.hasError) {
                 error = error.type;
             }
             deferred.reject(error);

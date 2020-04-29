@@ -879,12 +879,12 @@ namespace WorkbookPanel {
     }
 
     function handleError(error: any, $ele: JQuery): void {
-        if (typeof error === "object" && error.canceled) {
+        if (typeof error === "object" && error && error.canceled) {
             return;
         }
         let errorText: string;
         let log: string;
-        if (typeof error === "object" && error.error != null) {
+        if (typeof error === "object" && error && error.error != null) {
             if (error.status === StatusT.StatusCanceled) {
                 return;
             }

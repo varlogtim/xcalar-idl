@@ -1076,7 +1076,7 @@ namespace FileBrowser {
         let msg = xcStringHelper.replaceMsg(ErrWRepTStr.NoPathInLoad, {
             "path": path
         });
-        if (typeof error === "object" && error.log) {
+        if (error && typeof error === "object" && error.log) {
             msg += " " + AlertTStr.Error + ": " + error.log;
         }
         let html: HTML =

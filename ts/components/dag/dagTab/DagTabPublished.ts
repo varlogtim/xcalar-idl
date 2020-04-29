@@ -77,7 +77,7 @@ class DagTabPublished extends DagTab {
             deferred.resolve();
         })
         .fail((error) => {
-            if (typeof error === "object" && error.status === StatusT.StatusSessionNotFound) {
+            if (error && typeof error === "object" && error.status === StatusT.StatusSessionNotFound) {
                 deferred.resolve();
             } else {
                 deferred.reject(error);

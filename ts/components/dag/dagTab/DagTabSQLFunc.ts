@@ -133,7 +133,8 @@ class DagTabSQLFunc extends DagTabUser {
             deferred.resolve({queryStr: queryStr, destTable: desTable});
         })
         .fail((result) => {
-            if (typeof result === "object" &&
+            if (result &&
+                typeof result === "object" &&
                 result.hasError
             ) {
                 deferred.reject({

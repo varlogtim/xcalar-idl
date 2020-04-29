@@ -172,7 +172,7 @@ class RawFileModal {
 
     private _handleError(error: any): void {
         this._inErrorMode();
-        if (typeof error === "object" && error.error) {
+        if (error && typeof error === "object" && error.error) {
             error = error.error;
         }
         this._getModal().find(".errorSection").text(error);

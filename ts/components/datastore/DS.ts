@@ -117,7 +117,7 @@ namespace DS {
                 const errMsg = failures.map((error) => {
                     if (typeof error === "string") {
                         return error;
-                    } else if (typeof error === "object" && error.error) {
+                    } else if (error && typeof error === "object" && error.error) {
                         return error.error;
                     } else {
                         return JSON.stringify(error);
@@ -1576,12 +1576,13 @@ namespace DS {
         .fail((error) => {
             let created = false;
             let displayError = null;
-            if (typeof error === "object") {
+            if (error && typeof error === "object") {
                 created = error.created;
                 displayError = error.error;
             }
 
-            if (typeof error === "object" &&
+            if (error &&
+                typeof error === "object" &&
                 error.status === StatusT.StatusCanceled)
             {
                 if (!created) {
@@ -2055,7 +2056,7 @@ namespace DS {
                 deferred.resolve();
             })
             .fail(function(error) {
-                if (typeof error === "object" && error.error) {
+                if (error && typeof error === "object" && error.error) {
                     error = error.error;
                 }
                 var msg = isCanel ? DSTStr.FailCancelDS : DSTStr.FailDelDS;
@@ -3311,7 +3312,8 @@ namespace DS {
                 });
                 failures.push(errorMsg);
 
-                if (typeof error === "object" &&
+                if (error &&
+                    typeof error === "object" &&
                     error.status === StatusT.StatusCanceled)
                 {
                     if ($grid.hasClass("active")) {

@@ -247,7 +247,7 @@ class DagTabUser extends DagTab {
         })
         .then(deferred.resolve)
         .fail((error) => {
-            if (typeof error === "object" && error.error === DFTStr.InvalidDF) {
+            if (error && typeof error === "object" && error.error === DFTStr.InvalidDF) {
                 // An invalid dagTab has been stored- let's delete it.
                 this.delete();
             }

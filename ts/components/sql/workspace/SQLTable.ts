@@ -24,7 +24,8 @@ class SQLTable {
         this._show(viewer)
         .then(deferred.resolve)
         .fail((error) => {
-            if (typeof error === "object" &&
+            if (error &&
+                typeof error === "object" &&
                 error.status === StatusT.StatusDsNotFound &&
                 typeof callback === "function"
             ) {

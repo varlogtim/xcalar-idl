@@ -1724,7 +1724,7 @@ namespace Profile {
         console.error("Profile error", error);
         curStatsCol.groupByInfo.isComplete = false;
         if (isModalVisible(curStatsCol)) {
-            if (typeof error === "object") {
+            if (error && typeof error === "object") {
                 error = error.error;
             }
 

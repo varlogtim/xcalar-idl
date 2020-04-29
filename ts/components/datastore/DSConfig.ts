@@ -3151,7 +3151,7 @@ namespace DSConfig {
         isUDFError: boolean,
         isCancel: boolean
     ): void {
-        if (typeof error === "object") {
+        if (error && typeof error === "object") {
             if (error.status === StatusT.StatusNoEnt ||
                 error.status === StatusT.StatusIsDir ||
                 error.status === StatusT.StatusAllFilesEmpty)
@@ -3527,7 +3527,8 @@ namespace DSConfig {
                 clearPreviewTable(cachedTableName); // async remove the old ds
             }
 
-            if (typeof error === "object" &&
+            if (error &&
+                typeof error === "object" &&
                 error.error === oldPreviewError)
             {
                 console.error(error);

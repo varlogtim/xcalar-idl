@@ -5290,7 +5290,7 @@ XcalarAppReap = function(
     .then(deferred.resolve)
     .fail(function(error) {
         let outError: any;
-        if (typeof error === "object" && error.errStr) {
+        if (typeof error === "object" && error && error.errStr) {
             try {
                 outError = JSON.parse(error.errStr)[0][0];
             } catch (e) {

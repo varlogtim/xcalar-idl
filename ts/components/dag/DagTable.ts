@@ -215,7 +215,7 @@ class DagTable {
         const $container: JQuery = this._getContainer();
         $container.removeClass("loading").addClass("error");
         let errStr: string;
-        if (typeof error === "object" && error.status === StatusT.StatusDsNotFound) {
+        if (error && typeof error === "object" && error.status === StatusT.StatusDsNotFound) {
             // speical case, the error message is not intuitive, so use XD's error str
             errStr = ErrTStr.DsNotFound;
         } else {

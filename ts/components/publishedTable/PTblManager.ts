@@ -1166,7 +1166,7 @@ class PTblManager {
 
     private _getErrorMsg(tableName: string, error: ThriftError): string {
         let errorMsg: string = "";
-        if (typeof error === "object") {
+        if (error && typeof error === "object") {
             errorMsg = error.log || error.error;
         } else {
             errorMsg = error || ErrTStr.Unknown;
