@@ -123,7 +123,7 @@ form {
     .innerBar {
         height: 1px;
         width: 200px;
-        background-color: @color-bg-default;
+        background-color: @color-font-white;
         position:absolute;
         left: -200px;
         // XX need to add this to mixin
@@ -371,7 +371,7 @@ input:-webkit-autofill:focus {
                 outline: none;
 
                 &::after {
-                    background-color: @color-bg-default;
+                    background-color: @color-font-white;
                     height: 2px;
                     bottom: 0px;
                 }
@@ -379,7 +379,7 @@ input:-webkit-autofill:focus {
                 ~ .bar {
                     color: @color-font-default;
                     &::after {
-                        background-color: @color-bg-default;
+                        background-color: @color-font-white;
                         height: 2px;
                     }
                 }
@@ -593,12 +593,13 @@ input:-webkit-autofill:focus {
                 position: relative;
             }
             .bar {
-                top: 1px;
+                top: 0px;
                 position: absolute;
-                width: ~"calc(100% - 40px)";
+                width: ~"calc(100% - 10px)";
+                margin-left: 0px;
             }
             input {
-                margin-left: 164px !important;
+                margin-left: 185px !important;
                 margin-top: 0px;
             }
         }

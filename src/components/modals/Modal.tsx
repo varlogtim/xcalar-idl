@@ -58,6 +58,7 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
         } else if (prevProps.show && !this.props.show) {
             // when hide
             document.removeEventListener("keydown", this._handleKeyboardEvent);
+            window["xcTooltip"].hideAll();
         }
     }
 
