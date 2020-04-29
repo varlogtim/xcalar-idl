@@ -1000,10 +1000,10 @@ describe("DagView Test", () => {
             expect(node1b.getId()).to.not.equal(node1.getId());
             expect(node2b.getId()).to.not.equal(node2.getId());
 
-            expect(node1b.getPosition().x).to.equal(node1.getPosition().x);
-            expect(node1b.getPosition().y).to.equal(node1.getPosition().y);
-            expect(node2b.getPosition().x).to.equal(node2.getPosition().x);
-            expect(node2b.getPosition().y).to.equal(node2.getPosition().y);
+            expect(node1b.getPosition().x).to.equal(node1.getPosition().x + 20);
+            expect(node1b.getPosition().y).to.equal(node1.getPosition().y + 20);
+            expect(node2b.getPosition().x).to.equal(node2.getPosition().x + 20);
+            expect(node2b.getPosition().y).to.equal(node2.getPosition().y + 20);
         });
 
         it("paste validation should work", function() {

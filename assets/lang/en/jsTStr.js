@@ -504,7 +504,7 @@ SQLErrTStr = {
     "InvalidIdentifierMapping": "Table source and identifiers should be one-to-one mapping with no duplicate",
     "SourceUsed": "The source is already used for table identifier: ",
     "EmptySQL": "SQL query cannot be empty",
-    "NeedConfiguration": "Please configure the SQL node with valid SQL query first",
+    "NeedConfiguration": "Please configure the SQL node with a valid SQL query first.",
     "NoPublishedTable": "Cannot find all published tables",
     "NeedSQLMode": "Not running under sql mode",
     "IdentifierMismatch": "Identifier map should match with identifiers order",

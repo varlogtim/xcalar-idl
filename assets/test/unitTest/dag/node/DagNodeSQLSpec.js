@@ -85,7 +85,8 @@ describe("SQL Dag Node Test", () => {
                 "aggregates": [],
                 "tag": [],
                 "isHidden": undefined,
-                "udfErrors": {}
+                "udfErrors": {},
+                "isDeprecated": false
             });
         });
 

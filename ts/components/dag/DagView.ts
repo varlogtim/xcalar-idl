@@ -1375,16 +1375,15 @@ class DagView {
         }
         this.deselectNodes();
 
-        let minXCoor: number = this.$dfArea.width();
-        let minYCoor: number = this.$dfArea.height();
+
+        let minXCoor: number = nodeInfos[0].display.x;
+        let minYCoor: number = nodeInfos[0].display.y;
         let maxXCoor: number = 0;
         let maxYCoor: number = 0;
         let upperLeftMostNode = null;
-        nodeInfos.forEach((nodeInfo, i) => {
-            if (i === 0) {
-                minXCoor = nodeInfo.display.x;
-                minYCoor = nodeInfo.display.y;
-            }
+        // find the upperLeft-most node and min and max x/y coordinates
+        // of the group of nodes being pasted
+        nodeInfos.forEach((nodeInfo) => {
             minYCoor = Math.min(nodeInfo.display.y, minYCoor);
             if (nodeInfo.display.y === minYCoor) {
                 minXCoor = Math.min(nodeInfo.display.x, minXCoor);
@@ -1402,11 +1401,15 @@ class DagView {
             }
         });
 
+        const scale = this.graph.getScale();
         let origMinXCoor = upperLeftMostNode.display.x;
         let origMinYCoor = upperLeftMostNode.display.y;
+        minXCoor = Math.max(origMinXCoor, Math.round((this.$dfArea.scrollLeft() + 60) /
+        scale / DagView.gridSpacing) * DagView.gridSpacing - DagView.gridSpacing);
+        minYCoor = Math.max(origMinYCoor, Math.round((this.$dfArea.scrollTop() + 60) /
+        scale / DagView.gridSpacing) * DagView.gridSpacing - DagView.gridSpacing);
         const nextAvailablePosition = this._getNextAvailablePosition(null,
-            upperLeftMostNode.display.x, upperLeftMostNode.display.y);
-
+            minXCoor, minYCoor);
         let xDelta = nextAvailablePosition.x - origMinXCoor;
         let yDelta = nextAvailablePosition.y - origMinYCoor;
         maxXCoor += xDelta;
@@ -1533,9 +1536,9 @@ class DagView {
                 let sqlFuncInNodes = this.dagTab.resetInputOrder();
                 this._updateTitleForNodes(sqlFuncInNodes);
             }
-            let updateedLinkOutNodes: DagNodeDFOut[] = this.graph.resolveNodeConflict(newLinkOutNodes);
-            if (updateedLinkOutNodes.length) {
-                this._updateTitleForNodes(updateedLinkOutNodes);
+            let updatedLinkOutNodes: DagNodeDFOut[] = this.graph.resolveNodeConflict(newLinkOutNodes);
+            if (updatedLinkOutNodes.length) {
+                this._updateTitleForNodes(updatedLinkOutNodes);
             }
             let updatedAggNodes: DagNodeAggregate[] = this.graph.resolveAggConflict(newAggNodes);
             if (updatedAggNodes.length) {

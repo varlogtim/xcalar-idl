@@ -5,8 +5,6 @@ class SQLOpPanel extends BaseOpPanel {
     private _$elemPanel: JQuery; // The DOM element of the panel
     protected _dataModel: SQLOpPanelModel; // The key data structure
     protected _dagNode: DagNodeSQL;
-
-    private _sqlEditor: SQLEditor;
     private _$sqlIdentifiers = $("#sqlOpPanel .sqlIdentifiers");
     private _sqlTables = {};
     private _alertOff: boolean = false;
@@ -26,14 +24,9 @@ class SQLOpPanel extends BaseOpPanel {
         this._$elemPanel = $('#sqlOpPanel');
         super.setup(this._$elemPanel);
 
-        this._setupSQLEditor();
         this._setupDropAsYouGo();
         this._setupQuerySelector();
     }
-
-    public getSQLEditor(): CodeMirror.Editor {
-        return this._sqlEditor.getEditor();
-    };
 
         /**
      * Show the panel with information from dagNode
@@ -180,10 +173,6 @@ class SQLOpPanel extends BaseOpPanel {
             this._$elemPanel.find(".identifiersSection").removeClass("disabled");
         });
         return snippet;
-    }
-
-    private _setupSQLEditor(): void {
-        this._sqlEditor = new SQLEditor("sqlEditor");
     }
 
     private _addTableIdentifier(key?: number, value?: string): void {

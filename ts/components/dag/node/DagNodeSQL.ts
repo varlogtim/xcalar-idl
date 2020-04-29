@@ -39,7 +39,8 @@ class DagNodeSQL extends DagNode {
                              // be 0
         this.display.icon = "&#xe957;";
         this.display.isHidden = options.isHidden;
-        if (options.input && options.input.sqlQueryStr && !options.input.hasOwnProperty("snippetId")) {
+        if (options.isDeprecated || (options.input &&
+            options.input.sqlQueryStr && !options.input.hasOwnProperty("snippetId"))) {
             this._isDeprecated = true;
         }
         this.input = this.getRuntime().accessible(new DagNodeSQLInput(options.input));
@@ -501,6 +502,7 @@ class DagNodeSQL extends DagNode {
         nodeInfo.identifiersNameMap = this.identifiersNameMap;
         nodeInfo.isHidden = this.display.isHidden;
         nodeInfo.udfErrors = this._udfErrorsMap;
+        nodeInfo.isDeprecated = this._isDeprecated;
         if (!forCopy && this.subGraphNodeIds) {
             nodeInfo.subGraphNodeIds = this.subGraphNodeIds;
         }
