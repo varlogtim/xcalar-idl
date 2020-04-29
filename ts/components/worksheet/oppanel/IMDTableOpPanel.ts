@@ -144,7 +144,22 @@ class IMDTableOpPanel extends BaseOpPanel {
         this._limitedRows = input.limitedRows;
         this._$pubTableInput.val(input.source);
         this._changeSelectedTable(input.source);
+        this._schemaSection.setInitialSchema(this._getInitialSchema(input.source) || input.schema);
         this._schemaSection.render(input.schema);
+    }
+
+    private _getInitialSchema(source: string): ColSchema[] | null {
+        let schema: ColSchema[] = null;
+        try {
+            const pTblInfo = PTblManager.Instance.getTableByName(source);
+            if (pTblInfo) {
+                schema = pTblInfo.getSchema();
+            }
+        } catch (e) {
+            console.error(e);
+        }
+
+        return schema;
     }
 
     private _updateTableList($ul: JQuery): void {
