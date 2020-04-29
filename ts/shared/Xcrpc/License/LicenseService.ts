@@ -77,7 +77,13 @@ class LicenseService {
             const licenseValue = new ProtoTypes.License.LicenseValue();
             licenseValue.setValue(newLicense);
             const request = new ProtoTypes.License.UpdateRequest();
-            request.setLicenseValue(licenseValue);
+            try {
+                // Trunk version
+                request.setLicenseValue(licenseValue);
+            } catch(_) {
+                // 2.0 version
+                request.setLicensevalue(licenseValue);
+            }
 
             const licenseService = new ApiLicense(this._apiClient);
             await licenseService.update(request);
