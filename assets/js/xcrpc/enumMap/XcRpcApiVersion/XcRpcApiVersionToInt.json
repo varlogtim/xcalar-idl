@@ -16,6 +16,7 @@
     "QueryVersionSignature" : 54870786,
     "ResultSetVersionSignature" : 86433570,
     "SchemaDiscoverVersionSignature" : 47404409,
+    "SchemaLoadVersionSignature" : 247203925,
     "ServiceVersionSignature" : 59787815,
     "SqlVersionSignature" : 146971870,
     "StatsVersionSignature" : 114642334,
@@ -24,6 +25,6 @@
     "UDFVersionSignature" : 111659210,
     "VersionVersionSignature" : 204259992,
     "WorkbookVersionSignature" : 57235854,
-    "ProtoAPIVersionSignature" : 205209707
+    "ProtoAPIVersionSignature" : 69318063
 }
 
