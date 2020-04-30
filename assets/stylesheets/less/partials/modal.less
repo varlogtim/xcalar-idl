@@ -5585,13 +5585,17 @@ html.microsoft {
 
     .modalMain {
         height: ~"calc(100% - @{h-without-main})";
-        display: block;
+        display: flex;
+        flex-direction: column;
         overflow: hidden;
         padding-top: 12px;
 
         .subHeading {
             .label {
                 padding-left: 0;
+            }
+            .qMark {
+                margin-top: 15px;
             }
         }
 
@@ -5613,6 +5617,8 @@ html.microsoft {
             width: 100%;
             margin-top: 20px;
             float: left;
+            overflow: hidden;
+
             .argsSection {
                 border: 1px solid @color-border-medium2;
                 max-height: 100%;
@@ -5630,8 +5636,9 @@ html.microsoft {
                     .subHeading {
                         font-size: 12px;
                         .label {
+                            margin-top: 4px;
+                            margin-bottom: 4px;
                             height: 25px;
-                            margin-top: 10px;
                             padding-left: 10px;
                         }
                     }

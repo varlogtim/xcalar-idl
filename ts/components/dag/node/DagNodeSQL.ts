@@ -434,13 +434,15 @@ class DagNodeSQL extends DagNode {
                                     //  changedFlag]}
         const finalCols: ProgCol[] = [];
         let hiddenColumns = this.lineage.getHiddenColumns();
-        this.columns.forEach((column) => {
-            const finalColumn = ColManager.newPullCol(column.name,
-                                                        column.backName,
-                                                        column.type);
-            finalColumnMap[column.backName] = [finalColumn, false];
-            finalCols.push(finalColumn);
-        });
+        if (this.columns) {
+            this.columns.forEach((column) => {
+                const finalColumn = ColManager.newPullCol(column.name,
+                                                            column.backName,
+                                                            column.type);
+                finalColumnMap[column.backName] = [finalColumn, false];
+                finalCols.push(finalColumn);
+            });
+        }
         // Wrap it with a list so that it can be modified across recursions
         const columnMapList = [finalColumnMap];
         for (const outputNode of this.subOutputNodes) {

@@ -1,5 +1,6 @@
 describe("SQL Dag Node Test", () => {
     let node;
+
     // XXX needs more tests
     before((done) => {
         console.log("SQL node test");

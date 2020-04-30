@@ -83,9 +83,9 @@ class DagSchemaPopup {
                 // Special case for SQL node
                 let subGraph = self._dagNode.getSubGraph();
                 if (!subGraph) {
-                    self._$popup.find(".content, .close").addClass("xc-disabled");
                     const params: DagNodeSQLInputStruct = self._dagNode.getParam();
                     if (params.sqlQueryStr) {
+                        self._$popup.find(".content, .close").addClass("xc-disabled");
                         const queryId = xcHelper.randName("sql", 8);
                         promise = self._dagNode.compileSQL(params.sqlQueryStr, queryId)
                         .always(() => {
