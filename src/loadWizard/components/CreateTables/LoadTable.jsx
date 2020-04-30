@@ -172,7 +172,7 @@ function validateCreate($input, tableName, path) {
     tableName = tableName.trim().toUpperCase();
     isValid = xcHelper.validate([{
             "$ele": $input,
-            "error": "There are more than 127 files included in the scheam, it's over Xcalar's limit. Please click the schema button to check and select smaller number of files.",
+            "error": "There are more than 127 files included in the schema and is over Xcalar's limit. Please click the schema button and select fewer files.",
             "check": function() {
               return path && path.length > 127;
             }
