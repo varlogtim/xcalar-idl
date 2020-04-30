@@ -478,6 +478,16 @@ class ResourceMenu {
         SQLWorkSpace.Instance.newSQL(sql);
     }
 
+    private _tableSchema(tableName: string): void {
+        const pTables = SQLResultSpace.Instance.getAvailableTables();
+        const tableInfo = pTables.find(pTable => {
+            return pTable.name === tableName;
+        });
+        if (tableInfo) {
+            SQLResultSpace.Instance.showSchema(tableInfo);
+        }
+    }
+
     private async _tableModule(tableName: string): Promise<void> {
         const tableInfo = PTblManager.Instance.getTableByName(tableName);
         if (tableInfo == null) {
@@ -491,7 +501,7 @@ class ResourceMenu {
                 source: tableName,
                 schema: tableInfo.getSchema()
             };
-            
+
             let node: DagNodeIMDTable = <DagNodeIMDTable>await DagViewManager.Instance.autoAddNode(DagNodeType.IMDTable,
                 null, null, input, undefined, undefined, {
                     configured: true,
@@ -533,6 +543,11 @@ class ResourceMenu {
         $menu.on("click", ".tableQuery", () => {
             const name: string = $menu.data("name");
             this._tableQuery(name);
+        });
+
+        $menu.on("click", ".tableSchema", () => {
+            const name: string = $menu.data("name");
+            this._tableSchema(name);
         });
 
         $menu.on("click", ".tableActivate", () => {
