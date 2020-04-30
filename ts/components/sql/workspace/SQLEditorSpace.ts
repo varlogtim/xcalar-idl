@@ -249,10 +249,19 @@ class SQLEditorSpace {
         $section.removeClass("loading");
     }
 
+    private _getSQLs(): string {
+        let sqls: string = this._sqlEditor.getSelection() ||
+                               this._sqlEditor.getValue();
+        return sqls;
+    }
+
+    private _getNumSQLStatements(sqls: string): number {
+       return sqls.split(";").filter((sql) => sql.trim() !== "").length;
+    }
+
     private _executeAction(): void {
         if (this._executers.length === 0) {
-            let sqls: string = this._sqlEditor.getSelection() ||
-                               this._sqlEditor.getValue();
+            let sqls: string = this._getSQLs();
             this._executeSQL(sqls);
         } else {
             Alert.show({
@@ -347,7 +356,7 @@ class SQLEditorSpace {
         }
 
         try {
-            const numStatemsnts = sqls.split(";").filter((sql) => sql.trim() !== "").length;
+            const numStatemsnts = this._getNumSQLStatements(sqls);
             if (numStatemsnts > 1) {
                 // disallow multiple sql statement
                 throw new Error("Cannot have multiple statement in the SQL, please selected one statement and execute.");
@@ -729,13 +738,20 @@ class SQLEditorSpace {
 
     private _onDropdownOpen($dropdown: JQuery): void {
         const $li = $dropdown.find('li[data-action="convertToSQLFuc"]');
-        if (this._sqlEditor.getSelection().length) {
+        const sqls = this._getSQLs();
+        let unavailableTip = null;
+        if (!sqls || !sqls.trim()) {
+            unavailableTip = SQLTStr.CreateFuncEmptyHint;
+        } else if (this._getNumSQLStatements(sqls) > 1) {
+            unavailableTip = SQLTStr.CreateFuncMultipHint
+        }
+        if (unavailableTip == null) {
             $li.removeClass("unavailable");
             xcTooltip.remove($li);
         } else {
             $li.addClass("unavailable");
             xcTooltip.add($li, {
-                title: SQLTStr.CreateFuncHint
+                title: unavailableTip
             });
         }
     }
@@ -766,7 +782,7 @@ class SQLEditorSpace {
         if (snippetObj == null) {
             return;
         }
-        const sql = this._sqlEditor.getSelection();
+        const sql = this._getSQLs();
         const executor: SQLDagExecutor = await this._compileSingleSQL(sql);
         if (executor == null) {
             // error case
