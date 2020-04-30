@@ -260,6 +260,7 @@ window.UnitTest = (function(UnitTest, $) {
     };
 
     UnitTest.addDS = function(testDSObj, dsName) {
+        throw "this function addDS is broken"
         console.clear();
         var deferred = PromiseHelper.deferred();
         if (dsName == null) {
@@ -285,6 +286,7 @@ window.UnitTest = (function(UnitTest, $) {
     };
 
     UnitTest.addTable = function(dsName) {
+        throw "this function is broken"
         var deferred = PromiseHelper.deferred();
 
         if (!$("#dataStoresTab").hasClass("active")) {
@@ -340,6 +342,7 @@ window.UnitTest = (function(UnitTest, $) {
     };
 
     UnitTest.deleteDS = function(dsName) {
+        throw "UnitTest.deleteDS is broken"
         var deferred = PromiseHelper.deferred();
         var $grid = DS.getGridByName(dsName);
         var dsId = $grid.data("dsid");

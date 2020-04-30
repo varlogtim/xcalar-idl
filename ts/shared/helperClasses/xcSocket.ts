@@ -231,10 +231,6 @@ class XcSocket {
             UDFFileManager.Instance.refresh(refreshOption.isUpdate, refreshOption.isDelete);
         });
 
-        socket.on('ds.update', (arg) => {
-            DS.updateDSInfo(arg);
-        });
-
         socket.on("refreshUserSettings", () => {
             if (!this._isRegistered) {
                 return;

@@ -205,9 +205,6 @@ class DataSourceManager {
                 case "targetButton":
                     this._switchToViewTarget();
                     break;
-                case "inButton":
-                    this._switchToViewDatasetSource();
-                    break;
                 case "sourceTblButton":
                     this._switchToViewTableSource();
                     break;
@@ -281,23 +278,6 @@ class DataSourceManager {
             xcTooltip.remove($("#dsTarget-create"));
         }
         return isAdmin;
-    }
-
-    private static _switchToViewDatasetSource(): void {
-        let $panel = this._getPanel();
-        let wasInTableScreen: boolean = $panel.hasClass("table");
-        this._restPanelView();
-        let $menu = this._getMenu();
-        let $title = this._getTitleEl();
-        $panel.addClass("in");
-        $title.text(DSTStr.IN);
-        $menu.find(".in").removeClass("xc-hidden");
-
-        DS.resize();
-
-        if (wasInTableScreen) {
-            DataSourceManager.startImport(false);
-        }
     }
 
     private static _switchToViewTableSource(): void {

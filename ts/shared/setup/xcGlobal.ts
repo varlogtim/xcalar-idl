@@ -36,7 +36,7 @@ namespace xcGlobal {
 
         /**
          * "GLOB": global scope
-         * keys inculding: gSharedDSKey, gUserListKey,
+         * keys inculding: gUserListKey,
          * gSettingsKey, GlobalKVKeys Enum
          *
          * "USER": (XXX this should be XcalarApiWorkbookScopeUser, no support yet!),

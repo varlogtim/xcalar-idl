@@ -384,28 +384,6 @@ namespace QueryManager {
         return deferred.promise();
     };
 
-    /**
-     * QueryManager.cancelDS
-     * @param id
-     */
-    export function cancelDS(id: number): void {
-        if (Transaction.isSimulate(id)) {
-            return;
-        }
-        const mainQuery: XcQuery = queryLog.get(id);
-        const subQuery: XcSubQuery = mainQuery.subQueries[0];
-        if (!subQuery) {
-            // Load hasn't been triggered yet so no DS to cancel (rare)
-            return;
-        }
-
-        const dsId: string = subQuery.dstTable.substring(gDSPrefix.length);
-        const $grid: JQuery = DS.getGrid(dsId);
-        DS.cancel($grid);
-        // DS.cancel preps the DsObj and icon and
-        // eventually calls QueryManager.cancelQuery
-    };
-
     // this gets called after cancel is successful. It cleans up and updates
     // the query state and views
     /**

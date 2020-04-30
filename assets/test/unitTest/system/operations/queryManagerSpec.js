@@ -531,33 +531,6 @@ describe('QueryManager Test', function() {
     });
 
     describe('Canceling', function() {
-        it("QueryManager.cancelDS should work", function() {
-            var dsCancelCache = DS.cancel;
-            var cachedGetOpStats = XcalarGetOpStats;
-            var cancelCalled = false;
-            DS.cancel = function() {
-                cancelCalled = true;
-            };
-            XcalarGetOpStats = function() {
-                return PromiseHelper.reject();
-            };
-
-            QueryManager.addQuery(1, SQLOps.DSImport, {});
-            var name = SQLOps.DSImport;
-            var dstTable = ".XcalarDS.user.84380.dsName";
-            var query = '{"operation": "XcalarApiIndex","args": {"source": ".XcalarDS.test.73762.schedule4824","dest": "schedule4824#ky109","key":'
-            +  '[{"name": "xcalarRecordNum","type": "DfUnknown","keyFieldName": "","ordering": "Unordered"}],"prefix": "schedule4824", "dhtName": "", "delaySort": false, "broadcast": false}}';
-
-            QueryManager.addSubQuery(1, name, dstTable, query);
-
-            $queryList.find(".xc-query").first().find(".cancelIcon").click();
-            expect(cancelCalled).to.be.true;
-            DS.cancel = dsCancelCache;
-            XcalarGetOpStats = cachedGetOpStats;
-
-            queryLog._queries.delete('1');
-            $queryList.find(".xc-query").first().remove();
-        });
         // it("confirmCanceledQuery should work", function() {
         //     var list = queryLists;
         //     var fakeQuery = new XcQuery({});

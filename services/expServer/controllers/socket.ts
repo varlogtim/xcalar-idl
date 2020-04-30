@@ -272,8 +272,6 @@ class SocketUtil {
                 socket.broadcast.emit("updateUserActivity", args);
             });
 
-            addDSSocketEvent(socket);
-
             function registerBrowserSession(user) {
                 try {
                     xcConsole.log('register browser session');
@@ -324,82 +322,6 @@ class SocketUtil {
             let self: SocketUtil = SocketUtil.getInstance;
             return self.userInfos.hasOwnProperty(user) &&
                 self.userInfos[user].workbooks.hasOwnProperty(id);
-        }
-
-        function addDSSocketEvent(socket: socketio.Socket): void {
-            let lockTimer = null;
-            let dsInfo: DSInfo = {
-                id: -1,
-                lock: {}
-            };
-            let self: SocketUtil = SocketUtil.getInstance;
-
-            let unlockDSInfo: () => void = function() {
-                clearTimeout(lockTimer);
-                dsInfo.lock = {};
-            };
-
-            let updateVersionId: (versionId: number) => void =
-                function(versionId: number) {
-                    dsInfo.id = Math.max(dsInfo.id, versionId);
-                };
-
-            socket.on("ds", (arg: DSEvent, calllback: any) => {
-                let versionId: number = arg.id;
-                let success: boolean = true;
-
-                if (self.checkIoSocketAuth(socket)) {
-                    return;
-                }
-
-                switch (arg.event) {
-                    case "updateVersionId":
-                        xcConsole.log('dataset: sync');
-                        updateVersionId(versionId);
-                        break;
-                    case "changeStart":
-                        xcConsole.log('dataset change: start');
-                        if (versionId <= dsInfo.id || dsInfo.lock.id != null) {
-                            success = false;
-                        } else {
-                            dsInfo.lock = {
-                                id: versionId,
-                                arg: arg
-                            };
-                        }
-
-                        lockTimer = setTimeout(() => {
-                            unlockDSInfo();
-                        }, 100000); // 100s
-
-                        if (calllback != null) {
-                            calllback(success);
-                        }
-                        break;
-                    case "changeEnd":
-                        xcConsole.log('dataset change: end');
-                        if (versionId === dsInfo.lock.id) {
-                            updateVersionId(versionId);
-                            socket.broadcast.emit("ds.update", dsInfo.lock.arg);
-                            unlockDSInfo();
-                        } else {
-                            success = false;
-                        }
-
-                        if (calllback != null) {
-                            calllback(success);
-                        }
-                        break;
-                    case "changeError":
-                        xcConsole.log('dataset change: error');
-                        if (versionId === dsInfo.lock.id) {
-                            unlockDSInfo();
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            });
         }
     };
 

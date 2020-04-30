@@ -396,8 +396,6 @@ window.Shortcuts = (function($, Shortcuts) {
         var menu =
         '<div id="shortcutMenu" class="menu" data-submenu="shortcutSubMenu">' +
             '<ul>' +
-                '<li class="createTable parentMenu" data-submenu="createTable">' +
-                    'Create Table ...</li>' +
                 '<li class="tests parentMenu" data-submenu="tests">Tests ...</li>' +
                 '<li class="globals parentMenu" data-submenu="globals">Global Flags ...</li>' +
                 '<li class="deleteAllTables">Delete All Tables</li>' +
@@ -520,17 +518,6 @@ window.Shortcuts = (function($, Shortcuts) {
             Shortcuts.toggleJoinKey(true);
         });
 
-
-        $subMenu.on('mouseup', '.createTable li', function(event) {
-            var noCols = false;
-            if ($(event.target).hasClass('menuOption')) {
-                noCols = true;
-            }
-            var fileName = $(this).text();
-            fileName = fileName.slice(0, fileName.length - 7); // - no cols text
-            secretAddTable(fileName, noCols);
-        });
-
         $subMenu.on('mouseup', '.tests li', function(event) {
             var testName = $(this).text();
 
@@ -566,60 +553,6 @@ window.Shortcuts = (function($, Shortcuts) {
         } else if (testName === "Unit Test") {
             TestSuite.unitTest();
         }
-    }
-
-    function secretAddTable(name, noCols) {
-        name = name.trim();
-        var dsIcon;
-        var dsName;
-        var exists = $('#dsListSection .gridItems')
-                    .find('[data-dsname*="'+ name + '"]').length;
-        if (exists) {
-            dsIcon = '#dsListSection .gridItems ' +
-                 '[data-dsname*="' + name + '"]:eq(0)';
-        } else {
-            dsName = name.replace(/\s+/g, "") + Math.floor(Math.random() * 10000);
-            var $formatDropdown = $("#fileFormatMenu");
-            var filePath = filePathMap[name];
-            $("#dsForm-target input").val(gDefaultSharedRoot);
-            $("#filePath").val(filePath);
-            $("#dsForm-path").find('.confirm').click(); // go to next step
-            $formatDropdown.find('li[name="JSON"]').click();
-            $("#importDataForm").find(".dsName").eq(0).val(dsName);
-
-            $('#dsForm-config').find('.confirm').last().click();
-            dsIcon = ".ds.grid-unit[data-dsname='" + dsName + "']:not(.inactive)";
-        }
-        checkExists(dsIcon)
-        .then(function() {
-            $(dsIcon).click();
-            setTimeout(function() {
-                if (noCols) {
-                    $('#noDScols').click();
-                } else {
-                    $("#selectDSCols").click();
-                }
-
-                setTimeout(function() { // there's some delay in populating
-                    // the datacart list
-                    var $activeTab = $('#topMenuBarTabs')
-                                        .find('.topMenuBarTab.active');
-                    var isDiffTab;
-                    if ($activeTab.attr('id') !== "dataStoresTab") {
-                        // switch to datastores panel
-                        $('#dataStoresTab').click();
-                        isDiffTab = true;
-                    }
-                    if  (!$('#inButton').hasClass('active')) {
-                        $('#inButton').click();
-                    }
-                    $("#dataCart-submit").click();
-                    if (isDiffTab) {
-                        $activeTab.click(); // go back to previous tab
-                    }
-                }, 1);
-            }, 400);
-        });
     }
 
     function deleteAllTables() {

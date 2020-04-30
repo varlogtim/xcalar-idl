@@ -3447,30 +3447,6 @@ describe("Dataset-DSConfig Test", function() {
                 done("fail");
             });
         });
-
-        it("Should sumibt form and load ds", function(done) {
-            var validFunc = function(dsName) { return !DS.has(dsName); };
-            var testDS = xcHelper.uniqueRandName("testSuitesSp500", validFunc, 10);
-            $form.find(".dsName").eq(0).val(testDS);
-            var oldImport = DS.load;
-            var test = false;
-            DS.load = () => {
-                test = true;
-                return PromiseHelper.resolve();
-            };
-            DSConfig.__testOnly__.submitForm()
-            .then(function() {
-                expect(test).to.be.true;
-                done();
-            })
-            .fail(function() {
-                // Intentionally fail the test
-                done("fail");
-            })
-            .always(function() {
-                DS.load = oldImport;
-            });
-        });
     });
 
     after(function() {

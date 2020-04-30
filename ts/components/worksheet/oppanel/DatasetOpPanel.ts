@@ -200,12 +200,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     }): HTML {
         let html: HTML = "";
         if (file.options && file.options.inActivated) {
-            let inactiveHtml = "";
-            if (DS.isLoading(file.id)) {
-                inactiveHtml = '<div class="activating">' + DSTStr.DSActivating + '</div>';
-            } else {
-                inactiveHtml = '<div class="actButton">' + DSTStr.Activate + '</div>';
-            }
+            let inactiveHtml = '<div class="actButton">' + DSTStr.Activate + '</div>';
             html +=
             '<li class="fileName inActivated"' +
             ' data-toggle="tooltip"' +

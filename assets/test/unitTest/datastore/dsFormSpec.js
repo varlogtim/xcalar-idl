@@ -24,12 +24,6 @@ describe("Dataset-DSForm Test", function() {
             expect($("#dsForm-path").hasClass("xc-hidden")).to.be.false;
         });
 
-        it("Should trigger show from importDataButton button", function() {
-            DSForm.hide();
-            $("#importDataButton").click();
-            UnitTest.assertDisplay($("#dsFormView"));
-        });
-
         it("should reset form when call resetForm()", function() {
             $filePath.val("test");
             DSForm.__testOnly__.resetForm();

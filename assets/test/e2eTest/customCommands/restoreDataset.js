@@ -14,6 +14,7 @@ class RestoreDataset extends EventEmitter {
             needRestore = result.value;
         });
         this.api.perform(() => {
+            throw "this test restoreDataset is broken"
             let datasetId = "";
             if (needRestore) {
                 console.log("restoring dataset");

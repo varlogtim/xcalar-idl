@@ -258,20 +258,6 @@ describe("xcSocket Test", function() {
             UDFFileManager.Instance.refresh = oldFunc;
         });
 
-        it("ds.update event should work", function() {
-            const oldFunc = DS.updateDSInfo;
-            let test = null;
-            DS.updateDSInfo = (arg) => {
-                test = arg;
-            };
-
-            // case 1;
-            xcSocket._socket.trigger('ds.update', {});
-            expect(test).not.to.be.null;
-
-            DS.updateDSInfo = oldFunc;
-        });
-
         it("refreshDagCategory event should work", function() {
             const oldFunc = DagCategoryBar.Instance.loadCategories;
             let test = null;

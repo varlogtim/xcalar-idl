@@ -393,9 +393,6 @@ namespace xcManager {
             const keyAttrs: object[] = [{
                 "key": keys.gSettingsKey,
                 "scope": gKVScope.GLOB
-            }, {
-                "key": keys.gSharedDSKey,
-                "scope": gKVScope.GLOB
             }];
             const promises: XDPromise<void>[] = [];
 

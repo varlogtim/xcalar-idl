@@ -2131,8 +2131,7 @@ namespace DSConfig {
                             name === xcHelper.parseDSName(dsToReplace).dsName) {
                             return false;
                         }
-                        let hasName = isCreateTableMode() ?
-                        PTblManager.Instance.hasTable(name) : DS.has(name);
+                        let hasName = PTblManager.Instance.hasTable(name);
                         return hasName || dsNames.includes(dsName); // already used
                     }
 
@@ -2845,7 +2844,7 @@ namespace DSConfig {
             // name may have prefix appended
             name = name.toUpperCase();
         }
-        return isCreateTableMode() ? PTblManager.Instance.getUniqName(name) : DS.getUniqueName(name);
+        return PTblManager.Instance.getUniqName(name);
     }
 
     function getSkipRows(): number {

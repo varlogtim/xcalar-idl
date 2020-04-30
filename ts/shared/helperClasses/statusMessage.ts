@@ -17,13 +17,11 @@ namespace StatusMessage {
 
     interface ShowDoneNotificationOptions {
         indexNotification?: boolean;
-        newDataset?: boolean;
         datasetId?: string;
         title?: string;
     }
 
     interface DoneNotificationListenersOptions {
-        newDataset?: boolean;
         datasetId?: string;
     }
 
@@ -588,10 +586,6 @@ namespace StatusMessage {
                 }
                 const $popup = $(this);
 
-                if ($popup.hasClass('failed') && options.newDataset) {
-                    return;
-                }
-
                 if ($popup.data('tableid') != null) {
                     const tableId: string = $popup.data('tableid');
                     const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
@@ -600,12 +594,6 @@ namespace StatusMessage {
                         $tableWrap.mousedown();
                     }
 
-                } else if (options.newDataset) {
-                    $('#dataStoresTab').click();
-                    if (!$("#inButton").hasClass("active")) {
-                        $('#inButton').click();
-                    }
-                    DS.getGrid(options.datasetId).click();
                 }
 
                 if ($popup.siblings().length === 0) {

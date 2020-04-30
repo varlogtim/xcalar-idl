@@ -136,6 +136,7 @@ module.exports = {
     },
 
     getRestoredDatasetId: function() {
+        throw "this function getRestoredDatasetId is broken"
         let $el = $("#dsListSection .grid-unit.ds:not(.xc-hidden).active");
         return $el.data("dsid");
     },

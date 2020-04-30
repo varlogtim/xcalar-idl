@@ -907,12 +907,10 @@ namespace WorkbookManager {
     * @param version - version number
     */
     export function getGlobalScopeKeys(version: number): any {
-        const gSharedDSKey: string = generateKey("", "gSharedDS", version);
         const gSettingsKey: string = generateKey("", "gSettings", version);
 
         return {
-            "gSettingsKey": gSettingsKey,
-            "gSharedDSKey": gSharedDSKey
+            "gSettingsKey": gSettingsKey
         };
     }
 

@@ -124,7 +124,6 @@ interface GetNumRowsOptions {
 
 interface GlobalKVKeySet {
     gSettingsKey: string;
-    gSharedDSKey: string;
 }
 
 interface UserKVKeySet {

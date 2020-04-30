@@ -306,21 +306,21 @@ class DSObj extends Durable {
         let isFolder = this.isFolder;
         let isValid = xcHelper.validate([
             {
-                "$ele": DS.getGrid(id),
+                "$ele": $(),
                 "error": ErrTStr.NoSpecialChar,
                 "check": function() {
                     return !xcHelper.checkNamePattern(PatternCategory.Folder, PatternAction.Check, newName);
                 }
             },
             {
-                "$ele": DS.getGrid(id),
+                "$ele": $(),
                 "error": error,
                 "check": function() {
                     return parent.checkNameConflict(id, newName, isFolder);
                 }
             },
             {
-                "$ele": DS.getGrid(id),
+                "$ele": $(),
                 "error": ErrTStr.PreservedName,
                 "check": function() {
                     return newName === DSObjTerm.SharedFolder;
@@ -360,8 +360,6 @@ class DSObj extends Durable {
             } else {
                 parent.totalChildren += this.totalChildren;
             }
-            let $grid = DS.getGrid(parent.id);
-            $grid.find("> div.dsCount").text(parent.totalChildren);
             parent = DS.getDSObj(parent.parentId);
         }
     }
@@ -388,10 +386,8 @@ class DSObj extends Durable {
             return false;
         }
 
-        var $grid = DS.getGrid(this.id);
         // check name conflict
         if (newParent.checkNameConflict(this.id, this.name, this.isFolder)) {
-            StatusBox.show(ErrTStr.MVFolderConflict, $grid);
             return false;
         }
 
@@ -403,8 +399,6 @@ class DSObj extends Durable {
         } else {
             newParent.eles.push(this);  // append to parent
         }
-
-        $grid.attr("data-dsParentId", newParent.id);
 
         // update totalChildren of all ancestors
         this.updateDSCount(false);
