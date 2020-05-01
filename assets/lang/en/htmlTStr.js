@@ -1110,7 +1110,7 @@ module.exports = {
         "mapInstr": "Select a category e.g. Arithmetic Functions. Then select a function, e.g. add. Finally, enter any arguments if applicable. Column names must be prefixed by a $ sign, e.g. $column1.",
         "filterInstr": "Select a function, e.g. isBoolean. Then, enter any arguments if applicable. To add additional conditions, select \"Additional Conditions.\" Column names should be prefixed by a $ sign, e.g. $column1.",
         "groupbyInstr": "Summarizes table based on a formula. Add one or more columns to summarize. Then, select a function and enter arguments to create the summary formula. Column names should be prefixed by a $ sign, e.g. $column1.",
-        "aggInstr": "Select a function, e.g. sum. Then, enter any arguments if applicable. Column names should be prefixed by a $ sign, e.g. $column1. Optional resultant aggregate names should be prefixed by a ^ sign.",
+        "aggInstr": "Select a function, e.g. sum. Then, enter any arguments if applicable. Column names should be prefixed by a $ sign, e.g. $column1. Resultant aggregate names should be prefixed by a ^ sign.",
         "DescripFunc": "Description of Function",
         "ArgList": "Argument List",
         "EmptyHint": "Select to allow empty field",
