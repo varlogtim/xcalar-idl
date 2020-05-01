@@ -20,6 +20,24 @@ class XcDagTableViewer extends XcTableViewer {
             Profile.deleteCache(tableId);
         }
         let columns: ProgCol[] = dagNode.getLineage().getColumns(true);
+        if (dagNode instanceof DagNodeSet) {
+            // special case, hide internal generated columns
+            const deltas = dagNode.getColumnDeltas();
+            if (deltas.size === 0) {
+                let resProgCol: ProgCol = null;
+                for (let progCol of columns) {
+                    const colName = progCol.getBackColName();
+                    if (colName.startsWith("XC_UNION_INDEX")) {
+                        resProgCol = progCol;
+                        break;
+                    }
+                }
+                if (resProgCol != null) {
+                    dagNode.columnChange(DagColumnChangeType.Hide, [resProgCol.getBackColName()], [resProgCol.getType()]);
+                    columns = dagNode.getLineage().getColumns(true); // refresh column
+                }
+            }
+        }
         let hiddenColumns: Map<string, ProgCol> = dagNode.getLineage().getHiddenColumns();
         if (columns != null && (columns.length > 0 || hiddenColumns.size)) {
             columns = columns.concat(ColManager.newDATACol());
