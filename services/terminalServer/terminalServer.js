@@ -86,7 +86,7 @@ wetty.init(
             host: {
                 demand: false,
                 description: 'xshell listen host',
-                default: '0.0.0.0',
+                default: '127.0.0.1',
                 type: 'string',
             },
             command: {
