@@ -17,6 +17,7 @@
                 const encodedVal: string = this._encode(value);
                 this.storage.setItem(key, encodedVal);
             } catch (error) {
+                // storage can be null when cookie is disabled
                 console.error(error);
                 return false;
             }
@@ -24,15 +25,27 @@
         }
 
         public getItem(key: string): string {
-            const encodedVal: string = this.storage.getItem(key);
-            if (encodedVal == null) {
+            try {
+                const encodedVal: string = this.storage.getItem(key);
+                if (encodedVal == null) {
+                    return null;
+                }
+                return this._decode(encodedVal);
+            } catch (e) {
+                // storage can be null when cookie is disabled
+                console.error(e);
                 return null;
             }
-            return this._decode(encodedVal);
         }
 
         public removeItem(key: string): string {
-            return this.storage.removeItem(key);
+            try {
+                return this.storage.removeItem(key);
+            } catch (e) {
+                // storage can be null when cookie is disabled
+                console.error(e);
+                return null;
+            }
         }
 
         private _encode(str: string): string {
@@ -47,7 +60,19 @@
         }
     }
 
-    window.xcLocalStorage = new XcStorage(localStorage);
-    window.xcSessionStorage = new XcStorage(sessionStorage);
+    // storage can be null when cookie is disabled
+    try {
+        window.xcLocalStorage = new XcStorage(localStorage);
+    } catch (e) {
+        console.error(e);
+        window.xcLocalStorage = new XcStorage(null);
+    }
+
+    try {
+        window.xcSessionStorage = new XcStorage(sessionStorage);
+    } catch (e) {
+        console.error(e);
+        window.xcSessionStorage = new XcStorage(null);
+    }
 }());
 /* End of Storage */
