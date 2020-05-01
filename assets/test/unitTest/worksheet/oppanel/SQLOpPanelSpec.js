@@ -146,6 +146,7 @@ describe("SQLOpPanel Test", function() {
         });
 
         it("should submit", function(done) {
+            Alert.hide();
             let struct = {
                 "sqlQueryString": "Select * FROM a",
                 "identifiers": {

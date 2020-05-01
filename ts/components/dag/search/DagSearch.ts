@@ -219,7 +219,7 @@ class DagSearch {
         } else {
             // when it's node
             const isSvgText = $match.is("text");
-            const $node = $match.hasClass(".operator")
+            const $node = $match.hasClass("operator")
             ? $match
             : $match.closest(".operator");
 

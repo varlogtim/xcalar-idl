@@ -15,6 +15,7 @@ class SQLOpPanel extends BaseOpPanel {
     private _queryStr = "";
     private _graph: DagGraph;
     private _isQueryUpdated: boolean = false;
+    private _snippetIdNotFound: boolean = false;
 
     /**
      * Initialization, should be called only once by xcManager
@@ -125,14 +126,23 @@ class SQLOpPanel extends BaseOpPanel {
 
                 this._selectQuery(snippetId, null, true);
                 this._isQueryUpdated = true;
+                if (this._$elemPanel.hasClass("queryNotUpdated") ||
+                    this._$elemPanel.hasClass("snippetNotFound")) {
+                    this._$elemPanel.find(".snippetUpdated").fadeIn(800, () => {
+                        setTimeout(() => {
+                            this._$elemPanel.find(".snippetUpdated").fadeOut(800);
+                        }, 2000);
+                    });
+                }
                 this._$elemPanel.removeClass("queryNotUpdated");
+                this._$elemPanel.removeClass("snippetNotFound");
             }
         });
         menuHelper.setupListeners();
     }
 
     private _selectQuery(snippetId: string, queryStr?: string, forceUpdate?: boolean): SQLSnippetDurable {
-        if (snippetId) {
+        if (snippetId || queryStr) {
             this.$panel.find(".nextForm").removeClass('xc-hidden');
         }
         const $list = this.$panel.find(".snippetsList");
@@ -617,22 +627,33 @@ class SQLOpPanel extends BaseOpPanel {
     private _renderSnippet() {
         const snippetId: string = this._dataModel.getSnippetId();
         const queryStr: string = this._dataModel.getSqlQueryString() || null;
-        this._selectQuery(snippetId, queryStr);
         if (snippetId) {
             let snippet = SQLSnippet.Instance.getSnippetObj(snippetId);
             if (snippet) {
                 this._isQueryUpdated = (snippet.snippet === queryStr);
+                this._snippetIdNotFound = false;
             } else {
                 this._isQueryUpdated = true;
+                this._snippetIdNotFound = true;
             }
             SQLTabManager.Instance.openTab(snippetId);
         } else {
             this._isQueryUpdated = true;
+            this._snippetIdNotFound = true;
         }
+        this._selectQuery(snippetId, queryStr);
         if (this._isQueryUpdated) {
             this._$elemPanel.removeClass("queryNotUpdated");
         } else {
             this._$elemPanel.addClass("queryNotUpdated");
+        }
+        if (!queryStr) {
+            this._snippetIdNotFound = false;
+        }
+        if (this._snippetIdNotFound) {
+            this._$elemPanel.addClass("snippetNotFound");
+        } else {
+            this._$elemPanel.removeClass("snippetNotFound");
         }
     }
 
@@ -722,14 +743,14 @@ class SQLOpPanel extends BaseOpPanel {
                 identifiers[key] = value;
                 identifiersOrder.push(key);
             });
-            const snippets = SQLSnippet.Instance.list();
+
             const snippetId = this.$panel.find(".snippetsList input").data("id");
-            let sqlQueryString = "";
-            let snippet = snippets.find(snippet => {
-                return snippet.id === snippetId;
-            });
-            if (snippet) {
-                sqlQueryString = snippet.snippet;
+            let sqlQueryString = this._queryStr;
+            if (!sqlQueryString) {
+                let snippet = SQLSnippet.Instance.getSnippetObj(snippetId);
+                if (snippet) {
+                    sqlQueryString = snippet.snippet;
+                }
             }
             const advancedParams = {
                 snippetId: snippetId,
@@ -759,7 +780,14 @@ class SQLOpPanel extends BaseOpPanel {
                     this._toggleDropAsYouGo(advancedParams.dropAsYouGo);
                 }
                 const snippetId = advancedParams.snippetId;
-                this._selectQuery(snippetId, null, true);
+                let queryStr = advancedParams.sqlQueryString;
+                if (!queryStr) {
+                    let snippet = SQLSnippet.Instance.getSnippetObj(snippetId);
+                    if (snippet) {
+                        queryStr = snippet.snippet;
+                    }
+                }
+                this._selectQuery(snippetId, queryStr, true);
                 this._$sqlIdentifiers.html("");
                 this._sqlTables = {};
                 if (Object.keys(identifiers).length > 0) {
@@ -868,7 +896,7 @@ class SQLOpPanel extends BaseOpPanel {
             StatusBox.show(e, this._$elemPanel.find(".btn-submit"));
             return;
         }
-        const query = this.$panel.find(".editorWrapper").text().replace(/;+$/, "");
+        const query = this._queryStr.replace(/;+$/, "");
         const snippetId = this.$panel.find(".snippetsList input").data("id");
         let promise;
         if (!this._isQueryUpdated) {

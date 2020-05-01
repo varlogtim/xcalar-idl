@@ -1317,7 +1317,7 @@ class DagView {
             .attr("transform", `translate(${DagView.nodeWidth - 22}, 8)`);
         g.append("text")
             .attr("font-family", "icomoon")
-            .attr("font-size", 13)
+            .attr("font-size", 12)
             .attr("fill", "white")
             .text(_d => "\ue9a7");
         return this.tabId;
