@@ -897,13 +897,6 @@ namespace DagNodeMenu {
         // dataset option
         if (dagNode != null && dagNodeType === DagNodeType.Dataset) {
             classes += " datasetMenu";
-            const node: DagNodeDataset = <DagNodeDataset>dagNode;
-            const dsName: string = node.getDSName();
-            if (dsName != null && DS.getDSObj(dsName) == null) {
-                $menu.find(".restoreSource").removeClass("xc-hidden");
-            } else {
-                $menu.find(".restoreSource").addClass("xc-hidden");
-            }
         }
         // table option
         if (dagNode != null && dagNodeType === DagNodeType.IMDTable) {
@@ -1097,29 +1090,8 @@ namespace DagNodeMenu {
     }
 
     function _restoreSourceFromNode(node: DagNode): void {
-        if (node instanceof DagNodeDataset) {
-            _restoreDatasetFromNode(node);
-        } else if (node instanceof DagNodeIMDTable) {
+        if (node instanceof DagNodeIMDTable) {
             _restoreTableFromNode(node);
-        }
-    }
-
-    function _restoreDatasetFromNode(node: DagNodeDataset): void {
-        try {
-            const lodArgs = node.getLoadArgs();
-            if (!lodArgs) {
-                let $node = DagViewManager.Instance.getNode(node.getId());
-                StatusBox.show(ErrTStr.RestoreDSNoLoadArgs, $node);
-            } else {
-                DS.restoreSourceFromDagNode([node], false)
-                .then(() => {
-                    node.beConfiguredState();
-                });
-            }
-        } catch (e) {
-            console.error(e);
-            let $node = DagViewManager.Instance.getNode(node.getId());
-            StatusBox.show(e.message, $node);
         }
     }
 
@@ -1139,15 +1111,9 @@ namespace DagNodeMenu {
         try {
             let tab: DagTab = DagViewManager.Instance.getActiveTab();
             let graph: DagGraph = tab.getGraph();
-            const dsNodes: DagNodeDataset[] = [];
             const tableNodes: DagNodeIMDTable[] = [];
             graph.getAllNodes().forEach((dagNode: DagNode) => {
-                if (dagNode instanceof DagNodeDataset) {
-                    let dsName = dagNode.getDSName();
-                    if (DS.getDSObj(dsName) == null) {
-                        dsNodes.push(dagNode);
-                    }
-                } else if (dagNode instanceof DagNodeIMDTable) {
+                if (dagNode instanceof DagNodeIMDTable) {
                     tableNodes.push(dagNode);
                 }
             });
@@ -1155,7 +1121,6 @@ namespace DagNodeMenu {
                 const promise = PTblManager.Instance.restoreTableFromNode(node);
                 return PromiseHelper.convertToJQuery(promise);
             });
-            promises.push(DS.restoreSourceFromDagNode(dsNodes, false));
             if (promises.length) {
                 return PromiseHelper.when(...promises);
             } else {

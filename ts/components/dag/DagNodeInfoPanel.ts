@@ -234,9 +234,7 @@ class DagNodeInfoPanel {
         this._$panel.find(".statusSection").html(html);
         const error: string = this._activeNode.getError();
         if (this._activeNode.getState() === DagNodeState.Error && error) {
-            if (this._activeNode instanceof DagNodeDataset ||
-                this._activeNode instanceof DagNodeIMDTable
-            ) {
+            if (this._activeNode instanceof DagNodeIMDTable) {
                 this._renderRestoreButton();
             }
             this._$panel.find(".errorSection").text(error);
@@ -451,12 +449,6 @@ class DagNodeInfoPanel {
 
     private _shouldRestore(node: DagNode): boolean {
         try {
-            if (node instanceof DagNodeDataset) {
-                const dsName: string = node.getDSName();
-                if (DS.getDSObj(dsName) == null) {
-                    return true;
-                }
-            }
             if (node instanceof DagNodeIMDTable) {
                 const tableName: string = node.getSource();
                 if (!PTblManager.Instance.hasTable(tableName)) {
@@ -492,15 +484,9 @@ class DagNodeInfoPanel {
     }
 
     private _restoreSource(): void {
-        if (this._activeNode instanceof DagNodeDataset) {
-            this._restoreDataset(this._activeNode);
-        } else if (this._activeNode instanceof DagNodeIMDTable) {
+        if (this._activeNode instanceof DagNodeIMDTable) {
             this._restoreTable(this._activeNode);
         }
-    }
-
-    private _restoreDataset(node: DagNodeDataset): void {
-        DS.restoreSourceFromDagNode([node], false);
     }
 
     private _restoreTable(node: DagNodeIMDTable): void {

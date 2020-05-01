@@ -3,7 +3,7 @@ describe("DagNodeInfoPanel Test", function() {
     let mapNode;
     let filterNode;
     let customNode;
-    let datasetNode;
+    let tableNode;
     let testDagGraph;
     let tabId;
     let test;
@@ -31,8 +31,8 @@ describe("DagNodeInfoPanel Test", function() {
             let $filterNode = test.createNode("filter");
             filterNode = testDagGraph.getNode($filterNode.data("nodeid"));
 
-            let $datasetNode = test.createNode("dataset");
-            datasetNode = testDagGraph.getNode($datasetNode.data("nodeid"));
+            let $tableNode = test.createNode(DagNodeType.IMDTable);
+            tableNode = testDagGraph.getNode($tableNode.data("nodeid"));
 
             DagNodeInfoPanel.Instance.hide();
             $panel = $("#dagNodeInfoPanel");
@@ -292,39 +292,37 @@ describe("DagNodeInfoPanel Test", function() {
             expect(DagNodeInfoPanel.Instance.getActiveNode()).to.be.null;
         });
         it("should not render restore button if state is not error", function() {
-            datasetNode.getDSName = function() {
-                return "ds" + Math.random();
+            tableNode.getSource = function() {
+                return "TABLE" + Math.random();
             }
-            DagNodeInfoPanel.Instance.show(datasetNode);
+            DagNodeInfoPanel.Instance.show(tableNode);
             expect($panel.find(".restore").length).to.equal(0);
             DagNodeInfoPanel.Instance.hide();
         });
         it("should render restore button", function() {
-            datasetNode.getDSName = function() {
-                return "ds" + Math.random();
+            tableNode.getDSName = function() {
+                return "TABLE" + Math.random();
             }
-            datasetNode.getState = function() {
+            tableNode.getState = function() {
                 return DagNodeState.Error;
             };
-            datasetNode.getError = function() {
+            tableNode.getError = function() {
                 return DagNodeState.Error;
             }
-            DagNodeInfoPanel.Instance.show(datasetNode);
+            DagNodeInfoPanel.Instance.show(tableNode);
             expect($panel.find(".restore").length).to.equal(1);
 
         });
-        it("should try to restore dataset", function() {
+        it("should try to restore table", function() {
             let called = false;
-            let cachedFn = DS.restoreSourceFromDagNode;
-            DS.restoreSourceFromDagNode = function(nodes, shareDS) {
-                expect(nodes.length).to.equal(1);
-                expect(nodes[0].getId()).to.equal(datasetNode.getId());
-                expect(shareDS).to.be.false;
+            let cachedFn = PTblManager.Instance.restoreTableFromNode;
+            PTblManager.Instance.restoreTableFromNode = function(node) {
+                expect(node.getId()).to.equal(tableNode.getId());
                 called = true;
             }
             $panel.find(".restore .action").click();
             expect(called).to.be.true;
-            DS.restoreSourceFromDagNode = cachedFn;
+            PTblManager.Instance.restoreTableFromNode = cachedFn;
         });
     });
 

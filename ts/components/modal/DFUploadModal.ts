@@ -44,13 +44,11 @@ class DFUploadModal {
     }
 
     private _validate(): {
-        tab: DagTab,
-        shared: boolean
+        tab: DagTab
     } {
         const $pathInput: JQuery = this._getDestPathInput();
         let path: string = this._getDestPath();
 
-        let shared: boolean = false;
         let uploadTab: DagTabUser = new DagTabUser({
             name: path,
             createdTime: xcTimeHelper.now()
@@ -70,7 +68,7 @@ class DFUploadModal {
             $ele: $pathInput,
             error: DFTStr.NoSlashUpload,
             check: () => {
-                return !shared && shortName.includes("/");
+                return shortName.includes("/");
             }
         },{
             $ele: $pathInput,
@@ -91,8 +89,7 @@ class DFUploadModal {
             return null;
         }
         return {
-            tab: <DagTab>uploadTab,
-            shared: shared
+            tab: <DagTab>uploadTab
         };
     }
 
@@ -110,7 +107,6 @@ class DFUploadModal {
         xcUIHelper.disableSubmit($confirmBtn);
 
         const tab: DagTab = res.tab;
-        const shared: boolean = res.shared;
         const file: File = this._file;
         const overwriteUDF: boolean = this._getModal().find(".overwrite .checkboxSection")
         .find(".checkbox").hasClass("checked");
@@ -141,7 +137,7 @@ class DFUploadModal {
                     restoreDS = false;
                 }
                 if (restoreDS) {
-                    this._restoreDS(resultTab, shared);
+                    this._restoreSource(resultTab);
                 }
                 xcUIHelper.showSuccess(SuccessTStr.Upload);
                 this._submitDone(resultTab);
@@ -238,17 +234,14 @@ class DFUploadModal {
         return deferred.promise();
     }
 
-    private _restoreDS(tab: DagTab, shared: boolean): XDPromise<void> {
+    private _restoreSource(tab: DagTab): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         tab.load()
         .then(() => {
             const graph: DagGraph = tab.getGraph();
-            const dsNodes: DagNodeDataset[] = [];
             const tableNodes: DagNodeIMDTable[] = [];
             graph.getAllNodes().forEach((dagNode: DagNode) => {
-                if (dagNode instanceof DagNodeDataset) {
-                    dsNodes.push(dagNode);
-                } else if (dagNode instanceof DagNodeIMDTable) {
+                if (dagNode instanceof DagNodeIMDTable) {
                     tableNodes.push(dagNode);
                 }
             });
@@ -256,7 +249,6 @@ class DFUploadModal {
                 const promise = PTblManager.Instance.restoreTableFromNode(node);
                 return PromiseHelper.convertToJQuery(promise);
             });
-            promises.push(DS.restoreSourceFromDagNode(dsNodes, shared));
             return PromiseHelper.when(...promises);
         })
         .then(() => {
