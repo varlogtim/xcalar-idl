@@ -994,7 +994,14 @@ class DagViewManager {
         nodeId: DagNodeId,
         tabId: string
     ): XDPromise<string> {
-        return DagView.inspectSQLNode(nodeId, tabId);
+        return DagView.inspectSQLNode(nodeId, tabId)
+            .fail(function(err) {
+                Alert.show({
+                    title: "Inspect SQL Error",
+                    msg: "Error details: " + JSON.stringify(err),
+                    isAlert: true
+                });
+            });
     }
 
      /**
@@ -1002,18 +1009,14 @@ class DagViewManager {
      * @param nodeId
      */
     public expandSQLNode(nodeId: DagNodeId): XDPromise<void> {
-        return this.activeDagView.expandSQLNode(nodeId);
-    }
-
-    /**
-     * DagViewManager.Instance.expandSQLNodeInTab
-     */
-    public expandSQLNodeInTab(
-        dagNode: DagNodeSQL,
-        dagTab: DagTab,
-        rawXcQuery: boolean = false
-    ): XDPromise<void> {
-        return this.dagViewMap.get(dagTab.getId()).expandSQLNodeInTab(dagNode, rawXcQuery);
+        return this.activeDagView.expandSQLNode(nodeId)
+            .fail(function(err) {
+                Alert.show({
+                    title: "Expand SQL Error",
+                    msg: "Error details: " + JSON.stringify(err),
+                    isAlert: true
+                });
+            });
     }
 
     /**

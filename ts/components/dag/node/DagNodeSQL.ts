@@ -998,6 +998,10 @@ class DagNodeSQL extends DagNode {
             cols = columns;
         }
 
+        if (cols.length === 0) {
+            return PromiseHelper.reject(SQLErrTStr.NoInputColumn);
+        }
+
         let colInfos: ColRenameInfo[] = [];
         const remainCols: ColRenameInfo[] = [];
 
@@ -1305,8 +1309,29 @@ class DagNodeSQL extends DagNode {
             allSchemas.push(ret.structToSend);
             deferred.resolve(ret.finalizedTableName);
         })
-        .fail(deferred.reject);
+        .fail((err) => {
+            err = "Table function " + funcName + " failed: "
+                  + this.errStringify(err);
+            deferred.reject(err);
+        });
         return deferred.promise();
+    }
+
+    private errStringify(err): string {
+        if (typeof err === "object") {
+            if (err instanceof Error) {
+                err = err.stack;
+            } else if (err instanceof Array) {
+                let outStr: string = "[";
+                for (let innerErr of err) {
+                    outStr = outStr + this.errStringify(innerErr) + ", ";
+                }
+                err = outStr.substring(0, outStr.length - 2) + "]";
+            } else {
+                err = JSON.stringify(err);
+            }
+        }
+        return err;
     }
 
     private setAggregatesCreated(aggs: string[]): void {
@@ -1494,14 +1519,7 @@ class DagNodeSQL extends DagNode {
                 } catch (e) {
                     errorMsg = errorMsgBackup;
                 }
-                let error = errorMsg;
-                if (typeof errorMsg === "object") {
-                    if (errorMsg instanceof Error) {
-                        errorMsg = errorMsg.stack;
-                    } else {
-                        errorMsg = JSON.stringify(errorMsg);
-                    }
-                }
+                errorMsg = self.errStringify(errorMsg);
                 if (errorMsg.indexOf(SQLErrTStr.Cancel) === -1) {
                     if (errorMsg.match(/cannot resolve .* given input columns/g)) {
                         // XXX Ideally should let sql parser deal with this so
@@ -1551,18 +1569,9 @@ class DagNodeSQL extends DagNode {
                             }
                         }
                     }
-                    Alert.show({
-                        title: SQLErrTStr.Err,
-                        msg: errorMsg,
-                        isAlert: true,
-                        align: "left",
-                        preSpace: true,
-                        sizeToText: true
-                    });
-                    error = null; // already alert, reject null
                 }
                 self.setSQLQuery({errorMsg: errorMsg, endTime: new Date()});
-                deferred.reject(error);
+                deferred.reject(errorMsg);
             })
             .always(() => {
                 this.events.trigger(DagNodeEvents.EndSQLCompile, {
@@ -1571,17 +1580,12 @@ class DagNodeSQL extends DagNode {
                 });
             });
         } catch (e) {
-            Alert.show({
-                title: SQLErrTStr.Err,
-                msg: "Error details: " + JSON.stringify(e),
-                isAlert: true
-            });
             self.setSQLQuery({errorMsg: JSON.stringify(e), endTime: new Date()});
             this.events.trigger(DagNodeEvents.EndSQLCompile, {
                 id: this.getId(),
                 node: this
             });
-            deferred.reject();
+            deferred.reject(e);
         }
         return deferred.promise();
     }

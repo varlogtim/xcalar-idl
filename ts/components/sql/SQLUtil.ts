@@ -151,9 +151,6 @@ class SQLUtil {
             if (!message) {
                 message = "Compilation Error";
             }
-            if (typeof OldSQLOpPanel !== "undefined") {
-                SQLUtil.throwError(message);
-            }
             throw "SQL Assertion Failure: " + message;
         }
     }

@@ -318,12 +318,7 @@ class OldSQLOpPanel extends BaseOpPanel {
             });
         } catch (e) {
             SQLUtil.resetProgress();
-            Alert.show({
-                title: "Compilation Error",
-                msg: "Error details: " + JSON.stringify(e),
-                isAlert: true
-            });
-            deferred.reject();
+            deferred.reject(e);
         }
         return deferred.promise();
     };
@@ -464,13 +459,11 @@ class OldSQLOpPanel extends BaseOpPanel {
                 self.close(true);
             })
             .fail(function(err) {
-                if (err === SQLErrTStr.EmptySQL) {
-                    Alert.show({
-                        title: SQLErrTStr.Err,
-                        msg: err,
-                        isAlert: true
-                    });
-                }
+                Alert.show({
+                    title: SQLErrTStr.Err,
+                    msg: "Error details: " + JSON.stringify(err),
+                    isAlert: true
+                });
                 self._dagNode.beErrorState();
             });
         });

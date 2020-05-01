@@ -535,7 +535,8 @@ SQLErrTStr = {
     "InvalidColName": "Invalid column name found. A name can only begin with a letter or underscore(_), not contain the following characters: ^.',\":()[]{}\\ or space, and use fewer than 255 characters. Please rename before sql node: ",
     "UnexpectedParam": "Unexpected single parameter",
     "MultiCreate": "Create table in multi-statement not supported",
-    "DuplicateParamNames": "Multiple possible parameters found in SQL. First match is used: "
+    "DuplicateParamNames": "Multiple possible parameters found in SQL. First match is used: ",
+    "NoInputColumn": "Cannot detect schema of input table. Please make sure SQL input is set"
 };
 
 TimeTStr = {

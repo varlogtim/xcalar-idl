@@ -23,35 +23,37 @@ class LogicalOptimizer {
         let opArray;
         let prepArray = [];
         let opGraph = new XcOpGraph();
-        try {
-            opArray = JSON.parse(queryString);
-            if (prependQueryString) {
-                prepArray = JSON.parse(prependQueryString);
+
+        opArray = JSON.parse(queryString);
+        if (opArray.length === 0) {
+            // Empty query edge case
+            const retStruct: SQLOptimizedStruct = {
+                optimizedQueryString: queryString,
+                aggregates: []
             }
-            // First traversal - build operator graph
-            // the queryString is in mix order of BFS & DFS :(
-            const opIdxMap = {};
-            for (let i = 0; i < opArray.length; i++) {
-                if (opArray[i].args.dest) {
-                    opIdxMap[opArray[i].args.dest] = i;
-                }
-                LogicalOptimizer.addAggSource(opArray[i]);
-            }
-            for (let i = 0; i < prepArray.length; i++) {
-                LogicalOptimizer.addAggSource(prepArray[i]);
-            }
-            let index = opArray.length - 1;
-            while (opArray[index].operation === "XcalarApiDeleteObjects") {
-                index -= 1;
-            }
-            opGraph.root = LogicalOptimizer.genOpGraph(opArray, index, opIdxMap,
-                                                                            {});
-        } catch (e) {
-            if (typeof OldSQLOpPanel !== "undefined") {
-                SQLUtil.throwError(e);
-            }
-            throw e;
+            return retStruct;
         }
+        if (prependQueryString) {
+            prepArray = JSON.parse(prependQueryString);
+        }
+        // First traversal - build operator graph
+        // the queryString is in mix order of BFS & DFS :(
+        const opIdxMap = {};
+        for (let i = 0; i < opArray.length; i++) {
+            if (opArray[i].args.dest) {
+                opIdxMap[opArray[i].args.dest] = i;
+            }
+            LogicalOptimizer.addAggSource(opArray[i]);
+        }
+        for (let i = 0; i < prepArray.length; i++) {
+            LogicalOptimizer.addAggSource(prepArray[i]);
+        }
+        let index = opArray.length - 1;
+        while (opArray[index].operation === "XcalarApiDeleteObjects") {
+            index -= 1;
+        }
+        opGraph.root = LogicalOptimizer.genOpGraph(opArray, index, opIdxMap, {});
+
         // Special case for parquet. This is optimizing the dataflow not sql
         // execution. So it only does this one optimization and then returns
         if (options["parquetPushDown"]) {

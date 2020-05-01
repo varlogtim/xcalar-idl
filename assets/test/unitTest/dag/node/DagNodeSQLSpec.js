@@ -184,7 +184,6 @@ describe("SQL Dag Node Test", () => {
                     expect(called).to.be.true;
                     expect(node.input.input.identifiersOrder).to.deep.equal([1])
                     expect(node.input.input.identifiers).to.deep.equal({1: "a"});
-                    UnitTest.hasAlertWithText("Test");
 
                     SQLUtil.sendToPlanner = cache;
                     done();
@@ -207,13 +206,9 @@ describe("SQL Dag Node Test", () => {
                     expect(called).to.be.true;
                     expect(node.input.input.identifiersOrder).to.deep.equal([1])
                     expect(node.input.input.identifiers).to.deep.equal({1: "a"});
-                     // XXX who knows why the alert message doesn't show up immediately
-                    setTimeout(() => {
 
-                        UnitTest.hasAlertWithText("cannot resolve '`test`' given input columns: [b.DEPTIME, b.DEPDELAY]; line 1 pos 7;");
-                        SQLUtil.sendToPlanner = cache;
-                        done();
-                    }, 2000);
+                    SQLUtil.sendToPlanner = cache;
+                    done();
                 })
             });
             it("should try to compile but fail when sending schema", (done) => {
@@ -247,7 +242,6 @@ describe("SQL Dag Node Test", () => {
                     expect(called2).to.be.true;
                     expect(node.input.input.identifiersOrder).to.deep.equal([1])
                     expect(node.input.input.identifiers).to.deep.equal({1: "a"});
-                    UnitTest.hasAlertWithText("Test");
 
                     SQLUtil.sendToPlanner = cache;
                     node.sendSchema = cache2;
@@ -304,13 +298,10 @@ describe("SQL Dag Node Test", () => {
                     expect(calledTwice).to.be.true;
                     expect(node.input.input.identifiersOrder).to.deep.equal([1])
                     expect(node.input.input.identifiers).to.deep.equal({1: "a"});
-                    setTimeout(() => {
-                        UnitTest.hasAlertWithText("Test");
 
-                        SQLUtil.sendToPlanner = cache;
-                        node.sendSchema = cache2;
-                        done();
-                    }, 2000);
+                    SQLUtil.sendToPlanner = cache;
+                    node.sendSchema = cache2;
+                    done();
                 });
             });
             it("should call SQLCompile and fail", (done) => {
@@ -365,14 +356,11 @@ describe("SQL Dag Node Test", () => {
                     expect(called3).to.be.true;
                     expect(node.input.input.identifiersOrder).to.deep.equal([1])
                     expect(node.input.input.identifiers).to.deep.equal({1: "a"});
-                    setTimeout(() => {
-                        UnitTest.hasAlertWithText("Test");
 
-                        SQLUtil.sendToPlanner = cache;
-                        node.sendSchema = cache2;
-                        SQLCompiler.compile = cache3;
-                        done();
-                    }, 2000);
+                    SQLUtil.sendToPlanner = cache;
+                    node.sendSchema = cache2;
+                    SQLCompiler.compile = cache3;
+                    done();
                 });
             });
             it("should call SQLCompile and succeed", (done) => {
@@ -595,16 +583,13 @@ describe("SQL Dag Node Test", () => {
             node = new DagNodeSQL({});
             node.getParents = () => [new DagNodeFilter({})];
         });
-        it("should finalize table", (done) => {
+        it("should fail finalize empty table", (done) => {
             node._finalizeTable(1)
             .then((ret) => {
-                expect(ret.schema.length).to.equal(0);
-                expect(ret.finalizedTableName.length).to.be.gt(10);
-                expect(ret.finalizedTableName).to.equal(ret.srcTableName);
-                done();
+                done("fail");
             })
             .fail(() => {
-                done("fail")
+                done()
             });
         });
     });
