@@ -30,6 +30,7 @@ function hackFunction() {
         show: function() {},
         error: function() {},
         forceClose: function() {},
+        isOpen: function() { return true }
     };
 
     global.SQLHistorySpace = {
