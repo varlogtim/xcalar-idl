@@ -998,7 +998,7 @@ class DagViewManager {
             .fail(function(err) {
                 Alert.show({
                     title: "Inspect SQL Error",
-                    msg: "Error details: " + JSON.stringify(err),
+                    msg: "Error details: " + xcHelper.parseError(err),
                     isAlert: true
                 });
             });
@@ -1013,7 +1013,7 @@ class DagViewManager {
             .fail(function(err) {
                 Alert.show({
                     title: "Expand SQL Error",
-                    msg: "Error details: " + JSON.stringify(err),
+                    msg: "Error details: " + xcHelper.parseError(err),
                     isAlert: true
                 });
             });

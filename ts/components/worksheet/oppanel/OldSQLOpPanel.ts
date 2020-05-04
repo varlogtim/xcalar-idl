@@ -461,7 +461,7 @@ class OldSQLOpPanel extends BaseOpPanel {
             .fail(function(err) {
                 Alert.show({
                     title: SQLErrTStr.Err,
-                    msg: "Error details: " + JSON.stringify(err),
+                    msg: "Error details: " + xcHelper.parseError(err),
                     isAlert: true
                 });
                 self._dagNode.beErrorState();

@@ -50,7 +50,9 @@ namespace xcHelper {
      */
     export function parseError(error: object | string): string {
         let errorInStr: string;
-        if (typeof error === 'object') {
+        if (!error) {
+            error = ErrTStr.Unknown;
+        } else if (typeof error === 'object') {
             errorInStr = JSON.stringify(error);
         } else {
             errorInStr = error;
