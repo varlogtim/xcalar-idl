@@ -164,6 +164,9 @@ describe("SQLOpPanel Test", function() {
             }
             editor.setValue(JSON.stringify(struct, null, 4));
             $("#oldSqlOpPanel .bottomSection .btn-submit").click();
+            if ($("#alertModal").is(":visible")) {
+                console.log($("#alertModal").text().trim());
+            }
             expect($("#alertModal").is(":visible")).to.be.false;
 
             node.compileSQL = () => {

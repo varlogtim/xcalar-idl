@@ -144,7 +144,7 @@ class SQLTabManager extends AbstractTabManager {
             SQLSnippet.Instance.rename(id, newName);
             this._save();
             this._updateList();
-            SQLOpPanel.Instance.updateSnippet(id);
+            SQLOpPanel.Instance.updateSnippet(id, newName);
         }
         return this._getAppPath(snippetObj);
     }

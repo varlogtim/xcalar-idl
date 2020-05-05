@@ -4393,7 +4393,7 @@ class DagView {
         let fullTableName: string = node.getTable() || "";
         let tableName: string;
         if (fullTableName.length > 14) {
-            tableName = fullTableName.slice(0, 14) + "...";
+            tableName = fullTableName.slice(0, 7) + "..." + fullTableName.slice(-7);
         } else {
             tableName = fullTableName;
         }

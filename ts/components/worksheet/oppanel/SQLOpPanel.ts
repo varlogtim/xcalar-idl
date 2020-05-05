@@ -95,12 +95,16 @@ class SQLOpPanel extends BaseOpPanel {
 
     private _setupQuerySelector(): void {
         const $list = this.$panel.find(".snippetsList");
+        let preventOpen = false;
 
         const menuHelper = new MenuHelper($list, {
             "fixedPosition": {
                 selector: "input"
             },
             "onOpen": function() {
+                if (preventOpen) {
+                    return;// when triggered by autocomplete
+                }
                 const snippets = SQLSnippet.Instance.list();
                 let html = "";
                 html += `<li class="createNew">+ Create a new query</li>`;
@@ -139,6 +143,80 @@ class SQLOpPanel extends BaseOpPanel {
             }
         });
         menuHelper.setupListeners();
+
+        const $input = $list.find("input");
+        let timer;
+        $input.on("input", () => {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                const value: string = $input.val().trim().toLowerCase();
+                const snippets = SQLSnippet.Instance.list();
+                let html = "";
+                // html += `<li class="createNew">+ Create a new query</li>`;
+                snippets.forEach((snippet) => {
+                    if (value === "" || snippet.name.toLowerCase().includes(value)) {
+                        html += `<li data-id="${snippet.id}">${snippet.name}</li>`;
+                    }
+                });
+                let $lis = $(html);
+                $lis = $lis.sort((a, b) => {
+                    return ($(b).text()) < ($(a).text()) ? 1 : -1;
+                });
+
+                const $ul = $input.siblings(".list").find("ul");
+                $ul.empty().append($lis);
+
+                for (let i = $lis.length; i >= 0; i--) {
+                    const $li = $lis.eq(i);
+                    if ($li.text().startsWith(value)) {
+                        $ul.prepend($li);
+                    }
+                }
+
+                menuHelper.hideDropdowns();
+                preventOpen = true;
+                menuHelper.toggleList($list);
+                preventOpen = false;
+            }, 100);
+        });
+
+        $input.on("change", () => {
+            const snippets = SQLSnippet.Instance.list();
+            let value = $input.val().trim();
+            let snippet: SQLSnippetDurable;
+            let snippetId = null;
+            for (let i = 0; i < snippets.length; i++) {
+                let candidate = snippets[i];
+                if (candidate.name === value) {
+                    snippet = candidate;
+                    break;
+                }
+            }
+            if (snippet) {
+                snippetId = snippet.id;
+                SQLTabManager.Instance.openTab(snippetId);
+                this._selectQuery(snippetId, null, true);
+                this._$elemPanel.removeClass("snippetNotFound");
+            } else {
+                this._snippetIdNotFound = true;
+                this._queryStr = "";
+                $input.data("id", null);
+                this.$panel.find(".editorWrapper").text("");
+                this._identifiers = [];
+                this.updateIdentifiersList();
+                this._$elemPanel.addClass("snippetNotFound");
+            }
+
+            this._isQueryUpdated = true;
+            if (this._$elemPanel.hasClass("queryNotUpdated") && !this._snippetIdNotFound) {
+                this._$elemPanel.find(".snippetUpdated").fadeIn(800, () => {
+                    setTimeout(() => {
+                        this._$elemPanel.find(".snippetUpdated").fadeOut(800);
+                    }, 2000);
+                });
+            }
+            this._$elemPanel.removeClass("queryNotUpdated");
+        });
     }
 
     private _selectQuery(snippetId: string, queryStr?: string, forceUpdate?: boolean): SQLSnippetDurable {
@@ -268,7 +346,7 @@ class SQLOpPanel extends BaseOpPanel {
                 self._sqlTables[key] = value;
             }
         });
-        self._$elemPanel.find(".refreshSnippet").on("click", () => {
+        self._$elemPanel.on("click", ".refreshSnippet", () => {
             this._isQueryUpdated = true;
             this._$elemPanel.removeClass("queryNotUpdated");
             const snippetId = this.$panel.find(".snippetsList input").data("id");
@@ -291,9 +369,25 @@ class SQLOpPanel extends BaseOpPanel {
         $ul.html(content).css({top: topOff + "px"});
     }
 
-    public updateSnippet(snippetId) {
-        if (!this.hasActiveSnippet(snippetId)) {
-            return;
+    public updateSnippet(snippetId: string, name?: string) {
+        if (!this._hasActiveSnippet(snippetId)) {
+            if (this.isOpen() && name && this.$panel.find(".snippetsList").find("input").val().trim() === name) {
+                this.$panel.find(".snippetsList").find("input").data("id", snippetId);
+                this._isQueryUpdated = true;
+                this._snippetIdNotFound = false;
+                if (this._$elemPanel.hasClass("queryNotUpdated") ||
+                    this._$elemPanel.hasClass("snippetNotFound")) {
+                    this._$elemPanel.find(".snippetUpdated").fadeIn(800, () => {
+                        setTimeout(() => {
+                            this._$elemPanel.find(".snippetUpdated").fadeOut(800);
+                        }, 2000);
+                    });
+                }
+                this._$elemPanel.removeClass("queryNotUpdated");
+                this._$elemPanel.removeClass("snippetNotFound");
+            } else {
+                return;
+            }
         }
         if (!this._isQueryUpdated) {
             return;
@@ -302,7 +396,7 @@ class SQLOpPanel extends BaseOpPanel {
     }
 
 
-    public hasActiveSnippet(snippetId) {
+    private _hasActiveSnippet(snippetId) {
         return (this.isOpen() &&
         this.$panel.find(".snippetsList input").data("id") === snippetId);
     }
