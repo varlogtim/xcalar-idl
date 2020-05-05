@@ -243,9 +243,8 @@ abstract class AbstractMenu {
             } else {
                 // sql string may not exist so we just create a published
                 // table node as the start point
-                if (DagTabManager.Instance.getNumTabs() === 0) {
-                    DagTabManager.Instance.newTab();
-                }
+                DagTabManager.Instance.newTab();
+
                 const input = {
                     "source": xcHelper.getTableName(tableName),
                     "schema": table.getAllCols(true).map((progCol) => {
