@@ -4,6 +4,10 @@ describe("xcHelper Test", function() {
         expect(xcHelper.parseError(obj)).to.equal(JSON.stringify(obj));
         // case 2
         expect(xcHelper.parseError("test")).to.equal("test");
+        // case 3
+        expect(xcHelper.parseError(null)).to.equal(ErrTStr.Unknown);
+        // case 4
+        expect(xcHelper.parseError(new Error("test"))).to.equal("test");
     });
 
     it("xcHelper.parseJsonValue should work", function() {

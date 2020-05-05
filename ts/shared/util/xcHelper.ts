@@ -49,15 +49,22 @@ namespace xcHelper {
      * @param error
      */
     export function parseError(error: object | string): string {
-        let errorInStr: string;
-        if (!error) {
-            error = ErrTStr.Unknown;
-        } else if (typeof error === 'object') {
-            errorInStr = JSON.stringify(error);
-        } else {
-            errorInStr = error;
+        let errorStr: string;
+        try {
+            if (!error) {
+                errorStr = ErrTStr.Unknown;
+            } else if (error instanceof Error) {
+                errorStr = error.message;
+            } else if (typeof error === 'object') {
+                errorStr = JSON.stringify(error);
+            } else {
+                errorStr = error;
+            }
+        } catch (e) {
+            console.error("parse error message failed", e);
+            errorStr = JSON.stringify(error);
         }
-        return errorInStr;
+        return errorStr;
     }
 
     /**
