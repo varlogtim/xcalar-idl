@@ -76,7 +76,7 @@ function ShortCutRow(props) {
             {keys.map((element, i) => {
                 let letters;
                 if (name === "Toggle Comment") {
-                    letters = ["Cmd", "-"];
+                    letters = ["Ctrl", "-"];
                 } else {
                     letters = element.split("-");
                 }

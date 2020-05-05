@@ -20,6 +20,10 @@
             <i class="icon xi-play-outline"></i>
             <span class="label"><%= dicts.dag.execute %></span>
         </li>
+        <li class="reexecuteNode" data-action="reexecuteNode">
+          <i class="icon xi-play-outline"></i>
+          <span class="label">Re-execute</span>
+      </li>
         <li class="executeAllNodes" data-action="executeAllNodes">
             <i class="icon xi-play-outline"></i>
             <span class="label"><%= dicts.dag.executeAll %></span>
@@ -41,13 +45,9 @@
             <i class="icon xi-error"></i>
             <span class="label"><%= dicts.dag.viewUDFErrors %></span>
         </li>
-        <li class="resetNode" data-action="resetNode">
+        <li class="deleteAllTables" data-action="deleteAllTables">
             <i class="icon xi-reset"></i>
-            <span class="label"><%= dicts.dag.reset %></span>
-        </li>
-        <li class="resetAllNodes" data-action="resetAllNodes">
-            <i class="icon xi-reset"></i>
-            <span class="label"><%= dicts.dag.resetAll %></span>
+            <span class="label">Delete All Tables</span>
         </li>
         <li class="copyNodes" data-action="copyNodes">
             <i class="icon xi-copy"></i>
@@ -79,7 +79,7 @@
         </li>
         <li class="viewSchema" data-action="viewSchema">
             <i class="icon xi-viewschema"></i>
-            <span class="label"><%= dicts.dag.viewSchema %></span>
+            <span class="label"><%= dicts.dag.viewSchemaChanges %></span>
         </li>
         <li class="createCustom" data-action="createCustom">
             <i class="icon xi-custom"></i>

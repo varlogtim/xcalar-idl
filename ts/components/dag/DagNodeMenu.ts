@@ -292,8 +292,14 @@ namespace DagNodeMenu {
                     DagViewManager.Instance.reset(dagNodeIds, options.bypassAlert,
                                                   action === "deleteTable");
                     break;
-                case ("resetAllNodes"):
-                    DagViewManager.Instance.reset(null, options.bypassAlert);
+                case ("deleteAllTables"):
+                    DagViewManager.Instance.reset(null, options.bypassAlert, true);
+                    break;
+                case ("reexecuteNode"):
+                    DagViewManager.Instance.reset(dagNodeIds, true)
+                    .then(() => {
+                        DagViewManager.Instance.run(dagNodeIds);
+                    });
                     break;
                 case ("configureNode"):
                     configureNode(_getNodeFromId(dagNodeIds[0]), options);
@@ -411,7 +417,8 @@ namespace DagNodeMenu {
                 case ("removeAllNodes"):
                 case ("removeInConnection"):
                 case ("resetNode"):
-                case ("resetAllNodes"):
+                case ("deleteAllTables"):
+                case ("reexecuteNode"):
                 case ("deleteTable"):
                 case ("configureNode"):
                     const nodesToCheck = nodeIds.filter((nodeId) => {
@@ -699,7 +706,7 @@ namespace DagNodeMenu {
 
         if (!DagViewManager.Instance.getAllNodes().length) {
             classes += " none ";
-            $menu.find(".removeAllNodes, .resetAllNodes, .executeAllNodes, .selectAllNodes, .autoAlign")
+            $menu.find(".removeAllNodes, .deleteAllTables, .executeAllNodes, .selectAllNodes, .autoAlign")
             .addClass("unavailable");
         }
         if ($dfArea.find(".comment").length) {
@@ -714,6 +721,7 @@ namespace DagNodeMenu {
                 classes += extraClasses + " ";
             } else {
                 classes += " multiple ";
+                $menu.find(".reexecuteNode").addClass("xc-hidden");
             }
         } else {
             classes += " backgroundMenu ";
@@ -745,8 +753,17 @@ namespace DagNodeMenu {
             $menu.find(".executeNode, .executeAllNodes").addClass("xc-hidden");
             $menu.find(".executeNodeOptimized, .executeAllNodesOptimized").removeClass("xc-hidden");
         } else {
+
             $menu.find(".executeNode, .executeAllNodes").removeClass("xc-hidden");
             $menu.find(".executeNodeOptimized, .executeAllNodesOptimized").addClass("xc-hidden");
+            if (nodeIds.length === 1) {
+                const dagGraph: DagGraph = DagViewManager.Instance.getActiveDag();
+                const dagNode: DagNode = dagGraph.getNode(nodeId);
+                const state: DagNodeState = (dagNode != null) ? dagNode.getState() : null;
+                if (state === DagNodeState.Complete) {
+                    $menu.find(".executeNode").addClass("xc-hidden");
+                }
+            }
         }
 
         if (DagViewManager.Instance.hasOptimizableNode(optNodeIds)) {
@@ -789,7 +806,6 @@ namespace DagNodeMenu {
         const dagGraph: DagGraph = DagViewManager.Instance.getActiveDag();
         const dagNode: DagNode = dagGraph.getNode(nodeId);
         const state: DagNodeState = (dagNode != null) ? dagNode.getState() : null;
-        // const $node: JQuery = DagViewManager.Instance.getNode(dagNode.getId());
         let classes = "";
 
         // display viewResults or generateResult
@@ -800,25 +816,19 @@ namespace DagNodeMenu {
             const dagTab: DagTab = DagViewManager.Instance.getActiveTab();
             if (dagTab instanceof DagTabSQLExecute && dagNode.getChildren().length > 0) {
                 // when it's SQL graph and is not the last node
-                $menu.find(".viewResult").addClass("xc-hidden");
-                $menu.find(".generateResult").addClass("xc-hidden");
-                $menu.find(".viewSkew").addClass("xc-hidden");
+                $menu.find(".viewResult, .generateResult, .viewSkew").addClass("xc-hidden");
             } else if (table != null && DagTblManager.Instance.hasTable(table)) {
                 $menu.find(".generateResult").addClass("xc-hidden");
-                $menu.find(".viewResult").removeClass("xc-hidden");
-                $menu.find(".viewResult").removeClass("unavailable");
+                $menu.find(".viewResult").removeClass("xc-hidden unavailable");
                 $menu.find(".viewSkew").removeClass("xc-hidden");
             } else {
-                $menu.find(".viewResult").addClass("xc-hidden");
-                $menu.find(".generateResult").removeClass("xc-hidden");
-                $menu.find(".generateResult").removeClass("unavailable");
-                $menu.find(".viewSkew").addClass("xc-hidden");
+                $menu.find(".viewResult, .viewSkew").addClass("xc-hidden");
+                $menu.find(".generateResult").removeClass("xc-hidden unavailable");
             }
         } else {
-            $menu.find(".viewResult").addClass("xc-hidden");
+            $menu.find(".viewResult, .viewSkew").addClass("xc-hidden");
             $menu.find(".generateResult").removeClass("xc-hidden");
             $menu.find(".generateResult").addClass("unavailable");
-            $menu.find(".viewSkew").addClass("xc-hidden");
         }
         // show skew option
         let $statsTip = $dfArea.find('.runStats[data-id="' + dagNode.getId() + '"]');
@@ -851,7 +861,6 @@ namespace DagNodeMenu {
         } else {
             $menu.find(".viewUDFErrors").addClass("xc-hidden");
         }
-
 
         // view description
         if (dagNode != null && dagNode.getDescription()) {
@@ -920,40 +929,37 @@ namespace DagNodeMenu {
             state === DagNodeState.Complete &&
             dagNode.getTable() != null && DagTblManager.Instance.hasLock(dagNode.getTable())
         ) {
-            $menu.find(".lockNodeTable").addClass("unavailable");
-            $menu.find(".lockNodeTable").addClass("xc-hidden");
-            $menu.find(".unlockNodeTable").removeClass("unavailable");
-            $menu.find(".unlockNodeTable").removeClass("xc-hidden");
-        }
-        else if ( dagNode != null &&
+            $menu.find(".lockNodeTable").addClass("unavailable xc-hidden");
+            $menu.find(".unlockNodeTable").removeClass("unavailable xc-hidden");
+        } else if (dagNode != null &&
             state === DagNodeState.Complete &&
             dagNode.getTable() != null &&
             DagTblManager.Instance.hasTable(dagNode.getTable())
         ) {
-            $menu.find(".unlockNodeTable").addClass("unavailable");
-            $menu.find(".unlockNodeTable").addClass("xc-hidden");
-            $menu.find(".lockNodeTable").removeClass("unavailable");
-            $menu.find(".lockNodeTable").removeClass("xc-hidden");
+            $menu.find(".unlockNodeTable, .lockNodeTable").addClass("unavailable xc-hidden");
         } else {
-            $menu.find(".lockNodeTable").addClass("unavailable");
-            $menu.find(".lockNodeTable").addClass("xc-hidden");
-            $menu.find(".unlockNodeTable").addClass("unavailable");
-            $menu.find(".unlockNodeTable").addClass("xc-hidden");
+            $menu.find(".lockNodeTable, .unlockNodeTable").addClass("unavailable xc-hidden");
         }
+
 
         if (state === DagNodeState.Configured || state === DagNodeState.Error) {
             $menu.find(".executeNode, .executeNodeOptimized, .generateResult").removeClass("unavailable");
+            $menu.find(".reexecuteNode").addClass("xc-hidden");
         } else {
             $menu.find(".executeNode, .executeNodeOptimized").addClass("unavailable");
         }
         if (state === DagNodeState.Complete) {
-            $menu.find(".resetNode, .deleteTable").removeClass("unavailable");
+            $menu.find(".resetNode, .deleteTable, .reexecuteNode").removeClass("unavailable");
+            $menu.find(".reexecuteNode").removeClass("xc-hidden");
+            $menu.find(".executeNode").addClass("xc-hidden");
         } else {
             if (dagNode instanceof DagNodeOutOptimizable && (state === DagNodeState.Configured ||
                 state === DagNodeState.Error)) {
-                $menu.find(".resetNode, .deleteTable").removeClass("unavailable");
+                $menu.find(".resetNode, .deleteTable, .reexecuteNode").removeClass("unavailable");
             } else {
                 $menu.find(".resetNode, .deleteTable").addClass("unavailable");
+                $menu.find(".reexecuteNode").addClass("xc-hidden");
+                $menu.find(".executeNode").removeClass("xc-hidden");
             }
         }
         if (dagNodeType === DagNodeType.Custom) {
@@ -990,7 +996,7 @@ namespace DagNodeMenu {
     function adjustMenuForOpenForm($menu: JQuery, enableConfig?: boolean) {
         let $lis: JQuery = $menu.find(".executeNode, .executeAllNodes, " +
                         ".executeNodeOptimized, .createNodeOptimized," +
-                        ".resetNode, .resetAllNodes, .deleteTable, .cutNodes, " +
+                        ".resetNode, .deleteAllTables, .deleteTable, .cutNodes, " +
                         ".createCustom, .removeNode, .removeAllNodes");
         xcTooltip.remove($lis.add($menu.find(".configureNode")));
 

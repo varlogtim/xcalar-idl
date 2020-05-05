@@ -2021,19 +2021,25 @@ class DagView {
      * @param nodeIds
      * if no nodeIds passed, will reset all
      */
-    public reset(nodeIds?: DagNodeId[], bypassAlert?: boolean, tableMsg?: boolean): void {
+    public reset(nodeIds?: DagNodeId[], bypassAlert?: boolean, tableMsg?: boolean): XDPromise<void> {
         if (bypassAlert) {
             this.dagTab.turnOffSave();
             this.graph.reset(nodeIds);
             this.dagTab.turnOnSave();
             this.dagTab.save();
-            return;
+            return PromiseHelper.resolve();
         }
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let msg: string = nodeIds ? DagTStr.ResetMsg : DagTStr.ResetAllMsg;
         let title: string = DagTStr.Reset;
         if (tableMsg) {
-            msg = DagTStr.DeleteTableMsg;
-            title = DagTStr.DeleteTable;
+            if (!nodeIds) {
+                msg = DagTStr.DeleteTablesMsg;
+                title = DagTStr.DeleteTables;
+            } else {
+                msg = DagTStr.DeleteTableMsg;
+                title = DagTStr.DeleteTable;
+            }
         }
         Alert.show({
             title: title,
@@ -2043,8 +2049,13 @@ class DagView {
                 this.graph.reset(nodeIds);
                 this.dagTab.turnOnSave();
                 this.dagTab.save();
+                deferred.resolve();
+            },
+            onCancel: () => {
+                deferred.reject();
             }
         });
+        return deferred.promise();
     }
 
      /**

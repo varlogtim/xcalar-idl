@@ -225,7 +225,7 @@ describe("DagSchemaPopup Test", function() {
         it("should have correct rows", function() {
             dagSchemaPopup = new DagSchemaPopup(groupByNodeId, tabId);
             $popup = $(".dagSchemaPopup");
-            expect($popup.find("li").length).to.equal(4);
+            expect($popup.find("li").length).to.equal(3);
 
             expect($popup.find("li").eq(0).attr("class")).to.equal("changeType-remove");
             expect($popup.find("li").eq(0).text()).to.equal("-moneyclass_id");
@@ -235,8 +235,6 @@ describe("DagSchemaPopup Test", function() {
 
             expect($popup.find("li").eq(2).attr("class")).to.equal("changeType-add");
             expect($popup.find("li").eq(2).text()).to.equal("+integergbCol");
-            expect($popup.find("li").eq(3).attr("class")).to.equal("");
-            expect($popup.find("li").eq(3).text()).to.equal("booleanmapCol");
             dagSchemaPopup.remove();
         });
 
@@ -257,7 +255,7 @@ describe("DagSchemaPopup Test", function() {
             dagSchemaPopup = new DagSchemaPopup(filterNodeId, tabId);
             $popup = $(".dagSchemaPopup");
             expect($popup.find("li").length).to.equal(0);
-            expect($popup.find(".content").text()).to.equal("No fields present");
+            expect($popup.find(".content").text()).to.equal("No Changes Detected");
             dagSchemaPopup.remove();
         });
     });
@@ -319,21 +317,6 @@ describe("DagSchemaPopup Test", function() {
             expect($dfArea.find(".lineageTip").eq(0).text()).to.equal("Removed");
             nodeRect = $dfArea.find(".operator.groupBy")[0].getBoundingClientRect();
             tipRect = $dfArea.find(".lineageTip")[0].getBoundingClientRect();
-            expect(tipRect.left - nodeRect.left).to.be.gt(20);
-            expect(tipRect.left - nodeRect.left).to.be.lt(40);
-            expect(tipRect.top - nodeRect.top).to.be.gt(-30);
-            expect(tipRect.top - nodeRect.top).to.be.lt(-10);
-        });
-
-        it("should show created tooltip on map node", function() {
-            $popup.find("li").eq(3).trigger(fakeEvent.mouseup);
-            expect($dfArea.find(".lineageTip").length).to.equal(1);
-            expect($dfArea.find(".edge.lineageSelected").length).to.equal(1);
-            expect($dfArea.find(".operator.lineageSelected").length).to.equal(2);
-
-            expect($dfArea.find(".lineageTip").eq(0).text()).to.equal("Created");
-            let nodeRect = $dfArea.find('.operator.map[data-subtype=""]')[0].getBoundingClientRect();
-            let tipRect = $dfArea.find(".lineageTip")[0].getBoundingClientRect();
             expect(tipRect.left - nodeRect.left).to.be.gt(20);
             expect(tipRect.left - nodeRect.left).to.be.lt(40);
             expect(tipRect.top - nodeRect.top).to.be.gt(-30);

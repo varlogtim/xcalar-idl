@@ -246,7 +246,9 @@ class DagSchemaPopup {
         html += adds.html;
         html += replaces.html;
 
-        numCols += this._tableColumns.length;
+        if (this._fromTable) {
+            numCols += this._tableColumns.length;
+        }
 
         // list columns that have no change (have not been seen)
 
@@ -255,7 +257,9 @@ class DagSchemaPopup {
                 return;
             }
             seenColumns.add(progCol.getBackColName());
-            html += this._liTemplate(progCol, "", "");
+            if (this._fromTable) {
+                html += this._liTemplate(progCol, "", "");
+            }
         });
 
         hiddenColumns.forEach((progCol, colName) => {
@@ -269,7 +273,11 @@ class DagSchemaPopup {
         html += hides.html; // show hidden columns after kept columns
 
         if (!numCols) {
-            html += '<span class="noFields">' + DFTStr.NoFields + '</span>';
+            if (this._fromTable) {
+                html += '<span class="noFields">' + DFTStr.NoFields + '</span>';
+            } else {
+                html += '<span class="noFields">' + 'No Changes Detected' + '</span>';
+            }
         }
         html += "</ul>";
 
@@ -384,10 +392,14 @@ class DagSchemaPopup {
     }
 
     private _getHtml() {
+        let changes = "";
+        if (!this._fromTable) {
+            changes = " changes";
+        }
         let html = `<div class="dagSchemaPopup modalContainer noBackground fromTable-${this._fromTable}">
             <div id="dagSchemaPopupTitle-${this._nodeId}" class="header modalHeader">
                 <div class="title">
-                    <span class="tableName text">Schema: ${this._dagNode.getTitle()}</span>
+                    <span class="tableName text">Schema${changes}: ${this._dagNode.getTitle()}</span>
                 </div>
                 <div class="pinArea">
                     <i class="icon xi-unpinned" data-container="body" data-placement="top auto"

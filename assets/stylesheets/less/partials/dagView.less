@@ -1443,6 +1443,14 @@
     }
 
     &.viewOnly {
+        .editSQLGraph {
+            display: none;
+        }
+        &.sqlExecute {
+            .editSQLGraph {
+                display: block;
+            }
+        }
         .viewOnly {
             display: flex;
         }
@@ -1606,7 +1614,7 @@
 
     &.operatorMenu {
         .removeNode, .copyNodes, .cutNodes, .executeNode, .resetNode, .executeNodeOptimized,
-        .viewOptimizedDataflow, .deleteTable,
+        .viewOptimizedDataflow, .deleteTable, .reexecuteNode,
         .description, .configureNode, .viewResult, .generateResult, .viewSchema, .viewOptions, .customNodeOptions, .autoAlign,
         .unlockNodeTable, .lockNodeTable, .createCustom, .selectAllNodes, .viewUDFErrors, .viewSkew, .addOperation {
             display: list-item;
@@ -1711,7 +1719,7 @@
     }
     &.backgroundMenu {
         .removeAllNodes, .executeAllNodes, .createNodeOptimized,
-        .resetAllNodes, .selectAllNodes, .pasteNodes,
+        .deleteAllTables, .selectAllNodes, .pasteNodes,
         .autoAlign, .newComment, .download, .duplicateDf,
         .restoreAllSource {
             display: list-item;
@@ -2506,6 +2514,7 @@
             display: block;
         }
     }
+
     .ui-icon-gripsmall-diagonal-se {
         visibility: hidden;
     }
@@ -2607,8 +2616,8 @@
         }
     }
     .type {
-        min-width: 96px;
-        max-width: 96px;
+        min-width: 106px;
+        max-width: 106px;
         padding-right: 4px;
     }
     .field {

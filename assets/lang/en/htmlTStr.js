@@ -1352,6 +1352,7 @@ module.exports = {
         "cut": "Cut",
         "paste": "Paste",
         "viewSchema": "View Schema",
+        "viewSchemaChanges": "View Schema Changes",
         "viewSkew": "View Cluster Distribution",
         "schema": "Schema",
         "createCustomNode": "Create Custom Operator",
