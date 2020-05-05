@@ -206,6 +206,13 @@ namespace XVM {
     }
 
     /**
+     * XVM.getGitVersion
+     */
+    export function getGitVersion(): string {
+        return (typeof gGitVersion !== "undefined") ? gGitVersion : "01234567";
+    }
+
+    /**
      * Get Patch Version
      */
     export function getPatchVersion(): string {

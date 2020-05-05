@@ -499,7 +499,7 @@ declare var gAppSuffix: string;
 declare var gShowSQLDF: boolean;
 
 declare var gBuildNumber: number;
-declare var gGitVersion: number;
+declare var gGitVersion: string;
 declare var XcalarApisTStr: object;
 declare var StatusTStr: { [key: string]: string };
 declare var xcLocalStorage: XcStorage;

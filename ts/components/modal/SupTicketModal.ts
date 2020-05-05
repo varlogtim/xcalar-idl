@@ -678,7 +678,7 @@ class SupTicketModal {
             "sessionName": WorkbookManager.getActiveWKBK(),
             "version": {
                 "backendVersion": XVM.getBackendVersion(),
-                "frontendVersion": gGitVersion,
+                "frontendVersion": XVM.getGitVersion(),
                 "thriftVersion": XVM.getSHA()
             }
         };

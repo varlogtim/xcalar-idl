@@ -29,31 +29,11 @@ tags
 
 # assets/
 /assets/stylesheets/**/*.css
-/assets/customerPortal/*.css
-/assets/customerPortal/_table_render.html
-/assets/customerPortal/_error_license.html
-/assets/js/setup/constructorVersion.js
-/assets/js/constructor/E_persConstructor.js
 /assets/dev/!shortCutStyles.css
 /assets/dev/unitTest/coverage/coverage.js
 /assets/dev/unitTest/coverage/coverage.json
 /assets/dev/e2eTest/tests_output/*
 !/assets/dev/e2eTest/workbooks/*
-/assets/htmlFiles/*
-/assets/help/xd/Content/SearchInsight.htm
-/assets/js/constructor/B_constructorDefine.js
-/assets/js/constructor/DA_persConstructorV1.js
-/assets/js/constructor/DB_persConstructorV2.js
-/assets/js/constructor/E_persConstructor.js
-/assets/js/constructor/README
-/assets/help/user
-/assets/js/shared/
-/assets/js/components/
-/assets/js/external/
-/assets/js/installer/
-/assets/js/login/
-/assets/js/sdk/
-/assets/js/thrift/
 /assets/js/*.js
 /assets/js/*.js.map
 

@@ -39,7 +39,6 @@
                 html     any html file in project src (+ htmlTStr.js files)
                 js       any js src file
                 ts       any ts src file
-                ctor     changes in site/render/template/constructor.template.js
                 all      any of the valid file types in src or bld
 
             ex.: grunt watch --less --css
@@ -141,7 +140,6 @@ var WATCH = 'watch';
 var WATCH_FLAG_ALL = "all";
 var WATCH_TARGET_HTML = "html";
 var WATCH_TARGET_CSS = "css";
-var WATCH_TARGET_CTOR = 'ctor';
 var WATCH_TARGET_LESS = "less";
 var WATCH_TARGET_TYPESCRIPT = "ts";
 var WATCH_TARGET_JS = "js";
@@ -159,7 +157,6 @@ var WATCH_FILETYPES = {
     [WATCH_TARGET_LESS]: '',
     [WATCH_TARGET_TYPESCRIPT]: "",
     [WATCH_TARGET_JS]: '',
-    [WATCH_TARGET_CTOR]: '',
     [WATCH_TARGET_REACT]: '',
 };
 
@@ -173,14 +170,6 @@ var USE_TS_WATCH_STAGING=false; // way to limit tsc build during watch task runs
 //         can be used.
 // exclude: files / dirs to copy, but skip build
 // required: files / dirs to copy, use during build, and delete on completion
-
-var constructorMapping = {
-    src: 'assets/js/constructor/xcalar-idl/xd/',
-    files: '*',
-    dest: 'assets/js/constructor/',
-    exclude: [],
-    remove: ['**README'], // Otherwise we'll have empty dirs with only READMEs
-    required: ['site/render/']};
 var cssMapping = {
     src: 'assets/stylesheets/less/',
     files: '*.less',
@@ -259,10 +248,6 @@ var CLIENT_ID = 'XCE_CLOUD_CLIENT_ID';
 
 // delimeter user should use for cli options that can take lists
 var OPTIONS_DELIM = ",";
-
-// the name of the constructor template file
-var CONSTRUCTOR_TEMPLATE_FILE = 'constructor.template.js';
-var CONSTRUCTOR_TEMPLATE_FILE_PATH_REL_BLD = 'site/render/template/' + CONSTRUCTOR_TEMPLATE_FILE;
 
 // Used to track which file types cause a reload. Also used in watch events
 // This struct is populated by getReloadTypes() during init
@@ -402,8 +387,6 @@ var VALID_OPTIONS = {
     [WATCH_TARGET_JS]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in javascript files in project source @ " + jsMapping.src},
     //[WATCH_TARGET_JS_BLD]: {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in },
-    [WATCH_TARGET_CTOR]:
-        {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in " + CONSTRUCTOR_TEMPLATE_FILE_PATH_REL_BLD + " and re-gen constructor file(s) as result"},
     [WATCH_TARGET_REACT]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in the project souce @ " + reactMapping.src + " as a result of any changes"},
     [WATCH_FLAG_INITIAL_BUILD_CSS]:
@@ -845,7 +828,6 @@ var DONT_RSYNC = [
         'assets/xu/themes/simple/css/xu.css',
         'assets/help/XD/Content/B_CommonTasks/A_ManageDatasetRef.htm',
         'assets/video/demoVid*',  // removes some ancient video files, no longer used
-        'assets/js/constructor/README',
         'assets/unused',
         'assets/misc',
         UNIT_TEST_FOLDER, // will just put symlink to this in dev blds
@@ -2169,7 +2151,12 @@ module.exports = function(grunt) {
         grunt.task.run("browserify_package"); // keep after build js because it builds from js files;
             // relying on xd js files(jsSDK)
         grunt.task.run("build_html");
-        grunt.task.run("constructor_files");
+        // only to show info about the bld to users.
+        // devs don't need in their build, and if you auto-gen it, it will
+        // cause it to show up in their 'git status', so skip for dev blds
+        if (BLDTYPE != DEV && !isWatchEventProcessing()) {
+            grunt.task.run("generate_git_var_dec_file");
+        }
         // Generate TS definition for jsTStr.js in dev build
         if (BLDTYPE === DEV) {
             grunt.task.run("generate_tsdef");
@@ -2185,7 +2172,6 @@ module.exports = function(grunt) {
 
         Rsyncs in src code,
         Generates bld HTML and CSS from it,
-        configures dirs for help content, constructor files for durable structs,
         and updates essential JS files to ensure  proper product name displayed in GUI
 
         (These tasks are independent and aside from rsync which must come first,
@@ -2480,27 +2466,8 @@ module.exports = function(grunt) {
 
     }
 
-                                                                    // ======== CONSTRUCTOR FILES ======= //
-
     /**
-        Generate any of the auto-generated constructor files for the build.
-
-        [[constructor file contains a series of constructors,
-        which use direct inheritance infrastructure to represent XD metadata]]
-    */
-    grunt.task.registerTask("constructor_files", "Generate additional js constructor file(s) for the build", function() {
-        grunt.log.debug("Schedule tasks to Autogen constructor files");
-
-        // next constructor file is only to show info about the bld to users.
-        // devs don't need in their build, and if you auto-gen it, it will
-        // cause it to show up in their 'git status', so skip for dev blds
-        if (BLDTYPE != DEV && !isWatchEventProcessing()) {
-            grunt.task.run("generate_git_var_dec_file");
-        }
-    });
-
-    /**
-        auto-gen the constructor version file.
+        auto-gen the build version file.
         context: The GUI displays useful info related to the project version.
             Does this by calling variables that (should) hold that data.
             This task creates a central file that decalares and instantiates these variables
@@ -2512,8 +2479,8 @@ module.exports = function(grunt) {
     grunt.task.registerTask("generate_git_var_dec_file", function() {
 
         // path to file to auto generate
-        var filepath = BLDROOT + constructorMapping.dest + "A_constructorVersion.js";
-        grunt.log.writeln("Expected filepath of constructor file... " + filepath);
+        var filepath = BLDROOT + "assets/js/env/buildEnv.js";
+        grunt.log.writeln("Expected filepath of build env file... " + filepath);
 
         var varData = { // content to put in to file
             'gBuildNumber': getBuildNumber(),
@@ -2834,7 +2801,6 @@ module.exports = function(grunt) {
 
         /**
             delete unecessary dirs and files you don't waant anymore from the src folder
-            i need render for making the constructors!! (required args are rel. to BLDROOT);
         */
         grunt.log.writeln(("\nDelete dirs and files designated only for build purpose that were within src, if any\n").bold);
         removeContent(htmlMapping.required);
@@ -5419,10 +5385,6 @@ module.exports = function(grunt) {
                 taskList.push("build_html");
                 determinedRebuildProcess = true;
                 break;
-            case WATCH_TARGET_CTOR:
-                taskList.push("constructor_files");
-                determinedRebuildProcess = true;
-                break;
             case WATCH_TARGET_CSS:
                 // XXX figure out why we are not doing anything here
                 determinedRebuildProcess = true;
@@ -5577,8 +5539,6 @@ module.exports = function(grunt) {
         // consider as part of htmlsrc
         if (filename === 'htmlTStr.js') {
             filetype = WATCH_TARGET_HTML;
-        } else if (filename === CONSTRUCTOR_TEMPLATE_FILE) {
-            filetype = WATCH_TARGET_CTOR;
         } else if (filename === 'tsconfig.json') {
             filetype = WATCH_TARGET_TYPESCRIPT;
         } else if (filepath.includes(reactMapping.src)) {
@@ -5658,7 +5618,6 @@ module.exports = function(grunt) {
         WATCH_FILETYPES[WATCH_TARGET_CSS] = [BLDROOT + cssMapping.dest + '**/*.css'];
         WATCH_FILETYPES[WATCH_TARGET_JS] = [SRCROOT + jsMapping.src + '**/*.js',
             SRCROOT + typescriptMapping.src + "/**/*.js", SRCROOT + "assets/lang/" + "**/*.js"];
-        WATCH_FILETYPES[WATCH_TARGET_CTOR] = [SRCROOT + 'site/render/template/constructor.template.js'];
         WATCH_FILETYPES[WATCH_TARGET_REACT] = [SRCROOT + reactMapping.src + "**/*"];
     }
 
@@ -5887,10 +5846,7 @@ module.exports = function(grunt) {
             grunt.fail.fatal(err);
         } else {
             /**
-                check for README file in xd/ because, even if they don't have
-                xd folder at beginning of build, it's going to get generated
-                as a result of autogening constructor files, as the intermediary
-                dirs will get created.  So, they would get the warning the first
+                check for README file in xd/ So, they would get the warning the first
                 build, but not on subsequent builds.
             */
             checkfile = xcalaridlpath + 'xd/README';

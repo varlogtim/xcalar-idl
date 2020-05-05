@@ -53,7 +53,7 @@ class AboutModal {
         // Build
         const frontVersion = XVM.getVersion();
         const frontVers = frontVersion.substring(0,
-                             frontVersion.lastIndexOf("-")) + "-" + gGitVersion;
+                             frontVersion.lastIndexOf("-")) + "-" + XVM.getGitVersion();
         const buildNumber = XVM.getBuildNumber() + XVM.getPatchVersion();
         $modal.find(".product")
             .text("Xcalar Data Platform - Enterprise Edition");
