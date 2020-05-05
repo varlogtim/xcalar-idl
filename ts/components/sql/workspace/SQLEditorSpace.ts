@@ -577,30 +577,32 @@ class SQLEditorSpace {
         const allParameters = DagParamManager.Instance.getParamMap();
         const noValues = [];
         const seen = new Set();
-        let hasUpperCaseProblem = false;
 
         sqlStructArray.forEach((struct) => {
-            let statement = struct.sql;
             struct.parameters.forEach((parameter) => {
-                if (seen.has(parameter)) {
+                // Parser should return parameter names in upper case,
+                // still convert here for safety
+                const upperParam: string = parameter.toUpperCase();
+                let found: boolean = false;
+                if (seen.has(upperParam)) {
                     return;
                 }
-                if (!allParameters[parameter]) {
-                    if (!statement.includes(parameter)) {
-                        hasUpperCaseProblem = true;
+                for (const curParam in allParameters) {
+                    if (curParam.toUpperCase() === upperParam) {
+                        found = true;
                     }
-                    noValues.push(parameter);
                 }
-                seen.add(parameter);
+                if (!found) {
+                    noValues.push(upperParam);
+                }
+                seen.add(upperParam);
             })
         });
 
         if (noValues.length) {
             let msg = `The following parameters do not have a value assigned: ${noValues.join(", ")}.`;
 
-            if (hasUpperCaseProblem) {
-                msg += `\n Note: SQL parameters must be in uppercase.`;
-            }
+            msg += `\n Note: Creating SQL parameters in uppercase is recommended.`;
             msg += `\n Do you want to continue?`;
             Alert.show({
                 "title": "Confirmation",
