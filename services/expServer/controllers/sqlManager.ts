@@ -583,7 +583,7 @@ class SqlManager {
                 data: {
                     sqlQuery: inputParams.queryString,
                     ops: ["identifier"],
-                    isMulti: false
+                    isMulti: true
                 }
             }
             return this.sendToPlanner(tablePrefix, requestStruct,
@@ -602,7 +602,7 @@ class SqlManager {
             }
             let newIdentifiersMap: any = {};
             if (retStruct.length > 1) {
-                return PromiseHelper.reject("Multiple queries not supported yet");
+                return PromiseHelper.reject(SQLErrTStr.MultiQueries);
             }
             let identifiers: string[] = retStruct[0].identifiers;
             if (identifiers.length === 0) {

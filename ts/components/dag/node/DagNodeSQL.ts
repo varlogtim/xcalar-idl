@@ -1395,7 +1395,7 @@ class DagNodeSQL extends DagNode {
                 const parseStruct = {
                     sqlQuery: sqlQueryStr,
                     ops: ["identifier"],
-                    isMulti: false
+                    isMulti: true
                 };
                 promise = SQLUtil.sendToPlanner(self.getId() + compileId, "parse",
                                                 parseStruct);
@@ -1416,7 +1416,7 @@ class DagNodeSQL extends DagNode {
                     } else {
                         sqlStructArray = sqlParseRet;
                     }
-                    if (sqlStructArray.length !== 1) {
+                    if (sqlStructArray.length > 1) {
                         return PromiseHelper.reject(SQLErrTStr.MultiQueries);
                     }
                     usedTables = sqlStructArray[0].identifiers || [];

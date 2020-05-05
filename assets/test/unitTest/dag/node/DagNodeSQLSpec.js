@@ -169,7 +169,7 @@ describe("SQL Dag Node Test", () => {
                     expect(id).to.equal(node.getId() + compileId);
                     expect(type).to.equal("parse");
                     expect(struct.sqlQuery).to.equal("SELECT * FROM a");
-                    expect(struct.isMulti).to.be.false;
+                    expect(struct.isMulti).to.be.true;
                     expect(struct.ops).to.deep.equal(["identifier"]);
                     called = true;
                     return PromiseHelper.reject("Test");
@@ -263,7 +263,7 @@ describe("SQL Dag Node Test", () => {
                         expect(id).to.equal(node.getId() + compileId);
                         expect(type).to.equal("parse");
                         expect(struct.sqlQuery).to.equal("SELECT * FROM a");
-                        expect(struct.isMulti).to.be.false;
+                        expect(struct.isMulti).to.be.true;
                         expect(struct.ops).to.deep.equal(["identifier"]);
                     }
                     called = true;

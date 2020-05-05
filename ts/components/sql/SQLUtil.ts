@@ -67,7 +67,7 @@ class SQLUtil {
         const struct = {
             sqlQuery: sql,
             ops: ["identifier", "sqlfunc", "parameters"],
-            isMulti: false
+            isMulti: true
         };
         SQLUtil.sendToPlanner("", "parse", struct)
         .then((ret) => {
@@ -81,6 +81,9 @@ class SQLUtil {
                     sqlStructArray = sqlParseRet.parseStructs;
                 } else {
                     sqlStructArray = sqlParseRet;
+                }
+                if (sqlStructArray.length > 1) {
+                    return PromiseHelper.reject(SQLErrTStr.MultiQueries);
                 }
                 let sqlStruct: SQLParserStruct = sqlStructArray[0];
                 deferred.resolve(sqlStruct);

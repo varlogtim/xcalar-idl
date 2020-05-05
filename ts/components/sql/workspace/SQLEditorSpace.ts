@@ -323,7 +323,7 @@ class SQLEditorSpace {
             const struct = {
                 sqlQuery: sql,
                 ops: ["identifier", "sqlfunc", "parameters"],
-                isMulti: false
+                isMulti: true
             };
             const ret = await SQLUtil.sendToPlanner("", "parse", struct)
             const sqlParseRet = JSON.parse(ret).ret;
@@ -335,6 +335,9 @@ class SQLEditorSpace {
                 sqlStructArray = sqlParseRet.parseStructs;
             } else {
                 sqlStructArray = sqlParseRet;
+            }
+            if (sqlStructArray.length > 1) {
+                return PromiseHelper.reject(SQLErrTStr.MultiQueries);
             }
 
             const sqlStruct: SQLParserStruct = sqlStructArray[0];
@@ -370,7 +373,7 @@ class SQLEditorSpace {
             const struct = {
                 sqlQuery: sqls,
                 ops: ["identifier", "sqlfunc", "parameters"],
-                isMulti: (sqls.indexOf(";") > -1)
+                isMulti: true
             };
             let sqlStructArray: SQLParserStruct[];
             SQLUtil.sendToPlanner("", "parse", struct)
@@ -383,6 +386,9 @@ class SQLEditorSpace {
                     sqlStructArray = sqlParseRet.parseStructs;
                 } else {
                     sqlStructArray = sqlParseRet;
+                }
+                if (sqlStructArray.length > 1) {
+                    return PromiseHelper.reject(SQLErrTStr.MultiQueries);
                 }
                 return this._validateParameters(sqlStructArray);
             })
