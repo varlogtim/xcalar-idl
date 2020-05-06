@@ -134,70 +134,59 @@ class DiscoverSchemas extends React.Component {
             inputSerialization,
             schemaPolicy,
             isLoading,
-            discoverFiles,
-            inProgressFiles,
-            failedFiles,
-            fileSchemas,
-            onDiscoverFile,
+            progress,
+            discoverFilesProps,
             onClickDiscoverAll,
             onCancelDiscoverAll,
             onInputSerialChange,
             onSchemaPolicyChange,
             onShowSchema,
-            onNextScreen,
-            children
         } = this.props;
 
         const needConfig = SchemaService.InputSerializationFactory.getFileType(inputSerialization).has(SchemaService.FileType.CSV);
 
-        if (isLoading) {
-            return (
-                <div className="filesSelected">
-                    <span>{Texts.Loading}</span>
-                </div>
-            );
-        } else {
-            const SchemaPolicy = SchemaService.MergePolicy;
-            const SchemaPolicyHint = SchemaService.MergePolicyHint;
-            const isDiscoverInProgress = inProgressFiles.size > 0;
+        const SchemaPolicy = SchemaService.MergePolicy;
+        const SchemaPolicyHint = SchemaService.MergePolicyHint;
+        const isDiscoverInProgress = isLoading;
 
-            return (
-                <React.Fragment>
-                    {/* <CostEstimation files={discoverFiles} /> */}
-                    {
-                    needConfig ?
+        return (
+            <React.Fragment>
+                {/* <CostEstimation files={discoverFiles} /> */}
+                {
+                needConfig ?
+                <AdvOption.Container>
+                    <AdvOption.Title>{Texts.advancedOptions}</AdvOption.Title>
+                    <SourceCSVArgSection
+                        config={inputSerialization}
+                        onConfigChange={(newConfig) => {
+                            onShowSchema(null);
+                            onInputSerialChange(newConfig);
+                        }}
+                    />
+                </AdvOption.Container> : null
+                }
+            <div className="filesSelected">
+                <div className="header">{Texts.discoverTitle}</div>
+                <div className="section">
                     <AdvOption.Container>
-                        <AdvOption.Title>{Texts.advancedOptions}</AdvOption.Title>
-                        <SourceCSVArgSection
-                            config={inputSerialization}
-                            onConfigChange={(newConfig) => {
-                                onShowSchema(null);
-                                onInputSerialChange(newConfig);
-                            }}
-                        />
-                    </AdvOption.Container> : null
-                    }
-                <div className="filesSelected">
-                    <div className="header">{Texts.discoverTitle}</div>
-                    <div className="section">
-                        <AdvOption.Container>
-                            <AdvOption.OptionGroup>
-                                <AdvOption.Option>
-                                    <AdvOption.OptionLabel>{Texts.optionSchema}</AdvOption.OptionLabel>
-                                    <AdvOption.OptionValue>
-                                        <InputDropdown
-                                        val={schemaPolicy}
-                                        onInputChange={(policy) => {
-                                            onSchemaPolicyChange(policy);
-                                        }}
-                                        onSelect={(policy) => {
-                                            onSchemaPolicyChange(policy);
-                                        }}
-                                        list={
-                                            [{
-                                                policy: SchemaPolicy.SUPERSET,
-                                                hint: SchemaPolicyHint.SUPERSET
-                                            },
+                        <AdvOption.OptionGroup>
+                            <AdvOption.Option>
+                                <AdvOption.OptionLabel>{Texts.optionSchema}</AdvOption.OptionLabel>
+                                <AdvOption.OptionValue>
+                                    <InputDropdown
+                                    val={schemaPolicy}
+                                    onInputChange={(policy) => {
+                                        onSchemaPolicyChange(policy);
+                                    }}
+                                    onSelect={(policy) => {
+                                        onSchemaPolicyChange(policy);
+                                    }}
+                                    list={
+                                        [
+                                            // {
+                                            //     policy: SchemaPolicy.SUPERSET,
+                                            //     hint: SchemaPolicyHint.SUPERSET
+                                            // },
                                             {
                                                 policy: SchemaPolicy.EXACT,
                                                 hint: SchemaPolicyHint.EXACT
@@ -207,50 +196,45 @@ class DiscoverSchemas extends React.Component {
                                             //     policy: SchemaPolicy.UNION,
                                             //     hint: SchemaPolicyHint.UNION
                                             // },
-                                            {
-                                                policy: SchemaPolicy.TRAILING,
-                                                hint: SchemaPolicyHint.TRAILING
-                                            }]
-                                            .map((schema) => {
-                                                return {
-                                                    text: (
-                                                        <span>
-                                                            <span>{schema.policy}</span>
-                                                            <i className="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title={schema.hint} data-placement="top"></i>
-                                                        </span>
-                                                    ),
-                                                    value: schema.policy
-                                                };
-                                            })
-                                        }
-                                        readOnly
-                                        disabled={isDiscoverInProgress}/>
-                                    </AdvOption.OptionValue>
-                                </AdvOption.Option>
-                            </AdvOption.OptionGroup>
-                        </AdvOption.Container>
-                        <DiscoverAllSection
-                            onClickDiscoverAll={onClickDiscoverAll}
-                            onClickCancelAll={onCancelDiscoverAll}
-                            doneCount={fileSchemas.size + failedFiles.size}
-                            totalCount={discoverFiles.length}
-                        />
-                    </div>
-                    <DiscoverTable
-                        discoverFiles={discoverFiles}
-                        inProgressFiles={inProgressFiles}
-                        failedFiles={failedFiles}
-                        fileSchemas={fileSchemas}
-                        onDiscoverOne={onDiscoverFile}
-                        onClickSchema={({name, columns}) => {
-                            onShowSchema({name: name,columns: columns})
-                        }}
+                                            // {
+                                            //     policy: SchemaPolicy.TRAILING,
+                                            //     hint: SchemaPolicyHint.TRAILING
+                                            // }
+                                        ]
+                                        .map((schema) => {
+                                            return {
+                                                text: (
+                                                    <span>
+                                                        <span>{schema.policy}</span>
+                                                        <i className="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title={schema.hint} data-placement="top"></i>
+                                                    </span>
+                                                ),
+                                                value: schema.policy
+                                            };
+                                        })
+                                    }
+                                    readOnly
+                                    disabled={isDiscoverInProgress}/>
+                                </AdvOption.OptionValue>
+                            </AdvOption.Option>
+                        </AdvOption.OptionGroup>
+                    </AdvOption.Container>
+                    <DiscoverAllSection
+                        onClickDiscoverAll={onClickDiscoverAll}
+                        onClickCancelAll={onCancelDiscoverAll}
+                        doneCount={progress}
+                        totalCount={100}
                     />
-
                 </div>
-                </React.Fragment>
-            );
-        }
+                <DiscoverTable {...discoverFilesProps}
+                    onClickSchema={({name, columns}) => {
+                        onShowSchema({name: name,columns: columns})
+                    }}
+                />
+
+            </div>
+            </React.Fragment>
+        );
     }
 }
 

@@ -166,17 +166,11 @@ function getFileSize(fileIds, fileInfos) {
     }, 0);
 }
 
-function validateCreate($input, tableName, path) {
+function validateCreate($input, tableName) {
     let isValid = true;
     // validate name
     tableName = tableName.trim().toUpperCase();
-    isValid = xcHelper.validate([{
-            "$ele": $input,
-            "error": "There are more than 127 files included in the schema and is over Xcalar's limit. Please click the schema button and select fewer files.",
-            "check": function() {
-              return path && path.length > 127;
-            }
-        },
+    isValid = xcHelper.validate([
         {
             "$ele": $input,
             "error": "Table name cannot be empty",
@@ -220,15 +214,16 @@ function validateCreate($input, tableName, path) {
 }
 
 function LoadTable({
-  schemas,
-  schemasInProgress,
-  schemasFailed,
-  tablesInInput,
-  tables,
-  files, // map fileId => fileInfo
-  onClickSchema = (schemaName) => {},
-  onClickCreateTable = (schemaName) => {},
-  onTableNameChange
+    page, rowsPerPage, isLoading = false,
+    schemas, // Array<{schema: {hash, columns}, files: { count, size }}>
+    schemasInProgress,  // Set<schemaName>
+    schemasFailed,  // Map<schemaName, errorMsg>
+    tablesInInput,
+    tables,
+    onClickSchema = (schemaName) => {},
+    onClickCreateTable = (schemaName) => {},
+    onFetchData = async (page, rowsPerPage) => {},
+    onTableNameChange
 }) {
     const columns = React.useMemo(() => [
         {
@@ -243,10 +238,6 @@ function LoadTable({
             Header: 'Count',
             accessor: 'count',
         },
-        // {
-        //     Header: 'Cost',
-        //     accessor: 'cost',
-        // },
         {
             Header: 'Time',
             accessor: 'time',
@@ -265,16 +256,16 @@ function LoadTable({
     // let totalCost = 0
     // let totalEta = 0
     const etaCost = new EtaCost();
-    for (const [schemaName, { path, columns }] of schemas) {
-        const totalFileSize = getFileSize(path, files);
+    for (const {schema, files} of schemas) {
+        const schemaName = schema.hash;
+
         const rowData = {
             schema: <button onClick={() => { onClickSchema(schemaName); }}>{schemaName}</button>,
-            count: path.length,
-            size: prettyBytes(totalFileSize),
-            cost: '$ 0', // XXX TODO: fix it
-            "time": xcTimeHelper.getElapsedTimeStr(Math.ceil(etaCost.loadEtaBySize(totalFileSize) * 1000)),
+            count: files.count,
+            size: prettyBytes(files.size || 0),
+            time: xcTimeHelper.getElapsedTimeStr(Math.ceil(etaCost.loadEtaBySize(files.size) * 1000)),
             tableName: null,
-            load: null,
+            load: null
         };
 
         if (schemasInProgress.has(schemaName)) {
@@ -294,7 +285,7 @@ function LoadTable({
               // XXX this is a hacky way to use jQuery in order to use xcHelper.validate
               const $button = $(e.target);
               const $input = $button.parent().prev().find(".tableInput");
-              const validTableName = validateCreate($input, tableName, path);
+              const validTableName = validateCreate($input, tableName);
               if (validTableName) {
                   onClickCreateTable(schemaName, validTableName);
               }
@@ -303,34 +294,12 @@ function LoadTable({
 
         loadTableData.push(rowData);
     }
-    // for (let schemaName in schemasObject) {
-    //   if (schemaName !== 'No Schema Detected') {
-    //     const schema = schemasObject[schemaName]
-    //     totalCost += schema.totalCost
-    //     totalEta += schema.totalEta
 
-    //     loadTableData.push({
-    //         "schema": <button onClick={() => { console.log('Show schemaInfo: ', schemaName)}}>{schemaName}</button>,
-    //         "count": schema.count,
-    //         "size": prettyBytes(schema.size),
-    //         "cost": '$' + schema.totalCost.toFixed(8),
-    //         "time": schema.totalEta.toFixed(8) + ' seconds',
-    //         "load": <LoadCell
-    //           schemasObject={schemasObject}
-    //           setSchemasObject={setSchemasObject}
-    //           schemaName={schemaName}
-    //           fileIdToStatus={fileIdToStatus}
-    //           setFileIdToStatus={setFileIdToStatus}
-    //         />,
-    //     })
-    //   }
-    // }
-
-  return (
-      <Styles>
-          <Table columns={columns} data={loadTableData} />
-      </Styles>
-  )
+    return (
+        <Styles>
+            <Table columns={columns} data={loadTableData} />
+        </Styles>
+    );
 }
 
 export default LoadTable

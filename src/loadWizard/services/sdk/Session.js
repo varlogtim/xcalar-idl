@@ -1,4 +1,4 @@
-import { callApiInSession } from './Api';
+import { callApiInSession, randomName, createGlobalScope, createSessionScope } from './Api';
 import { LoginUser, User } from './User';
 import { Table } from './Table';
 import { Dataset } from './Dataset';
@@ -7,17 +7,10 @@ import { PublishedTable } from './PublishedTable';
 const {
     xcHelper, WorkbookManager,
     XcalarNewWorkbook, XcalarActivateWorkbook, XcalarDeactivateWorkbook, XcalarDeleteWorkbook,
+    XcalarQueryWithCheck, XcalarImportRetina,
     Xcrpc
 } = global;
 
-
-function randomName() {
-    const pattern = 'xxxxxxxxxxxxxyyyy';
-    return pattern.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16).toUpperCase();
-    });
-}
 
 class GlobalSession {
     constructor({ user }) {
@@ -73,7 +66,7 @@ class BaseSession {
         return callApiInSession(this.sessionName, this.user.getUserName(), this.user.getUserId(), apiCall, this.user.getHashFunc());
     }
 
-    async executeSql(sql) {
+    async executeSql(sql, tableName) {
         // execute sql
         const xce = Xcrpc.xce;
         const client = new xce.XceClient(xcHelper.getApiUrl());
@@ -88,6 +81,9 @@ class BaseSession {
         request.setUsername(this.user.getUserName());
         request.setUserid(this.user.getUserId());
         request.setSessionname(this.sessionName);
+        if (tableName != null) {
+            request.setResulttablename(tableName);
+        }
         request.setQuerystring(sql);
         request.setQueryname(`XcalarLW-${Date.now()}`);
         request.setOptimizations(optimization);
@@ -128,6 +124,69 @@ class BaseSession {
             }
         }
     }
+
+    async listTables({ namePattern = '*', isGlobal = false } = {}) {
+        const xce = Xcrpc.xce;
+
+        const scope = isGlobal
+        ? createGlobalScope()
+        : createSessionScope({ userName: this.user.getUserName(), sessionName: this.sessionName });
+
+        // construct api request object
+        const apiRequest = new proto.xcalar.compute.localtypes.Table.ListTablesRequest();
+        apiRequest.setScope(scope);
+        apiRequest.setPattern(namePattern);
+
+        // Call api service
+        const client = new xce.XceClient(xcHelper.getApiUrl());
+        const tableService = new xce.TableService(client);
+        const apiResponse = await tableService.listTables(apiRequest);
+
+        // Parse response
+        return apiResponse.getTableNamesList().map((v) => new Table({
+            session: this, tableName: v
+        }));
+    }
+
+    async deleteTables({ namePattern }) {
+        await this.callLegacyApi(() => XcalarDeleteTable(namePattern));
+    }
+
+    async executeQuery({ queryString, queryName }) {
+        return await this.callLegacyApi(() => XcalarQueryWithCheck(queryName, queryString));
+    }
+
+    async executeQueryOptimized({ queryStringOpt, queryName, tableName, params = new Map() }) {
+        // XXX TODO: use DataflowService.execute instead
+        let queryString = queryStringOpt;
+        for (const [key, value] of params) {
+            const replacementKey = `<${key}>`;
+            queryString = queryString.replace(replacementKey, value);
+        }
+        await this.callLegacyApi(() => XcalarImportRetina(
+            queryName, true, null, queryString, this.user.getUserName(), this.sessionName
+        ));
+        const retinaParams = [];
+        // for (const [key, value] of params) {
+        //     retinaParams.push(new XcalarApiParameterT({
+        //         paramName: key,
+        //         paramValue: value
+        //     }));
+        // }
+        try {
+            await this.callLegacyApi(() => XcalarExecuteRetina(queryName, retinaParams, {
+                activeSession: true,
+                newTableName: tableName
+            }));
+        } finally {
+            try {
+                await this.callLegacyApi(() => XcalarDeleteRetina(queryName));
+            } catch(e) {
+                console.error('Session.executeQueryOptimized error: ', e);
+                // Do nothing
+            }
+        }
+    }
 }
 
 class XDSession extends BaseSession {
@@ -164,4 +223,13 @@ class RandomSession extends BaseSession {
     }
 }
 
-export { XDSession, RandomSession, GlobalSession };
+class LoadSession extends BaseSession {
+    constructor() {
+        super({
+            user: new LoginUser(),
+            sessionName: 'XcalarLoad'
+        });
+    }
+}
+
+export { XDSession, RandomSession, GlobalSession, LoadSession };

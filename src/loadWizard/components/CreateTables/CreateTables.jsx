@@ -1,6 +1,5 @@
 import React from "react";
 import LoadTable from './LoadTable'
-import NavButtons from '../NavButtons'
 
 const Texts = {
     createTableAll: 'Create All',
@@ -13,6 +12,58 @@ const Texts = {
 };
 
 class CreateTables extends React.Component {
+    render() {
+        const {
+            isLoading,
+            page, rowsPerPage,
+            schemas, // Array<{schema: {hash, columns}, files: { count, size }}>
+            schemasInProgress,  // Set<schemaName>
+            schemasFailed,  // Map<schemaName, errorMsg>
+            tablesInInput, // Map<chemaName, tableName>
+            tables, // Map<schemaName, tableName>
+            onClickCreateTable = (schemaName, tableName) => {},
+            onFetchData,
+            onTableNameChange,
+            onShowSchema,
+            children
+        } = this.props;
+
+        return (
+            <div className="tableLoad">
+                {children}{isLoading ? ' ... loading' : null}
+                <div className="browsersContainer">
+                    <LoadTable
+                        isLoading={isLoading}
+                        page={page}
+                        rowsPerPage={rowsPerPage}
+                        onFetchData={onFetchData}
+                        schemas={schemas}
+                        schemasInProgress={schemasInProgress}
+                        schemasFailed={schemasFailed}
+                        tablesInInput={tablesInInput}
+                        tables={tables}
+                        onClickSchema={(schemaName) => {
+                            for (const {schema} of schemas) {
+                                if (schema.hash === schemaName) {
+                                    onShowSchema({ columns: schema.columns }, schemaName);
+                                    return;
+                                }
+                            }
+                        }}
+                        onClickCreateTable={onClickCreateTable}
+                        onTableNameChange={onTableNameChange}
+                    />
+                </div>
+            </div>
+        );
+    }
+
+    _navToNotebook() {
+        HomeScreen.switch(UrlToTab.notebook);
+    }
+}
+
+class CreateTables2 extends React.Component {
     render() {
         const {
             schemas, // Map<schemaName, {path: [], columns: []}>

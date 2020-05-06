@@ -11,6 +11,7 @@ import * as SetUtils from '../utils/SetUtils';
 import NavButtons from './NavButtons'
 import getForensics from '../services/Forensics';
 import * as Path from 'path';
+import * as SchemaLoadService from '../services/SchemaLoadService'
 
 const { Alert } = global;
 
@@ -85,17 +86,34 @@ class LoadConfig extends React.Component {
             selectedFileDir: new Array(),
 
             // DiscoverSchemas
-            discoverSchemaPolicy: SchemaService.MergePolicy.SUPERSET, // XXX TODO: UI
-            discoverIsLoading: false,
+            discoverAppId: null,
+            discoverFilesState: {
+                page: 0,
+                rowsPerPage: 20,
+                count: 0,
+                files: [],
+                isLoading: false
+            },
+            discoverIsRunning: false,
+            discoverProgress: 0,
+            discoverCancelBatch: null, // () => {} Dynamic cancel function set by discoverAll
+            discoverSchemaPolicy: SchemaService.MergePolicy.EXACT,
+            inputSerialization: SchemaService.defaultInputSerialization.get(defaultFileType),
+            // XXX TODO: remove the following states
             discoverFiles: new Map(), // Map<fileId, { fileId, fullPath, direcotry ... }
             discoverFileSchemas: new Map(),// Map<fileId, { name: schemaName, columns: [] }
-            discoverCancelBatch: null, // () => {} Dynamic cancel function set by discoverAll
             discoverInProgressFileIds: new Set(), // Set<fileId>
             discoverFailedFiles: new Map(), // Map<fileId, errMsg>
-            inputSerialization: SchemaService.defaultInputSerialization.get(defaultFileType),
 
             // CreateTable
             tableToCreate: new Map(), // Map<schemaName, tableName>, store a table name for user to update
+            createTableState: {
+                page: 0,
+                rowsPerPage: 20,
+                count: 0,
+                schemas: [],
+                isLoading: false,
+            },
             createInProgress: new Map(), // Map<schemaName, tableName>
             createFailed: new Map(), // Map<schemaName, errorMsg>
             createTables: new Map(), // Map<schemaName, tableName>
@@ -141,7 +159,7 @@ class LoadConfig extends React.Component {
 
     _validateResetAll(element) {
         let error = null;
-        if (this.state.discoverIsLoading) {
+        if (this.state.discoverIsRunning) {
             error = Texts.ResetInDiscoverLoading;
         } else if (this.state.discoverCancelBatch != null) {
             error = Texts.ResetInDiscoverBatch;
@@ -155,6 +173,85 @@ class LoadConfig extends React.Component {
         } else {
             return true;
         }
+    }
+
+    async _publishDataCompTables(tables, publishTableName) {
+        const dataName = PTblManager.Instance.getUniqName(publishTableName.toUpperCase());
+        const compName = PTblManager.Instance.getUniqName(publishTableName + '_COMPLEMENTS');
+
+        // Publish data table
+        await tables.data.publish(dataName);
+
+        // Check if comp table is empty
+        let compHasData = false;
+        const cursor = tables.comp.createCursor(false);
+        try {
+            await cursor.open();
+            if (cursor.getNumRows() > 0) {
+                compHashData = true;
+            }
+        } finally {
+            cursor.close();
+        }
+
+        // Publish comp table
+        if (compHasData) {
+            await tables.comp.publish(compName);
+        }
+
+        return {
+            table: dataName,
+            complementTable: compHasData ? compName : null
+        };
+    }
+
+    async _createTableFromSchema2(schemaName, tableName) {
+        const { discoverAppId } = this.state;
+        if (discoverAppId == null) {
+            return;
+        }
+        const app = SchemaLoadService.getDiscoverApp(discoverAppId);
+        if (app == null) {
+            return;
+        }
+
+        // State: cleanup and +loading
+        const createInProgress = this.state.createInProgress;
+        createInProgress.set(schemaName, {table: tableName, message: ""});
+        this.setState({
+            createInProgress: createInProgress,
+            createFailed: deleteEntry(this.state.createFailed, schemaName),
+            createTables: deleteEntry(this.state.createTables, schemaName),
+            tableToCreate: deleteEntry(this.state.tableToCreate, schemaName)
+        });
+
+        try {
+            // XXX TODO: track progress
+
+            // Get create table dataflow
+            const query = await app.getCreateTableQuery(schemaName);
+            // Create data/comp session tables
+            const tables = await app.createResultTables(query);
+            // Publish tables
+            const result = await this._publishDataCompTables(tables, tableName);
+
+            // State: -loading + created
+            this.setState({
+                createInProgress: deleteEntry(this.state.createInProgress, schemaName),
+                createTables: this.state.createTables.set(schemaName, {
+                    table: result.table,
+                    complementTable: result.complementTable
+                })
+            });
+        } catch(e) {
+            let error = e.message || e.error || e;
+            error = xcHelper.parseError(error);
+            this.setState({
+                createInProgress: deleteEntry(this.state.createInProgress, schemaName),
+                createFailed: this.state.createFailed.set(schemaName, error),
+            });
+        }
+
     }
 
     async _createTableFromSchema(schemaName, tableName) {
@@ -278,184 +375,186 @@ class LoadConfig extends React.Component {
         return fileSchemaMap;
     }
 
-    async _discoverFileSchema(fileId) {
-        let file = this.state.discoverFiles.get(fileId);
-        if (file == null) {
-            console.error('Discover unselected file:', fileId);
+    async _fetchDiscoverFileData(page, rowsPerPage) {
+        const { discoverAppId } = this.state;
+        if (discoverAppId == null) {
+            return;
+        }
+        const app = SchemaLoadService.getDiscoverApp(discoverAppId);
+        if (app == null) {
             return;
         }
 
-        const schemaWorker = new SchemaService.DiscoverWorker({
-            mergePolicy: this.state.discoverSchemaPolicy,
-            inputSerialization: { ...this.state.inputSerialization }
-        });
-        schemaWorker.restore(this.state.discoverFileSchemas, this.state.discoverFailedFiles);
-
-        // State: +loading
-        this.setState({
-            discoverInProgressFileIds: this.state.discoverInProgressFileIds.add(fileId),
-            discoverFailedFiles: deleteEntry(this.state.discoverFailedFiles, fileId)
-        });
-
-        try {
-            await schemaWorker.discover([file.fullPath]);
-            if (schemaWorker.getErrorFiles().has(fileId)) {
-                // State: -loading +failed
-                this.setState({
-                    discoverInProgressFileIds: deleteEntry(this.state.discoverInProgressFileIds, fileId),
-                    discoverFailedFiles: this.state.discoverFailedFiles.set(fileId, schemaWorker.getError(fileId) || 'Discover Failed')
-                });
-            } else {
-                const fileSchemaMap = this._convertSchemaMergeResult(schemaWorker.getSchemas());
-                // State: -loading +discovered
-                this.setState({
-                    discoverInProgressFileIds: deleteEntry(this.state.discoverInProgressFileIds, fileId),
-                    discoverFileSchemas: fileSchemaMap
-                });
+        this.setState((state) => ({
+            discoverFilesState: {
+                ...state.discoverFilesState,
+                isLoading: true
             }
-        } catch(e) {
-            // State: -loading +failed
-            this.setState({
-                discoverInProgressFileIds: deleteEntry(this.state.discoverInProgressFileIds, fileId),
-                discoverFailedFiles: this.state.discoverFailedFiles.set(fileId, e.message || e)
-            });
-        } finally {
-            // Fallback: -loading
-            this.setState({
-                discoverInProgressFileIds: deleteEntry(this.state.discoverInProgressFileIds, fileId)
-            });
-        }
-    }
-
-    async _discoverMultiFileSchema(fileIds, schemaWorker) {
-        const filePaths = new Array();
-        for (const fileId of fileIds) {
-            const file = this.state.discoverFiles.get(fileId);
-            if (file == null) {
-                console.error('Discover unselected file:', fileId);
-                return;
-            }
-            filePaths.push(file.fullPath);
-        }
-
-        // State: +loading
-        this.setState({
-            discoverInProgressFileIds: SetUtils.union(this.state.discoverInProgressFileIds, new Set(fileIds)),
-            discoverFailedFiles: deleteEntries(this.state.discoverFailedFiles, fileIds)
-        });
-
+        }));
         try {
-            // Call service to discover files
-            await schemaWorker.discover(filePaths);
-
-            // Failed files
-            const failedFileIds = SetUtils.intersection(schemaWorker.getErrorFiles(), fileIds);
-            if (failedFileIds.size > 0) {
-                // State: -loading +failed
-                const { discoverFailedFiles, discoverInProgressFileIds } = this.state;
-                for (const fileId of failedFileIds) {
-                    discoverFailedFiles.set(fileId, schemaWorker.getError(fileId) || 'Discover Failed');
+            const result = await app.getFileSchema(page, rowsPerPage);
+            this.setState((state) => ({
+                discoverFilesState: {
+                    ...state.discoverFilesState,
+                    page: result.page,
+                    count: result.count,
+                    files: result.files
                 }
-                this.setState({
-                    discoverInProgressFileIds: deleteEntries(discoverInProgressFileIds, failedFileIds),
-                    discoverFailedFiles: discoverFailedFiles
-                });
-            }
-
-            // Success files
-            const successFileIds = SetUtils.diff(fileIds, failedFileIds);
-            if (successFileIds.size > 0) {
-                const fileSchemaMap = this._convertSchemaMergeResult(schemaWorker.getSchemas());
-                // State: -loading +discovered
-                this.setState({
-                    discoverInProgressFileIds: deleteEntries(this.state.discoverInProgressFileIds, successFileIds),
-                    discoverFileSchemas: fileSchemaMap
-                });
-            }
-        } catch(e) {
-            // State: -loading +failed
-            const { discoverInProgressFileIds, discoverFailedFiles } = this.state;
-            for (const fileId of fileIds) {
-                discoverFailedFiles.set(fileId, e.message || e.error || e);
-            }
-            this.setState({
-                discoverInProgressFileIds: deleteEntries(discoverInProgressFileIds, fileIds),
-                discoverFailedFiles: discoverFailedFiles
-            });
+            }));
         } finally {
-            // Fallback: -loading
-            this.setState({
-                discoverInProgressFileIds: deleteEntries(this.state.discoverInProgressFileIds, fileIds)
-            });
+            this.setState((state) => ({
+                discoverFilesState: {
+                    ...state.discoverFilesState,
+                    isLoading: false
+                }
+            }));
         }
     }
 
-    async _discoverAllFileSchemas() {
+    async _fetchDiscoverReportData(page, rowsPerPage) {
+        const { discoverAppId } = this.state;
+        if (discoverAppId == null) {
+            return;
+        }
+        const app = SchemaLoadService.getDiscoverApp(discoverAppId);
+        if (app == null) {
+            return;
+        }
+
+        this.setState((state) => ({
+            createTableState: {
+                ...state.createTableState,
+                isLoading: true
+            }
+        }));
+        try {
+            let allSchemas = [];
+            let i = 0;
+            while (true) {
+                const result = await app.getReport(i, 100);
+                if (result.schemas.length < 1) {
+                    break;
+                }
+                allSchemas = allSchemas.concat(result.schemas);
+                i ++;
+            }
+            this.setState((state) => ({
+                createTableState: {
+                    ...state.createTableState,
+                    page: page,
+                    count: allSchemas.length,
+                    schemas: allSchemas
+                }
+            }));
+        } catch(e) {
+            console.error('Fetch report error: ', e);
+        } finally {
+            this.setState((state) => ({
+                createTableState: {
+                    ...state.createTableState,
+                    isLoading: false
+                }
+            }));
+        }
+    }
+
+    async _discoverAllApp() {
         if (this.state.discoverCancelBatch != null) {
             return;
         }
 
-        let isCanceled = false;
-        this.setState({
-            discoverCancelBatch: () => {
-                console.log('Cancel All');
-                isCanceled = true;
-            }
-        });
         try {
             const stime = Date.now();
-            const waitForTasks = async(tasks) => {
-                while (tasks.length > 0) {
-                    await tasks.pop();
-                }
-            }
 
             const {
-                discoverSchemaPolicy,
+                fileType,
                 inputSerialization,
-                discoverFiles,
-                discoverFileSchemas,
-                discoverInProgressFileIds,
-                discoverFailedFiles
+                selectedFileDir,
             } = this.state;
-            const schemaWorker = new SchemaService.DiscoverWorker({
-                mergePolicy: discoverSchemaPolicy,
-                inputSerialization: { ...inputSerialization }
-            });
-            schemaWorker.restore(discoverFileSchemas, discoverFailedFiles);
 
-            const batch = new Set();
-            const batchSize = 128;
-            const plevel = 16;
-            const tasks = new Array();
-            for (const [fileId] of discoverFiles.entries()) {
-                if (isCanceled) {
-                    break;
-                }
-                if (discoverFileSchemas.has(fileId) ||
-                    discoverInProgressFileIds.has(fileId) ||
-                    discoverFailedFiles.has(fileId)
-                ) {
-                    continue;
-                }
-                batch.add(fileId);
-                if (batch.size >= batchSize) {
-                    tasks.push(this._discoverMultiFileSchema(new Set(batch), schemaWorker));
-                    batch.clear();
-                    if (tasks.length >= plevel) {
-                        await waitForTasks(tasks);
+            const selectedPath =  selectedFileDir[0].fullPath;
+            const discoverApp = SchemaLoadService.createDiscoverApp({
+                path: selectedPath,
+                filePattern: SchemaService.FileTypeNamePattern.get(fileType),
+                inputSerialization: inputSerialization
+            });
+
+            this.setState((state) => {
+                return {
+                    discoverIsRunning: true,
+                    discoverProgress: 0,
+                    discoverAppId: discoverApp.appId,
+                    discoverFilesState: {
+                        ...state.discoverFilesState,
+                        page: 0,
+                        count: 0,
+                        files: [],
+                        isLoading: false
+                    },
+                    discoverCancelBatch: () => {
+                        console.log('Cancel All');
+                        discoverApp.cancel();
                     }
+                };
+            });
+
+            // Init load app
+            await discoverApp.init();
+
+            // list file task
+            const listFile = async () => {
+                const table = await discoverApp.waitForFileTable(200);
+                this.setState((state) => ({
+                    discoverProgress: state.discoverProgress + 20
+                }));
+                if (table != null) {
+                    const { page, rowsPerPage } = this.state.discoverFilesState;
+                    this._fetchDiscoverFileData(page, rowsPerPage);
+                }
+            };
+
+            // schema task
+            const schemaTask = async () => {
+                const table = await discoverApp.waitForSchemaTable(200);
+                this.setState((state) => ({
+                    discoverProgress: state.discoverProgress + 60
+                }));
+                if (table != null) {
+                    const { page, rowsPerPage } = this.state.discoverFilesState;
+                    this._fetchDiscoverFileData(page, rowsPerPage);
                 }
             }
-            if (batch.size > 0) {
-                tasks.push(this._discoverMultiFileSchema(new Set(batch), schemaWorker));
-                batch.clear();
-                await waitForTasks(tasks);
+
+            // report task
+            const reportTask = async () => {
+                const table = await discoverApp.waitForReportTable(200);
+                this.setState((state) => ({
+                    discoverProgress: state.discoverProgress + 10
+                }));
+                if (table != null) {
+                    const { page, rowsPerPage } = this.state.createTableState;
+                    this._fetchDiscoverReportData(page, rowsPerPage);
+                }
             }
+
+            await Promise.all([
+                discoverApp.run(),
+                listFile(),
+                schemaTask(),
+                reportTask()
+            ]);
+
             const etime = Date.now();
             console.log(`DiscoverAll took ${Math.ceil((etime - stime)/100)/10} seconds`);
+        } catch(e) {
+            this.setState({
+                discoverAppId: null
+            });
+            console.error('Discover all error: ', e);
         } finally {
             this.setState({
+                discoverIsRunning: false,
+                discoverProgress: 100,
                 discoverCancelBatch: null
             });
         }
@@ -566,6 +665,7 @@ class LoadConfig extends React.Component {
     }
 
     _setSchemaPolicy(newPolicy) {
+        return;
         const currentPolicy = this.state.discoverSchemaPolicy;
         if (currentPolicy === newPolicy) {
             return;
@@ -655,46 +755,6 @@ class LoadConfig extends React.Component {
         });
     }
 
-    async _flattenSelectedFiles(selectedFileDir) {
-        try {
-            this.setState({
-                discoverIsLoading: true
-            });
-            const fileNamePattern = SchemaService.FileTypeNamePattern.get(this.state.fileType);
-            const discoverFiles = await S3Service.flattenFileDir(selectedFileDir, fileNamePattern);
-
-            // Sync discoverFileSchemas, discoverInProgressFileIds, discoverFailedFiles
-            const removedFileIds = SetUtils.diff(this.state.discoverFiles.keys(), discoverFiles.keys());
-            const discoverFileSchemas = this.state.discoverFileSchemas;
-            const discoverInProgressFileIds = this.state.discoverInProgressFileIds;
-            const discoverFailedFiles = this.state.discoverFailedFiles;
-            for (const fileId of removedFileIds) {
-                discoverFileSchemas.delete(fileId);
-                discoverInProgressFileIds.delete(fileId);
-                discoverFailedFiles.delete(fileId);
-            }
-
-            // Update state
-            this.setState({
-                discoverFiles: discoverFiles,
-                discoverFileSchemas: discoverFileSchemas,
-                discoverInProgressFileIds: discoverInProgressFileIds,
-                discoverFailedFiles: discoverFailedFiles
-            });
-        } catch(e) {
-            this._alert({
-                title: 'Error',
-                message: `${e.message || e.error || e}`
-            });
-            console.error(e);
-            throw e;
-        } finally {
-            this.setState({
-                discoverIsLoading: false
-            });
-        }
-    }
-
     _alert({ title, message }) {
         try {
             Alert.show({
@@ -718,22 +778,26 @@ class LoadConfig extends React.Component {
             fileType,
             currentStep,
             selectedFileDir, // Output of Browse
-            discoverFiles, // Input of Discover
+            discoverAppId,
+            discoverFilesState,
             discoverFileSchemas, // Output of Discover/Input of CreateTable
             browseShow,
-            discoverIsLoading,
+            discoverIsRunning,
+            discoverProgress,
             discoverCancelBatch,
+            discoverFileDone, discoverSchemaDone, discoverReportDone
         } = this.state;
         // const screenName = stepNames.get(currentStep);
         const onClickDiscoverAll = discoverCancelBatch == null
-            ? () => { this._discoverAllFileSchemas(); }
+            ? () => { this._discoverAllApp(); }
             : null;
 
         const showBrowse = browseShow;
         const showDiscover = currentStep === stepEnum.SchemaDiscovery;
-        const showCreate = currentStep === stepEnum.CreateTables && discoverFileSchemas.size > 0;
+        const showCreate = currentStep === stepEnum.CreateTables && !discoverIsRunning && discoverAppId != null;
         const fullPath = Path.join(bucket, homePath);
         const forensicsStats = this.metadataMap.get(fullPath);
+        const discoverApp = SchemaLoadService.getDiscoverApp(discoverAppId);
 
         return (
             <div className="container cardContainer">
@@ -777,7 +841,7 @@ class LoadConfig extends React.Component {
                                 onDone={(selectedFileDir) => {
                                     try {
                                         this._browseClose(selectedFileDir);
-                                        this._flattenSelectedFiles(selectedFileDir);
+                                        // this._flattenSelectedFiles(selectedFileDir);
                                         this._changeStep(stepEnum.SchemaDiscovery);
                                     } catch(_) {
                                         // Do nothing
@@ -789,17 +853,16 @@ class LoadConfig extends React.Component {
                             showDiscover ? <DiscoverSchemas
                                 inputSerialization={this.state.inputSerialization}
                                 schemaPolicy={this.state.discoverSchemaPolicy}
-                                isLoading={discoverIsLoading}
-                                discoverFiles={[...discoverFiles.values()]}
-                                fileSchemas={discoverFileSchemas}
-                                inProgressFiles={this.state.discoverInProgressFileIds}
-                                failedFiles={this.state.discoverFailedFiles}
-                                onDiscoverFile={(fileId) => { this._discoverFileSchema(fileId); }}
+                                isLoading={discoverIsRunning}
+                                progress={discoverProgress}
+                                discoverFilesProps={{
+                                    ...discoverFilesState,
+                                    onLoadData: (p, rpp) => this._fetchDiscoverFileData(p, rpp)
+                                }}
                                 onClickDiscoverAll={onClickDiscoverAll}
                                 onCancelDiscoverAll={discoverCancelBatch}
                                 onInputSerialChange={(newConfig) => { this._setInputSerialization(newConfig); }}
                                 onSchemaPolicyChange={(newPolicy) => { this._setSchemaPolicy(newPolicy); }}
-                                onNextScreen = {() => { this._changeStep(stepEnum.CreateTables); }}
                                 onShowSchema={(schema) => {
                                     this.setState({
                                         currentSchema: schema
@@ -812,19 +875,22 @@ class LoadConfig extends React.Component {
                             if (!showCreate) {
                                 return null;
                             }
-                            const schemaFileMap = this._createSchemaFileMap(this.state.discoverFileSchemas);
-                            let nameSet = new Set();
-                            schemaFileMap.forEach(({path}, schemaName) => {
-                                if (!this.state.tableToCreate.has(schemaName)) {
-                                    const defaultTableName = this._getNameFromPath(path[0], nameSet);
+                            const schemas = this.state.createTableState.schemas;
+                            // XXX TODO: Need a new approach to generate default table names,
+                            // once the pagination is totally moved to backend,
+                            // which means XD doesn't maintain the full list of files discovered
+                            const nameSet = new Set();
+                            for (const schemaInfo of schemas) {
+                                const { schema, files } = schemaInfo;
+                                if (!this.state.tableToCreate.has(schema.hash)) {
+                                    const defaultTableName = this._getNameFromPath(schema.hash, nameSet);
                                     nameSet.add(defaultTableName);
-                                    this.state.tableToCreate.set(schemaName, defaultTableName);
+                                    this.state.tableToCreate.set(schema.hash, defaultTableName);
                                 }
-                            });
+                            }
                             return (
                                 <CreateTables
-                                    schemas={schemaFileMap}
-                                    fileMetas={this.state.discoverFiles}
+                                    {...this.state.createTableState}
                                     schemasInProgress={this.state.createInProgress}
                                     schemasFailed={this.state.createFailed}
                                     tablesInInput={this.state.tableToCreate}
@@ -833,7 +899,8 @@ class LoadConfig extends React.Component {
                                         this.state.tableToCreate.set(schemaName, newTableName);
                                         this.setState({tableToCreate: this.state.tableToCreate});
                                     }}
-                                    onClickCreateTable={(schemaName, tableName) => { this._createTableFromSchema(schemaName, tableName); }}
+                                    onFetchData={(p, rpp) => { this._fetchDiscoverReportData(p, rpp)}}
+                                    onClickCreateTable={(schemaName, tableName) => { this._createTableFromSchema2(schemaName, tableName); }}
                                     onPrevScreen = {() => { this._changeStep(stepEnum.SchemaDiscovery); }}
                                     onShowSchema={(schema, schemaName) => {
                                         schema.name = schemaName
@@ -862,9 +929,13 @@ class LoadConfig extends React.Component {
                             <NavButtons
                                 right={{
                                     label: Texts.navButtonRight2,
-                                    disabled: discoverFileSchemas.size === 0,
-                                    tooltip: discoverFileSchemas.size === 0 ? Texts.CreateTableHint : "",
-                                    onClick: () => { this._changeStep(stepEnum.CreateTables); }
+                                    disabled: discoverIsRunning || discoverAppId == null,
+                                    tooltip: discoverIsRunning || discoverAppId == null ? Texts.CreateTableHint : "",
+                                    onClick: () => {
+                                        this._changeStep(stepEnum.CreateTables);
+                                        const { page, rowsPerPage } = this.state.createTableState;
+                                        this._fetchDiscoverReportData(page, rowsPerPage);
+                                    }
                                 }}
                             /> : null
                     }

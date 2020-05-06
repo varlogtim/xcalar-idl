@@ -61,4 +61,32 @@ function callApiInSession(callSession, callUserName, callUserId, func, hashFunc 
     }
 }
 
-export { callApiInSession, hashFunc, getThriftHandler };
+function randomName() {
+    const pattern = 'xxxxxxxxxxxxxyyyy';
+    return pattern.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16).toUpperCase();
+    });
+}
+
+function createGlobalScope() {
+    const scope = new proto.xcalar.compute.localtypes.Workbook.WorkbookScope();
+    scope.setGlobl(new proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier());
+    return scope;
+}
+
+function createSessionScope({userName, sessionName}) {
+    const scope = new proto.xcalar.compute.localtypes.Workbook.WorkbookScope();
+
+    const nameInfo = new proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier();
+    nameInfo.setUsername(userName);
+    nameInfo.setWorkbookname(sessionName);
+    const sessionInfo = new proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier();
+    sessionInfo.setName(nameInfo);
+
+    scope.setWorkbook(sessionInfo);
+
+    return scope;
+}
+
+export { callApiInSession, hashFunc, getThriftHandler, randomName, createGlobalScope, createSessionScope };
