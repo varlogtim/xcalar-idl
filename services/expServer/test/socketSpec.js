@@ -124,23 +124,6 @@ describe("ExpServer Socket Test", function() {
         });
     });
 
-    it("socket should handle ds event", function(done) {
-        var arg = {id: 0,
-                   event: "changeStart"};
-        client.emit("ds", arg, function(success1) {
-            expect(success1).to.be.true;
-            client.emit("ds", arg, function(success2) {
-                // It's locked
-                expect(success2).to.be.false;
-                arg.event = "changeEnd";
-                client.emit("ds", arg, function(success3) {
-                    expect(success3).to.be.true;
-                    done();
-                });
-            });
-        });
-    });
-
     it("socket should disconnect", function(done) {
         var expectedRes = {
             testUser: {
