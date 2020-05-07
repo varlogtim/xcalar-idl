@@ -726,7 +726,20 @@ StatusT = {
   'StatusTableIdNotFound' : 717,
   'StatusInvalFullyQualTabName' : 718,
   'StatusUdfFlushFailed' : 719,
-  'StatusTableNotGlobal' : 720
+  'StatusTableNotGlobal' : 720,
+  'StatusFailedParseStrFieldLen' : 721,
+  'StatusFailedParseBoolField' : 722,
+  'StatusFailedParseInt32Field' : 723,
+  'StatusFailedParseInt64Field' : 724,
+  'StatusFailedParseUint32Field' : 725,
+  'StatusFailedParseUint64Field' : 726,
+  'StatusFailedParseFloat32Field' : 727,
+  'StatusFailedParseFloat64Field' : 728,
+  'StatusFailedParseTimestampField' : 729,
+  'StatusFailedParseNumericField' : 730,
+  'StatusFailedParseProtoValFieldLen' : 731,
+  'StatusFailedParseProtoValField' : 732,
+  'StatusInvalidFieldType' : 733
 };
 StatusTStr = {
   0 : 'Success',
@@ -1449,7 +1462,20 @@ StatusTStr = {
   717 : 'Table Id not found',
   718 : 'Invalid fully qualified table name',
   719 : 'UDF create/update succeeded but flush failed',
-  720 : 'Table not marked global'
+  720 : 'Table not marked global',
+  721 : 'Failed to parse string field length',
+  722 : 'Failed to parse bool field',
+  723 : 'Failed to parse int32 field',
+  724 : 'Failed to parse int64 field',
+  725 : 'Failed to parse uint32 field',
+  726 : 'Failed to parse uint64 field',
+  727 : 'Failed to parse float32 field',
+  728 : 'Failed to parse float64 field',
+  729 : 'Failed to parse Timestamp field',
+  730 : 'Failed to parse numeric field',
+  731 : 'Failed to parse proto value field length',
+  732 : 'Failed to parse proto value field',
+  733 : 'Invalid field type'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2172,5 +2198,18 @@ StatusTFromStr = {
   'Table Id not found' : 717,
   'Invalid fully qualified table name' : 718,
   'UDF create/update succeeded but flush failed' : 719,
-  'Table not marked global' : 720
+  'Table not marked global' : 720,
+  'Failed to parse string field length' : 721,
+  'Failed to parse bool field' : 722,
+  'Failed to parse int32 field' : 723,
+  'Failed to parse int64 field' : 724,
+  'Failed to parse uint32 field' : 725,
+  'Failed to parse uint64 field' : 726,
+  'Failed to parse float32 field' : 727,
+  'Failed to parse float64 field' : 728,
+  'Failed to parse Timestamp field' : 729,
+  'Failed to parse numeric field' : 730,
+  'Failed to parse proto value field length' : 731,
+  'Failed to parse proto value field' : 732,
+  'Invalid field type' : 733
 };
