@@ -1,4 +1,4 @@
-const ApiStatus = require('xcalarsdk').Error.status;
+// const ApiStatus = require('xcalarsdk').Error.status;
 const expect = require('chai').expect;
 exports.testSuite = function(LicenseService) {
     describe("LicenseService: ", function () {
@@ -19,14 +19,14 @@ exports.testSuite = function(LicenseService) {
             }
         });
 
-        // XXX TODO: Source Tree Merge
-        // ApiStatus hasn't been populated yet, so skip this for now
-        it.skip("updateLicense() should handle the invalid input", async function () {
+        it("updateLicense() should handle the invalid input", async function () {
             try {
                 await LicenseService.updateLicense({ newLicense: null });
                 expect.fail("updateLicense cannot handle invalid input");
             } catch(err) {
-                expect(err.status).to.equal(ApiStatus.STATUS_LIC_SIGNATURE_INVALID);
+                // XXX TODO: Compare with ApiStatus.STATUS_LIC_SIGNATURE_INVALID,
+                // once the Status_pb is wired in
+                expect(err.status).to.equal(367);
             }
         });
     });
