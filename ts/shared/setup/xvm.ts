@@ -1,7 +1,7 @@
 // XVM = Xcalar Version Manager
 namespace XVM {
     let majorVersion: string = "2";
-    let minorVersion: string = "2";
+    let minorVersion: string = "3";
     let revisionVersion: string = "0";
 
     let kvVersion: KVVersion;
