@@ -719,6 +719,19 @@
     "StatusTableIdNotFound" : 717,
     "StatusInvalFullyQualTabName" : 718,
     "StatusUdfFlushFailed" : 719,
-    "StatusTableNotGlobal" : 720
+    "StatusTableNotGlobal" : 720,
+    "StatusFailedParseStrFieldLen" : 721,
+    "StatusFailedParseBoolField" : 722,
+    "StatusFailedParseInt32Field" : 723,
+    "StatusFailedParseInt64Field" : 724,
+    "StatusFailedParseUint32Field" : 725,
+    "StatusFailedParseUint64Field" : 726,
+    "StatusFailedParseFloat32Field" : 727,
+    "StatusFailedParseFloat64Field" : 728,
+    "StatusFailedParseTimestampField" : 729,
+    "StatusFailedParseNumericField" : 730,
+    "StatusFailedParseProtoValFieldLen" : 731,
+    "StatusFailedParseProtoValField" : 732,
+    "StatusInvalidFieldType" : 733
 }
 

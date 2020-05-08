@@ -13,6 +13,7 @@ var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
 var proto_empty = require("google-protobuf/google/protobuf/empty_pb");
+var dagNode = require("./xcalar/compute/localtypes/DagNode_pb");
 
 
 ////////////////////////////////////////////////////////////////////////////////

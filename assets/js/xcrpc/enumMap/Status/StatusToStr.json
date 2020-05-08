@@ -719,6 +719,19 @@
     "717" : "Table Id not found",
     "718" : "Invalid fully qualified table name",
     "719" : "UDF create/update succeeded but flush failed",
-    "720" : "Table not marked global"
+    "720" : "Table not marked global",
+    "721" : "Failed to parse string field length",
+    "722" : "Failed to parse bool field",
+    "723" : "Failed to parse int32 field",
+    "724" : "Failed to parse int64 field",
+    "725" : "Failed to parse uint32 field",
+    "726" : "Failed to parse uint64 field",
+    "727" : "Failed to parse float32 field",
+    "728" : "Failed to parse float64 field",
+    "729" : "Failed to parse Timestamp field",
+    "730" : "Failed to parse numeric field",
+    "731" : "Failed to parse proto value field length",
+    "732" : "Failed to parse proto value field",
+    "733" : "Invalid field type"
 }
 
