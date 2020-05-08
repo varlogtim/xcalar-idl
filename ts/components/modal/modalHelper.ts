@@ -385,6 +385,7 @@ class ModalHelper {
         $(document).off("keydown.xcModal" + this.id);
         $(document).off("keydown.xcModalTabbing" + this.id);
         $modal.removeClass("noBackground");
+        $modal.removeClass("visible");
         $modal.find(".focusable").off(".xcModal")
                                  .removeClass("focusable");
         this.enableSubmit();
@@ -399,7 +400,6 @@ class ModalHelper {
             const $modalBg: JQuery = $("#modalBackground");
             const fadeOutTime: number = gMinModeOn ? 0 : 300;
             $modal.hide();
-            $modal.removeClass("visible");
 
             if (numModalsOpen < 2) {
                 if (options.noBackground) {

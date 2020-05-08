@@ -3,6 +3,7 @@ describe('XcSupport Test', () => {
         const oldCheckVersion = XVM.checkVersion;
         const oldReload = xcManager.reload;
         const oldAlert = Alert.error;
+        const oldUpdate = Alert.updateMsg;
         let test = false;
         let cnt = 0;
         XVM.checkVersion = () => {
@@ -15,6 +16,7 @@ describe('XcSupport Test', () => {
         };
         xcManager.reload = () => { test = true };
         Alert.error = () => {};
+        Alert.updateMsg = () => true;
         UnitTest.onMinMode();
 
         XcSupport.checkConnection();
@@ -29,6 +31,7 @@ describe('XcSupport Test', () => {
             XVM.checkVersion = oldCheckVersion;
             xcManager.reload = oldReload;
             Alert.error = oldAlert;
+            Alert.updateMsg = oldUpdate;
         });
     });
 

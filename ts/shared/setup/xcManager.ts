@@ -762,7 +762,6 @@ namespace xcManager {
                     ModalHelper.repositionModalOnWinResize(modalSpecs,
                                                         windowSpecs);
                 }
-                Admin.onWinResize();
             }
             resizing = false;
         }

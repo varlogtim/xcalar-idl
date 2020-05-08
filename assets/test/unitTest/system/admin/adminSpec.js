@@ -47,7 +47,10 @@ describe("Admin Test", function() {
 
         xcSessionStorage.setItem("usingAs", XcUser.getCurrentUserName());
         if (!wasAdmin) {
+            let oldHasSetup = Admin.hasSetup;
+            Admin.hasSetup = () => false;
             Admin.setup();
+            Admin.hasSetup = oldHasSetup;
         } else {
             Admin.__testOnly__.setPosingAs();
         }

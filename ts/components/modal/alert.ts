@@ -246,7 +246,7 @@ namespace Alert {
         const $modal = getModal();
         const $btnSection = getButtonSection();
         $btnSection.find(".funcBtn").remove();
-        $btnSection.find(".downloadLog, .logout, .genSub").remove();
+        $btnSection.find(".support").remove();
         // remove all event listener
         $modal.off(".alert");
         $modal.find(".confirm, .cancel, .close").show();
@@ -538,15 +538,20 @@ namespace Alert {
             const $downloadLogBtn: JQuery = supportButton("log");
             const $logoutBtn: JQuery = supportButton(null);
             const $supportBtn: JQuery = supportButton("support");
+            let $adminBtn: JQuery = $();
+
+            if (Admin.isAdmin() && Admin.hasSetup()) {
+                $adminBtn = supportButton("admin");
+            }
 
             if (options.expired) {
-                $btnSection.prepend($logoutBtn);
+                $btnSection.prepend($adminBtn, $logoutBtn);
             } else if (options.logout) {
-                $btnSection.prepend($logoutBtn, $downloadLogBtn, $supportBtn);
+                $btnSection.prepend($adminBtn, $logoutBtn, $downloadLogBtn, $supportBtn);
             } else if (options.noLogout) {
-                $btnSection.prepend($downloadLogBtn, $supportBtn);
+                $btnSection.prepend($adminBtn, $downloadLogBtn, $supportBtn);
             } else {
-                $btnSection.prepend($downloadLogBtn, $logoutBtn, $supportBtn);
+                $btnSection.prepend($adminBtn, $downloadLogBtn, $logoutBtn, $supportBtn);
             }
         }
 
@@ -568,7 +573,7 @@ namespace Alert {
         switch (type) {
             case 'log':
                 // download log button
-                html = '<button type="button" class="btn btn-secondary downloadLog">' +
+                html = '<button type="button" class="btn btn-secondary support downloadLog">' +
                             CommonTxtTstr.DownloadLog +
                         '</button>';
                 $btn = $(html);
@@ -596,7 +601,7 @@ namespace Alert {
                 break;
             case 'support':
                 // generate bundle button
-                html = '<button type="button" class="btn btn-secondary genSub" ' +
+                html = '<button type="button" class="btn btn-secondary support genSub" ' +
                         'data-toggle="tooltip" title="' +
                         TooltipTStr.FileTicket + '">' +
                             CommonTxtTstr.FileTicket +
@@ -608,9 +613,19 @@ namespace Alert {
                     MonitorPanel.stop();
                 });
                 break;
+            case 'admin':
+                html = '<button type="button" class="btn btn-secondary support adminTool">' +
+                            CommonTxtTstr.AdminTool +
+                        '</button>';
+                $btn = $(html);
+                $btn.click(function() {
+                    Alert.forceClose();
+                    Admin.showModal(true);
+                });
+                break;
             default:
                 // log out button
-                html = '<button type="button" class="btn btn-secondary logout">' +
+                html = '<button type="button" class="btn btn-secondary support logout">' +
                             CommonTxtTstr.LogOut +
                         '</button>';
                 $btn = $(html);

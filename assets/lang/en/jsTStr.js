@@ -207,7 +207,8 @@ CommonTxtTstr = {
     'AverageXcalarMemUsage': 'Average memory usage',
     'XcalarMemUsage': 'Memory usage',
     'XcWelcome': 'Have fun with ' + autogenVars.prodName + '!',
-    'YES': 'YES'
+    'YES': 'YES',
+    'AdminTool': 'Admin Tools'
 };
 
 ErrTStr = {

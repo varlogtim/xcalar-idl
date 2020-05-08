@@ -9,11 +9,16 @@ namespace Admin {
     let adminAlertCard: AdminAlertCard;
     let monitorConfig: MonitorConfig;
     let modalHelper: ModalHelper;
+    let _isSetup: boolean = false;
 
     /**
      * Admin.setup
      */
     export function setup(): void {
+        if (Admin.hasSetup()) {
+            return;
+        }
+        _isSetup = true;
         let posingAsUser = isPostAsUser();
         let isAdmin: boolean = Admin.isAdmin();
         setupAdminStatusBar(posingAsUser);
@@ -40,11 +45,24 @@ namespace Admin {
     }
 
     /**
+     * Admin.hasSetup
+     */
+    export function hasSetup(): boolean {
+        return _isSetup;
+    }
+
+    /**
      * Admin.showModal
      */
-    export function showModal(): void {
+    export function showModal(lockScreen: boolean = false): void {
         if (Admin.isAdmin()) {
             modalHelper.setup();
+
+            if (lockScreen) {
+                _getModal().addClass("locked");
+            } else {
+                _getModal().removeClass("locked");
+            }
         }
     }
 
@@ -154,13 +172,6 @@ namespace Admin {
     }
 
     /**
-     * Admin.onWinResize
-     */
-    export function onWinResize(): void {
-
-    }
-
-    /**
      * Admin.refreshParams
      */
     export function refreshParams(): XDPromise<any> {
@@ -181,12 +192,22 @@ namespace Admin {
         return $("#adminSetupModal");
     }
 
+    function _close(): void {
+        modalHelper.clear();
+
+        const $modal = _getModal();
+        if ($modal.hasClass("locked")) {
+            $modal.removeClass("locked");
+            XcSupport.checkConnection();
+        }
+    }
+
     function _addEventListeners(): void {
         addUserListListeners();
         addMonitorMenuSupportListeners();
 
         _getModal().on("click", ".close", () => {
-            modalHelper.clear();
+            _close();
         });
     }
 

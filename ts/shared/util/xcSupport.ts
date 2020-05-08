@@ -55,9 +55,12 @@ namespace XcSupport {
             // not ready case
             msg = "Xcalar is setting up, please wait" + ".".repeat(cnt % 3 + 1);
         }
-        Alert.updateMsg(alertId, msg);
-
+        const alertOpen = Alert.updateMsg(alertId, msg);
         clearTimeout(_connectionCheckTimer);
+        if (!alertOpen) {
+            // when alert is already closed, don't check
+            return;
+        }
 
         _connectionCheckTimer = <any>setTimeout(() => {
             if (shouldCheck) {
