@@ -3,7 +3,7 @@ import MUIDataTable from "mui-datatables";
 import * as SchemaCell from './SchemaCell'
 
 const Texts = {
-    tableTitle: 'Selected Files',
+    tableTitle: 'Discovered Files',
     discoverErrorLable: 'Failed',
     discoverErrorTitle: 'Discover Schema Error'
 };
@@ -112,6 +112,10 @@ class DiscoverTable extends React.PureComponent {
             onLoadData = (page, rowsPerPage) => {},
             onClickSchema = ({name, columns}) => {}
         } = this.props;
+
+        if (!isLoading && files.length === 0) {
+            return null;
+        }
 
         const columns = [
             {

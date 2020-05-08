@@ -50,7 +50,7 @@ function createDiscoverNames(appId) {
 }
 
 const discoverApps = new Map();
-function createDiscoverApp({ path, filePattern, inputSerialization }) {
+function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive = true }) {
     let executionDone = false;
     const tables = {
         file: null, schema: null, report: null,
@@ -171,7 +171,7 @@ function createDiscoverApp({ path, filePattern, inputSerialization }) {
                     func: 'discover_all',
                     path: path,
                     file_name_pattern: filePattern,
-                    recursive: true,
+                    recursive: isRecursive,
                     input_serial_json: JSON.stringify(inputSerialization),
                     files_table_name: names.file,
                     schema_results_table_name: names.schema,
@@ -238,7 +238,7 @@ function createDiscoverApp({ path, filePattern, inputSerialization }) {
                 unique_id: `${names.kvPrefix}${schemaHash}`,
                 path: path,
                 file_name_pattern: filePattern,
-                recursive: true,
+                recursive: isRecursive,
                 schema_hash: schemaHash,
                 files_table_name: names.file,
                 schema_results_table_name: names.schema,

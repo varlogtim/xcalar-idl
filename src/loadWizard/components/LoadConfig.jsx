@@ -205,7 +205,7 @@ class LoadConfig extends React.Component {
         };
     }
 
-    async _createTableFromSchema2(schemaName, tableName) {
+    async _createTableFromSchema(schemaName, tableName) {
         const { discoverAppId } = this.state;
         if (discoverAppId == null) {
             return;
@@ -250,78 +250,6 @@ class LoadConfig extends React.Component {
                 createInProgress: deleteEntry(this.state.createInProgress, schemaName),
                 createFailed: this.state.createFailed.set(schemaName, error),
             });
-        }
-
-    }
-
-    async _createTableFromSchema(schemaName, tableName) {
-        if (!tableName) {
-            console.error('Table name empty');
-            return;
-        }
-
-        // Find all the files in the schema <schemaName>
-        const schemaInfo = {
-            files: [],
-            columns: null
-        };
-        for (const [fileId, { name: sName, columns }] of this.state.discoverFileSchemas) {
-            if (sName === schemaName) {
-                const fileInfo = this.state.discoverFiles.get(fileId);
-                if (fileInfo != null) {
-                    schemaInfo.files.push({
-                        path: fileInfo.fullPath,
-                        size: fileInfo.sizeInBytes
-                    });
-                    schemaInfo.columns = columns;
-                };
-            }
-        }
-        if (schemaInfo.columns == null) {
-            console.error('Non-existing Schema: ', schemaName);
-            return;
-        }
-
-        // State: cleanup and +loading
-        let createInProgress = this.state.createInProgress;
-        createInProgress.set(schemaName, {table: tableName, message: ""});
-        this.setState({
-            createInProgress: createInProgress,
-            createFailed: deleteEntry(this.state.createFailed, schemaName),
-            createTables: deleteEntry(this.state.createTables, schemaName),
-            tableToCreate: deleteEntry(this.state.tableToCreate, schemaName)
-        });
-
-        try {
-            WorkbookManager.switchToXDInternalSession();
-            // {table, complementTable}
-            const res = await S3Service.createTableFromSchema(
-                tableName,
-                schemaInfo.files,
-                schemaInfo.columns,
-                this.state.inputSerialization,
-                (message) => {
-                    createInProgress.set(schemaName, {table: tableName, message});
-                    this.setState({
-                        createInProgress,
-                    });
-                }
-            );
-            // State: -loading + created
-            this.setState({
-                createInProgress: deleteEntry(this.state.createInProgress, schemaName),
-                createTables: this.state.createTables.set(schemaName, res)
-            });
-        } catch(e) {
-            // State: -loading + failed
-            let error = e.message || e.error || e;
-            error = xcHelper.parseError(error);
-            this.setState({
-                createInProgress: deleteEntry(this.state.createInProgress, schemaName),
-                createFailed: this.state.createFailed.set(schemaName, error),
-            });
-        } finally {
-            WorkbookManager.resetXDInternalSession();
         }
 
     }
@@ -458,6 +386,27 @@ class LoadConfig extends React.Component {
         }
     }
 
+    _extractPathInfo(pathInfo, fileType) {
+        const { fullPath, directory } = pathInfo;
+        if (directory) {
+            // Recursively search files in the folder
+            return {
+                path: fullPath,
+                filePattern: SchemaService.FileTypeNamePattern.get(fileType),
+                isRecursive: true
+            };
+        } else {
+            // Only match the single file selected
+            const dirname = Path.join(Path.dirname(fullPath), '/');
+            const basename = Path.basename(fullPath);
+            return {
+                path: dirname,
+                filePattern: basename,
+                isRecursive: false
+            };
+        }
+    }
+
     async _discoverAllApp() {
         if (this.state.discoverCancelBatch != null) {
             return;
@@ -472,11 +421,12 @@ class LoadConfig extends React.Component {
                 selectedFileDir,
             } = this.state;
 
-            const selectedPath =  selectedFileDir[0].fullPath;
+            const { path: selectedPath, filePattern, isRecursive } = this._extractPathInfo(selectedFileDir[0], fileType);
             const discoverApp = SchemaLoadService.createDiscoverApp({
                 path: selectedPath,
-                filePattern: SchemaService.FileTypeNamePattern.get(fileType),
-                inputSerialization: inputSerialization
+                filePattern: filePattern,
+                inputSerialization: inputSerialization,
+                isRecursive: isRecursive
             });
 
             this.setState((state) => {
@@ -632,14 +582,25 @@ class LoadConfig extends React.Component {
     _resetBrowseResult(newFileType = null) {
         this.setState({
             selectedFileDir: new Array(), // Clear selected files/folders, XXX TODO: in case file type changes, we can preserve the folders
-            discoverFiles: new Map(), // Clear flattern files
-            discoverFileSchemas: new Map(), // Clear discovered schemas
-            discoverInProgressFileIds: new Set(),
-            discoverFailedFiles: new Map(),
+            discoverAppId: null,
+            discoverFilesState: {
+                page: 0,
+                rowsPerPage: 20,
+                count: 0,
+                files: [],
+                isLoading: false
+            },
             tableToCreate: new Map(),
+            createTableState: {
+                page: 0,
+                rowsPerPage: 20,
+                count: 0,
+                schemas: [],
+                isLoading: false,
+            },
             createInProgress: new Map(),
             createFailed: new Map(),
-            createTables: new Map() // Clear tables
+            createTables: new Map()
         });
         let inputSerialization = this.state.inputSerialization;
         if (newFileType != null) {
@@ -665,6 +626,8 @@ class LoadConfig extends React.Component {
     }
 
     _setSchemaPolicy(newPolicy) {
+        //XXX TODO: This is temporarily disabled
+        // Rewirte this once backend supports multiple algorithms
         return;
         const currentPolicy = this.state.discoverSchemaPolicy;
         if (currentPolicy === newPolicy) {
@@ -726,10 +689,22 @@ class LoadConfig extends React.Component {
     _setInputSerialization(newOption) {
         this.setState({
             inputSerialization: newOption,
-            discoverFileSchemas: new Map(),
-            discoverInProgressFileIds: new Set(),
-            discoverFailedFiles: new Map(),
+            discoverAppId: null,
+            discoverFilesState: {
+                page: 0,
+                rowsPerPage: 20,
+                count: 0,
+                files: [],
+                isLoading: false
+            },
             tableToCreate: new Map(),
+            createTableState: {
+                page: 0,
+                rowsPerPage: 20,
+                count: 0,
+                schemas: [],
+                isLoading: false,
+            },
             createInProgress: new Map(),
             createFailed: new Map(),
             createTables: new Map()
@@ -900,7 +875,7 @@ class LoadConfig extends React.Component {
                                         this.setState({tableToCreate: this.state.tableToCreate});
                                     }}
                                     onFetchData={(p, rpp) => { this._fetchDiscoverReportData(p, rpp)}}
-                                    onClickCreateTable={(schemaName, tableName) => { this._createTableFromSchema2(schemaName, tableName); }}
+                                    onClickCreateTable={(schemaName, tableName) => { this._createTableFromSchema(schemaName, tableName); }}
                                     onPrevScreen = {() => { this._changeStep(stepEnum.SchemaDiscovery); }}
                                     onShowSchema={(schema, schemaName) => {
                                         schema.name = schemaName

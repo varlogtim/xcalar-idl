@@ -137,6 +137,10 @@ class BrowseDataSource extends React.Component {
     }
 
 
+    _getNumSelected() {
+        return this.state.selectedFileDir.length;
+    }
+
     _deselectFiles(files) {
         const fileIds = new Set();
         files.forEach((f) => {
@@ -214,7 +218,17 @@ class BrowseDataSource extends React.Component {
                             fileMap={fileMapViewing}
                             selectedIds={getSelectedIdsForCurrentView(fileMapViewing, selectedFileDir)}
                             onPathChange={(newFullPath) => { this._browsePath(newFullPath, fileType); }}
-                            onSelect={(files) => { this._selectFiles(files); }}
+                            onSelect={(files) => {
+                                if (this._getNumSelected() + files.size > 1) {
+                                    Alert.show({
+                                        title: 'Error',
+                                        msg: 'Only one file or folder can be selected',
+                                        isAlert: true
+                                    });
+                                } else {
+                                    this._selectFiles(files);
+                                }
+                            }}
                             onDeselect={(files) => { this._deselectFiles(files); }}
                             onInfoClick={(path) => { this._fetchForensics(path); }}
                             fileType={fileType}
