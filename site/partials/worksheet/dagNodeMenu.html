@@ -8,6 +8,13 @@
             <i class="icon xi-setup"></i>
             <span class="label"><%= dicts.dag.configure %></span>
         </li>
+        <li class="updateSQLQuery" data-action="updateSQLQuery">
+          <i class="icon xi-refresh"></i>
+          <span class="label">Update to latest SQL Query
+            <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body"
+            data-original-title="<%= dicts.SQL.OutOfSyncTip %>" data-placement="top"></i>
+          </span>
+        </li>
         <li class="editCustom nodeCustom" data-action="editCustom">
             <i class="icon xi-setup"></i>
             <span class="label"><%= dicts.dag.editCustomNode %></span>

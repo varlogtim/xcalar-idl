@@ -2926,6 +2926,62 @@ class DagView {
     }
 
     /**
+     * DagView.updateSQLQuery
+     * @param dagNodeId
+     */
+    public updateSQLQuery(nodeId: DagNodeId): XDPromise<void> {
+        const dagNode: DagNodeSQL = <DagNodeSQL>this.graph.getNode(nodeId);
+        if (dagNode == null) {
+            return PromiseHelper.reject(`${nodeId} does not exist`);
+        }
+        let param = dagNode.getParam()
+        const snippetId: string = param.snippetId;
+        const snippet = SQLSnippet.Instance.getSnippetObj(snippetId);
+        if (!snippet) {
+            return PromiseHelper.reject(`Snippet ${snippetId} does not exist`);
+        }
+        let query = snippet.snippet;
+        const queryId = xcHelper.randName("sql", 8);
+        let identifiers;
+        let identifiersNameMap = {};
+
+        SQLUtil.getSQLStruct(query)
+        .then((ret) => {
+            identifiers = new Map();
+            ret.identifiers.forEach((identifier, index) => {
+                identifiers.set(index + 1, identifier);
+            });
+            let error;
+            identifiers.forEach((identifier, index) => {
+                let parent = dagNode.getParents()[index - 1];
+                if (!parent) {
+                    error = "Query Table \'" + identifier + "\' does not have a corresponding module table. Configure the SQL operator node to fix this issue.";
+                    return;
+                }
+                identifiersNameMap[parent.getId()] = identifier;
+            });
+            if (error) {
+                return PromiseHelper.reject(error);
+            }
+            dagNode.setIdentifiersNameMap(identifiersNameMap);
+            return dagNode.compileSQL(query, queryId,{
+                identifiers: identifiers
+            });
+        })
+        .then(() => {
+            dagNode.setIdentifiers(identifiers);
+            let identifiersHash = {};
+            identifiers.forEach(function(value, key) {
+                identifiersHash[key] = value;
+            });
+            dagNode.setParam({...param, sqlQueryStr: query, identifiers: identifiersHash}, true);
+        })
+        .fail((e) => {
+            Alert.error("SQL Update Error", e);
+        });
+    }
+
+    /**
      * Change the zoom level (scale) of the active graph
      * @param isZoomIn
      * @description

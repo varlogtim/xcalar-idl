@@ -360,6 +360,9 @@ namespace DagNodeMenu {
                 case ("shareCustom"):
                     DagViewManager.Instance.shareCustomOperator(dagNodeIds[0]);
                     break;
+                case ("updateSQLQuery"):
+                    DagViewManager.Instance.updateSQLQuery(dagNodeIds[0]);
+                    break;
                 case ("inspectSQL"):
                     DagViewManager.Instance.inspectSQLNode(dagNodeIds[0], tabId);
                     break;
@@ -981,6 +984,9 @@ namespace DagNodeMenu {
 
         if (dagNodeType === DagNodeType.SQL) {
             classes += ' SQLOpMenu';
+            _checkSQLQuery(dagNode, $menu);
+        } else {
+            $menu.find(".updateSQLQuery").addClass("xc-hidden");
         }
 
         if (DagViewManager.Instance.isNodeLocked(nodeId) ||
@@ -1084,7 +1090,7 @@ namespace DagNodeMenu {
     async function _handlePaste() {
         try {
             // will go to catch clause if .readText is not supported
-            const text = await navigator.clipboard.readText();
+            const text = await navigator["clipboard"].readText();
             DagViewManager.Instance.paste(text);
         } catch (e) {
             let pasteKey: string = isSystemMac ? "⌘V" : "\"CTRL\" + \"V\"";
@@ -1167,5 +1173,26 @@ namespace DagNodeMenu {
         curNodeId = null;
         curParentNodeId = null;
         curConnectorIndex = null;
+    }
+
+    function _checkSQLQuery(dagNode: DagNodeSQL, $menu: JQuery): void {
+        const snippetId: string = dagNode.getParam().snippetId;
+        const queryStr: string = dagNode.getParam().sqlQueryStr;
+        let isQueryUpdated = false;
+        if (snippetId) {
+            let snippet = SQLSnippet.Instance.getSnippetObj(snippetId);
+            if (snippet) {
+                isQueryUpdated = (snippet.snippet === queryStr);
+            } else {
+                isQueryUpdated = true;
+            }
+        } else {
+            isQueryUpdated = true;
+        }
+        if (isQueryUpdated) {
+            $menu.find(".updateSQLQuery").addClass("xc-hidden");
+        } else {
+            $menu.find(".updateSQLQuery").removeClass("xc-hidden");
+        }
     }
 }

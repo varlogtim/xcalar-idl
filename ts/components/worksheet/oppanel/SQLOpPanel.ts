@@ -235,6 +235,11 @@ class SQLOpPanel extends BaseOpPanel {
         }
         queryStr = queryStr || "";
         $input.val(queryName);
+        if (queryStr && !queryName) {
+            $input.attr("placeholder", "Query name not found");
+        } else {
+            $input.attr("placeholder", "");
+        }
         $input.data("id", snippetId);
         this.$panel.find(".editorWrapper").text(queryStr);
         this._queryStr = queryStr;

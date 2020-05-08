@@ -441,6 +441,7 @@ module.exports = {
         "SchemaBack": "Back to show tables",
         "ResultLoading": "Result is loading, please wait...",
         "ResultHint": "No results. To get started with building a data app, run a SQL statement or edit operators in the App Builder.",
+        "OutOfSyncTip": "The original SQL statement has been modified since this SQL Node was last saved, but this SQL Node is still using the orignal statement."
     },
 
     "Debug": {

@@ -162,6 +162,7 @@ describe("SQLOpPanel Test", function() {
             if (!sqlOpPanel._isAdvancedMode()) {
                 $("#oldSqlOpPanel .bottomSection .xc-switch").click();
             }
+
             editor.setValue(JSON.stringify(struct, null, 4));
             $("#oldSqlOpPanel .bottomSection .btn-submit").click();
             if ($("#alertModal").is(":visible")) {

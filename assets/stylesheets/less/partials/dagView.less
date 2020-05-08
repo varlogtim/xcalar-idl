@@ -1593,6 +1593,16 @@
                 margin-left: -2px;
                 margin-right: 10px;
             }
+            &.qMark {
+                float: right;
+                margin-left: 4px;
+                margin-right: 0px;
+                margin-top: 6px;
+                width: 12px;
+                line-height: 12px;
+                color: white !important;
+                font-size: 7px;
+            }
         }
         .label {
             max-width: ~"calc(100% - (@{iconWidth} + @{iconMargin}))";
@@ -1614,16 +1624,18 @@
 
     &.operatorMenu {
         .removeNode, .copyNodes, .cutNodes, .executeNode, .resetNode, .executeNodeOptimized,
-        .viewOptimizedDataflow, .deleteTable, .reexecuteNode,
-        .description, .configureNode, .viewResult, .generateResult, .viewSchema, .viewOptions, .customNodeOptions, .autoAlign,
-        .unlockNodeTable, .lockNodeTable, .createCustom, .selectAllNodes, .viewUDFErrors, .viewSkew, .addOperation {
+        .viewOptimizedDataflow, .deleteTable, .reexecuteNode, .description,
+        .configureNode, .updateSQLQuery, .viewResult, .generateResult,
+        .viewSchema, .viewOptions, .customNodeOptions, .autoAlign,
+        .unlockNodeTable, .lockNodeTable, .createCustom, .selectAllNodes,
+        .viewUDFErrors, .viewSkew, .addOperation {
             display: list-item;
         }
         .findLinkOut, .restoreSource {
             display: none;
         }
         &.multiple {
-            .description, .configureNode, .viewResult, .viewOptimizedDataflow,
+            .description, .configureNode, .updateSQLQuery, .viewResult, .viewOptimizedDataflow,
             .generateResult, .viewSchema, .shareCustom, .viewUDFErrors, .addOperation {
                 display: none;
             }
@@ -1653,7 +1665,8 @@
             }
         }
         &.nonEditableSubgraph {
-            .configureNode, .removeNode, .copyNodes, .cutNodes, .executeNode, .addOperation {
+            .configureNode, .updateSQLQuery, .removeNode, .copyNodes, .cutNodes,
+            .executeNode, .addOperation {
                 display: none;
             }
 
@@ -1808,7 +1821,7 @@
         }
     }
     &.SQLOpMenu {
-        .inspectSQL, .expandSQL {
+        .inspectSQL, .expandSQL, .updateSQLQuery {
             .icon {
                 color: darken(@color-operator-SQL, 20%);
             }
