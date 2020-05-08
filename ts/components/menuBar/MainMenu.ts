@@ -243,7 +243,6 @@ namespace MainMenu {
     }
 
     function closeMainPanels(): void {
-        $menuBar.find(".topMenuBarTab").removeClass("active");
         $(".mainPanel").removeClass("active");
     }
 
@@ -254,7 +253,6 @@ namespace MainMenu {
         closeMainPanels();
         const $container = $("#container");
         $container.removeClass("monitorViewOpen");
-        $menuBar.find(".topMenuBarTab").removeClass("active");
         $curTab.addClass("active");
 
         $("#sqlWorkSpacePanel").addClass("active");
