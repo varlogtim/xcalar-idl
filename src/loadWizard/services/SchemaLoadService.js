@@ -227,6 +227,7 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
             }
         },
         getCreateTableQuery: async (schemaHash) => {
+            await deleteTempTables();
             const tableNames = {
                 load: `${names.loadPrefix}${schemaHash}`,
                 data: `${names.dataPrefix}${schemaHash}`,
