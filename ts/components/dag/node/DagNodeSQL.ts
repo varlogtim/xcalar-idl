@@ -1568,11 +1568,19 @@ class DagNodeSQL extends DagNode {
                                 }
                             }
                         }
+                    } else if (errorMsg.startsWith("Expressions referencing the"
+                        + " outer query are not supported outside of"
+                        + " WHERE/HAVING clauses:")) {
+                        if (errorMsg.indexOf("#") !== -1) {
+                            errorMsg = errorMsg.substring(0, errorMsg.indexOf("outer("))
+                                + errorMsg.substring(errorMsg.indexOf("outer(") + 6,
+                                errorMsg.indexOf("#")) + ". Please check if subquery"
+                                + " reference columns out of scope";
+                        } else {
+                            errorMsg = errorMsg + ". Please check if subquery"
+                                        + " reference columns out of scope";
+                        }
                     }
-                } else if (errorMsg ==="Expressions referencing the outer query"
-                    + " are not supported outside of WHERE/HAVING clauses:") {
-                    errorMsg = errorMsg.substring(0, errorMsg.length - 1) +
-                        ". Please check if subquery reference columns out of scope";
                 }
                 self.setSQLQuery({errorMsg: errorMsg, endTime: new Date()});
                 deferred.reject(errorMsg);
