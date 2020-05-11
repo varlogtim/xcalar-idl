@@ -256,7 +256,12 @@ class SQLEditorSpace {
     }
 
     private _getNumSQLStatements(sqls: string): number {
-       return sqls.split(";").filter((sql) => sql.trim() !== "").length;
+        const validSQLs = sqls.split(";").filter((sql) => {
+           const trimmedStr = sql.trim();
+           // not empty and not a comment
+           return trimmedStr !== "" && !trimmedStr.startsWith("--");
+        });
+        return validSQLs.length;
     }
 
     private _executeAction(): void {
@@ -359,12 +364,6 @@ class SQLEditorSpace {
         }
 
         try {
-            const numStatemsnts = this._getNumSQLStatements(sqls);
-            if (numStatemsnts > 1) {
-                // disallow multiple sql statement
-                throw new Error("Cannot have multiple statement in the SQL, please selected one statement and execute.");
-            }
-
             let selectArray: SQLParserStruct[] = [];
             let lastShow: any = {type: "select"};
             let executorArray: SQLDagExecutor[] = [];

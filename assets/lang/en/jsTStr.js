@@ -532,7 +532,7 @@ SQLErrTStr = {
     "NoRightRowNumTableName": "Can't find right row number column name in right outer join",
     "NoRightRowNumCol": "No right row number column in right outer join",
     "Warning": "SQL Warning",
-    "MultiQueries": "Multiple queries not supported yet",
+    "MultiQueries": "Multiple SQL statements are not supported yet",
     "InvalidColName": "Invalid column name found. A name can only begin with a letter or underscore(_), not contain the following characters: ^.',\":()[]{}\\ or space, and use fewer than 255 characters. Please rename before sql node: ",
     "UnexpectedParam": "Unexpected single parameter",
     "MultiCreate": "Create table in multi-statement not supported",
