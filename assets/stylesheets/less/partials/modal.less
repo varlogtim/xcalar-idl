@@ -4210,6 +4210,7 @@ html.microsoft {
 /* ========== Dataflow download ============= */
 #dfDownloadModal {
     .size(@height: 328px);
+    @r-h: @modal-header-h + @modal-instr-h + @modal-bottom-h;
 
     &.locked {
         pointer-events: none;
@@ -4220,6 +4221,8 @@ html.microsoft {
     }
 
     .modalMain {
+        height: ~"calc(100% - @{r-h})";
+
         .row {
             height: 30px;
 
