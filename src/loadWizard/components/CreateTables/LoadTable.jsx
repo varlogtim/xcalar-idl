@@ -4,6 +4,7 @@ import { useTable, useSortBy, usePagination } from 'react-table'
 import * as LoadCell from './LoadCell'
 import prettyBytes from 'pretty-bytes'
 import EtaCost from '../../utils/EtaCost'
+import { hashFunc } from '../../services/sdk/Api.js'
 
 const { xcTimeHelper } = global;
 
@@ -213,6 +214,11 @@ function validateCreate($input, tableName) {
   return isValid ? tableName : null;
 }
 
+const failedSchemaHash = hashFunc('[]');
+function isFailedSchema(schemaHash) {
+    return schemaHash === failedSchemaHash;
+}
+
 function LoadTable({
     page, rowsPerPage, isLoading = false,
     schemas, // Array<{schema: {hash, columns}, files: { count, size }}>
@@ -259,40 +265,53 @@ function LoadTable({
     for (const {schema, files} of schemas) {
         const schemaName = schema.hash;
 
-        const rowData = {
-            schema: <button onClick={() => { onClickSchema(schemaName); }}>{schemaName}</button>,
-            count: files.count,
-            size: prettyBytes(files.size || 0),
-            time: xcTimeHelper.getElapsedTimeStr(Math.ceil(etaCost.loadEtaBySize(files.size) * 1000)),
-            tableName: null,
-            load: null
-        };
-
-        if (schemasInProgress.has(schemaName)) {
-            const {table, message} = schemasInProgress.get(schemaName);
-            rowData.load = <LoadCell.Loading message={message}/>
-            rowData.tableName = table;
-        } else if (schemasFailed.has(schemaName)) {
-            rowData.load = <LoadCell.Error error={schemasFailed.get(schemaName)} />
-        } else if (tables.has(schemaName)) {
-            const createdRes = tables.get(schemaName);
-            rowData.load = <LoadCell.Success complementTable={createdRes.complementTable}/>
-            rowData.tableName = createdRes.table;
+        if (isFailedSchema(schemaName)) {
+            // XXX TODO: show failed files/reasons
+            const rowData = {
+                schema: <button onClick={() => { onClickSchema(schemaName); }}>Failed</button>,
+                count: files.count,
+                size: prettyBytes(files.size || 0),
+                time: 'N/A',
+                tableName: null,
+                load: null
+            };
+            loadTableData.push(rowData);
         } else {
-            const tableName = tablesInInput.get(schemaName);
-            rowData.tableName = <input className="xc-input tableInput" value={tableName} onChange={(e) => onTableNameChange(schemaName, e.target.value)}/>
-            rowData.load = <LoadCell.Create onClick={(e) => {
-              // XXX this is a hacky way to use jQuery in order to use xcHelper.validate
-              const $button = $(e.target);
-              const $input = $button.parent().prev().find(".tableInput");
-              const validTableName = validateCreate($input, tableName);
-              if (validTableName) {
-                  onClickCreateTable(schemaName, validTableName);
-              }
-            }} />
-        }
+            const rowData = {
+                schema: <button onClick={() => { onClickSchema(schemaName); }}>{schemaName}</button>,
+                count: files.count,
+                size: prettyBytes(files.size || 0),
+                time: xcTimeHelper.getElapsedTimeStr(Math.ceil(etaCost.loadEtaBySize(files.size) * 1000)),
+                tableName: null,
+                load: null
+            };
 
-        loadTableData.push(rowData);
+            if (schemasInProgress.has(schemaName)) {
+                const {table, message} = schemasInProgress.get(schemaName);
+                rowData.load = <LoadCell.Loading message={message}/>
+                rowData.tableName = table;
+            } else if (schemasFailed.has(schemaName)) {
+                rowData.load = <LoadCell.Error error={schemasFailed.get(schemaName)} />
+            } else if (tables.has(schemaName)) {
+                const createdRes = tables.get(schemaName);
+                rowData.load = <LoadCell.Success complementTable={createdRes.complementTable}/>
+                rowData.tableName = createdRes.table;
+            } else {
+                const tableName = tablesInInput.get(schemaName);
+                rowData.tableName = <input className="xc-input tableInput" value={tableName} onChange={(e) => onTableNameChange(schemaName, e.target.value)}/>
+                rowData.load = <LoadCell.Create onClick={(e) => {
+                    // XXX this is a hacky way to use jQuery in order to use xcHelper.validate
+                    const $button = $(e.target);
+                    const $input = $button.parent().prev().find(".tableInput");
+                    const validTableName = validateCreate($input, tableName);
+                    if (validTableName) {
+                        onClickCreateTable(schemaName, validTableName);
+                    }
+                }} />
+            }
+
+            loadTableData.push(rowData);
+        }
     }
 
     return (

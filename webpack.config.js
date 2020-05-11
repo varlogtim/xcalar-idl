@@ -141,7 +141,7 @@ module.exports = function(env, argv) {
                 extensions: [".ts", ".tsx", ".js", ".jsx", ".less"]
             },
             devtool: buildSourceMap ? 'eval-source-map' : '',
-            mode: mode,
+            // mode: mode,
             optimization: {
                 splitChunks: {
                     cacheGroups: {
@@ -163,7 +163,7 @@ module.exports = function(env, argv) {
                         test: /\.jsx?$/,
                         loader: "babel-loader",
                         options: {
-                            presets: ['react', 'es2015'],
+                            presets: ['react', 'es2016'],
                             plugins: ["transform-object-rest-spread"]
                         },
                         exclude: /node_modules/

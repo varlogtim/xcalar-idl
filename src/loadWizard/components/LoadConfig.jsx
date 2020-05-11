@@ -188,7 +188,7 @@ class LoadConfig extends React.Component {
         try {
             await cursor.open();
             if (cursor.getNumRows() > 0) {
-                compHashData = true;
+                compHasData = true;
             }
         } finally {
             cursor.close();
