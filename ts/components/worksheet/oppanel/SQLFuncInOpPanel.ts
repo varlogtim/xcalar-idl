@@ -22,7 +22,7 @@ class SQLFuncInOpPanel extends BaseOpPanel {
         // Show panel
         super.showPanel(null, options)
         .then(() => {
-            this._initializeTables();
+            this._updateTables();
             const model = $.extend(this._dagNode.getParam(), {
                 schema: this._dagNode.getSchema()
             });
@@ -78,7 +78,7 @@ class SQLFuncInOpPanel extends BaseOpPanel {
         this._schemaSection.clear();
     }
 
-    private _initializeTables(): void {
+    private _updateTables(): void {
         let tables: PbTblInfo[] = SQLResultSpace.Instance.getAvailableTables();
         this._tables = new Map();
         tables.forEach((table) => {
@@ -250,6 +250,7 @@ class SQLFuncInOpPanel extends BaseOpPanel {
         // auto detect listeners for schema section
         const $schemaSection: JQuery = this._getSchemaSection();
         $schemaSection.on("click", ".detect", (event) => {
+            this._updateTables();
             const error = this._autoDetectSchema();
             if (error != null) {
                 StatusBox.show(ErrTStr.DetectSchema, $(event.currentTarget), false, {
@@ -265,6 +266,7 @@ class SQLFuncInOpPanel extends BaseOpPanel {
         const selector: string = `#${this._getPanel().attr("id")}`;
         new MenuHelper($dropdown, {
             onOpen: () => {
+                this._updateTables();
                 this._searchSource();
             },
             onSelect: ($li) => {
