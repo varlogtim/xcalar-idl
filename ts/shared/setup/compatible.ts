@@ -830,10 +830,17 @@ namespace Compatible {
                 if ( elem instanceof SVGElement ) {
                   var classes = $(elem).attr('class');
                   if ( classes ) {
-                    var index = classes.indexOf(value);
-                    if (index !== -1) {
-                      classes = classes.substring(0, index) + classes.substring((index + value.length), classes.length);
-                      $(elem).attr('class', classes);
+                    var values = value.split(" ").map((v) => v.trim());
+                    let modified = false;
+                    values.forEach((value) => {
+                        var index = classes.indexOf(value);
+                        if (index !== -1) {
+                          classes = classes.substring(0, index) + classes.substring((index + value.length), classes.length);
+                          modified = true;
+                        }
+                    });
+                    if (modified) {
+                        $(elem).attr('class', classes);
                     }
                   }
                 }

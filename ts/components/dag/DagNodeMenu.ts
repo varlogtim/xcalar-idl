@@ -95,7 +95,7 @@ namespace DagNodeMenu {
             return false;
         });
 
-        $dfWraps.on("contextmenu", ".operator .table", function(event: JQueryEventObject) {
+        $dfWraps.on("contextmenu", ".operator .table, .operator .tblIcon, .operator .nodeIcon", function(event: JQueryEventObject) {
             _showNodeMenu(event, $(this));
             return false;
         });
@@ -656,7 +656,8 @@ namespace DagNodeMenu {
         let nodeId: DagNodeId;
         if ($clickedEl && $clickedEl.length) {
             nodeId = $clickedEl.closest(".operator").data("nodeid");
-            if ($clickedEl.closest(".table").length) {
+            if ($clickedEl.closest(".table").length ||
+                $clickedEl.closest(".tblIcon").length) {
                 tableNodeClicked = true;
             }
         } else {
@@ -664,9 +665,9 @@ namespace DagNodeMenu {
             backgroundClicked = true;
         }
 
-
         let $menu: JQuery;
-        if (tableNodeClicked) {
+        if (tableNodeClicked || ($operators.length &&
+            $operators.find(".selection-table").length === $operators.length)) {
             $menu = _getDagTableMenu();
         } else {
             $menu = _getDagNodeMenu();

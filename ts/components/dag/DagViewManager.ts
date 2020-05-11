@@ -739,6 +739,7 @@ class DagViewManager {
         this._isCopying = true;
         document.execCommand("cut");
         this._isCopying = false;
+        DagNodeMenu.close();
     }
 
     public paste(content: string): any[] {
@@ -748,6 +749,7 @@ class DagViewManager {
         if (this.isDisableActions(true)) {
             return;
         }
+        DagNodeMenu.close();
         return this.activeDagView.validateAndPaste(content);
     }
 
@@ -1235,7 +1237,7 @@ class DagViewManager {
         const self = this;
 
         // moving node in dataflow area to another position
-        let operatorSelector = ".operator .main, .operator .iconArea, .comment, .operator .table";
+        let operatorSelector = ".operator .main, .operator .iconArea, .comment, .operator .table, .operator .tblIcon";
 
 
         // connecting 2 nodes dragging the parent's connector

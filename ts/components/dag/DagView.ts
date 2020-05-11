@@ -784,10 +784,25 @@ class DagView {
     private static _setSelectedStyle($operators: JQuery, onTableIcon?: boolean): void {
         $operators.each(function() {
             const $operator = $(this);
-            if ($operator.find('.selection').length > 0) {
-                return;
+            let $selection = $operator.find(".selection");
+            if ($selection.length > 0) {
+                if ($selection.hasClass("selection-table")) {
+                    if (onTableIcon) {
+                        return;
+                    } else {
+                        $selection.remove();
+                    }
+                } else if (onTableIcon) {
+                    $selection.remove();
+                } else {
+                    return;
+                }
             }
-            DagView.addSelection($operator, "selection", onTableIcon);
+            let className = "selection";
+            if (onTableIcon) {
+                className += " selection-table";
+            }
+            DagView.addSelection($operator, className, onTableIcon);
         });
     }
 
@@ -5132,7 +5147,8 @@ class DagView {
             isDagNode = false;
         }
         const $eventTarget = $(event.target);
-        const isTableNode = $eventTarget.closest(".table").length > 0;
+        const isTableNode = $eventTarget.closest(".table").length > 0 ||
+                            $eventTarget.closest(".tblIcon").length > 0;
 
         // if not shift clicking, deselect other nodes
         // if shiftx clicking, and this is selected, then deselect it
