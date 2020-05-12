@@ -277,7 +277,7 @@ class DagView {
      * @param iconType
      * @param tooltip
      */
-    public static addNodeIcon($node: JQuery, iconType: string, tooltip: string) {
+    private  _addNodeIcon($node: JQuery, iconType: string, tooltip: string) {
         let left: number;
         let top: number;
         if (iconType === "tableIcon" || iconType === "columnIcon") {
@@ -565,6 +565,20 @@ class DagView {
 
         icons.splice(index, 1);
         isTopIcon ? $node.attr("data-toptableicons", <any>icons) : $node.attr("data-bottomtableicons", <any>icons);
+    }
+
+    private _updateDescription(nodeId: DagNodeId, $node: JQuery, text: string) {
+        const node = this.graph.getNode(nodeId);
+        if (node.isDeprecated()) {
+            return;
+        }
+        if (text && text.length) {
+            $node.addClass("hasDescription");
+            xcTooltip.add($node.find(".main"), {title: text});
+        } else {
+            $node.removeClass("hasDescription");
+            xcTooltip.remove($node.find(".main"));
+        }
     }
 
     private static _dagLineageTipTemplate(x, y, text): HTML {
@@ -3927,13 +3941,7 @@ class DagView {
 
         this._registerGraphEvent(this.graph, DagNodeEvents.DescriptionChange, (info) => {
             const $node: JQuery = this._getNode(info.id);
-            DagView.removeNodeIcon($node, "descriptionIcon");
-            if (info.text.length) {
-                $node.addClass("hasDescription");
-                DagView.addNodeIcon($node, "descriptionIcon", info.text);
-            } else {
-                $node.removeClass("hasDescription");
-            }
+            this._updateDescription(info.id, $node, info.text);
             DagNodeInfoPanel.Instance.update(info.id, "description");
         });
 
@@ -4148,12 +4156,11 @@ class DagView {
         this._setTooltip($node, node);
         const description = node.getDescription();
         if (description) {
-            $node.addClass("hasDescription");
-            DagView.addNodeIcon($node, "descriptionIcon", description);
+            this._updateDescription(nodeId, $node, description);
         }
         let aggs: string[] = node.getAggregates();
         if (aggs.length) {
-            DagView.addNodeIcon($node, "aggregateIcon", aggs.toString());
+            this._addNodeIcon($node, "aggregateIcon", aggs.toString());
         }
         const columnDeltas = node.getColumnDeltas();
         const columnOrdering = node.getColumnOrdering();
@@ -4502,7 +4509,7 @@ class DagView {
         DagView.removeNodeIcon($node, "aggregateIcon");
         if (aggregates.length) {
             $node.addClass("hasAggregates");
-            DagView.addNodeIcon($node, "aggregateIcon", aggregates.toString());
+            this._addNodeIcon($node, "aggregateIcon", aggregates.toString());
         } else {
             $node.removeClass("hasAggregate");
         }
@@ -4534,7 +4541,7 @@ class DagView {
                 colStr += "Column reordering: \n" + orderStr;
             }
 
-            DagView.addNodeIcon($node, "columnIcon", colStr);
+            this._addNodeIcon($node, "columnIcon", colStr);
         } else {
             $node.removeClass("hasColumnChange");
         }
@@ -4565,7 +4572,7 @@ class DagView {
             } catch (e) {
                 console.error(e);
             }
-            DagView.addNodeIcon($node, "paramIcon", tooltip);
+            this._addNodeIcon($node, "paramIcon", tooltip);
         }
     }
 
