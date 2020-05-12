@@ -201,7 +201,7 @@ abstract class DagTabProgress extends DagTab {
                 if (this instanceof DagTabOptimized) {
                     let sortedNodes = this._dagGraph.getSortedNodes();
                     let lastNode = sortedNodes[sortedNodes.length - 1];
-                    if (!(lastNode instanceof DagNodeExport) && !lastNode.getTable()) {
+                    if (lastNode && !(lastNode instanceof DagNodeExport) && !lastNode.getTable()) {
                         let tableName = DagTabOptimized.getOutputTableName(this._queryName);
                         lastNode.setTable(tableName, true);
                     }
