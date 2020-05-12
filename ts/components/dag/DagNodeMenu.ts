@@ -675,6 +675,7 @@ namespace DagNodeMenu {
 
         curNodeId = nodeId;
         $menu.find("li").removeClass("unavailable");
+        $menu.find(".resetNode").addClass("xc-hidden");
 
         let classes: string = "";
         if (DagViewManager.Instance.isDisableActions()) {
@@ -965,6 +966,9 @@ namespace DagNodeMenu {
                 $menu.find(".reexecuteNode").addClass("xc-hidden");
                 $menu.find(".executeNode").removeClass("xc-hidden");
             }
+        }
+        if (dagNode instanceof DagNodeDFOut && dagNode.isOptimized()) {
+            $menu.find(".resetNode").removeClass("xc-hidden");
         }
         if (dagNodeType === DagNodeType.Custom) {
             classes += ' customOpMenu';
