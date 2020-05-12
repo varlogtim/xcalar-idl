@@ -1574,6 +1574,7 @@ class DagView {
                 "nodeIds": allNewNodeIds
             });
             this.dagTab.turnOnSave();
+            this.dagTab.save();
             return allNewNodes;
         } catch (error) {
             this.dagTab.turnOnSave();
