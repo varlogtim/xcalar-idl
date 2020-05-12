@@ -306,6 +306,7 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
                 }
             } catch(e) {
                 console.error('getFileSchema error: ', e);
+                throw e;
             } finally {
                 await cursor.close();
             }
@@ -332,6 +333,7 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
                 }
             } catch(e) {
                 console.error('getReport error: ', e);
+                throw e;
             } finally {
                 await cursor.close();
             }

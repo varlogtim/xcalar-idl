@@ -179,30 +179,48 @@ class LoadConfig extends React.Component {
         const dataName = PTblManager.Instance.getUniqName(publishTableName.toUpperCase());
         const compName = PTblManager.Instance.getUniqName(publishTableName + '_COMPLEMENTS');
 
-        // Publish data table
-        await tables.data.publish(dataName);
-
-        // Check if comp table is empty
-        let compHasData = false;
-        const cursor = tables.comp.createCursor(false);
         try {
-            await cursor.open();
-            if (cursor.getNumRows() > 0) {
-                compHasData = true;
+            PTblManager.Instance.addLoadingTable(dataName);
+            PTblManager.Instance.addLoadingTable(compName);
+
+            // Publish data table
+            await tables.data.publish(dataName);
+
+            // Check if comp table is empty
+            let compHasData = false;
+            const cursor = tables.comp.createCursor(false);
+            try {
+                await cursor.open();
+                if (cursor.getNumRows() > 0) {
+                    compHasData = true;
+                }
+            } finally {
+                cursor.close();
             }
-        } finally {
-            cursor.close();
-        }
 
-        // Publish comp table
-        if (compHasData) {
-            await tables.comp.publish(compName);
-        }
+            // Publish comp table
+            if (compHasData) {
+                await tables.comp.publish(compName);
+            }
 
-        return {
-            table: dataName,
-            complementTable: compHasData ? compName : null
-        };
+            // XD table operations
+            PTblManager.Instance.removeLoadingTable(dataName);
+            PTblManager.Instance.removeLoadingTable(compName);
+            PTblManager.Instance.addTable(dataName);
+            if (compHasData) {
+                PTblManager.Instance.addTable(compName);
+            }
+
+            return {
+                table: dataName,
+                complementTable: compHasData ? compName : null
+            };
+
+        } catch(e) {
+            PTblManager.Instance.removeLoadingTable(dataName);
+            PTblManager.Instance.removeLoadingTable(compName);
+            throw e;
+        }
     }
 
     async _createTableFromSchema(schemaName, tableName) {
@@ -329,6 +347,11 @@ class LoadConfig extends React.Component {
                     files: result.files
                 }
             }));
+        } catch(e) {
+            this._alert({
+                title: 'Error loading discovered files',
+                message: `${e.log || e.error || e}`
+            });
         } finally {
             this.setState((state) => ({
                 discoverFilesState: {
