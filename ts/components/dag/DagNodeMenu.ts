@@ -428,13 +428,9 @@ namespace DagNodeMenu {
                         return !nodeId.startsWith("comment");
                     });
                     if (DagViewManager.Instance.getActiveDag().checkForChildLocks(nodesToCheck)) {
-                        Alert.show({
-                            title: DFTStr.LockedTableWarning,
-                            msg: xcStringHelper.replaceMsg(DFTStr.LockedTableMsg, {action: action}),
-                            onConfirm: () => {
-                                _processMenuAction(action, {bypassAlert: true});
-                            }
-                        });
+                        Alert.error(DFTStr.LockedTableWarning,
+                            xcStringHelper.replaceMsg(DFTStr.LockedTableMsg, {action: action})
+                        );
                     } else {
                         _processMenuAction(action);
                     }

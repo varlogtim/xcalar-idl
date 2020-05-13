@@ -1097,7 +1097,7 @@ DFTStr = {
     "CustomizeTitle": "Customize <op> Operation",
     "ParamNoValueList": "Please assign values to all the parameters being used in the current module. Parameters without values: <params>",
     "LockedTableWarning": "Pinned Table Warning",
-    "LockedTableMsg": "\'<action>\' will delete one or more pinned tables. If you do not want the tables to be deleted, cancel and duplicate the relevant parts of the flow.",
+    "LockedTableMsg": "This action will delete one or more pinned tables. If you want to proceed, unpin these tables and try again."
 };
 
 DFNodeLineageTStr = {
