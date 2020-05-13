@@ -537,7 +537,8 @@ SQLErrTStr = {
     "UnexpectedParam": "Unexpected single parameter",
     "MultiCreate": "Create table in multi-statement not supported",
     "DuplicateParamNames": "Multiple possible parameters found in SQL. First match is used: ",
-    "NoInputColumn": "Cannot detect schema of input table. Please make sure SQL input is set"
+    "NoInputColumn": "Cannot detect schema of input table. Please make sure SQL input is set",
+    "CalendarIntervalFrame": "Calendar interval as window frame is not supported yet"
 };
 
 TimeTStr = {

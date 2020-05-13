@@ -173,7 +173,9 @@ declare enum SQLErrTStr {
     NoRightRowNumCol,
     Warning,
     MultiQueries,
-    DuplicateParamNames
+    DuplicateParamNames,
+    NoInputColumn,
+    CalendarIntervalFrame
 }
 
 declare enum SQLStatus {

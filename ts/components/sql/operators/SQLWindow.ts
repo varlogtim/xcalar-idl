@@ -178,6 +178,8 @@ class SQLWindow {
         curNode = frameNode.children[frameNode.value.lower];
         if (curNode.value.class ===
                     "org.apache.spark.sql.catalyst.expressions.Literal") {
+            SQLUtil.assert(curNode.value.dataType !== "calendarinterval",
+                           SQLErrTStr.CalendarIntervalFrame);
             frameInfo.lower = curNode.value.value * 1;
         } else if (curNode.value.class ===
             "org.apache.spark.sql.catalyst.expressions.CurrentRow$") {
@@ -186,6 +188,8 @@ class SQLWindow {
         curNode = frameNode.children[frameNode.value.upper];
         if (curNode.value.class ===
                     "org.apache.spark.sql.catalyst.expressions.Literal") {
+            SQLUtil.assert(curNode.value.dataType !== "calendarinterval",
+                           SQLErrTStr.CalendarIntervalFrame);
             frameInfo.upper = curNode.value.value * 1;
         } else if (curNode.value.class ===
             "org.apache.spark.sql.catalyst.expressions.CurrentRow$") {
@@ -691,7 +695,6 @@ class SQLWindow {
                                     SQLCompiler.getCurrentName(opStruct.aggCols[i].colStruct)
                                     === SQLCompiler.getCurrentName(item)) {
                                     rightAggColStructs[i] = rColStruct;
-                                    break;
                                 }
                             }
                             for (let i = 0; i < sortColsAndOrder.length; i++) {
