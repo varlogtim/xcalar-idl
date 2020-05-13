@@ -270,6 +270,7 @@ class DagGraph extends Durable {
             operationTime: 0
         });
         this.clear();
+        this.checkNodesState(this.nodesMap);
     }
 
     public initialize(): void {
