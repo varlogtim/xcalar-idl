@@ -310,23 +310,27 @@ describe("DagView Test", () => {
         it("editDescription should work", function() {
             const $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);
             expect($operator.hasClass("hasDescription")).to.be.false;
+            expect($operator.find(".descriptionIcon").length).to.equal(0);
 
             const nodeId = $operator.data('nodeid');
             DagViewManager.Instance.editDescription(nodeId, "test");
             const node = DagViewManager.Instance.getActiveDag().getNode(nodeId);
             expect(node.getDescription()).to.equal("test");
             expect($operator.hasClass("hasDescription")).to.be.true;
+            expect($operator.find(".descriptionIcon").length).to.equal(1);
         });
 
         it("editDescription with no value should work", function() {
             const $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);
             expect($operator.hasClass("hasDescription")).to.be.true;
+            expect($operator.find(".descriptionIcon").length).to.equal(1);
 
             const nodeId = $operator.data('nodeid');
             DagViewManager.Instance.editDescription(nodeId, "");
             const node = DagViewManager.Instance.getActiveDag().getNode(nodeId);
             expect(node.getDescription()).to.equal("");
             expect($operator.hasClass("hasDescription")).to.be.false;
+            expect($operator.find(".descriptionIcon").length).to.equal(0);
         });
     });
 
