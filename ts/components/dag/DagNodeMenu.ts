@@ -937,7 +937,8 @@ namespace DagNodeMenu {
             dagNode.getTable() != null &&
             DagTblManager.Instance.hasTable(dagNode.getTable())
         ) {
-            $menu.find(".unlockNodeTable, .lockNodeTable").addClass("unavailable xc-hidden");
+            $menu.find(".unlockNodeTable").addClass("unavailable xc-hidden");
+            $menu.find(".lockNodeTable").removeClass("unavailable xc-hidden");
         } else {
             $menu.find(".lockNodeTable, .unlockNodeTable").addClass("unavailable xc-hidden");
         }
