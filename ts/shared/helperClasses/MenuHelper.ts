@@ -647,7 +647,7 @@ class MenuHelper {
             if (scrollTop === 0) {
                 $scrollAreas.eq(0).addClass('stopped');
                 $scrollAreas.eq(1).removeClass('stopped');
-            } else if (outerHeight + scrollTop >= innerHeight) {
+            } else if (outerHeight + scrollTop >= (innerHeight - 1)) {
                 $scrollAreas.eq(0).removeClass('stopped');
                 $scrollAreas.eq(1).addClass('stopped');
             } else {
