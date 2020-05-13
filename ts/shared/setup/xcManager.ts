@@ -351,6 +351,9 @@ namespace xcManager {
      * @param markUser - boolean, if true record the time the user unloaded
      */
     export function removeUnloadPrompt(markUser: boolean = false): void {
+        // ENG-8039, this is a temp workaround, correct fix should at the wetty side
+        $("#shellPanel").remove();
+        
         window.onbeforeunload = function() {
             if (markUser) {
                 markUserUnload();
