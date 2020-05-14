@@ -342,8 +342,8 @@ class GeneralOpPanel extends BaseOpPanel {
         this._$panel.on("input", ".arg", function(_event, options) {
             // Suggest column name
             const $input = $(this);
-            if ($input.closest(".dropDownList")
-                        .hasClass("colNameSection")) {
+            const $list = $input.closest(".dropDownList");
+            if ($list.hasClass("colNameSection") || $list.hasClass("noSuggest")) {
                 // for new column name, do not suggest anything
                 return;
             }
@@ -388,8 +388,8 @@ class GeneralOpPanel extends BaseOpPanel {
         // to immediately close when mousedown is used
         this._$panel.on("mouseup", ".arg", function() {
             const $input = $(this);
-            if ($input.closest(".dropDownList")
-                        .hasClass("colNameSection")) {
+            const $list = $input.closest(".dropDownList");
+            if ($list.hasClass("colNameSection") || $list.hasClass("noSuggest")) {
                 // for new column name, do not suggest anything
                 return;
             }

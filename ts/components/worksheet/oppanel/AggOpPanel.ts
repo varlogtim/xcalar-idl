@@ -354,7 +354,7 @@ class AggOpPanel extends GeneralOpPanel {
         // as new column name input
         this._setupBasicArgInputsAndDescs(numArgs, operObj, $rows, "");
 
-        this._aggArgumentsSetup(numArgs, $rows);
+        this._aggArgumentsSetup(numArgs, $rows, operObj);
         numArgs++;
 
         // hide any args that aren't being used
@@ -464,9 +464,13 @@ class AggOpPanel extends GeneralOpPanel {
         }
     }
 
-    private _aggArgumentsSetup(numArgs, $rows) {
+    private _aggArgumentsSetup(numArgs, $rows, operObj) {
         const description = OpModalTStr.AggNameReq;
-
+        if (operObj.fnName === "listAgg" && operObj.argDescs[1] &&
+            operObj.argDescs[1].argDesc === "delim") {
+            // hide column suggest dropdown for delim field
+            $rows.eq(1).find(".dropDownList").addClass("noSuggest");
+        }
         $rows.eq(numArgs).addClass('resultantColNameRow')
                         .find('.dropDownList')
                         .addClass('colNameSection')
