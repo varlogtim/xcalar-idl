@@ -163,11 +163,16 @@ class Cursor {
         if (this._resultSetId == null) {
             throw new Error('Cursor not open');
         }
-        const resultSetId = this._resultSetId;
-        const fetchResult = await this._session.callLegacyApi(
-            () => XcalarGetNextPage(resultSetId, numRows)
-        );
-        return [...fetchResult.values];
+        try {
+            const resultSetId = this._resultSetId;
+            const fetchResult = await this._session.callLegacyApi(
+                () => XcalarGetNextPage(resultSetId, numRows)
+            );
+            return [...fetchResult.values];
+        } catch(e) {
+            console.error('Cursor.fetch error: ', e);
+            return [];
+        }
     }
 
     async fetchJson(numRows) {

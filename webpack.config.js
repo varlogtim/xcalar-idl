@@ -141,7 +141,7 @@ module.exports = function(env, argv) {
                 extensions: [".ts", ".tsx", ".js", ".jsx", ".less"]
             },
             devtool: buildSourceMap ? 'eval-source-map' : '',
-            // mode: mode,
+            mode: mode,
             optimization: {
                 splitChunks: {
                     cacheGroups: {

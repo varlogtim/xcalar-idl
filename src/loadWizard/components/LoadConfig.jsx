@@ -117,7 +117,13 @@ class LoadConfig extends React.Component {
             createInProgress: new Map(), // Map<schemaName, tableName>
             createFailed: new Map(), // Map<schemaName, errorMsg>
             createTables: new Map(), // Map<schemaName, tableName>
-            currentSchema: null,
+
+            // Detail
+            schemaDetailState: {
+                isLoading: false,
+                schema: null,
+                error: null
+            },
             showForensics: false,
             forensicsMessage: [],
             isForensicsLoading: false
@@ -153,7 +159,11 @@ class LoadConfig extends React.Component {
         const inputSerialization = this._resetBrowseResult();
         this.setState({
             currentStep: stepEnum.SourceData,
-            currentSchema: null
+            schemaDetailState: {
+                isLoading: false,
+                schema: null,
+                error: null
+            }
         })
     }
 
@@ -403,6 +413,86 @@ class LoadConfig extends React.Component {
             this.setState((state) => ({
                 createTableState: {
                     ...state.createTableState,
+                    isLoading: false
+                }
+            }));
+        }
+    }
+
+    async _fetchSchemaDetail(schemaHash) {
+        const { discoverAppId } = this.state;
+        if (discoverAppId == null) {
+            return;
+        }
+        const app = SchemaLoadService.getDiscoverApp(discoverAppId);
+        if (app == null) {
+            return;
+        }
+
+        this.setState({
+            schemaDetailState: {
+                isLoading: true, schema: null, error: null
+            }
+        });
+
+        try {
+            const detail = await app.getSchemaDetail(schemaHash);
+            this.setState({
+                schemaDetailState: {
+                    schema: detail
+                }
+            });
+        } catch(e) {
+            this.setState((state) => ({
+                schemaDetailState: {
+                    ...state.schemaDetailState,
+                    schema: null
+                }
+            }));
+        } finally {
+            this.setState((state) => ({
+                schemaDetailState: {
+                    ...state.schemaDetailState,
+                    isLoading: false
+                }
+            }));
+        }
+    }
+
+    async _fetchFailedSchema() {
+        const { discoverAppId } = this.state;
+        if (discoverAppId == null) {
+            return;
+        }
+        const app = SchemaLoadService.getDiscoverApp(discoverAppId);
+        if (app == null) {
+            return;
+        }
+
+        this.setState({
+            schemaDetailState: {
+                isLoading: true, schema: null, error: null
+            }
+        });
+
+        try {
+            const error = await app.getDiscoverError();
+            this.setState({
+                schemaDetailState: {
+                    error: error
+                }
+            });
+        } catch(e) {
+            this.setState((state) => ({
+                schemaDetailState: {
+                    ...state.schemaDetailState,
+                    error: null
+                }
+            }));
+        } finally {
+            this.setState((state) => ({
+                schemaDetailState: {
+                    ...state.schemaDetailState,
                     isLoading: false
                 }
             }));
@@ -740,10 +830,22 @@ class LoadConfig extends React.Component {
                 browseShow: false
             });
         } else {
-            this.setState({
-                browseShow: false,
-                selectedFileDir: selectedFileDir
-            });
+            const currentSelection = this.state.selectedFileDir.map((v) => v.fullPath);
+            const newSelection = selectedFileDir.map((v) => v.fullPath);
+            const hasChange = SetUtils.diff(currentSelection, newSelection).size > 0 || SetUtils.diff(newSelection, currentSelection).size > 0;
+
+            if (!hasChange) {
+                // No change
+                this.setState({
+                    browseShow: false
+                });
+            } else {
+                this._resetBrowseResult();
+                this.setState({
+                    browseShow: false,
+                    selectedFileDir: selectedFileDir
+                });
+            }
         }
     }
 
@@ -783,7 +885,6 @@ class LoadConfig extends React.Component {
             discoverIsRunning,
             discoverProgress,
             discoverCancelBatch,
-            discoverFileDone, discoverSchemaDone, discoverReportDone
         } = this.state;
         // const screenName = stepNames.get(currentStep);
         const onClickDiscoverAll = discoverCancelBatch == null
@@ -791,11 +892,10 @@ class LoadConfig extends React.Component {
             : null;
 
         const showBrowse = browseShow;
-        const showDiscover = currentStep === stepEnum.SchemaDiscovery;
+        const showDiscover = currentStep === stepEnum.SchemaDiscovery && selectedFileDir.length > 0;
         const showCreate = currentStep === stepEnum.CreateTables && !discoverIsRunning && discoverAppId != null;
         const fullPath = Path.join(bucket, homePath);
         const forensicsStats = this.metadataMap.get(fullPath);
-        const discoverApp = SchemaLoadService.getDiscoverApp(discoverAppId);
 
         return (
             <div className="container cardContainer">
@@ -861,11 +961,13 @@ class LoadConfig extends React.Component {
                                 onCancelDiscoverAll={discoverCancelBatch}
                                 onInputSerialChange={(newConfig) => { this._setInputSerialization(newConfig); }}
                                 onSchemaPolicyChange={(newPolicy) => { this._setSchemaPolicy(newPolicy); }}
-                                onShowSchema={(schema) => {
-                                    this.setState({
-                                        currentSchema: schema
-                                    });
-                                }}
+                                onShowSchema={(schema) => { this.setState((state) => ({
+                                    schemaDetailState: {
+                                        isLoading: false,
+                                        schema: schema,
+                                        error: null
+                                    }
+                                }))}}
                             >
                             </DiscoverSchemas> : null
                         }
@@ -900,12 +1002,8 @@ class LoadConfig extends React.Component {
                                     onFetchData={(p, rpp) => { this._fetchDiscoverReportData(p, rpp)}}
                                     onClickCreateTable={(schemaName, tableName) => { this._createTableFromSchema(schemaName, tableName); }}
                                     onPrevScreen = {() => { this._changeStep(stepEnum.SchemaDiscovery); }}
-                                    onShowSchema={(schema, schemaName) => {
-                                        schema.name = schemaName
-                                        this.setState({
-                                            currentSchema: schema
-                                        });
-                                    }}
+                                    onLoadSchemaDetail = {(schemaHash) => { this._fetchSchemaDetail(schemaHash); }}
+                                    onLoadFailureDetail = {() => { this._fetchFailedSchema(); }}
                                 >
                                     <div className="header">{Texts.stepNameCreateTables}</div>
                                 </CreateTables>
@@ -913,7 +1011,7 @@ class LoadConfig extends React.Component {
                         })()}
                     </div> {/* end of left part */}
                     <Details
-                        currentSchema={this.state.currentSchema}
+                        schemaDetail={this.state.schemaDetailState}
                         selectedFileDir={this.state.selectedFileDir}
                         discoverFileSchemas={this.state.discoverFileSchemas}
                         discoverFailedFiles={this.state.discoverFailedFiles}

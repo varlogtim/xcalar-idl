@@ -22,9 +22,10 @@ class CreateTables extends React.Component {
             tablesInInput, // Map<schemaName, tableName>
             tables, // Map<schemaName, tableName>
             onClickCreateTable = (schemaName, tableName) => {},
+            onLoadSchemaDetail = (schemaHash) => {},
+            onLoadFailureDetail = () => {},
             onFetchData,
             onTableNameChange,
-            onShowSchema,
             children
         } = this.props;
 
@@ -42,14 +43,8 @@ class CreateTables extends React.Component {
                         schemasFailed={schemasFailed}
                         tablesInInput={tablesInInput}
                         tables={tables}
-                        onClickSchema={(schemaName) => {
-                            for (const {schema} of schemas) {
-                                if (schema.hash === schemaName) {
-                                    onShowSchema({ columns: schema.columns }, schemaName);
-                                    return;
-                                }
-                            }
-                        }}
+                        onClickSchema={(schemaName) => { onLoadSchemaDetail(schemaName); }}
+                        onClickFailedSchema={() => { onLoadFailureDetail(); }}
                         onClickCreateTable={onClickCreateTable}
                         onTableNameChange={onTableNameChange}
                     />
@@ -62,56 +57,5 @@ class CreateTables extends React.Component {
         HomeScreen.switch(UrlToTab.notebook);
     }
 }
-
-class CreateTables2 extends React.Component {
-    render() {
-        const {
-            schemas, // Map<schemaName, {path: [], columns: []}>
-            fileMetas, // Map<fileId, fileInfo> see S3Service.listFiles
-            schemasInProgress,  // Set<schemaName>
-            schemasFailed,  // Map<schemaName, errorMsg>
-            tablesInInput, // Map<schemaName, tableName>
-            tables, // Map<schemaName, tableName>
-            onClickCreateTable = (schemaName, tableName) => {},
-            onTableNameChange,
-            onShowSchema,
-            onPrevScreen,
-            children
-        } = this.props;
-
-        return (
-            <div className="tableLoad">
-                {children}
-                {/* XXX please verify if the id should be loadAll or discoverAll */}
-                {/* <div>
-                    <button className="btn btn-secondary" onClick={() => {}}>{Texts.createTableAll}</button>
-                    <span>{Texts.totalCost}<b>{allTablesTotalCost.toFixed(8)}</b></span>
-                    <span>{Texts.totalTime}<b>{allTablesTotalEta.toFixed(8)}</b> {Texts.timeSeconds}</span>
-                </div> */}
-
-                <div className="browsersContainer">
-                    <LoadTable
-                        schemas={schemas}
-                        schemasInProgress={schemasInProgress}
-                        schemasFailed={schemasFailed}
-                        tablesInInput={tablesInInput}
-                        tables={tables}
-                        files={fileMetas}
-                        onClickSchema={(schemaName) => {
-                            this.props.onShowSchema(schemas.get(schemaName), schemaName);
-                        }}
-                        onClickCreateTable={onClickCreateTable}
-                        onTableNameChange={onTableNameChange}
-                    />
-                </div>
-            </div>
-        );
-    }
-
-    _navToNotebook() {
-        HomeScreen.switch(UrlToTab.notebook);
-    }
-}
-
 
 export default CreateTables;

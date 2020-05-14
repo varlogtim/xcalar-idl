@@ -228,7 +228,7 @@ class DiscoverSchemas extends React.Component {
                 </div>
                 <DiscoverTable {...discoverFilesProps}
                     onClickSchema={({name, columns}) => {
-                        onShowSchema({name: name,columns: columns})
+                        onShowSchema({hash: name,columns: columns})
                     }}
                 />
 

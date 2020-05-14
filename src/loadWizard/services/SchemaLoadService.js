@@ -49,6 +49,11 @@ function createDiscoverNames(appId) {
     };
 }
 
+const failedSchemaHash = hashFunc('[]');
+function isFailedSchema(schemaHash) {
+    return schemaHash === failedSchemaHash;
+}
+
 const discoverApps = new Map();
 function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive = true }) {
     let executionDone = false;
@@ -108,6 +113,46 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
         return table;
     }
 
+    async function createSchemaDetailTable(schemaHash) {
+        if (tables.file == null || tables.schema == null) {
+            throw new Error('File/Schema table not exists');
+        }
+
+        const sql =
+            `select
+                file.RELPATH as RELPATH, file.PATH as PATH,
+                schema.STATUS as STATUS, schema.SCHEMA as SCHEMA, schema.SCHEMA_HASH as SCHEMA_HASH
+            from ${tables.file.getName()} file, (
+                select * from ${tables.schema.getName()} where SCHEMA_HASH = "${schemaHash}"
+            ) schema
+            where file.NUM = schema.FILE_NUM`;
+        const table = await session.executeSql(sql);
+        return table;
+    }
+
+    async function getSchemaDetail(schemaHash) {
+        const table = await createSchemaDetailTable(schemaHash);
+        try {
+            const cursor = table.createCursor();
+            await cursor.open();
+
+            const result = [];
+            let records = await cursor.fetchJson(20);
+            while (records.length > 0) {
+                for (const record of records) {
+                    result.push(convertSchemaDetailRecord(record));
+                }
+                if (records.length < 20) {
+                    break;
+                }
+                records = await cursor.fetchJson(20);
+            }
+            return result;
+        } finally {
+            await table.destroy();
+        }
+    }
+
     async function deleteTempTables() {
         const tempTablePrefix = '_xl_temp_';
         await session.deleteTables({
@@ -144,6 +189,26 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
         return {
             schema: { hash: SCHEMA_HASH, columns: JSON.parse(SCHEMA) },
             files: { count: FILE_COUNT, size: TOTAL_SIZE, maxPath: MAX_PATH }
+        };
+    }
+
+    function convertSchemaDetailRecord(record) {
+        const { RELPATH, PATH, STATUS, SCHEMA, SCHEMA_HASH} = record;
+
+        const schemaInfo = {};
+        if (STATUS.toLowerCase() != 'success') {
+            schemaInfo.error = STATUS;
+        } else {
+            schemaInfo.columns = JSON.parse(SCHEMA);
+            schemaInfo.hash = SCHEMA_HASH;
+        }
+
+        return {
+            schema: schemaInfo,
+            file: {
+                fullPath: PATH,
+                relPath: RELPATH.length
+            }
         };
     }
 
@@ -337,6 +402,30 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
             } finally {
                 await cursor.close();
             }
+        },
+        getDiscoverError: async () => {
+            const files = await getSchemaDetail(failedSchemaHash);
+            return files.map(({ schema, file }) => ({
+                fullPath: file.fullPath, relPath: file.relPath, error: schema.error
+            }));
+        },
+        getSchemaDetail: async (schemaHash) => {
+            const result = {
+                hash: schemaHash,
+                columns: [],
+                files: []
+            };
+            const files = await getSchemaDetail(schemaHash);
+            if (files.length > 0) {
+                for (const column of files[0].schema.columns) {
+                    result.columns.push({...column});
+                }
+            }
+            for (const { file } of files) {
+                result.files.push({ ...file });
+            }
+
+            return result;
         }
     };
 
@@ -351,4 +440,4 @@ function getDiscoverApp(appId) {
     return discoverApps.get(appId);
 }
 
-export { createDiscoverApp, getDiscoverApp }
+export { createDiscoverApp, getDiscoverApp, isFailedSchema }

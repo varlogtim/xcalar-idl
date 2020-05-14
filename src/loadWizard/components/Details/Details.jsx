@@ -128,10 +128,70 @@ function BucketChart({stats}) {
     );
 }
 
+function SchemaDetail(props) {
+    const { hash = '', columns = [], files } = props || {};
+    return (
+        <Collapsible>
+            <Collapsible.Header>{hash}</Collapsible.Header>
+            <Collapsible.List>
+                {
+                    files &&
+                    <Collapsible.Item>
+                        <div>Paths:</div>
+                        {
+                            files.map(({fullPath}, i) => {
+                                return <div key={i}>{fullPath}</div>;
+                            })
+                        }
+                    </Collapsible.Item>
+                }
+                <Collapsible.Item>
+                    <div>Columns:</div>
+                    <pre>{JSON.stringify(columns, null, ' ')}</pre>
+                </Collapsible.Item>
+            </Collapsible.List>
+        </Collapsible>
+    );
+}
+
+function ErrorDetail(props) {
+    const { error = [] } = props || {};
+    return (
+        <Collapsible>
+            <Collapsible.Header>Failed Discovery</Collapsible.Header>
+            <Collapsible.List>
+                <Collapsible.Item><pre>
+                {
+                    JSON.stringify(error.map(({fullPath, relPath, error}) => (
+                        { file: fullPath, error: error }
+                    )), null, ' ')
+                }
+                </pre></Collapsible.Item>
+            </Collapsible.List>
+        </Collapsible>
+    );
+}
+
+function LoadDetail() {
+    return (
+        <Collapsible>
+            <Collapsible.Header>Loading Detail ...</Collapsible.Header>
+            <Collapsible.List></Collapsible.List>
+        </Collapsible>
+    );
+}
+
 export default class Details extends React.Component {
     render() {
+        const {
+            schemaDetail
+        } = this.props;
+        const showSchemaDetail = schemaDetail != null && (
+            schemaDetail.isLoading || (schemaDetail.schema != null || schemaDetail.error != null)
+        );
+
         let rightPartClasses = "rightPart";
-        if (this.props.currentSchema != null || this.props.showForensics ||
+        if (showSchemaDetail || this.props.showForensics ||
             this.props.discoverFileSchemas.size > 0) {
             rightPartClasses += " active";
         }
@@ -148,28 +208,9 @@ export default class Details extends React.Component {
             >
                 <div className="innerRightPart">
                     <ForensicsContent isShow={ this.props.showForensics } stats={ this.props.forensicsStats } message={ this.props.forensicsMessage } />
-                    {this.props.currentSchema == null ? null :
-                        <Collapsible className="schemaPreview">
-                            <Collapsible.Header>{this.props.currentSchema.name}</Collapsible.Header>
-                            <Collapsible.List>
-                                {
-                                    this.props.currentSchema.path &&
-                                    <Collapsible.Item>
-                                        <div>Paths:</div>
-                                        {
-                                            this.props.currentSchema.path.map((path, i) => {
-                                                return <div key={i}>{path}</div>;
-                                            })
-                                        }
-                                     </Collapsible.Item>
-                                }
-                                <Collapsible.Item>
-                                    <div>Columns:</div>
-                                    <pre className="schemaJson">{JSON.stringify(this.props.currentSchema.columns, null, ' ')}</pre>
-                                </Collapsible.Item>
-                            </Collapsible.List>
-                        </Collapsible>
-                    }
+                    { schemaDetail.isLoading ? <LoadDetail /> : null}
+                    { schemaDetail.schema != null ? <SchemaDetail {...schemaDetail.schema} /> : null }
+                    { schemaDetail.error != null ? <ErrorDetail error={schemaDetail.error} /> : null }
                     {this.props.discoverFileSchemas.size > 0 &&
                         <SchemaChart
                             selectedData={this.props.selectedFileDir}

@@ -4,7 +4,7 @@ import { useTable, useSortBy, usePagination } from 'react-table'
 import * as LoadCell from './LoadCell'
 import prettyBytes from 'pretty-bytes'
 import EtaCost from '../../utils/EtaCost'
-import { hashFunc } from '../../services/sdk/Api.js'
+import { isFailedSchema } from '../../services/SchemaLoadService'
 
 const { xcTimeHelper } = global;
 
@@ -214,11 +214,6 @@ function validateCreate($input, tableName) {
   return isValid ? tableName : null;
 }
 
-const failedSchemaHash = hashFunc('[]');
-function isFailedSchema(schemaHash) {
-    return schemaHash === failedSchemaHash;
-}
-
 function maxPathToTableName(maxPath) {
     let pathParts = maxPath.split('/')
     let fileName = pathParts[pathParts.length - 1]
@@ -234,6 +229,7 @@ function LoadTable({
     tablesInInput,
     tables,
     onClickSchema = (schemaName) => {},
+    onClickFailedSchema = () => {},
     onClickCreateTable = (schemaName) => {},
     onFetchData = async (page, rowsPerPage) => {},
     onTableNameChange
@@ -275,7 +271,7 @@ function LoadTable({
         if (isFailedSchema(schemaName)) {
             // XXX TODO: show failed files/reasons
             const rowData = {
-                schema: <button onClick={() => { onClickSchema(schemaName); }}>Failed</button>,
+                schema: <button onClick={() => { onClickFailedSchema(); }}>Failed</button>,
                 count: files.count,
                 size: prettyBytes(files.size || 0),
                 time: 'N/A',
