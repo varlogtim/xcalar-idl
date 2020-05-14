@@ -3,11 +3,56 @@ namespace DagNodeMenu {
     let curNodeId: DagNodeId;
     let curParentNodeId: DagNodeId;
     let curConnectorIndex: number;
+    let tooltipMap;
 
     export function setup() {
         _setupNodeMenu();
         _setupNodeMenuActions();
         _setupInstructionNodeCategories();
+
+        tooltipMap = {
+            configureNode: "This action opens the operator's configuration panel",
+            executeNode: "This action runs the configured operator's operation.",
+            executeAllNodes: "This action runs all the operations in a module.",
+            createNodeOptimized: "This action gives a preview of how your application will run in Production.<br>An optimized application contains no intermediate tables, which reduces memory consumption, creates a faster runtime, and provides optimal performance when used in your production platform.",
+            reexecuteNode: "This action regenerates your intermediate table results for this operator.",
+            deleteAllTables: "WARNING: This action deletes your intermediate table results for all functions in a module. All the operators configuration settings remain unchanged.",
+            copyNodes: "This action copies the selected graph-node or graph-nodes, and connectors. Configuration settings remain but Intermediate table results are removed.",
+            cutNodes: "This action removes the graph-node and its links. Unlike the Delete option, the graph-node is saved to the clip-board buffer.",
+            pasteNodes: "This action pastes the copied graph-node or graph-nodes and connectors into a new or existing function of module. Configuration settings remain but intermediate table results are removed.",
+            duplicateDf: "This action creates a copy of the module, including configuration settings, in a new Module tab.",
+            selectAllNodes: "This action selects all the operators within the module.",
+            findOptimizedSource: "This action opens the Module Lineage window, which displays the name of the module that was used for the optimized application.",
+            findSourceNode: "This action opens the Operator Lineage window, which displays the history of the selected graph-node, including the originating custom operator and the module that was used for the optimized application.",
+            viewSchemaChanges: "This action opens the schema window and displays the current new, deleted, and updated columns and data types.",
+            createCustom: "This action creates an operator from one or multiple graph-nodes for reuse. Custom operators keep their original configuration settings.<br>" +
+                            "To create a Custom operator:<br>" +
+                            "From a function, select the one or more graph-nodes that you require for a Custom operator and then right-click and select Create Custom Operator. Right-click again and select Save As a Custom Operator, which populates the Custom operator bar with the new Custom operator.<br>" +
+                            "To name or rename the operator:<br>" +
+                            "From the Custom operator bar, select the Custom operator and then click the Edit Name icon on the left of the Operator bar. In the Edit Name dialog box, enter a name for your Custom operator and click Save.",
+            autoAlign: "This action rearranges the graph-nodes for each function in a straight line in your module.",
+            description: "This action creates a description, which is displayed in the left planel when you select a graph-node.",
+            newComment: "This action opens a text box for entering comments about your function or module.",
+            inspectSQL: "This action provides debugging capabilities by inspecting your SQL statements within the SQL operator. When selected the original SQL graph-node stays in the module and a new SQL module tab is created containing the operators present in the SQL statement.",
+            editCustom: "This action provides debugging capabilities by inspecting your Custom operator. When selected the original Custom graph-node stays in the module and a new Custom module tab is created containing the operators present in the Custom operator. Changes to the operations in this Custom module tab are reflected in the original Custom operator.",
+            expandSQL: "Unlike Inspect, this action replaces the selected Custom or SQL operator in the module with individual graph-nodes for each operation.",
+            removeNode: "This action permanently removes the graph-node.",
+            removeAllNodes: "This action permanently removes the operators and functions from a module.",
+            removeInConnection: "This action deletes the connection between two graph-nodes.",
+            restoreSource: "This action regenerates the source table by reloading data from your source repository.",
+            restoreAllSource: "This action regenerates all the source tables by reloading data from your source repository.",
+            download: "Saves the module outside of Notebook as one of three formats: Xcalar module format, PNG, and JSON.",
+            exitOp: "This action closes the operator’s configuration panel. IMPORTANT: There is no autosave or warning message for unsaved changes."
+        };
+        let $menus = _getDagNodeMenu().add(_getDagTableMenu());
+        for (let key in tooltipMap) {
+            let $li = $menus.find("." + key);
+            if ($li.length) {
+                xcTooltip.add($li, {
+                    title: tooltipMap[key]
+                });
+            }
+        }
     }
 
     export function updateExitOptions(name) {
@@ -342,7 +387,7 @@ namespace DagNodeMenu {
                 case ("autoAlign"):
                     DagViewManager.Instance.autoAlign(tabId);
                     break;
-                case ("viewSchema"):
+                case ("viewSchemaChanges"):
                     _showDagSchemaPopup(dagNodeIds[0], tabId);
                     break;
                 case ("viewSchemaTable"):
@@ -1006,9 +1051,18 @@ namespace DagNodeMenu {
                         ".executeNodeOptimized, .createNodeOptimized," +
                         ".resetNode, .deleteAllTables, .deleteTable, .cutNodes, " +
                         ".createCustom, .removeNode, .removeAllNodes");
-        xcTooltip.remove($lis.add($menu.find(".configureNode")));
 
         if (!FormHelper.activeForm) {
+            $lis.add($menu.find(".configureNode")).each((i, li) => {
+                let $li = $(li);
+                let key = $li.data("action");
+                let text = tooltipMap[key];
+                if (text) {
+                    xcTooltip.add($li, {title: text});
+                } else {
+                    xcTooltip.remove($li);
+                }
+            });
             return;
         }
 

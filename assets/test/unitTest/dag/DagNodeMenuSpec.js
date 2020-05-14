@@ -81,7 +81,7 @@ describe("DagNodeMenu Test", function() {
                 "copyNodes",
                 "cutNodes",
                 "selectAllNodes",
-                "viewSchema",
+                "viewSchemaChanges",
                 "createCustom",
                 "autoAlign",
                 "description",
@@ -106,7 +106,7 @@ describe("DagNodeMenu Test", function() {
                 "resetNode unavailable",
                 "copyNodes",
                 "cutNodes",
-                "viewSchema",
+                "viewSchemaChanges",
                 "createCustom",
                 "description",
                 "removeNode"
@@ -200,7 +200,7 @@ describe("DagNodeMenu Test", function() {
                 "resetNode unavailable",
                 "copyNodes",
                 "cutNodes unavailable",
-                "viewSchema",
+                "viewSchemaChanges",
                 "createCustom unavailable",
                 "description",
                 "removeNode unavailable"
@@ -229,7 +229,7 @@ describe("DagNodeMenu Test", function() {
                 "resetNode unavailable",
                 "copyNodes",
                 "cutNodes unavailable",
-                "viewSchema",
+                "viewSchemaChanges",
                 "createCustom unavailable",
                 "description",
                 "removeNode unavailable"
@@ -260,7 +260,7 @@ describe("DagNodeMenu Test", function() {
                 "resetNode unavailable",
                 "copyNodes",
                 "cutNodes unavailable",
-                "viewSchema",
+                "viewSchemaChanges",
                 "createCustom unavailable",
                 "description",
                 "removeNode unavailable",
@@ -292,7 +292,7 @@ describe("DagNodeMenu Test", function() {
                 "resetNode",
                 "copyNodes",
                 "cutNodes",
-                "viewSchema",
+                "viewSchemaChanges",
                 "createCustom",
                 "description",
                 "removeNode"
@@ -317,7 +317,7 @@ describe("DagNodeMenu Test", function() {
             expect(classes).to.deep.equal([
                 "generateResult",
                 "resetNode",
-                "viewSchema",
+                "viewSchemaChanges",
                 "createCustom",
                 "description"
             ]);
@@ -383,7 +383,7 @@ describe("DagNodeMenu Test", function() {
                 classes.push($(this).attr("class"));
             });
             expect(classes).to.deep.equal([
-                "viewSchema"
+                "viewSchemaChanges"
             ]);
 
             DagViewManager.Instance.getActiveTab = cachedFn;
@@ -415,7 +415,7 @@ describe("DagNodeMenu Test", function() {
                 "resetNode",
                 "copyNodes",
                 "cutNodes",
-                "viewSchema",
+                "viewSchemaChanges",
                 "description",
                 "removeNode"
             ]);
@@ -447,7 +447,7 @@ describe("DagNodeMenu Test", function() {
                 "configureNode",
                 "generateResult",
                 "resetNode",
-                "viewSchema",
+                "viewSchemaChanges",
                 "createCustom",
                 "description"
             ]);
@@ -1352,7 +1352,7 @@ describe("DagNodeMenu Test", function() {
             DagViewManager.Instance.autoAlign = cachedFn;
         });
 
-        it("viewSchema", function(){
+        it("viewSchemaChanges", function(){
 
             DagView.selectNode($dfArea.find(".operator"));
 
@@ -1366,7 +1366,7 @@ describe("DagNodeMenu Test", function() {
             };
 
             $dfArea.find(".operator .main").contextmenu();
-            $menu.find(".viewSchema").trigger(fakeEvent.mouseup);
+            $menu.find(".viewSchemaChanges").trigger(fakeEvent.mouseup);
             expect(called).to.be.true;
             dagView.addSchemaPopup = cachedFn;
         });

@@ -1626,7 +1626,7 @@
         .removeNode, .copyNodes, .cutNodes, .executeNode, .resetNode, .executeNodeOptimized,
         .viewOptimizedDataflow, .deleteTable, .reexecuteNode, .description,
         .configureNode, .updateSQLQuery, .viewResult, .generateResult,
-        .viewSchema, .viewOptions, .customNodeOptions, .autoAlign,
+        .viewSchema, .viewSchemaChanges, .viewOptions, .customNodeOptions, .autoAlign,
         .unlockNodeTable, .lockNodeTable, .createCustom, .selectAllNodes,
         .viewUDFErrors, .viewSkew, .addOperation {
             display: list-item;
@@ -1636,7 +1636,7 @@
         }
         &.multiple {
             .description, .configureNode, .updateSQLQuery, .viewResult, .viewOptimizedDataflow,
-            .generateResult, .viewSchema, .shareCustom, .viewUDFErrors, .addOperation {
+            .generateResult, .viewSchema, .viewSchemaChanges, .shareCustom, .viewUDFErrors, .addOperation {
                 display: none;
             }
             .createCustom, .createNodeOptimized {
@@ -1699,7 +1699,7 @@
                 display: list-item;
             }
             &.SQLTab, &.SQLExecuteTab {
-                .viewSchema {
+                .viewSchema, .viewSchemaChanges {
                     display: list-item;
                 }
             }
@@ -1715,15 +1715,10 @@
             }
         }
         &.optimizedTab, &.statsTab {
-            .viewSchema, .findSourceNode {
+            .viewSchema, .viewSchemaChanges, .findSourceNode {
                 display: list-item;
             }
         }
-        &.statsTab {
-          .viewStats {
-              display: list-item;
-          }
-       }
     }
     &.connectorMenu, &.edgeMenu {
         .removeInConnection {
@@ -1783,7 +1778,8 @@
         .removeNode, .copyNodes, .cutNodes, .autoAlign {
             display: list-item;
         }
-        .executeNode, .executeNodeOptimized, .description, .configureNode, .viewResult, .generateResult, .viewSchema,
+        .executeNode, .executeNodeOptimized, .description, .configureNode,
+        .viewResult, .generateResult, .viewSchema, .viewSchemaChanges,
         .autoAlign, .unlockNodeTable, .lockNodeTable {
             display: none;
         }
@@ -1816,7 +1812,7 @@
         }
     }
     &.publishMenu {
-        .viewResult, .generateResult, .viewSchema, .unlockNodeTable, .lockNodeTable {
+        .viewResult, .generateResult, .viewSchema, .viewSchemaChanges, .unlockNodeTable, .lockNodeTable {
             display: none;
         }
     }
