@@ -2,7 +2,7 @@
 <section id="sqlOpPanel" class="xc-hidden opPanel sqlOpPanel">
   <header>
     <div class="row">
-      <div class="title">SQL</div>
+      <div class="title"><%= dicts.SQLOpPanel.Header %></div>
       <div class="subTitle"></div>
     </div>
     <i class="close icon xi-close" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Close %>"></i>
@@ -11,53 +11,50 @@
     <!-- Operation panel-->
     <section class="opSection">
       <p class="mainInstructions instrText">
-        Select a SQL snippet and use the SQL Node input connections as the source tables.
+        <%= dicts.SQLOpPanel.Instr %>
       </p>
       <div class="snippetSelectionArea formRow">
         <div class="subHeading clearfix">
-          <div class="label">SQl Query:</div>
+          <div class="label"><%= dicts.SQLOpPanel.Statement %>:</div>
           <i class="qMark icon xi-unknown"
           data-toggle="tooltip"
           data-container="body"
-          data-placement="top"
-          data-title="Select an existing query">
+          data-placement="right"
+          data-title="<%= dicts.SQLOpPanel.StatementHint %>">
           </i>
         </div>
         <div class="snippetsList dropDownList">
-            <input class="text snippetInput inputable" type="text" value="" spellcheck="false">
-            <div class="iconWrapper">
-                <i class="icon xi-arrow-down"></i>
-            </div>
-            <div class="list">
-                <ul class="snippetsUl"></ul>
-                include "../../util/menuScrollArea.html"
-            </div>
+          <input class="text snippetInput inputable" type="text" value="" spellcheck="false">
+          <div class="iconWrapper">
+            <i class="icon xi-arrow-down"></i>
+          </div>
+          <div class="list">
+            <ul class="snippetsUl"></ul>
+            include "../../util/menuScrollArea.html"
+          </div>
         </div>
       </div>
       <div class="nextForm xc-hidden">
         <div class="tableTitle">
-          <div class="title">Table Mapping:</div>
-          <!-- <i class="qMark icon xi-unknown" data-toggle="tooltip"
-            data-container="body"
-            data-title="Select an input connection number in the drop-down and enter a unique table identifier name (for example, orders). You can use this table identifier in the SQL snippet below."
-            data-placement="auto"></i> -->
+          <div class="title"><%= dicts.SQLOpPanel.TableMap %>:</div>
           <div class="maximize">
-            <i class="icon xi-minus" data-container="body"
-            data-title="Collapse"
+            <i class="icon xi-minus"
+            data-container="body"
+            data-title="<%= dicts.SQLOpPanel.Collapse %>"
             data-placement="top"></i>
           </div>
         </div>
         <div class="tableSection tableWrapper">
           <div class="instruction">
-            Match each table in your SQL query with a table from the App Builder.
+            <%= dicts.SQLOpPanel.TableMapInstr %>
           </div>
           <div class="identifiersSection">
             <div class="header">
-              <div class="sourceHeader">SQL Query Tables</div>
-              <div class="destHeader">Module Tables (by label)</div>
+              <div class="sourceHeader"><%= dicts.SQLOpPanel.TableLable %></div>
+              <div class="destHeader"><%= dicts.SQLOpPanel.ModuleLabel %></div>
             </div>
             <div class="tableInstruction instrText">
-              No Tables found. Use the SQL Editor to write a SQL query that takes in source tables.
+              <%= dicts.SQLOpPanel.NoTableHint %>
             </div>
             <div class="identifiersList"></div>
           </div>
@@ -67,28 +64,32 @@
             <i class="icon xi-ckbox-empty"></i>
             <i class="icon xi-ckbox-selected"></i>
           </div>
-          <div class="text">Drop intermediate results</div>
+          <div class="text"><%= dicts.SQLOpPanel.DropTempTable %></div>
           <i class="qMark icon xi-unknown"
             data-toggle="tooltip"
             data-container="body"
-            data-title="If this check box is checked , the system drops all the intermediate results sets generated during the execution of this SQL snippet to optimize memory consumption."
+            data-title="<%= dicts.SQLOpPanel.DropTempTableHint %>"
             data-placement="top"></i>
         </div>
         <div class="editorTitle">
           <div class="title">
             <i class="icon xi-error-outline"></i>
-            SQL Node statement is out of sync: <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body"
-            data-original-title="<%= dicts.SQL.OutOfSyncTip %>" data-placement="top"></i>
+            <%= dicts.SQLOpPanel.OutOfSync %>
+            <i class="qMark icon xi-unknown"
+            data-toggle="tooltip"
+            data-container="body"
+            data-original-title="<%= dicts.SQLOpPanel.OutOfSyncHint %>"
+            data-placement="top"></i>
           </div>
-          <div class="refreshSnippet">Update
-            <i class="icon xi-refresh" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Update %>"></i>
+          <div class="refreshSnippet">
+            <%= dicts.common.Update %>
+            <i class="icon xi-refresh"></i>
           </div>
         </div>
         <div class="snippetUpdated">
-          SQL Query is now up to date.
+          <%= dicts.SQLOpPanel.UpToDate %>
         </div>
-        <div class="editorWrapper">
-        </div>
+        <div class="editorWrapper"></div>
       </div>
     </section>
     include "opPanelAdvancedSection.html"

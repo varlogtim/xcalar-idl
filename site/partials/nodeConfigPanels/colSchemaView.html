@@ -1,11 +1,21 @@
-<div class="xc-colShema colSchemaSection">
+<div class="xc-colSchema colSchemaSection">
   <!-- buttons -->
   <div class="buttonSection">
-    <div class="detect xc-action">
+    <div class="detect xc-action"
+    data-toggle="tooltip"
+    data-placement="top"
+    data-container="body"
+    data-original-title="<%= dicts.smartCast.detectHint %>"
+    >
       <i class="icon xi-magic-wand"></i>
       <span><%= dicts.smartCast.detect %></span>
     </div>
-    <div class="clear xc-action">
+    <div class="clear xc-action"
+    data-toggle="tooltip"
+    data-placement="top"
+    data-container="body"
+    data-original-title="<%= dicts.smartCast.clearAllHint %>"
+    >
       <i class="icon xi-select-none"></i>
       <span><%= dicts.smartCast.clearAll %></span>
     </div>

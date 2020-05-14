@@ -15,7 +15,7 @@ describe("ColSchemaSection Test", function() {
                 '</header>' +
                 '<section class="modalMain">' +
                 '<div class="label">Column Schema:</div>' +
-                '<div class="xc-colShema colSchemaSection">' +
+                '<div class="xc-colSchema colSchemaSection">' +
                     '<div class="buttonSection">' +
                     '<div class="detect xc-action">' +
                         '<i class="icon xi-magic-wand"></i>' +

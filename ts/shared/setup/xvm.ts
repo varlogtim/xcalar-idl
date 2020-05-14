@@ -309,7 +309,7 @@ namespace XVM {
                             "Backend's thrift version is:", versionNum);
                         console.log("Frontend's thrift version is:",
                             XcalarApiVersionT.XcalarApiVersionSignature);
-                        console.log("Frontend's git SHA is:", gGitVersion);
+                        console.log("Frontend's git SHA is:", XVM.getGitVersion());
                     }
                     // XXX temporary disabled
                     // const versionNum: number = result.thriftVersionSignatureShort;
@@ -319,7 +319,7 @@ namespace XVM {
                     //         "Backend's thrift version is:", versionNum);
                     //     console.log("Frontend's thrift version is:",
                     //         XcalarApiVersionT.XcalarApiVersionSignature);
-                    //     console.log("Frontend's git SHA is:", gGitVersion);
+                    //     console.log("Frontend's git SHA is:", XVM.getGitVersion());
                     // }
                     // const versionNumXcrpc = result.xcrpcVersionSignatureShort;
                     // if (versionNumXcrpc !== Xcrpc.EnumMap.XcRpcApiVersionToInt.ProtoAPIVersionSignature) {

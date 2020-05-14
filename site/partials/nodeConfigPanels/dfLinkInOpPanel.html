@@ -23,7 +23,7 @@
                                 <i class="icon xi-radio-selected"></i>
                                 <i class="icon xi-radio-empty"></i>
                             </div>
-                            <div class="label">Function Output</div>
+                            <div class="label"><%= dicts.DFOut.Header %></div>
                         </div>
                         <div class="radioButton xc-action" data-option="table">
                             <div class="radio">
@@ -36,7 +36,15 @@
                 </div>
                 <!-- dataflow name -->
                 <div class="row clearfix dataflowName">
-                    <div class="description"><%= dicts.DFLink.DFName %>:</div>
+                    <div class="subHeading clearfix">
+                        <div class="label"><%= dicts.DFLink.DFName %>:</div>
+                        <!-- <i class="qMark icon xi-unknown"
+                        data-toggle="tooltip"
+                        data-container="body"
+                        data-placement="top"
+                        data-title="<%= dicts.DFLink.DFNameHint %>">
+                        </i> -->
+                    </div>
                     <div class="inputWrap">
                     <div class="dropDownList">
                         <input type="text" spellcheck="false" autocomplete="off">
@@ -49,7 +57,15 @@
                 </div>
                 <!-- node name -->
                 <div class="row clearfix linkOutNodeName">
-                    <div class="description"><%= dicts.DFLink.OutName %>:</div>
+                    <div class="subHeading clearfix">
+                        <div class="label"><%= dicts.DFLink.OutName %>:</div>
+                        <i class="qMark icon xi-unknown"
+                        data-toggle="tooltip"
+                        data-container="body"
+                        data-placement="right"
+                        data-title="<%= dicts.DFLink.OutNameHint %>">
+                        </i>
+                    </div>
                     <div class="inputWrap">
                     <div class="dropDownList">
                         <input type="text" spellcheck="false" autocomplete="off">
@@ -62,11 +78,14 @@
                 </div>
                 <!-- source name (hidden by default)-->
                 <div class="row clearfix sourceTableName">
-                    <div class="description">
-                        <%= dicts.common.Table %> Name
-                        <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body"
-                        data-title='<%= dicts.DFLink.ResultSetTip %>'
-                        data-placement="top"></i>
+                    <div class="subHeading clearfix">
+                        <div class="label"><%= dicts.common.TableName %>:</div>
+                        <i class="qMark icon xi-unknown"
+                        data-toggle="tooltip"
+                        data-container="body"
+                        data-placement="top"
+                        data-title="<%= dicts.DFLink.ResultSetTip %>">
+                        </i>
                     </div>
                     <div class="inputWrap">
                         <input type="text" spellcheck="false" autocomplete="off">
@@ -75,7 +94,16 @@
             </div>
           <!-- schema -->
           <div class="row clearfix schema">
-            <div class="description"><%= dicts.DFLink.Schema %>:</div>
+            <div class="subHeading clearfix">
+                <div class="label"><%= dicts.DFLink.Schema %>:</div>
+                <i class="qMark icon xi-unknown"
+                data-toggle="tooltip"
+                data-container="body"
+                data-placement="top"
+                data-title="<%= dicts.DFLink.SchemaHint %>">
+                </i>
+            </div>
+            <!-- <div class="description"><%= dicts.DFLink.Schema %>:</div> -->
             include "colSchemaView.html"
           </div>
           <!-- end of schema row -->

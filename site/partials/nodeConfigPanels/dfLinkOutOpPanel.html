@@ -3,7 +3,7 @@
     <!-- Header -->
     <header class="headerSection">
       <div class="row">
-            <div class="title"><%= dicts.DFLink.OutHeader %></div>
+            <div class="title"><%= dicts.DFOut.Header %></div>
             <div class="subTitle"></div>
         </div>
         <i class="close icon xi-close" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Close %>"></i>
@@ -12,12 +12,20 @@
     <div class="mainContent">
       <div class="opSection">
         <p class="mainInstructions instrText">
-            A Function Input Operator reference to a Function Output Operator using a reference name you provide in the configuration.
+          <%= dicts.DFOut.Instr %>
         </p>
         <div class="argsSection">
           <!-- node name -->
           <div class="row clearfix linkOutName">
-            <div class="description">Enter a unique Function Output reference name:</div>
+            <div class="subHeading clearfix">
+              <div class="label"><%= dicts.DFOut.ReferenceName %>:</div>
+              <i class="qMark icon xi-unknown"
+              data-toggle="tooltip"
+              data-container="body"
+              data-placement="top"
+              data-title="<%= dicts.DFOut.ReferenceNameHint %>">
+              </i>
+            </div>
             <div class="inputWrap">
               <input type="text" autocomplete="off">
             </div>
@@ -25,24 +33,24 @@
           <!-- columns-->
           <div class="row exportColumnsSection formRow">
             <div class="subHeading clearfix">
-              <div class="label">Select columns (optimized executions only):</div>
+              <div class="label"><%= dicts.DFOut.Columns %>:</div>
               <i class="qMark icon xi-unknown"
                 data-toggle="tooltip"
                 data-container="body"
                 data-placement="top"
-                data-title="Column selection is only required for optimized executions. Select the columns you want in the optimized execution results.">
+                data-title="<%= dicts.DFOut.ColumnsHint %>">
               </i>
             </div>
             <div class="selectAllWrap">
                 <div class="checkbox">
-                    <i class="icon xi-ckbox-empty fa-13"></i>
-                    <i class="icon xi-ckbox-selected fa-13"></i>
+                  <i class="icon xi-ckbox-empty fa-13"></i>
+                  <i class="icon xi-ckbox-selected fa-13"></i>
                 </div>
                 <div class="text"><%= dicts.common.SelectAll %></div>
             </div>
             <div class="columnsToExport columnsWrap flexWrap clearfix">
                 <ul class="cols"></ul>
-                <div class="hint noColsHint empty">No columns are available for selection</div>
+                <div class="hint noColsHint empty"><%= dicts.DFOut.NoCols %></div>
             </div>
             <!-- rename section -->
             <div class="renameSection clearfix xc-hidden">
@@ -52,8 +60,8 @@
                 <p><%= dicts.common.ColRenameInstr %></p>
                 <div class="tableRenames">
                 <div class="subSubHeading clearfix">
-                    <div><%= dicts.exportView.CurrentColName %></div>
-                    <div><%= dicts.exportView.NewColName %></div>
+                  <div><%= dicts.exportView.CurrentColName %></div>
+                  <div><%= dicts.exportView.NewColName %></div>
                 </div>
                 <div class="renamePart"></div>
                 </div>
@@ -61,16 +69,16 @@
           </div>
           <!-- option -->
           <div class="row clearfix option">
-              <div class="description">Option:</div>
+              <div class="description"><%= dicts.DFOut.RunOptionHeader %>:</div>
               <div class="inputWrap checkboxSection">
                 <div class="checkbox">
                   <i class="icon xi-ckbox-empty fa-11"></i>
                   <i class="icon xi-ckbox-selected fa-11"></i>
                 </div>
-                <div class="text">Function input triggers the execution of this operator</div>
+                <div class="text"><%= dicts.DFOut.RunOption %></div>
                 <i class="qMark icon xi-unknown" data-toggle="tooltip"
                 data-container="body"
-                data-title="<%= dicts.DFLink.OutHelp %>"
+                data-title="<%= dicts.DFOut.RunOptionHint %>"
                 data-placement="top"></i>
               </div>
             </div>

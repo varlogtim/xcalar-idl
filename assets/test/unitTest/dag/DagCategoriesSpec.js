@@ -328,7 +328,7 @@ describe("DagCategories Test", function() {
         });
 
         it("get description", function(){
-            expect(inCategory.getDescription()).to.equal("These operators input data to the module")
+            expect(inCategory.getDescription()).to.equal("These operators provide the module’s input data")
         });
 
         it("clear should work", function() {

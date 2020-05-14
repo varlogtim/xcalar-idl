@@ -98,7 +98,7 @@ module.exports = {
         "Standard": "Standard",
         "Supports": "Support",
         "Table": "Table",
-        "TableName": "Table name",
+        "TableName": "Table Name",
         "Tables": "Tables",
         "TableMenu": "Menu",
         "Learn": "Learning Xcalar",
@@ -1009,7 +1009,7 @@ module.exports = {
         "key": "Primary Key",
         "addKey": "Add Primary Key",
         "noKey": "No Primary Key",
-        "keyInstr": "Column that contains primary key values.",
+        "keyInstr": "Uniquely identifies each record in the table from either one or multiple column names. If you do not require a Primary Key, select No Primary Key.",
         "operator": "IMD Operator",
         "operatorInstr": "Optional Column that contains opcode values.",
         "config": "Configure",
@@ -1035,11 +1035,44 @@ module.exports = {
         "InHeader": "Function Input",
         "InInstr": "Select a Function Output operator or a table as a source for input.",
         "ResultSetTip": "To get a table name, find the Operator whose table you want to use, click on the Operator to display its configuration and copy the table name from the JSON.",
-        "OutHeader": "Function Output",
+        "TableNameHint": "The name of the table that contains the data for input. To get the table name, open the module and locate and click the operator’s intermediate table that you require for this operation. From the Configuration Details panel, copy and paste the result_table value into this field.",
         "DFName": "Module Name",
+        "DFNameHint": "The name of the module that contains the function whose data this operator requires.",
         "OutName": "Function Output Reference Name",
-        "Schema": "Column Schema",
-        "OutHelp": "If this checkbox is checked, the Function Input operator that references this output triggers the execution of this operator. Otherwise, the Function Input operator uses the existing table of this output."
+        "OutNameHint": "The unique reference name provided when the Function Output operator was configured. To get the Function Output reference name, either select from the Function Output Reference Name list or open the module and locate and click the Function Output graph-node that you require for this operation and then from the Configuration Details panel copy and paste the name value into this field.",
+        "Schema": "Schema",
+        "SchemaHint": "Identifies the table’s column and data types formats",
+    },
+
+    "DFOut": {
+        "Header": "Function Output",
+        "Instr": "A Function Input Operator reference to a Function Output Operator using a reference name you provide in the configuration.",
+        "ReferenceName": "Reference name",
+        "ReferenceNameHint": "A unique reference name that is used by a Function Input operator to execute this operator’s function. This enables functions to access data between modules.",
+        "Columns": "Columns (optimized executions only)",
+        "ColumnsHint": "Choose a selection, or all the columns of the table by either individually selecting the column name check boxes or selecting Select All. NOTE: Optimized applications do not contain intermediate table results.",
+        "NoCols": "No columns are available for selection",
+        "RunOptionHeader": "Option",
+        "RunOption": "Run this function from a Function Input operator",
+        "RunOptionHint": "Enables access by a Function Input operator to the most current data source of this operator’s function. When selected, a Function Input operator can execute this operator for its function’s current data source. When deselected, a Function Input operator uses the existing data source from this operator’s function. ",
+    },
+
+    "SQLOpPanel": {
+        "Header": "SQL",
+        "Instr": "Select a SQL statement and use the SQL Operator input connections as the source tables.",
+        "Statement": "SQL Query",
+        "StatementHint": "The name of an existing SQL statement. To create a new SQL statement, from the SQL Statement list, click New SQL Statement, which opens a new SQL tab in the SQL editor for you to enter and save your SQL statement.",
+        "TableMap": "Table Mapping",
+        "TableMapInstr": "Match each table in your SQL statement with a table from the App Builder.",
+        "Collapse": "Collapse",
+        "TableLable": "SQL Statement Tables",
+        "ModuleLabel": "Module Tables (by label)",
+        "NoTableHint": "No Tables found. Use the SQL Editor to write a SQL statement that takes in source tables.",
+        "DropTempTable": "Drop intermediate results",
+        "DropTempTableHint": "Reduces memory consumption by removing intermediate table results. If you require the intermediate table results, deselect this check box. NOTE: Keeping intermediate table results increasing memory consumption.",
+        "OutOfSync": "SQL statement is out of sync",
+        "OutOfSyncHint": "This graph-node’s referenced SQL statement was modified since this graph-node was last saved. If you want to use those changes, click Update before you click Save.",
+        "UpToDate": "SQL statement is now up to date.",
     },
 
     "SQLFunc": {
@@ -1070,7 +1103,7 @@ module.exports = {
     "IMDTableOp": {
         "SourceTable": "Source Table",
         "IMDTableInstr": "Use a source table as the input",
-        "table": "Select a table",
+        "table": "Table Name",
         "columns": "Columns to import",
     },
 
@@ -1102,7 +1135,9 @@ module.exports = {
 
     "smartCast": {
         "detect": "Detect",
-        "clearAll": "Clear all",
+        "detectHint": "Automatically detects column names and their data type from your source data",
+        "clearAll": "Clear All",
+        "clearAllHint": "Removes all entry fields",
         "colName": "Column Name",
         "addColHint": "If you want to start modeling without any source, you can specify a non-existing source and modify the schema by adding/removing columns. Otherwise, you can specify an existing source and Xcalar will auto detect its schema."
     },
