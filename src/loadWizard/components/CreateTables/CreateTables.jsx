@@ -16,10 +16,10 @@ class CreateTables extends React.Component {
         const {
             isLoading,
             page, rowsPerPage,
-            schemas, // Array<{schema: {hash, columns}, files: { count, size }}>
+            schemas, // Array<{schema: {hash, columns}, files: { count, size, maxPath }}>
             schemasInProgress,  // Set<schemaName>
             schemasFailed,  // Map<schemaName, errorMsg>
-            tablesInInput, // Map<chemaName, tableName>
+            tablesInInput, // Map<schemaName, tableName>
             tables, // Map<schemaName, tableName>
             onClickCreateTable = (schemaName, tableName) => {},
             onFetchData,
@@ -70,7 +70,7 @@ class CreateTables2 extends React.Component {
             fileMetas, // Map<fileId, fileInfo> see S3Service.listFiles
             schemasInProgress,  // Set<schemaName>
             schemasFailed,  // Map<schemaName, errorMsg>
-            tablesInInput, // Map<chemaName, tableName>
+            tablesInInput, // Map<schemaName, tableName>
             tables, // Map<schemaName, tableName>
             onClickCreateTable = (schemaName, tableName) => {},
             onTableNameChange,

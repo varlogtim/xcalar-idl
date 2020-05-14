@@ -219,6 +219,13 @@ function isFailedSchema(schemaHash) {
     return schemaHash === failedSchemaHash;
 }
 
+function maxPathToTableName(maxPath) {
+    let pathParts = maxPath.split('/')
+    let fileName = pathParts[pathParts.length - 1]
+    let tableName = fileName.replace(/[^A-Za-z0-9]/g, '_');
+    return tableName; // cut off beginning '_'
+}
+
 function LoadTable({
     page, rowsPerPage, isLoading = false,
     schemas, // Array<{schema: {hash, columns}, files: { count, size }}>
@@ -297,7 +304,7 @@ function LoadTable({
                 rowData.load = <LoadCell.Success complementTable={createdRes.complementTable}/>
                 rowData.tableName = createdRes.table;
             } else {
-                const tableName = tablesInInput.get(schemaName);
+                const tableName = maxPathToTableName(files.maxPath);
                 rowData.tableName = <input className="xc-input tableInput" value={tableName} onChange={(e) => onTableNameChange(schemaName, e.target.value)}/>
                 rowData.load = <LoadCell.Create onClick={(e) => {
                     // XXX this is a hacky way to use jQuery in order to use xcHelper.validate

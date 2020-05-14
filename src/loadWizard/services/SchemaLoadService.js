@@ -140,10 +140,10 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
     }
 
     function convertReportRecords(record) {
-        const {FILE_COUNT, TOTAL_SIZE, SCHEMA, SCHEMA_HASH} = record;
+        const {FILE_COUNT, TOTAL_SIZE, MAX_PATH, SCHEMA, SCHEMA_HASH} = record;
         return {
             schema: { hash: SCHEMA_HASH, columns: JSON.parse(SCHEMA) },
-            files: { count: FILE_COUNT, size: TOTAL_SIZE }
+            files: { count: FILE_COUNT, size: TOTAL_SIZE, maxPath: MAX_PATH }
         };
     }
 
