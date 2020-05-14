@@ -1855,7 +1855,8 @@ module.exports = function(grunt) {
             patchingsets.push(
                 [SRCROOT,  // copies the patch file in to the dir you want to apply the patch from
                     ['cp ' + patch[1] + patch[2] + ' ' + patch[3]],
-                ]);            patchingsets.push(
+                ]);
+            patchingsets.push(
                 [patch[3], //a applies the patch then remove the patch file
                     ['patch -p0 < ' + patch[2],  // added -p0 for assetsinlinepackage.patch
                     'rm ' + patch[2]
@@ -2282,8 +2283,14 @@ module.exports = function(grunt) {
 
     grunt.task.registerTask("update_terminalServer_module", "Update terminalServer's dependencies", function() {
         var termServerBldPath = path.join(BLDROOT, 'services/terminalServer/');
+        var wettyBldPath = path.join(BLDROOT, '3rd/wetty/');
 
         var cmdsets = [];
+        cmdsets.push([wettyBldPath, ['npm install --no-save']]);
+        cmdsets.push([wettyBldPath, ['NODE_ENV=production npm run build']]);
+        cmdsets.push([wettyBldPath, ['npm pack']]);
+        cmdsets.push([wettyBldPath, ['cp ./wetty-1.3.2.tgz ' + termServerBldPath]]);
+        cmdsets.push([BLDROOT, ['rm -rf ' + wettyBldPath]]);
         cmdsets.push([termServerBldPath, ['npm install --no-save']]);
 
         runCmds(cmdsets);

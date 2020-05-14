@@ -45,7 +45,7 @@
   },
   "preferGlobal": true,
   "dependencies": {
-    "wetty": "^1.3.2",
+    "wetty": "file:wetty-1.3.2.tgz",
     "yargs": "^14.0.0"
   },
   "devDependencies": {}
