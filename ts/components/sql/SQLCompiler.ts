@@ -1657,14 +1657,10 @@ class SQLCompiler {
                     "org.apache.spark.sql.catalyst.expressions.Literal") {
                         // This is a special alias case
                         SQLUtil.assert(evalList[i][1].dataType, SQLErrTStr.NoDataType);
-                        if (evalList[i][1].value !== null) {
-                            const dataType = SQLCompiler.convertSparkTypeToXcalarType(
-                                                        evalList[i][1].dataType);
-                            evalStruct.evalStr = dataType + "(" +
-                                                evalStruct.evalStr + ")";
-                        } else {
-                            evalStruct.evalStr = "int(" + evalStruct.evalStr + ")";
-                        }
+                        const dataType = SQLCompiler.convertSparkTypeToXcalarType(
+                                                    evalList[i][1].dataType);
+                        evalStruct.evalStr = dataType + "(" +
+                                             evalStruct.evalStr + ")";
                         evalStruct.numOps += 1;
                     } else if (evalList[i][1].class ===
                         "org.apache.spark.sql.catalyst.expressions.XCEParameter") {
