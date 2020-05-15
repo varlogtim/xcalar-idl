@@ -254,12 +254,40 @@ class LoadConfig extends React.Component {
         });
 
         try {
-            // XXX TODO: track progress
+            // track progress
+            function convertProgress(progress, range) {
+                const [start, end] = range;
+                return Math.min(Math.ceil(progress / 100 * (end - start) + start), end);
+            }
 
             // Get create table dataflow
-            const query = await app.getCreateTableQuery(schemaName);
+            const query = await app.getCreateTableQuery(schemaName, (progress) => {
+                this.setState((state) => {
+                    const { createInProgress } = state;
+                    createInProgress.set(schemaName, {
+                        table: tableName,
+                        message: `${convertProgress(progress, [0, 30])}%`
+                    });
+                    return {
+                        createInProgress: createInProgress
+                    };
+                });
+            });
+
             // Create data/comp session tables
-            const tables = await app.createResultTables(query);
+            const tables = await app.createResultTables(query, (progress) => {
+                this.setState((state) => {
+                    const { createInProgress } = state;
+                    createInProgress.set(schemaName, {
+                        table: tableName,
+                        message: `${convertProgress(progress, [30, 95])}%`
+                    });
+                    return {
+                        createInProgress: createInProgress
+                    };
+                })
+            });
+
             // Publish tables
             const result = await this._publishDataCompTables(tables, tableName);
 

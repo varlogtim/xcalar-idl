@@ -49,6 +49,41 @@ function createDiscoverNames(appId) {
     };
 }
 
+function updateProgress(cb, startProgress, endProgress) {
+    if (typeof cb !== "function") {
+        throw new Error('cb is not a function');
+    }
+    let currentProgress = startProgress;
+    let timer = setInterval(() => {
+        if (currentProgress < endProgress - 1) {
+            cb(currentProgress);
+            currentProgress++;
+        } else {
+            if (timer != null) {
+                clearInterval(timer);
+            }
+            timer = null;
+        }
+    }, 5000);
+    cb(currentProgress);
+
+    return {
+        done: () => {
+            if (timer != null) {
+                clearInterval(timer);
+                timer = null;
+            }
+            cb(endProgress);
+        },
+        stop: () => {
+            if (timer != null) {
+                clearInterval(timer);
+                timer = null;
+            }
+        }
+    };
+}
+
 const failedSchemaHash = hashFunc('[]');
 function isFailedSchema(schemaHash) {
     return schemaHash === failedSchemaHash;
@@ -248,14 +283,22 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
                 executionDone = true;
             }
         },
-        createResultTables: async ({loadQueryOpt, dataQueryOpt, compQueryOpt, tableNames}) => {
+        createResultTables: async (query, progressCB = () => {}) => {
+            const {loadQueryOpt, dataQueryOpt, compQueryOpt, tableNames} = query;
+
             const loadQuery = JSON.parse(loadQueryOpt).retina;
-            await session.executeQueryOptimized({
-                queryStringOpt: loadQuery,
-                queryName: `q_${appId}_${queryIndex ++}`,
-                tableName: tableNames.load,
-                params: new Map([['session_name', session.sessionName]])
-            });
+            const loadProgress = updateProgress((p) => progressCB(p), 0, 60);
+            try {
+                await session.executeQueryOptimized({
+                    queryStringOpt: loadQuery,
+                    queryName: `q_${appId}_${queryIndex ++}`,
+                    tableName: tableNames.load,
+                    params: new Map([['session_name', session.sessionName]])
+                });
+                loadProgress.done();
+            } finally {
+                loadProgress.stop();
+            }
             const loadTable = new Table({
                 session: session,
                 tableName: tableNames.load
@@ -263,21 +306,33 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
 
             try {
                 const dataQuery = JSON.parse(dataQueryOpt).retina;
-                await session.executeQueryOptimized({
-                    queryStringOpt: dataQuery,
-                    queryName: `q_${appId}_${queryIndex ++}`,
-                    tableName: tableNames.data
-                });
+                const dataProgress = updateProgress((p) => progressCB(p), 60, 80);
+                try {
+                    await session.executeQueryOptimized({
+                        queryStringOpt: dataQuery,
+                        queryName: `q_${appId}_${queryIndex ++}`,
+                        tableName: tableNames.data
+                    });
+                    dataProgress.done();
+                } finally {
+                    dataProgress.stop();
+                }
                 const dataTable = new Table({
                     session: session, tableName: tableNames.data
                 });
 
                 const compQuery = JSON.parse(compQueryOpt).retina;
-                await session.executeQueryOptimized({
-                    queryStringOpt: compQuery,
-                    queryName: `q_${appId}_${queryIndex ++}`,
-                    tableName: tableNames.comp
-                });
+                const compProgress = updateProgress((p) => progressCB(p), 80, 99);
+                try {
+                    await session.executeQueryOptimized({
+                        queryStringOpt: compQuery,
+                        queryName: `q_${appId}_${queryIndex ++}`,
+                        tableName: tableNames.comp
+                    });
+                    compProgress.done();
+                } finally {
+                    compProgress.stop();
+                }
                 const compTable = new Table({
                     session: session,
                     tableName: tableNames.comp
@@ -289,41 +344,59 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
                 };
             } finally {
                 await loadTable.destroy();
+                progressCB(100);
             }
         },
-        getCreateTableQuery: async (schemaHash) => {
-            await deleteTempTables();
-            const tableNames = {
-                load: `${names.loadPrefix}${schemaHash}`,
-                data: `${names.dataPrefix}${schemaHash}`,
-                comp: `${names.compPrefix}${schemaHash}`
-            };
-            const appInput = {
-                session_name: session.sessionName,
-                func: 'get_dataflows',
-                unique_id: `${names.kvPrefix}${schemaHash}`,
-                path: path,
-                file_name_pattern: filePattern,
-                recursive: isRecursive,
-                schema_hash: schemaHash,
-                files_table_name: names.file,
-                schema_results_table_name: names.schema,
-                input_serial_json: JSON.stringify(inputSerialization),
-                load_table_name: tableNames.load,
-                comp_table_name: tableNames.comp,
-                data_table_name: tableNames.data
-            };
-            console.log('Table query: ', appInput);
-            const response = await executeSchemaLoadApp(JSON.stringify(appInput));
-            return {
-                loadQuery: response.load_df_query_string,
-                loadQueryOpt: response.load_df_optimized_query_string,
-                dataQuery: response.data_df_query_string,
-                dataQueryOpt: response.data_df_optimized_query_string,
-                compQuery: response.comp_df_query_string,
-                compQueryOpt: response.comp_df_optimized_query_string,
-                tableNames: tableNames
-            };
+        getCreateTableQuery: async (schemaHash, progressCB = () => {}) => {
+            const delProgress = updateProgress((p) => {
+                progressCB(p);
+            }, 0, 10);
+            try {
+                await deleteTempTables();
+                delProgress.done();
+            } finally {
+                delProgress.stop();
+            }
+
+            const getQueryProgress = updateProgress((p) => {
+                progressCB(p);
+            }, 10, 100);
+            try {
+                const tableNames = {
+                    load: `${names.loadPrefix}${schemaHash}`,
+                    data: `${names.dataPrefix}${schemaHash}`,
+                    comp: `${names.compPrefix}${schemaHash}`
+                };
+                const appInput = {
+                    session_name: session.sessionName,
+                    func: 'get_dataflows',
+                    unique_id: `${names.kvPrefix}${schemaHash}`,
+                    path: path,
+                    file_name_pattern: filePattern,
+                    recursive: isRecursive,
+                    schema_hash: schemaHash,
+                    files_table_name: names.file,
+                    schema_results_table_name: names.schema,
+                    input_serial_json: JSON.stringify(inputSerialization),
+                    load_table_name: tableNames.load,
+                    comp_table_name: tableNames.comp,
+                    data_table_name: tableNames.data
+                };
+                console.log('Table query: ', appInput);
+                const response = await executeSchemaLoadApp(JSON.stringify(appInput));
+                getQueryProgress.done();
+                return {
+                    loadQuery: response.load_df_query_string,
+                    loadQueryOpt: response.load_df_optimized_query_string,
+                    dataQuery: response.data_df_query_string,
+                    dataQueryOpt: response.data_df_optimized_query_string,
+                    compQuery: response.comp_df_query_string,
+                    compQueryOpt: response.comp_df_optimized_query_string,
+                    tableNames: tableNames
+                };
+            } finally {
+                getQueryProgress.stop();
+            }
         },
         waitForFileTable: async (checkInterval = 200) => {
             tables.file = await waitForTable(names.file, checkInterval);
