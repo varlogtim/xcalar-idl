@@ -25,7 +25,7 @@
     padding-top: @height-homeBtn;
     color: @color-font-defaultInverse;
     border-right: 1px solid @color-border-menuBar;
-    z-index: @z-index-menuBar;
+    z-index: 1; // becomes @z-index-menuBar on workbook panel
 
     &.animating > div {
         pointer-events: none;

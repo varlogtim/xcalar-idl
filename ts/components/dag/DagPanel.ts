@@ -116,7 +116,8 @@ class DagPanel {
 
     public setupPopup() {
         this._popup = new PopupPanel("dagViewContainer", {
-            draggableHeader: ".draggableHeader"
+            draggableHeader: ".draggableHeader",
+            keepSize: true
         });
         this._popup
         .on("Undock", () => {

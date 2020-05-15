@@ -97,7 +97,7 @@ body {
         .wkbkMenuBarTabs {
             display: none;
         }
-        
+
         #memoryAlert {
             .icon {
                 cursor: default;
@@ -166,6 +166,12 @@ body {
     &.menuResizing {
         .mainPanel {
             pointer-events: none;
+        }
+    }
+
+    &.workbookPanelAnimating, &.workbookMode {
+        #menuBar {
+            z-index: @z-index-menuBar;
         }
     }
 

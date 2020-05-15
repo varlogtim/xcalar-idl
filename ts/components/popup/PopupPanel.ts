@@ -1,12 +1,12 @@
 class PopupPanel {
     private _id: string;
-    private _options: {draggableHeader?: string, noUndock?: boolean};
+    private _options: {draggableHeader?: string, noUndock?: boolean, keepSize?: boolean};
     private _event: XcEvent;
     private _isDocked: boolean;
 
     constructor(
         id: string,
-        options: {draggableHeader?: string, noUndock?: boolean}
+        options: {draggableHeader?: string, noUndock?: boolean, keepSize?: boolean}
     ) {
         this._id = id;
         this._options = options;
@@ -141,8 +141,10 @@ class PopupPanel {
     private _setUndockSizeAndPos(): void {
         const $panel = this.getPanel();
         const rect = $panel[0].getBoundingClientRect();
-        const height = Math.min(500, Math.max(300, $(window).height() - (rect.top + 10)));
-        const width = 500;
+        let height = this._options.keepSize ? rect.height : 500;
+        let width = this._options.keepSize ? rect.width : 500;
+        height = Math.min(height, Math.max(300, $(window).height() - (rect.top + 10)));
+        width = Math.min(width, Math.max(300, $(window).width() - (rect.left + 10)));
         const left = Math.min($(window).width() - (width + 5), rect.left + 15);
         $panel.css({
             "left": left,

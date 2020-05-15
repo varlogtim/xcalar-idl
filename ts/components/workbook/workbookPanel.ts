@@ -102,15 +102,20 @@ namespace WorkbookPanel {
     export function show(isForceShow: boolean = false): void {
         $workbookPanel.show();
         $("#container").addClass("workbookMode");
+        $("#container").addClass("workbookPanelAnimating");
 
-        if (isForceShow) {
-            $workbookPanel.removeClass("hidden"); // no animation if force show
-            $("#container").addClass("wkbkViewOpen");
+        if (isForceShow) {// no animation if force show
+            resolve();
         } else {
             setTimeout(function() {
-                $workbookPanel.removeClass("hidden");
-                $("#container").addClass("wkbkViewOpen");
+                resolve();
             }, 100);
+        }
+
+        function resolve() {
+            $workbookPanel.removeClass("hidden"); // no animation if force show
+            $("#container").addClass("wkbkViewOpen");
+            $("#container").removeClass("workbookPanelAnimating");
         }
 
         WorkbookPanel.listWorkbookCards();
@@ -128,12 +133,18 @@ namespace WorkbookPanel {
         $workbookPanel.addClass("hidden");
         $workbookSection.find(".workbookBox").remove();
         $("#container").removeClass("wkbkViewOpen workbookMode");
+        $("#container").addClass("workbookPanelAnimating");
         if (immediate) {
-            $workbookPanel.hide();
+            resolve();
         } else {
             setTimeout(function() {
-                $workbookPanel.hide();
+                resolve();
             }, 400);
+        }
+
+        function resolve() {
+            $workbookPanel.hide();
+            $("#container").removeClass("workbookPanelAnimating");
         }
 
         xcTooltip.hideAll();
