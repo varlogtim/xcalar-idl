@@ -1020,7 +1020,7 @@ class LoadConfig extends React.Component {
                             for (const schemaInfo of schemas) {
                                 const { schema, files } = schemaInfo;
                                 if (!this.state.tableToCreate.has(schema.hash)) {
-                                    const defaultTableName = this._getNameFromPath(schema.hash, nameSet);
+                                    const defaultTableName = this._getNameFromPath(files.maxPath, nameSet);
                                     nameSet.add(defaultTableName);
                                     this.state.tableToCreate.set(schema.hash, defaultTableName);
                                 }
