@@ -252,6 +252,7 @@ class DagTabManager extends AbstractTabManager {
         if (!this._addNewTab(newTab)) {
             return null;
         }
+        ResourceMenu.Instance.render(ResourceMenu.KEY.App);
         return newTab;
     }
 

@@ -161,8 +161,7 @@ class DagList extends Durable {
         .fail(deferred.reject)
         .always(() => {
             TblSource.Instance.refresh();
-            ResourceMenu.Instance.render(ResourceMenu.KEY.DF);
-            ResourceMenu.Instance.render(ResourceMenu.KEY.TableFunc);
+            ResourceMenu.Instance.render(ResourceMenu.KEY.App);
         });
         return promise;
     }
