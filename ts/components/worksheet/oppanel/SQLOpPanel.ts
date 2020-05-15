@@ -587,6 +587,11 @@ class SQLOpPanel extends BaseOpPanel {
                     const nodes = this._graph.getAllNodes();
                     let html = "";
                     let nodeInfos = [];
+                    let nodeInfosInUse = [];
+                    let connectorNodeIds = new Map();
+                    this._connectors.forEach((c) => {
+                        connectorNodeIds.set(c.nodeId, c);
+                    });
                     let connectorIndex = this._dagNode.getNextOpenConnectionIndex();
                     nodes.forEach(node => {
                         if (node === this._dagNode) {
@@ -596,10 +601,24 @@ class SQLOpPanel extends BaseOpPanel {
                             connectorIndex)) {
                             return;
                         }
-                        nodeInfos.push({
-                            id: node.getId(),
-                            label: node.getTitle()
-                        });
+                        if (connectorNodeIds.has(node.getId())) {
+                            nodeInfosInUse.push({
+                                id: node.getId(),
+                                label: node.getTitle()
+                            });
+                        } else {
+                            nodeInfos.push({
+                                id: node.getId(),
+                                label: node.getTitle()
+                            });
+                        }
+                    });
+                    nodeInfosInUse.sort((a, b) => {
+                        if (a.label < b.label) {
+                            return -1;
+                        } else {
+                            return 1;
+                        }
                     });
                     nodeInfos.sort((a, b) => {
                         if (a.label < b.label) {
@@ -608,6 +627,7 @@ class SQLOpPanel extends BaseOpPanel {
                             return 1;
                         }
                     });
+                    nodeInfos = [...nodeInfosInUse, ...nodeInfos];
 
                     nodeInfos.forEach((nodeInfo) => {
                         html += `<li data-id="${nodeInfo.id}">${xcStringHelper.escapeHTMLSpecialChar(nodeInfo.label)}</li>`;
