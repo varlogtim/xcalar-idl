@@ -1648,18 +1648,12 @@ abstract class DagNode extends Durable {
 
     protected _removeTable(): void {
         if (this.table) {
-            let promise = PromiseHelper.resolve();
-            if (DagTblManager.Instance.hasLock(this.table)) {
-                promise = this.unpinTable();
-            }
-            promise.always(() => {
-                let tableName: string = this.table;
-                delete this.table;
-                this.events.trigger(DagNodeEvents.TableRemove, {
-                    table: tableName,
-                    nodeId: this.getId(),
-                    node: this
-                });
+            let tableName: string = this.table;
+            delete this.table;
+            this.events.trigger(DagNodeEvents.TableRemove, {
+                table: tableName,
+                nodeId: this.getId(),
+                node: this
             });
         }
     }
