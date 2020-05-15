@@ -739,18 +739,22 @@ class SQLOpPanel extends BaseOpPanel {
     }
 
     private _renderSnippet() {
-        const snippetId: string = this._dataModel.getSnippetId();
+        let snippetId: string = this._dataModel.getSnippetId();
         const queryStr: string = this._dataModel.getSqlQueryString() || null;
         if (snippetId) {
             let snippet = SQLSnippet.Instance.getSnippetObj(snippetId);
             if (snippet) {
                 this._isQueryUpdated = (snippet.snippet === queryStr);
                 this._snippetIdNotFound = false;
+                SQLTabManager.Instance.openTab(snippetId);
             } else {
+                snippetId = SQLTabManager.Instance.newTab();
+                SQLTabManager.Instance.openTab(snippetId);
+                SQLEditorSpace.Instance.newSQL(queryStr);
+                this._dataModel.setNewSnippetId(snippetId);
                 this._isQueryUpdated = true;
-                this._snippetIdNotFound = true;
+                this._snippetIdNotFound = false;
             }
-            SQLTabManager.Instance.openTab(snippetId);
         } else {
             this._isQueryUpdated = true;
             this._snippetIdNotFound = true;

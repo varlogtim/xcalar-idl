@@ -78,6 +78,12 @@ class SQLOpPanelModel extends BaseOpPanelModel {
         this._identifiers = identifiers;
     }
 
+    public setNewSnippetId(snippetId: string) {
+        this._snippetId = snippetId;
+        let param = this._dagNode.getParam();
+        this._dagNode.setParam({...param, snippetId: snippetId}, true);
+    }
+
     public isDropAsYouGo(): boolean {
         return this._dropAsYouGo;
     }
