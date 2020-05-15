@@ -21,9 +21,9 @@
         </div>
     </div>
     <div class="infoSection">
-        <!-- <div class="divider"></div> -->
+        <div class="divider"></div>
         <div class="numNodesSection">
-            <%= dicts.dag.NumOperatorNodes %>:
+            <span class="label"><%= dicts.dag.NumOperatorNodes %>:</span>
             <span class="numNodes">0</span>
         </div>
 
@@ -40,7 +40,7 @@
             </div>
         </div>
     </div>
-    <div class="topButtons">
+    <div class="topButtons right">
         <button class="btn btn-secondary useInSQL"><%= dicts.dag.UseInSQL %></button>
         <div class="topButton viewOnly">
             <i class="editSQLGraph actionIcon icon xi-edit xc-action" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.dag.ViewOnlyHint %>"></i>

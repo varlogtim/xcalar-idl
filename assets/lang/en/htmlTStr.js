@@ -1405,7 +1405,7 @@ module.exports = {
         "findOptimizedSource": "Find Original Module",
         "returnToQuery": "Back to query",
         "returnToQueryPanel": "Return to the Query panel",
-        "NumOperatorNodes": "No. operators",
+        "NumOperatorNodes": "No. Operators",
         "ViewOnly": "View only",
         "ViewOnlyHint": "This SQL Graph is uneditable. Click to convert to module and edit.",
         "UseInSQL": "Use In SQL",

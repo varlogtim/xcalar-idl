@@ -85,14 +85,12 @@ namespace DagNodeMenu {
                 const nodesToCheck = nodeIds.filter((nodeId) => {
                     return !nodeId.startsWith("comment");
                 });
-                if (DagViewManager.Instance.getActiveDag().checkForChildLocks(nodesToCheck)) {
-                    Alert.show({
-                        title: DFTStr.LockedTableWarning,
-                        msg: xcStringHelper.replaceMsg(DFTStr.LockedTableMsg, {action: action}),
-                        onConfirm: () => {
-                            _processMenuAction(action, options);
-                        }
-                    });
+                let lockedTable = DagViewManager.Instance.getActiveDag().checkForChildLocks(nodesToCheck);
+                if (lockedTable) {
+                    Alert.error(DFTStr.LockedTableWarning,
+                        DFTStr.LockedTableMsg,
+                        {detail: `Pinned Table: ${lockedTable}`}
+                    );
                 } else {
                     _processMenuAction(action, options);
                 }
@@ -472,9 +470,11 @@ namespace DagNodeMenu {
                     const nodesToCheck = nodeIds.filter((nodeId) => {
                         return !nodeId.startsWith("comment");
                     });
-                    if (DagViewManager.Instance.getActiveDag().checkForChildLocks(nodesToCheck)) {
+                    let lockedTable = DagViewManager.Instance.getActiveDag().checkForChildLocks(nodesToCheck);
+                    if (lockedTable) {
                         Alert.error(DFTStr.LockedTableWarning,
-                            xcStringHelper.replaceMsg(DFTStr.LockedTableMsg, {action: action})
+                            DFTStr.LockedTableMsg,
+                            {detail: `Pinned Table: ${lockedTable}`}
                         );
                     } else {
                         _processMenuAction(action);

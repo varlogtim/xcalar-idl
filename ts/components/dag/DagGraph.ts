@@ -1618,10 +1618,17 @@ class DagGraph extends Durable {
     /** Scans down the children of nodes looking to see if any have locks.
      * @param nodes The nodes we're checking
      */
-    public checkForChildLocks(nodes: DagNodeId[]): boolean {
-        return this._checkApplicableChild(nodes, ((node) => {
-            return DagTblManager.Instance.hasLock(node.getTable());
+    public checkForChildLocks(nodes: DagNodeId[]): string | null {
+        let lockedTable: string;
+        this._checkApplicableChild(nodes, ((node) => {
+            if (DagTblManager.Instance.hasLock(node.getTable())) {
+                lockedTable = node.getTable();
+                return true;
+            } else {
+                return false;
+            }
         }));
+        return lockedTable;
     }
 
     public getStatsJson() {

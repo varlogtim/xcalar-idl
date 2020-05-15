@@ -4,6 +4,7 @@
     @operator-width: 67px;
 
     position: relative;
+    overflow: hidden; // keeps categorybar and dagGraphBar from overflowing
 
     &.showingOperatorBar, &.operatorBarLocked, &.operatorBarPinned {
         .operatorBar {
@@ -1128,7 +1129,7 @@
     max-height: @dagGraphBarHeight;
     padding-left: 8px;
     background-color: @color-bg-graphBar;
-    color: @color-icon-default;
+    color: @color-font-default;
     font-size: 12px;
     display: flex;
     flex-wrap: nowrap;
@@ -1191,8 +1192,11 @@
             float: left;
             padding-right: 0px;
         }
-        &:not(.left) {
+        &.right {
             margin-left: auto;
+            .topButton {
+                flex: 0 0 auto;
+            }
         }
     }
 
@@ -1206,7 +1210,6 @@
             line-height: 24px;
             text-align: center;
             .vertical-align;
-            color: @color-icon-default;
             font-size: 16px;
             .rounded(4px);
         }
@@ -1365,7 +1368,6 @@
                 margin-top: 2px;
                 padding: 0 0;
                 padding-right: 16px;
-                color: @color-icon-default;
                 width: 40px;
                 text-align: right;
                 border: none;
@@ -1419,16 +1421,28 @@
         line-height: @dagGraphBarHeight;
         color: @color-font-default;
         display: flex;
-
-        .numNodesSection {
-            display: none; // XXX hiding because it's cluttered
-        }
+        flex: 0 1 auto;
+        min-width: 0px;
 
         .divider {
             // margin-left: 8px;
             margin-right: 8px;
         }
 
+        .numNodesSection {
+            display: flex;
+            flex: 0 1 auto;
+            min-width: 0px;
+            .textOverflowOneLine;
+
+            .label {
+                .textOverflowOneLine;
+            }
+            .numNodes {
+                flex: 0 0 auto;
+                padding-left: 4px;
+            }
+        }
 
     }
     .viewOnly {
@@ -1460,6 +1474,9 @@
     }
     .runStatus {
         display: none;
+        flex: 0 1 auto;
+        min-width: 0px;
+        .textOverflowOneLine;
     }
     &.running {
         .runStatus {

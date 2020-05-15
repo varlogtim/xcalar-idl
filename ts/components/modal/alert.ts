@@ -41,6 +41,7 @@ namespace Alert {
 
     export interface AlertErrorOptions extends BasicAlertOptions {
         isCheckBox?: boolean; // if checkbox is enabled or disabled
+        detail?: string; // detail of the error/message
     }
     /**
      * Alert.setup
@@ -109,7 +110,7 @@ namespace Alert {
     export function error(
         title: string,
         error: string | object,
-        options?: AlertErrorOptions
+        options: AlertErrorOptions = {}
     ): string {
         let msg: string;
         let log: string = null;
@@ -133,6 +134,7 @@ namespace Alert {
             }
         } else {
             msg = <string>error;
+            log = options.detail;
         }
 
         if (msg === undefined) {

@@ -4160,7 +4160,11 @@ class DagView {
         const columnOrdering = node.getColumnOrdering();
         this._columnChange({node, $node, columnDeltas, columnOrdering});
 
-        if (DagTblManager.Instance.hasLock(node.getTable())) {
+        if (DagTblManager.Instance.hasLock(node.getTable()) &&
+            (!(node instanceof DagNodeExport) &&
+            !(node instanceof DagNodePublishIMD) &&
+            !(node instanceof DagNodeInstruction) &&
+            !(node instanceof DagNodeDFOut))) {
             this._editTableLock($node, true);
         }
 

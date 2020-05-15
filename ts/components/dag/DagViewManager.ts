@@ -134,9 +134,21 @@ class DagViewManager {
                     return;
                 }
             }
+            const nodeIds = self.getSelectedNodeIds(true, true);
+            const nodesToCheck = nodeIds.filter((nodeId) => {
+                return !nodeId.startsWith("comment");
+            });
+            let lockedTable = DagViewManager.Instance.getActiveDag().checkForChildLocks(nodesToCheck);
+            if (lockedTable) {
+                Alert.error(DFTStr.LockedTableWarning,
+                    DFTStr.LockedTableMsg,
+                    {detail: `Pinned Table: ${lockedTable}`}
+                );
+            } else {
+                const nodesStr = self.cutNodes(nodeIds);
+                e.originalEvent.clipboardData.setData("text/plain", nodesStr);
+            }
 
-            const nodesStr = self.cutNodes(self.getSelectedNodeIds(true, true));
-            e.originalEvent.clipboardData.setData("text/plain", nodesStr);
             e.preventDefault(); // default behaviour is to copy any selected text
         });
 
