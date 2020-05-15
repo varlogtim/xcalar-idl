@@ -24,8 +24,13 @@ class DagTblManager {
         this.interval = 30000;
         this.configured = false;
         this.timerDisabled = false;
+        // disable the sweep
+        this.timerDisabled = true
     }
 
+    /**
+     * DagTblManager.Instance.setup
+     */
     public setup(): XDPromise<void> {
         if (this.configured) {
             return PromiseHelper.resolve();
@@ -48,7 +53,7 @@ class DagTblManager {
         })
         .then((res: XcalarApiListDagNodesOutputT) => {
                 this._synchWithBackend(res);
-                this.setSweepInterval(this.interval);
+                this._setSweepInterval(this.interval);
                 this.configured = true;
                 deferred.resolve();
         })
@@ -63,19 +68,7 @@ class DagTblManager {
     }
 
     /**
-     * Resets the Sweep interval
-     * @param interval Number of milliseconds before each sweep happens
-     */
-    public setSweepInterval(interval: number): void {
-        if (!this.configured || this.timerDisabled) {
-            return;
-        }
-        this.interval = interval;
-        window.clearInterval(this.timer);
-        this.timer = window.setInterval(() => {DagTblManager.Instance.sweep()}, this.interval);
-    }
-
-    /**
+     * DagTblManager.Instance.disableTimer
      * Disables the sweep timer. Do not do this unless you are totally sure about it.
      */
     public disableTimer(): void {
@@ -84,6 +77,7 @@ class DagTblManager {
     }
 
     /**
+     * DagTblManager.Instance.setClockTimeout
      * Sets clocklimit
      * @param limit Number of timeouts before a table is deleted.
      */
@@ -95,6 +89,7 @@ class DagTblManager {
     }
 
     /**
+     * DagTblManager.Instance.sweep
      * Does one sweep through the cache.
      * A sweep raises clockCount and deals with marked flags.
      * If clockCount == limit, an object is deleted.
@@ -315,7 +310,7 @@ class DagTblManager {
             return this._kvStore.put(jsonStr, true, true);
         })
         .then(() => {
-            this.setSweepInterval(this.interval);
+            this._setSweepInterval(this.interval);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -350,7 +345,7 @@ class DagTblManager {
             return this._kvStore.put(jsonStr, true, true);
         })
         .then(() => {
-            this.setSweepInterval(this.interval);
+            this._setSweepInterval(this.interval);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -379,7 +374,7 @@ class DagTblManager {
             return this._kvStore.put(jsonStr, true, true)
         })
         .then(() => {
-            this.setSweepInterval(this.interval);
+            this._setSweepInterval(this.interval);
             deferred.resolve;
         })
         .fail(deferred.reject);
@@ -510,7 +505,7 @@ class DagTblManager {
             return this._kvStore.put(jsonStr, true, true);
         })
         .then(() => {
-            this.setSweepInterval(this.interval);
+            this._setSweepInterval(this.interval);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -530,6 +525,19 @@ class DagTblManager {
         .fail((e) => {
             console.error(e);
         });
+    }
+
+     /**
+     * Resets the Sweep interval
+     * @param interval Number of milliseconds before each sweep happens
+     */
+    private _setSweepInterval(interval: number): void {
+        if (!this.configured || this.timerDisabled) {
+            return;
+        }
+        this.interval = interval;
+        window.clearInterval(this.timer);
+        this.timer = window.setInterval(() => {DagTblManager.Instance.sweep()}, this.interval);
     }
 
     /**
