@@ -1621,7 +1621,10 @@ class DagGraph extends Durable {
     public checkForChildLocks(nodes: DagNodeId[]): string | null {
         let lockedTable: string;
         this._checkApplicableChild(nodes, ((node) => {
-            if (DagTblManager.Instance.hasLock(node.getTable())) {
+            if (node.getType() === DagNodeType.DFOut) {
+                // skip check function output, as it's reuse the parent table
+                return false;
+            } else if (DagTblManager.Instance.hasLock(node.getTable())) {
                 lockedTable = node.getTable();
                 return true;
             } else {

@@ -152,9 +152,9 @@ class DagNodeDFIn extends DagNodeIn {
         let hint: string = "";
         const input: DagNodeDFInInputStruct = this.getParam();
         if (input.source) {
-            hint = `Reference result: ${input.source}`;
+            hint = `Ref result: ${input.source}`;
         } else if (input.linkOutName) {
-            hint = `Reference output: ${input.linkOutName}`;
+            hint = `Ref: ${input.linkOutName}`;
         }
         return hint;
     }
