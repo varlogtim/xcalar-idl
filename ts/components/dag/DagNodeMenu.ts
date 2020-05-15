@@ -21,7 +21,7 @@ namespace DagNodeMenu {
             cutNodes: "This action removes the graph-node and its links. Unlike the Delete option, the graph-node is saved to the clip-board buffer.",
             pasteNodes: "This action pastes the copied graph-node or graph-nodes and connectors into a new or existing function of module. Configuration settings remain but intermediate table results are removed.",
             duplicateDf: "This action creates a copy of the module, including configuration settings, in a new Module tab.",
-            selectAllNodes: "This action selects all the operators within the module.",
+            selectAll: "This action selects all the operators and comments within the module.",
             findOptimizedSource: "This action opens the Module Lineage window, which displays the name of the module that was used for the optimized application.",
             findSourceNode: "This action opens the Operator Lineage window, which displays the history of the selected graph-node, including the originating custom operator and the module that was used for the optimized application.",
             viewSchemaChanges: "This action opens the schema window and displays the current new, deleted, and updated columns and data types.",
@@ -281,7 +281,7 @@ namespace DagNodeMenu {
                         }
                     });
                     break;
-                case ("selectAllNodes"):
+                case ("selectAll"):
                     DagViewManager.Instance.selectNodes(DagViewManager.Instance.getActiveDag().getTabId());
                     break;
                 case ("findSourceNode"):
@@ -752,7 +752,7 @@ namespace DagNodeMenu {
 
         if (!DagViewManager.Instance.getAllNodes().length) {
             classes += " none ";
-            $menu.find(".removeAllNodes, .deleteAllTables, .executeAllNodes, .selectAllNodes, .autoAlign")
+            $menu.find(".removeAllNodes, .deleteAllTables, .executeAllNodes, .selectAll, .autoAlign")
             .addClass("unavailable");
         }
         if ($dfArea.find(".comment").length) {
@@ -773,9 +773,9 @@ namespace DagNodeMenu {
             classes += " backgroundMenu ";
         }
         if (backgroundClicked) {
-            $menu.find(".autoAlign, .selectAllNodes").removeClass("xc-hidden");
+            $menu.find(".autoAlign, .selectAll").removeClass("xc-hidden");
         } else {
-            $menu.find(".autoAlign, .selectAllNodes").addClass("xc-hidden");
+            $menu.find(".autoAlign, .selectAll").addClass("xc-hidden");
         }
 
         for (let i = 0; i < nodeIds.length; i++) {

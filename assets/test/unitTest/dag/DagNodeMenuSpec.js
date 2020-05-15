@@ -46,7 +46,7 @@ describe("DagNodeMenu Test", function() {
                 "executeAllNodes unavailable",
                 "resetAllNodes unavailable",
                 "pasteNodes",
-                "selectAllNodes unavailable",
+                "selectAll unavailable",
                 "newComment",
                 "restoreAllSource",
                 "autoAlign unavailable",
@@ -80,7 +80,7 @@ describe("DagNodeMenu Test", function() {
                 "resetNode unavailable",
                 "copyNodes",
                 "cutNodes",
-                "selectAllNodes",
+                "selectAll",
                 "viewSchemaChanges",
                 "createCustom",
                 "autoAlign",
@@ -355,7 +355,7 @@ describe("DagNodeMenu Test", function() {
             });
 
             expect(classes).to.deep.equal([
-                "selectAllNodes",
+                "selectAll",
                 "autoAlign",
                 "download"
             ]);
@@ -940,7 +940,7 @@ describe("DagNodeMenu Test", function() {
             };
 
             $dfArea.find(".operator .main").contextmenu();
-            $menu.find(".selectAllNodes").trigger(fakeEvent.mouseup);
+            $menu.find(".selectAll").trigger(fakeEvent.mouseup);
             expect(called).to.be.true;
             DagViewManager.Instance.selectNodes = cachedFn;
         });

@@ -454,8 +454,12 @@ class DagViewManager {
     public selectNodes(tabId: string, nodeIds?: DagNodeId[]): JQuery {
         let $node: JQuery;
         if (!nodeIds) {
-            $node = this._getAreaByTab(tabId).find(".operator")
+            const $dfArea = this._getAreaByTab(tabId);
+            $node = $dfArea.find(".operator");
             DagView.selectNode($node);
+            const $comments = $dfArea.find(".comment");
+            DagView.selectNode($comments);
+            $node = $node.add($comments);
         } else {
             nodeIds.forEach((nodeId) => {
                 $node = this.getNode(nodeId, tabId);

@@ -1627,7 +1627,7 @@
         .viewOptimizedDataflow, .deleteTable, .reexecuteNode, .description,
         .configureNode, .updateSQLQuery, .viewResult, .generateResult,
         .viewSchema, .viewSchemaChanges, .viewOptions, .customNodeOptions, .autoAlign,
-        .unlockNodeTable, .lockNodeTable, .createCustom, .selectAllNodes,
+        .unlockNodeTable, .lockNodeTable, .createCustom, .selectAll,
         .viewUDFErrors, .viewSkew, .addOperation {
             display: list-item;
         }
@@ -1695,7 +1695,7 @@
             li {
                 display: none;
             }
-            .autoAlign, .selectAllNodes, .viewResult, .viewSkew {
+            .autoAlign, .selectAll, .viewResult, .viewSkew {
                 display: list-item;
             }
             &.SQLTab, &.SQLExecuteTab {
@@ -1727,7 +1727,7 @@
     }
     &.backgroundMenu {
         .removeAllNodes, .executeAllNodes, .createNodeOptimized,
-        .deleteAllTables, .selectAllNodes, .pasteNodes,
+        .deleteAllTables, .selectAll, .pasteNodes,
         .autoAlign, .newComment, .download, .duplicateDf,
         .restoreAllSource {
             display: list-item;
@@ -1742,7 +1742,7 @@
             li {
                 display: none;
             }
-            .selectAllNodes, .autoAlign, .download {
+            .selectAll, .autoAlign, .download {
                 display: list-item;
             }
             &.optimizedTab {
@@ -1786,6 +1786,11 @@
         &.backgroundMenu {
             .removeNode {
                 display: none;
+            }
+        }
+        &.operatorMenu {
+            .executeNode, .autoAlign {
+                display: list-item;
             }
         }
     }
