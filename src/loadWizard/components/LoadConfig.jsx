@@ -570,18 +570,12 @@ class LoadConfig extends React.Component {
                 isRecursive: isRecursive
             });
 
-            this.setState((state) => {
+            this._resetDiscoverResult();
+            this.setState(() => {
                 return {
                     discoverIsRunning: true,
                     discoverProgress: 0,
                     discoverAppId: discoverApp.appId,
-                    discoverFilesState: {
-                        ...state.discoverFilesState,
-                        page: 0,
-                        count: 0,
-                        files: [],
-                        isLoading: false
-                    },
                     discoverCancelBatch: () => {
                         console.log('Cancel All');
                         discoverApp.cancel();
@@ -595,37 +589,37 @@ class LoadConfig extends React.Component {
             // list file task
             const listFile = async () => {
                 const table = await discoverApp.waitForFileTable(200);
+                if (table != null) {
+                    const { page, rowsPerPage } = this.state.discoverFilesState;
+                    await this._fetchDiscoverFileData(page, rowsPerPage);
+                }
                 this.setState((state) => ({
                     discoverProgress: state.discoverProgress + 20
                 }));
-                if (table != null) {
-                    const { page, rowsPerPage } = this.state.discoverFilesState;
-                    this._fetchDiscoverFileData(page, rowsPerPage);
-                }
             };
 
             // schema task
             const schemaTask = async () => {
                 const table = await discoverApp.waitForSchemaTable(200);
+                if (table != null) {
+                    const { page, rowsPerPage } = this.state.discoverFilesState;
+                    await this._fetchDiscoverFileData(page, rowsPerPage);
+                }
                 this.setState((state) => ({
                     discoverProgress: state.discoverProgress + 60
                 }));
-                if (table != null) {
-                    const { page, rowsPerPage } = this.state.discoverFilesState;
-                    this._fetchDiscoverFileData(page, rowsPerPage);
-                }
             }
 
             // report task
             const reportTask = async () => {
                 const table = await discoverApp.waitForReportTable(200);
+                if (table != null) {
+                    const { page, rowsPerPage } = this.state.createTableState;
+                    await this._fetchDiscoverReportData(page, rowsPerPage);
+                }
                 this.setState((state) => ({
                     discoverProgress: state.discoverProgress + 10
                 }));
-                if (table != null) {
-                    const { page, rowsPerPage } = this.state.createTableState;
-                    this._fetchDiscoverReportData(page, rowsPerPage);
-                }
             }
 
             await Promise.all([
@@ -638,10 +632,11 @@ class LoadConfig extends React.Component {
             const etime = Date.now();
             console.log(`DiscoverAll took ${Math.ceil((etime - stime)/100)/10} seconds`);
         } catch(e) {
-            this.setState({
-                discoverAppId: null
+            this._alert({
+                title: 'Discovery Error',
+                message: `${e.log || e.error || e.message || e}`
             });
-            console.error('Discover all error: ', e);
+            this._resetDiscoverResult();
         } finally {
             this.setState({
                 discoverIsRunning: false,
@@ -721,8 +716,23 @@ class LoadConfig extends React.Component {
     }
 
     _resetBrowseResult(newFileType = null) {
+        this._resetDiscoverResult();
         this.setState({
             selectedFileDir: new Array(), // Clear selected files/folders, XXX TODO: in case file type changes, we can preserve the folders
+        });
+        let inputSerialization = this.state.inputSerialization;
+        if (newFileType != null) {
+            // Create the new input serialization according to the new fileType
+            inputSerialization = SchemaService.defaultInputSerialization.get(newFileType);
+            this.setState({
+                inputSerialization: inputSerialization,
+            });
+        }
+        return inputSerialization;
+    }
+
+    _resetDiscoverResult() {
+        this.setState({
             discoverAppId: null,
             discoverFilesState: {
                 page: 0,
@@ -741,17 +751,16 @@ class LoadConfig extends React.Component {
             },
             createInProgress: new Map(),
             createFailed: new Map(),
-            createTables: new Map()
+            createTables: new Map(),
+            schemaDetailState: {
+                isLoading: false,
+                schema: null,
+                error: null
+            },
+            showForensics: false,
+            forensicsMessage: [],
+            isForensicsLoading: false
         });
-        let inputSerialization = this.state.inputSerialization;
-        if (newFileType != null) {
-            // Create the new input serialization according to the new fileType
-            inputSerialization = SchemaService.defaultInputSerialization.get(newFileType);
-            this.setState({
-                inputSerialization: inputSerialization,
-            });
-        }
-        return inputSerialization;
     }
 
     _setFileType(fileType) {
