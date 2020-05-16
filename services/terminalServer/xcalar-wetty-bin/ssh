@@ -129,4 +129,7 @@ fi
 # Here is where we run whatever we need to run
 #
 
-exec python3.6 "$XLRDIR"/lib/python3.6/site-packages/xcalar/solutions/tools/xcalar_shell.py
+TMPDIR="${TMPDIR:-/tmp}"
+XCE_LOGDIR="${XCE_LOGDIR:-$TMPDIR}"
+
+exec python3.6 "$XLRDIR"/lib/python3.6/site-packages/xcalar/solutions/tools/xcalar_shell.py 2>&1 | tee -a "$XCE_LOGDIR"/xcalar-shell.log
