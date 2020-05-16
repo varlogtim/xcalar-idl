@@ -1746,6 +1746,7 @@ class DagNodeSQL extends DagNode {
     }
 
     private _generateTableName(tag: string, tabId?: string, isAgg?: boolean): string {
+        let tableName;
         try {
             let prefix = xcHelper.genTableNameFromNode(this);
             if (prefix == "") {
@@ -1754,11 +1755,14 @@ class DagNodeSQL extends DagNode {
                 prefix = identifiersList.join("_");
             }
             if (isAgg) {
-                return prefix + (tag ? "_" + tag : "") +
+                tableName = prefix + (tag ? "_" + tag : "") +
                         Authentication.getTableId().substring(1);
             } else {
-                return prefix + (tag ? "_" + tag : "") +
+                tableName = prefix + (tag ? "_" + tag : "") +
                         Authentication.getTableId();
+                if (!XIApi.isValidTableName(tableName)) {
+                    tableName = XIApi.getNewTableName(tableName);
+                }
             }
         } catch (e) {
             // in noed js env it's normal to have code here
@@ -1768,13 +1772,18 @@ class DagNodeSQL extends DagNode {
             // when has error case, use the old behavior
             // XXX TODO: deprecate it
             if (isAgg) {
-                return "table_" + (tabId ? tabId : "") + "_" + this.getId()
+                tableName = "table_" + (tabId ? tabId : "") + "_" + this.getId()
                     + (tag ? "_" + tag : "") + Authentication.getHashId().substring(1);
             } else {
-                return "table_" + (tabId ? tabId : "") + "_" + this.getId()
+                tableName = "table_" + (tabId ? tabId : "") + "_" + this.getId()
                     + (tag ? "_" + tag : "") + Authentication.getHashId();
+                if (!XIApi.isValidTableName(tableName)) {
+                    tableName = XIApi.getNewTableName(tableName);
+                }
             }
         }
+
+        return tableName;
     }
 
     private _setupSubGraphEvents() {

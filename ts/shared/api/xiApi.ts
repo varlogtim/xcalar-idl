@@ -79,7 +79,7 @@ namespace XIApi {
         return regexp.test(tableName);
     }
 
-    function isValidTableName(tableName: string, allowDollarSign?: boolean): boolean {
+    export function isValidTableName(tableName: string, allowDollarSign?: boolean): boolean {
         let isValid: boolean = isCorrectTableNameFormat(tableName);
         if (!isValid) {
             if (tableName != null) {
@@ -128,7 +128,7 @@ namespace XIApi {
                                                   PatternAction.Check, prefix);
     }
 
-    function getNewTableName(
+    export function getNewTableName(
         tableName: string,
         affix?: string,
         rand: boolean = false
