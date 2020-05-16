@@ -1746,7 +1746,7 @@
         .removeAllNodes, .executeAllNodes, .createNodeOptimized,
         .deleteAllTables, .selectAll, .pasteNodes,
         .autoAlign, .newComment, .download, .duplicateDf,
-        .restoreAllSource {
+        .restoreAllSource, .search {
             display: list-item;
         }
 
@@ -1759,7 +1759,7 @@
             li {
                 display: none;
             }
-            .selectAll, .autoAlign, .download {
+            .selectAll, .autoAlign, .download, .search {
                 display: list-item;
             }
             &.optimizedTab {
@@ -1783,11 +1783,6 @@
                 .restoreAllSource {
                     display: list-item;
                 }
-            }
-        }
-        &.statsTab {
-            .generateStatsDataflow {
-                display: list-item;
             }
         }
     }

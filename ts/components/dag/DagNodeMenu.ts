@@ -436,6 +436,9 @@ namespace DagNodeMenu {
                         DagTabManager.Instance.convertNoEditableTab(dagTab);
                     }
                     break;
+                case ("search"):
+                    DagSearch.Instance.show();
+                    break;
                 default:
                     break;
             }

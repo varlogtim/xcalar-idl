@@ -48,6 +48,7 @@ class DagSearch {
      */
     public show(): void {
         if (this._getPopup().is(":visible")) {
+            this._getSearchInput().focus();
             return;
         }
         this._modalHelper.setup();
