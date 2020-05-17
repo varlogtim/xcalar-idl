@@ -82,6 +82,12 @@ class OpPanelDropdown {
             $input: $input,
             menuItems: menuItems
         });
+        if (isDisabled) {
+            // when dropdown is disabled, don't show it
+            this._$elem.find(".iconWrapper").addClass("xc-hidden");
+        } else {
+            this._$elem.find(".iconWrapper").removeClass("xc-hidden");
+        }
 
         // Add menu items to DOM
         const $ul = BaseOpPanel.findXCElement(this._$elem, this._ulId);
