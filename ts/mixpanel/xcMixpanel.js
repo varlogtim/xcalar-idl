@@ -661,7 +661,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
             btnName = $btn.attr("id");
         } else if ($modal.length) {
             btnName = $btn.text() + " - " + $modal.attr("id");
-            if ($modal.attr("id") === "alertModal" || $modal.attr("id") === "messageModal") {
+            if ($modal.attr("id") === "alertModal") {
                 let $header = $modal.find(".modalHeader");
                 if (!$header.length) {
                     $header = $modal.find(".header").eq(0);
