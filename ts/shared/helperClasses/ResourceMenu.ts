@@ -170,19 +170,7 @@ class ResourceMenu {
             }
             return this._getListHTML(displayName, listClassNames, iconClassNames);
         }).join("");
-        // html = this._getSQLUDFList() + html;
         this._getContainer().find(".udf ul").html(html);
-    }
-
-    private _getSQLUDFList(): HTML {
-        const udfs = UDFFileManager.Instance.listSQLUDFFuncs();
-        const listClassNames: string[] = ["udf", "sqlUDF"];
-        const iconClassNames: string[] = ["xi-menu-udf"];
-        const html: HTML = udfs.map((udf) => {
-            return this._getListHTML(udf.name, listClassNames, iconClassNames);
-        }).join("");
-
-        return this._getNestedListWrapHTML("SQL Scalar Functions", html);
     }
 
     private _renderSQList(): void {
@@ -391,8 +379,7 @@ class ResourceMenu {
             '</div>';
     }
 
-    private _openDropdown(event: JQueryEventObject): void {
-        const $dropDownLocation: JQuery = $(event.currentTarget);
+    private _openDropdown($dropDownLocation: JQuery): void {
         const $li = $dropDownLocation.closest("li");
         const $menu: JQuery = this._getMenu();
         $menu.data("name", $li.find(".name").text());
@@ -419,12 +406,6 @@ class ResourceMenu {
             $menu.find("li.tableFunc").show();
         } else if ($li.hasClass("udf")) {
             $menu.find("li.udf").show();
-
-            if ($li.hasClass("sqlUDF")) {
-                $menu.find("li.udfQuery").removeClass("xc-disabled");
-            } else {
-                $menu.find("li.udfQuery").addClass("xc-disabled");
-            }
 
             if ($li.hasClass("defaultUDF")) {
                 $menu.find("li.udfDelete").addClass("xc-disabled");
@@ -519,19 +500,6 @@ class ResourceMenu {
         }
     }
 
-    private _udfQuery(name: string): void {
-        try {
-            const fn = UDFFileManager.Instance.listSQLUDFFuncs().find((fn) => fn.name === name);
-            const inputSignature = new Array(fn.numArg).fill(null)
-            .map((_v, i) => `Column${i + 1}`).join(", ");
-            const sql: string = `select ${fn.name}(${inputSignature}) from`;
-            SQLWorkSpace.Instance.newSQL(sql);
-        } catch (e) {
-            console.error(e);
-            Alert.error(ErrTStr.Error, "Error occurred when compose query from table function.");
-        }
-    }
-
     private _focusOnTable(tableName: string): void {
         TableTabManager.Instance.openTab(tableName, TableTabType.PbTable);
     }
@@ -583,11 +551,6 @@ class ResourceMenu {
         $menu.on("click", ".tableFuncQuery", () => {
             const name: string = $menu.data("name");
             SQLWorkSpace.Instance.tableFuncQuery(name);
-        });
-
-        $menu.on("click", ".udfQuery", () => {
-            const name: string = $menu.data("name");
-            this._udfQuery(name);
         });
 
         $menu.on("click", ".udfDelete", () => {
@@ -681,19 +644,35 @@ class ResourceMenu {
             if ($li.hasClass("active")) {
                 return;
             }
-            if ($li.hasClass("sqlUDF")) {
-                UDFPanel.Instance.loadSQLUDF();
-            } else {
-                let name: string = $li.find(".name").text();
-                name = UDFPanel.parseModuleNameFromFileName(name);
-                UDFPanel.Instance.loadUDF(name);
-            }
+            let name: string = $li.find(".name").text();
+            name = UDFPanel.parseModuleNameFromFileName(name);
+            UDFPanel.Instance.loadUDF(name);
         });
 
         $container.on("click", ".dropDown", (event) => {
             event.stopPropagation();
-            this._openDropdown(event);
+            this._openDropdown($(event.currentTarget));
         });
+
+        // right click menu
+        let container: HTMLElement = <HTMLElement>$container[0];
+        container.oncontextmenu = (event) => {
+            let $target = $(event.target);
+            let $dropDownLocation = null;
+            let $lisInfo = $target.closest(".listInfo");
+            if ($lisInfo.length > 0) {
+                $dropDownLocation = $lisInfo.find(".dropDown");
+            } else {
+                let $li = $target.closest("li");
+                if ($li.length > 0) {
+                    $dropDownLocation = $li.find(".dropDown");
+                }
+            }
+            if ($dropDownLocation != null && $dropDownLocation.length > 0) {
+                this._openDropdown($dropDownLocation);
+                return false;
+            }
+        };
 
         $container.on("mouseenter", ".tooltipOverflow", function() {
             xcTooltip.auto(this);
