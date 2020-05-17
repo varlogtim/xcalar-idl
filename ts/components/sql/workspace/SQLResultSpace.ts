@@ -212,6 +212,15 @@ class SQLResultSpace {
         return this._popup;
     }
 
+    public showHint(): void {
+        this._getHintArea().removeClass("xc-hidden");
+    }
+
+    private _getHintArea(): JQuery {
+        const $contentSection: JQuery = this._getContentSection();
+        return $contentSection.find(".section.result .hintArea");
+    }
+
     private _switchTab(tab): void {
         const $contentSection: JQuery = this._getContentSection();
         $contentSection.find(".section").addClass("xc-hidden");
@@ -220,9 +229,9 @@ class SQLResultSpace {
         switch (tab) {
             case "result":
                 if ($("#sqlTableArea").hasClass("xc-hidden")) {
-                    $contentSection.find(".section.result .hintArea").removeClass("xc-hidden");
+                    this._getHintArea().removeClass("xc-hidden");
                 } else {
-                    $contentSection.find(".section.result .hintArea").addClass("xc-hidden");
+                    this._getHintArea().addClass("xc-hidden");
                 }
                 break;
             default:

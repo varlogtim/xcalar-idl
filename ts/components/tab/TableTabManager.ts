@@ -265,9 +265,11 @@ class TableTabManager extends AbstractTabManager {
             let viewName: string = "result";
             switch (tab.type) {
                 case TableTabType.PbTable:
+                    SQLResultSpace.Instance.showHint();
                     await SQLResultSpace.Instance.viewPublishedTable(tab.name);
                     break;
                 case TableTabType.ResultSet:
+                    SQLResultSpace.Instance.showHint();
                     await this._viewResult(tab.meta);
                     break;
                 case TableTabType.SQL:
@@ -275,6 +277,7 @@ class TableTabManager extends AbstractTabManager {
                     if (meta.columns) {
                         this._viewSQLHistoryResult(meta);
                     } else if (meta.tabId) {
+                        SQLResultSpace.Instance.showHint();
                         await this._viewResult(meta);
                     } else {
                         viewName = "sql";
