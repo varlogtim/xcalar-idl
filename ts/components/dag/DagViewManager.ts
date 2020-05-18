@@ -144,6 +144,16 @@ class DagViewManager {
                     DFTStr.LockedTableMsg,
                     {detail: `Pinned Table: ${lockedTable}`}
                 );
+            } else if (FormHelper.activeForm) {
+                Alert.show({
+                    title: `Configuration Panel Open`,
+                    msg: `This action cannot be performed while the ${FormHelper.activeFormName} configuration panel is open. Do you want to exit the panel and proceed?`,
+                    onConfirm: () => {
+                        DagConfigNodeModal.Instance.closeForms();
+                        const nodesStr = self.cutNodes(nodeIds);
+                        e.originalEvent.clipboardData.setData("text/plain", nodesStr);
+                    }
+                });
             } else {
                 const nodesStr = self.cutNodes(nodeIds);
                 e.originalEvent.clipboardData.setData("text/plain", nodesStr);
@@ -622,28 +632,6 @@ class DagViewManager {
         return this.activeDagView.run(nodeIds, true, true);
     }
 
-    /**
-     * DagViewManager.Instance.unlockNode
-     * @param nodeId
-     */
-    public unlockNode(nodeId: DagNodeId, tabId: string): void {
-        if (this.dagViewMap.has(tabId)) {
-            this.dagViewMap.get(tabId).unlockNode(nodeId);
-        }
-    }
-
-    /**
-     * DagViewManager.Instance.lockNode
-     * @param nodeId
-     */
-    public lockNode(nodeId: DagNodeId, tabId?: string): string {
-        if (!tabId) {
-            tabId = this.activeDagTab.getId();
-        }
-        if (this.dagViewMap.has(tabId)) {
-            return this.dagViewMap.get(tabId).lockNode(nodeId);
-        }
-    }
 
     public lockConfigNode(nodeId: DagNodeId, tabId?: string): string {
         if (!tabId) {
@@ -655,7 +643,7 @@ class DagViewManager {
     }
 
     /**
-     * DagViewManager.Instance.unlockNode
+     * DagViewManager.Instance.unlockConfigNode
      * @param nodeId
      */
     public unlockConfigNode(nodeId: DagNodeId, tabId: string): void {
@@ -897,8 +885,8 @@ class DagViewManager {
         return this.dagViewMap.get(tabId).viewOptimizedDataflow(dagNode);
     }
 
-    public reset(nodeIds?: DagNodeId[], bypassAlert?: boolean, tableMsg?: boolean): XDPromise<void> {
-        return this.activeDagView.reset(nodeIds, bypassAlert, tableMsg);
+    public reset(nodeIds?: DagNodeId[], bypassResetAlert?: boolean, tableMsg?: boolean): XDPromise<void> {
+        return this.activeDagView.reset(nodeIds, bypassResetAlert, tableMsg);
     }
 
       /**
@@ -913,9 +901,9 @@ class DagViewManager {
         return this.activeDagView.editDescription(nodeId, text);
     }
 
-          /**
-     *
-     * @param $node
+    /**
+     * @param nodeId
+     * @param tabId
      * @param text
      */
     public editNodeTitle(

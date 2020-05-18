@@ -3,14 +3,13 @@ namespace DagNodeMenu {
     let curNodeId: DagNodeId;
     let curParentNodeId: DagNodeId;
     let curConnectorIndex: number;
-    let tooltipMap;
 
     export function setup() {
         _setupNodeMenu();
         _setupNodeMenuActions();
         _setupInstructionNodeCategories();
 
-        tooltipMap = {
+        const tooltipMap = {
             configureNode: "This action opens the operator's configuration panel",
             executeNode: "This action runs the configured operator's operation.",
             executeAllNodes: "This action runs all the operations in a module.",
@@ -59,18 +58,8 @@ namespace DagNodeMenu {
         let $menu = _getDagNodeMenu();
         let $li = $menu.find(".exitOp");
         $li.attr("class", "exitOp");
-
-        let nameUpper = xcStringHelper.capitalize(name);
-        let label = nameUpper;
-        switch (name) {
-            case ('groupby'):
-                label = 'Group By';
-                break;
-            default:
-                break;
-        }
-        $li.find(".label").text('Exit ' + label + ' Configuration');
-        $li.addClass('exit' + nameUpper.replace(/ /g,''));
+        $li.find(".label").text('Exit ' + name + ' Configuration');
+        $li.addClass('exit' + name.replace(/ /g,''));
     }
 
     // options must include nod
@@ -234,7 +223,7 @@ namespace DagNodeMenu {
             node?: DagNode,
             autofillColumnNames?: string[],
             exitCallback?: Function, // when config panel is exited without saving
-            bypassAlert?: boolean
+            bypassResetAlert?: boolean
         }
     ) {
         try {
@@ -332,11 +321,11 @@ namespace DagNodeMenu {
                     break;
                 case ("resetNode"):
                 case ("deleteTable"):
-                    DagViewManager.Instance.reset(dagNodeIds, options.bypassAlert,
+                    DagViewManager.Instance.reset(dagNodeIds, options.bypassResetAlert,
                                                   action === "deleteTable");
                     break;
                 case ("deleteAllTables"):
-                    DagViewManager.Instance.reset(null, options.bypassAlert, true);
+                    DagViewManager.Instance.reset(null, options.bypassResetAlert, true);
                     break;
                 case ("reexecuteNode"):
                     DagViewManager.Instance.reset(dagNodeIds, true)
@@ -418,10 +407,10 @@ namespace DagNodeMenu {
                 case ("findLinkOut"):
                     _findLinkOutNode(nodeId);
                     break;
-                case ("lockTable"):
+                case ("pinTable"):
                     DagViewManager.Instance.getActiveDag().getNode(nodeId).pinTable();
                     break;
-                case ("unlockTable"):
+                case ("unpinTable"):
                     DagViewManager.Instance.getActiveDag().getNode(nodeId).unpinTable();
                     break;
                 case ("restoreSource"):
@@ -480,11 +469,11 @@ namespace DagNodeMenu {
                             {detail: `Pinned Table: ${lockedTable}`}
                         );
                     } else {
-                        _processMenuAction(action);
+                        _preProcessMenuAction(action);
                     }
                     break;
                 default:
-                    _processMenuAction(action);
+                    _preProcessMenuAction(action);
                     break;
             }
         });
@@ -501,6 +490,40 @@ namespace DagNodeMenu {
             const nodeId = DagViewManager.Instance.getSelectedNodeIds(true)[0];
             DagViewManager.Instance.autoAddNode(type, subType, nodeId);
         });
+    }
+
+    // check if config panel is open and show alert if so
+    function _preProcessMenuAction(action) {
+        if (FormHelper.activeForm) {
+            switch(action) {
+                case ("executeNode"):
+                case ("executeAllNodes"):
+                case ("executeNodeOptimized"):
+                case ("createNodeOptimized"):
+                case ("resetNode"):
+                case ("deleteAllTables"):
+                case ("deleteTable"):
+                case ("cutNodes"):
+                case ("createCustom"):
+                case ("removeNode"):
+                case ("removeAllNodes"):
+                    Alert.show({
+                        title: `Configuration Panel Open`,
+                        msg: `This action cannot be performed while the ${FormHelper.activeFormName} configuration panel is open. Do you want to exit the panel and proceed?`,
+                        onConfirm: () => {
+                            DagConfigNodeModal.Instance.closeForms();
+                            _processMenuAction(action, {bypassResetAlert: true});
+                        }
+                    });
+                    break;
+                default:
+                    _processMenuAction(action);
+                    break;
+            }
+        } else {
+            _processMenuAction(action);
+        }
+
     }
 
     function exitOpPanel(ignoreSQLChange?: boolean): void {
@@ -673,7 +696,6 @@ namespace DagNodeMenu {
 
         let classes: string = " commentMenu ";
         $menu.find("li").removeClass("unavailable");
-        adjustMenuForOpenForm($menu);
 
         MenuHelper.dropdownOpen($clickedEl, $menu, {
             mouseCoors: {x: event.pageX, y: event.pageY},
@@ -782,9 +804,7 @@ namespace DagNodeMenu {
         }
 
         for (let i = 0; i < nodeIds.length; i++) {
-            if (DagViewManager.Instance.isNodeLocked(nodeIds[i]) ||
-                DagViewManager.Instance.isNodeConfigLocked(nodeIds[i])
-            ) {
+            if (DagViewManager.Instance.isNodeLocked(nodeIds[i])) {
                 $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
                       ".executeNodeOptimized, .createNodeOptimized," +
                       ".resetNode, .deleteTable, .cutNodes, .removeNode, " +
@@ -828,14 +848,6 @@ namespace DagNodeMenu {
                         ".removeAllNodes, .editCustom")
                 .addClass("unavailable");
         }
-
-        // if graph is not in execution and currently selected node is not locked
-        // then open the form
-        const enableConfig = (!DagViewManager.Instance.isLocked($dfArea) &&
-                              nodeIds.length === 1 &&
-                              !DagViewManager.Instance.isNodeLocked(nodeIds[0]) &&
-                              !DagViewManager.Instance.isNodeConfigLocked(nodeIds[0]) );
-        adjustMenuForOpenForm($menu, enableConfig);
 
         position = {x: event.pageX, y: event.pageY};
 
@@ -978,17 +990,17 @@ namespace DagNodeMenu {
             state === DagNodeState.Complete &&
             dagNode.getTable() != null && DagTblManager.Instance.hasLock(dagNode.getTable())
         ) {
-            $menu.find(".lockNodeTable").addClass("unavailable xc-hidden");
-            $menu.find(".unlockNodeTable").removeClass("unavailable xc-hidden");
+            $menu.find(".pinTable").addClass("unavailable xc-hidden");
+            $menu.find(".unpinTable").removeClass("unavailable xc-hidden");
         } else if (dagNode != null &&
             state === DagNodeState.Complete &&
             dagNode.getTable() != null &&
             DagTblManager.Instance.hasTable(dagNode.getTable())
         ) {
-            $menu.find(".unlockNodeTable").addClass("unavailable xc-hidden");
-            $menu.find(".lockNodeTable").removeClass("unavailable xc-hidden");
+            $menu.find(".unpinTable").addClass("unavailable xc-hidden");
+            $menu.find(".pinTable").removeClass("unavailable xc-hidden");
         } else {
-            $menu.find(".lockNodeTable, .unlockNodeTable").addClass("unavailable xc-hidden");
+            $menu.find(".pinTable, .unpinTable").addClass("unavailable xc-hidden");
         }
 
 
@@ -1039,42 +1051,13 @@ namespace DagNodeMenu {
             $menu.find(".updateSQLQuery").addClass("xc-hidden");
         }
 
-        if (DagViewManager.Instance.isNodeLocked(nodeId) ||
-            DagViewManager.Instance.isNodeConfigLocked(nodeId) ) {
+        if (DagViewManager.Instance.isNodeLocked(nodeId)) {
             $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
                       ".generateResult, .executeNodeOptimized, .createNodeOptimized," +
                       ".resetNode, .deleteTable, .cutNodes, .removeNode, .removeAllNodes, .editCustom")
                 .addClass("unavailable");
         }
         return classes;
-    }
-
-    function adjustMenuForOpenForm($menu: JQuery, enableConfig?: boolean) {
-        let $lis: JQuery = $menu.find(".executeNode, .executeAllNodes, " +
-                        ".executeNodeOptimized, .createNodeOptimized," +
-                        ".resetNode, .deleteAllTables, .deleteTable, .cutNodes, " +
-                        ".createCustom, .removeNode, .removeAllNodes");
-
-        if (!FormHelper.activeForm) {
-            $lis.add($menu.find(".configureNode")).each((i, li) => {
-                let $li = $(li);
-                let key = $li.data("action");
-                let text = tooltipMap[key];
-                if (text) {
-                    xcTooltip.add($li, {title: text});
-                } else {
-                    xcTooltip.remove($li);
-                }
-            });
-            return;
-        }
-
-        if (!enableConfig) {
-            $menu.find(".configureNode").addClass("unavailable");
-            xcTooltip.add($menu.find(".configureNode"), {title: TooltipTStr.CloseConfigForm});
-        }
-        $lis.addClass("unavailable");
-        xcTooltip.add($lis, {title: TooltipTStr.CloseConfigForm});
     }
 
     function _showNodeInstructionMenu(event: JQueryEventObject) {

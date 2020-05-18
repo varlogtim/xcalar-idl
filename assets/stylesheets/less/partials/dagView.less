@@ -1644,7 +1644,7 @@
         .viewOptimizedDataflow, .deleteTable, .reexecuteNode, .description,
         .configureNode, .updateSQLQuery, .viewResult, .generateResult,
         .viewSchema, .viewSchemaChanges, .viewOptions, .customNodeOptions, .autoAlign,
-        .unlockNodeTable, .lockNodeTable, .createCustom, .selectAll,
+        .unpinTable, .pinTable, .createCustom, .selectAll,
         .viewUDFErrors, .viewSkew, .addOperation {
             display: list-item;
         }
@@ -1792,7 +1792,7 @@
         }
         .executeNode, .executeNodeOptimized, .description, .configureNode,
         .viewResult, .generateResult, .viewSchema, .viewSchemaChanges,
-        .autoAlign, .unlockNodeTable, .lockNodeTable {
+        .autoAlign, .unpinTable, .pinTable {
             display: none;
         }
         &.backgroundMenu {
@@ -1829,7 +1829,7 @@
         }
     }
     &.publishMenu {
-        .viewResult, .generateResult, .viewSchema, .viewSchemaChanges, .unlockNodeTable, .lockNodeTable {
+        .viewResult, .generateResult, .viewSchema, .viewSchemaChanges, .unpinTable, .pinTable {
             display: none;
         }
     }

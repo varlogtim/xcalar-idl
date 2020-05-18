@@ -2037,15 +2037,14 @@ class DagView {
      * @param nodeIds
      * if no nodeIds passed, will reset all
      */
-    public reset(nodeIds?: DagNodeId[], bypassAlert?: boolean, tableMsg?: boolean): XDPromise<void> {
-        if (bypassAlert) {
-            this.dagTab.turnOffSave();
-            this.graph.reset(nodeIds);
-            this.dagTab.turnOnSave();
-            this.dagTab.save();
-            return PromiseHelper.resolve();
-        }
+    public reset(nodeIds?: DagNodeId[], bypassResetAlert?: boolean, tableMsg?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const self = this;
+        if (bypassResetAlert) {
+            resolve();
+            return deferred.promise();
+        }
+
         let msg: string = nodeIds ? DagTStr.ResetMsg : DagTStr.ResetAllMsg;
         let title: string = DagTStr.Reset;
         if (tableMsg) {
@@ -2061,16 +2060,20 @@ class DagView {
             title: title,
             msg: msg,
             onConfirm: () => {
-                this.dagTab.turnOffSave();
-                this.graph.reset(nodeIds);
-                this.dagTab.turnOnSave();
-                this.dagTab.save();
-                deferred.resolve();
+                resolve();
             },
             onCancel: () => {
                 deferred.reject();
             }
         });
+
+        function resolve() {
+            self.dagTab.turnOffSave();
+            self.graph.reset(nodeIds);
+            self.dagTab.turnOnSave();
+            self.dagTab.save();
+            deferred.resolve();
+        }
         return deferred.promise();
     }
 

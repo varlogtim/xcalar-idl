@@ -15,7 +15,6 @@ interface FormHelperOptions {
 
 interface ColumnPickerOptions {
     state?: string;
-    mainMenuState?: string;
     noEvent?: boolean;
     keepFocus?: boolean;
     colCallback?: Function;
@@ -39,7 +38,6 @@ class FormHelper {
      * noEsc: if set true, no event listener on key esc,
      * columnPicker: a object with column picker options, has attrs:
      *      state: the column picker's state
-     *      mainMenuState: main menu's state before open the view
      *      noEvent: if set true, no picker event handler
      *      colCallback: called when click on column
      *      headCallback: called when click on table head
@@ -47,17 +45,16 @@ class FormHelper {
      *      validColTypes: (optional) array of valid column types
      */
 
+    public static activeForm: BaseOpPanel;
+    public static activeFormName: string;
+
     private $form: JQuery;
     private $container: JQuery;
     private options: FormHelperOptions;
     private id: string;
     private state: string;
-    private mainMenuState: {
-        $activeDataflowMenu: JQuery
-    };
     private openTime: number;
     private isFormOpen: boolean;
-    public static activeForm: BaseOpPanel;
     private _isWaitingForSetup: boolean;
 
     public constructor($form: JQuery, options?: FormHelperOptions) {
@@ -308,13 +305,17 @@ class FormHelper {
         const tblMenu: TableMenuManager = TableComponent.getMenu();
         tblMenu.updateExitOptions("#tableMenu", name);
         tblMenu.updateExitOptions("#colMenu", name);
-        DagNodeMenu.updateExitOptions(name);
+        let displayName = xcStringHelper.capitalize(name);
+        displayName = xcStringHelper.camelCaseToRegular(displayName);
+        FormHelper.activeFormName = displayName;
+        DagNodeMenu.updateExitOptions(displayName);
         return true;
     }
 
     public hideView(): void {
         this.isFormOpen = false;
         FormHelper.activeForm = null;
+        FormHelper.activeFormName = null;
         this.$form.addClass('xc-hidden');
         $("#container").removeClass("formOpen");
         const tblMenu: TableMenuManager = TableComponent.getMenu();
