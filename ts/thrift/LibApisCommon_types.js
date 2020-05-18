@@ -13499,136 +13499,6 @@ XcalarApiOpStatsOutT.prototype.write = function(output) {
   return;
 };
 
-XcalarApiErrorpointSetInputT = function(args) {
-  this.moduleName = null;
-  this.pointName = null;
-  this.exactNameMatch = null;
-  this.probability = null;
-  this.fireNTimes = null;
-  this.opaque = null;
-  if (args) {
-    if (args.moduleName !== undefined && args.moduleName !== null) {
-      this.moduleName = args.moduleName;
-    }
-    if (args.pointName !== undefined && args.pointName !== null) {
-      this.pointName = args.pointName;
-    }
-    if (args.exactNameMatch !== undefined && args.exactNameMatch !== null) {
-      this.exactNameMatch = args.exactNameMatch;
-    }
-    if (args.probability !== undefined && args.probability !== null) {
-      this.probability = args.probability;
-    }
-    if (args.fireNTimes !== undefined && args.fireNTimes !== null) {
-      this.fireNTimes = args.fireNTimes;
-    }
-    if (args.opaque !== undefined && args.opaque !== null) {
-      this.opaque = args.opaque;
-    }
-  }
-};
-XcalarApiErrorpointSetInputT.prototype = {};
-XcalarApiErrorpointSetInputT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.moduleName = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.STRING) {
-        this.pointName = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 3:
-      if (ftype == Thrift.Type.BOOL) {
-        this.exactNameMatch = input.readBool().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 4:
-      if (ftype == Thrift.Type.I64) {
-        this.probability = input.readI64().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 5:
-      if (ftype == Thrift.Type.I64) {
-        this.fireNTimes = input.readI64().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 6:
-      if (ftype == Thrift.Type.STRING) {
-        this.opaque = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-XcalarApiErrorpointSetInputT.prototype.write = function(output) {
-  output.writeStructBegin('XcalarApiErrorpointSetInputT');
-  if (this.moduleName !== null && this.moduleName !== undefined) {
-    output.writeFieldBegin('moduleName', Thrift.Type.STRING, 1);
-    output.writeString(this.moduleName);
-    output.writeFieldEnd();
-  }
-  if (this.pointName !== null && this.pointName !== undefined) {
-    output.writeFieldBegin('pointName', Thrift.Type.STRING, 2);
-    output.writeString(this.pointName);
-    output.writeFieldEnd();
-  }
-  if (this.exactNameMatch !== null && this.exactNameMatch !== undefined) {
-    output.writeFieldBegin('exactNameMatch', Thrift.Type.BOOL, 3);
-    output.writeBool(this.exactNameMatch);
-    output.writeFieldEnd();
-  }
-  if (this.probability !== null && this.probability !== undefined) {
-    output.writeFieldBegin('probability', Thrift.Type.I64, 4);
-    output.writeI64(this.probability);
-    output.writeFieldEnd();
-  }
-  if (this.fireNTimes !== null && this.fireNTimes !== undefined) {
-    output.writeFieldBegin('fireNTimes', Thrift.Type.I64, 5);
-    output.writeI64(this.fireNTimes);
-    output.writeFieldEnd();
-  }
-  if (this.opaque !== null && this.opaque !== undefined) {
-    output.writeFieldBegin('opaque', Thrift.Type.STRING, 6);
-    output.writeString(this.opaque);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
 XcalarApiImportRetinaInputT = function(args) {
   this.retinaName = null;
   this.overwriteExistingUdf = null;
@@ -16387,7 +16257,6 @@ XcalarApiInputT = function(args) {
   this.setConfigParamInput = null;
   this.removeTargetInput = null;
   this.appSetInput = null;
-  this.errorpointSetInput = null;
   this.appRunInput = null;
   this.appReapInput = null;
   this.demoFileInput = null;
@@ -16600,9 +16469,6 @@ XcalarApiInputT = function(args) {
     }
     if (args.appSetInput !== undefined && args.appSetInput !== null) {
       this.appSetInput = new XcalarApiAppSetInputT(args.appSetInput);
-    }
-    if (args.errorpointSetInput !== undefined && args.errorpointSetInput !== null) {
-      this.errorpointSetInput = new XcalarApiErrorpointSetInputT(args.errorpointSetInput);
     }
     if (args.appRunInput !== undefined && args.appRunInput !== null) {
       this.appRunInput = new XcalarApiAppRunInputT(args.appRunInput);
@@ -17195,14 +17061,6 @@ XcalarApiInputT.prototype.read = function(input) {
       if (ftype == Thrift.Type.STRUCT) {
         this.appSetInput = new XcalarApiAppSetInputT();
         this.appSetInput.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 67:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.errorpointSetInput = new XcalarApiErrorpointSetInputT();
-        this.errorpointSetInput.read(input);
       } else {
         input.skip(ftype);
       }
@@ -17829,11 +17687,6 @@ XcalarApiInputT.prototype.write = function(output) {
   if (this.appSetInput !== null && this.appSetInput !== undefined) {
     output.writeFieldBegin('appSetInput', Thrift.Type.STRUCT, 66);
     this.appSetInput.write(output);
-    output.writeFieldEnd();
-  }
-  if (this.errorpointSetInput !== null && this.errorpointSetInput !== undefined) {
-    output.writeFieldBegin('errorpointSetInput', Thrift.Type.STRUCT, 67);
-    this.errorpointSetInput.write(output);
     output.writeFieldEnd();
   }
   if (this.appRunInput !== null && this.appRunInput !== undefined) {
