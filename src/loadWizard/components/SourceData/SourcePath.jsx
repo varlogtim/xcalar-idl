@@ -11,6 +11,7 @@ const Texts = {
     fileType: 'File Type:',
     typeCsv: 'CSV',
     typeJson: 'JSON',
+    typeJsonl: 'JSONL',
     typeParquet: 'Parquet',
     navButtonRight: 'Browse',
     updateForensics: 'Updating ...',
@@ -109,7 +110,7 @@ export default function SourcePath({
                             val={fileType}
                             onSelect={onFileTypeChange}
                             list={
-                                [FileType.CSV, FileType.JSON, FileType.PARQUET].map((type, i) => {
+                                [FileType.CSV, FileType.JSON, FileType.JSONL, FileType.PARQUET].map((type, i) => {
                                     return {text: type, value: type};
                                 })
                             }

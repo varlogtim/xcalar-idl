@@ -2,6 +2,10 @@
  * XXX TODO: This should be part of the service
  */
 
+/**
+ * XXX Can we just delete this? This file doesn't seem needed anymore, right?
+ */
+
 // initial version is written by Tim Tucker
 //
 //

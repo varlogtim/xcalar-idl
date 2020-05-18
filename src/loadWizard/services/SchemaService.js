@@ -8,6 +8,7 @@ const { xcHelper, Xcrpc } = global;
 const FileType = {
     CSV: 'csv',
     JSON: 'json',
+    JSONL: 'jsonl',
     PARQUET: 'parquet'
 };
 const FileTypeFilter = new Map([
@@ -16,6 +17,10 @@ const FileTypeFilter = new Map([
         return validTypes.has(`${type}`.toLowerCase());
     }],
     [FileType.JSON, ({type}) => {
+        const validTypes = new Set(['json']);
+        return validTypes.has(`${type}`.toLowerCase());
+    }],
+    [FileType.JSONL, ({type}) => {
         const validTypes = new Set(['json', 'jsonl']);
         return validTypes.has(`${type}`.toLowerCase());
     }],
@@ -27,6 +32,7 @@ const FileTypeFilter = new Map([
 const FileTypeNamePattern = new Map([
     [FileType.CSV, '*.csv'],
     [FileType.JSON, '*.json'],
+    [FileType.JSONL, '*.json'],  // XXX Does this support *.jsonl ???
     [FileType.PARQUET, '*.parquet']
 ]);
 
@@ -71,6 +77,12 @@ class InputSerializationFactory {
 
     static createJSON() {
         return { JSON: {
+            Type: 'DOCUMENT'
+        }};
+    }
+
+    static createJSONL() {
+        return { JSON: {
             Type: 'LINES'
         }};
     }
@@ -82,13 +94,16 @@ class InputSerializationFactory {
     }
 
     static getFileType(inputSerialization) {
-        const { CSV, JSON, Parquet } = inputSerialization || {};
+        const { CSV, JSON, JSONL, Parquet } = inputSerialization || {};
         const types = new Set();
         if (CSV != null) {
             types.add(FileType.CSV);
         }
         if (JSON != null) {
             types.add(FileType.JSON);
+        }
+        if (JSONL != null) {
+            types.add(FileType.JSONL);
         }
         if (Parquet != null) {
             types.add(FileType.PARQUET);
@@ -100,6 +115,7 @@ class InputSerializationFactory {
 const defaultInputSerialization = new Map([
     [FileType.CSV, InputSerializationFactory.createCSV({})],
     [FileType.JSON, InputSerializationFactory.createJSON()],
+    [FileType.JSONL, InputSerializationFactory.createJSONL()],
     [FileType.PARQUET, InputSerializationFactory.createParquet()]
 ]);
 
