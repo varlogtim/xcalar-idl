@@ -14761,59 +14761,6 @@ XcalarApiDeleteRetinaInputT.prototype.write = function(output) {
   return;
 };
 
-XcalarApiDeleteDatasetsInputT = function(args) {
-  this.delInput = null;
-  if (args) {
-    if (args.delInput !== undefined && args.delInput !== null) {
-      this.delInput = args.delInput;
-    }
-  }
-};
-XcalarApiDeleteDatasetsInputT.prototype = {};
-XcalarApiDeleteDatasetsInputT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.delInput = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-XcalarApiDeleteDatasetsInputT.prototype.write = function(output) {
-  output.writeStructBegin('XcalarApiDeleteDatasetsInputT');
-  if (this.delInput !== null && this.delInput !== undefined) {
-    output.writeFieldBegin('delInput', Thrift.Type.STRING, 1);
-    output.writeString(this.delInput);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
 XcalarApiShutdownInputT = function(args) {
   this.doShutdown = null;
   if (args) {
@@ -16437,7 +16384,6 @@ XcalarApiInputT = function(args) {
   this.exportRetinaInput = null;
   this.startFuncTestInput = null;
   this.listFuncTestInput = null;
-  this.deleteDatasetsInput = null;
   this.setConfigParamInput = null;
   this.removeTargetInput = null;
   this.appSetInput = null;
@@ -16645,9 +16591,6 @@ XcalarApiInputT = function(args) {
     }
     if (args.listFuncTestInput !== undefined && args.listFuncTestInput !== null) {
       this.listFuncTestInput = new XcalarApiListFuncTestInputT(args.listFuncTestInput);
-    }
-    if (args.deleteDatasetsInput !== undefined && args.deleteDatasetsInput !== null) {
-      this.deleteDatasetsInput = new XcalarApiDeleteDatasetsInputT(args.deleteDatasetsInput);
     }
     if (args.setConfigParamInput !== undefined && args.setConfigParamInput !== null) {
       this.setConfigParamInput = new XcalarApiSetConfigParamInputT(args.setConfigParamInput);
@@ -17228,14 +17171,6 @@ XcalarApiInputT.prototype.read = function(input) {
       if (ftype == Thrift.Type.STRUCT) {
         this.listFuncTestInput = new XcalarApiListFuncTestInputT();
         this.listFuncTestInput.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 63:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.deleteDatasetsInput = new XcalarApiDeleteDatasetsInputT();
-        this.deleteDatasetsInput.read(input);
       } else {
         input.skip(ftype);
       }
@@ -17879,11 +17814,6 @@ XcalarApiInputT.prototype.write = function(output) {
   if (this.listFuncTestInput !== null && this.listFuncTestInput !== undefined) {
     output.writeFieldBegin('listFuncTestInput', Thrift.Type.STRUCT, 62);
     this.listFuncTestInput.write(output);
-    output.writeFieldEnd();
-  }
-  if (this.deleteDatasetsInput !== null && this.deleteDatasetsInput !== undefined) {
-    output.writeFieldBegin('deleteDatasetsInput', Thrift.Type.STRUCT, 63);
-    this.deleteDatasetsInput.write(output);
     output.writeFieldEnd();
   }
   if (this.setConfigParamInput !== null && this.setConfigParamInput !== undefined) {
