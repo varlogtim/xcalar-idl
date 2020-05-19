@@ -23,6 +23,14 @@ class TreeNodeFactory {
             "dataType": "string"
         });
     }
+    static getLiteralBooleanNode(value: boolean): TreeNode {
+        return new TreeNode({
+            "class": "org.apache.spark.sql.catalyst.expressions.Literal",
+            "num-children": 0,
+            "value": value,
+            "dataType": "boolean"
+        });
+    }
     static getSubtractNode(): TreeNode {
         return new TreeNode({
             "class": "org.apache.spark.sql.catalyst.expressions.Subtract",
@@ -66,7 +74,7 @@ class TreeNodeFactory {
     static getIfNode(): TreeNode {
         return new TreeNode({
             "class": "org.apache.spark.sql.catalyst.expressions.If",
-            "num-children": 3,
+            "num-children": 4,
             "branches": null,
         });
     }

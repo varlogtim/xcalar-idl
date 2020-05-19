@@ -190,13 +190,16 @@ class SQLCompiler {
                         node.value.class =
                         "org.apache.spark.sql.catalyst.expressions.XcSubstring";
                         const retNode = TreeNodeFactory.getIfNode();
+                        const falseNode = TreeNodeFactory
+                                            .getLiteralBooleanNode(false);
                         const gtNode = TreeNodeFactory.getGreaterThanNode();
                         const emptyStrNode = TreeNodeFactory.getCastNode(
                                                                       "string");
                         emptyStrNode.children = [TreeNodeFactory.
                                                       getLiteralStringNode("")];
                         const zeroNode = TreeNodeFactory.getLiteralNumberNode(0);
-                        retNode.children = [gtNode, node, emptyStrNode];
+                        retNode.children = [gtNode, node,
+                                            emptyStrNode, falseNode];
                         gtNode.children = [node.children[2], zeroNode];
                         if (startIndex.value * 1 > 0) {
                             startIndex.value = "" + (startIndex.value * 1 - 1);
@@ -207,10 +210,13 @@ class SQLCompiler {
                         intN.children = [addN];
                         if (startIndex.value * 1 < 0) {
                             const innerIfNode = TreeNodeFactory.getIfNode();
+                            const innerFalseNode = TreeNodeFactory
+                                                .getLiteralBooleanNode(false);
                             const geNode = TreeNodeFactory.
                                                       getGreaterThanEqualNode();
                             geNode.children = [intN, zeroNode];
-                            innerIfNode.children = [geNode, zeroNode, intN];
+                            innerIfNode.children = [geNode, zeroNode,
+                                                    intN, innerFalseNode];
                             node.children[2] = innerIfNode;
                         } else {
                             node.children[2] = intN;
@@ -221,13 +227,17 @@ class SQLCompiler {
                     node.value.class =
                         "org.apache.spark.sql.catalyst.expressions.XcSubstring";
                     const retNode = TreeNodeFactory.getIfNode();
+                    const falseNode = TreeNodeFactory
+                                            .getLiteralBooleanNode(false);
                     const gtNode = TreeNodeFactory.getGreaterThanNode();
                     const emptyStrNode = TreeNodeFactory.getLiteralStringNode(
                                                                             "");
                     const zeroNode = TreeNodeFactory.getLiteralNumberNode(0);
-                    retNode.children = [gtNode, node, emptyStrNode];
+                    retNode.children = [gtNode, node, emptyStrNode, falseNode];
                     gtNode.children = [node.children[2], zeroNode];
                     const ifNodeI = TreeNodeFactory.getIfNode();
+                    const falseNodeI = TreeNodeFactory
+                                            .getLiteralBooleanNode(false);
                     const gtNodeI = TreeNodeFactory.getGreaterThanNode();
                     const subNode = TreeNodeFactory.getSubtractNode();
 
@@ -241,6 +251,8 @@ class SQLCompiler {
                     const intNLeft = TreeNodeFactory.getCastNode("int");
                     const intNRight = TreeNodeFactory.getCastNode("int");
                     const ifNodeL = TreeNodeFactory.getIfNode();
+                    const falseNodeL = TreeNodeFactory
+                                            .getLiteralBooleanNode(false);
                     const andN = TreeNodeFactory.getAndNode();
                     const gtNodeL = TreeNodeFactory.getGreaterThanNode();
                     const geNode = TreeNodeFactory.getGreaterThanEqualNode();
@@ -250,9 +262,10 @@ class SQLCompiler {
                     intNRight.children = [addN];
                     geNode.children = [intNRight, zeroNode];
                     andN.children = [gtNodeL, geNode];
-                    ifNodeL.children = [andN, zeroNode, intNRight];
+                    ifNodeL.children = [andN, zeroNode, intNRight, falseNodeL];
                     gtNodeI.children = [node.children[1], zeroNode];
-                    ifNodeI.children = [gtNodeI, intNLeft, node.children[1]];
+                    ifNodeI.children = [gtNodeI, intNLeft,
+                                        node.children[1], falseNodeI];
                     node.children[1] = ifNodeI;
                     node.children[2] = ifNodeL;
                     node = retNode;
@@ -297,12 +310,14 @@ class SQLCompiler {
                     curNode.children.push(node.children[i*2]);
                     curNode.children.push(node.children[i*2+1]);
                     const nextNode = TreeNodeFactory.getIfNode();
-                    curNode.children.push(nextNode);
+                    const trueNode = TreeNodeFactory
+                                            .getLiteralBooleanNode(true);
+                    curNode.children.push(nextNode, trueNode);
                     lastNode = curNode;
                     curNode = nextNode;
                 }
 
-                SQLUtil.assert(lastNode.children.length === 3,
+                SQLUtil.assert(lastNode.children.length === 4,
                         SQLErrTStr.CaseWhenLastNode + lastNode.children.length);
 
                 // has else clause
@@ -554,11 +569,13 @@ class SQLCompiler {
                        SQLErrTStr.CoalesceTwoChildren + node.children.length);
 
                 const newNode = TreeNodeFactory.getIfNode();
+                const falseNode = TreeNodeFactory
+                                        .getLiteralBooleanNode(false);
                 // XXX Revisit for strings
                 const childNode = TreeNodeFactory.getExistNode();
                 childNode.children.push(node.children[0]);
-                newNode.children.push(childNode,
-                                      node.children[0], node.children[1]);
+                newNode.children.push(childNode, node.children[0],
+                                      node.children[1], falseNode);
                 node = newNode;
                 break;
             }
@@ -1486,7 +1503,7 @@ class SQLCompiler {
                         acc.udfs.push(condTree.value.name.toUpperCase());
                     }
                 } else {
-                    // Conversion of if
+                    // Conversion of if, money conversion is in secondTraverse
                     let opString = SparkExprToXdf[opName];
                     if (opString === "if") {
                         switch (condTree.colType) {

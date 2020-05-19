@@ -395,7 +395,7 @@ SQLErrTStr = {
     "LikeTwoChildren": "Like eval node should only have 2 children. Instead it has: ",
     "CaseWhenOdd": "Else value exists, but num children for caseWhen is even: ",
     "CaseWhenElse": "Else value should have length 1, instead it has: ",
-    "CaseWhenLastNode": "Last node for case when should have 3 children. Instead it has: ",
+    "CaseWhenLastNode": "Last node for case when should have 4 children. Instead it has: ",
     "CaseWhenParent": "If node has a parent, the recursive call should have idx defined. Instead it's undefined.",
     "CaseWhenIdx": "If parent is undefined, this is the first call. So idx should be undefined. Instead it's defined as: ",
     "InChildrenLength": "In must have at least 2 children [element and array that contains at least one element]. Length: ",
