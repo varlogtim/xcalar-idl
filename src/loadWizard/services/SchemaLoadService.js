@@ -210,7 +210,7 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
             if (STATUS.toLowerCase() != 'success') {
                 schemaInfo.error = STATUS;
             } else {
-                schemaInfo.columns = JSON.parse(SCHEMA);
+                schemaInfo.columns = JSON.parse(SCHEMA).columns;
                 schemaInfo.hash = SCHEMA_HASH;
             }
             fileInfo.schema = schemaInfo;
@@ -222,7 +222,7 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
     function convertReportRecords(record) {
         const {FILE_COUNT, TOTAL_SIZE, MAX_PATH, SCHEMA, SCHEMA_HASH} = record;
         return {
-            schema: { hash: SCHEMA_HASH, columns: JSON.parse(SCHEMA) },
+            schema: { hash: SCHEMA_HASH, columns: JSON.parse(SCHEMA).columns },
             files: { count: FILE_COUNT, size: TOTAL_SIZE, maxPath: MAX_PATH }
         };
     }
@@ -234,7 +234,7 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
         if (STATUS.toLowerCase() != 'success') {
             schemaInfo.error = STATUS;
         } else {
-            schemaInfo.columns = JSON.parse(SCHEMA);
+            schemaInfo.columns = JSON.parse(SCHEMA).columns;
             schemaInfo.hash = SCHEMA_HASH;
         }
 
