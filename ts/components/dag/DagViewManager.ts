@@ -172,6 +172,9 @@ class DagViewManager {
         });
 
         $(document).on("keydown.dataflowPanel", function (e: JQueryEventObject) {
+            if (!$("#sqlWorkSpacePanel").is(":visible")) {
+                return;
+            }
             if (self.activeDag == null ||
                 self.activeDag.isLocked() ||
                 $("#container").hasClass("formOpen") ||
