@@ -4403,112 +4403,6 @@ XcalarApiPreviewOutputT.prototype.write = function(output) {
   return;
 };
 
-XcalarApiDemoFileInputT = function(args) {
-  this.inputJson = null;
-  if (args) {
-    if (args.inputJson !== undefined && args.inputJson !== null) {
-      this.inputJson = args.inputJson;
-    }
-  }
-};
-XcalarApiDemoFileInputT.prototype = {};
-XcalarApiDemoFileInputT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.inputJson = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-XcalarApiDemoFileInputT.prototype.write = function(output) {
-  output.writeStructBegin('XcalarApiDemoFileInputT');
-  if (this.inputJson !== null && this.inputJson !== undefined) {
-    output.writeFieldBegin('inputJson', Thrift.Type.STRING, 1);
-    output.writeString(this.inputJson);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-XcalarApiDemoFileOutputT = function(args) {
-  this.outputJson = null;
-  if (args) {
-    if (args.outputJson !== undefined && args.outputJson !== null) {
-      this.outputJson = args.outputJson;
-    }
-  }
-};
-XcalarApiDemoFileOutputT.prototype = {};
-XcalarApiDemoFileOutputT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.outputJson = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-XcalarApiDemoFileOutputT.prototype.write = function(output) {
-  output.writeStructBegin('XcalarApiDemoFileOutputT');
-  if (this.outputJson !== null && this.outputJson !== undefined) {
-    output.writeFieldBegin('outputJson', Thrift.Type.STRING, 1);
-    output.writeString(this.outputJson);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
 XcalarApiBulkLoadInputT = function(args) {
   this.dest = null;
   this.loadArgs = null;
@@ -16259,7 +16153,6 @@ XcalarApiInputT = function(args) {
   this.appSetInput = null;
   this.appRunInput = null;
   this.appReapInput = null;
-  this.demoFileInput = null;
   this.memoryUsageInput = null;
   this.logLevelSetInput = null;
   this.getIpAddrInput = null;
@@ -16475,9 +16368,6 @@ XcalarApiInputT = function(args) {
     }
     if (args.appReapInput !== undefined && args.appReapInput !== null) {
       this.appReapInput = new XcalarApiAppReapInputT(args.appReapInput);
-    }
-    if (args.demoFileInput !== undefined && args.demoFileInput !== null) {
-      this.demoFileInput = new XcalarApiDemoFileInputT(args.demoFileInput);
     }
     if (args.memoryUsageInput !== undefined && args.memoryUsageInput !== null) {
       this.memoryUsageInput = new XcalarApiGetMemoryUsageInputT(args.memoryUsageInput);
@@ -17077,14 +16967,6 @@ XcalarApiInputT.prototype.read = function(input) {
       if (ftype == Thrift.Type.STRUCT) {
         this.appReapInput = new XcalarApiAppReapInputT();
         this.appReapInput.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 70:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.demoFileInput = new XcalarApiDemoFileInputT();
-        this.demoFileInput.read(input);
       } else {
         input.skip(ftype);
       }
@@ -17697,11 +17579,6 @@ XcalarApiInputT.prototype.write = function(output) {
   if (this.appReapInput !== null && this.appReapInput !== undefined) {
     output.writeFieldBegin('appReapInput', Thrift.Type.STRUCT, 69);
     this.appReapInput.write(output);
-    output.writeFieldEnd();
-  }
-  if (this.demoFileInput !== null && this.demoFileInput !== undefined) {
-    output.writeFieldBegin('demoFileInput', Thrift.Type.STRUCT, 70);
-    this.demoFileInput.write(output);
     output.writeFieldEnd();
   }
   if (this.memoryUsageInput !== null && this.memoryUsageInput !== undefined) {
@@ -22339,7 +22216,6 @@ XcalarApiOutputResultT = function(args) {
   this.getConfigParamsOutput = null;
   this.appRunOutput = null;
   this.appReapOutput = null;
-  this.demoFileOutput = null;
   this.memoryUsageOutput = null;
   this.getIpAddrOutput = null;
   this.getNumNodesOutput = null;
@@ -22510,9 +22386,6 @@ XcalarApiOutputResultT = function(args) {
     }
     if (args.appReapOutput !== undefined && args.appReapOutput !== null) {
       this.appReapOutput = new XcalarApiAppReapOutputT(args.appReapOutput);
-    }
-    if (args.demoFileOutput !== undefined && args.demoFileOutput !== null) {
-      this.demoFileOutput = new XcalarApiDemoFileOutputT(args.demoFileOutput);
     }
     if (args.memoryUsageOutput !== undefined && args.memoryUsageOutput !== null) {
       this.memoryUsageOutput = new XcalarApiGetMemoryUsageOutputT(args.memoryUsageOutput);
@@ -22988,14 +22861,6 @@ XcalarApiOutputResultT.prototype.read = function(input) {
       if (ftype == Thrift.Type.STRUCT) {
         this.appReapOutput = new XcalarApiAppReapOutputT();
         this.appReapOutput.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 52:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.demoFileOutput = new XcalarApiDemoFileOutputT();
-        this.demoFileOutput.read(input);
       } else {
         input.skip(ftype);
       }
@@ -23476,11 +23341,6 @@ XcalarApiOutputResultT.prototype.write = function(output) {
   if (this.appReapOutput !== null && this.appReapOutput !== undefined) {
     output.writeFieldBegin('appReapOutput', Thrift.Type.STRUCT, 51);
     this.appReapOutput.write(output);
-    output.writeFieldEnd();
-  }
-  if (this.demoFileOutput !== null && this.demoFileOutput !== undefined) {
-    output.writeFieldBegin('demoFileOutput', Thrift.Type.STRUCT, 52);
-    this.demoFileOutput.write(output);
     output.writeFieldEnd();
   }
   if (this.memoryUsageOutput !== null && this.memoryUsageOutput !== undefined) {
