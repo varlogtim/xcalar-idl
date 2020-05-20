@@ -211,7 +211,8 @@ class DagTblManager {
      * @param name Table name
      */
     public hasTable(name: string): boolean {
-        return (this.configured && this.cache[name] != null && !this.cache[name].markedForDelete);
+        return (this.configured && this.cache[name] != null && !this.cache[name].markedForDelete) ||
+            xcHelper.isGlobalTable(name);
     }
 
     /**

@@ -2596,13 +2596,13 @@ describe('XIApi Test', () => {
             });
         };
 
-        XIApi.getTableMeta()
+        XIApi.getTableMeta("a")
         .then(() => {
             done("fail");
         })
         .fail((error) => {
             expect(error.status).to.equal(StatusT.StatusDsNotFound);
-            expect(error.error).to.equal(ResultSetTStr.NotFound);
+            expect(error.error).to.equal(ResultSetTStr.NotFound + ": a");
             done();
         })
         .always(() => {

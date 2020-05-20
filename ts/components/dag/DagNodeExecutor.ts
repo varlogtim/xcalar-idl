@@ -1043,7 +1043,7 @@ class DagNodeExecutor {
             if (typeof destTables === "object") {
                 // get the last dest table
                 destTable = destTables[destTables.length - 1];
-                let newDestTable: string = this._generateTableName(destTable);
+
                 if (queryStr && queryStr.length) {
                     try {
                         // give final table name a name matching the
@@ -1057,10 +1057,13 @@ class DagNodeExecutor {
                                 break;
                             }
                         }
-                        lastQuery.args.dest = newDestTable;
-                        destTables[destTables.length - 1] = newDestTable;
-                        destTable = newDestTable;
-                        queryStr = JSON.stringify(query);
+                        if (lastQuery) {
+                            let newDestTableName: string = this._generateTableName(destTable);
+                            lastQuery.args.dest = newDestTableName;
+                            destTables[destTables.length - 1] = newDestTableName;
+                            destTable = newDestTableName;
+                            queryStr = JSON.stringify(query);
+                        }
                     } catch(e) {
                         console.error(queryStr, e);
                     }

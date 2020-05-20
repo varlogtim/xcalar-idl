@@ -1394,6 +1394,9 @@ namespace xcHelper {
      * @param tableName
      */
     export function isGlobalTable(tableName: string): boolean {
+        if (!tableName) {
+            return false;
+        }
         // Global table with name pattern '/tableName/{sessionId}/{sessionTableName}
         return tableName.match(/^\/[a-zA-Z]+\//) != null;
     }

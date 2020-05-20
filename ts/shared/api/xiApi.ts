@@ -3379,7 +3379,7 @@ namespace XIApi {
         .then(deferred.resolve)
         .fail((error) => {
             if (error && error.status === StatusT.StatusDsNotFound) {
-                error.error = ResultSetTStr.NotFound;
+                error.error = ResultSetTStr.NotFound + ": " + tableName;
             }
             deferred.reject(error);
         });
