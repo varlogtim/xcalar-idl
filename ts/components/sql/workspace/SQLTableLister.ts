@@ -147,6 +147,7 @@ class SQLTableLister extends AbstractSQLResultView {
         }
         let copyTableInfo = xcHelper.deepCopy(tableInfo);
         copyTableInfo.state = PbTblState.Activating;
+        copyTableInfo = new PbTblInfo(copyTableInfo);
         this._replaceRowContent($row, copyTableInfo);
 
         return PTblManager.Instance.activateTables([tableInfo.name]);
@@ -161,11 +162,19 @@ class SQLTableLister extends AbstractSQLResultView {
         if (tableInfo == null) {
             return PromiseHelper.reject();
         }
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let copyTableInfo = xcHelper.deepCopy(tableInfo);
         copyTableInfo.state = PbTblState.Deactivating;
+        copyTableInfo = new PbTblInfo(copyTableInfo);
         this._replaceRowContent($row, copyTableInfo);
 
-        return PTblManager.Instance.deactivateTables([tableInfo.name]);
+        PTblManager.Instance.deactivateTables([tableInfo.name])
+        .then(deferred.resolve)
+        .fail((error) => {
+            this._replaceRowContent($row, tableInfo);
+            deferred.reject(error);
+        });
+        return deferred.promise();
     }
 
     private _initializeMainSection(): void {
