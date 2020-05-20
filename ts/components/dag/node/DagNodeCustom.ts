@@ -346,6 +346,105 @@ class DagNodeCustom extends DagNode {
         return schema;
     }
 
+    public static createCustomNode(
+        dagNodeInfos,
+        connection: DagSubGraphConnectionInfo,
+        nodeTitle: string
+    ): {
+            node: DagNodeCustom,
+            connectionIn: NodeConnection[],
+            connectionOut: NodeConnection[]
+        } {
+        const customNode = new DagNodeCustom();
+        const nodeIdMap = new Map<DagNodeId, DagNodeId>();
+
+        // Set custom node title
+        customNode.setTitle(nodeTitle);
+
+        // Create sub graph
+        const dagNodes = dagNodeInfos.map((nodeInfo) => {
+            nodeInfo = xcHelper.deepCopy(nodeInfo);
+            const newNode = customNode.getSubGraph().newNode(nodeInfo);
+            nodeIdMap.set(nodeInfo.nodeId, newNode.getId());
+            return newNode;
+        });
+
+        const dagMap = new Map<string, DagNode>();
+        for (const dagNode of dagNodes) {
+            dagMap.set(dagNode.getId(), dagNode);
+        }
+
+        // Restore internal connections
+        const newInnerConnection = connection.inner.map((connection) => {
+            return {
+                parentId: nodeIdMap.get(connection.parentId),
+                childId: nodeIdMap.get(connection.childId),
+                pos: connection.pos
+            };
+        });
+        customNode.getSubGraph().restoreConnections(newInnerConnection);
+
+        // Setup input
+        const inputConnection: NodeConnection[] = [];
+        for (const connectionInfo of connection.in) {
+            const inPortIdx = customNode.addInputNode({
+                node: dagMap.get(nodeIdMap.get(connectionInfo.childId)),
+                portIdx: connectionInfo.pos
+            });
+            if (connectionInfo.parentId != null) {
+                // parentId could be null, in case the connection has been deleted
+                inputConnection.push({
+                    parentId: connectionInfo.parentId,
+                    childId: customNode.getId(),
+                    pos: inPortIdx
+                });
+            }
+        }
+        // Assign input ports to input ends. One port per parent.
+        for (const inNodeId of connection.endSets.in) {
+            const node = dagMap.get(nodeIdMap.get(inNodeId));
+            // if multi-parents case, assign one port by default
+            const numMaxParents = node.getMaxParents() < 0 ? 1 : node.getMaxParents();
+            let pos = node.getNextOpenConnectionIndex();
+            while (pos >= 0 && pos < numMaxParents) {
+                customNode.addInputNode({
+                    node: node,
+                    portIdx: pos
+                });
+                pos = node.getNextOpenConnectionIndex();
+            }
+        }
+
+        // Setup output
+        const outputConnection: NodeConnection[] = [];
+        if (connection.out.length > 0) {
+            // Output nodes with children outside
+            const outConnection = connection.out[0]; // We dont support multiple outputs now
+            customNode.addOutputNode(
+                dagMap.get(nodeIdMap.get(outConnection.parentId)),
+                0 // We dont support multiple output now, so set to zero
+            );
+            outputConnection.push({
+                parentId: customNode.getId(),
+                childId: outConnection.childId,
+                pos: outConnection.pos
+            });
+        } else if (connection.endSets.out.size > 0) {
+            // Potential output nodes without child
+            const nodeId = Array.from(connection.endSets.out)[0]; // We dont support multiple outputs now
+            customNode.addOutputNode(
+                dagMap.get(nodeIdMap.get(nodeId)),
+                0 // We dont support multiple output now, so set to zero
+            );
+        }
+
+        return {
+            node: customNode,
+            connectionIn: inputConnection,
+            connectionOut: outputConnection
+        };
+    }
+
     /**
      * Link an input node(in the sub graph) to a custom node's inPort. Call this method when expanding the input ports.
      * @param inNodePort The node & port to link
@@ -661,6 +760,25 @@ class DagNodeCustom extends DagNode {
                     node.beConfiguredState();
                 }
             });
+        }
+    }
+
+    /**
+     * @override
+     */
+    public switchState(isUpdateSubgraph: boolean = true): void {
+        if (!this.isConfigured()) {
+            // it's in unsed state, but it may still has caches of lineage
+            this._clearConnectionMeta();
+            return;
+        }
+        let error: {error: string} = this._validateConfiguration();
+
+        if (error != null) {
+            // when it's not source node but no parents, it's in error state
+            this.beErrorState(error.error);
+        } else {
+            this.beConfiguredState(isUpdateSubgraph);
         }
     }
 

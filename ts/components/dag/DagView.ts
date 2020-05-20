@@ -652,105 +652,6 @@ class DagView {
         }
     }
 
-    private static _createCustomNode(
-        dagNodeInfos,
-        connection: DagSubGraphConnectionInfo,
-        nodeTitle: string
-    ): {
-            node: DagNodeCustom,
-            connectionIn: NodeConnection[],
-            connectionOut: NodeConnection[]
-        } {
-        const customNode = new DagNodeCustom();
-        const nodeIdMap = new Map<DagNodeId, DagNodeId>();
-
-        // Set custom node title
-        customNode.setTitle(nodeTitle);
-
-        // Create sub graph
-        const dagNodes = dagNodeInfos.map((nodeInfo) => {
-            nodeInfo = xcHelper.deepCopy(nodeInfo);
-            const newNode = customNode.getSubGraph().newNode(nodeInfo);
-            nodeIdMap.set(nodeInfo.nodeId, newNode.getId());
-            return newNode;
-        });
-
-        const dagMap = new Map<string, DagNode>();
-        for (const dagNode of dagNodes) {
-            dagMap.set(dagNode.getId(), dagNode);
-        }
-
-        // Restore internal connections
-        const newInnerConnection = connection.inner.map((connection) => {
-            return {
-                parentId: nodeIdMap.get(connection.parentId),
-                childId: nodeIdMap.get(connection.childId),
-                pos: connection.pos
-            };
-        });
-        customNode.getSubGraph().restoreConnections(newInnerConnection);
-
-        // Setup input
-        const inputConnection: NodeConnection[] = [];
-        for (const connectionInfo of connection.in) {
-            const inPortIdx = customNode.addInputNode({
-                node: dagMap.get(nodeIdMap.get(connectionInfo.childId)),
-                portIdx: connectionInfo.pos
-            });
-            if (connectionInfo.parentId != null) {
-                // parentId could be null, in case the connection has been deleted
-                inputConnection.push({
-                    parentId: connectionInfo.parentId,
-                    childId: customNode.getId(),
-                    pos: inPortIdx
-                });
-            }
-        }
-        // Assign input ports to input ends. One port per parent.
-        for (const inNodeId of connection.endSets.in) {
-            const node = dagMap.get(nodeIdMap.get(inNodeId));
-            // if multi-parents case, assign one port by default
-            const numMaxParents = node.getMaxParents() < 0 ? 1 : node.getMaxParents();
-            let pos = node.getNextOpenConnectionIndex();
-            while (pos >= 0 && pos < numMaxParents) {
-                customNode.addInputNode({
-                    node: node,
-                    portIdx: pos
-                });
-                pos = node.getNextOpenConnectionIndex();
-            }
-        }
-
-        // Setup output
-        const outputConnection: NodeConnection[] = [];
-        if (connection.out.length > 0) {
-            // Output nodes with children outside
-            const outConnection = connection.out[0]; // We dont support multiple outputs now
-            customNode.addOutputNode(
-                dagMap.get(nodeIdMap.get(outConnection.parentId)),
-                0 // We dont support multiple output now, so set to zero
-            );
-            outputConnection.push({
-                parentId: customNode.getId(),
-                childId: outConnection.childId,
-                pos: outConnection.pos
-            });
-        } else if (connection.endSets.out.size > 0) {
-            // Potential output nodes without child
-            const nodeId = Array.from(connection.endSets.out)[0]; // We dont support multiple outputs now
-            customNode.addOutputNode(
-                dagMap.get(nodeIdMap.get(nodeId)),
-                0 // We dont support multiple output now, so set to zero
-            );
-        }
-
-        return {
-            node: customNode,
-            connectionIn: inputConnection,
-            connectionOut: outputConnection
-        };
-    }
-
     /**
      * DagView.addSelection
      * @param $operator
@@ -2217,7 +2118,7 @@ class DagView {
                 node: customNode,
                 connectionIn: newConnectionIn,
                 connectionOut: newConnectionOut
-            } = DagView._createCustomNode(nodeInfos, connectionInfo, this.getGraph().generateNodeTitle());
+            } = DagNodeCustom.createCustomNode(nodeInfos, connectionInfo, this.getGraph().generateNodeTitle());
 
             // Position custom operator
             const nodePosList = nodeInfos.map((nodeInfo) => ({
@@ -2285,7 +2186,7 @@ class DagView {
 
             // always resolves
             this._removeNodesNoPersist(nodeIds,
-                { isNoLog: true, isSwitchState: false }
+                { isNoLog: true, isSwitchState: false, clearMeta: false }
             )
             .then(({logParam: removeLogParam, spliceInfos}) => {
                 customLogParam.options.actions.push(removeLogParam.options);
@@ -2335,8 +2236,15 @@ class DagView {
                 if (completeCount > 0 && completeCount === nodeInfos.length) {
                     // All nodes are in complete state, so set the CustomNode to complete
                     customNode.beCompleteState();
+                    let outNodes = customNode.getOutputNodes();
+                    if (outNodes[0]) {
+                        let tailNode = outNodes[0].getParents()[0];
+                        if (tailNode && tailNode.getTable()) {
+                            customNode.setTable(tailNode.getTable(), true);
+                        }
+                    }
                 } else {
-                    customNode.switchState();
+                    customNode.switchState(false);
                 }
 
                 Log.add(customLogParam.title, customLogParam.options);
@@ -2503,7 +2411,7 @@ class DagView {
             // always resolves
             this._removeNodesNoPersist(
                 [containerNode.getId()],
-                { isNoLog: true, isSwitchState: false })
+                { isNoLog: true, isSwitchState: false, clearMeta: false })
             .then(({ logParam: removeLogParam, spliceInfos }) => {
                 expandLogParam.options.actions.push(removeLogParam.options);
                 // Create a set, which contains all nodes splicing parent index
@@ -3634,14 +3542,15 @@ class DagView {
         nodeIds: DagNodeId[],
         options?: {
             isSwitchState?: boolean,
-            isNoLog?: boolean
+            isNoLog?: boolean,
+            clearMeta?: boolean
         }
     ): XDPromise<{
         logParam: LogParam,
         hasLinkOut: boolean,
         spliceInfos: {[nodeId: string]: {[childNodeId: string]: boolean[]}}
     }> {
-        const { isSwitchState = true, isNoLog = false } = options || {};
+        const { isSwitchState = true, isNoLog = false, clearMeta = true } = options || {};
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         if (!nodeIds.length) {
             return PromiseHelper.resolve();
@@ -3698,7 +3607,7 @@ class DagView {
                 childrenNodes.forEach((childNode) => {
                     allIdentifiers[childNode.getId()] = childNode.getIdentifiers();
                 });
-                const spliceInfo = this.graph.removeNode(nodeId, isSwitchState);
+                const spliceInfo = this.graph.removeNode(nodeId, isSwitchState, clearMeta);
                 const $node = this._getNode(nodeId);
                 if ($node.data("type") === DagNodeType.DFOut) {
                     hasLinkOut = true;
