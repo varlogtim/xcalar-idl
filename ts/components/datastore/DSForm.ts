@@ -2,6 +2,7 @@ namespace DSForm {
     let $pathCard: JQuery; // $("#dsForm-path");
     let $filePath: JQuery;  // $("#filePath");
     let historyPathsSet = {};
+    let hasInitialized = false;
 
     /**
      * DSForm.setup
@@ -12,10 +13,11 @@ namespace DSForm {
         setupPathCard();
     }
 
-    /**
-     * DSForm.initialize
-     */
-    export function initialize(): void {
+    function initialize(): void {
+        if (hasInitialized) {
+            return;
+        }
+        hasInitialized = true;
         // reset anything browser may have autofilled
         resetForm();
         DSConfig.update();
@@ -28,6 +30,7 @@ namespace DSForm {
      * DSForm.show
      */
     export function show(): void {
+        initialize();
         DataSourceManager.switchView(DataSourceManager.View.Path);
         $filePath.focus();
 
