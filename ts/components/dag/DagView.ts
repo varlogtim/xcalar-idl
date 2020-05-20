@@ -1092,12 +1092,18 @@ class DagView {
 
     private _renderAllNodes(nodes) {
         let $nodes = $();
+        let maxX = 0
+        let maxY = 0;
         nodes.forEach((node: DagNode) => {
             this._addProgressTooltips(node);
             $nodes = $nodes.add(this._drawNode(node, false, true));
+            let coors = node.getPosition();
+            maxX = Math.max(coors.x, maxX);
+            maxY = Math.max(coors.y, maxY);
         });
 
         $nodes.appendTo(this.$dfArea.find(".operatorSvg"));
+        this._setGraphDimensions({x: maxX, y: maxY});
     }
 
     private _drawConnectionArea(nodes:  Map<DagNodeId, DagNode>, $wrapper: JQuery) {
