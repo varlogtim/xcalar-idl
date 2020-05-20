@@ -3979,112 +3979,6 @@ XcalarApiDriverOutputT.prototype.write = function(output) {
   return;
 };
 
-XcalarApiCgroupInputT = function(args) {
-  this.inputJson = null;
-  if (args) {
-    if (args.inputJson !== undefined && args.inputJson !== null) {
-      this.inputJson = args.inputJson;
-    }
-  }
-};
-XcalarApiCgroupInputT.prototype = {};
-XcalarApiCgroupInputT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.inputJson = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-XcalarApiCgroupInputT.prototype.write = function(output) {
-  output.writeStructBegin('XcalarApiCgroupInputT');
-  if (this.inputJson !== null && this.inputJson !== undefined) {
-    output.writeFieldBegin('inputJson', Thrift.Type.STRING, 1);
-    output.writeString(this.inputJson);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-XcalarApiCgroupOutputT = function(args) {
-  this.outputJson = null;
-  if (args) {
-    if (args.outputJson !== undefined && args.outputJson !== null) {
-      this.outputJson = args.outputJson;
-    }
-  }
-};
-XcalarApiCgroupOutputT.prototype = {};
-XcalarApiCgroupOutputT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.outputJson = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-XcalarApiCgroupOutputT.prototype.write = function(output) {
-  output.writeStructBegin('XcalarApiCgroupOutputT');
-  if (this.outputJson !== null && this.outputJson !== undefined) {
-    output.writeFieldBegin('outputJson', Thrift.Type.STRING, 1);
-    output.writeString(this.outputJson);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
 XcalarApiPtSnapshotInputT = function(args) {
   this.inputJson = null;
   if (args) {
@@ -16187,7 +16081,6 @@ XcalarApiInputT = function(args) {
   this.datasetUnloadInput = null;
   this.datasetGetMetaInput = null;
   this.udfGetResInput = null;
-  this.cgroupInput = null;
   this.queryListInput = null;
   this.listRetinasInput = null;
   this.indexRequestInput = null;
@@ -16470,9 +16363,6 @@ XcalarApiInputT = function(args) {
     }
     if (args.udfGetResInput !== undefined && args.udfGetResInput !== null) {
       this.udfGetResInput = new XcalarApiUdfGetResInputT(args.udfGetResInput);
-    }
-    if (args.cgroupInput !== undefined && args.cgroupInput !== null) {
-      this.cgroupInput = new XcalarApiCgroupInputT(args.cgroupInput);
     }
     if (args.queryListInput !== undefined && args.queryListInput !== null) {
       this.queryListInput = new XcalarApiQueryListInputT(args.queryListInput);
@@ -17243,14 +17133,6 @@ XcalarApiInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 110:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.cgroupInput = new XcalarApiCgroupInputT();
-        this.cgroupInput.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
       case 111:
       if (ftype == Thrift.Type.STRUCT) {
         this.queryListInput = new XcalarApiQueryListInputT();
@@ -17749,11 +17631,6 @@ XcalarApiInputT.prototype.write = function(output) {
   if (this.udfGetResInput !== null && this.udfGetResInput !== undefined) {
     output.writeFieldBegin('udfGetResInput', Thrift.Type.STRUCT, 109);
     this.udfGetResInput.write(output);
-    output.writeFieldEnd();
-  }
-  if (this.cgroupInput !== null && this.cgroupInput !== undefined) {
-    output.writeFieldBegin('cgroupInput', Thrift.Type.STRUCT, 110);
-    this.cgroupInput.write(output);
     output.writeFieldEnd();
   }
   if (this.queryListInput !== null && this.queryListInput !== undefined) {
@@ -22242,7 +22119,6 @@ XcalarApiOutputResultT = function(args) {
   this.datasetUnloadOutput = null;
   this.datasetGetMetaOutput = null;
   this.udfGetResOutput = null;
-  this.cgroupOutput = null;
   this.queryListOutput = null;
   this.restoreTableOutput = null;
   if (args) {
@@ -22464,9 +22340,6 @@ XcalarApiOutputResultT = function(args) {
     }
     if (args.udfGetResOutput !== undefined && args.udfGetResOutput !== null) {
       this.udfGetResOutput = new XcalarApiUdfGetResOutputT(args.udfGetResOutput);
-    }
-    if (args.cgroupOutput !== undefined && args.cgroupOutput !== null) {
-      this.cgroupOutput = new XcalarApiCgroupOutputT(args.cgroupOutput);
     }
     if (args.queryListOutput !== undefined && args.queryListOutput !== null) {
       this.queryListOutput = new XcalarApiQueryListOutputT(args.queryListOutput);
@@ -23073,14 +22946,6 @@ XcalarApiOutputResultT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 79:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.cgroupOutput = new XcalarApiCgroupOutputT();
-        this.cgroupOutput.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
       case 80:
       if (ftype == Thrift.Type.STRUCT) {
         this.queryListOutput = new XcalarApiQueryListOutputT();
@@ -23471,11 +23336,6 @@ XcalarApiOutputResultT.prototype.write = function(output) {
   if (this.udfGetResOutput !== null && this.udfGetResOutput !== undefined) {
     output.writeFieldBegin('udfGetResOutput', Thrift.Type.STRUCT, 78);
     this.udfGetResOutput.write(output);
-    output.writeFieldEnd();
-  }
-  if (this.cgroupOutput !== null && this.cgroupOutput !== undefined) {
-    output.writeFieldBegin('cgroupOutput', Thrift.Type.STRUCT, 79);
-    this.cgroupOutput.write(output);
     output.writeFieldEnd();
   }
   if (this.queryListOutput !== null && this.queryListOutput !== undefined) {

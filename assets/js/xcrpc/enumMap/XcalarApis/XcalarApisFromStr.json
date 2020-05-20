@@ -115,10 +115,9 @@
     "XcalarApiDatasetUnload" : 113,
     "XcalarApiDatasetGetMeta" : 114,
     "XcalarApiUdfGetResolution" : 115,
-    "XcalarApiCgroup" : 116,
-    "XcalarApiQueryList" : 117,
-    "XcalarApiAddIndex" : 118,
-    "XcalarApiRemoveIndex" : 119,
-    "XcalarApiFunctionInvalid" : 120
+    "XcalarApiQueryList" : 116,
+    "XcalarApiAddIndex" : 117,
+    "XcalarApiRemoveIndex" : 118,
+    "XcalarApiFunctionInvalid" : 119
 }
 
