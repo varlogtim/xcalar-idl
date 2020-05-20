@@ -248,7 +248,7 @@ class SQLDagExecutor {
         })
         .fail((err) => {
             const sqlQuery = this._sqlNode.getSQLQuery();
-            sqlQuery.errorMsg = sqlQuery.errorMsg || err;
+            sqlQuery.errorMsg = sqlQuery.errorMsg || JSON.stringify(err);
             this._sqlNode.setSQLQuery(sqlQuery);
             if (!this._sqlTabCached) {
                 DagTabManager.Instance.addTabCache(this._tempTab);

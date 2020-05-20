@@ -2494,12 +2494,11 @@ namespace XIApi {
                 }
             })
             .fail((res: {thriftError: ThriftError, queryStateOutput: XcalarApiQueryStateOutputT}) => {
-                let error = _handleQueryFail(res.queryStateOutput);
-                if (error == null) {
-                    deferred.reject(res.thriftError || error);
-                } else {
-                    deferred.reject(error);
+                if (res.thriftError) {
+                    deferred.reject(res.thriftError);
                 }
+                let error = _handleQueryFail(res.queryStateOutput);
+                deferred.reject(error);
             });
 
             return deferred.promise();

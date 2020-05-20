@@ -509,6 +509,14 @@ class SQLEditorSpace {
                 detail = error.log;
                 if (error.status === StatusT.StatusAstNoSuchFunction) {
                     errorMsg = error.error + "\n If there is any scalar function used in the SQL, please make sure it's defined in sql.py.";
+                } else if (error.status === StatusT.StatusInval) {
+                    let logLines = error.log.split("\n");
+                    let tempIndex = logLines[0].search(/Line [0-9]+:/);
+                    let lineStr = logLines[0].substring(tempIndex);
+                    detail = lineStr.substring(lineStr.lastIndexOf(":") + 2);
+                    if (logLines[1].startsWith("Operation: ")) {
+                        detail = detail + ", " + logLines[1];
+                    }
                 }
             } else {
                 errorMsg = JSON.stringify(error);
