@@ -1286,6 +1286,10 @@
                     background-color: @color-font-seconday-button-hover;
                 }
 
+                &:active {
+                    background-color: @color-font-seconday-button-active;
+                }
+
                 .actionIcon {
                     color: @color-icon-darkGreen;
                 }
@@ -1302,6 +1306,9 @@
 
                 &:hover {
                     background-color: @color-font-seconday-button-hover;
+                }
+                &.active {
+                    background-color: @color-font-seconday-button-active;
                 }
 
                 .icon {
@@ -1323,6 +1330,15 @@
             &.running {
                 display: block;
             }
+
+            &:hover {
+                background-color: @color-font-seconday-button-hover;
+            }
+
+            &:active {
+                background-color: @color-font-seconday-button-active;
+            }
+
             .icon {
                 color: @color-stop;
             }
@@ -1477,10 +1493,28 @@
         flex: 0 1 auto;
         min-width: 0px;
         .textOverflowOneLine;
+
+        .altText {
+            display: none;
+        }
     }
     &.running {
         .runStatus {
             display: flex;
+        }
+        &.canceling {
+            .runStatus {
+                .text {
+                    display: none;
+                }
+                .altText {
+                    display: block;
+                }
+            }
+            .stop {
+                opacity: @opacity-disabled !important;
+                background-color: inherit !important;
+            }
         }
     }
     .optionsBtn {

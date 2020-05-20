@@ -2509,6 +2509,9 @@ namespace XIApi {
     function _handleQueryFail(res) {
         let error: {error: string, log?: string} = null;
         try {
+            if (!res || !res.queryGraph) {
+                return error;
+            }
             for (let i = 0; i < res.queryGraph.node.length; i++) {
                 // XXX TODO: wire in status
                 const nodeInfo = res.queryGraph.node[i];

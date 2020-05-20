@@ -925,6 +925,7 @@ class DagViewManager {
     public cancel() {
         if (this.activeDagView != null) {
             this.activeDagView.cancel();
+            DagGraphBar.Instance.setState(this.activeDagTab);
         }
     }
 

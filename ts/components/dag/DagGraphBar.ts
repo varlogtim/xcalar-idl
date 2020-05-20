@@ -75,11 +75,14 @@ class DagGraphBar {
         }
 
         const graph: DagGraph = dagTab.getGraph();
-
+        $topBar.removeClass("canceling");
         if (graph != null && graph.getExecutor() != null) {
             $topBar.addClass("running");
             $btns.find(".stop").removeClass("xc-disabled");
             $btns.find(".run, .stop").addClass("running");
+            if (graph.getExecutor().isCanceled()) {
+                $topBar.addClass("canceling");
+            }
         } else {
             $topBar.removeClass("running");
             $btns.find(".stop").addClass("xc-disabled");

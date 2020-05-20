@@ -572,6 +572,10 @@ class DagGraphExecutor {
         }
     }
 
+    public isCanceled(): boolean {
+        return this._isCanceled;
+    }
+
     // returns a query string representing all the operations needed to run
     // the dataflow
     // also stores a map of new table names to their corresponding nodes
