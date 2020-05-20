@@ -204,6 +204,8 @@ namespace Profile {
             return PromiseHelper.resolve();
         }
 
+        checkIsSamplePublishedTable(table);
+
         getProfileEngine();
         getProfileSelector();
         // update front col name
@@ -1809,6 +1811,28 @@ namespace Profile {
     function getTotalRowNums(): number {
         let profileEngine = getProfileEngine();
         return profileEngine.getTableRowNum();
+    }
+
+    // Note: this is a workaround solution for ENG-8021
+    function checkIsSamplePublishedTable(table: TableMeta): void {
+        try {
+            const viewer = SQLResultSpace.Instance.getSQLTable().getViewer();
+            if (viewer instanceof XcPbTableViewer && viewer.getId() === table.getName()) {
+                const pbInfo = PTblManager.Instance.getTableByName(viewer.getPbTableName());
+                if (pbInfo && pbInfo.rows > table.resultSetCount) {
+                    const msg = xcStringHelper.replaceMsg(SQLTStr.SelectWholeTable, {
+                        table: pbInfo.name
+                    });
+                    Alert.show({
+                        title: AlertTStr.Title,
+                        msg,
+                        isAlert: true
+                    });
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     /* Unit Test Only */

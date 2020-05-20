@@ -1,8 +1,15 @@
 class XcPbTableViewer extends XcTableViewer {
-    public constructor(table: TableMeta) {
+    private _pbTableName: string;
+
+    public constructor(table: TableMeta, pbTableName: string) {
         super(table, {
             fromSQL: true
         });
+        this._pbTableName = pbTableName;
+    }
+
+    public getPbTableName():string {
+        return this._pbTableName;
     }
 
     public getTitle(): string {
@@ -19,6 +26,6 @@ class XcPbTableViewer extends XcTableViewer {
     }
 
     public replace(table: TableMeta): XcPbTableViewer {
-        return new XcPbTableViewer(table);
+        return new XcPbTableViewer(table, this._pbTableName);
     }
 }

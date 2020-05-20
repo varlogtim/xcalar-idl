@@ -59,9 +59,13 @@ class SQLTable {
         });
         this._addColumnsToTable(table, columns);
         gTables[table.getId()] = table;
-        const viewer: XcPbTableViewer = new XcPbTableViewer(table);
+        const viewer: XcPbTableViewer = new XcPbTableViewer(table, tableName);
         await this._show(viewer);
         viewer.updateToalNumRows(tableInfo.rows);
+    }
+
+    public getViewer(): XcViewer {
+        return this._currentViewer;
     }
 
     public getTable(): string {

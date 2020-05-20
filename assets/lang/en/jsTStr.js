@@ -1540,7 +1540,8 @@ SQLTStr = {
     "DebugPlan": "Debug Plan",
     "ReadOnly": "Current module doesn't support the use of SQL Editor",
     "SnippetHint": "Write and execute a SQL statement to get started, add/modify the operators in the app builder to build a data app",
-    "Graph": "SQL Graph"
+    "Graph": "SQL Graph",
+    "SelectWholeTable": "The profile is based on sample of the table, to view the entire table, please use SQL \"select * from <table>\"",
 };
 
 LoginConfigTStr = {
