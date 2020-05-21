@@ -268,6 +268,8 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
                 await deleteTempTables();
                 const appInput = {
                     session_name: session.sessionName,
+                    user_name: session.user.getUserName(),
+                    user_id: session.user.getUserId(),
                     func: 'discover_all',
                     path: path,
                     file_name_pattern: filePattern,
@@ -293,7 +295,7 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
                     queryStringOpt: loadQuery,
                     queryName: `q_${appId}_${queryIndex ++}`,
                     tableName: tableNames.load,
-                    params: new Map([['session_name', session.sessionName]])
+                    params: new Map([['session_name', session.sessionName], ['user_name', session.user.getUserName()]])
                 });
                 loadProgress.done();
             } finally {
@@ -369,6 +371,8 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
                 };
                 const appInput = {
                     session_name: session.sessionName,
+                    user_name: session.user.getUserName(),
+                    user_id: session.user.getUserId(),
                     func: 'get_dataflows',
                     unique_id: `${names.kvPrefix}${schemaHash}`,
                     path: path,
