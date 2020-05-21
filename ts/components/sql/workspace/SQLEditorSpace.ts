@@ -641,22 +641,20 @@ class SQLEditorSpace {
 
         sqlStructArray.forEach((struct) => {
             struct.parameters.forEach((parameter) => {
-                // Parser should return parameter names in upper case,
-                // still convert here for safety
-                const upperParam: string = parameter.toUpperCase();
+                // Parser not return parameter names in upper case as requested
                 let found: boolean = false;
-                if (seen.has(upperParam)) {
+                if (seen.has(parameter)) {
                     return;
                 }
                 for (const curParam in allParameters) {
-                    if (curParam.toUpperCase() === upperParam) {
+                    if (curParam.toUpperCase() === parameter.toUpperCase()) {
                         found = true;
                     }
                 }
                 if (!found) {
-                    noValues.push(upperParam);
+                    noValues.push(parameter);
                 }
-                seen.add(upperParam);
+                seen.add(parameter);
             })
         });
 

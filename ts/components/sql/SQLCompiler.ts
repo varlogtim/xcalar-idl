@@ -1462,10 +1462,10 @@ class SQLCompiler {
                 acc.subqueryArray.push({subqueryTree: condTree.subqueryTree});
                 outStr += condTree.subqueryTree.aggType + "(^" + subqVarName + ")";
             } else if (opName === "XCEParameter") {
-                outStr = '"' + condTree.value.name.toUpperCase() + '"';
+                outStr = '"' + condTree.value.name + '"';
                 if (acc.hasOwnProperty("params")) {
                     acc.params.push(condTree.value.name.substring(1,
-                                    condTree.value.name.length - 1).toUpperCase());
+                                    condTree.value.name.length - 1));
                 }
             } else {
                 if (acc && acc.hasOwnProperty("numOps")) {

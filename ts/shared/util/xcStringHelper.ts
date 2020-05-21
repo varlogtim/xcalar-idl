@@ -119,44 +119,50 @@ namespace xcStringHelper {
         isSQLMatch: boolean = false
     ): string {
         try {
-            let flag;
-            if (isGlobal && isSQLMatch) {
-                flag = 'ig';
-            } else if (isGlobal) {
-                flag = 'g';
-            } else if (isSQLMatch) {
-                // Should not hit this case
-                flag = 'i';
-            } else {
-                flag = undefined;
+            let flag = isGlobal ? 'g' : undefined;
+            let flag2;
+            if (isSQLMatch) {
+                flag2 = isGlobal ? 'gi' : "i";
             }
+            // First round do exact match
             for (let key in replaces) {
-                if (isSQLMatch && txt.match(new RegExp(key, flag)) && !Alert.isOpen()) {
-                    // Check if duplicate (case insensitive) exist in param list
-                    let findDup: boolean = false;
-                    for (let key2 in replaces) {
-                        if (key != key2 && key.match(new RegExp(key2, 'i'))) {
-                            findDup = true;
-                            break;
-                        }
-                    }
-                    if (findDup) {
-                        Alert.show({
-                            title: SQLErrTStr.Warning,
-                            msg: SQLErrTStr.DuplicateParamNames + key.toUpperCase(),
-                            isAlert: true,
-                            align: "left",
-                            preSpace: true,
-                            sizeToText: true
-                        });
-                    }
-                }
                 const str: string = replaces[key];
                 if (str == null) {
                     continue;
                 }
 
                 txt = txt.replace(new RegExp(key, flag), str);
+            }
+            // For SQL, do a second round case insensitively
+            if (isSQLMatch) {
+                for (let key in replaces) {
+                    if (isSQLMatch && txt.match(new RegExp(key, flag2)) && !Alert.isOpen()) {
+                        // Check if duplicate (case insensitive) exist in param list
+                        let findDup: boolean = false;
+                        for (let key2 in replaces) {
+                            if (key != key2 && key.match(new RegExp(key2, 'i'))) {
+                                findDup = true;
+                                break;
+                            }
+                        }
+                        if (findDup) {
+                            Alert.show({
+                                title: SQLErrTStr.Warning,
+                                msg: SQLErrTStr.DuplicateParamNames + key.toUpperCase(),
+                                isAlert: true,
+                                align: "left",
+                                preSpace: true,
+                                sizeToText: true
+                            });
+                        }
+                    }
+                    const str: string = replaces[key];
+                    if (str == null) {
+                        continue;
+                    }
+
+                    txt = txt.replace(new RegExp(key, flag2), str);
+                }
             }
         } catch(e) {
             console.error(e);
