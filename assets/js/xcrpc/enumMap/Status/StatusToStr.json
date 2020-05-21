@@ -732,6 +732,7 @@
     "730" : "Failed to parse numeric field",
     "731" : "Failed to parse proto value field length",
     "732" : "Failed to parse proto value field",
-    "733" : "Invalid field type"
+    "733" : "Invalid field type",
+    "734" : "System app is disabled"
 }
 

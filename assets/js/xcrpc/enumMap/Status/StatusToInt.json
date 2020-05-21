@@ -732,6 +732,7 @@
     "StatusFailedParseNumericField" : 730,
     "StatusFailedParseProtoValFieldLen" : 731,
     "StatusFailedParseProtoValField" : 732,
-    "StatusInvalidFieldType" : 733
+    "StatusInvalidFieldType" : 733,
+    "StatusSystemAppDisabled" : 734
 }
 

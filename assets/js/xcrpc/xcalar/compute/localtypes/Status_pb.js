@@ -749,7 +749,8 @@ proto.xcalar.compute.localtypes.XcalarEnumType.Status = {
   STATUS_FAILED_PARSE_NUMERIC_FIELD: 730,
   STATUS_FAILED_PARSE_PROTO_VAL_FIELD_LEN: 731,
   STATUS_FAILED_PARSE_PROTO_VAL_FIELD: 732,
-  STATUS_INVALID_FIELD_TYPE: 733
+  STATUS_INVALID_FIELD_TYPE: 733,
+  STATUS_SYSTEM_APP_DISABLED: 734
 };
 
 goog.object.extend(exports, proto.xcalar.compute.localtypes.XcalarEnumType);

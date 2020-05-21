@@ -739,7 +739,8 @@ StatusT = {
   'StatusFailedParseNumericField' : 730,
   'StatusFailedParseProtoValFieldLen' : 731,
   'StatusFailedParseProtoValField' : 732,
-  'StatusInvalidFieldType' : 733
+  'StatusInvalidFieldType' : 733,
+  'StatusSystemAppDisabled' : 734
 };
 StatusTStr = {
   0 : 'Success',
@@ -1475,7 +1476,8 @@ StatusTStr = {
   730 : 'Failed to parse numeric field',
   731 : 'Failed to parse proto value field length',
   732 : 'Failed to parse proto value field',
-  733 : 'Invalid field type'
+  733 : 'Invalid field type',
+  734 : 'System app is disabled'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2211,5 +2213,6 @@ StatusTFromStr = {
   'Failed to parse numeric field' : 730,
   'Failed to parse proto value field length' : 731,
   'Failed to parse proto value field' : 732,
-  'Invalid field type' : 733
+  'Invalid field type' : 733,
+  'System app is disabled' : 734
 };
