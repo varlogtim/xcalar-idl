@@ -24,6 +24,7 @@ interface SQLParserStruct {
     sql: string,
     command?: {type: string, args: string[]},
     identifiers?: string[],
+    newIdentifiers?: string[],
     functions?: {},
     newSql?: string,
     nonQuery?: boolean

@@ -30,9 +30,9 @@ class DagQueryConverter {
         this.finalTableName = finalTableName;
 
         if (isUpgrade) {
-            this.upgradeResult = this.upgradeQuery(dataflowInfo);
+            this.upgradeResult = this._upgradeQuery(dataflowInfo);
         } else {
-            this.convertResult = this.convertHelper(dataflowInfo);
+            this.convertResult = this._convertHelper(dataflowInfo);
         }
     }
 
@@ -74,9 +74,9 @@ class DagQueryConverter {
         return queryNodes;
     }
 
-    private upgradeQuery(dataflowInfo, nestedPrefix?, nodes?) {
+    private _upgradeQuery(dataflowInfo, nestedPrefix?, nodes?) {
         try {
-            return this.convertHelper(dataflowInfo, nestedPrefix, nodes);
+            return this._convertHelper(dataflowInfo, nestedPrefix, nodes);
         } catch (e) {
             let isRetina = false;
             if (this.isUpgrade && dataflowInfo && typeof dataflowInfo === "object" &&
@@ -133,7 +133,7 @@ class DagQueryConverter {
      */
 
 
-    private convertHelper(dataflowInfo, nestedPrefix?, otherNodes?) {
+    private _convertHelper(dataflowInfo, nestedPrefix?, otherNodes?) {
         if (!nestedPrefix) {
             this.currentDataflowId = "DF2_" + new Date().getTime() + "_" + DagQueryConverter.dataflowCount++;
         }
@@ -149,7 +149,7 @@ class DagQueryConverter {
         if (typeof dataflowInfo !== "object" || dataflowInfo == null || (dataflowInfo instanceof Array)) {
             return this._getFailedDataflowRet("Invalid module structure: " + JSON.stringify(dataflowInfo));
         }
-        this.modifyOriginalInput(dataflowInfo);
+        this._modifyOriginalInput(dataflowInfo);
         if (!nestedPrefix) {
             this.originalInput = xcHelper.deepCopy(dataflowInfo);
         }
@@ -374,7 +374,7 @@ class DagQueryConverter {
                         args.dest = sourcePrefix + args.dest;
                     }
                     let datasetBeforeXDChange = xcHelper.deepCopy(rawNode);
-                    args.loadArgs = this.updateLoadArgsForXD(args);
+                    args.loadArgs = this._updateLoadArgsForXD(args);
                     datasets.push(datasetBeforeXDChange);
                     break;
                 default:
@@ -1159,7 +1159,7 @@ class DagQueryConverter {
                 break;
             case (XcalarApisT.XcalarApiExecuteRetina):
                 let retinaName = node.args.retinaName.replace(/#/g, "$");
-                const nestedRetInfo = this.upgradeQuery(node.args.retinaBuf, retinaName, nodes);
+                const nestedRetInfo = this._upgradeQuery(node.args.retinaBuf, retinaName, nodes);
                 dagNodeInfos = $.extend(dagNodeInfos, nestedRetInfo["nodes"]);
 
                 if (nestedRetInfo["isChainedRetina"]) {
@@ -1212,7 +1212,7 @@ class DagQueryConverter {
                                 })
                             }
                         };
-                        const comment = this.parseUserComment(node.rawNode.comment);
+                        const comment = this._parseUserComment(node.rawNode.comment);
                         linkOutNode.description = comment.userComment || "";
                         linkOutNode.table = node.args.source;
                         linkOutNode.id = DagNode.generateId();
@@ -1306,7 +1306,7 @@ class DagQueryConverter {
                     type: DagNodeType.Dataset,
                     input: createTableInput,
                 };
-                let schema = this.getSchemaFromLoadArgs(loadArgs);
+                let schema = this._getSchemaFromLoadArgs(loadArgs);
                 if (schema) {
                     dagNodeInfo["schema"] = schema;
                 }
@@ -1324,7 +1324,7 @@ class DagQueryConverter {
                 break;
         }
 
-        const comment = this.parseUserComment(node.rawNode.comment);
+        const comment = this._parseUserComment(node.rawNode.comment);
         if (this.isUpgrade) {
             dagNodeInfo.description = dagNodeInfo.description || comment.userComment || "";
             dagNodeInfo.title = node.name.slice(node.name.lastIndexOf(":") + 1); // slice out retina prefix
@@ -1398,7 +1398,7 @@ class DagQueryConverter {
     }
 
     // return {userComment: string, meta: object}
-    private parseUserComment(comment) {
+    private _parseUserComment(comment) {
         let commentObj;
         try {
             commentObj = JSON.parse(comment);
@@ -1482,7 +1482,7 @@ class DagQueryConverter {
                     synthesize: false,
                     loadArgs: loadArgs
                 }
-                node.schema = this.getSchemaFromLoadArgs(loadArgs);
+                node.schema = this._getSchemaFromLoadArgs(loadArgs);
                 node.parents = [];
                 node.subGraphNodes = [parent];
             }
@@ -1531,7 +1531,7 @@ class DagQueryConverter {
                         prefix: parent.args.prefix,
                         synthesize: false,
                         loadArgs: loadArgs,
-                        schema: this.getSchemaFromLoadArgs(loadArgs)
+                        schema: this._getSchemaFromLoadArgs(loadArgs)
                     }
 
                     parent.schema = parent.createTableInput.schema;
@@ -1683,7 +1683,7 @@ class DagQueryConverter {
         }
     }
 
-    private getSchemaFromLoadArgs(loadArgs) {
+    private _getSchemaFromLoadArgs(loadArgs) {
         if (!loadArgs) {
             return null;
         }
@@ -1711,7 +1711,7 @@ class DagQueryConverter {
     }
 
     // remove isCRLF from loadArgs.parseArgs.parserArgJson
-    private removeCRLF(node) {
+    private _removeCRLF(node) {
         let originalLoadArgs = node.args.loadArgs;
         let loadArgs = originalLoadArgs;
         if (!loadArgs) {
@@ -1739,7 +1739,7 @@ class DagQueryConverter {
         }
     }
     // format loadArgs into the way dataflow 2.0 dataset node expects
-    private updateLoadArgsForXD(args) {
+    private _updateLoadArgsForXD(args) {
         let originalLoadArgs = args.loadArgs;
         let loadArgs = originalLoadArgs;
         if (!loadArgs) {
@@ -1763,13 +1763,13 @@ class DagQueryConverter {
         }
     }
 
-    private modifyOriginalInput(originalInput) {
+    private _modifyOriginalInput(originalInput) {
         let query = originalInput.query;
 
         for (let i = 0; i < query.length; i++) {
             const rawNode = query[i];
             if (XcalarApisTFromStr[rawNode.operation] === XcalarApisT.XcalarApiBulkLoad) {
-                rawNode.args.loadArgs = this.removeCRLF(rawNode);
+                rawNode.args.loadArgs = this._removeCRLF(rawNode);
             }
         }
     }

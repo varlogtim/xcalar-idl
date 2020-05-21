@@ -2720,6 +2720,7 @@ class DagView {
                         subGraph.removeNode(node.getId(), false, false);
                     }
                 });
+
                 const dagView = DagViewManager.Instance.getDagViewById(tabId);
 
                 // add the sub graph nodes to the graph

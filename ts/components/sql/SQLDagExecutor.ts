@@ -29,11 +29,13 @@ class SQLDagExecutor {
     private _identifiersOrder: number[];
     private _schema: {};
     private _batchId: {};
+    private _sessionTables: Map<string, string>;
     private _status: SQLStatus;
     private _sqlTabCached: boolean;
     private _sqlFunctions: {};
     private _publishName: string;
     private _options: {compileOnly: boolean};
+
 
     public constructor(
         sqlStruct: SQLParserStruct,
@@ -53,6 +55,7 @@ class SQLDagExecutor {
         this._status = SQLStatus.None;
         this._sqlTabCached = false;
         this._publishName = undefined;
+        this._sessionTables = new Map();
 
         const tables: string[] = sqlStruct.identifiers || [];
         const tableMap = PTblManager.Instance.getTableMap();
@@ -76,7 +79,15 @@ class SQLDagExecutor {
                 this._schema[pubTableName] = columns;
                 this._batchId[pubTableName] = tableMap.get(pubTableName).batchId;
             } else {
-                throw new Error("Cannot find published table: " + pubTableName);
+                let tableName = identifier;
+                if (sqlStruct.newIdentifiers && sqlStruct.newIdentifiers[tableName]) {
+                    tableName = sqlStruct.newIdentifiers[tableName];
+                }
+                if (DagTblManager.Instance.hasTable(tableName)) {
+                    this._sessionTables.set(identifier.toUpperCase(), tableName);
+                } else {
+                    throw new Error("Cannot find published table: " + pubTableName);
+                }
             }
             this._identifiersOrder.push(idx + 1);
             this._identifiers[idx + 1] = pubTableName;
@@ -102,6 +113,24 @@ class SQLDagExecutor {
             this._sqlNode.subscribeHistoryUpdate();
             this._appendNodeToDataflow();
         }
+    }
+
+    public setSessionTableSchema(tableName: string, tableName2): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        XIApi.getTableMeta(tableName)
+        .then((ret) => {
+            let columns = ret.valueAttrs;
+            this._schema[tableName2.toUpperCase()] = columns.map((col) => {
+                return {
+                    name: col.name,
+                    type: xcHelper.convertFieldTypeToColType(col.type)
+                }
+            });
+            this._schema[tableName] = this._schema[tableName2.toUpperCase()];
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     public getGraph(): DagGraph {
@@ -366,7 +395,9 @@ class SQLDagExecutor {
             sqlMode: true,
             pubTablesInfo: pubTablesInfo,
             sqlFunctions: this._sqlFunctions,
-            noPushToSelect: true // XXX hack to prevent pushDown
+            noPushToSelect: true ,// XXX hack to prevent pushDown
+            sessionTables: this._sessionTables,
+            schema: this._schema
         }
         return this._sqlNode.compileSQL(this._newSql, queryId, options);
     }

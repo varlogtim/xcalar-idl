@@ -12,6 +12,7 @@ class SQLOpPanel extends BaseOpPanel {
     private _parsedIdentifiers: string[] = [];
     private _connectors: {label: string, nodeId: string}[] = [];
     private _queryStr = "";
+    private _parsedQueryStr = ""; // from compiler
     private _graph: DagGraph;
     private _isQueryUpdated: boolean = false;
     private _snippetIdNotFound: boolean = false;
@@ -37,6 +38,7 @@ class SQLOpPanel extends BaseOpPanel {
         this._dataModel = new SQLOpPanelModel(dagNode);
         this.$panel.find(".nextForm").addClass('xc-hidden');
         this._queryStr = "";
+        this._parsedQueryStr = "";
         let error: string;
         this._graph = DagViewManager.Instance.getActiveDag();
         this._identifiers = [];
@@ -201,6 +203,7 @@ class SQLOpPanel extends BaseOpPanel {
             } else {
                 this._snippetIdNotFound = true;
                 this._queryStr = "";
+                this._parsedQueryStr = "";
                 $input.data("id", null);
                 this.$panel.find(".editorWrapper").text("");
                 this._identifiers = [];
@@ -246,6 +249,7 @@ class SQLOpPanel extends BaseOpPanel {
         $input.data("id", snippetId);
         this.$panel.find(".editorWrapper").text(queryStr);
         this._queryStr = queryStr;
+        this._parsedQueryStr = this._parsedQueryStr || queryStr;
         this._$elemPanel.find(".identifiersSection").addClass("disabled");
         SQLUtil.getSQLStruct(queryStr)
         .then((ret) => {
@@ -261,6 +265,7 @@ class SQLOpPanel extends BaseOpPanel {
                 }
                 this._parsedIdentifiers = ret.identifiers;
                 this._identifiers.length = Math.min(this._parsedIdentifiers.length, this._identifiers.length);
+                this._parsedQueryStr = ret.newSql;
                 this.updateIdentifiersList();
             }
         })
@@ -414,6 +419,7 @@ class SQLOpPanel extends BaseOpPanel {
     private configureSQL(
         snippetId: string,
         query?: string,
+        parsedQuery?: string,
         identifiers?: Map<number, string>
     ): XDPromise<any> {
         const self = this;
@@ -428,6 +434,7 @@ class SQLOpPanel extends BaseOpPanel {
         } else {
             sql = query;
         }
+        parsedQuery = parsedQuery || query;
 
         const dropAsYouGo: boolean = this._isDropAsYouGo();
         if (!identifiers) {
@@ -447,7 +454,7 @@ class SQLOpPanel extends BaseOpPanel {
                 identifiers: identifiers,
                 dropAsYouGo: dropAsYouGo
             };
-            self._dagNode.compileSQL(sql, queryId, options)
+            self._dagNode.compileSQL(parsedQuery, queryId, options)
             .then(function() {
                 self._dataModel.setDataModel(sql, identifiers, dropAsYouGo, snippetId);
                 self._dataModel.submit();
@@ -1113,6 +1120,7 @@ class SQLOpPanel extends BaseOpPanel {
                 return;
             }
             const query = this._queryStr.replace(/;+$/, "");
+            const parsedQuery = this._parsedQueryStr;
             const snippetId = this.$panel.find(".snippetsList input").data("id");
             let promise;
             if (!this._isQueryUpdated) {
@@ -1122,7 +1130,7 @@ class SQLOpPanel extends BaseOpPanel {
             }
             promise
             .then(() => {
-                return this.configureSQL(snippetId, query, identifiers);
+                return this.configureSQL(snippetId, query, parsedQuery, identifiers);
             })
             .then(() => {
                 this.close(true);

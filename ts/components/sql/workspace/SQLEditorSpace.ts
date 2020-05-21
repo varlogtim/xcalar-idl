@@ -289,13 +289,13 @@ class SQLEditorSpace {
 
     private _dropTable(tableName: string, queryString: string): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const historyObj =  {
+        const historyObj = {
             queryId: xcHelper.randName("sql", 8) + Date.now(),
             status: SQLStatus.Running,
             queryString: queryString,
             startTime: new Date(),
             statementType: SQLStatementType.Drop
-        }
+        };
         let found = false;
         let tableInfos: PbTblInfo[] = PTblManager.Instance.getTables();
         for (let i = 0; i < tableInfos.length; i++) {
@@ -360,6 +360,16 @@ class SQLEditorSpace {
                 throw new Error(SQLErrTStr.NoSupport + sqlStruct.sql);
             }
             const executor: SQLDagExecutor = new SQLDagExecutor(sqlStruct, {compileOnly: true});
+            for (let i = 0; i < sqlStruct.identifiers.length; i++) {
+                let identifier = sqlStruct.identifiers[i];
+                let tableName = identifier;
+                if (sqlStruct.newIdentifiers && sqlStruct.newIdentifiers[tableName]) {
+                    tableName = sqlStruct.newIdentifiers[tableName];
+                }
+                if (executor._sessionTables.has(identifier.toUpperCase())) {
+                    await executor.setSessionTableSchema(tableName, identifier);
+                }
+            }
             await executor.compile(null);
             return executor;
         } catch (e) {
@@ -379,6 +389,7 @@ class SQLEditorSpace {
             let executorArray: SQLDagExecutor[] = [];
             let compilePromiseArray: XDPromise<any>[] = [];
             let executePromiseArray: XDPromise<any>[] = [];
+            let schemaPromiseArray: XDPromise<any>[] = [];
             const struct = {
                 sqlQuery: sqls,
                 ops: ["identifier", "sqlfunc", "parameters"],
@@ -458,6 +469,20 @@ class SQLEditorSpace {
                     }
                     executorArray.push(executor);
                 }
+
+                selectArray[0].identifiers.forEach((identifier) => {
+                    let tableName = identifier;
+                    if (selectArray[0].newIdentifiers && selectArray[0].newIdentifiers[tableName]) {
+                        tableName = selectArray[0].newIdentifiers[tableName];
+                    }
+                    if (executorArray[0]._sessionTables.has(identifier.toUpperCase())) {
+                        schemaPromiseArray.push(executorArray[0].setSessionTableSchema(tableName, identifier));
+                    }
+                });
+
+                return PromiseHelper.when.apply(this, schemaPromiseArray);
+            })
+            .then(() => {
                 for (let i = 0; i< executorArray.length; i++) {
                     this._addExecutor(executorArray[i]);
                     compilePromiseArray.push(this._compileStatement(executorArray[i]));

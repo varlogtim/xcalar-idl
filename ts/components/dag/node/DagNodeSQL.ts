@@ -134,7 +134,13 @@ class DagNodeSQL extends DagNode {
         }
     }
 
-    public updateSubGraph(_newTableMap?: {}, rawXcQuery?: boolean, noInputOutputNodes?: boolean): void {
+    public updateSubGraph(
+        _newTableMap?: {},
+        rawXcQuery?: boolean,
+        noInputOutputNodes?: boolean,
+        sessionTables?: Map<string,string>,
+        schema?: {} // used for session tables
+    ): void {
         if (_newTableMap) {
             // If it's simply updating the mapping of oldTableName ->
             // newTableName. No need to re-build the entire sub graph
@@ -188,6 +194,10 @@ class DagNodeSQL extends DagNode {
             this._replaceSubGraphNodeIds(retStruct);
             this.firstTimeSubGraph = false;
         }
+        let scrIdToTableNameMap = {};
+        for (let i in this.tableSrcMap) {
+            scrIdToTableNameMap[this.tableSrcMap[i]] = i;
+        }
 
         this.tableNewDagIdMap = retStruct.tableNewDagIdMap;
         this.dagIdToTableNamesMap = retStruct.dagIdToTableNamesMap;
@@ -223,7 +233,39 @@ class DagNodeSQL extends DagNode {
                         node: node,
                         portIdx: index
                     }
-                    this.addInputNode(inNodePort, srcId - 1);
+                    this._addInputNode(inNodePort, srcId - 1);
+                });
+            } else if (dagParents && sessionTables) {
+                dagParents.forEach(dagParent => {
+                    const index = dagParent.index;
+                    const srcId = dagParent.srcId;
+
+                    if (scrIdToTableNameMap[srcId]) {
+                        let nodeSchema: ColSchema[] = [];
+                        if (schema && schema[scrIdToTableNameMap[srcId]]) {
+                            nodeSchema = schema[scrIdToTableNameMap[srcId]].map((col) => {
+                                return {
+                                    name: col.name,
+                                    type: col.type
+                                }
+                            });
+                        }
+                        const subGraph = this.getSubGraph();
+                        const lNode = subGraph.newNode(<DagNodeDFInInfo>{
+                            "type": DagNodeType.DFIn,
+                            "subType": null,
+                            "input": {
+                                "dataflowId": "",
+                                "linkOutName": "",
+                                "source": scrIdToTableNameMap[srcId]
+                            },
+                            "schema": nodeSchema,
+                            "state": DagNodeState.Complete,
+                            "table": scrIdToTableNameMap[srcId],
+                            "configured": true
+                        });
+                        subGraph.connect(lNode.getId(), node.getId(), index, false, false);
+                    }
                 });
             }
             // there will be cases where the node has 1 parent that's an inputnode
@@ -556,7 +598,7 @@ class DagNodeSQL extends DagNode {
      * 2. Add the DagNodeSQLSubInput node to _input list
      * 3. Connect DagNodeSQLSubInput node to the acutal DagNode in subGraph
      */
-    public addInputNode(inNodePort: NodeIOPort, inPortIdx?: number): number {
+    private _addInputNode(inNodePort: NodeIOPort, inPortIdx?: number, isSessionTable?: boolean): number {
         if (inPortIdx == null || inPortIdx >= this.subInputNodes.length) {
             inPortIdx = this.subInputNodes.length;
         }
@@ -929,15 +971,24 @@ class DagNodeSQL extends DagNode {
         sourceId: number,
         srcTableName?: string,
         columns?: ColSchema[],
-        pubTablesInfo?: {}
+        pubTablesInfo?: {},
+        sessionTables?: Map<string,string>
     ): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
         let destTableName;
         let pubTableName; // published tables will have it, also as srcTableName
         let cols = [];
         const selectCliArray = [];
+        sessionTables = sessionTables || new Map();
         if (sourceId != null) {
-            if (pubTablesInfo) {
+            srcTableName = this.identifiers.get(sourceId);
+            if (sessionTables.has(srcTableName)) {
+                destTableName = sessionTables.get(srcTableName);
+                for (const colSchema of pubTablesInfo[srcTableName].schema) {
+                    colSchema.backName = colSchema.name;
+                    cols.push(colSchema);
+                }
+            } else if (pubTablesInfo) {
                 // This is for SQL mode where SQL node works with pub tables
                 srcTableName = this.identifiers.get(sourceId);
                 if (this.getParents().length > 0 || !srcTableName ||
@@ -1082,10 +1133,11 @@ class DagNodeSQL extends DagNode {
         sqlTableName: string,
         pubTablesInfo?: {},
         srcTableName?: string,
-        columns?: ColSchema[]
+        columns?: ColSchema[],
+        sessionTables?: Map<string,string>,
     ): XDPromise<any> {
         var deferred = PromiseHelper.deferred();
-        this._finalizeTable(sourceId, srcTableName, columns, pubTablesInfo)
+        this._finalizeTable(sourceId, srcTableName, columns, pubTablesInfo, sessionTables)
         .then(function(ret) {
             const structToSend: SQLSchema = {
                 tableName: sqlTableName.toUpperCase(),
@@ -1113,7 +1165,8 @@ class DagNodeSQL extends DagNode {
         pubTablesInfo?: {},
         sqlFuncs?: {},
         usedTables?: string[],
-        compileId?: string
+        compileId?: string,
+        sessionTables?: Map<string,string>
     ): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
         const self = this;
@@ -1136,7 +1189,7 @@ class DagNodeSQL extends DagNode {
             const innerDeferred = PromiseHelper.deferred();
             const sourceId = key;
             const tableName = value;
-            self._finalizeAndGetSchema(sourceId, tableName, pubTablesInfo)
+            self._finalizeAndGetSchema(sourceId, tableName, pubTablesInfo, null, null, sessionTables)
             .then(function(retStruct) {
                 if (retStruct.pubTableName) {
                     selectTableMap[retStruct.pubTableName] =
@@ -1147,6 +1200,8 @@ class DagNodeSQL extends DagNode {
                 if (!pubTablesInfo) {
                     // If it's SQL mode, we don't do this bc pub table name is fixed
                     tableSrcMap[retStruct.srcTableName] = key;
+                } else if (sessionTables && sessionTables.has(retStruct.srcTableName) {
+                    tableSrcMap[sessionTables.get(retStruct.srcTableName)] = key;
                 }
                 if (retStruct.invalidColumns &&
                     Object.keys(retStruct.invalidColumns).length > 0) {
@@ -1352,7 +1407,9 @@ class DagNodeSQL extends DagNode {
             dropAsYouGo?: boolean
             sqlFunctions?: {},
             originalSQLNode?: DagNodeSQL,
-            noPushToSelect?: boolean
+            noPushToSelect?: boolean,
+            sessionTables?: Map<string, string>,
+            schema?: {}
         } = {},
         replaceParam: boolean = true
     ): XDPromise<any> {
@@ -1368,12 +1425,14 @@ class DagNodeSQL extends DagNode {
         let dropAsYouGo;
         let sqlFunctions;
         let compileId = "_sql" + Authentication.getHashId();
+        let sessionTables;
         try {
             // set all options
             self.setIdentifiers(options.identifiers);
             identifiers = self.getIdentifiers();
             sqlMode = options.sqlMode;
             pubTablesInfo = options.pubTablesInfo;
+            sessionTables = options.sessionTables;
             if (options.dropAsYouGo == null) {
                 dropAsYouGo = self.getParam().dropAsYouGo == null ? true :
                                                 self.getParam().dropAsYouGo;
@@ -1428,8 +1487,7 @@ class DagNodeSQL extends DagNode {
                     });
                 }
                 return self.sendSchema(identifiers, pubTablesInfo, sqlFunctions,
-                                                                    usedTables,
-                                                                    compileId);
+                                       usedTables, compileId, sessionTables);
             })
             .then(function(ret) {
                 schemaQueryString = ret.queryString;
@@ -1489,8 +1547,8 @@ class DagNodeSQL extends DagNode {
                     xcQueryString: replaceRetStruct.newQueryStr,
                     allCols: sqlQueryObj.allColumns,
                     tableSrcMap: tableSrcMap
-                }
-                self.updateSubGraph(null, null, sqlMode);
+                };
+                self.updateSubGraph(null, null, sqlMode, sessionTables, options.schema);
                 self.updateSubGraph(replaceRetStruct.newTableMap, null, sqlMode);
                 // recalculate the lineage after compilation
                 const lineage = self.getLineage();

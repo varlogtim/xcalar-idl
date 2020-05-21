@@ -1442,10 +1442,15 @@ class DagNodeExecutor {
             }
 
             const replaceMap = {};
+            let tableSrcMap = node.getTableSrcMap();
+            for (let i in tableSrcMap) {
+                replaceMap[tableSrcMap[i]] = i;
+            }
             node.getParents().forEach((parent, idx) => {
                 const newTableName = parent.getTable();
                 replaceMap[idx + 1] = newTableName;
             });
+
             const oldDestTableName = node.getNewTableName();
             const replaceRetStruct = node.replaceSQLTableName(ret.xcQueryString,
                                                         oldDestTableName,
