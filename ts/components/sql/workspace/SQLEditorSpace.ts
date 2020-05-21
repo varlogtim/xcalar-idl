@@ -271,8 +271,18 @@ class SQLEditorSpace {
         } else {
             Alert.show({
                 "title": SQLTStr.Execute,
-                "msg": SQLTStr.InExecute,
-                "isAlert": true
+                "msgTemplate": xcStringHelper.replaceMsg(SQLTStr.InExecute,
+                    {link: '<span class="actionLink" data-name="sqlHistory">View executing SQL</span>'}),
+                "isAlert": true,
+                "links": {
+                    "sqlHistory": () => {
+                        if (!DebugPanel.Instance.isVisible()) {
+                            DebugPanel.Instance.toggleDisplay();
+                        }
+                        DebugPanel.Instance.switchTab("sqlHistory");
+                        $(".sqlQueryHist .flexTable .body").scrollTop(0);
+                    }
+                }
             });
         }
     }

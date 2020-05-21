@@ -36,6 +36,10 @@ class DebugPanel {
         }
     }
 
+    public isVisible() {
+        return !this._getContainer().parent().hasClass("xc-hidden");
+    }
+
     /**
      * DebugPanel.Instance.switchTab
      * @param tab
@@ -59,7 +63,7 @@ class DebugPanel {
             noUndock: true
         });
         this._popup
-        .on("Show", () => {
+        .on("Show", () => { // currently only getting called at startup
             this.toggleDisplay(true);
         })
         .on("ResizeDocked", (state) => {

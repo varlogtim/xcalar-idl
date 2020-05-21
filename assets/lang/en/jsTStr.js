@@ -1518,7 +1518,7 @@ SQLTStr = {
     "DeleteSnippet": "Delete Query",
     "DeleteSnippetMsg": "Are you sure you want to delete query \"<name>\"?",
     "Execute": "Execute SQL",
-    "InExecute": "There are already some SQLs in execution, please cancel the SQLs in execution or wait until execution finishes.",
+    "InExecute": "There are already some SQLs in execution, please cancel the SQLs in execution or wait until execution finishes.<br><link>",
     "DupColName": "Column name \"<col>\" is duplicated",
     "DupColNameCaseInsensitive": "Table function's output column name is case insensitive. Column \"<col1>\" duplicate with column \"<col2>\"",
     "UnsavedSQL": "You have unsaved SQL work. Are you sure you want to leave?",

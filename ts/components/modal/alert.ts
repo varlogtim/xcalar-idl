@@ -25,6 +25,7 @@ namespace Alert {
         msgTemplate?: string; // can include html tags
         buttons?: AlertButton[]; // buttons to show instead of confirm button,
         isInfo? : boolean; // show nice info icon and not a warning icon
+        links?: any; // map of links and callbacks when clicked
     }
 
     export interface AlertOptions extends BasicAlertOptions {
@@ -33,7 +34,7 @@ namespace Alert {
         instrTemplate?: string; // instead of change instr text, change it's html
         msg?: string; // alert content
         detail?: string; // detail of the error/message
-        isAlert?: boolean; // if it is an alert or a confirm
+        isAlert?: boolean; // if it is an alert or a confirm. Alerts use "close" btns instead of cancel
         isCheckBox?: boolean; // if checkbox is enabled or disabled
         hideButtons?: string[]; // array of button class names to hide, values can be: logout, downloadLog, or cancel
         size?: string; // "small", "medium", "large" (widths)
@@ -87,6 +88,7 @@ namespace Alert {
         setInstruction($modal, options.instr, options.instrTemplate);
         setCheckBox($modal, options.isCheckBox);
         setButtons($modal, options);
+        setLinks($modal, options);
 
         if (options.lockScreen) {
             setLockScreen($modal);
@@ -562,6 +564,20 @@ namespace Alert {
                 $modal.find("." + options.hideButtons[i]).hide();
             }
         }
+    }
+
+    function setLinks($modal: JQuery, options: AlertOptions) {
+        $modal.on("click.alert", ".actionLink", (event) => {
+            if (!options.links) {
+                return;
+            }
+            let callbackName = $(event.target).closest(".actionLink").data("name");
+            let callback = options.links[callbackName];
+            if (callback instanceof Function) {
+                callback();
+                closeModal();
+            }
+        });
     }
 
     /**
