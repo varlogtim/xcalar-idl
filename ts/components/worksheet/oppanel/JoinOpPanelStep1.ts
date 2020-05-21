@@ -102,18 +102,7 @@ class JoinOpPanelStep1 {
         this._updateJoinOptionsSection();
         // Setup main section
         const $elemClauseArea = BaseOpPanel.findXCElement(this._$elem, 'clauseArea');
-        const $elemFilterEval = BaseOpPanel.findXCElement(this._$elem, 'crossJoinFilter');
         $elemClauseArea.hide();
-        $elemFilterEval.hide();
-        // Filter eval string
-        $elemFilterEval.show();
-        const $elemEvalString = BaseOpPanel.findXCElement($elemFilterEval, 'evalStr');
-        $elemEvalString.val(this._modelRef.getEvalString());
-        $elemEvalString.off();
-        $elemEvalString.on('input', (e) => {
-            this._modelRef.setEvalString($(e.target).val().trim());
-            this._onDataChange();
-        });
         if (!this._modelRef.isValidEvalString()) {
             // TODO: Show error message
         }
