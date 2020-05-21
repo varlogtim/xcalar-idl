@@ -324,7 +324,7 @@ class DagNodeSQL extends DagNode {
             this.setParam(sqlParams, true);
         }
     }
-    public getIdentifiersNameMap(): {} {
+    private _getIdentifiersNameMap(): {} {
         return this.identifiersNameMap;
     }
     public setIdentifiersNameMap(identifiersNameMap: {}) {
@@ -699,7 +699,7 @@ class DagNodeSQL extends DagNode {
             identifiers = this.getIdentifiers();
         }
 
-        identifiersNameMap = this.getIdentifiersNameMap();
+        identifiersNameMap = this._getIdentifiersNameMap();
         let identifier = "";
 
         const parentNodeId = parentNode.getId();

@@ -1482,7 +1482,7 @@ class DagView {
                     if (newNode instanceof DagNodeAggregate) {
                         newAggNodes.push(newNode);
                     }
-                    if (newNode instanceof DagNodeSQL) {
+                    if (newNode instanceof DagNodeSQL && newNode.isDeprecated()) {
                         newNode.setIdentifiers(new Map<number, string>(), true);
                     }
                     const newNodeId: DagNodeId = newNode.getId();
