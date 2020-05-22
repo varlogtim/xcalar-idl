@@ -76,8 +76,7 @@ class DagNodeDFOutInput extends DagNodeInput {
         }
         return {
             name: input.name || "",
-            linkAfterExecution: linkAfterExecution,
-            columns: input.columns || []
+            linkAfterExecution: linkAfterExecution
         };
     }
 }

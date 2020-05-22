@@ -1102,6 +1102,7 @@ class DagNodeExecutor {
             }
         })
         .then(() => {
+            // XXX TODO: this should be removed now
             if (linkOutNode.getSubType() === DagNodeSubType.DFOutOptimized) {
                 return this._synthesizeDFOutInBatch(destTable, linkOutNode, false);
             } else {
@@ -1136,28 +1137,22 @@ class DagNodeExecutor {
         // what the linkOutOptimized node store is the schema after synthesize
         // which is destColName and colType
         try {
+            if (excludeAllDerived) {
+                // don't need to do synthesize
+                return PromiseHelper.resolve(srcTable);
+            }
             const colMap: Map<string, ColumnType> = new Map();
             const parentNode = node.getParents()[0];
             parentNode.getLineage().getColumns(this.replaceParam, true).forEach((progCol) => {
                 colMap.set(progCol.getBackColName(), progCol.getType());
             });
-
-            let hasPrefix: boolean = false;
-            const columns: {sourceName: string, destName: string}[] = node.getParam().columns;
-            const colsInfo: ColRenameInfo[] = columns.map((colInfo) => {
-                const sourceName: string = colInfo.sourceName;
-                const destName: string = colInfo.destName;
-                const columnType: ColumnType = colMap.get(sourceName);
+ 
+            const columns: {columnName: string}[] = node.getOutColumns();
+            const colsInfo: ColRenameInfo[] = columns.map(({columnName}) => {
+                const columnType: ColumnType = colMap.get(columnName);
                 const type: DfFieldTypeT = xcHelper.convertColTypeToFieldType(columnType);
-                if (xcHelper.parsePrefixColName(sourceName).prefix !== "") {
-                    hasPrefix = true;
-                }
-                return xcHelper.getJoinRenameMap(sourceName, destName, type);
+                return xcHelper.getJoinRenameMap(columnName, columnName, type);
             });
-            if (excludeAllDerived && !hasPrefix) {
-                // when no prefix column, don't need to do synthesize
-                return PromiseHelper.resolve(srcTable);
-            }
             const desTable: string = this._generateTableName();
             return XIApi.synthesize(this.txId, colsInfo, srcTable, desTable);
         } catch (e) {
