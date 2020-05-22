@@ -18,6 +18,15 @@ class GlobalSession {
     }
 }
 
+function replaceParams(query, params = new Map()) {
+    let queryString = query;
+    for (const [key, value] of params) {
+        const replacementKey = `<${key}>`;
+        queryString = queryString.replace(replacementKey, value);
+    }
+    return queryString;
+}
+
 class BaseSession {
     constructor({ user, sessionName }) {
         this.user = user;
@@ -152,17 +161,16 @@ class BaseSession {
         await this.callLegacyApi(() => XcalarDeleteTable(namePattern));
     }
 
-    async executeQuery({ queryString, queryName }) {
-        return await this.callLegacyApi(() => XcalarQueryWithCheck(queryName, queryString));
+    async executeQuery({ queryString, queryName, params = new Map() }) {
+        return await this.callLegacyApi(() => XcalarQueryWithCheck(
+            queryName,
+            replaceParams(queryString, params)
+        ));
     }
 
     async executeQueryOptimized({ queryStringOpt, queryName, tableName, params = new Map() }) {
         // XXX TODO: use DataflowService.execute instead
-        let queryString = queryStringOpt;
-        for (const [key, value] of params) {
-            const replacementKey = `<${key}>`;
-            queryString = queryString.replace(replacementKey, value);
-        }
+        const queryString = replaceParams(queryStringOpt, params);
         await this.callLegacyApi(() => XcalarImportRetina(
             queryName, true, null, queryString, this.user.getUserName(), this.sessionName
         ));

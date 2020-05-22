@@ -1,8 +1,9 @@
-import { getThriftHandler } from './Api';
+import { normalizeQueryString } from './Api';
 import { PublishedTable } from './PublishedTable';
 
 const {
     XcalarMakeResultSetFromTable,
+    XcalarIndexFromTable,
     XcalarSetAbsolute,
     XcalarGetNextPage,
     XcalarSetFree,
@@ -40,46 +41,68 @@ class Table {
         let destTableName = '';
 
         try {
-            // Add Xcalar Row Number PK
+            const queryList = [];
+
             const { columns } = await this.getInfo();
             const colNames = new Set(columns.map((c) => c.name));
             if (!colNames.has(xcalarRowNumPkName)) {
+                // Add Xcalar Row Number PK
                 destTableName = this.getName() + '_rowNum';
+                let txId = Transaction.start({ simulate: true });
                 await this._session.callLegacyApi(() => XcalarGenRowNum(
-                    srcTableName, destTableName, xcalarRowNumPkName
+                    srcTableName, destTableName, xcalarRowNumPkName, txId
                 ));
+                queryList.push(normalizeQueryString(Transaction.done(txId,  {
+                    noNotification: true,
+                    noCommit: true
+                })));
+                tempTables.push(new Table({
+                    session: this._session, tableName: destTableName
+                }));
+                srcTableName = destTableName;
+
+                // Index on Xcalar Row Number PK
+                destTableName = this.getName() + '_index';
+                txId = Transaction.start({ simulate: true });
+                await this._session.callLegacyApi(() => XcalarIndexFromTable(
+                    srcTableName,
+                    [{
+                        name: xcalarRowNumPkName,
+                        type: ColumnType.integer,
+                        keyFieldName:"",
+                        ordering:XcalarOrderingT.XcalarOrderingUnordered
+                    }],
+                    destTableName,
+                    null,
+                    txId
+                ));
+                queryList.push(normalizeQueryString(Transaction.done(txId,  {
+                    noNotification: true,
+                    noCommit: true
+                })));
                 tempTables.push(new Table({
                     session: this._session, tableName: destTableName
                 }));
                 srcTableName = destTableName;
             }
 
-            // Index on Xcalar Row Number PK
-            destTableName = this.getName() + '_index';
-            await this._session.callLegacyApi(() => xcalarIndex(
-                getThriftHandler(),
-                srcTableName,
-                destTableName,
-                [new XcalarApiKeyT({
-                    name: xcalarRowNumPkName,
-                    type: "DfInt64",
-                    keyFieldName:"",
-                    ordering:"Unordered"})]
-            ));
-            tempTables.push(new Table({
-                session: this._session, tableName: destTableName
-            }));
-            srcTableName = destTableName;
+            const queryString = `[${queryList.join(',')}]`;
+            // Run pre create query
+            if (queryList.length > 0) {
+                await this._session.executeQuery({
+                    queryString: queryString,
+                    queryName: `q_pub_${srcTableName}`
+                });
+            }
 
+            // Publish table
             await this._session.callLegacyApi(
-                () => xcalarApiPublish(
-                    getThriftHandler(),
-                    srcTableName,
-                    publishedName
+                () => XcalarPublishTable(
+                    srcTableName, publishedName
                 )
             );
 
-            return new PublishedTable({ name: publishedName });
+            return new PublishedTable({ name: publishedName, preCreateQuery: queryList.map((q) => JSON.parse(q)) });
         } finally {
             await Promise.all(tempTables.map(t => t.destroy()));
         }

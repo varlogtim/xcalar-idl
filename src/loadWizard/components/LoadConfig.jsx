@@ -185,16 +185,18 @@ class LoadConfig extends React.Component {
         }
     }
 
-    async _publishDataCompTables(tables, publishTableName) {
+    async _publishDataCompTables(tables, publishTableName, dataflows) {
         const dataName = PTblManager.Instance.getUniqName(publishTableName.toUpperCase());
         const compName = PTblManager.Instance.getUniqName(publishTableName + '_COMPLEMENTS');
+        const { dataQueryComplete = '[]', compQueryComplete = '[]' } = dataflows || {};
 
         try {
             PTblManager.Instance.addLoadingTable(dataName);
             PTblManager.Instance.addLoadingTable(compName);
 
             // Publish data table
-            await tables.data.publish(dataName);
+            const pubDataTable = await tables.data.publish(dataName);
+            await pubDataTable.saveDataflow(JSON.parse(dataQueryComplete));
 
             // Check if comp table is empty
             let compHasData = false;
@@ -210,7 +212,8 @@ class LoadConfig extends React.Component {
 
             // Publish comp table
             if (compHasData) {
-                await tables.comp.publish(compName);
+                const pubCompTable = await tables.comp.publish(compName);
+                await pubCompTable.saveDataflow(JSON.parse(compQueryComplete));
             }
 
             // XD table operations
@@ -289,7 +292,10 @@ class LoadConfig extends React.Component {
             });
 
             // Publish tables
-            const result = await this._publishDataCompTables(tables, tableName);
+            const result = await this._publishDataCompTables(tables, tableName, {
+                dataQueryComplete: query.dataQueryComplete,
+                compQueryComplete: query.compQueryComplete
+            });
 
             // State: -loading + created
             this.setState({

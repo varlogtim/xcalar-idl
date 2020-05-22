@@ -195,6 +195,51 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
         });
     }
 
+    function combineQueries(loadQuery, tableQuery, params = new Map()) {
+        // Remove export from the query string
+        const excludeSet = new Set([
+            Xcrpc.EnumMap.XcalarApisToStr[Xcrpc.EnumMap.XcalarApisToInt.XcalarApiExport]
+        ]);
+        const queryList = JSON.parse(loadQuery).concat(JSON.parse(tableQuery));
+        let queryString = JSON.stringify(
+            queryList.filter(({ operation }) => !excludeSet.has(operation))
+        );
+
+        for (const [key, value] of params) {
+            const replacementKey = `<${key}>`;
+            queryString = queryString.replace(replacementKey, value);
+        }
+
+        return queryString;
+    }
+
+    function getResourceNames(queryList) {
+        const excludeSet = new Set([
+            Xcrpc.EnumMap.XcalarApisToStr[Xcrpc.EnumMap.XcalarApisToInt.XcalarApiExport]
+        ]);
+
+        const tables = new Set();
+        const datasets = new Set();
+        for (const query of queryList) {
+            const { operation, args } = query;
+            if (excludeSet.has(operation)) {
+                continue;
+            }
+
+            const { dest: destTable } = args;
+            if (operation === Xcrpc.EnumMap.XcalarApisToStr[Xcrpc.EnumMap.XcalarApisToInt.XcalarApiBulkLoad]) {
+                datasets.add(destTable);
+            } else {
+                tables.add(destTable);
+            }
+        }
+
+        return {
+            datasets: datasets,
+            tables: tables
+        };
+    }
+
     function convertFileSchemaRecord(record) {
         const {SIZE, ISDIR, NUM, PATH, STATUS, SCHEMA, SCHEMA_HASH} = record;
         const fileInfo = {
@@ -286,7 +331,11 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
             }
         },
         createResultTables: async (query, progressCB = () => {}) => {
-            const {loadQueryOpt, dataQueryOpt, compQueryOpt, tableNames} = query;
+            // const {loadQueryOpt, dataQueryOpt, compQueryOpt, tableNames} = query;
+            const {loadQueryOpt, dataQuery, compQuery, tableNames} = query;
+            const fixedTablesNames = new Set([
+                tableNames.load, tableNames.data, tableNames.comp
+            ]);
 
             const loadQuery = JSON.parse(loadQueryOpt).retina;
             const loadProgress = updateProgress((p) => progressCB(p), 0, 60);
@@ -295,45 +344,88 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
                     queryStringOpt: loadQuery,
                     queryName: `q_${appId}_${queryIndex ++}`,
                     tableName: tableNames.load,
-                    params: new Map([['session_name', session.sessionName], ['user_name', session.user.getUserName()]])
+                    params: new Map([
+                        ['session_name', session.sessionName],
+                        ['user_name', session.user.getUserName()]
+                    ])
                 });
+                // await session.executeQuery({
+                //     queryString: loadQuery,
+                //     queryName: `q_${appId}_${queryIndex ++}`,
+                //     params: new Map([
+                //         ['session_name', session.sessionName],
+                //         ['user_name', session.user.getUserName()]
+                //     ])
+                // });
                 loadProgress.done();
             } finally {
                 loadProgress.stop();
+                // Delete temporary tables
+                // const { tables } = getResourceNames(JSON.parse(loadQuery));
+                // await Promise.all([...tables].map(async (tableName) => {
+                //     if (!fixedTablesNames.has(tableName)) {
+                //         const tempTable = new Table({ session: session, tableName: tableName});
+                //         await tempTable.destroy();
+                //     }
+                // }));
             }
             const loadTable = new Table({
                 session: session,
                 tableName: tableNames.load
-            })
+            });
 
             try {
-                const dataQuery = JSON.parse(dataQueryOpt).retina;
+                // const dataQuery = JSON.parse(dataQueryOpt).retina;
                 const dataProgress = updateProgress((p) => progressCB(p), 60, 80);
                 try {
-                    await session.executeQueryOptimized({
-                        queryStringOpt: dataQuery,
-                        queryName: `q_${appId}_${queryIndex ++}`,
-                        tableName: tableNames.data
+                    // await session.executeQueryOptimized({
+                    //     queryStringOpt: dataQuery,
+                    //     queryName: `q_${appId}_${queryIndex ++}`,
+                    //     tableName: tableNames.data
+                    // });
+                    await session.executeQuery({
+                        queryString: dataQuery,
+                        queryName: `q_${appId}_${queryIndex ++}`
                     });
                     dataProgress.done();
                 } finally {
                     dataProgress.stop();
+                    // Delete temporary tables
+                    const { tables } = getResourceNames(JSON.parse(dataQuery));
+                    await Promise.all([...tables].map(async (tableName) => {
+                        if (!fixedTablesNames.has(tableName)) {
+                            const tempTable = new Table({ session: session, tableName: tableName});
+                            await tempTable.destroy();
+                        }
+                    }));
                 }
                 const dataTable = new Table({
                     session: session, tableName: tableNames.data
                 });
 
-                const compQuery = JSON.parse(compQueryOpt).retina;
+                // const compQuery = JSON.parse(compQueryOpt).retina;
                 const compProgress = updateProgress((p) => progressCB(p), 80, 99);
                 try {
-                    await session.executeQueryOptimized({
-                        queryStringOpt: compQuery,
+                    // await session.executeQueryOptimized({
+                    //     queryStringOpt: compQuery,
+                    //     queryName: `q_${appId}_${queryIndex ++}`,
+                    //     tableName: tableNames.comp
+                    // });
+                    await session.executeQuery({
+                        queryString: compQuery,
                         queryName: `q_${appId}_${queryIndex ++}`,
-                        tableName: tableNames.comp
                     });
                     compProgress.done();
                 } finally {
                     compProgress.stop();
+                    // Delete temporary tables
+                    const { tables } = getResourceNames(JSON.parse(compQuery));
+                    await Promise.all([...tables].map(async (tableName) => {
+                        if (!fixedTablesNames.has(tableName)) {
+                            const tempTable = new Table({ session: session, tableName: tableName});
+                            await tempTable.destroy();
+                        }
+                    }));
                 }
                 const compTable = new Table({
                     session: session,
@@ -342,10 +434,12 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
 
                 return {
                     data: dataTable,
-                    comp: compTable
+                    comp: compTable,
+                    load: loadTable
                 };
             } finally {
-                await loadTable.destroy();
+                // Cannot delete the load table, or activating published table will fail
+                // await loadTable.destroy();
                 progressCB(100);
             }
         },
@@ -389,14 +483,22 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
                 console.log('Table query: ', appInput);
                 const response = await executeSchemaLoadApp(JSON.stringify(appInput));
                 getQueryProgress.done();
+
+                // XXX TODO: Remove once load app leverages runtime generated UDF to pass file/schema list to bulkLoad
+                const params = new Map([
+                    ['session_name', session.sessionName],
+                    ['user_name', session.user.getUserName()]
+                ]);
                 return {
-                    loadQuery: response.load_df_query_string,
+                    loadQuery: combineQueries(response.load_df_query_string, '[]'),
                     loadQueryOpt: response.load_df_optimized_query_string,
-                    dataQuery: response.data_df_query_string,
+                    dataQuery: combineQueries(response.data_df_query_string, '[]'),
                     dataQueryOpt: response.data_df_optimized_query_string,
-                    compQuery: response.comp_df_query_string,
+                    compQuery: combineQueries(response.comp_df_query_string, '[]'),
                     compQueryOpt: response.comp_df_optimized_query_string,
-                    tableNames: tableNames
+                    tableNames: tableNames,
+                    dataQueryComplete: combineQueries(response.load_df_query_string, response.data_df_query_string, params),
+                    compQueryComplete: combineQueries(response.load_df_query_string, response.comp_df_query_string, params)
                 };
             } finally {
                 getQueryProgress.stop();

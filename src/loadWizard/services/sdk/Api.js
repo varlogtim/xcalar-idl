@@ -89,4 +89,18 @@ function createSessionScope({userName, sessionName}) {
     return scope;
 }
 
-export { callApiInSession, hashFunc, getThriftHandler, randomName, createGlobalScope, createSessionScope };
+function normalizeQueryString(queryCli) {
+    return queryCli.endsWith(',')
+        ? queryCli.substr(0, queryCli.length - 1)
+        : queryCli;
+}
+
+export {
+    callApiInSession,
+    hashFunc,
+    getThriftHandler,
+    randomName,
+    createGlobalScope,
+    createSessionScope,
+    normalizeQueryString
+};

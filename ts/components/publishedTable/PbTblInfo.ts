@@ -206,9 +206,8 @@ class PbTblInfo {
         return cols;
     }
 
-    public async saveDataflow(resultSetName: string, addSchemaToSource: boolean = false): Promise<void> {
-        const dag: {node: any[]} = await XcalarGetDag(resultSetName);
-        const convert = new DagQueryConverter({query: dag.node});
+    public async saveDataflowFromQuery(query: Array<any>, addSchemaToSource: boolean = false): Promise<void> {
+        const convert = new DagQueryConverter({query: query});
         let subGraph: DagSubGraph = convert.convertToSubGraph();
         if (addSchemaToSource) {
             this._addSchemaToSourceNode(subGraph);
@@ -216,6 +215,11 @@ class PbTblInfo {
         subGraph = await this._normalizeSubgraph(subGraph);
         const serializedStr: string = JSON.stringify(subGraph.getSerializableObj());
         await this._getKVStore().put(serializedStr, true);
+    }
+
+    public async saveDataflow(resultSetName: string, addSchemaToSource: boolean = false): Promise<void> {
+        const dag: {node: any[]} = await XcalarGetDag(resultSetName);
+        await this.saveDataflowFromQuery(dag.node, addSchemaToSource);
     }
 
     private _addSchemaToSourceNode(graph: DagGraph): void {
