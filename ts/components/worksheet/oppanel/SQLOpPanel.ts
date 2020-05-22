@@ -123,7 +123,7 @@ class SQLOpPanel extends BaseOpPanel {
                 let snippetId: string = $li.data("id");
                 if ($li.hasClass("createNew")) {
                     SQLEditorSpace.Instance.bringToFront();
-                    snippetId = SQLTabManager.Instance.newTab();
+                    snippetId = SQLTabManager.Instance.newTab(this._dagNode.getTitle(), true);
                 } else {
                     SQLTabManager.Instance.openTab(snippetId);
                 }

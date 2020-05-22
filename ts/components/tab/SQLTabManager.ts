@@ -27,9 +27,14 @@ class SQLTabManager extends AbstractTabManager {
     /**
      * SQLTabManager.Instance.newTab
      */
-    public newTab(): string {
-        const id: string = SQLSnippet.Instance.create(null);
+    public newTab(name = null, focusName = false): string {
+        const id: string = SQLSnippet.Instance.create(name);
         this.openTab(id);
+        if (focusName) {
+            const index = this._activeTabs.indexOf(id);
+            const $tab: JQuery = this._getTabElByIndex(index);
+            $tab.find(".dragArea").dblclick();
+        }
         return id;
     }
 
