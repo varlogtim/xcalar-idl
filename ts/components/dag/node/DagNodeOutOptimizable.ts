@@ -34,6 +34,10 @@ class DagNodeOutOptimizable extends DagNodeOut {
         }
     }
 
+    public getOutColumns(_replaceParameters?: boolean): {columnName: string, headerAlias: string}[] {
+        return null;
+    }
+
     protected _clearConnectionMeta(keepRetina?: boolean): void {
         if (!keepRetina && this.isOptimized()) {
             this._removeRetina();

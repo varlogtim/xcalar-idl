@@ -192,13 +192,6 @@ declare type ExportOpPanelModelColumnInfo = {
     type: string;
 }
 
-declare type DFLinkOutOpPanelModelColumnInfo = {
-    name: string;
-    destName: string;
-    isSelected: boolean;
-    type: string;
-}
-
 declare type ShowPanelInfo = {
     exitCallback?: Function;
     closeCallback?: Function;

@@ -1853,8 +1853,7 @@ class DagGraph extends Durable {
                     name = xcHelper.uniqueName(name, validFunc, null)
                     node.setParam({
                         name: name,
-                        linkAfterExecution: input.linkAfterExecution,
-                        columns: input.columns
+                        linkAfterExecution: input.linkAfterExecution
                     }, true);
                     updatedNodes.push(node);
                 }

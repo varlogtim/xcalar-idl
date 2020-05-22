@@ -2959,6 +2959,19 @@ namespace xcHelper {
         return isSystemMac && event.metaKey ||
                 !isSystemMac && event.ctrlKey;
     }
+
+    /**
+     * xcHelper.getBasicColTypes
+     * @param includeMixed
+     */
+    export function getBasicColTypes(includeMixed: boolean = false): ColumnType[] {
+        const types = [ColumnType.string, ColumnType.integer, ColumnType.float,
+        ColumnType.boolean, ColumnType.timestamp, ColumnType.money];
+        if (includeMixed) {
+            types.push(ColumnType.mixed);
+        }
+        return types;
+    }
 }
 
 if (typeof exports !== "undefined") {

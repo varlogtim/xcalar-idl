@@ -56,6 +56,18 @@ class DagNodeExport extends DagNodeOutOptimizable {
     /**
      * @override
      */
+    public getOutColumns(_replaceParameters?: boolean): {columnName: string, headerAlias: string}[] {
+        return this.getParam().columns.map((col) => {
+            return {
+                columnName: col.sourceColumn,
+                headerAlias: col.destColumn
+            };
+        });
+    }
+
+    /**
+     * @override
+     */
     protected _genParamHint(): string {
       let hint: string = "";
       const input: DagNodeExportInputStruct = this.getParam();

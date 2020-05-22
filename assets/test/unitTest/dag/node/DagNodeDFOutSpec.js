@@ -10,8 +10,7 @@ describe("DagNodeDFOut Test", function() {
 
         optimizedNode.setParam({
             "name": "test",
-            "linkAfterExecution": true,
-            "columns": [{"sourceName": "source", "destName": "dest"}]
+            "linkAfterExecution": true
         });
     });
 
@@ -22,8 +21,7 @@ describe("DagNodeDFOut Test", function() {
     it("should set param", function() {
         node.setParam({
             "name": "test",
-            "linkAfterExecution": true,
-            "columns": [{"sourceName": "source", "destName": "dest"}]
+            "linkAfterExecution": true
         });
         expect(node.getParam().name).to.equal("test");
     });
@@ -36,12 +34,21 @@ describe("DagNodeDFOut Test", function() {
         expect(res.changes.length).to.equal(0);
     });
 
-    it("lineageChange should work for optimized case", function() {
-        let col1 = new ProgCol({"backName": "source"});
-        let col2 = new ProgCol({"backName": "test"});
-        let res = optimizedNode.lineageChange([col1, col2]);
-        expect(res.columns.length).to.equal(1);
-        expect(res.changes.length).to.equal(2);
+    it("getOutColumns should work", function() {
+        const sourceNode = new DagNodeIMDTable({});
+        sourceNode.setSchema([{
+            "name": "a",
+            "type": ColumnType.string
+        }, {
+            "name": "b",
+            "type": ColumnType.object
+        }]);
+        node.connectToParent(sourceNode, 0);
+        const columns = node.getOutColumns();
+        expect(columns.length).to.equal(1);
+        expect(columns[0].columnName).to.equal("a");
+        expect(columns[0].headerAlias).to.equal("a");
+        node.disconnectFromParent(sourceNode, 0);
     });
 
     it("shouldLinkAfterExecution should work", function() {

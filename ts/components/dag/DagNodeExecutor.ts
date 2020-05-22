@@ -1141,23 +1141,29 @@ class DagNodeExecutor {
             parentNode.getLineage().getColumns(this.replaceParam, true).forEach((progCol) => {
                 colMap.set(progCol.getBackColName(), progCol.getType());
             });
-
+            // XXX this part of prefix detection should finally be removed
+            // keep it now as there is SDK test that still use prefix column from dataset
             let hasPrefix: boolean = false;
-            const columns: {sourceName: string, destName: string}[] = node.getParam().columns;
-            const colsInfo: ColRenameInfo[] = columns.map((colInfo) => {
-                const sourceName: string = colInfo.sourceName;
-                const destName: string = colInfo.destName;
-                const columnType: ColumnType = colMap.get(sourceName);
-                const type: DfFieldTypeT = xcHelper.convertColTypeToFieldType(columnType);
-                if (xcHelper.parsePrefixColName(sourceName).prefix !== "") {
+            const columns: {columnName: string}[] = node.getOutColumns();
+            const colsInfo: ColRenameInfo[] = columns.map(({columnName}) => {
+                const sourceName: string = columnName;
+                let destName: string = columnName;
+                const parsed = xcHelper.parsePrefixColName(sourceName);
+                if (parsed.prefix !== "") {
                     hasPrefix = true;
+                    destName = parsed.name;
                 }
+
+                const columnType: ColumnType = colMap.get(columnName);
+                const type: DfFieldTypeT = xcHelper.convertColTypeToFieldType(columnType);
                 return xcHelper.getJoinRenameMap(sourceName, destName, type);
             });
+
             if (excludeAllDerived && !hasPrefix) {
-                // when no prefix column, don't need to do synthesize
+                // don't need to do synthesize
                 return PromiseHelper.resolve(srcTable);
             }
+
             const desTable: string = this._generateTableName();
             return XIApi.synthesize(this.txId, colsInfo, srcTable, desTable);
         } catch (e) {
