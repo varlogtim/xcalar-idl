@@ -406,16 +406,20 @@ class BaseOpPanel {
     private _setupModeSwitch($panel: JQuery): void {
         const $switcher = $panel.find(".bottomSection .switcher");
         $switcher.on("click", ".switch", (event) => {
-            const $switch: JQuery = $(event.target).closest(".switch");
-            const toAdvanceMode: boolean = $switch.hasClass("on") ? false : true;
-            const error: { error: string } = this._switchMode(toAdvanceMode);
-            if (error == null) {
-                this._updateMode(toAdvanceMode);
-            } else {
-                const $e = toAdvanceMode ? $panel.find(".opSection") : $panel.find(".advancedEditor");
-                StatusBox.show(error.error, $e);
-            }
+            this._handleModeSwitch($panel, event);
         });
+    }
+
+    protected _handleModeSwitch($panel: JQuery, event) {
+        const $switch: JQuery = $(event.target).closest(".switch");
+        const toAdvanceMode: boolean = $switch.hasClass("on") ? false : true;
+        const error: { error: string } = this._switchMode(toAdvanceMode);
+        if (error == null) {
+            this._updateMode(toAdvanceMode);
+        } else {
+            const $e = toAdvanceMode ? $panel.find(".opSection") : $panel.find(".advancedEditor");
+            StatusBox.show(error.error, $e);
+        }
     }
 
     private _setupRestoreBtn(): void {

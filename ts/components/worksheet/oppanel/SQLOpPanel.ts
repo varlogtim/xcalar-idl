@@ -6,11 +6,10 @@ class SQLOpPanel extends BaseOpPanel {
     protected _dataModel: SQLOpPanelModel; // The key data structure
     protected _dagNode: DagNodeSQL;
     private _$sqlIdentifiers = $("#sqlOpPanel .sqlIdentifiers");
-    private _sqlTables = {};
-    private _alertOff: boolean = false;
     private _ignoreQueryConfirm = false;
     private _ignoreUpdateConfirm = false;
     private _identifiers: string[] = [];
+    private _parsedIdentifiers: string[] = [];
     private _connectors: {label: string, nodeId: string}[] = [];
     private _queryStr = "";
     private _graph: DagGraph;
@@ -41,6 +40,7 @@ class SQLOpPanel extends BaseOpPanel {
         let error: string;
         this._graph = DagViewManager.Instance.getActiveDag();
         this._identifiers = [];
+        this._parsedIdentifiers = [];
         this._connectors = [];
         this._dataModel.getIdentifiers().forEach((value, key) => {
             this._identifiers[key - 1] = value;
@@ -77,7 +77,7 @@ class SQLOpPanel extends BaseOpPanel {
             if (error) {
                 this._startInAdvancedMode(error);
             } else if (BaseOpPanel.isLastModeAdvanced) {
-                this._switchMode(true);
+                this._switchModes(true);
                 this._updateMode(true);
             }
         });
@@ -88,6 +88,7 @@ class SQLOpPanel extends BaseOpPanel {
     public close(isSubmit?: boolean): void {
         super.hidePanel(isSubmit);
         this._identifiers = [];
+        this._parsedIdentifiers = [];
         this._connectors = [];
         this._graph = null;
         this.updateIdentifiersList();
@@ -203,6 +204,7 @@ class SQLOpPanel extends BaseOpPanel {
                 $input.data("id", null);
                 this.$panel.find(".editorWrapper").text("");
                 this._identifiers = [];
+                this._parsedIdentifiers = [];
                 this.updateIdentifiersList();
                 this._$elemPanel.addClass("snippetNotFound");
             }
@@ -219,7 +221,8 @@ class SQLOpPanel extends BaseOpPanel {
         });
     }
 
-    private _selectQuery(snippetId: string, queryStr?: string, forceUpdate?: boolean): SQLSnippetDurable {
+    private _selectQuery(snippetId: string, queryStr?: string, forceUpdate?: boolean): XDPromise<any> {
+        const deferred = PromiseHelper.deferred();
         if (snippetId || queryStr) {
             this.$panel.find(".nextForm").removeClass('xc-hidden');
         }
@@ -253,19 +256,25 @@ class SQLOpPanel extends BaseOpPanel {
                     queryStr.toLowerCase().includes("select")))) {
                     return;
                 }
-                this._identifiers = ret.identifiers;
+                if (forceUpdate) {
+                    this._identifiers = [];
+                }
+                this._parsedIdentifiers = ret.identifiers;
+                this._identifiers.length = Math.min(this._parsedIdentifiers.length, this._identifiers.length);
                 this.updateIdentifiersList();
             }
         })
         .fail((e) => {
             this._identifiers = [];
+            this._parsedIdentifiers = [];
             this.updateIdentifiersList();
             console.error(e);
         })
         .always(() => {
             this._$elemPanel.find(".identifiersSection").removeClass("disabled");
+            deferred.resolve();
         });
-        return snippet;
+        return deferred.promise();
     }
 
     private _addTableIdentifier(key?: number, value?: string): void {
@@ -343,17 +352,13 @@ class SQLOpPanel extends BaseOpPanel {
             }
             if (key) {
                 // remove the old key
-                const lastKey = $input.attr("last-value");
-                delete self._sqlTables[lastKey];
                 $input.attr("last-value", key);
-                const value = parseInt($input.siblings(".source")
-                                             .find(".text").text()) || undefined;
-                self._sqlTables[key] = value;
             }
         });
         self._$elemPanel.on("click", ".refreshSnippet", () => {
             this._isQueryUpdated = true;
             this._$elemPanel.removeClass("queryNotUpdated");
+            this._identifiers = [];
             const snippetId = this.$panel.find(".snippetsList input").data("id");
             this._selectQuery(snippetId, null, true);
             this._$elemPanel.find(".snippetUpdated").fadeIn(800, () => {
@@ -406,19 +411,10 @@ class SQLOpPanel extends BaseOpPanel {
         this.$panel.find(".snippetsList input").data("id") === snippetId);
     }
 
-    public getAlertOff(): boolean {
-        return this._alertOff;
-    }
-
-    public setAlertOff(alertOff: boolean = false): void {
-        this._alertOff = alertOff;
-    }
-
     private configureSQL(
         snippetId: string,
         query?: string,
-        identifiers?: Map<number, string>,
-        identifiersNameMap?: {}
+        identifiers?: Map<number, string>
     ): XDPromise<any> {
         const self = this;
         const deferred = PromiseHelper.deferred();
@@ -434,12 +430,11 @@ class SQLOpPanel extends BaseOpPanel {
         }
 
         const dropAsYouGo: boolean = this._isDropAsYouGo();
-        if (!identifiers || !identifiersNameMap) {
+        if (!identifiers) {
             let retStruct = this.extractIdentifiers();
             identifiers = identifiers || retStruct.identifiers;
-            identifiersNameMap = identifiersNameMap || retStruct.identifiersNameMap;
         }
-        self._dagNode.setIdentifiersNameMap(identifiersNameMap);
+
         if (!sql) {
             self._dataModel.setDataModel("", identifiers, dropAsYouGo, snippetId);
             self._dataModel.submit();
@@ -504,6 +499,23 @@ class SQLOpPanel extends BaseOpPanel {
                 }
             }
         });
+        this._parsedIdentifiers.forEach((identifier, i) => {
+            if (this._identifiers[i]) {
+                return;
+            }
+            const parentNode = parents[i];
+            if (parentNode) {
+                this._connectors[i] = {
+                    label: parentNode.getTitle(),
+                    nodeId: parentNode.getId()
+                }
+            } else {
+                this._connectors[i] = {
+                    label: "",
+                    nodeId: null
+                }
+            }
+        });
         parents.forEach((parentNode, i) => {
             this._connectors[i] = {
                 label: parentNode.getTitle(),
@@ -517,34 +529,32 @@ class SQLOpPanel extends BaseOpPanel {
         let leftCol = "";
         let rightCol = "";
         let seenConnectors = new Set();
+        let seenIdentifiers = new Set();
         this._identifiers.forEach((identifier, i) => {
-            leftCol += `<div class="source">
-                    ${identifier}
-                    </div>`;
+            if (i >= this._parsedIdentifiers.length) {
+                return;
+            }
+            seenIdentifiers.add(identifier);
+            leftCol +=  this._getIdentifierHTML(identifier);
             let connectorName = "";
             if (this._connectors[i]) {
                 connectorName = this._connectors[i].label;
                 seenConnectors.add(i);
             }
-            rightCol +=
-                `<div class="dest">
-                    <div class="dropDownList">
-                        <input class="text" type="text" value="${connectorName}" spellcheck="false" readonly>
-                        <div class="iconWrapper">
-                            <i class="icon xi-arrow-down"></i>
-                        </div>
-                        <div class="list">
-                            <ul>
-                            </ul>
-                            <div class="scrollArea top stopped" style="display: none;">
-                                <i class="arrow icon xi-arrow-up"></i>
-                            </div>
-                            <div class="scrollArea bottom" style="display: none;">
-                                <i class="arrow icon xi-arrow-down"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
+            rightCol += this._getConnectorHTML(connectorName);
+        });
+
+        this._parsedIdentifiers.forEach((identifier, i) => {
+            if (this._identifiers[i]) {
+                return;
+            }
+            leftCol +=  this._getIdentifierHTML(identifier);
+            let connectorName = "";
+            if (this._connectors[i]) {
+                connectorName = this._connectors[i].label;
+                seenConnectors.add(i);
+            }
+            rightCol += this._getConnectorHTML(connectorName);
         });
 
         this._connectors.forEach((connector, index) => {
@@ -553,30 +563,44 @@ class SQLOpPanel extends BaseOpPanel {
                 return;
             }
             leftCol += `<div class="source notSpecified">
-                Not Specified
+                Not Found
             </div>`;
-            rightCol +=
-                `<div class="dest">
-                    <div class="dropDownList">
-                        <input class="text" type="text" value="${connectorName}" spellcheck="false" readonly>
-                        <div class="iconWrapper">
-                            <i class="icon xi-arrow-down"></i>
-                        </div>
-                        <div class="list">
-                            <ul>
-                            </ul>
-                            <div class="scrollArea top stopped" style="display: none;">
-                                <i class="arrow icon xi-arrow-up"></i>
-                            </div>
-                            <div class="scrollArea bottom" style="display: none;">
-                                <i class="arrow icon xi-arrow-down"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
+            rightCol += this._getConnectorHTML(connectorName);
         });
+
         let html = `<div class="col">${leftCol}</div><div class="col">${rightCol}</div>`;
         this._$elemPanel.find(".identifiersList").html(html);
+
+        this._$elemPanel.find(".identifiersList .source").each((index, el) => {
+            const $dropDownList: JQuery = $(el).find(".dropDownList");
+            new MenuHelper($dropDownList, {
+                fixedPosition: {
+                    selector: "input"
+                },
+                onOpen: () => {
+                    let html = "";
+                    this._parsedIdentifiers.forEach((identifier) => {
+                        html += `<li>${identifier}</li>`;
+                    });
+
+                    if (!this._parsedIdentifiers.length) {
+                        html += `<li data-id="" class="hint">No tables found</li>`
+                    }
+                    $dropDownList.find("ul").html(html);
+                },
+                onSelect: ($li) => {
+                    let val;
+                    if ($li.hasClass("hint")) {
+                        return;
+                    } else {
+                        val = $li.text().trim();
+                    }
+                    $dropDownList.find("input").val(val);
+                    this._identifiers[index] = val;
+                }
+            }).setupListeners();
+        });
+
         this._$elemPanel.find(".identifiersList .dest").each((index, el) => {
             const $dropDownList: JQuery = $(el).find(".dropDownList");
             new MenuHelper($dropDownList, {
@@ -650,17 +674,62 @@ class SQLOpPanel extends BaseOpPanel {
             }).setupListeners();
         });
 
-        if (this._identifiers.length === 0) {
+        if (this._parsedIdentifiers.length === 0) {
             this._$elemPanel.find(".tableInstruction").removeClass("xc-hidden");
         } else {
             this._$elemPanel.find(".tableInstruction").addClass("xc-hidden");
         }
     }
 
+    private _getIdentifierHTML(identifier): HTML {
+        return `<div class="source">
+                <div class="dropDownList">
+                    <input class="text" type="text" value="${identifier}" spellcheck="false" readonly>
+                    <div class="iconWrapper">
+                        <i class="icon xi-arrow-down"></i>
+                    </div>
+                    <div class="list">
+                        <ul>
+                        </ul>
+                        <div class="scrollArea top stopped" style="display: none;">
+                            <i class="arrow icon xi-arrow-up"></i>
+                        </div>
+                        <div class="scrollArea bottom" style="display: none;">
+                            <i class="arrow icon xi-arrow-down"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+    }
+
+    private _getConnectorHTML(connectorName: string): HTML {
+        return `<div class="dest">
+            <div class="dropDownList">
+                <input class="text" type="text" value="${connectorName}" spellcheck="false" readonly>
+                <div class="iconWrapper">
+                    <i class="icon xi-arrow-down"></i>
+                </div>
+                <div class="list">
+                    <ul>
+                    </ul>
+                    <div class="scrollArea top stopped" style="display: none;">
+                        <i class="arrow icon xi-arrow-up"></i>
+                    </div>
+                    <div class="scrollArea bottom" style="display: none;">
+                        <i class="arrow icon xi-arrow-down"></i>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }
+
     public getAutoCompleteList() {
         const acTables = {};
         this._dagNode.getParents().forEach((parent, index) => {
             let tableName = this._identifiers[index];
+            if (!tableName) {
+                tableName = this._parsedIdentifiers[index];
+            }
             let tableColumns = [];
             if (tableName) {
                 acTables[tableName] = tableColumns;
@@ -688,6 +757,9 @@ class SQLOpPanel extends BaseOpPanel {
         const columnSet: Set<string> = new Set();
         this._dagNode.getParents().forEach((parent, index) => {
             let tableName = this._identifiers[index];
+            if (!tableName) {
+                tableName = this._parsedIdentifiers[index];
+            }
             if (tableName) {
                 tableName += ".";
             } else {
@@ -779,13 +851,11 @@ class SQLOpPanel extends BaseOpPanel {
         const self = this;
         // clean up old elements first
         self._$sqlIdentifiers.html("");
-        self._sqlTables = {};
         const identifiers = this._dataModel.getIdentifiers();
         if (identifiers.size > 0) {
             this._$sqlIdentifiers.siblings(".tableInstruction").addClass("xc-hidden");
             identifiers.forEach(function(value, key) {
                 self._addTableIdentifier(key, value);
-                self._sqlTables[value] = key;
             });
         } else {
             this._$sqlIdentifiers.siblings(".tableInstruction").removeClass("xc-hidden");
@@ -800,22 +870,28 @@ class SQLOpPanel extends BaseOpPanel {
     public extractIdentifiers(
         validate: boolean = false
     ): {
-        identifiers: Map<number, string>,
-        identifiersNameMap: {}
+        identifiers: Map<number, string>
     } {
         let identifiers = new Map<number, string>();
-        let identifiersNameMap = {};
         this._identifiers.forEach((identifier, index) => {
             identifiers.set(index + 1, identifier);
             if (!this._connectors[index] || !this._connectors[index].label) {
                 throw "Query Table \'" + identifier + "\' does not have a corresponding module table.";
             }
-            identifiersNameMap[this._connectors[index].nodeId] = identifier;
+        });
+
+        this._parsedIdentifiers.forEach((identifier, index) => {
+            if (this._identifiers[index]) {
+                return;
+            }
+            identifiers.set(index + 1, identifier);
+            if (!this._connectors[index] || !this._connectors[index].label) {
+                throw "Query Table \'" + identifier + "\' does not have a corresponding module table.";
+            }
         });
 
         return {
-            identifiers: identifiers,
-            identifiersNameMap: identifiersNameMap
+            identifiers: identifiers
         };
     }
 
@@ -834,7 +910,7 @@ class SQLOpPanel extends BaseOpPanel {
 
         // Submit button
         self._$elemPanel.on('click', '.submit', () => {
-            this.submit();
+            this._submit();
         });
         this._addEventListeners();
     }
@@ -847,7 +923,7 @@ class SQLOpPanel extends BaseOpPanel {
      * @override BaseOpPanel._switchMode
      * @param toAdvancedMode
      */
-    protected _switchMode(toAdvancedMode: boolean): {error: string} {
+    protected _switchModes(toAdvancedMode: boolean): XDPromise<any> {
         if (toAdvancedMode) {
             const identifiers = {};
             const identifiersOrder = [];
@@ -855,7 +931,7 @@ class SQLOpPanel extends BaseOpPanel {
             try {
                 identifiersMap = this.extractIdentifiers(true).identifiers;
             } catch (e) {
-                return {error: e};
+                return PromiseHelper.reject(e);
             }
             identifiersMap.forEach(function(value, key) {
                 identifiers[key] = value;
@@ -880,74 +956,90 @@ class SQLOpPanel extends BaseOpPanel {
             const paramStr = JSON.stringify(advancedParams, null, 4);
             this._cachedBasicModeParam = paramStr;
             this._editor.setValue(paramStr);
+            return PromiseHelper.resolve();
         } else {
-            try {
-                const advancedParams = JSON.parse(this._editor.getValue());
-                let errorMsg = this._validateAdvancedParams(advancedParams);
-                if (errorMsg) {
-                    return {error: errorMsg};
-                }
-                const identifiers = advancedParams.identifiers;
-                let identifiersOrder = advancedParams.identifiersOrder.map((identifier) => {
-                    return parseInt(identifier);
-                });
-                if (!this._validateIdentifiers(identifiers, identifiersOrder)) {
-                    return {error: SQLErrTStr.IdentifierMismatch};
-                }
-                if (advancedParams.dropAsYouGo != null) {
-                    this._toggleDropAsYouGo(advancedParams.dropAsYouGo);
-                }
-                const snippetId = advancedParams.snippetId;
-                let queryStr = advancedParams.sqlQueryString;
-                if (!queryStr) {
-                    let snippet = SQLSnippet.Instance.getSnippetObj(snippetId);
-                    if (snippet) {
-                        queryStr = snippet.snippet;
-                    }
-                }
-                this._selectQuery(snippetId, queryStr, true);
-                this._$sqlIdentifiers.html("");
-                this._sqlTables = {};
-                if (Object.keys(identifiers).length > 0) {
-                    for (let key of identifiersOrder) {
-                        if (!this._validateSourceId(key)) {
-                            return {error: SQLErrTStr.InvalidSourceId +
-                                           this._dagNode.getParents().length};
-                        }
-                        this._addTableIdentifier(key, identifiers[key]);
-                        this._sqlTables[identifiers[key]] = key;
-                    }
-                    this._$sqlIdentifiers.siblings(".tableInstruction").addClass("xc-hidden");
-                } else {
-                    this._$sqlIdentifiers.siblings(".tableInstruction").removeClass("xc-hidden");
-                }
-                if (this._identifiers.length === 0) {
-                    this._$elemPanel.find(".tableInstruction").removeClass("xc-hidden");
-                } else {
-                    this._$elemPanel.find(".tableInstruction").addClass("xc-hidden");
-                }
-                let identifiersArr = [];
-                for (let i in identifiers) {
-                    identifiersArr.push({
-                        index: i,
-                        identifier: identifiers[i]
-                    });
-                }
-                identifiersArr.sort((a,b) => {
-                    if (a.index < b.index) {
-                        return -1;
-                    } else {
-                        return 1;
-                    }
-                });
-                this._identifiers = identifiersArr.map((i) => {
-                    return i.identifier
-                });
-            } catch (e) {
-                return {error: e};
-            }
+            return this._switchToStandardMode();
         }
-        return null;
+    }
+
+    protected _switchToStandardMode() {
+        try {
+            const advancedParams = JSON.parse(this._editor.getValue());
+            let errorMsg = this._validateAdvancedParams(advancedParams);
+            if (errorMsg) {
+                return PromiseHelper.reject(errorMsg);
+            }
+            const identifiers = advancedParams.identifiers;
+            let identifiersOrder = advancedParams.identifiersOrder.map((identifier) => {
+                return parseInt(identifier);
+            });
+            if (!this._validateIdentifiers(identifiers, identifiersOrder)) {
+                return PromiseHelper.reject(SQLErrTStr.IdentifierMismatch);
+            }
+            if (advancedParams.dropAsYouGo != null) {
+                this._toggleDropAsYouGo(advancedParams.dropAsYouGo);
+            }
+            const snippetId = advancedParams.snippetId;
+            let queryStr = advancedParams.sqlQueryString;
+            if (!queryStr) {
+                let snippet = SQLSnippet.Instance.getSnippetObj(snippetId);
+                if (snippet) {
+                    queryStr = snippet.snippet;
+                }
+            }
+
+            this._$sqlIdentifiers.html("");
+            if (Object.keys(identifiers).length > 0) {
+                for (let key of identifiersOrder) {
+                    if (!this._validateSourceId(key)) {
+                        return PromiseHelper.reject(SQLErrTStr.InvalidSourceId +
+                            this._dagNode.getParents().length);
+                    }
+                    this._addTableIdentifier(key, identifiers[key]);
+                }
+                this._$sqlIdentifiers.siblings(".tableInstruction").addClass("xc-hidden");
+            } else {
+                this._$sqlIdentifiers.siblings(".tableInstruction").removeClass("xc-hidden");
+            }
+            if (this._identifiers.length === 0) {
+                this._$elemPanel.find(".tableInstruction").removeClass("xc-hidden");
+            } else {
+                this._$elemPanel.find(".tableInstruction").addClass("xc-hidden");
+            }
+            let identifiersArr = [];
+            for (let i in identifiers) {
+                identifiersArr.push({
+                    index: i,
+                    identifier: identifiers[i]
+                });
+            }
+            identifiersArr.sort((a,b) => {
+                if (a.index < b.index) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            });
+            this._identifiers = identifiersArr.map((i) => {
+                return i.identifier
+            });
+            return this._selectQuery(snippetId, queryStr, true);
+        } catch (e) {
+            return PromiseHelper.reject(e);
+        }
+    }
+
+    protected _handleModeSwitch($panel: JQuery, event) {
+        const $switch: JQuery = $(event.target).closest(".switch");
+        const toAdvanceMode: boolean = $switch.hasClass("on") ? false : true;
+        this._switchModes(toAdvanceMode)
+        .then(() => {
+            this._updateMode(toAdvanceMode);
+        })
+        .fail((error) => {
+            const $e = toAdvanceMode ? $panel.find(".opSection") : $panel.find(".advancedEditor");
+            StatusBox.show(error, $e);
+        });
     }
 
     private _validateIdentifiers(identifiers: {}, identifiersOrder: number[]): boolean {
@@ -996,64 +1088,93 @@ class SQLOpPanel extends BaseOpPanel {
         return deferred.promise();
     }
 
-    private submit() {
+    private _submit() {
+        let modePromise;
         if (this._isAdvancedMode()) {
-            const failure = this._switchMode(false);
-            if (failure) {
-                StatusBox.show(failure.error, this._$elemPanel.find(".advancedEditor"));
+            modePromise = this._switchModes(false);
+        } else {
+            modePromise = PromiseHelper.resolve();
+        }
+
+        modePromise
+        .then(() => {
+            let identifiers;
+            try {
+                let retStruct = this.extractIdentifiers(true);
+                identifiers = retStruct.identifiers;
+            } catch (e) {
+                StatusBox.show(e, this._$elemPanel.find(".btn-submit"));
                 return;
             }
-        }
-        let identifiers;
-        let identifiersNameMap;
-        try {
-            let retStruct = this.extractIdentifiers(true);
-            identifiers = retStruct.identifiers;
-            identifiersNameMap = retStruct.identifiersNameMap;
-        } catch (e) {
-            StatusBox.show(e, this._$elemPanel.find(".btn-submit"));
-            return;
-        }
-        const query = this._queryStr.replace(/;+$/, "");
-        const snippetId = this.$panel.find(".snippetsList input").data("id");
-        let promise;
-        if (!this._isQueryUpdated) {
-            promise = this._confirmOutdatedQuery();
-        } else {
-            promise = PromiseHelper.resolve();
-        }
-        promise
-        .then(() => {
-            return this.configureSQL(snippetId, query, identifiers, identifiersNameMap);
-        })
-        .then(() => {
-            this.close(true);
-            if (!this._ignoreQueryConfirm && this._isQueryUpdated &&
-                !this._ignoreUpdateConfirm) {
-                Alert.show({
-                    isAlert: true,
-                    title: AlertTStr.Title,
-                    msg: "Any future modifications to the original SQL statment will not affect this operator.",
-                    // msg: "The SQL statement in this operator will not be affected by any future modifications to the original SQL statement.",
-                    onCancel: (checked) => {
-                        this._ignoreQueryConfirm = checked;
-                    },
-                    isCheckBox: true,
-                    isInfo: true
-                })
+            try {
+                this._validateIdentifierNames(identifiers);
+            } catch (e) {
+                StatusBox.show(e, this._$elemPanel.find(".btn-submit"));
+                return;
             }
-        })
-        .fail((err) => {
-            Alert.show({
-                title: SQLErrTStr.Err,
-                msg:  "Error details: " + xcHelper.parseError(err),
-                isAlert: true
+            const query = this._queryStr.replace(/;+$/, "");
+            const snippetId = this.$panel.find(".snippetsList input").data("id");
+            let promise;
+            if (!this._isQueryUpdated) {
+                promise = this._confirmOutdatedQuery();
+            } else {
+                promise = PromiseHelper.resolve();
+            }
+            promise
+            .then(() => {
+                return this.configureSQL(snippetId, query, identifiers);
+            })
+            .then(() => {
+                this.close(true);
+                if (!this._ignoreQueryConfirm && this._isQueryUpdated &&
+                    !this._ignoreUpdateConfirm) {
+                    Alert.show({
+                        isAlert: true,
+                        title: AlertTStr.Title,
+                        msg: "Any future modifications to the original SQL statment will not affect this operator.",
+                        // msg: "The SQL statement in this operator will not be affected by any future modifications to the original SQL statement.",
+                        onCancel: (checked) => {
+                            this._ignoreQueryConfirm = checked;
+                        },
+                        isCheckBox: true,
+                        isInfo: true
+                    })
+                }
+            })
+            .fail((err) => {
+                if (err !== "Cancel" && err !== "cancel") {
+                    Alert.show({
+                        title: SQLErrTStr.Err,
+                        msg:  "Error details: " + xcHelper.parseError(err),
+                        isAlert: true
+                    });
+                    this._dagNode.beErrorState();
+                }
             });
-            if (err !== "Cancel") {
-                this._dagNode.beErrorState();
+        })
+        .fail((error) => {
+            StatusBox.show(error, this._$elemPanel.find(".advancedEditor"));
+        });
+    }
+
+    private _validateIdentifierNames(identifiers) {
+        let identiferSet = new Set();
+        for (let [key, identifier] of identifiers) {
+            if (!this._parsedIdentifiers.includes(identifier)) {
+                throw(`Table ${identifier} not found in SQL statement`);
+            }
+            if (identiferSet.has(identifier)) {
+                throw(`Duplicate table found: ${identifier}`)
+            }
+            identiferSet.add(identifier);
+        }
+        this._parsedIdentifiers.forEach(identifier => {
+            if (!identiferSet.has(identifier)) {
+                throw(`Specify a corresponding module table for '${identifier}'`);
             }
         });
     }
+
 
     private _validateAdvancedParams(advancedParams): any {
         const schema = {
