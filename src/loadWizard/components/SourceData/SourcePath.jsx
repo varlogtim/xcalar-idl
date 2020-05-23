@@ -56,7 +56,7 @@ export default function SourcePath({
 }) {
     // the getAvailableS3Bucket is async call, it may not be ready the first it's rendernder,
     // so need to put it in the onOpen callback
-    const [s3Bucket, setS3Bucket] = React.useState(DSTargetManager.getAvailableS3Bucket());
+    const [s3Buckets, setS3Buckets] = React.useState([]);
 
     const isBucketInvalid = isBucketNameInvalid(bucket);
     return (
@@ -74,9 +74,14 @@ export default function SourcePath({
                                 onBucketChange(newBucket.trim());
                             }}
                             onOpen={() => {
-                                setS3Bucket(DSTargetManager.getAvailableS3Bucket());
+                                setS3Buckets([...DSTargetManager.getAvailableS3Buckets()]);
                             }}
-                            list={s3Bucket ? [{text: s3Bucket, value: s3Bucket}] : []}
+                            list={s3Buckets.length
+                                ? s3Buckets.map((bucket) => {
+                                    return {text: bucket, value: bucket}
+                                })
+                                : []
+                            }
                             hint={Texts.noBuckets}
                         />
                     </div>

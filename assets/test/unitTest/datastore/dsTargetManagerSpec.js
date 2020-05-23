@@ -76,6 +76,10 @@ describe("Datastore-DSTargetManger Test", function() {
         it("DSTargetManager.getPublicS3Connector should work", function() {
             expect(DSTargetManager.getPublicS3Connector()).to.equal("Public S3");
         });
+
+        it("DSTargetManager.getAvailableS3Buckets should work", function() {
+            expect(DSTargetManager.getAvailableS3Buckets()).to.be.an("array");
+        });
     });
 
     describe("Create S3 Target Test", function() {

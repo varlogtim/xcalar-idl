@@ -292,14 +292,14 @@ namespace DSForm {
     }
 
     function setPrivateS3Bucket(): void {
-        const s3Bucket = DSTargetManager.getAvailableS3Bucket();
-        if (!s3Bucket) {
+        const s3Buckets: string[] = DSTargetManager.getAvailableS3Buckets();
+        if (s3Buckets.length === 0) {
             return;
         }
         const targetName = DSTargetManager.getPrivateS3Connector();
         historyPathsSet[targetName] = historyPathsSet[targetName] || [];
-        historyPathsSet[targetName] = historyPathsSet[targetName].filter((path) => path !== s3Bucket);
-        historyPathsSet[targetName].unshift(s3Bucket);
+        historyPathsSet[targetName] = historyPathsSet[targetName].filter((path) => !s3Buckets.includes(path));
+        s3Buckets.forEach((bucket) => historyPathsSet[targetName].unshift(bucket));
     }
 
     /* Unit Test Only */

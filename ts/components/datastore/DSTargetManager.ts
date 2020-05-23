@@ -31,7 +31,7 @@ namespace DSTargetManager {
         xcalar_table_gen,
         xcalar_table_store
     ];
-    let availableS3Bucket: string = ""; 
+    let availableS3Buckets: string[] = []; 
 
     export const S3Connector: string = "s3fullaccount";
     export const DBConnector: string = "dsn";
@@ -177,7 +177,7 @@ namespace DSTargetManager {
     export function initialize(): XDPromise<void> {
         return DSTargetManager.refreshTargets(true)
                 .then(() => {
-                    return PromiseHelper.convertToJQuery(fetchAvailableS3Bucket());
+                    return PromiseHelper.convertToJQuery(fetchAvailableS3Buckets());
                 });
     }
 
@@ -287,10 +287,10 @@ namespace DSTargetManager {
     }
 
     /**
-     * DSTargetManager.getAvailableS3Bucket
+     * DSTargetManager.getAvailableS3Buckets
      */
-    export function getAvailableS3Bucket(): string {
-        return availableS3Bucket;
+    export function getAvailableS3Buckets(): string[] {
+        return availableS3Buckets;
     }
 
     /**
@@ -466,16 +466,19 @@ namespace DSTargetManager {
         return XcalarTargetCreate(connectorType, connectorName, params);
     }
 
-    async function fetchAvailableS3Bucket(): Promise<void> {
+    async function fetchAvailableS3Buckets(): Promise<void> {
         if (!XVM.isDataMart()) {
             return;
         }
         try {
             const json = await $.getJSON("s3buckets.json");
             const arg = json["s3buckets"];
-            const key = Object.keys(arg)[0];
-            const innerJSON = arg[key];
-            availableS3Bucket = innerJSON.bucket + "/" + innerJSON.prefix;
+            const keys = Object.keys(arg);
+            for (let key of keys) {
+                const innerJSON = arg[key];
+                const bucket = innerJSON.bucket + "/" + innerJSON.prefix;
+                availableS3Buckets.push(bucket);
+            }
         } catch (e) {
             console.error("get available s3 bucket failed", e);
         }
