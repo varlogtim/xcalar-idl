@@ -90,6 +90,33 @@ describe("GeneralOpPanelModel Test", function() {
             expect(func("'3t'")).to.be.false;
             expect(func("'3.342t'")).to.be.false;
             expect(func('"1184166469145378821"')).to.be.true;
+            expect(func('"00123"')).to.be.true;
+        });
+
+        it ('hasFuncFormat(arg) should return correctly', function() {
+            var func = GeneralOpPanelModel.hasFuncFormat;
+            expect(func(5543)).to.equal(false);
+            expect(func('()')).to.equal(false);
+            expect(func('add(x,1)')).to.equal(true);
+            expect(func('a(()x,(1))')).to.equal(true);
+            expect(func('a("((("x,1)')).to.equal(true);
+            expect(func('a(""x,1)')).to.equal(true);
+            expect(func('a(x,1)')).to.equal(true);
+            expect(func('a("\\"",1)')).to.equal(true);
+
+            expect(func('add(x,1')).to.equal(false);
+            expect(func('add(x,1\"')).to.equal(false);
+            expect(func('a("\"",1)')).to.equal(false);
+            expect(func('add(x,1")')).to.equal(false);
+            expect(func('(xwf,1)')).to.equal(false);
+            expect(func('add(xwf,1)x')).to.equal(false);
+            expect(func('(xwf,1)x')).to.equal(false);
+            expect(func('a(x,1))')).to.equal(false);
+            expect(func('a((x,1)')).to.equal(false);
+            expect(func('a(()x,1))')).to.equal(false);
+            expect(func('a(()x,1))')).to.equal(false);
+            expect(func('a(()"("x,1))')).to.equal(false);
+            expect(func('a(()x,1))')).to.equal(false);
         });
 
         it("formatArgToUi should return correctly", () => {

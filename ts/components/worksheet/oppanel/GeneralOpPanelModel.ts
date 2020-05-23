@@ -763,12 +763,13 @@ abstract class GeneralOpPanelModel {
             arg = arg.slice(1);
             if (arg.length > 1 && arg[arg.length - 1] === quote) {
                 arg = arg.slice(0, arg.length - 1);
-                // same check as xcSuggest.suggestType
+                // same check as xcSuggest.suggestType, but also
+                // allow string like "000123" be detect as number
                 const letterRex: RegExp = /[a-z]/i;
                 const parsedVal: number = Number(arg);
                 if (!isNaN(parsedVal) &&
-                    !letterRex.test(arg) &&
-                    !(arg.length > 1 && arg[0] === "0" && arg[1] !== ".")
+                    !letterRex.test(arg)
+                    // !(arg.length > 1 && arg[0] === "0" && arg[1] !== ".")
                 ) {
                     return true;
                 } else {

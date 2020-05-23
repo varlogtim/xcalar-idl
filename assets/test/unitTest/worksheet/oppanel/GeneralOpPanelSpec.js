@@ -118,62 +118,6 @@ describe("GeneralOpPanel Test", function() {
             expect(model.groups[0].args[0].value).to.equal("");
         });
 
-
-        it('isNumberInQuotes() should return correctly', function() {
-            var func = GeneralOpPanelModel.isNumberInQuotes;
-            expect(func('"3"')).to.be.true;
-            expect(func("'3'")).to.be.true;
-            expect(func("'3.342'")).to.be.true;
-
-            expect(func("'3")).to.be.false;
-            expect(func("3'")).to.be.false;
-            expect(func('"3')).to.be.false;
-            expect(func(3)).to.be.false;
-            expect(func("3")).to.be.false;
-            expect(func("''3")).to.be.false;
-            expect(func("'3''")).to.be.false;
-            expect(func("'3t'")).to.be.false;
-            expect(func("'3.342t'")).to.be.false;
-            expect(func('"1184166469145378821"')).to.be.true;
-        });
-
-        it("function isBoolInQuotes", function() {
-            var fn = GeneralOpPanelModel.isBoolInQuotes.bind(GeneralOpPanelModel);
-            expect(fn("'true'")).to.be.true;
-            expect(fn("'true")).to.be.false;
-            expect(fn("\"true\"")).to.be.true;
-            expect(fn("\"False\"")).to.be.true;
-            expect(fn("\"False")).to.be.false;
-            expect(fn("'Falsez'")).to.be.false;
-        });
-
-
-        it ('hasFuncFormat(arg) should return correctly', function() {
-            var func = GeneralOpPanelModel.hasFuncFormat;
-            expect(func(5543)).to.equal(false);
-            expect(func('()')).to.equal(false);
-            expect(func('add(x,1)')).to.equal(true);
-            expect(func('a(()x,(1))')).to.equal(true);
-            expect(func('a("((("x,1)')).to.equal(true);
-            expect(func('a(""x,1)')).to.equal(true);
-            expect(func('a(x,1)')).to.equal(true);
-            expect(func('a("\\"",1)')).to.equal(true);
-
-            expect(func('add(x,1')).to.equal(false);
-            expect(func('add(x,1\"')).to.equal(false);
-            expect(func('a("\"",1)')).to.equal(false);
-            expect(func('add(x,1")')).to.equal(false);
-            expect(func('(xwf,1)')).to.equal(false);
-            expect(func('add(xwf,1)x')).to.equal(false);
-            expect(func('(xwf,1)x')).to.equal(false);
-            expect(func('a(x,1))')).to.equal(false);
-            expect(func('a((x,1)')).to.equal(false);
-            expect(func('a(()x,1))')).to.equal(false);
-            expect(func('a(()x,1))')).to.equal(false);
-            expect(func('a(()"("x,1))')).to.equal(false);
-            expect(func('a(()x,1))')).to.equal(false);
-        });
-
         it("check special words", function() {
             var fn = mapOpPanel._getMatchingSpecialWords.bind(mapOpPanel);
             expect(fn("n")).to.deep.equal(["$None","$null"]);
