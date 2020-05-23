@@ -43,42 +43,94 @@ class DagNodeDFOut extends DagNodeOutOptimizable {
     public setParam(input: DagNodeDFOutInputStruct = <DagNodeDFOutInputStruct>{}, noAutoExecute?: boolean): void {
         this.input.setInput({
             name: input.name,
-            linkAfterExecution: input.linkAfterExecution
+            linkAfterExecution: input.linkAfterExecution,
+            columns: input.columns
         });
         super.setParam(null, noAutoExecute);
     }
 
-    public lineageChange(columns: ProgCol[] ): DagLineageChange {
-        return {
-            columns: columns,
-            changes: []
-        };
+    public lineageChange(
+        columns: ProgCol[],
+        replaceParameters?: boolean
+    ): DagLineageChange {
+        if (this.optimized) {
+            const allCols = [];
+            const changes = [];
+            const selectedCols = this.input.getInput(replaceParameters).columns;
+            let hiddenColumns = this.lineage.getHiddenColumns();
+            columns.forEach((col) => {
+                const colName = col.getBackColName();
+                const selectedCol = selectedCols.find((selCol) => {
+                    return selCol.sourceName === colName;
+                });
+                if (selectedCol != null) {
+                    if (selectedCol.destName !== colName) {
+                        const progCol = ColManager.newPullCol(selectedCol.destName, selectedCol.destName, col.getType());
+                        allCols.push(progCol);
+                        changes.push({
+                            from: col,
+                            to: progCol,
+                            hidden: hiddenColumns.has(colName)
+                        });
+                    } else {
+                        if (!hiddenColumns.has(colName)) {
+                            allCols.push(col);
+                        }
+                    }
+                } else {
+                    changes.push({
+                        from: col,
+                        to: null,
+                        hidden: hiddenColumns.has(col.getBackColName())
+                    });
+                }
+            });
+            hiddenColumns.forEach((col) => {
+                const colName = col.getBackColName();
+                const selectedCol = selectedCols.find((selCol) => {
+                    return selCol.sourceName === colName;
+                });
+                if (selectedCol != null) {
+                    if (selectedCol.destName !== colName) {
+                        const progCol = ColManager.newPullCol(selectedCol.destName, selectedCol.destName, col.getType());
+                        allCols.push(progCol);
+                        changes.push({
+                            from: col,
+                            to: progCol
+                        });
+                    } else {
+                        allCols.push(col);
+                    }
+                } else {
+                    changes.push({
+                        from: col,
+                        to: null,
+                        hidden: true
+                    });
+                }
+            });
+            hiddenColumns.clear();
+            return {
+                columns: allCols,
+                changes: changes
+            }
+        } else {
+            let hiddenColumns = this.lineage.getHiddenColumns();
+            let allCols = [];
+            columns.forEach((col) => {
+                if (!hiddenColumns.has(col.getBackColName())) {
+                    allCols.push(col);
+                }
+            })
+            return {
+                columns: allCols,
+                changes: []
+            };
+        }
     }
 
     public shouldLinkAfterExecution(): boolean {
         return this.input.getInput().linkAfterExecution;
-    }
-
-    /**
-     * @override
-     */
-    public getOutColumns(replaceParameters?: boolean): {columnName: string, headerAlias: string}[] {
-        let parentNode: DagNode = this.getParents()[0];
-        let columns: ProgCol[] = parentNode
-        ? parentNode.getLineage().getColumns(replaceParameters, true)
-        : [];
-
-        const validTypes = xcHelper.getBasicColTypes(true);
-        columns = columns.filter((col) => {
-            return col && validTypes.includes(col.getType());
-        });
-        return columns.map((col) => {
-            const backColName = col.getBackColName();
-            return {
-                columnName: backColName,
-                headerAlias: backColName
-            };
-        });
     }
 
     /**

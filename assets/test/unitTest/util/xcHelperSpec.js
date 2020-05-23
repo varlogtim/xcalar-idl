@@ -2264,12 +2264,6 @@ describe("xcHelper Test", function() {
         });
     });
 
-    it("xcHelper.getBasicColTypes should work", function() {
-        expect(xcHelper.getBasicColTypes(false).length).to.equal(6);
-        expect(xcHelper.getBasicColTypes(true).length).to.equal(7);
-        expect(xcHelper.getBasicColTypes(true)).to.includes(ColumnType.mixed);
-    });
-
     after(function() {
         StatusBox.forceHide();
     });

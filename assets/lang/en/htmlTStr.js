@@ -1047,6 +1047,8 @@ module.exports = {
         "Instr": "A Function Input Operator reference to a Function Output Operator using a reference name you provide in the configuration.",
         "ReferenceName": "Reference name",
         "ReferenceNameHint": "A unique reference name that is used by a Function Input operator to execute this operator’s function. This enables functions to access data between modules.",
+        "Columns": "Columns (optimized executions only)",
+        "ColumnsHint": "Choose a selection, or all the columns of the table by either individually selecting the column name check boxes or selecting Select All. NOTE: Optimized applications do not contain intermediate table results.",
         "NoCols": "No columns are available for selection",
         "RunOptionHeader": "Option",
         "RunOption": "Run this function from a Function Input operator",

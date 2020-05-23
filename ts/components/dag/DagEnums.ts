@@ -64,6 +64,7 @@ enum DagNodeErrorType {
     AggNotExecute = "Must execute the aggregate manually before using it",
     CycleInLink = "Cycle In Link",
     LinkOutNotExecute = "The linked operator only allow linking after execution",
+    InvalidLinkOutColumns = "Function outut operator must export at least 1 column in order to create optimized application",
     InvalidOptimizedOutNode = "Valid terminal operators must be either Export or Function Output",
     InvalidOptimizedOutNodeCombo = "Optimized application cannot have both Export and Function Output operators",
     InvalidOptimizedLinkOutCount = "Optimized application cannot have multiple Function Output operators",

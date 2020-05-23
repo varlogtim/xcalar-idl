@@ -243,6 +243,21 @@ describe("DagGraphExecutor Test", () => {
             expect(res.type).to.equal(DagNodeErrorType.Disjoint);
         });
 
+        it("checkValidOptimizedDataflow - fail due to link out no column", () => {
+            let graph = new DagGraph();
+            let datasetNode = new DagNodeDataset({});
+            let linkOutNode = new DagNodeDFOut({});
+            graph.addNode(datasetNode);
+            graph.addNode(linkOutNode);
+            linkOutNode.connectToParent(datasetNode);
+
+            let executor = new DagGraphExecutor([datasetNode, linkOutNode], graph, {optimized: true});
+            let res = executor._checkValidOptimizedDataflow();
+            expect(res.hasError).to.be.true;
+            expect(res.type).to.equal(DagNodeErrorType.InvalidLinkOutColumns);
+            expect(res.node).to.equal(linkOutNode);
+        });
+
         it("checkValidOptimizedDataflow - fail due to export/link out combo", () => {
             let graph = new DagGraph();
             let datasetNode = new DagNodeDataset({});

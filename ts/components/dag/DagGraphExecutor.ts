@@ -251,6 +251,14 @@ class DagGraphExecutor {
             if (node.getType() === DagNodeType.DFOut) {
                 numLinkOutNodes++;
                 linkOutNode = <DagNodeDFOut>node;
+
+                let columns = node.getParam().columns;
+                if (!columns || columns.length === 0) {
+                    errorResult.hasError = true;
+                    errorResult.type = DagNodeErrorType.InvalidLinkOutColumns;
+                    errorResult.node = node;
+                    break;
+                }
             }
             if (numLinkOutNodes > 0 && numExportNodes > 0) {
                 errorResult.hasError = true;
@@ -1381,13 +1389,13 @@ class DagGraphExecutor {
         }
         operations = this._dedupLoads(operations);
         const realDestTables: string[] = [];
-        let outNodes: DagNodeOutOptimizable[];
+        let outNodes;
         // create tablename and columns property in retina for each outnode
         if (this._isOptimizedActiveSession) {
             realDestTables.push(destTables[destTables.length - 1]);
-            outNodes = <DagNodeOutOptimizable[]>[this._nodes[this._nodes.length - 1]];
+            outNodes = [this._nodes[this._nodes.length - 1]];
         } else {
-            outNodes = <DagNodeOutOptimizable[]>this._nodes.filter((node, i) => {
+            outNodes = this._nodes.filter((node, i) => {
                 if (node.getType() === DagNodeType.Export) {
                     realDestTables.push(destTables[i]);
                     return true;
@@ -1400,12 +1408,25 @@ class DagGraphExecutor {
             columns: {
                 columnName: string,
                 headerAlias: string
-            }[]
-        }[] = outNodes.map((outNode, i) => {
-            const destTable: string = realDestTables[i];
+            }
+        } = outNodes.map((outNode, i) => {
+            const destTable = realDestTables[i];
             return {
                 name: destTable,
-                columns: outNode.getOutColumns(!this._isNoReplaceParam)
+                columns: outNode.getParam().columns.map((col) => {
+                    if (col.sourceColumn) { // export node
+                        return {
+                            columnName: col.sourceColumn,
+                            headerAlias: col.destColumn
+                        }
+                    } else {  // df out node
+                        return {
+                            // columnName: col.sourceName,
+                            columnName: col.destName, // a temp fix for SDK 733 introduce a synthesize step before it
+                            headerAlias: col.destName
+                        }
+                    }
+                })
             };
         });
 

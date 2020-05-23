@@ -99,7 +99,12 @@ class BaseOpPanel {
     }
 
     public static getBasicColTypes(includeMixed: boolean = false): ColumnType[] {
-        return xcHelper.getBasicColTypes(includeMixed);
+        const types = [ColumnType.string, ColumnType.integer, ColumnType.float,
+        ColumnType.boolean, ColumnType.timestamp, ColumnType.money];
+        if (includeMixed) {
+            types.push(ColumnType.mixed);
+        }
+        return types;
     }
 
     /**

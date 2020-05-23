@@ -46,18 +46,20 @@ describe("DFLinkOutOpPanel Test", function() {
     });
 
     describe("Basic DFOutPanel UI Tests", function() {
-        it ("should be hidden at start", function () {
+
+        it ("Should be hidden at start", function () {
             dfLinkOutPanel.close();
             expect($('#dfLinkOutPanel').hasClass("xc-hidden")).to.be.true;
         });
 
-        it ("should be visible when show is called", function () {
+        it ("Should be visible when show is called", function () {
+
             dfLinkOutPanel.show(node, openOptions);
             expect($('#dfLinkOutPanel').hasClass("xc-hidden")).to.be.false;
         });
 
         it("should select checkbox", function() {
-            let $checkbox = $dfLinkOutPanel.find(".option .checkbox").eq(0);
+            let $checkbox = $dfLinkOutPanel.find(".columnsWrap .checkbox").eq(0);
             let checked = $checkbox.hasClass("checked");
             $checkbox.click();
             expect($checkbox.hasClass("checked")).to.equal(!checked);
@@ -65,16 +67,120 @@ describe("DFLinkOutOpPanel Test", function() {
             expect($checkbox.hasClass("checked")).to.equal(checked);
         });
 
-        it ("should be hidden when close is called after showing", function () {
+        it ("Should be hidden when close is called after showing", function () {
             dfLinkOutPanel.show(node, openOptions);
             dfLinkOutPanel.close();
             expect($('#dfLinkOutPanel').hasClass("xc-hidden")).to.be.true;
         });
 
-        it ("should be hidden when close is clicked", function () {
+        it ("Should be hidden when close is clicked", function () {
             dfLinkOutPanel.show(node, openOptions);
             $('#dfLinkOutPanel .close').click();
             expect($('#dfLinkOutPanel').hasClass("xc-hidden")).to.be.true;
+        });
+    });
+
+    describe("column rename test", function() {
+        it("dest columns should rename correctly", function() {
+            dfLinkOutPanel.show(node, openOptions);
+            $dfLinkOutPanel.find(".linkOutName input").val("test");
+            $dfLinkOutPanel.find(".selectAllWrap").click();
+            this.dagGraph = DagViewManager.Instance.getActiveDag();
+            const res = dfLinkOutPanel._validate();
+            expect(res).to.deep.equal({
+                "name": "test",
+                "linkAfterExecution": false,
+                "columns": [
+                    {
+                        "sourceName": "prefix::name",
+                        "destName": "prefix_name"
+                    },
+                    {
+                        "sourceName": "prefix_name",
+                        "destName": "prefix_name_1"
+                    },
+                    {
+                        "sourceName": "name",
+                        "destName": "name"
+                    }
+                ]
+            });
+        });
+
+    });
+
+    describe("advanced mode validation", () => {
+        it("should detect duplicate source cols", () => {
+            cache1 = dfLinkOutPanel._convertAdvConfigToModel;
+            dfLinkOutPanel._convertAdvConfigToModel = () => {
+                return {
+                    columns: [{
+                        sourceName: "a",
+                        destName: "b"
+                    },{
+                        sourceName: "a",
+                        destName: "b"
+                    }]
+                };
+            };
+
+            let res = dfLinkOutPanel._validateAdvancedMode();
+            expect(res.error).to.equal('Source column name "a" is duplicated');
+            dfLinkOutPanel._convertAdvConfigToModel = cache1;
+        });
+        it("should detect duplicate dest cols", () => {
+            cache1 = dfLinkOutPanel._convertAdvConfigToModel;
+            dfLinkOutPanel._convertAdvConfigToModel = () => {
+                return {
+                    columns: [{
+                        sourceName: "a",
+                        destName: "b"
+                    },{
+                        sourceName: "c",
+                        destName: "b"
+                    }]
+                };
+            };
+
+            let res = dfLinkOutPanel._validateAdvancedMode();
+            expect(res.error).to.equal('Dest column name "b" is duplicated');
+            dfLinkOutPanel._convertAdvConfigToModel = cache1;
+        });
+        it("should detect invalid dest col name", () => {
+            cache1 = dfLinkOutPanel._convertAdvConfigToModel;
+            dfLinkOutPanel._convertAdvConfigToModel = () => {
+                return {
+                    columns: [{
+                        sourceName: "a",
+                        destName: "b"
+                    },{
+                        sourceName: "c",
+                        destName: "3"
+                    }]
+                };
+            };
+
+            let res = dfLinkOutPanel._validateAdvancedMode();
+            expect(res.error).to.equal('Invalid name: a name can only begin with a letter or underscore(_).');
+            dfLinkOutPanel._convertAdvConfigToModel = cache1;
+        });
+        it("should pass with valid col names", () => {
+            cache1 = dfLinkOutPanel._convertAdvConfigToModel;
+            dfLinkOutPanel._convertAdvConfigToModel = () => {
+                return {
+                    columns: [{
+                        sourceName: "a",
+                        destName: "b"
+                    },{
+                        sourceName: "c",
+                        destName: "d"
+                    }]
+                };
+            };
+
+            let res = dfLinkOutPanel._validateAdvancedMode();
+            expect(res.error).to.be.undefined;
+            dfLinkOutPanel._convertAdvConfigToModel = cache1;
         });
     });
 
@@ -93,12 +199,16 @@ describe("DFLinkOutOpPanel Test", function() {
             dfLinkOutPanel._updateMode(true);
             dfLinkOutPanel._editor.setValue(JSON.stringify({
                 name: "out",
-                linkAfterExecution: true
+                linkAfterExecution: true,
+                columns: [{sourceName: "a", destName: "b"}]
             }));
+            expect($('#dfLinkOutPanel').hasClass("xc-hidden")).to.be.false;
             dfLinkOutPanel._submitForm();
+            expect($('#dfLinkOutPanel').hasClass("xc-hidden")).to.be.true;
             expect(node.getParam()).to.deep.equal({
                 name: "out",
-                linkAfterExecution: true
+                linkAfterExecution: true,
+                columns: [{sourceName: "a", destName: "b"}]
             });
         });
     });
