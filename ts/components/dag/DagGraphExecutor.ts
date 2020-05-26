@@ -1091,31 +1091,11 @@ class DagGraphExecutor {
             if (graph === this._graph) {
                 linkOutNodes.push(dfOutNode);
             } else {
-                const dfInNodes: DagNodeDFIn[] = this._getLinkedInSourceFromLinkOutNode(dfOutNode);
+                const dfInNodes: DagNodeDFIn[] = DagGraph.getFuncInNodesFromDestNodes([dfOutNode], !this._isOptimized);
                 stack = stack.concat(dfInNodes);
             }
         }
         return linkOutNodes;
-    }
-
-    private _getLinkedInSourceFromLinkOutNode(node: DagNodeDFOut): DagNodeDFIn[] {
-        const linkInNodes: DagNodeDFIn[] = [];
-        const stack: DagNode[] = [node];
-        while (stack.length > 0) {
-            const currentNode: DagNode = stack.pop();
-            if (currentNode.getType() === DagNodeType.DFIn) {
-                let linkInNode: DagNodeDFIn = <DagNodeDFIn>currentNode;
-                // exclude link with source node
-                if (!linkInNode.hasSource()) {
-                    linkInNodes.push(linkInNode);
-                }
-            } else {
-                currentNode.getParents().forEach((parentNode) => {
-                    stack.push(parentNode);
-                });
-            }
-        }
-        return linkInNodes;
     }
 
     private _getUDFContext(): {

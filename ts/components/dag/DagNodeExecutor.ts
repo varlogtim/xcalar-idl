@@ -893,14 +893,19 @@ class DagNodeExecutor {
             const node: DagNodeDFIn = <DagNodeDFIn>this.node;
             if (node.hasSource()) {
                 return this._linkWithSource(node);
-            }
-            const res = node.getLinkedNodeAndGraph();
-            const graph: DagGraph = res.graph;
-            const linkOutNode: DagNodeDFOut = res.node;
-            if (linkOutNode.shouldLinkAfterExecution()) {
-                return this._linkWithExecution(graph, linkOutNode, node);
+            } else if (!this.isOptimized && !xcHelper.isNodeJs()) {
+                // when it's not optimized and is not SDK,
+                // execute the linked dataflow if not executed
+                return this._linkWithExecuteParentGraph(node);
             } else {
-                return this._linkWithBatch(graph, linkOutNode);
+                const res = node.getLinkedNodeAndGraph();
+                const graph: DagGraph = res.graph;
+                const linkOutNode: DagNodeDFOut = res.node;
+                if (linkOutNode.shouldLinkAfterExecution()) {
+                    return this._linkWithExecution(graph, linkOutNode, node);
+                } else {
+                    return this._linkWithBatch(graph, linkOutNode);
+                }
             }
         } catch (e) {
             console.error("execute error", e);
@@ -947,6 +952,35 @@ class DagNodeExecutor {
         }
     }
 
+    private _linkWithExecuteParentGraph(node: DagNodeDFIn): XDPromise<string> {
+        const res = node.getLinkedNodeAndGraph();
+        const graph: DagGraph = res.graph;
+        const linkOutNode: DagNodeDFOut = res.node;
+        let promise;
+        if (linkOutNode.hasResult()) {
+            // no need to execute graph if function output node has table
+            promise = PromiseHelper.resolve();
+        } else {
+            promise = graph.execute([linkOutNode.getId()], undefined, undefined, undefined, true);
+        }
+
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        promise
+        .then(() => {
+            const destTable: string = linkOutNode.getTable();
+            if (destTable) {
+                node.setTable(destTable, true);
+                DagTblManager.Instance.addTable(destTable);
+                node.updateStepThroughProgress();
+            }
+            node.beCompleteState();
+            deferred.resolve(destTable);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     private _linkWithExecution(
         graph: DagGraph,
         node: DagNodeDFOut,
@@ -972,28 +1006,7 @@ class DagNodeExecutor {
             .then(deferred.resolve)
             .fail(deferred.reject);
         } else {
-            // no need to execute graph if dfOut node has table
-            let promise;
-            if (node.getState() !== DagNodeState.Complete ||
-                !DagTblManager.Instance.hasTable(node.getTable())) {
-                // XXX check why node may not be complete or have table
-                promise = graph.execute([node.getId()])
-            } else {
-                promise = PromiseHelper.resolve();
-
-            }
-            promise
-            .then(() => {
-                const destTable: string = node.getTable();
-                if (destTable) {
-                    dfInNode.setTable(destTable, true);
-                    DagTblManager.Instance.addTable(destTable);
-                    dfInNode.updateStepThroughProgress();
-                }
-                dfInNode.beCompleteState();
-                deferred.resolve(destTable);
-            })
-            .fail(deferred.reject);
+            return this._linkWithExecuteParentGraph(dfInNode);
         }
 
         return deferred.promise();

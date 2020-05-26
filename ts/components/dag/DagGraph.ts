@@ -815,7 +815,8 @@ class DagGraph extends Durable {
         nodeIds?: DagNodeId[],
         optimized?: boolean,
         parentTxId?: number,
-        generateOptimizedDataflow?: boolean
+        generateOptimizedDataflow?: boolean,
+        replaceCurrentExecutor?: boolean // only be true when called from _linkWithExecuteParentGraph
     ): XDPromise<void> {
         this.resetOperationTime();
         // If optimized and nodeIds not specified, then look for 1 optimized node.
@@ -835,7 +836,7 @@ class DagGraph extends Durable {
             }
         }
         if (nodeIds == null) {
-            return this._executeGraph(null, optimized, null, parentTxId, generateOptimizedDataflow);
+            return this._executeGraph(null, optimized, null, parentTxId, generateOptimizedDataflow, replaceCurrentExecutor);
         } else {
             // get subGraph from nodes and execute
             // we want to stop at the next node with a table unless we're
@@ -846,7 +847,7 @@ class DagGraph extends Durable {
             }
             const nodesMap: Map<DagNodeId, DagNode> = backTrack.map;
             const startingNodes: DagNodeId[] = backTrack.startingNodes;
-            return this._executeGraph(nodesMap, optimized, startingNodes, parentTxId, generateOptimizedDataflow);
+            return this._executeGraph(nodesMap, optimized, startingNodes, parentTxId, generateOptimizedDataflow, replaceCurrentExecutor);
         }
     }
 
@@ -1027,7 +1028,7 @@ class DagGraph extends Durable {
                 parentTxId: parentTxId,
                 isLinkInBatch: isLinkInBatch
             })
-        );
+        );        
 
         const checkResult = executor.checkCanExecuteAll();
         if (checkResult.hasError) {
@@ -1392,9 +1393,9 @@ class DagGraph extends Durable {
      * @param node
      * @returns {{sources: DagNode[], error: string}}
      */
-    public findNodeNeededSources(
+    private _findNodeNeededSources(
         node: DagNode,
-        aggMap?: Map<string, DagNode>
+        aggMap: Map<string, DagNode>
     ): {sources: DagNode[], error: string} {
         let error: string;
         let sources: DagNode[] = [];
@@ -1499,7 +1500,7 @@ class DagGraph extends Durable {
             if (node != null && !nodesMap.has(node.getId())) {
                 nodesMap.set(node.getId(), node);
                 let parents: DagNode[] = node.getParents();
-                const foundSources: {sources: DagNode[], error: string} = this.findNodeNeededSources(node, aggMap);
+                const foundSources: {sources: DagNode[], error: string} = this._findNodeNeededSources(node, aggMap);
                 parents = parents.concat(foundSources.sources);
                 error = foundSources.error;
                 if (parents.length == 0 || node.getType() == DagNodeType.DFIn) {
@@ -1512,13 +1513,10 @@ class DagGraph extends Durable {
                     for (let i = 0; i < parents.length; i++) {
                         let parent = parents[i];
                         if (!parent) {
+                            // parent can be null in join - left parent
                             continue;
                         }
-                        // parent can be null in join - left parent
-                        if (parent.getState() != DagNodeState.Complete ||
-                            (!DagTblManager.Instance.hasTable(parent.getTable()) &&
-                            parent.getType() != DagNodeType.Aggregate)
-                        ) {
+                        if (!parent.hasResult()) {
                             isStarting = false;
                             break;
                         }
@@ -2136,9 +2134,10 @@ class DagGraph extends Durable {
         optimized?: boolean,
         startingNodes?: DagNodeId[],
         parentTxId?: number,
-        generateOptimizedDataflow?: boolean
+        generateOptimizedDataflow?: boolean,
+        replaceCurrentExecutor?: boolean
     ): XDPromise<void> {
-        if (this.currentExecutor != null) {
+        if (this.currentExecutor != null && !replaceCurrentExecutor) {
             return PromiseHelper.reject(ErrTStr.DFInExecution);
         }
 
@@ -2155,6 +2154,7 @@ class DagGraph extends Durable {
                 "type": error.error
             });
         }
+        const oldExecutor: DagGraphExecutor = this.currentExecutor;
         const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, this, {
             optimized: optimized,
             parentTxId: parentTxId
@@ -2173,9 +2173,13 @@ class DagGraph extends Durable {
         }
 
         def
-        .then((...args) => {
+        .then(() => {
             this.unlockGraph(nodeIds);
-            deferred.resolve(...args);
+            if (replaceCurrentExecutor) {
+                // when the flag is true, there will have contined execution
+                this.currentExecutor = oldExecutor
+            }
+            deferred.resolve();
         })
         .fail((error) => {
             this.unlockGraph(nodeIds);
@@ -2832,6 +2836,47 @@ class DagGraph extends Durable {
             return queryNode;
         });
         return queryNodes;
+    }
+
+    /**
+     * DagGraph.getFuncInNodesFromDestNodes
+     * @param destNodes
+     * @param stopAtExistingResult
+     */
+    public static getFuncInNodesFromDestNodes(
+        destNodes: DagNode[],
+        stopAtExistingResult: boolean
+    ): DagNodeDFIn[] {
+        let visited: Set<DagNodeId> = new Set();
+        const stack: DagNode[] = [...destNodes];
+        const funcInNodes: DagNodeDFIn[] = [];
+        while (stack.length > 0) {
+            const currentNode: DagNode = stack.pop();
+            if (currentNode == null) {
+                // edge case
+                continue;
+            }
+            const currentNodId: DagNodeId = currentNode.getId();
+            if (visited.has(currentNodId)) {
+                // when this node is already visited
+                continue;
+            }
+            visited.add(currentNodId);
+            if (stopAtExistingResult && currentNode.hasResult()) {
+                // when it's a starting point
+                continue;
+            } else if (currentNode instanceof DagNodeDFIn) {
+                // exclude link with source node
+                if (!currentNode.hasSource()) {
+                    funcInNodes.push(currentNode);
+                }
+            } else {
+                currentNode.getParents().forEach((parentNode) => {
+                    stack.push(parentNode);
+                });
+            }
+        }
+        return funcInNodes;
     }
 
     public turnOnBulkStateSwitch(): void {

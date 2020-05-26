@@ -48,6 +48,24 @@ class DagNodeDFIn extends DagNodeIn {
         super.setParam();
     }
 
+    public getLinkedTabId(): string {
+        const param: DagNodeDFInInputStruct = this.input.getInput(true);
+        return param.dataflowId;
+    }
+
+    public hasAcceessToLinkedGraph(): boolean {
+        const tabId = this.getLinkedTabId();
+        if (tabId === DagNodeDFIn.SELF_ID) {
+            return true;
+        }
+        const candidateGraphs: DagGraph[] = this._findLinkedGraph(tabId);
+        if (candidateGraphs.length === 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     public getLinkedNodeAndGraph(skipSelfSearch?: boolean): {graph: DagGraph, node: DagNodeDFOut} {
         const param: DagNodeDFInInputStruct = this.input.getInput(true);
         const linkOutName: string = param.linkOutName;

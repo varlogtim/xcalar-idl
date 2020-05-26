@@ -244,7 +244,6 @@ function replay(testConfig, tags) {
         },
 
         'execute': function(browser) {
-            // let linkOutOptimizedTable;
             for (const tabName of Object.keys(testTabs)) {
                 browser.perform(() => {
                     browser.execute(execFunctions.clearConsole, [], () => {});

@@ -1,6 +1,7 @@
 class DFLinkOutOpPanel extends BaseOpPanel {
     private dagNode: DagNodeDFOut;
     private dagGraph: DagGraph;
+    private linkAfterExecution: boolean;
 
     public constructor() {
         super();
@@ -66,13 +67,7 @@ class DFLinkOutOpPanel extends BaseOpPanel {
 
     private _restorePanel(param: DagNodeDFOutInputStruct): void {
         this._getLinkOutNameInput().val(param.name);
-        const $checkbox: JQuery = this._getOptionCheckbox().find(".checkbox");
-        if (!param.linkAfterExecution) {
-            // checked means deep copy, uncheck is shallow copy
-            $checkbox.addClass("checked");
-        } else {
-            $checkbox.removeClass("checked");
-        }
+        this.linkAfterExecution = param.linkAfterExecution;
     }
 
     private _convertAdvConfigToModel(): DagNodeDFOutInputStruct {
@@ -96,11 +91,6 @@ class DFLinkOutOpPanel extends BaseOpPanel {
         $panel.on("click", ".submit", (event) => {
             $(event.target).blur();
             this._submitForm();
-        });
-
-        const $checkboxSection: JQuery = this._getOptionCheckbox();
-        $checkboxSection.on("click", ".checkbox, .text", () => {
-            this._getOptionCheckbox().find(".checkbox").toggleClass("checked");
         });
     }
 
@@ -140,11 +130,9 @@ class DFLinkOutOpPanel extends BaseOpPanel {
         }
 
         if (isValid) {
-            const noLink: boolean = this._getOptionCheckbox()
-                                        .find(".checkbox").hasClass("checked");
             return {
                 name: name,
-                linkAfterExecution: !noLink
+                linkAfterExecution: this.linkAfterExecution
             };
         } else {
             return null;
@@ -179,9 +167,5 @@ class DFLinkOutOpPanel extends BaseOpPanel {
 
     private _getLinkOutNameInput(): JQuery {
         return this._getPanel().find(".linkOutName input");
-    }
-
-    private _getOptionCheckbox(): JQuery {
-        return this._getPanel().find(".option .checkboxSection");
     }
 }

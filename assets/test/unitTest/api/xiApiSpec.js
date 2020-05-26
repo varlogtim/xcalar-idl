@@ -380,13 +380,15 @@ describe('XIApi Test', () => {
             const tableName = 'testTable';
             let oldIsSimulate;
             let oldGetIndexCache;
+            let oldGetTable;
 
             before(() => {
                 joinIndex = XIApi.__testOnly__.joinIndex;
 
                 oldIsSimulate = Transaction.isSimulate;
                 oldGetIndexCache = XIApi.getIndexTable;
-
+                oldGetTable = XcalarGetTables;
+                XcalarGetTables = () => PromiseHelper.resolve({numNodes: 1});
                 Transaction.isSimulate = () => true;
                 XIApi.getIndexTable = () => {
                     return { tableName: tableName, keys: ['key'], tempCols: [] };
@@ -553,6 +555,7 @@ describe('XIApi Test', () => {
             after(() => {
                 Transaction.isSimulate = oldIsSimulate;
                 XIApi.getIndexTable = oldGetIndexCache;
+                XcalarGetTables = oldGetTable;
             });
         });
     });
@@ -1406,7 +1409,9 @@ describe('XIApi Test', () => {
         it('XIApi.index should work', (done) => {
             const isSimulate = Transaction.isSimulate;
             const getIndexTable = XIApi.getIndexTable;
-
+            const oldGetTable = XcalarGetTables;
+            XcalarGetTables = () => PromiseHelper.resolve({numNodes: 1});
+    
             Transaction.isSimulate = () => true;
             XIApi.getIndexTable = () => {
                 return { tableName: 'indexTable', keys: ['key'] }
@@ -1425,6 +1430,7 @@ describe('XIApi Test', () => {
                 .always(() => {
                     Transaction.isSimulate = isSimulate;
                     XIApi.getIndexTable = getIndexTable;
+                    XcalarGetTables = oldGetTable;
                 });
         });
 
@@ -1590,13 +1596,16 @@ describe('XIApi Test', () => {
             let oldQuery;
             let isSimulate;
             let getIndexTable;
+            let oldGetTable;
 
             before(() => {
                 oldMap = XIApi.map;
                 oldQuery = XIApi.query;
                 isSimulate = Transaction.isSimulate;
                 getIndexTable = XIApi.getIndexTable;
-
+                oldGetTable = XcalarGetTables;
+    
+                XcalarGetTables = () => PromiseHelper.resolve({numNodes: 1});
                 XIApi.map = () => PromiseHelper.resolve();
                 XIApi.query = () => PromiseHelper.resolve();
                 Transaction.isSimulate = () => true;
@@ -1702,6 +1711,7 @@ describe('XIApi Test', () => {
                 XIApi.query = oldQuery;
                 Transaction.isSimulate = isSimulate;
                 XIApi.getIndexTable = getIndexTable;
+                XcalarGetTables = oldGetTable;
             });
         });
 
@@ -1710,12 +1720,15 @@ describe('XIApi Test', () => {
             let oldQuery;
             let isSimulate;
             let getIndexTable;
+            let oldGetTable;
 
             before(() => {
                 oldQuery = XIApi.query;
                 isSimulate = Transaction.isSimulate;
                 getIndexTable = XIApi.getIndexTable;
-
+                oldGetTable = XcalarGetTables;
+        
+                XcalarGetTables = () => PromiseHelper.resolve({numNodes: 1});
                 XIApi.query = () => PromiseHelper.resolve();
                 Transaction.isSimulate = () => true;
                 XIApi.getIndexTable = () => {
@@ -1822,6 +1835,7 @@ describe('XIApi Test', () => {
                 XIApi.query = oldQuery;
                 Transaction.isSimulate = isSimulate;
                 XIApi.getIndexTable = getIndexTable;
+                XcalarGetTables = oldGetTable;
             });
         });
 

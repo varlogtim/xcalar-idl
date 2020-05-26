@@ -1132,12 +1132,16 @@ class DagView {
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let tabsToLoad: DagTabUser[] = [];
-        this._runValidation(nodeIds, optimized)
+
+        PromiseHelper.convertToJQuery(this._openLinkedTabs(this.graph, nodeIds, optimized))
+            .then(() => {
+                return this._runValidation(nodeIds, optimized);
+            })
             .then((ret) => {
                 if (ret && ret.optimized) {
                     optimized = true;
                 }
-                return this._loadNeededTabsBeforeRun();
+                return this._loadMainModuleNeededTabsBeforeRun();
             })
             .then((res) => {
                 tabsToLoad = res;
@@ -4533,6 +4537,68 @@ class DagView {
         });
     }
 
+    private async _openLinkedTabs(
+        graph: DagGraph,
+        nodeIdsToRun?: DagNodeId[],
+        optimized?: boolean
+    ): Promise<void> {
+        let destNodes: DagNode[];
+        if (nodeIdsToRun == null) {
+            destNodes = graph.getNodesByType(DagNodeType.DFIn);
+        } else {
+            destNodes = nodeIdsToRun.map((nodeId) => graph.getNode(nodeId));
+        }
+        const stopAtExistingResult: boolean = !optimized;
+        const funcInNodes = DagGraph.getFuncInNodesFromDestNodes(destNodes, stopAtExistingResult);
+        await this._recursiveOpenLinkedGraph(graph.getTabId(), funcInNodes, stopAtExistingResult);
+    }
+
+    // find the linked graph and function output of
+    // the starting function input nodes
+    // and if the graph is not open, open it
+    private async _recursiveOpenLinkedGraph(
+        startTabId: string,
+        startFuncInNodes: DagNodeDFIn[],
+        stopAtExistingResult: boolean
+    ): Promise<void> {
+        const stack: {tabId: string, node: DagNodeDFIn}[] = startFuncInNodes.map((node) => {
+            return {
+                tabId: startTabId,
+                node
+            };
+        });
+
+        const visited = {}; // visited[tabId][nodeId] = true
+        while (stack.length > 0) {
+            const {node, tabId} = stack.pop();
+            const nodeId: DagNodeId = node.getId();
+            if (visited[tabId] && visited[tabId][nodeId]) {
+                // already visited
+                continue;
+            }
+            visited[tabId] = visited[tabId] || {};
+            visited[tabId][node.getId()] = true;
+
+            if (!node.hasAcceessToLinkedGraph()) {
+                const tabToOpen = DagList.Instance.getDagTabById(node.getLinkedTabId());
+                if (tabToOpen != null) {
+                    await DagTabManager.Instance.loadTab(tabToOpen, false, false);
+                }
+            }
+            const res = node.getLinkedNodeAndGraph();
+            const linkedTabId: string = res.graph.getTabId();
+            let funcOutNode: DagNodeDFOut = res.node;
+            const headFuncInNodes: DagNodeDFIn[] = DagGraph.getFuncInNodesFromDestNodes([funcOutNode], stopAtExistingResult);
+            headFuncInNodes.forEach((funcInNode) => {
+                stack.push({
+                    tabId: linkedTabId,
+                    node: funcInNode
+                });
+            });
+        }
+
+    }
+
     // a check that is done right before execution to allow users to confirm
     // and continue if an error is found - one case is if a parameter with no
     // value is found -- we can prompt the user to continue or abandon the execution
@@ -4578,24 +4644,19 @@ class DagView {
     }
 
     // now only for DagTabMain to use
-    private _loadNeededTabsBeforeRun(): XDPromise<DagTabUser[]> {
+    private _loadMainModuleNeededTabsBeforeRun(): XDPromise<DagTabUser[]> {
         const tab = this.getTab();
         if (tab.getType() !== DagTabType.Main) {
             return PromiseHelper.resolve([]);
         }
-        const tabs: DagTabUser[] = [];
+        const tabIdSet: Set<string> = new Set();
         try {
-            const tabIdSet: Set<string> = new Set();
             tab.getGraph().getAllNodes().forEach((node) => {
                 if (node instanceof DagNodeModule) {
                     const tab = node.getTab();
                     if (tab == null) {
                         const tabId = node.getTabId();
-                        if (!tabIdSet.has(tabId)) {
-                            const tabToLoad: DagTabUser = <DagTabUser>DagList.Instance.getDagTabById(tabId);
-                            tabIdSet.add(tabId);
-                            tabs.push(tabToLoad);
-                        }
+                        tabIdSet.add(tabId);
                     }
                 }
             });
@@ -4604,7 +4665,24 @@ class DagView {
             return PromiseHelper.reject({error: e.message});
         }
 
-        const promises = tabs.map((tab) => tab.load());
+        return this._loadNeedeTabs(tabIdSet, false);
+    }
+
+    private _loadNeedeTabs(tabIdSet: Set<string>, openTab: boolean): XDPromise<DagTabUser[]> {
+        const tabs: DagTabUser[] = [];
+        tabIdSet.forEach((tabId) => {
+            const tabToLoad: DagTabUser = <DagTabUser>DagList.Instance.getDagTabById(tabId);
+            if (tabToLoad != null) {
+                tabs.push(tabToLoad);
+            }
+        });
+        const promises = tabs.map((tab) => {
+            if (openTab) {
+                return DagTabManager.Instance.loadTab(tab, false, )
+            } else {
+                return tab.load();
+            }
+        });
         const deferred: XDDeferred<DagTabUser[]> = PromiseHelper.deferred();
         PromiseHelper.when(...promises)
         .then(() => {

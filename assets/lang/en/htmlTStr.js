@@ -1049,9 +1049,6 @@ module.exports = {
         "ReferenceName": "Reference name",
         "ReferenceNameHint": "A unique reference name that is used by a Function Input operator to execute this operator’s function. This enables functions to access data between modules.",
         "NoCols": "No columns are available for selection",
-        "RunOptionHeader": "Option",
-        "RunOption": "Run this function from a Function Input operator",
-        "RunOptionHint": "Enables access by a Function Input operator to the most current data source of this operator’s function. When selected, a Function Input operator can execute this operator for its function’s current data source. When deselected, a Function Input operator uses the existing data source from this operator’s function. ",
     },
 
     "SQLOpPanel": {

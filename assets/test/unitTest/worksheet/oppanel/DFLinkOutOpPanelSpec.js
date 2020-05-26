@@ -56,15 +56,6 @@ describe("DFLinkOutOpPanel Test", function() {
             expect($('#dfLinkOutPanel').hasClass("xc-hidden")).to.be.false;
         });
 
-        it("should select checkbox", function() {
-            let $checkbox = $dfLinkOutPanel.find(".option .checkbox").eq(0);
-            let checked = $checkbox.hasClass("checked");
-            $checkbox.click();
-            expect($checkbox.hasClass("checked")).to.equal(!checked);
-            $checkbox.click();
-            expect($checkbox.hasClass("checked")).to.equal(checked);
-        });
-
         it ("should be hidden when close is called after showing", function () {
             dfLinkOutPanel.show(node, openOptions);
             dfLinkOutPanel.close();

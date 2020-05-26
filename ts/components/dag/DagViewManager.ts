@@ -444,10 +444,21 @@ class DagViewManager {
 
     public updateDFProgress(tabId: string, queryStateOutput: XcalarApiQueryStateOutputT): void {
         const dagView: DagView = this.dagViewMap.get(tabId);
-        if (!dagView) {
-            return;
+        let graph: DagGraph = null;
+        if (dagView) {
+            graph = dagView.getGraph();
+        } else {
+            // if graph is load with switchTabAfterLoad = false,
+            // it will not render as DagView yet
+            const tab = DagTabManager.Instance.getTabById(tabId);
+            if (tab) {
+                graph = tab.getGraph();
+            }
         }
-        dagView.getGraph().updateProgress(queryStateOutput.queryGraph.node);
+
+        if (graph != null) {
+            graph.updateProgress(queryStateOutput.queryGraph.node);
+        }
     }
 
     public updateDatasetProgress(tabId: string, nodeId: DagNodeId, stats: {

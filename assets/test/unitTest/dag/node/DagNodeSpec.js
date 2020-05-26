@@ -125,6 +125,22 @@ describe("Dag Node Basic Test", () => {
         expect(node.getTable()).to.be.undefined;
     });
 
+    it("hasResult should work", () => {
+        const node = new DagNode();
+        expect(node.hasResult()).to.be.false;
+
+        node.beCompleteState();
+        expect(node.hasResult()).to.be.false;
+
+        node.setTable("testTable");
+        expect(node.hasResult()).to.be.false;
+
+        let oldFunc = DagTblManager.Instance.hasTable;
+        DagTblManager.Instance.hasTable = () => true;
+        expect(node.hasResult()).to.be.true;
+        DagTblManager.Instance.hasTable = oldFunc;
+    });
+
     it("should get parameters", () => {
         const node = new DagNode({type: DagNodeType.Map});
         expect(node.getParam()).to.be.an("object");

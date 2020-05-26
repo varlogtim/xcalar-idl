@@ -1751,8 +1751,9 @@ namespace XIApi {
         };
 
         let checkIfTableExists = (tableName: string): XDPromise<boolean> => {
-            if (Transaction.isSimulate(txId)) {
-                return PromiseHelper.resolve(true); // assume simulate mode table exis
+            if (xcHelper.isNodeJs()) {
+                // assume in node js env table exists
+                return PromiseHelper.resolve(true);
             } else {
                 const deferred: XDDeferred<boolean> = PromiseHelper.deferred();
                 let exist = false;

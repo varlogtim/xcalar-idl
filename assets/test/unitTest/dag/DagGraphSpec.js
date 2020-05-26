@@ -295,4 +295,25 @@ describe("Dag Graph Test", () => {
         });
 
     });
+
+    it ("DagGraph.getFuncInNodesFromDestNodes should work", function() {
+        const funcInNode = new DagNodeDFIn({});
+        const filterNode = new DagNodeFilter({});
+        filterNode.connectToParent(funcInNode);
+        let oldFunc = funcInNode.hasResult;
+        // case 1, stopAtExistingResult when input node have no result
+        funcInNode.hasResult = () => false;
+        let res = DagGraph.getFuncInNodesFromDestNodes([filterNode], true);
+        expect(res.length).to.equal(1);
+        expect(res[0]).to.equal(funcInNode);
+        // case 2
+        funcInNode.hasResult = () => true;
+        res = DagGraph.getFuncInNodesFromDestNodes([filterNode], true);
+        expect(res.length).to.equal(0);
+        // case 3
+        res = DagGraph.getFuncInNodesFromDestNodes([filterNode], false);
+        expect(res.length).to.equal(1);
+
+        funcInNode.hasResult = oldFunc;
+    });
 });

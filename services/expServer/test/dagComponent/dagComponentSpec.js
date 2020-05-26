@@ -43,6 +43,7 @@ describe('DagComponent Test', function() {
                     ));
                     xcalarQuery = ret;
                 } catch(e) {
+                    console.error("Non-optimized DF failed", e);
                     if (e != null && e.type != null && typeof e.type === 'string') {
                         assert.fail(e.type);
                     } else {

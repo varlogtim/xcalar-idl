@@ -439,6 +439,20 @@ abstract class DagNode extends Durable {
         }
     }
 
+    public hasResult(): boolean {
+        const table = this.getTable();
+        if (this.getState() != DagNodeState.Complete) {
+            return false;
+        }
+
+        if (this.getType() != DagNodeType.Aggregate) {
+            if (table == null || !DagTblManager.Instance.hasTable(table)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
      *
      * @param parentNode parent node to connected to

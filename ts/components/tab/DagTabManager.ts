@@ -352,7 +352,11 @@ class DagTabManager extends AbstractTabManager {
      * @param validate set to true during upload so we validate dataflows coming from
      *  an external source, can also be true upon activation
      */
-    public loadTab(dagTab: DagTab, reset: boolean = false): XDPromise<void> {
+    public loadTab(
+        dagTab: DagTab,
+        reset: boolean = false,
+        switchTabAfterLoad: boolean = true
+    ): XDPromise<void> {
         if (dagTab == null) {
             console.error("error case");
             return PromiseHelper.reject();
@@ -369,7 +373,9 @@ class DagTabManager extends AbstractTabManager {
         this._loadOneTab(dagTab, reset)
         .then(() => {
             this._addDagTab(dagTab);
-            this._switchTabs();
+            if (switchTabAfterLoad) {
+                this._switchTabs();
+            }
             this._save();
             deferred.resolve();
         })

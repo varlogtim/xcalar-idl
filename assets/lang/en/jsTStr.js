@@ -674,8 +674,7 @@ AlertTStr = {
     "queryHistoryReadErrorTitle": "Read query history failed",
     "AutoTblManagerError": "Automatic Table Manager failed to setup.",
     "DFLinkGraphError": "Module Output '<inName>' must be created in the graph '<graphName>'.",
-    "DFLinkShouldLinkError": "The Module Output for '<inName>' must be manually " +
-        "executed before the output can be used.",
+    "DFLinkShouldLinkError": "The Module Output for '<inName>' must be manually executed before the output can be used.",
     "SharedCustomOpDeleteTitle": "Delete",
     "ShardCustomOpDeleteMsg": "Are you sure you want to delete the operator?",
     "LowOnCredits": "This is a reminder that you are running low on credits and have <time> minutes remaining. To add more credits, please go to <a href=\"<link>\" target=\"_blank\"><path></a> or contact customer service.",

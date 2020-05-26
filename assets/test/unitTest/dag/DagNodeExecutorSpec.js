@@ -1564,7 +1564,7 @@ describe("DagNodeExecutor Test", () => {
         });
     });
 
-    it.skip("should work for _dfIn _linkWithBatch cachedTable", (done) => {
+    it.skip("should work for _dfIn _linkWithExecuteParentGraph", (done) => {
         let nodeInfo =
             {
                 "version": 1,
@@ -1689,7 +1689,7 @@ describe("DagNodeExecutor Test", () => {
             return PromiseHelper.resolve();
         }
 
-        executor.run()
+        executor.run(true)
         .then(() => {
             expect(called).to.be.false;
             expect(called2).to.be.true;
