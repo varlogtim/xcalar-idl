@@ -1,4 +1,8 @@
 class TreeNodeFactory {
+    static getGeneralNode(plan, prefix?): TreeNode {
+        return new TreeNode(plan, prefix);
+    }
+
     static getLiteralNullNode(): TreeNode {
         return new TreeNode({
             "class": "org.apache.spark.sql.catalyst.expressions.Literal",

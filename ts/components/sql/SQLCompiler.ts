@@ -26,7 +26,6 @@ class SQLCompiler {
         const deferred = PromiseHelper.deferred();
         try {
             // Catch any exception including assertion failures
-            // const allTableNames = SQLCompiler.getAllTableNames(logicalPlan);
             let tree = SQLCompiler.genTree(undefined, sqlQueryObj.logicalPlan,
                                            sqlQueryObj.tablePrefix);
             if (tree.value.class ===
@@ -90,17 +89,6 @@ class SQLCompiler {
             deferred.reject(errorMsg);
         }
         return deferred.promise();
-    }
-
-    static getAllTableNames(rawOpArray: any): {} {
-        const tableNames = {};
-        for (let i = 0; i < rawOpArray.length; i++) {
-            const value = rawOpArray[i];
-            if (value.class === "org.apache.spark.sql.execution.LogicalRDD") {
-                tableNames[value.xcTableName] = true;
-            }
-        }
-        return tableNames;
     }
 
     static _getSparkExpression(expr: string) {
@@ -950,7 +938,8 @@ class SQLCompiler {
         logicalPlan: any,
         tablePrefix: string
     ): TreeNode {
-        const newNode = new TreeNode(logicalPlan.shift(), tablePrefix);
+        const newNode = TreeNodeFactory.getGeneralNode(logicalPlan.shift(),
+                                                       tablePrefix);
         if (parent) {
             newNode.parent = parent;
             if (newNode.value.class ===
@@ -1086,7 +1075,7 @@ class SQLCompiler {
                 colNameSet.add(newName);
                 mapStrs.push(colType + "(" + origName + ")");
                 newColNames.push(newName);
-                newColStructs.push({colName: colName, colId: colId,
+                newColStructs.push({colName: colName, colId: Number(colId),
                                     colType: colType, rename: newName});
             }
         }
@@ -1254,28 +1243,28 @@ class SQLCompiler {
         return retList;
     }
 
-
-    static extractUsedCols(node: TreeNode) {
-        const colIds = [];
-        function findColIds(node: TreeNode) {
-            const opName = node.value.class.substring(
-                            node.value.class.lastIndexOf(".") + 1);
-            if (opName === "Or" || opName === "Concat" || opName === "IsNotNull"
-                || opName === "ScalarSubquery" || opName === "IsNull"
-                || opName === "EqualNullSafe") {
-                return;
-            } else if (opName === "AttributeReference") {
-                colIds.push(node.value.exprId.id);
-            }
-            for (let i = 0; i < node.children.length; i++) {
-                findColIds(node.children[i]);
-            }
+    static findColIds(node: TreeNode, colIds): void {
+        const opName = node.value.class.substring(
+                        node.value.class.lastIndexOf(".") + 1);
+        if (opName === "Or" || opName === "Concat" || opName === "IsNotNull"
+            || opName === "ScalarSubquery" || opName === "IsNull"
+            || opName === "EqualNullSafe") {
+            return;
+        } else if (opName === "AttributeReference") {
+            colIds.push(node.value.exprId.id);
         }
+        for (let i = 0; i < node.children.length; i++) {
+            SQLCompiler.findColIds(node.children[i], colIds);
+        }
+    }
+
+    static extractUsedCols(node: TreeNode): void {
+        const colIds = [];
         if (node.value.condition) {
             const dupCondition = jQuery.extend(true, [], node.value.condition);
             const tree = SQLCompiler.genTree(undefined, dupCondition,
                                              node.tablePrefix);
-            findColIds(tree);
+            SQLCompiler.findColIds(tree, colIds);
         }
         node.usedColIds = node.usedColIds.concat(colIds);
     }
