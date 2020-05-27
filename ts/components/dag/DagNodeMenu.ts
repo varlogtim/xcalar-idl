@@ -19,6 +19,7 @@ namespace DagNodeMenu {
             copyNodes: "This action copies the selected graph-node or graph-nodes, and connectors. Configuration settings remain but Intermediate table results are removed.",
             cutNodes: "This action removes the graph-node and its links. Unlike the Delete option, the graph-node is saved to the clip-board buffer.",
             pasteNodes: "This action pastes the copied graph-node or graph-nodes and connectors into a new or existing function of module. Configuration settings remain but intermediate table results are removed.",
+            copyTableName: "This action copies the name of the selected table",
             duplicateDf: "This action creates a copy of the module, including configuration settings, in a new Module tab.",
             selectAll: "This action selects all the operators and comments within the module.",
             findOptimizedSource: "This action opens the Module Lineage window, which displays the name of the module that was used for the optimized application.",
@@ -303,6 +304,9 @@ namespace DagNodeMenu {
                     break;
                 case ("pasteNodes"):
                     _handlePaste();
+                    break;
+                case ("copyTableName"):
+                    _copyTableName(nodeId);
                     break;
                 case ("executeNode"):
                     DagViewManager.Instance.run(dagNodeIds);
@@ -880,16 +884,17 @@ namespace DagNodeMenu {
                 $menu.find(".viewResult, .generateResult, .viewSkew").addClass("xc-hidden");
             } else if (table != null && DagTblManager.Instance.hasTable(table)) {
                 $menu.find(".generateResult").addClass("xc-hidden");
-                $menu.find(".viewResult").removeClass("xc-hidden unavailable");
+                $menu.find(".viewResult, .copyTableName").removeClass("xc-hidden unavailable");
                 $menu.find(".viewSkew").removeClass("xc-hidden");
             } else {
                 $menu.find(".viewResult, .viewSkew").addClass("xc-hidden");
                 $menu.find(".generateResult").removeClass("xc-hidden unavailable");
+                $menu.find(".copyTableName").addClass("unavailable");
             }
         } else {
             $menu.find(".viewResult, .viewSkew").addClass("xc-hidden");
             $menu.find(".generateResult").removeClass("xc-hidden");
-            $menu.find(".generateResult").addClass("unavailable");
+            $menu.find(".generateResult, .copyTableName").addClass("unavailable");
         }
         // show skew option
         let $statsTip = $dfArea.find('.runStats[data-id="' + dagNode.getId() + '"]');
@@ -1000,7 +1005,8 @@ namespace DagNodeMenu {
             $menu.find(".unpinTable").addClass("unavailable xc-hidden");
             $menu.find(".pinTable").removeClass("unavailable xc-hidden");
         } else {
-            $menu.find(".pinTable, .unpinTable").addClass("unavailable xc-hidden");
+            $menu.find(".pinTable").addClass("unavailable").removeClass("xc-hidden");
+            $menu.find(".unpinTable").addClass("unavailable xc-hidden");
         }
 
 
@@ -1236,5 +1242,12 @@ namespace DagNodeMenu {
         } else {
             $menu.find(".updateSQLQuery").removeClass("xc-hidden");
         }
+    }
+
+    function _copyTableName(nodeId) {
+        const dagNode: DagNode = DagViewManager.Instance.getActiveDag().getNode(nodeId);
+        const tableName: string = dagNode.getTable();
+        xcUIHelper.copyToClipboard(tableName);
+        xcUIHelper.showSuccess("Copied.");
     }
 }

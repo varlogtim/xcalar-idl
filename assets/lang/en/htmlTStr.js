@@ -1406,7 +1406,8 @@ module.exports = {
         "ViewOnlyHint": "This SQL Graph is uneditable. Click to convert to module and edit.",
         "UseInSQL": "Use In SQL",
         "convert": "Convert to Editable Module",
-        "findOriginalNode": "Find Original Graph-Node"
+        "findOriginalNode": "Find Original Graph-Node",
+        "copyTableName": "Copy Table Name"
     },
 
     "dagSearch": {
