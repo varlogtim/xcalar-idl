@@ -32,3 +32,25 @@
     </button>
   </div> -->
 </div>
+<!-- generalTabMenu is a template that is copied by AbstractTabManager.ts -->
+<div id="generalTabMenu" class="menu tabMenu">
+  <ul>
+    <li class="dag close" data-action="close">
+        <span class="label"><%= dicts.common.Close %></span>
+    </li>
+    <li class="dag closeOthers" data-action="closeOthers" >
+      <span class="label"><%= dicts.MenuTStr.CloseOthers %></span>
+    </li>
+    <li class="dag rename" data-action="rename">
+      <span class="label"><%= dicts.common.Rename %></span>
+    </li>
+    <!-- TODO:
+      close others to the right
+      close all
+      duplicate
+      new tab to the right
+      copy name
+      permanently delete
+    -->
+  </ul>
+</div>

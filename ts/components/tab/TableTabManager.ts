@@ -151,6 +151,27 @@ class TableTabManager extends AbstractTabManager {
         this._updateList();
     }
 
+    protected _deleteOtherTabsAction(index: number): void {
+        for (let i = 0; i < this._activeTabs.length; i++) {
+            if (i !== index) {
+                this._activeTabs.splice(i, 1);
+                const $tab: JQuery = this._getTabElByIndex(i);
+                $tab.remove();
+                if (i < index) {
+                    index--;
+                }
+                i--;
+            }
+        }
+        const $tab: JQuery = this._getTabElByIndex(index);
+        if (!$tab.hasClass("active")) {
+            this._switchTabs(index);
+        }
+        this._save();
+        this._updateList();
+    }
+
+
     // do nothing
     protected _renameTabAction(_$input: JQuery): string {
         return null;
@@ -183,6 +204,10 @@ class TableTabManager extends AbstractTabManager {
 
         const $tabArea: JQuery = this._getTabArea();
         $tabArea.off("dblclick", ".dragArea"); // turn off dblick to rename
+        const $menu: JQuery = this._getMenu();
+        const $rename = $menu.find(".rename");
+        $rename.addClass("unavailable");
+        xcTooltip.add($rename, {title: "Tables cannot be renamed"});
     }
 
     private _getTabIndexByName(name: string): number {

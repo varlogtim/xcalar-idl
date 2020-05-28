@@ -135,6 +135,26 @@ class SQLTabManager extends AbstractTabManager {
         this._updateList();
     }
 
+    protected _deleteOtherTabsAction(index: number): void {
+        for (let i = 0; i < this._activeTabs.length; i++) {
+            if (i !== index) {
+                this._activeTabs.splice(i, 1);
+                const $tab: JQuery = this._getTabElByIndex(i);
+                $tab.remove();
+                if (i < index) {
+                    index--;
+                }
+                i--;
+            }
+        }
+        const $tab: JQuery = this._getTabElByIndex(index);
+        if (!$tab.hasClass("active")) {
+            this._switchTabs(index);
+        }
+        this._save();
+        this._updateList();
+    }
+
     protected _renameTabAction($input: JQuery): string {
         let newName: string = $input.text().trim();
         const $tabName: JQuery = $input.parent();

@@ -303,6 +303,7 @@ enum SQLOps {
     NewDagTab = "newDagTab",
     DupDagTab = "dupDagTab",
     RemoveDagTab = "removeDagTab",
+    RemoveOtherDagTab = "removeOtherDagTab",
     EditDescription = "editDescription",
     NewComment = "newComment",
     EditComment = "editComment",

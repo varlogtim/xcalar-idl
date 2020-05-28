@@ -296,7 +296,8 @@ module.exports = {
         "Set": "Set Operation",
         "Union": "Union",
         "Intersect": "Intersect",
-        "Except": "Except"
+        "Except": "Except",
+        "CloseOthers": "Close Other Tabs"
     },
 
     "TooltipTStr": {

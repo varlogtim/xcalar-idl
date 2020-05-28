@@ -1595,6 +1595,7 @@ DagTStr = {
     "RemoveAllOperators": "Remove All Operations",
     "RemoveAllMsg": "Are you sure you want to remove all operations?",
     "RemoveTab": "Remove a module tab",
+    "RemoveOtherTabs": "Remove other module tabs",
     "DeleteDataflow": "Delete Module",
     "AddDescription": "Add Description",
     "EditDescription": "Edit Description",

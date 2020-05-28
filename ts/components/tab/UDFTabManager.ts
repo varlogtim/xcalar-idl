@@ -176,6 +176,27 @@ class UDFTabManager extends AbstractTabManager {
         this._updateList();
     }
 
+    protected _deleteOtherTabsAction(index: number): void {
+        for (let i = 0; i < this._activeTabs.length; i++) {
+            if (i !== index) {
+                const tab = this._activeTabs.splice(i, 1);
+                this._moduleCache.delete(tab[0].name);
+                const $tab: JQuery = this._getTabElByIndex(i);
+                $tab.remove();
+                if (i < index) {
+                    index--;
+                }
+                i--;
+            }
+        }
+        const $tab: JQuery = this._getTabElByIndex(index);
+        if (!$tab.hasClass("active")) {
+            this._switchTabs(index);
+        }
+        this._save();
+        this._updateList();
+    }
+
     // do nothing
     protected _renameTabAction(_$input: JQuery): string {
         return null;
@@ -228,6 +249,22 @@ class UDFTabManager extends AbstractTabManager {
                 title: title
             }, 4000);
         });
+        const $menu: JQuery = this._getMenu();
+        const $rename = $menu.find(".rename");
+        $rename.addClass("unavailable");
+    }
+
+    protected _openDropdown(event) {
+        super._openDropdown(event);
+        const $menu: JQuery = this._getMenu();
+        const $rename = $menu.find(".rename");
+        const activeTab = UDFTabManager.Instance.getActiveTab();
+        if (activeTab == null) {
+            // error case
+            return;
+        }
+        let title = activeTab.isNew ? TooltipTStr.SaveUDFToName : TooltipTStr.NoUDFRename;
+        xcTooltip.add($rename, {title: title});
     }
 
     private _getTabIndexByName(name: string): number {

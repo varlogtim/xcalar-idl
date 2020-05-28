@@ -3,12 +3,14 @@ abstract class AbstractTabManager {
     private _key: string;
     private _hasSetup: boolean;
     protected _tabListScroller: ListScroller;
+    private _$menu; JQuery;
 
     constructor(container: string, key: string) {
         this._container = container;
         this._key = key;
         this._hasSetup = false;
     }
+
 
     public setup(): XDPromise<void> {
         if (this._hasSetup) {
@@ -21,6 +23,9 @@ abstract class AbstractTabManager {
             bounds: `#${this._container}`,
             noPositionReset: true
         });
+        this._$menu = $("#generalTabMenu").clone();
+        this._$menu.removeAttr("id");
+        this._getContainer().parent().after(this._$menu);
         this._addEventListeners();
         return this._restoreTabs();
     }
@@ -28,6 +33,7 @@ abstract class AbstractTabManager {
     public abstract getNumTabs(): number;
     protected abstract _restoreTabs(): XDPromise<void>;
     protected abstract _deleteTabAction(index: number, name: string): void;
+    protected abstract _deleteOtherTabsAction(index: number): void;
     protected abstract _renameTabAction($input: JQuery): string;
     protected abstract _startReorderTabAction(): void;
     protected abstract _stopReorderTabAction(previousIndex: number, newIndex: number): void;
@@ -49,10 +55,14 @@ abstract class AbstractTabManager {
         return this._getTabArea().find(".tab");
     }
 
+    protected _getMenu(): JQuery {
+        return this._$menu;
+    }
+
     protected _getTabElByIndex(index: number): JQuery {
         return this._getTabsEle().eq(index);
     }
-    
+
     protected _getTabIndexFromEl($el: JQuery): number {
         if (!$el.hasClass("tab")) {
             $el = $el.closest(".tab");
@@ -77,12 +87,13 @@ abstract class AbstractTabManager {
     }
 
     protected _addEventListeners(): void {
+        this._addMenuEventListeners();
         const $tabArea: JQuery = this._getTabArea();
         $tabArea.on("click", ".after", (event) => {
             event.stopPropagation();
             xcTooltip.hideAll();
             const index: number = this._getTabIndexFromEl($(event.currentTarget));
-            this._deleteTabAction(index, name);
+            this._deleteTabAction(index, "");
             this._tabListScroller.showOrHideScrollers();
         });
 
@@ -94,21 +105,14 @@ abstract class AbstractTabManager {
             }
         });
 
+        $tabArea.on("contextmenu", ".tab", (event) => {
+            this._openDropdown(event);
+            return false; // prevent default browser's rightclick menu
+        });
+
         $tabArea.on("dblclick", ".dragArea", (event) => {
             let $dragArea: JQuery = $(event.currentTarget);
-            let $tabName: JQuery = $dragArea.siblings(".name");
-            if ($tabName.hasClass('nonedit')) {
-                return;
-            }
-            let editingName = this._getEditingName($tabName);
-            $tabName.text("");
-            let inputArea: string =
-                "<span contentEditable='true' class='xc-input'></span>";
-            $(inputArea).appendTo($tabName);
-            let $input: JQuery = $tabName.find('.xc-input');
-            $input.text(editingName);
-            $input.focus();
-            document.execCommand('selectAll', false, null);
+            this._focusTabRename($dragArea);
         });
 
         $tabArea.on("keypress", ".name .xc-input", (event) => {
@@ -156,6 +160,53 @@ abstract class AbstractTabManager {
         });
     }
 
+    protected _focusTabRename($dragArea: JQuery) {
+        let $tabName: JQuery = $dragArea.siblings(".name");
+        if ($tabName.hasClass('nonedit')) {
+            return;
+        }
+        let editingName = this._getEditingName($tabName);
+        $tabName.text("");
+        let inputArea: string =
+            "<span contentEditable='true' class='xc-input'></span>";
+        $(inputArea).appendTo($tabName);
+        let $input: JQuery = $tabName.find('.xc-input');
+        $input.text(editingName);
+        $input.focus();
+        document.execCommand('selectAll', false, null);
+    }
+
+    protected _addMenuEventListeners(): void {
+        const $menu = this._getMenu();
+        xcMenu.add($menu);
+        $menu.on("click", "li", (event) => {
+            const $li = $(event.target).closest("li");
+            const action = $li.data("action");
+            if ($li.hasClass("unavailable") || !action) {
+                return;
+            }
+            const index: number = $menu.data("index");
+
+            switch (action) {
+                case ("close"):
+                    this._deleteTabAction(index, "");
+                    break;
+                case ("closeOthers"):
+                    this._deleteOtherTabsAction(index);
+                    break;
+                case ("rename"):
+                    const $tabs: JQuery = this._getTabsEle();
+                    const $dragArea: JQuery = $tabs.eq(index).find(".dragArea");
+                    this._focusTabRename($dragArea);
+                    break;
+                default:
+                    break;
+            }
+
+            this._tabListScroller.showOrHideScrollers();
+        });
+    }
+
     protected _getKVStore(): KVStore {
         const key: string = KVStore.getKey(this._key);
         return new KVStore(key, gKVScope.WKBK);
@@ -164,5 +215,17 @@ abstract class AbstractTabManager {
     protected _save(): XDPromise<void> {
         let jsonStr: string = JSON.stringify(this._getJSON());
         return this._getKVStore().put(jsonStr, true, true);
+    }
+
+    protected _openDropdown(event) {
+        const $menu = this._getMenu();
+        const index: number = this._getTabIndexFromEl($(event.currentTarget));
+        $menu.data("index", index);
+        MenuHelper.dropdownOpen($(event.target), $menu, {
+            floating: true,
+            mouseCoors: {x: event.pageX, y: event.pageY},
+            offsetX: 2,
+            offsetY: 4
+        });
     }
 }

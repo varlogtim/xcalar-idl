@@ -703,7 +703,7 @@ class DagTabManager extends AbstractTabManager {
     }
 
     // Deletes the tab represented by $tab
-    private _deleteTab(index: number, hide?: boolean): boolean {
+    private _deleteTab(index: number, hide?: boolean, bulkDelete?: boolean): boolean {
         const dagTab: DagTab = this.getTabByIndex(index);
         if (dagTab == null || dagTab.getGraph().isLocked()) {
             return false;
@@ -715,17 +715,24 @@ class DagTabManager extends AbstractTabManager {
         if (subTabIds.length > 0) {
             // There are sub tabs still open
             // Switch to the first sub tab
-            const subTabIndex = this.getTabIndex(subTabIds[0]);
-            const $subTab = this.getDagTabElement(subTabIndex);
-            StatusBox.show('Close sub tab first', $subTab);
+            if (!bulkDelete) {
+                const subTabIndex = this.getTabIndex(subTabIds[0]);
+                const $subTab = this.getDagTabElement(subTabIndex);
+                StatusBox.show('Close sub tab first', $subTab);
+            }
+
             return false;
         }
+        const $tab: JQuery = this._getTabElByIndex(index);
+        if ($tab.find(".after").hasClass("xc-disabled")) {
+            return false;
+        }
+
         // Remove the tab as a sub tab
         this._removeChildTabById(tabId);
         this._removeParentTabById(tabId);
 
-        const $tab: JQuery = this.getDagTabElement(index);
-        if ($tab.hasClass("active")) {
+        if ($tab.hasClass("active") && !bulkDelete) {
             // when this is the current active table
             if (index > 0) {
                 this._switchTabs(index - 1);
@@ -738,7 +745,9 @@ class DagTabManager extends AbstractTabManager {
             this._hiddenDags.set(tabId,  dagTab);
         } else {
             dagTab.setClosed();
-            this._save();
+            if (!bulkDelete) {
+                this._save();
+            }
         }
 
         $tab.remove();
@@ -750,7 +759,7 @@ class DagTabManager extends AbstractTabManager {
         DagViewManager.Instance.cleanupClosedTab(dagTab.getGraph());
         if (dagTab instanceof DagTabSQLFunc) {
             ResourceMenu.Instance.render(ResourceMenu.KEY.TableFunc);
-        } else {
+        } else if (!bulkDelete) {
             ResourceMenu.Instance.render(ResourceMenu.KEY.DF);
         }
         return true;
@@ -760,13 +769,57 @@ class DagTabManager extends AbstractTabManager {
         const dagTab: DagTab = this.getTabByIndex(index);
         const tabId: string = dagTab.getId();
         const isLogDisabled: boolean = this._isTabLogDisabled(tabId);
-        this._deleteTab(index);
+        if (!this._deleteTab(index)) {
+            return;
+        }
         if (!isLogDisabled) {
             Log.add(DagTStr.RemoveTab, {
                 "operation": SQLOps.RemoveDagTab,
                 "id": tabId,
                 "index": index,
                 "name": name
+            });
+        }
+    }
+
+    protected _deleteOtherTabsAction(index: number): void {
+        const dagTab: DagTab = this.getTabByIndex(index);
+        const tabId: string = dagTab.getId();
+        const isLogDisabled: boolean = this._isTabLogDisabled(tabId);
+        for (let i = 0; i < this._activeUserDags.length; i++) {
+            if (i !== index) {
+                let success = this._deleteTab(i, false, true);
+                if (success && i < index) {
+                    index--;
+                }
+                if (success) {
+                    i--;
+                }
+            }
+        }
+        // loop again to delete any tabs that couldn't be deleted due to
+        // their subTabs being opened
+        for (let i = 0; i < this._activeUserDags.length; i++) {
+            if (i !== index) {
+                let success = this._deleteTab(i, false, true);
+                if (success && i < index) {
+                    index--;
+                }
+                if (success) {
+                    i--;
+                }
+            }
+        }
+
+        this._switchTabs(index);
+        this._save();
+        ResourceMenu.Instance.render(ResourceMenu.KEY.DF);
+
+        if (!isLogDisabled) {
+            Log.add(DagTStr.RemoveOtherTabs, {
+                "operation": SQLOps.RemoveDagTab,
+                "id": tabId,
+                "index": index
             });
         }
     }
