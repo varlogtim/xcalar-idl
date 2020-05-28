@@ -16,6 +16,7 @@ const _serviceInfo = {
         "PublishTable" : ["xcalar.compute.localtypes.Table.PublishRequest", "xcalar.compute.localtypes.Table.PublishResponse"],
         "UnpublishTable" : ["xcalar.compute.localtypes.Table.UnpublishRequest", "google.protobuf.Empty"],
         "ListTables" : ["xcalar.compute.localtypes.Table.ListTablesRequest", "xcalar.compute.localtypes.Table.ListTablesResponse"],
+        "TableMeta" : ["xcalar.compute.localtypes.Table.TableMetaRequest", "xcalar.compute.localtypes.Table.TableMetaResponse"],
     },
 };
 

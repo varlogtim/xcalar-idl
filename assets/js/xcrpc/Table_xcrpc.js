@@ -119,6 +119,24 @@ TableService.prototype = {
         var listTablesResponse = table.ListTablesResponse.deserializeBinary(specificBytes);
         return listTablesResponse;
     },
+    tableMeta: async function(tableMetaRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(tableMetaRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Table.TableMetaRequest");
+        //anyWrapper.pack(tableMetaRequest.serializeBinary(), "TableMetaRequest");
+
+        var responseData = await this.client.execute("Table", "TableMeta", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var tableMetaResponse =
+        //    responseData.unpack(table.TableMetaResponse.deserializeBinary,
+        //                        "TableMetaResponse");
+        var tableMetaResponse = table.TableMetaResponse.deserializeBinary(specificBytes);
+        return tableMetaResponse;
+    },
 };
 
 exports.TableService = TableService;

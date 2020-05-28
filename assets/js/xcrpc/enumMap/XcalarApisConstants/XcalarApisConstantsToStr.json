@@ -1,4 +1,5 @@
 {
+    "16384" : "XcalarApiMaxFieldValueSize",
     "32768" : "XcalarApiMaxEvalStringLen",
     "1024" : "XcalarApiMaxNumParameters",
     "100" : "XcalarApiDefaultTopIntervalInMs",

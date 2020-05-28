@@ -20,11 +20,11 @@
     "ServiceVersionSignature" : 59787815,
     "SqlVersionSignature" : 146971870,
     "StatsVersionSignature" : 114642334,
-    "TableVersionSignature" : 247139984,
+    "TableVersionSignature" : 3009405,
     "TableMetaVersionSignature" : 45672993,
     "UDFVersionSignature" : 111659210,
     "VersionVersionSignature" : 204259992,
     "WorkbookVersionSignature" : 57235854,
-    "ProtoAPIVersionSignature" : 69318063
+    "ProtoAPIVersionSignature" : 193756466
 }
 

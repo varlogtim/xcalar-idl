@@ -6,6 +6,7 @@
 
 
 XcalarApisConstantsT = {
+  'XcalarApiMaxFieldValueSize' : 16384,
   'XcalarApiMaxEvalStringLen' : 32768,
   'XcalarApiMaxNumParameters' : 1024,
   'XcalarApiDefaultTopIntervalInMs' : 100,
@@ -36,6 +37,7 @@ XcalarApisConstantsT = {
   'XcalarApiMaxFailureEvals' : 5
 };
 XcalarApisConstantsTStr = {
+  16384 : 'XcalarApiMaxFieldValueSize',
   32768 : 'XcalarApiMaxEvalStringLen',
   1024 : 'XcalarApiMaxNumParameters',
   100 : 'XcalarApiDefaultTopIntervalInMs',
@@ -66,6 +68,7 @@ XcalarApisConstantsTStr = {
   5 : 'XcalarApiMaxFailureEvals'
 };
 XcalarApisConstantsTFromStr = {
+  'XcalarApiMaxFieldValueSize' : 16384,
   'XcalarApiMaxEvalStringLen' : 32768,
   'XcalarApiMaxNumParameters' : 1024,
   'XcalarApiDefaultTopIntervalInMs' : 100,
