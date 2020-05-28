@@ -16,6 +16,7 @@ class SQLOpPanel extends BaseOpPanel {
     private _graph: DagGraph;
     private _isQueryUpdated: boolean = false;
     private _snippetIdNotFound: boolean = false;
+    private _labelCache: Set<string>;
 
     /**
      * Initialization, should be called only once by xcManager
@@ -44,6 +45,7 @@ class SQLOpPanel extends BaseOpPanel {
         this._identifiers = [];
         this._parsedIdentifiers = [];
         this._connectors = [];
+        this._labelCache = new Set();
         this._dataModel.getIdentifiers().forEach((value, key) => {
             this._identifiers[key - 1] = value;
             const parentNode =  this._dagNode.getParents()[key - 1];
@@ -624,6 +626,7 @@ class SQLOpPanel extends BaseOpPanel {
                         connectorNodeIds.set(c.nodeId, c);
                     });
                     let connectorIndex = this._dagNode.getNextOpenConnectionIndex();
+                    let cachedLabels = [];
                     nodes.forEach(node => {
                         if (node === this._dagNode) {
                             return;
@@ -636,6 +639,11 @@ class SQLOpPanel extends BaseOpPanel {
                             nodeInfosInUse.push({
                                 id: node.getId(),
                                 label: node.getTitle()
+                            });
+                        } else if (this._labelCache.has(node.getId())) {
+                            cachedLabels.push({
+                               id: node.getId(),
+                               label: node.getTitle()
                             });
                         } else {
                             nodeInfos.push({
@@ -651,6 +659,13 @@ class SQLOpPanel extends BaseOpPanel {
                             return 1;
                         }
                     });
+                    cachedLabels.sort((a, b) => {
+                        if (a.label < b.label) {
+                            return -1;
+                        } else {
+                            return 1;
+                        }
+                    });
                     nodeInfos.sort((a, b) => {
                         if (a.label < b.label) {
                             return -1;
@@ -658,7 +673,7 @@ class SQLOpPanel extends BaseOpPanel {
                             return 1;
                         }
                     });
-                    nodeInfos = [...nodeInfosInUse, ...nodeInfos];
+                    nodeInfos = [...nodeInfosInUse, ...cachedLabels, ...nodeInfos];
 
                     nodeInfos.forEach((nodeInfo) => {
                         html += `<li data-id="${nodeInfo.id}">${xcStringHelper.escapeHTMLSpecialChar(nodeInfo.label)}</li>`;
@@ -674,6 +689,10 @@ class SQLOpPanel extends BaseOpPanel {
                         return;
                     } else {
                         val = $li.text().trim();
+                    }
+
+                    if (this._connectors[index]) {
+                        this._labelCache.add(this._connectors[index].nodeId);
                     }
                     $dropDownList.find("input").val(val);
                     this._setConnector(index, val, $li.data('id'));
