@@ -125,7 +125,7 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
         }
 
         const tables = await session.listTables({ namePattern: tableName });
-        return tables.length > 0 ? tables[1] : null;
+        return tables.length > 0 ? tables[0] : null;
     }
 
     async function createFileSchemaTable() {
@@ -558,6 +558,7 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
         getReport: async (page, rowsPerPage) => {
             const reportTable = tables.report;
             if (reportTable == null) {
+                console.log('getReport: table not ready');
                 return { page: page, count: 0, schemas: [] };
             }
 
@@ -573,6 +574,7 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
                         schemas: schemas
                     }
                 } else {
+                    console.log(`getReport: out of range(${rowsPerPage * page}, ${cursor.getNumRows()})`);
                     return { page: page, count: 0, schemas: [] };
                 }
             } catch(e) {

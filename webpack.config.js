@@ -131,7 +131,8 @@ module.exports = function(env, argv) {
         {
             entry: {
                 // loadWizard: path.resolve(env.buildroot, "src/loadWizard/index.jsx"),
-                loadWizardXD: path.resolve(env.buildroot, "src/loadWizard/index2.jsx")
+                loadWizardXD: path.resolve(env.buildroot, "src/loadWizard/index2.jsx"),
+                test: path.resolve(env.buildroot, "src/loadWizard/test.js")
             },
             output: {
                 path: path.resolve(env.buildroot, "assets/js/loadWizard/"),
