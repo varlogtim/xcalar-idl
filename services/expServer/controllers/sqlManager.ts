@@ -778,6 +778,7 @@ class SqlManager {
         })
         .then((sqlQuery: XcalarSelectQuery[], schemas: any, selects: any):
             JQueryPromise<any> => {
+            xcConsole.log("Select created: " + JSON.stringify(sqlQuery));
             allSelects = selects;
             selectQuery = sqlQuery;
             let schemasToSendToSqlDf: any[] = [];
@@ -832,6 +833,9 @@ class SqlManager {
             xcConsole.log("Compilation finished");
             sqlQueryObj = compiledObj;
             this._sqlQueryObjects[queryId] = sqlQueryObj;
+            xcConsole.log("Before optimizer, xcQueryString: " + sqlQueryObj.xcQueryString
+                          + ", optimizations: " + JSON.stringify(optimizations)
+                          + ", selects: " + JSON.stringify(selectQuery));
             if (!this._workerFlag) {
                 if (optimizations.noOptimize) {
                     let selectString: string = JSON.stringify(selectQuery);
@@ -877,6 +881,7 @@ class SqlManager {
             );
             SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj,
                  {userName: info.userName, workbookName: info.sessionName});
+            xcConsole.log("Query before execution: " + sqlQueryObj.xcQueryString);
             return SQLExecutor.execute(sqlQueryObj, {
                 userName: sessionInfo.userName,
                 workbookName: sessionInfo.sessionName
