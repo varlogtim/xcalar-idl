@@ -1807,6 +1807,7 @@ class DagNodeSQL extends DagNode {
         let tableName;
         try {
             let prefix = xcHelper.genTableNameFromNode(this);
+            prefix = prefix.replace(/_SQLTAG_DEST/g, ""); // remove old tags
             if (prefix == "") {
                 const identifiersList: string[] = [];
                 this.identifiers.forEach((identifier) => identifiersList.push(identifier));

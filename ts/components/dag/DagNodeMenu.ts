@@ -889,7 +889,11 @@ namespace DagNodeMenu {
             } else {
                 $menu.find(".viewResult, .viewSkew").addClass("xc-hidden");
                 $menu.find(".generateResult").removeClass("xc-hidden unavailable");
-                $menu.find(".copyTableName").addClass("unavailable");
+                if (table == null) {
+                    $menu.find(".copyTableName").addClass("unavailable");
+                } else {
+                    $menu.find(".copyTableName").removeClass("xc-hidden unavailable");
+                }
             }
         } else {
             $menu.find(".viewResult, .viewSkew").addClass("xc-hidden");

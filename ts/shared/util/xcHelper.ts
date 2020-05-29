@@ -1341,17 +1341,18 @@ namespace xcHelper {
 
             let names: string[] = [];
             node.getParents().forEach((parentNode) => {
-                const parentTable = parentNode.getTable();
+                let parentTable = parentNode.getTable();
                 if (!parentTable) {
                     return;
                 } else {
+                    parentTable = xcHelper.stripGlobalTableName(parentTable);
                     names.push(xcHelper.getTableName(parentTable));
                 }
             });
             let name = names.join("_") || "table";
             let shortenedName = name.slice(- (XcalarApisConstantsT.XcalarApiMaxFileNameLen - 80));
             // max 175 characters to make space for prefixes/suffixes
-            if (shortenedName !== name) {
+            if (shortenedName !== name && !shortenedName[0].match(/[a-zA-Z]/)) {
                 shortenedName = "t" + shortenedName;
                 // prefix with valid char "t" in case starts with invalid char
             }
@@ -1399,6 +1400,17 @@ namespace xcHelper {
         }
         // Global table with name pattern '/tableName/{sessionId}/{sessionTableName}
         return tableName.match(/^\/[a-zA-Z]+\//) != null;
+    }
+
+    export function stripGlobalTableName(tableName: string): string {
+        if (tableName.startsWith("/tableName/")) {
+            tableName = tableName.slice(11);
+            let slashIndex = tableName.indexOf("/");
+            if (slashIndex > -1) {
+                tableName = tableName.slice(slashIndex + 1);
+            }
+        }
+        return tableName;
     }
 
     /**
