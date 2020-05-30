@@ -249,7 +249,7 @@ class DFNodeLineagePopup {
             this._updateLineage(lineage);
 
             const classNames: string[] = ["row"];
-            if (!isNextLevelOpen) {
+            if (!isNextLevelOpen && level !== 0) {
                 classNames.push("collapse");
             }
             html = '<div class="' + classNames.join(" ") + '" data-level="' + level + '">' +
