@@ -1605,6 +1605,7 @@ DagTStr = {
     "DeleteTables": "Delete All Tables",
     "DeleteTableMsg": "Are you sure you want to delete the selected table?",
     "DeleteTablesMsg": "Are you sure you want to delete all tables in the module?",
+    "DeleteParentTablesMsg": "Are you sure you want to delete the selected table and its upfront tables?",
     "CustomOpIncomplete": "Selected operator set is open",
     "CustomOpNoInput": "Cannot create a custom operator without input",
     "CustomOpNoOutput": "Cannot create a custom operator without output",

@@ -186,7 +186,7 @@ module.exports = {
         "DelCol": "Delete column",
         "DelColPlura": "Delete columns",
         "DelTarget": "Delete connector",
-        "DelTbl": "Delete table",
+        "DelTbl": "Delete Table",
         "ExamCell": "Examine",
         "ExceedsSize": "Image exceeds size limit",
         "ExclCell": "Exclude this value",
@@ -1405,7 +1405,9 @@ module.exports = {
         "UseInSQL": "Use In SQL",
         "convert": "Convert to Editable Module",
         "findOriginalNode": "Find Original Graph-Node",
-        "copyTableName": "Copy Table Name"
+        "copyTableName": "Copy Table Name",
+        "DeleteParentTables": "Delete Upfront Tables",
+        "DeleteParentTablesHint": "Delete current table and all parent tables, including the tables in the linked graph. Note: it will not delete pinned table and its upfront tables."
     },
 
     "dagSearch": {

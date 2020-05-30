@@ -215,6 +215,15 @@ abstract class DagTab extends Durable {
         return this._createdTime;
     }
 
+    public resetNodes(nodeIds: DagNodeId[]): void {
+        if (this._dagGraph != null) {
+            this.turnOffSave();
+            this._dagGraph.reset(nodeIds);
+            this.turnOnSave();
+            this.save();
+        }
+    }
+
     protected getRuntime(): DagRuntime {
         // In expServer execution, this function is overridden by DagRuntime.accessible() and should never be invoked.
         // In XD execution, this will be invoked in case the DagNode instance

@@ -1979,10 +1979,7 @@ class DagView {
         });
 
         function resolve() {
-            self.dagTab.turnOffSave();
-            self.graph.reset(nodeIds);
-            self.dagTab.turnOnSave();
-            self.dagTab.save();
+            self.dagTab.resetNodes(nodeIds);
             deferred.resolve();
         }
         return deferred.promise();

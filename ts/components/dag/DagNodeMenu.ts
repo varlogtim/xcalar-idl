@@ -328,6 +328,9 @@ namespace DagNodeMenu {
                     DagViewManager.Instance.reset(dagNodeIds, options.bypassResetAlert,
                                                   action === "deleteTable");
                     break;
+                case ("deleteParentTable"):
+                    DagViewManager.Instance.deleteParentTablesFromNode(dagNodeIds[0]);
+                    break;
                 case ("deleteAllTables"):
                     DagViewManager.Instance.reset(null, options.bypassResetAlert, true);
                     break;

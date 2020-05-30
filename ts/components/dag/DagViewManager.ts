@@ -903,7 +903,84 @@ class DagViewManager {
         return this.activeDagView.reset(nodeIds, bypassResetAlert, tableMsg);
     }
 
-      /**
+    public deleteParentTablesFromNode(dagNodeId: DagNodeId): XDPromise<void> {
+        if (!this.activeDagView) {
+            return PromiseHelper.reject();
+        }
+
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        Alert.show({
+            title: DagTStr.DeleteTable,
+            msg: DagTStr.DeleteParentTablesMsg,
+            onConfirm: () => {
+                resolve();
+            },
+            onCancel: () => {
+                deferred.reject();
+            }
+        });
+
+        // recusrively reset upfront graph
+        let resolve = async () => {
+            try {
+                const startNode = this.activeDagTab.getGraph().getNode(dagNodeId);
+                await this._recursiveDeleteParentNodes(this.activeDagTab.getId(), startNode);
+                deferred.resolve();
+            } catch (e) {
+                console.error(e);
+                Alert.error(IMDTStr.DeactivateTableFail, e.message);
+            }
+        };
+        return deferred.promise();
+    }
+
+    private async _recursiveDeleteParentNodes(
+        startTabId: string,
+        startNode: DagNode
+    ): Promise<void> {
+        const stack: [string, DagNode][] = [[startTabId, startNode]];
+        const visited = {}; // visited[tabId][nodeId] = true
+
+        while (stack.length > 0) {
+            const [tabId, node] = stack.pop();
+            const nodeId: string = node.getId();
+            if (visited[tabId] && visited[tabId][nodeId]) {
+                // already visited, prevenet cyclic case
+                continue;
+            }
+            visited[tabId] = visited[tabId] || {};
+            visited[tabId][node.getId()] = true;
+
+            const nodesToRest: DagNodeId[] = [];
+            const cb = (currentNode: DagNode) => {
+                if (currentNode.hasResult()) {
+                    if (DagTblManager.Instance.hasLock(currentNode.getTable())) {
+                        return true;
+                    }
+                    nodesToRest.push(currentNode.getId());
+                }
+            };
+            const funcInNodes = DagGraph.getFuncInNodesFromDestNodes([node], false, cb);
+            for (let funcInNode of funcInNodes) {
+                if (!funcInNode.hasAcceessToLinkedGraph()) {
+                    const tabToOpen = DagList.Instance.getDagTabById(funcInNode.getLinkedTabId());
+                    if (tabToOpen != null) {
+                        await DagTabManager.Instance.loadTab(tabToOpen, false, false);
+                    }
+                }
+                const res = funcInNode.getLinkedNodeAndGraph();
+                const linkedTabId: string = res.graph.getTabId();
+                let funcOutNode: DagNodeDFOut = res.node;
+                stack.push([linkedTabId, funcOutNode]);
+            }
+
+            // reset all tracked inNodes
+            const currentTab = DagTabManager.Instance.getTabById(tabId);
+            currentTab.resetNodes(nodesToRest);
+        }
+    }
+
+    /**
      *
      * @param $node
      * @param text

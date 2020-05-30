@@ -2842,14 +2842,17 @@ class DagGraph extends Durable {
      * DagGraph.getFuncInNodesFromDestNodes
      * @param destNodes
      * @param stopAtExistingResult
+     * @param callback
      */
     public static getFuncInNodesFromDestNodes(
         destNodes: DagNode[],
-        stopAtExistingResult: boolean
+        stopAtExistingResult: boolean,
+        callback?: (node: DagNode) => boolean
     ): DagNodeDFIn[] {
         let visited: Set<DagNodeId> = new Set();
         const stack: DagNode[] = [...destNodes];
         const funcInNodes: DagNodeDFIn[] = [];
+        const hasCallback: boolean = typeof callback !== "undefined";
         while (stack.length > 0) {
             const currentNode: DagNode = stack.pop();
             if (currentNode == null) {
@@ -2862,6 +2865,12 @@ class DagGraph extends Durable {
                 continue;
             }
             visited.add(currentNodId);
+            if (hasCallback) {
+                let shouldStop: boolean = callback(currentNode);
+                if (shouldStop) {
+                    continue;
+                }
+            }
             if (stopAtExistingResult && currentNode.hasResult()) {
                 // when it's a starting point
                 continue;
