@@ -55,15 +55,24 @@ class SQLUnion {
             }
             const unionCols = unionTable.usrCols;
             const columns = [];
-            for (let j = 0; j < unionCols.length; j++) {
-                const colType = xcHelper.convertSQLTypeToColType(
-                                                          unionCols[j].colType);
+            if (node.children[i].emptyProject) {
                 columns.push({
-                    name: SQLCompiler.getCurrentName(unionCols[j]),
-                    rename: SQLCompiler.getCurrentName(colRenames[j]),
-                    type: colType,
-                    cast: false // Should already be casted by spark
+                    name: "xcalarRecordNum",
+                    rename: "xcalarRecordNum",
+                    type: ColumnType.integer,
+                    cast: false
                 });
+            } else {
+                for (let j = 0; j < unionCols.length; j++) {
+                    const colType = xcHelper.convertSQLTypeToColType(
+                                                            unionCols[j].colType);
+                    columns.push({
+                        name: SQLCompiler.getCurrentName(unionCols[j]),
+                        rename: SQLCompiler.getCurrentName(colRenames[j]),
+                        type: colType,
+                        cast: false // Should already be casted by spark
+                    });
+                }
             }
             tableInfos.push({
                 tableName: unionTable.newTableName,
