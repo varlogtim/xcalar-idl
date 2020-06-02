@@ -143,7 +143,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                 $("#alertActions .cancel").click();
                 for (name in tableNodesMap) {
                     var datasetNode = DagViewManager.Instance.getActiveDag().getNode(tableNodesMap[name]);
-                    if (!DagTblManager.Instance.hasLock(datasetNode.table)) {
+                    if (!DagTblManager.Instance.isPinned(datasetNode.table)) {
                         DagTblManager.Instance.pinTable(datasetNode.table);
                     }
                 }

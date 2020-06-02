@@ -223,10 +223,10 @@ class DagTblManager {
     }
 
     /**
-     * Returns if the table is locked
+     * Returns if the table is pinned
      * @param name Table name
      */
-    public hasLock(name: string): boolean {
+    public isPinned(name: string): boolean {
         return (this.configured && this.cache[name] != null &&
             this.cache[name].locked && !this.cache[name].markedForDelete);
     }
@@ -273,7 +273,17 @@ class DagTblManager {
             this.cache[name].locked = false;
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail((e) => {
+            if (e && (e.status === StatusT.StatusDagNodeNotFound ||
+                e.status === StatusT.StatusTableNotPinned)) {
+                if (this.cache[name]) {
+                    this.cache[name].locked = false;
+                }
+                deferred.resolve();
+            } else {
+                deferred.reject(e);
+            }
+        });
         return deferred.promise();
     }
 

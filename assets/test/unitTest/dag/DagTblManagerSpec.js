@@ -94,9 +94,9 @@ describe("DagTblManager Test", function() {
         };
 
         tableManager.addTable("test5");
-        expect(tableManager.hasLock("test5")).to.be.false;
+        expect(tableManager.isPinned("test5")).to.be.false;
         tableManager.pinTable("test5");
-        expect(tableManager.hasLock("test5")).to.be.true;
+        expect(tableManager.isPinned("test5")).to.be.true;
         XcalarPinTable = cachePin;
     });
 
@@ -157,9 +157,9 @@ describe("DagTblManager Test", function() {
         };
         tableManager.addTable("test11");
         tableManager.pinTable("test11");
-        expect(tableManager.hasLock("test11")).to.be.true;
+        expect(tableManager.isPinned("test11")).to.be.true;
         tableManager.forceReset(true);
-        expect(tableManager.hasLock("test11")).to.be.false;
+        expect(tableManager.isPinned("test11")).to.be.false;
         XcalarPinTable = cachePin;
     });
 

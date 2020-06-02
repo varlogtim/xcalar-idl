@@ -1000,7 +1000,7 @@ namespace DagNodeMenu {
         // lock/unlock option
         if (dagNode != null &&
             state === DagNodeState.Complete &&
-            dagNode.getTable() != null && DagTblManager.Instance.hasLock(dagNode.getTable())
+            dagNode.getTable() != null && DagTblManager.Instance.isPinned(dagNode.getTable())
         ) {
             $menu.find(".pinTable").addClass("unavailable xc-hidden");
             $menu.find(".unpinTable").removeClass("unavailable xc-hidden");

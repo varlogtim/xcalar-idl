@@ -21,7 +21,7 @@ class DeleteTableModalService {
                         "tableId": node.dagNodeId,
                         "name": node.name,
                         "size": node.size,
-                        "locked": DagTblManager.Instance.hasLock(node.name) || node.pinned,
+                        "locked": DagTblManager.Instance.isPinned(node.name) || node.pinned,
                         "checked": false,
                         "date": DagTblManager.Instance.getTimeStamp(node.name)
                     });

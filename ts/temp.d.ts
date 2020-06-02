@@ -742,7 +742,8 @@ declare enum StatusT {
     StatusClusterNotReady,
     StatusQrJobNonExist,
     StatusInval,
-    StatusAstNoSuchFunction
+    StatusAstNoSuchFunction,
+    StatusTableNotPinned
 }
 
 declare enum FunctionCategoryT {

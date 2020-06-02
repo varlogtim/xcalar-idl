@@ -1028,7 +1028,7 @@ class DagGraph extends Durable {
                 parentTxId: parentTxId,
                 isLinkInBatch: isLinkInBatch
             })
-        );        
+        );
 
         const checkResult = executor.checkCanExecuteAll();
         if (checkResult.hasError) {
@@ -1622,7 +1622,7 @@ class DagGraph extends Durable {
             if (node.getType() === DagNodeType.DFOut) {
                 // skip check function output, as it's reuse the parent table
                 return false;
-            } else if (DagTblManager.Instance.hasLock(node.getTable())) {
+            } else if (DagTblManager.Instance.isPinned(node.getTable())) {
                 lockedTable = node.getTable();
                 return true;
             } else {

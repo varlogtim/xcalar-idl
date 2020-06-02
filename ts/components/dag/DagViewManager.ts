@@ -954,7 +954,7 @@ class DagViewManager {
             const nodesToRest: DagNodeId[] = [];
             const cb = (currentNode: DagNode) => {
                 if (currentNode.hasResult()) {
-                    if (DagTblManager.Instance.hasLock(currentNode.getTable())) {
+                    if (DagTblManager.Instance.isPinned(currentNode.getTable())) {
                         return true;
                     }
                     nodesToRest.push(currentNode.getId());
