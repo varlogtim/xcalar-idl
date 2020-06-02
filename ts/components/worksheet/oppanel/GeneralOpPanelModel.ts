@@ -337,7 +337,8 @@ abstract class GeneralOpPanelModel {
                     }
                     const typeCheck = checkInvalidTypes(func.args[i].type,
                                             opInfo.argDescs[i].typesAccepted,
-                                        (<ParsedEvalArg>func.args[i]).value);
+                                        (<ParsedEvalArg>func.args[i]).value,
+                                        (opInfo.category === FunctionCategoryT.FunctionCategoryCast));
                     if (typeCheck) {
                         errorObj.error = typeCheck;
                     }
@@ -362,17 +363,22 @@ abstract class GeneralOpPanelModel {
             return operatorInfo;
         }
 
-        function checkInvalidTypes(outputType: string, expectedTypeid: number, value?: string) {
+        function checkInvalidTypes(
+            outputType: string,
+            expectedTypeid: number,
+            value?: string,
+            allowUnknownType?: boolean
+        ) {
             const types: string[] = GeneralOpPanelModel.parseType(expectedTypeid);
             if (outputType.endsWith("Literal")) {
                 outputType = outputType.slice(0, outputType.lastIndexOf("Literal"));
             }
             if (outputType === "decimal" || outputType === "aggValue") {
                 outputType = ColumnType.float;
-            }
-            if (outputType === "columnArg") {
+            } else if (outputType === "columnArg") {
                 outputType = self.getColumnTypeFromArg(value);
             }
+
             if (outputType == null) {
                 return false; // XXX column was not found, we just pass for now
             } else if (outputType === "paramArg") {
@@ -381,6 +387,8 @@ abstract class GeneralOpPanelModel {
                 types.indexOf(ColumnType.integer) > -1)) {
                 return false;
             } else if (types.indexOf(outputType) > -1) {
+                return false;
+            } else if (outputType === ColumnType.unknown && allowUnknownType) {
                 return false;
             } else {
                 return xcStringHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
