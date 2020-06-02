@@ -88,7 +88,6 @@ class DagGraph extends Durable {
         let connections: NodeConnection[] = [];
         this.display = xcHelper.deepCopy(graphJSON.display);
         this.operationTime = graphJSON.operationTime || 0;
-
         graphJSON.nodes.forEach((desNode) => {
             const node: DagNode = desNode.node;
             if (node instanceof DagNodeSQL && node.isHidden()) {
@@ -459,6 +458,7 @@ class DagGraph extends Durable {
     /**
      * add a new node
      * @param dagNode node to add
+     * Note: addNode does not trigger an event, unlike newNode
      */
     public addNode(dagNode: DagNode): void {
         this.nodesMap.set(dagNode.getId(), dagNode);

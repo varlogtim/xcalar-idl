@@ -94,6 +94,7 @@ enum DagGraphEvents {
     DeleteGraph = "DeleteGraph",
     NewNode = "NewNode",
     RemoveNode = "RemoveNode",
+    CreateWithValidate = "CreateWithValidate"
 }
 
 enum DagNodeEvents {

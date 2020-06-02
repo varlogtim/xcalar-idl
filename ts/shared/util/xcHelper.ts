@@ -2982,6 +2982,10 @@ namespace xcHelper {
         }
         return types;
     }
+
+    export function asyncTimeout(ms: number = 0) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 }
 
 if (typeof exports !== "undefined") {

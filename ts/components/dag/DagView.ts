@@ -1855,17 +1855,6 @@ class DagView {
         return node;
     }
 
-    /**
-     * adds a original node to a graph without mutating the node
-     */
-    public appendNode(node: DagNode, options?: {vertSpacing?: number}): void {
-        const pos: Coordinate = node.getPosition();
-        const newCoors = this._getNextAvailablePosition(null, pos.x, pos.y, options);
-        node.setPosition(newCoors);
-        this.graph.addNode(node);
-        this._addNodeNoPersist(node, { isNoLog: true });
-    }
-
     public getAllNodes(includeComments?: boolean): JQuery {
         let $nodes = this.$dfArea.find(".operator");
         if (includeComments) {
@@ -2120,7 +2109,12 @@ class DagView {
                 connectionIn: newConnectionIn,
                 connectionOut: newConnectionOut
             } = DagNodeCustom.createCustomNode(nodeInfos, connectionInfo, this.getGraph().generateNodeTitle());
-
+            customNode.getSubGraph().getAllNodes().forEach((node) => {
+                if (node instanceof DagNodeSQL && node.getParam().snippetId) {
+                    const tabId = `${this.tabId}-${customNode.getId()}`;
+                    SQLSnippet.Instance.linkNode(node.getParam().snippetId, tabId, node.getId());
+                }
+            });
             // Position custom operator
             const nodePosList = nodeInfos.map((nodeInfo) => ({
                 x: nodeInfo.display.x,
@@ -2184,12 +2178,21 @@ class DagView {
 
             // Delete selected nodes
             const deferred: XDDeferred<void> = PromiseHelper.deferred();
-
+            const nodes = nodeIds.map((nodeId) => {
+                return this.graph.getNode(nodeId);
+            });
             // always resolves
             this._removeNodesNoPersist(nodeIds,
-                { isNoLog: true, isSwitchState: false, clearMeta: false }
+                { isNoLog: true, isSwitchState: false, clearMeta: false}
             )
             .then(({logParam: removeLogParam, spliceInfos}) => {
+                nodes.forEach((node) => {
+                    if (node instanceof DagNodeSQL && node.getParam().snippetId) {
+                        SQLSnippet.Instance.unlinkNode(node.getParam().snippetId, this.tabId, node.getId());
+                    }
+                });
+                DagGraphBar.Instance.updateNumNodes(this.dagTab);
+
                 customLogParam.options.actions.push(removeLogParam.options);
 
                 // Create a set, which contains all nodes splicing parent index
@@ -2394,6 +2397,10 @@ class DagView {
                 // Add sub nodes to graph
                 expandNodeIds.push(nodeId);
                 this.graph.addNode(node);
+                if (node instanceof DagNodeSQL && node.getParam().snippetId) {
+                    SQLSnippet.Instance.linkNode(node.getParam().snippetId, this.tabId, node.getId());
+                }
+
                 if (node.getType() == DagNodeType.Aggregate) {
                     // Update agg dagId
                     aggNodeUpdates.set(node.getParam().dest, node.getId());
@@ -2405,6 +2412,7 @@ class DagView {
                 expandLogParam.options.actions.push(addLogParam.options);
                 this._addProgressTooltips(node);
             });
+
             this.$dfArea.find(".edgeSvg").after($svg);
             DagAggManager.Instance.updateNodeIds(aggNodeUpdates);
             const deferred: XDDeferred<void> = PromiseHelper.deferred();
@@ -2414,6 +2422,7 @@ class DagView {
                 [containerNode.getId()],
                 { isNoLog: true, isSwitchState: false, clearMeta: false })
             .then(({ logParam: removeLogParam, spliceInfos }) => {
+                SQLSnippet.Instance.unlinkTab(`${this.tabId}-${containerNode.getId()}`);
                 expandLogParam.options.actions.push(removeLogParam.options);
                 // Create a set, which contains all nodes splicing parent index
                 const splicingNodeSet: Set<string> = new Set();
@@ -2466,6 +2475,7 @@ class DagView {
                 expandLogParam.options.actions.push(moveLogParam.options);
 
                 Log.add(expandLogParam.title, expandLogParam.options);
+                DagGraphBar.Instance.updateNumNodes(this.dagTab);
                 this.dagTab.turnOnSave();
                 return this.dagTab.save();
             })
@@ -3552,7 +3562,7 @@ class DagView {
         hasLinkOut: boolean,
         spliceInfos: {[nodeId: string]: {[childNodeId: string]: boolean[]}}
     }> {
-        const { isSwitchState = true, isNoLog = false, clearMeta = true } = options || {};
+        const { isSwitchState = true, isNoLog = false, clearMeta = true} = options || {};
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         if (!nodeIds.length) {
             return PromiseHelper.resolve();
@@ -3928,18 +3938,20 @@ class DagView {
         });
 
         let updateNumNodesTimeout;
-        this._registerGraphEvent(this.graph, DagGraphEvents.NewNode, () => {
+        this._registerGraphEvent(this.graph, DagGraphEvents.NewNode, (info) => {
             clearTimeout(updateNumNodesTimeout);
             updateNumNodesTimeout = setTimeout(() => {
                 DagGraphBar.Instance.updateNumNodes(this.dagTab);
             }, 0);
+            this._addNodeLinkToSQLSnippet(info.node, info.tabId);
         });
 
-        this._registerGraphEvent(this.graph, DagGraphEvents.RemoveNode, () => {
+        this._registerGraphEvent(this.graph, DagGraphEvents.RemoveNode, (info) => {
             clearTimeout(updateNumNodesTimeout);
             updateNumNodesTimeout = setTimeout(() => {
                 DagGraphBar.Instance.updateNumNodes(this.dagTab);
             }, 0);
+            this._removeNodeLinkFromSQLSnippet(info.node, info.tabId);
         });
 
         this._registerGraphEvent(this.graph, DagNodeEvents.Hide, (info) => {
@@ -3966,6 +3978,28 @@ class DagView {
             this._updateNodeProgress(info.node, this.tabId, info.overallStats, skewInfos, times);
             DagNodeInfoPanel.Instance.update(info.node.getId(), "stats");
         });
+    }
+
+    private _removeNodeLinkFromSQLSnippet(node, tabId) {
+        if (node instanceof DagNodeSQL && node.getParam().snippetId) {
+            SQLSnippet.Instance.unlinkNode(node.getParam().snippetId, tabId, node.getId());
+        } else if (node instanceof DagNodeCustom) {
+            let subTabId = `${tabId}-${node.getId()}`;
+            node.getSubGraph().getAllNodes().forEach((subNode) => {
+                this._removeNodeLinkFromSQLSnippet(subNode, subTabId);
+            });
+        }
+    }
+
+    private _addNodeLinkToSQLSnippet(node, tabId) {
+        if (node instanceof DagNodeSQL && node.getParam().snippetId) {
+            SQLSnippet.Instance.linkNode(node.getParam().snippetId, tabId, node.getId());
+        } else if (node instanceof DagNodeCustom) {
+            let subTabId = `${tabId}-${node.getId()}`;
+            node.getSubGraph().getAllNodes().forEach((subNode) => {
+                this._addNodeLinkToSQLSnippet(subNode, subTabId);
+            });
+        }
     }
 
     private _onAddConnection(addInfo: {node: DagNode}): void {

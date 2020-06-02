@@ -872,10 +872,6 @@ class DagViewManager {
         }
     }
 
-    public appendNode(node: DagNode, options?: {vertSpacing?: number}): void {
-        this.activeDagView.appendNode(node, options);
-    }
-
     public getAllNodes(includeComments?: boolean): JQuery {
         return this.activeDagView.getAllNodes(includeComments);
     }

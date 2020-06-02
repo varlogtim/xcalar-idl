@@ -121,7 +121,53 @@ class SQLEditorSpace {
         const snippet = snippetObj.snippet || "";
         this._currentSnippetId = snippetObj.id;
         this._setSnippet(snippet);
+
+        let html = "";
+        for (let i in snippetObj.refs) {
+            const tab = DagTabManager.Instance.getTabById(i);
+            if (!tab) {
+                continue;
+            }
+            for (let j in snippetObj.refs[i]) {
+                const graph = tab.getGraph();
+                if (!graph) continue;
+                const node = graph.getNode(j);
+                if (!node) {
+                    // delete snippetObj.refs[i][j];
+                    continue;
+                }
+                html += `<span>${tab.getName()}-${node.getTitle()}</span>`;
+            }
+        }
+        $("#sqlEditorSpace").find(".nodeInfo").html(html);
+
         return true;
+    }
+
+    /*
+        give the custom node subgraph an id
+    */
+
+    public updateTab() {
+        const snippetObj = SQLSnippet.Instance.getSnippetObj(this._currentSnippetId);
+        let html = "";
+        for (let i in snippetObj.refs) {
+            const tab = DagTabManager.Instance.getTabById(i);
+            if (!tab) {
+                continue;
+            }
+            for (let j in snippetObj.refs[i]) {
+                const graph = tab.getGraph();
+                if (!graph) continue;
+                const node = graph.getNode(j);
+                if (!node) {
+                    // delete snippetObj.refs[i][j];
+                    continue;
+                }
+                html += `<span>${tab.getName()}-${node.getTitle()}</span>`;
+            }
+        }
+        $("#sqlEditorSpace").find(".nodeInfo").html(html);
     }
 
     /**

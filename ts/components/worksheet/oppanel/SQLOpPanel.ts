@@ -16,7 +16,7 @@ class SQLOpPanel extends BaseOpPanel {
     private _isQueryUpdated: boolean = false;
     private _snippetIdNotFound: boolean = false;
     private _labelCache: Set<string>;
-
+    private _prevSnippetId: string;
     /**
      * Initialization, should be called only once by xcManager
      */
@@ -373,6 +373,10 @@ class SQLOpPanel extends BaseOpPanel {
         if (!sql) {
             self._dataModel.setDataModel("", identifiers, dropAsYouGo, snippetId);
             self._dataModel.submit();
+            SQLSnippet.Instance.unlinkNode(this._prevSnippetId, self._graph.getTabId(),
+                                          self._dagNode.getId());
+            SQLSnippet.Instance.linkNode(snippetId, self._graph.getTabId(),
+                                         self._dagNode.getId());
             return PromiseHelper.resolve();
         }
         const queryId = xcHelper.randName("sql", 8);
@@ -383,17 +387,25 @@ class SQLOpPanel extends BaseOpPanel {
                 dropAsYouGo: dropAsYouGo
             };
             self._dagNode.compileSQL(parsedQuery, queryId, options)
-            .then(function() {
+            .then(() => {
                 self._dataModel.setDataModel(sql, identifiers, dropAsYouGo, snippetId);
                 self._dataModel.submit();
+                SQLSnippet.Instance.unlinkNode(this._prevSnippetId, self._graph.getTabId(),
+                                                self._dagNode.getId());
+                SQLSnippet.Instance.linkNode(snippetId, self._graph.getTabId(),
+                                             self._dagNode.getId());
                 deferred.resolve();
             })
-            .fail(function(err) {
+            .fail((err) => {
                 self._dataModel.setDataModel(sql, identifiers, dropAsYouGo, snippetId);
                 self._dataModel.submit(true);
+                SQLSnippet.Instance.unlinkNode(this._prevSnippetId, self._graph.getTabId(),
+                                                self._dagNode.getId());
+                SQLSnippet.Instance.linkNode(snippetId, self._graph.getTabId(),
+                                             self._dagNode.getId());
                 deferred.reject(err);
             })
-            .always(function() {
+            .always(() => {
                 SQLUtil.resetProgress();
             });
         } catch (e) {
@@ -405,10 +417,10 @@ class SQLOpPanel extends BaseOpPanel {
 
     // currently only called whenever the form opens
     protected _updateUI() {
-        this._renderSnippet();
-        this._renderDropAsYouGo();
         // Setup event listeners
         this._setupEventListener();
+        this._renderSnippet();
+        this._renderDropAsYouGo();
     }
 
     public updateIdentifiers(identifiers: Map<number, string>) {
@@ -774,6 +786,7 @@ class SQLOpPanel extends BaseOpPanel {
                 SQLTabManager.Instance.openTab(snippetId);
                 SQLEditorSpace.Instance.newSQL(queryStr);
                 this._dataModel.setNewSnippetId(snippetId);
+                SQLSnippet.Instance.linkNode(snippetId, this._graph.getTabId(), this._dagNode.getId());
                 this._isQueryUpdated = true;
                 this._snippetIdNotFound = false;
             }
@@ -781,6 +794,7 @@ class SQLOpPanel extends BaseOpPanel {
             this._isQueryUpdated = true;
             this._snippetIdNotFound = true;
         }
+        this._prevSnippetId = this._dagNode.getParam().snippetId;
         this._selectQuery(snippetId, queryStr);
         if (this._isQueryUpdated) {
             this._$elemPanel.removeClass("queryNotUpdated");
@@ -1074,8 +1088,11 @@ class SQLOpPanel extends BaseOpPanel {
                     Alert.show({
                         isAlert: true,
                         title: AlertTStr.Title,
-                        msg: "Any future modifications to the original SQL statment will not affect this operator.",
-                        // msg: "The SQL statement in this operator will not be affected by any future modifications to the original SQL statement.",
+                        msg: "Any future modifications to the original SQL" +
+                            " statment will not affect this operator.",
+                        // msg: "The SQL statement in this operator will not" +
+                        // " be affected by any future modifications to the" +
+                        // " original SQL statement.",
                         onCancel: (checked) => {
                             this._ignoreQueryConfirm = checked;
                         },

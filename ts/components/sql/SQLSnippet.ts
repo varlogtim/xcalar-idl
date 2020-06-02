@@ -24,6 +24,7 @@ class SQLSnippet {
 
     private _snippets: SQLSnippetDurable[];
     private _fetched: boolean;
+    private _delaySave: boolean;
 
     private constructor() {
         this._snippets = [];
@@ -127,7 +128,7 @@ class SQLSnippet {
      * SQLSnippet.Instance.rename
      * @param id
      * @param oldName
-     * @param newName 
+     * @param newName
      */
     public rename(id: string, newName: string): void {
         const snippetObj = this._getSnippetObjectById(id);
@@ -168,6 +169,51 @@ class SQLSnippet {
         return validName;
     }
 
+    public linkNode(snippetId: string, tabId: string, nodeId: DagNodeId): void {
+        const snippetObj = this._getSnippetObjectById(snippetId);
+        if (snippetObj == null) {
+            return;
+        }
+        let refs = snippetObj.refs || {};
+        refs[tabId] = refs[tabId] || {};
+        refs[tabId][nodeId] = true;
+        snippetObj.refs = refs;
+        SQLEditorSpace.Instance.updateTab();
+        this._updateSnippets(true);
+    }
+
+    public unlinkNode(snippetId: string, tabId: string, nodeId: DagNodeId): void {
+        const snippetObj = this._getSnippetObjectById(snippetId);
+        if (snippetObj == null) {
+            return;
+        }
+        let refs = snippetObj.refs || {};
+        refs[tabId] = refs[tabId] || {};
+        delete refs[tabId][nodeId];
+        if (!Object.keys(refs[tabId]).length) {
+            delete refs[tabId];
+        }
+        snippetObj.refs = refs;
+        SQLEditorSpace.Instance.updateTab();
+        this._updateSnippets(true);
+    }
+
+    public unlinkTab(tabId: string): void {
+        let hasChange = false;
+        for (let snippet of this._snippets) {
+            if (snippet.refs && snippet.refs[tabId]) {
+                delete snippet.refs[tabId];
+                hasChange = true;
+
+            }
+        }
+        if (hasChange) {
+            SQLEditorSpace.Instance.updateTab();
+            this._updateSnippets(true);
+        }
+    }
+
+
     private _getKVStore(): KVStore {
         let snippetQueryKey: string = KVStore.getKey("gSQLSnippetQuery");
         return new KVStore(snippetQueryKey, gKVScope.WKBK);
@@ -182,7 +228,7 @@ class SQLSnippet {
             const res: SQLSnippetListDurable = await this._getKVStore().getAndParse();
             if (res != null) {
                 this._fetched = true;
-                
+
                 if (!res.snippets) {
                     // XXX a upgrade case that should be deprecated
                     for (let key in res) {
@@ -222,7 +268,18 @@ class SQLSnippet {
         return null;
     }
 
-    private async _updateSnippets(): Promise<void> {
+    private async _updateSnippets(delay = false): Promise<void> {
+        if (delay) {
+            if (this._delaySave) {
+                return;
+            }
+            this._delaySave = true;
+            await xcHelper.asyncTimeout(1000);
+            if (!this._delaySave) {
+                return;
+            }
+        }
+        this._delaySave = false;
         const jsonStr = JSON.stringify(this._getDurable());
         await this._getKVStore().put(jsonStr, true);
     }
