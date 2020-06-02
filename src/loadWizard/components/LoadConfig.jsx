@@ -292,19 +292,27 @@ class LoadConfig extends React.Component {
             });
 
             // Publish tables
-            const result = await this._publishDataCompTables(tables, tableName, {
-                dataQueryComplete: query.dataQueryComplete,
-                compQueryComplete: query.compQueryComplete
-            });
+            try {
+                const result = await this._publishDataCompTables(tables, tableName, {
+                    dataQueryComplete: query.dataQueryComplete,
+                    compQueryComplete: query.compQueryComplete
+                });
 
-            // State: -loading + created
-            this.setState({
-                createInProgress: deleteEntry(this.state.createInProgress, schemaName),
-                createTables: this.state.createTables.set(schemaName, {
-                    table: result.table,
-                    complementTable: result.complementTable
-                })
-            });
+                // State: -loading + created
+                this.setState({
+                    createInProgress: deleteEntry(this.state.createInProgress, schemaName),
+                    createTables: this.state.createTables.set(schemaName, {
+                        table: result.table,
+                        complementTable: result.complementTable
+                    })
+                });
+            } finally {
+                await Promise.all([
+                    tables.load.destroy(),
+                    tables.data.destroy(),
+                    tables.comp.destroy()
+                ]);
+            }
         } catch(e) {
             let error = e.message || e.error || e;
             error = xcHelper.parseError(error);
