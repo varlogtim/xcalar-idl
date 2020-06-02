@@ -35,11 +35,8 @@ class MapOpPanelModel extends GeneralOpPanelModel {
         }
         this.groups[index].operator = value;
         if (opInfo) {
-            let allowUnknownType = false;
-            if (opInfo.category === FunctionCategoryT.FunctionCategoryCast) {
-                // allow unknown type for cast operations
-                allowUnknownType = true;
-            }
+            // allow unknown type for cast operations
+            const allowUnknownType = (opInfo.category === FunctionCategoryT.FunctionCategoryCast) ? true : false;
             const numArgs = Math.max(Math.abs(opInfo.numArgs),
                                 opInfo.argDescs.length);
             this.groups[index].args = Array(numArgs).fill("").map((_o, i) => {
@@ -226,8 +223,11 @@ class MapOpPanelModel extends GeneralOpPanelModel {
                     typesAccepted = opInfo.argDescs[j].typesAccepted;
                     isOptional = this._isOptional(opInfo, j);
                 }
+                // allow unknown type for cast operations
+                const allowUnknownType = (!opInfo ||
+                    (opInfo && opInfo.category === FunctionCategoryT.FunctionCategoryCast)) ? true : false;
                 const argInfo: OpPanelArg = new OpPanelArg(arg, typesAccepted,
-                                                           isOptional, true);
+                                                           isOptional, true, allowUnknownType);
                 args.push(argInfo);
             }
             args.forEach((arg, index) => {
