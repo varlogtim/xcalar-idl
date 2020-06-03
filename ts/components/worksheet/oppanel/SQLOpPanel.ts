@@ -5,7 +5,6 @@ class SQLOpPanel extends BaseOpPanel {
     private _$elemPanel: JQuery; // The DOM element of the panel
     protected _dataModel: SQLOpPanelModel; // The key data structure
     protected _dagNode: DagNodeSQL;
-    private _$sqlIdentifiers = $("#sqlOpPanel .sqlIdentifiers");
     private _ignoreQueryConfirm = false;
     private _ignoreUpdateConfirm = false;
     private _identifiers: string[] = [];
@@ -284,26 +283,6 @@ class SQLOpPanel extends BaseOpPanel {
         return deferred.promise();
     }
 
-    private _addTableIdentifier(key?: number, value?: string): void {
-        const html = '<li>' +
-                     '  <div class="dropDownList source">' +
-                     '      <div class="text"></div>' +
-                     '  </div>' +
-                     '  <i class="icon xi-equal"></i>' +
-                     '  <input class="dest text" spellcheck="false"></input>' +
-                     '</li>';
-        const $li = $(html);
-        if (key) {
-            $li.find(".source .text").text(key);
-        }
-        if (value) {
-            $li.find(".dest.text").val(value);
-        }
-        $li.appendTo(this._$sqlIdentifiers);
-        const $scrollArea = this._$sqlIdentifiers.closest(".identifiers");
-        $scrollArea.scrollTop($scrollArea.prop('scrollHeight'));
-    }
-
     private _getDropAsYouGoSection(): JQuery {
         return this.$panel.find(".dropAsYouGo");
     }
@@ -331,59 +310,6 @@ class SQLOpPanel extends BaseOpPanel {
         $dropAsYouGo.on("click", ".checkbox, .text", () =>{
             this._toggleDropAsYouGo(null);
         });
-    }
-
-    private _addEventListeners(): void {
-        const self = this;
-        // Identifier section listeners
-        self._$elemPanel.find(".identifiers").scroll(function() {
-            self._$sqlIdentifiers.find(">li").each(function() {
-                const $dropDown = $(this).find(".dropDownList");
-                if ($dropDown.hasClass("open")) {
-                    // close the dropdown
-                    $dropDown.click();
-                }
-            });
-        });
-        self._$sqlIdentifiers.on("mouseup", ".source", function() {
-            const $li = $(this).closest("li");
-            self._populateSourceIds($li);
-        });
-        self._$sqlIdentifiers.on("blur", ".text.dest", function() {
-            const $input = $(this)
-            const key = $input.val().trim();
-            if (key && !xcHelper.checkNamePattern(PatternCategory.SQLIdentifier,
-                                                  PatternAction.Check, key)) {
-                StatusBox.show(SQLErrTStr.InvalidIdentifier, $input);
-                return;
-            }
-            if (key) {
-                // remove the old key
-                $input.attr("last-value", key);
-            }
-        });
-        self._$elemPanel.on("click", ".refreshSnippet", () => {
-            this._isQueryUpdated = true;
-            this._$elemPanel.removeClass("queryNotUpdated");
-            this._identifiers = [];
-            const snippetId = this.$panel.find(".snippetsList input").data("id");
-            this._selectQuery(snippetId, null, true);
-            this._$elemPanel.find(".snippetUpdated").fadeIn(800, () => {
-                setTimeout(() => {
-                    this._$elemPanel.find(".snippetUpdated").fadeOut(800);
-                }, 2000);
-            });
-        });
-    }
-
-    private _populateSourceIds($li: JQuery): void {
-        let content = "";
-        for (let i = 0; i < this._dagNode.getParents().length; i++) {
-            content += "<li>" + (i + 1) + "</li>";
-        }
-        const $ul = $li.find("ul");
-        const topOff = $li.offset().top + $li.height();
-        $ul.html(content).css({top: topOff + "px"});
     }
 
     public updateSnippet(snippetId: string, name?: string) {
@@ -480,7 +406,6 @@ class SQLOpPanel extends BaseOpPanel {
     // currently only called whenever the form opens
     protected _updateUI() {
         this._renderSnippet();
-        this._renderIdentifiers();
         this._renderDropAsYouGo();
         // Setup event listeners
         this._setupEventListener();
@@ -488,7 +413,6 @@ class SQLOpPanel extends BaseOpPanel {
 
     public updateIdentifiers(identifiers: Map<number, string>) {
         this._dataModel.setIdentifiers(identifiers);
-        this._renderIdentifiers();
     }
 
     public updateNodeParents() {
@@ -873,21 +797,6 @@ class SQLOpPanel extends BaseOpPanel {
         }
     }
 
-    private _renderIdentifiers(): void {
-        const self = this;
-        // clean up old elements first
-        self._$sqlIdentifiers.html("");
-        const identifiers = this._dataModel.getIdentifiers();
-        if (identifiers.size > 0) {
-            this._$sqlIdentifiers.siblings(".tableInstruction").addClass("xc-hidden");
-            identifiers.forEach(function(value, key) {
-                self._addTableIdentifier(key, value);
-            });
-        } else {
-            this._$sqlIdentifiers.siblings(".tableInstruction").removeClass("xc-hidden");
-        }
-    }
-
     private _renderDropAsYouGo(): void {
         let dropAsYouGo: boolean = this._dataModel.isDropAsYouGo();
         this._toggleDropAsYouGo(dropAsYouGo);
@@ -938,7 +847,19 @@ class SQLOpPanel extends BaseOpPanel {
         self._$elemPanel.on('click', '.submit', () => {
             this._submit();
         });
-        this._addEventListeners();
+
+        self._$elemPanel.on("click", ".refreshSnippet", () => {
+            this._isQueryUpdated = true;
+            this._$elemPanel.removeClass("queryNotUpdated");
+            this._identifiers = [];
+            const snippetId = this.$panel.find(".snippetsList input").data("id");
+            this._selectQuery(snippetId, null, true);
+            this._$elemPanel.find(".snippetUpdated").fadeIn(800, () => {
+                setTimeout(() => {
+                    this._$elemPanel.find(".snippetUpdated").fadeOut(800);
+                }, 2000);
+            });
+        });
     }
 
     protected _updateMode(toAdvancedMode: boolean) {
@@ -1014,18 +935,13 @@ class SQLOpPanel extends BaseOpPanel {
                 }
             }
 
-            this._$sqlIdentifiers.html("");
             if (Object.keys(identifiers).length > 0) {
                 for (let key of identifiersOrder) {
                     if (!this._validateSourceId(key)) {
                         return PromiseHelper.reject(SQLErrTStr.InvalidSourceId +
                             this._dagNode.getParents().length);
                     }
-                    this._addTableIdentifier(key, identifiers[key]);
                 }
-                this._$sqlIdentifiers.siblings(".tableInstruction").addClass("xc-hidden");
-            } else {
-                this._$sqlIdentifiers.siblings(".tableInstruction").removeClass("xc-hidden");
             }
             if (this._identifiers.length === 0) {
                 this._$elemPanel.find(".tableInstruction").removeClass("xc-hidden");
@@ -1049,7 +965,7 @@ class SQLOpPanel extends BaseOpPanel {
             this._identifiers = identifiersArr.map((i) => {
                 return i.identifier
             });
-            return this._selectQuery(snippetId, queryStr, true);
+            return this._selectQuery(snippetId, queryStr);
         } catch (e) {
             return PromiseHelper.reject(e);
         }
