@@ -189,6 +189,14 @@
       if (this.options.tipclasses != null) {
         $tip.addClass(this.options.tipclasses);
       }
+      let textLen = $tip.text().length;
+      if (textLen > 100) {
+        let width = Math.min(300, 200 + (0.5 * (textLen - 100)));
+        $tip.find(".tooltip-inner").css("max-width", width);
+        console.log(textLen, width);
+      } else {
+        $tip.find(".tooltip-inner").css("max-width", 200);
+      }
       //end xcalar custom code
 
       if (this.options.animation) $tip.addClass('fade')

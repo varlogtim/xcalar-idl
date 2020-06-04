@@ -82,7 +82,7 @@ class OpPanelComponentFactory {
         columnMenuItem:
             `<li class="flexColListItem">
                 <div class="typeIcon flexContainer {{colTypeClass}}">
-                    <div class="flexWrap flex-left" data-toggle="tooltip" data-title="{{colType}}" data-container="body" data-placement="top">
+                    <div class="flexWrap flex-left" data-toggle="tooltip" data-title="{{colType}}" data-container="body" data-placement="auto top">
                         <span class="iconHidden"></span>
                         <span class="type icon"></span>
                     </div>
@@ -121,7 +121,7 @@ class OpPanelComponentFactory {
 
         columnNameType:
             `<div class="typeIcon flexContainer flexRow {{cssType}}">
-                <div class="flexWrap flex-left" data-toggle="tooltip" data-title="{{colType}}" data-container="body" data-placement="top">
+                <div class="flexWrap flex-left" data-toggle="tooltip" data-title="{{colType}}" data-container="body" data-placement="auto top">
                     <span class="iconHidden"></span>
                     <span class="type icon"></span>
                 </div>

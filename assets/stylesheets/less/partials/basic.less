@@ -1909,8 +1909,15 @@ input[type=number]::-webkit-outer-spin-button {
     word-wrap: break-word;
     pointer-events: none;
     .tooltip-arrow {
-        opacity: 0.95;
+        opacity: 1;
     }
+}
+
+@color-bg-tooltip: rgb(84, 103, 130);
+
+.tooltip.in {
+    opacity: 1;
+    filter: alpha(opacity=100);
 }
 
 .tooltip-inner {
@@ -1920,6 +1927,7 @@ input[type=number]::-webkit-outer-spin-button {
     padding-bottom: 4px;
     color: @color-font-white;
     box-shadow: 0px 0px 0px 1px rgba(255, 255, 255, 0.1);
+    text-align: left;
 }
 
 .tooltip.bottom .tooltip-arrow {

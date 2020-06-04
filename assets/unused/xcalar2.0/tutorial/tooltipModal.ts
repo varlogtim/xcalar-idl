@@ -46,7 +46,7 @@ class TooltipModal {
             let walkInfo = walkthroughs[i];
             if (WorkbookManager.getActiveWKBK() == null && walkInfo.name !== WKBKTStr.Location) {
                 disable = 'xc-disabled';
-                disableTooltip =  'data-toggle="tooltip" data-placement="top" data-container="body" ' +
+                disableTooltip =  'data-toggle="tooltip" data-placement="auto top" data-container="body" ' +
                     'data-original-title="' + TooltipTStr.TooltipNoWorkbook + '"';
             } else {
                 disable = "";

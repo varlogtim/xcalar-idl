@@ -229,7 +229,7 @@ class XcDatasetViewer extends XcViewer {
         tr = this._getTableRowsHTML(jsonKeys, jsons, columnsType);
         if (numKeys > 0) {
             th += '<th class="rowNumHead" title="select all columns"' +
-                    ' data-toggle="tooltip" data-placement="top"' +
+                    ' data-toggle="tooltip" data-placement="auto top"' +
                     ' data-container="body"><div class="header">' +
                   '</div></th>';
         }
@@ -525,7 +525,7 @@ class XcDatasetViewer extends XcViewer {
                 '<div class="flexContainer flexRow">' +
                     '<div class="flexWrap flex-left" ' +
                         'data-toggle="tooltip" ' +
-                        'data-placement="top" ' +
+                        'data-placement="auto top" ' +
                         'data-container="body" ' +
                         'title="' + type + '">' +
                         '<span class="iconHidden"></span>' +

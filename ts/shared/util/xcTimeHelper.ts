@@ -52,7 +52,7 @@ namespace xcTimeHelper {
         const container: string = options.container || "body";
         const prefix = options.prefix || "";
         const title: string = prefix + date.format("h:mm:ss A M-D-Y");
-        return ' data-toggle="tooltip" data-placement="top" ' +
+        return ' data-toggle="tooltip" data-placement="auto top" ' +
                 'data-container="' + container +
                 '" data-original-title="' + title + '" ';
     };

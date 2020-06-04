@@ -399,7 +399,7 @@ class DSImportErrorModal {
             '<i class="icon xi-error"' + xcTooltip.Attrs +
             ' data-original-title="' + tooltip + '"></i>' +
             '<span class="filePath" data-toggle="tooltip" ' +
-                'data-placement="top" data-container="body" ' +
+                'data-placement="auto top" data-container="body" ' +
                 'data-original-title="' + fullPath + '">' +
                 '<span class="hiddenChar">a</span>' +
                 fullPath +

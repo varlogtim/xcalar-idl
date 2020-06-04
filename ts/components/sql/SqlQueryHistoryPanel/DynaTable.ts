@@ -50,19 +50,19 @@ namespace SqlQueryHistoryPanel {
                 `<div class="col {{cssClass}}" style="{{cssStyle}}">{{text}}</div>`,
             bodyColumnTextTooltip:
                 `<div class="col {{cssClass}}" style="{{cssStyle}}">
-                    <span data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="{{tooltip}}">{{text}}</span>
+                    <span data-toggle="tooltip" data-placement="auto top" data-container="body" data-original-title="{{tooltip}}">{{text}}</span>
                 </div>`,
             bodyColumnElpsText:
                 `<div class="col {{cssClass}}" style="{{cssStyle}}"><span class="elps-text">{{text}}</span></div>`,
             bodyColumnElpsTextTooltip:
                 `<div class="col {{cssClass}}">
-                    <span class="elps-text" style="{{cssStyle}}" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="{{tooltip}}">{{text}}</span>
+                    <span class="elps-text" style="{{cssStyle}}" data-toggle="tooltip" data-placement="auto top" data-container="body" data-original-title="{{tooltip}}">{{text}}</span>
                 </div>`,
             bodyColumnElpsTextLink:
                 `<div class="col link {{cssClass}}" style="{{cssStyle}}"><span class="elps-text" (click)="onLinkClick">{{text}}</span></div>`,
             bodyColumnIconLink:
                 `<div class="col link {{cssClass}}" style="{{cssStyle}}">
-                    <span class="iconLinkWrap" (click)="onLinkClick" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="{{text}}"><i class="icon {{iconClass}}"></i></span>
+                    <span class="iconLinkWrap" (click)="onLinkClick" data-toggle="tooltip" data-placement="auto top" data-container="body" data-original-title="{{text}}"><i class="icon {{iconClass}}"></i></span>
                 </div>`,
             bodyColumnCheckbox:
                 `<div class="col {{cssClass}}" style="{{cssStyle}}">

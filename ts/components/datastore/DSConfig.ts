@@ -3776,7 +3776,7 @@ namespace DSConfig {
                         '<div class="label tooltipOverflow"' +
                         ' data-toggle="tooltip"' +
                         ' data-container="body"' +
-                        ' data-placement="top"' +
+                        ' data-placement="auto top"' +
                         ' data-title="' + path + '">' +
                             icons +
                             path + pattern +
@@ -3865,7 +3865,7 @@ namespace DSConfig {
                         '<div class="label tooltipOverflow"' +
                         ' data-toggle="tooltip"' +
                         ' data-container="body"' +
-                        ' data-placement="top"' +
+                        ' data-placement="auto top"' +
                         ' data-title="' + fileName + '">' +
                         '<i class="icon xi-radio-empty"></i>' +
                         '<i class="icon xi-radio-selected"></i>' +
@@ -4863,7 +4863,7 @@ namespace DSConfig {
                                     '<div class="flexWrap flex-left" ' +
                                     'data-toggle="tooltip" ' +
                                     'data-container="body" ' +
-                                    'data-placement="top" ' +
+                                    'data-placement="auto top" ' +
                                     'data-original-title="' +
                                     xcStringHelper.capitalize(ColumnType.string) +
                                     '<br>' + DSTStr.ClickChange + '">' +
@@ -4941,7 +4941,7 @@ namespace DSConfig {
                             '<div class="flexContainer flexRow">' +
                                 '<div class="flexWrap flex-left" ' +
                                 'data-toggle="tooltip" data-container="body" ' +
-                                'data-placement="top" data-original-title="' +
+                                'data-placement="auto top" data-original-title="' +
                                 xcStringHelper.capitalize(ColumnType.string) +
                                 '<br>' + DSTStr.ClickChange + '">' +
                                     '<span class="iconHidden"></span>' +
@@ -5095,7 +5095,7 @@ namespace DSConfig {
                                     '<div class="flexWrap flex-left" ' +
                                     'data-toggle="tooltip" ' +
                                     'data-container="body" ' +
-                                    'data-placement="top" ' +
+                                    'data-placement="auto top" ' +
                                     'data-original-title="' +
                                     xcStringHelper.capitalize(ColumnType.string) +
                                     '<br>' + DSTStr.ClickChange + '">' +
@@ -5173,7 +5173,7 @@ namespace DSConfig {
                                     '<div class="flexWrap flex-left" ' +
                                     'data-toggle="tooltip" ' +
                                     'data-container="body" ' +
-                                    'data-placement="top" ' +
+                                    'data-placement="auto top" ' +
                                     'data-original-title="' +
                                     xcStringHelper.capitalize(ColumnType.string) +
                                     '<br>' + DSTStr.ClickChange + '">' +

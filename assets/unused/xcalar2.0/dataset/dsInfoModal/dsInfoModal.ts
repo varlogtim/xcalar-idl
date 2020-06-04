@@ -126,7 +126,7 @@ class DSInfoModal {
                         '<li class="tooltipOverflow" ' +
                         'data-toggle="tooltip ' +
                         'data-container="body" ' +
-                        'data-placement="top" ' +
+                        'data-placement="auto top" ' +
                         'data-title="' + name + '">' +
                             name +
                         '</li>';

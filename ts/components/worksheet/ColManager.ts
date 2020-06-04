@@ -1490,7 +1490,7 @@ namespace ColManager {
                 XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending]) {
                 sortIcon = '<div class="sortIcon"  data-toggle="tooltip" ' +
                         'data-container="body" ' +
-                        'data-placement="top" data-original-title="' +
+                        'data-placement="auto top" data-original-title="' +
                         TooltipTStr.ClickToSortDesc + '"' +
                             '><i class="icon xi-arrow-up fa-9"></i>';
                 sorted = true;
@@ -1498,7 +1498,7 @@ namespace ColManager {
                 XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
                 sortIcon = '<div class="sortIcon" data-toggle="tooltip" ' +
                             'data-container="body" ' +
-                            'data-placement="top" data-original-title="' +
+                            'data-placement="auto top" data-original-title="' +
                             TooltipTStr.ClickToSortAsc + '"><i class="icon ' +
                             'xi-arrow-down fa-9"></i>';
                 sorted = true;
@@ -1518,11 +1518,11 @@ namespace ColManager {
             sortIcon = '<div class="sortIcon">' +
                         '<div class="sortAsc sortHalf" data-toggle="tooltip" ' +
                         'data-container="body" ' +
-                        'data-placement="top" data-original-title="' +
+                        'data-placement="auto top" data-original-title="' +
                         TooltipTStr.ClickToSortAsc + '"></div>' +
                         '<div class="sortDesc sortHalf" data-toggle="tooltip"' +
                         'data-container="body" ' +
-                        'data-placement="top" data-original-title="' +
+                        'data-placement="auto top" data-original-title="' +
                         TooltipTStr.ClickToSortDesc + '"></div>' +
                         '<i class="icon xi-sort fa-12"></i>' +
                         '</div>';

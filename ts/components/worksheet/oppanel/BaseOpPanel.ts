@@ -64,7 +64,7 @@ class BaseOpPanel {
         ' tooltipOverflow"' +
         ' data-toggle="tooltip"' +
         ' data-container="body"' +
-        ' data-placement="top"' +
+        ' data-placement="auto top"' +
         ' data-title="' + xcStringHelper.escapeHTMLSpecialChar(colName) + '">' +
             colName +
         '</div>';
@@ -74,7 +74,7 @@ class BaseOpPanel {
             ' data-toggle="tooltip"' +
             ' data-title="' + colType + '"' +
             ' data-container="body"' +
-            ' data-placement="top"' +
+            ' data-placement="auto top"' +
             '>' +
             '<span class="iconHidden"></span>' +
             '<span class="type icon"></span>' +

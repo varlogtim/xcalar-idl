@@ -473,7 +473,7 @@ class DagNodeInfoPanel {
                                     '<i class="hint qMark icon xi-unknown"' +
                                     ' data-toggle="tooltip"' +
                                     ' data-container="body"' +
-                                    ' data-placement="top"' +
+                                    ' data-placement="auto top"' +
                                     ' data-title="' + TooltipTStr.RestoreSource + '"' +
                                     '>' +
                                 '</div>' +

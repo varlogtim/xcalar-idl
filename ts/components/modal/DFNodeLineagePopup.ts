@@ -356,7 +356,7 @@ class DFNodeLineagePopup {
         return '<span class="link"' +
                 ' data-toggle="tooltip"' +
                 ' data-container="body"' +
-                ' data-placement="top"' +
+                ' data-placement="auto top"' +
                 ' data-title="' + DFNodeLineageTStr.DFTooltip + '">' +
                     dagTab.getName() +
                 '</span>';
@@ -366,7 +366,7 @@ class DFNodeLineagePopup {
         return '<span class="link"' +
                 ' data-toggle="tooltip"' +
                 ' data-container="body"' +
-                ' data-placement="top"' +
+                ' data-placement="auto top"' +
                 ' data-title="' + DFNodeLineageTStr.NodeTooltip + '">' +
                     node.getDisplayNodeType() +
                 '</span>' +

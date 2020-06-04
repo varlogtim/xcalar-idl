@@ -877,7 +877,7 @@ namespace xcUIHelper {
         html += '>' +
                 '<div class="iconPart" data-toggle="tooltip" ' +
                 'data-original-title="' + title + '" ' +
-                'data-placement="top" data-container="body">' +
+                'data-placement="auto top" data-container="body">' +
                     '<div class="leftPart"></div>' +
                     '<div class="rightPart"></div>' +
                     '<i class="icon xi-clock"></i>' +

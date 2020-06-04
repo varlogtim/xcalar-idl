@@ -3088,7 +3088,7 @@ namespace DS {
       let parentId = dsObj.getParentId();
       let name = dsObj.getName();
       let html: HTML;
-      let tooltip: string = 'data-toggle="tooltip" data-container="body" data-placement="top"';
+      let tooltip: string = 'data-toggle="tooltip" data-container="body" data-placement="auto top"';
       let deactivateIcon: string = '<div class="deactivatingIcon xc-hidden" >' +
           '<i class="icon xi-forbid deactivating fa-15" ' +
           tooltip + 'data-title="' + DSTStr.DSDeactivating + '"></i></div>';

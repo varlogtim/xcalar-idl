@@ -337,7 +337,7 @@ class ColAssignmentView {
 
         const actionHTML = actionProp == null
             ? ''
-            : `<div class="action-icon ${cssActionDisabled}" data-toggle="tooltip" data-container="body" data-placement="top" data-original-title="${actionTooltip}">
+            : `<div class="action-icon ${cssActionDisabled}" data-toggle="tooltip" data-container="body" data-placement="auto top" data-original-title="${actionTooltip}">
                 <i class="icon xi-select-none fa-14"></i>
                 </div>`;
         return `<div class="flexContainer">
@@ -400,7 +400,7 @@ class ColAssignmentView {
             return '<div class="inputCol" data-index="' + index + '">' +
                         '<i class="addCol icon xi-plus"' +
                         ' data-toggle="tooltip" data-container="body"' +
-                        ' data-placement="top"' +
+                        ' data-placement="auto top"' +
                         ' data-title="' + UnionTStr.AddCol + '"' +
                         '></i>' +
                         BaseOpPanel.craeteColumnListHTML(col.getType(), colName) +
@@ -434,7 +434,7 @@ class ColAssignmentView {
             const tooltip = isAdd ? UnionTStr.AddAllTooltip : UnionTStr.RemoveAllTooltip;
             const cssActionType = isAdd ? 'add' : 'remove';
             const iconHTML = isShowIcon
-                ? `<div class="action-icon ${cssActionDisabled} ${cssActionType}" data-toggle="tooltip" data-container="body" data-placement="top" data-original-title="${tooltip}">
+                ? `<div class="action-icon ${cssActionDisabled} ${cssActionType}" data-toggle="tooltip" data-container="body" data-placement="auto top" data-original-title="${tooltip}">
                     <i class="icon ${cssActionIcon} fa-14"></i>
                     </div>`
                 : '';
@@ -562,7 +562,7 @@ class ColAssignmentView {
                     ' data-toggle="tooltip"' +
                     ' data-title="' + xcStringHelper.escapeHTMLSpecialChar(title) + '"' +
                     ' data-container="body"' +
-                    ' data-placement="top"' +
+                    ' data-placement="auto top"' +
                     '>' +
                         BaseOpPanel.craeteColumnListHTML(colType, colName, isUsed) +
                     '</li>';

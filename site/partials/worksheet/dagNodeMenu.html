@@ -1,6 +1,6 @@
 <div id="dagNodeMenu" class="menu" data-submenu="dagNodeSubMenu">
     <ul>
-        <li class="editSQLGraph unavailable" data-action="editSQLGraph" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.dag.ViewOnlyHint %>">
+        <li class="editSQLGraph unavailable" data-action="editSQLGraph" data-toggle="tooltip" data-placement="auto left" data-container="body" data-original-title="<%= dicts.dag.ViewOnlyHint %>">
             <i class="icon xi-setup"></i>
             <span class="label"><%= dicts.dag.convert %></span>
         </li>
@@ -12,7 +12,7 @@
           <i class="icon xi-refresh"></i>
           <span class="label">Update to latest SQL Query
             <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body"
-            data-original-title="<%= dicts.SQL.OutOfSyncTip %>" data-placement="top"></i>
+            data-original-title="<%= dicts.SQL.OutOfSyncTip %>" data-placement="auto left"></i>
           </span>
         </li>
         <li class="editCustom nodeCustom" data-action="editCustom">
@@ -162,7 +162,7 @@
 
 <div id="dagTableNodeMenu" class="menu" data-submenu="dagTableNodeSubMenu">
     <ul>
-        <li class="editSQLGraph unavailable" data-action="editSQLGraph" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.dag.ViewOnlyHint %>">
+        <li class="editSQLGraph unavailable" data-action="editSQLGraph" data-placement="auto left" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.dag.ViewOnlyHint %>">
             <i class="icon xi-setup"></i>
             <span class="label"><%= dicts.dag.convert %></span>
         </li>
@@ -178,7 +178,7 @@
           <i class="icon xi-trash"></i>
           <span class="label"><%= dicts.MenuTStr.DelTbl %></span>
         </li>
-        <li class="deleteParentTable" data-action="deleteParentTable" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.dag.DeleteParentTablesHint %>">
+        <li class="deleteParentTable" data-action="deleteParentTable" data-placement="auto left" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.dag.DeleteParentTablesHint %>">
             <i class="icon xi-trash"></i>
             <span class="label"><%= dicts.dag.DeleteParentTables %></span>
         </li>

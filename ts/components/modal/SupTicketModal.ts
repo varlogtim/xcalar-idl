@@ -1027,7 +1027,7 @@ class SupTicketModal {
                 let radioTip: string = "";
                 if (isClosed) {
                     radioTip = 'data-toggle="tooltip" data-container="body" ' +
-                               'data-placement="top" data-original-title="' +
+                               'data-placement="auto top" data-original-title="' +
                                MonitorTStr.ClosedTicket + '"';
                 }
                 html += '<div class="radioButtonGroup" ' + radioTip + '>' +
@@ -1055,7 +1055,7 @@ class SupTicketModal {
                 if (ticket[i].severity != null &&
                     MonitorTStr["Severity" + ticket[i].severity]) {
                     severity = '<div class="severity" data-toggle="tooltip" ' +
-                            'data-placement="top" data-container="body" ' +
+                            'data-placement="auto top" data-container="body" ' +
                             'data-original-title="' + MonitorTStr["Severity" +
                             ticket[i].severity] + '"><span class="semibold">' +
                             MonitorTStr.Severity + ': </span> ' +
@@ -1078,7 +1078,7 @@ class SupTicketModal {
             }
 
             html += '<div class="td time" data-toggle="tooltip" ' +
-            'data-container="body" data-placement="top" data-original-title="' +
+            'data-container="body" data-placement="auto top" data-original-title="' +
                 time + '" data-time="' + ticket[i].created_at + '">'+
                 moment(ticket[i].created_at).fromNow() + '</div>' +
               '<div class="td details">' +

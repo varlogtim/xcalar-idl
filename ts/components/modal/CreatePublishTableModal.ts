@@ -106,7 +106,7 @@ class CreatePublishTableModal {
                 'data-original-title="' +
                     xcStringHelper.escapeDblQuoteForHTML(
                         xcStringHelper.escapeHTMLSpecialChar(colName)) + '" ' +
-                'data-toggle="tooltip" data-placement="top" ' +
+                'data-toggle="tooltip" data-placement="auto top" ' +
                 'data-container="body">' +
                     colName +
                 '</span>' +

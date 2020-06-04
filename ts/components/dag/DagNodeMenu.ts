@@ -49,7 +49,8 @@ namespace DagNodeMenu {
             let $li = $menus.find("." + key);
             if ($li.length) {
                 xcTooltip.add($li, {
-                    title: tooltipMap[key]
+                    title: tooltipMap[key],
+                    placement: "auto left"
                 });
             }
         }
@@ -194,7 +195,7 @@ namespace DagNodeMenu {
                 const icon: string = categoryNode.getIcon();
                 const description: string = categoryNode.getDescription();
                 subMenuPart += `<li class="operator ${operatorName}" data-opid="${operator.getId()}"
-                                ${xcTooltip.Attrs} data-delay="700" data-original-title="${description}">
+                                ${xcTooltip.Attrs} data-placement="auto left" data-delay="700" data-original-title="${description}">
                                     <i class="icon operatorIcon ${icon}">${icon}</i>
                                     <span class="label">${opDisplayName}</span>
                             </li>`;
@@ -204,7 +205,7 @@ namespace DagNodeMenu {
 
                 menuHtml += `<li class="category category-${categoryType} parentMenu"
                         data-submenu="category-${categoryType}"
-                        ${xcTooltip.Attrs} data-delay="700" data-original-title="${description}" >
+                        ${xcTooltip.Attrs} data-placement="auto left" data-delay="700" data-original-title="${description}" >
                             <i class="icon categoryIcon ${icon}"></i>
                             <span class="label">${categoryName}</span>
                         </li>`;

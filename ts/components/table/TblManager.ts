@@ -970,11 +970,11 @@ class TblManager {
             '<div class="sortIcon">' +
                 '<div class="sortAsc sortHalf" data-toggle="tooltip" ' +
                 'data-container="body" ' +
-                'data-placement="top" data-original-title="' +
+                'data-placement="auto top" data-original-title="' +
                 TooltipTStr.ClickToSortAsc + '"></div>' +
                 '<div class="sortDesc sortHalf" data-toggle="tooltip"' +
                 'data-container="body" ' +
-                'data-placement="top" data-original-title="' +
+                'data-placement="auto top" data-original-title="' +
                 TooltipTStr.ClickToSortDesc + '"></div>' +
                 '<i class="icon xi-sort fa-12"></i>' +
             '</div>'; // placeholder
@@ -989,14 +989,14 @@ class TblManager {
             if (order === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending]) {
                 sortIcon = '<div class="sortIcon"  data-toggle="tooltip" ' +
                         'data-container="body" ' +
-                        'data-placement="top" data-original-title="' +
+                        'data-placement="auto top" data-original-title="' +
                         TooltipTStr.ClickToSortDesc + '"' +
                             '><i class="icon xi-arrowtail-up fa-9"></i>';
                 sorted = true;
             } else if (order === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
                 sortIcon = '<div class="sortIcon" data-toggle="tooltip" ' +
                             'data-container="body" ' +
-                            'data-placement="top" data-original-title="' +
+                            'data-placement="auto top" data-original-title="' +
                             TooltipTStr.ClickToSortAsc + '"><i class="icon ' +
                             'xi-arrowtail-down fa-9"></i>';
                 sorted = true;
@@ -1045,7 +1045,7 @@ class TblManager {
                     '<div class="dragArea">' +
                         '<div class="iconHelper" ' +
                             'data-toggle="tooltip" ' +
-                            'data-placement="top" ' +
+                            'data-placement="auto top" ' +
                             'data-container="body">' +
                         '</div>' +
                     '</div>' +
@@ -1067,7 +1067,7 @@ class TblManager {
                                 ' type="text"  value="' + colName + '"' +
                                 ' size="15" spellcheck="false" ' +
                                 'data-toggle="tooltip" ' +
-                                'data-placement="top" ' +
+                                'data-placement="auto top" ' +
                                 'data-container="body" ' +
                                 'data-original-title="' + xcTooltip.escapeHTML(colName) + '" ' +
                                 disabledProp + '/>' +
@@ -2369,7 +2369,7 @@ class TblManager {
                     '<input value="" spellcheck="false" disabled title="' +
                     TooltipTStr.SelectAllColumns + '" ' +
                     'data-toggle="tooltip"' +
-                    ' data-placement="top" data-container="body">' +
+                    ' data-placement="auto top" data-container="body">' +
                   '</div>' +
                 '</th>';
 
@@ -2416,7 +2416,7 @@ class TblManager {
                             '<input value="DATA" spellcheck="false" ' +
                                 ' class="dataCol col' + colNum + '"' +
                                 ' data-container="body"' +
-                                ' data-toggle="tooltip" data-placement="top" ' +
+                                ' data-toggle="tooltip" data-placement="auto top" ' +
                                 '" title="raw data" disabled>' +
                         '</div>' +
                         '<div class="flexWrap flex-right">' +

@@ -1,21 +1,21 @@
 <div id="dagGraphBar">
     <div class="topButtons left">
-        <div id="undo" class="topButton undo" data-toggle="tooltip" data-container="body" data-placement="top">
+        <div id="undo" class="topButton undo" data-toggle="tooltip" data-container="body" data-placement="auto top">
             <i class="icon xi-undo-outline actionIcon"></i>
         </div>
-        <div id="redo" class="topButton redo" data-toggle="tooltip" data-container="body" data-placement="top">
+        <div id="redo" class="topButton redo" data-toggle="tooltip" data-container="body" data-placement="auto top">
             <i class="icon xi-redo-outline actionIcon"></i>
         </div>
         <div class="divider"></div>
-        <div class="topButton zoomOut" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%=
+        <div class="topButton zoomOut" data-toggle="tooltip" data-container="body" data-placement="auto top" data-title="<%=
                 dicts.dag.zoomOut %>">
             <i class="icon xi-minus actionIcon"></i>
         </div>
-        <div class="topButton zoomPercent" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.dag.zoom %>">
+        <div class="topButton zoomPercent" data-toggle="tooltip" data-container="body" data-placement="auto top" data-title="<%= dicts.dag.zoom %>">
             <input disabled class="zoomPercentInput xc-input white" type="text" pattern="\d*" maxlength="3" max="200" min="25" step="1" value="100" placeholder="100">
             <div class="percent-sign">%</div>
         </div>
-        <div class="topButton zoomIn" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%=
+        <div class="topButton zoomIn" data-toggle="tooltip" data-container="body" data-placement="auto top" data-title="<%=
                 dicts.dag.zoomIn %>">
             <i class="icon xi-plus actionIcon"></i>
         </div>
@@ -46,7 +46,7 @@
     <div class="topButtons right">
         <button class="btn btn-secondary useInSQL"><%= dicts.dag.UseInSQL %></button>
         <div class="topButton viewOnly">
-            <i class="editSQLGraph actionIcon icon xi-edit xc-action" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.dag.ViewOnlyHint %>"></i>
+            <i class="editSQLGraph actionIcon icon xi-edit xc-action" data-toggle="tooltip" data-container="body" data-placement="auto top" data-title="<%= dicts.dag.ViewOnlyHint %>"></i>
             <span class="text"><%= dicts.dag.ViewOnly %></span>
         </div>
         <div class="topButton configuring">
@@ -59,7 +59,7 @@
                 <span class="text"><%= dicts.dag.execute %></span>
                 <i class="icon xi-play-outline actionIcon"></i>
             </span>
-            <div class="iconWrapper" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.dag.executeHint %>">
+            <div class="iconWrapper" data-toggle="tooltip" data-container="body" data-placement="auto top" data-title="<%= dicts.dag.executeHint %>">
                 <i class="icon xi-arrow-down"></i>
             </div>
             <div class="list">
@@ -68,7 +68,7 @@
             </ul>
             </div>
         </div>
-        <div class="topButton stop" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.dag.cancelExecute %>">
+        <div class="topButton stop" data-toggle="tooltip" data-container="body" data-placement="auto top" data-title="<%= dicts.dag.cancelExecute %>">
             <span class="text">Cancel</span>
             <i class="icon xi-stop-outline actionIcon"></i>
         </div>

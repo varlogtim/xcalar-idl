@@ -408,7 +408,7 @@ class AggModal {
                 prefixLabel =
                 '<span data-original-title="' +
                 operation.prefix + '" ' +
-                'data-toggle="tooltip" data-placement="top" ' +
+                'data-toggle="tooltip" data-placement="auto top" ' +
                 'data-container="body" ' +
                 'class="textOverflow tooltipOverflow prefix '
                 + prefClass + '">' +
@@ -423,7 +423,7 @@ class AggModal {
                 '<span data-original-title="' +
                 xcStringHelper.escapeDblQuoteForHTML(
                 xcStringHelper.escapeHTMLSpecialChar(name)) + '" ' +
-                'data-toggle="tooltip" data-placement="top" ' +
+                'data-toggle="tooltip" data-placement="auto top" ' +
                 'data-container="body" ' +
                 'class="textOverflow tooltipOverflow">' +
                     name +
@@ -451,7 +451,7 @@ class AggModal {
             html +=
             '<div class="aggTableField colLabel">' +
                 '<span data-original-title="' + labels[i].prefix + '" ' +
-                'data-toggle="tooltip" data-placement="top" ' +
+                'data-toggle="tooltip" data-placement="auto top" ' +
                 'data-container="body" ' +
                 'class="prefix textOverflow tooltipOverflow ' +
                 prefClass + '">' +
@@ -460,7 +460,7 @@ class AggModal {
                 '<span data-original-title="' +
                 xcStringHelper.escapeDblQuoteForHTML(
                 xcStringHelper.escapeHTMLSpecialChar(colName)) + '" ' +
-                'data-toggle="tooltip" data-placement="top" ' +
+                'data-toggle="tooltip" data-placement="auto top" ' +
                 'data-container="body" ' +
                 'class="textOverflow tooltipOverflow">' +
                     colName +
@@ -642,7 +642,7 @@ class AggModal {
         "textOverflow tooltipOverflow" : "textOverflow";
         let html = '<span class="' + spanClass + '" ' +
                     'data-original-title="' + title +
-                    '" data-toggle="tooltip" data-placement="top" ' +
+                    '" data-toggle="tooltip" data-placement="auto top" ' +
                     'data-container="body">' +
                         (isNumeric ? value.toFixed(3) : value) +
                     '</span>';
@@ -855,7 +855,7 @@ class AggModal {
         let html =
         '<span class="' + spanClass + '" ' +
         'data-original-title="' + title +
-        '" data-toggle="tooltip" data-placement="top" ' +
+        '" data-toggle="tooltip" data-placement="auto top" ' +
         'data-container="body">' +
             (jQuery.isNumeric(value) ? value.toFixed(3) : value) +
         '</span>';

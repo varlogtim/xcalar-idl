@@ -330,7 +330,7 @@ namespace Admin {
                         $bd.prepend(toggle);
                         let ellipsis = '<div class="ellipsis xc-action" ' +
                         'data-tipclasses="highZindex" data-toggle="tooltip" ' +
-                        'data-placement="top" data-container="body" title="' +
+                        'data-placement="auto top" data-container="body" title="' +
                         CommonTxtTstr.ClickToExpand + '">...</div>';
                         $bd.find(".jObj").before(ellipsis);
                     }
@@ -636,14 +636,14 @@ namespace Admin {
                         '<span class="memory xc-action"' +
                             ' data-toggle="tooltip"' +
                             ' data-container="body"' +
-                            ' data-placement="top"' +
+                            ' data-placement="auto top"' +
                             ' data-title="' + memTip + '">' +
                             '<i class="icon xi-menu-info"></i>' +
                         '</span>' +
                         '<span class="useAs xc-action"' +
                             ' data-toggle="tooltip"' +
                             ' data-container="body"' +
-                            ' data-placement="top"' +
+                            ' data-placement="auto top"' +
                             ' data-title="Use Xcalar as this user">' +
                             '<i class="icon xi-monitor"></i>' +
                         '</span>' +

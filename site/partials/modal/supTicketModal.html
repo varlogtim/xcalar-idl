@@ -48,9 +48,9 @@
         <div class="list">
           <ul>
             <li data-val="4">4 - <%= dicts.supportTicket.Severity4 %></li>
-            <li data-val="3">3 - <%= dicts.supportTicket.Severity3 %><i class="icon xi-unknown qMark" data-toggle="tooltip" data-container="body" data-delay="1" data-placement="top" title="<%= dicts.TooltipTStr.Severity3 %>"></i></li>
-            <li data-val="2">2 - <%= dicts.supportTicket.Severity2 %><i class="icon xi-unknown qMark" data-toggle="tooltip" data-container="body" data-delay="1" data-placement="top" title="<%= dicts.TooltipTStr.Severity2 %>"></i></li>
-            <li data-val="1">1 - <%= dicts.supportTicket.Severity1 %><i class="icon xi-unknown qMark" data-toggle="tooltip" data-container="body" data-delay="1" data-placement="top" title="<%= dicts.TooltipTStr.Severity1 %>"></i></li>
+            <li data-val="3">3 - <%= dicts.supportTicket.Severity3 %><i class="icon xi-unknown qMark" data-toggle="tooltip" data-container="body" data-delay="1" data-placement="auto top" title="<%= dicts.TooltipTStr.Severity3 %>"></i></li>
+            <li data-val="2">2 - <%= dicts.supportTicket.Severity2 %><i class="icon xi-unknown qMark" data-toggle="tooltip" data-container="body" data-delay="1" data-placement="auto top" title="<%= dicts.TooltipTStr.Severity2 %>"></i></li>
+            <li data-val="1">1 - <%= dicts.supportTicket.Severity1 %><i class="icon xi-unknown qMark" data-toggle="tooltip" data-container="body" data-delay="1" data-placement="auto top" title="<%= dicts.TooltipTStr.Severity1 %>"></i></li>
           </ul>
           include "../../util/menuScrollArea.html"
         </div>
@@ -84,14 +84,14 @@
     <div class="formRow customTicketRow">
       <span class="label"><%= dicts.supportTicket.ExistingTicketId %>: </span>
       <input type="text" class="xc-input" spellcheck="false" autocomplete="off">
-      <i class="icon xi-unknown qMark" data-toggle="tooltip" data-container="body" data-delay="1" data-placement="top" title="<%= dicts.TooltipTStr.CustomTicketId %>"></i>
+      <i class="icon xi-unknown qMark" data-toggle="tooltip" data-container="body" data-delay="1" data-placement="auto top" title="<%= dicts.TooltipTStr.CustomTicketId %>"></i>
     </div>
   </section>
   <section class="modalSubMain commentSection">
     <div class="formRow genBundleRow">
       <span class="label">3. <%= dicts.supportTicket.AdditionalInfo %>:</span>
       <div class="options">
-        <div class="checkboxSection genBundleBox" data-toggle="tooltip" data-container="#supTicketModal" data-placement="top" data-original-title="<%= dicts.supportTicket.GenBundleTip %>">
+        <div class="checkboxSection genBundleBox" data-toggle="tooltip" data-container="#supTicketModal" data-placement="auto top" data-original-title="<%= dicts.supportTicket.GenBundleTip %>">
           <div class="text"><%= dicts.supportTicket.GenBundle %>?</div>
           <div class="checkbox">
             <i class="icon xi-ckbox-empty"></i>
