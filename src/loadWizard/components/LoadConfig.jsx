@@ -186,35 +186,22 @@ class LoadConfig extends React.Component {
     }
 
     async _publishDataCompTables(tables, publishTableName, dataflows) {
+        const { discoverAppId } = this.state;
+        const app = SchemaLoadService.getDiscoverApp(discoverAppId);
+
         const dataName = PTblManager.Instance.getUniqName(publishTableName.toUpperCase());
         const compName = PTblManager.Instance.getUniqName(publishTableName + '_COMPLEMENTS');
-        const { dataQueryComplete = '[]', compQueryComplete = '[]' } = dataflows || {};
 
         try {
             PTblManager.Instance.addLoadingTable(dataName);
             PTblManager.Instance.addLoadingTable(compName);
 
-            // Publish data table
-            const pubDataTable = await tables.data.publish(dataName);
-            await pubDataTable.saveDataflow(JSON.parse(dataQueryComplete));
-
-            // Check if comp table is empty
-            let compHasData = false;
-            const cursor = tables.comp.createCursor(false);
-            try {
-                await cursor.open();
-                if (cursor.getNumRows() > 0) {
-                    compHasData = true;
-                }
-            } finally {
-                cursor.close();
-            }
-
-            // Publish comp table
-            if (compHasData) {
-                const pubCompTable = await tables.comp.publish(compName);
-                await pubCompTable.saveDataflow(JSON.parse(compQueryComplete));
-            }
+            // Publish tables
+            const compHasData = await app.publishResultTables(
+                tables,
+                { data: dataName, comp: compName },
+                dataflows
+            )
 
             // XD table operations
             PTblManager.Instance.removeLoadingTable(dataName);

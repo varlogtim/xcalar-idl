@@ -330,6 +330,34 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
                 executionDone = true;
             }
         },
+        publishResultTables: async (tables, pubNames, dataflows) => {
+            const { data: dataName, comp: compName } = pubNames;
+            const { dataQueryComplete = '[]', compQueryComplete = '[]' } = dataflows || {};
+
+            // Publish data table
+            const pubDataTable = await tables.data.publish(dataName);
+            await pubDataTable.saveDataflow(JSON.parse(dataQueryComplete));
+
+            // Check if comp table is empty
+            let compHasData = false;
+            const cursor = tables.comp.createCursor(false);
+            try {
+                await cursor.open();
+                if (cursor.getNumRows() > 0) {
+                    compHasData = true;
+                }
+            } finally {
+                cursor.close();
+            }
+
+            // Publish comp table
+            if (compHasData) {
+                const pubCompTable = await tables.comp.publish(compName);
+                await pubCompTable.saveDataflow(JSON.parse(compQueryComplete));
+            }
+
+            return compHasData;
+        },
         createResultTables: async (query, progressCB = () => {}) => {
             // const {loadQueryOpt, dataQueryOpt, compQueryOpt, tableNames} = query;
             const {loadQueryOpt, dataQuery, compQuery, tableNames} = query;
