@@ -731,7 +731,6 @@ AggTStr = {
 };
 
 IndexTStr = {
-    'Sorted': 'Table already sorted',
     'SuggTitle': 'Sort Suggestion',
     'SuggMsg': 'This column can be sorted either numerically or ' +
                'alphabetically. How would you like to sort?',
@@ -739,37 +738,19 @@ IndexTStr = {
     'NoCast': 'Alphabetically',
 
     // with replace
-    'SortedErr': 'Current table is already sorted on this column in <order> ' +
-                 'order',
     'SuggInstr': 'Select "Numerically" to cast the column to <type> ' +
                  'before sorting in numerical order. Non-numeric rows are ' +
                  'deleted during the sort.'
 };
 
 JoinTStr = {
-    "NoMatchSelf": 'Sorry, cannot find a valid key to match besides the current column',
-    'UnlikelyJoinKey': 'This pairing is unlikely by our estimation, ' +
-        'but still the best key found.',
-    'NoColToCheck': 'No available column names to check',
     'InvalidClause': 'Invalid clause to join',
-    'TypeMistch': 'Left selected column and right selected column has type ' +
-                  'mismatch, cannot join',
+    'TypeMistch': 'Left selected column and right selected column has type mismatch, cannot join',
     'InvalidJoinType': 'Invalid join type',
-    'EstimateJoin': 'Estimate join size',
-    'EstimatedJoin': 'Estimated join size',
-    'EstimatingJoin': 'Estimating join size...',
-    'Estimating': 'Estimating...',
-    'JOIN': 'JOIN',
-    'ModifyDesc': 'Would you like to modify the join?',
     "DagColSelectInstr": "Select the columns from input #1 and input #2 to join on by equality.",
-    "DagColSelectInstrCross": "Cross join does not require join keys since it is " +
-                           "joining every record on the left input with " +
-                           "every record on the right input",
-
+    "DagColSelectInstrCross": "Cross join does not require join keys since it is joining every record on the left input with every record on the right input",
     //with replace
-    'NoJoin': 'Cannot join <type>',
-    'MismatchDetail': 'Cannot join column of type <type1> with column of type ' +
-                     '<type2>',
+    'MismatchDetail': 'Cannot join column of type <type1> with column of type <type2>',
     'joinTypeInner': 'Inner Join',
     'joinTypeLeft': 'Left Outer Join',
     'joinTypeRight': 'Right Outer Join',
@@ -778,6 +759,7 @@ JoinTStr = {
     'joinTypeLeftAnti': 'Left Anti Semi Join',
     'joinTypeCross': 'Cross Join',
     'joinTypeSepAdv': 'Advanced',
+
 };
 
 UnionTStr = {
@@ -1402,7 +1384,6 @@ OpModalTStr = {
     'SelectCategory': 'Select a category on the left or',
     'CreateUDF': 'Create a new scalar function',
     // with replace
-    'ModifyDesc': 'Would you like to modify the <name>?',
     'ModifyBtn': 'MODIFY <name>'
 };
 

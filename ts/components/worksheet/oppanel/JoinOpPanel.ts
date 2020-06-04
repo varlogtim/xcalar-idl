@@ -49,6 +49,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         // Update UI according to the data model
         let error: string;
         try {
+            this._updatePanelTitle(dagNode);
             this._updateUI();
         } catch (e) {
             error = e;
@@ -72,6 +73,13 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         this._dagNode = null;
         this._dataModel = null;
         this._cachedBasicModeParam = null;
+    }
+
+    // XXX TODO: this is a quick solution to update the header
+    // better solution should not use JQuery but the React way
+    private _updatePanelTitle(dagNode: DagNodeJoin): void {
+        let header: string = dagNode.getDisplayNodeType();
+        $("#joinOpPanel .opPanelHeader .title").text(header);
     }
 
     protected _updateUI() {
