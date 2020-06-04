@@ -62,6 +62,7 @@ namespace SqlQueryHistoryPanel {
             const $searchBox = this._$cardContainer.find(".selSearch");
             let searchTimeout = null
             $searchBox.off().on('input', () => {
+                if (!$searchBox.is(":visible")) return; // ENG-8642
                 if (searchTimeout != null) {
                     clearTimeout(searchTimeout);
                     searchTimeout = null;

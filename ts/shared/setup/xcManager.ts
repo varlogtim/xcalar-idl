@@ -353,7 +353,7 @@ namespace xcManager {
     export function removeUnloadPrompt(markUser: boolean = false): void {
         // ENG-8039, this is a temp workaround, correct fix should at the wetty side
         $("#shellPanel").remove();
-        
+
         window.onbeforeunload = function() {
             if (markUser) {
                 markUserUnload();
@@ -677,7 +677,7 @@ namespace xcManager {
     }
 
     function documentReadyGeneralFunction(): void {
-        $(document).keydown(function(event: JQueryEventObject): void{
+        $(document).keydown(function(event: JQueryEventObject): void {
             let isPreventEvent: boolean;
 
             switch (event.which) {

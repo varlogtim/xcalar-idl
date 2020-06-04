@@ -363,6 +363,7 @@ class DataSourceSchema {
 
         let inputTimer = null;
         this._getSchemaTextAreaEl().on("input", () => {
+            if (!this._getSchemaTextAreaEl().is(":visible")) return; // ENG-8642
             clearTimeout(inputTimer);
             inputTimer = setTimeout(() => {
                 this._changeSchema();

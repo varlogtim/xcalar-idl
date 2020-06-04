@@ -26,7 +26,7 @@ class DagCustomRenameModal {
      * Show the modal
      * @param props.name name of the operator
      * @param props.validateFunc Function to validate the name
-     * @param props.onSubmit The callback function when clicking save 
+     * @param props.onSubmit The callback function when clicking save
      */
     public show(props: {
         name: string,
@@ -40,7 +40,7 @@ class DagCustomRenameModal {
         this._model.name = props.name;
         this._model.validateFunc = props.validateFunc;
         this._model.onSubmit = props.onSubmit;
-        
+
         this._renderUI();
         this._modalHelper.setup();
         return true;
@@ -72,6 +72,7 @@ class DagCustomRenameModal {
 
         $elemNameInput.off();
         $elemNameInput.on('input', (event) => {
+            if (!$elemNameInput.is(":visible")) return; // ENG-8642
             this._model.name = $(event.target).val().trim();
             if (this._isValidName()) {
                 this._enableSave();

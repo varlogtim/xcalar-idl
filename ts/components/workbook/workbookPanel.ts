@@ -456,6 +456,7 @@ namespace WorkbookPanel {
         });
 
         $("#workbookTopBar").find(".searchbarArea input").on("input", function() {
+            if (!$("#workbookTopBar").find(".searchbarArea input").is(":visible")) return; // ENG-8642
             const searchStr = $(this).val();
             _searchWorkbooks(searchStr);
         });

@@ -126,6 +126,7 @@ class TableSearchBar {
         const $input: JQuery = $searchArea.find("input");
         $input.on("input", (event) => {
             const $input: JQuery = $(event.currentTarget);
+            if (!$input.is(":visible")) return; // ENG-8642
             this._searchColNames($input.val());
         });
 

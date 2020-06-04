@@ -279,6 +279,7 @@ class SQLFuncInOpPanel extends BaseOpPanel {
         }).setupListeners();
 
         $dropdown.find("input").on("input", (event) => {
+            if (!$dropdown.find("input").is(":visible")) return; // ENG-8642
             const keyword: string = $(event.currentTarget).val().trim();
             this._searchSource(keyword);
         });

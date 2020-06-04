@@ -201,6 +201,7 @@ class ColSchemaSection {
         let hintTimer: number;
         $dropdown.on("input", "input", (event) => {
             const $input: JQuery = $(event.currentTarget);
+            if (!$input.is(":visible")) return; // ENG-8642
             clearTimeout(hintTimer);
             hintTimer = window.setTimeout(() => {
                 this._populateHintDropdown($dropdown, $input.val().trim());

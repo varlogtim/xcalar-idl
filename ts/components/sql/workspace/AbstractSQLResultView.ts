@@ -48,6 +48,7 @@ abstract class AbstractSQLResultView {
     protected _addEventListeners(): void {
         const $topSection = this._getTopSection();
         $topSection.find(".searchbarArea input").on("input", () => {
+            if (!$topSection.find(".searchbarArea input").is(":visible")) return; // ENG-8642
             this._filterTables();
         });
     }

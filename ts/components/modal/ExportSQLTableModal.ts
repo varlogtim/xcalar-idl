@@ -61,6 +61,7 @@ class ExportSQLTableModal {
 
 
         $("#exportSQLTableColumns .searchInput").on("input", (event)  => {
+            if (! $("#exportSQLTableColumns .searchInput").is(":visible")) return; // ENG-8642
             const $searchInput: JQuery = $(event.currentTarget);
             const keyword: string = $searchInput.val().trim();
             this._filterColumns(keyword);

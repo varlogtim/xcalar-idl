@@ -58,6 +58,7 @@ namespace WorkbookInfoModal {
         });
 
         $modal.on("input", ".name input", function() {
+            if (!$modal.find(".name input").is(":visible")) return; // ENG-8642
             if ($(this).val() === "") {
                 showNameError();
             } else {

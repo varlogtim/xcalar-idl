@@ -468,6 +468,7 @@ class DagSearch {
         });
 
         this._getSearchInput().on("input", () => {
+            if (!this._getSearchInput().is(":visible")) return; // ENG-8642
             this._search();
         });
     }

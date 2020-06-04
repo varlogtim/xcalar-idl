@@ -52,6 +52,7 @@ class AdminAlertCard {
     private _addEventListeners(): void {
         let $card: JQuery = this._getCard();
         $card.find(".alert-msg").on("input", (event) => {
+            if (!$card.find(".alert-msg").is(":visible")) return; // ENG-8642
             let enable: boolean = $(event.currentTarget).val();
             this._toggleConfirmButton(enable);
         });

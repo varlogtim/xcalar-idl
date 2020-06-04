@@ -65,6 +65,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
 
         $("#exportOpColumns .searchArea .searchInput").on("input", function(event) {
             const $searchInput: JQuery = $(event.currentTarget);
+            if (!$searchInput.is(":visible")) return; // ENG-8642
             const keyword: string = $searchInput.val().trim();
             self._filterColumns(keyword);
         });

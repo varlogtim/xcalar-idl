@@ -811,6 +811,7 @@ class DagCategoryBar {
         });
 
         $input.on("input", () =>{
+            if (!$input.is(":visible")) return; // ENG-8642
             const keyword = $input.val();
             if (keyword) {
                 this._renderSearchList(keyword, $ul);

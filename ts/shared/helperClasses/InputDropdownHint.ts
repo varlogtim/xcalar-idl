@@ -47,6 +47,7 @@ class InputDropdownHint {
         });
 
         $input.on("input", function() {
+            if (!$input.is(":visible")) return; // ENG-8642
             const text: string = $input.val().trim();
             self.__filterInput(text);
             if (!$dropdown.hasClass("open")) {

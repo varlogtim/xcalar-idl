@@ -284,6 +284,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         });
 
         this._$panel.on("input", ".functionsInput", function() {
+            if (!$(this).is(":visible")) return; // ENG-8642
             self._suggest($(this));
         });
 

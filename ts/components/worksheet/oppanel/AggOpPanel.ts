@@ -142,6 +142,7 @@ class AggOpPanel extends GeneralOpPanel {
         });
 
         this._$panel.on("input", ".functionsInput", function() {
+            if (!self._$panel.find(".functionsInput").is(":visible")) return; // ENG-8642
             self._suggest($(this));
         });
 

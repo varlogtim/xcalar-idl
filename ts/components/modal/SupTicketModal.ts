@@ -371,6 +371,7 @@ class SupTicketModal {
         }, {deselectFromContainer: true});
 
         this._getTicketIdInput().on("input", (e) => {
+            if (!this._getTicketIdInput().is(":visible")) return; // ENG-8642
             if ($(e.currentTarget).val()) {
                 this._getTicketIdSection().find(".radioButton").removeClass("active");
             }
@@ -437,6 +438,7 @@ class SupTicketModal {
         });
 
         $modal.find(".subjectInput").on("input", (e) => {
+            if (!$modal.find(".subjectInput").is(":visible")) return; // ENG-8642
             let $input = $(e.currentTarget);
             let val = $input.val();
             let remaining = this._getRemaining(val);

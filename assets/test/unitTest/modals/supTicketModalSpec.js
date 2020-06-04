@@ -95,6 +95,7 @@ describe("SupTicketModal Test", function() {
         });
 
         it("subject input should show correct limit when typing", function() {
+            SupTicketModal.Instance.show();
             expect($modal.find(".remainingChar").text()).to.equal("100");
             $modal.find(".subjectInput").val("hey").trigger("input");
             expect($modal.find(".remainingChar").text()).to.equal("97");
@@ -104,6 +105,7 @@ describe("SupTicketModal Test", function() {
 
             $modal.find(".subjectInput").val("").trigger("input");
             expect($modal.find(".remainingChar").text()).to.equal("100");
+            SupTicketModal.Instance._close();
         });
 
         it("subject input should not allow extra characters", function() {

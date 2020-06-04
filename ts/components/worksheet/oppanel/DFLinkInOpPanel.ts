@@ -556,6 +556,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
 
         $dropdown.find("input")
         .on("input", (event) => {
+            if (!$dropdown.is(":visible")) return; // ENG-8642
             const keyword: string = $(event.currentTarget).val().trim();
             searchCallback.call(this, keyword);
         });

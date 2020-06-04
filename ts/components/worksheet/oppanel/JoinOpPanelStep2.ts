@@ -206,6 +206,7 @@ class JoinOpPanelStep2 {
         const duration = 800; // Stop typing after <duration> ms, apply the suffix to prefix/column names
         let timer = null;
         $container.on("input", ".copyAppend input", (event) => {
+            if (!$container.find(".copyAppend input").is(":visible")) return; // ENG-8642
             if (timer != null) {
                 clearTimeout(timer);
             }

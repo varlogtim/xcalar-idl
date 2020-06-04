@@ -5724,6 +5724,7 @@ class DagView {
 
         $textArea.on("input", sizeInput);
         function sizeInput() {
+            if (!$textArea.is(":visible")) return; // ENG-8642
             $textArea.height(DagView.titleLineHeight);
             $textArea.width(minWidth);
             if ($textArea[0].scrollWidth > $textArea.width()) {

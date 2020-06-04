@@ -928,6 +928,7 @@ describe("MapOpPanel Test", function() {
     describe("Final output", function() {
         it ("final node should have correct input", function() {
             node = new DagNodeMap({});
+            $("#configNodeContainer").parent().removeClass("xc-hidden");
             mapOpPanel.show(node, openOptions);
             $("#mapOpPanel .bottomSection .xc-switch").click();
             expect(JSON.stringify(node.getParam())).to.equal('{"eval":[{"evalString":"","newField":""}],"icv":false}');
@@ -937,6 +938,7 @@ describe("MapOpPanel Test", function() {
             $argSection.find('.arg').eq(2).val("outputName").trigger("change");
             $mapOpPanel.find(".submit").click();
             expect(JSON.stringify(node.getParam())).to.equal('{"eval":[{"evalString":"eq(1, 2)","newField":"outputName"}],"icv":false}');
+            $("#configNodeContainer").parent().addClass("xc-hidden");
         });
     });
 

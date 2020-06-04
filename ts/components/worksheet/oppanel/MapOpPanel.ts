@@ -169,6 +169,7 @@ class MapOpPanel extends GeneralOpPanel {
         const self = this;
 
         this._$panel.on("input", ".mapFilter", function() {
+            if (!$(this).is(":visible")) return; // ENG-8642
             const val = $(this).val();
             const valTrimmed = val.trim();
             if (valTrimmed.length || val.length === 0) {

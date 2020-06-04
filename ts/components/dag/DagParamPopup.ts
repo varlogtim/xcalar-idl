@@ -331,6 +331,7 @@ class DagParamPopup {
         });
 
         $container.on("input", ".paramVal", (event) => {
+            if (!$container.find(".paramVal").is(":visible")) return; // ENG-8642
             const $val = $(event.currentTarget);
             if ($val.val().trim() !== "") {
                  $val.closest(".row").find(".paramNoValueWrap .checkbox")

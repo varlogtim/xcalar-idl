@@ -64,6 +64,7 @@ class RangeSlider {
         });
 
         $rangeSliderWrap.find('input').on('input', function() {
+            if (!$(this).is(":visible")) return; // ENG-8642
             let val: number = parseFloat($(this).val());
             val = Math.min(self.maxVal, Math.max(val, self.minVal));
             self.updateSlider(val);

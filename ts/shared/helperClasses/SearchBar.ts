@@ -205,6 +205,7 @@ class SearchBar {
 
         if (typeof options.onInput === "function") {
             searchBar.$searchInput.on("input", function(event) {
+                if (!$(this).is(":visible")) return; // ENG-8642
                 const val: string = $(this).val();
                 options.onInput(val, event);
             });

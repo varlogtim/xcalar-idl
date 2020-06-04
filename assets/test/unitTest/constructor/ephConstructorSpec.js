@@ -971,6 +971,7 @@ describe("Ephemeral Constructor Test", function() {
                 '<span>seconds</span>' +
             '</div>';
             $rangeSliderWrap = $(html);
+            $("body").append($rangeSliderWrap);
             curVal = -1;
         });
 
@@ -997,21 +998,21 @@ describe("Ephemeral Constructor Test", function() {
             // Mousedown should be handled like click
             expect(curVal).to.equal(-1);
             $rangeSliderWrap.find(".leftArea").trigger(mouseDownAt(100));
-            expect(curVal).to.equal(100);
+            expect(curVal).to.equal(103);
             expect(parseInt($rangeSliderWrap.find("input").val()))
-            .to.equal(100);
+            .to.equal(103);
 
             $rangeSliderWrap.find(".rightArea").trigger(mouseDownAt(200));
-            expect(curVal).to.equal(200);
+            expect(curVal).to.equal(205);
             expect(parseInt($rangeSliderWrap.find("input").val()))
-            .to.equal(200);
+            .to.equal(205);
 
             // Click on slider should do nothing.
             $rangeSliderWrap.find(".rightArea .slider")
             .trigger(mouseDownAt(150));
-            expect(curVal).to.equal(200);
+            expect(curVal).to.equal(205);
             expect(parseInt($rangeSliderWrap.find("input").val()))
-            .to.equal(200);
+            .to.equal(205);
         });
 
         it("Change input also changes slider", function() {
@@ -1027,10 +1028,10 @@ describe("Ephemeral Constructor Test", function() {
 
             $input.val(125);
             $input[0].dispatchEvent(domEvent);
-            expect($rangeSliderWrap.find(".leftArea").width()).to.equal(125);
+            expect($rangeSliderWrap.find(".leftArea").width()).to.equal(129);
             $input.val(0);
             $input[0].dispatchEvent(domEvent);
-            expect($rangeSliderWrap.find(".leftArea").width()).to.equal(0);
+            expect($rangeSliderWrap.find(".leftArea").width()).to.equal(7);
             $input.val(275);
             $input[0].dispatchEvent(domEvent);
             expect($rangeSliderWrap.find(".leftArea").width()).to.equal(275);
@@ -1043,7 +1044,7 @@ describe("Ephemeral Constructor Test", function() {
             $input.val(-1).change();
             $input[0].dispatchEvent(domEvent);
             expect(curVal).to.equal(0);
-            expect($rangeSliderWrap.find(".leftArea").width()).to.equal(0);
+            expect($rangeSliderWrap.find(".leftArea").width()).to.equal(7);
 
             $input.val(276).change();
             $input[0].dispatchEvent(domEvent);
@@ -1053,6 +1054,7 @@ describe("Ephemeral Constructor Test", function() {
 
         after(function() {
             UserSettings.setPref = USSetPrefCached;
+            $rangeSliderWrap.remove();
         });
 
     });

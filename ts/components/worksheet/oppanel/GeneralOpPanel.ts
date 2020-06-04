@@ -342,6 +342,7 @@ class GeneralOpPanel extends BaseOpPanel {
         this._$panel.on("input", ".arg", function(_event, options) {
             // Suggest column name
             const $input = $(this);
+            if (!$input.is(":visible")) return; // ENG-8642
             const $list = $input.closest(".dropDownList");
             if ($list.hasClass("colNameSection") || $list.hasClass("noSuggest")) {
                 // for new column name, do not suggest anything

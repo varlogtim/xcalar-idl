@@ -128,6 +128,7 @@ class ColAssignmentView {
         });
 
         $section.on("input", ".searchArea input", (event) => {
+            if (!$section.find(".searchArea input").is(":visible")) return; // ENG-8642
             const $input: JQuery = $(event.target);
             const keyword: string = $input.val();
             const listIndex: number = this._getListIndex($input);
@@ -136,6 +137,7 @@ class ColAssignmentView {
 
         $section.on("input", ".resultInput", (event) => {
             const $input: JQuery = $(event.target);
+            if (!$input.is(":visible")) return; // ENG-8642
             const colIndex = this._getColIndex($input.closest(".resultCol"));
             this.modelData.setResult(colIndex, $input.val().trim(), null);
         });
@@ -484,6 +486,7 @@ class ColAssignmentView {
 
             $dropDownList.on("input", ".search input", function(event) {
                 const $searchInput: JQuery = $(event.currentTarget);
+                if (!$searchInput.is(":visible")) return; // ENG-8642
                 const keyword: string = $searchInput.val().trim();
                 const $dropDown: JQuery = $searchInput.closest(".dropDownList");
                 self._filterCandidateDropwn($dropDown, keyword);

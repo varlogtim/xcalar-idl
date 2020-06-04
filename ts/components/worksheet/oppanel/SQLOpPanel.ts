@@ -151,6 +151,7 @@ class SQLOpPanel extends BaseOpPanel {
         const $input = $list.find("input");
         let timer;
         $input.on("input", () => {
+            if (!$input.is(":visible")) return; // ENG-8642
             clearTimeout(timer);
             timer = setTimeout(() => {
                 const value: string = $input.val().trim().toLowerCase();

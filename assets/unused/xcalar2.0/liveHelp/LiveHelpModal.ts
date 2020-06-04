@@ -17,7 +17,7 @@ class LiveHelpModal {
     private _connected: boolean;
     private _licenseInfo;
     private readonly _url: string = "https://livechat.xcalar.com/";
-    
+
     private constructor() {
         this._connected = false;
         this._modalHelper = new ModalHelper(this._getModal(), {
@@ -143,7 +143,7 @@ class LiveHelpModal {
                 clearInterval(reqTimer);
             }
         }, 500);
-        
+
         this._timer = setTimeout(() => {
             this._appendMsg(AlertTStr.NoSupport, "sysMsg", null);
             this._confirmTicket();
@@ -547,6 +547,7 @@ class LiveHelpModal {
             }
         });
         $modal.find(".reqConn input").on("input", () => {
+            if (!$modal.find(".reqConn input").is(":visible")) return; // ENG-8642
             if (this._infoComplete()) {
                 $modal.find(".reqConnBtn").removeClass("btn-disabled");
             } else {
@@ -573,6 +574,7 @@ class LiveHelpModal {
 
         // Enable sending message only when user enters chat message
         $modal.find(".sendMsg").on("input", () => {
+            if (!$modal.find(".sendMsg").is(":visible")) return; // ENG-8642
             this._onInputMessage();
         });
 
