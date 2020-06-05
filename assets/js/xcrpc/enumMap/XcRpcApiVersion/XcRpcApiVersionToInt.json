@@ -12,19 +12,18 @@
     "ParentChildVersionSignature" : 240707532,
     "ProtoFieldValueVersionSignature" : 208059654,
     "ProtoMsgVersionSignature" : 222042168,
-    "PublishedTableVersionSignature" : 45841705,
+    "PublishedTableVersionSignature" : 65875745,
     "QueryVersionSignature" : 54870786,
-    "ResultSetVersionSignature" : 86433570,
+    "ResultSetVersionSignature" : 66220976,
     "SchemaDiscoverVersionSignature" : 47404409,
     "SchemaLoadVersionSignature" : 247203925,
     "ServiceVersionSignature" : 59787815,
     "SqlVersionSignature" : 146971870,
     "StatsVersionSignature" : 114642334,
-    "TableVersionSignature" : 3009405,
-    "TableMetaVersionSignature" : 45672993,
+    "TableVersionSignature" : 266652637,
     "UDFVersionSignature" : 111659210,
     "VersionVersionSignature" : 204259992,
     "WorkbookVersionSignature" : 57235854,
-    "ProtoAPIVersionSignature" : 193756466
+    "ProtoAPIVersionSignature" : 235447690
 }
 

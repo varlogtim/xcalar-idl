@@ -41,7 +41,9 @@ proto.xcalar.compute.localtypes.XcalarEnumType.LibXdbFuncTestConfig = {
   LIB_XDB_CREATE_LOAD_DROP_TEST_THREADS: 22,
   LIB_XDB_PARALLEL_KV_INSERTS_THREADS: 23,
   LIB_XDB_PARALLEL_PAGE_INSERTS_THREADS: 24,
-  LIB_XDB_PARALLEL_CURSOR_THREADS: 25
+  LIB_XDB_PARALLEL_CURSOR_THREADS: 25,
+  LIB_XDB_SORT_TESTS_ENABLE: 26,
+  LIB_NUM_ROWS_XDB_SORT_TESTS: 27
 };
 
 goog.object.extend(exports, proto.xcalar.compute.localtypes.XcalarEnumType);

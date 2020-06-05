@@ -1564,7 +1564,7 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.des
       msg.setSrctablename(value);
       break;
     case 2:
-      var value = /** @type {number} */ (reader.readUint64());
+      var value = /** @type {number} */ (reader.readInt64());
       msg.setBatchid(value);
       break;
     case 3:
@@ -1629,7 +1629,7 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.ser
   }
   f = message.getBatchid();
   if (f !== 0) {
-    writer.writeUint64(
+    writer.writeInt64(
       2,
       f
     );
@@ -1695,7 +1695,7 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.pro
 
 
 /**
- * optional uint64 batchId = 2;
+ * optional int64 batchId = 2;
  * @return {number}
  */
 proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.UpdateInfo.prototype.getBatchid = function() {
@@ -1890,11 +1890,11 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.des
       msg.setDsttablename(value);
       break;
     case 2:
-      var value = /** @type {number} */ (reader.readUint64());
+      var value = /** @type {number} */ (reader.readInt64());
       msg.setMinbatchid(value);
       break;
     case 3:
-      var value = /** @type {number} */ (reader.readUint64());
+      var value = /** @type {number} */ (reader.readInt64());
       msg.setMaxbatchid(value);
       break;
     default:
@@ -1935,14 +1935,14 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.ser
   }
   f = message.getMinbatchid();
   if (f !== 0) {
-    writer.writeUint64(
+    writer.writeInt64(
       2,
       f
     );
   }
   f = message.getMaxbatchid();
   if (f !== 0) {
-    writer.writeUint64(
+    writer.writeInt64(
       3,
       f
     );
@@ -1966,7 +1966,7 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.pro
 
 
 /**
- * optional uint64 minBatchId = 2;
+ * optional int64 minBatchId = 2;
  * @return {number}
  */
 proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.prototype.getMinbatchid = function() {
@@ -1981,7 +1981,7 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.pro
 
 
 /**
- * optional uint64 maxBatchId = 3;
+ * optional int64 maxBatchId = 3;
  * @return {number}
  */
 proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.SelectInfo.prototype.getMaxbatchid = function() {
@@ -2336,11 +2336,11 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.dese
       msg.setNumrowstotal(value);
       break;
     case 5:
-      var value = /** @type {number} */ (reader.readUint64());
+      var value = /** @type {number} */ (reader.readInt64());
       msg.setOldestbatchid(value);
       break;
     case 6:
-      var value = /** @type {number} */ (reader.readUint64());
+      var value = /** @type {number} */ (reader.readInt64());
       msg.setNextbatchid(value);
       break;
     case 7:
@@ -2447,14 +2447,14 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.seri
   }
   f = message.getOldestbatchid();
   if (f !== 0) {
-    writer.writeUint64(
+    writer.writeInt64(
       5,
       f
     );
   }
   f = message.getNextbatchid();
   if (f !== 0) {
-    writer.writeUint64(
+    writer.writeInt64(
       6,
       f
     );
@@ -2598,7 +2598,7 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prot
 
 
 /**
- * optional uint64 oldestBatchId = 5;
+ * optional int64 oldestBatchId = 5;
  * @return {number}
  */
 proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.getOldestbatchid = function() {
@@ -2613,7 +2613,7 @@ proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prot
 
 
 /**
- * optional uint64 nextBatchId = 6;
+ * optional int64 nextBatchId = 6;
  * @return {number}
  */
 proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse.TableInfo.prototype.getNextbatchid = function() {

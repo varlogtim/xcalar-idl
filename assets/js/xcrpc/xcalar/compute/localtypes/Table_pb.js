@@ -951,7 +951,7 @@ proto.xcalar.compute.localtypes.Table.ListTablesResponse.toObject = function(inc
   var f, obj = {
     scope: (f = msg.getScope()) && xcalar_compute_localtypes_Workbook_pb.WorkbookScope.toObject(includeInstance, f),
     tableNamesList: jspb.Message.getRepeatedField(msg, 2),
-    tablemapMap: (f = msg.getTablemapMap()) ? f.toObject(includeInstance, proto.xcalar.compute.localtypes.Table.TableMetaResponse.toObject) : []
+    tableMetaMapMap: (f = msg.getTableMetaMapMap()) ? f.toObject(includeInstance, proto.xcalar.compute.localtypes.Table.TableMetaResponse.toObject) : []
   };
 
   if (includeInstance) {
@@ -998,7 +998,7 @@ proto.xcalar.compute.localtypes.Table.ListTablesResponse.deserializeBinaryFromRe
       msg.addTableNames(value);
       break;
     case 3:
-      var value = msg.getTablemapMap();
+      var value = msg.getTableMetaMapMap();
       reader.readMessage(value, function(message, reader) {
         jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readMessage, proto.xcalar.compute.localtypes.Table.TableMetaResponse.deserializeBinaryFromReader, "");
          });
@@ -1047,7 +1047,7 @@ proto.xcalar.compute.localtypes.Table.ListTablesResponse.serializeBinaryToWriter
       f
     );
   }
-  f = message.getTablemapMap(true);
+  f = message.getTableMetaMapMap(true);
   if (f && f.getLength() > 0) {
     f.serializeBinary(3, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeMessage, proto.xcalar.compute.localtypes.Table.TableMetaResponse.serializeBinaryToWriter);
   }
@@ -1114,20 +1114,20 @@ proto.xcalar.compute.localtypes.Table.ListTablesResponse.prototype.clearTableNam
 
 
 /**
- * map<string, TableMetaResponse> tableMap = 3;
+ * map<string, TableMetaResponse> table_meta_map = 3;
  * @param {boolean=} opt_noLazyCreate Do not create the map if
  * empty, instead returning `undefined`
  * @return {!jspb.Map<string,!proto.xcalar.compute.localtypes.Table.TableMetaResponse>}
  */
-proto.xcalar.compute.localtypes.Table.ListTablesResponse.prototype.getTablemapMap = function(opt_noLazyCreate) {
+proto.xcalar.compute.localtypes.Table.ListTablesResponse.prototype.getTableMetaMapMap = function(opt_noLazyCreate) {
   return /** @type {!jspb.Map<string,!proto.xcalar.compute.localtypes.Table.TableMetaResponse>} */ (
       jspb.Message.getMapField(this, 3, opt_noLazyCreate,
       proto.xcalar.compute.localtypes.Table.TableMetaResponse));
 };
 
 
-proto.xcalar.compute.localtypes.Table.ListTablesResponse.prototype.clearTablemapMap = function() {
-  this.getTablemapMap().clear();
+proto.xcalar.compute.localtypes.Table.ListTablesResponse.prototype.clearTableMetaMapMap = function() {
+  this.getTableMetaMapMap().clear();
 };
 
 
@@ -1929,12 +1929,19 @@ proto.xcalar.compute.localtypes.Table.TableAttributes.prototype.clearResultSetId
  * @constructor
  */
 proto.xcalar.compute.localtypes.Table.TableAggregatedStats = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.xcalar.compute.localtypes.Table.TableAggregatedStats.repeatedFields_, null);
 };
 goog.inherits(proto.xcalar.compute.localtypes.Table.TableAggregatedStats, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
   proto.xcalar.compute.localtypes.Table.TableAggregatedStats.displayName = 'proto.xcalar.compute.localtypes.Table.TableAggregatedStats';
 }
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.xcalar.compute.localtypes.Table.TableAggregatedStats.repeatedFields_ = [3,4];
+
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -1965,7 +1972,9 @@ proto.xcalar.compute.localtypes.Table.TableAggregatedStats.prototype.toObject = 
 proto.xcalar.compute.localtypes.Table.TableAggregatedStats.toObject = function(includeInstance, msg) {
   var f, obj = {
     totalRecordsCount: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    totalSizeInBytes: jspb.Message.getFieldWithDefault(msg, 2, 0)
+    totalSizeInBytes: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    rowsPerNodeList: jspb.Message.getRepeatedField(msg, 3),
+    sizeInBytesPerNodeList: jspb.Message.getRepeatedField(msg, 4)
   };
 
   if (includeInstance) {
@@ -2010,6 +2019,14 @@ proto.xcalar.compute.localtypes.Table.TableAggregatedStats.deserializeBinaryFrom
       var value = /** @type {number} */ (reader.readUint64());
       msg.setTotalSizeInBytes(value);
       break;
+    case 3:
+      var value = /** @type {!Array<number>} */ (reader.readPackedUint64());
+      msg.setRowsPerNodeList(value);
+      break;
+    case 4:
+      var value = /** @type {!Array<number>} */ (reader.readPackedUint64());
+      msg.setSizeInBytesPerNodeList(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -2053,6 +2070,20 @@ proto.xcalar.compute.localtypes.Table.TableAggregatedStats.serializeBinaryToWrit
       f
     );
   }
+  f = message.getRowsPerNodeList();
+  if (f.length > 0) {
+    writer.writePackedUint64(
+      3,
+      f
+    );
+  }
+  f = message.getSizeInBytesPerNodeList();
+  if (f.length > 0) {
+    writer.writePackedUint64(
+      4,
+      f
+    );
+  }
 };
 
 
@@ -2083,6 +2114,64 @@ proto.xcalar.compute.localtypes.Table.TableAggregatedStats.prototype.getTotalSiz
 /** @param {number} value */
 proto.xcalar.compute.localtypes.Table.TableAggregatedStats.prototype.setTotalSizeInBytes = function(value) {
   jspb.Message.setProto3IntField(this, 2, value);
+};
+
+
+/**
+ * repeated uint64 rows_per_node = 3;
+ * @return {!Array<number>}
+ */
+proto.xcalar.compute.localtypes.Table.TableAggregatedStats.prototype.getRowsPerNodeList = function() {
+  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 3));
+};
+
+
+/** @param {!Array<number>} value */
+proto.xcalar.compute.localtypes.Table.TableAggregatedStats.prototype.setRowsPerNodeList = function(value) {
+  jspb.Message.setField(this, 3, value || []);
+};
+
+
+/**
+ * @param {!number} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Table.TableAggregatedStats.prototype.addRowsPerNode = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 3, value, opt_index);
+};
+
+
+proto.xcalar.compute.localtypes.Table.TableAggregatedStats.prototype.clearRowsPerNodeList = function() {
+  this.setRowsPerNodeList([]);
+};
+
+
+/**
+ * repeated uint64 size_in_bytes_per_node = 4;
+ * @return {!Array<number>}
+ */
+proto.xcalar.compute.localtypes.Table.TableAggregatedStats.prototype.getSizeInBytesPerNodeList = function() {
+  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 4));
+};
+
+
+/** @param {!Array<number>} value */
+proto.xcalar.compute.localtypes.Table.TableAggregatedStats.prototype.setSizeInBytesPerNodeList = function(value) {
+  jspb.Message.setField(this, 4, value || []);
+};
+
+
+/**
+ * @param {!number} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Table.TableAggregatedStats.prototype.addSizeInBytesPerNode = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 4, value, opt_index);
+};
+
+
+proto.xcalar.compute.localtypes.Table.TableAggregatedStats.prototype.clearSizeInBytesPerNodeList = function() {
+  this.setSizeInBytesPerNodeList([]);
 };
 
 

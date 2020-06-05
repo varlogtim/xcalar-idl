@@ -13,7 +13,6 @@ var global = Function('return this')();
 
 var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js');
 var xcalar_compute_localtypes_Workbook_pb = require('../../../xcalar/compute/localtypes/Workbook_pb.js');
-var xcalar_compute_localtypes_TableMeta_pb = require('../../../xcalar/compute/localtypes/TableMeta_pb.js');
 var xcalar_compute_localtypes_ProtoFieldValue_pb = require('../../../xcalar/compute/localtypes/ProtoFieldValue_pb.js');
 goog.exportSymbol('proto.xcalar.compute.localtypes.ResultSet.MakeType', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.ResultSet.ResultSetMakeRequest', null, global);
@@ -286,8 +285,7 @@ proto.xcalar.compute.localtypes.ResultSet.ResultSetMakeResponse.prototype.toObje
 proto.xcalar.compute.localtypes.ResultSet.ResultSetMakeResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
     resultSetId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    numRows: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    getTableMeta: (f = msg.getGetTableMeta()) && xcalar_compute_localtypes_TableMeta_pb.GetTableMetaProto.toObject(includeInstance, f)
+    numRows: jspb.Message.getFieldWithDefault(msg, 2, 0)
   };
 
   if (includeInstance) {
@@ -332,11 +330,6 @@ proto.xcalar.compute.localtypes.ResultSet.ResultSetMakeResponse.deserializeBinar
       var value = /** @type {number} */ (reader.readUint64());
       msg.setNumRows(value);
       break;
-    case 3:
-      var value = new xcalar_compute_localtypes_TableMeta_pb.GetTableMetaProto;
-      reader.readMessage(value,xcalar_compute_localtypes_TableMeta_pb.GetTableMetaProto.deserializeBinaryFromReader);
-      msg.setGetTableMeta(value);
-      break;
     default:
       reader.skipField();
       break;
@@ -380,14 +373,6 @@ proto.xcalar.compute.localtypes.ResultSet.ResultSetMakeResponse.serializeBinaryT
       f
     );
   }
-  f = message.getGetTableMeta();
-  if (f != null) {
-    writer.writeMessage(
-      3,
-      f,
-      xcalar_compute_localtypes_TableMeta_pb.GetTableMetaProto.serializeBinaryToWriter
-    );
-  }
 };
 
 
@@ -418,36 +403,6 @@ proto.xcalar.compute.localtypes.ResultSet.ResultSetMakeResponse.prototype.getNum
 /** @param {number} value */
 proto.xcalar.compute.localtypes.ResultSet.ResultSetMakeResponse.prototype.setNumRows = function(value) {
   jspb.Message.setProto3IntField(this, 2, value);
-};
-
-
-/**
- * optional xcalar.compute.localtypes.TableMeta.GetTableMetaProto get_table_meta = 3;
- * @return {?proto.xcalar.compute.localtypes.TableMeta.GetTableMetaProto}
- */
-proto.xcalar.compute.localtypes.ResultSet.ResultSetMakeResponse.prototype.getGetTableMeta = function() {
-  return /** @type{?proto.xcalar.compute.localtypes.TableMeta.GetTableMetaProto} */ (
-    jspb.Message.getWrapperField(this, xcalar_compute_localtypes_TableMeta_pb.GetTableMetaProto, 3));
-};
-
-
-/** @param {?proto.xcalar.compute.localtypes.TableMeta.GetTableMetaProto|undefined} value */
-proto.xcalar.compute.localtypes.ResultSet.ResultSetMakeResponse.prototype.setGetTableMeta = function(value) {
-  jspb.Message.setWrapperField(this, 3, value);
-};
-
-
-proto.xcalar.compute.localtypes.ResultSet.ResultSetMakeResponse.prototype.clearGetTableMeta = function() {
-  this.setGetTableMeta(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {!boolean}
- */
-proto.xcalar.compute.localtypes.ResultSet.ResultSetMakeResponse.prototype.hasGetTableMeta = function() {
-  return jspb.Message.getField(this, 3) != null;
 };
 
 

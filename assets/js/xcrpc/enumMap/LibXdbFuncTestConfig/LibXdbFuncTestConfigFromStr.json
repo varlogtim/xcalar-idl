@@ -24,6 +24,8 @@
     "LibXdbCreateLoadDropTestThreads" : 22,
     "LibXdbParallelKvInsertsThreads" : 23,
     "LibXdbParallelPageInsertsThreads" : 24,
-    "LibXdbParallelCursorThreads" : 25
+    "LibXdbParallelCursorThreads" : 25,
+    "LibXdbSortTestsEnable" : 26,
+    "LibNumRowsXdbSortTests" : 27
 }
 
