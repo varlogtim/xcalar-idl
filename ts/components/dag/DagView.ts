@@ -2800,6 +2800,7 @@ class DagView {
                 });
                 dagView.$dfArea.find(".operatorSvg").before($svg);
 
+                DagGraphBar.Instance.updateNumNodes(dagTab);
                 dagView.deselectNodes();
                 deferred.resolve(nodesArray);
             })

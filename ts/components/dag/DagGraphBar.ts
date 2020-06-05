@@ -126,7 +126,14 @@ class DagGraphBar {
             return;
         }
         const $topBar = this._getGraphBar();
-        const numNodes: number = graph.getAllNodes().size;
+        const nodes = graph.getAllNodes();
+        let numNodes = 0;
+        nodes.forEach(n => {
+            if (!(n instanceof DagNodeSQL)|| !n.isHidden()) {
+                numNodes++;
+            }
+        });
+
         $topBar.find(".numNodes").text(xcStringHelper.numToStr(numNodes));
         if (!numNodes) {
             $topBar.addClass("noNodes");

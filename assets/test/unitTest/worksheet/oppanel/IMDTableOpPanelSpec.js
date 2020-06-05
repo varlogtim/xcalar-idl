@@ -127,16 +127,7 @@ describe('IMDTableOpPanel Test', () => {
                 expect($("#statusBox").hasClass("active")).to.be.true;
                 opPanel.close();
             });
-            it("Should show statusbox error if version is not there", function() {
-                opPanel.show(node, {});
-                $("#IMDTableOpPanel .bottomSection .xc-switch").click();
-                editor.setValue(JSON.stringify(
-                    {"source": "B", "schema": [{"name": "COL", "type": "integer"}]},
-                    null, 4));
-                $("#IMDTableOpPanel .bottomSection .btn-submit").click();
-                expect($("#statusBox").hasClass("active")).to.be.true;
-                opPanel.close();
-            });
+
             it("Should show statusbox error if schema is not there", function() {
                 opPanel.show(node, {});
                 $("#IMDTableOpPanel .bottomSection .xc-switch").click();
@@ -150,7 +141,6 @@ describe('IMDTableOpPanel Test', () => {
 
             it("Should switch back correctly with updated fields", function() {
                 opPanel.show(node, {});
-                $("#IMDTableOpPanel .bottomSection .xc-switch").click();
                 editor.setValue(JSON.stringify(
                     {"source": "B", "version": 0, "schema": [{"name": "COL", "type": "integer"}], "filterString": "123"},
                     null, 4));

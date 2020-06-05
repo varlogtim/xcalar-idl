@@ -10,12 +10,12 @@ class DagNodeIMDTableInput extends DagNodeInput {
         "additionalProperties": false,
         "required": [
           "source",
-          "version",
           "schema"
         ],
         "optional" : [
           "filterString",
-          "limitedRows"
+          "limitedRows",
+          "version"
         ],
         "properties": {
           "source": {
