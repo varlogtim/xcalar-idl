@@ -478,6 +478,11 @@ class ResourceMenu {
             if (DagTabManager.Instance.getNumTabs() === 0) {
                 DagTabManager.Instance.newTab();
             }
+            const dagTab = DagViewManager.Instance.getActiveTab();
+            if (dagTab.getType() !== "Normal") {
+                Alert.error(ErrTStr.Error, "Cannot add table to this type of module.");
+                return;
+            }
             const input = {
                 source: tableName,
                 schema: tableInfo.getSchema()
