@@ -495,12 +495,6 @@ class ResourceMenu {
             });
             if (node != null) {
                 await node.fetchAndSetSubgraph(tableName);
-                DagNodeMenu.execute("configureNode", {
-                    node: node,
-                    exitCallback: () => {
-                        node.setParam({}, true);
-                    }
-                });
             }
         }
     }

@@ -193,7 +193,6 @@
       if (textLen > 100) {
         let width = Math.min(300, 200 + (0.5 * (textLen - 100)));
         $tip.find(".tooltip-inner").css("max-width", width);
-        console.log(textLen, width);
       } else {
         $tip.find(".tooltip-inner").css("max-width", 200);
       }
