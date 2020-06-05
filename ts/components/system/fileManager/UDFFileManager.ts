@@ -231,7 +231,7 @@ class UDFFileManager {
         .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
             const listXdfsObjUpdate: XcalarApiListXdfsOutputT = xcHelper.deepCopy(listXdfsObj);
             hasSQLUDF = this._updateStoredUDF(listXdfsObjUpdate);
-            this.filterWorkbookUDF(listXdfsObjUpdate);
+            this.filterWorkbookAndSharedUDF(listXdfsObjUpdate);
             DSTargetManager.updateUDF(listXdfsObjUpdate);
 
             return this._getUserWorkbookMap(listXdfsObj);
@@ -272,7 +272,7 @@ class UDFFileManager {
      * @param  {XcalarApiListXdfsOutputT} xdfRes
      * @returns void
      */
-    public filterWorkbookUDF(xdfRes: XcalarApiListXdfsOutputT): void {
+    public filterWorkbookAndSharedUDF(xdfRes: XcalarApiListXdfsOutputT): void {
         xdfRes.fnDescs = xcHelper.filterUDFs(xdfRes.fnDescs);
         xdfRes.numXdfs = xdfRes.fnDescs.length;
     }
@@ -878,7 +878,7 @@ class UDFFileManager {
 
                 // transform object - filter out other notebooks and shorten
                 // names
-                this.filterWorkbookUDF(listXdfsObjUpdate);
+                this.filterWorkbookAndSharedUDF(listXdfsObjUpdate);
                 DSConfig.update(listXdfsObjUpdate);
                 DSTargetManager.updateUDF(listXdfsObjUpdate);
                 XDFManager.Instance.updateUDFs(listXdfsObjUpdate);

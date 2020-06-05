@@ -1790,6 +1790,7 @@ namespace xcHelper {
      * Only show default and user workbook's udfs and shared udfs. If same
      * module name exists in workbook space and shared space, it preserves the
      * one in workbook space.
+     * xcHelper.filterUDFs
      * @param  {XcalarEvalFnDescT[]} fns
      * @param  {string} wkbkPrefix?
      * @returns XcalarEvalFnDescT
@@ -1827,14 +1828,11 @@ namespace xcHelper {
         sharedPathPrefix: string
     ): XcalarEvalFnDescT[] {
         let filteredArray: XcalarEvalFnDescT[] = [];
-        if (wkbkPrefix == null) {
-            return filteredArray;
-        }
         for (const op of fns) {
             if (op.fnName.indexOf("/") === -1) {
                 filteredArray.push(op);
             } else if (
-                op.fnName.startsWith(wkbkPrefix) ||
+                wkbkPrefix != null && op.fnName.startsWith(wkbkPrefix) ||
                 op.fnName.startsWith(sharedPathPrefix)
             ) {
                 filteredArray.push(op);

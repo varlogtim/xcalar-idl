@@ -1275,7 +1275,7 @@ namespace DSConfig {
             // update python module list
             UDFFileManager.Instance.list()
             .then((res) => {
-                UDFFileManager.Instance.filterWorkbookUDF(res);
+                UDFFileManager.Instance.filterWorkbookAndSharedUDF(res);
                 updateUDFList(res);
                 deferred.resolve();
             })
