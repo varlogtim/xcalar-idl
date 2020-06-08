@@ -28,6 +28,7 @@ class DFNodeLineagePopup {
 
     private constructor() {
         const $modal: JQuery = this._getPopup();
+        this._lineages = [];
         this._modalHelper = new ModalHelper($modal, {
             noResize: true,
             noBackground: true,
@@ -62,6 +63,7 @@ class DFNodeLineagePopup {
 
     private _close(): void {
         this._modalHelper.clear();
+        this._removeHilights();
         this._clear();
     }
 
@@ -255,7 +257,8 @@ class DFNodeLineagePopup {
             html = '<div class="' + classNames.join(" ") + '" data-level="' + level + '">' +
                         this._getPaddingHTML(level) +
                         this._getIconHTML(lineage, isNextLevelOpen) +
-                        this._getContentHTML(lineage);
+                        this._getContentHTML(lineage) +
+                        this._getFindAllIcon(lineage) +
                     '</div>';
         } catch (e) {
             console.error(e);
@@ -373,6 +376,28 @@ class DFNodeLineagePopup {
                 '<span class="label">' +
                     node.getTitle() +
                 '</span>';
+    }
+
+    private _getFindAllIcon(lineage: DFNodeLineage): HTML {
+        let html: HTML = "";
+        if (lineage.type === DFNodeLineageType.SQL ||
+            lineage.type === DFNodeLineageType.Custom
+        ) {
+            let tooltip: string = "";
+            if (lineage.type === DFNodeLineageType.SQL) {
+                tooltip = DFNodeLineageTStr.FindRelatedSQL;
+            } else if (lineage.type === DFNodeLineageType.Custom) {
+                tooltip = DFNodeLineageTStr.FindRelatedCustom;
+            }
+            html = '<span class="highlightRelated xc-action"' +
+                    ' data-toggle="tooltip"' +
+                    ' data-container="body"' +
+                    ' data-placement="auto top"' +
+                    ' data-title="' + tooltip + '">' +
+                        '<i class="icon xi-search"></i>' +
+                    '</span>';
+        }
+        return html;
     }
 
     private _getErrorHTML(error: string): HTML {
@@ -562,6 +587,50 @@ class DFNodeLineagePopup {
         return Number($row.data("level"));
     }
 
+    private _higilightRelatedNodes(level): void {
+        let lineage: DFNodeLineage = this._lineages[level];
+        let destTabId: string = this._lineages[0].tabId;
+        let destTab: DagTabOptimized = <DagTabOptimized>DagTabManager.Instance.getTabById(destTabId);
+        // find all related nodes
+        let relatedNodes: DagNode[] = [];
+        destTab.getGraph().getAllNodes().forEach((node) => {
+            let tag = node.getTag() || [];
+            // we are not checking tabId here because in the case of
+            // nested SQL node in a custom node, the tag doesn't have the tabId
+            // while the lineage's tab id is the temp custom node tab
+            for (let nodeInfo of tag) {
+                if (nodeInfo &&
+                    nodeInfo.nodeId === lineage.nodeId
+                ) {
+                    relatedNodes.push(node);
+                    break;
+                }
+            }
+        });
+
+        this._removeHilights();
+
+        // switch back to optimized dataflow
+        DagTabManager.Instance.switchTab(destTabId);
+        let dagView = DagViewManager.Instance.getActiveDagView();
+        relatedNodes.forEach((node) => {
+            let $node = dagView.getNodeElById(node.getId());
+            DagView.addSelection($node, "graphHighLightSelection");
+        });
+    }
+
+    private _removeHilights(): void {
+        let lineage = this._lineages[0];
+        if (lineage == null) {
+            return;
+        }
+        let destTabId: string = lineage.tabId;
+        let $dfArea = DagViewManager.Instance.getAreaByTab(destTabId);
+        if ($dfArea) {
+            $dfArea.find(".graphHighLightSelection").remove();
+        }
+    }
+
     private _addEventListeners(): void {
         const $popUp: JQuery = this._getPopup();
         $popUp.on("click", ".close", () => {
@@ -600,6 +669,18 @@ class DFNodeLineagePopup {
                 return;
             }
             $span.closest(".row").toggleClass("collapse");
+        });
+
+        $popUp.on("click", ".highlightRelated", (e) => {
+            const $span: JQuery = $(e.currentTarget);
+            const $row: JQuery = $span.closest(".row");
+            try {
+                const level: number = this._getLevelFromRowEl($row);
+                this._higilightRelatedNodes(level);
+            } catch (e) {
+                console.error(e);
+                StatusBox.show(e.message, $row);
+            }
         });
     }
 }

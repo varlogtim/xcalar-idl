@@ -1090,6 +1090,8 @@ DFNodeLineageTStr = {
     "MultipleNode": "More than 1 source operator was found",
     "NodeTooltip": "Click to focus on operator",
     "DFTooltip": "Click to switch to the module",
+    "FindRelatedSQL": "Highligh all operators that organite from the SQL operator",
+    "FindRelatedCustom": "Highligh all operators that organite from the Custom operator",
 };
 
 DSTStr = {
