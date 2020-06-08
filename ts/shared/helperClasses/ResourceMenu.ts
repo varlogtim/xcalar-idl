@@ -495,6 +495,7 @@ class ResourceMenu {
             });
             if (node != null) {
                 await node.fetchAndSetSubgraph(tableName);
+                node.setParam(input, true);
             }
         }
     }
