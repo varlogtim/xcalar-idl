@@ -464,6 +464,7 @@ namespace DagNodeMenu {
                 case ("removeInConnection"):
                 case ("resetNode"):
                 case ("deleteAllTables"):
+                case ("deleteParentTable"):
                 case ("reexecuteNode"):
                 case ("deleteTable"):
                 case ("configureNode"):
