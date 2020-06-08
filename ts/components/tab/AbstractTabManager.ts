@@ -33,7 +33,7 @@ abstract class AbstractTabManager {
     public abstract getNumTabs(): number;
     protected abstract _restoreTabs(): XDPromise<void>;
     protected abstract _deleteTabAction(index: number, name: string): void;
-    protected abstract _deleteOtherTabsAction(index: number): void;
+    protected abstract _deleteOtherTabsAction(index: number, rightOnly?: boolean): void;
     protected abstract _renameTabAction($input: JQuery): string;
     protected abstract _startReorderTabAction(): void;
     protected abstract _stopReorderTabAction(previousIndex: number, newIndex: number): void;
@@ -193,6 +193,9 @@ abstract class AbstractTabManager {
                     break;
                 case ("closeOthers"):
                     this._deleteOtherTabsAction(index);
+                    break;
+                case ("closeOthersRight"):
+                    this._deleteOtherTabsAction(index, true);
                     break;
                 case ("rename"):
                     const $tabs: JQuery = this._getTabsEle();

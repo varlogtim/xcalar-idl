@@ -789,11 +789,12 @@ class DagTabManager extends AbstractTabManager {
         }
     }
 
-    protected _deleteOtherTabsAction(index: number): void {
+    protected _deleteOtherTabsAction(index: number, rightOnly?: boolean): void {
         const dagTab: DagTab = this.getTabByIndex(index);
         const tabId: string = dagTab.getId();
         const isLogDisabled: boolean = this._isTabLogDisabled(tabId);
-        for (let i = 0; i < this._activeUserDags.length; i++) {
+        let start = rightOnly ? (index + 1) : 0;
+        for (let i = start; i < this._activeUserDags.length; i++) {
             if (i !== index) {
                 let success = this._deleteTab(i, false, true);
                 if (success && i < index) {
@@ -806,7 +807,7 @@ class DagTabManager extends AbstractTabManager {
         }
         // loop again to delete any tabs that couldn't be deleted due to
         // their subTabs being opened
-        for (let i = 0; i < this._activeUserDags.length; i++) {
+        for (let i = start; i < this._activeUserDags.length; i++) {
             if (i !== index) {
                 let success = this._deleteTab(i, false, true);
                 if (success && i < index) {

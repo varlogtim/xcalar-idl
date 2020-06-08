@@ -176,8 +176,9 @@ class UDFTabManager extends AbstractTabManager {
         this._updateList();
     }
 
-    protected _deleteOtherTabsAction(index: number): void {
-        for (let i = 0; i < this._activeTabs.length; i++) {
+    protected _deleteOtherTabsAction(index: number, rightOnly?: boolean): void {
+        let start = rightOnly ? (index + 1) : 0;
+        for (let i = start; i < this._activeTabs.length; i++) {
             if (i !== index) {
                 const tab = this._activeTabs.splice(i, 1);
                 this._moduleCache.delete(tab[0].name);
