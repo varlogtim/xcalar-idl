@@ -203,10 +203,13 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
 
        // Handle empty case
        const $elemPrefixedSection = this._$elemPanel.find('.prefixedSection');
+       const $elemDerivedSection = this._$elemPanel.find('.derivedSection');
        if (prefixList.length === 0) {
             $elemPrefixedSection.addClass('empty');
+            $elemDerivedSection.find(".subHeading").addClass("xc-hidden");
         } else {
             $elemPrefixedSection.removeClass('empty');
+            $elemDerivedSection.find(".subHeading").removeClass("xc-hidden");
         }
     }
 
