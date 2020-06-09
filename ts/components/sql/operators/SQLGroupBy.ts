@@ -565,94 +565,103 @@ class SQLGroupBy {
                 return ret;
             });
         }
-        curPromise = PromiseHelper.resolve({newTableName: gbTableNames[0]});
-        const joinType = gbColNames.length > 0 ? JoinOperatorT.InnerJoin : JoinOperatorT.CrossJoin;
-        index = 1;
-        for (let i = 0; i < gbColNames.length; i++) {
-            gbTableColInfos[0].rename.push({orig: gbColNames[i],
-                                            new: gbColNames[i],
-                                            type: xcHelper.convertColTypeToFieldType(
-                                                    xcHelper.convertSQLTypeToColType(
-                                                    gbColTypes[i]))});
-        }
-        for (let i = 0; i < gArrayList[0].length; i++) {
-            gbTableColInfos[0].rename.push({orig: gArrayList[0][i].newColName,
-                                            new: gArrayList[0][i].newColName,
-                                            type: xcHelper.convertColTypeToFieldType(
-                                                    xcHelper.convertSQLTypeToColType(
-                                                    gArrayList[0][i].colType))});
-        }
-        for (let i = 1; i < gbTableNames.length; i++) {
-            let rightCols;
-            curPromise = curPromise.then(function(ret) {
-                gbTableColInfos[index].rename = [];
-                let evalString = "";
-                rightCols = [];
-                gbTableColInfos[0].tableName = ret.newTableName;
-                for (let j = 0; j < gbColNames.length; j++) {
-                    const newColName = gbColNames[j] + "_" + index +
-                                       Authentication.getHashId().substring(3);
-                    rightCols.push(newColName);
-                    gbTableColInfos[index].rename.push({orig: gbColNames[j],
-                                                        new: newColName,
-                                                        type: xcHelper.convertColTypeToFieldType(
-                                                                xcHelper.convertSQLTypeToColType(
-                                                                gbColTypes[i]))});
-                }
-                for (let j = 0; j < gArrayList[index].length; j++) {
-                    gbTableColInfos[index].rename.push({orig: gArrayList[index][j].newColName,
-                                                        new: gArrayList[index][j].newColName,
-                                                        type: xcHelper.convertColTypeToFieldType(
-                                                                xcHelper.convertSQLTypeToColType(
-                                                                gArrayList[index][j].colType))});
-                }
-                for (let j = 0; j < gbTableColInfos[index].columns.length; j++) {
-                    if (gbColNames.indexOf(gbTableColInfos[index].columns[j]) === -1) {
-                        rightCols.push(gbTableColInfos[index].columns[j]);
+        curPromise = curPromise.then(function() {
+            let innerPromise: XDPromise<any> =
+                        PromiseHelper.resolve({newTableName: gbTableNames[0]});
+            const joinType = gbColNames.length > 0 ?
+                            JoinOperatorT.InnerJoin : JoinOperatorT.CrossJoin;
+            index = 1;
+            for (let i = 0; i < gbColNames.length; i++) {
+                gbTableColInfos[0].rename.push(
+                    {orig: gbColNames[i],
+                     new: gbColNames[i],
+                     type: xcHelper.convertColTypeToFieldType(
+                            xcHelper.convertSQLTypeToColType(
+                            gbColTypes[i]))});
+            }
+            for (let i = 0; i < gArrayList[0].length; i++) {
+                gbTableColInfos[0].rename.push(
+                    {orig: gArrayList[0][i].newColName,
+                     new: gArrayList[0][i].newColName,
+                     type: xcHelper.convertColTypeToFieldType(
+                            xcHelper.convertSQLTypeToColType(
+                            gArrayList[0][i].colType))});
+            }
+            for (let i = 1; i < gbTableNames.length; i++) {
+                let rightCols;
+                innerPromise = innerPromise.then(function(ret) {
+                    gbTableColInfos[index].rename = [];
+                    let evalString = "";
+                    rightCols = [];
+                    gbTableColInfos[0].tableName = ret.newTableName;
+                    for (let j = 0; j < gbColNames.length; j++) {
+                        const newColName = gbColNames[j] + "_" + index +
+                                        Authentication.getHashId().substring(3);
+                        rightCols.push(newColName);
+                        gbTableColInfos[index].rename.push(
+                            {orig: gbColNames[j],
+                             new: newColName,
+                             type: xcHelper.convertColTypeToFieldType(
+                                    xcHelper.convertSQLTypeToColType(
+                                    gbColTypes[i]))});
                     }
-                }
-                const leftColInfo = {tableName: gbTableColInfos[0].tableName,
-                                     columns: gbColNames,
-                                     rename: gbTableColInfos[0].rename};
-                const rightColInfo = {tableName: gbTableColInfos[index].tableName,
-                                      columns: gbColNames,
-                                      rename: gbTableColInfos[index].rename};
-                return SQLSimulator.join(joinType, leftColInfo, rightColInfo,
-                                      {evalString: evalString, nullSafe: true,
-                                       keepAllColumns: false});
-            })
-            .then(function(ret) {
-                cli += ret.cli;
-                gbTableColInfos[0].columns = gbTableColInfos[0].columns
-                                                             .concat(rightCols);
-                for (let j = 0; j < gArrayList[index].length; j++) {
-                    gbTableColInfos[0].rename.push({orig: gArrayList[index][j].newColName,
-                                                    new: gArrayList[index][j].newColName,
-                                                    type: xcHelper.convertColTypeToFieldType(
-                                                            xcHelper.convertSQLTypeToColType(
-                                                            gArrayList[index][j].colType))});
-                }
-                if (ret.tempCols && index === gbTableNames.length - 1) {
-                    for (let j = 0; j < ret.tempCols.length; j++) {
-                        if (typeof ret.tempCols[j] === "string") {
-                            gbTableColInfos[0].columns.push(ret.tempCols[j]);
-                            node.xcCols.push({colName: ret.tempCols[j],
-                                              colType: null});
-                        } else {
-                            gbTableColInfos[0].columns.push(
-                                   SQLCompiler.getCurrentName(ret.tempCols[j]));
-                            node.xcCols.push(ret.tempCols[j]);
+                    for (let j = 0; j < gArrayList[index].length; j++) {
+                        gbTableColInfos[index].rename.push(
+                            {orig: gArrayList[index][j].newColName,
+                             new: gArrayList[index][j].newColName,
+                             type: xcHelper.convertColTypeToFieldType(
+                                    xcHelper.convertSQLTypeToColType(
+                                    gArrayList[index][j].colType))});
+                    }
+                    for (let j = 0; j < gbTableColInfos[index].columns.length; j++) {
+                        if (gbColNames.indexOf(gbTableColInfos[index].columns[j]) === -1) {
+                            rightCols.push(gbTableColInfos[index].columns[j]);
                         }
                     }
-                }
-                index += 1;
-                return ret;
+                    const leftColInfo = {tableName: gbTableColInfos[0].tableName,
+                                        columns: gbColNames,
+                                        rename: gbTableColInfos[0].rename};
+                    const rightColInfo = {tableName: gbTableColInfos[index].tableName,
+                                        columns: gbColNames,
+                                        rename: gbTableColInfos[index].rename};
+                    return SQLSimulator.join(joinType, leftColInfo, rightColInfo,
+                                        {evalString: evalString, nullSafe: true,
+                                        keepAllColumns: false});
+                })
+                .then(function(ret) {
+                    cli += ret.cli;
+                    gbTableColInfos[0].columns = gbTableColInfos[0].columns
+                                                                .concat(rightCols);
+                    for (let j = 0; j < gArrayList[index].length; j++) {
+                        gbTableColInfos[0].rename.push(
+                            {orig: gArrayList[index][j].newColName,
+                             new: gArrayList[index][j].newColName,
+                             type: xcHelper.convertColTypeToFieldType(
+                                    xcHelper.convertSQLTypeToColType(
+                                    gArrayList[index][j].colType))});
+                    }
+                    if (ret.tempCols && index === gbTableNames.length - 1) {
+                        for (let j = 0; j < ret.tempCols.length; j++) {
+                            if (typeof ret.tempCols[j] === "string") {
+                                gbTableColInfos[0].columns.push(ret.tempCols[j]);
+                                node.xcCols.push({colName: ret.tempCols[j],
+                                                colType: null});
+                            } else {
+                                gbTableColInfos[0].columns.push(
+                                    SQLCompiler.getCurrentName(ret.tempCols[j]));
+                                node.xcCols.push(ret.tempCols[j]);
+                            }
+                        }
+                    }
+                    index += 1;
+                    return ret;
+                })
+            }
+            innerPromise.then(function(ret) {
+                deferred.resolve({newTableName: ret.newTableName, cli: cli});
             })
-        }
-        curPromise.then(function(ret) {
-            deferred.resolve({newTableName: ret.newTableName, cli: cli});
-        })
-        .fail(deferred.reject);
+            .fail(deferred.reject);
+        });
         return deferred.promise();
     }
 
