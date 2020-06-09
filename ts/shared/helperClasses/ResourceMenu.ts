@@ -420,13 +420,7 @@ class ResourceMenu {
         if ($li.hasClass("dagListDetail")) {
             $menu.find("li.dag").show();
 
-            const $openOnlyOption = $menu.find("li.duplicateDataflow, li.downloadDataflow");
             const $deleteOption = $menu.find("li.deleteDataflow");
-            if ($li.hasClass("open")) {
-                $openOnlyOption.removeClass("xc-disabled");
-            } else {
-                $openOnlyOption.addClass("xc-disabled");
-            }
             if ($li.hasClass("main")) {
                 $deleteOption.hide();
             } else {

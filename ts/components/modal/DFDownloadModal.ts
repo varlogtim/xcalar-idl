@@ -166,13 +166,16 @@ class DFDownloadModal {
         xcUIHelper.toggleBtnInProgress($confirmBtn, false);
         this._lock();
 
-        this._downloadHelper(res.name)
+        this._loadTab()
+        .then(() => {
+            return this._download(res.name);
+        })
         .then(() => {
             this._close();
             deferred.resolve();
         })
         .fail((error) => {
-            const errMsg: string = error.error || ErrTStr.Unknown;
+            const errMsg: string = xcHelper.parseError(error);
             StatusBox.show(errMsg, $confirmBtn, false, {
                 detail: error.log
             });
@@ -194,7 +197,18 @@ class DFDownloadModal {
         this._getModal().removeClass("locked");
     }
 
-    private _downloadHelper(name): XDPromise<void> {
+    private _loadTab(): XDPromise<void> {
+        if (this._downloadType === this._DownloadTypeEnum.Image) {
+            // download image require the tab to open first and focused
+            return DagTabManager.Instance.loadTab(this._dagTab);
+        } else if (!this._dagTab.isLoaded()) {
+            return this._dagTab.load();
+        } else {
+            return PromiseHelper.resolve();
+        }
+    }
+
+    private _download(name): XDPromise<void> {
         switch (this._downloadType) {
             case this._DownloadTypeEnum.DF:
                 return this._downloadDataflow(name);

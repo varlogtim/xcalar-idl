@@ -928,13 +928,28 @@ class DagList extends Durable {
 
         $menu.on("click", ".duplicateDataflow", () => {
             const dagTab: DagTab = this.getDagTabById($menu.data("id"));
-            DagTabManager.Instance.duplicateTab(dagTab);
+            this._loadUnOpenTab(dagTab)
+            .then(() => {
+                DagTabManager.Instance.duplicateTab(dagTab);
+            })
+            .fail((error) => {
+                let $el = this._getListElById(dagTab.getId());
+                StatusBox.show(xcHelper.parseError(error), $el);
+            });
         });
 
         $menu.on("click", ".downloadDataflow", () => {
             const dagTab: DagTab = this.getDagTabById($menu.data("id"));
             DFDownloadModal.Instance.show(dagTab);
         });
+    }
+
+    private _loadUnOpenTab(dagTab: DagTab): XDPromise<void> {
+        if (!dagTab.isLoaded()) {
+            return dagTab.load();
+        } else {
+            return PromiseHelper.resolve();
+        }
     }
 
     private _isForSQLFolder(dagTab: DagTab): boolean {

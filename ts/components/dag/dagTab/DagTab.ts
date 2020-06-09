@@ -198,6 +198,10 @@ abstract class DagTab extends Durable {
         return this._isOpen;
     }
 
+    public isLoaded(): boolean {
+        return this._dagGraph != null;
+    }
+
     public needReset(): boolean {
         return false;
     }
