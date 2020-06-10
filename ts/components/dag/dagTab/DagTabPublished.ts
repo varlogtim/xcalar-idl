@@ -118,6 +118,7 @@ class DagTabPublished extends DagTab {
             hasCreatWKBK = true;
             this._id = sessionId;
             await this._activateWKBK();
+            await this._copyLoaderUDFFromSharedToLocal(appId);
             await this._uploadAppModules(appId);
         } catch (e) {
             if (hasCreatWKBK) {
@@ -178,7 +179,7 @@ class DagTabPublished extends DagTab {
                 const moduelName = path.substring(prefixLen);
                 udfAbsolutePaths[path] = moduelName;
             });
-            return this._downloadShareadUDFToLocal(udfAbsolutePaths, overwrite)
+            return this._downloadSharedUDFToLocal(udfAbsolutePaths, overwrite)
         })
         .then(() => {
             UDFFileManager.Instance.refresh(true);
@@ -261,7 +262,7 @@ class DagTabPublished extends DagTab {
         return promise;
     }
 
-    private _transerUDF(moduleName: string): XDPromise<void> {
+    private _transferUDF(moduleName: string): XDPromise<void> {
         let downloadHelper = (moduleName: string): XDPromise<string> => {
             const deferred: XDDeferred<string> = PromiseHelper.deferred();
             const udfPath = UDFFileManager.Instance.getCurrWorkbookPath() + moduleName;
@@ -323,7 +324,7 @@ class DagTabPublished extends DagTab {
         DagList.Instance.getAllDags().forEach((tab) => {
             if (tab.getApp() === appId) {
                 if (tab instanceof DagTabUser) {
-                    promies.push(this._writeModudleToWKBKKVStore(tab, udfSet));
+                    promies.push(this._writeModuleToWKBKKVStore(tab, udfSet));
                 } else {
                     // current valid tab in app is DagTabUser or DagTabMain
                     throw new Error("Invalid type of module exist in the app");
@@ -334,7 +335,39 @@ class DagTabPublished extends DagTab {
         await this._uploadLocalUDFToShared(udfSet);
     }
 
-    private async _writeModudleToWKBKKVStore(
+    private async _copyLoaderUDFFromSharedToLocal(appId: string): Promise<void> {
+        const udfAbsolutePaths = {};
+        const promises = [];
+        DagList.Instance.getAllDags().forEach((tab) => {
+            if (tab.getApp() === appId) {
+                if (tab instanceof DagTabUser) {
+                    promises.push(this._findLoaderUDFs(tab, udfAbsolutePaths));
+                } else {
+                    // current valid tab in app is DagTabUser or DagTabMain
+                    throw new Error("Invalid type of module exist in the app");
+                }
+            }
+        });
+        await Promise.all(promises);
+        await this._downloadSharedUDFToLocal(udfAbsolutePaths, true)
+        await UDFFileManager.Instance.refresh(true);
+
+    }
+    private async _findLoaderUDFs(
+        tab: DagTabUser,
+        udfAbsolutePaths: object
+    ): Promise<void> {
+        const sharedUDFsPrefix = xcHelper.constructUDFSharedPrefix()
+        if (tab.getGraph() == null) {
+            await tab.load();
+        }
+        tab.getGraph().getUsedLoaderUDFModules().forEach((moduleName) => {
+            udfAbsolutePaths[sharedUDFsPrefix + moduleName] = moduleName;
+        });
+    }
+
+
+    private async _writeModuleToWKBKKVStore(
         tab: DagTabUser,
         udfSet: Set<string>
     ): Promise<void> {
@@ -342,7 +375,11 @@ class DagTabPublished extends DagTab {
             await tab.load();
         }
         const tabUDFSet = tab.getGraph().getUsedUDFModules();
-        tabUDFSet.forEach((moduelName) => udfSet.add(moduelName));
+        tabUDFSet.forEach((moduleName) => udfSet.add(moduleName));
+
+        const loaderUDFSet = tab.getGraph().getUsedLoaderUDFModules();
+        loaderUDFSet.forEach((moduleName) => udfSet.add(moduleName));
+
         const cloned = tab.clone();
         DagTabPublished._switchSession(this._getWKBKName());
         const promise = cloned.save();
@@ -353,14 +390,15 @@ class DagTabPublished extends DagTab {
     private _uploadLocalUDFToShared(udfSet: Set<string>): XDPromise<void> {
         const promises: XDPromise<void>[] = [];
         udfSet.forEach((moduleName) => {
+            console.log("_uploadLocalUDFToShare(" + moduleName + ")");
             if (moduleName !== "default") {
-                promises.push(this._transerUDF(moduleName));
+                promises.push(this._transferUDF(moduleName));
             }
         });
         return PromiseHelper.when(...promises);
     }
 
-    private _downloadShareadUDFToLocal(
+    private _downloadSharedUDFToLocal(
         udfAbsolutePaths: object,
         overwrite: boolean
     ): XDPromise<void> {

@@ -139,6 +139,8 @@ class DagNodeIMDTable extends DagNodeIn {
     }
 
     public getLoadArgs(): object {
+        // This function should be refactored as it doesn't return LoadArgs.
+        // This returns sourceArgsList. LoadArgs contains parseArgs as well.
         let loadArgs = {};
         try {
             if (!this._subGraph) {
@@ -176,6 +178,39 @@ class DagNodeIMDTable extends DagNodeIn {
             console.error("set load args fails");
             return false;
         }
+    }
+
+    public getUsedLoaderUDFModules(): Set<string> {
+        let set: Set<string> = new Set();
+        Object.values(this.getFullLoadArgs()).forEach((loadArgs) => {
+            const parserArguments = JSON.parse(loadArgs.parseArgs.parserArgJson);
+            if (parserArguments.hasOwnProperty('loader_name')) {
+                this._getUDFFromParseArgs(loadArgs.parseArgs, set);
+            }
+        });
+        console.log("getUsedLoaderUDFModules(): return set: " +
+                    JSON.stringify(set, undefined, 4));
+        return set;
+    }
+
+    public getFullLoadArgs(): object {
+        // Ideally, we should refactor the other function as it returns "sourceArgList"
+        // not the full load args.
+        let fullLoadArgs = {};
+        try {
+            if (!this._subGraph) {
+                return fullLoadArgs;
+            }
+            const nodes = this._subGraph.getNodesByType(DagNodeType.Dataset);
+            nodes.forEach((node) => {
+                const parsedLoadArgs = JSON.parse(node.getParam().loadArgs);
+                fullLoadArgs[node.getId()] = parsedLoadArgs.args.loadArgs;
+            });
+        } catch (e) {
+            console.error("get load args failed", e);
+        }
+
+        return fullLoadArgs;
     }
 
     public getSource(): string {
@@ -229,6 +264,21 @@ class DagNodeIMDTable extends DagNodeIn {
         const serializedInfo: DagNodeIMDTableInfo = <DagNodeIMDTableInfo>super._getSerializeInfo(includeStats);
         serializedInfo.subGraph = this._subGraph.getSerializableObj();
         return serializedInfo;
+    }
+
+    private _getUDFFromParseArgs(parseArgs: object, moduleSet: Set<string>): void {
+        const fnName: string = parseArgs["parserFnName"];
+        if (fnName == null) {
+            // No function specified
+            return;
+        }
+        const splits: string[] = fnName.split(':');
+        if (splits.length === 1) {
+            // There is just a function name
+            return;
+        }
+        const moduleName: string = splits[0];
+        moduleSet.add(moduleName);
     }
 }
 

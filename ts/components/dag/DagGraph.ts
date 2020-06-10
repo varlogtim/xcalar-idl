@@ -1578,6 +1578,17 @@ class DagGraph extends Durable {
         return udfSet;
     }
 
+    public getUsedLoaderUDFModules(): Set<string> {
+        let udfSet: Set<string> = new Set();
+        this.nodesMap.forEach((node) => {
+            if (node.getType() === DagNodeType.IMDTable) {
+                const set: Set<string> = (<DagNodeIMDTable>node).getUsedLoaderUDFModules();
+                udfSet = new Set([...set, ...udfSet]);
+            }
+        });
+        return udfSet;
+    }
+
     /**
      * Get the used dataset name in the graph
      * @param deepSearch when set true, will search the source of link in node
