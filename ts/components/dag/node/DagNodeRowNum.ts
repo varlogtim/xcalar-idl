@@ -77,7 +77,7 @@ class DagNodeRowNum extends DagNode {
      * @returns {string}
      */
     public getDisplayNodeType(): string {
-        return "Row Num";
+        return "Row Number";
     }
 
     /**

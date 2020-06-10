@@ -78,6 +78,7 @@ class RowNumOpPanel extends BaseOpPanel implements IOpPanel {
         const destColProp: SimpleInputProps<string> = {
             type: 'string',
             name: OpPanelTStr.RowNumPanelFieldNameDestColumn + ":",
+            iconTip: OpPanelTStr.RowNumPanelFieldNameDestColumnTip,
             inputVal: this._dataModel.getDestColumn(), placeholder: '',
             valueCheck: {
                 checkType: 'stringColumnNameNoEmptyValue',

@@ -91,6 +91,7 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
         const sourceList: HintDropdownProps = {
             type: 'column',
             name: OpPanelTStr.RoundPanelFieldNameSourceColumn + ":",
+            iconTip: OpPanelTStr.RoundPanelFieldNameSourceColumnTip,
             inputVal: this._dataModel.getSourceColumn(),
             placeholder: OpPanelTStr.RoundPanelFieldNameSourceColumn,
             menuList: menuList,
@@ -144,6 +145,7 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
         const destColProp: SimpleInputProps<string> = {
             type: 'string',
             name: OpPanelTStr.RoundPanelFieldNameDestColumn + ":",
+            iconTip: OpPanelTStr.RoundPanelFieldNameDestColumnTip,
             inputVal: this._dataModel.getDestColumn(), placeholder: '',
             valueCheck: {
                 checkType: 'stringColumnNameNoEmptyPrefixValue',
@@ -167,6 +169,7 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
         const icvProp: CheckboxInputProps = {
             type: 'boolean',
             name: OpPanelTStr.CommonFieldNameErroneousRows,
+            tip: OpPanelTStr.CommonFieldNameErroneousRowsTip,
             isChecked: this._dataModel.isIncludeErrRow(),
             onFlagChange: (flag) => {
                 this._dataModel.setIncludeErrRow(flag);

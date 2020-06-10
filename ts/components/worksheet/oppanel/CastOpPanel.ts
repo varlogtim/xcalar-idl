@@ -14,7 +14,8 @@ class CastOpPanel extends BaseOpPanel {
                     resultColPosition: -1,
                     showCast: true,
                     candidateText: "Columns in this section will not be casted.",
-                    candidateTitle: `${OpFormTStr.NotCasted}:`
+                    candidateTitle: `${OpFormTStr.NotCasted}:`,
+                    candidateTip: "Columns whose data requires no data type conversion."
                 });
         this._registerHandlers();
     }

@@ -37,7 +37,7 @@ class DagNodeProject extends DagNode {
      * @returns {string}
      */
     public getDisplayNodeType(): string {
-        return "Project Columns";
+        return "Projection";
     }
 
     /**

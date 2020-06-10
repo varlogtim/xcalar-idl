@@ -231,7 +231,7 @@ describe("MapOpPanel Test", function() {
                     expect($descriptions.eq(0).text()).to.equal("txt:");
                     expect($descriptions.eq(1).text()).to.equal("index:");
                     expect($descriptions.eq(2).text()).to.equal("delim:");
-                    expect($descriptions.eq(3).text()).to.equal("New Resultant Column Name:");
+                    expect($descriptions.eq(3).text()).to.equal("New Resultant Column Name: ");
 
                 });
 

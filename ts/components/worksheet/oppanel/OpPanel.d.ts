@@ -29,7 +29,8 @@ declare type OpPanelDropdownMenuItem = {
     value?: any,
     cssClass?: string[],
     isSelected?: boolean,
-    isNotMenuItem?: boolean
+    isNotMenuItem?: boolean,
+    tip?: string
 }
 
 declare type OpPanelDropdownMenuSelectCallback = (value: any) => void
@@ -78,6 +79,7 @@ declare interface BaseComponentProps {
 declare interface AutogenSectionProps extends BaseComponentProps {
     type: string;
     name: string;
+    iconTip?: string;
 }
 
 declare interface HintDropdownProps extends AutogenSectionProps {
@@ -101,7 +103,8 @@ declare interface SimpleInputProps<T> extends AutogenSectionProps {
 
 declare interface ColumnComboProps extends AutogenSectionProps {
     columnCombos: ColumnComboRowProps[]
-    addMoreButton?: AddMoreButtonProps
+    addMoreButton?: AddMoreButtonProps,
+    iconTip: string
 }
 
 declare interface ColumnComboRowProps extends BaseComponentProps {
@@ -112,6 +115,7 @@ declare interface ColumnComboRowProps extends BaseComponentProps {
 declare interface CheckboxInputProps extends AutogenSectionProps {
     isChecked: boolean;
     onFlagChange?: (flag: boolean) => void;
+    tip?: string;
 }
 
 declare interface RenameProps extends BaseComponentProps {

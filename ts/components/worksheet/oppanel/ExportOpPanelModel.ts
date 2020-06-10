@@ -496,6 +496,8 @@ class ExportOpPanelModel extends BaseOpPanelModel {
                 break;
         }
         let labelName = param.pretty_print || param.name;
+        labelName = labelName.replace(/_/g, " ");
+        labelName = xcStringHelper.capitalize(labelName);
         type = param.secret ? "password" : type;
         argHtml = '';
         argHtml = '<div class="exportArg formRow clearfix ' + param.name.replace(/ /g,"_") + ' ' + type + 'Arg">' +

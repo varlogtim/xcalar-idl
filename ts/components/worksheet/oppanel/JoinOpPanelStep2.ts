@@ -250,7 +250,7 @@ class JoinOpPanelStep2 {
                     this._autoRenameColumn(renameInfo, renameInfo.source, isLeft);
                 } else {
                     collisionError = isPrefix ? ErrTStr.PrefixConflict :
-                        ErrTStr.ColumnConflict;
+                        ErrTStr.ColumnConflict2;
                 }
             }
 
@@ -383,6 +383,9 @@ class JoinOpPanelStep2 {
         const tableTitle = isSelected
             ? OpPanelTStr.JoinPanelColumnTableTitleKeep
             : OpPanelTStr.JoinPanelColumnTableTitleDrop;
+        const tableTitleTip = isSelected
+            ? OpPanelTStr.JoinPanelColumnTableTitleKeepTip
+            : OpPanelTStr.JoinPanelColumnTableTitleDropTip;
         const actionType = isSelected ? 'remove' : 'add';
         const leftListTitle = OpPanelTStr.JoinPanelColumnListTitleLeft;
         const rightListTitle = OpPanelTStr.JoinPanelColumnListTitleRight;
@@ -468,6 +471,7 @@ class JoinOpPanelStep2 {
         const templateId = JoinOpPanelStep2._templateIds.columnTable;
         const elements = this._templateMgr.createElements(templateId, {
             tableTitle: tableTitle,
+            tableTitleTip: tableTitleTip,
             'APP-LEFT': elemLeftList,
             'APP-RIGHT': elemRightList
         });

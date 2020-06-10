@@ -15,14 +15,14 @@ class JoinOpPanelStep1 {
     private _opSectionSelector = "#joinOpPanel .opSection";
 
     public static readonly joinTypeMenuItems: OpPanelDropdownMenuItem[] = [
-        { text: JoinTStr.joinTypeInner, value: JoinOperatorTStr[JoinOperatorT.InnerJoin] },
-        { text: JoinTStr.joinTypeLeft, value: JoinOperatorTStr[JoinOperatorT.LeftOuterJoin] },
-        { text: JoinTStr.joinTypeRight, value: JoinOperatorTStr[JoinOperatorT.RightOuterJoin] },
-        { text: JoinTStr.joinTypeFull, value: JoinOperatorTStr[JoinOperatorT.FullOuterJoin] },
+        { text: JoinTStr.joinTypeInner, tip: JoinTStr.joinTypeInnerTip, value: JoinOperatorTStr[JoinOperatorT.InnerJoin] },
+        { text: JoinTStr.joinTypeLeft, tip: JoinTStr.joinTypeLeftTip, value: JoinOperatorTStr[JoinOperatorT.LeftOuterJoin] },
+        { text: JoinTStr.joinTypeRight, tip: JoinTStr.joinTypeRightTip, value: JoinOperatorTStr[JoinOperatorT.RightOuterJoin] },
+        { text: JoinTStr.joinTypeFull, tip: JoinTStr.joinTypeFullTip, value: JoinOperatorTStr[JoinOperatorT.FullOuterJoin] },
         { text: JoinTStr.joinTypeSepAdv, cssClass: ['sectionLabel'], isNotMenuItem: true },
-        { text: JoinTStr.joinTypeLeftSemi, value: JoinOperatorTStr[JoinOperatorT.LeftSemiJoin], cssClass: ['advanced'] },
-        { text: JoinTStr.joinTypeLeftAnti, value: JoinOperatorTStr[JoinOperatorT.LeftAntiJoin], cssClass: ['advanced'] },
-        { text: JoinTStr.joinTypeCross, value: JoinOperatorTStr[JoinOperatorT.CrossJoin], cssClass: ['advanced'] },
+        { text: JoinTStr.joinTypeLeftSemi, tip: JoinTStr.joinTypeLeftSemiTip, value: JoinOperatorTStr[JoinOperatorT.LeftSemiJoin], cssClass: ['advanced'] },
+        { text: JoinTStr.joinTypeLeftAnti, tip: JoinTStr.joinTypeLeftAntiTip, value: JoinOperatorTStr[JoinOperatorT.LeftAntiJoin], cssClass: ['advanced'] },
+        { text: JoinTStr.joinTypeCross, tip: JoinTStr.joinTypeCrossTip, value: JoinOperatorTStr[JoinOperatorT.CrossJoin], cssClass: ['advanced'] },
     ];
     public constructor(props: {
         container: JQuery
@@ -75,6 +75,7 @@ class JoinOpPanelStep1 {
             const menuInfo: OpPanelDropdownMenuItem = {
                 text: item.text,
                 value: item.value,
+                tip: item.tip,
                 isNotMenuItem: item.isNotMenuItem,
                 isSelected: (item.value === joinType),
                 cssClass: (item.cssClass != null) ? [].concat(item.cssClass) : []

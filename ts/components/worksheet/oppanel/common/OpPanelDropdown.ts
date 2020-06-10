@@ -149,6 +149,14 @@ class OpPanelDropdown {
             } else {
                 $menuItem.text(menuInfo.text);
             }
+            // Set tooltip
+            if (menuInfo.tip) {
+                xcTooltip.add($menuItem, {
+                    title: menuInfo.tip,
+                    placement: "auto left"
+                });
+            }
+
             // Set CSS classes
             if (menuInfo.cssClass != null) {
                 $menuItem.addClass(menuInfo.cssClass.join(' '));

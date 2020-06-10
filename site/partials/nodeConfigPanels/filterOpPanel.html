@@ -12,8 +12,15 @@
         <div class="divider"></div>
         <div class="group filterGroup firstGroup">
             <div class="catFuncHeadings clearfix subHeading">
-                <div class="filterFnTitle"><%= dicts.opsView.filterFunc %>:</div>
-                <div class="altFnTitle"><%= dicts.opsView.noFunc %></div>
+                <div class="filterFnTitle"><%= dicts.opsView.filterFunc %>:
+                  <i class="qMark icon xi-unknown"
+                    data-toggle="tooltip"
+                    data-container="body"
+                    data-placement="auto top"
+                    data-title="<%= dicts.opsView.filterFuncTip %>">
+                  </i>
+                </div>
+                <div class="altFnTitle">No Filter Function Chosen</div>
                 <i class="icon xi-minus minGroup"></i>
             </div>
             <div class="dropDownList firstList functionsList" data-fnlistnum="0">
@@ -51,7 +58,12 @@
         </div>
         <div class="addArgWrap addArgWrapSmall addExtraGroup">
             <button class="btn btn-secondary btn-100-rounded addArg">
-            <i class="icon xi-plus"></i>
+            <i class="icon xi-plus"
+              data-toggle="tooltip"
+              data-container="body"
+              data-placement="auto top"
+              data-title="If required, apply more functions by expanding this option."
+            ></i>
             </button>
             <span class="text"><%= dicts.opsView.additional %></span>
         </div>

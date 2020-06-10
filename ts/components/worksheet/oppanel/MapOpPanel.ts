@@ -404,7 +404,7 @@ class MapOpPanel extends GeneralOpPanel {
                 for (i = 0; i < ops.length; i++) {
                     li = '<li class="textNoCap" data-category="' + cat +
                     '" data-container="body" ' +
-                    'data-placement="right" data-toggle="tooltip" title="' +
+                    'data-placement="auto right" data-toggle="tooltip" title="' +
                     ops[i].displayName + '">' + ops[i].displayName + '</li>';
                     if (filterVal &&
                         ops[i].displayName.toLowerCase().startsWith(filterVal))
@@ -488,7 +488,7 @@ class MapOpPanel extends GeneralOpPanel {
         // as new column name input
         this._setupBasicArgInputsAndDescs(numArgs, operObj, $rows, defaultValue);
 
-        const strPreview = this._mapArgumentsSetup(groupIndex, numArgs, operObj);
+        const strPreview = this._resultantColSetup(groupIndex, numArgs, operObj);
         numArgs++;
 
         // hide any args that aren't being used
@@ -505,7 +505,14 @@ class MapOpPanel extends GeneralOpPanel {
         $argsGroup.find('.descriptionText').html(descriptionHtml);
 
         this._$panel.find('.strPreview')
-                    .html('<span>' + OpFormTStr.CMD + ':</span> <br>' +
+                    .html('<span>' + OpFormTStr.CMD + ': ' +
+                    '<i class="qMark icon xi-unknown"' +
+                    'data-toggle="tooltip"' +
+                    'data-container="body"' +
+                    'data-placement="auto top"' +
+                    'data-title="' + OpFormTStr.CMDTip + '">' +
+                    '</i>' +
+                        '</span> <br>' +
                                 strPreview);
     }
 
@@ -607,8 +614,14 @@ class MapOpPanel extends GeneralOpPanel {
     }
 
 //  // sets up the last argument for map
-    private _mapArgumentsSetup(groupIndex, numArgs, operObj) {
-        const description = OpModalTStr.ColNameDesc + ":";
+    private _resultantColSetup(groupIndex, numArgs, operObj) {
+        const description = OpModalTStr.ColNameDesc + ": " +
+            '<i class="qMark icon xi-unknown"' +
+            'data-toggle="tooltip"' +
+            'data-container="body"' +
+            'data-placement="auto top"' +
+            'data-title="' + OpPanelTStr.ResultantColNameTip + '">' +
+            '</i>';
         const $rows = this._$panel.find(".group").eq(groupIndex).find('.row');
         const $row = $rows.eq(numArgs).addClass('resultantColNameRow');
         const icon = xcUIHelper.getColTypeIcon(operObj.outputType);
@@ -618,7 +631,7 @@ class MapOpPanel extends GeneralOpPanel {
             .prepend('<div class="iconWrapper"><i class="icon ' + icon +
                     '"></i></div>')
             .end()
-            .find('.description').text(description)
+            .find('.description').html(description)
             .end()
             .find(".inputWrap");
         const strPreview =  this._operatorName + '(<span class="descArgs">' +
@@ -1026,8 +1039,22 @@ class MapOpPanel extends GeneralOpPanel {
                     '</div>' +
                 '</div>' +
                 '<div class="catFuncHeadings clearfix subSubHeading">' +
-                    '<div>Category</div>' +
-                    '<div>Function</div>' +
+                    '<div>Category' +
+                    ' <i class="qMark icon xi-unknown"' +
+                    'data-toggle="tooltip"' +
+                    'data-container="body"' +
+                    'data-placement="auto top"' +
+                    'data-title="' + OpPanelTStr.MapCategoryTip + '">' +
+                    '</i>' +
+                    '</div>' +
+                    '<div>Function' +
+                    ' <i class="qMark icon xi-unknown"' +
+                    'data-toggle="tooltip"' +
+                    'data-container="body"' +
+                    'data-placement="auto top"' +
+                    'data-title="' + OpPanelTStr.MapFunctionTip + '">' +
+                    '</i>' +
+                    '</div>' +
                 '</div>' +
                 '<div class="catFuncMenus clearfix">' +
                     '<ul class="categoryMenu"></ul>' +

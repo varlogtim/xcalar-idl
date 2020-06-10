@@ -11,7 +11,14 @@
             <p class="mainInstructions instrText"><%= dicts.opsView.aggInstr %></p>
             <div class="group aggregateGroup firstGroup">
               <div class="catFuncHeadings clearfix subHeading">
-                <div class="filterFnTitle"><%= dicts.opsView.aggFunc %>:</div>
+                <div class="filterFnTitle"><%= dicts.opsView.aggFunc %>:
+                  <i class="qMark icon xi-unknown"
+                    data-toggle="tooltip"
+                    data-container="body"
+                    data-placement="auto top"
+                    data-title="A predefined formula that performs calculations on column values.">
+                  </i>
+                </div>
                 <div class="altFnTitle"><%= dicts.opsView.noFunc %></div>
               </div>
               <div class="dropDownList firstList functionsList" data-fnlistnum="0">

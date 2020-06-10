@@ -14,7 +14,7 @@
             <p class="mainInstructions instrText"><%= dicts.opsView.mapInstr %></p>
             <div class="group mapGroup firstGroup">
                 <i class="icon xi-minus minGroup"></i>
-                <div class="altFnTitle">No Function Chosen</div>
+                <div class="altFnTitle">No Map Function Chosen</div>
                 <div class="filterMapFuncArea">
                     <input type="text" class="mapFilter" autocomplete="off" placeholder="<%= dicts.opsView.mapFilter %>...">
                     <div class="clear">
@@ -22,8 +22,22 @@
                     </div>
                 </div>
                 <div class="catFuncHeadings clearfix subSubHeading">
-                    <div><%= dicts.opsView.category %></div>
-                    <div><%= dicts.opsView.function %></div>
+                    <div><%= dicts.opsView.category %>
+                      <i class="qMark icon xi-unknown"
+                      data-toggle="tooltip"
+                      data-container="body"
+                      data-placement="auto top"
+                      data-title="<%= dicts.opsView.mapCategoryTip %>">
+                      </i>
+                    </div>
+                    <div><%= dicts.opsView.function %>
+                      <i class="qMark icon xi-unknown"
+                      data-toggle="tooltip"
+                      data-container="body"
+                      data-placement="auto top"
+                      data-title="<%= dicts.opsView.mapFunctionTip %>">
+                      </i>
+                    </div>
                 </div>
                 <div class="catFuncMenus clearfix">
                     <ul class="categoryMenu"></ul>
@@ -36,7 +50,14 @@
                 <button class="btn btn-secondary btn-100-rounded addArg addMapGroup">
                     <i class="icon xi-plus"></i>
                 </button>
-                <span class="text"><%= dicts.opsView.additionalMapFunc %></span>
+                <span class="text"><%= dicts.opsView.additionalMapFunc %>
+                  <i class="qMark icon xi-unknown"
+                    data-toggle="tooltip"
+                    data-container="body"
+                    data-placement="auto top"
+                    data-title="<%= dicts.opsView.additionalMapFuncTip %>">
+                    </i>
+                </span>
             </div>
             <!-- icvContainer is deprecated, need to remove from MapOpPanel.ts -->
             <div class="icvContainer xc-hidden">

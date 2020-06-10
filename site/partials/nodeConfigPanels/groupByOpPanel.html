@@ -48,7 +48,7 @@
                                 data-placement="auto top" data-original-title="<%= dicts.opsView.groupAllHint %>"></i>
                         </div>
                     </div>
-                    <div class="btnWrap">
+                    <div class="btnWrap" style="width:100%;">
                         <div class="addArgWrap addArgWrapLarge">
                             <button class="btn btn-secondary addArg addGroupArg ">
                                 <span class="text">
@@ -59,7 +59,14 @@
                 </div>
                 <div class="catFuncHeadings clearfix subHeading">
                     <div class="groupbyFnTitle">
-                        <%= dicts.opsView.funcToGroup %>:</div>
+                        <%= dicts.opsView.funcToGroup %>:
+                        <i class="qMark icon xi-unknown"
+                        data-toggle="tooltip"
+                        data-container="body"
+                        data-placement="auto top"
+                        data-title="A predefined formula that performs calculations on column values.">
+                        </i>
+                      </div>
                     <div class="altFnTitle">
                         <%= dicts.opsView.noFunc %>
                     </div>

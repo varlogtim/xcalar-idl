@@ -148,7 +148,7 @@ describe("Export Operator Panel Test", function() {
             exportOpPanel.renderDriverArgs();
             expect($("#exportOpPanel .str_param").length).to.equal(1);
             var $param = $("#exportOpPanel .str_param").eq(0);
-            expect($param.find(".label").text()).to.equal("str param:");
+            expect($param.find(".label").text()).to.equal("Str param:");
             expect($param.find("input").attr("type")).to.equal("text");
         });
 
@@ -158,7 +158,7 @@ describe("Export Operator Panel Test", function() {
             exportOpPanel.renderDriverArgs();
             expect($("#exportOpPanel .int_param").length).to.equal(1);
             var $param = $("#exportOpPanel .int_param").eq(0);
-            expect($param.find(".label").text()).to.equal("int param:");
+            expect($param.find(".label").text()).to.equal("Int param:");
             expect($param.find("input").attr("type")).to.equal("number");
         });
 
@@ -168,7 +168,7 @@ describe("Export Operator Panel Test", function() {
             exportOpPanel.renderDriverArgs();
             expect($("#exportOpPanel .bool_param").length).to.equal(1);
             var $param = $("#exportOpPanel .bool_param").eq(0);
-            expect($param.find(".label").text()).to.equal("bool param:");
+            expect($param.find(".label").text()).to.equal("Bool param:");
         });
 
         it ("Should display secret/optional params correctly when a driver is selected", function() {
@@ -177,7 +177,7 @@ describe("Export Operator Panel Test", function() {
             exportOpPanel.renderDriverArgs();
             expect($("#exportOpPanel .secret_optional_param").length).to.equal(1);
             var $param = $("#exportOpPanel .secret_optional_param").eq(0);
-            expect($param.find(".label").text()).to.equal("(Optional) secret optional param:");
+            expect($param.find(".label").text()).to.equal("(Optional) Secret optional param:");
             expect($param.find("input").attr("type")).to.equal("password");
         });
 
@@ -187,7 +187,7 @@ describe("Export Operator Panel Test", function() {
             exportOpPanel.renderDriverArgs();
             expect($("#exportOpPanel .target_param").length).to.equal(1);
             var $param = $("#exportOpPanel .target_param").eq(0);
-            expect($param.find(".label").text()).to.equal("target param:");
+            expect($param.find(".label").text()).to.equal("Target param:");
             expect($param.find(".exportDrivers li").length).to.equal(2);
         });
 

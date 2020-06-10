@@ -407,7 +407,14 @@ class FilterOpPanel extends GeneralOpPanel {
         $argsGroup.find('.descriptionText').html(descriptionHtml);
 
         this._$panel.find('.strPreview')
-                        .html('<span>' + OpFormTStr.CMD + ':</span> <br>' +
+                        .html('<span>' + OpFormTStr.CMD + ': ' +
+                        '<i class="qMark icon xi-unknown"' +
+                        'data-toggle="tooltip"' +
+                        'data-container="body"' +
+                        'data-placement="auto top"' +
+                        'data-title="' + OpFormTStr.CMDTip + '">' +
+                        '</i>' +
+                        '</span> <br>' +
                                 strPreview);
         this._checkIfStringReplaceNeeded(true);
     }
@@ -903,7 +910,7 @@ class FilterOpPanel extends GeneralOpPanel {
         }
         const html = '<div class="group filterGroup ' + extraClass + '">' +
                         '<div class="catFuncHeadings clearfix subHeading">' +
-                            '<div class="filterFnTitle">Filter Function</div>' +
+                            '<div class="filterFnTitle">Filter Function:</div>' +
                             '<div class="altFnTitle">No Filter Function Chosen</div>' +
                             '<i class="icon xi-close removeExtraGroup"></i>' +
                             '<i class="icon xi-minus minGroup" ' + xcTooltip.Attrs + ' data-title="Minimize"></i>' +

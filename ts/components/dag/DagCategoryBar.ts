@@ -582,7 +582,7 @@ class DagCategoryBar {
     private _formatOpTitle(name): HTML {
         let html: HTML;
         // XXX arbritrary way to decide if name is too long for 1 line
-        if (name.length > 10 && name.indexOf(" ") > -1) {
+        if (name.length > 9 && name.indexOf(" ") > -1) {
             const namePart1 = name.substring(0, name.lastIndexOf(" "));
             const namePart2 = name.slice(name.lastIndexOf(" ") + 1);
             html = '<text class="opTitle" x="50%" y="30%" ' +

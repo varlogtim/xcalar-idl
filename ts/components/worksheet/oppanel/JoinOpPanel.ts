@@ -428,7 +428,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
             case JoinOpError.InvalidJoinClause:
                 return JoinTStr.InvalidClause;
             case JoinOpError.ColumnNameConflict:
-                return ErrTStr.ColumnConflict;
+                return ErrTStr.ColumnConflict2;
             case JoinOpError.InvalidEvalString:
                 return ErrTStr.InvalidEvalStr;
             case JoinOpError.NeedTypeCast:

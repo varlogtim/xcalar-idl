@@ -13,36 +13,41 @@ namespace DagNodeMenu {
             configureNode: "This action opens the operator's configuration panel",
             executeNode: "This action runs the configured operator's operation.",
             executeAllNodes: "This action runs all the operations in a module.",
-            createNodeOptimized: "This action gives a preview of how your application will run in Production.<br>An optimized application contains no intermediate tables, which reduces memory consumption, creates a faster runtime, and provides optimal performance when used in your production platform.",
+            createNodeOptimized: "This action gives a preview of how your application will run without intermediate table results. Optimization reduces memory consumption, creates a faster runtime, and provides optimal performance when used in your production platform.",
             reexecuteNode: "This action regenerates your intermediate table results for this operator.",
             deleteAllTables: "WARNING: This action deletes your intermediate table results for all functions in a module. All the operators configuration settings remain unchanged.",
             copyNodes: "This action copies the selected graph-node or graph-nodes, and connectors. Configuration settings remain but Intermediate table results are removed.",
             cutNodes: "This action removes the graph-node and its links. Unlike the Delete option, the graph-node is saved to the clip-board buffer.",
-            pasteNodes: "This action pastes the copied graph-node or graph-nodes and connectors into a new or existing function of module. Configuration settings remain but intermediate table results are removed.",
+            pasteNodes: "This action pastes the copied graph-node or graph-nodes and connectors into a new or existing function of a module. Configuration settings remain but intermediate table results are removed.",
             copyTableName: "This action copies the name of the selected table",
             duplicateDf: "This action creates a copy of the module, including configuration settings, in a new Module tab.",
             selectAll: "This action selects all the operators and comments within the module.",
             findOptimizedSource: "This action opens the Module Lineage window, which displays the name of the module that was used for the optimized application.",
             findSourceNode: "This action opens the Operator Lineage window, which displays the history of the selected graph-node, including the originating custom operator and the module that was used for the optimized application.",
             viewSchemaChanges: "This action opens the schema window and displays the current new, deleted, and updated columns and data types.",
-            createCustom: "This action creates an operator from one or multiple graph-nodes for reuse. Custom operators keep their original configuration settings.<br>" +
-                            "To create a Custom operator:<br>" +
-                            "From a function, select the one or more graph-nodes that you require for a Custom operator and then right-click and select Create Custom Operator. Right-click again and select Save As a Custom Operator, which populates the Custom operator bar with the new Custom operator.<br>" +
-                            "To name or rename the operator:<br>" +
-                            "From the Custom operator bar, select the Custom operator and then click the Edit Name icon on the left of the Operator bar. In the Edit Name dialog box, enter a name for your Custom operator and click Save.",
+            createCustom: "This action creates an operator from one or multiple graph-nodes for reuse. Custom operators keep their original configuration settings.",
             autoAlign: "This action rearranges the graph-nodes for each function in a straight line in your module.",
             description: "This action creates a description, which is displayed in the left planel when you select a graph-node.",
             newComment: "This action opens a text box for entering comments about your function or module.",
-            inspectSQL: "This action provides debugging capabilities by inspecting your SQL statements within the SQL operator. When selected the original SQL graph-node stays in the module and a new SQL module tab is created containing the operators present in the SQL statement.",
-            editCustom: "This action provides debugging capabilities by inspecting your Custom operator. When selected the original Custom graph-node stays in the module and a new Custom module tab is created containing the operators present in the Custom operator. Changes to the operations in this Custom module tab are reflected in the original Custom operator.",
+            inspectSQL: "This action provides debugging capabilities by inspecting your statements within the SQL operator. When selected the original SQL operator stays in the module and a new SQL module tab is created containing the operators present in the SQL statement.",
             expandSQL: "Unlike Inspect, this action replaces the selected Custom or SQL operator in the module with individual graph-nodes for each operation.",
+            shareCustom: "This action saves the new custom operator in the Operator bar.",
             removeNode: "This action permanently removes the graph-node.",
             removeAllNodes: "This action permanently removes the operators and functions from a module.",
             removeInConnection: "This action deletes the connection between two graph-nodes.",
             restoreSource: "This action regenerates the source table by reloading data from your source repository.",
             restoreAllSource: "This action regenerates all the source tables by reloading data from your source repository.",
             download: "Saves the module outside of Notebook as one of three formats: Xcalar module format, PNG, and JSON.",
-            exitOp: "This action closes the operator’s configuration panel. IMPORTANT: There is no autosave or warning message for unsaved changes."
+            exitOp: "This action closes the operator’s configuration panel. IMPORTANT: There is no autosave or warning message for unsaved changes.",
+            updateSQLQuery: "This action synchronizes the SQL graph-node with the current data manipulation operations in the referenced SQL statement. If you require the current changes, select this option, otherwise do nothing.",
+            pinTable: "This action prevents the intermediate table from being deleted by you or by Xcalar when memory is low.<br/><br/>NOTE: Intermediate tables must be unpinned before Delete or Clear All Table Results actions can be performed on the pinned table’s operator.",
+            unpinTable: "This action removes the pin associated with the intermediate table.<br/><br/>NOTE: This action re-enables configuration modifications and floating menu actions on the intermediate table’s operator.",
+            generateResult: "This action runs the operation and regenerates the results in the selected table.",
+            viewResult: "This action displays the table in the Table panel.",
+            deleteTable: "This action removes the table results from the selected table.",
+            viewSchema: "This action displays the table’s schema and data lineage when column names are clicked.",
+            viewSkew: "This action displays the distribution of this table’s data across all cluster nodes. Where, a value of 0 denotes a balanced distribution of data and 100 denotes an imbalanced distribution of data across the cluster.",
+            addOperation: "This action lists the operators for selecting a new operation."
         };
         let $menus = _getDagNodeMenu().add(_getDagTableMenu());
         for (let key in tooltipMap) {
@@ -192,7 +197,7 @@ namespace DagNodeMenu {
                 const icon: string = categoryNode.getIcon();
                 const description: string = categoryNode.getDescription();
                 subMenuPart += `<li class="operator ${operatorName}" data-opid="${operator.getId()}"
-                                ${xcTooltip.Attrs} data-placement="auto left" data-delay="700" data-original-title="${description}">
+                                ${xcTooltip.AttrsLeft} data-delay="700" data-original-title="${description}">
                                     <i class="icon operatorIcon ${icon}">${icon}</i>
                                     <span class="label">${opDisplayName}</span>
                             </li>`;
@@ -202,7 +207,7 @@ namespace DagNodeMenu {
 
                 menuHtml += `<li class="category category-${categoryType} parentMenu"
                         data-submenu="category-${categoryType}"
-                        ${xcTooltip.Attrs} data-placement="auto left" data-delay="700" data-original-title="${description}" >
+                        ${xcTooltip.AttrsLeft} data-delay="700" data-original-title="${description}" >
                             <i class="icon categoryIcon ${icon}"></i>
                             <span class="label">${categoryName}</span>
                         </li>`;

@@ -94,6 +94,7 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
         const sourceList: HintDropdownProps = {
             type: 'column',
             name: OpPanelTStr.ExplodePanelFieldNameSourceColumn + ":",
+            iconTip: OpPanelTStr.ExplodePanelFieldNameSourceColumnTip,
             inputVal: this._dataModel.getSourceColumn(),
             placeholder: OpPanelTStr.ExplodePanelFieldNameSourceColumn,
             menuList: menuList,
@@ -126,6 +127,7 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
         const delimiterProps: SimpleInputProps<string> = {
             type: 'string',
             name: OpPanelTStr.ExplodePanelFieldNameDelimiter + ":",
+            iconTip: OpPanelTStr.ExplodePanelFieldNameDelimiterTip,
             inputVal: this._dataModel.getDelimiter(),
             placeholder: OpPanelTStr.ExplodePanelFieldNameDelimiter,
             valueCheck: { checkType: 'stringNoTrimNoEmptyValue', args: [] },
@@ -146,6 +148,7 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
         const destColProp: SimpleInputProps<string> = {
             type: 'string',
             name: OpPanelTStr.ExplodePanelFieldNameDestColumn + ":",
+            iconTip: OpPanelTStr.ExplodePanelFieldNameDestColumnTip,
             inputVal: this._dataModel.getDestColumn(), placeholder: '',
             valueCheck: {
                 checkType: 'stringColumnNameNoEmptyPrefixValue',
@@ -169,6 +172,7 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
         const icvProp: CheckboxInputProps = {
             type: 'boolean',
             name: OpPanelTStr.CommonFieldNameErroneousRows,
+            tip: OpPanelTStr.CommonFieldNameErroneousRowsTip,
             isChecked: this._dataModel.isIncludeErrRow(),
             onFlagChange: (flag) => {
                 this._dataModel.setIncludeErrRow(flag);

@@ -41,9 +41,25 @@
             </div>
             <div data-xcid="clauseArea">
               <div class="row row-subheading">
-                <div class="col col-left">#1 <%= dicts.joinView.LeftCols %></div>
+                <div class="col col-left">#1 <%= dicts.joinView.LeftCols %>
+                  <i data-xcid="colLeft1Tip" class="colSelectInstr instrText qMark icon xi-unknown"
+                  data-toggle="tooltip"
+                  data-container="body"
+                  data-placement="auto top"
+                  data-title="The column name from Table 1 whose row values, according to the Join operation, are returned or not returned if they match the row values from the selected column of Table 2."
+                  >
+                </i>
+                </div>
                 <div class="col col-middle"></div>
-                <div class="col col-right">#2 <%= dicts.joinView.RightCols %></div>
+                <div class="col col-right">#2 <%= dicts.joinView.RightCols %>
+                  <i data-xcid="colLeft2Tip" class="colSelectInstr instrText qMark icon xi-unknown"
+                  data-toggle="tooltip"
+                  data-container="body"
+                  data-placement="auto top"
+                  data-title="The column name from Table 2 whose row values, according to the Join operation, are returned or not returned if they match the row values from the selected column of Table 1."
+                  >
+                </i>
+                </div>
               </div>
               <div class="mainTable">
                 <div data-xcid="clauseContainer"></div>

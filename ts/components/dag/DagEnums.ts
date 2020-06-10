@@ -156,31 +156,31 @@ enum DagTabType {
 
 const DagNodeTooltip = {};
 
-DagNodeTooltip[DagNodeType.Aggregate] = "Calculates the selected aggregate value of a column";
+DagNodeTooltip[DagNodeType.Aggregate] = "Returns a single value that was calculated by an aggregate function on the values of the rows in the selected column";
 DagNodeTooltip[DagNodeType.Custom] = "These compound operators are user-defined";
 // DagNodeTooltip[DagNodeType.CustomInput] = "customInput";
 // DagNodeTooltip[DagNodeType.CustomOutput] = "customOutput";
 DagNodeTooltip[DagNodeType.Dataset] = "Sources data from a dataset";
-DagNodeTooltip[DagNodeType.DFIn] = "Provides input data from either a Function Output operator or a Table";
+DagNodeTooltip[DagNodeType.DFIn] = "Enables the input of data from another function.";
 DagNodeTooltip[DagNodeType.DFOut] = "Enables access to a function's data by a Function Input operator";
-DagNodeTooltip[DagNodeType.Explode] = "Separates a column into rows using a delimiter";
-DagNodeTooltip[DagNodeType.Export] = "Exports the results of a module via an export driver";
-DagNodeTooltip[DagNodeType.Filter] = "Filters tables using a selected function";
-DagNodeTooltip[DagNodeType.GroupBy] = "Summarizes tables using an aggregate function";
+DagNodeTooltip[DagNodeType.Explode] = "Divides a string data type column into multiple rows";
+DagNodeTooltip[DagNodeType.Export] = "Saves and sends the final results of the function as a file or files to an external data repository.";
+DagNodeTooltip[DagNodeType.Filter] = "Selects fields based on a condition on one or multiple columns";
+DagNodeTooltip[DagNodeType.GroupBy] = "Groups rows and summarizes data using aggregate functions";
 DagNodeTooltip[DagNodeType.IMDTable] = "Provides input data from a Table";
 // DagNodeTooltip[DagNodeType.Index] = "index";
-DagNodeTooltip[DagNodeType.Join] = "Joins two tables on a set of common columns";
-DagNodeTooltip[DagNodeType.Map] = "Applies a selected function across a column";
+DagNodeTooltip[DagNodeType.Join] = "Returns columns and records from one or two tables based on a matching field";
+DagNodeTooltip[DagNodeType.Map] = "Applies one or multiple operations on column values";
 DagNodeTooltip[DagNodeType.Project] = "Removes columns from the table";
-DagNodeTooltip[DagNodeType.PublishIMD] = "Publishes the results of the module as a published table and enables it for inserts, modifies and deletes";
-DagNodeTooltip[DagNodeType.Round] = "Rounds a column of float numbers";
-DagNodeTooltip[DagNodeType.RowNum] = "Adds a row number column";
+DagNodeTooltip[DagNodeType.PublishIMD] = "Generates the results of the operators it is connected to as a Publish Table, which is queryable by third-party BI software.";
+DagNodeTooltip[DagNodeType.Round] = "Applies a fixed number of decimal places to columns whose data type is float";
+DagNodeTooltip[DagNodeType.RowNum] = "Generates a row numbering column";
 // DagNodeTooltip[DagNodeType.Set] = "set";
-DagNodeTooltip[DagNodeType.Sort] = "Sorts tables according to a column";
+DagNodeTooltip[DagNodeType.Sort] = "Sorts the values within one or more columns";
 // DagNodeTooltip[DagNodeType.Source] = "source";
-DagNodeTooltip[DagNodeType.Split] = "Separates a column into columns using a delimiter";
+DagNodeTooltip[DagNodeType.Split] = "Divides a string data type column into multiple columns";
 DagNodeTooltip[DagNodeType.SQL] = "This operator applies one SQL statement  to the input data from an intermediate table";
-DagNodeTooltip[DagNodeType.Deskew] = "Reduce the data skew by resharding the data on the selected column";
+DagNodeTooltip[DagNodeType.Deskew] = "Redistributes the data evenly across all cluster nodes";
 // DagNodeTooltip[DagNodeType.SQLSubInput] = "SQLSubInput";
 // DagNodeTooltip[DagNodeType.SQLSubOutput] = "SQLSubOutput";
 // DagNodeTooltip[DagNodeType.SubGraph] = "subGraph";
@@ -190,11 +190,11 @@ DagNodeTooltip[DagNodeType.Deskew] = "Reduce the data skew by resharding the dat
 // DagNodeTooltip[DagNodeType.SQLFuncOut] = "SQLFuncOut";
 
 DagNodeTooltip[DagNodeSubType.Cast] = "Changes the data type of a column";
-DagNodeTooltip[DagNodeSubType.LookupJoin] = "Augments the rows on the left table with values from the right table based on common columns";
-DagNodeTooltip[DagNodeSubType.FilterJoin] = "Filters the left table based on rows in the right table";
-DagNodeTooltip[DagNodeSubType.Union] = "Returns all rows from input tables";
-DagNodeTooltip[DagNodeSubType.Intersect] = "Returns rows in common between input tables";
-DagNodeTooltip[DagNodeSubType.Except] = "Returns distinct rows that are in only one input table";
+DagNodeTooltip[DagNodeSubType.LookupJoin] = "Returns columns from both tables and the matching records from the left table";
+DagNodeTooltip[DagNodeSubType.FilterJoin] = "Returns columns from the left table and the rows from the left table that have a matching row in the right table";
+DagNodeTooltip[DagNodeSubType.Union] = "Combines the results from two or more tables";
+DagNodeTooltip[DagNodeSubType.Intersect] = "Returns rows within the selected tables whose columns match";
+DagNodeTooltip[DagNodeSubType.Except] = "Returns the columns of Table #1 that are not in the column results of the other selected tables";
 DagNodeTooltip[DagNodeSubType.ExportOptimized] = "Exports the results of an optimized application via an export driver";
 DagNodeTooltip[DagNodeSubType.DFOutOptimized] = "Exports the results of an optimized application to another module";
 
@@ -208,9 +208,9 @@ DagCategoryTooltip[DagCategoryType.SQL] = "These operators apply SQL";
 DagCategoryTooltip[DagCategoryType.ColumnOps] = "These operators target columns";
 DagCategoryTooltip[DagCategoryType.RowOps] = "These operators target rows";
 DagCategoryTooltip[DagCategoryType.Join] = "These operators join tables";
-DagCategoryTooltip[DagCategoryType.Set] = "These operators apply set operations";
-DagCategoryTooltip[DagCategoryType.Aggregates] = "These operators compute results based on aggregate functions";
-DagCategoryTooltip[DagCategoryType.Custom] = "These compound operators are user-defined";
+DagCategoryTooltip[DagCategoryType.Set] = "These operators combine the results of two or more input tables";
+DagCategoryTooltip[DagCategoryType.Aggregates] = "These operators returns values from a calculation on a set of column values";
+DagCategoryTooltip[DagCategoryType.Custom] = "User-defined operators for frequently applied operations";
 
 enum DagColumnChangeType {
     Hide = "hide",

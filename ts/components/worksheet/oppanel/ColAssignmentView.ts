@@ -196,7 +196,8 @@ class ColAssignmentView {
         let candidateHTML: string = "";
         const candidateActionProp = {
             title: candidateTitle,
-            actionList: []
+            actionList: [],
+            tip: this.instanceOptions.candidateTip
         };
         let nodeListHeader: string = '<div class="lists newTable"></div>';
         const nodeListActionProp = {
@@ -224,7 +225,8 @@ class ColAssignmentView {
                 isAdd: false,
                 isDisabled: selectedCols.filter((col) => (col != null)).length === 0,
                 isShowIcon: this.options.showActions,
-                label: this._getNodeLabel(index)
+                label: this._getNodeLabel(index),
+                tip: "The connector identification label between the input data table and the Set Operator."
             });
         });
         nodeListHTML += this._getActionSection(nodeListActionProp);
@@ -421,27 +423,40 @@ class ColAssignmentView {
             isDisabled: boolean,
             isShowIcon?: boolean,
             label?: string,
-        } []
+            tip?: string
+        } [],
+        tip?: string
     }): string {
-        const { title, actionList = [] } = actionProp;
+        const { title, actionList = [], tip } = actionProp;
+        let tipIcon = "";
+        if (tip) {
+            tipIcon = ` <i class="qMark icon xi-unknown"
+            data-toggle="tooltip"
+            data-container="body"
+            data-placement="auto top"
+            data-title="${tip}">
+            </i>`
+        }
         const titleHTML = title != null
             ? `<div class="lists newTable">
-                <span class="text">${title}</span>
+                <span class="text">${title}${tipIcon}</span>
                 </div>`
             : '';
         const actionHTML = actionList.map((prop, index) => {
-            const { isAdd = false, isDisabled = true, label = '', isShowIcon = false } = prop || {};
+            const { isAdd = false, isDisabled = true, label = '', isShowIcon = false, tip = "" } = prop || {};
             const cssActionIcon = isAdd ? 'xi-select-all' : 'xi-select-none';
             const cssActionDisabled = isDisabled ?  'xc-disabled' : '';
             const tooltip = isAdd ? UnionTStr.AddAllTooltip : UnionTStr.RemoveAllTooltip;
             const cssActionType = isAdd ? 'add' : 'remove';
+            const labelTip = tip;
             const iconHTML = isShowIcon
                 ? `<div class="action-icon ${cssActionDisabled} ${cssActionType}" data-toggle="tooltip" data-container="body" data-placement="auto top" data-original-title="${tooltip}">
                     <i class="icon ${cssActionIcon} fa-14"></i>
                     </div>`
                 : '';
+
             return `<div class="lists" data-index="${index}"><div class="flexContainer">
-                ${iconHTML}<div class="action-label">${label}</div>
+                ${iconHTML}<div class="action-label" data-toggle="tooltip" data-container="body" data-placement="auto top" data-original-title="${labelTip}">${label}</div>
                 </div></div>`;
         }).join('');
 

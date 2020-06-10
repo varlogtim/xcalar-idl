@@ -105,7 +105,7 @@ TooltipTStr = {
     "AboutCopy": "Click to copy",
     "AboutCopied": "Copied to clipboard!",
     "CancelSearch": "Cancel search",
-    'Distinct': "Select to eliminate duplicate values",
+    'Distinct': "When selected this option removes duplicate values in the column before applying the aggregate function.",
     'RestoreSource': "Source used for this operator is not found, click the button to restore the source",
     'twodp': '2 decimal places',
     "MustBeInWorkbook": "You must be inside a project to perform this action.",
@@ -139,7 +139,9 @@ CommonTxtTstr = {
     'ClickToExpand': 'Click to expand',
     'ClickToOpts': 'Click to see options',
     "ColRenames": "Column Renames",
+    "RenameDupeCols": "Rename Duplicate Columns",
     "ColRenameInstr": "The system has generated new column names for the columns with duplicate names. If you wish to change a system-generated name, click on the name to edit it.",
+    "ColRenameInstr2": "Xcalar automatically renames duplicate column names. You can change the automated column name from the New Name column.",
     'Columns': 'Columns',
     'Continue': 'Continue',
     'Copy': 'Copy',
@@ -248,6 +250,7 @@ ErrTStr = {
     'ExportConflict': 'This file name is taken. Please choose another name.',
     'ColumnConflict': 'A column with the same name already exists. ' +
                         'Please choose another name.',
+    'ColumnConflict2': 'This name already exists. Enter another name.',
     'PrefixConflict': 'A prefix with the same name already exists. ' +
                       'Please choose another name.',
     'DFNameIllegal': 'Only names with a-z, A-Z, 0-9, -, _, ( and ) are allowed.',
@@ -321,7 +324,7 @@ ErrTStr = {
                        'original value, please click the "Default value" icon.',
     'InUsedNoDelete': 'This parameter is currently in use. Delete is not supported.',
     'NoFolderPreview': 'Cannot preview directory. Please select a file.',
-    'DuplicateColNames': 'Duplicate column names were detected',
+    'DuplicateColNames': 'Duplicate column names detected',
     "DuplicateSourceColName": "Source column name \"<col>\" is duplicated",
     "DuplicateDestColName": "Dest column name \"<col>\" is duplicated",
     'ColumnLimitExceeded': "Fields in data source exceed limit",
@@ -690,6 +693,7 @@ ErrorMessageTStr = {
 OpFormTStr = {
     'NewColName': 'New column name for the group by resultant column',
     'CMD': 'Command Preview',
+    'CMDTip': 'Displays the function’s pseudocode.',
     'Descript': 'Description',
     'FieldToGroup': 'Fields to group on',
     'ResultColName': 'Resultant column',
@@ -697,7 +701,7 @@ OpFormTStr = {
     'NewColumns': 'New Columns',
     'SelectColRename': 'Select columns to rename',
     'NotRenamed': 'Not being renamed',
-    'NotCasted': 'Not being casted',
+    'NotCasted': 'Retained Columns',
 };
 
 AggTStr = {
@@ -739,9 +743,9 @@ IndexTStr = {
 
 JoinTStr = {
     'InvalidClause': 'Invalid clause to join',
-    'TypeMistch': 'Left selected column and right selected column has type mismatch, cannot join',
+    'TypeMistch': 'Join operation issue. Columns must be of the same data type.',
     'InvalidJoinType': 'Invalid join type',
-    "DagColSelectInstr": "Select the columns from input #1 and input #2 to join on by equality.",
+    "DagColSelectInstr": "Select columns that contain common values (match) from Table 1 and Table 2.",
     "DagColSelectInstrCross": "Cross join does not require join keys since it is joining every record on the left input with every record on the right input",
     //with replace
     'MismatchDetail': 'Cannot join column of type <type1> with column of type <type2>',
@@ -756,6 +760,14 @@ JoinTStr = {
     'JoinInstr': 'Returns columns and records from one or two tables based on a matching field.',
     'LookupJoinInstr': 'Returns columns from both tables and the matching records from the left table.',
     'FilterJoinInstr': 'Returns columns from the left table and the rows from the left table that have a matching row in the right table.',
+
+    'joinTypeInnerTip': 'The result contains all rows from both the inputs that have matching values in the joining columns.',
+    'joinTypeLeftTip': 'The result returns all rows from the left input table and the matched rows from the right input table. Where there is no match in the right input, the columns return Null values.',
+    'joinTypeRightTip': 'The result returns all rows from the right table input and the matched rows from the left input table. Where there is no match in the left input, the columns return Null values.',
+    'joinTypeFullTip': 'The result combines the results of both the left and the right outer joins and returns all (matched or unmatched) rows from the inputs on both sides of the join clause.',
+    'joinTypeLeftSemiTip': 'The result returns only those rows in the left input that have a matching row in the right input.',
+    'joinTypeLeftAntiTip': 'The result returns only those rows in the left input that have no matching row in the right input.',
+    'joinTypeCrossTip': 'The result returns the number of rows in the first input multiplied by the number of rows in the second input. This kind of result is called the Cartesian Product.',
 };
 
 UnionTStr = {
@@ -763,7 +775,7 @@ UnionTStr = {
     "OneTableToUnion2": "Need at least two parent inputs for the operation.",
     "Cast": "Columns for the set operation have different types. Please select a type for the resultant column.",
     "AddCol": "Click to add",
-    "Detect": "Auto detect column matches",
+    "Detect": "Auto Detect Identical Columns",
     "AutoDetect": "Auto Detect",
     "NewColName": "New Name",
     "CandidateHint": "Columns in this section will not be in the resultant table. Click column name to add the column to the resultant table.",
@@ -778,7 +790,7 @@ UnionTStr = {
     "MixType": "Cast mixed columns to a data type first.",
     "AddAllTooltip": "Add All Columns",
     "RemoveAllTooltip": "Remove All Columns",
-    "CandidateTitle": "Columns To Drop"
+    "CandidateTitle": "Dropped Columns"
 };
 
 ExportTStr = {
@@ -1371,7 +1383,7 @@ OpModalTStr = {
     'NoneHint': 'Select to allow \'None\' value',
     'EmptyStringHint': 'Select to allow empty strings',
     'ColNameDesc': 'New Resultant Column Name',
-    'AggNameReq': 'New Resultant Aggregate Name (required)',
+    'AggNameReq': 'New Resultant Aggregate Name',
     'IncSample': 'Include a sample of the rest of the fields',
     'IncSampleDesc': 'If checked, a sample of all fields will be included',
     'ModifyMapDesc': 'Would you like to modify the map?',
@@ -1601,28 +1613,33 @@ OpPanelTStr = {
     "DFLinkInNoDF": "Module doesn't exist",
     "DFLinkInNoOut": "Function output doesn't exist",
     "DFLinkInNoSchema": "No columns in schema",
-    "CommonFieldNameErroneousRows": "Include only erroneous rows",
+    "CommonFieldNameErroneousRows": "Generate table with only erroneous rows",
     "SplitPanelTitle": "Split Operation",
     "SplitPanelInstr": "Divides a string data type column into multiple columns.",
     "SplitPanelFieldNameDelimiter": "Delimiter",
-    "SplitPanelFieldNameSourceColumn": "Column to split",
+    "SplitPanelFieldNameSourceColumn": "Column",
     "SplitPanelFieldNameColumnCount": "Number of columns",
     "SplitPanelFieldNameDestColumn": "Column name",
     "RoundPanelTitle": "Round Operation",
     "RoundPanelInstr": "Applies a fixed number of decimal places to floating point number columns.",
-    "RoundPanelFieldNameSourceColumn": "Column to round",
-    "RoundPanelFieldNameNumDecimals": "Num of decimals to keep",
-    "RoundPanelFieldNameDestColumn": "New resultant column name",
-    "RowNumPanelTitle": "Row Number",
     "RowNumPanelInstr": "Generates a row numbering column filled with a series of numbers in ascending order starting at 1.",
-    "RowNumPanelFieldNameDestColumn": "New resultant column name",
+    "RoundPanelFieldNameSourceColumn": "Column",
+    "RoundPanelFieldNameNumDecimals": "Number of Digits after the Decimal",
+    "RoundPanelFieldNameDestColumn": "New Resultant Column Name",
+    "RoundPanelFieldNameSourceColumnTip": "The name of the column whose Float values require a fixed digit.",
+    "RoundPanelFieldNameDestColumnTip": "The name for the new generated column, which can be either a unique name or an existing name.<br/>IMPORTANT: If a new name is not entered, Xcalar provides a new name for you. Entering the existing name will overwrite the data in the existing column.",
+    "RowNumPanelTitle": "Row Number",
+    "RowNumPanelFieldNameDestColumn": "New Resultant Column Name",
+    "RowNumPanelFieldNameDestColumnTip": "A unique name for the new column.",
     "JoinPanelRenameTitlePrefix": "Prefixes",
     "JoinPanelRenameTitleDerived": "Derived Fields",
     "JoinPanelRenameColOldLeft": "#1 Table",
     "JoinPanelRenameColOldRight": "#2 Table",
     "JoinPanelRenameColNew": "New Name",
-    "JoinPanelColumnTableTitleKeep": "Columns To Keep",
-    "JoinPanelColumnTableTitleDrop": "Columns To Drop",
+    "JoinPanelColumnTableTitleKeep": "Retained Columns",
+    "JoinPanelColumnTableTitleKeepTip": "Columns in this section are included in the results.",
+    "JoinPanelColumnTableTitleDrop": "Dropped Columns",
+    "JoinPanelColumnTableTitleDropTip": "Lists the columns that are no longer required in the result.",
     "JoinPanelColumnListTitleLeft": "Left Columns",
     "JoinPanelColumnListTitleRight": "Right Columns",
     "JoinPanelColumnKeepAllCBText": "Keep All Columns",
@@ -1633,16 +1650,24 @@ OpPanelTStr = {
     "Intersect": "Intersect",
     "ExplodePanelTitle": "Explode String",
     "ExplodePanelInstr": "Divides a string data type column into multiple rows.",
-    "ExplodePanelFieldNameSourceColumn": "Column to explode",
-    "ExplodePanelFieldNameDestColumn": "New resultant column name",
+    "ExplodePanelFieldNameSourceColumn": "Column",
+    "ExplodePanelFieldNameSourceColumnTip": "The name of the column whose data will be divided  into several rows.",
+    "ExplodePanelFieldNameDestColumn": "New Resultant Column Name",
+    "ExplodePanelFieldNameDestColumnTip": "The name of the new column in which the divided data is ported. NOTE: If you do not enter a name, Xcalar automatically creates one for you.",
     "ExplodePanelFieldNameDelimiter": "Delimiter",
+    "ExplodePanelFieldNameDelimiterTip": "The delimiter character or space that the data contains for separating the column field.",
     "SortPanelInstr": "Sort your table by selecting one or more columns. The order in which you select the columns will determine that table's sort order.",
     "SortPanelTitle": "Sort",
     "SortPanelFieldName": "Column name",
-    "SortColumnHeading": "Columns to sort",
+    "SortColumnHeading": "Columns",
+    "SortColumnHeadingTip": "The name of the column whose fields require rearranging.",
     "SelectDSSource": "Please select a dataset source and provide a prefix.",
     "InvalidDSSource": "Invalid dataset source selected.",
-    "CreateNewUDF": "Create New Scalar Function"
+    "CreateNewUDF": "Create New Scalar Function",
+    "MapCategoryTip": "The functions are grouped into categories. You must select the Category name first before selecting the Function name.",
+    "MapFunctionTip": "A predefined formula that performs operations on column values.",
+    "ResultantColNameTip": "The name for the new generated column, which can be either a unique name or an existing name.<br/>IMPORTANT: If a new name is not entered, Xcalar provides a new name for you. Entering the existing name will overwrite the data in the existing column.",
+    "CommonFieldNameErroneousRowsTip": "Processes only those rows where the function fails to produce a valid value. NOTE: This field is included for troubleshooting."
 };
 
 SetOpTStr = {

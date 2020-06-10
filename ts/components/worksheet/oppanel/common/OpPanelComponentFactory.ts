@@ -34,12 +34,20 @@ class OpPanelComponentFactory {
 
         hintDropdownSection:
             `<div class="field row clearfix">
-                <div class="description">{{name}}</div>
+                <div class="description">{{name}}<APP-HELPICON></APP-HELPICON></div>
                 <div class="inputWrap">
                     <APP-HINTDD></APP-HINTDD>
                 </div>
                 <APP-ADDMORE></APP-ADDMORE>
             </div>`,
+
+        helpIcon:
+            `<i class="qMark icon xi-unknown"
+                data-toggle="tooltip"
+                data-container="body"
+                data-placement="auto top"
+                data-title="{{iconTip}}">
+            </i>`,
 
         hintDropdown:
             `<div class="dropDownList hintDropdown selDropdown {{cssClass}}">
@@ -65,7 +73,7 @@ class OpPanelComponentFactory {
         checkBoxSection:
             `<div class="field row clearfix">
                 <div class="checkboxWrap" (click)="onClick">
-                    <div class="checkbox {{cssChecked}}">
+                    <div class="checkbox {{cssChecked}}" data-toggle="tooltip" data-title="{{tip}}" data-container="body" data-placement="auto top">
                         <i class="icon xi-ckbox-empty fa-15"></i>
                         <i class="icon xi-ckbox-selected fa-15"></i>
                     </div>
@@ -95,7 +103,7 @@ class OpPanelComponentFactory {
 
         simpleInput:
             `<div class="field row clearfix">
-                <div class="description">{{name}}</div>
+                <div class="description">{{name}}<APP-HELPICON></APP-HELPICON></div>
                 <div class="inputWrap">
                     <input class="selInput selError" type="{{type}}"
                         value="{{inputValue}}" placeholder="{{placeholder}}" spellcheck="false"
@@ -130,7 +138,7 @@ class OpPanelComponentFactory {
 
         columnComboSection:
         `<div class="field row row-columnCombo clearfix">
-            <div class="description">{{name}}</div>
+            <div class="description">{{name}}<APP-HELPICON></APP-HELPICON></div>
             <APP-COLUMNCOMBOS></APP-COLUMNCOMBOS>
             <APP-ADDMORE></APP-ADDMORE>
         </div>`,
@@ -421,7 +429,7 @@ class OpPanelComponentFactory {
         this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
 
         // Deconstruct parameters
-        const { name, addMoreButton} = props;
+        const { name, addMoreButton, iconTip} = props;
 
         // Create input with hint dropdown
         const elemHintDropdown = this.createHintDropdown(props);
@@ -429,10 +437,13 @@ class OpPanelComponentFactory {
         // Create add more button
         const elemAddMoreBtn = this.createAddMoreButton(addMoreButton);
 
+        const elemHelpIcon = this.createHelpIcon(iconTip);
+
         const elem = this._templateMgr.createElements(templateId, {
             name: name,
             'APP-HINTDD': elemHintDropdown,
-            'APP-ADDMORE': elemAddMoreBtn
+            'APP-ADDMORE': elemAddMoreBtn,
+            'APP-HELPICON': elemHelpIcon
         });
 
         return elem;
@@ -681,6 +692,16 @@ class OpPanelComponentFactory {
         return this._templateMgr.createElements(templateId, props)[0];
     }
 
+    public createHelpIcon(iconTip): HTMLElement {
+        if (iconTip == null) {
+            return null;
+        }
+
+        const templateId = 'helpIcon';
+        this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
+        return this._templateMgr.createElements(templateId, {iconTip: iconTip})[0];
+    }
+
     /**
      * Component: Input box with string value(opSection row); templateId = simpleInput
      */
@@ -692,7 +713,7 @@ class OpPanelComponentFactory {
         const templateId = 'simpleInput';
         this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
 
-        const { name, inputVal, placeholder,
+        const { name, iconTip, inputVal, placeholder,
             valueCheck = { checkType: 'stringDefault', args: [] },
             onChange, onInput, onElementMountDone, inputTimeout = 0, onBlur
         } = props;
@@ -716,7 +737,8 @@ class OpPanelComponentFactory {
             },
             onBlur: (event) => {
                 this._inputDataProcess(event.currentTarget, valueCheck, onBlur);
-            }
+            },
+            'APP-HELPICON': this.createHelpIcon(iconTip)
         });
         if (onElementMountDone != null) {
             OpPanelTemplateManager.setNodeMountDoneListener(elements, onElementMountDone);
@@ -737,7 +759,7 @@ class OpPanelComponentFactory {
         const templateId = 'simpleInput';
         this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
 
-        const { name, inputVal, placeholder,
+        const { name, iconTip, inputVal, placeholder,
             valueCheck = { checkType: 'integerDefault', args: [] },
             onChange, onInput, onElementMountDone, inputTimeout = 0, onBlur
         } = props;
@@ -761,7 +783,8 @@ class OpPanelComponentFactory {
             },
             onBlur: (event) => {
                 this._inputDataProcess(event.currentTarget, valueCheck, onBlur);
-            }
+            },
+            'APP-HELPICON': this.createHelpIcon(iconTip)
         });
         if (onElementMountDone != null) {
             OpPanelTemplateManager.setNodeMountDoneListener(elements, onElementMountDone);
@@ -778,11 +801,12 @@ class OpPanelComponentFactory {
         const templateId = 'checkBoxSection';
         this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
 
-        const { name, isChecked, onFlagChange, onElementMountDone } = props;
+        const { name, isChecked, onFlagChange, onElementMountDone, tip } = props;
 
         let stateSelected = isChecked ? true : false;
         const elements = this._templateMgr.createElements(templateId, {
             name: name,
+            tip: tip || "",
             cssChecked: stateSelected ? 'checked' : '',
             onClick: () => {
                 stateSelected = !stateSelected;
@@ -899,7 +923,7 @@ class OpPanelComponentFactory {
         this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
 
         // Deconstruct parameters
-        const { name, addMoreButton, columnCombos} = props;
+        const { name, addMoreButton, columnCombos, iconTip} = props;
 
         // Create input with hint dropdown
         const columnComboRows = columnCombos.reduce((res, columnComboProp) => {
@@ -911,6 +935,7 @@ class OpPanelComponentFactory {
 
         const elem = this._templateMgr.createElements(templateId, {
             name: name,
+            'APP-HELPICON': this.createHelpIcon(iconTip),
             'APP-COLUMNCOMBOS': columnComboRows,
             'APP-ADDMORE': elemAddMoreBtn
         });

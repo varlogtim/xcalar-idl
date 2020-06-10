@@ -1006,8 +1006,8 @@ class GroupByOpPanel extends GeneralOpPanel {
         '<div class="group groupbyGroup">' +
             '<div class="catFuncHeadings clearfix subHeading">' +
               '<div class="groupbyFnTitle">' +
-                'Function to apply to group:</div>' +
-              '<div class="altFnTitle">Function to apply to group</div>' +
+                'Aggregate Function:</div>' +
+              '<div class="altFnTitle">Aggregate Function</div>' +
               '<i class="icon xi-close removeExtraGroup"></i>' +
             '</div>' +
             '<div class="dropDownList firstList functionsList" ' +

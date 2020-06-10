@@ -190,7 +190,7 @@ describe('ColAssignmentView Test', function() {
             $castOpPanel.find(".resultSection .resultCol .resultInput").eq(0).val("abc").trigger("input").trigger("change");
             $castOpPanel.find(".resultSection .resultCol .resultInput").eq(1).val("abc").trigger("input").trigger("change");
             $castOpPanel.find(".submit").click();
-            UnitTest.hasStatusBoxWithError("Duplicate column names were detected");
+            UnitTest.hasStatusBoxWithError("Duplicate column names detected");
         });
 
         it("Should show error when submitting the form if no columns selected", function() {

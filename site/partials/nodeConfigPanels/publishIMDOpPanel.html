@@ -17,6 +17,12 @@
           <div class="IMDName formRow">
             <div class="subHeading clearfix">
               <div class="label"><%= dicts.publishIMDOp.tableName %>:</div>
+              <i class="qMark icon xi-unknown"
+                data-toggle="tooltip"
+                data-container="body"
+                data-placement="auto top"
+                data-title="<%= dicts.publishIMDOp.tableNameTip %>">
+                </i>
             </div>
             <div class="inputWrap">
               <input class="arg IMDNameInput" type="text" tabindex="10"
@@ -26,8 +32,13 @@
           </div>
           <div class="IMDOverwrite formRow">
             <div class="checkboxWrap overwrite">
-              <span class="text"><%= dicts.publishIMDOp.overwrite %></span>
-              <span class="checkbox">
+              <span class="text"><%= dicts.publishIMDOp.overwrite %>
+              </span>
+              <span class="checkbox"
+                data-toggle="tooltip"
+                data-container="body"
+                data-placement="auto top"
+                data-title="<%= dicts.publishIMDOp.overwriteTip %>">
                 <i class="icon xi-ckbox-empty fa-13"></i>
                 <i class="icon xi-ckbox-selected fa-13"></i>
               </span>
@@ -63,15 +74,28 @@
           </div>
           <div class="btnWrap formRow">
             <div class="addArgWrap addArgWrapSmall">
-              <button class="btn btn-secondary btn-100-rounded addArg addKeyArg">
+              <button class="btn btn-secondary btn-100-rounded addArg addKeyArg"
+                data-toggle="tooltip"
+                data-container="body"
+                data-placement="auto top"
+                data-title="<%= dicts.publishIMDOp.addColTip %>">
                 <i class="icon xi-plus"></i>
               </button>
-              <span class="text"><%= dicts.common.AddCol %></span>
+              <span class="text"><%= dicts.common.AddCol %>
+              </span>
             </div>
           </div>
           <div id="publishIMDColumns" class="publishColumnsSection formRow">
             <div class="subHeading clearfix">
-              <div class="label"><%= dicts.publishIMDOp.colsInTable %>:</div>
+              <div class="label">
+                <%= dicts.publishIMDOp.colsInTable %>:
+                <i class="qMark icon xi-unknown"
+                data-toggle="tooltip"
+                data-container="body"
+                data-placement="auto top"
+                data-title="<%= dicts.publishIMDOp.colsInTableTip %>">
+                </i>
+              </div>
               <div class="checkboxWrap selectAllWrap">
                 <div class="text"><%= dicts.common.SelectAll %></div>
                 <div class="checkbox">

@@ -98,7 +98,8 @@ class SetOpPanel extends BaseOpPanel {
         this.colAssignmentSection = new ColAssignmentView(selector, {
             autoDetect: true,
             showActions: true,
-            candidateTitle: UnionTStr.CandidateTitle
+            candidateTitle: UnionTStr.CandidateTitle,
+            candidateTip: "Displays the columns that are no longer required in the result."
         });
     }
 

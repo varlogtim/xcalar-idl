@@ -93,6 +93,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
         }
         const sourceList: HintDropdownProps = {
             type: 'column',
+            iconTip: "The name of the column whose data will be divided into several columns.",
             name: OpPanelTStr.SplitPanelFieldNameSourceColumn + ":",
             inputVal: this._dataModel.getSourceColName(),
             placeholder: OpPanelTStr.SplitPanelFieldNameSourceColumn,
@@ -126,6 +127,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
         const delimiterInfo: SimpleInputProps<string> = {
             type: 'string',
             name: OpPanelTStr.SplitPanelFieldNameDelimiter + ":",
+            iconTip: "A single character or string that the data contains for separating the column values.",
             inputVal: this._dataModel.getDelimiter(),
             placeholder: OpPanelTStr.SplitPanelFieldNameDelimiter,
             valueCheck: { checkType: 'stringNoTrimNoEmptyValue', args: [] },
@@ -148,6 +150,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
         const destColCountInfo: SimpleInputProps<number> = {
             type: 'number',
             name: OpPanelTStr.SplitPanelFieldNameColumnCount + ":",
+            iconTip: "The number of columns in which the data is divided.",
             inputVal: colCount, placeholder: `range: >=${range.min}`,
             valueCheck: { checkType: 'integerRange', args: [range] },
             onInput: (count: number) => {
@@ -173,6 +176,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
             const destColInfo: SimpleInputProps<string> = {
                 type: 'string',
                 name: `${OpPanelTStr.SplitPanelFieldNameDestColumn} #${i + 1}:`,
+                iconTip: "The name of the new column in which the divided data is ported. NOTE: If you do not enter a name, Xcalar automatically creates one for you.",
                 inputVal: colName, placeholder: '',
                 valueCheck: {
                     checkType: 'stringColumnNameNoEmptyValue',
@@ -197,6 +201,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
         const icvProp: CheckboxInputProps = {
             type: 'boolean',
             name: OpPanelTStr.CommonFieldNameErroneousRows,
+            tip: "Processes only those rows where the function fails to produce a valid value. NOTE: This field is included for troubleshooting.",
             isChecked: this._dataModel.isIncludeErrRow(),
             onFlagChange: (flag) => {
                 this._dataModel.setIncludeErrRow(flag);

@@ -220,7 +220,7 @@
                 .icon {
                     line-height: @h;
                     font-size: 9px;
-                    width: 8px;
+                    width: 9px;
                 }
             }
         }
@@ -554,6 +554,11 @@
             line-height: @headingHeight - 6;
             padding-bottom: 4px;
             padding-left: 9px;
+
+            > .qMark {
+                position: relative;
+                top: -1px !important;
+            }
         }
     }
 
@@ -630,6 +635,11 @@
         padding-bottom: 8px;
         user-select: text;
 
+        .qMark {
+            position: relative;
+            top: -1px;
+        }
+
         .strPreviewGroup {
             display: block;
         }
@@ -694,20 +704,7 @@
             }
 
             .catFuncHeadings {
-                display: block;
-                margin-top: 0px;
-                padding-top: 6px;
-                position: relative;
-                overflow: visible;
-                .filterFnTitle {
-                    display: none;
-                }
-
-                .icon {
-                    position: absolute;
-                    right: 0px;
-                    top: 10px;
-                }
+                display: none;
             }
 
             .functionsList {
@@ -845,6 +842,11 @@
             padding: 6px 0px;
             padding-bottom: 4px;
             line-height: 14px;
+
+            > .qMark {
+                position: relative;
+                top: -1px;
+            }
         }
         .cast {
             width: 100%;
@@ -989,7 +991,7 @@
             .xi-cancel {
                 position: absolute;
                 left: 4px;
-                top: 7px;
+                top: 5px;
                 color: @color-font-warm-grey-two;
                 font-size: 14px;
                 opacity: @opacity-unhover;
@@ -1064,6 +1066,11 @@
         .text {
             font-size: @standardFontSize;
             margin-left: @commonMargin;
+
+            > .qMark {
+                position: relative;
+                top: -1px;
+            }
         }
     }
 
@@ -1262,6 +1269,11 @@
         &:last-child {
             padding-bottom: 0;
             border-bottom: none;
+        }
+
+        .text > .qMark {
+            position: relative;
+            top: -1px;
         }
 
         .dropDownList {
@@ -1520,6 +1532,11 @@
                 &.newTable {
                     padding-left: 10px;
                     opacity: 0.6;
+
+                    .qMark {
+                        position: relative;
+                        top: -1px;
+                    }
                 }
 
                 .typeIcon {
@@ -1984,6 +2001,12 @@
             height: 24px;
         }
     }
+
+    .subHeading > div > .qMark {
+        float: none;
+        position: relative;
+        top: -1px;
+    }
 }
 
 #aggOpPanel {
@@ -2043,6 +2066,13 @@
         }
     }
 
+    .text {
+        >.qMark {
+            position: relative;
+            top: -1px;
+        }
+    }
+
     .IMDOverwrite {
         margin-top: 8px;
 
@@ -2051,9 +2081,17 @@
         }
     }
 
+    .btn-100-rounded .xi-plus {
+        width: 10px;
+    }
+
     #publishIMDColumns {
         clear: both;
-
+        .subHeading .qMark {
+            float: none;
+            position: relative;
+            top: -1px;
+        }
         .selectAllWrap {
             float: right;
 
@@ -2488,7 +2526,7 @@
                     float: right;
                     min-width: auto;
                     &:after {
-                        content: "New Type";
+                        content: "New Data Type";
                     }
                 }
             }
@@ -2719,6 +2757,9 @@
         .col-left, .col-right {
             .col-6();
             .size(@width: ~"calc(50% - @{middleIconWidth})");
+            > .qMark {
+                margin-left: 4px;
+            }
         }
 
         .col-fixed {
@@ -2914,6 +2955,11 @@
             padding-bottom: 4px;
             .title {
                 .size(@width: 100%);
+                > .qMark {
+                    margin-left: 4px;
+                    position: relative;
+                    top: -1px;
+                }
             }
         }
 
@@ -3287,6 +3333,9 @@
     .argsSection {
         .exportDescription {
             padding-top: 20px;
+        }
+        .exportArg .subHeading .label {
+            text-transform: capitalize;
         }
     }
 }
@@ -3706,6 +3755,11 @@
         .description, .inputWrap {
             padding-left: 0;
             padding-right: 0;
+        }
+        .description .qMark {
+            margin-left: 4px;
+            position: relative;
+            top: -1px;
         }
     }
 
