@@ -1,4 +1,4 @@
-describe("Admin Test", function() {
+describe.skip("Admin Test", function() {
     var cachedGetItem;
     var $userList;
     var oldSend;
