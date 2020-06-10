@@ -112,6 +112,7 @@ class SetOpPanel extends BaseOpPanel {
         const model = this.setOpData.getModel();
         this._selectDedup(model.dedup);
         this._selectType(model.subType);
+        this._updateInstr(model.subType);
     }
 
     private _getDedupSection(): JQuery {
@@ -148,6 +149,14 @@ class SetOpPanel extends BaseOpPanel {
         typeMap[DagNodeSubType.Intersect] = OpPanelTStr.Intersect;
         typeMap[DagNodeSubType.Except] = OpPanelTStr.Except;
         this._getPanel().find(".modeList").text(typeMap[subType]);
+    }
+
+    private _updateInstr(subType: DagNodeSubType): void {
+        const typeMap = {};
+        typeMap[DagNodeSubType.Union] = SetOpTStr.UnionInstr;
+        typeMap[DagNodeSubType.Intersect] = SetOpTStr.IntersectInstr;
+        typeMap[DagNodeSubType.Except] = SetOpTStr.ExceptInstr;
+        this._getPanel().find(".setInstr").text(typeMap[subType]);
     }
 
     private _showCast(colIndex: number) {

@@ -263,7 +263,6 @@ module.exports = {
         "SortColsByType": "Sort columns by type",
         "SortDesc": "Z-A",
         "SplitCol": "Split column",
-        "SplitColDelim": "Split column by delimiter",
         "SplitColNum": "Number of columns",
         "SplitColNames": "Column names",
         "TxtAlign": "Text align",
@@ -442,7 +441,7 @@ module.exports = {
         "SearchByName": "Filter by name",
         "SchemaBack": "Back to show tables",
         "ResultLoading": "Result is loading, please wait...",
-        "ResultHint": "No results. To get started with building a data app, run a SQL statement or edit operators in the App Builder.",
+        "ResultHint": "This panel remains empty until you either click a table in the Resources panel, or run a SQL statement or module.",
         "OutOfSyncTip": "The original SQL statement has been modified since this SQL Node was last saved, but this SQL Node is still using the orignal statement."
     },
 
@@ -836,7 +835,6 @@ module.exports = {
 
     "aggModal": {
         "CorrAggTitle": "Correlation and Quick Aggregates",
-        "CorrAggInstr": "Viewing correlation coefficients for every pair of numeric columns. To view common aggregate functions for all numeric columns, please click on the vertical tab.",
         "CorrTitle": "Correlation",
         "header": "Quick Aggregates",
         "Progress": "Progress",
@@ -845,7 +843,7 @@ module.exports = {
 
     "skewInfoModal": {
         "Title": "Table Data Distribution in Cluster",
-        "instr": "This graph shows the distribution of the table's data across all nodes in the cluster. Skew in the data may impact the performance of the cluster. To find out more about data skew, please reference help documentation.",
+        "instr": "Displays the distribution of this table’s data across all cluster nodes. Where a value of 0 denotes a balanced distribution and 100 denotes an imbalanced distribution of data, usually indicating that the data is residing on one node of the cluster.",
     },
 
     "dataflow": {
@@ -856,19 +854,18 @@ module.exports = {
         "ShareDSHint": "Shared module cannot access private datasets, to make the module executable, datasets used in the module need to be shared",
         "DestSelectionTitle": "Specify module destination",
         "DownloadDF": "Download Module",
-        "DownloadDFInstr": "If downloaded as module, it will include <b>ONLY</b> the local scalar functions, and will not include any scalar functions it uses that are from the shared space",
+        "DownloadDFInstr": "Saves the module outside of Notebook as one of three formats: Xcalar module format, PNG, and JSON",
         "DownloadAs": "Download as",
         "dataflows": "Modules",
         "create": "CREATE",
-        "CreateDF": "Create new module",
         "NewModule": "New Module",
-        "NewModuleHint": "Create new transformation & business logic module",
         "noColsHint": "No columns are available for export",
         "filterHint": "Showing only filtered columns",
         "newParam": "new parameter",
         "param": "Parameter",
         "params": "Parameters",
-        "inputNewParam": "Input New Parameter",
+        "AddNewParam": "Add a new parameter",
+        "InputNewParam": "Input a new parameter",
         "val": "Value",
         "action": "Action",
         "noValue": "No Value",
@@ -879,6 +876,9 @@ module.exports = {
         "DestFileName": "Destination file name",
         "Settings": "App Builder Settings",
         "NodeLineage": "Operator Lineage",
+        "OpenParamSetting": "Open Parameters settings",
+        "OpenAggSetting": "Open Aggregates settings",
+        "OpenAppBuildSetting": "Open App Builder Settings",
         // For uploader
         "upload": "Upload",
         "uploadHeader": "Upload Module",
@@ -928,7 +928,7 @@ module.exports = {
     "exportView": {
         "header": "Export",
         "ExportTbl": "Export Result",
-        "instr": "Configure the export options.",
+        "instr": "Saves and sends the final results of the function as a file or files to an external data repository.",
         "ExportAs": "Export As",
 
         "Columns": "Columns",
@@ -959,7 +959,6 @@ module.exports = {
 
     "joinView": {
         "header": "Join",
-        "instr": "Join the results of 2 functions.",
         "JoinType": "Select Join Type",
         "InnerJoin": "Inner Join",
         "LeftCols": "Input",
@@ -1005,7 +1004,7 @@ module.exports = {
         "tableName": "Table Name",
         "createPublish": "Create Table",
         "publishIMD": "Publish Table",
-        "publishInstr": "Publish a table for the input.",
+        "publishInstr": "Generates the results of the operators it is connected to as a Xcalar Table and enables access to the table’s data by third-party BI software.",
         "key": "Primary Key",
         "addKey": "Add Primary Key",
         "noKey": "No Primary Key",
@@ -1023,7 +1022,6 @@ module.exports = {
     "SetOpPanel": {
         "header": "Set Operation",
         "ColumnTitle": "Columns after Set operation",
-        "Instr": "Select columns from input(s), which you want to apply in the operation.",
         "CandidateTitle": "To be dropped",
         "Mode": "Operation",
         "IncludeAll": "Include Duplicate Rows",
@@ -1033,7 +1031,7 @@ module.exports = {
 
     "DFLink": {
         "InHeader": "Function Input",
-        "InInstr": "Select a Function Output operator or a table as a source for input.",
+        "InInstr": "Enables the input of data from another function.",
         "ResultSetTip": "To get a table name, find the Operator whose table you want to use, click on the Operator to display its configuration and copy the table name from the JSON.",
         "TableNameHint": "The name of the table that contains the data for input. To get the table name, open the module and locate and click the operator’s intermediate table that you require for this operation. From the Configuration Details panel, copy and paste the result_table value into this field.",
         "DFName": "Module Name",
@@ -1046,7 +1044,7 @@ module.exports = {
 
     "DFOut": {
         "Header": "Function Output",
-        "Instr": "A Function Input Operator reference to a Function Output Operator using a reference name you provide in the configuration.",
+        "Instr": "Enables access to a function's data by a Function Input operator.",
         "ReferenceName": "Reference name",
         "ReferenceNameHint": "A unique reference name that is used by a Function Input operator to execute this operator’s function. This enables functions to access data between modules.",
         "NoCols": "No columns are available for selection",
@@ -1054,7 +1052,7 @@ module.exports = {
 
     "SQLOpPanel": {
         "Header": "SQL",
-        "Instr": "Select a SQL statement and use the SQL Operator input connections as the source tables.",
+        "Instr": "This operator applies one or more SQL statements to the input from an intermediate table.",
         "Statement": "SQL Statement Name",
         "StatementHint": "The name of an existing SQL statement. To create a new SQL statement, from the SQL Statement list, click New SQL Statement, which opens a new SQL tab in the SQL editor for you to enter and save your SQL statement.",
         "TableMap": "Table Mapping",
@@ -1097,7 +1095,7 @@ module.exports = {
 
     "IMDTableOp": {
         "SourceTable": "Source Table",
-        "IMDTableInstr": "Use a source table as the input",
+        "IMDTableInstr": "Provides input data from a Table.",
         "table": "Table Name",
         "columns": "Columns to import",
     },
@@ -1138,10 +1136,10 @@ module.exports = {
     },
 
     "opsView": {
-        "mapInstr": "Select a category e.g. Arithmetic Functions. Then select a function, e.g. add. Finally, enter any arguments if applicable. Column names must be prefixed by a $ sign, e.g. $column1.",
-        "filterInstr": "Select a function, e.g. isBoolean. Then, enter any arguments if applicable. To add additional conditions, select \"Additional Conditions.\" Column names should be prefixed by a $ sign, e.g. $column1.",
-        "groupbyInstr": "Summarizes table based on a formula. Add one or more columns to summarize. Then, select a function and enter arguments to create the summary formula. Column names should be prefixed by a $ sign, e.g. $column1.",
-        "aggInstr": "Select a function, e.g. sum. Then, enter any arguments if applicable. Column names should be prefixed by a $ sign, e.g. $column1. Resultant aggregate names should be prefixed by a ^ sign.",
+        "mapInstr": "Applies one or multiple conditions on column values.",
+        "filterInstr": "Selects values within one or multiple columns based on a condition.",
+        "groupbyInstr": "Arranges identical data into groups using an aggregate function.",
+        "aggInstr": "Returns a single value that was calculated by an aggregate function on the values of the rows in the selected column.",
         "DescripFunc": "Description of Function",
         "ArgList": "Argument List",
         "EmptyHint": "Select to allow empty field",
@@ -1173,7 +1171,7 @@ module.exports = {
         "cast": "Cast",
         "groupAll": "None",
         "groupAllHint": "Select to create a one-row table with aggregate values",
-        "restoreLast": "Restore last saved configuration ",
+        "restoreLast": "Restore last saved setting",
         "joinBack": "Join table back to original",
     },
 
@@ -1361,7 +1359,7 @@ module.exports = {
         "comment": "New Comment",
         "configuringOperator": "Configuring Operator",
         "execute": "Execute",
-        "executeHint": "Select a function to execute",
+        "executeHint": "Execute a single function",
         "executeAll": "Execute All",
         "executeAllNodes": "Execute all operator operators",
         "executeOptimized": "Execute Optimized",

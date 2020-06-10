@@ -705,14 +705,8 @@ AggTStr = {
     'everyPair': 'every pair of',
     'somePairs': 'pairs of selected',
     'all': 'all',
-    'CorrInstr': 'Viewing correlation coefficients for <which> ' +
-                 'numeric columns. To view common aggregate functions ' +
-                 'on <which2> numeric columns, please click on the vertical '+
-                 'tab.',
-    'AggTopInstr': 'Viewing aggregate functions on <which> numeric ' +
-                 'columns. To view correlation coefficients for <which2> ' +
-                 'numeric columns, please click on the vertical '+
-                 'tab.',
+    'CorrInstr': 'Displays the numeric strength of the relationship in a heat map.',
+    'AggTopInstr': 'Displays the data description of the numerical columns.',
     'NoSupport': 'Not Supported',
     'DivByZeroExplain': 'Only one distinct value',
     'NoCorr': 'No numeric columns to calculate correlations',
@@ -759,7 +753,9 @@ JoinTStr = {
     'joinTypeLeftAnti': 'Left Anti Semi Join',
     'joinTypeCross': 'Cross Join',
     'joinTypeSepAdv': 'Advanced',
-
+    'JoinInstr': 'Returns columns and records from one or two tables based on a matching field.',
+    'LookupJoinInstr': 'Returns columns from both tables and the matching records from the left table.',
+    'FilterJoinInstr': 'Returns columns from the left table and the rows from the left table that have a matching row in the right table.',
 };
 
 UnionTStr = {
@@ -1054,11 +1050,13 @@ DFTStr = {
     "InvalidDF": "Invalid module",
     "Share": "Share Module",
     "ShareFail": "Share Module Failed",
-    "AutoExecute": "Auto execute the operator after configuration",
-    "AutoPreview": "Auto preview the results after execution",
-    "ShowProgressTips": "Show progress details for each operator",
-    "ShowConfigInfo": "Show configuration information",
-    "ShowTableName": "Show table names",
+    "AutoExecute": "Always execute after configuring the operator",
+    "AutoPreview": "Preview the results after execute",
+    "ShowProgressTips": "View progress details for each operation",
+    "ShowConfigInfo": "Display configuration details",
+    "ShowTableName": "Display table names",
+    "ShowLabels": "Display the operators unique identifier label",
+    "PinOperatorBar": "Display the Operator bar",
     "NoEmptyDestName": "Please enter a destination module name.",
     "NoSlashUpload": "Cannot upload to this path.",
     "PublishedDFDeleted": "Published module deleted",
@@ -1071,15 +1069,13 @@ DFTStr = {
     "Resources": "Resources",
     "TBModules": "Modules",
     "CloseModule": "Close",
-    "PinOperatorBar": "Pin operator bar",
-    "ShowLabels": "Show operator labels",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     "ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized.",
     "CustomizeTitle": "Customize <op> Operation",
     "ParamNoValueList": "Please assign values to all the parameters being used in the current module. Parameters without values: <params>",
     "LockedTableWarning": "Pinned Table Warning",
-    "LockedTableMsg": "This action will delete one or more pinned tables. If you want to proceed, unpin these tables and try again."
+    "LockedTableMsg": "This action removes this table’s results, which will impact those pinned tables following this table whose input data requires this table’s results. To continue, you must unpin all the tables whose results are affected by this action and reselect."
 };
 
 DFNodeLineageTStr = {
@@ -1507,7 +1503,8 @@ SQLTStr = {
     "NoUntitledSnippet": "Name cannot be \"Untitled \"",
     "NoDupSnippetName": "Query with name the same name already exists, please use Save As to overwrite it.",
     "PreviewError": "The corresponding plan for sql cannot be previewed",
-    "ExpandSQL": "Expanding SQL will delete the SQL operator while inspecting will not. Do you want to continue?",
+    "ExpandSQLTitle": "Expand Warning",
+    "ExpandSQL": "You are about to replace the selected SQL operator with individual graph-nodes for each SQL data manipulation operation. Alternatively, click Cancel and select Inspect, which opens a new Tab containing each operation as individual graph-nodes for analysis without replacing the SQL operator in the current module. Do you still want to continue?",
     "open": "Open",
     "download": "Download",
     "toDelete": "Delete",
@@ -1521,9 +1518,13 @@ SQLTStr = {
     "OpenQueryMsg": "You will lose any unsaved changes to open this query. Click Cancel if you want to save your current query?",
     "DebugPlan": "Debug Plan",
     "ReadOnly": "Current module doesn't support the use of SQL Editor",
-    "SnippetHint": "Write and execute a SQL statement to get started, add/modify the operators in the app builder to build a data app",
+    "SnippetHint": "Start building your Data App by either entering a SQL statement or from your desktop dragging a SQL statement into the SQL editor. When completed, execute the statement by clicking the green run icon, which visually displays the performance and query phases of your statement in the App Builder canvas.",
     "Graph": "SQL Graph",
     "SelectWholeTable": "The profile is based on sample of the table, to view the entire table, please use SQL \"select * from <table>\"",
+    "ModifyWarnTitle": "SQL Save Warning",
+    "ModifyWarnMsg": "Any future modifications to this graph-node’s referenced SQL statement will not apply until Update is applied in the Configuration settings.",
+    "OutOfSync": "Statement is out of sync",
+    "OutOfSyncMsg": "The SQL statement has not been updated. Do you still want to continue?",
 };
 
 LoginConfigTStr = {
@@ -1586,8 +1587,8 @@ DagTStr = {
     "ResetAllMsg": "Are you sure you want to reset all operators in the module?",
     "DeleteTable": "Delete Table",
     "DeleteTables": "Delete All Tables",
-    "DeleteTableMsg": "Are you sure you want to delete the selected table?",
-    "DeleteTablesMsg": "Are you sure you want to delete all tables in the module?",
+    "DeleteTableMsg": "This action removes the table results from the selected table. Do you still want to continue?",
+    "DeleteTablesMsg": "This action removes all table results in the module. Do you still want to continue?",
     "DeleteParentTablesMsg": "Are you sure you want to delete the selected table and its upfront tables?",
     "CustomOpIncomplete": "Selected operator set is open",
     "CustomOpNoInput": "Cannot create a custom operator without input",
@@ -1610,18 +1611,18 @@ OpPanelTStr = {
     "DFLinkInNoSchema": "No columns in schema",
     "CommonFieldNameErroneousRows": "Include only erroneous rows",
     "SplitPanelTitle": "Split Operation",
-    "SplitPanelInstr": "Split column by delimiter",
+    "SplitPanelInstr": "Divides a string data type column into multiple columns.",
     "SplitPanelFieldNameDelimiter": "Delimiter",
     "SplitPanelFieldNameSourceColumn": "Column to split",
     "SplitPanelFieldNameColumnCount": "Number of columns",
     "SplitPanelFieldNameDestColumn": "Column name",
     "RoundPanelTitle": "Round Operation",
-    "RoundPanelInstr": "Round a column of float numbers, and keep the number of decimals as specified.",
+    "RoundPanelInstr": "Applies a fixed number of decimal places to floating point number columns.",
     "RoundPanelFieldNameSourceColumn": "Column to round",
     "RoundPanelFieldNameNumDecimals": "Num of decimals to keep",
     "RoundPanelFieldNameDestColumn": "New resultant column name",
     "RowNumPanelTitle": "Row Number",
-    "RowNumPanelInstr": "Generate a column of row number.",
+    "RowNumPanelInstr": "Generates a row numbering column filled with a series of numbers in ascending order starting at 1.",
     "RowNumPanelFieldNameDestColumn": "New resultant column name",
     "JoinPanelRenameTitlePrefix": "Prefixes",
     "JoinPanelRenameTitleDerived": "Derived Fields",
@@ -1639,7 +1640,7 @@ OpPanelTStr = {
     "Except": "Except (Minus)",
     "Intersect": "Intersect",
     "ExplodePanelTitle": "Explode String",
-    "ExplodePanelInstr": "Explode a column by delimiter.",
+    "ExplodePanelInstr": "Divides a string data type column into multiple rows.",
     "ExplodePanelFieldNameSourceColumn": "Column to explode",
     "ExplodePanelFieldNameDestColumn": "New resultant column name",
     "ExplodePanelFieldNameDelimiter": "Delimiter",
@@ -1650,4 +1651,10 @@ OpPanelTStr = {
     "SelectDSSource": "Please select a dataset source and provide a prefix.",
     "InvalidDSSource": "Invalid dataset source selected.",
     "CreateNewUDF": "Create New Scalar Function"
+};
+
+SetOpTStr = {
+    "UnionInstr": "Returns the results from two or more tables.",
+    "IntersectInstr": "Returns rows which are common from the results of two or more tables.",
+    "ExceptInstr": "Returns the rows of Table #1 that are not in the results of the other selected tables."
 };

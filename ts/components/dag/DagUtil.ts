@@ -13,6 +13,17 @@ class DagUtil {
     }
 
     /**
+     * DagUtil.showPinWarning
+     * @param lockedTable
+     */
+    public static showPinWarning(lockedTable: string): void {
+        Alert.error(DFTStr.LockedTableWarning, DFTStr.LockedTableMsg, {
+            detail: `Pinned Table: ${lockedTable}`,
+            sizeToText: true
+        });
+    }
+
+    /**
      * DagUtil.deleteTable
      * @param tableName
      */

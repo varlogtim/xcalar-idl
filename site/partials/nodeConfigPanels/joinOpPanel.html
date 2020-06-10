@@ -14,7 +14,7 @@
         <!-- first step -->
         <section data-xcid="joinFirstStep" class="firstStep">
             include "joinOpPanelJoinTemplate.html"
-            <p class="mainInstructions instrText"><%= dicts.joinView.instr %></p>
+            <p class="mainInstructions instrText joinInstr"></p>
             <section class="topDropdowns clearfix">
               <div class="subHeading clearfix">
                 <div><%= dicts.joinView.JoinType %>:</div>
@@ -102,7 +102,7 @@
         <section data-xcid="joinSecondStep" class="secondStep">
           include "joinOpPanelRenameTemplate.html"
           include "joinOpPanelColumnTemplate.html"
-          <p class="mainInstructions instrText"><%= dicts.joinView.instr %></p>
+          <p class="mainInstructions instrText joinInstr"></p>
           <div data-xcid="columnSelectSection"></div>
           <div data-xcid="columnRenameSection"></div>
         </section>

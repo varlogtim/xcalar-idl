@@ -78,10 +78,7 @@ namespace DagNodeMenu {
                 });
                 let lockedTable = DagViewManager.Instance.getActiveDag().checkForChildLocks(nodesToCheck);
                 if (lockedTable) {
-                    Alert.error(DFTStr.LockedTableWarning,
-                        DFTStr.LockedTableMsg,
-                        {detail: `Pinned Table: ${lockedTable}`}
-                    );
+                    DagUtil.showPinWarning(lockedTable);
                 } else {
                     _processMenuAction(action, options);
                 }
@@ -473,10 +470,7 @@ namespace DagNodeMenu {
                     });
                     let lockedTable = DagViewManager.Instance.getActiveDag().checkForChildLocks(nodesToCheck);
                     if (lockedTable) {
-                        Alert.error(DFTStr.LockedTableWarning,
-                            DFTStr.LockedTableMsg,
-                            {detail: `Pinned Table: ${lockedTable}`}
-                        );
+                        DagUtil.showPinWarning(lockedTable);
                     } else {
                         _preProcessMenuAction(action);
                     }
@@ -583,8 +577,9 @@ namespace DagNodeMenu {
             });
         } else if (!OldSQLOpPanel.Instance.getAlertOff()) {
             Alert.show({
-                title: "SQL",
+                title: SQLTStr.ExpandSQLTitle,
                 msg: SQLTStr.ExpandSQL,
+                sizeToText: true,
                 onConfirm: (checked) => {
                     OldSQLOpPanel.Instance.setAlertOff(checked);
                     DagViewManager.Instance.expandSQLNode(dagNodeId);

@@ -1029,8 +1029,8 @@ class SQLOpPanel extends BaseOpPanel {
             return PromiseHelper.resolve();
         }
         Alert.show({
-            "title": "Query out of sync",
-            "msg": "SQL query has not been updated. Do you want to continue?",
+            "title": SQLTStr.OutOfSync,
+            "msg": SQLTStr.OutOfSyncMsg,
             "onConfirm": (checked) => {
                 this._ignoreUpdateConfirm = checked;
                 deferred.resolve();
@@ -1088,18 +1088,14 @@ class SQLOpPanel extends BaseOpPanel {
                     !this._ignoreUpdateConfirm) {
                     Alert.show({
                         isAlert: true,
-                        title: AlertTStr.Title,
-                        msg: "Any future modifications to the original SQL" +
-                            " statment will not affect this operator.",
-                        // msg: "The SQL statement in this operator will not" +
-                        // " be affected by any future modifications to the" +
-                        // " original SQL statement.",
+                        title: SQLTStr.ModifyWarnTitle,
+                        msg: SQLTStr.ModifyWarnMsg,
                         onCancel: (checked) => {
                             this._ignoreQueryConfirm = checked;
                         },
                         isCheckBox: true,
                         isInfo: true
-                    })
+                    });
                 }
             })
             .fail((err) => {

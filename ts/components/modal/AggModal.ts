@@ -59,7 +59,7 @@ class AggModal {
         this._cachedTableId = tableId;
         this._cachedVertColNums = vertColNums;
         this._cachedHorColNums = horColNums;
-        this._show("corrTab", this._cachedHorColNums);
+        this._show("corrTab");
 
         this._aggColsInitialize(table);
         this._corrTableInitialize();
@@ -102,7 +102,7 @@ class AggModal {
 
         this._cachedTableId = tableId;
         this._cachedHorColNums = horColNums;
-        this._show("aggTab", this._cachedHorColNums);
+        this._show("aggTab");
 
         this._aggColsInitialize(table);
         this._aggTableInitialize();
@@ -165,10 +165,7 @@ class AggModal {
         this._getModal().removeClass("profileMode");
     }
 
-    private _show(
-        mode: string,
-        hasSelectedCols: number[]
-    ): void {
+    private _show(mode: string): void {
         let $modal = this._getModal();
         let $quickAgg = this._getQuickAggSection();
         let $corr = this._getCorrSection();
@@ -179,42 +176,14 @@ class AggModal {
                     .siblings().removeClass("active");
             $quickAgg.show();
             $corr.hide();
-
-            let which: string;
-            let which2: string;
-            if (hasSelectedCols) {
-                which = AggTStr.selected;
-                which2 = AggTStr.somePairs;
-            } else {
-                which = AggTStr.all;
-                which2 = AggTStr.everyPair;
-            }
-            let instr: string = xcStringHelper.replaceMsg(AggTStr.AggTopInstr, {
-                "which": which,
-                "which2": which2
-            });
-            $modal.find(".modalInstruction .text").text(instr);
+            $modal.find(".modalInstruction .text").text(AggTStr.AggTopInstr);
         } else if (mode === "corrTab") {
             // when it's correlation
             $("#corrTab").addClass("active")
                     .siblings().removeClass("active");
             $quickAgg.hide();
             $corr.show();
-
-            let which: string;
-            let which2: string;
-            if (hasSelectedCols) {
-                which = AggTStr.somePairs;
-                which2 = AggTStr.selected;
-            } else {
-                which = AggTStr.everyPair;
-                which2 = AggTStr.all;
-            }
-            let instr: string = xcStringHelper.replaceMsg(AggTStr.CorrInstr, {
-                "which": which,
-                "which2": which2
-            });
-            $modal.find(".modalInstruction .text").text(instr);
+            $modal.find(".modalInstruction .text").text(AggTStr.CorrInstr);
         } else {
             // error case
             throw "Invalid mode in quick agg!";

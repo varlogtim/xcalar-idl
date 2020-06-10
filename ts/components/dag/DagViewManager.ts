@@ -140,10 +140,7 @@ class DagViewManager {
             });
             let lockedTable = DagViewManager.Instance.getActiveDag().checkForChildLocks(nodesToCheck);
             if (lockedTable) {
-                Alert.error(DFTStr.LockedTableWarning,
-                    DFTStr.LockedTableMsg,
-                    {detail: `Pinned Table: ${lockedTable}`}
-                );
+                DagUtil.showPinWarning(lockedTable);
             } else if (FormHelper.activeForm) {
                 Alert.show({
                     title: `Configuration Panel Open`,
