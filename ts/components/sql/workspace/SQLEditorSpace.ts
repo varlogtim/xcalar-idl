@@ -528,16 +528,17 @@ class SQLEditorSpace {
                     }
                     executorArray.push(executor);
                 }
-
-                selectArray[0].identifiers.forEach((identifier) => {
-                    let tableName = identifier;
-                    if (selectArray[0].newIdentifiers && selectArray[0].newIdentifiers[tableName]) {
-                        tableName = selectArray[0].newIdentifiers[tableName];
-                    }
-                    if (executorArray[0]._sessionTables.has(identifier.toUpperCase())) {
-                        schemaPromiseArray.push(executorArray[0].setSessionTableSchema(tableName, identifier));
-                    }
-                });
+                if (selectArray[0]) {
+                    selectArray[0].identifiers.forEach((identifier) => {
+                        let tableName = identifier;
+                        if (selectArray[0].newIdentifiers && selectArray[0].newIdentifiers[tableName]) {
+                            tableName = selectArray[0].newIdentifiers[tableName];
+                        }
+                        if (executorArray[0]._sessionTables.has(identifier.toUpperCase())) {
+                            schemaPromiseArray.push(executorArray[0].setSessionTableSchema(tableName, identifier));
+                        }
+                    });
+                }
 
                 return PromiseHelper.when.apply(this, schemaPromiseArray);
             })
