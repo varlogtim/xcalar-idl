@@ -2648,6 +2648,9 @@ class DagGraph extends Durable {
         this._traverseChildren(node, (node: DagNode) => {
             node.resetLineage();
             traversedSet.add(node);
+            if (node instanceof DagNodeSQLFuncOut) {
+                node.updateSchema();
+            }
         });
         return traversedSet;
     }

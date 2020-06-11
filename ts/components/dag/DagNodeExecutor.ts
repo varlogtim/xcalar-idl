@@ -1541,7 +1541,9 @@ class DagNodeExecutor {
         const params: DagNodeSQLFuncInInputStruct = node.getParam(this.replaceParam);
         const isSimulate: boolean = Transaction.isSimulate(this.txId);
         const source: string = params.source;
-        if (isSimulate && !this.isBatchExecution) {
+        if (!source) {
+            return PromiseHelper.reject(DagNodeErrorType.SQLFuncInNoSource);
+        } else if (isSimulate && !this.isBatchExecution) {
             return PromiseHelper.resolve(source);
         } else {
             const deferred: XDDeferred<string> = PromiseHelper.deferred();

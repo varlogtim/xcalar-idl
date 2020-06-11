@@ -149,8 +149,12 @@ class SQLFuncInOpPanel extends BaseOpPanel {
         }
 
         const oldParam = this._dagNode.getParam();
-        if (oldParam.source === args.source) {
-            // when only schema changes
+        if (this._dagNode.getState() !== DagNodeState.Unused &&
+            oldParam.source === args.source
+        ) {
+            // when configured and has only schema changes
+            // oldParam.source === args.source is not enough
+            // because we allow source be empty
             this._dagNode.setSchema(args.schema, true);
         } else {
             this._dagNode.setSchema(args.schema);
@@ -159,32 +163,18 @@ class SQLFuncInOpPanel extends BaseOpPanel {
         this.close(true);
     }
 
+    /*
+     * Note: we don't check if source if empty because
+     * it's allowed to set with empty source but have schema only
+     */
     private _validate(ingore: boolean = false): {
         source: string,
         schema: ColSchema[]
     } {
         const $sourceInput: JQuery = this._getSourceSection().find("input");
         const source: string = $sourceInput.val().trim();
-        let isValid: boolean = false;
-        if (ingore) {
-            isValid = true;
-        } else {
-            isValid = xcHelper.validate([{
-                $ele: $sourceInput
-            }, {
-                $ele: $sourceInput,
-                error: ErrTStr.NoTable,
-                check: () => !this._tables.has(source)
-            }]);
-        }
-
-
-        if (!isValid) {
-            return null;
-        }
-
         const schema = this._schemaSection.getSchema(ingore);
-        if (isValid && schema != null) {
+        if (schema != null) {
             return {
                 source: source,
                 schema: schema

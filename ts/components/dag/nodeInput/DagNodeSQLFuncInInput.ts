@@ -17,7 +17,7 @@ class DagNodeSQLFuncInInput extends DagNodeInput {
             "examples": [
               "Table"
             ],
-            "minLength": 1,
+            "minLength": 0, // allow empty source
             "pattern": "^(.*)$"
           },
           "schema": {

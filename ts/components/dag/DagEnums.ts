@@ -74,7 +74,8 @@ enum DagNodeErrorType {
     NoColumns = "Invalid columns in the schema:\n",
     NoAccessToSource = "Dataset does not exist or you have no rights to access it. Please change the configuration or restore the dastaset.",
     InvalidSQLFunc = "Invalid Table Function",
-    SQLFuncOutDupCol = "Table function's output has duplicate column name (the output's column name is case insensitivie)"
+    SQLFuncOutDupCol = "Table function's output has duplicate column name (the output's column name is case insensitivie)",
+    SQLFuncInNoSource = "Table function's input must have source configured to run",
 }
 
 enum DagNodeLinkInErrorType {
