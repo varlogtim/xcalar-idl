@@ -35,6 +35,43 @@ class Table {
     }
 
     async publish(publishedName) {
+        const srcTableName = this.getName();
+        // Publish table
+        await this._session.callLegacyApi(
+            () => XcalarPublishTable(
+                srcTableName, publishedName
+            )
+        );
+
+        // Persiste creation DF for XD
+        const pubTable = new PublishedTable({ name: publishedName, srcTable: this });
+        await pubTable.saveDataflow();
+
+        return pubTable;
+    }
+
+    /**
+     * Publish table and persiste creation dataflow for restoration
+     * @param {string} publishedName
+     * @param {any[]} query
+     */
+    async publishWithQuery(publishedName, query) {
+        const srcTableName = this.getName();
+        // Publish table
+        await this._session.callLegacyApi(
+            () => XcalarPublishTable(
+                srcTableName, publishedName
+            )
+        );
+
+        // Persiste creation DF for XD
+        const pubTable = new PublishedTable({ name: publishedName, srcTable: this });
+        await pubTable.saveDataflowFromQuery(query);
+
+        return pubTable;
+    }
+
+    async publish2(publishedName) {
         const xcalarRowNumPkName = "XcalarRankOver";
         const tempTables = [];
         let srcTableName = this.getName();

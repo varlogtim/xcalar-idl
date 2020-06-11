@@ -335,8 +335,7 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
             const { dataQueryComplete = '[]', compQueryComplete = '[]' } = dataflows || {};
 
             // Publish data table
-            const pubDataTable = await tables.data.publish(dataName);
-            await pubDataTable.saveDataflow(JSON.parse(dataQueryComplete));
+            await tables.data.publishWithQuery(dataName, JSON.parse(dataQueryComplete));
 
             // Check if comp table is empty
             let compHasData = false;
@@ -352,19 +351,20 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
 
             // Publish comp table
             if (compHasData) {
-                const pubCompTable = await tables.comp.publish(compName);
-                await pubCompTable.saveDataflow(JSON.parse(compQueryComplete));
+                await tables.comp.publishWithQuery(compName, JSON.parse(compQueryComplete));
             }
 
             return compHasData;
         },
         createResultTables: async (query, progressCB = () => {}) => {
-            // const {loadQueryOpt, dataQueryOpt, compQueryOpt, tableNames} = query;
-            const {loadQueryOpt, dataQuery, compQuery, tableNames} = query;
-            const fixedTablesNames = new Set([
-                tableNames.load, tableNames.data, tableNames.comp
-            ]);
+            /**
+             * Do not delete the result table of each dataflow execution here,
+             * or IMD table will persist an incomplete dataflow to its metadata
+             * thus table restoration will fail
+             */
+            const {loadQueryOpt, dataQueryOpt, compQueryOpt, tableNames} = query;
 
+            // Execute Load DF
             const loadQuery = JSON.parse(loadQueryOpt).retina;
             const loadProgress = updateProgress((p) => progressCB(p), 0, 60);
             try {
@@ -377,25 +377,9 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
                         ['user_name', session.user.getUserName()]
                     ])
                 });
-                // await session.executeQuery({
-                //     queryString: loadQuery,
-                //     queryName: `q_${appId}_${queryIndex ++}`,
-                //     params: new Map([
-                //         ['session_name', session.sessionName],
-                //         ['user_name', session.user.getUserName()]
-                //     ])
-                // });
                 loadProgress.done();
             } finally {
                 loadProgress.stop();
-                // Delete temporary tables
-                // const { tables } = getResourceNames(JSON.parse(loadQuery));
-                // await Promise.all([...tables].map(async (tableName) => {
-                //     if (!fixedTablesNames.has(tableName)) {
-                //         const tempTable = new Table({ session: session, tableName: tableName});
-                //         await tempTable.destroy();
-                //     }
-                // }));
             }
             const loadTable = new Table({
                 session: session,
@@ -403,71 +387,48 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
             });
 
             try {
-                // const dataQuery = JSON.parse(dataQueryOpt).retina;
+                // Execute Data DF
+                const dataQuery = JSON.parse(dataQueryOpt).retina;
                 const dataProgress = updateProgress((p) => progressCB(p), 60, 80);
                 try {
-                    // await session.executeQueryOptimized({
-                    //     queryStringOpt: dataQuery,
-                    //     queryName: `q_${appId}_${queryIndex ++}`,
-                    //     tableName: tableNames.data
-                    // });
-                    await session.executeQuery({
-                        queryString: dataQuery,
-                        queryName: `q_${appId}_${queryIndex ++}`
+                    await session.executeQueryOptimized({
+                        queryStringOpt: dataQuery,
+                        queryName: `q_${appId}_${queryIndex ++}`,
+                        tableName: tableNames.data
                     });
                     dataProgress.done();
                 } finally {
                     dataProgress.stop();
-                    // Delete temporary tables
-                    const { tables } = getResourceNames(JSON.parse(dataQuery));
-                    await Promise.all([...tables].map(async (tableName) => {
-                        if (!fixedTablesNames.has(tableName)) {
-                            const tempTable = new Table({ session: session, tableName: tableName});
-                            await tempTable.destroy();
-                        }
-                    }));
                 }
                 const dataTable = new Table({
                     session: session, tableName: tableNames.data
                 });
 
-                // const compQuery = JSON.parse(compQueryOpt).retina;
+                // Execute ICV DF
+                const compQuery = JSON.parse(compQueryOpt).retina;
                 const compProgress = updateProgress((p) => progressCB(p), 80, 99);
                 try {
-                    // await session.executeQueryOptimized({
-                    //     queryStringOpt: compQuery,
-                    //     queryName: `q_${appId}_${queryIndex ++}`,
-                    //     tableName: tableNames.comp
-                    // });
-                    await session.executeQuery({
-                        queryString: compQuery,
+                    await session.executeQueryOptimized({
+                        queryStringOpt: compQuery,
                         queryName: `q_${appId}_${queryIndex ++}`,
+                        tableName: tableNames.comp
                     });
                     compProgress.done();
                 } finally {
                     compProgress.stop();
-                    // Delete temporary tables
-                    const { tables } = getResourceNames(JSON.parse(compQuery));
-                    await Promise.all([...tables].map(async (tableName) => {
-                        if (!fixedTablesNames.has(tableName)) {
-                            const tempTable = new Table({ session: session, tableName: tableName});
-                            await tempTable.destroy();
-                        }
-                    }));
                 }
                 const compTable = new Table({
                     session: session,
                     tableName: tableNames.comp
                 });
 
+                // Return the session tables created from those 3 DFs
                 return {
                     data: dataTable,
                     comp: compTable,
                     load: loadTable
                 };
             } finally {
-                // Cannot delete the load table, or activating published table will fail
-                // await loadTable.destroy();
                 progressCB(100);
             }
         },
