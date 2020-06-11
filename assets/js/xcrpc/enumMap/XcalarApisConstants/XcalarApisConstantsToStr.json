@@ -8,7 +8,7 @@
     "5000" : "XcalarApiMaxCacheValidityInMs",
     "1023" : "XcalarApiMaxUdfModuleNameLen",
     "255" : "XcalarApiMaxUdfFuncNameLen",
-    "10485760" : "XcalarApiMaxUdfSourceLen",
+    "268435456" : "XcalarApiMaxUdfSourceLen",
     "255" : "XcalarApiMaxTableNameLen",
     "37359285" : "XcalarApiMagic",
     "128" : "XcalarApiRetinaMaxNumTables",

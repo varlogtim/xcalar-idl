@@ -1655,22 +1655,17 @@ testSuiteFn = (function($, TestSuite) {
     }
 
     function testProject(test) {
-        var rs1 = null;
-        var rs2 = null;
-        var rs3 = null;
-        var rs4 = null;
         xcalarProject(thriftHandle, 2, ["yelp_user::votes.funny",
                                         "yelp_user::user_id"],
                       origTable, "yelp/user-votes.funny-projected")
         .then(function(ret) {
             test.assert(ret.tableName == "yelp/user-votes.funny-projected");
-            return xcalarMakeResultSetFromTable(thriftHandle,
-                                                "yelp/user-votes.funny-projected");
+            return xcalarGetTableMeta(thriftHandle,
+                                        "yelp/user-votes.funny-projected", false);
         })
-        .then(function(ret) {
-            rs1 = ret;
-            test.assert(ret.metaOutput.numValues === 1);
-            test.assert(ret.metaOutput.numImmediates === 0);
+        .then(function(metaOutput) {
+            test.assert(metaOutput.numValues === 1);
+            test.assert(metaOutput.numImmediates === 0);
             return xcalarApiMap(thriftHandle, "votesFunnyPlusUseful",
                                 "add(yelp_user::votes.funny, yelp_user::votes.useful)",
                                 "yelp/user-votes.funny-gt900",
@@ -1678,15 +1673,14 @@ testSuiteFn = (function($, TestSuite) {
         })
         .then(function(ret) {
             test.assert(ret.tableName == "yelp/user-votes.funny-plus-useful-map");
-            return xcalarMakeResultSetFromTable(thriftHandle,
-                                                "yelp/user-votes.funny-plus-useful-map");
+            return xcalarGetTableMeta(thriftHandle,
+                                        "yelp/user-votes.funny-plus-useful-map", false);
         })
-        .then(function(ret) {
-            rs2= ret;
-            console.log(ret.metaOutput.numValues);
-            console.log(ret.metaOutput.numImmediates);
-            test.assert(ret.metaOutput.numValues == 3);
-            test.assert(ret.metaOutput.numImmediates == 2);
+        .then(function(metaOutput) {
+            console.log(metaOutput.numValues);
+            console.log(metaOutput.numImmediates);
+            test.assert(metaOutput.numValues == 3);
+            test.assert(metaOutput.numImmediates == 2);
             return xcalarApiMap(thriftHandle, "complimentsFunnyPlusCute",
                                 "add(compliments.funny, compliments.cute)",
                                 "yelp/user-votes.funny-plus-useful-map",
@@ -1694,15 +1688,14 @@ testSuiteFn = (function($, TestSuite) {
         })
         .then(function(ret) {
             test.assert(ret.tableName == "yelp/user-compliments.funny-plus-cute-map");
-            return xcalarMakeResultSetFromTable(thriftHandle,
-                                                "yelp/user-compliments.funny-plus-cute-map");
+            return xcalarGetTableMeta(thriftHandle,
+                                        "yelp/user-compliments.funny-plus-cute-map", false);
         })
-        .then(function(ret) {
-            rs3 = ret;
-            console.log(ret.metaOutput.numValues);
-            console.log(ret.metaOutput.numImmediates);
-            test.assert(ret.metaOutput.numValues == 4);
-            test.assert(ret.metaOutput.numImmediates == 3);
+        .then(function(metaOutput) {
+            console.log(metaOutput.numValues);
+            console.log(metaOutput.numImmediates);
+            test.assert(metaOutput.numValues == 4);
+            test.assert(metaOutput.numImmediates == 3);
             return xcalarProject(thriftHandle, 2,
                                  ["votesFunnyPlusUseful", "complimentsFunnyPlusCute"],
                                  "yelp/user-compliments.funny-plus-cute-map",
@@ -1710,27 +1703,14 @@ testSuiteFn = (function($, TestSuite) {
         })
         .then(function(ret) {
             test.assert(ret.tableName == "yelp/projected_two_immediate_columns");
-            return xcalarMakeResultSetFromTable(thriftHandle,
-                                                "yelp/projected_two_immediate_columns");
+            return xcalarGetTableMeta(thriftHandle,
+                                        "yelp/projected_two_immediate_columns", false);
         })
-        .then(function(ret) {
-            rs4 = ret;
-            console.log(ret.metaOutput.numValues);
-            console.log(ret.metaOutput.numImmediates);
-            test.assert(ret.metaOutput.numValues == 2);
-            test.assert(ret.metaOutput.numImmediates == 2);
-            return xcalarFreeResultSet(thriftHandle, rs4.resultSetId);
-        })
-        .then(function(ret) {
-            return xcalarFreeResultSet(thriftHandle, rs3.resultSetId);
-        })
-        .then(function(ret) {
-            return xcalarFreeResultSet(thriftHandle, rs2.resultSetId);
-        })
-        .then(function(ret) {
-            return xcalarFreeResultSet(thriftHandle, rs1.resultSetId);
-        })
-        .then(function(ret) {
+        .then(function(metaOutput) {
+            console.log(metaOutput.numValues);
+            console.log(metaOutput.numImmediates);
+            test.assert(metaOutput.numValues == 2);
+            test.assert(metaOutput.numImmediates == 2);
             test.pass();
         })
         .fail(function(status) {
