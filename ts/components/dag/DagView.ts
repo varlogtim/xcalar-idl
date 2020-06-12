@@ -1792,7 +1792,9 @@ class DagView {
                 this.dagTab.save();
                 return null;
             }
-            if (parentNode.getMaxChildren() !== 0 && !node.isSourceNode()) {
+            if (parentNode.getMaxChildren() !== 0 && !node.isSourceNode() &&
+                !(parentNode.getType() === DagNodeType.Custom &&
+                  parentNode.getChildren().length)) {
                 connectToParent = true;
             }
             if (!options.forceAdd &&
@@ -5435,13 +5437,17 @@ class DagView {
                 }
                 const warning = self._connectionWarning(childNodeId, parentNodeId);
                 if (warning) {
-                    Alert.show({
-                        title: warning.title,
-                        msg: warning.msg,
-                        onConfirm: () => {
-                            self.connectNodes(parentNodeId, childNodeId, connectorIndex);
-                        }
-                    });
+                    if (warning.msg === DagTStr.CustomOpTooManyConnections) {
+                        Alert.error(warning.title, warning.msg);
+                    } else {
+                        Alert.show({
+                            title: warning.title,
+                            msg: warning.msg,
+                            onConfirm: () => {
+                                self.connectNodes(parentNodeId, childNodeId, connectorIndex);
+                            }
+                        });
+                    }
                 } else {
                     self.connectNodes(parentNodeId, childNodeId,
                         connectorIndex);
@@ -5605,7 +5611,9 @@ class DagView {
                 if (warning) {
                     const key = "noConnectAlert";
                     const noAlert = xcLocalStorage.getItem(key) === "true";
-                    if (noAlert) {
+                    if (warning.msg === DagTStr.CustomOpTooManyConnections) {
+                        Alert.error(warning.title, warning.msg);
+                    } else if (noAlert) {
                         self.connectNodes(parentNodeId, childNodeId,
                             connectorIndex, isReconnecting);
                     } else {
@@ -5794,6 +5802,12 @@ class DagView {
         //         title: "Combine Graph",
         //         msg: "Unifying functions will result in a single function name."
         //     }
+        } else if (parentNode.getType() === DagNodeType.Custom &&
+                   parentNode.getChildren().length) {
+            return {
+                title: ErrorMessageTStr.title,
+                msg: DagTStr.CustomOpTooManyConnections
+            }
         } else {
             return null;
         }

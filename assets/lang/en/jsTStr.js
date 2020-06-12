@@ -1599,6 +1599,8 @@ DagTStr = {
     "CustomOpNoOutput": "Cannot create a custom operator without output",
     "CustomOpTooManyOutput": "Cannot create a custom operator with more than one output",
     "CustomOpTypeNotSupport": "Cannot create a custom operator with this operation type",
+    "CustomOpTooManyConnections": "Custom operators cannot have more than one output.",
+    "ConnectionError": "Connection Error",
     "SortConnectWarning": "Having a sort operator that is not the final operator of the module can cause performance issues. We recommend only having sort operators at the end of the module. Are you sure you want to continue?",
     "SortConnectWarningTitle": "Sort Warning",
     "LargeDataflowMsg": "This module contains <num> operators and may take some time to display. Do you still want to view this module?",
