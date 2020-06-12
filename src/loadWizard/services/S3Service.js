@@ -284,7 +284,15 @@ function getKeylistTableName(fullPath) {
     return `LW_KEYLIST_${pathHash}`;
 }
 
+const CompressionExt = ['.gz', '.bz2']
+
 function getFileExt(fileName) {
+    for (const ext of CompressionExt) {
+        const newfile = fileName.endsWith(ext) ? fileName.slice(0, -ext.length) : fileName
+        fileName = newfile
+        if (newfile != fileName) { break; }
+    }
+
     return (fileName.includes('.')
         ? fileName.split('.').pop()
         : 'none').toLowerCase();
