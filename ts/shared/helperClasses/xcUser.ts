@@ -89,7 +89,7 @@ class XcUser {
                     if (data.loggedIn === true) {
                         deferred.resolve(data);
                     } else  {
-                        xcManager.forceLogout();
+                        XcUser.logoutWarn();
                         deferred.reject("Authentication Fails");
                     }
                 } catch (e) {
@@ -134,6 +134,24 @@ class XcUser {
         if (XcUser.CurrentUser) {
             XcUser.CurrentUser.logout();
         }
+    }
+
+    /**
+     * XcUser.logoutWarn
+     */
+    public static logoutWarn(): void {
+        Alert.show({
+            title: "User session has expired",
+            msg: "Please login again.",
+            lockScreen: true,
+            buttons: [{
+                "name": "Log Out",
+                "func": () => {
+                    xcManager.forceLogout();
+                }
+            }],
+            hideButtons: ["support"]
+        });
     }
 
     private _username: string;

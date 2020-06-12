@@ -23,9 +23,9 @@ class HTTPService {
 
     public error(status: number) {
         if (status === httpStatus.Unauthorized) {
-            if (typeof xcManager !== 'undefined') {
+            if (typeof XcUser !== 'undefined') {
                 // index.html case
-                xcManager.forceLogout();
+                XcUser.logoutWarn();
             }
         }
     }
