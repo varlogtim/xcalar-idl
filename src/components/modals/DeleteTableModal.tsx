@@ -19,6 +19,7 @@ export default class DeleteTableModal extends React.Component<{}, {}> {
                 instruct={DeleteTableModalTStr.instr}
                 fetchList={this._fetch}
                 sortList={this._sort}
+                hideDate={true}
                 onConfirm={this._onConfirm}
                 onSubmit={this._onSubmit}
             />

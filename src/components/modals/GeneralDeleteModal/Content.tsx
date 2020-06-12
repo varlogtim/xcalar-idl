@@ -10,13 +10,14 @@ const {CommonTStr, DeleteTableModalTStr} = dict;
 type ContentProps = {
     id: string;
     tables: DeleteItems[];
+    hideDate: boolean;
     sortKey: string;
     onSelectAllClick;
     onCheckboxClick;
     onSort;
 };
 export default function Content(props: ContentProps) {
-    const { tables, sortKey, onSelectAllClick, onSort } = props;
+    const { tables, hideDate, sortKey, onSelectAllClick, onSort } = props;
     let selectAllVal: boolean = true;
     let checked: boolean = false;
     let selectedTables = tables.filter((table) => table.checked);
@@ -32,10 +33,13 @@ export default function Content(props: ContentProps) {
     }, {
         name: "size",
         text: CommonTStr.Size,
-    }, {
-        name: "date",
-        text: CommonTStr.DateModified
     }];
+    if (!hideDate) {
+        titles.push({
+            name: "date",
+            text: CommonTStr.DateModified
+        });
+    }
     return (
         <section className="section">
             <div className="titleSection">
@@ -67,7 +71,7 @@ export default function Content(props: ContentProps) {
                 <ul>
                 {
                     tables.map((table, i) => {
-                        return <Row id={props.id} table={table} onClick={() => props.onCheckboxClick(i)}/>;
+                        return <Row id={props.id} table={table} hideDate={hideDate} onClick={() => props.onCheckboxClick(i)}/>;
                     })
                 }
                 </ul>

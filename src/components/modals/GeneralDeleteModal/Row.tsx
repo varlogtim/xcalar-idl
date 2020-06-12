@@ -9,12 +9,13 @@ const {TooltipTStr} = dict;
 type RowProps = {
     id: string;
     table: DeleteItems,
+    hideDate: boolean,
     onClick: any
 };
 
 export default function Row(props: RowProps) {
     const xcHelper = window["xcHelper"];
-    const {id, table, onClick} = props;
+    const {id, table, hideDate, onClick} = props;
     const {name, locked, checked, size, date} = table;
     const container = `#${id}`;
     const {date_str, date_tip}= getDateString(date, container);
@@ -34,7 +35,7 @@ export default function Row(props: RowProps) {
                 {name}
             </Tooltipbox>
             <div>{xcHelper.sizeTranslator(size)}</div>
-            <div {...date_tip}>{date_str}</div>
+            {hideDate ? null : <div {...date_tip}>{date_str}</div>}
         </div>
     );
 }

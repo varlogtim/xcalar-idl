@@ -20,6 +20,7 @@ type GeneralDeleteProps = {
     id: string;
     header: string;
     instruct: string;
+    hideDate?: boolean;
     fetchList: () => Promise<DeleteItems[]>;
     sortList: (oldList: DeleteItems[], key: string, reversetSort: boolean) => DeleteItems[];
     onConfirm: (listToDelete: string[]) => Promise<void>;
@@ -81,6 +82,7 @@ export default class GeneralDeleteModal extends React.Component<GeneralDeletePro
                 <Content
                     id={this.props.id}
                     tables={...this.state.items}
+                    hideDate={this.props.hideDate || false}
                     sortKey={this.state.sortKey}
                     onCheckboxClick={this._selectTable}
                     onSelectAllClick={this._selectAllTables}
