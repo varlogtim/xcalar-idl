@@ -1718,7 +1718,7 @@
 
         .tab, .sortablePlaceholder {
             flex: 0 0 auto;
-            min-width: 65px;
+            max-width: 165px;
             .size(@height: 100%);
             .font(@size: 12px,
                 @color: @color-font-dagTabInactive,
@@ -1726,14 +1726,11 @@
                 @align: center);
             border-right: 1px solid @color-bg-2;
             background-color: @color-bg-dagTabInactive;
-            padding: 0px 12px;
-            padding-left: 3px;
-            padding-right: 9px; // close button has 3px space on the right
+            padding: 0px 10px;
             .noSelection;
             .textOverflow;
             cursor: pointer;
             position: relative;
-            padding-left: 15px;
             font-weight: 400;
 
             &:last-child {
@@ -1795,13 +1792,13 @@
                 visibility: hidden;
                 position: absolute;
                 width: 100%;
-                left: 3px;
+                left: 0px;
 
                 .icon {
                     padding: 0px;
                     float: left;
-                    width: 12px;
-                    text-align: center;
+                    width: 10px;
+                    text-align: left;
                     font-size: 10px;
                     line-height: @tabHeight;
                     .cursor-move;
@@ -1824,21 +1821,25 @@
             .name {
                 float:left;
                 letter-spacing: 0.2px;
+                max-width: 128px;
+                .textOverflowOneLine;
 
                 .xc-input {
-                    height: 17px;
-                    max-height: 17px;
+                    height: 100%;
+                    width: auto;
                     font-size: inherit;
                     font-weight: inherit;
                     line-height: inherit;
+                    display: inline-block;
                 }
             }
 
             .after {
                 margin-right: 0px;
-                margin-left: 9px;
+                margin-left: 8px;
                 float: right;
-                .size(13px, 13px);
+                width: 8px;
+                height: 13px;
                 .rounded(100%);
                 .position(relative, @top: 6px);
                 background-color: transparent;

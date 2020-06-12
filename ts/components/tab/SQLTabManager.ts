@@ -234,7 +234,11 @@ class SQLTabManager extends AbstractTabManager {
     private _addTabHTML(snippetObj: SQLSnippetDurable, tabIndex?: number): void {
         const name: string = this._getAppPath(snippetObj);
         const html: HTML =
-            `<li class="tab" data-id="${snippetObj.id}">` +
+            '<li class="tab tooltipOverflow"' +
+            ' data-id="${snippetObj.id}"' +
+            xcTooltip.Attrs +
+            ' data-title="' + name + '"' +
+            '>' +
                 '<div class="dragArea">' +
                     '<i class="icon xi-ellipsis-v" ' + xcTooltip.Attrs + ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>' +
                 '</div>' +

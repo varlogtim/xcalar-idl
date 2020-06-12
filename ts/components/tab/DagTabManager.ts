@@ -1014,7 +1014,11 @@ class DagTabManager extends AbstractTabManager {
             // extraIcon = '<i class="icon xi-recommend tabIcon"></i>';
         }
         let html: HTML =
-            '<li class="tab dagTab' + extraClass + '" data-id="' + tabId +'">' +
+            '<li class="tab dagTab tooltipOverflow' + extraClass + '"' +
+            ' data-id="' + tabId +'"' +
+            xcTooltip.Attrs +
+            ' data-title="' + tabName + '"' +
+            '>' +
                 '<div class="dragArea">' +
                     '<i class="icon xi-ellipsis-v" ' + xcTooltip.Attrs + ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>' +
                 '</div>' +

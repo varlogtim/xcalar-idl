@@ -128,6 +128,7 @@ abstract class AbstractTabManager {
             if (newName) {
                 const $tabName: JQuery = $input.parent();
                 $tabName.text(newName);
+                $tabName[0].scrollLeft = 0;
             }
             $input.remove();
             this._tabListScroller.showOrHideScrollers();
@@ -157,6 +158,11 @@ abstract class AbstractTabManager {
                 const newIndex = $(ui.item).index();
                 this._stopReorderTabAction(initialIndex, newIndex);
             }
+        });
+
+        $tabArea.on("mouseenter", ".tooltipOverflow", function() {
+            let target: HTMLElement = <HTMLElement>$(this).find(".name")[0];
+            xcTooltip.auto(this, target);
         });
     }
 

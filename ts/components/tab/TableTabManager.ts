@@ -246,9 +246,12 @@ class TableTabManager extends AbstractTabManager {
         tabIndex?: number
     ): void {
         name = xcStringHelper.escapeHTMLSpecialChar(name);
-        const classNames: string[] = ["tab"];
+        const classNames: string[] = ["tab", "tooltipOverflow"];
         let html: HTML =
-            '<li class="' + classNames.join(" ") + '">' +
+            '<li class="' + classNames.join(" ") + '" ' +
+            xcTooltip.Attrs +
+            ' data-title="' + name + '"' +
+            '>' +
                 '<div class="dragArea">' +
                     '<i class="icon xi-ellipsis-v" ' + xcTooltip.Attrs + ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>' +
                 '</div>' +

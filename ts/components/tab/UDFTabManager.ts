@@ -289,12 +289,15 @@ class UDFTabManager extends AbstractTabManager {
         newModule?: boolean
     ): void {
         name = xcStringHelper.escapeHTMLSpecialChar(name);
-        const classNames: string[] = ["tab"];
+        const classNames: string[] = ["tab", "tooltipOverflow"];
         if (newModule) {
             classNames.push("new");
         }
         let html: HTML =
-            '<li class="' + classNames.join(" ") + '">' +
+            '<li class="' + classNames.join(" ") + '" ' +
+            xcTooltip.Attrs +
+            ' data-title="' + name + '"' +
+            '>' +
                 '<div class="dragArea">' +
                     '<i class="icon xi-ellipsis-v" ' + xcTooltip.Attrs +
                     ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>' +
