@@ -1082,31 +1082,31 @@ Thrift.Protocol.prototype = {
         this.rpos = [];
 
         if (typeof JSON !== 'undefined' && typeof JSON.parse === 'function') {
-            this.robj = JSON.parse(this.transport.readAll());
+            // this.robj = JSON.parse(this.transport.readAll());
             // XXX Begin Xcalar code
-            // var msg = this.transport.readAll();
-            // var regex = new RegExp('{"tf":[^01]}', "g");
-            // msg = msg.replace(regex, '{"tf":0}');
-            // try {
-            //     this.robj = JSON.parse(msg);
-            // } catch (error) {
-            //     console.error("thrift parse error", error, msg);
-            //     this.robj = eval(this.transport.readAll());
-            // }
+            var msg = this.transport.readAll();
+            var regex = new RegExp('{"tf":[^01]}', "g");
+            msg = msg.replace(regex, '{"tf":0}');
+            try {
+                this.robj = JSON.parse(msg);
+            } catch (error) {
+                console.error("thrift parse error", error, msg);
+                this.robj = eval(this.transport.readAll());
+            }
             // XXX End Xcalar code
 
         } else if (typeof jQuery !== 'undefined') {
-            this.robj = jQuery.parseJSON(this.transport.readAll());
+            // this.robj = jQuery.parseJSON(this.transport.readAll());
             // XXX Begin Xcalar code
-            // var msg = this.transport.readAll();
-            // var regex = new RegExp('{"tf":[^01]}', "g");
-            // msg = msg.replace(regex, '{"tf":0}');
-            // try {
-            //     this.robj = JSON.parse(msg);
-            // } catch (error) {
-            //     console.error("thrift parse error", error, msg);
-            //     this.robj = eval(this.transport.readAll());
-            // }
+            var msg = this.transport.readAll();
+            var regex = new RegExp('{"tf":[^01]}', "g");
+            msg = msg.replace(regex, '{"tf":0}');
+            try {
+                this.robj = jQuery.parseJSON(msg);
+            } catch (error) {
+                console.error("thrift parse error", error, msg);
+                this.robj = eval(this.transport.readAll());
+            }
             // XXX End Xcalar code
         } else {
             this.robj = eval(this.transport.readAll());
