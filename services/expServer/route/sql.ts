@@ -79,7 +79,7 @@ router.post("/xcsql/queryWithPublishedTables", [support.checkAuth],
         usePaging: usePaging,
         optimizations: optimizations
     }
-    sqlManager.executeSql(params, type)
+    sqlManager.executeSqlShared(params, type)
     .then(function(output): void {
         res.send(output);
     })

@@ -1588,8 +1588,8 @@ describe("sqlRestApi Test", function() {
         });
 
         it("Router should support /xcsql/queryWithPublishedTables", function(done) {
-            const oldExec = sqlManager.executeSql;
-            sqlManager.executeSql = fakeFunc
+            const oldExec = sqlManager.executeSqlShared;
+            sqlManager.executeSqlShared = fakeFunc
 
             const req = {
                 sessionId: "test-session-id",
@@ -1604,7 +1604,7 @@ describe("sqlRestApi Test", function() {
                 done('fail');
             })
             .always(() => {
-                sqlManager.executeSql = oldExec;
+                sqlManager.executeSqlShared = oldExec;
             })
         });
 

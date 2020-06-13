@@ -251,6 +251,29 @@ class SqlManager {
         return deferred.promise();
     };
 
+    private listSharedTables(pattern: string, tryCount: number): JQueryPromise<any> {
+        let deferred: any = PromiseHelper.deferred();
+        let pubPatternMatch: string = pattern || "*";
+        tryCount--;
+        XcalarListTablesXcrpc(pubPatternMatch)
+        .then((res: any): void => {
+            deferred.resolve(res);
+        })
+        .fail((error) => {
+            if (tryCount === 0) {
+                deferred.reject(error);
+            } else {
+                xcConsole.log("listSharedTables failed, retry left: " + tryCount);
+                setTimeout(() => {
+                    this.listSharedTables(pattern, tryCount)
+                    .then(deferred.resolve)
+                    .fail(deferred.reject);
+                }, 5000);
+            }
+        });
+        return deferred.promise();
+    };
+
     private sendToPlanner(
         sessionPrefix: string,
         requestStruct: RequestInput,
@@ -348,7 +371,7 @@ class SqlManager {
                 && setOfPubTables.has(slicedIdentifier)) {
                     identifierTableMap = {
                         "identifier": identifier.slice(1, -1),
-                        "table": setOfPubTables.get(slicedIdentifier)]
+                        "table": setOfPubTables.get(slicedIdentifier)
                     }
                     imdTables.push(identifierTableMap);
             }
@@ -361,6 +384,71 @@ class SqlManager {
                 JSON.stringify(errorTables);
         }
         return [imdTables, xdTables];
+    }
+
+    // identifiers mapping example
+    // [{"newIdentifiers":{"`t_1`":"`t#1`"},"newSql":"select * from `t_1`  ","identifiers":["`t_1`"],"sql":"select * from `t#1`"}]
+    // Shared table case it should have newIdentifiersMap empty, but for future use still leave it here
+    private getTablesFromParserResultShared(
+        identifiers: string[],
+        newIdentifiersMap: any,
+        setOfSharedTables: Map<string, string>,
+        setOfPublishedTables: Map<string, string>
+    ): object[][] | string  {
+        let sharedTables: object[] = [];
+        let publishedTables: object[] = [];
+        let errorTables: string[] = [];
+        let identifierUpper: string;
+        let identifierTableMap: object;
+        setOfPublishedTables = setOfPublishedTables || new Map();
+        identifiers.forEach((identifier) => {
+            if (identifier in newIdentifiersMap) {
+                identifierUpper = newIdentifiersMap[identifier].toUpperCase();
+            } else {
+                identifierUpper = identifier.toUpperCase();
+            }
+            let slicedIdentifier: string = identifierUpper.slice(1, -1);
+            if (setOfPublishedTables.has(identifierUpper)){
+                identifierTableMap = {
+                    "identifier": identifier,
+                    "table": setOfPublishedTables.get(identifierUpper)
+                }
+                publishedTables.push(identifierTableMap);
+            }
+            else if (identifierUpper[0] === "`"
+                && identifierUpper[identifierUpper.length - 1] === "`"
+                && setOfPublishedTables.has(slicedIdentifier)) {
+                    identifierTableMap = {
+                        "identifier": identifier.slice(1, -1),
+                        "table": setOfPublishedTables.get(slicedIdentifier)
+                    }
+                    publishedTables.push(identifierTableMap);
+            }
+            else if(setOfSharedTables.has(identifierUpper)){
+                identifierTableMap = {
+                    "identifier": identifier,
+                    "table": setOfSharedTables.get(identifierUpper)
+                }
+                sharedTables.push(identifierTableMap);
+            }
+            else if (identifierUpper[0] === "`"
+                && identifierUpper[identifierUpper.length - 1] === "`"
+                && setOfSharedTables.has(slicedIdentifier)) {
+                    identifierTableMap = {
+                        "identifier": identifier.slice(1, -1),
+                        "table": setOfSharedTables.get(slicedIdentifier)
+                    }
+                    sharedTables.push(identifierTableMap);
+            }
+            else {
+                errorTables.push(identifierUpper);
+            }
+        });
+        if (errorTables.length > 0) {
+            return "Tables not found: " +
+                JSON.stringify(errorTables);
+        }
+        return [sharedTables, publishedTables];
     }
 
     private findPubTableByName(
@@ -388,6 +476,33 @@ class SqlManager {
             let column: XcalarApiColumnInfo = columns[i];
             let type: ColumnType = xcHelper.convertFieldTypeToColType(
                 DfFieldTypeTFromStr[column.type]);
+            colStruct[column.name] = type;
+            schema.push(colStruct);
+        }
+        tableStruct.schema = schema;
+
+        return tableStruct;
+    }
+
+    private getInfoForSharedTable(
+        tableStruct: any
+    ): TableInfo {
+        let columns: XcalarApiColumnInfo[] = tableStruct.schema.columnAttributes;
+        let schema: any = [];
+        for (var i = 0; i < columns.length; i++) {
+            let colStruct: any = {};
+            let column: XcalarApiColumnInfo = columns[i];
+            if (column.name != column.name.replace(/(?![a-zA-Z0-9_])./g, "_")
+                .toUpperCase()) {
+                throw "Invalid column name found: " + column.name;
+            }
+            let type: ColumnType = xcHelper.convertFieldTypeToColType(
+                DfFieldTypeTFromStr[column.type]);
+            if (type === ColumnType.unknown || type === ColumnType.mixed
+                || type === ColumnType.array || type === ColumnType.object
+                || type == null) {
+                throw "Invalid column type found: " + type;
+            }
             colStruct[column.name] = type;
             schema.push(colStruct);
         }
@@ -449,8 +564,7 @@ class SqlManager {
 
     public selectPublishedTables(
         args: SQLPublishInput[],
-        allSchemas: any,
-        batchIdMap?: any
+        allSchemas: any
     ): XcalarSelectQuery[] {
         let queryArray: XcalarSelectQuery[] = [];
         for (let i: number = 0; i < args.length; i++) {
@@ -678,7 +792,7 @@ class SqlManager {
                 }
             }
             let query_array: XcalarSelectQuery[] =
-                this.selectPublishedTables(toSelect, allSchemas, batchIdMap);
+                this.selectPublishedTables(toSelect, allSchemas);
 
             //xd tables information gathering
             xdTableReturns.forEach((xdTableStruct) => {
@@ -690,6 +804,174 @@ class SqlManager {
             });
 
             deferred.resolve(query_array, allSchemas, allSelects);
+        })
+        .fail((args) => {
+            if (whenCallSent && !whenCallReturned) {
+                let error: any = null;
+                for (let i: number = 0; i < args.length; i++) {
+                    if (args[i] && (args[i].error ||
+                        args[i] === StatusTStr[StatusT.StatusCanceled])) {
+                        error = args[i];
+                        break;
+                    }
+                }
+                deferred.reject(error);
+            } else {
+                deferred.reject(args);
+            }
+        });
+        return deferred.promise();
+    }
+
+    private collectTablesMetaInfoShared(
+        inputParams: SQLQueryInput,
+        tablePrefix: string,
+        sessionInfo: SessionInfo
+    ): JQueryPromise<any> {
+        let {userName, sessionName} = sessionInfo;
+        let allSchemas: any = {};
+        let tableNameMap: any = {};
+        let deferred: any = this.jQuery.Deferred();
+        let allSelects: any = {};
+        let sharedTablesMap: Map<string, string> = new Map();
+        let pubTablesMap: Map<string, string> = new Map();
+        let pubTableRes: any;
+        let sharedTableRes: any = {};
+
+        let whenCallSent: boolean = false;
+        let whenCallReturned: boolean = false;
+
+        this.listPublishedTables('*')
+        .then((ret: any) => {
+            pubTableRes = ret.pubTablesRes;
+            const retPubTables: string[] = ret.publishedTables;
+            for (let pubTable of retPubTables) {
+                pubTablesMap.set(pubTable.toUpperCase(), pubTable);
+            }
+            return this.listSharedTables('*', 5);
+        })
+        .then((ret: any) => {
+            //XXX converting pubTables array to Map
+            // making xdTables to empty Map
+            for (let tableName in ret) {
+                sharedTableRes[tableName] = ret[tableName];
+                sharedTablesMap.set(tableName
+                                    .replace(/(?![a-zA-Z0-9_])./g, "_")
+                                    .toUpperCase(), tableName);
+            }
+            let requestStruct: RequestInput = {
+                type: "sqlparse",
+                method: "POST",
+                data: {
+                    sqlQuery: inputParams.queryString,
+                    ops: ["identifier"],
+                    isMulti: true
+                }
+            }
+            return this.sendToPlanner(tablePrefix, requestStruct,
+                                                userName, sessionName);
+        })
+        .then((data: any): JQueryPromise<any> => {
+            const sqlParseRet = data.ret;
+            let retStruct;
+            if (!(sqlParseRet instanceof Array)) { // Remove this after parser change in
+                if (sqlParseRet.errorMsg) {
+                    return PromiseHelper.reject(sqlParseRet.errorMsg);
+                }
+                retStruct = sqlParseRet.parseStructs;
+            } else {
+                retStruct = sqlParseRet;
+            }
+            let newIdentifiersMap: any = {};
+            if (retStruct.length > 1) {
+                return PromiseHelper.reject(SQLErrTStr.MultiQueries);
+            }
+            let identifiers: string[] = retStruct[0].identifiers;
+            if (identifiers.length === 0) {
+                return PromiseHelper.reject("Failed to get identifiers " +
+                                                "from invalid SQL");
+            }
+            if ("newIdentifiers" in retStruct[0]) {
+                newIdentifiersMap = retStruct[0].newIdentifiers;
+                inputParams.modifiedQueryString = retStruct[0].newSql;
+            }
+            let allTables: any =
+                this.getTablesFromParserResultShared(identifiers,
+                        newIdentifiersMap, sharedTablesMap, pubTablesMap);
+            if (typeof(allTables) !== "object") {
+                console.log(allTables);
+                return PromiseHelper.reject(SQLErrTStr.NoPublishedTable);
+            }
+            let sharedTables: any = allTables[0];
+            let publishedTables: string[] = allTables[1];
+            console.log("shared tables are", sharedTables);
+            console.log("published tables are", publishedTables);
+            let tableValidPromiseArray: JQueryPromise<XDTableInfo>[] = [];
+            for (let imdTable of publishedTables) {
+                const xcTable = imdTable["table"];
+                let tableStruct: TableInfo =
+                    this.getInfoForPublishedTable(pubTableRes, xcTable);
+                // schema must exist because getListOfPublishedTables ensures
+                // that it exists
+                allSchemas[xcTable] = tableStruct.schema;
+                let candidateSelectTable: string =
+                    this.findValidLastSelect(tableStruct.selects,
+                                            tableStruct.nextBatchId);
+                allSelects[xcTable] = candidateSelectTable;
+                tableValidPromiseArray.push(this.tableValid(xcTable,
+                                                          candidateSelectTable,
+                                                          sessionInfo));
+            }
+
+            for (let sharedTable of sharedTables) {
+                const fullyQualifiedName = sharedTable["table"];
+                let tableStruct: TableInfo;
+                try {
+                    tableStruct = this.getInfoForSharedTable(
+                                        sharedTableRes[fullyQualifiedName]);
+                } catch (e) {
+                    return PromiseHelper.reject("Get table meta failed on "
+                                + sharedTable["identifier"] + ": [" + e + "]");
+                }
+                // schema must exist because getListOfPublishedTables ensures
+                // that it exists
+                allSchemas[sharedTable["identifier"]] = tableStruct.schema;
+                tableNameMap[sharedTable["identifier"]] = fullyQualifiedName;
+            }
+            whenCallSent = true;
+            return PromiseHelper.when(...tableValidPromiseArray);
+        })
+        .then((res: any): void => {
+            let returns: any = res;
+            whenCallReturned = true;
+            // XXX FIX ME We need to make sure from when we check to when we run
+            // this call, that the table still exists and that no one has dropped
+            // it in the meantime. Alternatively, we can just put in a backup clause
+            for (let retStruct of returns) {
+                if (retStruct.isIMD && !retStruct.found) {
+                    allSelects[retStruct.pubTableName] = undefined;
+                } else if (retStruct.isIMD) {
+                    tableNameMap[retStruct.pubTableName] = retStruct.tableName;
+                }
+            }
+            //imd tables information gathering
+            let toSelect: SQLPublishInput[] = [];
+            for (let pubTable in allSelects) {
+                if (!allSelects[pubTable]) {
+                    let xcalarTableName: string = xcHelper.randName(tablePrefix) +
+                        Authentication.getHashId();
+                    toSelect.push({
+                        importTable: xcalarTableName,
+                        publishName: pubTable
+                    });
+                    allSelects[pubTable] = xcalarTableName;
+                    tableNameMap[pubTable] = xcalarTableName;
+                }
+            }
+            let query_array: XcalarSelectQuery[] =
+                this.selectPublishedTables(toSelect, allSchemas);
+
+            deferred.resolve(query_array, allSchemas, tableNameMap);
         })
         .fail((args) => {
             if (whenCallSent && !whenCallReturned) {
@@ -848,6 +1130,226 @@ class SqlManager {
                                                         sqlQueryObj.xcQueryString,
                                                         optimizations,
                                                         JSON.stringify(selectQuery))
+                                                        .optimizedQueryString;
+                    } catch(e) {
+                        if (e.error && typeof e.error === "string") {
+                            deferred.reject(e.error);
+                        } else {
+                            deferred.reject(e);
+                        }
+                        return;
+                    }
+                }
+                // Auto-generate a name for the final table if not specified
+                if(type !== "odbc" && !params.usePaging && !params.resultTableName) {
+                    params.resultTableName = xcHelper.randName("res_") +
+                                                    Authentication.getHashId();
+                }
+                let prefixStruct: SQLAddPrefixReturnMsg = this.SqlUtil.addPrefix(
+                    JSON.parse(sqlQueryObj.xcQueryString),
+                    allSelects,
+                    sqlQueryObj.newTableName,
+                    tablePrefix,
+                    params.usePaging,
+                    params.resultTableName);
+                sqlQueryObj.xcQueryString = prefixStruct.query;
+                sqlQueryObj.newTableName = prefixStruct.tableName;
+            }
+            // To show better performance, we only display duration of execution
+            sqlHistoryObj["startTime"] = new Date();
+            sqlHistoryObj["status"] = SQLStatus.Running;
+            let info = this.SqlUtil.setSessionInfo(
+                sessionInfo.userName, sessionInfo.userId, sessionInfo.sessionName
+            );
+            SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj,
+                 {userName: info.userName, workbookName: info.sessionName});
+            xcConsole.log("Query before execution: " + sqlQueryObj.xcQueryString);
+            return SQLExecutor.execute(sqlQueryObj, {
+                userName: sessionInfo.userName,
+                workbookName: sessionInfo.sessionName
+            });
+        })
+        .then((): JQueryPromise<any> => {
+            xcConsole.log("Execution finished!");
+            sqlHistoryObj["status"] = SQLStatus.Done;
+            sqlHistoryObj["endTime"] = new Date();
+            sqlHistoryObj["tableName"] = sqlQueryObj.newTableName;
+            let info = this.SqlUtil.setSessionInfo(sessionInfo.userName, sessionInfo.userId,
+                                            sessionInfo.sessionName);
+            SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj,
+                {userName: info.userName, workbookName: info.sessionName});
+            // Drop schemas and nuke session on planner
+            let requestStruct: RequestInput = {
+                type: "schemasdrop",
+                method: "delete"
+            }
+            return this.sendToPlanner(tablePrefix, requestStruct,
+                                        sessionInfo.userName, sessionInfo.sessionName)
+        })
+        .then((): JQueryPromise<SQLResult> => {
+            if (sqlQueryObj.status === SQLStatus.Cancelled) {
+                // Query is done already
+                return PromiseHelper.reject(SQLErrTStr.Cancel);
+            }
+            if (type === "odbc") {
+                return this.SqlUtil.getResults(sqlQueryObj.newTableName,
+                                        sqlQueryObj.allColumns, params.rowsToFetch,
+                                        params.execid, params.usePaging, sessionInfo);
+            } else {
+                let result: SQLResult = {
+                    tableName: sqlQueryObj.newTableName,
+                    columns: sqlQueryObj.allColumns,
+                    orderColumns: sqlQueryObj.orderColumns
+                }
+                return PromiseHelper.resolve(result);
+            }
+        })
+        .then((res: SQLResult): void => {
+            xcConsole.log("sql query finishes.");
+            deferred.resolve(res);
+        })
+        .fail((err: any): any => {
+            xcConsole.log("sql query error: ", err);
+            sqlHistoryObj["endTime"] = new Date();
+            let retObj: any = {error: err};
+            if (err === SQLErrTStr.Cancel) {
+                sqlHistoryObj["status"] = SQLStatus.Cancelled;
+                retObj.isCancelled = true;
+            } else {
+                sqlHistoryObj["status"] = SQLStatus.Failed;
+                sqlHistoryObj["errorMsg"] = err;
+            }
+            let info = this.SqlUtil.setSessionInfo(sessionInfo.userName, sessionInfo.userId,
+                                            sessionInfo.sessionName);
+            SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj,
+                {userName: info.userName, workbookName: info.sessionName});
+            deferred.reject(retObj);
+        })
+        .always((): void => {
+            if (type == "odbc" || optimizations.dropAsYouGo) {
+                this.SqlUtil.setSessionInfo(sessionInfo.userName,
+                                            sessionInfo.userId,
+                                            sessionInfo.sessionName);
+                var deleteCompletely = true;
+                XcalarDeleteTable(tablePrefix + "*", -1, undefined, deleteCompletely,
+                                  {userName: sessionInfo.userName,
+                                   workbookName: sessionInfo.sessionName});
+            }
+        });
+
+        return deferred.promise();
+    };
+
+    public executeSqlShared(
+        params: SQLQueryInput,
+        type?: string
+    ) {
+        let deferred: any = PromiseHelper.deferred();
+        let optimizations: SQLOptimizations = params.optimizations;
+        let sessionInfo: SessionInfo = this.SqlUtil.setSessionInfo(
+                                            params.userName, params.userId,
+                                            params.sessionName);
+        let tablePrefix: string = params.tablePrefix ||
+                            this.generateTablePrefix(
+                                sessionInfo.userName, sessionInfo.sessionName);
+        tablePrefix = this.SqlUtil.cleansePrefix(tablePrefix);
+        params.usePaging = params.usePaging || false;
+        params.modifiedQueryString = params.queryString // modified query string is input sql query with identifiers modified
+        let allSelects: any = {};
+        let queryId: string = params.queryName || xcHelper.randName("sql");
+
+        let prepQuery: XcalarSelectQuery[] = [];
+
+        let sqlHistoryObj: SQLHistoryObj = {
+            queryId: queryId,
+            status: SQLStatus.Compiling,
+            queryString: params.queryString
+        };
+        let sqlQueryObj: any;
+
+        this.setupConnection(sessionInfo.userName, sessionInfo.userId,
+            sessionInfo.sessionName)
+        .then(() => {
+            sqlHistoryObj["startTime"] = new Date();
+            let info = this.SqlUtil.setSessionInfo(sessionInfo.userName, sessionInfo.userId,
+                                        sessionInfo.sessionName);
+            SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj,
+                {userName: info.userName, workbookName: info.sessionName});
+            return this.collectTablesMetaInfoShared(params, tablePrefix,
+                                                    sessionInfo);
+        })
+        .then((sqlQuery: XcalarSelectQuery[], schemas: any, tableNameMap: any):
+            JQueryPromise<any> => {
+            xcConsole.log("Select created: " + JSON.stringify(sqlQuery));
+            allSelects = tableNameMap;
+            prepQuery = sqlQuery;
+            let schemasToSendToSqlDf: any[] = [];
+            for (let pubTable in schemas) {
+                schemasToSendToSqlDf.push({
+                    tableName: pubTable,
+                    tableColumns: schemas[pubTable],
+                    xcTableName: tableNameMap[pubTable]
+                });
+            }
+            let requestStruct: RequestInput = {
+                type: "schemasupdate",
+                method: "put",
+                data: schemasToSendToSqlDf
+            }
+            return this.sendToPlanner(tablePrefix, requestStruct,
+                                sessionInfo.userName, sessionInfo.sessionName);
+        })
+        .then((): JQueryPromise<any> => {
+            // get logical plan
+            let requestStruct: RequestInput = {
+                type: "sqlquery",
+                method: "post",
+                data: {"sqlQuery": params.modifiedQueryString}
+            }
+            return this.sendToPlanner(tablePrefix, requestStruct,
+                                sessionInfo.userName, sessionInfo.sessionName);
+        })
+        .then((plan: string): JQueryPromise<any> => {
+            sqlQueryObj = new SQLQuery(queryId, params.queryString, plan,
+                                            optimizations);
+            sqlQueryObj.tablePrefix = tablePrefix;
+            sqlQueryObj.fromExpServer = true;
+            if (type === "odbc") {
+                sqlQueryObj.checkTime = params.checkTime;
+            }
+            this._sqlQueryObjects[queryId] = sqlQueryObj;
+            if (this._workerFlag) {
+                let workerData: SQLWorkerData = {
+                    sqlQueryObj: sqlQueryObj,
+                    selectQuery: prepQuery,
+                    allSelects: allSelects,
+                    params: params,
+                    type: type
+                }
+                return this.startWorker(workerData);
+            } else {
+                return SQLCompiler.compile(sqlQueryObj);
+            }
+        })
+        .then((compiledObj: any): JQueryPromise<any> => {
+            xcConsole.log("Compilation finished");
+            sqlQueryObj = compiledObj;
+            this._sqlQueryObjects[queryId] = sqlQueryObj;
+            xcConsole.log("Before optimizer, xcQueryString: " + sqlQueryObj.xcQueryString
+                          + ", optimizations: " + JSON.stringify(optimizations)
+                          + ", selects: " + JSON.stringify(prepQuery));
+            if (!this._workerFlag) {
+                if (optimizations.noOptimize) {
+                    let selectString: string = JSON.stringify(prepQuery);
+                    sqlQueryObj.xcQueryString =
+                                selectString.substring(0, selectString.length - 1) +
+                                "," + sqlQueryObj.xcQueryString.substring(1);
+                } else {
+                    try {
+                        sqlQueryObj.xcQueryString = LogicalOptimizer.optimize(
+                                                        sqlQueryObj.xcQueryString,
+                                                        optimizations,
+                                                        JSON.stringify(prepQuery))
                                                         .optimizedQueryString;
                     } catch(e) {
                         if (e.error && typeof e.error === "string") {
@@ -1152,15 +1654,15 @@ class SqlManager {
 
     public list(pattern: string): JQueryPromise<any> {
         let deferred: any = PromiseHelper.deferred();
+        let retStruct: any[] = [];
         this.connect("localhost")
         .then((): JQueryPromise<any> => {
             xcConsole.log("connected");
             return this.listPublishedTables(pattern);
         })
-        .then((ret: any) => {
+        .then((ret: any): JQueryPromise<any> => {
             const results: XcalarApiListTablesOutput = ret.pubTablesRes;
             const tables: string[] = ret.publishedTables;
-            let retStruct: any[] = [];
 
             for (let pubTable of tables) {
                 let pubTableMeta: any = {};
@@ -1168,6 +1670,22 @@ class SqlManager {
                 pubTableMeta["tableColumns"] =
                     this.getInfoForPublishedTable(results, pubTable).schema;
                 retStruct.push(pubTableMeta);
+            }
+            return this.listSharedTables(pattern, 5);
+        })
+        .then((ret: any) => {
+            for (let table in ret) {
+                let tableMeta: any = {};
+                tableMeta["tableName"] = table
+                    .replace(/(?![a-zA-Z0-9_])./g, "_").toUpperCase();
+                try {
+                    tableMeta["tableColumns"] =
+                        this.getInfoForSharedTable(ret[table]).schema;
+                } catch (e) {
+                    return PromiseHelper.reject("Get table meta failed on "
+                                + tableMeta["tableName"] + ": [" + e + "]");
+                }
+                retStruct.push(tableMeta);
             }
             deferred.resolve(retStruct);
         })

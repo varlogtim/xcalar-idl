@@ -129,16 +129,18 @@ class BaseSession {
             : { userName: this.user.getUserName(), workbookName: this.sessionName }
 
         // Call service
-        const tableNames = await Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getTableService().listTables({
+        const tableRes = await Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getTableService().listTables({
             namePattern: namePattern,
             scope: scope,
             scopeInfo: scopeInfo
         });
 
         // Parse response
-        return tableNames.map((v) => new Table({
-            session: this, tableName: v
-        }));
+        const tableList = [];
+        for (let tableName in tableRes) {
+            tableList.push(new Table({session: this, tableName: tableName}));
+        }
+        return tableList;
     }
 
     async deleteTables({ namePattern }) {

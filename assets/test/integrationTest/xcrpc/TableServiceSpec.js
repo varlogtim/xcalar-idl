@@ -14,10 +14,10 @@ exports.testSuite = function(TableService) {
 
         it('listTables availability', async () => {
             try {
-                const tableNames = await TableService.listTables({
+                const tableRes = await TableService.listTables({
                     scope: TableScope.GLOBAL
                 });
-                expect(Array.isArray(tableNames), 'Check response').to.be.true;
+                expect(typeof tableRes, 'Check response').to.equal('object');
             } catch(e) {
                 expect.fail('Service error');
             }

@@ -82,7 +82,9 @@ declare module 'xcalar' {
     export class TableService {
         constructor(client: XceClient);
         addIndex(request: proto.xcalar.compute.localtypes.Table.IndexRequest): Promise<proto.google.protobuf.Empty>;
-        listTables(request: proto.xcalar.compute.localtypes.Table.ListTablesRequest): Promise<proto.xcalar.compute.localtypes.Table.ListTablesResponse>
+        publishTable(request: proto.xcalar.compute.localtypes.Table.PublishRequest): Promise<proto.xcalar.compute.localtypes.Table.PublishResponse>;
+        unpublishTable(request: proto.xcalar.compute.localtypes.Table.UnpublishRequest): Promise<proto.google.protobuf.Empty>;
+        listTables(request: proto.xcalar.compute.localtypes.Table.ListTablesRequest): Promise<proto.xcalar.compute.localtypes.Table.ListTablesResponse>;
     }
 
     export class TargetService {
@@ -1362,6 +1364,7 @@ declare namespace proto.xcalar.compute.localtypes {
             getName(): string;
             getType(): string;
             getValueArrayIdx(): number;
+            getOrdering(): string;
         }
     }
 
@@ -1587,14 +1590,74 @@ declare namespace proto.xcalar.compute.localtypes {
             setTableName(value: string): void;
         }
 
+        export class PublishRequest {
+            setScope(value: Workbook.WorkbookScope): void;
+            setTableName(value: string): void;
+        }
+
+        export class PublishResponse {
+            getFullyQualTableName(): string;
+        }
+
+        export class UnpublishRequest {
+            setScope(value: Workbook.WorkbookScope): void;
+            setTableName(value: string): void;
+        }
+
         export class ListTablesRequest {
+            setScope(value: Workbook.WorkbookScope): void;
             setPattern(value: string): void;
-            setScope(value: proto.xcalar.compute.localtypes.Workbook.WorkbookScope): void;
         }
 
         export class ListTablesResponse {
-            getTableNamesList(): Array<string>;
-            getScope(): proto.xcalar.compute.localtypes.Workbook.WorkbookScope;
+            getScope(): Workbook.WorkbookScope;
+            getTableNamesList(): string[];
+            getTableMetaMapMap(): Map<string, TableMetaResponse>;
+        }
+
+        export class TableStatsPerNode {
+            getStatus(): string;
+            getNumRows(): number;
+            getNumPages(): number;
+            getNumSlots(): number;
+            getSizeInBytes(): number;
+            getRowsPerSlotMap(): Map<number, number>;
+            getPagesPerSlotMap(): Map<number, number>;
+            getPagesConsumedInBytes(): number;
+            getPagesAllocatedInBytes(): number;
+            getPagesSent(): number;
+            getPagesReceived(): number;
+        }
+
+        export class TableAttributes {
+            getTableName(): string;
+            getTableId(): number;
+            getXdbId(): number;
+            getState(): string;
+            getPinned(): boolean;
+            getShared(): boolean;
+            getDatasetsList(): string[];
+            getResultSetIdsList(): number[];
+        }
+
+        export class TableAggregatedStats {
+            getTotalRecordsCount(): number;
+            getTotalSizeInBytes(): number;
+            getRowsPerNodeList(): number[];
+            getSizeInBytesPerNodeList(): number[];
+        }
+
+        export class TableSchema {
+            getColumnAttributesList(): ColumnAttribute.ColumnAttributeProto[];
+            getKeyAttributesList(): ColumnAttribute.KeyAttributeProto[];
+        }
+
+        export class TableMetaResponse {
+            getAttributes(): TableAttributes;
+            getSchema(): TableSchema;
+            getAggregatedStats(): TableAggregatedStats;
+            getStatsPerNodeMap(): Map<string, TableStatsPerNode>;
+            getStatus(): string;
         }
     }
 

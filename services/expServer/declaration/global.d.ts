@@ -166,6 +166,8 @@ declare const XcalarGetVersion: any;
 declare const XcalarSetFree: any;
 declare const XcalarActivateWorkbook: any;
 declare const XcalarListPublishedTables: any;
+declare const XcalarListTablesXcrpc: any;
+declare const XcalarDeleteTable: any;
 declare const XcalarGetTables: any;
 declare const XcalarGetTableMeta: any;
 declare const XcalarQueryCancel: any;

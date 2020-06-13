@@ -671,6 +671,8 @@ declare var XcalarUpdateTable: any;
 declare var XcalarRefreshTable: any;
 declare var XcalarRefreshTableXcrpc: any;
 declare var XcalarRestoreTable: any;
+declare var XcalarPublishTableXcrpc: any;
+declare var XcalarListTablesXcrpc: any;
 declare var XcalarCoalesce: any;
 declare var XcalarDriverList: any;
 declare var XcalarPinTable: any;

@@ -5832,6 +5832,54 @@ XcalarRestoreTable = function(pubTableName: string): XDPromise<any> {
     return deferred.promise();
 };
 
+/* Comment out for now
+XcalarPublishTableXcrpc = function(
+    tableName: string,
+    scopeInfo?: Xcrpc.PublishedTable.ScopeInfo
+    ): XDPromise<any> {
+    if (!scopeInfo) {
+        scopeInfo = {
+            userName: userIdName,
+            workbookName: sessionName
+        }
+    }
+    const xcrpcScope = createXcrpcScopeInput({
+        scopeInfo: scopeInfo,
+        xcrpcScopeEnum: {
+            global: Xcrpc.PublishedTable.SCOPE.GLOBAL,
+            workbook: Xcrpc.PublishedTable.SCOPE.WORKBOOK
+        }
+    });
+    return PromiseHelper.convertToJQuery(Xcrpc
+            .getClient(Xcrpc.DEFAULT_CLIENT_NAME).getTableService()
+            .publishTable(tableName, xcrpcScope.scope, xcrpcScope.scopeInfo));
+}
+*/
+
+XcalarListTablesXcrpc = function(
+    pattern: string,
+    scopeInfo?: Xcrpc.PublishedTable.ScopeInfo
+    ): XDPromise<any> {
+    if (!scopeInfo) {
+        return PromiseHelper.convertToJQuery(Xcrpc
+            .getClient(Xcrpc.DEFAULT_CLIENT_NAME).getTableService()
+            .listTables({namePattern: pattern, scope: Xcrpc.PublishedTable.SCOPE.GLOBAL}));
+    }
+    const xcrpcScope = createXcrpcScopeInput({
+        scopeInfo: scopeInfo,
+        xcrpcScopeEnum: {
+            global: Xcrpc.PublishedTable.SCOPE.GLOBAL,
+            workbook: Xcrpc.PublishedTable.SCOPE.WORKBOOK
+        }
+    });
+    return PromiseHelper.convertToJQuery(Xcrpc
+            .getClient(Xcrpc.DEFAULT_CLIENT_NAME).getTableService()
+            .listTables({
+                namePattern: pattern,
+                scope: xcrpcScope.scope,
+                scopeInfo: xcrpcScope.scopeInfo}));
+}
+
 XcalarCoalesce = function(pubTableName: string): XDPromise<StatusT> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);

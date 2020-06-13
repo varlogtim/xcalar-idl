@@ -377,7 +377,8 @@ declare class SQLQuery {
 declare class SqlQueryHistory {
     public static getInstance(): SqlQueryHistory
     public upsertQuery(
-        updateInfo: SqlQueryHistory.QueryUpdateInfo
+        updateInfo: SqlQueryHistory.QueryUpdateInfo,
+        scopeInfo?: {userName:string, workbookName: string}
     ): XDPromise<{isNew: boolean, queryInfo: SqlQueryHistory.QueryInfo}>
 }
 
