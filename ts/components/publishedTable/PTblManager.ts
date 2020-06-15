@@ -414,12 +414,22 @@ class PTblManager {
             if (!subGraph || subGraph.getAllNodes().size === 0) {
                 throw(new Error("Table could not be found or is missing source details."));
             }
-            const {queryStr, destTables} = await subGraph.getQuery(null, true);
-            const destTable: string = destTables[destTables.length - 1];
-            await XIApi.query(txId, destTable, queryStr);
+            const retinaInfo = await subGraph.getRetinaArgs(null, false);
+            const tables = JSON.parse(retinaInfo.retina).tables;
+            const destTable = tables[tables.length - 1].name;
+            await XIApi.executeQueryOptimized(
+                txId,
+                retinaInfo.retinaName,
+                retinaInfo.retina,
+                destTable,
+                {
+                    udfUserName: retinaInfo.userName,
+                    udfSessionName: retinaInfo.sessionName
+                }
+            );
             await XcalarPublishTable(destTable, pbTableName, txId);
+            await XIApi.deleteTable(txId, destTable, true);
             await this.addTable(pbTableName);
-            await XIApi.deleteTableInBulk(txId, destTables, true);
             node.beConfiguredState();
             Transaction.done(txId);
         } catch (e) {

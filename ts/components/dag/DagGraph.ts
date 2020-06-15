@@ -935,7 +935,7 @@ class DagGraph extends Durable {
     }
 
     // for SDK use only
-    public getRetinaArgs(nodeIds?: DagNodeId[], noReplaceParam: boolean = true): XDPromise<void> {
+    public getRetinaArgs(nodeIds?: DagNodeId[], noReplaceParam: boolean = true): XDPromise<any> {
         let nodesMap: Map<DagNodeId, DagNode>;
         let startingNodes: DagNodeId[];
         // If optimized and nodeIds not specified, then look for 1 optimized node.

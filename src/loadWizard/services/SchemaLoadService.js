@@ -196,6 +196,9 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
     }
 
     function combineQueries(loadQuery, tableQuery, params = new Map()) {
+        // Remove the leading synthesize, which is not necessary in regular execution
+        tableQuery = removeSynthesize(tableQuery);
+
         // Remove export from the query string
         const excludeSet = new Set([
             Xcrpc.EnumMap.XcalarApisToStr[Xcrpc.EnumMap.XcalarApisToInt.XcalarApiExport]
@@ -211,6 +214,19 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
         }
 
         return queryString;
+    }
+
+    function removeSynthesize(query) {
+        const queryList = JSON.parse(query);
+        if (queryList.length < 2) {
+            return query;
+        }
+        if (queryList[0].operation === Xcrpc.EnumMap.XcalarApisToStr[Xcrpc.EnumMap.XcalarApisToInt.XcalarApiSynthesize]) {
+            const synthesizeOp = queryList.shift();
+            queryList[0].args.source = synthesizeOp.args.source;
+        }
+
+        return JSON.stringify(queryList);
     }
 
     function getResourceNames(queryList) {

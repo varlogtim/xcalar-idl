@@ -2506,6 +2506,35 @@ namespace XIApi {
         }
     }
 
+    export async function executeQueryOptimized(
+        txId: number,
+        queryName: string,
+        queryStringOpt: string,
+        tableName: string,
+        options?: {
+            udfUserName?: string,
+            udfSessionName?: string
+    }): Promise<void> {
+        const { udfUserName, udfSessionName } = options || {};
+        await XcalarImportRetina(
+            queryName, true, null, queryStringOpt, udfUserName, udfSessionName, txId
+        );
+        const retinaParams = [];
+        try {
+            await XcalarExecuteRetina(queryName, retinaParams, {
+                activeSession: true,
+                newTableName: tableName
+            }, txId);
+        } finally {
+            try {
+                await XcalarDeleteRetina(queryName, txId);
+            } catch(e) {
+                console.error('XIApi.executeQueryOptimized error: ', e);
+                // Don't fail in minor error
+            }
+        }
+    }
+
     function _handleQueryFail(res) {
         let error: {error: string, log?: string} = null;
         try {
