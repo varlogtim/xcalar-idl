@@ -8,7 +8,14 @@
 </header>
 <div class="mainContent">
     <div class="opSection">
-        <p class="mainInstructions instrText"><%= dicts.opsView.filterInstr %></p>
+        <p class="mainInstructions instrText"><%= dicts.opsView.filterInstr %>
+          <i class="qMark icon xi-unknown"
+            data-toggle="tooltip"
+            data-container="body"
+            data-placement="auto top"
+            data-title="<%= dicts.opsView.filterInstrTip %>">
+          </i>
+        </p>
         <div class="divider"></div>
         <div class="group filterGroup firstGroup">
             <div class="catFuncHeadings clearfix subHeading">

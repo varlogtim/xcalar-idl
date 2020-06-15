@@ -37,6 +37,7 @@ class RoundOpPanelModel extends BaseOpPanelModel {
 
         model._title = OpPanelTStr.RoundPanelTitle;
         model._instrStr = OpPanelTStr.RoundPanelInstr;
+        model._instrStrTip = OpPanelTStr.RoundPanelInstrTip;
         model._allColMap = colMap;
 
         try {

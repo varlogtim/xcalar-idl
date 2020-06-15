@@ -11,7 +11,14 @@
     </header>
     <div class="mainContent">
         <div class="opSection">
-            <p class="mainInstructions instrText"><%= dicts.opsView.mapInstr %></p>
+            <p class="mainInstructions instrText"><%= dicts.opsView.mapInstr %>
+              <i class="qMark icon xi-unknown"
+                data-toggle="tooltip"
+                data-container="body"
+                data-placement="auto top"
+                data-title="<%= dicts.opsView.mapInstrTip %>">
+              </i>
+            </p>
             <div class="group mapGroup firstGroup">
                 <i class="icon xi-minus minGroup"></i>
                 <div class="altFnTitle">No Map Function Chosen</div>

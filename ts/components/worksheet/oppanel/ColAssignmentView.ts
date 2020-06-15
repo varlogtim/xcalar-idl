@@ -226,7 +226,8 @@ class ColAssignmentView {
                 isDisabled: selectedCols.filter((col) => (col != null)).length === 0,
                 isShowIcon: this.options.showActions,
                 label: this._getNodeLabel(index),
-                tip: "The connector identification label between the input data table and the Set Operator."
+                tip: this._getNodeLabelTip(index),
+                // tip: "The connector identification label between the input data table and the Set Operator."
             });
         });
         nodeListHTML += this._getActionSection(nodeListActionProp);
@@ -271,6 +272,17 @@ class ColAssignmentView {
         }
         return label;
     }
+
+    private _getNodeLabelTip(index: number): string {
+        let tip = "";
+        if (this.instanceOptions.labelTips && this.instanceOptions.labelTips[index] != null) {
+            tip = this.instanceOptions.labelTips[index];
+        } else if (this.instanceOptions.allLabelsTip) {
+            tip = this.instanceOptions.allLabelsTip;
+        }
+        return tip;
+    }
+
 
     private _getResultList(resultCols: ProgCol[], selectedCols): string {
         let resultColHTML: string = "";
@@ -326,7 +338,8 @@ class ColAssignmentView {
         const actionProp = null; // Keep it here, in case we enable the remove all for result columns in the future
         const titleHTML = this._getResultTitle(actionProp);
 
-        return '<div class="lists newTable">' +
+        return '<div class="lists newTable" ' + xcTooltip.Attrs +
+                ' data-title="A list that contains the Xcalar supported data types.">' +
                     titleHTML +
                     resultColHTML +
                 '</div>';

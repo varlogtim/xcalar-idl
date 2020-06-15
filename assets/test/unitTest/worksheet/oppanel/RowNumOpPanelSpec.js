@@ -77,7 +77,7 @@ describe('RowNumOpPanel Test', () => {
                     setParamCalled = false; // restore
                     closeCalled = false; // restore
                     deferred.resolve();
-                }, 0);
+                }, 1);
                 return deferred.promise();
             });
 
@@ -89,7 +89,7 @@ describe('RowNumOpPanel Test', () => {
                 opPanel._updateUI();
                 setTimeout(() => {
                     deferred.resolve();
-                }, 0);
+                }, 1);
                 return deferred.promise();
             });
 

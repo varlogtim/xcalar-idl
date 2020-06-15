@@ -14,7 +14,14 @@
             <div class="group groupbyGroup firstGroup">
                 <div class="groupOnSection">
                     <div class="description">
-                        <%= dicts.opsView.fieldsToGroup %>:</div>
+                        <%= dicts.opsView.fieldsToGroup %>:
+                        <i class="qMark icon xi-unknown"
+                        data-toggle="tooltip"
+                        data-container="body"
+                        data-placement="auto top"
+                        data-title="The name of the column on which to apply the aggregate function.">
+                        </i>
+                    </div>
                     <div class="row gbOnRow original clearfix">
                         <div class="inputWrap">
                             <div class="dropDownList">
@@ -89,7 +96,9 @@
             </div>
             <div class="addArgWrap addArgWrapSmall addGroup addExtraGroup">
                 <button class="btn btn-secondary btn-100-rounded addArg addGBGroup">
-                    <i class="icon xi-plus"></i>
+                    <i class="icon xi-plus"
+                    data-container="body" data-toggle="tooltip" data-placement="auto top"
+                    data-title="Adds another Aggregate Function field for applying additional calculations."></i>
                 </button>
                 <span class="text">
                     <%= dicts.opsView.additionalFunc %></span>

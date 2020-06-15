@@ -12,7 +12,14 @@
     <div class="mainContent">
       <!-- Basic form -->
       <div class="project opSection">
-        <p class="mainInstructions instrText"><%= dicts.project.instr %></p>
+        <p class="mainInstructions instrText"><%= dicts.project.instr %>
+          <i class="qMark icon xi-unknown"
+            data-toggle="tooltip"
+            data-container="body"
+            data-placement="auto top"
+            data-title="<%= dicts.project.instrTip %>">
+          </i>
+        </p>
         <!-- Project View Top Section-->
         <section class="modalTopMain">
           <div class="exportColumnsSection formRow">

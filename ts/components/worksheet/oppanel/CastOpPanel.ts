@@ -10,12 +10,15 @@ class CastOpPanel extends BaseOpPanel {
         super.setup($("#castOpPanel"));
         this.colRenameSection = new ColAssignmentView("#castOpPanel .columnAssignmentSection",
                 {
-                    labels: ["Current Name", "New Name", "Cast"],
+                    labels: ["Current Name", "New Name", "New Data Type"],
+                    labelTips: [OpPanelTStr.CastPanelCurrentNameTip,
+                                OpPanelTStr.CastPanelNewNameTip,
+                                OpPanelTStr.CastPanelCastTip],
                     resultColPosition: -1,
                     showCast: true,
                     candidateText: "Columns in this section will not be casted.",
                     candidateTitle: `${OpFormTStr.NotCasted}:`,
-                    candidateTip: "Columns whose data requires no data type conversion."
+                    candidateTip: "Columns whose data requires no data type conversion.",
                 });
         this._registerHandlers();
     }

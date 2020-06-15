@@ -98,6 +98,7 @@ class SetOpPanel extends BaseOpPanel {
         this.colAssignmentSection = new ColAssignmentView(selector, {
             autoDetect: true,
             showActions: true,
+            allLabelsTip: "The connector identification label between the input data table and the Set Operator.",
             candidateTitle: UnionTStr.CandidateTitle,
             candidateTip: "Displays the columns that are no longer required in the result."
         });

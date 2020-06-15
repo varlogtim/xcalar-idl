@@ -16,7 +16,9 @@ class OpPanelComponentFactory {
             `<APP-INSTR></APP-INSTR><APP-ARGS></APP-ARGS>`,
 
         instruction:
-            `<p class="mainInstructions instrText selInstruction">{{instrStr}}</p>`,
+            `<p class="mainInstructions instrText selInstruction">{{instrStr}}
+            <APP-HELPICON></APP-HELPICON>
+            </p>`,
 
         addMoreButton:
             `<div class="{{cssClass}}" (click)="onClick">
@@ -354,7 +356,7 @@ class OpPanelComponentFactory {
      * @param props
      */
     public createOpSection(props: {
-        instrStr: string, args?: AutogenSectionProps[]
+        instrStr: string, instrStrTip?: string, args?: AutogenSectionProps[]
     }): HTMLElement[] {
         // Registry of components in opSection
         // AutogenSectionProps.type => function to create corresponding component
@@ -394,7 +396,7 @@ class OpPanelComponentFactory {
         }
 
         return this._templateMgr.createElements(templateId, {
-            'APP-INSTR': this.createInstruction({ text: props.instrStr }),
+            'APP-INSTR': this.createInstruction({ text: props.instrStr, tip: props.instrStrTip }),
             'APP-ARGS': argSections
         });
     }
@@ -403,7 +405,7 @@ class OpPanelComponentFactory {
      * Component: Panel instruction; templateId = instruction
      * @param props
      */
-    public createInstruction(props: { text: string }): HTMLElement[] {
+    public createInstruction(props: { text: string, tip?: string }): HTMLElement[] {
         if (props == null || props.text == null) {
             return null;
         }
@@ -411,7 +413,8 @@ class OpPanelComponentFactory {
         this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
 
         return this._templateMgr.createElements(templateId, {
-            instrStr: props.text
+            instrStr: props.text,
+            'APP-HELPICON': this.createHelpIcon(props.tip)
         });
     }
 
@@ -693,7 +696,7 @@ class OpPanelComponentFactory {
     }
 
     public createHelpIcon(iconTip): HTMLElement {
-        if (iconTip == null) {
+        if (iconTip == null || iconTip === "") {
             return null;
         }
 

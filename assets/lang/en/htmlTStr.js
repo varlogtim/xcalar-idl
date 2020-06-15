@@ -202,7 +202,7 @@ module.exports = {
         "ExitMap": "Exit Map",
         "ExitJoin": "Exit Join",
         "ExitSort": "Exit Sort",
-        "ExitProject": "Exit Project",
+        "ExitProject": "Exit Projection",
         "ExitUnion": "Exit Set Operation",
         "ExportTbl": "Export",
         "Flt": "Filter",
@@ -235,7 +235,7 @@ module.exports = {
         "Percent": "Percent",
         "Preview": "Preview",
         "Profile": "Profile",
-        "Project": "Project",
+        "Project": "Projection",
         "PullAllCell": "Pull all",
         "QuickAgg": "Correlation",
         "Refresh": "Refresh",
@@ -984,9 +984,10 @@ module.exports = {
 
     "project": {
         "instr": "Projection enables you to reduce table memory consumption by eliminating unnecessary fields.",
+        "instrTip": "This operator enables you to eliminate unnecessary columns.<br/>The columns whose check box is selected are retained in the table. To remove unwanted columns from your table, click Select All and deselect the columns you no longer require.",
         "colInstr": "Select columns to keep. Each set of prefixed columns acts as one unit and only uses the memory of one column.",
         "colsToProject": "Columns",
-        "project": "Project",
+        "project": "Projection",
         "derived": "Derived columns",
         "prefixed": "Prefixed columns",
         "prefixTip": "Prefixed columns act as a unit and can only be selected in their entirety"
@@ -1143,7 +1144,9 @@ module.exports = {
 
     "opsView": {
         "mapInstr": "Applies one or multiple conditions on column values.",
+        "mapInstrTip": "Applies one or more functions on column values and creates a new column from the results in the resultant table.",
         "filterInstr": "Selects values within one or multiple columns based on a condition.",
+        "filterInstrTip": "From the Filter Function list, select a function, such as isBoolean, and then if applicable add additional conditions. NOTE: Column names must be prefixed by a $ sign, such as $column1.",
         "groupbyInstr": "Arranges identical data into groups using an aggregate function.",
         "aggInstr": "Returns a single value that was calculated by an aggregate function on the values of the rows in the selected column.",
         "additionalFunc": "Additional Functions",
@@ -1165,7 +1168,7 @@ module.exports = {
         "additional": "Additional Conditions",
         "additionalMapFunc": "Additional Map Function",
         "additionalMapFuncTip": "If required apply more functions by expanding this option.",
-        "fieldsToGroup": "Fields to group on",
+        "fieldsToGroup": "Columns to group on",
         "AddAnotherColumn": "Add Another Column",
         "funcToGroup": "Aggregate Function",
         "includeSample": "Keep some columns",

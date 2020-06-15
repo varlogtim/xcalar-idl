@@ -1,11 +1,13 @@
 abstract class BaseOpPanelModel {
     protected _title: string;
     protected _instrStr: string;
+    protected _instrStrTip: string;
     protected _allColMap: Map<string, ProgCol> = new Map();
 
     constructor() {
         this._title = '';
         this._instrStr = '';
+        this._instrStrTip = "";
     }
     public static refreshColumns(model, dagNode: DagNode) {
         model._allColMap = this._createColMap(dagNode);
@@ -62,5 +64,9 @@ abstract class BaseOpPanelModel {
 
     public getInstrStr(): string {
         return this._instrStr;
+    }
+
+    public getInstrStrTip(): string {
+        return this._instrStrTip;
     }
 }

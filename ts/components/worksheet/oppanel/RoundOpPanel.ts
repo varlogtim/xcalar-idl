@@ -59,6 +59,7 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
         const $opSection = this._getPanel().find('.opSection');
         const opSectionDom = this._componentFactory.createOpSection({
             instrStr: this._dataModel.getInstrStr(),
+            instrStrTip: this._dataModel.getInstrStrTip(),
             args: this._getArgs()
         });
         this._componentFactory.getTemplateMgr().updateDOM(

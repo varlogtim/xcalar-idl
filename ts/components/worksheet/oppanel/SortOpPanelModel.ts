@@ -35,6 +35,7 @@ class SortOpPanelModel extends BaseOpPanelModel {
 
         model._title = OpPanelTStr.SortPanelTitle;
         model._instrStr = OpPanelTStr.SortPanelInstr;
+        model._instrStrTip = OpPanelTStr.SortPanelInstrTip;
         model._allColMap = colMap;
         model._newKeys = dagInput.newKeys;
         model._sortedColumns = xcHelper.deepCopy(dagInput.columns);

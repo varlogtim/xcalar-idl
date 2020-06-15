@@ -691,7 +691,7 @@ ErrorMessageTStr = {
 };
 
 OpFormTStr = {
-    'NewColName': 'New column name for the group by resultant column',
+    'NewColName': 'New Resultant Column Name',
     'CMD': 'Command Preview',
     'CMDTip': 'Displays the function’s pseudocode.',
     'Descript': 'Description',
@@ -1609,6 +1609,9 @@ DagTStr = {
 };
 
 OpPanelTStr = {
+    "CastPanelCurrentNameTip": "The name of the column whose data is converted into another data type.",
+    "CastPanelNewNameTip": "The name of the new column that contains the data with the data type conversion.",
+    "CastPanelCastTip": "A list that contains the Xcalar supported data types.",
     "DSLoadArgChange": "Dataset LoadArgs Change",
     "DSLoadArgChangeMsg": "Changes made to the loadArgs will only affect the optimized execution.",
     "DFLinkOutNameDup": "The name has already been used by another function output operator, please choose another name",
@@ -1624,6 +1627,7 @@ OpPanelTStr = {
     "SplitPanelFieldNameDestColumn": "Column name",
     "RoundPanelTitle": "Round Operation",
     "RoundPanelInstr": "Applies a fixed number of decimal places to floating point number columns.",
+    "RoundPanelInstrTip": "This operator only supports columns whose data type is float.",
     "RowNumPanelInstr": "Generates a row numbering column filled with a series of numbers in ascending order starting at 1.",
     "RoundPanelFieldNameSourceColumn": "Column",
     "RoundPanelFieldNameNumDecimals": "Number of Digits after the Decimal",
@@ -1659,6 +1663,7 @@ OpPanelTStr = {
     "ExplodePanelFieldNameDelimiter": "Delimiter",
     "ExplodePanelFieldNameDelimiterTip": "The delimiter character or space that the data contains for separating the column field.",
     "SortPanelInstr": "Sort your table by selecting one or more columns. The order in which you select the columns will determine that table's sort order.",
+    "SortPanelInstrTip": "For multiple columns, the order in which you select the columns determines the sort order.",
     "SortPanelTitle": "Sort",
     "SortPanelFieldName": "Column name",
     "SortColumnHeading": "Columns",
@@ -1669,7 +1674,7 @@ OpPanelTStr = {
     "MapCategoryTip": "The functions are grouped into categories. You must select the Category name first before selecting the Function name.",
     "MapFunctionTip": "A predefined formula that performs operations on column values.",
     "ResultantColNameTip": "The name for the new generated column, which can be either a unique name or an existing name.<br/>IMPORTANT: If a new name is not entered, Xcalar provides a new name for you. Entering the existing name will overwrite the data in the existing column.",
-    "CommonFieldNameErroneousRowsTip": "Processes only those rows where the function fails to produce a valid value. NOTE: This field is included for troubleshooting."
+    "CommonFieldNameErroneousRowsTip": "Processes only those rows where the function fails to produce a valid value. NOTE: This field is included for troubleshooting.",
 };
 
 SetOpTStr = {

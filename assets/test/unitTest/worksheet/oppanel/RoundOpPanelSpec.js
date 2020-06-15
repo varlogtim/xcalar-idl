@@ -75,7 +75,9 @@ describe('RoundOpPanel Test', () => {
         it('Basic form', (done) => {
             let setParamCalled = false;
             let closeCalled = false;
-            roundNode.setParam = () => { setParamCalled = true };
+            roundNode.setParam = () => {
+                setParamCalled = true
+            };
             const oldClose = opPanel.close;
             opPanel.close = () => { closeCalled = true };
 
