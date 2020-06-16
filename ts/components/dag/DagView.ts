@@ -5340,6 +5340,7 @@ class DagView {
                 y: -2
             },
             scale: scale,
+            isDragginNodeConnector: true,
             noCursor: true,
             onDragStart: (_$el: JQuery, _e: JQueryEventObject) => {
                 const $operators: JQuery = self.$dfArea.find(".operator");
@@ -5506,6 +5507,7 @@ class DagView {
                 y: 3
             },
             scale: scale,
+            isDragginNodeConnector: true,
             noCursor: true,
             onDragStart: (_$el: JQuery, _e: JQueryEventObject) => {
                 if (isReconnecting) {

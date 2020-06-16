@@ -15,7 +15,8 @@ interface DragHelperOptions {
     round?: number,
     scale?: number,
     elOffsets?: Coordinate[],
-    padding?: number
+    padding?: number,
+    isDragginNodeConnector?: boolean
 }
 
 interface DragHelperCoordinate {
@@ -60,6 +61,9 @@ class DragHelper {
     protected padding: number;
     protected horzScrollDirection: number;
     protected containerOffset: Coordinate;
+    protected isDraggingNodeConnector: boolean;
+    protected scrollAreas: {width: number, height: number};// width/height of area inside parent target
+    // where you can hover over and expect to cause a scroll
 
     public constructor(options: DragHelperOptions) {
         const self = this;
@@ -87,6 +91,7 @@ class DragHelper {
         this.customOffset = options.offset || {x: 0, y: 0};
         this.dragContainerItemsPositions = [];
         this.noCursor = options.noCursor || false;
+        this.isDraggingNodeConnector = options.isDragginNodeConnector || false;
         this.scrollUpCounter = 0;
         this.horzScrollDirection = 0;
         this.scrollLeft = this.$dropTarget.parent().scrollLeft();
@@ -108,6 +113,7 @@ class DragHelper {
             x: this.$container.offset().left,
             y: this.$container.offset().top
         };
+        this.scrollAreas = {width: 80, height: 40};
 
         $(document).on("mousemove.checkDrag", function(event: JQueryEventObject) {
             self.checkDrag(event);
@@ -138,6 +144,15 @@ class DragHelper {
         }
 
         this.targetRect = this.$dropTarget.parent()[0].getBoundingClientRect();
+        this.scrollAreas.height = (this.targetRect.height / 10);
+        let minX = 20;
+        let maxX = 60;
+        if (this.isDraggingNodeConnector) {
+            minX = 12;
+            maxX = 30;
+        }
+        this.scrollAreas.height = Math.min(this.scrollAreas.height, maxX);
+        this.scrollAreas.height = Math.max(this.scrollAreas.height, minX);
 
         this.createClone();
         this.positionDraggingEl(event);
@@ -176,13 +191,10 @@ class DragHelper {
         const deltaY = this.currY - this.lastY;
         const timer = 40;
         const idleTimeLimit = 400;
-        const hotZoneWidth = 80; // width/height of area inside parent target
-        // where you can hover over and expect to cause a scroll
-        const hotZoneHeight = 40;
-        const currLeft = this.currX - hotZoneWidth;
-        const currRight = this.currX + hotZoneWidth;
-        const currTop = this.currY - hotZoneHeight;
-        const currBottom = this.currY + hotZoneHeight;
+        const currLeft = this.currX - this.scrollAreas.width;
+        const currRight = this.currX + this.scrollAreas.width;
+        const currTop = this.currY - this.scrollAreas.height;
+        const currBottom = this.currY + this.scrollAreas.height;
         if (deltaY < 1) {
             this.scrollUpCounter++;
         } else {
