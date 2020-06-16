@@ -22,8 +22,8 @@ scriptPath=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 xcrpcDefDir="$XLRDIR/src/include/pb/xcalar/compute/localtypes"
 xcrpcVersionFile="$XLRGUIDIR/assets/js/xcrpc/enumMap/XcRpcApiVersion/XcRpcApiVersionToStr.json"
 thriftDefFileList=(
-    "$XLRDIR/src/include/libapis/LibApisCommon.thrift"
     "$XLRDIR/src/include/libapis/LibApisCommon.h"
+    "$XLRDIR/src/include/libapis/LibApisCommon.thrift"
     "$XLRDIR/src/include/UdfTypeEnums.enum"
     "$XLRDIR/src/include/SourceTypeEnum.enum"
     "$XLRDIR/src/include/OrderingEnums.enum"
@@ -45,6 +45,7 @@ thriftDefFileList=(
     "$XLRDIR/src/data/lang/${PKG_LANG}/StatusCode.enum"
     "$XLRDIR/src/data/lang/${PKG_LANG}/FunctionCategory.enum"
     "$XLRDIR/src/include/runtime/RuntimeEnums.enum"
+    "$XLRDIR/src/include/querymanager/DataflowEnums.enum"
 )
 thriftVersionFile="$XLRGUIDIR/ts/thrift/XcalarApiVersionSignature_types.js"
 
