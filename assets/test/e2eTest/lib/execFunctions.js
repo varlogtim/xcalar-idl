@@ -15,6 +15,7 @@ module.exports = {
                 nodes: sortedNodes,
                 order: i
             };
+            console.log("Tab:" + dagTab.getName());
         }
         return execResult; // dfName/tabName => { id: string, nodes: NodeCopyInfo[] }
     },

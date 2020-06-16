@@ -7,6 +7,7 @@ class DagGraphExecutor {
     private _allowNonOptimizedOut: boolean;
     private _optimizedLinkOutNode: DagNodeDFOut;
     private _optimizedExportNodes: DagNodeExport[];
+    private _optimizedPublishNode: DagNodePublishIMD;
     private _isNoReplaceParam: boolean;
     private _currentTxId: number;
     private _isCanceled: boolean;
@@ -21,6 +22,7 @@ class DagGraphExecutor {
     private _internalAggNames: Map<string, string>; // aggs created in this graph.
     private _synthesizeDFOut: boolean; // if true, will treat link out as synthesize op. only happen in optimized DF
     private _isLinkInBatch: boolean;
+    private _isSDK: boolean;
 
     public static readonly stepThroughTypes = new Set([DagNodeType.PublishIMD,
         DagNodeType.IMDTable,
@@ -70,6 +72,7 @@ class DagGraphExecutor {
         this._finishedNodeIds = new Set();
         this._isRestoredExecution = options.isRestoredExecution || false;
         this._internalAggNames = new Map();
+        this._isSDK = xcHelper.isNodeJs();
     }
 
     public validateAll(): {
@@ -169,13 +172,18 @@ class DagGraphExecutor {
                     errorResult.node = node;
                 }
             } else if (this._isOptimized && node.hasNoChildren()) {
+                let nodeType = node.getType();
                 if (!node.isOutNode() ||
-                    (node.getType() !== DagNodeType.Export &&
-                    node.getType() !== DagNodeType.DFOut &&
-                    node.getType() !== DagNodeType.CustomOutput &&
-                    node.getType() !== DagNodeType.Aggregate) &&
+                    (nodeType !== DagNodeType.Export &&
+                    nodeType !== DagNodeType.DFOut &&
+                    nodeType !== DagNodeType.CustomOutput &&
+                    nodeType !== DagNodeType.Aggregate) &&
                     !this._allowNonOptimizedOut
                 ) {
+                    if (this._isSDK && nodeType === DagNodeType.PublishIMD) {
+                        // publish node only allowed in SDK case
+                        continue;
+                    }
                     errorResult.hasError = true;
                     errorResult.type = DagNodeErrorType.InvalidOptimizedOutNode;
                     errorResult.node = node;
@@ -230,12 +238,14 @@ class DagGraphExecutor {
         };
         let numExportNodes = 0;
         let numLinkOutNodes = 0;
+        let numPublishNodes = 0;
         let linkOutNode: DagNodeDFOut;
         let exportNodes: DagNodeExport[] = [];
         let exportNodesSources = new Set();
         for (let i = 0; i < this._nodes.length; i++) {
             const node: DagNode = this._nodes[i];
-            if (node.getType() === DagNodeType.Export) {
+            const nodeType = node.getType();
+            if (nodeType === DagNodeType.Export) {
                 exportNodes.push(<DagNodeExport>node);
                 let sourceId = node.getParents()[0].getId();
                 if (exportNodesSources.has(sourceId)) {
@@ -248,9 +258,13 @@ class DagGraphExecutor {
                 }
                 numExportNodes++;
             }
-            if (node.getType() === DagNodeType.DFOut) {
+            if (nodeType === DagNodeType.DFOut) {
                 numLinkOutNodes++;
                 linkOutNode = <DagNodeDFOut>node;
+            }
+            if (this._isSDK && nodeType === DagNodeType.PublishIMD) {
+                numPublishNodes++;
+                this._optimizedPublishNode = <DagNodePublishIMD>node;
             }
             if (numLinkOutNodes > 0 && numExportNodes > 0) {
                 errorResult.hasError = true;
@@ -264,9 +278,20 @@ class DagGraphExecutor {
                 errorResult.node = node;
                 break;
             }
+            if (numPublishNodes > 1) {
+                errorResult.hasError = true;
+                errorResult.type = DagNodeErrorType.InvalidOptimizedPublishCount;
+                errorResult.node = node;
+                break;
+            }
         }
         if (!errorResult.hasError) {
-            if (numLinkOutNodes === 1) {
+            if (numPublishNodes === 1) {
+                if (numLinkOutNodes > 0 || numExportNodes > 0) {
+                    errorResult.hasError = true;
+                    errorResult.type = DagNodeErrorType.InvalidOptimizedPublishNode;
+                }
+            } else if (numLinkOutNodes === 1) {
                 this._isOptimizedActiveSession = true;
                 this._optimizedLinkOutNode = linkOutNode;
             } else if (numLinkOutNodes === 0 && numExportNodes === 0) {
@@ -419,11 +444,11 @@ class DagGraphExecutor {
         } else if (this._isOptimized) {
             // XXX TODO: deprecate this part
             this.getRetinaArgs(true)
-            .then((retinaParams) => {
+            .then(({ retina }) => {
                 if (this._isCanceled) {
                     return PromiseHelper.reject(DFTStr.Cancel);
                 }
-                return this._createAndExecuteRetina(retinaParams);
+                return this._createAndExecuteRetina(retina);
             })
             .then(deferred.resolve)
             .fail(deferred.reject);
@@ -1109,8 +1134,8 @@ class DagGraphExecutor {
     }
 
     // XXX TODO: make the retinaName arg mandatory and fix the call in DagGraph
-    public getRetinaArgs(isDeprecatedCall: boolean): any {
-        const deferred = PromiseHelper.deferred();
+    public getRetinaArgs(isDeprecatedCall: boolean): XDPromise<{retina: any}> {
+        const deferred: XDDeferred<{retina: any}> = PromiseHelper.deferred();
         const nodeIds: DagNodeId[] = this._nodes.map(node => node.getId());
         const simulateId: number = Transaction.start({
             operation: "Simulate",
@@ -1161,12 +1186,12 @@ class DagGraphExecutor {
             deferred.reject(DFTStr.Cancel);
         } else if (this._isOptimized) {
             this.getRetinaArgs(false)
-            .then((retinaParams) => {
+            .then(({ retina }) => {
                 if (this._isCanceled) {
                     return PromiseHelper.reject(DFTStr.Cancel);
                 }
 
-                return this._createAndExecuteRetina(retinaParams);
+                return this._createAndExecuteRetina(retina);
             })
             .then(deferred.resolve)
             .fail(deferred.reject);
@@ -1275,6 +1300,8 @@ class DagGraphExecutor {
                     this._optimizedLinkOutNode.setTable(outputTableName, true);
                     this._optimizedLinkOutNode.beCompleteState();
                 }
+            } else if (this._optimizedPublishNode) {
+                // do nothing, should only happen in SDK
             } else {
                 this._optimizedExportNodes.forEach((node) => {
                     if (node.isOptimized()) {
@@ -1293,6 +1320,8 @@ class DagGraphExecutor {
                 }
                 if (this._isOptimizedActiveSession) {
                     this._optimizedLinkOutNode.beErrorState(msg, true);
+                } else if (this._optimizedPublishNode) {
+                    this._optimizedPublishNode.beErrorState(msg);
                 } else {
                     this._optimizedExportNodes.forEach((node) => {
                         node.beErrorState(msg, true);
@@ -1347,10 +1376,13 @@ class DagGraphExecutor {
         queryStr: string,
         destTables: string[]
     ): {
-        retinaName: string,
-        retina: string,
-        userName: string,
-        sessionName: string
+        retina: {
+            retinaName: string,
+            retina: string,
+            userName: string,
+            sessionName: string
+        },
+        publishedMaps?: Map<string, string>
     } {
         let operations;
         try {
@@ -1360,35 +1392,7 @@ class DagGraphExecutor {
             return null;
         }
         operations = this._dedupLoads(operations);
-        const realDestTables: string[] = [];
-        let outNodes: DagNodeOutOptimizable[];
-        // create tablename and columns property in retina for each outnode
-        if (this._isOptimizedActiveSession) {
-            realDestTables.push(destTables[destTables.length - 1]);
-            outNodes = <DagNodeOutOptimizable[]>[this._nodes[this._nodes.length - 1]];
-        } else {
-            outNodes = <DagNodeOutOptimizable[]>this._nodes.filter((node, i) => {
-                if (node.getType() === DagNodeType.Export) {
-                    realDestTables.push(destTables[i]);
-                    return true;
-                }
-            });
-        }
-
-        const tables: {
-            name: string,
-            columns: {
-                columnName: string,
-                headerAlias: string
-            }[]
-        }[] = outNodes.map((outNode, i) => {
-            const destTable: string = realDestTables[i];
-            return {
-                name: destTable,
-                columns: outNode.getOutColumns(!this._isNoReplaceParam)
-            };
-        });
-
+        let { tables, publishedMaps } = this._getRetinaTableParams(destTables);
         const retina = JSON.stringify({
             tables: tables,
             query: JSON.stringify(operations)
@@ -1397,10 +1401,85 @@ class DagGraphExecutor {
         const uName = udfContext.udfUserName || userIdName;
         const sessName = udfContext.udfSessionName || sessionName;
         return {
-            retinaName: retinaName,
-            retina: retina,
-            userName: uName,
-            sessionName: sessName
+            retina: {
+                retinaName: retinaName,
+                retina: retina,
+                userName: uName,
+                sessionName: sessName
+            },
+            publishedMaps
+        }
+    }
+
+    private _getRetinaTableParams(destTables: string[]): {
+        tables: {
+            name: string
+            columns: {
+                columnName: string,
+                headerAlias: string
+            }[]
+        }[],
+        publishedMaps?: Map<string, string>
+    } {
+        if (this._optimizedPublishNode) {
+            let param: DagNodePublishIMDInputStruct = <DagNodePublishIMDInputStruct>this._optimizedPublishNode.getParam(true);
+            let pbName: string = param.pubTableName;
+            let relDestTable: string = destTables[destTables.length - 1];
+            let columns = param.columns.map((column) => {
+                return {
+                    columnName: column,
+                    headerAlias: column
+                }
+            });
+            // XXX This is hack to include the XcalarRankOver
+            if (param.primaryKeys.length === 0) {
+                columns.push({
+                    columnName: "XcalarRankOver",
+                    headerAlias: "XcalarRankOver"
+                });
+            }
+            
+            let tables = [{
+                name: relDestTable,
+                columns: columns
+            }];
+            let publishedMaps = new Map();
+            publishedMaps.set(relDestTable, pbName);
+            return {
+                tables,
+                publishedMaps
+            }
+        } else {
+            const realDestTables: string[] = [];
+            let outNodes: DagNodeOutOptimizable[];
+            // create tablename and columns property in retina for each outnode
+            if (this._isOptimizedActiveSession) {
+                realDestTables.push(destTables[destTables.length - 1]);
+                outNodes = <DagNodeOutOptimizable[]>[this._nodes[this._nodes.length - 1]];
+            } else {
+                outNodes = <DagNodeOutOptimizable[]>this._nodes.filter((node, i) => {
+                    if (node.getType() === DagNodeType.Export) {
+                        realDestTables.push(destTables[i]);
+                        return true;
+                    }
+                });
+            }
+            const tables: {
+                name: string,
+                columns: {
+                    columnName: string,
+                    headerAlias: string
+                }[]
+            }[] = outNodes.map((outNode, i) => {
+                const destTable: string = realDestTables[i];
+                return {
+                    name: destTable,
+                    columns: outNode.getOutColumns(!this._isNoReplaceParam)
+                };
+            });
+            return {
+                tables
+            };
         }
     }
 
@@ -1547,7 +1626,10 @@ class DagGraphExecutor {
 
     private _getOptimizedNodeId(): DagNodeId {
         let outNodeId: DagNodeId;
-        if (this._isOptimizedActiveSession) {
+        if (this._optimizedPublishNode) {
+            // should only happen in SDK
+            outNodeId = this._optimizedPublishNode.getId();
+        } else if (this._isOptimizedActiveSession) {
             outNodeId = this._optimizedLinkOutNode.getId();
         } else {
             // XXX arbitrarily storing retina in the last export nodes

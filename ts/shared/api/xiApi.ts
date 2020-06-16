@@ -3029,6 +3029,94 @@ namespace XIApi {
         return XcalarTargetDelete(targetName);
     }
 
+    /**
+     * XIApi.preprocessPubTable
+     * @param txId 
+     * @param primaryKeyList 
+     * @param srcTableName 
+     * @param indexTableName 
+     * @param colInfo 
+     * @param imdCol 
+     */
+    export function preprocessPubTable(
+        txId: number,
+        primaryKeys: string[],
+        srcTableName: string,
+        destTableName: string,
+        colInfo: ColRenameInfo[],
+        imdCol?: string
+    ): XDPromise<string> {
+        if (txId == null || primaryKeys == null ||
+            srcTableName == null || destTableName == null ||
+            colInfo == null) {
+            return PromiseHelper.reject("Invalid args in publish");
+        }
+        let keyNames: string[] = primaryKeys.map((primaryKey) => {
+            return (primaryKey[0] == "$") ?
+                primaryKey.substr(1) : primaryKey;
+        });
+
+        if (keyNames.length != 0) {
+            if (!colInfo.find((info: ColRenameInfo) => {
+                return (keyNames.includes(info.orig));
+            })) {
+                return PromiseHelper.reject("Primary Key not in Table");
+            }
+        }
+
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        colInfo.forEach((colInfo) => {
+            // make sure column is uppercase
+            let upperCaseCol: string = colInfo.new.toUpperCase();
+            upperCaseCol = xcHelper.cleanseSQLColName(upperCaseCol);
+            colInfo.new = upperCaseCol;
+        });
+
+        // Remove duplicate Xcalar columns
+        colInfo = colInfo.filter((colInfo) => {
+            return (colInfo.new !== "XCALARRANKOVER"
+                && colInfo.new !== "XCALAROPCODE"
+                && colInfo.new !== "XCALARBATCHID");
+        });
+
+        const roColName = "XcalarRankOver";
+        const primaryKeyList: {name: string, ordering: XcalarOrderingT}[] =
+        keyNames.map((primaryKey) => {
+            primaryKey = xcHelper.parsePrefixColName(primaryKey).name;
+            if (primaryKey === roColName) {
+                colInfo.push({
+                    orig: roColName,
+                    new: roColName,
+                    type: DfFieldTypeT.DfInt64
+                });
+            }
+            return {
+                name: xcHelper.cleanseSQLColName(primaryKey.toUpperCase()),
+                ordering: XcalarOrderingT.XcalarOrderingUnordered
+            };
+        });
+
+        if (!isValidTableName(destTableName)) {
+            destTableName = getNewTableName(destTableName);
+        }
+
+        const simuldateTxId: number = startSimulate();
+        assemblePubTable(simuldateTxId, primaryKeyList, srcTableName, destTableName, colInfo, imdCol)
+        .then(() => {
+            const query: string = endSimulate(simuldateTxId);
+            const queryName: string = destTableName;
+            return XIApi.query(txId, queryName, query);
+        })
+        .then(() => {
+            deferred.resolve(destTableName);
+        })
+        .fail((err) => {
+            endSimulate(simuldateTxId);
+            deferred.reject(err);
+        });
+
+        return deferred.promise();
+    }
 
     // assemblePubTable generates a rankOverColumn, assembles the opcode column, synthesizes,
     // and indexes.

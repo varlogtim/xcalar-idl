@@ -55,7 +55,9 @@ describe("sdk workbook service Test", () => {
             let convertKvsToQueryResp;
             req.setOptimized(true);
 
-            DagHelper.convertKvs = () => PromiseHelper.resolve(ret_query);
+            DagHelper.convertKvs = () => PromiseHelper.resolve({
+                retina: ret_query
+            });
             try {
                 convertKvsToQueryResp = await convertPromise(
                     wkbkManager.ConvertKvsToQuery(req))

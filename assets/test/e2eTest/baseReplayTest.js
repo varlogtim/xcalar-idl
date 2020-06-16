@@ -123,6 +123,7 @@ function replay(testConfig, tags) {
                 browser.pause(1000);
                 browser.waitForElementVisible("#tabButton");
                 const tabNames = Object.keys(testTabs);
+                console.log("taName", tabNames);
                 let newTabIndex = tabNames.length + 2; // sqltab + 1
                 for (const tabName of tabNames) {
                     const selector = `#dagTabSectionTabs .dagTab:nth-child(${newTabIndex}).active`;

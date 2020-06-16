@@ -1213,13 +1213,24 @@ class DagNodeExecutor {
         });
 
         let colInfo: ColRenameInfo[] = xcHelper.createColInfo(columns);
-        let tableName: string = params.pubTableName;
+        let srcTable: string = this._getParentNodeTable(0);
+        let primaryKeys = params.primaryKeys;
+        let imdCol = params.operator;
+
+        if (this.isOptimized) {
+            // in optimized case, the publish node do the preprocess step for publishing
+            // IMPORTANT: it's only used by SDK, XD don't allow a code path to acess it
+            let desTable: string = this._generateTableName();
+            return XIApi.preprocessPubTable(this.txId, primaryKeys, srcTable, desTable, colInfo, imdCol);
+        }
 
         const txLog = Transaction.get(this.txId);
         txLog.setCurrentNodeInfo(node.getId(), this.tabId);
-        XIApi.publishTable(this.txId, params.primaryKeys,
-            this._getParentNodeTable(0), tableName,
-            colInfo, params.operator, params.overwrite)
+
+        let tableName: string = params.pubTableName;
+        XIApi.publishTable(this.txId, primaryKeys,
+            srcTable, tableName,
+            colInfo, imdCol, params.overwrite)
         .then(() => {
             txLog.resetCurrentNodeInfo();
             if (!(typeof PTblManager === "undefined")) {

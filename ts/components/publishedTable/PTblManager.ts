@@ -414,7 +414,8 @@ class PTblManager {
             if (!subGraph || subGraph.getAllNodes().size === 0) {
                 throw(new Error("Table could not be found or is missing source details."));
             }
-            const retinaInfo = await subGraph.getRetinaArgs(null, false);
+            const res = await subGraph.getRetinaArgs(null, false);
+            const retinaInfo = res.retina;
             const tables = JSON.parse(retinaInfo.retina).tables;
             const destTable = tables[tables.length - 1].name;
             await XIApi.executeQueryOptimized(

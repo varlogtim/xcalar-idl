@@ -21,11 +21,21 @@ function convertKvsToQuery(convertRequest: any): Promise<any> {
     cvtKvsToQueryResponse.setConverted(false);
     DagHelper.convertKvs(kvsQueryList, dataflowName, optimized, listXdfsOutput,
             userName, sessionId, workbookName, parameterMap)
-    .then(function(convertedQuery: any): void {
-        if (optimized) {
-            let optimizedStr: string = JSON.stringify(convertedQuery)
+    .then(function(res: any): void {
+        if (optimized) {   
+            let { retina, publishedMaps } = res;         
+            let optimizedStr: string = JSON.stringify(retina)
             cvtKvsToQueryResponse.setResultstring(optimizedStr);
+
+            if (publishedMaps != null) {
+                cvtKvsToQueryResponse.clearPublishresultmapMap();
+                let map = cvtKvsToQueryResponse.getPublishresultmapMap();
+                publishedMaps.forEach((pbTableName, resultName) => {
+                    map.set(resultName, pbTableName);
+                });
+            }
         } else {
+            let convertedQuery = res;
             cvtKvsToQueryResponse.setResultstring(convertedQuery);
         }
         cvtKvsToQueryResponse.setConverted(true);

@@ -69,6 +69,8 @@ enum DagNodeErrorType {
     InvalidOptimizedLinkOutCount = "Optimized application cannot have multiple Function Output operators",
     InvalidOptimizedLinkOutOptimizedCount = "Optimized application cannot have multiple Function Output operators",
     InvalidOptimizedDuplicateExport = "Optimized application cannot have multiple export operators originating from the same operator",
+    InvalidOptimizedPublishNode = "Optimized application that publishing the final table cannot have Export or Function Ouput operators",
+    InvalidOptimizedPublishCount = "Optimized application cannot have multiple Publish Table operators",
     Disjoint = "Multiple disjoint modules detected. Optimized execution can only occur on 1 continuous module.",
     NoColumn = "Invalid column in the schema:\n",
     NoColumns = "Invalid columns in the schema:\n",
