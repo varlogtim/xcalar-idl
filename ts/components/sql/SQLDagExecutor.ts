@@ -83,7 +83,8 @@ class SQLDagExecutor {
                 if (sqlStruct.newIdentifiers && sqlStruct.newIdentifiers[tableName]) {
                     tableName = sqlStruct.newIdentifiers[tableName];
                 }
-                if (DagTblManager.Instance.hasTable(tableName)) {
+                if (DagTblManager.Instance.hasTable(tableName) ||
+                    (tableName.includes("#") && this._sql.includes("`" + tableName + "`"))) {
                     this._sessionTables.set(identifier.toUpperCase(), tableName);
                 } else {
                     throw new Error("Cannot find published table: " + pubTableName);

@@ -218,11 +218,14 @@ module.exports = {
                             node.api !== XcalarApisTFromStr.XcalarApiDeleteObjects) {
                             hasError = true;
                             node.thriftError = thriftLog("XcalarQuery Node", node.status);
+                        } else if (node.state !== DgDagStateT.DgDagStateReady && !hasError) {
+                            hasError = true;
+                            console.log(node);
                         }
                     });
                     //XXX THIS IS THE HACK
                     if (hasError) {
-                        console.error(JSON.stringify(queryStateOutput, null, 4));
+                        console.log(JSON.stringify(queryStateOutput, null, 4));
                     }
                 }
                 catch (e) {

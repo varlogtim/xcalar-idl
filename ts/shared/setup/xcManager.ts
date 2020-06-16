@@ -898,6 +898,10 @@ namespace xcManager {
         }
 
         window.onerror = function(msg: string|Event, url: string, line: number, column: number, error: Error): void {
+            if (msg === "Script error." && line === 0 && column === 0) {
+                // innocuous error, ignore
+                return;
+            }
             const prevMouseDownInfo = gMouseEvents.getLastMouseDownTargetsSerialized();
             let stack: string[] = null;
             if (error && error.stack) {
@@ -909,12 +913,12 @@ namespace xcManager {
                 "url": url,
                 "line": line,
                 "column": column,
-                "lastMouseDown": prevMouseDownInfo,
                 "stack": stack,
                 "txCache": xcHelper.deepCopy(Transaction.getCache()),
                 "browser": window.navigator.userAgent,
                 "platform": window.navigator.platform,
-                "logCursor": Log.getCursor()
+                "logCursor": Log.getCursor(),
+                "lastMouseDown": prevMouseDownInfo,
             };
             if (window["debugOn"] || window['unitTestMode']) {
                 xcConsole.log(msg, url + ":" + line + ":" + column, {stack: stack});

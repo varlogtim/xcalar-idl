@@ -11,8 +11,11 @@ class ExecuteAll extends EventEmitter {
         .execute(execFunctions.clearConsole, [], () => {})
         .waitForElementNotPresent(".dataflowArea.active.locked", time || 100000)
         // .getLog("browser", function(result){console.log(result)})
-        .elements('css selector','.dataflowArea.active .operator.state-Running', function (result) {
+        .elements('css selector','.dataflowArea.active .operator.state-Running', (result) => {
             console.log("after unlock, should not have running nodes", result.value);
+            if (result.value.length) {
+                this.api.getLog("browser", function(result){console.log(result)});
+            }
         })
         .waitForElementNotPresent(".dataflowArea.active .operator.state-Running", 100000);
         this.emit('complete');

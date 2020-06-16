@@ -671,10 +671,17 @@ class GroupByOpPanel extends GeneralOpPanel {
             '</div>' +
         '</div>');
 
+        if (operObj.fnName === "listAgg" && operObj.argDescs[1] &&
+            operObj.argDescs[1].argDesc === "delim") {
+            // hide column suggest dropdown for delim field
+            $rows.eq(1).find(".dropDownList").addClass("noSuggest");
+        }
+
         const description = OpFormTStr.NewColName + ":";
         // new col name field
         const $newColRow = $rows.eq(numArgs);
         const icon = xcUIHelper.getColTypeIcon(operObj.outputType);
+
         $newColRow.addClass("resultantColNameRow")
                 .find(".dropDownList").addClass("colNameSection")
                 .prepend('<div class="iconWrapper"><i class="icon ' + icon +

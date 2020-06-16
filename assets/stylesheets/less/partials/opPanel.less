@@ -195,6 +195,11 @@
         width: 120px;
     }
 
+    .qMark {
+        position: relative;
+        top: -1px;
+    }
+
     .instrText-format {
         white-space: pre-line;
     }
@@ -556,7 +561,6 @@
             padding-left: 9px;
 
             > .qMark {
-                position: relative;
                 top: -1px !important;
             }
         }
@@ -634,11 +638,6 @@
         padding-top: 8px;
         padding-bottom: 8px;
         user-select: text;
-
-        .qMark {
-            position: relative;
-            top: -1px;
-        }
 
         .strPreviewGroup {
             display: block;
@@ -842,11 +841,6 @@
             padding: 6px 0px;
             padding-bottom: 4px;
             line-height: 14px;
-
-            > .qMark {
-                position: relative;
-                top: -1px;
-            }
         }
         .cast {
             width: 100%;
@@ -1066,11 +1060,6 @@
         .text {
             font-size: @standardFontSize;
             margin-left: @commonMargin;
-
-            > .qMark {
-                position: relative;
-                top: -1px;
-            }
         }
     }
 
@@ -1269,11 +1258,6 @@
         &:last-child {
             padding-bottom: 0;
             border-bottom: none;
-        }
-
-        .text > .qMark {
-            position: relative;
-            top: -1px;
         }
 
         .dropDownList {
@@ -1532,11 +1516,6 @@
                 &.newTable {
                     padding-left: 10px;
                     opacity: 0.6;
-
-                    .qMark {
-                        position: relative;
-                        top: -1px;
-                    }
                 }
 
                 .typeIcon {
@@ -2004,8 +1983,6 @@
 
     .subHeading > div > .qMark {
         float: none;
-        position: relative;
-        top: -1px;
     }
 }
 
@@ -2066,13 +2043,6 @@
         }
     }
 
-    .text {
-        >.qMark {
-            position: relative;
-            top: -1px;
-        }
-    }
-
     .IMDOverwrite {
         margin-top: 8px;
 
@@ -2089,8 +2059,6 @@
         clear: both;
         .subHeading .qMark {
             float: none;
-            position: relative;
-            top: -1px;
         }
         .selectAllWrap {
             float: right;
@@ -2957,8 +2925,6 @@
                 .size(@width: 100%);
                 > .qMark {
                     margin-left: 4px;
-                    position: relative;
-                    top: -1px;
                 }
             }
         }
@@ -3689,11 +3655,6 @@
             top: 1px;
         }
 
-        .qMark {
-            position: relative;
-            top: -1px;
-        }
-
         .refreshSnippet {
             cursor: pointer;
             border: 1px solid @color-font-default;
@@ -3751,8 +3712,6 @@
         padding: 0;
         > .qMark {
             margin-left: 4px;
-            position: relative;
-            top: -1px;
         }
     }
 
@@ -3763,8 +3722,6 @@
         }
         .description .qMark {
             margin-left: 4px;
-            position: relative;
-            top: -1px;
         }
     }
 
