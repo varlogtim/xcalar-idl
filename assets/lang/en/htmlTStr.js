@@ -1086,18 +1086,8 @@ module.exports = {
     },
 
     "SQLEditor": {
-        "Run": "Run",
         "RunHint": "Execute SQL",
-        "More": "More",
         "SQLFuncShortHint": "Table function takes one or more tables as input and output a table.",
-        "NewSnippet": "New Query",
-        "Open": "Saved Queries",
-        "Snippets": "Saved Queries",
-        "Save": "Save Query",
-        "RenameWarning": "Leaving Draft Query",
-        "Discard": "Discard Draft",
-        "RenameModalInstr": "You are leaving the draft query. Either save your draft as a new query or discard your changes.",
-        "Edited": "Edited",
     },
 
     "IMDTableOp": {

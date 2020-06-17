@@ -111,7 +111,7 @@ class SQLOpPanel extends BaseOpPanel {
                 }
                 const snippets = SQLSnippet.Instance.list();
                 let html = "";
-                html += `<li class="createNew">+ Create a new query</li>`;
+                html += `<li class="createNew">+ Create a new statement</li>`;
                 snippets.forEach((snippet) => {
                     html += `<li data-id="${snippet.id}">${snippet.name}</li>`;
                 });
@@ -157,7 +157,6 @@ class SQLOpPanel extends BaseOpPanel {
                 const value: string = $input.val().trim().toLowerCase();
                 const snippets = SQLSnippet.Instance.list();
                 let html = "";
-                // html += `<li class="createNew">+ Create a new query</li>`;
                 snippets.forEach((snippet) => {
                     if (value === "" || snippet.name.toLowerCase().includes(value)) {
                         html += `<li data-id="${snippet.id}">${snippet.name}</li>`;
@@ -244,7 +243,7 @@ class SQLOpPanel extends BaseOpPanel {
         queryStr = queryStr || "";
         $input.val(queryName);
         if (queryStr && !queryName) {
-            $input.attr("placeholder", "Query name not found");
+            $input.attr("placeholder", "SQL name not found");
         } else {
             $input.attr("placeholder", "");
         }
