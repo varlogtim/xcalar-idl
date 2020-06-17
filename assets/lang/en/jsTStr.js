@@ -82,7 +82,7 @@ TooltipTStr = {
     'ViewTableOptions': 'View menu options',
     'RemoveQuery': 'Remove operation',
     'CancelQuery': 'Cancel operation',
-    'AlreadyIcv': 'This table is already an erroneous rows(ER) table',
+    'AlreadyIcv': 'This table is already an Error Table',
     'ParamValNoChange': 'This parameter value cannot be changed',
     'DeleteFile': 'Delete file',
     'CancelUpload': 'Cancel upload',
@@ -115,7 +115,7 @@ TooltipTStr = {
     "NoUDFRename": "Scalar Functions cannot be renamed",
     "SaveUDFToName": "Save this Scalar Function to provide a new name",
     // Sync with htmlTStr
-    "IcvRestriction": "Erroneous rows(ER) table only available for Map and Group By",
+    "IcvRestriction": "Generates a table that contains only those rows where a valid value could not be produced from a Map or Group By operation. NOTE: This action creates a new operator for you to save, execute, and identify invalid values from its resultant table.",
     "OnlyInOpMode": "Feature only available in Operational Cluster",
     "ColumnAlreadyInt": "Column is already an integer",
     "ColumnAlreadyFloat": "Column is already a float",

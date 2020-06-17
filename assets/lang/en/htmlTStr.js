@@ -212,7 +212,7 @@ module.exports = {
         "FltCellPrefPlur": "Filter pre-formatted values",
         "Format": "Format",
         "GB": "Group by",
-        "GenER": "Create ER table",
+        "GenER": "Create an Error Table",
         "GetInfo": "Get info",
         "HideCol": "Hide column",
         "HideNewCol": "Delete column",
@@ -983,7 +983,7 @@ module.exports = {
     },
 
     "project": {
-        "instr": "Projection enables you to reduce table memory consumption by eliminating unnecessary fields.",
+        "instr": "Eliminates unnecessary columns. The columns whose check box is selected are retained in the resultant table.",
         "instrTip": "This operator enables you to eliminate unnecessary columns.<br/>The columns whose check box is selected are retained in the table. To remove unwanted columns from your table, click Select All and deselect the columns you no longer require.",
         "colInstr": "Select columns to keep. Each set of prefixed columns acts as one unit and only uses the memory of one column.",
         "colsToProject": "Columns",
