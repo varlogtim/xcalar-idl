@@ -70,7 +70,7 @@ class WorkbookState extends State {
             xcSessionStorage.setItem('xdFuncTestStateName', Util.pickRandom(['AdvancedMode', 'SQLMode']));
             await WorkbookManager.switchWKBK(randomWorkbook);
         } catch (error) {
-            if (error["error"] != undefined && error["error"] === "Cannot switch to the same workbook") {
+            if (error["error"] != undefined && error["error"] === "Cannot switch to the same project") {
                 this.log(`Workbook ${randomWorkbook} already active!`);
                 $("#projectTab").click(); // Go inside the workbook
                 return this.stateMachine.statesMap.get(xcSessionStorage.getItem('xdFuncTestStateName'));
