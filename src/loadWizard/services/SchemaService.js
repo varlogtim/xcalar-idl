@@ -29,11 +29,14 @@ const FileTypeFilter = new Map([
         return validTypes.has(`${type}`.toLowerCase());
     }]
 ]);
+
+const PUNCT = '\\w\\s\\-$_%#@()\\{\\}\\&\\!,;\\<\\>\\.\\?\\+\\"\\~\\|\\*\\='
+
 const FileTypeNamePattern = new Map([
-    [FileType.CSV, '*.csv'],
-    [FileType.JSON, '*.json'],
-    [FileType.JSONL, '*.json'],  // XXX Does this support *.jsonl ???
-    [FileType.PARQUET, '*.parquet']
+    [FileType.CSV, `re:^([${PUNCT}]+).[cC][sS][vV](.[gG][zZ]|.[bB][zZ]2)*$`],
+    [FileType.JSON, `re:^([${PUNCT}]+).[jJ][sS][oO][nN](.[gG][zZ]|.[bB][zZ]2)*$`],
+    [FileType.JSONL, `re:^([${PUNCT}]+).[jJ][sS][oO][nN]([lL])*(.[gG][zZ]|.[bB][zZ]2)*$`],
+    [FileType.PARQUET, `re:^[${PUNCT}]+).[pP][aA][rR][qQ][uU][eE][tT]$`]
 ]);
 
 const CSVHeaderOption = {
