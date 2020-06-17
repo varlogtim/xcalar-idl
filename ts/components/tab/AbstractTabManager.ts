@@ -128,6 +128,7 @@ abstract class AbstractTabManager {
             if (newName) {
                 const $tabName: JQuery = $input.parent();
                 $tabName.text(newName);
+                xcTooltip.changeText($tabName.closest("li"), newName);
                 $tabName[0].scrollLeft = 0;
             }
             $input.remove();
