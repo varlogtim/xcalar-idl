@@ -1453,7 +1453,7 @@ class DagNodeSQL extends DagNode {
             if (!sqlMode) {
                 const parseStruct = {
                     sqlQuery: sqlQueryStr,
-                    ops: ["identifier"],
+                    ops: ["identifier", "sqlfunc"],
                     isMulti: true
                 };
                 promise = SQLUtil.sendToPlanner(self.getId() + compileId, "parse",
@@ -1485,6 +1485,8 @@ class DagNodeSQL extends DagNode {
                         }
                         return table.toUpperCase();
                     });
+                    sqlQueryStr = sqlStructArray[0].newSql;
+                    sqlFunctions = sqlStructArray[0].functions;
                 }
                 return self.sendSchema(identifiers, pubTablesInfo, sqlFunctions,
                                        usedTables, compileId, sessionTables);

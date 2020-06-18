@@ -386,7 +386,7 @@ class SQLOpPanel extends BaseOpPanel {
                 identifiers: identifiers,
                 dropAsYouGo: dropAsYouGo
             };
-            self._dagNode.compileSQL(parsedQuery, queryId, options)
+            self._dagNode.compileSQL(sql, queryId, options)
             .then(() => {
                 self._dataModel.setDataModel(sql, identifiers, dropAsYouGo, snippetId);
                 self._dataModel.submit();

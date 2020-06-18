@@ -170,12 +170,13 @@ describe("SQL Dag Node Test", () => {
                     expect(type).to.equal("parse");
                     expect(struct.sqlQuery).to.equal("SELECT * FROM a");
                     expect(struct.isMulti).to.be.true;
-                    expect(struct.ops).to.deep.equal(["identifier"]);
+                    expect(struct.ops).to.deep.equal(["identifier", "sqlfunc"]);
                     called = true;
                     return PromiseHelper.reject("Test");
                 }
                 let identifiers = new Map();
                 identifiers.set(1, "a");
+
                 node.compileSQL("SELECT * FROM a", "sql123", {dropAsYoGo: true, identifiers: identifiers}, true)
                 .then(() => {
                     done('fail');
@@ -264,7 +265,7 @@ describe("SQL Dag Node Test", () => {
                         expect(type).to.equal("parse");
                         expect(struct.sqlQuery).to.equal("SELECT * FROM a");
                         expect(struct.isMulti).to.be.true;
-                        expect(struct.ops).to.deep.equal(["identifier"]);
+                        expect(struct.ops).to.deep.equal(["identifier", "sqlfunc"]);
                     }
                     called = true;
                     if (calledTwice) {
