@@ -19,6 +19,10 @@ class PublishedTable {
         }
     }
 
+    isActive() {
+        return this._isActive;
+    }
+
     /**
      * Persist the dataflow from which the table is created
      * @param {Array<Object>} query
