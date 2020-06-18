@@ -311,7 +311,7 @@ class SystemLog {
             case "node":
                 return "node.*.log";
             case "xpu":
-                return "xpu.log";
+                return "xpu.out";
             case "xcmonitor":
                 return "xcmonitor.log";
             case "expserver":
