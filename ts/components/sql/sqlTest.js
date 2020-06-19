@@ -93,8 +93,8 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             }
             var randId = Math.floor(Math.random() * 1000);
             var promiseArray = [];
-            UserSettings.setPref("dfAutoPreview", false);
-            UserSettings.setPref("dfAutoExecute", false);
+            UserSettings.Instance.setPref("dfAutoPreview", false);
+            UserSettings.Instance.setPref("dfAutoExecute", false);
             $("#dagView .newTab").click();
             for (var i = 0; i < tableNames.length; i++) {
                 var dataPath = dataSource + tableNames[i];

@@ -11,7 +11,7 @@ class UserInfo extends Durable {
     }
 
     public update(): void {
-        this.userpreference = UserSettings.getAllPrefs();
+        this.userpreference = UserSettings.Instance.getAllPrefs();
     }
 
     public getPrefInfo() {

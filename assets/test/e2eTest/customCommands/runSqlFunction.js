@@ -28,11 +28,11 @@ class RunSQLFunction extends EventEmitter {
                 .waitForElementNotVisible("#initialLoadScreen", 600000)
                 .click("#dagGraphBar .xi-setting")
                 .execute(function() {
-                    if ($("#dfSettingsModal .dfAutoExecute .checkbox.checked").length > 0) {
-                        $("#dfSettingsModal .dfAutoExecute .checkbox.checked").click();
+                    if ($("#userSettingsModal .dfAutoExecute .checkbox.checked").length > 0) {
+                        $("#userSettingsModal .dfAutoExecute .checkbox.checked").click();
                     }
                 })
-                .click("#dfSettingsModal .confirm")
+                .click("#userSettingsModal .confirm")
                 .pause(2000)
                 .execute(function() {
                     const tabId = DagViewManager.Instance.getActiveDag().getTabId();

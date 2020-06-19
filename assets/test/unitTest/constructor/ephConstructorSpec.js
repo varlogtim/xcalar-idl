@@ -950,8 +950,8 @@ describe("Ephemeral Constructor Test", function() {
 
         before(function() {
             randPrefName = "RANDPREFNAME";
-            USSetPrefCached = UserSettings.setPref;
-            UserSettings.setPref = function(pref, val) {
+            USSetPrefCached = UserSettings.Instance.setPref;
+            UserSettings.Instance.setPref = function(pref, val) {
                 if (pref === randPrefName) {
                     curVal = val;
                 }
@@ -1053,7 +1053,7 @@ describe("Ephemeral Constructor Test", function() {
         });
 
         after(function() {
-            UserSettings.setPref = USSetPrefCached;
+            UserSettings.Instance.setPref = USSetPrefCached;
             $rangeSliderWrap.remove();
         });
 

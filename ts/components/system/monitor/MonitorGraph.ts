@@ -36,7 +36,7 @@ class MonitorGraph {
 
         let pointsPerGrid: number = 10;
         this._shiftWidth = this._xGridWidth / pointsPerGrid;
-        
+
         this._count = 0;
         this._failCount = 0;
         this._curIteration = 0;
@@ -257,7 +257,7 @@ class MonitorGraph {
             return (this.parentNode);
         });
         this._freshData = true;
-        this._intervalTime = (UserSettings.getPref('monitorGraphInterval') * 1000) || this._intervalTime;
+        this._intervalTime = (UserSettings.Instance.getPref('monitorGraphInterval') * 1000) || this._intervalTime;
 
         this._stopCycle();
         this._oneCycleUpdate();
@@ -599,7 +599,7 @@ class MonitorGraph {
             let msg: string;
             // if no error, or error.error doesn't exist, or error.error is
             // udf execute failed, change msg to custom message
-            if (!error || 
+            if (!error ||
                 !error.error ||
                 error.status === StatusT.StatusUdfExecuteFailed
             ) {

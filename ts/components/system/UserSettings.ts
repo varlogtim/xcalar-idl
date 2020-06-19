@@ -1,13 +1,22 @@
-namespace UserSettings {
-    let userInfos: UserInfo;
-    let userPrefs: UserPref;
-    let genSettings: GenSettings;
-    let cachedPrefs = {};
-    let monIntervalSlider;
-    let commitIntervalSlider;
-    let logOutIntervalSlider;
-    let revertedToDefault = false;
-    let modalHelper: ModalHelper;
+class UserSettings {
+    private static _instance: UserSettings;
+
+    public static get Instance() {
+        return this._instance || (this._instance = new this());
+    }
+
+
+    private userInfos: UserInfo;
+    private userPrefs: UserPref;
+    private genSettings: GenSettings;
+    private cachedPrefs = {};
+    private monIntervalSlider;
+    private commitIntervalSlider;
+    private logOutIntervalSlider;
+    private revertedToDefault = false;
+    private modalHelper: ModalHelper;
+    private _dfSettings: {name: string, text: string}[];
+
 
     // oldUserInfos/userInfos contains settings such as if the user last had
     // list vs grid view on in the file browser, also contains general settings
@@ -16,31 +25,34 @@ namespace UserSettings {
     // prevSettings/genSettings has the settings that are editable in the
     // settings panel such as monitor interval time
     /**
-     * UserSettings.restore
+     * UserSettings.Instance.restore
      * @param oldUserInfos
      * @param prevSettings
      */
-    export function restore(
+    public restore(
         oldUserInfos: UserInfo,
         prevSettings: GenSettingsDurable
     ): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
-        setup();
-        userInfos = oldUserInfos;
-        userPrefs = userInfos.getPrefInfo();
+        this.setup();
+        this.userInfos = oldUserInfos;
+        this.userPrefs = this.userInfos.getPrefInfo();
 
-        saveLastPrefs();
-        genSettings = new GenSettings(<any>{}, prevSettings);
-        restoreSettingsPanel();
+        this._initDFSettings();
+
+        this.saveLastPrefs();
+        this.genSettings = new GenSettings(<any>{}, prevSettings);
+        this.restoreSettingsPanel();
         deferred.resolve();
         return deferred.promise();
     }
 
+
     /**
      * when other workbook changes settings
-     * UserSettings.sync
+     * UserSettings.Instance.sync
      */
-    export function sync() {
+    public sync() {
         let oldUserInfos: UserInfo;
 
         KVStore.getUserInfo()
@@ -49,38 +61,38 @@ namespace UserSettings {
             return KVStore.getSettingInfo();
         })
         .then((prevSettings) => {
-            userPrefs = new UserPref();
-            userInfos = oldUserInfos;
-            userPrefs = userInfos.getPrefInfo();
-            saveLastPrefs();
-            genSettings = new GenSettings(<any>{}, prevSettings);
-            restoreSettingsPanel();
+            this.userPrefs = new UserPref();
+            this.userInfos = oldUserInfos;
+            this.userPrefs = this.userInfos.getPrefInfo();
+            this.saveLastPrefs();
+            this.genSettings = new GenSettings(<any>{}, prevSettings);
+            this.restoreSettingsPanel();
         });
     }
 
     /**
-     * UserSettings.commit
+     * UserSettings.Instance.commit
      * @param showSuccess
      * @param hasDSChange
      * @param isPersonalChange
      */
-    export function commit(
+    public commit(
         showSuccess: boolean,
         hasDSChange: boolean = false,
         isPersonalChange: boolean = false,
         isGeneralChange: boolean = false,
     ): XDPromise<void> {
-        if (!userPrefs) {
-            // UserSettings.commit may be called when no workbook is created
+        if (!this.userPrefs) {
+            // UserSettings.Instance.commit may be called when no workbook is created
             // and userPrefs has not been set up.
             return PromiseHelper.resolve();
         }
 
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let userPrefHasChange = userPrefChangeCheck();
-        let shouldCommit: boolean = hasDSChange || userPrefHasChange || revertedToDefault;
+        let userPrefHasChange = this.userPrefChangeCheck();
+        let shouldCommit: boolean = hasDSChange || userPrefHasChange || this.revertedToDefault;
         if (shouldCommit) {
-            userInfos.update();
+            this.userInfos.update();
 
             // if regular user, we will only commit userInfos with gUserKey.
             // if admin, we may commit userInfos/gUserKey
@@ -95,18 +107,18 @@ namespace UserSettings {
             let settingsStore: KVStore = new KVStore(settingsKey, gKVScope.GLOB);
 
             if (hasDSChange) {
-                dsPromise = userStore.put(JSON.stringify(userInfos), true);
+                dsPromise = userStore.put(JSON.stringify(this.userInfos), true);
             } else {
                 dsPromise = PromiseHelper.resolve();
             }
 
-            if (userPrefHasChange || revertedToDefault) {
+            if (userPrefHasChange || this.revertedToDefault) {
                 if (Admin.isAdmin() && !isPersonalChange || isGeneralChange) {
-                    genSettings.updateAdminSettings(UserSettings.getPref('general'));
+                    this.genSettings.updateAdminSettings(this.getPref('general'));
                     userPrefPromise = settingsStore.putWithMutex(
-                        JSON.stringify(genSettings.getAdminAndXcSettings()), true);
+                        JSON.stringify(this.genSettings.getAdminAndXcSettings()), true);
                 } else if (!hasDSChange) {
-                    userPrefPromise = userStore.put(JSON.stringify(userInfos), true);
+                    userPrefPromise = userStore.put(JSON.stringify(this.userInfos), true);
                 } else {
                     // if has dsChange, dsPromise will take care of it
                     userPrefPromise = PromiseHelper.resolve();
@@ -119,26 +131,26 @@ namespace UserSettings {
             xcUIHelper.disableSubmit($userSettingsSave);
 
             dsPromise
-            .then(function() {
+            .then(() => {
                 return userPrefPromise;
             })
-            .then(function() {
-                revertedToDefault = false;
-                saveLastPrefs();
+            .then(() => {
+                this.revertedToDefault = false;
+                this.saveLastPrefs();
                 XcSocket.Instance.sendMessage("refreshUserSettings", {});
                 if (showSuccess) {
                     xcUIHelper.showSuccess(SuccessTStr.SaveSettings);
                 }
                 deferred.resolve();
             })
-            .fail(function(error) {
+            .fail((error) => {
                 console.error("Commit User Info failed", error);
                 if (showSuccess) {
                     xcUIHelper.showFail(FailTStr.SaveSettings);
                 }
                 deferred.reject(error);
             })
-            .always(function() {
+            .always(() => {
                 xcUIHelper.enableSubmit($userSettingsSave);
             });
         } else {
@@ -152,121 +164,127 @@ namespace UserSettings {
     }
 
     /**
-     * UserSettings.getAllPrefs
+     * UserSettings.Instance.getAllPrefs
      */
-    export function getAllPrefs(): UserPref {
-        return userPrefs || new UserPref();
+    public getAllPrefs(): UserPref {
+        return this.userPrefs || new UserPref();
     }
 
     /**
-     * UserSettings.getPref
+     * UserSettings.Instance.getPref
      * @param pref
      */
-    export function getPref(pref: string): any {
-        if (!userPrefs) {
+    public getPref(pref: string): any {
+        if (!this.userPrefs) {
             return null;
         }
-        if (userPrefs.hasOwnProperty(pref)) {
-            return userPrefs[pref];
+        if (this.userPrefs.hasOwnProperty(pref)) {
+            return this.userPrefs[pref];
         } else {
-            for (let i in userPrefs) {
-                if (userPrefs[i] != null &&
-                    typeof userPrefs[i] === "object" &&
-                    userPrefs[i].hasOwnProperty(pref)
+            for (let i in this.userPrefs) {
+                if (this.userPrefs[i] != null &&
+                    typeof this.userPrefs[i] === "object" &&
+                    this.userPrefs[i].hasOwnProperty(pref)
                 ) {
-                    return userPrefs[i][pref];
+                    return this.userPrefs[i][pref];
                 }
             }
         }
         // if not found in userPrefs, check general settings
-        return genSettings.getPref(pref);
+        return this.genSettings.getPref(pref);
     }
 
     /**
-     * UserSettings.setPref
+     * UserSettings.Instance.setPref
      */
-    export function setPref(
+    public setPref(
         pref: string,
         val: any,
         isGeneral: boolean
     ): void {
         if (isGeneral) {
-            userPrefs.general[pref] = val;
+            this.userPrefs.general[pref] = val;
         } else {
-            userPrefs[pref] = val;
+            this.userPrefs[pref] = val;
         }
     }
 
     /**
-     * UserSettings.revertDefault
+     * UserSettings.Instance.revertDefault
      */
-    export function revertDefault(): void {
+    public revertDefault(): void {
         let newPrefs: UserPref = new UserPref();
-        userPrefs.general = newPrefs.general;
+        this.userPrefs = newPrefs;
         if (Admin.isAdmin() && !XVM.isSingleUser()) {
-            genSettings = new GenSettings();
+            this.genSettings = new GenSettings();
         }
-        restoreSettingsPanel();
-        revertedToDefault = true;
+        this._renderDFSettings();
+        this.restoreSettingsPanel();
+        this.revertedToDefault = true;
     }
 
-    export function show(): void {
-        modalHelper.setup();
+    public show(): void {
+        this.modalHelper.setup();
+        this._renderDFSettings();
     }
 
-    function close(): void {
-        modalHelper.clear();
+    private _close(): void {
+        this.modalHelper.clear();
+        this._getModal().find(".dfSettings .content").empty();
     }
 
-    function setup(): void {
+    private setup(): void {
         const $modal = $("#userSettingsModal");
-        modalHelper = new ModalHelper($modal, {
-            sizeToDefault: true,
-            noBackground: true
+        this.modalHelper = new ModalHelper($modal, {
+            sizeToDefault: true
         });
 
-        userPrefs = new UserPref();
-        addEventListeners();
+        this.userPrefs = new UserPref();
+        this.addEventListeners();
     }
 
-    function saveLastPrefs(): void {
-        cachedPrefs = xcHelper.deepCopy(userPrefs);
+    private _getModal(): JQuery {
+        return $("#userSettingsModal");
     }
 
-    function userPrefChangeCheck(): boolean {
+    private saveLastPrefs(): void {
+        this.cachedPrefs = xcHelper.deepCopy(this.userPrefs);
+    }
+
+    private userPrefChangeCheck(): boolean {
         let shouldCommit: boolean = false;
-        if (userPrefs == null) {
+        if (this.userPrefs == null) {
             // in case commit is triggered at setup time
-            if (userInfos != null) {
+            if (this.userInfos != null) {
                 // this is a error case
                 console.error("userPreference is null!");
             }
 
             return false;
         }
-        for (let key in userPrefs) {
-            if (!userPrefs.hasOwnProperty(key)) {
+        for (let key in this.userPrefs) {
+            if (!this.userPrefs.hasOwnProperty(key)) {
                 continue;
             }
-            if (cachedPrefs[key] == null && userPrefs[key] == null) {
+            if (this.cachedPrefs[key] == null && this.userPrefs[key] == null) {
                 continue;
-            } else if (cachedPrefs[key] == null || userPrefs[key] == null) {
+            } else if (this.cachedPrefs[key] == null || this.userPrefs[key] == null) {
                 shouldCommit = true;
                 break;
-            } else if (cachedPrefs[key] !== userPrefs[key]) {
-                if (typeof userPrefs[key] === "object") {
-                    for (let pref in userPrefs[key]) {
-                        if (!userPrefs[key].hasOwnProperty(pref)) {
+            } else if (this.cachedPrefs[key] !== this.userPrefs[key]) {
+                if (typeof this.userPrefs[key] === "object") {
+                    for (let pref in this.userPrefs[key]) {
+                        if (!this.userPrefs[key].hasOwnProperty(pref)) {
                             continue;
                         }
-                        if (cachedPrefs[key][pref] !== userPrefs[key][pref]) {
+                        if (this.cachedPrefs[key][pref] !== this.userPrefs[key][pref]) {
                             shouldCommit = true;
                             break;
                         }
                     }
                     if (!shouldCommit) {
-                        for (let pref in cachedPrefs[key]) {
-                            if (cachedPrefs[key][pref] !== userPrefs[key][pref])
+                        for (let pref in this.cachedPrefs[key]) {
+                            if (this.cachedPrefs[key][pref] !== this.userPrefs[key][pref])
                             {
                                 shouldCommit = true;
                                 break;
@@ -276,7 +294,7 @@ namespace UserSettings {
                     if (shouldCommit) {
                         break;
                     }
-                } else if (typeof userPrefs[key] !== "function") {
+                } else if (typeof this.userPrefs[key] !== "function") {
                     shouldCommit = true;
                     break;
                 }
@@ -285,21 +303,23 @@ namespace UserSettings {
         return shouldCommit;
     }
 
-    function toggleSyntaxHighlight(on: boolean): void {
+    private toggleSyntaxHighlight(on: boolean): void {
         SQLEditorSpace.Instance.toggleSyntaxHighlight(on);
         UDFPanel.Instance.toggleSyntaxHighlight(on);
     }
 
-    function addEventListeners(): void {
+    private addEventListeners(): void {
+        const $modal: JQuery = this._getModal();
+        const self = this;
         $("#showSyntaxHighlight").click(function() {
             let $checkbox = $(this);
             $checkbox.toggleClass("checked");
             if ($checkbox.hasClass("checked")) {
-                UserSettings.setPref("hideSyntaxHiglight", false, true);
-                toggleSyntaxHighlight(true);
+                self.setPref("hideSyntaxHiglight", false, true);
+                self.toggleSyntaxHighlight(true);
             } else {
-                UserSettings.setPref("hideSyntaxHiglight", true, true);
-                toggleSyntaxHighlight(false);
+                self.setPref("hideSyntaxHiglight", true, true);
+                self.toggleSyntaxHighlight(false);
             }
         });
 
@@ -307,13 +327,13 @@ namespace UserSettings {
             let $checkbox = $(this);
             $checkbox.toggleClass("checked");
             if ($checkbox.hasClass("checked")) {
-                UserSettings.setPref("hideDataCol", false, true);
+                self.setPref("hideDataCol", false, true);
             } else {
-                UserSettings.setPref("hideDataCol", true, true);
+                self.setPref("hideDataCol", true, true);
             }
         });
 
-        monIntervalSlider = new RangeSlider($('#monitorIntervalSlider'),
+        this.monIntervalSlider = new RangeSlider($('#monitorIntervalSlider'),
         'monitorGraphInterval', {
             minVal: 1,
             maxVal: 60,
@@ -322,7 +342,7 @@ namespace UserSettings {
             }
         });
 
-        commitIntervalSlider = new RangeSlider($('#commitIntervalSlider'),
+        this.commitIntervalSlider = new RangeSlider($('#commitIntervalSlider'),
         'commitInterval', {
             minVal: 10,
             maxVal: 600,
@@ -331,7 +351,7 @@ namespace UserSettings {
             }
         });
 
-        logOutIntervalSlider = new RangeSlider($('#logOutIntervalSlider'),
+        this.logOutIntervalSlider = new RangeSlider($('#logOutIntervalSlider'),
         'logOutInterval', {
             minVal: 10,
             maxVal: 120,
@@ -341,42 +361,58 @@ namespace UserSettings {
             }
         });
 
-        const $colorThemeDropdown = _getColorThemeDropdown();
+        const $colorThemeDropdown = this._getColorThemeDropdown();
         new MenuHelper($colorThemeDropdown, {
             onSelect: ($li) => {
                 const colorTheme = $li.data("option");
-                UserSettings.setPref("colorTheme", colorTheme, true);
-                _setColorTheme(colorTheme);
+                self.setPref("colorTheme", colorTheme, true);
+                self._setColorTheme(colorTheme);
             },
             container: "#userSettingsModal",
             bounds: "#userSettingsModal"
         }).setupListeners();
 
         $("#userSettingsSave").click(function() {
-            UserSettings.commit(true);
-            close();
+            self._saveDFSettings();
+            self.commit(true);
+            self._close();
         });
 
         $("#userSettingsDefault").click(function() {
             // var sets = UserSettings;
             // var genSets = genSettings;
-            UserSettings.revertDefault();
-            UserSettings.commit(true);
-            close();
+            self.revertDefault();
+            self._saveDFSettings();
+            self.commit(true);
+            self._close();
         });
 
         $("#userSettingsModal").on("click", ".close, .cancel", () => {
-            close();
+            self._close();
+        });
+
+        $modal.find(".dfSettings").on("click", ".checkboxSection .text, .checkboxSection .checkbox", (event) => {
+            $(event.currentTarget).closest(".checkboxSection")
+            .find(".checkbox").toggleClass("checked");
+        });
+
+        $modal.find(".leftSection .tab").on("click", () => {
+            const $tab = $(event.target)
+            let action = $tab.data("action");
+            $modal.find(".leftSection .tab").removeClass("active");
+            $tab.addClass("active");
+            $modal.find(".settingsSection").addClass("xc-hidden");
+            $modal.find("." + action).removeClass("xc-hidden");
         });
     }
 
-    function restoreSettingsPanel(): void {
-        const hideSyntaxHiglight = UserSettings.getPref("hideSyntaxHiglight")
-        let hideDataCol = UserSettings.getPref("hideDataCol");
-        let graphInterval = UserSettings.getPref("monitorGraphInterval");
-        let commitInterval = UserSettings.getPref("commitInterval");
-        let logOutInterval = UserSettings.getPref("logOutInterval");
-        const colorTheme = UserSettings.getPref("colorTheme") || CodeMirrorManager.DefaultColorTheme;
+    private restoreSettingsPanel(): void {
+        const hideSyntaxHiglight = this.getPref("hideSyntaxHiglight")
+        let hideDataCol = this.getPref("hideDataCol");
+        let graphInterval = this.getPref("monitorGraphInterval");
+        let commitInterval = this.getPref("commitInterval");
+        let logOutInterval = this.getPref("logOutInterval");
+        const colorTheme = this.getPref("colorTheme") || CodeMirrorManager.DefaultColorTheme;
 
         if (!hideSyntaxHiglight) {
             $("#showSyntaxHighlight").addClass("checked");
@@ -390,21 +426,21 @@ namespace UserSettings {
             $("#showDataColBox").removeClass("checked");
         }
 
-        _setColorTheme(colorTheme);
+        this._setColorTheme(colorTheme);
         XcUser.CurrentUser.updateLogOutInterval(logOutInterval);
 
-        monIntervalSlider.setSliderValue(graphInterval);
-        commitIntervalSlider.setSliderValue(commitInterval);
-        logOutIntervalSlider.setSliderValue(XcUser.CurrentUser.getLogOutTimeoutVal() / (1000 * 60));
+        this.monIntervalSlider.setSliderValue(graphInterval);
+        this.commitIntervalSlider.setSliderValue(commitInterval);
+        this.logOutIntervalSlider.setSliderValue(XcUser.CurrentUser.getLogOutTimeoutVal() / (1000 * 60));
     }
 
-    function _getColorThemeDropdown(): JQuery {
+    private _getColorThemeDropdown(): JQuery {
         return $("#colorThemeSelector");
     }
 
-    function _setColorTheme(colorTheme: string): void {
+    private _setColorTheme(colorTheme: string): void {
         colorTheme = colorTheme || CodeMirrorManager.Instance.getColorTheme();
-        const $colorThemeDropdown = _getColorThemeDropdown();
+        const $colorThemeDropdown = this._getColorThemeDropdown();
         const $li = $colorThemeDropdown.find("li").filter((_index, e) => {
             return $(e).data("option") === colorTheme;
         });
@@ -412,5 +448,81 @@ namespace UserSettings {
             $colorThemeDropdown.find(".text").text($li.text());
         }
         CodeMirrorManager.Instance.setColorTheme(colorTheme);
+    }
+
+    private _initDFSettings() {
+        this._dfSettings = [{
+            name: "dfAutoExecute",
+            text: DFTStr.AutoExecute
+        }, {
+            name: "dfAutoPreview",
+            text: DFTStr.AutoPreview
+        }, {
+            name: "dfProgressTips",
+            text: DFTStr.ShowProgressTips
+        }, {
+            name: "dfLabel",
+            text: DFTStr.ShowLabels
+        }, {
+            name: "dfConfigInfo",
+            text: DFTStr.ShowConfigInfo
+        }, {
+            name: "dfTableName",
+            text: DFTStr.ShowTableName
+        }, {
+            name: "dfPinOperatorBar",
+            text: DFTStr.PinOperatorBar
+        }];
+    }
+
+    private _saveDFSettings() {
+        if (!DagPanel.Instance.hasSetup() || !WorkbookManager.getActiveWKBK()) {
+            return;
+        }
+        const $modal: JQuery = this._getModal();
+        const $rows: JQuery = $modal.find(".dfSettings .row");
+        this._dfSettings.forEach((setting, index) => {
+            const name: string = setting.name;
+            const val: boolean = $rows.eq(index).find(".checkbox").hasClass("checked");
+            this.setPref(name, val, false);
+            switch(name) {
+                case ("dfProgressTips"):
+                    DagViewManager.Instance.toggleProgressTips(val);
+                    break;
+                case ("dfLabel"):
+                    DagViewManager.Instance.toggleLabels(val);
+                    break;
+                case ("dfConfigInfo"):
+                    DagViewManager.Instance.toggleConfigInfo(val);
+                    break;
+                case ("dfTableName"):
+                    DagViewManager.Instance.toggleTableName(val);
+                    break;
+                case ("dfPinOperatorBar"):
+                    DagViewManager.Instance.pinOperatorBar(val);
+                    break;
+                default:
+                    break;
+            }
+        });
+    }
+
+    private _renderDFSettings(): void {
+        const html: HTML = this._dfSettings.map(this._renderRowFromSetting.bind(this)).join("");
+        this._getModal().find(".dfSettings .content").html(html);
+    }
+
+    private _renderRowFromSetting(setting: {name: string, text: string}): string {
+        const name: string = setting.name;
+        const pref: boolean = this.getPref(name) || false;
+        let html: HTML =
+            '<div class="row ' + name + ' checkboxSection">' +
+                '<div class="checkbox' + (pref ? ' checked' : '') + '">' +
+                    '<i class="icon xi-ckbox-empty"></i>' +
+                    '<i class="icon xi-ckbox-selected"></i>' +
+                '</div>' +
+                '<div class="text">' + setting.text + '</div>' +
+            '</div>';
+        return html;
     }
 }

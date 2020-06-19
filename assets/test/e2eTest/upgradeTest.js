@@ -79,8 +79,8 @@ module.exports = {
         browser.uploadAndEnterWorkbook(testConfig.workbook, testConfig.isUpgrade);
         // prevent dfAutoPreview from showing table automatically
         browser.execute(function() {
-                let cachedUserPref = UserSettings.getPref;
-                UserSettings.getPref = function(val) {
+                let cachedUserPref = UserSettings.Instance.getPref;
+                UserSettings.Instance.getPref = function(val) {
                     if (val === "dfAutoExecute" || val === "dfAutoPreview") {
                         return false;
                     } else {

@@ -39,7 +39,7 @@ class UserMenu {
             if (event.which !== 1) {
                 return;
             }
-            UserSettings.show();
+            UserSettings.Instance.show();
         });
 
         $("#logout").mouseup(function(event: JQueryEventObject): void {

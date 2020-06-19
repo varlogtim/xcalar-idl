@@ -185,7 +185,7 @@ class KVStore {
         gInfosSetting: GenSettingsDurable,
     ): XDPromise<void> {
         const userInfos: UserInfo = new UserInfo(gInfosUser);
-        return UserSettings.restore(userInfos, gInfosSetting);
+        return UserSettings.Instance.restore(userInfos, gInfosSetting);
     }
 
     private static _restoreWKBKInfoHelper(gInfosMeta: MetaInfDurable): XDPromise<void> {

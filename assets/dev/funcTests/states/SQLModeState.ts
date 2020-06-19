@@ -26,8 +26,8 @@ class SQLModeState extends State {
         super(name, stateMachine, verbosity);
 
         //turn off auto execute and auto preview for dataflow
-        UserSettings.setPref("dfAutoExecute", false, false);
-        UserSettings.setPref("dfAutoPreview", false, false);
+        UserSettings.Instance.setPref("dfAutoExecute", false, false);
+        UserSettings.Instance.setPref("dfAutoPreview", false, false);
 
         // get all the datasources loaded as part of functests setup
         this.sqlEditor = SQLEditorSpace.Instance;

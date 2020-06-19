@@ -40,7 +40,7 @@ class RangeSlider {
             "maxWidth": self.maxWidth,
             "stop": function(_event, ui) {
                 const val: number = self.updateInput(ui.size.width);
-                UserSettings.setPref(prefName, val, true);
+                UserSettings.Instance.setPref(prefName, val, true);
                 if (options.onChangeEnd) {
                     options.onChangeEnd(val);
                 }
@@ -74,7 +74,7 @@ class RangeSlider {
             let val: number = parseFloat($(this).val());
             val = Math.min(self.maxVal, Math.max(val, self.minVal));
             $(this).val(val);
-            UserSettings.setPref(self.prefName, val, true);
+            UserSettings.Instance.setPref(self.prefName, val, true);
             if (options.onChangeEnd) {
                 options.onChangeEnd(val);
             }
@@ -114,7 +114,7 @@ class RangeSlider {
         mouseX = Math.min(self.maxWidth, Math.max(self.minWidth, mouseX));
         const val: number = self.updateInput(mouseX);
         self.updateSlider(val);
-        UserSettings.setPref(self.prefName, val, true);
+        UserSettings.Instance.setPref(self.prefName, val, true);
         if (self.options.onChangeEnd) {
             self.options.onChangeEnd(val);
         }

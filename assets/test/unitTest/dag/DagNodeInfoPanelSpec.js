@@ -14,8 +14,8 @@ describe("DagNodeInfoPanel Test", function() {
         UnitTest.onMinMode();
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .then(() => {
-            cachedUserPref = UserSettings.getPref;
-            UserSettings.getPref = function(val) {
+            cachedUserPref = UserSettings.Instance.getPref;
+            UserSettings.Instance.getPref = function(val) {
                 if (val === "dfAutoExecute" || val === "dfAutoPreview") {
                     return false;
                 } else {
@@ -329,7 +329,7 @@ describe("DagNodeInfoPanel Test", function() {
 
 
     after(function(done) {
-        UserSettings.getPref = cachedUserPref;
+        UserSettings.Instance.getPref = cachedUserPref;
         UnitTest.deleteTab(tabId)
         .then(() => {
             UnitTest.offMinMode();

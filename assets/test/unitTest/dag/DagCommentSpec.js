@@ -21,8 +21,8 @@ describe("DagComment Test", function() {
             DagTabManager.Instance.newTab();
             tabId = DagViewManager.Instance.getActiveDag().getTabId();
             $dfArea = $dfWrap.find(".dataflowArea.active");
-            cachedUserPref = UserSettings.getPref;
-            UserSettings.getPref = function(val) {
+            cachedUserPref = UserSettings.Instance.getPref;
+            UserSettings.Instance.getPref = function(val) {
                 if (val === "dfAutoExecute" || val === "dfAutoPreview") {
                     return false;
                 } else {
@@ -142,7 +142,7 @@ describe("DagComment Test", function() {
     });
 
     after(function(done) {
-        UserSettings.getPref = cachedUserPref;
+        UserSettings.Instance.getPref = cachedUserPref;
         UnitTest.offMinMode();
 
         let dagTab =  DagTabManager.Instance.getTabById(tabId);

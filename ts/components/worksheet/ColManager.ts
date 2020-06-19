@@ -73,7 +73,7 @@ namespace ColManager {
                 "args": []
             },
             "isNewCol": false,
-            "isMinimized": UserSettings.getPref('hideDataCol')
+            "isMinimized": UserSettings.Instance.getPref('hideDataCol')
         });
     };
 

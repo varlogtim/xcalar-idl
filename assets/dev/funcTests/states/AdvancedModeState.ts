@@ -67,8 +67,8 @@ class AdvancedModeState extends State {
         super(name, stateMachine, verbosity);
 
         //turn off auto execute and auto preview
-        UserSettings.setPref("dfAutoExecute", false, false);
-        UserSettings.setPref("dfAutoPreview", false, false);
+        UserSettings.Instance.setPref("dfAutoExecute", false, false);
+        UserSettings.Instance.setPref("dfAutoPreview", false, false);
 
         this.availableActions = [this.createTab];
         this.maxAvgNumOfNodesPerTab = 75;

@@ -235,7 +235,7 @@ class XcSocket {
             if (!this._isRegistered) {
                 return;
             }
-            UserSettings.sync();
+            UserSettings.Instance.sync();
         });
 
         socket.on("refreshIMD", (arg) => {

@@ -325,9 +325,6 @@ class DagGraphBar {
             });
         });
 
-        $menu.on("click", ".settings", () => {
-            DFSettingsModal.Instance.show();
-        });
         // param and aggregates managed in DagAggManager and ParamAggManager
     }
 

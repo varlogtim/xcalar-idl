@@ -319,7 +319,7 @@ class UDFPanel {
         }
 
         this._addSaveEvent();
-        this.toggleSyntaxHighlight(!UserSettings.getPref("hideSyntaxHiglight"));
+        this.toggleSyntaxHighlight(!UserSettings.Instance.getPref("hideSyntaxHiglight"));
     }
 
     private _addSaveEvent(): void {

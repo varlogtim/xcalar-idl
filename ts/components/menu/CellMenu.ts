@@ -171,7 +171,7 @@ class CellMenu extends AbstractMenu {
                 if (node != null) {
                     DagViewManager.Instance.run([node.getId()], false)
                     .then(() => {
-                        if (!UserSettings.getPref("dfAutoPreview")) {
+                        if (!UserSettings.Instance.getPref("dfAutoPreview")) {
                             DagViewManager.Instance.viewResult(node);
                         }
                     });

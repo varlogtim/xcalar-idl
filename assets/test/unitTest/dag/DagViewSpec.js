@@ -28,8 +28,8 @@ describe("DagView Test", () => {
             DagTabManager.Instance.newTab();
             tabId = DagViewManager.Instance.getActiveDag().getTabId();
             $dfArea = $dfWrap.find(".dataflowArea.active");
-            cachedUserPref = UserSettings.getPref;
-            UserSettings.getPref = function(val) {
+            cachedUserPref = UserSettings.Instance.getPref;
+            UserSettings.Instance.getPref = function(val) {
                 if (val === "dfAutoExecute" || val === "dfAutoPreview") {
                     return false;
                 } else {
@@ -1710,8 +1710,8 @@ describe("DagView Test", () => {
                 sqlNode.getState = () => DagNodeState.Complete;
                 return PromiseHelper.resolve();
             };
-            let cache2 = UserSettings.getPref;
-            UserSettings.getPref = () => true;
+            let cache2 = UserSettings.Instance.getPref;
+            UserSettings.Instance.getPref = () => true;
 
             let cache3 = DagViewManager.Instance.viewResult;
             let called2 = false;
@@ -1731,7 +1731,7 @@ describe("DagView Test", () => {
             })
             .always(() => {
                 graph.execute = cache;
-                UserSettings.getPref  = cache2;
+                UserSettings.Instance.getPref  = cache2;
                 DagViewManager.Instance.viewResult = cache3;
             });
 
@@ -1750,8 +1750,8 @@ describe("DagView Test", () => {
                 sqlNode.getState = () => DagNodeState.Complete;
                 return PromiseHelper.resolve();
             };
-            let cache2 = UserSettings.getPref;
-            UserSettings.getPref = () => true;
+            let cache2 = UserSettings.Instance.getPref;
+            UserSettings.Instance.getPref = () => true;
 
             let cache3 = DagViewManager.Instance.viewResult;
             let called2 = false;
@@ -1771,7 +1771,7 @@ describe("DagView Test", () => {
             })
             .always(() => {
                 graph.execute = cache;
-                UserSettings.getPref  = cache2;
+                UserSettings.Instance.getPref  = cache2;
                 DagViewManager.Instance.viewResult = cache3;
             });
         });
@@ -2089,7 +2089,7 @@ describe("DagView Test", () => {
     });
 
     after(function(done) {
-        UserSettings.getPref = cachedUserPref;
+        UserSettings.Instance.getPref = cachedUserPref;
         UnitTest.offMinMode();
         const dag = DagViewManager.Instance.getActiveDag();
         const nodes = dag.getAllNodes();

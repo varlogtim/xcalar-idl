@@ -54,8 +54,8 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
             HomeScreen.switch(UrlToTab.notebook);
             if (toTest != null) {
                 // set the 2 options to false first
-                UserSettings.setPref("dfAutoExecute", false, false);
-                UserSettings.setPref("dfAutoPreview", false, false);
+                UserSettings.Instance.setPref("dfAutoExecute", false, false);
+                UserSettings.Instance.setPref("dfAutoPreview", false, false);
                 // next time not auto run it
                 xcSessionStorage.removeItem(testSuiteKey);
                 if (testType === "sql") {

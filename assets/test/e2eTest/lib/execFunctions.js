@@ -97,11 +97,11 @@ module.exports = {
     },
 
     disableAutoExec: function() {
-        UserSettings.setPref('dfAutoExecute', false, false);
+        UserSettings.Instance.setPref('dfAutoExecute', false, false);
     },
 
     enableOperatorBar: function() {
-        UserSettings.setPref('dfPinOperatorBar', true, false);
+        UserSettings.Instance.setPref('dfPinOperatorBar', true, false);
         DagViewManager.Instance.pinOperatorBar(true);
     },
 

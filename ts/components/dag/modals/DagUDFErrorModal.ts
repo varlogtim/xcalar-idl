@@ -225,7 +225,7 @@ class DagUDFErrorModal {
 
         DagViewManager.Instance.run([newNode.getId()])
         .then(() => {
-            if (!UserSettings.getPref("dfAutoPreview")) {
+            if (!UserSettings.Instance.getPref("dfAutoPreview")) {
                 DagViewManager.Instance.viewResult(newNode, this._tabId);
             }
         });

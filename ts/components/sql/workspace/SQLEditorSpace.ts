@@ -20,7 +20,7 @@ class SQLEditorSpace {
         this._setupSQLEditor();
         this._addEventListeners();
         this._loadSnippet();
-        this.toggleSyntaxHighlight(!UserSettings.getPref("hideSyntaxHiglight"));
+        this.toggleSyntaxHighlight(!UserSettings.Instance.getPref("hideSyntaxHiglight"));
     }
 
     /**

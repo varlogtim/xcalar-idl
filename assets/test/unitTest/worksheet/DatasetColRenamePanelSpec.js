@@ -14,8 +14,8 @@ describe("DatasetColRenamePanel Test", function() {
         XcalarKeyPut = function() {
             return PromiseHelper.resolve();
         };
-        cachedUserPref = UserSettings.getPref;
-        UserSettings.getPref = function(val) {
+        cachedUserPref = UserSettings.Instance.getPref;
+        UserSettings.Instance.getPref = function(val) {
             if (val === "dfAutoExecute" || val === "dfAutoPreview") {
                 return false;
             } else {
@@ -257,7 +257,7 @@ describe("DatasetColRenamePanel Test", function() {
         DS.listDatasets = oldListDS;
         JSON.parse = oldJSONParse;
         DS.getDSObj = oldGetDS;
-        UserSettings.getPref = cachedUserPref;
+        UserSettings.Instance.getPref = cachedUserPref;
         XcalarKeyPut = oldPut;
         datasetOpPanel.close();
     });

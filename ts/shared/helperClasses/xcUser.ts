@@ -359,7 +359,7 @@ class XcUser {
 
     /**
      * XcUser.CurrentUser.updateLogOutInterval(value)
-     * @param value a call to 'UserSettings.getPref('logOutInterval')'
+     * @param value a call to 'UserSettings.Instance.getPref('logOutInterval')'
         it can take on three types of values
         null: means the call is made before UserSettings was defined
         undefined: means the user is on default value

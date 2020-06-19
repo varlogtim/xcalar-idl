@@ -1,29 +1,29 @@
 describe("UserSettings Test", function() {
     describe("Baisc User Setting API Test", function() {
-        it("UserSettings.getAllPrefs should work", function() {
-            var res = UserSettings.getAllPrefs();
+        it("UserSettings.Instance.getAllPrefs should work", function() {
+            var res = UserSettings.Instance.getAllPrefs();
             expect(res).to.be.instanceof(UserPref);
         });
 
-        it("UserSettings.getPref should work", function() {
-            var res = UserSettings.getPref("dfAutoExecute");
+        it("UserSettings.Instance.getPref should work", function() {
+            var res = UserSettings.Instance.getPref("dfAutoExecute");
             expect(res).not.to.be.null;
         });
 
-        it("UserSettings.setPref should work", function() {
-            var oldCache = UserSettings.getPref("dfAutoExecute");
-            UserSettings.setPref("dfAutoExecute", true, false);
-            var res = UserSettings.getPref("dfAutoExecute");
+        it("UserSettings.Instance.setPref should work", function() {
+            var oldCache = UserSettings.Instance.getPref("dfAutoExecute");
+            UserSettings.Instance.setPref("dfAutoExecute", true, false);
+            var res = UserSettings.Instance.getPref("dfAutoExecute");
             expect(res).to.equal(true);
             // change back
-            UserSettings.setPref("dfAutoExecute", oldCache, false);
+            UserSettings.Instance.setPref("dfAutoExecute", oldCache, false);
 
             // case 2
-            oldCache = UserSettings.getPref("general");
-            UserSettings.setPref("key", "test2", true);
-            res = UserSettings.getPref("general");
+            oldCache = UserSettings.Instance.getPref("general");
+            UserSettings.Instance.setPref("key", "test2", true);
+            res = UserSettings.Instance.getPref("general");
             expect(res).to.have.property("key").and.to.equal("test2");
-            UserSettings.setPref("general", oldCache);
+            UserSettings.Instance.setPref("general", oldCache);
         });
     });
 
@@ -61,7 +61,7 @@ describe("UserSettings Test", function() {
         it("should commit change", function(done) {
             var oldFunc = Admin.isAdmin;
             Admin.isAdmin = () => false;
-            UserSettings.commit(true)
+            UserSettings.Instance.commit(true)
             .then(function() {
                 expect(testKey).to.equal(KVStore.getKey("gUserKey"));
                 expect(successMsg).to.equal(SuccessTStr.SaveSettings);
@@ -76,7 +76,7 @@ describe("UserSettings Test", function() {
         });
 
         it("should not commit again if no change", function(done) {
-            UserSettings.commit(true)
+            UserSettings.Instance.commit(true)
             .then(function() {
                 expect(testKey).to.be.null;
                 expect(successMsg).to.equal(SuccessTStr.SaveSettings);
@@ -101,7 +101,7 @@ describe("UserSettings Test", function() {
                 test = input;
             };
 
-            UserSettings.commit(true, true)
+            UserSettings.Instance.commit(true, true)
             .then(function() {
                 done("fail");
             })
@@ -120,7 +120,7 @@ describe("UserSettings Test", function() {
             var oldFunc = Admin.isAdmin;
             Admin.isAdmin = () => true;
 
-            UserSettings.commit(false, true)
+            UserSettings.Instance.commit(false, true)
             .then(function() {
                 expect(testKey).to.equal(KVStore.getKey("gUserKey"));
                 done();
@@ -134,13 +134,13 @@ describe("UserSettings Test", function() {
         });
 
         it("should commit prefChange in Admin case", function(done) {
-            let autoPreview = UserSettings.getPref("dfAutoPreview");
-            UserSettings.setPref("dfAutoPreview", !autoPreview);
+            let autoPreview = UserSettings.Instance.getPref("dfAutoPreview");
+            UserSettings.Instance.setPref("dfAutoPreview", !autoPreview);
 
             var oldFunc = Admin.isAdmin;
             Admin.isAdmin = () => true;
 
-            UserSettings.commit()
+            UserSettings.Instance.commit()
             .then(function() {
                 expect(testKey).to.equal(KVStore.getKey("gSettingsKey"));
                 done();
@@ -150,7 +150,7 @@ describe("UserSettings Test", function() {
             })
             .always(function() {
                 Admin.isAdmin = oldFunc;
-                UserSettings.setPref("dfAutoPreview", autoPreview);
+                UserSettings.Instance.setPref("dfAutoPreview", autoPreview);
             });
         });
 
@@ -163,14 +163,14 @@ describe("UserSettings Test", function() {
 
     describe("UserSettings UI Test", function() {
         it("should toggle showDataColBox", function() {
-            var hideDataCol = UserSettings.getPref("hideDataCol");
+            var hideDataCol = UserSettings.Instance.getPref("hideDataCol");
             var $btn = $("#showDataColBox");
             // case 1
             $btn.click();
-            expect(UserSettings.getPref("hideDataCol")).to.equal(!hideDataCol);
+            expect(UserSettings.Instance.getPref("hideDataCol")).to.equal(!hideDataCol);
             // case 2
             $btn.click();
-            expect(UserSettings.getPref("hideDataCol")).to.equal(hideDataCol);
+            expect(UserSettings.Instance.getPref("hideDataCol")).to.equal(hideDataCol);
         });
 
         it("should reveal the right value on the slider", function() {
@@ -199,15 +199,15 @@ describe("UserSettings Test", function() {
         });
 
         it("should click save button to save", function() {
-            var oldFunc = UserSettings.commit;
+            var oldFunc = UserSettings.Instance.commit;
             var test = false;
-            UserSettings.commit = function() {
+            UserSettings.Instance.commit = function() {
                 test = true;
                 return PromiseHelper.resolve();
             };
             $("#userSettingsSave").click();
             expect(test).to.be.true;
-            UserSettings.commit = oldFunc;
+            UserSettings.Instance.commit = oldFunc;
         });
 
         it("revert Default settings should work", function() {
@@ -217,13 +217,13 @@ describe("UserSettings Test", function() {
             expect($button.hasClass("checked")).to.equal(!checked);
             $("#userSettingsDefault").click();
 
-            var oldFunc = UserSettings.commit;
-            UserSettings.commit = function() {
+            var oldFunc = UserSettings.Instance.commit;
+            UserSettings.Instance.commit = function() {
                 return PromiseHelper.resolve();
             };
             expect($button.hasClass("checked")).to.equal(checked);
 
-            UserSettings.commit = oldFunc;
+            UserSettings.Instance.commit = oldFunc;
         });
     });
 });

@@ -22,8 +22,8 @@ module.exports = {
     'upload and enter workbook': function(browser) {
         browser.uploadAndEnterWorkbook(testConfig.workbook);
         browser.execute(function() {
-            let cachedUserPref = UserSettings.getPref;
-            UserSettings.getPref = function(val) {
+            let cachedUserPref = UserSettings.Instance.getPref;
+            UserSettings.Instance.getPref = function(val) {
                 if (val === "dfAutoExecute" || val === "dfAutoPreview") {
                     return false;
                 } else {

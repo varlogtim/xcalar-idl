@@ -93,7 +93,7 @@ namespace XcSupport {
         let isChecking: boolean = false;
         // 2 mins each check by default
         let commitCheckInterval: number =
-            (UserSettings.getPref('commitInterval') * 1000) || 120000;
+            (UserSettings.Instance.getPref('commitInterval') * 1000) || 120000;
 
         clearInterval(_commitCheckTimer);
         _commitCheckTimer = <any>setInterval(() => {

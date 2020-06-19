@@ -1150,7 +1150,7 @@ class DagView {
                     generateOptimizedDataflow);
             })
             .then(() => {
-                if (UserSettings.getPref("dfAutoPreview") === true &&
+                if (UserSettings.Instance.getPref("dfAutoPreview") === true &&
                     nodeIds != null &&
                     nodeIds.length === 1 &&
                     !generateOptimizedDataflow
@@ -4545,7 +4545,7 @@ class DagView {
     }
 
     private _autoExecute(dagNode: DagNode): void {
-        if (UserSettings.getPref("dfAutoExecute") === true) {
+        if (UserSettings.Instance.getPref("dfAutoExecute") === true) {
             if (dagNode.getState() == DagNodeState.Configured ||
                 dagNode.getState() == DagNodeState.Error) {
                 const optimized: boolean = (dagNode instanceof DagNodeOutOptimizable &&

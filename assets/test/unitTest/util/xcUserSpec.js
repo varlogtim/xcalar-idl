@@ -476,7 +476,7 @@ describe('XcUser Test', () => {
         });
         it('should be equal for default timeout settings ' +
         'for values in both xcUser and UserSettings', () => {
-            var logOutInterval = UserSettings.getPref("logOutInterval");
+            var logOutInterval = UserSettings.Instance.getPref("logOutInterval");
             expect(logOutInterval).to.not.be.undefined;
             var defaultVal = 25 * 60 * 1000;
             XcUser.CurrentUser.updateLogOutInterval(undefined);
@@ -485,8 +485,8 @@ describe('XcUser Test', () => {
         })
         it('should be equal for remembered timeout settings' +
         'for values in both xcUser and UserSettings', () => {
-            UserSettings.setPref("logOutInterval", 120, true);
-            var logOutInterval = UserSettings.getPref("logOutInterval");
+            UserSettings.Instance.setPref("logOutInterval", 120, true);
+            var logOutInterval = UserSettings.Instance.getPref("logOutInterval");
             expect(logOutInterval).to.be.a('number');
             XcUser.CurrentUser.updateLogOutInterval(logOutInterval);
             expect(XcUser.CurrentUser.getLogOutTimeoutVal())
@@ -502,7 +502,7 @@ describe('XcUser Test', () => {
 
         });
         after(() => {
-            UserSettings.revertDefault();
+            UserSettings.Instance.revertDefault();
         });
     });
 });

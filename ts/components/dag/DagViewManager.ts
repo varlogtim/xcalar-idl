@@ -47,19 +47,19 @@ class DagViewManager {
         DagComment.Instance.setup();
         DagParamManager.Instance.setup();
 
-        if (UserSettings.getPref("dfProgressTips")) {
+        if (UserSettings.Instance.getPref("dfProgressTips")) {
             this.toggleProgressTips(true);
         }
-        if (UserSettings.getPref("dfConfigInfo")) {
+        if (UserSettings.Instance.getPref("dfConfigInfo")) {
             this.toggleConfigInfo(true);
         }
-        if (UserSettings.getPref("dfTableName")) {
+        if (UserSettings.Instance.getPref("dfTableName")) {
             this.toggleTableName(true);
         }
-        if (UserSettings.getPref("dfLabel")) {
+        if (UserSettings.Instance.getPref("dfLabel")) {
             this.toggleLabels(true);
         }
-        if (UserSettings.getPref("dfPinOperatorBar")) {
+        if (UserSettings.Instance.getPref("dfPinOperatorBar")) {
             this.pinOperatorBar(true);
         }
     }
