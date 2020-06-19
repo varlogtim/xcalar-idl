@@ -44,12 +44,79 @@ window.UnitTest = (function(UnitTest, $) {
         parent.postMessage(JSON.stringify(request), "*");
     }
 
+    function inlineReporter(runner) {
+        try {
+            const testPrefix = 'XDUnitTest';
+            const testTitles = [];
+            const stats = {
+                fail: new Set(), pass: new Set()
+            };
+            let index = 0;
+
+            // Test suite start
+            runner.on('suite', (suite) => {
+                testTitles.push(suite.title);
+            });
+
+            // Test suite end
+            runner.on('suite end', (suite) => {
+                testTitles.pop();
+            });
+
+            // Test case start
+            let testStartTime = null;
+            runner.on('test', (test) => {
+                testStartTime = Date.now();
+                index ++;
+                console.log(`[${testPrefix}] (${index}) ${getTestTitle(test)}: begin`);
+            });
+
+            // Test case fail
+            runner.on('fail', (test) => {
+                const testEndTime = Date.now();
+                const testTitle = getTestTitle(test);
+                stats.fail.add(testTitle);
+                console.log(`[${testPrefix}] (${index}) ${testTitle}: fail(${getDuration(testStartTime, testEndTime)}s)`);
+            });
+
+            // Test case pass
+            runner.on('pass', (test) => {
+                const testEndTime = Date.now();
+                const testTitle = getTestTitle(test);
+                stats.pass.add(testTitle);
+                console.log(`[${testPrefix}] (${index}) ${testTitle}: pass(${getDuration(testStartTime, testEndTime)}s)`);
+            });
+
+            // Root test suite end
+            runner.on('end', () => {
+                const statsShown = {
+                    fail: stats.fail.size,
+                    pass: stats.pass.size
+                }
+                console.log(`[${testPrefix}] stats=${JSON.stringify(statsShown)}`);
+            })
+
+            function getTestTitle(test) {
+                return `${testTitles.join('/')}/${test.title}`;
+            }
+
+            function getDuration(startTime, endTime) {
+                if (!Number.isInteger(startTime) || !Number.isInteger(endTime)) {
+                    return -1;
+                }
+                return Math.ceil((endTime - startTime)/100)/10;
+            }
+        } catch(e) {
+            console.error(`[${testPrefix}] exception: `, e);
+        }
+    }
+
     UnitTest.setup = function() {
         $(document).ready(function() {
             xcMixpanel.off();
             xcGlobal.setup();
             setupTestDatasets();
-            mocha.run(function() {
+            const runner = mocha.run(function() {
                 // used for puppeteer
                 $("body").append('<div id="testFinish">' +
                                     getTestResult() +
@@ -63,6 +130,7 @@ window.UnitTest = (function(UnitTest, $) {
                     removeUserFromKVStore();
                 }
             });
+            inlineReporter(runner);
             window.onbeforeunload = function() {
                 return;
             };

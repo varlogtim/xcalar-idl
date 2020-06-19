@@ -4,7 +4,7 @@ import { createDiscoverApp, isFailedSchema } from './SchemaLoadService'
 import { LoadSession } from './sdk/Session'
 import { randomName } from './sdk/Api'
 
-describe('SchamaLoadService Test', function() {
+describe('SchemaLoadService Test', function() {
     let app = null;
     let selectedSchemaHash = null;
     let tableQuery = null;
