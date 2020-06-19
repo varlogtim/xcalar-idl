@@ -13,17 +13,6 @@ module.exports = {
                     browser.click("#intro-popover .cancel")
                     browser.pause(1000)
                 }
-                browser.click("#monitorTab")
-                browser.pause(10000)
-                browser.waitForElementVisible("#monitorPanel", 10)
-                browser.assert.ok(1 == 1)                
-                browser.waitForElementVisible("#queriesButton", 10)
-                browser.assert.ok(1 == 1)
-                browser.waitForElementVisible("#systemButton", 10)
-                browser.assert.ok(1 == 1)
-                browser.waitForElementVisible("#settingsButton", 10)
-                browser.assert.ok(1 == 1)                
-                browser.end();
             });
     }
 };

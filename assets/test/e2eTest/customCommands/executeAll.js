@@ -14,7 +14,25 @@ class ExecuteAll extends EventEmitter {
         .elements('css selector','.dataflowArea.active .operator.state-Running', (result) => {
             console.log("after unlock, should not have running nodes", result.value);
             if (result.value.length) {
-                this.api.getLog("browser", function(result){console.log(result)});
+                let found = false;
+                this.api.getLog("browser", function(result){
+                    result.forEach((log) => {
+                        if (found) {
+                            let message = log.message;
+                            let index = message.indexOf("\"{\\\\");
+                            if (index > -1) {
+                                message = message.slice(index);
+                            }
+                            try {
+                                message = JSON.parse(message);
+                            } catch (e) {}
+                            console.log(message);
+                        }
+                        if (log.message.includes("queryStateOutput error")) {
+                            found = true;
+                        }
+                    });
+                });
             }
         })
         .waitForElementNotPresent(".dataflowArea.active .operator.state-Running", 100000);

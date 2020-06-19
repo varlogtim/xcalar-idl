@@ -226,7 +226,20 @@ module.exports = {
                     });
                     //XXX THIS IS THE HACK
                     if (hasError) {
-                        console.log(JSON.stringify(queryStateOutput, null, 4));
+                        queryStateOutput.queryGraph.node.forEach(node => {
+                            delete node.slotInfo;
+                            if (node.opFailureInfo && node.opFailureInfo.numRowsFailedTotal === 0) {
+                                delete node.opFailureInfo;
+                            }
+                            for (i in node.input) {
+                                if (!node.input[i]) {
+                                    delete node.input[i];
+                                }
+                            }
+
+                        });
+                        console.error("queryStateOutput error");
+                        console.error(JSON.stringify(queryStateOutput, null, 4));
                     }
                 }
                 catch (e) {
