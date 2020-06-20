@@ -1283,7 +1283,8 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.toO
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
     converted: jspb.Message.getFieldWithDefault(msg, 1, false),
-    resultstring: jspb.Message.getFieldWithDefault(msg, 2, "")
+    resultstring: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    publishresultmapMap: (f = msg.getPublishresultmapMap()) ? f.toObject(includeInstance, undefined) : []
   };
 
   if (includeInstance) {
@@ -1328,6 +1329,12 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.deserializeBi
       var value = /** @type {string} */ (reader.readString());
       msg.setResultstring(value);
       break;
+    case 3:
+      var value = msg.getPublishresultmapMap();
+      reader.readMessage(value, function(message, reader) {
+        jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readString, null, "");
+         });
+      break;
     default:
       reader.skipField();
       break;
@@ -1371,6 +1378,10 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.serializeBina
       f
     );
   }
+  f = message.getPublishresultmapMap(true);
+  if (f && f.getLength() > 0) {
+    f.serializeBinary(3, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeString);
+  }
 };
 
 
@@ -1403,6 +1414,24 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.get
 /** @param {string} value */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.setResultstring = function(value) {
   jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * map<string, string> publishResultMap = 3;
+ * @param {boolean=} opt_noLazyCreate Do not create the map if
+ * empty, instead returning `undefined`
+ * @return {!jspb.Map<string,string>}
+ */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.getPublishresultmapMap = function(opt_noLazyCreate) {
+  return /** @type {!jspb.Map<string,string>} */ (
+      jspb.Message.getMapField(this, 3, opt_noLazyCreate,
+      null));
+};
+
+
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.clearPublishresultmapMap = function() {
+  this.getPublishresultmapMap().clear();
 };
 
 
