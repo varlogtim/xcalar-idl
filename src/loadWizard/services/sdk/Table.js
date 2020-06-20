@@ -145,14 +145,14 @@ class Table {
         }
     }
 
-    async destroy() {
+    async destroy({isCleanLineage = true} = {}) {
         try {
             while (this._cursors.length > 0) {
                 const cursor = this._cursors.pop();
                 await cursor.close();
             }
             await this._session.callLegacyApi(
-                () => XcalarDeleteTable(this._tableName, null, false, true)
+                () => XcalarDeleteTable(this._tableName, null, false, isCleanLineage)
             );
         } catch(e) {
             console.warn(`Destroy table(${this._tableName}) fail`, e);

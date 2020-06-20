@@ -438,6 +438,9 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
                     tableName: tableNames.comp
                 });
 
+                // Delete Load XDB but keep lineage
+                await loadTable.destroy({ isCleanLineage: false });
+
                 // Return the session tables created from those 3 DFs
                 return {
                     data: dataTable,

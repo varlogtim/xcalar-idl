@@ -87,15 +87,39 @@ describe('SchemaLoadService Test', function() {
         // Validation
         // Verify existence of load/data/comp tables
         expect(resultTables != null).to.be.true;
-        expect((await resultTables.load.getInfo()) != null).to.be.true;
-        expect((await resultTables.comp.getInfo()) != null).to.be.true;
-        expect((await resultTables.data.getInfo()) != null).to.be.true;
+        let isICVExist = false;
+        try {
+            await resultTables.comp.getInfo();
+            isICVExist = true;
+        } catch(_) {
+            isICVExist = false;
+        }
+        expect(isICVExist, 'Check ICV table existence').to.be.true;
+
+        let isDataExist = false;
+        try {
+            await resultTables.data.getInfo();
+            isDataExist = true;
+        } catch(_) {
+            isDataExist = false;
+        }
+        expect(isDataExist, 'Check Data table existence').to.be.true;
+
+        let isLoadExist = false;
+        try {
+            await resultTables.load.getInfo();
+            isLoadExist = true;
+        } catch(_) {
+            isLoadExist = false;
+        }
+        // Load table: XDB should be deleted, but dag should be there
+        expect(isLoadExist, 'Check Load table existence').to.be.false;
 
         // Verify temp. table cleanup
         const numTablesAfter = (await session.listTables({
             namePattern: '*', isGlobal: false
         })).length;
-        expect(numTablesAfter).to.equal(numTablesBefore + 3);
+        expect(numTablesAfter).to.equal(numTablesBefore + 2);
 
         // Verify datasets
         const numDatasetsAfter = (await session.callLegacyApi(
