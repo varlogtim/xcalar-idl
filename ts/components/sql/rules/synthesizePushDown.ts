@@ -226,7 +226,8 @@ class SynthesizePushDown {
                                                     evalStruct.evalString, true);
                     for (const colName of evalColumnList) {
                         if (colList.indexOf(colName) === -1 &&
-                            createdColList.indexOf(colName) === -1) {
+                            createdColList.indexOf(colName) === -1 &&
+                            colName !== "None") {
                             colList.push(colName);
                         }
                     }
@@ -257,7 +258,8 @@ class SynthesizePushDown {
                                                     evalStruct.evalString, true);
                     for (const colName of evalColumnList) {
                         if (colList.indexOf(colName) === -1 &&
-                            createdColList.indexOf(colName) === -1) {
+                            createdColList.indexOf(colName) === -1 &&
+                            colName !== "None") {
                             colList.push(colName);
                         }
                     }
