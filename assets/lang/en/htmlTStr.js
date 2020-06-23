@@ -1358,7 +1358,7 @@ module.exports = {
         "selectAll": "Select All",
         "removeConnection": "Remove Connection",
         "findLinkOut": "Find the Function",
-        "configure": "Configure",
+        "configure": "Edit Operator",
         "description": "Add Description",
         "comment": "New Comment",
         "configuringOperator": "Configuring Operator",
