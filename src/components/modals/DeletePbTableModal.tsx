@@ -1,43 +1,61 @@
 import * as React from "react";
 import dict from "../../lang";
-import GeneralDeleteModal, {DeleteItems} from "./GeneralDeleteModal/GeneralDeleteModal";
-import service from "../../services/DeletePbTableService";
+import GeneralDeleteModal, { DeleteItems } from "./GeneralDeleteModal";
+import service from "../../services/PbTableService";
 
-const {DeletePbTableModalTStr} = dict;
+const { DeletePbTableModalTStr } = dict;
 
-export default class DeleteTableModal extends React.Component<{}, {}> {
-    constructor(props) {
-        super(props);
-    }
+class DeletePbTableModal extends React.Component<{}, {}> {
+  constructor(props) {
+    super(props);
+  }
 
-    render() {
-        return (
-            <GeneralDeleteModal
-                id={"deletePbTableModal"} 
-                triggerButton={"deletePbTableButton"}
-                header={DeletePbTableModalTStr.header}
-                instruct={DeletePbTableModalTStr.instr}
-                fetchList={this._fetch}
-                sortList={this._sort}
-                onConfirm={this._onConfirm}
-                onSubmit={this._onSubmit}
-            />
-        )
-    }
+  render() {
+    return (
+      <GeneralDeleteModal
+        id={"deletePbTableModal"} 
+        triggerButton={"deletePbTableButton"}
+        header={DeletePbTableModalTStr.header}
+        instruct={DeletePbTableModalTStr.instr}
+        fetchList={this._fetch}
+        getConfirmAlert={this._getConfirmAlert}
+        onSubmit={this._handleSubmit}
+      />
+    )
+  }
 
-    private async _fetch(): Promise<DeleteItems[]> {
-        return service.getTableList();
-    }
+  private async _fetch(): Promise<DeleteItems[]> {
+    let pbTables = await service.list();
+    let items = pbTables.map((pbTable) => {
+      let { name, size, createTime } = pbTable;
+      return {
+        "id": name,
+        "name": name,
+        "size": size,
+        "locked": false,
+        "checked": false,
+        "date": createTime ? createTime * 1000 : null,
+      }
+    });
+    return items;
+  }
 
-    private _sort(tables: DeleteItems[], key: string, reverseSort: boolean): DeleteItems[] {
-        return service.sortTables(tables, key, reverseSort);
-    }
+  private _getConfirmAlert(items: DeleteItems[]): {title: string, msg: string} {
+    const xcStringHelper = window["xcStringHelper"];
+    let tables: string[] = items.map((item) => item.name);
+    let msg = xcStringHelper.replaceMsg(DeletePbTableModalTStr.confirm, {
+      "tableName": tables.join(", ")
+    });
+    return {
+      title: DeletePbTableModalTStr.header,
+      msg
+    };
+  }
 
-    private _onConfirm(tables: string[]): Promise<void> {
-        return service.deleteTablesConfirm(tables);
-    }
-
-    private _onSubmit(tables: string[]): Promise<void> {
-        return service.deleteTables(tables);
-    }
+  private _handleSubmit(items: DeleteItems[]): Promise<void> {
+    let tables: string[] = items.map((item) => item.name);
+    return service.delete(tables);
+  }
 }
+
+export default DeletePbTableModal;

@@ -95,6 +95,9 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
         if (options.noBackground) {
             modalClassNames.push("noBackground");
         }
+        if (!instruct) {
+            modalClassNames.push("noInstr");
+        }
 
         return (
             <React.Fragment>

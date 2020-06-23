@@ -30,7 +30,7 @@
         >
           <i class="icon xi-search"></i>
         </span>
-        <span id="deletePbTableButton" class="deleteTables action xc-action"
+        <span id="deletePbTableButton" class="bulkDelete action xc-action"
         data-toggle="tooltip"
         data-placement="auto top"
         data-container="body"
@@ -61,6 +61,14 @@
         >
           <%= dicts.resouceMenu.SQL %>
         </span>
+        <span id="deleteSQLButton" class="bulkDelete action xc-action"
+        data-toggle="tooltip"
+        data-placement="auto top"
+        data-container="body"
+        data-original-title="<%= dicts.resouceMenu.DelSQL %>"
+        >
+          <i class="icon xi-trash"></i>
+        </span>
         <span class="action addSQL xc-action"
         data-toggle="tooltip"
         data-placement="auto top"
@@ -89,6 +97,14 @@
         >
           <i class="icon xi-upload-outline"></i>
         </span>
+        <span id="deleteModuleButton" class="bulkDelete action xc-action"
+        data-toggle="tooltip"
+        data-placement="auto top"
+        data-container="body"
+        data-original-title="<%= dicts.resouceMenu.DelModule %>"
+        >
+          <i class="icon xi-trash"></i>
+        </span>
         <span class="action addDFModule xc-action"
         data-toggle="tooltip"
         data-placement="auto top"
@@ -111,6 +127,14 @@
           data-title="<%= dicts.resouceMenu.TableFuncs %>"
         >
           <%= dicts.resouceMenu.TableFuncs %>
+        </span>
+        <span id="deleteTableFuncButton" class="bulkDelete action xc-action"
+        data-toggle="tooltip"
+        data-placement="auto top"
+        data-container="body"
+        data-original-title="<%= dicts.resouceMenu.DelTableFunc %>"
+        >
+          <i class="icon xi-trash"></i>
         </span>
         <span class="action addTableFunc xc-action"
         data-toggle="tooltip"
@@ -135,6 +159,14 @@
         >
           <%= dicts.resouceMenu.UDFs %>
         </span>
+        <span class="action xc-action"
+        data-toggle="tooltip"
+        data-placement="auto top"
+        data-container="body"
+        data-original-title="<%= dicts.UDF.ToManager %>"
+        >
+          <i class="icon xi-udf-manager toManager"></i>
+        </span>
         <span class="action addUDF xc-action"
         data-toggle="tooltip"
         data-placement="auto top"
@@ -157,6 +189,14 @@
           data-title="<%= dicts.App.Header %>"
         >
           <%= dicts.App.Header %>
+        </span>
+        <span id="deleteAppButton" class="bulkDelete action xc-action"
+        data-toggle="tooltip"
+        data-placement="auto top"
+        data-container="body"
+        data-original-title="<%= dicts.resouceMenu.DelApp %>"
+        >
+          <i class="icon xi-trash"></i>
         </span>
         <span class="action addApp xc-action"
         data-toggle="tooltip"

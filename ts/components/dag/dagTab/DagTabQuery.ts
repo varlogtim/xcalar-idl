@@ -104,3 +104,7 @@ class DagTabQuery extends DagTabProgress {
         return this._isStatsGraph;
     }
 }
+
+if (typeof runEntity !== "undefined") {
+    runEntity.DagTabQuery = DagTabQuery;
+}

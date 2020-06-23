@@ -586,7 +586,7 @@ class ResourceMenu {
             }
         });
 
-        $container.on("click", ".deleteTables", (event) => {
+        $container.on("click", ".bulkDelete", (event) => {
             event.stopPropagation();
         });
 
@@ -652,6 +652,11 @@ class ResourceMenu {
             let name: string = $li.find(".name").text();
             name = UDFPanel.parseModuleNameFromFileName(name);
             UDFPanel.Instance.loadUDF(name);
+        });
+
+        $container.on("click", ".udf.listWrap .toManager", (event) => {
+            event.stopPropagation();
+            UDFPanel.Instance.openManager();
         });
 
         $container.on("click", ".dropDown", (event) => {

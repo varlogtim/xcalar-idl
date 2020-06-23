@@ -996,4 +996,8 @@ class DagList extends Durable {
 
 if (typeof exports !== 'undefined') {
     exports.DagList = DagList;
-};
+}
+
+if (typeof runEntity !== "undefined") {
+    runEntity.DagList = DagList;
+}

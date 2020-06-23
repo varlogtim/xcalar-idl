@@ -321,3 +321,7 @@ class DagTabOptimized extends DagTabProgress {
 if (typeof exports !== 'undefined') {
     exports.DagTabOptimized = DagTabOptimized;
 }
+
+if (typeof runEntity !== "undefined") {
+    runEntity.DagTabOptimized = DagTabOptimized;
+}

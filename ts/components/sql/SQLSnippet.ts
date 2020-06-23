@@ -138,6 +138,17 @@ class SQLSnippet {
     }
 
     /**
+     * SQLSnippet.Instance.deleteByIds
+     * @param ids
+     */
+    public deleteByIds(ids: string[]): void {
+        for (let id of ids) {
+            this._deletSnippet(id);
+        }
+        this._refresh();
+    }
+
+    /**
      * SQLSnippet.Instance.deleteByApp
      * @param appId
      */
@@ -281,4 +292,8 @@ class SQLSnippet {
     private _refresh(): void {
         ResourceMenu.Instance.render(ResourceMenu.KEY.SQL);
     }
+}
+
+if (typeof runEntity !== "undefined") {
+    runEntity.SQLSnippet = SQLSnippet;
 }

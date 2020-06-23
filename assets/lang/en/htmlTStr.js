@@ -467,16 +467,20 @@ module.exports = {
         "SearchTable": "Search Table in SQL Queries and Modules",
         "SQL": "SQL Statements",
         "AddSQL": "New SQL Statement",
+        "DelSQL": "Delete SQL Statements",
         "AppModules": "App Modules",
         "Modules": "Modules",
         "AddModule": "New Module",
+        "DelModule": "Delete Modules",
         "TableFuncs": "Table Functions",
         "AddTableFunc": "New Table Function",
+        "DelTableFunc": "Delete Table Functions",
         "UDFs": "Scalar Functions",
         "AddUDF": "Add Scalar Function",
         "UseInSQL": "Use in SQL",
         "UseInModule": "Add to Module",
-        "Edit": "Edit"
+        "Edit": "Edit",
+        "DelApp": "Delete Apps"
     },
 
     "bottomMenu": {

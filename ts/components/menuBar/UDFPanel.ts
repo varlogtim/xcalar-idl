@@ -24,6 +24,7 @@ class UDFPanel {
         singleLineStringErrors: false
     };
     private _modalHelper: ModalHelper;
+    private _monitorFileManager: FileManagerPanel;
 
     public readonly udfDefault: string =
         "# PLEASE TAKE NOTE:\n" +
@@ -55,6 +56,9 @@ class UDFPanel {
             return;
         }
         this.isSetup = true;
+        this._monitorFileManager = new FileManagerPanel(
+            $("#monitorFileManager")
+        );
         this._addEventListeners();
         this._modalHelper = new ModalHelper(this._getManagerModal(), {
             sizeToDefault: true
@@ -235,6 +239,19 @@ class UDFPanel {
         return res;
     }
 
+    /**
+     * UDFPanel.Instance.openManager
+     */
+    public openManager() {
+        const monitorFileManager: FileManagerPanel = this._monitorFileManager;
+        monitorFileManager.switchType("UDF");
+        monitorFileManager.switchPath("/");
+        monitorFileManager.switchPathByStep(
+            UDFFileManager.Instance.getCurrWorkbookDisplayPath()
+        );
+        this._modalHelper.setup();
+    }
+
     private _getUDFSection(): JQuery {
         return $("#udfSection");
     }
@@ -254,18 +271,10 @@ class UDFPanel {
     private _addEventListeners(): void {
         const $udfSection: JQuery = this._getUDFSection();
         UDFFileManager.Instance.initialize();
-        const monitorFileManager: FileManagerPanel = new FileManagerPanel(
-            $("#monitorFileManager")
-        );
-        UDFFileManager.Instance.registerPanel(monitorFileManager);
+        UDFFileManager.Instance.registerPanel(this._monitorFileManager);
 
-        $udfSection.find(".toManager").on("click", (_event: JQueryEventObject) => {
-            monitorFileManager.switchType("UDF");
-            monitorFileManager.switchPath("/");
-            monitorFileManager.switchPathByStep(
-                UDFFileManager.Instance.getCurrWorkbookDisplayPath()
-            );
-            this._modalHelper.setup();
+        $udfSection.find(".toManager").on("click", () => {
+            this.openManager();
         });
 
         $udfSection.find("header .close").click(() => {

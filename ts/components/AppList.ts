@@ -89,6 +89,20 @@ class AppList extends Durable {
     }
 
     /**
+     * AppList.Instance.bulkDelete
+     * @param appIds
+     */
+    public bulkDelete(appIds: string[]): void {
+        appIds.forEach((appId) => {
+            DagList.Instance.deleteDataflowsByApp(appId);
+            SQLSnippet.Instance.deleteByApp(appId);
+        });
+        this._apps = this._apps.filter((app) => !appIds.includes(app.id));
+        this._save();
+        this._refreshMenuList();
+    }
+
+    /**
      * AppList.Instance.getAppPath
      * @param appId
      * @param name
@@ -399,5 +413,8 @@ class AppList extends Durable {
         });
         return moduleMap;
     }
+}
 
+if (typeof runEntity !== "undefined") {
+    runEntity.AppList = AppList;
 }
