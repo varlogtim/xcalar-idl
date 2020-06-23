@@ -191,7 +191,7 @@
       }
       let textLen = $tip.text().length;
       if (textLen > 100) {
-        let width = Math.min(300, 200 + (0.5 * (textLen - 100)));
+        let width = Math.min(265, 200 + (0.5 * (textLen - 100)));
         $tip.find(".tooltip-inner").css("max-width", width);
       } else {
         $tip.find(".tooltip-inner").css("max-width", 200);
@@ -230,10 +230,10 @@
         var $container   = this.options.container ? $(this.options.container) : this.$element.parent()
         var containerDim = this.getPosition($container)
 
-        placement = placement == 'bottom' && pos.bottom + actualHeight > containerDim.bottom ? 'top'    :
-                    placement == 'top'    && pos.top    - actualHeight < containerDim.top    ? 'bottom' :
-                    placement == 'right'  && pos.right  + actualWidth  > containerDim.width  ? 'left'   :
-                    placement == 'left'   && pos.left   - actualWidth  < containerDim.left   ? 'right'  :
+        placement = placement == 'bottom' && pos.bottom + actualHeight > (containerDim.bottom - 10) ? 'top'    :
+                    placement == 'top'    && pos.top    - actualHeight < (containerDim.top + 10)    ? 'bottom' :
+                    placement == 'right'  && pos.right  + actualWidth  > (containerDim.width - 10)  ? 'left'   :
+                    placement == 'left'   && pos.left   - actualWidth  < (containerDim.left + 10)   ? 'right'  :
                     placement
 
         $tip
