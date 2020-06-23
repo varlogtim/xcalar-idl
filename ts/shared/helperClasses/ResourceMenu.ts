@@ -307,7 +307,7 @@ class ResourceMenu {
             const name = dagTab.getName();
             const listClassNames: string[] = ["dagListDetail", "selectable"];
             const iconClassNames: string[] = ["gridIcon", "icon", "xi-dataflow-thin"];
-            let tooltip: string = ""
+            let tooltip: string = xcTooltip.Attrs + ' data-title="' + name + '"';
             let stateIcon: string = "";
             if (dagTab.isOpen()) {
                 listClassNames.push("open");
