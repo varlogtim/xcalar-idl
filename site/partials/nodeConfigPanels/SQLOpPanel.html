@@ -13,28 +13,7 @@
       <p class="mainInstructions instrText">
         <%= dicts.SQLOpPanel.Instr %>
       </p>
-      <div class="snippetSelectionArea formRow">
-        <div class="subHeading clearfix">
-          <div class="label"><%= dicts.SQLOpPanel.Statement %>:</div>
-          <i class="qMark icon xi-unknown"
-          data-toggle="tooltip"
-          data-container="body"
-          data-placement="auto right"
-          data-title="<%= dicts.SQLOpPanel.StatementHint %>">
-          </i>
-        </div>
-        <div class="snippetsList dropDownList">
-          <input class="text snippetInput inputable" type="text" value="" spellcheck="false" autocomplete="nosuggest off">
-          <div class="iconWrapper">
-            <i class="icon xi-arrow-down"></i>
-          </div>
-          <div class="list">
-            <ul class="snippetsUl"></ul>
-            include "../../util/menuScrollArea.html"
-          </div>
-        </div>
-      </div>
-      <div class="nextForm xc-hidden">
+      <div class="nextForm">
         <div class="tableTitle">
           <div class="title"><%= dicts.SQLOpPanel.TableMap %>:</div>
           <div class="maximize">

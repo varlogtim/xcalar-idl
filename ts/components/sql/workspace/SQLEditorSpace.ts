@@ -45,7 +45,7 @@ class SQLEditorSpace {
      * SQLEditorSpace.Instance.newSQL
      * @param sql
      */
-    public newSQL(sql: string): void {
+    public newSQL(sql: string, isTempTab?: boolean): void {
         let val: string = this._sqlEditor.getValue();
         if (val) {
             if (!val.trim().endsWith(";")) {
@@ -57,6 +57,8 @@ class SQLEditorSpace {
             val = sql;
         }
         this._sqlEditor.setValue(val);
+        this._sqlEditor.refresh();
+
         this._saveSnippetChange();
     }
 
@@ -120,8 +122,12 @@ class SQLEditorSpace {
         }
         const snippet = snippetObj.snippet || "";
         this._currentSnippetId = snippetObj.id;
-        this._setSnippet(snippet);
-
+        this._setSnippet(snippet, snippetObj.temp);
+        if (snippetObj.temp) {
+            this._getEditorSpaceEl().addClass("hasTempTab");
+        } else {
+            this._getEditorSpaceEl().removeClass("hasTempTab");
+        }
         let html = "";
         for (let i in snippetObj.refs) {
             const tab = DagTabManager.Instance.getTabById(i);
@@ -180,9 +186,14 @@ class SQLEditorSpace {
         }
     }
 
-    private _setSnippet(snippet: string): void {
+    private _setSnippet(snippet: string, isTempTab?: boolean): void {
         if (!snippet) {
-            this._setPlaceholder(SQLTStr.SnippetHint);
+            if (isTempTab) {
+                this._setPlaceholder(SQLTStr.TempSnippetHint);
+            } else {
+                this._setPlaceholder(SQLTStr.SnippetHint);
+            }
+
         }
         this._sqlEditor.setValue(snippet || "");
         this._sqlEditor.refresh();
@@ -212,7 +223,10 @@ class SQLEditorSpace {
         })
         .on("change", () => {
             this._saveSnippetChange();
-            SQLOpPanel.Instance.updateSnippet(this._currentSnippetId);
+            const snippetObj: SQLSnippetDurable = SQLSnippet.Instance.getSnippetObj(this._currentSnippetId);
+            if (snippetObj.temp) {
+                SQLOpPanel.Instance.updateSnippet(this._currentSnippetId);
+            }
         });
 
         CodeMirror.commands.autocompleteSQLInVDW = function(cmeditor) {

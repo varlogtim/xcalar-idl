@@ -944,13 +944,6 @@ class DagTabManager extends AbstractTabManager {
         }
         this._addTabHTML(dagTab, tabIndex);
         this._addTabEvents(dagTab);
-        if (typeof SQLSnippet != "undefined" && dagTab.getGraph()) {
-            dagTab.getGraph().getAllNodes().forEach((node) => {
-                if (node instanceof DagNodeSQL && node.getParam().snippetId) {
-                    SQLSnippet.Instance.linkNode(node.getParam().snippetId, dagTab.getId(), node.getId());
-                }
-            });
-        }
     }
 
     private _addTabEvents(dagTab: DagTab): void {

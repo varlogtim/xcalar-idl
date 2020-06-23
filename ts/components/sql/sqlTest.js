@@ -167,7 +167,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                             var query = sqlString[index];
                             console.log("Tableau subquery " + (index + 1) + ": " + query);
                             // sqlNode.setSqlQueryString(query);
-                            test.nodeMenuAction(sqlNodeElement, "configureNode");
+                            OldSQLOpPanel.Instance.show(sqlNode);
                             // $("#sqlOpPanel .submit").click();
                             return OldSQLOpPanel.Instance.configureSQL(query)
                             .then(function() {
@@ -199,7 +199,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                     });
                 } else if (testName === "cancelQuery") {
                     sqlNode.setSqlQueryString(sqlString);
-                    test.nodeMenuAction(sqlNodeElement, "configureNode");
+                    OldSQLOpPanel.Instance.show(sqlNode);
                     $("#oldSQLOpPanel .submit").click();
                     test.hasNodeWithState(sqlNode.getId(), DagNodeState.Configured)
                     .then(function() {
@@ -223,7 +223,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                     });
                 } else {
                     // sqlNode.setSqlQueryString(sqlString);
-                    test.nodeMenuAction(sqlNodeElement, "configureNode");
+                    OldSQLOpPanel.Instance.show(sqlNode);
                     // $("#sqlOpPanel .submit").click();
                     // test.hasNodeWithState(sqlNode.getId(), DagNodeState.Configured)
                     return OldSQLOpPanel.Instance.configureSQL(sqlString)
@@ -362,7 +362,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         console.log("test dag grah", testDagGraph);
         sqlNode = testDagGraph.getNode(sqlNodeId);
         console.log("find sql node");
-        sqlNode._isDeprecated = true; // XXX hack way to force use old sql node panel
+
         var i = 0;
         var identifiers = new Map();
         for (var table in tableNodesMap) {

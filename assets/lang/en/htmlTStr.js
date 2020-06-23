@@ -1059,7 +1059,7 @@ module.exports = {
 
     "SQLOpPanel": {
         "Header": "SQL",
-        "Instr": "This operator applies one or more SQL statements to the input from an intermediate table.",
+        "Instr": "This operator applies one SQL statement from the `SQL Graph Node` tab of the SQL Editor to the input data from an intermediate table.",
         "Statement": "SQL Statement Name",
         "StatementHint": "The name of an existing SQL statement. To create a new SQL statement, from the SQL Statement list, click New SQL Statement, which opens a new SQL tab in the SQL editor for you to enter and save your SQL statement.",
         "TableMap": "Table Mapping",

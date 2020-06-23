@@ -1682,7 +1682,7 @@
     &.operatorMenu {
         .removeNode, .copyNodes, .cutNodes, .executeNode, .resetNode, .executeNodeOptimized,
         .viewOptimizedDataflow, .deleteTable, .deleteParentTable, .reexecuteNode, .description,
-        .configureNode, .updateSQLQuery, .viewResult, .generateResult,
+        .configureNode, .viewResult, .generateResult,
         .viewSchema, .viewSchemaChanges, .viewOptions, .customNodeOptions, .autoAlign,
         .unpinTable, .pinTable, .createCustom, .selectAll,
         .viewUDFErrors, .viewSkew, .addOperation, .copyTableName {
@@ -1692,7 +1692,7 @@
             display: none;
         }
         &.multiple {
-            .description, .configureNode, .updateSQLQuery, .viewResult, .viewOptimizedDataflow,
+            .description, .configureNode, .viewResult, .viewOptimizedDataflow,
             .generateResult, .viewSchema, .viewSchemaChanges, .shareCustom, .viewUDFErrors, .addOperation {
                 display: none;
             }
@@ -1722,7 +1722,7 @@
             }
         }
         &.nonEditableSubgraph {
-            .configureNode, .updateSQLQuery, .removeNode, .copyNodes, .cutNodes,
+            .configureNode, .removeNode, .copyNodes, .cutNodes,
             .executeNode, .addOperation {
                 display: none;
             }
@@ -1874,7 +1874,7 @@
         }
     }
     &.SQLOpMenu {
-        .inspectSQL, .expandSQL, .updateSQLQuery {
+        .inspectSQL, .expandSQL {
             .icon {
                 color: darken(@color-operator-SQL, 20%);
             }

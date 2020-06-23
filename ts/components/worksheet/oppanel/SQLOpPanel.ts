@@ -5,18 +5,14 @@ class SQLOpPanel extends BaseOpPanel {
     private _$elemPanel: JQuery; // The DOM element of the panel
     protected _dataModel: SQLOpPanelModel; // The key data structure
     protected _dagNode: DagNodeSQL;
-    private _ignoreQueryConfirm = false;
-    private _ignoreUpdateConfirm = false;
     private _identifiers: string[] = [];
     private _parsedIdentifiers: string[] = [];
     private _connectors: {label: string, nodeId: string}[] = [];
     private _queryStr = "";
     private _parsedQueryStr = ""; // from compiler
     private _graph: DagGraph;
-    private _isQueryUpdated: boolean = false;
-    private _snippetIdNotFound: boolean = false;
     private _labelCache: Set<string>;
-    private _prevSnippetId: string;
+    private _snippetId: string;
     /**
      * Initialization, should be called only once by xcManager
      */
@@ -26,7 +22,6 @@ class SQLOpPanel extends BaseOpPanel {
         super.setup(this._$elemPanel);
 
         this._setupDropAsYouGo();
-        this._setupQuerySelector();
     }
 
         /**
@@ -36,7 +31,6 @@ class SQLOpPanel extends BaseOpPanel {
     public show(dagNode: DagNodeSQL, options?): void {
         this._dagNode = dagNode;
         this._dataModel = new SQLOpPanelModel(dagNode);
-        this.$panel.find(".nextForm").addClass('xc-hidden');
         this._queryStr = "";
         this._parsedQueryStr = "";
         let error: string;
@@ -88,166 +82,30 @@ class SQLOpPanel extends BaseOpPanel {
     /**
      * Hide the panel
      */
-    public close(isSubmit?: boolean): void {
+    public close(isSubmit?: boolean, noTab?: boolean): void {
+        if (!this.isOpen()) {
+            return;
+        }
         super.hidePanel(isSubmit);
         this._identifiers = [];
         this._parsedIdentifiers = [];
         this._connectors = [];
         this._graph = null;
         this.updateIdentifiersList();
-    }
-
-    private _setupQuerySelector(): void {
-        const $list = this.$panel.find(".snippetsList");
-        let preventOpen = false;
-
-        const menuHelper = new MenuHelper($list, {
-            "fixedPosition": {
-                selector: "input"
-            },
-            "onOpen": function() {
-                if (preventOpen) {
-                    return;// when triggered by autocomplete
-                }
-                const snippets = SQLSnippet.Instance.list();
-                let html = "";
-                html += `<li class="createNew">+ Create a new statement</li>`;
-                snippets.forEach((snippet) => {
-                    html += `<li data-id="${snippet.id}">${snippet.name}</li>`;
-                });
-                $list.find('ul').html(html);
-            },
-            "onSelect": ($li) => {
-                if ($li.hasClass("hint")) {
-                    return false;
-                }
-                if ($li.hasClass("unavailable")) {
-                    return true; // return true to keep dropdown open
-                }
-                let snippetId: string = $li.data("id");
-                if ($li.hasClass("createNew")) {
-                    SQLEditorSpace.Instance.bringToFront();
-                    snippetId = SQLTabManager.Instance.newTab(this._dagNode.getTitle(), true);
-                } else {
-                    SQLTabManager.Instance.openTab(snippetId);
-                }
-
-                this._selectQuery(snippetId, null, true);
-                this._isQueryUpdated = true;
-                if (this._$elemPanel.hasClass("queryNotUpdated") ||
-                    this._$elemPanel.hasClass("snippetNotFound")) {
-                    this._$elemPanel.find(".snippetUpdated").fadeIn(800, () => {
-                        setTimeout(() => {
-                            this._$elemPanel.find(".snippetUpdated").fadeOut(800);
-                        }, 2000);
-                    });
-                }
-                this._$elemPanel.removeClass("queryNotUpdated");
-                this._$elemPanel.removeClass("snippetNotFound");
-            }
-        });
-        menuHelper.setupListeners();
-
-        const $input = $list.find("input");
-        let timer;
-        $input.on("input", () => {
-            if (!$input.is(":visible")) return; // ENG-8642
-            clearTimeout(timer);
-            timer = setTimeout(() => {
-                const value: string = $input.val().trim().toLowerCase();
-                const snippets = SQLSnippet.Instance.list();
-                let html = "";
-                snippets.forEach((snippet) => {
-                    if (value === "" || snippet.name.toLowerCase().includes(value)) {
-                        html += `<li data-id="${snippet.id}">${snippet.name}</li>`;
-                    }
-                });
-                let $lis = $(html);
-                $lis = $lis.sort((a, b) => {
-                    return ($(b).text()) < ($(a).text()) ? 1 : -1;
-                });
-
-                const $ul = $input.siblings(".list").find("ul");
-                $ul.empty().append($lis);
-
-                for (let i = $lis.length; i >= 0; i--) {
-                    const $li = $lis.eq(i);
-                    if ($li.text().startsWith(value)) {
-                        $ul.prepend($li);
-                    }
-                }
-
-                menuHelper.hideDropdowns();
-                preventOpen = true;
-                menuHelper.toggleList($list);
-                preventOpen = false;
-            }, 100);
-        });
-
-        $input.on("change", () => {
-            const snippets = SQLSnippet.Instance.list();
-            let value = $input.val().trim();
-            let snippet: SQLSnippetDurable;
-            let snippetId = null;
-            for (let i = 0; i < snippets.length; i++) {
-                let candidate = snippets[i];
-                if (candidate.name === value) {
-                    snippet = candidate;
-                    break;
-                }
-            }
-            if (snippet) {
-                snippetId = snippet.id;
-                SQLTabManager.Instance.openTab(snippetId);
-                this._selectQuery(snippetId, null, true);
-                this._$elemPanel.removeClass("snippetNotFound");
-            } else {
-                this._snippetIdNotFound = true;
-                this._queryStr = "";
-                this._parsedQueryStr = "";
-                $input.data("id", null);
-                this.$panel.find(".editorWrapper").text("");
-                this._identifiers = [];
-                this._parsedIdentifiers = [];
-                this.updateIdentifiersList();
-                this._$elemPanel.addClass("snippetNotFound");
-            }
-
-            this._isQueryUpdated = true;
-            if (this._$elemPanel.hasClass("queryNotUpdated") && !this._snippetIdNotFound) {
-                this._$elemPanel.find(".snippetUpdated").fadeIn(800, () => {
-                    setTimeout(() => {
-                        this._$elemPanel.find(".snippetUpdated").fadeOut(800);
-                    }, 2000);
-                });
-            }
-            this._$elemPanel.removeClass("queryNotUpdated");
-        });
+        if (!noTab) {
+            SQLTabManager.Instance.closeTempTab();
+        }
     }
 
     private _selectQuery(snippetId: string, queryStr?: string, forceUpdate?: boolean): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
-        if (snippetId || queryStr) {
-            this.$panel.find(".nextForm").removeClass('xc-hidden');
-        }
-        const $list = this.$panel.find(".snippetsList");
-        const $input = $list.find("input");
-        let queryName = "";
         let snippet = SQLSnippet.Instance.getSnippetObj(snippetId);
         if (snippet) {
             if (queryStr == null) {
                 queryStr = snippet.snippet;
             }
-            queryName = snippet.name;
         }
         queryStr = queryStr || "";
-        $input.val(queryName);
-        if (queryStr && !queryName) {
-            $input.attr("placeholder", "SQL name not found");
-        } else {
-            $input.attr("placeholder", "");
-        }
-        $input.data("id", snippetId);
         this.$panel.find(".editorWrapper").text(queryStr);
         this._queryStr = queryStr;
         this._parsedQueryStr = this._parsedQueryStr || queryStr;
@@ -312,27 +170,8 @@ class SQLOpPanel extends BaseOpPanel {
         });
     }
 
-    public updateSnippet(snippetId: string, name?: string) {
+    public updateSnippet(snippetId: string) {
         if (!this._hasActiveSnippet(snippetId)) {
-            if (this.isOpen() && name && this.$panel.find(".snippetsList").find("input").val().trim() === name) {
-                this.$panel.find(".snippetsList").find("input").data("id", snippetId);
-                this._isQueryUpdated = true;
-                this._snippetIdNotFound = false;
-                if (this._$elemPanel.hasClass("queryNotUpdated") ||
-                    this._$elemPanel.hasClass("snippetNotFound")) {
-                    this._$elemPanel.find(".snippetUpdated").fadeIn(800, () => {
-                        setTimeout(() => {
-                            this._$elemPanel.find(".snippetUpdated").fadeOut(800);
-                        }, 2000);
-                    });
-                }
-                this._$elemPanel.removeClass("queryNotUpdated");
-                this._$elemPanel.removeClass("snippetNotFound");
-            } else {
-                return;
-            }
-        }
-        if (!this._isQueryUpdated) {
             return;
         }
         this._selectQuery(snippetId);
@@ -340,12 +179,10 @@ class SQLOpPanel extends BaseOpPanel {
 
 
     private _hasActiveSnippet(snippetId) {
-        return (this.isOpen() &&
-        this.$panel.find(".snippetsList input").data("id") === snippetId);
+        return (this.isOpen() && this._snippetId === snippetId);
     }
 
     private configureSQL(
-        snippetId: string,
         query?: string,
         parsedQuery?: string,
         identifiers?: Map<number, string>
@@ -354,12 +191,7 @@ class SQLOpPanel extends BaseOpPanel {
         const deferred = PromiseHelper.deferred();
 
         let sql = "";
-        if (query == null) {
-            let snippet = SQLSnippet.Instance.getSnippetObj(snippetId);
-            if (snippet) {
-                sql = snippet.snippet;
-            }
-        } else {
+        if (query != null) {
             sql = query;
         }
         parsedQuery = parsedQuery || query;
@@ -371,12 +203,9 @@ class SQLOpPanel extends BaseOpPanel {
         }
 
         if (!sql) {
-            self._dataModel.setDataModel("", identifiers, dropAsYouGo, snippetId);
+            self._dataModel.setDataModel("", identifiers, dropAsYouGo);
             self._dataModel.submit();
-            SQLSnippet.Instance.unlinkNode(this._prevSnippetId, self._graph.getTabId(),
-                                          self._dagNode.getId());
-            SQLSnippet.Instance.linkNode(snippetId, self._graph.getTabId(),
-                                         self._dagNode.getId());
+
             return PromiseHelper.resolve();
         }
         const queryId = xcHelper.randName("sql", 8);
@@ -388,21 +217,13 @@ class SQLOpPanel extends BaseOpPanel {
             };
             self._dagNode.compileSQL(sql, queryId, options)
             .then(() => {
-                self._dataModel.setDataModel(sql, identifiers, dropAsYouGo, snippetId);
+                self._dataModel.setDataModel(sql, identifiers, dropAsYouGo);
                 self._dataModel.submit();
-                SQLSnippet.Instance.unlinkNode(this._prevSnippetId, self._graph.getTabId(),
-                                                self._dagNode.getId());
-                SQLSnippet.Instance.linkNode(snippetId, self._graph.getTabId(),
-                                             self._dagNode.getId());
                 deferred.resolve();
             })
             .fail((err) => {
-                self._dataModel.setDataModel(sql, identifiers, dropAsYouGo, snippetId);
+                self._dataModel.setDataModel(sql, identifiers, dropAsYouGo);
                 self._dataModel.submit(true);
-                SQLSnippet.Instance.unlinkNode(this._prevSnippetId, self._graph.getTabId(),
-                                                self._dagNode.getId());
-                SQLSnippet.Instance.linkNode(snippetId, self._graph.getTabId(),
-                                             self._dagNode.getId());
                 deferred.reject(err);
             })
             .always(() => {
@@ -773,42 +594,10 @@ class SQLOpPanel extends BaseOpPanel {
     }
 
     private _renderSnippet() {
-        let snippetId: string = this._dataModel.getSnippetId();
         const queryStr: string = this._dataModel.getSqlQueryString() || null;
-        if (snippetId) {
-            let snippet = SQLSnippet.Instance.getSnippetObj(snippetId);
-            if (snippet) {
-                this._isQueryUpdated = (snippet.snippet === queryStr);
-                this._snippetIdNotFound = false;
-                SQLTabManager.Instance.openTab(snippetId);
-            } else {
-                snippetId = SQLTabManager.Instance.newTab();
-                SQLTabManager.Instance.openTab(snippetId);
-                SQLEditorSpace.Instance.newSQL(queryStr);
-                this._dataModel.setNewSnippetId(snippetId);
-                SQLSnippet.Instance.linkNode(snippetId, this._graph.getTabId(), this._dagNode.getId());
-                this._isQueryUpdated = true;
-                this._snippetIdNotFound = false;
-            }
-        } else {
-            this._isQueryUpdated = true;
-            this._snippetIdNotFound = true;
-        }
-        this._prevSnippetId = this._dagNode.getParam().snippetId;
+        const snippetId = SQLTabManager.Instance.newTempTab("SQL Graph Node", queryStr || "");
+        this._snippetId = snippetId;
         this._selectQuery(snippetId, queryStr);
-        if (this._isQueryUpdated) {
-            this._$elemPanel.removeClass("queryNotUpdated");
-        } else {
-            this._$elemPanel.addClass("queryNotUpdated");
-        }
-        if (!queryStr) {
-            this._snippetIdNotFound = false;
-        }
-        if (this._snippetIdNotFound) {
-            this._$elemPanel.addClass("snippetNotFound");
-        } else {
-            this._$elemPanel.removeClass("snippetNotFound");
-        }
     }
 
     private _renderDropAsYouGo(): void {
@@ -861,19 +650,6 @@ class SQLOpPanel extends BaseOpPanel {
         self._$elemPanel.on('click', '.submit', () => {
             this._submit();
         });
-
-        self._$elemPanel.on("click", ".refreshSnippet", () => {
-            this._isQueryUpdated = true;
-            this._$elemPanel.removeClass("queryNotUpdated");
-            this._identifiers = [];
-            const snippetId = this.$panel.find(".snippetsList input").data("id");
-            this._selectQuery(snippetId, null, true);
-            this._$elemPanel.find(".snippetUpdated").fadeIn(800, () => {
-                setTimeout(() => {
-                    this._$elemPanel.find(".snippetUpdated").fadeOut(800);
-                }, 2000);
-            });
-        });
     }
 
     protected _updateMode(toAdvancedMode: boolean) {
@@ -899,16 +675,8 @@ class SQLOpPanel extends BaseOpPanel {
                 identifiersOrder.push(key);
             });
 
-            const snippetId = this.$panel.find(".snippetsList input").data("id");
             let sqlQueryString = this._queryStr;
-            if (!sqlQueryString) {
-                let snippet = SQLSnippet.Instance.getSnippetObj(snippetId);
-                if (snippet) {
-                    sqlQueryString = snippet.snippet;
-                }
-            }
             const advancedParams = {
-                snippetId: snippetId,
                 sqlQueryString: sqlQueryString,
                 identifiers: identifiers,
                 identifiersOrder: identifiersOrder,
@@ -1022,28 +790,6 @@ class SQLOpPanel extends BaseOpPanel {
         return false;
     }
 
-    private _confirmOutdatedQuery() {
-        const deferred: XDDeferred<any> = PromiseHelper.deferred();
-        if (this._ignoreUpdateConfirm) {
-            return PromiseHelper.resolve();
-        }
-        Alert.show({
-            "title": SQLTStr.OutOfSync,
-            "msg": SQLTStr.OutOfSyncMsg,
-            "onConfirm": (checked) => {
-                this._ignoreUpdateConfirm = checked;
-                deferred.resolve();
-            },
-            "onCancel": (checked) => {
-                this._ignoreUpdateConfirm = checked;
-                deferred.reject("cancel"); // should not show error
-            },
-            isCheckBox: true,
-            isInfo: true
-        });
-        return deferred.promise();
-    }
-
     private _submit() {
         let modePromise;
         if (this._isAdvancedMode()) {
@@ -1070,32 +816,10 @@ class SQLOpPanel extends BaseOpPanel {
             }
             const query = this._queryStr.replace(/;+$/, "");
             const parsedQuery = this._parsedQueryStr;
-            const snippetId = this.$panel.find(".snippetsList input").data("id");
-            let promise;
-            if (!this._isQueryUpdated) {
-                promise = this._confirmOutdatedQuery();
-            } else {
-                promise = PromiseHelper.resolve();
-            }
-            promise
-            .then(() => {
-                return this.configureSQL(snippetId, query, parsedQuery, identifiers);
-            })
+
+            this.configureSQL(query, parsedQuery, identifiers)
             .then(() => {
                 this.close(true);
-                if (!this._ignoreQueryConfirm && this._isQueryUpdated &&
-                    !this._ignoreUpdateConfirm) {
-                    Alert.show({
-                        isAlert: true,
-                        title: SQLTStr.ModifyWarnTitle,
-                        msg: SQLTStr.ModifyWarnMsg,
-                        onCancel: (checked) => {
-                            this._ignoreQueryConfirm = checked;
-                        },
-                        isCheckBox: true,
-                        isInfo: true
-                    });
-                }
             })
             .fail((err) => {
                 if (err !== "Cancel" && err !== "cancel") {

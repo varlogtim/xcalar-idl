@@ -48,7 +48,7 @@ class ResourceMenu {
             } else if (key === ResourceMenu.KEY.UDF) {
                 this._renderUDFList();
             } else if (key === ResourceMenu.KEY.SQL) {
-                this._renderSQList();
+                this._renderSQLList();
             } else if (key === ResourceMenu.KEY.DF) {
                 this._renderDataflowList();
             } else if (key === ResourceMenu.KEY.App) {
@@ -72,6 +72,14 @@ class ResourceMenu {
             $li.scrollintoview({duration: 0});
         } catch (e) {
             console.error(e);
+        }
+    }
+
+    public toggleTempSQLTab(toTempTab?: boolean) {
+        if (toTempTab) {
+            this._getContainer().addClass("hasSQLTempTab");
+        } else {
+            this._getContainer().removeClass("hasSQLTempTab");
         }
     }
 
@@ -112,7 +120,7 @@ class ResourceMenu {
     private _renderApps(): void {
         this._renderAppList();
         this._renderTableFuncList();
-        this._renderSQList();
+        this._renderSQLList();
         this._renderDataflowList();
     }
 
@@ -173,11 +181,14 @@ class ResourceMenu {
         this._getContainer().find(".udf ul").html(html);
     }
 
-    private _renderSQList(): void {
+    private _renderSQLList(): void {
         const snippets: SQLSnippetDurable[] = SQLSnippet.Instance.list();
         const iconClassNames: string[] = ["xi-menu-sql"];
         const map: Map<string, HTML> = new Map(); // appId to html map
         snippets.forEach((snippet) => {
+            if (snippet.temp) {
+                return;
+            }
             const name = snippet.name;
             const id = snippet.id;
             const listClassNames: string[] = ["sqlSnippet"];

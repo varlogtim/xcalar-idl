@@ -61,7 +61,7 @@ describe("SQLSnippet Test", function() {
         };
 
         try {
-            await SQLSnippet.Instance._deletSnippet("id");
+            await SQLSnippet.Instance._deleteSnippet("id");
             expect(called).to.be.true;
             expect(SQLSnippet.Instance.getSnippetObj("id")).to.be.null;
             done();
@@ -80,7 +80,7 @@ describe("SQLSnippet Test", function() {
         };
 
         try {
-            await SQLSnippet.Instance._deletSnippet("id2");
+            await SQLSnippet.Instance._deleteSnippet("id2");
             expect(called).to.be.false;
             done();
         } catch (e) {

@@ -1522,6 +1522,7 @@ SQLTStr = {
     "Edit": "Edit",
     "DebugPlan": "Debug Plan",
     "ReadOnly": "Current module doesn't support the use of SQL Editor",
+    "TempSnippetHint": "Enter a SQL statement to get started. This statement will be used in the active SQL graph-node.",
     "SnippetHint": "Start building your Data App by either entering a SQL statement or from your desktop dragging a SQL statement into the SQL editor. When completed, execute the statement by clicking the green run icon, which visually displays the performance and query phases of your statement in the App Builder canvas.",
     "Graph": "SQL Graph",
     "SelectWholeTable": "The profile is based on sample of the table, to view the entire table, please use SQL \"select * from <table>\"",

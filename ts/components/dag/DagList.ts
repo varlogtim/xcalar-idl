@@ -421,7 +421,6 @@ class DagList extends Durable {
             } else {
                 ResourceMenu.Instance.render(ResourceMenu.KEY.DF);
             }
-            SQLSnippet.Instance.unlinkTab(id);
             Log.add(DagTStr.DeleteDataflow, {
                 "operation": SQLOps.DeleteDataflow,
                 "id": id,

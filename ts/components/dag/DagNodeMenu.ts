@@ -39,7 +39,6 @@ namespace DagNodeMenu {
             restoreAllSource: "This action regenerates all the source tables by reloading data from your source repository.",
             download: "Saves the module outside of Notebook as one of three formats: Xcalar module format, PNG, and JSON.",
             exitOp: "This action closes the operator’s configuration panel. IMPORTANT: There is no autosave or warning message for unsaved changes.",
-            updateSQLQuery: "This action synchronizes the SQL graph-node with the current data manipulation operations in the referenced SQL statement. If you require the current changes, select this option, otherwise do nothing.",
             pinTable: "This action prevents the intermediate table from being deleted by you or by Xcalar when memory is low.<br/><br/>NOTE: Intermediate tables must be unpinned before Delete or Clear All Table Results actions can be performed on the pinned table’s operator.",
             unpinTable: "This action removes the pin associated with the intermediate table.<br/><br/>NOTE: This action re-enables configuration modifications and floating menu actions on the intermediate table’s operator.",
             generateResult: "This action runs the operation and regenerates the results in the selected table.",
@@ -401,9 +400,6 @@ namespace DagNodeMenu {
                     break;
                 case ("shareCustom"):
                     DagViewManager.Instance.shareCustomOperator(dagNodeIds[0]);
-                    break;
-                case ("updateSQLQuery"):
-                    DagViewManager.Instance.updateSQLQuery(dagNodeIds[0]);
                     break;
                 case ("inspectSQL"):
                     DagViewManager.Instance.inspectSQLNode(dagNodeIds[0], tabId);
@@ -1061,9 +1057,6 @@ namespace DagNodeMenu {
 
         if (dagNodeType === DagNodeType.SQL) {
             classes += ' SQLOpMenu';
-            _checkSQLQuery(dagNode, $menu);
-        } else {
-            $menu.find(".updateSQLQuery").addClass("xc-hidden");
         }
 
         if (DagViewManager.Instance.isNodeLocked(nodeId)) {
@@ -1230,27 +1223,6 @@ namespace DagNodeMenu {
         curNodeId = null;
         curParentNodeId = null;
         curConnectorIndex = null;
-    }
-
-    function _checkSQLQuery(dagNode: DagNodeSQL, $menu: JQuery): void {
-        const snippetId: string = dagNode.getParam().snippetId;
-        const queryStr: string = dagNode.getParam().sqlQueryStr;
-        let isQueryUpdated = false;
-        if (snippetId) {
-            let snippet = SQLSnippet.Instance.getSnippetObj(snippetId);
-            if (snippet) {
-                isQueryUpdated = (snippet.snippet === queryStr);
-            } else {
-                isQueryUpdated = true;
-            }
-        } else {
-            isQueryUpdated = true;
-        }
-        if (isQueryUpdated) {
-            $menu.find(".updateSQLQuery").addClass("xc-hidden");
-        } else {
-            $menu.find(".updateSQLQuery").removeClass("xc-hidden");
-        }
     }
 
     function _copyTableName(nodeId) {

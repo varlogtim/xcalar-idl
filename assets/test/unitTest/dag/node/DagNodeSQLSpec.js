@@ -74,7 +74,6 @@ describe("SQL Dag Node Test", () => {
                 "description": "",
                 "title": "",
                 "input": {
-                    "snippetId": "",
                     "sqlQueryStr": "",
                     "identifiers": {},
                     "identifiersOrder": [],
@@ -86,8 +85,7 @@ describe("SQL Dag Node Test", () => {
                 "aggregates": [],
                 "tag": [],
                 "isHidden": undefined,
-                "udfErrors": {},
-                "isDeprecated": false
+                "udfErrors": {}
             });
         });
 

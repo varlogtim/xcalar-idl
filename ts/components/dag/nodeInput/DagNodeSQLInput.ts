@@ -8,7 +8,6 @@ class DagNodeSQLInput extends DagNodeInput {
             dropAsYouGo = true; // default is true
         }
         return {
-            snippetId: input.snippetId || "",
             sqlQueryStr: input.sqlQueryStr || "",
             identifiers: input.identifiers || {},
             identifiersOrder: input.identifiersOrder || [],

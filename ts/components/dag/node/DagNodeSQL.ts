@@ -26,7 +26,6 @@ class DagNodeSQL extends DagNode {
     // non-persistent
     private _queryObj: any;
     private _allowUpdateSQLHistory: boolean = false;
-    private _isDeprecated: boolean = false;
     protected _udfErrorsMap: {}; // nodeId to MapUDFFailureInfo
 
     public constructor(options: DagNodeSQLInfo, runtime?: DagRuntime) {
@@ -39,10 +38,6 @@ class DagNodeSQL extends DagNode {
                              // be 0
         this.display.icon = "&#xe957;";
         this.display.isHidden = options.isHidden;
-        if (options.isDeprecated || (options.input &&
-            options.input.sqlQueryStr && !options.input.hasOwnProperty("snippetId"))) {
-            this._isDeprecated = true;
-        }
         this.input = this.getRuntime().accessible(new DagNodeSQLInput(options.input));
         const identifiers = new Map<number, string>();
         const identifiersOrder = this.input.getInput().identifiersOrder;
@@ -393,7 +388,6 @@ class DagNodeSQL extends DagNode {
             dropAsYouGo = true; // default to be true
         }
         this.input.setInput({
-            snippetId: input.snippetId,
             sqlQueryStr: input.sqlQueryStr,
             identifiers: input.identifiers,
             identifiersOrder: input.identifiersOrder,
@@ -546,7 +540,6 @@ class DagNodeSQL extends DagNode {
         nodeInfo.identifiersNameMap = this.identifiersNameMap;
         nodeInfo.isHidden = this.display.isHidden;
         nodeInfo.udfErrors = this._udfErrorsMap;
-        nodeInfo.isDeprecated = this._isDeprecated;
         if (!forCopy && this.subGraphNodeIds) {
             nodeInfo.subGraphNodeIds = this.subGraphNodeIds;
         }
@@ -559,11 +552,7 @@ class DagNodeSQL extends DagNode {
     protected _genParamHint(): string {
         let hint: string = "";
         const input: DagNodeSQLInputStruct = this.getParam();
-        if (input.snippetId && SQLSnippet.Instance.getSnippetObj(input.snippetId)) {
-            const snippet = SQLSnippet.Instance.getSnippetObj(input.snippetId);
-            hint = snippet.name.slice(0, 20);
-        }
-        if (!hint && input.sqlQueryStr) {
+        if (input.sqlQueryStr) {
             let str: string = input.sqlQueryStr.slice(0, 20);
             if (str.length < input.sqlQueryStr.length) {
                 // when it's part of the query
@@ -728,57 +717,6 @@ class DagNodeSQL extends DagNode {
         if (typeof SQLOpPanel !== "undefined" && SQLOpPanel.Instance.isOpen()) {
             SQLOpPanel.Instance.updateNodeParents();
         }
-        if (!this._isDeprecated) {
-            return;
-        }
-
-        let index = pos + 1;
-        let identifiers;
-        let identifiersNameMap;
-        if (typeof OldSQLOpPanel !== "undefined" && OldSQLOpPanel.Instance.isOpen()) {
-            identifiers = OldSQLOpPanel.Instance.extractIdentifiers(true).identifiers;
-        } else {
-            identifiers = this.getIdentifiers();
-        }
-
-        identifiersNameMap = this._getIdentifiersNameMap();
-        let identifier = "";
-
-        const parentNodeId = parentNode.getId();
-        if (parentNode instanceof DagNodeIMDTable) {
-            identifier = parentNode.getParam().source;
-        } else if (parentNode instanceof DagNodeDataset) {
-            identifier = xcHelper.parseDSName(parentNode.getParam().source).dsName;
-        } else if (parentNode instanceof DagNodeDFIn) {
-            identifier = parentNode.getParam().linkOutName;
-        }
-        if (identifiersNameMap[parentNodeId]) {
-            identifier = identifiersNameMap[parentNodeId];
-        } else {
-            identifiersNameMap[parentNodeId] = identifier;
-        }
-        if (!identifiers.has(index)) {
-            // new connection, auto-fill the identifiers
-            identifiers.set(index, identifier);
-        } else if (spliceIn) {
-            // inserting identifier (e.g. undo disconnection)
-            while (identifiers.has(index)) {
-                let prevIdentifier = identifiers.get(index);
-                identifiers.set(index, identifier);
-                identifier = prevIdentifier;
-                index += 1;
-            }
-            identifiers.set(index, identifier);
-        } else {
-            return;
-        }
-        // reset this.identifiers and setParams
-        this.setIdentifiers(identifiers);
-        this.setIdentifiersNameMap(identifiersNameMap);
-        if (typeof OldSQLOpPanel !== "undefined" && OldSQLOpPanel.Instance.isOpen()) {
-            // update panel if it's open
-            OldSQLOpPanel.Instance.updateIdentifiers(identifiers);
-        }
     }
 
     public disconnectFromParent(
@@ -791,33 +729,6 @@ class DagNodeSQL extends DagNode {
 
         if (typeof SQLOpPanel !== "undefined" && SQLOpPanel.Instance.isOpen()) {
             SQLOpPanel.Instance.updateNodeParents();
-        }
-        if (!this._isDeprecated) {
-            return wasSpliced;
-        }
-
-        // when removing connection to a parent, also remove sql identifier
-        let index = pos + 1;
-        let identifiers;
-        if (typeof OldSQLOpPanel !== "undefined" && OldSQLOpPanel.Instance.isOpen()) {
-            identifiers = OldSQLOpPanel.Instance.extractIdentifiers(true).identifiers;
-        } else {
-            identifiers = this.getIdentifiers();
-        }
-
-        if (identifiers.has(index)) {
-            // decrement other identifiers
-            while (identifiers.has(index + 1)) {
-                identifiers.set(index, identifiers.get(index + 1));
-                index += 1;
-            }
-            identifiers.delete(index);
-            // reset this.identifiers and setParams
-            this.setIdentifiers(identifiers);
-        }
-        if (typeof OldSQLOpPanel !== "undefined" && OldSQLOpPanel.Instance.isOpen()) {
-            // update panel if it's open
-            OldSQLOpPanel.Instance.updateIdentifiers(identifiers);
         }
         return wasSpliced;
     }
@@ -897,10 +808,6 @@ class DagNodeSQL extends DagNode {
 
     public isHidden(): boolean {
         return this.display.isHidden;
-    }
-
-    public isDeprecated(): boolean {
-        return this._isDeprecated;
     }
 
     private _getDerivedColName(colName: string, validate?: boolean): string {

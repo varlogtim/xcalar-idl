@@ -55,6 +55,24 @@ class SQLSnippet {
         return id;
     }
 
+     /**
+     * SQLSnippet.Instance.createTemp
+     * @param name
+     */
+    public createTemp(name: string | null): string {
+        name = this.getValidName(name);
+        const id: string = SQLSnippet.generateId();
+        this._snippets.push({
+            id,
+            name,
+            snippet: "",
+            temp: true,
+            app: null
+        });
+        this._updateSnippets();
+        return id;
+    }
+
     /**
      * SQLSnippet.Instance.list
      */
@@ -97,6 +115,9 @@ class SQLSnippet {
             return;
         }
         snippetObj.snippet = snippet;
+        if (snippetObj.temp) {
+            return;
+        }
         return this._updateSnippets();
     }
 
@@ -105,8 +126,15 @@ class SQLSnippet {
      * @param id
      */
     public delete(id: string): void {
-        this._deletSnippet(id);
+        this._deleteSnippet(id);
         this._refresh();
+    }
+
+    public deleteTempTab(id: string): void {
+        const index: number = this._snippets.findIndex((snippetObj) => snippetObj.id === id);
+        if (index > -1) {
+            this._snippets.splice(index, 1);
+        }
     }
 
     /**
@@ -121,7 +149,7 @@ class SQLSnippet {
             }
         });
 
-        toDelete.forEach((id) => { this._deletSnippet(id); });
+        toDelete.forEach((id) => { this._deleteSnippet(id); });
     }
 
     /**
@@ -169,51 +197,6 @@ class SQLSnippet {
         return validName;
     }
 
-    public linkNode(snippetId: string, tabId: string, nodeId: DagNodeId): void {
-        const snippetObj = this._getSnippetObjectById(snippetId);
-        if (snippetObj == null) {
-            return;
-        }
-        let refs = snippetObj.refs || {};
-        refs[tabId] = refs[tabId] || {};
-        refs[tabId][nodeId] = true;
-        snippetObj.refs = refs;
-        SQLEditorSpace.Instance.updateTab();
-        this._updateSnippets(true);
-    }
-
-    public unlinkNode(snippetId: string, tabId: string, nodeId: DagNodeId): void {
-        const snippetObj = this._getSnippetObjectById(snippetId);
-        if (snippetObj == null) {
-            return;
-        }
-        let refs = snippetObj.refs || {};
-        refs[tabId] = refs[tabId] || {};
-        delete refs[tabId][nodeId];
-        if (!Object.keys(refs[tabId]).length) {
-            delete refs[tabId];
-        }
-        snippetObj.refs = refs;
-        SQLEditorSpace.Instance.updateTab();
-        this._updateSnippets(true);
-    }
-
-    public unlinkTab(tabId: string): void {
-        let hasChange = false;
-        for (let snippet of this._snippets) {
-            if (snippet.refs && snippet.refs[tabId]) {
-                delete snippet.refs[tabId];
-                hasChange = true;
-
-            }
-        }
-        if (hasChange) {
-            SQLEditorSpace.Instance.updateTab();
-            this._updateSnippets(true);
-        }
-    }
-
-
     private _getKVStore(): KVStore {
         let snippetQueryKey: string = KVStore.getKey("gSQLSnippetQuery");
         return new KVStore(snippetQueryKey, gKVScope.WKBK);
@@ -255,7 +238,9 @@ class SQLSnippet {
 
     private _getDurable(): SQLSnippetListDurable {
         return {
-            snippets: this._snippets
+            snippets: this._snippets.filter(snippet => {
+                return !snippet.temp;
+            })
         };
     }
 
@@ -284,7 +269,7 @@ class SQLSnippet {
         await this._getKVStore().put(jsonStr, true);
     }
 
-    private async _deletSnippet(id: string): Promise<void> {
+    private async _deleteSnippet(id: string): Promise<void> {
         SQLTabManager.Instance.closeTab(id);
         const index: number = this._snippets.findIndex((snippetObj) => snippetObj.id === id);
         if (index > -1) {

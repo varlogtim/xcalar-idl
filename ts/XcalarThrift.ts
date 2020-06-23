@@ -183,7 +183,9 @@ function thriftLog(
             error = "Table name already exists. Rename the table or aggregate and try again.";
         }
 
-        if (status !== StatusT.StatusCanceled) {
+        if (status === StatusT.StatusKvEntryNotFound) {
+            console.warn(msg, log);
+        } else if (status !== StatusT.StatusCanceled) {
             console.error('(╯°□°）╯︵ ┻━┻', msg, log);
         }
 

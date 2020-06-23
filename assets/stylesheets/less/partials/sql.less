@@ -755,14 +755,29 @@
         }
     }
 
-    .savingText {
+    .savingText, .tempTabText {
         display: none;
     }
-    &.saving {
+    &.saving:not(.hasTempTab) {
         .sectionHeader {
             margin-right: 0px;
         }
         .savingText {
+            display: block;
+            color: @color-bg-cancel-gray-hover;
+            margin: 0px auto 0px 8px;
+            padding-right: 4px;
+            line-height: @height-sectionBar + 2px;
+            .textOverflowOneLine;
+        }
+    }
+
+    &.hasTempTab {
+
+        .sectionHeader {
+            margin-right: 0px;
+        }
+        .tempTabText {
             display: block;
             color: @color-bg-cancel-gray-hover;
             margin: 0px auto 0px 8px;
@@ -802,6 +817,14 @@
     // .new {
     //     color: @color-font-link-blue;
     // }
+}
+
+#sqlTabView {
+    &.hasTempTab {
+        .tab:not(.active) {
+            // .xc-disabled;
+        }
+    }
 }
 
 #sqlTableArea {

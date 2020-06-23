@@ -1,6 +1,9 @@
 class SQLTabManager extends AbstractTabManager {
     private static _instance: SQLTabManager;
     private _activeTabs: string[];
+    private _activeId: string;
+    private _tempTabId: string;
+    private _tabBeforeTemp: string;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -38,6 +41,22 @@ class SQLTabManager extends AbstractTabManager {
         return id;
     }
 
+    public newTempTab(name = null, statement = ""): string {
+        this._tabBeforeTemp = this._activeId;
+        const id: string = SQLSnippet.Instance.createTemp(name);
+        this.openTab(id);
+        SQLEditorSpace.Instance.newSQL(statement, true);
+        this._tempTabId = id;
+        this._getContainer().addClass("hasTempTab");
+        ResourceMenu.Instance.toggleTempSQLTab(true);
+        return id;
+    }
+
+    public closeTempTab() {
+        const index: number = this._activeTabs.indexOf(this._tempTabId);
+        this._deleteTabAction(index, this._tabBeforeTemp);
+    }
+
     /**
      * SQLTabManager.Instance.openTab
      * @param id
@@ -54,6 +73,7 @@ class SQLTabManager extends AbstractTabManager {
             this._updateList();
             this._switchTabs();
         }
+        this._activeId = id;
     }
 
     /**
@@ -85,6 +105,10 @@ class SQLTabManager extends AbstractTabManager {
         const id: string = this._activeTabs[index];
         SQLEditorSpace.Instance.openSnippet(id);
         this._focusOnList(id);
+        this._activeId = id;
+        if (this._tempTabId && this._activeId !== this._tempTabId) {
+            this._tabBeforeTemp = this._activeId;
+        }
         return index;
     }
 
@@ -118,15 +142,33 @@ class SQLTabManager extends AbstractTabManager {
         return deferred.promise();
     }
 
-    protected _deleteTabAction(index: number): void {
+    protected _deleteTabAction(index: number, idToSwitchTo?: string): void {
         const $tab: JQuery = this._getTabElByIndex(index);
+        const id: string = this._activeTabs[index];
+        const snippetObj = SQLSnippet.Instance.getSnippetObj(id);
+        if (!snippetObj) {
+            debugger;
+        }
+        if (snippetObj.temp) {
+            SQLOpPanel.Instance.close(false, true);
+            SQLSnippet.Instance.deleteTempTab(this._tempTabId);
+            this._tempTabId = null;
+            this._getContainer().removeClass("hasTempTab");
+            this._tabListScroller.showOrHideScrollers();
+            ResourceMenu.Instance.toggleTempSQLTab();
+        }
+
         if ($tab.hasClass("active")) {
             // when this is the current active table
-            if (index > 0) {
+            if (idToSwitchTo && this._activeTabs.indexOf(idToSwitchTo) > -1) {
+                const newIndex = this._activeTabs.indexOf(idToSwitchTo);
+                this._switchTabs(newIndex);
+            } else if (index > 0) {
                 this._switchTabs(index - 1);
             } else if (this.getNumTabs() > 1) {
                 this._switchTabs(index + 1);
             }
+
         }
         this._activeTabs.splice(index, 1);
         this._save();
@@ -139,6 +181,12 @@ class SQLTabManager extends AbstractTabManager {
         let start = rightOnly ? (index + 1) : 0;
         for (let i = start; i < this._activeTabs.length; i++) {
             if (i !== index) {
+                const id: string = this._activeTabs[i];
+                const snippetObj = SQLSnippet.Instance.getSnippetObj(id);
+                if (snippetObj.temp) {
+                    SQLOpPanel.Instance.close(false, true);
+                }
+
                 this._activeTabs.splice(i, 1);
                 const $tab: JQuery = this._getTabElByIndex(i);
                 $tab.remove();
@@ -170,7 +218,6 @@ class SQLTabManager extends AbstractTabManager {
             SQLSnippet.Instance.rename(id, newName);
             this._save();
             this._updateList();
-            SQLOpPanel.Instance.updateSnippet(id, newName);
         }
         return this._getAppPath(snippetObj);
     }
@@ -232,9 +279,13 @@ class SQLTabManager extends AbstractTabManager {
     }
 
     private _addTabHTML(snippetObj: SQLSnippetDurable, tabIndex?: number): void {
+        let liClass = "";
+        if (snippetObj.temp) {
+            liClass += " tempTab";
+        }
         const name: string = this._getAppPath(snippetObj);
         const html: HTML =
-            '<li class="tab tooltipOverflow"' +
+            '<li class="tab tooltipOverflow ' + liClass + '"' +
             ' data-id="${snippetObj.id}"' +
             xcTooltip.Attrs +
             ' data-title="' + name + '"' +

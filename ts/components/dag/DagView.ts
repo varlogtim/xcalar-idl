@@ -1387,9 +1387,6 @@ class DagView {
                     if (newNode instanceof DagNodeAggregate) {
                         newAggNodes.push(newNode);
                     }
-                    if (newNode instanceof DagNodeSQL && newNode.isDeprecated()) {
-                        newNode.setIdentifiers(new Map<number, string>(), true);
-                    }
                     const newNodeId: DagNodeId = newNode.getId();
                     if (nodeInfo.nodeId) {
                         oldNodeIdMap.set(nodeInfo.nodeId, newNodeId);
@@ -2111,12 +2108,7 @@ class DagView {
                 connectionIn: newConnectionIn,
                 connectionOut: newConnectionOut
             } = DagNodeCustom.createCustomNode(nodeInfos, connectionInfo, this.getGraph().generateNodeTitle());
-            customNode.getSubGraph().getAllNodes().forEach((node) => {
-                if (node instanceof DagNodeSQL && node.getParam().snippetId) {
-                    const tabId = `${this.tabId}-${customNode.getId()}`;
-                    SQLSnippet.Instance.linkNode(node.getParam().snippetId, tabId, node.getId());
-                }
-            });
+
             // Position custom operator
             const nodePosList = nodeInfos.map((nodeInfo) => ({
                 x: nodeInfo.display.x,
@@ -2188,11 +2180,6 @@ class DagView {
                 { isNoLog: true, isSwitchState: false, clearMeta: false}
             )
             .then(({logParam: removeLogParam, spliceInfos}) => {
-                nodes.forEach((node) => {
-                    if (node instanceof DagNodeSQL && node.getParam().snippetId) {
-                        SQLSnippet.Instance.unlinkNode(node.getParam().snippetId, this.tabId, node.getId());
-                    }
-                });
                 DagGraphBar.Instance.updateNumNodes(this.dagTab);
 
                 customLogParam.options.actions.push(removeLogParam.options);
@@ -2399,9 +2386,6 @@ class DagView {
                 // Add sub nodes to graph
                 expandNodeIds.push(nodeId);
                 this.graph.addNode(node);
-                if (node instanceof DagNodeSQL && node.getParam().snippetId) {
-                    SQLSnippet.Instance.linkNode(node.getParam().snippetId, this.tabId, node.getId());
-                }
 
                 if (node.getType() == DagNodeType.Aggregate) {
                     // Update agg dagId
@@ -2424,7 +2408,6 @@ class DagView {
                 [containerNode.getId()],
                 { isNoLog: true, isSwitchState: false, clearMeta: false })
             .then(({ logParam: removeLogParam, spliceInfos }) => {
-                SQLSnippet.Instance.unlinkTab(`${this.tabId}-${containerNode.getId()}`);
                 expandLogParam.options.actions.push(removeLogParam.options);
                 // Create a set, which contains all nodes splicing parent index
                 const splicingNodeSet: Set<string> = new Set();
@@ -2871,62 +2854,6 @@ class DagView {
             });
 
         return deferred.promise();
-    }
-
-    /**
-     * DagView.updateSQLQuery
-     * @param dagNodeId
-     */
-    public updateSQLQuery(nodeId: DagNodeId): XDPromise<void> {
-        const dagNode: DagNodeSQL = <DagNodeSQL>this.graph.getNode(nodeId);
-        if (dagNode == null) {
-            return PromiseHelper.reject(`${nodeId} does not exist`);
-        }
-        let param = dagNode.getParam()
-        const snippetId: string = param.snippetId;
-        const snippet = SQLSnippet.Instance.getSnippetObj(snippetId);
-        if (!snippet) {
-            return PromiseHelper.reject(`Snippet ${snippetId} does not exist`);
-        }
-        let query = snippet.snippet;
-        const queryId = xcHelper.randName("sql", 8);
-        let identifiers;
-        let identifiersNameMap = {};
-
-        SQLUtil.getSQLStruct(query)
-        .then((ret) => {
-            identifiers = new Map();
-            ret.identifiers.forEach((identifier, index) => {
-                identifiers.set(index + 1, identifier);
-            });
-            let error;
-            identifiers.forEach((identifier, index) => {
-                let parent = dagNode.getParents()[index - 1];
-                if (!parent) {
-                    error = "Query Table \'" + identifier + "\' does not have a corresponding module table. Configure the SQL operator node to fix this issue.";
-                    return;
-                }
-                identifiersNameMap[parent.getId()] = identifier;
-            });
-            if (error) {
-                return PromiseHelper.reject(error);
-            }
-            dagNode.setIdentifiersNameMap(identifiersNameMap);
-            return dagNode.compileSQL(query, queryId,{
-                identifiers: identifiers
-            });
-        })
-        .then(() => {
-            dagNode.setIdentifiers(identifiers);
-            let identifiersHash = {};
-            identifiers.forEach(function(value, key) {
-                identifiersHash[key] = value;
-            });
-            dagNode.setParam({...param, sqlQueryStr: query, identifiers: identifiersHash}, true);
-        })
-        .fail((e) => {
-            Alert.error("SQL Update Error", e);
-        });
     }
 
     /**
@@ -3984,9 +3911,7 @@ class DagView {
     }
 
     private _removeNodeLinkFromSQLSnippet(node, tabId) {
-        if (node instanceof DagNodeSQL && node.getParam().snippetId) {
-            SQLSnippet.Instance.unlinkNode(node.getParam().snippetId, tabId, node.getId());
-        } else if (node instanceof DagNodeCustom) {
+        if (node instanceof DagNodeCustom) {
             let subTabId = `${tabId}-${node.getId()}`;
             node.getSubGraph().getAllNodes().forEach((subNode) => {
                 this._removeNodeLinkFromSQLSnippet(subNode, subTabId);
@@ -3995,9 +3920,7 @@ class DagView {
     }
 
     private _addNodeLinkToSQLSnippet(node, tabId) {
-        if (node instanceof DagNodeSQL && node.getParam().snippetId) {
-            SQLSnippet.Instance.linkNode(node.getParam().snippetId, tabId, node.getId());
-        } else if (node instanceof DagNodeCustom) {
+        if (node instanceof DagNodeCustom) {
             let subTabId = `${tabId}-${node.getId()}`;
             node.getSubGraph().getAllNodes().forEach((subNode) => {
                 this._addNodeLinkToSQLSnippet(subNode, subTabId);

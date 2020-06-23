@@ -1077,14 +1077,6 @@ class DagViewManager {
         SQLFuncSettingModal.Instance.show(onSubmit, onCancel, null);
     }
 
-     /**
-     * DagViewManager.Instance.updateSQLQuery
-     * @param dagNodeId
-     */
-    public updateSQLQuery(nodeId: DagNodeId): void {
-        this.activeDagView.updateSQLQuery(nodeId);
-    }
-
     /**
      * Open a tab to show SQL sub graph for viewing purpose
      * @param nodeId
