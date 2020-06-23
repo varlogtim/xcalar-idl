@@ -1385,7 +1385,7 @@ namespace xcHelper {
                     return parseInt(id);
                 }
             } else {
-                return null;
+                return 't' + jQuery.md5(wholeName);
             }
         }
     }

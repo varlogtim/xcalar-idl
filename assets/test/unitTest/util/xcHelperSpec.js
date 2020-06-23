@@ -721,7 +721,7 @@ describe("xcHelper Test", function() {
         expect(res).to.equal("hd1");
         // case 2
         res = xcHelper.getTableId("test");
-        expect(res).to.be.null;
+        expect(res[0]).to.equal("t");
         // case
         res = xcHelper.getTableId();
         expect(res).to.be.null;
