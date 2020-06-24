@@ -3,6 +3,7 @@ class ExplodeOpPanelModel extends BaseOpPanelModel {
     private _destColumn: string = '';
     private _delimiter: string = '';
     private _includeErrRow: boolean = false;
+    private _destColumnChanged: boolean = false;
     private static _funcName = 'explodeString';
 
     /**
@@ -103,7 +104,7 @@ class ExplodeOpPanelModel extends BaseOpPanelModel {
     }
 
     public autofillEmptyDestColumn(): void {
-        if (this.getSourceColumn().length === 0 || this.getDestColumn().length > 0) {
+        if (this.getSourceColumn().length === 0 || this._destColumnChanged) {
             return
         }
 
@@ -160,8 +161,11 @@ class ExplodeOpPanelModel extends BaseOpPanelModel {
         return this._destColumn;
     }
 
-    public setDestColumn(colName: string): void {
+    public setDestColumn(colName: string, manuallyTriggered?: boolean): void {
         this._destColumn = colName;
+        if (manuallyTriggered) {
+            this._destColumnChanged = true;
+        }
     }
 
     public getDelimiter(): string {

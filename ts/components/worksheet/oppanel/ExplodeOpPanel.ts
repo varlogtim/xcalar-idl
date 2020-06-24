@@ -155,7 +155,7 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
                 args: () => [this._dataModel.getColNameSet()]
             },
             onChange: (colNameStr: string) => {
-                this._dataModel.setDestColumn(colNameStr);
+                this._dataModel.setDestColumn(colNameStr, true);
             },
             onElementMountDone: (elem) => {
                 this._addValidation(elem, () => {

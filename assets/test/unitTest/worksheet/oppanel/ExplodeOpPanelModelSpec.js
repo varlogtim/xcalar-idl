@@ -130,10 +130,11 @@ describe('ExplodeOpPanelModel Test', () => {
             expect(testModel._includeErrRow).to.equal(expectedModel._includeErrRow);
         });
 
-        it('Case: dest name is NOT empty', () => {
+        it('Case: no change has been made', () => {
             const expectedModel = createDefaultModel();
             const testModel = createDefaultModel();
             testModel._destColumn = 'new_dest_name';
+            testModel._destColumnChanged = true;
             testModel.autofillEmptyDestColumn();
             // Nothing will happen
             expect(testModel._delimiter).to.equal(expectedModel._delimiter);
@@ -142,10 +143,11 @@ describe('ExplodeOpPanelModel Test', () => {
             expect(testModel._includeErrRow).to.equal(expectedModel._includeErrRow);
         });
 
-        it('Case: dest name is empty', () => {
+        it('Case: change has been made', () => {
             const expectedModel = createDefaultModel();
             const testModel = createDefaultModel();
-            testModel._destColumn = '';
+            testModel._destColumn = 'new_dest_name';
+            testModel._destColumnChanged = false;
             testModel.autofillEmptyDestColumn();
             // Dest column will be auto-generated
             expect(testModel._delimiter).to.equal(expectedModel._delimiter);
