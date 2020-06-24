@@ -30,7 +30,7 @@ const FileTypeFilter = new Map([
     }]
 ]);
 
-const PUNCT = '\\w\\s\\-$_%#@()\\{\\}\\&\\!,;\\<\\>\\.\\?\\+\\"\\~\\|\\*\\='
+const PUNCT = '\\w\\s\\-$_%#@()\\/\\{\\}\\&\\!,;\\<\\>\\.\\?\\+\\"\\~\\|\\*\\='
 
 const FileTypeNamePattern = new Map([
     [FileType.CSV, `re:^([${PUNCT}]+).[cC][sS][vV](.[gG][zZ]|.[bB][zZ]2)*$`],
