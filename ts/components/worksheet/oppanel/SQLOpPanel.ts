@@ -9,10 +9,10 @@ class SQLOpPanel extends BaseOpPanel {
     private _parsedIdentifiers: string[] = [];
     private _connectors: {label: string, nodeId: string}[] = [];
     private _queryStr = "";
-    private _parsedQueryStr = ""; // from compiler
     private _graph: DagGraph;
     private _labelCache: Set<string>;
     private _snippetId: string;
+    private _queryStrHasError = false;
     /**
      * Initialization, should be called only once by xcManager
      */
@@ -22,6 +22,27 @@ class SQLOpPanel extends BaseOpPanel {
         super.setup(this._$elemPanel);
 
         this._setupDropAsYouGo();
+        const advancedEditor = this.getEditor();
+        let timer;
+        advancedEditor.on("change", (_cm, e) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                advancedEditor.getValue();
+                try {
+                    const advancedParams = JSON.parse(advancedEditor.getValue());
+                    if (!advancedParams.hasOwnProperty("sqlQueryString")) {
+                        return;
+                    }
+                    let queryStr = advancedParams.sqlQueryString;
+                    SQLSnippet.Instance.update(this._snippetId, queryStr);
+                    if (SQLEditorSpace.Instance.getCurrentSnippetId() === this._snippetId) {
+                        const editor = SQLEditorSpace.Instance.getEditor();
+                        editor.setValue(queryStr);
+                        editor.refresh();
+                    }
+                } catch(e) {}
+            }, 500);
+        });
     }
 
         /**
@@ -32,7 +53,7 @@ class SQLOpPanel extends BaseOpPanel {
         this._dagNode = dagNode;
         this._dataModel = new SQLOpPanelModel(dagNode);
         this._queryStr = "";
-        this._parsedQueryStr = "";
+        this._queryStrHasError = false;
         let error: string;
         this._graph = DagViewManager.Instance.getActiveDag();
         this._identifiers = [];
@@ -91,6 +112,7 @@ class SQLOpPanel extends BaseOpPanel {
         this._parsedIdentifiers = [];
         this._connectors = [];
         this._graph = null;
+        this._queryStrHasError = false;
         this.updateIdentifiersList();
         if (!noTab) {
             SQLTabManager.Instance.closeTempTab();
@@ -108,11 +130,11 @@ class SQLOpPanel extends BaseOpPanel {
         queryStr = queryStr || "";
         this.$panel.find(".editorWrapper").text(queryStr);
         this._queryStr = queryStr;
-        this._parsedQueryStr = this._parsedQueryStr || queryStr;
         this._$elemPanel.find(".identifiersSection").addClass("disabled");
         SQLUtil.getSQLStruct(queryStr)
         .then((ret) => {
             if (this.isOpen() && this._queryStr === queryStr) {
+                this._queryStrHasError = false;
                 if (!forceUpdate && !ret.identifiers.length && this._identifiers.length &&
                     (ret.sql.toLowerCase().includes(" from ") ||
                     (queryStr.toLowerCase().includes("from") &&
@@ -124,11 +146,23 @@ class SQLOpPanel extends BaseOpPanel {
                 }
                 this._parsedIdentifiers = ret.identifiers;
                 this._identifiers.length = Math.min(this._parsedIdentifiers.length, this._identifiers.length);
-                this._parsedQueryStr = ret.newSql;
                 this.updateIdentifiersList();
             }
         })
         .fail((e) => {
+            if (!this.isOpen() || this._queryStr !== queryStr) {
+                return;
+            }
+            if (!forceUpdate && this._identifiers.length && queryStr &&
+                (queryStr.toLowerCase().includes("from") &&
+                queryStr.toLowerCase().includes("select"))) {
+                return;
+            }
+            if (queryStr.trim().length) {
+                this._queryStrHasError = true;
+            } else {
+                this._queryStrHasError = false;
+            }
             this._identifiers = [];
             this._parsedIdentifiers = [];
             this.updateIdentifiersList();
@@ -184,7 +218,6 @@ class SQLOpPanel extends BaseOpPanel {
 
     private configureSQL(
         query?: string,
-        parsedQuery?: string,
         identifiers?: Map<number, string>
     ): XDPromise<any> {
         const self = this;
@@ -194,7 +227,6 @@ class SQLOpPanel extends BaseOpPanel {
         if (query != null) {
             sql = query;
         }
-        parsedQuery = parsedQuery || query;
 
         const dropAsYouGo: boolean = this._isDropAsYouGo();
         if (!identifiers) {
@@ -458,9 +490,16 @@ class SQLOpPanel extends BaseOpPanel {
         });
 
         if (this._parsedIdentifiers.length === 0) {
-            this._$elemPanel.find(".tableInstruction").removeClass("xc-hidden");
+            if (this._queryStrHasError) {
+                this._$elemPanel.find(".noSQLHint").removeClass("xc-hidden");
+                this._$elemPanel.find(".noTableHint").addClass("xc-hidden");
+            } else {
+                this._$elemPanel.find(".noTableHint").removeClass("xc-hidden");
+                this._$elemPanel.find(".noSQLHint").addClass("xc-hidden");
+            }
         } else {
-            this._$elemPanel.find(".tableInstruction").addClass("xc-hidden");
+            this._$elemPanel.find(".noTableHint").addClass("xc-hidden");
+            this._$elemPanel.find(".noSQLHint").addClass("xc-hidden");
         }
     }
 
@@ -708,13 +747,13 @@ class SQLOpPanel extends BaseOpPanel {
             if (advancedParams.dropAsYouGo != null) {
                 this._toggleDropAsYouGo(advancedParams.dropAsYouGo);
             }
-            const snippetId = advancedParams.snippetId;
+
             let queryStr = advancedParams.sqlQueryString;
-            if (!queryStr) {
-                let snippet = SQLSnippet.Instance.getSnippetObj(snippetId);
-                if (snippet) {
-                    queryStr = snippet.snippet;
-                }
+            SQLSnippet.Instance.update(this._snippetId, queryStr);
+            if (SQLEditorSpace.Instance.getCurrentSnippetId() === this._snippetId) {
+                const editor = SQLEditorSpace.Instance.getEditor();
+                editor.setValue(queryStr);
+                editor.refresh();
             }
 
             if (Object.keys(identifiers).length > 0) {
@@ -725,10 +764,17 @@ class SQLOpPanel extends BaseOpPanel {
                     }
                 }
             }
-            if (this._identifiers.length === 0) {
-                this._$elemPanel.find(".tableInstruction").removeClass("xc-hidden");
+            if (this._parsedIdentifiers.length === 0) {
+                if (this._queryStrHasError) {
+                    this._$elemPanel.find(".noSQLHint").removeClass("xc-hidden");
+                    this._$elemPanel.find(".noTableHint").addClass("xc-hidden");
+                } else {
+                    this._$elemPanel.find(".noTableHint").removeClass("xc-hidden");
+                    this._$elemPanel.find(".noSQLHint").addClass("xc-hidden");
+                }
             } else {
-                this._$elemPanel.find(".tableInstruction").addClass("xc-hidden");
+                this._$elemPanel.find(".noTableHint").addClass("xc-hidden");
+                this._$elemPanel.find(".noSQLHint").addClass("xc-hidden");
             }
             let identifiersArr = [];
             for (let i in identifiers) {
@@ -747,7 +793,7 @@ class SQLOpPanel extends BaseOpPanel {
             this._identifiers = identifiersArr.map((i) => {
                 return i.identifier
             });
-            return this._selectQuery(snippetId, queryStr);
+            return this._selectQuery(this._snippetId, queryStr);
         } catch (e) {
             return PromiseHelper.reject(e);
         }
@@ -815,9 +861,8 @@ class SQLOpPanel extends BaseOpPanel {
                 return;
             }
             const query = this._queryStr.replace(/;+$/, "");
-            const parsedQuery = this._parsedQueryStr;
 
-            this.configureSQL(query, parsedQuery, identifiers)
+            this.configureSQL(query, identifiers)
             .then(() => {
                 this.close(true);
             })

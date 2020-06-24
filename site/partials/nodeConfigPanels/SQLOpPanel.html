@@ -32,8 +32,11 @@
               <div class="sourceHeader"><%= dicts.SQLOpPanel.TableLable %></div>
               <div class="destHeader"><%= dicts.SQLOpPanel.ModuleLabel %></div>
             </div>
-            <div class="tableInstruction instrText">
+            <div class="tableInstruction noTableHint">
               <%= dicts.SQLOpPanel.NoTableHint %>
+            </div>
+            <div class="tableInstruction noSQLHint xc-hidden">
+              <%= dicts.SQLOpPanel.NoSQLHint %>
             </div>
             <div class="identifiersList"></div>
           </div>
@@ -49,24 +52,6 @@
             data-container="body"
             data-title="<%= dicts.SQLOpPanel.DropTempTableHint %>"
             data-placement="auto top"></i>
-        </div>
-        <div class="editorTitle">
-          <div class="title">
-            <i class="icon xi-error-outline"></i>
-            <%= dicts.SQLOpPanel.OutOfSync %>
-            <i class="qMark icon xi-unknown"
-            data-toggle="tooltip"
-            data-container="body"
-            data-original-title="<%= dicts.SQLOpPanel.OutOfSyncHint %>"
-            data-placement="auto top"></i>
-          </div>
-          <div class="refreshSnippet">
-            <%= dicts.common.Update %>
-            <i class="icon xi-refresh"></i>
-          </div>
-        </div>
-        <div class="snippetUpdated">
-          <%= dicts.SQLOpPanel.UpToDate %>
         </div>
         <div class="editorWrapper"></div>
       </div>

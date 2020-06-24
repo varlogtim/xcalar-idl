@@ -45,7 +45,7 @@ class SQLTabManager extends AbstractTabManager {
         this._tabBeforeTemp = this._activeId;
         const id: string = SQLSnippet.Instance.createTemp(name);
         this.openTab(id);
-        SQLEditorSpace.Instance.newSQL(statement, true);
+        SQLEditorSpace.Instance.newSQL(statement);
         this._tempTabId = id;
         this._getContainer().addClass("hasTempTab");
         ResourceMenu.Instance.toggleTempSQLTab(true);
@@ -146,9 +146,6 @@ class SQLTabManager extends AbstractTabManager {
         const $tab: JQuery = this._getTabElByIndex(index);
         const id: string = this._activeTabs[index];
         const snippetObj = SQLSnippet.Instance.getSnippetObj(id);
-        if (!snippetObj) {
-            debugger;
-        }
         if (snippetObj.temp) {
             SQLOpPanel.Instance.close(false, true);
             SQLSnippet.Instance.deleteTempTab(this._tempTabId);
@@ -320,6 +317,7 @@ class SQLTabManager extends AbstractTabManager {
         const $view = this._getView();
         if (this._activeTabs.length === 0) {
             $view.addClass("hint");
+            $("#sqlEditorSpace").removeClass("hasTempTab");
         } else {
             $view.removeClass("hint");
         }

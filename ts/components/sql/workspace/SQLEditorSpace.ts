@@ -41,11 +41,15 @@ class SQLEditorSpace {
         return this._sqlEditor;
     }
 
+    public getCurrentSnippetId(): string {
+        return this._currentSnippetId;
+    }
+
     /**
      * SQLEditorSpace.Instance.newSQL
      * @param sql
      */
-    public newSQL(sql: string, isTempTab?: boolean): void {
+    public newSQL(sql: string): void {
         let val: string = this._sqlEditor.getValue();
         if (val) {
             if (!val.trim().endsWith(";")) {
@@ -128,52 +132,8 @@ class SQLEditorSpace {
         } else {
             this._getEditorSpaceEl().removeClass("hasTempTab");
         }
-        let html = "";
-        for (let i in snippetObj.refs) {
-            const tab = DagTabManager.Instance.getTabById(i);
-            if (!tab) {
-                continue;
-            }
-            for (let j in snippetObj.refs[i]) {
-                const graph = tab.getGraph();
-                if (!graph) continue;
-                const node = graph.getNode(j);
-                if (!node) {
-                    // delete snippetObj.refs[i][j];
-                    continue;
-                }
-                html += `<span>${tab.getName()}-${node.getTitle()}</span>`;
-            }
-        }
-        $("#sqlEditorSpace").find(".nodeInfo").html(html);
 
         return true;
-    }
-
-    /*
-        give the custom node subgraph an id
-    */
-
-    public updateTab() {
-        const snippetObj = SQLSnippet.Instance.getSnippetObj(this._currentSnippetId);
-        let html = "";
-        for (let i in snippetObj.refs) {
-            const tab = DagTabManager.Instance.getTabById(i);
-            if (!tab) {
-                continue;
-            }
-            for (let j in snippetObj.refs[i]) {
-                const graph = tab.getGraph();
-                if (!graph) continue;
-                const node = graph.getNode(j);
-                if (!node) {
-                    // delete snippetObj.refs[i][j];
-                    continue;
-                }
-                html += `<span>${tab.getName()}-${node.getTitle()}</span>`;
-            }
-        }
-        $("#sqlEditorSpace").find(".nodeInfo").html(html);
     }
 
     /**
