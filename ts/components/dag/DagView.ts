@@ -63,7 +63,7 @@ class DagView {
         if (xcGlobal.darkMode) {
             DagView.textColor = "#FFFFFF";
             DagView.edgeColor = "#c9c9c9";
-            DagView.iconColor = "#000000";
+            DagView.iconColor = "#FFFFFF";
         }
     }
 
@@ -278,68 +278,37 @@ class DagView {
      * @param tooltip
      */
     public static addNodeIcon($node: JQuery, iconType: string, tooltip: string) {
-        let left: number;
         let top: number;
-        if (iconType === "tableIcon" || iconType === "columnIcon") {
-            let icons;
-            if ($node.attr("data-topicons")) {
-                icons = $node.attr("data-topicons").split(",");
-            } else {
-                icons = [];
-            }
 
-            if (icons.indexOf(iconType) > -1) {
-                return;
-            } else {
-                icons.push(iconType);
-            }
-            icons.sort(function(a, b) {
-                return DagView.iconOrder.indexOf(a) - DagView.iconOrder.indexOf(b);
-            });
-            $node.find(".topNodeIcon").remove();
-            $node.attr("data-topicons", icons);
-            top = 1;
-            left = DagView.nodeWidth - 18;
-
-            for (let i = 0; i < icons.length; i++) {
-                if (icons[i] === iconType) {
-                    drawIcon(icons[i], true, left - (i * 15 ), top, DagView.iconMap[iconType], xcStringHelper.escapeDblQuoteForHTML(tooltip), i);
-                    $node.attr("data-" + iconType.toLowerCase(), tooltip);
-                } else {
-                    let tip: string = $node.attr("data-" + icons[i].toLowerCase());
-                    drawIcon(icons[i], true, left - (i * 15 ), top, DagView.iconMap[icons[i]], tip, i);
-                }
-            }
+        let icons;
+        if ($node.attr("data-icons")) {
+            icons = $node.attr("data-icons").split(",");
         } else {
-            let icons;
-            if ($node.attr("data-icons")) {
-                icons = $node.attr("data-icons").split(",");
+            icons = [];
+        }
+        if (icons.indexOf(iconType) > -1) {
+            return;
+        } else {
+            icons.push(iconType);
+        }
+        // sort icons in order of DagView.iconOrder
+        icons.sort(function(a, b) {
+            return DagView.iconOrder.indexOf(a) - DagView.iconOrder.indexOf(b);
+        });
+        $node.find(".bottomNodeIcon").remove();
+        // store the icon order
+        $node.attr("data-icons", icons);
+        top = DagView.nodeHeight + 1;
+        for (let i = 0; i < icons.length; i++) {
+            if (icons[i] === iconType) {
+                drawIcon(icons[i], false, (i * 15 ) + 12, top, DagView.iconMap[iconType], xcStringHelper.escapeDblQuoteForHTML(tooltip), i);
+                $node.attr("data-" + iconType.toLowerCase(), tooltip);
             } else {
-                icons = [];
-            }
-            if (icons.indexOf(iconType) > -1) {
-                return;
-            } else {
-                icons.push(iconType);
-            }
-            // sort icons in order of DagView.iconOrder
-            icons.sort(function(a, b) {
-                return DagView.iconOrder.indexOf(a) - DagView.iconOrder.indexOf(b);
-            });
-            $node.find(".bottomNodeIcon").remove();
-            // store the icon order
-            $node.attr("data-icons", icons);
-            top = DagView.nodeHeight + 1;
-            for (let i = 0; i < icons.length; i++) {
-                if (icons[i] === iconType) {
-                    drawIcon(icons[i], false, (i * 15 ) + 12, top, DagView.iconMap[iconType], xcStringHelper.escapeDblQuoteForHTML(tooltip), i);
-                    $node.attr("data-" + iconType.toLowerCase(), tooltip);
-                } else {
-                    let tip: string = $node.data(icons[i].toLowerCase())
-                    drawIcon(icons[i], false, (i * 15 ) + 12, top, DagView.iconMap[icons[i]], tip, i);
-                }
+                let tip: string = $node.data(icons[i].toLowerCase())
+                drawIcon(icons[i], false, (i * 15 ) + 12, top, DagView.iconMap[icons[i]], tip, i);
             }
         }
+
 
         function drawIcon(iconType, isTopIcon, left, top, icon, tooltip, index) {
             let fontSize: number = 7;
@@ -353,8 +322,6 @@ class DagView {
                 fontSize = 9;
             } else if (iconType === "aggregateIcon") {
                 fontSize = 6;
-            } else if (iconType === "tableIcon") {
-                iconLeft = -0.5;
             } else if (iconType === "columnIcon") {
                 tipClasses = "preWrap leftAlign wide";
                 fontSize = 12;
@@ -390,45 +357,34 @@ class DagView {
      * @param $node
      * @param iconType
      */
-    public static removeNodeIcon($node: JQuery, iconType: string, isTopIcon?: boolean) {
+    public static removeNodeIcon($node: JQuery, iconType: string) {
         const $icon: JQuery = $node.find("." + iconType);
         if (!$icon.length) {
             return;
         }
-        let iconStr = isTopIcon ? $node.attr("data-topicons") : $node.attr("data-icons");
+        let iconStr = $node.attr("data-icons");
         let icons: string[] = iconStr.split(",");
         let index = icons.indexOf(iconType);
         $icon.remove();
 
         $node.removeAttr("data-" + iconType.toLowerCase());
 
-        if (isTopIcon) {
-            let offset = DagView.nodeWidth - 19;
-            // shift all following icons to the right;
-            for (let i = index + 1; i < icons.length; i++) {
-                let left = offset - ((i - 1) * 15);
-                d3.select($node.find(`.nodeIcon.index${i}`).get(0))
-                    .attr("transform", `translate(${left}, 1)`)
-                    .attr("class", icons[i] + " topNodeIcon nodeIcon index" + (i - 1));
-            }
-        } else {
-            // shift all following icons to the left;
-            for (let i = index + 1; i < icons.length; i++) {
-                let left = ((i - 1) * 15) + 22;
-                d3.select($node.find(`.nodeIcon.index${i}`).get(0))
-                    .attr("transform", `translate(${left}, ${DagView.nodeHeight})`)
-                    .attr("class", icons[i] + " bottomNodeIcon nodeIcon index" + (i - 1));
-            }
+        // shift all following icons to the left;
+        for (let i = index + 1; i < icons.length; i++) {
+            let left = ((i - 1) * 15) + 22;
+            d3.select($node.find(`.nodeIcon.index${i}`).get(0))
+                .attr("transform", `translate(${left}, ${DagView.nodeHeight})`)
+                .attr("class", icons[i] + " bottomNodeIcon nodeIcon index" + (i - 1));
         }
 
         icons.splice(index, 1);
-        isTopIcon ? $node.attr("data-topicons", <any>icons) : $node.attr("data-icons", <any>icons);
+        $node.attr("data-icons", <any>icons);
     }
 
     public static addTableIcon($node: JQuery, iconType: string, tooltip: string) {
         let left: number;
         let top: number;
-        if (iconType === "tableIcon") {
+        if (iconType !== "tableIcon") {
             let icons;
             if ($node.attr("data-toptableicons")) {
                 icons = $node.attr("data-toptableicons").split(",");
@@ -447,7 +403,7 @@ class DagView {
             $node.find(".topTableIcon").remove();
             $node.attr("data-toptableicons", icons);
             top = 3;
-            left = DagView.nodeAndTableWidth - 19;
+            left = DagView.nodeAndTableWidth - 15;
 
             for (let i = 0; i < icons.length; i++) {
                 if (icons[i] === iconType) {
@@ -480,23 +436,25 @@ class DagView {
             top = DagView.nodeHeight - 2;
             for (let i = 0; i < icons.length; i++) {
                 if (icons[i] === iconType) {
-                    drawIcon(icons[i], false, DagView.nodeAndTableWidth - (i * 15 ) - 19, top, DagView.iconMap[iconType], xcStringHelper.escapeDblQuoteForHTML(tooltip), i);
+                    drawIcon(icons[i], false, DagView.nodeAndTableWidth - (i * 15 ) - 15, top, DagView.iconMap[iconType], xcStringHelper.escapeDblQuoteForHTML(tooltip), i);
                     $node.attr("data-" + iconType.toLowerCase(), tooltip);
                 } else {
                     let tip: string = $node.data(icons[i].toLowerCase())
-                    drawIcon(icons[i], false,  DagView.nodeAndTableWidth - (i * 15 ) - 19, top, DagView.iconMap[icons[i]], tip, i);
+                    drawIcon(icons[i], false,  DagView.nodeAndTableWidth - (i * 15 ) - 15, top, DagView.iconMap[icons[i]], tip, i);
                 }
             }
         }
 
         function drawIcon(iconType, isTopIcon, left, top, icon, tooltip, index) {
-            let fontSize: number = 7;
-            let iconLeft: number = 0;
+            let fontSize: number = 8;
+            let iconLeft: number = -0.5;
             let iconTop: number = 3;
             let tipClasses: string = "";
             let fontFamily: string = "icomoon";
             if (iconType === "tableIcon") {
-                iconLeft = -0.5;
+                iconLeft = -1;
+                iconTop = 4;
+                fontSize = 9;
             }
             let topClass = isTopIcon ? " topTableIcon " : " bottomTableIcon ";
 
@@ -507,11 +465,12 @@ class DagView {
                 .attr("cx", 3.5)
                 .attr("cy", 0)
                 .attr("r", 6)
+                .style("stroke", "black")
                 .style("fill", DagView.iconColor);
             g.append("text")
                 .attr("font-family", fontFamily)
                 .attr("font-size", fontSize)
-                .attr("fill", "white")
+                .attr("fill", "black")
                 .attr("x", iconLeft)
                 .attr("y", iconTop)
                 .text(function (_d) {return icon});
@@ -533,9 +492,9 @@ class DagView {
         if (!$icon.length) {
             return;
         }
-        let isTopIcon: boolean = false;
+        let isTopIcon: boolean = true;
         if (iconType === "tableIcon") {
-            isTopIcon = true;
+            isTopIcon = false;
         }
         let iconStr = isTopIcon ? $node.attr("data-toptableicons") : $node.attr("data-bottomtableicons");
         let icons: string[] = iconStr.split(",");
@@ -4395,7 +4354,7 @@ class DagView {
 
     private _columnChange(info: {node: DagNode, $node?: JQuery, columnDeltas: Map<string, any>, columnOrdering: string[]}): void {
         const $node: JQuery = info.$node || this._getNode(info.node.getId());
-        DagView.removeNodeIcon($node, "columnIcon", true);
+        DagView.removeNodeIcon($node, "columnIcon");
         if (info.columnDeltas.size || info.columnOrdering.length) {
             $node.addClass("hasColumnChange");
             let colObj = {};
