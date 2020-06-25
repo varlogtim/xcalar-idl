@@ -2819,8 +2819,7 @@ module.exports = function(grunt) {
         var extraTags = [];
         if (IS_WATCH_TASK || BLDTYPE == DEV || BLDTYPE == TRUNK) {
             extraTags = extraTags.concat(
-                ['assets/dev/shortcuts.js',
-                'assets/dev/devEnv.js']);
+                ['assets/dev/shortcuts.js']);
         }
 
         if (PRODUCT === XPE) {
