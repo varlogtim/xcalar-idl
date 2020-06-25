@@ -1107,7 +1107,7 @@ class DagNodeSQL extends DagNode {
                 if (!pubTablesInfo) {
                     // If it's SQL mode, we don't do this bc pub table name is fixed
                     tableSrcMap[retStruct.srcTableName] = key;
-                } else if (sessionTables && sessionTables.has(retStruct.srcTableName) {
+                } else if (sessionTables && sessionTables.has(retStruct.srcTableName)) {
                     tableSrcMap[sessionTables.get(retStruct.srcTableName)] = key;
                 }
                 if (retStruct.invalidColumns &&

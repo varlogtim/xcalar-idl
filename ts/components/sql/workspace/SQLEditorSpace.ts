@@ -214,7 +214,7 @@ class SQLEditorSpace {
                         !upperName.startsWith("XCALAROPCODE") &&
                         !upperName.startsWith("XCALARBATCHID") &&
                         !upperName.startsWith("XCALARROWNUMPK")) {
-                        // arcTables[table.name].push(col.name);
+                        arcTables[table.name].push(col.name);
                         if (!arcTables[col.name]) { // prevent table/column name collision
                             arcTables[col.name] = [];
                         }
@@ -230,20 +230,20 @@ class SQLEditorSpace {
             sqlFuncs.forEach((sqlFunc) => {
                 arcTables[sqlFunc + "()"] = [];
             });
-            arcTables = this._dedupeWorkList(arcTables);
+            arcTables = this._dedupeWordsList(arcTables);
         } catch (e) {
             console.error(e);
         }
         return arcTables;
     }
 
-    private _dedupeWorkList(workList) {
+    private _dedupeWordsList(wordsList) {
         let dedupList = {};
         let set = new Set();
-        for (let word in workList) {
+        for (let word in wordsList) {
             if (!set.has(word.toUpperCase())) {
                 set.add(word.toUpperCase());
-                dedupList[word] = workList[word];
+                dedupList[word] = wordsList[word];
             }
         }
         return dedupList;
