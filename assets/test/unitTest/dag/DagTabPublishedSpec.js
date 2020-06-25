@@ -51,13 +51,13 @@ describe("DagTabPublished Test", function() {
 
         it("should delete for DagTabPublished", function(done) {
             let called = 0;
-    
+
             XcalarDeleteWorkbook =
             XcalarDeactivateWorkbook = () => {
                 called++;
                 return PromiseHelper.resolve();
             };
-    
+
             dagTab.delete()
             .then(function() {
                 expect(called).to.equal(2);
@@ -81,7 +81,7 @@ describe("DagTabPublished Test", function() {
                 called++;
                 return PromiseHelper.resolve();
             };
-    
+
             dagTab.delete()
             .then(function() {
                 expect(called).to.equal(2);
@@ -98,7 +98,7 @@ describe("DagTabPublished Test", function() {
                     error: "test"
                 });
             }
-    
+
             dagTab.delete()
             .then(function() {
                 done("fail");
@@ -219,6 +219,7 @@ describe("DagTabPublished Test", function() {
 
         after(function() {
             XcalarNewWorkbook = oldNewWKBK;
+            XcalarActivateWorkbook = oldActivate;
             dagTab._writeToKVStore = oldWrite;
             UDFFileManager.Instance.getEntireUDF = oldGetUDF;
             XcalarUploadPython = oldUpload;

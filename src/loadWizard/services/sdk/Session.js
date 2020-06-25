@@ -168,7 +168,9 @@ class BaseSession {
         try {
             await this.callLegacyApi(() => XcalarExecuteRetina(queryName, retinaParams, {
                 activeSession: true,
-                newTableName: tableName
+                newTableName: tableName,
+                udfUserName: this.user.getUserName(),
+                udfSessionName: this.sessionName
             }));
         } finally {
             try {
@@ -209,7 +211,7 @@ const SESSION_PREFIX = 'LWS';
 class RandomSession extends BaseSession {
     constructor() {
         super({
-            user: new User(),
+            user: new LoginUser(),
             sessionName: `${SESSION_PREFIX}_${randomName()}`
         });
     }
@@ -224,4 +226,13 @@ class LoadSession extends BaseSession {
     }
 }
 
-export { XDSession, RandomSession, GlobalSession, LoadSession };
+class CurrentSession extends BaseSession {
+    constructor() {
+        super({
+            user: new LoginUser(),
+            sessionName: sessionName // XD's global sessionName
+        });
+    }
+}
+
+export { XDSession, RandomSession, GlobalSession, LoadSession, CurrentSession };
