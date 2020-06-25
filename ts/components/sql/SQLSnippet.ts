@@ -143,7 +143,7 @@ class SQLSnippet {
      */
     public deleteByIds(ids: string[]): void {
         for (let id of ids) {
-            this._deletSnippet(id);
+            this._deleteSnippet(id);
         }
         this._refresh();
     }

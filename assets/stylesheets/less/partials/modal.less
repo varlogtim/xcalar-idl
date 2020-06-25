@@ -1684,6 +1684,32 @@ html.microsoft {
         }
     }
 
+    &.noSize {
+        .modalMain {
+            .titleSection, .grid-unit {
+                > div {
+                    width: ~"calc(40% - 38px)";
+    
+                    &.name {
+                        width: 60%;
+                    }
+                }
+            }
+        }
+    }
+
+    &.noSize.noDate {
+        .modalMain {
+            .titleSection, .grid-unit {
+                > div {
+                    &.name {
+                        width: 90%;
+                    }
+                }
+            }
+        }
+    }
+
     .auto {
         display: none;
     }

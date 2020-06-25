@@ -24,7 +24,8 @@ type Props = {
   noDate?: boolean;
   fetchList: () => Promise<DeleteItems[]>;
   getConfirmAlert: (selectedItems: DeleteItems[]) => {title: string, msg: string};
-  onSubmit: (selectedItems: DeleteItems[]) => Promise<void>;
+  onSubmit: (selectedItems: DeleteItems[]) => Promise<{id: string, error: string}[] | void>;
+  onDeleteError: (error: string, items: DeleteItems[], failures: {id: string, error: string}[]) => void
 };
 
 type State = {
@@ -136,6 +137,12 @@ class GeneralDeleteModal extends React.Component<Props, State> {
     } else if (this.state.submitStatus === "confirm") {
       classNames.push("lowZindex");
     }
+    if (this.props.noSize) {
+      classNames.push("noSize");
+    }
+    if (this.props.noDate) {
+      classNames.push("noDate");
+    }
     return [classNames, waitingMessage];
   }
 
@@ -164,19 +171,19 @@ class GeneralDeleteModal extends React.Component<Props, State> {
     }
   }
 
-  private async _confirmDeletion(selectedItems: DeleteItems[]): Promise<void> {
+  private async _confirmDeletion(selectedItems: DeleteItems[]): Promise<boolean> {
     let { title, msg } = this.props.getConfirmAlert(selectedItems);
     let Alert = window["Alert"];
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       Alert.show({
         title,
         msg,
         "highZindex": true,
         "onCancel": () => {
-            reject(true);
+          resolve(false);
         },
         "onConfirm": () => {
-            resolve();
+            resolve(true);
         }
       });
     });
@@ -197,19 +204,62 @@ class GeneralDeleteModal extends React.Component<Props, State> {
     this.setState({ submitStatus: "confirm"} );
 
     try {
-      await this._confirmDeletion(selectedItems);
-      this.setState({ submitStatus: "pending"} );
-      await this.props.onSubmit(selectedItems);
-      this.setState({ submitStatus: null} );
-      this._fetch();
-    } catch (cancel) {
-      if (cancel === true) {
+      let allowDelete = await this._confirmDeletion(selectedItems);
+      if (!allowDelete) {
+        // when user cancel the status
         this.setState({ submitStatus: null} );
       } else {
-        this.setState({ submitStatus: "fail"} );
+        this.setState({ submitStatus: "pending"} );
+        let failures = await this.props.onSubmit(selectedItems);
+        this._handleFailure(selectedItems, failures);
+        this.setState({ submitStatus: null} );
         this._fetch();
       }
+    } catch (error) {
+      console.error(error);
+      this.setState({ submitStatus: "fail"} );
+      this._fetch();
     }
+  }
+  private _handleFailure(
+    items: DeleteItems[],
+    failures: {id: string, error: string}[] | void
+  ): void {
+    if (!failures) {
+      return;
+    }
+
+    try {
+      let error = this._getFailureError(items, failures);
+      if (error) {
+        let { onDeleteError } = this.props;
+        onDeleteError(error, items, failures);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  private _getFailureError(
+    items: DeleteItems[],
+    failures: {id: string, error: string}[]
+  ): string {
+    if (!failures || failures.length === 0) {
+      return null;
+    }
+    let map = new Map();
+    for (let item of items) {
+      map.set(item.id, item);
+    }
+    let errors: string[] = [];
+    failures.forEach((reason) => {
+      let { id, error } = reason;
+      let item = map.get(id);
+      if (item) {
+        errors.push(`${item.name}: ${error}`);
+      }
+    });
+    return errors.join("\n");
   }
 
   private _handleSelect(index: number): void {

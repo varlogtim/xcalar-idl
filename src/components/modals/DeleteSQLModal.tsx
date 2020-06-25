@@ -6,10 +6,6 @@ import service from "../../services/SQLService";
 const { DeleteSQLModalTStr } = dict;
 
 class DeleteSQLModal extends React.Component<{}, {}> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return (
       <GeneralDeleteModal
@@ -21,6 +17,7 @@ class DeleteSQLModal extends React.Component<{}, {}> {
         noDate={true}
         getConfirmAlert={this._getConfirmAlert}
         onSubmit={this._handleSubmit}
+        onDeleteError={() => {}}
       />
     )
   }

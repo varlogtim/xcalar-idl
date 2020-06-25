@@ -10,11 +10,6 @@ interface AppItem extends DeleteItems {
 }
 
 class DeleteAppModal extends React.Component<{}, {}> {
-  constructor(props) {
-    super(props);
-    this._handleSubmit = this._handleSubmit.bind(this);
-  }
-
   render() {
     return (
       <GeneralDeleteModal
@@ -25,6 +20,7 @@ class DeleteAppModal extends React.Component<{}, {}> {
         noSize={true}
         getConfirmAlert={this._getConfirmAlert}
         onSubmit={this._handleSubmit}
+        onDeleteError={this._handleDeleteError}
       />
     )
   }
@@ -63,7 +59,9 @@ class DeleteAppModal extends React.Component<{}, {}> {
     };
   }
 
-  private async _handleSubmit(items: AppItem[]): Promise<void> {
+  private async _handleSubmit(
+    items: AppItem[]
+  ): Promise<{id: string, error: string}[]> {
     let appIds = [];
     let specialAppIds = [];
     items.forEach(({id, isApp}) => {
@@ -74,34 +72,12 @@ class DeleteAppModal extends React.Component<{}, {}> {
       }
     });
     service.deleteApps(appIds);
-    let failedDataflows = await service.deleteByIds(specialAppIds);
-    let error = this._convertFailedReason(items, failedDataflows);
-    if (error) {
-      let Alert = window["Alert"];
-      Alert.error(DeleteAppTStr.Error, error, {highZindex: true});
-    }
+    return service.deleteByIds(specialAppIds);
   }
 
-  private _convertFailedReason(
-    items: DeleteItems[],
-    failedDataflows: {id: string, error: string}[]
-  ): string {
-    if (!failedDataflows || failedDataflows.length === 0) {
-      return null;
-    }
-    let map = new Map();
-    for (let item of items) {
-      map.set(item.id, item);
-    }
-    let errors: string[] = [];
-    failedDataflows.forEach((reason) => {
-      let { id, error } = reason;
-      let item = map.get(id);
-      if (item) {
-        errors.push(`${item.name}: ${error}`);
-      }
-    });
-    return errors.join("\n");
+  private _handleDeleteError(error: string) {
+    let Alert = window["Alert"];
+    Alert.error(DeleteAppTStr.Error, error, {highZindex: true});
   }
 }
 

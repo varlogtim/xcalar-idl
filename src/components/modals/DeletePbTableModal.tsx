@@ -6,10 +6,6 @@ import service from "../../services/PbTableService";
 const { DeletePbTableModalTStr } = dict;
 
 class DeletePbTableModal extends React.Component<{}, {}> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return (
       <GeneralDeleteModal
@@ -20,6 +16,7 @@ class DeletePbTableModal extends React.Component<{}, {}> {
         fetchList={this._fetch}
         getConfirmAlert={this._getConfirmAlert}
         onSubmit={this._handleSubmit}
+        onDeleteError={() => {}}
       />
     )
   }

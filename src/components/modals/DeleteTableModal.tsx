@@ -7,10 +7,6 @@ const { DeleteTableModalTStr } = dict;
 const id: string = "deleteTableModal";
 
 class DeleteTableModal extends React.Component<{}, {}> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return (
       <GeneralDeleteModal
@@ -22,6 +18,7 @@ class DeleteTableModal extends React.Component<{}, {}> {
         noDate={true}
         getConfirmAlert={this._getConfirmAlert}
         onSubmit={this._handleSubmit}
+        onDeleteError={() => {}}
       />
     )
   }
