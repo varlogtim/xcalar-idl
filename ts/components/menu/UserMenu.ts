@@ -35,7 +35,8 @@ class UserMenu {
             Admin.showModal();
         });
 
-        $menu.on('mouseup', ".preferences", function(event: JQueryEventObject): void {
+
+        $("#userSettingsBtn").on("mouseup", (event) => {
             if (event.which !== 1) {
                 return;
             }

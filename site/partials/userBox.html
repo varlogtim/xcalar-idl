@@ -3,7 +3,14 @@
 	<button id="userNameArea" class="clickable xc-innerIcon-action">
     <i class="icon xi-user"></i>
   </button>
-  <button id="helpArea" class="clickable btn btn-small xc-innerIcon-action" data-toggle="tooltip" data-container="body" data-placement="bottom" data-title="<%= dicts.common.Help %>">
+  <button id="userSettingsBtn" class="clickable btn btn-small xc-innerIcon-action"
+      data-toggle="tooltip" data-container="body" data-placement="bottom"
+      data-title="Preferences">
+    <i class="icon xi-setting"></i>
+  </button>
+  <button id="helpArea" class="clickable btn btn-small xc-innerIcon-action"
+        data-toggle="tooltip" data-container="body" data-placement="bottom"
+        data-title="<%= dicts.common.Help %>">
     <i class="icon xi-unknown"></i>
 	</button>
   <div id="memoryAlert" class="inActive" data-toggle="tooltip" data-container="body" data-placement="bottom">
@@ -25,7 +32,6 @@
       <%= dicts.menuBar.user %>
     </li>
     <div class="divider"></div>
-    <li class="preferences"><%= dicts.monitor.Preferences %></li>
     <li class="setup adminOnly"><%= dicts.monitor.Setup %></li>
     <li class="about"><%= dicts.menuBar.About %></li>
     <li id="logout"><%= dicts.menuBar.LogOut %></li>

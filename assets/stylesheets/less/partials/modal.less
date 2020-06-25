@@ -5307,7 +5307,7 @@ html.microsoft {
 #userSettingsModal {
     @itemsHeight: 36px;
     @rowHeight: @itemsHeight;
-    @border-color: @color-border-medium;
+    @border-color: @color-border-medium2;
     .size(@height: 450px, @min-height: 300px, @max-height: 800px, @min-width: 650px);
 
     .modalHeader {
@@ -5327,12 +5327,10 @@ html.microsoft {
         padding: 0px !important;
     }
 
-    .cardBottom {
-        padding-right: 40px;
-        padding-bottom: 20px;
-        #userSettingsDefault {
-            width: 160px;
-        }
+    .modalBottom {
+        background-color: @color-bg-modal;
+        z-index: 1; // to block scroll gradient
+        border-bottom-right-radius: 16px;
     }
 
     .optionSet {
@@ -5445,20 +5443,24 @@ html.microsoft {
     }
 
     .leftSection {
-        width: 150px;
+        width: 130px;
         flex: 0 0 auto;
         padding-top: 12px;
         border-right: 1px solid @border-color;
+        z-index: 1; // to block scrollgradient
 
         .tab {
             height: 40px;
-            padding: 0px 16px;
+            padding: 0px 24px;
             display: flex;
             align-items: center;
             cursor: pointer;
 
             &.active {
                 background-color: @color-link-blue;
+            }
+            &:not(.active):hover {
+                background-color: @color-bg-menu;
             }
         }
     }
@@ -5467,11 +5469,12 @@ html.microsoft {
         .flex-display;
         .flex-direction(column);
         flex: 1 1 auto;
+        position: relative;
 
         .settingsArea {
             overflow: auto;
             flex: 1 1 auto;
-            padding: 20px;
+            padding: 24px 30px;
             padding-top: 0px;
         }
     }
@@ -5487,7 +5490,6 @@ html.microsoft {
         }
 
         .subHeading {
-            font-size: 16px;
             font-weight: 600;
             padding-bottom: 12px;
         }
@@ -5510,6 +5512,18 @@ html.microsoft {
         .row {
             .flex(1 1 auto);
         }
+    }
+
+    .scrollGradient {
+        position: absolute;
+        bottom: 70px;
+        height: 1px;
+        width: ~"calc(100% - 10px)";
+        // box-shadow: 0px 0px 10px 0px rgba(46,46,46,1),
+        //             0px 0px 15px 0px rgba(46,46,46,1),
+        //             0px 0px 20px 0px rgba(46,46,46,1),
+        //             0px 0px 25px 0px rgba(46,46,46,1),
+        //             0px 0px 30px 0px rgba(46,46,46,1);
     }
 }
 
