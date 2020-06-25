@@ -1062,7 +1062,7 @@ DFTStr = {
     "InvalidDF": "Invalid module",
     "Share": "Share Module",
     "ShareFail": "Share Module Failed",
-    "AutoExecute": "Always execute after configuring the operator",
+    "AutoExecute": "Enable eager execution after configuring operators",
     "AutoPreview": "Preview the results after execute",
     "ShowProgressTips": "View progress details for each operation",
     "ShowConfigInfo": "Display configuration details",
