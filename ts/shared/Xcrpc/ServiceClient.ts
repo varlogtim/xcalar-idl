@@ -16,6 +16,7 @@ import {VersionService} from './Version/VersionService';
 import { SchemaLoadService } from './SchemaLoad/SchemaLoadService';
 import { ResultSetService } from './ResultSet/ResultSetService';
 import { SessionService } from './Session/SessionService';
+import { SqlService } from './Sql/SqlService';
 
 class ServiceClient {
     private _apiClient: ApiClient;
@@ -90,6 +91,10 @@ class ServiceClient {
 
     public getSessionService(): SessionService {
         return new SessionService(this._apiClient);
+    }
+
+    public getSqlService(): SqlService {
+        return new SqlService(this._apiClient);
     }
 }
 

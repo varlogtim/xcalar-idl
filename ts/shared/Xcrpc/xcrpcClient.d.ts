@@ -115,6 +115,11 @@ declare module 'xcalar' {
         list(request: proto.xcalar.compute.localtypes.Session.ListRequest): Promise<proto.xcalar.compute.localtypes.Session.ListResponse>;
         deleteSession(request: proto.xcalar.compute.localtypes.Session.DeleteRequest): Promise<proto.google.protobuf.Empty>;
     }
+
+    export class SqlService {
+        constructor(client: XceClient);
+        executeSQL(request: proto.xcalar.compute.localtypes.Sql.SQLQueryRequest): Promise<proto.xcalar.compute.localtypes.Sql.SQLQueryResponse>;
+    }
 }
 // === Service definitions: End ===
 
@@ -1842,6 +1847,31 @@ declare namespace proto.xcalar.compute.localtypes {
 
         export class DeleteRequest {
             // TODO
+        }
+    }
+
+    export namespace Sql {
+        export class SQLQueryRequest {
+            setUsername(value: string): void;
+            setUserid(value: number): void;
+            setSessionname(value: string): void;
+            setResulttablename(value: string): void;
+            setQuerystring(value: string): void;
+            setQueryname(value: string): void;
+            setOptimizations(value: SQLQueryRequest.Optimizations): void;
+        }
+
+        export namespace SQLQueryRequest {
+            export class Optimizations {
+                setDropasyougo(value: boolean): void;
+                setDropsrctables(value: boolean): void;
+                setRandomcrossjoin(value: boolean): void;
+                setPushtoselect(value: boolean): void;
+            }
+        }
+
+        export class SQLQueryResponse {
+            getTablename(): string;
         }
     }
 }

@@ -75,31 +75,17 @@ class BaseSession {
         return callApiInSession(this.sessionName, this.user.getUserName(), this.user.getUserId(), apiCall, this.user.getHashFunc());
     }
 
-    async executeSql(sql, tableName) {
-        // execute sql
-        const xce = Xcrpc.xce;
-        const client = new xce.XceClient(xcHelper.getApiUrl());
-        const sqlService = new xce.SqlService(client);
+    async executeSql(sql, tableName = null) {
+        const resultTableName = await Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getSqlService().executeSql({
+            sqlQuery: sql,
+            tableName: tableName,
+            queryName: `XcalarLW-${Date.now()}`,
+            userName: this.user.getUserName(),
+            userId: this.user.getUserId(),
+            sessionName: this.sessionName
+        });
 
-        const optimization = new proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations();
-        optimization.setDropasyougo(true);
-        optimization.setDropsrctables(false);
-        optimization.setRandomcrossjoin(false);
-        optimization.setPushtoselect(true);
-        const request = new proto.xcalar.compute.localtypes.Sql.SQLQueryRequest();
-        request.setUsername(this.user.getUserName());
-        request.setUserid(this.user.getUserId());
-        request.setSessionname(this.sessionName);
-        if (tableName != null) {
-            request.setResulttablename(tableName);
-        }
-        request.setQuerystring(sql);
-        request.setQueryname(`XcalarLW-${Date.now()}`);
-        request.setOptimizations(optimization);
-
-        const response = await sqlService.executeSQL(request);
-
-        const table = new Table({ session: this, tableName: response.getTablename() });
+        const table = new Table({ session: this, tableName: resultTableName });
         this._tables.push(table);
         return table;
     }
