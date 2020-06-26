@@ -392,7 +392,15 @@ class SQLEditorSpace {
             if (sqlStruct.nonQuery) {
                 throw new Error(SQLErrTStr.NoSupport + sqlStruct.sql);
             }
-            const executor: SQLDagExecutor = new SQLDagExecutor(sqlStruct, {compileOnly: true});
+            const snippetObj = SQLSnippet.Instance.getSnippetObj(this._currentSnippetId);
+            let schemas;
+            if (snippetObj.temp) {
+                schemas = this._getSchemaFromSQLOpPanel(sqlStruct.identifiers);
+            }
+            const executor: SQLDagExecutor = new SQLDagExecutor(sqlStruct, {
+                compileOnly: true,
+                schemas
+            });
             for (let i = 0; i < sqlStruct.identifiers.length; i++) {
                 let identifier = sqlStruct.identifiers[i];
                 let tableName = identifier;
@@ -878,6 +886,33 @@ class SQLEditorSpace {
             // DagViewManager.Instance.expandSQLNode(sqlNode.getId());
         };
         SQLFuncSettingModal.Instance.show(onSubmit, () => {}, numInput);
+    }
+
+    private _getSchemaFromSQLOpPanel(identifiers) {
+        let parents = SQLOpPanel.Instance._dagNode.getParents();
+        let panelIdentifiersReversed = SQLOpPanel.Instance.extractIdentifiers();
+        let panelIdentifiers = new Map();
+        panelIdentifiersReversed.forEach((identifier, index) => {
+            panelIdentifiers.set(identifier, index);
+        });
+        let schemas = {};
+        identifiers.forEach((sqlIdentifier) => {
+            if (!panelIdentifiers.has(sqlIdentifier)) {
+                throw(`Specify a corresponding module table for '${sqlIdentifier}'`);
+            }
+            let panelIdentifierIndex = panelIdentifiers.get(sqlIdentifier);
+            let parent = parents[panelIdentifierIndex - 1];
+            if (parent) {
+                let columns =  parent.getLineage().getColumns();
+                schemas[sqlIdentifier.toUpperCase()] = columns.map((col) => {
+                    return {
+                        name: col.name,
+                        type: col.type
+                    }
+                });
+            }
+        });
+        return schemas;
     }
 }
 

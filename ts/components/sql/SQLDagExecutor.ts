@@ -34,16 +34,17 @@ class SQLDagExecutor {
     private _sqlTabCached: boolean;
     private _sqlFunctions: {};
     private _publishName: string;
-    private _options: {compileOnly: boolean};
+    private _options: {compileOnly: boolean, schemas?: {}};
 
 
     public constructor(
         sqlStruct: SQLParserStruct,
         options?: {
-            compileOnly: boolean
+            compileOnly: boolean,
+            schemas?: any
         }
     ) {
-        this._options = options || {compileOnly: false};
+        this._options = options || {compileOnly: false, schemas: {}};
         this._sql = sqlStruct.sql.replace(/;+$/, "");
         this._newSql = sqlStruct.newSql ? sqlStruct.newSql.replace(/;+$/, "") :
                                                                      this._sql;
@@ -86,6 +87,8 @@ class SQLDagExecutor {
                 if (DagTblManager.Instance.hasTable(tableName) ||
                     (tableName.includes("#") && this._sql.includes("`" + tableName + "`"))) {
                     this._sessionTables.set(identifier.toUpperCase(), tableName);
+                } else if (this._options.schemas && this._options.schemas[identifier.toUpperCase()]) {
+                    this._schema[identifier.toUpperCase()] = this._options.schemas[identifier.toUpperCase()];
                 } else {
                     throw new Error("Cannot find published table: " + pubTableName);
                 }
@@ -373,8 +376,7 @@ class SQLDagExecutor {
             sqlQueryStr: this._sql,
             identifiers: this._identifiers,
             identifiersOrder: this._identifiersOrder,
-            dropAsYouGo: null,
-            snippetId: undefined
+            dropAsYouGo: null
         }, true);
         const queryId = xcHelper.randName("sqlQuery", 8);
         const identifiers = new Map<number, string>();

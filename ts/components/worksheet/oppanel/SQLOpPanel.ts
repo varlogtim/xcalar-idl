@@ -230,8 +230,7 @@ class SQLOpPanel extends BaseOpPanel {
 
         const dropAsYouGo: boolean = this._isDropAsYouGo();
         if (!identifiers) {
-            let retStruct = this.extractIdentifiers();
-            identifiers = identifiers || retStruct.identifiers;
+            identifiers = this.extractIdentifiers();
         }
 
         if (!sql) {
@@ -644,11 +643,7 @@ class SQLOpPanel extends BaseOpPanel {
         this._toggleDropAsYouGo(dropAsYouGo);
     }
 
-    public extractIdentifiers(
-        validate: boolean = false
-    ): {
-        identifiers: Map<number, string>
-    } {
+    public extractIdentifiers(validate: boolean = false): Map<number, string> {
         let identifiers = new Map<number, string>();
         this._identifiers.forEach((identifier, index) => {
             identifiers.set(index + 1, identifier);
@@ -667,9 +662,7 @@ class SQLOpPanel extends BaseOpPanel {
             }
         });
 
-        return {
-            identifiers: identifiers
-        };
+        return identifiers;
     }
 
     /**
@@ -705,7 +698,7 @@ class SQLOpPanel extends BaseOpPanel {
             const identifiersOrder = [];
             let identifiersMap;
             try {
-                identifiersMap = this.extractIdentifiers(true).identifiers;
+                identifiersMap = this.extractIdentifiers(true);
             } catch (e) {
                 return PromiseHelper.reject(e);
             }
@@ -848,8 +841,7 @@ class SQLOpPanel extends BaseOpPanel {
         .then(() => {
             let identifiers;
             try {
-                let retStruct = this.extractIdentifiers(true);
-                identifiers = retStruct.identifiers;
+                identifiers = this.extractIdentifiers(true);
             } catch (e) {
                 StatusBox.show(e, this._$elemPanel.find(".btn-submit"));
                 return;
