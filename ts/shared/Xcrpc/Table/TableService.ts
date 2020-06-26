@@ -12,6 +12,11 @@
 
 import { TableService as ApiTable, XceClient as ApiClient } from 'xcalar';
 import { parseError } from '../ServiceError';
+import {
+    ScopeInfo,
+    SCOPE,
+    createScopeMessage
+} from '../Common/Scope';
 import ProtoTypes = proto.xcalar.compute.localtypes;
 
 class TableService {
@@ -45,6 +50,39 @@ class TableService {
             throw parseError(e);
         }
     }
+
+    /**
+     * List session/shared tables
+     * @param param
+     */
+    public async listTables(param: {
+        namePattern?: string,
+        scope: SCOPE,
+        scopeInfo?: ScopeInfo,
+
+    }): Promise<Array<string>> {
+        try {
+            const { namePattern = '*', scope, scopeInfo } = param;
+            const apiScope = createScopeMessage({
+                scope: scope,
+                scopeInfo: scopeInfo
+            });
+
+            // construct api request object
+            const apiRequest = new ProtoTypes.Table.ListTablesRequest();
+            apiRequest.setScope(apiScope);
+            apiRequest.setPattern(namePattern);
+
+            // Call api service
+            const tableService = new ApiTable(this._apiClient);
+            const apiResponse = await tableService.listTables(apiRequest);
+
+            // Parse response
+            return [...apiResponse.getTableNamesList()];
+        } catch(e) {
+            throw parseError(e);
+        }
+    }
 }
 
-export { TableService };
+export { TableService, SCOPE, ScopeInfo };

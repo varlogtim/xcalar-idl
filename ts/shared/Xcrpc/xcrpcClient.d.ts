@@ -82,6 +82,7 @@ declare module 'xcalar' {
     export class TableService {
         constructor(client: XceClient);
         addIndex(request: proto.xcalar.compute.localtypes.Table.IndexRequest): Promise<proto.google.protobuf.Empty>;
+        listTables(request: proto.xcalar.compute.localtypes.Table.ListTablesRequest): Promise<proto.xcalar.compute.localtypes.Table.ListTablesResponse>
     }
 
     export class TargetService {
@@ -1574,6 +1575,16 @@ declare namespace proto.xcalar.compute.localtypes {
         export class IndexRequest {
             setKeyName(value: string): void;
             setTableName(value: string): void;
+        }
+
+        export class ListTablesRequest {
+            setPattern(value: string): void;
+            setScope(value: proto.xcalar.compute.localtypes.Workbook.WorkbookScope): void;
+        }
+
+        export class ListTablesResponse {
+            getTableNamesList(): Array<string>;
+            getScope(): proto.xcalar.compute.localtypes.Workbook.WorkbookScope;
         }
     }
 

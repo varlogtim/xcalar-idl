@@ -135,24 +135,22 @@ class BaseSession {
     }
 
     async listTables({ namePattern = '*', isGlobal = false } = {}) {
-        const xce = Xcrpc.xce;
-
         const scope = isGlobal
-        ? createGlobalScope()
-        : createSessionScope({ userName: this.user.getUserName(), sessionName: this.sessionName });
+            ? Xcrpc.Table.SCOPE.GLOBAL
+            : Xcrpc.Table.SCOPE.WORKBOOK;
+        const scopeInfo = isGlobal
+            ? null
+            : { userName: this.user.getUserName(), workbookName: this.sessionName }
 
-        // construct api request object
-        const apiRequest = new proto.xcalar.compute.localtypes.Table.ListTablesRequest();
-        apiRequest.setScope(scope);
-        apiRequest.setPattern(namePattern);
-
-        // Call api service
-        const client = new xce.XceClient(xcHelper.getApiUrl());
-        const tableService = new xce.TableService(client);
-        const apiResponse = await tableService.listTables(apiRequest);
+        // Call service
+        const tableNames = await Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getTableService().listTables({
+            namePattern: namePattern,
+            scope: scope,
+            scopeInfo: scopeInfo
+        });
 
         // Parse response
-        return apiResponse.getTableNamesList().map((v) => new Table({
+        return tableNames.map((v) => new Table({
             session: this, tableName: v
         }));
     }
