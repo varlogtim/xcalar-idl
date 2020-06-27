@@ -13,6 +13,7 @@ import { TargetService } from './Target/TargetService';
 import { DagNodeService} from './DagNode/DagNodeService';
 import { XDFService } from './XDF/XDFService';
 import {VersionService} from './Version/VersionService';
+import { SchemaLoadService } from './SchemaLoad/SchemaLoadService';
 import { ResultSetService } from './ResultSet/ResultSetService';
 import { SessionService } from './Session/SessionService';
 
@@ -77,6 +78,10 @@ class ServiceClient {
 
     public getVersionService(): VersionService {
         return new VersionService(this._apiClient);
+    }
+
+    public getSchemaLoadService(): SchemaLoadService {
+        return new SchemaLoadService(this._apiClient);
     }
 
     public getResultSetService(): ResultSetService {

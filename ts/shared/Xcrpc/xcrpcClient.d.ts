@@ -102,6 +102,11 @@ declare module 'xcalar' {
         getVersion(request: proto.google.protobuf.Empty): Promise<proto.xcalar.compute.localtypes.Version.GetVersionResponse>;
     }
 
+    export class SchemaLoadService {
+        constructor(client:XceClient);
+        appRun(request: proto.xcalar.compute.localtypes.SchemaLoad.AppRequest): Promise<proto.xcalar.compute.localtypes.SchemaLoad.AppResponse>;
+    }
+
     export class SessionService {
         constructor(client: XceClient);
         create(request: proto.xcalar.compute.localtypes.Session.CreateRequest): Promise<proto.xcalar.compute.localtypes.Session.CreateResponse>;
@@ -1744,6 +1749,16 @@ declare namespace proto.xcalar.compute.localtypes {
             getThriftVersionSignatureShort(): number;
             getXcrpcVersionSignatureFull(): string;
             getXcrpcVersionSignatureShort(): number;
+        }
+    }
+
+    export namespace SchemaLoad {
+        export class AppRequest {
+            setJson(value: string): void;
+        }
+
+        export class AppResponse {
+            getJson(): string;
         }
     }
 

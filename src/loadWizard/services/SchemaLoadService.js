@@ -14,15 +14,10 @@ function getFileExt(fileName) {
 }
 
 async function executeSchemaLoadApp(jsonStr) {
-    const appRequest = new proto.xcalar.compute.localtypes.SchemaLoad.AppRequest();
-    appRequest.setJson(jsonStr);
-
-    const client = new Xcrpc.xce.XceClient(xcHelper.getApiUrl());
-    const service = new Xcrpc.xce.SchemaLoadService(client);
-    const response = await service.appRun(appRequest);
+    const response = await Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getSchemaLoadService().appRun(jsonStr);
 
     try {
-        return JSON.parse(response.getJson());
+        return JSON.parse(response);
     } catch(_) {
         return {};
     }
