@@ -1,5 +1,6 @@
 class RowNumOpPanelModel extends BaseOpPanelModel {
     private _destColumn: string = '';
+    private _outputTableName: string = "";
 
     /**
      * Create data model instance from DagNode
@@ -36,7 +37,7 @@ class RowNumOpPanelModel extends BaseOpPanelModel {
         model._allColMap = colMap;
 
         model._destColumn = dagInput.newField;
-
+        model._outputTableName = dagInput.outputTableName;
         return model;
     }
 
@@ -45,7 +46,8 @@ class RowNumOpPanelModel extends BaseOpPanelModel {
      */
     public toDagInput(): DagNodeRowNumInputStruct {
         const param: DagNodeRowNumInputStruct = {
-            newField: this.getDestColumn()
+            newField: this.getDestColumn(),
+            outputTableName: this._outputTableName
         };
         return param;
     }

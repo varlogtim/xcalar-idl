@@ -17,7 +17,7 @@ describe('RoundOpPanelModel Test', () => {
             getLineage: () => ({
                 getColumns: () => preset.columns
             })
-        };    
+        };
     });
 
     describe('fromDagInput() should work', () => {
@@ -135,7 +135,8 @@ describe('RoundOpPanelModel Test', () => {
                     evalString: 'round(abc,1)',
                     newField: 'newCol'
                 }],
-                icv: true
+                icv: true,
+                "outputTableName":""
             };
             const model = RoundOpPanelModel.fromDagInput(new Map(), inputParam);
             expect(model.toDagInput()).to.deep.equal(inputParam);

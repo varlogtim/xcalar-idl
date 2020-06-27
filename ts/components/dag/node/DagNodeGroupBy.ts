@@ -57,7 +57,8 @@ class DagNodeGroupBy extends DagNode {
             icv: input.icv,
             groupAll: input.groupAll,
             newKeys: input.newKeys,
-            dhtName: input.dhtName
+            dhtName: input.dhtName,
+            outputTableName: input.outputTableName
         });
         super.setParam(null, noAutoExecute);
     }

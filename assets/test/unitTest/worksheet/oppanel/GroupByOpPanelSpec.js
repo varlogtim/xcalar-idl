@@ -719,14 +719,14 @@ describe("GroupByOpPanel Test", function() {
             node = new DagNodeGroupBy({});
             groupByOpPanel.show(node, openOptions);
             $("#groupByOpPanel .bottomSection .xc-switch").click();
-            expect(JSON.stringify(node.getParam())).to.equal('{"groupBy":[""],"aggregate":[{"operator":"","sourceColumn":"","destColumn":"","distinct":false,"cast":null}],"includeSample":false,"joinBack":false,"icv":false,"groupAll":false,"newKeys":[],"dhtName":""}');
+            expect(JSON.stringify(node.getParam())).to.equal('{"groupBy":[""],"aggregate":[{"operator":"","sourceColumn":"","destColumn":"","distinct":false,"cast":null}],"includeSample":false,"joinBack":false,"icv":false,"groupAll":false,"newKeys":[],"dhtName":"","outputTableName":""}');
             $functionsInput.val('count').trigger("input").trigger(fakeEvent.enterKeydown);
             $groupByOpPanel.find(".gbOnArg").val("test1").trigger("change");
             $argSection.find('.arg').eq(0).val("test2").trigger("change");
             $argSection.find('.arg').eq(1).val("test3").trigger("change");
             $argSection.find('.arg').eq(2).val("outputName").trigger("change");
             $groupByOpPanel.find(".submit").click();
-            expect(JSON.stringify(node.getParam())).to.equal('{"groupBy":["test1"],"aggregate":[{"operator":"count","sourceColumn":"\\\"test2\\\"","destColumn":"test3","distinct":false,"cast":null}],"includeSample":false,"joinBack":false,"icv":false,"groupAll":false,"newKeys":[],"dhtName":""}');
+            expect(JSON.stringify(node.getParam())).to.equal('{"groupBy":["test1"],"aggregate":[{"operator":"count","sourceColumn":"\\\"test2\\\"","destColumn":"test3","distinct":false,"cast":null}],"includeSample":false,"joinBack":false,"icv":false,"groupAll":false,"newKeys":[],"dhtName":"","outputTableName":""}');
         });
     });
 

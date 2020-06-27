@@ -158,7 +158,8 @@ describe("Dag Node Basic Test", () => {
             expect(info.noAutoExecute).to.be.undefined;
             expect(info.params).to.deep.equal({
                 eval: "testEval",
-                icv: true
+                icv: true,
+                outputTableName: ""
             });
             called = true;
         });
@@ -170,7 +171,8 @@ describe("Dag Node Basic Test", () => {
         expect(node.configured).to.be.true;
         expect(node.getParam()).to.deep.equal({
             eval: "testEval",
-            icv: true
+            icv: true,
+            outputTableName: ""
         });
         expect(called).to.be.true;
     });

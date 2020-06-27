@@ -13,6 +13,7 @@ class SQLOpPanel extends BaseOpPanel {
     private _labelCache: Set<string>;
     private _snippetId: string;
     private _queryStrHasError = false;
+    private _outputTableName = "";
     /**
      * Initialization, should be called only once by xcManager
      */
@@ -60,6 +61,7 @@ class SQLOpPanel extends BaseOpPanel {
         this._parsedIdentifiers = [];
         this._connectors = [];
         this._labelCache = new Set();
+        this._outputTableName = this._dataModel.getOutputTableName();
         this._dataModel.getIdentifiers().forEach((value, key) => {
             this._identifiers[key - 1] = value;
             const parentNode =  this._dagNode.getParents()[key - 1];
@@ -234,7 +236,7 @@ class SQLOpPanel extends BaseOpPanel {
         }
 
         if (!sql) {
-            self._dataModel.setDataModel("", identifiers, dropAsYouGo);
+            self._dataModel.setDataModel("", identifiers, dropAsYouGo, this._outputTableName);
             self._dataModel.submit();
 
             return PromiseHelper.resolve();
@@ -248,12 +250,12 @@ class SQLOpPanel extends BaseOpPanel {
             };
             self._dagNode.compileSQL(sql, queryId, options)
             .then(() => {
-                self._dataModel.setDataModel(sql, identifiers, dropAsYouGo);
+                self._dataModel.setDataModel(sql, identifiers, dropAsYouGo, this._outputTableName);
                 self._dataModel.submit();
                 deferred.resolve();
             })
             .fail((err) => {
-                self._dataModel.setDataModel(sql, identifiers, dropAsYouGo);
+                self._dataModel.setDataModel(sql, identifiers, dropAsYouGo, this._outputTableName);
                 self._dataModel.submit(true);
                 deferred.reject(err);
             })
@@ -712,7 +714,8 @@ class SQLOpPanel extends BaseOpPanel {
                 sqlQueryString: sqlQueryString,
                 identifiers: identifiers,
                 identifiersOrder: identifiersOrder,
-                dropAsYouGo: this._isDropAsYouGo()
+                dropAsYouGo: this._isDropAsYouGo(),
+                outputTableName: this._outputTableName
             };
             const paramStr = JSON.stringify(advancedParams, null, 4);
             this._cachedBasicModeParam = paramStr;
@@ -730,6 +733,7 @@ class SQLOpPanel extends BaseOpPanel {
             if (errorMsg) {
                 return PromiseHelper.reject(errorMsg);
             }
+            this._outputTableName = advancedParams.outputTableName;
             const identifiers = advancedParams.identifiers;
             let identifiersOrder = advancedParams.identifiersOrder.map((identifier) => {
                 return parseInt(identifier);
@@ -906,6 +910,9 @@ class SQLOpPanel extends BaseOpPanel {
               "identifiersOrder",
               "dropAsYouGo"
             ],
+            "optional" : [
+                "outputTableName"
+            ],
             "properties": {
               "sqlQueryString": {
                 "$id": "#/properties/sqlQueryString",
@@ -966,7 +973,14 @@ class SQLOpPanel extends BaseOpPanel {
                 "examples": [
                   true
                 ]
-              }
+              },
+              "outputTableName": {
+                "$id": "#/properties/outputTableName",
+                "type": "string",
+                "title": "The outputTableName Schema",
+                "maxLength": XcalarApisConstantsT.XcalarApiMaxTableNameLen - 10,
+                "pattern": "^[a-zA-Z][a-zA-Z\\d\\_\\-]*$|^$"
+              },
             }
           };
         let ajv = new Ajv();

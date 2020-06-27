@@ -17,6 +17,9 @@ class DagNodeGroupByInput extends DagNodeInput {
           "newKeys",
           "dhtName",
         ],
+        "optional": [
+            "outputTableName"
+        ],
         "properties": {
           "groupBy": {
             "$id": "#/properties/groupBy",
@@ -181,6 +184,13 @@ class DagNodeGroupByInput extends DagNodeInput {
             "minLength": 0,
             "pattern": "^(.*)$"
           },
+          "outputTableName": {
+            "$id": "#/properties/outputTableName",
+            "type": "string",
+            "title": "The outputTableName Schema",
+            "maxLength": XcalarApisConstantsT.XcalarApiMaxTableNameLen - 10,
+            "pattern": "^[a-zA-Z][a-zA-Z\\d\\_\\-]*$|^$"
+          }
         }
     };
 
@@ -194,7 +204,8 @@ class DagNodeGroupByInput extends DagNodeInput {
             icv: input.icv || false,
             groupAll: input.groupAll || false,
             newKeys: input.newKeys || [],
-            dhtName: input.dhtName || ""
+            dhtName: input.dhtName || "",
+            outputTableName: input.outputTableName || ""
         };
     }
 

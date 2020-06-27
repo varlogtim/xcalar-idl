@@ -1,6 +1,7 @@
 class SetOpPanelModel {
     private dagNode: DagNodeSet;
     private dedup: boolean;
+    private outputTableName: string;
     private event: Function;
     private colModel: ColAssignmentModel;
     private _cachedBasicModeParam: string;
@@ -22,10 +23,12 @@ class SetOpPanelModel {
         selected: ProgCol[][],
         candidate: ProgCol[][],
         all: ProgCol[][];
+        outputTableName: string
     } {
         return $.extend({
             dedup: this.dedup,
             subType: this.dagNode.getSubType(),
+            outputTableName: this.outputTableName
         }, this.colModel.getModel());
     }
 
@@ -166,6 +169,7 @@ class SetOpPanelModel {
 
     private _initialize(param: DagNodeSetInputStruct) {
         this.dedup = param.dedup;
+        this.outputTableName = param.outputTableName;
         if (this.colModel) {
             // colModel not set during the first time
             const allCols = this.dagNode.getParents().map((parentNode) => {
@@ -179,7 +183,8 @@ class SetOpPanelModel {
     private _getParam(): DagNodeSetInputStruct {
         return {
             dedup: this.dedup,
-            columns: this.colModel.getParam().columns
+            columns: this.colModel.getParam().columns,
+            outputTableName: this.outputTableName
         }
     }
 

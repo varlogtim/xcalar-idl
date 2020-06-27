@@ -153,7 +153,8 @@ describe('ColAssignmentView Test', function() {
                         "newField": "average_stars"
                     }
                 ],
-                "icv": false
+                "icv": false,
+                outputTableName: ""
             });
             setTimeout(function() {
                 done();

@@ -31,7 +31,8 @@ class DagNodeSynthesize extends DagNode {
 
     public setParam(input: DagNodeSynthesizeInputStruct = <DagNodeSynthesizeInputStruct>{}) {
         this.input.setInput({
-            colsInfo: input.colsInfo
+            colsInfo: input.colsInfo,
+            outputTableName: input.outputTableName
         });
         super.setParam();
     }

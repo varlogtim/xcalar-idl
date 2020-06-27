@@ -10,7 +10,7 @@ describe('ProjectOpPanelModel Test', () => {
             getLineage: () => ({
                 getColumns: () => preset.inputColumns
             })
-        };    
+        };
     });
 
     describe('_createColMap() should work', () => {
@@ -167,7 +167,7 @@ describe('ProjectOpPanelModel Test', () => {
             const { parentNode } = preset;
             const projectNode = {
                 getParents: () => [parentNode],
-                getParam: () => ({ columns: ['col#1'] })
+                getParam: () => ({ columns: ['col#1'] , "outputTableName": ""})
             };
             const model = ProjectOpPanelModel.fromDag(projectNode);
             const param = model.toDag();
@@ -178,7 +178,7 @@ describe('ProjectOpPanelModel Test', () => {
             const { parentNode } = preset;
             const projectNode = {
                 getParents: () => [parentNode],
-                getParam: () => ({ columns: ['myPrefix::col#1'] })
+                getParam: () => ({ columns: ['myPrefix::col#1'], "outputTableName": "" })
             };
             const model = ProjectOpPanelModel.fromDag(projectNode);
             const param = model.toDag();
@@ -239,7 +239,7 @@ describe('ProjectOpPanelModel Test', () => {
             const { parentNode } = preset;
             const projectNode = {
                 getParents: () => [parentNode],
-                getParam: () => ({ columns: ['col#1'] })
+                getParam: () => ({ columns: ['col#1'], "outputTableName": "" })
             };
             const model = ProjectOpPanelModel.fromDag(projectNode);
 

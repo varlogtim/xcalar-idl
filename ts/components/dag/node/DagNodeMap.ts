@@ -49,6 +49,7 @@ class DagNodeMap extends DagNode {
         this.input.setInput({
             eval: input.eval,
             icv: input.icv,
+            outputTableName: input.outputTableName
         });
         return super.setParam(null, noAutoExecute);
     }

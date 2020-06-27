@@ -202,11 +202,14 @@ class DagNodeExecutor {
 
         try {
             let prefix: string = "";
-            if (source) {
+            if (this.node.getParam().outputTableName) {
+                prefix = this.node.getParam(true).outputTableName;
+            } else if (source) {
                 prefix = xcHelper.getTableName(source);
             } else {
                 prefix = xcHelper.genTableNameFromNode(this.node);
             }
+            prefix = prefix.replace(/_SQLTAG_DEST/g, ""); // remove old tags
             return prefix + Authentication.getTableId();
         } catch (e) {
             if (!xcHelper.isNodeJs()) {
@@ -1358,7 +1361,8 @@ class DagNodeExecutor {
         newKeys.push(node.updateNewKey(params.newKey));
         const srcTable: string = this._getParentNodeTable(0);
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        XIApi.index(this.txId, colNames, srcTable, undefined, newKeys)
+        const desTable = this._generateTableName(srcTable);
+        XIApi.index(this.txId, colNames, srcTable, desTable, newKeys)
         .then((ret) => {
             deferred.resolve(ret.newTableName);
         })

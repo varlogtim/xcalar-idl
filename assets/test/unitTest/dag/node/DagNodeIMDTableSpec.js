@@ -17,6 +17,7 @@ describe("DagNodeIMDTable Test", () => {
             schema: [],
             filterString: "",
             limitedRows: null,
+            outputTableName: ""
         });
     });
 
@@ -31,6 +32,7 @@ describe("DagNodeIMDTable Test", () => {
             }],
             filterString: "map()",
             limitedRows: 100,
+            outputTableName: ""
         };
         node.setParam(testParam)
         const param = node.getParam();
@@ -48,6 +50,7 @@ describe("DagNodeIMDTable Test", () => {
             }],
             filterString: "map()",
             limitedRows: 100,
+            outputTableName: ""
         };
         node.setParam(testParam)
         expect(node.getSource()).to.equal(testParam.source);

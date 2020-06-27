@@ -108,7 +108,8 @@ class DagNodeIMDTable extends DagNodeIn {
             version: version,
             filterString: filterString,
             schema: schema,
-            limitedRows: limitedRows
+            limitedRows: limitedRows,
+            outputTableName: input.outputTableName
         });
         super.setParam(null, noAutoExecute);
     }

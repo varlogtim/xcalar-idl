@@ -1,6 +1,6 @@
 describe("DagNodeSet Test", function() {
     let node;
-    
+
     before(() => {
         node = new DagNodeSet({});
     });
@@ -13,7 +13,8 @@ describe("DagNodeSet Test", function() {
         const param = node.getParam();
         expect(param).to.deep.equal({
             columns: [],
-            dedup: false
+            dedup: false,
+            outputTableName: ""
         });
     });
 
@@ -21,10 +22,11 @@ describe("DagNodeSet Test", function() {
         const testParam = {
             columns: [
                 [{sourceColumn: "col1", destColumn: "union1", columnType: "string"},
-                 {sourceColumn: "col2", destColumn: "union2", columnType: "string"}    
+                 {sourceColumn: "col2", destColumn: "union2", columnType: "string"}
                 ],
             ],
-            dedup: true
+            dedup: true,
+            outputTableName: ""
         };
         node.setParam(testParam);
         const param = node.getParam();

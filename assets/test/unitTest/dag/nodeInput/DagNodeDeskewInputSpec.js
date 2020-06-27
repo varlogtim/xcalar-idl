@@ -8,12 +8,14 @@ describe("DagNodeDeskewtInput Test", function() {
     it("getInput should work", function() {
         expect(input.getInput()).to.deep.equal({
             "column": "",
-            'newKey': ""
+            'newKey': "",
+            "outputTableName": ""
         });
         input.setInput({"column": "test", "newKey": "test2"});
         expect(input.getInput()).to.deep.equal({
             "column": "test",
-            "newKey": "test2"
+            "newKey": "test2",
+            "outputTableName": ""
         });
     });
 });

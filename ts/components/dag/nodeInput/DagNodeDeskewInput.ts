@@ -10,6 +10,9 @@ class DagNodeDeskewInput extends DagNodeInput {
         "required": [
           "column"
         ],
+        "optional": [
+            "outputTableName"
+        ],
         "additionalProperties": false,
         "properties": {
           "column": {
@@ -33,6 +36,13 @@ class DagNodeDeskewInput extends DagNodeInput {
             ],
             "pattern": "^(.*)$",
             "minLength": 0
+          },
+          "outputTableName": {
+            "$id": "#/properties/outputTableName",
+            "type": "string",
+            "title": "The outputTableName Schema",
+            "maxLength": XcalarApisConstantsT.XcalarApiMaxTableNameLen - 10,
+            "pattern": "^[a-zA-Z][a-zA-Z\\d\\_\\-]*$|^$"
           }
         }
     }
@@ -41,7 +51,8 @@ class DagNodeDeskewInput extends DagNodeInput {
         const input = super.getInput(replaceParameters);
         return {
             column: input.column || "",
-            newKey: input.newKey || ""
+            newKey: input.newKey || "",
+            outputTableName: input.outputTableName || ""
         };
     }
 }

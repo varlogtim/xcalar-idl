@@ -458,13 +458,13 @@ describe("FilterOpPanel Test", function() {
         it ("final node should have correct input", function() {
             filterOpPanel.show(node, openOptions);
             $("#filterOpPanel .bottomSection .xc-switch").click();
-            expect(JSON.stringify(node.getParam())).to.equal('{"evalString":""}');
+            expect(JSON.stringify(node.getParam())).to.equal('{"evalString":"","outputTableName":""}');
 
             $functionsInput.val('eq').trigger(fakeEvent.enterKeydown);
             $argSection.find('.arg').eq(0).val(1).trigger("change");
             $argSection.find('.arg').eq(1).val(2).trigger("change");
             $filterOpPanel.find(".submit").click();
-            expect(JSON.stringify(node.getParam())).to.equal('{"evalString":"eq(1, 2)"}');
+            expect(JSON.stringify(node.getParam())).to.equal('{"evalString":"eq(1, 2)","outputTableName":""}');
         });
     });
 

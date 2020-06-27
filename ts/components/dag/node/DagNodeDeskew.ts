@@ -32,7 +32,8 @@ class DagNodeDeskew extends DagNode {
     public setParam(input: DagNodeDeskewInputStruct = <DagNodeDeskewInputStruct>{}) {
         this.input.setInput({
             column: input.column,
-            newKey: input.newKey
+            newKey: input.newKey,
+            outputTableName: input.outputTableName
         });
         super.setParam();
     }
@@ -107,7 +108,7 @@ class DagNodeDeskew extends DagNode {
             return xcHelper.stripColName(parsedCol.name, false);
         } else  {
             // immediate
-            return parsedCol.name; 
+            return parsedCol.name;
         }
     }
 

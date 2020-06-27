@@ -12,13 +12,15 @@ describe("Project Dag Node Test", () => {
     it("should get parameter", () => {
         const param = node.getParam();
         expect(param).to.deep.equal({
-            columns: []
+            columns: [],
+            outputTableName: ""
         });
     });
 
     it("should set parameter", () => {
         const testParam = {
-            columns: ["column1", "prefix:noExistColToProjectPrefix"]
+            columns: ["column1", "prefix:noExistColToProjectPrefix"],
+            outputTableName: ""
         };
         node.setParam(testParam);
         const param = node.getParam();
@@ -29,7 +31,8 @@ describe("Project Dag Node Test", () => {
     it("lineageChange should work", () => {
         const columns = genProgCols('prefix::col', 3).concat(genProgCols('col', 3));
         node.setParam({
-            columns: ['prefix::col#1', 'col#1']
+            columns: ['prefix::col#1', 'col#1'],
+            outputTableName: ""
         });
 
         const result = node.lineageChange(columns);
@@ -40,7 +43,8 @@ describe("Project Dag Node Test", () => {
     it("lineageChange with hidden columns should work", () => {
         const columns = genProgCols('prefix::col', 3).concat(genProgCols('col', 3));
         node.setParam({
-            columns: ['prefix::col#1', 'col#1']
+            columns: ['prefix::col#1', 'col#1'],
+            outputTableName: ""
         });
         const lineage = node.getLineage();
         lineage.getHiddenColumns = () => {

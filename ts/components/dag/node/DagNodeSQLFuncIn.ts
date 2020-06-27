@@ -93,7 +93,7 @@ class DagNodeSQLFuncIn extends DagNodeIn {
         noAutoExecute?: boolean
     ): void {
         this.input.setInput({
-            source: input.source,
+            source: input.source
         });
         super.setParam(null,noAutoExecute);
     }

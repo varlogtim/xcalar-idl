@@ -11,6 +11,9 @@ class DagNodeProjectInput extends DagNodeInput {
         "required": [
           "columns"
         ],
+        "optional": [
+            "outputTableName"
+        ],
         "properties": {
           "columns": {
             "$id": "#/properties/columns",
@@ -29,6 +32,13 @@ class DagNodeProjectInput extends DagNodeInput {
               "minLength": 1,
               "pattern": "^(.*)$"
             }
+          },
+          "outputTableName": {
+            "$id": "#/properties/outputTableName",
+            "type": "string",
+            "title": "The outputTableName Schema",
+            "maxLength": XcalarApisConstantsT.XcalarApiMaxTableNameLen - 10,
+            "pattern": "^[a-zA-Z][a-zA-Z\\d\\_\\-]*$|^$"
           }
         }
     };
@@ -36,7 +46,8 @@ class DagNodeProjectInput extends DagNodeInput {
     public getInput(replaceParameters?: boolean): DagNodeProjectInputStruct {
         const input = super.getInput(replaceParameters);
         return {
-            columns: input.columns || []
+            columns: input.columns || [],
+            outputTableName: input.outputTableName || ""
         };
     }
 

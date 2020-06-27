@@ -14,14 +14,16 @@ describe("Sort Dag Node Test", () => {
         const param = node.getParam();
         expect(param).to.deep.equal({
             "columns": [],
-            "newKeys": []
+            "newKeys": [],
+            outputTableName: ""
         });
     });
 
     it("should set parameter", () => {
         const testParam = {
             "columns": ["test"],
-            "newKeys": ["test1"]
+            "newKeys": ["test1"],
+            outputTableName: ""
         };
         node.setParam(testParam);
         const param = node.getParam();
@@ -40,7 +42,8 @@ describe("Sort Dag Node Test", () => {
                     "columnName": "col1",
                     "ordering": "Ascending"
                 }],
-                "newKeys": ["col1Renamed"]
+                "newKeys": ["col1Renamed"],
+                outputTableName: ""
             };
             var progCol1 = new ProgCol({
                 "backName": "col1",
@@ -62,7 +65,8 @@ describe("Sort Dag Node Test", () => {
                     "columnName": "col1",
                     "ordering": "Ascending"
                 }],
-                "newKeys": ["col1"]
+                "newKeys": ["col1"],
+                outputTableName: ""
             };
             var progCol1 = new ProgCol({
                 "backName": "col1",
@@ -82,7 +86,8 @@ describe("Sort Dag Node Test", () => {
                     "columnName": "col1",
                     "ordering": "Ascending"
                 }],
-                "newKeys": [""]
+                "newKeys": [""],
+                outputTableName: ""
             };
             var progCol1 = new ProgCol({
                 "backName": "col1",
@@ -102,7 +107,8 @@ describe("Sort Dag Node Test", () => {
                     "columnName": "prefix::col1",
                     "ordering": "Ascending"
                 }],
-                "newKeys": [""]
+                "newKeys": [""],
+                outputTableName: ""
             };
             var progCol1 = new ProgCol({
                 "backName": "prefix::col1",
@@ -124,7 +130,8 @@ describe("Sort Dag Node Test", () => {
                     "columnName": "prefix::col1",
                     "ordering": "Ascending"
                 }],
-                "newKeys": [""]
+                "newKeys": [""],
+                outputTableName: ""
             };
             var progCol1 = new ProgCol({
                 "backName": "prefix::col1",
@@ -162,7 +169,8 @@ describe("Sort Dag Node Test", () => {
                     "columnName": "prefix::col1",
                     "ordering": "Ascending"
                 }],
-                "newKeys": [""]
+                "newKeys": [""],
+                outputTableName: ""
             };
             node.setParam(testParam);
 
@@ -181,7 +189,8 @@ describe("Sort Dag Node Test", () => {
                     "columnName": "col1",
                     "ordering": "Ascending"
                 }],
-                "newKeys": ["col2"]
+                "newKeys": ["col2"],
+                outputTableName: ""
             };
             node.setParam(testParam);
 

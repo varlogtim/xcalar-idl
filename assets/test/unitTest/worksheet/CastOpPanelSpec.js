@@ -127,7 +127,8 @@ describe('CastOpPanel Test', function() {
                         "newField": "average_stars"
                     }
                 ],
-                "icv": false
+                "icv": false,
+                outputTableName: ""
             });
             setTimeout(function() {
                 done();
@@ -200,7 +201,8 @@ describe('CastOpPanel Test', function() {
                         "newField": "average_stars"
                     }
                 ],
-                "icv": false
+                "icv": false,
+                outputTableName: ""
             });
 
             CastOpPanel.Instance._editor.setValue(JSON.stringify({
@@ -210,7 +212,8 @@ describe('CastOpPanel Test', function() {
                         "newField": "abc"
                     }
                 ],
-                "icv": false
+                "icv": false,
+                outputTableName: ""
             }));
             $castOpPanel.find(".switch").click();
             expect($castSection.find(".candidateSection .inputCol").length).to.equal(1);
@@ -235,7 +238,8 @@ describe('CastOpPanel Test', function() {
                         "newField": "abc"
                     }
                 ],
-                "icv": false
+                "icv": false,
+                outputTableName: ""
             });
             CastOpPanel.Instance._submit();
             expect($castOpPanel.is(":visible")).to.be.false;
@@ -247,7 +251,8 @@ describe('CastOpPanel Test', function() {
                         "newField": "abc"
                     }
                 ],
-                "icv": false
+                "icv": false,
+                outputTableName: ""
             });
         });
 

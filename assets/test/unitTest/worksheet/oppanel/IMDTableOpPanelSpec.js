@@ -153,14 +153,14 @@ describe('IMDTableOpPanel Test', () => {
         describe("Final output", function() {
             it ("final node should have correct input", function() {
                 opPanel.show(node, {});
-                expect(JSON.stringify(node.getParam())).to.equal('{"source":"","version":-1,"filterString":"","schema":[],"limitedRows":null}');
+                expect(JSON.stringify(node.getParam())).to.equal('{"source":"","version":-1,"filterString":"","schema":[],"limitedRows":null,"outputTableName":""}');
                 $("#IMDTableOpPanel .bottomSection .xc-switch").click();
                 var input = JSON.stringify(
                     {"source": "B", "version": -1, "schema": [{"name": "COL", "type": "integer"}]},
                     null, 4);
                 editor.setValue(input);
                 $panel.find(".submit").click();
-                expect(JSON.stringify(node.getParam())).to.equal('{"source":"B","version":-1,"filterString":"","schema":[{"name":"COL","type":"integer"}],"limitedRows":null}');
+                expect(JSON.stringify(node.getParam())).to.equal('{"source":"B","version":-1,"filterString":"","schema":[{"name":"COL","type":"integer"}],"limitedRows":null,"outputTableName":""}');
             });
         });
 

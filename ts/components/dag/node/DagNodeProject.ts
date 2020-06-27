@@ -47,7 +47,8 @@ class DagNodeProject extends DagNode {
      */
     public setParam(input: DagNodeProjectInputStruct = <DagNodeProjectInputStruct>{}) {
         this.input.setInput({
-            columns: input.columns
+            columns: input.columns,
+            outputTableName: input.outputTableName
         });
         super.setParam();
     }

@@ -7,6 +7,7 @@ class IMDTableOpPanel extends BaseOpPanel {
     private _selectedTable: PbTblInfo;
     private _schemaSection: ColSchemaSection;
     private _limitedRows: number;
+    private _outputTableName: string;
     private _pbDataFlowCache: Map<string, DagGraphInfo>
 
     // *******************
@@ -110,7 +111,8 @@ class IMDTableOpPanel extends BaseOpPanel {
             version: -1,
             schema: this._schemaSection.getSchema(ingoreError),
             filterString: "",
-            limitedRows: this._limitedRows
+            limitedRows: this._limitedRows,
+            outputTableName: this._outputTableName
         }
     }
 
@@ -146,6 +148,7 @@ class IMDTableOpPanel extends BaseOpPanel {
         this._changeSelectedTable(input.source);
         this._schemaSection.setInitialSchema(this._getInitialSchema(input.source) || input.schema);
         this._schemaSection.render(input.schema);
+        this._outputTableName = input.outputTableName;
     }
 
     private _getInitialSchema(source: string): ColSchema[] | null {

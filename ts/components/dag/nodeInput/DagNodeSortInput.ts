@@ -12,6 +12,9 @@ class DagNodeSortInput extends DagNodeInput {
           "columns",
           "newKeys"
         ],
+        "optional": [
+            "outputTableName"
+        ],
         "properties": {
           "columns": {
             "$id": "#/properties/columns",
@@ -68,6 +71,13 @@ class DagNodeSortInput extends DagNodeInput {
               null
             ]
           },
+          "outputTableName": {
+            "$id": "#/properties/outputTableName",
+            "type": "string",
+            "title": "The outputTableName Schema",
+            "maxLength": XcalarApisConstantsT.XcalarApiMaxTableNameLen - 10,
+            "pattern": "^[a-zA-Z][a-zA-Z\\d\\_\\-]*$|^$"
+          }
         }
       }
 
@@ -76,7 +86,8 @@ class DagNodeSortInput extends DagNodeInput {
         const input = super.getInput(replaceParameters);
         return {
             columns: input.columns || [],
-            newKeys: input.newKeys || []
+            newKeys: input.newKeys || [],
+            outputTableName: input.outputTableName || ""
         };
     }
 

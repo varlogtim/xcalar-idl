@@ -3,7 +3,7 @@ class SQLOpPanelModel extends BaseOpPanelModel {
     private _sqlQueryStr: string;
     private _identifiers: Map<number, string>;
     private _dropAsYouGo: boolean;
-    private _snippetId: string;
+    private _outputTableName: string;
 
     public constructor(dagNode: DagNodeSQL) {
         super();
@@ -14,7 +14,6 @@ class SQLOpPanelModel extends BaseOpPanelModel {
 
     private _initialize(params: DagNodeSQLInputStruct): void {
         const self = this;
-        self._snippetId = params.snippetId;
         self._sqlQueryStr = params.sqlQueryStr;
         self._identifiers = new Map<number, string>();
         if (params.identifiersOrder && params.identifiers) {
@@ -23,18 +22,19 @@ class SQLOpPanelModel extends BaseOpPanelModel {
             });
         }
         this._dropAsYouGo = params.dropAsYouGo;
+        this._outputTableName = params.outputTableName;
     }
 
     public setDataModel(
         sqlQueryStr: string,
         identifiers: Map<number, string>,
         dropAsYouGo: boolean,
-        snippetId?: string
+        outputTableName?: string
     ): void {
         this._sqlQueryStr = sqlQueryStr;
         this._identifiers = identifiers;
         this._dropAsYouGo = dropAsYouGo;
-        this._snippetId = snippetId;
+        this._outputTableName = outputTableName;
     }
 
     /**
@@ -55,11 +55,11 @@ class SQLOpPanelModel extends BaseOpPanelModel {
             identifiers[key] = value;
         });
         return {
-            snippetId: this._snippetId,
             sqlQueryStr: this._sqlQueryStr,
             identifiers: identifiers,
             identifiersOrder: identifiersOrder,
-            dropAsYouGo: this._dropAsYouGo
+            dropAsYouGo: this._dropAsYouGo,
+            outputTableName: this._outputTableName
         }
     }
 
@@ -67,8 +67,8 @@ class SQLOpPanelModel extends BaseOpPanelModel {
         return this._sqlQueryStr;
     }
 
-    public getSnippetId(): string {
-        return this._snippetId;
+    public getOutputTableName(): string {
+        return this._outputTableName;
     }
 
     public getIdentifiers(): Map<number, string> {
@@ -76,12 +76,6 @@ class SQLOpPanelModel extends BaseOpPanelModel {
     }
     public setIdentifiers(identifiers: Map<number, string>): void {
         this._identifiers = identifiers;
-    }
-
-    public setNewSnippetId(snippetId: string) {
-        this._snippetId = snippetId;
-        let param = this._dagNode.getParam();
-        this._dagNode.setParam({...param, snippetId: snippetId}, true);
     }
 
     public isDropAsYouGo(): boolean {

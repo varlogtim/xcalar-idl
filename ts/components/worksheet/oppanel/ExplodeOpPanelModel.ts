@@ -4,6 +4,7 @@ class ExplodeOpPanelModel extends BaseOpPanelModel {
     private _delimiter: string = '';
     private _includeErrRow: boolean = false;
     private _destColumnChanged: boolean = false;
+    private _outputTableName: string = "";
     private static _funcName = 'explodeString';
 
     /**
@@ -71,11 +72,13 @@ class ExplodeOpPanelModel extends BaseOpPanelModel {
 
             // icv
             model._includeErrRow = dagInput.icv;
+            model._outputTableName = dagInput.outputTableName;
         } catch(e) {
             model._sourceColumn = '';
             model._delimiter = '';
             model._destColumn = '';
             model._includeErrRow = false;
+            model._outputTableName = "";
         }
 
         return model;
@@ -97,7 +100,8 @@ class ExplodeOpPanelModel extends BaseOpPanelModel {
                 evalString: `${func}(${argCol},"${argDelimiter}")`,
                 newField: this.getDestColumn()
             }],
-            icv: this.isIncludeErrRow()
+            icv: this.isIncludeErrRow(),
+            outputTableName: this._outputTableName
         };
 
         return param;

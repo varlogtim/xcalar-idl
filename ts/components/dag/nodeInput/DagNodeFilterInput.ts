@@ -10,6 +10,9 @@ class DagNodeFilterInput extends DagNodeInput {
         "required": [
           "evalString"
         ],
+        "optional": [
+            "outputTableName"
+        ],
         "additionalProperties": false,
         "properties": {
           "evalString": {
@@ -22,6 +25,13 @@ class DagNodeFilterInput extends DagNodeInput {
             ],
             "pattern": "^(.*)$",
             "minLength": 1
+          },
+          "outputTableName": {
+            "$id": "#/properties/outputTableName",
+            "type": "string",
+            "title": "The outputTableName Schema",
+            "maxLength": XcalarApisConstantsT.XcalarApiMaxTableNameLen - 10,
+            "pattern": "^[a-zA-Z][a-zA-Z\\d\\_\\-]*$|^$"
           }
         }
     };
@@ -30,6 +40,7 @@ class DagNodeFilterInput extends DagNodeInput {
         const input = super.getInput(replaceParameters);
         return {
             evalString: input.evalString || "",
+            outputTableName: input.outputTableName || ""
         };
     }
 

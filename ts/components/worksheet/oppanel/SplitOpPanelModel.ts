@@ -3,6 +3,7 @@ class SplitOpPanelModel extends BaseOpPanelModel {
     private _sourceColName: string = '';
     private _destColNames: string[] = [];
     private _includeErrRow: boolean = false;
+    private _outputTableName: string = "";
     private static _funcName = 'cut';
 
     /**
@@ -110,12 +111,14 @@ class SplitOpPanelModel extends BaseOpPanelModel {
             }
             // icv
             model._includeErrRow = dagInput.icv;
+            model._outputTableName = dagInput.outputTableName;
         } catch(e) {
             // If anything goes wrong, reset the model and popup the error(for adv. form)
             model._sourceColName = '';
             model._delimiter = '';
             model._destColNames = [''];
             model._includeErrRow = false;
+            model._outputTableName = "";
             throw e;
         }
 
@@ -154,7 +157,8 @@ class SplitOpPanelModel extends BaseOpPanelModel {
 
         const param: DagNodeMapInputStruct = {
             eval: evalList,
-            icv: this.isIncludeErrRow()
+            icv: this.isIncludeErrRow(),
+            outputTableName: this._outputTableName
         };
 
         return param;

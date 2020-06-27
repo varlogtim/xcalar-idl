@@ -5,17 +5,20 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
     protected event: Function;
     protected groups: OpPanelFunctionGroup[]; // TODO fix
     protected andOrOperator: string;
+    protected outputTableName: string;
 
     /**
      * Return the whole model info
      */
     public getModel(): {
         groups: OpPanelFunctionGroup[],
-        andOrOperator: string
+        andOrOperator: string,
+        outputTableName: string
     } {
         return {
             groups: this.groups,
-            andOrOperator: this.andOrOperator
+            andOrOperator: this.andOrOperator,
+            outputTableName: this.outputTableName
         }
     }
 
@@ -167,7 +170,7 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
 
             groups.push({operator: argGroup.fnName, args: args});
         }
-
+        this.outputTableName = paramsRaw.outputTableName;
         this.groups = groups;
     }
 
@@ -183,6 +186,7 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
                                                              this.andOrOperator);
         return {
             evalString: evalString,
+            outputTableName: this.outputTableName
         }
     }
 

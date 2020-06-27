@@ -8,7 +8,8 @@ describe("Synthesize Dag Node Test", () => {
                     destColumn: 'myDestColumn',
                     columnType: 'myColumnType'
                 }
-            ]
+            ],
+            outputTableName: ""
         };
         node.setParam(testParam);
         const param = node.getParam();
@@ -20,7 +21,8 @@ describe("Synthesize Dag Node Test", () => {
         let node = new DagNodeSynthesize({});
         const param = node.getParam();
         expect(param).to.deep.equal({
-            colsInfo: []
+            colsInfo: [],
+            outputTableName: ""
         });
     });
 
@@ -34,7 +36,7 @@ describe("Synthesize Dag Node Test", () => {
                     destColumn: 'myDestColumn',
                     columnType: 'myColumnType'
                 }
-            ]
+            ],outputTableName: ""
         };
         node.setParam(testParam);
         parent.setSchema([
@@ -58,7 +60,8 @@ describe("Synthesize Dag Node Test", () => {
                     destColumn: 'myDestColumn',
                     columnType: 'myColumnType'
                 }
-            ]
+            ],
+            outputTableName: ""
         };
         node.setParam(testParam);
         parent.setSchema([
@@ -81,7 +84,8 @@ describe("Synthesize Dag Node Test", () => {
                     destColumn: 'myDestColumn',
                     columnType: 'myColumnType'
                 }
-            ]
+            ],
+            outputTableName: ""
         };
         node.setParam(testParam);
         let hint = node._genParamHint();

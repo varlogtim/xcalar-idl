@@ -14,7 +14,8 @@ describe("Map Dag Node Test", () => {
         const param = node.getParam();
         expect(param).to.deep.equal({
             eval: [{evalString: "", newField: ""}],
-            icv: false
+            icv: false,
+            outputTableName: ""
         });
     });
 
@@ -24,7 +25,8 @@ describe("Map Dag Node Test", () => {
                 {evalString: "add(col1, 1)", newField: "co1_add"},
                 {evalString: "abs(col2)", newField: "co1_abs"}
             ],
-            icv: true
+            icv: true,
+            outputTableName: ""
         };
         node.setParam(testParam);
         const param = node.getParam();

@@ -931,13 +931,13 @@ describe("MapOpPanel Test", function() {
             $("#configNodeContainer").parent().removeClass("xc-hidden");
             mapOpPanel.show(node, openOptions);
             $("#mapOpPanel .bottomSection .xc-switch").click();
-            expect(JSON.stringify(node.getParam())).to.equal('{"eval":[{"evalString":"","newField":""}],"icv":false}');
+            expect(JSON.stringify(node.getParam())).to.equal('{"eval":[{"evalString":"","newField":""}],"icv":false,"outputTableName":""}');
             $functionsInput.val('eq').trigger("input").trigger(fakeEvent.enterKeydown);
             $argSection.find('.arg').eq(0).val(1).trigger("change");
             $argSection.find('.arg').eq(1).val(2).trigger("change");
             $argSection.find('.arg').eq(2).val("outputName").trigger("change");
             $mapOpPanel.find(".submit").click();
-            expect(JSON.stringify(node.getParam())).to.equal('{"eval":[{"evalString":"eq(1, 2)","newField":"outputName"}],"icv":false}');
+            expect(JSON.stringify(node.getParam())).to.equal('{"eval":[{"evalString":"eq(1, 2)","newField":"outputName"}],"icv":false,"outputTableName":""}');
             $("#configNodeContainer").parent().addClass("xc-hidden");
         });
     });

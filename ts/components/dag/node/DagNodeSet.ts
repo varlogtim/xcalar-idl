@@ -48,7 +48,8 @@ class DagNodeSet extends DagNode {
     ) {
         this.input.setInput({
             columns: input.columns,
-            dedup: input.dedup
+            dedup: input.dedup,
+            outputTableName: input.outputTableName
         });
         super.setParam(null, noAutoExecute);
     }

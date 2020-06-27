@@ -41,6 +41,7 @@ class DagNodeFilter extends DagNode {
     public setParam(input: DagNodeFilterInputStruct = <DagNodeFilterInputStruct>{}) {
         this.input.setInput({
             evalString: input.evalString,
+            outputTableName: input.outputTableName
         });
         super.setParam();
     }

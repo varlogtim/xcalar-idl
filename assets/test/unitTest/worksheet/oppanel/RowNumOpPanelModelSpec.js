@@ -195,12 +195,14 @@ describe('RowNumOpPanelModel Test', () => {
         const model = new RowNumOpPanelModel();
         model._destColumn = destColumn;
         model._allColMap = createDefaultColumnMap();
+        model._outputTableName = "";
         return model;
     }
 
     function createDefaultDagInput(destColumn = 'rowNumColumn') {
         return {
-            newField: destColumn
+            newField: destColumn,
+            "outputTableName":""
         };
     }
 });

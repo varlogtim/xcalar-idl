@@ -342,7 +342,8 @@ describe('ExplodeOpPanelModel Test', () => {
             eval: [
                 { evalString: `explodeString(col#1,"${delimiter}")`, newField: 'col#1-explode-1' },
             ],
-            icv: false
+            icv: false,
+            "outputTableName":""
         };
     }
 
@@ -357,6 +358,7 @@ describe('ExplodeOpPanelModel Test', () => {
         model._destColumn = 'col#1-explode-1';
         model._delimiter = delimiter;
         model._includeErrRow = false;
+        model._outputTableName = "";
         return model;
     }
 

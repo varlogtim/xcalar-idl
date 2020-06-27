@@ -101,7 +101,8 @@ describe('Sort Op Panel Test', function() {
                         "ordering": "Descending"
                     }
                 ],
-                "newKeys": []
+                "newKeys": [],
+                outputTableName: ""
             });
             setTimeout(function() {
                 done();
@@ -262,7 +263,8 @@ describe('Sort Op Panel Test', function() {
                         "ordering": "Ascending"
                     }
                 ],
-                "newKeys": []
+                "newKeys": [],
+                outputTableName: ""
             });
             SortOpPanel.Instance._editor.setValue(JSON.stringify({
                 "columns": [
@@ -271,7 +273,8 @@ describe('Sort Op Panel Test', function() {
                         "ordering": "Descending"
                     }
                 ],
-                "newKeys": ["test"]
+                "newKeys": ["test"],
+                outputTableName: ""
             }));
             $sortOpPanel.find(".switch").click();
             expect($sortTable.find(".flexrow").length).to.equal(1);
@@ -289,7 +292,8 @@ describe('Sort Op Panel Test', function() {
                         "ordering": "Descending"
                     }
                 ],
-                "newKeys": ["test"]
+                "newKeys": ["test"],
+                outputTableName: ""
             });
             SortOpPanel.Instance._submitForm();
             expect($sortOpPanel.is(":visible")).to.be.false;
@@ -301,7 +305,8 @@ describe('Sort Op Panel Test', function() {
                         "ordering": "Descending"
                     }
                 ],
-                "newKeys": ["test"]
+                "newKeys": ["test"],
+                outputTableName: ""
             });
             DagConfigNodeModal.Instance.show(node, "", $(".operator"), {});
             $sortOpPanel.find(".switch").click();

@@ -1,6 +1,7 @@
 class DeskewOpPanel extends BaseOpPanel {
     protected _dagNode: DagNodeDeskew;
     private _newKey: string;
+    private _outputTableName: string;
     protected codeMirrorOnlyColumns = true;
 
     public constructor() {
@@ -38,7 +39,8 @@ class DeskewOpPanel extends BaseOpPanel {
         if (toAdvancedMode) {
             const param: DagNodeDeskewInputStruct = this._validate(true) || {
                 column: "",
-                newKey: this._newKey || ""
+                newKey: this._newKey || "",
+                outputTableName: this._outputTableName || ""
             };
             const paramStr = JSON.stringify(param, null, 4);
             this._cachedBasicModeParam = paramStr;
@@ -58,6 +60,7 @@ class DeskewOpPanel extends BaseOpPanel {
     private _clear(): void {
         this._dagNode = null;
         this._newKey = null;
+        this._outputTableName = null;
     }
 
     private _getDropdownList(): JQuery {
@@ -67,6 +70,7 @@ class DeskewOpPanel extends BaseOpPanel {
     private _restorePanel(param: DagNodeDeskewInputStruct): void {
         this._getDropdownList().find("input").val(param.column);
         this._newKey = param.newKey;
+        this._outputTableName = param.outputTableName;
     }
 
     private _submitForm() {
@@ -104,7 +108,8 @@ class DeskewOpPanel extends BaseOpPanel {
 
         return {
             column: $input.val().trim(),
-            newKey: this._newKey || ""
+            newKey: this._newKey || "",
+            outputTableName: this._outputTableName || ""
         }
     }
 

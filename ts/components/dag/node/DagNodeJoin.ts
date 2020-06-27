@@ -53,7 +53,8 @@ class DagNodeJoin extends DagNode {
             right: input.right,
             evalString: input.evalString,
             nullSafe: input.nullSafe,
-            keepAllColumns: input.keepAllColumns
+            keepAllColumns: input.keepAllColumns,
+            outputTableName: input.outputTableName
         });
         super.setParam(null, noAutoExecute);
     }

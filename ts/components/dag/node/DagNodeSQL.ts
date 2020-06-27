@@ -391,7 +391,8 @@ class DagNodeSQL extends DagNode {
             sqlQueryStr: input.sqlQueryStr,
             identifiers: input.identifiers,
             identifiersOrder: input.identifiersOrder,
-            dropAsYouGo: dropAsYouGo
+            dropAsYouGo: dropAsYouGo,
+            outputTableName: input.outputTableName
         });
         super.setParam(null, noAutoExecute);
     }
@@ -1715,7 +1716,12 @@ class DagNodeSQL extends DagNode {
     private _generateTableName(tag: string, tabId?: string, isAgg?: boolean): string {
         let tableName;
         try {
-            let prefix = xcHelper.genTableNameFromNode(this);
+            let prefix;
+            if (this.getParam().outputTableName) {
+                prefix = this.getParam(true).outputTableName;
+            } else {
+                prefix = xcHelper.genTableNameFromNode(this);
+            }
             prefix = prefix.replace(/_SQLTAG_DEST/g, ""); // remove old tags
             if (prefix == "") {
                 const identifiersList: string[] = [];

@@ -3,6 +3,7 @@ class RoundOpPanelModel extends BaseOpPanelModel {
     private _destColumn: string = '';
     private _numDecimals: number = 0;
     private _includeErrRow: boolean = false;
+    private _outputTableName: string = "";
     private static _funcName = 'round';
 
     /**
@@ -71,11 +72,13 @@ class RoundOpPanelModel extends BaseOpPanelModel {
 
             // icv
             model._includeErrRow = dagInput.icv;
+            model._outputTableName = dagInput.outputTableName;
         } catch(e) {
             model._sourceColumn = '';
             model._numDecimals = 0;
             model._destColumn = '';
             model._includeErrRow = false;
+            model._outputTableName = "";
         }
 
         return model;
@@ -94,7 +97,8 @@ class RoundOpPanelModel extends BaseOpPanelModel {
                 evalString: `${RoundOpPanelModel._funcName}(${this.getSourceColumn()},${this.getNumDecimals()})`,
                 newField: this.getDestColumn()
             }],
-            icv: this.isIncludeErrRow()
+            icv: this.isIncludeErrRow(),
+            outputTableName: this._outputTableName
         };
 
         return param;

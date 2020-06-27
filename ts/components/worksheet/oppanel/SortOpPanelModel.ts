@@ -1,6 +1,7 @@
 class SortOpPanelModel extends BaseOpPanelModel {
     private _sortedColumns: {columnName: string, ordering: string}[];
     private _newKeys: string[];
+    private _outputTableName: string;
 
     /**
      * Create data model instance from DagNode
@@ -39,6 +40,7 @@ class SortOpPanelModel extends BaseOpPanelModel {
         model._allColMap = colMap;
         model._newKeys = dagInput.newKeys;
         model._sortedColumns = xcHelper.deepCopy(dagInput.columns);
+        model._outputTableName = dagInput.outputTableName;
         if (!model._sortedColumns.length) {
             model.addColumn();
         }
@@ -52,7 +54,8 @@ class SortOpPanelModel extends BaseOpPanelModel {
     public toDagInput(): DagNodeSortInputStruct {
         const param: DagNodeSortInputStruct = {
             columns: this.getSortedColumns(),
-            newKeys: this._newKeys
+            newKeys: this._newKeys,
+            outputTableName: this._outputTableName
         };
 
         return param;

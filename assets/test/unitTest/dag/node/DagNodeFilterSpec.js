@@ -12,12 +12,13 @@ describe("Filter Dag Node Test", () => {
     it("should get parameter", () => {
         const param = node.getParam();
         expect(param).to.deep.equal({
-            evalString: ""
+            evalString: "",
+            "outputTableName": ""
         });
     });
 
     it("should set parameter", () => {
-        const testParam = {evalString: "eq(column, 1)"};
+        const testParam = {evalString: "eq(column, 1)",  "outputTableName": ""};
         node.setParam(testParam);
         const param = node.getParam();
         expect(param).not.to.equal(testParam);

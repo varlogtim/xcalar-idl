@@ -15,7 +15,8 @@ describe("RowNum Dag Node Test", () => {
 
     it("setParam() should work", () => {
         const testParam = {
-            newField: 'rowNumColumn'
+            newField: 'rowNumColumn',
+            outputTableName: ""
         };
         node.setParam(testParam);
         const param = node.getParam();
@@ -25,9 +26,10 @@ describe("RowNum Dag Node Test", () => {
 
     it("lineageChange should work", () => {
         node.setParam({
-            newField: 'rowNumColumn'
+            newField: 'rowNumColumn',
+            outputTableName: ""
         });
-        
+
         const result = node.lineageChange();
         expect(result.columns.length).to.equal(7);
         expect(result.changes.length).to.equal(1);
@@ -35,7 +37,8 @@ describe("RowNum Dag Node Test", () => {
 
     it('_genParamHint() should work', () => {
         node.setParam({
-            newField: 'rowNumColumn'
+            newField: 'rowNumColumn',
+            outputTableName: ""
         });
         expect(node._genParamHint()).to.equal('Row Num In Field: rowNumColumn');
     });

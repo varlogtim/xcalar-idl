@@ -40,7 +40,8 @@ class DagNodeSort extends DagNode {
     public setParam(input: DagNodeSortInputStruct = <DagNodeSortInputStruct>{}) {
         this.input.setInput({
             columns: input.columns,
-            newKeys: input.newKeys
+            newKeys: input.newKeys,
+            outputTableName: input.outputTableName
         });
         super.setParam();
     }

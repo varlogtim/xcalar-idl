@@ -11,7 +11,8 @@ class DagNodeSQLInput extends DagNodeInput {
             sqlQueryStr: input.sqlQueryStr || "",
             identifiers: input.identifiers || {},
             identifiersOrder: input.identifiersOrder || [],
-            dropAsYouGo: dropAsYouGo
+            dropAsYouGo: dropAsYouGo,
+            outputTableName: input.outputTableName || ""
         };
     }
 }

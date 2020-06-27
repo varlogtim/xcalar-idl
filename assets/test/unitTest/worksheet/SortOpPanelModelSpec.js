@@ -58,7 +58,8 @@ describe('SortOpPanelModel Test', () => {
             const expectedModel = createDefaultModel(columns);
             const testDagInput = {
                 "columns": columns,
-                "newKeys": []
+                "newKeys": [],
+                outputTableName: ""
             };
 
             const testModel = SortOpPanelModel.fromDagInput(
@@ -97,7 +98,8 @@ describe('SortOpPanelModel Test', () => {
             const testModel = createDefaultModel(columns);
             const testDagInput = {
                 "columns": columns,
-                "newKeys": []
+                "newKeys": [],
+                outputTableName: ""
             };
             expect(testModel.toDagInput()).to.deep.equal(testDagInput);
         });
@@ -112,7 +114,8 @@ describe('SortOpPanelModel Test', () => {
             const testModel = createDefaultModel(columns, ["test"]);
             const testDagInput = {
                 "columns": columns,
-                "newKeys": ["test"]
+                "newKeys": ["test"],
+                outputTableName: ""
             };
             expect(testModel.toDagInput()).to.deep.equal(testDagInput);
         });
@@ -132,7 +135,8 @@ describe('SortOpPanelModel Test', () => {
             const testModel = createDefaultModel(columns, ["test", "test2"]);
             const testDagInput = {
                 "columns": columns,
-                "newKeys": ["test", "test2"]
+                "newKeys": ["test", "test2"],
+                outputTableName: ""
             };
             expect(testModel.toDagInput()).to.deep.equal(testDagInput);
         });
@@ -377,6 +381,7 @@ describe('SortOpPanelModel Test', () => {
         model._allColMap = allColumns;
         model._sortedColumns = columns;
         model._newKeys = newKeys || [];
+        model._outputTableName = "";
         return model;
     }
 

@@ -19,7 +19,8 @@ describe("GroupBy Dag Node Test", () => {
             groupAll: false,
             newKeys: [],
             dhtName: "",
-            joinBack: false
+            joinBack: false,
+            outputTableName: ""
         });
     });
 
@@ -32,7 +33,8 @@ describe("GroupBy Dag Node Test", () => {
             groupAll: false,
             newKeys: ["count_agg"],
             dhtName: "",
-            joinBack: false
+            joinBack: false,
+            outputTableName: ""
         };
         node.setParam(testParam);
         const param = node.getParam();
@@ -73,7 +75,8 @@ describe("GroupBy Dag Node Test", () => {
                 "icv": false,
                 "groupAll": false,
                 "newKeys": [],
-                "dhtName": ""
+                "dhtName": "",
+                outputTableName: ""
             };
             node.setParam(testParam);
             const res = node.lineageChange([]);
@@ -118,7 +121,8 @@ describe("GroupBy Dag Node Test", () => {
                 "icv": false,
                 "groupAll": false,
                 "newKeys": [],
-                "dhtName": ""
+                "dhtName": "",
+                outputTableName: ""
             };
             node.setParam(testParam);
             var progCol1 = new ProgCol({
@@ -192,7 +196,8 @@ describe("GroupBy Dag Node Test", () => {
                 "icv": false,
                 "groupAll": false,
                 "newKeys": ["col1a", "col2a"],
-                "dhtName": ""
+                "dhtName": "",
+                outputTableName: ""
             };
             node.setParam(testParam);
             var progCol1 = new ProgCol({
@@ -275,7 +280,8 @@ describe("GroupBy Dag Node Test", () => {
                 "icv": false,
                 "groupAll": false,
                 "newKeys": [],
-                "dhtName": ""
+                "dhtName": "",
+                outputTableName: ""
             };
             node.setParam(testParam);
 
@@ -344,7 +350,8 @@ describe("GroupBy Dag Node Test", () => {
                 "icv": false,
                 "groupAll": false,
                 "newKeys": [],
-                "dhtName": ""
+                "dhtName": "",
+                outputTableName: ""
             };
             node.setParam(testParam);
 

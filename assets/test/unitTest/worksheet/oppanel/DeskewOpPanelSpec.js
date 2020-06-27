@@ -74,7 +74,7 @@ describe("DeskewOpPanel Test", function() {
         it("_switchMode should work", function() {
             panel._switchMode(true);
             let val = JSON.parse(panel._editor.getValue());
-            expect(val).to.deep.equal({"column": "", "newKey": ""});
+            expect(val).to.deep.equal({"column": "", "newKey": "", "outputTableName": ""});
 
             // case 2
             const paramStr = JSON.stringify({
@@ -90,7 +90,8 @@ describe("DeskewOpPanel Test", function() {
             panel._submitForm();
             expect(node.getParam()).to.deep.equal({
                 "column": "test",
-                "newKey": ""
+                "newKey": "",
+                "outputTableName": ""
             });
         });
 

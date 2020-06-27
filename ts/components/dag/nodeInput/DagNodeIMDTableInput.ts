@@ -15,7 +15,8 @@ class DagNodeIMDTableInput extends DagNodeInput {
         "optional" : [
           "filterString",
           "limitedRows",
-          "version"
+          "version",
+          "outputTableName"
         ],
         "properties": {
           "source": {
@@ -39,6 +40,13 @@ class DagNodeIMDTableInput extends DagNodeInput {
             ],
             "minLength": 1,
             "pattern": "^(.*)$"
+          },
+          "outputTableName": {
+            "$id": "#/properties/outputTableName",
+            "type": "string",
+            "title": "The outputTableName Schema",
+            "maxLength": XcalarApisConstantsT.XcalarApiMaxTableNameLen - 10,
+            "pattern": "^[a-zA-Z][a-zA-Z\\d\\_\\-]*$|^$"
           },
           "schema": {
             "$id": "#/properties/schema",
@@ -131,6 +139,7 @@ class DagNodeIMDTableInput extends DagNodeInput {
             filterString: input.filterString || "",
             schema: input.schema || [],
             limitedRows: limitedRows,
+            outputTableName: input.outputTableName || ""
         };
     }
 }

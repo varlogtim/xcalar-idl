@@ -40,7 +40,8 @@ class DagNodeRowNum extends DagNode {
      */
     public setParam(input: DagNodeRowNumInputStruct = <DagNodeRowNumInputStruct>{}) {
         this.input.setInput({
-            newField: input.newField
+            newField: input.newField,
+            outputTableName: input.outputTableName
         });
         super.setParam();
     }

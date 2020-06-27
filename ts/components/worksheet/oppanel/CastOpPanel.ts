@@ -4,6 +4,7 @@ class CastOpPanel extends BaseOpPanel {
     private colRenameSection: ColAssignmentView;
     private prevRenameMap;
     private dataModel: ColAssignmentModel;
+    private _outputTableName: string;
 
     public constructor() {
         super();
@@ -38,6 +39,7 @@ class CastOpPanel extends BaseOpPanel {
             let error;
             try {
                 const selectedCols = this._paramToSelectedCols(param);
+                this._outputTableName = param.outputTableName;
                 this.dataModel = this.colRenameSection.show([curColumns], [selectedCols], {
                     allowUnknownType: true
                 });
@@ -86,7 +88,8 @@ class CastOpPanel extends BaseOpPanel {
         });
         const paramInput: DagNodeMapInputStruct = {
             eval: evalOps,
-            icv: false
+            icv: false,
+            outputTableName: this._outputTableName
         };
         return paramInput;
     }
@@ -267,6 +270,7 @@ class CastOpPanel extends BaseOpPanel {
                         return advancedErr;
                     }
                 }
+                this._outputTableName = param.outputTableName;
                 const selectedCols = this._paramToSelectedCols(param);
                 const curColumns = this._updateColumns();
                 this.dataModel = this.colRenameSection.show([curColumns], [selectedCols]);

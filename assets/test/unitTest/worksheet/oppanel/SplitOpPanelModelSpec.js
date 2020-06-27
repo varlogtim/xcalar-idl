@@ -358,7 +358,7 @@ describe('SplitOpPanelModel Test', () => {
         model._sourceColName = 'col#1';
         model._destColNames = ['col-split-1', 'col-split-2'];
         model._allColMap = allColumns;
-        return model;                           
+        return model;
     }
 
     function createDefaultDagInput(delimiter = '/') {
@@ -368,7 +368,8 @@ describe('SplitOpPanelModel Test', () => {
                 { evalString: `cut(col#1,1,"${delimiter}")`, newField: 'col-split-1' },
                 { evalString: `cut(col#1,2,"${delimiter}")`, newField: 'col-split-2' },
             ],
-            icv: false
+            icv: false,
+            "outputTableName":""
         };
     }
 });

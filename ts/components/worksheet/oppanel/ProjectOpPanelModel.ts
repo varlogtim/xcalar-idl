@@ -2,6 +2,7 @@ class ProjectOpPanelModel extends BaseOpPanelModel {
     public derivedList: ProjectOpPanelModelColumnInfo[] = [];
     public prefixedList: ProjectOpPanelModelPrefixColumn[] = [];
     public columnMap: Map<string, ProgCol> = new Map();
+    public outputTableName: string;
 
     public static fromDag(dagNode: DagNodeProject) {
         try {
@@ -19,6 +20,7 @@ class ProjectOpPanelModel extends BaseOpPanelModel {
     ) {
         const model = new ProjectOpPanelModel();
         model.columnMap = colMap;
+        model.outputTableName = dagInput.outputTableName;
 
         const projectedColumns = dagInput.columns.reduce( (res, col) => {
             res[col] = true;
@@ -86,7 +88,7 @@ class ProjectOpPanelModel extends BaseOpPanelModel {
     }
 
     public toDag(): DagNodeProjectInputStruct {
-        const dagData = { columns: [] };
+        const dagData = { columns: [], outputTableName: ""};
         for (const colInfo of this.derivedList) {
             if (colInfo.isSelected) {
                 dagData.columns.push(colInfo.name);
@@ -99,6 +101,7 @@ class ProjectOpPanelModel extends BaseOpPanelModel {
                 }
             }
         }
+        dagData.outputTableName = this.outputTableName || "";
 
         return dagData;
     }

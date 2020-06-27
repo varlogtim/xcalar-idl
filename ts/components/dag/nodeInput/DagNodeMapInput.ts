@@ -12,6 +12,9 @@ class DagNodeMapInput extends DagNodeInput {
           "eval",
           "icv"
         ],
+        "optional": [
+            "outputTableName"
+        ],
         "properties": {
           "eval": {
             "$id": "#/properties/eval",
@@ -61,6 +64,13 @@ class DagNodeMapInput extends DagNodeInput {
             "examples": [
               false
             ]
+          },
+          "outputTableName": {
+            "$id": "#/properties/outputTableName",
+            "type": "string",
+            "title": "The outputTableName Schema",
+            "maxLength": XcalarApisConstantsT.XcalarApiMaxTableNameLen - 10,
+            "pattern": "^[a-zA-Z][a-zA-Z\\d\\_\\-]*$|^$"
           }
         }
     };
@@ -70,6 +80,7 @@ class DagNodeMapInput extends DagNodeInput {
         return {
             eval: input.eval || [{evalString: "", newField: ""}],
             icv: input.icv || false,
+            outputTableName: input.outputTableName || ""
         };
     }
 

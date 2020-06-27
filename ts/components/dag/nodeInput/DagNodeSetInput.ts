@@ -38,6 +38,9 @@ class DagNodeSetInput extends DagNodeInput {
           "dedup",
           "columns"
         ],
+        "optional": [
+            "outputTableName"
+        ],
         "properties": {
           "dedup": {
             "$id": "#/properties/dedup",
@@ -125,6 +128,13 @@ class DagNodeSetInput extends DagNodeInput {
                 }
               }
             }
+          },
+          "outputTableName": {
+            "$id": "#/properties/outputTableName",
+            "type": "string",
+            "title": "The outputTableName Schema",
+            "maxLength": XcalarApisConstantsT.XcalarApiMaxTableNameLen - 10,
+            "pattern": "^[a-zA-Z][a-zA-Z\\d\\_\\-]*$|^$"
           }
         }
     };
@@ -133,7 +143,8 @@ class DagNodeSetInput extends DagNodeInput {
         const input = super.getInput(replaceParameters);
         return {
             columns: input.columns,
-            dedup: input.dedup
+            dedup: input.dedup,
+            outputTableName: input.outputTableName || ""
         };
     }
 

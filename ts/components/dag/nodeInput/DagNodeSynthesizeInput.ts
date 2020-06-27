@@ -9,6 +9,7 @@ class DagNodeSynthesizeInput extends DagNodeInput {
         "title": "The Root Schema",
         "additionalProperties": false,
         "required": ["colsInfo"],
+        "optional": ["outputTableName"],
         "properties": {
             "colsInfo": {
                 "$id": "#/properties/colsInfo",
@@ -55,6 +56,13 @@ class DagNodeSynthesizeInput extends DagNodeInput {
                         },
                     }
                 }
+            },
+            "outputTableName": {
+                "$id": "#/properties/outputTableName",
+                "type": "string",
+                "title": "The outputTableName Schema",
+                "maxLength": XcalarApisConstantsT.XcalarApiMaxTableNameLen - 10,
+                "pattern": "^[a-zA-Z][a-zA-Z\\d\\_\\-]*$|^$"
             }
         }
     };
@@ -62,7 +70,8 @@ class DagNodeSynthesizeInput extends DagNodeInput {
     public getInput(replaceParameters?: boolean): DagNodeSynthesizeInputStruct {
         const input = super.getInput(replaceParameters);
         return {
-            colsInfo: input.colsInfo || []
+            colsInfo: input.colsInfo || [],
+            outputTableName: input.outputTableName || ""
         };
     }
 }

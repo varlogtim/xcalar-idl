@@ -9,6 +9,7 @@ class DagNodeRowNumInput extends DagNodeInput {
         "title": "The Root Schema",
         "additionalProperties": false,
         "required": ["newField"],
+        "optional": ["outputTableName"],
         "properties": {
             "newField": {
                 "$id": "#/properties/newField",
@@ -18,7 +19,14 @@ class DagNodeRowNumInput extends DagNodeInput {
                 "examples": ["col1"],
                 "minLength": 1,
                 "pattern": "^(.*)$"
-            }
+            },
+            "outputTableName": {
+                "$id": "#/properties/outputTableName",
+                "type": "string",
+                "title": "The outputTableName Schema",
+                "maxLength": XcalarApisConstantsT.XcalarApiMaxTableNameLen - 10,
+                "pattern": "^[a-zA-Z][a-zA-Z\\d\\_\\-]*$|^$"
+              }
         }
     };
 
@@ -32,9 +40,11 @@ class DagNodeRowNumInput extends DagNodeInput {
         super(inputStruct);
     }
 
-    public getInput() {
+    public getInput(replaceParameters?: boolean): DagNodeRowNumInputStruct {
+        const input = super.getInput(replaceParameters);
         return {
-            newField: this.input.newField,
+            newField: input.newField,
+            outputTableName: input.outputTableName || ""
         };
     }
 }

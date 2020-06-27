@@ -77,7 +77,8 @@ describe("SQL Dag Node Test", () => {
                     "sqlQueryStr": "",
                     "identifiers": {},
                     "identifiersOrder": [],
-                    "dropAsYouGo": true
+                    "dropAsYouGo": true,
+                    outputTableName: ""
                 },
                 "id": id,
                 "state": "Unused",

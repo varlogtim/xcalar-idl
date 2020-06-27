@@ -11,6 +11,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
     protected groupOnCols: string[];
     protected newKeys: string[];
     protected dhtName: string;
+    protected outputTableName: string;
 
     public constructor(dagNode: DagNodeGroupBy, event: Function, options) {
         super(dagNode, event, options);
@@ -26,6 +27,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
         joinBack: boolean,
         icv: boolean,
         groupAll: boolean,
+        outputTableName: string
     } {
         return {
             groupOnCols: this.groupOnCols,
@@ -34,6 +36,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             joinBack: this.joinBack,
             icv: this.icv,
             groupAll: this.groupAll,
+            outputTableName: this.outputTableName
         }
     }
 
@@ -128,6 +131,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
 
     protected _initialize(paramsRaw, _strictCheck?: boolean, isSubmit?: boolean) {
         this.icv = paramsRaw.icv || false;
+        this.outputTableName = paramsRaw.outputTableName;
         this.includeSample = paramsRaw.includeSample || false;
         this.joinBack = paramsRaw.joinBack || false;
         this.groupAll = paramsRaw.groupAll || false;
@@ -249,7 +253,8 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             includeSample: this.includeSample,
             joinBack: this.joinBack,
             newKeys: this.newKeys || null,
-            dhtName: this.dhtName || ""
+            dhtName: this.dhtName || "",
+            outputTableName: this.outputTableName
         }
     }
 

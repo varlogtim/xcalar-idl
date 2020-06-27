@@ -5,6 +5,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
     protected event: Function;
     protected groups: OpPanelFunctionGroup[];
     protected icv: boolean;
+    private outputTableName: string;
 
     /**
      * Return the whole model info
@@ -12,10 +13,12 @@ class MapOpPanelModel extends GeneralOpPanelModel {
     public getModel(): {
         groups: OpPanelFunctionGroup[],
         icv: boolean
+        outputTableName: string
     } {
         return {
             groups: this.groups,
-            icv: this.icv
+            icv: this.icv,
+            outputTableName: this.outputTableName
         }
     }
 
@@ -260,6 +263,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
 
         this.groups = groups;
         this.icv = paramsRaw.icv;
+        this.outputTableName = paramsRaw.outputTableName;
     }
 
     protected _getParam(): DagNodeMapInputStruct {
@@ -275,6 +279,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
         return {
             eval: evals,
             icv: this.icv,
+            outputTableName: this.outputTableName
         }
     }
 

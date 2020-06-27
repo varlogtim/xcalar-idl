@@ -56,6 +56,9 @@ class DagNodeJoinInput extends DagNodeInput {
           "evalString",
           // "keepAllColumns"
         ],
+        "optional": [
+            "outputTableName"
+        ],
         "properties": {
           "joinType": {
             "$id": "#/properties/joinType",
@@ -350,6 +353,13 @@ class DagNodeJoinInput extends DagNodeInput {
             "examples": [
               true
             ]
+          },
+          "outputTableName": {
+            "$id": "#/properties/outputTableName",
+            "type": "string",
+            "title": "The outputTableName Schema",
+            "maxLength": XcalarApisConstantsT.XcalarApiMaxTableNameLen - 10,
+            "pattern": "^[a-zA-Z][a-zA-Z\\d\\_\\-]*$|^$"
           }
         }
     };
@@ -362,7 +372,8 @@ class DagNodeJoinInput extends DagNodeInput {
             right: input.right,
             evalString: input.evalString,
             nullSafe: input.nullSafe,
-            keepAllColumns: input.keepAllColumns == null ? true: input.keepAllColumns
+            keepAllColumns: input.keepAllColumns == null ? true: input.keepAllColumns,
+            outputTableName: input.outputTableName || ""
         };
     }
 
