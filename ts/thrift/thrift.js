@@ -1082,7 +1082,7 @@ Thrift.Protocol.prototype = {
         this.rpos = [];
 
         if (typeof JSON !== 'undefined' && typeof JSON.parse === 'function') {
-            // this.robj = JSON.parse(this.transport.readAll());
+            //this.robj = JSON.parse(this.transport.readAll());
             // XXX Begin Xcalar code
             var msg = this.transport.readAll();
             var regex = new RegExp('{"tf":[^01]}', "g");

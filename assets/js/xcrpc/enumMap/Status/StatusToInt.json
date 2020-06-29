@@ -733,6 +733,8 @@
     "StatusFailedParseProtoValFieldLen" : 731,
     "StatusFailedParseProtoValField" : 732,
     "StatusInvalidFieldType" : 733,
-    "StatusSystemAppDisabled" : 734
+    "StatusSystemAppDisabled" : 734,
+    "StatusUnionTypeMismatch" : 735,
+    "StatusUnionDhtMismatch" : 736
 }
 

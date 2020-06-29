@@ -733,6 +733,8 @@
     "Failed to parse proto value field length" : 731,
     "Failed to parse proto value field" : 732,
     "Invalid field type" : 733,
-    "System app is disabled" : 734
+    "System app is disabled" : 734,
+    "Union keys must be of the same data type" : 735,
+    "Union may only be performed on tables with the same DHT" : 736
 }
 

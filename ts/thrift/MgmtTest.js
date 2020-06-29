@@ -2247,62 +2247,6 @@ testSuiteFn = (function($, TestSuite) {
         });
     }
 
-    function testAddExportTarget(test) {
-        var target = new ExExportTargetT();
-        target.hdr = new ExExportTargetHdrT();
-        target.hdr.name = "Mgmtd Export Target";
-        target.hdr.type = ExTargetTypeT.ExTargetSFType;
-        target.specificInput = new ExAddTargetSpecificInputT();
-        target.specificInput.sfInput = new ExAddTargetSFInputT();
-        target.specificInput.sfInput.url = "/tmp/mgmtdTest";
-
-        xcalarAddExportTarget(thriftHandle, target)
-        .done(function(status) {
-            printResult(status);
-            test.pass();
-        })
-        .fail(function(reason) {
-            // Don't fail if this test has been run before
-            if (reason.xcalarStatus !== StatusT.StatusExTargetAlreadyExists) {
-                test.fail(StatusTStr[reason.xcalarStatus]);
-            } else {
-                test.pass();
-            }
-        });
-    }
-
-    function testRemoveExportTarget(test) {
-        var target = new ExExportTargetT();
-        target.hdr = new ExExportTargetHdrT();
-        target.hdr.name = "Mgmtd Export Target";
-        target.hdr.type = ExTargetTypeT.ExTargetSFType;
-        target.specificInput = new ExAddTargetSpecificInputT();
-        target.specificInput.sfInput = new ExAddTargetSFInputT();
-        target.specificInput.sfInput.url = "/tmp/mgmtdTest";
-
-        // testAddExportTarget might not be run, so add manually here
-        xcalarAddExportTarget(thriftHandle, target)
-        .fail(function(reason) {
-            // Don't fail if this test has been run before
-            if (reason.xcalarStatus != StatusT.StatusExTargetAlreadyExists) {
-                test.fail(StatusTStr[reason.xcalarStatus]);
-            }
-        }).always(function() {
-            xcalarRemoveExportTarget(thriftHandle, target.hdr)
-            .then(function(result) {
-                printResult(result.xcalarStatus);
-                test.pass();
-            })
-            .fail(function(result) {
-                test.fail(StatusTStr[result.xcalarStatus]);
-            });
-        });
-    }
-
-    function testListExportTargets(test) {
-        test.trivial(xcalarListExportTargets(thriftHandle, "*", "*"));
-    }
-
     function testExportCSV(test) {
         var target = new ExExportTargetHdrT();
         target.type = ExTargetTypeT.ExTargetSFType;
@@ -3506,143 +3450,6 @@ testSuiteFn = (function($, TestSuite) {
         })
     }
 
-    function testPublishTableSnapshot(test) {
-        var ptSession = "";
-        var ptUser = "";
-        var ptSessionChange = "PublishTableSessionChange" + (new Date().getTime());
-        var ptName = "pubTable" + (new Date().getTime());
-        var indexTable = "";
-        var projectTable = "";
-        var synthTable = "";
-        var minNumBatches = 1;
-        var timeFreqInHours = 1;
-        var importTargetName = "Default Shared Root"
-        var exportTargetName = "Default";
-        var forceSnapshot = true;
-        var maxHistory = 1024;
-
-        function ssAddConf(expectSuccess) {
-            var deferred = jQuery.Deferred();
-            xcalarPtSnapshotAddConfig(thriftHandle, ptName, minNumBatches,
-                timeFreqInHours, importTargetName, exportTargetName, maxHistory)
-            .always(deferred.resolve);
-            return deferred.promise();
-        }
-
-        function ssGetConf(expectSuccess) {
-            var deferred = jQuery.Deferred();
-            xcalarPtSnapshotGetConfig(thriftHandle, ptName)
-            .always(deferred.resolve);
-            return deferred.promise();
-        }
-
-        function ssListConf(expectSuccess) {
-            var deferred = jQuery.Deferred();
-            xcalarPtSnapshotListConfig(thriftHandle)
-            .always(deferred.resolve);
-            return deferred.promise();
-        }
-
-        function ssDeleteConf(expectSuccess) {
-            var deferred = jQuery.Deferred();
-            xcalarPtSnapshotDeleteConfig(thriftHandle, ptName)
-            .always(deferred.resolve);
-            return deferred.promise();
-        }
-
-        function ssUpdateConf(expectSuccess) {
-            var deferred = jQuery.Deferred();
-            xcalarPtSnapshotUpdateConfig(thriftHandle, ptName, minNumBatches,
-                timeFreqInHours, importTargetName, exportTargetName, maxHistory)
-            .always(deferred.resolve);
-            return deferred.promise();
-        }
-
-        function ssGetResult(expectSuccess) {
-            var deferred = jQuery.Deferred();
-            xcalarPtSnapshotGetResult(thriftHandle, ptName)
-            .always(deferred.resolve);
-            return deferred.promise();
-        }
-
-        function ssDeleteResult(expectSuccess) {
-            var deferred = jQuery.Deferred();
-            xcalarPtSnapshotDeleteResult(thriftHandle, ptName)
-            .always(deferred.resolve);
-            return deferred.promise();
-        }
-
-        function ssListResult(expectSuccess) {
-            var deferred = jQuery.Deferred();
-            xcalarPtSnapshotListResult(thriftHandle)
-            .always(deferred.resolve);
-            return deferred.promise();
-        }
-
-        function ssTrigger(expectSuccess) {
-            var deferred = jQuery.Deferred();
-            xcalarPtSnapshotTrigger(thriftHandle, ptName, forceSnapshot)
-            .always(deferred.resolve);
-            return deferred.promise();
-        }
-
-        // Start a new session
-        console.log("Create session " + ptSessionChange);
-        xcalarApiSessionNew(thriftHandle, ptSessionChange, false, "")
-        .then(function() {
-            return xcalarApiSessionActivate(thriftHandle, ptSessionChange);
-        })
-        .then(function() {
-            return xcalarProject(thriftHandle, 1, ["yelp_user::review_count"], origTable, projectTable);
-        })
-        .then(function(result) {
-            projectTable = result.tableName;
-            return xcalarIndex(thriftHandle, projectTable, indexTable,
-                [new XcalarApiKeyT({name:"yelp_user::review_count", type:"DfInt64", keyFieldName:"pk", ordering:"Unordered"})]);
-        })
-        .then(function(result) {
-            indexTable = result.tableName;
-            return xcalarApiSynthesize(thriftHandle, indexTable, synthTable, [new XcalarApiColumnT({sourceColumn: 'pk', destColumn: 'pk', columnType: 'DfUnknown'})]);
-        })
-        .then(function(result) {
-            synthTable = result.tableName
-            var unixTS = new Date().getTime();
-            console.log("Create Publish table " + ptName);
-            return xcalarApiPublish(thriftHandle, synthTable, ptName, unixTS);
-        })
-        .then(function() {
-            function ssAddConf(result, expectSuccess) {
-                var deferred = jQuery.Deferred();
-                xcalarPtSnapshotAddConfig(thriftHandle, ptName, minNumBatches, timeFreqInHours, importTargetName, exportTargetName)
-                .always(deferred.resolve);
-                return deferred.promise();
-            }
-
-            // XXX Need to also include the negative test cases here
-            var promArray = [];
-            var NumSSs = 16;
-            promArray.push(ssAddConf.bind(test, true));
-            promArray.push(ssUpdateConf.bind(test, true));
-            promArray.push(ssGetConf.bind(test, true));
-            promArray.push(ssListConf.bind(test, true));
-            for (var ii = 0; ii < NumSSs; ii++) {
-                promArray.push(ssTrigger.bind(test, true));
-            }
-            promArray.push(ssGetResult.bind(test, true));
-            promArray.push(ssListResult.bind(test, true));
-            promArray.push(ssDeleteResult.bind(test, true));
-            promArray.push(ssDeleteConf.bind(test, true));
-            PromiseHelper.chain(promArray)
-            .then(function() {
-                test.pass();
-            })
-            .fail(test.fail);
-        })
-        .fail(function(reason) {
-            test.fail(reason);
-        });
-    }
-
     function testPublishTableChangeOwner(test) {
         var ptSession = "";
         var ptUser = "";
@@ -4504,9 +4311,6 @@ testSuiteFn = (function($, TestSuite) {
     addTestCase(testGetDatasetCount, "dataset count", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetTableCount, "table count", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListTables, "list tables", defaultTimeout, TestCaseEnabled, "");
-    // !!! If you add a test above that creates a new table, be sure to bump up the
-    // numNodes assert in the last .then clause
-    addTestCase(testPublishTableSnapshot, "publish table snapshot", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testPublishTableChangeOwner, "publish table change owner", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSessionInact, "inact session", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSessionDownload, "download session", defaultTimeout, TestCaseEnabled, "");
@@ -4549,9 +4353,6 @@ testSuiteFn = (function($, TestSuite) {
     addTestCase(testFreeResultSetAggregate, "result set free of aggregate", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testMap, "map", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testDestroyDatasetInUse, "destroy dataset in use", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testAddExportTarget, "add export target", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testRemoveExportTarget, "remove export target", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testListExportTargets, "list export targets", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testDriver, "test driver operations", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testExportCSV, "export csv", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testExportCancel, "export cancel", defaultTimeout, TestCaseDisabled, "");
