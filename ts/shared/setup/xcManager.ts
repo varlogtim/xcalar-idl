@@ -907,6 +907,12 @@ namespace xcManager {
             if (error && error.stack) {
                 stack = error.stack.split("\n");
             }
+            if (msg === "Uncaught SyntaxError: Unexpected token '<'" && stack && stack[1] &&
+                stack[1].includes("/thrift.js") &&
+                stack[1].includes("Thrift.TJSONProtocol.Thrift.Protocol.readMessageBegin")) {
+                XcUser.logoutWarn(); // html returned from thrift = session expired
+                return;
+            }
 
             let info = {
                 "error": msg,
