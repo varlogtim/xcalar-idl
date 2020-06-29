@@ -240,10 +240,10 @@ function LoadTable({
             Header: 'Count',
             accessor: 'count',
         },
-        {
-            Header: 'Time',
-            accessor: 'time',
-        },
+        // {
+        //     Header: 'Time',
+        //     accessor: 'time',
+        // },
         {
           Header: 'Table Name',
           accessor: "tableName",
