@@ -68,7 +68,8 @@ class DagSchemaPopup {
 
     private _addEventListeners(): void {
         const self = this;
-        this._$popup.on("mouseup", ".content li", function(event) {
+        const $popup = this._$popup;
+        $popup.on("mouseup", ".content li", function(event) {
             if (event.which !== 1 || (isSystemMac && event.ctrlKey)) {
                 return;
             }
@@ -104,24 +105,29 @@ class DagSchemaPopup {
         });
 
         // not using click because mousedown replaces popup
-        this._$popup.find(".close").mouseup(function() {
+        $popup.find(".close").mouseup(function() {
             self._close();
         });
 
-        this._$popup.draggable({
+        $popup.find(".searchbarArea input").on("input", function(event) {
+            let $input = $(event.target);
+            self._filterColumns($input.val().trim())
+        });
+
+        $popup.draggable({
             handle: '#dagSchemaPopupTitle-'  + this._nodeId,
             cursor: '-webkit-grabbing',
             containment: "#sqlWorkSpacePanel"
         });
 
-        this._$popup.resizable({
+        $popup.resizable({
             handles: "n, e, s, w, se",
             minHeight: 200,
             minWidth: 200,
             containment: "document"
         });
 
-        this._$popup.mousedown(() => {
+        $popup.mousedown(() => {
             this.bringToFront();
         });
 
@@ -413,6 +419,10 @@ class DagSchemaPopup {
                 </div>
             </div>
             <div class="modalMain">
+                <div class="searchbarArea xc-search-input">
+                    <input placeholder="Filter by field" spellcheck="false" autocomplete="off">
+                    <i class="icon xi-search"></i>
+                </div>
                 <div class="heading">
                     <div class="type cell">Type</div>
                     <div class="field cell">Field</div>
@@ -435,5 +445,23 @@ class DagSchemaPopup {
 
     private _getContainer(): JQuery {
         return $("#sqlWorkSpacePanel");
+    }
+
+    private _filterColumns(key: string): void {
+        let $content = this._$popup.find(".content");
+        if (key) {
+            key = key.toLowerCase();
+            $content.find("li").each((_index, el) => {
+                let $li = $(el);
+                let name = $li.find(".field.cell").text();
+                if (name.toLowerCase().includes(key)) {
+                    $li.removeClass("xc-hidden");
+                } else {
+                    $li.addClass("xc-hidden");
+                }
+            });
+        } else {
+            $content.find("li.xc-hidden").removeClass("xc-hidden");
+        }
     }
 }

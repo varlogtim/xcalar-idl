@@ -2604,6 +2604,7 @@
             font-size: 20px;
             margin-top: 0px;
             text-align: left;
+            height: 58px;
 
             .text {
                 font-size: 20px;
@@ -2703,9 +2704,16 @@
         border-left: none;
     }
 
+    .searchbarArea {
+        input {
+            padding-left: 24px;
+        }
+    }
+
     .content {
+        @rest-height: @row-height + 24; // search bar has 24px height
         overflow: auto;
-        height: ~"calc(100% - @{row-height})";
+        height: ~"calc(100% - @{rest-height})";
     }
 
     .replaceSection {
