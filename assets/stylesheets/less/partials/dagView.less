@@ -716,10 +716,17 @@
                 pointer-events: none;
             }
 
-            &.configLocked, &.viewOnly {
+            &.configLocked {
                 // make the grids appear slightly more gray
                 .dataflowAreaWrapper {
                     box-shadow: inset 0 0 0 10000000px rgba(90, 90, 90, 0.1);
+                }
+            }
+
+            &.viewOnly, &.proressGraph {
+                // make the grids appear slightly more gray
+                .dataflowAreaWrapper {
+                    box-shadow: inset 0 0 0 10000000px rgba(130, 130, 130, 0.1);
                 }
             }
 
@@ -727,11 +734,6 @@
                 .dagTableTip.runStats, .dagTableTip.nodeStats {
                     display: block;
                 }
-                // make the grids appear slightly more gray
-                .dataflowAreaWrapper {
-                    box-shadow: inset 0 0 0 10000000px rgba(130, 130, 130, 0.1);
-                }
-
                 .paramTitle {
                     cursor: default;
 

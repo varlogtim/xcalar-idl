@@ -976,7 +976,7 @@ class DagTabManager extends AbstractTabManager {
         let tabName: string = this._getAppPath(dagTab);
         const tabId = dagTab.getId();
         let isEditable: boolean = (dagTab instanceof DagTabUser);
-        const isViewOnly: boolean = (dagTab instanceof DagTabProgress);
+        const isViewOnly: boolean = (dagTab instanceof DagTabProgress || dagTab instanceof DagTabSQLExecute);
         const isProgressGraph: boolean = (dagTab instanceof DagTabProgress);
         const isOptimized: boolean = (dagTab instanceof DagTabOptimized);
         const isQuery: boolean = (dagTab instanceof DagTabQuery);
