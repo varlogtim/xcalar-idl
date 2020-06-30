@@ -190,7 +190,7 @@ class LoadConfig extends React.Component {
         const app = SchemaLoadService.getDiscoverApp(discoverAppId);
 
         const dataName = PTblManager.Instance.getUniqName(publishTableName.toUpperCase());
-        const compName = PTblManager.Instance.getUniqName(publishTableName + '_COMPLEMENTS');
+        const compName = PTblManager.Instance.getUniqName(publishTableName + '_ERROR');
 
         try {
             PTblManager.Instance.addLoadingTable(dataName);

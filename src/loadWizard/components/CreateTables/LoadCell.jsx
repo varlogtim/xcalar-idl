@@ -4,9 +4,9 @@ const Texts = {
     createButtonLabel: 'Create Table',
     creatingTable: 'Creating table ...',
     created: 'Created',
-    createdWithComplement: 'Created with complement table',
+    createdWithComplement: 'Created with error table',
     createError: 'Error',
-    ComplementTableHint: 'Some rows in the source files cannot be loaded, the failure reason is listed in the complement table.'
+    ComplementTableHint: 'Some rows in the source files cannot be loaded, the failure reason is listed in the error table.'
 };
 
 function Create({ onClick }) {
