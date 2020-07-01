@@ -14,6 +14,7 @@ const Texts = {
     stoppingDiscoverAll: 'Stopping',
     advancedOptions: 'Configuration',
     optionSchema: 'Schema Comparison Algorithm:',
+    optionRateLimit: 'Discover Rate Limiting:',
     navButtonLeft: 'Browse',
     navButtonRight: 'Create Table',
     CreateTableHint: 'Please discover schema first',
@@ -32,12 +33,10 @@ const EtaCost = new EC();
  */
 function DiscoverAllButton({ onClick, children }) {
     return (
-        <div className="discoverAll">
-            <button
-                className="btn btn-secondary"
-                onClick={() => { onClick(); }}
-            >{Texts.discoverAll}</button>
-        </div>
+        <button
+            className="btn btn-secondary"
+            onClick={() => { onClick(); }}
+        >{Texts.discoverAll}</button>
     );
 }
 
@@ -66,17 +65,15 @@ class CancelDiscoverAllButton extends React.Component {
             : Texts.cancelDiscoverAll;
 
         return (
-            <div className="discoverAll">
-                <button
-                    className={btnClasses.join(' ')}
-                    onClick={() => {
-                        this.setState({
-                            isStopping: true
-                        });
-                        onClick();
-                    }}
-                >{btnText}...{children}</button>
-            </div>
+            <button
+                className={btnClasses.join(' ')}
+                onClick={() => {
+                    this.setState({
+                        isStopping: true
+                    });
+                    onClick();
+                }}
+            >{btnText}...{children}</button>
         );
     }
 }
@@ -133,6 +130,7 @@ class DiscoverSchemas extends React.Component {
         const {
             inputSerialization,
             schemaPolicy,
+            rateLimit,
             isLoading,
             progress,
             discoverFilesProps,
@@ -140,6 +138,7 @@ class DiscoverSchemas extends React.Component {
             onCancelDiscoverAll,
             onInputSerialChange,
             onSchemaPolicyChange,
+            onRateLimitChange,
             onShowSchema,
         } = this.props;
 
@@ -167,10 +166,12 @@ class DiscoverSchemas extends React.Component {
                 }
             <div className="filesSelected">
                 <div className="header">{Texts.discoverTitle}</div>
-                <div className="section">
                     <AdvOption.Container>
                         <AdvOption.OptionGroup>
-                            <AdvOption.Option>
+                            <AdvOptionCheckbox classNames={['fullRow']} checked={rateLimit} onChange={onRateLimitChange}>
+                                {Texts.optionRateLimit}
+                            </AdvOptionCheckbox>
+                            <AdvOption.Option classNames={['fullRow']}>
                                 <AdvOption.OptionLabel>{Texts.optionSchema}</AdvOption.OptionLabel>
                                 <AdvOption.OptionValue>
                                     <InputDropdown
@@ -218,14 +219,19 @@ class DiscoverSchemas extends React.Component {
                                 </AdvOption.OptionValue>
                             </AdvOption.Option>
                         </AdvOption.OptionGroup>
+                        <AdvOption.OptionGroup>
+                            <AdvOption.Option classNames={['option-discover-all']}>
+                                <AdvOption.OptionValue>
+                                    <DiscoverAllSection
+                                        onClickDiscoverAll={onClickDiscoverAll}
+                                        onClickCancelAll={onCancelDiscoverAll}
+                                        doneCount={progress}
+                                        totalCount={100}
+                                    />
+                                </AdvOption.OptionValue>
+                            </AdvOption.Option>
+                        </AdvOption.OptionGroup>
                     </AdvOption.Container>
-                    <DiscoverAllSection
-                        onClickDiscoverAll={onClickDiscoverAll}
-                        onClickCancelAll={onCancelDiscoverAll}
-                        doneCount={progress}
-                        totalCount={100}
-                    />
-                </div>
                 <DiscoverTable {...discoverFilesProps}
                     onClickSchema={({name, columns}) => {
                         onShowSchema({hash: name,columns: columns})
@@ -238,4 +244,19 @@ class DiscoverSchemas extends React.Component {
     }
 }
 
+function AdvOptionCheckbox(props) {
+    const { checked, onChange, children, classNames } = props;
+
+    const iconClasses = ['icon', checked ? 'xi-ckbox-selected' : 'xi-ckbox-empty'];
+    return (
+        <AdvOption.Option classNames={classNames}>
+            <AdvOption.OptionLabel onClick={() => {onChange(!checked)}}>{children}</AdvOption.OptionLabel>
+            <AdvOption.OptionValue>
+                <div className="csvArgs-chkbox">
+                    <i className={iconClasses.join(' ')}  onClick={() => { onChange(!checked); }} />
+                </div>
+            </AdvOption.OptionValue>
+        </AdvOption.Option>
+    );
+}
 export default DiscoverSchemas;

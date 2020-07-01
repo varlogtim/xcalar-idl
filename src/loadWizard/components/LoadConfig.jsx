@@ -98,6 +98,7 @@ class LoadConfig extends React.Component {
             discoverProgress: 0,
             discoverCancelBatch: null, // () => {} Dynamic cancel function set by discoverAll
             discoverSchemaPolicy: SchemaService.MergePolicy.EXACT,
+            discoverRateLimit: true,
             inputSerialization: SchemaService.defaultInputSerialization.get(defaultFileType),
             // XXX TODO: remove the following states
             discoverFiles: new Map(), // Map<fileId, { fileId, fullPath, direcotry ... }
@@ -561,6 +562,7 @@ class LoadConfig extends React.Component {
                 fileType,
                 inputSerialization,
                 selectedFileDir,
+                discoverRateLimit
             } = this.state;
 
             const { path: selectedPath, filePattern, isRecursive } = this._extractPathInfo(selectedFileDir[0], fileType);
@@ -568,7 +570,8 @@ class LoadConfig extends React.Component {
                 path: selectedPath,
                 filePattern: filePattern,
                 inputSerialization: inputSerialization,
-                isRecursive: isRecursive
+                isRecursive: isRecursive,
+                isRateLimit: discoverRateLimit
             });
 
             this._resetDiscoverResult();
@@ -862,6 +865,12 @@ class LoadConfig extends React.Component {
         });
     }
 
+    _setRateLimit(isLimit) {
+        this.setState({
+            discoverRateLimit: isLimit
+        });
+    }
+
     _browseClose(selectedFileDir = null) {
         if (selectedFileDir == null) {
             this.setState({
@@ -989,6 +998,7 @@ class LoadConfig extends React.Component {
                             showDiscover ? <DiscoverSchemas
                                 inputSerialization={this.state.inputSerialization}
                                 schemaPolicy={this.state.discoverSchemaPolicy}
+                                rateLimit={this.state.discoverRateLimit}
                                 isLoading={discoverIsRunning}
                                 progress={discoverProgress}
                                 discoverFilesProps={{
@@ -999,6 +1009,7 @@ class LoadConfig extends React.Component {
                                 onCancelDiscoverAll={discoverCancelBatch}
                                 onInputSerialChange={(newConfig) => { this._setInputSerialization(newConfig); }}
                                 onSchemaPolicyChange={(newPolicy) => { this._setSchemaPolicy(newPolicy); }}
+                                onRateLimitChange={(isLimit) => { this._setRateLimit(isLimit); }}
                                 onShowSchema={(schema) => { this.setState((state) => ({
                                     schemaDetailState: {
                                         isLoading: false,

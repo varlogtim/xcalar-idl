@@ -85,7 +85,7 @@ function isFailedSchema(schemaHash) {
 }
 
 const discoverApps = new Map();
-function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive = true }) {
+function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive = true, isRateLimit = true }) {
     let executionDone = false;
     const tables = {
         file: null, schema: null, report: null,
@@ -331,6 +331,7 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
                     file_name_pattern: filePattern,
                     recursive: isRecursive,
                     input_serial_json: JSON.stringify(inputSerialization),
+                    rate_limiting: isRateLimit,
                     files_table_name: names.file,
                     schema_results_table_name: names.schema,
                     schema_report_table_name: names.report
