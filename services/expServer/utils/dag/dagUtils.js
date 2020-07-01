@@ -24,6 +24,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     require("../../../../assets/js/thrift/UnionOpEnums_types.js");
     require("../../../../assets/js/thrift/LibApisEnums_types.js");
     require("../../../../assets/js/thrift/LibApisCommon_types.js");
+    require("../../../../assets/js/thrift/LibApisConstants_types.js");
 
     global.hackFunction = require("../hackFunction.js").hackFunction;
     hackFunction();
