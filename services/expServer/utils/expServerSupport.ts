@@ -115,7 +115,7 @@ class ExpServerSupport {
         this._defaultHttpPort = process.env.XCE_HTTP_PORT ?
             process.env.XCE_HTTP_PORT : 80;
         this._defaultHttpsPort = process.env.XCE_HTTPS_PORT ?
-            process.env.XCE_HTTPS_PORT : 443;
+            process.env.XCE_HTTPS_PORT : 8443;
         this._defaultJwtHmac = process.env.JWT_SECRET ?
             process.env.JWT_SECRET : "xcalarSsssh";
 
