@@ -1619,7 +1619,7 @@ OpPanelTStr = {
     "DFLinkInNoDF": "Module doesn't exist",
     "DFLinkInNoOut": "Function output doesn't exist",
     "DFLinkInNoSchema": "No columns in schema",
-    "CommonFieldNameErroneousRows": "Generate table with only erroneous rows",
+    "CommonFieldNameErroneousRows": "Generate table with only error rows",
     "SplitPanelTitle": "Split Operation",
     "SplitPanelInstr": "Divides a string data type column into multiple columns.",
     "SplitPanelFieldNameDelimiter": "Delimiter",

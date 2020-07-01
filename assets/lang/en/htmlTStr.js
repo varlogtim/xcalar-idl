@@ -1151,7 +1151,7 @@ module.exports = {
         "mapCategoryTip": "The functions are grouped into categories. You must select the Category name first before selecting the Function name.",
         "mapFunctionTip": "A predefined formula that performs operations on column values.",
         "function": "Function",
-        "erroneousRows": "Include only erroneous rows",
+        "erroneousRows": "Include only error rows",
         "filterFunc": "Filter Function",
         "filterFuncTip": "The name of the filter function.",
         "noFunc": "No Function Chosen",
