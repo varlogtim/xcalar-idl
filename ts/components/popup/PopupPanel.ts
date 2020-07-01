@@ -3,14 +3,21 @@ class PopupPanel {
     private _options: {draggableHeader?: string, noUndock?: boolean, keepSize?: boolean};
     private _event: XcEvent;
     private _isDocked: boolean;
+    private _maxiMizeCache: { [key: string]: number | string } // cache width, height before maxiMize
+    private _isMaximized: boolean;
 
     constructor(
         id: string,
-        options: {draggableHeader?: string, noUndock?: boolean, keepSize?: boolean}
+        options: {
+            draggableHeader?: string,
+            noUndock?: boolean,
+            keepSize?: boolean // default be true
+        }
     ) {
         this._id = id;
         this._options = options;
         this._isDocked = true;
+        this._isMaximized = false;
         this._event = new XcEvent();
         this._addEventListeners();
 
@@ -94,6 +101,7 @@ class PopupPanel {
 
     // undock = pop up the panel
     private _undock(): void {
+        this._isMaximized = false;
         this._isDocked = false;
         const $button = this._getPopupButton();
         xcTooltip.changeText($button, SideBarTStr.PopBack);
@@ -121,6 +129,8 @@ class PopupPanel {
     private _dock(): void {
         const $panel = this.getPanel();
         this._isDocked = true;
+        this._isMaximized = false;
+
         $panel
         .removeClass("undocked")
         .attr("style", ""); // reset position and size to default
@@ -141,8 +151,12 @@ class PopupPanel {
     private _setUndockSizeAndPos(): void {
         const $panel = this.getPanel();
         const rect = $panel[0].getBoundingClientRect();
-        let height = this._options.keepSize ? rect.height : 500;
-        let width = this._options.keepSize ? rect.width : 500;
+        let keepSize = this._options.keepSize;
+        if (keepSize == null) {
+            keepSize = true; // default be true;
+        }
+        let height = keepSize ? rect.height : 500;
+        let width = keepSize ? rect.width : 500;
         height = Math.min(height, Math.max(300, $(window).height() - (rect.top + 10)));
         width = Math.min(width, Math.max(300, $(window).width() - (rect.left + 10)));
         const left = Math.min($(window).width() - (width + 5), rect.left + 15);
@@ -155,13 +169,14 @@ class PopupPanel {
     }
 
     private _addEventListeners(): void {
-        if (!this._options.noUndock) {
+        const { noUndock, draggableHeader } = this._options;
+        if (!noUndock) {
             const $button = this._getPopupButton();
             $button.click(() => {
                 this.toggleDock();
             });
-            const $panel = this.getPanel();
 
+            const $panel = this.getPanel();
             $panel.resizable({
                 handles: "w, e, s, n, nw, ne, sw, se",
                 containment: '#sqlWorkSpacePanel',
@@ -169,6 +184,7 @@ class PopupPanel {
                 minHeight: 50,
                 stop: (_, ui) => {
                     const rect = ui.element[0].getBoundingClientRect();
+                    this._isMaximized = false;
                     this._event.dispatchEvent("Resize");
                     this._event.dispatchEvent("Resize_BroadCast", {
                         undockedWidth: rect.width,
@@ -177,8 +193,11 @@ class PopupPanel {
                 }
             });
 
-            if (this._options.draggableHeader) {
-                this._setDraggable(this._options.draggableHeader);
+            if (draggableHeader) {
+                this._setDraggable(draggableHeader);
+                $panel.on("dblclick", draggableHeader, () => {
+                    this._toggleMaxiMize();
+                });
             }
 
             $panel.resizable("disable");
@@ -226,6 +245,32 @@ class PopupPanel {
                 });
             }
         });
+    }
+
+    private _toggleMaxiMize(): void {
+        const $panel = this.getPanel();
+        if (this._isMaximized) {
+            $panel.css(this._maxiMizeCache);
+            this._maxiMizeCache = {};
+            this._isMaximized = false;
+        } else {
+            this._maxiMizeCache = {
+                width: $panel.outerWidth(),
+                height: $panel.outerHeight(),
+                left: $panel.css("left"),
+                top: $panel.css("top")
+            };
+            let topBarHeight = $("#mainTopBar").outerHeight() + 2;
+            let bottomBarHeight = $("#statusBar").outerHeight() + 2;
+            let leftMeunWidth = $("#menuBar").outerWidth() + 2;
+            $panel.css({
+                "width": $(window).width() - leftMeunWidth - 5,
+                "height": $(window).height() - topBarHeight - bottomBarHeight,
+                "left": leftMeunWidth,
+                "top": topBarHeight
+            });
+            this._isMaximized = true;
+        }
     }
 
     public checkAllContentUndocked() {
