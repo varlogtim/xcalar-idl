@@ -580,10 +580,7 @@ class ExportOpPanelModel extends BaseOpPanelModel {
         let targets: {name: string}[] = Object.keys(obj).map((key) => obj[key]);
         targets.forEach((target) => {
             const name = target.name;
-            if (!XVM.isDataMart() || DSTargetManager.isAWSTarget(name)) {
-                // data mart only show aws target
-                html += "<li>" + target.name + "</li>";
-            }
+            html += "<li>" + name + "</li>";
         });
         html += '</ul><div class="scrollArea top"><i class="arrow icon xi-arrow-up"></i></div>' +
             '<div class="scrollArea bottom"><i class="arrow icon xi-arrow-down"></i>' +

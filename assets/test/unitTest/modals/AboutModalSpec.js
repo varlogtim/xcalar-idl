@@ -22,7 +22,6 @@ describe("AboutModal Test", function() {
         XVM.isDataMart = () => true;
         AboutModal.Instance.show();
         expect($modal.find(".expiration").text()).to.equal("");
-        expect($modal.find(".keyValue").text()).to.equal("");
         XVM.isDataMart = oldIsDataMart
     });
 

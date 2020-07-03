@@ -35,11 +35,7 @@ class SupTicketModal {
             Alert.hide();
         }
         this._updateTimes();
-        if (XVM.isDataMart()) {
-            $modal.find(".emailArea").removeClass("xc-hidden");
-        } else {
-            $modal.find(".emailArea").addClass("xc-hidden");
-        }
+        $modal.find(".emailArea").removeClass("xc-hidden");
     }
 
     /**
@@ -326,9 +322,7 @@ class SupTicketModal {
                     $ticketIdSection.addClass("xc-hidden");
                     $severitySection.removeClass("xc-hidden");
                     $modal.find(".subjectArea").removeClass("xc-hidden");
-                    if (XVM.isDataMart()) {
-                        $modal.find(".emailArea").removeClass("xc-hidden");
-                    }
+                    $modal.find(".emailArea").removeClass("xc-hidden");
                     $commentSection.removeClass("inactive");
                     $modal.find(".confirm").text(CommonTxtTstr.FileTicket);
                 }
@@ -652,7 +646,7 @@ class SupTicketModal {
             genBundle = true;
         }
         let email = $modal.find(".emailInput").val().trim();
-        if (!XVM.isDataMart() || ticketId) {
+        if (ticketId) {
             email = null;
         }
         let subject = $modal.find(".subjectInput").val().trim();

@@ -418,10 +418,6 @@ namespace DSTargetManager {
 
     // a public s3 connector
     async function createPublicS3Connector(): Promise<boolean> {
-        if (XVM.isDataMart()) {
-            // data mart don't need to have it
-            return false;
-        }
         const connectorName: string = xcalar_public_s3;
         if (targetSet[connectorName] != null) {
             return false;

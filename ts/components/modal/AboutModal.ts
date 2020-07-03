@@ -66,7 +66,7 @@ class AboutModal {
             $modal.find(".expiration").text("");
             $modal.find(".numServers").text("");
             $modal.find(".numUsers").text("");
-            $modal.find(".keyValue").text("");
+            // $modal.find(".keyValue").text("");
         } else {
             $modal.removeClass("noLicense");
              // License
@@ -74,13 +74,13 @@ class AboutModal {
             const licensee = XVM.getLicensee();
             const numServers = XVM.getNumServers();
             const numUsers = XVM.getNumUsers();
-            const license = XVM.getLicense();
+            // const license = XVM.getLicense();
             
             $modal.find(".licensee").text(licensee);
             $modal.find(".expiration").text(expiration);
             $modal.find(".numServers").text(numServers);
             $modal.find(".numUsers").text(numUsers);
-            $modal.find(".keyValue").text(license);
+            // $modal.find(".keyValue").text(license);
         }
     }
 
