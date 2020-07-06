@@ -68,17 +68,15 @@ class ProfileSelector {
             var rowNum = d.rowNum;
             if (isNaN(rowNum)) {
                 console.error("invalid row num!");
-            } else {
-                if (d.type === "nullVal") {
+            } else if (d.type === "nullVal") {
                     isExist = true;
-                } else {
-                    var val = d[xName];
-                    if (isString) {
-                        val = JSON.stringify(val);
-                    }
-
-                    uniqueVals[val] = true;
+            } else {
+                var val = d[xName];
+                if (isString) {
+                    val = JSON.stringify(val);
                 }
+
+                uniqueVals[val] = true;
 
                 if (prevRowNum == null || (rowNum - 1 !== prevRowNum)) {
                     groupIdx++;
