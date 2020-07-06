@@ -2498,7 +2498,12 @@ namespace XIApi {
                 if (res.thriftError) {
                     deferred.reject(res.thriftError);
                 }
-                let error = _handleQueryFail(res.queryStateOutput);
+                let error;
+                if (res === StatusTStr[StatusT.StatusCanceled]) {
+                    error = res;
+                } else {
+                    error = _handleQueryFail(res.queryStateOutput);
+                }
                 deferred.reject(error);
             });
 
@@ -3031,12 +3036,12 @@ namespace XIApi {
 
     /**
      * XIApi.preprocessPubTable
-     * @param txId 
-     * @param primaryKeyList 
-     * @param srcTableName 
-     * @param indexTableName 
-     * @param colInfo 
-     * @param imdCol 
+     * @param txId
+     * @param primaryKeyList
+     * @param srcTableName
+     * @param indexTableName
+     * @param colInfo
+     * @param imdCol
      */
     export function preprocessPubTable(
         txId: number,

@@ -66,6 +66,7 @@ abstract class DagNode extends Durable {
         this.input = this.getRuntime().accessible(new DagNodeInput({}));
         this.error = options.error;
         this.aggregates = options.aggregates || [];
+        this.display.isHidden = options.isHidden;
 
         this.numParent = 0;
         this.maxParents = 1;
@@ -1569,7 +1570,8 @@ abstract class DagNode extends Durable {
             configured: this.configured,
             aggregates: this.aggregates,
             stats: null,
-            tag: this.tag
+            tag: this.tag,
+            isHidden: this.display.isHidden
         };
         if (includeStats) {
             if (this.runStats.hasRun) {
@@ -1795,6 +1797,21 @@ abstract class DagNode extends Durable {
     // progess should overwrite it
     public async updateStepThroughProgress(): Promise<void> {
         return Promise.resolve();
+    }
+
+
+    public hide(): void {
+        this.display.isHidden = true;
+        this.display.coordinates.x = 0;
+        this.display.coordinates.y = 0;
+        this.events.trigger(DagNodeEvents.Hide, {
+            id: this.getId(),
+            node: this
+        });
+    }
+
+    public isHidden(): boolean {
+        return this.display.isHidden;
     }
 
     protected async _updateProgressFromTable(

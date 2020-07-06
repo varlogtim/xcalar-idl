@@ -360,7 +360,16 @@ class DagViewManager {
                     tabId,
                     nodeId: dagNode.getId()
                 };
-                TableTabManager.Instance.openTab(dagNode.getTable(), TableTabType.ResultSet, meta)
+                let displayName;
+                let type;
+                if (dagNode.isHidden()) {
+                    displayName = "Preview";
+                    type = TableTabType.Preview;
+                } else {
+                    displayName = dagNode.getTable();
+                    type = TableTabType.ResultSet;
+                }
+                TableTabManager.Instance.openTab(dagNode.getTable(), type, meta, displayName)
                 .then(() => {
                     deferred.resolve();
                 })

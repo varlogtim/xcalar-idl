@@ -448,7 +448,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             throw new Error("Error step");
         }
         this.$panel.find(".mainContent > .bottomSection")
-        .find(".btnWrap").html(btnHTML);
+        .find(".btnWrap:not(.previewBtnWrap)").html(btnHTML);
     }
 
     private _goToSchemaStep(): void {
@@ -506,6 +506,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             const $btn: JQuery = $(event.currentTarget);
             const $dataset: JQuery = $btn.parent();
             const id: string = $dataset.data("id");
+
             Alert.show({
                 title: DSTStr.ActivateDS,
                 msg: DSTStr.DFActivateDSMsg,

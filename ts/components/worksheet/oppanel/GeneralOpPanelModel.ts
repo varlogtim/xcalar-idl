@@ -1,3 +1,4 @@
+// for map,filter,groupby, and aggregate
 abstract class GeneralOpPanelModel {
     protected dagNode: DagNode;
     protected tableColumns: ProgCol[];
@@ -6,6 +7,8 @@ abstract class GeneralOpPanelModel {
     protected andOrOperator: string;
     protected _opCategories: number[];
     protected cachedBasicModeParam: string;
+    protected _originalParam: any;
+    protected _needsParamReset: boolean;
     protected autofillColumns: ProgCol[];
     public modelError: string;
 
@@ -42,6 +45,7 @@ abstract class GeneralOpPanelModel {
             }
         }
         let params: any = this.dagNode.getParam();
+        this._originalParam = params;
         try {
             this._initialize(params);
             this.modelError = null;
@@ -163,6 +167,17 @@ abstract class GeneralOpPanelModel {
     public submit(): void {
         const param: any = this._getParam();
         this.dagNode.setParam(param);
+    }
+
+    public getParam() {
+        return this._getParam();
+    }
+
+    public resetDagNodeParam() {
+        if (!this._needsParamReset) {
+            return;
+        }
+        this.dagNode.setParam(this._originalParam, true);
     }
 
     protected abstract _initialize(_paramsRaw): void;

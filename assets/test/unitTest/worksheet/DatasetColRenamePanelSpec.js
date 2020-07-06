@@ -7,6 +7,7 @@ describe("DatasetColRenamePanel Test", function() {
     let oldPut;
     let cachedUserPref;
     let graph;
+    let $renameSection;
 
     before(function() {
         console.log("DatasetColRenamePanel Test");
@@ -97,7 +98,6 @@ describe("DatasetColRenamePanel Test", function() {
             ];
 
             datasetOpPanel._editor.setValue(JSON.stringify(struct, null, 4));
-
             $('#datasetOpPanel .bottomSection .submit').click();
             expect($renameSection.is(":visible")).to.be.true;
         });

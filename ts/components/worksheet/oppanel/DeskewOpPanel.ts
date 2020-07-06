@@ -91,6 +91,22 @@ class DeskewOpPanel extends BaseOpPanel {
         return true;
     }
 
+    protected _preview() {
+        let args: DagNodeDeskewInputStruct;
+        if (this._isAdvancedMode()) {
+            args = this._validateAdvancedMode();
+        } else {
+            args = this._validate();
+        }
+
+        if (args == null) {
+            // invalid case
+            return;
+        }
+
+        super._preview(args);
+    }
+
     private _validate(ingore: boolean = false): DagNodeDeskewInputStruct {
         const $input: JQuery = this._getDropdownList().find("input");
         let isValid: boolean = false;
@@ -209,6 +225,10 @@ class DeskewOpPanel extends BaseOpPanel {
         $panel.on("click", ".submit", (event) => {
             $(event.target).blur();
             this._submitForm();
+        });
+
+        $panel.on("click", ".btn.preview", () => {
+            this._preview();
         });
 
         const $dropdownList: JQuery = this._getDropdownList();

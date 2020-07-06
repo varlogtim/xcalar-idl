@@ -199,6 +199,9 @@ class BaseOpPanel {
     } = { target: null, setData: null };
     protected _mainModel;
     protected _dataModel: BaseOpPanelModel;
+    protected _tab: DagTabUser;
+    protected _clonedNode = null;
+    protected _previewInProgress: boolean = false;
 
     protected constructor() {
         this.allColumns = [];
@@ -294,6 +297,7 @@ class BaseOpPanel {
             this._setupAggMap();
             this.$panel.find(".subTitle").text(this._dagNode.getTitle());
             this._updateColumns();
+            this._tab = options.tab;
             deferred.resolve();
         });
         return deferred.promise();
@@ -314,6 +318,25 @@ class BaseOpPanel {
         this.xdfMap = {};
         this.aggMap = {};
         DagConfigNodeModal.Instance.close();
+
+        if (this._clonedNode) {
+            if (this._previewInProgress) {
+                this._tab.getGraph().cancelExecute();
+            }
+            const table = this._clonedNode.getTable();
+            const graph = this._tab.getGraph();
+            if (this._clonedNode instanceof DagNodeAggregate) {
+                const aggName = this._clonedNode.getAggName();
+                graph.removeNode(this._clonedNode.getId());
+                DagAggManager.Instance.bulkNodeRemoval([aggName]);
+            } else {
+                graph.removeNode(this._clonedNode.getId());
+            }
+            TableTabManager.Instance.deleteTab(table);
+            this._clonedNode = null;
+        }
+        this._tab = null;
+
         // unlocks the node associated with the form
         this._closeCallback();
 
@@ -729,6 +752,51 @@ class BaseOpPanel {
             }
         }
         return true;
+    }
+
+    protected _preview(param, callback?: Function) {
+        const graph = this._tab.getGraph();
+        if (this._clonedNode) {
+            const table = this._clonedNode.getTable();
+            graph.removeNode(this._clonedNode.getId());
+            TableTabManager.Instance.deleteTab(table);
+        }
+
+        const nodeInfo = this._dagNode.getNodeCopyInfo(true, false, true);
+        delete nodeInfo.id;
+        nodeInfo.isHidden = true;
+        this._clonedNode = graph.newNode(nodeInfo);
+
+        this._dagNode.getParents().forEach((parent, index) => {
+            if (!parent) return;
+            graph.connect(parent.getId(), this._clonedNode.getId(), index, false, false);
+        });
+        param.outputTableName = "xcPreview";
+        this._clonedNode.setParam(param, true);
+        if (callback) {
+            callback(this._clonedNode);
+        }
+        const dagView = DagViewManager.Instance.getDagViewById(this._tab.getId());
+        this._lockPreview();
+        dagView.run([this._clonedNode.getId()])
+        .then(() => {
+            if (!UserSettings.Instance.getPref("dfAutoPreview")) {
+                DagViewManager.Instance.viewResult(this._clonedNode, this._tab.getId());
+            }
+        })
+        .always(() => {
+            this._unlockPreview();
+        });
+    }
+
+    protected _lockPreview() {
+        this._getPanel().find('.preview').addClass("xc-disabled");
+        this._previewInProgress = true;
+    }
+
+    protected _unlockPreview() {
+        this._getPanel().find('.preview').removeClass("xc-disabled");
+        this._previewInProgress = false;
     }
 
     private _addBasicEventListeners(): void {

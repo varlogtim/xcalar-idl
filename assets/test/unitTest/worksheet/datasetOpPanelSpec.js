@@ -322,6 +322,7 @@ describe("Dataset Operator Panel Test", function() {
             expect($("#datasetOpPanel .datasetPrefix .arg").val()).to.equal("pref");
             expect($("#datasetOpPanel #dsOpListSection .fileName.active").text()).to.equal("ds1");
             datasetOpPanel.close();
+            JSON.parse = oldJSONParse;
         });
     });
 
@@ -332,7 +333,6 @@ describe("Dataset Operator Panel Test", function() {
 
     after(function() {
         DS.listDatasets = oldListDS;
-        JSON.parse = oldJSONParse;
         DS.getDSObj = oldGetDS;
         XDFManager.Instance.waitForSetup = oldWaitForSetup;
         datasetOpPanel.close();

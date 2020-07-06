@@ -1136,7 +1136,7 @@ class DagView {
     }
 
     private _handleExecutionError(error: any): any {
-        if (error && error.error === "cancel") {
+        if (error && error.error === "cancel" || error === StatusTStr[StatusT.StatusCanceled]) {
             return error;
         }
         let $node: JQuery;
@@ -2946,7 +2946,7 @@ class DagView {
         ) {
             return;
         }
-        if (node instanceof DagNodeSQL && node.isHidden()) {
+        if (node.isHidden()) {
             return;
         }
 
@@ -3172,7 +3172,7 @@ class DagView {
         ) {
             return;
         }
-        if (node instanceof DagNodeSQL && node.isHidden()) {
+        if (node.isHidden()) {
             return;
         }
         if (node instanceof DagNodeModule && !this._shouldShowModuleTableIcon(node)) {
@@ -3834,7 +3834,6 @@ class DagView {
             updateNumNodesTimeout = setTimeout(() => {
                 DagGraphBar.Instance.updateNumNodes(this.dagTab);
             }, 0);
-            this._addNodeLinkToSQLSnippet(info.node, info.tabId);
         });
 
         this._registerGraphEvent(this.graph, DagGraphEvents.RemoveNode, (info) => {
@@ -3842,7 +3841,6 @@ class DagView {
             updateNumNodesTimeout = setTimeout(() => {
                 DagGraphBar.Instance.updateNumNodes(this.dagTab);
             }, 0);
-            this._removeNodeLinkFromSQLSnippet(info.node, info.tabId);
         });
 
         this._registerGraphEvent(this.graph, DagNodeEvents.Hide, (info) => {
@@ -3869,24 +3867,6 @@ class DagView {
             this._updateNodeProgress(info.node, this.tabId, info.overallStats, skewInfos, times);
             DagNodeInfoPanel.Instance.update(info.node.getId(), "stats");
         });
-    }
-
-    private _removeNodeLinkFromSQLSnippet(node, tabId) {
-        if (node instanceof DagNodeCustom) {
-            let subTabId = `${tabId}-${node.getId()}`;
-            node.getSubGraph().getAllNodes().forEach((subNode) => {
-                this._removeNodeLinkFromSQLSnippet(subNode, subTabId);
-            });
-        }
-    }
-
-    private _addNodeLinkToSQLSnippet(node, tabId) {
-        if (node instanceof DagNodeCustom) {
-            let subTabId = `${tabId}-${node.getId()}`;
-            node.getSubGraph().getAllNodes().forEach((subNode) => {
-                this._addNodeLinkToSQLSnippet(subNode, subTabId);
-            });
-        }
     }
 
     private _onAddConnection(addInfo: {node: DagNode}): void {
@@ -3951,7 +3931,7 @@ class DagView {
     }
 
     private _drawNode(node: DagNode, select?: boolean, bulk?: boolean, noViewOutput?: boolean): JQuery {
-        if (node instanceof DagNodeSQL && node.isHidden()) {
+        if (node.isHidden()) {
             return $();
         }
         const pos = node.getPosition();

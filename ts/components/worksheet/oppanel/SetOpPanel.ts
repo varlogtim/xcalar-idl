@@ -137,6 +137,8 @@ class SetOpPanel extends BaseOpPanel {
             const dedup: boolean = (option === "no") ? true : false;
             this.setOpData.setDedup(dedup);
         });
+
+        $panel.find(".btn.preview").on("click", () => this._preview());
     }
 
     private _selectDedup(dedup): void {
@@ -175,6 +177,14 @@ class SetOpPanel extends BaseOpPanel {
         this.setOpData.submit();
         this.close(true);
     }
+
+
+    protected _preview() {
+        if (this._validate()) {
+            super._preview(this.setOpData.getParam());
+        }
+    }
+
 
     private _validate(): boolean {
         const $panel: JQuery = this._getPanel();

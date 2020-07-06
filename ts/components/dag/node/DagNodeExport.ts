@@ -44,13 +44,13 @@ class DagNodeExport extends DagNodeOutOptimizable {
      * @param input.driver {string} Export driver name
      * @param input.driverArgs {ExportDriverArg[]} Driver arguments
      */
-    public setParam(input: DagNodeExportInputStruct = <DagNodeExportInputStruct>{}) {
+    public setParam(input: DagNodeExportInputStruct = <DagNodeExportInputStruct>{}, noAutoExecute?: boolean) {
         this.input.setInput({
             columns: input.columns,
             driver: input.driver,
             driverArgs: input.driverArgs
         });
-        super.setParam();
+        super.setParam(null, noAutoExecute);
     }
 
     /**

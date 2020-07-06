@@ -29,13 +29,16 @@ class DagNodeDeskew extends DagNode {
         }
     };
 
-    public setParam(input: DagNodeDeskewInputStruct = <DagNodeDeskewInputStruct>{}) {
+    public setParam(
+        input: DagNodeDeskewInputStruct = <DagNodeDeskewInputStruct>{},
+        noAutoExecute?: boolean
+    ) {
         this.input.setInput({
             column: input.column,
             newKey: input.newKey,
             outputTableName: input.outputTableName
         });
-        super.setParam();
+        super.setParam(null, noAutoExecute);
     }
 
     public lineageChange(

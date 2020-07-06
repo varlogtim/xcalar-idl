@@ -219,21 +219,14 @@ class SQLOpPanel extends BaseOpPanel {
     }
 
     private configureSQL(
-        query?: string,
+        sql?: string,
         identifiers?: Map<number, string>
     ): XDPromise<any> {
         const self = this;
         const deferred = PromiseHelper.deferred();
-
-        let sql = "";
-        if (query != null) {
-            sql = query;
-        }
+        sql = sql || "";
 
         const dropAsYouGo: boolean = this._isDropAsYouGo();
-        if (!identifiers) {
-            identifiers = this.extractIdentifiers();
-        }
 
         if (!sql) {
             self._dataModel.setDataModel("", identifiers, dropAsYouGo, this._outputTableName);
@@ -645,7 +638,7 @@ class SQLOpPanel extends BaseOpPanel {
         this._toggleDropAsYouGo(dropAsYouGo);
     }
 
-    public extractIdentifiers(validate: boolean = false): Map<number, string> {
+    public extractIdentifiers(): Map<number, string> {
         let identifiers = new Map<number, string>();
         this._identifiers.forEach((identifier, index) => {
             identifiers.set(index + 1, identifier);
@@ -684,6 +677,10 @@ class SQLOpPanel extends BaseOpPanel {
         self._$elemPanel.on('click', '.submit', () => {
             this._submit();
         });
+
+        self._$elemPanel.on("click", ".preview", () => {
+            this._preview();
+        })
     }
 
     protected _updateMode(toAdvancedMode: boolean) {
@@ -700,7 +697,7 @@ class SQLOpPanel extends BaseOpPanel {
             const identifiersOrder = [];
             let identifiersMap;
             try {
-                identifiersMap = this.extractIdentifiers(true);
+                identifiersMap = this.extractIdentifiers();
             } catch (e) {
                 return PromiseHelper.reject(e);
             }
@@ -845,12 +842,7 @@ class SQLOpPanel extends BaseOpPanel {
         .then(() => {
             let identifiers;
             try {
-                identifiers = this.extractIdentifiers(true);
-            } catch (e) {
-                StatusBox.show(e, this._$elemPanel.find(".btn-submit"));
-                return;
-            }
-            try {
+                identifiers = this.extractIdentifiers();
                 this._validateIdentifierNames(identifiers);
             } catch (e) {
                 StatusBox.show(e, this._$elemPanel.find(".btn-submit"));
@@ -1001,6 +993,106 @@ class SQLOpPanel extends BaseOpPanel {
         this.allColumns = [];
         return this.allColumns;
     }
+
+    protected _preview() {
+        let modePromise;
+        if (this._isAdvancedMode()) {
+            modePromise = this._switchModes(false);
+        } else {
+            modePromise = PromiseHelper.resolve();
+        }
+        modePromise
+        .then(() => {
+            let identifiers;
+            try {
+                identifiers = this.extractIdentifiers();
+                this._validateIdentifierNames(identifiers);
+            } catch (e) {
+                StatusBox.show(e, this._$elemPanel.find(".preview"));
+                return;
+            }
+
+            const sql = this._queryStr.replace(/;+$/, "");
+
+
+            const queryId = xcHelper.randName("sql", 8);
+            try {
+                const graph = this._tab.getGraph();
+                if (this._clonedNode) {
+                    const table = this._clonedNode.getTable();
+                    graph.removeNode(this._clonedNode.getId());
+                    TableTabManager.Instance.deleteTab(table);
+                }
+
+                const nodeInfo = this._dagNode.getNodeCopyInfo(true, false, true);
+                delete nodeInfo.id;
+                nodeInfo.isHidden = true;
+                this._clonedNode = graph.newNode(nodeInfo);
+
+                this._dagNode.getParents().forEach((parent, index) => {
+                    if (!parent) return;
+                    graph.connect(parent.getId(), this._clonedNode.getId(), index, false, false);
+                });
+
+                this._lockPreview();
+                const options = {
+                    identifiers: identifiers,
+                    dropAsYouGo: true
+                };
+                this._clonedNode.compileSQL(sql, queryId, options)
+                .then(() => {
+                    this._clonedNode.setIdentifiers(identifiers);
+                    this._clonedNode.setParam({
+                        sqlQueryStr: sql,
+                        identifiers: identifiers,
+                        dropAsYouGo: true,
+                        outputTableName: "xcPreview"
+                    }, true);
+                    const dagView = DagViewManager.Instance.getDagViewById(this._tab.getId());
+
+                    return dagView.run([this._clonedNode.getId()])
+                })
+                .then(() => {
+                    if (!UserSettings.Instance.getPref("dfAutoPreview")) {
+                        DagViewManager.Instance.viewResult(this._clonedNode, this._tab.getId());
+                    }
+                })
+                .fail((err) => {
+                    if (err !== "Cancel" && err !== "cancel" &&
+                        err !== StatusTStr[StatusT.StatusCanceled]) {
+                        Alert.show({
+                            title: SQLErrTStr.Err,
+                            msg:  "Error details: " + xcHelper.parseError(err),
+                            isAlert: true
+                        });
+                    }
+                })
+                .always(() => {
+                    this._unlockPreview();
+                });
+            } catch (e) {
+                this._unlockPreview();
+            }
+        })
+        .fail((error) => {
+            StatusBox.show(error, this._$elemPanel.find(".advancedEditor"));
+            this._unlockPreview();
+        });
+
+        return true;
+    }
+
+
+    protected _lockPreview() {
+        this._$elemPanel.find('.preview').addClass("xc-disabled");
+        this._previewInProgress = true;
+    }
+
+    protected _unlockPreview() {
+        this._$elemPanel.find('.preview').removeClass("xc-disabled");
+        this._previewInProgress = false;
+    }
+
 }
 
 interface derivedColStruct {

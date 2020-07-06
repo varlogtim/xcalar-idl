@@ -117,6 +117,10 @@ class SetOpPanelModel {
         this.dagNode.setParam(param);
     }
 
+    public getParam(): DagNodeSetInputStruct {
+        return this._getParam();
+    }
+
     public switchMode(
         toAdvancedMode: boolean,
         editor: CodeMirror.EditorFromTextArea

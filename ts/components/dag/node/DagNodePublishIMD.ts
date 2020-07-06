@@ -38,7 +38,7 @@ class DagNodePublishIMD extends DagNode {
      * @param input {DagNodePublishIMDInputStruct}
 
      */
-    public setParam(input: DagNodePublishIMDInputStruct): void {
+    public setParam(input: DagNodePublishIMDInputStruct, noAutoExecute?: boolean): void {
         this.input.setInput({
             pubTableName: input.pubTableName,
             primaryKeys: input.primaryKeys,
@@ -46,7 +46,7 @@ class DagNodePublishIMD extends DagNode {
             columns: input.columns,
             overwrite: input.overwrite || false
         });
-        super.setParam();
+        super.setParam(null, noAutoExecute);
     }
 
     public lineageChange(_columns: ProgCol[]): DagLineageChange {

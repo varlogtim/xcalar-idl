@@ -207,6 +207,21 @@ class DFLinkInOpPanel extends BaseOpPanel {
         this.close(true);
     }
 
+    protected _preview(): void {
+        let args: {linkOutName: string, dataflowId: string, source: string, schema: ColSchema[]};
+        if (this._isAdvancedMode()) {
+            args = this._validAdvancedMode();
+        } else {
+            args = this._validate();
+        }
+
+        if (args) {
+            super._preview(args, (node) => {
+                node.setSchema(args.schema);
+            });
+        }
+    }
+
     private _validate(ignore: boolean = false): {
         linkOutName: string,
         dataflowId: string,
@@ -560,6 +575,8 @@ class DFLinkInOpPanel extends BaseOpPanel {
             const keyword: string = $(event.currentTarget).val().trim();
             searchCallback.call(this, keyword);
         });
+
+
     }
 
     protected _addEventListeners(): void {
@@ -620,6 +637,8 @@ class DFLinkInOpPanel extends BaseOpPanel {
                 }
             }
         });
+
+        $panel.find(".btn.preview").on("click", () => this._preview());
     }
 
     private _toggleTableNameOption(withSource: boolean): void {

@@ -29,12 +29,12 @@ class DagNodeSynthesize extends DagNode {
         }
     };
 
-    public setParam(input: DagNodeSynthesizeInputStruct = <DagNodeSynthesizeInputStruct>{}) {
+    public setParam(input: DagNodeSynthesizeInputStruct = <DagNodeSynthesizeInputStruct>{}, noAutoExecute?: boolean) {
         this.input.setInput({
             colsInfo: input.colsInfo,
             outputTableName: input.outputTableName
         });
-        super.setParam();
+        super.setParam(null, noAutoExecute);
     }
 
     public lineageChange(

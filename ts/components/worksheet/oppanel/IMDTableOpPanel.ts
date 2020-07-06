@@ -228,6 +228,8 @@ class IMDTableOpPanel extends BaseOpPanel {
         this._$elemPanel.find(".detect").click(() => {
             this._autoDetectSchema(false);
         });
+
+        this._$elemPanel.find(".btn.preview").on("click", () => this._preview());
     }
 
     private _addTableListDropDown() {
@@ -291,6 +293,25 @@ class IMDTableOpPanel extends BaseOpPanel {
         }
         dagNode.setParam(params);
         this.close(true);
+    }
+
+    private _preview() {
+        let params: DagNodeIMDTableInputStruct = null;
+        if (this._advMode) {
+            try {
+                params = this._convertAdvConfigToModel();
+            } catch (e) {
+                StatusBox.show(e, $("#IMDTableOpPanel .advancedEditor"),
+                    false, {'side': 'right'});
+                return;
+            }
+        } else {
+            params = this._getParams();
+        }
+        if (!this._checkOpArgs(params)) {
+            return;
+        }
+        super._preview(params);
     }
 
     private _autoDetectSchema(userOldSchema: boolean): {error: string} {

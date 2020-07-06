@@ -35,7 +35,7 @@ class DagNodeDFIn extends DagNodeIn {
         }
     };
 
-    public setParam(input: DagNodeDFInInputStruct = <DagNodeDFInInputStruct>{}): void {
+    public setParam(input: DagNodeDFInInputStruct = <DagNodeDFInInputStruct>{}, noAutoExecute?: boolean): void {
         let dataflowId: string = input.dataflowId;
         if (this._graph && dataflowId === this._graph.getTabId()) {
             dataflowId = DagNodeDFIn.SELF_ID;
@@ -45,7 +45,7 @@ class DagNodeDFIn extends DagNodeIn {
             linkOutName: input.linkOutName,
             source: input.source || ""
         });
-        super.setParam();
+        super.setParam(null, noAutoExecute);
     }
 
     public getLinkedTabId(): string {

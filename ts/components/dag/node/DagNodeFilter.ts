@@ -38,12 +38,12 @@ class DagNodeFilter extends DagNode {
      * @param input {DagNodeFilterInputStruct}
      * @param input.evalString {string} The filter eval string
      */
-    public setParam(input: DagNodeFilterInputStruct = <DagNodeFilterInputStruct>{}) {
+    public setParam(input: DagNodeFilterInputStruct = <DagNodeFilterInputStruct>{}, noAutoExecute?: boolean) {
         this.input.setInput({
             evalString: input.evalString,
             outputTableName: input.outputTableName
         });
-        super.setParam();
+        super.setParam(null, noAutoExecute);
     }
 
     public lineageChange(columns: ProgCol[]): DagLineageChange {

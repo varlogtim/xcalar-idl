@@ -19,13 +19,15 @@ class ExecuteAll extends EventEmitter {
                     result.forEach((log) => {
                         if (found) {
                             let message = log.message;
-                            let index = message.indexOf("\"{\\\\");
+                            let index = message.indexOf("\"{\\");
                             if (index > -1) {
                                 message = message.slice(index);
                             }
                             try {
                                 message = JSON.parse(message);
-                            } catch (e) {}
+                            } catch (e) {
+                                console.log("did not parse querystateoutput correctly");
+                            }
                             console.log(message);
                         }
                         if (log.message.includes("queryStateOutput error")) {

@@ -54,6 +54,16 @@ class SynthesizeOpPanel extends BaseOpPanel {
         return true;
     }
 
+    protected _preview() {
+        let args: DagNodeSynthesizeInputStruct = this._validateAdvancedMode();
+        if (args == null) {
+            // invalid case
+            return;
+        }
+
+        super._preview(args);
+    }
+
     private _validateAdvancedMode(): DagNodeSynthesizeInputStruct {
         let args: DagNodeSynthesizeInputStruct;
         let error: string;
@@ -91,5 +101,7 @@ class SynthesizeOpPanel extends BaseOpPanel {
             $(event.target).blur();
             this._submitForm();
         });
+
+        $panel.find(".btn.preview").on("click", () => this._preview());
     }
 }

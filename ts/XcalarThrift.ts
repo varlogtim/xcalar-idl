@@ -3547,17 +3547,17 @@ XcalarQueryCheck = function(
                     // clean up query when done
                     XcalarQueryDelete(queryName)
                     .always(function() {
-                        deferred.reject(queryStateOutput.queryStatus, queryStateOutput);
+                        deferred.reject(queryStateOutput);
                     });
                 } else {
                     cycle();
                 }
             })
-            .fail(function() {
+            .fail(function(err) {
                 if (canceling) {
                     XcalarQueryDelete(queryName);
                 }
-                deferred.reject.apply(this, arguments);
+                deferred.reject(err);
             });
         }, checkTime);
     }
@@ -3625,8 +3625,9 @@ XcalarQueryWithCheck = function(
             deferred.resolve.apply(this, arguments);
         }
     })
-    .fail(function(error, queryStateOutput) {
-        if (TypeCheck.isNumber(error)) {
+    .fail(function(queryStateOutput) {
+        let error = queryStateOutput;
+        if (TypeCheck.isNumber(queryStateOutput && queryStateOutput.queryStatus)) {
             error = {
                 status: error,
                 log: createQueryStateOutputLog(queryStateOutput)

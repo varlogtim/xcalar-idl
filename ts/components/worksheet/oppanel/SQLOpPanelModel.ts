@@ -46,7 +46,6 @@ class SQLOpPanelModel extends BaseOpPanelModel {
         this._dagNode.setParam(param, noAutoExecute);
     }
 
-
     private _getParam(): DagNodeSQLInputStruct {
         const identifiersOrder = [];
         const identifiers = {};

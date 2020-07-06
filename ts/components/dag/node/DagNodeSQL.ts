@@ -37,7 +37,6 @@ class DagNodeSQL extends DagNode {
         this.minParents = 0; // when working on pub tables in SQL mode, it can
                              // be 0
         this.display.icon = "&#xe957;";
-        this.display.isHidden = options.isHidden;
         this.input = this.getRuntime().accessible(new DagNodeSQLInput(options.input));
         const identifiers = new Map<number, string>();
         const identifiersOrder = this.input.getInput().identifiersOrder;

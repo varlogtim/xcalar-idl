@@ -90,7 +90,7 @@ class DagGraph extends Durable {
         this.operationTime = graphJSON.operationTime || 0;
         graphJSON.nodes.forEach((desNode) => {
             const node: DagNode = desNode.node;
-            if (node instanceof DagNodeSQL && node.isHidden()) {
+            if (node.isHidden()) {
                 return;
             }
             const childId: string = node.getId();

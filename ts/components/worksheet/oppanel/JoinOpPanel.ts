@@ -178,6 +178,26 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
             }
         }));
 
+
+        // preview button
+        elements = elements.concat(this._buildNavButton({
+            type: 'preview',
+            disabled: false,
+            text: CommonTxtTstr.Preview,
+            onClick: () => {
+                const $elemEditor = this._$elemPanel.find(".advancedEditor");
+                try {
+                    const model = this._convertAdvConfigToModel(this._dataModel);
+                    this._validateJoinClauses(model);
+                    this._validateRenames(model);
+                    this._preview(this._dataModel);
+                } catch(e) {
+                    // Focus to the error message
+                    StatusBox.show(this._getErrorMessage(e), $elemEditor);
+                }
+            }
+        }));
+
         return elements;
     }
 
@@ -193,6 +213,24 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
             onClick: () => {
                 if (this._isEnableSave()) {
                     this._submitForm(this._dataModel);
+                } else {
+                    // Focus to the error message
+                    const errElement = getErrorElement();
+                    if (errElement != null) {
+                        $(errElement).scrollintoview({duration: 0});
+                    }
+                }
+            }
+        }));
+
+        // preview button
+        elements = elements.concat(this._buildNavButton({
+            type: 'preview',
+            disabled: false,
+            text: CommonTxtTstr.Preview,
+            onClick: () => {
+                if (this._isEnableSave()) {
+                    this._preview(this._dataModel);
                 } else {
                     // Focus to the error message
                     const errElement = getErrorElement();
@@ -254,6 +292,13 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
                 xcHelper.deepCopy(param)
             );
             this.close(true);
+        }
+    }
+
+    protected _preview(model: JoinOpPanelModel) {
+        if (this._dagNode != null) {
+            let param: DagNodeJoinInputStruct = model.toDag();
+            super._preview(param);
         }
     }
 

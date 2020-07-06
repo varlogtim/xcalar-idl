@@ -1438,7 +1438,7 @@ class DagGraphExecutor {
                     headerAlias: "XcalarRankOver"
                 });
             }
-            
+
             let tables = [{
                 name: relDestTable,
                 columns: columns

@@ -203,4 +203,5 @@ declare type ShowPanelInfo = {
     autofillColumnNames?: string[];
     udfDisplayPathPrefix?: string;
     app: string;
+    tab: DagTabUser;
 };

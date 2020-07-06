@@ -45,12 +45,12 @@ class DagNodeProject extends DagNode {
      * @param input {DagNodeProjectInputStruct}
      * @param input.columns {string[]} An array of column names to project
      */
-    public setParam(input: DagNodeProjectInputStruct = <DagNodeProjectInputStruct>{}) {
+    public setParam(input: DagNodeProjectInputStruct = <DagNodeProjectInputStruct>{}, noAutoExecute?: boolean) {
         this.input.setInput({
             columns: input.columns,
             outputTableName: input.outputTableName
         });
-        super.setParam();
+        super.setParam(null, noAutoExecute);
     }
 
     public lineageChange(

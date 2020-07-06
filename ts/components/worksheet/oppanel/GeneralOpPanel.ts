@@ -549,6 +549,9 @@ class GeneralOpPanel extends BaseOpPanel {
         if (!this.isOpen()) {
             return;
         }
+        if (!isSubmit) {
+            this.model.resetDagNodeParam();
+        }
         // highlighted column sticks out if we don't close it early
         this._toggleOpPanelDisplay(true);
         $(".xcTable").find('.modalHighlighted').removeClass('modalHighlighted');
@@ -584,6 +587,7 @@ class GeneralOpPanel extends BaseOpPanel {
         });
 
         this._$panel.find('.submit').on('click', self._submitForm.bind(this));
+        this._$panel.find('.preview').on('click', self._preview.bind(this));
     }
 
     protected _panelShowHelper(dataModel): void {
@@ -1250,9 +1254,60 @@ class GeneralOpPanel extends BaseOpPanel {
         if (!this._validate(true)) {
             return false;
         }
-
+        if (this._previewInProgress) {
+            this._tab.getGraph().cancelExecute();
+        }
         this.model.submit();
         this.close(true);
+        return true;
+    }
+
+    protected _preview() {
+        if (!this._validate(true)) {
+            return false;
+        }
+        const graph = this._tab.getGraph();
+        if (this._clonedNode) {
+            const table = this._clonedNode.getTable();
+            if (this._clonedNode instanceof DagNodeAggregate) {
+                const aggName = this._clonedNode.getAggName();
+                graph.removeNode(this._clonedNode.getId());
+                DagAggManager.Instance.bulkNodeRemoval([aggName]);
+            } else {
+                graph.removeNode(this._clonedNode.getId());
+            }
+            TableTabManager.Instance.deleteTab(table);
+        }
+
+        const nodeInfo = this._dagNode.getNodeCopyInfo(true, false, true);
+        delete nodeInfo.id;
+        nodeInfo.isHidden = true;
+        this._clonedNode = graph.newNode(nodeInfo);
+
+        this._dagNode.getParents().forEach((parent, index) => {
+            if (!parent) return;
+            graph.connect(parent.getId(), this._clonedNode.getId(), index, false, false);
+        });
+        const param = this.model.getParam();
+        param.outputTableName = "xcPreview";
+        this._clonedNode.setParam(param, true);
+        const dagView = DagViewManager.Instance.getDagViewById(this._tab.getId());
+        this._lockPreview();
+        dagView.run([this._clonedNode.getId()])
+        .then(() => {
+            if (!UserSettings.Instance.getPref("dfAutoPreview")) {
+                DagViewManager.Instance.viewResult(this._clonedNode, this._tab.getId());
+            }
+        })
+        .always(() => {
+            this._unlockPreview();
+            if (this._clonedNode instanceof DagNodeAggregate) {
+                const aggName = this._clonedNode.getAggName();
+                graph.removeNode(this._clonedNode.getId());
+                DagAggManager.Instance.bulkNodeRemoval([aggName]);
+                this._clonedNode = null;
+            }
+        });
         return true;
     }
 

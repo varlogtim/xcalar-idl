@@ -196,18 +196,18 @@ module.exports = {
                             // clean up query when done
                             XcalarQueryDelete(queryName)
                                 .always(function () {
-                                deferred.reject(queryStateOutput.queryStatus, queryStateOutput);
+                                deferred.reject(queryStateOutput);
                             });
                         }
                         else {
                             cycle();
                         }
                     })
-                        .fail(function () {
+                        .fail(function (err) {
                         if (canceling) {
                             XcalarQueryDelete(queryName);
                         }
-                        deferred.reject.apply(this, arguments);
+                        deferred.reject(err);
                     });
                 }, checkTime);
             }
@@ -226,8 +226,28 @@ module.exports = {
                     });
                     //XXX THIS IS THE HACK
                     if (hasError) {
+
                         queryStateOutput.queryGraph.node.forEach(node => {
                             delete node.slotInfo;
+                            if (!node.xdbBytesRequired) {
+                                delete node.xdbBytesRequired;
+                            }
+                            if (!node.xdbBytesConsumed) {
+                                delete node.xdbBytesConsumed;
+                            }
+                            if (!node.numTransPageSent) {
+                                delete node.numTransPageSent;
+                            }
+                            if (!node.numTransPageRecv) {
+                                delete node.numTransPageRecv;
+                            }
+                            if (!node.log) {
+                                delete node.log;
+                            }
+                            if (!node.tag) {
+                                delete node.tag;
+                            }
+
                             if (node.opFailureInfo && node.opFailureInfo.numRowsFailedTotal === 0) {
                                 delete node.opFailureInfo;
                             }

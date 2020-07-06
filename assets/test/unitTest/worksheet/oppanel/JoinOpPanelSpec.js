@@ -167,11 +167,11 @@ describe('JoinOpPanel Test', () => {
 
     describe('_buildAdvancedButtons() should work', () => {
         const oldFunc = {};
-        let buttonProps = null;
+        let buttonProps = [];
         before(() => {
             oldFunc._buildNavButton = component._buildNavButton;
             component._buildNavButton = (props) => {
-                buttonProps = props;
+                buttonProps.push(props);
                 return oldFunc._buildNavButton.bind(component, props)();
             }
         });
@@ -187,9 +187,13 @@ describe('JoinOpPanel Test', () => {
             expect(advButtons != null).to.be.true;
             expect(advButtons.length).to.gt(0);
             // Check save button
-            expect(buttonProps != null).to.be.true;
-            expect(buttonProps.type).to.equal('submit');
-            expect(buttonProps.text).to.equal(CommonTxtTstr.Save);
+            expect(buttonProps[0] != null).to.be.true;
+            expect(buttonProps[0].type).to.equal('submit');
+            expect(buttonProps[0].text).to.equal(CommonTxtTstr.Save);
+            // preview button
+            expect(buttonProps[1] != null).to.be.true;
+            expect(buttonProps[1].type).to.equal('preview');
+            expect(buttonProps[1].text).to.equal(CommonTxtTstr.Preview);
         });
     });
 
@@ -223,7 +227,7 @@ describe('JoinOpPanel Test', () => {
             expect(saveProps.disabled).to.be.false;
             expect(saveProps.text).to.equal(CommonTxtTstr.Save);
             // Check back button
-            const backProps = buttonProps[1];
+            const backProps = buttonProps[2];
             expect(backProps != null).to.be.true;
             expect(backProps.type).to.equal('back');
             expect(backProps.text).to.equal(CommonTxtTstr.Back);

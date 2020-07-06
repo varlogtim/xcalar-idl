@@ -2,7 +2,8 @@ enum TableTabType {
     SQL = "SQL",
     PbTable = "PbTable",
     ResultSet = "ResultSet",
-    SQLHistory = "SQLHistory"
+    SQLHistory = "SQLHistory",
+    Preview = "Preview"
 }
 
 class TableTabManager extends AbstractTabManager {
@@ -40,7 +41,8 @@ class TableTabManager extends AbstractTabManager {
     public async openTab(
         name: string,
         type: TableTabType,
-        meta?: any
+        meta?: any,
+        displayName?: string
     ): Promise<void> {
         if (this._belongToSQLTab(type, meta)) {
             const sqlTab = this._getSQLTab();
@@ -57,7 +59,8 @@ class TableTabManager extends AbstractTabManager {
             const tab = {
                 name,
                 type,
-                meta
+                meta,
+                displayName: displayName || name
             };
             this._loadTab(tab);
             this._save();
@@ -131,6 +134,12 @@ class TableTabManager extends AbstractTabManager {
         return null;
     }
 
+    public deleteTab(name: string) {
+        const index = this._getTabIndexByName(name);
+        if (index < 0) return;
+        this._deleteTabAction(index);
+    }
+
     protected _deleteTabAction(index: number): void {
         const $tab: JQuery = this._getTabElByIndex(index);
         if ($tab.hasClass("active")) {
@@ -193,7 +202,7 @@ class TableTabManager extends AbstractTabManager {
     } {
         const tabs: {name: string, type: TableTabType, meta?: {tabId: string, nodeId: DagNodeId}}[] = [];
         this._activeTabs.forEach((tab) => {
-            if (tab.type !== TableTabType.SQL) {
+            if (tab.type !== TableTabType.SQL && tab.type !== TableTabType.Preview) {
                 tabs.push(tab);
             }
         });
@@ -219,7 +228,8 @@ class TableTabManager extends AbstractTabManager {
         tab: {
             name: string,
             type: TableTabType,
-            meta?: {tabId: string, nodeId: DagNodeId}
+            meta?: {tabId: string, nodeId: DagNodeId},
+            displayName?: string
         },
         index?: number,
 
@@ -231,7 +241,7 @@ class TableTabManager extends AbstractTabManager {
             tabIndex = index;
         }
         this._activeTabs.splice(index, 0, tab);
-        this._addTabHTML(tab.name, tabIndex);
+        this._addTabHTML(tab.displayName || tab.name, tabIndex);
     }
 
     private _getSQLTab(): {name: string, type: TableTabType} {
@@ -298,6 +308,7 @@ class TableTabManager extends AbstractTabManager {
                     await SQLResultSpace.Instance.viewPublishedTable(tab.name);
                     break;
                 case TableTabType.ResultSet:
+                case TableTabType.Preview:
                     SQLResultSpace.Instance.showHint();
                     await this._viewResult(tab.meta);
                     break;

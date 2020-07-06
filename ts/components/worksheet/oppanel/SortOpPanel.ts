@@ -72,6 +72,8 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
         const $submitBtn = this._getPanel().find('.btn.submit');
         $submitBtn.off();
         $submitBtn.on('click', () => this._submitForm());
+        this._getPanel().find(".btn.preview").off();
+        this._getPanel().find(".btn.preview").on("click", () => this._preview());
     }
 
     private _getArgs(): AutogenSectionProps[] {
@@ -166,6 +168,19 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
     }
 
     private _submitForm() {
+        if (this._validate()) {
+            this._dagNode.setParam(this._dataModel.toDagInput());
+            this.close(true);
+        }
+    }
+
+    private _preview() {
+        if (this._validate()) {
+            super._preview(this._dataModel.toDagInput());
+        }
+    }
+
+    private _validate(): boolean {
         if (this._isAdvancedMode()) {
             const $elemEditor = this._getPanel().find(".advancedEditor");
             try {
@@ -173,22 +188,20 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
                 this._dataModel = this._convertAdvConfigToModel(advConfig);
             } catch(e) {
                 StatusBox.show(e, $elemEditor);
-                return;
+                return false;
             }
         } else {
             if (!this._runValidation()) {
-                return;
+                return false;
             }
             try {
                 this._dataModel.validateInputData();
             } catch(e) {
                 StatusBox.show(e, this._getPanel().find(".row-columnCombo"));
-                return;
+                return false;
             }
         }
-
-        this._dagNode.setParam(this._dataModel.toDagInput());
-        this.close(true);
+        return true;
     }
 
     /**

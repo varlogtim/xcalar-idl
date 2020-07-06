@@ -38,12 +38,12 @@ class DagNodeRowNum extends DagNode {
      * @param input {DagNodeRowNumInputStruct}
      * @param input.newField {string}
      */
-    public setParam(input: DagNodeRowNumInputStruct = <DagNodeRowNumInputStruct>{}) {
+    public setParam(input: DagNodeRowNumInputStruct = <DagNodeRowNumInputStruct>{}, noAutoExecute?: boolean) {
         this.input.setInput({
             newField: input.newField,
             outputTableName: input.outputTableName
         });
-        super.setParam();
+        super.setParam(null, noAutoExecute);
     }
 
     public lineageChange(): DagLineageChange {

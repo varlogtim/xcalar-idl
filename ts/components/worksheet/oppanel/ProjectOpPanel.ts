@@ -219,6 +219,18 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
      * @returns true: success; false: failed validation
      */
     private _submitForm(dagNode: DagNodeProject): boolean {
+        if (!this._validate()) return false;
+        // save data
+        dagNode.setParam(this._dataModel.toDag());
+        return true;
+    }
+
+    protected _preview() {
+        if (!this._validate()) return;
+        super._preview(this._dataModel.toDag());
+    }
+
+    private _validate(): boolean {
         if (this._isAdvancedMode()) {
             const $elemEditor = this._$elemPanel.find(".advancedEditor");
             try {
@@ -243,9 +255,6 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
                 return false;
             }
         }
-
-        // save data
-        dagNode.setParam(this._dataModel.toDag());
         return true;
     }
 
@@ -271,6 +280,13 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
                 if (this._submitForm(this._dagNode)) {
                     this.close(true);
                 }
+            }
+        );
+        this._$elemPanel.on(
+            'click',
+            '.btn.preview',
+            () => {
+                this._preview();
             }
         );
     }

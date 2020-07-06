@@ -129,7 +129,7 @@ class DagGraphBar {
         const nodes = graph.getAllNodes();
         let numNodes = 0;
         nodes.forEach(n => {
-            if (!(n instanceof DagNodeSQL)|| !n.isHidden()) {
+            if (!n.isHidden()) {
                 numNodes++;
             }
         });

@@ -93,7 +93,8 @@ class DagConfigNodeModal {
         this._getModal().removeClass("xc-hidden");
         options = {
             ...options,
-            app: tab ? tab.getApp() : null
+            app: tab ? tab.getApp() : null,
+            tab: tab
         };
         switch (type) {
             case (DagNodeType.Dataset):

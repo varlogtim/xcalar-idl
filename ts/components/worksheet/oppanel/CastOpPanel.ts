@@ -169,6 +169,20 @@ class CastOpPanel extends BaseOpPanel {
         return true;
     }
 
+    protected _preview() {
+        if (!this.validate()) {
+            return false;
+        }
+        let paramInput;
+        if (this._isAdvancedMode()) {
+            paramInput = JSON.parse(this._editor.getValue());
+        } else {
+            const param = this.colRenameSection.getParam();
+            paramInput = this._colRenameToParam(param);
+        }
+        super._preview(paramInput);
+    }
+
     private validate(): boolean {
         if (this._isAdvancedMode()) {
             const advancedErr: {error: string} = this._validateAdvancedMode(this._editor.getValue());
@@ -238,7 +252,9 @@ class CastOpPanel extends BaseOpPanel {
         this.$panel.find(".submit").on("click", () => {
             this._submit();
         });
-
+        this.$panel.find(".btn.preview").on("click", () => {
+            this._preview();
+        });
     }
 
     private _modifyColRenameSection() {
