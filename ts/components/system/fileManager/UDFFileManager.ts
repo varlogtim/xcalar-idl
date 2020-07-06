@@ -988,7 +988,10 @@ class UDFFileManager {
 
         // This is necessary, because current user can have no UDF, but we will
         // create a folder for the current user workbook.
-        users.push(XcUser.getCurrentUserName());
+        const currentUser = XcUser.getCurrentUserName();
+        if (currentUser) {
+            users.push(currentUser);
+        }
         users = Array.from(new Set(users));
 
         const getUserTasks: XDPromise<void>[] = users.map((user: string) => {

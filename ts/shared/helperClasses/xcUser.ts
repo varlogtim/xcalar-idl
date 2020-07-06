@@ -16,7 +16,7 @@ class XcUser {
      * Xcuser.getCurrentUserName
      */
     public static getCurrentUserName(): string {
-        return this._currentUser.getName();
+        return this._currentUser ? this._currentUser.getName() : null;
     }
 
     /**
