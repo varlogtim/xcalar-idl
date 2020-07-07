@@ -49,7 +49,6 @@ class AdvancedModeState extends State {
     private xdfsArr: Object[];
     private mode: string;
     private maxAvgNumOfNodesPerTab: number;
-    private run: number; // How many iterations ran in this state currently
     private currentWKBKId: string;
     private optimizedDF: boolean;
 
@@ -62,7 +61,7 @@ class AdvancedModeState extends State {
         "Error: " + StatusTStr[StatusT.StatusInval]
     ])
 
-    private constructor(stateMachine: StateMachine, verbosity: string) {
+    public constructor(stateMachine: StateMachine, verbosity: string) {
         let name = "AdvancedMode";
         super(name, stateMachine, verbosity);
 
