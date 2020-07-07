@@ -184,14 +184,18 @@ function LoadDetail() {
 export default class Details extends React.Component {
     render() {
         const {
-            schemaDetail
+            schemaDetail,
+            discoverStats
         } = this.props;
         const showSchemaDetail = schemaDetail != null && (
             schemaDetail.isLoading || (schemaDetail.schema != null || schemaDetail.error != null)
         );
+        const showChart = discoverStats != null && (
+            discoverStats.isLoading || discoverStats.numFiles != null
+        );
 
         let rightPartClasses = "rightPart";
-        if (showSchemaDetail || this.props.showForensics ||
+        if (showSchemaDetail || showChart || this.props.showForensics ||
             this.props.discoverFileSchemas.size > 0) {
             rightPartClasses += " active";
         }
@@ -211,13 +215,13 @@ export default class Details extends React.Component {
                     { schemaDetail.isLoading ? <LoadDetail /> : null}
                     { schemaDetail.schema != null ? <SchemaDetail {...schemaDetail.schema} /> : null }
                     { schemaDetail.error != null ? <ErrorDetail error={schemaDetail.error} /> : null }
-                    {this.props.discoverFileSchemas.size > 0 &&
+                    { showChart &&
                         <SchemaChart
+                            discoverStats={discoverStats}
                             selectedData={this.props.selectedFileDir}
                             schemasFileMap={this.props.discoverFileSchemas}
-                            failedFiles={this.props.discoverFailedFiles}
                         />
-                     }
+                    }
                 </div>
             </Rnd>
         )

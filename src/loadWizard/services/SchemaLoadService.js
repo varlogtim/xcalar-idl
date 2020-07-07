@@ -611,7 +611,76 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
             }
 
             return result;
+        },
+        getDiscoverSuccessStats: async function() {
+            const table = await createDiscoverSuccessTable();
+            try {
+                const cursor = table.createCursor();
+                await cursor.open();
+
+                const result = {
+                    numFiles: 0, numSchemas: 0
+                };
+                let records = await cursor.fetchJson(1);
+                if (records.length > 0) {
+                    const record = records[0];
+                    result.numFiles = record['NUM_FILES'] || 0;
+                    result.numSchemas = record['NUM_SCHEMAS'] || 0;
+                }
+                return result;
+            } finally {
+                await table.destroy();
+            }
+
+            async function createDiscoverSuccessTable() {
+                if (tables.report == null) {
+                    throw new Error('Report table not exists');
+                }
+
+                const sql =
+                    `select
+                        SUM(FILE_COUNT) AS NUM_FILES, COUNT(SCHEMA_HASH) AS NUM_SCHEMAS
+                    from ${tables.report.getName()}
+                    where SCHEMA_HASH <> '${failedSchemaHash}'`;
+                const table = await session.executeSql(sql);
+                return table;
+            }
+        },
+        getDiscoverFailStats: async function() {
+            const table = await createDiscoverFailTable();
+            try {
+                const cursor = table.createCursor();
+                await cursor.open();
+
+                const result = {
+                    numFiles: 0, numSchemas: 0
+                };
+                let records = await cursor.fetchJson(1);
+                if (records.length > 0) {
+                    const record = records[0];
+                    result.numFiles = record['NUM_FILES'] || 0;
+                    result.numSchemas = record['NUM_SCHEMAS'] || 0;
+                }
+                return result;
+            } finally {
+                await table.destroy();
+            }
+
+            async function createDiscoverFailTable() {
+                if (tables.report == null) {
+                    throw new Error('Report table not exists');
+                }
+
+                const sql =
+                    `select
+                        SUM(FILE_COUNT) AS NUM_FILES, COUNT(SCHEMA_HASH) AS NUM_SCHEMAS
+                    from ${tables.report.getName()}
+                    where SCHEMA_HASH = '${failedSchemaHash}'`;
+                const table = await session.executeSql(sql);
+                return table;
+            }
         }
+
     };
 
     discoverApps.set(appId, app);

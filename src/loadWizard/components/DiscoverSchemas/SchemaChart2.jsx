@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import prettyBytes from 'pretty-bytes'
 
-export default function SchemaChart({selectedData, schemasFileMap, failedFiles}) {
+export default function SchemaChart({selectedData, schemasFileMap, discoverStats}) {
 
     const typeList = {
         "JSON": "#00cf18",
@@ -97,15 +97,7 @@ export default function SchemaChart({selectedData, schemasFileMap, failedFiles})
 
     return (
         <div>
-            <div className="chartInfo">
-                <div className="schemaSummaryHeader">Summary</div>
-                {/* <div>Total number of files: {totalCountOfFiles}</div>
-                <div>Total number of directories: {totalCountOfDirectories}</div>
-                 */}
-                <div>Discovered files: {(schemasFileMap.size).toLocaleString()}</div>
-                <div>Discovered schemas: {numSchemas.toLocaleString()}</div>
-                <div>Failed discovery: {(failedFiles.size).toLocaleString()}</div>
-            </div>
+            <SchemaStats {...discoverStats} />
             <div id="SchemaChart">
                 <PieChart width={280} height={250}>
                     <Pie
@@ -186,6 +178,28 @@ export default function SchemaChart({selectedData, schemasFileMap, failedFiles})
                     </Pie>
                 </PieChart> */}
             </div>
+        </div>
+    );
+}
+
+function SchemaStats(props) {
+    const {
+        isLoading = false,
+        numFiles = null,
+        numSchemas = null,
+        numFailed = null
+    } = props || {};
+
+    const title = isLoading
+        ? 'Summary ... Loading Data'
+        : 'Summary';
+
+    return (
+        <div className="chartInfo">
+            <div className="schemaSummaryHeader">{title}</div>
+            { numFiles == null ? null : <div>Discovered files: {Number(numFiles).toLocaleString()}</div> }
+            { numSchemas == null ? null: <div>Discovered schemas: {Number(numSchemas).toLocaleString()}</div> }
+            { numFailed == null ? null: <div>Failed discovery: {Number(numFailed).toLocaleString()}</div> }
         </div>
     );
 }

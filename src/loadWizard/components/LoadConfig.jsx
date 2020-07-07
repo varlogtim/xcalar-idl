@@ -125,6 +125,12 @@ class LoadConfig extends React.Component {
                 schema: null,
                 error: null
             },
+            discoverStatsState: {
+                isLoading: false,
+                numFiles: null,
+                numSchemas: null,
+                numFailed: null
+            },
             showForensics: false,
             forensicsMessage: [],
             isForensicsLoading: false
@@ -310,6 +316,49 @@ class LoadConfig extends React.Component {
             });
         }
 
+    }
+
+    async _getDiscoverStats() {
+        const { discoverAppId } = this.state;
+        if (discoverAppId == null) {
+            return;
+        }
+
+        const app = SchemaLoadService.getDiscoverApp(discoverAppId);
+        if (app == null) {
+            return;
+        }
+
+        this.setState((state) => ({
+            discoverStatsState: {
+                isLoading: true,
+                numFiles: null,
+                numSchemas: null,
+                numFailed: null
+            }
+        }));
+
+        try {
+            const successStats = await app.getDiscoverSuccessStats();
+            const failStats = await app.getDiscoverFailStats();
+            this.setState((state) => ({
+                discoverStatsState: {
+                    ...state.discoverStatsState,
+                    numFiles: successStats.numFiles + failStats.numFiles,
+                    numSchemas: successStats.numSchemas,
+                    numFailed: failStats.numFiles
+                }
+            }))
+        } catch(e) {
+            console.error('getDiscoverStats error: ', e);
+        } finally {
+            this.setState((state) => ({
+                discoverStatsState: {
+                    ...state.discoverStatsState,
+                    isLoading: false
+                }
+            }));
+        }
     }
 
     // XXX this is copied from DSConfig
@@ -620,6 +669,7 @@ class LoadConfig extends React.Component {
                 if (table != null) {
                     const { page, rowsPerPage } = this.state.createTableState;
                     await this._fetchDiscoverReportData(page, rowsPerPage);
+                    await this._getDiscoverStats();
                 }
                 this.setState((state) => ({
                     discoverProgress: state.discoverProgress + 10
@@ -744,6 +794,12 @@ class LoadConfig extends React.Component {
                 count: 0,
                 files: [],
                 isLoading: false
+            },
+            discoverStatsState: {
+                isLoading: false,
+                numFiles: null,
+                numSchemas: null,
+                numFailed: null
             },
             tableToCreate: new Map(),
             createTableState: {
@@ -1061,9 +1117,9 @@ class LoadConfig extends React.Component {
                     </div> {/* end of left part */}
                     <Details
                         schemaDetail={this.state.schemaDetailState}
+                        discoverStats={this.state.discoverStatsState}
                         selectedFileDir={this.state.selectedFileDir}
                         discoverFileSchemas={this.state.discoverFileSchemas}
-                        discoverFailedFiles={this.state.discoverFailedFiles}
                         showForensics={this.state.showForensics}
                         forensicsMessage={this.state.forensicsMessage}
                         forensicsStats={forensicsStats}
