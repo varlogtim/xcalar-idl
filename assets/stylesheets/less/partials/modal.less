@@ -1689,7 +1689,7 @@ html.microsoft {
             .titleSection, .grid-unit {
                 > div {
                     width: ~"calc(40% - 38px)";
-    
+
                     &.name {
                         width: 60%;
                     }
@@ -3901,19 +3901,20 @@ html.microsoft {
     }
 
     .modalTopMain {
-        .size(@height: @skewInfo-topMain);
-        padding: 0 @modal-padding-horizontal;
-        .font(@size: 14px, @line-height: @skewInfo-topMain);
+        // .size(@height: @skewInfo-topMain);
+        padding: 16px @modal-padding-horizontal 8px;
+        .font(@size: 14px, @line-height: 24px);
         .flex-display;
         .text-selection;
+        .flex-wrap(wrap);
 
         > div {
             .flex(1 1 auto);
-            margin-left: 3px;
+            margin-right: 8px;
             .textOverflowOneLine;
 
-            &:first-child {
-                margin-left: 0;
+            &:last-child {
+                margin-right: 0;
             }
         }
 
@@ -3923,7 +3924,7 @@ html.microsoft {
     }
 
     .modalMain {
-        .size(@height: ~"calc(100% - @{skewInfo-restOfMain})");
+        // .size(@height: ~"calc(100% - @{skewInfo-restOfMain})");
         padding: @modal-padding-vertical @modal-padding-horizontal;
 
         .chart {

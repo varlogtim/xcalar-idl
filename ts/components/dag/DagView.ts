@@ -336,7 +336,8 @@ class DagView {
                 .attr("cx", 3.5)
                 .attr("cy", 0)
                 .attr("r", 6)
-                .style("fill", "#849CB0");
+                .style("stroke", "white")
+                .style("fill", "black");
             g.append("text")
                 .attr("font-family", fontFamily)
                 .attr("font-size", fontSize)
@@ -3195,7 +3196,8 @@ class DagView {
                         totalRows: skewInfo.totalRows,
                         size: skewInfo.size,
                         skewValue: skewInfo.value,
-                        skewColor: skewInfo.color
+                        skewColor: skewInfo.color,
+                        tableName: skewInfo.name
                     };
                 }
             }
@@ -3215,7 +3217,7 @@ class DagView {
                 const times: number[] = [];
                 nodeStats.forEach((nodeStat) => {
                     if (nodeStat.type !== XcalarApisT.XcalarApiDeleteObjects) {
-                        const skewInfo = DagView._getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
+                        const skewInfo = DagView._getSkewInfo(nodeStat.name, nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
                         skewInfos.push(skewInfo);
                     }
                     if (nodeStat.elapsedTime != null) {
@@ -3853,7 +3855,7 @@ class DagView {
             const skewInfos = [];
             info.nodeStats.forEach((nodeStat) => {
                 if (nodeStat.type !== XcalarApisT.XcalarApiDeleteObjects) {
-                    const skewInfo = DagView._getSkewInfo("temp name",
+                    const skewInfo = DagView._getSkewInfo(nodeStat.name,
                                                             nodeStat.rows,
                                                             nodeStat.skewValue,
                                                             nodeStat.numRowsTotal,

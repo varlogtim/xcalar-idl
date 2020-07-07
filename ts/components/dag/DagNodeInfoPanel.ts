@@ -295,7 +295,8 @@ class DagNodeInfoPanel {
                     totalRows: stats.numRowsTotal,
                     size: stats.size,
                     skewValue: skewText,
-                    skewColor: skewColorRaw
+                    skewColor: skewColorRaw,
+                    tableName: stats.name
                 });
                 statsHtml += `<div class="operationStats">
                     <div class="statsRow subRow">

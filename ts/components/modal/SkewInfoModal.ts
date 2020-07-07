@@ -60,11 +60,13 @@ class SkewInfoModal {
         let totalRows: number;
         let skewValue: string;
         let skewColor: string;
+        let tableName: string;
         if (this._instanceOptions.tableInfo) {
             size = this._instanceOptions.tableInfo.size;
             totalRows = this._instanceOptions.tableInfo.totalRows;
             skewValue = this._instanceOptions.tableInfo.skewValue;
             skewColor = this._instanceOptions.tableInfo.skewColor;
+            tableName = this._instanceOptions.tableInfo.tableName;
         } else {
             const table: TableMeta = this._activeTable;
             const $skew: JQuery = $("#sqlTableArea .skewInfoArea .text");
@@ -72,6 +74,7 @@ class SkewInfoModal {
             totalRows = table.resultSetCount;
             skewValue = $skew.text();
             skewColor = $skew.css("color");
+            tableName = table.getName();
         }
 
         const sizeStr: string = <string>xcHelper.sizeTranslator(size);
@@ -80,6 +83,7 @@ class SkewInfoModal {
         $modal.find(".totalRows .text").text(xcStringHelper.numToStr(totalRows));
         $modal.find(".skew .text").text(skewValue)
                                   .css("color", skewColor);
+        $modal.find(".tableName .text").text(tableName);
     }
 
     private _drawDistributionGraph(): void {
