@@ -334,6 +334,19 @@ class MapOpPanelModel extends GeneralOpPanelModel {
         }
     }
 
+    // checks new field names again table columns
+    // not each other
+    public checkDuplicateNewFieldNames() {
+        const dupes = [];
+        this.groups.forEach((group) => {
+            const name = group.newFieldName;
+            if (this.getColumnByName(name)) {
+                dupes.push(name);
+            }
+        });
+        return dupes;
+    }
+
     public submit() {
         let param: DagNodeMapInputStruct = this._getParam();
         let aggs: string[] = DagNode.getAggsFromEvalStrs(param.eval);

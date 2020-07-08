@@ -189,7 +189,7 @@ describe('RoundOpPanelModel Test', () => {
                 {
                     name: '_destColumn is dup',
                     modify: (model) => {model._destColumn = 'col#1'},
-                    expected: 'Duplicate column "col#1"'
+                    expected: 'No Error'
                 },
             ];
 

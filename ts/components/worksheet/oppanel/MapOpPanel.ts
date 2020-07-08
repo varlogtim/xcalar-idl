@@ -1101,4 +1101,27 @@ class MapOpPanel extends GeneralOpPanel {
     private _openUDFPanel(moduleName: string) {
         UDFPanel.Instance.loadUDF(moduleName);
     }
+
+    protected _submitForm() {
+        if (!this._validate(true)) {
+            return false;
+        }
+
+        let dupes = this.model.checkDuplicateNewFieldNames();
+        if (dupes.length) {
+            Alert.show({
+                title: "Column Name Collision",
+                msg: "The following column names already exist and will be overwritten:\n" + dupes.join(", "),
+                onConfirm: () => {
+                    this.model.submit();
+                    this.close(true);
+                }
+            });
+            return false;
+        } else {
+            this.model.submit();
+            this.close(true);
+            return true;
+        }
+    }
 }

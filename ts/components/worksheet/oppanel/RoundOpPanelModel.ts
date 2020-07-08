@@ -141,9 +141,6 @@ class RoundOpPanelModel extends BaseOpPanelModel {
         if (xcHelper.parsePrefixColName(destColumn).prefix.length > 0) {
             throw new Error('Dest column cannot have prefix');
         }
-        if (this.getColNameSet().has(destColumn)) {
-            throw new Error(`Duplicate column "${destColumn}"`);
-        }
     }
 
     public getColNameSet(): Set<string> {

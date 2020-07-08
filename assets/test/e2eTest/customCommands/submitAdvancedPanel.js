@@ -22,6 +22,7 @@ class SubmitAdvancedPanel extends EventEmitter {
 
                     self.api
                     .click(panelId + ' .submit')
+                    .confirmAlert()
                     .waitForElementNotVisible(panelId, wait || 200 * 1000);
 
                     self.emit('complete');
