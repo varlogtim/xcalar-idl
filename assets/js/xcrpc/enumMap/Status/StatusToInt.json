@@ -735,6 +735,7 @@
     "StatusInvalidFieldType" : 733,
     "StatusSystemAppDisabled" : 734,
     "StatusUnionTypeMismatch" : 735,
-    "StatusUnionDhtMismatch" : 736
+    "StatusUnionDhtMismatch" : 736,
+    "StatusAppInProgress" : 737
 }
 

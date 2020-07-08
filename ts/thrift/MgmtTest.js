@@ -389,6 +389,34 @@ testSuiteFn = (function($, TestSuite) {
         initialDeferred.resolve();
     }
 
+    function appReapRetryer(appRunOutput) {
+        var deferred = jQuery.Deferred();
+        var appGroupId = appRunOutput.appGroupId;
+        console.log("App GroupId: " + appGroupId);
+        setTimeout(function(){
+            xcalarAppReap(thriftHandle, appGroupId)
+            .then(function(output) {
+                deferred.resolve(output);
+            })
+            .fail(function(error) {
+                if ("xcalarStatus" in error &&
+                    error.xcalarStatus == StatusT.StatusAppInProgress) {
+                    appReapRetryer(appRunOutput)
+                    .then(function(retryOutput) {
+                        deferred.resolve(retryOutput);
+                    })
+                    .fail(function(retryError) {
+                        deferred.reject(retryError);
+                    })
+                }
+                else {
+                    deferred.reject(error);
+                }
+            });
+        }, 1000);
+        return (deferred.promise());
+    }
+
     function testGetNumNodes(test) {
         xcalarGetNumNodes(thriftHandle)
         .done(function(result) {
@@ -657,10 +685,7 @@ testSuiteFn = (function($, TestSuite) {
         .then(function(result) {
             return xcalarAppRun(thriftHandle, name, false, "hello");
         })
-        .then(function(result) {
-            var groupId = result.appGroupId;
-            return xcalarAppReap(thriftHandle, groupId);
-        })
+        .then(appReapRetryer)
         .then(function(result) {
             var outStr = result.outStr;
             var expectedStr = "[[\"shello\"]]";
@@ -4062,10 +4087,7 @@ testSuiteFn = (function($, TestSuite) {
         var schema;
         var args = { "func": "getInfo", "targetName": "Default Shared Root", "path": pathToParquetDataset }
         xcalarAppRun(thriftHandle, parquetAppName,  false, JSON.stringify(args))
-        .then(function(result) {
-            var groupId = result.appGroupId;
-            return xcalarAppReap(thriftHandle, groupId);
-        })
+        .then(appReapRetryer)
         .then(function(result) {
             var outStr = result.outStr;
             console.log("Result from getInfo(): " + outStr)
@@ -4088,10 +4110,7 @@ testSuiteFn = (function($, TestSuite) {
             args["key"] = expectedPartitionKeys[0];
             return (xcalarAppRun(thriftHandle, parquetAppName, false, JSON.stringify(args)))
         })
-        .then(function(result) {
-            var groupId = result.appGroupId;
-            return xcalarAppReap(thriftHandle, groupId);
-        })
+        .then(appReapRetryer)
         .then(function(result) {
             var outStr = result.outStr;
             console.log("Result from getPossibleKeyValues(type): " + outStr);
@@ -4122,10 +4141,7 @@ testSuiteFn = (function($, TestSuite) {
             args["givenKeys"] = { "type": [ "user" ] };
             return (xcalarAppRun(thriftHandle, parquetAppName, false, JSON.stringify(args)));
         })
-        .then(function(result) {
-            var groupId = result.appGroupId;
-            return xcalarAppReap(thriftHandle, groupId);
-        })
+        .then(appReapRetryer)
         .then(function(result) {
             var outStr = result.outStr;
             console.log("Result from getPossibleKeyValues(yelping_since): " + outStr);
@@ -4138,10 +4154,7 @@ testSuiteFn = (function($, TestSuite) {
                                "targetParams": targetParams, "func": "addTarget" }
             return xcalarAppRun(thriftHandle, targetMgrAppName, false, JSON.stringify(targetArgs))
         })
-        .then(function(result) {
-            var groupId = result.appGroupId;
-            return xcalarAppReap(thriftHandle, groupId);
-        })
+        .then(appReapRetryer)
         .then(function(result) {
             var outStr = result.outStr;
             console.log("Result from addTarget: " + outStr);

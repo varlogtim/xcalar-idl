@@ -742,7 +742,8 @@ StatusT = {
   'StatusInvalidFieldType' : 733,
   'StatusSystemAppDisabled' : 734,
   'StatusUnionTypeMismatch' : 735,
-  'StatusUnionDhtMismatch' : 736
+  'StatusUnionDhtMismatch' : 736,
+  'StatusAppInProgress' : 737
 };
 StatusTStr = {
   0 : 'Success',
@@ -1481,7 +1482,8 @@ StatusTStr = {
   733 : 'Invalid field type',
   734 : 'System app is disabled',
   735 : 'Union keys must be of the same data type',
-  736 : 'Union may only be performed on tables with the same DHT'
+  736 : 'Union may only be performed on tables with the same DHT',
+  737 : 'Application is still in running state'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2220,5 +2222,6 @@ StatusTFromStr = {
   'Invalid field type' : 733,
   'System app is disabled' : 734,
   'Union keys must be of the same data type' : 735,
-  'Union may only be performed on tables with the same DHT' : 736
+  'Union may only be performed on tables with the same DHT' : 736,
+  'Application is still in running state' : 737
 };

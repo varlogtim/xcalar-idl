@@ -735,6 +735,7 @@
     "Invalid field type" : 733,
     "System app is disabled" : 734,
     "Union keys must be of the same data type" : 735,
-    "Union may only be performed on tables with the same DHT" : 736
+    "Union may only be performed on tables with the same DHT" : 736,
+    "Application is still in running state" : 737
 }
 
