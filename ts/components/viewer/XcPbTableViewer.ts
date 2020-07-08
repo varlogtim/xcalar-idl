@@ -17,7 +17,7 @@ class XcPbTableViewer extends XcTableViewer {
         return xcHelper.getTableName(tableName);
     }
 
-    public updateToalNumRows(totalRows: number): void {
+    public updateTotalNumRows(totalRows: number): void {
         const displayRows: number = this.rowManager.getTotalRowNum();
         const displayRowsStr: string = xcStringHelper.numToStr(displayRows);
         const totalRowsStr: string = xcStringHelper.numToStr(totalRows);

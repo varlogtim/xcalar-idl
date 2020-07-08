@@ -39,8 +39,9 @@ class SQLTable {
 
     public async showPublishedTable(tableName: string): Promise<void> {
         // XXX TODO: copy the whole behavior of TblSource.ts
-        const tableInfo: PbTblInfo = PTblManager.Instance.getTableByName(tableName);
+        let tableInfo: PbTblInfo = PTblManager.Instance.getTableByName(tableName);
         const resultName: string = await PTblManager.Instance.selectTable(tableInfo, 100);
+        tableInfo = PTblManager.Instance.getTableByName(tableName); // num rows get updated
         let tableId = xcHelper.getTableId(resultName);
         if (!tableId) {
             throw new Error(SQLErrTStr.NoResult);
@@ -61,7 +62,7 @@ class SQLTable {
         gTables[table.getId()] = table;
         const viewer: XcPbTableViewer = new XcPbTableViewer(table, tableName);
         await this._show(viewer);
-        viewer.updateToalNumRows(tableInfo.rows);
+        viewer.updateTotalNumRows(tableInfo.rows);
     }
 
     public getViewer(): XcViewer {
@@ -100,7 +101,7 @@ class SQLTable {
 
         this._show(viewer)
         .then(() => {
-             viewer.updateToalNumRows(table.resultSetCount);
+             viewer.updateTotalNumRows(table.resultSetCount);
             deferred.resolve(viewer);
         })
         .fail(deferred.reject);
