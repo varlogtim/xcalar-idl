@@ -184,7 +184,7 @@ class SQLEditorSpace {
         .on("change", () => {
             this._saveSnippetChange();
             const snippetObj: SQLSnippetDurable = SQLSnippet.Instance.getSnippetObj(this._currentSnippetId);
-            if (snippetObj.temp) {
+            if (snippetObj && snippetObj.temp) {
                 SQLOpPanel.Instance.updateSnippet(this._currentSnippetId);
             }
         });

@@ -204,6 +204,10 @@ class ResourceMenu {
         for (let [appId, html] of map) {
             this._getList(".sqlList", appId).html(html);
         }
+        if (!map.has(null)) {
+            // empty main list if no snipppets
+            this._getList(".sqlList", null).html("");
+        }
     }
 
     private _renderDataflowList(): void {
