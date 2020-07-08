@@ -1,6 +1,6 @@
 /*
-This file defines the state of Advanced mode in XD Func Test
-advancedModeState has the following operations:
+This file defines the state of Dataflow in XD Func Test
+DataflowState has the following operations:
 
 Tab operations
 * CreateTab - creates a new dataflow tab
@@ -42,16 +42,8 @@ Prune node operation
                from all the dataflows
 */
 
-class AdvancedModeState extends State {
-    private dagTabManager: DagTabManager;
-    private dagViewManager: DagViewManager;
-    private currentTab: DagTab;
-    private xdfsArr: Object[];
-    private mode: string;
-    private maxAvgNumOfNodesPerTab: number;
-    private currentWKBKId: string;
-    private optimizedDF: boolean;
-
+class DataflowState extends State {
+    static NAME = "Dataflow";
     static dfExecWhiteList: Set<string> = new Set([
         // "All nodes have been executed"
         DFTStr.AllExecuted,
@@ -59,11 +51,17 @@ class AdvancedModeState extends State {
         DagNodeErrorType.Unconfigured,
         // "Error: Invalid argument"
         "Error: " + StatusTStr[StatusT.StatusInval]
-    ])
+    ]);
+
+    private currentTab: DagTab;
+    private xdfsArr: Object[];
+    private mode: string;
+    private maxAvgNumOfNodesPerTab: number;
+    private currentWKBKId: string;
+    private optimizedDF: boolean;
 
     public constructor(stateMachine: StateMachine, verbosity: string) {
-        let name = "AdvancedMode";
-        super(name, stateMachine, verbosity);
+        super(DataflowState.NAME, stateMachine, verbosity);
 
         //turn off auto execute and auto preview
         UserSettings.Instance.setPref("dfAutoExecute", false, false);
@@ -73,10 +71,6 @@ class AdvancedModeState extends State {
         this.maxAvgNumOfNodesPerTab = 75;
         this.run = 0;
         this.currentWKBKId = WorkbookManager.getActiveWKBK();
-
-        this.dagTabManager = DagTabManager.Instance;
-        this.dagViewManager = DagViewManager.Instance;
-
         this.optimizedDF = false;
     }
 
@@ -120,15 +114,15 @@ class AdvancedModeState extends State {
         if (!this._checkToCreateTab()) {
             return await this.getTab();
         }
-        let newTabId = this.dagTabManager.newTab();
-        this.currentTab = this.dagTabManager.getTabById(newTabId);
+        let newTabId = DagTabManager.Instance.newTab();
+        this.currentTab = DagTabManager.Instance.getTabById(newTabId);
         await this.addTableNode();
         return this;
     }
 
     private async getTab() {
-        this.currentTab = Util.pickRandom(this.dagTabManager.getTabs());
-        this.dagTabManager.switchTab(this.currentTab.getId());
+        this.currentTab = Util.pickRandom(DagTabManager.Instance.getTabs());
+        DagTabManager.Instance.switchTab(this.currentTab.getId());
         return this;
     }
 
@@ -139,7 +133,7 @@ class AdvancedModeState extends State {
         console.log("************* Num tables: " + tableLoaded.length);
         let pTblInfo = Util.pickRandom(tableLoaded);
         const tableName = pTblInfo.name;
-        const tableNode: DagNodeIMDTable = <DagNodeIn>this.dagViewManager.newNode({type:DagNodeType.IMDTable});
+        const tableNode: DagNodeIMDTable = <DagNodeIMDTable>DagViewManager.Instance.newNode({type:DagNodeType.IMDTable});
         const schma: ColSchema[] = pTblInfo.getSchema().map((pTblSchema) => {
             return {
                 name: pTblSchema.name,
@@ -165,7 +159,7 @@ class AdvancedModeState extends State {
         }
         let dfTab, linkOutNode;
         [linkOutNode, dfTab] = Util.pickRandom(dfLinks);
-        const linkInNode: DagNodeIn = <DagNodeIn>this.dagViewManager.newNode({type:DagNodeType.DFIn});
+        const linkInNode: DagNodeIn = <DagNodeIn>DagViewManager.Instance.newNode({type:DagNodeType.DFIn});
         linkInNode.setParam({
             'linkOutName': linkOutNode.getParam().name,
             'dataflowId': dfTab.getId()
@@ -190,7 +184,7 @@ class AdvancedModeState extends State {
             this.log(`No input custom nodes available to add in WKBK ${this.currentWKBKId}`);
             return this.addTableNode();
         }
-        this.dagViewManager.newNode(Util.pickRandom(customNodes));
+        DagViewManager.Instance.newNode(Util.pickRandom(customNodes));
         this.log(`Input custom node added in WKBK ${this.currentWKBKId}`);
         return this;
     }
@@ -203,7 +197,7 @@ class AdvancedModeState extends State {
             this.log(`No custom nodes available to add in WKBK ${this.currentWKBKId}`);
             return this.addTableNode();
         }
-        this.dagViewManager.newNode(Util.pickRandom(customNodes));
+        DagViewManager.Instance.newNode(Util.pickRandom(customNodes));
         this.log(`Custom node added in WKBK ${this.currentWKBKId}`);
         return this;
     }
@@ -248,7 +242,7 @@ class AdvancedModeState extends State {
         let delim = this._getRandomString(1);
         let currCut = 1;
         let evalObjs = [];
-        let randomCol = Util.pickRandom(columns);
+        let randomCol: ProgCol = Util.pickRandom(columns);
         while (currCut <= numOfCuts) {
             evalObjs.push({
                 "evalString":`cut(string(${randomCol.backName}),${currCut},\"${delim}\")`,
@@ -390,7 +384,7 @@ class AdvancedModeState extends State {
             return this;
         }
         let numParents = Math.floor(5 * Util.random()) + 1;
-        let cNode = this.dagViewManager.newNode({type:DagNodeType.SQL});
+        let cNode = DagViewManager.Instance.newNode({type:DagNodeType.SQL});
         const identifiersObj = {};
         const identifiersMap: Map<number, string> = new Map();
         let identifiersOrder = [];
@@ -453,7 +447,7 @@ class AdvancedModeState extends State {
             }
         })
         if (outNodeIds.length != 0) {
-            await this.dagViewManager.getDagViewById(this.currentTab.getId()).removeNodes(outNodeIds);
+            await DagViewManager.Instance.getDagViewById(this.currentTab.getId()).removeNodes(outNodeIds);
         }
     }
 
@@ -493,7 +487,7 @@ class AdvancedModeState extends State {
     // returns Array of (linkoutNode, dataflow) tuples
     private getAllDfLinks() {
         let dfLinks = [];
-        let tabs = this.dagTabManager.getTabs();
+        let tabs = DagTabManager.Instance.getTabs();
         for(let tab of tabs) {
             let linkOutNodes = tab.getGraph().getNodesByType(DagNodeType.DFOut);
             if (linkOutNodes.length == 0) {
@@ -566,7 +560,7 @@ class AdvancedModeState extends State {
         let nestedDepth = Math.floor(5 * Util.random()) + 1;
         while (nestedDepth > 0) {
             //select a xdf
-            let xdf = Util.pickRandom(this.xdfsArr);
+            let xdf: any = Util.pickRandom(this.xdfsArr);
             // use precomputed evalString
             let xdfArgs = [evalString];
             let numArgs = xdf.argDescs.length;
@@ -592,7 +586,7 @@ class AdvancedModeState extends State {
         return evalString;
     }
 
-    private addNode(nodeInfo: DagNodeInfo){
+    private addNode(nodeInfo: DagNodeInfo): [DagNode, ProgCol[]] {
         let graph = this.currentTab.getGraph();
         if (this._onlyOutNode(graph)) {
             return [undefined, undefined];
@@ -607,7 +601,7 @@ class AdvancedModeState extends State {
             pNode = graph.getSortedNodes().slice(-1)[0];
         }
         xcAssert(pNode != null);
-        let cNode = this.dagViewManager.newNode(nodeInfo);
+        let cNode = DagViewManager.Instance.newNode(nodeInfo);
         graph.connect(pNode.getId(), cNode.getId());
         return [cNode, pNode.getLineage().getColumns()];
     }
@@ -619,8 +613,8 @@ class AdvancedModeState extends State {
         } else {
             await this.currentTab.getGraph().execute(null, true);
             // delete the DagTabOptimized tab
-            this.dagTabManager.removeTab(this.dagViewManager.getActiveTab().getId());
-            this.dagTabManager.switchTab(this.currentTab.getId());
+            DagTabManager.Instance.removeTab(DagViewManager.Instance.getActiveTab().getId());
+            DagTabManager.Instance.switchTab(this.currentTab.getId());
             this.optimizedDF = false;
         }
         this.log(`Done running dataflow ${this.currentTab.getName()} in WKBK ${this.currentWKBKId}`);
@@ -629,10 +623,10 @@ class AdvancedModeState extends State {
     // Prunes the nodes in error/not configured state in all the tabs
     private async pruneNodes() {
         this.log(`Prunning errored nodes.. in WKBK ${this.currentWKBKId}`);
-        let tabs = this.dagTabManager.getTabs();
+        let tabs = DagTabManager.Instance.getTabs();
         for(let tab of tabs) {
             this.currentTab = tab;
-            this.dagTabManager.switchTab(tab.getId());
+            DagTabManager.Instance.switchTab(tab.getId());
             // collect all nodes in error/
             let errorNodes = tab.getGraph().filterNode((node, _) => {
                 if(node.state === "Configured" || node.state === "Complete") {
@@ -650,7 +644,7 @@ class AdvancedModeState extends State {
                 nodeToPrune = new Set([...nodeToPrune, ...childSet]);
             }
             let errorNodesIds = [...nodeToPrune].map((node) => node.getId());
-            await this.dagViewManager.getDagViewById(tab.getId()).removeNodes(errorNodesIds);
+            await DagViewManager.Instance.getDagViewById(tab.getId()).removeNodes(errorNodesIds);
         }
         this.log(`Done prunning nodes in WKBK ${this.currentWKBKId}`);
         return this;
@@ -672,11 +666,8 @@ class AdvancedModeState extends State {
         this.log(`Creating custom node from dataflow.. in WKBK ${this.currentWKBKId}`);
         let nodeIds = Array.from(this.currentTab.getGraph().getAllNodes().keys());
         let randN = Math.floor(nodeIds.length * Util.random()) + 1;
-        let randomNodeIds = Util.pickRandom(nodeIds, randN);
-        if (randN == 1) {
-            randomNodeIds = [randomNodeIds];
-        }
-        await this.dagViewManager.wrapCustomOperator(randomNodeIds);
+        let randomNodeIds = Util.pickRandomMulti(nodeIds, randN);
+        await DagViewManager.Instance.wrapCustomOperator(randomNodeIds);
         this.log(`Custom node from dataflow created  in WKBK ${this.currentWKBKId}`);
         return this;
     }
@@ -687,8 +678,8 @@ class AdvancedModeState extends State {
     private async createCustomNode() {
         this.log(`Creating custom node.. in WKBK ${this.currentWKBKId}`);
         let currentTabId = this.currentTab.getId();
-        let newTabId = this.dagTabManager.newTab();
-        this.currentTab = this.dagTabManager.getTabById(newTabId);
+        let newTabId = DagTabManager.Instance.newTab();
+        this.currentTab = DagTabManager.Instance.getTabById(newTabId);
         this.mode = "linear";
 
         //build dataflow
@@ -697,7 +688,7 @@ class AdvancedModeState extends State {
         let ignoreActions = new Set(["createTab", "addLinkInNode", "addTableLinkInNode", "createSQLFunc",
                         "addLinkOutNode", "addOptimizedLinkOutNode", "getTab", "createCustomNode",
                         "addTableNode", "addCustomNode", "addSQLNode"]);
-        let randomAction = this.addTableNode;
+        let randomAction: any = this.addTableNode;
         await randomAction.call(this);
         while (idx < nodesCount) {
             randomAction = Util.pickRandom(this.availableActions);
@@ -708,27 +699,30 @@ class AdvancedModeState extends State {
             idx++;
         }
         // convert to custom node
-        let nodeIds = Array.from(this.dagViewManager.getActiveDag().getAllNodes().keys());
-        await this.dagViewManager.wrapCustomOperator(nodeIds);
+        let nodeIds = Array.from(DagViewManager.Instance.getActiveDag().getAllNodes().keys());
+        await DagViewManager.Instance.wrapCustomOperator(nodeIds);
 
         // share
         let customNodeId = this.currentTab.getGraph().getAllNodes().keys().next().value;
-        this.dagViewManager.shareCustomOperator(customNodeId);
+        DagViewManager.Instance.shareCustomOperator(customNodeId);
 
         //restore
         this.mode = "random";
-        this.dagTabManager.switchTab(currentTabId);
+        DagTabManager.Instance.switchTab(currentTabId);
         DagList.Instance.deleteDataflow(newTabId);
-        this.currentTab = this.dagTabManager.getTabById(currentTabId);
+        this.currentTab = DagTabManager.Instance.getTabById(currentTabId);
         this.log(`Custom node created and shared in WKBK ${this.currentWKBKId}`);
         return this;
     }
 
    private async createSQLFunc() {
        let currentTabId = this.currentTab.getId();
-       let newTabId = this.dagTabManager.newSQLFunc();
-       this.currentTab = this.dagTabManager.getTabById(newTabId);
-       this.mode = "linear"
+       // newSQLFunc will validate the name, so we don't validate here
+       let validFunc = () => true;
+       let randonName = Util.uniqueRandName("fn", validFunc, 1);
+       let newTabId = DagTabManager.Instance.newSQLFunc(randonName);
+       this.currentTab = DagTabManager.Instance.getTabById(newTabId);
+       this.mode = "linear";
 
        const tableLoaded = await PTblManager.Instance.getTablesAsync(true);
        const table: PbTblInfo = Util.pickRandom(tableLoaded);
@@ -775,15 +769,15 @@ class AdvancedModeState extends State {
             outNode.setParam({"schema": schema});
 
             await this.currentTab.save();
-            this.dagViewManager.autoAlign(newTabId);
+            DagViewManager.Instance.autoAlign(newTabId);
         } catch (error) {
             throw error;
         } finally {
-            this.dagTabManager.removeTab(newTabId);
+            DagTabManager.Instance.removeTab(newTabId);
             // restore
             this.mode = "random";
-            this.dagTabManager.switchTab(currentTabId);
-            this.currentTab = this.dagTabManager.getTabById(currentTabId);
+            DagTabManager.Instance.switchTab(currentTabId);
+            this.currentTab = DagTabManager.Instance.getTabById(currentTabId);
             return this;
         }
     }
@@ -791,7 +785,7 @@ class AdvancedModeState extends State {
     // Checks to see if average nodes per dataflow exceeded constant maxAvgNumOfNodesPerTab
     // If true, will create another dataflow.
     private _checkToCreateTab() {
-        let tabs = this.dagTabManager.getTabs();
+        let tabs = DagTabManager.Instance.getTabs();
         if (tabs.length == 0) {
             return true;
         }
@@ -827,7 +821,7 @@ class AdvancedModeState extends State {
         } else {
             errorMsg = error;
         }
-        return AdvancedModeState.dfExecWhiteList.has(errorMsg);
+        return DataflowState.dfExecWhiteList.has(errorMsg);
     }
 
     public async takeOneAction() {
@@ -843,7 +837,7 @@ class AdvancedModeState extends State {
         }
         await this.currentTab.save();
         try {
-            this.dagViewManager.autoAlign(this.currentTab.getId());
+            DagViewManager.Instance.autoAlign(this.currentTab.getId());
         } catch (error) {
             // It's ok to ignore the autoAlign render error
             this.log(`Dag View Render Error:`);
@@ -858,7 +852,7 @@ class AdvancedModeState extends State {
                 delete error.node;
             }
             this.logError(error);
-            // XXX added back by https://gerrit.int.xcalar.com/#/c/17864/9/assets/dev/funcTests/states/AdvancedModeState.ts
+            // XXX added back by https://gerrit.int.xcalar.com/#/c/17864/9/assets/dev/funcTests/states/DataflowState.ts
             // please remove if this is wrong
             if (! this._validDFExecuteError(error)) {
                 throw error;

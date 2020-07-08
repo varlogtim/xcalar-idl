@@ -1,7 +1,7 @@
 
 abstract class State {
-    public name: string; // How many iterations ran in this state currently
-    public run: number;
+    public name: string;
+    public run: number; // How many iterations ran in this state currently
     protected stateMachine: StateMachine;
     protected verbosity: string;
     protected availableActions: Function[];

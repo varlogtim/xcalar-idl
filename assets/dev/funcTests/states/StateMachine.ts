@@ -1,15 +1,13 @@
 class StateMachine {
+    public statesMap: Map<string, State>;
     private iterations: number;
-    private verbosity: string;
     private test: any;
-    private statesMap: Map<string, State>;
     private stateName: string;
     private currentState: State;
 
     constructor(verbosity, iterations, test) {
         //Retrieve the iterations from KVStore if it's being set
         this.iterations = iterations;
-        this.verbosity = verbosity;
         this.test = test;
 
         //Instantiate workbook states here
@@ -17,10 +15,10 @@ class StateMachine {
         this.statesMap.set("Workbook", new WorkbookState(this, verbosity));
 
         this.stateName = xcSessionStorage.getItem('xdFuncTestStateName') || "Workbook";
-        // Only instantiate a AdvancedMode/SQLMode state when we're inside a active workbook
+        // Only instantiate a Dataflow/SQL state when we're inside a active workbook
         if (this.stateName != "Workbook") {
-            this.statesMap.set("AdvancedMode", new AdvancedModeState(this, verbosity));
-            this.statesMap.set("SQLMode", new SQLState(this, verbosity));
+            this.statesMap.set(DataflowState.NAME, new DataflowState(this, verbosity));
+            this.statesMap.set(SQLState.NAME, new SQLState(this, verbosity));
         } else {
             $("#projectTab").click(); // Go back to the workbook panel;
         }
@@ -36,8 +34,8 @@ class StateMachine {
         $("#notebookScreenBtn").click();
         await this.prepareData();
         let maxRun = new Map();
-        maxRun.set("SQLMode", Util.getRandomInt(40) + 20);
-        maxRun.set("AdvancedMode", Util.getRandomInt(60) + 30);
+        maxRun.set(SQLState.NAME, Util.getRandomInt(40) + 20);
+        maxRun.set(DataflowState.NAME, Util.getRandomInt(60) + 30);
         while (this.iterations > 0) {
             let currentRun = parseInt(xcSessionStorage.getItem('xdFuncTestIterations'));
             let totalRun = parseInt(xcSessionStorage.getItem('xdFuncTestTotalRun'));

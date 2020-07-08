@@ -1,5 +1,5 @@
 /*
-This file defines the state of SQL mode in XD Func Test
+This file defines the state of SQL in XD Func Test
 SQLState has the following operations:
 
 * createSnippet
@@ -13,11 +13,12 @@ table (We only publish relatively small tables --> with row nums in (0, 500])
 
 */
 class SQLState extends State {
+    static NAME = "SQL";
+
     private currentWKBKId: string;
 
     public constructor(stateMachine: StateMachine, verbosity: string) {
-        let name = "SQLMode";
-        super(name, stateMachine, verbosity);
+        super(SQLState.NAME, stateMachine, verbosity);
 
         //turn off auto execute and auto preview for dataflow
         UserSettings.Instance.setPref("dfAutoExecute", false, false);

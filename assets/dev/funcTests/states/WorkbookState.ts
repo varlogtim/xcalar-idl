@@ -62,12 +62,12 @@ class WorkbookState extends State {
     }
     /* -------------------------------Helper Function------------------------------- */
 
-    private async activateWorkbook(): Promise<WorkbookState> {
+    private async activateWorkbook(): Promise<State> {
         let randomWorkbook = this.getRandomWorkbook();
         this.log(`Activating workbook ${randomWorkbook}`);
         this.currentWorkbook = randomWorkbook;
         try {
-            xcSessionStorage.setItem('xdFuncTestStateName', Util.pickRandom(['AdvancedMode', 'SQLMode']));
+            xcSessionStorage.setItem('xdFuncTestStateName', Util.pickRandom([DataflowState.NAME, SQLState.NAME]));
             await WorkbookManager.switchWKBK(randomWorkbook);
         } catch (error) {
             if (error["error"] != undefined && error["error"] === "Cannot switch to the same project") {
