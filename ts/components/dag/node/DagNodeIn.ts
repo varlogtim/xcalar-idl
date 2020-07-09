@@ -81,19 +81,6 @@ abstract class DagNodeIn extends DagNode {
         return this.headName;
     }
 
-    public isFirstHead(): boolean {
-        let node: DagNode = <DagNode>this;
-        let children = node.getChildren();
-        while (children.length) {
-            if (children[0].getParents()[0] !== node) {
-                return false;
-            }
-            node = children[0];
-            children = node.getChildren();
-        }
-        return true;
-    }
-
     protected _getSerializeInfo(includeStats?: boolean):DagNodeInInfo {
         const serializedInfo: DagNodeInInfo = <DagNodeInInfo>super._getSerializeInfo(includeStats);
         serializedInfo.schema = this.schema; // should save the schema directly, should not call getSchema

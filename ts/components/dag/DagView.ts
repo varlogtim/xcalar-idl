@@ -1435,6 +1435,7 @@ class DagView {
             // call this after resolving node conflicts so we don't reset the
             // original nodes' tables
             this.graph.checkNodesState(nodesMap);
+            this.graph.updateHeads();
 
             Log.add(SQLTStr.PasteOperations, {
                 "operation": SQLOps.PasteOperations,

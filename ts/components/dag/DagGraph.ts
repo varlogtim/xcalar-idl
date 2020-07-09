@@ -724,9 +724,7 @@ class DagGraph extends Durable {
                     },
                     tabId: this.parentTabId
                 });
-                if (childNode.getMaxParents() !== 1) {
-                    this._updateHeads();
-                }
+                this._updateHeads();
             }
             return true;
         } catch (e) {
@@ -789,9 +787,7 @@ class DagGraph extends Durable {
                 },
                 tabId: this.parentTabId
             });
-            if (childNode.getMaxParents() !== 1) {
-                this._updateHeads();
-            }
+            this._updateHeads();
         }
         return wasSpliced;
     }
@@ -2974,19 +2970,25 @@ class DagGraph extends Durable {
         headers: DagNodeIn[],
         notHeaders: DagNodeIn[]
     } {
-        const notHeaders: DagNodeIn[] = [];
+        let notHeaders: DagNodeIn[] = [];
         const headers: DagNodeIn[] = [];
-        // 1. get all in nodes
-        for (let node of this.nodesMap.values()) {
-            if (node instanceof DagNodeIn) {
-                // 2. filter out nod that are not headers
-                if (node.isFirstHead()) {
-                    headers.push(node);
-                } else {
-                    notHeaders.push(node);
+        // 1. get all in disjoint graph
+        const groups: Set<Set<DagNode>> = this.getDisjointGraphs();
+        groups.forEach((nodeSet) => {
+            let inNodes: DagNodeIn[] = [];
+            // 2. for each disjoin graph, find the in nodes
+            nodeSet.forEach((node) => {
+                if (node instanceof DagNodeIn) {
+                    inNodes.push(node);
                 }
+            });
+            if (inNodes.length) {
+                // 3. sort node by coordinate and pick first 1 as header
+                inNodes = this._sortInNodeByHeadAndCoordinate(inNodes);
+                headers.push(inNodes[0]);
+                notHeaders = notHeaders.concat(inNodes.slice(1));
             }
-        }
+        });
 
         // 3. remove not headers if it's in cache
         notHeaders.forEach((node) => {
@@ -3008,6 +3010,34 @@ class DagGraph extends Durable {
             headers,
             notHeaders
         }
+    }
+
+    private _sortInNodeByHeadAndCoordinate(inNodes: DagNodeIn[]): DagNodeIn[] {
+        inNodes.sort((nodeA, nodeB) => {
+            const headA = nodeA.getHead();
+            const headB = nodeB.getHead();
+            const positionA = nodeA.getPosition();
+            const positionB = nodeB.getPosition();
+            if (headA != null && headB == null) {
+                return -1; //headA come first
+            }
+            if (headA == null && headB != null) {
+                return 1; // headB come first
+            }
+            // compare y position first them compare x
+            if (positionA.y > positionB.y) {
+                return 1;
+            } else if (positionA.y < positionB.y) {
+                return -1;
+            } else if (positionA.x > positionB.x) {
+                return 1;
+            } else if (positionA.x < positionB.x) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+        return inNodes;
     }
 
     private _getHeadName(head: string): string {
@@ -3037,6 +3067,10 @@ class DagGraph extends Durable {
             tabId: this.parentTabId,
             nodes
         });
+    }
+
+    public updateHeads(): void {
+        return this._updateHeads();
     }
 }
 
