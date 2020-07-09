@@ -2914,6 +2914,10 @@ class DagView {
         return this.$dfArea.hasClass("viewOnly");
     }
 
+    public isProgressGraph(): boolean {
+        return this.$dfArea.hasClass("progressGraph");
+    }
+
     public isLocked(): boolean {
         return this.$dfArea.hasClass("locked");
     }

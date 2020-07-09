@@ -282,11 +282,9 @@ class DagViewManager {
         return deferred.promise();
     }
 
-    public addDataflowHTML($container: JQuery, tabId: string, isViewOnly?: boolean, isProgressGraph?: boolean,
-    isStatsGraph?: boolean) {
+    public addDataflowHTML($container: JQuery, tabId: string, isViewOnly?: boolean, isProgressGraph?: boolean) {
         $container.append(
-            '<div class="dataflowArea ' +  (isViewOnly? 'viewOnly': '') + ' ' +
-                (isStatsGraph ? ' statsGraph ' : '') +
+            '<div class="dataflowArea ' + (isViewOnly? 'viewOnly': '') + ' ' +
                 (isProgressGraph? 'progressGraph': '') + '" data-id="' +tabId + '">\
                 <div class="dataflowAreaWrapper">\
                     <div class="commentArea"></div>\

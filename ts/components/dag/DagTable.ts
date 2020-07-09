@@ -181,7 +181,7 @@ class DagTable {
                 table = this.getTable();
             }
             const options: DropdownOptions = {
-                classes: "tableMenu",
+                classes: "tableMenu " + (isSqlTable ? "fromSQL" : ""),
                 offsetY: 3,
                 tableId: xcHelper.getTableId(table)
             };

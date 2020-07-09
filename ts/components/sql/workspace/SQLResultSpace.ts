@@ -109,6 +109,7 @@ class SQLResultSpace {
         callback?: Function
     ): void {
         DagTable.Instance.close();
+        this._sqlTable.close();
         this._sqlTable.show(table, columns, callback);
     }
 

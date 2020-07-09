@@ -11,7 +11,6 @@ interface MenuHelperOptions {
     onOpen?: Function;
     onClose?: Function;
 }
-
 interface MenuHelperTimer {
     fadeIn: number,
     fadeOut: number,
@@ -932,21 +931,23 @@ class MenuHelper {
                 }
             }
         }
-
+        let tabId = DagTable.Instance.getBindTabId();
+        let tab;
+        if (tabId) {
+            tab = DagTabManager.Instance.getTabById(tabId);
+        }
         const filterTypes: string[] = [ColumnType.string, ColumnType.float,
                 ColumnType.integer, ColumnType.boolean, ColumnType.timestamp,
                 ColumnType.money, ColumnType.mixed];
         const node: DagNode = DagTable.Instance.getBindNode();
         let noFilterReason: string = null;
-        if (!noFilterReason && $("#container").hasClass('columnPicker')) {
+        if (!noFilterReason && FormHelper.activeForm) {
             noFilterReason = "Cannot filter or exclude when form is open.";
         }
         if (!noFilterReason && (node != null && node.getMaxChildren() === 0)) {
             noFilterReason = "Cannot filter or exclude values on terminal nodes.";
         }
-        if (!noFilterReason && DagViewManager.Instance.getActiveDagView() &&
-            DagViewManager.Instance.getActiveDagView().isViewOnly() &&
-            !options.classes.includes("fromSQL")) {
+        if (!noFilterReason && tab instanceof DagTabProgress) {
             noFilterReason = "Table is view only.";
         }
         if (!noFilterReason && options.isMultiCol) {

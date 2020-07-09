@@ -28,7 +28,7 @@ class ColMenu extends AbstractMenu {
         $lis.removeClass("xc-hidden");
         xcTooltip.remove($lis);
         // hide most menu options if published tab, terminal node, or view only
-        if (this._isViewOnlyTab(node)) {
+        if (this._isProgressTab(node) || node.isHidden()) {
             // when it's out node or published tab
             $lis.addClass("xc-hidden");
         }

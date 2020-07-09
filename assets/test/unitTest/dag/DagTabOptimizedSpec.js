@@ -17,6 +17,14 @@ describe('DagTabOptimized Test', function() {
                 return PromiseHelper.resolve();
             };
             UnitTest.onMinMode();
+            cachedUserPref = UserSettings.Instance.getPref.bind(UserSettings.Instance);
+            UserSettings.Instance.getPref = function(val) {
+                if (val === "dfAutoExecute" || val === "dfAutoPreview") {
+                    return false;
+                } else {
+                    return cachedUserPref(val);
+                }
+            };
             var dagTabManager = DagTabManager.Instance;
             let newTabId = dagTabManager.newTab();
             return UnitTest.testFinish(() => {
@@ -577,6 +585,7 @@ describe('DagTabOptimized Test', function() {
             })
             .then(function() {
                 expect(queryStateCalled).to.be.false;
+                XcalarQueryState = cachedQueryStateFn;
                 done();
             })
             .fail(function() {
@@ -673,6 +682,10 @@ describe('DagTabOptimized Test', function() {
                 return PromiseHelper.resolve();
             };
 
+            const cachedSweep = DagTblManager.Instance.forceDeleteSweep;
+            DagTblManager.Instance.forceDeleteSweep = () => {
+                return PromiseHelper.resolve();
+            };
 
             expect(tab._isDoneExecuting).to.be.false;
             expect(tab._isFocused).to.be.true;
@@ -687,6 +700,7 @@ describe('DagTabOptimized Test', function() {
                 expect(tab._isDeleted).to.be.true;
                 expect(tab._queryCheckId).to.equal(2);
                 XcalarDeleteRetina = cacheFn;
+                DagTblManager.Instance.forceDeleteSweep = cachedSweep;
                 done();
             })
             .fail(function() {

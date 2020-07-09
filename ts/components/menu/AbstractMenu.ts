@@ -46,10 +46,10 @@ abstract class AbstractMenu {
         return event.which !== 1 || $(event.currentTarget).hasClass('unavailable');
     }
 
-    protected _isViewOnlyTab(node: DagNode): boolean {
+    protected _isProgressTab(node: DagNode): boolean {
         const tabId = this._getTabId();
         const dagView = DagViewManager.Instance.getDagViewById(tabId);
-        if (node.getMaxChildren() === 0 || (dagView && dagView.isViewOnly())
+        if (node.getMaxChildren() === 0 || (dagView && dagView.isProgressGraph())
         ) {
             return true;
         } else {
@@ -176,14 +176,14 @@ abstract class AbstractMenu {
     }
 
     // being used by column menu to create dataflow nodes
-    private _restoreDataflow2(sql: string): XDPromise<DagNode[]> {
+    private _restoreDataflow(sql: string): XDPromise<DagNode[]> {
         try {
             const deferred: XDDeferred<DagNode[]> = PromiseHelper.deferred();
             SQLUtil.getSQLStruct(sql)
             .then((sqlStruct) => {
                 try {
                     let executor = new SQLDagExecutor(sqlStruct);
-                    return executor.restoreDataflow2();
+                    return executor.restoreDataflow();
                 } catch (e) {
                     return PromiseHelper.reject(e.message);
                 }
@@ -222,7 +222,7 @@ abstract class AbstractMenu {
             }
 
             if (sqlString) {
-                this._restoreDataflow2(sqlString)
+                this._restoreDataflow(sqlString)
                 .then((newNodes) => {
                     if (DagTabManager.Instance.getNumTabs() === 0) {
                         DagTabManager.Instance.newTab();

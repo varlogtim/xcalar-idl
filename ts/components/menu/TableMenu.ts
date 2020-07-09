@@ -17,8 +17,8 @@ class TableMenu extends AbstractMenu {
             }
             const node: DagNode = DagTable.Instance.getBindNode();
             let $lis: JQuery = $menu.find(".exportTable, .multiCast, .advancedOptions");
-            if (node == null || this._isViewOnlyTab(node)) {
-                // when it's publish tab or it's dest node
+            if (node == null || this._isProgressTab(node) || node.isHidden()) {
+                // when it's progress tab or it's dest node
                 $lis.addClass("xc-hidden");
             } else {
                 $lis.removeClass("xc-hidden");
@@ -160,14 +160,23 @@ class TableMenu extends AbstractMenu {
             this._copyToClipboard(allColNames, true);
         });
 
-        $tableMenu.on('mouseup', '.multiCast', (event) => {
+        $tableMenu.on('mouseup', '.multiCast', async (event) => {
             if (this._isInvalidTrigger(event)) {
                 return;
             }
             const tableId: TableId = $tableMenu.data('tableId');
-            this._createNodeAndShowForm(DagNodeType.Map, tableId, {
-                subType: DagNodeSubType.Cast
-            });
+            if ($tableMenu.hasClass("fromSQL")) {
+                this._createFromSQLTable((newNodes, parentNodeId) => {
+                    this._createNodeAndShowForm(DagNodeType.Map, tableId, {
+                        subType: DagNodeSubType.Cast,
+                        parentNodeId: parentNodeId
+                    });
+                });
+            } else {
+                this._createNodeAndShowForm(DagNodeType.Map, tableId, {
+                    subType: DagNodeSubType.Cast
+                });
+            }
         });
 
         $tableMenu.on('mouseup', '.corrAgg', (event) => {

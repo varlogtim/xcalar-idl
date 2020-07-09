@@ -293,21 +293,8 @@ class SQLDagExecutor {
         return deferred.promise();
     }
 
-    public restoreDataflow(): XDPromise<string> {
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        let tabId: string = this._tempTab.getId();
-
-        this._configureSQLNode(true)
-        .then(() => {
-            deferred.resolve(tabId, this._tempTab);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
    // being used by column menu to create dataflow nodes
-    public restoreDataflow2(): XDPromise<DagNode[]> {
+    public restoreDataflow(): XDPromise<DagNode[]> {
         const deferred: XDDeferred<DagNode[]> = PromiseHelper.deferred();
 
         this._configureSQLNode(true, true)

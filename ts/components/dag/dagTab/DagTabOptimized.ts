@@ -219,6 +219,7 @@ class DagTabOptimized extends DagTabProgress {
         .then(() => {
             let tableName: string = DagTabOptimized.getOutputTableName(retinaName);
             DagUtil.deleteTable(tableName);
+            return PromiseHelper.alwaysResolve(DagTblManager.Instance.forceDeleteSweep());
         })
         .then(deferred.resolve)
         .fail((error) => {
