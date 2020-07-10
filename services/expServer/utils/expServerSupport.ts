@@ -73,6 +73,7 @@ class ExpServerSupport {
         interactive: 1800000,
         api: 7200000,
         sql: 7200000,
+        xshell: 14400000,
         test: 30000
     };
     readonly defaultSessionAge: string = 'interactive';

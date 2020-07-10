@@ -57,7 +57,8 @@ charset = os.getenv('XCE_LOGIN_CHARSET', 'utf-8')
 post_data = None
 try:
     post_data = {"xiusername": uservar_bytes.decode(charset),
-                 "xipassword": passvar_bytes.decode(charset)}
+                 "xipassword": passvar_bytes.decode(charset),
+                 "sessionType": "xshell"}
 except Exception as e:
     print("pre-auth json conversion failed: {}".format(e))
     sys.exit(1)
