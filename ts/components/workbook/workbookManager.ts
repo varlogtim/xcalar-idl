@@ -539,7 +539,21 @@ namespace WorkbookManager {
             $bg.show();
         }, 1000);
 
-        XcalarDownloadWorkbook(workbookName, "")
+        // XXX TODO: We should deal with load udfs in api layer,
+        // so that we don't have to dupe. this code in
+        // 1. Download project
+        // 2. Download App
+        // 3. Download Module
+        // 4. Python SDK
+        // Eventually this will be moved into expServer and be a part of a new "download" api
+        let cleanupIntUDFs = async () => {};
+        PromiseHelper.convertToJQuery(copyLoadUDFsToWB(workbookName))
+        .then((cleanupFunc) => {
+            cleanupIntUDFs = cleanupFunc;
+        })
+        .then(function() {
+            return XcalarDownloadWorkbook(workbookName, "");
+        })
         .then(function(file) {
             xcHelper.downloadAsFile(workbookName + ".xlrwb.tar.gz", file.sessionContent, "application/gzip");
             deferred.resolve();
@@ -550,6 +564,7 @@ namespace WorkbookManager {
         .always(() => {
             clearTimeout(timer);
             $bg.hide();
+            cleanupIntUDFs();
         });
 
         return deferred.promise();
@@ -1169,7 +1184,7 @@ namespace WorkbookManager {
                 if (activeWkbk && activeWkbk === info.triggerWkbk) {
                     $("#mainTopBar .wkbkName").text(info.newName);
                     const newWKBKId: string = getWKBKId(info.newName);
-                    resetActiveWKBK(newWKBKId);                
+                    resetActiveWKBK(newWKBKId);
                 }
                 WorkbookPanel.updateWorkbooks(info);
                 WorkbookInfoModal.update(info);
@@ -1480,6 +1495,137 @@ namespace WorkbookManager {
         clearTimeout(progressTimeout);
         progressTimeout += "canceled";
         $("#initialLoadScreen").removeClass("sessionProgress");
+    }
+
+    async function copyUDFsToWorkbook(udfs: Map<string, string>, workbookName: string): Promise<Array<() => Promise<void>>> {
+        const cleanupTasks: Array<() => Promise<void>> = [];
+
+        if (udfs.size === 0) {
+            return cleanupTasks;
+        }
+
+        const copyUDF = async (udfPath: string, moduleName: string): Promise<() => Promise<void>> => {
+            // Get UDF content
+            const udfStr: string = await XIApi.callApiInSession(
+                workbookName,
+                () => XcalarDownloadPython(udfPath)
+            );
+            if (udfStr == null) {
+                // Nothing to cleanup
+                return async () => {};
+            }
+
+            // Upload to workbook
+            await XIApi.callApiInSession(
+                workbookName,
+                () => XcalarUploadPython(moduleName, udfStr)
+            );
+
+            // Cleanup function: delete the udf from workbook
+            return () => XIApi.callApiInSession(
+                workbookName,
+                () => XcalarDeletePython(moduleName, false)
+            );
+        };
+
+        try {
+            for (const [moduleName, udfPath] of udfs) {
+                const cleanupTask = await copyUDF(udfPath, moduleName);
+                cleanupTasks.push(cleanupTask);
+            }
+        } catch(e) {
+            console.error('WorkbookManager.copyUDFsToWorkbook error: ', e);
+            // Cleanup
+            for (const cleanupTask of cleanupTasks) {
+                try {
+                    await cleanupTask();
+                } catch(_) {
+                    // Ignore errors
+                }
+            }
+            // Throw error to notify caller
+            throw e;
+        }
+
+        return cleanupTasks;
+    }
+
+    async function filterSharedUDFs(udfNames: Set<string>, workbookName: string): Promise<Map<string, string>> {
+        const sharedUDFPrefix = xcHelper.constructUDFSharedPrefix();
+
+        const sharedUDFs: Map<string, string> = new Map();
+        for (const moduleName of udfNames) {
+            try {
+                const udfPath: string = await XIApi.callApiInSession(
+                    workbookName,
+                    () => XcalarUdfGetRes(XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeSession, moduleName)
+                );
+                if (udfPath.indexOf(sharedUDFPrefix) === 0) {
+                    sharedUDFs.set(moduleName, udfPath);
+                }
+            } catch(e) {
+                // There might happen when an invalid udf(ex. wrong module name) is used in a dag node
+                // We just ignore bad guys, because it's user's responsibility to fix it
+                console.error('WorkbookManager.filterSharedUDFs: ', e);
+            }
+        }
+
+        return sharedUDFs;
+    }
+
+    async function copyLoadUDFsToWB(workbookName: string): Promise<() => Promise<void>> {
+        // Activate seesion first
+        try {
+            await PromiseHelper.convertToNative(XcalarActivateWorkbook(workbookName))
+        } catch(_) {
+            // Ignore errors
+        }
+
+        // Read dag(graph) list
+        const dagList = await XIApi.callApiInSession(
+            workbookName,
+            () => DagList.Instance.listUserDagAsync()
+        );
+
+        // Find out load UDFs
+        const loadUDFs: Set<string> = new Set();
+        for (const {id, type} of dagList.dags) {
+            if (type != DagTabType.User) {
+                continue;
+            }
+
+            // Read dag from kvstore
+            const dagStore = new KVStore(id, gKVScope.WKBK);
+            const dagJson = await XIApi.callApiInSession(
+                workbookName,
+                () => dagStore.getAndParse()
+            );
+
+            // Construct graph & get load udf path
+            const graph = new DagGraph();
+            graph.create(dagJson.dag);
+            for (const moduleName of graph.getUsedLoaderUDFModules()) {
+                loadUDFs.add(moduleName);
+            }
+        }
+        console.log(loadUDFs);
+
+        // Find out all the shared load UDFs
+        const sharedLoadUDFs = await filterSharedUDFs(loadUDFs, workbookName);
+
+        // copy udfs to workkbook
+        const cleanupUDFs = await copyUDFsToWorkbook(sharedLoadUDFs, workbookName);
+
+        // Return a function that will do the cleanup job
+        return async () => {
+            for (const task of cleanupUDFs) {
+                try {
+                    await task();
+                } catch(_) {
+                    // Ignore errors
+                }
+            }
+        };
     }
 
     /* Unit Test Only */

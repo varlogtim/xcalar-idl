@@ -189,8 +189,6 @@ class DagNodeIMDTable extends DagNodeIn {
                 this._getUDFFromParseArgs(loadArgs.parseArgs, set);
             }
         });
-        console.log("getUsedLoaderUDFModules(): return set: " +
-                    JSON.stringify(set, undefined, 4));
         return set;
     }
 

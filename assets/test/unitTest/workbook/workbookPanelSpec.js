@@ -293,6 +293,7 @@ describe("WorkbookPanel Test", function() {
             oldXcalarPut = XcalarKeyPut;
             oldXcalarDelete = XcalarKeyDelete;
             oldRename = WorkbookManager.renameWKBK;
+            oldDownload = WorkbookManager.downloadWKBK;
             oldXcalarDownloadWorkbook = XcalarDownloadWorkbook;
             oldDownloadAsFile = xcHelper.downloadAsFile;
 
@@ -426,14 +427,10 @@ describe("WorkbookPanel Test", function() {
             var testWKBKName = $box.find(".workbookName").text();
             var called = false;
 
-            XcalarDownloadWorkbook = function(name) {
-                expect(name).to.equal(testWKBKName);
+            WorkbookManager.downloadWKBK = function(workbookName) {
+                expect(workbookName).to.equal(testWKBKName);
                 called = true;
-                return PromiseHelper.resolve("");
-            };
-
-            xcHelper.downloadAsFile = function() {
-                return;
+                return PromiseHelper.resolve();
             }
 
             $box.find(".dropDown").click();
@@ -797,6 +794,7 @@ describe("WorkbookPanel Test", function() {
             XcalarListWorkbooks = oldWkbkList;
             XcalarDeleteWorkbook = oldWkbkDelete;
             WorkbookManager.renameWKBK = oldRename;
+            WorkbookManager.downloadWKBK = oldDownload;
 
             XcalarDownloadWorkbook = oldXcalarDownloadWorkbook;
             xcHelper.downloadAsFile = oldDownloadAsFile;

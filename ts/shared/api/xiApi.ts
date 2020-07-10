@@ -2528,6 +2528,8 @@ namespace XIApi {
         try {
             await XcalarExecuteRetina(queryName, retinaParams, {
                 activeSession: true,
+                udfUserName: udfUserName,
+                udfSessionName: udfSessionName,
                 newTableName: tableName
             }, txId);
         } finally {
@@ -2538,6 +2540,31 @@ namespace XIApi {
                 // Don't fail in minor error
             }
         }
+    }
+
+    /**
+     * XIApi.callApiInSession
+     * @param callSession
+     * @param func
+     */
+    export function callApiInSession<T>(callSession: string, func: () => XDPromise<T>): Promise<T> {
+        const restoreSession = _switchSession(callSession);
+        try {
+            const result = PromiseHelper.convertToNative(func());
+            return result;
+        } finally {
+            restoreSession();
+        }
+    }
+
+    function _switchSession(callSession: string) {
+        const currentSession = sessionName;
+        setSessionName(callSession);
+
+        // Return a restore function
+        return () => {
+            setSessionName(currentSession);
+        };
     }
 
     function _handleQueryFail(res) {
