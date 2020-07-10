@@ -14,7 +14,7 @@ const Texts = {
     stoppingDiscoverAll: 'Stopping',
     advancedOptions: 'Configuration',
     optionSchema: 'Schema Comparison Algorithm:',
-    optionRateLimit: 'Discover Rate Limiting:',
+    optionErrorRetry: 'Retry Discovery On Error:',
     navButtonLeft: 'Browse',
     navButtonRight: 'Create Table',
     CreateTableHint: 'Please discover schema first',
@@ -130,7 +130,7 @@ class DiscoverSchemas extends React.Component {
         const {
             inputSerialization,
             schemaPolicy,
-            rateLimit,
+            errorRetry,
             isLoading,
             progress,
             discoverFilesProps,
@@ -138,7 +138,7 @@ class DiscoverSchemas extends React.Component {
             onCancelDiscoverAll,
             onInputSerialChange,
             onSchemaPolicyChange,
-            onRateLimitChange,
+            onErrorRetryChange,
             onShowSchema,
         } = this.props;
 
@@ -168,8 +168,8 @@ class DiscoverSchemas extends React.Component {
                 <div className="header">{Texts.discoverTitle}</div>
                     <AdvOption.Container>
                         <AdvOption.OptionGroup>
-                            <AdvOptionCheckbox classNames={['fullRow']} checked={rateLimit} onChange={onRateLimitChange}>
-                                {Texts.optionRateLimit}
+                            <AdvOptionCheckbox classNames={['fullRow']} checked={errorRetry} onChange={onErrorRetryChange}>
+                                {Texts.optionErrorRetry}
                             </AdvOptionCheckbox>
                             <AdvOption.Option classNames={['fullRow']}>
                                 <AdvOption.OptionLabel>{Texts.optionSchema}</AdvOption.OptionLabel>

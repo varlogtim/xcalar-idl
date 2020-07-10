@@ -98,7 +98,7 @@ class LoadConfig extends React.Component {
             discoverProgress: 0,
             discoverCancelBatch: null, // () => {} Dynamic cancel function set by discoverAll
             discoverSchemaPolicy: SchemaService.MergePolicy.EXACT,
-            discoverRateLimit: true,
+            discoverErrorRetry: true,
             inputSerialization: SchemaService.defaultInputSerialization.get(defaultFileType),
             // XXX TODO: remove the following states
             discoverFiles: new Map(), // Map<fileId, { fileId, fullPath, direcotry ... }
@@ -611,7 +611,7 @@ class LoadConfig extends React.Component {
                 fileType,
                 inputSerialization,
                 selectedFileDir,
-                discoverRateLimit
+                discoverErrorRetry
             } = this.state;
 
             const { path: selectedPath, filePattern, isRecursive } = this._extractPathInfo(selectedFileDir[0], fileType);
@@ -620,7 +620,7 @@ class LoadConfig extends React.Component {
                 filePattern: filePattern,
                 inputSerialization: inputSerialization,
                 isRecursive: isRecursive,
-                isRateLimit: discoverRateLimit
+                isErrorRetry: discoverErrorRetry
             });
 
             this._resetDiscoverResult();
@@ -921,9 +921,9 @@ class LoadConfig extends React.Component {
         });
     }
 
-    _setRateLimit(isLimit) {
+    _setErrorRetry(isErrorRetry) {
         this.setState({
-            discoverRateLimit: isLimit
+            discoverErrorRetry: isErrorRetry
         });
     }
 
@@ -1054,7 +1054,7 @@ class LoadConfig extends React.Component {
                             showDiscover ? <DiscoverSchemas
                                 inputSerialization={this.state.inputSerialization}
                                 schemaPolicy={this.state.discoverSchemaPolicy}
-                                rateLimit={this.state.discoverRateLimit}
+                                errorRetry={this.state.discoverErrorRetry}
                                 isLoading={discoverIsRunning}
                                 progress={discoverProgress}
                                 discoverFilesProps={{
@@ -1065,7 +1065,7 @@ class LoadConfig extends React.Component {
                                 onCancelDiscoverAll={discoverCancelBatch}
                                 onInputSerialChange={(newConfig) => { this._setInputSerialization(newConfig); }}
                                 onSchemaPolicyChange={(newPolicy) => { this._setSchemaPolicy(newPolicy); }}
-                                onRateLimitChange={(isLimit) => { this._setRateLimit(isLimit); }}
+                                onErrorRetryChange={(isRetry) => { this._setErrorRetry(isRetry); }}
                                 onShowSchema={(schema) => { this.setState((state) => ({
                                     schemaDetailState: {
                                         isLoading: false,
