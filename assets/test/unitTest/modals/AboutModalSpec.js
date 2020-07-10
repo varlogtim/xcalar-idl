@@ -17,14 +17,6 @@ describe("AboutModal Test", function() {
         expect($modal.find(".buildNumber").text()).not.to.equal("");
     });
 
-    it("should not show license section in cloud deployment", function() {
-        var oldIsDataMart = XVM.isDataMart;
-        XVM.isDataMart = () => true;
-        AboutModal.Instance.show();
-        expect($modal.find(".expiration").text()).to.equal("");
-        XVM.isDataMart = oldIsDataMart
-    });
-
     it("Should clean the modal", function() {
         var $modal = $("#aboutModal");
         $modal.find(".close").click();

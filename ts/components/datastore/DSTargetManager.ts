@@ -434,10 +434,6 @@ namespace DSTargetManager {
 
      // a private s3 connector
      async function createPrivateS3Connector(): Promise<boolean> {
-        if (XVM.isDataMart()) {
-            // data mart don't need to have it
-            return false;
-        }
         const connectorName: string = xcalar_private_s3;
         if (targetSet[connectorName] != null) {
             return false;
@@ -625,17 +621,8 @@ namespace DSTargetManager {
     }
 
     function isAccessibleTarget(targetType: string): boolean {
-        return true;
         // if change this to XVM.isDataMart, it will make default shared root not accessible
         return !XVM.isDataMart() || !cloudTargetBlackList.includes(targetType);
-    }
-
-    function isWhiteListTarget(targetName: string): boolean {
-        const whiteList: string[] = [
-            xcalar_public_s3,
-            xcalar_private_s3
-        ]
-        return XVM.isDataMart() && whiteList.includes(targetName);
     }
 
     function isReservedTargetName(targetName: string): boolean {
@@ -651,8 +638,7 @@ namespace DSTargetManager {
         targetSet = {};
         targetList.forEach(function(target) {
             if (isAccessibleTarget(target.type_id) &&
-                !isHiddenTarget(target.name) ||
-                isWhiteListTarget(target.name)
+                !isHiddenTarget(target.name)
             ) {
                 targetSet[target.name] = target;
             }

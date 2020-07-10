@@ -1264,7 +1264,6 @@ module.exports = {
         "expiration": "Expiration",
         "numServers": "# of Servers",
         "numUsers": "# of Users",
-        "key": "Key",
         "copyright": "Copyright © 2020 Xcalar, Inc. All rights reserved."
     },
 

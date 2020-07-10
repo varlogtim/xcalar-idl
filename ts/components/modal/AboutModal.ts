@@ -8,11 +8,6 @@ class AboutModal {
 
     private constructor() {
         const $modal: JQuery = this._getModal();
-        if (XVM.isDataMart()) {
-            $modal.addClass("noLicense");
-        } else {
-            $modal.removeClass("noLicense");
-        }
         this._modalHelper = new ModalHelper($modal, {
             noResize: true,
             noBackground: true,
@@ -60,28 +55,17 @@ class AboutModal {
         $modal.find(".frontVersion").text(frontVers);
         $modal.find(".buildNumber").text(buildNumber);
         
-        if (XVM.isDataMart()) {
-            $modal.addClass("noLicense");
-            $modal.find(".licensee").text("");
-            $modal.find(".expiration").text("");
-            $modal.find(".numServers").text("");
-            $modal.find(".numUsers").text("");
-            // $modal.find(".keyValue").text("");
-        } else {
-            $modal.removeClass("noLicense");
-             // License
-            const expiration = XVM.getLicenseExipreInfo();
-            const licensee = XVM.getLicensee();
-            const numServers = XVM.getNumServers();
-            const numUsers = XVM.getNumUsers();
-            // const license = XVM.getLicense();
-            
-            $modal.find(".licensee").text(licensee);
-            $modal.find(".expiration").text(expiration);
-            $modal.find(".numServers").text(numServers);
-            $modal.find(".numUsers").text(numUsers);
-            // $modal.find(".keyValue").text(license);
-        }
+        $modal.removeClass("noLicense");
+        // License
+        const expiration = XVM.getLicenseExipreInfo();
+        const licensee = XVM.getLicensee();
+        const numServers = XVM.getNumServers();
+        const numUsers = XVM.getNumUsers();
+        
+        $modal.find(".licensee").text(licensee);
+        $modal.find(".expiration").text(expiration);
+        $modal.find(".numServers").text(numServers);
+        $modal.find(".numUsers").text(numUsers);
     }
 
     private _getModal(): JQuery {
