@@ -345,9 +345,9 @@ class TableTabManager extends AbstractTabManager {
             if (dfTab == null) {
                 error = "The corresponding module doesn't exist";
             } else {
-                error = `Module ${tab.getName()} is closed, cannot view result`;
+                error = `Module "${dfTab.getName()}" is closed, cannot view result`;
             }
-            throw new Error(error);
+            throw error;
         }
         DagTable.Instance.close();
         await this._viewDagNodeResult(tab, nodeId);
