@@ -119,10 +119,10 @@ class DagTabManager extends AbstractTabManager {
      * @param isEmpty will create a new graph with no immediate plans to add any nodes
      * used to indicate it's a blank graph and we can add instructions to it
      */
-    public newTab(isEmpty?: boolean): string {
+    public newTab(isEmpty?: boolean, index?: number): string {
         const name = DagList.Instance.getValidName();
         const graph: DagGraph = new DagGraph();
-        const tab: DagTab = this._newTab(name, graph, false, isEmpty);
+        const tab: DagTab = this._newTab(name, graph, false, isEmpty, index);
         this._tabListScroller.showOrHideScrollers();
         Log.add(SQLTStr.NewTab, {
             "operation": SQLOps.NewDagTab,
@@ -184,10 +184,11 @@ class DagTabManager extends AbstractTabManager {
             newTab.getGraph().setTabId(tabId);
             // Register the new tab in DagTabManager
             if (this._addSubTab(parentTabId, tabId)) {
-                this._addDagTab(newTab);
+                const parentTabIndex = this.getTabIndex(parentTabId);
+                this._addDagTab(newTab, parentTabIndex + 1);
 
                 // Switch to the tab(UI)
-                this._switchTabs();
+                this._switchTabs(parentTabIndex + 1);
             }
         } else {
             // Tab already opened, switch to that one
@@ -215,9 +216,10 @@ class DagTabManager extends AbstractTabManager {
             newTab.setGraph(newTab.getGraph());
             // Register the new tab in DagTabManager
             if (this._addSubTab(parentTabId, tabId)) {
-                this._addDagTab(<DagTab>newTab);
+                const parentTabIndex = this.getTabIndex(parentTabId);
+                this._addDagTab(<DagTab>newTab, parentTabIndex + 1);
                 // Switch to the tab(UI)
-                this._switchTabs();
+                this._switchTabs(parentTabIndex + 1);
             }
         } else {
             // Tab already opened, switch to that one
@@ -237,7 +239,7 @@ class DagTabManager extends AbstractTabManager {
         tabId: string,
         tabName: string,
         queryNodes: any[],
-        executor?: DagGraphExecutor
+        executor: DagGraphExecutor
     ): DagTabOptimized {
         tabName = DagList.Instance.getValidName(tabName, true, false, true);
         // Create a new tab object
@@ -249,7 +251,9 @@ class DagTabManager extends AbstractTabManager {
         });
         // links tab to graph and vice versa
         newTab.setGraph(newTab.getGraph());
-        if (!this._addNewTab(newTab)) {
+        const parentTabId = executor.getGraph().getTabId();
+        const parentTabIndex = this.getTabIndex(parentTabId);
+        if (!this._addNewTab(newTab, parentTabIndex + 1)) {
             return null;
         }
         ResourceMenu.Instance.render(ResourceMenu.KEY.App);
@@ -285,7 +289,8 @@ class DagTabManager extends AbstractTabManager {
         let name: string = tab.getName().replace(/\//g, "_");
         let isSQLFunc: boolean = (tab instanceof DagTabSQLFunc);
         name = DagList.Instance.getValidName(name, true, isSQLFunc);
-        let newTab: DagTab = this._newTab(name, graph.clone(), isSQLFunc);
+        const index: number = this.getTabIndex(tab.getId());
+        let newTab: DagTab = this._newTab(name, graph.clone(), isSQLFunc, null, index + 1);
         Log.add(SQLTStr.DupTab, {
             "operation": SQLOps.DupDagTab,
             "dataflowId": newTab.getId()
@@ -665,7 +670,8 @@ class DagTabManager extends AbstractTabManager {
         name: string,
         graph: DagGraph,
         isSQLFunc: boolean,
-        isEmpty?: boolean
+        isEmpty?: boolean,
+        index?: number
     ): DagTab {
         const tabConstructor = isSQLFunc ? DagTabSQLFunc : DagTabUser;
         const newDagTab = <DagTab>new tabConstructor({
@@ -674,7 +680,7 @@ class DagTabManager extends AbstractTabManager {
             createdTime: xcTimeHelper.now()
         });
 
-        let succeed = this._addNewTab(newDagTab);
+        let succeed = this._addNewTab(newDagTab, index);
         if (!succeed) {
             return null;
         }
@@ -685,14 +691,14 @@ class DagTabManager extends AbstractTabManager {
         return newDagTab;
     }
 
-    private _addNewTab(dagTab: DagTab): boolean {
+    private _addNewTab(dagTab: DagTab, index?: number): boolean {
         if (!DagList.Instance.addDag(dagTab)) {
             return false;
         }
         dagTab.save();
-        this._addDagTab(dagTab);
+        this._addDagTab(dagTab, index);
         this._save();
-        this._switchTabs();
+        this._switchTabs(index);
         return true;
     }
 
@@ -854,6 +860,28 @@ class DagTabManager extends AbstractTabManager {
             newName = dagTab ? dagTab.getName() : null;
         }
         return this._getAppPath(dagTab);
+    }
+
+    protected _duplicateTabAction(index: number) {
+        const dagTab: DagTab = this.getTabByIndex(index);
+        this.duplicateTab(dagTab);
+    }
+
+    protected _tabDropdownBeforeOpen(index: number, $menu: JQuery) {
+        const dagTab: DagTab = this.getTabByIndex(index);
+        const $tab: JQuery = this.getDagTabElement(index);
+        if (dagTab.getType() === DagTabType.User ||
+            dagTab.getType() === DagTabType.SQLFunc) {
+            $menu.find(".duplicate").removeClass("unavailable");
+        } else {
+            $menu.find(".duplicate").addClass("unavailable");
+        }
+
+        if ($tab.find(".name").hasClass("nonedit")) {
+            $menu.find(".rename").addClass("unavailable");
+        } else {
+            $menu.find(".rename").removeClass("unavailable");
+        }
     }
 
     /**

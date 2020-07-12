@@ -203,6 +203,11 @@ class UDFTabManager extends AbstractTabManager {
         return null;
     }
 
+    // do nothing
+    protected _duplicateTabAction(_index: number): void {
+        return null;
+    }
+
     protected _startReorderTabAction(): void {};
     protected _stopReorderTabAction(previousIndex: number, newIndex: number): void {
         if (previousIndex !== newIndex) {
@@ -251,8 +256,8 @@ class UDFTabManager extends AbstractTabManager {
             }, 4000);
         });
         const $menu: JQuery = this._getMenu();
-        const $rename = $menu.find(".rename");
-        $rename.addClass("unavailable");
+        $menu.find(".rename").addClass("unavailable");
+        $menu.find(".duplicate").remove();
     }
 
     protected _openDropdown(event) {

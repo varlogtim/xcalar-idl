@@ -113,7 +113,8 @@ module.exports = {
         "Unavailable": "This feature will be available soon",
         "RenameDupeCols": "Rename Duplicate Columns",
         "ColRenameInstr2": "Xcalar automatically renames duplicate column names. You can change the automated column name from the New Name column.",
-        "Preview": "Preview"
+        "Preview": "Preview",
+        "Duplicate": "Duplicate"
     },
 
     "paths": {

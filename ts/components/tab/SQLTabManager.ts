@@ -219,6 +219,11 @@ class SQLTabManager extends AbstractTabManager {
         return this._getAppPath(snippetObj);
     }
 
+    // do nothing
+    protected _duplicateTabAction(_index: number): void {
+        return null;
+    }
+
     /**
      * @override
      * @param $tabName
@@ -255,6 +260,8 @@ class SQLTabManager extends AbstractTabManager {
         this._getView().find(".hintSection .action").click(() => {
             this.newTab();
         });
+        const $menu: JQuery = this._getMenu();
+        $menu.find(".duplicate").remove();
     }
 
     private _getView(): JQuery {

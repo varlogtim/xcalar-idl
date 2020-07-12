@@ -1200,6 +1200,10 @@ class DagGraphExecutor {
         return deferred.promise();
     }
 
+    public getGraph(): DagGraph {
+        return this._graph;
+    }
+
     private _executeRetina(
         dagTab: DagTabOptimized,
         retinaName: string,

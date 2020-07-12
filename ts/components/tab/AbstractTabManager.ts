@@ -37,6 +37,7 @@ abstract class AbstractTabManager {
     protected abstract _renameTabAction($input: JQuery): string;
     protected abstract _startReorderTabAction(): void;
     protected abstract _stopReorderTabAction(previousIndex: number, newIndex: number): void;
+    protected abstract _duplicateTabAction(index: number): void;
     protected abstract _getJSON(): any;
 
     protected _getContainer(): JQuery {
@@ -209,6 +210,9 @@ abstract class AbstractTabManager {
                     const $dragArea: JQuery = $tabs.eq(index).find(".dragArea");
                     this._focusTabRename($dragArea);
                     break;
+                case ("duplicate"):
+                    this._duplicateTabAction(index);
+                    break;
                 default:
                     break;
             }
@@ -231,11 +235,16 @@ abstract class AbstractTabManager {
         const $menu = this._getMenu();
         const index: number = this._getTabIndexFromEl($(event.currentTarget));
         $menu.data("index", index);
+        this._tabDropdownBeforeOpen(index, $menu);
         MenuHelper.dropdownOpen($(event.target), $menu, {
             floating: true,
             mouseCoors: {x: event.pageX, y: event.pageY},
             offsetX: 2,
             offsetY: 4
         });
+    }
+
+    protected _tabDropdownBeforeOpen(index: number, $menu: JQuery) {
+        return null;
     }
 }

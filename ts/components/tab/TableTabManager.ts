@@ -187,6 +187,11 @@ class TableTabManager extends AbstractTabManager {
         return null;
     }
 
+    // do nothing
+    protected _duplicateTabAction(_index: number): void {
+        return null;
+    }
+
     protected _startReorderTabAction(): void {};
     protected _stopReorderTabAction(previousIndex: number, newIndex: number): void {
         if (previousIndex !== newIndex) {
@@ -218,6 +223,7 @@ class TableTabManager extends AbstractTabManager {
         const $rename = $menu.find(".rename");
         $rename.addClass("unavailable");
         xcTooltip.add($rename, {title: "Tables cannot be renamed"});
+        $menu.find(".duplicate").remove();
     }
 
     private _getTabIndexByName(name: string): number {
