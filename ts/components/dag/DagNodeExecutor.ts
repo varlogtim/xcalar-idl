@@ -1042,7 +1042,7 @@ class DagNodeExecutor {
         let noQueryNeeded = false;
         let txLog: Transaction.TXLog;
         if (priorDestTable) {
-            console.log("reusing cache", linkOutNode);
+            // console.log("reusing cache", linkOutNode);
             noQueryNeeded = true;
             promise = PromiseHelper.resolve({queryStr: "", destTables:[priorDestTable]});
         } else {
@@ -1605,7 +1605,7 @@ class DagNodeExecutor {
 
             let promise;
             if (priorDestTable) {
-                console.log("reusing cache", tailNode);
+                // console.log("reusing cache", tailNode);
                 noQueryNeeded = true;
                 promise = PromiseHelper.resolve({queryStr: "", destTables:[priorDestTable]});
             } else {
@@ -1616,7 +1616,7 @@ class DagNodeExecutor {
             .then(({queryStr, destTables}) => {
                 let tables = destTables || [];
                 destTable = tables[tables.length - 1];
-                console.log(tailNode);
+                // console.log(tailNode);
                 if (!priorDestTable) {
                     try {
                         let queryLen: number = JSON.parse(queryStr).length;

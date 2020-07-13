@@ -5295,7 +5295,7 @@ class DagView {
                 });
 
                 if (!$childNode) {
-                    console.log("invalid connection");
+                    console.error("invalid connection");
                     return;
                 }
 

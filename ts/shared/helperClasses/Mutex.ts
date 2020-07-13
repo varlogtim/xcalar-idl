@@ -4,7 +4,7 @@ class Mutex {
 
     public constructor(key: string, scope: number) {
         if (!key || !(typeof(key) === "string")) {
-            console.log("No/Illegal mutex key, generating a random one.");
+            console.warn("No/Illegal mutex key, generating a random one.");
             key = xcHelper.randName("mutex", 5);
         }
         this.key = key;

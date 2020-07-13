@@ -86,7 +86,7 @@ class RowManager {
             TblFunc.moveFirstColumn(null);
 
             if (info.missingRows && info.missingRows.length) {
-                console.log('some rows were too large to be retrieved,' +
+                console.warn('some rows were too large to be retrieved,' +
                             'rows:', info.missingRows);
             }
             this._tableCleanup(info);

@@ -441,7 +441,7 @@ namespace Transaction {
         }
 
         if (Transaction.isSimulate(txId)) {
-            console.log("simuldate in fail", cli);
+            console.warn("simuldate in fail", cli);
             return cli;
         } else {
             return null;

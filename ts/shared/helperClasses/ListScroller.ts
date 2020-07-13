@@ -114,6 +114,7 @@ class ListScroller {
 
             const scrollUp: boolean = $(this).hasClass('top');
 
+            // Debug Use
             // const $list: JQuery = this.$list;
             // const $ul: JQuery = this.$ul;
 

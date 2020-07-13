@@ -481,7 +481,6 @@ class PTblManager {
             tableNames.forEach((tableName) => {
                 if (!set.has(tableName)) {
                     let tablesToActivate = this._checkActivateDependency(tableName, imdDenendencies);
-                    // console.log("table dependency", tablesToActivate)
                     tablesToActivate.forEach((table) => {
                         set.add(table);
                         let func = (): XDPromise<void> => {

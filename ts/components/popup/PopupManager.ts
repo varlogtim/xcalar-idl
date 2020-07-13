@@ -202,7 +202,7 @@ class PopupManager {
     public static isDocked(popupId): boolean {
         const popup: PopupPanel = this._popupMap.get(popupId);
         if (!popup) {
-            console.log(popupId + " not found", this._popupMap);
+            console.error(popupId + " not found", this._popupMap);
             return true;
         } else {
             return popup.isDocked();

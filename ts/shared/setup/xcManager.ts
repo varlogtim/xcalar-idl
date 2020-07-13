@@ -53,7 +53,7 @@ namespace xcManager {
                 // In case mixpanel is not loaded
                 xcMixpanel.setup();
             } catch (error){
-                console.log("mixpanel is not loaded");
+                console.error("mixpanel is not loaded");
             }
             return XVM.checkVersionAndLicense();
         })

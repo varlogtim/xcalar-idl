@@ -83,7 +83,7 @@ class DagQueryConverter {
                 dataflowInfo.workbookVersion == null && (!dataflowInfo.header || dataflowInfo.header.workbookVersion == null)) {
                 isRetina = true;
             }
-            console.log(e);
+            console.error(e);
             return this._getFailedDataflowRet("Error: " + xcHelper.parseJSONError(e).error, isRetina);
         }
     }
@@ -1121,7 +1121,7 @@ class DagQueryConverter {
                         try {
                             driverArgs = JSON.parse(node.args.driverParams);
                         } catch (e) {
-                            console.log(e);
+                            console.error(e);
                             driverArgs = node.args.driverParams || "";
                         }
                         dagNodeInfo = {
@@ -1626,8 +1626,7 @@ class DagQueryConverter {
                     }
                     this.destSrcMap[node.name].push(obj);
                 } else {
-                    console.log(node.parents[i] + " not found");
-                    console.log(node.rawNode.operation);
+                    console.error(node.parents[i] + " not found", node.rawNode.operation);
                 }
                 if (node.api === XcalarApisT.XcalarApiJoin ||
                     node.api === XcalarApisT.XcalarApiUnion) {
@@ -1705,7 +1704,7 @@ class DagQueryConverter {
 
             return null;
         } catch (e) {
-            console.log(e);
+            console.error(e);
             return null;
         }
     }
@@ -1734,7 +1733,7 @@ class DagQueryConverter {
             }
             return loadArgs;
         } catch (e) {
-            console.log(e);
+            console.error(e);
             return originalLoadArgs;
         }
     }
@@ -1758,7 +1757,7 @@ class DagQueryConverter {
             }
             return JSON.stringify(loadArgs);
         } catch (e) {
-            console.log(e);
+            console.error(e);
             return originalLoadArgs;
         }
     }

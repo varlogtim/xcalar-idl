@@ -255,7 +255,7 @@ class DagAggPopup {
             }
         })
         .fail((err) => {
-            console.log(err);
+            console.error(err);
             this.$aggManagerPopup.find(".aggDelete").removeClass("xc-disabled");
         });
     }

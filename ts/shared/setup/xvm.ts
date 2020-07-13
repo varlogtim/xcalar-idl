@@ -45,7 +45,7 @@ namespace XVM {
             compressedLicense = license.compressedLicense;
 
             if (license.isExpired) {
-                console.log(license);
+                // console.log(license);
                 const error: string = xcStringHelper.replaceMsg(ErrTStr.LicenseExpire, {
                     date: licenseExpireInfo
                 });

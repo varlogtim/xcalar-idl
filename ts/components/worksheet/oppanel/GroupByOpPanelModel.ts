@@ -326,8 +326,8 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
                     return progCol.getBackColName() === name;
                 });
                 if (!match) {
-                    // XXX if not found, let pass
-                    console.log(name, "column not found");
+                    // if not found, let pass
+                    console.warn(name, "column not found");
                 }
             }
         }

@@ -36,7 +36,7 @@ class Concurrency {
         return this._kvStore.get()
             .then((value) => {
                 if (value == null) {
-                    console.log("initialize", this._mutex.key);
+                    // console.log("initialize", this._mutex.key);
                     return this.putUnlockedValue();
                 } else {
                     return PromiseHelper.reject(ConcurrencyEnum.AlreadyInit);
@@ -84,7 +84,7 @@ class Concurrency {
 
         this.getLockValue()
             .then((value) => {
-                console.log('unlock', value);
+                // console.log('unlock', value);
                 if (value === this._lockString) {
                     // I was the one who locked it. Now I'm going to unlock it
                     return this.putUnlockedValue();
@@ -168,7 +168,7 @@ class Concurrency {
                     deferred.reject(ConcurrencyEnum.NoKVStore);
                 } else {
                     // Return the dynamically generated lockString for unlock later
-                    console.log("lock key", this._mutex.key, "with", lockString);
+                    // console.log("lock key", this._mutex.key, "with", lockString);
                     this.setLockString(lockString);
                     deferred.resolve(lockString);
                 }
@@ -178,7 +178,7 @@ class Concurrency {
                 if (tError.status === StatusT.StatusKvEntryNotEqual) {
                     // Locked state. Exp backoff until time limit, and then ask the
                     // user for force / give up
-                    console.log("Retrying with timeout: " + timeout / 1000);
+                    // console.log("Retrying with timeout: " + timeout / 1000);
                     setTimeout(() => {
                         this.retryLock(lockString, deferred, timeout * 2);
                     }, timeout);

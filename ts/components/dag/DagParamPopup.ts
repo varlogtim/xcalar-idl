@@ -221,7 +221,7 @@ class DagParamPopup {
             try {
                 val = val.toString();
             } catch(e) {
-                console.log(val, e);
+                console.error("add paramar to list error", e, val);
                 val = "";
             }
         }

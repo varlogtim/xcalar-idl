@@ -56,7 +56,6 @@ window.Repeat = (function($, Repeat) {
             }
             if (options.orders[i] !== order) {
                 // only allow repeating of 1 order, not mixed orders
-                console.log("nope");
                 return PromiseHelper.resolve(null);
             }
         }

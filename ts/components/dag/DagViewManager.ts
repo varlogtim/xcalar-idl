@@ -326,14 +326,14 @@ class DagViewManager {
                     if (node) {
                         let tabId = view.graph.getTabId();
                         tab = DagTabManager.Instance.getTabById(tabId);
-                        console.log("Application Builder Module: " + tab.getName());
-                        console.log(view.$dfArea.find('.operator[data-nodeid="' + nodeId + '"]'));
+                        // console.log("Application Builder Module: " + tab.getName());
+                        // console.log(view.$dfArea.find('.operator[data-nodeid="' + nodeId + '"]'));
                         break;
                     }
                 }
             }
         } catch (e) {
-            console.log(e);
+            console.error(e);
         }
         return {
             node: node,

@@ -16,7 +16,8 @@ class DagGraph extends Durable {
 
     protected operationTime: number;
     protected currentExecutor: DagGraphExecutor
-    public events: { on: Function, off: Function, trigger: Function}; // example: dagGraph.events.on(DagNodeEvents.StateChange, console.log)
+    // example: dagGraph.events.on(DagNodeEvents.StateChange, console.log)
+    public events: { on: Function, off: Function, trigger: Function};
 
     public constructor() {
         super(null);

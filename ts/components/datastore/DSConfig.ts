@@ -6380,7 +6380,7 @@ namespace DSConfig {
                         setStateInternal(newState, true);
                     }
                 } catch(e) {
-                    console.log(e);
+                    console.error(e);
                 }
             };
         }

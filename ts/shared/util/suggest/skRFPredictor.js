@@ -95,7 +95,7 @@ window.skRFPredictor = (function(skRFPredictor) {
                         featureVal = 0;
                     } else {
                         var errstr = ("Invalid column type: " + String(featureVal));
-                        console.log(errstr);
+                        console.error(errstr);
                         throw (errstr);
                     }
                 }
@@ -352,7 +352,6 @@ window.skRFPredictor = (function(skRFPredictor) {
         predict: function(X) {
             var self = this;
             var scores = self.predict_proba(X);
-            // console.log(scores);
             var bestClass = scores.reduce(function(iMax, x, i, arr) {
                 if (x > arr[iMax]) {
                     return i;

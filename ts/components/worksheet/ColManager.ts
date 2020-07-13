@@ -568,7 +568,6 @@ namespace ColManager {
                 });
                 break;
             case ("raw"):
-                console.log("Raw data");
                 deferred.resolve(null);
                 break;
             case ("search"):

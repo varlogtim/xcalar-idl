@@ -111,7 +111,6 @@ namespace xcSuggest { // = (function($, xcSuggest) {
         if (suggestResults === undefined) {
             suggestResults = suggestJoinKeyHeuristic(featuresPerColumn);
         }
-        // console.log("Suggest results: " + JSON.stringify(suggestResults));
         return suggestResults;
     }
 
@@ -260,7 +259,6 @@ namespace xcSuggest { // = (function($, xcSuggest) {
                 let prediction: Prediction = MLEngine.predict(MLSetting.SuggestJoinKey,
                     curFeatures);
                 let score: number;
-                // console.log(JSON.stringify(prediction));
                 if (prediction.classIdx === 1) {
                     score = prediction.score;
                 } else {
@@ -274,7 +272,6 @@ namespace xcSuggest { // = (function($, xcSuggest) {
             }
         }
 
-        // console.log(maxScore);
         // Because suggestJoinKey expects score on range of integers
         // And the threshold is -50, change the score of this algorithm to
         // be on range of -100 to 0

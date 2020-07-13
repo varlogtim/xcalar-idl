@@ -536,8 +536,7 @@ class SQLEditorSpace {
             .then(() => {
                 return PromiseHelper.chain(executePromiseArray)
             })
-            .then((ret) => {
-                console.log(ret);
+            .then(() => {
                 SQLResultSpace.Instance.refreshTables();
             })
             .fail((e) => {

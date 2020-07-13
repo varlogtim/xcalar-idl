@@ -68,7 +68,7 @@ class XcSocket {
 
         const userOption: UserOption = this._getUserOption(workbookId);
         this._socket.emit("registerUserSession", userOption, () => {
-            console.log("registerSuccess!");
+            console.info("registerSuccess!");
             this._isRegistered = true;
         });
 
@@ -83,7 +83,7 @@ class XcSocket {
         this._isRegistered = false;
         const userOption: UserOption = this._getUserOption(workbookId);
         this._socket.emit("unregisterUserSession", userOption, () => {
-            console.log("unregisterSuccess!");
+            console.info("unregisterSuccess!");
         });
 
         return true;
@@ -116,7 +116,7 @@ class XcSocket {
 
     private _registerBrowserSession() {
         this._socket.emit("registerBrowserSession", XcUser.getCurrentUserName(), () => {
-            console.log("browser session registered!");
+            console.info("browser session registered!");
         });
     }
 
@@ -131,11 +131,11 @@ class XcSocket {
     private _addAuthenticationEvents(): void {
         const socket = this._socket;
         socket.on('error', (error) => {
-            console.log('error', error)
+            console.error('error', error)
         });
 
         socket.on('connect', () => {
-            console.log('socket is connected!');
+            console.info('socket is connected!');
             this._initDeferred.resolve();
         });
 
@@ -158,7 +158,7 @@ class XcSocket {
             if (!this._isRegistered) {
                 return;
             }
-            console.log(userOption, 'exists');
+            console.warn(userOption, 'exists');
             if (userOption.id === WorkbookManager.getActiveWKBK()) {
                 WorkbookManager.gotoWorkbook(null, true);
             }

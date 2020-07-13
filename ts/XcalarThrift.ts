@@ -154,7 +154,6 @@ function thriftLog(
 
 
         if (status == null && httpStatus == null && error == null) {
-            // console.log("not an error");
             // not an error
             continue;
         }
@@ -893,10 +892,6 @@ XcalarParseDSLoadArgs = function(options: XcalarLoadInputOptions): {
         parseArgs.schema = typedColumns;
 
         const maxSampleSize: number = gMaxSampleSize;
-        if (maxSampleSize > 0) {
-            console.log("Max sample size set to: ", maxSampleSize);
-        }
-
         return {
             sourceArgsList: sourceArgsList,
             parseArgs: parseArgs,
@@ -1007,10 +1002,6 @@ XcalarDatasetRestore = function(
     });
 
     const maxSampleSize: number = gMaxSampleSize;
-    if (maxSampleSize > 0) {
-        console.log("Max sample size set to: ", maxSampleSize);
-    }
-
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     xcalarDatasetCreate(tHandle, datasetName, sourceArgsList, parseArgs, maxSampleSize)
     .then(deferred.resolve)
@@ -1028,10 +1019,6 @@ XcalarDatasetRestoreXcrpc = function(
     scopeInfo?: Xcrpc.Dataset.ScopeInfo
 ) {
     const maxSampleSize: number = gMaxSampleSize;
-    if (maxSampleSize > 0) {
-        console.log("Max sample size set to: ", maxSampleSize);
-    }
-
     const xcrpcScope = createXcrpcScopeInput({
         scopeInfo: scopeInfo,
         xcrpcScopeEnum: {

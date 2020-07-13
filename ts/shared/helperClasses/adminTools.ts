@@ -362,7 +362,6 @@ namespace adminTools {
             },
             error: function(xhr) {
                 var data = parseErrorData(xhr);
-                // console.log(data.logs);
                 deferred.reject(data);
             }
         });

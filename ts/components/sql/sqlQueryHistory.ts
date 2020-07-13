@@ -194,8 +194,8 @@ class SqlQueryHistory {
             });
             return PromiseHelper.when(...tasks);
         })
-        .then(()=>console.log('clear done'))
-        .fail(()=>console.log('clear fail'));
+        .then(()=> console.info('clear done'))
+        .fail(()=> console.error('clear fail'));
     }
 
     // XXX TODO: Must be deleted in the next major release!!!
@@ -238,10 +238,10 @@ class SqlQueryHistory {
             return PromiseHelper.when(...deleteKeys);
         })
         .then(() => {
-            console.log('Convert success');
+            console.info('Convert success');
         })
         .fail(() => {
-            console.log('Convert failed')
+            console.error('Convert failed')
         })
         .always(() => {
             KVStore.list(this._getKVStoreKeyPattern(), gKVScope.WKBK)

@@ -1119,7 +1119,7 @@ namespace WorkbookManager {
             if (xdInternalSession == null) {
                 await XcalarNewWorkbook(xdInternalWkbkName, false, undefined);
                 await XcalarActivateWorkbook(xdInternalWkbkName);
-                console.log("create and activate",xdInternalWkbkName)
+                // console.log("create and activate",xdInternalWkbkName)
             } else if (xdInternalSession.state !== "Active") {
                 await XcalarActivateWorkbook(xdInternalWkbkName);
                 // console.log("activate",xdInternalWkbkName);

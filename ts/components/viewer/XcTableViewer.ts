@@ -211,7 +211,7 @@ class XcTableViewer extends XcViewer {
         this._addScrollbar();
 
         if (isEmpty && numRows === 0) {
-            console.log('no rows found, ERROR???');
+            console.warn('no rows found, ERROR???');
             $table.addClass('emptyTable');
             jsonData = [""];
         }

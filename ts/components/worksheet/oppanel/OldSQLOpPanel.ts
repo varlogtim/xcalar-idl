@@ -99,7 +99,7 @@ class OldSQLOpPanel extends BaseOpPanel {
         this._sqlEditor = new SQLEditor("sqlEditor");
         this._sqlEditor
         .on("cancelExecute", () => {
-            console.log("SQL cancel triggered!");
+            // console.log("SQL cancel triggered!");
             SQLUtil.resetProgress();
         })
         .on("autoComplete", (editor: CodeMirror.Editor) => {

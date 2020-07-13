@@ -1187,7 +1187,7 @@ namespace WorkbookPanel {
 
     export function wbDuplicateName(wbName: string, workbooks: object, n: number): string {
         if (n >= 500) {
-            console.log("Too many attempts to find unique name.");
+            console.warn("Too many attempts to find unique name.");
             return xcHelper.randName(wbName);
         }
         let numbering: string = "";

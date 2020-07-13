@@ -390,7 +390,7 @@ class DagTabPublished extends DagTab {
     private _uploadLocalUDFToShared(udfSet: Set<string>): XDPromise<void> {
         const promises: XDPromise<void>[] = [];
         udfSet.forEach((moduleName) => {
-            console.log("_uploadLocalUDFToShare(" + moduleName + ")");
+            // console.log("_uploadLocalUDFToShare(" + moduleName + ")");
             if (moduleName !== "default") {
                 promises.push(this._transferUDF(moduleName));
             }
