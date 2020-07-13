@@ -8,13 +8,13 @@ describe('XVM Test', () => {
             const oldFunc = Alert.show;
             let testArg;
             Alert.show = (arg) => { testArg = arg };
-            XVM.__testOnly__.showInvalidLicenseAlert('test');
+            XVM.__testOnly__.showInvalidLicenseAlert('test', 'detail');
             expect(testArg).to.be.an('object');
             expect(Object.keys(testArg).length).to.equal(4);
-            expect(testArg.title).to.equal(AlertTStr.LicenseErr);
+            expect(testArg.title).to.equal(ErrTStr.LicenseErr);
             expect(testArg.isAlert).to.be.true;
-            expect(testArg.msg).to.equal(AlertTStr.LicenseErrMsg);
-            expect(testArg.detail).to.equal("test");
+            expect(testArg.msg).to.equal('test');
+            expect(testArg.detail).to.equal("detail");
             Alert.show = oldFunc;
         });
 

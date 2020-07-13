@@ -17,26 +17,26 @@ namespace XVM {
     let numNodes: number = -1; // Set, but not used
 
     /* ==================== Helper Function ================================= */
-    function showInvalidLicenseAlert(error: string): void {
+    function showInvalidLicenseAlert(msg: string, detail?: string): void {
         Alert.show({
-            title: AlertTStr.LicenseErr,
+            title: ErrTStr.LicenseErr,
             isAlert: true,
-            msg: AlertTStr.LicenseErrMsg,
-            detail: error
+            msg,
+            detail
         });
     }
 
     function parseLicense(license: Xcrpc.License.LicenseInfo): string | null {
         try {
+            let expireDate: Date = null;
             if (typeof (license) === 'string') {
                 // This is an error. Otherwise it will be an object
                 licenseExpireInfo = 'Unlicensed';
             } else {
                 const utcSeconds: number = parseInt(license.expiration);
-                const d: Date = new Date(0);
-                d.setUTCSeconds(utcSeconds);
-                // expirationDate = d;
-                licenseExpireInfo = d.toDateString();
+                expireDate = new Date(0);
+                expireDate.setUTCSeconds(utcSeconds);
+                licenseExpireInfo = expireDate.toDateString();
                 licenseMode = XcalarMode.Oper;
             }
             numNodes = license.nodeCount;
@@ -50,6 +50,16 @@ namespace XVM {
                     date: licenseExpireInfo
                 });
                 return error;
+            } else if (expireDate) {
+                // check if license will expire in 7 days
+                const nextWeek: Date = new Date();
+                nextWeek.setDate(nextWeek.getDate() + 7);
+                if (expireDate <= nextWeek) {
+                    const error: string = xcStringHelper.replaceMsg(ErrTStr.LicenseWillExpire, {
+                        date: licenseExpireInfo
+                    });
+                    return error;
+                }
             }
         } catch (error) {
             // code may go here if thrift changes
@@ -423,7 +433,7 @@ namespace XVM {
                 licenseMode = XcalarMode.Unlic;
                 const error: string = (err && typeof err === 'object') ?
                     err.error : ErrTStr.Unknown;
-                showInvalidLicenseAlert(error);
+                showInvalidLicenseAlert(ErrTStr.LicenseInvalid, error);
                 deferred.resolve();
             });
 

@@ -344,11 +344,14 @@ ErrTStr = {
     "ParseSchema": "Invalid text to parse as schema",
     'CannotCancel': "Cannot cancel the operation",
     'NoBucketAccess': "You don't have access to the s3 bucket, please check your access permission or configure to use a valid bucket.",
+    "LicenseErr": "License Error",
+    "LicenseInvalid": "Your don't have a valid license. Please contact your administrator to acquire a new license key.",
     // With replace
     'WorkbookExists': 'A project named <workbookName> already exists. Please' +
                       ' choose another name.',
     'InvalidColumn': 'Invalid column name: <name>',
-    'LicenseExpire': 'Your license has expired on \"<date>\". Please contact us at (408)471-1711 or info@xcalar.com.',
+    'LicenseWillExpire': 'Your license will expire on \"<date>\". Please contact your administrator to acquire a new license key.',
+    'LicenseExpire': 'Your license has expired on \"<date>\". Please contact your administrator to acquire a new license key.',
     'MaxPayload': 'Request size limit exceeded. Please select fewer files or ' +
                   'recursively load the directory or use regex.',
     'MaxFiles': 'The number of files under the current directory exceeds the ' +
@@ -647,8 +650,6 @@ AlertTStr = {
     "WaitChat": "Searching for an available Xcalar agent...",
     "StartChat": "You are now connected to a Xcalar agent.",
     "CaseId": "Your case ID is:",
-    "LicenseErr": "License Error",
-    "LicenseErrMsg": 'Please contact your administrator to acquire a new license key.',
     "LicenseKey": "Your license key is:",
     "LicenseExpire": "Your license expires on:",
     "XcalarAdmin": "Your Xcalar Admin is:",
