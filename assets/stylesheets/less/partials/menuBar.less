@@ -186,7 +186,18 @@
 .mainMenuGhost {
     opacity: 0.5;
     background: @color-bg-defaultStrong;
-    border-right: 2px solid @color-border-softGray2;
+    &:after {
+        content: "";
+        width: 2px;
+        height: 100%;
+        background: @color-border-softGray2;
+        position: absolute;
+        right: 0px;
+    }
+
+    &.collapseSize {
+        opacity: 0.7;
+    }
 }
 
 .mainPanel > .mainContent > .leftSection,
@@ -283,7 +294,7 @@
             display: flex;
             flex-direction: column;
             .transition(margin-left @time-menuAnim);
-            min-width: 100px;
+            min-width: 120px;
             .size(@height: ~"calc(100% - @{height-topBar} - @{height-bottomBar} - 2px)");
 
             > .menuSection {
@@ -368,6 +379,17 @@
         #dagNodeInfoPanel {
             display: flex;
             height: 30%;
+        }
+    }
+    .dagList {
+        .topSection {
+            .iconSection {
+                margin-left: 6px;
+            }
+            .icon {
+                margin-top: 111px;
+                margin-left: 6px;
+            }
         }
     }
 }

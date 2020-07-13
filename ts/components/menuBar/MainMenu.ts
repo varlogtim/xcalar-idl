@@ -1,9 +1,9 @@
 namespace MainMenu {
-    let $menuBar: JQuery; // $("#menuBar");
     // offset when a menu is closed (includes 5px padding in .mainContent)
     const openOffset: number = 200; // when the menu is open
     export const defaultWidth: number = 200;
-    export const minWidth: number = 100;
+    export const minWidth: number = 120;
+    const collapseWidth: number = minWidth - 20;
     let hasSetUp: boolean = false;
     const formPanels: BaseOpPanel[] = [];
     const minRightPanelWidth = 600;
@@ -18,7 +18,6 @@ namespace MainMenu {
             return;
         }
         hasSetUp = true;
-        $menuBar = $("#menuBar");
         addEventListeners();
         setupDataflowResizable();
 
@@ -84,6 +83,10 @@ namespace MainMenu {
         $("#debugTab").click(() => {
             DebugPanel.Instance.toggleDisplay();
         });
+
+        $("#dagList .topSection .closeBtn").click(() => {
+            toggleResourcePanel();
+        });
     }
 
     /**
@@ -142,34 +145,35 @@ namespace MainMenu {
 
     function setupDataflowResizable(): void {
         const $menu = $("#dataflowMenu");
-        const onStop = (width) => {
-            MainMenu.resize(width);
-            width = $menu[0].getBoundingClientRect().width;
-            _popup.trigger("ResizeDocked_BroadCast", {
-                dockedWidth: width,
-            });
+        const onStop = (width, prevWidth) => {
+            if (width < collapseWidth) {
+                $menu.outerWidth(prevWidth);
+                toggleResourcePanel();
+            } else {
+                width = Math.max(minWidth, width);
+                MainMenu.resize(width);
+                width = $menu[0].getBoundingClientRect().width;
+                _popup.trigger("ResizeDocked_BroadCast", {
+                    dockedWidth: width,
+                });
+            }
         };
-        _setupResizable($menu, minWidth, undefined, onStop);
+        _setupResizable($menu, undefined, onStop);
     }
 
     function _setupResizable(
         $menu: JQuery,
-        minWidth: number,
         onResize?: () => void,
-        onStop?: (width) => void
+        onStop?: (width, prevWidth) => void
     ): void {
-        // const minWidth: number = defaultWidth + 3;
-        let isSmall: boolean = true;
         let $ghost: JQuery;
         $menu.resizable({
             "handles": "e",
-            "minWidth": minWidth,
             "distance": 2,
             "helper": "mainMenuGhost",
             "start": () => {
                 let winWidth =  $(window).width();
                 let panelRight: number = $menu[0].getBoundingClientRect().right;
-
                 panelRight = winWidth - panelRight + $menu.width();
                 $menu.css("max-width", panelRight - 10);
                 $menu.addClass("resizing");
@@ -178,24 +182,21 @@ namespace MainMenu {
                 $("#container").addClass("noMenuAnim");
             },
             "resize": (_event, ui) => {
-                let width = ui.size.width;
-                if (!isSmall && width < (defaultWidth + 3)) {
-                    $menu.removeClass("expanded");
-                    isSmall = true;
-                } else if (isSmall && width >= (defaultWidth + 3)) {
-                    $menu.addClass("expanded");
-                    isSmall = false;
+                if (ui.size.width < collapseWidth) {
+                    $ghost.addClass("collapseSize");
+                } else {
+                    $ghost.removeClass("collapseSize");
                 }
                 if (typeof onResize === "function") {
                     onResize();
                 }
             },
-            "stop": () => {
+            "stop": (_event, ui) => {
                 $menu.css("max-width", "").css("max-height", "");
-                let width: number = $menu.width();
+                let width: number = ui.size.width;
                 width = Math.min(width, $(window).width() - $("#menuBar").width() - 10);
                 if (typeof onStop === "function") {
-                    onStop(width);
+                    onStop(width, ui.originalSize.width);
                 } else {
                     _resize($menu, width);
                 }
