@@ -667,6 +667,10 @@ class DataflowState extends State {
         let nodeIds = Array.from(this.currentTab.getGraph().getAllNodes().keys());
         let randN = Math.floor(nodeIds.length * Util.random()) + 1;
         let randomNodeIds = Util.pickRandomMulti(nodeIds, randN);
+        if (!randomNodeIds || (typeof randomNodeIds.forEach !== "function")) {
+            this.log('Error: randomNodeIds is invalid ' + randomNodeIds);
+            this.log(nodeIds);
+        }
         await DagViewManager.Instance.wrapCustomOperator(randomNodeIds);
         this.log(`Custom node from dataflow created  in WKBK ${this.currentWKBKId}`);
         return this;
