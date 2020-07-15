@@ -426,8 +426,15 @@ html.edge {
             display: none;
             .vertical-align;
             .position(absolute, @left: 2px);
+            z-index: 2; // highlight box has z-index 1
             .size(15px, 15px);
-            color: @color-font-dusk-blue;
+            color: @color-table-datacolIcon;
+            &:hover {
+                color: @color-table-datacolIcon-hover;
+                &:active {
+                    color: @color-table-datacolIcon-active;
+                }
+            }
         }
     }
 

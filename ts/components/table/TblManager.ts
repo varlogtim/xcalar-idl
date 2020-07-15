@@ -294,21 +294,22 @@ class TblManager {
         animate: boolean,
         noSelect: boolean
     ): void {
-        let $contaianer: JQuery = DagTable.Instance.getView();
+        let $container: JQuery = DagTable.Instance.getView();
         const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
-        if ($contaianer == null) {
+        if ($container == null) {
             // table view in sql mode
-            $contaianer = $tableWrap.closest(".xc-tableArea");
+            $container = $tableWrap.closest(".xc-tableArea");
         }
-        const containerWidth: number = $contaianer.width();
-        const currentScrollPosition: number = $contaianer.scrollLeft();
+        const containerWidth: number = $container.width();
+        const currentScrollPosition: number = $container.scrollLeft();
         const $th: JQuery = $tableWrap.find('th.col' + colNum);
         if ($th.length === 0) {
             return;
         }
-        const columnOffset: number = $th.offset().left - MainMenu.getOffset();
+        const columnOffset: number = $th.offset().left;
         const colWidth: number = $th.width();
-        const leftPosition: number = currentScrollPosition + columnOffset;
+        const leftPosition: number = currentScrollPosition + columnOffset -
+                                     $container.offset().left;
         const scrollPosition: number = leftPosition -
             ((containerWidth - colWidth) / 2);
 
@@ -317,14 +318,14 @@ class TblManager {
         }
 
         if (animate && !gMinModeOn) {
-            $contaianer.animate({
+            $container.animate({
                 scrollLeft: scrollPosition
             }, 500, () => {
                 TblManager.alignTableEls();
                 xcUIHelper.removeSelectionRange();
             });
         } else {
-            $contaianer.scrollLeft(scrollPosition);
+            $container.scrollLeft(scrollPosition);
             TblManager.alignTableEls();
         }
     }

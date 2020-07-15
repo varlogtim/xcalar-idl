@@ -1871,7 +1871,9 @@ namespace ColManager {
 
         if (isDATACol) {
             tdClass = isTruncated ? " truncated" : " originalData";
-            html = '<i class="pop icon xi_popout fa-15 xc-action"></i>' +
+            html = '<i class="pop icon xi_popout fa-15 xc-action" ' +
+                    xcTooltip.Attrs + ' data-title="' + TooltipTStr.Examine +
+                    '"></i>' +
                     '<div class="dataColText clickable displayedData' +
                         tdClass + '">' +
                             value +
