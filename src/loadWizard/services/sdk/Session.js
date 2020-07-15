@@ -235,4 +235,13 @@ class CurrentSession extends BaseSession {
     }
 }
 
-export { XDSession, RandomSession, GlobalSession, LoadSession, CurrentSession };
+class LoginSession extends BaseSession {
+    constructor({ sessionName }) {
+        super({
+            user: new LoginUser(),
+            sessionName: sessionName
+        });
+    }
+}
+
+export { XDSession, RandomSession, GlobalSession, LoadSession, CurrentSession, LoginSession };

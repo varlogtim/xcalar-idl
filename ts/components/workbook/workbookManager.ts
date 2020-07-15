@@ -1594,21 +1594,25 @@ namespace WorkbookManager {
                 continue;
             }
 
-            // Read dag from kvstore
-            const dagStore = new KVStore(id, gKVScope.WKBK);
-            const dagJson = await XIApi.callApiInSession(
-                workbookName,
-                () => dagStore.getAndParse()
-            );
+            try {
+                // Read dag from kvstore
+                const dagStore = new KVStore(id, gKVScope.WKBK);
+                const dagJson = await XIApi.callApiInSession(
+                    workbookName,
+                    () => dagStore.getAndParse()
+                );
 
-            // Construct graph & get load udf path
-            const graph = new DagGraph();
-            graph.create(dagJson.dag);
-            for (const moduleName of graph.getUsedLoaderUDFModules()) {
-                loadUDFs.add(moduleName);
+                // Construct graph & get load udf path
+                const graph = new DagGraph();
+                graph.create(dagJson.dag);
+                for (const moduleName of graph.getUsedLoaderUDFModules()) {
+                    loadUDFs.add(moduleName);
+                }
+            } catch(e) {
+                // Ignore a single error and try to load as much as possible
+                console.error(`WorkbookManager.copyLoadUDFsToWB(id=${id}): `, e);
             }
         }
-        console.log(loadUDFs);
 
         // Find out all the shared load UDFs
         const sharedLoadUDFs = await filterSharedUDFs(loadUDFs, workbookName);
