@@ -1,6 +1,7 @@
 import React from "react";
 import MUIDataTable from "mui-datatables";
-import * as SchemaCell from './SchemaCell'
+import * as SchemaCell from './SchemaCell';
+import { DiscoverStatus } from '../../services/SchemaLoadService'
 
 const Texts = {
     tableTitle: 'Discovered Files',
@@ -11,6 +12,7 @@ const Texts = {
 const DiscoverStatusEnum = {
     DONE: 'done',
     FAIL: 'fail',
+    WARNING: 'warning',
     WIP: 'wip',
     WAIT: 'wait'
 };
@@ -22,19 +24,39 @@ function createSchemaCellProps(schemaInfo) {
         };
     }
 
-    if (schemaInfo.error != null) {
+    const { statusCode, error, columns, hash } = schemaInfo;
+
+    if (statusCode === DiscoverStatus.FAIL) {
         return {
             status: DiscoverStatusEnum.FAIL,
-            errorMsg: schemaInfo.error
+            errorMsg: error.message,
+            errorStack: error.stackTrace
         };
     }
 
-    if (schemaInfo.columns != null) {
+    if (statusCode === DiscoverStatus.WARNING) {
+        return {
+            status: DiscoverStatusEnum.WARNING,
+            errorMsg: error.message,
+            errorColumns: error.columns,
+            errorStack: error.stackTrace,
+            schema: {
+                name: hash,
+                columns: columns.map(({ name, mapping, type }) => ({
+                    name: name,
+                    mapping: mapping,
+                    type: type
+                }))
+            }
+        };
+    }
+
+    if (statusCode === DiscoverStatus.OK) {
         return {
             status: DiscoverStatusEnum.DONE,
             schema: {
-                name: schemaInfo.hash,
-                columns: schemaInfo.columns.map(({ name, mapping, type }) => ({
+                name: hash,
+                columns: columns.map(({ name, mapping, type }) => ({
                     name: name,
                     mapping: mapping,
                     type: type
@@ -75,6 +97,20 @@ schemaCellRender.set(DiscoverStatusEnum.WAIT, (props) => {
 });
 schemaCellRender.set(DiscoverStatusEnum.WIP, () => {
     return <SchemaCell.Loading />
+});
+schemaCellRender.set(DiscoverStatusEnum.WARNING, (props) => {
+    const { schema, onClickSchema, errorColumns, errorStack } = props;
+    return (
+        <SchemaCell.Warning
+            schemaName = {schema.name}
+            onClick={() => { onClickSchema({
+                name: schema.name,
+                columns: schema.columns,
+                errorColumns: errorColumns,
+                errorStack: errorStack
+            })}}
+        />
+    )
 });
 function MixedSchemaCell(props) {
     const render = schemaCellRender.get(props.status);

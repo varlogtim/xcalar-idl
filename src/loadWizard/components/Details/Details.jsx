@@ -129,7 +129,7 @@ function BucketChart({stats}) {
 }
 
 function SchemaDetail(props) {
-    const { hash = '', columns = [], files } = props || {};
+    const { hash = '', columns = [], files, errorColumns = [], errorStack } = props || {};
     return (
         <Collapsible>
             <Collapsible.Header>{hash}</Collapsible.Header>
@@ -148,6 +148,11 @@ function SchemaDetail(props) {
                 <Collapsible.Item>
                     <div>Columns:</div>
                     <pre>{JSON.stringify(columns, null, ' ')}</pre>
+                </Collapsible.Item>
+                <Collapsible.Item>
+                    <div>Skipped Columns:</div>
+                    <pre>{JSON.stringify(errorColumns, null, ' ')}</pre>
+                    { errorStack && <div style={{display: 'none'}}>{errorStack}</div>}
                 </Collapsible.Item>
             </Collapsible.List>
         </Collapsible>

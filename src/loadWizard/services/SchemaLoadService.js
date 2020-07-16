@@ -7,6 +7,12 @@ const {
     xcHelper
 } = global;
 
+const DiscoverStatus = {
+    OK: 0,
+    WARNING: 1,
+    FAIL: 2
+};
+
 function getFileExt(fileName) {
     return (fileName.includes('.')
         ? fileName.split('.').pop()
@@ -251,6 +257,30 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
         };
     }
 
+    function converStatusField(statusStr, numColumns) {
+        const { unsupported_columns = [], error_message, stack_trace } = JSON.parse(statusStr);
+        const parsedError = numColumns === 0
+            ? (error_message == null ? 'All fields cannot be parsed' : error_message)
+            : error_message;
+
+        const schemaStatus = {
+            statusCode: DiscoverStatus.OK,
+            errorColumns: unsupported_columns.map(({ name, mapping, message }) => ({
+                name: name, mapping: mapping, message: message
+            })),
+            message: parsedError,
+            stackTrace: stack_trace
+        };
+
+        if (parsedError != null) {
+            schemaStatus.statusCode = DiscoverStatus.FAIL;
+        } else if (unsupported_columns.length > 0) {
+            schemaStatus.statusCode = DiscoverStatus.WARNING;
+        }
+
+        return schemaStatus;
+    }
+
     function convertFileSchemaRecord(record) {
         const {SIZE, ISDIR, NUM, PATH, STATUS, SCHEMA, SCHEMA_HASH} = record;
         const fileInfo = {
@@ -262,14 +292,18 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
         };
 
         if (STATUS != null) {
-            const schemaInfo = {};
-            if (STATUS.toLowerCase() != 'success') {
-                schemaInfo.error = STATUS;
-            } else {
-                schemaInfo.columns = JSON.parse(SCHEMA).columns;
-                schemaInfo.hash = SCHEMA_HASH;
-            }
-            fileInfo.schema = schemaInfo;
+            const { columns } = JSON.parse(SCHEMA);
+            const discoverStatus = converStatusField(STATUS, columns.length);
+            fileInfo.schema = {
+                statusCode: discoverStatus.statusCode,
+                error: {
+                    columns: discoverStatus.errorColumns,
+                    message: discoverStatus.message,
+                    stackTrace: discoverStatus.stackTrace
+                },
+                columns: columns,
+                hash: SCHEMA_HASH
+            };
         }
 
         return fileInfo;
@@ -286,16 +320,19 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
     function convertSchemaDetailRecord(record) {
         const { RELPATH, PATH, STATUS, SCHEMA, SCHEMA_HASH} = record;
 
-        const schemaInfo = {};
-        if (STATUS.toLowerCase() != 'success') {
-            schemaInfo.error = STATUS;
-        } else {
-            schemaInfo.columns = JSON.parse(SCHEMA).columns;
-            schemaInfo.hash = SCHEMA_HASH;
-        }
-
+        const { columns } = JSON.parse(SCHEMA);
+        const discoverStatus = converStatusField(STATUS, columns.length);
         return {
-            schema: schemaInfo,
+            schema: {
+                statusCode: discoverStatus.statusCode,
+                error: {
+                    columns: discoverStatus.errorColumns,
+                    message: discoverStatus.message,
+                    stackTrace: discoverStatus.stackTrace
+                },
+                columns: columns,
+                hash: SCHEMA_HASH
+            },
             file: {
                 fullPath: PATH,
                 relPath: RELPATH.length
@@ -694,4 +731,4 @@ function getDiscoverApp(appId) {
     return discoverApps.get(appId);
 }
 
-export { createDiscoverApp, getDiscoverApp, isFailedSchema }
+export { createDiscoverApp, getDiscoverApp, isFailedSchema, DiscoverStatus }

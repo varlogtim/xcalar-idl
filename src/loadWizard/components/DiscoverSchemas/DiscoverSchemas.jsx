@@ -233,8 +233,8 @@ class DiscoverSchemas extends React.Component {
                         </AdvOption.OptionGroup>
                     </AdvOption.Container>
                 <DiscoverTable {...discoverFilesProps}
-                    onClickSchema={({name, columns}) => {
-                        onShowSchema({hash: name,columns: columns})
+                    onClickSchema={({name, columns, errorColumns, errorStack}) => {
+                        onShowSchema({hash: name,columns: columns,errorColumns: errorColumns,errorStack: errorStack})
                     }}
                 />
 

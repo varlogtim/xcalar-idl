@@ -6,7 +6,8 @@ const Texts = {
     discovering: 'Discovering ...',
     discover: 'Discover',
     expandError: 'Expand',
-    collapseError: 'Collapse'
+    collapseError: 'Collapse',
+    warningHint: 'Some fields cannot be parsed. Click the schema to see the detail.'
 };
 
 /**
@@ -75,6 +76,25 @@ class InlineError extends React.PureComponent {
     }
 }
 
+function Warning({
+    schemaName,
+    onClick
+}) {
+    return (
+        <span>
+            <button
+                className="schemaBtn btn btn-secondary"
+                data-toggle="tooltip"
+                data-placement="top"
+                data-container="body"
+                data-original-title="click to view schema"
+                onClick={() => { onClick(); }}
+            >{schemaName}</button>
+            <i className="icon qMark xi-unknown" data-toggle="tooltip" data-container="body" data-title={Texts.warningHint}></i>
+        </span>
+    );
+}
+
 /**
  * Component: Schema
  * @param {*} param0
@@ -115,5 +135,6 @@ export {
     Error,
     Schema,
     Discover,
-    InlineError
+    InlineError,
+    Warning
 };
