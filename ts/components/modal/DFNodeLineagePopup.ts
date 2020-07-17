@@ -356,7 +356,8 @@ class DFNodeLineagePopup {
     }
 
     private _getDataflowRowHTML(dagTab: DagTab): HTML {
-        return '<span class="link"' +
+        return  '<i class="icon xi-dataflow-thin"></i>' +
+                '<span class="link"' +
                 ' data-toggle="tooltip"' +
                 ' data-container="body"' +
                 ' data-placement="auto top"' +
@@ -366,7 +367,8 @@ class DFNodeLineagePopup {
     }
 
     private _getNodeRowHTML(node: DagNode): HTML {
-        return '<span class="link"' +
+        return '<div class="nodeIcon"></div>' +
+                '<span class="link"' +
                 ' data-toggle="tooltip"' +
                 ' data-container="body"' +
                 ' data-placement="auto top"' +

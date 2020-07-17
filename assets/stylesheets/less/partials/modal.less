@@ -3989,6 +3989,7 @@ html.microsoft {
             height: 20px;
             line-height: 20px;
             margin-top: 8px;
+            white-space: nowrap;
 
             &.error {
                color: @color-error-red;
@@ -4038,6 +4039,24 @@ html.microsoft {
                 font-weight: 600;
                 margin-right: 8px;
                 .xc-action;
+            }
+
+            .nodeIcon {
+                width: 16px;
+                height: 10px;
+                border-radius: 5px;
+                border: 1px solid @color-icon-default-hover;
+                background-color: @color-bg-dagIcon2;
+                display: inline-block;
+                margin-right: 5px;
+            }
+
+            .xi-dataflow-thin {
+                font-size: 14px;
+                margin-right: 5px;
+                color: #9E9E9E;
+                position: relative;
+                top: 1px;
             }
 
             .highlightRelated {
