@@ -1829,7 +1829,7 @@
         }
     }
     &.commentMenu {
-        .removeNode, .copyNodes, .cutNodes, .autoAlign {
+        .removeNode, .copyNodes, .cutNodes {
             display: list-item;
         }
         .executeNode, .executeNodeOptimized, .description, .configureNode,
@@ -1844,6 +1844,14 @@
         }
         &.operatorMenu {
             .executeNode, .autoAlign {
+                display: list-item;
+            }
+        }
+        &.commentMenuOnly {
+            li {
+                display: none;
+            }
+            .removeNode, .copyNodes, .cutNodes {
                 display: list-item;
             }
         }

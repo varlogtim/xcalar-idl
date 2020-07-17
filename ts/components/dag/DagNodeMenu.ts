@@ -41,7 +41,10 @@ namespace DagNodeMenu {
         deleteTable: "This action removes the table results from the selected table.",
         viewSchema: "This action displays the table’s schema and data lineage when column names are clicked.",
         viewSkew: "This action displays the distribution of this table’s data across all cluster nodes. Where, a value of 0 denotes a balanced distribution of data and 100 denotes an imbalanced distribution of data across the cluster.",
-        addOperation: "This action lists the operators for selecting a new operation."
+        addOperation: "This action lists the operators for selecting a new operation.",
+        copyComment: "This action copies the text box and text.",
+        cutComment: "This action removes the text box and text. Unlike the Delete option, the text box and text is saved to the clip-board buffer.",
+        removeComment: "This action permanently removes the text box and its text."
     };
 
     export function setup() {
@@ -703,6 +706,8 @@ namespace DagNodeMenu {
         let classes: string = " commentMenu ";
         $menu.find("li").removeClass("unavailable");
 
+        _changeCommentMenuTooltips($menu);
+
         MenuHelper.dropdownOpen($clickedEl, $menu, {
             mouseCoors: {x: event.pageX, y: event.pageY},
             offsetY: 8,
@@ -744,6 +749,10 @@ namespace DagNodeMenu {
         } else {
             $menu = _getDagNodeMenu();
         }
+
+        xcTooltip.changeText($menu.find(".copyNodes"), tooltipMap["copyNodes"]);
+        xcTooltip.changeText($menu.find(".cutNodes"), tooltipMap["cutNodes"]);
+        xcTooltip.changeText($menu.find(".removeNode"), tooltipMap["removeNode"]);
 
         curNodeId = nodeId;
         $menu.find("li").removeClass("unavailable");
@@ -800,6 +809,9 @@ namespace DagNodeMenu {
                 classes += " multiple ";
                 $menu.find(".reexecuteNode").addClass("xc-hidden");
             }
+        } else if (classes.indexOf("commentMenu") > -1) {
+            classes += " commentMenuOnly ";
+            _changeCommentMenuTooltips($menu);
         } else {
             classes += " backgroundMenu ";
         }
@@ -1088,6 +1100,12 @@ namespace DagNodeMenu {
             floating: true,
             classes: ""
         });
+    }
+
+    function _changeCommentMenuTooltips($menu: JQuery) {
+        xcTooltip.changeText($menu.find(".copyNodes"), tooltipMap["copyComment"]);
+        xcTooltip.changeText($menu.find(".cutNodes"), tooltipMap["cutComment"]);
+        xcTooltip.changeText($menu.find(".removeNode"), tooltipMap["removeComment"]);
     }
 
     function _findLinkOutNode(nodeId: DagNodeId): void {
