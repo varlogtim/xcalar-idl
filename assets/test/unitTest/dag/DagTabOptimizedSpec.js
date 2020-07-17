@@ -520,9 +520,9 @@ describe('DagTabOptimized Test', function() {
 
                 const $dfArea = DagViewManager.Instance.getActiveArea();
                 expect($dfArea.find(".operator").length).to.equal(2);
-                expect($dfArea.find(".operator.dataset").attr('transform')).to.equal("translate(120,120)");
+                expect($dfArea.find(".operator.dataset").attr('transform')).to.equal("translate(120,140)");
 
-                expect($dfArea.find(".operator.synthesize").attr('transform')).to.equal("translate(" + (120 + DagView.horzNodeSpacing) + ",120)");
+                expect($dfArea.find(".operator.synthesize").attr('transform')).to.equal("translate(" + (120 + DagView.horzNodeSpacing) + ",140)");
                 let nodeid = $dfArea.find(".operator.synthesize").data("nodeid");
                 expect($dfArea.find('.nodeStats[data-id="' + nodeid + '"]').find(".progress").text()).to.equal("50%");
 
@@ -764,7 +764,7 @@ describe('DagTabOptimized Test', function() {
                 expect(dagTabs[1].isFromSDK()).to.be.true;
                 done();
             })
-            .catch(() => {
+            .catch((e) => {
                 done("fail");
             })
             .finally(() => {

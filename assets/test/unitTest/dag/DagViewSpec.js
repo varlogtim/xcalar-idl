@@ -545,17 +545,17 @@ describe("DagView Test", () => {
             expect(node1.getPosition().x).to.equal(40);
             expect(node2.getPosition().x).to.equal(40);
             expect(node3.getPosition().x).to.equal(40);
-            expect(node1.getPosition().y).to.equal(40);
-            expect(node2.getPosition().y).to.equal(100);
-            expect(node3.getPosition().y).to.equal(160);
+            expect(node1.getPosition().y).to.equal(60);
+            expect(node2.getPosition().y).to.equal(120);
+            expect(node3.getPosition().y).to.equal(180);
         });
         it("should align in a straight horizontal line when connected", function() {
             DagViewManager.Instance.connectNodes(node2.getId(), node1.getId(), 0, tabId);
             DagViewManager.Instance.connectNodes(node1.getId(), node3.getId(), 0, tabId);
             DagViewManager.Instance.autoAlign(DagViewManager.Instance.getActiveDag().getTabId());
-            expect(node1.getPosition().y).to.equal(40);
-            expect(node2.getPosition().y).to.equal(40);
-            expect(node3.getPosition().y).to.equal(40);
+            expect(node1.getPosition().y).to.equal(60);
+            expect(node2.getPosition().y).to.equal(60);
+            expect(node3.getPosition().y).to.equal(60);
 
             expect(node2.getPosition().x).to.equal(40);
             expect(node1.getPosition().x).to.equal(40 + DagView.horzNodeSpacing);
@@ -1422,13 +1422,13 @@ describe("DagView Test", () => {
             expect(filter2Node.getChildren()[0].getId()).to.equal(outNode.getId());
 
             expect(inNode.getPosition().x).to.equal(40);
-            expect(inNode.getPosition().y).to.equal(40);
+            expect(inNode.getPosition().y).to.equal(60);
             expect(synthesizeNode.getPosition().x).to.equal(40 + DagView.horzNodeSpacing);
-            expect(synthesizeNode.getPosition().y).to.equal(40);
+            expect(synthesizeNode.getPosition().y).to.equal(60);
             expect(filter2Node.getPosition().x).to.equal(40 + (2 * DagView.horzNodeSpacing));
-            expect(filter2Node.getPosition().y).to.equal(40);
+            expect(filter2Node.getPosition().y).to.equal(60);
             expect(outNode.getPosition().x).to.equal(40 + (3 * DagView.horzNodeSpacing));
-            expect(outNode.getPosition().y).to.equal(40);
+            expect(outNode.getPosition().y).to.equal(60);
 
             $("#dagTabView").find(".dagTab").last().find(".after").click();
             $dfArea = $dfWrap.find(".dataflowArea.active");

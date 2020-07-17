@@ -122,7 +122,7 @@ class DagView {
                     id: j,
                     position: {
                         x: ((maxDepth - nodes[j].depth) * DagView.horzNodeSpacing) + (DagView.gridSpacing * 2),
-                        y: Math.round((nodes[j].width * DagView.vertNodeSpacing) / DagView.gridSpacing) * DagView.gridSpacing + (DagView.gridSpacing * 2)
+                        y: Math.round((nodes[j].width * DagView.vertNodeSpacing) / DagView.gridSpacing) * DagView.gridSpacing + (DagView.gridSpacing * 3)
                     }
                 });
             }
@@ -2135,9 +2135,6 @@ class DagView {
 
             // Delete selected nodes
             const deferred: XDDeferred<void> = PromiseHelper.deferred();
-            const nodes = nodeIds.map((nodeId) => {
-                return this.graph.getNode(nodeId);
-            });
             // always resolves
             this._removeNodesNoPersist(nodeIds,
                 { isNoLog: true, isSwitchState: false, clearMeta: false}
@@ -4283,14 +4280,34 @@ class DagView {
         if (!head) {
             return;
         }
-        g.append("text")
+        const outer = g.append("foreignObject")
+            .attr({
+                x: 2,
+                y: -50,
+                style: "overflow: visible"
+            })
+            .append('xhtml:div')
             .attr("class", "graphHead")
-            .attr("fill", DagView.textColor)
-            .attr("font-size", 10)
-            .attr("transform", "translate(-20,0)")
-            .attr("text-anchor", "middle")
-            .attr("font-family", "Open Sans")
-            .text(head);
+            .attr({
+                "data-toggle": "tooltip",
+                "data-container": "body",
+                "data-placement": "auto top",
+                "data-title": head
+            });
+
+            outer
+            .append("div")// keeps the size of the outer div
+            .attr("class", "hiddenGraphHead")
+            .html(head);
+
+            outer
+            .append("div")
+            .attr("class", "graphHeadInner")
+            .html(head);
+
+
+            outer.append("i")
+            .attr("class", "icon xi-edit");
     }
 
     private _updateTableNameText($node: JQuery, node: DagNode) {
@@ -5550,7 +5567,7 @@ class DagView {
                 this.editNodeTitle(nodeId, newVal);
             }
         };
-        this._editMode($origTitle, origVal, onChange);
+        this._editMode($origTitle, origVal, [], onChange);
     }
 
     public graphHeadEditMode($origTitle): void {
@@ -5575,16 +5592,26 @@ class DagView {
                 node.setHead(newVal, true);
             }
         };
-        this._editMode($origTitle, origVal, onChange);
+        this._editMode($origTitle, origVal, ["graphHeadEdit"], onChange);
     }
 
-    private _editMode($origTitle: JQuery, origVal: string, onChange: Function): void {
+    private _editMode($origTitle: JQuery, origVal: string, classes: string[], onChange: Function): void {
         const rect = $origTitle[0].getBoundingClientRect();
         const offset = this._getDFAreaOffset();
-        const left = rect.left + offset.left + (rect.width / 2);
+        let left;
+        let minWidth;
+        let maxWidth;
+        if (classes.indexOf("graphHeadEdit") > -1) {
+            left = rect.left + offset.left;
+            minWidth = 20;
+            maxWidth = 164;
+        } else {
+            left = rect.left + offset.left + (rect.width / 2);
+            minWidth = DagView.nodeWidth - 20;
+        }
         const top = rect.top + offset.top;
-        const minWidth = DagView.nodeWidth - 20;
-        let html: HTML = `<textarea class="editableNodeTitle" spellcheck="false"
+        const classNames = classes.join(" ");
+        let html: HTML = `<textarea class="editableNodeTitle ${classNames}" spellcheck="false"
                     style="top:${top}px;left:${left}px;">${origVal}</textarea>`;
         let $textArea = $(html);
         $origTitle.closest(".dataflowAreaWrapper").append($textArea);
@@ -5594,6 +5621,18 @@ class DagView {
         $origTitle.hide();
 
         $textArea.blur(() => {
+            handleClose();
+        });
+
+        $textArea.on("input", sizeInput);
+        $textArea.on("keydown", (event) => {;
+            if (event.which === keyCode.Enter) {
+                if (classes.indexOf("graphHeadEdit") > -1) {
+                    handleClose();
+                }
+            }
+        });
+        function handleClose() {
             const newVal: string = $textArea.val().trim();
             $textArea.remove();
             $origTitle.show();
@@ -5602,15 +5641,17 @@ class DagView {
                 return;
             }
             onChange(newVal);
-        });
-
-        $textArea.on("input", sizeInput);
+        }
         function sizeInput() {
             if (!$textArea.is(":visible")) return; // ENG-8642
             $textArea.height(DagView.titleLineHeight);
             $textArea.width(minWidth);
             if ($textArea[0].scrollWidth > $textArea.width()) {
-                $textArea.width($textArea[0].scrollWidth + 1);
+                let width = $textArea[0].scrollWidth + 1;
+                if (maxWidth) {
+                    width = Math.min(width, maxWidth);
+                }
+                $textArea.width(width);
             }
             if ($textArea[0].scrollHeight > $textArea.height()) {
                 $textArea.height($textArea[0].scrollHeight);

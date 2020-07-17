@@ -1338,7 +1338,7 @@ class DagViewManager {
             self.activeDagView.connectorInMousedown(event, $(this));
         });
 
-        this.$dfWrap.on("dblclick", ".graphHead", function () {
+        this.$dfWrap.on("click", ".graphHead", function () {
             self.activeDagView.graphHeadEditMode($(this));
         });
 

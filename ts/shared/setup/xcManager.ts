@@ -63,8 +63,6 @@ namespace xcManager {
         })
         .then(function(isFirstTimeUser) {
             firstTimeUser = isFirstTimeUser;
-        })
-        .then(function() {
             // First XD instance to run since cluster restart
             return oneTimeSetup();
         })
