@@ -1,3 +1,4 @@
+// source: xcalar/compute/localtypes/UnionOpEnums.proto
 /**
  * @fileoverview
  * @enhanceable

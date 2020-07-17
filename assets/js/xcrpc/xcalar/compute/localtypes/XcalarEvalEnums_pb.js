@@ -1,3 +1,4 @@
+// source: xcalar/compute/localtypes/XcalarEvalEnums.proto
 /**
  * @fileoverview
  * @enhanceable

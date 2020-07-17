@@ -1,3 +1,4 @@
+// source: xcalar/compute/localtypes/FunctionCategory.proto
 /**
  * @fileoverview
  * @enhanceable

@@ -1,3 +1,4 @@
+// source: xcalar/compute/localtypes/RuntimeEnums.proto
 /**
  * @fileoverview
  * @enhanceable

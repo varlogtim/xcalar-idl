@@ -1,3 +1,4 @@
+// source: xcalar/compute/localtypes/LibQueryParserFuncTestConfig.proto
 /**
  * @fileoverview
  * @enhanceable

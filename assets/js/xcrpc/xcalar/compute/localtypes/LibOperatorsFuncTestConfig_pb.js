@@ -1,3 +1,4 @@
+// source: xcalar/compute/localtypes/LibOperatorsFuncTestConfig.proto
 /**
  * @fileoverview
  * @enhanceable

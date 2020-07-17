@@ -16,6 +16,7 @@ try {
     const value = await myClient.getKVStoreService().lookup({
         keyName: 'myGlobalKey', kvScope: sdk.KVStore.KVSCOPE.GLOBAL
     });
+
     // Succeed
     console.log(value);
 } catch(error) {

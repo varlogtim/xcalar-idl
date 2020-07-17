@@ -1,3 +1,4 @@
+// source: xcalar/compute/localtypes/JoinOpEnums.proto
 /**
  * @fileoverview
  * @enhanceable

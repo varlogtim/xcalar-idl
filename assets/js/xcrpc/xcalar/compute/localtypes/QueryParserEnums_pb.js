@@ -1,3 +1,4 @@
+// source: xcalar/compute/localtypes/QueryParserEnums.proto
 /**
  * @fileoverview
  * @enhanceable

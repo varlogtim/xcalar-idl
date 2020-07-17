@@ -1,3 +1,4 @@
+// source: xcalar/compute/localtypes/LicenseTypes.proto
 /**
  * @fileoverview
  * @enhanceable

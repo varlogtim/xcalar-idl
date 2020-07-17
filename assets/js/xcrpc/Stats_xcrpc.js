@@ -64,6 +64,24 @@ StatsService.prototype = {
         var getLibstatsResponse = stats.GetLibstatsResponse.deserializeBinary(specificBytes);
         return getLibstatsResponse;
     },
+    resetStats: async function(resetStatsRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(resetStatsRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Stats.ResetStatsRequest");
+        //anyWrapper.pack(resetStatsRequest.serializeBinary(), "ResetStatsRequest");
+
+        var responseData = await this.client.execute("Stats", "ResetStats", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var resetStatsResponse =
+        //    responseData.unpack(stats.ResetStatsResponse.deserializeBinary,
+        //                        "ResetStatsResponse");
+        var resetStatsResponse = stats.ResetStatsResponse.deserializeBinary(specificBytes);
+        return resetStatsResponse;
+    },
 };
 
 exports.StatsService = StatsService;

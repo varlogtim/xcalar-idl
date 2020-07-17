@@ -13,6 +13,7 @@ const _serviceInfo = {
     "Stats" : {
         "GetStats" : ["xcalar.compute.localtypes.Stats.GetStatsRequest", "xcalar.compute.localtypes.Stats.GetStatsResponse"],
         "GetLibstats" : ["xcalar.compute.localtypes.Stats.GetLibstatsRequest", "xcalar.compute.localtypes.Stats.GetLibstatsResponse"],
+        "ResetStats" : ["xcalar.compute.localtypes.Stats.ResetStatsRequest", "xcalar.compute.localtypes.Stats.ResetStatsResponse"],
     },
 };
 

@@ -1,3 +1,4 @@
+// source: xcalar/compute/localtypes/DataflowEnums.proto
 /**
  * @fileoverview
  * @enhanceable
