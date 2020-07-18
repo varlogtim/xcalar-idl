@@ -54,6 +54,7 @@ declare enum SQLErrTStr {
     GLChild,
     GLLength,
     GLDataType,
+    GLLimitClass,
     FilterLength,
     NotAliasWindowExpr,
     NoWENode,

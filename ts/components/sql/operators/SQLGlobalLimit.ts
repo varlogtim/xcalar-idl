@@ -5,10 +5,22 @@ class SQLGlobalLimit {
                        SQLErrTStr.GLChild + node.children.length);
         SQLUtil.assert(node.value.limitExpr.length === 1,
                        SQLErrTStr.GLLength + node.value.limitExpr.length);
-        SQLUtil.assert(node.value.limitExpr[0].dataType === "integer",
+        let limit;
+        if (node.value.limitExpr[0].class ===
+            "org.apache.spark.sql.catalyst.expressions.Literal") {
+            SQLUtil.assert(node.value.limitExpr[0].dataType === "integer",
                        SQLErrTStr.GLDataType + node.value.limitExpr[0].dataType);
-
-        const limit = parseInt(node.value.limitExpr[0].value);
+            limit = parseInt(node.value.limitExpr[0].value);
+        } else {
+            SQLUtil.assert(node.value.limitExpr[0].class ===
+                "org.apache.spark.sql.catalyst.expressions.XCEParameter",
+                SQLErrTStr.GLLimitClass + node.value.limitExpr[0].class);
+            if (node.value.limitExpr[0].paramType === "integer") {
+                limit = node.value.limitExpr[0].name;
+            } else {
+                limit = "int(" + node.value.limitExpr[0].name + ")";
+            }
+        }
         const tableName = node.children[0].newTableName;
         let tableId = xcHelper.getTableId(tableName);
         if (typeof tableId === "string") {
