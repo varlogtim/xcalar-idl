@@ -24,6 +24,7 @@ namespace xcManager {
             return hotPatch();
         })
         .then(function() {
+            Alert.setup();
             return XcUser.setCurrentUser();
         })
         .then(function() {
@@ -658,7 +659,6 @@ namespace xcManager {
 
     // excludes alert modal wish is set up earlier
     function setupModals(): void {
-        Alert.setup();
         Profile.setup();
         WorkbookPanel.setup();
         WorkbookInfoModal.setup();
