@@ -90,6 +90,31 @@ function isFailedSchema(schemaHash) {
     return schemaHash === failedSchemaHash;
 }
 
+async function callInTransaction(operation, runTask) {
+    const txId = Transaction.start({
+        "msg": 'SchemaLoadApp',
+        "operation": operation,
+        "track": false
+    });
+
+    try {
+        const returnVal = await runTask();
+        Transaction.done(txId);
+        return returnVal;
+    } catch(e) {
+        Transaction.fail(txId);
+        throw e;
+    }
+}
+
+function sleep(time) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve();
+        }, time);
+    });
+}
+
 const discoverApps = new Map();
 function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive = true, isErrorRetry = true }) {
     let executionDone = false;
@@ -107,14 +132,6 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
         inputSerialization: inputSerialization
     });
     const names = createDiscoverNames(appId);
-
-    function sleep(time) {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve();
-            }, time);
-        });
-    }
 
     async function waitForTable(tableName, checkInterval) {
         while(!executionDone) {
@@ -340,6 +357,110 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
         };
     }
 
+    async function runDiscover() {
+        try {
+            await deleteTempTables();
+            const appInput = {
+                session_name: session.sessionName,
+                user_name: session.user.getUserName(),
+                user_id: session.user.getUserId(),
+                func: 'discover_all',
+                path: path,
+                file_name_pattern: filePattern,
+                recursive: isRecursive,
+                input_serial_json: JSON.stringify(inputSerialization),
+                retry_on_error: isErrorRetry,
+                files_table_name: names.file,
+                schema_results_table_name: names.schema,
+                schema_report_table_name: names.report
+            };
+            console.log('Discover app: ', appInput);
+            await executeSchemaLoadApp(JSON.stringify(appInput));
+        } finally {
+            executionDone = true;
+        }
+    }
+
+    async function runTableQuery(query, progressCB = () => {}) {
+        /**
+         * Do not delete the result table of each dataflow execution here,
+         * or IMD table will persist an incomplete dataflow to its metadata
+         * thus table restoration will fail
+         */
+        const {loadQueryOpt, dataQueryOpt, compQueryOpt, tableNames} = query;
+
+        // Execute Load DF
+        const loadQuery = JSON.parse(loadQueryOpt).retina;
+        const loadProgress = updateProgress((p) => progressCB(p), 0, 60);
+        try {
+            await session.executeQueryOptimized({
+                queryStringOpt: loadQuery,
+                queryName: `q_${appId}_${queryIndex ++}`,
+                tableName: tableNames.load,
+                params: new Map([
+                    ['session_name', session.sessionName],
+                    ['user_name', session.user.getUserName()]
+                ])
+            });
+            loadProgress.done();
+        } finally {
+            loadProgress.stop();
+        }
+        const loadTable = new Table({
+            session: session,
+            tableName: tableNames.load
+        });
+
+        try {
+            // Execute Data DF
+            const dataQuery = JSON.parse(dataQueryOpt).retina;
+            const dataProgress = updateProgress((p) => progressCB(p), 60, 80);
+            try {
+                await session.executeQueryOptimized({
+                    queryStringOpt: dataQuery,
+                    queryName: `q_${appId}_${queryIndex ++}`,
+                    tableName: tableNames.data
+                });
+                dataProgress.done();
+            } finally {
+                dataProgress.stop();
+            }
+            const dataTable = new Table({
+                session: session, tableName: tableNames.data
+            });
+
+            // Execute ICV DF
+            const compQuery = JSON.parse(compQueryOpt).retina;
+            const compProgress = updateProgress((p) => progressCB(p), 80, 99);
+            try {
+                await session.executeQueryOptimized({
+                    queryStringOpt: compQuery,
+                    queryName: `q_${appId}_${queryIndex ++}`,
+                    tableName: tableNames.comp
+                });
+                compProgress.done();
+            } finally {
+                compProgress.stop();
+            }
+            const compTable = new Table({
+                session: session,
+                tableName: tableNames.comp
+            });
+
+            // Delete Load XDB but keep lineage
+            await loadTable.destroy({ isCleanLineage: false });
+
+            // Return the session tables created from those 3 DFs
+            return {
+                data: dataTable,
+                comp: compTable,
+                load: loadTable
+            };
+        } finally {
+            progressCB(100);
+        }
+    }
+
     const app = {
         appId: appId,
         getSession: () => session,
@@ -357,27 +478,7 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
             }
         },
         run: async () => {
-            try {
-                await deleteTempTables();
-                const appInput = {
-                    session_name: session.sessionName,
-                    user_name: session.user.getUserName(),
-                    user_id: session.user.getUserId(),
-                    func: 'discover_all',
-                    path: path,
-                    file_name_pattern: filePattern,
-                    recursive: isRecursive,
-                    input_serial_json: JSON.stringify(inputSerialization),
-                    retry_on_error: isErrorRetry,
-                    files_table_name: names.file,
-                    schema_results_table_name: names.schema,
-                    schema_report_table_name: names.report
-                };
-                console.log('Discover app: ', appInput);
-                await executeSchemaLoadApp(JSON.stringify(appInput));
-            } finally {
-                executionDone = true;
-            }
+            return await callInTransaction('Discovery', () => runDiscover());
         },
         publishResultTables: async (tables, pubNames, dataflows) => {
             const { data: dataName, comp: compName } = pubNames;
@@ -406,83 +507,7 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
             return compHasData;
         },
         createResultTables: async (query, progressCB = () => {}) => {
-            /**
-             * Do not delete the result table of each dataflow execution here,
-             * or IMD table will persist an incomplete dataflow to its metadata
-             * thus table restoration will fail
-             */
-            const {loadQueryOpt, dataQueryOpt, compQueryOpt, tableNames} = query;
-
-            // Execute Load DF
-            const loadQuery = JSON.parse(loadQueryOpt).retina;
-            const loadProgress = updateProgress((p) => progressCB(p), 0, 60);
-            try {
-                await session.executeQueryOptimized({
-                    queryStringOpt: loadQuery,
-                    queryName: `q_${appId}_${queryIndex ++}`,
-                    tableName: tableNames.load,
-                    params: new Map([
-                        ['session_name', session.sessionName],
-                        ['user_name', session.user.getUserName()]
-                    ])
-                });
-                loadProgress.done();
-            } finally {
-                loadProgress.stop();
-            }
-            const loadTable = new Table({
-                session: session,
-                tableName: tableNames.load
-            });
-
-            try {
-                // Execute Data DF
-                const dataQuery = JSON.parse(dataQueryOpt).retina;
-                const dataProgress = updateProgress((p) => progressCB(p), 60, 80);
-                try {
-                    await session.executeQueryOptimized({
-                        queryStringOpt: dataQuery,
-                        queryName: `q_${appId}_${queryIndex ++}`,
-                        tableName: tableNames.data
-                    });
-                    dataProgress.done();
-                } finally {
-                    dataProgress.stop();
-                }
-                const dataTable = new Table({
-                    session: session, tableName: tableNames.data
-                });
-
-                // Execute ICV DF
-                const compQuery = JSON.parse(compQueryOpt).retina;
-                const compProgress = updateProgress((p) => progressCB(p), 80, 99);
-                try {
-                    await session.executeQueryOptimized({
-                        queryStringOpt: compQuery,
-                        queryName: `q_${appId}_${queryIndex ++}`,
-                        tableName: tableNames.comp
-                    });
-                    compProgress.done();
-                } finally {
-                    compProgress.stop();
-                }
-                const compTable = new Table({
-                    session: session,
-                    tableName: tableNames.comp
-                });
-
-                // Delete Load XDB but keep lineage
-                await loadTable.destroy({ isCleanLineage: false });
-
-                // Return the session tables created from those 3 DFs
-                return {
-                    data: dataTable,
-                    comp: compTable,
-                    load: loadTable
-                };
-            } finally {
-                progressCB(100);
-            }
+            return await callInTransaction('Create tables', () => runTableQuery(query, progressCB));
         },
         getCreateTableQuery: async (schemaHash, progressCB = () => {}) => {
             const delProgress = updateProgress((p) => {
