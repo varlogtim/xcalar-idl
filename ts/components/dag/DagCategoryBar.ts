@@ -585,18 +585,18 @@ class DagCategoryBar {
         if (name.length > 9 && name.indexOf(" ") > -1) {
             const namePart1 = name.substring(0, name.lastIndexOf(" "));
             const namePart2 = name.slice(name.lastIndexOf(" ") + 1);
-            html = '<text class="opTitle" x="50%" y="30%" ' +
-            'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
+            html = '<text class="opTitle" x="50%" y="40%" ' +
+            'text-anchor="middle"  font-family="Open Sans" ' +
             'font-size="10" fill="' + this._textColor + '">' + namePart1 +
             '</text>' +
-            '<text class="opTitle" x="50%" y="70%" ' +
-            'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
+            '<text class="opTitle" x="50%" y="80%" ' +
+            'text-anchor="middle" font-family="Open Sans" ' +
             'font-size="10" fill="' + this._textColor + '">' + namePart2 +
             '</text>';
 
         } else {
-            html = '<text class="opTitle" x="50%" y="50%" ' +
-            'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
+            html = '<text class="opTitle" x="50%" y="60%" ' +
+            'text-anchor="middle" font-family="Open Sans" ' +
             'font-size="10" fill="' + this._textColor + '">' + name +
             '</text>';
         }

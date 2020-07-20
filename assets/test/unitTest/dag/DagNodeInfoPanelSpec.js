@@ -187,7 +187,7 @@ describe("DagNodeInfoPanel Test", function() {
             expect($panel.find(".statsRow.subRow").eq(3).find(".value").eq(1).text()).to.equal("6");
             expect($panel.find(".statsRow.subRow").eq(3).find(".value").eq(2).text()).to.equal("0");
             expect($panel.find(".statsRow.subRow").eq(6).find(".value").text()).to.equal("100");
-            expect($panel.find(".statsRow.subRow").eq(6).find(".value").attr("style")).to.equal("color:hsl(0, 100%, 33%)");
+            expect($panel.find(".statsRow.subRow").eq(6).find(".value").attr("style")).to.equal("color:hsl(0, 83%, 67%)");
             expect($panel.find(".statsRow.subRow").eq(7).find(".value").text()).to.equal("8ms");
 
             // expand row stats section

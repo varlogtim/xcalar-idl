@@ -2323,6 +2323,18 @@ html.firefox {
             }
         }
     }
+    .dataTable {
+        .displayedData, .idSpan {
+            // firefox can't show Source code pro in white
+            font-family: @font-code-secondary;
+        }
+    }
+    .schemaPopup.loadInfo .content {
+        font-family: @font-code-secondary;
+    }
+    #jsonModal .prettyJson  {
+        font-family: @font-code-secondary;
+    }
 }
 
 .xc-query {

@@ -567,6 +567,8 @@ class DagView {
             >= 50%: hsl(0, 100%, 33%)
         */
         let h = 104;
+        let s = 83;
+        let l = 67;
         if (skew <= 25) {
             h = 104 - 54 / 25 * skew;
         } else if (skew <= 50) {
@@ -574,7 +576,7 @@ class DagView {
         } else {
             h = 0;
         }
-        return 'hsl(' + h + ', 100%, 33%)';
+        return `hsl(${h}, ${s}%, ${l}%)`;
     }
 
 
