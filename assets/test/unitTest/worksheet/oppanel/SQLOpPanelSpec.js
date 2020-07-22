@@ -1,9 +1,7 @@
-// TODO: need to fix for new UX
-describe.skip("SQLOpPanel Test", function() {
+describe("SQLOpPanel Test", function() {
     var sqlOpPanel;
     var $sqlOpPanel;
     var node;
-    var sqlEditor;
     var prefix = "prefix";
     var openOptions = {};
     var parentNode;
@@ -12,7 +10,9 @@ describe.skip("SQLOpPanel Test", function() {
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
             node = new DagNodeSQL({});
-            parentNode = new DagNodeSQL({});
+            parentNode = new DagNodeSQL({
+                title: "Label 1"
+            });
             parentNode.getLineage = function() {
                 return {getColumns: function() {
                     return [new ProgCol({
@@ -24,17 +24,14 @@ describe.skip("SQLOpPanel Test", function() {
                     })]
                 }}
             };
-            node.getParents = function() {
-                return [parentNode];
-            }
+
             openOptions = {
                 udfDisplayPathPrefix : UDFFileManager.Instance.getCurrWorkbookDisplayPath()
             };
 
-            sqlOpPanel = OldSQLOpPanel.Instance;
-            sqlEditor = sqlOpPanel.getSQLEditor();
+            sqlOpPanel = SQLOpPanel.Instance;
             editor = sqlOpPanel._editor;
-            $sqlOpPanel = $('#oldSqlOpPanel');
+            $sqlOpPanel = $('#sqlOpPanel');
             done();
         });
 
@@ -44,14 +41,14 @@ describe.skip("SQLOpPanel Test", function() {
 
         it ("Should be hidden at start", function () {
             sqlOpPanel.close();
-            expect($('#oldSqlOpPanel').hasClass("xc-hidden")).to.be.true;
+            expect($('#sqlOpPanel').hasClass("xc-hidden")).to.be.true;
         });
 
         it ("Should be visible when show is called", function () {
             DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
-            expect($('#oldSqlOpPanel').hasClass("xc-hidden")).to.be.false;
+            expect($('#sqlOpPanel').hasClass("xc-hidden")).to.be.false;
             if ($sqlOpPanel.find(".advancedEditor").is(":visible")) {
-                $("#oldSqlOpPanel .bottomSection .xc-switch").click();
+                $("#sqlOpPanel .bottomSection .xc-switch").click();
             }
         });
 
@@ -59,14 +56,14 @@ describe.skip("SQLOpPanel Test", function() {
             DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
             sqlOpPanel.close();
             $('#formWaitingBG').remove();
-            expect($('#oldSqlOpPanel').hasClass("xc-hidden")).to.be.true;
+            expect($('#sqlOpPanel').hasClass("xc-hidden")).to.be.true;
         });
 
         it ("Should be hidden when close is clicked", function () {
             DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
-            $('#oldSqlOpPanel .close').click();
+            $('#sqlOpPanel .close').click();
             $('#formWaitingBG').remove();
-            expect($('#oldSqlOpPanel').hasClass("xc-hidden")).to.be.true;
+            expect($('#sqlOpPanel').hasClass("xc-hidden")).to.be.true;
         });
     });
 
@@ -78,28 +75,30 @@ describe.skip("SQLOpPanel Test", function() {
         });
 
         describe("initial state", function() {
-            it("should have 0 identifier", function() {
-                expect($sqlOpPanel.find(".sqlIdentifiers li").length).to.equal(0);
+            it("should have 0 identifiers", function() {
+                expect($sqlOpPanel.find(".identifiersList .source").length).to.equal(0);
+                expect($sqlOpPanel.find(".identifiersList .dest").length).to.equal(0);
                 expect($sqlOpPanel.find(".tableInstruction").is(":visible")).to.be.true;
+                expect($sqlOpPanel.find(".noTableHint").is(":visible")).to.be.true;
             });
             it("drop as you go should be checked", function() {
                 expect($sqlOpPanel.find(".dropAsYouGo .checkbox.checked").length).to.equal(1);
             });
-            it("editor should be blank", function() {
-                expect(sqlEditor.getValue()).to.equal("");
-            });
+
         });
 
         describe("table mapping", function() {
             it("shoud have identifiers after connection changes", function() {
                 node.connectToParent(parentNode, 0);
-                expect($sqlOpPanel.find(".sqlIdentifiers li").length).to.equal(1);
-                expect($(".sqlIdentifiers").find("li .source").text().trim()).to.equal("1");
-                expect($(".sqlIdentifiers").find("li .dest").text().trim()).to.equal("");
-                expect($sqlOpPanel.find(".tableInstruction").is(":visible")).to.be.false;
+                expect($sqlOpPanel.find(".identifiersList .source").length).to.equal(1);
+                expect($sqlOpPanel.find(".identifiersList .dest").length).to.equal(1);
+                expect($(".identifiersList").find(".source").text().trim()).to.equal("Not Found");
+                expect($(".identifiersList").find(".dest input").val().trim()).to.equal("Label 1");
+                expect($sqlOpPanel.find(".noTableHint").is(":visible")).to.be.true;
                 node.disconnectFromParent(parentNode, 0);
-                expect($sqlOpPanel.find(".sqlIdentifiers li").length).to.equal(0);
-                expect($sqlOpPanel.find(".tableInstruction").is(":visible")).to.be.true;
+                expect($sqlOpPanel.find(".identifiersList .source").length).to.equal(0);
+                expect($sqlOpPanel.find(".identifiersList .dest").length).to.equal(0);
+                expect($sqlOpPanel.find(".noTableHint").is(":visible")).to.be.true;
             });
         });
     });
@@ -107,17 +106,23 @@ describe.skip("SQLOpPanel Test", function() {
     describe("submit", function() {
         it("should submit", function(done) {
             node.connectToParent(parentNode, 0);
-            $sqlOpPanel.find(".sqlIdentifiers").find(".dest").val("test").trigger("change");
-            sqlEditor.setValue("Select * FROM test");
+            SQLEditorSpace.Instance.getEditor().setValue("Select * FROM test");
+
             let called = false;
             node.compileSQL = () => {
                 called = true;
                 node.setXcQueryString("queryString");
                 return PromiseHelper.resolve({newTableName: "newName", allCols: [], xcQueryString: "queryString", tableSrcMap: new Map()});
             };
-            $sqlOpPanel.find(".submit").click();
-            UnitTest.testFinish(()=> {
-                return !$sqlOpPanel.is(":visible");
+            UnitTest.testFinish(() => {
+                return $(".identifiersList").find(".source input").length &&
+                        $(".identifiersList").find(".source input").val().trim() === "test";
+            })
+            .then(() => {
+                $sqlOpPanel.find(".submit").click();
+                return  UnitTest.testFinish(()=> {
+                    return !$sqlOpPanel.is(":visible");
+                })
             })
             .then(() => {
                 expect(called).to.be.true;
@@ -136,10 +141,10 @@ describe.skip("SQLOpPanel Test", function() {
             DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
             $('#formWaitingBG').remove();
             if (!sqlOpPanel._isAdvancedMode()) {
-                $("#oldSqlOpPanel .bottomSection .xc-switch").click();
+                $("#sqlOpPanel .bottomSection .xc-switch").click();
             }
             editor.setValue(JSON.stringify({}, null, 4));
-            $("#oldSqlOpPanel .bottomSection .btn-submit").click();
+            $("#sqlOpPanel .bottomSection .btn-submit").click();
             expect($("#statusBox").hasClass("active")).to.be.true;
             UnitTest.hasStatusBoxWithError(" should have required property 'sqlQueryString'");
             sqlOpPanel.close();
@@ -160,14 +165,15 @@ describe.skip("SQLOpPanel Test", function() {
             DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);
             $('#formWaitingBG').remove();
             if (!sqlOpPanel._isAdvancedMode()) {
-                $("#oldSqlOpPanel .bottomSection .xc-switch").click();
+                $("#sqlOpPanel .bottomSection .xc-switch").click();
             }
 
             editor.setValue(JSON.stringify(struct, null, 4));
-            $("#oldSqlOpPanel .bottomSection .btn-submit").click();
+            $("#sqlOpPanel .bottomSection .btn-submit").click();
             if ($("#alertModal").is(":visible")) {
                 console.log($("#alertModal").text().trim());
             }
+
             expect($("#alertModal").is(":visible")).to.be.false;
 
             node.compileSQL = () => {
