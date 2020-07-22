@@ -686,10 +686,12 @@ class LoadConfig extends React.Component {
             const etime = Date.now();
             console.log(`DiscoverAll took ${Math.ceil((etime - stime)/100)/10} seconds`);
         } catch(e) {
-            this._alert({
-                title: 'Discovery Error',
-                message: `${e.log || e.error || e.message || e}`
-            });
+            if (e !== SchemaLoadService.ExceptionAppCancelled) {
+                this._alert({
+                    title: 'Discovery Error',
+                    message: `${e.log || e.error || e.message || e}`
+                });
+            }
             this._resetDiscoverResult();
         } finally {
             this.setState({

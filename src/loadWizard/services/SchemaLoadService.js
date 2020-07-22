@@ -13,6 +13,8 @@ const DiscoverStatus = {
     FAIL: 2
 };
 
+const ExceptionAppCancelled = new Error('AppCancel');
+
 function getFileExt(fileName) {
     return (fileName.includes('.')
         ? fileName.split('.').pop()
@@ -118,6 +120,7 @@ function sleep(time) {
 const discoverApps = new Map();
 function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive = true, isErrorRetry = true }) {
     let executionDone = false;
+    let cancelDiscover = false;
     const tables = {
         file: null, schema: null, report: null,
         fileSchema: null
@@ -133,16 +136,28 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
     });
     const names = createDiscoverNames(appId);
 
+    async function wrapWithCancel(task) {
+        if (cancelDiscover) {
+            throw ExceptionAppCancelled;
+        }
+        const result = await task();
+        if (cancelDiscover) {
+            throw ExceptionAppCancelled;
+        }
+
+        return result;
+    }
+
     async function waitForTable(tableName, checkInterval) {
         while(!executionDone) {
-            await sleep(checkInterval);
-            const tables = await session.listTables({ namePattern: tableName });
+            await wrapWithCancel(() => sleep(checkInterval));
+            const tables = await wrapWithCancel(() => session.listTables({ namePattern: tableName }));
             if (tables.length > 0) {
                 return tables[0];
             }
         }
 
-        const tables = await session.listTables({ namePattern: tableName });
+        const tables = await wrapWithCancel(() => session.listTables({ namePattern: tableName }));
         return tables.length > 0 ? tables[0] : null;
     }
 
@@ -375,7 +390,7 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
                 schema_report_table_name: names.report
             };
             console.log('Discover app: ', appInput);
-            await executeSchemaLoadApp(JSON.stringify(appInput));
+            await wrapWithCancel(() => executeSchemaLoadApp(JSON.stringify(appInput)));
         } finally {
             executionDone = true;
         }
@@ -584,7 +599,9 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
         },
         cancel: async () => {
             // XXX TODO: Need a real cancel
-            executionDone = true;
+            if (!executionDone) {
+                cancelDiscover = true;
+            }
         },
         getFileSchema: async (page, rowsPerPage) => {
             // Try to create the file-schema joint table
@@ -756,4 +773,4 @@ function getDiscoverApp(appId) {
     return discoverApps.get(appId);
 }
 
-export { createDiscoverApp, getDiscoverApp, isFailedSchema, DiscoverStatus }
+export { createDiscoverApp, getDiscoverApp, isFailedSchema, DiscoverStatus, ExceptionAppCancelled }
