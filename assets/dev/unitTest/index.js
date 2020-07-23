@@ -7,6 +7,8 @@ const commandLineArgs = process.argv;
 
 // Usage: npm test <testName> <hostname>
 // E.g.: npm test unitTest https://cantor:8443
+// valid testName: testSuite sqlTest expServer xcrpcTest
+// unitTest unitTestOnDev XDFuncTest
 let testName = "unitTestOnDev";
 let hostname = "http://localhost:8888";
 // Host name must be with protocol and whatever port
@@ -42,7 +44,6 @@ async function runTest(testType, hostname) {
             // }
             // process.exit(exitCode);
 
-            const mochaTest = "npm test --prefix ../../../xcalar-gui/services/expServer";
             const expServerTest = spawn('npm', ['test', '--prefix', '../../../xcalar-gui/services/expServer']);
 
             expServerTest.stdout.on('data', function (data) {

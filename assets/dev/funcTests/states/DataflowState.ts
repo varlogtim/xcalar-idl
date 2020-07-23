@@ -112,6 +112,7 @@ class DataflowState extends State {
         }
 
         if (!this._checkToCreateTab()) {
+            this.log("get tab");
             return await this.getTab();
         }
         let newTabId = DagTabManager.Instance.newTab();
@@ -120,10 +121,22 @@ class DataflowState extends State {
         return this;
     }
 
+    private getValidTabs() {
+        const tabs: DagTab[] = DagTabManager.Instance.getTabs().filter((tab) => tab.isEditable());
+        this.log("Valid tabs " + tabs.map((tab) => tab.getName()).join(", "));
+        return tabs;
+    }
+
     private async getTab() {
-        this.currentTab = Util.pickRandom(DagTabManager.Instance.getTabs());
-        DagTabManager.Instance.switchTab(this.currentTab.getId());
-        return this;
+        const tabs = this.getValidTabs();
+        if (tabs.length === 0) {
+            console.log("no tabs to get, create a new one");
+            return this.createTab();
+        } else {
+            this.currentTab = Util.pickRandom(tabs);
+            DagTabManager.Instance.switchTab(this.currentTab.getId());
+            return this;
+        }
     }
 
     // In nodes
@@ -487,7 +500,7 @@ class DataflowState extends State {
     // returns Array of (linkoutNode, dataflow) tuples
     private getAllDfLinks() {
         let dfLinks = [];
-        let tabs = DagTabManager.Instance.getTabs();
+        let tabs = this.getValidTabs();
         for(let tab of tabs) {
             let linkOutNodes = tab.getGraph().getNodesByType(DagNodeType.DFOut);
             if (linkOutNodes.length == 0) {
@@ -623,7 +636,7 @@ class DataflowState extends State {
     // Prunes the nodes in error/not configured state in all the tabs
     private async pruneNodes() {
         this.log(`Prunning errored nodes.. in WKBK ${this.currentWKBKId}`);
-        let tabs = DagTabManager.Instance.getTabs();
+        let tabs = this.getValidTabs();
         for(let tab of tabs) {
             this.currentTab = tab;
             DagTabManager.Instance.switchTab(tab.getId());
@@ -789,7 +802,7 @@ class DataflowState extends State {
     // Checks to see if average nodes per dataflow exceeded constant maxAvgNumOfNodesPerTab
     // If true, will create another dataflow.
     private _checkToCreateTab() {
-        let tabs = DagTabManager.Instance.getTabs();
+        let tabs = this.getValidTabs();
         if (tabs.length == 0) {
             return true;
         }
