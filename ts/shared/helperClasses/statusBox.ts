@@ -23,9 +23,9 @@ namespace StatusBox {
      *      title: Text that is bold at the top, will default to Error or Information
      */
     export interface StatusDisplayerOpions {
-        type?: string;
+        type?: "info" | "error";
         highZindex?: boolean;
-        side?: string;
+        side?: "left" | "right" | "top" | "bottom";
         offsetX?: number;
         offsetY?: number;
         html?: boolean;
@@ -40,8 +40,8 @@ namespace StatusBox {
         private $statusBox: JQuery; // $("#statusBox");
         private $target: JQuery;
         private open: boolean;
-        private type: string;
-        private side: string;
+        private type: "info" | "error";
+        private side: "left" | "right" | "top" | "bottom";
 
         constructor() {
             this.$statusBox = $("#statusBox");

@@ -1,4 +1,5 @@
 Compatible.check();
+var gMinModeOn = false;
 if (xcLocalStorage.getItem("noSplashLogin") === "true") {
     $("#loginContainer").show();
     $("#logo").show();
@@ -20,21 +21,8 @@ $(document).ready(function() {
     urlParam = parseURLParam();
     setupHostName();
     checkLoginStatus();
-
-    function canShowSplashScreen() {
-        return (isMsalResolved && isSSOTokenResolved);
-    }
-
-    function attemptShowMissedSplashScreen() {
-        if (canShowSplashScreen() && splashMissedHiding) {
-            $("#splashContainer").fadeOut(1000);
-            setTimeout(function() {
-                $("#loginContainer").fadeIn(1000);
-                $("#logo").fadeIn(1000);
-                focusOnFirstEmptyInput();
-            }, 800);
-        }
-    }
+    StatusBox.setup();
+    Alert.setup();
 
     urlParams = xcHelper.decodeFromUrl(window.location.href);
     if (urlParams.hasOwnProperty("ssoToken")) {
@@ -69,119 +57,26 @@ $(document).ready(function() {
         $("#loginNameBox").val(lastUsername);
     }
 
-    $("#msalLoginForm").submit(function() {
-        var configStr = xcLocalStorage.getItem("msalConfig");
-        var config = null;
+    $("#insightVersion").html("Version SHA: " +
+        XVM.getSHA().substring(0, 6) + ", Revision " + XVM.getVersion());
 
-        if (configStr != null) {
-            config = JSON.parse(configStr);
-        }
+    addEventListeners();
 
-        if (configStr != null &&
-            config.hasOwnProperty('msalEnabled') &&
-               config.msalEnabled) {
 
-            var userScope = JSON.parse('["' + config.msal.userScope + '"]')
-            var scopesArray = config.msal.hasOwnProperty("azureScopes") ?
-                config.msal.azureScopes.concat(userScope) :
-                userScope;
-            msalUserAgentApplication.loginRedirect(scopesArray);
-        } else {
-            alert("Windows Azure authentication is disabled. Contact your system administrator.");
-        }
-        return false;
-    });
+    function canShowSplashScreen() {
+        return (isMsalResolved && isSSOTokenResolved);
+    }
 
-    $("#loginForm").submit(function(event) {
-        // prevents form from having it's default action
-        event.preventDefault();
-        if (isSubmitDisabled) {
-            // submit was already triggered
-            return;
-        }
-        var username = $("#loginNameBox").val().trim();
-        if (username === "") {
-            return;
-        }
-        toggleBtnInProgress($("#loginButton"));
-        var pass = $('#loginPasswordBox').val().trim();
-        var str = {"xipassword": pass, "xiusername": username};
-/** START DEBUG ONLY **/
-        if (typeof gLoginEnabled !== "undefined" && gLoginEnabled === true) {
-            isSubmitDisabled = true;
-            xcSessionStorage.removeItem("gLoginEnabled");
-/** END DEBUG ONLY **/
-            HTTPService.Instance.ajax({
-                "type": "POST",
-                "data": JSON.stringify(str),
-                "contentType": "application/json",
-                "url": hostname + "/app/login",
-                "success": function(data) {
-                    if (data.isValid) {
-                        console.log('success');
-                        submit();
-                    } else {
-                        alert('Incorrect username or password. ' +
-                              'Please try again.');
-                        console.log('return error', data);
-                        isSubmitDisabled = false;
-                    }
-                    toggleBtnInProgress($("#loginButton"));
-                },
-                "error": function() {
-                    alert("Your authentication server has not been set up " +
-                          "correctly. Please contact support@xcalar.com or " +
-                          "your Xcalar sales representative.");
-                    isSubmitDisabled = false;
-                    toggleBtnInProgress($("#loginButton"));
-                }
-            });
-/** START DEBUG ONLY **/
-        } else {
-            xcSessionStorage.setItem("gLoginEnabled", "false");
-            xcSessionStorage.setItem("xcalar-username", username);
-            submit();
-            toggleBtnInProgress($("#loginButton"));
-        }
-/** END DEBUG ONLY **/
-        function submit() {
-            isSubmitDisabled = false;
-            xcLocalStorage.setItem("lastUsername", username);
-            redirect();
-        }
-    });
-
-    $("#signupButton").click(function() {
-        $("#loginContainer").addClass("signup");
-        $('.loginHeader').addClass('hidden');
-        setTimeout(function() {
-            $('.signupHeader').removeClass('hidden');
-        }, 800);
-
-        $("#loginForm").fadeOut(function() {
-            loadBarAnimation();
+    function attemptShowMissedSplashScreen() {
+        if (canShowSplashScreen() && splashMissedHiding) {
+            $("#splashContainer").fadeOut(1000);
             setTimeout(function() {
-                $("#signupForm").fadeIn(500);
+                $("#loginContainer").fadeIn(1000);
+                $("#logo").fadeIn(1000);
                 focusOnFirstEmptyInput();
-            }, 1000);
-        });
-    });
-
-    $("#signup-login").click(function() {
-        $("#loginContainer").removeClass("signup");
-        $('.signupHeader').addClass('hidden');
-        setTimeout(function() {
-            $('.loginHeader').removeClass('hidden');
-        }, 800);
-
-        $("#signupForm").fadeOut(function() {
-            loadBarAnimation();
-            setTimeout(function() {
-                $("#loginForm").fadeIn(500);
-                focusOnFirstEmptyInput();
-            }, 1000);
-        });
-    });
+            }, 800);
+        }
+    }
 
     function parseURLParam() {
         var params = {};
@@ -297,11 +192,11 @@ $(document).ready(function() {
                                 loginSuccess(false);
                             });
                     }, function(error) {
-                        alert(error);
+                        Alert.error("Error", error);
                         console.log(error);
                     });
             } else if (errorDesc || error) {
-                alert(error + ':' + errorDesc);
+                Alert.error("Error", error + ':' + errorDesc);
                 console.log(error + ':' + errorDesc);
             }
         }
@@ -404,6 +299,130 @@ $(document).ready(function() {
         }
     }
 
-    $("#insightVersion").html("Version SHA: " +
-        XVM.getSHA().substring(0, 6) + ", Revision " + XVM.getVersion());
+    function addEventListeners() {
+
+        $("#msalLoginForm").submit(function(event) {
+            var configStr = xcLocalStorage.getItem("msalConfig");
+            if ($("#alertModal").is(":visible")) {
+                event.preventDefault();
+                return;
+            }
+            var config = null;
+
+            if (configStr != null) {
+                config = JSON.parse(configStr);
+            }
+
+            if (configStr != null &&
+                config.hasOwnProperty('msalEnabled') &&
+                config.msalEnabled) {
+
+                var userScope = JSON.parse('["' + config.msal.userScope + '"]')
+                var scopesArray = config.msal.hasOwnProperty("azureScopes") ?
+                    config.msal.azureScopes.concat(userScope) :
+                    userScope;
+                msalUserAgentApplication.loginRedirect(scopesArray);
+            } else {
+                Alert.error("Error", "Windows Azure authentication is disabled. Contact your system administrator.");
+            }
+            return false;
+        });
+
+        $("#loginForm").submit(function(event) {
+            // prevents form from having it's default action
+            event.preventDefault();
+            if ($("#alertModal").is(":visible")) {
+                return;
+            }
+            if (isSubmitDisabled) {
+                // submit was already triggered
+                return;
+            }
+            var username = $("#loginNameBox").val().trim();
+            if (username === "") {
+                StatusBox.show("Please fill out this field.", $("#loginNameBox"), true, {
+                    side: "top"
+                });
+                return;
+            }
+            toggleBtnInProgress($("#loginButton"));
+            var pass = $('#loginPasswordBox').val().trim();
+            var str = {"xipassword": pass, "xiusername": username};
+    /** START DEBUG ONLY **/
+            if (typeof gLoginEnabled !== "undefined" && gLoginEnabled === true) {
+                isSubmitDisabled = true;
+                xcSessionStorage.removeItem("gLoginEnabled");
+    /** END DEBUG ONLY **/
+                HTTPService.Instance.ajax({
+                    "type": "POST",
+                    "data": JSON.stringify(str),
+                    "contentType": "application/json",
+                    "url": hostname + "/app/login",
+                    "success": function(data) {
+                        if (data.isValid) {
+                            console.log('success');
+                            submit();
+                        } else {
+                            Alert.error("Error", 'Incorrect username or password. ' +
+                                'Please try again.');
+                            console.log('return error', data);
+                            isSubmitDisabled = false;
+                        }
+                        toggleBtnInProgress($("#loginButton"));
+                    },
+                    "error": function() {
+                        Alert.error("Error","Your authentication server has not been set up " +
+                            "correctly. Please contact support@xcalar.com or " +
+                            "your Xcalar sales representative.");
+                        isSubmitDisabled = false;
+                        toggleBtnInProgress($("#loginButton"));
+                    }
+                });
+    /** START DEBUG ONLY **/
+            } else {
+                xcSessionStorage.setItem("gLoginEnabled", "false");
+                xcSessionStorage.setItem("xcalar-username", username);
+                submit();
+                toggleBtnInProgress($("#loginButton"));
+            }
+    /** END DEBUG ONLY **/
+            function submit() {
+                isSubmitDisabled = false;
+                xcLocalStorage.setItem("lastUsername", username);
+                redirect();
+            }
+        });
+
+    $("#signupButton").click(function() {
+        $("#loginContainer").addClass("signup");
+        $('.loginHeader').addClass('hidden');
+        setTimeout(function() {
+            $('.signupHeader').removeClass('hidden');
+        }, 800);
+
+        $("#loginForm").fadeOut(function() {
+            loadBarAnimation();
+            setTimeout(function() {
+                $("#signupForm").fadeIn(500);
+                focusOnFirstEmptyInput();
+            }, 1000);
+        });
+    });
+
+    $("#signup-login").click(function() {
+        $("#loginContainer").removeClass("signup");
+        $('.signupHeader').addClass('hidden');
+        setTimeout(function() {
+            $('.loginHeader').removeClass('hidden');
+        }, 800);
+
+        $("#signupForm").fadeOut(function() {
+            loadBarAnimation();
+            setTimeout(function() {
+                $("#loginForm").fadeIn(500);
+                focusOnFirstEmptyInput();
+            }, 1000);
+        });
+    });
+    }
 });

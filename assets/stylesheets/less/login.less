@@ -1,5 +1,7 @@
 @import "partials/mixins/common.less";
 @import "partials/icon.less";
+@import "partials/statusBox.less";
+@import "partials/modal.less";
 
 html, body {
     width: 100%;
@@ -19,7 +21,7 @@ body {
     .justify-content(center);
 }
 
-table, tr, td, th, input, textarea, header, p, div {
+table, tr, td, th, input, textarea, header, p, div, section {
     margin: 0;
     padding: 0;
     .box-sizing;
@@ -293,6 +295,10 @@ input:-webkit-autofill:focus {
     &:active {
         border-color: @color-border-activeBlue !important;
     }
+}
+
+.modalContainer .btn {
+    margin-top: 0px;
 }
 
 .termPartInsight {
