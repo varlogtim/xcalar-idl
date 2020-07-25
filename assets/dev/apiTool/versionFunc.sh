@@ -28,6 +28,11 @@ checkApiVersionSig() {
     fi
     return $ret
 }
+generateXcrpcVersionSigPy() {
+    local VERSION_GEN_PY="$1"
+    local PROTO_DIR="$2"
+    echo -n $($VERSION_GEN_PY -d "$PROTO_DIR" | grep ProtoAPIVersionSignature | cut -f2 -d'"')
+}
 generateXcrpcVersionSig() {
     local PROTO_DIR="$1"
     local DEBUG="false"
@@ -35,7 +40,7 @@ generateXcrpcVersionSig() {
 
     [ -d "$PROTO_DIR" ] || { echo -n ""; return 1; }
 
-    local checkFiles=$(find $PROTO_DIR -name "*.proto" | LC_COLLATE=C sort)
+    local checkFiles=$(find $PROTO_DIR -name "*.proto" | LC_ALL=C sort)
     local totalValue=""
     local newline=$'\n'
     local protoFile
@@ -52,12 +57,14 @@ generateXcrpcVersionSig() {
     fi
 }
 generateThriftVersionSig() {
-    local DEF_FILES="$@"
+    local files=""
+    for defFile in "$@"; do
+        if [ -f "$defFile" ]; then
+            files="${files} ${defFile}"
+        fi
+    done
 
     local newline=$'\n'
-    local content=""
-    for defFile in "${DEF_FILES[@]}"; do
-        content="${content}$(cat ${defFile})${newline}"
-    done
+    local content="$(cat ${files})${newline}"
     echo -n $(md5Str "$content")
 }

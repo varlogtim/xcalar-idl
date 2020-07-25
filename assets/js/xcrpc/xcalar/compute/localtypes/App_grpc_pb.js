@@ -39,7 +39,7 @@ function deserialize_xcalar_compute_localtypes_App_AppStatusResponse(buffer_arg)
 
 var AppService = exports.AppService = {
   appStatus: {
-    path: '/xcalar.compute.localtypes.App.App/appStatus',
+    path: '/xcalar.compute.localtypes.App.App/AppStatus',
     requestStream: false,
     responseStream: false,
     requestType: xcalar_compute_localtypes_App_pb.AppStatusRequest,

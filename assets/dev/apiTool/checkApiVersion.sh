@@ -19,7 +19,8 @@ PKG_LANG="en"
 scriptPath=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 . $scriptPath/versionFunc.sh
 
-xcrpcDefDir="$XLRDIR/src/include/pb/xcalar/compute/localtypes"
+# xcrpcSigGen="$XLRDIR/bin/genProtoVersionSig.py"
+xcrpcDefDir="$XLRDIR/src/include/pb/xcalar/compute/localtypes/"
 xcrpcVersionFile="$XLRGUIDIR/assets/js/xcrpc/enumMap/XcRpcApiVersion/XcRpcApiVersionToStr.json"
 thriftDefFileList=(
     "$XLRDIR/src/include/libapis/LibApisCommon.h"
@@ -45,6 +46,7 @@ thriftDefFileList=(
     "$XLRDIR/src/data/lang/${PKG_LANG}/StatusCode.enum"
     "$XLRDIR/src/data/lang/${PKG_LANG}/FunctionCategory.enum"
     "$XLRDIR/src/include/runtime/RuntimeEnums.enum"
+    "$XLRDIR/src/include/LogLevel.enum"
     "$XLRDIR/src/include/querymanager/DataflowEnums.enum"
 )
 thriftVersionFile="$XLRGUIDIR/ts/thrift/XcalarApiVersionSignature_types.js"
