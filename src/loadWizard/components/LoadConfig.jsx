@@ -691,6 +691,7 @@ class LoadConfig extends React.Component {
                     title: 'Discovery Error',
                     message: `${e.log || e.error || e.message || e}`
                 });
+                console.error('LoadConfig._discoverAllApp: ', e);
             }
             this._resetDiscoverResult();
         } finally {
