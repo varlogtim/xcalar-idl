@@ -55,7 +55,8 @@ class GeneralDeleteModal extends React.Component<Props, State> {
 
   render() {
     const [classNames, waitingMessage] = this._getClassesAndWaitingMessage();
-    const selectedItems = this.state.items.filter((item) => !item.locked && item.checked);
+    const { items, submitStatus } = this.state;
+    const selectedItems = items.filter((item) => !item.locked && item.checked);
     return (
       <Modal
         id={this.props.id}
@@ -69,6 +70,7 @@ class GeneralDeleteModal extends React.Component<Props, State> {
         }}
         close={{
           text: CommonTStr.Cancel,
+          disabled: submitStatus === "pending",
           callback: () => this._hide()
         }}
         className={classNames.join(" ")}

@@ -19,6 +19,7 @@ type ModalProps = {
     },
     close: {
         text?: string,
+        disabled?: boolean,
         callback: any
     },
     style: any;
@@ -168,7 +169,7 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
                             </Button>
                         }
                         <Button
-                            className="cancel"
+                            className={"cancel" + (close.disabled ? " xc-disabled" : "")}
                             onClick={close.callback}
                         >
                             {close.text || CommonTStr.Close}
