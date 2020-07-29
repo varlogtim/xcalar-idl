@@ -12,7 +12,7 @@ describe("DagSearchModel Test", function() {
         ];
         const typeOptions = [
             {
-                key: "Node Lables",
+                key: "Node Labels",
                 default: true,
                 checked: false,
                 selector: (keyword, node) => {

@@ -312,7 +312,7 @@ class DagSearch {
                 }
             }
         }, {
-            key: "Node Lables",
+            key: "Node Labels",
             default: true,
             checked: false,
             selector: (keyword: string, node: DagNode) => {

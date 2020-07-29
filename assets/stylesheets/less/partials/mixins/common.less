@@ -356,7 +356,7 @@
 }
 
 /* BUTTON STYLING */
-.btn, .btn-primary, .modalContainer .btn {
+.btn, .btn-primary {
     .noSelection;
     display: inline-block;
     border: 1px solid transparent;
@@ -1650,9 +1650,9 @@
         display: none;
         height: 20px;
         max-width: 450px;
+        margin: auto;
         padding: 0 20px;
         color: @color-font-default;
-        .center-align;
         text-align: center;
 
         .action {
@@ -1663,6 +1663,8 @@
 
     .contentSection {
         height: ~"calc(100% - @{height-tabBar})";
+        display: flex;
+        flex-direction: column;
     }
 }
 
@@ -1839,7 +1841,7 @@
                 margin-right: 0px;
                 margin-left: 8px;
                 float: right;
-                width: 8px;
+                width: 13px;
                 height: 13px;
                 .rounded(100%);
                 .position(relative, @top: 6px);

@@ -1068,7 +1068,7 @@ module.exports = {
         "TableMap": "Table Mapping",
         "TableMapInstr": "Match each table in your SQL statement with a table from the App Builder.",
         "Collapse": "Collapse",
-        "TableLable": "SQL Statement Tables",
+        "TableLabel": "SQL Statement Tables",
         "ModuleLabel": "Module Label ID",
         "NoTableHint": "No Tables found. Use the SQL Editor to write a statement that takes in source tables.",
         "NoSQLHint": "The SQL statement cannot be parsed. Use the SQL Editor to write a statement that takes in source tables.",
