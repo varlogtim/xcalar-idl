@@ -479,8 +479,8 @@ class ResourceMenu {
     }
 
     private async _tableModule(tableName: string): Promise<void> {
-        const tableInfo = PTblManager.Instance.getTableByName(tableName);
-        if (tableInfo == null) {
+        const table = PTblManager.Instance.getTableByName(tableName);
+        if (table == null) {
             const msg = `Cannot find table ${tableName}`;
             Alert.error(ErrTStr.Error, msg);
         } else {
@@ -489,23 +489,37 @@ class ResourceMenu {
             }
             const dagTab = DagViewManager.Instance.getActiveTab();
             if (dagTab.getType() !== "Normal") {
-                Alert.error(ErrTStr.Error, "Cannot add table to this type of module.");
+                if (dagTab instanceof DagTabSQLExecute) {
+                    DagTabSQLExecute.viewOnlyAlert(dagTab)
+                    .then(() => {
+                        this._addTableToModule(table);
+                    });
+                } else {
+                    Alert.error(ErrTStr.Error, "Cannot add table to this type of module.");
+                }
                 return;
+            } else {
+                this._addTableToModule(table);
             }
-            const input = {
-                source: tableName,
-                schema: tableInfo.getSchema()
-            };
+        }
+    }
 
-            let node: DagNodeIMDTable = <DagNodeIMDTable>await DagViewManager.Instance.autoAddNode(DagNodeType.IMDTable,
-                null, null, input, undefined, undefined, {
-                    configured: true,
-                    forceAdd: true
-            });
-            if (node != null) {
-                await node.fetchAndSetSubgraph(tableName);
-                node.setParam(input, true);
-            }
+    private async _addTableToModule(table: PbTblInfo): Promise<void> {
+        const tableName: string = table.name;
+        const input = {
+            version: null,
+            source: tableName,
+            schema: table.getSchema()
+        };
+
+        let node: DagNodeIMDTable = <DagNodeIMDTable>await DagViewManager.Instance.autoAddNode(DagNodeType.IMDTable,
+            null, null, input, undefined, undefined, {
+                configured: true,
+                forceAdd: true
+        });
+        if (node != null) {
+            await node.fetchAndSetSubgraph(tableName);
+            node.setParam(input, true);
         }
     }
 
