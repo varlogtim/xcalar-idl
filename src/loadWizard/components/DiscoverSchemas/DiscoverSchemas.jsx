@@ -9,7 +9,7 @@ import * as SchemaService from '../../services/SchemaService';
 const Texts = {
     Loading: 'Loading ...',
     discoverTitle: 'Discover Schema',
-    discoverAll: 'Discover All',
+    discoverAll: 'Discover',
     cancelDiscoverAll: 'Stop',
     stoppingDiscoverAll: 'Stopping',
     advancedOptions: 'Configuration',

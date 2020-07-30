@@ -12,6 +12,7 @@ import NavButtons from './NavButtons'
 import getForensics from '../services/Forensics';
 import * as Path from 'path';
 import * as SchemaLoadService from '../services/SchemaLoadService'
+import * as SchemaLoadSetting from '../services/SchemaLoadSetting'
 
 const { Alert } = global;
 
@@ -230,7 +231,33 @@ class LoadConfig extends React.Component {
         }
     }
 
+    async _shareDataCompTables(tables, sharedName) {
+        const { discoverAppId } = this.state;
+        const app = SchemaLoadService.getDiscoverApp(discoverAppId);
+
+        const dataName = sharedName.toUpperCase();
+        const compName = dataName + '_ERROR';
+
+        try {
+            // Publish tables
+            const { data: sharedDataTable, icv: sharedIcvTable } = await app.shareResultTables(
+                tables,
+                { data: dataName, comp: compName },
+            )
+
+            return {
+                data: sharedDataTable,
+                icv: sharedIcvTable
+            };
+
+        } catch(e) {
+            throw e;
+        }
+    }
+
     async _createTableFromSchema(schemaName, tableName) {
+        const isPublishTables = SchemaLoadSetting.get('isPublishTables', false) ;
+
         const { discoverAppId } = this.state;
         if (discoverAppId == null) {
             return;
@@ -287,25 +314,55 @@ class LoadConfig extends React.Component {
 
             // Publish tables
             try {
-                const result = await this._publishDataCompTables(tables, tableName, {
-                    dataQueryComplete: query.dataQueryComplete,
-                    compQueryComplete: query.compQueryComplete
-                });
+                if (isPublishTables) {
+                    // Publish to IMDTable
+                    const result = await this._publishDataCompTables(tables, tableName, {
+                        dataQueryComplete: query.dataQueryComplete,
+                        compQueryComplete: query.compQueryComplete
+                    });
 
-                // State: -loading + created
-                this.setState({
-                    createInProgress: deleteEntry(this.state.createInProgress, schemaName),
-                    createTables: this.state.createTables.set(schemaName, {
-                        table: result.table,
-                        complementTable: result.complementTable
-                    })
-                });
-            } finally {
+                    // State: -loading + created
+                    this.setState({
+                        createInProgress: deleteEntry(this.state.createInProgress, schemaName),
+                        createTables: this.state.createTables.set(schemaName, {
+                            table: result.table,
+                            complementTable: result.complementTable
+                        })
+                    });
+
+                    await Promise.all([
+                        tables.load.destroy(),
+                        tables.data.destroy(),
+                        tables.comp.destroy()
+                    ]);
+                } else {
+                    // Publish to SharedTable
+                    const { data: sharedDataTable, icv: sharedICVTable } = await this._shareDataCompTables(tables, tableName);
+
+                    // State: -loading + created
+                    this.setState({
+                        createInProgress: deleteEntry(this.state.createInProgress, schemaName),
+                        createTables: this.state.createTables.set(schemaName, {
+                            table: sharedDataTable.getName(),
+                            complementTable: sharedICVTable == null
+                                ? null
+                                : sharedICVTable.getName()
+                        })
+                    });
+
+                    const cleanupTasks = [tables.load.destroy()];
+                    if (sharedICVTable == null) {
+                        cleanupTasks.push(tables.comp.destroy());
+                    }
+                    await Promise.all(cleanupTasks);
+                }
+            } catch(e) {
                 await Promise.all([
                     tables.load.destroy(),
                     tables.data.destroy(),
                     tables.comp.destroy()
                 ]);
+                throw e;
             }
         } catch(e) {
             let error = e.message || e.error || e;

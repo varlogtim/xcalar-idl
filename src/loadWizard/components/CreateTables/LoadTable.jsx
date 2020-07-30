@@ -291,7 +291,7 @@ function LoadTable({
             } else if (tables.has(schemaName)) {
                 const createdRes = tables.get(schemaName);
                 rowData.load = <LoadCell.Success complementTable={createdRes.complementTable}/>
-                rowData.tableName = createdRes.table;
+                rowData.tableName = <span style={{userSelect: 'text'}}>{createdRes.table}</span>;
             } else {
                 const tableName = tablesInInput.get(schemaName);
                 rowData.tableName = <input className="xc-input tableInput" value={tableName} onChange={(e) => onTableNameChange(schemaName, e.target.value)}/>

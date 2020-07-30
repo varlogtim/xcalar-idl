@@ -3,6 +3,7 @@ import { LoginUser, User } from './User';
 import { Table } from './Table';
 import { Dataset } from './Dataset';
 import { PublishedTable } from './PublishedTable';
+import { SharedTable } from './SharedTable';
 
 const {
     xcHelper, WorkbookManager,
@@ -138,7 +139,10 @@ class BaseSession {
         // Parse response
         const tableList = [];
         for (let tableName in tableRes) {
-            tableList.push(new Table({session: this, tableName: tableName}));
+            tableList.push(isGlobal
+                ? new SharedTable({ name: tableName })
+                : new Table({session: this, tableName: tableName})
+            );
         }
         return tableList;
     }

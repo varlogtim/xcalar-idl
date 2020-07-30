@@ -79,6 +79,7 @@ class TableService {
             // Parse response
             return this.parseTableList(response);
         } catch (e) {
+            console.error('TableService.listTables', e);
             throw parseError(e);
         }
     }
@@ -97,76 +98,90 @@ class TableService {
 
     private parseTableMeta(
         tableMeta: ProtoTypes.Table.TableMetaResponse
-    ): any {
-        const tableStruct: any = {};
-        const retAttributes: any = {};
+    ) {
+        const tableStruct = {
+            attributes: null,
+            schema: null,
+            aggregatedStats: null,
+            statsPerNode: null,
+            status: tableMeta.getStatus()
+        };
+        if (tableStruct.status.indexOf('XCE-00000000') < 0) {
+            return tableStruct;
+        }
+
+        // Attributes
         const tableAttributes = tableMeta.getAttributes();
-        retAttributes.tableName = tableAttributes.getTableName();
-        retAttributes.tableId = tableAttributes.getTableId();
-        retAttributes.xdbId = tableAttributes.getXdbId();
-        retAttributes.state = tableAttributes.getState();
-        retAttributes.pinned = tableAttributes.getPinned();
-        retAttributes.shared = tableAttributes.getShared();
-        retAttributes.datasets = tableAttributes.getDatasetsList();
-        retAttributes.resultSetIds = tableAttributes.getResultSetIdsList();
-        tableStruct.attributes = retAttributes;
+        if (tableAttributes != null) {
+            tableStruct.attributes = {
+                tableName: tableAttributes.getTableName(),
+                tableId: tableAttributes.getTableId(),
+                xdbId: tableAttributes.getXdbId(),
+                state: tableAttributes.getState(),
+                pinned: tableAttributes.getPinned(),
+                shared: tableAttributes.getShared(),
+                datasets: [...tableAttributes.getDatasetsList()],
+                resultSetIds: [...tableAttributes.getResultSetIdsList()]
+            };
+        }
 
-        const retSchema: any = {};
+        // Schema
         const tableSchema = tableMeta.getSchema();
-        retSchema.columnAttributes = [];
-        for (let column of tableSchema.getColumnAttributesList()) {
-            retSchema.columnAttributes.push({
-                name: column.getName(),
-                type: column.getType(),
-                valueArrayIdx: column.getValueArrayIdx()
-            });
+        if (tableSchema != null) {
+            tableStruct.schema = {
+                columnAttributes: tableSchema.getColumnAttributesList().map((column) => ({
+                    name: column.getName(),
+                    type: column.getType(),
+                    valueArrayIdx: column.getValueArrayIdx()
+                })),
+                keyAttributes: tableSchema.getKeyAttributesList().map((key) => ({
+                    name: key.getName(),
+                    type: key.getType(),
+                    valueArrayIdx: key.getValueArrayIdx(),
+                    ordering: key.getOrdering()
+                }))
+            };
         }
-        retSchema.keyAttributes = [];
-        for (let key of tableSchema.getKeyAttributesList()) {
-            retSchema.keyAttributes.push({
-                name: key.getName(),
-                type: key.getType(),
-                valueArrayIdx: key.getValueArrayIdx(),
-                ordering: key.getOrdering()
-            });
-        }
-        tableStruct.schema = retSchema;
 
-        const retAggregatedStats: any = {};
+        // Aggregrated Stats
         const tableAggregatedStats = tableMeta.getAggregatedStats();
-        retAggregatedStats.totalRecordsCount = tableAggregatedStats.getTotalRecordsCount();
-        retAggregatedStats.totalSizeInBytes = tableAggregatedStats.getTotalSizeInBytes();
-        retAggregatedStats.rowsPerNode = tableAggregatedStats.getRowsPerNodeList();
-        retAggregatedStats.sizeInBytesPerNode = tableAggregatedStats.getSizeInBytesPerNodeList();
-        tableStruct.aggregatedStats = retAggregatedStats;
-
-        const retStatsPerNode: any = {};
-        const tableStatsPerNodeMap = tableMeta.getStatsPerNodeMap();
-        for (let node of tableStatsPerNodeMap.keys()) {
-            const nodeStats = tableStatsPerNodeMap.get(node);
-            const retStats: any = {};
-            retStats.status = nodeStats.getStatus();
-            retStats.numRows = nodeStats.getNumRows();
-            retStats.numPages = nodeStats.getNumPages();
-            retStats.numSlots = nodeStats.getNumSlots();
-            retStats.sizeInBytes = nodeStats.getSizeInBytes();
-            retStats.pagesConsumedInBytes = nodeStats.getPagesConsumedInBytes();
-            retStats.pagesAllocatedInBytes = nodeStats.getPagesAllocatedInBytes();
-            retStats.pagesSent = nodeStats.getPagesSent();
-            retStats.pagesReceived = nodeStats.getPagesReceived();
-            retStats.rowsPerSlot = {};
-            retStats.pagesPerSlot = {};
-            for (let slot of nodeStats.getRowsPerSlotMap().keys()) {
-                retStats.rowsPerNode[slot] = nodeStats.getRowsPerSlotMap().get(slot);
-            }
-            for (let slot of nodeStats.getPagesPerSlotMap().keys()) {
-                retStats.rowsPerNode[slot] = nodeStats.getPagesPerSlotMap().get(slot);
-            }
-            retStatsPerNode[node] = retStats;
+        if (tableAggregatedStats != null) {
+            tableStruct.aggregatedStats = {
+                totalRecordsCount: tableAggregatedStats.getTotalRecordsCount(),
+                totalSizeInBytes: tableAggregatedStats.getTotalSizeInBytes(),
+                rowsPerNode: [...tableAggregatedStats.getRowsPerNodeList()],
+                sizeInBytesPerNode: [...tableAggregatedStats.getSizeInBytesPerNodeList()]
+            };
         }
-        tableStruct.statsPerNode = retStatsPerNode;
 
-        tableStruct.status = tableMeta.getStatus();
+        // Stats per node
+        const tableStatsPerNodeMap = tableMeta.getStatsPerNodeMap();
+        if (tableStatsPerNodeMap != null) {
+            const retStatsPerNode = {};
+            for (const [node, nodeStats] of tableStatsPerNodeMap.entries()) {
+                retStatsPerNode[node] = {
+                    status: nodeStats.getStatus(),
+                    numRows: nodeStats.getNumRows(),
+                    numPages: nodeStats.getNumPages(),
+                    numSlots: nodeStats.getNumSlots(),
+                    sizeInBytes: nodeStats.getSizeInBytes(),
+                    pagesConsumedInBytes: nodeStats.getPagesConsumedInBytes(),
+                    pagesAllocatedInBytes: nodeStats.getPagesAllocatedInBytes(),
+                    pagesSent: nodeStats.getPagesSent(),
+                    pagesReceived: nodeStats.getPagesReceived(),
+                    rowsPerSlot: [...nodeStats.getRowsPerSlotMap().entries()].reduce((result, [k, v]) => {
+                        result[k] = v;
+                        return result;
+                    }, {}),
+                    pagesPerSlot: [...nodeStats.getPagesPerSlotMap().entries()].reduce((result, [k, v]) => {
+                        result[k] = v;
+                        return result;
+                    }, {})
+                };
+            }
+            tableStruct.statsPerNode = retStatsPerNode;
+        }
+
         return tableStruct;
     }
 
@@ -178,12 +193,14 @@ class TableService {
      * @description
      * This function returns native promise!
      * Use PromiseHelper.
-    public async publishTable(
+     * */
+    public async publishTable(param: {
         tableName: string,
         scope: SCOPE,
         scopeInfo?: ScopeInfo
-        ): Promise<string> {
+    }): Promise<string> {
         try {
+            const { tableName, scope, scopeInfo } = param;
             // Step #1: Construct xcrpc service input
             const request = new ProtoTypes.Table.PublishRequest();
             request.setTableName(tableName);
@@ -199,7 +216,6 @@ class TableService {
             throw parseError(e);
         }
     }
-     */
 }
 
 export { TableService, SCOPE, ScopeInfo };

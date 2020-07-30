@@ -495,6 +495,40 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
         run: async () => {
             return await callInTransaction('Discovery', () => runDiscover());
         },
+        shareResultTables: async (tables, sharedNames) => {
+            const { data: dataName, comp: compName } = sharedNames;
+            // const { dataQueryComplete = '[]', compQueryComplete = '[]' } = dataflows || {};
+
+            // Publish data table
+            // await tables.data.rename({ newName: dataName });
+            const dataTable = await tables.data.share();
+            // await tables.data.publishWithQuery(dataName, JSON.parse(dataQueryComplete));
+
+            // Check if comp table is empty
+            let compHasData = false;
+            const cursor = tables.comp.createCursor(false);
+            try {
+                await cursor.open();
+                if (cursor.getNumRows() > 0) {
+                    compHasData = true;
+                }
+            } finally {
+                cursor.close();
+            }
+
+            // Publish comp table
+            let icvTable = null;
+            if (compHasData) {
+                // await tables.comp.rename({ newName: compName });
+                icvTable = await tables.comp.share();
+                // await tables.comp.publishWithQuery(compName, JSON.parse(compQueryComplete));
+            }
+
+            return {
+                data: dataTable,
+                icv: icvTable
+            };
+        },
         publishResultTables: async (tables, pubNames, dataflows) => {
             const { data: dataName, comp: compName } = pubNames;
             const { dataQueryComplete = '[]', compQueryComplete = '[]' } = dataflows || {};

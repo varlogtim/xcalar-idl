@@ -1,5 +1,6 @@
 import { normalizeQueryString } from './Api';
 import { PublishedTable } from './PublishedTable';
+import { SharedTable } from './SharedTable';
 
 const {
     XcalarMakeResultSetFromTable,
@@ -7,7 +8,8 @@ const {
     XcalarSetAbsolute,
     XcalarGetNextPage,
     XcalarSetFree,
-    XcalarDeleteTable
+    XcalarDeleteTable,
+    XcalarRenameTable
 } = global;
 
 
@@ -143,6 +145,26 @@ class Table {
         } finally {
             await Promise.all(tempTables.map(t => t.destroy()));
         }
+    }
+
+    async share() {
+        const scope = Xcrpc.Table.SCOPE.WORKBOOK;
+        const scopeInfo = { userName: this._session.user.getUserName(), workbookName: this._session.sessionName }
+
+        const sharedName = await Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getTableService().publishTable({
+            tableName: this.getName(),
+            scope: scope,
+            scopeInfo: scopeInfo
+        });
+
+        return new SharedTable({ name: sharedName});
+    }
+
+    async rename({ newName }) {
+        await this._session.callLegacyApi(
+            () => XcalarRenameTable(this.getName(), newName)
+        );
+        this._tableName = newName;
     }
 
     async destroy({isCleanLineage = true} = {}) {
