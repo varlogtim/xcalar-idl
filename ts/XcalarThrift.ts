@@ -3616,7 +3616,7 @@ XcalarQueryWithCheck = function(
         let error = queryStateOutput;
         if (TypeCheck.isNumber(queryStateOutput && queryStateOutput.queryStatus)) {
             error = {
-                status: error,
+                status: queryStateOutput.queryStatus,
                 log: createQueryStateOutputLog(queryStateOutput)
             }
         }
