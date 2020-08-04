@@ -266,9 +266,9 @@ class SocketUtil {
                 if (self.checkIoSocketAuth(socket)) {
                     return;
                 }
-                // if (args.isCloud) {
-                //     UserActivityManager.updateUserActivity(true);
-                // }
+                if (args.isCloud) {
+                    UserActivityManager.updateUserActivity(true);
+                }
                 socket.broadcast.emit("updateUserActivity", args);
             });
 

@@ -607,7 +607,7 @@ namespace DSTargetManager {
     }
 
     function isModifiable(): boolean {
-        return Admin.isAdmin() || XVM.isDataMart();
+        return Admin.isAdmin() || XVM.isCloud() || XVM.isDataMart();
     }
 
     function isDefaultTarget(targetName: string): boolean {

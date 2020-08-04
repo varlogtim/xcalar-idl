@@ -671,6 +671,37 @@ div, section, ul {
             background-color: inherit;
         }
     }
+
+    .credits {
+        &.warning {
+            .xi-warning {
+                display: block;
+            }
+        }
+        .num {
+            float: left;
+            .textOverflowOneLine;
+        }
+        .xi-warning {
+            display: none;
+            color: @color-macaroni-and-cheese;
+            float: left;
+            font-size: 12px;
+            line-height: 18px;
+            padding-left: 4px;
+        }
+        .add {
+            font-size: 10px;
+            color: @color-font-link-blue;
+            float: right;
+            line-height: @height-modeling-col-menu;
+            padding-left: 8px;
+            padding-right: 4px;
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
 }
 
 #memoryAlert {

@@ -97,9 +97,8 @@ class CloudManager {
         }
         xcHelper.sendRequest("GET", "/service/checkCloud")
         .then((ret) => {
-
             if (!ret || ret.status !== 0 || !ret.clusterUrl) {
-                deferred.resolve();return; // XXX temporary
+                // deferred.resolve();return; // XXX temporary
                 if (ret.error) {
                     deferred.reject(ret.error);
                 } else {

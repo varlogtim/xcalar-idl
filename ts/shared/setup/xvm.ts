@@ -15,6 +15,7 @@ namespace XVM {
     // let expirationDate: Date = null;
     let numUsers: number = -1; // Set, but not used
     let numNodes: number = -1; // Set, but not used
+    let _cloud: boolean;
 
     /* ==================== Helper Function ================================= */
     function showInvalidLicenseAlert(msg: string, detail?: string): void {
@@ -245,17 +246,28 @@ namespace XVM {
     }
 
     /**
+     * XVM.isCloud
+     */
+    export function isCloud(): boolean {
+        if (_cloud === undefined) {
+            _cloud = (typeof gCloud !== "undefined" && gCloud === true) || false;
+        }
+        return _cloud;
+    }
+
+    /**
      * XVM.isDataMart
+     * when it's cloud, it's data marts
      */
     export function isDataMart(): boolean {
-        return (typeof gDataMart !== "undefined" && gDataMart === true);
+        return (typeof gDataMart !== "undefined" && gDataMart === true) || XVM.isCloud();
     }
 
     /**
      * XVM.isSingleUser
      */
     export function isSingleUser(): boolean {
-        return XVM.isDataMart();
+        return XVM.isCloud() || XVM.isDataMart();
     }
 
     /**

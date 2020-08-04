@@ -188,17 +188,17 @@ class XcSocket {
             XcUser.checkCurrentUser();
         });
 
-        // socket.on('clusterStopWarning', () => {
-        //     if (XVM.isCloud()) {
-        //         XcUser.clusterStopWarning();
-        //     }
-        // });
+        socket.on('clusterStopWarning', () => {
+            if (XVM.isCloud()) {
+                XcUser.clusterStopWarning();
+            }
+        });
 
-        // socket.on("logoutMessage", (data) => {
-        //     if (XVM.isCloud()) {
-        //         XcUser.logout();
-        //     }
-        // });
+        socket.on("logoutMessage", () => {
+            if (XVM.isCloud()) {
+                XcUser.logout();
+            }
+        });
 
         // socket.on("lowCreditWarning", () => {
         //     if (XVM.isCloud()) {
