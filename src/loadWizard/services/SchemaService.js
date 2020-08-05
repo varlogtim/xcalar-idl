@@ -36,7 +36,7 @@ const FileTypeNamePattern = new Map([
     [FileType.CSV, `re:^([${PUNCT}]+)\\.[cC][sS][vV](\\.[gG][zZ]|\\.[bB][zZ]2){0,1}$`],
     [FileType.JSON, `re:^([${PUNCT}]+)\\.[jJ][sS][oO][nN](\\.[gG][zZ]|\\.[bB][zZ]2){0,1}$`],
     [FileType.JSONL, `re:^([${PUNCT}]+)\\.[jJ][sS][oO][nN][lL]{0,1}(\\.[gG][zZ]|\\.[bB][zZ]2){0,1}$`],
-    [FileType.PARQUET, `re:^[${PUNCT}]+)\\.[pP][aA][rR][qQ][uU][eE][tT]$`]
+    [FileType.PARQUET, `re:^([${PUNCT}]+)\\.[pP][aA][rR][qQ][uU][eE][tT]$`]
 ]);
 
 const CSVHeaderOption = {
