@@ -249,6 +249,7 @@ namespace XVM {
      * XVM.isCloud
      */
     export function isCloud(): boolean {
+        return window["unitTestMode"] ? false : true // XXX temporarily use it
         if (_cloud === undefined) {
             _cloud = (typeof gCloud !== "undefined" && gCloud === true) || false;
         }

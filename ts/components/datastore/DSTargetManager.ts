@@ -23,7 +23,7 @@ namespace DSTargetManager {
         "sharednothingsingle",
         "azblobenviron",
         "gcsenviron",
-        "s3environ"
+        // "s3environ"
     ];
     const reservedList: string[] = [
         xcalar_public_s3,
@@ -1267,7 +1267,7 @@ namespace DSTargetManager {
             return log.split("ValueError:")[1].split("\\")[0];
         } catch (e) {
             console.error(e);
-            return null;
+            return log;
         }
     }
 

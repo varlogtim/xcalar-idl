@@ -9,7 +9,6 @@ var Status = {
 
 // flag for Data Mart product, on cloud it will be defined
 // var gDataMart = true;
-
 /** START DEBUG ONLY **/
 // for XD dev which is on localhost, set to false by default
 // for NON-XD dev which is on VMs,  set to true by default

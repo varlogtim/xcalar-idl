@@ -104,7 +104,8 @@ $(document).ready(function() {
         .then(function(res) {
             if (res &&
                 typeof res === "string" &&
-                res.includes("gCloud")
+                res.includes("gCloud") ||
+                urlParam["cloudId"] // XXX temp way to force cloud with gCloud
             ) {
                 deferred.resolve(true);
             } else {
