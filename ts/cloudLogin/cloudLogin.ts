@@ -651,7 +651,7 @@ namespace CloudLogin {
 
     function showClusterIsReadyScreen(): void {
         // $("#loadingTitle").html("Your cluster is ready!");
-        deployingProgressBar.end("Redirecting to Xcalar Cloud...");
+        deployingProgressBar.end("Redirecting to Xcalar...");
         clearInterval(deployingProgressBarCheckIntervalID);
         sessionStorage.setItem('XcalarDeployingProgressBarWidth', "");
         sessionStorage.setItem('XcalarDeployingProgressBarFirstTextId', "");
