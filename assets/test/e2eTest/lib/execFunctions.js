@@ -268,5 +268,9 @@ module.exports = {
             }
             return (deferred.promise());
         };
+    },
+
+    enableLogin: function() {
+        gLoginEnabled = true;
     }
 };

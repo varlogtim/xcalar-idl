@@ -315,13 +315,10 @@ $(document).ready(function() {
 
     function showSplashScreen() {
         var animTime = 4200;
-        // var animTime = 1000;
         init(); // 3rd party splash screen js
         $("#loginForm").show();
         $('#loadingBar .innerBar').removeClass('animated');
-        setTimeout(() => {
-            // $("#splashContainer .hiddenLogo").show();
-        }, 3000);
+
 
         setTimeout(function() {
             splashPromise.resolve();
