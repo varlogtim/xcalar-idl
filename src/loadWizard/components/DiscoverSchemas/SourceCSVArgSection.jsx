@@ -16,7 +16,7 @@ export default class SourceCSVArgSection extends React.Component{
     }
 
     render() {
-        const { config: initConfig, onConfigChange } = this.props;
+        const { config: initConfig, onConfigChange, classNames = [] } = this.props;
         const { csvConfig, errorInputs } = this.state;
 
         const isConfigChanged = this._isConfigChanged(initConfig.CSV, csvConfig);
@@ -27,7 +27,7 @@ export default class SourceCSVArgSection extends React.Component{
             buttonClasses.push("btn-disabled");
         }
         return (
-            <AdvOption.OptionGroup>
+            <AdvOption.OptionGroup classNames={classNames}>
                 <CSVArgChoice
                     label="Header Option:"
                     classNames={["fullRow"]}

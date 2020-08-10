@@ -93,10 +93,11 @@ class BrowseDataSource extends React.Component {
             });
             let homePath = newFullPath.slice(this.props.bucket.length);
             this.props.onPathChange(homePath);
-            const fileTypeFilter = SchemaService.FileTypeFilter.get(fileType);
-            const fileMap = await S3Service.listFiles(Path.join(newFullPath, '/'), ({ directory, type}) => {
-                return directory || fileTypeFilter({ type: type });
-            });
+            // const fileTypeFilter = SchemaService.FileTypeFilter.get(fileType);
+            // const fileMap = await S3Service.listFiles(Path.join(newFullPath, '/'), ({ directory, type}) => {
+            //     return directory || fileTypeFilter({ type: type });
+            // });
+            const fileMap = await S3Service.listFiles(Path.join(newFullPath, '/'));
             if (this.props.homePath && !newFullPath.endsWith(this.props.homePath)) {
                 // navigated away while files were loading
                 return false;

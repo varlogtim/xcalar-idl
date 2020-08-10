@@ -3,6 +3,7 @@ import DiscoverTable from './DiscoverTable'
 import SourceCSVArgSection from './SourceCSVArgSection';
 import * as AdvOption from './AdvanceOption'
 import InputDropdown from '../../../components/widgets/InputDropdown'
+import { FilePreview } from './FilePreview'
 import EC from '../../utils/EtaCost'
 import * as SchemaService from '../../services/SchemaService';
 
@@ -128,17 +129,22 @@ function CostEstimation({ files }) {
 class DiscoverSchemas extends React.Component {
     render() {
         const {
+            parserType,
+            sampleSize,
             inputSerialization,
             schemaPolicy,
             errorRetry,
             isLoading,
             progress,
             discoverFilesProps,
+            fileSelectProps,
             onClickDiscoverAll,
             onCancelDiscoverAll,
             onInputSerialChange,
             onSchemaPolicyChange,
             onErrorRetryChange,
+            onParserTypeChange,
+            onSampleSizeChange,
             onShowSchema,
         } = this.props;
 
@@ -147,23 +153,41 @@ class DiscoverSchemas extends React.Component {
         const SchemaPolicy = SchemaService.MergePolicy;
         const SchemaPolicyHint = SchemaService.MergePolicyHint;
         const isDiscoverInProgress = isLoading;
+        const ParserType = SchemaService.FileType;
 
         return (
             <React.Fragment>
                 {/* <CostEstimation files={discoverFiles} /> */}
-                {
-                needConfig ?
                 <AdvOption.Container>
                     <AdvOption.Title>{Texts.advancedOptions}</AdvOption.Title>
-                    <SourceCSVArgSection
+                    <AdvOption.OptionGroup>
+                        <AdvOption.Option>
+                            <AdvOption.OptionLabel>File Type:</AdvOption.OptionLabel>
+                            <AdvOption.OptionValue>
+                                <InputDropdown
+                                    val={parserType}
+                                    onSelect={onParserTypeChange}
+                                    list={
+                                        [ParserType.CSV, ParserType.JSON, ParserType.JSONL, ParserType.PARQUET].map((type, i) => {
+                                            return {text: type, value: type};
+                                        })
+                                    }
+                                    readOnly
+                                />
+                            </AdvOption.OptionValue>
+                        </AdvOption.Option>
+                        <AdvOptionSampleSize sampleSize={sampleSize} onChange={onSampleSizeChange}>Sample Size:</AdvOptionSampleSize>
+                    </AdvOption.OptionGroup>
+                    { needConfig ? <SourceCSVArgSection
+                        classNames={['advOption-group-sub']}
                         config={inputSerialization}
                         onConfigChange={(newConfig) => {
                             onShowSchema(null);
                             onInputSerialChange(newConfig);
                         }}
-                    />
-                </AdvOption.Container> : null
-                }
+                    /> : null }
+                </AdvOption.Container>
+                <FilePreview fileSelectProps={fileSelectProps} />
             <div className="filesSelected">
                 <div className="header">{Texts.discoverTitle}</div>
                     <AdvOption.Container>
@@ -240,6 +264,85 @@ class DiscoverSchemas extends React.Component {
 
             </div>
             </React.Fragment>
+        );
+    }
+}
+
+class AdvOptionSampleSize extends React.PureComponent {
+    /**
+     * Constructor
+     * @param {{ sampleSize: number, onChange: (size: number)=>void, children?: Object, classNames?: Array<string> }} props
+     */
+    constructor(props) {
+        super(props);
+
+        const { sampleSize } = props;
+        this.state = {
+            hasError: false,
+            inputValue: `${sampleSize}`,
+            checked: sampleSize === -1
+        };
+    }
+
+    _inputChange(strVal) {
+        const { onChange } = this.props;
+        this.setState({
+            inputValue: strVal,
+            hasError: false,
+            checked: false
+        });
+
+        const value = Number(strVal);
+        if (strVal.trim().length === 0 || value <= 0) {
+            this.setState({
+                hasError: true,
+            });
+        } else {
+            onChange(value);
+        }
+    }
+
+    _checkboxChange(checked) {
+        const defaultValue = 10;
+        const newSize = checked ? -1 : defaultValue;
+
+        this.setState({
+            checked: checked,
+            hasError: false,
+            inputValue: `${defaultValue}`
+        });
+
+        const { onChange } = this.props;
+        onChange(newSize);
+    }
+
+    render() {
+        const { children, classNames = [] } = this.props;
+        const { hasError, inputValue, checked } = this.state;
+
+        const iconClasses = ['icon', checked ? 'xi-ckbox-selected' : 'xi-ckbox-empty'];
+        const inputClassNames = ["xc-input"];
+        if (hasError) {
+            inputClassNames.push('error');
+        }
+
+
+        return (
+            <AdvOption.Option classNames={classNames}>
+                <AdvOption.OptionLabel>{children}</AdvOption.OptionLabel>
+                <AdvOption.OptionValue classNames={['option-sampleSize-value']}>
+                    <div style={{paddingRight: '8px'}} className="csvArgs-chkbox">
+                        <i className={iconClasses.join(' ')}  onClick={() => { this._checkboxChange(!checked) }} />
+                        <span style={{paddingLeft: '4px'}} onClick={() => { this._checkboxChange(!checked); }}>All Lines</span>
+                    </div>
+                    { checked ? null : <input
+                            className={inputClassNames.join(' ')}
+                            type="number"
+                            value={inputValue}
+                            onChange={ (e) => { this._inputChange(e.target.value) }}
+                        />}
+                </AdvOption.OptionValue>
+            </AdvOption.Option>
         );
     }
 }

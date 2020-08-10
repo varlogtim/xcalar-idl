@@ -49,8 +49,8 @@ export default function SourcePath({
     onBucketChange,
     path,
     onPathChange,
-    fileType = FileType.CSV,
-    onFileTypeChange = (newType) => {},
+    // fileType = FileType.CSV,
+    // onFileTypeChange = (newType) => {},
     onNextScreen,
     isForensicsLoading,
     fetchForensics
@@ -86,11 +86,11 @@ export default function SourcePath({
                             hint={Texts.noBuckets}
                         />
                     </div>
-                    <GetForensicsButton
+                    {/* <GetForensicsButton
                         isLoading={ isForensicsLoading }
                         disabled={isBucketInvalid}
                         onClick={ () => { fetchForensics(bucket, path) }}
-                    />
+                    /> */}
                 </div>
                 <div className="row">
                     <div className="pathSelection">
@@ -104,7 +104,7 @@ export default function SourcePath({
                             placeholder="optional"
                         />
                     </div>
-                    <div className="fileTypeSelection">
+                    {/* <div className="fileTypeSelection">
                         <label className="label">{Texts.fileType}</label>
                         <InputDropdown
                             val={fileType}
@@ -116,7 +116,7 @@ export default function SourcePath({
                             }
                             readOnly
                         />
-                    </div>
+                    </div> */}
                     <NavButtons right={{
                         label: Texts.navButtonRight,
                         classNames: ["btn-secondary", "browse"].concat(isBucketInvalid ? ['btn-disabled'] : []),

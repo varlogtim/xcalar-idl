@@ -8,8 +8,9 @@ function Title({ children }) {
     return <div className="header advOption-header">{children}</div>
 }
 
-function OptionGroup({ children }) {
-    return <div className="advOption-group">{children}</div>
+function OptionGroup({ children, classNames = [] }) {
+    const cssClass = ['advOption-group'].concat(classNames);
+    return <div className={cssClass.join(' ')}>{children}</div>
 }
 
 function Option({ children, classNames = [] }) {
@@ -25,8 +26,9 @@ function OptionLabel({ onClick, children }) {
     }
 }
 
-function OptionValue({ children }) {
-    return <div className="advOption-option-value">{children}</div>
+function OptionValue({ children, classNames = [] }) {
+    const cssClass = ['advOption-option-value'].concat(classNames);
+    return <div className={cssClass.join(' ')}>{children}</div>
 }
 
 export {

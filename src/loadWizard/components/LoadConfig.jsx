@@ -86,6 +86,13 @@ class LoadConfig extends React.Component {
             browseShow: false,
             selectedFileDir: new Array(),
 
+            // FilePreview
+            fileSelectState: {
+                isLoading: false,
+                files: [],
+                fileSelected: null
+            },
+
             // DiscoverSchemas
             discoverAppId: null,
             discoverFilesState: {
@@ -100,6 +107,7 @@ class LoadConfig extends React.Component {
             discoverCancelBatch: null, // () => {} Dynamic cancel function set by discoverAll
             discoverSchemaPolicy: SchemaService.MergePolicy.EXACT,
             discoverErrorRetry: true,
+            sampleSize: 10,
             inputSerialization: SchemaService.defaultInputSerialization.get(defaultFileType),
             // XXX TODO: remove the following states
             discoverFiles: new Map(), // Map<fileId, { fileId, fullPath, direcotry ... }
@@ -829,19 +837,24 @@ class LoadConfig extends React.Component {
         });
     }
 
-    _resetBrowseResult(newFileType = null) {
+    _resetParserResult(newParserType = null) {
         this._resetDiscoverResult();
-        this.setState({
-            selectedFileDir: new Array(), // Clear selected files/folders, XXX TODO: in case file type changes, we can preserve the folders
-        });
         let inputSerialization = this.state.inputSerialization;
-        if (newFileType != null) {
+        if (newParserType != null) {
             // Create the new input serialization according to the new fileType
-            inputSerialization = SchemaService.defaultInputSerialization.get(newFileType);
+            inputSerialization = SchemaService.defaultInputSerialization.get(newParserType);
             this.setState({
                 inputSerialization: inputSerialization,
             });
         }
+        return inputSerialization;
+    }
+
+    _resetBrowseResult(newParserType = null) {
+        const inputSerialization = this._resetParserResult(newParserType);
+        this.setState({
+            selectedFileDir: new Array(), // Clear selected files/folders, XXX TODO: in case file type changes, we can preserve the folders
+        });
         return inputSerialization;
     }
 
@@ -892,6 +905,16 @@ class LoadConfig extends React.Component {
             fileType: fileType,
         });
         const inputSerialization = this._resetBrowseResult(fileType);
+        return true;
+    }
+
+    _setParserType(newType) {
+        if (newType === this.state.fileType) {
+            return false;
+        }
+
+        this.setState({ fileType: newType });
+        this._resetParserResult(newType);
         return true;
     }
 
@@ -981,6 +1004,18 @@ class LoadConfig extends React.Component {
         });
     }
 
+    _setSampleSize(newSize) {
+        console.log('old size: ', this.state.sampleSize);
+        if (this.state.sampleSize === newSize) {
+            return;
+        }
+
+        console.log('new size: ', newSize);
+        this.setState({
+            sampleSize: Number(newSize)
+        });
+    }
+
     _setErrorRetry(isErrorRetry) {
         this.setState({
             discoverErrorRetry: isErrorRetry
@@ -1008,7 +1043,40 @@ class LoadConfig extends React.Component {
                     browseShow: false,
                     selectedFileDir: selectedFileDir
                 });
+                this._listSelectedFileDir(selectedFileDir[0]);
             }
+        }
+    }
+
+    async _listSelectedFileDir(selectedFileDir) {
+        if (selectedFileDir.directory) {
+            this.setState({
+                fileSelectState: {
+                    isLoading: true,
+                    files: [],
+                    fileSelected: null
+                }
+            });
+
+            // list files in folder
+            try {
+
+            } finally {
+                this.setState(({ fileSelectState }) => ({
+                    fileSelectState: {
+                        ...fileSelectState,
+                        isLoading: true,
+                    }
+                }));
+            }
+        } else {
+            this.setState({
+                fileSelectState: {
+                    isLoading: false,
+                    files: [{ ...selectedFileDir }],
+                    fileSelected: { ...selectedFileDir }
+                }
+            });
         }
     }
 
@@ -1039,11 +1107,11 @@ class LoadConfig extends React.Component {
             bucket,
             homePath,
             fileType,
+            sampleSize,
             currentStep,
             selectedFileDir, // Output of Browse
             discoverAppId,
             discoverFilesState,
-            discoverFileSchemas, // Output of Discover/Input of CreateTable
             browseShow,
             discoverIsRunning,
             discoverProgress,
@@ -1071,17 +1139,17 @@ class LoadConfig extends React.Component {
                         <SourceData
                             bucket={bucket}
                             path = {homePath}
-                            fileType={fileType}
+                            // fileType={fileType}
                             onClickBrowse={() => { this._browseOpen(); }}
                             onBucketChange={(newBucket) => { this._setBucket(newBucket); }}
                             onPathChange={(newPath) => { this._setPath(newPath); }}
-                            onFileTypeChange={(newType) => {
-                                if (this._setFileType(newType)) {
-                                    if (currentStep === stepEnum.SchemaDiscovery || currentStep === stepEnum.CreateTables) {
-                                        this._browseOpen();
-                                    }
-                                }
-                            }}
+                            // onFileTypeChange={(newType) => {
+                            //     if (this._setFileType(newType)) {
+                            //         if (currentStep === stepEnum.SchemaDiscovery || currentStep === stepEnum.CreateTables) {
+                            //             this._browseOpen();
+                            //         }
+                            //     }
+                            // }}
                             isForensicsLoading={this.state.isForensicsLoading}
                             fetchForensics={this._fetchForensics}
                             canReset={showDiscover || showCreate}
@@ -1112,6 +1180,8 @@ class LoadConfig extends React.Component {
                         }
                         {
                             showDiscover ? <DiscoverSchemas
+                                parserType={fileType}
+                                sampleSize={sampleSize}
                                 inputSerialization={this.state.inputSerialization}
                                 schemaPolicy={this.state.discoverSchemaPolicy}
                                 errorRetry={this.state.discoverErrorRetry}
@@ -1126,6 +1196,8 @@ class LoadConfig extends React.Component {
                                 onInputSerialChange={(newConfig) => { this._setInputSerialization(newConfig); }}
                                 onSchemaPolicyChange={(newPolicy) => { this._setSchemaPolicy(newPolicy); }}
                                 onErrorRetryChange={(isRetry) => { this._setErrorRetry(isRetry); }}
+                                onParserTypeChange={(newType) => { this._setParserType(newType); }}
+                                onSampleSizeChange={(size) => { this._setSampleSize(size); }}
                                 onShowSchema={(schema) => { this.setState((state) => ({
                                     schemaDetailState: {
                                         isLoading: false,
