@@ -1098,10 +1098,7 @@ class DagNodeSQL extends DagNode {
             const tableName = value;
             self._finalizeAndGetSchema(sourceId, tableName, pubTablesInfo, null, null, sessionTables)
             .then(function(retStruct) {
-                if (retStruct.pubTableName) {
-                    selectTableMap[retStruct.pubTableName] =
-                                                   retStruct.finalizedTableName;
-                }
+                selectTableMap[retStruct.structToSend.tableName] = retStruct.structToSend.xcTableName;
                 schemaQueryArray = schemaQueryArray.concat(retStruct.cliArray);
                 allSchemas.push(retStruct.structToSend);
                 if (!pubTablesInfo) {
