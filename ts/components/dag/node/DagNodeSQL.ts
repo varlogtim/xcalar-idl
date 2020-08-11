@@ -1127,9 +1127,20 @@ class DagNodeSQL extends DagNode {
         .then(function() {
             const innerPromiseArray = [];
             if (sqlFuncs) {
+                const sqlFuncsArray = [];
                 for (const key in sqlFuncs) {
+                    sqlFuncsArray.push({
+                        key: key,
+                        value: sqlFuncs[key]
+                    });
+                }
+                // place outer functions first
+                sqlFuncsArray.sort((a,b) => {
+                    return b.key.length - a.key.length;
+                });
+                sqlFuncsArray.forEach((s) => {
                     const sqlFunc = {};
-                    sqlFunc[key] = sqlFuncs[key];
+                    sqlFunc[s.key] = s.value;
                     innerPromiseArray.push(self._getSchemasAndQueriesFromSqlFuncs
                                                .bind(self,
                                                      sqlFunc,
@@ -1137,7 +1148,7 @@ class DagNodeSQL extends DagNode {
                                                      sqlFuncSchemas,
                                                      selectTableMap,
                                                      visitedMap));
-                }
+                });
             }
             return PromiseHelper.chain(innerPromiseArray);
         })
@@ -1204,7 +1215,7 @@ class DagNodeSQL extends DagNode {
     ): XDPromise<any> {
         const inputTableNames = [];
         if (Object.keys(sqlFunc).length > 1) {
-            return PromiseHelper.reject("Invalid table functionn: " + JSON.stringify(sqlFunc));
+            return PromiseHelper.reject("Invalid table function: " + JSON.stringify(sqlFunc));
         }
         const key = Object.keys(sqlFunc)[0];
         if (visitedMap.hasOwnProperty(key)) {
@@ -1231,7 +1242,8 @@ class DagNodeSQL extends DagNode {
                 }
                 inputTableNames.push(selectTableMap[identifier]);
             } else {
-                const newSqlFunc = {identifier: arg[identifier]};
+                const newSqlFunc = {};
+                newSqlFunc[identifier] = arg[identifier];
                 promises.push(this._getSchemasAndQueriesFromSqlFuncs(newSqlFunc,
                                                                      allQueries,
                                                                      allSchemas,
