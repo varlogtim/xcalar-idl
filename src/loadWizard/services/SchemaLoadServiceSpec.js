@@ -5,7 +5,7 @@ import { LoadSession, RandomSession, LoginSession, CurrentSession } from './sdk/
 import { Table } from './sdk/Table'
 import { randomName } from './sdk/Api'
 
-describe('SchemaLoadService Test', function() {
+describe.skip('SchemaLoadService Test', function() {
     let app = null;
     let selectedSchemaHash = null;
     let tableQuery = null;

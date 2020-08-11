@@ -1060,12 +1060,24 @@ class LoadConfig extends React.Component {
 
             // list files in folder
             try {
-
+                const fileList = await getFilesInFolder(selectedFileDir.fullPath);
+                this.setState(({ fileSelectState }) => ({
+                    fileSelectState: {
+                        ...fileSelectState,
+                        files: fileList,
+                        fileSelected: fileList[1]
+                    }
+                }));
+            } catch(e) {
+                this._alert({
+                    title: 'List File Error',
+                    message: `${e.message || e.error || e}`
+                });
             } finally {
                 this.setState(({ fileSelectState }) => ({
                     fileSelectState: {
                         ...fileSelectState,
-                        isLoading: true,
+                        isLoading: false,
                     }
                 }));
             }
@@ -1077,6 +1089,17 @@ class LoadConfig extends React.Component {
                     fileSelected: { ...selectedFileDir }
                 }
             });
+        }
+
+        // XXX TODO: replace with listFile service
+        async function getFilesInFolder(path) {
+            return [
+                { fullPath: `${path}/a.json` },
+                { fullPath: `${path}/b.json` },
+                { fullPath: `${path}/c.json` },
+                { fullPath: `${path}/d.json` },
+                { fullPath: `${path}/e.json` },
+            ];
         }
     }
 
@@ -1110,6 +1133,7 @@ class LoadConfig extends React.Component {
             sampleSize,
             currentStep,
             selectedFileDir, // Output of Browse
+            fileSelectState,
             discoverAppId,
             discoverFilesState,
             browseShow,
@@ -1183,6 +1207,20 @@ class LoadConfig extends React.Component {
                                 parserType={fileType}
                                 sampleSize={sampleSize}
                                 inputSerialization={this.state.inputSerialization}
+                                fileSelectProps={{
+                                    ...fileSelectState,
+                                    onSelect: (file) => {
+                                        const currentFile = fileSelectState.fileSelected;
+                                        if (currentFile == null || currentFile.fullPath != file.fullPath) {
+                                            this.setState(({ fileSelectState }) => ({
+                                                fileSelectState: {
+                                                    ...fileSelectState,
+                                                    fileSelected: { ...file }
+                                                }
+                                            }));
+                                        }
+                                    }
+                                }}
                                 schemaPolicy={this.state.discoverSchemaPolicy}
                                 errorRetry={this.state.discoverErrorRetry}
                                 isLoading={discoverIsRunning}
