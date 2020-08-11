@@ -13,6 +13,7 @@ var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
 var publishedTable = require("./xcalar/compute/localtypes/PublishedTable_pb");
+var proto_empty = require("google-protobuf/google/protobuf/empty_pb");
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,6 +64,24 @@ PublishedTableService.prototype = {
         //                        "ListTablesResponse");
         var listTablesResponse = publishedTable.ListTablesResponse.deserializeBinary(specificBytes);
         return listTablesResponse;
+    },
+    changeOwner: async function(changeOwnerRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(changeOwnerRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.PublishedTable.ChangeOwnerRequest");
+        //anyWrapper.pack(changeOwnerRequest.serializeBinary(), "ChangeOwnerRequest");
+
+        var responseData = await this.client.execute("PublishedTable", "ChangeOwner", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var empty =
+        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+        //                        "Empty");
+        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+        return empty;
     },
 };
 

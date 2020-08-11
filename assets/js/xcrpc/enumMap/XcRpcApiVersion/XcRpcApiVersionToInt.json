@@ -12,7 +12,7 @@
     "ParentChildVersionSignature" : 240707532,
     "ProtoFieldValueVersionSignature" : 208059654,
     "ProtoMsgVersionSignature" : 222042168,
-    "PublishedTableVersionSignature" : 65875745,
+    "PublishedTableVersionSignature" : 142049541,
     "QueryVersionSignature" : 54870786,
     "ResultSetVersionSignature" : 66220976,
     "SchemaLoadVersionSignature" : 247203925,
@@ -25,6 +25,6 @@
     "WorkbookVersionSignature" : 44639590,
     "logVersionSignature" : 31641366,
     "memoryVersionSignature" : 268227803,
-    "ProtoAPIVersionSignature" : 94627914
+    "ProtoAPIVersionSignature" : 128012783
 }
 

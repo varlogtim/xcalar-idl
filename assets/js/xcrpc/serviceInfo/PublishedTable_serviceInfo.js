@@ -13,6 +13,7 @@ const _serviceInfo = {
     "PublishedTable" : {
         "Select" : ["xcalar.compute.localtypes.PublishedTable.SelectRequest", "xcalar.compute.localtypes.PublishedTable.SelectResponse"],
         "ListTables" : ["xcalar.compute.localtypes.PublishedTable.ListTablesRequest", "xcalar.compute.localtypes.PublishedTable.ListTablesResponse"],
+        "ChangeOwner" : ["xcalar.compute.localtypes.PublishedTable.ChangeOwnerRequest", "google.protobuf.Empty"],
     },
 };
 
