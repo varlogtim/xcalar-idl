@@ -260,7 +260,14 @@ namespace XVM {
      * when it's cloud, it's data marts
      */
     export function isDataMart(): boolean {
-        return (typeof gDataMart !== "undefined" && gDataMart === true) || XVM.isCloud();
+        return (typeof gDataMart !== "undefined" && gDataMart === true);
+    }
+
+    /**
+     * XVM.isOnAWS
+     */
+    export function isOnAWS(): boolean {
+        return XVM.isCloud() || XVM.isDataMart(); 
     }
 
     /**

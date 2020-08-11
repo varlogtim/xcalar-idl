@@ -770,7 +770,7 @@ namespace WorkbookPanel {
 
         try {
             const noAlert: boolean = xcLocalStorage.getItem("noWKBKDownloadAlert") === "true";
-            if (XVM.isDataMart() || noAlert) {
+            if (XVM.isOnAWS() || noAlert) {
                 deferred.resolve();
             } else {
                 Alert.show({

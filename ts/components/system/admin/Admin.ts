@@ -71,7 +71,7 @@ namespace Admin {
      */
     export function isAdmin(): boolean {
         try {
-            if (XVM.isDataMart()) {
+            if (XVM.isOnAWS()) {
                 return false;
             }
             return XcUser.CurrentUser.isAdmin();

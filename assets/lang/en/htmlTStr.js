@@ -157,7 +157,7 @@ module.exports = {
         "ws": "Worksheets",
         "monitor": "System",
         "source": "Sources",
-        "discourse": "Discourse",
+        "discourse": "Discourse Community",
         "user": "User",
         "tutorUser": "John Smith",
         "unknown": "Unknown",
@@ -165,7 +165,7 @@ module.exports = {
         "Logs": "Logs",
         "About": "About",
         "Help": "Help",
-        "HelpDocs": "Help Documentation",
+        "HelpDocs": "User Guide",
         "LiveHelp": "Live Chat",
         "Walkthroughs": "Walkthroughs"
     },

@@ -18,6 +18,7 @@ class CloudManager {
         if (!XVM.isCloud()) {
             return PromiseHelper.resolve();
         }
+        this._removeNonCloudFeature();
         this.checkCloud();
         return this.setApiUrl();
     }
@@ -113,6 +114,11 @@ class CloudManager {
             deferred.reject(e);
         });
         return deferred.promise();
+    }
+
+    private _removeNonCloudFeature(): void {
+        $("#shellPanel").remove();
+        $("#debugViewContainer .tab[data-tab=console]").remove();
     }
 
     // XXX TODO: check if the implementation is correct

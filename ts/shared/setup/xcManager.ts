@@ -595,7 +595,7 @@ namespace xcManager {
     }
 
     function hotPatch(): XDPromise<void> {
-        if (XVM.isCloud() || XVM.isDataMart()) {
+        if (XVM.isOnAWS()) {
             // data mart cannot use hotpatch, as VPC may block external internet
             return PromiseHelper.resolve();
         }

@@ -12,6 +12,10 @@ class HelpMenu {
         const $menu: JQuery = this._getMenu();
         xcMenu.add($menu);
 
+        if (XVM.isCloud()) {
+            $menu.find(".supTicket").hide();
+        }
+
         $("#helpArea").click((event) =>  {
             const $target: JQuery = $(event.currentTarget);
             MenuHelper.dropdownOpen($target, $menu, <DropdownOptions>{
@@ -20,24 +24,36 @@ class HelpMenu {
             });
         });
 
-        // $menu.on("mouseup", ".discourse", function(event: JQueryEventObject): void {
-        //     if (event.which !== 1) {
-        //         return;
-        //     }
-        //     const win: Window = window.open('https://discourse.xcalar.com/', '_blank');
-        //     if (win) {
-        //         win.focus();
-        //     } else {
-        //         alert('Please allow popups for this website');
-        //     }
-        // });
+        $menu.on("mouseup", ".discourse", (event) => {
+            if (event.which !== 1) {
+                return;
+            }
+            this._popup('https://discourse.xcalar.com/');
+        });
 
-        $menu.on("mouseup", ".supTicket", function(event: JQueryEventObject): void {
+        $menu.on("mouseup", ".document", (event) => {
+            if (event.which !== 1) {
+                return;
+            }
+            // XXX TODO: replace the internal with (https://xcalar.com/documentation/Content/DocPortalHome.htm)
+            this._popup('http://freenas3.int.xcalar.com:8080/netstore/doc/help/Review/Content/Home_User_Guide.htm');
+        });
+
+        $menu.on("mouseup", ".supTicket", (event) => {
             if (event.which !== 1) {
                 return;
             }
             SupTicketModal.Instance.show();
         });
+    }
+
+    private _popup(url: string): void {
+        const win: Window = window.open(url, '_blank');
+        if (win) {
+            win.focus();
+        } else {
+            alert('Please allow popups for this website');
+        }
     }
 
     private _getMenu(): JQuery {

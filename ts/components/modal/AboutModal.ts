@@ -56,16 +56,23 @@ class AboutModal {
         $modal.find(".buildNumber").text(buildNumber);
         
         $modal.removeClass("noLicense");
-        // License
-        const expiration = XVM.getLicenseExipreInfo();
-        const licensee = XVM.getLicensee();
-        const numServers = XVM.getNumServers();
-        const numUsers = XVM.getNumUsers();
-        
-        $modal.find(".licensee").text(licensee);
-        $modal.find(".expiration").text(expiration);
-        $modal.find(".numServers").text(numServers);
-        $modal.find(".numUsers").text(numUsers);
+
+        const $licenseSection = $modal.find(".licenseSection");
+        if (XVM.isOnAWS()) {
+            $licenseSection.hide();
+        } else {
+            $licenseSection.show();
+            // License
+            const expiration = XVM.getLicenseExipreInfo();
+            const licensee = XVM.getLicensee();
+            const numServers = XVM.getNumServers();
+            const numUsers = XVM.getNumUsers();
+            
+            $modal.find(".licensee").text(licensee);
+            $modal.find(".expiration").text(expiration);
+            $modal.find(".numServers").text(numServers);
+            $modal.find(".numUsers").text(numUsers);
+        }
     }
 
     private _getModal(): JQuery {

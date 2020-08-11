@@ -254,9 +254,25 @@ namespace DSTargetManager {
                 let bName: string = b.toLowerCase();
                 return (aName < bName ? -1 : (aName > bName ? 1 : 0));
             });
+            if (XVM.isCloud()) {
+                const index = typeNames.findIndex((name) => isSassTarget(typeNameToIdMap[name]));
+                if (index > -1) {
+                    // put the sassType at first
+                    const sassType = typeNames.splice(index, 1)[0];
+                    typeNames.unshift(sassType);
+                }
+            }
             let html = typeNames.map(function(typeName) {
                 let typeId: string = typeNameToIdMap[typeName];
-                return '<li data-id="' + typeId + '">' +
+                let className = [];
+                let tooltip = "";
+                if (XVM.isCloud() && !isSassTarget(typeId)) {
+                    className.push("unavailable");
+                    tooltip = xcTooltip.Attrs + ' data-title="' + TooltipTStr.AvailableInEnterprise + '"';
+                }
+                return '<li data-id="' + typeId + '" ' +
+                        'class="' + className.join(" ") + '" ' +
+                        tooltip + '>' +
                             typeName +
                         '</li>';
             }).join("");
@@ -402,6 +418,9 @@ namespace DSTargetManager {
 
     // set up some default connectors
     async function defaultConnectorsSetup(): Promise<void> {
+        if (XVM.isCloud()) {
+            return; // sass cloud don't create it
+        }
         let hasNewConnectors: boolean = false;
         try {
             hasNewConnectors = await createPublicS3Connector() || hasNewConnectors;
@@ -459,7 +478,7 @@ namespace DSTargetManager {
     }
 
     async function fetchAvailableS3Buckets(): Promise<void> {
-        if (!XVM.isDataMart()) {
+        if (!XVM.isOnAWS()) {
             return;
         }
         try {
@@ -499,6 +518,9 @@ namespace DSTargetManager {
 
         new MenuHelper($targetTypeList, {
             "onSelect": function($li) {
+                if ($li.hasClass("unavailable")) {
+                    return;
+                }
                 let typeId = $li.data("id");
                 let $input = $targetTypeList.find(".text");
                 if ($input.data("id") === typeId) {
@@ -607,7 +629,7 @@ namespace DSTargetManager {
     }
 
     function isModifiable(): boolean {
-        return Admin.isAdmin() || XVM.isCloud() || XVM.isDataMart();
+        return Admin.isAdmin() || XVM.isOnAWS();
     }
 
     function isDefaultTarget(targetName: string): boolean {
@@ -622,7 +644,12 @@ namespace DSTargetManager {
 
     function isAccessibleTarget(targetType: string): boolean {
         // if change this to XVM.isDataMart, it will make default shared root not accessible
-        return !XVM.isDataMart() || !cloudTargetBlackList.includes(targetType);
+        return !XVM.isOnAWS() || !cloudTargetBlackList.includes(targetType);
+    }
+
+    function isSassTarget(targetType: string): boolean {
+        // XXX TODO: change to the aws full account
+        return XVM.isCloud() && targetType === "s3fullaccount";
     }
 
     function isReservedTargetName(targetName: string): boolean {

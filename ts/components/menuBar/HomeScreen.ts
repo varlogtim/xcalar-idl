@@ -5,6 +5,9 @@ class HomeScreen {
     public static setup(): void {
         this._addEventListeners();
         this._openDefaultScreen();
+        if (XVM.isCloud()) {
+            this._getHomeScreen().find(".contentSection .hint").text(TooltipTStr.AvailableInEnterprise);
+        }
     }
 
     /**
@@ -84,9 +87,15 @@ class HomeScreen {
         $homeScreen.on("click", ".box", (e) => {
             const id = $(e.currentTarget).data("id");
             if (id === "connect" || id === "schedule") {
+                let title = "Coming soon";
+                let msg = "This feature will be available in the next release.";
+                if (XVM.isCloud()) {
+                    title = "Available in Enterprise version";
+                    msg = "This feature is availabe in the Enterprise version of Xcalar";
+                }
                 Alert.show({
-                    title: "The feature is coming soon",
-                    msg: "This feature will be available in the next release.",
+                    title,
+                    msg,
                     isAlert: true
                 });
                 return;

@@ -60,11 +60,16 @@ class UserMenu {
             if (event.which !== 1) {
                 return;
             }
-            if (XVM.isCloud()) {
-                LogoutModal.Instance.show();
-            } else {
-                XcUser.CurrentUser.logout();
-            }
+            // Always let user logout and we handle
+            // the shut down in sass by idling time
+            // if it doesn't work then we can revert to ask user
+            //
+            // if (XVM.isCloud()) {
+            //     LogoutModal.Instance.show();
+            // } else {
+            //     XcUser.CurrentUser.logout();
+            // }
+            XcUser.CurrentUser.logout();
         });
     }
 

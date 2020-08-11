@@ -5,6 +5,10 @@ class LoadScreen {
     public static setup(): void {
         this._addEventListeners();
         this._swtichTab("loadWizard");
+        if (XVM.isCloud()) {
+            // hide old load screen
+            this._getContainer().find("li[data-tab=import]").hide();
+        }
     }
 
     /**
