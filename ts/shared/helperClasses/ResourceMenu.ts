@@ -507,7 +507,7 @@ class ResourceMenu {
     private async _addTableToModule(table: PbTblInfo): Promise<void> {
         const tableName: string = table.name;
         const input = {
-            version: null,
+            version: -1,
             source: tableName,
             schema: table.getSchema()
         };

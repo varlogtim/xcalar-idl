@@ -32,7 +32,7 @@ class DagNodeIMDTableInput extends DagNodeInput {
           },
           "version": {
             "$id": "#/properties/version",
-            "type": "number",
+            "type": ["number", "null"],
             "title": "The Version Schema",
             "default": -1,
             "examples": [

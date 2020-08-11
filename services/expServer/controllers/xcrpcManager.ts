@@ -37,6 +37,8 @@ class XcrpcManager {
             if (operationName === "xcalar.compute.localtypes.KvStore.LookupRequest") {
                 let bodyValue = proto.xcalar.compute.localtypes.KvStore.LookupRequest.deserializeBinary(reqBody.getValue());
                 noTransaction = (bodyValue.getKey().getName() === "gInfo-1-commitKey");
+            } else if (operationName === "xcalar.compute.localtypes.Query.ListRequest") {
+                noTransaction = true;
             }
         } catch (e) {
             // ignore errors, it's ok

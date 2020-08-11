@@ -19,7 +19,7 @@ class UserActivityManager {
     private _isCheckDisabled: boolean = false;
     private _lastSocketUpdate: number = 0; // time when last actiivity update message sent to socket
 
-    public updateUserActivity(noBroadcast?: boolean) {
+    public updateUserActivity(noBroadcast?: boolean): void {
         this._restartActivityTimer();
         if (!noBroadcast && (Date.now() - this._lastSocketUpdate > (30 * 1000))) {
             socket.updateUserActivity();
@@ -27,19 +27,19 @@ class UserActivityManager {
         }
     }
 
-    public disableIdleCheck() {
+    public disableIdleCheck(): void {
         console.log("disableIdleCheck");
         this._isCheckDisabled = true;
         this._stopActivityTimer();
     }
 
-    public enableIdleCheck() {
+    public enableIdleCheck(): void {
         console.log("enableIdleCheck");
         this._isCheckDisabled = false;
         this._restartActivityTimer();
     }
 
-    public updateLogoutInterval(time: number) {
+    public updateLogoutInterval(time: number): void {
         console.log("updateLogoutInterval", time);
         if (!(time >= this._minInactivityTime && time <= this._maxInactivityTime)) {
             time = this._inactivityTime;

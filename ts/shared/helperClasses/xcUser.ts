@@ -518,16 +518,16 @@ class XcUser {
      * Note that cookies will expire at 30th minute, so here we
      * check every 10 to 29 minutes to ensure they can be extended
      */
-    public idleCheck(noBroadcast?: boolean): void {
+    public async idleCheck(noBroadcast?: boolean): Promise<void> {
         if (this !== XcUser.CurrentUser) {
             throw "Invalid User";
         }
 
-        if (!this._isXcalarIdle()) {
+        if (!(await this._isXcalarIdle())) {
             if (!noBroadcast) {
                 this._broadcastUserActivity();
             }
-            this.restartActivityTimer();
+            this._restartLogoutCountdown();
         }
         this._isIdle = true;
 
@@ -554,7 +554,7 @@ class XcUser {
         });
     }
 
-    private _isXcalarIdle(): boolean {
+    private async _isXcalarIdle(checkQueries = false): Promise<boolean> {
         try {
             const txCache = Transaction.getCache();
             if (Object.keys(txCache).length > 0) {
@@ -564,6 +564,17 @@ class XcUser {
             if (WorkbookManager.hasLoadingWKBK()) {
                 // when setup or workbook activating case
                 return false;
+            }
+            if (checkQueries) {
+                // XXX false activity can be reported if a different user on the
+                // same server is executing queries
+                const queries = await XcalarQueryList("*");
+                const queriesInProgress = queries.filter((query) => {
+                    return query.state === QueryStateTStr[QueryStateT.qrProcessing];
+                });
+                if (queriesInProgress.length > 0) {
+                    return false;
+                }
             }
             return this._isIdle;
         } catch (e) {
@@ -575,10 +586,10 @@ class XcUser {
 
     // resets activity, if not reset again for another 25 minutes then
     // will logout user
-    public restartActivityTimer(): void {
+    private _restartLogoutCountdown(): void {
         clearTimeout(this._activityTimer);
-        this._activityTimer = window.setTimeout(() => {
-            if (this._isXcalarIdle() && XcUser._isIdleCheckOn) {
+        this._activityTimer = window.setTimeout(async () => {
+            if (await this._isXcalarIdle(true) && XcUser._isIdleCheckOn) {
                 // make sure user is really idle then logout
                 this.logout();
             } else {

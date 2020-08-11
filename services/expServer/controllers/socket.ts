@@ -268,8 +268,14 @@ class SocketUtil {
                 }
                 if (args.isCloud) {
                     UserActivityManager.updateUserActivity(true);
+                    // tell all users there's activity so cluster doesn't shut down
+                    socket.broadcast.emit("updateUserActivity", args);
+                } else {
+                    let user: string = getSocketUser(socket);
+                    // only tell the current user's tabs there's activity
+                    // cluster won't shut down if no activity, only log out
+                    socket.broadcast.to(user).emit("updateUserActivity", args);
                 }
-                socket.broadcast.emit("updateUserActivity", args);
             });
 
             function registerBrowserSession(user) {
