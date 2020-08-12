@@ -115,7 +115,7 @@ TooltipTStr = {
     "NoUDFRename": "Scalar Functions cannot be renamed",
     "SaveUDFToName": "Save this Scalar Function to provide a new name",
     "Examine": "Examine",
-    "AvailableInEnterprise": "Available in the Enterprise version of Xcalar",
+    "AvailableInEnterprise": "Available in Xcalar Enterprise version",
     // Sync with htmlTStr
     "IcvRestriction": "Generates a table that contains only those rows where a valid value could not be produced from a Map or Group By operation. NOTE: This action creates a new operator for you to save, execute, and identify invalid values from its resultant table.",
     "OnlyInOpMode": "Feature only available in Operational Cluster",

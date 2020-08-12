@@ -455,8 +455,8 @@ namespace DSTargetManager {
         }
     }
 
-     // a private s3 connector
-     async function createPrivateS3Connector(): Promise<boolean> {
+    // a private s3 connector
+    export async function createPrivateS3Connector(): Promise<boolean> {
         const connectorName: string = xcalar_private_s3;
         if (targetSet[connectorName] != null) {
             return false;

@@ -467,7 +467,10 @@ class ExportOpPanelModel extends BaseOpPanelModel {
             }
             return d1Ind - d2Ind;
         });
-        drivers.forEach(driver => {
+        drivers.forEach((driver) => {
+            if (XVM.isCloud() && driver.name === "legacy_udf") {
+                return; // skip
+            }
             let displayName = ExportOpPanelModel.getDriverDisplayName(driver.name);
             html += '<li class="exportDriver" data-name="' + driver.name +
             '">' + displayName + '</li>';

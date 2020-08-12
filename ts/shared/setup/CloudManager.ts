@@ -18,6 +18,7 @@ class CloudManager {
         if (!XVM.isCloud()) {
             return PromiseHelper.resolve();
         }
+        CloudFileBrowser.setup();
         this._removeNonCloudFeature();
         this.checkCloud();
         return this.setApiUrl();

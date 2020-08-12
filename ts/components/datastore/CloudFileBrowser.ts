@@ -12,10 +12,10 @@ namespace CloudFileBrowser {
      */
     export function show(restore: boolean): void {
         this.clear(); // necessary to reset first
-        let targetName = DSTargetManager.getCloudS3Connector();
+        let targetName = DSTargetManager.getPrivateS3Connector();
         let options = {
             cloud: true,
-            backCB: () => DSSource.show()
+            backCB: () => DSForm.show()
         };
         FileBrowser.show(targetName, null, restore, options);
         _getFileBrowser().addClass("cloud");

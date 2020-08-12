@@ -1,4 +1,4 @@
-describe("CloudFileBrowser Test", function() {
+describe.skip("CloudFileBrowser Test", function() {
     let $fileBrowser;
 
     before(function() {
