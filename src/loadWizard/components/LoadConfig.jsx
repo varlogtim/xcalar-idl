@@ -95,6 +95,9 @@ class LoadConfig extends React.Component {
                 fileSelected: null
             },
 
+            // Edit Schema
+            finalSchema: null,
+
             // DiscoverSchemas
             discoverAppId: null,
             discoverFilesState: {
@@ -939,6 +942,12 @@ class LoadConfig extends React.Component {
         return true;
     }
 
+    _setFinalSchema(schema) {
+        this.setState({
+            finalSchema: schema
+        });
+    }
+
     _setSchemaPolicy(newPolicy) {
         //XXX TODO: This is temporarily disabled
         // Rewirte this once backend supports multiple algorithms
@@ -1163,9 +1172,6 @@ class LoadConfig extends React.Component {
 
         return (
             <div className="container cardContainer">
-                {/* <div className="cardHeader">
-                    <header className="title">{screenName}</header>
-                </div> */}
                 {/* start of card main */}
                 <div className="cardMain">
                     <div className="leftPart">
@@ -1177,13 +1183,6 @@ class LoadConfig extends React.Component {
                             onClickBrowse={() => { this._browseOpen(); }}
                             onBucketChange={(newBucket) => { this._setBucket(newBucket); }}
                             onPathChange={(newPath) => { this._setPath(newPath); }}
-                            // onFileTypeChange={(newType) => {
-                            //     if (this._setFileType(newType)) {
-                            //         if (currentStep === stepEnum.SchemaDiscovery || currentStep === stepEnum.CreateTables) {
-                            //             this._browseOpen();
-                            //         }
-                            //     }
-                            // }}
                             isForensicsLoading={this.state.isForensicsLoading}
                             fetchForensics={this._fetchForensics}
                             canReset={showDiscover || showCreate}
@@ -1240,6 +1239,7 @@ class LoadConfig extends React.Component {
                                     ...discoverFilesState,
                                     onLoadData: (p, rpp) => this._fetchDiscoverFileData(p, rpp)
                                 }}
+                                onFinalSchemaChange={(schema) => { this._setFinalSchema(schema); }}
                                 onClickDiscoverAll={onClickDiscoverAll}
                                 onCancelDiscoverAll={discoverCancelBatch}
                                 onInputSerialChange={(newConfig) => { this._setInputSerialization(newConfig); }}

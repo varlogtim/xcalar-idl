@@ -4,6 +4,7 @@ import SourceCSVArgSection from './SourceCSVArgSection';
 import * as AdvOption from './AdvanceOption'
 import InputDropdown from '../../../components/widgets/InputDropdown'
 import { FilePreview } from './FilePreview'
+import { EditSchemaSection } from './EditSchema'
 import EC from '../../utils/EtaCost'
 import * as SchemaService from '../../services/SchemaService';
 
@@ -127,6 +128,13 @@ function CostEstimation({ files }) {
 }
 
 class DiscoverSchemas extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            selectedSchema: null
+        };
+    }
+
     render() {
         const {
             parserType,
@@ -140,11 +148,13 @@ class DiscoverSchemas extends React.Component {
             onClickDiscoverAll,
             onCancelDiscoverAll,
             onInputSerialChange,
+            onFinalSchemaChange,
             onSchemaPolicyChange,
             onErrorRetryChange,
             onParserTypeChange,
             onShowSchema,
         } = this.props;
+        const { selectedSchema } = this.state;
 
         const needConfig = SchemaService.InputSerializationFactory.getFileType(inputSerialization).has(SchemaService.FileType.CSV);
 
@@ -184,7 +194,8 @@ class DiscoverSchemas extends React.Component {
                         }}
                     /> : null }
                 </AdvOption.Container>
-                <FilePreview fileSelectProps={fileSelectProps} />
+                <FilePreview fileSelectProps={fileSelectProps} onSelectSchema={(schema) => { this.setState({selectedSchema: schema}); }} />
+                { selectedSchema != null && <EditSchemaSection schemaString={JSON.stringify(selectedSchema)} onSchemaChange={(schema) => {onFinalSchemaChange(schema)}} /> }
             {/* <div className="filesSelected">
                 <div className="header">{Texts.discoverTitle}</div>
                     <AdvOption.Container>

@@ -10,7 +10,7 @@ class FilePreview extends React.PureComponent {
     }
 
     render() {
-        const { fileSelectProps } = this.props;
+        const { fileSelectProps, onSelectSchema } = this.props;
         const { files = [], fileSelected } = fileSelectProps || {};
 
         if (files.length === 0) {
@@ -25,7 +25,7 @@ class FilePreview extends React.PureComponent {
                     <AdvOption.OptionValue><FileDropdown {...fileSelectProps} /></AdvOption.OptionValue>
                 </AdvOption.Option>
             </AdvOption.OptionGroup></AdvOption.Container>
-            <FileContentWrap filePath={fileSelected.fullPath} />
+            <FileContentWrap filePath={fileSelected.fullPath} onSchemaChange={onSelectSchema} />
         </div>);
     }
 }
@@ -58,8 +58,7 @@ class FileContentWrap extends React.Component {
             content: [],
             isAutoDetect: false,
             lineSelected: -1,
-            lineOffset: 0,
-            sampleSize: 10
+            lineOffset: 0
         };
 
         this._fetchJob = {
@@ -136,12 +135,12 @@ class FileContentWrap extends React.Component {
     }
 
     _onSchemaChange(schema) {
-        console.log('Schame: ', schema);
-        // XXX TODO: Populate schema to schma editor
+        const { onSchemaChange } = this.props;
+        onSchemaChange(schema);
     }
 
     render() {
-        const { isLoading, error, content, isAutoDetect, lineSelected, lineOffset, sampleSize } = this.state;
+        const { isLoading, error, content, isAutoDetect, lineSelected, lineOffset } = this.state;
         const { pageSize = 10 } = this.props || {};
 
         if (isLoading) {
@@ -217,7 +216,7 @@ class AutoDetectSection extends React.PureComponent {
         onSchemaChange([
             { name: 'col1', type: 'DfString', mapping: '$."col1"'},
             { name: 'col2', type: 'DfInt64', mapping: '$."col2"'},
-            { name: 'col3', type: 'DfInt64', mapping: '$."col3"'},
+            { name: 'col3', type: 'DfInt64', mapping: '$."col3"'}
         ]);
     }
 
