@@ -46,6 +46,24 @@ AppService.prototype = {
         var appStatusResponse = app.AppStatusResponse.deserializeBinary(specificBytes);
         return appStatusResponse;
     },
+    driver: async function(driverRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(driverRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.App.DriverRequest");
+        //anyWrapper.pack(driverRequest.serializeBinary(), "DriverRequest");
+
+        var responseData = await this.client.execute("App", "Driver", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var driverResponse =
+        //    responseData.unpack(app.DriverResponse.deserializeBinary,
+        //                        "DriverResponse");
+        var driverResponse = app.DriverResponse.deserializeBinary(specificBytes);
+        return driverResponse;
+    },
 };
 
 exports.AppService = AppService;

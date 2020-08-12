@@ -36,6 +36,28 @@ function deserialize_xcalar_compute_localtypes_App_AppStatusResponse(buffer_arg)
   return xcalar_compute_localtypes_App_pb.AppStatusResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_xcalar_compute_localtypes_App_DriverRequest(arg) {
+  if (!(arg instanceof xcalar_compute_localtypes_App_pb.DriverRequest)) {
+    throw new Error('Expected argument of type xcalar.compute.localtypes.App.DriverRequest');
+  }
+  return new Buffer(arg.serializeBinary());
+}
+
+function deserialize_xcalar_compute_localtypes_App_DriverRequest(buffer_arg) {
+  return xcalar_compute_localtypes_App_pb.DriverRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_xcalar_compute_localtypes_App_DriverResponse(arg) {
+  if (!(arg instanceof xcalar_compute_localtypes_App_pb.DriverResponse)) {
+    throw new Error('Expected argument of type xcalar.compute.localtypes.App.DriverResponse');
+  }
+  return new Buffer(arg.serializeBinary());
+}
+
+function deserialize_xcalar_compute_localtypes_App_DriverResponse(buffer_arg) {
+  return xcalar_compute_localtypes_App_pb.DriverResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 
 var AppService = exports.AppService = {
   appStatus: {
@@ -48,6 +70,18 @@ var AppService = exports.AppService = {
     requestDeserialize: deserialize_xcalar_compute_localtypes_App_AppStatusRequest,
     responseSerialize: serialize_xcalar_compute_localtypes_App_AppStatusResponse,
     responseDeserialize: deserialize_xcalar_compute_localtypes_App_AppStatusResponse,
+  },
+  // rpc for XcalarApiDriver
+  driver: {
+    path: '/xcalar.compute.localtypes.App.App/Driver',
+    requestStream: false,
+    responseStream: false,
+    requestType: xcalar_compute_localtypes_App_pb.DriverRequest,
+    responseType: xcalar_compute_localtypes_App_pb.DriverResponse,
+    requestSerialize: serialize_xcalar_compute_localtypes_App_DriverRequest,
+    requestDeserialize: deserialize_xcalar_compute_localtypes_App_DriverRequest,
+    responseSerialize: serialize_xcalar_compute_localtypes_App_DriverResponse,
+    responseDeserialize: deserialize_xcalar_compute_localtypes_App_DriverResponse,
   },
 };
 

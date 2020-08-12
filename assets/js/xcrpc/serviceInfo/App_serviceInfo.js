@@ -12,6 +12,7 @@
 const _serviceInfo = {
     "App" : {
         "AppStatus" : ["xcalar.compute.localtypes.App.AppStatusRequest", "xcalar.compute.localtypes.App.AppStatusResponse"],
+        "Driver" : ["xcalar.compute.localtypes.App.DriverRequest", "xcalar.compute.localtypes.App.DriverResponse"],
     },
 };
 

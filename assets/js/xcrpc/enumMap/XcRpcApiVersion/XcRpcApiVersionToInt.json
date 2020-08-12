@@ -1,5 +1,5 @@
 {
-    "AppVersionSignature" : 187534625,
+    "AppVersionSignature" : 256242492,
     "CgroupVersionSignature" : 29782908,
     "ColumnAttributeVersionSignature" : 199286749,
     "DagNodeVersionSignature" : 53874566,
@@ -25,6 +25,6 @@
     "WorkbookVersionSignature" : 44639590,
     "logVersionSignature" : 31641366,
     "memoryVersionSignature" : 268227803,
-    "ProtoAPIVersionSignature" : 128012783
+    "ProtoAPIVersionSignature" : 102569558
 }
 
