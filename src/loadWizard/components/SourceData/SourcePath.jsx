@@ -15,7 +15,8 @@ const Texts = {
     typeParquet: 'Parquet',
     navButtonRight: 'Browse',
     updateForensics: 'Updating ...',
-    getForensics: 'Get Directory Info'
+    getForensics: 'Get Directory Info',
+    connector: 'Connector:'
 };
 
 /**
@@ -44,6 +45,19 @@ function isBucketNameInvalid(bucketName) {
     return false;
 }
 
+function getConnectorList(connectors) {
+    let list = [{
+        text: "+ Create New Connector",
+        value: "+NewConnector",
+        className: "createNew"
+    }];
+
+    list = list.concat(connectors.map(type => {
+        return {text: type, value: type};
+    }));
+    return list;
+}
+
 export default function SourcePath({
     bucket,
     onBucketChange,
@@ -52,17 +66,44 @@ export default function SourcePath({
     // fileType = FileType.CSV,
     // onFileTypeChange = (newType) => {},
     onNextScreen,
+    connector,
+    onConnectorChange = (connector) => {},
     isForensicsLoading,
     fetchForensics
 }) {
     // the getAvailableS3Bucket is async call, it may not be ready the first it's rendernder,
     // so need to put it in the onOpen callback
     const [s3Buckets, setS3Buckets] = React.useState([]);
+    const [connectors, setConnectors] = React.useState([]);
 
     const isBucketInvalid = isBucketNameInvalid(bucket);
+    DSTargetManager.updateSelectedConnector = (newConnector) => {
+        onConnectorChange(newConnector);
+    }
+
     return (
         <div className="sourceForm">
             <form onSubmit={(e) => { e.preventDefault(); }}>
+                <div className="row">
+                    <div className="connectorSelection">
+                        <label className="label">{Texts.connector}</label>
+                        <InputDropdown
+                            val={connector}
+                            onSelect={onConnectorChange}
+                            onOpen={() => {
+                                const connectors = [];
+                                const targets = DSTargetManager.getAllTargets();
+                                for (let i in targets) {
+                                    connectors.push(i);
+                                }
+                                connectors.sort();
+                                setConnectors(connectors);
+                            }}
+                            list={getConnectorList(connectors)}
+                            readOnly
+                        />
+                    </div>
+                </div>
                 <div className="row">
                     <div className="bucketSelection">
                         <label className="label">{Texts.bucketName}</label>

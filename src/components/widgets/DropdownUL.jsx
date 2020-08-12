@@ -1,7 +1,7 @@
 import * as React from "react";
 
 // type DropdownULProps = {
-//     list: {value: string, text: string, icon?: string}[],
+//     list: {value: string, text: string, icon?: string, className?: string}[],
 //     hint: string
 //     onItemClick: Function,
 //     onEscape: Function
@@ -132,6 +132,9 @@ export default class DropdownUL extends React.Component {
                 let className = "";
                 if (this.state.selectedIndex === i) {
                     className += " selected";
+                }
+                if (item.className) {
+                    className += (" " + item.className);
                 }
                 return (
                     <li

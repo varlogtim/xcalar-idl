@@ -70,6 +70,7 @@ class LoadConfig extends React.Component {
         const {
             onStepChange
         } = props;
+        const defaultConnector = "AWS Target";
         const defaultBucket = '/';
         const defaultHomePath = '';
         const defaultFileType = SchemaService.FileType.CSV;
@@ -78,6 +79,7 @@ class LoadConfig extends React.Component {
             currentStep: stepEnum.SourceData,
 
             // SourceData
+            connector: defaultConnector,
             bucket: defaultBucket,
             homePath: defaultHomePath,
             fileType: defaultFileType,
@@ -836,6 +838,26 @@ class LoadConfig extends React.Component {
         });
     }
 
+    _setConnector(connector) {
+        connector = connector.trim();
+        if (connector === "+NewConnector") {
+            LoadScreen.switchTab("connector");
+            DSTargetManager.showTargetCreateView();
+            return;
+        }
+        const isConnectorChanged = connector !== this.state.connector;
+        if (isConnectorChanged) {
+            if (this._isConfigChanged()) {
+                // XXX TODO: unsaved changes, what should we do?
+                console.log('Load config discarded');
+            }
+            this._resetBrowseResult();
+        }
+        this.setState({
+            connector: connector
+        });
+    }
+
     _resetParserResult(newParserType = null) {
         this._resetDiscoverResult();
         let inputSerialization = this.state.inputSerialization;
@@ -1114,6 +1136,7 @@ class LoadConfig extends React.Component {
 
     render() {
         const {
+            connector,
             bucket,
             homePath,
             fileType,
@@ -1147,6 +1170,7 @@ class LoadConfig extends React.Component {
                 <div className="cardMain">
                     <div className="leftPart">
                         <SourceData
+                            connector={connector}
                             bucket={bucket}
                             path = {homePath}
                             // fileType={fileType}
@@ -1164,9 +1188,11 @@ class LoadConfig extends React.Component {
                             fetchForensics={this._fetchForensics}
                             canReset={showDiscover || showCreate}
                             onReset={this._resetAll}
+                            onConnectorChange={(newConnector) => {this._setConnector(newConnector);}}
                         />
                         {
                             showBrowse ? <BrowseDataSourceModal
+                                connector={connector}
                                 bucket={bucket}
                                 homePath={homePath}
                                 fileType={fileType}

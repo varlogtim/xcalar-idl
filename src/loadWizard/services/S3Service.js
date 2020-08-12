@@ -12,14 +12,14 @@ const {
 const DS_PREFIX = 'LWDS';
 
 // XXX TODO: Performance issue: result could be large
-async function flattenFileDir(fileDirList, fileNamePattern = '*') {
+async function flattenFileDir(fileDirList, fileNamePattern = '*', targetName = "AWS Target") {
     const flattenFiles = new Map();
 
     for (const fod of fileDirList) {
         if (fod.directory) {
             const s3Files = await XcalarListFiles({
                 "recursive": true,
-                "targetName": "AWS Target",
+                "targetName": targetName,
                 "path": fod.fullPath,
                 "fileNamePattern": fileNamePattern
             });
@@ -47,10 +47,10 @@ async function flattenFileDir(fileDirList, fileNamePattern = '*') {
     return flattenFiles;
 }
 
-async function previewFile(fileDir, fileName = '') {
+async function previewFile(fileDir, fileName = '', targetName = "AWS Target") {
     const preview = await XcalarPreview({
         "recursive": false,
-        "targetName": "AWS Target",
+        "targetName": targetName,
         "path": fileDir,
         "fileName": fileName,
         "fileNamePattern": ""
@@ -59,11 +59,11 @@ async function previewFile(fileDir, fileName = '') {
     return preview;
 }
 
-async function listFiles(path, filter = (fileInfo) => true) {
+async function listFiles(path, targetName = "AWS Target", filter = (fileInfo) => true) {
     const fileInfos = new Map();
     const s3Files = await XcalarListFiles({
         "recursive": false,
-        "targetName": "AWS Target",
+        "targetName": targetName,
         "path": path,
         "fileNamePattern": '*'
     });

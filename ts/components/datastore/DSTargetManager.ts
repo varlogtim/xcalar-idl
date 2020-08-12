@@ -31,7 +31,7 @@ namespace DSTargetManager {
         xcalar_table_gen,
         xcalar_table_store
     ];
-    let availableS3Buckets: string[] = []; 
+    let availableS3Buckets: string[] = [];
 
     export const S3Connector: string = "s3fullaccount";
     export const DBConnector: string = "dsn";
@@ -404,6 +404,10 @@ namespace DSTargetManager {
         return xcalar_private_s3;
     }
 
+    export function updateSelectedConnector(targetName) {
+        // overwritten by SourcePath.jsx
+    }
+
     function getConnectorList(): XDPromise<any> {
         let deferred: XDDeferred<any> = PromiseHelper.deferred();
         XcalarTargetList()
@@ -546,8 +550,13 @@ namespace DSTargetManager {
         $("#dsTarget-import").click(function(event) {
             event.preventDefault();
             let targetName: string = $gridView.find(".grid-unit.active").data("name");
-            LoadScreen.switchTab("import");
-            DSForm.setDataTarget(targetName);
+            if (XVM.isCloud()) {
+                LoadScreen.switchTab("loadWizard");
+                DSTargetManager.updateSelectedConnector(targetName);
+            } else {
+                LoadScreen.switchTab("import");
+                DSForm.setDataTarget(targetName);
+            }
         });
     }
 

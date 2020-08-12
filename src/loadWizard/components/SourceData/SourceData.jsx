@@ -30,6 +30,7 @@ function ResetButton(props) {
 class SourceData extends React.Component {
     render() {
         const {
+            connector,
             bucket,
             path,
             fileType,
@@ -38,7 +39,8 @@ class SourceData extends React.Component {
             onPathChange,
             fetchForensics,
             isForensicsLoading,
-            onFileTypeChange = (newType) => {}
+            onFileTypeChange = (newType) => {},
+            onConnectorChange = (connector) => {}
         } = this.props;
 
         // const fullPath = Path.join(bucket, path);
@@ -55,6 +57,8 @@ class SourceData extends React.Component {
                     onNextScreen={onClickBrowse}
                     fetchForensics={fetchForensics}
                     isForensicsLoading={isForensicsLoading}
+                    connector={connector}
+                    onConnectorChange={onConnectorChange}
                 />
                 {/* <div className="modelInfo">
                     Model rules:

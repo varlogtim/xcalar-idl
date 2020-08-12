@@ -3,8 +3,9 @@ import DropdownUL from "./DropdownUL";
 // type InputDropdownProps = {
 //     onSelect: Function,
 //     onInputChange: Function,
+//     onOpen?: Function
 //     val: string,
-//     list: {value: string, text: string, icon?: string}[],
+//     list: {value: string, text: string, icon?: string, className?: string}[],
 //     hint: string
 //     readOnly?: boolean
 // };
@@ -89,7 +90,6 @@ export default class InputDropdown extends React.Component {
                         type="text"
                         spellCheck={false}
                         value={this.props.val}
-                        // onClick={this.onOuterListClick}
                         readOnly={true}
                     />
                     <div className="iconWrapper">
@@ -105,7 +105,6 @@ export default class InputDropdown extends React.Component {
                         type="text"
                         spellCheck={false}
                         value={this.props.val}
-                        // onClick={this.onOuterListClick}
                         onChange={e => this.onInputChange(e.target.value)}
                         readOnly={readOnly}
                     />

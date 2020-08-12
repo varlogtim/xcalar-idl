@@ -267,7 +267,7 @@ namespace XVM {
      * XVM.isOnAWS
      */
     export function isOnAWS(): boolean {
-        return XVM.isCloud() || XVM.isDataMart(); 
+        return XVM.isCloud() || XVM.isDataMart();
     }
 
     /**

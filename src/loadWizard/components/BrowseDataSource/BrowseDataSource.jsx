@@ -97,7 +97,7 @@ class BrowseDataSource extends React.Component {
             // const fileMap = await S3Service.listFiles(Path.join(newFullPath, '/'), ({ directory, type}) => {
             //     return directory || fileTypeFilter({ type: type });
             // });
-            const fileMap = await S3Service.listFiles(Path.join(newFullPath, '/'));
+            const fileMap = await S3Service.listFiles(Path.join(newFullPath, '/'), this.props.connector);
             if (this.props.homePath && !newFullPath.endsWith(this.props.homePath)) {
                 // navigated away while files were loading
                 return false;

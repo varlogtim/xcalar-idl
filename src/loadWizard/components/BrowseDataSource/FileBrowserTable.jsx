@@ -120,13 +120,6 @@ export default function FileBrowserTable(props) {
                         if (rowData.directory) {
                             onPathChange(rowData.fullPath);
                         }
-                        //  S3Service.previewFile(info.rowData.fullPath, info.rowData.name)
-                        //  .then((a) => {
-                        //      console.log(a);
-                        //  })
-                        //  .catch((e) => {
-                        //      console.log(e)
-                        //  });
                     }}
                     columns={columns}
                     sortableFields={new Set(["name", "size", "type"])}
