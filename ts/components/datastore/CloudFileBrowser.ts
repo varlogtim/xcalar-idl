@@ -78,8 +78,8 @@ namespace CloudFileBrowser {
             _handleUploadError("Upload xlsx file is not supported in this version, please convert the file to CSV.");
             return PromiseHelper.reject();
         }
-        if (file.size && (file.size / MB) > 7) {
-            _handleUploadError("Please ensure your file is under 6MB.");
+        if (file.size && (file.size / MB) > 60000) {
+            _handleUploadError("Please ensure your file is under 60GB.");
             return PromiseHelper.reject();
         }
         let isChecking: boolean = true;
@@ -87,7 +87,7 @@ namespace CloudFileBrowser {
         .then(() => {
             isChecking = false;
             FileBrowser.addFileToUpload(fileName);
-            return CloudManager.Instance.uploadToS3(fileName, file);
+            return CloudManager.Instance.multiUploadToS3(fileName, file);
         })
         .then(() => {
             FileBrowser.refresh();

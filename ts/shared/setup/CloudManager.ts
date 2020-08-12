@@ -82,6 +82,72 @@ class CloudManager {
     }
 
     /**
+     * CloudManager.Instance.multiUploadToS3
+     * Upload a file to an S3 bucket with multipart api
+     * @param fileName the file's name
+     * @param file file to upload
+     */
+    public multiUploadToS3(fileName: string, file: File): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let allData: string;
+        let uploadId: string;
+        const partList: any = [];
+        const partSize = 6000000;
+
+        xcHelper.readFile(file)
+        .then((fileContent) => {
+            allData = fileContent;
+            return this._sendRequest("s3/multipart/start", {
+                "fileName": fileName
+            });
+        })
+        .then((res: {uploadId: string}) => {
+            uploadId = res.uploadId;
+            let promises = [];
+            for (let i = 0; i * partSize < allData.length; i++) {
+                if (i === 10000) {
+                    return PromiseHelper.reject("Part number exceeds limit");
+                }
+                promises.push(this._uploadPart(
+                    fileName,
+                    uploadId,
+                    allData.substring(i * partSize, (i + 1) * partSize),
+                    i + 1,
+                    partList));
+            }
+            return PromiseHelper.when(...promises);
+        })
+        .then(() => {
+
+            return this._sendRequest("s3/multipart/complete", {
+                "fileName": fileName,
+                "uploadId": uploadId,
+                "uploadInfo": {
+                    "Parts": partList
+                }
+            });
+        })
+        .then(deferred.resolve)
+        .fail((err) => {
+            console.error("S3 multi part upload failed: ", err);
+            this._sendRequest("s3/multipart/abort", {
+                "fileName": fileName,
+                "uploadId": uploadId
+            })
+            .then(() => {
+                deferred.reject(err);
+            })
+            .fail((err2) => {
+                // Not sure what we should do here because if abort fail,
+                // the existing parts will keep being charged
+                deferred.reject(err2);
+            });
+        });
+
+        return deferred.promise();
+    }
+
+    /**
      * CloudManager.Instance.deleteS3File
      * delete a file from s3 bucket
      * @param fileName
@@ -125,6 +191,29 @@ class CloudManager {
     // XXX TODO: check if the implementation is correct
     private _getUserName(): string {
         return XcUser.CurrentUser.getFullName();
+    }
+
+    private _uploadPart(
+        fileName: string,
+        uploadId: string,
+        data: string,
+        partNumber: number,
+        partList: any): XDPromise<any> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        this._sendRequest("s3/multipart/upload", {
+            "fileName": fileName,
+            "uploadId": uploadId,
+            "data": data,
+            "partNumber": partNumber
+        })
+        .then((ret) => {
+            partList[partNumber - 1] = {
+                "PartNumber": partNumber,
+                "ETag": ret.ETag.substring(1, ret.ETag.length - 1)};
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     private _sendRequest(action: string, payload: object): XDPromise<any> {
