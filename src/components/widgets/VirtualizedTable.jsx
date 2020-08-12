@@ -113,13 +113,13 @@ class MuiVirtualizedTable extends React.PureComponent {
                 style={{ height: headerHeight }}
                 align={'left'}
             >
-                <Checkbox
+                {/* <Checkbox
                     size="small"
                     color="primary"
                     indeterminate={this.props.getNumSelected() > 0 && this.props.getNumSelected() < this.props.rowCount}
                     checked={this.props.rowCount > 0 && this.props.getNumSelected() === this.props.rowCount}
                     onChange={this.onSelectAllClick}
-                />
+                /> */}
             </TableCell>
         );
     };
@@ -159,7 +159,7 @@ class MuiVirtualizedTable extends React.PureComponent {
             rowData,
             rowIndex
         } = info;
-        const {classes, rowHeight, onRowClick } = this.props;
+        const {classes, rowHeight, onRowClick, selectableFilter = () => true } = this.props;
 
         return (
           <TableCell
@@ -171,12 +171,12 @@ class MuiVirtualizedTable extends React.PureComponent {
             style={{ height: rowHeight }}
             align={'left'}
           >
-            <Checkbox
+            {selectableFilter(rowData) && <Checkbox
                 size="small"
                 color="primary"
                 checked={this.props.isSelected(rowData)}
                 onChange={event => this.handleCheckboxClick(event, rowData, rowIndex)}
-            />
+            />}
           </TableCell>
         );
     };

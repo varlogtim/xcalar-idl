@@ -58,52 +58,52 @@ export default function FileBrowserTable(props) {
             label: 'Type',
             dataKey: 'type'
         },
-        {
-            width: 30,
-            label: 'Info',
-            dataKey: 'info',
-            customHeadRender: (data, classes) => {
-                return (
-                    <TableCell
-                        component="div"
-                        className={clsx(classes.tableCell, classes.flexContainer, classes.noClick)}
-                        variant="head"
-                        style={{ height: "40px" }}
-                        align={'left'}
-                    >
-                        <span>Info</span>
-                    </TableCell>
-                )
-            },
-            customCellRender: (data, classes) => {
-                let tooltip = data.directory ? "Get Directory Info" : "";
-                return (
-                    <TableCell
-                        component="div"
-                        className={clsx(classes.tableCell, classes.flexContainer, {
-                            [classes.noClick]: data.directory == false})}
-                        variant="body"
-                        style={{ height: "24px" }}
-                        align={'left'}
-                        onClick={() => {
-                            if (data.directory) {
-                                onInfoClick(data.fullPath);
-                            }
-                        }}
-                        data-toggle="tooltip"
-                        data-container="body"
-                        data-placement="auto top"
-                        data-original-title={tooltip}
-                        data-delay="100"
-                    >
-                        {data.directory ? <i
-                            className="icon xi-info-circle-outline"
-                            ></i>
-                        : null}
-                    </TableCell>
-                );
-            }
-        }
+        // {
+        //     width: 30,
+        //     label: 'Info',
+        //     dataKey: 'info',
+        //     customHeadRender: (data, classes) => {
+        //         return (
+        //             <TableCell
+        //                 component="div"
+        //                 className={clsx(classes.tableCell, classes.flexContainer, classes.noClick)}
+        //                 variant="head"
+        //                 style={{ height: "40px" }}
+        //                 align={'left'}
+        //             >
+        //                 <span>Info</span>
+        //             </TableCell>
+        //         )
+        //     },
+        //     customCellRender: (data, classes) => {
+        //         let tooltip = data.directory ? "Get Directory Info" : "";
+        //         return (
+        //             <TableCell
+        //                 component="div"
+        //                 className={clsx(classes.tableCell, classes.flexContainer, {
+        //                     [classes.noClick]: data.directory == false})}
+        //                 variant="body"
+        //                 style={{ height: "24px" }}
+        //                 align={'left'}
+        //                 onClick={() => {
+        //                     if (data.directory) {
+        //                         onInfoClick(data.fullPath);
+        //                     }
+        //                 }}
+        //                 data-toggle="tooltip"
+        //                 data-container="body"
+        //                 data-placement="auto top"
+        //                 data-original-title={tooltip}
+        //                 data-delay="100"
+        //             >
+        //                 {data.directory ? <i
+        //                     className="icon xi-info-circle-outline"
+        //                     ></i>
+        //                 : null}
+        //             </TableCell>
+        //         );
+        //     }
+        // }
     ];
 
     return (
@@ -131,6 +131,7 @@ export default function FileBrowserTable(props) {
                     columns={columns}
                     sortableFields={new Set(["name", "size", "type"])}
                     selectableRows={true} // checkboxes
+                    selectableFilter={rowData => !rowData.directory}
                     selectedIds={selectedIds}
                     onSelect={onSelect}
                     onDeselect={onDeselect}

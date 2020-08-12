@@ -121,7 +121,7 @@ class BrowseDataSource extends React.Component {
 
     _selectFiles(newSelectedFiles) {
         const { selectedFileDir, fileMapViewing } = this.state;
-        const selectedFiles = [...selectedFileDir];
+        const selectedFiles = [];
         for (const newSelectedFile of newSelectedFiles) {
             let newSelectedFileId = newSelectedFile.fileId;
             const fileObj = fileMapViewing.get(newSelectedFileId);
@@ -220,15 +220,16 @@ class BrowseDataSource extends React.Component {
                             selectedIds={getSelectedIdsForCurrentView(fileMapViewing, selectedFileDir)}
                             onPathChange={(newFullPath) => { this._browsePath(newFullPath, fileType); }}
                             onSelect={(files) => {
-                                if (this._getNumSelected() + files.size > 1) {
-                                    Alert.show({
-                                        title: 'Error',
-                                        msg: 'Only one file or folder can be selected',
-                                        isAlert: true
-                                    });
-                                } else {
-                                    this._selectFiles(files);
-                                }
+                                // if (this._getNumSelected() + files.size > 1) {
+                                //     Alert.show({
+                                //         title: 'Error',
+                                //         msg: 'Only one file or folder can be selected',
+                                //         isAlert: true
+                                //     });
+                                // } else {
+                                //     this._selectFiles(files);
+                                // }
+                                this._selectFiles(files);
                             }}
                             onDeselect={(files) => { this._deselectFiles(files); }}
                             onInfoClick={(path) => { this._fetchForensics(path); }}
