@@ -2,6 +2,7 @@ import * as React from "react";
 import InputDropdown from '../../../components/widgets/InputDropdown'
 import * as AdvOption from './AdvanceOption'
 import LoadingText from '../../../components/widgets/LoadingText'
+import { OptionSampleSize } from './OptionSampleSize'
 
 class FilePreview extends React.PureComponent {
     constructor(props) {
@@ -57,7 +58,8 @@ class FileContentWrap extends React.Component {
             content: [],
             isAutoDetect: false,
             lineSelected: -1,
-            lineOffset: 0
+            lineOffset: 0,
+            sampleSize: 10
         };
 
         this._fetchJob = {
@@ -120,9 +122,9 @@ class FileContentWrap extends React.Component {
         this.setState({ lineSelected: index });
         if (index >= 0) {
             this.setState({ isAutoDetect: false });
-            console.log('Schema selected: ', this.state.content[index].schema)
+            this._onSchemaChange(this.state.content[index].schema);
         } else {
-            console.log('No schema selected');
+            this._onSchemaChange(null);
         }
     }
 
@@ -133,8 +135,13 @@ class FileContentWrap extends React.Component {
         }));
     }
 
+    _onSchemaChange(schema) {
+        console.log('Schame: ', schema);
+        // XXX TODO: Populate schema to schma editor
+    }
+
     render() {
-        const { isLoading, error, content, isAutoDetect, lineSelected, lineOffset } = this.state;
+        const { isLoading, error, content, isAutoDetect, lineSelected, lineOffset, sampleSize } = this.state;
         const { pageSize = 10 } = this.props || {};
 
         if (isLoading) {
@@ -155,16 +162,17 @@ class FileContentWrap extends React.Component {
             : null;
 
         return (<div>
-            <FileContent
+            <AutoDetectOption checked={isAutoDetect} onChange={(checked) => { this._onAutoDetectChange(checked); }}></AutoDetectOption>
+            {isAutoDetect || <FileContent
                 data={content.map(({data}) => data)}
                 selected={lineSelected}
                 onSelectChange={(i) => { this._onLineChange(i); }}
                 offset={lineOffset}
                 numRows={pageSize}
             >
-                <AutoDetectOption checked={isAutoDetect} onChange={(checked) => { this._onAutoDetectChange(checked); }}></AutoDetectOption>
-            </FileContent>
-            <Pagination onNext={pageNext} onPrev={pagePrev} />
+                <Pagination onNext={pageNext} onPrev={pagePrev} />
+            </FileContent>}
+            {isAutoDetect && <AutoDetectSection style={{paddingLeft: '12px'}} onSchemaChange={(schema) => { this._onSchemaChange(schema); }}/>}
         </div>);
     }
 }
@@ -190,6 +198,44 @@ async function fakePreviewCall(filePath) {
     }
 }
 
+class AutoDetectSection extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.state = {
+            sampleSize: 10
+        }
+    }
+
+    _discover() {
+        /**
+         * XXX TODO:
+         * 1. Call discover api
+         * 2. Show percentage progress
+         * 3. Handle cancel(ex. FileContentWrap._fetchFileContent)
+         */
+        const { onSchemaChange } = this.props;
+        onSchemaChange([
+            { name: 'col1', type: 'DfString', mapping: '$."col1"'},
+            { name: 'col2', type: 'DfInt64', mapping: '$."col2"'},
+            { name: 'col3', type: 'DfInt64', mapping: '$."col3"'},
+        ]);
+    }
+
+    render() {
+        const { sampleSize } = this.state;
+        const { style = {} } = this.props;
+
+        return (<div style={style}>
+            <AdvOption.Container><AdvOption.OptionGroup>
+                <OptionSampleSize
+                    sampleSize={sampleSize}
+                    onChange={(size) => { this.setState({sampleSize: size}); }}
+                >Sample Size:</OptionSampleSize>
+            </AdvOption.OptionGroup></AdvOption.Container>
+            <button className="btn btn-secondary" onClick={() => { this._discover(); }}>Discover</button>
+        </div>);
+    }
+}
 
 function FileContent(props) {
     const { data = [], onSelectChange, selected = -1, children, offset = 0, numRows = -1 } = props;
@@ -201,7 +247,6 @@ function FileContent(props) {
     const startIndex = offset;
     const endIndex = startIndex + (numRows > 0 ? numRows : data.length) - 1;
     return (<div>
-        { children }
         {data.map((line, index) => {
             return (<FileLine key={`${index}`} checked={selected === index} onChange={(checked) => {
                 onSelectChange(checked ? index : -1)
@@ -209,6 +254,7 @@ function FileContent(props) {
                 <span style={{fontStyle: 'italic'}}>{index}: </span>{JSON.stringify(line)}
             </FileLine>);
         }).filter((v, i) => (i >= startIndex && i <= endIndex))}
+        { children }
     </div>);
 }
 

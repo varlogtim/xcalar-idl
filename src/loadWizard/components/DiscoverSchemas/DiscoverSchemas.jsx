@@ -130,7 +130,6 @@ class DiscoverSchemas extends React.Component {
     render() {
         const {
             parserType,
-            sampleSize,
             inputSerialization,
             schemaPolicy,
             errorRetry,
@@ -144,7 +143,6 @@ class DiscoverSchemas extends React.Component {
             onSchemaPolicyChange,
             onErrorRetryChange,
             onParserTypeChange,
-            onSampleSizeChange,
             onShowSchema,
         } = this.props;
 
@@ -176,7 +174,6 @@ class DiscoverSchemas extends React.Component {
                                 />
                             </AdvOption.OptionValue>
                         </AdvOption.Option>
-                        <AdvOptionSampleSize sampleSize={sampleSize} onChange={onSampleSizeChange}>Sample Size:</AdvOptionSampleSize>
                     </AdvOption.OptionGroup>
                     { needConfig ? <SourceCSVArgSection
                         classNames={['advOption-group-sub']}
@@ -188,7 +185,7 @@ class DiscoverSchemas extends React.Component {
                     /> : null }
                 </AdvOption.Container>
                 <FilePreview fileSelectProps={fileSelectProps} />
-            <div className="filesSelected">
+            {/* <div className="filesSelected">
                 <div className="header">{Texts.discoverTitle}</div>
                     <AdvOption.Container>
                         <AdvOption.OptionGroup>
@@ -262,87 +259,8 @@ class DiscoverSchemas extends React.Component {
                     }}
                 />
 
-            </div>
+            </div> */}
             </React.Fragment>
-        );
-    }
-}
-
-class AdvOptionSampleSize extends React.PureComponent {
-    /**
-     * Constructor
-     * @param {{ sampleSize: number, onChange: (size: number)=>void, children?: Object, classNames?: Array<string> }} props
-     */
-    constructor(props) {
-        super(props);
-
-        const { sampleSize } = props;
-        this.state = {
-            hasError: false,
-            inputValue: `${sampleSize}`,
-            checked: sampleSize === -1
-        };
-    }
-
-    _inputChange(strVal) {
-        const { onChange } = this.props;
-        this.setState({
-            inputValue: strVal,
-            hasError: false,
-            checked: false
-        });
-
-        const value = Number(strVal);
-        if (strVal.trim().length === 0 || value <= 0) {
-            this.setState({
-                hasError: true,
-            });
-        } else {
-            onChange(value);
-        }
-    }
-
-    _checkboxChange(checked) {
-        const defaultValue = 10;
-        const newSize = checked ? -1 : defaultValue;
-
-        this.setState({
-            checked: checked,
-            hasError: false,
-            inputValue: `${defaultValue}`
-        });
-
-        const { onChange } = this.props;
-        onChange(newSize);
-    }
-
-    render() {
-        const { children, classNames = [] } = this.props;
-        const { hasError, inputValue, checked } = this.state;
-
-        const iconClasses = ['icon', checked ? 'xi-ckbox-selected' : 'xi-ckbox-empty'];
-        const inputClassNames = ["xc-input"];
-        if (hasError) {
-            inputClassNames.push('error');
-        }
-
-
-        return (
-            <AdvOption.Option classNames={classNames}>
-                <AdvOption.OptionLabel>{children}</AdvOption.OptionLabel>
-                <AdvOption.OptionValue classNames={['option-sampleSize-value']}>
-                    <div style={{paddingRight: '8px'}} className="csvArgs-chkbox">
-                        <i className={iconClasses.join(' ')}  onClick={() => { this._checkboxChange(!checked) }} />
-                        <span style={{paddingLeft: '4px'}} onClick={() => { this._checkboxChange(!checked); }}>All Lines</span>
-                    </div>
-                    { checked ? null : <input
-                            className={inputClassNames.join(' ')}
-                            type="number"
-                            value={inputValue}
-                            onChange={ (e) => { this._inputChange(e.target.value) }}
-                        />}
-                </AdvOption.OptionValue>
-            </AdvOption.Option>
         );
     }
 }
@@ -362,4 +280,5 @@ function AdvOptionCheckbox(props) {
         </AdvOption.Option>
     );
 }
+
 export default DiscoverSchemas;

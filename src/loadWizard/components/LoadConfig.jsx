@@ -100,14 +100,13 @@ class LoadConfig extends React.Component {
                 rowsPerPage: 20,
                 count: 0,
                 files: [],
-                isLoading: false
+                isLoading: false,
             },
             discoverIsRunning: false,
             discoverProgress: 0,
             discoverCancelBatch: null, // () => {} Dynamic cancel function set by discoverAll
             discoverSchemaPolicy: SchemaService.MergePolicy.EXACT,
             discoverErrorRetry: true,
-            sampleSize: 10,
             inputSerialization: SchemaService.defaultInputSerialization.get(defaultFileType),
             // XXX TODO: remove the following states
             discoverFiles: new Map(), // Map<fileId, { fileId, fullPath, direcotry ... }
@@ -1004,18 +1003,6 @@ class LoadConfig extends React.Component {
         });
     }
 
-    _setSampleSize(newSize) {
-        console.log('old size: ', this.state.sampleSize);
-        if (this.state.sampleSize === newSize) {
-            return;
-        }
-
-        console.log('new size: ', newSize);
-        this.setState({
-            sampleSize: Number(newSize)
-        });
-    }
-
     _setErrorRetry(isErrorRetry) {
         this.setState({
             discoverErrorRetry: isErrorRetry
@@ -1130,7 +1117,6 @@ class LoadConfig extends React.Component {
             bucket,
             homePath,
             fileType,
-            sampleSize,
             currentStep,
             selectedFileDir, // Output of Browse
             fileSelectState,
@@ -1205,7 +1191,6 @@ class LoadConfig extends React.Component {
                         {
                             showDiscover ? <DiscoverSchemas
                                 parserType={fileType}
-                                sampleSize={sampleSize}
                                 inputSerialization={this.state.inputSerialization}
                                 fileSelectProps={{
                                     ...fileSelectState,
@@ -1235,7 +1220,6 @@ class LoadConfig extends React.Component {
                                 onSchemaPolicyChange={(newPolicy) => { this._setSchemaPolicy(newPolicy); }}
                                 onErrorRetryChange={(isRetry) => { this._setErrorRetry(isRetry); }}
                                 onParserTypeChange={(newType) => { this._setParserType(newType); }}
-                                onSampleSizeChange={(size) => { this._setSampleSize(size); }}
                                 onShowSchema={(schema) => { this.setState((state) => ({
                                     schemaDetailState: {
                                         isLoading: false,
