@@ -48,65 +48,27 @@ function validateSchemaString(strSchema) {
 }
 
 class EditSchema extends React.PureComponent {
-    constructor(props) {
-        super(props);
-
-        const { schemaString } = props;
-        let errorMessage = null;
-        try {
-            validateSchemaString(schemaString);
-        } catch(e) {
-            errorMessage = e;
-        }
-
-        this.state = {
-            errorMessage: errorMessage,
-            schema: schemaString
-        };
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        const { schemaString } = this.props;
-        if (prevProps.schemaString !== schemaString) {
-            // Properties change
-            try {
-                validateSchemaString(schemaString);
-                this.setState({
-                    schema: schemaString,
-                    errorMessage: null
-                });
-            } catch(e) {
-                this.setState({
-                    schema: schemaString,
-                    errorMessage: e
-                });
-            }
-        }
-    }
-
     _schemaChange(newSchema) {
         const { onSchemaChange } = this.props;
 
-        this.setState({
-            schema: newSchema
-        });
         try {
             const validSchema = validateSchemaString(newSchema);
-            this.setState({
-                errorMessage: null
+            onSchemaChange({
+                schema: newSchema,
+                validSchema: validSchema,
+                error: null
             });
-            onSchemaChange(validSchema);
         } catch(e) {
-            this.setState({
-                errorMessage: e
+            onSchemaChange({
+                schema: newSchema,
+                validSchema: null,
+                error: e
             });
-            onSchemaChange(null);
         }
     }
 
     render() {
-        const { classNames = [] } = this.props;
-        const { errorMessage, schema } = this.state;
+        const { errorMessage, schema, classNames = [] } = this.props;
 
         const cssClass = ['editSchema'].concat(classNames);
         return (<div className={cssClass.join(' ')}>

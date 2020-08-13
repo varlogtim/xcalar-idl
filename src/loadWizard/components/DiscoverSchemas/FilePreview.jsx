@@ -10,7 +10,7 @@ class FilePreview extends React.PureComponent {
     }
 
     render() {
-        const { fileSelectProps, onSelectSchema } = this.props;
+        const { fileSelectProps, fileContentProps } = this.props;
         const { files = [], fileSelected } = fileSelectProps || {};
 
         if (files.length === 0) {
@@ -25,7 +25,7 @@ class FilePreview extends React.PureComponent {
                     <AdvOption.OptionValue><FileDropdown {...fileSelectProps} /></AdvOption.OptionValue>
                 </AdvOption.Option>
             </AdvOption.OptionGroup></AdvOption.Container>
-            <FileContentWrap filePath={fileSelected.fullPath} onSchemaChange={onSelectSchema} />
+            <FileContentWrap {...fileContentProps} />
         </div>);
     }
 }
@@ -50,191 +50,73 @@ function FileDropdown(props) {
 }
 
 class FileContentWrap extends React.PureComponent {
-    constructor(props) {
-        super(props);
-        this.state = {
-            isLoading: false,
-            error: null,
-            content: [],
-            isAutoDetect: false,
-            lineSelected: -1,
-            lineOffset: 0
-        };
-
-        this._fetchJob = {
-            cancel: () => {},
-            getFilePath: () => null
-        };
-    }
-
-    componentDidMount() {
-        console.log('did mount')
-        this._fetchFileContent(this.props.filePath);
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        const { filePath } = this.props;
-        if (filePath !== prevProps.filePath) {
-            this._fetchFileContent(filePath);
-        }
-    }
-
-    async _fetchFileContent(filePath) {
-        if (filePath === this._fetchJob.getFilePath()) {
-            return;
-        }
-
-        // Stop the previous fetching
-        this._fetchJob.cancel();
-
-        let cancel = false;
-        this._fetchJob = {
-            cancel: () => { cancel = true; },
-            getFilePath: () => filePath
-        };
-
-        // Fetch file content
-        this.setState({
-            isLoading: true,
-            error: null
-        });
-
-        try {
-            // XXX TODO: replace with the real service call
-            const fileContent = await fakePreviewCall(filePath);
-            if (!cancel) {
-                this.setState({
-                    isLoading: false,
-                    content: fileContent,
-                    lineSelected: -1,
-                    lineOffset: 0
-                });
-            }
-        } catch(e) {
-            if (!cancel) {
-                this.setState({
-                    isLoading: false,
-                    error: `${e}`
-                });
-            }
-        }
-    }
-
-    _onLineChange(index) {
-        this.setState({ lineSelected: index });
-        if (index >= 0) {
-            this.setState({ isAutoDetect: false });
-            this._onSchemaChange(this.state.content[index].schema);
-        } else {
-            this._onSchemaChange(null);
-        }
-    }
-
-    _onAutoDetectChange(checked) {
-        this.setState(({ lineSelected }) => ({
-            isAutoDetect: checked,
-            lineSelected: checked ? -1 : lineSelected
-        }));
-    }
-
-    _onSchemaChange(schema) {
-        const { onSchemaChange } = this.props;
-        onSchemaChange(schema);
-    }
 
     render() {
-        const { isLoading, error, content, isAutoDetect, lineSelected, lineOffset } = this.state;
-        const { pageSize = 10 } = this.props || {};
+        const {
+            isLoading, error, content, isAutoDetect, lineSelected, lineOffset, sampleSize,
+            onLineChange,
+            onAutoDetectChange,
+            onSampleSizeChange,
+            onClickDiscover,
+            onOffsetChange
+        } = this.props;
+        const pageSize = 10;
 
         if (isLoading) {
             return (<LoadingText className="clearfix" />);
         }
 
         if (error != null) {
-            return (<pre>{error}</pre>);
+            return (<pre className="preview-error">{error}</pre>);
         }
 
         const prevOffset = lineOffset - pageSize;
         const pagePrev = prevOffset >= 0
-            ? () => { this.setState({ lineOffset: prevOffset }); }
+            ? () => { onOffsetChange(prevOffset); }
             : null;
         const nextOffset = lineOffset + pageSize;
         const pageNext = nextOffset < content.length
-            ? () => { this.setState({ lineOffset: nextOffset }); }
+            ? () => { onOffsetChange(nextOffset); }
             : null;
 
         return (<div>
-            {/* <AutoDetectOption checked={isAutoDetect} onChange={(checked) => { this._onAutoDetectChange(checked); }}></AutoDetectOption> */}
+            {/* <AutoDetectOption checked={isAutoDetect} onChange={(checked) => { onAutoDetectChange(checked); }}></AutoDetectOption> */}
             {isAutoDetect || <FileContent
                 data={content.map(({data}) => data)}
                 selected={lineSelected}
-                onSelectChange={(i) => { this._onLineChange(i); }}
+                onSelectChange={(i) => { onLineChange(i); }}
                 offset={lineOffset}
                 numRows={pageSize}
             >
                 <Pagination onNext={pageNext} onPrev={pagePrev} />
             </FileContent>}
-            {isAutoDetect && <AutoDetectSection style={{paddingLeft: '12px'}} onSchemaChange={(schema) => { this._onSchemaChange(schema); }}/>}
+            { isAutoDetect &&
+                <AutoDetectSection
+                    sampleSize={sampleSize}
+                    style={{paddingLeft: '12px'}}
+                    onSampleSizeChange={onSampleSizeChange}
+                    onDiscover={onClickDiscover}
+                />}
         </div>);
-    }
-}
-
-async function fakePreviewCall(filePath) {
-    await timeout(3000);
-    const result = [];
-    for (let i = 0; i < 100; i ++) {
-        result.push({
-            data: { path: filePath, line: i },
-            schema: [
-                { name: `path${i}`, type: 'DfString', mapping: '$."path"'},
-                { name: 'line', type: 'DfInt64', mapping: '$."line"'}
-            ]
-        });
-    }
-    return result;
-
-    function timeout(ms) {
-        return new Promise((resolve) => {
-            setTimeout(() => { resolve(); }, ms);
-        });
     }
 }
 
 class AutoDetectSection extends React.PureComponent {
     constructor(props) {
         super(props);
-        this.state = {
-            sampleSize: 10
-        }
-    }
-
-    _discover() {
-        /**
-         * XXX TODO:
-         * 1. Call discover api
-         * 2. Show percentage progress
-         * 3. Handle cancel(ex. FileContentWrap._fetchFileContent)
-         */
-        const { onSchemaChange } = this.props;
-        onSchemaChange([
-            { name: 'col1', type: 'DfString', mapping: '$."col1"'},
-            { name: 'col2', type: 'DfInt64', mapping: '$."col2"'},
-            { name: 'col3', type: 'DfInt64', mapping: '$."col3"'}
-        ]);
     }
 
     render() {
-        const { sampleSize } = this.state;
-        const { style = {} } = this.props;
+        const { sampleSize, onSampleSizeChange, onDiscover, style = {} } = this.props;
 
         return (<div style={style}>
             <AdvOption.Container><AdvOption.OptionGroup>
                 <OptionSampleSize
                     sampleSize={sampleSize}
-                    onChange={(size) => { this.setState({sampleSize: size}); }}
+                    onChange={(size) => { onSampleSizeChange(size); }}
                 >Sample Size:</OptionSampleSize>
             </AdvOption.OptionGroup></AdvOption.Container>
-            <button className="btn btn-secondary" onClick={() => { this._discover(); }}>Discover</button>
+            <button className="btn btn-secondary" onClick={() => { onDiscover(); }}>Discover</button>
         </div>);
     }
 }
@@ -253,7 +135,7 @@ function FileContent(props) {
             return (<FileLine key={`${index}`} checked={selected === index} onChange={(checked) => {
                 onSelectChange(checked ? index : -1)
             }}>
-                <span style={{fontStyle: 'italic'}}>{index}: </span>{JSON.stringify(line)}
+                <span style={{fontStyle: 'italic'}}>{index}: </span>{line}
             </FileLine>);
         }).filter((v, i) => (i >= startIndex && i <= endIndex))}
         { children }
@@ -288,7 +170,7 @@ function FileLine(props) {
     return (
         <div className="csvArgs-chkbox">
             <i className={iconClasses.join(' ')}  onClick={() => { onChange(!checked) }} />
-            <span style={{paddingLeft: '4px'}} onClick={() => { onChange(!checked); }}>{children}</span>
+            <span className="preview-line">{children}</span>
         </div>
     );
 }

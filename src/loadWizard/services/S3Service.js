@@ -73,6 +73,7 @@ async function listFiles(path, targetName = "AWS Target", filter = (fileInfo) =>
         const isDirectory = file.attr.isDirectory ? true : false;
         const fileInfo = {
             fileId: fullFilePath,
+            targetName: targetName,
             fullPath: fullFilePath,
             directory: isDirectory,
             name: file.name,

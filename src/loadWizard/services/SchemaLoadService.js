@@ -1,3 +1,4 @@
+import * as Path from 'path'
 import { randomName, hashFunc } from './sdk/Api'
 import { LoadSession } from './sdk/Session'
 import { Table } from './sdk/Table'
@@ -118,7 +119,7 @@ function sleep(time) {
 }
 
 const discoverApps = new Map();
-function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive = true, isErrorRetry = true }) {
+function createDiscoverApp({ path, filePattern, targetName, inputSerialization, isRecursive = true, isErrorRetry = true }) {
     let executionDone = false;
     let cancelDiscover = false;
     const tables = {
@@ -792,11 +793,34 @@ function createDiscoverApp({ path, filePattern, inputSerialization, isRecursive 
                 const table = await session.executeSql(sql);
                 return table;
             }
-        }
+        },
+        previewFile: async (numRows = 20) => {
+            const appInput = {
+                func: 'preview_rows',
+                session_name: session.sessionName,
+                target_name: targetName,
+                path: Path.join(path, filePattern),
+                input_serial_json: JSON.stringify(inputSerialization),
+                num_rows: numRows
+            };
+            console.log('App.perfileFile: ', appInput);
 
+            const { rows, schemas, status } = await executeSchemaLoadApp(JSON.stringify(appInput));
+
+            return {
+                status: status,
+                lines: rows.map((line, i) => {
+                    const schema = schemas[i];
+                    return {
+                        data: line,
+                        schema: schema.columns || []
+                    };
+                })
+            };
+        }
     };
 
-    discoverApps.set(appId, app);
+    // discoverApps.set(appId, app);
     return app;
 }
 

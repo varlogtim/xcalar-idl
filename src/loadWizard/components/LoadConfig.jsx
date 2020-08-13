@@ -5,7 +5,6 @@ import { BrowseDataSourceModal } from './BrowseDataSource';
 import DiscoverSchemas from './DiscoverSchemas';
 import CreateTables from './CreateTables';
 import Details from './Details';
-import * as S3Service from '../services/S3Service';
 import * as SchemaService from '../services/SchemaService';
 import * as SetUtils from '../utils/SetUtils';
 import NavButtons from './NavButtons'
@@ -94,8 +93,22 @@ class LoadConfig extends React.Component {
                 files: [],
                 fileSelected: null
             },
+            fileContentState: {
+                isLoading: false,
+                error: null,
+                content: [],
+                isAutoDetect: false,
+                sampleSize: 100,
+                lineSelected: -1,
+                lineOffset: 0
+            },
+            selectedSchema: null,
 
             // Edit Schema
+            editSchemaState: {
+                schema: null,
+                errorMessage: null
+            },
             finalSchema: null,
 
             // DiscoverSchemas
@@ -161,6 +174,11 @@ class LoadConfig extends React.Component {
 
         this._fetchForensics = this._fetchForensics.bind(this);
         this._resetAll = this._resetAll.bind(this);
+
+        this._fetchFileJob = {
+            cancel: () => {},
+            getFilePath: () => null
+        };
     }
 
     _fetchForensics(bucket, path) {
@@ -707,6 +725,16 @@ class LoadConfig extends React.Component {
         }
     }
 
+    _extractFileInfo(fullPath) {
+        const dirname = Path.join(Path.dirname(fullPath), '/');
+        const basename = Path.basename(fullPath);
+        return {
+            path: dirname,
+            filePattern: basename,
+            isRecursive: false
+        };
+    }
+
     async _discoverAllApp() {
         if (this.state.discoverCancelBatch != null) {
             return;
@@ -923,6 +951,24 @@ class LoadConfig extends React.Component {
 
     _resetDiscoverResult() {
         this.setState({
+            fileContentState: {
+                isLoading: false,
+                error: null,
+                content: [],
+                isAutoDetect: false,
+                sampleSize: 100,
+                lineSelected: -1,
+                lineOffset: 0
+            },
+            selectedSchema: null,
+
+            // Edit Schema
+            editSchemaState: {
+                schema: null,
+                errorMessage: null
+            },
+            finalSchema: null,
+
             discoverAppId: null,
             discoverFilesState: {
                 page: 0,
@@ -959,25 +1005,17 @@ class LoadConfig extends React.Component {
         });
     }
 
-    _setFileType(fileType) {
-        if (fileType === this.state.fileType) {
-            return false;
-        }
-
-        this.setState({
-            fileType: fileType,
-        });
-        const inputSerialization = this._resetBrowseResult(fileType);
-        return true;
-    }
-
     _setParserType(newType) {
         if (newType === this.state.fileType) {
             return false;
         }
 
         this.setState({ fileType: newType });
-        this._resetParserResult(newType);
+        const inputSerialization = this._resetParserResult(newType);
+        const { selectedFileDir } = this.state;
+        if ( Array.isArray(selectedFileDir) && selectedFileDir.length > 0) {
+            this._listSelectedFileDir(selectedFileDir[0], inputSerialization);
+        }
         return true;
     }
 
@@ -996,26 +1034,13 @@ class LoadConfig extends React.Component {
     _setInputSerialization(newOption) {
         this.setState({
             inputSerialization: newOption,
-            discoverAppId: null,
-            discoverFilesState: {
-                page: 0,
-                rowsPerPage: 20,
-                count: 0,
-                files: [],
-                isLoading: false
-            },
-            tableToCreate: new Map(),
-            createTableState: {
-                page: 0,
-                rowsPerPage: 20,
-                count: 0,
-                schemas: [],
-                isLoading: false,
-            },
-            createInProgress: new Map(),
-            createFailed: new Map(),
-            createTables: new Map()
         });
+        this._resetDiscoverResult();
+
+        const { selectedFileDir } = this.state;
+        if ( Array.isArray(selectedFileDir) && selectedFileDir.length > 0) {
+            this._listSelectedFileDir(selectedFileDir[0], newOption);
+        }
     }
 
     _setErrorRetry(isErrorRetry) {
@@ -1050,39 +1075,40 @@ class LoadConfig extends React.Component {
         }
     }
 
-    async _listSelectedFileDir(selectedFileDir) {
+    async _listSelectedFileDir(selectedFileDir, inputSerialization) {
         if (selectedFileDir.directory) {
-            this.setState({
-                fileSelectState: {
-                    isLoading: true,
-                    files: [],
-                    fileSelected: null
-                }
-            });
+            console.error('Folder not support');
+            // this.setState({
+            //     fileSelectState: {
+            //         isLoading: true,
+            //         files: [],
+            //         fileSelected: null
+            //     }
+            // });
 
-            // list files in folder
-            try {
-                const fileList = await getFilesInFolder(selectedFileDir.fullPath);
-                this.setState(({ fileSelectState }) => ({
-                    fileSelectState: {
-                        ...fileSelectState,
-                        files: fileList,
-                        fileSelected: fileList[1]
-                    }
-                }));
-            } catch(e) {
-                this._alert({
-                    title: 'List File Error',
-                    message: `${e.message || e.error || e}`
-                });
-            } finally {
-                this.setState(({ fileSelectState }) => ({
-                    fileSelectState: {
-                        ...fileSelectState,
-                        isLoading: false,
-                    }
-                }));
-            }
+            // // list files in folder
+            // try {
+            //     const fileList = await getFilesInFolder(selectedFileDir.fullPath);
+            //     this.setState(({ fileSelectState }) => ({
+            //         fileSelectState: {
+            //             ...fileSelectState,
+            //             files: fileList,
+            //             fileSelected: fileList[1]
+            //         }
+            //     }));
+            // } catch(e) {
+            //     this._alert({
+            //         title: 'List File Error',
+            //         message: `${e.message || e.error || e}`
+            //     });
+            // } finally {
+            //     this.setState(({ fileSelectState }) => ({
+            //         fileSelectState: {
+            //             ...fileSelectState,
+            //             isLoading: false,
+            //         }
+            //     }));
+            // }
         } else {
             this.setState({
                 fileSelectState: {
@@ -1091,6 +1117,7 @@ class LoadConfig extends React.Component {
                     fileSelected: { ...selectedFileDir }
                 }
             });
+            this._fetchFileContent(selectedFileDir.fullPath, inputSerialization);
         }
 
         // XXX TODO: replace with listFile service
@@ -1103,6 +1130,142 @@ class LoadConfig extends React.Component {
                 { fullPath: `${path}/e.json` },
             ];
         }
+    }
+
+    async _fetchFileContent(filePath, inputSerialization) {
+        // if (filePath === this._fetchFileJob.getFilePath()) {
+        //     return;
+        // }
+
+        // Stop the previous fetching
+        this._fetchFileJob.cancel();
+
+        let cancel = false;
+        this._fetchFileJob = {
+            cancel: () => { cancel = true; },
+            getFilePath: () => filePath
+        };
+
+        // Fetch file content
+        this.setState(({ fileContentState}) => ({
+            fileContentState: {
+                ...fileContentState,
+                isLoading: true,
+                error: null
+            }
+        }));
+
+        try {
+            // XXX TODO: replace with the real service call
+            const {
+                connector
+            } = this.state;
+
+            const { path: selectedPath, filePattern } = this._extractFileInfo(filePath);
+            const discoverApp = SchemaLoadService.createDiscoverApp({
+                targetName: connector,
+                path: selectedPath,
+                filePattern: filePattern,
+                inputSerialization: inputSerialization || this.state.inputSerialization,
+                isRecursive: false,
+            });
+            const fileContent = await discoverApp.previewFile();
+            console.log(fileContent);
+            const { status } = fileContent;
+            if (status.error_message != null) {
+                throw status.error_message;
+            }
+
+            if (!cancel) {
+                this.setState(({fileContentState}) => ({
+                    fileContentState: {
+                        ...fileContentState,
+                        isLoading: false,
+                        isAutoDetect: false,
+                        content: fileContent.lines,
+                        lineSelected: -1,
+                        lineOffset: 0
+                    }
+                }));
+            }
+        } catch(e) {
+            if (!cancel) {
+                this.setState(({fileContentState}) => ({
+                    fileContentState: {
+                        ...fileContentState,
+                        isLoading: false,
+                        error: `${e}`
+                    }
+                }));
+            }
+        }
+    }
+
+    _selectFileLine(index) {
+        this.setState(({fileContentState}) => ({
+            fileContentState: {
+                ...fileContentState,
+                lineSelected: index,
+                isAutoDetect: index > 0 ? false : fileContentState.isAutoDetect
+            }
+        }));
+        if (index >= 0) {
+            this._selectSchema(this.state.fileContentState.content[index].schema);
+        } else {
+            this._selectSchema(null);
+        }
+    }
+
+    _selectSchema(schema) {
+        if (isSchemaChanged(this.state)) {
+            // XXX TODO: Need confirmation to overwrite existing schema
+            console.log('Schema overwritten');
+        }
+
+        this.setState({
+            selectedSchema: schema,
+            editSchemaState: {
+                schema: schema == null ? null : JSON.stringify(schema),
+                errorMessage: null
+            },
+        });
+        this._setFinalSchema(schema);
+
+        function isSchemaChanged(state) {
+            const { selectedSchema, editSchemaState } = state;
+            const { schema } = editSchemaState;
+
+            return (selectedSchema != null && schema != null && schema != JSON.stringify(selectedSchema));
+        }
+    }
+
+    _setPreviewOffset(offset) {
+        this.setState(({fileContentState}) => ({
+            fileContentState: {
+                ...fileContentState,
+                lineOffset: offset
+            }
+        }));
+    }
+
+    _handleSchemaChange({ schema, error, validSchema }) {
+        this.setState({
+            editSchemaState: {
+                schema: schema,
+                errorMessage: error
+            },
+        });
+        this._setFinalSchema(validSchema)
+    }
+
+    _enableAutoDetectSchema(isEnable) {
+        this.setState(({ fileContentState }) => ({
+            fileContentState: {
+                ...fileContentState,
+                isAutoDetect: isEnable,
+                lineSelected: isEnable ? -1 : fileContentState.lineSelected
+            }
+        }));
     }
 
     _browseOpen() {
@@ -1136,18 +1299,12 @@ class LoadConfig extends React.Component {
             currentStep,
             selectedFileDir, // Output of Browse
             fileSelectState,
+            fileContentState,
+            editSchemaState,
+            selectedSchema,
             finalSchema,
-            discoverAppId,
-            discoverFilesState,
             browseShow,
-            discoverIsRunning,
-            discoverProgress,
-            discoverCancelBatch,
         } = this.state;
-        // const screenName = stepNames.get(currentStep);
-        const onClickDiscoverAll = discoverCancelBatch == null
-            ? () => { this._discoverAllApp(); }
-            : null;
 
         const showBrowse = browseShow;
         const showDiscover = currentStep === stepEnum.SchemaDiscovery && selectedFileDir.length > 0;
@@ -1164,7 +1321,6 @@ class LoadConfig extends React.Component {
                             connector={connector}
                             bucket={bucket}
                             path = {homePath}
-                            // fileType={fileType}
                             onClickBrowse={() => { this._browseOpen(); }}
                             onBucketChange={(newBucket) => { this._setBucket(newBucket); }}
                             onPathChange={(newPath) => { this._setPath(newPath); }}
@@ -1175,7 +1331,8 @@ class LoadConfig extends React.Component {
                             onConnectorChange={(newConnector) => {this._setConnector(newConnector);}}
                         />
                         {
-                            showBrowse ? <BrowseDataSourceModal
+                            showBrowse &&
+                            <BrowseDataSourceModal
                                 connector={connector}
                                 bucket={bucket}
                                 homePath={homePath}
@@ -1196,12 +1353,15 @@ class LoadConfig extends React.Component {
                                         // Do nothing
                                     }
                                 }}
-                            /> : null
+                            />
                         }
                         {
-                            showDiscover ? <DiscoverSchemas
+                            showDiscover &&
+                            <DiscoverSchemas
                                 parserType={fileType}
+                                onParserTypeChange={(newType) => { this._setParserType(newType); }}
                                 inputSerialization={this.state.inputSerialization}
+                                onInputSerialChange={(newConfig) => { this._setInputSerialization(newConfig); }}
                                 fileSelectProps={{
                                     ...fileSelectState,
                                     onSelect: (file) => {
@@ -1216,30 +1376,20 @@ class LoadConfig extends React.Component {
                                         }
                                     }
                                 }}
-                                schemaPolicy={this.state.discoverSchemaPolicy}
-                                errorRetry={this.state.discoverErrorRetry}
-                                isLoading={discoverIsRunning}
-                                progress={discoverProgress}
-                                discoverFilesProps={{
-                                    ...discoverFilesState,
-                                    onLoadData: (p, rpp) => this._fetchDiscoverFileData(p, rpp)
+                                fileContentProps={{
+                                    ...fileContentState,
+                                    onLineChange: (index) => { this._selectFileLine(index); },
+                                    onAutoDetectChange: (checked) => { this._enableAutoDetectSchema(checked); },
+                                    onOffsetChange: (offset) => { this._setPreviewOffset(offset); },
+                                    onClickDiscover: () => {},
+                                    onSampleSizeChange: (size) => {}
                                 }}
-                                onFinalSchemaChange={(schema) => { this._setFinalSchema(schema); }}
-                                onClickDiscoverAll={onClickDiscoverAll}
-                                onCancelDiscoverAll={discoverCancelBatch}
-                                onInputSerialChange={(newConfig) => { this._setInputSerialization(newConfig); }}
-                                onSchemaPolicyChange={(newPolicy) => { this._setSchemaPolicy(newPolicy); }}
-                                onErrorRetryChange={(isRetry) => { this._setErrorRetry(isRetry); }}
-                                onParserTypeChange={(newType) => { this._setParserType(newType); }}
-                                onShowSchema={(schema) => { this.setState((state) => ({
-                                    schemaDetailState: {
-                                        isLoading: false,
-                                        schema: schema,
-                                        error: null
-                                    }
-                                }))}}
-                            >
-                            </DiscoverSchemas> : null
+                                editSchemaProps={{
+                                    ...editSchemaState,
+                                    onSchemaChange: (result) => { this._handleSchemaChange(result); }
+                                }}
+                                selectedSchema={selectedSchema}
+                            />
                         }
                         {(() => {
                             if (!showCreate) {
@@ -1299,11 +1449,6 @@ class LoadConfig extends React.Component {
                                     tooltip: finalSchema == null ? Texts.CreateTableHint : "",
                                     onClick: () => {
                                         this._changeStep(stepEnum.CreateTables);
-                                        this.setState({
-                                            schemaDetailState: {
-                                                isLoading: false, error: null, schema: null
-                                            }
-                                        })
                                         this._prepareCreateTableData();
                                         // const { page, rowsPerPage } = this.state.createTableState;
                                         // this._fetchDiscoverReportData(page, rowsPerPage);
@@ -1317,6 +1462,11 @@ class LoadConfig extends React.Component {
                                 label: Texts.navButtonLeft,
                                 onClick: () => {
                                     this._changeStep(stepEnum.SchemaDiscovery);
+                                    this.setState({
+                                        schemaDetailState: {
+                                            isLoading: false, error: null, schema: null
+                                        }
+                                    })
                                 }
                             }}
                             right={{
