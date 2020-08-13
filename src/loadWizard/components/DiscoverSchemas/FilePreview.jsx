@@ -49,7 +49,7 @@ function FileDropdown(props) {
     );
 }
 
-class FileContentWrap extends React.Component {
+class FileContentWrap extends React.PureComponent {
     constructor(props) {
         super(props);
         this.state = {
@@ -68,12 +68,15 @@ class FileContentWrap extends React.Component {
     }
 
     componentDidMount() {
+        console.log('did mount')
         this._fetchFileContent(this.props.filePath);
     }
 
     componentDidUpdate(prevProps, prevState) {
         const { filePath } = this.props;
-        this._fetchFileContent(filePath);
+        if (filePath !== prevProps.filePath) {
+            this._fetchFileContent(filePath);
+        }
     }
 
     async _fetchFileContent(filePath) {
@@ -161,7 +164,7 @@ class FileContentWrap extends React.Component {
             : null;
 
         return (<div>
-            <AutoDetectOption checked={isAutoDetect} onChange={(checked) => { this._onAutoDetectChange(checked); }}></AutoDetectOption>
+            {/* <AutoDetectOption checked={isAutoDetect} onChange={(checked) => { this._onAutoDetectChange(checked); }}></AutoDetectOption> */}
             {isAutoDetect || <FileContent
                 data={content.map(({data}) => data)}
                 selected={lineSelected}

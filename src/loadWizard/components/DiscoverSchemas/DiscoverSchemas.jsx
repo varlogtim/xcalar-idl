@@ -135,6 +135,14 @@ class DiscoverSchemas extends React.Component {
         };
     }
 
+    _onSchemaSelect(schema) {
+        this.setState({
+            selectedSchema: schema
+        });
+        const { onFinalSchemaChange } = this.props;
+        onFinalSchemaChange(schema);
+    }
+
     render() {
         const {
             parserType,
@@ -194,7 +202,7 @@ class DiscoverSchemas extends React.Component {
                         }}
                     /> : null }
                 </AdvOption.Container>
-                <FilePreview fileSelectProps={fileSelectProps} onSelectSchema={(schema) => { this.setState({selectedSchema: schema}); }} />
+                <FilePreview fileSelectProps={fileSelectProps} onSelectSchema={(schema) => { this._onSchemaSelect(schema); }} />
                 { selectedSchema != null && <EditSchemaSection schemaString={JSON.stringify(selectedSchema)} onSchemaChange={(schema) => {onFinalSchemaChange(schema)}} /> }
             {/* <div className="filesSelected">
                 <div className="header">{Texts.discoverTitle}</div>

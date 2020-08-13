@@ -149,11 +149,14 @@ function SchemaDetail(props) {
                     <div>Columns:</div>
                     <pre>{JSON.stringify(columns, null, ' ')}</pre>
                 </Collapsible.Item>
-                <Collapsible.Item>
-                    <div>Skipped Columns:</div>
-                    <pre>{JSON.stringify(errorColumns, null, ' ')}</pre>
-                    { errorStack && <div style={{display: 'none'}}>{errorStack}</div>}
-                </Collapsible.Item>
+                {
+                    errorColumns.length > 0 &&
+                    <Collapsible.Item>
+                        <div>Skipped Columns:</div>
+                        <pre>{JSON.stringify(errorColumns, null, ' ')}</pre>
+                        { errorStack && <div style={{display: 'none'}}>{errorStack}</div>}
+                    </Collapsible.Item>
+                }
             </Collapsible.List>
         </Collapsible>
     );

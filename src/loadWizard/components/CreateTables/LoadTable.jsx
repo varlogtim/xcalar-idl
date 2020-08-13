@@ -107,7 +107,7 @@ function Table({ columns, data }) {
         </tbody>
       </table>
 
-      <div className="pagination">
+      {/* <div className="pagination">
         <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
           {'<<'}
         </button>{' '}
@@ -151,7 +151,7 @@ function Table({ columns, data }) {
           ))}
         </select>
       </div>
-      <br />
+      <br /> */}
       {/* <div>Showing the first 20 results of {rows.length} rows</div> */}
     </React.Fragment>
   )
@@ -236,10 +236,10 @@ function LoadTable({
             Header: 'Size',
             accessor: 'size',
         },
-        {
-            Header: 'Count',
-            accessor: 'count',
-        },
+        // {
+        //     Header: 'Count',
+        //     accessor: 'count',
+        // },
         // {
         //     Header: 'Time',
         //     accessor: 'time',

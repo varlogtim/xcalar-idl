@@ -28,7 +28,7 @@ const Texts = {
     navButtonRight: 'Navigate to Notebook',
     navToNotebookHint: "Please create a table first",
     navButtonRight2: 'Create Table',
-    CreateTableHint: 'Please discover schema first',
+    CreateTableHint: 'Please specify schema first',
     ResetInDiscoverLoading: 'Cannot reset when selected files are loading.',
     ResetInDiscoverBatch: "Cannot reset when discovering schema, please cancel discover schema first.",
     ResetInCreating: 'Cannot reset when table is creating.'
@@ -520,6 +520,28 @@ class LoadConfig extends React.Component {
         }
     }
 
+    _prepareCreateTableData() {
+        const { finalSchema, fileSelectState } = this.state;
+        const fileSelected = fileSelectState.fileSelected;
+
+        this.setState(({ createTableState }) => ({
+            createTableState: {
+                ...createTableState,
+                page: 0, count: 1,
+                schemas: [{
+                    schema: {
+                        hash: 'Schema1',
+                        columns: finalSchema
+                    },
+                    files: {
+                        count: 1, maxPath: fileSelected.fullPath,
+                        size: fileSelected.sizeInBytes
+                    }
+                }]
+            }
+        }));
+    }
+
     async _fetchDiscoverReportData(page, rowsPerPage) {
         const { discoverAppId } = this.state;
         if (discoverAppId == null) {
@@ -565,6 +587,23 @@ class LoadConfig extends React.Component {
                 }
             }));
         }
+    }
+
+    _getSchemaDetail(schemaHash) {
+        const { finalSchema, fileSelectState } = this.state;
+        const { fileSelected } = fileSelectState;
+
+        const detail = {
+            hash: schemaHash,
+            columns: finalSchema,
+            files: [fileSelected]
+        };
+        this.setState({
+            schemaDetailState: {
+                schema: detail,
+                isLoading: false, error: null
+            }
+        });
     }
 
     async _fetchSchemaDetail(schemaHash) {
@@ -952,61 +991,6 @@ class LoadConfig extends React.Component {
         //XXX TODO: This is temporarily disabled
         // Rewirte this once backend supports multiple algorithms
         return;
-        const currentPolicy = this.state.discoverSchemaPolicy;
-        if (currentPolicy === newPolicy) {
-            return;
-        }
-
-        const schemaWorker = new SchemaService.DiscoverWorker({
-            mergePolicy: newPolicy,
-            inputSerialization: { ...this.state.inputSerialization }
-        });
-        schemaWorker.restore(this.state.discoverFileSchemas, this.state.discoverFailedFiles);
-
-        // Put discovered files back to in-progress,
-        // because we'll re-compare them based on the new merge policy
-        const inProgressFiles = new Set(this.state.discoverFileSchemas.keys());
-
-        this.setState({
-            discoverSchemaPolicy: newPolicy,
-            discoverFileSchemas: new Map(), // Clear discovered schemas
-            discoverInProgressFileIds: inProgressFiles,
-            discoverFailedFiles: new Map(),
-            tableToCreate: new Map(),
-            createInProgress: new Map(),
-            createFailed: new Map(),
-            createTables: new Map() // Clear tables
-        })
-
-        // Merge schemas is cpu intensive, so update the UI first
-        setTimeout(() => {
-            try {
-                const { discoverFiles } = this.state;
-                schemaWorker.merge();
-                // Successful files
-                const fileSchemaMap = this._convertSchemaMergeResult(schemaWorker.getSchemas());
-                // Failed files
-                const errorDetails = schemaWorker.getErrors();
-                const failedFiles = new Map(
-                    [...SetUtils.intersection(schemaWorker.getErrorFiles(), discoverFiles)]
-                        .map((fileId) => [fileId, errorDetails.get(fileId)])
-                );
-                this.setState({
-                    discoverFileSchemas: fileSchemaMap,
-                    discoverFailedFiles: failedFiles
-                });
-            } catch(e) {
-                this._alert({
-                    title: 'Error',
-                    message: 'Discover schemas failed'
-                });
-                console.error(e);
-            } finally {
-                this.setState({
-                    discoverInProgressFileIds: new Set()
-                })
-            }
-        }, 0);
     }
 
     _setInputSerialization(newOption) {
@@ -1152,6 +1136,7 @@ class LoadConfig extends React.Component {
             currentStep,
             selectedFileDir, // Output of Browse
             fileSelectState,
+            finalSchema,
             discoverAppId,
             discoverFilesState,
             browseShow,
@@ -1166,7 +1151,7 @@ class LoadConfig extends React.Component {
 
         const showBrowse = browseShow;
         const showDiscover = currentStep === stepEnum.SchemaDiscovery && selectedFileDir.length > 0;
-        const showCreate = currentStep === stepEnum.CreateTables && !discoverIsRunning && discoverAppId != null;
+        const showCreate = currentStep === stepEnum.CreateTables;
         const fullPath = Path.join(bucket, homePath);
         const forensicsStats = this.metadataMap.get(fullPath);
 
@@ -1284,10 +1269,10 @@ class LoadConfig extends React.Component {
                                         this.state.tableToCreate.set(schemaName, newTableName);
                                         this.setState({tableToCreate: this.state.tableToCreate});
                                     }}
-                                    onFetchData={(p, rpp) => { this._fetchDiscoverReportData(p, rpp)}}
-                                    onClickCreateTable={(schemaName, tableName) => { this._createTableFromSchema(schemaName, tableName); }}
+                                    onFetchData={(p, rpp) => {}}
+                                    onClickCreateTable={(schemaName, tableName) => { console.log('Create table'); }}
                                     onPrevScreen = {() => { this._changeStep(stepEnum.SchemaDiscovery); }}
-                                    onLoadSchemaDetail = {(schemaHash) => { this._fetchSchemaDetail(schemaHash); }}
+                                    onLoadSchemaDetail = {(schemaHash) => { this._getSchemaDetail(); }}
                                     onLoadFailureDetail = {() => { this._fetchFailedSchema(); }}
                                 >
                                     <div className="header">{Texts.stepNameCreateTables}</div>
@@ -1310,12 +1295,18 @@ class LoadConfig extends React.Component {
                             <NavButtons
                                 right={{
                                     label: Texts.navButtonRight2,
-                                    disabled: discoverIsRunning || discoverAppId == null,
-                                    tooltip: discoverIsRunning || discoverAppId == null ? Texts.CreateTableHint : "",
+                                    disabled: finalSchema == null,
+                                    tooltip: finalSchema == null ? Texts.CreateTableHint : "",
                                     onClick: () => {
                                         this._changeStep(stepEnum.CreateTables);
-                                        const { page, rowsPerPage } = this.state.createTableState;
-                                        this._fetchDiscoverReportData(page, rowsPerPage);
+                                        this.setState({
+                                            schemaDetailState: {
+                                                isLoading: false, error: null, schema: null
+                                            }
+                                        })
+                                        this._prepareCreateTableData();
+                                        // const { page, rowsPerPage } = this.state.createTableState;
+                                        // this._fetchDiscoverReportData(page, rowsPerPage);
                                     }
                                 }}
                             /> : null
