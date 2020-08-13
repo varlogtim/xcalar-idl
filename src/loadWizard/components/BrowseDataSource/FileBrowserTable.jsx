@@ -109,7 +109,7 @@ export default function FileBrowserTable(props) {
     return (
         <div className="outerTableWrap" style={{height: "100%"}}>
             <div className="tableTopBar">
-                <div className="header">{fileType.toUpperCase()}</div>
+                <div className="header">{Texts.fileListTitle}</div>
                 <div className="numItems">{(fileList.length).toLocaleString()} items</div>
             </div>
             <div className="innerTableWrap">
