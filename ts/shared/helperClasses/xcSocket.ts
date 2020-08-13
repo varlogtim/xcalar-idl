@@ -188,9 +188,20 @@ class XcSocket {
             XcUser.checkCurrentUser();
         });
 
-        socket.on('clusterStopWarning', () => {
+        socket.on('clusterStopWarning', async () => {
             if (XVM.isCloud()) {
-                XcUser.clusterStopWarning();
+                const queries = await XcalarQueryList("*");
+                const queriesInProgress = queries.filter((query) => {
+                    return query.state === QueryStateTStr[QueryStateT.qrProcessing];
+                });
+                // prevent shut down if query is in progress
+                if (queriesInProgress.length > 0) {
+                    XcSocket.Instance.sendMessage("updateUserActivity", {
+                        isCloud: XVM.isCloud()
+                    });
+                } else {
+                    XcUser.clusterStopWarning();
+                }
             }
         });
 

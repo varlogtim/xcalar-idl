@@ -238,15 +238,14 @@ class XcUser {
     private _isAdmin: boolean;
     private _userIdUnique: number;
     private _isIdle: boolean;
-    private _idleChckTimer: number;
+    private _idleCheckTimer: number;
     private _activityTimer: number;
-    static readonly _defaultTimeout: number = 25 * 60 * 1000;
+    static _defaultTimeout: number = XVM.isCloud() ? 15 * 60 * 1000 : 25 * 60 * 1000;
     private _idleTimeLimit: number = XcUser._defaultTimeout; // 25 minutes default of idleness
     private _activityCheckTime: number = 60 * 1000; // how often to check mouse movement
     private _commitFlag: string;
     private _defaultCommitFlag: string = "commit-default";
     private _lastSocketUpdate: number = 0; // time when last actiivity update message sent to socket
-
 
     public constructor(username: string, isAdmin = false) {
         this._fullUsername = username;
@@ -480,7 +479,7 @@ class XcUser {
     public disableIdleCheck(): void {
         XcUser._isIdleCheckOn = false;
         console.info("idle check is disabled!");
-        clearTimeout(this._idleChckTimer);
+        clearTimeout(this._idleCheckTimer);
         clearTimeout(this._activityTimer);
         if (XVM.isCloud()) {
             xcHelper.sendRequest("POST", "/service/disableIdleCheck");
@@ -533,8 +532,8 @@ class XcUser {
 
         // This timer is used to check if user has been idle
         // for '_activityCheckTime' minutes (default is 1 minute)
-        clearTimeout(this._idleChckTimer);
-        this._idleChckTimer = window.setTimeout(() => {
+        clearTimeout(this._idleCheckTimer);
+        this._idleCheckTimer = window.setTimeout(() => {
             if ($("#container").hasClass("locked")) {
                 return; // if it's error, skip the check
             } else {
@@ -592,7 +591,8 @@ class XcUser {
             if (await this._isXcalarIdle(true) && XcUser._isIdleCheckOn) {
                 // make sure user is really idle then logout
                 this.logout();
-            } else {
+            } else if(XcUser._isIdleCheckOn) {
+                XcUser.CurrentUser._isIdle = false;
                 this.idleCheck(); // reset the check
             }
         }, this._idleTimeLimit + (30 * 1000));

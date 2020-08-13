@@ -186,6 +186,9 @@ class SocketUtil {
                         self.userInfos[user].count--;
                         if (self.userInfos[user].count <= 0) {
                             delete self.userInfos[user];
+                            if (Object.keys(self.userInfos).length === 0) {
+                                UserActivityManager.noUsers();
+                            }
                         } else if (userOption.id != null) { // can be null
                             // if user is in XD but not in a workbook
                             self.userInfos[user].workbooks[userOption.id]--;

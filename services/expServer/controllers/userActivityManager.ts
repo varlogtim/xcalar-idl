@@ -8,7 +8,7 @@ class UserActivityManager {
     public static get getInstance(): UserActivityManager {
         return this._instance || (this._instance = new this());
     }
-    private readonly _defaultInactivityTime = 25 * 60 * 1000;// amount of time to be considered inactive
+    private readonly _defaultInactivityTime = 15 * 60 * 1000;// amount of time to be considered inactive
     private readonly _maxInactivityTime = 120 * 60 * 1000; // 2 hours
     private readonly _minInactivityTime = 10 * 60 * 1000; // 10 minutes
     private _inactivityTime = this._defaultInactivityTime;
@@ -18,7 +18,14 @@ class UserActivityManager {
     // idle for 30 minutes. Will log out at the end of 1 minute.
     private _isCheckDisabled: boolean = false;
     private _lastSocketUpdate: number = 0; // time when last actiivity update message sent to socket
+    private _logoutDestTime: number;
 
+    public constructor() {
+        setInterval(() => {
+            // logs a message about how much time is left until cluster shuts down
+            // console.log(Math.round((this._logoutDestTime - Date.now())/1000) + " seconds to shutdown");
+        }, 10 * 1000);
+    }
     public updateUserActivity(noBroadcast?: boolean): void {
         this._restartActivityTimer();
         if (!noBroadcast && (Date.now() - this._lastSocketUpdate > (30 * 1000))) {
@@ -48,6 +55,11 @@ class UserActivityManager {
         this._restartActivityTimer();
     }
 
+    public noUsers() {
+        // cluster has no users so shut down cluster in 5 minutes
+        this._restartActivityTimer(5 * 60 * 1000, 1);
+    }
+
     private _stopActivityTimer() {
         clearTimeout(this._activityTimer);
         clearTimeout(this._logoutTimer);
@@ -55,7 +67,7 @@ class UserActivityManager {
 
     // resets a countdown timer, if not reset again for another 25 minutes then
     // will warn XD and then stop the cluster
-    private _restartActivityTimer() {
+    private _restartActivityTimer(inactivityTime?: number, logoutWarningTime?: number) {
         if (this._isCheckDisabled) {
             return;
         }
@@ -67,11 +79,14 @@ class UserActivityManager {
                 socket.logoutMessage({inactive: true});
                 cloudManager.stopCluster();
                 cloudManager.logout();
-            }, this._logoutWarningTime);
+            }, logoutWarningTime || this._logoutWarningTime);
 
-        }, this._inactivityTime - this._logoutWarningTime);
+        }, inactivityTime || (this._inactivityTime - this._logoutWarningTime));
         // set timer for 1 minute less than required time so that we
         // can provide a 1 minute warning
+
+        this._logoutDestTime = Date.now() + (inactivityTime || (this._inactivityTime - this._logoutWarningTime));
+
     }
 }
 
