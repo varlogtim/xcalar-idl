@@ -170,7 +170,7 @@ class CloudLoginLambdaService {
                 deferred.resolve(res);
             // TODO: remove this else if after Ted removes typo in /login response
             } else if (statusCode === httpStatus.Unauthorized && res.code !== "UserNotConfirmedException") {
-                deferred.reject('Wrong Email or Password.');
+                deferred.reject('Incorrect email or password.');
             } else {
                 deferred.reject(res);
             }

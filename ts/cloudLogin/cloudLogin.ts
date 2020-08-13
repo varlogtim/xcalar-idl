@@ -33,11 +33,11 @@ namespace CloudLogin {
             $container: $("#loadingForm"),
             completionTime: 180,
             progressTexts: [
-                'Creating Xcalar cluster',
-                'Starting Xcalar cluster',
-                'Initializing Xcalar cluster',
+                'Initializing AWS services',
+                'Initializing Xcalar instance',
+                'Running health checks',
                 'Setting up user preferences',
-                'Running health checks'
+                'Starting Xcalar',
             ],
             numVisibleProgressTexts: 5,
             startWidth: parseInt(sessionStorage.getItem('XcalarDeployingProgressBarWidth')) || 5,
@@ -302,7 +302,7 @@ namespace CloudLogin {
 
     function showExceptionScreen(
         errorMsg: string = "An unknown error has occurred...",
-        displayText: string = "To try again, refresh this page, or contact Xcalar support at (408) 471-1711"
+        displayText: string = "Cannot connect to service. Please refresh the page in a few minutes"
     ): void {
         $("#exceptionForm #exceptionFormMessage .text").html(errorMsg);
         $("#exceptionForm .title").html(displayText);
@@ -332,7 +332,7 @@ namespace CloudLogin {
             showFormError($("#loginFormMessage"), "Fields missing or incomplete.");
             return false;
         // } else if (!validateEmail(email) || !validatePassword(password)) {
-        //     showFormError($("#loginFormMessage"), "Wrong Email or Password. Please try again.");
+        //     showFormError($("#loginFormMessage"), "Incorrect email or password. Please try again.");
         //     return false;
         } else {
             $("#loginFormMessage").hide();
@@ -660,7 +660,7 @@ namespace CloudLogin {
     let deployingProgressBarCheckIntervalID: number;
     function deployingClusterAnimation(): void {
         if (!deployingProgressBar.isStarted()) {
-            deployingProgressBar.start("Please wait while your cluster starts...", "This will take 3-4 minutes");
+            deployingProgressBar.start("Starting Xcalar Instance...", "This will take 3-4 minutes");
 
             clearInterval(deployingProgressBarCheckIntervalID);
             deployingProgressBarCheckIntervalID = <any>setInterval(function() {
@@ -683,7 +683,7 @@ namespace CloudLogin {
 
     function stoppingClusterAnimation(): void {
         if (!stoppingProgressBar.isStarted()) {
-            stoppingProgressBar.start("Please wait while your cluster stops...");
+            stoppingProgressBar.start("Stoping Xcalar Instance...");
 
             clearInterval(stoppingProgressBarCheckIntervalID);
             stoppingProgressBarCheckIntervalID = <any>setInterval(function() {
