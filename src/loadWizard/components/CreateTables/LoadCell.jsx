@@ -46,7 +46,7 @@ function Error({
     } else if (toExpand) {
         return (
             <span className="error">
-                <pre>{error}</pre>
+                <pre style={{whiteSpace: 'normal'}}>{error}</pre>
                 <span className="action xc-action" onClick={() => { setExpandState(false); }}>Collapse</span>
             </span>
         )

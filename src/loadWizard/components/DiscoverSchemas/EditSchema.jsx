@@ -2,7 +2,7 @@ import * as React from "react";
 
 const SchemaError = {
     INVALID_JSON: () => 'Invalid JSON format',
-    NOT_ARRAY: () => 'Schema should be an array',
+    NOT_ARRAY: () => 'Columns should be an array',
     EMPTY_ARRAY: () => 'Please define at least 1 column',
     NULL_COLUMN: () => 'Invalid column, column definition cannot be null',
     NO_ATTRIBUTE: (attrName) => `Missing attribute: "${attrName}"`,
@@ -18,12 +18,17 @@ function validateSchemaString(strSchema) {
     } catch(_) {
         throw SchemaError.INVALID_JSON();
     }
-    // Should be an array
-    assert(Array.isArray(schema), SchemaError.NOT_ARRAY);
-    // Array cannot be empty
-    assert(schema.length > 0, SchemaError.EMPTY_ARRAY);
 
-    for (const column of schema) {
+    const { rowpath, columns } = schema;
+
+    // Need rowpath
+    assert(rowpath != null, () => SchemaError.NO_ATTRIBUTE('rowpath'));
+    // Should be an array
+    assert(Array.isArray(columns), SchemaError.NOT_ARRAY);
+    // Array cannot be empty
+    assert(columns.length > 0, SchemaError.EMPTY_ARRAY);
+
+    for (const column of columns) {
         // Null check
         assert(column != null, SchemaError.NULL_COLUMN);
 

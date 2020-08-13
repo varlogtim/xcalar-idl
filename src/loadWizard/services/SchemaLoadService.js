@@ -620,6 +620,63 @@ function createDiscoverApp({ path, filePattern, targetName, inputSerialization, 
                 getQueryProgress.stop();
             }
         },
+        getCreateTableQueryWithSchema: async ({ schema, numRows = -1, progressCB = () => {}}) => {
+            const delProgress = updateProgress((p) => {
+                progressCB(p);
+            }, 0, 10);
+            try {
+                await deleteTempTables();
+                delProgress.done();
+            } finally {
+                delProgress.stop();
+            }
+
+            const getQueryProgress = updateProgress((p) => {
+                progressCB(p);
+            }, 10, 100);
+            try {
+                const schemaJsonStr = JSON.stringify(schema);
+                const schemaHash = hashFunc(schemaJsonStr);
+                const tableNames = {
+                    load: `${names.loadPrefix}${schemaHash}`,
+                    data: `${names.dataPrefix}${schemaHash}`,
+                    comp: `${names.compPrefix}${schemaHash}`
+                };
+                const appInput = {
+                    func: 'get_dataflows_with_schema',
+                    session_name: session.sessionName,
+                    source_args_json: JSON.stringify([{
+                        targetName: targetName,
+                        path: Path.join(path, filePattern),
+                        fileNamePattern: '',
+                        recursive: false
+                    }]),
+                    input_serial_json: JSON.stringify(inputSerialization),
+                    schema_json: schemaJsonStr,
+                    num_rows: numRows > 0 ? numRows : null,
+                    load_table_name: tableNames.load,
+                    comp_table_name: tableNames.comp,
+                    data_table_name: tableNames.data
+                };
+                console.log('get_dataflows_with_schema: ', appInput);
+                const response = await executeSchemaLoadApp(JSON.stringify(appInput));
+                getQueryProgress.done();
+
+                return {
+                    loadQuery: combineQueries(response.load_df_query_string, '[]'),
+                    loadQueryOpt: response.load_df_optimized_query_string,
+                    dataQuery: combineQueries(response.data_df_query_string, '[]'),
+                    dataQueryOpt: response.data_df_optimized_query_string,
+                    compQuery: combineQueries(response.comp_df_query_string, '[]'),
+                    compQueryOpt: response.comp_df_optimized_query_string,
+                    tableNames: tableNames,
+                    dataQueryComplete: combineQueries(response.load_df_query_string, response.data_df_query_string),
+                    compQueryComplete: combineQueries(response.load_df_query_string, response.comp_df_query_string)
+                };
+            } finally {
+                getQueryProgress.stop();
+            }
+        },
         waitForFileTable: async (checkInterval = 200) => {
             tables.file = await waitForTable(names.file, checkInterval);
             return tables.file;
@@ -813,7 +870,7 @@ function createDiscoverApp({ path, filePattern, targetName, inputSerialization, 
                     const schema = schemas[i];
                     return {
                         data: line,
-                        schema: schema.columns || []
+                        schema: schema || {}
                     };
                 })
             };

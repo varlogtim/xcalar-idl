@@ -32,6 +32,7 @@ const Texts = {
     ResetInDiscoverBatch: "Cannot reset when discovering schema, please cancel discover schema first.",
     ResetInCreating: 'Cannot reset when table is creating.'
 };
+const defaultSchemaName = 'Schema1';
 
 /**
  * Step enum/name definition
@@ -69,7 +70,7 @@ class LoadConfig extends React.Component {
         const {
             onStepChange
         } = props;
-        const defaultConnector = "AWS Target";
+        const defaultConnector = "Xcalar S3 Connector";
         const defaultBucket = '/';
         const defaultHomePath = '';
         const defaultFileType = SchemaService.FileType.CSV;
@@ -223,10 +224,7 @@ class LoadConfig extends React.Component {
         }
     }
 
-    async _publishDataCompTables(tables, publishTableName, dataflows) {
-        const { discoverAppId } = this.state;
-        const app = SchemaLoadService.getDiscoverApp(discoverAppId);
-
+    async _publishDataCompTables(app, tables, publishTableName, dataflows) {
         const dataName = PTblManager.Instance.getUniqName(publishTableName.toUpperCase());
         const compName = PTblManager.Instance.getUniqName(publishTableName + '_ERROR');
 
@@ -261,10 +259,7 @@ class LoadConfig extends React.Component {
         }
     }
 
-    async _shareDataCompTables(tables, sharedName) {
-        const { discoverAppId } = this.state;
-        const app = SchemaLoadService.getDiscoverApp(discoverAppId);
-
+    async _shareDataCompTables(app, tables, sharedName) {
         const dataName = sharedName.toUpperCase();
         const compName = dataName + '_ERROR';
 
@@ -285,47 +280,64 @@ class LoadConfig extends React.Component {
         }
     }
 
-    async _createTableFromSchema(schemaName, tableName) {
+    async _createTableFromSchema(schema, tableName) {
+        const schemaName = defaultSchemaName;
         const isPublishTables = SchemaLoadSetting.get('isPublishTables', false) ;
 
-        const { discoverAppId } = this.state;
-        if (discoverAppId == null) {
-            return;
-        }
-        const app = SchemaLoadService.getDiscoverApp(discoverAppId);
-        if (app == null) {
-            return;
-        }
-
-        // State: cleanup and +loading
-        const createInProgress = this.state.createInProgress;
-        createInProgress.set(schemaName, {table: tableName, message: ""});
-        this.setState({
-            createInProgress: createInProgress,
-            createFailed: deleteEntry(this.state.createFailed, schemaName),
-            createTables: deleteEntry(this.state.createTables, schemaName),
-            tableToCreate: deleteEntry(this.state.tableToCreate, schemaName)
-        });
-
         try {
+            const {
+                connector,
+                inputSerialization,
+                fileSelectState
+            } = this.state;
+            const { fileSelected } = fileSelectState;
+            if (fileSelected == null) {
+                throw 'No file selected';
+            }
+
+            const { path: selectedPath, filePattern } = this._extractFileInfo(fileSelected.fullPath);
+            const app = SchemaLoadService.createDiscoverApp({
+                targetName: connector,
+                path: selectedPath,
+                filePattern: filePattern,
+                inputSerialization: inputSerialization,
+                isRecursive: false,
+            });
+
+            // State: cleanup and +loading
+            const createInProgress = this.state.createInProgress;
+            createInProgress.set(schemaName, {table: tableName, message: ""});
+            this.setState({
+                createInProgress: createInProgress,
+                createFailed: deleteEntry(this.state.createFailed, schemaName),
+                createTables: deleteEntry(this.state.createTables, schemaName),
+                tableToCreate: deleteEntry(this.state.tableToCreate, schemaName)
+            });
+
             // track progress
             function convertProgress(progress, range) {
                 const [start, end] = range;
                 return Math.min(Math.ceil(progress / 100 * (end - start) + start), end);
             }
 
+            // Init app
+            await app.init();
+
             // Get create table dataflow
-            const query = await app.getCreateTableQuery(schemaName, (progress) => {
-                this.setState((state) => {
-                    const { createInProgress } = state;
-                    createInProgress.set(schemaName, {
-                        table: tableName,
-                        message: `${convertProgress(progress, [0, 30])}%`
+            const query = await app.getCreateTableQueryWithSchema({
+                schema: schema,
+                progressCB: (progress) => {
+                    this.setState((state) => {
+                        const { createInProgress } = state;
+                        createInProgress.set(schemaName, {
+                            table: tableName,
+                            message: `${convertProgress(progress, [0, 30])}%`
+                        });
+                        return {
+                            createInProgress: createInProgress
+                        };
                     });
-                    return {
-                        createInProgress: createInProgress
-                    };
-                });
+                }
             });
 
             // Create data/comp session tables
@@ -346,7 +358,7 @@ class LoadConfig extends React.Component {
             try {
                 if (isPublishTables) {
                     // Publish to IMDTable
-                    const result = await this._publishDataCompTables(tables, tableName, {
+                    const result = await this._publishDataCompTables(app, tables, tableName, {
                         dataQueryComplete: query.dataQueryComplete,
                         compQueryComplete: query.compQueryComplete
                     });
@@ -367,7 +379,7 @@ class LoadConfig extends React.Component {
                     ]);
                 } else {
                     // Publish to SharedTable
-                    const { data: sharedDataTable, icv: sharedICVTable } = await this._shareDataCompTables(tables, tableName);
+                    const { data: sharedDataTable, icv: sharedICVTable } = await this._shareDataCompTables(app, tables, tableName);
 
                     // State: -loading + created
                     this.setState({
@@ -548,7 +560,7 @@ class LoadConfig extends React.Component {
                 page: 0, count: 1,
                 schemas: [{
                     schema: {
-                        hash: 'Schema1',
+                        hash: defaultSchemaName,
                         columns: finalSchema
                     },
                     files: {
@@ -1156,7 +1168,6 @@ class LoadConfig extends React.Component {
         }));
 
         try {
-            // XXX TODO: replace with the real service call
             const {
                 connector
             } = this.state;
@@ -1347,7 +1358,6 @@ class LoadConfig extends React.Component {
                                 onDone={(selectedFileDir) => {
                                     try {
                                         this._browseClose(selectedFileDir);
-                                        // this._flattenSelectedFiles(selectedFileDir);
                                         this._changeStep(stepEnum.SchemaDiscovery);
                                     } catch(_) {
                                         // Do nothing
@@ -1420,7 +1430,9 @@ class LoadConfig extends React.Component {
                                         this.setState({tableToCreate: this.state.tableToCreate});
                                     }}
                                     onFetchData={(p, rpp) => {}}
-                                    onClickCreateTable={(schemaName, tableName) => { console.log('Create table'); }}
+                                    onClickCreateTable={(schemaName, tableName) => {
+                                        this._createTableFromSchema(this.state.finalSchema, tableName);
+                                    }}
                                     onPrevScreen = {() => { this._changeStep(stepEnum.SchemaDiscovery); }}
                                     onLoadSchemaDetail = {(schemaHash) => { this._getSchemaDetail(); }}
                                     onLoadFailureDetail = {() => { this._fetchFailedSchema(); }}
@@ -1450,8 +1462,6 @@ class LoadConfig extends React.Component {
                                     onClick: () => {
                                         this._changeStep(stepEnum.CreateTables);
                                         this._prepareCreateTableData();
-                                        // const { page, rowsPerPage } = this.state.createTableState;
-                                        // this._fetchDiscoverReportData(page, rowsPerPage);
                                     }
                                 }}
                             /> : null
