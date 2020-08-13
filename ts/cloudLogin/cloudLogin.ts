@@ -17,6 +17,7 @@ namespace CloudLogin {
     let pendingTimeoutTimer: number;
     let getClusterTimer: number;
     let pendingTimeoutHappened: boolean = false;
+    let splashPromise = PromiseHelper.deferred();
 
     export function setup(): void {
         cloudLoginCognitoService = new CloudLoginCognitoService;
@@ -24,6 +25,8 @@ namespace CloudLogin {
 
         cloudLoginCognitoService.setup();
         cloudLoginLambdaService.setup();
+
+        showSplashScreen();
 
         let forceLogout = checkForceLogout();
         initialStatusCheck(forceLogout);
@@ -54,6 +57,36 @@ namespace CloudLogin {
             startWidth: parseInt(sessionStorage.getItem('XcalarStoppingProgressBarWidth')) || 5,
             firstTextId: parseInt(sessionStorage.getItem('XcalarStoppingProgressBarFirstTextId')) || 0
         });
+    }
+
+    function showSplashScreen() {
+        var animTime = 5000;
+        if (typeof init !== "undefined") {
+            init(); // 3rd party splash screen js
+        }
+        $("#loginForm").show();
+        $('#loadingBar .innerBar').removeClass('animated');
+
+
+        setTimeout(function() {
+            splashPromise.resolve();
+            $("#splashContainer").fadeOut(1000);
+            setTimeout(function() {
+                $("#loginContainer").fadeIn(1000);
+                $("#logo").fadeIn(1000);
+                focusOnFirstEmptyInput();
+            }, 800);
+
+        }, animTime);
+    }
+
+    function focusOnFirstEmptyInput() {
+        var $visibleInputs = $('.input:visible').filter(function() {
+            return ($(this).val().trim() === "");
+        });
+        if ($visibleInputs.length) {
+            $visibleInputs.eq(0).focus();
+        }
     }
 
     function initialStatusCheck(forceLogout?: boolean): void {
@@ -683,7 +716,7 @@ namespace CloudLogin {
 
     function stoppingClusterAnimation(): void {
         if (!stoppingProgressBar.isStarted()) {
-            stoppingProgressBar.start("Stoping Xcalar Instance...");
+            stoppingProgressBar.start("Stopping Xcalar Instance...");
 
             clearInterval(stoppingProgressBarCheckIntervalID);
             stoppingProgressBarCheckIntervalID = <any>setInterval(function() {

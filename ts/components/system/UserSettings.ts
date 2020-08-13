@@ -224,6 +224,9 @@ class UserSettings {
     }
 
     public show(): void {
+        if (!this.modalHelper) {
+            return; // not setup yet
+        }
         this.modalHelper.setup();
         this._renderDFSettings();
     }

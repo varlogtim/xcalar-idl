@@ -106,6 +106,12 @@ $(document).ready(function() {
                 typeof res === "string" &&
                 res.includes("gCloud")
             ) {
+                $("#splashContainer").fadeOut(500);
+                setTimeout(function() {
+                    $("#loginContainer").fadeIn(1000);
+                    $("#logo").fadeIn(1000);
+                    focusOnFirstEmptyInput();
+                }, 400);
                 deferred.resolve(true);
             } else {
                 deferred.resolve(false);
@@ -315,7 +321,11 @@ $(document).ready(function() {
 
     function showSplashScreen() {
         var animTime = 4200;
-        init(); // 3rd party splash screen js
+        if (window.location.search.includes("cloudId")) {
+            animTime = 0;
+        } else {
+            init(); // 3rd party splash screen js
+        }
         $("#loginForm").show();
         $('#loadingBar .innerBar').removeClass('animated');
 
