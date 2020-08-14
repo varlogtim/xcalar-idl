@@ -1017,18 +1017,20 @@ class LoadConfig extends React.Component {
         });
     }
 
-    _setParserType(newType) {
+    _setParserType(newType, isUpdatePreview = true) {
         if (newType === this.state.fileType) {
-            return false;
+            return this.state.inputSerialization;
         }
 
         this.setState({ fileType: newType });
         const inputSerialization = this._resetParserResult(newType);
-        const { selectedFileDir } = this.state;
-        if ( Array.isArray(selectedFileDir) && selectedFileDir.length > 0) {
-            this._listSelectedFileDir(selectedFileDir[0], inputSerialization);
+        if (isUpdatePreview) {
+            const { selectedFileDir } = this.state;
+            if ( Array.isArray(selectedFileDir) && selectedFileDir.length > 0) {
+                this._listSelectedFileDir(selectedFileDir[0], inputSerialization);
+            }
         }
-        return true;
+        return inputSerialization;
     }
 
     _setFinalSchema(schema) {
@@ -1078,11 +1080,17 @@ class LoadConfig extends React.Component {
                 });
             } else {
                 this._resetBrowseResult();
+                const selectedFile = selectedFileDir[0];
+                // Suggest a parser/file type from file name extension
+                const suggestType = SchemaService.suggestParserType(selectedFile);
+                const inputSerialization = this._setParserType(suggestType, false);
+                // Close file browser & set the result
                 this.setState({
                     browseShow: false,
                     selectedFileDir: selectedFileDir
                 });
-                this._listSelectedFileDir(selectedFileDir[0]);
+                // Update the preview
+                this._listSelectedFileDir(selectedFile, inputSerialization);
             }
         }
     }

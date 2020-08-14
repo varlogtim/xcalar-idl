@@ -59,6 +59,19 @@ const MergePolicyHint = {
     TRAILING: 'eg. Schemas [{A,B},{A,L},{A,B,C}] will be reduced to [{A,B,C},{A,L}]'
 };
 
+function suggestParserType(file) {
+    const checkList = [FileType.CSV, FileType.JSONL, FileType.PARQUET, FileType.JSON];
+    const defaultType = FileType.CSV;
+
+    for (const parserType of checkList) {
+        const filter = FileTypeFilter.get(parserType) || (() => false);
+        if (filter(file)) {
+            return parserType;
+        }
+    }
+    return defaultType;
+}
+
 class InputSerializationFactory {
     static createCSV({
         headerOption = CSVHeaderOption.USE,
@@ -377,6 +390,7 @@ export {
     FileType, FileTypeFilter, FileTypeNamePattern,
     InputSerializationFactory, defaultInputSerialization,
     CSVHeaderOption,
+    suggestParserType,
     MergePolicy,
     MergePolicyHint,
     DiscoverWorker
