@@ -2281,7 +2281,6 @@ module.exports = function(grunt) {
     });
 
     grunt.task.registerTask("update_terminalServer_module", "Update terminalServer's dependencies", function() {
-        return
         var termServerBldPath = path.join(BLDROOT, 'services/terminalServer/');
         var wettyBldPath = path.join(BLDROOT, '3rd/wetty/');
 
