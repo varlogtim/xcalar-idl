@@ -1212,25 +1212,34 @@ class LoadConfig extends React.Component {
         }
     }
 
-    _selectFileLine(index) {
-        this.setState(({fileContentState}) => ({
-            fileContentState: {
-                ...fileContentState,
-                lineSelected: index,
-                isAutoDetect: index > 0 ? false : fileContentState.isAutoDetect
-            }
-        }));
+    async _selectFileLine(index) {
+        let proceed = true;
         if (index >= 0) {
-            this._selectSchema(this.state.fileContentState.content[index].schema);
+            proceed = await this._selectSchema(this.state.fileContentState.content[index].schema);
         } else {
-            this._selectSchema(null);
+            proceed = await this._selectSchema(null);
+        }
+
+        if (proceed) {
+            this.setState(({fileContentState}) => ({
+                fileContentState: {
+                    ...fileContentState,
+                    lineSelected: index,
+                    isAutoDetect: index > 0 ? false : fileContentState.isAutoDetect
+                }
+            }));
         }
     }
 
-    _selectSchema(schema) {
+    async _selectSchema(schema) {
         if (isSchemaChanged(this.state)) {
-            // XXX TODO: Need confirmation to overwrite existing schema
-            console.log('Schema overwritten');
+            const changeConfirmed = await this._confirm({
+                title: 'Overwrite Schema',
+                message: 'Do you want to proceed?'
+            });
+            if (!changeConfirmed) {
+                return false;
+            }
         }
 
         this.setState({
@@ -1241,6 +1250,8 @@ class LoadConfig extends React.Component {
             },
         });
         this._setFinalSchema(schema);
+
+        return true;
 
         function isSchemaChanged(state) {
             const { selectedSchema, editSchemaState } = state;
@@ -1296,6 +1307,17 @@ class LoadConfig extends React.Component {
             // Ignore the error
         }
     };
+
+    _confirm({ title, message }) {
+        return new Promise((resolve) => {
+            Alert.show({
+                title: title,
+                msg: message,
+                onCancel: () => { resolve(false); },
+                onConfirm: () => { resolve(true); }
+            });
+        });
+    }
 
     _navToNotebook() {
         HomeScreen.switch(UrlToTab.notebook);
