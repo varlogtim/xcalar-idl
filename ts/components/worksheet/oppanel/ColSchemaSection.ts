@@ -3,6 +3,7 @@ class ColSchemaSection {
     private _initialSchema: ColSchema[];
     private _hintSchema: ColSchema[];
     private _validTypes: ColumnType[];
+    private _hasMapping: boolean; // extra "mapping" column next to name and type
 
     public constructor($section: JQuery) {
         this._$section = $section;
@@ -24,8 +25,9 @@ class ColSchemaSection {
         this._validTypes = types;
     }
 
-    public render(schema: ColSchema[]): void {
+    public render(schema: ColSchema[], hasMapping?: boolean): void {
         this.clear();
+        this._hasMapping = hasMapping || false;
         if (schema && schema.length > 0) {
             this._addList(schema);
         }
@@ -55,10 +57,22 @@ class ColSchemaSection {
                 valid = false;
                 return false; // stop loop
             }
-            schema.push({
+            let obj = {
                 name: name,
                 type: colType
-            });
+            }
+            if (this._hasMapping) {
+                const $mapping: JQuery = $part.find(".mapping input");
+                const mapping = $mapping.val().trim();
+                if (!ignore && !mapping) {
+                    StatusBox.show(ErrTStr.NoEmpty, $mapping);
+                    valid = false;
+                    return false; // stop loop
+                }
+                obj["mapping"] = mapping;
+            }
+
+            schema.push(obj);
         });
         if (!ignore && valid && schema.length === 0) {
             valid = false;
@@ -97,6 +111,17 @@ class ColSchemaSection {
         initialSchema.forEach((colInfo) => {
             fixedSchemaMap[colInfo.name] = colInfo.type;
         });
+
+        if (this._hasMapping) {
+            this._$section.addClass("hasMapping");
+            if (!this._$section.find(".title .mapping").length) {
+                this._$section.find(".title .part .name").after('<div class="mapping">Mapping</div>');
+            }
+        } else {
+            this._$section.removeClass("hasMapping");
+            this._$section.find(".title .mapping").remove();
+        }
+
         const list: JQuery[] = schema.map((col) => {
             let name: string =  col.name || "";
             let type: string = col.type || "";
@@ -110,6 +135,11 @@ class ColSchemaSection {
                     '</div>' +
                     dropdownList;
             }
+            let mappingInput = "";
+            if (this._hasMapping) {
+                const mapping = xcStringHelper.escapeDblQuoteForHTML(col.mapping || "");
+                mappingInput += '<div class="mapping"><input value="' + mapping + '" spellcheck="false" /></div>';
+            }
             const row: HTML =
             '<div class="part">' +
                 '<div class="name dropDownList">' +
@@ -117,6 +147,7 @@ class ColSchemaSection {
                     '<input value="' + name + '" spellcheck="false">' +
                     dropdownList +
                 '</div>' +
+                mappingInput +
                 '<div class="type dropDownList">' +
                     '<div class="text">' + type + '</div>' +
                     typeDropdownPart +
@@ -244,7 +275,10 @@ class ColSchemaSection {
 
         schema.forEach((colInfo) => {
             const colName = colInfo.name;
-            const type = colInfo.type;
+            let type = colInfo.type;
+            if (this._hasMapping) {
+                type = xcHelper.convertFieldTypeToColType(DfFieldTypeTFromStr[type]);
+            }
             html +=
             '<li data-type="' + type + '">' +
                 BaseOpPanel.craeteColumnListHTML(type, colName) +
@@ -279,7 +313,12 @@ class ColSchemaSection {
 
     private _populateTypeDropdown($dropdown: JQuery): void {
         const html: HTML = this._validTypes.map((colType) => {
-            let icon = xcUIHelper.getTypeIconFromColumnType(colType);
+            let icon;
+            if (this._hasMapping) {
+                icon = xcUIHelper.getColTypeIcon(DfFieldTypeTFromStr[colType]);
+            } else {
+                icon = xcUIHelper.getTypeIconFromColumnType(colType);
+            }
             let li: HTML =
                 '<li>' +
                     '<i class="icon ' + icon + '"></i>' +

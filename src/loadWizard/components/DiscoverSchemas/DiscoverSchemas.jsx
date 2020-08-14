@@ -66,7 +66,7 @@ class DiscoverSchemas extends React.Component {
         />);
 
         const editSchema = selectedSchema != null && (
-            <EditSchemaSection {...editSchemaProps} />
+            <EditSchemaSection selectedSchema={selectedSchema} {...editSchemaProps} />
         );
 
         return (

@@ -72,22 +72,42 @@ class EditSchema extends React.PureComponent {
         }
     }
 
+    showSchemaWizard() {
+        let callback = (schema) => {
+            this._schemaChange(JSON.stringify(schema));
+        };
+        let editedSchema;
+        try {
+            editedSchema = JSON.parse(this.props.schema);
+        } catch (e) {
+            editedSchema = [];
+        }
+        SchemaSelectionModal.Instance.show(this.props.selectedSchema, editedSchema, callback, true);
+    }
+
     render() {
         const { errorMessage, schema, classNames = [] } = this.props;
 
         const cssClass = ['editSchema'].concat(classNames);
         return (<div className={cssClass.join(' ')}>
+            <div className="rowContent schemaDesc">
+                Use the <span className="schemaWizard xc-wizard" onClick={this.showSchemaWizard.bind(this)}>Schema Wizard</span>
+                &nbsp;to generate the table schema or edit the auto-detected schema in the text box below.
+            </div>
             { errorMessage != null && <div className="editSchema-error">{errorMessage}</div> }
             <textarea
                 className="xc-textArea editSchema-textarea"
                 onChange={(e) => { this._schemaChange(e.target.value) }}
                 value={schema}
+                spellCheck="false"
             />
         </div>);
     }
 }
 
 class EditSchemaSection extends React.PureComponent {
+
+
     render() {
         return (<div>
             <div className="header">Edit Schema</div>

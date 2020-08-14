@@ -263,7 +263,8 @@ interface ParsedEvalArg {
 
 interface ColSchema {
     name: string,
-    type: ColumnType
+    type: ColumnType,
+    mapping?: string
 }
 
 interface AggregateInfo {
