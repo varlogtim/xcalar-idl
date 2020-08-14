@@ -158,6 +158,8 @@ class SQLOpPanel extends BaseOpPanel {
             if (!forceUpdate && this._identifiers.length && queryStr &&
                 (queryStr.toLowerCase().includes("from") &&
                 queryStr.toLowerCase().includes("select"))) {
+                    this._queryStrHasError = true;
+                    this._updateHintMessage();
                 return;
             }
             if (queryStr.trim().length) {
@@ -483,17 +485,21 @@ class SQLOpPanel extends BaseOpPanel {
             }).setupListeners();
         });
 
-        if (this._parsedIdentifiers.length === 0) {
-            if (this._queryStrHasError) {
-                this._$elemPanel.find(".noSQLHint").removeClass("xc-hidden");
-                this._$elemPanel.find(".noTableHint").addClass("xc-hidden");
-            } else {
+        this._updateHintMessage();
+    }
+
+    private _updateHintMessage() {
+        if (this._queryStrHasError) {
+            this._$elemPanel.find(".noSQLHint").removeClass("xc-hidden");
+            this._$elemPanel.find(".noTableHint").addClass("xc-hidden");
+        } else {
+            if (this._parsedIdentifiers.length === 0) {
                 this._$elemPanel.find(".noTableHint").removeClass("xc-hidden");
                 this._$elemPanel.find(".noSQLHint").addClass("xc-hidden");
+            } else {
+                this._$elemPanel.find(".noTableHint").addClass("xc-hidden");
+                this._$elemPanel.find(".noSQLHint").addClass("xc-hidden");
             }
-        } else {
-            this._$elemPanel.find(".noTableHint").addClass("xc-hidden");
-            this._$elemPanel.find(".noSQLHint").addClass("xc-hidden");
         }
     }
 
@@ -758,18 +764,7 @@ class SQLOpPanel extends BaseOpPanel {
                     }
                 }
             }
-            if (this._parsedIdentifiers.length === 0) {
-                if (this._queryStrHasError) {
-                    this._$elemPanel.find(".noSQLHint").removeClass("xc-hidden");
-                    this._$elemPanel.find(".noTableHint").addClass("xc-hidden");
-                } else {
-                    this._$elemPanel.find(".noTableHint").removeClass("xc-hidden");
-                    this._$elemPanel.find(".noSQLHint").addClass("xc-hidden");
-                }
-            } else {
-                this._$elemPanel.find(".noTableHint").addClass("xc-hidden");
-                this._$elemPanel.find(".noSQLHint").addClass("xc-hidden");
-            }
+            this._updateHintMessage();
             let identifiersArr = [];
             for (let i in identifiers) {
                 identifiersArr.push({
