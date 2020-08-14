@@ -73,16 +73,26 @@ class EditSchema extends React.PureComponent {
     }
 
     showSchemaWizard() {
-        let callback = (schema) => {
+        let callback = (newSchema) => {
+            const schema = {
+                rowpath: "$",
+                columns: newSchema
+            };
             this._schemaChange(JSON.stringify(schema));
         };
+        let selectedSchema;
         let editedSchema;
         try {
-            editedSchema = JSON.parse(this.props.schema);
+            editedSchema = JSON.parse(this.props.schema).columns;
         } catch (e) {
             editedSchema = [];
         }
-        SchemaSelectionModal.Instance.show(this.props.selectedSchema, editedSchema, callback, true);
+        try {
+            selectedSchema = this.props.selectedSchema.columns;
+        } catch (e) {
+            selectedSchema = [];
+        }
+        SchemaSelectionModal.Instance.show(selectedSchema, editedSchema, callback, true);
     }
 
     render() {
