@@ -145,19 +145,6 @@ export default function SourcePath({
                             placeholder="optional"
                         />
                     </div>
-                    {/* <div className="fileTypeSelection">
-                        <label className="label">{Texts.fileType}</label>
-                        <InputDropdown
-                            val={fileType}
-                            onSelect={onFileTypeChange}
-                            list={
-                                [FileType.CSV, FileType.JSON, FileType.JSONL, FileType.PARQUET].map((type, i) => {
-                                    return {text: type, value: type};
-                                })
-                            }
-                            readOnly
-                        />
-                    </div> */}
                     <NavButtons right={{
                         label: Texts.navButtonRight,
                         classNames: ["btn-secondary", "browse"].concat(isBucketInvalid ? ['btn-disabled'] : []),

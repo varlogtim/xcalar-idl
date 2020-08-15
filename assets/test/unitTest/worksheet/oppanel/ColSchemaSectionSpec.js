@@ -67,9 +67,10 @@ describe("ColSchemaSection Test", function() {
 
     it("should create an instance", function() {
         expect(section).to.be.an.instanceof(ColSchemaSection);
-        expect(Object.keys(section).length).to.equal(3);
+        expect(Object.keys(section).length).to.equal(4);
         expect(section._validTypes).to.be.an("array");
         expect(section._$section).to.equal(schemaSection);
+        expect(section._options != null).to.equal(true);
     });
 
     it("should set params", function() {

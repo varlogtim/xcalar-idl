@@ -3,7 +3,13 @@ class ColSchemaSection {
     private _initialSchema: ColSchema[];
     private _hintSchema: ColSchema[];
     private _validTypes: ColumnType[];
-    private _hasMapping: boolean; // extra "mapping" column next to name and type
+    private _options: {
+        hasMapping: boolean, // extra "mapping" column next to name and type
+        canAdd: boolean // show/hide "add column" button
+    } = {
+        hasMapping: false,
+        canAdd: true
+    };
 
     public constructor($section: JQuery) {
         this._$section = $section;
@@ -25,12 +31,20 @@ class ColSchemaSection {
         this._validTypes = types;
     }
 
-    public render(schema: ColSchema[], hasMapping?: boolean): void {
+    public render(schema: ColSchema[], options?: {
+        hasMapping?: boolean,
+        canAdd?: boolean
+    }): void {
         this.clear();
-        this._hasMapping = hasMapping || false;
+        const { hasMapping = false, canAdd = true } = options || {};
+        this._options = {
+            hasMapping: hasMapping,
+            canAdd: canAdd
+        };
         if (schema && schema.length > 0) {
             this._addList(schema);
         }
+        this._showAddColumn();
     }
 
     public clear(): void {
@@ -61,7 +75,7 @@ class ColSchemaSection {
                 name: name,
                 type: colType
             }
-            if (this._hasMapping) {
+            if (this._options.hasMapping) {
                 const $mapping: JQuery = $part.find(".mapping input");
                 const mapping = $mapping.val().trim();
                 if (!ignore && !mapping) {
@@ -83,6 +97,17 @@ class ColSchemaSection {
 
     private _getContentSection(): JQuery {
         return this._$section.find(".listSection .content");
+    }
+
+    private _showAddColumn(): void {
+        const { canAdd } = this._options;
+        const $addColumn = this._$section.find(".listSection .addColumn");
+
+        if (canAdd) {
+            $addColumn.removeClass('xc-hidden');
+        } else {
+            $addColumn.addClass('xc-hidden');
+        }
     }
 
     private _addNoSchemaHint(): void {
@@ -112,7 +137,8 @@ class ColSchemaSection {
             fixedSchemaMap[colInfo.name] = colInfo.type;
         });
 
-        if (this._hasMapping) {
+        const { hasMapping } = this._options;
+        if (hasMapping) {
             this._$section.addClass("hasMapping");
             if (!this._$section.find(".title .mapping").length) {
                 this._$section.find(".title .part .name").after('<div class="mapping">Mapping</div>');
@@ -136,7 +162,7 @@ class ColSchemaSection {
                     dropdownList;
             }
             let mappingInput = "";
-            if (this._hasMapping) {
+            if (hasMapping) {
                 const mapping = xcStringHelper.escapeDblQuoteForHTML(col.mapping || "");
                 mappingInput += '<div class="mapping"><input value="' + mapping + '" spellcheck="false" /></div>';
             }
@@ -276,7 +302,7 @@ class ColSchemaSection {
         schema.forEach((colInfo) => {
             const colName = colInfo.name;
             let type = colInfo.type;
-            if (this._hasMapping) {
+            if (this._options.hasMapping) {
                 type = xcHelper.convertFieldTypeToColType(DfFieldTypeTFromStr[type]);
             }
             html +=
@@ -314,7 +340,7 @@ class ColSchemaSection {
     private _populateTypeDropdown($dropdown: JQuery): void {
         const html: HTML = this._validTypes.map((colType) => {
             let icon;
-            if (this._hasMapping) {
+            if (this._options.hasMapping) {
                 icon = xcUIHelper.getColTypeIcon(DfFieldTypeTFromStr[colType]);
             } else {
                 icon = xcUIHelper.getTypeIconFromColumnType(colType);

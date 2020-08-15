@@ -72,7 +72,7 @@ class EditSchema extends React.PureComponent {
         }
     }
 
-    showSchemaWizard() {
+    showSchemaWizard(showAdd) {
         let callback = (newSchema) => {
             const schema = {
                 rowpath: "$",
@@ -92,16 +92,19 @@ class EditSchema extends React.PureComponent {
         } catch (e) {
             selectedSchema = [];
         }
-        SchemaSelectionModal.Instance.show(selectedSchema, editedSchema, callback, true);
+        SchemaSelectionModal.Instance.show(selectedSchema, editedSchema, callback, {
+            hasMapping: true,
+            canAdd: showAdd
+        });
     }
 
     render() {
-        const { errorMessage, schema, classNames = [] } = this.props;
+        const { errorMessage, schema, classNames = [], showAdd = true } = this.props;
 
         const cssClass = ['editSchema'].concat(classNames);
         return (<div className={cssClass.join(' ')}>
             <div className="rowContent schemaDesc">
-                Use the <span className="schemaWizard xc-wizard" onClick={this.showSchemaWizard.bind(this)}>Schema Wizard</span>
+                Use the <span className="schemaWizard xc-wizard" onClick={this.showSchemaWizard.bind(this, showAdd)}>Schema Wizard</span>
                 &nbsp;to generate the table schema or edit the auto-detected schema in the text box below.
             </div>
             { errorMessage != null && <div className="editSchema-error">{errorMessage}</div> }

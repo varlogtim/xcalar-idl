@@ -274,7 +274,7 @@ function LoadTable({
             loadTableData.push(rowData);
         } else {
             const rowData = {
-                schema: <button onClick={() => { onClickSchema(schemaName); }}>{schemaName}</button>,
+                schema: <button onClick={() => { onClickSchema(schemaName); }}>View</button>,
                 count: files.count,
                 size: prettyBytes(files.size || 0),
                 time: xcTimeHelper.getElapsedTimeStr(Math.ceil(etaCost.loadEtaBySize(files.size) * 1000)),

@@ -60,7 +60,7 @@ const MergePolicyHint = {
 };
 
 function suggestParserType(file) {
-    const checkList = [FileType.CSV, FileType.JSONL, FileType.PARQUET, FileType.JSON];
+    const checkList = [FileType.CSV, FileType.JSONL, FileType.PARQUET];
     const defaultType = FileType.CSV;
 
     for (const parserType of checkList) {

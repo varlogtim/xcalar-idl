@@ -11,7 +11,7 @@ class FilePreview extends React.PureComponent {
 
     render() {
         const { fileSelectProps, fileContentProps } = this.props;
-        const { files = [], fileSelected } = fileSelectProps || {};
+        const { files = [] } = fileSelectProps || {};
 
         if (files.length === 0) {
             return null;

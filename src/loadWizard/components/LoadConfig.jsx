@@ -1426,6 +1426,7 @@ class LoadConfig extends React.Component {
                                 }}
                                 editSchemaProps={{
                                     ...editSchemaState,
+                                    showAdd: ![SchemaService.FileType.CSV].includes(fileType),
                                     onSchemaChange: (result) => { this._handleSchemaChange(result); }
                                 }}
                                 selectedSchema={selectedSchema}

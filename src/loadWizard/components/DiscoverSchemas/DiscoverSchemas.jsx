@@ -39,7 +39,7 @@ class DiscoverSchemas extends React.Component {
                             val={parserType}
                             onSelect={onParserTypeChange}
                             list={
-                                [ParserType.CSV, ParserType.JSON, ParserType.JSONL, ParserType.PARQUET].map((type, i) => {
+                                [ParserType.CSV, ParserType.JSONL, ParserType.PARQUET].map((type, i) => {
                                     return {text: type, value: type};
                                 })
                             }

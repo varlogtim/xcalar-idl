@@ -9,7 +9,10 @@ class SchemaSelectionModal {
     private _hintSchema: ColSchema[];
     private _callback: Function;
     private _schemaSection: ColSchemaSection;
-    private _hasMapping: boolean;
+    private _options: {
+        hasMapping?: boolean,
+        canAdd?: boolean
+    };
 
     private constructor(){
         const $modal: JQuery = this._getModal();
@@ -30,9 +33,14 @@ class SchemaSelectionModal {
         hintSchema: ColSchema[],
         currentSchema: ColSchema[],
         callback: Function,
-        hasMapping?: boolean
+        options?: {
+            hasMapping?: boolean,
+            canAdd?: boolean
+        }
     ): void {
-        this._hasMapping = hasMapping || false;
+        const { hasMapping = false } = options || {};
+
+        this._options = options;
         this._hintSchema = hintSchema;
         this._callback = callback;
         this._modalHelper.setup();
@@ -42,7 +50,7 @@ class SchemaSelectionModal {
         } else {
             this._schemaSection.setValidTypes(BaseOpPanel.getBasicColTypes());
         }
-        this._schemaSection.render(currentSchema, this._hasMapping);
+        this._schemaSection.render(currentSchema, this._options);
     }
 
     private _getModal(): JQuery {
@@ -87,7 +95,7 @@ class SchemaSelectionModal {
         const $schemaSection: JQuery = this._getSchemaSection();
         $schemaSection.on("click", ".detect", () => {
             if (this._hintSchema) {
-                this._schemaSection.render(this._hintSchema, this._hasMapping);
+                this._schemaSection.render(this._hintSchema, this._options);
             }
         });
     }
