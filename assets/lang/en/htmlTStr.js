@@ -326,6 +326,7 @@ module.exports = {
         "Severity4": "Feature requests",
         "CustomTicketId": "The organization associated with the ticket ID must match your organization.",
         "SaveChanges": "Save changes",
+        "Logout": "Cluster will be shut down 5 minutes after logging out.",
         // Raw DS Preview
         "RawDSFormat": "Format of all selected files",
         "RawDSCSVPromote": "Use first row as column header row",

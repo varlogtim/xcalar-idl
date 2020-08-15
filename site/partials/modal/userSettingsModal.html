@@ -34,7 +34,13 @@
                     </div>
                     <!-- logout interval -->
                     <div class="optionSet">
-                      <div class="label"><%= dicts.monitor.logOutInterval %></div>
+                      <div class="label"><%= dicts.monitor.logOutInterval %>
+                        <i class="qMark icon xi-unknown cloudOnly"
+                      data-toggle="tooltip"
+                      data-container="body"
+                      data-title="<%= dicts.TooltipTStr.Logout %>"
+                      data-placement="auto top"></i>
+                      </div>
                       <div id="logOutIntervalSlider" class="optionSelector rangeSliderWrap">
                         <div class="rangeSlider">
                           <div class="leftArea">

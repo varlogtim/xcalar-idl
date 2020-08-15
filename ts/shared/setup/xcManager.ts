@@ -18,6 +18,9 @@ namespace xcManager {
         let xcSocket: XcSocket;
         let firstTimeUser: boolean;
         setupThrift("");
+        if (XVM.isCloud()) {
+            $("body").addClass("isCloud");
+        }
 
         xcTimeHelper.setup()
         .then(() => {
