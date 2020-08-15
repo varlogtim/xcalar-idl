@@ -16,7 +16,7 @@ class UserActivityManager {
     private _activityTimer; // {setTimeout} // 25 minute countdown for cluster stop, gets reset when activity detected
     private _logoutTimer; // {setTimeout} 1 minute timer set when user has been
     // idle for 30 minutes. Will log out at the end of 1 minute.
-    private _isCheckDisabled: boolean = false;
+    private _isCheckDisabled: boolean = process.env.XCE_ENV_ID != "0" ? true : false;
     private _lastSocketUpdate: number = 0; // time when last actiivity update message sent to socket
     private _logoutDestTime: number;
 
@@ -76,7 +76,7 @@ class UserActivityManager {
             socket.sendClusterStopWarning();
             xcConsole.log("sending warning");
             this._logoutTimer = setTimeout(() => {
-                socket.logoutMessage({inactive: true});
+                socket.logoutMessage({ inactive: true });
                 cloudManager.stopCluster();
                 cloudManager.logout();
             }, logoutWarningTime || this._logoutWarningTime);
