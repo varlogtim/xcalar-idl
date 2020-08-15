@@ -57,7 +57,7 @@ class UserActivityManager {
 
     public noUsers() {
         // cluster has no users so shut down cluster in 5 minutes
-        this._restartActivityTimer(5 * 60 * 1000, 1);
+        this._restartActivityTimer(5 * 60 * 1000, 1, true);
     }
 
     private _stopActivityTimer() {
@@ -67,8 +67,8 @@ class UserActivityManager {
 
     // resets a countdown timer, if not reset again for another 25 minutes then
     // will warn XD and then stop the cluster
-    private _restartActivityTimer(inactivityTime?: number, logoutWarningTime?: number) {
-        if (this._isCheckDisabled) {
+    private _restartActivityTimer(inactivityTime?: number, logoutWarningTime?: number, tempEnable?: boolean) {
+        if (this._isCheckDisabled || !tempEnable) {
             return;
         }
         this._stopActivityTimer();

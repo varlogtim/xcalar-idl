@@ -1,6 +1,6 @@
 const { expect, assert } = require('chai');
 
-describe("UserActivityManager Test", () => {
+describe.skip("UserActivityManager Test", () => {
     let userActivityManager = require(__dirname + "/../../expServer/controllers/userActivityManager.js").default;
     let socket = require(__dirname + "/../../expServer/controllers/socket.js").default;
     var cloudManager = require(__dirname + "/../../expServer/controllers/cloudManager.js").default;
