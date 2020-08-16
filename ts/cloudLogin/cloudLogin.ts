@@ -693,7 +693,7 @@ namespace CloudLogin {
     let deployingProgressBarCheckIntervalID: number;
     function deployingClusterAnimation(): void {
         if (!deployingProgressBar.isStarted()) {
-            deployingProgressBar.start("Starting Xcalar Instance...", "This will take 3-4 minutes");
+            deployingProgressBar.start("Starting Xcalar Instance...", "");
 
             clearInterval(deployingProgressBarCheckIntervalID);
             deployingProgressBarCheckIntervalID = <any>setInterval(function() {
