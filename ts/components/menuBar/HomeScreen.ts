@@ -91,7 +91,7 @@ class HomeScreen {
                 let msg = "This feature will be available in the next release.";
                 if (XVM.isCloud()) {
                     title = TooltipTStr.AvailableInEnterprise;
-                    msg = "This feature is availabe in Xcalar Enterprise version";
+                    msg = "This feature is available in Xcalar Enterprise version";
                 }
                 Alert.show({
                     title,
