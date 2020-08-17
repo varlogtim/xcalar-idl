@@ -109,8 +109,9 @@ $(document).ready(function() {
                 $("#splashContainer").fadeOut(500);
                 setTimeout(function() {
                     $("#loginContainer").fadeIn(1000);
+                    $("#loginContainer .loginHeader").text("Redirecting...");
                     $("#logo").fadeIn(1000);
-                    focusOnFirstEmptyInput();
+                    $("#formArea").hide();
                 }, 400);
                 deferred.resolve(true);
             } else {
