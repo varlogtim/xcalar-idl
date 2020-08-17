@@ -862,15 +862,23 @@ function createDiscoverApp({ path, filePattern, targetName, inputSerialization, 
             };
             console.log('App.perfileFile: ', appInput);
 
-            const { rows, schemas, status } = await executeSchemaLoadApp(JSON.stringify(appInput));
+            const { rows = [], schemas = [], statuses = [], global_status = {} } = await executeSchemaLoadApp(JSON.stringify(appInput));
 
             return {
-                status: status,
+                status: { errorMessage: global_status.error_message },
                 lines: rows.map((line, i) => {
                     const schema = schemas[i];
+                    const status = statuses[i] || { error_message: null, unsupported_columns: [] };
                     return {
                         data: line,
-                        schema: schema || {}
+                        schema: schema || {},
+                        status: {
+                            hasError: status.unsupported_columns.length > 0,
+                            errorMessage: status.error_message,
+                            unsupportedColumns: status.unsupported_columns.map(({message, name, mapping}) => ({
+                                message: message, name: name, mapping: mapping
+                            }))
+                        }
                     };
                 })
             };

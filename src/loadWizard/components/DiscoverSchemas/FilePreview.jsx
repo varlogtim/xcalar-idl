@@ -83,7 +83,7 @@ class FileContentWrap extends React.PureComponent {
         return (<div>
             {/* <AutoDetectOption checked={isAutoDetect} onChange={(checked) => { onAutoDetectChange(checked); }}></AutoDetectOption> */}
             {isAutoDetect || <FileContent
-                data={content.map(({data}) => data)}
+                data={content.map(({data, status}) => ({line: data, status: status}))}
                 selected={lineSelected}
                 onSelectChange={(i) => { onLineChange(i); }}
                 offset={lineOffset}
@@ -132,11 +132,22 @@ function FileContent(props) {
     const startIndex = offset;
     const endIndex = startIndex + (numRows > 0 ? numRows : data.length) - 1;
     return (<div>
-        {data.map((line, index) => {
+        {data.map(({line, status}, index) => {
+            const { hasError =  false, errorMessage = null, unsupportedColumns = [] } = status;
+            const lineCssClass = hasError ? 'fileLine-error': null;
+            const hintProps = hasError ? {
+                'data-toggle': "tooltip",
+                'data-container': "body",
+                'data-placement': "top auto",
+                'data-original-title': JSON.stringify(unsupportedColumns, null, ' ')
+            } : {};
+
             return (<FileLine key={`${index}`} checked={selected === index} onChange={(checked) => {
                 onSelectChange(checked ? index : -1)
             }}>
-                <span style={{fontStyle: 'italic'}}>{index}: </span>{line}
+                <span className={lineCssClass} {...hintProps}>
+                    <span style={{fontStyle: 'italic'}}>{index}: </span>{line}
+                </span>
             </FileLine>);
         }).filter((v, i) => (i >= startIndex && i <= endIndex))}
         { children }
