@@ -82,9 +82,12 @@ export default class InputDropdown extends React.Component {
         let readOnly = (this.props.readOnly === true) ? true : false;
         let disabled = (this.props.disabled === true) ? true : false;
 
+        const { classNames = [] } = this.props || {};
+        const cssClass = ['dropDownList', 'selectList'].concat(classNames);
+
         if (disabled) {
             return (
-                <div className="dropDownList selectList">
+                <div className={cssClass.join(' ')}>
                     <input
                         className="text"
                         type="text"
@@ -99,7 +102,7 @@ export default class InputDropdown extends React.Component {
             );
         } else {
             return (
-                <div className="dropDownList selectList" ref={this.dropdownRef} onClick={this.onOuterListClick}>
+                <div className={cssClass.join(' ')} ref={this.dropdownRef} onClick={this.onOuterListClick}>
                     <input
                         className="text"
                         type="text"

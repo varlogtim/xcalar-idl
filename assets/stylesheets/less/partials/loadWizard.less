@@ -1042,4 +1042,14 @@
         white-space: normal;
         color: @color-text-error;
     }
+
+    .fileDropdown {
+        @max-width: @min-width * 2 - 4px;
+
+        width: 100%;
+        max-width: @max-width;
+        .text {
+            width: ~"calc(100% - 30px)";
+        }
+    }
 }

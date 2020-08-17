@@ -20,7 +20,7 @@ class FilePreview extends React.PureComponent {
         return (<div>
             <div className="header">Preview</div>
             <AdvOption.Container><AdvOption.OptionGroup>
-                <AdvOption.Option>
+                <AdvOption.Option classNames={['fullRow']}>
                     <AdvOption.OptionLabel>File:</AdvOption.OptionLabel>
                     <AdvOption.OptionValue><FileDropdown {...fileSelectProps} /></AdvOption.OptionValue>
                 </AdvOption.Option>
@@ -39,6 +39,7 @@ function FileDropdown(props) {
 
     return (
         <InputDropdown
+            classNames={['fileDropdown']}
             val={fileSelected.fullPath}
             onSelect={ (file) => { onSelect(file); }}
             list={files.map((file) => ({
