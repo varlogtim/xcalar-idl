@@ -262,7 +262,7 @@ router.get("/service/matchedHosts",
     });
 
 router.get("/service/logs",
-    [support.checkAuthAdmin], function(req, res) {
+    [support.checkAuth], function(req, res) {
         xcConsole.log("Fetching Recent Logs as Master");
         let rawCookie = support.rawSessionCookie(req);
         support.masterExecuteAction("GET", "/service/logs/slave", req.query, rawCookie)
@@ -275,7 +275,7 @@ router.get("/service/logs",
     });
 
 router.get("/service/logs/slave",
-    [support.checkAuthAdmin], function(req, res) {
+    [support.checkAuth], function(req, res) {
         xcConsole.log("Fetching Recent Logs as Slave");
         support.slaveExecuteAction("GET", "/service/logs/slave", req.body)
             .always(function(message) {
