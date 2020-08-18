@@ -11,7 +11,6 @@ class MuiVirtualizedTable extends React.PureComponent {
         super(props);
         const sortBy = "";
         const sortDirection = "ASC";
-
         this.state = {
             disableHeader: false,
             overscanRowCount: 20,
@@ -32,11 +31,16 @@ class MuiVirtualizedTable extends React.PureComponent {
         this.sort = this.sort.bind(this);
     }
 
-    getRowClassName({ index }) {
+    getRowClassName(index, data) {
         const { classes, onRowClick } = this.props;
-
+        const rowData = data[index];
+        let isLoading = false;
+        if (rowData) {
+            isLoading = rowData.isLoading;
+        }
         return clsx(classes.tableRow, classes.flexContainer, {
         [classes.tableRowHover]: index !== -1 && onRowClick != null,
+        "isLoading": isLoading
         });
     };
 
@@ -44,20 +48,20 @@ class MuiVirtualizedTable extends React.PureComponent {
         let toSelect = !this.props.isSelected(rowData);
         let multiSelectList = [];
         // for shift click multi select
-        if (event.nativeEvent.shiftKey && this.state.lastClickedIndex != null) {
-            let min;
-            let max;
-            if (rowIndex > this.state.lastClickedIndex) {
-                min = this.state.lastClickedIndex;
-                max = rowIndex;
-            } else {
-                max = this.state.lastClickedIndex;
-                min = rowIndex;
-            }
-            for (let i = min; i <= max; i++) {
-                multiSelectList.push(this.state.sortedList[i]);
-            }
-        }
+        // if (event.nativeEvent.shiftKey && this.state.lastClickedIndex != null) {
+        //     let min;
+        //     let max;
+        //     if (rowIndex > this.state.lastClickedIndex) {
+        //         min = this.state.lastClickedIndex;
+        //         max = rowIndex;
+        //     } else {
+        //         max = this.state.lastClickedIndex;
+        //         min = rowIndex;
+        //     }
+        //     for (let i = min; i <= max; i++) {
+        //         multiSelectList.push(this.state.sortedList[i]);
+        //     }
+        // }
         // check for multi select
         let selectedList = new Set();
         if (toSelect) {
@@ -152,6 +156,28 @@ class MuiVirtualizedTable extends React.PureComponent {
         );
     };
 
+    deleteFileHelper(file, rowIndex) {
+        let fileName = file.name;
+        const sortedList = this.state.sortedList;
+        sortedList[rowIndex].isLoading = true;
+        this.setState({
+            sortedList: [...sortedList]
+        });
+
+        CloudManager.Instance.deleteS3File(fileName)
+        .then(() => {
+            this.props.onFileDelete(file.fullPath);
+        })
+        .fail((error) => {
+            Alert.error(ErrTStr.Error, error);
+            this.state.sortedList[rowIndex].isLoading = false;
+            this.setState({
+                sortedList: [...this.state.sortedList]
+            });
+        });
+    };
+
+
     checkboxCellRenderer(info) {
         const {
             cellData: fileId,
@@ -165,7 +191,7 @@ class MuiVirtualizedTable extends React.PureComponent {
           <TableCell
             component="div"
             className={clsx(classes.tableCell, classes.flexContainer, {
-              [classes.noClick]: onRowClick == null,
+              [classes.noClick]: onRowClick == null
             })}
             variant="body"
             style={{ height: rowHeight }}
@@ -197,8 +223,18 @@ class MuiVirtualizedTable extends React.PureComponent {
             variant="body"
             style={{ height: rowHeight }}
             align={'left'}
-            onClick={() => {
-                onRowClick(info.rowData);
+            onClick={(e) => {
+                if (info.dataKey === "option" && !info.rowData.directory) {
+                    Alert.show({
+                        title: "Delete file",
+                        msg: `Are you sure you want to delete file "${info.rowData.name}"?`,
+                        onConfirm: () => {
+                            this.deleteFileHelper(info.rowData, info.rowIndex);
+                        }
+                    });
+                } else {
+                    onRowClick(info.rowData);
+                }
             }}
         >
             <div className="innerCell">{text}</div>
@@ -261,7 +297,7 @@ class MuiVirtualizedTable extends React.PureComponent {
                 className={classes.table}
                 size="small"
                 {...tableProps}
-                rowClassName={this.getRowClassName}
+                rowClassName={(info) => { return this.getRowClassName(info.index, sortedList)}}
                 overscanRowCount={overscanRowCount}
                 sort={this.sort}
                 sortBy={sortBy}
@@ -270,7 +306,7 @@ class MuiVirtualizedTable extends React.PureComponent {
             >
                 {selectableRows &&
                     <Column
-                        className={classes.flexContainer}
+                        className={classes.flexContainer + " abc"}
                         dataKey={"fileId"}
                         width={30}
                         label={"checkbox"}

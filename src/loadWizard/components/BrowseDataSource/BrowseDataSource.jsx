@@ -70,6 +70,7 @@ class BrowseDataSource extends React.Component {
             path: Path.join(bucket, homePath),
             fileMapViewing: new Map(),
             selectedFileDir: selectedFileDir.map((v) => ({...v})),
+            loadingFiles: new Set(),
             showForensics: false,
             forensicsMessage: [],
             isForensicsLoading: false,
@@ -98,10 +99,37 @@ class BrowseDataSource extends React.Component {
             //     return directory || fileTypeFilter({ type: type });
             // });
             const fileMap = await S3Service.listFiles(Path.join(newFullPath, '/'), this.props.connector);
+
             if (this.props.homePath && !newFullPath.endsWith(this.props.homePath)) {
                 // navigated away while files were loading
                 return false;
             }
+            for (const [key, value] of fileMap) {
+                if (this.state.loadingFiles.has(key)) {
+                    value.isLoading = true;
+                }
+            }
+            if (!newFullPath.startsWith("/")) {
+                newFullPath = "/" + newFullPath;
+            }
+            if (newFullPath.endsWith("/")) {
+                newFullPath = newPath.slice(0, -1);
+            }
+            this.state.loadingFiles.forEach((val) => {
+                if (Path.dirname(val) === newFullPath && !fileMap.has(val)) {
+                    fileMap.set(val, {
+                        directory: false,
+                        fileId: val,
+                        fullPath: val,
+                        name: Path.basename(val),
+                        sizeInBytes: 0,
+                        targetName: this.props.connector,
+                        type: "",
+                        isLoading: true
+                    });
+                }
+            })
+
             this.setState({
                 path: newFullPath,
                 fileMapViewing: fileMap,
@@ -117,6 +145,10 @@ class BrowseDataSource extends React.Component {
             console.error(e);
             return false;
         }
+    }
+
+    _refreshPath() {
+        this._browsePath(this.state.path);
     }
 
     _selectFiles(newSelectedFiles) {
@@ -156,6 +188,91 @@ class BrowseDataSource extends React.Component {
         this.props.setSelectedFileDir(selectedFiles);
     }
 
+    _addTempFile(fileName, path) {
+        const fileMapViewing = this.state.fileMapViewing;
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+        if (path.endsWith("/")) {
+            path = path.slice(0, -1)
+        }
+
+        fileMapViewing.set(path + "/" + fileName, {
+            directory: false,
+            fileId: path + "/" + fileName,
+            fullPath: path + "/" + fileName,
+            name: fileName,
+            sizeInBytes: 0,
+            targetName: this.props.connector,
+            type: "",
+            isLoading: true
+        });
+        this.setState({
+            isLoading: true
+        });
+        this.state.loadingFiles.add(path + "/" + fileName);
+        this.setState({
+            isLoading: false,
+            fileMapViewing: fileMapViewing,
+            loadingFiles: this.state.loadingFiles
+        });
+    }
+
+    _removeFile(filePath) {
+        const fileMapViewing = this.state.fileMapViewing;
+        fileMapViewing.delete(filePath);
+        this.setState({
+            isLoading: true
+        });
+        this.state.loadingFiles.delete(filePath);
+        const selectedFiles = this.state.selectedFileDir.filter(f => {
+            return filePath !== f.fileId;
+        });
+        if (selectedFiles.length !== this.state.selectedFileDir) {
+            this.setState({
+                selectedFileDir: selectedFiles
+            });
+            this.props.setSelectedFileDir(selectedFiles);
+        }
+        this.setState({
+            isLoading: false,
+            fileMapViewing: fileMapViewing,
+            loadingFiles: this.state.loadingFiles,
+        });
+    }
+
+    _toggleFileLoading(filePath, isLoading) {
+        const fileMapViewing = this.state.fileMapViewing;
+        let file = fileMapViewing.get(filePath);
+        // toggle this.state.isLoading to trigger rerender
+        if (file) {
+            file.isLoading = isLoading;
+            this.setState({
+                isLoading: true
+            });
+            if (isLoading) {
+                this.state.loadingFiles.add(filePath);
+            } else {
+                this.state.loadingFiles.delete(filePath);
+            }
+
+            this.setState({
+                isLoading: false,
+                fileMapViewing: fileMapViewing,
+                loadingFiles: this.state.loadingFiles
+            });
+        } else if (!isLoading) {
+            this.state.loadingFiles.delete(filePath);
+            this.setState({
+                isLoading: true
+            });
+            this.setState({
+                isLoading: false,
+                loadingFiles: this.state.loadingFiles
+            });
+        }
+    }
+
     _fetchForensics(path) {
         const statusCallback = (state) => {
             this.setState({
@@ -178,6 +295,7 @@ class BrowseDataSource extends React.Component {
             bucket, // string
             homePath, // string
             fileType, // SchemaService.FileType
+            connector,
         } = this.props;
 
         const {
@@ -201,11 +319,13 @@ class BrowseDataSource extends React.Component {
         if (currentFullPath.endsWith("/")) {
             currentFullPath = currentFullPath.slice(0, -1)
         }
+        const displayFullPath = currentFullPath + "/";
         const forensicsStats = this.metadataMap.get(this.state.forensicsPath);
         let upFolderClass = "icon xi-upload-folder xc-icon-action upFolderIcon";
         if (rootFullPath === currentFullPath) {
             upFolderClass += " xc-disabled";
         }
+
 
         return (
             <div className="browseDataSourceScreen">
@@ -223,7 +343,7 @@ class BrowseDataSource extends React.Component {
                             this._browsePath(parentPath, fileType);
                         }}>
                     </i>
-                    <input value={currentFullPath} readOnly></input>
+                    <input value={displayFullPath} readOnly></input>
                 </div>
 
                 <div className="fileListTableArea">
@@ -231,7 +351,8 @@ class BrowseDataSource extends React.Component {
                     <div className="fileListTableWrap">
                     {isLoading ? <LoadingText className="loadingText">Loading</LoadingText> :
                         (
-                        fileMapViewing.size ? <FileBrowserTable
+                        <FileBrowserTable
+                            currentFullPath={currentFullPath}
                             fileMap={fileMapViewing}
                             selectedIds={getSelectedIdsForCurrentView(fileMapViewing, selectedFileDir)}
                             onPathChange={(newFullPath) => { this._browsePath(newFullPath, fileType); }}
@@ -250,7 +371,13 @@ class BrowseDataSource extends React.Component {
                             onDeselect={(files) => { this._deselectFiles(files); }}
                             onInfoClick={(path) => { this._fetchForensics(path); }}
                             fileType={fileType}
-                        /> : <div className="noFilesFound">No {fileType} files or directories found.</div>)
+                            // canUpload={this.props.connector === DSTargetManager.getPrivateS3Connector()}
+                            canUpload={false}
+                            addTempFile={(fileName, path) => {this._addTempFile(fileName, path)}}
+                            removeFile={(filePath) => {this._removeFile(filePath)}}
+                            toggleFileLoading={(filePath, isLoading) => {this._toggleFileLoading(filePath, isLoading)}}
+                            refreshPath={() => {this._refreshPath()}}
+                        /> )
                     }
                     </div>
                     <Rnd
@@ -336,11 +463,12 @@ function ForensicsContent(props) {
 
 function BrowseDataSourceModal(props) {
     const [selectedFiles, setSelectedFileDir] = React.useState(props.selectedFileDir);
-
     return (
         <Modal.Dialog id="fileBrowserModal">
             <Modal.Header onClose={props.onCancel}>{Texts.title}</Modal.Header>
-            <Modal.Body><BrowseDataSource {...props} setSelectedFileDir={setSelectedFileDir} /></Modal.Body>
+            <Modal.Body>
+                <BrowseDataSource {...props} setSelectedFileDir={setSelectedFileDir} />
+            </Modal.Body>
             <Modal.Footer>
                 <NavButtons
                     left={{ label: Texts.navButtonLeft, onClick: () => { props.onCancel() } }}

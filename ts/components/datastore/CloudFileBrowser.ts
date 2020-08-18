@@ -71,22 +71,26 @@ namespace CloudFileBrowser {
         return deferred.promise();
     }
 
-    function _uploadFile(file?: File): XDPromise<void> {
+    function _uploadFile(file?: File, callback?: Function, customOverwriteCheck?: Function): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let fileName: string = file.name.replace(/C:\\fakepath\\/i, '').trim();
         if (fileName.endsWith(".xlsx")) {
             _handleUploadError("Upload xlsx file is not supported in this version, please convert the file to CSV.");
             return PromiseHelper.reject();
         }
-        if (file.size && (file.size / MB) > 60000) {
+        if (file.size && (file.size / GB) > 60) {
             _handleUploadError("Please ensure your file is under 60GB.");
             return PromiseHelper.reject();
         }
         let isChecking: boolean = true;
-        _overwriteCheck(fileName)
+        const overwriteCheck = customOverwriteCheck || _overwriteCheck;
+        overwriteCheck(fileName)
         .then(() => {
             isChecking = false;
             FileBrowser.addFileToUpload(fileName);
+            if (callback) {
+                callback(fileName);
+            }
             return CloudManager.Instance.multiUploadToS3(fileName, file);
         })
         .then(() => {
@@ -98,12 +102,15 @@ namespace CloudFileBrowser {
                 FileBrowser.removeFileToUpload(fileName);
                 FileBrowser.refresh();
                 console.error(error);
-                _handleUploadError("Please ensure your file is under 6MB.");
+                _handleUploadError("Please ensure your file is under 60GB.");
             }
             deferred.reject(error);
         });
 
         return deferred.promise();
+    }
+    export function uploadFile(file, callback, customOverwriteCheck) {
+        return _uploadFile(file, callback, customOverwriteCheck);
     }
 
     function _handleUploadError(error: string): void {

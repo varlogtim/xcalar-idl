@@ -358,8 +358,46 @@
             padding: 0 20px 0px 10px;
             min-height: 36px;
 
+            .header {
+                margin-bottom: 0px !important;
+                font-weight: 500 !important;
+            }
+
             .numItems {
                 font-size: 12px;
+            }
+        }
+
+        .cloudUploadSection {
+            width: 100%;
+            overflow: hidden;
+            font-size: 14px;
+            font-weight: normal;
+
+            > div {
+                line-height:32px;
+                margin: 0 auto;
+                display: flex;
+                justify-content: center;
+                padding: 0 4px;
+                overflow: hidden;
+
+                > i, > span {
+                    float: left;
+                }
+            }
+
+            .icon {
+                font-size: 32px;
+                color: @color-font-link-blue;
+                margin-right: 8px;
+                position: relative;
+                top: -1px;
+            }
+
+            .upload {
+                color: @color-font-link-blue;
+                text-decoration: underline;
             }
         }
 
@@ -606,12 +644,21 @@
             }
         }
 
+        .ReactVirtualized__Table__row.isLoading {
+            opacity: @opacity-disabled;
+            pointer-events: none;
+        }
+
         .innerCell {
             .textOverflowOneLine;
         }
 
         .xi-info-circle-outline {
             font-size: 16px;
+        }
+
+        .xi-trash {
+            font-size: 14px;
         }
 
         .MuiTableCell-head {
