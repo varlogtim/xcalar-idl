@@ -90,30 +90,43 @@ class CloudManager {
     public multiUploadToS3(fileName: string, file: File): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let allData: string;
+        let stringifyData: string;
         let uploadId: string;
         const partList: any = [];
-        const partSize = 6000000;
+        const partSize: number = 6000000;
 
         xcHelper.readFile(file)
         .then((fileContent) => {
             allData = fileContent;
+            stringifyData = JSON.stringify(allData);
             return this._sendRequest("s3/multipart/start", {
                 "fileName": fileName
             });
         })
         .then((res: {uploadId: string}) => {
             uploadId = res.uploadId;
-            let promises = [];
-            for (let i = 0; i * partSize < allData.length; i++) {
-                if (i === 10000) {
+            let promises: XDPromise<any>[] = [];
+            let cur: number = 0;
+            let i: number = 1;
+            while  (cur < stringifyData.length) {
+                if (i > 10000) {
                     return PromiseHelper.reject("Part number exceeds limit");
+                }
+                let partEnd: number = cur + partSize;
+                // Catch case a part ends with "\"
+                try {
+                    JSON.parse(stringifyData.substring(cur, partEnd));
+                } catch (e) {
+                    partEnd--;
                 }
                 promises.push(this._uploadPart(
                     fileName,
                     uploadId,
-                    allData.substring(i * partSize, (i + 1) * partSize),
-                    i + 1,
+                    JSON.parse(stringifyData.substring(cur, partEnd)),
+                    i,
                     partList));
+                cur = partEnd;
+                i++;
             }
             return PromiseHelper.when(...promises);
         })
@@ -236,7 +249,7 @@ class CloudManager {
             if (res.status === httpStatus.OK) {
                 return res.json();
             } else {
-                return PromiseHelper.reject();
+                return PromiseHelper.reject(res.statusText);
             }
         })
         .then((res: {status: number}) => {
@@ -244,7 +257,7 @@ class CloudManager {
             if (res.status === 0) {
                 deferred.resolve(res);
             } else {
-                deferred.reject();
+                deferred.reject(res);
             }
         })
         .catch((e) => {
