@@ -17,7 +17,7 @@ class UserActivityManager {
     private _logoutTimer; // {setTimeout} 1 minute timer set when user has been
     // idle for 30 minutes. Will log out at the end of 1 minute.
     private _isCheckDisabled: boolean = false;
-    private _isNode0: boolean = process.env.XCE_EXP_ID != "0" ? true : false;
+    private _isNode0: boolean = process.env.XCE_EXP_ID === "0" ? true : false;
     private _lastSocketUpdate: number = 0; // time when last actiivity update message sent to socket
     // private _logoutDestTime: number;
 
