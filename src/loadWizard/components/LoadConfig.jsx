@@ -1191,8 +1191,8 @@ class LoadConfig extends React.Component {
             const fileContent = await discoverApp.previewFile();
             console.log(fileContent);
             const { status } = fileContent;
-            if (status.error_message != null) {
-                throw status.error_message;
+            if (status.errorMessage != null) {
+                throw status.errorMessage;
             }
 
             if (!cancel) {
