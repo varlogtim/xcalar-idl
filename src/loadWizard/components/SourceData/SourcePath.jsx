@@ -116,7 +116,11 @@ export default function SourcePath({
                                 onBucketChange(newBucket.trim());
                             }}
                             onOpen={() => {
-                                setS3Buckets([...DSTargetManager.getAvailableS3Buckets()]);
+                                if (DSTargetManager.isAWSConnector(connector)) {
+                                    setS3Buckets([...DSTargetManager.getAvailableS3Buckets()]);
+                                } else {
+                                    setS3Buckets([]);
+                                }
                             }}
                             list={s3Buckets.length
                                 ? s3Buckets.map((bucket) => {

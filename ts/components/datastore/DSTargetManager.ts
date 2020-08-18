@@ -303,6 +303,14 @@ namespace DSTargetManager {
     }
 
     /**
+     * DSTargetManager.isAWSConnector
+     * @param connector
+     */
+    export function isAWSConnector(connector: string): boolean{
+        return connector === "Xcalar S3 Connector";
+    }
+
+    /**
      * DSTargetManager.getAvailableS3Buckets
      */
     export function getAvailableS3Buckets(): string[] {
