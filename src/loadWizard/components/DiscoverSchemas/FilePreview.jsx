@@ -18,7 +18,7 @@ class FilePreview extends React.PureComponent {
         }
 
         return (<div>
-            <div className="header">Preview</div>
+            <div className="header">Schema Selection</div>
             <AdvOption.Container><AdvOption.OptionGroup>
                 <AdvOption.Option classNames={['fullRow']}>
                     <AdvOption.OptionLabel>File:</AdvOption.OptionLabel>
