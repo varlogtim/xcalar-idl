@@ -177,11 +177,11 @@ function Pagination(props) {
 
 function FileLine(props) {
     const { checked, onChange, children } = props;
-    const iconClasses = ['icon', checked ? 'xi-ckbox-selected' : 'xi-ckbox-empty'];
+    const iconClasses = ['icon', checked ? 'xi-radio-selected' : 'xi-radio-empty'];
 
     return (
         <div className="csvArgs-chkbox">
-            <i className={iconClasses.join(' ')}  onClick={() => { onChange(!checked) }} />
+            <i style={{fontSize: '14px'}} className={iconClasses.join(' ')}  onClick={() => { onChange(!checked) }} />
             <span className="preview-line">{children}</span>
         </div>
     );
