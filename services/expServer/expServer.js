@@ -441,6 +441,27 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         var httpServer = http.createServer(app);
         socket(httpServer, serverSession, serverCookieParser);
         var port = serverPort;
+
+        httpServer.on('clientError', function(err, httpSocket){
+            function replaceErrors(key, value) {
+                if (value instanceof Error) {
+                    var error = {};
+
+                    Object.getOwnPropertyNames(value).forEach(function (key) {
+                        error[key] = value[key];
+                    });
+
+                    return error;
+                }
+
+                return value;
+            }
+
+            xcConsole.error('error on error handler', err);
+            message = JSON.stringify({'error': err }, replaceErrors);
+            httpSocket.end('HTTP/1.1 400 Bad Request\r\nContent-Type: application/json\r\n\r\n' + message + '\r\n');
+        });
+
         httpServer.listen(port, function() {
             var hostname = process.env.DEPLOY_HOST;
             if (!hostname) {
@@ -462,9 +483,6 @@ require("jsdom/lib/old-api").env("", function(err, window) {
             }
         });
 
-        httpServer.on('error', function(err){
-            xcConsole.error('error on error hanlder', err);
-        });
 
         var httpServerJupyter = http.createServer(appJupyter);
         var proxyServer = httpProxy.createProxyServer({
