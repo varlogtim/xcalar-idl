@@ -747,110 +747,6 @@ class LoadConfig extends React.Component {
         };
     }
 
-    async _discoverAllApp() {
-        if (this.state.discoverCancelBatch != null) {
-            return;
-        }
-
-        try {
-            const stime = Date.now();
-
-            const {
-                fileType,
-                inputSerialization,
-                selectedFileDir,
-                discoverErrorRetry
-            } = this.state;
-
-            const { path: selectedPath, filePattern, isRecursive } = this._extractPathInfo(selectedFileDir[0], fileType);
-            const discoverApp = SchemaLoadService.createDiscoverApp({
-                path: selectedPath,
-                filePattern: filePattern,
-                inputSerialization: inputSerialization,
-                isRecursive: isRecursive,
-                isErrorRetry: discoverErrorRetry
-            });
-
-            this._resetDiscoverResult();
-            this.setState(() => {
-                return {
-                    discoverIsRunning: true,
-                    discoverProgress: 0,
-                    discoverAppId: discoverApp.appId,
-                    discoverCancelBatch: () => {
-                        console.log('Cancel All');
-                        discoverApp.cancel();
-                    }
-                };
-            });
-
-            // Init load app
-            await discoverApp.init();
-
-            // list file task
-            const listFile = async () => {
-                const table = await discoverApp.waitForFileTable(200);
-                if (table != null) {
-                    const { page, rowsPerPage } = this.state.discoverFilesState;
-                    await this._fetchDiscoverFileData(page, rowsPerPage);
-                }
-                this.setState((state) => ({
-                    discoverProgress: state.discoverProgress + 20
-                }));
-            };
-
-            // schema task
-            const schemaTask = async () => {
-                const table = await discoverApp.waitForSchemaTable(200);
-                if (table != null) {
-                    const { page, rowsPerPage } = this.state.discoverFilesState;
-                    await this._fetchDiscoverFileData(page, rowsPerPage);
-                }
-                this.setState((state) => ({
-                    discoverProgress: state.discoverProgress + 60
-                }));
-            }
-
-            // report task
-            const reportTask = async () => {
-                const table = await discoverApp.waitForReportTable(200);
-                if (table != null) {
-                    const { page, rowsPerPage } = this.state.createTableState;
-                    await this._fetchDiscoverReportData(page, rowsPerPage);
-                    await this._getDiscoverStats();
-                }
-                this.setState((state) => ({
-                    discoverProgress: state.discoverProgress + 10
-                }));
-            }
-
-            await Promise.all([
-                discoverApp.run(),
-                listFile(),
-                schemaTask(),
-                reportTask()
-            ]);
-
-            const etime = Date.now();
-            console.log(`DiscoverAll took ${Math.ceil((etime - stime)/100)/10} seconds`);
-        } catch(e) {
-            if (e !== SchemaLoadService.ExceptionAppCancelled) {
-                this._alert({
-                    title: 'Discovery Error',
-                    message: `${e.log || e.error || e.message || e}`
-                });
-                console.error('LoadConfig._discoverAllApp: ', e);
-            }
-            this._resetDiscoverResult();
-        } finally {
-            this.setState({
-                discoverIsRunning: false,
-                discoverProgress: 100,
-                discoverCancelBatch: null
-            });
-        }
-    }
-
     /**
      *
      * @param {*} fileSchemaMap Map<fileId, { name: schemaName, columns: [] }
@@ -1188,6 +1084,7 @@ class LoadConfig extends React.Component {
                 inputSerialization: inputSerialization || this.state.inputSerialization,
                 isRecursive: false,
             });
+            await discoverApp.init();
             const fileContent = await discoverApp.previewFile();
             console.log(fileContent);
             const { status } = fileContent;

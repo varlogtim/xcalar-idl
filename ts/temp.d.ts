@@ -918,3 +918,6 @@ declare namespace XDParser {
     export var XEvalParser: XEvalParser;
 }
 
+declare var XcalarLoad {
+    workSessionName: string
+}

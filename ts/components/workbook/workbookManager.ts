@@ -1056,9 +1056,19 @@ namespace WorkbookManager {
                 initializeVariable();
             }
 
+            let loadSessionName = '.XcalarLoad';
+            try {
+                loadSessionName = XcalarLoad.workSessionName;
+            } catch(_) {
+                // Ignore errors;
+            }
             let xdInternalSession: any;
             for (let i: number = 0; i < numSessions; i++) {
                 const wkbkName: string = sessions[i].name;
+                if (wkbkName === loadSessionName) {
+                    // Hide wkbk for load
+                    continue;
+                }
                 // Hide wkbk for system session usage: SDK-826
                 if (wkbkName.startsWith(sysWkbkNamePattern)) {
                     if (wkbkName === xdInternalWkbkName) {

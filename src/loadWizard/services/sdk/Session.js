@@ -223,11 +223,12 @@ class RandomSession extends BaseSession {
     }
 }
 
+const loadSessionName = '.XcalarLoad';
 class LoadSession extends BaseSession {
     constructor() {
         super({
             user: new LoginUser(),
-            sessionName: 'XcalarLoad'
+            sessionName: loadSessionName
         });
     }
 }
@@ -250,4 +251,4 @@ class LoginSession extends BaseSession {
     }
 }
 
-export { XDSession, RandomSession, GlobalSession, LoadSession, CurrentSession, LoginSession };
+export { XDSession, RandomSession, GlobalSession, LoadSession, CurrentSession, LoginSession, loadSessionName };
