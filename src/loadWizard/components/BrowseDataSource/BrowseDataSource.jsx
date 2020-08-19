@@ -187,14 +187,30 @@ class BrowseDataSource extends React.Component {
             selectedFileDir
         } = this.state;
 
-        const rootFullPath = Path.join(bucket);
-        const currentFullPath = path;
+        let rootFullPath = Path.join(bucket);
+        if (rootFullPath.startsWith("/")) {
+            rootFullPath = rootFullPath.slice(1)
+        }
+        if (rootFullPath.endsWith("/")) {
+            rootFullPath = rootFullPath.slice(0, -1)
+        }
+        let currentFullPath = path;
+        if (currentFullPath.startsWith("/")) {
+            currentFullPath = currentFullPath.slice(1)
+        }
+        if (currentFullPath.endsWith("/")) {
+            currentFullPath = currentFullPath.slice(0, -1)
+        }
         const forensicsStats = this.metadataMap.get(this.state.forensicsPath);
+        let upFolderClass = "icon xi-upload-folder xc-icon-action upFolderIcon";
+        if (rootFullPath === currentFullPath) {
+            upFolderClass += " xc-disabled";
+        }
 
         return (
             <div className="browseDataSourceScreen">
                 <div className="fileBrowserPath">
-                    <i className="icon xi-upload-folder xc-icon-action upFolderIcon"
+                    <i className={upFolderClass}
                         data-toggle="tooltip"
                         data-placement="top"
                         data-container="body"
