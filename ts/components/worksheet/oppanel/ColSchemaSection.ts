@@ -104,9 +104,13 @@ class ColSchemaSection {
         const $addColumn = this._$section.find(".listSection .addColumn");
 
         if (canAdd) {
-            $addColumn.removeClass('xc-hidden');
+            $addColumn.removeClass('xc-unavailable');
+            xcTooltip.remove($addColumn.find(".text"));
         } else {
-            $addColumn.addClass('xc-hidden');
+            $addColumn.addClass('xc-unavailable');
+            xcTooltip.add($addColumn.find(".text"), {
+                title: "Columns cannot be added to CSV schemas."
+            });
         }
     }
 
@@ -362,6 +366,9 @@ class ColSchemaSection {
         });
 
         $section.on("click", ".addColumn", () => {
+            if ($section.find(".addColumn").hasClass("xc-unavailable")) {
+                return;
+            }
             this._addList([{name: "", type: null}]);
         });
 
