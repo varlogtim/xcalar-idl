@@ -214,10 +214,12 @@ class UDFPanel {
 
     public listUDFs(): {displayName: string, path: string}[] {
         const res: {displayName: string, path: string}[] = [];
+        const loadUDFFilter = RegExp('/LOAD_WIZARD_');
+
         // store by name
         const unsortedUDF: string[] = Array.from(
             UDFFileManager.Instance.getUDFs().keys()
-        );
+        ).filter((name) => !loadUDFFilter.test(name));
         const workbookUDF: string[] = unsortedUDF.filter((value: string) => {
             return value.startsWith(
                 UDFFileManager.Instance.getCurrWorkbookPath()
