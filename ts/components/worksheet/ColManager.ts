@@ -1107,6 +1107,10 @@ namespace ColManager {
         let numKeys = parsedCols.length;
 
         if (numKeys === 0) {
+            StatusBox.show("All fields have been pulled.", $jsonTd, null, {
+                side: "top",
+                offsetY: 12
+            });
             return;
         }
 
