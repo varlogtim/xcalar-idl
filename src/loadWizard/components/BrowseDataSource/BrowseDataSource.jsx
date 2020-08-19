@@ -90,7 +90,7 @@ class BrowseDataSource extends React.Component {
         try {
             this.setState({
                 isLoading: true,
-                path: newFullPath,
+                path: newFullPath
             });
             let homePath = newFullPath.slice(this.props.bucket.length);
             this.props.onPathChange(homePath);
@@ -131,10 +131,15 @@ class BrowseDataSource extends React.Component {
             })
 
             this.setState({
+                // cause a reset of fileBrowser sortedList
+                isLoading: true
+            });
+            this.setState({
                 path: newFullPath,
                 fileMapViewing: fileMap,
                 isLoading: false
             });
+
             return true;
         } catch(e) {
             Alert.show({
