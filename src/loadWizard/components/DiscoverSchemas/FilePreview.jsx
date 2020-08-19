@@ -19,12 +19,17 @@ class FilePreview extends React.PureComponent {
 
         return (<div>
             <div className="header">Schema Selection</div>
-            <AdvOption.Container><AdvOption.OptionGroup>
-                <AdvOption.Option classNames={['fullRow']}>
-                    <AdvOption.OptionLabel>File:</AdvOption.OptionLabel>
-                    <AdvOption.OptionValue><FileDropdown {...fileSelectProps} /></AdvOption.OptionValue>
-                </AdvOption.Option>
-            </AdvOption.OptionGroup></AdvOption.Container>
+            <div className="headerHelpText">
+                <i className="icon xi-info-circle-outline"></i>Select one record to discover your schema
+            </div>
+            <AdvOption.Container>
+                <AdvOption.OptionGroup>
+                    <AdvOption.Option classNames={['fullRow']}>
+                        <AdvOption.OptionLabel>File:</AdvOption.OptionLabel>
+                        <AdvOption.OptionValue><FileDropdown {...fileSelectProps} /></AdvOption.OptionValue>
+                    </AdvOption.Option>
+                </AdvOption.OptionGroup>
+            </AdvOption.Container>
             <FileContentWrap {...fileContentProps} />
         </div>);
     }
@@ -132,6 +137,7 @@ function FileContent(props) {
     const startIndex = offset;
     const endIndex = startIndex + (numRows > 0 ? numRows : data.length) - 1;
     return (<div>
+        <div className="scrollSection">
         {data.map(({line, status}, index) => {
             const { hasError =  false, errorMessage = null, unsupportedColumns = [] } = status;
             const lineCssClass = hasError ? 'fileLine-error': null;
@@ -145,11 +151,13 @@ function FileContent(props) {
             return (<FileLine key={`${index}`} checked={selected === index} onChange={(checked) => {
                 onSelectChange(checked ? index : -1)
             }}>
+
                 <span className={lineCssClass} {...hintProps}>
                     <span style={{fontStyle: 'italic'}}>{index}: </span>{line}
                 </span>
             </FileLine>);
         }).filter((v, i) => (i >= startIndex && i <= endIndex))}
+        </div>
         { children }
     </div>);
 }
