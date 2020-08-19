@@ -118,12 +118,34 @@ class EditSchema extends React.PureComponent {
     }
 }
 
-class EditSchemaSection extends React.PureComponent {
+function useScroll() {
+    const ref = React.createRef();
+    const execute = () => {
+            ref.current.scrollIntoView({ block: "start"});
+    }
+    return { ref, execute };
+}
 
+class EditSchemaSection extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.scroll = useScroll();
+    }
+
+    componentDidUpdate() {
+        try {
+            const { isFocus } = this.props;
+            if (isFocus) {
+                this.scroll.execute();
+            }
+        } catch(_) {
+            // Ignore errors
+        }
+    }
 
     render() {
         return (<div>
-            <div className="header">Edit Schema</div>
+            <div ref={this.scroll.ref} className="header">Edit Schema</div>
             <EditSchema {...this.props} />
         </div>);
     }

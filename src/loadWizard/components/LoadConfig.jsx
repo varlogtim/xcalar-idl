@@ -1253,6 +1253,7 @@ class LoadConfig extends React.Component {
         this.setState({
             selectedSchema: schema,
             editSchemaState: {
+                isFocus: schema != null,
                 schema: schema == null ? null : JSON.stringify(schema),
                 errorMessage: null
             },
