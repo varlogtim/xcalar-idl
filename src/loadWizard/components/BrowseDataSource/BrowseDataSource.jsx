@@ -113,7 +113,7 @@ class BrowseDataSource extends React.Component {
                 newFullPath = "/" + newFullPath;
             }
             if (newFullPath.endsWith("/")) {
-                newFullPath = newPath.slice(0, -1);
+                newFullPath = newFullPath.slice(0, -1);
             }
             this.state.loadingFiles.forEach((val) => {
                 if (Path.dirname(val) === newFullPath && !fileMap.has(val)) {
