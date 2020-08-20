@@ -1,56 +1,6 @@
 import * as React from "react";
+import { validateSchemaString } from '../../services/SchemaService'
 
-const SchemaError = {
-    INVALID_JSON: () => 'Invalid JSON format',
-    NOT_ARRAY: () => 'Columns should be an array',
-    EMPTY_ARRAY: () => 'Please define at least 1 column',
-    NULL_COLUMN: () => 'Invalid column, column definition cannot be null',
-    NO_ATTRIBUTE: (attrName) => `Missing attribute: "${attrName}"`,
-    INVALID_VALUE: (attrName, value) => `Invalid value "${value}" for attribute "${attrName}"`
-}
-
-function validateSchemaString(strSchema) {
-    let schema = null;
-
-    // Check valid JSON
-    try {
-        schema = JSON.parse(strSchema);
-    } catch(_) {
-        throw SchemaError.INVALID_JSON();
-    }
-
-    const { rowpath, columns } = schema;
-
-    // Need rowpath
-    assert(rowpath != null, () => SchemaError.NO_ATTRIBUTE('rowpath'));
-    // Should be an array
-    assert(Array.isArray(columns), SchemaError.NOT_ARRAY);
-    // Array cannot be empty
-    assert(columns.length > 0, SchemaError.EMPTY_ARRAY);
-
-    for (const column of columns) {
-        // Null check
-        assert(column != null, SchemaError.NULL_COLUMN);
-
-        const { name, type, mapping } = column;
-        // Attribute check
-        assert(name != null, () => SchemaError.NO_ATTRIBUTE('name'));
-        assert(type != null, () => SchemaError.NO_ATTRIBUTE('type'));
-        assert(mapping != null, () => SchemaError.NO_ATTRIBUTE('mapping'));
-        // Value check
-        assert(typeof name === 'string', () => SchemaError.INVALID_VALUE('name', name));
-        assert(typeof type === 'string', () => SchemaError.INVALID_VALUE('type', type));
-        assert(typeof mapping === 'string', () => SchemaError.INVALID_VALUE('mapping', mapping));
-    }
-
-    return schema;
-
-    function assert(boolVal, genEx) {
-        if (!boolVal) {
-            throw genEx();
-        }
-    }
-}
 
 class EditSchema extends React.PureComponent {
     _schemaChange(newSchema) {

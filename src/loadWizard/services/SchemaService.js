@@ -135,6 +135,68 @@ const defaultInputSerialization = new Map([
     [FileType.PARQUET, InputSerializationFactory.createParquet()]
 ]);
 
+const SchemaError = {
+    INVALID_JSON: () => 'Invalid JSON format',
+    NOT_ARRAY: () => 'Columns should be an array',
+    EMPTY_ARRAY: () => 'Please define at least 1 column',
+    NULL_COLUMN: () => 'Invalid column, column definition cannot be null',
+    NO_ATTRIBUTE: (attrName) => `Missing attribute: "${attrName}"`,
+    INVALID_VALUE: (attrName, value) => `Invalid value "${value}" for attribute "${attrName}"`,
+    TOO_MANY_COLUMN: (numCol, limit) => `
+        Current column count: (${numCol}). Please modify the schema to ensure column count is within the limit of ${limit}
+    `
+}
+
+function assert(boolVal, genEx) {
+    if (!boolVal) {
+        throw genEx();
+    }
+}
+
+function validateSchema(jsonSchema) {
+    const { rowpath, columns } = jsonSchema || {};
+
+    // Need rowpath
+    assert(rowpath != null, () => SchemaError.NO_ATTRIBUTE('rowpath'));
+    // Should be an array
+    assert(Array.isArray(columns), SchemaError.NOT_ARRAY);
+    // Array cannot be empty
+    assert(columns.length > 0, SchemaError.EMPTY_ARRAY);
+    // Number of columns limit
+    const maxNumCols = 1000;
+    assert(columns.length <= maxNumCols, () => SchemaError.TOO_MANY_COLUMN(columns.length, maxNumCols));
+
+    for (const column of columns) {
+        // Null check
+        assert(column != null, SchemaError.NULL_COLUMN);
+
+        const { name, type, mapping } = column;
+        // Attribute check
+        assert(name != null, () => SchemaError.NO_ATTRIBUTE('name'));
+        assert(type != null, () => SchemaError.NO_ATTRIBUTE('type'));
+        assert(mapping != null, () => SchemaError.NO_ATTRIBUTE('mapping'));
+        // Value check
+        assert(typeof name === 'string', () => SchemaError.INVALID_VALUE('name', name));
+        assert(typeof type === 'string', () => SchemaError.INVALID_VALUE('type', type));
+        assert(typeof mapping === 'string', () => SchemaError.INVALID_VALUE('mapping', mapping));
+    }
+}
+
+function validateSchemaString(strSchema) {
+    let schema = null;
+
+    // Check valid JSON
+    try {
+        schema = JSON.parse(strSchema);
+    } catch(_) {
+        throw SchemaError.INVALID_JSON();
+    }
+
+    validateSchema(schema);
+
+    return schema;
+}
+
 class MergeFactory {
     constructor() {
         this._merger = new Map(this._init());
@@ -228,170 +290,12 @@ class MergeFactory {
 }
 const mergeFactory = new MergeFactory();
 
-class DiscoverWorker {
-    constructor({
-        mergePolicy, inputSerialization
-    }) {
-        this._mergePolicy = mergePolicy;
-        this._inputSerialization = {...inputSerialization};
-
-        this._discoveredFiles = new Map();
-        this._schemas = new Map();
-        this._errorFiles = new Map();
-    }
-
-    reset({
-        mergePolicy, inputSerialization
-    }) {
-        if (mergePolicy != null) {
-            this._schemas.clear();
-            this._errorFiles.clear();
-            this._mergePolicy = mergePolicy;
-        }
-        if (inputSerialization != null) {
-            this.clear();
-            this._inputSerialization = {...inputSerialization};
-        }
-    }
-
-    /**
-     * Restore the worker
-     * @param {Map<string, {columns: Array<{name: string, mapping: string, type: string}>}>} discoveredFiles
-     * @param {Map<string, string>} errorFiles
-     */
-    restore(discoveredFiles, errorFiles) {
-        // const start = Date.now();
-        for (const [path, { columns }] of discoveredFiles) {
-            this._discoveredFiles.set(path, {
-                path: path,
-                success: true,
-                status: '',
-                schema: {
-                    numColumns: columns.length,
-                    columnsList: columns.map(({ name, mapping, type}) => ({
-                        name: name,
-                        mapping: mapping,
-                        type: type
-                    }))
-                }
-            });
-        }
-
-        for (const [path, errMsg] of errorFiles) {
-            this._errorFiles.set(path, errMsg);
-        }
-        // const end = Date.now();
-        // console.log(`Restore ${discoveredFiles.size} files in ${end - start} ms`);
-    }
-
-    // XXX TODO: Move this into xcrpc framework
-    async _discover(paths, inputSerialization) {
-        // Construct xcrpc request object
-        const discoverRequest= new proto.xcalar.compute.localtypes.SchemaDiscover.SchemaDiscoverRequest();
-        discoverRequest.setPathsList(paths);
-
-        const inputSerializationObj = new proto.xcalar.compute.localtypes.SchemaDiscover.InputSerialization();
-        inputSerializationObj.setArgs(JSON.stringify(inputSerialization));
-        discoverRequest.setInputSerialization(inputSerializationObj);
-
-        // Call xcrpc api
-        const client = new Xcrpc.xce.XceClient(xcHelper.getApiUrl());
-        const service = new Xcrpc.xce.SchemaDiscoverService(client);
-        const response = await service.schemaDiscover(discoverRequest);
-
-        // Parse response
-        const result = response.getFileSchemasList().map((objectSchema) => {
-            const schema = objectSchema.getSchema();
-            return {
-                path: objectSchema.getPath(),
-                success: objectSchema.getSuccess(),
-                status: objectSchema.getStatus(),
-                schema: {
-                    numColumns: schema.getColumnsList().length,
-                    columnsList: schema.getColumnsList().map((c) => ({
-                        name: c.getName(),
-                        mapping: c.getMapping(),
-                        type: c.getType()
-                    }))
-                }
-            };
-        });
-        return result;
-    }
-
-    async discover(paths = []) {
-        const filesNeedDiscover = paths.filter((path) => (!this._discoveredFiles.has(path)));
-
-        // Discover schema
-        const discoveredSchmas = await this._discover(filesNeedDiscover, this._inputSerialization);
-        for (const discoveredSchama of discoveredSchmas) {
-            this._discoveredFiles.set(discoveredSchama.path, discoveredSchama);
-        }
-
-        // Merge schema
-        this.merge();
-    }
-
-    merge() {
-        const start = Date.now();
-        const merge = mergeFactory.get(this._mergePolicy);
-        if (merge == null) {
-            throw new Error('Merge type not supported:', this._mergePolicy);
-        }
-        const [schemas, errorFiles] = merge([...this._discoveredFiles.values()]);
-
-        // Cache the result
-        this._schemas = schemas;
-        this._errorFiles = new Map(errorFiles.map(({ path, error }) => [path, error]));
-        const end = Date.now();
-        console.log(`${this._mergePolicy}(${this._discoveredFiles.size}) took ${end - start} ms`);
-    }
-
-    getDiscoveredFiles() {
-        return new Set(this._discoveredFiles.keys());
-    }
-
-    getSchemas() {
-        return new Map([...this._schemas.entries()].map(([schemaName, {path, columns}]) => {
-            return [
-                schemaName,
-                {
-                    path: [...path],
-                    columns: columns.map((c) => ({...c}))
-                }
-            ];
-        }));
-    }
-
-    getErrorFiles() {
-        return new Set(this._errorFiles.keys());
-    }
-
-    getError(fileId) {
-        return this._errorFiles.get(fileId);
-    }
-
-    getErrors(fileIds = null) {
-        if (fileIds == null) {
-            return new Map(this._errorFiles);
-        } else {
-            return new Map([...this._errorFiles].filter(([fileId, _]) => fileIds.has(fileId)));
-        }
-    }
-
-    clear() {
-        this._discoveredFiles.clear();
-        this._schemas.clear();
-        this._errorFiles.clear();
-    }
-}
-
 export {
     FileType, FileTypeFilter, FileTypeNamePattern,
     InputSerializationFactory, defaultInputSerialization,
     CSVHeaderOption,
     suggestParserType,
+    validateSchemaString, validateSchema,
     MergePolicy,
     MergePolicyHint,
-    DiscoverWorker
 };

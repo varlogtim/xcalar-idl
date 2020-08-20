@@ -1155,15 +1155,37 @@ class LoadConfig extends React.Component {
             }
         }
 
-        this.setState({
-            selectedSchema: schema,
-            editSchemaState: {
-                isFocus: schema != null,
-                schema: schema == null ? null : JSON.stringify(schema),
-                errorMessage: null
-            },
-        });
-        this._setFinalSchema(schema);
+        try {
+            this.setState(({editSchemaState}) => ({
+                selectedSchema: schema,
+                editSchemaState: {
+                    ...editSchemaState,
+                    isFocus: schema != null,
+                    schema: schema == null ? null : JSON.stringify(schema),
+                },
+            }));
+
+            if (schema != null) {
+                SchemaService.validateSchema(schema);
+            }
+            this.setState(({ editSchemaState }) => ({
+                selectedSchema: schema,
+                editSchemaState: {
+                    ...editSchemaState,
+                    errorMessage: null
+                }
+            }));
+
+            this._setFinalSchema(schema);
+        } catch(e) {
+            this.setState(({ editSchemaState }) => ({
+                editSchemaState: {
+                    ...editSchemaState,
+                    errorMessage: `${e}`
+                }
+            }));
+            this._setFinalSchema(null);
+        }
 
         return true;
 
