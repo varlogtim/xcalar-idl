@@ -203,10 +203,12 @@ class SQLTableLister extends AbstractSQLResultView {
 
         if (!html) {
             html =
-            '<div class="hint">' +
-                '<button class="btn btn-submit createTable">' +
-                    TblTStr.New +
-                '</button>'
+            '<div class="hintWrap">' +
+                '<div class="hint">' +
+                    '<button class="btn btn-submit createTable">' +
+                        TblTStr.New +
+                    '</button>'
+                '</div>' +
             '</div>';
         }
 

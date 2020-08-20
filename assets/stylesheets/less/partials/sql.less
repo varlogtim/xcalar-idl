@@ -405,6 +405,9 @@
                         padding: 4px 28px 4px 16px;
                         position: relative;
                         @div-h: 20px;
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
 
                         > div, .innerTableBarWrap > div {
                             .flex(0 0 auto);
@@ -420,6 +423,7 @@
                         > .label , .innerTableBarWrap > .label {
                             margin-right: 4px;
                             line-height: 20px;
+                            white-space: nowrap;
 
                             .name {
                                 font-weight: normal;
@@ -989,9 +993,15 @@
             }
         }
 
+        .hintWrap {
+            width: 100%;
+            height: 100%;
+            display: flex;
+        }
+
         .hint {
             .size(@width: 120px, @height: 20px);
-            .center-align;
+            margin: auto;
         }
 
         .status {
