@@ -75,6 +75,14 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
         return cols;
     }
 
+    _updateSchema(val) {
+        let newSchema = {
+            rowpath: "$",
+            columns: val
+        };
+        this._schemaChange(JSON.stringify(newSchema))
+    }
+
     render() {
         const { errorMessage, schema, classNames = [], showAdd = true } = this.props;
         let switchClass = "xc-switch switch";
@@ -86,15 +94,31 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
         let cols = this._getColsFromSchemaString(this.props.schema);
 
         return (<div className={cssClass.join(' ')}>
-            <div className="switchWrap" onClick={() => {
-                this.setState({
-                    editAsText: !this.state.editAsText
-                });
-            }}>
-                <div className={switchClass}>
-                    <div className="slider"></div>
+            <div className="schemaOptions">
+                <div className="numColsArea">
+                    <i className="icon xi-info-circle-outline"></i>
+                    <span className="numCols">{this.props.selectedSchema.columns.length.toLocaleString()}</span> column(s) detected
                 </div>
-                <label>Edit as text</label>
+                <div className="switchWrap" onClick={() => {
+                    this.setState({
+                        editAsText: !this.state.editAsText
+                    });
+                }}>
+                    <div className={switchClass}>
+                        <div className="slider"></div>
+                    </div>
+                    <label>Edit as text</label>
+                </div>
+                <div className="xc-action" onClick={() => {
+                    this._updateSchema([]);
+                }}>
+                    Clear All
+                </div>
+                <div className="xc-action" onClick={() => {
+                    this._updateSchema(this.props.selectedSchema.columns);
+                }}>
+                    Reset
+                </div>
             </div>
             { errorMessage != null && <div className="editSchema-error">{errorMessage}</div> }
             {this.state.editAsText ?
@@ -109,11 +133,7 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
                     defaultSchema={this.props.selectedSchema.columns}
                     editedSchema={cols}
                     updateSchema={(val) => {
-                        let newSchema = {
-                            rowpath: "$",
-                            columns: val
-                        };
-                        this._schemaChange(JSON.stringify(newSchema))
+                        this._updateSchema(val);
                     }}
                     canAdd={showAdd || this.state.unusedMappings.size > 0}
                     isMappingEditable={this.props.isMappingEditable}

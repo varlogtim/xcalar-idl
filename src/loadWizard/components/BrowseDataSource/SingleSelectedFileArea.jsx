@@ -2,7 +2,8 @@ import React from 'react';
 import { Folder, FileCopy, InsertDriveFileOutlined } from '@material-ui/icons';
 
 const Texts = {
-    selectListTitle: 'Selected File'
+    selectListTitleFile: 'Selected File',
+    selectListTitleFolder: 'Selected Folder'
 };
 
 function validateRegex(regex) {
@@ -52,7 +53,7 @@ export default function SelectedFileArea(props) {
 
     return (
         <div className="selectedFilesArea">
-            <div className="heading">{Texts.selectListTitle}</div>
+            <div className="heading">{selected.directory ? Texts.selectListTitleFolder : Texts.selectListTitleFile}</div>
             <div className="selectedFile">
                 {createSelectedSection()}
             </div>

@@ -230,6 +230,10 @@ namespace DSTargetManager {
         return deferred.promise();
     }
 
+    export function hasTypeList(): boolean {
+        return hasLoadTypeList;
+    }
+
     /**
      * DSTargetManager.getTargetTypeList
      */

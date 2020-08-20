@@ -1473,13 +1473,39 @@
         display: flex;
         flex-direction: column;
 
-        .switchWrap {
-            display: inline-flex;
+        .schemaOptions {
+            display: flex;
+            justify-content: flex-end;
+            position: relative;
+            top: 0px;
+            margin-bottom: 12px;
             line-height: 26px;
-            font-size: 14px;
 
-            .switch {
-                margin-right: 8px;
+            > div {
+                font-size: 14px;
+                &:not(:first-child) {
+                    margin-left: 20px;
+
+                }
+            }
+
+            .switchWrap {
+                display: inline-flex;
+                cursor: pointer;
+                .switch {
+                    margin-right: 8px;
+                }
+            }
+        }
+
+
+        .numColsArea {
+            margin-right: auto;
+            .icon {
+                font-size: 15px;
+                position: relative;
+                top: 1px;
+                margin-right: 6px;
             }
         }
     }
@@ -1667,20 +1693,7 @@
 
 .colSchemaSection {
     @input-height: 35px;
-    .schemaOptions {
-        display: flex;
-        justify-content: flex-end;
-        pointer-events: none;
-        position: relative;
-        top: -24px;
-        margin-bottom: -4px;
 
-        > div {
-            margin-left: 16px;
-            font-size: 14px;
-            pointer-events: initial;
-        }
-    }
     .row {
         display: flex;
         margin-bottom: 12px;

@@ -778,9 +778,7 @@ namespace xcUIHelper {
             let oldhtml: string = $btn.html();
             let html: string =
                     '<div class="animatedEllipsisWrapper">' +
-                        '<div class="text">' +
-                            text +
-                        '</div>' +
+                        '<div class="text">' + text + '</div>' +
                         '<div class="wrap">' +
                             '<div class="animatedEllipsis hiddenEllipsis">....</div>' +
                             '<div class="animatedEllipsis staticEllipsis">....</div>' +

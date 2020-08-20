@@ -24,14 +24,29 @@ export default class EditConnectorsModal extends React.Component<any, any> {
     }
     async componentDidMount() {
         try {
-            await DSTargetManager.getTargetTypeList(true);
+            if (!DSTargetManager.hasTypeList()) {
+                let time = Date.now();
+                await DSTargetManager.getTargetTypeList(true);
+                let delay = Math.max(0, 1500 - (Date.now() - time));
+                setTimeout(() => {
+                    this.setState({
+                        loading: false
+                    });
+                }, delay);
+            } else {
+                this.setState({
+                    loading: false
+                });
+            }
         } catch (e) {
+            this.setState({
+                loading: false
+            });
             console.error(e);
         }
         const targetTypes = DSTargetManager.getAllTargetTypes();
         this.setState({
-            targetTypes: targetTypes,
-            loading: false
+            targetTypes: targetTypes
         });
     }
 
@@ -132,7 +147,9 @@ export default class EditConnectorsModal extends React.Component<any, any> {
                 }
 
                 </Modal.Header>
-                { !this.state.loading &&
+                {this.state.loading ?
+                    <RefreshIcon lock />
+                    :
                 <Modal.Body style={{padding: '0px'}}>
                     { this.state.currentView === "list" ?
                     <div className="connectorsListArea">
@@ -143,7 +160,12 @@ export default class EditConnectorsModal extends React.Component<any, any> {
                         <div className="connectorsList">
                         {connectorRows}
                         </div>
-                        <div className="addBtn xc-action" onClick={this._addConnector.bind(this)}>
+                        <div className="addBtn xc-action"
+                            data-toggle="tooltip"
+                            data-placement="auto top"
+                            data-container="body"
+                            data-original-title="Add a new connector"
+                            onClick={this._addConnector.bind(this)}>
                             <i className="icon xi-plus"></i>
                         </div>
                     </div> : null }

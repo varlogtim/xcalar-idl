@@ -19,18 +19,6 @@ class ColSchemaSection extends React.Component<ColSchemaSectionProps, {}> {
         }
         return (
             <div className="colSchemaSection">
-                <div className="schemaOptions">
-                    <div className="xc-action" onClick={() => {
-                        this.props.updateSchema([]);
-                    }}>
-                        Clear All
-                    </div>
-                    <div className="xc-action" onClick={() => {
-                        this.props.updateSchema(this.props.defaultSchema);
-                    }}>
-                        Reset
-                    </div>
-                </div>
                 <div className="row schemaHeader">
                     <div>Source Field</div>
                     <div>Data Type</div>

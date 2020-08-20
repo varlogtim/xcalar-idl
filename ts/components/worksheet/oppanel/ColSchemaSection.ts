@@ -127,7 +127,8 @@ class ColSchemaSection {
             '<div class="hint">' +
                 OpPanelTStr.DFLinkInNoSchema +
             '</div>';
-        this._getContentSection().html(html);
+        const $contentSection: JQuery = this._getContentSection();
+        $contentSection.html(html);
     }
 
     private _addList(schema: ColSchema[], $rowToReplace?: JQuery): void {
