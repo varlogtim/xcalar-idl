@@ -858,6 +858,22 @@ class LoadConfig extends React.Component {
         return inputSerialization;
     }
 
+    _resetCreateTable() {
+        this.setState({
+            tableToCreate: new Map(),
+            createTableState: {
+                page: 0,
+                rowsPerPage: 20,
+                count: 0,
+                schemas: [],
+                isLoading: false,
+            },
+            createInProgress: new Map(),
+            createFailed: new Map(),
+            createTables: new Map()
+        });
+    }
+
     _resetDiscoverResult() {
         this.setState({
             fileContentState: {
@@ -892,17 +908,6 @@ class LoadConfig extends React.Component {
                 numSchemas: null,
                 numFailed: null
             },
-            tableToCreate: new Map(),
-            createTableState: {
-                page: 0,
-                rowsPerPage: 20,
-                count: 0,
-                schemas: [],
-                isLoading: false,
-            },
-            createInProgress: new Map(),
-            createFailed: new Map(),
-            createTables: new Map(),
             schemaDetailState: {
                 isLoading: false,
                 schema: null,
@@ -912,6 +917,7 @@ class LoadConfig extends React.Component {
             forensicsMessage: [],
             isForensicsLoading: false
         });
+        this._resetCreateTable();
     }
 
     _setParserType(newType, isUpdatePreview = true) {
@@ -934,6 +940,7 @@ class LoadConfig extends React.Component {
         this.setState({
             finalSchema: schema
         });
+        this._resetCreateTable();
     }
 
     _setSchemaPolicy(newPolicy) {
