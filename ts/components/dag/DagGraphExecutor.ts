@@ -26,7 +26,8 @@ class DagGraphExecutor {
 
     public static readonly stepThroughTypes = new Set([DagNodeType.PublishIMD,
         DagNodeType.IMDTable,
-        DagNodeType.Custom, DagNodeType.CustomInput, DagNodeType.CustomOutput]);
+        DagNodeType.Custom, DagNodeType.CustomInput, DagNodeType.CustomOutput,
+        DagNodeType.Module]);
 
     public static hasUDFError(queryNode: XcalarApiDagNodeT): boolean {
         // for udfError to be true, numRowsFailedTotal must be > 0 and

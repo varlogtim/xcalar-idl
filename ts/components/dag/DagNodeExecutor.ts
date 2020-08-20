@@ -1591,7 +1591,6 @@ class DagNodeExecutor {
         try {
             const node: DagNodeModule = <DagNodeModule>this.node;
             let destTable;
-            let noQueryNeeded = false;
             let priorDestTable;
             const tailNode: DagNode = node.getTailNodes()[0];// XXX only handling 1 out node
 
@@ -1602,43 +1601,34 @@ class DagNodeExecutor {
                     priorDestTable = null;
                 }
             }
-
+            let txLog;
             let promise;
             if (priorDestTable) {
                 // console.log("reusing cache", tailNode);
-                noQueryNeeded = true;
-                promise = PromiseHelper.resolve({queryStr: "", destTables:[priorDestTable]});
+                destTable = priorDestTable;
+                promise = PromiseHelper.resolve();
             } else {
-                promise = node.getTab().getGraph().getQuery(null, null, false);
+                txLog = Transaction.get(this.txId);
+                txLog.setParentNodeInfo(node.getId(), this.tabId);
+                promise = node.getTab().getGraph().execute(null, this.isOptimized, this.txId);
             }
 
             promise
-            .then(({queryStr, destTables}) => {
-                let tables = destTables || [];
-                destTable = tables[tables.length - 1];
-                // console.log(tailNode);
-                if (!priorDestTable) {
-                    try {
-                        let queryLen: number = JSON.parse(queryStr).length;
-                        if (queryLen === 0) {
-                            noQueryNeeded = true;
-                        }
-                    } catch (e) {}
-
-                    if (tailNode) {
-                        tailNode.setTable(destTable);
-                    }
-                    return XIApi.query(this.txId, destTable, queryStr);
-                } else {
-                    noQueryNeeded = true;
-                    return PromiseHelper.resolve();
-                }
-            })
             .then(() => {
-                if (noQueryNeeded) {
+                if (priorDestTable) {
                     this.node.setTable(destTable);
                     this.node.updateStepThroughProgress();
-                    node.beCompleteState();
+                    this.node.beCompleteState();
+                } else {
+                    txLog.resetParentNodeInfo();
+                    if (tailNode) {
+                        destTable = tailNode.getTable();
+                        this.node.setTable(destTable);
+                    }
+                    if (!this.node.hasStats()) {
+                        this.node.updateStepThroughProgress();
+                    }
+                    this.node.beCompleteState();
                 }
                 deferred.resolve(destTable);
             })

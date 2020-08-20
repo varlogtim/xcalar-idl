@@ -5640,7 +5640,13 @@ XcalarPublishTable = function(
 
     const unixTS = 0; // TODO: Resolve whether XCE will stamp this instead
     const workItem = xcalarApiPublishWorkItem(srcTableName, pubTableName, unixTS, false);
-    let def: XDPromise<any> = xcalarApiPublish(tHandle, srcTableName, pubTableName, unixTS, false);
+    let def: XDPromise<any>;
+    if (Transaction.isSimulate(txId)) {
+        console.error("Cannot simulate Publish Table operation");
+        def = fakeApiCall();
+    } else {
+        def = xcalarApiPublish(tHandle, srcTableName, pubTableName, unixTS, false);
+    }
 
     let query: string = XcalarGetQuery(workItem);
     Transaction.startSubQuery(txId, 'publishTable', pubTableName, query);

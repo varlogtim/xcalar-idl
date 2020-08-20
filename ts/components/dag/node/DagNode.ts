@@ -1814,6 +1814,10 @@ abstract class DagNode extends Durable {
         return this.display.isHidden;
     }
 
+    public hasStats(): boolean {
+        return this.runStats.hasRun;
+    }
+
     protected async _updateProgressFromTable(
         apiType: number,
         elapsedTime: number

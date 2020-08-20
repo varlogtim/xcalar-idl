@@ -1073,6 +1073,9 @@ class PTblManager {
             try {
                 let oldTableInfo = this._tableMap.get(tableName);
                 let index: number = oldTableInfo ? oldTableInfo.index : this._tables.length;
+                if (!result.tables[0]) {
+                    throw(`Published Table "${tableName}" not found.`);
+                }
                 let tableInfo: PbTblInfo = this._tableInfoAdapter(result.tables[0], index);
                 this._tableMap.set(tableName, tableInfo);
                 this._tables[index] = tableInfo;
