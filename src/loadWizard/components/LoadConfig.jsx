@@ -852,6 +852,7 @@ class LoadConfig extends React.Component {
     _resetBrowseResult(newParserType = null) {
         const inputSerialization = this._resetParserResult(newParserType);
         this.setState({
+            currentStep: stepEnum.SourceData,
             selectedFileDir: new Array(), // Clear selected files/folders, XXX TODO: in case file type changes, we can preserve the folders
         });
         return inputSerialization;
