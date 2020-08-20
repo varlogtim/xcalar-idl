@@ -36,26 +36,32 @@ describe("CloudManager Test", function() {
     });
 
     it("CloudManager.Instance.uploadToS3 should work", function(done) {
-        let oldFunc = xcHelper.readFile;
-        let called = false;
-        xcHelper.readFile = () => {
-            called = true;
-            return PromiseHelper.resolve();
-        };
+        let tmpFetch = fetch;
+        fetch = (url) => {
+            return new Promise((resolve) => {
+                resolve({
+                    status: url === "" ? httpStatus.NoContent : httpStatus.OK,
+                    json: () => new Promise((resolve) => resolve(response))
+                });
+            });
+        }
         response = {
-            status: 0
+            status: 0,
+            responseDict: {
+                url: "",
+                fields: {}
+            }
         };
 
-        CloudManager.Instance.uploadToS3()
-        .then(function() {
-            expect(called).to.equal(true);
+        CloudManager.Instance.uploadToS3("", {})
+        .then(function(res) {
             done();
         })
         .fail(function() {
             done("fail");
         })
         .always(function() {
-            xcHelper.readFile = oldFunc;
+            fetch = tmpFetch;
         });
     });
 

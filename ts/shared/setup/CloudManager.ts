@@ -21,7 +21,10 @@ class CloudManager {
         CloudFileBrowser.setup();
         this._removeNonCloudFeature();
         this.checkCloud();
-        return this.setApiUrl();
+        return this.setApiUrl()
+        .then(() => {
+            return this._sendRequest("s3/corsconfig", {});
+        });
     }
 
     public setApiUrl(): XDPromise<void> {
@@ -68,93 +71,20 @@ class CloudManager {
     public uploadToS3(fileName: string, file: File): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-        xcHelper.readFile(file)
-        .then((fileContent) => {
-            return this._sendRequest("s3/upload",{
-                "fileName": fileName,
-                "data": fileContent
-            });
+        this._sendRequest("s3/uploadurl", {
+            "fileName": fileName,
+            "fields": {},
+            "conditions": []
         })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    /**
-     * CloudManager.Instance.multiUploadToS3
-     * Upload a file to an S3 bucket with multipart api
-     * @param fileName the file's name
-     * @param file file to upload
-     */
-    public multiUploadToS3(fileName: string, file: File): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let allData: string;
-        let stringifyData: string;
-        let uploadId: string;
-        const partList: any = [];
-        const partSize: number = 6000000;
-
-        xcHelper.readFile(file)
-        .then((fileContent) => {
-            allData = fileContent;
-            stringifyData = JSON.stringify(allData);
-            return this._sendRequest("s3/multipart/start", {
-                "fileName": fileName
-            });
-        })
-        .then((res: {uploadId: string}) => {
-            uploadId = res.uploadId;
-            let promises: XDPromise<any>[] = [];
-            let cur: number = 0;
-            let i: number = 1;
-            while  (cur < stringifyData.length) {
-                if (i > 10000) {
-                    return PromiseHelper.reject("Part number exceeds limit");
-                }
-                let partEnd: number = cur + partSize;
-                // Catch case a part ends with "\"
-                try {
-                    JSON.parse(stringifyData.substring(cur, partEnd));
-                } catch (e) {
-                    partEnd--;
-                }
-                promises.push(this._uploadPart(
-                    fileName,
-                    uploadId,
-                    JSON.parse(stringifyData.substring(cur, partEnd)),
-                    i,
-                    partList));
-                cur = partEnd;
-                i++;
-            }
-            return PromiseHelper.when(...promises);
-        })
-        .then(() => {
-
-            return this._sendRequest("s3/multipart/complete", {
-                "fileName": fileName,
-                "uploadId": uploadId,
-                "uploadInfo": {
-                    "Parts": partList
-                }
-            });
+        .then((res: {responseDict: {url: string, fields: any}}) => {
+            return this._sendFormDataRequest(res.responseDict.url,
+                                             res.responseDict.fields,
+                                             file);
         })
         .then(deferred.resolve)
         .fail((err) => {
-            console.error("S3 multi part upload failed: ", err);
-            this._sendRequest("s3/multipart/abort", {
-                "fileName": fileName,
-                "uploadId": uploadId
-            })
-            .then(() => {
-                deferred.reject(err);
-            })
-            .fail((err2) => {
-                // Not sure what we should do here because if abort fail,
-                // the existing parts will keep being charged
-                deferred.reject(err2);
-            });
+            console.error("S3 upload failed: ", err);
+            deferred.reject(err);
         });
 
         return deferred.promise();
@@ -206,32 +136,10 @@ class CloudManager {
         return XcUser.CurrentUser.getFullName();
     }
 
-    private _uploadPart(
-        fileName: string,
-        uploadId: string,
-        data: string,
-        partNumber: number,
-        partList: any): XDPromise<any> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this._sendRequest("s3/multipart/upload", {
-            "fileName": fileName,
-            "uploadId": uploadId,
-            "data": data,
-            "partNumber": partNumber
-        })
-        .then((ret) => {
-            partList[partNumber - 1] = {
-                "PartNumber": partNumber,
-                "ETag": ret.ETag.substring(1, ret.ETag.length - 1)};
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-        return deferred.promise();
-    }
-
     private _sendRequest(action: string, payload: object): XDPromise<any> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         const url: string = `${this._apiUrl}/${action}`;
+        let responseStatus: number;
         payload = {
             "username": this._getUserName(),
             ...payload
@@ -246,18 +154,60 @@ class CloudManager {
             body: JSON.stringify(payload),
         })
         .then(res => {
-            if (res.status === httpStatus.OK) {
-                return res.json();
-            } else {
-                return PromiseHelper.reject(res.statusText);
-            }
+            responseStatus = res.status;
+            return res.json();
         })
-        .then((res: {status: number}) => {
+        .then((res: any) => {
             // XXX TODO: use a enum instead of 0
-            if (res.status === 0) {
+            if (responseStatus === httpStatus.OK && res.status === 0) {
                 deferred.resolve(res);
             } else {
-                deferred.reject(res);
+                console.error("Send request action " + action + " failed:", res.error);
+                deferred.reject(res.error);
+            }
+        })
+        .catch((e) => {
+            console.error("Send request action " + action + " failed:", e);
+            deferred.reject(e);
+        });
+
+        return deferred.promise();
+    }
+
+    private _sendFormDataRequest(
+        url: string,
+        fields: any,
+        payload: any): XDPromise<any> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        const formData = new FormData();
+        Object.keys(fields).forEach(key => {
+            formData.append(key, fields[key]);
+        });
+        formData.append("file", payload);
+        fetch(url, {
+            method: 'POST',
+            mode: 'cors',
+            body: formData,
+        })
+        .then(res => {
+            if (res.status === httpStatus.NoContent) {
+                deferred.resolve(res);
+            } else {
+                return res.text();
+            }
+        })
+        .then((res) => {
+            if(res) {
+                let errorMsg: string;
+                console.error("Send formData request action failed:", res);
+                try {
+                    const parser = new DOMParser();
+                    errorMsg = parser.parseFromString(res,"text/xml")
+                                .getElementsByTagName("Message")[0].innerHTML;
+                } catch(e) {
+                    errorMsg = res;
+                }
+                deferred.reject(errorMsg);
             }
         })
         .catch((e) => {

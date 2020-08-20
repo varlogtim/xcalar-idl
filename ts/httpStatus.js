@@ -3,6 +3,7 @@ var runEntity = (typeof window !== 'undefined' && this === window ?
 
 var httpStatus = {
     "OK": 200,
+    "NoContent": 204,
     "BadRequest": 400,
     "Unauthorized": 401,
     "Forbidden": 403,
