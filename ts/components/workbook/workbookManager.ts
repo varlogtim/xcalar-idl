@@ -280,7 +280,7 @@ namespace WorkbookManager {
         const toWkbk: WKBK = wkbkSet.get(wkbkId);
         if (toWkbk == null) {
             return PromiseHelper.reject({
-                "error": "Invalid workbook Id"
+                "error": "Invalid notebook Id"
             });
         }
 

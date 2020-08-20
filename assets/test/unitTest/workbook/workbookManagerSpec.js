@@ -636,7 +636,7 @@ describe("WorkbookManager Test", function() {
             })
             .fail(function(error) {
                 expect(error).to.be.an("object");
-                expect(error.error).to.equal("Invalid workbook Id");
+                expect(error.error).to.equal("Invalid notebook Id");
                 done();
             });
         });

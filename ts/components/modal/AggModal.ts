@@ -62,6 +62,9 @@ class AggModal {
         this._show("corrTab");
 
         this._aggColsInitialize(table);
+        if (this._isTooManyColumns(vertColNums, horColNums)) {
+            return PromiseHelper.resolve();
+        }
         this._corrTableInitialize();
 
         let sql = {
@@ -105,6 +108,9 @@ class AggModal {
         this._show("aggTab");
 
         this._aggColsInitialize(table);
+        if (this._isTooManyColumns(horColNums)) {
+            return PromiseHelper.resolve();
+        }
         this._aggTableInitialize();
 
         let sql = {
@@ -129,6 +135,23 @@ class AggModal {
         });
 
         return deferred.promise();
+    }
+
+    private _isTooManyColumns(vertCols?: number[], horCols?: number[]): boolean {
+        const limit = 50;
+        if (vertCols && vertCols.length > limit ||
+            horCols && horCols.length > limit ||
+            !vertCols && !horCols && this._aggCols.length > limit
+        ) {
+            Alert.show({
+                title: "Too many columns",
+                msg: "Please select less columns and trigger correlation from column meanu",
+                isAlert: true
+            });
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private _getModal(): JQuery {

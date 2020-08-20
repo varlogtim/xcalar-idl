@@ -19,7 +19,7 @@ class WKBK extends Durable {
         options = options || <WKBKOptions>{};
         super(options.version);
         if (options.name == null || options.id == null) {
-            throw "Invalid workbook info!";
+            throw "Invalid notebook info!";
         }
 
         let time = xcTimeHelper.getCurrentTimeStamp();
