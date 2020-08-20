@@ -242,10 +242,18 @@ class ColSchemaSection {
             },
             onSelect: ($li) => {
                 if (!$li.hasClass("hint")) {
+                    let type = $li.data("type");
+                    if (this._options.hasMapping) {
+                        type = DfFieldTypeTStr[xcHelper.convertColTypeToFieldType(type)];
+                    }
                     const schema: ColSchema = {
                         name: $li.text(),
-                        type: $li.data("type")
+                        type: type
                     };
+                    if (this._options.hasMapping) {
+                        let mapping = $li.data("mapping");
+                        schema["mapping"] = mapping;
+                    }
                     this._selectList($li.closest(".part"), schema);
                     xcTooltip.hideAll();
                 }
@@ -306,11 +314,13 @@ class ColSchemaSection {
         schema.forEach((colInfo) => {
             const colName = colInfo.name;
             let type = colInfo.type;
+            let mapping = "";
             if (this._options.hasMapping) {
                 type = xcHelper.convertFieldTypeToColType(DfFieldTypeTFromStr[type]);
+                mapping = xcStringHelper.escapeDblQuoteForHTML(colInfo.mapping);
             }
             html +=
-            '<li data-type="' + type + '">' +
+            '<li data-type="' + type + '" data-mapping="' + mapping + '">' +
                 BaseOpPanel.craeteColumnListHTML(type, colName) +
             '</li>';
         });
@@ -378,10 +388,14 @@ class ColSchemaSection {
 
         $section.on("change", ".part .name input", (event) => {
             const $nameInput: JQuery = $(event.target);
+            if ($nameInput.siblings(".list").is(":visible")) {
+                return;
+            }
             const $part: JQuery = $nameInput.closest(".part");
+            let type = $part.find(".type .text").text();
             const schema: ColSchema = {
                 name: $nameInput.val().trim(),
-                type: <ColumnType>$part.find(".type .text").text()
+                type: <ColumnType>type
             }
             this._selectList($part, schema);
         });
