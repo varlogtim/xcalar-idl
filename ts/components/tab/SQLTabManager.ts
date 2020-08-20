@@ -41,6 +41,7 @@ class SQLTabManager extends AbstractTabManager {
         return id;
     }
 
+    // assuming user cannot edit name
     public newTempTab(name = null, statement = ""): string {
         this._tabBeforeTemp = this._activeId;
         const id: string = SQLSnippet.Instance.createTemp(name);
@@ -284,20 +285,22 @@ class SQLTabManager extends AbstractTabManager {
 
     private _addTabHTML(snippetObj: SQLSnippetDurable, tabIndex?: number): void {
         let liClass = "";
+        let nameClass = "";
         if (snippetObj.temp) {
             liClass += " tempTab";
+            nameClass += " nonedit";
         }
         const name: string = this._getAppPath(snippetObj);
         const html: HTML =
             '<li class="tab tooltipOverflow ' + liClass + '"' +
-            ' data-id="${snippetObj.id}"' +
+            ` data-id="${snippetObj.id}"` +
             xcTooltip.Attrs +
             ' data-title="' + name + '"' +
             '>' +
                 '<div class="dragArea">' +
                     '<i class="icon xi-ellipsis-v" ' + xcTooltip.Attrs + ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>' +
                 '</div>' +
-                '<div class="name">' +
+                '<div class="name ' +  nameClass +'">' +
                     name +
                 '</div>' +
                 '<div class="after">' +

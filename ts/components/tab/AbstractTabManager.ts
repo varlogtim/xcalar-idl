@@ -176,7 +176,7 @@ abstract class AbstractTabManager {
         let editingName = this._getEditingName($tabName);
         $tabName.text("");
         let inputArea: string =
-            "<span contentEditable='true' class='xc-input'></span>";
+            "<span spellcheck='false' contentEditable='true' class='xc-input'></span>";
         $(inputArea).appendTo($tabName);
         let $input: JQuery = $tabName.find('.xc-input');
         $input.text(editingName);
