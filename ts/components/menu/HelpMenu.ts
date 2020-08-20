@@ -35,8 +35,7 @@ class HelpMenu {
             if (event.which !== 1) {
                 return;
             }
-            // XXX TODO: replace the internal with (https://xcalar.com/documentation/Content/DocPortalHome.htm)
-            this._popup('http://freenas3.int.xcalar.com:8080/netstore/doc/help/Review/Content/Home_User_Guide.htm');
+            this._popup('https://xcalar.com/documentation/Content/Home_QS_Guide.htm');
         });
 
         $menu.on("mouseup", ".supTicket", (event) => {

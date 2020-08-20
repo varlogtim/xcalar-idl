@@ -102,6 +102,7 @@ export default function SourcePath({
                             list={getConnectorList(connectors)}
                             readOnly
                         />
+                        <a className="needHelp xc-action" style={{ position: "relative", top: "4px" }} href="https://xcalar.com/documentation/Content/Content_QSG/qs_intro_build_datamart.htm" target="_blank">Need help?</a>
                     </div>
                 </div>
                 <div className="row">

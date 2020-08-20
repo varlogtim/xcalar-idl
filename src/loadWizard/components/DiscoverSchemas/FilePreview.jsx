@@ -18,7 +18,12 @@ class FilePreview extends React.PureComponent {
         }
 
         return (<div>
-            <div className="header">Schema Selection</div>
+            <div className="header">
+                <span>Schema Selection</span>
+                <i class="qMark icon xi-unknown xc-action" style={{ position: "relative", top: "-1px", left: "4px" }} data-toggle="tooltip" data-container="body" data-title="Click here to learn more about how to verify your schema and create your table" data-placement="auto top" onClick={() => {
+                    window.open("https://xcalar.com/documentation/Content/Content_QSG/qs_intro_build_datamart_2.htm");
+                }}></i>
+            </div>
             <div className="headerHelpText">
                 <i className="icon xi-info-circle-outline"></i>Select one record to discover your schema
             </div>
