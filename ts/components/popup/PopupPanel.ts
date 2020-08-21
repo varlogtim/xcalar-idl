@@ -152,7 +152,8 @@ class PopupPanel {
         const $panel = this.getPanel();
         const rect = $panel[0].getBoundingClientRect();
         let keepSize = this._options.keepSize;
-        if (keepSize == null) {
+        // check if visible or else size might be set to 0
+        if (keepSize == null && $panel.is(":visible")) {
             keepSize = true; // default be true;
         }
         let height = keepSize ? rect.height : 500;
