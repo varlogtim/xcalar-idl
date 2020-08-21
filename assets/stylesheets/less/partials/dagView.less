@@ -501,14 +501,12 @@
             }
         }
 
-        .searchHighLightSelection {
+        .searchHighLightSelection, .graphHighLightSelection  {
             stroke: @color-highlight-stroke-gold;
             fill: transparent;
-        }
-
-        .graphHighLightSelection {
-            stroke: @color-highlight-stroke-gold;
-            fill: transparent;
+            &~ .selection {
+                display: none;
+            }
         }
 
         .selection {

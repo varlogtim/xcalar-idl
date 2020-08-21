@@ -81,6 +81,13 @@ class DagSearch {
             const rect = $("#dagView")[0].getBoundingClientRect();
             $popUp.css("top",  rect.top + 60)
                 .css("left", "50px");
+            const popupRect = $popUp[0].getBoundingClientRect();
+            let diff = popupRect.bottom - $(window).height();
+            if (diff > 0) {
+                $popUp.css({
+                    top: "-=" + (diff + 5)
+                });
+            }
         } catch (e) {
             console.error(e);
         }
@@ -96,6 +103,13 @@ class DagSearch {
         }
         const currentHeight: number = $section.outerHeight();
         $popUp.outerHeight($popUp.outerHeight() + currentHeight - oldHeight);
+        const rect = $popUp[0].getBoundingClientRect();
+        let diff = rect.bottom - $(window).height();
+        if (diff > 0) {
+            $popUp.css({
+                top: "-=" + (diff + 5)
+            });
+        }
     }
 
     private _getOptionsFromSection($section: JQuery): DagSearchBasicOption[] {
@@ -244,7 +258,7 @@ class DagSearch {
             const parent = text.select(function() { return this.parentNode; });
             const bbox = text.node().getBBox();
 
-            parent.insert("rect", "text")
+            parent.insert("rect", ":first-child")
             .classed(className, true)
             .attr("x", bbox.x - 8)
             .attr("y", bbox.y)
