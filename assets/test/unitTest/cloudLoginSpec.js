@@ -347,7 +347,7 @@ describe("Cloud Login Test", () => {
                 '',
                 'Error',
                 '123.@3123',
-                'An error has occured: Error!'
+                'An error has occurred: Error!'
             ];
 
             returnedStrings = argumentStrings.map(string => cloudLoginFunctions.getErrorMessage(string));

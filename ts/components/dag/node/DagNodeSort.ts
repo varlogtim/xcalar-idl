@@ -65,7 +65,7 @@ class DagNodeSort extends DagNode {
             if (orderedCols.has(oldName)) {
                 const newKey: string = orderedCols.get(oldName);
                 if (oldName !== newKey) {
-                    // a rename occured during the sort
+                    // a rename occurred during the sort
                     const colType: ColumnType = oldProgCol.getType();
                     const progCol: ProgCol = ColManager.newPullCol(newKey, newKey, colType);
                     allCols.push(progCol);

@@ -170,7 +170,8 @@ class CloudLoginLambdaService {
                 deferred.resolve(res);
             // TODO: remove this else if after Ted removes typo in /login response
             } else if (statusCode === httpStatus.Unauthorized && res.code !== "UserNotConfirmedException") {
-                deferred.reject('Incorrect email or password.');
+                const error = (action === '/login') ? 'Incorrect email or password.' : 'Authentication error, please make sure your browser has enabled third-party cookies.';
+                deferred.reject(error);
             } else {
                 deferred.reject(res);
             }

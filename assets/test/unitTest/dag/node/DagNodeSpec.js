@@ -802,28 +802,28 @@ describe("Dag Node Basic Test", () => {
         let node = new DagNode();
         let res = DagNode.parseValidationErrMsg(node, {
             dataPath: ".path/columns",
-            message: "error occured",
+            message: "error occurred",
             keyword: "enum",
             params: {allowedValues: ["allowedValue"]}
         });
-        expect(res).to.equal("path/columns error occured: allowedValue");
+        expect(res).to.equal("path/columns error occurred: allowedValue");
 
         res = DagNode.parseValidationErrMsg(node, {
             dataPath: "",
-            message: "error occured",
+            message: "error occurred",
             keyword: "additionalProperties",
             params: {additionalProperty: "additionalProperty"}
         });
-        expect(res).to.equal("Node error occured: additionalProperty");
+        expect(res).to.equal("Node error occurred: additionalProperty");
 
 
         res = DagNode.parseValidationErrMsg(node, {
             dataPath: "",
-            message: "error occured",
+            message: "error occurred",
             keyword: "none",
             params: {additionalProperty: "additionalProperty"}
         }, true);
-        expect(res).to.equal("Comment error occured");
+        expect(res).to.equal("Comment error occurred");
     });
 
     it("findParentIndices", () => {

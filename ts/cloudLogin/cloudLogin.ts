@@ -900,7 +900,7 @@ namespace CloudLogin {
                     } else {
                         showFormError(
                             $("#confirmForgotPasswordFormMessage"),
-                            getErrorMessage(err, "Error occured, trying to resend code")
+                            getErrorMessage(err, "Error occurred, trying to resend code")
                         );
                     }
                 }
@@ -1017,7 +1017,7 @@ namespace CloudLogin {
                         } else {
                             showFormError(
                                 $("#forgotPasswordFormMessage"),
-                                getErrorMessage(err, "Error occured, trying to resend code")
+                                getErrorMessage(err, "Error occurred, trying to resend code")
                             );
                         }
                     }

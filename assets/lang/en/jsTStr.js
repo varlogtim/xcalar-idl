@@ -339,7 +339,7 @@ ErrTStr = {
     "OpenForm": "Form is not setup correctly, please retry",
     "NoPrefixColumn": "Column name cannot have prefix",
     "InvalidEvalStr": "Invalid eval string",
-    "DetectSchema": "Error occured when detecting schema",
+    "DetectSchema": "Error occurred when detecting schema",
     "DFInExecution": "Module is in execution",
     "RestoreDS": "Restore Dataset Error",
     "RestoreDSNoLoadArgs": "No load args in the configuration, cannot restore dataset.",

@@ -53,7 +53,7 @@ class DagNodeDeskew extends DagNode {
 
         columns.forEach((progCol) => {
             if (progCol.getBackColName() === column && column !== newKey) {
-                // a rename occured during the sort
+                // a rename occurred during the sort
                 const colType: ColumnType = progCol.getType();
                 const newCol: ProgCol = ColManager.newPullCol(newKey, newKey, colType);
                 allCols.push(newCol);
