@@ -38,15 +38,15 @@ export default function FileBrowserTable(props) {
     }
 
     let columns = [
-        {
-            width: 30,
-            label: <FileCopy style={{fontSize: 20, position: "relative", top: 3}}/>,
-            dataKey: 'directory',
-            customDataRender: (data) => {
-                return data.directory ? <Folder style={{fontSize: 20, position: "relative", top: 2}}/> :
-                <InsertDriveFileOutlined style={{fontSize: 20, position: "relative", top: 2}}/>
-            }
-        },
+        // {
+        //     width: 30,
+        //     label: <FileCopy style={{fontSize: 20, position: "relative", top: 3}}/>,
+        //     dataKey: 'directory',
+        //     customDataRender: (data) => {
+        //         return data.directory ? <Folder style={{fontSize: 20, position: "relative", top: 2}}/> :
+        //         <InsertDriveFileOutlined style={{fontSize: 20, position: "relative", top: 2}}/>
+        //     }
+        // },
         {
             width: 300,
             isFlexGrow: true,
@@ -236,7 +236,6 @@ export default function FileBrowserTable(props) {
     return (
         <div className="outerTableWrap" style={{height: "100%"}}>
             <div className="tableTopBar">
-                <div className="header">{Texts.fileListTitle}</div>
                 {canUpload ?
                 <div className="cloudUploadSection">
                     <div>
@@ -248,16 +247,22 @@ export default function FileBrowserTable(props) {
                     </div>
                 </div> :
                 ""}
-                <div className="numItems">{(fileList.length).toLocaleString()} items</div>
             </div>
             {fileList.length ?
             <div className="innerTableWrap">
                 <VirtualizedTable
                     fileList={fileList}
                     rowCount={fileList.length}
-                    onRowClick={(rowData) => {
-                        if (rowData.directory) {
+                    onRowClick={() => {}}
+                    rowClick={(rowData, pathChange) => {
+                        if (pathChange) {
                             onPathChange(rowData.fullPath);
+                        } else {
+                            if (selectedIds.has(rowData.fileId)) {
+                                onDeselect(new Set([rowData]));
+                            } else {
+                                onSelect(new Set([rowData]));
+                            }
                         }
                     }}
                     columns={columns}

@@ -5,6 +5,7 @@ import TableCell from '@material-ui/core/TableCell';
 import { AutoSizer, Column, Table } from 'react-virtualized';
 import Checkbox from '@material-ui/core/Checkbox';
 import { TableSortLabel } from '@material-ui/core';
+import { Folder, FileCopy, InsertDriveFileOutlined } from '@material-ui/icons';
 
 class MuiVirtualizedTable extends React.PureComponent {
     constructor(props) {
@@ -40,6 +41,7 @@ class MuiVirtualizedTable extends React.PureComponent {
         }
         return clsx(classes.tableRow, classes.flexContainer, {
         [classes.tableRowHover]: index !== -1 && onRowClick != null,
+        "selectedRow": rowData && this.props.isSelected(rowData),
         "isLoading": isLoading
         });
     };
@@ -185,31 +187,44 @@ class MuiVirtualizedTable extends React.PureComponent {
             rowData,
             rowIndex
         } = info;
-        const {classes, rowHeight, onRowClick, selectableFilter = () => true } = this.props;
-
+        const {classes, rowHeight, rowClick, selectableFilter = () => true } = this.props;
+        let tooltip;
+        if (!rowData.directory) {
+            tooltip = "Select";
+        }
         return (
           <TableCell
             component="div"
-            className={clsx(classes.tableCell, classes.flexContainer, {
-              [classes.noClick]: onRowClick == null
+            className={clsx("checkboxCell", classes.tableCell, classes.flexContainer, {
+              [classes.noClick]: rowClick == null,
+              "clickable": true
             })}
             variant="body"
             style={{ height: rowHeight }}
             align={'left'}
+            onClick={() => {
+                rowClick(info.rowData);
+            }}
+            data-toggle="tooltip"
+            data-container="body"
+            data-placement="auto top"
+            data-original-title={tooltip}
           >
             {selectableFilter(rowData) && <Checkbox
                 size="small"
                 color="primary"
                 checked={this.props.isSelected(rowData)}
-                onChange={event => this.handleCheckboxClick(event, rowData, rowIndex)}
+                // onChange={event => this.handleCheckboxClick(event, rowData, rowIndex)}
             />}
+            {rowData.directory ? <Folder style={{fontSize: 20, position: "absolute", top: 2}}/> :
+                <InsertDriveFileOutlined style={{fontSize: 20, position: "absolute", top: 2}}/>}
           </TableCell>
         );
     };
 
     cellRenderer(info) {
         const {cellData} = info;
-        const { classes, rowHeight, onRowClick } = this.props;
+        const { classes, rowHeight, rowClick } = this.props;
         let text = info.customDataRender ? info.customDataRender(info.rowData) : cellData;
         if (info.customCellRender) {
             return info.customCellRender(info.rowData, classes);
@@ -218,7 +233,7 @@ class MuiVirtualizedTable extends React.PureComponent {
         <TableCell
             component="div"
             className={clsx(classes.tableCell, classes.flexContainer, {
-            [classes.noClick]: onRowClick == null,
+            [classes.noClick]: rowClick == null,
             })}
             variant="body"
             style={{ height: rowHeight }}
@@ -233,7 +248,7 @@ class MuiVirtualizedTable extends React.PureComponent {
                         }
                     });
                 } else {
-                    onRowClick(info.rowData);
+                    rowClick(info.rowData, info.rowData.directory);
                 }
             }}
         >
@@ -306,9 +321,9 @@ class MuiVirtualizedTable extends React.PureComponent {
             >
                 {selectableRows &&
                     <Column
-                        className={classes.flexContainer + " abc"}
+                        className={classes.flexContainer}
                         dataKey={"fileId"}
-                        width={30}
+                        width={20}
                         label={"checkbox"}
                         headerRenderer={headerProps =>
                             this.checkboxHeaderRenderer({
@@ -382,6 +397,7 @@ const styles = theme => ({
     },
     tableRowHover: {
       '&:hover': {
+          backgroundColor: "#404040"
       //   backgroundColor: theme.palette.grey[200],
       },
     },

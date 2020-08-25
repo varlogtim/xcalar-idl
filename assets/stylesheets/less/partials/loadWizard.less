@@ -324,13 +324,12 @@
         }
 
         .fileBrowserPath {
-            padding: 8px 0;
-            height: 46px;
             input {
                 width: ~"calc(100% - 34px)";
-                margin-left: 8px;
                 outline: none;
                 padding: 0px 8px;
+                background: transparent;
+                .textOverflowOneLine;
             }
         }
 
@@ -353,6 +352,11 @@
             flex-direction: column;
         }
 
+        .numItems {
+            font-size: 12px;
+            line-height: 30px;
+        }
+
         .tableTopBar {
             display: flex;
             justify-content: space-between;
@@ -363,15 +367,11 @@
             line-height: 1.6;
             letter-spacing: 0.0075em;
             padding: 0 20px 0px 10px;
-            min-height: 36px;
+            // min-height: 36px;
 
             .header {
                 margin-bottom: 0px !important;
                 font-weight: 500 !important;
-            }
-
-            .numItems {
-                font-size: 12px;
             }
         }
 
@@ -407,6 +407,8 @@
                 text-decoration: underline;
             }
         }
+
+
 
         .innerTableWrap {
             flex: 1 1 auto;
@@ -457,10 +459,11 @@
         }
 
         .selectedFilesArea {
-            flex: 1 1 60%;
+            // flex: 1 1 60%;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+
 
             .selectedFilesHeader {
                 font-size: 16px;
@@ -473,6 +476,21 @@
                 position: relative;
                 align-items: center;
                 min-height: 40px;
+            }
+            .selectedFile {
+                display: flex;
+
+                svg {
+                    top: 4px !important;
+                }
+                > span {
+                    margin-left: 12px;
+                    font-size: 12px;
+                    line-height: 30px;
+                    .textOverflowOneLine;
+                    display: inline-block;
+                    width: ~"calc(100% - 30px)";
+                }
             }
 
             .selectedFileDistribution {
@@ -628,7 +646,7 @@
         }
 
         .MuiSvgIcon-root {
-            fill: @color-font-default;
+            fill: #ababab;
         }
 
         .Mui-disabled  .MuiSvgIcon-root {
@@ -639,7 +657,7 @@
             background-color: @color-bg-modal;
             color: @color-font-default;
             font-size: 12px;
-            border-bottom: 1px solid @color-border-table;
+            border-bottom: none;
             padding: 0 4px;
             width: 100%;
         }
@@ -651,9 +669,29 @@
             }
         }
 
-        .ReactVirtualized__Table__row.isLoading {
-            opacity: @opacity-disabled;
-            pointer-events: none;
+        .ReactVirtualized__Table__row {
+            &.isLoading {
+                opacity: @opacity-disabled;
+                pointer-events: none;
+            }
+            &:hover {
+                .MuiTableCell-root {
+                    background-color: #404040;
+                }
+            }
+            &:hover, &.selectedRow {
+                .clickable {
+                    .MuiButtonBase-root {
+                        display: flex !important;
+                    }
+                    > .MuiSvgIcon-root {
+                        display: none !important;
+                    }
+                }
+            }
+            &.selectedRow .MuiTableCell-root {
+                background-color: #2f4f6b;
+            }
         }
 
         .innerCell {
@@ -669,7 +707,8 @@
         }
 
         .MuiTableCell-head {
-            color: @color-font-default;
+            color:#ababab;
+            font-weight: bold;
         }
 
         .MuiTypography-root {
@@ -690,7 +729,7 @@
             min-height: 40px;
         }
         .MuiIconButton-root {
-            padding: 4px;
+            padding: 0px;
         }
 
         .MuiTableSortLabel-root:hover {
@@ -699,6 +738,15 @@
         }
         .MuiTableSortLabel-root.MuiTableSortLabel-active {
             color: inherit;
+        }
+
+        .clickable {
+            .MuiButtonBase-root {
+                display: none;
+                .MuiSvgIcon-root {
+                    fill: #329df8;
+                }
+            }
         }
     }
 
@@ -1030,17 +1078,19 @@
 
         .modal-header {
             padding: 8px 16px 0 24px;
-            height: 42px;
+            height: 60px;
             position: relative;
             flex: 0 0 auto;
 
             .text {
                 display: inline-block;
-                padding-right: 24px;
-                line-height: 26px;
+                line-height: 46px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
+                text-align: center;
+                font-size: 16px;
+                width: 100%;
             }
 
             .close {
@@ -1049,7 +1099,7 @@
                 width: 18px;
                 height: 18px;
                 position: absolute;
-                top: 10px;
+                top: 20px;
                 right: 24px;
 
                 &:hover,
@@ -1062,16 +1112,30 @@
         }
 
         .modal-body {
-            border-top: 1px solid @color-border-medium;
-            padding: 16px;
+            border-top: 1px solid @color-border-medium3;
+            padding: 0px 16px;
             flex: 1 1 auto;
             overflow: auto; // allow scrolling
+
+            .heading {
+                font-size: 16px;
+                margin-bottom: 4px;
+            }
+
+            .ReactVirtualized__Table__headerRow {
+                border-bottom: 1px solid @color-border-medium3;
+            }
         }
 
         .modal-footer {
-            border-top: 1px solid @color-border-medium;
+            border-top: 1px solid @color-border-medium3;
             padding: 16px;
             flex: 0 0 auto;
+        }
+        .fileBrowserPath, .selectedFilesArea {
+            border-bottom: 1px solid @color-border-medium3;
+            margin: 0 4px;
+            padding: 12px 2px 8px;
         }
     }
 

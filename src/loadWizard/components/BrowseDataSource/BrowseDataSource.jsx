@@ -2,6 +2,7 @@ import Path from 'path';
 import React from "react";
 import NavButtons from '../NavButtons'
 import SelectedFilesArea from "./SelectedFilesArea"
+import SingleSelectedFileArea from "./SingleSelectedFileArea"
 import * as Modal from './Modal'
 import * as SchemaService from '../../services/SchemaService'
 import * as S3Service from '../../services/S3Service'
@@ -330,25 +331,34 @@ class BrowseDataSource extends React.Component {
         if (rootFullPath === currentFullPath) {
             upFolderClass += " xc-disabled";
         }
-
-
         return (
             <div className="browseDataSourceScreen">
+                {selectedFileDir.length ?
+                <SingleSelectedFileArea
+                    bucket={bucket}
+                    selectedFileDir={selectedFileDir}
+                    onDeselect={(files) => { this._deselectFiles(files); }}
+                /> : null}
                 <div className="fileBrowserPath">
-                    <i className={upFolderClass}
-                        data-toggle="tooltip"
-                        data-placement="top"
-                        data-container="body"
-                        data-original-title="Go to parent directory"
-                        onClick={() => {
-                            if (rootFullPath === currentFullPath) {
-                                return;
-                            }
-                            const parentPath = Path.dirname(currentFullPath);
-                            this._browsePath(parentPath, fileType);
-                        }}>
-                    </i>
-                    <input value={displayFullPath} readOnly></input>
+                    <div className="sourcePathHeader heading">Source Path</div>
+                    <div className="flexContainer">
+                        <i className={upFolderClass}
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            data-container="body"
+                            data-original-title="Go to parent directory"
+                            onClick={() => {
+                                if (rootFullPath === currentFullPath) {
+                                    return;
+                                }
+                                const parentPath = Path.dirname(currentFullPath);
+                                this._browsePath(parentPath, fileType);
+                            }}>
+                        </i>
+                        <input value={displayFullPath} readOnly />
+                        {!isLoading ? <div className="numItems">{(fileMapViewing.size).toLocaleString()} items</div>
+                        : null}
+                    </div>
                 </div>
 
                 <div className="fileListTableArea">
@@ -385,7 +395,7 @@ class BrowseDataSource extends React.Component {
                         /> )
                     }
                     </div>
-                    <Rnd
+                    {/* <Rnd
                         className="rightAreaResizable"
                         default={{width: 300}}
                         minWidth={100}
@@ -418,7 +428,7 @@ class BrowseDataSource extends React.Component {
                             />
                         </div>
 
-                        </Rnd>
+                        </Rnd> */}
                 </div>
             </div>
         );
