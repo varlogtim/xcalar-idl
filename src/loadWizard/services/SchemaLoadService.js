@@ -647,7 +647,7 @@ function createDiscoverApp({ path, filePattern, targetName, inputSerialization, 
                     session_name: session.sessionName,
                     source_args_json: JSON.stringify([{
                         targetName: targetName,
-                        path: Path.join(path, filePattern),
+                        path: Path.join(path, '/'),
                         fileNamePattern: filePattern,
                         recursive: false
                     }]),

@@ -263,7 +263,7 @@ export default function FileBrowserTable(props) {
                     columns={columns}
                     sortableFields={new Set(["name", "size", "type"])}
                     selectableRows={true} // checkboxes
-                    selectableFilter={rowData => !rowData.directory}
+                    selectableFilter={rowData => true} // Both file & directory are selectable
                     selectedIds={selectedIds}
                     onSelect={onSelect}
                     onDeselect={onDeselect}

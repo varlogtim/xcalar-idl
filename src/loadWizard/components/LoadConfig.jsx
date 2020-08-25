@@ -12,6 +12,7 @@ import getForensics from '../services/Forensics';
 import * as Path from 'path';
 import * as SchemaLoadService from '../services/SchemaLoadService'
 import * as SchemaLoadSetting from '../services/SchemaLoadSetting'
+import { listFilesWithPattern } from '../services/S3Service'
 
 const { Alert } = global;
 
@@ -62,6 +63,7 @@ function deleteEntries(setOrMap, keySet) {
     return setOrMap;
 }
 
+const defaultFileNamePattern = 're:.*';
 
 class LoadConfig extends React.Component {
     constructor(props) {
@@ -87,6 +89,7 @@ class LoadConfig extends React.Component {
             // BrowseDataSource
             browseShow: false,
             selectedFileDir: new Array(),
+            fileNamePattern: defaultFileNamePattern,
 
             // FilePreview
             fileSelectState: {
@@ -288,21 +291,32 @@ class LoadConfig extends React.Component {
             const {
                 connector,
                 inputSerialization,
-                fileSelectState
+                selectedFileDir, fileNamePattern
             } = this.state;
-            const { fileSelected } = fileSelectState;
-            if (fileSelected == null) {
-                throw 'No file selected';
-            }
+            const selected = selectedFileDir[0];
 
-            const { path: selectedPath, filePattern } = this._extractFileInfo(fileSelected.fullPath);
-            const app = SchemaLoadService.createDiscoverApp({
-                targetName: connector,
-                path: selectedPath,
-                filePattern: filePattern,
-                inputSerialization: inputSerialization,
-                isRecursive: false,
-            });
+            const createApp = () => {
+                if (selected.directory) {
+                    return SchemaLoadService.createDiscoverApp({
+                        targetName: connector,
+                        path: Path.join(selected.fullPath, '/'),
+                        filePattern: fileNamePattern,
+                        inputSerialization: inputSerialization,
+                        isRecursive: false,
+                    });
+                } else {
+                    const { path: selectedPath, filePattern } = this._extractFileInfo(selected.fullPath);
+                    return SchemaLoadService.createDiscoverApp({
+                        targetName: connector,
+                        path: selectedPath,
+                        filePattern: filePattern,
+                        inputSerialization: inputSerialization,
+                        isRecursive: false,
+                    });
+                }
+            };
+
+            const app = createApp();
 
             // State: cleanup and +loading
             const createInProgress = this.state.createInProgress;
@@ -417,49 +431,6 @@ class LoadConfig extends React.Component {
 
     }
 
-    async _getDiscoverStats() {
-        const { discoverAppId } = this.state;
-        if (discoverAppId == null) {
-            return;
-        }
-
-        const app = SchemaLoadService.getDiscoverApp(discoverAppId);
-        if (app == null) {
-            return;
-        }
-
-        this.setState((state) => ({
-            discoverStatsState: {
-                isLoading: true,
-                numFiles: null,
-                numSchemas: null,
-                numFailed: null
-            }
-        }));
-
-        try {
-            const successStats = await app.getDiscoverSuccessStats();
-            const failStats = await app.getDiscoverFailStats();
-            this.setState((state) => ({
-                discoverStatsState: {
-                    ...state.discoverStatsState,
-                    numFiles: successStats.numFiles + failStats.numFiles,
-                    numSchemas: successStats.numSchemas,
-                    numFailed: failStats.numFiles
-                }
-            }))
-        } catch(e) {
-            console.error('getDiscoverStats error: ', e);
-        } finally {
-            this.setState((state) => ({
-                discoverStatsState: {
-                    ...state.discoverStatsState,
-                    isLoading: false
-                }
-            }));
-        }
-    }
-
     // XXX this is copied from DSConfig
     _getNameFromPath(path, nameSet) {
         if (path.charAt(path.length - 1) === "/") {
@@ -495,64 +466,9 @@ class LoadConfig extends React.Component {
         return PTblManager.Instance.getUniqName(name, nameSet);
     }
 
-    _convertSchemaMergeResult(schemas) {
-        const fileSchemaMap = new Map();
-        for (const [schemaName, { path, columns }] of schemas) {
-            const schemaInfo = {
-                name: schemaName,
-                columns: columns.map((c) => ({...c}))
-            };
-            for (const filePath of path) {
-                fileSchemaMap.set(filePath, schemaInfo);
-            }
-        }
-        return fileSchemaMap;
-    }
-
-    async _fetchDiscoverFileData(page, rowsPerPage) {
-        const { discoverAppId } = this.state;
-        if (discoverAppId == null) {
-            return;
-        }
-        const app = SchemaLoadService.getDiscoverApp(discoverAppId);
-        if (app == null) {
-            return;
-        }
-
-        this.setState((state) => ({
-            discoverFilesState: {
-                ...state.discoverFilesState,
-                isLoading: true
-            }
-        }));
-        try {
-            const result = await app.getFileSchema(page, rowsPerPage);
-            this.setState((state) => ({
-                discoverFilesState: {
-                    ...state.discoverFilesState,
-                    page: result.page,
-                    count: result.count,
-                    files: result.files
-                }
-            }));
-        } catch(e) {
-            this._alert({
-                title: 'Error loading discovered files',
-                message: `${e.log || e.error || e}`
-            });
-        } finally {
-            this.setState((state) => ({
-                discoverFilesState: {
-                    ...state.discoverFilesState,
-                    isLoading: false
-                }
-            }));
-        }
-    }
-
     _prepareCreateTableData() {
         const { finalSchema, fileSelectState } = this.state;
-        const fileSelected = fileSelectState.fileSelected;
+        const { fileSelected, files } = fileSelectState;
 
         this.setState(({ createTableState }) => ({
             createTableState: {
@@ -564,69 +480,25 @@ class LoadConfig extends React.Component {
                         columns: finalSchema
                     },
                     files: {
-                        count: 1, maxPath: fileSelected.fullPath,
-                        size: fileSelected.sizeInBytes
+                        count: files.length, maxPath: fileSelected.fullPath,
+                        size: files.reduce((total, file) => {
+                            total += file.sizeInBytes;
+                            return total;
+                        }, 0)
                     }
                 }]
             }
         }));
     }
 
-    async _fetchDiscoverReportData(page, rowsPerPage) {
-        const { discoverAppId } = this.state;
-        if (discoverAppId == null) {
-            return;
-        }
-        const app = SchemaLoadService.getDiscoverApp(discoverAppId);
-        if (app == null) {
-            return;
-        }
-
-        this.setState((state) => ({
-            createTableState: {
-                ...state.createTableState,
-                isLoading: true
-            }
-        }));
-        try {
-            let allSchemas = [];
-            let i = 0;
-            while (true) {
-                const result = await app.getReport(i, 100);
-                if (result.schemas.length < 1) {
-                    break;
-                }
-                allSchemas = allSchemas.concat(result.schemas);
-                i ++;
-            }
-            this.setState((state) => ({
-                createTableState: {
-                    ...state.createTableState,
-                    page: page,
-                    count: allSchemas.length,
-                    schemas: allSchemas
-                }
-            }));
-        } catch(e) {
-            console.error('Fetch report error: ', e);
-        } finally {
-            this.setState((state) => ({
-                createTableState: {
-                    ...state.createTableState,
-                    isLoading: false
-                }
-            }));
-        }
-    }
-
     _getSchemaDetail(schemaHash) {
         const { finalSchema, fileSelectState } = this.state;
-        const { fileSelected } = fileSelectState;
+        const { files } = fileSelectState;
 
         const detail = {
             hash: schemaHash,
             columns: finalSchema,
-            files: [fileSelected]
+            files: [...files]
         };
         this.setState({
             schemaDetailState: {
@@ -634,107 +506,6 @@ class LoadConfig extends React.Component {
                 isLoading: false, error: null
             }
         });
-    }
-
-    async _fetchSchemaDetail(schemaHash) {
-        const { discoverAppId } = this.state;
-        if (discoverAppId == null) {
-            return;
-        }
-        const app = SchemaLoadService.getDiscoverApp(discoverAppId);
-        if (app == null) {
-            return;
-        }
-
-        this.setState({
-            schemaDetailState: {
-                isLoading: true, schema: null, error: null
-            }
-        });
-
-        try {
-            const detail = await app.getSchemaDetail(schemaHash);
-            this.setState({
-                schemaDetailState: {
-                    schema: detail
-                }
-            });
-        } catch(e) {
-            this.setState((state) => ({
-                schemaDetailState: {
-                    ...state.schemaDetailState,
-                    schema: null
-                }
-            }));
-        } finally {
-            this.setState((state) => ({
-                schemaDetailState: {
-                    ...state.schemaDetailState,
-                    isLoading: false
-                }
-            }));
-        }
-    }
-
-    async _fetchFailedSchema() {
-        const { discoverAppId } = this.state;
-        if (discoverAppId == null) {
-            return;
-        }
-        const app = SchemaLoadService.getDiscoverApp(discoverAppId);
-        if (app == null) {
-            return;
-        }
-
-        this.setState({
-            schemaDetailState: {
-                isLoading: true, schema: null, error: null
-            }
-        });
-
-        try {
-            const error = await app.getDiscoverError();
-            this.setState({
-                schemaDetailState: {
-                    error: error
-                }
-            });
-        } catch(e) {
-            this.setState((state) => ({
-                schemaDetailState: {
-                    ...state.schemaDetailState,
-                    error: null
-                }
-            }));
-        } finally {
-            this.setState((state) => ({
-                schemaDetailState: {
-                    ...state.schemaDetailState,
-                    isLoading: false
-                }
-            }));
-        }
-    }
-
-    _extractPathInfo(pathInfo, fileType) {
-        const { fullPath, directory } = pathInfo;
-        if (directory) {
-            // Recursively search files in the folder
-            return {
-                path: fullPath,
-                filePattern: SchemaService.FileTypeNamePattern.get(fileType),
-                isRecursive: true
-            };
-        } else {
-            // Only match the single file selected
-            const dirname = Path.join(Path.dirname(fullPath), '/');
-            const basename = Path.basename(fullPath);
-            return {
-                path: dirname,
-                filePattern: basename,
-                isRecursive: false
-            };
-        }
     }
 
     _extractFileInfo(fullPath) {
@@ -745,24 +516,6 @@ class LoadConfig extends React.Component {
             filePattern: basename,
             isRecursive: false
         };
-    }
-
-    /**
-     *
-     * @param {*} fileSchemaMap Map<fileId, { name: schemaName, columns: [] }
-     * @returns Map<schemaName, { path: [], columns: [] }>
-     */
-    _createSchemaFileMap(fileSchemaMap) {
-        const schemaMap = new Map();
-        for (const [fileId, { name: schemaName, columns }] of fileSchemaMap) {
-            let schemaInfo = schemaMap.get(schemaName);
-            if (schemaInfo == null) {
-                schemaInfo = { path: [], columns: columns };
-                schemaMap.set(schemaName, schemaInfo);
-            }
-            schemaInfo.path.push(fileId);
-        }
-        return schemaMap;
     }
 
     _getConfigHash({ selectedFileDir }) {
@@ -928,9 +681,10 @@ class LoadConfig extends React.Component {
         this.setState({ fileType: newType });
         const inputSerialization = this._resetParserResult(newType);
         if (isUpdatePreview) {
-            const { selectedFileDir } = this.state;
-            if ( Array.isArray(selectedFileDir) && selectedFileDir.length > 0) {
-                this._listSelectedFileDir(selectedFileDir[0], inputSerialization);
+            const { fileSelectState } = this.state;
+            const { fileSelected } = fileSelectState;
+            if (fileSelected != null) {
+                this._fetchFileContent(fileSelected.fullPath, inputSerialization);
             }
         }
         return inputSerialization;
@@ -943,31 +697,20 @@ class LoadConfig extends React.Component {
         this._resetCreateTable();
     }
 
-    _setSchemaPolicy(newPolicy) {
-        //XXX TODO: This is temporarily disabled
-        // Rewirte this once backend supports multiple algorithms
-        return;
-    }
-
     _setInputSerialization(newOption) {
         this.setState({
             inputSerialization: newOption,
         });
         this._resetDiscoverResult();
 
-        const { selectedFileDir } = this.state;
-        if ( Array.isArray(selectedFileDir) && selectedFileDir.length > 0) {
-            this._listSelectedFileDir(selectedFileDir[0], newOption);
+        const { fileSelectState } = this.state;
+        const { fileSelected } = fileSelectState;
+        if (fileSelected != null) {
+            this._fetchFileContent(fileSelect.fullPath, inputSerialization);
         }
     }
 
-    _setErrorRetry(isErrorRetry) {
-        this.setState({
-            discoverErrorRetry: isErrorRetry
-        });
-    }
-
-    _browseClose(selectedFileDir = null) {
+    async _browseClose(selectedFileDir = null, fileNamePattern = 're:.*') {
         if (selectedFileDir == null) {
             this.setState({
                 browseShow: false
@@ -984,79 +727,98 @@ class LoadConfig extends React.Component {
                 });
             } else {
                 this._resetBrowseResult();
-                const selectedFile = selectedFileDir[0];
-                // Suggest a parser/file type from file name extension
-                const suggestType = SchemaService.suggestParserType(selectedFile);
-                const inputSerialization = this._setParserType(suggestType, false);
                 // Close file browser & set the result
                 this.setState({
                     browseShow: false,
-                    selectedFileDir: selectedFileDir
+                    selectedFileDir: selectedFileDir,
+                    fileNamePattern: fileNamePattern
                 });
                 // Update the preview
-                this._listSelectedFileDir(selectedFile, inputSerialization);
+                try {
+                    const selected = selectedFileDir[0];
+                    // Update the file selection dropdown
+                    const selectedFile = selected.directory
+                        ? await this._listSelectedFolder(this.state.connector, selected, fileNamePattern)
+                        : this._listSelectedFile(selected);
+
+                    // Suggest a parser/file type from file name extension
+                    const suggestType = SchemaService.suggestParserType(selectedFile);
+                    const inputSerialization = this._setParserType(suggestType, false);
+
+                    // Update file preview
+                    await this._fetchFileContent(selectedFile.fullPath, inputSerialization);
+                } catch(e) {
+                    this._alert({
+                        title: 'List/Preview file error',
+                        message: `${e.error || e.message || e}`
+                    });
+                }
             }
         }
     }
 
-    async _listSelectedFileDir(selectedFileDir, inputSerialization) {
-        if (selectedFileDir.directory) {
-            console.error('Folder not support');
-            // this.setState({
-            //     fileSelectState: {
-            //         isLoading: true,
-            //         files: [],
-            //         fileSelected: null
-            //     }
-            // });
-
-            // // list files in folder
-            // try {
-            //     const fileList = await getFilesInFolder(selectedFileDir.fullPath);
-            //     this.setState(({ fileSelectState }) => ({
-            //         fileSelectState: {
-            //             ...fileSelectState,
-            //             files: fileList,
-            //             fileSelected: fileList[1]
-            //         }
-            //     }));
-            // } catch(e) {
-            //     this._alert({
-            //         title: 'List File Error',
-            //         message: `${e.message || e.error || e}`
-            //     });
-            // } finally {
-            //     this.setState(({ fileSelectState }) => ({
-            //         fileSelectState: {
-            //             ...fileSelectState,
-            //             isLoading: false,
-            //         }
-            //     }));
-            // }
-        } else {
-            this.setState({
-                fileSelectState: {
-                    isLoading: false,
-                    files: [{ ...selectedFileDir }],
-                    fileSelected: { ...selectedFileDir }
-                }
-            });
-            this._fetchFileContent(selectedFileDir.fullPath, inputSerialization);
+    async _listSelectedFolder(targetName, selectedDir, listFilePattern) {
+        if (!selectedDir.directory) {
+            throw 'Not a directory';
         }
 
-        // XXX TODO: replace with listFile service
-        async function getFilesInFolder(path) {
-            return [
-                { fullPath: `${path}/a.json` },
-                { fullPath: `${path}/b.json` },
-                { fullPath: `${path}/c.json` },
-                { fullPath: `${path}/d.json` },
-                { fullPath: `${path}/e.json` },
-            ];
+        this.setState({
+            fileSelectState: {
+                isLoading: true,
+                files: [],
+                fileSelected: null
+            }
+        });
+
+        // list files in folder
+        try {
+            const fileList = await listFilesWithPattern({
+                targetName: targetName,
+                path: Path.join(selectedDir.fullPath, '/'),
+                fileNamePattern: listFilePattern,
+                filter: (fileInfo) => !fileInfo.directory
+            });
+            const defaultFile = fileList[0];
+            this.setState(({ fileSelectState }) => ({
+                fileSelectState: {
+                    ...fileSelectState,
+                    files: fileList,
+                    fileSelected: fileList[0]
+                }
+            }));
+
+            if (defaultFile == null) {
+                throw 'No file found';
+            }
+
+            return defaultFile;
+        } finally {
+            this.setState(({ fileSelectState }) => ({
+                fileSelectState: {
+                    ...fileSelectState,
+                    isLoading: false,
+                }
+            }));
         }
     }
 
-    async _fetchFileContent(filePath, inputSerialization) {
+    _listSelectedFile(selectedFile) {
+        if (selectedFile.directory) {
+            throw 'Not a file';
+        }
+
+        this.setState({
+            fileSelectState: {
+                isLoading: false,
+                files: [{ ...selectedFile }],
+                fileSelected: { ...selectedFile }
+            }
+        });
+
+        return selectedFile;
+    }
+
+    async _fetchFileContent(filePath, inputSerialization = null) {
         // if (filePath === this._fetchFileJob.getFilePath()) {
         //     return;
         // }
@@ -1264,6 +1026,7 @@ class LoadConfig extends React.Component {
             connector,
             bucket,
             homePath,
+            fileNamePattern,
             fileType,
             currentStep,
             selectedFileDir, // Output of Browse
@@ -1305,6 +1068,7 @@ class LoadConfig extends React.Component {
                                 connector={connector}
                                 bucket={bucket}
                                 homePath={homePath}
+                                fileNamePattern={fileNamePattern}
                                 fileType={fileType}
                                 selectedFileDir={selectedFileDir}
                                 onPathChange={(newPath) => {
@@ -1313,9 +1077,9 @@ class LoadConfig extends React.Component {
                                     });
                                 }}
                                 onCancel={() => { this._browseClose(); }}
-                                onDone={(selectedFileDir) => {
+                                onDone={(selectedFileDir, fileNamePattern) => {
                                     try {
-                                        this._browseClose(selectedFileDir);
+                                        this._browseClose(selectedFileDir, fileNamePattern);
                                         this._changeStep(stepEnum.SchemaDiscovery);
                                     } catch(_) {
                                         // Do nothing
@@ -1341,6 +1105,10 @@ class LoadConfig extends React.Component {
                                                     fileSelected: { ...file }
                                                 }
                                             }));
+                                            this._resetDiscoverResult();
+                                            if (file != null) {
+                                                this._fetchFileContent(file.fullPath);
+                                            }
                                         }
                                     }
                                 }}
@@ -1394,7 +1162,7 @@ class LoadConfig extends React.Component {
                                     }}
                                     onPrevScreen = {() => { this._changeStep(stepEnum.SchemaDiscovery); }}
                                     onLoadSchemaDetail = {(schemaHash) => { this._getSchemaDetail(); }}
-                                    onLoadFailureDetail = {() => { this._fetchFailedSchema(); }}
+                                    onLoadFailureDetail = {() => { /* Not supported anymore */ }}
                                 >
                                     <div className="header">{Texts.stepNameCreateTables}</div>
                                 </CreateTables>

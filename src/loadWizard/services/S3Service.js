@@ -11,83 +11,56 @@ const {
 
 const DS_PREFIX = 'LWDS';
 
-// XXX TODO: Performance issue: result could be large
-async function flattenFileDir(fileDirList, fileNamePattern = '*', targetName = "AWS Target") {
-    const flattenFiles = new Map();
-
-    for (const fod of fileDirList) {
-        if (fod.directory) {
-            const s3Files = await XcalarListFiles({
-                "recursive": true,
-                "targetName": targetName,
-                "path": fod.fullPath,
-                "fileNamePattern": fileNamePattern
-            });
-
-            for (const file of s3Files.files) {
-                const fullFilePath = Path.join(fod.fullPath, file.name);
-                const isDirectory = file.attr.isDirectory ? true : false;
-
-                flattenFiles.set(fullFilePath, {
-                    fileId: fullFilePath,
-                    fullPath: fullFilePath,
-                    directory: isDirectory,
-                    name: file.name,
-                    sizeInBytes: file.attr.size,
-                    type: isDirectory
-                        ? 'directory'
-                        : getFileExt(file.name)
-                });
-            }
-        } else {
-            flattenFiles.set(fod.fileId, {...fod});
-        }
-    }
-
-    return flattenFiles;
-}
-
-async function previewFile(fileDir, fileName = '', targetName = "AWS Target") {
-    const preview = await XcalarPreview({
-        "recursive": false,
-        "targetName": targetName,
-        "path": fileDir,
-        "fileName": fileName,
-        "fileNamePattern": ""
-    }, 1000, 0);
-
-    return preview;
-}
-
 async function listFiles(path, targetName = "AWS Target", filter = (fileInfo) => true) {
     const fileInfos = new Map();
-    const s3Files = await XcalarListFiles({
-        "recursive": false,
-        "targetName": targetName,
-        "path": path,
-        "fileNamePattern": '*'
+    const s3Files = await listFilesWithPattern({
+        targetName: targetName,
+        path: path,
+        fileNamePattern: '*',
+        isRecursive: false,
+        filter: filter
     });
-    // XXX TODO: add comment about why slice(1)?
-    for (const file of s3Files.files) {
-        const fullFilePath = Path.join(path, file.name);
-        const isDirectory = file.attr.isDirectory ? true : false;
-        const fileInfo = {
-            fileId: fullFilePath,
-            targetName: targetName,
-            fullPath: fullFilePath,
-            directory: isDirectory,
-            name: file.name,
-            sizeInBytes: file.attr.size,
-            type: isDirectory
-                ? 'directory'
-                : getFileExt(file.name)
-        };
-        if (filter(fileInfo)) {
-            fileInfos.set(fullFilePath, fileInfo);
-        }
+
+    for (const file of s3Files) {
+        fileInfos.set(file.fullPath, file);
     }
 
     return fileInfos;
+}
+
+async function listFilesWithPattern({
+    targetName, path,
+    fileNamePattern = '*',
+    isRecursive = false,
+    filter = (fileInfo) => true
+}) {
+    const s3Files = await XcalarListFiles({
+        "recursive": isRecursive,
+        "targetName": targetName,
+        "path": path,
+        "fileNamePattern": fileNamePattern
+    });
+
+    return s3Files.files.map((file) => createFileInfo({
+        path: path, file: file, targetName: targetName
+    })).filter((file) => filter(file));
+}
+
+function createFileInfo({path, file, targetName}) {
+    const fullFilePath = Path.join(path, file.name);
+    const isDirectory = file.attr.isDirectory ? true : false;
+    const fileInfo = {
+        fileId: fullFilePath,
+        targetName: targetName,
+        fullPath: fullFilePath,
+        directory: isDirectory,
+        name: file.name,
+        sizeInBytes: file.attr.size,
+        type: isDirectory
+            ? 'directory'
+            : getFileExt(file.name)
+    };
+    return fileInfo;
 }
 
 async function createKeyListTable({ bucketName='/xcfield/' }) {
@@ -328,10 +301,9 @@ function populateFiles(fileInfos, setData, fileIdToFile, setFileIdToFile) {
 
 export {
     listFiles,
+    listFilesWithPattern,
     createKeyListTable,
     getForensicsStats,
     populateFiles,
-    flattenFileDir,
-    createTableFromSchema,
-    previewFile
+    createTableFromSchema
 };

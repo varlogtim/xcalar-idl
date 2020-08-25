@@ -468,18 +468,19 @@ function ForensicsContent(props) {
 
 function BrowseDataSourceModal(props) {
     const [selectedFiles, setSelectedFileDir] = React.useState(props.selectedFileDir);
+    const [fileNamePattern, setFileNamePattern] = React.useState(props.fileNamePattern);
     return (
         <Modal.Dialog id="fileBrowserModal">
             <Modal.Header onClose={props.onCancel}>{Texts.title}</Modal.Header>
             <Modal.Body>
-                <BrowseDataSource {...props} setSelectedFileDir={setSelectedFileDir} />
+                <BrowseDataSource {...props} setSelectedFileDir={setSelectedFileDir}  onFileNamePatternChange={setFileNamePattern}/>
             </Modal.Body>
             <Modal.Footer>
                 <NavButtons
                     left={{ label: Texts.navButtonLeft, onClick: () => { props.onCancel() } }}
                     right={{
                         label: Texts.navButtonRight,
-                        onClick: () => { props.onDone(selectedFiles) }
+                        onClick: () => { props.onDone(selectedFiles, fileNamePattern) } // XXX TODO: add regex inputbox
                     }}
                 />
             </Modal.Footer>

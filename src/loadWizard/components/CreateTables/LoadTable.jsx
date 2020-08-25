@@ -236,10 +236,10 @@ function LoadTable({
             Header: 'Size',
             accessor: 'size',
         },
-        // {
-        //     Header: 'Count',
-        //     accessor: 'count',
-        // },
+        {
+            Header: 'Count',
+            accessor: 'count',
+        },
         // {
         //     Header: 'Time',
         //     accessor: 'time',
