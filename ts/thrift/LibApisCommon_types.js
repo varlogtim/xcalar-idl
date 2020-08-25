@@ -19,7 +19,8 @@ XcalarApiTopRequestTypeT = {
 RuntimeTypeT = {
   'Latency' : 0,
   'Throughput' : 1,
-  'Invalid' : 2
+  'Immediate' : 2,
+  'Invalid' : 3
 };
 XcalarApiException = function(args) {
   this.status = null;
