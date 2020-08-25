@@ -47,9 +47,9 @@ function createDiscoverNames(appId) {
         fileSchema: `xl_${appId}_fileschema`,
         // schemaStat: `xl_${appId}_schemastat`,
         kvPrefix: `xl_${appId}_`,
-        loadPrefix: `xl_${appId}_load_`,
-        compPrefix: `xl_${appId}_comp_`,
-        dataPrefix: `xl_${appId}_data_`,
+        loadPrefix: `xl_${appId}_load`,
+        compPrefix: `xl_${appId}_comp`,
+        dataPrefix: `xl_${appId}_data`,
     };
 }
 
@@ -411,7 +411,7 @@ function createDiscoverApp({ path, filePattern, targetName, inputSerialization, 
         try {
             await session.executeQueryOptimized({
                 queryStringOpt: loadQuery,
-                queryName: `q_${appId}_${queryIndex ++}`,
+                queryName: `q_${appId}_load`,
                 tableName: tableNames.load,
                 params: new Map([
                     ['session_name', session.sessionName],
@@ -434,7 +434,7 @@ function createDiscoverApp({ path, filePattern, targetName, inputSerialization, 
             try {
                 await session.executeQueryOptimized({
                     queryStringOpt: dataQuery,
-                    queryName: `q_${appId}_${queryIndex ++}`,
+                    queryName: `q_${appId}_data`,
                     tableName: tableNames.data
                 });
                 dataProgress.done();
@@ -451,7 +451,7 @@ function createDiscoverApp({ path, filePattern, targetName, inputSerialization, 
             try {
                 await session.executeQueryOptimized({
                     queryStringOpt: compQuery,
-                    queryName: `q_${appId}_${queryIndex ++}`,
+                    queryName: `q_${appId}_comp`,
                     tableName: tableNames.comp
                 });
                 compProgress.done();
@@ -575,9 +575,9 @@ function createDiscoverApp({ path, filePattern, targetName, inputSerialization, 
             }, 10, 100);
             try {
                 const tableNames = {
-                    load: `${names.loadPrefix}${schemaHash}`,
-                    data: `${names.dataPrefix}${schemaHash}`,
-                    comp: `${names.compPrefix}${schemaHash}`
+                    load: `${names.loadPrefix}_${schemaHash}`,
+                    data: `${names.dataPrefix}_${schemaHash}`,
+                    comp: `${names.compPrefix}_${schemaHash}`
                 };
                 const appInput = {
                     session_name: session.sessionName,
@@ -636,11 +636,10 @@ function createDiscoverApp({ path, filePattern, targetName, inputSerialization, 
             }, 10, 100);
             try {
                 const schemaJsonStr = JSON.stringify(schema);
-                const schemaHash = hashFunc(schemaJsonStr);
                 const tableNames = {
-                    load: `${names.loadPrefix}${schemaHash}`,
-                    data: `${names.dataPrefix}${schemaHash}`,
-                    comp: `${names.compPrefix}${schemaHash}`
+                    load: names.loadPrefix,
+                    data: names.dataPrefix,
+                    comp: names.compPrefix
                 };
                 const appInput = {
                     func: 'get_dataflows_with_schema',
