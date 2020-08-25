@@ -39,8 +39,9 @@ class MuiVirtualizedTable extends React.PureComponent {
         if (rowData) {
             isLoading = rowData.isLoading;
         }
-        return clsx(classes.tableRow, classes.flexContainer, {
+        return clsx(classes.flexContainer, {
         [classes.tableRowHover]: index !== -1 && onRowClick != null,
+        [classes.tableRow]: rowData && rowData.directory,
         "selectedRow": rowData && this.props.isSelected(rowData),
         "isLoading": isLoading
         });
@@ -202,9 +203,6 @@ class MuiVirtualizedTable extends React.PureComponent {
             variant="body"
             style={{ height: rowHeight }}
             align={'left'}
-            onClick={() => {
-                rowClick(info.rowData);
-            }}
             data-toggle="tooltip"
             data-container="body"
             data-placement="auto top"
@@ -214,17 +212,17 @@ class MuiVirtualizedTable extends React.PureComponent {
                 size="small"
                 color="primary"
                 checked={this.props.isSelected(rowData)}
-                // onChange={event => this.handleCheckboxClick(event, rowData, rowIndex)}
+                onChange={event => this.handleCheckboxClick(event, rowData, rowIndex)}
             />}
-            {rowData.directory ? <Folder style={{fontSize: 20, position: "absolute", top: 2}}/> :
-                <InsertDriveFileOutlined style={{fontSize: 20, position: "absolute", top: 2}}/>}
+            {rowData.directory ? <Folder style={{fontSize: 20, position: "absolute", top: 2, left: 2}}/> :
+                <InsertDriveFileOutlined style={{fontSize: 20, position: "absolute", top: 2, left: 2}}/>}
           </TableCell>
         );
     };
 
     cellRenderer(info) {
         const {cellData} = info;
-        const { classes, rowHeight, rowClick } = this.props;
+        const { classes, rowHeight, rowClick, selectableFilter } = this.props;
         let text = info.customDataRender ? info.customDataRender(info.rowData) : cellData;
         if (info.customCellRender) {
             return info.customCellRender(info.rowData, classes);
@@ -233,7 +231,7 @@ class MuiVirtualizedTable extends React.PureComponent {
         <TableCell
             component="div"
             className={clsx(classes.tableCell, classes.flexContainer, {
-            [classes.noClick]: rowClick == null,
+            [classes.noClick]: !selectableFilter(info.rowData),
             })}
             variant="body"
             style={{ height: rowHeight }}
@@ -248,7 +246,7 @@ class MuiVirtualizedTable extends React.PureComponent {
                         }
                     });
                 } else {
-                    rowClick(info.rowData, info.rowData.directory);
+                    rowClick(info.rowData);
                 }
             }}
         >
@@ -398,7 +396,6 @@ const styles = theme => ({
     tableRowHover: {
       '&:hover': {
           backgroundColor: "#404040"
-      //   backgroundColor: theme.palette.grey[200],
       },
     },
     tableCell: {

@@ -38,15 +38,6 @@ export default function FileBrowserTable(props) {
     }
 
     let columns = [
-        // {
-        //     width: 30,
-        //     label: <FileCopy style={{fontSize: 20, position: "relative", top: 3}}/>,
-        //     dataKey: 'directory',
-        //     customDataRender: (data) => {
-        //         return data.directory ? <Folder style={{fontSize: 20, position: "relative", top: 2}}/> :
-        //         <InsertDriveFileOutlined style={{fontSize: 20, position: "relative", top: 2}}/>
-        //     }
-        // },
         {
             width: 300,
             isFlexGrow: true,
@@ -62,53 +53,7 @@ export default function FileBrowserTable(props) {
             width: 80,
             label: 'Type',
             dataKey: 'type'
-        },
-        // {
-        //     width: 30,
-        //     label: 'Info',
-        //     dataKey: 'info',
-        //     customHeadRender: (data, classes) => {
-        //         return (
-        //             <TableCell
-        //                 component="div"
-        //                 className={clsx(classes.tableCell, classes.flexContainer, classes.noClick)}
-        //                 variant="head"
-        //                 style={{ height: "40px" }}
-        //                 align={'left'}
-        //             >
-        //                 <span>Info</span>
-        //             </TableCell>
-        //         )
-        //     },
-        //     customCellRender: (data, classes) => {
-        //         let tooltip = data.directory ? "Get Directory Info" : "";
-        //         return (
-        //             <TableCell
-        //                 component="div"
-        //                 className={clsx(classes.tableCell, classes.flexContainer, {
-        //                     [classes.noClick]: data.directory == false})}
-        //                 variant="body"
-        //                 style={{ height: "24px" }}
-        //                 align={'left'}
-        //                 onClick={() => {
-        //                     if (data.directory) {
-        //                         onInfoClick(data.fullPath);
-        //                     }
-        //                 }}
-        //                 data-toggle="tooltip"
-        //                 data-container="body"
-        //                 data-placement="auto top"
-        //                 data-original-title={tooltip}
-        //                 data-delay="100"
-        //             >
-        //                 {data.directory ? <i
-        //                     className="icon xi-info-circle-outline"
-        //                     ></i>
-        //                 : null}
-        //             </TableCell>
-        //         );
-        //     }
-        // }
+        }
     ];
 
     let path = props.currentFullPath;
@@ -254,15 +199,9 @@ export default function FileBrowserTable(props) {
                     fileList={fileList}
                     rowCount={fileList.length}
                     onRowClick={() => {}}
-                    rowClick={(rowData, pathChange) => {
-                        if (pathChange) {
+                    rowClick={(rowData) => {
+                        if (rowData.directory) {
                             onPathChange(rowData.fullPath);
-                        } else {
-                            if (selectedIds.has(rowData.fileId)) {
-                                onDeselect(new Set([rowData]));
-                            } else {
-                                onSelect(new Set([rowData]));
-                            }
                         }
                     }}
                     columns={columns}
