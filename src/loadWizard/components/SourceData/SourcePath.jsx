@@ -5,9 +5,9 @@ import InputDropdown from "../../../components/widgets/InputDropdown"
 import NavButtons from '../NavButtons'
 
 const Texts = {
-    bucketName: 'S3 Bucket:',
+    bucketName: 'S3 Bucket',
     noBuckets: 'No bucket to select',
-    path: 'Path:',
+    path: 'Source Path',
     fileType: 'File Type:',
     typeCsv: 'CSV',
     typeJson: 'JSON',
@@ -16,7 +16,7 @@ const Texts = {
     navButtonRight: 'Browse',
     updateForensics: 'Updating ...',
     getForensics: 'Get Directory Info',
-    connector: 'Connector:'
+    connector: 'Connector'
 };
 
 /**
@@ -46,15 +46,9 @@ function isBucketNameInvalid(bucketName) {
 }
 
 function getConnectorList(connectors) {
-    let list = [{
-        text: "+ Create New Connector",
-        value: "+NewConnector",
-        className: "createNew"
-    }];
-
-    list = list.concat(connectors.map(type => {
+    let list = connectors.map(type => {
         return {text: type, value: type};
-    }));
+    });
     return list;
 }
 
@@ -84,53 +78,60 @@ export default function SourcePath({
     return (
         <div className="sourceForm">
             <form onSubmit={(e) => { e.preventDefault(); }}>
+                <a className="needHelp xc-action" style={{ position: "relative", top: "4px" }} href="https://xcalar.com/documentation/Content/Content_QSG/qs_intro_build_datamart.htm" target="_blank">Need help?</a>
                 <div className="row">
                     <div className="connectorSelection">
                         <label className="label">{Texts.connector}</label>
-                        <InputDropdown
-                            val={connector}
-                            onSelect={onConnectorChange}
-                            onOpen={() => {
-                                const connectors = [];
-                                const targets = DSTargetManager.getAllTargets();
-                                for (let i in targets) {
-                                    connectors.push(i);
-                                }
-                                connectors.sort();
-                                setConnectors(connectors);
-                            }}
-                            list={getConnectorList(connectors)}
-                            readOnly
-                        />
-                        <a className="needHelp xc-action" style={{ position: "relative", top: "4px" }} href="https://xcalar.com/documentation/Content/Content_QSG/qs_intro_build_datamart.htm" target="_blank">Need help?</a>
+                        <div className="inputRow">
+                            <InputDropdown
+                                val={connector}
+                                onSelect={onConnectorChange}
+                                onOpen={() => {
+                                    const connectors = [];
+                                    const targets = DSTargetManager.getAllTargets();
+                                    for (let i in targets) {
+                                        connectors.push(i);
+                                    }
+                                    connectors.sort();
+                                    setConnectors(connectors);
+                                }}
+                                list={getConnectorList(connectors)}
+                                readOnly
+                            />
+                            <button type="button" className="btn btn-secondary" onClick={() => {
+                                DSTargetManager.showTargetCreateView();
+                            }}>Add Connector</button>
+                        </div>
                     </div>
                 </div>
                 <div className="row">
                     <div className="bucketSelection">
                         <label className="label">{Texts.bucketName}</label>
-                        <InputDropdown
-                            val={bucket}
-                            onInputChange={(newBucket) => {
-                                onBucketChange(newBucket.trim());
-                            }}
-                            onSelect={(newBucket) => {
-                                onBucketChange(newBucket.trim());
-                            }}
-                            onOpen={() => {
-                                if (DSTargetManager.isAWSConnector(connector)) {
-                                    setS3Buckets([...DSTargetManager.getAvailableS3Buckets()]);
-                                } else {
-                                    setS3Buckets([]);
+                        <div className="inputRow">
+                            <InputDropdown
+                                val={bucket}
+                                onInputChange={(newBucket) => {
+                                    onBucketChange(newBucket.trim());
+                                }}
+                                onSelect={(newBucket) => {
+                                    onBucketChange(newBucket.trim());
+                                }}
+                                onOpen={() => {
+                                    if (DSTargetManager.isAWSConnector(connector)) {
+                                        setS3Buckets([...DSTargetManager.getAvailableS3Buckets()]);
+                                    } else {
+                                        setS3Buckets([]);
+                                    }
+                                }}
+                                list={s3Buckets.length
+                                    ? s3Buckets.map((bucket) => {
+                                        return {text: bucket, value: bucket}
+                                    })
+                                    : []
                                 }
-                            }}
-                            list={s3Buckets.length
-                                ? s3Buckets.map((bucket) => {
-                                    return {text: bucket, value: bucket}
-                                })
-                                : []
-                            }
-                            hint={Texts.noBuckets}
-                        />
+                                hint={Texts.noBuckets}
+                            />
+                        </div>
                     </div>
                     {/* <GetForensicsButton
                         isLoading={ isForensicsLoading }
@@ -141,21 +142,23 @@ export default function SourcePath({
                 <div className="row">
                     <div className="pathSelection">
                         <label className="label">{Texts.path}</label>
-                        <input
-                            className="xc-input input"
-                            type="text"
-                            value={path}
-                            onChange={(e) => { onPathChange(e.target.value.trim()); }}
-                            spellCheck="false"
-                            placeholder="optional"
-                        />
+                        <div className="inputRow">
+                            <input
+                                className="xc-input input"
+                                type="text"
+                                value={path}
+                                onChange={(e) => { onPathChange(e.target.value.trim()); }}
+                                spellCheck="false"
+                                placeholder="optional"
+                            />
+                            <NavButtons right={{
+                                label: Texts.navButtonRight,
+                                classNames: ["btn-secondary", "browse"].concat(isBucketInvalid ? ['btn-disabled'] : []),
+                                onClick: () => { onNextScreen() }
+                                }
+                            }/>
+                        </div>
                     </div>
-                    <NavButtons right={{
-                        label: Texts.navButtonRight,
-                        classNames: ["btn-secondary", "browse"].concat(isBucketInvalid ? ['btn-disabled'] : []),
-                        onClick: () => { onNextScreen() }
-                        }
-                    }/>
                 </div>
             </form>
         </div>

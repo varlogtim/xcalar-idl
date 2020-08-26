@@ -5789,3 +5789,75 @@ html.microsoft {
         }
     }
 }
+
+#dsTarget-create-card {
+    .modalHeader {
+        height: 60px;
+        padding: 0 24px;
+        border-bottom: 1px solid @color-border-medium3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .text {
+            // text-align: center;
+            font-size: 16px;
+            // width: 100%;
+        }
+    }
+
+    .modalMain {
+        padding-top: 0px !important;
+        height: ~"calc(100% - 92px)" !important;
+    }
+    .formSection {
+
+        input::-webkit-input-placeholder {
+            color: @color-text-placeholder2;
+        }
+
+        .label {
+            font-size: 16px;
+            line-height: 40px;
+            display: inline-block;
+        }
+        .formRow {
+            margin-top: 12px;
+
+            > input, > .dropDownList {
+                width: 100%;
+                float: none;
+
+                input {
+                    width: ~"calc(100% - 30px)";
+                }
+            }
+        }
+        .formContent {
+            margin-top: -4px;
+            padding-bottom: 12px;
+
+            label {
+                font-size: 14px;
+                line-height: 30px;
+                text-transform: capitalize;
+            }
+        }
+    }
+    .formBottom {
+        bottom: 10px;
+        position: absolute;
+    }
+    #dsTarget-type-menu {
+        max-height: 90px;
+
+        .unavailable {
+            opacity: @opacity-disabled;
+            cursor: not-allowed;
+        }
+    }
+    #dsTarget-description {
+        width: 100%;
+        word-wrap: break-word;
+    }
+}

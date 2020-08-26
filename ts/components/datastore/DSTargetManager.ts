@@ -12,6 +12,7 @@ namespace DSTargetManager {
     let udfFuncListItems: string;
     let udfModuleHint: InputDropdownHint;
     let udfFuncHint: InputDropdownHint;
+    let targetModalHelper: ModalHelper;
     const xcalar_public_s3: string = "Public S3";
     const xcalar_private_s3: string = "Private S3";
     // connectors for IMD, generted by XCE
@@ -49,6 +50,9 @@ namespace DSTargetManager {
 
         addEventListeners();
         setupGridMenu();
+        targetModalHelper = new ModalHelper($targetCreateCard, {
+
+        });
     }
 
     /**
@@ -518,6 +522,11 @@ namespace DSTargetManager {
             }
         });
 
+        $("#dsTarget-create-card .close").click(() => {
+            targetModalHelper.clear();
+            resetForm();
+        });
+
         $("#dsTarget-delete").click(function() {
             let $grid = $gridView.find(".grid-unit.active");
             deleteTarget($grid);
@@ -742,17 +751,19 @@ namespace DSTargetManager {
 
     export function showTargetCreateView(): void {
         clearActiveTarget();
-        if ($targetCreateCard.hasClass("xc-hidden")) {
-            $targetCreateCard.removeClass("xc-hidden");
-            $targetInfoCard.addClass("xc-hidden");
-            resetForm();
-        } else {
-            $("#dsTarget-name").focus();
+        $targetCreateCard.removeClass("xc-hidden");
+        targetModalHelper.setup();
+        $targetInfoCard.addClass("xc-hidden");
+        resetForm();
+        if ($targetCreateCard.hasClass("firstTouch")) {
+            DSTargetManager.getTargetTypeList();
+            $targetCreateCard.removeClass("firstTouch");
         }
     }
 
     function showTargetInfoView(targetName: string): void {
         $targetCreateCard.addClass("xc-hidden");
+        targetModalHelper.clear();
         $targetInfoCard.removeClass("xc-hidden");
 
         let target = targetSet[targetName];
@@ -999,7 +1010,7 @@ namespace DSTargetManager {
         '<div class="formRow">' +
             '<label for="' + labelName + '" ' +
                 'data-name="' + param.name + '">' +
-                    param.name + ":" +
+                    param.name +
             '</label>' +
             '<div id="dsTarget-params-targets" class="dropDownList yesclickable">' +
             '<input class="text" type="text" value="" spellcheck="false" disabled="disabled">' +
@@ -1037,7 +1048,7 @@ namespace DSTargetManager {
         '<div class="formRow">' +
             '<label for="' + labelName + '" ' +
             'data-name="' + param.name + '">' +
-                param.name + ":" +
+                param.name +
             '</label>' +
             '<div class="listSection" data-original-title="" title=""">' +
                 '<div id="dsTarget-params-udfModule" class="rowContent dropDownList yesclickable"">' +
@@ -1128,7 +1139,7 @@ namespace DSTargetManager {
             return '<div class="formRow">' +
                         '<label for="' + labelName + '" ' +
                         'data-name="' + param.name + '">' +
-                            param.name + ":" +
+                            param.name +
                         '</label>' +
                         '<input ' +
                         'class="' + inputClass + '" ' +

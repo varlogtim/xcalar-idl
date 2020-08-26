@@ -185,21 +185,39 @@
                 text-decoration: underline;
                 margin-left: 4px;
                 color: @color-font-default;
+                float: right;
             }
 
             .row {
                 display: flex;
                 flex-direction: row;
-                height: 30px;
                 margin-bottom: 8px;
                 max-width: @max-width;
 
-                .connectorSelection, .bucketSelection {
+                .connectorSelection, .bucketSelection, .pathSelection {
                     width: 100%;
                     max-width: @max-width;
                 }
 
-                .pathSelection, .fileTypeSelection {
+
+                .label {
+                    display: block;
+                    width: 100%;
+                    line-height: 30px;
+                }
+
+                .inputRow {
+                    display: flex;
+                    > .dropDownList, > input  {
+                        max-width: ~"calc(100% - 152px)";
+                    }
+                    .btn, .navButtons {
+                        margin-left: 12px;
+                        width: 140px;
+                    }
+                }
+
+                .fileTypeSelection {
                     min-width: 200px;
                     margin-right: @margin;
                     flex: 0 1 auto;
@@ -225,7 +243,8 @@
                 }
             }
 
-            .connectorSelection, .bucketSelection, .pathSelection, .fileTypeSelection {
+
+            .fileTypeSelection {
                 height: 30px;
 
                 .label {
