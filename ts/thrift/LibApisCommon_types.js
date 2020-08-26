@@ -17762,7 +17762,7 @@ XcalarApiDagNodeT = function(args) {
   this.startTime = null;
   this.endTime = null;
   this.opFailureInfo = null;
-  this.slotInfo = null;
+  this.hashSlotSkewPerNode = null;
   if (args) {
     if (args.name !== undefined && args.name !== null) {
       this.name = new XcalarApiDagNameT(args.name);
@@ -17857,8 +17857,8 @@ XcalarApiDagNodeT = function(args) {
     if (args.opFailureInfo !== undefined && args.opFailureInfo !== null) {
       this.opFailureInfo = new OpFailureInfoT(args.opFailureInfo);
     }
-    if (args.slotInfo !== undefined && args.slotInfo !== null) {
-      this.slotInfo = Thrift.copyList(args.slotInfo, [SlotInfoT]);
+    if (args.hashSlotSkewPerNode !== undefined && args.hashSlotSkewPerNode !== null) {
+      this.hashSlotSkewPerNode = Thrift.copyList(args.hashSlotSkewPerNode, [null]);
     }
   }
 };
@@ -18166,7 +18166,7 @@ XcalarApiDagNodeT.prototype.read = function(input) {
       if (ftype == Thrift.Type.LIST) {
         var _size499 = 0;
         var _rtmp3503;
-        this.slotInfo = [];
+        this.hashSlotSkewPerNode = [];
         var _etype502 = 0;
         _rtmp3503 = input.readListBegin();
         _etype502 = _rtmp3503.etype;
@@ -18174,9 +18174,8 @@ XcalarApiDagNodeT.prototype.read = function(input) {
         for (var _i504 = 0; _i504 < _size499; ++_i504)
         {
           var elem505 = null;
-          elem505 = new SlotInfoT();
-          elem505.read(input);
-          this.slotInfo.push(elem505);
+          elem505 = input.readByte().value;
+          this.hashSlotSkewPerNode.push(elem505);
         }
         input.readListEnd();
       } else {
@@ -18394,15 +18393,15 @@ XcalarApiDagNodeT.prototype.write = function(output) {
     this.opFailureInfo.write(output);
     output.writeFieldEnd();
   }
-  if (this.slotInfo !== null && this.slotInfo !== undefined) {
-    output.writeFieldBegin('slotInfo', Thrift.Type.LIST, 32);
-    output.writeListBegin(Thrift.Type.STRUCT, this.slotInfo.length);
-    for (var iter511 in this.slotInfo)
+  if (this.hashSlotSkewPerNode !== null && this.hashSlotSkewPerNode !== undefined) {
+    output.writeFieldBegin('hashSlotSkewPerNode', Thrift.Type.LIST, 32);
+    output.writeListBegin(Thrift.Type.BYTE, this.hashSlotSkewPerNode.length);
+    for (var iter511 in this.hashSlotSkewPerNode)
     {
-      if (this.slotInfo.hasOwnProperty(iter511))
+      if (this.hashSlotSkewPerNode.hasOwnProperty(iter511))
       {
-        iter511 = this.slotInfo[iter511];
-        iter511.write(output);
+        iter511 = this.hashSlotSkewPerNode[iter511];
+        output.writeByte(iter511);
       }
     }
     output.writeListEnd();
