@@ -29,7 +29,7 @@ export default class SourceCSVArgSection extends React.Component{
         return (
             <AdvOption.OptionGroup classNames={classNames}>
                 <CSVArgChoice
-                    label="Header Option:"
+                    label="Header Option"
                     classNames={["fullRow"]}
                     value={FileHeaderInfo}
                     options={
@@ -54,8 +54,9 @@ export default class SourceCSVArgSection extends React.Component{
                     })
                 }
                 <CSVArgCheck
-                    label="Allow Quoted Record Delimiter:"
+                    label="Allow Quoted Record Delimiter"
                     checked={AllowQuotedRecordDelimiter}
+                    classNames={["checkboxRow"]}
                     onChange={(checked) => {
                         this.setState((state) => {
                             state.csvConfig.AllowQuotedRecordDelimiter = checked;
@@ -189,22 +190,26 @@ export default class SourceCSVArgSection extends React.Component{
             "text": "Record Delimiter",
             "keyword": "RecordDelimiter",
             "value": RecordDelimiter,
-            "error": errors['RecordDelimiter'] != null
+            "error": errors['RecordDelimiter'] != null,
+            "halfRow": true
         }, {
             "text": "Field Delimiter",
             "keyword": "FieldDelimiter",
             "value": FieldDelimiter,
-            "error": errors['FieldDelimiter'] != null
+            "error": errors['FieldDelimiter'] != null,
+            "halfRow": true
         }, {
             "text": "Quoting Character",
             "keyword": "QuoteCharacter",
             "value": QuoteCharacter,
             "error": errors['QuoteCharacter'] != null,
+            "halfRow": true
         }, {
             "text": "Quoting Escape Character",
             "keyword": "QuoteEscapeCharacter",
             "value": QuoteEscapeCharacter,
             "error": errors['QuoteEscapeCharacter'] != null,
+            "halfRow": true
         }];
     }
 }
@@ -213,7 +218,7 @@ export default class SourceCSVArgSection extends React.Component{
  * @param {text, keyword, default, onChange} props
  */
 function CSVArgInput(props) {
-    const {text, keyword, value, onChange, error, isNumber} = props;
+    const {text, keyword, value, onChange, error, isNumber, halfRow} = props;
     const strinfigyVal = (val) => {
         if (typeof val === "string") {
             val = val.replace(/\t/g, "\\t")
@@ -229,9 +234,13 @@ function CSVArgInput(props) {
     if (error) {
         classNames.push("error");
     }
+    let outerClassNames = [];
+    if (halfRow) {
+        outerClassNames.push("halfRow");
+    }
     return (
-        <AdvOption.Option>
-            <AdvOption.OptionLabel>{text}:</AdvOption.OptionLabel>
+        <AdvOption.Option classNames={outerClassNames}>
+            <AdvOption.OptionLabel>{text}</AdvOption.OptionLabel>
             <AdvOption.OptionValue>
                 <input
                     className={classNames.join(" ")}
@@ -275,11 +284,11 @@ function CSVArgChoice(props) {
 }
 
 function CSVArgCheck(props) {
-    const { label, checked, onChange } = props;
+    const { label, checked, onChange, classNames } = props;
 
     const iconClasses = ['icon', checked ? 'xi-ckbox-selected' : 'xi-ckbox-empty'];
     return (
-        <AdvOption.Option>
+        <AdvOption.Option classNames={classNames}>
             <AdvOption.OptionLabel onClick={() => {onChange(!checked)}}>{label}</AdvOption.OptionLabel>
             <AdvOption.OptionValue>
                 <div className="csvArgs-chkbox">

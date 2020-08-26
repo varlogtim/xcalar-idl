@@ -8,7 +8,7 @@ const Texts = {
     bucketName: 'S3 Bucket',
     noBuckets: 'No bucket to select',
     path: 'Source Path',
-    fileType: 'File Type:',
+    fileType: 'File Type',
     typeCsv: 'CSV',
     typeJson: 'JSON',
     typeJsonl: 'JSONL',

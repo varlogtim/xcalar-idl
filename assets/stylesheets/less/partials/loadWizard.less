@@ -41,6 +41,10 @@
                 > div {
                     padding: 8px 16px;
                     border-bottom: 1px solid @color-border-medium;
+                    margin: 0 auto;
+                    @padding: 16px;
+                    @max-width: @min-width * 2 + (@padding * 2);
+                    max-width: @max-width;
 
                     &:last-child {
                         border-bottom: none;
@@ -161,11 +165,19 @@
         flex: 0 0 auto;
     }
 
+    .needHelp {
+        text-decoration: underline;
+        margin-left: 4px;
+        color: @color-font-default;
+        float: right;
+    }
+
     .topSection {
         @w-label: 70px;
         @button-w: 130px;
         @margin: 16px;
-        @max-width: @min-width * 2 + @margin;
+        @padding: 16px;
+        @max-width: @min-width * 2 + (@padding * 2);
 
         .formActions {
             padding-top: 8px;
@@ -181,22 +193,14 @@
         .sourceForm {
             min-width: 564px;
 
-            .needHelp {
-                text-decoration: underline;
-                margin-left: 4px;
-                color: @color-font-default;
-                float: right;
-            }
-
             .row {
                 display: flex;
                 flex-direction: row;
                 margin-bottom: 8px;
-                max-width: @max-width;
+                width: 100%;
 
                 .connectorSelection, .bucketSelection, .pathSelection {
                     width: 100%;
-                    max-width: @max-width;
                 }
 
 
@@ -204,6 +208,7 @@
                     display: block;
                     width: 100%;
                     line-height: 30px;
+                    font-size: 14px;
                 }
 
                 .inputRow {
@@ -1000,6 +1005,13 @@
     }
 
     .advOption {
+        padding-right: 164px !important;
+        padding-left: 12px !important;
+
+        > .header {
+            margin-left: 4px;
+        }
+
         .advOption-group {
             display: flex;
             flex-direction: row;
@@ -1007,7 +1019,6 @@
         }
 
         .advOption-group-sub {
-            padding-left: 16px;
             padding-top: 8px;
         }
 
@@ -1015,11 +1026,27 @@
             margin: 4px;
             padding: 0;
             min-width: @min-width;
+            width: 100%;
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
+            flex: 1 1 auto;
 
             &.fullRow {
                 width: 100%;;
+            }
+            &.halfRow {
+                width: 40%;
+                min-width: 300px;
+            }
+            &.checkboxRow {
+                flex-direction: row-reverse;
+                .advOption-option-label {
+                    margin-right: auto;
+                    margin-left: 12px;
+                }
+                .advOption-option-value {
+                    flex-grow: 0;
+                }
             }
         }
 
@@ -1027,11 +1054,19 @@
             display: flex;
             align-items: center;
             margin-right: 8px;
+            font-size: 14px;
+            line-height: 30px;
         }
 
         .advOption-option-value {
             flex-grow: 1;
             .clearfix();
+            .dropDownList {
+                width: 100%;
+                > input {
+                    width: ~"calc(100% - 30px)";
+                }
+            }
         }
 
         button {
@@ -1088,6 +1123,7 @@
         width: 100%; /* Full width */
         height: 100%; /* Full height */
         background-color: rgba(0,0,0,0.5);
+        max-width: none !important;
 
         .modal-content {
             background-color: @color-bg-modal;

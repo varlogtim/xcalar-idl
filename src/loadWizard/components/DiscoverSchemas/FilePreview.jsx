@@ -17,7 +17,7 @@ class FilePreview extends React.PureComponent {
             return null;
         }
 
-        return (<div>
+        return (<div className="schemaSection">
             <div className="header">
                 <span>Schema Selection</span>
                 <i className="qMark icon xi-unknown xc-action" style={{ position: "relative", top: "-1px", left: "4px" }} data-toggle="tooltip" data-container="body" data-title="Click here to learn more about how to verify your schema and create your table" data-placement="auto top" onClick={() => {
