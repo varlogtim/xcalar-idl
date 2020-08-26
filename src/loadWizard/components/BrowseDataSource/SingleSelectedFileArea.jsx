@@ -11,6 +11,10 @@ function validateRegex(regex) {
         RegExp('^re:.+').test(regex);
 }
 
+function validateGlob(glob) {
+    return glob != null && glob.length > 0;
+}
+
 export default function SelectedFileArea(props) {
     const {
         bucket,
@@ -27,7 +31,7 @@ export default function SelectedFileArea(props) {
 
         if (selected.directory) {
             const inputClassNames = ['xc-input'];
-            if (!validateRegex(fileNamePattern)) {
+            if (!validateGlob(fileNamePattern)) {
                 inputClassNames.push('error-input');
             }
 

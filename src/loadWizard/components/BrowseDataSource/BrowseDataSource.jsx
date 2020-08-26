@@ -176,28 +176,6 @@ class BrowseDataSource extends React.Component {
         this.props.setSelectedFileDir(selectedFiles, fileNamePattern);
     }
 
-    _selectCurrentPathWithRegex(regex) {
-        const { path } = this.state;
-        const { connector, setSelectedFileDir } = this.props;
-
-        const selected = {
-            fileId: path,
-            targetName: connector,
-            fullPath: path,
-            directory: true,
-            name: path,
-            sizeInBytes: 0,
-            type: 'directory'
-        };
-
-        this.setState({
-            selectedFileDir: [ selected ],
-            fileNamePattern: regex
-        });
-
-        setSelectedFileDir([ selected ], regex);
-    }
-
     _setRegex(regex) {
         this.setState({
             fileNamePattern: regex
@@ -373,7 +351,7 @@ class BrowseDataSource extends React.Component {
                     selectedFileDir={selectedFileDir}
                     fileNamePattern={fileNamePattern}
                     onDeselect={(files) => { this._deselectFiles(files); }}
-                    onPatternChange={(regex) => { this._selectCurrentPathWithRegex(regex); }}
+                    onPatternChange={(regex) => { this._setRegex(regex); }}
                 />
                 }
                 <div className="fileBrowserPath">
