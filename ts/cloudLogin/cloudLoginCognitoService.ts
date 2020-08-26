@@ -121,6 +121,57 @@ class CloudLoginCognitoService {
         this._cognitoUser.confirmPassword(verificationCode, newPassword, callbacks)
     }
 
+    public signupWithInvite(username, invitationCode, password, callback) {
+        var self = this;
+        var authenticationData = {
+            Username: username,
+            Password: invitationCode,
+        };
+        var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(
+            authenticationData
+        );
+        var userData = {
+            Username: username,
+            Pool: this._userPool
+        };
+        this._cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+        this._cognitoUser.authenticateUser(authenticationDetails, {
+            onSuccess: function(result) {
+                callback(null, result);
+            },
+         
+            onFailure: function(err) {
+                xcConsoleError(err);
+                callback(new Error("Incorrect email or invalid invitation code"));
+            },
+
+            newPasswordRequired: function(userAttributes) {
+                // User was signed up by an admin and must provide new
+                // password and required attributes, if any, to complete
+                // authentication.
+     
+                // the api doesn't accept this field back
+                delete userAttributes.email_verified;
+                // we fill in the name
+                userAttributes.given_name = username;
+                userAttributes.family_name = "xcalar";
+                self._newPassword(password, userAttributes, callback);
+            }
+        });
+    }
+
+    private _newPassword(newPassword, userAttributes, callback) {
+        this._cognitoUser.completeNewPasswordChallenge(newPassword, userAttributes, {
+            onSuccess: function(result) {
+                callback(null, result);
+            },
+
+            onFailure: function(err) {
+                callback(err);
+            },
+        });
+    }
+
     /**
      * Update cognitoUser object
      */

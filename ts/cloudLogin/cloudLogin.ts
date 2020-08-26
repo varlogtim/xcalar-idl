@@ -316,7 +316,7 @@ namespace CloudLogin {
     }
 
     function showInitialScreens(): void {
-        const signupScreen: boolean = hasParamInURL("signup");
+        const signupScreen: boolean = hasParamInURL("invitation");
         if (signupScreen) {
             showScreen("signup");
         } else {
@@ -525,22 +525,24 @@ namespace CloudLogin {
     }
 
     function checkSignUpForm(): boolean {
-        const firstNameEmpty: boolean = $("#signup-firstName").val() === "";
-        const lastNameEmpty: boolean = $("#signup-lastName").val() === "";
-        const companyEmpty: boolean = $("#signup-company").val() === "";
+        // const firstNameEmpty: boolean = $("#signup-firstName").val() === "";
+        // const lastNameEmpty: boolean = $("#signup-lastName").val() === "";
+        // const companyEmpty: boolean = $("#signup-company").val() === "";
+        const invitationCodeEmpty: boolean = $("#signup-invitationCode").val() === "";
         const email1: string = $("#signup-email").val();
-        const email2: string = $("#signup-confirmEmail").val();
+        // const email2: string = $("#signup-confirmEmail").val();
         const password1: string = $("#signup-password").val();
         const password2: string = $("#signup-confirmPassword").val();
-        const emailsMatch: boolean = email1 === email2;
+        // const emailsMatch: boolean = email1 === email2;
         const passwordsMatch: boolean = password1 === password2;
         const checkedEULA: boolean = $("#signup-termCheck").prop('checked');
 
-        showInputError($("#signupForm .firstNameSection"), !firstNameEmpty, false, signupSubmitClicked);
-        showInputError($("#signupForm .lastNameSection"), !lastNameEmpty, false, signupSubmitClicked);
-        showInputError($("#signupForm .companySection"), !companyEmpty, false, signupSubmitClicked);
+        // showInputError($("#signupForm .firstNameSection"), !firstNameEmpty, false, signupSubmitClicked);
+        // showInputError($("#signupForm .lastNameSection"), !lastNameEmpty, false, signupSubmitClicked);
+        // showInputError($("#signupForm .companySection"), !companyEmpty, false, signupSubmitClicked);
+        showInputError($("#signupForm .invitationCodeSection"), !invitationCodeEmpty, false, signupSubmitClicked);
         showInputError($("#signupForm .emailSection"), validateEmail(email1), true, signupSubmitClicked);
-        showInputError($("#signupForm .confirmEmailSection"), emailsMatch && validateEmail(email1), true, signupSubmitClicked);
+        // showInputError($("#signupForm .confirmEmailSection"), emailsMatch && validateEmail(email1), true, signupSubmitClicked);
         showInputError($("#signupForm .passwordSection"), validatePassword(password1), true, signupSubmitClicked);
         showInputError($("#signupForm .confirmPasswordSection"), passwordsMatch && validatePassword(password1), true, signupSubmitClicked);
         showInputError($("#signupForm .submitSection"), checkedEULA, false, signupSubmitClicked);
@@ -554,11 +556,13 @@ namespace CloudLogin {
             $('#signupForm .emailSection .input-tooltip').text('Email must be in a valid format');
         }
 
-        const inputIsCorrect: boolean = !firstNameEmpty &&
-            !lastNameEmpty &&
-            !companyEmpty &&
+        const inputIsCorrect: boolean =
+            // !firstNameEmpty &&
+            // !lastNameEmpty &&
+            // !companyEmpty &&
+            !invitationCodeEmpty &&
             validateEmail(email1) &&
-            emailsMatch &&
+            // emailsMatch &&
             validatePassword(password1) &&
             passwordsMatch;
 
@@ -757,11 +761,12 @@ namespace CloudLogin {
                 clearElements(
                     ["#signupFormMessage"],
                     [
-                        "#signup-firstName",
-                        "#signup-lastName",
-                        "#signup-company",
+                        // "#signup-firstName",
+                        // "#signup-lastName",
+                        // "#signup-company",
                         "#signup-email",
-                        "#signup-confirmEmail",
+                        // "#signup-confirmEmail",
+                        'signup-invitationCode',
                         "#signup-password",
                         "#signup-confirmPassword"
                     ],
@@ -856,9 +861,9 @@ namespace CloudLogin {
             showScreen("login");
         });
 
-        $(".link-to-signup").click(function () {
-            showScreen("signup");
-        });
+        // $(".link-to-signup").click(function () {
+        //     showScreen("signup");
+        // });
 
         $(".logOutLink").click(function () {
             // clearTimeout(loginTimeoutTimer);
@@ -912,17 +917,14 @@ namespace CloudLogin {
                 const username = $("#signup-email").val().toLowerCase();
                 const password = $("#signup-password").val();
 
-                const givenName = $("#signup-firstName").val()
-                const familyName = $("#signup-lastName").val()
-                const company = $("#signup-company").val()
-
-                cloudLoginCognitoService.signUp(
-                    givenName,
-                    familyName,
-                    company,
+                // const givenName = $("#signup-firstName").val()
+                // const familyName = $("#signup-lastName").val()
+                // const company = $("#signup-company").val()
+                const invitationCode = $("#signup-invitationCode").val();
+                cloudLoginCognitoService.signupWithInvite(
                     username,
+                    invitationCode,
                     password,
-                    null,
                     function (err, result) {
                         if (err) {;
                             xcConsoleError(err);
@@ -931,14 +933,38 @@ namespace CloudLogin {
                         } else {
                             $("#verifyFormMessage").hide();
                         }
-                        showScreen("verify");
+                        window.history && window.history.replaceState && window.history.replaceState(null, '', location.pathname);
+                        showScreen("login");
                         showFormSuccess(
-                            $("#verifyFormMessage"),
-                            "An email verification code has been sent to your email address. Enter it below to confirm your account"
+                            $("#loginFormMessage"),
+                            "You've sign up successfully, please sign in!"
                         );
                         return result.user; // return value is used by cloudLoginCognitoService.signUp to update cognitoUser
                     }
                 );
+                // cloudLoginCognitoService.signUp(
+                //     givenName,
+                //     familyName,
+                //     company,
+                //     username,
+                //     password,
+                //     null,
+                //     function (err, result) {
+                //         if (err) {;
+                //             xcConsoleError(err);
+                //             showFormError($("#signupFormMessage"), err.message);
+                //             return;
+                //         } else {
+                //             $("#verifyFormMessage").hide();
+                //         }
+                //         showScreen("verify");
+                //         showFormSuccess(
+                //             $("#verifyFormMessage"),
+                //             "An email verification code has been sent to your email address. Enter it below to confirm your account"
+                //         );
+                //         return result.user; // return value is used by cloudLoginCognitoService.signUp to update cognitoUser
+                //     }
+                // );
             } else {
                 signupSubmitClicked = true;
                 checkSignUpForm();
