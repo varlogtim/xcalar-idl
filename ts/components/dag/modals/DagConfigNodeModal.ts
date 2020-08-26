@@ -32,7 +32,7 @@ class DagConfigNodeModal {
         });
     }
 
-    setupPanels(): void {
+    public setupPanels(): void {
         GeneralOpPanel.setup();
         MapOpPanel.Instance.setup();
         ProjectOpPanel.Instance.setup();
@@ -184,6 +184,10 @@ class DagConfigNodeModal {
         this._getModal().addClass("xc-hidden");
         PopupManager.checkAllContentUndocked();
         this._popup.trigger("Hide_BroadCast");
+    }
+
+    public refresh(): void {
+        this._refreshEditor();
     }
 
     private _unlock(node, tabId: string) {

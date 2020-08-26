@@ -156,7 +156,6 @@ class SQLWorkSpace {
             },
             stop: function(_event, ui) {
                 $panel.removeClass("resizing");
-                UDFPanel.Instance.refresh();
 
                 const top: number = ui.position.top;
                 const delta: number = top - lastTop;
@@ -353,7 +352,6 @@ class SQLWorkSpace {
             stop: function(_event, ui) {
                 const pct = getPct(ui);
                 $panel.removeClass("resizing");
-                UDFPanel.Instance.refresh();
                 DebugPanel.Instance.getPopup().trigger("ResizeDocked_BroadCast", {
                     dockedHeight: pct,
                 });

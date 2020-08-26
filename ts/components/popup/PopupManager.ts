@@ -130,6 +130,8 @@ class PopupManager {
             this._addPopup(popup);
             this._updateZIndex();
             SQLEditorSpace.Instance.refresh();
+            UDFPanel.Instance.refresh();
+            DagConfigNodeModal.Instance.refresh();
         })
         .on("Dock_BroadCast", () => {
             this._state[id].isUndocked = false,
@@ -139,6 +141,8 @@ class PopupManager {
             this._removePopup(popup, true);
             this._updateZIndex();
             SQLEditorSpace.Instance.refresh();
+            UDFPanel.Instance.refresh();
+            DagConfigNodeModal.Instance.refresh();
         })
         .on("BringFront_BroadCast", () => {
             this._bringFrontPopup(popup);
@@ -157,6 +161,8 @@ class PopupManager {
             };
             this._save();
             SQLEditorSpace.Instance.refresh();
+            UDFPanel.Instance.refresh();
+            DagConfigNodeModal.Instance.refresh();
         })
         .on("Drag_BroadCast", state => {
             this._state[id] = {
@@ -169,11 +175,15 @@ class PopupManager {
             this._state[id].isVisible = false;
             this._save();
             SQLEditorSpace.Instance.refresh();
+            UDFPanel.Instance.refresh();
+            DagConfigNodeModal.Instance.refresh();
         })
         .on("Show_BroadCast", () => {
             this._state[id].isVisible = true;
             this._save();
             SQLEditorSpace.Instance.refresh();
+            UDFPanel.Instance.refresh();
+            DagConfigNodeModal.Instance.refresh();
         })
         .on("VertStack_BroadCast", () => {
             this._state[id].isVertStacked = true;

@@ -178,6 +178,8 @@ class PopupPanel {
             });
 
             const $panel = this.getPanel();
+            // sets up resizable when panel is undocked, for docked resizable
+            // check SQLWorkspace.ts
             $panel.resizable({
                 handles: "w, e, s, n, nw, ne, sw, se",
                 containment: '#sqlWorkSpacePanel',

@@ -49,26 +49,20 @@ namespace MainMenu {
         }
     }
 
-    function showResourcePanel() {
-        const $tab = $("#sqlTab");
-        $tab.addClass("showing");
-        $("#sqlWorkSpacePanel").removeClass("hidingLeftPanel");
-        TblFunc.moveFirstColumn();
-        DagCategoryBar.Instance.showOrHideArrows();
-        SQLEditorSpace.Instance.refresh();
-    }
-
     function toggleResourcePanel() {
         const $tab = $("#sqlTab");
         if ($tab.hasClass("showing")) {
             $tab.removeClass("showing");
             $("#sqlWorkSpacePanel").addClass("hidingLeftPanel");
         } else {
-            showResourcePanel();
+            $tab.addClass("showing");
+            $("#sqlWorkSpacePanel").removeClass("hidingLeftPanel");
         }
         TblFunc.moveFirstColumn();
         DagCategoryBar.Instance.showOrHideArrows();
         SQLEditorSpace.Instance.refresh();
+        UDFPanel.Instance.refresh();
+        DagConfigNodeModal.Instance.refresh();
     }
 
     function addEventListeners(): void {

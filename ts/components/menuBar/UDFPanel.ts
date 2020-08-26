@@ -432,6 +432,7 @@ class UDFPanel {
         })
         .on("ResizeDocked", (state) => {
             $("#udfViewContainer").parent().css("width", `${state.dockedWidth}%`);
+            this.refresh();
         })
         .on("Show", () => {
             this.toggleDisplay(true);
