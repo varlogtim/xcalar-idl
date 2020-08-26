@@ -10,6 +10,8 @@ const {
 } = global;
 
 const DS_PREFIX = 'LWDS';
+const defaultFileNameRegex = '.*'
+const defaultFileNamePattern = 're:' + defaultFileNameRegex;
 
 async function listFiles(path, targetName = "AWS Target", filter = (fileInfo) => true) {
     const fileInfos = new Map();
@@ -30,7 +32,7 @@ async function listFiles(path, targetName = "AWS Target", filter = (fileInfo) =>
 
 async function listFilesWithPattern({
     targetName, path,
-    fileNamePattern = '*',
+    fileNamePattern = defaultFileNamePattern,
     isRecursive = false,
     filter = (fileInfo) => true
 }) {
@@ -300,6 +302,7 @@ function populateFiles(fileInfos, setData, fileIdToFile, setFileIdToFile) {
 }
 
 export {
+    defaultFileNamePattern, defaultFileNameRegex,
     listFiles,
     listFilesWithPattern,
     createKeyListTable,

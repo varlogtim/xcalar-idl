@@ -12,7 +12,7 @@ import getForensics from '../services/Forensics';
 import * as Path from 'path';
 import * as SchemaLoadService from '../services/SchemaLoadService'
 import * as SchemaLoadSetting from '../services/SchemaLoadSetting'
-import { listFilesWithPattern } from '../services/S3Service'
+import { listFilesWithPattern, defaultFileNamePattern } from '../services/S3Service'
 
 const { Alert } = global;
 
@@ -62,8 +62,6 @@ function deleteEntries(setOrMap, keySet) {
     }
     return setOrMap;
 }
-
-const defaultFileNamePattern = 're:.*';
 
 class LoadConfig extends React.Component {
     constructor(props) {
@@ -710,7 +708,7 @@ class LoadConfig extends React.Component {
         }
     }
 
-    async _browseClose(selectedFileDir = null, fileNamePattern = 're:.*') {
+    async _browseClose(selectedFileDir = null, fileNamePattern) {
         if (selectedFileDir == null) {
             this.setState({
                 browseShow: false
@@ -718,7 +716,10 @@ class LoadConfig extends React.Component {
         } else {
             const currentSelection = this.state.selectedFileDir.map((v) => v.fullPath);
             const newSelection = selectedFileDir.map((v) => v.fullPath);
-            const hasChange = SetUtils.diff(currentSelection, newSelection).size > 0 || SetUtils.diff(newSelection, currentSelection).size > 0;
+            const currentNamePattern = this.state.fileNamePattern;
+            const hasChange = SetUtils.diff(currentSelection, newSelection).size > 0 ||
+                SetUtils.diff(newSelection, currentSelection).size > 0 ||
+                currentNamePattern != fileNamePattern;
 
             if (!hasChange) {
                 // No change

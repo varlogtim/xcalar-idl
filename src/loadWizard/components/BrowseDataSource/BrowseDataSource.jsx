@@ -63,7 +63,7 @@ class BrowseDataSource extends React.Component {
     constructor(props) {
         super(props);
 
-        const { bucket, homePath, selectedFileDir } = props;
+        const { bucket, homePath, selectedFileDir, fileNamePattern } = props;
 
         this.metadataMap = new Map();
         this.state = {
@@ -71,6 +71,7 @@ class BrowseDataSource extends React.Component {
             path: Path.join(bucket, homePath),
             fileMapViewing: new Map(),
             selectedFileDir: selectedFileDir.map((v) => ({...v})),
+            fileNamePattern: fileNamePattern,
             loadingFiles: new Set(),
             showForensics: false,
             forensicsMessage: [],
@@ -158,7 +159,7 @@ class BrowseDataSource extends React.Component {
     }
 
     _selectFiles(newSelectedFiles) {
-        const { selectedFileDir, fileMapViewing } = this.state;
+        const { fileNamePattern, fileMapViewing } = this.state;
         const selectedFiles = [];
         for (const newSelectedFile of newSelectedFiles) {
             let newSelectedFileId = newSelectedFile.fileId;
@@ -172,9 +173,40 @@ class BrowseDataSource extends React.Component {
         this.setState({
             selectedFileDir: selectedFiles
         });
-        this.props.setSelectedFileDir(selectedFiles);
+        this.props.setSelectedFileDir(selectedFiles, fileNamePattern);
     }
 
+    _selectCurrentPathWithRegex(regex) {
+        const { path } = this.state;
+        const { connector, setSelectedFileDir } = this.props;
+
+        const selected = {
+            fileId: path,
+            targetName: connector,
+            fullPath: path,
+            directory: true,
+            name: path,
+            sizeInBytes: 0,
+            type: 'directory'
+        };
+
+        this.setState({
+            selectedFileDir: [ selected ],
+            fileNamePattern: regex
+        });
+
+        setSelectedFileDir([ selected ], regex);
+    }
+
+    _setRegex(regex) {
+        this.setState({
+            fileNamePattern: regex
+        });
+
+        const { selectedFileDir } = this.state;
+        const { setSelectedFileDir } = this.props;
+        setSelectedFileDir(selectedFileDir, regex);
+    }
 
     _getNumSelected() {
         return this.state.selectedFileDir.length;
@@ -308,7 +340,8 @@ class BrowseDataSource extends React.Component {
             isLoading,
             path,
             fileMapViewing,
-            selectedFileDir
+            selectedFileDir,
+            fileNamePattern
         } = this.state;
 
         let rootFullPath = Path.join(bucket);
@@ -331,14 +364,18 @@ class BrowseDataSource extends React.Component {
         if (rootFullPath === currentFullPath) {
             upFolderClass += " xc-disabled";
         }
+
         return (
             <div className="browseDataSourceScreen">
-                {selectedFileDir.length ?
+                { selectedFileDir.length > 0 &&
                 <SingleSelectedFileArea
                     bucket={bucket}
                     selectedFileDir={selectedFileDir}
+                    fileNamePattern={fileNamePattern}
                     onDeselect={(files) => { this._deselectFiles(files); }}
-                /> : null}
+                    onPatternChange={(regex) => { this._selectCurrentPathWithRegex(regex); }}
+                />
+                }
                 <div className="fileBrowserPath">
                     <div className="sourcePathHeader heading">Source Path</div>
                     <div className="flexContainer">
@@ -483,14 +520,19 @@ function BrowseDataSourceModal(props) {
         <Modal.Dialog id="fileBrowserModal">
             <Modal.Header onClose={props.onCancel}>{Texts.title}</Modal.Header>
             <Modal.Body>
-                <BrowseDataSource {...props} setSelectedFileDir={setSelectedFileDir}  onFileNamePatternChange={setFileNamePattern}/>
+                <BrowseDataSource {...props}
+                    setSelectedFileDir={(selected, regex) => {
+                        setSelectedFileDir(selected);
+                        setFileNamePattern(regex);
+                    }}
+                />
             </Modal.Body>
             <Modal.Footer>
                 <NavButtons
                     left={{ label: Texts.navButtonLeft, onClick: () => { props.onCancel() } }}
                     right={{
                         label: Texts.navButtonRight,
-                        onClick: () => { props.onDone(selectedFiles, fileNamePattern) } // XXX TODO: add regex inputbox
+                        onClick: () => { props.onDone(selectedFiles, fileNamePattern) }
                     }}
                 />
             </Modal.Footer>
