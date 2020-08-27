@@ -3,22 +3,30 @@ import React from 'react';
 const Texts = {
     createButtonLabel: 'Create Table',
     creatingTable: 'Creating table ...',
-    created: 'Created',
+    created: 'Table Created',
     createdWithComplement: 'Created with error table',
     createError: 'Error',
     ComplementTableHint: 'Some rows in the source files cannot be loaded, the failure reason is listed in the error table.'
 };
 
 function Create({ onClick }) {
-    return <button onClick={onClick}>{Texts.createButtonLabel}</button>
+    return <button className="btn btn-secondary" onClick={onClick}>{Texts.createButtonLabel}</button>
 }
 
 function Loading({ message }) {
-    let loadginMessage = Texts.creatingTable;
+    let loadingMessage = Texts.creatingTable;
     if (message) {
-        loadginMessage += " (" + message + ")";
+        loadingMessage += " (" + message + ")";
     }
-    return <span>{loadginMessage}</span>
+    let pct = parseInt(message);
+    if (!isNaN(pct)) {
+        loadingMessage = <div className="loadingBarWrap">
+                <div className="loadingBar" style={{width: pct + "%"}} ></div>
+                <div className="loadingText">Creating... {pct + "%"}</div>
+            </div>;
+    }
+    console.log(message);
+    return <span>{loadingMessage}</span>
 }
 
 function Success({ complementTable }) {
@@ -30,7 +38,7 @@ function Success({ complementTable }) {
             </span>
         )
     } else {
-        return <span>{Texts.created}</span>
+        return <span><i className="icon xi-tick"></i>{Texts.created}</span>
     }
 }
 

@@ -12,27 +12,26 @@ const Styles = styled.div`
   table {
     width: 100%;
     border-spacing: 0;
-    border: 1px solid #aaa;
 
-    tr {
-      :last-child {
-        td {
-          border-bottom: 0;
-        }
-      }
-    }
 
     th,
     td {
       margin: 0;
-      padding: 0.5rem;
-      border-bottom: 1px solid #aaa;
-      border-right: 1px solid #eee;
+      padding: 4px 8px;
+      text-align: left;
+    }
 
-      :last-child {
-        border-right: 0;
-        text-align: center;
-      }
+    th {
+        border-bottom: 1px solid #848484;
+        color: #C1C1C1;
+        font-weight: bold;
+
+        :nth-last-child(2) {
+            width: 200px;
+        }
+        :last-child {
+            width: 180px;
+        }
     }
   }
 `;
@@ -229,8 +228,8 @@ function LoadTable({
 }) {
     const columns = React.useMemo(() => [
         {
-            Header: 'Schema',
-            accessor: 'schema',
+            Header: 'Table Name',
+            accessor: "tableName",
         },
         {
             Header: 'Size',
@@ -240,16 +239,17 @@ function LoadTable({
             Header: 'Count',
             accessor: 'count',
         },
+        {
+            Header: 'Schema',
+            accessor: 'schema',
+        },
         // {
         //     Header: 'Time',
         //     accessor: 'time',
         // },
+
         {
-          Header: 'Table Name',
-          accessor: "tableName",
-        },
-        {
-            Header: 'Create',
+            Header: '',
             accessor: 'load',
         }
     ], []);
@@ -264,7 +264,7 @@ function LoadTable({
         if (isFailedSchema(schemaName)) {
             // XXX TODO: show failed files/reasons
             const rowData = {
-                schema: <button onClick={() => { onClickFailedSchema(); }}>Failed</button>,
+                schema: <button className="btn btn-secondary viewSchema" onClick={() => { onClickFailedSchema(); }}>Failed</button>,
                 count: files.count,
                 size: prettyBytes(files.size || 0),
                 time: 'N/A',
@@ -274,7 +274,7 @@ function LoadTable({
             loadTableData.push(rowData);
         } else {
             const rowData = {
-                schema: <button onClick={() => { onClickSchema(schemaName); }}>View</button>,
+                schema: <button className="btn btn-secondary viewSchema" onClick={() => { onClickSchema(schemaName); }}>View</button>,
                 count: files.count,
                 size: prettyBytes(files.size || 0),
                 time: xcTimeHelper.getElapsedTimeStr(Math.ceil(etaCost.loadEtaBySize(files.size) * 1000)),

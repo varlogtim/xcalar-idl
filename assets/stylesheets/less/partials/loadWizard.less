@@ -905,6 +905,10 @@
             button {
                 background-color: @color-bg-default;
                 color: @color-font-default;
+
+                &.viewSchema {
+                    width: 100px;
+                }
             }
         }
 
@@ -922,6 +926,36 @@
             margin-left: 4px;
             position: relative;
             top: -2px;
+        }
+
+        .loadingBarWrap {
+            width: 150px;
+            border: 1px solid @color-font-default;
+            border-radius: 2px;
+            height: 24px;
+            // line-height: 22px;
+            position: relative;
+
+            .loadingBar {
+                height: 100%;
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                background-color: #1ba22b;
+            }
+
+            .loadingText {
+                width: 100%;
+                text-align: center;
+                position: relative;
+                font-size: 13px;
+            }
+        }
+
+        .xi-tick {
+            color: #1ba22b;
+            font-size: 12px;
+            margin-right: 8px;
         }
     }
 
