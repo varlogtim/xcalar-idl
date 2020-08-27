@@ -25,7 +25,7 @@ class FilePreview extends React.PureComponent {
                 }}></i>
             </div>
             <div className="headerHelpText">
-                <i className="icon xi-info-circle-outline"></i>Select one record to discover your schema
+                <i className="icon xi-info-circle-outline"></i>Select records(max to 5) to discover your schema
             </div>
             <AdvOption.Container>
                 <AdvOption.OptionGroup>
@@ -64,7 +64,7 @@ class FileContentWrap extends React.PureComponent {
 
     render() {
         const {
-            isLoading, error, content, isAutoDetect, lineSelected, lineOffset, sampleSize,
+            isLoading, error, content, isAutoDetect, linesSelected, lineOffset, sampleSize,
             onLineChange,
             onAutoDetectChange,
             onSampleSizeChange,
@@ -94,8 +94,8 @@ class FileContentWrap extends React.PureComponent {
             {/* <AutoDetectOption checked={isAutoDetect} onChange={(checked) => { onAutoDetectChange(checked); }}></AutoDetectOption> */}
             {isAutoDetect || <FileContent
                 data={content.map(({data, status}) => ({line: data, status: status}))}
-                selected={lineSelected}
-                onSelectChange={(i) => { onLineChange(i); }}
+                selected={linesSelected}
+                onSelectChange={(indexList, isSelect) => { onLineChange(indexList, isSelect); }}
                 offset={lineOffset}
                 numRows={pageSize}
             >
@@ -133,7 +133,7 @@ class AutoDetectSection extends React.PureComponent {
 }
 
 function FileContent(props) {
-    const { data = [], onSelectChange, selected = -1, children, offset = 0, numRows = -1 } = props;
+    const { data = [], onSelectChange, selected = [], children, offset = 0, numRows = -1 } = props;
 
     if (data.length === 0) {
         return (<span>No Content</span>);
@@ -153,8 +153,8 @@ function FileContent(props) {
                 'data-original-title': JSON.stringify(unsupportedColumns, null, ' ')
             } : {};
 
-            return (<FileLine key={`${index}`} checked={selected === index} onChange={(checked) => {
-                onSelectChange(checked ? index : -1)
+            return (<FileLine key={`${index}`} checked={selected.indexOf(index) >= 0} onChange={(checked) => {
+                onSelectChange([index], checked)
             }}>
 
                 <span className={lineCssClass} {...hintProps}>
@@ -190,7 +190,7 @@ function Pagination(props) {
 
 function FileLine(props) {
     const { checked, onChange, children } = props;
-    const iconClasses = ['icon', checked ? 'xi-radio-selected' : 'xi-radio-empty'];
+    const iconClasses = ['icon', checked ? 'xi-ckbox-selected' : 'xi-ckbox-empty'];
 
     return (
         <div className="csvArgs-chkbox">

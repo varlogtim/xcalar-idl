@@ -1,10 +1,3 @@
-import { ExactSchemas } from '../utils/ExactSchemas';
-import { SupersetSchemas } from '../utils/SupersetSchemas';
-import { UnionSchema } from '../utils/UnionSchema';
-import { TrailingSchemas } from '../utils/TrailingSchemas';
-
-const { xcHelper, Xcrpc } = global;
-
 const FileType = {
     CSV: 'csv',
     JSON: 'json',
@@ -144,7 +137,8 @@ const SchemaError = {
     INVALID_VALUE: (attrName, value) => `Invalid value "${value}" for attribute "${attrName}"`,
     TOO_MANY_COLUMN: (numCol, limit) => `
         Current column count: (${numCol}). Please modify the schema to ensure column count is within the limit of ${limit}
-    `
+    `,
+    DUPE_COLUMN: (colName) => `Duplicated column name: ${colName}`
 }
 
 function assert(boolVal, genEx) {
@@ -166,6 +160,7 @@ function validateSchema(jsonSchema) {
     const maxNumCols = 1000;
     assert(columns.length <= maxNumCols, () => SchemaError.TOO_MANY_COLUMN(columns.length, maxNumCols));
 
+    const nameSet = new Set();
     for (const column of columns) {
         // Null check
         assert(column != null, SchemaError.NULL_COLUMN);
@@ -177,8 +172,11 @@ function validateSchema(jsonSchema) {
         assert(mapping != null, () => SchemaError.NO_ATTRIBUTE('mapping'));
         // Value check
         assert(typeof name === 'string', () => SchemaError.INVALID_VALUE('name', name));
+        assert(!nameSet.has(name), () => SchemaError.DUPE_COLUMN(name));
         assert(typeof type === 'string', () => SchemaError.INVALID_VALUE('type', type));
         assert(typeof mapping === 'string', () => SchemaError.INVALID_VALUE('mapping', mapping));
+
+        nameSet.add(name);
     }
 }
 
@@ -197,98 +195,13 @@ function validateSchemaString(strSchema) {
     return schema;
 }
 
-class MergeFactory {
-    constructor() {
-        this._merger = new Map(this._init());
-    }
-
-    _init() {
-        return [
-            [ MergePolicy.EXACT, (schemas) => {
-                if (schemas.length === 0) {
-                    return [new Map(), []];
-                }
-                const merge = new ExactSchemas();
-                const [schemaMap, errorSchemas] = merge.getSchemas(schemas);
-
-                return [
-                    new Map(Object.entries(schemaMap).map(([name, schema]) => {
-                        return [name, this._normalize(schema)];
-                    })),
-                    errorSchemas.map((s) => this._normalizeError(s))
-                ];
-            }],
-            [ MergePolicy.SUPERSET, (schemas) => {
-                if (schemas.length === 0) {
-                    return [new Map(), []];
-                }
-                const merge = new SupersetSchemas();
-                const [schemaMap, errorSchemas] = merge.getSchemas(schemas);
-
-                return [
-                    new Map(Object.entries(schemaMap).map(([name, schema]) => {
-                        return [name, this._normalize(schema)];
-                    })),
-                    errorSchemas.map((s) => this._normalizeError(s))
-                ];
-            }],
-            [ MergePolicy.TRAILING, (schemas) => {
-                if (schemas.length === 0) {
-                    return [new Map(), []];
-                }
-                const merge = new TrailingSchemas();
-                for (const schema of schemas) {
-                    merge.add(schema);
-                }
-                const [schemaMap, errorSchemas] = merge.getSchemas();
-
-                return [
-                    new Map(Object.entries(schemaMap).map(([name, schema]) => {
-                        return [name, this._normalize(schema)];
-                    })),
-                    errorSchemas.map((s) => this._normalizeError(s))
-                ];
-            }],
-            [ MergePolicy.UNION, (schemas) => {
-                if (schemas.length === 0) {
-                    return [new Map(), []];
-                }
-                const merge = new UnionSchema();
-                const [schemaMap, errorSchemas] = merge.getSchema(schemas);
-
-                return [
-                    new Map(Object.entries(schemaMap).map(([name, schema]) => {
-                        return [name, this._normalize(schema)];
-                    })),
-                    errorSchemas.map((s) => this._normalizeError(s))
-                ];
-            }]
-        ];
-    }
-
-    _normalizeError({ path, status }) {
-        return {
-            path: path,
-            error: status
-        };
-    }
-
-    _normalize({ path, schema }) {
-        return {
-            path: [...path],
-            columns: schema.columnsList.map((c) => ({
-                name: c.name,
-                mapping: c.mapping,
-                type: c.type
-            }))
-        };
-    }
-
-    get(mergePolicy) {
-        return this._merger.get(mergePolicy);
-    }
+function unionSchemas(columns) {
+    const columnMap = new Map(columns.map((column) => [
+        `${column.name}_${column.type}_${column.mapping}`,
+        column
+    ]));
+    return columnMap.values();
 }
-const mergeFactory = new MergeFactory();
 
 export {
     FileType, FileTypeFilter, FileTypeNamePattern,
@@ -296,6 +209,7 @@ export {
     CSVHeaderOption,
     suggestParserType,
     validateSchemaString, validateSchema,
+    unionSchemas,
     MergePolicy,
     MergePolicyHint,
 };

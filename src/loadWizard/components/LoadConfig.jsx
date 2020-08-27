@@ -101,7 +101,7 @@ class LoadConfig extends React.Component {
                 content: [],
                 isAutoDetect: false,
                 sampleSize: 100,
-                lineSelected: -1,
+                linesSelected: [],
                 lineOffset: 0
             },
             selectedSchema: null,
@@ -633,7 +633,7 @@ class LoadConfig extends React.Component {
                 content: [],
                 isAutoDetect: false,
                 sampleSize: 100,
-                lineSelected: -1,
+                linesSelected: [],
                 lineOffset: 0
             },
             selectedSchema: null,
@@ -870,7 +870,7 @@ class LoadConfig extends React.Component {
                         isLoading: false,
                         isAutoDetect: false,
                         content: fileContent.lines,
-                        lineSelected: -1,
+                        linesSelected: [],
                         lineOffset: 0
                     }
                 }));
@@ -888,22 +888,63 @@ class LoadConfig extends React.Component {
         }
     }
 
-    async _selectFileLine(index) {
-        let proceed = true;
-        if (index >= 0) {
-            proceed = await this._selectSchema(this.state.fileContentState.content[index].schema);
-        } else {
-            proceed = await this._selectSchema(null);
-        }
+    async _selectFileLines(indexList, isSelect) {
+        try {
+            // Figure out the lines still selected
+            const selected = new Set(this.state.fileContentState.linesSelected);
+            const changes = new Set(indexList);
+            const result = [...(isSelect
+                ? SetUtils.union(selected, changes)
+                : SetUtils.diff(selected, changes))].sort((a,b) => a - b);
 
-        if (proceed) {
-            this.setState(({fileContentState}) => ({
-                fileContentState: {
-                    ...fileContentState,
-                    lineSelected: index,
-                    isAutoDetect: index > 0 ? false : fileContentState.isAutoDetect
+            if (result.length > 5) {
+                throw 'Please select no more than 5 records';
+            }
+
+            // Merge(union) the selected schemas
+            let columns = [];
+            let rowpath = null;
+            for (const index of result) {
+                const schema = this.state.fileContentState.content[index].schema;
+                if (rowpath == null) {
+                    rowpath = schema.rowpath;
+                } else {
+                    if (rowpath != schema.rowpath) {
+                        throw `Different rowpath in line ${index + 1}`;
+                    }
                 }
-            }));
+
+                columns = columns.concat(schema.columns);
+            }
+            const unionColumns = [...SchemaService.unionSchemas(columns)];
+
+            // Set unionized schema in Edit Schema
+            let proceed = true;
+            if (unionColumns.length > 0) {
+                const schema = {
+                    rowpath: rowpath,
+                    columns: unionColumns
+                };
+                proceed = await this._selectSchema(schema);
+            } else {
+                proceed = await this._selectSchema(null);
+            }
+
+            // Update schema selection state
+            if (proceed) {
+                this.setState(({fileContentState}) => ({
+                    fileContentState: {
+                        ...fileContentState,
+                        linesSelected: [...result],
+                        isAutoDetect: result.length > 0 ? false : fileContentState.isAutoDetect
+                    }
+                }));
+            }
+        } catch(e) {
+            this._alert({
+                title: 'Select Schema Error',
+                message: `${e.message || e.error || e}`
+            });
         }
     }
 
@@ -984,7 +1025,7 @@ class LoadConfig extends React.Component {
             fileContentState: {
                 ...fileContentState,
                 isAutoDetect: isEnable,
-                lineSelected: isEnable ? -1 : fileContentState.lineSelected
+                linesSelected: isEnable ? [] : fileContentState.linesSelected
             }
         }));
     }
@@ -1115,7 +1156,7 @@ class LoadConfig extends React.Component {
                                 }}
                                 fileContentProps={{
                                     ...fileContentState,
-                                    onLineChange: (index) => { this._selectFileLine(index); },
+                                    onLineChange: (indexList, isSelect) => { this._selectFileLines(indexList, isSelect); },
                                     onAutoDetectChange: (checked) => { this._enableAutoDetectSchema(checked); },
                                     onOffsetChange: (offset) => { this._setPreviewOffset(offset); },
                                     onClickDiscover: () => {},
