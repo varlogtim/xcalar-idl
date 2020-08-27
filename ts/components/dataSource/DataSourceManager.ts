@@ -319,9 +319,7 @@ class DataSourceManager {
         if ($targetView.hasClass("firstTouch")) {
             DSTargetManager.getTargetTypeList()
             .always(function() {
-                if (!isAdmin) {
-                    DSTargetManager.clickFirstGrid();
-                }
+                DSTargetManager.clickFirstGrid();
             });
             $targetView.removeClass("firstTouch");
         }

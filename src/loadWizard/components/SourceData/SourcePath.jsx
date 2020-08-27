@@ -3,6 +3,7 @@ import * as Path from 'path'
 import { FileType } from '../../services/SchemaService'
 import InputDropdown from "../../../components/widgets/InputDropdown"
 import NavButtons from '../NavButtons'
+import { Folder, FileCopy, InsertDriveFileOutlined } from '@material-ui/icons'
 
 const Texts = {
     bucketName: 'S3 Bucket',
@@ -63,7 +64,8 @@ export default function SourcePath({
     connector,
     onConnectorChange = (connector) => {},
     isForensicsLoading,
-    fetchForensics
+    fetchForensics,
+    selectedFileDir
 }) {
     // the getAvailableS3Bucket is async call, it may not be ready the first it's rendernder,
     // so need to put it in the onOpen callback
@@ -98,6 +100,9 @@ export default function SourcePath({
                                 list={getConnectorList(connectors)}
                                 readOnly
                             />
+                            <button type="button" className="btn btn-secondary" onClick={() => {
+                                LoadScreen.switchTab("connector");
+                            }}>Edit Connectors</button>
                             <button type="button" className="btn btn-secondary" onClick={() => {
                                 DSTargetManager.showTargetCreateView();
                             }}>Add Connector</button>
@@ -160,6 +165,20 @@ export default function SourcePath({
                         </div>
                     </div>
                 </div>
+                { selectedFileDir.length > 0 ?
+                    <div className="row">
+                        <div className="selectedFileName">
+                            <label className="label">Selected {selectedFileDir[0].directory ? "Folder" : "File"}</label>
+                            <div className="inputRow">
+                            {selectedFileDir[0].directory ?
+                            <Folder style={{fontSize: 20, position: "relative", top: 2, left: 2}}/> :
+                            <InsertDriveFileOutlined style={{fontSize: 20, position: "relative", top: 2, left: 2}}/>
+                            }
+                                {selectedFileDir[0].name}
+                            </div>
+                        </div>
+                    </div>
+                : null}
             </form>
         </div>
     );

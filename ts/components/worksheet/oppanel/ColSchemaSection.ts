@@ -3,6 +3,7 @@ class ColSchemaSection {
     private _initialSchema: ColSchema[];
     private _hintSchema: ColSchema[];
     private _validTypes: ColumnType[];
+    private _callback: Function;
     private _options: {
         hasMapping: boolean, // extra "mapping" column next to name and type
         canAdd: boolean // show/hide "add column" button
@@ -34,8 +35,9 @@ class ColSchemaSection {
     public render(schema: ColSchema[], options?: {
         hasMapping?: boolean,
         canAdd?: boolean
-    }): void {
+    }, callback?: Function): void {
         this.clear();
+        this._callback = callback;
         const { hasMapping = false, canAdd = true } = options || {};
         this._options = {
             hasMapping: hasMapping,
@@ -45,10 +47,16 @@ class ColSchemaSection {
             this._addList(schema);
         }
         this._showAddColumn();
+        if (this._callback) {
+            this._callback(this.getSchema(true));
+        }
     }
 
     public clear(): void {
         this._addNoSchemaHint();
+        if (this._callback) {
+            this._callback(this.getSchema(true));
+        }
     }
 
     public getSchema(ignore: boolean): ColSchema[] {
@@ -199,12 +207,18 @@ class ColSchemaSection {
         if ($rowToReplace != null) {
             $rowToReplace.remove();
         }
+        if (this._callback) {
+            this._callback(this.getSchema(true));
+        }
     }
 
     private _removeList($row: JQuery): void {
         $row.remove();
         if (this._$section.find(".part").length === 0) {
             this._addNoSchemaHint();
+        }
+        if (this._callback) {
+            this._callback(this.getSchema(true));
         }
     }
 
@@ -388,6 +402,9 @@ class ColSchemaSection {
 
         $section.on("change", ".part .name input", (event) => {
             const $nameInput: JQuery = $(event.target);
+            if (this._callback) {
+                this._callback(this.getSchema(true));
+            }
             if ($nameInput.siblings(".list").is(":visible")) {
                 return;
             }

@@ -3,6 +3,12 @@ import { validateSchemaString } from '../../services/SchemaService'
 
 
 class EditSchema extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.state = {
+            editAsText: true
+        };
+    }
     _schemaChange(newSchema) {
         const { onSchemaChange } = this.props;
 
@@ -42,7 +48,8 @@ class EditSchema extends React.PureComponent {
         } catch (e) {
             selectedSchema = [];
         }
-        SchemaSelectionModal.Instance.show(selectedSchema, editedSchema, callback, {
+
+        SchemaSelectionModal2.Instance.show(selectedSchema, editedSchema, callback, {
             hasMapping: true,
             canAdd: showAdd
         });
@@ -50,12 +57,35 @@ class EditSchema extends React.PureComponent {
 
     render() {
         const { errorMessage, schema, classNames = [], showAdd = true } = this.props;
-
+        let switchClass = "xc-switch switch";
+        if (this.state.editAsText) {
+            switchClass += " on";
+        }
         const cssClass = ['editSchema'].concat(classNames);
         return (<div className={cssClass.join(' ')}>
-            <div className="rowContent schemaDesc">
+            {/* <div className="rowContent schemaDesc">
                 Use the <span className="schemaWizard xc-wizard" onClick={this.showSchemaWizard.bind(this, showAdd)}>Schema Wizard</span>
                 &nbsp;to generate the table schema or edit the auto-detected schema in the text box below.
+            </div>
+            <div className="rowContent schemaDesc" onClick={() => {
+                SchemaSelectionModal2.Instance.submit();
+            }}>
+                Edit as text
+            </div> */}
+            <div className="switchWrap" onClick={() => {
+                if (this.state.editAsText) {
+                    this.showSchemaWizard(showAdd);
+                } else {
+                    SchemaSelectionModal2.Instance.submit();
+                }
+                this.setState({
+                    editAsText: !this.state.editAsText
+                });
+            }}>
+                <div className={switchClass}>
+                    <div className="slider"></div>
+                </div>
+                <label>Edit as text</label>
             </div>
             { errorMessage != null && <div className="editSchema-error">{errorMessage}</div> }
             <textarea
@@ -64,6 +94,7 @@ class EditSchema extends React.PureComponent {
                 value={schema}
                 spellCheck="false"
             />
+            <div id="schemaSelectionModalWrapper"></div>
         </div>);
     }
 }
@@ -94,7 +125,7 @@ class EditSchemaSection extends React.PureComponent {
     }
 
     render() {
-        return (<div>
+        return (<div className="editSchemaSection">
             <div ref={this.scroll.ref} className="header">Edit Schema</div>
             <EditSchema {...this.props} />
         </div>);

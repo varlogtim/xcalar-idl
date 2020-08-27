@@ -24,9 +24,6 @@ class FilePreview extends React.PureComponent {
                     window.open("https://xcalar.com/documentation/Content/Content_QSG/qs_intro_build_datamart_2.htm");
                 }}></i>
             </div>
-            <div className="headerHelpText">
-                <i className="icon xi-info-circle-outline"></i>Select records(max to 5) to discover your schema
-            </div>
             <AdvOption.Container>
                 <AdvOption.OptionGroup>
                     <AdvOption.Option classNames={['fullRow']}>
@@ -35,6 +32,9 @@ class FilePreview extends React.PureComponent {
                     </AdvOption.Option>
                 </AdvOption.OptionGroup>
             </AdvOption.Container>
+            <div className="headerHelpText">
+                <i className="icon xi-info-circle-outline"></i>Select records(max to 5) to discover your schema
+            </div>
             <FileContentWrap {...fileContentProps} />
         </div>);
     }
@@ -153,12 +153,12 @@ function FileContent(props) {
                 'data-original-title': JSON.stringify(unsupportedColumns, null, ' ')
             } : {};
 
-            return (<FileLine key={`${index}`} checked={selected.indexOf(index) >= 0} onChange={(checked) => {
+            return (<FileLine key={`${index}`} lineNum={index + 1} checked={selected.indexOf(index) >= 0} onChange={(checked) => {
                 onSelectChange([index], checked)
             }}>
 
                 <span className={lineCssClass} {...hintProps}>
-                    <span style={{fontStyle: 'italic'}}>{index + 1}: </span>{line}
+                    {line}
                 </span>
             </FileLine>);
         }).filter((v, i) => (i >= startIndex && i <= endIndex))}
@@ -189,12 +189,16 @@ function Pagination(props) {
 }
 
 function FileLine(props) {
-    const { checked, onChange, children } = props;
+    const { checked, onChange, children, lineNum } = props;
     const iconClasses = ['icon', checked ? 'xi-ckbox-selected' : 'xi-ckbox-empty'];
-
+    let rowClass = "csvArgs-chkbox";
+    if (checked) {
+        rowClass += " selected";
+    }
     return (
-        <div className="csvArgs-chkbox">
+        <div className={rowClass}>
             <i style={{fontSize: '14px'}} className={iconClasses.join(' ')}  onClick={() => { onChange(!checked) }} />
+            <div className="lineNum">{lineNum}</div>
             <span className="preview-line">{children}</span>
         </div>
     );

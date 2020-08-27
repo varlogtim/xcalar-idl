@@ -45,6 +45,18 @@ const stepEnum = {
     CreateTables: 'CreateTables'
 }
 
+const stepNumMap = {};
+stepNumMap[stepEnum.SourceData] = 1;
+stepNumMap[stepEnum.FilterData] = 1;
+stepNumMap[stepEnum.SchemaDiscovery] = 2;
+stepNumMap[stepEnum.CreateTables] = 3;
+const navBarStepNameMap = {
+    "1": "Browse File",
+    "2": "Specify Schema",
+    "3": "Create Table",
+};
+
+
 const stepNames = new Map();
 stepNames.set(stepEnum.SourceData, Texts.stepNameSourceData);
 stepNames.set(stepEnum.FilterData, Texts.stepNameFilterData);
@@ -77,6 +89,7 @@ class LoadConfig extends React.Component {
 
         this.state = {
             currentStep: stepEnum.SourceData,
+            currentNavStep: 1,
 
             // SourceData
             connector: defaultConnector,
@@ -1078,6 +1091,7 @@ class LoadConfig extends React.Component {
             selectedSchema,
             finalSchema,
             browseShow,
+            currentNavStep
         } = this.state;
 
         const showBrowse = browseShow;
@@ -1085,9 +1099,22 @@ class LoadConfig extends React.Component {
         const showCreate = currentStep === stepEnum.CreateTables;
         const fullPath = Path.join(bucket, homePath);
         const forensicsStats = this.metadataMap.get(fullPath);
+        let containerClass = "container cardContainer";
+        containerClass += (" step" + currentNavStep);
 
         return (
-            <div className="container cardContainer">
+            <React.Fragment>
+            <div className="loadNavBar">
+                {[1,2,3].map((num) => {
+                    return <LoadStep
+                                key={num}
+                                num={num}
+                                isSelected={currentNavStep === num}
+                                desc={navBarStepNameMap[num]}
+                            />
+                })}
+            </div>
+            <div className={containerClass}>
                 {/* start of card main */}
                 <div className="cardMain">
                     <div className="leftPart">
@@ -1103,6 +1130,7 @@ class LoadConfig extends React.Component {
                             canReset={showDiscover || showCreate}
                             onReset={this._resetAll}
                             onConnectorChange={(newConnector) => {this._setConnector(newConnector);}}
+                            selectedFileDir={selectedFileDir}
                         />
                         {
                             showBrowse &&
@@ -1222,24 +1250,52 @@ class LoadConfig extends React.Component {
                     />
                 </div>{/* end of card main */}
                 <div className="cardBottom">
-                     { showDiscover ?
+                     { (currentNavStep === 1) ?
+                                <NavButtons
+                                    right={{
+                                        label: "Next",
+                                        disabled: stepNumMap[currentStep] === 1,
+                                        tooltip: stepNumMap[currentStep] === 1 ? "Select a file first" : "",
+                                        onClick: () => {
+                                            this.setState({
+                                                currentNavStep: 2
+                                            });
+                                        }
+                                    }}
+                                /> : null
+                    }
+                     { (showDiscover && currentNavStep === 2) ?
                             <NavButtons
+                                left={{
+                                    label: "Back",
+                                    onClick: () => {
+                                        this.setState({
+                                            currentNavStep: 1
+                                        });
+                                    }
+                                }}
                                 right={{
                                     label: Texts.navButtonRight2,
                                     disabled: finalSchema == null,
                                     tooltip: finalSchema == null ? Texts.CreateTableHint : "",
                                     onClick: () => {
+                                        this.setState({
+                                            currentNavStep: 3
+                                        });
                                         this._changeStep(stepEnum.CreateTables);
                                         this._prepareCreateTableData();
                                     }
                                 }}
                             /> : null
                     }
-                    {showCreate ?
+                    {(showCreate && currentNavStep === 3) ?
                         <NavButtons
                             left={{
                                 label: Texts.navButtonLeft,
                                 onClick: () => {
+                                    this.setState({
+                                        currentNavStep: 2
+                                    });
                                     this._changeStep(stepEnum.SchemaDiscovery);
                                     this.setState({
                                         schemaDetailState: {
@@ -1261,8 +1317,22 @@ class LoadConfig extends React.Component {
                     }
                 </div>
             </div>
+            </React.Fragment>
         );
     }
+}
+
+function LoadStep(props) {
+    let classNames = "step";
+    if (props.isSelected) {
+        classNames += " selected";
+    }
+    return (
+        <div className={classNames}>
+            <div className="stepNum">STEP {props.num}</div>
+            <div className="stepDesc">{props.desc}</div>
+        </div>
+    )
 }
 
 export { LoadConfig, stepEnum };

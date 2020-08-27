@@ -575,6 +575,15 @@ namespace DSTargetManager {
                 DSForm.setDataTarget(targetName);
             }
         });
+
+        $("#backToImport").click((event) => {
+            event.preventDefault();
+            if (XVM.isCloud()) {
+                LoadScreen.switchTab("loadWizard");
+            } else {
+                LoadScreen.switchTab("import");
+            }
+        })
     }
 
     function setupGridMenu(): void {
@@ -753,7 +762,6 @@ namespace DSTargetManager {
         clearActiveTarget();
         $targetCreateCard.removeClass("xc-hidden");
         targetModalHelper.setup();
-        $targetInfoCard.addClass("xc-hidden");
         resetForm();
         if ($targetCreateCard.hasClass("firstTouch")) {
             DSTargetManager.getTargetTypeList();

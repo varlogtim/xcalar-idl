@@ -40,7 +40,8 @@ class SourceData extends React.Component {
             fetchForensics,
             isForensicsLoading,
             onFileTypeChange = (newType) => {},
-            onConnectorChange = (connector) => {}
+            onConnectorChange = (connector) => {},
+            selectedFileDir
         } = this.props;
 
         // const fullPath = Path.join(bucket, path);
@@ -59,6 +60,7 @@ class SourceData extends React.Component {
                     isForensicsLoading={isForensicsLoading}
                     connector={connector}
                     onConnectorChange={onConnectorChange}
+                    selectedFileDir={selectedFileDir}
                 />
                 {/* <div className="modelInfo">
                     Model rules:

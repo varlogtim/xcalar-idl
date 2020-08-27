@@ -33,7 +33,7 @@ class DiscoverSchemas extends React.Component {
         const commonOptions = (
             <AdvOption.OptionGroup>
                 <AdvOption.Option>
-                    <AdvOption.OptionLabel>File Type:</AdvOption.OptionLabel>
+                    <AdvOption.OptionLabel>File Type</AdvOption.OptionLabel>
                     <AdvOption.OptionValue>
                         <InputDropdown
                             val={parserType}
@@ -71,11 +71,13 @@ class DiscoverSchemas extends React.Component {
 
         return (
             <React.Fragment>
-                <AdvOption.Container>
-                    <AdvOption.Title>{Texts.advancedOptions}</AdvOption.Title>
-                    {commonOptions}
-                    {csvOptions}
-                </AdvOption.Container>
+                 <div className="configurationSection">
+                    <AdvOption.Container>
+                        <AdvOption.Title>{Texts.advancedOptions}</AdvOption.Title>
+                        {commonOptions}
+                        {csvOptions}
+                    </AdvOption.Container>
+                </div>
                 {filePreview}
                 {editSchema}
             </React.Fragment>

@@ -16,7 +16,32 @@
             height: 100%;
             flex: 1 1 auto;
             overflow: hidden;
+            display: flex;
         }
+    }
+
+    .loadNavBar {
+        width: 180px;
+        flex: 0 0 auto;
+        border-right: 1px solid @color-border-medium3;
+
+        .step {
+            height: 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-left: 40px;
+
+            .stepNum {
+                font-weight: bold;
+            }
+
+            &.selected {
+                background-color: #191919;
+            }
+
+        }
+
     }
 
     .container {
@@ -24,6 +49,30 @@
         display: flex;
         flex-direction: column;
         margin-bottom: 0px;
+
+        &.step1 {
+            .cardMain .leftPart {
+                .topSection, .configurationSection {
+                    display: block
+                }
+            }
+        }
+
+        &.step2 {
+            .cardMain .leftPart {
+                .schemaSection, .editSchemaSection {
+                    display: block
+                }
+            }
+        }
+
+        &.step3 {
+            .cardMain .leftPart {
+                .tableLoad {
+                    display: block
+                }
+            }
+        }
 
         .cardMain {
             padding: 0;
@@ -45,6 +94,10 @@
                     @padding: 16px;
                     @max-width: @min-width * 2 + (@padding * 2);
                     max-width: @max-width;
+
+                    &:not(.modal) {
+                        display: none;
+                    }
 
                     &:last-child {
                         border-bottom: none;
@@ -219,6 +272,7 @@
                     .btn, .navButtons {
                         margin-left: 12px;
                         width: 140px;
+                        flex: 0 0 140px;
                     }
                 }
 
@@ -230,6 +284,17 @@
 
                 .pathSelection {
                     flex: 1 1 auto;
+                }
+
+                .selectedFileName {
+                    .inputRow {
+                        line-height: 30px;
+                        .textOverflowOneLine;
+
+                        svg {
+                            margin-right: 12px;
+                        }
+                    }
                 }
 
                 .navButtons {
@@ -1004,10 +1069,11 @@
         }
     }
 
-    .advOption {
+    .configurationSection {
         padding-right: 164px !important;
         padding-left: 12px !important;
-
+    }
+    .advOption {
         > .header {
             margin-left: 4px;
         }
@@ -1036,7 +1102,7 @@
             }
             &.halfRow {
                 width: 40%;
-                min-width: 300px;
+                min-width: 200px;
             }
             &.checkboxRow {
                 flex-direction: row-reverse;
@@ -1125,6 +1191,7 @@
         background-color: rgba(0,0,0,0.5);
         max-width: none !important;
 
+
         .modal-content {
             background-color: @color-bg-modal;
             margin: 32px 16px;
@@ -1200,6 +1267,45 @@
         }
     }
 
+    .schemaSection {
+        .csvArgs-chkbox {
+            .lineNum, .icon {
+                width: 32px;
+                box-sizing: border-box;
+                flex: 0 0 32px;
+                text-align: center;
+            }
+            .icon {
+                display: none;
+                padding-top: 2px;
+                color: #329df8;
+            }
+            &:hover, &.selected {
+                background-color: #404040;
+                .icon {
+                    display: block;
+                }
+                .lineNum {
+                    display: none;
+                }
+            }
+            &.selected {
+                background-color: #2f4f6b;
+
+            }
+        }
+    }
+
+    .editSchema {
+        .switchWrap {
+            display: flex;
+            line-height: 22px;
+            .switch {
+                margin-right: 8px;
+            }
+        }
+    }
+
     .editSchema-textarea {
         width: 100%;
         min-height: 90px;
@@ -1214,9 +1320,11 @@
     }
 
     .headerHelpText {
+        margin-top: 4px;
+        margin-bottom: 8px;
         .icon {
             font-size: 14px;
-            margin-right: 4px;
+            margin-right: 8px;
             position: relative;
             top: 1px;
         }
@@ -1224,6 +1332,8 @@
 
     .scrollSection {
         overflow: auto;
+        border: 1px solid @color-border-medium3;
+        background-color: #252525;
     }
     .preview-line {
         padding-left: 4px;
@@ -1244,4 +1354,58 @@
             width: ~"calc(100% - 30px)";
         }
     }
+}
+
+#schemaSelectionModalWrapper {
+    #schemaSelectionModal {
+        border: none;
+        width: 100%;
+        height: auto;
+        position: relative;
+        display: block !important;
+        box-shadow: none;
+
+        .modalHeader, .modalBottom {
+            display: none;
+        }
+        .modalMain {
+            padding: 0px;
+            .label {
+                display: none;
+            }
+            .colSchemaSection {
+                top: 0px;
+                overflow: visible;
+            }
+        }
+        .listSection {
+            padding: 0px;
+            padding-top: 8px;
+        }
+
+        .buttonSection {
+            position: absolute;
+            top: -20px;
+            right: 0px;
+        }
+    }
+}
+body.isCloud {
+    #loadScreen {
+        padding-left: 0px;
+
+        > .topBar {
+            padding-left: 40px;
+        }
+
+        .contentSection {
+            > .tabSection {
+                display: none;
+            }
+            > .panelSection {
+                width: 100%;
+            }
+        }
+    }
+
 }
