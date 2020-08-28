@@ -209,6 +209,29 @@
         }
     }
 
+    &.modalContainerNew {
+        .modalHeader {
+            height: 60px;
+            padding: 0 24px;
+            border-bottom: 1px solid @color-border-medium3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .text {
+                font-size: 16px;
+            }
+        }
+
+        .modalBottom {
+            display: flex;
+            justify-content: space-between;
+            .btn {
+                float: none;
+            }
+        }
+    }
+
     .ui-resizable-se {
         bottom: -5px;
         right: -5px;
@@ -5791,21 +5814,6 @@ html.microsoft {
 }
 
 #dsTarget-create-card {
-    .modalHeader {
-        height: 60px;
-        padding: 0 24px;
-        border-bottom: 1px solid @color-border-medium3;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        .text {
-            // text-align: center;
-            font-size: 16px;
-            // width: 100%;
-        }
-    }
-
     .modalMain {
         padding-top: 0px !important;
         height: ~"calc(100% - 92px)" !important;

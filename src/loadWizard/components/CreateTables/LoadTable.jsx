@@ -264,7 +264,7 @@ function LoadTable({
         if (isFailedSchema(schemaName)) {
             // XXX TODO: show failed files/reasons
             const rowData = {
-                schema: <button className="btn btn-secondary viewSchema" onClick={() => { onClickFailedSchema(); }}>Failed</button>,
+                schema: <button className="btn btn-secondary btn-new viewSchema" onClick={() => { onClickFailedSchema(); }}>Failed</button>,
                 count: files.count,
                 size: prettyBytes(files.size || 0),
                 time: 'N/A',
@@ -274,7 +274,7 @@ function LoadTable({
             loadTableData.push(rowData);
         } else {
             const rowData = {
-                schema: <button className="btn btn-secondary viewSchema" onClick={() => { onClickSchema(schemaName); }}>View</button>,
+                schema: <button className="btn btn-secondary btn-new viewSchema" onClick={() => { onClickSchema(schemaName); }}>View</button>,
                 count: files.count,
                 size: prettyBytes(files.size || 0),
                 time: xcTimeHelper.getElapsedTimeStr(Math.ceil(etaCost.loadEtaBySize(files.size) * 1000)),

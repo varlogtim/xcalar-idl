@@ -42,7 +42,7 @@ function Button(props) {
         disabled = false,
         classNames = []
     } = props;
-    const btnClasses = ["btn"].concat(classNames);
+    const btnClasses = ["btn", "btn-new"].concat(classNames);
     if (disabled) {
         btnClasses.push("btn-disabled");
     }

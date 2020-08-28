@@ -22,7 +22,7 @@ export default class SourceCSVArgSection extends React.Component{
         const isConfigChanged = this._isConfigChanged(initConfig.CSV, csvConfig);
         const hasError = Object.keys(errorInputs).length > 0;
         const { FileHeaderInfo, AllowQuotedRecordDelimiter } = csvConfig;
-        const buttonClasses = ["btn", "btn-secondary"];
+        const buttonClasses = ["btn", "btn-secondary", "btn-new"];
         if (!isConfigChanged || hasError) {
             buttonClasses.push("btn-disabled");
         }

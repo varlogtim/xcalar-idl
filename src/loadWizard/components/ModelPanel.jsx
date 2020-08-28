@@ -25,7 +25,7 @@ export default function ModelPanel({
             <div className="modelPanelContent">
             <div className="header">{Texts.importModels}</div>
                 <button
-                    className="addModel btn btn-secondary"
+                    className="addModel btn btn-secondary btn-new"
                     onClick={() => { onSelectModel();} }>
                         <i className="icon xi-plus fa-11"></i>
                     <span>{Texts.newModel}</span>

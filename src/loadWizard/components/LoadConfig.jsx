@@ -27,7 +27,7 @@ const Texts = {
     navButtonLeft: 'Back',
     navButtonRight: 'Navigate to Notebook',
     navToNotebookHint: "Please create a table first",
-    navButtonRight2: 'Create Table',
+    navButtonRight2: 'Next',
     CreateTableHint: 'Please specify schema first',
     ResetInDiscoverLoading: 'Cannot reset when selected files are loading.',
     ResetInDiscoverBatch: "Cannot reset when discovering schema, please cancel discover schema first.",
@@ -1306,7 +1306,7 @@ class LoadConfig extends React.Component {
                             }}
                             right={{
                                 label: Texts.navButtonRight,
-                                classNames: ["btn-secondary", "autoWidth"],
+                                classNames: ["btn-primary", "autoWidth"],
                                 disabled: this.state.createTables.size === 0,
                                 tooltip: this.state.createTables.size === 0 ? Texts.navToNotebookHint : "",
                                 onClick: this.state.createTables.size === 0 ? null : () => {

@@ -100,10 +100,10 @@ export default function SourcePath({
                                 list={getConnectorList(connectors)}
                                 readOnly
                             />
-                            <button type="button" className="btn btn-secondary" onClick={() => {
+                            <button type="button" className="btn btn-secondary btn-new" onClick={() => {
                                 LoadScreen.switchTab("connector");
                             }}>Edit Connectors</button>
-                            <button type="button" className="btn btn-secondary" onClick={() => {
+                            <button type="button" className="btn btn-secondary btn-new" onClick={() => {
                                 DSTargetManager.showTargetCreateView();
                             }}>Add Connector</button>
                         </div>

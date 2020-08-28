@@ -10,7 +10,7 @@ const Texts = {
 };
 
 function Create({ onClick }) {
-    return <button className="btn btn-secondary" onClick={onClick}>{Texts.createButtonLabel}</button>
+    return <button className="btn btn-secondary btn-new" onClick={onClick}>{Texts.createButtonLabel}</button>
 }
 
 function Loading({ message }) {

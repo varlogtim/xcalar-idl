@@ -127,7 +127,7 @@ class AutoDetectSection extends React.PureComponent {
                     onChange={(size) => { onSampleSizeChange(size); }}
                 >Sample Size:</OptionSampleSize>
             </AdvOption.OptionGroup></AdvOption.Container>
-            <button className="btn btn-secondary" onClick={() => { onDiscover(); }}>Discover</button>
+            <button className="btn btn-secondary btn-new" onClick={() => { onDiscover(); }}>Discover</button>
         </div>);
     }
 }
