@@ -4,6 +4,7 @@ class DagUDFErrorModal {
     private _modalHelper: ModalHelper;
     private _node: DagNodeMap;
     private _tabId: string;
+    private _isOptimized: boolean;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -30,6 +31,7 @@ class DagUDFErrorModal {
         }
         this._tabId = DagViewManager.Instance.getActiveTab().getId();
         this._node = <DagNodeMap>DagViewManager.Instance.getActiveDag().getNode(nodeId);
+        this._isOptimized = DagViewManager.Instance.getActiveTab() instanceof DagTabOptimized;
         if (this._node == null) {
             // error case
             return false;
@@ -90,12 +92,16 @@ class DagUDFErrorModal {
 
         this._$modal.find(".errorList").html(html);
 
-
+        this._$modal.removeClass("optimized");
+        this._$modal.removeClass("hasExtraErrors");
         if (count < errorInfo.numRowsFailedTotal) {
-            this._$modal.addClass("hasExtraErrors");
-        } else {
-            this._$modal.removeClass("hasExtraErrors");
+            if (this._isOptimized && count === 0) {
+                this._$modal.addClass("optimized");
+            } else {
+                this._$modal.addClass("hasExtraErrors");
+            }
         }
+
         let $group = this._$modal.find(".evalGroup")
         if ($group.length === 1) {
             $group.addClass("expanded");
@@ -106,11 +112,11 @@ class DagUDFErrorModal {
             this._$modal.find(".expandAll").show();
         }
 
-        if (count === 0) {
+        if (count === 0 && !this._isOptimized) {
             this._$modal.find(".errorList").html(`<div class="noErrors">N/A</div>`);
-            this._$modal.find(".modalTop").hide();
+            this._$modal.find(".modalTopMain").hide();
         } else {
-            this._$modal.find(".modalTop").show();
+            this._$modal.find(".modalTopMain").show();
         }
 
         function getRowHtml(err) {

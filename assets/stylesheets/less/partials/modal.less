@@ -4663,10 +4663,29 @@ html.microsoft {
         .modalInstruction {
             display: flex;
         }
+        .extraErrors {
+            display: block;
+        }
 
         .modalMain {
             height: ~"calc(100% - @{h-without-main} - @{modal-instr-h})";
         }
+    }
+
+    &.optimized {
+        .modalInstruction {
+            display: flex;
+        }
+        .optimizedMsg {
+            display: block;
+        }
+        .modalMain, .modalTopMain, .divider {
+            display: none;
+        }
+    }
+
+    .extraErrors, .optimizedMsg {
+        display: none;
     }
 
     .modalInstruction {
