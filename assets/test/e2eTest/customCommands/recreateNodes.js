@@ -167,12 +167,10 @@ class RecreateNodes extends EventEmitter {
                         .pause(pause)
                         .setValue("#dfLinkOutPanel .linkOutName .inputWrap input", input.name);
                         if (input.linkAfterExecution) {
-                            this.api.waitForElementNotPresent("#formWaitingBG", 3000)
-                                .click('#dfLinkOutPanel .argsSection .inputWrap .checkbox.checked');
+                            this.api.waitForElementNotPresent("#formWaitingBG", 3000);
                         }
                         if (nodeInfo.title === "optimized") {
-                            this.api.waitForElementNotPresent("#formWaitingBG", 3000)
-                                .click("#dfLinkOutPanel .selectAllWrap .checkbox");
+                            this.api.waitForElementNotPresent("#formWaitingBG", 3000);
                         }
                     this.api.click('#dfLinkOutPanel .submit')
                         .waitForElementNotVisible('#dfLinkOutPanel');
