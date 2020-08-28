@@ -717,7 +717,7 @@ class LoadConfig extends React.Component {
         const { fileSelectState } = this.state;
         const { fileSelected } = fileSelectState;
         if (fileSelected != null) {
-            this._fetchFileContent(fileSelect.fullPath, inputSerialization);
+            this._fetchFileContent(fileSelected.fullPath, newOption);
         }
     }
 
