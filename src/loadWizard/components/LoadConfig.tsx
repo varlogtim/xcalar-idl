@@ -1,5 +1,5 @@
-import React from 'react';
-import crypto from 'crypto';
+import * as React from 'react';
+import * as crypto from 'crypto';
 import SourceData from './SourceData';
 import { BrowseDataSourceModal } from './BrowseDataSource';
 import DiscoverSchemas from './DiscoverSchemas';
@@ -13,8 +13,6 @@ import * as Path from 'path';
 import * as SchemaLoadService from '../services/SchemaLoadService'
 import * as SchemaLoadSetting from '../services/SchemaLoadSetting'
 import { listFilesWithPattern, defaultFileNamePattern } from '../services/S3Service'
-
-const { Alert } = global;
 
 /**
  * UI texts for this component
@@ -75,7 +73,19 @@ function deleteEntries(setOrMap, keySet) {
     return setOrMap;
 }
 
-class LoadConfig extends React.Component {
+// XXX TODO: Complete the definitions
+type LoadConfigProps = any;
+type LoadConfigState = any;
+
+class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
+    private metadataMap: Map<any, any>;
+    private _initConfigHash: string;
+    private _eventOnStepChange: any;
+    private _fetchFileJob: {
+        cancel: () => void,
+        getFilePath: () => string
+    };
+
     constructor(props) {
         super(props);
         // Initialize state
@@ -464,7 +474,7 @@ class LoadConfig extends React.Component {
             folderName = folderName.toUpperCase();
             let prefix = xcHelper.checkNamePattern(category,
                 PatternAction.Fix, folderName, "_");
-            if (xcStringHelper.isStartWithLetter(prefix)) {
+            if (xcStringHelper.isStartWithLetter(prefix as string)) {
                 name = prefix + name;
             }
         }
@@ -721,7 +731,7 @@ class LoadConfig extends React.Component {
         }
     }
 
-    async _browseClose(selectedFileDir = null, fileNamePattern) {
+    async _browseClose(selectedFileDir = null, fileNamePattern = '') {
         if (selectedFileDir == null) {
             this.setState({
                 browseShow: false
@@ -904,8 +914,8 @@ class LoadConfig extends React.Component {
     async _selectFileLines(indexList, isSelect) {
         try {
             // Figure out the lines still selected
-            const selected = new Set(this.state.fileContentState.linesSelected);
-            const changes = new Set(indexList);
+            const selected = new Set<number>(this.state.fileContentState.linesSelected);
+            const changes = new Set<number>(indexList);
             const result = [...(isSelect
                 ? SetUtils.union(selected, changes)
                 : SetUtils.diff(selected, changes))].sort((a,b) => a - b);
@@ -1231,7 +1241,7 @@ class LoadConfig extends React.Component {
                                         this._createTableFromSchema(this.state.finalSchema, tableName);
                                     }}
                                     onPrevScreen = {() => { this._changeStep(stepEnum.SchemaDiscovery); }}
-                                    onLoadSchemaDetail = {(schemaHash) => { this._getSchemaDetail(); }}
+                                    onLoadSchemaDetail = {(schemaHash) => { this._getSchemaDetail(null); }}
                                     onLoadFailureDetail = {() => { /* Not supported anymore */ }}
                                 >
                                     <div className="header">{Texts.stepNameCreateTables}</div>

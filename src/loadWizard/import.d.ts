@@ -1,0 +1,11 @@
+declare var StatusBox;
+declare var PTblManager;
+declare var xcHelper;
+declare var PatternCategory;
+declare var PatternAction;
+declare var xcStringHelper;
+declare var LoadScreen;
+declare var DSTargetManager;
+declare var Alert;
+declare var HomeScreen;
+declare var UrlToTab;

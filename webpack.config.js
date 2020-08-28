@@ -161,6 +161,15 @@ module.exports = function(env, argv) {
             module: {
                 rules: [
                     {
+                        test: /\.tsx?$/,
+                        loader: "ts-loader",
+                        options: {
+                            // context: where to find tsconfig.json
+                            context: path.resolve(env.buildroot, "src")
+                        },
+                        exclude: /node_modules/
+                    },
+                    {
                         test: /\.jsx?$/,
                         loader: "babel-loader",
                         options: {

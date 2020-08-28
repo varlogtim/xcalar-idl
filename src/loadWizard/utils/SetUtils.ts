@@ -1,4 +1,4 @@
-function diff(setA, setB) {
+function diff<T>(setA: Iterable<T>, setB: Iterable<T>) {
     const _difference = new Set(setA);
     for (const elem of setB) {
         _difference.delete(elem)
@@ -6,7 +6,7 @@ function diff(setA, setB) {
     return _difference;
 }
 
-function union(setA, setB) {
+function union<T>(setA: Iterable<T>, setB: Iterable<T>) {
     const _union = new Set(setA)
     for (const elem of setB) {
         _union.add(elem)
@@ -14,8 +14,8 @@ function union(setA, setB) {
     return _union;
 }
 
-function intersection(setA, setB) {
-    let _intersection = new Set()
+function intersection<T>(setA: Set<T>, setB: Set<T>) {
+    let _intersection = new Set<T>()
     for (let elem of setB) {
         if (setA.has(elem)) {
             _intersection.add(elem)
