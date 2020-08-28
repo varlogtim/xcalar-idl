@@ -298,7 +298,7 @@ function LoadTable({
                 rowData.load = <LoadCell.Create onClick={(e) => {
                     // XXX this is a hacky way to use jQuery in order to use xcHelper.validate
                     const $button = $(e.target);
-                    const $input = $button.parent().prev().find(".tableInput");
+                    const $input = $button.parent().parent().find(".tableInput");
                     const validTableName = validateCreate($input, tableName);
                     if (validTableName) {
                         onClickCreateTable(schemaName, validTableName);

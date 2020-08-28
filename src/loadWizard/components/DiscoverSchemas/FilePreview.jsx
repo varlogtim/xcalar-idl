@@ -143,25 +143,27 @@ function FileContent(props) {
     const endIndex = startIndex + (numRows > 0 ? numRows : data.length) - 1;
     return (<div>
         <div className="scrollSection">
-        {data.map(({line, status}, index) => {
-            const { hasError =  false, errorMessage = null, unsupportedColumns = [] } = status;
-            const lineCssClass = hasError ? 'fileLine-error': null;
-            const hintProps = hasError ? {
-                'data-toggle': "tooltip",
-                'data-container': "body",
-                'data-placement': "top auto",
-                'data-original-title': JSON.stringify(unsupportedColumns, null, ' ')
-            } : {};
+            <div className="innerScrollSection">
+            {data.map(({line, status}, index) => {
+                const { hasError =  false, errorMessage = null, unsupportedColumns = [] } = status;
+                const lineCssClass = hasError ? 'fileLine-error': null;
+                const hintProps = hasError ? {
+                    'data-toggle': "tooltip",
+                    'data-container': "body",
+                    'data-placement': "top auto",
+                    'data-original-title': JSON.stringify(unsupportedColumns, null, ' ')
+                } : {};
 
-            return (<FileLine key={`${index}`} lineNum={index + 1} checked={selected.indexOf(index) >= 0} onChange={(checked) => {
-                onSelectChange([index], checked)
-            }}>
+                return (<FileLine key={`${index}`} lineNum={index + 1} checked={selected.indexOf(index) >= 0} onChange={(checked) => {
+                    onSelectChange([index], checked)
+                }}>
 
-                <span className={lineCssClass} {...hintProps}>
-                    {line}
-                </span>
-            </FileLine>);
-        }).filter((v, i) => (i >= startIndex && i <= endIndex))}
+                    <span className={lineCssClass} {...hintProps}>
+                        {line}
+                    </span>
+                </FileLine>);
+            }).filter((v, i) => (i >= startIndex && i <= endIndex))}
+            </div>
         </div>
         { children }
     </div>);

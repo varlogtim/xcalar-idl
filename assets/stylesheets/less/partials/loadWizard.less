@@ -1,5 +1,5 @@
 #loadWizard {
-    @min-width: 450px; 
+    @min-width: 450px;
 
     .App {
         height: 100%;
@@ -950,6 +950,7 @@
                 text-align: center;
                 position: relative;
                 font-size: 13px;
+                line-height: 35px;
             }
         }
 
@@ -1369,6 +1370,9 @@
         overflow: auto;
         border: 1px solid @color-border-medium3;
         background-color: #252525;
+    }
+    .inneerScrollSection {
+        display: table; // allows width to expand to children size
     }
     .preview-line {
         padding-left: 4px;

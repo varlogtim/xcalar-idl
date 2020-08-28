@@ -354,6 +354,7 @@ class ColSchemaSection {
             onSelect: ($li) => {
                 const $text: JQuery = $li.closest(".dropDownList").find(".text");
                 $text.text($li.text());
+                this._callback(this.getSchema(true));
             },
             container: selector,
             bounds: selector,
@@ -415,6 +416,12 @@ class ColSchemaSection {
                 type: <ColumnType>type
             }
             this._selectList($part, schema);
+        });
+
+        $section.on("change", ".part .mapping input", (event) => {
+            if (this._callback) {
+                this._callback(this.getSchema(true));
+            }
         });
     }
 }
