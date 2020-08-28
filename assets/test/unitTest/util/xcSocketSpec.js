@@ -107,7 +107,7 @@ describe("xcSocket Test", function() {
             }
 
             xcSocket._addAuthenticationEvents();
-            xcSocket._addSocketEvents();
+            xcSocket._addSocketEventsAfterSetup();
         });
 
         it("should reject on connect fail", function(done) {

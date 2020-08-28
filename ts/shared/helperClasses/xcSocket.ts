@@ -32,10 +32,11 @@ class XcSocket {
         this._registerBrowserSession();
         this._addAuthenticationEvents();
         this._addWorkbookEvents();
+        this._addPublishTableEvents();
     }
 
     public addEventsAfterSetup(): void {
-        this._addSocketEvents();
+        this._addSocketEventsAfterSetup();
     }
 
     public checkUserSessionExists(workbookId: string): XDPromise<boolean> {
@@ -125,6 +126,14 @@ class XcSocket {
         const socket = this._socket;
         socket.on("refreshWorkbook", (info) => {
             WorkbookManager.updateWorkbooks(info);
+        });
+    }
+
+    private _addPublishTableEvents(): void {
+        const socket = this._socket;
+        // receives events even if user is not in a workbook
+        socket.on("refreshIMD", (arg) => {
+            PTblManager.Instance.updateInfo(arg);
         });
     }
 
@@ -232,7 +241,7 @@ class XcSocket {
         });
     }
 
-    private _addSocketEvents(): void {
+    private _addSocketEventsAfterSetup(): void {
         const socket = this._socket;
 
         socket.on('refreshUDF', (refreshOption: { isUpdate: boolean, isDelete: boolean }) => {
@@ -247,13 +256,6 @@ class XcSocket {
                 return;
             }
             UserSettings.Instance.sync();
-        });
-
-        socket.on("refreshIMD", (arg) => {
-            if (!this._isRegistered) {
-                return;
-            }
-            PTblManager.Instance.updateInfo(arg);
         });
 
         socket.on("refreshDagCategory", () => {
