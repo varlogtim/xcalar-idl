@@ -2656,6 +2656,12 @@
         }
     }
 
+    &.fromTable-false {
+        .copy {
+            display: none;
+        }
+    }
+
     .header {
         border-bottom: 1px solid @color-border-medium2;
         border-top-left-radius: 18px;
@@ -2685,6 +2691,13 @@
                 height: 58px;
                 line-height: 58px;
             }
+        }
+        .copy {
+            position: absolute;
+            top: 0px;
+            right: 68px;
+            line-height: 58px;
+            cursor: pointer;
         }
         .pinArea {
             position: absolute;

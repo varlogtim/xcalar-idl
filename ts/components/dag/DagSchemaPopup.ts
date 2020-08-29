@@ -7,6 +7,7 @@ class DagSchemaPopup {
     private _dagView: DagView;
     private _$dagArea: JQuery;
     private _fromTable: boolean;
+    private _tableSchema: ColSchema[];
 
     public constructor(nodeId: DagNodeId, tabId: string, fromTable: boolean = false) {
         this._nodeId = nodeId;
@@ -138,6 +139,11 @@ class DagSchemaPopup {
                 this._$popup.addClass("pinned");
             }
         });
+
+        $popup.find(".copy").click(() => {
+            xcUIHelper.copyToClipboard(JSON.stringify(this._tableSchema, null, 4));
+            xcUIHelper.showSuccess("Copied.");
+        })
     }
 
     private _fillColumns(): void {
@@ -257,8 +263,12 @@ class DagSchemaPopup {
         }
 
         // list columns that have no change (have not been seen)
-
+        this._tableSchema = [];
         this._tableColumns.forEach(progCol => {
+            this._tableSchema.push({
+                name: progCol.getBackColName(),
+                type: progCol.getType()
+            });
             if (seenColumns.has(progCol.getBackColName())) {
                 return;
             }
@@ -347,6 +357,7 @@ class DagSchemaPopup {
         this._dagNode = null;
         this._nodeId = null;
         this._tabId = null;
+        this._tableSchema = [];
         xcTooltip.hideAll();
     }
 
@@ -407,6 +418,8 @@ class DagSchemaPopup {
                 <div class="title">
                     <span class="tableName text">Schema${changes}: ${this._dagNode.getTitle()}</span>
                 </div>
+                <i class="icon xi-copy-clipboard copy" data-container="body" data-placement="auto top"
+                data-toggle="tooltip" title="" data-original-title="Copy Schema"></i>
                 <div class="pinArea">
                     <i class="icon xi-unpinned" data-container="body" data-placement="auto top"
                     data-toggle="tooltip" title="" data-original-title="Pin"></i>
