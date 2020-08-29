@@ -401,8 +401,7 @@ class BrowseDataSource extends React.Component {
                             onDeselect={(files) => { this._deselectFiles(files); }}
                             onInfoClick={(path) => { this._fetchForensics(path); }}
                             fileType={fileType}
-                            // canUpload={this.props.connector === DSTargetManager.getPrivateS3Connector()}
-                            canUpload={false}
+                            canUpload={DSTargetManager.isPrivateS3Bucket(this.props.connector, bucket)}
                             addTempFile={(fileName, path) => {this._addTempFile(fileName, path)}}
                             removeFile={(filePath) => {this._removeFile(filePath)}}
                             toggleFileLoading={(filePath, isLoading) => {this._toggleFileLoading(filePath, isLoading)}}

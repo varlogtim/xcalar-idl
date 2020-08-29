@@ -32,6 +32,7 @@ namespace DSTargetManager {
         xcalar_table_gen,
         xcalar_table_store
     ];
+    let privateBucket: string = null;
     let availableS3Buckets: string[] = [];
 
     export const S3Connector: string = "s3fullaccount";
@@ -77,19 +78,6 @@ namespace DSTargetManager {
     export function isGeneratedTarget(targetName: string): boolean {
         let target = DSTargetManager.getTarget(targetName);
         if (target && target.type_id === "memory") {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * DSTargetManager.isAWSTarget
-     * @param targetName
-     */
-    export function isAWSTarget(targetName: string): boolean {
-        let target = DSTargetManager.getTarget(targetName);
-        if (target && target.type_id === "aws") {
             return true;
         } else {
             return false;
@@ -304,14 +292,21 @@ namespace DSTargetManager {
         let promise = deferred.promise();
         xcUIHelper.showRefreshIcon($targetCreateCard, null, promise);
         return promise;
-    }
+    } 
 
     /**
      * DSTargetManager.isAWSConnector
      * @param connector
      */
-    export function isAWSConnector(connector: string): boolean{
-        return connector === "Xcalar S3 Connector";
+    export function isAWSConnector(targetName: string): boolean{
+        let target = DSTargetManager.getTarget(targetName);
+        if (XVM.isOnAWS() && target && target.type_id === "s3environ") {
+            console.log("true")
+            return true;
+        } else {
+            console.log("false")
+            return false;
+        }
     }
 
     /**
@@ -319,6 +314,19 @@ namespace DSTargetManager {
      */
     export function getAvailableS3Buckets(): string[] {
         return availableS3Buckets;
+    }
+
+    /**
+     * DSTargetManager.isPrivateS3Bucket
+     */
+    export function isPrivateS3Bucket(targetName: string, bucket: string): boolean {
+        if (!XVM.isCloud()) {
+            return false;
+        }
+        if (!DSTargetManager.isAWSConnector(targetName)) {
+            return false;
+        }
+        return bucket && bucket === privateBucket;
     }
 
     /**
@@ -416,7 +424,7 @@ namespace DSTargetManager {
         return xcalar_private_s3;
     }
 
-    export function updateSelectedConnector(targetName) {
+    export function updateSelectedConnector(_targetName) {
         // overwritten by SourcePath.jsx
     }
 
@@ -505,6 +513,9 @@ namespace DSTargetManager {
                 const innerJSON = arg[key];
                 const bucket = innerJSON.bucket + "/" + innerJSON.prefix;
                 availableS3Buckets.push(bucket);
+                if (key === 'S3Bucket') {
+                    privateBucket = bucket;
+                }
             }
         } catch (e) {
             console.error("get available s3 bucket failed", e);
