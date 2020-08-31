@@ -44,6 +44,8 @@ async function runTest(testType, hostname) {
             // }
             // process.exit(exitCode);
 
+            console.log("ExpServerTest START:" + new Date().getTime());
+
             const expServerTest = spawn('npm', ['test', '--prefix', '../../../xcalar-gui/services/expServer']);
 
             expServerTest.stdout.on('data', function (data) {
@@ -56,9 +58,11 @@ async function runTest(testType, hostname) {
 
             expServerTest.on('exit', function (code) {
                 console.log('ExpServerTest exited with code ' + code.toString());
+                console.log("ExpServerTest END:" + new Date().getTime());
                 exitCode = code;
                 process.exit(exitCode);
             });
+
             return;
         } else if(testType === "xcrpcTest") {
             let exitCode = 0;
