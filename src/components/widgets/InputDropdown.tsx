@@ -1,21 +1,23 @@
 import * as React from "react";
 import DropdownUL from "./DropdownUL";
-// type InputDropdownProps = {
-//     onSelect: Function,
-//     onInputChange: Function,
-//     onOpen?: Function
-//     val: string,
-//     list: {value: string, text: string, icon?: string, className?: string}[],
-//     hint: string
-//     readOnly?: boolean
-// };
+type InputDropdownProps = {
+    onSelect: Function,
+    onInputChange: Function,
+    onOpen?: Function,
+    val: string,
+    list: {value: string, text: string, icon?: string, className?: string}[],
+    hint: string,
+    readOnly?: boolean,
+    disabled?: boolean,
+    classNames?: string[]
+};
 
-// type InputDropdownState = {
-//     open: boolean
-// };
+type InputDropdownState = {
+    open: boolean
+};
 
-export default class InputDropdown extends React.Component {
-    // private dropdownRef: React.RefObject<any>;
+export default class InputDropdown extends React.Component<InputDropdownProps, InputDropdownState> {
+    private dropdownRef: React.RefObject<any>;
 
     constructor(props) {
         super(props);

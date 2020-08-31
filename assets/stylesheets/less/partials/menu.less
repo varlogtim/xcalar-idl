@@ -647,14 +647,14 @@
         .transition(opacity 0.4s ease-in-out 0s);
 
         &.active {
-            opacity: @opacity-hover;
+            opacity: @opacity-hint;
             .transition(opacity 0.4s ease-in-out 0s);
         }
 
-        &.mouseover {
-            opacity: @opacity-hover;
+        &.mouseover, &:hover {
+            opacity: @opacity-unhover;
             .arrow {
-                opacity: @opacity-hover;
+                opacity: @opacity-unhover;
             }
         }
 
@@ -676,7 +676,7 @@
             font-size: 10px;
             text-align: center;
             pointer-events: initial;
-            opacity: @opacity-unhover;
+            opacity: @opacity-hover;
             color: @color-font-defaultInverse;
             float: left;
         }

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { validateSchemaString } from '../../services/SchemaService'
-
+// import ColSchemaRow from "./ColSchemaRow";
 
 class EditSchema extends React.PureComponent {
     constructor(props) {
@@ -63,15 +63,7 @@ class EditSchema extends React.PureComponent {
         }
         const cssClass = ['editSchema'].concat(classNames);
         return (<div className={cssClass.join(' ')}>
-            {/* <div className="rowContent schemaDesc">
-                Use the <span className="schemaWizard xc-wizard" onClick={this.showSchemaWizard.bind(this, showAdd)}>Schema Wizard</span>
-                &nbsp;to generate the table schema or edit the auto-detected schema in the text box below.
-            </div>
-            <div className="rowContent schemaDesc" onClick={() => {
-                SchemaSelectionModal2.Instance.submit();
-            }}>
-                Edit as text
-            </div> */}
+            {/* <ColSchemaRow /> */}
             <div className="switchWrap" onClick={() => {
                 if (this.state.editAsText) {
                     this.showSchemaWizard(showAdd);
