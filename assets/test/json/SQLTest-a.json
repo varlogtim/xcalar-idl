@@ -5,7 +5,7 @@
                         "filterWithAggregates": [{"query":"select n_nationkey, n_name from nation group by n_nationkey, n_name having n_nationkey > avg(n_nationkey) - avg(n_regionkey) /10 order by n_nationkey"}],
                         "complexGroupBy": [{"query":"select avg(n_regionkey * 3 + n_nationkey * 1000000) a from nation group by n_regionkey order by a"}],
                         "groupByAlias": [{"query":"select n_regionkey r, avg(n_nationkey) as p from nation group by r order by r"}],
-                        "in": [{"query":"select n_name from nation where substr(n_name, 3, 2) in ('IT', 'GE') order by n_name"}],
+                        "in": [{"query":"select n_name from nation where substr(n_name, 3, 2) in ('IT', 'GE', 'A\\r') order by n_name"}],
                         "inSingle": [{"query":"select n_name from nation where substr(n_name, 3, 2) in ('IT') order by n_name"}],
                         "in3": [{"query":"select n_name from nation where substr(n_name, 3, 2) in ('IT', 'GE', 'HI') order by n_name"}],
                         "inNested": [{"query":"select n_name from nation where substr(n_name, 3, 2) in ('IT') or substr(n_name, 3, 2) = 'YP' order by n_name"}],
@@ -112,7 +112,10 @@
                         "subqueryJoin": [{"query": "SELECT R_REGIONKEY FROM REGION WHERE R_REGIONKEY = (SELECT r1.R_REGIONKEY FROM REGION r1, REGION r2 ORDER BY R_REGIONKEY LIMIT 1)"}],
                         "subquerySetOp": [{"query": "SELECT R_REGIONKEY FROM REGION WHERE R_REGIONKEY = (SELECT R_REGIONKEY FROM REGION INTERSECT SELECT R_REGIONKEY FROM REGION ORDER BY R_REGIONKEY LIMIT 1)"}],
                         "xdfWindow": [{"query": "SELECT ixdf_add(R_REGIONKEY,1) a, ixdf_add(MAX(R_REGIONKEY) OVER(), 1) b from REGION ORDER BY R_REGIONKEY","sparkOpts": {"enable": false}}],
-                        "dupWindow": [{"query": "select R_REGIONKEY, max(R_REGIONKEY) over() a, max(R_REGIONKEY) over() b, lead(R_REGIONKEY) over(order by R_REGIONKEY) c, lead(R_REGIONKEY) over(order by R_REGIONKEY) d, FIRST(R_REGIONKEY) over(order by R_REGIONKEY) e, FIRST(R_REGIONKEY) over(order by R_REGIONKEY) f, RANK() over(order by R_REGIONKEY) g, RANK() over(order by R_REGIONKEY) h, ROW_NUMBER() over(order by R_REGIONKEY) i, ROW_NUMBER() over(order by R_REGIONKEY) j, PERCENT_RANK() over(order by R_REGIONKEY) k, PERCENT_RANK() over(order by R_REGIONKEY) l, DENSE_RANK() over(order by R_REGIONKEY) m, DENSE_RANK() over(order by R_REGIONKEY) n, CUME_DIST() over(order by R_REGIONKEY) o, CUME_DIST() over(order by R_REGIONKEY) p, NTILE(3) over(order by R_REGIONKEY) q, NTILE(3) over(order by R_REGIONKEY) r from region order by R_REGIONKEY, R_NAME","sparkOpts": {"enable": false}}]
+                        "dupWindow": [{"query": "select R_REGIONKEY, max(R_REGIONKEY) over() a, max(R_REGIONKEY) over() b, lead(R_REGIONKEY) over(order by R_REGIONKEY) c, lead(R_REGIONKEY) over(order by R_REGIONKEY) d, FIRST(R_REGIONKEY) over(order by R_REGIONKEY) e, FIRST(R_REGIONKEY) over(order by R_REGIONKEY) f, RANK() over(order by R_REGIONKEY) g, RANK() over(order by R_REGIONKEY) h, ROW_NUMBER() over(order by R_REGIONKEY) i, ROW_NUMBER() over(order by R_REGIONKEY) j, PERCENT_RANK() over(order by R_REGIONKEY) k, PERCENT_RANK() over(order by R_REGIONKEY) l, DENSE_RANK() over(order by R_REGIONKEY) m, DENSE_RANK() over(order by R_REGIONKEY) n, CUME_DIST() over(order by R_REGIONKEY) o, CUME_DIST() over(order by R_REGIONKEY) p, NTILE(3) over(order by R_REGIONKEY) q, NTILE(3) over(order by R_REGIONKEY) r from region order by R_REGIONKEY, R_NAME","sparkOpts": {"enable": false}}],
+                        "unionEmptyProject": [{"query": "select count(*) from (select R_REGIONKEY from REGION union all select 1 as R_REGIONKEY from REGION)"}],
+                        "ifNull": [{"query": "select case when cast(r_name as string) = 1 then 1 else 0 end from REGION"}],
+                        "gbMixStd": [{"query": "select collect_list(cast(R_REGIONKEY as STRING)), STDDEV(R_REGIONKEY) from REGION","sparkOpts": {"enable": false}}]
                 },
                 "answers": {
                         "onlyLRDD": [{"numOfRows": "5",
@@ -390,7 +393,11 @@
                                       "numOfRows": "5"}],
                         "dupWindow": [{"row0": [0, 4, 4, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0.2, 0.2, 1, 1],
                                       "row4": [4, 4, 4, null, null, 0, 0, 5, 5, 5, 5, 1, 1, 5, 5, 1, 1, 3, 3],
-                                      "numOfRows": "5"}]
+                                      "numOfRows": "5"}],
+                        "unionEmptyProject": [{"row0": [10],
+                                              "numOfRows": "1"}],
+                        "ifNull": [{"row0": [0],
+                                    "numOfRows": "5"}]
                 },
                 "tables": {
                         "dataSource": "/netstore/datasets/tpch_sf1_notrail/",
