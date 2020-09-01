@@ -1,12 +1,12 @@
 import * as React from "react";
 import { validateSchemaString } from '../../services/SchemaService'
-// import ColSchemaRow from "./ColSchemaRow";
+import ColSchemaSection from "./ColSchemaSection";
 
 class EditSchema extends React.PureComponent {
     constructor(props) {
         super(props);
         this.state = {
-            editAsText: true
+            editAsText: false
         };
     }
     _schemaChange(newSchema) {
@@ -28,33 +28,6 @@ class EditSchema extends React.PureComponent {
         }
     }
 
-    showSchemaWizard(showAdd) {
-        let callback = (newSchema) => {
-            const schema = {
-                rowpath: "$",
-                columns: newSchema
-            };
-            this._schemaChange(JSON.stringify(schema));
-        };
-        let selectedSchema;
-        let editedSchema;
-        try {
-            editedSchema = JSON.parse(this.props.schema).columns;
-        } catch (e) {
-            editedSchema = [];
-        }
-        try {
-            selectedSchema = this.props.selectedSchema.columns;
-        } catch (e) {
-            selectedSchema = [];
-        }
-
-        SchemaSelectionModal2.Instance.show(selectedSchema, editedSchema, callback, {
-            hasMapping: true,
-            canAdd: showAdd
-        });
-    }
-
     render() {
         const { errorMessage, schema, classNames = [], showAdd = true } = this.props;
         let switchClass = "xc-switch switch";
@@ -62,14 +35,14 @@ class EditSchema extends React.PureComponent {
             switchClass += " on";
         }
         const cssClass = ['editSchema'].concat(classNames);
+        let cols;
+        try {
+            cols = JSON.parse(schema).columns;
+        } catch (e) {
+            cols = [];
+        }
         return (<div className={cssClass.join(' ')}>
-            {/* <ColSchemaRow /> */}
             <div className="switchWrap" onClick={() => {
-                if (this.state.editAsText) {
-                    this.showSchemaWizard(showAdd);
-                } else {
-                    SchemaSelectionModal2.Instance.submit();
-                }
                 this.setState({
                     editAsText: !this.state.editAsText
                 });
@@ -80,12 +53,27 @@ class EditSchema extends React.PureComponent {
                 <label>Edit as text</label>
             </div>
             { errorMessage != null && <div className="editSchema-error">{errorMessage}</div> }
-            <textarea
-                className="xc-textArea editSchema-textarea"
-                onChange={(e) => { this._schemaChange(e.target.value) }}
-                value={schema}
-                spellCheck="false"
-            />
+            {this.state.editAsText ?
+                <textarea
+                    className="xc-textArea editSchema-textarea"
+                    onChange={(e) => { this._schemaChange(e.target.value) }}
+                    value={schema}
+                    spellCheck="false"
+                />
+                :
+                <ColSchemaSection
+                    defaultSchema={this.props.selectedSchema.columns}
+                    editedSchema={cols}
+                    updateSchema={(val) => {
+                        let newSchema = {
+                            rowpath: "$",
+                            columns: val
+                        };
+                        this._schemaChange(JSON.stringify(newSchema))
+                    }}
+                    canAdd={showAdd}
+                />
+            }
             <div id="schemaSelectionModalWrapper"></div>
         </div>);
     }

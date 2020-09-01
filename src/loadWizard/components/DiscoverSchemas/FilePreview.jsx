@@ -33,7 +33,7 @@ class FilePreview extends React.PureComponent {
                 </AdvOption.OptionGroup>
             </AdvOption.Container>
             <div className="headerHelpText">
-                <i className="icon xi-info-circle-outline"></i>Select records(max to 5) to discover your schema
+                <i className="icon xi-info-circle-outline"></i>Select records (max to 5) to discover your schema
             </div>
             <FileContentWrap {...fileContentProps} />
         </div>);

@@ -2,18 +2,22 @@ import * as React from "react";
 import DropdownUL from "./DropdownUL";
 type InputDropdownProps = {
     onSelect: Function,
-    onInputChange: Function,
+    onInputChange?: Function,
     onOpen?: Function,
     val: string,
     list: {value: string, text: string, icon?: string, className?: string}[],
-    hint: string,
+    hint?: string,
     readOnly?: boolean,
     disabled?: boolean,
-    classNames?: string[]
+    classNames?: string[],
+    hintDropdown?: boolean,
+    noListSort?: boolean
 };
 
 type InputDropdownState = {
-    open: boolean
+    open: boolean,
+    filteredList: {value: string, text: string, icon?: string, className?: string}[],
+    usingHintList: boolean
 };
 
 export default class InputDropdown extends React.Component<InputDropdownProps, InputDropdownState> {
@@ -22,7 +26,9 @@ export default class InputDropdown extends React.Component<InputDropdownProps, I
     constructor(props) {
         super(props);
         this.state = {
-            open: false
+            open: false,
+            filteredList: this.props.list,
+            usingHintList: false
         };
         this.dropdownRef = React.createRef();
         this.onOuterListClick = this.onOuterListClick.bind(this);
@@ -54,6 +60,24 @@ export default class InputDropdown extends React.Component<InputDropdownProps, I
 
     onInputChange(value) {
         this.closeDropdown();
+        if (this.props.hintDropdown) {
+            let filteredList;
+            let usingHintList = false;
+            if (value.length) {
+                filteredList = this.props.list.filter((li) => {
+                    return li.text.toLowerCase().includes(value.toLowerCase());
+                });
+                usingHintList = true;
+            } else {
+                filteredList = this.props.list;
+            }
+
+            this.setState({
+                filteredList: filteredList,
+                usingHintList: usingHintList
+            });
+            this.openDropdown();
+        }
         if (this.props.onInputChange) {
             this.props.onInputChange(value);
         }
@@ -70,6 +94,10 @@ export default class InputDropdown extends React.Component<InputDropdownProps, I
         if (this.state.open) {
             this.closeDropdown();
         } else {
+            this.setState({
+                filteredList: this.props.list,
+                usingHintList: false
+            });
             this.openDropdown();
         }
     }
@@ -86,6 +114,10 @@ export default class InputDropdown extends React.Component<InputDropdownProps, I
 
         const { classNames = [] } = this.props || {};
         const cssClass = ['dropDownList', 'selectList'].concat(classNames);
+        let list = this.props.list;
+        if (this.state.usingHintList) {
+            list = this.state.filteredList;
+        }
 
         if (disabled) {
             return (
@@ -103,14 +135,28 @@ export default class InputDropdown extends React.Component<InputDropdownProps, I
                 </div>
             );
         } else {
+            let inputClass = "text";
+            if (!readOnly) {
+                inputClass += " inputable";
+            }
+            if (!this.props.noListSort) {
+                list.sort((a,b) => {
+                    let aText = a.text.toLowerCase();
+                    let bText = b.text.toLowerCase();
+                    return (aText < bText ? -1 : (aText > bText ? 1 : 0));
+                });
+            }
             return (
                 <div className={cssClass.join(' ')} ref={this.dropdownRef} onClick={this.onOuterListClick}>
                     <input
-                        className="text"
+                        className={inputClass}
                         type="text"
                         spellCheck={false}
                         value={this.props.val}
-                        onChange={e => this.onInputChange(e.target.value)}
+                        onChange={e => {
+                            let val = e.target.value;
+                            this.onInputChange(val);
+                        }}
                         readOnly={readOnly}
                     />
                     <div className="iconWrapper">
@@ -118,10 +164,11 @@ export default class InputDropdown extends React.Component<InputDropdownProps, I
                     </div>
                     {this.state.open &&
                         <DropdownUL
-                            list={this.props.list}
+                            list={list}
                             hint={this.props.hint}
                             onItemClick={this.onItemClick}
                             onEscape={this.closeDropdown}
+                            usingHintList={this.state.usingHintList}
                         />
                     }
                 </div>

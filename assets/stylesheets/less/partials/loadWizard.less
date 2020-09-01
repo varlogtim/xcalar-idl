@@ -1,5 +1,6 @@
 #loadWizard {
     @min-width: 450px;
+    @input-height: 35px;
 
     .App {
         height: 100%;
@@ -22,6 +23,20 @@
 
     input {
         background-color: #181818;
+    }
+
+    .dropDownList {
+        .styleDropDownList(100%, @input-height);
+
+        .text {
+            outline: none;
+        }
+
+        &.open {
+            .list {
+                display: block;
+            }
+        }
     }
 
     .loadNavBar {
@@ -331,7 +346,7 @@
 
             .connectorSelection, .bucketSelection, .fileTypeSelection {
                 .dropDownList {
-                    .styleDropDownList(~"calc(100% - @{w-label})", 35px);
+                    .styleDropDownList(~"calc(100% - @{w-label})", @input-height);
 
                     .text {
                         outline: none;
@@ -934,7 +949,7 @@
             width: 140px;
             border: 1px solid @color-font-default;
             border-radius: 2px;
-            height: 35px;
+            height: @input-height;
             position: relative;
 
             .loadingBar {
@@ -950,7 +965,7 @@
                 text-align: center;
                 position: relative;
                 font-size: 13px;
-                line-height: 35px;
+                line-height: @input-height;
             }
         }
 
@@ -1166,7 +1181,7 @@
             .dropDownList {
                 width: 100%;
                 > input {
-                    width: ~"calc(100% - 30px)";
+                    width: ~"calc(100% - 35px)";
                 }
             }
         }
@@ -1345,6 +1360,8 @@
     .editSchema-textarea {
         width: 100%;
         min-height: 90px;
+        margin-top: 8px;
+        resize: vertical;
     }
 
     .editSchema-error {
@@ -1395,42 +1412,73 @@
     }
 }
 
-#schemaSelectionModalWrapper {
-    #schemaSelectionModal {
-        border: none;
-        width: 100%;
-        height: auto;
+.colSchemaSection {
+    @input-height: 35px;
+    .schemaOptions {
+        display: flex;
+        justify-content: flex-end;
+        pointer-events: none;
         position: relative;
-        display: block !important;
-        box-shadow: none;
-        left: auto !important;
-        top: auto !important;
+        top: -24px;
+        margin-bottom: -4px;
 
-        .modalHeader, .modalBottom {
-            display: none;
+        > div {
+            margin-left: 16px;
+            font-size: 14px;
+            pointer-events: initial;
         }
-        .modalMain {
-            padding: 0px;
-            .label {
-                display: none;
-            }
-            .colSchemaSection {
-                top: 0px;
-                overflow: visible;
-            }
-        }
-        .listSection {
-            padding: 0px;
-            padding-top: 8px;
+    }
+    .row {
+        display: flex;
+        margin-bottom: 12px;
+
+
+        > div, > i {
+            margin-left: 16px;
         }
 
-        .buttonSection {
-            position: absolute;
-            top: -20px;
-            right: 0px;
+        > div {
+            flex: 1 1 33%;
+            &:first-child {
+                margin-left: 0px;
+            }
+        }
+
+        > i {
+            width: 20px;
+            font-size: 16px;
+            line-height: 35px;
+        }
+
+        input {
+            height: @input-height;
+            line-height: @input-height;
+        }
+
+        &.schemaHeader {
+            font-size: 14px;
+
+            i {
+                visibility: hidden;;
+            }
+        }
+    }
+    .addCol {
+        width: 100%;
+        border: 1px solid @color-border-medium3;
+        height: @input-height;
+        line-height: @input-height;
+        text-align: center;
+        font-size: 14px;
+        margin-bottom: 12px;
+
+        i {
+            margin-right: 12px;
+            font-size: 14px;
         }
     }
 }
+
 body.isCloud {
     #loadScreen {
         padding-left: 0px;

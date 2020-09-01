@@ -3,10 +3,11 @@ import keyCode from "../../enums/keyCode";
 
 type DropdownULProps = {
     list: {value: string, text: string, icon?: string, className?: string, unavailable?: boolean}[],
-    hint: string,
+    hint?: string,
     onItemClick: Function,
     onEscape: Function,
-    rightMargin?: number
+    rightMargin?: number,
+    usingHintList?: boolean
 };
 
 interface DropdownULState {
@@ -75,7 +76,6 @@ export default class DropdownUL extends React.Component<DropdownULProps, Dropdow
             maxHeight: maxHeight,
             hasScrollers: hasScrollers
         });
-
     }
 
     componentWillUnmount() {
@@ -127,13 +127,25 @@ export default class DropdownUL extends React.Component<DropdownULProps, Dropdow
                 enter = true;
                 break;
             case (keyCode.Escape):
-            case (keyCode.Backspace):
-                // TODO: check for inputs inside of lis
+              // TODO: check for inputs inside of lis
                 // if ($(event.target).is('input')) {
                 //     return;
                 // }
                 event.preventDefault();
                 this.props.onEscape();
+                return;
+                break;
+            case (keyCode.Backspace):
+                // TODO: check for inputs inside of lis
+                // if ($(event.target).is('input')) {
+                //     return;
+                // }
+                if (this.props.usingHintList) {
+                    return;
+                } else {
+                    event.preventDefault();
+                    this.props.onEscape();
+                }
                 return;
             default:
                 return; // key not supported
@@ -272,9 +284,15 @@ export default class DropdownUL extends React.Component<DropdownULProps, Dropdow
                 )
             });
         } else {
-            listHTML = <li
+            if (this.props.usingHintList) {
+                listHTML = <li
+                                className="hint"
+                            >No Results Found</li>
+            } else {
+                listHTML = <li
                             className="hint"
                         >{hint}</li>
+            }
         }
 
         return (
