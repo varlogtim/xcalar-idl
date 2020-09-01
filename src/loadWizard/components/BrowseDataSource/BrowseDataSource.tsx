@@ -344,6 +344,8 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
         if (rootFullPath.endsWith("/")) {
             rootFullPath = rootFullPath.slice(0, -1)
         }
+        rootFullPath = rootFullPath.split('/')[0];
+
         let currentFullPath = path;
         if (currentFullPath.startsWith("/")) {
             currentFullPath = currentFullPath.slice(1)
