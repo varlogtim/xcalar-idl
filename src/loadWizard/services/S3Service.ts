@@ -2,20 +2,38 @@ import * as crypto from 'crypto';
 import * as Path from 'path';
 import { XDSession } from './sdk/Session';
 import * as DiscoverSchema from '../utils/discoverSchema';
+import { FileTypeFilterFunction } from './SchemaService'
 
-// Import global functions. This should be modulized in the future
-const {
-    XcalarListFiles,
-    ParseArgsT, DataSourceArgsT,
-} = global;
+type FilePathInfo = {
+    fileId: string,
+    targetName: string,
+    fullPath: string,
+    directory: boolean,
+    name: string,
+    sizeInBytes: number,
+    type: string,
+    isLoading?: boolean
+};
+
+type ApiFileInfo = {
+    name: string,
+    attr: {
+        isDirectory: boolean,
+        size: number
+    }
+};
 
 const DS_PREFIX = 'LWDS';
 const defaultFileNameRegex = '.*';
 const defaultFileNameGlob = '*';
 const defaultFileNamePattern = defaultFileNameGlob;
 
-async function listFiles(path, targetName = "AWS Target", filter = (fileInfo) => true) {
-    const fileInfos = new Map();
+async function listFiles(
+    path: string,
+    targetName: string,
+    filter: FileTypeFilterFunction = () => true
+): Promise<Map<string, FilePathInfo>> {
+    const fileInfos = new Map<string, FilePathInfo>();
     const s3Files = await listFilesWithPattern({
         targetName: targetName,
         path: path,
@@ -31,12 +49,19 @@ async function listFiles(path, targetName = "AWS Target", filter = (fileInfo) =>
     return fileInfos;
 }
 
-async function listFilesWithPattern({
-    targetName, path,
-    fileNamePattern = defaultFileNamePattern,
-    isRecursive = false,
-    filter = (fileInfo) => true
-}) {
+async function listFilesWithPattern(params: {
+    targetName: string,
+    path: string,
+    fileNamePattern: string,
+    isRecursive?: boolean,
+    filter?: FileTypeFilterFunction
+}): Promise<Array<FilePathInfo>> {
+    const {
+        targetName, path,
+        fileNamePattern = defaultFileNamePattern,
+        isRecursive = false,
+        filter = () => true
+    } = params;
     const s3Files = await XcalarListFiles({
         "recursive": isRecursive,
         "targetName": targetName,
@@ -49,10 +74,15 @@ async function listFilesWithPattern({
     })).filter((file) => filter(file));
 }
 
-function createFileInfo({path, file, targetName}) {
+function createFileInfo(fileInfo: {
+    path: string,
+    file: ApiFileInfo,
+    targetName: string
+}): FilePathInfo {
+    const { path, file, targetName } = fileInfo;
     const fullFilePath = Path.join(path, file.name);
     const isDirectory = file.attr.isDirectory ? true : false;
-    const fileInfo = {
+    return {
         fileId: fullFilePath,
         targetName: targetName,
         fullPath: fullFilePath,
@@ -63,7 +93,6 @@ function createFileInfo({path, file, targetName}) {
             ? 'directory'
             : getFileExt(file.name)
     };
-    return fileInfo;
 }
 
 async function createKeyListTable({ bucketName='/xcfield/' }) {
@@ -303,6 +332,7 @@ function populateFiles(fileInfos, setData, fileIdToFile, setFileIdToFile) {
 }
 
 export {
+    FilePathInfo,
     defaultFileNamePattern,
     listFiles,
     listFilesWithPattern,

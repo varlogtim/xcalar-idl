@@ -155,7 +155,6 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             discoverIsRunning: false,
             discoverProgress: 0,
             discoverCancelBatch: null, // () => {} Dynamic cancel function set by discoverAll
-            discoverSchemaPolicy: SchemaService.MergePolicy.EXACT,
             discoverErrorRetry: true,
             inputSerialization: SchemaService.defaultInputSerialization.get(defaultFileType),
             // XXX TODO: remove the following states

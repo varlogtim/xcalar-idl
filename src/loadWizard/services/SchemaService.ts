@@ -1,58 +1,44 @@
-const FileType = {
-    CSV: 'csv',
-    JSON: 'json',
-    JSONL: 'jsonl',
-    PARQUET: 'parquet'
+import { FilePathInfo } from './S3Service'
+
+enum FileType {
+    CSV = 'csv',
+    JSON = 'json',
+    JSONL = 'jsonl',
+    PARQUET = 'parquet'
 };
-const FileTypeFilter = new Map([
-    [FileType.CSV, ({type}) => {
+
+type FileTypeFilterFunction = (fileInfo: FilePathInfo) => boolean;
+const FileTypeFilter = new Map<FileType, FileTypeFilterFunction>([
+    [FileType.CSV, (fileInfo) => {
         const validTypes = new Set(['csv']);
-        return validTypes.has(`${type}`.toLowerCase());
+        return validTypes.has(`${fileInfo.type}`.toLowerCase());
     }],
-    [FileType.JSON, ({type}) => {
+    [FileType.JSON, (fileInfo) => {
         const validTypes = new Set(['json']);
-        return validTypes.has(`${type}`.toLowerCase());
+        return validTypes.has(`${fileInfo.type}`.toLowerCase());
     }],
-    [FileType.JSONL, ({type}) => {
+    [FileType.JSONL, (fileInfo) => {
         const validTypes = new Set(['json', 'jsonl']);
-        return validTypes.has(`${type}`.toLowerCase());
+        return validTypes.has(`${fileInfo.type}`.toLowerCase());
     }],
-    [FileType.PARQUET, ({type}) => {
+    [FileType.PARQUET, (fileInfo) => {
         const validTypes = new Set(['parquet']);
-        return validTypes.has(`${type}`.toLowerCase());
+        return validTypes.has(`${fileInfo.type}`.toLowerCase());
     }]
 ]);
 
-const PUNCT = '\\w\\s\\-$_%#@()\\/\\{\\}\\&\\!,;\\<\\>\\.\\?\\+\\~\\|\\*\\='
-
-const FileTypeNamePattern = new Map([
-    [FileType.CSV, `re:^([${PUNCT}]+)\\.[cC][sS][vV](\\.[gG][zZ]|\\.[bB][zZ]2){0,1}$`],
-    [FileType.JSON, `re:^([${PUNCT}]+)\\.[jJ][sS][oO][nN](\\.[gG][zZ]|\\.[bB][zZ]2){0,1}$`],
-    [FileType.JSONL, `re:^([${PUNCT}]+)\\.[jJ][sS][oO][nN][lL]{0,1}(\\.[gG][zZ]|\\.[bB][zZ]2){0,1}$`],
-    [FileType.PARQUET, `re:^([${PUNCT}]+)\\.[pP][aA][rR][qQ][uU][eE][tT]$`]
-]);
-
-const CSVHeaderOption = {
-    USE: 'USE',
-    IGNORE: 'IGNORE',
-    NONE: 'NONE'
+enum CSVHeaderOption {
+    USE = 'USE',
+    IGNORE = 'IGNORE',
+    NONE = 'NONE'
 };
 
-const MergePolicy = {
-    SUPERSET: 'superset',
-    EXACT: 'exact',
-    UNION: 'union',
-    TRAILING: 'trailing'
+enum JsonTypeOption {
+    DOCUMENT = 'DOCUMENT',
+    LINES = 'LINES'
 };
 
-const MergePolicyHint = {
-    SUPERSET: 'eg. Schemas [{A,B}, {A,L,M}, {A,C,B}] will be reduced to [{A,B,C},{A,L,M}]',
-    EXACT: 'eg. Schemas [{A,B},{B,A},{C,D}] will be reduced to [{A,B},{C,D}]',
-    UNION: 'eg. Schemas [{A,B},{A,L,M},{M,N}] is reduced to single schema {A,B,L,M,N}',
-    TRAILING: 'eg. Schemas [{A,B},{A,L},{A,B,C}] will be reduced to [{A,B,C},{A,L}]'
-};
-
-function suggestParserType(file) {
+function suggestParserType(file: FilePathInfo) {
     const checkList = [FileType.CSV, FileType.JSONL, FileType.PARQUET];
     const defaultType = FileType.CSV;
 
@@ -65,6 +51,32 @@ function suggestParserType(file) {
     return defaultType;
 }
 
+type InputSerialization = {
+    CSV?: {
+        FileHeaderInfo: CSVHeaderOption,
+        QuoteEscapeCharacter: string,
+        RecordDelimiter: string,
+        FieldDelimiter: string,
+        QuoteCharacter: string,
+        AllowQuotedRecordDelimiter: boolean
+    },
+    JSON?: {
+        Type: JsonTypeOption
+    },
+    Parquet?: {}
+};
+
+type ColumnDef = {
+    name: string,
+    type: string,
+    mapping: string
+};
+
+type Schema = {
+    rowpath: string,
+    columns: Array<ColumnDef>
+};
+
 class InputSerializationFactory {
     static createCSV({
         headerOption = CSVHeaderOption.USE,
@@ -73,7 +85,7 @@ class InputSerializationFactory {
         fieldDelimiter = ',',
         quoteChar = '"',
         allowQuotedRecordDelimiter = false
-    }) {
+    }): InputSerialization {
         return { CSV: {
             FileHeaderInfo: headerOption,
             QuoteEscapeCharacter: quoteEscapeChar,
@@ -84,35 +96,36 @@ class InputSerializationFactory {
         }};
     }
 
-    static createJSON() {
+    static createJSON(): InputSerialization {
         return { JSON: {
-            Type: 'DOCUMENT'
+            Type: JsonTypeOption.DOCUMENT
         }};
     }
 
-    static createJSONL() {
+    static createJSONL(): InputSerialization {
         return { JSON: {
-            Type: 'LINES'
+            Type: JsonTypeOption.LINES
         }};
     }
 
-    static createParquet() {
+    static createParquet(): InputSerialization {
         return {
             Parquet: {}
         };
     }
 
-    static getFileType(inputSerialization) {
-        const { CSV, JSON, JSONL, Parquet } = inputSerialization || {};
+    static getFileType(inputSerialization: InputSerialization) {
+        const { CSV, JSON, Parquet } = inputSerialization || {};
         const types = new Set();
         if (CSV != null) {
             types.add(FileType.CSV);
         }
         if (JSON != null) {
-            types.add(FileType.JSON);
-        }
-        if (JSONL != null) {
-            types.add(FileType.JSONL);
+            if (JSON.Type == JsonTypeOption.DOCUMENT) {
+                types.add(FileType.JSON);
+            } else if (JSON.Type == JsonTypeOption.LINES) {
+                types.add(FileType.JSONL);
+            }
         }
         if (Parquet != null) {
             types.add(FileType.PARQUET);
@@ -121,7 +134,7 @@ class InputSerializationFactory {
     }
 }
 
-const defaultInputSerialization = new Map([
+const defaultInputSerialization = new Map<FileType, InputSerialization>([
     [FileType.CSV, InputSerializationFactory.createCSV({})],
     [FileType.JSON, InputSerializationFactory.createJSON()],
     [FileType.JSONL, InputSerializationFactory.createJSONL()],
@@ -141,13 +154,20 @@ const SchemaError = {
     DUPE_COLUMN: (colName) => `Duplicated column name: ${colName}`
 }
 
-function assert(boolVal, genEx) {
+function assert(boolVal: boolean, genEx: () => string) {
     if (!boolVal) {
         throw genEx();
     }
 }
 
-function validateSchema(jsonSchema) {
+function validateSchema(jsonSchema: {
+    rowpath?: string,
+    columns?: Array<{
+        name?: string,
+        type?: string,
+        mapping?: string
+    }>
+}): void {
     const { rowpath, columns } = jsonSchema || {};
 
     // Need rowpath
@@ -180,7 +200,9 @@ function validateSchema(jsonSchema) {
     }
 }
 
-function validateSchemaString(strSchema) {
+function validateSchemaString(
+    strSchema: string
+): Schema {
     let schema = null;
 
     // Check valid JSON
@@ -195,7 +217,7 @@ function validateSchemaString(strSchema) {
     return schema;
 }
 
-function unionSchemas(columns) {
+function unionSchemas(columns: Array<ColumnDef>) {
     const columnMap = new Map(columns.map((column) => [
         `${column.name}_${column.type}_${column.mapping}`,
         column
@@ -204,12 +226,12 @@ function unionSchemas(columns) {
 }
 
 export {
-    FileType, FileTypeFilter, FileTypeNamePattern,
+    FileType, FileTypeFilter,
+    FileTypeFilterFunction,
+    Schema, ColumnDef,
     InputSerializationFactory, defaultInputSerialization,
     CSVHeaderOption,
     suggestParserType,
     validateSchemaString, validateSchema,
-    unionSchemas,
-    MergePolicy,
-    MergePolicyHint,
+    unionSchemas
 };

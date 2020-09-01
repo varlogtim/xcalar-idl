@@ -14,3 +14,7 @@ declare var DragDropUploader;
 declare var UploadTStr;
 declare var PromiseHelper;
 declare var CloudFileBrowser;
+declare var Xcrpc;
+declare var Transaction;
+
+declare function XcalarListFiles(param: any): any;

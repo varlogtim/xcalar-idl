@@ -2,16 +2,14 @@ import * as Path from 'path'
 import { randomName, hashFunc } from './sdk/Api'
 import { LoadSession } from './sdk/Session'
 import { Table } from './sdk/Table'
+import { Schema } from './SchemaService'
 
-const {
-    Xcrpc,
-    xcHelper
-} = global;
+type ProgressCallback = (progress?: number) => void;
 
-const DiscoverStatus = {
-    OK: 0,
-    WARNING: 1,
-    FAIL: 2
+enum DiscoverStatus {
+    OK = 0,
+    WARNING = 1,
+    FAIL = 2
 };
 
 const ExceptionAppCancelled = new Error('AppCancel');
@@ -22,7 +20,7 @@ function getFileExt(fileName) {
         : 'none').toLowerCase();
 }
 
-async function executeSchemaLoadApp(jsonStr) {
+async function executeSchemaLoadApp(jsonStr: string) {
     const response = await Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getSchemaLoadService().appRun(jsonStr);
 
     try {
@@ -53,7 +51,7 @@ function createDiscoverNames(appId) {
     };
 }
 
-function updateProgress(cb, startProgress, endProgress) {
+function updateProgress(cb: ProgressCallback, startProgress: number, endProgress: number) {
     if (typeof cb !== "function") {
         throw new Error('cb is not a function');
     }
@@ -93,7 +91,10 @@ function isFailedSchema(schemaHash) {
     return schemaHash === failedSchemaHash;
 }
 
-async function callInTransaction(operation, runTask) {
+async function callInTransaction<T>(
+    operation: string,
+    runTask: () => Promise<T>
+): Promise<T> {
     const txId = Transaction.start({
         "msg": 'SchemaLoadApp',
         "operation": operation,
@@ -126,7 +127,6 @@ function createDiscoverApp({ path, filePattern, targetName, inputSerialization, 
         file: null, schema: null, report: null,
         fileSchema: null
     };
-    let queryIndex = 0;
 
     const session = new LoadSession();
 
@@ -263,33 +263,6 @@ function createDiscoverApp({ path, filePattern, targetName, inputSerialization, 
         return JSON.stringify(queryList);
     }
 
-    function getResourceNames(queryList) {
-        const excludeSet = new Set([
-            Xcrpc.EnumMap.XcalarApisToStr[Xcrpc.EnumMap.XcalarApisToInt.XcalarApiExport]
-        ]);
-
-        const tables = new Set();
-        const datasets = new Set();
-        for (const query of queryList) {
-            const { operation, args } = query;
-            if (excludeSet.has(operation)) {
-                continue;
-            }
-
-            const { dest: destTable } = args;
-            if (operation === Xcrpc.EnumMap.XcalarApisToStr[Xcrpc.EnumMap.XcalarApisToInt.XcalarApiBulkLoad]) {
-                datasets.add(destTable);
-            } else {
-                tables.add(destTable);
-            }
-        }
-
-        return {
-            datasets: datasets,
-            tables: tables
-        };
-    }
-
     function converStatusField(statusStr, numColumns) {
         const { unsupported_columns = [], error_message, stack_trace } = JSON.parse(statusStr);
         const parsedError = numColumns === 0
@@ -397,7 +370,7 @@ function createDiscoverApp({ path, filePattern, targetName, inputSerialization, 
         }
     }
 
-    async function runTableQuery(query, progressCB = () => {}) {
+    async function runTableQuery(query, progressCB: ProgressCallback = () => {}) {
         /**
          * Do not delete the result table of each dataflow execution here,
          * or IMD table will persist an incomplete dataflow to its metadata
@@ -556,10 +529,25 @@ function createDiscoverApp({ path, filePattern, targetName, inputSerialization, 
 
             return compHasData;
         },
-        createResultTables: async (query, progressCB = () => {}) => {
+        createResultTables: async (query, progressCB: ProgressCallback = () => {}) => {
             return await callInTransaction('Create tables', () => runTableQuery(query, progressCB));
         },
-        getCreateTableQuery: async (schemaHash, progressCB = () => {}) => {
+        getCreateTableQuery: async (
+            schemaHash: string,
+            progressCB: ProgressCallback = () => {}
+        ): Promise<{
+            loadQuery:string,
+            loadQueryOpt: string,
+            dataQuery: string,
+            dataQueryOpt: string,
+            compQuery: string,
+            compQueryOpt: string,
+            tableNames: {
+                load: string, data: string, comp: string
+            },
+            dataQueryComplete: string,
+            compQueryComplete: string
+        }> => {
             const delProgress = updateProgress((p) => {
                 progressCB(p);
             }, 0, 10);
@@ -620,7 +608,24 @@ function createDiscoverApp({ path, filePattern, targetName, inputSerialization, 
                 getQueryProgress.stop();
             }
         },
-        getCreateTableQueryWithSchema: async ({ schema, numRows = -1, progressCB = () => {}}) => {
+        getCreateTableQueryWithSchema: async (param: {
+            schema: Schema,
+            numRows?: number,
+            progressCB?: ProgressCallback
+        }): Promise<{
+            loadQuery:string,
+            loadQueryOpt: string,
+            dataQuery: string,
+            dataQueryOpt: string,
+            compQuery: string,
+            compQueryOpt: string,
+            tableNames: {
+                load: string, data: string, comp: string
+            },
+            dataQueryComplete: string,
+            compQueryComplete: string
+        }> => {
+            const { schema, numRows = -1, progressCB = () => {} } = param;
             const delProgress = updateProgress((p) => {
                 progressCB(p);
             }, 0, 10);
@@ -850,7 +855,22 @@ function createDiscoverApp({ path, filePattern, targetName, inputSerialization, 
                 return table;
             }
         },
-        previewFile: async (numRows = 20) => {
+        previewFile: async (numRows: number = 20): Promise<{
+            status: { errorMessage?: string },
+            lines: Array<{
+                data: any,
+                schema: Schema | {},
+                status: {
+                    hasError: boolean,
+                    errorMessage: string,
+                    unsupportedColumns: Array<{
+                        message: string,
+                        name: string,
+                        mapping: string
+                    }>
+                }
+            }>
+        }> => {
             const appInput = {
                 func: 'preview_rows',
                 session_name: session.sessionName,
