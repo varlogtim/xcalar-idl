@@ -17,7 +17,7 @@ function LeftButton(props) {
 }
 
 function RightButton(props) {
-    const { tooltip = "" } = props;
+    const { classNames = [], tooltip = "" } = props;
     return (
         <div
             className="nextButton"
@@ -26,7 +26,7 @@ function RightButton(props) {
             data-placement="top auto"
             data-original-title={tooltip}
         >
-            <Button {...props}></Button>
+            <Button {...props} classNames={classNames}></Button>
         </div>
     );
 }
@@ -56,11 +56,12 @@ function Button(props) {
     );
 }
 
-export default function NavButtons({ left, right }) {
+export default function NavButtons({ left, right, right2 }) {
     return (
         <div className="navButtons">
             {left != null ? <LeftButton {...left} /> : null}
             {right != null ? <RightButton {...right} /> : null}
+            {right2 != null && <RightButton {...right2} classNames={['btn-secondary']}/>}
         </div>
     );
 }

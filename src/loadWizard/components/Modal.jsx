@@ -13,9 +13,12 @@ function Dialog({
 }
 
 function Body({
+    style = {},
+    classNames = [],
     children
 }) {
-    return <section className="modal-body">{children}</section>
+    const className = ['modal-body'].concat(classNames).join(' ');
+    return <section style={style} className={className}>{children}</section>
 }
 
 

@@ -13,6 +13,8 @@ import * as Path from 'path';
 import * as SchemaLoadService from '../services/SchemaLoadService'
 import * as SchemaLoadSetting from '../services/SchemaLoadSetting'
 import { listFilesWithPattern, defaultFileNamePattern } from '../services/S3Service'
+import { DataPreviewModal } from './DataPreview'
+
 
 /**
  * UI texts for this component
@@ -135,6 +137,11 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                 errorMessage: null
             },
             finalSchema: null,
+
+            // Table Preview
+            tablePreviewState: {
+                isShow: false
+            },
 
             // DiscoverSchemas
             discoverAppId: null,
@@ -304,40 +311,70 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         }
     }
 
+    async _createTableForPreview(schema) {
+        const numRowsForPreview = 50;
+
+        const app = this._createAppForTable();
+        // Init app
+        await app.init();
+        // Get create table dataflow
+        const query = await app.getCreateTableQueryWithSchema({
+            schema: schema,
+            numRows: numRowsForPreview
+        });
+        // Create data/comp session tables
+        const tables = await app.createResultTables(query);
+        // Remove unused tables
+        try {
+            await Promise.all([
+                tables.load.destroy(),
+                tables.comp.destroy()
+            ]);
+        } catch(_) {
+            // Ignore errors
+        }
+
+        return { data: tables.data };
+    }
+
+    _createAppForTable() {
+        const {
+            connector,
+            inputSerialization,
+            selectedFileDir, fileNamePattern
+        } = this.state;
+        const selected = selectedFileDir[0];
+
+        const createApp = () => {
+            if (selected.directory) {
+                return SchemaLoadService.createDiscoverApp({
+                    targetName: connector,
+                    path: Path.join(selected.fullPath, '/'),
+                    filePattern: fileNamePattern,
+                    inputSerialization: inputSerialization,
+                    isRecursive: false,
+                });
+            } else {
+                const { path: selectedPath, filePattern } = this._extractFileInfo(selected.fullPath);
+                return SchemaLoadService.createDiscoverApp({
+                    targetName: connector,
+                    path: selectedPath,
+                    filePattern: filePattern,
+                    inputSerialization: inputSerialization,
+                    isRecursive: false,
+                });
+            }
+        };
+
+        return createApp();
+    }
+
     async _createTableFromSchema(schema, tableName) {
         const schemaName = defaultSchemaName;
         const isPublishTables = SchemaLoadSetting.get('isPublishTables', false) ;
 
         try {
-            const {
-                connector,
-                inputSerialization,
-                selectedFileDir, fileNamePattern
-            } = this.state;
-            const selected = selectedFileDir[0];
-
-            const createApp = () => {
-                if (selected.directory) {
-                    return SchemaLoadService.createDiscoverApp({
-                        targetName: connector,
-                        path: Path.join(selected.fullPath, '/'),
-                        filePattern: fileNamePattern,
-                        inputSerialization: inputSerialization,
-                        isRecursive: false,
-                    });
-                } else {
-                    const { path: selectedPath, filePattern } = this._extractFileInfo(selected.fullPath);
-                    return SchemaLoadService.createDiscoverApp({
-                        targetName: connector,
-                        path: selectedPath,
-                        filePattern: filePattern,
-                        inputSerialization: inputSerialization,
-                        isRecursive: false,
-                    });
-                }
-            };
-
-            const app = createApp();
+            const app = this._createAppForTable();
 
             // State: cleanup and +loading
             const createInProgress = this.state.createInProgress;
@@ -1098,6 +1135,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             fileSelectState,
             fileContentState,
             editSchemaState,
+            tablePreviewState,
             selectedSchema,
             finalSchema,
             browseShow,
@@ -1111,6 +1149,63 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         const forensicsStats = this.metadataMap.get(fullPath);
         let containerClass = "container cardContainer";
         containerClass += (" step" + currentNavStep);
+
+        const createDataPreview = () => {
+            if (!tablePreviewState.isShow) {
+                return null;
+            }
+
+            const createTable = async () => {
+                const table = await this._createTableForPreview(finalSchema);
+                const cursor = table.data.createCursor();
+                await cursor.open();
+                return {
+                    table: table.data,
+                    cursor: cursor
+                };
+            };
+            const createTask = createTable();
+
+            const onFetchMeta = async () => {
+                const { table, cursor } = await createTask;
+                const { columns } = await table.getInfo();
+                return {
+                    columns: columns,
+                    numRows: cursor.getNumRows()
+                };
+            };
+
+            const onFetchData = async ({ offset, pageSize }) => {
+                const { cursor } = await createTask;
+                await cursor.position(offset);
+                return await cursor.fetchJson(pageSize);
+            }
+
+            const onClose = async () => {
+                try {
+                    const { table } = await createTask;
+                    await table.destroy();
+                } catch(_) {
+                    // Ignore error;
+                }
+            }
+
+            return (
+                <DataPreviewModal
+                    onFetchData={onFetchData}
+                    onFetchMeta={onFetchMeta}
+                    onClose={async () => {
+                        this.setState(({tablePreviewState}) => ({
+                            tablePreviewState: {
+                                ...tablePreviewState,
+                                isShow: false
+                            }
+                        }));
+                        await onClose();
+                    }}
+                />
+            );
+        };
 
         return (
             <React.Fragment>
@@ -1208,6 +1303,8 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                 selectedSchema={selectedSchema}
                             />
                         }
+                        { createDataPreview() }
+
                         {(() => {
                             if (!showCreate) {
                                 return null;
@@ -1282,6 +1379,18 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                         this.setState({
                                             currentNavStep: 1
                                         });
+                                    }
+                                }}
+                                right2={{
+                                    label: "Table Preview",
+                                    disabled: finalSchema == null,
+                                    onClick: () => {
+                                        this.setState(({ tablePreviewState }) => ({
+                                            tablePreviewState: {
+                                                ...tablePreviewState,
+                                                isShow: true
+                                            }
+                                        }))
                                     }
                                 }}
                                 right={{

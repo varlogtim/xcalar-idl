@@ -3,7 +3,7 @@ import React from "react";
 import NavButtons from '../NavButtons'
 import SelectedFilesArea from "./SelectedFilesArea"
 import SingleSelectedFileArea from "./SingleSelectedFileArea"
-import * as Modal from './Modal'
+import * as Modal from '../Modal'
 import * as SchemaService from '../../services/SchemaService'
 import * as S3Service from '../../services/S3Service'
 import getForensics from '../../services/Forensics';

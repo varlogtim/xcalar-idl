@@ -1410,6 +1410,90 @@
             width: ~"calc(100% - 30px)";
         }
     }
+
+    .previewTable {
+        padding-bottom: 4px;
+
+        .table-wrapper {
+            overflow: auto;
+        }
+
+        .type-icon {
+            font-size: 14px;
+        }
+
+        .column-name {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .table {
+            border-spacing: 0;
+            border: 2px solid  @color-border-medium3;
+
+            .thead {
+                // overflow-y: auto;
+                // overflow-x: hidden;
+            }
+
+            .tbody {
+                // overflow-y: overlay;
+                // overflow-x: hidden;
+            }
+
+            .tr {
+                background-color: @color-bg-default;
+                display: flex;
+                &:last-child {
+                    .td {
+                        border-bottom: 0;
+                    }
+                }
+            }
+
+            .tr-grey {
+                background-color: @color-table-evenRow-gray;
+            }
+
+            .th,.td {
+                margin: 0;
+                padding: 4px;
+                border-bottom: 2px solid  @color-border-medium3;
+                border-right: 2px solid  @color-border-medium3;
+
+                position: relative;
+
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                overflow: hidden;
+                // text-overflow: ellipsis;
+
+                &:last-child {
+                    border-right: 0;
+                }
+
+                .resizer {
+                    cursor: col-resize;
+                    display: inline-block;
+                    background: @color-black-invisible;
+                    width: 4px;
+                    height: 100%;
+                    position: absolute;
+                    right: 0px;
+                    top: 0;
+                    transform: translateX(50%);
+                    z-index: 1;
+                    touch-action:none;
+
+                    &.isResizing {
+                        background: @color-hover-blue;
+                    }
+                }
+            }
+        }
+    }
 }
 
 .colSchemaSection {
