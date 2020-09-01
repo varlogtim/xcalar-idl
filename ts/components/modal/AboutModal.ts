@@ -50,8 +50,9 @@ class AboutModal {
         const frontVers = frontVersion.substring(0,
                              frontVersion.lastIndexOf("-")) + "-" + XVM.getGitVersion();
         const buildNumber = XVM.getBuildNumber() + XVM.getPatchVersion();
+        const product = XVM.isCloud() ? "Xcalar Cloud Developer" : "Xcalar Data Platform - Enterprise Edition";
         $modal.find(".product")
-            .text("Xcalar Data Platform - Enterprise Edition");
+            .text(product);
         $modal.find(".frontVersion").text(frontVers);
         $modal.find(".buildNumber").text(buildNumber);
         
