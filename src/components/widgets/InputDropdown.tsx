@@ -46,6 +46,8 @@ export default class InputDropdown extends React.Component<InputDropdownProps, I
             open: true
         });
         document.addEventListener('mousedown', this.handleClickOutside);
+        window.addEventListener("resize", this.closeDropdown);
+        window.addEventListener("blur", this.closeDropdown);
         if (typeof this.props.onOpen === "function") {
             this.props.onOpen();
         }
@@ -56,6 +58,8 @@ export default class InputDropdown extends React.Component<InputDropdownProps, I
             open: false
         });
         document.removeEventListener('mousedown', this.handleClickOutside);
+        window.removeEventListener("resize", this.closeDropdown);
+        window.removeEventListener("blur", this.closeDropdown);
     }
 
     onInputChange(value) {

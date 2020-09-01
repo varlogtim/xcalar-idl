@@ -5,7 +5,8 @@ type ColSchemaSectionProps = {
     defaultSchema: {"name": string, "mapping":string, "type": string}[],
     editedSchema: {"name": string, "mapping":string, "type": string}[],
     updateSchema: Function,
-    canAdd?: boolean
+    canAdd?: boolean,
+    isMappingEditable?: boolean
 }
 class ColSchemaSection extends React.Component<ColSchemaSectionProps, {}> {
 
@@ -51,6 +52,7 @@ class ColSchemaSection extends React.Component<ColSchemaSectionProps, {}> {
                                 schema.splice(i, 1);
                                 this.props.updateSchema(schema);
                             }}
+                            isMappingEditable={this.props.isMappingEditable}
                         />);
                 })}
                 <div className={addColClass} data-toggle="tooltip" data-container="body"

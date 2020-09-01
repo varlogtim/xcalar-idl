@@ -1,13 +1,37 @@
 import * as React from "react";
 import InputDropdown from '../../../components/widgets/InputDropdown'
 
-function ColSchemaRow(props: {rowInfo: any, defaultSchema: any, onInputChange: Function, onRemoveRow: any}) {
+type ColSchemaRowProps = {
+    rowInfo: any,
+    defaultSchema: any,
+    onInputChange: Function,
+    onRemoveRow: any,
+    isMappingEditable?: boolean
+}
+
+function ColSchemaRow(props: ColSchemaRowProps) {
     return (
         <div className="row">
             <div className="mapping">
-                <input className="xc-input" value={props.rowInfo.mapping} spellCheck={false} onChange={(e) => {
-                    props.onInputChange(e.target.value, "mapping");
-                }} />
+                {props.isMappingEditable ?
+                    <input className="xc-input" value={props.rowInfo.mapping} spellCheck={false} onChange={(e) => {
+                        props.onInputChange(e.target.value, "mapping");
+                    }} />
+                    :
+                    <InputDropdown
+                        val={props.rowInfo.mapping}
+                        onSelect={(value) => {
+                            props.onInputChange(value, "mapping");
+                        }}
+                        list={
+                            props.defaultSchema.map((schemaRow, i) => {
+                                return {text: schemaRow.mapping, value: schemaRow.mapping};
+                            })
+                        }
+                        readOnly
+                    />
+                }
+
             </div>
             <InputDropdown
                 val={props.rowInfo.name}

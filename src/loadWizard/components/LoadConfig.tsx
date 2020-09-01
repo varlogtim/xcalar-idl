@@ -916,7 +916,6 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             });
             await discoverApp.init();
             const fileContent = await discoverApp.previewFile();
-            console.log(fileContent);
             const { status } = fileContent;
             if (status.errorMessage != null) {
                 throw status.errorMessage;
@@ -1206,6 +1205,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             );
         };
 
+
         return (
             <React.Fragment>
             <div className="loadNavBar">
@@ -1296,7 +1296,9 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                 }}
                                 editSchemaProps={{
                                     ...editSchemaState,
-                                    showAdd: ![SchemaService.FileType.CSV].includes(fileType),
+                                    isMappingEditable: ![SchemaService.FileType.CSV].includes(fileType),
+                                    showAdd: ![SchemaService.FileType.CSV].includes(fileType) ||
+                                        (this.state.inputSerialization.CSV && this.state.inputSerialization.CSV.FileHeaderInfo !== "USE"),
                                     onSchemaChange: (result) => { this._handleSchemaChange(result); }
                                 }}
                                 selectedSchema={selectedSchema}

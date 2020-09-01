@@ -59,7 +59,7 @@ export default class DropdownUL extends React.Component<DropdownULProps, Dropdow
         let rect = this.listRef.current.parentElement.getBoundingClientRect();
         let top = rect.top + rect.height;
         let ul = this.ulRef.current;
-        let maxHeight: number | "auto" = window.innerHeight - 5 - top;
+        let maxHeight: number | "auto" = window.innerHeight - 10 - top;
 
         let hasScrollers = false;
         if (ul.getBoundingClientRect().height > maxHeight) {
