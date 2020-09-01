@@ -140,7 +140,7 @@ function SchemaDetail(props) {
                         <div>Paths:</div>
                         {
                             files.map(({fullPath}, i) => {
-                                return <div key={i}>{fullPath}</div>;
+                                return <div key={fullPath}>{fullPath}</div>;
                             })
                         }
                     </Collapsible.Item>

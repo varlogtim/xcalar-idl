@@ -1,5 +1,5 @@
-import Path from 'path';
-import React from "react";
+import * as Path from 'path';
+import * as React from "react";
 import NavButtons from '../NavButtons'
 import SelectedFilesArea from "./SelectedFilesArea"
 import SingleSelectedFileArea from "./SingleSelectedFileArea"
@@ -49,17 +49,32 @@ function getSelectedIdsForCurrentView(fileMapViewing, selectedFiles) {
     return selectedIds;
 }
 
-/**
- * Props:
- *          bucket, // string
-            homePath, // string
-            fileType, // SchemaService.FileType
-            selectedFileDir, // Array<FileObject>
-            onDone, // (Array<FileObject>) => void
-            onCancel,
+type BrowseDataSourceProps = {
+    fileType: SchemaService.FileType,
+    bucket: string,
+    connector: string,
+    homePath: string,
+    selectedFileDir:  any[],
+    onCancel: Function,
+    onPathChange: Function,
+    setSelectedFileDir: Function
+};
+type BrowseDataSourceState = {
+    isLoading: boolean,
+    path: string,
+    fileMapViewing: Map<string, any>,
+    selectedFileDir: any[],
+    fileNamePattern: string,
+    loadingFiles: Set<string>,
+    showForensics: boolean,
+    forensicsMessage: any[],
+    isForensicsLoading: boolean,
+    forensicsPath: string
+}
 
- */
-class BrowseDataSource extends React.Component {
+class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseDataSourceState> {
+    private metadataMap;
+
     constructor(props) {
         super(props);
 
@@ -155,7 +170,7 @@ class BrowseDataSource extends React.Component {
     }
 
     _refreshPath() {
-        this._browsePath(this.state.path);
+        this._browsePath(this.state.path, null);
     }
 
     _selectFiles(newSelectedFiles) {
@@ -244,7 +259,7 @@ class BrowseDataSource extends React.Component {
         const selectedFiles = this.state.selectedFileDir.filter(f => {
             return filePath !== f.fileId;
         });
-        if (selectedFiles.length !== this.state.selectedFileDir) {
+        if (selectedFiles.length !== this.state.selectedFileDir.length) {
             this.setState({
                 selectedFileDir: selectedFiles
             });

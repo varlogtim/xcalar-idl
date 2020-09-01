@@ -272,7 +272,7 @@ export default class DropdownUL extends React.Component<DropdownULProps, Dropdow
                 }
                 return (
                     <li
-                        key={i}
+                        key={item.value}
                         ref={this.liRefs[i]}
                         className={className}
                         onClick={() => onItemClick(item.value)}

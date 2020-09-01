@@ -1,6 +1,6 @@
-import React from 'react';
+import * as React from 'react';
 import { Folder, FileCopy, InsertDriveFileOutlined } from '@material-ui/icons';
-import prettyBytes from 'pretty-bytes';
+import * as prettyBytes from 'pretty-bytes';
 import clsx from 'clsx';
 import TableCell from '@material-ui/core/TableCell';
 import VirtualizedTable from "../../../components/widgets/VirtualizedTable";
@@ -9,6 +9,8 @@ const Texts = {
     fileListTitle: 'File List',
     selectListTitle: 'Selected Files'
 };
+
+type clsx = Function;
 
 export default function FileBrowserTable(props) {
     const {
@@ -37,7 +39,7 @@ export default function FileBrowserTable(props) {
         fileList.push(fileObj);
     }
 
-    let columns = [
+    let columns: any[] = [
         {
             width: 300,
             isFlexGrow: true,
@@ -82,7 +84,7 @@ export default function FileBrowserTable(props) {
                     <i className="icon xi-trash"></i>
                 }
         });
-        const uploader = new DragDropUploader({
+        new DragDropUploader({
             $container: $("#fileBrowserModal"),
             text: "Drop a file to upload",
             onDrop: (file) => {
@@ -160,20 +162,20 @@ export default function FileBrowserTable(props) {
         return deferred.promise();
     }
 
-    const uploadRef = React.createRef();
+    const uploadRef = React.createRef<any>();
 
     const uploadClick = (e) => {
-        uploadRef.current.click();
+        uploadRef.current["click"]();
     };
 
     const onUpload = (e) => {
         let val = e.target.value;
         if (val === "")  return;
-        let file = uploadRef.current.files[0];
+        let file = uploadRef.current["files"][0];
         uploadFile(file)
         .always(() => {
             if (uploadRef.current) {
-                uploadRef.current.value = "";
+                uploadRef.current["value"] = "";
             }
         });
     };

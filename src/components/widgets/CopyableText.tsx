@@ -11,7 +11,7 @@ function CopyableText(props) {
     }
     const copy = () => {
         setCopying(true);
-        window.xcUIHelper.copyToClipboard(props.value);
+        xcUIHelper.copyToClipboard(props.value);
         setTimeout(() => {
             setCopying(false);
         }, 1800);

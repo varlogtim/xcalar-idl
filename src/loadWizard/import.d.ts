@@ -1,6 +1,7 @@
 declare var StatusBox;
 declare var PTblManager;
 declare var xcHelper;
+declare var xcUIHelper;
 declare var PatternCategory;
 declare var PatternAction;
 declare var xcStringHelper;
@@ -9,3 +10,7 @@ declare var DSTargetManager;
 declare var Alert;
 declare var HomeScreen;
 declare var UrlToTab;
+declare var DragDropUploader;
+declare var UploadTStr;
+declare var PromiseHelper;
+declare var CloudFileBrowser;

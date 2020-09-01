@@ -296,7 +296,7 @@ function SelectedFilesSummary({fileList}) {
                         chartData.map((item, i) => {
                             const size = (item.name === "directory") ?  "" : prettyBytes(typeSize[item.name]);
                             return (
-                                <tr key={i}>
+                                <tr key={item.name}>
                                     <td>{item.name}</td>
                                     <td>{item.value.toLocaleString()}</td>
                                     <td>{size}</td>

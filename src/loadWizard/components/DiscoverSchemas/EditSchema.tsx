@@ -2,7 +2,19 @@ import * as React from "react";
 import { validateSchemaString } from '../../services/SchemaService'
 import ColSchemaSection from "./ColSchemaSection";
 
-class EditSchema extends React.PureComponent {
+type EditSchemaState = {
+    editAsText: boolean;
+}
+type EditSchemaProps = {
+    onSchemaChange: Function,
+    errorMessage: string,
+    schema: any,
+    selectedSchema: any,
+    classNames: string[]
+    showAdd?: boolean
+}
+
+class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
     constructor(props) {
         super(props);
         this.state = {
@@ -31,6 +43,7 @@ class EditSchema extends React.PureComponent {
     render() {
         const { errorMessage, schema, classNames = [], showAdd = true } = this.props;
         let switchClass = "xc-switch switch";
+        // z = x + y;
         if (this.state.editAsText) {
             switchClass += " on";
         }
@@ -58,7 +71,7 @@ class EditSchema extends React.PureComponent {
                     className="xc-textArea editSchema-textarea"
                     onChange={(e) => { this._schemaChange(e.target.value) }}
                     value={schema}
-                    spellCheck="false"
+                    spellCheck={false}
                 />
                 :
                 <ColSchemaSection
@@ -82,12 +95,24 @@ class EditSchema extends React.PureComponent {
 function useScroll() {
     const ref = React.createRef();
     const execute = () => {
-            ref.current.scrollIntoView({ block: "start"});
+        ref.current["scrollIntoView"]({ block: "start"});
     }
     return { ref, execute };
 }
 
-class EditSchemaSection extends React.PureComponent {
+type EditSchemaSectionProps = {
+    isFocus: boolean,
+    onSchemaChange: Function,
+    errorMessage: string,
+    schema: any,
+    selectedSchema: any,
+    classNames: string[]
+    showAdd?: boolean
+}
+
+class EditSchemaSection extends React.PureComponent<EditSchemaSectionProps, {}> {
+    private scroll;
+
     constructor(props) {
         super(props);
         this.scroll = useScroll();
