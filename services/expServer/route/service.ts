@@ -379,20 +379,6 @@ router.get("/service/healthCheckMgmtd", async (_req, res) => {
     });
 });
 
-router.get("/service/healthCheckJupyter", async (_req, res) => {
-    var jupyterPort = getJupyterPort();
-    var serviceUrl = `http://localhost:${jupyterPort}/jupyter/tree`;
-    try {
-        var response = await request(serviceUrl);
-
-        var message = { "service": "jupyter", "status": "up" };
-        res.status(httpStatus.OK).json(message);
-    } catch (error) {
-        var errMessage = { "service": "jupyter", "status": "down", "error": error.message };
-        res.status(httpStatus.InternalServerError).json(errMessage);
-    }
-});
-
 router.get("/service/healthCheckSqldf", async (_req, res) => {
     var sqldfPort = 27000;
     var serviceUrl = `http://localhost:${sqldfPort}/xcesql/info`;
