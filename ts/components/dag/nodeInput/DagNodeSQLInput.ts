@@ -136,6 +136,15 @@ class DagNodeSQLInput extends DagNodeInput {
             mapping: input.mapping || []
         };
     }
+
+    public setInput(input) {
+        this.lastInput = this.input;
+        this.input = input;
+    }
+
+    public setParameter(params) {
+        this.parameters = params;
+    }
 }
 
 if (typeof exports !== 'undefined') {

@@ -27,7 +27,8 @@ interface SQLParserStruct {
     newIdentifiers?: string[],
     functions?: {},
     newSql?: string,
-    nonQuery?: boolean
+    nonQuery?: boolean,
+    parameters?: string[]
 }
 
 interface SQLEvalStruct {

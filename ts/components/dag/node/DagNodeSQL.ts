@@ -1482,7 +1482,7 @@ class DagNodeSQL extends DagNodeIn {
             if (!sqlMode) {
                 const parseStruct = {
                     sqlQuery: sqlQueryStr,
-                    ops: ["identifier", "sqlfunc"],
+                    ops: ["identifier", "sqlfunc", "parameters"],
                     isMulti: true
                 };
                 promise = SQLUtil.sendToPlanner(this.getId() + compileId, "parse",
@@ -1523,6 +1523,7 @@ class DagNodeSQL extends DagNodeIn {
                     sqlQueryStr = ret.sqlQueryStr;
                     sqlFunctions = ret.sqlFunctions;
                     sessionTablesSchema = ret.sessionTablesSchema;
+                    this.input.setParameter(ret.sqlParameters);
                 }
                 return this.sendSchema(identifiers, pubTablesInfo, sqlFunctions,
                                        usedTables, compileId, sessionTables, sourceMapping,
@@ -1712,6 +1713,7 @@ class DagNodeSQL extends DagNodeIn {
         });
         let sqlQueryStr = sqlStruct.newSql;
         let sqlFunctions = sqlStruct.functions;
+        let sqlParameters = sqlStruct.parameters;
         let newSessionTables = new Map();
         if (sourceMapping) {
             sourceMapping.forEach((connector) => {
@@ -1758,6 +1760,7 @@ class DagNodeSQL extends DagNodeIn {
                 usedTables,
                 sqlQueryStr,
                 sqlFunctions,
+                sqlParameters,
                 sessionTablesSchema
             });
         })
