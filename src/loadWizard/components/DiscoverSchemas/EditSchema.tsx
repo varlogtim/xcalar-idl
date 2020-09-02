@@ -9,7 +9,7 @@ type EditSchemaState = {
 type EditSchemaProps = {
     onSchemaChange: Function,
     errorMessage: string,
-    schema: any,
+    schema: string,
     selectedSchema: any,
     classNames: string[],
     isMappingEditable?: boolean,
@@ -19,19 +19,17 @@ type EditSchemaProps = {
 class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
     constructor(props) {
         super(props);
-        let cols = this._getColsFromSchemaString();
-        const unusedMappings = this._getUnusedMapping(cols);
+        const unusedMappings = this._getUnusedMapping(this.props.schema);
         this.state = {
             editAsText: false,
             unusedMappings: unusedMappings
         };
     }
-    _schemaChange(newSchema) {
+    _schemaChange(newSchema: string) {
         const { onSchemaChange } = this.props;
         let validSchema;
         try {
             validSchema = validateSchemaString(newSchema);
-            console.log(newSchema, validSchema);
             onSchemaChange({
                 schema: newSchema,
                 validSchema: validSchema,
@@ -45,19 +43,15 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
                 error: e
             });
         }
-        let cols;
-        if (!validSchema) {
-            cols = [];
-        } else {
-            cols = validSchema.columns;
-        }
-        const unusedMappings = this._getUnusedMapping(cols);
+
+        const unusedMappings = this._getUnusedMapping(newSchema);
         this.setState({
             unusedMappings: unusedMappings
         })
     }
 
-    _getUnusedMapping(newColumns) {
+    _getUnusedMapping(schemaStr) {
+        let newColumns = this._getColsFromSchemaString(schemaStr);
         let mappings = new Set();
         this.props.selectedSchema.columns.forEach((col) => {
             mappings.add(col.mapping);
@@ -68,10 +62,10 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
         return mappings;
     }
 
-    _getColsFromSchemaString() {
+    _getColsFromSchemaString(schema) {
         let cols;
         try {
-            cols = JSON.parse(this.props.schema).columns;
+            cols = JSON.parse(schema).columns;
             if (!Array.isArray(cols)) {
                 cols = [];
             }
@@ -89,7 +83,7 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
             switchClass += " on";
         }
         const cssClass = ['editSchema'].concat(classNames);
-        let cols = this._getColsFromSchemaString();
+        let cols = this._getColsFromSchemaString(this.props.schema);
 
         return (<div className={cssClass.join(' ')}>
             <div className="switchWrap" onClick={() => {

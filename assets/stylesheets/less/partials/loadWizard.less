@@ -1,5 +1,5 @@
 #loadWizard {
-    @min-width: 450px; 
+    @min-width: 450px;
     @input-height: 35px;
 
     .App {
@@ -230,7 +230,7 @@
         }
     }
 
-    .react-draggable {
+    .react-draggable:not(.modal-content) {
         position: relative !important;
         transform: translate(0, 0) !important;
         display: flex !important;
@@ -1242,6 +1242,17 @@
         background-color: rgba(0,0,0,0.5);
         max-width: none !important;
 
+        .react-draggable {
+            &.modal-content {
+                display: flex !important;
+                overflow: visible;
+            }
+            .modal-header {
+                cursor: pointer;
+                .cursor-move;
+            }
+
+        }
 
         .modal-content {
             background-color: @color-bg-modal;
@@ -1349,7 +1360,7 @@
 
     .editSchema {
         .switchWrap {
-            display: flex;
+            display: inline-flex;
             line-height: 22px;
             .switch {
                 margin-right: 8px;

@@ -14,6 +14,7 @@ import * as SchemaLoadService from '../services/SchemaLoadService'
 import * as SchemaLoadSetting from '../services/SchemaLoadSetting'
 import { listFilesWithPattern, defaultFileNamePattern } from '../services/S3Service'
 import { DataPreviewModal } from './DataPreview'
+import EditConnectorsModal from './EditConnectorsModal'
 
 
 /**
@@ -140,6 +141,10 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
 
             // Table Preview
             tablePreviewState: {
+                isShow: false
+            },
+
+            connectorModalState: {
                 isShow: false
             },
 
@@ -1437,6 +1442,24 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                     }
                 </div>
             </div>
+            {/* <div style={{position: "fixed"}}onClick={() => {
+                this.setState({
+                    connectorModalState: {
+                        isShow: true
+                    }
+                })
+            }}>Manage Connectors</div>
+            {this.state.connectorModalState.isShow ?
+                <EditConnectorsModal
+                    onClose={()=>{
+                        this.setState({
+                            connectorModalState: {
+                                isShow: false
+                            }
+                        })
+                    }}
+                /> :
+                null} */}
             </React.Fragment>
         );
     }
