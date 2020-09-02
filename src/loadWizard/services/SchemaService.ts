@@ -229,6 +229,7 @@ export {
     FileType, FileTypeFilter,
     FileTypeFilterFunction,
     Schema, ColumnDef,
+    InputSerialization,
     InputSerializationFactory, defaultInputSerialization,
     CSVHeaderOption,
     suggestParserType,

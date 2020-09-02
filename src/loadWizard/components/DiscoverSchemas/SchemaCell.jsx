@@ -1,6 +1,4 @@
 import React from 'react';
-// const EC = require('../utils/EtaCost.js')
-// const EtaCost = new EC()
 
 const Texts = {
     discovering: 'Discovering ...',

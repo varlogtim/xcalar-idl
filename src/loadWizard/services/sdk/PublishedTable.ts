@@ -1,17 +1,32 @@
+import { IXcalarSession } from './Session'
+
 class PublishedTable {
-    constructor({ session, name, srcTable, isActive = true, preCreateQuery = [] }) {
-        this._session = session;
+    private _session: IXcalarSession;
+    private _name: string;
+    private _srcTable: any;
+    private _isActive: boolean;
+    private _preCreateQuery: Array<any>;
+
+    constructor(params: {
+        session?: IXcalarSession,
+        name: string,
+        srcTable?: any,
+        isActive?: boolean,
+        preCreateQuery?: Array<any>
+    }) {
+        const { session, name, srcTable, isActive = true, preCreateQuery = [] } = params;
+        this._session = session || srcTable.getSession();
         this._name = name;
         this._srcTable = srcTable;
         this._isActive = isActive;
         this._preCreateQuery = [...preCreateQuery];
     }
 
-    getName() {
+    public getName() {
         return this._name;
     }
 
-    async activate() {
+    public async activate() {
         if (!this._isActive) {
             await this._session.callLegacyApi(
                 () => XcalarRestoreTable(this._name)
@@ -19,7 +34,7 @@ class PublishedTable {
         }
     }
 
-    isActive() {
+    public isActive() {
         return this._isActive;
     }
 
@@ -27,7 +42,7 @@ class PublishedTable {
      * Persist the dataflow from which the table is created
      * @param {Array<Object>} query
      */
-    async saveDataflowFromQuery(query) {
+    public async saveDataflowFromQuery(query: Array<any>) {
         try {
             const pbTblInfo = new PbTblInfo({name: this.getName()});
             await pbTblInfo.saveDataflowFromQuery(query.concat(this._preCreateQuery), true);
@@ -37,7 +52,7 @@ class PublishedTable {
         }
     }
 
-    async saveDataflow() {
+    public async saveDataflow() {
         try {
             const pbTblInfo = new PbTblInfo({name: this.getName()});
             await pbTblInfo.saveDataflow(this._srcTable.getName(), true);

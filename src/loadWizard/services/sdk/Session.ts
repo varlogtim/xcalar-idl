@@ -1,19 +1,13 @@
-import { callApiInSession, randomName, createGlobalScope, createSessionScope } from './Api';
-import { LoginUser, User } from './User';
+import { callApiInSession, randomName } from './Api';
+import { IXcalarUser, LoginUser, User } from './User';
 import { Table } from './Table';
 import { Dataset } from './Dataset';
 import { PublishedTable } from './PublishedTable';
 import { SharedTable } from './SharedTable';
 
-const {
-    xcHelper, WorkbookManager,
-    XcalarNewWorkbook, XcalarActivateWorkbook, XcalarDeactivateWorkbook, XcalarDeleteWorkbook,
-    XcalarQueryWithCheck, XcalarImportRetina,
-    Xcrpc
-} = global;
-
-
 class GlobalSession {
+    public user: IXcalarUser;
+
     constructor({ user }) {
         this.user = user;
     }
@@ -28,8 +22,63 @@ function replaceParams(query, params = new Map()) {
     return queryString;
 }
 
-class BaseSession {
-    constructor({ user, sessionName }) {
+interface IXcalarSession {
+    user: IXcalarUser,
+    sessionName: string,
+    sessionId: string,
+
+    create(): Promise<void>,
+    delete(): Promise<void>,
+    activate(): Promise<void>,
+    deactivate(): Promise<void>,
+    destroy(): Promise<void>,
+
+    callLegacyApi<T>(apiCall: () => Promise<T>): Promise<T>;
+
+    executeSql(sql: string, tableName?: string): Promise<Table>;
+
+    createDataset(params: {
+        name: string,
+        sourceArgs: any,
+        parseArgs: any,
+        size?: number
+    }): Promise<Dataset>;
+
+    getPublishedTable(params: { name: string }): Promise<PublishedTable>;
+
+    listTables(params?: {
+        namePattern?: string,
+        isGlobal?: boolean
+    }): Promise<Array<Table> | Array<SharedTable>>;
+
+    deleteTables(params: { namePattern: string }): Promise<void>;
+
+    executeQuery(args: {
+        queryString: string,
+        queryName: string,
+        params?: Map<string, string>
+    }): Promise<void>;
+
+    executeQueryOptimized(args: {
+        queryStringOpt: string,
+        queryName: string,
+        tableName: string,
+        params?: Map<string, string>
+    }): Promise<void>;
+}
+
+class BaseSession implements IXcalarSession {
+    public user: IXcalarUser;
+    public sessionName: string;
+    public sessionId: string;
+    private _tables: Array<Table>;
+    private _datasets: Array<Dataset>;
+
+    constructor(params: {
+        user: IXcalarUser,
+        sessionName: string
+    }) {
+        const { user, sessionName } = params;
         this.user = user;
         this.sessionName = sessionName;
         this.sessionId = null;
@@ -37,23 +86,23 @@ class BaseSession {
         this._datasets = new Array();
     }
 
-    async create() {
+    public async create() {
         this.sessionId = await PromiseHelper.convertToNative(XcalarNewWorkbook(this.sessionName));
     }
 
-    async delete() {
+    public async delete() {
         await PromiseHelper.convertToNative(XcalarDeleteWorkbook(this.sessionName));
     }
 
-    async activate() {
+    public async activate() {
         await PromiseHelper.convertToNative(XcalarActivateWorkbook(this.sessionName));
     }
 
-    async deactivate() {
+    public async deactivate() {
         await PromiseHelper.convertToNative(XcalarDeactivateWorkbook(this.sessionName, false));
     }
 
-    async destroy() {
+    public async destroy() {
         try {
             // Cleanup tables
             while (this._tables.length > 0) {
@@ -72,11 +121,11 @@ class BaseSession {
         }
     }
 
-    callLegacyApi(apiCall) {
+    public callLegacyApi<T>(apiCall: () => Promise<T>) {
         return callApiInSession(this.sessionName, this.user.getUserName(), this.user.getUserId(), apiCall, this.user.getHashFunc());
     }
 
-    async executeSql(sql, tableName = null) {
+    public async executeSql(sql: string, tableName: string = null) {
         const resultTableName = await Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getSqlService().executeSql({
             sqlQuery: sql,
             tableName: tableName,
@@ -91,7 +140,13 @@ class BaseSession {
         return table;
     }
 
-    async createDataset({ name, sourceArgs, parseArgs, size = 0 }) {
+    public async createDataset(params: {
+        name: string,
+        sourceArgs: any,
+        parseArgs: any,
+        size?: number
+    }): Promise<Dataset> {
+        const { name, sourceArgs, parseArgs, size = 0 } = params;
         const dataset = new Dataset({
             session: this,
             name: name,
@@ -105,7 +160,8 @@ class BaseSession {
         return dataset;
     }
 
-    async getPublishedTable({ name }) {
+    async getPublishedTable(params: { name: string }): Promise<PublishedTable> {
+        const { name } = params;
         const result = await PromiseHelper.convertToNative(XcalarListPublishedTables(name));
         if (result.tables.length === 0) {
             return null;
@@ -121,7 +177,11 @@ class BaseSession {
         }
     }
 
-    async listTables({ namePattern = '*', isGlobal = false } = {}) {
+    async listTables(params?: {
+        namePattern?: string,
+        isGlobal?: boolean
+    }): Promise<Array<Table> | Array<SharedTable>> {
+        const { namePattern = '*', isGlobal = false } = params || {};
         const scope = isGlobal
             ? Xcrpc.Table.SCOPE.GLOBAL
             : Xcrpc.Table.SCOPE.WORKBOOK;
@@ -147,18 +207,30 @@ class BaseSession {
         return tableList;
     }
 
-    async deleteTables({ namePattern }) {
+    async deleteTables(params: { namePattern: string }): Promise<void> {
+        const { namePattern } = params;
         await this.callLegacyApi(() => XcalarDeleteTable(namePattern));
     }
 
-    async executeQuery({ queryString, queryName, params = new Map() }) {
+    async executeQuery(args: {
+        queryString: string,
+        queryName: string,
+        params?: Map<string, string>
+    }): Promise<void> {
+        const { queryString, queryName, params = new Map() } = args;
         return await this.callLegacyApi(() => XcalarQueryWithCheck(
             queryName,
             replaceParams(queryString, params)
         ));
     }
 
-    async executeQueryOptimized({ queryStringOpt, queryName, tableName, params = new Map() }) {
+    async executeQueryOptimized(args: {
+        queryStringOpt: string,
+        queryName: string,
+        tableName: string,
+        params?: Map<string, string>
+    }): Promise<void> {
+        const { queryStringOpt, queryName, tableName, params = new Map() } = args;
         // XXX TODO: use DataflowService.execute instead
         const queryString = replaceParams(queryStringOpt, params);
         await this.callLegacyApi(() => XcalarImportRetina(
@@ -201,16 +273,6 @@ class XDSession extends BaseSession {
     async delete() {}
     async activate() {}
     async deactivate() {}
-
-    // callLegacyApi(apiCall) {
-    //     WorkbookManager.switchToXDInternalSession();
-    //     try {
-    //         const result = PromiseHelper.convertToNative(apiCall());
-    //         return result;
-    //     } finally {
-    //         WorkbookManager.resetXDInternalSession();
-    //     }
-    // }
 }
 
 const SESSION_PREFIX = 'LWS';
@@ -251,4 +313,8 @@ class LoginSession extends BaseSession {
     }
 }
 
-export { XDSession, RandomSession, GlobalSession, LoadSession, CurrentSession, LoginSession, loadSessionName };
+export {
+    IXcalarSession,
+    XDSession, RandomSession, GlobalSession, LoadSession, CurrentSession, LoginSession,
+    loadSessionName
+};

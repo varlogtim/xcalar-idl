@@ -1,31 +1,47 @@
 import { normalizeQueryString } from './Api';
 import { PublishedTable } from './PublishedTable';
 import { SharedTable } from './SharedTable';
+import { IXcalarSession } from './Session';
 
-const {
-    XcalarMakeResultSetFromTable,
-    XcalarIndexFromTable,
-    XcalarSetAbsolute,
-    XcalarGetNextPage,
-    XcalarSetFree,
-    XcalarDeleteTable,
-    XcalarRenameTable
-} = global;
+type TableColumn = {
+    name: string, type: string
+};
 
+type TableKey = {
+    name: string, type: string, ordering: string
+};
+
+type TableMetadata = {
+    columns: Array<TableColumn>,
+    keys: Array<TableKey>
+};
 
 class Table {
-    constructor({ session, tableName }) {
+    private _session: IXcalarSession;
+    private _tableName: string;
+    private _cursors: Array<Cursor>;
+    private _metadata: TableMetadata;
+
+    constructor(params: {
+        session: IXcalarSession,
+        tableName: string
+    }) {
+        const { session, tableName } = params;
         this._session = session;
         this._tableName = tableName;
         this._cursors = new Array();
         this._metadata = null;
     }
 
-    getName() {
+    public getSession() {
+        return this._session;
+    }
+
+    public getName() {
         return this._tableName;
     }
 
-    createCursor(isTrack = true) {
+    public createCursor(isTrack = true) {
         const cursor = new Cursor({
             session: this._session,
             table: this
@@ -36,7 +52,7 @@ class Table {
         return cursor;
     }
 
-    async publish(publishedName) {
+    public async publish(publishedName) {
         const srcTableName = this.getName();
         // Publish table
         await this._session.callLegacyApi(
@@ -57,7 +73,7 @@ class Table {
      * @param {string} publishedName
      * @param {any[]} query
      */
-    async publishWithQuery(publishedName, query) {
+    public async publishWithQuery(publishedName, query) {
         const srcTableName = this.getName();
         // Publish table
         await this._session.callLegacyApi(
@@ -73,7 +89,7 @@ class Table {
         return pubTable;
     }
 
-    async publish2(publishedName) {
+    public async publish2(publishedName) {
         const xcalarRowNumPkName = "XcalarRankOver";
         const tempTables = [];
         let srcTableName = this.getName();
@@ -141,13 +157,13 @@ class Table {
                 )
             );
 
-            return new PublishedTable({ name: publishedName, preCreateQuery: queryList.map((q) => JSON.parse(q)) });
+            return new PublishedTable({ session: this.getSession(), name: publishedName, preCreateQuery: queryList.map((q) => JSON.parse(q)) });
         } finally {
             await Promise.all(tempTables.map(t => t.destroy()));
         }
     }
 
-    async share() {
+    public async share() {
         const scope = Xcrpc.Table.SCOPE.WORKBOOK;
         const scopeInfo = { userName: this._session.user.getUserName(), workbookName: this._session.sessionName }
 
@@ -160,14 +176,16 @@ class Table {
         return new SharedTable({ name: sharedName});
     }
 
-    async rename({ newName }) {
+    public async rename(params: { newName: string }) {
+        const { newName } = params;
         await this._session.callLegacyApi(
             () => XcalarRenameTable(this.getName(), newName)
         );
         this._tableName = newName;
     }
 
-    async destroy({isCleanLineage = true} = {}) {
+    public async destroy(params?: { isCleanLineage?: boolean }) {
+        const {isCleanLineage = true} = params || {};
         try {
             while (this._cursors.length > 0) {
                 const cursor = this._cursors.pop();
@@ -181,7 +199,7 @@ class Table {
         }
     }
 
-    async getInfo() {
+    public async getInfo() {
         if (this._metadata == null) {
             const metadata = await this._session.callLegacyApi(() => XcalarGetTableMeta(this._tableName));
             this._metadata = {
@@ -197,17 +215,26 @@ class Table {
 }
 
 class Cursor {
-    constructor({ session, table }) {
+    private _session: IXcalarSession;
+    private _srcTable: Table;
+    private _resultSetId: string;
+    private _numRows: number;
+
+    constructor(params: {
+        session: IXcalarSession,
+        table: Table
+    }) {
+        const { session, table } = params;
         this._session = session;
-        this._scrTable = table;
+        this._srcTable = table;
         this._resultSetId = null;
         this._numRows = null;
     }
 
-    async open() {
+    public async open() {
         if (this._resultSetId == null) {
             // resultSetInfo: XcalarApiMakeResultSetOutputT
-            const tableName = this._scrTable.getName();
+            const tableName = this._srcTable.getName();
             const resultSetInfo = await this._session.callLegacyApi(
                 () => XcalarMakeResultSetFromTable(tableName)
             );
@@ -216,18 +243,18 @@ class Cursor {
         }
     }
 
-    isReady() {
+    public isReady() {
         return this._resultSetId !== null;
     }
 
-    getNumRows() {
+    public getNumRows() {
         if (this._resultSetId == null) {
             throw new Error('Cursor not open');
         }
         return this._numRows;
     }
 
-    async position(pos) {
+    public async position(pos) {
         if (this._resultSetId == null) {
             throw new Error('Cursor not open');
         }
@@ -241,7 +268,7 @@ class Cursor {
         return true;
     }
 
-    async fetch(numRows) {
+    public async fetch(numRows) {
         if (this._resultSetId == null) {
             throw new Error('Cursor not open');
         }
@@ -257,12 +284,12 @@ class Cursor {
         }
     }
 
-    async fetchJson(numRows) {
+    public async fetchJson(numRows) {
         const stringList = await this.fetch(numRows);
         return stringList.map((s) => JSON.parse(s));
     }
 
-    async close() {
+    public async close() {
         try {
             if (this._resultSetId != null) {
                 const resultSetId = this._resultSetId;

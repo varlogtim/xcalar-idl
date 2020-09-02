@@ -1,9 +1,11 @@
 class SharedTable {
+    private _name: string;
+
     constructor({ name }) {
         this._name = name;
     }
 
-    getName() {
+    public getName() {
         return this._name;
     }
 }

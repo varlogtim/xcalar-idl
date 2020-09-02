@@ -2,7 +2,7 @@ import * as Path from 'path'
 import { randomName, hashFunc } from './sdk/Api'
 import { LoadSession } from './sdk/Session'
 import { Table } from './sdk/Table'
-import { Schema } from './SchemaService'
+import { Schema, InputSerialization } from './SchemaService'
 
 type ProgressCallback = (progress?: number) => void;
 
@@ -120,7 +120,16 @@ function sleep(time) {
 }
 
 const discoverApps = new Map();
-function createDiscoverApp({ path, filePattern, targetName, inputSerialization, isRecursive = true, isErrorRetry = true }) {
+function createDiscoverApp(params: {
+    path: string,
+    filePattern: string,
+    targetName: string,
+    inputSerialization: InputSerialization,
+    isRecursive?: boolean,
+    isErrorRetry?: boolean
+}) {
+    const { path, filePattern, targetName, inputSerialization, isRecursive = true, isErrorRetry = true } = params;
+
     let executionDone = false;
     let cancelDiscover = false;
     const tables = {

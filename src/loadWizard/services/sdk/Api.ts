@@ -1,12 +1,6 @@
 import * as crypto from 'crypto';
 
-const {
-    PromiseHelper,
-    setSessionName,
-    setUserIdAndName
-} = global;
-
-function getCurrentSession() {
+function getCurrentSession(): string {
     // Global variable: sessionName
     return sessionName;
 }
@@ -16,7 +10,10 @@ function getThriftHandler() {
     return tHandle;
 }
 
-function getCurrentUser() {
+function getCurrentUser(): {
+    userName: string,
+    userId: number
+} {
     // Global variables
     return {
         userName: userIdName,
@@ -24,11 +21,12 @@ function getCurrentUser() {
     };
 }
 
-function hashFunc(str) {
+type HashFunction = (str: string) => string;
+function hashFunc(str: string): string {
     return crypto.createHash('md5').update(str).digest('hex');
 }
 
-function switchSession(callSession) {
+function switchSession(callSession: string): () => void {
     const currentSession = getCurrentSession();
     setSessionName(callSession);
 
@@ -38,19 +36,29 @@ function switchSession(callSession) {
     };
 }
 
-function switchUser(userName, userId, hashFunc = hashFunc) {
+function switchUser(
+    userName: string,
+    userId: number,
+    hashFunction: HashFunction = hashFunc
+): () => void {
     // Global variables
     const currentUser = getCurrentUser();
-    setUserIdAndName(userName, userId, hashFunc);
+    setUserIdAndName(userName, userId, hashFunction);
 
     // Return a restore function
     return () => {
-        setUserIdAndName(currentUser.userName, currentUser.userId, hashFunc);
+        setUserIdAndName(currentUser.userName, currentUser.userId, hashFunction);
     };
 }
 
-function callApiInSession(callSession, callUserName, callUserId, func, hashFunc = hashFunc) {
-    const restoreUser = switchUser(callUserName, callUserId, hashFunc);
+function callApiInSession<T>(
+    callSession: string,
+    callUserName: string,
+    callUserId: number,
+    func: () => Promise<T>,
+    hashFunction: HashFunction = hashFunc
+): Promise<T> {
+    const restoreUser = switchUser(callUserName, callUserId, hashFunction);
     const restoreSession = switchSession(callSession);
     try {
         const result = PromiseHelper.convertToNative(func());
@@ -61,7 +69,7 @@ function callApiInSession(callSession, callUserName, callUserId, func, hashFunc 
     }
 }
 
-function randomName() {
+function randomName(): string {
     const pattern = 'xxxxxxxxxxxxxyyyy';
     return pattern.replace(/[xy]/g, function(c) {
         var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -75,7 +83,11 @@ function createGlobalScope() {
     return scope;
 }
 
-function createSessionScope({userName, sessionName}) {
+function createSessionScope(params: {
+    userName: string,
+    sessionName: string
+}) {
+    const { userName, sessionName } = params;
     const scope = new proto.xcalar.compute.localtypes.Workbook.WorkbookScope();
 
     const nameInfo = new proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier();
@@ -89,7 +101,7 @@ function createSessionScope({userName, sessionName}) {
     return scope;
 }
 
-function normalizeQueryString(queryCli) {
+function normalizeQueryString(queryCli: string): string {
     return queryCli.endsWith(',')
         ? queryCli.substr(0, queryCli.length - 1)
         : queryCli;
@@ -97,7 +109,7 @@ function normalizeQueryString(queryCli) {
 
 export {
     callApiInSession,
-    hashFunc,
+    HashFunction, hashFunc,
     getThriftHandler,
     randomName,
     createGlobalScope,

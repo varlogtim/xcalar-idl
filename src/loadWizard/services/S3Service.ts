@@ -1,7 +1,6 @@
 import * as crypto from 'crypto';
 import * as Path from 'path';
 import { XDSession } from './sdk/Session';
-import * as DiscoverSchema from '../utils/discoverSchema';
 import { FileTypeFilterFunction } from './SchemaService'
 
 type FilePathInfo = {
@@ -263,27 +262,6 @@ async function getForensicsStats(bucket, pathPrefix) {
     return stats;
 }
 
-/**
- *
- * @param {string} tableName
- * @param {[{ path:string, size:number }]} fileInfos [{ path, size }]
- * @param {[{name, mapping, type}]} schema
- * @param {*} inputSerialization
- */
-async function createTableFromSchema(tableName, fileInfos, schema, inputSerialization, progressCB) {
-    const finalTableName = await DiscoverSchema.createTableFromSchema(
-        tableName,
-        fileInfos,
-        {
-            numColumns: schema.length,
-            columns: schema
-        },
-        inputSerialization,
-        progressCB
-    );
-    return finalTableName;
-}
-
 // === Helper functions: begin ===
 function getKeylistTableName(fullPath) {
     const pathHash = crypto.createHash('md5').update(fullPath).digest('hex').toUpperCase();
@@ -339,5 +317,4 @@ export {
     createKeyListTable,
     getForensicsStats,
     populateFiles,
-    createTableFromSchema
 };

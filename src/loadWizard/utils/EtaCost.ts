@@ -2,6 +2,16 @@
 // We assume that both are located in the same zone, not just region.
 // All costs in dollars, time in secs
 class EtaCost {
+    private costPerGB: number;
+    private pcplCost1K: number;
+    private gsCost1K: number;
+    private oneGig: number;
+    private numIOs: number;
+    private numPcpl: number;
+    private numGs: number;
+    private bandwidthGBps: number;
+    private sampleSize: number;
+    private numCores: number;
 
     constructor({ numCores = 32 } = {}) {
         this.costPerGB = 0.01

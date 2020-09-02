@@ -1,24 +1,26 @@
-import * as crypto from 'crypto';
-
-function hashFunc(str) {
-    return crypto.createHash('md5').update(str).digest('hex');
-}
+import { HashFunction, hashFunc } from './Api'
 
 /**
  * LoginUser depends on XD's login
  */
-class LoginUser {
-    getUserName() {
+interface IXcalarUser {
+    getUserName(): string;
+    getUserId(): number;
+    getHashFunc(): HashFunction;
+}
+
+ class LoginUser implements IXcalarUser {
+    public getUserName() {
         // Global variable
         return userIdName;
     }
 
-    getUserId() {
+    public getUserId() {
         // Global variable
         return userIdUnique;
     }
 
-    getHashFunc() {
+    public getHashFunc() {
         return hashFunc;
     }
 }
@@ -27,23 +29,26 @@ const DEFAULT_USERNAME = "xcalar-lw-internal";
 function computeUserId(userName) {
     return Number.parseInt("0x" + hashFunc(userName).substring(0, 5)) + 4000000;
 };
-class User {
+class User implements IXcalarUser {
+    private _userName: string;
+    private _userId: number;
+
     constructor({ userName = DEFAULT_USERNAME} = {}) {
         this._userName = userName;
         this._userId = computeUserId(userName);
     }
 
-    getUserName() {
+    public getUserName() {
         return this._userName;
     }
 
-    getUserId() {
+    public getUserId() {
         return this._userId;
     }
 
-    getHashFunc() {
+    public getHashFunc() {
         return hashFunc;
     }
 }
 
-export { LoginUser, User };
+export { IXcalarUser, LoginUser, User };

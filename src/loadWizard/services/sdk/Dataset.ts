@@ -1,11 +1,23 @@
 import { Table } from './Table';
 import { getThriftHandler } from './Api';
-const { gDSPrefix } = global;
-
-const DATASET_PREFIX = gDSPrefix || '.XcalarDS.';
+import { IXcalarSession } from './Session';
 
 class Dataset {
-    constructor({ session, name, sourceArgs, parseArgs, size = 0 }) {
+    private _session: IXcalarSession;
+    private _name: string;
+    private _sourceArgs: any;
+    private _parseArgs: any;
+    private _size: number;
+    private _columns: Map<string, any>;
+
+    constructor(params: {
+        session: IXcalarSession,
+        name: string,
+        sourceArgs: any,
+        parseArgs: any,
+        size: number
+    }) {
+        const { session, name, sourceArgs, parseArgs, size = 0 } = params;
         this._session = session;
         this._name = name;
         this._sourceArgs = sourceArgs;
@@ -14,15 +26,16 @@ class Dataset {
         this._columns = null;
     }
 
-    getName() {
+    public getName() {
         return this._name;
     }
 
-    getDSName() {
+    public getDSName() {
+        const DATASET_PREFIX = gDSPrefix || '.XcalarDS.';
         return DATASET_PREFIX + this._name;
     }
 
-    async load() {
+    public async load() {
         const option = {
             sources: this._sourceArgs,
             ...this._parseArgs
@@ -32,7 +45,7 @@ class Dataset {
         );
     }
 
-    async _loadMetadata() {
+    private async _loadMetadata() {
         if (this._columns == null) {
             const datasetName = this.getName();
             const datasetInfo = await this._session.callLegacyApi(
@@ -47,12 +60,12 @@ class Dataset {
         }
     }
 
-    async getColumnNames() {
+    public async getColumnNames() {
         await this._loadMetadata();
         return [...this._columns.keys()];
     }
 
-    async createPublishedTable(tableName) {
+    public async createPublishedTable(tableName: string) {
         const XCALAR_ROWNUM_PK_NAME = 'XcalarRowNumPk';
 
         const dsName = this.getDSName();
