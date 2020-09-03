@@ -3,6 +3,7 @@ import InputDropdown from '../../../components/widgets/InputDropdown'
 import * as AdvOption from './AdvanceOption'
 import LoadingText from '../../../components/widgets/LoadingText'
 import { OptionSampleSize } from './OptionSampleSize'
+import * as SchemaService from '../../services/SchemaService';
 
 class FilePreview extends React.PureComponent {
     constructor(props) {
@@ -10,17 +11,25 @@ class FilePreview extends React.PureComponent {
     }
 
     render() {
-        const { fileSelectProps, fileContentProps } = this.props;
+        const { fileSelectProps, fileContentProps, parserType } = this.props;
         const { files = [] } = fileSelectProps || {};
 
         if (files.length === 0) {
             return null;
         }
 
+        let headerHelpText = null;
+
+        if (parserType !== SchemaService.FileType.CSV || fileContentProps.linesHaveError) {
+            headerHelpText = <div className="headerHelpText">
+                <i className="icon xi-info-circle-outline"></i>Select records (max to 5) to discover your schema
+            </div>
+        }
+
         return (<div className="schemaSection">
             <div className="header">
-                <span>Schema Selection</span>
-                <i className="qMark icon xi-unknown xc-action" style={{ position: "relative", top: "-1px", left: "4px" }} data-toggle="tooltip" data-container="body" data-title="Click here to learn more about how to verify your schema and create your table" data-placement="auto top" onClick={() => {
+                <span>Edit Schema</span>
+                <i className="qMark icon xi-unknown xc-action" style={{ position: "relative", top: "-2px", left: "4px" }} data-toggle="tooltip" data-container="body" data-title="Click here to learn more about how to verify your schema and create your table" data-placement="auto top" onClick={() => {
                     window.open("https://xcalar.com/documentation/Content/Content_QSG/qs_intro_build_datamart_2.htm");
                 }}></i>
             </div>
@@ -32,10 +41,8 @@ class FilePreview extends React.PureComponent {
                     </AdvOption.Option>
                 </AdvOption.OptionGroup>
             </AdvOption.Container>
-            <div className="headerHelpText">
-                <i className="icon xi-info-circle-outline"></i>Select records (max to 5) to discover your schema
-            </div>
-            <FileContentWrap {...fileContentProps} />
+            {headerHelpText}
+            <FileContentWrap {...fileContentProps} parserType={this.props.parserType} />
         </div>);
     }
 }
@@ -53,7 +60,7 @@ function FileDropdown(props) {
             val={fileSelected.fullPath}
             onSelect={ (file) => { onSelect(file); }}
             list={files.map((file) => ({
-                value: file, text: file.fullPath
+                value: file, text: file.fullPath, key: file.fullPath
             }))}
             readOnly
         />
@@ -69,7 +76,9 @@ class FileContentWrap extends React.PureComponent {
             onAutoDetectChange,
             onSampleSizeChange,
             onClickDiscover,
-            onOffsetChange
+            onOffsetChange,
+            linesHaveError,
+            parserType
         } = this.props;
         const pageSize = 10;
 
@@ -77,6 +86,9 @@ class FileContentWrap extends React.PureComponent {
             return (<LoadingText className="clearfix" />);
         }
 
+        if (parserType === SchemaService.FileType.CSV && !linesHaveError) {
+            return null;
+        }
         if (error != null) {
             return (<pre className="preview-error">{error}</pre>);
         }

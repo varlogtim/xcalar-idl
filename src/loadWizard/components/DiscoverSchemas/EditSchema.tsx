@@ -163,7 +163,7 @@ class EditSchemaSection extends React.PureComponent<EditSchemaSectionProps, {}> 
 
     render() {
         return (<div className="editSchemaSection">
-            <div ref={this.scroll.ref} className="header">Edit Schema</div>
+            <div ref={this.scroll.ref}></div>
             <EditSchema {...this.props} />
         </div>);
     }

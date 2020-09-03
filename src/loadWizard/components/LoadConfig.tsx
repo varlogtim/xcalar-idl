@@ -128,7 +128,8 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                 isAutoDetect: false,
                 sampleSize: 100,
                 linesSelected: [],
-                lineOffset: 0
+                lineOffset: 0,
+                linesHaveError: false
             },
             selectedSchema: null,
 
@@ -698,7 +699,8 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                 isAutoDetect: false,
                 sampleSize: 100,
                 linesSelected: [],
-                lineOffset: 0
+                lineOffset: 0,
+                linesHaveError: false
             },
             selectedSchema: null,
 
@@ -927,6 +929,9 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             }
 
             if (!cancel) {
+                let linesHaveError = fileContent.lines.find(line => {
+                    return line.status.hasError;
+                });
                 this.setState(({fileContentState}) => ({
                     fileContentState: {
                         ...fileContentState,
@@ -934,9 +939,14 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                         isAutoDetect: false,
                         content: fileContent.lines,
                         linesSelected: [],
-                        lineOffset: 0
+                        lineOffset: 0,
+                        linesHaveError: linesHaveError
                     }
                 }));
+                if (this.state.fileType === SchemaService.FileType.CSV && !linesHaveError) {
+                    this._selectFileLines([0], true); // auto select 1st row in csv
+                }
+
             }
         } catch(e) {
             if (!cancel) {

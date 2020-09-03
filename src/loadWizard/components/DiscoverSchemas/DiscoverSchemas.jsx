@@ -60,9 +60,10 @@ class DiscoverSchemas extends React.Component {
             />
         );
 
-        const filePreview = (<FilePreview
+        let filePreview = (<FilePreview
             fileSelectProps={fileSelectProps}
             fileContentProps={fileContentProps}
+            parserType={parserType}
         />);
 
         const editSchema = selectedSchema != null && (

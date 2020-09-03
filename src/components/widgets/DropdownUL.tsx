@@ -1,8 +1,8 @@
-import * as React from "react";
+import * as React from "react"; 
 import keyCode from "../../enums/keyCode";
 
 type DropdownULProps = {
-    list: {value: string, text: string, icon?: string, className?: string, unavailable?: boolean}[],
+    list: {value: any, text: string, key?: string, icon?: string, className?: string, unavailable?: boolean}[],
     hint?: string,
     onItemClick: Function,
     onEscape: Function,
@@ -82,10 +82,6 @@ export default class DropdownUL extends React.Component<DropdownULProps, Dropdow
         document.removeEventListener("keydown", this.listItemHighlight);
         clearTimeout(this.timer.mouseScroll);
         clearTimeout(this.timer.scroll);
-    }
-
-    listEnter() {
-        // this.innerHeight = this.ulRef.current.scrollHeight;
     }
 
     listItemHighlight(event) {
@@ -272,7 +268,7 @@ export default class DropdownUL extends React.Component<DropdownULProps, Dropdow
                 }
                 return (
                     <li
-                        key={item.value}
+                        key={item.key || item.value}
                         ref={this.liRefs[i]}
                         className={className}
                         onClick={() => onItemClick(item.value)}
@@ -303,7 +299,6 @@ export default class DropdownUL extends React.Component<DropdownULProps, Dropdow
                     width: this.state.width - (rightMargin || 35),
                     maxHeight: this.state.maxHeight || "none"
                 }}
-                onMouseEnter={this.listEnter.bind(this)}
                 onMouseLeave={() => { this.setState({selectedIndex: -1})}}
             >
                 <ul ref={this.ulRef}
