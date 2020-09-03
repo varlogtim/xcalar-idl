@@ -86,7 +86,7 @@ class FileContentWrap extends React.PureComponent {
             return (<LoadingText className="clearfix" />);
         }
 
-        if (parserType === SchemaService.FileType.CSV && !linesHaveError) {
+        if (parserType === SchemaService.FileType.CSV && !linesHaveError && !error) {
             return null;
         }
         if (error != null) {

@@ -38,7 +38,7 @@ export default function SelectedFileArea(props) {
             return (<React.Fragment>
                 <Folder style={{fontSize: 20, position: "relative", top: 2}}/>
                 <span>{selected.fullPath}</span>
-                <span><input className={inputClassNames.join(' ')} type="text" value={fileNamePattern} onChange={(e) => {
+                <span><input spellCheck={false} className={inputClassNames.join(' ')} type="text" value={fileNamePattern} onChange={(e) => {
                     onPatternChange(e.target.value.trim());
                 }} /></span>
             </React.Fragment>);

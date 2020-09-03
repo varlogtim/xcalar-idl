@@ -15,10 +15,18 @@ class RawFileModal {
     private readonly _lineHeight: number = 30;
 
     private constructor() {
+        let timeout;
         this._modalHelper = new ModalHelper(this._getModal(), {
             noEnter: true,
             resizeCallback: () => {
-                this._initialPreview();
+                if (!this._isInHexMode()) {
+                    return;
+                }
+                this._inLoadMode();
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    this._initialPreview();
+                }, 500);
             }
         });
         this._addEventListeners();
@@ -113,13 +121,13 @@ class RawFileModal {
     }
 
     private _initialPreview(): XDPromise<void> {
-        return this._previewFile(0); 
+        return this._previewFile(0);
     }
 
     private _previewFile(offset: number): XDPromise<void> {
         if (this._previewArgs == null) {
-            console.error("invliad arguments");
-            return PromiseHelper.reject("invliad arguments");
+            console.error("invalid arguments");
+            return PromiseHelper.reject("invalid arguments");
         }
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         let perviewerId = this._getPreviewerId();

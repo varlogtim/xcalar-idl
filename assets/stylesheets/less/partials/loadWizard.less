@@ -68,6 +68,7 @@
         display: flex;
         flex-direction: column;
         margin-bottom: 0px;
+        width: ~"calc(100% - 180px)";
 
         &.step1 {
             .cardMain .leftPart {
@@ -287,7 +288,7 @@
                     display: flex;
                     > .dropDownList, > input  {
                         max-width: ~"calc(100% - 152px)";
-                        height: 34px;
+                        height: 35px;
                     }
                     .btn, .navButtons {
                         margin-left: 12px;
@@ -306,9 +307,13 @@
                 }
 
                 .selectedFileName {
+                    width: 100%;
                     .inputRow {
-                        line-height: 30px;
-                        .textOverflowOneLine;
+                        line-height: 35px;
+                        .fileName {
+                            .textOverflowOneLine;
+                            width: ~"calc(100% - 152px)";
+                        }
 
                         svg {
                             margin-right: 12px;
@@ -376,8 +381,8 @@
     }
 
     .navButtons {
-        margin-top: 4px;
-        height: 34px;
+        margin-top: 0px;
+        height: 35px;
 
         .nextButton {
             float: right;
@@ -433,7 +438,7 @@
 
         .fileBrowserPath {
             input {
-                width: ~"calc(100% - 34px)";
+                width: ~"calc(100% - 35px)";
                 outline: none;
                 padding: 0px 8px;
                 background: transparent;
@@ -1359,9 +1364,14 @@
     }
 
     .editSchema {
+        display: flex;
+        flex-direction: column;
+
         .switchWrap {
             display: inline-flex;
-            line-height: 22px;
+            line-height: 26px;
+            font-size: 14px;
+
             .switch {
                 margin-right: 8px;
             }
@@ -1504,6 +1514,26 @@
                     }
                 }
             }
+        }
+    }
+
+    .xc-switch {
+        border: 2px solid #cacaca;
+        width: 30px;
+        height: 16px;
+        border-radius: 8px;
+
+        .slider {
+            border: none;
+            background-color: #cacaca;
+            height: 10px;
+            width: 10px;
+            top: 1px;
+            left: 2px;
+        }
+
+        &.on .slider {
+            left: 14px;
         }
     }
 }

@@ -33,8 +33,8 @@ class ColSchemaSection extends React.Component<ColSchemaSectionProps, {}> {
                 </div>
                 <div className="row schemaHeader">
                     <div>Source Field</div>
-                    <div>New Column Name</div>
                     <div>Data Type</div>
+                    <div>New Column Name</div>
                     <i></i>
                 </div>
                 {this.props.editedSchema.map((row, i) => {

@@ -170,11 +170,27 @@ export default function SourcePath({
                         <div className="selectedFileName">
                             <label className="label">Selected {selectedFileDir[0].directory ? "Folder" : "File"}</label>
                             <div className="inputRow">
-                            {selectedFileDir[0].directory ?
-                            <Folder style={{fontSize: 20, position: "relative", top: 2, left: 2}}/> :
-                            <InsertDriveFileOutlined style={{fontSize: 20, position: "relative", top: 2, left: 2}}/>
-                            }
-                                {selectedFileDir[0].name}
+                                <div className="fileName">
+                                    {selectedFileDir[0].directory ?
+                                        <Folder style={{fontSize: 20, position: "relative", top: 2, left: 2}}/> :
+                                        <InsertDriveFileOutlined style={{fontSize: 20, position: "relative", top: 2, left: 2}}/>
+                                    }
+                                    {selectedFileDir[0].name}
+                                </div>
+                                {selectedFileDir[0].directory ? null:
+                                    <NavButtons right={{
+                                        label: "View Raw Data",
+                                        classNames: ["btn-secondary", "viewRawData"],
+                                        onClick: () => {
+                                            RawFileModal.Instance.show({
+                                                targetName: connector,
+                                                path: selectedFileDir[0].fullPath,
+                                                fileName: selectedFileDir[0].name
+                                            });
+                                        }
+                                        }
+                                    }/>
+                                }
                             </div>
                         </div>
                     </div>

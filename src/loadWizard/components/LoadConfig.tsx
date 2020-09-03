@@ -1220,7 +1220,6 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             );
         };
 
-
         return (
             <React.Fragment>
             <div className="loadNavBar">

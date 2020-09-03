@@ -34,6 +34,18 @@ function ColSchemaRow(props: ColSchemaRowProps) {
 
             </div>
             <InputDropdown
+                val={props.rowInfo.type.slice(2)}
+                onSelect={(value) => {
+                    props.onInputChange("Df" + value, "type");
+                }}
+                list={
+                    ["Int64", "String", "Float64", "Boolean"].map((type, i) => {
+                        return {text: type, value: type};
+                    })
+                }
+                readOnly
+            />
+            <InputDropdown
                 val={props.rowInfo.name}
                 onSelect={(value) => {
                     props.onInputChange(value, "name");
@@ -47,18 +59,6 @@ function ColSchemaRow(props: ColSchemaRowProps) {
                     })
                 }
                 hintDropdown={true}
-            />
-            <InputDropdown
-                val={props.rowInfo.type.slice(2)}
-                onSelect={(value) => {
-                    props.onInputChange("Df" + value, "type");
-                }}
-                list={
-                    ["Int64", "String", "Float64", "Boolean"].map((type, i) => {
-                        return {text: type, value: type};
-                    })
-                }
-                readOnly
             />
             <i className="remove icon xi-trash xc-action" onClick={props.onRemoveRow}></i>
         </div>
