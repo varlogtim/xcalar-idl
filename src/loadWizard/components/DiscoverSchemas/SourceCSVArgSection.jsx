@@ -48,7 +48,7 @@ export default class SourceCSVArgSection extends React.Component{
                     this.getCSVInputs(csvConfig, errorInputs).map((arg) => {
                         const options = {
                             ...arg,
-                            onChange: (k, v) => this.onInputChange(k, v)
+                            onChange: (k, v) => this.onInputChange(k, v, { allowEmpty: arg.allowEmpty })
                         }
                         return <CSVArgInput key={arg.keyword} {...options}></CSVArgInput>
                     })
@@ -138,7 +138,10 @@ export default class SourceCSVArgSection extends React.Component{
         });
     }
 
-    onInputChange(key, value, isNumber) {
+    onInputChange(key, value, {
+        isNumber = false,
+        allowEmpty = false
+    } = {}) {
         if (this.state.csvConfig[key] == null) {
             console.error('Key not found: ', key);
             return;
@@ -146,7 +149,7 @@ export default class SourceCSVArgSection extends React.Component{
 
         let argValue = '';
         let argError = false;
-        if (value === "") {
+        if (value === "" && !allowEmpty) {
             // empty case
             argValue = "";
             argError = true;
@@ -191,25 +194,29 @@ export default class SourceCSVArgSection extends React.Component{
             "keyword": "RecordDelimiter",
             "value": RecordDelimiter,
             "error": errors['RecordDelimiter'] != null,
-            "halfRow": true
+            "halfRow": true,
+            "allowEmpty": false
         }, {
             "text": "Field Delimiter",
             "keyword": "FieldDelimiter",
             "value": FieldDelimiter,
             "error": errors['FieldDelimiter'] != null,
-            "halfRow": true
+            "halfRow": true,
+            "allowEmpty": true
         }, {
             "text": "Quoting Character",
             "keyword": "QuoteCharacter",
             "value": QuoteCharacter,
             "error": errors['QuoteCharacter'] != null,
-            "halfRow": true
+            "halfRow": true,
+            "allowEmpty": false
         }, {
             "text": "Quoting Escape Character",
             "keyword": "QuoteEscapeCharacter",
             "value": QuoteEscapeCharacter,
             "error": errors['QuoteEscapeCharacter'] != null,
-            "halfRow": true
+            "halfRow": true,
+            "allowEmpty": false
         }];
     }
 }
