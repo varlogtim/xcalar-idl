@@ -5,6 +5,7 @@ interface ProgressBarOptions {
     completionTime: number, // estimated time the operation should take to complete
     startWidth?: number, // width (percentage) to start the progress from. default is 5
     firstTextId?: number, // which text to show (all previous are shown)
+    animateTextTimeout? : (completionTime: number, numTexts: number) => number; // custom the animate text timeout
 }
 
 class ProgressBar {
@@ -22,6 +23,7 @@ class ProgressBar {
     private _tickTime: number;
     private _progressTimeout: NodeJS.Timeout;
     private _textTimeout: NodeJS.Timeout;
+    private _animateTextTimeout: Function;
 
     constructor(options: ProgressBarOptions) {
         this._startWidth = options.startWidth || this._startWidth;
@@ -32,6 +34,7 @@ class ProgressBar {
         this._numVisibleProgressTexts = options.numVisibleProgressTexts;
         this._completionTime = options.completionTime * 1000;
         this._tickTime = this._completionTime / (this._maxProgressBarWidth - this._startWidth);
+        this._animateTextTimeout = options.animateTextTimeout || null;
     }
 
     public start(startText?: string, helperText?: string) {
@@ -112,9 +115,13 @@ class ProgressBar {
                 }
             }
             this._firstTextId++;
+            let timeout = this._completionTime / this._progressTexts.length;
+            if (typeof this._animateTextTimeout === 'function') {
+                timeout = this._animateTextTimeout(this._completionTime, this._progressTexts.length);
+            }
             this._textTimeout = setTimeout(() => {
                 this._animateTexts();
-            }, this._completionTime / this._progressTexts.length);
+            }, timeout);
         }
     }
 

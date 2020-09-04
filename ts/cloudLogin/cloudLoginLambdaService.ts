@@ -45,6 +45,7 @@ class CloudLoginLambdaService {
      * Send request to /login to attempt to log in
      */
     public loginRequest(username: string, password: string): XDPromise<any> {
+        // return PromiseHelper.resolve({sessionId: "test"})
         return this._sendRequest({
             apiUrl: this._authApiUrl,
             action: "/login",
@@ -79,6 +80,10 @@ class CloudLoginLambdaService {
      * Send request to /billing/get to get the number of credits remaining
      */
     public billingGetRequest(username: string): XDPromise<any> {
+        // return PromiseHelper.resolve({
+        //     status: ClusterLambdaApiStatusCode.OK,
+        //     credits: 200
+        // });
         return this._sendRequest({
             apiUrl: this._mainApiUrl,
             action: "/billing/get",
@@ -99,6 +104,11 @@ class CloudLoginLambdaService {
      * Get the cluster state, e.g. running, pending, or terminated
      */
     public clusterGetRequest(username: string): XDPromise<any> {
+        // return PromiseHelper.resolve({
+        //     status: ClusterLambdaApiStatusCode.OK,
+        //     isPending: true,
+        //     isStarting: true,
+        // })
         return this._sendRequest({
             apiUrl: this._mainApiUrl,
             action: "/cluster/get",

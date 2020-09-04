@@ -37,14 +37,12 @@ namespace CloudLogin {
             completionTime: 180,
             progressTexts: [
                 'Initializing AWS services',
-                'Initializing Xcalar instance',
-                'Running health checks',
-                'Setting up user preferences',
                 'Starting Xcalar',
             ],
-            numVisibleProgressTexts: 5,
+            numVisibleProgressTexts: 2,
             startWidth: parseInt(sessionStorage.getItem('XcalarDeployingProgressBarWidth')) || 5,
-            firstTextId: parseInt(sessionStorage.getItem('XcalarDeployingProgressBarFirstTextId')) || 0
+            firstTextId: parseInt(sessionStorage.getItem('XcalarDeployingProgressBarFirstTextId')) || 0,
+            animateTextTimeout: (completionTime) => completionTime - 10
         });
 
         stoppingProgressBar = new ProgressBar({
@@ -860,10 +858,6 @@ namespace CloudLogin {
         $(".link-to-login").click(function () {
             showScreen("login");
         });
-
-        // $(".link-to-signup").click(function () {
-        //     showScreen("signup");
-        // });
 
         $(".logOutLink").click(function () {
             // clearTimeout(loginTimeoutTimer);
