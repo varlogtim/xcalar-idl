@@ -1249,6 +1249,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                             onReset={this._resetAll}
                             onConnectorChange={(newConnector) => {this._setConnector(newConnector);}}
                             selectedFileDir={selectedFileDir}
+                            fileSelectProps={this.state.fileSelectState}
                         />
                         {
                             showBrowse &&
@@ -1278,6 +1279,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                         {
                             showDiscover &&
                             <DiscoverSchemas
+                                selectedFileDir={selectedFileDir}
                                 parserType={fileType}
                                 onParserTypeChange={(newType) => { this._setParserType(newType); }}
                                 inputSerialization={this.state.inputSerialization}

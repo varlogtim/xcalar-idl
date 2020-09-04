@@ -108,7 +108,7 @@
                 flex: 1 1 auto;
 
                 > div {
-                    padding: 8px 16px;
+                    padding: 12px 16px;
                     border-bottom: 1px solid @color-border-medium;
                     margin: 0 auto;
                     @padding: 16px;
@@ -375,6 +375,51 @@
             .fileTypeSelection {
                 input, li {
                     text-transform: uppercase;
+                }
+            }
+        }
+
+        .fileListArea {
+            width: 100%;
+            overflow: hidden;
+            margin-top: 0px;
+
+            .innerScrollSection {
+                display: block;
+            }
+            .folderFile {
+                height: 30px;
+                display: flex;
+                align-items: center;
+                position: relative;
+
+                .fileType {
+                    width: 32px;
+                    box-sizing: border-box;
+                    flex: 0 0 32px;
+                    text-align: center;
+                    position: relative;
+                    height: 30px;
+                }
+                .fileName {
+                    .textOverflowOneLine;
+                }
+                .btn {
+                    display: none;
+                    height: 20px;
+                    width: 110px;
+                    line-height: 20px;
+                    font-size: 12px;
+                    margin-right: 8px;
+                    margin-left: auto;
+                }
+                &:hover {
+                    .fileName {
+                        width: ~"calc(100% - 170px)";
+                    }
+                    .btn {
+                        display: block;
+                    }
                 }
             }
         }
@@ -1334,9 +1379,58 @@
         }
     }
 
+    .fileListArea {
+        margin: 8px 0 0 24px;
+
+        .fileListHeader {
+            color: #d6d6d6;
+            display: flex;
+
+            .numFiles {
+                margin-left: auto;
+            }
+        }
+
+        .fileListSection {
+            margin: 8px 0px 4px;
+        }
+
+        .paginationRow {
+            display: flex;
+            line-height: 24px;
+
+            .skipToPage {
+                margin-left: auto;
+            }
+            .xc-input {
+                width: 48px;
+                height: 24px;
+                margin: 0px 4px;
+            }
+        }
+    }
+
     .schemaSection {
+        .selectedDirRow {
+            margin: 0px;
+            .advOption-option-label {
+                color: #d6d6d6;
+                font-size: 12px;
+            }
+            .advOption-option-value {
+                .textOverflowOneLine;
+                font-weight: 600;
+                display: flex;
+                margin-bottom: 8px;
+            }
+            .iconWrapper {
+                position: relative;
+                width: 24px;
+            }
+        }
+
         .csvArgs-chkbox {
-            .lineNum, .icon {
+            .lineNum, .fileType, .icon {
                 width: 32px;
                 box-sizing: border-box;
                 flex: 0 0 32px;
@@ -1347,12 +1441,19 @@
                 padding-top: 2px;
                 color: #329df8;
             }
+            .fileType {
+                position: relative;
+                height: 30px;
+            }
             &:hover, &.selected {
                 background-color: #404040;
                 .icon {
                     display: block;
                 }
                 .lineNum {
+                    display: none;
+                }
+                .fileType {
                     display: none;
                 }
             }

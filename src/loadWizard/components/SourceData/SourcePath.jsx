@@ -2,6 +2,8 @@ import React from "react";
 import * as Path from 'path'
 import { FileType } from '../../services/SchemaService'
 import InputDropdown from "../../../components/widgets/InputDropdown"
+import Pagination from '../../../components/widgets/Pagination'
+import LoadingText from '../../../components/widgets/LoadingText'
 import NavButtons from '../NavButtons'
 import { Folder, FileCopy, InsertDriveFileOutlined } from '@material-ui/icons'
 
@@ -65,8 +67,10 @@ export default function SourcePath({
     onConnectorChange = (connector) => {},
     isForensicsLoading,
     fetchForensics,
-    selectedFileDir
+    selectedFileDir,
+    filesSelected
 }) {
+
     // the getAvailableS3Bucket is async call, it may not be ready the first it's rendernder,
     // so need to put it in the onOpen callback
     const [s3Buckets, setS3Buckets] = React.useState([]);
@@ -166,14 +170,15 @@ export default function SourcePath({
                     </div>
                 </div>
                 { selectedFileDir.length > 0 ?
+                    <React.Fragment>
                     <div className="row">
                         <div className="selectedFileName">
                             <label className="label">Selected {selectedFileDir[0].directory ? "Folder" : "File"}</label>
                             <div className="inputRow">
                                 <div className="fileName">
                                     {selectedFileDir[0].directory ?
-                                        <Folder style={{fontSize: 20, position: "relative", top: 2, left: 2}}/> :
-                                        <InsertDriveFileOutlined style={{fontSize: 20, position: "relative", top: 2, left: 2}}/>
+                                        <Folder style={{fontSize: 20, position: "relative", top: 6, left: 2}}/> :
+                                        <InsertDriveFileOutlined style={{fontSize: 20, position: "relative", top: 6, left: 2}}/>
                                     }
                                     {selectedFileDir[0].name}
                                 </div>
@@ -194,9 +199,103 @@ export default function SourcePath({
                             </div>
                         </div>
                     </div>
+                    <div className="row">
+                        <FileSelectArea {...filesSelected} connector={connector} selectedFileDir={selectedFileDir} />
+                    </div>
+                    </React.Fragment>
                 : null}
             </form>
         </div>
     );
+}
+
+function FileSelectArea(props) {
+    const {files = [], isLoading, selectedFileDir, connector } = props;
+
+    if (!selectedFileDir[0].directory) {
+        return null;
+    }
+
+    if (isLoading) {
+        return (<LoadingText className="clearfix" />);
+    }
+
+    const pageSize = 5;
+    const [offset, setOffset] = React.useState(0);
+    const [currPage, setCurrPage] = React.useState("1");
+
+    const pagePrev = offset > 0
+        ? () => {
+            setOffset(offset - pageSize);
+            setCurrPage("" + (Math.floor((offset - pageSize) / pageSize) + 1));
+        }
+        : null;
+    const pageNext = (offset + pageSize) < files.length
+        ? () => {
+            setOffset(offset + pageSize);
+            setCurrPage("" + (Math.floor((offset + pageSize) / pageSize) + 1));
+        }
+        : null;
+    const numPages = Math.ceil(files.length / pageSize);
+
+    let filesArray = [];
+    for (let i = offset; i < Math.min(offset + pageSize, files.length); i++) {
+        const file = files[i];
+        filesArray.push(
+            <div className="folderFile" key={file.fileId}>
+                <div className="fileType">{file.directory ?
+                    <Folder style={{fontSize: 20, position: "absolute", top: 5, left: 6}}/> :
+                    <InsertDriveFileOutlined style={{fontSize: 20, position: "absolute", top: 5, left: 6}}/>}
+                </div>
+                <span className="fileName">{file.name}</span>
+                <button type="button" className="btn btn-secondary btn-new" onClick={() => {
+                    RawFileModal.Instance.show({
+                        targetName: connector,
+                        path: file.fullPath,
+                        fileName: file.name
+                    });
+                }}>View Raw Data</button>
+            </div>
+        )
+    }
+
+    const handleInputChange = (e) => {
+        let num = parseInt(e.target.value);
+        if (!isNaN(num)) {
+            num = Math.max(1, Math.floor(num));
+            num = Math.min(num, Math.max(1, numPages));
+            setCurrPage("" + num);
+            setOffset((num - 1) * pageSize);
+        } else {
+            setCurrPage("" + (Math.floor(offset / pageSize) + 1));
+        }
+    }
+
+    return <div className="fileListArea">
+                <div className="fileListHeader">
+                    The files below are located in the above folder. View the raw data of any file.
+                    <div className="numFiles">{files.length.toLocaleString()} {files.length === 1 ? "item" : "items"}</div>
+                </div>
+                <div className="scrollSection fileListSection">
+                    <div className="innerScrollSection">
+                    {filesArray}
+                    </div>
+                </div>
+                <div className="paginationRow">
+                    <Pagination onNext={pageNext} onPrev={pagePrev} />
+                    <div className="skipToPage">Page <input className="xc-input" value={currPage}
+                    onChange={(e) => {
+                        setCurrPage(e.target.value);
+                    }}
+                    onKeyDown={(e) => {
+                        if (e.which === 13) {
+                            handleInputChange(e);
+                        }
+                    }}
+                    onBlur={(e) => {
+                        handleInputChange(e);
+                    }} /> / {numPages.toLocaleString()}</div>
+                </div>
+            </div>
 }
 

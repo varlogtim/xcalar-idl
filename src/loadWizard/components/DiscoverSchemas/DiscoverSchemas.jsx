@@ -24,7 +24,8 @@ class DiscoverSchemas extends React.Component {
             selectedSchema,
             editSchemaProps,
             onInputSerialChange,
-            onParserTypeChange
+            onParserTypeChange,
+            selectedFileDir
         } = this.props;
 
         const needConfig = SchemaService.InputSerializationFactory.getFileType(inputSerialization).has(SchemaService.FileType.CSV);
@@ -64,6 +65,7 @@ class DiscoverSchemas extends React.Component {
             fileSelectProps={fileSelectProps}
             fileContentProps={fileContentProps}
             parserType={parserType}
+            selectedFileDir={selectedFileDir}
         />);
 
         const editSchema = selectedSchema != null && (

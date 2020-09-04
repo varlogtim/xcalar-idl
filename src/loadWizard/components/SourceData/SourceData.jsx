@@ -7,7 +7,6 @@ const Texts = {
 };
 
 
-
 function ResetButton(props) {
     const {canReset, onReset} = props;
     const classNames = ["resetAll", "xc-action"];
@@ -41,10 +40,9 @@ class SourceData extends React.Component {
             isForensicsLoading,
             onFileTypeChange = (newType) => {},
             onConnectorChange = (connector) => {},
-            selectedFileDir
+            selectedFileDir,
+            fileSelectProps
         } = this.props;
-
-        // const fullPath = Path.join(bucket, path);
 
         return (
             <div className="topSection">
@@ -61,6 +59,7 @@ class SourceData extends React.Component {
                     connector={connector}
                     onConnectorChange={onConnectorChange}
                     selectedFileDir={selectedFileDir}
+                    filesSelected={fileSelectProps}
                 />
                 {/* <div className="modelInfo">
                     Model rules:

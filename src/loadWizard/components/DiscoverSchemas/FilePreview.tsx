@@ -1,17 +1,18 @@
 import * as React from "react";
-import InputDropdown from '../../../components/widgets/InputDropdown'
+import Pagination from '../../../components/widgets/Pagination'
 import * as AdvOption from './AdvanceOption'
 import LoadingText from '../../../components/widgets/LoadingText'
 import { OptionSampleSize } from './OptionSampleSize'
 import * as SchemaService from '../../services/SchemaService';
+import { Folder, InsertDriveFileOutlined } from '@material-ui/icons';
 
-class FilePreview extends React.PureComponent {
+class FilePreview extends React.PureComponent<any, any> {
     constructor(props) {
         super(props);
     }
 
     render() {
-        const { fileSelectProps, fileContentProps, parserType } = this.props;
+        const { fileSelectProps, fileContentProps, parserType, selectedFileDir } = this.props;
         const { files = [] } = fileSelectProps || {};
 
         if (files.length === 0) {
@@ -35,39 +36,120 @@ class FilePreview extends React.PureComponent {
             </div>
             <AdvOption.Container>
                 <AdvOption.OptionGroup>
-                    <AdvOption.Option classNames={['fullRow']}>
-                        <AdvOption.OptionLabel>File:</AdvOption.OptionLabel>
-                        <AdvOption.OptionValue><FileDropdown {...fileSelectProps} /></AdvOption.OptionValue>
+                    <AdvOption.Option classNames={['fullRow', 'selectedDirRow']}>
+                        <AdvOption.OptionLabel>Selected File / Folder</AdvOption.OptionLabel>
+                        <AdvOption.OptionValue>
+                           <SelectedFile {...fileSelectProps}  selectedFileDir={selectedFileDir} />
+                        </AdvOption.OptionValue>
                     </AdvOption.Option>
                 </AdvOption.OptionGroup>
             </AdvOption.Container>
+            <FileSelectArea {...fileSelectProps} selectedFileDir={selectedFileDir} />
             {headerHelpText}
             <FileContentWrap {...fileContentProps} parserType={this.props.parserType} />
         </div>);
     }
 }
 
-function FileDropdown(props) {
-    const { isLoading, files = [], fileSelected, onSelect } = props;
+function SelectedFile(props) {
+    const { isLoading, selectedFileDir } = props;
 
     if (isLoading) {
         return (<LoadingText className="clearfix" />);
     }
 
-    return (
-        <InputDropdown
-            classNames={['fileDropdown']}
-            val={fileSelected.fullPath}
-            onSelect={ (file) => { onSelect(file); }}
-            list={files.map((file) => ({
-                value: file, text: file.fullPath, key: file.fullPath
-            }))}
-            readOnly
-        />
-    );
+
+    return (<React.Fragment>
+        <div className="iconWrapper">
+            {selectedFileDir[0].directory ?
+            <Folder style={{fontSize: 20, position: "absolute", top: -2, left: -2}}/> :
+            <InsertDriveFileOutlined style={{fontSize: 20, position: "absolute", top: -2, left: -2}}/>}
+        </div>
+        {selectedFileDir[0].fullPath}
+        </React.Fragment>)
 }
 
-class FileContentWrap extends React.PureComponent {
+function FileSelectArea(props) {
+    const { isLoading, files = [], fileSelected, onSelect, selectedFileDir } = props;
+
+    if (!selectedFileDir[0].directory) {
+        return null;
+    }
+
+    if (isLoading) {
+        return (<LoadingText className="clearfix" />);
+    }
+
+    const pageSize = 5;
+    const [offset, setOffset] = React.useState(0);
+    const [currPage, setCurrPage] = React.useState("1");
+
+    const pagePrev = offset > 0
+        ? () => {
+            setOffset(offset - pageSize);
+            setCurrPage("" + (Math.floor((offset - pageSize) / pageSize) + 1));
+        }
+        : null;
+    const pageNext = (offset + pageSize) < files.length
+        ? () => {
+            setOffset(offset + pageSize);
+            setCurrPage("" + (Math.floor((offset + pageSize) / pageSize) + 1));
+        }
+        : null;
+    const numPages = Math.ceil(files.length / pageSize);
+
+    let filesArray = [];
+    for (let i = offset; i < Math.min(offset + pageSize, files.length); i++) {
+        const file = files[i];
+        filesArray.push(
+        <DirectoryLine key={`${file.fileId}`} isDirectory={file.directory} checked={fileSelected && fileSelected.fileId === file.fileId} onChange={(checked) => {
+            onSelect(file)
+        }}>
+            <div>{file.name}</div>
+        </DirectoryLine>)
+    }
+
+    const handleInputChange = (e) => {
+        let num = parseInt(e.target.value);
+        if (!isNaN(num)) {
+            num = Math.max(1, Math.floor(num));
+            num = Math.min(num, numPages);
+            setCurrPage("" + num);
+            setOffset((num - 1) * pageSize);
+        } else {
+            setCurrPage("" + (Math.floor(offset / pageSize) + 1));
+        }
+    }
+
+    return <div className="fileListArea">
+                <div className="fileListHeader">
+                    Select a file to detect your schema
+                    <div className="numFiles">{files.length.toLocaleString()} {files.length === 1 ? "item" : "items"}</div>
+                </div>
+                <div className="scrollSection fileListSection">
+                    <div className="innerScrollSection">
+                    {filesArray}
+                    </div>
+                </div>
+                <div className="paginationRow">
+                    <Pagination onNext={pageNext} onPrev={pagePrev} />
+                    <div className="skipToPage">Page <input className="xc-input" value={currPage}
+                    onChange={(e) => {
+                        setCurrPage(e.target.value);
+                    }}
+                    onKeyDown={(e) => {
+                        if (e.which === 13) {
+                            handleInputChange(e);
+                        }
+                    }}
+                    onBlur={(e) => {
+                        handleInputChange(e);
+                    }} /> / {numPages.toLocaleString()}</div>
+                </div>
+            </div>
+}
+
+class FileContentWrap extends React.PureComponent<any, any> {
 
     render() {
         const {
@@ -124,7 +206,7 @@ class FileContentWrap extends React.PureComponent {
     }
 }
 
-class AutoDetectSection extends React.PureComponent {
+class AutoDetectSection extends React.PureComponent<any, any> {
     constructor(props) {
         super(props);
     }
@@ -144,7 +226,7 @@ class AutoDetectSection extends React.PureComponent {
     }
 }
 
-function FileContent(props) {
+function FileContent(props: any) {
     const { data = [], onSelectChange, selected = [], children, offset = 0, numRows = -1 } = props;
 
     if (data.length === 0) {
@@ -181,27 +263,6 @@ function FileContent(props) {
     </div>);
 }
 
-function Pagination(props) {
-    const { onNext, onPrev } = props;
-    return (<ul style={{listStyle: 'none'}}>
-        <NavButton onClick={onPrev}>{'< Previous'}</NavButton>
-        <NavButton onClick={onNext}>{'Next >'}</NavButton>
-    </ul>);
-
-    function NavButton({ onClick, children }) {
-        const style = {
-            padding: '4px',
-            display: 'inline',
-            cursor: 'pointer'
-        };
-        if (onClick == null) {
-            style.opacity = '0.3';
-            style.pointerEvents = 'none';
-        }
-        return (<li style={style} onClick={() => {onClick()}}>{children}</li>);
-    }
-}
-
 function FileLine(props) {
     const { checked, onChange, children, lineNum } = props;
     const iconClasses = ['icon', checked ? 'xi-ckbox-selected' : 'xi-ckbox-empty'];
@@ -214,6 +275,25 @@ function FileLine(props) {
             <i style={{fontSize: '14px'}} className={iconClasses.join(' ')}  onClick={() => { onChange(!checked) }} />
             <div className="lineNum">{lineNum}</div>
             <span className="preview-line">{children}</span>
+        </div>
+    );
+}
+
+function DirectoryLine(props) {
+    const { checked, onChange, children, isDirectory } = props;
+    const iconClasses = ['icon', checked ? 'xi-ckbox-selected' : 'xi-ckbox-empty'];
+    let rowClass = "csvArgs-chkbox";
+    if (checked) {
+        rowClass += " selected";
+    }
+    return (
+        <div className={rowClass}>
+            <i style={{fontSize: '14px'}} className={iconClasses.join(' ')}  onClick={() => { onChange(!checked) }} />
+            <div className="fileType">{isDirectory ?
+                <Folder style={{fontSize: 20, position: "absolute", top: 5, left: 6}}/> :
+                <InsertDriveFileOutlined style={{fontSize: 20, position: "absolute", top: 5, left: 6}}/>}
+            </div>
+            <span className="fileName">{children}</span>
         </div>
     );
 }

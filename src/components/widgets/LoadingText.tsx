@@ -4,7 +4,7 @@ const CommonTStr = dict.CommonTStr;
 
 type LoadingTextProps = {
     className: string,
-    children: any
+    children?: any
 }
 
 export default function LoadingText(props: LoadingTextProps) {
