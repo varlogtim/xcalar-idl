@@ -1,24 +1,9 @@
 import * as Path from 'path'
-import { randomName, hashFunc } from './sdk/Api'
-import { LoadSession } from './sdk/Session'
+import { LoadSession, IXcalarSession } from './sdk/Session'
 import { Table } from './sdk/Table'
 import { Schema, InputSerialization } from './SchemaService'
 
 type ProgressCallback = (progress?: number) => void;
-
-enum DiscoverStatus {
-    OK = 0,
-    WARNING = 1,
-    FAIL = 2
-};
-
-const ExceptionAppCancelled = new Error('AppCancel');
-
-function getFileExt(fileName) {
-    return (fileName.includes('.')
-        ? fileName.split('.').pop()
-        : 'none').toLowerCase();
-}
 
 async function executeSchemaLoadApp(jsonStr: string) {
     const response = await Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getSchemaLoadService().appRun(jsonStr);
@@ -30,24 +15,40 @@ async function executeSchemaLoadApp(jsonStr: string) {
     }
 }
 
-function createDiscoverAppId({ path, filePattern, inputSerialization }) {
-    const randName = randomName();
-    // const randName = Date.now();
-    const inputHash = hashFunc(path + filePattern + JSON.stringify(inputSerialization));
-    return `${inputHash}_${randName}`;
+function convertLoadId(loadId: string): string {
+    // "LOAD_WIZARD_5F454B190E0DFF06_1599241301_119471
+    function randomNumber(numDigits) {
+        let result = '';
+        for (let i = 0; i < numDigits; i ++) {
+            result += Math.floor(Math.random() * 10);
+        }
+        return result;
+    }
+
+    const t = `${Date.now()}`;
+    const part1 = t.substr(0, 10);
+    const part2 = t.substr(10) + randomNumber(6 - (t.length - 10));
+
+    const list = loadId.split('_');
+    list[list.length - 1] = part2;
+    list[list.length - 2] = part1;
+    return list.join('_');
+}
+
+async function createLoadId(session: IXcalarSession) {
+    const appInput = {
+        func: 'get_load_id',
+        session_name: session.sessionName
+    };
+    const loadId: string = await executeSchemaLoadApp(JSON.stringify(appInput));
+    return loadId;
 }
 
 function createDiscoverNames(appId) {
     return {
-        file: `xl_${appId}_file`,
-        schema: `xl_${appId}_schema`,
-        report: `xl_${appId}_report`,
-        fileSchema: `xl_${appId}_fileschema`,
-        // schemaStat: `xl_${appId}_schemastat`,
-        kvPrefix: `xl_${appId}_`,
         loadPrefix: `xl_${appId}_load`,
         compPrefix: `xl_${appId}_comp`,
-        dataPrefix: `xl_${appId}_data`,
+        dataPrefix: `xl_${appId}_data`
     };
 }
 
@@ -86,11 +87,6 @@ function updateProgress(cb: ProgressCallback, startProgress: number, endProgress
     };
 }
 
-const failedSchemaHash = hashFunc('[]');
-function isFailedSchema(schemaHash) {
-    return schemaHash === failedSchemaHash;
-}
-
 async function callInTransaction<T>(
     operation: string,
     runTask: () => Promise<T>
@@ -111,125 +107,42 @@ async function callInTransaction<T>(
     }
 }
 
-function sleep(time) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve();
-        }, time);
-    });
+async function initSession(session) {
+    try {
+        await session.create();
+    } catch(_) {
+        // Skip error
+    }
+
+    try {
+        await session.activate();
+    } catch(_) {
+        // Skip error
+    }
+}
+
+async function initApp() {
+    // Load session
+    const loadSession = new LoadSession();
+    await initSession(loadSession);
+    // Load Id
+    const loadId = await createLoadId(loadSession);
+    // Table names
+    const names = createDiscoverNames(loadId);
+
+    return {
+        session: loadSession,
+        appId: loadId,
+        names: names
+    };
 }
 
 const discoverApps = new Map();
-function createDiscoverApp(params: {
-    path: string,
-    filePattern: string,
+async function createDiscoverApp(params: {
     targetName: string,
-    inputSerialization: InputSerialization,
-    isRecursive?: boolean,
-    isErrorRetry?: boolean
 }) {
-    const { path, filePattern, targetName, inputSerialization, isRecursive = true, isErrorRetry = true } = params;
-
-    let executionDone = false;
-    let cancelDiscover = false;
-    const tables = {
-        file: null, schema: null, report: null,
-        fileSchema: null
-    };
-
-    const session = new LoadSession();
-
-    const appId = createDiscoverAppId({
-        path: path,
-        filePattern: filePattern,
-        inputSerialization: inputSerialization
-    });
-    const names = createDiscoverNames(appId);
-
-    async function wrapWithCancel(task) {
-        if (cancelDiscover) {
-            throw ExceptionAppCancelled;
-        }
-        const result = await task();
-        if (cancelDiscover) {
-            throw ExceptionAppCancelled;
-        }
-
-        return result;
-    }
-
-    async function waitForTable(tableName, checkInterval) {
-        while(!executionDone) {
-            await wrapWithCancel(() => sleep(checkInterval));
-            const tables = await wrapWithCancel(() => session.listTables({ namePattern: tableName }));
-            if (tables.length > 0) {
-                return tables[0];
-            }
-        }
-
-        const tables = await wrapWithCancel(() => session.listTables({ namePattern: tableName }));
-        return tables.length > 0 ? tables[0] : null;
-    }
-
-    async function createFileSchemaTable() {
-        if (tables.fileSchema != null) {
-            return tables.fileSchema;
-        }
-        if (tables.file == null || tables.schema == null) {
-            return null;
-        }
-
-        const sql =
-            `select
-                file.SIZE as SIZE, file.ISDIR as ISDIR, file.NUM as NUM, file.PATH as PATH,
-                schema.STATUS as STATUS, schema.SCHEMA as SCHEMA, schema.SCHEMA_HASH as SCHEMA_HASH
-            from ${tables.file.getName()} file, ${tables.schema.getName()} schema
-            where file.NUM = schema.FILE_NUM`;
-        const table = await session.executeSql(sql, names.fileSchema);
-
-        tables.fileSchema = table;
-        return table;
-    }
-
-    async function createSchemaDetailTable(schemaHash) {
-        if (tables.file == null || tables.schema == null) {
-            throw new Error('File/Schema table not exists');
-        }
-
-        const sql =
-            `select
-                file.RELPATH as RELPATH, file.PATH as PATH,
-                schema.STATUS as STATUS, schema.SCHEMA as SCHEMA, schema.SCHEMA_HASH as SCHEMA_HASH
-            from ${tables.file.getName()} file, (
-                select * from ${tables.schema.getName()} where SCHEMA_HASH = "${schemaHash}"
-            ) schema
-            where file.NUM = schema.FILE_NUM`;
-        const table = await session.executeSql(sql);
-        return table;
-    }
-
-    async function getSchemaDetail(schemaHash) {
-        const table = await createSchemaDetailTable(schemaHash);
-        try {
-            const cursor = table.createCursor();
-            await cursor.open();
-
-            const result = [];
-            let records = await cursor.fetchJson(20);
-            while (records.length > 0) {
-                for (const record of records) {
-                    result.push(convertSchemaDetailRecord(record));
-                }
-                if (records.length < 20) {
-                    break;
-                }
-                records = await cursor.fetchJson(20);
-            }
-            return result;
-        } finally {
-            await table.destroy();
-        }
-    }
+    const { targetName } = params;
+    const { appId, session, names } = await initApp();
 
     async function deleteTempTables() {
         const tempTablePrefix = '_xl_temp_';
@@ -272,120 +185,13 @@ function createDiscoverApp(params: {
         return JSON.stringify(queryList);
     }
 
-    function converStatusField(statusStr, numColumns) {
-        const { unsupported_columns = [], error_message, stack_trace } = JSON.parse(statusStr);
-        const parsedError = numColumns === 0
-            ? (error_message == null ? 'All fields cannot be parsed' : error_message)
-            : error_message;
-
-        const schemaStatus = {
-            statusCode: DiscoverStatus.OK,
-            errorColumns: unsupported_columns.map(({ name, mapping, message }) => ({
-                name: name, mapping: mapping, message: message
-            })),
-            message: parsedError,
-            stackTrace: stack_trace
-        };
-
-        if (parsedError != null) {
-            schemaStatus.statusCode = DiscoverStatus.FAIL;
-        } else if (unsupported_columns.length > 0) {
-            schemaStatus.statusCode = DiscoverStatus.WARNING;
-        }
-
-        return schemaStatus;
-    }
-
-    function convertFileSchemaRecord(record) {
-        const {SIZE, ISDIR, NUM, PATH, STATUS, SCHEMA, SCHEMA_HASH} = record;
-        const fileInfo = {
-            fileId: NUM,
-            fullPath: PATH,
-            size: SIZE,
-            type: ISDIR ? 'directory' : getFileExt(PATH),
-            schema: null
-        };
-
-        if (STATUS != null) {
-            const { columns } = JSON.parse(SCHEMA);
-            const discoverStatus = converStatusField(STATUS, columns.length);
-            fileInfo.schema = {
-                statusCode: discoverStatus.statusCode,
-                error: {
-                    columns: discoverStatus.errorColumns,
-                    message: discoverStatus.message,
-                    stackTrace: discoverStatus.stackTrace
-                },
-                columns: columns,
-                hash: SCHEMA_HASH
-            };
-        }
-
-        return fileInfo;
-    }
-
-    function convertReportRecords(record) {
-        const {FILE_COUNT, TOTAL_SIZE, MAX_PATH, SCHEMA, SCHEMA_HASH} = record;
-        return {
-            schema: { hash: SCHEMA_HASH, columns: JSON.parse(SCHEMA).columns },
-            files: { count: FILE_COUNT, size: TOTAL_SIZE, maxPath: MAX_PATH }
-        };
-    }
-
-    function convertSchemaDetailRecord(record) {
-        const { RELPATH, PATH, STATUS, SCHEMA, SCHEMA_HASH} = record;
-
-        const { columns } = JSON.parse(SCHEMA);
-        const discoverStatus = converStatusField(STATUS, columns.length);
-        return {
-            schema: {
-                statusCode: discoverStatus.statusCode,
-                error: {
-                    columns: discoverStatus.errorColumns,
-                    message: discoverStatus.message,
-                    stackTrace: discoverStatus.stackTrace
-                },
-                columns: columns,
-                hash: SCHEMA_HASH
-            },
-            file: {
-                fullPath: PATH,
-                relPath: RELPATH.length
-            }
-        };
-    }
-
-    async function runDiscover() {
-        try {
-            await deleteTempTables();
-            const appInput = {
-                session_name: session.sessionName,
-                user_name: session.user.getUserName(),
-                user_id: session.user.getUserId(),
-                func: 'discover_all',
-                path: path,
-                file_name_pattern: filePattern,
-                recursive: isRecursive,
-                input_serial_json: JSON.stringify(inputSerialization),
-                retry_on_error: isErrorRetry,
-                files_table_name: names.file,
-                schema_results_table_name: names.schema,
-                schema_report_table_name: names.report
-            };
-            console.log('Discover app: ', appInput);
-            await wrapWithCancel(() => executeSchemaLoadApp(JSON.stringify(appInput)));
-        } finally {
-            executionDone = true;
-        }
-    }
-
     async function runTableQuery(query, progressCB: ProgressCallback = () => {}) {
         /**
          * Do not delete the result table of each dataflow execution here,
          * or IMD table will persist an incomplete dataflow to its metadata
          * thus table restoration will fail
          */
-        const {loadQueryOpt, dataQueryOpt, compQueryOpt, tableNames} = query;
+        const {loadQueryOpt, dataQueryOpt, compQueryOpt, tableNames, loadId} = query;
 
         // Execute Load DF
         const loadQuery = JSON.parse(loadQueryOpt).retina;
@@ -393,7 +199,7 @@ function createDiscoverApp(params: {
         try {
             await session.executeQueryOptimized({
                 queryStringOpt: loadQuery,
-                queryName: `q_${appId}_load`,
+                queryName: `q_${loadId}_load`,
                 tableName: tableNames.load,
                 params: new Map([
                     ['session_name', session.sessionName],
@@ -416,7 +222,7 @@ function createDiscoverApp(params: {
             try {
                 await session.executeQueryOptimized({
                     queryStringOpt: dataQuery,
-                    queryName: `q_${appId}_data`,
+                    queryName: `q_${loadId}_data`,
                     tableName: tableNames.data
                 });
                 dataProgress.done();
@@ -433,7 +239,7 @@ function createDiscoverApp(params: {
             try {
                 await session.executeQueryOptimized({
                     queryStringOpt: compQuery,
-                    queryName: `q_${appId}_comp`,
+                    queryName: `q_${loadId}_comp`,
                     tableName: tableNames.comp
                 });
                 compProgress.done();
@@ -462,30 +268,11 @@ function createDiscoverApp(params: {
     const app = {
         appId: appId,
         getSession: () => session,
-        init: async () => {
-            try {
-                await session.create();
-            } catch(_) {
-                // Skip error
-            }
-
-            try {
-                await session.activate();
-            } catch(_) {
-                // Skip error
-            }
-        },
-        run: async () => {
-            return await callInTransaction('Discovery', () => runDiscover());
-        },
         shareResultTables: async (tables, sharedNames) => {
             const { data: dataName, comp: compName } = sharedNames;
-            // const { dataQueryComplete = '[]', compQueryComplete = '[]' } = dataflows || {};
 
             // Publish data table
-            // await tables.data.rename({ newName: dataName });
             const dataTable = await tables.data.share();
-            // await tables.data.publishWithQuery(dataName, JSON.parse(dataQueryComplete));
 
             // Check if comp table is empty
             let compHasData = false;
@@ -502,9 +289,7 @@ function createDiscoverApp(params: {
             // Publish comp table
             let icvTable = null;
             if (compHasData) {
-                // await tables.comp.rename({ newName: compName });
                 icvTable = await tables.comp.share();
-                // await tables.comp.publishWithQuery(compName, JSON.parse(compQueryComplete));
             }
 
             return {
@@ -541,83 +326,9 @@ function createDiscoverApp(params: {
         createResultTables: async (query, progressCB: ProgressCallback = () => {}) => {
             return await callInTransaction('Create tables', () => runTableQuery(query, progressCB));
         },
-        getCreateTableQuery: async (
-            schemaHash: string,
-            progressCB: ProgressCallback = () => {}
-        ): Promise<{
-            loadQuery:string,
-            loadQueryOpt: string,
-            dataQuery: string,
-            dataQueryOpt: string,
-            compQuery: string,
-            compQueryOpt: string,
-            tableNames: {
-                load: string, data: string, comp: string
-            },
-            dataQueryComplete: string,
-            compQueryComplete: string
-        }> => {
-            const delProgress = updateProgress((p) => {
-                progressCB(p);
-            }, 0, 10);
-            try {
-                await deleteTempTables();
-                delProgress.done();
-            } finally {
-                delProgress.stop();
-            }
-
-            const getQueryProgress = updateProgress((p) => {
-                progressCB(p);
-            }, 10, 100);
-            try {
-                const tableNames = {
-                    load: `${names.loadPrefix}_${schemaHash}`,
-                    data: `${names.dataPrefix}_${schemaHash}`,
-                    comp: `${names.compPrefix}_${schemaHash}`
-                };
-                const appInput = {
-                    session_name: session.sessionName,
-                    user_name: session.user.getUserName(),
-                    user_id: session.user.getUserId(),
-                    func: 'get_dataflows',
-                    unique_id: `${names.kvPrefix}${schemaHash}`,
-                    path: path,
-                    file_name_pattern: filePattern,
-                    recursive: isRecursive,
-                    schema_hash: schemaHash,
-                    files_table_name: names.file,
-                    schema_results_table_name: names.schema,
-                    input_serial_json: JSON.stringify(inputSerialization),
-                    load_table_name: tableNames.load,
-                    comp_table_name: tableNames.comp,
-                    data_table_name: tableNames.data
-                };
-                console.log('Table query: ', appInput);
-                const response = await executeSchemaLoadApp(JSON.stringify(appInput));
-                getQueryProgress.done();
-
-                // XXX TODO: Remove once load app leverages runtime generated UDF to pass file/schema list to bulkLoad
-                const params = new Map([
-                    ['session_name', session.sessionName],
-                    ['user_name', session.user.getUserName()]
-                ]);
-                return {
-                    loadQuery: combineQueries(response.load_df_query_string, '[]'),
-                    loadQueryOpt: response.load_df_optimized_query_string,
-                    dataQuery: combineQueries(response.data_df_query_string, '[]'),
-                    dataQueryOpt: response.data_df_optimized_query_string,
-                    compQuery: combineQueries(response.comp_df_query_string, '[]'),
-                    compQueryOpt: response.comp_df_optimized_query_string,
-                    tableNames: tableNames,
-                    dataQueryComplete: combineQueries(response.load_df_query_string, response.data_df_query_string, params),
-                    compQueryComplete: combineQueries(response.load_df_query_string, response.comp_df_query_string, params)
-                };
-            } finally {
-                getQueryProgress.stop();
-            }
-        },
         getCreateTableQueryWithSchema: async (param: {
+            path: string, filePattern: string,
+            inputSerialization: InputSerialization,
             schema: Schema,
             numRows?: number,
             progressCB?: ProgressCallback
@@ -631,10 +342,11 @@ function createDiscoverApp(params: {
             tableNames: {
                 load: string, data: string, comp: string
             },
+            loadId: string,
             dataQueryComplete: string,
             compQueryComplete: string
         }> => {
-            const { schema, numRows = -1, progressCB = () => {} } = param;
+            const { path, filePattern, inputSerialization, schema, numRows = -1, progressCB = () => {} } = param;
             const delProgress = updateProgress((p) => {
                 progressCB(p);
             }, 0, 10);
@@ -650,6 +362,8 @@ function createDiscoverApp(params: {
             }, 10, 100);
             try {
                 const schemaJsonStr = JSON.stringify(schema);
+                const loadId = convertLoadId(appId);
+                const names = createDiscoverNames(loadId);
                 const tableNames = {
                     load: names.loadPrefix,
                     data: names.dataPrefix,
@@ -683,6 +397,7 @@ function createDiscoverApp(params: {
                     compQuery: combineQueries(response.comp_df_query_string, '[]'),
                     compQueryOpt: response.comp_df_optimized_query_string,
                     tableNames: tableNames,
+                    loadId: loadId,
                     dataQueryComplete: combineQueries(response.load_df_query_string, response.data_df_query_string),
                     compQueryComplete: combineQueries(response.load_df_query_string, response.comp_df_query_string)
                 };
@@ -690,181 +405,10 @@ function createDiscoverApp(params: {
                 getQueryProgress.stop();
             }
         },
-        waitForFileTable: async (checkInterval = 200) => {
-            tables.file = await waitForTable(names.file, checkInterval);
-            return tables.file;
-        },
-        waitForSchemaTable: async (checkInterval = 200) => {
-            tables.schema = await waitForTable(names.schema, checkInterval);
-            return tables.schema;
-        },
-        waitForReportTable: async (checkInterval = 200) => {
-            tables.report = await waitForTable(names.report, checkInterval);
-            return tables.report;
-        },
-        cancel: async () => {
-            // XXX TODO: Need a real cancel
-            if (!executionDone) {
-                cancelDiscover = true;
-            }
-        },
-        getFileSchema: async (page, rowsPerPage) => {
-            // Try to create the file-schema joint table
-            try {
-                await createFileSchemaTable();
-            } catch(e) {
-                console.error('getFileSchema error: ', e);
-            }
-
-            // Source table is either file-schema or file
-            const fileSchemaTable =tables.fileSchema || tables.file;
-            if (fileSchemaTable == null) {
-                return { page: page, count: 0, files: [] };
-            }
-
-            // Fetch records from table
-            const cursor = fileSchemaTable.createCursor();
-            try {
-                await cursor.open();
-                if (await cursor.position(rowsPerPage * page)) {
-                    const files = (await cursor.fetchJson(rowsPerPage)).map((r) => convertFileSchemaRecord(r));
-                    return {
-                        page: page,
-                        count: cursor.getNumRows(),
-                        files: files
-                    };
-                } else {
-                    return { page: page, count: 0, files: [] };
-                }
-            } catch(e) {
-                console.error('getFileSchema error: ', e);
-                throw e;
-            } finally {
-                await cursor.close();
-            }
-        },
-        getReport: async (page, rowsPerPage) => {
-            const reportTable = tables.report;
-            if (reportTable == null) {
-                console.log('getReport: table not ready');
-                return { page: page, count: 0, schemas: [] };
-            }
-
-            // Fetch records from table
-            const cursor = reportTable.createCursor();
-            try {
-                await cursor.open();
-                if (await cursor.position(rowsPerPage * page)) {
-                    const schemas = (await cursor.fetchJson(rowsPerPage)).map((r) => convertReportRecords(r));
-                    return {
-                        page: page,
-                        count: cursor.getNumRows(),
-                        schemas: schemas
-                    }
-                } else {
-                    console.log(`getReport: out of range(${rowsPerPage * page}, ${cursor.getNumRows()})`);
-                    return { page: page, count: 0, schemas: [] };
-                }
-            } catch(e) {
-                console.error('getReport error: ', e);
-                throw e;
-            } finally {
-                await cursor.close();
-            }
-        },
-        getDiscoverError: async () => {
-            const files = await getSchemaDetail(failedSchemaHash);
-            return files.map(({ schema, file }) => ({
-                fullPath: file.fullPath, relPath: file.relPath, error: schema.error
-            }));
-        },
-        getSchemaDetail: async (schemaHash) => {
-            const result = {
-                hash: schemaHash,
-                columns: [],
-                files: []
-            };
-            const files = await getSchemaDetail(schemaHash);
-            if (files.length > 0) {
-                for (const column of files[0].schema.columns) {
-                    result.columns.push({...column});
-                }
-            }
-            for (const { file } of files) {
-                result.files.push({ ...file });
-            }
-
-            return result;
-        },
-        getDiscoverSuccessStats: async function() {
-            const table = await createDiscoverSuccessTable();
-            try {
-                const cursor = table.createCursor();
-                await cursor.open();
-
-                const result = {
-                    numFiles: 0, numSchemas: 0
-                };
-                let records = await cursor.fetchJson(1);
-                if (records.length > 0) {
-                    const record = records[0];
-                    result.numFiles = record['NUM_FILES'] || 0;
-                    result.numSchemas = record['NUM_SCHEMAS'] || 0;
-                }
-                return result;
-            } finally {
-                await table.destroy();
-            }
-
-            async function createDiscoverSuccessTable() {
-                if (tables.report == null) {
-                    throw new Error('Report table not exists');
-                }
-
-                const sql =
-                    `select
-                        SUM(FILE_COUNT) AS NUM_FILES, COUNT(SCHEMA_HASH) AS NUM_SCHEMAS
-                    from ${tables.report.getName()}
-                    where SCHEMA_HASH <> '${failedSchemaHash}'`;
-                const table = await session.executeSql(sql);
-                return table;
-            }
-        },
-        getDiscoverFailStats: async function() {
-            const table = await createDiscoverFailTable();
-            try {
-                const cursor = table.createCursor();
-                await cursor.open();
-
-                const result = {
-                    numFiles: 0, numSchemas: 0
-                };
-                let records = await cursor.fetchJson(1);
-                if (records.length > 0) {
-                    const record = records[0];
-                    result.numFiles = record['NUM_FILES'] || 0;
-                    result.numSchemas = record['NUM_SCHEMAS'] || 0;
-                }
-                return result;
-            } finally {
-                await table.destroy();
-            }
-
-            async function createDiscoverFailTable() {
-                if (tables.report == null) {
-                    throw new Error('Report table not exists');
-                }
-
-                const sql =
-                    `select
-                        SUM(FILE_COUNT) AS NUM_FILES, COUNT(SCHEMA_HASH) AS NUM_SCHEMAS
-                    from ${tables.report.getName()}
-                    where SCHEMA_HASH = '${failedSchemaHash}'`;
-                const table = await session.executeSql(sql);
-                return table;
-            }
-        },
-        previewFile: async (numRows: number = 20): Promise<{
+        previewFile: async (params: {
+            path: string, filePattern: string,
+            inputSerialization: InputSerialization,
+            numRows?: number}): Promise<{
             status: { errorMessage?: string },
             lines: Array<{
                 data: any,
@@ -880,8 +424,10 @@ function createDiscoverApp(params: {
                 }
             }>
         }> => {
+            const { path, filePattern, inputSerialization, numRows = 20 } = params;
             const appInput = {
                 func: 'preview_rows',
+                load_id: convertLoadId(appId),
                 session_name: session.sessionName,
                 target_name: targetName,
                 path: Path.join(path, filePattern),
@@ -913,7 +459,7 @@ function createDiscoverApp(params: {
         }
     };
 
-    // discoverApps.set(appId, app);
+    discoverApps.set(appId, app);
     return app;
 }
 
@@ -924,4 +470,4 @@ function getDiscoverApp(appId) {
     return discoverApps.get(appId);
 }
 
-export { createDiscoverApp, getDiscoverApp, isFailedSchema, DiscoverStatus, ExceptionAppCancelled }
+export { createDiscoverApp, getDiscoverApp }

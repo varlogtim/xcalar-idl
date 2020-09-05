@@ -12,6 +12,7 @@ import getForensics from '../services/Forensics';
 import * as Path from 'path';
 import * as SchemaLoadService from '../services/SchemaLoadService'
 import * as SchemaLoadSetting from '../services/SchemaLoadSetting'
+import { FilePathInfo } from '../services/S3Service'
 import { listFilesWithPattern, defaultFileNamePattern } from '../services/S3Service'
 import { DataPreviewModal } from './DataPreview'
 import EditConnectorsModal from './EditConnectorsModal'
@@ -39,18 +40,18 @@ const defaultSchemaName = 'Schema1';
 /**
  * Step enum/name definition
  */
-const stepEnum = {
-    SourceData: 'SourceData',
-    FilterData: 'FilterData',
-    SchemaDiscovery: 'SchemaDiscovery',
-    CreateTables: 'CreateTables'
+enum StepEnum {
+    SourceData = 'SourceData',
+    FilterData = 'FilterData',
+    SchemaDiscovery = 'SchemaDiscovery',
+    CreateTables = 'CreateTables'
 }
 
 const stepNumMap = {};
-stepNumMap[stepEnum.SourceData] = 1;
-stepNumMap[stepEnum.FilterData] = 1;
-stepNumMap[stepEnum.SchemaDiscovery] = 2;
-stepNumMap[stepEnum.CreateTables] = 3;
+stepNumMap[StepEnum.SourceData] = 1;
+stepNumMap[StepEnum.FilterData] = 1;
+stepNumMap[StepEnum.SchemaDiscovery] = 2;
+stepNumMap[StepEnum.CreateTables] = 3;
 const navBarStepNameMap = {
     "1": "Browse File",
     "2": "Specify Schema",
@@ -59,10 +60,10 @@ const navBarStepNameMap = {
 
 
 const stepNames = new Map();
-stepNames.set(stepEnum.SourceData, Texts.stepNameSourceData);
-stepNames.set(stepEnum.FilterData, Texts.stepNameFilterData);
-stepNames.set(stepEnum.SchemaDiscovery, Texts.stepNameSchemaDiscover);
-stepNames.set(stepEnum.CreateTables, Texts.stepNameCreateTables);
+stepNames.set(StepEnum.SourceData, Texts.stepNameSourceData);
+stepNames.set(StepEnum.FilterData, Texts.stepNameFilterData);
+stepNames.set(StepEnum.SchemaDiscovery, Texts.stepNameSchemaDiscover);
+stepNames.set(StepEnum.CreateTables, Texts.stepNameCreateTables);
 
 function deleteEntry(setOrMap, key) {
     setOrMap.delete(key);
@@ -76,9 +77,82 @@ function deleteEntries(setOrMap, keySet) {
     return setOrMap;
 }
 
-// XXX TODO: Complete the definitions
-type LoadConfigProps = any;
-type LoadConfigState = any;
+type LoadConfigProps = {
+    onStepChange: (step: StepEnum) => void
+};
+type LoadConfigState = {
+    currentStep: StepEnum,
+    currentNavStep: number,
+
+    connector: string,
+    bucket: string,
+    homePath: string,
+    fileType: SchemaService.FileType,
+
+    browseShow: boolean,
+    selectedFileDir: Array<FilePathInfo>,
+    fileNamePattern: string,
+    loadAppId: string,
+
+    fileSelectState: {
+        isLoading: boolean,
+        files: Array<FilePathInfo>,
+        fileSelected: FilePathInfo
+    },
+    fileContentState: {
+        isLoading: boolean,
+        error: string,
+        content: Array<any>,
+        isAutoDetect: boolean,
+        sampleSize: number,
+        linesSelected: Array<any>,
+        lineOffset: number,
+        linesHaveError: boolean
+    },
+    selectedSchema: any,
+    inputSerialization: SchemaService.InputSerialization,
+
+    editSchemaState: {
+        schema: any,
+        errorMessage: string
+    },
+    finalSchema: SchemaService.Schema,
+
+    tablePreviewState: {
+        isShow: boolean
+    },
+
+    connectorModalState: {
+        isShow: boolean
+    },
+
+    tableToCreate: Map<any, any>,
+    createTableState: {
+        page: number,
+        rowsPerPage: number,
+        count: number,
+        schemas: Array<any>,
+        isLoading: boolean,
+    },
+    createInProgress: Map<string, {table: string, message: string}>,
+    createFailed: Map<string, string>,
+    createTables: Map<string, {table: string, complementTable: string}>,
+
+    schemaDetailState: {
+        isLoading: boolean,
+        schema: any,
+        error: any
+    },
+    discoverStatsState: {
+        isLoading: boolean,
+        numFiles: number,
+        numSchemas: number,
+        numFailed: number
+    },
+    showForensics: boolean,
+    forensicsMessage: Array<any>,
+    isForensicsLoading: boolean
+};
 
 class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
     private metadataMap: Map<any, any>;
@@ -101,7 +175,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         const defaultFileType = SchemaService.FileType.CSV;
 
         this.state = {
-            currentStep: stepEnum.SourceData,
+            currentStep: StepEnum.SourceData,
             currentNavStep: 1,
 
             // SourceData
@@ -114,6 +188,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             browseShow: false,
             selectedFileDir: new Array(),
             fileNamePattern: defaultFileNamePattern,
+            loadAppId: null,
 
             // FilePreview
             fileSelectState: {
@@ -150,24 +225,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             },
 
             // DiscoverSchemas
-            discoverAppId: null,
-            discoverFilesState: {
-                page: 0,
-                rowsPerPage: 20,
-                count: 0,
-                files: [],
-                isLoading: false,
-            },
-            discoverIsRunning: false,
-            discoverProgress: 0,
-            discoverCancelBatch: null, // () => {} Dynamic cancel function set by discoverAll
-            discoverErrorRetry: true,
             inputSerialization: SchemaService.defaultInputSerialization.get(defaultFileType),
-            // XXX TODO: remove the following states
-            discoverFiles: new Map(), // Map<fileId, { fileId, fullPath, direcotry ... }
-            discoverFileSchemas: new Map(),// Map<fileId, { name: schemaName, columns: [] }
-            discoverInProgressFileIds: new Set(), // Set<fileId>
-            discoverFailedFiles: new Map(), // Map<fileId, errMsg>
 
             // CreateTable
             tableToCreate: new Map(), // Map<schemaName, tableName>, store a table name for user to update
@@ -233,7 +291,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         }
         const inputSerialization = this._resetBrowseResult();
         this.setState({
-            currentStep: stepEnum.SourceData,
+            currentStep: StepEnum.SourceData,
             schemaDetailState: {
                 isLoading: false,
                 schema: null,
@@ -244,11 +302,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
 
     _validateResetAll(element) {
         let error = null;
-        if (this.state.discoverIsRunning) {
-            error = Texts.ResetInDiscoverLoading;
-        } else if (this.state.discoverCancelBatch != null) {
-            error = Texts.ResetInDiscoverBatch;
-        } else if (this.state.createInProgress.size > 0) {
+        if (this.state.createInProgress.size > 0) {
             error = Texts.ResetInCreating;
         }
         if (error) {
@@ -317,13 +371,20 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
     }
 
     async _createTableForPreview(schema) {
-        const numRowsForPreview = 50;
+        const numRowsForPreview = 100;
+        const {
+            loadAppId,
+            inputSerialization,
+        } = this.state;
 
-        const app = this._createAppForTable();
-        // Init app
-        await app.init();
+        // Load App
+        const app = SchemaLoadService.getDiscoverApp(loadAppId);
+
         // Get create table dataflow
+        const { path, filePattern } = this._getLoadPathInfo();
         const query = await app.getCreateTableQueryWithSchema({
+            path: path, filePattern: filePattern,
+            inputSerialization: inputSerialization,
             schema: schema,
             numRows: numRowsForPreview
         });
@@ -342,36 +403,24 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         return { data: tables.data };
     }
 
-    _createAppForTable() {
+    private _getLoadPathInfo = () => {
         const {
-            connector,
-            inputSerialization,
             selectedFileDir, fileNamePattern
         } = this.state;
         const selected = selectedFileDir[0];
 
-        const createApp = () => {
-            if (selected.directory) {
-                return SchemaLoadService.createDiscoverApp({
-                    targetName: connector,
-                    path: Path.join(selected.fullPath, '/'),
-                    filePattern: fileNamePattern,
-                    inputSerialization: inputSerialization,
-                    isRecursive: false,
-                });
-            } else {
-                const { path: selectedPath, filePattern } = this._extractFileInfo(selected.fullPath);
-                return SchemaLoadService.createDiscoverApp({
-                    targetName: connector,
-                    path: selectedPath,
-                    filePattern: filePattern,
-                    inputSerialization: inputSerialization,
-                    isRecursive: false,
-                });
-            }
-        };
-
-        return createApp();
+        if (selected.directory) {
+            return {
+                path: Path.join(selected.fullPath, '/'),
+                filePattern: fileNamePattern
+            };
+        } else {
+            const { path: selectedPath, filePattern } = this._extractFileInfo(selected.fullPath);
+            return {
+                path: selectedPath,
+                filePattern: filePattern
+            };
+        }
     }
 
     async _createTableFromSchema(schema, tableName) {
@@ -379,7 +428,13 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         const isPublishTables = SchemaLoadSetting.get('isPublishTables', false) ;
 
         try {
-            const app = this._createAppForTable();
+            const {
+                connector,
+                loadAppId,
+                inputSerialization
+            } = this.state;
+            // Load App
+            const app = SchemaLoadService.getDiscoverApp(loadAppId);
 
             // State: cleanup and +loading
             const createInProgress = this.state.createInProgress;
@@ -397,11 +452,11 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                 return Math.min(Math.ceil(progress / 100 * (end - start) + start), end);
             }
 
-            // Init app
-            await app.init();
-
             // Get create table dataflow
+            const { path, filePattern } = this._getLoadPathInfo();
             const query = await app.getCreateTableQueryWithSchema({
+                path: path, filePattern: filePattern,
+                inputSerialization: inputSerialization,
                 schema: schema,
                 progressCB: (progress) => {
                     this.setState((state) => {
@@ -475,6 +530,14 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                     }
                     await Promise.all(cleanupTasks);
                 }
+
+                // Create a new Load App (conceptually)
+                const newApp = await SchemaLoadService.createDiscoverApp({
+                    targetName: connector
+                });
+                this.setState({
+                    loadAppId: newApp.appId
+                });
             } catch(e) {
                 await Promise.all([
                     tables.load.destroy(),
@@ -652,7 +715,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         });
     }
 
-    _resetParserResult(newParserType = null) {
+    _resetParserResult(newParserType = null): SchemaService.InputSerialization {
         this._resetDiscoverResult();
         let inputSerialization = this.state.inputSerialization;
         if (newParserType != null) {
@@ -668,7 +731,8 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
     _resetBrowseResult(newParserType = null) {
         const inputSerialization = this._resetParserResult(newParserType);
         this.setState({
-            currentStep: stepEnum.SourceData,
+            loadAppId: null,
+            currentStep: StepEnum.SourceData,
             selectedFileDir: new Array(), // Clear selected files/folders, XXX TODO: in case file type changes, we can preserve the folders
         });
         return inputSerialization;
@@ -711,14 +775,6 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             },
             finalSchema: null,
 
-            discoverAppId: null,
-            discoverFilesState: {
-                page: 0,
-                rowsPerPage: 20,
-                count: 0,
-                files: [],
-                isLoading: false
-            },
             discoverStatsState: {
                 isLoading: false,
                 numFiles: null,
@@ -748,7 +804,10 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             const { fileSelectState } = this.state;
             const { fileSelected } = fileSelectState;
             if (fileSelected != null) {
-                this._fetchFileContent(fileSelected.fullPath, inputSerialization);
+                this._fetchFileContent({
+                    filePath: fileSelected.fullPath,
+                    inputSerialization: inputSerialization
+                });
             }
         }
         return inputSerialization;
@@ -770,7 +829,10 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         const { fileSelectState } = this.state;
         const { fileSelected } = fileSelectState;
         if (fileSelected != null) {
-            this._fetchFileContent(fileSelected.fullPath, newOption);
+            this._fetchFileContent({
+                filePath: fileSelected.fullPath,
+                inputSerialization: newOption
+            });
         }
     }
 
@@ -812,8 +874,20 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                     const suggestType = SchemaService.suggestParserType(selectedFile);
                     const inputSerialization = this._setParserType(suggestType, false);
 
+                    // Create a new Load App (conceptually)
+                    const loadApp = await SchemaLoadService.createDiscoverApp({
+                        targetName: this.state.connector,
+                    });
+                    this.setState({
+                        loadAppId: loadApp.appId
+                    });
+
                     // Update file preview
-                    await this._fetchFileContent(selectedFile.fullPath, inputSerialization);
+                    await this._fetchFileContent({
+                        loadApp: loadApp,
+                        filePath: selectedFile.fullPath,
+                        inputSerialization: inputSerialization
+                    });
                 } catch(e) {
                     this._alert({
                         title: 'List/Preview file error',
@@ -885,10 +959,12 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         return selectedFile;
     }
 
-    async _fetchFileContent(filePath, inputSerialization = null) {
-        // if (filePath === this._fetchFileJob.getFilePath()) {
-        //     return;
-        // }
+    async _fetchFileContent(params: {
+        loadApp?: any,
+        filePath: string,
+        inputSerialization?: SchemaService.InputSerialization
+    }) {
+        const { loadApp, filePath, inputSerialization } = params;
 
         // Stop the previous fetching
         this._fetchFileJob.cancel();
@@ -909,20 +985,12 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         }));
 
         try {
-            const {
-                connector
-            } = this.state;
-
+            const app = loadApp || SchemaLoadService.getDiscoverApp(this.state.loadAppId);
             const { path: selectedPath, filePattern } = this._extractFileInfo(filePath);
-            const discoverApp = SchemaLoadService.createDiscoverApp({
-                targetName: connector,
-                path: selectedPath,
-                filePattern: filePattern,
-                inputSerialization: inputSerialization || this.state.inputSerialization,
-                isRecursive: false,
+            const fileContent = await app.previewFile({
+                path: selectedPath, filePattern: filePattern,
+                inputSerialization: inputSerialization || this.state.inputSerialization
             });
-            await discoverApp.init();
-            const fileContent = await discoverApp.previewFile();
             const { status } = fileContent;
             if (status.errorMessage != null) {
                 throw status.errorMessage;
@@ -1156,8 +1224,8 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         } = this.state;
 
         const showBrowse = browseShow;
-        const showDiscover = currentStep === stepEnum.SchemaDiscovery && selectedFileDir.length > 0;
-        const showCreate = currentStep === stepEnum.CreateTables;
+        const showDiscover = currentStep === StepEnum.SchemaDiscovery && selectedFileDir.length > 0;
+        const showCreate = currentStep === StepEnum.CreateTables;
         const fullPath = Path.join(bucket, homePath);
         const forensicsStats = this.metadataMap.get(fullPath);
         let containerClass = "container cardContainer";
@@ -1269,7 +1337,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                 onDone={(selectedFileDir, fileNamePattern) => {
                                     try {
                                         this._browseClose(selectedFileDir, fileNamePattern);
-                                        this._changeStep(stepEnum.SchemaDiscovery);
+                                        this._changeStep(StepEnum.SchemaDiscovery);
                                     } catch(_) {
                                         // Do nothing
                                     }
@@ -1297,7 +1365,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                             }));
                                             this._resetDiscoverResult();
                                             if (file != null) {
-                                                this._fetchFileContent(file.fullPath);
+                                                this._fetchFileContent({ filePath: file.fullPath });
                                             }
                                         }
                                     }
@@ -1354,7 +1422,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                     onClickCreateTable={(schemaName, tableName) => {
                                         this._createTableFromSchema(this.state.finalSchema, tableName);
                                     }}
-                                    onPrevScreen = {() => { this._changeStep(stepEnum.SchemaDiscovery); }}
+                                    onPrevScreen = {() => { this._changeStep(StepEnum.SchemaDiscovery); }}
                                     onLoadSchemaDetail = {(schemaHash) => { this._getSchemaDetail(null); }}
                                     onLoadFailureDetail = {() => { /* Not supported anymore */ }}
                                 >
@@ -1367,7 +1435,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                         schemaDetail={this.state.schemaDetailState}
                         discoverStats={this.state.discoverStatsState}
                         selectedFileDir={this.state.selectedFileDir}
-                        discoverFileSchemas={this.state.discoverFileSchemas}
+                        discoverFileSchemas={new Map()}
                         showForensics={this.state.showForensics}
                         forensicsMessage={this.state.forensicsMessage}
                         forensicsStats={forensicsStats}
@@ -1418,7 +1486,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                         this.setState({
                                             currentNavStep: 3
                                         });
-                                        this._changeStep(stepEnum.CreateTables);
+                                        this._changeStep(StepEnum.CreateTables);
                                         this._prepareCreateTableData();
                                     }
                                 }}
@@ -1432,7 +1500,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                     this.setState({
                                         currentNavStep: 2
                                     });
-                                    this._changeStep(stepEnum.SchemaDiscovery);
+                                    this._changeStep(StepEnum.SchemaDiscovery);
                                     this.setState({
                                         schemaDetailState: {
                                             isLoading: false, error: null, schema: null
@@ -1489,4 +1557,4 @@ function LoadStep(props) {
     )
 }
 
-export { LoadConfig, stepEnum };
+export { LoadConfig, StepEnum as stepEnum };

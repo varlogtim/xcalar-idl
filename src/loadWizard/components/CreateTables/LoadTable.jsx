@@ -4,7 +4,6 @@ import { useTable, useSortBy, usePagination } from 'react-table'
 import * as LoadCell from './LoadCell'
 import prettyBytes from 'pretty-bytes'
 import EtaCost from '../../utils/EtaCost'
-import { isFailedSchema } from '../../services/SchemaLoadService'
 
 const { xcTimeHelper } = global;
 
@@ -261,7 +260,7 @@ function LoadTable({
     for (const {schema, files} of schemas) {
         const schemaName = schema.hash;
 
-        if (isFailedSchema(schemaName)) {
+        if (false) {
             // XXX TODO: show failed files/reasons
             const rowData = {
                 schema: <button className="btn btn-secondary btn-new viewSchema" onClick={() => { onClickFailedSchema(); }}>Failed</button>,
