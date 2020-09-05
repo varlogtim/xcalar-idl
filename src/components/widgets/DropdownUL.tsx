@@ -1,4 +1,4 @@
-import * as React from "react"; 
+import * as React from "react";
 import keyCode from "../../enums/keyCode";
 
 type DropdownULProps = {
@@ -101,25 +101,21 @@ export default class DropdownUL extends React.Component<DropdownULProps, Dropdow
                 vertical = true;
                 break;
             case (keyCode.Left):
-                // TODO: check for inputs inside of lis
-                // if ($(event.target).is('input')) {
-                //     if ($(event.target).attr('type') === "number") {
-                //         return;
-                //     }
-                //     if (($(event.target)[0]).selectionStart !== 0) {
-                //         return;
-                //     }
-                // }
+                if ($('input:focus, textarea:focus').length) {
+                    return;
+                }
                 horizontal = true;
                 break;
             case (keyCode.Right):
-                // TODO: check for inputs inside of lis
-                // if ($(event.target).is('input')) {
-                //     return;
-                // }
+                if ($('input:focus, textarea:focus').length) {
+                    return;
+                }
                 horizontal = true;
                 break;
             case (keyCode.Enter):
+                if ($('input:focus, textarea:focus').length) {
+                    return;
+                }
                 enter = true;
                 break;
             case (keyCode.Escape):
@@ -130,15 +126,15 @@ export default class DropdownUL extends React.Component<DropdownULProps, Dropdow
                 event.preventDefault();
                 this.props.onEscape();
                 return;
-                break;
             case (keyCode.Backspace):
                 // TODO: check for inputs inside of lis
                 // if ($(event.target).is('input')) {
                 //     return;
                 // }
-                if (this.props.usingHintList) {
+                if ($('input:focus, textarea:focus').length) {
                     return;
-                } else {
+                }
+                if (!this.props.usingHintList) {
                     event.preventDefault();
                     this.props.onEscape();
                 }

@@ -15,12 +15,17 @@ class MuiVirtualizedTable extends React.PureComponent {
         this.state = {
             disableHeader: false,
             overscanRowCount: 20,
-            scrollIndex: undefined,
             sortBy: sortBy,
             sortDirection: sortDirection,
             sortedList: [...props.fileList],
-            lastClickedIndex: null
+            lastClickedIndex: null,
+            scrollToIndex: undefined,
+            highlightedFile: undefined,
+            highlightedIndex: undefined
         };
+        this._navString = "";
+        this._keyboardTimeout = null;
+
         this.getRowClassName = this.getRowClassName.bind(this);
         this.cellRenderer = this.cellRenderer.bind(this);
         this.headerRenderer = this.headerRenderer.bind(this);
@@ -30,6 +35,60 @@ class MuiVirtualizedTable extends React.PureComponent {
         this.handleCheckboxClick = this.handleCheckboxClick.bind(this);
         this.onSelectAllClick = this.onSelectAllClick.bind(this);
         this.sort = this.sort.bind(this);
+        this._keyboardNav = this._keyboardNav.bind(this);
+    }
+
+    componentDidMount() {
+        this._navString = "";
+        document.addEventListener("keydown", this._keyboardNav);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener("keydown", this._keyboardNav);
+        clearTimeout(this._keyboardTimeout);
+    }
+
+    _keyboardNav(e) {
+        if ($('input:focus, textarea:focus').length) {
+            return;
+        }
+        const key = e.key.toLowerCase();
+        let fileMatch;
+        let matchIndex;
+        if (key.length !== 1) {
+            this._navString = "";
+        } else {
+            this._navString += key;
+            this.state.sortedList.some((file, i) => {
+                const name = file.name.toLowerCase();
+                if (name.startsWith(this._navString)) {
+                    fileMatch = file;
+                    matchIndex = i;
+                    return true;
+                }
+                return false;
+            });
+            if (fileMatch == null) {
+                this._navString = "";
+            }
+        }
+
+        clearTimeout(this._keyboardTimeout);
+        this._keyboardTimeout = setTimeout(() => {
+            this._navString = "";
+        }, 1000);
+
+        if (fileMatch) {
+            this.setState({
+                scrollToIndex: matchIndex,
+                highlightedFile: fileMatch,
+                highlightedIndex: matchIndex
+            });
+            setTimeout(() => {
+                // need to reset otherwise next key won't work
+                this.setState({scrollToIndex: undefined})
+            });
+        }
     }
 
     getRowClassName(index, data) {
@@ -43,7 +102,8 @@ class MuiVirtualizedTable extends React.PureComponent {
         [classes.tableRowHover]: index !== -1 && onRowClick != null,
         [classes.tableRow]: rowData && rowData.directory,
         "selectedRow": rowData && this.props.isSelected(rowData),
-        "isLoading": isLoading
+        "isLoading": isLoading,
+        "highlighted": index === this.state.highlightedIndex
         });
     };
 
@@ -295,7 +355,8 @@ class MuiVirtualizedTable extends React.PureComponent {
             overscanRowCount,
             sortBy,
             sortDirection,
-            sortedList
+            sortedList,
+            scrollToIndex
         } = this.state;
 
         return (
@@ -312,6 +373,8 @@ class MuiVirtualizedTable extends React.PureComponent {
                 {...tableProps}
                 rowClassName={(info) => { return this.getRowClassName(info.index, sortedList)}}
                 overscanRowCount={overscanRowCount}
+                scrollToIndex={scrollToIndex}
+                scrollToAlignment="start"
                 sort={this.sort}
                 sortBy={sortBy}
                 sortDirection={sortDirection}

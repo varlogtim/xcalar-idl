@@ -9,18 +9,22 @@ function Dialog(props) {
         style
     } = props;
     let modalId = id ||"";
+
+    React.useEffect(() => {
+        $("#homeBtn").addClass("xc-disabled");
+        return () => {
+            $("#homeBtn").removeClass("xc-disabled");
+        }
+    });
+
     return (
         <div id={modalId} className='modal' onClick={(e) => { e.stopPropagation(); }}>
             { resizable ?
             <Rnd
-                // ref={c => { this.rnd = c; }}
                 className="modal-content"
-                // style={this._getStyle()}
                 default = {{..._center(false, props)}}
                 bounds="body"
                 dragHandleClassName="modal-header"
-                // onDragStart={() => this.setState({isDragging: true})}
-                // onDragStop={() => this.setState({isDragging: false})}
             >
                 {children}
             </Rnd>:

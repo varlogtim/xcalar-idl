@@ -74,13 +74,14 @@ type BrowseDataSourceState = {
 
 class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseDataSourceState> {
     private metadataMap;
-
+    private navCount;
     constructor(props) {
         super(props);
 
         const { bucket, homePath, selectedFileDir, fileNamePattern } = props;
 
         this.metadataMap = new Map();
+        this.navCount = 0;
         this.state = {
             isLoading: true,
             path: Path.join(bucket, homePath),
@@ -96,6 +97,9 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
     }
 
     async componentDidMount() {
+        try {
+            (document.activeElement as HTMLElement).blur();
+        } catch(e){}
         // browsePath
         const success = await this._browsePath(this.state.path, this.props.fileType);
         if (!success) {
@@ -115,8 +119,12 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
             // const fileMap = await S3Service.listFiles(Path.join(newFullPath, '/'), ({ directory, type}) => {
             //     return directory || fileTypeFilter({ type: type });
             // });
+            this.navCount++;
+            let navCount = this.navCount;
             const fileMap = await S3Service.listFiles(Path.join(newFullPath, '/'), this.props.connector);
-
+            if (this.navCount !== navCount) {
+                return false;
+            }
             if (this.props.homePath && !newFullPath.endsWith(this.props.homePath)) {
                 // navigated away while files were loading
                 return false;
@@ -387,7 +395,7 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
                                 this._browsePath(parentPath, fileType);
                             }}>
                         </i>
-                        <input value={displayFullPath} readOnly />
+                        <input value={displayFullPath} readOnly disabled />
                         {!isLoading ? <div className="numItems">{(fileMapViewing.size).toLocaleString()} items</div>
                         : null}
                     </div>
