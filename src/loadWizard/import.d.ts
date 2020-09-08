@@ -66,3 +66,4 @@ declare function XcalarQueryWithCheck(...params: any): Promise<any>;
 declare function XcalarImportRetina(...params: any): Promise<any>;
 declare function XcalarExecuteRetina(...params: any): Promise<any>;
 declare function XcalarDeleteRetina(...params: any): Promise<any>;
+declare function XcalarDeletePython(...params: any): Promise<any>;

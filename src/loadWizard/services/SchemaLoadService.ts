@@ -16,6 +16,7 @@ async function executeSchemaLoadApp(jsonStr: string) {
 }
 
 function convertLoadId(loadId: string): string {
+    return loadId;
     // "LOAD_WIZARD_5F454B190E0DFF06_1599241301_119471
     function randomNumber(numDigits) {
         let result = '';
@@ -137,6 +138,62 @@ async function initApp() {
     };
 }
 
+function combineQueries(loadQuery, tableQuery, params = new Map()) {
+    // Remove the leading synthesize, which is not necessary in regular execution
+    tableQuery = removeSynthesize(tableQuery);
+
+    // Remove export from the query string
+    const excludeSet = new Set([
+        Xcrpc.EnumMap.XcalarApisToStr[Xcrpc.EnumMap.XcalarApisToInt.XcalarApiExport]
+    ]);
+    const queryList = JSON.parse(loadQuery).concat(JSON.parse(tableQuery));
+    let queryString = JSON.stringify(
+        queryList.filter(({ operation }) => !excludeSet.has(operation))
+    );
+
+    for (const [key, value] of params) {
+        const replacementKey = `<${key}>`;
+        queryString = queryString.replace(replacementKey, value);
+    }
+
+    return queryString;
+}
+
+function removeSynthesize(query) {
+    const queryList = JSON.parse(query);
+    if (queryList.length < 2) {
+        return query;
+    }
+    if (queryList[0].operation === Xcrpc.EnumMap.XcalarApisToStr[Xcrpc.EnumMap.XcalarApisToInt.XcalarApiSynthesize]) {
+        const synthesizeOp = queryList.shift();
+        queryList[0].args.source = synthesizeOp.args.source;
+    }
+
+    return JSON.stringify(queryList);
+}
+
+function getIntermidateResource(query: string) {
+    const loadUDF = new Set<string>();
+    let queryList = JSON.parse(query);
+    if (queryList.query != null) {
+        // Retina query format
+        queryList = JSON.parse(queryList.query);
+    }
+
+    const loadWizardFuncName = 'get_load_wizard_plan';
+    for (const queryJson of queryList) {
+        if (queryJson.operation === Xcrpc.EnumMap.XcalarApisToStr[Xcrpc.EnumMap.XcalarApisToInt.XcalarApiBulkLoad]) {
+            // "LOAD_PLAN_UDF_5F454B190E0DFF06_1599591750_267983:get_load_wizard_plan"
+            const [udfModule, udfFunc] = queryJson.args.loadArgs.parseArgs.parserFnName.split(':');
+            if (udfFunc === loadWizardFuncName) {
+                loadUDF.add(udfModule);
+            }
+        }
+    }
+
+    return loadUDF;
+}
+
 const discoverApps = new Map();
 async function createDiscoverApp(params: {
     targetName: string,
@@ -149,40 +206,6 @@ async function createDiscoverApp(params: {
         await session.deleteTables({
             namePattern: `${tempTablePrefix}*`
         });
-    }
-
-    function combineQueries(loadQuery, tableQuery, params = new Map()) {
-        // Remove the leading synthesize, which is not necessary in regular execution
-        tableQuery = removeSynthesize(tableQuery);
-
-        // Remove export from the query string
-        const excludeSet = new Set([
-            Xcrpc.EnumMap.XcalarApisToStr[Xcrpc.EnumMap.XcalarApisToInt.XcalarApiExport]
-        ]);
-        const queryList = JSON.parse(loadQuery).concat(JSON.parse(tableQuery));
-        let queryString = JSON.stringify(
-            queryList.filter(({ operation }) => !excludeSet.has(operation))
-        );
-
-        for (const [key, value] of params) {
-            const replacementKey = `<${key}>`;
-            queryString = queryString.replace(replacementKey, value);
-        }
-
-        return queryString;
-    }
-
-    function removeSynthesize(query) {
-        const queryList = JSON.parse(query);
-        if (queryList.length < 2) {
-            return query;
-        }
-        if (queryList[0].operation === Xcrpc.EnumMap.XcalarApisToStr[Xcrpc.EnumMap.XcalarApisToInt.XcalarApiSynthesize]) {
-            const synthesizeOp = queryList.shift();
-            queryList[0].args.source = synthesizeOp.args.source;
-        }
-
-        return JSON.stringify(queryList);
     }
 
     async function runTableQuery(query, progressCB: ProgressCallback = () => {}) {
@@ -216,6 +239,10 @@ async function createDiscoverApp(params: {
         });
 
         try {
+            // Extract load UDF name from bulkLoad
+            // Note: the load UDF needs to be deleted after a temporary load, ex. preview
+            const loadUDFs = getIntermidateResource(loadQuery);
+
             // Execute Data DF
             const dataQuery = JSON.parse(dataQueryOpt).retina;
             const dataProgress = updateProgress((p) => progressCB(p), 60, 80);
@@ -258,10 +285,25 @@ async function createDiscoverApp(params: {
             return {
                 data: dataTable,
                 comp: compTable,
-                load: loadTable
+                load: loadTable,
+                loadUDFs: loadUDFs
             };
         } finally {
             progressCB(100);
+        }
+    }
+
+    async function deleteLoadUDFs(loadUDFs: Set<string>): Promise<void> {
+        const sharedUDFPrefix = xcHelper.constructUDFSharedPrefix();
+        for (const udf of loadUDFs) {
+            try {
+                await session.callLegacyApi(
+                    () => XcalarDeletePython(sharedUDFPrefix + udf, true)
+                );
+                console.info('Delete LoadUDF: ', udf);
+            } catch(_) {
+                // Ignore errors
+            }
         }
     }
 
@@ -456,6 +498,35 @@ async function createDiscoverApp(params: {
                     };
                 })
             };
+        },
+        createPreviewTable: async function(params: {
+            path: string, filePattern: string,
+            inputSerialization: InputSerialization,
+            schema: Schema,
+            numRows?: number
+        }): Promise<Table> {
+            const { path, filePattern, inputSerialization, schema, numRows = 100 } = params;
+
+            const query = await app.getCreateTableQueryWithSchema({
+                path: path, filePattern: filePattern,
+                inputSerialization: inputSerialization,
+                schema: schema,
+                numRows: numRows
+            });
+            // Create data/comp session tables
+            const results = await app.createResultTables(query);
+            // Remove unused tables
+            try {
+                await Promise.all([
+                    results.load.destroy(),
+                    results.comp.destroy(),
+                    deleteLoadUDFs(results.loadUDFs)
+                ]);
+            } catch(_) {
+                // Ignore errors
+            }
+
+            return results.data;
         }
     };
 

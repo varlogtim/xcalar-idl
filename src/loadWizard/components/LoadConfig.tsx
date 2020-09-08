@@ -380,27 +380,16 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         // Load App
         const app = SchemaLoadService.getDiscoverApp(loadAppId);
 
-        // Get create table dataflow
+        // Create data session table
         const { path, filePattern } = this._getLoadPathInfo();
-        const query = await app.getCreateTableQueryWithSchema({
+        const table = await app.createPreviewTable({
             path: path, filePattern: filePattern,
             inputSerialization: inputSerialization,
             schema: schema,
             numRows: numRowsForPreview
         });
-        // Create data/comp session tables
-        const tables = await app.createResultTables(query);
-        // Remove unused tables
-        try {
-            await Promise.all([
-                tables.load.destroy(),
-                tables.comp.destroy()
-            ]);
-        } catch(_) {
-            // Ignore errors
-        }
 
-        return { data: tables.data };
+        return { data: table };
     }
 
     private _getLoadPathInfo = () => {
