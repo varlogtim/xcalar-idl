@@ -18,7 +18,8 @@ interface ModalHelperOptions {
     noResize?: boolean,
     sizeCallBack?: Function,
     dragHandle?: string,
-    offscreenDraggable?: boolean
+    offscreenDraggable?: boolean,
+    noAnim?: boolean // no fade in/out
 }
 
 interface ModalHelperCenterOptions {
@@ -302,7 +303,7 @@ class ModalHelper {
             deferred.resolve();
         } else {
             const $modalBg: JQuery = $("#modalBackground");
-            if (window.gMinModeOn) {
+            if (window.gMinModeOn || options.noAnim) {
                 $modalBg.show();
                 $modal.show();
                 deferred.resolve();
@@ -402,7 +403,7 @@ class ModalHelper {
             $modal.hide();
 
             if (numModalsOpen < 2) {
-                if (options.noBackground) {
+                if (options.noBackground || options.noAnim) {
                     $modalBg.hide();
                 } else {
                     $modalBg.fadeOut(fadeOutTime, function() {

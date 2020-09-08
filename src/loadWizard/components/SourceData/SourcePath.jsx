@@ -5,7 +5,7 @@ import Pagination from '../../../components/widgets/Pagination'
 import LoadingText from '../../../components/widgets/LoadingText'
 import NavButtons from '../NavButtons'
 import { Folder, FileCopy, InsertDriveFileOutlined } from '@material-ui/icons'
-
+import EditConnectorsModal from '../EditConnectorsModal'
 const Texts = {
     bucketName: 'S3 Bucket',
     noBuckets: 'No bucket to select',
@@ -74,6 +74,7 @@ export default function SourcePath({
     // so need to put it in the onOpen callback
     const [s3Buckets, setS3Buckets] = React.useState([]);
     const [connectors, setConnectors] = React.useState([]);
+    const [showConnectorModal, setShowConnectorModal] = React.useState(false);
 
     const isBucketInvalid = isBucketNameInvalid(bucket);
     DSTargetManager.updateSelectedConnector = (newConnector) => {
@@ -86,6 +87,7 @@ export default function SourcePath({
         : connector;
 
     return (
+        <React.Fragment>
         <div className="sourceForm">
             <form onSubmit={(e) => { e.preventDefault(); }}>
                 <a className="needHelp xc-action" style={{ position: "relative", top: "4px" }} href="https://xcalar.com/documentation/Content/Content_QSG/qs_intro_build_datamart.htm" target="_blank">Need help?</a>
@@ -108,12 +110,9 @@ export default function SourcePath({
                                 list={getConnectorList(connectors)}
                                 readOnly
                             />
-                            <button type="button" className="btn btn-secondary btn-new" onClick={() => {
-                                LoadScreen.switchTab("connector");
-                            }}>Edit Connectors</button>
-                            <button type="button" className="btn btn-secondary btn-new" onClick={() => {
-                                DSTargetManager.showTargetCreateView();
-                            }}>Add Connector</button>
+                            <button id="manageConnectorsBtn" type="button" className="btn btn-secondary btn-new" onClick={() => {
+                                setShowConnectorModal(true);
+                            }}>Manage Connectors</button>
                         </div>
                     </div>
                 </div>
@@ -210,6 +209,13 @@ export default function SourcePath({
                 : null}
             </form>
         </div>
+        {showConnectorModal &&
+            <EditConnectorsModal
+                onClose={()=>{
+                    setShowConnectorModal(false);
+                }}
+            />}
+        </React.Fragment>
     );
 }
 

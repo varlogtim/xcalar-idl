@@ -71,6 +71,10 @@ namespace DSTargetManager {
         return targetSet;
     }
 
+    export function getAllTargetTypes(): any {
+        return typeSet;
+    }
+
     /**
      * DSTargetManager.isGeneratedTarget
      * @param targetName
@@ -372,6 +376,8 @@ namespace DSTargetManager {
         return html;
     }
 
+
+
     /**
      * DSTargetManager.createConnector
      * @param $form
@@ -427,6 +433,7 @@ namespace DSTargetManager {
     export function updateSelectedConnector(_targetName) {
         // overwritten by SourcePath.jsx
     }
+
 
     function getConnectorList(): XDPromise<any> {
         let deferred: XDDeferred<any> = PromiseHelper.deferred();
@@ -594,8 +601,24 @@ namespace DSTargetManager {
             } else {
                 LoadScreen.switchTab("import");
             }
-        })
+        });
+        $("#dsTarget-create-card .backBtn").click(() => {
+            let rect = $targetCreateCard[0].getBoundingClientRect();
+            $("#manageConnectorsBtn").click();
+            DSTargetManager.updateModal({
+                width: rect.width,
+                height: rect.height,
+                left: rect.left,
+                top: rect.top
+            });
+            targetModalHelper.clear({noAnim: true});
+        });
     }
+
+    export function updateModal(_rect): void {
+        // overwritten by editConnectorsModal.tsx
+    }
+
 
     function setupGridMenu(): void {
         let $gridMenu = $("#dsTarget-menu");
@@ -742,11 +765,7 @@ namespace DSTargetManager {
         $gridView.html(html);
         if (activeTargetName) {
             let $activeGrid = $gridView.find('.target[data-name="' + activeTargetName + '"]');
-            if (!$activeGrid.length) {
-                showTargetCreateView();
-            } else {
-                $activeGrid.addClass("active");
-            }
+            $activeGrid.addClass("active");
         }
     }
 
@@ -769,10 +788,27 @@ namespace DSTargetManager {
         showTargetInfoView($grid.data("name"));
     }
 
-    export function showTargetCreateView(): void {
+    export function showTargetCreateView(fromConnectorModal?: boolean): void {
         $targetCreateCard.removeClass("xc-hidden");
-        targetModalHelper.setup();
+        if (fromConnectorModal) {
+            let $otherModal = $("#connectorManager").find(".modal-content");
+            let rect = $otherModal[0].getBoundingClientRect();
+            $otherModal.hide();
+            targetModalHelper.setup({noAnim: true});
+            $targetCreateCard.css({
+                left: rect.left,
+                top: rect.top,
+                width: rect.width,
+                height: rect.height
+            });
+            $targetCreateCard.addClass("fromManager");
+            $otherModal.find(".close").click();
+        } else {
+            targetModalHelper.setup();
+        }
+
         resetForm();
+
         if ($targetCreateCard.hasClass("firstTouch")) {
             DSTargetManager.getTargetTypeList();
             $targetCreateCard.removeClass("firstTouch");
@@ -810,7 +846,7 @@ namespace DSTargetManager {
                     if (typeof paramVal !== "string") {
                         paramVal = JSON.stringify(paramVal);
                     }
-                    if (isSecrectParam(target.type_id, paramName)) {
+                    if (isSecretParam(target.type_id, paramName)) {
                         classes += " secret";
                     }
                     return '<div class="formRow">' +
@@ -1114,7 +1150,7 @@ namespace DSTargetManager {
         udfFuncListItems = udfObj.fnLis;
     }
 
-    function isSecrectParam(typeId: string, paramName: string): boolean {
+    function isSecretParam(typeId: string, paramName: string): boolean {
         try {
             let targetType = typeSet[typeId];
             for (let i = 0; i < targetType.parameters.length; i++) {

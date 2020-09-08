@@ -1,6 +1,7 @@
 #loadWizard {
     @min-width: 450px;
     @input-height: 35px;
+    @button-w: 156px;
 
     .App {
         height: 100%;
@@ -247,7 +248,6 @@
 
     .topSection {
         @w-label: 70px;
-        @button-w: 140px;
         @margin: 16px;
         @padding: 16px;
         @max-width: @min-width * 2 + (@padding * 2);
@@ -287,12 +287,12 @@
                 .inputRow {
                     display: flex;
                     > .dropDownList, > input  {
-                        max-width: ~"calc(100% - 152px)";
+                        max-width: ~"calc(100% - 168px)";
                         height: 35px;
                     }
                     .btn, .navButtons {
                         margin-left: 12px;
-                        flex: 0 0 140px;
+                        flex: 0 0 @button-w;
                     }
                 }
 
@@ -312,7 +312,7 @@
                         line-height: 35px;
                         .fileName {
                             .textOverflowOneLine;
-                            width: ~"calc(100% - 152px)";
+                            width: ~"calc(100% - 168px)";
                             font-size: 14px;
                         }
 
@@ -1000,7 +1000,7 @@
         }
 
         .loadingBarWrap {
-            width: 140px;
+            width: @button-w;
             border: 1px solid @color-font-default;
             border-radius: 2px;
             height: @input-height;
@@ -1300,6 +1300,7 @@
             &.modal-content {
                 display: flex !important;
                 overflow: visible;
+                margin: 0;
             }
             .modal-header {
                 cursor: pointer;
@@ -1313,7 +1314,7 @@
             margin: 32px 16px;
             height: ~"calc(100% - 64px)";
             border: 1px solid @color-border-medium;
-            border-radius: 16px;
+            border-radius: 12px;
             font-size: 14px;
             overflow: hidden;
             display: flex;
@@ -1727,6 +1728,158 @@
         i {
             margin-right: 12px;
             font-size: 14px;
+        }
+    }
+}
+
+#connectorManager {
+    @row-height: 34px;
+
+    .modal-content {
+        .size(@height: 500px, @width: 600px, @min-height: 400px, @min-width:500px);
+    }
+
+    .xi-close {
+        font-size: 18px;
+    }
+
+    .modal-body {
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .connectorsListArea, .connectorsDetailArea {
+        height: 100%;
+        overflow: auto;
+        padding: 12px;
+    }
+
+    .backBtn {
+        position: absolute;
+        top: 10px;
+
+        .icon {
+            font-size: 16px;
+        }
+    }
+    .row {
+        display: flex;
+    }
+    .connectorsListArea {
+        font-size: 12px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+
+        .row {
+            height: @row-height;
+
+            &.rowHeader {
+                color: #ababab;
+                border-bottom: 1px solid #ababab;
+                font-weight: bold;
+            }
+        }
+        .row > div {
+            width: 50%;
+            line-height: @row-height;
+            position: relative;
+            .textOverflowOneLine;
+
+            .text {
+                .textOverflowOneLine;
+                display: block;
+                width: 100%;
+            }
+
+            .buttons {
+                display: none;
+            }
+        }
+        .connectorsList {
+            overflow: auto;
+            margin-bottom: 8px;
+
+            .row {
+                &:hover {
+                    .connectorName {
+                        .text {
+                            width: ~"calc(100% - 240px)";
+                        }
+                        .buttons {
+                            display: flex;
+                            position: absolute;
+                            right: 0px;
+                            top: 5px;
+                            .btn {
+                                height: 24px;
+                                line-height: 24px;
+                                width: 110px;
+                                font-size: 12px;
+
+                                &:first-child {
+                                    margin-right: 8px;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        .addBtn {
+            position: relative;
+            left: ~"calc(100% - 40px)";
+            margin-top: auto;
+            width: 40px;
+            height: 40px;
+            border-radius: 100%;
+            background-color: #EAEAEA;
+            text-align: center;
+            line-height: 40px;
+            .icon {
+                color: @color-bg-modal;
+                line-height: 40px;
+            }
+        }
+    }
+
+    .connectorsDetailArea {
+        .row {
+            flex-direction: column;
+            margin-bottom: 20px;
+            > div {
+                height: @row-height;
+                padding: 4px 0;
+                line-height: @row-height - 8px;
+                white-space: normal;
+                height: auto;
+            }
+            .label {
+                font-size: 16px;
+            }
+            .value {
+                font-weight: bold;
+            }
+
+            &.descriptionRow {
+                .value {
+                    font-weight: normal;
+                }
+            }
+        }
+
+        .configArea {
+            .subHeading {
+                font-size: 16px;
+                line-height: @row-height;
+                margin-bottom: 12px;
+            }
+            .label {
+                font-size: 14px;
+            }
         }
     }
 }

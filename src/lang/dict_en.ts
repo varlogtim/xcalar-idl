@@ -55,4 +55,17 @@ export default {
     "StatusMessageTStr": {
         'DeleteResultSets': 'Deleting tables',
     },
+
+    "DSTargetTStr" : {
+        "Create": "Create connector",
+        "AdminOnly": "Only admins can create new connector",
+        "DEL": "DELETE CONNECTOR",
+        "DelFail": "Connector Deletion Failed",
+        "NoDelete": "Cannot delete the default connector",
+        "NoReservedName": "The connector name is reserved, please use another name",
+        // with replace
+        "DelConfirmMsg": "Are you sure you want to delete <target>?",
+        "TargetExists": "Connector <target> already exists",
+        "MountpointNoExists": "Mount point <mountpoint> does not exist. Please choose a valid mount point",
+    }
 }

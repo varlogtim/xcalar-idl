@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Rnd } from "react-rnd";
 
-function Dialog(props) {
+const Dialog = React.forwardRef((props: any, ref: any) => {
     const {
         children,
         id,
@@ -11,9 +11,9 @@ function Dialog(props) {
     let modalId = id ||"";
 
     React.useEffect(() => {
-        $("#homeBtn").addClass("xc-disabled");
+        $("#container").addClass("loadModalOpen");
         return () => {
-            $("#homeBtn").removeClass("xc-disabled");
+            $("#container").removeClass("loadModalOpen");
         }
     });
 
@@ -23,17 +23,20 @@ function Dialog(props) {
             <Rnd
                 className="modal-content"
                 default = {{..._center(false, props)}}
-                bounds="body"
+                bounds="window"
                 dragHandleClassName="modal-header"
+                ref={ref}
             >
                 {children}
             </Rnd>:
-            <section className="modal-content">{children}</section>
+            <section className="modal-content" ref={ref}>
+                {children}
+            </section>
             }
 
         </div>
     );
-}
+});
 
 function Body({
     style = {},

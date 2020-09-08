@@ -89,7 +89,7 @@
             .xc-action;
             .size(@width: @close-icon-size, @height: @close-icon-size);
             position: absolute;
-            top: @modal-padding-vertical;
+            top: @modal-padding-vertical - 4;
 
             .icon {
                 display: inline-block;
@@ -5835,10 +5835,31 @@ html.microsoft {
 }
 
 #dsTarget-create-card {
+    .size(@height: 500px, @width: 600px, @min-height: 400px, @min-width:500px);
+    border-radius: 12px;
+    border: 1px solid @color-border-medium;
+    box-shadow: none;
+
+    .modalHeader {
+        .text {
+            width: 100%;
+            text-align: center;
+        }
+        .backBtn {
+            position: absolute;
+            top: 17px;
+
+            .icon {
+                font-size: 16px;
+            }
+        }
+    }
+
     .modalMain {
         padding-top: 0px !important;
         height: ~"calc(100% - 92px)" !important;
     }
+
     .formSection {
 
         input::-webkit-input-placeholder {
@@ -5888,5 +5909,8 @@ html.microsoft {
     #dsTarget-description {
         width: 100%;
         word-wrap: break-word;
+    }
+    .modalBottom .btn {
+        font-size: 14px;
     }
 }

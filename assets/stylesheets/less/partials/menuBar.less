@@ -14,6 +14,16 @@
     }
 }
 
+#container.loadModalOpen {
+    #homeBtn {
+        z-index: @z-index-homeBtn - 1; // to show behind the modalbackground
+    }
+    #menuBar {
+        padding-top: 0px;
+        margin-top: @height-homeBtn;
+    }
+}
+
 #menuBar {
     .size(@width: @width-homeBtn, @height: 100%);
     overflow: hidden;
