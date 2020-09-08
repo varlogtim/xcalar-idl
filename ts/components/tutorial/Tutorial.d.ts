@@ -12,11 +12,11 @@ interface TooltipInfo {
 }
 
 interface WalkthroughInfo {
-    tooltipTitle: string;
+    title: string;
+    description?: string;
     background: boolean;
     startScreen: TooltipStartScreen;
     isSingleTooltip?: boolean;
-    description?: string;
 }
 
 interface TooltipStoredInfo {

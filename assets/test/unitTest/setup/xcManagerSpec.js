@@ -10,12 +10,14 @@ describe("xcManager Test", function() {
         var oldAlertError;
         var title;
         var oldSocketInit;
+        var oldStartWorkbookBrowserWalkthrough;
 
         before(function() {
             handleSetupFail = xcManager.__testOnly__.handleSetupFail;
             oldAlert = Alert.show;
             oldAlertError = Alert.error;
             oldSocketInit = XcSocket.prototype.setup;
+            oldStartWorkbookBrowserWalkthrough = TooltipWalkthroughs.startWorkbookBrowserWalkthrough;
             Alert.show = function(options) {
                 title = options.title;
             };
@@ -106,6 +108,7 @@ describe("xcManager Test", function() {
             Alert.show = oldAlert;
             Alert.error = oldAlertError;
             XcSocket.prototype.setup = oldSocketInit;
+            TooltipWalkthroughs.startWorkbookBrowserWalkthrough = oldStartWorkbookBrowserWalkthrough;
         });
     });
 

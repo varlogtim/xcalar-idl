@@ -101,6 +101,9 @@ namespace xcManager {
             DagPanel.Instance.setup(); // async setup
         })
         .then(function() {
+            return setupTooltips();
+        })
+        .then(function() {
             try {
                 TblSource.Instance.refresh();
                 MainMenu.setup(true);
@@ -183,6 +186,7 @@ namespace xcManager {
             hideInitialLoadScreen();
             WorkbookPanel.forceShow();
             locationText = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
+            // TooltipWalkthroughs.startWorkbookBrowserWalkthrough();
             // start socket (no workbook is also a valid login case)
             let userExists: boolean = false;
             XcUser.CurrentUser.holdSession(null, false)
@@ -196,6 +200,7 @@ namespace xcManager {
                 if (firstTimeUser && !userExists) {
                     Admin.addNewUser();
                     // when it's new user first time login
+                    // TooltipWalkthroughs.newUserPopup();
                 }
             });
         } else if (error === WKBKTStr.Hold) {
@@ -1021,6 +1026,11 @@ namespace xcManager {
 
     function isRetinaDevice(): boolean {
         return window.devicePixelRatio > 1;
+    }
+
+    function setupTooltips(): XDPromise<void> {
+        return PromiseHelper.alwaysResolve(
+            TooltipWalkthroughs.setupInitialWalkthroughCheck());
     }
 
     function reImplementMouseWheel(e: JQueryEventObject): void {

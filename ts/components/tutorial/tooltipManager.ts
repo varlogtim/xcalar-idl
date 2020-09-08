@@ -1,3 +1,8 @@
+enum hardcodedInteractives {
+    SQLCreateTablePanel = "#sourceTblButton",
+    DatasetCreateTablePanel = "#inButton"
+}
+
 namespace TooltipManager {
     // default options
     let options = {
@@ -13,7 +18,7 @@ namespace TooltipManager {
         closeOnModalClick: false, // close modal when background is clicked
         actionsRequired: ""
     };
-    // let options = {};
+
     let $currElem: JQuery;
     let $popover: JQuery;
     let validPositions: string[] = ['left', 'right', 'top', 'bottom'];
@@ -31,12 +36,25 @@ namespace TooltipManager {
     let checkBoxChecked: boolean = false;
     let nextStepDisabled: boolean = false;
 
-
-    export function start(walkthroughInfo: WalkthroughInfo, tooltips: TooltipInfo[],
-            step: number, userOptions?: any): XDPromise<void> {
+    /**
+     * TooltipManager.start
+     * @param walkthroughInfo
+     * @param steps
+     * @param step
+     * @param userOptions: {
+     *  includeNumbering: boolean,
+     *  closeOnModalClick: boolean
+     * }
+     */
+    export function start(
+        walkthroughInfo: WalkthroughInfo,
+        steps: TooltipInfo[],
+        step: number,
+        userOptions?: any
+    ): XDPromise<void> {
         stepNumber = step - 1;
-        currWalkthrough = tooltips;
-        title = walkthroughInfo.tooltipTitle;
+        currWalkthrough = steps;
+        title = walkthroughInfo.title;
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         if (userOptions) {
@@ -90,24 +108,22 @@ namespace TooltipManager {
             FileBrowser.close();
         }
         switch(screen) {
-            case(TooltipStartScreen.SQLWorkspace):
-                if (!$("#sqlTab").hasClass("active")) {
-                    MainMenu.openPanel("sqlPanel");
-                }
+            case(TooltipStartScreen.Home):
+                HomeScreen.switch(UrlToTab.home);
                 deferred.resolve();
                 break;
-            case (TooltipStartScreen.ADVModeDataflow):
-                throw new Error("it's not supported any more");
+            case (TooltipStartScreen.Load):
+                HomeScreen.switch(UrlToTab.load);
                 break;
-            case (TooltipStartScreen.Workbooks):
+            case (TooltipStartScreen.Notebook):
+                HomeScreen.switch(UrlToTab.notebook);
                 if (!WorkbookPanel.isWBMode()) {
                     WorkbookPanel.show(true);
                 }
                 deferred.resolve();
                 break;
             default:
-                deferred.resolve();
-                break;
+                throw new Error("Unsupported screen to switch");
         }
         return deferred.promise();
     }
@@ -215,7 +231,7 @@ namespace TooltipManager {
             } else {
                 $checkBox.removeClass("checked");
             }
-            TooltipWalkthroughs.setShowWorkbook(!checkBoxChecked);
+            // TooltipWalkthroughs.setShowWorkbook(!checkBoxChecked);
         });
 
     }
@@ -342,14 +358,37 @@ namespace TooltipManager {
         return (options);
     };
 
+    function emergencyPopup() {
+        TooltipManager.start({
+            title: "Warning",
+            background: false,
+            startScreen: null,
+            isSingleTooltip: true
+        },
+        [{
+            highlight_div: "#homeBtn",
+            interact_div: "#homeBtn",
+            text: "Something has gone wrong while executing this tooltip walkthrough. Please try again later.",
+            type: TooltipType.Click
+        }],
+        0,
+        {
+            closeOnModalClick: false,
+            includeNumbering: false
+        }
+        );
+    }
+
     function highlightNextElement() {
         let currentStep = currWalkthrough[stepNumber];
 
         $currElem = $(currentStep.highlight_div);
         if ($currElem.length == 0) {
             // the next element was not successfully found.
-            closeWalkthrough();
-            TooltipWalkthroughs.emergencyPopup();
+            closeWalkthrough()
+            .then(() => {
+                emergencyPopup();
+            });
             return;
         }
 
@@ -357,8 +396,10 @@ namespace TooltipManager {
         currElemRect = $currElem[0].getBoundingClientRect();
         if (currElemRect.width == 0 || currElemRect.height == 0) {
             // the next element is not successfully displayed.
-            closeWalkthrough();
-            TooltipWalkthroughs.emergencyPopup();
+            closeWalkthrough()
+            .then(() => {
+                emergencyPopup();
+            });
             return;
         }
 
@@ -605,21 +646,24 @@ namespace TooltipManager {
     }
 
 
-    export function closeWalkthrough() {
-        stepNumber = -1;
-        clearListeners();
-        removeHighlightBox();
+    function closeWalkthrough(): Promise<void> {
+        return new Promise((resolve) => {
+            stepNumber = -1;
+            clearListeners();
+            removeHighlightBox();
 
-        $('#intro-visibleOverlay').css('opacity', 0);
-        $('#intro-videoClose').remove();
-        setTimeout(function() {
-            $('#intro-visibleOverlay').remove();
-            $('#intro-clickableOverlay').remove();
-        }, 300);
-        $popover.css('opacity', 0).remove();
-        $('.intro-highlightedElement').removeClass('intro-highlightedElement');
-        $('#intro-popover').remove();
-        $(window).off('resize', winResize);
+            $('#intro-visibleOverlay').css('opacity', 0);
+            $('#intro-videoClose').remove();
+            setTimeout(function() {
+                $('#intro-visibleOverlay').remove();
+                $('#intro-clickableOverlay').remove();
+                resolve();
+            }, 300);
+            $popover.css('opacity', 0).remove();
+            $('.intro-highlightedElement').removeClass('intro-highlightedElement');
+            $('#intro-popover').remove();
+            $(window).off('resize', winResize);
+        })
     }
 
     /**function setupVideo() {
@@ -675,22 +719,4 @@ namespace TooltipManager {
         tempDisableNextStep = () => {}
     }
     /* End Of Unit Test Only */
-}
-
-enum TooltipType {
-    Click = "click",
-    DoubleClick = "doubleclick",
-    Text = "text",
-    Value = "value"
-}
-
-enum TooltipStartScreen {
-    SQLWorkspace = "SQLWorkspace",
-    ADVModeDataflow = "Adv Mode Dataflow",
-    Workbooks = "Workbook Screen"
-}
-
-enum hardcodedInteractives {
-    SQLCreateTablePanel = "#sourceTblButton",
-    DatasetCreateTablePanel = "#inButton"
 }

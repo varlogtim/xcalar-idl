@@ -305,10 +305,8 @@ namespace DSTargetManager {
     export function isAWSConnector(targetName: string): boolean{
         let target = DSTargetManager.getTarget(targetName);
         if (XVM.isOnAWS() && target && target.type_id === "s3environ") {
-            console.log("true")
             return true;
         } else {
-            console.log("false")
             return false;
         }
     }

@@ -972,7 +972,6 @@ namespace WorkbookManager {
         const gSQLQueriesKey: string = generateKey("gSQLQueries", version);
         const gSQLSnippetQueryKey: string = generateKey("gSQLSnippetQuery", version);
         const gStoredDatasetsKey: string = generateKey("gStoredDatasetsKey", version);
-        const gStoredWalkthroughKey: string = generateKey("gStoredWalkthroughKey", version);
         const gIdCountKey: string = generateKey("gIdCount", version);
         const gPopupManagerKey: string = generateKey("gPopupManagerKey", version);
 
@@ -996,7 +995,6 @@ namespace WorkbookManager {
             "gDagParamKey": gDagParamKey,
             "gSQLSnippetQuery": gSQLSnippetQueryKey,
             "gStoredDatasetsKey": gStoredDatasetsKey,
-            "gStoredWalkthroughKey": gStoredWalkthroughKey,
             "gIdCountKey": gIdCountKey,
             "gPopupManagerKey": gPopupManagerKey
         };
