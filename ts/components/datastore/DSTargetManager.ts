@@ -292,7 +292,7 @@ namespace DSTargetManager {
         let promise = deferred.promise();
         xcUIHelper.showRefreshIcon($targetCreateCard, null, promise);
         return promise;
-    } 
+    }
 
     /**
      * DSTargetManager.isAWSConnector
@@ -580,7 +580,7 @@ namespace DSTargetManager {
             let targetName: string = $gridView.find(".grid-unit.active").data("name");
             if (XVM.isCloud()) {
                 LoadScreen.switchTab("loadWizard");
-                DSTargetManager.updateSelectedConnector(targetName);
+                DSTargetManager.updateSelectedConnector(targetName || "");
             } else {
                 LoadScreen.switchTab("import");
                 DSForm.setDataTarget(targetName);
@@ -770,7 +770,6 @@ namespace DSTargetManager {
     }
 
     export function showTargetCreateView(): void {
-        clearActiveTarget();
         $targetCreateCard.removeClass("xc-hidden");
         targetModalHelper.setup();
         resetForm();

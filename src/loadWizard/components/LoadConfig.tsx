@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from 'react'; 
 import * as crypto from 'crypto';
 import SourceData from './SourceData';
 import { BrowseDataSourceModal } from './BrowseDataSource';
@@ -685,6 +685,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
     }
 
     _setConnector(connector) {
+        if (!connector) return;
         connector = connector.trim();
         if (connector === "+NewConnector") {
             LoadScreen.switchTab("connector");
