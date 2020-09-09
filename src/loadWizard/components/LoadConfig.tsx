@@ -169,7 +169,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         const {
             onStepChange
         } = props;
-        const defaultConnector = "S3 Select Connector";
+        const defaultConnector = "Xcalar S3 Connector";
         const defaultBucket = '/';
         const defaultHomePath = '';
         const defaultFileType = SchemaService.FileType.CSV;

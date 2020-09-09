@@ -1,6 +1,5 @@
 import React from "react";
 import * as Path from 'path'
-import { FileType } from '../../services/SchemaService'
 import InputDropdown from "../../../components/widgets/InputDropdown"
 import Pagination from '../../../components/widgets/Pagination'
 import LoadingText from '../../../components/widgets/LoadingText'
@@ -81,6 +80,11 @@ export default function SourcePath({
         onConnectorChange(newConnector);
     }
 
+    const s3Suffix = ' (using S3 Select parser)';
+    const connectorText = DSTargetManager.isS3(connector)
+        ? connector + s3Suffix
+        : connector;
+
     return (
         <div className="sourceForm">
             <form onSubmit={(e) => { e.preventDefault(); }}>
@@ -90,7 +94,7 @@ export default function SourcePath({
                         <label className="label">{Texts.connector}</label>
                         <div className="inputRow">
                             <InputDropdown
-                                val={connector}
+                                val={connectorText}
                                 onSelect={onConnectorChange}
                                 onOpen={() => {
                                     const connectors = [];
