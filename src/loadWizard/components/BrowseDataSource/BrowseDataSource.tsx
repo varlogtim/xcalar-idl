@@ -159,11 +159,13 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
                 // cause a reset of fileBrowser sortedList
                 isLoading: true
             });
-            this.setState({
-                path: newFullPath,
-                fileMapViewing: fileMap,
-                isLoading: false
-            });
+            setTimeout(() => {
+                this.setState({
+                    path: newFullPath,
+                    fileMapViewing: fileMap,
+                    isLoading: false
+                });
+            }, 0);
 
             return true;
         } catch(e) {
@@ -177,7 +179,8 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
         }
     }
 
-    _refreshPath() {
+    _refreshPath(newPath) {
+        if (newPath !== this.state.path) return;
         this._browsePath(this.state.path, null);
     }
 
@@ -250,11 +253,14 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
             isLoading: true
         });
         this.state.loadingFiles.add(path + "/" + fileName);
-        this.setState({
-            isLoading: false,
-            fileMapViewing: fileMapViewing,
-            loadingFiles: this.state.loadingFiles
-        });
+        setTimeout(() => {
+            this.setState({
+                isLoading: false,
+                fileMapViewing: fileMapViewing,
+                loadingFiles: this.state.loadingFiles
+            });
+        }, 0);
+
     }
 
     _removeFile(filePath) {
@@ -273,14 +279,16 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
             });
             this.props.setSelectedFileDir(selectedFiles);
         }
-        this.setState({
-            isLoading: false,
-            fileMapViewing: fileMapViewing,
-            loadingFiles: this.state.loadingFiles,
-        });
+        setTimeout(() => {
+            this.setState({
+                isLoading: false,
+                fileMapViewing: fileMapViewing,
+                loadingFiles: this.state.loadingFiles,
+            });
+        }, 0);
     }
 
-    _toggleFileLoading(filePath, isLoading) {
+    _toggleFileLoading(filePath, isLoading, refresh) {
         const fileMapViewing = this.state.fileMapViewing;
         let file = fileMapViewing.get(filePath);
         // toggle this.state.isLoading to trigger rerender
@@ -294,21 +302,32 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
             } else {
                 this.state.loadingFiles.delete(filePath);
             }
-
-            this.setState({
-                isLoading: false,
-                fileMapViewing: fileMapViewing,
-                loadingFiles: this.state.loadingFiles
-            });
+            if (refresh) {
+                setTimeout(() => {
+                    this.setState({
+                        isLoading: false,
+                        fileMapViewing: fileMapViewing,
+                        loadingFiles: this.state.loadingFiles
+                    });
+                }, 0);
+            } else {
+                this.setState({
+                    isLoading: false,
+                    fileMapViewing: fileMapViewing,
+                    loadingFiles: this.state.loadingFiles
+                });
+            }
         } else if (!isLoading) {
             this.state.loadingFiles.delete(filePath);
             this.setState({
                 isLoading: true
             });
-            this.setState({
-                isLoading: false,
-                loadingFiles: this.state.loadingFiles
-            });
+            setTimeout(() => {
+                this.setState({
+                    isLoading: false,
+                    loadingFiles: this.state.loadingFiles
+                });
+            }, 0);
         }
     }
 
@@ -429,8 +448,8 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
                             canUpload={DSTargetManager.isPrivateS3Bucket(this.props.connector, bucket)}
                             addTempFile={(fileName, path) => {this._addTempFile(fileName, path)}}
                             removeFile={(filePath) => {this._removeFile(filePath)}}
-                            toggleFileLoading={(filePath, isLoading) => {this._toggleFileLoading(filePath, isLoading)}}
-                            refreshPath={() => {this._refreshPath()}}
+                            toggleFileLoading={(filePath, isLoading, refresh) => {this._toggleFileLoading(filePath, isLoading, refresh)}}
+                            refreshPath={(path) => {this._refreshPath(path)}}
                         /> )
                     }
                     </div>

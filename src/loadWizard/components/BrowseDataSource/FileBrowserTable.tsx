@@ -116,7 +116,7 @@ export default function FileBrowserTable(props) {
         let uploadingFileName = "";
         CloudFileBrowser.uploadFile(file, (fileName) => {
             if (overwriting) {
-                toggleFileLoading(uploadingFileName, true);
+                toggleFileLoading(uploadingFileName, true, true);
             } else {
                 addTempFile(fileName, newPath);
             }
@@ -134,7 +134,7 @@ export default function FileBrowserTable(props) {
                 overwriting = true;
                 Alert.show({
                     "title": "Overwriting file",
-                    "msg": `File "${fileName}" alredy exists, do you want to overwrite it?`,
+                    "msg": `File "${fileName}" already exists, do you want to overwrite it?`,
                     "onConfirm": () => deferred.resolve(),
                     "onCancel": () => deferred.reject()
                 });
@@ -145,14 +145,14 @@ export default function FileBrowserTable(props) {
             return deferred.promise();
         })
         .then(() => {
-            toggleFileLoading(uploadingFileName, false);
-            refreshPath();
+            toggleFileLoading(uploadingFileName, false, false);
+            refreshPath(newPath);
             deferred.resolve();
         })
         .fail(() => {
             if (uploadingFileName) {
                 if (overwriting) {
-                    toggleFileLoading(uploadingFileName, false);
+                    toggleFileLoading(uploadingFileName, false, true);
                 } else {
                     removeFile(uploadingFileName);
                 }
