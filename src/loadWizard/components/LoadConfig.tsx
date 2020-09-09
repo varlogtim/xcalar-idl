@@ -1,4 +1,4 @@
-import * as React from 'react'; 
+import * as React from 'react';
 import * as crypto from 'crypto';
 import SourceData from './SourceData';
 import { BrowseDataSourceModal } from './BrowseDataSource';
@@ -1002,7 +1002,9 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                     }
                 }));
                 if (this.state.fileType === SchemaService.FileType.CSV && !linesHaveError) {
-                    this._selectFileLines([0], true); // auto select 1st row in csv
+                    // Have to pass in fileContent.lines,
+                    // because setState() doesn't immediately mutate this.state
+                    this._selectFileLines([0], true, fileContent.lines); // auto select 1st row in csv
                 }
 
             }
@@ -1019,8 +1021,14 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         }
     }
 
-    async _selectFileLines(indexList, isSelect) {
+    async _selectFileLines(indexList, isSelect, content = null) {
         try {
+            // Check empty file
+            const fileLines = content || this.state.fileContentState.content;
+            if (!Array.isArray(fileLines) || fileLines.length == 0) {
+                throw 'File is empty';
+            }
+
             // Figure out the lines still selected
             const selected = new Set<number>(this.state.fileContentState.linesSelected);
             const changes = new Set<number>(indexList);
@@ -1036,7 +1044,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             let columns = [];
             let rowpath = null;
             for (const index of result) {
-                const schema = this.state.fileContentState.content[index].schema;
+                const schema = fileLines[index].schema;
                 if (rowpath == null) {
                     rowpath = schema.rowpath;
                 } else {
