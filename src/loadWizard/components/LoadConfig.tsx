@@ -1014,7 +1014,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                     fileContentState: {
                         ...fileContentState,
                         isLoading: false,
-                        error: `${e}`
+                        error: `${e.message || e.error || e}`
                     }
                 }));
             }
