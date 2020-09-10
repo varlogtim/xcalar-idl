@@ -21,7 +21,7 @@ class FilePreview extends React.PureComponent<any, any> {
 
         let headerHelpText = null;
 
-        if (parserType !== SchemaService.FileType.CSV || fileContentProps.linesHaveError) {
+        if (parserType !== SchemaService.FileType.CSV) {
             headerHelpText = <div className="headerHelpText">
                 <i className="icon xi-info-circle-outline"></i>Select records (max to 5) to discover your schema
             </div>
@@ -162,19 +162,17 @@ class FileContentWrap extends React.PureComponent<any, any> {
             linesHaveError,
             parserType
         } = this.props;
-        const pageSize = 10;
+
 
         if (isLoading) {
             return (<LoadingText className="clearfix" />);
         }
 
-        if (parserType === SchemaService.FileType.CSV && !linesHaveError && !error) {
-            return null;
-        }
         if (error != null) {
             return (<pre className="preview-error">{error}</pre>);
         }
 
+        const pageSize = 10;
         const prevOffset = lineOffset - pageSize;
         const pagePrev = prevOffset >= 0
             ? () => { onOffsetChange(prevOffset); }
@@ -183,6 +181,26 @@ class FileContentWrap extends React.PureComponent<any, any> {
         const pageNext = nextOffset < content.length
             ? () => { onOffsetChange(nextOffset); }
             : null;
+
+        if (parserType === SchemaService.FileType.CSV) {
+            if (linesHaveError) {
+                let errorLines = [];
+                content.forEach(({data, status}, index) => {
+                    if (status.hasError) {
+                        errorLines.push({
+                            line: data,
+                            status: status
+                        });
+                    }
+                })
+                return <ErrorFileContent
+                    {...this.props}
+                    data={errorLines}
+                />
+            } else {
+                return null;
+            }
+        }
 
         return (<div>
             {/* <AutoDetectOption checked={isAutoDetect} onChange={(checked) => { onAutoDetectChange(checked); }}></AutoDetectOption> */}
@@ -260,6 +278,54 @@ function FileContent(props: any) {
             </div>
         </div>
         { children }
+    </div>);
+}
+
+function ErrorFileContent(props: any) {
+    const {
+        data
+    } = props;
+    const pageSize = 5;
+    const [lineOffset, setLineOffset] = React.useState(0);
+    const onOffsetChange = (offset) => {
+        setLineOffset(offset);
+    };
+    const prevOffset = lineOffset - pageSize;
+    const pagePrev = prevOffset >= 0
+        ? () => { onOffsetChange(prevOffset); }
+        : null;
+    const nextOffset = lineOffset + pageSize;
+    const pageNext = nextOffset < data.length
+        ? () => { onOffsetChange(nextOffset); }
+        : null;
+
+    const startIndex = lineOffset;
+    const endIndex = startIndex + (pageSize > 0 ? pageSize : data.length) - 1;
+    return (<div className="csvErrorSection">
+        <div>Errors were found in the following rows:</div>
+        <div className="scrollSection">
+            <div className="innerScrollSection">
+            {data.map(({line, status}, index) => {
+                const { hasError =  false, errorMessage = null, unsupportedColumns = [] } = status;
+                const hintProps = {
+                    'data-toggle': "tooltip",
+                    'data-container': "body",
+                    'data-placement': "top auto",
+                    'data-original-title': JSON.stringify(unsupportedColumns, null, ' ')
+                };
+
+                return (<div className="csvArgs-chkbox" key={index}>
+                    <div className="lineNum">{index + 1}</div>
+                    <span className="preview-line">
+                        <span className={"fileLine-error"} {...hintProps}>
+                            {line}
+                        </span>
+                    </span>
+                </div>);
+            }).filter((v, i) => (i >= startIndex && i <= endIndex))}
+            </div>
+        </div>
+        <Pagination onNext={pageNext} onPrev={pagePrev} />
     </div>);
 }
 

@@ -990,6 +990,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                 let linesHaveError = fileContent.lines.find(line => {
                     return line.status.hasError;
                 });
+
                 this.setState(({fileContentState}) => ({
                     fileContentState: {
                         ...fileContentState,
@@ -1001,7 +1002,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                         linesHaveError: linesHaveError
                     }
                 }));
-                if (this.state.fileType === SchemaService.FileType.CSV && !linesHaveError) {
+                if (this.state.fileType === SchemaService.FileType.CSV) {
                     // Have to pass in fileContent.lines,
                     // because setState() doesn't immediately mutate this.state
                     this._selectFileLines([0], true, fileContent.lines); // auto select 1st row in csv

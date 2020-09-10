@@ -1518,6 +1518,25 @@
         display: table; // allows width to expand to children size
         width: 100%;
     }
+    .csvErrorSection {
+        color: @color-text-error;
+        .scrollSection {
+            background-color: transparent;
+            border: none;
+
+            .csvArgs-chkbox {
+                &:hover {
+                    background-color: transparent;
+                    .lineNum {
+                        display: block;
+                    }
+                }
+            }
+        }
+        ul {
+            color: @color-font-default;
+        }
+    }
     .preview-line {
         padding-left: 4px;
         user-select: text;
