@@ -122,6 +122,7 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
             this.navCount++;
             let navCount = this.navCount;
             const fileMap = await S3Service.listFiles(Path.join(newFullPath, '/'), this.props.connector);
+
             if (this.navCount !== navCount) {
                 return false;
             }

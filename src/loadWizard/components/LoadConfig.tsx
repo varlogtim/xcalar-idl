@@ -1283,6 +1283,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                         await onClose();
                     }}
                 />
+
             );
         };
 
