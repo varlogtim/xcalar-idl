@@ -1540,9 +1540,11 @@
 
     .previewTable {
         padding-bottom: 4px;
+        overflow: hidden;
 
         .table-wrapper {
             overflow: auto;
+            height: 100%
         }
 
         .type-icon {
@@ -1551,8 +1553,8 @@
 
         .column-name {
             width: 100%;
-            display: flex;
-            justify-content: center;
+            margin-left: 8px;
+            text-align: center;
         }
 
         .table {

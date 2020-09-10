@@ -193,7 +193,7 @@ class DataPreviewModal extends React.Component {
         return (
             <Modal.Dialog>
                 <Modal.Header onClose={onClose}>Table Preview</Modal.Header>
-                <Modal.Body style={{padding: '12px'}}>
+                <Modal.Body style={{padding: '12px', overflow: 'hidden', display: 'flex', flexDirection: 'column'}}>
                     <DataPreview pageSize={20} onFetchData={onFetchData} onFetchMeta={onFetchMeta}/>
                 </Modal.Body>
             </Modal.Dialog>
