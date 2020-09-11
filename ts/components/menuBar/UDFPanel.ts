@@ -214,7 +214,7 @@ class UDFPanel {
 
     public listUDFs(): {displayName: string, path: string}[] {
         const res: {displayName: string, path: string}[] = [];
-        const loadUDFFilter = RegExp('/LOAD_WIZARD_');
+        const loadUDFFilter = RegExp('(/LOAD_WIZARD_|/LOAD_PLAN_UDF_)');
 
         // store by name
         const unsortedUDF: string[] = Array.from(
