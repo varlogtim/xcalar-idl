@@ -35,7 +35,7 @@ class HelpMenu {
             if (event.which !== 1) {
                 return;
             }
-            this._popup('https://xcalar.com/documentation/Content/Home_QS_Guide.htm');
+            this._popup('https://xcalar.com/documentation/Content/Home_doc_portal.htm');
         });
 
         $menu.on("mouseup", ".supTicket", (event) => {
