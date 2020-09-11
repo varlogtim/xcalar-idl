@@ -1,13 +1,13 @@
 window.xcMixpanel = (function($, xcMixpanel) {
     xcMixpanel.forDev = function() {
-        return true;
+        return !XVM.isCloud()
     };
 
     let events;
     if (xcMixpanel.forDev()) {
         events = {
             "panelSwitch": true,
-            "modeSwitch": true,
+            //"modeSwitch": true,
             "mouseMove": true,
             "click": true,
             "input": true,
@@ -25,7 +25,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
     } else {
         events = {
             "panelSwitch": true,
-            "modeSwitch": true,
+            //"modeSwitch": true,
             "mouseMove": false,
             "click": true,
             "input": false,
@@ -43,9 +43,9 @@ window.xcMixpanel = (function($, xcMixpanel) {
     }
 
     let lastBlur;
-    let $mainPanel = $(".mainPanel.active");
-    let currentPanel = $mainPanel.attr("id");
-    let currentSubPanel = $mainPanel.find(".subPanel:visible").attr("id");
+    // let $mainPanel = $(".mainPanel.active");
+    let currentPanel = PanelHistory.Instance.getCurrentPanel();
+    //let currentSubPanel = $mainPanel.find(".subPanel:visible").attr("id");
     let currTime = Date.now();
     let lastModeTime = currTime;
     let pageLoadTime = currTime;
@@ -198,7 +198,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
                     "column": info.column,
                     "stack": mixPanelStack,
                     "txCache": Transaction.getCache(),
-                    "userIdUnique": XcUser.CurrentUser._userIdUnique,
+                    "userIdUnique": XcUser.CurrentUser._username,
                     "workbook": workbookName
                 });
                 break;
@@ -233,11 +233,11 @@ window.xcMixpanel = (function($, xcMixpanel) {
             pageLoaded = true;
             let currTime = Date.now();
             pageLoadTime = lastModeTime = lastPanelTime = currTime;
-            let $mainPanel = $(".mainPanel.active");
+            // let $mainPanel = $(".mainPanel.active");
             currentPanel = PanelHistory.Instance.getCurrentPanel();
-            currentSubPanel = $mainPanel.find(".subPanel:visible").attr("id");
+            // currentSubPanel = $mainPanel.find(".subPanel:visible").attr("id");
 
-            const userIdUnique = XcUser.CurrentUser._userIdUnique;
+            const userIdUnique = XcUser.CurrentUser._username;
             if (userIdUnique){
                 mixpanel.identify(userIdUnique);
                 mixpanel.people.set({
@@ -575,7 +575,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
         });
     }
 
-    function mainMenuBarClick($target) {
+    /*function mainMenuBarClick($target) {
         if (!events.panelSwitch) {
             return;
         }
@@ -644,7 +644,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
                 });
             }
         }
-    }
+    }*/
 
     function buttonClick(event) {
         const $target = $(event.target);
@@ -801,7 +801,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
             "windowHeight": $(window).height(),
             "windowWidth": $(window).width(),
             "currentPanel": currentPanel,
-            "currentSubPanel": currentSubPanel,
+            //"currentSubPanel": currentSubPanel,
             "xdURL": window.location.host
         };
 
