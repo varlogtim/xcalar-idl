@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as crypto from 'crypto';
-import SourceData from './SourceData';
+import { SourceData, defaultConnector } from './SourceData';
 import { BrowseDataSourceModal } from './BrowseDataSource';
 import DiscoverSchemas from './DiscoverSchemas';
 import CreateTables from './CreateTables';
@@ -164,7 +164,6 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         const {
             onStepChange
         } = props;
-        const defaultConnector = "Xcalar S3 Connector";
         const defaultBucket = '/';
         const defaultHomePath = '';
         const defaultFileType = SchemaService.FileType.CSV;

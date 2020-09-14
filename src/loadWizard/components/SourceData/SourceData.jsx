@@ -1,6 +1,5 @@
-import * as Path from 'path';
 import React from "react";
-import SourcePath from './SourcePath'
+import { SourcePath } from './SourcePath'
 
 const Texts = {
     Reset: "Reset Selected Files"

@@ -21,6 +21,8 @@ const Texts = {
     connector: 'Connector'
 };
 
+const defaultConnector = "Xcalar S3 Connector";
+
 /**
  * Pure Component: get forensics button
  * @param {*} props
@@ -54,7 +56,7 @@ function getConnectorList(connectors) {
     return list;
 }
 
-export default function SourcePath({
+function SourcePath({
     bucket,
     onBucketChange,
     path,
@@ -82,7 +84,9 @@ export default function SourcePath({
     }
 
     const s3Suffix = ' (using S3 Select parser)';
-    const connectorText = DSTargetManager.isS3(connector)
+    // isS3() always resturns false before targets get loaded from backend,
+    // so force the default connector to be s3 as a workaround
+    const connectorText = connector == defaultConnector || DSTargetManager.isS3(connector)
         ? connector + s3Suffix
         : connector;
 
@@ -309,3 +313,4 @@ function FileSelectArea(props) {
             </div>
 }
 
+export { SourcePath, defaultConnector };

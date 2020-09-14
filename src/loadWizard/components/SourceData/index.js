@@ -1,3 +1,4 @@
 import SourceData from './SourceData';
+import { defaultConnector } from './SourcePath'
 
-export default SourceData;
+export { SourceData, defaultConnector };
