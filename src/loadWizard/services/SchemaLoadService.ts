@@ -373,7 +373,8 @@ async function createDiscoverApp(params: {
             inputSerialization: InputSerialization,
             schema: Schema,
             numRows?: number,
-            progressCB?: ProgressCallback
+            progressCB?: ProgressCallback,
+            isRecursive?: boolean
         }): Promise<{
             loadQuery:string,
             loadQueryOpt: string,
@@ -388,7 +389,7 @@ async function createDiscoverApp(params: {
             dataQueryComplete: string,
             compQueryComplete: string
         }> => {
-            const { path, filePattern, inputSerialization, schema, numRows = -1, progressCB = () => {} } = param;
+            const { path, filePattern, inputSerialization, schema, numRows = -1, progressCB = () => {}, isRecursive = false } = param;
             const delProgress = updateProgress((p) => {
                 progressCB(p);
             }, 0, 10);
@@ -418,7 +419,7 @@ async function createDiscoverApp(params: {
                         targetName: targetName,
                         path: Path.join(path, '/'),
                         fileNamePattern: filePattern,
-                        recursive: false
+                        recursive: isRecursive
                     }]),
                     input_serial_json: JSON.stringify(inputSerialization),
                     schema_json: schemaJsonStr,
@@ -510,6 +511,7 @@ async function createDiscoverApp(params: {
             const query = await app.getCreateTableQueryWithSchema({
                 path: path, filePattern: filePattern,
                 inputSerialization: inputSerialization,
+                isRecursive: true,
                 schema: schema,
                 numRows: numRows
             });

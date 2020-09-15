@@ -436,6 +436,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             const query = await app.getCreateTableQueryWithSchema({
                 path: path, filePattern: filePattern,
                 inputSerialization: inputSerialization,
+                isRecursive: true,
                 schema: schema,
                 progressCB: (progress) => {
                     this.setState((state) => {
@@ -896,6 +897,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             const fileList = await listFilesWithPattern({
                 targetName: targetName,
                 path: Path.join(selectedDir.fullPath, '/'),
+                isRecursive: false,
                 fileNamePattern: listFilePattern,
                 filter: (fileInfo) => !fileInfo.directory
             });
