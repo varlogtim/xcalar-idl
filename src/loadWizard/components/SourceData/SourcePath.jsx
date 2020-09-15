@@ -125,7 +125,7 @@ function SourcePath({
                         <label className="label">{Texts.bucketName}</label>
                         <div className="inputRow">
                             <InputDropdown
-                                val={bucket}
+                                val={DSTargetManager.getS3NameFromValue(bucket)}
                                 onInputChange={(newBucket) => {
                                     onBucketChange(newBucket.trim());
                                 }}
@@ -141,7 +141,7 @@ function SourcePath({
                                 }}
                                 list={s3Buckets.length
                                     ? s3Buckets.map((bucket) => {
-                                        return {text: bucket, value: bucket}
+                                        return {text: DSTargetManager.getS3NameFromValue(bucket), value: bucket}
                                     })
                                     : []
                                 }

@@ -349,6 +349,21 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
         getForensics(bucket, path, this.metadataMap, statusCallback);
     }
 
+    getDisplayPath(path) {
+        try {
+            const splits = path.split('/');
+            const bucketPath = DSTargetManager.getS3NameFromValue(splits[0] + '/');
+            if (splits.length === 1) {
+                return bucketPath;
+            } else {
+                return bucketPath + splits.slice(1).join("/") + '/';
+            }
+        } catch (e) {
+            console.error(e);
+            return path + '/';
+        }
+    }
+
     render() {
         const {
             bucket, // string
@@ -381,7 +396,7 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
         if (currentFullPath.endsWith("/")) {
             currentFullPath = currentFullPath.slice(0, -1)
         }
-        const displayFullPath = currentFullPath + "/";
+        const displayFullPath = this.getDisplayPath(currentFullPath);
         const forensicsStats = this.metadataMap.get(this.state.forensicsPath);
         let upFolderClass = "icon xi-upload-folder xc-icon-action upFolderIcon";
         if (rootFullPath === currentFullPath) {

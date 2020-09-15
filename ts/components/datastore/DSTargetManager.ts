@@ -34,6 +34,7 @@ namespace DSTargetManager {
     ];
     let privateBucket: string = null;
     let availableS3Buckets: string[] = [];
+    let S3BucketsNameMap: Map<string, string> = new Map();
 
     export const S3Connector: string = "s3fullaccount";
     export const DBConnector: string = "dsn";
@@ -172,7 +173,7 @@ namespace DSTargetManager {
      */
     export function initialize(): XDPromise<void> {
         return DSTargetManager.refreshTargets(true)
-                .then(() => {
+                .always(() => {
                     return PromiseHelper.convertToJQuery(fetchAvailableS3Buckets());
                 });
     }
@@ -316,6 +317,13 @@ namespace DSTargetManager {
      */
     export function getAvailableS3Buckets(): string[] {
         return availableS3Buckets;
+    }
+
+    /**
+     * DSTargetManager.getS3NameFromValue
+     */
+    export function getS3NameFromValue(s3Bucket): Map<string, string> {
+        return S3BucketsNameMap.get(s3Bucket) || s3Bucket;
     }
 
     /**
@@ -512,6 +520,23 @@ namespace DSTargetManager {
         }
         try {
             const json = await $.getJSON("s3buckets.json");
+            // Test Use
+            // const json = {
+            //     s3buckets: {
+            //         S3Bucket: {
+            //             bucket: "saas-test-4fucwxjl0c-s3bucket-opv9axy0aqza",
+            //             event_prefix: "",
+            //             existing: false,
+            //             prefix: "",
+            //         },
+            //         SampleBucket: {
+            //             bucket: "sharedinf-samplebucket-876030232190-us-west-2",
+            //             event_prefix: "",
+            //             existing: true,
+            //             prefix: "",
+            //         }
+            //     }
+            // }
             const arg = json["s3buckets"];
             const keys = Object.keys(arg);
             for (let key of keys) {
@@ -520,6 +545,9 @@ namespace DSTargetManager {
                 availableS3Buckets.push(bucket);
                 if (key === 'S3Bucket') {
                     privateBucket = bucket;
+                    S3BucketsNameMap.set(bucket, 'my-xcalar-cloud-bucket/');
+                } else if (key === 'SampleBucket') {
+                    S3BucketsNameMap.set(bucket, 'my-xcalar-demo-bucket/');
                 }
             }
         } catch (e) {
