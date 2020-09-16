@@ -2048,7 +2048,8 @@ class DagView {
             StatusBox.show(DagTStr.CustomOpTooManyOutput, this._getNode(errNodeId));
             return PromiseHelper.reject('too many output');
         }
-        const excludeNodeTypes = new Set([DagNodeType.DFIn, DagNodeType.DFOut]);
+        const excludeNodeTypes = new Set([DagNodeType.DFIn, DagNodeType.DFOut,
+                DagNodeType.CustomInput, DagNodeType.CustomOutput]);
         for (const nodeId of nodeIds) {
             // Cannot wrap these types of nodes inside a custom operator
             let node: DagNode = this.graph.getNode(nodeId);

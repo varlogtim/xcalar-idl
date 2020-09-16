@@ -25,7 +25,6 @@ function Loading({ message }) {
                 <div className="loadingText">Creating... {pct + "%"}</div>
             </div>;
     }
-    console.log(message);
     return <span>{loadingMessage}</span>
 }
 
