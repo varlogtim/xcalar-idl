@@ -1,4 +1,4 @@
-class ColSchemaSection {
+class ColSchemaSection { 
     private _$section: JQuery;
     private _initialSchema: ColSchema[];
     private _hintSchema: ColSchema[];
@@ -355,7 +355,9 @@ class ColSchemaSection {
             onSelect: ($li) => {
                 const $text: JQuery = $li.closest(".dropDownList").find(".text");
                 $text.text($li.text());
-                this._callback(this.getSchema(true));
+                if (this._callback) {
+                    this._callback(this.getSchema(true));
+                }
             },
             container: selector,
             bounds: selector,
