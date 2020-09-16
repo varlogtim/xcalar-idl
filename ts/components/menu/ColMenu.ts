@@ -386,6 +386,7 @@ class ColMenu extends AbstractMenu {
         const $colMenu: JQuery = this._getMenu();
         const callback = async(newNodes: DagNode[], parentNodeId?: string) => {
             try {
+                DagPanel.Instance.toggleDisplay(true);
                 options = options || {};
                 const table: TableMeta = gTables[tableId];
                 const progCols: ProgCol[] = colNums.map((colNum) => table.getCol(colNum));

@@ -23,7 +23,7 @@ class PopupPanel {
 
         const $panel = this.getPanel();
         if (!this._options.noUndock) {
-            $panel.addClass("undockable");
+            $panel.addClass("canUndock");
         }
 
         PopupManager.register(this);
@@ -39,7 +39,7 @@ class PopupPanel {
     }
 
     public restore(state) {
-        if (state.isVisible) {
+        if (state.isVisible || !state.hasOwnProperty("isVisible")) {
             this._event.dispatchEvent("Show");
         } else {
             this._event.dispatchEvent("Hide", {restoring: true});

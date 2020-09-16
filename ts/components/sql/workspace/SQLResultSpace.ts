@@ -19,11 +19,7 @@ class SQLResultSpace {
 
     private _setupListeners() {
         this._getResultSection().find(".closeResult").click(() => {
-            this._toggleDisplay(false);
-        });
-
-        $("#dagView .openResult").click(() => {
-            this._toggleDisplay(true);
+            this.toggleDisplay(false);
         });
 
         $("#dagView .stackResult").click(() => {
@@ -190,11 +186,23 @@ class SQLResultSpace {
 
     public setupPopup(): void {
         this._popup = new PopupPanel("tableViewContainer", {
-            noUndock: true
+            draggableHeader: ".draggableHeader"
         });
         this._popup
+        .on("Undock", () => {
+            this.refresh();
+        })
+        .on("Dock", () => {
+            this.refresh();
+        })
+        .on("Resize", () => {
+            this.refresh();
+        })
         .on("Hide", (_info: {restoring: boolean}) => {
-            this._toggleDisplay(false);
+            this.toggleDisplay(false);
+        })
+        .on("Show", () => {
+            this.toggleDisplay(true);
         })
         .on("ResizeDocked", (state) => {
             if (state.dockedWidth != null) {
@@ -238,25 +246,31 @@ class SQLResultSpace {
             default:
                 break;
         }
-        this._toggleDisplay(true);
+        this.toggleDisplay(true);
     }
 
     private _getResultSection(): JQuery {
-        return $("#sqlWorkSpacePanel .resultSection");
+        return $("#notebookBottomContainer .resultSection");
     }
 
     private _getContentSection(): JQuery {
         return this._getResultSection().find(".contentSection");
     }
 
-    private _toggleDisplay(display: boolean): void {
+    public toggleDisplay(display?: boolean): void {
         const $resultSection = this._getResultSection();
         const $container = $resultSection.parent();
+        if (display == null) {
+            display = $resultSection.hasClass("xc-hidden");
+        }
+        const $tab = $("#tableResultTab");
         if (display) {
+            $tab.addClass("active");
             $container.removeClass("noResult");
             $resultSection.removeClass("xc-hidden");
             this._popup.trigger("Show_BroadCast");
         } else {
+            $tab.removeClass("active");
             $container.addClass("noResult");
             $resultSection.addClass("xc-hidden");
             this._toggleDisplayExpanded(false);

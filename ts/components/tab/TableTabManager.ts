@@ -78,9 +78,9 @@ class TableTabManager extends AbstractTabManager {
     }
 
     /**
-     * TableTabManager.Instance.refershTab
+     * TableTabManager.Instance.refreshTab
      */
-    public refershTab(): void {
+    public refreshTab(): void {
         const index: number = this._getTabArea().find(".tab.active").index();
         if (index > -1) {
             this._switchResult(index);

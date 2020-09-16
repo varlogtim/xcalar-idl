@@ -120,6 +120,7 @@ class DagTabManager extends AbstractTabManager {
      * used to indicate it's a blank graph and we can add instructions to it
      */
     public newTab(isEmpty?: boolean, index?: number): string {
+        DagPanel.Instance.toggleDisplay(true);
         const name = DagList.Instance.getValidName();
         const graph: DagGraph = new DagGraph();
         const tab: DagTab = this._newTab(name, graph, false, isEmpty, index);
@@ -147,6 +148,7 @@ class DagTabManager extends AbstractTabManager {
             name = DagList.Instance.getValidName(null, false, true);
         }
         graph = graph || new DagGraph();
+        DagPanel.Instance.toggleDisplay(true);
         const tab: DagTab = this._newTab(name, graph, true);
         this._tabListScroller.showOrHideScrollers();
         Log.add(SQLTStr.NewTab, {
@@ -198,6 +200,7 @@ class DagTabManager extends AbstractTabManager {
     }
 
     public newSQLTab(SQLNode: DagNodeSQL): string {
+        DagPanel.Instance.toggleDisplay(true);
         const activeTab: DagTab = DagViewManager.Instance.getActiveTab();
         const parentTabId = activeTab.getId();
         // the string to show on the tab
@@ -241,6 +244,7 @@ class DagTabManager extends AbstractTabManager {
         queryNodes: any[],
         executor: DagGraphExecutor
     ): DagTabOptimized {
+        DagPanel.Instance.toggleDisplay(true);
         tabName = DagList.Instance.getValidName(tabName, true, false, true);
         // Create a new tab object
         const newTab: DagTabOptimized = new DagTabOptimized({
@@ -265,6 +269,7 @@ class DagTabManager extends AbstractTabManager {
      * @param dagTab
      */
     public convertNoEditableTab(dagTab: DagTab): void {
+        DagPanel.Instance.toggleDisplay(true);
         const graphJSON = dagTab.getGraph().getSerializableObj(true);
         const name: string = DagList.Instance.getValidName();
         const graph: DagGraph = new DagGraph();
@@ -285,7 +290,7 @@ class DagTabManager extends AbstractTabManager {
         if (graph == null) {
             return;
         }
-
+        DagPanel.Instance.toggleDisplay(true);
         let name: string = tab.getName().replace(/\//g, "_");
         let isSQLFunc: boolean = (tab instanceof DagTabSQLFunc);
         name = DagList.Instance.getValidName(name, true, isSQLFunc);
@@ -362,6 +367,8 @@ class DagTabManager extends AbstractTabManager {
         reset: boolean = false,
         switchTabAfterLoad: boolean = true
     ): XDPromise<void> {
+        console.log("load tab")
+        DagPanel.Instance.toggleDisplay(true);
         if (dagTab == null) {
             console.error("error case");
             return PromiseHelper.reject();
@@ -403,6 +410,7 @@ class DagTabManager extends AbstractTabManager {
         if (index == -1) {
             return false;
         }
+        DagPanel.Instance.toggleDisplay(true);
         this._switchTabs(index);
         return true;
     }
@@ -474,6 +482,7 @@ class DagTabManager extends AbstractTabManager {
      * open the tab and clear the graph inside it
      */
     public openAndResetSQLExecuteTab(): void {
+        DagPanel.Instance.toggleDisplay(true);
         // Check if we already have the tab
         const dagTab: DagTabSQLExecute = new DagTabSQLExecute();
         const index: number = this.getTabIndex(dagTab.getId());

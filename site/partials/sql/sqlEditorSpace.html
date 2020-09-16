@@ -13,7 +13,7 @@
     data-title="<%= dicts.SQLEditor.RunHint %>"></i>
     <button class="btn btn-secondary more dropDownList">
       <!-- <div class="iconWrapper"> -->
-        <i class="icon xi-ellipsis-h xc-action"></i>
+        <i class="icon xi-ellipsis-h xc-action" data-toggle="tooltip" data-placement="auto top" data-container="body" data-original-title="More"></i>
       <!-- </div> -->
       <div class="list">
         <ul>
@@ -29,6 +29,7 @@
     </button>
   </header>
   <i class="icon xc-icon-action xi_popout undock" data-toggle="tooltip" data-placement="auto top" data-container="body" data-original-title="<%= dicts.bottomMenu.popOutBtn %>"></i>
+  <i class="icon xi-close close xc-icon-action" data-toggle="tooltip" data-placement="auto top" data-container="body" data-original-title="<%= dicts.common.Close %>"></i>
   <section class="hintHidden editSection">
     <div class="editArea">
       <textarea id="sqlEditorSpace-editor"></textarea>

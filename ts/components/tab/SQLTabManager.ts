@@ -63,6 +63,7 @@ class SQLTabManager extends AbstractTabManager {
      * @param id
      */
     public openTab(id: string): void {
+        SQLEditorSpace.Instance.toggleDisplay(true);
         const index: number = this._activeTabs.indexOf(id);
         if (index > -1) {
             this._switchTabs(index);

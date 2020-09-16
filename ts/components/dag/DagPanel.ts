@@ -57,6 +57,27 @@ class DagPanel {
         return this._popup.isDocked();
     }
 
+    public toggleDisplay(display?: boolean): void {
+        const $container = $("#dagViewContainer").parent();
+        if (display == null) {
+            display = $container.hasClass("xc-hidden");
+        }
+
+        const $tab = $("#appBuilderTab");
+        if (display) {
+            $tab.addClass("active");
+            $container.removeClass("xc-hidden");
+            PopupManager.checkAllContentUndocked();
+            this._popup.trigger("Show_BroadCast");
+            DagCategoryBar.Instance.showOrHideArrows();
+        } else {
+            $tab.removeClass("active");
+            $container.addClass("xc-hidden");
+            PopupManager.checkAllContentUndocked();
+            this._popup.trigger("Hide_BroadCast");
+        }
+    }
+
     private _basicSetup(): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
@@ -120,31 +141,31 @@ class DagPanel {
         });
         this._popup
         .on("Undock", () => {
-            this._undock();
+            DagCategoryBar.Instance.showOrHideArrows();
         })
         .on("Dock", () => {
-            this._dock();
+            DagCategoryBar.Instance.showOrHideArrows();
+        })
+        .on("Show", () => {
+            this.toggleDisplay(true);
         });
 
         this._bottomContainerPopup = new PopupPanel("notebookBottomContainer", {
             noUndock: true
         });
+
         this._bottomContainerPopup
         .on("ResizeDocked", (state) => {
             $("#notebookBottomContainer").css("height", `${state.dockedHeight}%`);
+        });
+
+        $("#dagView .categoryBar").find(".close").click(() => {
+            this.toggleDisplay(false);
         });
     }
 
     public getBottomContainerPopup() {
         return this._bottomContainerPopup;
-    }
-
-    private _undock(): void {
-        DagCategoryBar.Instance.showOrHideArrows();
-    }
-
-    private _dock(): void {
-        DagCategoryBar.Instance.showOrHideArrows();
     }
 
     /* Unit Test Only */

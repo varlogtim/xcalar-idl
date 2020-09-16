@@ -4,7 +4,7 @@ class RunSQL extends EventEmitter {
     command(sql, result, noRowCheck, cb) {
         const self = this;
         self.api
-            .click("#sqlTab")
+            .click("#resourcesTab")
             .execute(function(sql) {
                 SQLEditorSpace.Instance.clearSQL();
                 SQLEditorSpace.Instance.newSQL(sql);

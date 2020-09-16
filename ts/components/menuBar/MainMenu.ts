@@ -41,7 +41,7 @@ namespace MainMenu {
     }
 
     function openPanel(): void {
-        let $tab: JQuery = $("#sqlTab");
+        let $tab: JQuery = $("#resourcesTab");
         if (!$tab.hasClass("active") || WorkbookPanel.isWBMode()) {
             WorkbookPanel.hide(true);
             panelSwitchingHandler($tab);
@@ -50,7 +50,7 @@ namespace MainMenu {
     }
 
     function toggleResourcePanel() {
-        const $tab = $("#sqlTab");
+        const $tab = $("#resourcesTab");
         if ($tab.hasClass("showing")) {
             $tab.removeClass("showing");
             $("#sqlWorkSpacePanel").addClass("hidingLeftPanel");
@@ -66,12 +66,24 @@ namespace MainMenu {
     }
 
     function addEventListeners(): void {
-        $("#sqlTab").click(() => {
+        $("#resourcesTab").click(() => {
             toggleResourcePanel();
+        });
+
+        $("#sqlEditorTab").click(() => {
+            SQLEditorSpace.Instance.toggleDisplay();
         });
 
         $("#udfTab").click(() => {
             UDFPanel.Instance.toggleDisplay();
+        });
+
+        $("#appBuilderTab").click(() => {
+            DagPanel.Instance.toggleDisplay();
+        });
+
+        $("#tableResultTab").click(() => {
+            SQLResultSpace.Instance.toggleDisplay();
         });
 
         $("#debugTab").click(() => {

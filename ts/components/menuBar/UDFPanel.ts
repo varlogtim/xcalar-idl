@@ -422,10 +422,10 @@ class UDFPanel {
         });
         this._popup
         .on("Undock", () => {
-            this._undock();
+            this.refresh();
         })
         .on("Dock", () => {
-            this._dock();
+            this.refresh();
         })
         .on("Resize", () => {
             this.refresh();
@@ -441,14 +441,6 @@ class UDFPanel {
 
     public getPopup() {
         return this._popup;
-    }
-
-    private _undock(): void {
-        this.refresh();
-    }
-
-    private _dock(): void {
-        this.refresh();
     }
 
     private _setupAutocomplete(editor: CodeMirror.EditorFromTextArea): void {

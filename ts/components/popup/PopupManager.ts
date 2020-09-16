@@ -22,6 +22,7 @@ class PopupManager {
     // undocked widths and heights are in px
     private static _state = {
         sqlViewContainer: {
+            isVisible: true,
             isUndocked: false,
             undockedWidth: "auto",
             undockedHeight: "auto",
@@ -46,6 +47,7 @@ class PopupManager {
             undockedLeft: "auto"
         },
         dagViewContainer: {
+            isVisible: true,
             isUndocked: false,
             isVertStacked: false,
             undockedWidth: "auto",
@@ -54,9 +56,14 @@ class PopupManager {
             undockedLeft: "auto"
         },
         tableViewContainer: {
+            isUndocked: false,
             isVisible: true,
             dockedWidth: 50,
-            dockedHeight: 50
+            dockedHeight: 50,
+            undockedWidth: "auto",
+            undockedHeight: "auto",
+            undockedTop: "auto",
+            undockedLeft: "auto"
         },
         notebookBottomContainer: {
             dockedHeight: 50

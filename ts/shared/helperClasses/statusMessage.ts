@@ -455,7 +455,7 @@ namespace StatusMessage {
                         $popupWrap.prepend($tableDonePopup);
                         popupWrapExists = true;
                     } else {
-                        $popupNearTab = $('#sqlTab');
+                        $popupNearTab = $('#resourcesTab');
                     }
                     classes += ' worksheetNotify';
                 } else {

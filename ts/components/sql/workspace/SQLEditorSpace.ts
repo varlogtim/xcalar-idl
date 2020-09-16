@@ -781,18 +781,42 @@ class SQLEditorSpace {
         });
         this._popup
         .on("Undock", () => {
-            this._undock();
+            this.refresh();
         })
         .on("Dock", () => {
-            this._dock();
+            this.refresh();
         })
         .on("Resize", () => {
             this.refresh();
+        })
+        .on("Show", () => {
+            this.toggleDisplay(true);
         });
     }
 
     public bringToFront() {
         this._popup.bringToFront();
+    }
+
+    public toggleDisplay(display?: boolean): void {
+        const $container = $("#sqlViewContainer").parent();
+        if (display == null) {
+            display = $container.hasClass("xc-hidden");
+        }
+
+        const $tab = $("#sqlEditorTab");
+        if (display) {
+            $tab.addClass("active");
+            $container.removeClass("xc-hidden");
+            PopupManager.checkAllContentUndocked();
+            this._popup.trigger("Show_BroadCast");
+            this.refresh();
+        } else {
+            $tab.removeClass("active");
+            $container.addClass("xc-hidden");
+            PopupManager.checkAllContentUndocked();
+            this._popup.trigger("Hide_BroadCast");
+        }
     }
 
     private _addEventListeners(): void {
@@ -823,6 +847,10 @@ class SQLEditorSpace {
             fixedPosition: {selector: ".xc-action", float: true}
 
         }).setupListeners();
+
+        $container.find(".close").click(() => {
+            this.toggleDisplay(false);
+        });
     }
 
     private _onDropdownOpen($dropdown: JQuery): void {
@@ -843,14 +871,6 @@ class SQLEditorSpace {
                 title: unavailableTip
             });
         }
-    }
-
-    private _undock(): void {
-        this.refresh();
-    }
-
-    private _dock(): void {
-        this.refresh();
     }
 
     private _saveSnippetChange(): void {

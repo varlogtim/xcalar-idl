@@ -293,7 +293,7 @@ module.exports = {
                     .click("#datastoreMenu .table .iconSection .refresh")
                     .waitForElementNotPresent("#datastoreMenu .refreshIcon", 50000)
                     .waitForElementPresent('#datastoreMenu .grid-unit[data-id="' + testConfig.IMDNames[0] + '"]', 10000)
-                    .click("#sqlTab");
+                    .click("#resourcesTab");
                 }
 
                 const imdNodes = testTabs[tabName].nodes.filter((node) => {

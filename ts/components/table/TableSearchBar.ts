@@ -112,8 +112,8 @@ class TableSearchBar {
         });
         $searchArea.find('.closeBox').click(() => {
             if ($input.val() === "") {
-                this._searchHelper.toggleSlider();
-                this._clearSearch();
+                // triggers focusout event
+                $input.blur();
             } else {
                 $input.val("");
                 this._searchColNames("");

@@ -487,6 +487,7 @@ class ResourceMenu {
             if (DagTabManager.Instance.getNumTabs() === 0) {
                 DagTabManager.Instance.newTab();
             }
+            DagPanel.Instance.toggleDisplay(true);
             const dagTab = DagViewManager.Instance.getActiveTab();
             if (dagTab.getType() !== "Normal") {
                 if (dagTab instanceof DagTabSQLExecute) {

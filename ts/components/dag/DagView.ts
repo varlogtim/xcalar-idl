@@ -176,6 +176,7 @@ class DagView {
      * @param numInput
      */
     public static async newSQLFunc(name: string, numInput: number): Promise<void> {
+        DagPanel.Instance.toggleDisplay(true);
         DagTabManager.Instance.newSQLFunc(name);
 
         // add instruction
@@ -218,6 +219,7 @@ class DagView {
      * @param config
      */
     public static async newTabFromSource(type: DagNodeType, config: any): Promise<void> {
+        DagPanel.Instance.toggleDisplay(true);
         try {
             DagTabManager.Instance.newTab();
             let position: number = DagView.gridSpacing * 2;
@@ -2649,6 +2651,7 @@ class DagView {
         nodeId: DagNodeId,
         tabId: string
     ): XDPromise<DagNode[]> {
+        DagPanel.Instance.toggleDisplay(true);
         const dagTab = DagTabManager.Instance.getTabById(tabId);
         const graph = dagTab.getGraph();
         const sqlNode = graph.getNode(nodeId);
@@ -3703,7 +3706,7 @@ class DagView {
             const nodeId: DagNodeId = info.nodeId;
             if (DagTable.Instance.getBindNodeId() === nodeId) {
                 DagTable.Instance.close();
-                TableTabManager.Instance.refershTab();
+                TableTabManager.Instance.refreshTab();
             }
             const $node: JQuery = this.getNodeElById(nodeId);
             this._updateTableNameText($node, info.node);

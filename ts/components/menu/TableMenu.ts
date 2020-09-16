@@ -369,6 +369,7 @@ class TableMenu extends AbstractMenu {
             parentNodeId?: DagNodeId
         }
     ): Promise<void> {
+        DagPanel.Instance.toggleDisplay(true);
         try {
             options = options || {};
             const input: object = options.input || this._getNodeParam(type, tableId, options);

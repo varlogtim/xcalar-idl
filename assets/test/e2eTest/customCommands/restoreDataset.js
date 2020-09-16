@@ -30,7 +30,7 @@ class RestoreDataset extends EventEmitter {
                         .mouseButtonClick('left')
                         // .saveScreenshot("nw1.png")
                         .waitForElementVisible('#dsTableContainer .datasetTable', 100000)
-                        .moveToElement('#sqlTab', 1, 1)
+                        .moveToElement('#resourcesTab', 1, 1)
                         .mouseButtonClick('left');
                         if (cb) {
                             cb(commandResult);

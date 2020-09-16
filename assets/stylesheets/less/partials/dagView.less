@@ -1,4 +1,4 @@
-#dagView {
+#dagView { 
     @category-height: 32px;
     @operator-height: 26px;
     @operator-width: 67px;
@@ -127,7 +127,7 @@
         .categorySection {
             .flex-display;
             position: relative;
-            width: ~"calc(100% - (@{labelWidth} + 69px))";
+            width: ~"calc(100% - (@{labelWidth} + 16px + 74px))";
 
 
             &.scrollable {
@@ -1637,6 +1637,10 @@
 #notebookBottomContainer.noResult {
     .tableIcon.tblIcon {
         display: none;
+    }
+    .categorySection {
+        @labelWidth: 100px;
+        width: ~"calc(100% - (@{labelWidth} + 16px + 53px))";
     }
 }
 
