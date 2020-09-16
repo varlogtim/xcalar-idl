@@ -149,6 +149,7 @@ class TableTabManager extends AbstractTabManager {
             } else if (this.getNumTabs() > 1) {
                 this._switchResult(index + 1);
             }
+            this._unfocusOnList(this._activeTabs[index]);
         }
         this._activeTabs.splice(index, 1);
         this._save();
@@ -157,6 +158,7 @@ class TableTabManager extends AbstractTabManager {
         if (this.getNumTabs() === 0) {
             DagTable.Instance.close();
         }
+
         this._updateList();
     }
 
@@ -415,6 +417,18 @@ class TableTabManager extends AbstractTabManager {
             if ($li.length) {
                 $li.addClass("active");
                 ResourceMenu.Instance.focusOnList($li);
+            }
+        }
+    }
+
+    private _unfocusOnList(tab: {name: string, type: TableTabType}): void {
+        const $list: JQuery = ResourceMenu.Instance.getContainer().find(".tableList");
+        if (tab.type === TableTabType.PbTable) {
+            const $li: JQuery = $list.find('li').filter((_index, e) => {
+                return $(e).find(".name").text() === tab.name;
+            });
+            if ($li.length) {
+                $li.removeClass("active");
             }
         }
     }
