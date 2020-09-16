@@ -1,4 +1,3 @@
-
 // for the rendering of html file
 var bldVars = require('./globalAutogen.js');
 module.exports = {
@@ -1412,7 +1411,8 @@ module.exports = {
         "findOriginalNode": "Find Original Graph-Node",
         "copyTableName": "Copy Table Name",
         "DeleteParentTables": "Delete Upfront Tables",
-        "DeleteParentTablesHint": "Delete current table and all parent tables, including the tables in the linked graph. Note: it will not delete pinned table and its upfront tables."
+        "DeleteParentTablesHint": "Delete current table and all parent tables, including the tables in the linked graph. Note: it will not delete pinned table and its upfront tables.",
+        "executeDisabled": "Configuration panel is open and must be closed before running an operator or function."
     },
 
     "dagSearch": {

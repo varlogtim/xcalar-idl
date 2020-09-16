@@ -49,9 +49,10 @@
             <i class="editSQLGraph actionIcon icon xi-edit xc-action" data-toggle="tooltip" data-container="body" data-placement="auto top" data-title="<%= dicts.dag.ViewOnlyHint %>"></i>
             <span class="text"><%= dicts.dag.ViewOnly %></span>
         </div>
-        <div class="topButton configuring">
+        <div class="topButton configuring" data-toggle="tooltip" data-container="body" data-placement="auto top" data-title="<%= dicts.dag.executeDisabled %>">
           <span>
-            <span class="text"><%= dicts.dag.configuringOperator %></span>
+            <span class="text"><%= dicts.dag.executeAll %></span>
+            <i class="icon xi-play-outline actionIcon"></i>
           </span>
         </div>
         <div class="topButton run dropDownList">

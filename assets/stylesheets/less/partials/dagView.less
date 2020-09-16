@@ -1,4 +1,4 @@
-#dagView { 
+#dagView {
     @category-height: 32px;
     @operator-height: 26px;
     @operator-width: 67px;
@@ -1198,7 +1198,7 @@
     flex-wrap: nowrap;
 
     &.locked {
-        .undo, .redo, .configuring {
+        .undo, .redo {
             pointer-events: none;
             opacity: @opacity-disabled;
         }
@@ -1207,6 +1207,7 @@
         }
         .configuring {
             .flex-display !important;
+            opacity: @opacity-disabled;
         }
     }
 
