@@ -850,6 +850,13 @@ namespace DagNodeMenu {
                 if (state === DagNodeState.Complete) {
                     $menu.find(".executeNode").addClass("xc-hidden");
                 }
+            } else if (nodeIds.length > 1) {
+                if (_areAllNodesComplete(nodeIds)) {
+                    $menu.find(".reexecuteNode").removeClass("xc-hidden");
+                    $menu.find(".executeNode").addClass("xc-hidden");
+                } else {
+                    $menu.find(".reexecuteNode").addClass("xc-hidden");
+                }
             }
         }
 
@@ -1100,6 +1107,16 @@ namespace DagNodeMenu {
             floating: true,
             classes: ""
         });
+    }
+
+    function _areAllNodesComplete(nodeIds: DagNodeId[]): boolean {
+        const dagGraph: DagGraph = DagViewManager.Instance.getActiveDag();
+        const hasIncomplete = nodeIds.some((nodeId) => {
+            const dagNode: DagNode = dagGraph.getNode(nodeId);
+            const state: DagNodeState = (dagNode != null) ? dagNode.getState() : null;
+            return state !== DagNodeState.Complete;
+        });
+        return !hasIncomplete;
     }
 
     function _changeCommentMenuTooltips($menu: JQuery) {
