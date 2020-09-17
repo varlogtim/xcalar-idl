@@ -411,8 +411,12 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         const isPublishTables = SchemaLoadSetting.get('isPublishTables', false) ;
 
         let cancelAction = null;
-        const cancelCreate = () => {
-            if (cancelAction != null) {
+        const cancelCreate = async () => {
+            const confirmed = await this._confirm({
+                title: 'Confirm',
+                message: 'Do you want to cancel the loading?'
+            });
+            if (cancelAction != null && confirmed) {
                 cancelAction();
             }
         };
@@ -1222,7 +1226,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         }
     };
 
-    _confirm({ title, message }) {
+    _confirm({ title, message }): Promise<boolean> {
         return new Promise((resolve) => {
             Alert.show({
                 title: title,
