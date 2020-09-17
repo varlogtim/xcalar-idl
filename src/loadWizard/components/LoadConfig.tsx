@@ -15,6 +15,7 @@ import * as SchemaLoadSetting from '../services/SchemaLoadSetting'
 import { FilePathInfo } from '../services/S3Service'
 import { listFilesWithPattern, defaultFileNamePattern } from '../services/S3Service'
 import { DataPreviewModal } from './DataPreview'
+import LoadStep from './LoadStep';
 
 
 /**
@@ -28,6 +29,7 @@ const Texts = {
     navButtonLeft: 'Back',
     navButtonRight: 'Navigate to Notebook',
     navToNotebookHint: "Please create a table first",
+    loadNewTableHint: "", // XXX need tooltip
     navButtonRight2: 'Next',
     CreateTableHint: 'Please specify schema first',
     ResetInDiscoverLoading: 'Cannot reset when selected files are loading.',
@@ -1320,6 +1322,25 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                 num={num}
                                 isSelected={currentNavStep === num}
                                 desc={navBarStepNameMap[num]}
+                                isSelectable={(num === 1) ||
+                                    (stepNumMap[currentStep] !== 1 && num <= 2) ||
+                                    (finalSchema != null)}
+                                onSelect={() => {
+                                    this.setState({
+                                        currentNavStep: num
+                                    });
+                                    if (num === 2) {
+                                        this._changeStep(StepEnum.SchemaDiscovery);
+                                        this.setState({
+                                            schemaDetailState: {
+                                                isLoading: false, error: null, schema: null
+                                            }
+                                        });
+                                    } else if (num === 3) {
+                                        this._changeStep(StepEnum.CreateTables);
+                                        this._prepareCreateTableData();
+                                    }
+                                }}
                             />
                 })}
             </div>
@@ -1537,6 +1558,17 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                     })
                                 }
                             }}
+                            right2={{
+                                label: "Load New Table",
+                                disabled: this.state.createTables.size === 0,
+                                tooltip: this.state.createTables.size === 0 ? Texts.loadNewTableHint : "",
+                                onClick: this.state.createTables.size === 0 ? null : () => {
+                                    this.setState({
+                                        currentNavStep: 1
+                                    });
+                                    this._resetAll(null);
+                                }
+                            }}
                             right={{
                                 label: Texts.navButtonRight,
                                 classNames: ["btn-primary", "autoWidth"],
@@ -1553,19 +1585,6 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             </React.Fragment>
         );
     }
-}
-
-function LoadStep(props) {
-    let classNames = "step";
-    if (props.isSelected) {
-        classNames += " selected";
-    }
-    return (
-        <div className={classNames}>
-            <div className="stepNum">STEP {props.num}</div>
-            <div className="stepDesc">{props.desc}</div>
-        </div>
-    )
 }
 
 export { LoadConfig, StepEnum as stepEnum };
