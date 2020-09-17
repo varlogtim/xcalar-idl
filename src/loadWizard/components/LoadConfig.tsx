@@ -855,60 +855,69 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             this.setState({
                 browseShow: false
             });
-        } else {
-            const currentSelection = this.state.selectedFileDir.map((v) => v.fullPath);
-            const newSelection = selectedFileDir.map((v) => v.fullPath);
-            const currentNamePattern = this.state.fileNamePattern;
-            const hasChange = SetUtils.diff(currentSelection, newSelection).size > 0 ||
-                SetUtils.diff(newSelection, currentSelection).size > 0 ||
-                currentNamePattern != fileNamePattern;
+            return false;
+        }
 
-            if (!hasChange) {
-                // No change
-                this.setState({
-                    browseShow: false
-                });
-            } else {
-                this._resetBrowseResult();
-                // Close file browser & set the result
-                this.setState({
-                    browseShow: false,
-                    selectedFileDir: selectedFileDir,
-                    fileNamePattern: fileNamePattern
-                });
-                // Update the preview
-                try {
-                    const selected = selectedFileDir[0];
-                    // Update the file selection dropdown
-                    const selectedFile = selected.directory
-                        ? await this._listSelectedFolder(this.state.connector, selected, fileNamePattern)
-                        : this._listSelectedFile(selected);
+        const currentSelection = this.state.selectedFileDir.map((v) => v.fullPath);
+        const newSelection = selectedFileDir.map((v) => v.fullPath);
+        const currentNamePattern = this.state.fileNamePattern;
+        const hasChange = SetUtils.diff(currentSelection, newSelection).size > 0 ||
+            SetUtils.diff(newSelection, currentSelection).size > 0 ||
+            currentNamePattern != fileNamePattern;
 
-                    // Suggest a parser/file type from file name extension
-                    const suggestType = SchemaService.suggestParserType(selectedFile);
-                    const inputSerialization = this._setParserType(suggestType, false);
+        if (!hasChange) {
+            // No change
+            this.setState({
+                browseShow: false
+            });
+            return false;
+        }
 
-                    // Create a new Load App (conceptually)
-                    const loadApp = await SchemaLoadService.createDiscoverApp({
-                        targetName: this.state.connector,
-                    });
-                    this.setState({
-                        loadAppId: loadApp.appId
-                    });
+        this._resetBrowseResult();
+        // Close file browser & set the result
+        this.setState({
+            browseShow: false,
+            selectedFileDir: selectedFileDir,
+            fileNamePattern: fileNamePattern
+        });
+        // Update the preview
+        const selected = selectedFileDir[0];
+        if (selected == null) {
+            return false;
+        }
 
-                    // Update file preview
-                    await this._fetchFileContent({
-                        loadApp: loadApp,
-                        filePath: selectedFile.fullPath,
-                        inputSerialization: inputSerialization
-                    });
-                } catch(e) {
-                    this._alert({
-                        title: 'List/Preview file error',
-                        message: `${e.error || e.message || e}`
-                    });
-                }
-            }
+        try {
+            // Update the file selection dropdown
+            const selectedFile = selected.directory
+                ? await this._listSelectedFolder(this.state.connector, selected, fileNamePattern)
+                : this._listSelectedFile(selected);
+
+            // Suggest a parser/file type from file name extension
+            const suggestType = SchemaService.suggestParserType(selectedFile);
+            const inputSerialization = this._setParserType(suggestType, false);
+
+            // Create a new Load App (conceptually)
+            const loadApp = await SchemaLoadService.createDiscoverApp({
+                targetName: this.state.connector,
+            });
+            this.setState({
+                loadAppId: loadApp.appId
+            });
+
+            // Update file preview
+            await this._fetchFileContent({
+                loadApp: loadApp,
+                filePath: selectedFile.fullPath,
+                inputSerialization: inputSerialization
+            });
+
+            return true;
+        } catch(e) {
+            this._alert({
+                title: 'List/Preview file error',
+                message: `${e.error || e.message || e}`
+            });
+            return false;
         }
     }
 
@@ -1378,10 +1387,12 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                     });
                                 }}
                                 onCancel={() => { this._browseClose(); }}
-                                onDone={(selectedFileDir, fileNamePattern) => {
+                                onDone={async (selectedFileDir, fileNamePattern) => {
                                     try {
-                                        this._browseClose(selectedFileDir, fileNamePattern);
-                                        this._changeStep(StepEnum.SchemaDiscovery);
+                                        const success = await this._browseClose(selectedFileDir, fileNamePattern);
+                                        if (success) {
+                                            this._changeStep(StepEnum.SchemaDiscovery);
+                                        }
                                     } catch(_) {
                                         // Do nothing
                                     }
