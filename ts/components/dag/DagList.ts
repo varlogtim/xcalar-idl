@@ -136,6 +136,7 @@ class DagList extends Durable {
         const promise: XDPromise<void> = deferred.promise();
         const $dagList: JQuery = this._geContainer();
         // delete shared dag and optimized list first
+        const oldUserDags: Map<string, DagTabUser> = new Map();
         const oldOptimizedDags: Map<string, DagTabOptimized> = new Map();
         const oldQueryDags: Map<string, DagTabQuery> = new Map();
         for (let [id, dagTab] of this._dags) {
@@ -145,12 +146,18 @@ class DagList extends Durable {
             } else if (dagTab instanceof DagTabQuery) {
                 oldQueryDags.set(dagTab.getQueryName(), dagTab);
                 this._dags.delete(id);
+            } else if (dagTab instanceof DagTabUser) {
+                oldUserDags.set(dagTab.getId(), dagTab);
+                // do not delete old ones
             }
         }
 
         xcUIHelper.showRefreshIcon($dagList, false, promise, true);
 
-        this._restoreOptimizedDags(oldOptimizedDags)
+        this._refreshUserDags(oldUserDags)
+        .then(() => {
+            return this._restoreOptimizedDags(oldOptimizedDags);
+        })
         .then(() => {
             return this._fetchXcalarQueries(oldQueryDags, true);
         })
@@ -542,7 +549,7 @@ class DagList extends Durable {
         xcUIHelper.enableElement($dagListItem);
     }
 
-    private _loadErroHandler(dagTab: DagTab, noAlert: boolean): void {
+    private _loadErrorHandler(dagTab: DagTab, noAlert: boolean): void {
         try {
             let tabId = dagTab.getId();
             let $dagListItem = this._getListElById(tabId);
@@ -627,6 +634,62 @@ class DagList extends Durable {
             if (metaNotMatch || needReset) {
                 // if not match, commit sycn up dag list
                 return this._saveSQLFuncList();
+            }
+        })
+        .then(deferred.resolve)
+        .fail((error) => {
+            console.error(error);
+            deferred.resolve(); // still resolve it
+        });
+
+        return deferred.promise();
+    }
+
+    private _refreshUserDags(oldDags) {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let userDagTabs: DagTabUser[] = [];
+        let newIds = new Set();
+        let needsReset = false;
+        this.listUserDagAsync()
+        .then((res: DagListDurable) => {
+            let dags: DagListTabDurable[] = [];
+            if (res && res.dags) {
+                dags = res.dags;
+                dags.forEach((dagInfo) => {
+                    if (!oldDags.has(dagInfo.id)) {
+                        dagInfo.reset = true;
+                        needsReset = true;
+                    }
+                    newIds.add(dagInfo.id);
+                });
+            }
+            return DagTabUser.restore(dags);
+        })
+        .then((ret) => {
+            const {dagTabs, metaNotMatch} = ret;
+            userDagTabs = dagTabs;
+            userDagTabs.forEach((dagTab) => {
+                let tabId = dagTab.getId();
+                if (oldDags.has(tabId)) {
+                    if (!DagTabManager.Instance.getTabById(tabId)) {
+                        this._dags.set(tabId, dagTab);
+                    } else {
+                        // leave tab as is, difficult to sync up an open tab
+                    }
+                } else {
+                    this._dags.set(tabId, <DagTab>dagTab);
+                }
+            });
+            oldDags.forEach(oldDag => {
+                let id = oldDag.getId();
+                if (!newIds.has(id) && !DagTabManager.Instance.getTabById(id)) {
+                    this._dags.delete(id);
+                    needsReset = true;
+                }
+            });
+            if (metaNotMatch || needsReset) {
+                // if not match, commit sycn up dag list
+                return this._saveUserDagList();
             }
         })
         .then(deferred.resolve)
@@ -726,7 +789,7 @@ class DagList extends Durable {
                     } else {
                         displayName = secondNamePart;
                     }
-                } else { // sdk optmized queries are handled in _restoreOptimizedDags
+                } else { // sdk optimized queries are handled in _restoreOptimizedDags
                     return;
                 }
 
@@ -985,7 +1048,7 @@ class DagList extends Durable {
             this._togglLoadState(dagTab, false);
         })
         .on("loadFail", (dagTab: DagTab, noAlert: boolean) => {
-            this._loadErroHandler(dagTab, noAlert);
+            this._loadErrorHandler(dagTab, noAlert);
         });
     }
 

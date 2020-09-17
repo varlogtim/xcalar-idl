@@ -367,7 +367,6 @@ class DagTabManager extends AbstractTabManager {
         reset: boolean = false,
         switchTabAfterLoad: boolean = true
     ): XDPromise<void> {
-        console.log("load tab")
         DagPanel.Instance.toggleDisplay(true);
         if (dagTab == null) {
             console.error("error case");

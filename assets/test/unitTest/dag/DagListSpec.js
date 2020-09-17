@@ -203,7 +203,7 @@ describe('DagList Test', function() {
         });
     })
 
-    it("_loadErroHandler should work", function() {
+    it("_loadErrorHandler should work", function() {
         let oldGetList = DagList.Instance._getListElById;
         let oldShow = StatusBox.show;
         let $list = $('<div>' +
@@ -216,7 +216,7 @@ describe('DagList Test', function() {
         StatusBox.show = () => { called = true; };
 
         let dagTab = new DagTabUser();
-        DagList.Instance._loadErroHandler(dagTab, false);
+        DagList.Instance._loadErrorHandler(dagTab, false);
         expect($list.find(".xc-action").hasClass("xc-disabled")).to.be.true;
         expect($list.find(".gridIcon").hasClass("error")).to.be.true;
         expect(called).to.be.true;

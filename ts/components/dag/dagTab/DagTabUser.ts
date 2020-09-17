@@ -21,7 +21,7 @@ class DagTabUser extends DagTab {
         const dagTabs: DagTabUser[] = [];
         let metaNotMatch: boolean = false;
 
-        this._getAllDagsFromKVStore()
+        this._getAllDagIdsFromKVStore()
         .then((ids) => {
             ids.forEach((id) => {
                 dagIdSet.add(id);
@@ -177,7 +177,7 @@ class DagTabUser extends DagTab {
         });
     }
 
-    private static _getAllDagsFromKVStore(): XDPromise<string[]> {
+    private static _getAllDagIdsFromKVStore(): XDPromise<string[]> {
         const deferred: XDDeferred<string[]> = PromiseHelper.deferred();
         const allDagsKey: string = this.KEY;
         KVStore.list(`^${allDagsKey}*`, gKVScope.WKBK)
