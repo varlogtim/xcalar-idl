@@ -5,8 +5,13 @@ class HomeScreen {
     public static setup(): void {
         this._addEventListeners();
         this._openDefaultScreen();
-        if (XVM.isCloud()) {
-            this._getHomeScreen().find(".contentSection .hint").text(TooltipTStr.AvailableInEnterprise);
+    }
+
+    public static toggleMode(): void {
+        if (!XVM.isCloud()) {
+            const $homeScreen = this._getHomeScreen();
+            $homeScreen.find(".contentSection .hint").remove();
+            $homeScreen.find(".enterprise").removeClass("enterprise");
         }
     }
 

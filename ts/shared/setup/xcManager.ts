@@ -21,6 +21,7 @@ namespace xcManager {
         if (XVM.isCloud()) {
             $("body").addClass("isCloud");
         }
+        HomeScreen.toggleMode();
 
         xcTimeHelper.setup()
         .then(() => {
