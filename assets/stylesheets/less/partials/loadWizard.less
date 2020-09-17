@@ -1014,12 +1014,29 @@
                 background-color: #1ba22b;
             }
 
-            .loadingText {
+            .loadingText, .cancelText {
                 width: 100%;
                 text-align: center;
                 position: relative;
                 font-size: 13px;
                 line-height: @input-height;
+                user-select: none;
+            }
+
+            .cancelText {
+                display: none;
+            }
+
+            &:hover {
+                cursor: pointer;
+
+                .loadingText {
+                    display: none;
+                }
+
+                .cancelText {
+                    display: block;
+                }
             }
         }
 

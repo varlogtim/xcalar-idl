@@ -4,6 +4,7 @@ import { Table } from './sdk/Table'
 import { Schema, InputSerialization } from './SchemaService'
 
 type ProgressCallback = (progress?: number) => void;
+const JobCancelExeption = new Error('Job Cancelled');
 
 async function executeSchemaLoadApp(jsonStr: string) {
     const response = await Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getSchemaLoadService().appRun(jsonStr);
@@ -103,7 +104,9 @@ async function callInTransaction<T>(
         Transaction.done(txId);
         return returnVal;
     } catch(e) {
-        Transaction.fail(txId);
+        Transaction.fail(txId, {
+            noAlert: true, noNotification: true
+        });
         throw e;
     }
 }
@@ -208,37 +211,83 @@ async function createDiscoverApp(params: {
         });
     }
 
-    async function runTableQuery(query, progressCB: ProgressCallback = () => {}) {
+    function runTableQueryWithCancel(query, progressCB: ProgressCallback = () => {}) {
+        let runningQuery = null;
+        const setRunningQuery = (queryName) => { runningQuery = queryName };
+        let cancel = false;
+
+        const job = {
+            cancel: async () => {
+                cancel = true;
+                if (runningQuery != null) {
+                    try {
+                        await session.callLegacyApi(() => XcalarQueryCancel(runningQuery));
+                    } catch(_) {
+                        // Ignore errors
+                    }
+                }
+            },
+            done: () => callInTransaction('Create tables', () => runTableQuery(query, progressCB, {
+                isCancelled: () => cancel,
+                setRunningQuery: setRunningQuery
+            }))
+        };
+
+        return job;
+    }
+
+    async function runTableQuery(query, progressCB: ProgressCallback = () => {}, options?: {
+        isCancelled?: () => boolean,
+        setRunningQuery?: (queryName?: string) => void
+    }) {
         /**
          * Do not delete the result table of each dataflow execution here,
          * or IMD table will persist an incomplete dataflow to its metadata
          * thus table restoration will fail
          */
         const {loadQueryOpt, dataQueryOpt, compQueryOpt, tableNames, loadId} = query;
+        const { isCancelled = () => false, setRunningQuery = () => {} } = options || {};
 
-        // Execute Load DF
-        const loadQuery = JSON.parse(loadQueryOpt).retina;
-        const loadProgress = updateProgress((p) => progressCB(p), 0, 60);
+        const failCleanupJobs = [];
         try {
-            await session.executeQueryOptimized({
-                queryStringOpt: loadQuery,
-                queryName: `q_${loadId}_load`,
-                tableName: tableNames.load,
-                params: new Map([
-                    ['session_name', session.sessionName],
-                    ['user_name', session.user.getUserName()]
-                ])
+            // Execute Load DF
+            const loadQuery = JSON.parse(loadQueryOpt).retina;
+            const loadProgress = updateProgress((p) => progressCB(p), 0, 60);
+            try {
+                const loadQueryName = `q_${loadId}_load`;
+                const loadJob = session.executeQueryOptimized({
+                    queryStringOpt: loadQuery,
+                    queryName: loadQueryName,
+                    tableName: tableNames.load,
+                    params: new Map([
+                        ['session_name', session.sessionName],
+                        ['user_name', session.user.getUserName()]
+                    ])
+                });
+                setRunningQuery(loadQueryName);
+                await loadJob;
+                loadProgress.done();
+            } catch(e) {
+                if (isCancelled()) {
+                    console.log('Cancel: load excution');
+                    throw JobCancelExeption;
+                } else {
+                    throw e;
+                }
+            } finally {
+                setRunningQuery(null);
+                loadProgress.stop();
+            }
+            const loadTable = new Table({
+                session: session,
+                tableName: tableNames.load
             });
-            loadProgress.done();
-        } finally {
-            loadProgress.stop();
-        }
-        const loadTable = new Table({
-            session: session,
-            tableName: tableNames.load
-        });
+            failCleanupJobs.push(() => loadTable.destroy());
+            if (isCancelled()) {
+                console.log('Cancel: post load excution');
+                throw JobCancelExeption;
+            }
 
-        try {
             // Extract load UDF name from bulkLoad
             // Note: the load UDF needs to be deleted after a temporary load, ex. preview
             const loadUDFs = getIntermidateResource(loadQuery);
@@ -247,39 +296,75 @@ async function createDiscoverApp(params: {
             const dataQuery = JSON.parse(dataQueryOpt).retina;
             const dataProgress = updateProgress((p) => progressCB(p), 60, 80);
             try {
-                await session.executeQueryOptimized({
+                const dataQueryName =  `q_${loadId}_data`;
+                const dataJob = session.executeQueryOptimized({
                     queryStringOpt: dataQuery,
-                    queryName: `q_${loadId}_data`,
+                    queryName: dataQueryName,
                     tableName: tableNames.data
                 });
+                setRunningQuery(dataQueryName);
+                await dataJob;
                 dataProgress.done();
+            } catch(e) {
+                if (isCancelled()) {
+                    console.log('Cancel: data excution');
+                    throw JobCancelExeption;
+                } else {
+                    throw e;
+                }
             } finally {
+                setRunningQuery(null);
                 dataProgress.stop();
             }
             const dataTable = new Table({
                 session: session, tableName: tableNames.data
             });
+            failCleanupJobs.push(() => dataTable.destroy());
+            if (isCancelled()) {
+                console.log('Cancel: post data excution');
+                throw JobCancelExeption;
+            }
 
             // Execute ICV DF
             const compQuery = JSON.parse(compQueryOpt).retina;
             const compProgress = updateProgress((p) => progressCB(p), 80, 99);
             try {
-                await session.executeQueryOptimized({
+                const icvQueryName = `q_${loadId}_comp`;
+                const icvJob = session.executeQueryOptimized({
                     queryStringOpt: compQuery,
-                    queryName: `q_${loadId}_comp`,
+                    queryName: icvQueryName,
                     tableName: tableNames.comp
                 });
+                setRunningQuery(icvQueryName);
+                await icvJob;
                 compProgress.done();
+            } catch(e) {
+                if (isCancelled()) {
+                    console.log('Cancel: icv excution');
+                    throw JobCancelExeption;
+                } else {
+                    throw e;
+                }
             } finally {
+                setRunningQuery(null);
                 compProgress.stop();
             }
             const compTable = new Table({
                 session: session,
                 tableName: tableNames.comp
             });
+            failCleanupJobs.push(() => compTable.destroy());
+            if (isCancelled()) {
+                console.log('Cancel: post icv excution');
+                throw JobCancelExeption;
+            }
 
             // Delete Load XDB but keep lineage
             await loadTable.destroy({ isCleanLineage: false });
+            if (isCancelled()) {
+                console.log('Cancel: post delete load lineage');
+                throw JobCancelExeption;
+            }
 
             // Return the session tables created from those 3 DFs
             return {
@@ -288,6 +373,13 @@ async function createDiscoverApp(params: {
                 load: loadTable,
                 loadUDFs: loadUDFs
             };
+        } catch(e) {
+            try {
+                await Promise.all(failCleanupJobs.map(job => job()));
+            } catch(_) {
+                // Ignore errors
+            }
+            throw e;
         } finally {
             progressCB(100);
         }
@@ -367,6 +459,41 @@ async function createDiscoverApp(params: {
         },
         createResultTables: async (query, progressCB: ProgressCallback = () => {}) => {
             return await callInTransaction('Create tables', () => runTableQuery(query, progressCB));
+        },
+        createResultTablesWithCancel: (query, progressCB: ProgressCallback = () => {}) => {
+            return runTableQueryWithCancel(query, progressCB);
+        },
+        getCreateTableQueryWithCancel: (param: {
+            path: string, filePattern: string,
+            inputSerialization: InputSerialization,
+            schema: Schema,
+            numRows?: number,
+            progressCB?: ProgressCallback,
+            isRecursive?: boolean
+        }) => {
+            let cancel = false;
+            let loadUDFs = null;
+            return {
+                cancel: () => { cancel = true },
+                done: async () => {
+                    const result = await app.getCreateTableQueryWithSchema(param);
+                    loadUDFs = getIntermidateResource(JSON.parse(result.loadQueryOpt).retina);
+                    if (cancel) {
+                        console.log('Cancle: getQuery')
+                        throw JobCancelExeption;
+                    }
+                    return result;
+                },
+                cleanup: async () => {
+                    if (loadUDFs != null) {
+                        try {
+                            await deleteLoadUDFs(loadUDFs);
+                        } catch(_) {
+                            // Ignore errors
+                        }
+                    }
+                }
+            };
         },
         getCreateTableQueryWithSchema: async (param: {
             path: string, filePattern: string,
@@ -543,4 +670,4 @@ function getDiscoverApp(appId) {
     return discoverApps.get(appId);
 }
 
-export { createDiscoverApp, getDiscoverApp }
+export { createDiscoverApp, getDiscoverApp, JobCancelExeption }

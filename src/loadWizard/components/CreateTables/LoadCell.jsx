@@ -13,7 +13,7 @@ function Create({ onClick }) {
     return <button className="btn btn-secondary btn-new" onClick={onClick}>{Texts.createButtonLabel}</button>
 }
 
-function Loading({ message }) {
+function Loading({ message, onClick = () => {} }) {
     let loadingMessage = Texts.creatingTable;
     if (message) {
         loadingMessage += " (" + message + ")";
@@ -23,9 +23,10 @@ function Loading({ message }) {
         loadingMessage = <div className="loadingBarWrap">
                 <div className="loadingBar" style={{width: pct + "%"}} ></div>
                 <div className="loadingText">Creating... {pct + "%"}</div>
+                <div className="cancelText">Cancel</div>
             </div>;
     }
-    return <span>{loadingMessage}</span>
+    return <span onClick={onClick}>{loadingMessage}</span>
 }
 
 function Success({ complementTable }) {

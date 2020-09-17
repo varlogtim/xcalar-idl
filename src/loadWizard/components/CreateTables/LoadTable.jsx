@@ -222,6 +222,7 @@ function LoadTable({
     onClickSchema = (schemaName) => {},
     onClickFailedSchema = () => {},
     onClickCreateTable = (schemaName) => {},
+    onClickCancel = () => {},
     onFetchData = async (page, rowsPerPage) => {},
     onTableNameChange
 }) {
@@ -283,7 +284,7 @@ function LoadTable({
 
             if (schemasInProgress.has(schemaName)) {
                 const {table, message} = schemasInProgress.get(schemaName);
-                rowData.load = <LoadCell.Loading message={message}/>
+                rowData.load = <LoadCell.Loading message={message} onClick={() => { onClickCancel() }} />
                 rowData.tableName = table;
             } else if (schemasFailed.has(schemaName)) {
                 rowData.load = <LoadCell.Error error={schemasFailed.get(schemaName)} />

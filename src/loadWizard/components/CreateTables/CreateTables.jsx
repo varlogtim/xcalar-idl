@@ -22,6 +22,7 @@ class CreateTables extends React.Component {
             tablesInInput, // Map<schemaName, tableName>
             tables, // Map<schemaName, tableName>
             onClickCreateTable = (schemaName, tableName) => {},
+            onClickCancel = () => {},
             onLoadSchemaDetail = (schemaHash) => {},
             onLoadFailureDetail = () => {},
             onFetchData,
@@ -46,6 +47,7 @@ class CreateTables extends React.Component {
                         onClickSchema={(schemaName) => { onLoadSchemaDetail(schemaName); }}
                         onClickFailedSchema={() => { onLoadFailureDetail(); }}
                         onClickCreateTable={onClickCreateTable}
+                        onClickCancel={onClickCancel}
                         onTableNameChange={onTableNameChange}
                     />
                 </div>

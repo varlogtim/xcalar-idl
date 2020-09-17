@@ -129,6 +129,7 @@ type LoadConfigState = {
         schemas: Array<any>,
         isLoading: boolean,
     },
+    onCancelCreate: () => void,
     createInProgress: Map<string, {table: string, message: string}>,
     createFailed: Map<string, string>,
     createTables: Map<string, {table: string, complementTable: string}>,
@@ -226,6 +227,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                 schemas: [],
                 isLoading: false,
             },
+            onCancelCreate: () => {},
             createInProgress: new Map(), // Map<schemaName, tableName>
             createFailed: new Map(), // Map<schemaName, errorMsg>
             createTables: new Map(), // Map<schemaName, tableName>
@@ -406,6 +408,14 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         const schemaName = defaultSchemaName;
         const isPublishTables = SchemaLoadSetting.get('isPublishTables', false) ;
 
+        let cancelAction = null;
+        const cancelCreate = () => {
+            if (cancelAction != null) {
+                cancelAction();
+            }
+        };
+        const cleanupCancelledJobs = [];
+
         try {
             const {
                 connector,
@@ -422,7 +432,8 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                 createInProgress: createInProgress,
                 createFailed: deleteEntry(this.state.createFailed, schemaName),
                 createTables: deleteEntry(this.state.createTables, schemaName),
-                tableToCreate: deleteEntry(this.state.tableToCreate, schemaName)
+                tableToCreate: deleteEntry(this.state.tableToCreate, schemaName),
+                onCancelCreate: cancelCreate
             });
 
             // track progress
@@ -433,7 +444,11 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
 
             // Get create table dataflow
             const { path, filePattern } = this._getLoadPathInfo();
-            const query = await app.getCreateTableQueryWithSchema({
+            const {
+                cancel: getQueryCancel,
+                done: getQueryDone,
+                cleanup: getQueryCleanup
+            } = app.getCreateTableQueryWithCancel({
                 path: path, filePattern: filePattern,
                 inputSerialization: inputSerialization,
                 isRecursive: true,
@@ -451,9 +466,12 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                     });
                 }
             });
+            cancelAction = getQueryCancel;
+            cleanupCancelledJobs.push(getQueryCleanup);
+            const query = await getQueryDone();
 
             // Create data/comp session tables
-            const tables = await app.createResultTables(query, (progress) => {
+            const { cancel: createCancel, done: createDone } = app.createResultTablesWithCancel(query, (progress) => {
                 this.setState((state) => {
                     const { createInProgress } = state;
                     createInProgress.set(schemaName, {
@@ -465,6 +483,8 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                     };
                 })
             });
+            cancelAction = createCancel;
+            const tables = await createDone();
 
             // Publish tables
             try {
@@ -527,12 +547,23 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                 throw e;
             }
         } catch(e) {
-            let error = e.message || e.error || e;
-            error = xcHelper.parseError(error);
-            this.setState({
-                createInProgress: deleteEntry(this.state.createInProgress, schemaName),
-                createFailed: this.state.createFailed.set(schemaName, error),
-            });
+            if (e === SchemaLoadService.JobCancelExeption) {
+                for (const job of cleanupCancelledJobs) {
+                    await job();
+                }
+                this.setState({
+                    createInProgress: deleteEntry(this.state.createInProgress, schemaName)
+                });
+            } else {
+                let error = e.message || e.error || e;
+                error = xcHelper.parseError(error);
+                this.setState({
+                    createInProgress: deleteEntry(this.state.createInProgress, schemaName),
+                    createFailed: this.state.createFailed.set(schemaName, error),
+                });
+            }
+        } finally {
+            this.setState({ onCancelCreate: null });
         }
 
     }
@@ -1399,6 +1430,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                     this.state.tableToCreate.set(schema.hash, defaultTableName);
                                 }
                             }
+                            const { onCancelCreate } = this.state;
                             return (
                                 <CreateTables
                                     {...this.state.createTableState}
@@ -1413,6 +1445,11 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                     onFetchData={(p, rpp) => {}}
                                     onClickCreateTable={(schemaName, tableName) => {
                                         this._createTableFromSchema(this.state.finalSchema, tableName);
+                                    }}
+                                    onClickCancel={() => {
+                                        if (onCancelCreate != null) {
+                                            onCancelCreate();
+                                        }
                                     }}
                                     onPrevScreen = {() => { this._changeStep(StepEnum.SchemaDiscovery); }}
                                     onLoadSchemaDetail = {(schemaHash) => { this._getSchemaDetail(null); }}
