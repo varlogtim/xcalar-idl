@@ -63,11 +63,18 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
     }
 
     _getColsFromSchemaString(schema) {
-        let cols;
+        let cols: Array<{
+            name: string, type: string, mapping: string
+        }>;
         try {
             cols = JSON.parse(schema).columns;
             if (!Array.isArray(cols)) {
                 cols = [];
+            }
+            for (const col of cols) {
+                if (col.mapping.indexOf('$.') == 0) {
+                    col.mapping = col.mapping.substr(2);
+                }
             }
         } catch (e) {
             cols = [];
@@ -75,10 +82,15 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
         return cols;
     }
 
-    _updateSchema(val) {
+    _updateSchema(val: Array<any>) {
         let newSchema = {
             rowpath: "$",
-            columns: val
+            columns: val.map(({name, type, mapping}) => ({
+                name: name, type: type,
+                mapping: mapping.indexOf('$.') < 0
+                    ? '$.' + mapping
+                    : mapping
+            }))
         };
         this._schemaChange(JSON.stringify(newSchema))
     }
