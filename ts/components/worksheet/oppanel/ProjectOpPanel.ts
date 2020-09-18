@@ -6,6 +6,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
     private _$elemPanel: JQuery = null; // The DOM element of the panel
     private _$elemDeriveSelectAllWrap: JQuery = null;
     private _$elemDeriveSelectAllCheckbox: JQuery = null;
+    private _$colList: JQuery = null;
     protected _dataModel: ProjectOpPanelModel = new ProjectOpPanelModel() ; // The key data structure
     protected _dagNode: DagNodeProject = null;
     protected codeMirrorOnlyColumns = true;
@@ -48,6 +49,15 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
             this._$elemPanel
         );
 
+        this._$colList = $("#projectOpPanel .exportColumnsSection");
+
+        $("#projectOpPanel .searchArea .searchInput").on("input", (event) => {
+            const $searchInput: JQuery = $(event.currentTarget);
+            if (!$searchInput.is(":visible")) return; // ENG-8642
+            const keyword: string = $searchInput.val().trim();
+            this._filterColumns(keyword);
+        });
+
         super.setup(this._$elemPanel);
     }
 
@@ -71,6 +81,8 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
             if (error || BaseOpPanel.isLastModeAdvanced) {
                 this._startInAdvancedMode(error);
             }
+            this._$elemPanel.find(".searchBox .searchInput").val("");
+            this._$elemPanel.find(".filterHint").addClass("xc-hidden");
         });
     }
 
@@ -114,7 +126,8 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
                     'colName': colName,
                     'onColClick': this._onDerivedColumnClick(i),
                     'colType': colType,
-                    'colTypeClass': `type-${colType}`
+                    'colTypeClass': `type-${colType}`,
+                    'isHidden': column.isHidden ? 'xc-hidden': ''
                 }
             );
             for (const dom of domList) {
@@ -368,5 +381,32 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
 
         const colMap = this._dataModel.columnMap;
         return this._mainModel.fromDagInput(colMap, dagInput);
+    }
+
+    private _filterColumns(keyword: string) {
+        if (keyword == "") {
+            this._$elemPanel.find(".filterHint").addClass("xc-hidden");
+        } else {
+            this._$elemPanel.find(".filterHint").removeClass("xc-hidden");
+        }
+        keyword = keyword.toLocaleLowerCase();
+        let cols = this._$colList.find(".col");
+        for (let i = 0; i < cols.length; i++) {
+            let col = cols.eq(i);
+            if (col.text().toLocaleLowerCase().includes(keyword)) {
+                col.removeClass("xc-hidden");
+                col.find(".checkbox").removeClass("xc-hidden");
+            } else {
+                col.addClass("xc-hidden");
+                col.find(".checkbox").addClass("xc-hidden");
+            }
+        }
+        if (this._$colList.find('.col .checked').not(".xc-hidden").length
+            == this._$colList.find('.checkbox').not(".xc-hidden").length) {
+            this._$elemPanel.find(".selectAllWrap .checkbox").eq(0).addClass("checked");
+        } else {
+            this._$elemPanel.find(".selectAllWrap .checkbox").eq(0).removeClass("checked");
+        }
+        this._dataModel.hideCols(keyword);
     }
 }

@@ -392,8 +392,8 @@
                 border-left: 1px solid @color-border-medium2;
                 padding-right: 22px;
                 position: relative;
-                .flex(1 1 100px);
-                width: 100px;
+                .flex(1 1 120px);
+                width: 120px;
                 margin-top: -1px; // fixes double thickness of the bottom of a
                                 // cell's border when next to the top border
                                 // of another cell
@@ -408,8 +408,8 @@
             }
             .flexSpace {
                 border-right: 1px solid transparent;
-                .flex(1 1 100px);
-                width: 100px;
+                .flex(1 1 120px);
+                width: 120px;
                 height: 0px;
                 padding-left: 10px;
                 padding-right: 22px;
@@ -1557,7 +1557,7 @@
 
         &:hover {
             .checkbox .icon {
-                color: @color-border-softGray2;
+                opacity: 0.8;
             }
         }
     }
@@ -2591,6 +2591,20 @@
             display: none;
         }
     }
+    .searchBox {
+        .icon {
+            .position(relative, @top: -19px, @right: 5px);
+            float: right;
+            font-size: 14px;
+            color: @color-border-bar;
+        }
+    }
+
+    .filterHint {
+        color: @color-border-bar;
+        padding-bottom: 2px;
+    }
+
     .selectAllWrap {
         float: right;
     }

@@ -36,7 +36,8 @@ class ProjectOpPanelModel extends BaseOpPanelModel {
                 // Derived column
                 model.derivedList.push({
                     name: colName,
-                    isSelected: isSelected
+                    isSelected: isSelected,
+                    isHidden: false
                 });
             } else {
                 // Prefixed column
@@ -53,7 +54,8 @@ class ProjectOpPanelModel extends BaseOpPanelModel {
                 }
                 model.prefixedList[prefixIndex].columnList.push({
                     name: colName,
-                    isSelected: false // Not used for prefixed column
+                    isSelected: false, // Not used for prefixed column
+                    isHidden: false
                 });
             }
         }
@@ -63,7 +65,8 @@ class ProjectOpPanelModel extends BaseOpPanelModel {
             if (colInfo.prefix == null || colInfo.prefix.length === 0) {
                 model.derivedList.push({
                     name: name,
-                    isSelected: true
+                    isSelected: true,
+                    isHidden: false
                 });
             } else {
                 const prefix = colInfo.prefix;
@@ -79,7 +82,8 @@ class ProjectOpPanelModel extends BaseOpPanelModel {
                 }
                 model.prefixedList[prefixIndex].columnList.push({
                     name: name,
-                    isSelected: false // Not used for prefixed column
+                    isSelected: false, // Not used for prefixed column
+                    isHidden: false
                 });
             }
         }
@@ -158,5 +162,19 @@ class ProjectOpPanelModel extends BaseOpPanelModel {
         }
         const model = this.fromDagInput(allColMap, dagData);
         return model;
+    }
+
+    /**
+     * Hides the columns not including the keyword
+     * @param keyword
+     */
+    public hideCols(keyword: string): void {
+        this.derivedList.forEach((column) => {
+            if (column.name.toLocaleLowerCase().includes(keyword)) {
+                column.isHidden = false;
+            } else {
+                column.isHidden = true;
+            }
+        });
     }
 }

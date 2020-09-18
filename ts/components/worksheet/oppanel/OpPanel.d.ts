@@ -163,6 +163,7 @@ declare type ValueCheckResult<T> = {
 declare type ProjectOpPanelModelColumnInfo = {
     name: string;
     isSelected: boolean;
+    isHidden: boolean;
 }
 
 declare type ProjectOpPanelModelPrefixColumn = {

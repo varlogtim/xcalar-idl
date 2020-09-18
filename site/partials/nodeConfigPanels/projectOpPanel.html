@@ -36,6 +36,16 @@
                 <div class="text"><%= dicts.common.SelectAll %></div>
               </div>
               <div class="columnsWrap flexWrap clearfix">
+                  <div class="searchArea">
+                      <div class="searchBox">
+                          <input type="text" class="searchInput xc-input" placeholder="Search Columns" spellcheck="false" autocomplete="off">
+                          <i class="icon xi-search colSearchIcon"></i>
+                      </div>
+                      <div class="filterHint"><%= dicts.dataflow.filterHint %></div>
+                      <div class="list">
+                          <ul></ul>
+                      </div>
+                  </div>
                 <ul data-xcid="derivedContainer" class="cols"></ul>
                 <!-- <div class="hint noColsHint empty"><%= dicts.dataflow.noColsHint %></div> -->
               </div>
