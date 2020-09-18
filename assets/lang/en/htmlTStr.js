@@ -988,7 +988,6 @@ module.exports = {
     "project": {
         "instr": "Eliminates unnecessary columns. The columns whose check box is selected are retained in the resultant table.",
         "instrTip": "This operator enables you to eliminate unnecessary columns.<br/>The columns whose check box is selected are retained in the table. To remove unwanted columns from your table, click Select All and deselect the columns you no longer require.",
-        "colInstr": "Select columns to keep. Each set of prefixed columns acts as one unit and only uses the memory of one column.",
         "colsToProject": "Columns",
         "project": "Projection",
         "derived": "Derived columns",
