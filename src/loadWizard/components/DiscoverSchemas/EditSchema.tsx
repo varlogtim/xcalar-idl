@@ -106,6 +106,13 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
         const cssClass = ['editSchema'].concat(classNames);
         let cols = this._getColsFromSchemaString(this.props.schema);
 
+        const defaultSchema = this.props.selectedSchema.columns.map(({ name, type, mapping}) => ({
+            name: name, type: type,
+            mapping: mapping.indexOf('$.') == 0
+                ? mapping.substr(2)
+                : mapping
+        }));
+
         return (<div className={cssClass.join(' ')}>
             { persistError != null && <div className="editSchema-error">{persistError}</div> }
             <div className="schemaOptions">
@@ -144,7 +151,7 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
                 />
                 :
                 <ColSchemaSection
-                    defaultSchema={this.props.selectedSchema.columns}
+                    defaultSchema={defaultSchema}
                     editedSchema={cols}
                     updateSchema={(val) => {
                         this._updateSchema(val);
