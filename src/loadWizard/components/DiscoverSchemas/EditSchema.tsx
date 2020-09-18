@@ -9,6 +9,7 @@ type EditSchemaState = {
 type EditSchemaProps = {
     onSchemaChange: Function,
     errorMessage: string,
+    persistError: string,
     schema: string,
     selectedSchema: any,
     classNames: string[],
@@ -96,7 +97,7 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
     }
 
     render() {
-        const { errorMessage, schema, classNames = [], showAdd = true } = this.props;
+        const { errorMessage, schema, classNames = [], showAdd = true, persistError } = this.props;
         let switchClass = "xc-switch switch";
 
         if (this.state.editAsText) {
@@ -106,6 +107,7 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
         let cols = this._getColsFromSchemaString(this.props.schema);
 
         return (<div className={cssClass.join(' ')}>
+            { persistError != null && <div className="editSchema-error">{persistError}</div> }
             <div className="schemaOptions">
                 <div className="numColsArea">
                     <i className="icon xi-info-circle-outline"></i>
@@ -168,6 +170,7 @@ type EditSchemaSectionProps = {
     isFocus: boolean,
     onSchemaChange: Function,
     errorMessage: string,
+    persistError: string,
     schema: any,
     selectedSchema: any,
     classNames: string[]

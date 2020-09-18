@@ -141,6 +141,20 @@ const defaultInputSerialization = new Map<FileType, InputSerialization>([
     [FileType.PARQUET, InputSerializationFactory.createParquet()]
 ]);
 
+const headerlessCSVOptions = new Set([
+    CSVHeaderOption.IGNORE,
+    CSVHeaderOption.NONE
+]);
+function isHeaderlessCSV(inputSerialization: InputSerialization): boolean {
+    if (inputSerialization.CSV != null) {
+        const { FileHeaderInfo } = inputSerialization.CSV;
+        if (FileHeaderInfo != null) {
+            return headerlessCSVOptions.has(FileHeaderInfo);
+        }
+    }
+    return false;
+}
+
 const SchemaError = {
     INVALID_JSON: () => 'Invalid JSON format',
     NOT_ARRAY: () => 'Columns should be an array',
@@ -231,6 +245,7 @@ export {
     Schema, ColumnDef,
     InputSerialization,
     InputSerializationFactory, defaultInputSerialization,
+    isHeaderlessCSV,
     CSVHeaderOption,
     suggestParserType,
     validateSchemaString, validateSchema,

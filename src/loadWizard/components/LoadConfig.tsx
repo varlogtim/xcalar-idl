@@ -1248,6 +1248,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             homePath,
             fileNamePattern,
             fileType,
+            inputSerialization,
             currentStep,
             selectedFileDir, // Output of Browse
             fileSelectState,
@@ -1325,6 +1326,25 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
 
             );
         };
+
+        // Find out tailing columns in header-less csv
+        let persistSchemaError = null;
+        if (SchemaService.isHeaderlessCSV(inputSerialization)) {
+            let schemaLength = null;
+            for (const {schema} of fileContentState.content) {
+                const { columns } = schema;
+                const colLength = Array.isArray(columns)
+                    ? columns.length
+                    : 0;
+                if (schemaLength == null) {
+                    schemaLength = colLength;
+                } else {
+                    if (colLength > schemaLength) {
+                        persistSchemaError = 'Field(s) with no names detected';
+                    }
+                }
+            }
+        }
 
         return (
             <React.Fragment>
@@ -1439,6 +1459,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                 }}
                                 editSchemaProps={{
                                     ...editSchemaState,
+                                    persistError: persistSchemaError,
                                     isMappingEditable: ![SchemaService.FileType.CSV].includes(fileType),
                                     showAdd: ![SchemaService.FileType.CSV].includes(fileType) ||
                                         (this.state.inputSerialization.CSV && this.state.inputSerialization.CSV.FileHeaderInfo !== "USE"),
