@@ -963,6 +963,14 @@ class MenuHelper {
         const $tdFilter: JQuery = $menu.find(".tdFilter");
         const $tdExclude: JQuery = $menu.find(".tdExclude");
 
+        if (tableCol && tableCol.isDATACol()) {
+            $tdFilter.addClass("xc-hidden");
+            $tdExclude.addClass("xc-hidden");
+        } else {
+            $tdFilter.removeClass("xc-hidden");
+            $tdExclude.removeClass("xc-hidden");
+        }
+
         if (shouldNotFilter || notAllowed) {
             $tdFilter.addClass("unavailable");
             $tdExclude.addClass("unavailable");
