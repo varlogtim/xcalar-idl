@@ -5,7 +5,7 @@ import Pagination from '../../../components/widgets/Pagination'
 import LoadingText from '../../../components/widgets/LoadingText'
 import NavButtons from '../NavButtons'
 import { Folder, FileCopy, InsertDriveFileOutlined } from '@material-ui/icons'
-import EditConnectorsModal from '../EditConnectorsModal'
+import ConnectorsModal from '../ConnectorsModal'
 const Texts = {
     bucketName: 'S3 Bucket',
     noBuckets: 'No bucket to select',
@@ -214,7 +214,7 @@ function SourcePath({
             </form>
         </div>
         {showConnectorModal &&
-            <EditConnectorsModal
+            <ConnectorsModal
                 onClose={()=>{
                     setShowConnectorModal(false);
                 }}

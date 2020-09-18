@@ -10,7 +10,7 @@ type LoadStepProps = {
 };
 
 function LoadStep(props: LoadStepProps) {
-    let classNames = "step xc-action";
+    let classNames = "step";
     if (props.isSelected) {
         classNames += " selected";
     }

@@ -46,20 +46,25 @@
         border-right: 1px solid @color-border-medium3;
 
         .step {
-            height: 70px;
+            height: 74px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             padding-left: 40px;
+            cursor: pointer;
+            .noSelection;
 
             .stepNum {
                 font-weight: bold;
             }
 
-            &.selected {
-                background-color: #191919;
+            &:hover {
+                background-color: #404040;
             }
 
+            &.selected {
+                background-color: #1a1a1a;
+            }
         }
 
     }
@@ -118,6 +123,9 @@
 
                     &:not(.modal) {
                         display: none;
+                    }
+                    &.refreshIcon {
+                        display: block;
                     }
 
                     &:last-child {
@@ -1729,7 +1737,6 @@
 
         > i {
             width: 20px;
-            font-size: 16px;
             line-height: 35px;
         }
 
@@ -1788,11 +1795,7 @@
 
     .backBtn {
         position: absolute;
-        top: 10px;
-
-        .icon {
-            font-size: 16px;
-        }
+        top: 12px;
     }
     .row {
         display: flex;

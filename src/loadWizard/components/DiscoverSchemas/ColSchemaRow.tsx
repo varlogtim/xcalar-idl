@@ -60,7 +60,7 @@ function ColSchemaRow(props: ColSchemaRowProps) {
                 }
                 hintDropdown={true}
             />
-            <i className="remove icon xi-trash xc-action" onClick={props.onRemoveRow}></i>
+            <i className="remove icon xi-load-delete xc-action-icon" onClick={props.onRemoveRow}></i>
         </div>
     );
 }

@@ -4,7 +4,7 @@ import Button from '../../components/widgets/Button'
 import RefreshIcon from '../../components/widgets/RefreshIcon'
 import dict from "../../lang";
 const DSTargetTStr = dict.DSTargetTStr;
-export default class EditConnectorsModal extends React.Component<any, any> {
+export default class ConnectorsModal extends React.Component<any, any> {
     private modalContentRef;
 
     constructor(props){
@@ -137,11 +137,11 @@ export default class EditConnectorsModal extends React.Component<any, any> {
                 {this.state.currentView === "list" ?
                     "Manage Connectors" :
                     <React.Fragment>
-                    <div className="backBtn xc-action" onClick={() => {
+                    <div className="backBtn xc-action-icon" onClick={() => {
                         this.setState({
                             currentView: "list"
                         });
-                    }}><i className="icon xi-previous2"></i></div>
+                    }}><i className="icon xi-load-back-popup"></i></div>
                     Connector Details
                     </React.Fragment>
                 }

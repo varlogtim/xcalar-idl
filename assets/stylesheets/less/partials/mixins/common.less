@@ -428,11 +428,11 @@
     }
 
     &:hover, &:focus, &:active {
-        background-color: @color-font-seconday-button-hover;
+        background-color: @color-font-secondary-button-hover;
     }
 
     &:active {
-        background-color: @color-font-seconday-button-active;
+        background-color: @color-font-secondary-button-active;
         box-shadow: inset 0 0.5px 3px 0 @color-secondary-button-shadow;
     }
 }
@@ -449,28 +449,26 @@
     border-radius: 2px;
     font-size: 14px;
     font-weight: normal;
+    transition: background-color 0.1s, transform 0.1s;
 
     &:not(.btn-secondary) {
-        background-color: #eaeaea;
+        background-color: #dfdfdf;
         color: @color-font-defaultInverse;
         &:hover, &:focus, &:active {
             background-color: @color-font-default;
         }
-        &:active {
-            border: 1px solid #2e2e2e;
-        }
     }
     &.btn-primary {
-        background-color: @color-link-blue;
+        background-color: @color-primary-btn;
         color: @color-font-default;
 
         &:hover, &:focus, &:active {
-            background-color: @color-hover-blue;
+            background-color: @color-primary-btn-hover;
         }
+    }
 
-        &:active {
-            box-shadow: inset 0 0.5px 3px 0 @color-font-form;
-        }
+    &:active {
+        transform: scale(0.95);
     }
 }
 
@@ -2052,6 +2050,32 @@
     cursor: pointer;
     .xc-hover;
     .noSelection;
+}
+
+.xc-action-icon {
+    cursor: pointer;
+    .noSelection;
+    color: @color-icon-new-default;
+    transition: transform 0.1s, color 0.1s;
+
+    &.icon, .icon {
+        font-size: 24px;
+        &:before {
+            color: @color-icon-new-default;
+            transition: color 0.1s;
+        }
+    }
+    &:hover {
+        color: @color-icon-new-hover;
+        &.icon, .icon {
+            &:before {
+                color: @color-icon-new-hover;
+            }
+        }
+    }
+    &:active {
+        transform: scale(0.9);
+    }
 }
 
 .xc-action-link {

@@ -16,7 +16,7 @@ import { FilePathInfo } from '../services/S3Service'
 import { listFilesWithPattern, defaultFileNamePattern } from '../services/S3Service'
 import { DataPreviewModal } from './DataPreview'
 import LoadStep from './LoadStep';
-
+import RefreshIcon from '../../components/widgets/RefreshIcon';
 
 /**
  * UI texts for this component
@@ -91,6 +91,7 @@ type LoadConfigState = {
     fileType: SchemaService.FileType,
 
     browseShow: boolean,
+    waitingBrowseClose: boolean
     selectedFileDir: Array<FilePathInfo>,
     fileNamePattern: string,
     loadAppId: string,
@@ -183,6 +184,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
 
             // BrowseDataSource
             browseShow: false,
+            waitingBrowseClose: false,
             selectedFileDir: new Array(),
             fileNamePattern: defaultFileNamePattern,
             loadAppId: null,
@@ -1413,6 +1415,9 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                 onCancel={() => { this._browseClose(); }}
                                 onDone={async (selectedFileDir, fileNamePattern) => {
                                     try {
+                                        this.setState({
+                                            waitingBrowseClose: true
+                                        });
                                         const success = await this._browseClose(selectedFileDir, fileNamePattern);
                                         if (success) {
                                             this._changeStep(StepEnum.SchemaDiscovery);
@@ -1420,9 +1425,13 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                     } catch(_) {
                                         // Do nothing
                                     }
+                                    this.setState({
+                                        waitingBrowseClose: false
+                                    });
                                 }}
                             />
                         }
+                        {this.state.waitingBrowseClose && <RefreshIcon />}
                         {
                             showDiscover &&
                             <DiscoverSchemas
