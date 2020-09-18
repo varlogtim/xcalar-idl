@@ -962,7 +962,7 @@ namespace xcManager {
                 }
 
                 Alert.error(ErrTStr.RefreshBrowser, ErrTStr.RefreshBrowserDesc, <Alert.AlertErrorOptions>{
-                    "lockScreen": true,
+                    "browserError": true,
                     "buttons": [{
                         className: "refresh",
                         name: "Refresh",

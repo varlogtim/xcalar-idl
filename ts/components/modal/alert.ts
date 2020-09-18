@@ -13,6 +13,7 @@ namespace Alert {
         onConfirm?: Function; // callback to trigger when click confirm button
         onCancel?:  Function; // callback to trigger when click cancel button
         lockScreen?: boolean; // if screen should be frozen
+        browserError?: boolean; // if screen should be frozen
         highZindex?: boolean; // if true then will set z-index above locked background modal,
         ultraHighZindex?: boolean; // if true then will set z-index above locked waiting screen
         align?: string; // it is left, with do left align,
@@ -536,7 +537,11 @@ namespace Alert {
 
         // lock screen if necessary
         if (options.lockScreen) {
-            $modal.find(".close, .cancel").hide();
+            $modal.find(".close").hide();
+        }
+
+        if (options.lockScreen || options.browserError) {
+            $modal.find(".cancel").hide();
             $confirmBtn.hide();
 
             const $downloadLogBtn: JQuery = supportButton("log");
