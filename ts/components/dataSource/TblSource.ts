@@ -139,7 +139,7 @@ class TblSource {
         try {
             await PTblManager.Instance.deleteTables(tableNames);
         } catch (e) {
-            console.error("delete table from failed", e);
+            console.error("drop table failed", e);
             this._refresh(); // update to remove loading/deleting icon
         }
     }

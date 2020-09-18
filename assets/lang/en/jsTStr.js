@@ -629,7 +629,6 @@ AlertTStr = {
     'Title': 'Warning',
     'Error': 'Error',
     'ErrorMsg': 'Error Occurred.',
-    'NoDel': 'Cannot Permanently Delete',
     'ContinueConfirm': 'Are you sure you want to continue?',
     'BracketsMis': 'Mismatched Brackets',
     'CLOSE': 'Close',
@@ -976,24 +975,6 @@ MonitorTStr = {
     "SelectExistingTicket": "Select an existing ticket",
     "CharLimitErr": "Character limit of <limit> exceeded.",
     "ClearMemOption": "FREE MEMORY",
-};
-
-SchedTStr = {
-    'NewSched': 'Create New Schedule',
-    'DelSched': "Permanently Delete Schedule",
-    'DelSchedMsg': "Are you sure you want to permanently delete " +
-                 "this schedule? This action cannot be undone.",
-    "detail": "Schedule Detail",
-    "simFail": "Simulation Fail",
-    "noParam": "No parameters are defined",
-    "unknown": "Unknown",
-    "failServerTime": "Failed to get server time",
-    "ListSchedFail" : "Failed to get schedule results",
-    "Notrun": "Not run yet",
-    "Success": "Success",
-    "NoExportParam": "The export(s) are not properly parameterized and" +
-                     " subsequent runs will fail unless the export folder is " +
-                     "manually moved after every run. Do you want to continue?"
 };
 
 DFTStr = {
@@ -1566,16 +1547,16 @@ UploadTStr = {
 
 IMDTStr = {
     "Title": "Published Tables",
-    "DelTable": "Permanently Delete Tables",
+    "DelTable": "Drop Tables",
     "DelTableFail": "Permanent Deletion of Table Failed",
     "DelTableFailMsg": "You can click on the Force Delete button to forcibly delete these but it will make any dependent tables unusable.",
     "DataUnavailable":  "Only showing last 128 updates.",
-    "DelTableMsg": "Are you sure you want to permanently delete the following tables : \"<tableName>\"? This action cannot be undone.",
+    "DelTableMsg": "Are you sure you want to drop the following tables : \"<tableName>\"? This action cannot be undone.",
     "Activating": "Recreating Tables",
     "ActivatingFail": "Recreating Table Failed",
-    "DeactivateTablesMsg": "Note: Deleting and recreating tables may be slow.\nAre you sure you want to delete the following tables : \"<tableName>\"?",
-    "DeactivateTable": "Delete Tables",
-    "DeactivateTableFail": "Delete Table Failed",
+    "DeactivateTablesMsg": "Note: Freeing table memory and recreating tables may be slow.\nAre you sure you want to delete the following tables : \"<tableName>\"?",
+    "DeactivateTable": "Free Table Memory",
+    "DeactivateTableFail": "Free Table Memory Failed",
     "Coalesce": "Coalesce",
     "CoalesceTip": "Conserve memory by combining updated tables into one. This operation cannot be undone.",
     "GenerateTable": "Generate Table",

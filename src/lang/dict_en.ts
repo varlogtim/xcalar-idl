@@ -14,15 +14,15 @@ export default {
     },
 
     "DeleteTableModalTStr": {
-        "header": "Permanently Delete Tables",
+        "header": "Delete Tables",
         "instr": "To free space in this application please delete old or unnecessary tables.",
-        "confirm": "Are you sure you want to permanently delete the selected table(s)?",
+        "confirm": "Are you sure you want to delete the selected table(s)?",
     },
 
     "DeletePbTableModalTStr": {
-        "header": "Permanently Delete Published Tables",
-        "instr": "To free space in this application please delete unused published tables.",
-        "confirm": "Are you sure you want to permanently delete the following tables : \"<tableName>\"? This action cannot be undone.",
+        "header": "Drop Published Tables",
+        "instr": "To free space in this application please drop unused published tables.",
+        "confirm": "Are you sure you want to drop the following tables : \"<tableName>\"? This action cannot be undone.",
     },
 
     "DeleteSQLModalTStr": {
