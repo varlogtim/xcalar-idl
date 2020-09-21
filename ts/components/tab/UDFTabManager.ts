@@ -343,7 +343,7 @@ class UDFTabManager extends AbstractTabManager {
     private _getNewName(): string {
         const set = new Set();
         this._activeTabs.forEach((tab) => { set.add(tab.name); });
-        let startName: string = "Untitled Module";
+        let startName: string = "Untitled";
         let name: string = startName;
         let cnt = 0;
         while (set.has(name)) {
