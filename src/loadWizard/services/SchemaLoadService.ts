@@ -629,16 +629,17 @@ async function createDiscoverApp(params: {
         },
         createPreviewTable: async function(params: {
             path: string, filePattern: string,
+            isRecursive?: boolean,
             inputSerialization: InputSerialization,
             schema: Schema,
             numRows?: number
         }): Promise<Table> {
-            const { path, filePattern, inputSerialization, schema, numRows = 100 } = params;
+            const { path, filePattern, isRecursive = false, inputSerialization, schema, numRows = 100 } = params;
 
             const query = await app.getCreateTableQueryWithSchema({
                 path: path, filePattern: filePattern,
                 inputSerialization: inputSerialization,
-                isRecursive: true,
+                isRecursive: isRecursive,
                 schema: schema,
                 numRows: numRows
             });

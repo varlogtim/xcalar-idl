@@ -377,9 +377,10 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         const app = SchemaLoadService.getDiscoverApp(loadAppId);
 
         // Create data session table
-        const { path, filePattern } = this._getLoadPathInfo();
+        const { path, filePattern, isRecursive } = this._getLoadPathInfo();
         const table = await app.createPreviewTable({
             path: path, filePattern: filePattern,
+            isRecursive: isRecursive,
             inputSerialization: inputSerialization,
             schema: schema,
             numRows: numRowsForPreview
@@ -397,13 +398,15 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         if (selected.directory) {
             return {
                 path: Path.join(selected.fullPath, '/'),
-                filePattern: fileNamePattern
+                filePattern: fileNamePattern,
+                isRecursive: true
             };
         } else {
             const { path: selectedPath, filePattern } = this._extractFileInfo(selected.fullPath);
             return {
                 path: selectedPath,
-                filePattern: filePattern
+                filePattern: filePattern,
+                isRecursive: false
             };
         }
     }
@@ -451,7 +454,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             }
 
             // Get create table dataflow
-            const { path, filePattern } = this._getLoadPathInfo();
+            const { path, filePattern, isRecursive } = this._getLoadPathInfo();
             const {
                 cancel: getQueryCancel,
                 done: getQueryDone,
@@ -459,7 +462,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             } = app.getCreateTableQueryWithCancel({
                 path: path, filePattern: filePattern,
                 inputSerialization: inputSerialization,
-                isRecursive: true,
+                isRecursive: isRecursive,
                 schema: schema,
                 progressCB: (progress) => {
                     this.setState((state) => {
@@ -658,8 +661,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         const basename = Path.basename(fullPath);
         return {
             path: dirname,
-            filePattern: basename,
-            isRecursive: false
+            filePattern: basename
         };
     }
 
