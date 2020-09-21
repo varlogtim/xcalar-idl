@@ -1009,7 +1009,6 @@ class SQLOpPanel extends BaseOpPanel {
 
             const sql = this._queryStr.replace(/;+$/, "");
 
-
             const queryId = xcHelper.randName("sql", 8);
             try {
                 const graph = this._tab.getGraph();

@@ -856,8 +856,9 @@ class DagViewManager {
         y?: number,
         options?: {
             nodeTitle?: string,
-            configured?: boolean
-            forceAdd?: boolean
+            configured?: boolean,
+            forceAdd?: boolean,
+            autoConnect?: boolean
         }
     ): Promise<DagNode | null> {
         const dagTab = this.activeDagTab;

@@ -179,10 +179,9 @@ describe("DagCategoryBar Test", function() {
         it("double click should add node", function() {
             var called = false;
             var cache = DagViewManager.Instance.autoAddNode;
-            DagViewManager.Instance.autoAddNode = function(type, subType, parentNodeId) {
+            DagViewManager.Instance.autoAddNode = function(type, subType) {
                 expect(type).to.equal(DagNodeType.IMDTable);
                 expect(subType).to.equal(null);
-                expect(parentNodeId).to.equal($("#dagView .dataflowArea.active .operator.IMDTable").data("nodeid"));
                 called = true;
             }
 

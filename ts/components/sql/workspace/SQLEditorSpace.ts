@@ -750,6 +750,9 @@ class SQLEditorSpace {
             case "convertToSQLFuc":
                 this._convertToSQLFunc();
                 break;
+            case "addToModule":
+                this._addToModule();
+                break;
             case "viewShortcuts":
                 // handled in SQLEditorShortcutsModal
                 break;
@@ -883,6 +886,17 @@ class SQLEditorSpace {
                 title: unavailableTip
             });
         }
+        const snippetObj: SQLSnippetDurable = SQLSnippet.Instance.getSnippetObj(this._currentSnippetId);
+        const $addToModuleLi = $dropdown.find('li[data-action="addToModule"]');
+        if (snippetObj.temp) {
+            $addToModuleLi.addClass("unavailable");
+            xcTooltip.add($addToModuleLi, {
+                title: "Already editing SQL node"
+            });
+        } else {
+            $addToModuleLi.removeClass("unavailable");
+            xcTooltip.remove($addToModuleLi);
+        }
     }
 
     private _saveSnippetChange(tempSave: boolean = false): void {
@@ -943,6 +957,66 @@ class SQLEditorSpace {
             }
         });
         return schemas;
+    }
+
+    private _addToModule() {
+        if (DagTabManager.Instance.getNumTabs() === 0) {
+            DagTabManager.Instance.newTab();
+        }
+        DagPanel.Instance.toggleDisplay(true);
+        const dagTab = DagViewManager.Instance.getActiveTab();
+        if (dagTab.getType() !== "Normal") {
+            if (dagTab instanceof DagTabSQLExecute) {
+                DagTabSQLExecute.viewOnlyAlert(dagTab)
+                .then(() => {
+                    this._addSQLNodeToModule();
+                });
+            } else {
+                Alert.error(ErrTStr.Error, "Cannot add SQL node to this type of module.");
+            }
+            return;
+        } else {
+            this._addSQLNodeToModule();
+        }
+    }
+
+    private async _addSQLNodeToModule() {
+        const snippetObj = SQLSnippet.Instance.getSnippetObj(this._currentSnippetId);
+        if (snippetObj == null) {
+            return;
+        }
+        const sql = this._getSQLs();
+
+        const input: DagNodeSQLInputStruct = {
+            sqlQueryStr: sql,
+            identifiers: {},
+            identifiersOrder: [],
+            dropAsYouGo: true
+        };
+        const identifiersMap = new Map();
+        SQLUtil.lockProgress();
+        try {
+            let sqlStruct =  await SQLUtil.getSQLStruct(sql);
+            sqlStruct.identifiers.forEach((identifier, index) => {
+                identifiersMap.set(index + 1, identifier);
+                input.identifiers[index + 1] = identifier;
+                input.identifiersOrder.push(index + 1);
+            });
+            let node: DagNodeSQL = <DagNodeSQL>await DagViewManager.Instance.autoAddNode(DagNodeType.SQL,
+                null, null, input, undefined, undefined, {
+                    configured: true,
+                    forceAdd: true,
+                    autoConnect: true
+            });
+            node.setIdentifiers(identifiersMap);
+            if (!FormHelper.activeForm) {
+                DagNodeMenu.execute("configureNode", {node: node});
+            }
+        } catch (e) {
+            Alert.error(ErrTStr.Error, e);
+        }
+
+        SQLUtil.resetProgress();
     }
 }
 

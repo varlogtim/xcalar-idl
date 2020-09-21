@@ -364,7 +364,7 @@ class ColMenu extends AbstractMenu {
             const $li = $(event.currentTarget);
             if ($li.hasClass("intersect")) {
                 subType = DagNodeSubType.Intersect;
-            } else if ($li.hasClass("execpt")) {
+            } else if ($li.hasClass("except")) {
                 subType = DagNodeSubType.Except;
             }
 

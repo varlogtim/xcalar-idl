@@ -648,18 +648,15 @@ class DagCategoryBar {
                 return;
             }
             const $operator: JQuery = $(this).closest(".operator");
-            const $selectedNodes: JQuery = DagViewManager.Instance.getSelectedNodes();
+
             const newNodeInfo: DagNodeCopyInfo = self.getOperatorInfo(
                 $operator.data('opid')
             );
             const type: DagNodeType = newNodeInfo.type;
             const subType: DagNodeSubType = newNodeInfo.subType;
-            let parentNodeId: DagNodeId = null;
-            if ($selectedNodes.length === 1) {
-                parentNodeId = $selectedNodes.data("nodeid");
-            }
-
-            DagViewManager.Instance.autoAddNode(type, subType, parentNodeId);
+            DagViewManager.Instance.autoAddNode(type, subType, null, null, null, null, {
+                autoConnect: true
+            });
         });
     }
 

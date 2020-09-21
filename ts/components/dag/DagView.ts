@@ -1721,6 +1721,7 @@ class DagView {
             nodeTitle?: string
             configured?: boolean
             forceAdd?: boolean
+            autoConnect?: boolean
         } = {}
     ): DagNode {
         let logActions = [];
@@ -1742,6 +1743,10 @@ class DagView {
         if (options.nodeTitle) {
             nodeInfo.title = options.nodeTitle;
         }
+        if (!parentNodeId && options.autoConnect) {
+            parentNodeId = DagViewManager.Instance.getSelectedNodeIds(true)[0];
+        }
+
         this.dagTab.turnOffSave();
         const node: DagNode = this.graph.newNode(nodeInfo);
         const addLogParam: LogParam = this._addNodeNoPersist(node, { isNoLog: true });

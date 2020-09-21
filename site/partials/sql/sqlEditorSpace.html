@@ -22,11 +22,12 @@
       <!-- </div> -->
       <div class="list">
         <ul>
-          <li data-action="history"><%= dicts.SQL.HistoryTab %></li>
-          <li data-action="showTables"><%= dicts.Table.Show %></li>
           <li data-action="addUDF"><%= dicts.resouceMenu.AddUDF %></li>
+          <li data-action="addToModule"><%= dicts.resouceMenu.UseInModule %></li>
           <li data-action="download"><%= dicts.fileManager.Download %></li>
           <li data-action="convertToSQLFuc">Convert to table function</li>
+          <li data-action="history"><%= dicts.SQL.HistoryTab %></li>
+          <li data-action="showTables"><%= dicts.Table.Show %></li>
           <li id="viewSQLEditorShortCuts" data-action="viewShortcuts">View Keyboard Shortcuts</li>
           include "../../util/menuScrollArea.html"
         </ul>

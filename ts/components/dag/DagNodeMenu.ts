@@ -495,8 +495,8 @@ namespace DagNodeMenu {
             const newNodeInfo: DagNodeCopyInfo = DagCategoryBar.Instance.getOperatorInfo(opid);
             const type: DagNodeType = newNodeInfo.type;
             const subType: DagNodeSubType = newNodeInfo.subType;
-            const nodeId = DagViewManager.Instance.getSelectedNodeIds(true)[0];
-            DagViewManager.Instance.autoAddNode(type, subType, nodeId);
+            DagViewManager.Instance.autoAddNode(type, subType, null, null, null, null,
+            {autoConnect: true});
         });
     }
 

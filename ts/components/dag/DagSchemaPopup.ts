@@ -62,9 +62,27 @@ class DagSchemaPopup {
                 this._close();
             }
         });
-
-        this._fillColumns();
         this._positionPopup();
+        let promise: XDPromise<any> = PromiseHelper.resolve();
+        if (this._dagNode instanceof DagNodeSQL) {
+            // Special case for SQL node
+            let subGraph = this._dagNode.getSubGraph();
+            if (!subGraph) {
+                const params: DagNodeSQLInputStruct = this._dagNode.getParam();
+                if (params.sqlQueryStr) {
+                    this._$popup.find(".content, .close").addClass("xc-disabled");
+                    const queryId = xcHelper.randName("sql", 8);
+                    promise = this._dagNode.compileSQL(params.sqlQueryStr, queryId)
+                    .always(() => {
+                        this._$popup.find(".content, .close").removeClass("xc-disabled");
+                    });
+                }
+            }
+        }
+        promise.always(() => {
+            this._fillColumns();
+            this._positionPopup();
+        });
     }
 
     private _addEventListeners(): void {
