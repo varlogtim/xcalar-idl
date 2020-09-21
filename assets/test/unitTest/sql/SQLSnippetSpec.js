@@ -27,9 +27,9 @@ describe("SQLSnippet Test", function() {
     });
 
     it("hasSnippet should work", function() {
-        let res = SQLSnippet.Instance.hasSnippet("test");
+        let res = SQLSnippet.Instance.hasSnippetWithName("test");
         expect(res).to.equal(true);
-        res = SQLSnippet.Instance.hasSnippet("test2");
+        res = SQLSnippet.Instance.hasSnippetWithName("test2");
         expect(res).to.equal(false);
     });
 

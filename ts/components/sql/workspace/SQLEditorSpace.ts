@@ -124,7 +124,7 @@ class SQLEditorSpace {
         if (snippetObj == null) {
             return false;
         }
-        const snippet = snippetObj.snippet || "";
+        const snippet = SQLSnippet.Instance.getSnippetText(snippetObj, true);
         this._currentSnippetId = snippetObj.id;
         this._setSnippet(snippet, snippetObj.temp);
         if (snippetObj.temp) {
@@ -182,7 +182,7 @@ class SQLEditorSpace {
             }
         })
         .on("change", () => {
-            this._saveSnippetChange();
+            this._saveSnippetChange(true);
             const snippetObj: SQLSnippetDurable = SQLSnippet.Instance.getSnippetObj(this._currentSnippetId);
             if (snippetObj && snippetObj.temp) {
                 SQLOpPanel.Instance.updateSnippet(this._currentSnippetId);
@@ -758,15 +758,23 @@ class SQLEditorSpace {
         }
     }
 
-    private async _saveSnippet(id: string, snippet: string): Promise<void> {
+    private async _saveSnippet(
+        id: string,
+        snippet: string,
+        tempSave: boolean
+    ): Promise<void> {
         let $section = this._getEditorSpaceEl();
-        $section.addClass("saving");
+        if (!tempSave) {
+            $section.addClass("saving");
+        }
         let startTime = Date.now();
-        await SQLSnippet.Instance.update(id, snippet);
+        await SQLSnippet.Instance.update(id, snippet, tempSave);
         let endTime = Date.now();
-        setTimeout(() => {
-            $section.removeClass("saving");
-        }, Math.max(0, 1000 - (endTime - startTime)));
+        if (!tempSave) {
+            setTimeout(() => {
+                $section.removeClass("saving");
+            }, Math.max(0, 1000 - (endTime - startTime)));
+        }
     }
 
     private _downlodSnippet(): void {
@@ -827,6 +835,10 @@ class SQLEditorSpace {
             this._executeAction();
         });
 
+        $header.on("click", ".saveFile", () => {
+            this._saveSnippetChange();
+        });
+
         $header.on("click", ".showTables", (event) => {
             $(event.currentTarget).blur();
             SQLResultSpace.Instance.showTables(true);
@@ -873,13 +885,13 @@ class SQLEditorSpace {
         }
     }
 
-    private _saveSnippetChange(): void {
+    private _saveSnippetChange(tempSave: boolean = false): void {
         try {
             const snippet: string = this._sqlEditor.getValue() || "";
             const snippetObj: SQLSnippetDurable = SQLSnippet.Instance.getSnippetObj(this._currentSnippetId);
-            const lastSnippet: string = snippetObj.snippet || "";
+            const lastSnippet: string = tempSave ? SQLSnippet.Instance.getSnippetText(snippetObj) : (snippetObj.snippet || "");
             if (snippet !== lastSnippet) {
-                this._saveSnippet(this._currentSnippetId, snippet);
+                this._saveSnippet(this._currentSnippetId, snippet, tempSave);
             }
         } catch (e) {
             console.error("save snippet change failed", e);
@@ -887,8 +899,7 @@ class SQLEditorSpace {
     }
 
     private async _convertToSQLFunc(): Promise<void> {
-        const snippetObj = SQLSnippet.Instance.getSnippetObj(this._currentSnippetId);
-        if (snippetObj == null) {
+        if (!SQLSnippet.Instance.hasSnippetWithId(this._currentSnippetId)) {
             return;
         }
         const sql = this._getSQLs();
@@ -897,7 +908,7 @@ class SQLEditorSpace {
             // error case
             return;
         }
-        const {graph, numInput, sqlNode} = executor.convertToSQLFunc();
+        const {graph, numInput} = executor.convertToSQLFunc();
         const onSubmit = (name) => {
             DagTabManager.Instance.newSQLFunc(name, graph);
             DagViewManager.Instance.getActiveDagView().autoAlign({isNoLog: true});

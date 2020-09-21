@@ -55,7 +55,7 @@ class SQLTabManager extends AbstractTabManager {
 
     public closeTempTab() {
         const index: number = this._activeTabs.indexOf(this._tempTabId);
-        this._deleteTabAction(index, this._tabBeforeTemp);
+        this._deleteTabAction(index, this._tabBeforeTemp, false);
     }
 
     /**
@@ -85,7 +85,7 @@ class SQLTabManager extends AbstractTabManager {
     public closeTab(id: string): void {
         const index: number = this._activeTabs.indexOf(id);
         if (index > -1) {
-            this._deleteTabAction(index);
+            this._deleteTabAction(index, undefined, false);
             this._tabListScroller.showOrHideScrollers();
         }
     }
@@ -96,6 +96,23 @@ class SQLTabManager extends AbstractTabManager {
      */
     public isOpen(id: string): boolean {
         return this._activeTabs.includes(id);
+    }
+
+    /**
+     * SQLTabManager.Instance.toggleUnSaved
+     * @param id 
+     * @param unsaved 
+     */
+    public toggleUnSaved(id: string, unsaved: boolean): void {
+        const index: number = this._activeTabs.indexOf(id);
+        if (index > -1) {
+            const $tab = this._getTabElByIndex(index);
+            if (unsaved) {
+                $tab.addClass("unsaved");
+            } else {
+                $tab.removeClass("unsaved");
+            }
+        }
     }
 
     /**
@@ -144,36 +161,47 @@ class SQLTabManager extends AbstractTabManager {
         return deferred.promise();
     }
 
-    protected _deleteTabAction(index: number, idToSwitchTo?: string): void {
-        const $tab: JQuery = this._getTabElByIndex(index);
-        const id: string = this._activeTabs[index];
-        const snippetObj = SQLSnippet.Instance.getSnippetObj(id);
-        if (snippetObj.temp) {
-            SQLOpPanel.Instance.close(false, true);
-            SQLSnippet.Instance.deleteTempTab(this._tempTabId);
-            this._tempTabId = null;
-            this._getContainer().removeClass("hasTempTab");
-            this._tabListScroller.showOrHideScrollers();
-            ResourceMenu.Instance.toggleTempSQLTab();
-        }
-
-        if ($tab.hasClass("active")) {
-            // when this is the current active table
-            if (idToSwitchTo && this._activeTabs.indexOf(idToSwitchTo) > -1) {
-                const newIndex = this._activeTabs.indexOf(idToSwitchTo);
-                this._switchTabs(newIndex);
-            } else if (index > 0) {
-                this._switchTabs(index - 1);
-            } else if (this.getNumTabs() > 1) {
-                this._switchTabs(index + 1);
+    protected async _deleteTabAction(
+        index: number,
+        idToSwitchTo?: string,
+        alertUnsavedChange: boolean = true
+    ): Promise<void> {
+        try {
+            const $tab: JQuery = this._getTabElByIndex(index);
+            const id: string = this._activeTabs[index];
+            const snippetObj = SQLSnippet.Instance.getSnippetObj(id);
+            if (snippetObj.temp) {
+                SQLOpPanel.Instance.close(false, true);
+                SQLSnippet.Instance.deleteTempTab(this._tempTabId);
+                this._tempTabId = null;
+                this._getContainer().removeClass("hasTempTab");
+                this._tabListScroller.showOrHideScrollers();
+                ResourceMenu.Instance.toggleTempSQLTab();
+            } else if (alertUnsavedChange && $tab.hasClass('unsaved')) {
+                // when not temp snippet and has unsaved change
+                await this._alertUnsavedSnippet(snippetObj);
             }
 
-        }
-        this._activeTabs.splice(index, 1);
-        this._save();
+            if ($tab.hasClass("active")) {
+                // when this is the current active table
+                if (idToSwitchTo && this._activeTabs.indexOf(idToSwitchTo) > -1) {
+                    const newIndex = this._activeTabs.indexOf(idToSwitchTo);
+                    this._switchTabs(newIndex);
+                } else if (index > 0) {
+                    this._switchTabs(index - 1);
+                } else if (this.getNumTabs() > 1) {
+                    this._switchTabs(index + 1);
+                }
 
-        $tab.remove();
-        this._updateList();
+            }
+            this._activeTabs.splice(index, 1);
+            this._save();
+
+            $tab.remove();
+            this._updateList();
+        } catch {
+            // it's normal when cancel, no need to handle
+        }
     }
 
     protected _deleteOtherTabsAction(index: number, rightOnly?: boolean): void {
@@ -338,7 +366,7 @@ class SQLTabManager extends AbstractTabManager {
     private _validateTabName(name: string): string | null {
         if (!xcHelper.checkNamePattern(PatternCategory.Dataflow, PatternAction.Check, name)) {
             return ErrTStr.DFNameIllegal;
-        } else if (SQLSnippet.Instance.hasSnippet(name)) {
+        } else if (SQLSnippet.Instance.hasSnippetWithName(name)) {
             return "SQL with the same name already exists";
         } else {
             return null;
@@ -373,5 +401,33 @@ class SQLTabManager extends AbstractTabManager {
             $li.addClass("active");
             ResourceMenu.Instance.focusOnList($li);
         }
+    }
+
+    private _alertUnsavedSnippet(snippetObj: SQLSnippetDurable): Promise<void> {
+        return new Promise((resolve, reject) => {
+            Alert.show({
+                title: "Unsaved change",
+                instr: "Your changes will be lost if you don't save them.",
+                msg: "Do you want to save the changes you made?",
+                buttons: [{
+                    name: "Don't save",
+                    className: 'btn-submit',
+                    func: () => {
+                        SQLSnippet.Instance.updateUnsavedChange(snippetObj, false);
+                        resolve();
+                    }
+                }, {
+                    name: CommonTxtTstr.Save,
+                    className: 'btn-submit',
+                    func: () => {
+                        SQLSnippet.Instance.updateUnsavedChange(snippetObj, true);
+                        resolve();
+                    }
+                }],
+                onCancel: () => {
+                    reject();
+                }
+            })
+        });
     }
 }

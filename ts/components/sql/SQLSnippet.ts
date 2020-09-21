@@ -89,10 +89,38 @@ class SQLSnippet {
     }
 
     /**
-     * SQLSnippet.Instance.hasSnippet
+     * SQLSnippet.Instance.getSnippetText
+     * Get snippet text from either the unsaved snippet or saved version
+     * @param snippetObj
+     */
+    public getSnippetText(
+        snippetObj: SQLSnippetDurable,
+        updateState: boolean = false
+    ): string {
+        const unsavedSnippetObj: SQLSnippetDurable = this._getUnsavedSnippetObjById(snippetObj.id);
+        if (unsavedSnippetObj) {
+            if (updateState) {
+                SQLTabManager.Instance.toggleUnSaved(snippetObj.id, true);
+            }
+            return unsavedSnippetObj.snippet || "";
+        } else {
+            return snippetObj.snippet || "";
+        }
+    }
+
+    /**
+     * SQLSnippet.Instance.hasSnippetWithId
+     * @param id
+     */
+    public hasSnippetWithId(id: string): boolean {
+        return this._getSnippetObjectById(id) != null;
+    }
+
+    /**
+     * SQLSnippet.Instance.hasSnippetWithName
      * @param snippetName
      */
-    public hasSnippet(name: string): boolean {
+    public hasSnippetWithName(name: string): boolean {
         for (let snippetObj of this._snippets) {
             if (snippetObj.name === name) {
                 return true;
@@ -108,17 +136,43 @@ class SQLSnippet {
      */
     public async update(
         id: string,
-        snippet: string
+        snippet: string,
+        unsavedChange: boolean = false
     ): Promise<void> {
         const snippetObj = this._getSnippetObjectById(id);
         if (snippetObj == null) {
             return;
         }
-        snippetObj.snippet = snippet;
         if (snippetObj.temp) {
+            snippetObj.snippet = snippet;
             return;
+        } else if (unsavedChange) {
+            return this._storedUnSavedSnippet(snippetObj, snippet);
+        } else {
+            return this._storeSavedSnippet(snippetObj, snippet);
         }
-        return this._updateSnippets();
+    }
+
+    /**
+     * SQLSnippet.Instance.updateUnsavedChange
+     * @param id
+     * @param save
+     */
+    public async updateUnsavedChange(
+        snippetObj: SQLSnippetDurable,
+        save: boolean
+    ): Promise<void> {
+        try {
+            const unsavedSnippetObj = this._getUnsavedSnippetObjById(snippetObj.id);
+            if (save) {
+                return this._storeSavedSnippet(snippetObj, unsavedSnippetObj.snippet);
+            } else {
+                // discard unsaved change
+                return this._storeSavedSnippet(snippetObj, snippetObj.snippet);
+            }
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     /**
@@ -171,7 +225,7 @@ class SQLSnippet {
      */
     public rename(id: string, newName: string): void {
         const snippetObj = this._getSnippetObjectById(id);
-        if (snippetObj == null || this.hasSnippet(newName)) {
+        if (snippetObj == null || this.hasSnippetWithName(newName)) {
             return;
         }
         snippetObj.name = newName;
@@ -201,7 +255,7 @@ class SQLSnippet {
         name = name || CommonTxtTstr.Untitled;
         let cnt = 0;
         let validName = name;
-        while (this.hasSnippet(validName)) {
+        while (this.hasSnippetWithName(validName)) {
             cnt++;
             validName = name + cnt;
         }
@@ -282,11 +336,63 @@ class SQLSnippet {
 
     private async _deleteSnippet(id: string): Promise<void> {
         SQLTabManager.Instance.closeTab(id);
-        const index: number = this._snippets.findIndex((snippetObj) => snippetObj.id === id);
-        if (index > -1) {
-            this._snippets.splice(index, 1);
+        const unsavedId = this._getUnsavedId(id);
+        let found: boolean = false;
+        this._snippets = this._snippets.filter((snippetObj) => {
+            // remove both snippet and unsaved version
+            if (snippetObj.id === id || snippetObj.id == unsavedId) {
+                found = true;
+                return false;
+            } else {
+                return true;
+            }
+        });
+        if (found) {
             return this._updateSnippets();
         }
+    }
+
+    private async _storedUnSavedSnippet(
+        snippetObj: SQLSnippetDurable,
+        snippet: string
+    ): Promise<void> {
+        const id: string = snippetObj.id;
+        SQLTabManager.Instance.toggleUnSaved(id, true);
+        const unsavedId: string = this._getUnsavedId(id);
+        let unsavedSnippetObj: SQLSnippetDurable = this._getSnippetObjectById(unsavedId);
+        if (unsavedSnippetObj == null) {
+            unsavedSnippetObj = {
+                ...snippetObj,
+                id: unsavedId
+            };
+            this._snippets.push(unsavedSnippetObj);
+        }
+        unsavedSnippetObj.snippet = snippet;
+        return this._updateSnippets();
+    }
+
+    private async _storeSavedSnippet(
+        snippetObj: SQLSnippetDurable,
+        snippet: string
+    ): Promise<void> {
+        snippetObj.snippet = snippet;
+        const unsavedId: string = this._getUnsavedId(snippetObj.id);
+        const unsavedSnippetObj: SQLSnippetDurable = this._getSnippetObjectById(unsavedId);
+        if (unsavedSnippetObj) {
+            this._snippets = this._snippets.filter(({ id }) => id !== unsavedId);
+        }
+        await this._updateSnippets();
+        SQLTabManager.Instance.toggleUnSaved(snippetObj.id, false);
+        return;
+    }
+
+    private _getUnsavedId(id: string): string {
+        return `.unsaved.${id}`;
+    }
+
+    private _getUnsavedSnippetObjById(id: string): SQLSnippetDurable {
+        const unsavedId: string = this._getUnsavedId(id);
+        return this._getSnippetObjectById(unsavedId);
     }
 
     private _refresh(): void {

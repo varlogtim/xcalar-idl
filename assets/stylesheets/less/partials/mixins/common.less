@@ -1818,6 +1818,22 @@
                 background-color: tint(@color-dagTab-custom, 10%);
             }
 
+            &.unsaved {
+                .after {
+                    background-color: @color-icon-default-hover;
+
+                    .icon {
+                        display: none;
+                    }
+
+                    &:hover {
+                        .close {
+                            display: block;
+                        }
+                    }
+                }
+            }
+
             .dragArea {
                 display: block;
                 padding: 0px;

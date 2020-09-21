@@ -34,7 +34,7 @@ class SQLState extends State {
     // Generate a random unique snippet name
     private getUniqueName(prefix?: string, validFunc?: Function): string {
         prefix = prefix || "FuncTestSnippet";
-        validFunc = validFunc || function (snippetName) { return (!SQLSnippet.Instance.hasSnippet(snippetName));};
+        validFunc = validFunc || function (snippetName) { return (!SQLSnippet.Instance.hasSnippetWithName(snippetName));};
         return Util.uniqueRandName(prefix, validFunc, 10);
     }
 
