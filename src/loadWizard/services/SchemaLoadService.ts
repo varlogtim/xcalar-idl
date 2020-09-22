@@ -1,6 +1,7 @@
 import * as Path from 'path'
 import { LoadSession, IXcalarSession } from './sdk/Session'
 import { Table } from './sdk/Table'
+import { SharedTable } from './sdk/SharedTable'
 import { Schema, InputSerialization } from './SchemaService'
 
 type ProgressCallback = (progress?: number) => void;
@@ -197,10 +198,10 @@ function getIntermidateResource(query: string) {
     return loadUDF;
 }
 
-const discoverApps = new Map();
+const discoverApps = new Map<string, App>();
 async function createDiscoverApp(params: {
     targetName: string,
-}) {
+}): Promise<App> {
     const { targetName } = params;
     const { appId, session, names } = await initApp();
 
@@ -399,7 +400,7 @@ async function createDiscoverApp(params: {
         }
     }
 
-    const app = {
+    const app: App = {
         appId: appId,
         getSession: () => session,
         shareResultTables: async (tables, sharedNames) => {
@@ -463,14 +464,7 @@ async function createDiscoverApp(params: {
         createResultTablesWithCancel: (query, progressCB: ProgressCallback = () => {}) => {
             return runTableQueryWithCancel(query, progressCB);
         },
-        getCreateTableQueryWithCancel: (param: {
-            path: string, filePattern: string,
-            inputSerialization: InputSerialization,
-            schema: Schema,
-            numRows?: number,
-            progressCB?: ProgressCallback,
-            isRecursive?: boolean
-        }) => {
+        getCreateTableQueryWithCancel: (param: getCreateTableQueryInput) => {
             let cancel = false;
             let loadUDFs = null;
             return {
@@ -495,27 +489,7 @@ async function createDiscoverApp(params: {
                 }
             };
         },
-        getCreateTableQueryWithSchema: async (param: {
-            path: string, filePattern: string,
-            inputSerialization: InputSerialization,
-            schema: Schema,
-            numRows?: number,
-            progressCB?: ProgressCallback,
-            isRecursive?: boolean
-        }): Promise<{
-            loadQuery:string,
-            loadQueryOpt: string,
-            dataQuery: string,
-            dataQueryOpt: string,
-            compQuery: string,
-            compQueryOpt: string,
-            tableNames: {
-                load: string, data: string, comp: string
-            },
-            loadId: string,
-            dataQueryComplete: string,
-            compQueryComplete: string
-        }> => {
+        getCreateTableQueryWithSchema: async (param: getCreateTableQueryInput): Promise<getCreateTableQueryResult> => {
             const { path, filePattern, inputSerialization, schema, numRows = -1, progressCB = () => {}, isRecursive = false } = param;
             const delProgress = updateProgress((p) => {
                 progressCB(p);
@@ -575,25 +549,7 @@ async function createDiscoverApp(params: {
                 getQueryProgress.stop();
             }
         },
-        previewFile: async (params: {
-            path: string, filePattern: string,
-            inputSerialization: InputSerialization,
-            numRows?: number}): Promise<{
-            status: { errorMessage?: string },
-            lines: Array<{
-                data: any,
-                schema: Schema | {},
-                status: {
-                    hasError: boolean,
-                    errorMessage: string,
-                    unsupportedColumns: Array<{
-                        message: string,
-                        name: string,
-                        mapping: string
-                    }>
-                }
-            }>
-        }> => {
+        previewFile: async (params: previewFileInput): Promise<previewFileResult> => {
             const { path, filePattern, inputSerialization, numRows = 20 } = params;
             const appInput = {
                 func: 'preview_rows',
@@ -604,7 +560,7 @@ async function createDiscoverApp(params: {
                 input_serial_json: JSON.stringify(inputSerialization),
                 num_rows: numRows
             };
-            console.log('App.perfileFile: ', appInput);
+            console.log('App.previewFile: ', appInput);
 
             const { rows = [], schemas = [], statuses = [], global_status = {} } = await executeSchemaLoadApp(JSON.stringify(appInput));
 
@@ -627,13 +583,7 @@ async function createDiscoverApp(params: {
                 })
             };
         },
-        createPreviewTable: async function(params: {
-            path: string, filePattern: string,
-            isRecursive?: boolean,
-            inputSerialization: InputSerialization,
-            schema: Schema,
-            numRows?: number
-        }): Promise<Table> {
+        createPreviewTable: async function(params: createPreviewTableInput): Promise<Table> {
             const { path, filePattern, isRecursive = false, inputSerialization, schema, numRows = 100 } = params;
 
             const query = await app.getCreateTableQueryWithSchema({
@@ -664,6 +614,90 @@ async function createDiscoverApp(params: {
     return app;
 }
 
+type getCreateTableQueryInput = {
+    path: string, filePattern: string,
+    inputSerialization: InputSerialization,
+    schema: Schema,
+    numRows?: number,
+    progressCB?: ProgressCallback,
+    isRecursive?: boolean
+};
+
+type getCreateTableQueryResult = {
+    loadQuery:string,
+    loadQueryOpt: string,
+    dataQuery: string,
+    dataQueryOpt: string,
+    compQuery: string,
+    compQueryOpt: string,
+    tableNames: {
+        load: string, data: string, comp: string
+    },
+    loadId: string,
+    dataQueryComplete: string,
+    compQueryComplete: string
+};
+
+type previewFileInput = {
+    path: string, filePattern: string,
+    inputSerialization: InputSerialization,
+    numRows?: number
+};
+
+type previewFileResult = {
+    status: { errorMessage?: string },
+    lines: Array<{
+        data: any,
+        schema: Schema | {},
+        status: {
+            hasError: boolean,
+            errorMessage: string,
+            unsupportedColumns: Array<{
+                message: string,
+                name: string,
+                mapping: string
+            }>
+        }
+    }>
+};
+
+type createPreviewTableInput = {
+    path: string, filePattern: string,
+    isRecursive?: boolean,
+    inputSerialization: InputSerialization,
+    schema: Schema,
+    numRows?: number
+};
+
+type App = {
+    appId: string,
+    getSession: () => IXcalarSession,
+    shareResultTables: (tables: any, sharedNames: any) => Promise<{
+        data: SharedTable,
+        icv?: SharedTable
+    }>,
+    publishResultTables: (tables: any, pubNames: any, dataflows: any) => Promise<boolean>,
+    createResultTables: (query: any, progressCB?: ProgressCallback) => Promise<{
+        data: Table, comp: Table, load: Table,
+        loadUDFs: Set<string>
+    }>,
+    createResultTablesWithCancel: (query, progressCB?: ProgressCallback) => {
+        cancel: () => Promise<void>,
+        done: () => Promise<{
+            data: Table, comp: Table, load: Table,
+            loadUDFs: Set<string>
+        }>
+    },
+    getCreateTableQueryWithCancel: (params: getCreateTableQueryInput) => {
+        cancel: () => void,
+        done: () => Promise<getCreateTableQueryResult>,
+        cleanup: () => Promise<void>
+    },
+    getCreateTableQueryWithSchema: (params: getCreateTableQueryInput) => Promise<getCreateTableQueryResult>,
+    previewFile: (params: previewFileInput) => Promise<previewFileResult>,
+    createPreviewTable: (params: createPreviewTableInput) => Promise<Table>
+}
+
 function getDiscoverApp(appId) {
     if (appId == null) {
         return null;
@@ -671,4 +705,4 @@ function getDiscoverApp(appId) {
     return discoverApps.get(appId);
 }
 
-export { createDiscoverApp, getDiscoverApp, JobCancelExeption }
+export { App, createDiscoverApp, getDiscoverApp, JobCancelExeption }

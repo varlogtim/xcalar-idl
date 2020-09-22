@@ -1338,23 +1338,24 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             );
         };
 
-        // Find out tailing columns in header-less csv
+        // Find out empty column names
+        // For example in CSV:
+        // a,b,c,,
+        // 1,2,3,4,5
         let persistSchemaError = null;
-        if (SchemaService.isHeaderlessCSV(inputSerialization)) {
-            let schemaLength = null;
-            for (const {schema} of fileContentState.content) {
-                const { columns } = schema;
-                const colLength = Array.isArray(columns)
-                    ? columns.length
-                    : 0;
-                if (schemaLength == null) {
-                    schemaLength = colLength;
-                } else {
-                    if (colLength > schemaLength) {
-                        persistSchemaError = 'Field(s) with no names detected';
+        try {
+            for (const { status } of fileContentState.content) {
+                const { hasError, unsupportedColumns } = status;
+                if (hasError) {
+                    for (const { name } of unsupportedColumns) {
+                        if (name.length === 0 || name === '""') {
+                            throw 'Field(s) with no names detected';
+                        }
                     }
                 }
             }
+        } catch(e) {
+            persistSchemaError = `${e}`;
         }
 
         return (
