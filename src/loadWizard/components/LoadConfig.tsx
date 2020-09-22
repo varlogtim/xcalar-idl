@@ -1371,10 +1371,15 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                     (stepNumMap[currentStep] !== 1 && num <= 2) ||
                                     (finalSchema != null)}
                                 onSelect={() => {
+                                    if (this.state.currentNavStep === num) {
+                                        return;
+                                    }
                                     this.setState({
                                         currentNavStep: num
                                     });
-                                    if (num === 2) {
+                                    if (num === 1) {
+                                        this._changeStep(StepEnum.SchemaDiscovery);
+                                    } else if (num === 2) {
                                         this._changeStep(StepEnum.SchemaDiscovery);
                                         this.setState({
                                             schemaDetailState: {
