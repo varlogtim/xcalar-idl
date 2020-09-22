@@ -25,6 +25,7 @@ class UDFPanel {
     };
     private _modalHelper: ModalHelper;
     private _monitorFileManager: FileManagerPanel;
+    private _unsaved: UDFUnsavedDurable = {};
 
     public readonly udfDefault: string =
         "# PLEASE TAKE NOTE:\n" +
@@ -66,6 +67,23 @@ class UDFPanel {
     }
 
     /**
+     * UDFPanel.Instance.loadUnsaved
+     */
+    public loadUnsaved(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const kvStore = this._getUnSavedKVStore();
+        kvStore.getAndParse()
+        .then((res) => {
+            this._unsaved = res || {};
+        })
+        .always(() => {
+            deferred.resolve();
+        });
+
+        return deferred.promise();
+    }
+
+    /**
      * UDFPanel.Instance.toggleDisplay
      * @param display
      */
@@ -81,7 +99,7 @@ class UDFPanel {
             $container.removeClass("xc-hidden");
             PopupManager.checkAllContentUndocked();
             this._popup.trigger("Show_BroadCast");
-            this.getEditor().refresh();
+            this.refresh();
 
         } else {
             $tab.removeClass("active");
@@ -162,6 +180,7 @@ class UDFPanel {
             title: UDFTStr.Del,
             msg,
             onConfirm: () => {
+                this._storeSavedChange({name: moduleName, isNew: false});
                 const displayPath = this._getDisplayNameAndPath(moduleName)[1] + ".py";
                 UDFFileManager.Instance.delete([displayPath]);
                 UDFTabManager.Instance.closeTab(moduleName);
@@ -254,6 +273,21 @@ class UDFPanel {
         this._modalHelper.setup();
     }
 
+    /**
+     * UDFPanel.Instance.updateUnSavedChange
+     * @param name
+     * @param save 
+     */
+    public async updateUnSavedChange(tab: UDFTabDurable, save: boolean): Promise<void> {
+        if (save) {
+            return this._saveUDF(tab);
+        } else {
+            // discard unsaved change
+            this._storeSavedChange(tab);
+            return;
+        }
+    }
+
     private _getUDFSection(): JQuery {
         return $("#udfSection");
     }
@@ -309,14 +343,18 @@ class UDFPanel {
 
         this._setEditorValue(this.udfDefault);
 
-        let waiting: NodeJS.Timer;
+        let waiting = null;
+        let saveTimer = null;
         this.editor.on("change", () => {
             clearTimeout(waiting);
-            waiting = setTimeout(
-                (error: {reason: string; line: number}) =>
-                    this.updateHints(error),
-                300
-            );
+            waiting = setTimeout((error: {reason: string; line: number}) => {
+                this.updateHints(error);
+            }, 300);
+
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(() => {
+                this._storeUnsavedChange();
+            }, 1000); // 1s interval
         });
 
         const wasActive: boolean = $udfSection.hasClass("active");
@@ -350,19 +388,18 @@ class UDFPanel {
         });
     }
 
-    private _saveUDF(): void {
-        const activeTab = UDFTabManager.Instance.getActiveTab();
-        if (activeTab == null) {
+    private async _saveUDF(tab?: { name: string, isNew: boolean }): Promise<void> {
+        tab = tab || UDFTabManager.Instance.getActiveTab();
+        if (tab == null) {
             // error case
             return;
         }
 
-        const tabName = activeTab.name;
-        if (activeTab.isNew) {
-            this._eventSaveAs(tabName);
-            return;
+        const { name, isNew } = tab;
+        if (isNew) {
+            return this._eventSaveAs(tab);
         }
-        let displayPath = `${tabName}.py`;
+        let displayPath = `${name}.py`;
         if (!displayPath.startsWith("/")) {
             displayPath = UDFFileManager.Instance.getCurrWorkbookDisplayPath() + displayPath;
         }
@@ -374,45 +411,48 @@ class UDFPanel {
                 "bottom"
             )
         ) {
-            const $save: JQuery = this._getSaveButton();
-            $save.addClass("xc-disabled");
-            this._eventSave(displayPath)
-            .always(() => {
+            const $save: JQuery = this._getSaveButton();            
+            try {
+                $save.addClass("xc-disabled");
+                await this._eventSave(displayPath, tab);
+            } catch (e) {
+                throw e;
+            } finally {
                 $save.removeClass("xc-disabled");
-            });
+            }
         }
     }
 
-    private _eventSaveAs(tabName: string) {
-        const options = {
-            onSave: (displayPath: string) => {
-                this._eventSave(displayPath);
-                const name = this._getDisplayNameAndPath(displayPath)[0];
-                const newName = name.substring(0, name.indexOf(".py"));
-                UDFTabManager.Instance.renameTab(tabName, newName);
-            }
-        };
-        FileManagerSaveAsModal.Instance.show(
-            FileManagerTStr.SAVEAS,
-            "new_module.py",
-            UDFFileManager.Instance.getCurrWorkbookDisplayPath(),
-            options
-        );
+    private _eventSaveAs(tab: UDFTabDurable): Promise<void> {
+        return new Promise((resolve, reject) => {
+            const tabName = tab.name;
+            FileManagerSaveAsModal.Instance.show(
+                FileManagerTStr.SAVEAS,
+                "new_module.py",
+                UDFFileManager.Instance.getCurrWorkbookDisplayPath(),
+                {
+                    onSave: (displayPath: string) => {
+                        this._eventSave(displayPath, tab)
+                        .then(() => {
+                            const name = this._getDisplayNameAndPath(displayPath)[0];
+                            const newName = name.substring(0, name.indexOf(".py"));
+                            UDFTabManager.Instance.renameTab(tabName, newName);
+                            resolve();
+                        })
+                        .catch(() => {
+                            reject();
+                        });
+                    }
+                }
+            );
+        });
     }
 
-    private _eventSave(displayPath: string): XDPromise<void> {
-        const entireString: string = this._validateUDFStr();
+    private async _eventSave(displayPath: string, tab: UDFTabDurable): Promise<void> {
+        const entireString: string = this._validateUDFStr(tab);
         if (entireString) {
-            let deferred: XDDeferred<void> = PromiseHelper.deferred();
-            UDFFileManager.Instance.add(displayPath, entireString)
-            .then(() => {
-                deferred.resolve();
-            })
-            .fail(deferred.reject);
-
-            return deferred.promise();
-        } else {
-            return PromiseHelper.resolve();
+            await UDFFileManager.Instance.add(displayPath, entireString);
+            this._storeSavedChange(tab);
         }
     }
 
@@ -471,9 +511,19 @@ class UDFPanel {
         };
     }
 
-    private _validateUDFStr(): string {
-        // Get code written and call thrift call to upload
-        const entireString: string = this.editor.getValue();
+    private _getEditorValue(): string {
+        return this.editor.getValue();
+    }
+
+    private _validateUDFStr(tab: UDFTabDurable): string {
+        let entireString: string = "";
+        let activeTab: UDFTabDurable = UDFTabManager.Instance.getActiveTab();
+        if (activeTab && tab.name === activeTab.name && tab.isNew === activeTab.isNew) {
+            // when the tab is the current active tab
+            entireString = this._getEditorValue();
+        } else {
+            entireString = this._unsaved[tab.name] || "";
+        }
         const $editor: JQuery = $("#udf-fnSection .CodeMirror");
         const options: {side: string; offsetY: number} = {
             side: "top",
@@ -505,6 +555,11 @@ class UDFPanel {
     private _selectUDF(moduleName: string, isNew: boolean): void {
         if (isNew) {
             this._selectBlankUDF();
+            return;
+        }
+        if (this._unsaved.hasOwnProperty(moduleName)) {
+            this._setEditorValue(this._unsaved[moduleName]);
+            UDFTabManager.Instance.toggleUnSaved({name: moduleName, isNew}, false);
             return;
         }
         const udfPath = this._getUDFPathFromModuleName(moduleName);
@@ -584,5 +639,40 @@ class UDFPanel {
 
     private _setEditorValue(valueStr: string): void {
         this.editor.setValue(valueStr);
+        this.refresh();
+    }
+
+    private _getUnSavedKVStore(): KVStore {
+        const key: string = KVStore.getKey("gUDFUnsavedKey");
+        return new KVStore(key, gKVScope.WKBK);
+    }
+
+    private async _storeUnsavedChange(): Promise<void> {
+        const activeTab = UDFTabManager.Instance.getActiveTab();
+        if (activeTab) {
+            const { name } = activeTab;
+            const udfPath: string = this._getUDFPathFromModuleName(name);
+            const savedUDF = UDFFileManager.Instance.getUDFs().get(udfPath);
+            const value = this._getEditorValue();
+            if (value === savedUDF) {
+                // when no change made
+                return this._storeSavedChange(activeTab);
+            } else {
+                this._unsaved[name] = value;
+                UDFTabManager.Instance.toggleUnSaved(activeTab, true);
+                return this._updateUnsaved();
+            }
+        }
+    }
+
+    private async _storeSavedChange(tab: UDFTabDurable): Promise<void> {
+        delete this._unsaved[tab.name];
+        UDFTabManager.Instance.toggleUnSaved(tab, false);
+        return this._updateUnsaved();
+    }
+
+    private async _updateUnsaved(): Promise<void> {
+        const jsonStr = JSON.stringify(this._unsaved);
+        await this._getUnSavedKVStore().put(jsonStr, true);
     }
 }

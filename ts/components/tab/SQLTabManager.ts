@@ -179,7 +179,14 @@ class SQLTabManager extends AbstractTabManager {
                 ResourceMenu.Instance.toggleTempSQLTab();
             } else if (alertUnsavedChange && $tab.hasClass('unsaved')) {
                 // when not temp snippet and has unsaved change
-                await this._alertUnsavedSnippet(snippetObj);
+                await this._alertUnsavedSnippet(
+                    async () => {
+                        SQLSnippet.Instance.updateUnsavedChange(snippetObj, true);
+                    },
+                    async () => {
+                        SQLSnippet.Instance.updateUnsavedChange(snippetObj, false);
+                    },
+                );
             }
 
             if ($tab.hasClass("active")) {
@@ -401,33 +408,5 @@ class SQLTabManager extends AbstractTabManager {
             $li.addClass("active");
             ResourceMenu.Instance.focusOnList($li);
         }
-    }
-
-    private _alertUnsavedSnippet(snippetObj: SQLSnippetDurable): Promise<void> {
-        return new Promise((resolve, reject) => {
-            Alert.show({
-                title: "Unsaved change",
-                instr: "Your changes will be lost if you don't save them.",
-                msg: "Do you want to save the changes you made?",
-                buttons: [{
-                    name: "Don't save",
-                    className: 'btn-submit',
-                    func: () => {
-                        SQLSnippet.Instance.updateUnsavedChange(snippetObj, false);
-                        resolve();
-                    }
-                }, {
-                    name: CommonTxtTstr.Save,
-                    className: 'btn-submit',
-                    func: () => {
-                        SQLSnippet.Instance.updateUnsavedChange(snippetObj, true);
-                        resolve();
-                    }
-                }],
-                onCancel: () => {
-                    reject();
-                }
-            })
-        });
     }
 }

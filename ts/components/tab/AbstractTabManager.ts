@@ -32,7 +32,7 @@ abstract class AbstractTabManager {
 
     public abstract getNumTabs(): number;
     protected abstract _restoreTabs(): XDPromise<void>;
-    protected abstract _deleteTabAction(index: number, name: string): void;
+    protected abstract _deleteTabAction(index: number, name: string, alertUnsavedChange?: boolean): void;
     protected abstract _deleteOtherTabsAction(index: number, rightOnly?: boolean): void;
     protected abstract _renameTabAction($input: JQuery): string;
     protected abstract _startReorderTabAction(): void;
@@ -247,4 +247,43 @@ abstract class AbstractTabManager {
     protected _tabDropdownBeforeOpen(index: number, $menu: JQuery) {
         return null;
     }
+
+    protected _alertUnsavedSnippet(onSave: Function, onDiscard: Function): Promise<void> {
+        return new Promise((resolve, reject) => {
+            Alert.show({
+                title: "Unsaved change",
+                instr: "Your changes will be lost if you don't save them.",
+                msg: "Do you want to save the changes you made?",
+                buttons: [{
+                    name: "Don't save",
+                    className: 'btn-submit',
+                    func: () => {
+                        onDiscard()
+                        .then(() => {
+                            resolve();
+                        })
+                        .catch(() => {
+                            reject();
+                        });
+                        
+                    }
+                }, {
+                    name: CommonTxtTstr.Save,
+                    className: 'btn-submit',
+                    func: () => {
+                        onSave()
+                        .then(() => {
+                            resolve();
+                        })
+                        .catch(() => {
+                            reject();
+                        });
+                    }
+                }],
+                onCancel: () => {
+                    reject();
+                }
+            })
+        });
+    } 
 }

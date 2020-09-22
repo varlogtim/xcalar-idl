@@ -237,6 +237,9 @@ class UDFFileManager {
             return this._getUserWorkbookMap(listXdfsObj);
         })
         .then(() => {
+            return UDFPanel.Instance.loadUnsaved();
+        })
+        .then(() => {
             UDFTabManager.Instance.setup();
             $("#udf-fnSection").removeClass("xc-disabled");
             this.panels.forEach((panel: FileManagerPanel) =>
@@ -256,6 +259,7 @@ class UDFFileManager {
     }
 
     /**
+     * UDFFileManager.Instance.list
      * @param  {string} prefix?
      * @returns XDPromise
      */

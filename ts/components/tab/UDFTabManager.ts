@@ -29,9 +29,10 @@ class UDFTabManager extends AbstractTabManager {
     /**
      * UDFTabManager.Instance.newTab
      */
-    public newTab(): void {
-        let name: string = this._getNewName();
+    public newTab(): string {
+        const name: string = this._getNewName();
         this.openTab(name, true);
+        return name;
     }
 
     /**
@@ -57,7 +58,7 @@ class UDFTabManager extends AbstractTabManager {
     public closeTab(name: string): void {
         const index: number = this._getTabIndexByName(name);
         if (index > -1) {
-            this._deleteTabAction(index);
+            this._deleteTabAction(index, undefined, false);
             this._tabListScroller.showOrHideScrollers();
         }
     }
@@ -115,6 +116,25 @@ class UDFTabManager extends AbstractTabManager {
     }
 
     /**
+     * UDFTabManager.Instance.toggleUnSaved
+     * @param name 
+     * @param unsaved 
+     */
+    public toggleUnSaved(tab: UDFTabDurable, unsaved: boolean): void {
+        const index: number = this._activeTabs.findIndex((v) => {
+            return v.name === tab.name && v.isNew === tab.isNew
+        });
+        if (index > -1) {
+            const $tab = this._getTabElByIndex(index);
+            if (unsaved) {
+                $tab.addClass("unsaved");
+            } else {
+                $tab.removeClass("unsaved");
+            }
+        }
+    }
+
+    /**
      * @override
      * @param index
      */
@@ -158,22 +178,42 @@ class UDFTabManager extends AbstractTabManager {
         return deferred.promise();
     }
 
-    protected _deleteTabAction(index: number): void {
-        const $tab: JQuery = this._getTabElByIndex(index);
-        if ($tab.hasClass("active")) {
-            // when this is the current active table
-            if (index > 0) {
-                this._switchTabs(index - 1);
-            } else if (this.getNumTabs() > 1) {
-                this._switchTabs(index + 1);
+    protected async _deleteTabAction(
+        index: number,
+        _name?: string,
+        alertUnsavedChange: boolean = true
+    ): Promise<void> {
+        try {
+            const $tab: JQuery = this._getTabElByIndex(index);
+            const tab = this._activeTabs[index];
+            if (alertUnsavedChange && $tab.hasClass('unsaved')) {
+                await this._alertUnsavedSnippet(
+                    async () => {
+                        return UDFPanel.Instance.updateUnSavedChange(tab, true);
+                    },
+                    async () => {
+                        return UDFPanel.Instance.updateUnSavedChange(tab, false);
+                    },
+                );
             }
-        }
-        const tab = this._activeTabs.splice(index, 1);
-        this._moduleCache.delete(tab[0].name);
-        this._save();
+            
+            if ($tab.hasClass("active")) {
+                // when this is the current active table
+                if (index > 0) {
+                    this._switchTabs(index - 1);
+                } else if (this.getNumTabs() > 1) {
+                    this._switchTabs(index + 1);
+                }
+            }
+            this._activeTabs.splice(index, 1);
+            this._moduleCache.delete(tab.name);
+            this._save();
 
-        $tab.remove();
-        this._updateList();
+            $tab.remove();
+            this._updateList();
+        } catch {
+            // it's normal to have code here when cancel from alert
+        }
     }
 
     protected _deleteOtherTabsAction(index: number, rightOnly?: boolean): void {

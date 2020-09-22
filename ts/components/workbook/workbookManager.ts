@@ -959,6 +959,7 @@ namespace WorkbookManager {
         const gSQLManagerKey: string = generateKey("gSQLManagerKey", version);
         const gDagManagerKey: string = generateKey("gDagManagerKey", version);
         const gUDFManagerKey: string = generateKey("gUDFManagerKey", version);
+        const gUDFUnsavedKey: string = generateKey("gUDFUnsavedKey", version);
         const gTableManagerKey: string = generateKey("gTableManagerKey", version);
         const gDagTableManagerKey: string = generateKey("gDagTableManagerKey", version);
         const gDagAggKey: string = generateKey("gDagAggKey", version);
@@ -984,6 +985,7 @@ namespace WorkbookManager {
             "gSQLManagerKey": gSQLManagerKey,
             "gDagManagerKey": gDagManagerKey,
             "gUDFManagerKey": gUDFManagerKey,
+            "gUDFUnsavedKey": gUDFUnsavedKey,
             "gTableManagerKey": gTableManagerKey,
             "gDagTableManagerKey": gDagTableManagerKey,
             "gDagAggKey": gDagAggKey,
