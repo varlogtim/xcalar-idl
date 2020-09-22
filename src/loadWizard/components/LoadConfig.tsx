@@ -113,6 +113,7 @@ type LoadConfigState = {
     },
     selectedSchema: any,
     inputSerialization: SchemaService.InputSerialization,
+    inputSerialPending: boolean,
 
     editSchemaState: {
         schema: any,
@@ -221,6 +222,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
 
             // DiscoverSchemas
             inputSerialization: SchemaService.defaultInputSerialization.get(defaultFileType),
+            inputSerialPending: false,
 
             // CreateTable
             tableToCreate: new Map(), // Map<schemaName, tableName>, store a table name for user to update
@@ -747,6 +749,9 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                 inputSerialization: inputSerialization,
             });
         }
+        this.setState({
+            inputSerialPending: false
+        });
         return inputSerialization;
     }
 
@@ -845,6 +850,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
     _setInputSerialization(newOption) {
         this.setState({
             inputSerialization: newOption,
+            inputSerialPending: false
         });
         this._resetDiscoverResult();
 
@@ -1253,6 +1259,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             fileNamePattern,
             fileType,
             inputSerialization,
+            inputSerialPending,
             currentStep,
             selectedFileDir, // Output of Browse
             fileSelectState,
@@ -1442,6 +1449,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                 onParserTypeChange={(newType) => { this._setParserType(newType); }}
                                 inputSerialization={this.state.inputSerialization}
                                 onInputSerialChange={(newConfig) => { this._setInputSerialization(newConfig); }}
+                                onInputSerialPending={(isPending) => { this.setState({ inputSerialPending: isPending }); }}
                                 fileSelectProps={{
                                     ...fileSelectState,
                                     onSelect: (file) => {
@@ -1543,8 +1551,10 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                 <NavButtons
                                     right={{
                                         label: "Next",
-                                        disabled: stepNumMap[currentStep] === 1,
-                                        tooltip: stepNumMap[currentStep] === 1 ? "Select a file first" : "",
+                                        disabled: stepNumMap[currentStep] === 1 || inputSerialPending,
+                                        tooltip: stepNumMap[currentStep] === 1
+                                            ? "Select a file first"
+                                            : (inputSerialPending ? "Finish your configuration first": ""),
                                         onClick: () => {
                                             this.setState({
                                                 currentNavStep: 2

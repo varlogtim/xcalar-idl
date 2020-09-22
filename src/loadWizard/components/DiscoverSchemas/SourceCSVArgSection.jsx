@@ -11,21 +11,24 @@ export default class SourceCSVArgSection extends React.Component{
 
         this.state = {
             csvConfig: {...props.config.CSV},
-            errorInputs: {}
+            errorInputs: {},
+            isConfigChanged: false,
+            hasError: false
         };
     }
 
     render() {
-        const { config: initConfig, onConfigChange, classNames = [] } = this.props;
-        const { csvConfig, errorInputs } = this.state;
+        const { onConfigChange, classNames = [] } = this.props;
+        const { isConfigChanged, csvConfig, errorInputs, hasError } = this.state;
 
-        const isConfigChanged = this._isConfigChanged(initConfig.CSV, csvConfig);
-        const hasError = Object.keys(errorInputs).length > 0;
+        // const isConfigChanged = this._isConfigChanged(initConfig.CSV, csvConfig);
+        // const hasError = Object.keys(errorInputs).length > 0;
         const { FileHeaderInfo, AllowQuotedRecordDelimiter } = csvConfig;
         const buttonClasses = ["btn", "btn-secondary", "btn-new"];
         if (!isConfigChanged || hasError) {
             buttonClasses.push("btn-disabled");
         }
+
         return (
             <AdvOption.OptionGroup classNames={classNames}>
                 <CSVArgChoice
@@ -37,12 +40,7 @@ export default class SourceCSVArgSection extends React.Component{
                             (v) => ({text: v, value: v})
                         )
                     }
-                    onChange={(v) => {
-                        this.setState((state) => {
-                            state.csvConfig.FileHeaderInfo = v;
-                            return state;
-                        })
-                    }}
+                    onChange={(v) => this.onHeaderCfgChange(v)}
                 />
                 {
                     this.getCSVInputs(csvConfig, errorInputs).map((arg) => {
@@ -57,12 +55,7 @@ export default class SourceCSVArgSection extends React.Component{
                     label="Allow Quoted Record Delimiter"
                     checked={AllowQuotedRecordDelimiter}
                     classNames={["checkboxRow"]}
-                    onChange={(checked) => {
-                        this.setState((state) => {
-                            state.csvConfig.AllowQuotedRecordDelimiter = checked;
-                            return state;
-                        })
-                    }}
+                    onChange={(checked) => this.onAllowQuotedRecordDelimiterChange(checked)}
                 />
                 <AdvOption.Option>
                     <AdvOption.OptionLabel></AdvOption.OptionLabel>
@@ -70,6 +63,9 @@ export default class SourceCSVArgSection extends React.Component{
                         <button
                         className={buttonClasses.join(" ")}
                         onClick={() => {
+                            this.setState({
+                                isConfigChanged: false
+                            });
                             onConfigChange(this.convert(this.state.csvConfig));
                         }}>
                             Apply Changes
@@ -138,11 +134,47 @@ export default class SourceCSVArgSection extends React.Component{
         });
     }
 
+    onHeaderCfgChange(v) {
+        const { config: initConfig, onConfigPending } = this.props;
+        const { csvConfig, hasError } = this.state;
+
+        if (v === csvConfig.FileHeaderInfo) {
+            return;
+        }
+
+        csvConfig.FileHeaderInfo = v;
+        const isConfigChanged = this._isConfigChanged(initConfig.CSV, csvConfig);
+
+        this.setState({
+            csvConfig: csvConfig,
+            isConfigChanged: isConfigChanged
+        });
+
+        onConfigPending(isConfigChanged || hasError);
+    }
+
+    onAllowQuotedRecordDelimiterChange(isSelected) {
+        const { config: initConfig, onConfigPending } = this.props;
+        const { csvConfig, hasError } = this.state;
+
+        csvConfig.AllowQuotedRecordDelimiter = isSelected;
+        const isConfigChanged = this._isConfigChanged(initConfig.CSV, csvConfig);
+
+        this.setState({
+            csvConfig: csvConfig,
+            isConfigChanged: isConfigChanged
+        });
+        onConfigPending(isConfigChanged || hasError);
+    }
+
     onInputChange(key, value, {
         isNumber = false,
         allowEmpty = false
     } = {}) {
-        if (this.state.csvConfig[key] == null) {
+        const { config: initConfig, onConfigPending } = this.props;
+        const { csvConfig, errorInputs } = this.state;
+
+        if (csvConfig[key] == null) {
             console.error('Key not found: ', key);
             return;
         }
@@ -162,15 +194,23 @@ export default class SourceCSVArgSection extends React.Component{
             argError = error;
         }
 
-        this.setState((state) => {
-            if (argError) {
-                state.errorInputs[key] = 'anything';
-            } else {
-                delete state.errorInputs[key];
-            }
-            state.csvConfig[key] = argValue;
-            return state;
+        csvConfig[key] = argValue;
+        if (argError) {
+            errorInputs[key] = 'anything';
+        } else {
+            delete errorInputs[key];
+        }
+
+        const isConfigChanged = this._isConfigChanged(initConfig.CSV, csvConfig);
+        const hasError = Object.keys(errorInputs).length > 0;
+
+        this.setState({
+            csvConfig: csvConfig,
+            errorInputs: errorInputs,
+            isConfigChanged: isConfigChanged,
+            hasError: hasError
         });
+        onConfigPending(isConfigChanged || hasError);
     }
 
     /**

@@ -24,6 +24,7 @@ class DiscoverSchemas extends React.Component {
             selectedSchema,
             editSchemaProps,
             onInputSerialChange,
+            onInputSerialPending,
             onParserTypeChange,
             selectedFileDir
         } = this.props;
@@ -58,6 +59,7 @@ class DiscoverSchemas extends React.Component {
                 onConfigChange={(newConfig) => {
                     onInputSerialChange(newConfig);
                 }}
+                onConfigPending={onInputSerialPending}
             />
         );
 
