@@ -443,7 +443,7 @@ class DagSchemaPopup {
                     data-toggle="tooltip" title="" data-original-title="Pin"></i>
                     <i class="icon xi-pinned" data-container="body" data-placement="auto top"
                     data-toggle="tooltip" title="" data-original-title="Unpin"></i>
-                    </div>
+                </div>
                 <div class="close" data-container="body" data-placement="auto top"
                     data-toggle="tooltip" title="" data-original-title="Close">
                     <i class="icon xi-close"></i>

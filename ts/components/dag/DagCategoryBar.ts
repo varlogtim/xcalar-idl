@@ -683,6 +683,18 @@ class DagCategoryBar {
                 this._disableActionSection();
             }
         });
+
+        this.$dagView.find(".operatorBar .unpin").on("click", () => {
+            UserSettings.Instance.setPref("dfPinOperatorBar", false);
+            UserSettings.Instance.commit(false);
+            DagViewManager.Instance.pinOperatorBar(false);
+            this.hideOperatorBar();
+        });
+        this.$dagView.find(".operatorBar .pin").on("click", () => {
+            UserSettings.Instance.setPref("dfPinOperatorBar", true);
+            UserSettings.Instance.commit(false);
+            DagViewManager.Instance.pinOperatorBar(true);
+        });
     }
 
     private _getNodeFromOpId(id: string): JQuery {

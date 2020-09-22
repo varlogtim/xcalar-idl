@@ -200,7 +200,7 @@ class UserSettings {
     public setPref(
         pref: string,
         val: any,
-        isGeneral: boolean
+        isGeneral?: boolean
     ): void {
         if (isGeneral) {
             this.userPrefs.general[pref] = val;
