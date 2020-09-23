@@ -66,6 +66,8 @@ stepNames.set(StepEnum.FilterData, Texts.stepNameFilterData);
 stepNames.set(StepEnum.SchemaDiscovery, Texts.stepNameSchemaDiscover);
 stepNames.set(StepEnum.CreateTables, Texts.stepNameCreateTables);
 
+const numRowsForPreview = 100;
+
 function deleteEntry(setOrMap, key) {
     setOrMap.delete(key);
     return setOrMap;
@@ -368,8 +370,8 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         }
     }
 
-    async _createTableForPreview(schema) {
-        const numRowsForPreview = 100;
+    async _createTableForPreview(schema, numFiles = 1) {
+        const numRowsPerFile = Math.ceil(numRowsForPreview / numFiles);
         const {
             loadAppId,
             inputSerialization,
@@ -385,7 +387,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             isRecursive: isRecursive,
             inputSerialization: inputSerialization,
             schema: schema,
-            numRows: numRowsForPreview
+            numRows: numRowsPerFile
         });
 
         return { data: table };
@@ -1286,7 +1288,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             }
 
             const createTable = async () => {
-                const table = await this._createTableForPreview(finalSchema);
+                const table = await this._createTableForPreview(finalSchema, fileSelectState.files.length);
                 const cursor = table.data.createCursor();
                 await cursor.open();
                 return {
@@ -1301,7 +1303,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                 const { columns } = await table.getInfo();
                 return {
                     columns: columns,
-                    numRows: cursor.getNumRows()
+                    numRows: Math.min(cursor.getNumRows(), numRowsForPreview)
                 };
             };
 
