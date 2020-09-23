@@ -1,4 +1,4 @@
-namespace Alert {
+namespace Alert { 
     let modalHelper: ModalHelper;
     let hasSetup: boolean = false;
 
@@ -69,6 +69,9 @@ namespace Alert {
      * @param options
      */
     export function show(options: AlertOptions = <AlertOptions>{}): string {
+        if (!hasSetup) {
+            setup();
+        }
         const $modal = getModal();
         if (options.noLogout) {
             $modal.find(".btn.logout").remove();
@@ -549,7 +552,7 @@ namespace Alert {
             const $supportBtn: JQuery = supportButton("support");
             let $adminBtn: JQuery = $();
 
-            if (Admin.isAdmin() && Admin.hasSetup()) {
+            if (Admin.hasSetup() && Admin.isAdmin()) {
                 $adminBtn = supportButton("admin");
             }
 
