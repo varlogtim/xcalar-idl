@@ -307,7 +307,7 @@ namespace DSTargetManager {
      * DSTargetManager.isAWSConnector
      * @param connector
      */
-    export function isAWSConnector(targetName: string): boolean{
+    export function isAWSConnector(targetName: string): boolean {
         let target = DSTargetManager.getTarget(targetName);
         if (XVM.isOnAWS() && target && target.type_id === "s3environ") {
             return true;
@@ -326,8 +326,20 @@ namespace DSTargetManager {
     /**
      * DSTargetManager.getS3NameFromValue
      */
-    export function getS3NameFromValue(s3Bucket): Map<string, string> {
+    export function getS3NameFromValue(s3Bucket: string): string {
         return S3BucketsNameMap.get(s3Bucket) || s3Bucket;
+    }
+
+    /**
+     * DSTargetManager.getS3ValueFromName
+     */
+    export function getS3ValueFromName(displayPath: string): string {
+        for (let [key, value] of S3BucketsNameMap) {
+            if (value === displayPath) {
+                return key;
+            }
+        }
+        return displayPath;
     }
 
     /**

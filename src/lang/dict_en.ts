@@ -53,7 +53,7 @@ export default {
     },
 
     "StatusMessageTStr": {
-        'DeleteResultSets': 'Deleting tables',
+        'Deleting': 'Deleting',
     },
 
     "DSTargetTStr" : {

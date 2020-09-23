@@ -135,7 +135,7 @@ class GeneralDeleteModal extends React.Component<Props, State> {
        waitingMessage = CommonTStr.Loading;
     } else if (this.state.submitStatus === "pending") {
       classNames.push("load");
-      waitingMessage = StatusMessageTStr.DeleteResultSets;
+      waitingMessage = StatusMessageTStr.Deleting;
     } else if (this.state.submitStatus === "confirm") {
       classNames.push("lowZindex");
     }

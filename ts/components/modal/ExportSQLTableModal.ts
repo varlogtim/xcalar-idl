@@ -385,11 +385,7 @@ class ExportSQLTableModal {
             return;
         }
 
-        let driverArgs: {[key: string]: string | number | boolean} =  {}
-        this._dataModel.driverArgs.forEach((arg: ExportDriverArg) => {
-            driverArgs[arg.name] = arg.value;
-        });
-
+        const driverArgs = this._dataModel.getDriverArgs();
         const txId: number = Transaction.start({
             operation: "export",
             sql: {operation: "export"},

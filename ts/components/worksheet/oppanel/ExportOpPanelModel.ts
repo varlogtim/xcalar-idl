@@ -153,12 +153,49 @@ class ExportOpPanelModel extends BaseOpPanelModel {
         } else {
             dagData.driver = "";
         }
+        dagData.driverArgs = this.getDriverArgs();
+        return dagData;
+    }
+
+    public getDriverArgs(): {[key: string]: string | number | boolean} {
+        let driverArgs: {[key: string]: string | number | boolean} =  {};
         if (this.driverArgs != null) {
             this.driverArgs.forEach((arg: ExportDriverArg) => {
-                dagData.driverArgs[arg.name] = arg.value;
-            })
+                driverArgs[arg.name] = arg.value;
+            });
         }
-        return dagData;
+        return this._convertS3ConnectorArgs(driverArgs);
+    }
+
+    private _convertS3ConnectorArgs(
+        driverArgs: {[key: string]: string | number | boolean}
+    ): {[key: string]: string | number | boolean} {
+        const connector = driverArgs.target;
+        try {
+            if (connector && DSTargetManager.isAWSConnector(<string>connector)) {
+                driverArgs = {
+                    ...driverArgs,
+                    directory_path: this._getRealhPathFromDisplayPath(<string>driverArgs.directory_path)
+                };
+            }
+        } catch (e) {
+            console.error(e);
+        }
+        return driverArgs;
+    }
+
+    private _getRealhPathFromDisplayPath(path: string): string {
+        const splits = path.split('/');
+        const bucketPath = DSTargetManager.getS3ValueFromName(splits[0] + '/');
+        splits[0] = bucketPath.slice(0, bucketPath.length - 1); // remove the trailing /
+        return splits.join('/');
+    }
+
+    private _getDisplayPathFromRealPath(path: string): string {
+        const splits = path.split('/');
+        const displayPath = DSTargetManager.getS3NameFromValue(splits[0] + '/');
+        splits[0] = displayPath.slice(0, displayPath.length - 1); // remove the trailing /
+        return splits.join('/');
     }
 
     /**
@@ -167,7 +204,8 @@ class ExportOpPanelModel extends BaseOpPanelModel {
     private _restoreParams($panel: JQuery): void {
         let $params: JQuery = $panel.find(".argsSection .exportArg");
         let $param: JQuery = null;
-        this.driverArgs.forEach((arg: ExportDriverArg, index: number) => {
+        const driverArgs = this._getDisplayDrverArgs();
+        driverArgs.forEach((arg: ExportDriverArg, index: number) => {
             if (arg.value == null) {
                 return;
             }
@@ -191,6 +229,29 @@ class ExportOpPanelModel extends BaseOpPanelModel {
             $param.find('input').val(<string | number>arg.value);
             return;
         });
+    }
+
+    private _getDisplayDrverArgs(): ExportDriverArg[] {
+        try {
+            const driverArgsObj = this.getDriverArgs();
+            const connector: string = <string>driverArgsObj.target;
+            if (this.driverArgs == null || !DSTargetManager.isAWSConnector(connector)) {
+                return this.driverArgs;
+            }
+            return this.driverArgs.map((arg) => {
+                if (arg.name === 'directory_path') {
+                    return {
+                        ...arg,
+                        value: this._getDisplayPathFromRealPath(<string>arg.value)
+                    }
+                } else {
+                    return arg;
+                }
+            });
+        } catch (e) {
+            console.error(e);
+            return this.driverArgs;
+        }
     }
 
     public constructParams(
