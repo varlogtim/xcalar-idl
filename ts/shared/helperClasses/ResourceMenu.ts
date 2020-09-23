@@ -112,9 +112,25 @@ class ResourceMenu {
             if (!table.active) {
                 listClassNames.push("inActive");
             }
-            return this._getListHTML(table.name, listClassNames, iconClassNames);
+            return this._getTableListHTML(table.name, listClassNames, iconClassNames);
         }).join("");
         this._getContainer().find(".tableList ul").html(html);
+        this._getContainer().find(".tableList ul li").each((_index, el) => {
+            // show customized tooltip for table list
+            $(el).find(".name").hover(function(event) {
+                const $name = $(event.currentTarget);
+                const $li = $name.closest("li");
+                const head = $li.hasClass("inActive") ? 'Deactivated Table' : 'Activated Table';
+                const content = $name.text();
+                const title: string = xcStringHelper.replaceMsg( xcTooltip.HTML.WithHead, {
+                    head,
+                    content
+                });
+                $name.tooltip("destroy");
+                $name.tooltip(<any>{ title, html: true, container: "body" });
+                $name.tooltip("show");
+            });
+        });
     }
 
     private _renderApps(): void {
@@ -237,6 +253,19 @@ class ResourceMenu {
                this._getAppSection(appId).find(".overView").html(mainMap.get(appId));
             }
         }
+    }
+
+    private _getTableListHTML(
+        name: string,
+        listClassNames: string[],
+        iconClassNames: string[],
+    ): HTML {
+        const iconClasses = ["gridIcon", "icon", ...iconClassNames];
+        return `<li class="${listClassNames.join(" ")}" data-name="${name}">` +
+                    `<i class="${iconClasses.join(" ")}"></i>` +
+                    '<div class="name textOverflowOneLine">' + name + '</div>' +
+                    this._getDropdownHTML() +
+                '</li>';
     }
 
     private _getListHTML(

@@ -19,6 +19,12 @@ namespace xcTooltip {
                  '</div>'
     }
 
+    export const HTML: any = {
+        'WithHead': '<b><head></b>' +
+                        '<div style="width: 100%; height: 1px; background-color: white; margin: 4px 0; opacity: 0.8;"></div>' +
+                    '<div><content></div>'
+    }
+
     // xcTooltip.Attrs
     export const Attrs: string = ' data-toggle="tooltip" data-container="body" ' +
                                  'data-placement="auto top" ';
