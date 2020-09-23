@@ -3,7 +3,7 @@ const EventEmitter = require('events');
 class ConnectAndConfigSQLNode extends EventEmitter {
     command(nodeToTestId, datasetNodeId, sqlNodeId, _cb) {
         let input = {
-            "sqlQueryString": "SELECT * FROM testResults EXCEPT SELECT * FROM correctResults\nUNION\nSELECT * FROM correctResults EXCEPT SELECT * FROM testResults",
+            "sqlQueryStr": "SELECT * FROM testResults EXCEPT SELECT * FROM correctResults\nUNION\nSELECT * FROM correctResults EXCEPT SELECT * FROM testResults",
             "identifiers": {
                 "1": "testResults",
                 "2": "correctResults"

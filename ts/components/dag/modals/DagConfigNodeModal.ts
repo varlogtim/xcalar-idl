@@ -46,7 +46,6 @@ class DagConfigNodeModal {
         PublishIMDOpPanel.Instance.setup();
         ExportOpPanel.Instance.setup();
         IMDTableOpPanel.Instance.setup();
-        OldSQLOpPanel.Instance.setup();
         SQLOpPanel.Instance.setup();
         RoundOpPanel.Instance.setup();
         RowNumOpPanel.Instance.setup();

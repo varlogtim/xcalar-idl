@@ -589,7 +589,6 @@ class DagQueryConverter {
         return finalNodeInfos;
     }
 
-
     private _createKVStoreKeys(dataflows, dataflowsList, datasets, isRetina) {
         const kvPairs = {};
         if (isRetina) {

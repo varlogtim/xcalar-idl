@@ -158,6 +158,26 @@ class RecreateNodes extends EventEmitter {
                     input.schema = nodeInfo.schema;
                 } else if (nodeInfo.type === "sql") {
                     input.sqlQueryString = input.sqlQueryStr;
+                    if ((!input.mapping || !input.mapping.length) && Object.keys(input.identifiers).length) {
+                        input.mapping = [];
+                        let identifiersArray = [];
+
+                        for (let i in input.identifiers) {
+                            identifiersArray.push({
+                                key: parseInt(i),
+                                value: input.identifiers[i]
+                            });
+                        }
+                        identifiersArray.sort((a, b) => {
+                            return a.key - b.key
+                        });
+                        identifiersArray.forEach((identifier, i) => {
+                            input.mapping.push({
+                                "identifier": identifier.value,
+                                "source": (i + 1)
+                            });
+                        });
+                    }
                 }
 
                 // Config the node via opPanel

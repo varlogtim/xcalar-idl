@@ -39,7 +39,7 @@ class DagCategories {
             inCategory = new DagCategory(DagCategoryType.In, [
                 new DagCategoryNodeIn(DagNodeFactory.create({
                     type: DagNodeType.SQLFuncIn
-                })),
+                }))
             ]);
 
             hiddenCategory.add(new DagCategoryNodeIn(DagNodeFactory.create({
@@ -62,6 +62,9 @@ class DagCategories {
                 })),
                 new DagCategoryNodeIn(DagNodeFactory.create({
                     type: DagNodeType.DFIn
+                })),
+                new DagCategoryNodeIn(DagNodeFactory.create({
+                    type: DagNodeType.SQL
                 })),
             ]);
         }

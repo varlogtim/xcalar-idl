@@ -767,6 +767,9 @@ class DagNodeCustom extends DagNode {
      * @override
      */
     public switchState(isUpdateSubgraph: boolean = true): void {
+        if (DagTblManager.Instance.isPinned(this.table)) {
+            return;
+        }
         if (!this.isConfigured()) {
             // it's in unsed state, but it may still has caches of lineage
             this._clearConnectionMeta();

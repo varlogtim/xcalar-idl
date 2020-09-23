@@ -42,9 +42,10 @@ describe("DagCategoryBar Test", function() {
     });
 
     it("should update categories", function() {
-        expect($operatorBar.find(".category-in").find(".operator").length).to.equal(2);
+        expect($operatorBar.find(".category-in").find(".operator").length).to.equal(3);
         expect($operatorBar.find(".category-in").find(".operator").eq(0).find(".opTitle").text()).to.equal("SourceTable");
         expect($operatorBar.find(".category-in").find(".operator").eq(1).find(".opTitle").text()).to.equal("FunctionInput");
+        expect($operatorBar.find(".category-in").find(".operator").eq(2).find(".opTitle").text()).to.equal("SQL");
 
         DagCategoryBar.Instance.updateCategories(new DagTabSQLFunc());
 
@@ -54,9 +55,10 @@ describe("DagCategoryBar Test", function() {
 
     it("should switch back to advanced mode", function(){
         DagCategoryBar.Instance.updateCategories(new DagTabUser());
-        expect($operatorBar.find(".category-in").find(".operator").length).to.equal(2);
+        expect($operatorBar.find(".category-in").find(".operator").length).to.equal(3);
         expect($operatorBar.find(".category-in").find(".operator").eq(0).find(".opTitle").text()).to.equal("SourceTable");
         expect($operatorBar.find(".category-in").find(".operator").eq(1).find(".opTitle").text()).to.equal("FunctionInput");
+        expect($operatorBar.find(".category-in").find(".operator").eq(2).find(".opTitle").text()).to.equal("SQL");
 
     });
 

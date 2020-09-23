@@ -23,10 +23,11 @@ describe("DagCategories Test", function() {
             expect(categories[8].type).to.equal(DagCategoryType.Custom);
             expect(categories[9].type).to.equal(DagCategoryType.Hidden);
 
-            expect(categories[0].operators.length).to.equal(2);
+            expect(categories[0].operators.length).to.equal(3);
             // in data mart DagNodeDataset is removed
             expect(categories[0].operators[0].node instanceof DagNodeIMDTable).to.be.true;
             expect(categories[0].operators[1].node instanceof DagNodeDFIn).to.be.true;
+            expect(categories[0].operators[2].node instanceof DagNodeSQL).to.be.true;
 
 
             expect(categories[1].operators.length).to.equal(3);

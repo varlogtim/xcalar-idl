@@ -18,12 +18,6 @@ describe("SQLOpPanelModel Test", function() {
         expect(model.isDropAsYouGo()).to.be.true;
     });
 
-    it("should setIdentifiers", function() {
-        let map = new Map([[1, "test"], [2, "test2"]]);
-        model.setIdentifiers(map);
-        expect(model.getIdentifiers()).to.equal(map); 
-    });
-
     it("should sumbit", function() {
         model.submit();
         expect(node.input.getInput().sqlQueryStr).to.equal("test");

@@ -566,18 +566,8 @@ namespace DagNodeMenu {
 
     }
 
-    function exitOpPanel(ignoreSQLChange?: boolean): void {
-        if (!ignoreSQLChange && OldSQLOpPanel.Instance.hasUnsavedChange()) {
-            Alert.show({
-                title: "SQL",
-                msg: SQLTStr.UnsavedSQL,
-                onConfirm: () => {
-                    exitOpPanel(true);
-                }
-            });
-        } else {
-            DagConfigNodeModal.Instance.closeForms();
-        }
+    function exitOpPanel(): void {
+        DagConfigNodeModal.Instance.closeForms();
     }
 
     function _getDFWrap(): JQuery {
@@ -601,32 +591,23 @@ namespace DagNodeMenu {
     }
 
     function expandSQLNode(
-        dagNodeId: DagNodeId,
-        ignoreSQLChange?: boolean
+        dagNodeId: DagNodeId
     ): void {
-        if (!ignoreSQLChange && OldSQLOpPanel.Instance.hasUnsavedChange()) {
-            Alert.show({
-                title: "SQL",
-                msg: SQLTStr.UnsavedSQL,
-                onConfirm: () => {
-                    expandSQLNode(dagNodeId, true);
-                }
-            });
-        } else if (!OldSQLOpPanel.Instance.getAlertOff()) {
+        if (!SQLOpPanel.Instance.getAlertOff()) {
             Alert.show({
                 title: SQLTStr.ExpandSQLTitle,
                 msg: SQLTStr.ExpandSQL,
                 sizeToText: true,
                 onConfirm: (checked) => {
-                    OldSQLOpPanel.Instance.setAlertOff(checked);
+                    SQLOpPanel.Instance.setAlertOff(checked);
                     DagViewManager.Instance.expandSQLNode(dagNodeId);
-                    OldSQLOpPanel.Instance.close();
+                    SQLOpPanel.Instance.close();
                 },
                 isCheckBox: true
             });
         } else {
             DagViewManager.Instance.expandSQLNode(dagNodeId);
-            OldSQLOpPanel.Instance.close();
+            SQLOpPanel.Instance.close();
         }
     }
 
@@ -638,19 +619,6 @@ namespace DagNodeMenu {
         udfDisplayPathPrefix?: string,
         ignoreSQLChange?: boolean
     }) {
-        if ((!options || !options.ignoreSQLChange) &&
-            OldSQLOpPanel.Instance.hasUnsavedChange()) {
-            Alert.show({
-                title: "SQL",
-                msg: SQLTStr.UnsavedSQL,
-                onConfirm: () => {
-                    options = options || {};
-                    options.ignoreSQLChange = true;
-                    configureNode(node, options);
-                }
-            });
-            return;
-        }
         const nodeId: string = node.getId();
         if (DagViewManager.Instance.isNodeLocked(nodeId) ||
             DagViewManager.Instance.isNodeConfigLocked(nodeId)) {

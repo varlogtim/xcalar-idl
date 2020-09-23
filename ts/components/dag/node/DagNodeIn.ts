@@ -3,7 +3,6 @@ abstract class DagNodeIn extends DagNode {
     protected schema: ColSchema[];
     private lastSchema: ColSchema[];
     private headName: string | null;
-
     public constructor(options: DagNodeInInfo, runtime?: DagRuntime) {
         super(options, runtime);
         this.maxParents = 0;
@@ -81,7 +80,11 @@ abstract class DagNodeIn extends DagNode {
         return this.headName;
     }
 
-    protected _getSerializeInfo(includeStats?: boolean):DagNodeInInfo {
+    public canHaveParents(): boolean {
+        return this.maxParents !== 0;
+    }
+
+    protected _getSerializeInfo(includeStats?: boolean, forCopy?: boolean):DagNodeInInfo {
         const serializedInfo: DagNodeInInfo = <DagNodeInInfo>super._getSerializeInfo(includeStats);
         serializedInfo.schema = this.schema; // should save the schema directly, should not call getSchema
         serializedInfo.headName = this.headName;

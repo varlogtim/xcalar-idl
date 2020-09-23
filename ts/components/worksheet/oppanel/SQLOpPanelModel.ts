@@ -4,6 +4,7 @@ class SQLOpPanelModel extends BaseOpPanelModel {
     private _identifiers: Map<number, string>;
     private _dropAsYouGo: boolean;
     private _outputTableName: string;
+    private _sourceMapping: any[];
 
     public constructor(dagNode: DagNodeSQL) {
         super();
@@ -13,28 +14,63 @@ class SQLOpPanelModel extends BaseOpPanelModel {
     }
 
     private _initialize(params: DagNodeSQLInputStruct): void {
-        const self = this;
-        self._sqlQueryStr = params.sqlQueryStr;
-        self._identifiers = new Map<number, string>();
-        if (params.identifiersOrder && params.identifiers) {
-            params.identifiersOrder.forEach(function(idx) {
-                self._identifiers.set(idx, params.identifiers[idx]);
-            });
+        this._sqlQueryStr = params.sqlQueryStr;
+        if (!params.mapping || (Object.keys(params.identifiers).length > params.mapping.length)) {
+            this._sourceMapping = [];
+            if (params.identifiers) {
+                let identifiersArray = [];
+
+                for (let i in params.identifiers) {
+                    identifiersArray.push({
+                        key: parseInt(i),
+                        value: params.identifiers[i]
+                    });
+                }
+                identifiersArray.sort((a, b) => {
+                    return a.key - b.key
+                });
+                identifiersArray.forEach((identifier, i) => {
+                    this._sourceMapping.push({
+                        "identifier": identifier.value,
+                        "source": this._dagNode.getParents()[i] ? (i + 1) : null
+                    });
+                });
+            }
+        } else {
+            this._sourceMapping = params.mapping;
         }
+        this._dagNode.getParents().forEach((parentNode, index) => {
+            const found = this._sourceMapping.find((connector) => {
+                return connector.source === (index + 1)
+            });
+            if (!found) {
+                let empty = this._sourceMapping.find((connector) => {
+                    return connector.source === null
+                });
+                if (empty) {
+                    empty.source = index + 1;
+                } else {
+                    this._sourceMapping.push({
+                        identifier: null,
+                        source: index + 1
+                    });
+                }
+            }
+        });
         this._dropAsYouGo = params.dropAsYouGo;
         this._outputTableName = params.outputTableName;
     }
 
     public setDataModel(
         sqlQueryStr: string,
-        identifiers: Map<number, string>,
+        sourceMapping: any[],
         dropAsYouGo: boolean,
         outputTableName?: string
     ): void {
         this._sqlQueryStr = sqlQueryStr;
-        this._identifiers = identifiers;
         this._dropAsYouGo = dropAsYouGo;
         this._outputTableName = outputTableName;
+        this._sourceMapping = sourceMapping;
     }
 
     /**
@@ -42,23 +78,20 @@ class SQLOpPanelModel extends BaseOpPanelModel {
      */
     public submit(noAutoExecute?: boolean): void {
         const param = this._getParam();
-        this._dagNode.setIdentifiers(this._identifiers);
+        const identifiers = new Map();
+        this._sourceMapping.forEach((connector, i) => {
+            identifiers.set(i + 1, connector.identifier);
+        })
+        this._dagNode.setIdentifiers(identifiers);
         this._dagNode.setParam(param, noAutoExecute);
     }
 
     private _getParam(): DagNodeSQLInputStruct {
-        const identifiersOrder = [];
-        const identifiers = {};
-        this._identifiers.forEach(function(value, key) {
-            identifiersOrder.push(key);
-            identifiers[key] = value;
-        });
         return {
             sqlQueryStr: this._sqlQueryStr,
-            identifiers: identifiers,
-            identifiersOrder: identifiersOrder,
             dropAsYouGo: this._dropAsYouGo,
-            outputTableName: this._outputTableName
+            outputTableName: this._outputTableName,
+            mapping: this._sourceMapping
         }
     }
 
@@ -70,14 +103,22 @@ class SQLOpPanelModel extends BaseOpPanelModel {
         return this._outputTableName;
     }
 
-    public getIdentifiers(): Map<number, string> {
-        return this._identifiers;
-    }
-    public setIdentifiers(identifiers: Map<number, string>): void {
-        this._identifiers = identifiers;
-    }
 
     public isDropAsYouGo(): boolean {
         return this._dropAsYouGo;
+    }
+
+    public getSourceMapping() {
+        return this._sourceMapping;
+    }
+
+    // XXX still used in sqlTest
+    public getIdentifiers(): Map<number, string> {
+        return this._identifiers;
+    }
+
+      // XXX still used in sqlTest
+    public setIdentifiers(identifiers: Map<number, string>): void {
+        this._identifiers = identifiers;
     }
 }

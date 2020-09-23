@@ -27,7 +27,6 @@ describe("SQL Dag Node Test", () => {
                     "input": {
                         "sqlQueryStr": "",
                         "identifiers": {},
-                        "identifiersOrder": [],
                         "dropAsYouGo": true
                     },
                     "id": "dag_5D38D6453793C52F_1564011822433_39",
@@ -76,9 +75,9 @@ describe("SQL Dag Node Test", () => {
                 "input": {
                     "sqlQueryStr": "",
                     "identifiers": {},
-                    "identifiersOrder": [],
+                    "mapping": [],
                     "dropAsYouGo": true,
-                    outputTableName: ""
+                    "outputTableName": ""
                 },
                 "id": id,
                 "state": "Unused",
@@ -86,7 +85,9 @@ describe("SQL Dag Node Test", () => {
                 "aggregates": [],
                 "tag": [],
                 "isHidden": undefined,
-                "udfErrors": {}
+                "udfErrors": {},
+                "headName": null,
+                "schema": []
             });
         });
 
@@ -176,15 +177,23 @@ describe("SQL Dag Node Test", () => {
                 let identifiers = new Map();
                 identifiers.set(1, "a");
 
-                node.compileSQL("SELECT * FROM a", "sql123", {dropAsYoGo: true, identifiers: identifiers}, true)
+                node.compileSQL("SELECT * FROM a", "sql123", {
+                    dropAsYoGo: true,
+                    identifiers: identifiers,
+                    sourceMapping: [
+                        {
+                            "identifier": "a",
+                            "source": 1
+                        }
+                    ],
+                }, true)
                 .then(() => {
                     done('fail');
                 })
                 .fail(() => {
                     expect(called).to.be.true;
-                    expect(node.input.input.identifiersOrder).to.deep.equal([1])
                     expect(node.input.input.identifiers).to.deep.equal({1: "a"});
-
+                    expect(node.input.input.mapping).to.deep.equal([]);
                     SQLUtil.sendToPlanner = cache;
                     done();
                 })
@@ -198,13 +207,17 @@ describe("SQL Dag Node Test", () => {
                 }
                 let identifiers = new Map();
                 identifiers.set(1, "a");
-                node.compileSQL("SELECT * FROM a", "sql123", {dropAsYoGo: true, identifiers: identifiers}, true)
+                node.compileSQL("SELECT * FROM a", "sql123", {dropAsYoGo: true, identifiers: identifiers,sourceMapping: [
+                    {
+                        "identifier": "a",
+                        "source": 1
+                    }
+                ]}, true)
                 .then(() => {
                     done('fail');
                 })
                 .fail(() => {
                     expect(called).to.be.true;
-                    expect(node.input.input.identifiersOrder).to.deep.equal([1])
                     expect(node.input.input.identifiers).to.deep.equal({1: "a"});
 
                     SQLUtil.sendToPlanner = cache;
@@ -233,14 +246,18 @@ describe("SQL Dag Node Test", () => {
 
                 let identifiers = new Map();
                 identifiers.set(1, "a");
-                node.compileSQL("SELECT * FROM a", "sql123", {dropAsYoGo: true, identifiers: identifiers}, true)
+                node.compileSQL("SELECT * FROM a", "sql123", {dropAsYoGo: true, identifiers: identifiers, sourceMapping: [
+                    {
+                        "identifier": "a",
+                        "source": 1
+                    }
+                ]}, true)
                 .then(() => {
                     done('fail');
                 })
                 .fail(() => {
                     expect(called).to.be.true;
                     expect(called2).to.be.true;
-                    expect(node.input.input.identifiersOrder).to.deep.equal([1])
                     expect(node.input.input.identifiers).to.deep.equal({1: "a"});
 
                     SQLUtil.sendToPlanner = cache;
@@ -288,7 +305,12 @@ describe("SQL Dag Node Test", () => {
                 let identifiers = new Map();
                 identifiers.set(1, "a");
 
-                node.compileSQL("SELECT * FROM a", "sql123", {dropAsYoGo: true, identifiers: identifiers}, true)
+                node.compileSQL("SELECT * FROM a", "sql123", {dropAsYoGo: true, identifiers: identifiers, sourceMapping: [
+                    {
+                        "identifier": "a",
+                        "source": 1
+                    }
+                ]}, true)
                 .then(() => {
                     done('fail');
                 })
@@ -296,7 +318,6 @@ describe("SQL Dag Node Test", () => {
                     expect(called).to.be.true;
                     expect(called2).to.be.true;
                     expect(calledTwice).to.be.true;
-                    expect(node.input.input.identifiersOrder).to.deep.equal([1])
                     expect(node.input.input.identifiers).to.deep.equal({1: "a"});
 
                     SQLUtil.sendToPlanner = cache;
@@ -344,7 +365,12 @@ describe("SQL Dag Node Test", () => {
                 let identifiers = new Map();
                 identifiers.set(1, "a");
 
-                node.compileSQL("SELECT * FROM a", "sql123", {dropAsYoGo: true, identifiers: identifiers}, true)
+                node.compileSQL("SELECT * FROM a", "sql123", {dropAsYoGo: true, identifiers: identifiers, sourceMapping: [
+                    {
+                        "identifier": "a",
+                        "source": 1
+                    }
+                ]}, true)
                 .then(() => {
                     done('fail');
                 })
@@ -354,7 +380,6 @@ describe("SQL Dag Node Test", () => {
                     expect(called2).to.be.true;
                     expect(calledTwice).to.be.true;
                     expect(called3).to.be.true;
-                    expect(node.input.input.identifiersOrder).to.deep.equal([1])
                     expect(node.input.input.identifiers).to.deep.equal({1: "a"});
 
                     SQLUtil.sendToPlanner = cache;
@@ -428,7 +453,12 @@ describe("SQL Dag Node Test", () => {
                 let identifiers = new Map();
                 identifiers.set(1, "a");
 
-                node.compileSQL("SELECT * FROM a", "sql123", {dropAsYoGo: true, identifiers: identifiers}, true)
+                node.compileSQL("SELECT * FROM a", "sql123", {dropAsYoGo: true, identifiers: identifiers, sourceMapping: [
+                    {
+                        "identifier": "a",
+                        "source": 1
+                    }
+                ]}, true)
                 .then(() => {
                     expect(node.aggregatesCreated).to.equal("agg");
                     expect(node.getNewTableName()).to.equal("x#1");
@@ -438,7 +468,6 @@ describe("SQL Dag Node Test", () => {
                     expect(calledTwice).to.be.true;
                     expect(called3).to.be.true;
                     expect(called4).to.be.true;
-                    expect(node.input.input.identifiersOrder).to.deep.equal([1])
                     expect(node.input.input.identifiers).to.deep.equal({1: "a"});
 
                     SQLUtil.sendToPlanner = cache;
@@ -584,7 +613,7 @@ describe("SQL Dag Node Test", () => {
             node.getParents = () => [new DagNodeFilter({})];
         });
         it("should fail finalize empty table", (done) => {
-            node._finalizeTable(1)
+            node._finalizeTable(1, "table")
             .then((ret) => {
                 done("fail");
             })

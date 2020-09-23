@@ -1,3 +1,4 @@
+
 /**
  * The operation editing panel for SQL operator
  */
@@ -7,13 +8,15 @@ class SQLOpPanel extends BaseOpPanel {
     protected _dagNode: DagNodeSQL;
     private _identifiers: string[] = [];
     private _parsedIdentifiers: string[] = [];
-    private _connectors: {label: string, nodeId: string}[] = [];
     private _queryStr = "";
     private _graph: DagGraph;
     private _labelCache: Set<string>;
     private _snippetId: string;
     private _queryStrHasError = false;
     private _outputTableName = "";
+    private noUpdate = false; ; // prevents updateNodeParents from being called
+    private _sourceMapping: {identifier: string, source: number}[] = [];
+    private _alertOff: boolean = false;
     /**
      * Initialization, should be called only once by xcManager
      */
@@ -31,10 +34,10 @@ class SQLOpPanel extends BaseOpPanel {
                 advancedEditor.getValue();
                 try {
                     const advancedParams = JSON.parse(advancedEditor.getValue());
-                    if (!advancedParams.hasOwnProperty("sqlQueryString")) {
+                    if (!advancedParams.hasOwnProperty("sqlQueryStr")) {
                         return;
                     }
-                    let queryStr = advancedParams.sqlQueryString;
+                    let queryStr = advancedParams.sqlQueryStr;
                     SQLSnippet.Instance.update(this._snippetId, queryStr);
                     if (SQLEditorSpace.Instance.getCurrentSnippetId() === this._snippetId) {
                         const editor = SQLEditorSpace.Instance.getEditor();
@@ -59,30 +62,11 @@ class SQLOpPanel extends BaseOpPanel {
         this._graph = DagViewManager.Instance.getActiveDag();
         this._identifiers = [];
         this._parsedIdentifiers = [];
-        this._connectors = [];
         this._labelCache = new Set();
         this._outputTableName = this._dataModel.getOutputTableName();
-        this._dataModel.getIdentifiers().forEach((value, key) => {
-            this._identifiers[key - 1] = value;
-            const parentNode =  this._dagNode.getParents()[key - 1];
-            if (parentNode) {
-                this._connectors[key - 1] = {
-                    label: parentNode.getTitle(),
-                    nodeId: parentNode.getId()
-                }
-            } else {
-                this._connectors[key - 1] = {
-                    label: "",
-                    nodeId: null
-                }
-            }
-        });
-        this._dagNode.getParents().forEach((parentNode, i) => {
-            this._connectors[i] = {
-                label: parentNode.getTitle(),
-                nodeId: parentNode.getId()
-            };
-        });
+
+        this._sourceMapping = this._dataModel.getSourceMapping();
+        this._reconcileSourceMapping();
 
         try {
             this._updateUI();
@@ -112,16 +96,24 @@ class SQLOpPanel extends BaseOpPanel {
         super.hidePanel(isSubmit);
         this._identifiers = [];
         this._parsedIdentifiers = [];
-        this._connectors = [];
         this._graph = null;
         this._queryStrHasError = false;
-        this.updateIdentifiersList();
+        this._sourceMapping = [];
+        this._updateIdentifiersList();
         if (!noTab) {
             SQLTabManager.Instance.closeTempTab();
         }
     }
 
-    private _selectQuery(snippetId: string, queryStr?: string, forceUpdate?: boolean): XDPromise<any> {
+    public getAlertOff(): boolean {
+        return this._alertOff;
+    }
+
+    public setAlertOff(alertOff: boolean = false): void {
+        this._alertOff = alertOff;
+    }
+
+    private _selectQuery(snippetId: string, queryStr?: string): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
         let snippet = SQLSnippet.Instance.getSnippetObj(snippetId);
         if (snippet) {
@@ -137,25 +129,85 @@ class SQLOpPanel extends BaseOpPanel {
         .then((ret) => {
             if (this.isOpen() && this._queryStr === queryStr) {
                 this._queryStrHasError = false;
-                if (!forceUpdate && !ret.identifiers.length && this._identifiers.length &&
+                if (!ret.identifiers.length && this._identifiers.length &&
                     (ret.sql.toLowerCase().includes(" from ") ||
                     (queryStr.toLowerCase().includes("from") &&
                     queryStr.toLowerCase().includes("select")))) {
                     return;
                 }
-                if (forceUpdate) {
-                    this._identifiers = [];
-                }
                 this._parsedIdentifiers = ret.identifiers;
                 this._identifiers.length = Math.min(this._parsedIdentifiers.length, this._identifiers.length);
-                this.updateIdentifiersList();
+                const identifiers = [];
+                this._identifiers.forEach((identifier, i) => {
+                    if (i >= this._parsedIdentifiers.length) {
+                        return;
+                    }
+                    identifiers.push(identifier);
+                });
+
+                this._parsedIdentifiers.forEach((identifier, i) => {
+                    if (this._identifiers[i]) {
+                        return;
+                    }
+                    identifiers.push(identifier);
+                });
+
+                this._reconcileSourceMapping();
+
+                for (let i = 0; i < this._sourceMapping.length; i++) {
+                    const connector = this._sourceMapping[i];
+                    if (i >= identifiers.length) {
+                        connector.identifier = null;
+                    } else if (!this._identifiers[i] && this._parsedIdentifiers[i]) {
+                        connector.identifier = this._parsedIdentifiers[i];
+                    } else if (identifiers[i] && !connector.identifier) {
+                        connector.identifier = identifiers[i];
+                    }
+                    if (!connector.identifier && connector.source === null) {
+                        this._sourceMapping.splice(i, 1);
+                        i--;
+                    }
+                }
+
+                this._dagNode.getParents().forEach((parentNode, index) => {
+                    let match = this._sourceMapping.find((connector) => {
+                        return connector.source === (index + 1)
+                    });
+                    if (!match) {
+                        let sourceSet = false;
+                        this._sourceMapping.forEach((connector) => {
+                            if (!connector.source) {
+                                connector.source = index + 1;
+                                sourceSet = true;
+                            }
+                        });
+                        if (!sourceSet) {
+                            this._sourceMapping.push({
+                                "identifier": null,
+                                "source": index + 1
+                            });
+                        }
+                    }
+                });
+
+                identifiers.forEach((identifier, i) => {
+                    if (!this._sourceMapping[i]) {
+                        this._sourceMapping.push({
+                            "identifier": identifier,
+                            "source": null
+                        });
+                    } else {
+                        // this._sourceMapping[i].identifier = identifier;
+                    }
+                });
+                this._updateIdentifiersList();
             }
         })
         .fail((e) => {
             if (!this.isOpen() || this._queryStr !== queryStr) {
                 return;
             }
-            if (!forceUpdate && this._identifiers.length && queryStr &&
+            if (this._identifiers.length && queryStr &&
                 (queryStr.toLowerCase().includes("from") &&
                 queryStr.toLowerCase().includes("select"))) {
                     this._queryStrHasError = true;
@@ -169,7 +221,10 @@ class SQLOpPanel extends BaseOpPanel {
             }
             this._identifiers = [];
             this._parsedIdentifiers = [];
-            this.updateIdentifiersList();
+            this._sourceMapping.forEach(connector => {
+                connector.identifier = null;
+            });
+            this._updateIdentifiersList();
             console.error(e);
         })
         .always(() => {
@@ -224,15 +279,14 @@ class SQLOpPanel extends BaseOpPanel {
         sql?: string,
         identifiers?: Map<number, string>
     ): XDPromise<any> {
-        const self = this;
         const deferred = PromiseHelper.deferred();
         sql = sql || "";
 
         const dropAsYouGo: boolean = this._isDropAsYouGo();
 
         if (!sql) {
-            self._dataModel.setDataModel("", identifiers, dropAsYouGo, this._outputTableName);
-            self._dataModel.submit();
+            this._dataModel.setDataModel("", this._sourceMapping, dropAsYouGo, this._outputTableName);
+            this._dataModel.submit();
 
             return PromiseHelper.resolve();
         }
@@ -241,17 +295,19 @@ class SQLOpPanel extends BaseOpPanel {
             SQLUtil.lockProgress();
             const options = {
                 identifiers: identifiers,
-                dropAsYouGo: dropAsYouGo
+                dropAsYouGo: dropAsYouGo,
+                sourceMapping: this._sourceMapping
             };
-            self._dagNode.compileSQL(sql, queryId, options)
+
+            this._dagNode.compileSQL(sql, queryId, options)
             .then(() => {
-                self._dataModel.setDataModel(sql, identifiers, dropAsYouGo, this._outputTableName);
-                self._dataModel.submit();
+                this._dataModel.setDataModel(sql, this._sourceMapping, dropAsYouGo, this._outputTableName);
+                this._dataModel.submit();
                 deferred.resolve();
             })
             .fail((err) => {
-                self._dataModel.setDataModel(sql, identifiers, dropAsYouGo, this._outputTableName);
-                self._dataModel.submit(true);
+                this._dataModel.setDataModel(sql, this._sourceMapping, dropAsYouGo, this._outputTableName);
+                this._dataModel.submit(true);
                 deferred.reject(err);
             })
             .always(() => {
@@ -272,93 +328,72 @@ class SQLOpPanel extends BaseOpPanel {
         this._renderDropAsYouGo();
     }
 
-    public updateIdentifiers(identifiers: Map<number, string>) {
-        this._dataModel.setIdentifiers(identifiers);
+    public updateNodeParents(index, adding) {
+        if (!this.isOpen()) return;
+        if (this.noUpdate) return;
+        if (adding) {
+            let added = false;
+            for (let i = 0; i < this._sourceMapping.length; i++) {
+                if (this._sourceMapping[i].source >= (index + 1)) {
+                    this._sourceMapping[i].source++;
+                }
+            }
+            for (let i = 0; i < this._sourceMapping.length; i++) {
+                if (!this._sourceMapping[i].source) {
+                    this._sourceMapping[i].source = index + 1;
+                    added = true;
+                    break;
+                }
+            }
+            if (!added) {
+                this._sourceMapping.push({
+                    identifier: null,
+                    source: index + 1
+                });
+            }
+        } else {
+            for (let i = 0; i < this._sourceMapping.length; i++) {
+                if (this._sourceMapping[i].source === (index + 1)) {
+                    this._sourceMapping[i].source = null;
+                    if (!this._sourceMapping[i].identifier) {
+                        this._sourceMapping.splice(i, 1);
+                    }
+                    break;
+                }
+            }
+            for (let i = 0; i < this._sourceMapping.length; i++) {
+                if (this._sourceMapping[i].source > index) {
+                    this._sourceMapping[i].source--;
+                }
+            }
+        }
+        this._updateIdentifiersList();
     }
 
-    public updateNodeParents() {
-        let parents = this._dagNode.getParents();
-        this._connectors = [];
-        this._identifiers.forEach((identifier, i) => {
-            const parentNode = parents[i];
-            if (parentNode) {
-                this._connectors[i] = {
-                    label: parentNode.getTitle(),
-                    nodeId: parentNode.getId()
-                }
-            } else {
-                this._connectors[i] = {
-                    label: "",
-                    nodeId: null
-                }
-            }
-        });
-        this._parsedIdentifiers.forEach((identifier, i) => {
-            if (this._identifiers[i]) {
-                return;
-            }
-            const parentNode = parents[i];
-            if (parentNode) {
-                this._connectors[i] = {
-                    label: parentNode.getTitle(),
-                    nodeId: parentNode.getId()
-                }
-            } else {
-                this._connectors[i] = {
-                    label: "",
-                    nodeId: null
-                }
-            }
-        });
-        parents.forEach((parentNode, i) => {
-            this._connectors[i] = {
-                label: parentNode.getTitle(),
-                nodeId: parentNode.getId()
-            };
-        });
-        this.updateIdentifiersList();
-    }
-
-    private updateIdentifiersList() {
+    private _updateIdentifiersList() {
         let leftCol = "";
         let rightCol = "";
-        let seenConnectors = new Set();
-        let seenIdentifiers = new Set();
-        this._identifiers.forEach((identifier, i) => {
-            if (i >= this._parsedIdentifiers.length) {
-                return;
-            }
-            seenIdentifiers.add(identifier);
-            leftCol +=  this._getIdentifierHTML(identifier);
-            let connectorName = "";
-            if (this._connectors[i]) {
-                connectorName = this._connectors[i].label;
-                seenConnectors.add(i);
-            }
-            rightCol += this._getConnectorHTML(connectorName);
-        });
 
-        this._parsedIdentifiers.forEach((identifier, i) => {
-            if (this._identifiers[i]) {
-                return;
+        this._sourceMapping.forEach(row => {
+            if (!row.identifier) {
+                leftCol += `<div class="source notSpecified">
+                             Not Found
+                     </div>`;
+            } else {
+                leftCol += this._getIdentifierHTML(row.identifier);
             }
-            leftCol +=  this._getIdentifierHTML(identifier);
             let connectorName = "";
-            if (this._connectors[i]) {
-                connectorName = this._connectors[i].label;
-                seenConnectors.add(i);
+            if (row.source) {
+                let parentNode = this._dagNode.getParents()[row.source - 1];
+                connectorName = parentNode.getTitle();
+            } else {
+                connectorName = `None
+                <i class="qMark icon xi-unknown"
+                data-toggle="tooltip"
+                data-container="body"
+                data-placement="auto top"
+                data-title="If no module input is selected, the SQL statement table name will be used"></i>`;
             }
-            rightCol += this._getConnectorHTML(connectorName);
-        });
-
-        this._connectors.forEach((connector, index) => {
-            let connectorName = connector.label;
-            if (seenConnectors.has(index)) {
-                return;
-            }
-            leftCol += `<div class="source notSpecified">
-                Not Found
-            </div>`;
             rightCol += this._getConnectorHTML(connectorName);
         });
 
@@ -391,6 +426,7 @@ class SQLOpPanel extends BaseOpPanel {
                     }
                     $dropDownList.find("input").val(val);
                     this._identifiers[index] = val;
+                    this._sourceMapping[index].identifier = val;
                 }
             }).setupListeners();
         });
@@ -399,7 +435,7 @@ class SQLOpPanel extends BaseOpPanel {
             const $dropDownList: JQuery = $(el).find(".dropDownList");
             new MenuHelper($dropDownList, {
                 fixedPosition: {
-                    selector: "input"
+                    selector: "div.text"
                 },
                 onOpen: () => {
                     const nodes = this._graph.getAllNodes();
@@ -407,8 +443,11 @@ class SQLOpPanel extends BaseOpPanel {
                     let nodeInfos = [];
                     let nodeInfosInUse = [];
                     let connectorNodeIds = new Map();
-                    this._connectors.forEach((c) => {
-                        connectorNodeIds.set(c.nodeId, c);
+
+                    this._sourceMapping.forEach((connector) => {
+                        if (connector.source) {
+                            connectorNodeIds.set(this._dagNode.getParents()[connector.source - 1].getId(), connector);
+                        }
                     });
                     let connectorIndex = this._dagNode.getNextOpenConnectionIndex();
                     let cachedLabels = [];
@@ -463,6 +502,11 @@ class SQLOpPanel extends BaseOpPanel {
                     nodeInfos.forEach((nodeInfo) => {
                         html += `<li data-id="${nodeInfo.id}">${xcStringHelper.escapeHTMLSpecialChar(nodeInfo.label)}</li>`;
                     });
+                    html =  `<li class="pubTable" data-id="pubTable">None <i class="qMark icon xi-unknown"
+                    data-toggle="tooltip"
+                    data-container="body"
+                    data-placement="auto top"
+                    data-title="If no module input is selected, the SQL statement table name will be used"></i></li>` + html;
                     if (!nodeInfos.length) {
                         html += `<li data-id="" class="hint">No tables found</li>`
                     }
@@ -478,11 +522,19 @@ class SQLOpPanel extends BaseOpPanel {
                     } else {
                         val = $li.text().trim();
                     }
-
-                    if (this._connectors[index]) {
-                        this._labelCache.add(this._connectors[index].nodeId);
+                    if (this._sourceMapping[index] && this._sourceMapping[index].source) {
+                        this._labelCache.add(this._dagNode.getParents()[this._sourceMapping[index].source - 1].getId());
                     }
-                    $dropDownList.find("input").val(val);
+                    if ($li.hasClass("pubTable")) {
+                        $dropDownList.find(".text").html(val +
+                            `<i class="qMark icon xi-unknown"
+                            data-toggle="tooltip"
+                            data-container="body"
+                            data-placement="auto top"
+                            data-title="If no module input is selected, the SQL statement table name will be used"></i>`);
+                    } else {
+                        $dropDownList.find(".text").text(val);
+                    }
                     this._setConnector(index, val, $li.data('id'));
                 }
             }).setupListeners();
@@ -506,7 +558,7 @@ class SQLOpPanel extends BaseOpPanel {
         }
     }
 
-    private _getIdentifierHTML(identifier): HTML {
+    private _getIdentifierHTML(identifier: string): HTML {
         return `<div class="source">
                 <div class="dropDownList">
                     <input class="text" type="text" value="${identifier}" spellcheck="false" readonly>
@@ -530,7 +582,7 @@ class SQLOpPanel extends BaseOpPanel {
     private _getConnectorHTML(connectorName: string): HTML {
         return `<div class="dest">
             <div class="dropDownList">
-                <input class="text" type="text" value="${connectorName}" spellcheck="false" readonly>
+                <div class="text">${connectorName}</div>
                 <div class="iconWrapper">
                     <i class="icon xi-arrow-down"></i>
                 </div>
@@ -606,33 +658,62 @@ class SQLOpPanel extends BaseOpPanel {
         return columnSet;
     }
 
-    private _setConnector(index, label, nodeId) {
-        let oldNodeId;
+    private _setConnector(index, label, newParentNodeId) {
         let needsConnection = true;
-        if (this._connectors[index] && this._connectors[index].nodeId) {
-            oldNodeId = this._connectors[index].nodeId;
-            let oldNode = this._graph.getNode(oldNodeId);
-            let parentNode = this._dagNode.getParents()[index]
-            if (parentNode && (parentNode === oldNode)) {
-                DagViewManager.Instance.disconnectNodes(oldNodeId, this._dagNode.getId(),
-                index, this._graph.getTabId());
-                if (nodeId && (nodeId !== this._dagNode.getId())) {
-                    DagViewManager.Instance.connectNodes(nodeId, this._dagNode.getId(),
-                    index, this._graph.getTabId(), false, true);
-                    needsConnection = false;
+        this.noUpdate = true; // prevents updateNodeParents from being called
+        let oldConnector = this._sourceMapping[index];
+        let oldConnectorSource = oldConnector.source;
+        if (oldConnector && oldConnectorSource) {
+            let oldNodeId = this._dagNode.getParents()[oldConnectorSource - 1].getId();
+            DagViewManager.Instance.disconnectNodes(oldNodeId, this._dagNode.getId(),
+                    oldConnectorSource - 1, this._graph.getTabId());
+            oldConnector.source = null;
+            this._sourceMapping.forEach((connector, i) => {
+                if (connector.source && connector.source > oldConnectorSource) {
+                    connector.source--;
                 }
+            });
+            if (newParentNodeId && (newParentNodeId !== this._dagNode.getId()) &&
+                this._graph.getNode(newParentNodeId)) {
+                DagViewManager.Instance.connectNodes(newParentNodeId, this._dagNode.getId(),
+                oldConnectorSource - 1, this._graph.getTabId(), false, true);
+                needsConnection = false;
+                this._sourceMapping.forEach((connector, i) => {
+                    if (connector.source && connector.source >= oldConnectorSource) {
+                        connector.source++;
+                    }
+                });
+                oldConnector.source = oldConnectorSource;
+
             }
         }
-        if (needsConnection && nodeId && (nodeId !== this._dagNode.getId())) {
+        if (needsConnection && newParentNodeId && (newParentNodeId !== this._dagNode.getId()) &&
+            this._graph.getNode(newParentNodeId)) {
             let index = this._dagNode.getNextOpenConnectionIndex();
-            DagViewManager.Instance.connectNodes(nodeId, this._dagNode.getId(),
+            DagViewManager.Instance.connectNodes(newParentNodeId, this._dagNode.getId(),
                 index, this._graph.getTabId());
+            this._sourceMapping.forEach((connector, i) => {
+                if (connector.source && connector.source > index) {
+                    connector.source++;
+                }
+            });
+            oldConnector.source = index + 1;
         }
 
-        this._connectors[index] = {
-            label: label,
-            nodeId: nodeId
-        };
+        let rerender = false;
+        for (let i = 0; i < this._sourceMapping.length; i++) {
+            const connector = this._sourceMapping[i];
+            if (!connector.identifier && connector.source === null) {
+                this._sourceMapping.splice(i, 1);
+                i--;
+                rerender = true;
+            }
+        }
+
+        if (rerender) {
+            this._updateIdentifiersList();
+        }
+        this.noUpdate = false;
     }
 
     private _renderSnippet() {
@@ -647,53 +728,40 @@ class SQLOpPanel extends BaseOpPanel {
         this._toggleDropAsYouGo(dropAsYouGo);
     }
 
-    public extractIdentifiers(): Map<number, string> {
+    private _extractIdentifiers(): Map<number, string> {
         let identifiers = new Map<number, string>();
-        this._identifiers.forEach((identifier, index) => {
-            identifiers.set(index + 1, identifier);
-            if (!this._connectors[index] || !this._connectors[index].label) {
-                throw "Query Table \'" + identifier + "\' does not have a corresponding module table.";
-            }
-        });
-
-        this._parsedIdentifiers.forEach((identifier, index) => {
-            if (this._identifiers[index]) {
-                return;
-            }
-            identifiers.set(index + 1, identifier);
-            if (!this._connectors[index] || !this._connectors[index].label) {
-                throw "Query Table \'" + identifier + "\' does not have a corresponding module table.";
-            }
+        this._sourceMapping.forEach((connector, index) => {
+            if (!connector.identifier) return;
+            identifiers.set(index + 1, connector.identifier);
         });
 
         return identifiers;
+    }
+
+    public getSourceMapping() {
+        return this._sourceMapping;
     }
 
     /**
      * Attach event listeners for static elements
      */
     private _setupEventListener(): void {
-        const self = this;
         // Clear existing event handlers
-        self._$elemPanel.off();
+        this._$elemPanel.off();
 
         // Close icon & Cancel button
-        self._$elemPanel.on('click', '.close, .cancel:not(.confirm)', () => {
+        this._$elemPanel.on('click', '.close, .cancel:not(.confirm)', () => {
             this.close(false);
         });
 
         // Submit button
-        self._$elemPanel.on('click', '.submit', () => {
+        this._$elemPanel.on('click', '.submit', () => {
             this._submit();
         });
 
-        self._$elemPanel.on("click", ".preview", () => {
+        this._$elemPanel.on("click", ".preview", () => {
             this._preview();
         })
-    }
-
-    protected _updateMode(toAdvancedMode: boolean) {
-        super._updateMode(toAdvancedMode);
     }
 
     /**
@@ -702,24 +770,10 @@ class SQLOpPanel extends BaseOpPanel {
      */
     protected _switchModes(toAdvancedMode: boolean): XDPromise<any> {
         if (toAdvancedMode) {
-            const identifiers = {};
-            const identifiersOrder = [];
-            let identifiersMap;
-            try {
-                identifiersMap = this.extractIdentifiers();
-            } catch (e) {
-                return PromiseHelper.reject(e);
-            }
-            identifiersMap.forEach(function(value, key) {
-                identifiers[key] = value;
-                identifiersOrder.push(key);
-            });
-
-            let sqlQueryString = this._queryStr;
+            let sqlQueryStr = this._queryStr;
             const advancedParams = {
-                sqlQueryString: sqlQueryString,
-                identifiers: identifiers,
-                identifiersOrder: identifiersOrder,
+                sqlQueryStr: sqlQueryStr,
+                mapping: this._sourceMapping,
                 dropAsYouGo: this._isDropAsYouGo(),
                 outputTableName: this._outputTableName
             };
@@ -734,24 +788,20 @@ class SQLOpPanel extends BaseOpPanel {
 
     protected _switchToStandardMode() {
         try {
-            const advancedParams = JSON.parse(this._editor.getValue());
+            const advancedParams: DagNodeSQLInputStruct = JSON.parse(this._editor.getValue());
             let errorMsg = this._validateAdvancedParams(advancedParams);
             if (errorMsg) {
                 return PromiseHelper.reject(errorMsg);
             }
             this._outputTableName = advancedParams.outputTableName;
-            const identifiers = advancedParams.identifiers;
-            let identifiersOrder = advancedParams.identifiersOrder.map((identifier) => {
-                return parseInt(identifier);
-            });
-            if (!this._validateIdentifiers(identifiers, identifiersOrder)) {
-                return PromiseHelper.reject(SQLErrTStr.IdentifierMismatch);
-            }
+
             if (advancedParams.dropAsYouGo != null) {
                 this._toggleDropAsYouGo(advancedParams.dropAsYouGo);
             }
 
-            let queryStr = advancedParams.sqlQueryString;
+            this._reconcileSourceMapping();
+
+            let queryStr = advancedParams.sqlQueryStr;
             SQLSnippet.Instance.update(this._snippetId, queryStr);
             if (SQLEditorSpace.Instance.getCurrentSnippetId() === this._snippetId) {
                 const editor = SQLEditorSpace.Instance.getEditor();
@@ -759,32 +809,10 @@ class SQLOpPanel extends BaseOpPanel {
                 editor.refresh();
             }
 
-            if (Object.keys(identifiers).length > 0) {
-                for (let key of identifiersOrder) {
-                    if (!this._validateSourceId(key)) {
-                        return PromiseHelper.reject(SQLErrTStr.InvalidSourceId +
-                            this._dagNode.getParents().length);
-                    }
-                }
-            }
             this._updateHintMessage();
-            let identifiersArr = [];
-            for (let i in identifiers) {
-                identifiersArr.push({
-                    index: i,
-                    identifier: identifiers[i]
-                });
-            }
-            identifiersArr.sort((a,b) => {
-                if (a.index < b.index) {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            });
-            this._identifiers = identifiersArr.map((i) => {
-                return i.identifier
-            });
+
+            this._identifiers = [];
+            this._sourceMapping = advancedParams.mapping;
             return this._selectQuery(this._snippetId, queryStr);
         } catch (e) {
             return PromiseHelper.reject(e);
@@ -804,43 +832,17 @@ class SQLOpPanel extends BaseOpPanel {
         });
     }
 
-    private _validateIdentifiers(identifiers: {}, identifiersOrder: number[]): boolean {
-        if (Object.keys(identifiers).length !== identifiersOrder.length) {
-            return false;
-        }
-        for (const key of identifiersOrder) {
-            if (!identifiers.hasOwnProperty(key + "")) {
-                return false;
-            }
-        }
-        for (const key in identifiers) {
-            if (identifiersOrder.indexOf(parseInt(key)) === -1) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private _validateSourceId(sourceId: number): boolean {
-        if (sourceId > 0 && sourceId <= this._dagNode.getParents().length) {
-            return true;
-        }
-        return false;
-    }
-
     private _submit() {
-        let modePromise;
+        let modePromise = PromiseHelper.resolve();
         if (this._isAdvancedMode()) {
             modePromise = this._switchModes(false);
-        } else {
-            modePromise = PromiseHelper.resolve();
         }
 
         modePromise
         .then(() => {
             let identifiers;
             try {
-                identifiers = this.extractIdentifiers();
+                identifiers = this._extractIdentifiers();
                 this._validateIdentifierNames(identifiers);
             } catch (e) {
                 StatusBox.show(e, this._$elemPanel.find(".btn-submit"));
@@ -886,105 +888,18 @@ class SQLOpPanel extends BaseOpPanel {
         });
     }
 
+    private _validateSourceMapping(sourceMapping) {
+        for (let i = 0; i < sourceMapping.length; i++) {
 
-    private _validateAdvancedParams(advancedParams): any {
-        const schema = {
-            "definitions": {},
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "$id": "http://example.com/root.json",
-            "type": "object",
-            "title": "The Root Schema",
-            "required": [
-              "sqlQueryString",
-              "identifiers",
-              "identifiersOrder",
-              "dropAsYouGo"
-            ],
-            "optional" : [
-                "outputTableName"
-            ],
-            "properties": {
-              "sqlQueryString": {
-                "$id": "#/properties/sqlQueryString",
-                "type": "string",
-                "title": "The Sqlquerystring Schema",
-                "default": "",
-                "examples": [
-                  "SELECT * from t"
-                ]
-              },
-              "identifiers": {
-                "$id": "#/properties/identifiers",
-                "type": "object",
-                "title": "The Identifiers Schema",
-                "properties": {
-                  "1": {
-                    "$id": "#/properties/identifiers/properties/1",
-                    "type": "string",
-                    "title": "TheSchema",
-                    "default": "",
-                    "examples": [
-                      "t1"
-                    ],
-                    "pattern": "^(.*)$"
-                  },
-                  "2": {
-                    "$id": "#/properties/identifiers/properties/2",
-                    "type": "string",
-                    "title": "TheSchema",
-                    "default": "",
-                    "examples": [
-                      "t2"
-                    ],
-                    "pattern": "^(.*)$"
-                  }
-                }
-              },
-              "identifiersOrder": {
-                "$id": "#/properties/identifiersOrder",
-                "type": "array",
-                "title": "The Identifiersorder Schema",
-                "items": {
-                  "$id": "#/properties/identifiersOrder/items",
-                  "type": "integer",
-                  "title": "The Items Schema",
-                  "default": 0,
-                  "examples": [
-                    2,
-                    1
-                  ]
-                }
-              },
-              "dropAsYouGo": {
-                "$id": "#/properties/dropAsYouGo",
-                "type": "boolean",
-                "title": "The Dropasyougo Schema",
-                "default": true,
-                "examples": [
-                  true
-                ]
-              },
-              "outputTableName": {
-                "$id": "#/properties/outputTableName",
-                "type": "string",
-                "title": "The outputTableName Schema",
-                "maxLength": XcalarApisConstantsT.XcalarApiMaxTableNameLen - 10,
-                "pattern": "^[a-zA-Z][a-zA-Z\\d\\_\\-]*$|^$"
-              },
-            }
-          };
-        let ajv = new Ajv();
-        let validate = ajv.compile(schema);
-        let valid = validate(advancedParams);
-        if (!valid) {
-            // only saving first error message
-            let error = validate.errors[0];
-            if (error.dataPath != null && error.message != null) {
-                return error.dataPath + " " + error.message;
-            } else {
-                return SQLErrTStr.InvalidParams;
-            }
         }
+    }
+
+    private _validateAdvancedParams(advancedParams: DagNodeSQLInputStruct): string {
+        let error = this._dagNode.validateParam(advancedParams);
+        if (error != null && error.error) {
+            return error.error;
+        }
+
     }
 
     protected _updateColumns(): ProgCol[] {
@@ -1003,7 +918,7 @@ class SQLOpPanel extends BaseOpPanel {
         .then(() => {
             let identifiers;
             try {
-                identifiers = this.extractIdentifiers();
+                identifiers = this._extractIdentifiers();
                 this._validateIdentifierNames(identifiers);
             } catch (e) {
                 StatusBox.show(e, this._$elemPanel.find(".preview"));
@@ -1026,22 +941,25 @@ class SQLOpPanel extends BaseOpPanel {
                 nodeInfo.isHidden = true;
                 this._clonedNode = graph.newNode(nodeInfo);
 
+                this.noUpdate = true;
                 this._dagNode.getParents().forEach((parent, index) => {
                     if (!parent) return;
                     graph.connect(parent.getId(), this._clonedNode.getId(), index, false, false);
                 });
+                this.noUpdate = false;
 
                 this._lockPreview();
                 const options = {
                     identifiers: identifiers,
-                    dropAsYouGo: true
+                    dropAsYouGo: true,
+                    sourceMapping: this._sourceMapping
                 };
                 this._clonedNode.compileSQL(sql, queryId, options)
                 .then(() => {
                     this._clonedNode.setIdentifiers(identifiers);
                     this._clonedNode.setParam({
                         sqlQueryStr: sql,
-                        identifiers: identifiers,
+                        mapping: this._sourceMapping,
                         dropAsYouGo: true,
                         outputTableName: "xcPreview"
                     }, true);
@@ -1090,10 +1008,24 @@ class SQLOpPanel extends BaseOpPanel {
         this._previewInProgress = false;
     }
 
-}
+    // makes sure source numbers < dag node parents
+    private _reconcileSourceMapping() {
+        let numParents = this._dagNode.getParents().length;
+        // remove any sources that are greater than number of parents
+        let sortedSourceMapping = [...this._sourceMapping];
+        sortedSourceMapping.sort((a, b) => {
+            if (a.source == null) {
+                return 1;
+            }
+            return a.source - b.source;
+        });
 
-interface derivedColStruct {
-    colName: string,
-    mapStr: string,
-    colType: string
+        sortedSourceMapping.forEach((connector, index) => {
+            if (index >= numParents) {
+                connector.source = null;
+            } else {
+                connector.source = (index + 1);
+            }
+        });
+    }
 }

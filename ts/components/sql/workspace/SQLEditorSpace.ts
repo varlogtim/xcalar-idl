@@ -385,7 +385,7 @@ class SQLEditorSpace {
                 sqlStructArray = sqlParseRet;
             }
             if (sqlStructArray.length > 1) {
-                return PromiseHelper.reject(SQLErrTStr.MultiQueries);
+                throw new Error(SQLErrTStr.MultiQueries);
             }
 
             const sqlStruct: SQLParserStruct = sqlStructArray[0];
@@ -932,23 +932,25 @@ class SQLEditorSpace {
         SQLFuncSettingModal.Instance.show(onSubmit, () => {}, numInput);
     }
 
-    private _getSchemaFromSQLOpPanel(identifiers) {
-        let parents = SQLOpPanel.Instance._dagNode.getParents();
-        let panelIdentifiersReversed = SQLOpPanel.Instance.extractIdentifiers();
+    private _getSchemaFromSQLOpPanel(parsedIdentifiers) {
+        const parents = SQLOpPanel.Instance._dagNode.getParents();
+        const sourceMapping = SQLOpPanel.Instance.getSourceMapping();
         let panelIdentifiers = new Map();
-        panelIdentifiersReversed.forEach((identifier, index) => {
-            panelIdentifiers.set(identifier, index);
+        sourceMapping.forEach((connector) => {
+            if (connector.identifier) {
+                panelIdentifiers.set(connector.identifier, connector.source);
+            }
         });
         let schemas = {};
-        identifiers.forEach((sqlIdentifier) => {
-            if (!panelIdentifiers.has(sqlIdentifier)) {
-                throw(`Specify a corresponding module table for '${sqlIdentifier}'`);
+        parsedIdentifiers.forEach((parsedIdentifier) => {
+            if (!panelIdentifiers.has(parsedIdentifier)) {
+                throw(`Specify a corresponding module table for '${parsedIdentifier}'`);
             }
-            let panelIdentifierIndex = panelIdentifiers.get(sqlIdentifier);
-            let parent = parents[panelIdentifierIndex - 1];
-            if (parent) {
+            let panelIdentifierIndex = panelIdentifiers.get(parsedIdentifier);
+            if (panelIdentifierIndex && parents[panelIdentifierIndex - 1]) {
+                let parent = parents[panelIdentifierIndex - 1];
                 let columns =  parent.getLineage().getColumns();
-                schemas[sqlIdentifier.toUpperCase()] = columns.map((col) => {
+                schemas[parsedIdentifier.toUpperCase()] = columns.map((col) => {
                     return {
                         name: col.name,
                         type: col.type
@@ -990,7 +992,6 @@ class SQLEditorSpace {
         const input: DagNodeSQLInputStruct = {
             sqlQueryStr: sql,
             identifiers: {},
-            identifiersOrder: [],
             dropAsYouGo: true
         };
         const identifiersMap = new Map();
@@ -1000,7 +1001,6 @@ class SQLEditorSpace {
             sqlStruct.identifiers.forEach((identifier, index) => {
                 identifiersMap.set(index + 1, identifier);
                 input.identifiers[index + 1] = identifier;
-                input.identifiersOrder.push(index + 1);
             });
             let node: DagNodeSQL = <DagNodeSQL>await DagViewManager.Instance.autoAddNode(DagNodeType.SQL,
                 null, null, input, undefined, undefined, {

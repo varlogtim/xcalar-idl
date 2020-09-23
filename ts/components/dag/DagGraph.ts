@@ -3031,6 +3031,15 @@ class DagGraph extends Durable {
             const headB = nodeB.getHead();
             const positionA = nodeA.getPosition();
             const positionB = nodeB.getPosition();
+            if (nodeA.getNumParent() !== nodeB.getNumParent()) {
+                return nodeA.getNumParent() - nodeB.getNumParent();
+            }
+            if (nodeA.getMaxParents() === -1) {
+                return 1; // headB comes first
+            }
+            if (nodeB.getMaxParents() === -1) {
+                return -1; // headA comes first
+            }
             if (headA != null && headB == null) {
                 return -1; //headA come first
             }

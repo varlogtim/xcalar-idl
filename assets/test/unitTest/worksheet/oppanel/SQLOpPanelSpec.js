@@ -88,12 +88,12 @@ describe("SQLOpPanel Test", function() {
         });
 
         describe("table mapping", function() {
-            it("shoud have identifiers after connection changes", function() {
+            it("should have identifiers after connection changes", function() {
                 node.connectToParent(parentNode, 0);
                 expect($sqlOpPanel.find(".identifiersList .source").length).to.equal(1);
                 expect($sqlOpPanel.find(".identifiersList .dest").length).to.equal(1);
                 expect($(".identifiersList").find(".source").text().trim()).to.equal("Not Found");
-                expect($(".identifiersList").find(".dest input").val().trim()).to.equal("Label 1");
+                expect($(".identifiersList").find(".dest .text").text().trim()).to.equal("Label 1");
                 expect($sqlOpPanel.find(".noTableHint").is(":visible")).to.be.true;
                 node.disconnectFromParent(parentNode, 0);
                 expect($sqlOpPanel.find(".identifiersList .source").length).to.equal(0);
@@ -146,20 +146,18 @@ describe("SQLOpPanel Test", function() {
             editor.setValue(JSON.stringify({}, null, 4));
             $("#sqlOpPanel .bottomSection .btn-submit").click();
             expect($("#statusBox").hasClass("active")).to.be.true;
-            UnitTest.hasStatusBoxWithError(" should have required property 'sqlQueryString'");
+            UnitTest.hasStatusBoxWithError("Configuration should have required property 'sqlQueryStr'");
             sqlOpPanel.close();
         });
 
         it("should submit", function(done) {
             Alert.hide();
             let struct = {
-                "sqlQueryString": "Select * FROM a",
-                "identifiers": {
-                    "1": "a"
-                },
-                "identifiersOrder": [
-                    1
-                ],
+                "sqlQueryStr": "Select * FROM a",
+                "mapping": [{
+                    identifier: "a",
+                    source: 1
+                }],
                 "dropAsYouGo": true
             };
             DagConfigNodeModal.Instance.show(node, "", $(".operator"), openOptions);

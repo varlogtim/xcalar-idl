@@ -44,6 +44,7 @@ class SQLDagExecutor {
             schemas?: any
         }
     ) {
+
         this._options = options || {compileOnly: false, schemas: {}};
         this._sql = sqlStruct.sql.replace(/;+$/, "");
         this._newSql = sqlStruct.newSql ? sqlStruct.newSql.replace(/;+$/, "") :
@@ -362,7 +363,6 @@ class SQLDagExecutor {
         this._sqlNode.setParam({
             sqlQueryStr: this._sql,
             identifiers: this._identifiers,
-            identifiersOrder: this._identifiersOrder,
             dropAsYouGo: null
         }, true);
         const queryId = xcHelper.randName("sqlQuery", 8);

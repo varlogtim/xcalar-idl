@@ -167,11 +167,11 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                             var query = sqlString[index];
                             console.log("Tableau subquery " + (index + 1) + ": " + query);
                             // sqlNode.setSqlQueryString(query);
-                            OldSQLOpPanel.Instance.show(sqlNode);
+                            showSQLPanel(sqlNode, query);
                             // $("#sqlOpPanel .submit").click();
-                            return OldSQLOpPanel.Instance.configureSQL(query)
+                            return SQLOpPanel.Instance.configureSQL(query)
                             .then(function() {
-                                OldSQLOpPanel.Instance.close();
+                                SQLOpPanel.Instance.close();
                                 return test.executeNode(sqlNode.getId());
                             })
                             .then(function() {
@@ -199,8 +199,8 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                     });
                 } else if (testName === "cancelQuery") {
                     sqlNode.setSqlQueryString(sqlString);
-                    OldSQLOpPanel.Instance.show(sqlNode);
-                    $("#oldSQLOpPanel .submit").click();
+                    showSQLPanel(sqlNode, sqlString);
+                    $("#SQLOpPanel .submit").click();
                     test.hasNodeWithState(sqlNode.getId(), DagNodeState.Configured)
                     .then(function() {
                         setTimeout(function() {
@@ -223,12 +223,12 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                     });
                 } else {
                     // sqlNode.setSqlQueryString(sqlString);
-                    OldSQLOpPanel.Instance.show(sqlNode);
+                    showSQLPanel(sqlNode, sqlString);
                     // $("#sqlOpPanel .submit").click();
                     // test.hasNodeWithState(sqlNode.getId(), DagNodeState.Configured)
-                    return OldSQLOpPanel.Instance.configureSQL(sqlString)
+                    return SQLOpPanel.Instance.configureSQL(sqlString)
                     .then(function() {
-                        OldSQLOpPanel.Instance.close();
+                        SQLOpPanel.Instance.close();
                         return test.executeNode(sqlNode.getId());
                     })
                     .then(function() {
@@ -268,6 +268,25 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                 test.add(runQuery, queryName, defaultTimeout, TestCaseEnabled);
             }
         }
+    }
+
+    function showSQLPanel(sqlNode, sqlQueryStr) {
+        let i = 0;
+        let mapping = [];
+        for (let table in tableNodesMap) {
+            mapping.push({
+                identifier: table,
+                source: i + 1
+            });
+            i++;
+        }
+        sqlNode.setParam({
+            sqlQueryStr: sqlQueryStr,
+            dropAsYouGo: true,
+            mapping: mapping,
+            identifiers: sqlNode.getParam().identifiers
+        }, true);
+        SQLOpPanel.Instance.show(sqlNode);
     }
 
     function checkResult(answerSet, queryName) {
@@ -359,19 +378,25 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         var sqlNodeId = sqlNodeElement.data("nodeid");
         console.log("create sql node: " + sqlNodeId);
         var testDagGraph = DagViewManager.Instance.getActiveDag();
-        console.log("test dag grah", testDagGraph);
+        console.log("test dag graph", testDagGraph);
         sqlNode = testDagGraph.getNode(sqlNodeId);
         console.log("find sql node");
 
         var i = 0;
         var identifiers = new Map();
+        let mapping = [];
         for (var table in tableNodesMap) {
             testDagGraph.connect(tableNodesMap[table], sqlNode.id, i);
             identifiers.set(i + 1, table);
             i++;
+            mapping.push({
+                identifier: table,
+                source: i
+            });
         }
         console.log("set identifiers")
         sqlNode.setIdentifiers(identifiers);
+        sqlNode.input.input.mapping = mapping;
         console.log("sql node added");
     }
     function checkConfigure() {
