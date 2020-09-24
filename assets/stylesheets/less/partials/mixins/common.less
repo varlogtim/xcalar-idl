@@ -1759,7 +1759,7 @@
                 @align: center);
             border-right: 1px solid @color-bg-2;
             background-color: @color-bg-dagTabInactive;
-            padding: 0px 10px;
+            padding: 0px 6px 0px 10px;
             .noSelection;
             .textOverflow;
             cursor: pointer;
@@ -1820,15 +1820,22 @@
 
             &.unsaved {
                 .after {
-                    background-color: @color-icon-default-hover;
+                    // background-color: @color-icon-default-hover;
 
                     .icon {
                         display: none;
                     }
 
+                    .dot {
+                        display: block;
+                    }
+
                     &:hover {
                         .close {
                             display: block;
+                        }
+                        .dot {
+                            display: none;
                         }
                     }
                 }
@@ -1891,12 +1898,12 @@
 
             .after {
                 margin-right: 0px;
-                margin-left: 3px;
+                margin-left: 6px;
                 float: right;
                 width: 13px;
                 height: 13px;
                 .rounded(100%);
-                .position(relative, @top: 6px);
+                .position(relative, @top: 5px);
                 background-color: transparent;
 
                 &:hover {
@@ -1912,6 +1919,7 @@
                     .size(8px, 7px);
                     display: block;
                     .center-align;
+                    font-weight: bold;
                 }
 
                 .dot {
