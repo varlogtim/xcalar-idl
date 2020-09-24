@@ -14,7 +14,8 @@ type EditSchemaProps = {
     selectedSchema: any,
     classNames: string[],
     isMappingEditable?: boolean,
-    showAdd?: boolean
+    showAdd?: boolean,
+    addColTip?: string
 }
 
 class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
@@ -55,7 +56,9 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
         let newColumns = this._getColsFromSchemaString(schemaStr);
         let mappings = new Set();
         this.props.selectedSchema.columns.forEach((col) => {
-            mappings.add(col.mapping);
+            mappings.add(col.mapping.indexOf('$.') == 0
+                ? col.mapping.substr(2)
+                : col.mapping);
         });
         newColumns.forEach((col) => {
             mappings.delete(col.mapping);
@@ -97,7 +100,7 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
     }
 
     render() {
-        const { errorMessage, schema, classNames = [], showAdd = true, persistError } = this.props;
+        const { errorMessage, schema, classNames = [], showAdd = true, addColTip = '', persistError } = this.props;
         let switchClass = "xc-switch switch";
 
         if (this.state.editAsText) {
@@ -157,6 +160,7 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
                         this._updateSchema(val);
                     }}
                     canAdd={showAdd || this.state.unusedMappings.size > 0}
+                    addColTip={addColTip}
                     isMappingEditable={this.props.isMappingEditable}
                 />
             }

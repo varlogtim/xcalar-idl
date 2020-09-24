@@ -6,6 +6,7 @@ type ColSchemaSectionProps = {
     editedSchema: {"name": string, "mapping":string, "type": string}[],
     updateSchema: Function,
     canAdd?: boolean,
+    addColTip?: string,
     isMappingEditable?: boolean
 }
 class ColSchemaSection extends React.Component<ColSchemaSectionProps, {}> {
@@ -15,7 +16,7 @@ class ColSchemaSection extends React.Component<ColSchemaSectionProps, {}> {
         let addColTip = ""
         if (!this.props.canAdd) {
             addColClass += " xc-unavailable";
-            addColTip = "Columns cannot be added to CSV schemas.";
+            addColTip = this.props.addColTip;
         }
         return (
             <div className="colSchemaSection">

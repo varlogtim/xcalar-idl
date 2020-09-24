@@ -67,6 +67,10 @@ stepNames.set(StepEnum.SchemaDiscovery, Texts.stepNameSchemaDiscover);
 stepNames.set(StepEnum.CreateTables, Texts.stepNameCreateTables);
 
 const numRowsForPreview = 100;
+const fileTypesNotShowContent = new Set([
+    SchemaService.FileType.CSV,
+    SchemaService.FileType.PARQUET
+]);
 
 function deleteEntry(setOrMap, key) {
     setOrMap.delete(key);
@@ -1052,7 +1056,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                         linesHaveError: linesHaveError
                     }
                 }));
-                if (this.state.fileType === SchemaService.FileType.CSV) {
+                if (fileTypesNotShowContent.has(this.state.fileType)) {
                     // Have to pass in fileContent.lines,
                     // because setState() doesn't immediately mutate this.state
                     this._selectFileLines([0], true, fileContent.lines); // auto select 1st row in csv
@@ -1487,9 +1491,9 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                 editSchemaProps={{
                                     ...editSchemaState,
                                     persistError: persistSchemaError,
-                                    isMappingEditable: ![SchemaService.FileType.CSV].includes(fileType),
-                                    showAdd: ![SchemaService.FileType.CSV].includes(fileType) ||
-                                        (this.state.inputSerialization.CSV && this.state.inputSerialization.CSV.FileHeaderInfo !== "USE"),
+                                    isMappingEditable: !fileTypesNotShowContent.has(fileType),
+                                    showAdd: !fileTypesNotShowContent.has(fileType) || SchemaService.isHeaderlessCSV(inputSerialization),
+                                    addColTip: `Columns cannot be added to ${fileType.toUpperCase()} schemas.`,
                                     onSchemaChange: (result) => { this._handleSchemaChange(result); }
                                 }}
                                 selectedSchema={selectedSchema}

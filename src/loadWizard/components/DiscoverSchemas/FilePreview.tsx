@@ -6,6 +6,11 @@ import { OptionSampleSize } from './OptionSampleSize'
 import * as SchemaService from '../../services/SchemaService';
 import { Folder, InsertDriveFileOutlined } from '@material-ui/icons';
 
+const fileTypesNoSelect = new Set([
+    SchemaService.FileType.CSV,
+    SchemaService.FileType.PARQUET
+]);
+
 class FilePreview extends React.PureComponent<any, any> {
     constructor(props) {
         super(props);
@@ -21,7 +26,7 @@ class FilePreview extends React.PureComponent<any, any> {
 
         let headerHelpText = null;
 
-        if (parserType !== SchemaService.FileType.CSV) {
+        if (!fileTypesNoSelect.has(parserType)) {
             headerHelpText = <div className="headerHelpText">
                 <i className="icon xi-info-circle-outline"></i>Select records (max to 5) to discover your schema
             </div>
@@ -182,7 +187,7 @@ class FileContentWrap extends React.PureComponent<any, any> {
             ? () => { onOffsetChange(nextOffset); }
             : null;
 
-        if (parserType === SchemaService.FileType.CSV) {
+        if (fileTypesNoSelect.has(parserType)) {
             if (linesHaveError) {
                 let errorLines = [];
                 content.forEach(({data, status}, index) => {
