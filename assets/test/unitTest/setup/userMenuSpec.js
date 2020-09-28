@@ -46,16 +46,16 @@ describe("UserMenu Test", function() {
         XVM.isCloud = oldIsCloud;
     });
 
-    it("clicking on credits should show alert", () => {
-        var oldFunc = window.open;
-        var called = false;
-        window.open = () => called = true;
-        $menu.find(".credits").mouseup();
-        expect(called).to.be.false;
-        $menu.find(".credits").trigger(fakeEvent.mouseup);
-        expect(called).to.be.true;
-        window.open = oldFunc;
-    });
+    // it("clicking on credits should show alert", () => {
+    //     var oldFunc = window.open;
+    //     var called = false;
+    //     window.open = () => called = true;
+    //     $menu.find(".credits").mouseup();
+    //     expect(called).to.be.false;
+    //     $menu.find(".credits").trigger(fakeEvent.mouseup);
+    //     expect(called).to.be.true;
+    //     window.open = oldFunc;
+    // });
 
     // it("should update credits", () => {
     //     UserMenu.Instance.updateCredits();

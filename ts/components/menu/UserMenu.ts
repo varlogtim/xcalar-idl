@@ -34,12 +34,12 @@ class UserMenu {
             AboutModal.Instance.show();
         });
 
-        $menu.on("mouseup", ".credits", function(event: JQueryEventObject): void {
-            if (event.which !== 1) {
-                return;
-            }
-            window.open(paths.cloudCredit);
-        });
+        // $menu.on("mouseup", ".credits", function(event: JQueryEventObject): void {
+        //     if (event.which !== 1) {
+        //         return;
+        //     }
+        //     window.open(paths.cloudCredit);
+        // });
 
         $menu.on('mouseup', ".setup", function(event: JQueryEventObject): void {
             if (event.which !== 1) {
