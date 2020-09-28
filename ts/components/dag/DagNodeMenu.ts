@@ -457,7 +457,7 @@ namespace DagNodeMenu {
             if ($li.hasClass("unavailable") || !action) {
                 return;
             }
-            let nodeIds: DagNodeId[] = DagViewManager.Instance.getSelectedNodeIds(true, false);
+            let nodeIds: DagNodeId[];
 
             switch(action) {
                 case ("removeAllNodes"):
@@ -467,7 +467,11 @@ namespace DagNodeMenu {
                         nodeIds.push(nodeId);
                     });
                     break;
+                case ("removeInConnection"):
+                    nodeIds = [curNodeId];
+                    break;
                 default:
+                    nodeIds = DagViewManager.Instance.getSelectedNodeIds(true, false);
                     break;
             }
 
