@@ -457,7 +457,19 @@ namespace DagNodeMenu {
             if ($li.hasClass("unavailable") || !action) {
                 return;
             }
-            const nodeIds: DagNodeId[] = DagViewManager.Instance.getSelectedNodeIds(true, true);
+            let nodeIds: DagNodeId[] = DagViewManager.Instance.getSelectedNodeIds(true, false);
+
+            switch(action) {
+                case ("removeAllNodes"):
+                case ("deleteAllTables"):
+                    nodeIds = [];
+                    DagViewManager.Instance.getActiveDag().getAllNodes().forEach((_node, nodeId) => {
+                        nodeIds.push(nodeId);
+                    });
+                    break;
+                default:
+                    break;
+            }
 
             // Alert for locking tables
             switch (action) {
@@ -470,10 +482,7 @@ namespace DagNodeMenu {
                 case ("reexecuteNode"):
                 case ("deleteTable"):
                 case ("configureNode"):
-                    const nodesToCheck = nodeIds.filter((nodeId) => {
-                        return !nodeId.startsWith("comment");
-                    });
-                    let lockedTable = DagViewManager.Instance.getActiveDag().checkForChildLocks(nodesToCheck);
+                    let lockedTable = DagViewManager.Instance.getActiveDag().checkForChildLocks(nodeIds);
                     if (lockedTable) {
                         DagUtil.showPinWarning(lockedTable);
                     } else {
