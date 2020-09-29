@@ -11,11 +11,12 @@ class DagConfigNodeModal {
     private constructor() {
         const $modal: JQuery = this._getModal();
         $modal.find("header").addClass("opPanelHeader");
+        $modal.find(".opPanel").prepend(`<div class="draggableHeader"></div>`);
     }
 
     public setupPopup() {
         this._popup = new PopupPanel("configNodeContainer", {
-            draggableHeader: ".opPanelHeader"
+            draggableHeader: ".draggableHeader"
         });
         this._popup
         .on("Undock", () => {
@@ -174,8 +175,6 @@ class DagConfigNodeModal {
                                 $node);
                 return;
         }
-
-        this._popup.bringToFront();
         PopupManager.checkAllContentUndocked();
         this._popup.trigger("Show_BroadCast");
     }

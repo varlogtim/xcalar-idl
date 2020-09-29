@@ -136,9 +136,7 @@ class PopupManager {
             this._state[id].isUndocked = true;
             this._addPopup(popup);
             this._updateZIndex();
-            SQLEditorSpace.Instance.refresh();
-            UDFPanel.Instance.refresh();
-            DagConfigNodeModal.Instance.refresh();
+            this._handleResize();
         })
         .on("Dock_BroadCast", () => {
             this._state[id].isUndocked = false,
@@ -147,9 +145,7 @@ class PopupManager {
 
             this._removePopup(popup, true);
             this._updateZIndex();
-            SQLEditorSpace.Instance.refresh();
-            UDFPanel.Instance.refresh();
-            DagConfigNodeModal.Instance.refresh();
+            this._handleResize();
         })
         .on("BringFront_BroadCast", () => {
             this._bringFrontPopup(popup);
@@ -167,9 +163,7 @@ class PopupManager {
                 ...state
             };
             this._save();
-            SQLEditorSpace.Instance.refresh();
-            UDFPanel.Instance.refresh();
-            DagConfigNodeModal.Instance.refresh();
+            this._handleResize();
         })
         .on("Drag_BroadCast", state => {
             this._state[id] = {
@@ -181,16 +175,13 @@ class PopupManager {
         .on("Hide_BroadCast", () => {
             this._state[id].isVisible = false;
             this._save();
-            SQLEditorSpace.Instance.refresh();
-            UDFPanel.Instance.refresh();
-            DagConfigNodeModal.Instance.refresh();
+            this._handleResize();
         })
         .on("Show_BroadCast", () => {
             this._state[id].isVisible = true;
             this._save();
-            SQLEditorSpace.Instance.refresh();
-            UDFPanel.Instance.refresh();
-            DagConfigNodeModal.Instance.refresh();
+            this._popupMap.get(id).bringToFront();
+            this._handleResize();
         })
         .on("VertStack_BroadCast", () => {
             this._state[id].isVertStacked = true;
@@ -214,6 +205,12 @@ class PopupManager {
                 this._getKVStore().put(JSON.stringify(this._state), false);
             }, this._saveDelay);
         }
+    }
+
+    private static _handleResize() {
+        SQLEditorSpace.Instance.refresh();
+        UDFPanel.Instance.refresh();
+        DagConfigNodeModal.Instance.refresh();
     }
 
     public static isDocked(popupId): boolean {

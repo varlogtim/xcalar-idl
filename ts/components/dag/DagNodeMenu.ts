@@ -639,7 +639,8 @@ namespace DagNodeMenu {
         }
         const $node = DagViewManager.Instance.getNode(nodeId);
         if ($node.hasClass("configDisabled")) {
-            StatusBox.show("No panels available. To edit, copy node and paste into a text editor. Then copy the edited JSON and paste it here.",
+            StatusBox.show("No panels available. To edit, copy node and paste into a text editor." +
+                            " Then copy the edited JSON and paste it here.",
                                 $node);
             return;
         }

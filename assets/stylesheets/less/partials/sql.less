@@ -446,18 +446,17 @@
                             display: flex;
                             flex: 1 0 auto;
                             position: relative;
-                            padding: 6px 8px;
+                            padding: 5px 8px;
                         }
 
                         .slidingSearchWrap {
-                            top: -2px;
-                            height: 100%;
+                            top: 0px;
                             width: 230px;
 
                             .searchbarArea {
                                 min-width: auto;
                                 max-width: none;
-                                margin-top: 6px;
+                                margin-top: 4px;
                                 width: 230px;
                                 left: 0px;
 
@@ -584,6 +583,21 @@
 
                 .topSection {
                     padding-right: 50px !important;
+                }
+            }
+
+            .hintBar {
+                padding: 6px 50px 6px 8px;
+                display: none;
+
+                .sectionHeader {
+                    font-size: 16px;
+                }
+            }
+
+            .hint {
+                .hintBar {
+                    display: flex;
                 }
             }
 

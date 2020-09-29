@@ -1,14 +1,31 @@
 #configNodeContainer {
     @title-height: 32px;
     @header-height: 58px;
+    @header-h: 14px; // for draggable top bar
 
     overflow: hidden;
     height: 100%;
 
     &.undocked {
         overflow: visible;
-        .opPanelHeader.ui-draggable-handle {
+        padding-top: @header-h;
+
+        .draggableHeader {
+            display: block;
+            position: absolute;
+            height: @header-h;
+            width: 100%;
+            top: 0;
+            background-color: @color-table-selected-hover;
             .cursor-move;
+        }
+
+        > .undock {
+            top: 5px + @header-h;
+        }
+
+        .opPanel > header .close {
+            top: @header-h;
         }
     }
 
@@ -17,6 +34,10 @@
         top: 5px;
         right: 32px;
         font-size: 14px;
+    }
+
+    .draggableHeader {
+        display: none;
     }
 
     .opPanel {

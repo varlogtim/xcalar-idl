@@ -2635,7 +2635,7 @@ html.firefox {
         .tableNameArea {
             .flex(1 1 0px);
             padding: 0 4px;
-            line-height: 24px;
+            line-height: @div-h;
             .textOverflowOneLine;
             display: flex;
             .name {
@@ -2651,7 +2651,7 @@ html.firefox {
             padding: 0 8px;
             margin-left: auto;
             margin-right: 4px;
-            line-height: 24px;
+            line-height: @div-h;
         }
 
         .rowInputArea {
@@ -2660,10 +2660,10 @@ html.firefox {
             margin-right: 8px;
             border: none;
             padding: 0;
-            line-height: 24px;
+            line-height: @div-h;
 
             input {
-                .size(@height: 22px);
+                .size(@height: @div-h);
                 top: 1px;
             }
         }
