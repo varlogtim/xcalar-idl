@@ -4,6 +4,7 @@ describe('PublishIMDOpPanel Test', () => {
     let $columns
     let node;
     let editor;
+    let oldGetActiveDag;
 
     before((done) => {
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
@@ -25,12 +26,17 @@ describe('PublishIMDOpPanel Test', () => {
                         "col#1","col#2"
                     ],
                 }),
-                getTitle: () => "Node 1"
+                getTitle: () => "Node 1",
+                getId:() => "Node1"
             };
 
             node = new DagNodePublishIMD({})
             node.getParents = function() {
                 return [parentNode];
+            };
+            oldGetActiveDag = DagViewManager.Instance.getActiveDag;
+            DagViewManager.Instance.getActiveDag = () => {
+                return new DagGraph();
             };
 
             PublishIMDOpPanel.Instance.show(publishNode, {})
@@ -45,6 +51,10 @@ describe('PublishIMDOpPanel Test', () => {
                 done();
             });
         });
+    });
+
+    after(() => {
+        DagViewManager.Instance.getActiveDag = oldGetActiveDag;
     });
 
     describe('Basic UI Tests', () => {

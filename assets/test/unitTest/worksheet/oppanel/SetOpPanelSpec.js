@@ -24,6 +24,7 @@ describe("SetOpPanel Test", function() {
             validateNodes: () => null,
             getType: () => DagNodeType.Set,
             getSubType: () => DagNodeSubType.Intersect,
+            getId:() => "Node1"
         };
     });
 

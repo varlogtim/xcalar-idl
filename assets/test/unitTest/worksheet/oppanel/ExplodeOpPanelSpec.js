@@ -1,4 +1,4 @@
-describe('ExplodeOpPanel Test', () => {
+describe('ExplodeOpPanel Test', () => { 
     let explodeNode;
     let opPanel;
 
@@ -19,7 +19,8 @@ describe('ExplodeOpPanel Test', () => {
                 ],
                 icv: false
             }),
-            getTitle: () => "Node 1"
+            getTitle: () => "Node 1",
+            getId:() => "Node1"
         };
 
         ExplodeOpPanel.Instance.show(explodeNode, {});

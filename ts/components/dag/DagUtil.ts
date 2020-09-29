@@ -16,9 +16,9 @@ class DagUtil {
      * DagUtil.showPinWarning
      * @param lockedTable
      */
-    public static showPinWarning(lockedTable: string): void {
+    public static showPinWarning(pinnedTable: string): void {
         Alert.error(DFTStr.LockedTableWarning, DFTStr.LockedTableMsg, {
-            detail: `Pinned Table: ${lockedTable}`,
+            detail: `Pinned Table: ${pinnedTable}`,
             sizeToText: true
         });
     }

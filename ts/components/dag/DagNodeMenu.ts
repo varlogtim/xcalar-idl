@@ -3,6 +3,7 @@ namespace DagNodeMenu {
     let curNodeId: DagNodeId;
     let curParentNodeId: DagNodeId;
     let curConnectorIndex: number;
+    let _ignorePinnedWarning: boolean;
 
     const tooltipMap = {
         configureNode: "This action opens the operator's configuration panel",
@@ -84,9 +85,9 @@ namespace DagNodeMenu {
                 const nodesToCheck = nodeIds.filter((nodeId) => {
                     return !nodeId.startsWith("comment");
                 });
-                let lockedTable = DagViewManager.Instance.getActiveDag().checkForChildLocks(nodesToCheck);
-                if (lockedTable) {
-                    DagUtil.showPinWarning(lockedTable);
+                let pinnedTable = DagViewManager.Instance.getActiveDag().checkForChildLocks(nodesToCheck);
+                if (pinnedTable && !_ignorePinnedWarning) {
+                    _showCancelablePinWarning(action, pinnedTable);
                 } else {
                     _processMenuAction(action, options);
                 }
@@ -474,7 +475,7 @@ namespace DagNodeMenu {
                     nodeIds = DagViewManager.Instance.getSelectedNodeIds(true, false);
                     break;
             }
-
+            let pinnedTable;
             // Alert for locking tables
             switch (action) {
                 case ("removeNode"):
@@ -485,10 +486,17 @@ namespace DagNodeMenu {
                 case ("deleteParentTable"):
                 case ("reexecuteNode"):
                 case ("deleteTable"):
+                    pinnedTable = DagViewManager.Instance.getActiveDag().checkForChildLocks(nodeIds);
+                    if (pinnedTable) {
+                        DagUtil.showPinWarning(pinnedTable);
+                    } else {
+                        _preProcessMenuAction(action);
+                    }
+                    break;
                 case ("configureNode"):
-                    let lockedTable = DagViewManager.Instance.getActiveDag().checkForChildLocks(nodeIds);
-                    if (lockedTable) {
-                        DagUtil.showPinWarning(lockedTable);
+                    pinnedTable = DagViewManager.Instance.getActiveDag().checkForChildLocks(nodeIds);
+                    if (pinnedTable && !_ignorePinnedWarning) {
+                        _showCancelablePinWarning(action, pinnedTable);
                     } else {
                         _preProcessMenuAction(action);
                     }
@@ -1283,5 +1291,31 @@ namespace DagNodeMenu {
         const tableName: string = dagNode.getTable();
         xcUIHelper.copyToClipboard(tableName);
         xcUIHelper.showSuccess("Copied.");
+    }
+
+    function _showCancelablePinWarning(action, pinnedTable) {
+        Alert.show({
+            title: DFTStr.LockedTableWarning,
+            msg: "Editing an operator will remove this table's results, which will impact those pinned tables" +
+            " following this table whose input data requires this table's results. You can view the configuration but you must unpin all the tables whose results" +
+            " are affected by this action in order to save any changes.",
+            isCheckBox: true,
+            sizeToText: true,
+            detail: `Pinned Table: ${pinnedTable}`,
+            buttons: [{
+                name: "Continue",
+                func: (hasChecked) => {
+                    if (hasChecked) {
+                        _ignorePinnedWarning = true;
+                    }
+                    _preProcessMenuAction(action);
+                }
+            }],
+            onCancel: (hasChecked) => {
+                if (hasChecked) {
+                    _ignorePinnedWarning = true;
+                }
+            }
+        });
     }
 }

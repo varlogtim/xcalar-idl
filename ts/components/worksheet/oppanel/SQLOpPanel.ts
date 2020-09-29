@@ -469,6 +469,9 @@ class SQLOpPanel extends BaseOpPanel {
                     $dropDownList.find("ul").html(html);
                 },
                 onSelect: ($li) => {
+                    if (this.$panel.hasClass("locked")) {
+                        return;
+                    }
                     let val;
                     if ($li.hasClass("hint")) {
                         return;

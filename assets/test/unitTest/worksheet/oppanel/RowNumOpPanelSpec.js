@@ -14,7 +14,8 @@ describe('RowNumOpPanel Test', () => {
             getParents: () => ([parentNode]),
             getType: () => (DagNodeType.RowNum),
             getParam: () => ({ newField: 'rowNumColumn' }),
-            getTitle: () => "Node 1"
+            getTitle: () => "Node 1",
+            getId:() => "Node1"
         };
 
         RowNumOpPanel.Instance.show(rowNumNode, {});

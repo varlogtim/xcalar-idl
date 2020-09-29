@@ -1,6 +1,7 @@
 describe('RoundOpPanel Test', () => {
     let roundNode;
     let opPanel;
+    let oldGetActiveDag;
 
     before((done) => {
         const inputColumns = genProgCols('fcol', 5, ColumnType.float).concat(genProgCols('scol', 4, ColumnType.string));
@@ -21,8 +22,16 @@ describe('RoundOpPanel Test', () => {
                 icv: false
             }),
             getTitle: () => "Node 1",
-            validateParam: () => null
+            validateParam: () => null,
+            getId:() => "Node1"
         };
+
+        oldGetActiveDag = DagViewManager.Instance.getActiveDag;
+            DagViewManager.Instance.getActiveDag = () => {
+                return new DagGraph();
+        };
+
+        BaseOpPanel.isLastModeAdvanced = false;
 
         UnitTest.testFinish(() => DagPanel.Instance.hasSetup())
         .always(function() {
@@ -34,6 +43,11 @@ describe('RoundOpPanel Test', () => {
             opPanel = RoundOpPanel.Instance;
             done();
         });
+    });
+
+
+    after(() => {
+        DagViewManager.Instance.getActiveDag = oldGetActiveDag;
     });
 
     it('_getArgs() should work', () => {

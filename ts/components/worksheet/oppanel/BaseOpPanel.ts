@@ -272,15 +272,22 @@ class BaseOpPanel {
         options = options || <ShowPanelInfo>{};
         this._exitCallback = options.exitCallback || function () { };
         this._closeCallback = options.closeCallback || function () { };
-        if (options.nonConfigurable) {
-            $("#dataflowMenu .opPanel .bottomSection .btnWrap")
-                .addClass("xc-disabled");
+        let pinnedTable = DagViewManager.Instance.getActiveDag().checkForChildLocks([this._dagNode.getId()]);
+        if (pinnedTable || options.nonConfigurable) {
+            this.$panel.find(".bottomSection .btnWrap")
+                       .addClass("xc-disabled");
+            xcTooltip.add(this.$panel.find(".bottomSection"), {
+                title: "Saving this configuration removes this table’s results, which will impact those pinned tables following this table whose input data requires this table’s results. To continue, you must close this form, unpin all the tables whose results are affected by this operator, and try again."
+            });
+            this.$panel.addClass("locked");
             if (this._editor) {
                 this._editor.setOption("readOnly", true);
             }
         } else {
-            $("#dataflowMenu .opPanel .opSection, .bottomSection .btnWrap")
-                .removeClass("xc-disabled");
+            this.$panel.find(".opPanel .opSection, .bottomSection .btnWrap")
+                       .removeClass("xc-disabled");
+            xcTooltip.remove(this.$panel.find(".bottomSection"));
+            this.$panel.removeClass("locked");
             if (this._editor) {
                 this._editor.setOption("readOnly", false);
             }

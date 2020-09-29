@@ -56,11 +56,13 @@ class PopupPanel {
                 this.getPanel().outerHeight(state.undockedHeight);
             }
             if (state.undockedTop !== "auto") {
-                const top = Math.min(state.undockedTop, $(window).height() - 40);
+                let top = Math.min(state.undockedTop, $(window).height() - 40);
+                top = Math.max(top, 0);
                 this.getPanel().css("top", top);
             }
             if (state.undockedLeft !== "auto") {
-                const left = Math.min(state.undockedLeft, $(window).width() - 40);
+                let left = Math.min(state.undockedLeft, $(window).width() - 40);
+                left = Math.max(left, 0);
                 this.getPanel().css("left", left);
             }
         }

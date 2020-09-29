@@ -22,7 +22,8 @@ describe('SplitOpPanel Test', () => {
                 icv: false
             }),
             getTitle: () => "Node 1",
-            validateParam: () => null
+            validateParam: () => null,
+            getId:() => "Node1"
         };
 
         SplitOpPanel.Instance.show(splitNode, {});
