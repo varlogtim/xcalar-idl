@@ -62,10 +62,12 @@ class GeneralOpPanel extends BaseOpPanel {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         XDFManager.Instance.waitForSetup()
         .always(() => {
-            this._operatorsMap = XDFManager.Instance.getOperatorsMapFromWorkbook(
-                UDFFileManager.Instance.displayPathToNsPath(
-                    this._udfDisplayPathPrefix
-            ), true);
+            this._operatorsMap = XDFManager.Instance.excludeLoadUDFs(
+                XDFManager.Instance.getOperatorsMapFromWorkbook(
+                    UDFFileManager.Instance.displayPathToNsPath(
+                        this._udfDisplayPathPrefix
+                ), true)
+            );
             deferred.resolve();
         });
         return deferred.promise();
@@ -76,7 +78,9 @@ class GeneralOpPanel extends BaseOpPanel {
         // UDFs should not rely on this.
         XDFManager.Instance.waitForSetup()
         .always(() => {
-            this._operatorsMap = XDFManager.Instance.getOperatorsMap();
+            this._operatorsMap = XDFManager.Instance.excludeLoadUDFs(
+                XDFManager.Instance.getOperatorsMap()
+            );
             this._udfDisplayPathPrefix = UDFFileManager.Instance.getCurrWorkbookDisplayPath();
         });
      }

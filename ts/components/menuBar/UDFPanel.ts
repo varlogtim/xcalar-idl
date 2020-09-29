@@ -233,12 +233,11 @@ class UDFPanel {
 
     public listUDFs(): {displayName: string, path: string}[] {
         const res: {displayName: string, path: string}[] = [];
-        const loadUDFFilter = RegExp('(/LOAD_WIZARD_|/LOAD_PLAN_UDF_)');
 
         // store by name
         const unsortedUDF: string[] = Array.from(
             UDFFileManager.Instance.getUDFs().keys()
-        ).filter((name) => !loadUDFFilter.test(name));
+        ).filter((name) => !xcHelper.isLoadUDF(name));
         const workbookUDF: string[] = unsortedUDF.filter((value: string) => {
             return value.startsWith(
                 UDFFileManager.Instance.getCurrWorkbookPath()
@@ -276,7 +275,7 @@ class UDFPanel {
     /**
      * UDFPanel.Instance.updateUnSavedChange
      * @param name
-     * @param save 
+     * @param save
      */
     public async updateUnSavedChange(tab: UDFTabDurable, save: boolean): Promise<void> {
         if (save) {
@@ -411,7 +410,7 @@ class UDFPanel {
                 "bottom"
             )
         ) {
-            const $save: JQuery = this._getSaveButton();            
+            const $save: JQuery = this._getSaveButton();
             try {
                 $save.addClass("xc-disabled");
                 await this._eventSave(displayPath, tab);

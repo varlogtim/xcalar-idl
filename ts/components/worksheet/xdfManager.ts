@@ -89,6 +89,27 @@ class XDFManager {
         return this._allUDFs;
     }
 
+    // Filter out load udfs in given operator map
+    public excludeLoadUDFs(operatorsMap) {
+        const result = {};
+        for (const [categoryNum, udfs] of Object.entries(operatorsMap)) {
+            if (categoryNum != `${FunctionCategoryT.FunctionCategoryUdf}`) {
+                result[categoryNum] = udfs;
+                continue;
+            }
+            // Remove load udfs
+            const fns = {};
+            for (const [displayName, udf] of Object.entries(udfs)) {
+                if (!xcHelper.isLoadUDF(udf.fnName)) {
+                    fns[displayName] = udf;
+                }
+            }
+            result[categoryNum] = fns;
+        }
+
+        return result;
+    }
+
     // given a workbook path, returns a map of categories including all xdfs and
     // udfs from that workbook, including shared
     public getOperatorsMapFromWorkbook(udfNSPathPrefix: string, sort?: boolean) {

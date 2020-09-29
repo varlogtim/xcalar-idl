@@ -1787,6 +1787,15 @@ namespace xcHelper {
     }
 
     /**
+     * xcHelper.isLoadUDF
+     * @param udfName
+     */
+    export function isLoadUDF(udfName: string): boolean {
+        const loadUDFFilter = RegExp('(/LOAD_WIZARD_|/LOAD_PLAN_UDF_)');
+        return loadUDFFilter.test(udfName);
+    }
+
+    /**
      * Only show default and user workbook's udfs and shared udfs. If same
      * module name exists in workbook space and shared space, it preserves the
      * one in workbook space.
