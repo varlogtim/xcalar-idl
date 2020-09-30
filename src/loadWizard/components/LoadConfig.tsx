@@ -1056,6 +1056,15 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                         linesHaveError: linesHaveError
                     }
                 }));
+                if (fileContent.lines.length == 0) {
+                    this._alert({
+                        title: 'File Error',
+                        message: 'No records found'
+                    });
+
+                    throw 'No records found';
+                }
+
                 if (fileTypesNotShowContent.has(this.state.fileType)) {
                     // Have to pass in fileContent.lines,
                     // because setState() doesn't immediately mutate this.state
@@ -1081,7 +1090,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             // Check empty file
             const fileLines = content || this.state.fileContentState.content;
             if (!Array.isArray(fileLines) || fileLines.length == 0) {
-                throw 'File is empty';
+                throw 'No records found';
             }
 
             // Figure out the lines still selected
@@ -1283,6 +1292,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         const showCreate = currentStep === StepEnum.CreateTables;
         const fullPath = Path.join(bucket, homePath);
         const forensicsStats = this.metadataMap.get(fullPath);
+        const numRecordsInFile = fileContentState.content.length;
         let containerClass = "container cardContainer";
         containerClass += (" step" + currentNavStep);
 
@@ -1563,10 +1573,12 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                 <NavButtons
                                     right={{
                                         label: "Next",
-                                        disabled: stepNumMap[currentStep] === 1 || inputSerialPending,
+                                        disabled: stepNumMap[currentStep] === 1 || inputSerialPending || numRecordsInFile == 0,
                                         tooltip: stepNumMap[currentStep] === 1
                                             ? "Select a file first"
-                                            : (inputSerialPending ? "Finish your configuration first": ""),
+                                            : (inputSerialPending
+                                                ? "Finish your configuration first"
+                                                : (numRecordsInFile == 0 ? "Select an eligible file first" : "")),
                                         onClick: () => {
                                             this.setState({
                                                 currentNavStep: 2
