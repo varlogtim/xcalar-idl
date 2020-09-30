@@ -187,7 +187,16 @@ class DagViewManager {
                         break;
                     }
                     DagNodeMenu.close();
-                    self.activeDagView.removeNodes(self.activeDagView.getSelectedNodeIds(true, true));
+                    const nodeIds = self.activeDagView.getSelectedNodeIds(true, true);
+                    const nodesToCheck = nodeIds.filter((nodeId) => {
+                        return !nodeId.startsWith("comment");
+                    });
+                    let pinnedTable = DagViewManager.Instance.getActiveDag().checkForChildLocks(nodesToCheck);
+                    if (pinnedTable) {
+                        DagUtil.showPinWarning(pinnedTable);
+                    } else {
+                        self.activeDagView.removeNodes(nodeIds);
+                    }
                     break;
                 case (keyCode.Y):
                 case (keyCode.Z):
