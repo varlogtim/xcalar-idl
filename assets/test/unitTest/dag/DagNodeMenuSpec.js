@@ -26,7 +26,7 @@ describe("DagNodeMenu Test", function() {
         });
     });
 
-    describe.skip("show correct menu options depending on situation", function() {
+    describe("show correct menu options depending on situation", function() {
         let $dfWrap;
         let $dfArea;
         before(function() {
@@ -37,14 +37,14 @@ describe("DagNodeMenu Test", function() {
         it("should show correct options on empty dataflow", function() {
             $dfWrap.contextmenu();
             expect($menu.find("li:visible").length).to.equal(11);
-            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(5);
+            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(6);
             let classes = [];
             $menu.find("li:visible").each(function() {
                 classes.push($(this).attr("class"));
             });
             expect(classes).to.deep.equal([
                 "executeAllNodes unavailable",
-                "resetAllNodes unavailable",
+                "deleteAllTables unavailable",
                 "pasteNodes",
                 "selectAll unavailable",
                 "newComment",
@@ -52,14 +52,15 @@ describe("DagNodeMenu Test", function() {
                 "autoAlign unavailable",
                 "download",
                 "duplicateDf",
-                "removeAllNodes unavailable"
+                "removeAllNodes unavailable",
+                "search"
             ]);
             $("#container").trigger(fakeEvent.mousedown);
         });
 
         it("background click with 1 node", function() {
             const newNodeInfo = {
-                type: "dataset",
+                type: DagNodeType.IMDTable,
                 display: {
                     x: 20,
                     y: 40
@@ -67,7 +68,7 @@ describe("DagNodeMenu Test", function() {
             };
             DagViewManager.Instance.newNode(newNodeInfo);
             $dfWrap.contextmenu();
-            expect($menu.find("li:visible").length).to.equal(11);
+            expect($menu.find("li:visible").length).to.equal(10);
             expect($menu.find("li:visible:not(.unavailable)").length).to.equal(9);
             let classes = [];
             $menu.find("li:visible").each(function() {
@@ -76,8 +77,6 @@ describe("DagNodeMenu Test", function() {
             expect(classes).to.deep.equal([
                 "configureNode",
                 "executeNode unavailable",
-                "viewResult unavailable",
-                "resetNode unavailable",
                 "copyNodes",
                 "cutNodes",
                 "selectAll",
@@ -86,14 +85,14 @@ describe("DagNodeMenu Test", function() {
                 "autoAlign",
                 "description",
                 "removeNode"
-            ]);
+              ]);
             $("#container").trigger(fakeEvent.mousedown);
         });
 
-        it("click on dataset node", function() {
+        it("click on source node", function() {
             DagView.selectNode($dfArea.find(".operator"));
             $dfArea.find(".operator .main").contextmenu();
-            expect($menu.find("li:visible").length).to.equal(10);
+            expect($menu.find("li:visible").length).to.equal(8);
             expect($menu.find("li:visible:not(.unavailable)").length).to.equal(7);
             let classes = [];
             $menu.find("li:visible").each(function() {
@@ -102,8 +101,6 @@ describe("DagNodeMenu Test", function() {
             expect(classes).to.deep.equal([
                 "configureNode",
                 "executeNode unavailable",
-                "viewResult unavailable",
-                "resetNode unavailable",
                 "copyNodes",
                 "cutNodes",
                 "viewSchemaChanges",
@@ -127,15 +124,14 @@ describe("DagNodeMenu Test", function() {
 
             $dfArea.find(".operator.map .main").contextmenu();
 
-            expect($menu.find("li:visible").length).to.equal(6);
-            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(6);
+            expect($menu.find("li:visible").length).to.equal(5);
+            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(5);
             let classes = [];
             $menu.find("li:visible").each(function() {
                 classes.push($(this).attr("class"));
-            });
+            });;
             expect(classes).to.deep.equal([
                 "executeNode",
-                "resetNode",
                 "copyNodes",
                 "cutNodes",
                 "createCustom",
@@ -147,7 +143,7 @@ describe("DagNodeMenu Test", function() {
 
         it("connection menu", function() {
             DagViewManager.Instance.connectNodes(
-                $dfArea.find(".operator.dataset").data("nodeid"),
+                $dfArea.find(".operator.IMDTable").data("nodeid"),
                 $dfArea.find(".operator.map").data("nodeid"),
                 0,
                 tabId
@@ -187,17 +183,16 @@ describe("DagNodeMenu Test", function() {
             DagViewManager.Instance.getActiveDagView().lockNode($dfArea.find(".operator.map").data("nodeid"));
             $dfArea.find(".operator.map .main").contextmenu();
 
-            expect($menu.find("li:visible").length).to.equal(10);
+            expect($menu.find("li:visible").length).to.equal(8);
             expect($menu.find("li:visible:not(.unavailable)").length).to.equal(3);
             let classes = [];
             $menu.find("li:visible").each(function() {
                 classes.push($(this).attr("class"));
             });
+
             expect(classes).to.deep.equal([
                 "configureNode unavailable",
                 "executeNode unavailable",
-                "viewResult unavailable",
-                "resetNode unavailable",
                 "copyNodes",
                 "cutNodes unavailable",
                 "viewSchemaChanges",
@@ -216,25 +211,22 @@ describe("DagNodeMenu Test", function() {
             DagViewManager.Instance.lockConfigNode($dfArea.find(".operator.map").data("nodeid"));
             $dfArea.find(".operator.map .main").contextmenu();
 
-            expect($menu.find("li:visible").length).to.equal(10);
-            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(3);
+            expect($menu.find("li:visible").length).to.equal(8);
+            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(7);
             let classes = [];
             $menu.find("li:visible").each(function() {
                 classes.push($(this).attr("class"));
             });
             expect(classes).to.deep.equal([
-                "configureNode unavailable",
+                "configureNode",
                 "executeNode unavailable",
-                "viewResult unavailable",
-                "resetNode unavailable",
                 "copyNodes",
-                "cutNodes unavailable",
+                "cutNodes",
                 "viewSchemaChanges",
-                "createCustom unavailable",
+                "createCustom",
                 "description",
-                "removeNode unavailable"
+                "removeNode"
             ]);
-
             $("#container").trigger(fakeEvent.mousedown);
             DagViewManager.Instance.unlockConfigNode($dfArea.find(".operator.map").data("nodeid"), tabId);
             DagViewManager.Instance.deselectNodes();
@@ -247,23 +239,21 @@ describe("DagNodeMenu Test", function() {
 
             $dfArea.find(".operator.map .main").contextmenu();
 
-            expect($menu.find("li:visible").length).to.equal(11);
-            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(4);
+            expect($menu.find("li:visible").length).to.equal(9);
+            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(8);
             let classes = [];
             $menu.find("li:visible").each(function() {
                 classes.push($(this).attr("class"));
             });
             expect(classes).to.deep.equal([
-                "configureNode unavailable",
+                "configureNode",
                 "executeNode unavailable",
-                "viewResult unavailable",
-                "resetNode unavailable",
                 "copyNodes",
-                "cutNodes unavailable",
+                "cutNodes",
                 "viewSchemaChanges",
-                "createCustom unavailable",
+                "createCustom",
                 "description",
-                "removeNode unavailable",
+                "removeNode",
                 "exitOp exitMap"
             ]);
             $("#container").trigger(fakeEvent.mousedown);
@@ -279,17 +269,15 @@ describe("DagNodeMenu Test", function() {
 
             $dfArea.find(".operator.map .main").contextmenu();
 
-            expect($menu.find("li:visible").length).to.equal(10);
-            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(9);
+            expect($menu.find("li:visible").length).to.equal(8);
+            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(8);
             let classes = [];
             $menu.find("li:visible").each(function() {
                 classes.push($(this).attr("class"));
             });
             expect(classes).to.deep.equal([
                 "configureNode",
-                "executeNode unavailable",
-                "generateResult",
-                "resetNode",
+                "reexecuteNode",
                 "copyNodes",
                 "cutNodes",
                 "viewSchemaChanges",
@@ -315,12 +303,12 @@ describe("DagNodeMenu Test", function() {
                 classes.push($(this).attr("class"));
             });
             expect(classes).to.deep.equal([
-                "generateResult",
-                "resetNode",
+                "configureNode",
+                "reexecuteNode",
+                "copyNodes",
                 "viewSchemaChanges",
-                "createCustom",
                 "description"
-            ]);
+            ])
 
             DagViewManager.Instance.isDisableActions = cachedFn;
             DagViewManager.Instance.deselectNodes();
@@ -347,17 +335,17 @@ describe("DagNodeMenu Test", function() {
             DagViewManager.Instance.deselectNodes();
             $dfWrap.contextmenu();
 
-            expect($menu.find("li:visible").length).to.equal(3);
-            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(3);
+            expect($menu.find("li:visible").length).to.equal(4);
+            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(4);
             let classes = [];
             $menu.find("li:visible").each(function() {
                 classes.push($(this).attr("class"));
             });
-
             expect(classes).to.deep.equal([
                 "selectAll",
                 "autoAlign",
-                "download"
+                "download",
+                "search"
             ]);
 
             DagViewManager.Instance.isViewOnly = cachedFn;
@@ -401,18 +389,15 @@ describe("DagNodeMenu Test", function() {
             DagView.selectNode($dfArea.find(".operator.map"));
             $dfArea.find(".operator.map .main").contextmenu();
 
-            expect($menu.find("li:visible").length).to.equal(9);
-            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(8);
+            expect($menu.find("li:visible").length).to.equal(7);
+            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(7);
             let classes = [];
             $menu.find("li:visible").each(function() {
                 classes.push($(this).attr("class"));
             });
-
             expect(classes).to.deep.equal([
                 "configureNode",
-                "executeNode unavailable",
-                "generateResult",
-                "resetNode",
+                "reexecuteNode",
                 "copyNodes",
                 "cutNodes",
                 "viewSchemaChanges",
@@ -436,17 +421,15 @@ describe("DagNodeMenu Test", function() {
             DagView.selectNode($dfArea.find(".operator.map"));
             $dfArea.find(".operator.map .main").contextmenu();
 
-            expect($menu.find("li:visible").length).to.equal(6);
-            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(6);
+            expect($menu.find("li:visible").length).to.equal(5);
+            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(5);
             let classes = [];
             $menu.find("li:visible").each(function() {
                 classes.push($(this).attr("class"));
             });
-
             expect(classes).to.deep.equal([
                 "configureNode",
-                "generateResult",
-                "resetNode",
+                "reexecuteNode",
                 "viewSchemaChanges",
                 "createCustom",
                 "description"
@@ -469,27 +452,27 @@ describe("DagNodeMenu Test", function() {
         });
     });
 
-    describe.skip("execution tests", function() {
+    describe("execution tests", function() {
         let node;
         before(function() {
             DagTabManager.Instance.newTab();
             tabId = DagViewManager.Instance.getActiveDag().getTabId();
         });
 
-        it("should configure dataset", function() {
-            const newNodeInfo = {type: "dataset"};
+        it("should configure imd table", function() {
+            const newNodeInfo = {type: DagNodeType.IMDTable};
             node = DagViewManager.Instance.newNode(newNodeInfo);
 
-            var cacheFn = DatasetOpPanel.Instance.show;
+            var cacheFn = IMDTableOpPanel.Instance.show;
             var called = false;
-            DatasetOpPanel.Instance.show = function() {
+            IMDTableOpPanel.Instance.show = function() {
                 called = true;
             }
             DagNodeMenu.execute("configureNode", {
                 node: node
             });
             expect(called).to.be.true;
-            DatasetOpPanel.Instance.show = cacheFn;
+            IMDTableOpPanel.Instance.show = cacheFn;
             DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
@@ -889,7 +872,7 @@ describe("DagNodeMenu Test", function() {
         before(function() {
             DagTabManager.Instance.newTab();
             tabId = DagViewManager.Instance.getActiveDag().getTabId();
-            const newNodeInfo = {type: "dataset"};
+            const newNodeInfo = {type: DagNodeType.IMDTable};
             node = DagViewManager.Instance.newNode(newNodeInfo);
             $dfWrap = $("#dagView").find(".dataflowWrap");
             $dfArea = $dfWrap.find(".dataflowArea.active");
@@ -1028,7 +1011,7 @@ describe("DagNodeMenu Test", function() {
             Alert.error = oldAlert;
         });
 
-        it("restoreDatasetFrom Node", function() {
+        it.skip("restoreDatasetFrom Node", function() {
             var called = false;
             var cachedFn = DS.restoreSourceFromDagNode;
             node.getLoadArgs = () => "something";
@@ -1045,7 +1028,7 @@ describe("DagNodeMenu Test", function() {
             DS.restoreSourceFromDagNode = cachedFn;
         });
 
-        it("restoreDatasetFrom Node should fail", function() {
+        it.skip("restoreDatasetFrom Node should fail", function() {
             var called = false;
             var cachedFn = DS.restoreSourceFromDagNode;
             node.getLoadArgs = () => false;
@@ -1061,7 +1044,7 @@ describe("DagNodeMenu Test", function() {
             DS.restoreSourceFromDagNode = cachedFn;
         });
 
-        it("restoreDatasetFrom Node should handle errors", function() {
+        it.skip("restoreDatasetFrom Node should handle errors", function() {
             var called = false;
             var cachedFn = DS.restoreSourceFromDagNode;
             node.getLoadArgs = () => {
@@ -1079,7 +1062,7 @@ describe("DagNodeMenu Test", function() {
             DS.restoreSourceFromDagNode = cachedFn;
         });
 
-        it("restoreAllSource", function() {
+        it.skip("restoreAllSource", function() {
             var called = false;
             var cachedFn = DS.restoreSourceFromDagNode;
             node.getLoadArgs = () => "something";
@@ -1097,7 +1080,7 @@ describe("DagNodeMenu Test", function() {
             DS.restoreSourceFromDagNode = cachedFn;
         });
 
-        it("restoreAllSource fail", function() {
+        it.skip("restoreAllSource fail", function() {
             var called = false;
             var cachedFn = DS.restoreSourceFromDagNode;
             node.getLoadArgs = () => "something";
