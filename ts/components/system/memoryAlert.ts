@@ -10,7 +10,7 @@ class MemoryAlert {
     private _disableRedMemoryAlert: boolean;
 
     private constructor() {
-        this._turnOffRedMemoryAlert = false;
+        this._turnOffRedMemoryAlert = true;
         this._isCheckingMem = false;
         this._disableRedMemoryAlert = false;
     }

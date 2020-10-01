@@ -42,7 +42,6 @@ describe('Memory Alert Test', () => {
                 .then(() => {
                     expect($memoryAlert.hasClass('red')).to.be.true;
                     expect($memoryAlert.hasClass('yellow')).to.be.false;
-                    UnitTest.hasAlertWithTitle(MonitorTStr.LowMem);
                     done();
                 })
                 .fail(() => {
