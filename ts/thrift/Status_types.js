@@ -743,7 +743,8 @@ StatusT = {
   'StatusSystemAppDisabled' : 734,
   'StatusUnionTypeMismatch' : 735,
   'StatusUnionDhtMismatch' : 736,
-  'StatusAppInProgress' : 737
+  'StatusAppInProgress' : 737,
+  'StatusMaxColumnsFound' : 738
 };
 StatusTStr = {
   0 : 'Success',
@@ -1483,7 +1484,8 @@ StatusTStr = {
   734 : 'System app is disabled',
   735 : 'Union keys must be of the same data type',
   736 : 'Union may only be performed on tables with the same DHT',
-  737 : 'Application is still in running state'
+  737 : 'Application is still in running state',
+  738 : 'Max columns found for schema'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2223,5 +2225,6 @@ StatusTFromStr = {
   'System app is disabled' : 734,
   'Union keys must be of the same data type' : 735,
   'Union may only be performed on tables with the same DHT' : 736,
-  'Application is still in running state' : 737
+  'Application is still in running state' : 737,
+  'Max columns found for schema' : 738
 };

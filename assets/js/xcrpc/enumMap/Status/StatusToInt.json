@@ -736,6 +736,7 @@
     "StatusSystemAppDisabled" : 734,
     "StatusUnionTypeMismatch" : 735,
     "StatusUnionDhtMismatch" : 736,
-    "StatusAppInProgress" : 737
+    "StatusAppInProgress" : 737,
+    "StatusMaxColumnsFound" : 738
 }
 

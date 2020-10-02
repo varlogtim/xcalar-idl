@@ -754,7 +754,8 @@ proto.xcalar.compute.localtypes.XcalarEnumType.Status = {
   STATUS_SYSTEM_APP_DISABLED: 734,
   STATUS_UNION_TYPE_MISMATCH: 735,
   STATUS_UNION_DHT_MISMATCH: 736,
-  STATUS_APP_IN_PROGRESS: 737
+  STATUS_APP_IN_PROGRESS: 737,
+  STATUS_MAX_COLUMNS_FOUND: 738
 };
 
 goog.object.extend(exports, proto.xcalar.compute.localtypes.XcalarEnumType);

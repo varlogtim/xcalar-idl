@@ -736,6 +736,7 @@
     "734" : "System app is disabled",
     "735" : "Union keys must be of the same data type",
     "736" : "Union may only be performed on tables with the same DHT",
-    "737" : "Application is still in running state"
+    "737" : "Application is still in running state",
+    "738" : "Max columns found for schema"
 }
 
