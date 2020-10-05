@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from "react"; 
 import { validateSchemaString } from '../../services/SchemaService'
 import ColSchemaSection from "./ColSchemaSection";
 
@@ -110,7 +110,8 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
         let cols = this._getColsFromSchemaString(this.props.schema);
 
         const defaultSchema = this.props.selectedSchema.columns.map(({ name, type, mapping}) => ({
-            name: name, type: type,
+            name: name,
+            type: type,
             mapping: mapping.indexOf('$.') == 0
                 ? mapping.substr(2)
                 : mapping

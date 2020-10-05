@@ -1,10 +1,10 @@
 import { expect } from 'chai'
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {BrowseDataSourceModal} from './components/BrowseDataSource/BrowseDataSource';
-import * as S3Service from './services/S3Service'
+import {BrowseDataSourceModal} from './../components/BrowseDataSource/BrowseDataSource';
+import * as S3Service from './../services/S3Service'
 
-describe('FileBrowser2 Test', () => {
+describe('React FileBrowser Test', () => {
 
     let oldS3ListFiles = S3Service.listFiles;
     let containerDiv;
@@ -12,6 +12,10 @@ describe('FileBrowser2 Test', () => {
     before(async () => {
         HomeScreen.switch(UrlToTab.load);
         LoadScreen.switchTab("loadWizard");
+
+        containerDiv = document.createElement('div');
+        containerDiv.setAttribute("id", "loadWizard")
+        $("#container").append(containerDiv);
     });
 
     after(async () => {
@@ -53,9 +57,6 @@ describe('FileBrowser2 Test', () => {
             return list;
         };
 
-        containerDiv = document.createElement('div');
-        containerDiv.setAttribute("id", "loadWizard")
-        $("#container").append(containerDiv);
 
         ReactDOM.render(<BrowseDataSourceModal
             connector={"S3 Select Connector"}

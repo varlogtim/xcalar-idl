@@ -1,2 +1,3 @@
 import './services/SchemaLoadServiceSpec'
-import './fileBrowserSpec'
+import './tests/FileBrowserSpec'
+import './tests/ColSchemaSectionSpec'
