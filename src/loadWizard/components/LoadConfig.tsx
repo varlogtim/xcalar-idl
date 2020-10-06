@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as crypto from 'crypto';
-import { SourceData, defaultConnector } from './SourceData';
+import { SourceData } from './SourceData';
 import { BrowseDataSourceModal } from './BrowseDataSource';
 import DiscoverSchemas from './DiscoverSchemas';
 import CreateTables from './CreateTables';
@@ -184,7 +184,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             currentNavStep: 1,
 
             // SourceData
-            connector: defaultConnector,
+            connector: SchemaLoadService.defaultConnector,
             bucket: defaultBucket,
             homePath: defaultHomePath,
             fileType: defaultFileType,

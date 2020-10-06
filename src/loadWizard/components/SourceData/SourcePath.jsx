@@ -1,5 +1,6 @@
 import React from "react";
 import * as Path from 'path'
+import { defaultConnector } from "../../services/SchemaLoadService"
 import InputDropdown from "../../../components/widgets/InputDropdown"
 import Pagination from '../../../components/widgets/Pagination'
 import LoadingText from '../../../components/widgets/LoadingText'
@@ -20,8 +21,6 @@ const Texts = {
     getForensics: 'Get Directory Info',
     connector: 'Connector'
 };
-
-const defaultConnector = "Xcalar S3 Connector";
 
 /**
  * Pure Component: get forensics button
@@ -313,4 +312,4 @@ function FileSelectArea(props) {
             </div>
 }
 
-export { SourcePath, defaultConnector };
+export { SourcePath };

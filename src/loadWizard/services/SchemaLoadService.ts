@@ -6,6 +6,7 @@ import { Schema, InputSerialization } from './SchemaService'
 
 type ProgressCallback = (progress?: number) => void;
 const JobCancelExeption = new Error('Job Cancelled');
+const defaultConnector = "Xcalar S3 Connector";
 
 async function executeSchemaLoadApp(jsonStr: string) {
     const response = await Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getSchemaLoadService().appRun(jsonStr);
@@ -705,4 +706,4 @@ function getDiscoverApp(appId) {
     return discoverApps.get(appId);
 }
 
-export { App, createDiscoverApp, getDiscoverApp, JobCancelExeption }
+export { App, createDiscoverApp, getDiscoverApp, JobCancelExeption, defaultConnector }
