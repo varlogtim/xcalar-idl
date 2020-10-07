@@ -928,7 +928,8 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             await this._fetchFileContent({
                 loadApp: loadApp,
                 filePath: selectedFile.fullPath,
-                inputSerialization: inputSerialization
+                inputSerialization: inputSerialization,
+                isPopulateError: true
             });
 
             return true;
@@ -1006,9 +1007,10 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
     async _fetchFileContent(params: {
         loadApp?: any,
         filePath: string,
-        inputSerialization?: SchemaService.InputSerialization
+        inputSerialization?: SchemaService.InputSerialization,
+        isPopulateError?: boolean
     }) {
-        const { loadApp, filePath, inputSerialization } = params;
+        const { loadApp, filePath, inputSerialization, isPopulateError = false } = params;
 
         // Stop the previous fetching
         this._fetchFileJob.cancel();
@@ -1023,6 +1025,11 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         this.setState(({ fileContentState}) => ({
             fileContentState: {
                 ...fileContentState,
+                isAutoDetect: false,
+                content:[],
+                linesSelected: [],
+                lineOffset: 0,
+                linesHaveError: false,
                 isLoading: true,
                 error: null
             }
@@ -1081,6 +1088,9 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                         error: `${e.message || e.error || e}`
                     }
                 }));
+                if (isPopulateError) {
+                    throw e;
+                }
             }
         }
     }
@@ -1423,7 +1433,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                             onPathChange={(newPath) => { this._setPath(newPath); }}
                             isForensicsLoading={this.state.isForensicsLoading}
                             fetchForensics={this._fetchForensics}
-                            canReset={showDiscover || showCreate}
+                            canReset={selectedFileDir.length > 0}
                             onReset={this._resetAll}
                             onConnectorChange={(newConnector) => {this._setConnector(newConnector);}}
                             selectedFileDir={selectedFileDir}
@@ -1575,7 +1585,9 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                         label: "Next",
                                         disabled: stepNumMap[currentStep] === 1 || inputSerialPending || numRecordsInFile == 0,
                                         tooltip: stepNumMap[currentStep] === 1
-                                            ? "Select a file first"
+                                            ? (fileContentState.error == null
+                                                ? "Select a file first" // No file selected
+                                                : "Select an eligible file first") // Fail sampling the file
                                             : (inputSerialPending
                                                 ? "Finish your configuration first"
                                                 : (numRecordsInFile == 0 ? "Select an eligible file first" : "")),

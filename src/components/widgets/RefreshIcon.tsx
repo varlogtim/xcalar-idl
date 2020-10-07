@@ -8,7 +8,7 @@ export default function RefreshIcon(props) {
     const [src, setSrc] = React.useState("");
 
     React.useEffect(() => {
-        setTimeout(() => {
+        const hTimeout = setTimeout(() => {
             setSrc(paths.waitIcon);
             setStyle({
                 display: "block",
@@ -16,6 +16,7 @@ export default function RefreshIcon(props) {
                 width: 35
             });
         }, 0);
+        return () => { clearTimeout(hTimeout); };
     });
 
     const {classNames = [], lock} = props;
