@@ -460,6 +460,7 @@ namespace DagNodeMenu {
             }
             let nodeIds: DagNodeId[];
 
+            // some actions need to select all nodeIds
             switch(action) {
                 case ("removeAllNodes"):
                 case ("deleteAllTables"):
@@ -476,16 +477,12 @@ namespace DagNodeMenu {
                     break;
             }
             let pinnedTable;
-            // Alert for locking tables
+            // Alert for pinned tables
             switch (action) {
                 case ("removeNode"):
                 case ("removeAllNodes"):
                 case ("removeInConnection"):
-                case ("resetNode"):
-                case ("deleteAllTables"):
-                case ("deleteParentTable"):
-                case ("reexecuteNode"):
-                case ("deleteTable"):
+                    // prevent action if a child has has a pinned table
                     pinnedTable = DagViewManager.Instance.getActiveDag().checkForChildLocks(nodeIds);
                     if (pinnedTable) {
                         DagUtil.showPinWarning(pinnedTable);
@@ -493,7 +490,21 @@ namespace DagNodeMenu {
                         _preProcessMenuAction(action);
                     }
                     break;
+                case ("resetNode"):
+                case ("deleteAllTables"):
+                case ("deleteParentTable"):
+                case ("reexecuteNode"):
+                case ("deleteTable"):
+                    // prevent action if one of the selected node ids has a pinned table
+                    pinnedTable = DagViewManager.Instance.getActiveDag().checkForPinnedTables(nodeIds);
+                    if (pinnedTable) {
+                        DagUtil.showPinWarning(pinnedTable);
+                    } else {
+                        _preProcessMenuAction(action);
+                    }
+                    break;
                 case ("configureNode"):
+                    // allow action but show a warning if child has a pinned table
                     pinnedTable = DagViewManager.Instance.getActiveDag().checkForChildLocks(nodeIds);
                     if (pinnedTable && !_ignorePinnedWarning) {
                         _showCancelablePinWarning(action, pinnedTable);

@@ -1622,11 +1622,11 @@ class DagGraph extends Durable {
     }
 
     /** Scans down the children of nodes looking to see if any have locks.
-     * @param nodes The nodes we're checking
+     * @param nodeIds The nodes we're checking
      */
-    public checkForChildLocks(nodes: DagNodeId[]): string | null {
+    public checkForChildLocks(nodeIds: DagNodeId[]): string | null {
         let lockedTable: string;
-        this._checkApplicableChild(nodes, ((node) => {
+        this._checkApplicableChild(nodeIds, ((node) => {
             if (node.getType() === DagNodeType.DFOut) {
                 // skip check function output, as it's reuse the parent table
                 return false;
@@ -1638,6 +1638,18 @@ class DagGraph extends Durable {
             }
         }));
         return lockedTable;
+    }
+
+    public checkForPinnedTables(nodeIds: DagNodeId[]): string | null {
+        for (let i = 0; i < nodeIds.length; i++) {
+            const node = this.getNode(nodeIds[i]);
+            if (node.getType() === DagNodeType.DFOut) {
+                // skip check function output, as it's reuse the parent table
+                continue;
+            } else if (DagTblManager.Instance.isPinned(node.getTable())) {
+                return node.getTable();
+            }
+        }
     }
 
     public getStatsJson() {
@@ -2665,14 +2677,14 @@ class DagGraph extends Durable {
 
     /**
      * traverses children ala BFS in order to determine if any children satisfy a callback function
-     * @param nodes Starting node IDs to search
+     * @param nodeIds Starting node IDs to search
      * @param callback {Function} Must return true or false
      */
-    private _checkApplicableChild(nodes: DagNodeId[], callback: Function) {
+    private _checkApplicableChild(nodeIds: DagNodeId[], callback: Function) {
         let seen: Set<string> = new Set();
-        let nodeStack: DagNode[] = nodes.map((nodeId: string) => {
+        let nodeStack: DagNode[] = nodeIds.map((nodeId: string) => {
             return this.getNode(nodeId);
-        })
+        });
         let node: DagNode;
         let currId: DagNodeId;
         while (nodeStack.length != 0) {

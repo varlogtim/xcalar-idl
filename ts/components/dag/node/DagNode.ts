@@ -322,6 +322,10 @@ abstract class DagNode extends Durable {
      * switch from configured/complete/error state to other configured/error state
      */
     public switchState(): void {
+        if (DagTblManager.Instance.isPinned(this.table)) {
+            return;
+        }
+
         if (!this.isConfigured()) {
             // it's in unsed state, but it may still has caches of lineage
             this._clearConnectionMeta();
@@ -1548,6 +1552,9 @@ abstract class DagNode extends Durable {
     }
 
     protected _clearConnectionMeta(): void {
+        if (DagTblManager.Instance.isPinned(this.table)) {
+            return;
+        }
         this._removeTable();
         this.resetLineage(); // lineage will change
     }
