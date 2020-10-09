@@ -800,7 +800,7 @@ DONT_TEMPLATE_HTML = DONT_TEMPLATE_HTML.concat([ // xpeInstaller included files
  (want to be able to debug these in the field regularly
  and if you minify them putting breakpointst becomes really difficult)
 */
-var DONT_MINIFY = ['3rd', 'assets/unused', 'assets/js/worker', 'config.js'];
+var DONT_MINIFY = ['3rd', 'assets/unused', 'assets/js/worker', 'config.js', 'assets/js/loadWizard', 'assets/js/react.js'];
 // at end of bld will chmod everything to 777.  dont chmod what's in here (it fails on symlinks which is why im adding this)
 var DONT_CHMOD = ['xu.css', UNIT_TEST_FOLDER];
 /** project src files and dirs to explicitally exclude from bld.
@@ -3876,7 +3876,6 @@ module.exports = function(grunt) {
         }
 
         // blacklisted dirs/files
-        var ignore = false;
         for (var exclude of DONT_MINIFY) {
             if (
                 srcPathRelBld.startsWith(exclude) ||
@@ -3884,10 +3883,8 @@ module.exports = function(grunt) {
             ) {
                 grunt.log.writeln(("\t" + displayAs +
                     (" blacklisted from minification... skip...").bold).blue);
-                    ignore = true;
-                       break;
+                return true;
             }
-            if (ignore) {return true;}
         }
 
         return false;
