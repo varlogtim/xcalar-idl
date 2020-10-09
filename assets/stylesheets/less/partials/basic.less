@@ -177,11 +177,14 @@ body {
         }
     }
 
-    // &.workbookPanelAnimating, &.workbookMode {
-    //     #menuBar {
-    //         z-index: @z-index-menuBar;
-    //     }
-    // }
+    &.workbookPanelAnimating, &.workbookMode {
+        #menuBar {
+            z-index: @z-index-menuBar;
+        }
+        .topBar {
+            background-color: @color-bg-body-gray;
+        }
+    }
 
     .mainScreen {
         z-index: @z-index-workbook + 1;
