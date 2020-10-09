@@ -144,6 +144,12 @@ class CloudManager {
             "username": this._getUserName(),
             ...payload
         }
+
+        let txId = Transaction.start({
+            "operation": action,
+            "sql": {"operation": action}
+        });
+
         fetch(url, {
             method: 'POST',
             mode: 'cors',
@@ -165,10 +171,15 @@ class CloudManager {
                 console.error("Send request action " + action + " failed:", res.error);
                 deferred.reject(res.error);
             }
+            Transaction.done(txId);
         })
         .catch((e) => {
             console.error("Send request action " + action + " failed:", e);
             deferred.reject(e);
+            Transaction.fail(txId {
+                noAlert: true,
+                noNotification: true
+            });
         });
 
         return deferred.promise();
