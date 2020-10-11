@@ -478,7 +478,7 @@ class UDFFileManager {
                             ? error.error
                             : error;
                     Alert.error(SideBarTStr.UploadError, null, {
-                        msgTemplate: "<pre>" + errorMsg + "</pre>",
+                        msgTemplate: errorMsg,
                         align: "left"
                     });
                 }
@@ -942,7 +942,7 @@ class UDFFileManager {
     }
 
     private _createDefaultSQLUDF(): XDPromise<void> {
-        const udf = UDFPanel.Instance.udfDefault + 
+        const udf = UDFPanel.Instance.udfDefault +
                     'def sampleAddOne(col1):\n' +
                     '    return col1 + 1\n';
         return this.upload("sql", udf, false, false, true);
@@ -1046,7 +1046,7 @@ class UDFFileManager {
 
         return deferred.promise();
     }
- 
+
     // XXX it should change to detect if published table use any dataset
     private _warnDatasetUDF(udfPath: string, entireString: string): XDPromise<boolean> {
         return PromiseHelper.resolve(false);
