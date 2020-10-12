@@ -87,6 +87,7 @@ class DagGraphBar {
             $topBar.removeClass("running");
             $btns.find(".stop").addClass("xc-disabled");
             $btns.find(".run, .stop").removeClass("running");
+            this.setRunningNode(null, null, null);
         }
 
         if (graph != null) {
@@ -139,6 +140,19 @@ class DagGraphBar {
             $topBar.addClass("noNodes");
         } else {
             $topBar.removeClass("noNodes");
+        }
+    }
+
+    public setRunningNode(tabId: string, nodeId: string, nodeName: string): void {
+        const $operatorName = this._getGraphBar().find(".runStatus .operaotrName");
+        if (tabId == null && nodeId == null) {
+            $operatorName.removeData('tabId');
+            $operatorName.removeData('nodeId');
+            $operatorName.text("");
+        } else {
+            $operatorName.data('tabId', tabId);
+            $operatorName.data('nodeId', nodeId);
+            $operatorName.text(nodeName);
         }
     }
 
@@ -222,6 +236,19 @@ class DagGraphBar {
             const dagTab = DagViewManager.Instance.getActiveTab();
             if (dagTab instanceof DagTabSQLExecute) {
                 DagTabManager.Instance.convertNoEditableTab(dagTab);
+            }
+        });
+
+        $topBar.find(".runStatus .operaotrName").click((event) => {
+            const $el = $(event.currentTarget);
+            const tabId = $el.data('tabId');
+            const nodeId = $el.data('nodeId');
+            try {
+                if (tabId != null && nodeId != null) {
+                    DagUtil.focusOnNode(tabId, nodeId);
+                }
+            } catch (e) {
+                Alert.error(AlertTStr.Error, e.message);
             }
         });
 

@@ -2969,7 +2969,7 @@ class DagView {
 
         const $tip = $(tip);
         this.$dfArea.append($tip);
-        this._focusRunningNode($tip);
+        this._showRunningNode($tip);
     }
 
     /**
@@ -5968,26 +5968,25 @@ class DagView {
         }
     }
 
-    private _focusRunningNode($tip: JQuery): void {
+    private _showRunningNode($tip: JQuery): void {
         try {
-            if (DagViewManager.Instance.getActiveDagView() !== this) {
-                return;
-            }
+            // if (DagViewManager.Instance.getActiveDagView() !== this) {
+            //     DagGraphBar.Instance.setRunningNode(null, null, null);
+            //     return;
+            // }
             if (!$tip.hasClass(DgDagStateTStr[DgDagStateT.DgDagStateProcessing])) {
+                DagGraphBar.Instance.setRunningNode(null, null, null);
                 return;
             }
-            const $node = this.getNodeElById($tip.data("id"));
-            if (!$node.length) {
-                console.error("Running node could not be found");
-                return;
-            }
-            DagViewManager.Instance.deselectNodes();
-            DagUtil.scrollIntoView($node, this.$dfArea)
-            const tabId: string = this.getTab().getId();
-            const nodeId: DagNodeId = $node.data("nodeid");
-            DagViewManager.Instance.selectNodes(tabId, [nodeId]);
+            const nodeId = $tip.data("id");
+            const tab = this.getTab();
+            const tabId = tab.getId();
+            const node = tab.getGraph().getNode(nodeId);
+            const label = node.getTitle();
+            DagGraphBar.Instance.setRunningNode(tabId, nodeId, label);
         } catch (e) {
-            console.error("focus on running node error", e);
+            console.error("focus on running operator error", e);
+            DagGraphBar.Instance.setRunningNode(null, null, null);
         }
     }
 

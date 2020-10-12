@@ -12,6 +12,23 @@ class DagUtil {
         return this._isInView($el, $container, true);
     }
 
+    public static focusOnNode(tabId: string, nodeId: string): void {
+        try {
+            const activeTab = DagViewManager.Instance.getActiveTab();
+            if (activeTab && activeTab.getId() !== tabId) {
+                DagTabManager.Instance.switchTab(tabId);
+            }
+            const $node: JQuery = DagViewManager.Instance.getNode(nodeId);
+            const $container: JQuery = DagViewManager.Instance.getAreaByTab(tabId);
+            DagUtil.scrollIntoView($node, $container)
+            DagViewManager.Instance.deselectNodes();
+            DagViewManager.Instance.selectNodes(tabId, [nodeId]);
+        } catch (e) {
+            console.error(e);
+            throw new Error('Cannot find the operator');
+        }
+    }
+
     /**
      * DagUtil.showPinWarning
      * @param lockedTable

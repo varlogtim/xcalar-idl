@@ -1171,11 +1171,7 @@ namespace DagNodeMenu {
             }
             // focus on the node
             const linkOutNodeId: DagNodeId = res.node.getId();
-            const $node: JQuery = DagViewManager.Instance.getNode(linkOutNodeId);
-            const $container: JQuery = DagViewManager.Instance.getAreaByTab(tabId);
-            DagUtil.scrollIntoView($node, $container)
-            DagViewManager.Instance.deselectNodes();
-            DagViewManager.Instance.selectNodes(tabId, [linkOutNodeId]);
+            DagUtil.focusOnNode(tabId, linkOutNodeId);
         } catch (e) {
             Alert.error(AlertTStr.Error, e.message);
         }
