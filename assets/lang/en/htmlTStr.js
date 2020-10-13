@@ -1020,7 +1020,7 @@ module.exports = {
         "colsToPublish": "Columns to Publish",
         "colsInTable": "Columns in Table",
         "creatingTable": "Creating table",
-        "creatingHint": "You can close the modal and check the table under the Sources tab.",
+        "creatingHint": "You can now close the modal window and view the table from Resources.",
         "overwrite": "Overwrite the existing table",
         "overwriteTip": "Warning: This deletes the results from the existing table. There is no undo.",
         "addColTip": "Adds a new column for creating a composite primary key that uniquely identifies each record from multiple column names.",
