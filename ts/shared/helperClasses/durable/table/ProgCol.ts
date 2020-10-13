@@ -41,7 +41,7 @@ class ProgCol extends Durable {
 
         this.knownType = options.knownType || false;
         this.isNewCol = options.isNewCol || false;
-        this.isMinimized = false;
+        this.isMinimized = options.isMinimized || false;
     }
 
     public isDATACol(): boolean {
