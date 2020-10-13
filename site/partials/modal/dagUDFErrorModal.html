@@ -1,7 +1,7 @@
 <div id="dagUDFErrorModal" class="modalContainer large">
     <!-- Header -->
     <header class="modalHeader flexContainer">
-        <span class="text">UDF failure report (<span class="numErrors"></span> failures)</span>
+        <span class="text">Scalar function failure report (<span class="numErrors"></span> failures)</span>
         <div class="close" data-toggle="tooltip" data-placement="auto top" data-container="body" data-original-title="<%= dicts.common.Close %>">
             <i class="icon xi-close"></i>
         </div>
@@ -10,11 +10,11 @@
     <section class="modalInstruction">
         <div class="modalInstructionSection extraErrors">
             <i class="icon xi-error"></i>
-            There are more failures than reported below. To discover additional errors, fix the ones reported, and re-run the map operation.
+            There are more failures than reported below. To discover additional errors, fix the ones reported, and re-run the scalar function operation.
         </div>
         <div class="modalInstructionSection optimizedMsg">
           <i class="icon xi-error"></i>
-          To view summarized error information, re-execute the dataflow in an non-optimized manner.
+          To view summarized error information, re-execute the function in an non-optimized manner.
       </div>
     </section>
     <section class="modalTopMain">

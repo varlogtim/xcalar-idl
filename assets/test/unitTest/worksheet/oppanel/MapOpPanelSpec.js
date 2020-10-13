@@ -96,13 +96,12 @@ describe("MapOpPanel Test", function() {
                 it('filter on input should update menus', function() {
                     $filterInput.val('add').trigger(fakeEvent.input);
                     var $catLis = $categoryMenu.find('li:visible').filter(function() {
-                        return ($(this).text().indexOf('Scalar') === -1);
+                        return ($(this).text().indexOf('Custom scalar') === -1);
                     });
 
                     var $funcLis = $functionsMenu.find('li:visible').filter(function() {
                         return ($(this).text().indexOf(':') === -1);
                     });
-
                     expect($catLis).to.have.length(3);
                     expect($catLis.text()).to.equal("arithmeticconversiontimestamp");
 
@@ -213,7 +212,7 @@ describe("MapOpPanel Test", function() {
 
                     // user-defined - default:splitWithDelim
                     $categoryMenu.find('li').filter(function() {
-                        return ($(this).text() === "Scalar function");
+                        return ($(this).text() === "Custom scalar function");
                     }).trigger(fakeEvent.click);
 
                     $functionsMenu.find('li').filter(function() {
@@ -251,7 +250,7 @@ describe("MapOpPanel Test", function() {
 
             describe("special argument cases", function() {
                 it("addExtraArg should work", function() {
-                    $categoryMenu.find("li:contains('Scalar function')").click();
+                    $categoryMenu.find("li:contains('Custom scalar function')").click();
                     $functionsMenu.find("li:contains('default:multiJoin')").click();
                     expect($mapOpPanel.find(".addExtraArg").length).to.equal(1);
                     expect($mapOpPanel.find(".arg:visible").length).to.equal(2);
@@ -356,7 +355,7 @@ describe("MapOpPanel Test", function() {
                     var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
                     var mapStr = 'default:splitWithDelim(' + prefixCol + ', 1, "-")';
                     var options = {
-                        category: "Scalar function",
+                        category: "Custom scalar function",
                         func: "default:splitWithDelim",
                         args: [{
                             num: 0,

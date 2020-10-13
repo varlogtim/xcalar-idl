@@ -127,6 +127,18 @@ class DagNodeMap extends DagNode {
     }
 
     /**
+     * @override
+     * @returns {string}
+     */
+    public getDisplayNodeType(): string {
+        if (this.type === DagNodeType.Map && this.getSubType() == null) {
+            return "Scalar function";
+        } else {
+            return super.getDisplayNodeType();
+        }
+    }
+
+    /**
      * Get the used UDF modules in the node
      */
     public getUsedUDFModules(): Set<string> {

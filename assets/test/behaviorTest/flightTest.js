@@ -182,14 +182,14 @@ window.FlightTest = (function(FlightTest, $) {
             }
         }
 
-        // Upload Scalar function
+        // Upload custom scalar function
         async function flightTestPart5() {
             try {
-                console.log("start flightTestPart5: upload python scalar function");
+                console.log("start flightTestPart5: upload python custom scalar function");
                 if (!$("#udfViewContainer").is(":visible")) {
                     $("#udfTab").click();
                 }
-                test.assert($("#udfViewContainer").is(":visible"), "show Scalar Function editor");
+                test.assert($("#udfViewContainer").is(":visible"), "show cusotm scalar function editor");
                 await test.checkExists("#udf-fnSection .xc-waitingBG", null, {notExist: true})
                 var udfDisplayName = "ymd.py";
                 var selector = '#dagListSection .udf.listWrap .udf .name:contains(' + udfDisplayName +')';
@@ -216,11 +216,11 @@ window.FlightTest = (function(FlightTest, $) {
             }
         }
 
-        // Scalar function on flight table
+        // Custom scalar function on flight table
         async function flightTestPart6(parentNodeId) {
             try {
-                console.log("start flightTestPart6: map on flight table with scalar function");
-                // create a map opeartor for scalar function and open the panel
+                console.log("start flightTestPart6: map on flight table with custom scalar function");
+                // create a map opeartor for custom scalar function and open the panel
                 const nodeId = test.createNodeAndOpenPanel(parentNodeId, DagNodeType.Map);
                 await test.wait(5000);
                 const $panel = $("#mapOpPanel");

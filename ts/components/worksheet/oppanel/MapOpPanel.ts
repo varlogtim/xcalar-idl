@@ -323,7 +323,7 @@ class MapOpPanel extends GeneralOpPanel {
             categoryName = FunctionCategoryTStr[i].toLowerCase();
             // XXX a hard code rename, should be finally changed by backend
             if (categoryName === udfCategory) {
-                categoryName = "Scalar function functions";
+                categoryName = "Custom scalar function functions";
             }
             const searchStr = " functions";
             const categoryNameLen = categoryName.length;
@@ -1031,9 +1031,9 @@ class MapOpPanel extends GeneralOpPanel {
         const html: HTML = '<div class="group mapGroup extraGroup">' +
                 '<i class="icon xi-close removeExtraGroup"></i>' +
                 '<i class="icon xi-minus minGroup"></i>' +
-                '<div class="altFnTitle">No Map Function Chosen</div>' +
+                '<div class="altFnTitle">No Scalar Function Chosen</div>' +
                 '<div class="filterMapFuncArea">' +
-                    '<input type="text" class="mapFilter" placeholder="Search map functions...">' +
+                    '<input type="text" class="mapFilter" placeholder="Search scalar functions...">' +
                     '<div class="clear">' +
                         '<i class="icon fa-11 xi-close xc-action"></i>' +
                     '</div>' +
