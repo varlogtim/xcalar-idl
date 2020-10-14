@@ -110,7 +110,7 @@ TooltipTStr = {
     "UDFErrorModalNoParent": "Parent operator does not exist",
     "UDFErrorModalNoTable": "Parent operator requires an active table",
     "NoUDFRename": "Custom scalar functions cannot be renamed",
-    "SaveUDFToName": "Save this custom scalar function to provide a new name",
+    "SaveUDFToName": "To name this custom scalar function, select the save icon.",
     "Examine": "Examine",
     "AvailableInEnterprise": "Available in Xcalar Enterprise version",
     // Sync with htmlTStr

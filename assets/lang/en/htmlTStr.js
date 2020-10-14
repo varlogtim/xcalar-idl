@@ -396,7 +396,8 @@ module.exports = {
         "Upload": "Upload",
         "Name": "Name",
         "Date": "Date",
-        "Size": "Size"
+        "Size": "Size",
+        "SaveWarning": "IMPORTANT: once you have saved this name, a Custom Scalar Function module cannot be renamed."
     },
 
     "App": {

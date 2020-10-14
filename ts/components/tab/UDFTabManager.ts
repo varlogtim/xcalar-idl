@@ -117,8 +117,8 @@ class UDFTabManager extends AbstractTabManager {
 
     /**
      * UDFTabManager.Instance.toggleUnSaved
-     * @param name 
-     * @param unsaved 
+     * @param name
+     * @param unsaved
      */
     public toggleUnSaved(tab: UDFTabDurable, unsaved: boolean): void {
         const index: number = this._activeTabs.findIndex((v) => {
@@ -196,7 +196,7 @@ class UDFTabManager extends AbstractTabManager {
                     },
                 );
             }
-            
+
             if ($tab.hasClass("active")) {
                 // when this is the current active table
                 if (index > 0) {
@@ -388,7 +388,7 @@ class UDFTabManager extends AbstractTabManager {
         let cnt = 0;
         while (set.has(name)) {
             cnt++;
-            name = startName + " " + cnt;
+            name = startName + cnt;
         }
         return name;
     }

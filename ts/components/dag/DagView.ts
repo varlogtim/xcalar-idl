@@ -4071,7 +4071,7 @@ class DagView {
             .attr("clip-path", "url(#cut-off-right)")
             .attr("x", 0)
             .attr("y", 0)
-            .attr("width", 25)
+            .attr("width", 23)
             .attr("height", DagView.nodeHeight)
             .attr("stroke", "#849CB0")
             .attr("stroke-width", 1)
@@ -4079,7 +4079,7 @@ class DagView {
 
         g.append("text")
             .attr("class", "icon")
-            .attr("x", 10)
+            .attr("x", 9)
             .attr("y", 19)
             .attr("font-family", "icomoon")
             .attr("font-size", 13)
