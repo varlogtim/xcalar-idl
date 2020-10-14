@@ -65,7 +65,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
         if (index === 0 && this.autofillColumns && this.autofillColumns[0]) {
             let autoGenColName: string = xcHelper.parsePrefixColName(this.autofillColumns[0].getBackColName()).name;
             if (opInfo.displayName.indexOf(":") > -1) {
-                autoGenColName += "_udf";
+                autoGenColName += "_" + opInfo.displayName.slice(opInfo.displayName.indexOf(":") + 1);
             } else {
                 autoGenColName += "_" + opInfo.displayName;
             }
@@ -128,7 +128,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
                     autoGenColName = autoGenColName.split("::")[1];
                 }
                 if (group.operator.indexOf(":") > -1) {
-                    autoGenColName += "_udf";
+                    autoGenColName += "_" + group.operator.slice(group.operator.indexOf(":") + 1);
                 } else {
                     autoGenColName +=  "_" + group.operator;
                 }

@@ -1,4 +1,4 @@
-#configNodeContainer { 
+#configNodeContainer {
     @title-height: 32px;
     @header-height: 58px;
     @header-h: 14px; // for draggable top bar
@@ -626,6 +626,21 @@
                     color: @color-font-link-blue;
                     padding-left: 4px;
                 }
+            }
+
+            &.categoryMenu {
+                li {
+                    border-bottom: none;
+                }
+                li[data-category="9"] {
+                    border-bottom: 1px solid @color-border-medium2;
+                }
+                li.builtInsHeader {
+                    text-align: center;
+                    pointer-events: none;
+                    opacity: 0.8;
+                }
+
             }
 
             .emptyFuncMsg {

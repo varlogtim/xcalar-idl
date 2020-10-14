@@ -95,11 +95,11 @@ describe("MapOpPanel Test", function() {
             describe('map\'s search filter', function() {
                 it('filter on input should update menus', function() {
                     $filterInput.val('add').trigger(fakeEvent.input);
-                    var $catLis = $categoryMenu.find('li:visible').filter(function() {
+                    var $catLis = $categoryMenu.find('li:visible:not(.builtInsHeader)').filter(function() {
                         return ($(this).text().indexOf('Custom scalar') === -1);
                     });
 
-                    var $funcLis = $functionsMenu.find('li:visible').filter(function() {
+                    var $funcLis = $functionsMenu.find('li:visible:not(.builtInsHeader)').filter(function() {
                         return ($(this).text().indexOf(':') === -1);
                     });
                     expect($catLis).to.have.length(3);
@@ -108,17 +108,17 @@ describe("MapOpPanel Test", function() {
                     expect($funcLis).to.have.length(10);
                     expect($funcLis.text()).to.equal("addaddDateIntervaladdIntegeraddIntervalStringaddNumericaddTimeIntervaldateAddDaydateAddIntervaldateAddMonthdateAddYear");
                     $filterInput.val('').trigger(fakeEvent.input);
-                    expect($categoryMenu.find('li:visible').length).to.be.within(7, 11);
-                    expect($functionsMenu.find('li:visible').length).to.be.above(70);
+                    expect($categoryMenu.find('li:visible:not(.builtInsHeader)').length).to.be.within(7, 11);
+                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').length).to.be.above(70);
 
                     $filterInput.val('add').trigger(fakeEvent.input);
-                    $funcLis = $functionsMenu.find('li:visible').filter(function() {
+                    $funcLis = $functionsMenu.find('li:visible:not(.builtInsHeader)').filter(function() {
                         return ($(this).text().indexOf(':') === -1);
                     });
                     expect($funcLis.text()).to.equal("addaddDateIntervaladdIntegeraddIntervalStringaddNumericaddTimeIntervaldateAddDaydateAddIntervaldateAddMonthdateAddYear");
 
                     $filterInput.val('sub').trigger(fakeEvent.input);
-                    $funcLis = $functionsMenu.find('li:visible').filter(function() {
+                    $funcLis = $functionsMenu.find('li:visible:not(.builtInsHeader)').filter(function() {
                         return ($(this).text().indexOf(':') === -1);
                     });
                     expect($funcLis.text()).to.equal("subsubIntegersubNumericsubstringsubstringIndex");
@@ -127,15 +127,15 @@ describe("MapOpPanel Test", function() {
 
                 it("filter on input with nonexisting function should filter out everything", function() {
                     $filterInput.val('zzzxxx' + Date.now()).trigger(fakeEvent.input);
-                    expect($categoryMenu.find('li:visible').length).to.equal(0);
-                    expect($functionsMenu.find('li:visible').length).to.equal(0);
+                    expect($categoryMenu.find('li:visible:not(.builtInsHeader)').length).to.equal(0);
+                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').length).to.equal(0);
                     expect($categoryMenu.find("li.filteredOut").length).to.be.gt(6);
                     expect($functionsMenu.find("li.filteredOut").length).to.be.gt(60);
                     $filterInput.val('').trigger(fakeEvent.input);
                 });
 
                 it('mapFilter keydown up/down actions should work', function() {
-                    expect($categoryMenu.find('li:visible').length).to.be.within(7, 11);
+                    expect($categoryMenu.find('li:visible:not(.builtInsHeader)').length).to.be.within(7, 11);
                     expect($categoryMenu.find('li.active').length).to.equal(0);
 
                     $filterInput.trigger({type: "keydown", which: keyCode.Up});
@@ -144,7 +144,7 @@ describe("MapOpPanel Test", function() {
 
                     $filterInput.trigger({type: "keydown", which: keyCode.Down});
                     expect($categoryMenu.find('li.active').length).to.equal(1);
-                    expect($categoryMenu.find('li').eq(1).hasClass('active')).to.be.true;
+                    expect($categoryMenu.find('li:not(.builtInsHeader)').eq(1).hasClass('active')).to.be.true;
 
                     $filterInput.trigger({type: "keydown", which: keyCode.Up});
                     expect($categoryMenu.find('li.active').length).to.equal(1);
@@ -153,41 +153,41 @@ describe("MapOpPanel Test", function() {
 
                 it('mapFilter keydown enter should work', function() {
                     $filterInput.val('aTAn2').trigger(fakeEvent.input);
-                    expect($categoryMenu.find('li').eq(8).hasClass('active')).to.be.true;
-                    expect($functionsMenu.find('li:visible').length).to.equal(1);
-                    expect($functionsMenu.find('li:visible').eq(0).hasClass('active')).to.be.false;
+                    expect($categoryMenu.find('li:not(.builtInsHeader)').eq(8).hasClass('active')).to.be.true;
+                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').length).to.equal(1);
+                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').eq(0).hasClass('active')).to.be.false;
                     expect($mapOpPanel.find('.argsSection').hasClass('inactive')).to.be.true;
 
                     $filterInput.trigger({type: "keydown", which: keyCode.Enter});
-                    expect($functionsMenu.find('li:visible').filter(function(){return $(this).text() === "atan2"}).hasClass('active')).to.be.true;
-                    expect($categoryMenu.find('li:visible').filter(function(){return $(this).text() === "trigonometric"}).hasClass("active")).to.be.true;
+                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').filter(function(){return $(this).text() === "atan2"}).hasClass('active')).to.be.true;
+                    expect($categoryMenu.find('li:visible:not(.builtInsHeader)').filter(function(){return $(this).text() === "trigonometric"}).hasClass("active")).to.be.true;
                     expect($mapOpPanel.find('.argsSection').hasClass('inactive')).to.be.false;
                 });
 
                 it('mapFilter clear should work', function() {
                     $filterInput.val('atan2').trigger(fakeEvent.input);
                     expect($filterInput.val()).to.equal('atan2');
-                    expect($categoryMenu.find('li:visible').length).to.equal(1);
-                    expect($functionsMenu.find('li:visible').length).to.equal(1);
+                    expect($categoryMenu.find('li:visible:not(.builtInsHeader)').length).to.equal(1);
+                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').length).to.equal(1);
 
                     $mapOpPanel.find('.filterMapFuncArea .clear').trigger(fakeEvent.mousedown);
                     expect($filterInput.val()).to.equal('');
-                    expect($categoryMenu.find('li:visible').length).to.be.within(7, 11);
-                    expect($functionsMenu.find('li:visible').length).to.equal(0);
+                    expect($categoryMenu.find('li:visible:not(.builtInsHeader)').length).to.be.within(7, 11);
+                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').length).to.equal(0);
                 });
 
                 it('clicking on filtered category list should work', function() {
                     $filterInput.val('sub').trigger(fakeEvent.input);
-                    $categoryMenu.find('li:visible').eq(1).trigger(fakeEvent.click);
+                    $categoryMenu.find('li:visible:not(.builtInsHeader)').eq(1).trigger(fakeEvent.click);
                     expect($categoryMenu.find("li.active").text()).to.equal('arithmetic');
-                    expect($functionsMenu.find('li:visible')).to.have.length(3);
-                    expect($functionsMenu.find('li:visible').text()).to.equal("subsubIntegersubNumeric");
+                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)')).to.have.length(3);
+                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').text()).to.equal("subsubIntegersubNumeric");
                 });
 
                 it('clicking away from category list should reset func list', function() {
-                    expect($functionsMenu.find('li:visible').text()).to.equal("subsubIntegersubNumeric");
+                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').text()).to.equal("subsubIntegersubNumeric");
                     $mapOpPanel.find('.catFuncHeadings').trigger(fakeEvent.mousedown);
-                    expect($functionsMenu.find('li:visible').text().indexOf("subsubIntegersubNumericsubstringsubstringIndex")).to.be.gt(-1);
+                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').text().indexOf("subsubIntegersubNumericsubstringsubstringIndex")).to.be.gt(-1);
                     expect($categoryMenu.find("li.active")).to.have.length(0);
                     $filterInput.val('').trigger(fakeEvent.input);
                 });
@@ -223,7 +223,7 @@ describe("MapOpPanel Test", function() {
                     expect($argInputs.eq(0).val()).to.equal(gColPrefix + prefixCol);
                     expect($argInputs.eq(1).val()).to.equal("");
                     expect($argInputs.eq(2).val()).to.equal("");
-                    expect($argInputs.eq(3).val()).to.startsWith("average_stars_udf");
+                    expect($argInputs.eq(3).val()).to.startsWith("average_stars_splitWithDelim");
 
                     // check arg descriptions
                     var $descriptions = $argInputs.closest('.row').find('.description');

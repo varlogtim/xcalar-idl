@@ -190,15 +190,15 @@ class MapOpPanel extends GeneralOpPanel {
                 event.which === keyCode.Up) {
                 event.preventDefault();
                 if ($group.find(".categoryMenu").find('li.active').length === 0) {
-                    $group.find(".categoryMenu").find('li:visible').eq(0).click();
+                    $group.find(".categoryMenu").find('li:visible:not(.builtInsHeader)').eq(0).click();
                     return;
                 }
             }
             if (event.which === keyCode.Down) {
-                $group.find(".categoryMenu").find('li.active').nextAll('li:visible')
+                $group.find(".categoryMenu").find('li.active').nextAll('li:visible:not(.builtInsHeader)')
                                             .eq(0).click();
             } else if (event.which === keyCode.Up) {
-                $group.find(".categoryMenu").find('li.active').prevAll('li:visible')
+                $group.find(".categoryMenu").find('li.active').prevAll('li:visible:not(.builtInsHeader)')
                                             .eq(0).click();
             }
 
@@ -209,8 +209,8 @@ class MapOpPanel extends GeneralOpPanel {
                 if ($matchingLi.length === 1) {
                     $matchingLi.click();
                     event.preventDefault();
-                } else if ($group.find(".functionsMenu").find('li').length === 1) {
-                    $group.find(".functionsMenu").find('li').click();
+                } else if ($group.find(".functionsMenu").find('li:not(.builtInsHeader)').length === 1) {
+                    $group.find(".functionsMenu").find('li:not(.builtInsHeader)').click();
                     event.preventDefault();
                 }
             }
@@ -315,6 +315,7 @@ class MapOpPanel extends GeneralOpPanel {
         let categoryName;
         let operatorsMap = GeneralOpPanel.getOperatorsMap();
         const udfCategory = FunctionCategoryTStr[FunctionCategoryTFromStr["User-defined functions"]].toLowerCase();
+        let customHtml = "";
         for (let i = 0; i < Object.keys(operatorsMap).length; i++) {
             if (FunctionCategoryTStr[i] === 'Aggregate functions') {
                 continue;
@@ -341,14 +342,23 @@ class MapOpPanel extends GeneralOpPanel {
             }
             opsArray.sort(sortFn);
             this._functionsMap[groupIndex][i] = opsArray;
-
-            html += '<li data-category="' + i + '">' +
+            if (FunctionCategoryTStr[i] === "User-defined functions") {
+                customHtml = '<li data-category="' + i + '">' +
+                                categoryName +
+                            '</li>';
+            } else {
+                html += '<li data-category="' + i + '">' +
                         categoryName +
                     '</li>';
+            }
         }
-        const $list = $(html);
-        $list.sort(this._sortHTML.bind(this));
-        this._$panel.find(".group").eq(groupIndex).find(".categoryMenu").html(<any>$list);
+        if (html.length) {
+            html = '<li class="builtInsHeader">Built Ins</li>' + html;
+        }
+        let $builtIns = $(html);
+        $builtIns.sort(this._sortHTML.bind(this));
+        const $list = $(customHtml);
+        this._$panel.find(".group").eq(groupIndex).find(".categoryMenu").html(<any>$list).append($builtIns)
 
         function sortFn(a, b){
             return (a.displayName) > (b.displayName) ? 1 : -1;
@@ -634,10 +644,10 @@ class MapOpPanel extends GeneralOpPanel {
             .find('.description').html(description)
             .end()
             .find(".inputWrap");
-        const strPreview =  this._operatorName + '(<span class="descArgs">' +
+        const strPreview =  '<span class="descArgs">' +
                         operObj.displayName +
                             '(' + $rows.eq(0).find(".arg").val() +
-                            ')</span>)';
+                            ')</span>';
         return (strPreview);
     }
 
@@ -892,8 +902,15 @@ class MapOpPanel extends GeneralOpPanel {
             this._$panel.find('.strPreview').empty();
         }
         $categoryList.find('li').removeClass('active');
+        $categoryList.find(".builtInsHeader").removeClass("filteredOut");
         if (Object.keys(categoryNums).length === 1) {
-            $categoryList.find('li:visible').eq(0).addClass('active');
+            $categoryList.find('li:visible:not(.builtInsHeader)').eq(0).addClass('active');
+            console.log(Object.keys(categoryNums)[0]);
+            if (parseInt(Object.keys(categoryNums)[0]) === FunctionCategoryT.FunctionCategoryUdf) {
+                $categoryList.find(".builtInsHeader").addClass("filteredOut");
+            }
+        } else if (Object.keys(categoryNums).length === 0) {
+            $categoryList.find(".builtInsHeader").addClass("filteredOut");
         }
     }
 
@@ -1039,7 +1056,7 @@ class MapOpPanel extends GeneralOpPanel {
                     '</div>' +
                 '</div>' +
                 '<div class="catFuncHeadings clearfix subSubHeading">' +
-                    '<div>Category' +
+                    '<div>Type' +
                     ' <i class="qMark icon xi-unknown"' +
                     'data-toggle="tooltip"' +
                     'data-container="body"' +
