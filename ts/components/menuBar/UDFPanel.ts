@@ -450,7 +450,9 @@ class UDFPanel {
     private async _eventSave(displayPath: string, tab: UDFTabDurable): Promise<void> {
         const entireString: string = this._validateUDFStr(tab);
         if (entireString) {
+            this._getUDFSection().find(".subHeader").html(xcUIHelper.getLoadingSectionHTML("saving"));
             await UDFFileManager.Instance.add(displayPath, entireString);
+            this._getUDFSection().find(".subHeader").html("python");
             this._storeSavedChange(tab);
         }
     }

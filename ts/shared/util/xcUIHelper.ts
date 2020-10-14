@@ -1072,7 +1072,7 @@ namespace xcUIHelper {
      */
     export function getLoadingSectionHTML(
         text: string,
-        sectionClass: string
+        sectionClass?: string
     ): HTML {
         sectionClass = sectionClass || "";
         let html: HTML =
