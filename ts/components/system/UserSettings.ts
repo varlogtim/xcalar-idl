@@ -229,6 +229,11 @@ class UserSettings {
         }
         this.modalHelper.setup();
         this._renderDFSettings();
+        if ($("#sqlWorkSpacePanel").is(":visible")) {
+            this._getModal().find(".leftSection .tab[data-action='notebookSettings']").click();
+        } else {
+            this._getModal().find(".leftSection .tab[data-action='generalSettings']").click();
+        }
     }
 
     private _close(): void {
@@ -399,7 +404,7 @@ class UserSettings {
             .find(".checkbox").toggleClass("checked");
         });
 
-        $modal.find(".leftSection .tab").on("click", () => {
+        $modal.find(".leftSection .tab").on("click", (event) => {
             const $tab = $(event.target)
             let action = $tab.data("action");
             $modal.find(".leftSection .tab").removeClass("active");
