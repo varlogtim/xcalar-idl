@@ -744,7 +744,8 @@ StatusT = {
   'StatusUnionTypeMismatch' : 735,
   'StatusUnionDhtMismatch' : 736,
   'StatusAppInProgress' : 737,
-  'StatusMaxColumnsFound' : 738
+  'StatusMaxColumnsFound' : 738,
+  'StatusMemPoolBufSizeExceeded' : 739
 };
 StatusTStr = {
   0 : 'Success',
@@ -1485,7 +1486,8 @@ StatusTStr = {
   735 : 'Union keys must be of the same data type',
   736 : 'Union may only be performed on tables with the same DHT',
   737 : 'Application is still in running state',
-  738 : 'Max columns found for schema'
+  738 : 'Max columns found for schema',
+  739 : 'MemoryPool alloc request exceeds buffersize'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2226,5 +2228,6 @@ StatusTFromStr = {
   'Union keys must be of the same data type' : 735,
   'Union may only be performed on tables with the same DHT' : 736,
   'Application is still in running state' : 737,
-  'Max columns found for schema' : 738
+  'Max columns found for schema' : 738,
+  'MemoryPool alloc request exceeds buffersize' : 739
 };
