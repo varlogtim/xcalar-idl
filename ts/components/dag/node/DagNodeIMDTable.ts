@@ -239,6 +239,18 @@ class DagNodeIMDTable extends DagNodeIn {
         this.elapsedTime = elapsedTime;
     }
 
+    public markActivating() {
+        this.events.trigger(DagNodeEvents.ActivatingTable, {
+            node: this
+        });
+    }
+
+    public markActivatingDone() {
+        this.events.trigger(DagNodeEvents.DoneActivatingTable, {
+            node: this
+        });
+    }
+
     /**
      * @override
      */

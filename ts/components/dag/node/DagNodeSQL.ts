@@ -27,6 +27,7 @@ class DagNodeSQL extends DagNodeIn {
     private _queryObj: any;
     private _allowUpdateSQLHistory: boolean = false;
     protected _udfErrorsMap: {}; // nodeId to MapUDFFailureInfo
+    protected _numActivatingTables = 0;
 
     public constructor(options: DagNodeSQLInfo, runtime?: DagRuntime) {
         super(options, runtime);
@@ -1973,6 +1974,24 @@ class DagNodeSQL extends DagNodeIn {
             this.events.trigger(DagNodeEvents.UDFErrorChange, {
                 node: this
             });
+        });
+        subGraph.events.on(DagNodeEvents.SubGraphActivatingTable, (info) => {
+            // console.log("sql", info.node);
+            if (this._numActivatingTables === 0) {
+                this.events.trigger(DagNodeEvents.ActivatingTable, {
+                    node: this
+                });
+            }
+            this._numActivatingTables++;
+        });
+        subGraph.events.on(DagNodeEvents.SubGraphDoneActivatingTable, (info) => {
+            // console.log("sql", info.node);
+            this._numActivatingTables--;
+            if (this._numActivatingTables === 0) {
+                this.events.trigger(DagNodeEvents.DoneActivatingTable, {
+                    node: this
+                });
+            }
         });
     }
 

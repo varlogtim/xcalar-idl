@@ -122,13 +122,17 @@ enum DagNodeEvents {
     EndSQLCompile = "EndSQLCompile",
     UDFErrorChange = "UDFErrorChange",
     SubGraphUDFErrorChange = "SubGraphUDFErrorChange",
+    SubGraphActivatingTable = "SubGraphActivatingTable",
+    SubGraphDoneActivatingTable = "SubGraphDoneActivatingTable",
     PreTablePin = "PreTablePin",
     PostTablePin = "PostTablePin",
     PreTableUnpin = "PreTableUnpin",
     PostTableUnpin = "PostTableUnpin",
     Hide = "Hide",
     Save = "Save",
-    UpdateProgress = "DagNodeUpdateProgress"
+    UpdateProgress = "DagNodeUpdateProgress",
+    ActivatingTable = "ActivatingTable",
+    DoneActivatingTable = "DoneActivatingTable",
 }
 
 enum DagCategoryType {

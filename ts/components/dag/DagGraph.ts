@@ -13,6 +13,7 @@ class DagGraph extends Durable {
     private _noTableDelete: boolean = false;
     private nodeTitlesMap: Map<string, DagNodeId>;
     private nodeHeadsMap: Map<string, DagNodeId>;
+    private _activitingTables = new Set();
 
     protected operationTime: number;
     protected currentExecutor: DagGraphExecutor
@@ -618,6 +619,16 @@ class DagGraph extends Durable {
             info.tabId = this.parentTabId;
             info.graph = this;
             this.events.trigger(DagNodeEvents.UpdateProgress, info);
+        })
+        .registerEvents(DagNodeEvents.ActivatingTable, (info) => {
+            info.tabId = this.parentTabId;
+            this.events.trigger(DagNodeEvents.ActivatingTable, info);
+            this.events.trigger(DagNodeEvents.SubGraphActivatingTable, info);
+        })
+        .registerEvents(DagNodeEvents.DoneActivatingTable, (info) => {
+            info.tabId = this.parentTabId;
+            this.events.trigger(DagNodeEvents.DoneActivatingTable, info);
+            this.events.trigger(DagNodeEvents.SubGraphDoneActivatingTable, info);
         })
     }
 

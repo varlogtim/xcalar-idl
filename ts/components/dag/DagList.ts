@@ -539,7 +539,7 @@ class DagList extends Durable {
     private _addLoadingStateOnList($dagListItem: JQuery): void {
         xcUIHelper.disableElement($dagListItem);
         if ($dagListItem.find(".loadingSection").length === 0) {
-            let html: HTML = xcUIHelper.getLoadingSectionHTML("Loading", "loadingSection");
+            let html: HTML = xcUIHelper.getLoadingSectionHTML("Loading", "loadingSection ellipsisSpace");
             $dagListItem.find(".name").append(html);
         }
     }

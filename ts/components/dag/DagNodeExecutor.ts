@@ -1342,8 +1342,10 @@ class DagNodeExecutor {
         if (typeof PTblManager === "undefined") {
             return PromiseHelper.alwaysResolve(XcalarRestoreTable(tableName));
         } else {
+            const tableNodeMap = new Map();
+            tableNodeMap.set(tableName, this.node);
             return PromiseHelper.alwaysResolve(
-                PTblManager.Instance.activateTables([tableName], true)
+                PTblManager.Instance.activateTables([tableName], true, tableNodeMap)
             );
         }
     }
@@ -1476,6 +1478,7 @@ class DagNodeExecutor {
             lineage.getChanges();
         }
         let newDestTableName: string;
+        let finalQueryStrParamReplaced: string;
         node.setSQLQuery({
             queryString: params.sqlQueryStr,
             dataflowId: this.tabId
@@ -1535,19 +1538,22 @@ class DagNodeExecutor {
 
             node.getSubGraph().startExecution(queryNodes, null);
             // Might need to make it configurable
-            const options = {
-                checkTime: 500
-            };
+
             // Set status to Running
             node.setSQLQuery({
                 status: SQLStatus.Running,
                 startTime: new Date()
             });
             node.updateSQLQueryHistory();
-            let finalQueryStrParamReplaced: string = DagNodeInput.replaceParameters(
+            finalQueryStrParamReplaced = DagNodeInput.replaceParameters(
                     finalQueryStr,
                     this.getRuntime().getDagParamService().getParamMap(), true);
-
+            return this._restoreTablesForSQL(JSON.parse(finalQueryStrParamReplaced));
+        })
+        .then(() => {
+            const options = {
+                checkTime: 500
+            };
             return XIApi.query(self.txId, queryId, finalQueryStrParamReplaced, options);
         })
         .then(function(_res) {
@@ -1575,6 +1581,42 @@ class DagNodeExecutor {
             deferred.reject(error);
         });
         return deferred.promise();
+    }
+
+    private _restoreTablesForSQL(operations) {
+        // auto activate all inactive tables first
+        try {
+            let tablesToActivate: string[] = [];
+            operations.forEach((operation) => {
+                if (operation.operation === XcalarApisTStr[XcalarApisT.XcalarApiSelect]) {
+                    let tableName: string = operation.args.source;
+                    let table: PbTblInfo = PTblManager.Instance.getTableByName(tableName);
+                    if (table != null && table.active === false) {
+                        tablesToActivate.push(tableName);
+                    }
+                }
+            });
+            if (typeof PTblManager === "undefined") {
+                let promiseArray = [];
+                tablesToActivate.forEach((tableName) => {
+                    promiseArray.push(XcalarRestoreTable.bind(this, tableName));
+                });
+                return PromiseHelper.alwaysResolve(PromiseHelper.chain(promiseArray));
+            }  else {
+                const subGraph = (this.node as DagNodeSQL).getSubGraph();
+                const subNodes = subGraph.getNodesByType(DagNodeType.IMDTable);
+                const tableNodeMapping = new Map();
+                subNodes.forEach((node: DagNodeIMDTable) => {
+                    if (tablesToActivate.includes(node.getParam().source)) {
+                        tableNodeMapping.set(node.getParam().source, node);
+                    }
+                })
+                return PromiseHelper.alwaysResolve(PTblManager.Instance.activateTables(tablesToActivate, true, tableNodeMapping));
+            }
+        } catch (e) {
+            console.error(e);
+            return PromiseHelper.resolve();
+        }
     }
 
     private _sqlFuncIn(): XDPromise<string> {

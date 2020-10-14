@@ -2005,7 +2005,7 @@ class DagView {
         if (type === "rename") {
             tipText = CommonTxtTstr.Renamed;
         } else if (type === "hide") {
-                tipText = "Hidden";
+            tipText = "Hidden";
         } else if (type === "add" || node.getNumParent() === 0) {
             tipText = CommonTxtTstr.Created;
         } else if (type === "remove") {
@@ -2016,7 +2016,7 @@ class DagView {
         if (tipText) {
             const scale = this.graph.getScale();
             const pos = node.getPosition();
-            const x = scale * (pos.x + 45) - 21;
+            const x = scale * (pos.x + 45) - 27;
             const y = Math.max(1, scale * pos.y - 25);
             let tip: HTML = DagView._dagLineageTipTemplate(x, y, tipText);
             this.$dfArea.append(tip);
@@ -2965,6 +2965,7 @@ class DagView {
 
         this.updateOperationTime(true);
         this.$dfArea.find('.nodeStats[data-id="' + nodeId + '"]').remove();
+        this.$dfArea.find('.activatingTableTip[data-id="' + nodeId + '"]').remove();
         let tip: HTML = this._nodeProgressTemplate(this.graph, node, times, state, pct, step, noPct);
 
         const $tip = $(tip);
@@ -3019,6 +3020,7 @@ class DagView {
         }
 
         this.$dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
+        this.$dfArea.find('.activatingTableTip[data-id="' + nodeId + '"]').remove();
         if (dagTab == null) {
             // sql graph may not have tab registered with dagTabManager
             return;
@@ -3077,6 +3079,7 @@ class DagView {
         const y = Math.max(1, (scale * nodeY) - (rowHeight * 2 + tooltipPadding + tooltipMargin));
         const left = scale * nodeX;
         this.$dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
+        this.$dfArea.find('.activatingTableTip[data-id="' + nodeId + '"]').remove();
         let html = `<div data-id="${nodeId}" class="runStats dagTableTip datasetActivateTip"
                 style="left:${left}px;top:${y}px;">
                 <table>
@@ -3094,6 +3097,30 @@ class DagView {
                 </table>
             </div>`;
         this.$dfArea.append(html);
+    }
+
+    private _activatingTable(node: DagNode) {
+        const nodeId: DagNodeId = node.getId();
+        const pos = node.getPosition();
+        const nodeX: number = pos.x;
+        const nodeY: number = pos.y;
+        const tooltipMargin = 6;
+        const tooltipPadding = 2;
+        const rowHeight = 10;
+        const scale = this.graph.getScale();
+        const nodeCenter = scale * (nodeX + (DagView.nodeWidth / 2));
+        const left = nodeCenter - (84 / 2);
+        const y = Math.max(1, (scale * nodeY) - (rowHeight * 2 + tooltipPadding + tooltipMargin));
+        let html = `<div data-id="${nodeId}" class="activatingTableTip dagTableTip" style="left:${left}px;top:${y}px;">
+                ${xcUIHelper.getLoadingSectionHTML("Recreating Table", "ellipsisSpace")}
+            </div>`;
+         this.$dfArea.find('.activatingTableTip[data-id="' + nodeId + '"]').remove();
+        const $tip = $(html);
+        this.$dfArea.append($tip);
+    }
+
+    private _doneActivatingTable(nodeId: string) {
+        this.$dfArea.find('.activatingTableTip[data-id="' + nodeId + '"]').remove();
     }
 
     public focus(): void {
@@ -3541,6 +3568,7 @@ class DagView {
                 this.removeSchemaPopup(nodeId, true);
                 this.$dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
                 this.$dfArea.find('.nodeStats[data-id="' + nodeId + '"]').remove();
+                this.$dfArea.find('.activatingTableTip[data-id="' + nodeId + '"]').remove();
                 this.$dfArea.find('.edge[data-childnodeid="' + nodeId + '"]').remove();
                 this.$dfArea.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function () {
                     const childNodeId = $(this).attr("data-childnodeid");
@@ -3633,6 +3661,7 @@ class DagView {
             DagNodeInfoPanel.Instance.update(info.id, "params");
             this.$dfArea.find('.runStats[data-id="' + info.id + '"]').remove();
             this.$dfArea.find('.nodeStats[data-id="' + info.id + '"]').remove();
+            this.$dfArea.find('.activatingTableTip[data-id="' + info.id + '"]').remove();
 
             this.dagTab.save();
 
@@ -3879,6 +3908,14 @@ class DagView {
             });
             this._updateNodeProgress(info.node, this.tabId, info.overallStats, skewInfos, times);
             DagNodeInfoPanel.Instance.update(info.node.getId(), "stats");
+        });
+
+        this._registerGraphEvent(this.graph, DagNodeEvents.ActivatingTable, (info) => {
+            this._activatingTable(info.node);
+        });
+
+        this._registerGraphEvent(this.graph, DagNodeEvents.DoneActivatingTable, (info) => {
+            this._doneActivatingTable(info.node.getId());
         });
     }
 
@@ -4139,6 +4176,7 @@ class DagView {
             // running to an errored state
             this.$dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
             this.$dfArea.find('.nodeStats[data-id="' + nodeId + '"]').remove();
+            this.$dfArea.find('.activatingTableTip[data-id="' + nodeId + '"]').remove();
         }
         if (node.getType() === DagNodeType.Map && node.getSubType() == null) {
             if ((<DagNodeMap>node).hasUDFError()) {

@@ -279,7 +279,7 @@ describe("DagSchemaPopup Test", function() {
             expect($dfArea.find(".lineageTip").eq(0).text()).to.equal("Removed");
             let nodeRect = $dfArea.find(".operator.groupBy")[0].getBoundingClientRect();
             let tipRect = $dfArea.find(".lineageTip")[0].getBoundingClientRect();
-            expect(tipRect.left - nodeRect.left).to.be.gt(20);
+            expect(tipRect.left - nodeRect.left).to.be.gt(10);
             expect(tipRect.left - nodeRect.left).to.be.lt(40);
             expect(tipRect.top - nodeRect.top).to.be.gt(-30);
             expect(tipRect.top - nodeRect.top).to.be.lt(-10);
@@ -288,7 +288,7 @@ describe("DagSchemaPopup Test", function() {
             expect($dfArea.find(".lineageTip").eq(2).text()).to.equal("Created");
             let nodeRect = $dfArea.find(".operator.dataset")[0].getBoundingClientRect();
             let tipRect = $dfArea.find(".lineageTip")[2].getBoundingClientRect();
-            expect(tipRect.left - nodeRect.left).to.be.gt(20);
+            expect(tipRect.left - nodeRect.left).to.be.gt(10);
             expect(tipRect.left - nodeRect.left).to.be.lt(50);
             expect(tipRect.top - nodeRect.top).to.be.gt(-30);
             expect(tipRect.top - nodeRect.top).to.be.lt(-10);
@@ -301,7 +301,7 @@ describe("DagSchemaPopup Test", function() {
             expect($dfArea.find(".lineageTip").eq(2).text()).to.equal("Created");
             let nodeRect = $dfArea.find(".operator.dataset")[0].getBoundingClientRect();
             let tipRect = $dfArea.find(".lineageTip")[2].getBoundingClientRect();
-            expect(tipRect.left - nodeRect.left).to.be.gt(20);
+            expect(tipRect.left - nodeRect.left).to.be.gt(10);
             expect(tipRect.left - nodeRect.left).to.be.lt(50);
             expect(tipRect.top - nodeRect.top).to.be.gt(-30);
             expect(tipRect.top - nodeRect.top).to.be.lt(-10);
@@ -309,7 +309,7 @@ describe("DagSchemaPopup Test", function() {
             expect($dfArea.find(".lineageTip").eq(1).text()).to.equal("Renamed");
             nodeRect = $dfArea.find('.operator.map[data-subtype="cast"]')[0].getBoundingClientRect();
             tipRect = $dfArea.find(".lineageTip")[1].getBoundingClientRect();
-            expect(tipRect.left - nodeRect.left).to.be.gt(20);
+            expect(tipRect.left - nodeRect.left).to.be.gt(10);
             expect(tipRect.left - nodeRect.left).to.be.lt(40);
             expect(tipRect.top - nodeRect.top).to.be.gt(-30);
             expect(tipRect.top - nodeRect.top).to.be.lt(-10);
@@ -317,7 +317,7 @@ describe("DagSchemaPopup Test", function() {
             expect($dfArea.find(".lineageTip").eq(0).text()).to.equal("Removed");
             nodeRect = $dfArea.find(".operator.groupBy")[0].getBoundingClientRect();
             tipRect = $dfArea.find(".lineageTip")[0].getBoundingClientRect();
-            expect(tipRect.left - nodeRect.left).to.be.gt(20);
+            expect(tipRect.left - nodeRect.left).to.be.gt(10);
             expect(tipRect.left - nodeRect.left).to.be.lt(40);
             expect(tipRect.top - nodeRect.top).to.be.gt(-30);
             expect(tipRect.top - nodeRect.top).to.be.lt(-10);
@@ -330,7 +330,7 @@ describe("DagSchemaPopup Test", function() {
             expect($dfArea.find(".lineageTip").eq(0).text()).to.equal("Created");
             let nodeRect = $dfArea.find('.operator.groupBy')[0].getBoundingClientRect();
             let tipRect = $dfArea.find(".lineageTip")[0].getBoundingClientRect();
-            expect(tipRect.left - nodeRect.left).to.be.gt(20);
+            expect(tipRect.left - nodeRect.left).to.be.gt(10);
             expect(tipRect.left - nodeRect.left).to.be.lt(40);
             expect(tipRect.top - nodeRect.top).to.be.gt(-30);
             expect(tipRect.top - nodeRect.top).to.be.lt(-10);
@@ -462,7 +462,7 @@ describe("DagSchemaPopup Test", function() {
                 expect($dfArea.find(".lineageTip").eq(0).text()).to.equal("Renamed");
                 let nodeRect = $dfArea.find(".operator.sql")[0].getBoundingClientRect();
                 let tipRect = $dfArea.find(".lineageTip")[0].getBoundingClientRect();
-                expect(tipRect.left - nodeRect.left).to.be.gt(20);
+                expect(tipRect.left - nodeRect.left).to.be.gt(10);
                 expect(tipRect.left - nodeRect.left).to.be.lt(50);
                 expect(tipRect.top - nodeRect.top).to.be.gt(-30);
                 expect(tipRect.top - nodeRect.top).to.be.lt(-10);
@@ -471,7 +471,7 @@ describe("DagSchemaPopup Test", function() {
                 expect($dfArea.find(".lineageTip").eq(1).text()).to.equal("Created");
                 let nodeRect = $dfArea.find(".operator.dataset")[0].getBoundingClientRect();
                 let tipRect = $dfArea.find(".lineageTip")[1].getBoundingClientRect();
-                expect(tipRect.left - nodeRect.left).to.be.gt(20);
+                expect(tipRect.left - nodeRect.left).to.be.gt(10);
                 expect(tipRect.left - nodeRect.left).to.be.lt(50);
                 expect(tipRect.top - nodeRect.top).to.be.gt(-30);
                 expect(tipRect.top - nodeRect.top).to.be.lt(-10);
@@ -494,7 +494,7 @@ describe("DagSchemaPopup Test", function() {
                 expect($dfArea.find(".lineageTip").eq(0).text()).to.equal("Renamed");
                 let nodeRect = $dfArea.find(".operator.sql")[0].getBoundingClientRect();
                 let tipRect = $dfArea.find(".lineageTip")[0].getBoundingClientRect();
-                expect(tipRect.left - nodeRect.left).to.be.gt(20);
+                expect(tipRect.left - nodeRect.left).to.be.gt(10);
                 expect(tipRect.left - nodeRect.left).to.be.lt(50);
                 expect(tipRect.top - nodeRect.top).to.be.gt(-30);
                 expect(tipRect.top - nodeRect.top).to.be.lt(-10);
@@ -503,7 +503,7 @@ describe("DagSchemaPopup Test", function() {
                 expect($dfArea.find(".lineageTip").eq(1).text()).to.equal("Created");
                 let nodeRect = $dfArea.find(".operator.dataset")[0].getBoundingClientRect();
                 let tipRect = $dfArea.find(".lineageTip")[1].getBoundingClientRect();
-                expect(tipRect.left - nodeRect.left).to.be.gt(20);
+                expect(tipRect.left - nodeRect.left).to.be.gt(10);
                 expect(tipRect.left - nodeRect.left).to.be.lt(50);
                 expect(tipRect.top - nodeRect.top).to.be.gt(-30);
                 expect(tipRect.top - nodeRect.top).to.be.lt(-10);

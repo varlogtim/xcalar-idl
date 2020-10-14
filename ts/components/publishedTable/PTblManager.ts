@@ -461,8 +461,10 @@ class PTblManager {
     /**
      * PTblManager.Instance.activateTables
      * @param tableNames
+     * @param noAlert: if true, will not display error message and let caller handle it
+     * @param tableNodeMapping: allows graph nodes to know when activation is done
      */
-    public activateTables(tableNames: string[], noAlert?: boolean): XDPromise<void> {
+    public activateTables(tableNames: string[], noAlert?: boolean, tableNodeMapping?: Map<string, DagNodeIMDTable>): XDPromise<void> {
         tableNames = tableNames.filter((tableName) => {
             // skip already activated table
             const pbTableInfo = this.getTableByName(tableName);
@@ -490,15 +492,19 @@ class PTblManager {
             const noDependencyTables: string[] = [];
             tableNames.forEach((tableName) => {
                 if (!set.has(tableName)) {
-                    const tablesToActivate = this._checkActivateDependency(tableName, imdDenendencies);
+                    const tablesToActivate: string[] = this._checkActivateDependency(tableName, imdDenendencies);
                     if (tablesToActivate.length === 1) {
                         noDependencyTables.push(tableName);
                     } else {
                         const chains = [];
-                        tablesToActivate.forEach((table) => {
-                            set.add(table);
+                        tablesToActivate.forEach((tableName) => {
+                            set.add(tableName);
                             let func = (): XDPromise<void> => {
-                                return this._activateOneTable(table, succeeds, failures);
+                                let dagNode;
+                                if (tableNodeMapping && tableNodeMapping.has(tableName)) {
+                                    dagNode = tableNodeMapping.get(tableName);
+                                }
+                                return this._activateOneTable(tableName, succeeds, failures, dagNode);
                             };
                             chains.push(func);
                         });
@@ -510,7 +516,11 @@ class PTblManager {
 
             noDependencyTables.forEach((tableName) => {
                 if (!set.has(tableName)) {
-                    promises.push(this._activateOneTable(tableName, succeeds, failures));
+                    let dagNode;
+                    if (tableNodeMapping && tableNodeMapping.has(tableName)) {
+                        dagNode = tableNodeMapping.get(tableName);
+                    }
+                    promises.push(this._activateOneTable(tableName, succeeds, failures, dagNode));
                 }
             })
 
@@ -780,7 +790,8 @@ class PTblManager {
     private _activateOneTable(
         tableName: string,
         succeeds: string[],
-        failures: string[]
+        failures: string[],
+        dagNode?: DagNodeIMDTable
     ): XDPromise<void> {
         let tableInfo: PbTblInfo = this._tableMap.get(tableName);
         if (!tableInfo || tableInfo.active) {
@@ -791,6 +802,9 @@ class PTblManager {
         // mark activating in case any table
         // that has dependency need to be activated
         TblSource.Instance.markActivating(tableName);
+        if (dagNode) {
+            dagNode.markActivating();
+        }
 
         tableInfo.activate()
         .then(() => {
@@ -798,11 +812,17 @@ class PTblManager {
         })
         .then(() => {
             succeeds.push(tableName);
+            if (dagNode) {
+                dagNode.markActivatingDone();
+            }
             deferred.resolve();
         })
         .fail((error) => {
             let errorMsg = this._getErrorMsg(tableName, error);
             failures.push(errorMsg);
+            if (dagNode) {
+                dagNode.markActivatingDone();
+            }
             deferred.resolve(); // still resolve it
         });
         return deferred.promise();

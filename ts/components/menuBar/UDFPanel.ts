@@ -450,7 +450,7 @@ class UDFPanel {
     private async _eventSave(displayPath: string, tab: UDFTabDurable): Promise<void> {
         const entireString: string = this._validateUDFStr(tab);
         if (entireString) {
-            this._getUDFSection().find(".subHeader").html(xcUIHelper.getLoadingSectionHTML("saving"));
+            this._getUDFSection().find(".subHeader").html(xcUIHelper.getLoadingSectionHTML("saving", "ellipsisSpace"));
             try {
                 await UDFFileManager.Instance.add(displayPath, entireString);
                 this._storeSavedChange(tab);
