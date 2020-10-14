@@ -6,8 +6,6 @@ describe("GeneralOpPanel Test", function() {
     var $functionsInput;
     var $argSection;
     var prefix = "prefix";
-    var $categoryMenu;
-    var $functionsMenu;
     var openOptions = {};
 
     before(function(done) {
@@ -39,9 +37,7 @@ describe("GeneralOpPanel Test", function() {
             mapOpPanel = MapOpPanel.Instance;
             editor = mapOpPanel.getEditor();
             $mapOpPanel = $('#mapOpPanel');
-            $categoryMenu = $mapOpPanel.find('.categoryMenu');
-            $functionsMenu = $mapOpPanel.find('.functionsMenu');
-            $functionsInput = $mapOpPanel.find('.mapFilter');
+            $functionsInput = $mapOpPanel.find('.functionsInput');
             $functionsList = $functionsInput.siblings('.list');
             $argSection = $mapOpPanel.find('.argsSection').eq(0);
             done();
@@ -53,14 +49,7 @@ describe("GeneralOpPanel Test", function() {
         it ("mouseup on argument should produce hint list", function(done) {
             mapOpPanel.show(node, openOptions)
             .always(() => {
-                $categoryMenu.find('li').filter(function() {
-                    return ($(this).text() === "arithmetic");
-                }).trigger(fakeEvent.click);
-                expect($categoryMenu.find("li.active").text()).to.equal('arithmetic');
-
-                $functionsMenu.find('li').filter(function() {
-                    return ($(this).text() === "add");
-                }).trigger(fakeEvent.click);
+                $functionsInput.val("add").trigger("change");
 
                 expect($argSection.hasClass('inactive')).to.be.false;
                 expect($argSection.find('.arg').eq(0).val()).to.equal("");
@@ -94,18 +83,13 @@ describe("GeneralOpPanel Test", function() {
         });
 
         it("empty field checkbox should work on optional args", function() {
-            $categoryMenu.find('li').filter(function() {
-                return ($(this).text() === "Custom scalar function");
-            }).trigger(fakeEvent.click);
-
-            $functionsMenu.find('li').filter(function() {
-                return ($(this).text() === "default:multiJoin");
-            }).trigger(fakeEvent.click);
+            $functionsInput.val("default:multiJoin").trigger("change");
 
             $argSection.find(".addExtraArg").click();
             $argSection.find(".extraArg .arg").eq(0).val("test").trigger("change");
             expect($argSection.find(".extraArg .arg").eq(0).val()).to.equal("test");
             let model = mapOpPanel.model.getModel();
+
             expect(model.groups[0].args.length).to.equal(2);
             expect(model.groups[0].args[0].value).to.equal("");
             expect(model.groups[0].args[1].value).to.equal("test");

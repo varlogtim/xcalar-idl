@@ -62,7 +62,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
         }
 
         this.updateNewFieldName("", index, false);
-        if (index === 0 && this.autofillColumns && this.autofillColumns[0]) {
+        if (opInfo && index === 0 && this.autofillColumns && this.autofillColumns[0]) {
             let autoGenColName: string = xcHelper.parsePrefixColName(this.autofillColumns[0].getBackColName()).name;
             if (opInfo.displayName.indexOf(":") > -1) {
                 autoGenColName += "_" + opInfo.displayName.slice(opInfo.displayName.indexOf(":") + 1);

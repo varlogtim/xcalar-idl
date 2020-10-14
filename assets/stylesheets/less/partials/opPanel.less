@@ -587,76 +587,58 @@
         }
     }
 
-    .catFuncMenus {
-        border: 1px solid @color-border-medium2;
-        margin: 0;
+    .functionType {
+        margin-top: 10px;
+    }
 
-        ul {
-            float: left;
-            width: 50%;
-            list-style-type: none;
-            height: @listHeight * 5 - 1px;
-            overflow: auto;
-            padding-bottom: 6px;
-            position: relative; // easier to find li scroll position
+    .functionsRow {
+        .label {
+            padding: 6px 0px;
+        }
 
-            &:first-child {
-                border-right: 1px solid @color-border-medium2;
-            }
-
-            li {
-                height: @listHeight;
-                line-height: @listHeight;
-                border-bottom: 1px solid @color-border-medium2;
-                cursor: pointer;
-                padding-left: @commonMargin;
-                .textOverflowOneLine;
-
-                &.filteredOut {
-                    display: none;
-                }
-
-                &:hover {
-                    background-color: @color-bg-2;
-                }
-                &.active {
-                    background-color: @color-bg-dagTabBar;
-                }
-                &.createNew {
-                    color: @color-font-link-blue;
-                    padding-left: 4px;
-                }
-            }
-
-            &.categoryMenu {
-                li {
-                    border-bottom: none;
-                }
-                li[data-category="9"] {
-                    border-bottom: 1px solid @color-border-medium2;
-                }
-                li.builtInsHeader {
-                    text-align: center;
-                    pointer-events: none;
-                    opacity: 0.8;
-                }
-
-            }
-
-            .emptyFuncMsg {
-                height: 100%;
-                display: flex;
+        .hasSubList {
+            .list > ul > li {
                 flex-direction: column;
-                text-align: center;
-                justify-content: center;
+                height: auto;
+                padding: 0px;
 
-                .createNew {
-                    color: @color-font-link-blue;
-                    cursor: pointer;
+                &.noResultHint {
+                    padding-left: 10px;
                 }
+            }
+
+            .subHeading {
+                text-align: center;
+                color: #EAEAEA;
+                margin-top: 0px;
+                line-height: 20px;
+            }
+        }
+
+        .list li {
+            display: flex;
+            justify-content: space-between;
+
+            .template {
+                .textOverflowOneLine;
+                max-width: 70%;
+                text-align: right;
+                padding-right: 4px;
+                font-style: italic;
+                color: @color-font-warm-grey-two;
+                font-weight: 500;
+                .flex-display;
+            }
+
+            .argDesc {
+                display: inline-block;
+                max-width: 80px;
+                .textOverflowOneLine;
+                vertical-align: bottom;
             }
         }
     }
+
 
     .descriptionText {
         .udfLink {
@@ -713,7 +695,6 @@
             color: @color-font-default;
             font-size: 12px;
             margin-top: -5px;
-            margin-right: 5px;
             cursor: pointer;
             opacity: @opacity-unhover;
             &:hover {
@@ -731,7 +712,7 @@
             padding-top: 4px;
             padding-bottom: 10px;
 
-            .subHeading, .descriptionText, .description, .minGroup  {
+            .subHeading, .descriptionText, .description, .minGroup, .functionType  {
                 display: none;
             }
             + .addArgWrap {
@@ -809,7 +790,7 @@
                 .altFnTitle {
                     display: block;
                 }
-                .argsSection, .groupOnSection {
+                .argsSection, .groupOnSection, .functionType, .functionsRow {
                     display: none;
                 }
                 .functionsList {
@@ -999,8 +980,15 @@
         }
 
         .emptyOptions {
+            font-size: 11px;
             .checkboxWrap {
                 width: 50%;
+                .checkbox {
+                    margin-top: 4px;
+                    .icon {
+                        font-size: 11px;
+                    }
+                }
             }
         }
 
@@ -1891,6 +1879,7 @@
                 .altFnTitle {
                     display: block;
                     height: 20px;
+                    line-height: 20px;
                 }
                 .argsSection, .catFuncMenus {
                     display: none;
@@ -1929,6 +1918,14 @@
             }
         }
         // end minimized group styling
+    }
+
+    &#mapOpPanel {
+        .addExtraGroup {
+            padding-top: 6px;
+            border-top: 1px solid @color-border-medium;
+            height: 22px;
+        }
     }
 
     .dropDownList {

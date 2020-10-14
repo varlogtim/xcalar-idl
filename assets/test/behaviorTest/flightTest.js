@@ -139,10 +139,7 @@ window.FlightTest = (function(FlightTest, $) {
                 const $panel = $("#mapOpPanel");
                 test.assert($panel.hasClass("xc-hidden") === false);
                 // select genUnique function
-                $panel.find(".categoryMenu li[data-category='5']")
-                    .trigger(fakeEvent.click);
-                $panel.find(".functionsMenu li:contains('genUnique')")
-                    .trigger(fakeEvent.click);
+                $panel.find(".functionsMenu input").val('genUnique').trigger("change");
                 // save configuration
                 fillArgInPanel($panel.find(".colNameSection .arg"), "uniqueNum");
                 $panel.find(".submit").click();
@@ -226,10 +223,7 @@ window.FlightTest = (function(FlightTest, $) {
                 const $panel = $("#mapOpPanel");
                 test.assert($panel.hasClass("xc-hidden") === false);
                 // select ymd function
-                $panel.find(".categoryMenu li[data-category='9']")
-                    .trigger(fakeEvent.click);
-                $panel.find(".functionsMenu li:contains('ymd:ymd')")
-                    .trigger(fakeEvent.click);
+                $panel.find(".functionsMenu input").val('ymd:ymd').trigger("change");
                 const year = "YEAR";
                 const month = "MONTH";
                 const day = "DAYOFMONTH";
@@ -290,7 +284,7 @@ window.FlightTest = (function(FlightTest, $) {
                 $panel.find(".bottomSection .btn:contains(Next)").click();
                 $panel.find(".bottomSection .btn:contains(Save)").click();
                 await test.wait(10);
-                
+
                 await test.hasNodeWithState(nodeId, DagNodeState.Configured);
                 console.log("flightTestPart7 finished");
                 return nodeId;
@@ -497,7 +491,7 @@ window.FlightTest = (function(FlightTest, $) {
             const joinNodeId = await mutiJoinHelper(scheduleNodeId, lCols, flightNodeId, rCols);
             console.log("execute multi join");
             await test.executeNode(joinNodeId);
-    
+
             console.log("preview multi join result");
             const $node = DagViewManager.Instance.getNode(joinNodeId);
             test.nodeMenuAction($node, "viewResult");

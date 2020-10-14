@@ -12,33 +12,44 @@
             <div class="group mapGroup firstGroup">
                 <i class="icon xi-minus minGroup"></i>
                 <div class="altFnTitle">No Scalar Function Chosen</div>
-                <div class="filterMapFuncArea">
-                    <input type="text" class="mapFilter" autocomplete="off" placeholder="<%= dicts.opsView.mapFilter %>...">
-                    <div class="clear">
-                        <i class="icon fa-11 xi-close xc-action"></i>
+                <div class="functionType">
+                    <div class="description">Scalar Function Type:</div>
+                    <div class="radioButtonGroup">
+                        <div class="radioButton xc-action active" data-option="builtin">
+                            <div class="radio">
+                                <i class="icon xi-radio-selected"></i>
+                                <i class="icon xi-radio-empty"></i>
+                            </div>
+                            <div class="label">Built In</div>
+                        </div>
+                        <div class="radioButton xc-action" data-option="custom">
+                            <div class="radio">
+                                <i class="icon xi-radio-selected"></i>
+                                <i class="icon xi-radio-empty"></i>
+                            </div>
+                            <div class="label">Custom</div>
+                        </div>
                     </div>
                 </div>
-                <div class="catFuncHeadings clearfix subSubHeading">
-                    <div>Type
-                      <i class="qMark icon xi-unknown"
-                      data-toggle="tooltip"
-                      data-container="body"
-                      data-placement="auto top"
-                      data-title="<%= dicts.opsView.mapCategoryTip %>">
-                      </i>
+                <div class="functionsRow">
+                  <div class="label">Function:</div>
+                  <div class="inputWrap clearfix">
+                    <div class="dropDownList functionsMenu">
+                      <input class="text inputable functionsInput textNoCap tooltipOverflow" type="text" spellcheck="false">
+                      <div class="iconWrapper">
+                        <i class="icon xi-arrow-down"></i>
+                      </div>
+                      <div class="list">
+                        <ul></ul>
+                        <div class="scrollArea top">
+                          <i class="arrow icon xi-arrow-up"></i>
+                        </div>
+                        <div class="scrollArea bottom">
+                          <i class="arrow icon xi-arrow-down"></i>
+                        </div>
+                      </div>
                     </div>
-                    <div><%= dicts.opsView.function %>
-                      <i class="qMark icon xi-unknown"
-                      data-toggle="tooltip"
-                      data-container="body"
-                      data-placement="auto top"
-                      data-title="<%= dicts.opsView.mapFunctionTip %>">
-                      </i>
-                    </div>
-                </div>
-                <div class="catFuncMenus clearfix">
-                    <ul class="categoryMenu"></ul>
-                    <ul class="functionsMenu"></ul>
+                  </div>
                 </div>
                 <div class="descriptionText"></div>
                 <div class="argsSection inactive"></div>

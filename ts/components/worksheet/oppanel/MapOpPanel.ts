@@ -1,13 +1,9 @@
 class MapOpPanel extends GeneralOpPanel {
     // handles map, filter, group by, and aggregate forms
-
-    private _filteredOperatorsMap = [];
     protected _functionsMap = [];
     protected _dagNode: DagNodeMap;
     protected _opCategories: number[] = [];
-    private readonly emptyFuncMsg =  '<div class="emptyFuncMsg">' +
-    OpModalTStr.SelectCategory + ' <span class="createNew">' + OpModalTStr.CreateUDF + '</span>' +
-    '</div>';
+    private _ignoreFunctionChange: boolean;
 
     public constructor() {
         super();
@@ -18,8 +14,16 @@ class MapOpPanel extends GeneralOpPanel {
         const self = this;
         super.setupPanel("#mapOpPanel");
 
-        // the double menu that has operation categories and function names
-        this._functionsInputEvents();
+        this._$panel.on("click", ".udfLink", function() {
+            const path: string = $(this).data("path");
+            let moduleName: string;
+            if (path.includes(xcHelper.constructUDFSharedPrefix())) {
+                moduleName = path.slice(0, path.lastIndexOf(":"));
+            } else {
+                moduleName = path.slice(path.lastIndexOf("/") + 1, path.lastIndexOf(":"));
+            }
+            self._openUDFPanel(moduleName);
+        });
 
         this._$panel.on('click', '.checkboxSection', function() {
             const $checkbox = $(this).find('.checkbox');
@@ -29,12 +33,13 @@ class MapOpPanel extends GeneralOpPanel {
             }
             self._checkIfStringReplaceNeeded();
         });
+
+        this._setupCustomFnListDropdown(0);
     }
 
     // options
     // restore: boolean, if true, will not clear the form from it's last state
     public show(node: DagNodeMap, options: ShowPanelInfo): XDPromise<void> {
-        const self = this;
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
 
         super.show(node, options)
@@ -47,29 +52,6 @@ class MapOpPanel extends GeneralOpPanel {
 
             super._panelShowHelper(this.model);
             this._render();
-
-            $(document).on('mousedown.mapCategoryListener', function(e) {
-                const $target = $(e.target);
-                if (!$target.closest('.catFuncMenus').length &&
-                    !$target.is(".mapFilter") &&
-                    !$target.hasClass('ui-resizable-handle'))
-                {
-                    self._$panel.find(".group").each(function() {
-                        const $group = $(this);
-                        const index = self._$panel.find(".group").index($group);
-                        if ($group.find(".categoryMenu").find('li.active').length &&
-                            $group.find(".functionsMenu").find('li.active').length === 0)
-                        {
-                            const val =  $group.find(".mapFilter").val();
-                            const valTrimmed = val.trim();
-                            if (valTrimmed.length || val.length === 0) {
-                                self._filterTheMapFunctions(valTrimmed, index);
-                            }
-                        }
-                    });
-                }
-            });
-
             this._checkPanelOpeningError();
             deferred.resolve();
         })
@@ -77,11 +59,6 @@ class MapOpPanel extends GeneralOpPanel {
             deferred.reject();
         });
         return deferred.promise();
-    }
-
-    public close(isSubmit?) {
-        super.close(isSubmit);
-        $(document).off('mousedown.mapCategoryListener');
     }
 
     // functions that get called after list udfs is called during op view show
@@ -98,25 +75,29 @@ class MapOpPanel extends GeneralOpPanel {
             }
             const $group: JQuery = this._$panel.find('.group').eq(i);
             const operator: string = model.groups[i].operator;
+            $group.find(".functionsInput").val("").data("val", "");
             if (!operator) {
                 continue;
             }
 
             const operObj = self._getOperatorObj(operator);
+            $group.find(".functionsInput").val(operator).data("val", operator);
             if (!operObj) {
-                return;
+                continue;
             }
 
-            $group.find(".categoryMenu").find("li").filter(function() {
-                return $(this).data("category") === operObj.category;
-            }).removeClass("active").click();
+            $group.find('.functionType .radioButton.active').removeClass('active');
 
-            let $li = $group.find(".functionsMenu").find("li").filter(function() {
-                return $(this).text() === operator;
-            });
-            $li.siblings().removeClass("active");
-            $li.addClass("active");
-            $li.scrollintoview({duration: 0});
+            this._ignoreFunctionChange = true;
+            if (operObj.category === FunctionCategoryT.FunctionCategoryUdf) {
+                $group.find('.functionType .radioButton').eq(1).click();
+            } else {
+                $group.find('.functionType .radioButton').eq(0).click();;
+            }
+            this._ignoreFunctionChange = false;
+            $group.find(".functionsInput").val(operObj.displayName)
+                                          .data("val", operObj.displayName);
+
             self._updateArgumentSection(i, operObj);
 
             let $args = $group.find(".arg").filter(function() {
@@ -164,133 +145,130 @@ class MapOpPanel extends GeneralOpPanel {
         self._checkIfStringReplaceNeeded(true);
     }
 
-    // the double menu that has operation categories and function names
-    private _functionsInputEvents(): void {
-        const self = this;
-
-        this._$panel.on("input", ".mapFilter", function() {
-            if (!$(this).is(":visible")) return; // ENG-8642
-            const val = $(this).val();
-            const valTrimmed = val.trim();
-            if (valTrimmed.length || val.length === 0) {
-                const $group = $(this).closest(".group");
-                const index = self._$panel.find(".group").index($group);
-                self._filterTheMapFunctions(valTrimmed, index);
-            } else {
-                // blank but with spaces, do nothing
+    private _setupCustomFnListDropdown(groupIndex) {
+        const $group = this._$panel.find(".group").eq(groupIndex);
+        xcUIHelper.optionButtonEvent($group.find(".functionType"), (_option, _$btn) => {
+            if (!this._ignoreFunctionChange) {
+                this._submitFunctionChange("", groupIndex);
             }
         });
 
-        // the search input box
-        this._$panel.on("keydown", ".mapFilter", function(event) {
-            const val = $(this).val();
-            const valTrimmed = val.trim();
-            const $group = $(this).closest(".group");
-            if (event.which === keyCode.Down ||
-                event.which === keyCode.Up) {
-                event.preventDefault();
-                if ($group.find(".categoryMenu").find('li.active').length === 0) {
-                    $group.find(".categoryMenu").find('li:visible:not(.builtInsHeader)').eq(0).click();
+        const $dropdownList = $group.find(".functionsMenu");
+        const customScalarFnsList: MenuHelper = new MenuHelper($dropdownList, {
+            "onOpen": ($list) => {
+                let list = "";
+                function sortFn(a, b){
+                    return (a.displayName) > (b.displayName) ? 1 : -1;
+                }
+                if ($group.find(".radioButton.active[data-option='builtin']").length) {
+                    let operatorsMap = GeneralOpPanel.getOperatorsMap();
+                    $dropdownList.addClass("hasSubList").find(".list").addClass("hasSubList");
+                    for (let i = 0; i < Object.keys(operatorsMap).length; i++) {
+                        if (FunctionCategoryTStr[i] === 'Aggregate functions' ||
+                            FunctionCategoryTStr[i] === "User-defined functions") {
+                            continue;
+                        }
+
+                        let categoryName = FunctionCategoryTStr[i].toLowerCase();
+
+                        const searchStr = " functions";
+                        const categoryNameLen = categoryName.length;
+                        if (categoryName.lastIndexOf(searchStr) ===
+                            (categoryNameLen - searchStr.length))
+                        {
+                            categoryName = categoryName.substring(0,
+                                                    categoryNameLen - searchStr.length);
+                        }
+
+                        this._categoryNames.push(categoryName);
+                        const opsArray = [];
+
+                        for (let j in operatorsMap[i]) {
+                            opsArray.push(operatorsMap[i][j]);
+                        }
+                        opsArray.sort(sortFn);
+                        this._functionsMap[groupIndex][i] = opsArray;
+
+                        list += '<li class="category" data-category="' + i + '">' +
+                                    '<div class="subHeading">' + categoryName + '</div>' +
+                                    '<ul>'
+                        opsArray.forEach((fn) => {
+                            let li = '<li class="textNoCap" data-container="body" ' +
+                            'data-placement="auto right" data-toggle="tooltip" title="' +
+                            fn.fnDesc + '">' + fn.displayName + '</li>';
+                            list += li;
+                        });
+                        list += '</ul></li>';
+                    }
+                } else {
+                    $dropdownList.removeClass("hasSubList").find(".list").removeClass("hasSubList");
+                    if ($dropdownList.find(".functionsInput").val().trim() === "") {
+                        list += '<li class="textNoCap createNew" data-container="body" ' +
+                        'data-placement="auto right" data-toggle="tooltip" title="' +
+                        'Create a new Custom Scalar Function' + '">' + OpPanelTStr.CreateNewUDF + '</li>';
+                    }
+
+                    let scalarFns = GeneralOpPanel.getOperatorsMap()[FunctionCategoryT.FunctionCategoryUdf];
+                    let sortedFns = [];
+                    for (let i in scalarFns) {
+                        sortedFns.push(scalarFns[i]);
+                    }
+                    sortedFns.sort(sortFn);
+                    sortedFns.forEach((fn) => {
+                        let li = '<li class="textNoCap" data-container="body" ' +
+                        'data-placement="auto right" data-toggle="tooltip" title="' +
+                        fn.fnDesc + '">' + fn.displayName + '</li>';
+                        list += li;
+                    });
+                }
+
+                $list.find(".list > ul").empty().append(list);
+            },
+            "onSelect": ($li) => {
+                if ($li.hasClass("createNew")) {
+                    this._createNewUDF();
                     return;
                 }
-            }
-            if (event.which === keyCode.Down) {
-                $group.find(".categoryMenu").find('li.active').nextAll('li:visible:not(.builtInsHeader)')
-                                            .eq(0).click();
-            } else if (event.which === keyCode.Up) {
-                $group.find(".categoryMenu").find('li.active').prevAll('li:visible:not(.builtInsHeader)')
-                                            .eq(0).click();
-            }
-
-            if (event.which === keyCode.Enter) {
-                const $matchingLi: JQuery = $group.find(".functionsMenu").find("li").filter(function() {
-                    return $(this).text().toLowerCase() === valTrimmed;
-                });
-                if ($matchingLi.length === 1) {
-                    $matchingLi.click();
-                    event.preventDefault();
-                } else if ($group.find(".functionsMenu").find('li:not(.builtInsHeader)').length === 1) {
-                    $group.find(".functionsMenu").find('li:not(.builtInsHeader)').click();
-                    event.preventDefault();
-                }
-            }
-
-            // position the scrollbar
-            const $activeLi = $group.find(".categoryMenu").find('li.active');
-            if (!$activeLi.length) {
-                return;
-            }
-            const liTop = $activeLi.position().top;
-            const liBottom = liTop + $activeLi.height();
-            const categoryHeight = $group.find(".categoryMenu").height();
-            if (liBottom > (categoryHeight + 5) || liTop < -5) {
-                const position = liTop + $group.find(".categoryMenu").scrollTop();
-                $group.find(".categoryMenu").scrollTop(position - (categoryHeight / 2));
+                const func = $li.text().trim();
+                this._submitFunctionChange(func, groupIndex);
+            },
+            "container": "#mapOpPanel",
+            "bounds": "#mapOpPanel",
+            "bottomPadding": 4,
+            "fixedPosition": {
+                $selector: $dropdownList.find(".text")
             }
         });
 
-        // the close button on the search input box
-        this._$panel.find('.filterMapFuncArea .clear').mousedown(function(event) {
-            const $group = $(this).closest(".group");
-            const $input = $group.find(".mapFilter");
-            if ($input.val() !== "") {
-                $input.trigger("input").focus();
-                event.preventDefault(); // prevent input from blurring
-                self.model.clearFunction(0);
+        customScalarFnsList.setupListeners();
+
+        new InputDropdownHint($dropdownList, {
+            menuHelper: customScalarFnsList,
+            order: true,
+            preventClearOnBlur: true,
+            onEnter: (func) => {
+                this._submitFunctionChange(func, groupIndex);
+                return true;
             }
         });
 
-        this._$panel.on('click', '.categoryMenu li', function() {
-            const $group = $(this).closest(".group");
-            const groupIndex = self._$panel.find(".group").index($group);
-            const $li = $(this);
-            if ($li.hasClass('active')) {
-                return; // do not update functions list if clicking on same li
-            }
-            $li.siblings().removeClass('active');
-            $li.addClass('active');
-            self._updateMapFunctionsList(groupIndex);
+        $dropdownList.find(".text").on("change", (event) =>  {
+            const func = $(event.currentTarget).val().trim();
+            this._submitFunctionChange(func, groupIndex);
         });
+    }
 
-        this._$panel.on('click', '.functionsMenu li', function() {
-            if ($(this).hasClass('active')) {
-                return; // do not update functions list if clicking on same li
-            }
-            if ($(this).hasClass("createNew")) {
-                self._createNewUDF();
-                return;
-            }
-            const $group = $(this).closest(".group");
-            const groupIndex = self._$panel.find(".group").index($group);
-            const $li = $(this);
-            $li.siblings().removeClass('active');
-            $li.addClass('active');
-            const func = $li.text().trim();
-
-            const operObj = self._getOperatorObj(func);
-            self.model.enterFunction(func, operObj, groupIndex);
-            self._focusNextInput(groupIndex);
-            self._scrollToGroup(groupIndex, true);
-        });
-        // XXX need to add listeners to each new functions list
-        this._$panel.find(".functionsMenu").scroll(function() {
-            xcTooltip.hideAll();
-        });
-
-        this._$panel.on("click", ".emptyFuncMsg .createNew", () => {
-            self._createNewUDF();
-        });
-
-        this._$panel.on("click", ".udfLink", function() {
-            const path: string = $(this).data("path");
-            let moduleName: string;
-            if (path.includes(xcHelper.constructUDFSharedPrefix())) {
-                moduleName = path.slice(0, path.lastIndexOf(":"));
-            } else {
-                moduleName = path.slice(path.lastIndexOf("/") + 1, path.lastIndexOf(":"));
-            }
-            self._openUDFPanel(moduleName);
-        });
+    protected _submitFunctionChange(func, groupIndex) {
+        const $group = this._$panel.find(".group").eq(groupIndex);
+        if (func === $group.find(".functionsInput").data("val")) {
+            $group.find(".functionsInput").val(func);
+            return;
+        }
+        const operObj = this._getOperatorObj(func);
+        this.model.enterFunction(func, operObj, groupIndex);
+        this._focusNextInput(groupIndex);
+        this._scrollToGroup(groupIndex, true);
+        $group.find(".functionsInput").val(func).data("val", func);
     }
 
     protected _onArgChange($input) {
@@ -311,17 +289,17 @@ class MapOpPanel extends GeneralOpPanel {
         groupIndex = groupIndex || 0;
         this._functionsMap[groupIndex] = [];
         this._categoryNames = [];
-        let html = "";
         let categoryName;
         let operatorsMap = GeneralOpPanel.getOperatorsMap();
         const udfCategory = FunctionCategoryTStr[FunctionCategoryTFromStr["User-defined functions"]].toLowerCase();
-        let customHtml = "";
+
         for (let i = 0; i < Object.keys(operatorsMap).length; i++) {
             if (FunctionCategoryTStr[i] === 'Aggregate functions') {
                 continue;
             }
 
             categoryName = FunctionCategoryTStr[i].toLowerCase();
+
             // XXX a hard code rename, should be finally changed by backend
             if (categoryName === udfCategory) {
                 categoryName = "Custom scalar function functions";
@@ -342,120 +320,17 @@ class MapOpPanel extends GeneralOpPanel {
             }
             opsArray.sort(sortFn);
             this._functionsMap[groupIndex][i] = opsArray;
-            if (FunctionCategoryTStr[i] === "User-defined functions") {
-                customHtml = '<li data-category="' + i + '">' +
-                                categoryName +
-                            '</li>';
-            } else {
-                html += '<li data-category="' + i + '">' +
-                        categoryName +
-                    '</li>';
-            }
         }
-        if (html.length) {
-            html = '<li class="builtInsHeader">Built Ins</li>' + html;
-        }
-        let $builtIns = $(html);
-        $builtIns.sort(this._sortHTML.bind(this));
-        const $list = $(customHtml);
-        this._$panel.find(".group").eq(groupIndex).find(".categoryMenu").html(<any>$list).append($builtIns)
 
         function sortFn(a, b){
             return (a.displayName) > (b.displayName) ? 1 : -1;
         }
     }
 
-
-    protected _isOperationValid(groupIndex) {
-        return this._$panel.find(".group").eq(groupIndex)
-                           .find(".functionsMenu")
-                           .find('li.active').length > 0;
-    }
-
-    protected _showFunctionsInputErrorMsg(groupNum) {
-        let $target = this._$panel.find(".group").eq(groupNum).find(".functionsMenu").parent();
-        let text = ErrTStr.NoEmpty;
-        StatusBox.show(text, $target, false, {"offsetX": -5,
+    protected _showFunctionsInputErrorMsg(msg, groupNum) {
+        let $target = this._$panel.find(".group").eq(groupNum).find(".functionsInput");
+        StatusBox.show(msg, $target, false, {"offsetX": -5,
                                             preventImmediateHide: true});
-    }
-
-    private _updateMapFunctionsList(groupIndex, filtered?: boolean) {
-        const $group = this._$panel.find(".group").eq(groupIndex);
-        const $categoryList = $group.find(".categoryMenu");
-        const $functionsList = $group.find(".functionsMenu");
-        const $mapFilter = $group.find(".mapFilter");
-        let opsMap;
-        let hasFilterVal: boolean = $mapFilter.val().trim() !== "";
-        let categoryNum;
-        if (!filtered) {
-            const $li = $categoryList.find('.active');
-            categoryNum = $li.data('category');
-            opsMap = {};
-            if (hasFilterVal) {
-                opsMap[categoryNum] = this._filteredOperatorsMap[groupIndex][categoryNum];
-            } else {
-                opsMap[categoryNum] = this._functionsMap[groupIndex][categoryNum];
-            }
-        } else {
-            opsMap = this._filteredOperatorsMap[groupIndex];
-        }
-        const filterVal = $mapFilter.val().trim();
-        let startsWith = "";
-        let includes = "";
-        let i;
-        let li = "";
-
-        for (const cat in opsMap) {
-            const ops = opsMap[cat];
-            if (!ops) {
-                continue;
-            }
-            if (parseInt(cat) === FunctionCategoryT.FunctionCategoryUdf) {
-                for (i = 0; i < ops.length; i++) {
-                    li = '<li class="textNoCap" data-category="' + cat +
-                    '" data-container="body" ' +
-                    'data-placement="auto right" data-toggle="tooltip" title="' +
-                    ops[i].displayName + '">' + ops[i].displayName + '</li>';
-                    if (filterVal &&
-                        ops[i].displayName.toLowerCase().startsWith(filterVal))
-                    {
-                        startsWith += li;
-                    } else {
-                        includes += li;
-                    }
-                }
-            } else {
-                for (i = 0; i < ops.length; i++) {
-                    li = '<li class="textNoCap" data-category="' + cat +
-                    '">' + ops[i].displayName + '</li>';
-                    if (filterVal &&
-                        ops[i].displayName.toLowerCase().startsWith(filterVal))
-                    {
-                        startsWith += li;
-                    } else {
-                        includes += li;
-                    }
-                }
-            }
-        }
-
-        const $startsWith = $(startsWith);
-        const $includes = $(includes);
-        $startsWith.sort(this._sortHTML.bind(this));
-        $includes.sort(this._sortHTML.bind(this));
-
-        $functionsList.empty();
-        $functionsList.append($startsWith);
-        $functionsList.append($includes);
-        if ((filtered && !hasFilterVal) || (!filtered && !hasFilterVal && categoryNum === FunctionCategoryT.FunctionCategoryUdf)) {
-            $functionsList.prepend('<li class="createNew">+ ' + OpPanelTStr.CreateNewUDF + '</li>');
-        }
-        $functionsList.scrollTop(0);
-
-        $group.find('.argsSection').addClass('inactive').empty();
-        this._$panel.find('.icvMode').addClass('inactive');
-        this._$panel.find('.descriptionText').empty();
-        this._$panel.find('.strPreview').empty();
     }
 
     // $li = map's function menu li
@@ -665,7 +540,7 @@ class MapOpPanel extends GeneralOpPanel {
         const numGroups = $groups.length;
         let inputCount = 0;
         $groups.each(function(groupNum) {
-            let funcName = $(this).find(".functionsMenu").find('.active').text().trim();
+            let funcName = $(this).find(".functionsInput").val().trim();
             if ($(this).find('.argsSection.inactive').length) {
                 return;
             }
@@ -759,9 +634,9 @@ class MapOpPanel extends GeneralOpPanel {
     }
 
     private _isUDF(groupIndex) {
-        return this._$panel.find(".group").eq(groupIndex).find(".functionsMenu")
-                            .find(".active").data("category") ===
-                                    FunctionCategoryT.FunctionCategoryUdf;
+        return this._$panel.find(".group").eq(groupIndex)
+                            .find(".functionType .radioButton[data-option='custom']")
+                            .hasClass("active");
     }
 
     protected _validate(isSubmit?: boolean): boolean {
@@ -784,7 +659,7 @@ class MapOpPanel extends GeneralOpPanel {
                 const $input = $group.find(".arg").eq(error.arg);
                 switch (error.type) {
                     case ("function"):
-                        self._showFunctionsInputErrorMsg(error.group);
+                        self._showFunctionsInputErrorMsg(error.error, error.group);
                         break;
                     case ("blank"):
                         self._handleInvalidBlanks([$input]);
@@ -835,83 +710,17 @@ class MapOpPanel extends GeneralOpPanel {
         return true;
     }
 
-    protected _resetForm(keepFilter?: boolean) {
+    protected _resetForm() {
         const self = this;
         super._resetForm();
-        if (!keepFilter) {
-            this._$panel.find(".mapFilter").val("");
-        }
-        this._$panel.find(".functionsMenu").html(this.emptyFuncMsg);
         this._$panel.find('.icvMode').addClass('inactive');
-        this._filteredOperatorsMap = [];
         this._functionsMap = [];
         this._$panel.find('.group').each(function(i) {
             if (i !== 0) {
                 self._removeGroup($(this), true);
             }
         });
-    }
-
-    private _filterTheMapFunctions(val, groupIndex) {
-        let categorySet;
-        this._filteredOperatorsMap[groupIndex] = {}; // XXX need per group
-        const categoryNums = {};
-        let fn;
-        let firstCategoryNumFound;
-        val = val.toLowerCase();
-        let operatorsMap = GeneralOpPanel.getOperatorsMap();
-        for (let i in operatorsMap) {
-            if (parseInt(i) === FunctionCategoryT.FunctionCategoryAggregate) {
-                continue;
-            }
-            categorySet = operatorsMap[i];
-            for (let j in categorySet) {
-                fn = categorySet[j];
-                if (fn.displayName.toLowerCase().indexOf(val) > -1) {
-                    if (!this._filteredOperatorsMap[groupIndex][fn.category]) {
-                        this._filteredOperatorsMap[groupIndex][fn.category] = [];
-                    }
-                    categoryNums[fn.category] = true;
-                    this._filteredOperatorsMap[groupIndex][fn.category].push(fn);
-                    if (firstCategoryNumFound == null) {
-                        firstCategoryNumFound = fn.category;
-                    }
-                }
-            }
-        }
-        const $group = this._$panel.find(".group").eq(groupIndex);
-        const $categoryList = $group.find(".categoryMenu");
-        const $functionsList = $group.find(".functionsMenu");
-
-        if (firstCategoryNumFound != null) {
-            $categoryList.find('li').addClass('filteredOut');
-            for (const catId in categoryNums) {
-                $categoryList.find('li[data-category="' + catId + '"]')
-                            .removeClass('filteredOut');
-            }
-
-            this._updateMapFunctionsList(groupIndex, true);
-        } else {
-            $categoryList.find('li').addClass('filteredOut');
-            $functionsList.find('li').addClass('filteredOut');
-            this._$panel.find('.argsSection').empty()
-                    .addClass('inactive');
-            this._$panel.find('.argsSection').empty();
-            this._$panel.find('.icvMode').addClass('inactive');
-            this._$panel.find('.descriptionText').empty();
-            this._$panel.find('.strPreview').empty();
-        }
-        $categoryList.find('li').removeClass('active');
-        $categoryList.find(".builtInsHeader").removeClass("filteredOut");
-        if (Object.keys(categoryNums).length === 1) {
-            $categoryList.find('li:visible:not(.builtInsHeader)').eq(0).addClass('active');
-            console.log(Object.keys(categoryNums)[0]);
-            if (parseInt(Object.keys(categoryNums)[0]) === FunctionCategoryT.FunctionCategoryUdf) {
-                $categoryList.find(".builtInsHeader").addClass("filteredOut");
-            }
-        } else if (Object.keys(categoryNums).length === 0) {
-            $categoryList.find(".builtInsHeader").addClass("filteredOut");
-        }
+        xcTooltip.hideAll();
     }
 
     protected _addExtraArg($btn) {
@@ -1000,7 +809,7 @@ class MapOpPanel extends GeneralOpPanel {
 
     protected _addExtraGroupEventHandler() {
         this.model.addGroup();
-        this._$panel.find(".mapFilter").last().focus();
+        this._$panel.find(".functionsInput").last().focus();
         this._scrollToGroup(this._$panel.find(".group").length - 1);
     }
 
@@ -1010,12 +819,10 @@ class MapOpPanel extends GeneralOpPanel {
         this._$panel.find('.group').last()
                         .after(this._getGroupHtml());
         this._populateInitialCategoryField(newGroupIndex);
-        this._$panel.find(".functionsMenu").last().scroll(function() {
-            xcTooltip.hideAll();
-        });
+        this._setupCustomFnListDropdown(newGroupIndex);
     }
 
-    protected _minimizeGroups($group?: JQuery) {
+    protected _minimizeGroups($group?: JQuery) {\
         if (!$group) {
             this._$panel.find('.group').each(function () {
                 const $group = $(this);
@@ -1028,60 +835,70 @@ class MapOpPanel extends GeneralOpPanel {
                 numArgs = Math.max(numArgs, 0);
                 $group.attr('data-numargs', numArgs);
                 $group.addClass('minimized');
-                if (!$group.find('.functionsMenu .active').length) {
+                xcTooltip.add($group, {title: "Click to unminimize"});
+                if (!$group.find('.functionsInput').val().trim()) {
                     $group.addClass('fnInputEmpty');
                 }
             });
-        }
-        else {
+        } else {
             let numArgs = $group.find('.arg').length - 1;
             numArgs = Math.max(numArgs, 0);
             $group.attr('data-numargs', numArgs);
             $group.addClass('minimized');
-            if (!$group.find('.functionsMenu .active').length) {
+            xcTooltip.add($group, {title: "Click to unminimize"});
+            if (!$group.find('.functionsInput').val().trim()) {
                 $group.addClass('fnInputEmpty');
             }
         }
     }
 
     private _getGroupHtml(): HTML {
-        const html: HTML = '<div class="group mapGroup extraGroup">' +
+        let html: HTML = '<div class="group mapGroup extraGroup">' +
                 '<i class="icon xi-close removeExtraGroup"></i>' +
                 '<i class="icon xi-minus minGroup"></i>' +
-                '<div class="altFnTitle">No Scalar Function Chosen</div>' +
-                '<div class="filterMapFuncArea">' +
-                    '<input type="text" class="mapFilter" placeholder="Search scalar functions...">' +
-                    '<div class="clear">' +
-                        '<i class="icon fa-11 xi-close xc-action"></i>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="catFuncHeadings clearfix subSubHeading">' +
-                    '<div>Type' +
-                    ' <i class="qMark icon xi-unknown"' +
-                    'data-toggle="tooltip"' +
-                    'data-container="body"' +
-                    'data-placement="auto top"' +
-                    'data-title="' + OpPanelTStr.MapCategoryTip + '">' +
-                    '</i>' +
-                    '</div>' +
-                    '<div>Function' +
-                    ' <i class="qMark icon xi-unknown"' +
-                    'data-toggle="tooltip"' +
-                    'data-container="body"' +
-                    'data-placement="auto top"' +
-                    'data-title="' + OpPanelTStr.MapFunctionTip + '">' +
-                    '</i>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="catFuncMenus clearfix">' +
-                    '<ul class="categoryMenu"></ul>' +
-                    '<ul class="functionsMenu">' +
-                        this.emptyFuncMsg +
-                    '</ul>' +
-                '</div>' +
-                '<div class="descriptionText"></div>' +
-                '<div class="argsSection inactive"></div>' +
-            '</div>';
+                '<div class="altFnTitle">No Scalar Function Chosen</div>';
+        html += `<div class="functionType">
+                    <div class="description">Scalar Function Type:</div>
+                    <div class="radioButtonGroup">
+                        <div class="radioButton xc-action active" data-option="builtin">
+                            <div class="radio">
+                                <i class="icon xi-radio-selected"></i>
+                                <i class="icon xi-radio-empty"></i>
+                            </div>
+                            <div class="label">Built In</div>
+                        </div>
+                        <div class="radioButton xc-action" data-option="custom">
+                            <div class="radio">
+                                <i class="icon xi-radio-selected"></i>
+                                <i class="icon xi-radio-empty"></i>
+                            </div>
+                            <div class="label">Custom</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="functionsRow">
+                  <div class="label">Function:</div>
+                  <div class="inputWrap clearfix">
+                    <div class="dropDownList functionsMenu">
+                      <input class="text inputable functionsInput textNoCap tooltipOverflow" type="text" spellcheck="false">
+                      <div class="iconWrapper">
+                        <i class="icon xi-arrow-down"></i>
+                      </div>
+                      <div class="list">
+                        <ul></ul>
+                        <div class="scrollArea top">
+                          <i class="arrow icon xi-arrow-up"></i>
+                        </div>
+                        <div class="scrollArea bottom">
+                          <i class="arrow icon xi-arrow-down"></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="descriptionText"></div>
+                <div class="argsSection inactive"></div>
+            </div>`;
         return html;
     }
 
@@ -1102,12 +919,6 @@ class MapOpPanel extends GeneralOpPanel {
                 return;
             }
             self._populateInitialCategoryField(index);
-
-            const val = $group.find(".mapFilter").val();
-            const valTrimmed = val.trim();
-            if (valTrimmed.length || val.length === 0) {
-                self._filterTheMapFunctions(valTrimmed, index);
-            }
         });
     }
 

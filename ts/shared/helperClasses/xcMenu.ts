@@ -384,7 +384,10 @@ namespace xcMenu {
         if (!options.allowSelection) {
             $('body').addClass('noSelection');
         }
-        const $lis: JQuery = $menu.find('li:visible:not(.unavailable)');
+        let $lis: JQuery = $menu.find('li:visible:not(.unavailable)');
+        if ($menu.hasClass("hasSubList")) {
+            $lis = $menu.find("li li:visible:not(.unavailable)");
+        }
         const numLis: number = $lis.length;
 
         $(document).on('keydown.menuNavigation', listHighlight);

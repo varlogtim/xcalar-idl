@@ -281,10 +281,12 @@ class GeneralOpPanel extends BaseOpPanel {
                 self._minimizeGroups();
             }
             $(this).closest('.group').removeClass('minimized fnInputEmpty');
+            xcTooltip.remove($(this).closest('.group'));
         });
 
         this._$panel.on('mouseup', '.group', function() {
             $(this).removeClass('minimized fnInputEmpty');
+            xcTooltip.remove($(this));
         });
 
         // for all lists (including hint li in argument table)
@@ -306,7 +308,7 @@ class GeneralOpPanel extends BaseOpPanel {
                 $(this).removeClass('highlighted');
                 $(this).closest('.list').removeClass('hovering');
             }
-        }, '.list li');
+        }, '.list:not(.hasSubList) li, .list.hasSubList li li');
 
         // all inputs except functions input will either submit the form or
         // select a highlighted list element
@@ -1611,6 +1613,7 @@ class GeneralOpPanel extends BaseOpPanel {
 
         // for filter, unminimize first argument box
         this._$panel.find('.group').removeClass('minimized fnInputEmpty');
+        xcTooltip.remove(this._$panel.find('.group'));
 
         // clear string preview
         this._$panel.find('.strPreview').empty();

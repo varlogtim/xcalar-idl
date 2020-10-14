@@ -43,9 +43,11 @@ interface DropdownOptions {
 }
 
 interface FixedPositionOption {
-    selector: string, // selector of element to base positioning off of, relative to list
+    selector?: string, // selector of element to base positioning off of, relative to list
+    $selector?: JQuery,
     rightMargin?: number,
-    float?: boolean
+    float?: boolean,
+    containerSelector?: string
 }
 
 /*
@@ -79,7 +81,7 @@ interface FixedPositionOption {
 
 */
 class MenuHelper {
-    private options: MenuHelperOptions;
+    public options: MenuHelperOptions;
     private $list: JQuery;
     private $dropDownList: JQuery;
     private $ul: JQuery;
@@ -90,6 +92,7 @@ class MenuHelper {
     private bottomPadding: number;
     private exclude: boolean;
     private isMouseInScroller: boolean;
+    private _hasSetup: boolean = false;
     private id: number;
     private $container: JQuery;
     private timer: MenuHelperTimer;
@@ -263,6 +266,8 @@ class MenuHelper {
     }
 
     public setupListeners(): MenuHelper {
+        if (this._hasSetup) return;
+        this._hasSetup = true;
         const self: MenuHelper = this;
         const options: MenuHelperOptions = self.options;
         const $dropDownList: JQuery = self.$dropDownList;
@@ -333,7 +338,7 @@ class MenuHelper {
             "mouseleave": function() {
                 $(this).removeClass("hover");
             }
-        }, ".list li");
+        }, ".list:not(.hasSubList) li, .list.hasSubList li li");
 
         return this;
     }
@@ -368,7 +373,7 @@ class MenuHelper {
         self.showOrHideScrollers();
     }
 
-    public toggleList($curlDropDownList: JQuery, openUpwards?: boolean): void {
+    public toggleList($curlDropDownList: JQuery, openUpwards?: boolean, filterFn?: Function): void {
         const self: MenuHelper = this;
         const $list: JQuery = self.$list;
         if ($curlDropDownList.hasClass("open")) {    // close dropdown
@@ -435,12 +440,18 @@ class MenuHelper {
 
             if (typeof self.options.onOpen === "function") {
                 self.options.onOpen($curlDropDownList);
+                if (filterFn) {
+                    filterFn();
+                }
             }
             if (self.options.fixedPosition) {
-                let $baseElement = self.$dropDownList.find(self.options.fixedPosition.selector);
-                if (!$baseElement.length) {
-                    return;
+                let $baseElement;
+                if (self.options.fixedPosition.$selector) {
+                    $baseElement = self.options.fixedPosition.$selector;
+                } else {
+                    $baseElement = self.$dropDownList.find(self.options.fixedPosition.selector);
                 }
+
                 self.$list.hide(); // open list can cause incorrect parentPos
                 // due to scrollbar showing
                 const parentPos: ClientRect = $baseElement[0].getBoundingClientRect();

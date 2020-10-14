@@ -111,6 +111,19 @@ class ExportSQLTableModal {
                 var $lis = $list.find('li').sort(xcUIHelper.sortHTML);
                 $lis.prependTo($list.find('ul'));
             },
+            "onSelect": ($li) => {
+                if ($li.hasClass("hint")) {
+                    return false;
+                }
+
+                if ($li.hasClass("unavailable")) {
+                    return true; // return true to keep dropdown open
+                }
+
+                $li.closest('.dropDownList').find('input').val($li.text());
+                let index: number = $("#exportSQLTableModal .exportArg").index($($li.closest(".exportArg")));
+                this._dataModel.setParamValue($li.text(), index);
+            },
             "container": container
         });
         dropdownHelper.setupListeners();
@@ -196,26 +209,9 @@ class ExportSQLTableModal {
         let $targetList: JQuery = null;
         let container: string = "";
         targetParams.forEach((paramName) => {
-            let self = this;
             container = "#exportSQLTableModal .argsSection ." + paramName + " .dropDownList"
             $targetList = $(container);
             this._activateDropDown($targetList, container);
-            let expList: MenuHelper = new MenuHelper($(container), {
-                "onSelect": ($li) => {
-                    if ($li.hasClass("hint")) {
-                        return false;
-                    }
-
-                    if ($li.hasClass("unavailable")) {
-                        return true; // return true to keep dropdown open
-                    }
-
-                    $li.closest('.dropDownList').find('input').val($li.text());
-                    let index: number = $("#exportSQLTableModal .exportArg").index($($li.closest(".exportArg")));
-                    self._dataModel.setParamValue($li.text(), index);
-                }
-            });
-            expList.setupListeners();
         });
         this._dataModel.setUpParams(driver, this._$modal);
         $("#exportSQLTableModal .argsSectionBox").removeClass("xc-hidden");

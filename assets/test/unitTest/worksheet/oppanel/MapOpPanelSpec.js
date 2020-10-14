@@ -35,7 +35,7 @@ describe("MapOpPanel Test", function() {
             mapOpPanel = MapOpPanel.Instance;
             editor = mapOpPanel.getEditor();
             $mapOpPanel = $('#mapOpPanel');
-            $functionsInput = $mapOpPanel.find('.mapFilter');
+            $functionsInput = $mapOpPanel.find('.functionsInput');
             $functionsList = $functionsInput.siblings('.list');
             $argSection = $mapOpPanel.find('.argsSection').eq(0);
             done();
@@ -74,7 +74,7 @@ describe("MapOpPanel Test", function() {
             var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
             var options = $.extend({}, openOptions, {autofillColumnNames: [prefixCol]});
             DagConfigNodeModal.Instance.show(node, null, $(), options);
-            $functionsInput = $mapOpPanel.find('.mapFilter');
+            $functionsInput = $mapOpPanel.find('.functionsInput');
             $functionsList = $functionsInput.siblings('.list');
             $argSection = $mapOpPanel.find('.argsSection').eq(0);
         });
@@ -89,135 +89,24 @@ describe("MapOpPanel Test", function() {
                 $strPreview = $mapOpPanel.find('.strPreview');
                 $categoryMenu = $mapOpPanel.find('.categoryMenu');
                 $functionsMenu = $mapOpPanel.find('.functionsMenu');
-                $filterInput = $mapOpPanel.find('.mapFilter');
+                $filterInput = $mapOpPanel.find('.functionsInput');
             });
 
             describe('map\'s search filter', function() {
-                it('filter on input should update menus', function() {
-                    $filterInput.val('add').trigger(fakeEvent.input);
-                    var $catLis = $categoryMenu.find('li:visible:not(.builtInsHeader)').filter(function() {
-                        return ($(this).text().indexOf('Custom scalar') === -1);
-                    });
 
-                    var $funcLis = $functionsMenu.find('li:visible:not(.builtInsHeader)').filter(function() {
-                        return ($(this).text().indexOf(':') === -1);
-                    });
-                    expect($catLis).to.have.length(3);
-                    expect($catLis.text()).to.equal("arithmeticconversiontimestamp");
-
-                    expect($funcLis).to.have.length(10);
-                    expect($funcLis.text()).to.equal("addaddDateIntervaladdIntegeraddIntervalStringaddNumericaddTimeIntervaldateAddDaydateAddIntervaldateAddMonthdateAddYear");
-                    $filterInput.val('').trigger(fakeEvent.input);
-                    expect($categoryMenu.find('li:visible:not(.builtInsHeader)').length).to.be.within(7, 11);
-                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').length).to.be.above(70);
-
-                    $filterInput.val('add').trigger(fakeEvent.input);
-                    $funcLis = $functionsMenu.find('li:visible:not(.builtInsHeader)').filter(function() {
-                        return ($(this).text().indexOf(':') === -1);
-                    });
-                    expect($funcLis.text()).to.equal("addaddDateIntervaladdIntegeraddIntervalStringaddNumericaddTimeIntervaldateAddDaydateAddIntervaldateAddMonthdateAddYear");
-
-                    $filterInput.val('sub').trigger(fakeEvent.input);
-                    $funcLis = $functionsMenu.find('li:visible:not(.builtInsHeader)').filter(function() {
-                        return ($(this).text().indexOf(':') === -1);
-                    });
-                    expect($funcLis.text()).to.equal("subsubIntegersubNumericsubstringsubstringIndex");
-                    $filterInput.val('').trigger(fakeEvent.input);
-                });
-
-                it("filter on input with nonexisting function should filter out everything", function() {
-                    $filterInput.val('zzzxxx' + Date.now()).trigger(fakeEvent.input);
-                    expect($categoryMenu.find('li:visible:not(.builtInsHeader)').length).to.equal(0);
-                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').length).to.equal(0);
-                    expect($categoryMenu.find("li.filteredOut").length).to.be.gt(6);
-                    expect($functionsMenu.find("li.filteredOut").length).to.be.gt(60);
-                    $filterInput.val('').trigger(fakeEvent.input);
-                });
-
-                it('mapFilter keydown up/down actions should work', function() {
-                    expect($categoryMenu.find('li:visible:not(.builtInsHeader)').length).to.be.within(7, 11);
-                    expect($categoryMenu.find('li.active').length).to.equal(0);
-
-                    $filterInput.trigger({type: "keydown", which: keyCode.Up});
-                    expect($categoryMenu.find('li.active').length).to.equal(1);
-                    expect($categoryMenu.find('li').eq(0).hasClass('active')).to.be.true;
-
-                    $filterInput.trigger({type: "keydown", which: keyCode.Down});
-                    expect($categoryMenu.find('li.active').length).to.equal(1);
-                    expect($categoryMenu.find('li:not(.builtInsHeader)').eq(1).hasClass('active')).to.be.true;
-
-                    $filterInput.trigger({type: "keydown", which: keyCode.Up});
-                    expect($categoryMenu.find('li.active').length).to.equal(1);
-                    expect($categoryMenu.find('li').eq(0).hasClass('active')).to.be.true;
-                });
-
-                it('mapFilter keydown enter should work', function() {
-                    $filterInput.val('aTAn2').trigger(fakeEvent.input);
-                    expect($categoryMenu.find('li:not(.builtInsHeader)').eq(8).hasClass('active')).to.be.true;
-                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').length).to.equal(1);
-                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').eq(0).hasClass('active')).to.be.false;
-                    expect($mapOpPanel.find('.argsSection').hasClass('inactive')).to.be.true;
-
-                    $filterInput.trigger({type: "keydown", which: keyCode.Enter});
-                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').filter(function(){return $(this).text() === "atan2"}).hasClass('active')).to.be.true;
-                    expect($categoryMenu.find('li:visible:not(.builtInsHeader)').filter(function(){return $(this).text() === "trigonometric"}).hasClass("active")).to.be.true;
-                    expect($mapOpPanel.find('.argsSection').hasClass('inactive')).to.be.false;
-                });
-
-                it('mapFilter clear should work', function() {
-                    $filterInput.val('atan2').trigger(fakeEvent.input);
-                    expect($filterInput.val()).to.equal('atan2');
-                    expect($categoryMenu.find('li:visible:not(.builtInsHeader)').length).to.equal(1);
-                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').length).to.equal(1);
-
-                    $mapOpPanel.find('.filterMapFuncArea .clear').trigger(fakeEvent.mousedown);
-                    expect($filterInput.val()).to.equal('');
-                    expect($categoryMenu.find('li:visible:not(.builtInsHeader)').length).to.be.within(7, 11);
-                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').length).to.equal(0);
-                });
-
-                it('clicking on filtered category list should work', function() {
-                    $filterInput.val('sub').trigger(fakeEvent.input);
-                    $categoryMenu.find('li:visible:not(.builtInsHeader)').eq(1).trigger(fakeEvent.click);
-                    expect($categoryMenu.find("li.active").text()).to.equal('arithmetic');
-                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)')).to.have.length(3);
-                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').text()).to.equal("subsubIntegersubNumeric");
-                });
-
-                it('clicking away from category list should reset func list', function() {
-                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').text()).to.equal("subsubIntegersubNumeric");
-                    $mapOpPanel.find('.catFuncHeadings').trigger(fakeEvent.mousedown);
-                    expect($functionsMenu.find('li:visible:not(.builtInsHeader)').text().indexOf("subsubIntegersubNumericsubstringsubstringIndex")).to.be.gt(-1);
-                    expect($categoryMenu.find("li.active")).to.have.length(0);
-                    $filterInput.val('').trigger(fakeEvent.input);
-                });
             });
 
             describe('autofilled input args', function() {
                 it('should select category when clicked', function() {
                     // string - concat
-                    $categoryMenu.find('li').filter(function() {
-                        return ($(this).text() === "arithmetic");
-                    }).trigger(fakeEvent.click);
-                    expect($categoryMenu.find("li.active").text()).to.equal('arithmetic');
-
-                    $functionsMenu.find('li').filter(function() {
-                        return ($(this).text() === "add");
-                    }).trigger(fakeEvent.click);
+                    $functionsMenu.find("input").val("add").trigger("change");
                     var $argInputs = $mapOpPanel.find('.arg[type=text]:visible');
                     var prefixCol = xcHelper.getPrefixColName(prefix, "average_stars");
                     expect($argInputs.eq(0).val()).to.equal(gColPrefix + prefixCol);
                     expect($argInputs.eq(1).val()).to.equal("");
                     expect($argInputs.eq(2).val()).to.startsWith("average_stars_add");
 
-                    // user-defined - default:splitWithDelim
-                    $categoryMenu.find('li').filter(function() {
-                        return ($(this).text() === "Custom scalar function");
-                    }).trigger(fakeEvent.click);
-
-                    $functionsMenu.find('li').filter(function() {
-                        return ($(this).text() === "default:splitWithDelim");
-                    }).trigger(fakeEvent.click);
+                    $functionsMenu.find("input").val("default:splitWithDelim").trigger("change");
 
                     $argInputs = $mapOpPanel.find('.arg[type=text]:visible');
                     expect($argInputs.eq(0).val()).to.equal(gColPrefix + prefixCol);
@@ -235,13 +124,7 @@ describe("MapOpPanel Test", function() {
                 });
 
                 it('should focus on first empty input', function() {
-                    $categoryMenu.find('li').filter(function() {
-                        return ($(this).text() === "string");
-                    }).trigger(fakeEvent.click);
-
-                    $functionsMenu.find('li').filter(function() {
-                        return ($(this).text() === "concat");
-                    }).trigger(fakeEvent.click);
+                    $functionsMenu.find("input").val("concat").trigger("change");
 
                     var $argInputs = $mapOpPanel.find('.arg[type=text]:visible');
                     expect($argInputs.eq(1).is(document.activeElement)).to.be.true;
@@ -250,8 +133,7 @@ describe("MapOpPanel Test", function() {
 
             describe("special argument cases", function() {
                 it("addExtraArg should work", function() {
-                    $categoryMenu.find("li:contains('Custom scalar function')").click();
-                    $functionsMenu.find("li:contains('default:multiJoin')").click();
+                    $functionsMenu.find("input").val("default:multiJoin").trigger("change");
                     expect($mapOpPanel.find(".addExtraArg").length).to.equal(1);
                     expect($mapOpPanel.find(".arg:visible").length).to.equal(2);
                     $mapOpPanel.find(".addExtraArg").click();
@@ -259,8 +141,7 @@ describe("MapOpPanel Test", function() {
                 });
 
                 it("boolean checkbox should work", function() {
-                    $categoryMenu.find("li:contains('conditional')").click();
-                    $functionsMenu.find("li:contains('startsWith')").click();
+                    $functionsMenu.find("input").val("startsWith").trigger("change");
                     expect($mapOpPanel.find(".boolArg").length).to.equal(1);
 
                     $mapOpPanel.find(".boolArgWrap").click();
@@ -269,8 +150,8 @@ describe("MapOpPanel Test", function() {
                 });
 
                 it("no arg box should be visible for optional args", function() {
-                    $categoryMenu.find("li:contains('type-casting')").click();
-                    $functionsMenu.find("li:contains('int')").click();
+                    $functionsMenu.find("input").val("int").trigger("change");
+
                     expect($mapOpPanel.find(".checkboxWrap:visible").length).to.equal(1);
                 });
             });
@@ -415,13 +296,7 @@ describe("MapOpPanel Test", function() {
                     var expectedMapStr = options.expectedMapStr;
                     var expectedCliMapStr = options.expectedCliMapStr;
 
-                    $categoryMenu.find('li').filter(function() {
-                        return ($(this).text() === category);
-                    }).trigger(fakeEvent.click);
-
-                    $functionsMenu.find('li').filter(function() {
-                        return ($(this).text() === func);
-                    }).trigger(fakeEvent.click);
+                    $functionsMenu.find("input").val(func).trigger("change");
 
                     var $argInputs = $mapOpPanel.find('.arg[type=text]:visible');
                     for (var i = 0; i < args.length; i++) {
@@ -496,7 +371,7 @@ describe("MapOpPanel Test", function() {
                 var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
                 var options = $.extend({}, openOptions, {autofillColumnNames: [prefixCol]});
                 DagConfigNodeModal.Instance.show(node, null, $(), options);
-                $functionsInput = $mapOpPanel.find('.mapFilter');
+                $functionsInput = $mapOpPanel.find('.functionsInput');
                 $functionsList = $functionsInput.siblings('.list');
                 $argSection = $mapOpPanel.find('.argsSection').eq(0);
 
@@ -504,26 +379,7 @@ describe("MapOpPanel Test", function() {
                 $functionsMenu = $mapOpPanel.find('.functionsMenu');
             });
 
-            describe('category menu in map', function() {
-                it('menu should be visible', function() {
-                    expect($categoryMenu.is(":visible")).to.equal(true);
-                    expect($categoryMenu.find('li').length).to.be.above(7);
-                });
-
-                it('should select category when clicked', function() {
-                    $categoryMenu.find('li').filter(function() {
-                        return ($(this).text() === "string");
-                    }).trigger(fakeEvent.click);
-                    expect($categoryMenu.find("li.active").text()).to.equal('string');
-                });
-                it('should select correct function list when clicked', function() {
-                    expect($functionsMenu.is(":visible")).to.equal(true);
-                    expect($functionsMenu.find('li').length).to.be.above(6);
-                    expect($functionsMenu.find('li').eq(0).text()).to.equal('ascii');
-                });
-            });
-
-            describe('functions menu in map', function() {
+            describe.skip('functions menu in map', function() {
                 it('should not have selected li', function() {
                     expect($functionsMenu.find('li.active').length).to.equal(0);
                     expect($mapOpPanel.find('.argsSection').hasClass('inactive')).to.equal(true);
@@ -541,6 +397,7 @@ describe("MapOpPanel Test", function() {
 
             describe('argument section in map', function() {
                 it('should have 3 visible text inputs', function() {
+                    $functionsMenu.find("input").val("concat").trigger("change");
                     expect($mapOpPanel.find('.arg[type=text]:visible')).to.have.length(3);
                     $argInputs = $mapOpPanel.find('.arg[type=text]:visible');
                 });
@@ -646,7 +503,7 @@ describe("MapOpPanel Test", function() {
                 var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
                 var options = $.extend({}, openOptions);
                 DagConfigNodeModal.Instance.show(node, null, $(), options);
-                $functionsInput = $mapOpPanel.find('.mapFilter');
+                $functionsInput = $mapOpPanel.find('.functionsInput');
                 $functionsList = $functionsInput.siblings('.list');
                 $argSection = $mapOpPanel.find('.argsSection').eq(0);
 
@@ -655,19 +512,7 @@ describe("MapOpPanel Test", function() {
             });
 
             describe('setup inputs', function() {
-                it('menu should be visible', function() {
-                    expect($categoryMenu.is(":visible")).to.equal(true);
-                    expect($categoryMenu.find('li').length).to.be.above(7);
-                });
-
-                it('should select category when clicked', function() {
-                    $categoryMenu.find('li').filter(function() {
-                        return ($(this).text() === "string");
-                    }).trigger(fakeEvent.click);
-                    expect($categoryMenu.find("li.active").text()).to.equal('string');
-                });
-
-                it('should select function name when clicked', function() {
+                it.skip('should select function name when clicked', function() {
                     $functionsMenu.find('li').filter(function() {
                         return ($(this).text() === "concat");
                     }).trigger(fakeEvent.click);
@@ -675,6 +520,7 @@ describe("MapOpPanel Test", function() {
                 });
 
                 it ('should show arguments after clicking function name', function() {
+                    $functionsMenu.find("input").val("concat").trigger("change");
                     expect($mapOpPanel.find('.argsSection').hasClass('inactive')).to.equal(false);
                 });
 
@@ -707,7 +553,7 @@ describe("MapOpPanel Test", function() {
                 var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
                 var options = $.extend({}, openOptions, {autofillColumnNames: [prefixCol]});
                 DagConfigNodeModal.Instance.show(node, null, $(), options);
-                $functionsInput = $mapOpPanel.find('.mapFilter');
+                $functionsInput = $mapOpPanel.find('.functionsInput');
                 $functionsList = $functionsInput.siblings('.list');
                 $argSection = $mapOpPanel.find('.argsSection').eq(0);
             });
@@ -722,7 +568,7 @@ describe("MapOpPanel Test", function() {
                 expect($argSection.hasClass('inactive')).to.be.true;
                 expect($mapOpPanel.find('.minGroup').length).to.equal(1);
                 expect($mapOpPanel.find('.altFnTitle:visible').length).to.equal(0);
-                expect($mapOpPanel.find('.mapFilter').val()).to.equal("");
+                expect($mapOpPanel.find('.functionsInput').val()).to.equal("");
                 expect($mapOpPanel.find('.group').hasClass('minimized')).to.be.false;
 
                 $mapOpPanel.find('.minGroup').click();
@@ -743,7 +589,7 @@ describe("MapOpPanel Test", function() {
                 expect($argSection.hasClass('inactive')).to.be.true;
                 expect($mapOpPanel.find('.minGroup').length).to.equal(1);
                 expect($mapOpPanel.find('.altFnTitle:visible').length).to.equal(0);
-                expect($mapOpPanel.find('.mapFilter').val()).to.equal("");
+                expect($mapOpPanel.find('.functionsInput').val()).to.equal("");
                 expect($mapOpPanel.find('.group').hasClass('minimized')).to.be.false;
                 expect($argSection.find('.arg:visible').length).to.equal(0);
 
@@ -774,7 +620,7 @@ describe("MapOpPanel Test", function() {
                 expect($mapOpPanel.find('.group').eq(0).hasClass('minimized')).to.be.true;
                 expect($mapOpPanel.find('.group').eq(0).attr('data-numargs')).to.equal("2");
                 expect($mapOpPanel.find('.group').eq(1).hasClass('minimized')).to.be.false;
-                $mapOpPanel.find('.group').eq(1).find(".mapFilter").val("between").trigger("input").trigger(fakeEvent.enterKeydown);
+                $mapOpPanel.find('.group').eq(1).find(".functionsInput").val("between").trigger("input").trigger(fakeEvent.enterKeydown);
 
                 // add another group
                 $mapOpPanel.find(".addExtraGroup").click();
@@ -823,7 +669,8 @@ describe("MapOpPanel Test", function() {
                     return {
                         group: 0,
                         arg: 0,
-                        type: "function"
+                        type: "function",
+                        error: ErrTStr.NoEmpty
                     }
                 };
                 MapOpPanel.Instance._validate();

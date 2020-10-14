@@ -243,7 +243,6 @@ class PublishIMDOpPanel extends BaseOpPanel {
     }
 
     private _addKeyField(): void {
-        const self = this;
         let html = '<div class="primaryKeyList dropDownList">' +
             '<input class="text primaryKeyInput" type="text" value="" spellcheck="false">' +
             '<i class="icon xi-cancel"></i>' +
@@ -264,32 +263,6 @@ class PublishIMDOpPanel extends BaseOpPanel {
         this._replicateColumnHints();
         let $list = $('#publishIMDOpPanel .IMDKey .primaryKeyList').last();
         this._activateDropDown($list, '.IMDKey .primaryKeyList');
-        let expList: MenuHelper = new MenuHelper($list, {
-            "onSelect": function($li) {
-                if ($li.hasClass("hint")) {
-                    return false;
-                }
-
-                if ($li.hasClass("unavailable")) {
-                    return true; // return true to keep dropdown open
-                }
-                let $primaryKey = $li.closest('.primaryKeyList').find('.primaryKeyInput');
-                let oldVal = $primaryKey.val();
-                if (oldVal != "") {
-                    $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyColumns')
-                        .find("[data-value='" + oldVal + "']").removeClass("unavailable");
-                    self._toggleColumnKey(oldVal.substr(1), false, true);
-                }
-                $primaryKey.val("$" + $li.text());
-                $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyColumns')
-                    .find("[data-value='" + $li.data("value") + "']").addClass("unavailable");
-                let index = $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyInput').index($primaryKey);
-                self._currentKeys[index] = $li.data("value");
-                let colName: string = $li.text();
-                self._toggleColumnKey(colName, true, true);
-            }
-        });
-        expList.setupListeners();
         this._currentKeys.push("");
     }
 
@@ -501,6 +474,29 @@ class PublishIMDOpPanel extends BaseOpPanel {
             "onOpen": function() {
                 var $lis = $list.find('li').sort(xcUIHelper.sortHTML);
                 $lis.prependTo($list.find('ul'));
+            },
+            "onSelect": ($li) => {
+                if ($li.hasClass("hint")) {
+                    return false;
+                }
+
+                if ($li.hasClass("unavailable")) {
+                    return true; // return true to keep dropdown open
+                }
+                let $primaryKey = $('#publishIMDOpPanel .IMDKey .primaryKeyList').eq(0).find('.primaryKeyInput');
+                let oldVal = $primaryKey.val();
+                if (oldVal != "") {
+                    $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns')
+                        .find("[data-value='" + oldVal + "']").removeClass("unavailable");
+                    this._toggleColumnKey(oldVal.substr(1), false, true);
+                }
+                $primaryKey.val("$" + $li.text());
+                $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns')
+                    .find("[data-value='" + $li.data("value") + "']").addClass("unavailable");
+                let index = $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyInput').index($primaryKey);
+                this._currentKeys[index] = $li.data("value");
+                let colName: string = $li.text();
+                this._toggleColumnKey(colName, true, true);
             },
             "container": container
         });

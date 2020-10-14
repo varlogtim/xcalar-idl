@@ -680,58 +680,60 @@ class BaseOpPanel {
                     this.xdfMap[fnName].push(op);
                 }
 
-                op.template = createFuncTemplate(op);
-                var secondTemplate = createSecondaryTemplate(op);
+                op.template = this._createFuncTemplate(op);
+                var secondTemplate = this._createSecondaryTemplate(op);
                 op.templateTwo = secondTemplate.template;
                 op.modArgDescs = secondTemplate.argDescs;
             }
         }
 
 
+
+    }
+
         // the text that shows up in the list
-        function createFuncTemplate(op) {
-            var fnTemplate = op.fnName + '(';
-            var len = op.argDescs.length;
-            var argDesc;
-            for (var j = 0; j < len; j++) {
-                argDesc = op.argDescs[j].argDesc;
-                fnTemplate += '<span class="argDesc">' + argDesc + '</span>';
-                if (j + 1 < len) {
-                    fnTemplate += ",";
-                }
+    protected _createFuncTemplate(op) {
+        var fnTemplate = (op.displayName || op.fnName) + '(';
+        var len = op.argDescs.length;
+        var argDesc;
+        for (var i = 0; i < len; i++) {
+            argDesc = op.argDescs[i].argDesc;
+            fnTemplate += '<span class="argDesc">' + argDesc + '</span>';
+            if (i + 1 < len) {
+                fnTemplate += ",";
             }
-            fnTemplate += ')';
-            return fnTemplate;
         }
+        fnTemplate += ')';
+        return fnTemplate;
+    }
 
-        // the text that shows up in the fnBar when selected
-        function createSecondaryTemplate(op) {
-            let fnTemplate = op.fnName + '(';
-            let len = op.argDescs.length;
-            let argDesc;
-            let argDescs = [];
-            let argDescSplit;
-            for (var j = 0; j < len; j++) {
-                argDesc = op.argDescs[j].argDesc.trim();
-                argDescSplit = argDesc.split(" "); // separate by spaces
-                if (argDescSplit.length > 2) {
-                    argDesc = argDesc = "arg" + (j + 1);
-                } else if (argDescSplit.length === 2) {
-                    // camel case and join 2 words together
-                    argDesc = argDescSplit[0] +
-                        argDescSplit[1][0].toUpperCase() +
-                        argDescSplit[1].slice(1);
-                }
-                argDescs.push(argDesc);
-
-                fnTemplate += argDesc;
-                if (j + 1 < len) {
-                    fnTemplate += ", ";
-                }
+    // the text that shows up in the fnBar when selected
+    protected _createSecondaryTemplate(op) {
+        let fnTemplate = op.fnName + '(';
+        let len = op.argDescs.length;
+        let argDesc;
+        let argDescs = [];
+        let argDescSplit;
+        for (var j = 0; j < len; j++) {
+            argDesc = op.argDescs[j].argDesc.trim();
+            argDescSplit = argDesc.split(" "); // separate by spaces
+            if (argDescSplit.length > 2) {
+                argDesc = argDesc = "arg" + (j + 1);
+            } else if (argDescSplit.length === 2) {
+                // camel case and join 2 words together
+                argDesc = argDescSplit[0] +
+                    argDescSplit[1][0].toUpperCase() +
+                    argDescSplit[1].slice(1);
             }
-            fnTemplate += ')';
-            return { template: fnTemplate, argDescs: argDescs };
+            argDescs.push(argDesc);
+
+            fnTemplate += argDesc;
+            if (j + 1 < len) {
+                fnTemplate += ", ";
+            }
         }
+        fnTemplate += ')';
+        return { template: fnTemplate, argDescs: argDescs };
     }
 
     private _setupAggMap() {

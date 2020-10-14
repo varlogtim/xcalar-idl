@@ -927,7 +927,10 @@ namespace xcUIHelper {
         event.stopPropagation();
 
         const $menu: JQuery = $input.siblings('.list');
-        const $lis: JQuery = $input.siblings('.list').find('li:visible');
+        let $lis: JQuery = $menu.find('li:visible');
+        if ($menu.hasClass("hasSubList")) {
+            $lis = $menu.find("li li:visible");
+        }
         const numLis: number = $lis.length;
 
         if (numLis === 0) {
@@ -959,18 +962,18 @@ namespace xcUIHelper {
 
         const menuHeight: number = $menu.height();
         const liTop: number = $highlightedLi.position().top;
-        const liHeight: number = 30;
+        const liHeight: number = 26;
 
         if (liTop > menuHeight - liHeight) {
-            let currentScrollTop: number = $menu.find('ul').scrollTop();
+            let currentScrollTop: number = $menu.find('ul').eq(0).scrollTop();
             let newScrollTop: number = liTop - menuHeight + liHeight +
                                         currentScrollTop;
-            $menu.find('ul').scrollTop(newScrollTop);
+            $menu.find('ul').eq(0).scrollTop(newScrollTop);
             if ($menu.hasClass('hovering')) {
                 $menu.addClass('disableMouseEnter');
             }
         } else if (liTop < 0) {
-            let currentScrollTop: number = $menu.find('ul').scrollTop();
+            let currentScrollTop: number = $menu.find('ul').eq(0).scrollTop();
             $menu.find('ul').scrollTop(currentScrollTop + liTop);
             if ($menu.hasClass('hovering')) {
                 $menu.addClass('disableMouseEnter');
@@ -1040,11 +1043,13 @@ namespace xcUIHelper {
         searchKey = xcStringHelper.escapeRegExp(searchKey);
         // The following pattern looks for "searchkey" exclusively outside of a <>.
         // This prevents it from replacing values within a tag, and replacing the tags themselves.
-        const pattern: RegExp = new RegExp('((^|>)[^<]*)(' + searchKey + ')', 'gi');
+        // const pattern: RegExp = new RegExp('((^|>)[^<]?)(' + searchKey + ')', 'gi');
+        const pattern: RegExp = new RegExp('(' + searchKey + ')(?![^<]*>|[^<>]*<\/)', 'i');
         // Remove old strong tabs
         let innerCleanHtml: string = $suggestion.html().replace('<strong>','').replace('</strong>','');
         $suggestion.html(
-            innerCleanHtml.replace(pattern,'$1<strong>$3</strong>')
+            // innerCleanHtml.replace(pattern,'$1<strong>$3</strong>')
+            innerCleanHtml.replace(pattern,'<strong>$1</strong>')
         );
     }
 

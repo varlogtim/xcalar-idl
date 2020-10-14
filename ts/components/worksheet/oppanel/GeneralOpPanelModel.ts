@@ -969,6 +969,12 @@ abstract class GeneralOpPanelModel {
             } else {
                 paramFns.push(false);
             }
+            if (!this.groups[i].operator) {
+                return {error: ErrTStr.NoEmpty,
+                    group: i,
+                    arg: -1,
+                    type: "function"};
+            }
             if (!self._isOperationValid(i)) {
                 return {error: ErrTStr.NoSupportOp,
                         group: i,

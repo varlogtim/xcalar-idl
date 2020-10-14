@@ -62,6 +62,29 @@ class CreatePublishTableModal {
                 var $lis = $list.find('li').sort(xcUIHelper.sortHTML);
                 $lis.prependTo($list.find('ul'));
             },
+            "onSelect": ($li) => {
+                if ($li.hasClass("hint")) {
+                    return false;
+                }
+
+                if ($li.hasClass("unavailable")) {
+                    return true; // return true to keep dropdown open
+                }
+                let $primaryKey = $li.closest('.primaryKeyList').find('.primaryKeyInput');
+                let oldVal: string = $primaryKey.val();
+                if (oldVal != "") {
+                    $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyColumns')
+                        .find("[data-value='" + oldVal + "']").removeClass("unavailable");
+                    this._toggleColumnKey(oldVal.substr(1), false);
+                }
+                $primaryKey.val("$" + $li.text());
+                $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyColumns')
+                    .find("[data-value='" + $li.data("value") + "']").addClass("unavailable");
+                let index = $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyInput').index($primaryKey);
+                this._currentKeys[index] = $li.data("value");
+                let colName: string = $li.text();
+                this._toggleColumnKey(colName, true);
+            },
             "container": container
         });
         dropdownHelper.setupListeners();
@@ -155,32 +178,6 @@ class CreatePublishTableModal {
         this._replicateColumnHints();
         let $list = $('#createPublishTableModal .IMDKey .primaryKeyList').last();
         this._activateDropDown($list, '.IMDKey .primaryKeyList');
-        let expList: MenuHelper = new MenuHelper($list, {
-            "onSelect": function($li) {
-                if ($li.hasClass("hint")) {
-                    return false;
-                }
-
-                if ($li.hasClass("unavailable")) {
-                    return true; // return true to keep dropdown open
-                }
-                let $primaryKey = $li.closest('.primaryKeyList').find('.primaryKeyInput');
-                let oldVal = $primaryKey.val();
-                if (oldVal != "") {
-                    $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyColumns')
-                        .find("[data-value='" + oldVal + "']").removeClass("unavailable");
-                    self._toggleColumnKey(oldVal.substr(1), false);
-                }
-                $primaryKey.val("$" + $li.text());
-                $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyColumns')
-                    .find("[data-value='" + $li.data("value") + "']").addClass("unavailable");
-                let index = $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyInput').index($primaryKey);
-                self._currentKeys[index] = $li.data("value");
-                let colName: string = $li.text();
-                self._toggleColumnKey(colName, true);
-            }
-        });
-        expList.setupListeners();
         this._currentKeys.push("");
     }
 
@@ -270,32 +267,6 @@ class CreatePublishTableModal {
 
         let $list = $('#createPublishTableModal .IMDKey .primaryKeyList');
         this._activateDropDown($list, '#createPublishTableModal .IMDKey .primaryKeyList');
-        let expList: MenuHelper = new MenuHelper($list, {
-            "onSelect": function($li) {
-                if ($li.hasClass("hint")) {
-                    return false;
-                }
-
-                if ($li.hasClass("unavailable")) {
-                    return true; // return true to keep dropdown open
-                }
-                let $primaryKey = $('#createPublishTableModal .IMDKey .primaryKeyList').eq(0).find('.primaryKeyInput');
-                let oldVal: string = $primaryKey.val();
-                if (oldVal != "") {
-                    $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyColumns')
-                        .find("[data-value='" + oldVal + "']").removeClass("unavailable");
-                    self._toggleColumnKey(oldVal.substr(1), false);
-                }
-                $primaryKey.val("$" + $li.text());
-                $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyColumns')
-                    .find("[data-value='" + $li.data("value") + "']").addClass("unavailable");
-                let index = $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyInput').index($primaryKey);
-                self._currentKeys[index] = $li.data("value");
-                let colName: string = $li.text();
-                self._toggleColumnKey(colName, true);
-            }
-        });
-        expList.setupListeners();
 
         this._$modal.find(".primaryKeyList").on('blur', '.primaryKeyInput', function() {
             let $input = $(this);
