@@ -5144,6 +5144,11 @@ class DagView {
             elOffsets.push(elOffset);
         });
         $elements.find(".graphHead").show();
+        let padding = DagView.gridSpacing;
+        if ($elements.filter(".comment").length === $elements.length) {
+            // only  comments
+            padding = 0;
+        }
 
         new DragHelper({
             event: event,
@@ -5152,7 +5157,7 @@ class DagView {
             $container: $(this.containerSelector),
             $dropTarget: this.$dfArea.find(".dataflowAreaWrapper"),
             round: DagView.gridSpacing,
-            padding: DagView.gridSpacing,
+            padding: padding,
             scale: this.graph.getScale(),
             elOffsets: elOffsets,
             onDragStart: (_$els) => {},
