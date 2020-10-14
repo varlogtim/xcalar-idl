@@ -11,6 +11,7 @@ type ModalState = {
 export default class SQLEditorShortcutsModal extends React.Component<any, ModalState> {
     constructor(props) {
         super(props);
+        console.log(props);
         this.state = {
             show: false
         };
@@ -95,9 +96,14 @@ function KeyBlock(props) {
     const {letters} = props;
     return (
         letters.map((letter, i) => {
-            if (letter === "Cmd") {
-                letter = "⌘";
+            if (window["isSystemMac"]) {
+                if (letter === "Cmd") {
+                    letter = "⌘";
+                } else if (letter === "Alt") {
+                    letter = "⌥";
+                }
             }
+
             return (
                 <React.Fragment key={i}>
                     <div className="key">{letter}</div>
