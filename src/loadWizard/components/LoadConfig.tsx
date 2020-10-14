@@ -119,7 +119,10 @@ type LoadConfigState = {
     },
     selectedSchema: any,
     inputSerialization: SchemaService.InputSerialization,
-    inputSerialPending: boolean,
+    inputSerialConfigState: {
+        configWIP: SchemaService.InputSerialization,
+        errorFields: Set<string>,
+    },
 
     editSchemaState: {
         schema: any,
@@ -228,7 +231,10 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
 
             // DiscoverSchemas
             inputSerialization: SchemaService.defaultInputSerialization.get(defaultFileType),
-            inputSerialPending: false,
+            inputSerialConfigState: {
+                configWIP: SchemaService.defaultInputSerialization.get(defaultFileType),
+                errorFields: new Set()
+            },
 
             // CreateTable
             tableToCreate: new Map(), // Map<schemaName, tableName>, store a table name for user to update
@@ -756,7 +762,10 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             });
         }
         this.setState({
-            inputSerialPending: false
+            inputSerialConfigState: {
+                configWIP: inputSerialization,
+                errorFields: new Set()
+            }
         });
         return inputSerialization;
     }
@@ -826,7 +835,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         this._resetCreateTable();
     }
 
-    _setParserType(newType, isUpdatePreview = true) {
+    async _setParserType(newType, isUpdatePreview = true) {
         if (newType === this.state.fileType) {
             return this.state.inputSerialization;
         }
@@ -837,9 +846,10 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             const { fileSelectState } = this.state;
             const { fileSelected } = fileSelectState;
             if (fileSelected != null) {
-                this._fetchFileContent({
+                await this._fetchFileContent({
                     filePath: fileSelected.fullPath,
-                    inputSerialization: inputSerialization
+                    inputSerialization: inputSerialization,
+                    isPopulateError: true
                 });
             }
         }
@@ -853,21 +863,47 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         this._resetCreateTable();
     }
 
-    _setInputSerialization(newOption) {
+    async _applyInputSerialConfig() {
+        const { inputSerialConfigState, inputSerialization, fileType } = this.state;
+        const { configWIP: newConfig } = inputSerialConfigState;
+
+        if (fileType != SchemaService.FileType.CSV) {
+            return;
+        }
+        if (isEqual(inputSerialConfigState.configWIP.CSV, inputSerialization.CSV)) {
+            return;
+        }
         this.setState({
-            inputSerialization: newOption,
-            inputSerialPending: false
+            inputSerialization: newConfig
         });
         this._resetDiscoverResult();
 
         const { fileSelectState } = this.state;
         const { fileSelected } = fileSelectState;
         if (fileSelected != null) {
-            this._fetchFileContent({
+            await this._fetchFileContent({
                 filePath: fileSelected.fullPath,
-                inputSerialization: newOption
+                inputSerialization: newConfig
             });
         }
+    }
+
+    _onInputSerialConfigChange(newOption: SchemaService.InputSerialization, errorFields?: Set<string>) {
+        const { inputSerialConfigState } = this.state;
+        const errors = errorFields == null
+            ? inputSerialConfigState.errorFields
+            : errorFields;
+        const newConfig = isEqual(newOption.CSV, inputSerialConfigState.configWIP.CSV)
+            ? inputSerialConfigState.configWIP
+            : newOption;
+
+        this.setState({
+            inputSerialConfigState: {
+                ...inputSerialConfigState,
+                configWIP: newConfig,
+                errorFields: errors
+            }
+        });
     }
 
     async _browseClose(selectedFileDir = null, fileNamePattern = '') {
@@ -914,7 +950,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
 
             // Suggest a parser/file type from file name extension
             const suggestType = SchemaService.suggestParserType(selectedFile);
-            const inputSerialization = this._setParserType(suggestType, false);
+            const inputSerialization = await this._setParserType(suggestType, false);
 
             // Create a new Load App (conceptually)
             const loadApp = await SchemaLoadService.createDiscoverApp({
@@ -1284,7 +1320,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             fileNamePattern,
             fileType,
             inputSerialization,
-            inputSerialPending,
+            inputSerialConfigState,
             currentStep,
             selectedFileDir, // Output of Browse
             fileSelectState,
@@ -1384,6 +1420,9 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             persistSchemaError = `${e}`;
         }
 
+        const hasInputSerialError = inputSerialConfigState.errorFields.size > 0;
+        const hasPendingConfig = !isEqual(inputSerialConfigState.configWIP.CSV, inputSerialization.CSV);
+
         return (
             <React.Fragment>
             <div className="loadNavBar">
@@ -1394,9 +1433,9 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                 isSelected={currentNavStep === num}
                                 desc={navBarStepNameMap[num]}
                                 isSelectable={(num === 1) ||
-                                    (stepNumMap[currentStep] !== 1 && num <= 2) ||
-                                    (finalSchema != null)}
-                                onSelect={() => {
+                                    (stepNumMap[currentStep] !== 1 && num <= 2 && !hasInputSerialError) ||
+                                    (finalSchema != null && !hasInputSerialError && !hasPendingConfig)}
+                                onSelect={async () => {
                                     if (this.state.currentNavStep === num) {
                                         return;
                                     }
@@ -1406,6 +1445,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                     if (num === 1) {
                                         this._changeStep(StepEnum.SchemaDiscovery);
                                     } else if (num === 2) {
+                                        this._applyInputSerialConfig();
                                         this._changeStep(StepEnum.SchemaDiscovery);
                                         this.setState({
                                             schemaDetailState: {
@@ -1478,10 +1518,20 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                             <DiscoverSchemas
                                 selectedFileDir={selectedFileDir}
                                 parserType={fileType}
-                                onParserTypeChange={(newType) => { this._setParserType(newType); }}
-                                inputSerialization={this.state.inputSerialization}
-                                onInputSerialChange={(newConfig) => { this._setInputSerialization(newConfig); }}
-                                onInputSerialPending={(isPending) => { this.setState({ inputSerialPending: isPending }); }}
+                                onParserTypeChange={async (newType) => {
+                                    try {
+                                        await this._setParserType(newType);
+                                    } catch(e) {
+                                        this._alert({
+                                            title: 'Parse File Error',
+                                            message: `${e.error || e.message || e}`
+                                        });
+                                    }
+                                }}
+                                inputSerialConfigProps={{
+                                    ...inputSerialConfigState,
+                                    onConfigChange: this._onInputSerialConfigChange.bind(this)
+                                }}
                                 fileSelectProps={{
                                     ...fileSelectState,
                                     onSelect: (file) => {
@@ -1583,15 +1633,16 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                 <NavButtons
                                     right={{
                                         label: "Next",
-                                        disabled: stepNumMap[currentStep] === 1 || inputSerialPending || numRecordsInFile == 0,
+                                        disabled: stepNumMap[currentStep] === 1 || hasInputSerialError || numRecordsInFile == 0,
                                         tooltip: stepNumMap[currentStep] === 1
                                             ? (fileContentState.error == null
                                                 ? "Select a file first" // No file selected
                                                 : "Select an eligible file first") // Fail sampling the file
-                                            : (inputSerialPending
+                                            : (hasInputSerialError
                                                 ? "Finish your configuration first"
                                                 : (numRecordsInFile == 0 ? "Select an eligible file first" : "")),
                                         onClick: () => {
+                                            this._applyInputSerialConfig();
                                             this.setState({
                                                 currentNavStep: 2
                                             });
@@ -1678,6 +1729,28 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             </React.Fragment>
         );
     }
+}
+
+// Shallow compare 2 objects
+function isEqual(c1, c2) {
+    if (c1 === c2) {
+        return true;
+    }
+
+    if (c1 == null || c2 == null) {
+        return false;
+    }
+
+    if (Object.keys(c1).length !== Object.keys(c2).length) {
+        return false;
+    }
+
+    for (const [key, value] of Object.entries(c2)) {
+        if (c1[key] !== value) {
+            return false;
+        }
+    }
+    return true;
 }
 
 export { LoadConfig, StepEnum as stepEnum };

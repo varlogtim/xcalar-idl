@@ -18,18 +18,16 @@ class DiscoverSchemas extends React.Component {
     render() {
         const {
             parserType,
-            inputSerialization,
             fileSelectProps,
             fileContentProps,
             selectedSchema,
             editSchemaProps,
-            onInputSerialChange,
-            onInputSerialPending,
+            inputSerialConfigProps,
             onParserTypeChange,
             selectedFileDir
         } = this.props;
 
-        const needConfig = SchemaService.InputSerializationFactory.getFileType(inputSerialization).has(SchemaService.FileType.CSV);
+        const needConfig = SchemaService.InputSerializationFactory.getFileType(inputSerialConfigProps.configWIP).has(SchemaService.FileType.CSV);
         const ParserType = SchemaService.FileType;
 
         const commonOptions = (
@@ -54,12 +52,8 @@ class DiscoverSchemas extends React.Component {
 
         const csvOptions = needConfig && (
             <SourceCSVArgSection
+                {...inputSerialConfigProps}
                 classNames={['advOption-group-sub']}
-                config={inputSerialization}
-                onConfigChange={(newConfig) => {
-                    onInputSerialChange(newConfig);
-                }}
-                onConfigPending={onInputSerialPending}
             />
         );
 
