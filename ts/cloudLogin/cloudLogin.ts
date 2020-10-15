@@ -1071,6 +1071,24 @@ namespace CloudLogin {
                 checkConfirmForgotPasswordForm();
             }
         });
+
+        $("body").tooltip(<any>{
+            "selector": '[data-toggle="tooltip"]',
+            "html": true,
+            "delay": {
+                "show": 250,
+                "hide": 100
+            }
+        });
+
+        $("#userGuide").click(function() {
+            var win: Window = window.open('https://xcalar.com/documentation/Content/Home_doc_portal.htm', '_blank');
+            if (win) {
+                win.focus();
+            } else {
+                alert('Please allow popups for this website');
+            }
+        });
     }
     /* Unit Test Only */
     if (window["unitTestMode"]) {
