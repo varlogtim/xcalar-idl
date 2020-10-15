@@ -27,6 +27,10 @@ class LogoutModal {
         });
     }
 
+    /**
+     * LogoutModal.Instance.show
+     * @param clusterShutDown
+     */
     public show(clusterShutDown?: boolean): void {
         this._reset();
         if (clusterShutDown) {
@@ -46,12 +50,13 @@ class LogoutModal {
         });
 
         $modal.on("click", ".confirm", () => {
-            if ($modal.find(".shutDown").hasClass("active")) {
-                this._stopCluster();
-            } else {
-                XcUser.CurrentUser.logout();
-                this._close();
-            }
+            this._stopCluster();
+            // if ($modal.find(".shutDown").hasClass("active")) {
+            //     this._stopCluster();
+            // } else {
+            //     XcUser.CurrentUser.logout();
+            //     this._close();
+            // }
         });
 
         $modal.on("click", ".radioButton", function() {

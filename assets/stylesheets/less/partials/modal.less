@@ -1621,6 +1621,7 @@ html.microsoft {
     @h: 294px;
     @h-without-main: @modal-header-h + @modal-bottom-h;
     .size(@height: @h, @min-height: @h);
+    z-index: @z-index-locked + 4;
 
     &.clusterStop {
         .clusterStopProgress {
@@ -1663,6 +1664,12 @@ html.microsoft {
     .modalMain {
         height: ~"calc(100% - @{h-without-main})";
         font-weight: 500;
+        
+        .shutdownWarn {
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
     }
     .radioButtonGroup {
         flex-direction: column;

@@ -551,19 +551,24 @@ namespace Alert {
             const $logoutBtn: JQuery = supportButton(null);
             const $supportBtn: JQuery = supportButton("support");
             let $adminBtn: JQuery = $();
+            let $resetBtn: JQuery = $();
 
             if (Admin.hasSetup() && Admin.isAdmin()) {
                 $adminBtn = supportButton("admin");
             }
 
+            if (XVM.isCloud()) {
+                $resetBtn = supportButton('reset');
+            }
+
             if (options.expired) {
                 $btnSection.prepend($adminBtn, $logoutBtn);
             } else if (options.logout) {
-                $btnSection.prepend($adminBtn, $logoutBtn, $downloadLogBtn, $supportBtn);
+                $btnSection.prepend($adminBtn, $logoutBtn, $downloadLogBtn, $resetBtn, $supportBtn);
             } else if (options.noLogout) {
-                $btnSection.prepend($adminBtn, $downloadLogBtn, $supportBtn);
+                $btnSection.prepend($adminBtn, $downloadLogBtn, $resetBtn, $supportBtn);
             } else {
-                $btnSection.prepend($adminBtn, $downloadLogBtn, $logoutBtn, $supportBtn);
+                $btnSection.prepend($adminBtn, $downloadLogBtn, $resetBtn, $logoutBtn, $supportBtn);
             }
         }
 
@@ -647,6 +652,15 @@ namespace Alert {
                 $btn.click(function() {
                     Alert.forceClose();
                     Admin.showModal(true);
+                });
+                break;
+            case 'reset':
+                html = '<button type="button" class="btn btn-secondary support reset">' +
+                            CommonTxtTstr.Reset +
+                        '</button>';
+                $btn = $(html);
+                $btn.click(function() {
+                    LogoutModal.Instance.show();
                 });
                 break;
             default:

@@ -189,6 +189,7 @@ CommonTxtTstr = {
     'Refresh': 'Refresh',
     'Rename': 'Rename',
     'Retry': 'Retry',
+    'Reset': 'Reset',
     'RevertDefaultVal': 'Revert to default value',
     'rows': 'rows',
     'Rows': 'Rows',
