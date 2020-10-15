@@ -1118,8 +1118,7 @@ module.exports = {
     },
 
     "opsView": {
-        "mapInstr": "Applies one or multiple conditions on column values.",
-        "mapInstrTip": "Applies one or more functions on column values and creates a new column from the results in the resultant table.",
+        "mapInstr": "A Scalar Function is a generic function that changes the state of a database. It takes data from tables, applies one or multiple conditions, and outputs the resultant data in new tables.",
         "filterInstr": "Selects values within one or multiple columns based on a condition.",
         "filterInstrTip": "From the Filter Function list, select a function, such as isBoolean, and then if applicable add additional conditions. NOTE: Column names must be prefixed by a $ sign, such as $column1.",
         "groupbyInstr": "Arranges identical data into groups using an aggregate function.",
