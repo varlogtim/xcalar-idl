@@ -737,7 +737,6 @@
     "StatusUnionTypeMismatch" : 735,
     "StatusUnionDhtMismatch" : 736,
     "StatusAppInProgress" : 737,
-    "StatusMaxColumnsFound" : 738,
-    "StatusMemPoolBufSizeExceeded" : 739
+    "StatusMaxColumnsFound" : 738
 }
 
