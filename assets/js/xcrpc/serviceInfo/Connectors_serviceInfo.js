@@ -10,8 +10,9 @@
 //
 
 const _serviceInfo = {
-    "File" : {
-        "Remove" : ["xcalar.compute.localtypes.File.RemoveRequest", "google.protobuf.Empty"],
+    "Connectors" : {
+        "ListFiles" : ["xcalar.compute.localtypes.Connectors.ListFilesRequest", "xcalar.compute.localtypes.Connectors.ListFilesResponse"],
+        "RemoveFile" : ["xcalar.compute.localtypes.Connectors.RemoveFileRequest", "google.protobuf.Empty"],
     },
 };
 

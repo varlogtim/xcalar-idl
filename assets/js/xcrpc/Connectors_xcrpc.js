@@ -12,15 +12,15 @@
 var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
+var connectors = require("./xcalar/compute/localtypes/Connectors_pb");
 var proto_empty = require("google-protobuf/google/protobuf/empty_pb");
-var file = require("./xcalar/compute/localtypes/File_pb");
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructors
 ////////////////////////////////////////////////////////////////////////////////
 
-function FileService(client) {
+function ConnectorsService(client) {
     this.client = client;
 }
 
@@ -28,17 +28,35 @@ function FileService(client) {
 // Definitions
 ////////////////////////////////////////////////////////////////////////////////
 
-FileService.prototype = {
-    remove: async function(removeRequest) {
+ConnectorsService.prototype = {
+    listFiles: async function(listFilesRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
         var anyWrapper = new proto.google.protobuf.Any();
-        anyWrapper.setValue(removeRequest.serializeBinary());
-        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.File.RemoveRequest");
-        //anyWrapper.pack(removeRequest.serializeBinary(), "RemoveRequest");
+        anyWrapper.setValue(listFilesRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Connectors.ListFilesRequest");
+        //anyWrapper.pack(listFilesRequest.serializeBinary(), "ListFilesRequest");
 
-        var responseData = await this.client.execute("File", "Remove", anyWrapper);
+        var responseData = await this.client.execute("Connectors", "ListFiles", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var listFilesResponse =
+        //    responseData.unpack(connectors.ListFilesResponse.deserializeBinary,
+        //                        "ListFilesResponse");
+        var listFilesResponse = connectors.ListFilesResponse.deserializeBinary(specificBytes);
+        return listFilesResponse;
+    },
+    removeFile: async function(removeFileRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(removeFileRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Connectors.RemoveFileRequest");
+        //anyWrapper.pack(removeFileRequest.serializeBinary(), "RemoveFileRequest");
+
+        var responseData = await this.client.execute("Connectors", "RemoveFile", anyWrapper);
         var specificBytes = responseData.getValue();
         // XXX Any.unpack() is only available in protobuf 3.2; see above
         //var empty =
@@ -49,4 +67,4 @@ FileService.prototype = {
     },
 };
 
-exports.FileService = FileService;
+exports.ConnectorsService = ConnectorsService;

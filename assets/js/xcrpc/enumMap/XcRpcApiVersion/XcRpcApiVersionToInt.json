@@ -2,10 +2,10 @@
     "AppVersionSignature" : 256242492,
     "CgroupVersionSignature" : 29782908,
     "ColumnAttributeVersionSignature" : 199286749,
+    "ConnectorsVersionSignature" : 149846033,
     "DagNodeVersionSignature" : 53874566,
     "DataflowVersionSignature" : 15023551,
     "EchoVersionSignature" : 3466616,
-    "FileVersionSignature" : 51153848,
     "KvStoreVersionSignature" : 141055042,
     "LicenseVersionSignature" : 237899198,
     "OperatorVersionSignature" : 40095163,
@@ -25,6 +25,6 @@
     "WorkbookVersionSignature" : 44639590,
     "logVersionSignature" : 31641366,
     "memoryVersionSignature" : 268227803,
-    "ProtoAPIVersionSignature" : 102569558
+    "ProtoAPIVersionSignature" : 38295882
 }
 
