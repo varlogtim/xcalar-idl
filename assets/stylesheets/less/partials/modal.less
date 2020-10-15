@@ -1664,7 +1664,7 @@ html.microsoft {
     .modalMain {
         height: ~"calc(100% - @{h-without-main})";
         font-weight: 500;
-        
+
         .shutdownWarn {
             height: 100%;
             display: flex;
@@ -4690,7 +4690,12 @@ html.microsoft {
             display: block;
         }
         .modalMain, .modalTopMain, .divider {
-            display: none;
+            display: none !important;
+        }
+    }
+    &.noErrors {
+        .modalMain, .modalTopMain, .divider {
+            display: none !important;
         }
     }
 

@@ -112,11 +112,10 @@ class DagUDFErrorModal {
             this._$modal.find(".expandAll").show();
         }
 
-        if (count === 0 && !this._isOptimized) {
-            this._$modal.find(".errorList").html(`<div class="noErrors">N/A</div>`);
-            this._$modal.find(".modalTopMain").hide();
+        if (count === 0) {
+            this._$modal.addClass("noErrors");
         } else {
-            this._$modal.find(".modalTopMain").show();
+            this._$modal.removeClass("noErrors");
         }
 
         function getRowHtml(err) {
