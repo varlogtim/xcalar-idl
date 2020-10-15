@@ -1,5 +1,5 @@
-import * as React from "react"; 
-import { validateSchemaString } from '../../services/SchemaService'
+import * as React from "react";
+import { validateSchemaString, getDupeColumnsInSchema, getDupeColumnsInSchemaString } from '../../services/SchemaService'
 import ColSchemaSection from "./ColSchemaSection";
 
 type EditSchemaState = {
@@ -12,6 +12,7 @@ type EditSchemaProps = {
     persistError: string,
     schema: string,
     selectedSchema: any,
+    dupeColumns: Set<string>,
     classNames: string[],
     isMappingEditable?: boolean,
     showAdd?: boolean,
@@ -35,14 +36,17 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
             onSchemaChange({
                 schema: newSchema,
                 validSchema: validSchema,
-                error: null
+                error: null,
+                dupeColumns: getDupeColumnsInSchema(validSchema)
             });
         } catch(e) {
             validSchema = null;
+
             onSchemaChange({
                 schema: newSchema,
                 validSchema: null,
-                error: e
+                error: e,
+                dupeColumns: getDupeColumnsInSchemaString(newSchema)
             });
         }
 
@@ -56,9 +60,7 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
         let newColumns = this._getColsFromSchemaString(schemaStr);
         let mappings = new Set();
         this.props.selectedSchema.columns.forEach((col) => {
-            mappings.add(col.mapping.indexOf('$.') == 0
-                ? col.mapping.substr(2)
-                : col.mapping);
+            mappings.add(trimDollarSign(col.mapping));
         });
         newColumns.forEach((col) => {
             mappings.delete(col.mapping);
@@ -76,9 +78,7 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
                 cols = [];
             }
             for (const col of cols) {
-                if (col.mapping.indexOf('$.') == 0) {
-                    col.mapping = col.mapping.substr(2);
-                }
+                col.mapping = trimDollarSign(col.mapping);
             }
         } catch (e) {
             cols = [];
@@ -100,7 +100,7 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
     }
 
     render() {
-        const { errorMessage, schema, classNames = [], showAdd = true, addColTip = '', persistError } = this.props;
+        const { errorMessage, schema, classNames = [], showAdd = true, addColTip = '', persistError, dupeColumns } = this.props;
         let switchClass = "xc-switch switch";
 
         if (this.state.editAsText) {
@@ -108,6 +108,7 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
         }
         const cssClass = ['editSchema'].concat(classNames);
         let cols = this._getColsFromSchemaString(this.props.schema);
+        const duplicatedMappings = new Set([...dupeColumns].map(trimDollarSign));
 
         const defaultSchema = this.props.selectedSchema.columns.map(({ name, type, mapping}) => ({
             name: name,
@@ -163,6 +164,7 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
                     canAdd={showAdd || this.state.unusedMappings.size > 0}
                     addColTip={addColTip}
                     isMappingEditable={this.props.isMappingEditable}
+                    dupeColumns={duplicatedMappings}
                 />
             }
             <div id="schemaSelectionModalWrapper"></div>
@@ -184,6 +186,7 @@ type EditSchemaSectionProps = {
     errorMessage: string,
     persistError: string,
     schema: any,
+    dupeColumns: Set<string>,
     selectedSchema: any,
     classNames: string[]
     showAdd?: boolean
@@ -214,6 +217,12 @@ class EditSchemaSection extends React.PureComponent<EditSchemaSectionProps, {}> 
             <EditSchema {...this.props} />
         </div>);
     }
+}
+
+function trimDollarSign(str) {
+    return str.indexOf('$.') == 0
+        ? str.substr(2)
+        : str;
 }
 
 export { EditSchemaSection };

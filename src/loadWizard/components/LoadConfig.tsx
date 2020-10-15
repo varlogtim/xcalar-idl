@@ -126,7 +126,8 @@ type LoadConfigState = {
 
     editSchemaState: {
         schema: any,
-        errorMessage: string
+        errorMessage: string,
+        dupeColumns: Set<string>
     },
     finalSchema: SchemaService.Schema,
 
@@ -220,7 +221,8 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             // Edit Schema
             editSchemaState: {
                 schema: null,
-                errorMessage: null
+                errorMessage: null,
+                dupeColumns: new Set()
             },
             finalSchema: null,
 
@@ -813,7 +815,8 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             // Edit Schema
             editSchemaState: {
                 schema: null,
-                errorMessage: null
+                errorMessage: null,
+                dupeColumns: new Set()
             },
             finalSchema: null,
 
@@ -1215,6 +1218,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                     ...editSchemaState,
                     isFocus: schema != null,
                     schema: schema == null ? null : JSON.stringify(schema),
+                    dupeColumns: SchemaService.getDupeColumnsInSchema(schema)
                 },
             }));
 
@@ -1259,11 +1263,12 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         }));
     }
 
-    _handleSchemaChange({ schema, error, validSchema }) {
+    _handleSchemaChange({ schema, error, validSchema, dupeColumns }) {
         this.setState({
             editSchemaState: {
                 schema: schema,
-                errorMessage: error
+                errorMessage: error,
+                dupeColumns: dupeColumns || this.state.editSchemaState.dupeColumns
             },
         });
         this._setFinalSchema(validSchema)
@@ -1564,7 +1569,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                     isMappingEditable: !fileTypesNotShowContent.has(fileType),
                                     showAdd: !fileTypesNotShowContent.has(fileType) || SchemaService.isHeaderlessCSV(inputSerialization),
                                     addColTip: `Columns cannot be added to ${fileType.toUpperCase()} schemas.`,
-                                    onSchemaChange: (result) => { this._handleSchemaChange(result); }
+                                    onSchemaChange: this._handleSchemaChange.bind(this)
                                 }}
                                 selectedSchema={selectedSchema}
                             />

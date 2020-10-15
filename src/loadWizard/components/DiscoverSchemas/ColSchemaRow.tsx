@@ -6,13 +6,15 @@ type ColSchemaRowProps = {
     defaultSchema: any,
     onInputChange: Function,
     onRemoveRow: any,
-    isMappingEditable?: boolean
+    isMappingEditable?: boolean,
+    isDuplicated?: boolean
 }
 
 function ColSchemaRow(props: ColSchemaRowProps) {
     return (
         <div className="row">
             <div className="mapping">
+                {props.isDuplicated && <DupeColumnIcon />}
                 {props.isMappingEditable ?
                     <input className="xc-input" value={props.rowInfo.mapping} spellCheck={false} onChange={(e) => {
                         props.onInputChange(e.target.value, "mapping");
@@ -31,7 +33,6 @@ function ColSchemaRow(props: ColSchemaRowProps) {
                         readOnly
                     />
                 }
-
             </div>
             <InputDropdown
                 val={props.rowInfo.type.slice(2)}
@@ -63,6 +64,16 @@ function ColSchemaRow(props: ColSchemaRowProps) {
             <i className="remove icon xi-load-delete xc-action-icon" onClick={props.onRemoveRow}></i>
         </div>
     );
+}
+
+function DupeColumnIcon() {
+    return (<i
+        className="icon xi-info-circle-outline inputIcon"
+        data-toggle="tooltip"
+        data-container="body"
+        data-title="Multiple data types detected"
+        data-placement="auto top"
+    ></i>);
 }
 
 export default ColSchemaRow;

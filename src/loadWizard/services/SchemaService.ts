@@ -174,14 +174,50 @@ function assert(boolVal: boolean, genEx: () => string) {
     }
 }
 
-function validateSchema(jsonSchema: {
+type JsonSchema = {
     rowpath?: string,
     columns?: Array<{
         name?: string,
         type?: string,
         mapping?: string
     }>
-}): void {
+};
+
+// Find out all the duplicated mappings with different type
+// Ex. {mapping: "a", type: "string"} & {mapping: "b", type: "number"}
+function getDupeColumnsInSchema(jsonSchema: JsonSchema): Set<string> {
+    const dupeMappings = new Set<string>();
+    const seen = new Map<string, string>();
+    try {
+        for (const { mapping, type } of jsonSchema.columns) {
+            if (dupeMappings.has(mapping)) {
+                continue;
+            }
+
+            const oneType = seen.get(mapping);
+            if (oneType == null) {
+                seen.set(mapping, type);
+            } else {
+                if (oneType != type) {
+                    dupeMappings.add(mapping);
+                }
+            }
+        }
+    } catch(e) {
+        // Ignore error: this could happend if it's not a valid schema structure
+    }
+    return dupeMappings;
+}
+
+function getDupeColumnsInSchemaString(strSchema: string) {
+    try {
+        return getDupeColumnsInSchema(JSON.parse(strSchema));
+    } catch(_) {
+        return new Set<string>();
+    }
+}
+
+function validateSchema(jsonSchema: JsonSchema): void {
     const { rowpath, columns } = jsonSchema || {};
 
     // Need rowpath
@@ -249,5 +285,6 @@ export {
     CSVHeaderOption,
     suggestParserType,
     validateSchemaString, validateSchema,
+    getDupeColumnsInSchemaString, getDupeColumnsInSchema,
     unionSchemas
 };

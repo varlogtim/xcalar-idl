@@ -7,11 +7,14 @@ type ColSchemaSectionProps = {
     updateSchema: Function,
     canAdd?: boolean,
     addColTip?: string,
-    isMappingEditable?: boolean
+    isMappingEditable?: boolean,
+    dupeColumns: Set<string>
 }
 class ColSchemaSection extends React.Component<ColSchemaSectionProps, {}> {
 
     render() {
+        const { dupeColumns = new Set() } = this.props;
+
         let addColClass = "addCol xc-action";
         let addColTip = ""
         if (!this.props.canAdd) {
@@ -27,6 +30,7 @@ class ColSchemaSection extends React.Component<ColSchemaSectionProps, {}> {
                     <i></i>
                 </div>
                 {this.props.editedSchema.map((row, i) => {
+                    const isDuplicated = dupeColumns.has(row.mapping);
                     return (
                         <ColSchemaRow key={i}
                             rowInfo={row}
@@ -42,6 +46,7 @@ class ColSchemaSection extends React.Component<ColSchemaSectionProps, {}> {
                                 this.props.updateSchema(schema);
                             }}
                             isMappingEditable={this.props.isMappingEditable}
+                            isDuplicated={isDuplicated}
                         />);
                 })}
                 <div className={addColClass} data-toggle="tooltip" data-container="body"
