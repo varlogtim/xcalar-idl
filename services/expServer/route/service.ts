@@ -1,7 +1,8 @@
 import { Router } from "express";
 export const router = Router();
-import serviceManager from "../controllers/serviceManager"
-import cloudManager from "../controllers/cloudManager"
+import serviceManager from "../controllers/serviceManager";
+import cloudManager from "../controllers/cloudManager";
+import socket from "../controllers/socket";
 import support from "../utils/expServerSupport";
 import * as xcConsole from "../utils/expServerXcConsole";
 import { httpStatus } from "../../../assets/js/httpStatus";
@@ -11,7 +12,7 @@ import UserActivityManager from "../controllers/userActivityManager";
 import { XceClient, VersionService } from "xcalar";
 import request = require("request-promise-native");
 import * as net from "net";
-import { getExpServerPort, getThriftPort, getJupyterPort } from "../expServer"
+import { getExpServerPort, getThriftPort } from "../expServer"
 
 // Start of service calls
 // Master request
@@ -392,6 +393,12 @@ router.get("/service/healthCheckSqldf", async (_req, res) => {
         var errMessage = { "service": "jupyter", "status": "down", "error": error.message };
         res.status(httpStatus.InternalServerError).json(errMessage);
     }
+});
 
+// check https://xcalar.atlassian.net/wiki/spaces/EN/pages/699400256/Notification+API
+// for api spec
+router.post("/service/notification", [support.checkAuth], (req, res) => {
+    socket.sendNotification(req.body);
+    res.status(httpStatus.OK).send();
 });
 // End of service calls

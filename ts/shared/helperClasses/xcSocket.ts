@@ -33,6 +33,7 @@ class XcSocket {
         this._addAuthenticationEvents();
         this._addWorkbookEvents();
         this._addPublishTableEvents();
+        this._addNotificationEvent();
     }
 
     public addEventsAfterSetup(): void {
@@ -118,6 +119,68 @@ class XcSocket {
     private _registerBrowserSession() {
         this._socket.emit("registerBrowserSession", XcUser.getCurrentUserName(), () => {
             console.info("browser session registered!");
+        });
+    }
+
+    // check https://xcalar.atlassian.net/wiki/spaces/EN/pages/699400256/Notification+API
+    // for api spec
+    private _handleNotification(info: {
+        user: string,
+        sessionId: string,
+        notebookName: string,
+        type: string,
+        content: string
+    }): boolean {
+        try {
+            const { user, sessionId, notebookName, type, content } = info;
+            if (user && user !== XcUser.getCurrentUserName()) {
+                // when user not match
+                return false;
+            }
+
+            if (sessionId) {
+                const notebooks = WorkbookManager.getWorkbooks();
+                let found = false;
+                for (let name in notebooks) {
+                    const notebook = notebooks[name];
+                    if (notebook &&
+                        notebook.sessionId === sessionId &&
+                        name === WorkbookManager.getActiveWKBK()
+                    ) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    return false;
+                }
+            }
+
+            if (notebookName && notebookName !== WorkbookManager.getActiveWKBK()) {
+                // when the notebook not match
+                return false;
+            }
+
+            switch (type) {
+                default:
+                    Alert.show({
+                        title: "Notification",
+                        msg: content,
+                        isAlert: true
+                    });
+                break;
+            }
+            return true;
+        } catch (e) {
+            console.error(e);
+            return false;
+        }
+    }
+
+    private _addNotificationEvent(): void {
+        const socket = this._socket;
+        socket.on("notification", (info) => {
+            this._handleNotification(info);
         });
     }
 

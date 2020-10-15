@@ -6,7 +6,7 @@ describe("xcSocket Test", function() {
     });
 
     describe("Basic Function Test", function() {
-        it("should be a Xockset Object", function() {
+        it("should be a XcSockset Object", function() {
             expect(xcSocket).to.be.instanceOf(XcSocket);
         });
 
@@ -280,6 +280,80 @@ describe("xcSocket Test", function() {
 
         after(() => {
             xcSocket._socket = oldSocket;
+        });
+    });
+
+    describe("Handle Notification Test", function() {
+        let oldAlert;
+
+        before(() => {
+            oldAlert = Alert.show;
+            Alert.show = () => {};
+        });
+
+        it("should filter out incorrect user", () => {
+            const oldFunc = XcUser.getCurrentUserName;
+            XcUser.getCurrentUserName = () => "abc";
+            let res = xcSocket._handleNotification({ user: "efg" });
+            expect(res).to.be.false;
+
+            let res = xcSocket._handleNotification({ user: "abc" });
+            expect(res).to.be.true;
+
+            XcUser.getCurrentUserName = oldFunc;
+        });
+
+        it("should filter out incorrect sessionId", () => {
+            const oldGetWorkbooks = WorkbookManager.getWorkbooks;
+            const oldGetActiveWKBK = WorkbookManager.getActiveWKBK;
+
+            WorkbookManager.getActiveWKBK = () => "abc";
+
+            WorkbookManager.getWorkbooks = () => {
+                return {
+                    "abc": {
+                        sessionId: "testSession"
+                    }
+                }
+            };
+            let res = xcSocket._handleNotification({ sessionId: "wrongSession" });
+            expect(res).to.be.false;
+
+            let res = xcSocket._handleNotification({ sessionId: "testSession" });
+            expect(res).to.be.true;
+
+            WorkbookManager.getWorkbooks = oldGetWorkbooks;
+            WorkbookManager.getActiveWKBK = oldGetActiveWKBK;
+        });
+
+        it("should filter out incorrect notebookName", () => {
+            const oldGetActiveWKBK = WorkbookManager.getActiveWKBK;
+
+            WorkbookManager.getActiveWKBK = () => "abc";
+
+            let res = xcSocket._handleNotification({ notebookName: "efg" });
+            expect(res).to.be.false;
+
+            let res = xcSocket._handleNotification({ notebookName: "abc" });
+            expect(res).to.be.true;
+
+            WorkbookManager.getActiveWKBK = oldGetActiveWKBK;
+        });
+
+        it("should alert correctly", () => {
+            const oldFunc = Alert.show;
+            Alert.show = (info) => {
+                expect(info.msg).to.equal("abc");
+            }
+
+            let res = xcSocket._handleNotification({ content: "abc" });
+            expect(res).to.be.true;
+
+            Alert.show = oldFunc;
+        });
+
+        after(() => {
+            Alert.show = oldAlert;
         });
     });
 });

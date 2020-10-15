@@ -11,7 +11,6 @@ type ModalState = {
 export default class SQLEditorShortcutsModal extends React.Component<any, ModalState> {
     constructor(props) {
         super(props);
-        console.log(props);
         this.state = {
             show: false
         };

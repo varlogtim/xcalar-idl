@@ -9,16 +9,6 @@ interface User {
     id: string
 }
 
-interface DSInfo {
-    id: number,
-    lock: any
-}
-
-interface DSEvent {
-    id: number;
-    event: string
-}
-
 class SocketUtil {
     private static _instance = null;
     public static get getInstance(): SocketUtil {
@@ -357,6 +347,11 @@ class SocketUtil {
     public sendConsoleMsg(args) {
         if (!this._ioSockets) return;
         this._ioSockets.emit("consoleMsg", args);
+    }
+
+    public sendNotification(body) {
+        if (!this._ioSockets) return;
+        this._ioSockets.emit("notification", body);
     }
 }
 
