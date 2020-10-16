@@ -15,7 +15,7 @@ class UserSettings {
     private logOutIntervalSlider;
     private revertedToDefault = false;
     private modalHelper: ModalHelper;
-    private _dfSettings: {name: string, text: string}[];
+    private _dfSettings: {name: string, text: string, type?: string}[];
 
 
     // oldUserInfos/userInfos contains settings such as if the user last had
@@ -404,6 +404,29 @@ class UserSettings {
             .find(".checkbox").toggleClass("checked");
         });
 
+        $modal.find(".dfSettings").on("change", ".dfSettingInput", (event) => {
+            let $input = $(event.currentTarget);
+            let val = $input.val().trim();
+            let name = $input.data("name");
+            switch (name) {
+                case ("dfPreviewLimit"):
+                    if (!val || isNaN(val)) {
+                        $input.val($input.data("prevval"))
+                    } else {
+                        val = parseInt(val);
+                        if (val < 1) {
+                            val = 1;
+                        }
+                        $input.val(val);
+                        $input.data("prevval", val);
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+        });
+
         $modal.find(".leftSection .tab").on("click", (event) => {
             const $tab = $(event.target)
             let action = $tab.data("action");
@@ -460,27 +483,34 @@ class UserSettings {
 
     private _initDFSettings() {
         this._dfSettings = [{
-            name: "dfAutoExecute",
-            text: DFTStr.AutoExecute
-        }, {
-            name: "dfAutoPreview",
-            text: DFTStr.AutoPreview
-        }, {
-            name: "dfProgressTips",
-            text: DFTStr.ShowProgressTips
-        }, {
-            name: "dfLabel",
-            text: DFTStr.ShowLabels
-        }, {
-            name: "dfConfigInfo",
-            text: DFTStr.ShowConfigInfo
-        }, {
-            name: "dfTableName",
-            text: DFTStr.ShowTableName
-        }, {
-            name: "dfPinOperatorBar",
-            text: DFTStr.PinOperatorBar
-        }];
+                name: "dfAutoExecute",
+                text: DFTStr.AutoExecute
+            }, {
+                name: "dfAutoPreview",
+                text: DFTStr.AutoPreview
+            }, {
+                name: "dfProgressTips",
+                text: DFTStr.ShowProgressTips
+            }, {
+                name: "dfLabel",
+                text: DFTStr.ShowLabels
+            }, {
+                name: "dfConfigInfo",
+                text: DFTStr.ShowConfigInfo
+            }, {
+                name: "dfTableName",
+                text: DFTStr.ShowTableName
+            }, {
+                name: "dfPinOperatorBar",
+                text: DFTStr.PinOperatorBar
+            },
+            {
+                name: "dfPreviewLimit",
+                text: DFTStr.PreviewLimit,
+                type: "numberInput",
+                tip: "The preview limit is the number of rows that will be sampled when previewing an operator's result during editing."
+            }
+        ];
     }
 
     private _saveDFSettings() {
@@ -491,7 +521,12 @@ class UserSettings {
         const $rows: JQuery = $modal.find(".dfSettings .row");
         this._dfSettings.forEach((setting, index) => {
             const name: string = setting.name;
-            const val: boolean = $rows.eq(index).find(".checkbox").hasClass("checked");
+            let val;
+            if (setting.type === "numberInput") {
+                val = $rows.eq(index).find("input").data("prevval");
+            } else {
+                val = $rows.eq(index).find(".checkbox").hasClass("checked");
+            }
             this.setPref(name, val, false);
             switch(name) {
                 case ("dfProgressTips"):
@@ -520,17 +555,27 @@ class UserSettings {
         this._getModal().find(".dfSettings .content").html(html);
     }
 
-    private _renderRowFromSetting(setting: {name: string, text: string}): string {
+    private _renderRowFromSetting(setting: {name: string, text: string, type?: string}): string {
         const name: string = setting.name;
-        const pref: boolean = this.getPref(name) || false;
-        let html: HTML =
-            '<div class="row ' + name + ' checkboxSection">' +
-                '<div class="checkbox' + (pref ? ' checked' : '') + '">' +
+        let pref: any = this.getPref(name) || false;
+        let html: HTML = "";
+        if (setting.type === "numberInput") {
+            pref = pref || "";
+            html = '<div class="optionSet row ' + name + ' checkboxSection">' +
+                '<div class="label">' + setting.text + ':</div>' +
+                '<div class="optionSelector inline">' +
+                    '<input data-name="' + name + '" data-prevval="' + pref + '" type="number" class="xc-input dfSettingInput" value="' + pref + '" />' +
+                '</div>' +
+            '</div>';
+        } else {
+            html ='<div  class="row ' + name + ' checkboxSection">' +
+                '<div data-name="' + name + '" class="checkbox' + (pref ? ' checked' : '') + '">' +
                     '<i class="icon xi-ckbox-empty"></i>' +
                     '<i class="icon xi-ckbox-selected"></i>' +
                 '</div>' +
                 '<div class="text">' + setting.text + '</div>' +
             '</div>';
+        }
         return html;
     }
 }

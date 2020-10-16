@@ -200,7 +200,7 @@ class BaseOpPanel {
     protected _mainModel;
     protected _dataModel: BaseOpPanelModel;
     protected _tab: DagTabUser;
-    protected _clonedNode = null;
+    protected _previewNodes: DagNode[] = [];
     protected _previewInProgress: boolean = false;
 
     protected constructor() {
@@ -326,21 +326,25 @@ class BaseOpPanel {
         this.aggMap = {};
         DagConfigNodeModal.Instance.close();
 
-        if (this._clonedNode) {
+        if (this._previewNodes.length) {
             if (this._previewInProgress) {
                 this._tab.getGraph().cancelExecute();
             }
-            const table = this._clonedNode.getTable();
             const graph = this._tab.getGraph();
-            if (this._clonedNode instanceof DagNodeAggregate) {
-                const aggName = this._clonedNode.getAggName();
-                graph.removeNode(this._clonedNode.getId());
-                DagAggManager.Instance.bulkNodeRemoval([aggName]);
-            } else {
-                graph.removeNode(this._clonedNode.getId());
-            }
+            let table;
+            this._previewNodes.forEach((previewNode) => {
+                table = previewNode.getTable();
+                if (previewNode instanceof DagNodeAggregate) {
+                    const aggName = previewNode.getAggName();
+                    graph.removeNode(previewNode.getId());
+                    DagAggManager.Instance.bulkNodeRemoval([aggName]);
+                } else {
+                    graph.removeNode(previewNode.getId());
+                }
+            });
+
             TableTabManager.Instance.deleteTab(table);
-            this._clonedNode = null;
+            this._previewNodes = [];
         }
         this._tab = null;
 
@@ -763,32 +767,57 @@ class BaseOpPanel {
 
     protected _preview(param, callback?: Function) {
         const graph = this._tab.getGraph();
-        if (this._clonedNode) {
-            const table = this._clonedNode.getTable();
-            graph.removeNode(this._clonedNode.getId());
+        if (this._previewNodes.length) {
+            let table;
+            this._previewNodes.forEach(previewNode => {
+                table = previewNode.getTable();
+                graph.removeNode(previewNode.getId());
+            });
             TableTabManager.Instance.deleteTab(table);
+            this._previewNodes = [];
         }
 
         const nodeInfo = this._dagNode.getNodeCopyInfo(true, false, true);
         delete nodeInfo.id;
         nodeInfo.isHidden = true;
-        this._clonedNode = graph.newNode(nodeInfo);
+        const lastNode = graph.newNode(nodeInfo);
 
+        let rowNumName =  "XC_ROW_COL_" + Date.now();
+        let rowNumNode = graph.newNode({
+            type: DagNodeType.RowNum,
+            input: {
+                newField: rowNumName
+            },
+            isHidden: true,
+            state: DagNodeState.Configured
+        });
+        let filterNode = graph.newNode({
+            type: DagNodeType.Filter,
+            input: {
+                evalString: `le(${rowNumName}, ${UserSettings.Instance.getPref("dfPreviewLimit")})`
+            },
+            isHidden: true,
+            state: DagNodeState.Configured
+        });
         this._dagNode.getParents().forEach((parent, index) => {
             if (!parent) return;
-            graph.connect(parent.getId(), this._clonedNode.getId(), index, false, false);
+            graph.connect(parent.getId(), rowNumNode.getId(), index, false, false);
         });
+        graph.connect(rowNumNode.getId(), filterNode.getId(), 0, false, false);
+        graph.connect(filterNode.getId(), lastNode.getId(), 0, false, false);
+        this._previewNodes = [rowNumNode, filterNode, lastNode];
+
         param.outputTableName = "xcPreview";
-        this._clonedNode.setParam(param, true);
+        lastNode.setParam(param, true);
         if (callback) {
-            callback(this._clonedNode);
+            callback(lastNode);
         }
         const dagView = DagViewManager.Instance.getDagViewById(this._tab.getId());
         this._lockPreview();
-        dagView.run([this._clonedNode.getId()])
+        dagView.run([lastNode.getId()])
         .then(() => {
             if (!UserSettings.Instance.getPref("dfAutoPreview")) {
-                DagViewManager.Instance.viewResult(this._clonedNode, this._tab.getId());
+                DagViewManager.Instance.viewResult(lastNode, this._tab.getId());
             }
         })
         .always(() => {

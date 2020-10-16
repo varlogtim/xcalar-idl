@@ -5,7 +5,11 @@
         </button>
     </div>
     <div class="btnWrap previewBtnWrap">
-        <button class="btn btn-secondary btn-submit btn-rounded preview">
+        <button class="btn btn-secondary btn-submit btn-rounded preview"
+        data-toggle="tooltip"
+        data-container="body"
+        data-placement="auto top"
+        data-title="<%= dicts.common.PreviewLimitTip %>">
             <%= dicts.common.Preview %>
         </button>
     </div>

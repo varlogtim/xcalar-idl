@@ -1267,52 +1267,8 @@ class GeneralOpPanel extends BaseOpPanel {
     }
 
     protected _preview() {
-        if (!this._validate(true)) {
-            return false;
-        }
-        const graph = this._tab.getGraph();
-        if (this._clonedNode) {
-            const table = this._clonedNode.getTable();
-            if (this._clonedNode instanceof DagNodeAggregate) {
-                const aggName = this._clonedNode.getAggName();
-                graph.removeNode(this._clonedNode.getId());
-                DagAggManager.Instance.bulkNodeRemoval([aggName]);
-            } else {
-                graph.removeNode(this._clonedNode.getId());
-            }
-            TableTabManager.Instance.deleteTab(table);
-        }
-
-        const nodeInfo = this._dagNode.getNodeCopyInfo(true, false, true);
-        delete nodeInfo.id;
-        nodeInfo.isHidden = true;
-        this._clonedNode = graph.newNode(nodeInfo);
-
-        this._dagNode.getParents().forEach((parent, index) => {
-            if (!parent) return;
-            graph.connect(parent.getId(), this._clonedNode.getId(), index, false, false);
-        });
-        const param = this.model.getParam();
-        param.outputTableName = "xcPreview";
-        this._clonedNode.setParam(param, true);
-        const dagView = DagViewManager.Instance.getDagViewById(this._tab.getId());
-        this._lockPreview();
-        dagView.run([this._clonedNode.getId()])
-        .then(() => {
-            if (!UserSettings.Instance.getPref("dfAutoPreview")) {
-                DagViewManager.Instance.viewResult(this._clonedNode, this._tab.getId());
-            }
-        })
-        .always(() => {
-            this._unlockPreview();
-            if (this._clonedNode instanceof DagNodeAggregate) {
-                const aggName = this._clonedNode.getAggName();
-                graph.removeNode(this._clonedNode.getId());
-                DagAggManager.Instance.bulkNodeRemoval([aggName]);
-                this._clonedNode = null;
-            }
-        });
-        return true;
+        if (!this._validate(true)) return;
+        super._preview(this.model.getParam());
     }
 
     protected _validate(_isSubmit?: boolean): boolean {

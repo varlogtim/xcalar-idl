@@ -925,27 +925,36 @@ class SQLOpPanel extends BaseOpPanel {
                 return;
             }
 
-            const sql = this._queryStr.replace(/;+$/, "");
+            let sql = this._queryStr.replace(/;+$/, "");
+            if (!sql.toUpperCase().includes("LIMIT")) {
+                sql += ` LIMIT ${UserSettings.Instance.getPref("dfPreviewLimit")}`;
+            }
 
             const queryId = xcHelper.randName("sql", 8);
             try {
                 const graph = this._tab.getGraph();
-                if (this._clonedNode) {
-                    const table = this._clonedNode.getTable();
-                    graph.removeNode(this._clonedNode.getId());
+                if (this._previewNodes.length) {
+                    let table;
+                    this._previewNodes.forEach(previewNode => {
+                        table = previewNode.getTable();
+                        graph.removeNode(previewNode.getId());
+                    });
                     TableTabManager.Instance.deleteTab(table);
+                    this._previewNodes = [];
                 }
 
                 const nodeInfo = this._dagNode.getNodeCopyInfo(true, false, true);
                 delete nodeInfo.id;
                 nodeInfo.isHidden = true;
-                this._clonedNode = graph.newNode(nodeInfo);
+                const lastNode: DagNodeSQL = graph.newNode(nodeInfo);
 
                 this.noUpdate = true;
                 this._dagNode.getParents().forEach((parent, index) => {
                     if (!parent) return;
-                    graph.connect(parent.getId(), this._clonedNode.getId(), index, false, false);
+                    graph.connect(parent.getId(), lastNode.getId(), index, false, false);
                 });
+
+                this._previewNodes = [lastNode];
                 this.noUpdate = false;
 
                 this._lockPreview();
@@ -954,10 +963,11 @@ class SQLOpPanel extends BaseOpPanel {
                     dropAsYouGo: true,
                     sourceMapping: this._sourceMapping
                 };
-                this._clonedNode.compileSQL(sql, queryId, options)
+
+                lastNode.compileSQL(sql, queryId, options)
                 .then(() => {
-                    this._clonedNode.setIdentifiers(identifiers);
-                    this._clonedNode.setParam({
+                    lastNode.setIdentifiers(identifiers);
+                    lastNode.setParam({
                         sqlQueryStr: sql,
                         mapping: this._sourceMapping,
                         dropAsYouGo: true,
@@ -965,11 +975,11 @@ class SQLOpPanel extends BaseOpPanel {
                     }, true);
                     const dagView = DagViewManager.Instance.getDagViewById(this._tab.getId());
 
-                    return dagView.run([this._clonedNode.getId()])
+                    return dagView.run([lastNode.getId()])
                 })
                 .then(() => {
                     if (!UserSettings.Instance.getPref("dfAutoPreview")) {
-                        DagViewManager.Instance.viewResult(this._clonedNode, this._tab.getId());
+                        DagViewManager.Instance.viewResult(lastNode, this._tab.getId());
                     }
                 })
                 .fail((err) => {

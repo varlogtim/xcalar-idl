@@ -24,6 +24,7 @@ class UserPref extends Durable {
         this.dfTableName = (options.dfTableName == null) ? true : options.dfTableName;
         this.dfLabel = (options.dfLabel == null) ? true : options.dfLabel;
         this.dfPinOperatorBar = (options.dfPinOperatorBar == null) ? false : options.dfPinOperatorBar;
+        this.dfPreviewLimit = (options.dfPreviewLimit == null) ? 1000 : options.dfPreviewLimit;
     }
 
     // not used

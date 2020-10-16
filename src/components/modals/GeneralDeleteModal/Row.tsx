@@ -27,7 +27,7 @@ const Row = (props: Props) => {
         ? <i className="lockIcon icon xi-lockwithkeyhole"
             data-toggle="tooltip"
             data-container={container}
-            data-placement="top"
+            data-placement="auto top"
             data-title={TooltipTStr.LockedTable}>
         </i>
         : <Checkbox checked={checked} onClick={onClick}/>

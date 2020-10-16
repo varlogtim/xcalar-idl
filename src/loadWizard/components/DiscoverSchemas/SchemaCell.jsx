@@ -83,7 +83,7 @@ function Warning({
             <button
                 className="schemaBtn btn btn-secondary"
                 data-toggle="tooltip"
-                data-placement="top"
+                data-placement="auto top"
                 data-container="body"
                 data-original-title="click to view schema"
                 onClick={() => { onClick(); }}
@@ -105,7 +105,7 @@ function Schema({
         <button
             className="schemaBtn btn btn-secondary"
             data-toggle="tooltip"
-            data-placement="top"
+            data-placement="auto top"
             data-container="body"
             data-original-title="click to view schema"
             onClick={() => { onClick(); }}

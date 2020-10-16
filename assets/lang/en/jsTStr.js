@@ -1065,6 +1065,7 @@ DFTStr = {
     "TBModules": "Modules",
     "CloseModule": "Close",
     "CannotEditOperator": "This operator is not editable",
+    "PreviewLimit": "Preview Limit",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     "ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized.",

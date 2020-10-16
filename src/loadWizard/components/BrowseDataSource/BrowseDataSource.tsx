@@ -419,7 +419,7 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
                     <div className="flexContainer">
                         <i className={upFolderClass}
                             data-toggle="tooltip"
-                            data-placement="top"
+                            data-placement="auto top"
                             data-container="body"
                             data-original-title="Go to parent directory"
                             onClick={() => {

@@ -555,4 +555,79 @@ class AggOpPanel extends GeneralOpPanel {
     protected _resetForm() {
         super._resetForm();
     }
+
+    protected _preview() {
+        if (!this._validate(true)) return;
+        const graph = this._tab.getGraph();
+        if (this._previewNodes.length) {
+            let table;
+            this._previewNodes.forEach(previewNode => {
+                table = previewNode.getTable();
+                if (previewNode instanceof DagNodeAggregate) {
+                    let aggName = previewNode.getAggName();
+                    graph.removeNode(previewNode.getId());
+                    DagAggManager.Instance.bulkNodeRemoval([aggName]);
+                } else {
+                    graph.removeNode(previewNode.getId());
+                }
+            });
+            TableTabManager.Instance.deleteTab(table);
+            this._previewNodes = [];
+        }
+
+        const nodeInfo = this._dagNode.getNodeCopyInfo(true, false, true);
+        delete nodeInfo.id;
+        nodeInfo.isHidden = true;
+        const lastNode = graph.newNode(nodeInfo);
+
+        let rowNumName =  "XC_ROW_COL_" + Date.now();
+        let rowNumNode = graph.newNode({
+            type: DagNodeType.RowNum,
+            input: {
+                newField: rowNumName
+            },
+            isHidden: true,
+            state: DagNodeState.Configured
+        });
+        let filterNode = graph.newNode({
+            type: DagNodeType.Filter,
+            input: {
+                evalString: `le(${rowNumName}, ${UserSettings.Instance.getPref("dfPreviewLimit")})`
+            },
+            isHidden: true,
+            state: DagNodeState.Configured
+        });
+        this._dagNode.getParents().forEach((parent, index) => {
+            if (!parent) return;
+            graph.connect(parent.getId(), rowNumNode.getId(), index, false, false);
+        });
+        graph.connect(rowNumNode.getId(), filterNode.getId(), 0, false, false);
+        graph.connect(filterNode.getId(), lastNode.getId(), 0, false, false);
+        this._previewNodes = [rowNumNode, filterNode, lastNode];
+
+        const param = this.model.getParam();
+        param.outputTableName = "xcPreview";
+        lastNode.setParam(param, true);
+        const dagView = DagViewManager.Instance.getDagViewById(this._tab.getId());
+        this._lockPreview();
+        dagView.run([lastNode.getId()])
+        .then(() => {
+            if (!UserSettings.Instance.getPref("dfAutoPreview")) {
+                DagViewManager.Instance.viewResult(lastNode, this._tab.getId());
+            }
+        })
+        .always(() => {
+            this._unlockPreview();
+            const aggName = (<DagNodeAggregate>lastNode).getAggName();
+            graph.removeNode(lastNode.getId());
+            DagAggManager.Instance.bulkNodeRemoval([aggName]);
+            let table;
+            this._previewNodes.forEach(previewNode => {
+                table = previewNode.getTable();
+                graph.removeNode(previewNode.getId());
+            });
+            TableTabManager.Instance.deleteTab(table);
+            this._previewNodes = [];
+        });
+    }
 }
