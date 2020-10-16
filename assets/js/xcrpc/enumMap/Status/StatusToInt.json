@@ -737,6 +737,7 @@
     "StatusUnionTypeMismatch" : 735,
     "StatusUnionDhtMismatch" : 736,
     "StatusAppInProgress" : 737,
-    "StatusMaxColumnsFound" : 738
+    "StatusMaxColumnsFound" : 738,
+    "StatusXpuDeath" : 739
 }
 
