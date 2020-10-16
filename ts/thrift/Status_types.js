@@ -745,7 +745,8 @@ StatusT = {
   'StatusUnionDhtMismatch' : 736,
   'StatusAppInProgress' : 737,
   'StatusMaxColumnsFound' : 738,
-  'StatusXpuDeath' : 739
+  'StatusXpuDeath' : 739,
+  'StatusScalarFunctionFieldOverflow' : 740
 };
 StatusTStr = {
   0 : 'Success',
@@ -1487,7 +1488,8 @@ StatusTStr = {
   736 : 'Union may only be performed on tables with the same DHT',
   737 : 'Application is still in running state',
   738 : 'Max columns found for schema',
-  739 : 'Encountered an internal error - please contact Xcalar support'
+  739 : 'Encountered an internal error - please contact Xcalar support',
+  740 : 'Value returned by Scalar Function exceeds maximum Xcalar field size'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2229,5 +2231,6 @@ StatusTFromStr = {
   'Union may only be performed on tables with the same DHT' : 736,
   'Application is still in running state' : 737,
   'Max columns found for schema' : 738,
-  'Encountered an internal error - please contact Xcalar support' : 739
+  'Encountered an internal error - please contact Xcalar support' : 739,
+  'Value returned by Scalar Function exceeds maximum Xcalar field size' : 740
 };

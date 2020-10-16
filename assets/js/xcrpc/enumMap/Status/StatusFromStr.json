@@ -738,6 +738,7 @@
     "Union may only be performed on tables with the same DHT" : 736,
     "Application is still in running state" : 737,
     "Max columns found for schema" : 738,
-    "Encountered an internal error - please contact Xcalar support" : 739
+    "Encountered an internal error - please contact Xcalar support" : 739,
+    "Value returned by Scalar Function exceeds maximum Xcalar field size" : 740
 }
 
