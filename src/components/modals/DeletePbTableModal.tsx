@@ -1,6 +1,6 @@
 import * as React from "react";
 import dict from "../../lang";
-import GeneralDeleteModal, { DeleteItems } from "./GeneralDeleteModal";
+import BulkActionModal, { Item } from "./BulkActionModal";
 import service from "../../services/PbTableService";
 
 const { DeletePbTableModalTStr } = dict;
@@ -8,7 +8,7 @@ const { DeletePbTableModalTStr } = dict;
 class DeletePbTableModal extends React.Component<{}, {}> {
   render() {
     return (
-      <GeneralDeleteModal
+      <BulkActionModal
         id={"deletePbTableModal"} 
         triggerButton={"deletePbTableButton"}
         header={DeletePbTableModalTStr.header}
@@ -16,12 +16,11 @@ class DeletePbTableModal extends React.Component<{}, {}> {
         fetchList={this._fetch}
         getConfirmAlert={this._getConfirmAlert}
         onSubmit={this._handleSubmit}
-        onDeleteError={() => {}}
       />
     )
   }
 
-  private async _fetch(): Promise<DeleteItems[]> {
+  private async _fetch(): Promise<Item[]> {
     let pbTables = await service.list();
     let items = pbTables.map((pbTable) => {
       let { name, size, createTime } = pbTable;
@@ -37,7 +36,7 @@ class DeletePbTableModal extends React.Component<{}, {}> {
     return items;
   }
 
-  private _getConfirmAlert(items: DeleteItems[]): {title: string, msg: string} {
+  private _getConfirmAlert(items: Item[]): {title: string, msg: string} {
     const xcStringHelper = window["xcStringHelper"];
     let tables: string[] = items.map((item) => item.name);
     let msg = xcStringHelper.replaceMsg(DeletePbTableModalTStr.confirm, {
@@ -49,7 +48,7 @@ class DeletePbTableModal extends React.Component<{}, {}> {
     };
   }
 
-  private _handleSubmit(items: DeleteItems[]): Promise<void> {
+  private _handleSubmit(items: Item[]): Promise<void> {
     let tables: string[] = items.map((item) => item.name);
     return service.delete(tables);
   }

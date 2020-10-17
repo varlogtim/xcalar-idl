@@ -17,6 +17,14 @@ class PbTableService {
         });
     }
 
+    public listDeactivatedTables(): Promise<{name: string}[]> {
+        const PTblManager = window["PTblManager"];
+        const PbTblState = window['PbTblState'];
+        return PTblManager.Instance.getAvailableTables().filter((pbTable) => {
+            return !pbTable.active && pbTable.state !== PbTblState.Activating;
+        });
+    }
+
     /**
      * Delete published tables
      * @param pbTableNames
@@ -25,6 +33,16 @@ class PbTableService {
         // XXX TODO: remove window hack
         const PTblManager = window["PTblManager"];
         return PTblManager.Instance.deleteTablesOnConfirm(pbTableNames, true, false);
+    }
+
+    /**
+     * Activate/recreate published tables
+     * @param pbTableNames
+     */
+    public activate(pbTableNames: string[]): Promise<void> {
+        // XXX TODO: remove window hack
+        const PTblManager = window["PTblManager"];
+        return PTblManager.Instance.activateTablsInParallel(pbTableNames);
     }
 }
 

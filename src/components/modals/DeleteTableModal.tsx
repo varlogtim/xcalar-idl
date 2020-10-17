@@ -1,6 +1,6 @@
 import * as React from "react";
 import dict from "../../lang";
-import GeneralDeleteModal, { DeleteItems } from "./GeneralDeleteModal";
+import BulkActionModal, { Item } from "./BulkActionModal";
 import service from "../../services/TableService";
 
 const { DeleteTableModalTStr } = dict;
@@ -9,7 +9,7 @@ const id: string = "deleteTableModal";
 class DeleteTableModal extends React.Component<{}, {}> {
   render() {
     return (
-      <GeneralDeleteModal
+      <BulkActionModal
         id={id} 
         triggerButton={"monitor-delete"}
         header={DeleteTableModalTStr.header}
@@ -18,12 +18,11 @@ class DeleteTableModal extends React.Component<{}, {}> {
         noDate={true}
         getConfirmAlert={this._getConfirmAlert}
         onSubmit={this._handleSubmit}
-        onDeleteError={() => {}}
       />
     )
   }
 
-  private async _fetch(): Promise<DeleteItems[]> {
+  private async _fetch(): Promise<Item[]> {
     let DagTblManager = window["DagTblManager"];
     let tables = await service.list();
     let items = tables.map((table) => {
@@ -47,7 +46,7 @@ class DeleteTableModal extends React.Component<{}, {}> {
     };
   }
 
-  private _handleSubmit(items: DeleteItems[]): Promise<void> {
+  private _handleSubmit(items: Item[]): Promise<void> {
     let tables = items.map((item) => item.name);
     return service.deleteTables(tables, id);
   }

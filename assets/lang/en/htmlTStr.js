@@ -462,6 +462,7 @@ module.exports = {
         "Tables": "Tables",
         "AddTable": "Add Table",
         "DeleteTables": "Drop Tables",
+        "ActivateTables": "Recreate Tables",
         "SearchTable": "Search Table in SQL Statements and Modules",
         "SQL": "SQL Statements",
         "AddSQL": "New SQL Statement",

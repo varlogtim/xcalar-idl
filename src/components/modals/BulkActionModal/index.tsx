@@ -6,7 +6,7 @@ import Content from "./Content";
 
 const { CommonTStr, StatusMessageTStr } = dict;
 
-export interface DeleteItems {
+export interface Item {
   id: string;
   name: string;
   size: number;
@@ -22,23 +22,24 @@ type Props = {
   instruct?: string;
   noSize?: boolean;
   noDate?: boolean;
-  fetchList: () => Promise<DeleteItems[]>;
-  getConfirmAlert: (selectedItems: DeleteItems[]) => {title: string, msg: string};
-  onSubmit: (selectedItems: DeleteItems[]) => Promise<{id: string, error: string}[] | void>;
-  onDeleteError: (error: string, items: DeleteItems[], failures: {id: string, error: string}[]) => void
+  closeOnSubmit?: boolean;
+  fetchList: () => Promise<Item[]>;
+  getConfirmAlert: (selectedItems: Item[]) => {title: string, msg: string};
+  onSubmit: (selectedItems: Item[]) => Promise<{id: string, error: string}[] | void>;
+  onError?: (error: string, items: Item[], failures: {id: string, error: string}[]) => void
 };
 
 type State = {
   show: boolean;
   isFetching: boolean;
   submitStatus: string;
-  items: DeleteItems[];
+  items: Item[];
   sortKey: string;
   reverseSort: boolean;
   error: any;
 };
 
-class GeneralDeleteModal extends React.Component<Props, State> {
+class BulkActionModal extends React.Component<Props, State> {
   constructor(props) {
     super(props);
     this._handleSelect = this._handleSelect.bind(this);
@@ -160,7 +161,7 @@ class GeneralDeleteModal extends React.Component<Props, State> {
   private async _fetch(): Promise<void> {
     this.setState({isFetching: true});
     try {
-      const items: DeleteItems[] = await this.props.fetchList();
+      const items: Item[] = await this.props.fetchList();
       this.setState({
           isFetching: false,
           items: this._sortItems(items, this.state.sortKey, this.state.reverseSort)
@@ -173,9 +174,9 @@ class GeneralDeleteModal extends React.Component<Props, State> {
     }
   }
 
-  private async _confirmDeletion(selectedItems: DeleteItems[]): Promise<boolean> {
-    let { title, msg } = this.props.getConfirmAlert(selectedItems);
-    let Alert = window["Alert"];
+  private async _confirm(selectedItems: Item[]): Promise<boolean> {
+    const { title, msg } = this.props.getConfirmAlert(selectedItems);
+    const Alert = window["Alert"];
     return new Promise((resolve) => {
       Alert.show({
         title,
@@ -192,7 +193,7 @@ class GeneralDeleteModal extends React.Component<Props, State> {
   }
 
   private async _submit() {
-    let selectedItems: DeleteItems[] = [];
+    let selectedItems: Item[] = [];
     this.state.items.forEach((item) => {
       if (!item.locked && item.checked) {
         selectedItems.push(item);
@@ -206,16 +207,21 @@ class GeneralDeleteModal extends React.Component<Props, State> {
     this.setState({ submitStatus: "confirm"} );
 
     try {
-      let allowDelete = await this._confirmDeletion(selectedItems);
-      if (!allowDelete) {
+      const valid = await this._confirm(selectedItems);
+      if (!valid) {
         // when user cancel the status
         this.setState({ submitStatus: null} );
       } else {
         this.setState({ submitStatus: "pending"} );
-        let failures = await this.props.onSubmit(selectedItems);
-        this._handleFailure(selectedItems, failures);
-        this.setState({ submitStatus: null} );
-        this._fetch();
+        if (this.props.closeOnSubmit) {
+          this.props.onSubmit(selectedItems);
+          this._hide();
+        } else {
+          const failures = await this.props.onSubmit(selectedItems);
+          this._handleFailure(selectedItems, failures);
+          this.setState({ submitStatus: null} );
+          this._fetch();
+        }
       }
     } catch (error) {
       console.error(error);
@@ -224,7 +230,7 @@ class GeneralDeleteModal extends React.Component<Props, State> {
     }
   }
   private _handleFailure(
-    items: DeleteItems[],
+    items: Item[],
     failures: {id: string, error: string}[] | void
   ): void {
     if (!failures) {
@@ -232,10 +238,10 @@ class GeneralDeleteModal extends React.Component<Props, State> {
     }
 
     try {
-      let error = this._getFailureError(items, failures);
-      if (error) {
-        let { onDeleteError } = this.props;
-        onDeleteError(error, items, failures);
+      const error = this._getFailureError(items, failures);
+      let { onError } = this.props;
+      if (error && typeof onError === 'function') {
+        onError(error, items, failures);
       }
     } catch (e) {
       console.error(e);
@@ -243,7 +249,7 @@ class GeneralDeleteModal extends React.Component<Props, State> {
   }
 
   private _getFailureError(
-    items: DeleteItems[],
+    items: Item[],
     failures: {id: string, error: string}[]
   ): string {
     if (!failures || failures.length === 0) {
@@ -296,10 +302,10 @@ class GeneralDeleteModal extends React.Component<Props, State> {
   }
 
   private _sortItems(
-    items: DeleteItems[],
+    items: Item[],
     sortKey: string,
     reverseSort: boolean
-  ): DeleteItems[] {
+  ): Item[] {
     items = this._sortItemsByKey(items, sortKey);
     if (reverseSort) {
       items.reverse();
@@ -307,7 +313,7 @@ class GeneralDeleteModal extends React.Component<Props, State> {
     return items;
   }
 
-  private _sortItemsByKey(items: DeleteItems[], sortKey: string): DeleteItems[] {
+  private _sortItemsByKey(items: Item[], sortKey: string): Item[] {
     // sort by name first, no matter what case
     items.sort((a, b) =>  a.name.localeCompare(b.name));
     // temoprarily not support sort on size
@@ -340,4 +346,4 @@ class GeneralDeleteModal extends React.Component<Props, State> {
   }
 }
 
-export default GeneralDeleteModal;
+export default BulkActionModal;

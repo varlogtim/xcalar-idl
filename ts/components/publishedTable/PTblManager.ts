@@ -459,6 +459,30 @@ class PTblManager {
     }
 
     /**
+     * PTblManager.Instance.activateTablsInParallel
+     * @param tableNames
+     */
+    public async activateTablsInParallel(tableNames: string[]): Promise<void> {
+        try {
+            const succeeds: string[] = [];
+            const failures: string[] = [];
+            const promises = tableNames.map((tableName) => {
+                return PromiseHelper.convertToNative(this._activateOneTable(tableName, succeeds, failures));
+            });
+            await Promise.all(promises);
+            if (failures.length > 0) {
+                Alert.error(IMDTStr.ActivatingFail, failures.join("\n"));
+            }
+            this._onTableChange({
+                "action": "activate",
+                "tables": succeeds
+            });
+        } catch (e) {
+            Alert.error(IMDTStr.ActivatingFail, e);
+        }
+    }
+
+    /**
      * PTblManager.Instance.activateTables
      * @param tableNames
      */
@@ -1182,7 +1206,7 @@ class PTblManager {
         if (error && typeof error === "object") {
             errorMsg = error.log || error.error;
         } else {
-            errorMsg = error || ErrTStr.Unknown;
+            errorMsg = <any>error || ErrTStr.Unknown;
         }
         return tableName + ": " + errorMsg;
     }

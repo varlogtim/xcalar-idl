@@ -1,7 +1,7 @@
 import * as React from "react";
 import dict from "../../../lang";
 import Checkbox from "../../widgets/Checkbox";
-import { DeleteItems } from ".";
+import { Item } from ".";
 import Row from "./Row";
 import Title from "./Title";
 
@@ -9,7 +9,7 @@ const { CommonTStr } = dict;
 
 type Props = {
   id: string;
-  items: DeleteItems[];
+  items: Item[];
   noSize: boolean;
   noDate: boolean
   sortKey: string;

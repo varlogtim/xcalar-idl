@@ -25,6 +25,14 @@ export default {
         "confirm": "Are you sure you want to drop the following tables : \"<tableName>\"? This action cannot be undone.",
     },
 
+    "ReceateTablesModalTStr": {
+        "header": "Recreate tables",
+        "instr": "Select tables from the deactivated table list and confirm to recreate them.",
+        "confirm": "Are you sure you want to recreate the selected tables?",
+        "oneSelection": "1 table is selected",
+        "multipleSection": "<num> tables are selected",
+    },  
+
     "DeleteSQLModalTStr": {
         "header": "Delete SQL Statements",
         "confirm": "Are you sure you want to delete the selected SQL statement(s)?",

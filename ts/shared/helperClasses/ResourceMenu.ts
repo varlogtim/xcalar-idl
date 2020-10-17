@@ -634,7 +634,7 @@ class ResourceMenu {
             }
         });
 
-        $container.on("click", ".bulkDelete", (event) => {
+        $container.on("click", ".bulkAction", (event) => {
             event.stopPropagation();
         });
 

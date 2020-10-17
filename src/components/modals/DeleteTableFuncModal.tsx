@@ -1,6 +1,6 @@
 import * as React from "react";
 import dict from "../../lang";
-import GeneralDeleteModal, { DeleteItems } from "./GeneralDeleteModal";
+import BulkActionModal, { Item } from "./BulkActionModal";
 import service from "../../services/DFService";
 
 const { DeleteTableFuncTStr } = dict;
@@ -8,7 +8,7 @@ const { DeleteTableFuncTStr } = dict;
 class DeleteTableFuncModal extends React.Component<{}, {}> {
   render() {
     return (
-      <GeneralDeleteModal
+      <BulkActionModal
         id="deleteTableFuncModal"
         triggerButton="deleteTableFuncButton"
         header={DeleteTableFuncTStr.header}
@@ -16,12 +16,12 @@ class DeleteTableFuncModal extends React.Component<{}, {}> {
         noSize={true}
         getConfirmAlert={this._getConfirmAlert}
         onSubmit={this._handleSubmit}
-        onDeleteError={this._handleDeleteError}
+        onError={this._handleDeleteError}
       />
     )
   }
 
-  private async _fetch(): Promise<DeleteItems[]> {
+  private async _fetch(): Promise<Item[]> {
     let tableFuncs = await service.listTableFuncs();
     let items = tableFuncs.map(({ id, name, createdTime }) => {
       return {
@@ -44,7 +44,7 @@ class DeleteTableFuncModal extends React.Component<{}, {}> {
   }
 
   private async _handleSubmit(
-    items: DeleteItems[]
+    items: Item[]
   ): Promise<{id: string, error: string}[]> {
     let ids = items.map((item) => item.id);
     return service.deleteByIds(ids);

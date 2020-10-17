@@ -1,6 +1,6 @@
 import * as React from "react";
 import dict from "../../lang";
-import GeneralDeleteModal, { DeleteItems } from "./GeneralDeleteModal";
+import BulkActionModal, { Item } from "./BulkActionModal";
 import service from "../../services/SQLService";
 
 const { DeleteSQLModalTStr } = dict;
@@ -8,7 +8,7 @@ const { DeleteSQLModalTStr } = dict;
 class DeleteSQLModal extends React.Component<{}, {}> {
   render() {
     return (
-      <GeneralDeleteModal
+      <BulkActionModal
         id="deleteSQLModal"
         triggerButton="deleteSQLButton"
         header={DeleteSQLModalTStr.header}
@@ -17,12 +17,11 @@ class DeleteSQLModal extends React.Component<{}, {}> {
         noDate={true}
         getConfirmAlert={this._getConfirmAlert}
         onSubmit={this._handleSubmit}
-        onDeleteError={() => {}}
       />
     )
   }
 
-  private async _fetch(): Promise<DeleteItems[]> {
+  private async _fetch(): Promise<Item[]> {
     let snippets = await service.list();
     let items = snippets.map((snippet) => {
       let { id, name } = snippet;
@@ -45,7 +44,7 @@ class DeleteSQLModal extends React.Component<{}, {}> {
     };
   }
 
-  private _handleSubmit(items: DeleteItems[]): Promise<void> {
+  private _handleSubmit(items: Item[]): Promise<void> {
     let ids = items.map((item) => item.id);
     return service.delete(ids);
   }

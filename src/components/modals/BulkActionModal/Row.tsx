@@ -2,13 +2,13 @@ import * as React from "react";
 import dict from "../../../lang";
 import Checkbox from "../../widgets/Checkbox";
 import Tooltipbox from "../../widgets/Tooltipbox";
-import { DeleteItems } from ".";
+import { Item } from ".";
 
 const { TooltipTStr } = dict;
 
 type Props = {
   id: string;
-  item: DeleteItems,
+  item: Item,
   noSize: boolean,
   noDate: boolean,
   onClick: Function

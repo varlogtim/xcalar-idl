@@ -1,18 +1,18 @@
 import * as React from "react";
 import dict from "../../lang";
-import GeneralDeleteModal, { DeleteItems } from "./GeneralDeleteModal";
+import BulkActionModal, { Item } from "./BulkActionModal";
 import service from "../../services/DFService";
 
 const { DeleteAppTStr } = dict;
 
-interface AppItem extends DeleteItems {
+interface AppItem extends Item {
   isApp?: boolean;
 }
 
 class DeleteAppModal extends React.Component<{}, {}> {
   render() {
     return (
-      <GeneralDeleteModal
+      <BulkActionModal
         id="deleteAppModal"
         triggerButton="deleteAppButton"
         header={DeleteAppTStr.header}
@@ -20,7 +20,7 @@ class DeleteAppModal extends React.Component<{}, {}> {
         noSize={true}
         getConfirmAlert={this._getConfirmAlert}
         onSubmit={this._handleSubmit}
-        onDeleteError={this._handleDeleteError}
+        onError={this._handleDeleteError}
       />
     )
   }
