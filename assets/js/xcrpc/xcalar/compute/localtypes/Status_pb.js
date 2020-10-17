@@ -757,7 +757,8 @@ proto.xcalar.compute.localtypes.XcalarEnumType.Status = {
   STATUS_APP_IN_PROGRESS: 737,
   STATUS_MAX_COLUMNS_FOUND: 738,
   STATUS_XPU_DEATH: 739,
-  STATUS_SCALAR_FUNCTION_FIELD_OVERFLOW: 740
+  STATUS_SCALAR_FUNCTION_FIELD_OVERFLOW: 740,
+  STATUS_UDF_INVALID_RET_VALUE: 741
 };
 
 goog.object.extend(exports, proto.xcalar.compute.localtypes.XcalarEnumType);

@@ -739,6 +739,7 @@
     "737" : "Application is still in running state",
     "738" : "Max columns found for schema",
     "739" : "Encountered an internal error - please contact Xcalar support",
-    "740" : "Value returned by Scalar Function exceeds maximum Xcalar field size"
+    "740" : "Value returned by Scalar Function exceeds maximum Xcalar field size",
+    "741" : "A Scalar Function must always return a non None value"
 }
 

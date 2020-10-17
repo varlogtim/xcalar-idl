@@ -746,7 +746,8 @@ StatusT = {
   'StatusAppInProgress' : 737,
   'StatusMaxColumnsFound' : 738,
   'StatusXpuDeath' : 739,
-  'StatusScalarFunctionFieldOverflow' : 740
+  'StatusScalarFunctionFieldOverflow' : 740,
+  'StatusUdfInvalidRetValue' : 741
 };
 StatusTStr = {
   0 : 'Success',
@@ -1489,7 +1490,8 @@ StatusTStr = {
   737 : 'Application is still in running state',
   738 : 'Max columns found for schema',
   739 : 'Encountered an internal error - please contact Xcalar support',
-  740 : 'Value returned by Scalar Function exceeds maximum Xcalar field size'
+  740 : 'Value returned by Scalar Function exceeds maximum Xcalar field size',
+  741 : 'A Scalar Function must always return a non None value'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2232,5 +2234,6 @@ StatusTFromStr = {
   'Application is still in running state' : 737,
   'Max columns found for schema' : 738,
   'Encountered an internal error - please contact Xcalar support' : 739,
-  'Value returned by Scalar Function exceeds maximum Xcalar field size' : 740
+  'Value returned by Scalar Function exceeds maximum Xcalar field size' : 740,
+  'A Scalar Function must always return a non None value' : 741
 };
