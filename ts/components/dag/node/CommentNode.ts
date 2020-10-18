@@ -88,8 +88,8 @@ class CommentNode {
         this.text = options.text || "";
         const display = options.display || {x: -1, y: -1};
         this.display = {
-            x: display.x || -1,
-            y: display.y || -1,
+            x: display.x || 0,
+            y: display.y || 0,
             width: display.width || 180,
             height: display.height || 80,
         };
