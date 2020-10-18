@@ -170,12 +170,12 @@ class ExportOpPanelModel extends BaseOpPanelModel {
     private _convertS3ConnectorArgs(
         driverArgs: {[key: string]: string | number | boolean}
     ): {[key: string]: string | number | boolean} {
-        const connector = driverArgs.target;
         try {
-            if (connector && DSTargetManager.isAWSConnector(<string>connector)) {
+            if (XVM.isOnAWS()) {
                 driverArgs = {
                     ...driverArgs,
-                    directory_path: this._getRealhPathFromDisplayPath(<string>driverArgs.directory_path)
+                    directory_path: this._getRealhPathFromDisplayPath(<string>driverArgs.directory_path),
+                    file_path: this._getRealhPathFromDisplayPath(<string>driverArgs.file_path)
                 };
             }
         } catch (e) {
@@ -185,6 +185,9 @@ class ExportOpPanelModel extends BaseOpPanelModel {
     }
 
     private _getRealhPathFromDisplayPath(path: string): string {
+        if (!path) {
+            return path;
+        }
         const splits = path.split('/');
         const bucketPath = DSTargetManager.getS3ValueFromName(splits[0] + '/');
         splits[0] = bucketPath.slice(0, bucketPath.length - 1); // remove the trailing /
@@ -233,13 +236,11 @@ class ExportOpPanelModel extends BaseOpPanelModel {
 
     private _getDisplayDrverArgs(): ExportDriverArg[] {
         try {
-            const driverArgsObj = this.getDriverArgs();
-            const connector: string = <string>driverArgsObj.target;
-            if (this.driverArgs == null || !DSTargetManager.isAWSConnector(connector)) {
+            if (this.driverArgs == null || !XVM.isOnAWS()) {
                 return this.driverArgs;
             }
             return this.driverArgs.map((arg) => {
-                if (arg.name === 'directory_path') {
+                if (arg.name === 'directory_path' || arg.name === 'file_path') {
                     return {
                         ...arg,
                         value: this._getDisplayPathFromRealPath(<string>arg.value)
