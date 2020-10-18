@@ -17,6 +17,7 @@ import { SchemaLoadService } from './SchemaLoad/SchemaLoadService';
 import { ResultSetService } from './ResultSet/ResultSetService';
 import { SessionService } from './Session/SessionService';
 import { SqlService } from './Sql/SqlService';
+import { ConnectorService } from './Connector/ConnectorService';
 
 class ServiceClient {
     private _apiClient: ApiClient;
@@ -95,6 +96,10 @@ class ServiceClient {
 
     public getSqlService(): SqlService {
         return new SqlService(this._apiClient);
+    }
+
+    public getConnectorService(): ConnectorService {
+        return new ConnectorService(this._apiClient);
     }
 }
 

@@ -48,6 +48,105 @@ async function listFiles(
     return fileInfos;
 }
 
+type ListFilesCursor = {
+    preFetch: () => Promise<void>,
+    fetchData: (param: {offset: number, count: number}) => Promise<Array<FilePathInfo>>,
+    getSize: () => number,
+    hasMore: () => boolean,
+    getFileSize: () => number,
+    getFiles: () => Array<FilePathInfo>
+};
+
+function createListFilesCursor(params: {
+    targetName: string,
+    path: string,
+    fileNamePattern: string,
+    isRecursive: boolean
+}): ListFilesCursor {
+    const { targetName, path, fileNamePattern, isRecursive } = params;
+    const fileIt = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getConnectorService().listFilesIterator({
+        targetName: targetName,
+        path: path,
+        fileNamePattern: fileNamePattern,
+        isRecursive: isRecursive,
+        batchSize: 1000
+    });
+
+    const fileList: Array<FilePathInfo> = [];
+    let hasMoreData = true;
+    const fetchMore = async () => {
+        if (!hasMoreData) {
+            return;
+        }
+        const { value, done } = await fileIt.next();
+        if (value != null) {
+            for (const file of value) {
+                fileList.push(convertFileInfo(file));
+            }
+        }
+        if (done) {
+            hasMoreData = false;
+        }
+    };
+
+    const convertFileInfo = ({name, isDirectory, size}) => {
+        const fullFilePath = Path.join(path, name);
+        return {
+            fileId: fullFilePath,
+            targetName: targetName,
+            fullPath: fullFilePath,
+            directory: isDirectory,
+            name: name,
+            sizeInBytes: size,
+            type: isDirectory
+                ? 'directory'
+                : getFileExt(name)
+        }
+    };
+
+    return {
+        preFetch: async () => {
+            await fetchMore();
+        },
+
+        fetchData: async ({offset, count}) => {
+            const needMore = (offset + count) > fileList.length;
+            if (needMore) {
+                await fetchMore();
+            }
+            const result: Array<FilePathInfo> = [];
+            for (let i = offset; i < Math.min(offset + count, fileList.length); i ++) {
+                result.push({...fileList[i]});
+            }
+            return result;
+        },
+
+        getSize: () => fileList.length,
+        hasMore: () => hasMoreData,
+
+        getFileSize: () => {
+            let totalSize = 0;
+            for (const { sizeInBytes } of fileList) {
+                totalSize += sizeInBytes;
+            }
+            return totalSize;
+        },
+
+        getFiles: () => fileList.map((f) => ({...f}))
+    }
+}
+
+function createSingleFileCursor(file: FilePathInfo): ListFilesCursor {
+    return {
+        preFetch: async () => {},
+        fetchData: async () => [{...file}],
+        getSize: () => 1,
+        hasMore: () => false,
+        getFileSize: () => file.sizeInBytes,
+        getFiles: () => [{ ...file }]
+    }
+}
+
 async function listFilesWithPattern(params: {
     targetName: string,
     path: string,
@@ -335,6 +434,7 @@ export {
     FilePathInfo,
     defaultFileNamePattern,
     listFiles,
+    ListFilesCursor, createListFilesCursor, createSingleFileCursor,
     listFilesWithPattern,
     readFileContent,
     createKeyListTable,

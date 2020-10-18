@@ -122,6 +122,11 @@ declare module 'xcalar' {
         constructor(client: XceClient);
         executeSQL(request: proto.xcalar.compute.localtypes.Sql.SQLQueryRequest): Promise<proto.xcalar.compute.localtypes.Sql.SQLQueryResponse>;
     }
+
+    export class ConnectorsService {
+        constructor(client: XceClient);
+        listFiles(request: proto.xcalar.compute.localtypes.Connectors.ListFilesRequest): Promise<proto.xcalar.compute.localtypes.Connectors.ListFilesResponse>;
+    }
 }
 // === Service definitions: End ===
 
@@ -1935,6 +1940,33 @@ declare namespace proto.xcalar.compute.localtypes {
 
         export class SQLQueryResponse {
             getTablename(): string;
+        }
+    }
+
+    export namespace Connectors {
+        export class DataSourceArgs {
+            setTargetname(value: string): void;
+            setPath(value: string): void;
+            setFilenamepattern(value: string): void;
+            setRecursive(value: boolean): void;
+        }
+
+        export class ListFilesRequest {
+            setSourceargs(value: DataSourceArgs): void;
+            setPaged(value: boolean): void;
+            setContinuationtoken(value: string): void;
+        }
+
+        export class File {
+            getName(): string;
+            getIsdir(): boolean;
+            getMtime(): number;
+            getSize(): number;
+        }
+
+        export class ListFilesResponse {
+            getFilesList(): Array<File>;
+            getContinuationtoken(): string;
         }
     }
 }

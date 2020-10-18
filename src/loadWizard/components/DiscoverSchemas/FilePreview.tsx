@@ -18,9 +18,9 @@ class FilePreview extends React.PureComponent<any, any> {
 
     render() {
         const { fileSelectProps, fileContentProps, parserType, selectedFileDir } = this.props;
-        const { files = [] } = fileSelectProps || {};
+        const { filesCursor } = fileSelectProps;
 
-        if (files.length === 0) {
+        if (filesCursor == null || filesCursor.getSize() === 0) {
             return null;
         }
 
@@ -75,7 +75,7 @@ function SelectedFile(props) {
 }
 
 function FileSelectArea(props) {
-    const { isLoading, files = [], fileSelected, onSelect, selectedFileDir } = props;
+    const { isLoading, filesCursor, fileSelected, onSelect, selectedFileDir } = props;
 
     if (!selectedFileDir[0].directory) {
         return null;
@@ -87,25 +87,42 @@ function FileSelectArea(props) {
 
     const pageSize = 5;
     const [offset, setOffset] = React.useState(0);
-    const [currPage, setCurrPage] = React.useState("1");
+    const [maxOffset, setMaxOffset] = React.useState(Number.MAX_VALUE);
+    // const [currPage, setCurrPage] = React.useState("1");
+    const [files, setFiles] = React.useState([]);
+
+    React.useEffect(() => {
+        const fetchData = async () => {
+            if (filesCursor != null) {
+                const files = await filesCursor.fetchData({
+                    offset: offset,
+                    count: pageSize
+                });
+                setFiles(files);
+                if (files.length < pageSize) {
+                    setMaxOffset(filesCursor.getSize() - 1);
+                }
+            }
+        };
+        fetchData();
+    }, [filesCursor, offset, pageSize]);
 
     const pagePrev = offset > 0
         ? () => {
             setOffset(offset - pageSize);
-            setCurrPage("" + (Math.floor((offset - pageSize) / pageSize) + 1));
+            // setCurrPage("" + (Math.floor((offset - pageSize) / pageSize) + 1));
         }
         : null;
-    const pageNext = (offset + pageSize) < files.length
+    const pageNext = (offset + pageSize) <= maxOffset
         ? () => {
             setOffset(offset + pageSize);
-            setCurrPage("" + (Math.floor((offset + pageSize) / pageSize) + 1));
+            // setCurrPage("" + (Math.floor((offset + pageSize) / pageSize) + 1));
         }
         : null;
-    const numPages = Math.ceil(files.length / pageSize);
+    // const numPages = Math.ceil(files.length / pageSize);
 
     let filesArray = [];
-    for (let i = offset; i < Math.min(offset + pageSize, files.length); i++) {
-        const file = files[i];
+    for (const file of files) {
         filesArray.push(
         <DirectoryLine key={`${file.fileId}`} isDirectory={file.directory} checked={fileSelected && fileSelected.fileId === file.fileId} onChange={(checked) => {
             onSelect(file)
@@ -114,22 +131,25 @@ function FileSelectArea(props) {
         </DirectoryLine>)
     }
 
-    const handleInputChange = (e) => {
-        let num = parseInt(e.target.value);
-        if (!isNaN(num)) {
-            num = Math.max(1, Math.floor(num));
-            num = Math.min(num, numPages);
-            setCurrPage("" + num);
-            setOffset((num - 1) * pageSize);
-        } else {
-            setCurrPage("" + (Math.floor(offset / pageSize) + 1));
-        }
-    }
+    // const handleInputChange = (e) => {
+    //     let num = parseInt(e.target.value);
+    //     if (!isNaN(num)) {
+    //         num = Math.max(1, Math.floor(num));
+    //         num = Math.min(num, numPages);
+    //         setCurrPage("" + num);
+    //         setOffset((num - 1) * pageSize);
+    //     } else {
+    //         setCurrPage("" + (Math.floor(offset / pageSize) + 1));
+    //     }
+    // }
+
+    const numFiles = filesCursor.getSize();
+    const hasMoreFiles = filesCursor.hasMore();
 
     return <div className="fileListArea">
                 <div className="fileListHeader">
                     Select a file to detect your schema
-                    <div className="numFiles">{files.length.toLocaleString()} {files.length === 1 ? "item" : "items"}</div>
+                    <div className="numFiles">{numFiles.toLocaleString()}{hasMoreFiles ? "+" : ""} {numFiles === 1 ? "item" : "items"}</div>
                 </div>
                 <div className="scrollSection fileListSection">
                     <div className="innerScrollSection">
@@ -138,7 +158,7 @@ function FileSelectArea(props) {
                 </div>
                 <div className="paginationRow">
                     <Pagination onNext={pageNext} onPrev={pagePrev} />
-                    <div className="skipToPage">Page <input className="xc-input" value={currPage}
+                    {/* <div className="skipToPage">Page <input className="xc-input" value={currPage}
                     onChange={(e) => {
                         setCurrPage(e.target.value);
                     }}
@@ -149,7 +169,7 @@ function FileSelectArea(props) {
                     }}
                     onBlur={(e) => {
                         handleInputChange(e);
-                    }} /> / {numPages.toLocaleString()}</div>
+                    }} /> / {numPages.toLocaleString()}</div> */}
                 </div>
             </div>
 }

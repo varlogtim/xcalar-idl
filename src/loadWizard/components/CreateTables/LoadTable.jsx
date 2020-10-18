@@ -275,8 +275,8 @@ function LoadTable({
         } else {
             const rowData = {
                 schema: <button className="btn btn-secondary btn-new viewSchema" onClick={() => { onClickSchema(schemaName); }}>View</button>,
-                count: files.count,
-                size: prettyBytes(files.size || 0),
+                count: files.count + (files.hasMore ? '+' : ''),
+                size: prettyBytes(files.size || 0)  + (files.hasMore ? '+' : ''),
                 time: xcTimeHelper.getElapsedTimeStr(Math.ceil(etaCost.loadEtaBySize(files.size) * 1000)),
                 tableName: null,
                 load: null

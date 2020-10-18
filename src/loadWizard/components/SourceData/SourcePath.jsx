@@ -223,9 +223,9 @@ function SourcePath({
 }
 
 function FileSelectArea(props) {
-    const {files = [], isLoading, selectedFileDir, connector } = props;
+    const {filesCursor, isLoading, selectedFileDir, connector } = props;
 
-    if (!selectedFileDir[0].directory) {
+    if (!selectedFileDir[0].directory || filesCursor == null) {
         return null;
     }
 
@@ -235,25 +235,42 @@ function FileSelectArea(props) {
 
     const pageSize = 5;
     const [offset, setOffset] = React.useState(0);
-    const [currPage, setCurrPage] = React.useState("1");
+    const [maxOffset, setMaxOffset] = React.useState(Number.MAX_VALUE);
+    // const [currPage, setCurrPage] = React.useState("1");
+    const [files, setFiles] = React.useState([]);
+
+    React.useEffect(() => {
+        const fetchData = async () => {
+            if (filesCursor != null) {
+                const files = await filesCursor.fetchData({
+                    offset: offset,
+                    count: pageSize
+                });
+                setFiles(files);
+                if (files.length < pageSize) {
+                    setMaxOffset(filesCursor.getSize() - 1);
+                }
+            }
+        };
+        fetchData();
+    }, [filesCursor, offset, pageSize]);
 
     const pagePrev = offset > 0
         ? () => {
             setOffset(offset - pageSize);
-            setCurrPage("" + (Math.floor((offset - pageSize) / pageSize) + 1));
+            // setCurrPage("" + (Math.floor((offset - pageSize) / pageSize) + 1));
         }
         : null;
-    const pageNext = (offset + pageSize) < files.length
+    const pageNext = (offset + pageSize) <= maxOffset
         ? () => {
             setOffset(offset + pageSize);
-            setCurrPage("" + (Math.floor((offset + pageSize) / pageSize) + 1));
+            // setCurrPage("" + (Math.floor((offset + pageSize) / pageSize) + 1));
         }
         : null;
-    const numPages = Math.ceil(files.length / pageSize);
+    // const numPages = Math.ceil(files.length / pageSize);
 
     let filesArray = [];
-    for (let i = offset; i < Math.min(offset + pageSize, files.length); i++) {
-        const file = files[i];
+    for (const file of files) {
         filesArray.push(
             <div className="folderFile" key={file.fileId}>
                 <div className="fileType">{file.directory ?
@@ -272,22 +289,25 @@ function FileSelectArea(props) {
         )
     }
 
-    const handleInputChange = (e) => {
-        let num = parseInt(e.target.value);
-        if (!isNaN(num)) {
-            num = Math.max(1, Math.floor(num));
-            num = Math.min(num, Math.max(1, numPages));
-            setCurrPage("" + num);
-            setOffset((num - 1) * pageSize);
-        } else {
-            setCurrPage("" + (Math.floor(offset / pageSize) + 1));
-        }
-    }
+    // const handleInputChange = (e) => {
+    //     let num = parseInt(e.target.value);
+    //     if (!isNaN(num)) {
+    //         num = Math.max(1, Math.floor(num));
+    //         num = Math.min(num, Math.max(1, numPages));
+    //         setCurrPage("" + num);
+    //         setOffset((num - 1) * pageSize);
+    //     } else {
+    //         setCurrPage("" + (Math.floor(offset / pageSize) + 1));
+    //     }
+    // }
+
+    const numFiles = filesCursor.getSize();
+    const hasMoreFiles = filesCursor.hasMore();
 
     return <div className="fileListArea">
                 <div className="fileListHeader">
                     The files below are located in the above folder. View the raw data of any file.
-                    <div className="numFiles">{files.length.toLocaleString()} {files.length === 1 ? "item" : "items"}</div>
+                    <div className="numFiles">{numFiles.toLocaleString()}{hasMoreFiles ? "+" : ""} {numFiles === 1 ? "item" : "items"}</div>
                 </div>
                 <div className="scrollSection fileListSection">
                     <div className="innerScrollSection">
@@ -296,7 +316,7 @@ function FileSelectArea(props) {
                 </div>
                 <div className="paginationRow">
                     <Pagination onNext={pageNext} onPrev={pagePrev} />
-                    <div className="skipToPage">Page <input className="xc-input" value={currPage}
+                    {/* <div className="skipToPage">Page <input className="xc-input" value={currPage}
                     onChange={(e) => {
                         setCurrPage(e.target.value);
                     }}
@@ -307,7 +327,7 @@ function FileSelectArea(props) {
                     }}
                     onBlur={(e) => {
                         handleInputChange(e);
-                    }} /> / {numPages.toLocaleString()}</div>
+                    }} /> / {numPages.toLocaleString()}</div> */}
                 </div>
             </div>
 }

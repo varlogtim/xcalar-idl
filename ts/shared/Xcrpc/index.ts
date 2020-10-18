@@ -56,3 +56,5 @@ import * as Session from './Session/SessionService';
 export { Session };
 import * as Sql from './Sql/SqlService';
 export { Sql };
+import * as Connector from './Connector/ConnectorService';
+export { Connector };

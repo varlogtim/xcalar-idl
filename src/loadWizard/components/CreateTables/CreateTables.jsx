@@ -16,7 +16,7 @@ class CreateTables extends React.Component {
         const {
             isLoading,
             page, rowsPerPage,
-            schemas, // Array<{schema: {hash, columns}, files: { count, size, maxPath }}>
+            schemas, // Array<{schema: {hash, columns}, files: { count, size, maxPath, hasMore }}>
             schemasInProgress,  // Set<schemaName>
             schemasFailed,  // Map<schemaName, errorMsg>
             tablesInInput, // Map<schemaName, tableName>

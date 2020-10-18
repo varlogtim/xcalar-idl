@@ -13,7 +13,11 @@ import * as Path from 'path';
 import * as SchemaLoadService from '../services/SchemaLoadService'
 import * as SchemaLoadSetting from '../services/SchemaLoadSetting'
 import { FilePathInfo } from '../services/S3Service'
-import { listFilesWithPattern, defaultFileNamePattern, readFileContent } from '../services/S3Service'
+import {
+    defaultFileNamePattern,
+    ListFilesCursor, createListFilesCursor, createSingleFileCursor,
+    readFileContent
+} from '../services/S3Service'
 import { DataPreviewModal } from './DataPreview'
 import LoadStep from './LoadStep';
 import RefreshIcon from '../../components/widgets/RefreshIcon';
@@ -104,7 +108,8 @@ type LoadConfigState = {
 
     fileSelectState: {
         isLoading: boolean,
-        files: Array<FilePathInfo>,
+        // files: Array<FilePathInfo>,
+        filesCursor: ListFilesCursor,
         fileSelected: FilePathInfo
     },
     fileContentState: {
@@ -203,7 +208,8 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             // FilePreview
             fileSelectState: {
                 isLoading: false,
-                files: [],
+                // files: [],
+                filesCursor: null,
                 fileSelected: null
             },
             fileContentState: {
@@ -632,7 +638,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
 
     _prepareCreateTableData() {
         const { finalSchema, fileSelectState } = this.state;
-        const { fileSelected, files } = fileSelectState;
+        const { fileSelected, filesCursor } = fileSelectState;
 
         this.setState(({ createTableState }) => ({
             createTableState: {
@@ -644,11 +650,9 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                         columns: finalSchema
                     },
                     files: {
-                        count: files.length, maxPath: fileSelected.fullPath,
-                        size: files.reduce((total, file) => {
-                            total += file.sizeInBytes;
-                            return total;
-                        }, 0)
+                        count: filesCursor.getSize(), maxPath: fileSelected.fullPath,
+                        size: filesCursor.getFileSize(),
+                        hasMore: filesCursor.hasMore()
                     }
                 }]
             }
@@ -657,12 +661,12 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
 
     _getSchemaDetail(schemaHash) {
         const { finalSchema, fileSelectState } = this.state;
-        const { files } = fileSelectState;
+        const { filesCursor } = fileSelectState;
 
         const detail = {
             hash: schemaHash,
             columns: finalSchema,
-            files: [...files]
+            files: filesCursor == null ? [] : filesCursor.getFiles()
         };
         this.setState({
             schemaDetailState: {
@@ -957,7 +961,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             // Update the file selection dropdown
             const selectedFile = selected.directory
                 ? await this._listSelectedFolder(this.state.connector, selected, fileNamePattern)
-                : this._listSelectedFile(selected);
+                : await this._listSelectedFile(selected);
 
             // Suggest a parser/file type from file name extension
             const suggestType = SchemaService.suggestParserType(selectedFile);
@@ -1015,34 +1019,65 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         this.setState({
             fileSelectState: {
                 isLoading: true,
-                files: [],
+                // files: [],
+                filesCursor: null,
                 fileSelected: null
             }
         });
 
         // list files in folder
         try {
-            const fileList = await listFilesWithPattern({
+            const fileCursor = createListFilesCursor({
                 targetName: targetName,
                 path: Path.join(selectedDir.fullPath, '/'),
-                isRecursive: false,
                 fileNamePattern: listFilePattern,
-                filter: (fileInfo) => !fileInfo.directory
+                isRecursive: true
             });
-            const defaultFile = fileList[0];
-            this.setState(({ fileSelectState }) => ({
-                fileSelectState: {
-                    ...fileSelectState,
-                    files: fileList,
-                    fileSelected: fileList[0]
-                }
-            }));
 
+            const defaultFile = (await fileCursor.fetchData({ offset: 0, count: 1 }))[0];
             if (defaultFile == null) {
                 throw 'No file found';
             }
+            this.setState(({ fileSelectState }) => ({
+                fileSelectState: {
+                    ...fileSelectState,
+                    filesCursor: fileCursor,
+                    fileSelected: defaultFile
+                }
+            }));
 
             return defaultFile;
+
+            // const fileList = await listFilesWithPattern({
+            //     targetName: targetName,
+            //     path: Path.join(selectedDir.fullPath, '/'),
+            //     isRecursive: false,
+            //     fileNamePattern: listFilePattern,
+            //     filter: (fileInfo) => !fileInfo.directory
+            // });
+            // const defaultFile = fileList[0];
+            // this.setState(({ fileSelectState }) => ({
+            //     fileSelectState: {
+            //         ...fileSelectState,
+            //         files: fileList,
+            //         fileSelected: fileList[0]
+            //     }
+            // }));
+
+            // if (defaultFile == null) {
+            //     throw 'No file found';
+            // }
+
+            // return defaultFile;
+        } catch(e) {
+            this.setState(({fileSelectState}) => ({
+                fileSelectState: {
+                    ...fileSelectState,
+                    filesCursor: null,
+                    fileSelected: null
+                }
+            }));
+            throw e;
         } finally {
             this.setState(({ fileSelectState }) => ({
                 fileSelectState: {
@@ -1053,7 +1088,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         }
     }
 
-    _listSelectedFile(selectedFile) {
+    async _listSelectedFile(selectedFile) {
         if (selectedFile.directory) {
             throw 'Not a file';
         }
@@ -1061,7 +1096,8 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         this.setState({
             fileSelectState: {
                 isLoading: false,
-                files: [{ ...selectedFile }],
+                filesCursor: createSingleFileCursor(selectedFile),
+                // files: [{ ...selectedFile }],
                 fileSelected: { ...selectedFile }
             }
         });
@@ -1379,7 +1415,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             }
 
             const createTable = async () => {
-                const table = await this._createTableForPreview(finalSchema, fileSelectState.files.length);
+                const table = await this._createTableForPreview(finalSchema, fileSelectState.filesCursor.getSize());
                 const cursor = table.data.createCursor();
                 await cursor.open();
                 return {
