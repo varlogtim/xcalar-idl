@@ -42,7 +42,7 @@ class PbTableService {
     public activate(pbTableNames: string[]): Promise<void> {
         // XXX TODO: remove window hack
         const PTblManager = window["PTblManager"];
-        return PTblManager.Instance.activateTablsInParallel(pbTableNames);
+        return PTblManager.Instance.activateTables(pbTableNames);
     }
 }
 

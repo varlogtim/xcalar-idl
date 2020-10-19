@@ -210,7 +210,7 @@ describe("PbTblInfo Test", function() {
 
         let tableInfo = new PbTblInfo();
         tableInfo.active = false;
-        tableInfo.state = PbTblState.BeDataset;
+        tableInfo.state = null;
 
         tableInfo.activate()
         .then(function() {
@@ -220,7 +220,7 @@ describe("PbTblInfo Test", function() {
             expect(called).to.be.true;
             expect(error).to.equal("test");
             expect(tableInfo.active).to.be.false;
-            expect(tableInfo.state).to.equal(PbTblState.BeDataset);
+            expect(tableInfo.state).to.be.null;
             done();
         })
         .always(function() {

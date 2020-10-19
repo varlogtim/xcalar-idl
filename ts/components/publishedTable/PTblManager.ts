@@ -459,30 +459,6 @@ class PTblManager {
     }
 
     /**
-     * PTblManager.Instance.activateTablsInParallel
-     * @param tableNames
-     */
-    public async activateTablsInParallel(tableNames: string[]): Promise<void> {
-        try {
-            const succeeds: string[] = [];
-            const failures: string[] = [];
-            const promises = tableNames.map((tableName) => {
-                return PromiseHelper.convertToNative(this._activateOneTable(tableName, succeeds, failures));
-            });
-            await Promise.all(promises);
-            if (failures.length > 0) {
-                Alert.error(IMDTStr.ActivatingFail, failures.join("\n"));
-            }
-            this._onTableChange({
-                "action": "activate",
-                "tables": succeeds
-            });
-        } catch (e) {
-            Alert.error(IMDTStr.ActivatingFail, e);
-        }
-    }
-
-    /**
      * PTblManager.Instance.activateTables
      * @param tableNames
      */
@@ -496,25 +472,49 @@ class PTblManager {
             return PromiseHelper.resolve();
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let succeeds: string[] = [];
-        let failures: string[] = [];
+        const succeeds: string[] = [];
+        const failures: string[] = [];
+
+        tableNames.forEach((tableName) => {
+            const tableInfo: PbTblInfo = this._tableMap.get(tableName);
+            if (tableInfo) {
+                TblSource.Instance.markActivating(tableName);
+                tableInfo.state = PbTblState.Activating;
+            }
+        });
+
         this._getIMDDependency()
         .then((imdDenendencies) => {
             let set: Set<string> = new Set();
             const promises = [];
+            const noDependencyTables: string[] = [];
             tableNames.forEach((tableName) => {
                 if (!set.has(tableName)) {
-                    let tablesToActivate = this._checkActivateDependency(tableName, imdDenendencies);
-                    tablesToActivate.forEach((table) => {
-                        set.add(table);
-                        let func = (): XDPromise<void> => {
-                            return this._activateOneTable(table, succeeds, failures);
-                        };
-                        promises.push(func);
-                    });
+                    const tablesToActivate = this._checkActivateDependency(tableName, imdDenendencies);
+                    if (tablesToActivate.length === 1) {
+                        noDependencyTables.push(tableName);
+                    } else {
+                        const chains = [];
+                        tablesToActivate.forEach((table) => {
+                            set.add(table);
+                            let func = (): XDPromise<void> => {
+                                return this._activateOneTable(table, succeeds, failures);
+                            };
+                            chains.push(func);
+                        });
+                        // group when dependency set as one chain
+                        promises.push(PromiseHelper.chain(chains));
+                    }
                 }
             });
-            return PromiseHelper.chain(promises);
+
+            noDependencyTables.forEach((tableName) => {
+                if (!set.has(tableName)) {
+                    promises.push(this._activateOneTable(tableName, succeeds, failures));
+                }
+            })
+
+            return PromiseHelper.when.apply(this, promises);
         })
         .then(() => {
             if (failures.length > 0 && !noAlert) {
@@ -531,6 +531,13 @@ class PTblManager {
             if (!noAlert) {
                 Alert.error(IMDTStr.ActivatingFail, error);
             }
+            tableNames.forEach((tableName) => {
+                const tableInfo: PbTblInfo = this._tableMap.get(tableName);
+                if (tableInfo) {
+                    tableInfo.state = null;
+                }
+            });
+            TblSource.Instance.refresh();
             deferred.reject(error);
         });
 
