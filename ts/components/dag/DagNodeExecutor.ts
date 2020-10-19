@@ -904,6 +904,7 @@ class DagNodeExecutor {
                 const res = node.getLinkedNodeAndGraph();
                 const graph: DagGraph = res.graph;
                 const linkOutNode: DagNodeDFOut = res.node;
+                this._checkDFInLineage(node, linkOutNode);
                 if (linkOutNode.shouldLinkAfterExecution()) {
                     return this._linkWithExecution(graph, linkOutNode, node);
                 } else {
@@ -918,6 +919,31 @@ class DagNodeExecutor {
         }
 
         return deferred.promise();
+    }
+
+    private _checkDFInLineage(dfInNode: DagNodeDFIn, dfOutNode: DagNodeDFOut): void {
+        const columnMap: Map<string, ColumnType> = new Map(); // name to type map
+        dfOutNode.getLineage().getColumns().forEach((progCol) => {
+            columnMap.set(progCol.getBackColName(), progCol.getType());
+        });
+
+        dfInNode.getLineage().getColumns().forEach((progCol) => {
+            const colName = progCol.getBackColName();
+            if (columnMap.has(colName)) {
+                const outType = columnMap.get(colName);
+                const inType = progCol.getType();
+                if (outType !== inType) {
+                    const error = xcStringHelper.replaceMsg(DagTStr.InOutMismatch, {
+                        in: dfInNode.getTitle(),
+                        out: dfOutNode.getTitle(),
+                        column: colName,
+                        inType,
+                        outType
+                    });
+                    throw new Error(error);
+                }
+            }
+        });
     }
 
     private _linkWithSource(
@@ -959,6 +985,7 @@ class DagNodeExecutor {
         const res = node.getLinkedNodeAndGraph();
         const graph: DagGraph = res.graph;
         const linkOutNode: DagNodeDFOut = res.node;
+        this._checkDFInLineage(node, linkOutNode);
         let promise;
         if (linkOutNode.hasResult()) {
             // no need to execute graph if function output node has table
@@ -1141,7 +1168,6 @@ class DagNodeExecutor {
 
         return deferred.promise();
     }
-
     // optimized link out run a retina which will synthesize the table
     // here we do the equavilent thing for the link in batch mode
     private _synthesizeDFOutInBatch(

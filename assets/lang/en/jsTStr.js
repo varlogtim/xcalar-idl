@@ -1589,7 +1589,8 @@ DagTStr = {
     "SortConnectWarningTitle": "Sort Warning",
     "LargeDataflowMsg": "This module contains <num> operators and may take some time to display. Do you still want to view this module?",
     "LabelTaken": "This label is taken. Please choose a different label.",
-    "HeadTaken": "This function name is taken. Please choose a different name."
+    "HeadTaken": "This function name is taken. Please choose a different name.",
+    "InOutMismatch": "Type mismatch between function input and function output operator. In function input \"<in>\" column \"<column>\" is type \"<inType>\", but in function output \"<out>\" the type is \"<outType>\". Please reconfig the function intput operator and re-detect the columns.",
 };
 
 OpPanelTStr = {
