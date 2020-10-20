@@ -72,6 +72,7 @@ namespace CloudLogin {
             setTimeout(function() {
                 $("#loginContainer").fadeIn(1000);
                 $("#logo").fadeIn(1000);
+                $("#userGuide").fadeIn(1000);
                 focusOnFirstEmptyInput();
             }, 800);
 
