@@ -83,8 +83,11 @@ class InputDropdownHint {
 
         $input.on("keydown", function(event) {
             if (event.which === keyCode.Enter || event.which === keyCode.Tab) {
-                const val: string = $input.val().trim();
+                let val: string = $input.val().trim();
                 if (typeof options.onEnter === "function") {
+                    if ($lists.find("li.highlighted").length) {
+                        val = $lists.find("li.highlighted").text();
+                    }
                     const stopEvent: string = options.onEnter(val, $input);
                     if (stopEvent) {
                         event.stopPropagation();

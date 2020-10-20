@@ -33,19 +33,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         super.setup(this._$elemPanel);
 
         let dropdownHelper: MenuHelper = new MenuHelper(this._$exportDestList, {
-            "container": "#exportDriverList"
-        });
-        dropdownHelper.setupListeners();
-        new InputDropdownHint(self._$exportDestList, {
-            "menuHelper": dropdownHelper,
-            "preventClearOnBlur": true,
-            "onEnter": function (val) {
-                self._changeDriver(null, val);
-            },
-            "order": false
-        });
-
-        let expList: MenuHelper = new MenuHelper($("#exportDriverList"), {
+            "container": "#exportDriverList",
             "onSelect": function($li) {
                 if ($li.hasClass("hint")) {
                     return false;
@@ -61,7 +49,15 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
                 self._changeDriver(name, text);
             }
         });
-        expList.setupListeners();
+        dropdownHelper.setupListeners();
+        new InputDropdownHint(self._$exportDestList, {
+            "menuHelper": dropdownHelper,
+            "preventClearOnBlur": true,
+            "onEnter": function (val) {
+                self._changeDriver(null, val);
+            },
+            "order": false
+        });
 
         $("#exportOpColumns .searchArea .searchInput").on("input", function(event) {
             const $searchInput: JQuery = $(event.currentTarget);

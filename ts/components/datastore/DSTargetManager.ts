@@ -1072,14 +1072,14 @@ namespace DSTargetManager {
                 "bounds": "#dsTarget-create-card"
             });
 
-            let funcMenuHelper = new MenuHelper($udfFuncList, {
-                "onSelect": function($li) {
-                    let func = $li.text();
-                    selectUDFFunc(func);
-                },
-                "container": "#dsTarget-create-card",
-                "bounds": "#dsTarget-create-card"
-            });
+        let funcMenuHelper = new MenuHelper($udfFuncList, {
+            "onSelect": function($li) {
+                let func = $li.text();
+                selectUDFFunc(func);
+            },
+            "container": "#dsTarget-create-card",
+            "bounds": "#dsTarget-create-card"
+        });
 
         udfModuleHint = new InputDropdownHint($udfModuleList, {
             "menuHelper": moduleMenuHelper,
