@@ -85,7 +85,8 @@ class InputDropdownHint {
             if (event.which === keyCode.Enter || event.which === keyCode.Tab) {
                 let val: string = $input.val().trim();
                 if (typeof options.onEnter === "function") {
-                    if ($lists.find("li.highlighted").length) {
+                    if ($lists.find("li.highlighted").length &&
+                    !$lists.find("li.highlighted").hasClass('createNew')) {
                         val = $lists.find("li.highlighted").text();
                     }
                     const stopEvent: string = options.onEnter(val, $input);
@@ -108,7 +109,7 @@ class InputDropdownHint {
         let hasSubList = $dropdown.hasClass("hasSubList");
         $dropdown.find(".noResultHint").remove();
 
-        let $lis: JQuery = $dropdown.find("li")
+        let $lis: JQuery;
         let subLis  = [];
         if (hasSubList) {
             $lis = $dropdown.find(".list > ul > li");
@@ -117,7 +118,7 @@ class InputDropdownHint {
                 subLis.push($li.find("li"));
             });
         } else {
-            // $lis = $lis.parent();
+            $lis = $dropdown.find("li");
         }
         const $list: JQuery = $lis.parent();
         if (!searchKey) {
@@ -146,6 +147,14 @@ class InputDropdownHint {
 
             }
             $list.scrollTop(0);
+
+            if (hasSubList) {
+                $list.find("li li").removeClass("highlighted hover");
+                $list.find("li li").eq(0).addClass("highlighted");
+            } else {
+                $list.find("li").removeClass("highlighted hover");
+                $list.find("li").eq(0).addClass("highlighted");
+            }
             this.options.menuHelper.showOrHideScrollers();
             return;
         }
@@ -162,7 +171,7 @@ class InputDropdownHint {
                     if (!noBold) {
                         xcUIHelper.boldSuggestedText($li, searchKey);
                     }
-                    if ($li.text().toLowerCase().includes(searchKey)) {
+                    if ($li.text().toLowerCase().includes(searchKey) && !$li.hasClass("createNew")) {
                         $li.removeClass("xc-hidden");
                         count++;
                         subCount++;
@@ -182,7 +191,7 @@ class InputDropdownHint {
                 if (!noBold) {
                     xcUIHelper.boldSuggestedText($li, searchKey);
                 }
-                if ($li.text().toLowerCase().includes(searchKey)) {
+                if ($li.text().toLowerCase().includes(searchKey) && !$li.hasClass("createNew")) {
                     $li.removeClass("xc-hidden");
                     count++;
                 } else {
@@ -229,6 +238,14 @@ class InputDropdownHint {
         }
 
         $list.scrollTop(0);
+
+        if (hasSubList) {
+            $list.find("li li").removeClass("highlighted hover");
+            $list.find("li li").eq(0).addClass("highlighted");
+        } else {
+            $list.find("li").removeClass("highlighted hover");
+            $list.find("li").eq(0).addClass("highlighted");
+        }
         this.options.menuHelper.showOrHideScrollers();
     }
 

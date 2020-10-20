@@ -564,8 +564,8 @@ describe("MapOpPanel Test", function() {
             };
 
             it('minimizing group with no args should work', function() {
-                $functionsInput.val("").trigger("input").trigger(fakeEvent.enterKeydown);
-                expect($argSection.hasClass('inactive')).to.be.true;
+                $functionsInput.val("").trigger("change");
+                expect($mapOpPanel.find('.argsSection').eq(0).hasClass('inactive')).to.be.true;
                 expect($mapOpPanel.find('.minGroup').length).to.equal(1);
                 expect($mapOpPanel.find('.altFnTitle:visible').length).to.equal(0);
                 expect($mapOpPanel.find('.functionsInput').val()).to.equal("");
@@ -594,7 +594,7 @@ describe("MapOpPanel Test", function() {
                 expect($argSection.find('.arg:visible').length).to.equal(0);
 
                 // trigger function and arg section
-                $functionsInput.val('eq').trigger("input").trigger(fakeEvent.enterKeydown);
+                $functionsInput.val("eq").trigger("change");
                 expect($argSection.hasClass('inactive')).to.be.false;
                 expect($argSection.find('.arg:visible').length).to.equal(3);
 
@@ -620,7 +620,7 @@ describe("MapOpPanel Test", function() {
                 expect($mapOpPanel.find('.group').eq(0).hasClass('minimized')).to.be.true;
                 expect($mapOpPanel.find('.group').eq(0).attr('data-numargs')).to.equal("2");
                 expect($mapOpPanel.find('.group').eq(1).hasClass('minimized')).to.be.false;
-                $mapOpPanel.find('.group').eq(1).find(".functionsInput").val("between").trigger("input").trigger(fakeEvent.enterKeydown);
+                $mapOpPanel.find('.group').eq(1).find(".functionsInput").val("eq").trigger("change");
 
                 // add another group
                 $mapOpPanel.find(".addExtraGroup").click();
@@ -641,7 +641,7 @@ describe("MapOpPanel Test", function() {
         describe("additional args", function() {
             it("additional arg button should appear", function() {
                 expect($mapOpPanel.find(".addExtraArg").length).to.equal(0);
-                $functionsInput.val('in').trigger("input").trigger({type: "keydown", which: keyCode.Enter});
+                $functionsInput.val('in').trigger("change");
                 expect($mapOpPanel.find(".addExtraArg").length).to.equal(1);
             });
 
@@ -778,7 +778,7 @@ describe("MapOpPanel Test", function() {
             mapOpPanel.show(node, openOptions);
             $("#mapOpPanel .bottomSection .xc-switch").click();
             expect(JSON.stringify(node.getParam())).to.equal('{"eval":[{"evalString":"","newField":""}],"icv":false,"outputTableName":""}');
-            $functionsInput.val('eq').trigger("input").trigger(fakeEvent.enterKeydown);
+            $functionsInput.val('eq').trigger("change");
             $argSection.find('.arg').eq(0).val(1).trigger("change");
             $argSection.find('.arg').eq(1).val(2).trigger("change");
             $argSection.find('.arg').eq(2).val("outputName").trigger("change");

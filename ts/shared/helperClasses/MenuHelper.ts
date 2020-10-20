@@ -484,6 +484,7 @@ class MenuHelper {
                 });
             }
             self.showOrHideScrollers();
+
             $('.selectedCell').removeClass('selectedCell');
             self._addKeyboardNavigation($lists);
         }
