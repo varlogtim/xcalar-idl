@@ -1018,7 +1018,17 @@ class DagGraph extends Durable {
             ? graph.backTraverseNodes([nodeId], reuseCompletedNodes).map
             : graph.getAllNodes();
 
-        const orderedNodes: DagNode[] = graph._topologicalSort(nodesMap);
+        let orderedNodes: DagNode[];
+        try {
+            orderedNodes = graph._topologicalSort(nodesMap);
+        } catch (error) {
+            return PromiseHelper.reject({
+                "status": "Error",
+                "hasError": true,
+                "node": error.node,
+                "type": error.error
+            });
+        }
 
         // save original sql nodes so we can cache query compilation
         let sqlNodes: Map<string, DagNodeSQL> = new Map();

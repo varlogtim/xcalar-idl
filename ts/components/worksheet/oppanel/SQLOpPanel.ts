@@ -328,9 +328,10 @@ class SQLOpPanel extends BaseOpPanel {
         this._renderDropAsYouGo();
     }
 
-    public updateNodeParents(index, adding) {
+    public updateNodeParents(node, index, adding) {
         if (!this.isOpen()) return;
         if (this.noUpdate) return;
+        if (node !== this._dagNode) return;
         if (adding) {
             let added = false;
             for (let i = 0; i < this._sourceMapping.length; i++) {

@@ -604,7 +604,7 @@ describe("GeneralOpPanelModel Test", function() {
 
             it("invalid function should be caught", function() {
                 const parsedEval = XDParser.XEvalParser.parseEvalStr("xx(a)");
-                expect(fn(parsedEval)).to.equal("Function not found");
+                expect(fn(parsedEval)).to.equal("\"xx\" is not a supported function.");
             });
 
             it("invalid string type should be caught", function() {

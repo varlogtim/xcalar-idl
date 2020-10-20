@@ -722,7 +722,7 @@ class DagNodeSQL extends DagNodeIn {
         if (!updateConfig) return;
 
         if (typeof SQLOpPanel !== "undefined") {
-            SQLOpPanel.Instance.updateNodeParents(pos, true);
+            SQLOpPanel.Instance.updateNodeParents(this, pos, true);
         }
     }
 
@@ -735,7 +735,7 @@ class DagNodeSQL extends DagNodeIn {
         if (!updateConfig) return wasSpliced;
 
         if (typeof SQLOpPanel !== "undefined") {
-            SQLOpPanel.Instance.updateNodeParents(pos);
+            SQLOpPanel.Instance.updateNodeParents(this, pos);
         }
         return wasSpliced;
     }

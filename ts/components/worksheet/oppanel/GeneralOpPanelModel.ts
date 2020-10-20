@@ -368,7 +368,10 @@ abstract class GeneralOpPanelModel {
                 outputType = xcHelper.convertFieldTypeToColType(operatorInfo.outputType);
             }
             if (outputType == null) {
-                errorObj.error = "Function not found";
+                errorObj.error = "\"" + operator + "\" is not a supported function.";
+                if (operator && self._getFnOperatorInfo(operator.toLowerCase())) {
+                    errorObj.error += " Did you mean \"" + operator.toLowerCase() + "\"?";
+                }
             } else {
                 const typeCheck = checkInvalidTypes(outputType, expectedTypeid);
                 if (typeCheck) {
@@ -1175,6 +1178,9 @@ abstract class GeneralOpPanelModel {
                 break;
             case ("other"):
                 text = error.error + ": " + groups[error.group].args[error.arg].getValue();
+                if (error.errorDetail) {
+                    text += " " + error.errorDetail;
+                }
                 break;
             case ("columnType"):
             case ("valueType"):
@@ -1189,6 +1195,9 @@ abstract class GeneralOpPanelModel {
                 break;
             default:
                 text = error.error;
+                if (error.errorDetail) {
+                    text += " " + error.errorDetail;
+                }
                 break;
         }
         return {error: text};
