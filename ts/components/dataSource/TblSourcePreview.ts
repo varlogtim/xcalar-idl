@@ -260,7 +260,7 @@ class TblSourcePreview {
         tableInfo: PbTblInfo,
         isSameTable: boolean
     ): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        // const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._updateTableAction(false);
         this._showTableSection();
         let $tableArea = this._getTableArea();
@@ -273,42 +273,46 @@ class TblSourcePreview {
             return PromiseHelper.resolve();
         }
 
-        if (WorkbookManager.getActiveWKBK() == null) {
-            $tableArea.addClass("loading").removeClass("error");
-            $tableArea.find(".loadingSection").html("Table is created! Please go into a project and check.");
-            return PromiseHelper.resolve();
-        }
-
         $tableArea.addClass("loading").removeClass("error");
-        let loadingHTML = this._loadHTMLTemplate(StatusMessageTStr.Loading);
-        $tableArea.find(".loadingSection").html(loadingHTML);
+        $tableArea.find(".loadingSection").html("Table is created! Please go into a notebook project and check.");
+        return PromiseHelper.resolve();
 
-        let hasSelectTable: boolean = false;
-        PTblManager.Instance.selectTable(tableInfo, 100)
-        .then((resultName) => {
-            hasSelectTable = true;
-            if (tableInfo == this._tableInfo) {
-                $tableArea.removeClass("loading");
-                let schema: ColSchema[] = PTblManager.Instance.getTableSchema(tableInfo);
-                let table: TableMeta = this._getResultMeta(resultName, schema);
-                let viewer = new XcTableViewer(table);
-                return this._showTable(viewer);
-            }
-        })
-        .then(() => {
-            deferred.resolve();
-        })
-        .fail((error) => {
-            if (tableInfo === this._tableInfo && !hasSelectTable) {
-                $tableArea.removeClass("loading")
-                        .addClass("error");
-                let errorMsg = xcHelper.parseError(error);
-                $tableArea.find(".errorSection").text(errorMsg);
-            }
-            deferred.reject(error);
-        });
+        // if (WorkbookManager.getActiveWKBK() == null) {
+        //     $tableArea.addClass("loading").removeClass("error");
+        //     $tableArea.find(".loadingSection").html("Table is created! Please go into a project and check.");
+        //     return PromiseHelper.resolve();
+        // }
 
-        return deferred.promise();
+        // $tableArea.addClass("loading").removeClass("error");
+        // let loadingHTML = this._loadHTMLTemplate(StatusMessageTStr.Loading);
+        // $tableArea.find(".loadingSection").html(loadingHTML);
+
+        // let hasSelectTable: boolean = false;
+        // PTblManager.Instance.selectTable(tableInfo, 100)
+        // .then((resultName) => {
+        //     hasSelectTable = true;
+        //     if (tableInfo == this._tableInfo) {
+        //         $tableArea.removeClass("loading");
+        //         let schema: ColSchema[] = PTblManager.Instance.getTableSchema(tableInfo);
+        //         let table: TableMeta = this._getResultMeta(resultName, schema);
+        //         let viewer = new XcTableViewer(table);
+        //         return this._showTable(viewer);
+        //     }
+        // })
+        // .then(() => {
+        //     deferred.resolve();
+        // })
+        // .fail((error) => {
+        //     if (tableInfo === this._tableInfo && !hasSelectTable) {
+        //         $tableArea.removeClass("loading")
+        //                 .addClass("error");
+        //         let errorMsg = xcHelper.parseError(error);
+        //         $tableArea.find(".errorSection").text(errorMsg);
+        //     }
+        //     deferred.reject(error);
+        // });
+
+        // return deferred.promise();
     }
 
     private _viewDatasetTable(tableInfo: PbTblInfo): XDPromise<void> {

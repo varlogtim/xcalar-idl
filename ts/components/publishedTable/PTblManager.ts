@@ -468,7 +468,7 @@ class PTblManager {
         tableNames = tableNames.filter((tableName) => {
             // skip already activated table
             const pbTableInfo = this.getTableByName(tableName);
-            return !pbTableInfo || !pbTableInfo.active;
+            return !pbTableInfo || (!pbTableInfo.active && !pbTableInfo.state);
         });
         if (tableNames.length === 0) {
             return PromiseHelper.resolve();
