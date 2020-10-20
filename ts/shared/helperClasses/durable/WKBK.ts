@@ -30,7 +30,7 @@ class WKBK extends Durable {
         this.created = options.created || time;
         this.modified = options.modified || time;
         this.resource = options.resource || false;
-        this.memUsed = options.memUsed || null;
+        this.memUsed = null;
         if (options.description) {
             this.description = options.description;
         }
