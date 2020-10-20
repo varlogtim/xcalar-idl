@@ -1003,7 +1003,7 @@ class SQLEditorSpace {
                 input.identifiers[index + 1] = identifier;
             });
             let node: DagNodeSQL = <DagNodeSQL>await DagViewManager.Instance.autoAddNode(DagNodeType.SQL,
-                null, null, input, undefined, undefined, {
+                null, null, input, {
                     configured: true,
                     forceAdd: true,
                     autoConnect: true

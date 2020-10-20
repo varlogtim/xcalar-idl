@@ -349,8 +349,7 @@ class SQLDagExecutor {
     }
 
     private _appendNodeToDataflow(): void {
-        DagTabManager.Instance.openAndResetExecuteOnlyTab(new DagTabSQLExecute());
-        this._tempTab = <DagTabSQLExecute>DagViewManager.Instance.getActiveTab();
+        this._tempTab = DagTabManager.Instance.openAndResetExecuteOnlyTab(new DagTabSQLExecute());
         this._tempGraph = this._tempTab.getGraph();
         this._sqlNode.hide();
         this._tempGraph.addNode(this._sqlNode);

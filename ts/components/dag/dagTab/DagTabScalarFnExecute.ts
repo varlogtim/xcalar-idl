@@ -10,16 +10,15 @@ class DagTabScalarFnExecute extends DagTabExecuteOnly {
 
     // XXX test only
     // DagTabScalarFnExecute.test
-    public static test() {
-        const dagTab = new DagTabScalarFnExecute();
+    public static test(sqlNode, mapNode): DagTabScalarFnExecute {
+        const dagTab: DagTabScalarFnExecute = DagTabManager.Instance.openAndResetExecuteOnlyTab(new DagTabScalarFnExecute()) as DagTabScalarFnExecute;
         const graph = dagTab.getGraph();
-        const sqlNode = DagNodeFactory.create({type: DagNodeType.SQL});
-        const mapNode = DagNodeFactory.create({type: DagNodeType.Map});
         graph.addNode(sqlNode);
         graph.addNode(mapNode);
         graph.connect(sqlNode.getId(), mapNode.getId());
-        DagTabManager.Instance.openAndResetExecuteOnlyTab(dagTab);
+        DagViewManager.Instance.getActiveDagView().rerender();
         DagViewManager.Instance.autoAlign(dagTab.getId());
+        return dagTab;
     }
 
     /**

@@ -717,6 +717,10 @@
         .textOverflowOneLine;
         background-color: @color-bg-default;
 
+        &:not(.grey) {
+            .input-placeholder(@color-text-placeholder2);
+        }
+
         &:not(.inputable) {
             .no-selection;
         }
@@ -3067,6 +3071,7 @@ html.firefox {
 
 .sectionBar {
     height: @height-sectionBar;
+    min-height: @height-sectionBar;
     border-bottom: 1px solid @color-border-medium2;
 }
 

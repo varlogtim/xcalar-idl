@@ -549,7 +549,7 @@ class ResourceMenu {
         };
 
         let node: DagNodeIMDTable = <DagNodeIMDTable>await DagViewManager.Instance.autoAddNode(DagNodeType.IMDTable,
-            null, null, input, undefined, undefined, {
+            null, null, input, {
                 configured: true,
                 forceAdd: true
         });

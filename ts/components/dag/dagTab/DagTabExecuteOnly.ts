@@ -21,10 +21,10 @@ abstract class DagTabExecuteOnly extends DagTabUser {
         return false;
     }
 
-    public viewOnlyAlert(): XDPromise<void> {
+    public viewOnlyAlert(bypassAlert?: boolean): XDPromise<void> {
         try {
             const noAlert = xcLocalStorage.getItem(this._storageKey) === "true";
-            if (noAlert) {
+            if (bypassAlert || noAlert) {
                 DagTabManager.Instance.convertNoEditableTab(this);
                 return PromiseHelper.resolve();
             }

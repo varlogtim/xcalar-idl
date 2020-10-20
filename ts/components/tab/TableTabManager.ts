@@ -3,7 +3,8 @@ enum TableTabType {
     PbTable = "PbTable",
     ResultSet = "ResultSet",
     SQLHistory = "SQLHistory",
-    Preview = "Preview"
+    Preview = "Preview",
+    ScalarFn = "ScalarFn"
 }
 
 class TableTabManager extends AbstractTabManager {
@@ -48,10 +49,14 @@ class TableTabManager extends AbstractTabManager {
             const sqlTab = this._getSQLTab();
             name = sqlTab.name;
             type = sqlTab.type;
+        } else if (this._belongToScalarFnTab(type, meta)) {
+            const scalarFnTab = this._getScalarFnTab();
+            name = scalarFnTab.name;
+            type = scalarFnTab.type;
         }
         const index: number = this._getTabIndexByName(name);
         if (index > -1) {
-            if (type === TableTabType.SQL) {
+            if (type === TableTabType.SQL || type === TableTabType.ScalarFn) {
                 this._activeTabs[index].meta = meta;
             }
             await this._switchResult(index);
@@ -75,6 +80,11 @@ class TableTabManager extends AbstractTabManager {
     public async openSQLTab(): Promise<void> {
         const sqlTab = this._getSQLTab();
         return this.openTab(sqlTab.name, sqlTab.type);
+    }
+
+    public async openScalarFnTab(): Promise<void> {
+        const tab = this._getScalarFnTab();
+        return this.openTab(tab.name, tab.type);
     }
 
     /**
@@ -209,7 +219,8 @@ class TableTabManager extends AbstractTabManager {
     } {
         const tabs: {name: string, type: TableTabType, meta?: {tabId: string, nodeId: DagNodeId}}[] = [];
         this._activeTabs.forEach((tab) => {
-            if (tab.type !== TableTabType.SQL && tab.type !== TableTabType.Preview) {
+            if (tab.type !== TableTabType.SQL && tab.type !== TableTabType.Preview &&
+                tab.type !== TableTabType.ScalarFn) {
                 tabs.push(tab);
             }
         });
@@ -256,6 +267,13 @@ class TableTabManager extends AbstractTabManager {
         return {
             name: TableTabManager.SQLTab,
             type: TableTabType.SQL
+        };
+    }
+
+    private _getScalarFnTab(): {name: string, type: TableTabType} {
+        return {
+            name: "Scalar Function Result",
+            type: TableTabType.ScalarFn
         };
     }
 
@@ -317,6 +335,7 @@ class TableTabManager extends AbstractTabManager {
                     break;
                 case TableTabType.ResultSet:
                 case TableTabType.Preview:
+                case TableTabType.ScalarFn:
                     SQLResultSpace.Instance.showHint();
                     await this._viewResult(tab.meta);
                     break;
@@ -392,6 +411,16 @@ class TableTabManager extends AbstractTabManager {
         }
         if (type === TableTabType.SQLHistory) {
             return true;
+        }
+        return false;
+    }
+
+    private _belongToScalarFnTab(type: TableTabType, meta: any): boolean {
+        if (type === TableTabType.ResultSet && meta) {
+            const tab = DagTabManager.Instance.getTabById(meta.tabId);
+            if (tab instanceof DagTabScalarFnExecute) {
+                return true;
+            }
         }
         return false;
     }

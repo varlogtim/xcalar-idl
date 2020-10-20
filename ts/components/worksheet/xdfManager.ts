@@ -73,12 +73,12 @@ class XDFManager {
     }
 
     // updates all udfs with raw names
-    public updateAllUDFs(listXdfsObj: XcalarApiListXdfsOutputT) {
+    public updateAllUDFs(listXdfsObj: XcalarApiListXdfsOutputT): void {
         this._allUDFs = xcHelper.deepCopy(listXdfsObj.fnDescs);
     }
 
     // updates shared and current workbook udfs, with shortened names
-    public updateUDFs(listXdfsObj: XcalarApiListXdfsOutputT) {
+    public updateUDFs(listXdfsObj: XcalarApiListXdfsOutputT): void {
         this._operatorsMap[FunctionCategoryT.FunctionCategoryUdf] = {};
         listXdfsObj.fnDescs.forEach(op => {
             this._operatorsMap[FunctionCategoryT.FunctionCategoryUdf][op.displayName] = op;
@@ -87,6 +87,15 @@ class XDFManager {
     // gets all udfs: from shared and from every workbook
     public getAllUDFs(): XcalarEvalFnDescT[] {
         return this._allUDFs;
+    }
+
+    public getUDFMap() {
+        return this._operatorsMap[FunctionCategoryT.FunctionCategoryUdf];
+    }
+
+    // expects "module:fnName"
+    public hasUDF(udfName: string) {
+        return this._operatorsMap[FunctionCategoryT.FunctionCategoryUdf][udfName] != null;
     }
 
     // Filter out load udfs in given operator map

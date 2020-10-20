@@ -519,7 +519,7 @@ class DagViewManager {
         return $node;
     }
 
-    public render($dfArea?: JQuery, graph?: DagGraph, dagTab?: DagTab, noEvents?: boolean) {
+    public render($dfArea?: JQuery, graph?: DagGraph) {
         if (!this._setup) {
             return;
         }
@@ -536,7 +536,7 @@ class DagViewManager {
         } else {
             containerSelector = this.containerSelector;
         }
-        const newDagView = new DagView($dfArea, graph, containerSelector, dagTab);
+        const newDagView = new DagView($dfArea, graph, containerSelector);
         this.dagViewMap.set(graph.getTabId(), newDagView);
 
         if (this.activeDag && tabId === this.activeDag.getTabId()) {
@@ -549,7 +549,7 @@ class DagViewManager {
             this.activeDagTab = DagTabManager.Instance.getTabById(tabId) || dagTab;
             this.activeDagView.focus();
         }
-        newDagView.render(noEvents);
+        newDagView.render();
     }
 
     public getDagViewById(tabId: string): DagView {
@@ -861,14 +861,15 @@ class DagViewManager {
         subType?: DagNodeSubType,
         parentNodeId?: DagNodeId,
         input?: object,
-        x?: number,
-        y?: number,
-        options?: {
+        options: {
             nodeTitle?: string,
             configured?: boolean,
             forceAdd?: boolean,
-            autoConnect?: boolean
-        }
+            autoConnect?: boolean,
+            x?: number,
+            y?: number,
+            byPassAlert?: boolean
+        } = {}
     ): Promise<DagNode | null> {
         const dagTab = this.activeDagTab;
         if (dagTab == null) {
@@ -876,12 +877,13 @@ class DagViewManager {
         }
         try {
             if (dagTab instanceof DagTabExecuteOnly) {
-                await dagTab.viewOnlyAlert();
+                await dagTab.viewOnlyAlert(options.byPassAlert);
             } else if (dagTab instanceof DagTabUser && !dagTab.isEditable()) {
                 await DagTabUser.viewOnlyAlert(dagTab);
             }
-            return this.activeDagView.autoAddNode(newType, subType, parentNodeId, input, x, y, options);
+            return this.activeDagView.autoAddNode(newType, subType, parentNodeId, input, options);
         } catch (e) {
+            console.error(e);
             return null;
         }
     }

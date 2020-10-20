@@ -49,10 +49,10 @@ class DagView {
     private schemaPopups: Map<DagNodeId, DagSchemaPopup> = new Map();
     private _hasInstructionNode: boolean = false;
 
-    constructor($dfArea: JQuery, graph: DagGraph, containerSelector: string, dagTab?: DagTab) {
+    constructor($dfArea: JQuery, graph: DagGraph, containerSelector: string) {
         this.$dfArea = $dfArea;
         this.graph = graph;
-        this.dagTab = dagTab || DagTabManager.Instance.getTabById(graph.getTabId());
+        this.dagTab = DagTabManager.Instance.getTabById(graph.getTabId());
         this.containerSelector = containerSelector;
     }
 
@@ -199,7 +199,7 @@ class DagView {
         for (let i = 0; i < numInput; i++) {
             let x: number = xBase;
             let y: number = yBase + (i * inc);
-            await DagViewManager.Instance.autoAddNode(DagNodeType.SQLFuncIn, null, null, null, x, y);
+            await DagViewManager.Instance.autoAddNode(DagNodeType.SQLFuncIn, null, null, null, {x: x, y: y});
         }
 
         // add output
@@ -209,7 +209,7 @@ class DagView {
         const viewPortWidth = DagView.$dagView.outerWidth() - 120;
         const maxX = Math.round(viewPortWidth / 20) * 20;
         x = Math.max(xBase + inc, Math.min(maxX, x));
-        await DagViewManager.Instance.autoAddNode(DagNodeType.SQLFuncOut, null, null, null, x, y);
+        await DagViewManager.Instance.autoAddNode(DagNodeType.SQLFuncOut, null, null, null, {x, y});
         DagNodeInfoPanel.Instance.hide(); // not show info panel
     }
 
@@ -224,7 +224,7 @@ class DagView {
             DagTabManager.Instance.newTab();
             let position: number = DagView.gridSpacing * 2;
             let node: DagNode = await DagViewManager.Instance.autoAddNode(type, null, null, config,
-                position, position);
+                {x: position, y: position});
             if (node != null) {
                 DagNodeMenu.execute("configureNode", {
                     node: node,
@@ -324,10 +324,6 @@ class DagView {
                 fontSize = 9;
             } else if (iconType === "aggregateIcon") {
                 fontSize = 6;
-            } else if (iconType === "columnIcon") {
-                tipClasses = "preWrap leftAlign wide";
-                fontSize = 12;
-                fontFamily = "open sans";
             }
             let topClass = isTopIcon ? " topNodeIcon " : " bottomNodeIcon ";
 
@@ -387,7 +383,16 @@ class DagView {
     public static addTableIcon($node: JQuery, iconType: string, tooltip: string) {
         let left: number;
         let top: number;
-        if (iconType !== "tableIcon") {
+        if (iconType !== "lockIcon") {
+            top = DagView.nodeHeight - 2;
+            if (iconType === "columnIcon") {
+                left =  DagView.nodeAndTableWidth - 35;
+            } else {
+                left =  DagView.nodeAndTableWidth - 15;
+            }
+            $node.find("." + iconType).remove();
+            drawIcon(iconType, false, left, top, DagView.iconMap[iconType], tooltip, 0);
+        } else {
             let icons;
             if ($node.attr("data-toptableicons")) {
                 icons = $node.attr("data-toptableicons").split(",");
@@ -417,35 +422,6 @@ class DagView {
                     drawIcon(icons[i], true, left - (i * 15 ), top, DagView.iconMap[icons[i]], tip, i);
                 }
             }
-        } else {
-            let icons;
-            if ($node.attr("data-bottomtableicons")) {
-                icons = $node.attr("data-bottomtableicons").split(",");
-            } else {
-                icons = [];
-            }
-            if (icons.indexOf(iconType) > -1) {
-                return;
-            } else {
-                icons.push(iconType);
-            }
-            // sort icons in order of DagView.iconOrder
-            icons.sort(function(a, b) {
-                return DagView.iconOrder.indexOf(a) - DagView.iconOrder.indexOf(b);
-            });
-            $node.find(".bottomTableIcon").remove();
-            // store the icon order
-            $node.attr("data-bottomtableicons", icons);
-            top = DagView.nodeHeight - 2;
-            for (let i = 0; i < icons.length; i++) {
-                if (icons[i] === iconType) {
-                    drawIcon(icons[i], false, DagView.nodeAndTableWidth - (i * 15 ) - 15, top, DagView.iconMap[iconType], xcStringHelper.escapeDblQuoteForHTML(tooltip), i);
-                    $node.attr("data-" + iconType.toLowerCase(), tooltip);
-                } else {
-                    let tip: string = $node.data(icons[i].toLowerCase())
-                    drawIcon(icons[i], false,  DagView.nodeAndTableWidth - (i * 15 ) - 15, top, DagView.iconMap[icons[i]], tip, i);
-                }
-            }
         }
 
         function drawIcon(iconType, isTopIcon, left, top, icon, tooltip, index) {
@@ -458,6 +434,10 @@ class DagView {
                 iconLeft = -1;
                 iconTop = 4;
                 fontSize = 9;
+            }  else if (iconType === "columnIcon") {
+                tipClasses = "preWrap leftAlign wide";
+                fontSize = 12;
+                fontFamily = "open sans";
             }
             let topClass = isTopIcon ? " topTableIcon " : " bottomTableIcon ";
 
@@ -496,17 +476,17 @@ class DagView {
             return;
         }
         let isTopIcon: boolean = true;
-        if (iconType === "tableIcon") {
+        if (iconType !== "lockIcon") {
             isTopIcon = false;
         }
-        let iconStr = isTopIcon ? $node.attr("data-toptableicons") : $node.attr("data-bottomtableicons");
-        let icons: string[] = iconStr.split(",");
-        let index = icons.indexOf(iconType);
-        $icon.remove();
 
         $node.removeAttr("data-" + iconType.toLowerCase());
 
         if (isTopIcon) {
+            let iconStr = isTopIcon ? $node.attr("data-toptableicons") : $node.attr("data-bottomtableicons");
+            let icons: string[] = iconStr.split(",");
+            let index = icons.indexOf(iconType);
+            $icon.remove();
             let offset = DagView.nodeWidth - 19;
             // shift all following icons to the right;
             for (let i = index + 1; i < icons.length; i++) {
@@ -515,18 +495,11 @@ class DagView {
                     .attr("transform", `translate(${left}, 1)`)
                     .attr("class", icons[i] + " topTableIcon tblIcon index" + (i - 1));
             }
+            icons.splice(index, 1);
+            $node.attr("data-toptableicons", <any>icons)
         } else {
-            // shift all following icons to the left;
-            for (let i = index + 1; i < icons.length; i++) {
-                let left = ((i - 1) * 15) + 22;
-                d3.select($node.find(`.nodeIcon.index${i}`).get(0))
-                    .attr("transform", `translate(${left}, ${DagView.nodeHeight})`)
-                    .attr("class", icons[i] + " bottomTableIcon tblIcon index" + (i - 1));
-            }
+            $icon.remove();
         }
-
-        icons.splice(index, 1);
-        isTopIcon ? $node.attr("data-toptableicons", <any>icons) : $node.attr("data-bottomtableicons", <any>icons);
     }
 
     private static _dagLineageTipTemplate(x, y, text): HTML {
@@ -848,7 +821,7 @@ class DagView {
         // add connections separately after so all node elements already exist
         // adds event listeners
      */
-    public render(noEvents?: boolean): void {
+    public render(): void {
         if (this.$dfArea.closest("#dagView").length && this.$dfArea.hasClass("rendered")) {
             return;
         }
@@ -907,19 +880,21 @@ class DagView {
             this._renderAllNodes(nodes);
         }
 
-        const comments: Map<CommentNodeId, CommentNode> = this.graph.getAllComments();
-
-        comments.forEach((commentNode: CommentNode) => {
+        this.graph.getAllComments().forEach((commentNode: CommentNode) => {
             DagComment.Instance.drawComment(commentNode, this.$dfArea);
         });
-        if (!noEvents) { // used in sql preview graph
-            this._setupGraphEvents();
-        }
+
+        this._setupGraphEvents();
 
         this.$dfArea.addClass("rendered");
         if (this.dagTab instanceof DagTabUser) {
             this._checkLoadedTabHasQueryInProgress();
         }
+    }
+
+    public rerender(): void {
+        this.$dfArea.removeClass('rendered');
+        this.render();
     }
 
     public addInstructionNode() {
@@ -951,7 +926,7 @@ class DagView {
         }
         this._hasInstructionNode = false;
         if (replacementNodeInfo) {
-            return this.autoAddNode(replacementNodeInfo.type, replacementNodeInfo.subType, null, null, x, y);
+            return this.autoAddNode(replacementNodeInfo.type, replacementNodeInfo.subType, null, null, {x, y});
         }
     }
 
@@ -1092,7 +1067,8 @@ class DagView {
     public run(
         nodeIds?: DagNodeId[],
         optimized?: boolean,
-        generateOptimizedDataflow?: boolean
+        generateOptimizedDataflow?: boolean,
+        noAutoPreview?: boolean
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let tabsToLoad: DagTabUser[] = [];
@@ -1114,7 +1090,7 @@ class DagView {
                     generateOptimizedDataflow);
             })
             .then(() => {
-                if (UserSettings.Instance.getPref("dfAutoPreview") === true &&
+                if (!noAutoPreview && UserSettings.Instance.getPref("dfAutoPreview") === true &&
                     nodeIds != null &&
                     nodeIds.length === 1 &&
                     !generateOptimizedDataflow
@@ -1715,19 +1691,20 @@ class DagView {
         subType?: DagNodeSubType,
         parentNodeId?: DagNodeId,
         input?: object,
-        x?: number,
-        y?: number,
         options: {
             nodeTitle?: string
             configured?: boolean
             forceAdd?: boolean
             autoConnect?: boolean
+            x?: number,
+            y?: number
         } = {}
     ): DagNode {
         let logActions = [];
         let parentNode: DagNode;
         let nextAvailablePosition: Coordinate;
         let connectToParent: boolean = false;
+        let {x, y} = options;
         let originalCoorsProvided = (x != null && y != null);
         let originalCoors = {
             x: x || DagView.gridSpacing,
@@ -4407,7 +4384,7 @@ class DagView {
 
     private _columnChange(info: {node: DagNode, $node?: JQuery, columnDeltas: Map<string, any>, columnOrdering: string[]}): void {
         const $node: JQuery = info.$node || this._getNode(info.node.getId());
-        DagView.removeNodeIcon($node, "columnIcon");
+        DagView.removeTableIcon($node, "columnIcon");
         if (info.columnDeltas.size || info.columnOrdering.length) {
             $node.addClass("hasColumnChange");
             let colObj = {};
@@ -4431,7 +4408,7 @@ class DagView {
                 colStr += "Column reordering: \n" + orderStr;
             }
 
-            DagView.addNodeIcon($node, "columnIcon", colStr);
+            DagView.addTableIcon($node, "columnIcon", colStr);
         } else {
             $node.removeClass("hasColumnChange");
         }

@@ -79,7 +79,7 @@ abstract class AbstractMenu {
         DagTabManager.Instance.switchTab(tabId);
         parentNodeId = parentNodeId || DagTable.Instance.getBindNodeId();
         return DagViewManager.Instance.autoAddNode(type,
-            subType, parentNodeId, input, undefined, undefined, {
+            subType, parentNodeId, input, {
                 configured: configured,
                 forceAdd: true
             });
@@ -256,7 +256,7 @@ abstract class AbstractMenu {
                 };
 
                 let parentNode = await DagViewManager.Instance.autoAddNode(DagNodeType.IMDTable,
-                    null, null, input, undefined, undefined, {
+                    null, null, input, {
                         configured: true,
                         forceAdd: true
                 });

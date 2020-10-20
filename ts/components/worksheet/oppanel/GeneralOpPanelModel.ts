@@ -580,6 +580,19 @@ abstract class GeneralOpPanelModel {
         return (str);
     }
 
+    public static replaceColPrefixes(str: string, replacement: string): string {
+        for (let i = 0; i < str.length; i++) {
+            if (str[i] === gColPrefix) {
+                if (str[i - 1] === "\\") {
+                    str = str.slice(0, i - 1) + replacement + str.slice(i);
+                } else if (this.isActualPrefix(str, i)) {
+                    str = str.slice(0, i) + replacement + str.slice(i + 1);
+                }
+            }
+        }
+        return (str);
+    }
+
     public static parseAggPrefixes(str: string): string {
         for (let i = 0; i < str.length; i++) {
             if (str[i] === gAggVarPrefix) {

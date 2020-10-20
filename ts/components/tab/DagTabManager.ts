@@ -480,13 +480,13 @@ class DagTabManager extends AbstractTabManager {
      * DagTabManager.Instance.openAndResetExecuteOnlyTab
      * open the tab and clear the graph inside it
      */
-    public openAndResetExecuteOnlyTab(newDagTab: DagTabExecuteOnly): void {
+    public openAndResetExecuteOnlyTab(newDagTab: DagTabExecuteOnly): DagTabExecuteOnly {
         DagPanel.Instance.toggleDisplay(true);
         // Check if we already have the tab
         const index: number = this.getTabIndex(newDagTab.getId());
         if (index != -1) {
             this._switchTabs(index);
-            const oldTab = this._activeUserDags[index];
+            const oldTab = this._activeUserDags[index] as DagTabExecuteOnly;
             // reset graph
             const graph = oldTab.getGraph();
             graph.reset();
@@ -495,8 +495,10 @@ class DagTabManager extends AbstractTabManager {
             $dagArea.find(".commentArea").empty();
             $dagArea.find(".edgeSvg").empty();
             $dagArea.find(".operatorSvg").empty();
+            return oldTab;
         } else {
             this._addExecuteOnlyTab(newDagTab);
+            return newDagTab;
         }
     }
 

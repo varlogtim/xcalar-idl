@@ -987,12 +987,8 @@ input {
     line-height: 30px;
     padding: 0 4px;
 
-    &:-ms-input-placeholder {
-        color: @color-text-placeholder;
-    }
-    &::-webkit-input-placeholder {
-        color: @color-text-placeholder;
-    }
+    .input-placeholder(@color-text-placeholder);
+
     &[type=number] {
         -moz-appearance: textfield;
     }

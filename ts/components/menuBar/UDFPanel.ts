@@ -316,9 +316,14 @@ class UDFPanel {
             this.toggleDisplay(false);
         });
 
+        $udfSection.find("header .test").click(() => {
+            CustomFunctionTestForm.Instance.toggle();
+        });
+
         this._getManagerModal().find(".cancel, .close").click(() => {
             this._modalHelper.clear();
         });
+
 
         const textArea: HTMLElement = document.getElementById("udf-codeArea");
 

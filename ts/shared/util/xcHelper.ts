@@ -1215,17 +1215,17 @@ namespace xcHelper {
 
            $ele: jquery element to check
            check: function to check validation, if empty, will check if the
-                  value of selecor is empty. Val of the $ele will be
+                  value of selector is empty. Val of the $ele will be
                   passed into the function
            error: error to show if the check is failed
-           quite: if set true, will not show any warnning box.
+           quite: if set true, will not show any warning box.
            onErr: if not null, will call it before showing the StatusBox
            callback: if not null, will call it after check fails
            isAlert: if set true, will show Alert Modal, default is StatusBox
            formMode: if set true, will use StatusBox's form mode
            side: string, side to show the pop up
            delay: delay to show the status box
-           ...: to be extened in the future.
+           ...: to be extended in the future.
 
          * Check will run in array's order.
          */

@@ -389,6 +389,7 @@ class ModalHelper {
         $modal.removeClass("visible");
         $modal.find(".focusable").off(".xcModal")
                                  .removeClass("focusable");
+        xcTooltip.hideAll();
         this.enableSubmit();
         if (numModalsOpen < 2) {
             $("body").removeClass("no-selection");

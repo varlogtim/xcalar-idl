@@ -336,7 +336,7 @@ class MenuHelper {
                 $(this).addClass("hover");
             },
             "mouseleave": function() {
-                $(this).removeClass("hover");
+                $(this).removeClass("hover highlighted");
             }
         }, ".list:not(.hasSubList) li, .list.hasSubList li li");
 

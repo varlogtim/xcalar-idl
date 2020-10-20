@@ -654,7 +654,7 @@ class DagCategoryBar {
             );
             const type: DagNodeType = newNodeInfo.type;
             const subType: DagNodeSubType = newNodeInfo.subType;
-            DagViewManager.Instance.autoAddNode(type, subType, null, null, null, null, {
+            DagViewManager.Instance.autoAddNode(type, subType, null, null, {
                 autoConnect: true
             });
         });

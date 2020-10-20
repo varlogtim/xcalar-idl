@@ -784,30 +784,59 @@ class BaseOpPanel {
         nodeInfo.isHidden = true;
         const lastNode = graph.newNode(nodeInfo);
 
-        let rowNumName =  "XC_ROW_COL_" + Date.now();
-        let rowNumNode = graph.newNode({
-            type: DagNodeType.RowNum,
-            input: {
-                newField: rowNumName
-            },
-            isHidden: true,
-            state: DagNodeState.Configured
-        });
-        let filterNode = graph.newNode({
-            type: DagNodeType.Filter,
-            input: {
-                evalString: `le(${rowNumName}, ${UserSettings.Instance.getPref("dfPreviewLimit")})`
-            },
-            isHidden: true,
-            state: DagNodeState.Configured
-        });
+        let count = 0;
+        // let rowNumName =  "XC_ROW_COL_" + Date.now() + count++;
+        // let rowNumNode = graph.newNode({
+        //     type: DagNodeType.RowNum,
+        //     input: {
+        //         newField: rowNumName
+        //     },
+        //     isHidden: true,
+        //     state: DagNodeState.Configured
+        // });
+        // let filterNode = graph.newNode({
+        //     type: DagNodeType.Filter,
+        //     input: {
+        //         evalString: `le(${rowNumName}, ${UserSettings.Instance.getPref("dfPreviewLimit")})`
+        //     },
+        //     isHidden: true,
+        //     state: DagNodeState.Configured
+        // });
+        this._previewNodes = [];
         this._dagNode.getParents().forEach((parent, index) => {
             if (!parent) return;
-            graph.connect(parent.getId(), rowNumNode.getId(), index, false, false);
+            let rowNumName =  "XC_ROW_COL_" + Date.now() + count++;
+            let rowNumNode = graph.newNode({
+                type: DagNodeType.RowNum,
+                input: {
+                    newField: rowNumName
+                },
+                isHidden: true,
+                state: DagNodeState.Configured
+            });
+            let filterNode = graph.newNode({
+                type: DagNodeType.Filter,
+                input: {
+                    evalString: `le(${rowNumName}, ${UserSettings.Instance.getPref("dfPreviewLimit")})`
+                },
+                isHidden: true,
+                state: DagNodeState.Configured
+            });
+            graph.connect(parent.getId(), rowNumNode.getId(), 0, false, false);
+            graph.connect(rowNumNode.getId(), filterNode.getId(), 0, false, false);
+            graph.connect(filterNode.getId(), lastNode.getId(), index, false, false);
+            this._previewNodes.push(rowNumNode);
+            this._previewNodes.push(filterNode);
+
+            const colsToHide = lastNode.getLineage().getColumns().filter((progCol) => {
+                return progCol.getBackColName() === rowNumName;
+            });
+            const colNamesToHide = colsToHide.map(p=>p.getBackColName());
+            const colTypesToHide = colsToHide.map(p=>({type: p.getType()}));
+            lastNode.columnChange(DagColumnChangeType.Hide, colNamesToHide, colTypesToHide);
         });
-        graph.connect(rowNumNode.getId(), filterNode.getId(), 0, false, false);
-        graph.connect(filterNode.getId(), lastNode.getId(), 0, false, false);
-        this._previewNodes = [rowNumNode, filterNode, lastNode];
+
+        this._previewNodes.push(lastNode);
 
         param.outputTableName = "xcPreview";
         lastNode.setParam(param, true);

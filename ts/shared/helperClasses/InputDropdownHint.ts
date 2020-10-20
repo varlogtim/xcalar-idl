@@ -3,7 +3,8 @@ interface InputDropdownHintOptions {
     preventClearOnBlur?: boolean,
     onEnter?: Function,
     order?: boolean,
-    noBold?: boolean
+    noBold?: boolean,
+    isColumnsList?: boolean
 }
 // options:
 // menuHelper: (required) instance of MenuHelper
@@ -85,9 +86,14 @@ class InputDropdownHint {
             if (event.which === keyCode.Enter || event.which === keyCode.Tab) {
                 let val: string = $input.val().trim();
                 if (typeof options.onEnter === "function") {
-                    if ($lists.find("li.highlighted").length &&
-                    !$lists.find("li.highlighted").hasClass('createNew')) {
-                        val = $lists.find("li.highlighted").text();
+                    if (($lists.find("li.highlighted").length &&
+                    !$lists.find("li.highlighted").hasClass('createNew')) ||
+                    ($lists.find("li.hover").length &&
+                    !$lists.find("li.hover").hasClass('createNew'))) {
+                        val = $lists.find("li.highlighted").eq(0).text();
+                        if (val === "") {
+                            val = $lists.find("li.hover").eq(0).text();
+                        }
                     }
                     const stopEvent: string = options.onEnter(val, $input);
                     if (stopEvent) {
@@ -99,7 +105,7 @@ class InputDropdownHint {
             } else if (event.which === keyCode.Up ||
                        event.which === keyCode.Down) {
                 $lists.find("li.hover").removeClass("hover");
-                xcUIHelper.listHighlight($input, event, false);
+                xcUIHelper.listHighlight($input, event, options.isColumnsList);
             }
         });
     }

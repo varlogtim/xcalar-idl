@@ -219,9 +219,11 @@ class DagUDFErrorModal {
         let newTitle = oldTitle.length ? (oldTitle + "- Failed Rows") : "Failed Rows";
         let input = node.getParam();
         input.icv = true;
+        input.outputTableName = input.outputTableName || "FailedRows";
 
-        let newNode = await DagViewManager.Instance.autoAddNode(DagNodeType.Map, null, parentNode.getId(), null, null, null, {
-            nodeTitle: newTitle
+        let newNode = await DagViewManager.Instance.autoAddNode(DagNodeType.Map, null, parentNode.getId(), null, {
+            nodeTitle: newTitle,
+            byPassAlert: true
         });
         if (newNode == null) {
             return;
