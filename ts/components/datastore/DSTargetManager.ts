@@ -559,11 +559,14 @@ namespace DSTargetManager {
                 const innerJSON = arg[key];
                 const bucket = innerJSON.bucket + "/" + innerJSON.prefix;
                 availableS3Buckets.push(bucket);
-                if (key === 'S3Bucket') {
-                    privateBucket = bucket;
-                    S3BucketsNameMap.set(bucket, 'my-xcalar-cloud-bucket/');
-                } else if (key === 'SampleBucket') {
-                    S3BucketsNameMap.set(bucket, 'my-xcalar-demo-bucket/');
+                if (XVM.isCloud()) {
+                    // only apply to Saas, not VPC
+                    if (key === 'S3Bucket') {
+                        privateBucket = bucket;
+                        S3BucketsNameMap.set(bucket, 'my-xcalar-cloud-bucket/');
+                    } else if (key === 'SampleBucket') {
+                        S3BucketsNameMap.set(bucket, 'my-xcalar-demo-bucket/');
+                    }
                 }
             }
         } catch (e) {
