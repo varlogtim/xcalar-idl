@@ -5325,6 +5325,9 @@ html.microsoft {
 
     .modalMain {
         .size(@height: ~"calc(100% - @{h-without-main})");
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
 
         .saveAs {
             height: 30px;
@@ -5350,6 +5353,12 @@ html.microsoft {
     }
 
     .fileManager {
+        height: auto;
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+
         .fileManagerBar {
             min-height: 26px;
             background-color: @color-bg-default;
@@ -5386,7 +5395,8 @@ html.microsoft {
         }
 
         .fileManagerMainArea {
-            height: ~"calc(100% - 60px)";
+            flex: 1 1 auto;
+            overflow: hidden;
             padding: 0px;
             .section {
                 .row {
