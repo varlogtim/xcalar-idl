@@ -1129,7 +1129,7 @@ module.exports = {
         "DescripFunc": "Description of Function",
         "ArgList": "Argument List",
         "EmptyHint": "Select to allow empty field",
-        "map": "Scalar function",
+        "map": "Scalar Function",
         "filter": "Filter",
         "groupBy": "Group By",
         "aggregate": "Aggregate",

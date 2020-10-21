@@ -132,7 +132,7 @@ class DagNodeMap extends DagNode {
      */
     public getDisplayNodeType(): string {
         if (this.type === DagNodeType.Map && this.getSubType() == null) {
-            return "Scalar function";
+            return "Scalar Function";
         } else {
             return super.getDisplayNodeType();
         }

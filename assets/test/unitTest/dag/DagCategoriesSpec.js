@@ -291,11 +291,11 @@ describe("DagCategories Test", function() {
 
         it('removeOperatorById', function() {
             let mapId = inCategory.getOperators()[3].node.getId();
-            expect(inCategory.isExistOperatorName("Scalar function")).to.be.true;
+            expect(inCategory.isExistOperatorName("Scalar Function")).to.be.true;
             expect(inCategory.getOperators().length).to.equal(4);
             inCategory.removeOperatorById(mapId);
             expect(inCategory.getOperators().length).to.equal(3);
-            expect(inCategory.isExistOperatorName("Scalar function")).to.be.false;
+            expect(inCategory.isExistOperatorName("Scalar Function")).to.be.false;
         });
 
         it("rename should work", function() {
@@ -508,7 +508,7 @@ describe("DagCategories Test", function() {
             let opNames = operators.map((op) => {
                 return op.getDisplayNodeType()
             });
-            expect(opNames).to.deep.equal(["Custom", "CustomOutput", "Input", "newname", "Scalar function", "testName-1"]);
+            expect(opNames).to.deep.equal(["Custom", "CustomOutput", "Input", "newname", "Scalar Function", "testName-1"]);
         });
     });
 

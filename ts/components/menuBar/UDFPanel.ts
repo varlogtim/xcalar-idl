@@ -30,7 +30,7 @@ class UDFPanel {
     public readonly udfDefault: string =
         "# PLEASE TAKE NOTE:\n" +
         "# \n" +
-        "# Scalar function works on one or more\n" +
+        "# Scalar Function works on one or more\n" +
         "# fields of a table row\n" +
         "# and/or on literal values.\n" +
         "# Function automatically\n" +
