@@ -1255,9 +1255,9 @@ class DagView {
         if (!nodeInfos.length) {
             return;
         }
-        if (this.dagTab instanceof DagTabSQLExecute) {
+        if (this.dagTab instanceof DagTabExecuteOnly) {
             // cannot modify sql execute tab
-            DagTabSQLExecute.viewOnlyAlert(this.dagTab);
+            this.dagTab.viewOnlyAlert();
             return;
         }
         if (this._hasInstructionNode) {
@@ -2906,8 +2906,8 @@ class DagView {
      * Check if modification to graph/nodes should be disabled, Ex. it's showing the subGraph of a customNode
      */
     public isDisableActions(showAlert: boolean = false): boolean {
-        if (showAlert && this.dagTab instanceof DagTabSQLExecute) {
-            DagTabSQLExecute.viewOnlyAlert(this.dagTab);
+        if (showAlert && this.dagTab instanceof DagTabExecuteOnly) {
+            this.dagTab.viewOnlyAlert();
         } else if (showAlert && this.dagTab instanceof DagTabUser && !this.dagTab.isEditable()) {
             // when it's inside an app, not editable
             DagTabUser.viewOnlyAlert(this.dagTab);
@@ -5411,7 +5411,7 @@ class DagView {
         if (event.which !== 1 || (isSystemMac && event.ctrlKey)) {
             return;
         }
-        if (self.dagTab instanceof DagTabSQLExecute) {
+        if (self.dagTab instanceof DagTabExecuteOnly) {
             return;
         }
         const $childNode = $childConnector.closest(".operator");
@@ -5597,7 +5597,7 @@ class DagView {
     }
 
     public nodeTitleEditMode($origTitle): void {
-        if (this.dagTab instanceof DagTabSQLExecute) {
+        if (this.dagTab instanceof DagTabExecuteOnly) {
             return;
         }
         const $operator = $origTitle.closest(".operator")
@@ -5808,7 +5808,7 @@ class DagView {
         identifiers?: Map<number, string>,
         setNodeConfig?: {sourceColumn: string, destColumn: string, columnType: ColumnType, cast: boolean}[]
     ): XDPromise<void> {
-        if (this.dagTab instanceof DagTabSQLExecute) {
+        if (this.dagTab instanceof DagTabExecuteOnly) {
             return PromiseHelper.reject();
         }
         this.dagTab.turnOffSave();

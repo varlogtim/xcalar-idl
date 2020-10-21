@@ -156,6 +156,7 @@ enum DagTabType {
     Query = "Query",
     SQL = "SQL",
     SQLExecute = "SQL Execute Graph",
+    ScalarFnTest = "Scalar Fn Test",
     Stats = "Stats",
     Main = "Main"
 }

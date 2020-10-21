@@ -477,14 +477,13 @@ class DagTabManager extends AbstractTabManager {
     }
 
     /**
-     * DagTabManager.Instance.openAndResetSQLExecuteTab
+     * DagTabManager.Instance.openAndResetExecuteOnlyTab
      * open the tab and clear the graph inside it
      */
-    public openAndResetSQLExecuteTab(): void {
+    public openAndResetExecuteOnlyTab(newDagTab: DagTabExecuteOnly): void {
         DagPanel.Instance.toggleDisplay(true);
         // Check if we already have the tab
-        const dagTab: DagTabSQLExecute = new DagTabSQLExecute();
-        const index: number = this.getTabIndex(dagTab.getId());
+        const index: number = this.getTabIndex(newDagTab.getId());
         if (index != -1) {
             this._switchTabs(index);
             const oldTab = this._activeUserDags[index];
@@ -497,7 +496,7 @@ class DagTabManager extends AbstractTabManager {
             $dagArea.find(".edgeSvg").empty();
             $dagArea.find(".operatorSvg").empty();
         } else {
-            this._addSQLExecuteTab(dagTab);
+            this._addExecuteOnlyTab(newDagTab);
         }
     }
 
@@ -545,7 +544,7 @@ class DagTabManager extends AbstractTabManager {
         // filter out retina tabs as we don't want to persist these viewonly tabs
         const keys: string[] = this.getTabs().reduce((res, dagTab) => {
             if (!(dagTab instanceof DagTabProgress) &&
-                !(dagTab instanceof DagTabSQLExecute) // DagTabSQLExecute use openSQLExecuteTab to handle the load/setup
+                !(dagTab instanceof DagTabExecuteOnly) // DagTabSQLExecute use openSQLExecuteTab to handle the load/setup
             ) {
                 res.push(dagTab.getId());
             }
@@ -1012,7 +1011,7 @@ class DagTabManager extends AbstractTabManager {
         let tabName: string = this._getAppPath(dagTab);
         const tabId = dagTab.getId();
         let isEditable: boolean = (dagTab instanceof DagTabUser);
-        const isViewOnly: boolean = (dagTab instanceof DagTabProgress || dagTab instanceof DagTabSQLExecute);
+        const isViewOnly: boolean = (dagTab instanceof DagTabProgress || dagTab instanceof DagTabExecuteOnly);
         const isProgressGraph: boolean = (dagTab instanceof DagTabProgress);
         const isOptimized: boolean = (dagTab instanceof DagTabOptimized);
         const isQuery: boolean = (dagTab instanceof DagTabQuery);
@@ -1034,9 +1033,9 @@ class DagTabManager extends AbstractTabManager {
             extraClass += " custom";
         } else if (DagTabUser.isForSQLFolder(dagTab) || dagTab instanceof DagTabSQL) {
             extraClass += " sql";
-        } else if (dagTab instanceof DagTabSQLExecute) {
-            extraClass += " sqlExecute";
-            extraIcon = '<i class="icon xi-menu-sql tabIcon"></i>';
+        } else if (dagTab instanceof DagTabExecuteOnly) {
+            extraClass += " executeOnly";
+            extraIcon = `<i class="icon ${dagTab.getIcon()} tabIcon"></i>`;
             isEditable = false;
         } else if (dagTab instanceof DagTabMain) {
             extraClass += " main";
@@ -1135,23 +1134,24 @@ class DagTabManager extends AbstractTabManager {
         const dagTab: DagTabSQLExecute = new DagTabSQLExecute();
         dagTab.load()
         .then(() => {
-            this._addSQLExecuteTab(dagTab);
+            this._addExecuteOnlyTab(dagTab);
             deferred.resolve();
         })
         .fail(() => {
             // assume it's a new sql tab case
             dagTab.save();
-            this._addSQLExecuteTab(dagTab);
+            this._addExecuteOnlyTab(dagTab);
             deferred.resolve();
         });
 
         return deferred.promise();
     }
 
-    private _addSQLExecuteTab(dagTab: DagTabSQLExecute): void {
+    private _addExecuteOnlyTab(dagTab: DagTabExecuteOnly): void {
         // always add the tab at the front
-        this._addDagTab(dagTab, 0);
-        this._switchTabs(0, false);
+        const index = dagTab instanceof DagTabSQLExecute ? 0 : null;
+        this._addDagTab(dagTab, index);
+        this._switchTabs(index, false);
     }
 
     private _cacheActiveTab(): void {

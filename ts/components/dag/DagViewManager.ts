@@ -875,8 +875,8 @@ class DagViewManager {
             return null;
         }
         try {
-            if (dagTab instanceof DagTabSQLExecute) {
-                await DagTabSQLExecute.viewOnlyAlert(dagTab);
+            if (dagTab instanceof DagTabExecuteOnly) {
+                await dagTab.viewOnlyAlert();
             } else if (dagTab instanceof DagTabUser && !dagTab.isEditable()) {
                 await DagTabUser.viewOnlyAlert(dagTab);
             }

@@ -102,7 +102,7 @@ function replay(testConfig, tags) {
         },
 
         'get tabs and nodes': function(browser) {
-            browser.waitForElementPresent(".dagTab:not(.sqlExecute)");
+            browser.waitForElementPresent(".dagTab:not(.executeOnly)");
             browser.execute(execFunctions.getDataflowInfo, [], function(result) {
                 testTabs = result.value;
                 if (Object.keys(testTabs).length === 0) {

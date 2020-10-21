@@ -254,7 +254,9 @@ class DagTable {
         let shouldShowName: boolean = false;
         if (viewer instanceof XcDagTableViewer) {
             const tabId = viewer.getDataflowTabId();
-            if (tabId ===  DagTabSQLExecute.ID) {
+            if (tabId === DagTabSQLExecute.ID ||
+                tabId === DagTabScalarFnExecute.ID
+            ) {
                 shouldShowName = true;
             }
         }

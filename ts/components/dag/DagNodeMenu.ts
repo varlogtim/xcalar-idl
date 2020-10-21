@@ -432,7 +432,7 @@ namespace DagNodeMenu {
                     break
                 case ("editSQLGraph"):
                     dagTab = DagViewManager.Instance.getActiveTab();
-                    if (dagTab instanceof DagTabSQLExecute) {
+                    if (dagTab instanceof DagTabExecuteOnly) {
                         DagTabManager.Instance.convertNoEditableTab(dagTab);
                     }
                     break;
@@ -768,8 +768,8 @@ namespace DagNodeMenu {
             classes += ' viewOnly ';
         }
         let activeTab: DagTab = DagViewManager.Instance.getActiveTab();
-        if (activeTab instanceof DagTabSQLExecute) {
-            classes += ' viewOnly SQLExecuteTab ';
+        if (activeTab instanceof DagTabExecuteOnly) {
+            classes += ' viewOnly executeOnlyTab ';
         }
         if (activeTab instanceof DagTabSQL) {
             classes += ' viewOnly SQLTab ';
@@ -901,7 +901,7 @@ namespace DagNodeMenu {
         ) {
             const table: string = dagNode.getTable();
             const dagTab: DagTab = DagViewManager.Instance.getActiveTab();
-            if (dagTab instanceof DagTabSQLExecute && dagNode.getChildren().length > 0) {
+            if (dagTab instanceof DagTabExecuteOnly && dagNode.getChildren().length > 0) {
                 // when it's SQL graph and is not the last node
                 $menu.find(".viewResult, .generateResult, .viewSkew").addClass("xc-hidden");
             } else if (table != null && DagTblManager.Instance.hasTable(table)) {

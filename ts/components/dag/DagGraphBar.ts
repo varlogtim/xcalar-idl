@@ -67,7 +67,7 @@ class DagGraphBar {
         }
 
         const isViewOnly: boolean = (dagTab instanceof DagTabProgress ||
-        dagTab instanceof DagTabSQLExecute);
+        dagTab instanceof DagTabExecuteOnly);
         if (isViewOnly) {
             $topBar.addClass("viewOnly");
         } else {
@@ -100,10 +100,10 @@ class DagGraphBar {
             $topBar.removeClass("sqlFunc");
         }
 
-        if (dagTab instanceof DagTabSQLExecute) {
-            $topBar.addClass("sqlExecute");
+        if (dagTab instanceof DagTabExecuteOnly) {
+            $topBar.addClass("executeOnly");
         } else {
-            $topBar.removeClass("sqlExecute");
+            $topBar.removeClass("executeOnly");
         }
 
         if (dagTab instanceof DagTabMain) {
@@ -234,7 +234,7 @@ class DagGraphBar {
 
         $topBar.find(".editSQLGraph").click(() => {
             const dagTab = DagViewManager.Instance.getActiveTab();
-            if (dagTab instanceof DagTabSQLExecute) {
+            if (dagTab instanceof DagTabExecuteOnly) {
                 DagTabManager.Instance.convertNoEditableTab(dagTab);
             }
         });
@@ -328,8 +328,8 @@ class DagGraphBar {
     private _updateHeader(): void {
         const $header = $("#dagView .categoryBar .sectionHeader");
         const dagTab = DagViewManager.Instance.getActiveTab();
-        if (dagTab instanceof DagTabSQLExecute) {
-            $header.text(SQLTStr.Graph);
+        if (dagTab instanceof DagTabExecuteOnly) {
+            $header.text(dagTab.getName());
         } else {
             $header.text(AppTStr.Builder);
         }

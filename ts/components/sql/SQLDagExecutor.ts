@@ -349,14 +349,14 @@ class SQLDagExecutor {
     }
 
     private _appendNodeToDataflow(): void {
-        DagTabManager.Instance.openAndResetSQLExecuteTab();
+        DagTabManager.Instance.openAndResetExecuteOnlyTab(new DagTabSQLExecute());
         this._tempTab = <DagTabSQLExecute>DagViewManager.Instance.getActiveTab();
         this._tempGraph = this._tempTab.getGraph();
         this._sqlNode.hide();
         this._tempGraph.addNode(this._sqlNode);
     }
 
-    private _configureSQLNode(noStatusUpdate: boolean = false, noPushToSelect: boolean = false): XDPromise<any> {
+    private _configureSQLNode(noStatusUpdate: boolean = false): XDPromise<any> {
         this._sqlNode.setParam({
             sqlQueryStr: this._sql,
             identifiers: this._identifiers,

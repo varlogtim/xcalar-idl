@@ -519,8 +519,8 @@ class ResourceMenu {
             DagPanel.Instance.toggleDisplay(true);
             const dagTab = DagViewManager.Instance.getActiveTab();
             if (dagTab.getType() !== "Normal") {
-                if (dagTab instanceof DagTabSQLExecute) {
-                    DagTabSQLExecute.viewOnlyAlert(dagTab)
+                if (dagTab instanceof DagTabExecuteOnly) {
+                    dagTab.viewOnlyAlert()
                     .then(() => {
                         this._addTableToModule(table);
                     });
