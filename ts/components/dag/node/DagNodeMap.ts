@@ -256,11 +256,10 @@ class DagNodeMap extends DagNode {
             return;
         }
         const splits: string[] = fnName.split(":");
-        if (splits.length === 1) {
-            return;
+        if (splits.length === 2) {
+            const moduleName: string = splits[0];
+            set.add(moduleName);
         }
-        const moduleName: string = splits[0];
-        set.add(moduleName);
         // recusrive check the arg
         if (arg["args"] != null) {
             arg["args"].forEach((subArg) => {
