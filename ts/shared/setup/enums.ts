@@ -457,6 +457,10 @@ enum UrlToTab {
     notebook = "notebook",
 }
 
+enum NotificationEnum {
+    refreshTable = 'refreshTable'
+}
+
 
 if (typeof global !== 'undefined') {
     global.RowDirection = RowDirection;
@@ -490,4 +494,5 @@ if (typeof global !== 'undefined') {
     global.SetupStatus = SetupStatus;
     global.SQLStatus = SQLStatus;
     global.SQLStatementType = SQLStatementType;
+    global.NotificationEnum = NotificationEnum;
 }

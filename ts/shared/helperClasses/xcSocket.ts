@@ -162,13 +162,16 @@ class XcSocket {
             }
 
             switch (type) {
+                case NotificationEnum.refreshTable:
+                    PTblManager.Instance.getTablesAsync(true);
+                    break;
                 default:
                     Alert.show({
                         title: "Notification",
                         msg: content,
                         isAlert: true
                     });
-                break;
+                    break;
             }
             return true;
         } catch (e) {
