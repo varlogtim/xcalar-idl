@@ -1000,11 +1000,9 @@ class DagGraphExecutor {
                     // log completed nodes so we no longer update them
                     this._finishedNodeIds.add(nodeId);
                     this._dagIdToDestTableMap.delete(nodeId);
-                    if (node.getType() === DagNodeType.Map) {
-                        let nodeInfo = queryNodesMap.values().next().value;
-                        if (DagGraphExecutor.hasUDFError(nodeInfo)) {
-                            (<DagNodeMap>node).setUDFError(nodeInfo.opFailureInfo);
-                        }
+                    let nodeInfo = queryNodesMap.values().next().value;
+                    if (DagGraphExecutor.hasUDFError(nodeInfo)) {
+                        node.setUDFError(nodeInfo.opFailureInfo);
                     }
                 }
             }

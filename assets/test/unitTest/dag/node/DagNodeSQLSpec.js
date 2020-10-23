@@ -86,6 +86,7 @@ describe("SQL Dag Node Test", () => {
                 "tag": [],
                 "isHidden": undefined,
                 "udfErrors": {},
+                "udfError": undefined,
                 "headName": null,
                 "schema": []
             });

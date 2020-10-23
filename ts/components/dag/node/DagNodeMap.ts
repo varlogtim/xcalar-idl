@@ -1,7 +1,5 @@
 class DagNodeMap extends DagNode {
     protected input: DagNodeMapInput;
-    private _udfError: MapUDFFailureInfo;
-
     public constructor(options: DagNodeMapInfo, runtime?: DagRuntime) {
         super(options, runtime);
         this.type = DagNodeType.Map;
@@ -9,7 +7,6 @@ class DagNodeMap extends DagNode {
         this.minParents = 1;
         this.display.icon = "&#xe9da;";
         this.input = this.getRuntime().accessible(new DagNodeMapInput(options.input));
-        this._udfError = options.udfError;
     }
 
     public static readonly specificSchema = {
@@ -182,37 +179,6 @@ class DagNodeMap extends DagNode {
         });
     }
 
-    public hasUDFError(): boolean {
-        return this._udfError != null;
-    }
-
-    public setUDFError(udfError): void {
-        if (this._udfError === udfError) {
-            return; // do not trigger event if nothing is changed
-        }
-        this._udfError = udfError;
-        this._cleanUDFError();
-        this.events.trigger(DagNodeEvents.UDFErrorChange, {
-            node: this
-        });
-    }
-
-    public getUDFError(): MapUDFFailureInfo {
-        return this._udfError;
-    }
-
-    protected _removeTable() {
-        this.setUDFError(null);
-        super._removeTable();
-    }
-
-    protected _getSerializeInfo(includeStats?: boolean): DagNodeMapInfo {
-        const serializedInfo: DagNodeMapInfo = <DagNodeMapInfo>super._getSerializeInfo(includeStats);
-        serializedInfo.udfError = this._udfError;
-        return serializedInfo;
-    }
-
-
     /**
      * @override
      */
@@ -265,18 +231,6 @@ class DagNodeMap extends DagNode {
             arg["args"].forEach((subArg) => {
                 this._getUDFFromArg(subArg, set);
             });
-        }
-    }
-
-    private _cleanUDFError() {
-        if (this._udfError && this._udfError.opFailureSummary) {
-            let newFailureSummary = [];
-            this._udfError.opFailureSummary.forEach((summary) => {
-                if (!(summary.failureSummInfo && !summary.failureSummName)) {
-                    newFailureSummary.push(summary);
-                }
-            });
-            this._udfError.opFailureSummary = newFailureSummary;
         }
     }
 }

@@ -242,13 +242,12 @@ class DagSubGraph extends DagGraph {
                         }
                     }
                 }
-                if ((node.getState() === DagNodeState.Complete ||
-                    node.getState() === DagNodeState.Error) &&
-                    node.getType() === DagNodeType.Map) {
-                        let nodeInfo = queryNodesMap.values().next().value;
-                        if (DagGraphExecutor.hasUDFError(nodeInfo)) {
-                            (<DagNodeMap>node).setUDFError(nodeInfo.opFailureInfo);
-                        }
+                if (node.getState() === DagNodeState.Complete ||
+                    node.getState() === DagNodeState.Error) {
+                    let nodeInfo = queryNodesMap.values().next().value;
+                    if (DagGraphExecutor.hasUDFError(nodeInfo)) {
+                        node.setUDFError(nodeInfo.opFailureInfo);
+                    }
                 }
             }
         }

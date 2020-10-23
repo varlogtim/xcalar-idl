@@ -943,7 +943,7 @@ namespace DagNodeMenu {
         }
 
         // view udf error details
-        if (dagNode instanceof DagNodeMap && dagNode.hasUDFError()) {
+        if (dagNode.hasUDFError()) {
             $menu.find(".viewUDFErrors").removeClass("xc-hidden");
             if (DagUDFErrorModal.Instance.isOpen()) {
                 $menu.find(".viewUDFErrors").addClass("unavailable");

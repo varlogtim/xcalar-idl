@@ -609,11 +609,11 @@ class DagViewManager {
      * // run the entire dag,
      * // if no nodeIds passed in then it will execute all the nodes
      */
-    public run(nodeIds?: DagNodeId[], optimized?: boolean): XDPromise<void> {
+    public run(nodeIds?: DagNodeId[], optimized?: boolean, generateOptimizedDataflow?: boolean, noAutoPreview?: boolean): XDPromise<void> {
         if (this.activeDagView == null) {
             return PromiseHelper.reject();
         }
-        return this.activeDagView.run(nodeIds, optimized);
+        return this.activeDagView.run(nodeIds, optimized, generateOptimizedDataflow, noAutoPreview);
     }
 
     /**

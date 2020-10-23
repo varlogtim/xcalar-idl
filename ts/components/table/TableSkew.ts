@@ -16,7 +16,7 @@ class TableSkew {
         } else {
             h = 0;
         }
-        return `hsl(${h}, 100%, 33%)`;
+        return `hsl(${h}, 83%, 67%)`;
     }
 
     private static _isInValidSkew(skew: number): boolean {

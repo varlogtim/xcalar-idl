@@ -2043,11 +2043,10 @@ class DagGraph extends Durable {
                 }
 
                 if ((node.getState() === DagNodeState.Complete ||
-                    node.getState() === DagNodeState.Error) &&
-                    node.getType() === DagNodeType.Map) {
+                    node.getState() === DagNodeState.Error)) {
                     let nodeInfo = queryNodesMap.values().next().value;
                     if (DagGraphExecutor.hasUDFError(nodeInfo)) {
-                        (<DagNodeMap>node).setUDFError(nodeInfo.opFailureInfo);
+                       node.setUDFError(nodeInfo.opFailureInfo);
                     }
                 }
             }

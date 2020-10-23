@@ -2,7 +2,7 @@ class DagUDFErrorModal {
     private static _instance: DagUDFErrorModal;
     private _$modal: JQuery;
     private _modalHelper: ModalHelper;
-    private _node: DagNodeMap;
+    private _node: DagNode;
     private _tabId: string;
     private _isOptimized: boolean;
 
@@ -30,7 +30,7 @@ class DagUDFErrorModal {
             return false;
         }
         this._tabId = DagViewManager.Instance.getActiveTab().getId();
-        this._node = <DagNodeMap>DagViewManager.Instance.getActiveDag().getNode(nodeId);
+        this._node = DagViewManager.Instance.getActiveDag().getNode(nodeId);
         this._isOptimized = DagViewManager.Instance.getActiveTab() instanceof DagTabOptimized;
         if (this._node == null) {
             // error case
@@ -57,7 +57,7 @@ class DagUDFErrorModal {
         this._reset();
     }
 
-    public getNode(): DagNodeMap {
+    public getNode(): DagNode {
         return this._node;
     }
 
@@ -81,7 +81,7 @@ class DagUDFErrorModal {
                     curColumnName = err.failureSummName;
 
                     err.failureSummInfo.forEach(innerErr => {
-                        html += getRowHtml(innerErr);
+                        html += getRowHtml.bind(this)(innerErr);
                     });
                     if (hasErrStr) {
                         html += `</div>`; // closes group
@@ -135,8 +135,25 @@ class DagUDFErrorModal {
             count += err.numRowsFailed;
             let numFails = xcStringHelper.numToStr(err.numRowsFailed);
             let desc = xcStringHelper.escapeHTMLSpecialChar(err.failureDesc);
+            let evalStr = "";
+            const param = this._node.getParam();
+            if (this._node instanceof DagNodeFilter) {
+                evalStr = param.evalString;
+            } else {
+                const evalObj = param.eval.find((e) => {
+                    return e.newField === curColumnName;
+                });
+                if (evalObj) {
+                    evalStr = evalObj.evalString;
+                }
+            }
+            console.log(err);
             html += `<div class="errorRow">
-                <div class="count">${numFails} failures</div>
+                <div class="subRow">
+                    <div class="evalString">${evalStr}</div>
+                    <div class="count">${numFails} failures</div>
+                </div>
+
                 <div class="errorText">${desc}</div>
             </div>`;
 
@@ -218,6 +235,14 @@ class DagUDFErrorModal {
         let oldTitle = node.getTitle().trim();
         let newTitle = oldTitle.length ? (oldTitle + "- Failed Rows") : "Failed Rows";
         let input = node.getParam();
+        if (node instanceof DagNodeFilter) {
+            input.eval = [{
+                evalString: input.evalString,
+                newField: "OriginalFilterColumn"
+            }];
+            delete input.evalString;
+        }
+
         input.icv = true;
         input.outputTableName = input.outputTableName || "FailedRows";
 
@@ -230,11 +255,21 @@ class DagUDFErrorModal {
         }
         newNode.setParam(input, true);
 
-        DagViewManager.Instance.run([newNode.getId()])
+        DagViewManager.Instance.run([newNode.getId()], false, false, true)
         .then(() => {
-            if (!UserSettings.Instance.getPref("dfAutoPreview")) {
-                DagViewManager.Instance.viewResult(newNode, this._tabId);
-            }
+            this._reorderColumns(newNode);
+            return DagViewManager.Instance.viewResult(newNode, this._tabId);
+        })
+        .then(() => {
+            TblManager.highlightColumn($("#sqlTableArea .xcTable th.col1"));
         });
+    }
+
+    private _reorderColumns(mapNode) {
+        const columns = mapNode.getLineage().getColumns().map(c => c.getBackColName());
+        if (!columns.length) return;
+        const col = columns.pop();
+        columns.unshift(col);
+        mapNode.columnChange(DagColumnChangeType.Reorder, columns);
     }
 }

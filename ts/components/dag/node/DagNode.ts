@@ -35,6 +35,7 @@ abstract class DagNode extends Durable {
         // on the next stats update. We don't clear stats immediately because
         // we try to retain the old stats for as long as possible
     };
+    protected _udfError: MapUDFFailureInfo;
 
     public static generateId(): string {
         this.uid = this.uid || new XcUID(DagNode.KEY, true);
@@ -67,6 +68,7 @@ abstract class DagNode extends Durable {
         this.error = options.error;
         this.aggregates = options.aggregates || [];
         this.display.isHidden = options.isHidden;
+        this._udfError = options.udfError;
 
         this.numParent = 0;
         this.maxParents = 1;
@@ -1578,7 +1580,8 @@ abstract class DagNode extends Durable {
             aggregates: this.aggregates,
             stats: null,
             tag: this.tag,
-            isHidden: this.display.isHidden
+            isHidden: this.display.isHidden,
+            udfError: this._udfError
         };
         if (includeStats) {
             if (this.runStats.hasRun) {
@@ -1670,6 +1673,7 @@ abstract class DagNode extends Durable {
     }
 
     protected _removeTable(): void {
+        this.setUDFError(null);
         if (this.table) {
             let tableName: string = this.table;
             delete this.table;
@@ -1823,6 +1827,37 @@ abstract class DagNode extends Durable {
 
     public hasStats(): boolean {
         return this.runStats.hasRun;
+    }
+
+    public hasUDFError(): boolean {
+        return this._udfError != null;
+    }
+
+    public setUDFError(udfError): void {
+        if (this._udfError === udfError) {
+            return; // do not trigger event if nothing is changed
+        }
+        this._udfError = udfError;
+        this._cleanUDFError();
+        this.events.trigger(DagNodeEvents.UDFErrorChange, {
+            node: this
+        });
+    }
+
+    public getUDFError(): MapUDFFailureInfo {
+        return this._udfError;
+    }
+
+    private _cleanUDFError() {
+        if (this._udfError && this._udfError.opFailureSummary) {
+            let newFailureSummary = [];
+            this._udfError.opFailureSummary.forEach((summary) => {
+                if (!(summary.failureSummInfo && !summary.failureSummName)) {
+                    newFailureSummary.push(summary);
+                }
+            });
+            this._udfError.opFailureSummary = newFailureSummary;
+        }
     }
 
     protected async _updateProgressFromTable(

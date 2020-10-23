@@ -3824,9 +3824,16 @@ class DagView {
         });
 
         this._registerGraphEvent(this.graph, DagNodeEvents.UDFErrorChange, (info) => {
-            const node: DagNodeMap | DagNodeSQL = info.node;
+            const node: DagNode = info.node;
             const $node: JQuery = this._getNode(node.getId());
-            if (node instanceof DagNodeMap) {
+             if (node instanceof DagNodeSQL) {
+                let udfErrors = node.getUDFErrors();
+                if (Object.keys(udfErrors).length) {
+                    this._updateNodeUDFErrorIcon($node, node);
+                } else {
+                    this._removeNodeUDFErrorIcon($node);
+                }
+            } else {
                 if (node.hasUDFError()) {
                     this._updateNodeUDFErrorIcon($node, node);
                 } else {
@@ -3835,15 +3842,7 @@ class DagView {
                         DagUDFErrorModal.Instance.close();
                     }
                 }
-            } else if (node instanceof DagNodeSQL) {
-                let udfErrors = node.getUDFErrors();
-                if (Object.keys(udfErrors).length) {
-                    this._updateNodeUDFErrorIcon($node, node);
-                } else {
-                    this._removeNodeUDFErrorIcon($node);
-                }
             }
-
             this.dagTab.save();
         });
 
@@ -4052,7 +4051,7 @@ class DagView {
             xcTooltip.add($node.find(".main"), {title: DFTStr.Deprecated});
         }
 
-        if (node instanceof DagNodeMap && node.hasUDFError()) {
+        if (node.hasUDFError()) {
             this._updateNodeUDFErrorIcon($node, node);
         }
 
@@ -4073,7 +4072,7 @@ class DagView {
         return $node;
     }
 
-    private _updateNodeUDFErrorIcon($node: JQuery, node: DagNodeMap | DagNodeSQL) {
+    private _updateNodeUDFErrorIcon($node: JQuery, node: DagNode) {
         if ($node.find("iconArea").length) {
             $node.find("iconArea").remove();
         }
@@ -4101,12 +4100,12 @@ class DagView {
             .attr("font-family", "icomoon")
             .text("\uea70");
 
-        if (node instanceof DagNodeMap) {
-            let numFailed = xcStringHelper.numToStr(node.getUDFError().numRowsFailedTotal);
-            xcTooltip.add($node.find(".iconArea"), {title: numFailed + " rows failed. Click to view details."});
-        } else if (node instanceof DagNodeSQL) {
+        if (node instanceof DagNodeSQL) {
             let numFailed = xcStringHelper.numToStr(Object.keys(node.getUDFErrors()).length);
             xcTooltip.add($node.find(".iconArea"), {title: numFailed + " map operator(s) with errors. Inspect to view details."});
+        } else {
+            let numFailed = xcStringHelper.numToStr(node.getUDFError().numRowsFailedTotal);
+            xcTooltip.add($node.find(".iconArea"), {title: numFailed + " rows failed. Click to view details."});
         }
     }
 
@@ -4155,15 +4154,15 @@ class DagView {
             this.$dfArea.find('.nodeStats[data-id="' + nodeId + '"]').remove();
             this.$dfArea.find('.activatingTableTip[data-id="' + nodeId + '"]').remove();
         }
-        if (node.getType() === DagNodeType.Map && node.getSubType() == null) {
-            if ((<DagNodeMap>node).hasUDFError()) {
-                this._updateNodeUDFErrorIcon($node, <DagNodeMap>node);
+         if (node.getType() === DagNodeType.SQL) {
+            if (Object.keys((<DagNodeSQL>node).getUDFErrors()).length) {
+                this._updateNodeUDFErrorIcon($node, <DagNodeSQL>node);
             } else {
                 this._removeNodeUDFErrorIcon($node);
             }
-        } else if (node.getType() === DagNodeType.SQL) {
-            if (Object.keys((<DagNodeSQL>node).getUDFErrors()).length) {
-                this._updateNodeUDFErrorIcon($node, <DagNodeSQL>node);
+        } else {
+            if (node.hasUDFError()) {
+                this._updateNodeUDFErrorIcon($node, node);
             } else {
                 this._removeNodeUDFErrorIcon($node);
             }
@@ -5212,7 +5211,7 @@ class DagView {
             // if no drag, treat as right click and open menu
             if (!event.shiftKey && !$opMain.hasClass("comment")) {
                 if ($opMain.hasClass("iconArea")) {
-                    if ($opMain.closest(".map").length) {
+                    if ($opMain.closest(".hasUdfError").length) {
                         DagUDFErrorModal.Instance.show(nodeId);
                     } else if ($opMain.closest(".sql").length) {
                         DagViewManager.Instance.inspectSQLNode(nodeId, this.tabId);
