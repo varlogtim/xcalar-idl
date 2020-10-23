@@ -471,6 +471,12 @@ class ResourceMenu {
                 $deleteOption.show();
             }
 
+            const $nonOptimizedOption = $menu.find("li.duplicateDataflow, li.downloadDataflow");
+            if ($li.hasClass("optimized")) {
+                $nonOptimizedOption.hide();
+            } else {
+                $nonOptimizedOption.show();
+            }
         }
 
         MenuHelper.dropdownOpen($dropDownLocation, $menu, {
