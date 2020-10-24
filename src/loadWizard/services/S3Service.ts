@@ -94,6 +94,28 @@ function createFileInfo(fileInfo: {
     };
 }
 
+async function readFileContent(params: {
+    fileInfo: FilePathInfo,
+    offset?: number,
+    sampleRate?: number,
+    sampleLowerSize?: number
+}): Promise<string> {
+    const { fileInfo, offset = 0, sampleRate = 0.1, sampleLowerSize = 1000 } = params;
+    const numBytesLeft = fileInfo.sizeInBytes - offset;
+    const numBytesToRequest = Math.min(
+        Math.max(Math.ceil(fileInfo.sizeInBytes * sampleRate), sampleLowerSize),
+        numBytesLeft
+    );
+
+    const content = await XcalarPreview({
+        targetName: fileInfo.targetName,
+        path: fileInfo.fullPath,
+        fileNamePattern: '',
+        recursive: false
+    }, numBytesToRequest, offset);
+    return content.buffer;
+}
+
 async function createKeyListTable({ bucketName='/xcfield/' }) {
     bucketName = Path.join("/", bucketName, "/");
     const finalTableName = getKeylistTableName(bucketName);
@@ -314,6 +336,7 @@ export {
     defaultFileNamePattern,
     listFiles,
     listFilesWithPattern,
+    readFileContent,
     createKeyListTable,
     getForensicsStats,
     populateFiles,

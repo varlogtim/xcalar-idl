@@ -13,7 +13,7 @@ import * as Path from 'path';
 import * as SchemaLoadService from '../services/SchemaLoadService'
 import * as SchemaLoadSetting from '../services/SchemaLoadSetting'
 import { FilePathInfo } from '../services/S3Service'
-import { listFilesWithPattern, defaultFileNamePattern } from '../services/S3Service'
+import { listFilesWithPattern, defaultFileNamePattern, readFileContent } from '../services/S3Service'
 import { DataPreviewModal } from './DataPreview'
 import LoadStep from './LoadStep';
 import RefreshIcon from '../../components/widgets/RefreshIcon';
@@ -838,25 +838,33 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         this._resetCreateTable();
     }
 
-    async _setParserType(newType, isUpdatePreview = true) {
+    _setParserType(newType) {
         if (newType === this.state.fileType) {
             return this.state.inputSerialization;
         }
 
         this.setState({ fileType: newType });
         const inputSerialization = this._resetParserResult(newType);
-        if (isUpdatePreview) {
-            const { fileSelectState } = this.state;
-            const { fileSelected } = fileSelectState;
-            if (fileSelected != null) {
-                await this._fetchFileContent({
-                    filePath: fileSelected.fullPath,
-                    inputSerialization: inputSerialization,
-                    isPopulateError: true
-                });
-            }
-        }
         return inputSerialization;
+    }
+
+    async _updatePreview(params?:{
+        fileSelected?: FilePathInfo,
+        inputSerialization?: SchemaService.InputSerialization
+    }): Promise<void> {
+        const { fileSelectState } = this.state;
+        const {
+            fileSelected = fileSelectState.fileSelected,
+            inputSerialization = this.state.inputSerialization
+        } = params || {};
+
+        if (fileSelected != null) {
+            await this._fetchFileContent({
+                filePath: fileSelected.fullPath,
+                inputSerialization: inputSerialization,
+                isPopulateError: true
+            });
+        }
     }
 
     _setFinalSchema(schema) {
@@ -953,7 +961,25 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
 
             // Suggest a parser/file type from file name extension
             const suggestType = SchemaService.suggestParserType(selectedFile);
-            const inputSerialization = await this._setParserType(suggestType, false);
+            let inputSerialization = this._setParserType(suggestType);
+
+            // Auto detect/suggest delimiters
+            if (suggestType == SchemaService.FileType.CSV) {
+                // Read sample data from selected file
+                const sampleData = await readFileContent({ fileInfo: selectedFile });
+                // Suggest delimiters
+                inputSerialization = SchemaService.InputSerializationFactory.suggestCSV({
+                    sampleData: sampleData
+                });
+                // Store the new config into state
+                this.setState(({ inputSerialConfigState }) => ({
+                    inputSerialization: inputSerialization,
+                    inputSerialConfigState: {
+                        ...inputSerialConfigState,
+                        configWIP: inputSerialization
+                    }
+                }));
+            }
 
             // Create a new Load App (conceptually)
             const loadApp = await SchemaLoadService.createDiscoverApp({
@@ -1525,7 +1551,8 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                 parserType={fileType}
                                 onParserTypeChange={async (newType) => {
                                     try {
-                                        await this._setParserType(newType);
+                                        const inputSerialization = this._setParserType(newType);
+                                        await this._updatePreview({ inputSerialization: inputSerialization });
                                     } catch(e) {
                                         this._alert({
                                             title: 'Parse File Error',

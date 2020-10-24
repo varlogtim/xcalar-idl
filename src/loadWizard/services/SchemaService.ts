@@ -78,6 +78,27 @@ type Schema = {
 };
 
 class InputSerializationFactory {
+    static suggestCSV(params: {
+        sampleData: string,
+        quoteChar?: string,
+    }): InputSerialization {
+        const { sampleData, quoteChar = '"' } = params;
+
+        try {
+            const recordDelimiter = xcSuggest.detectLineDelimiter(sampleData, quoteChar);
+            if (recordDelimiter.length == 0) {
+                throw 'Fail detecting record delimiter';
+            }
+            const fieldDelimiter = xcSuggest.detectFieldDelimiter(sampleData, recordDelimiter, quoteChar);
+            return this.createCSV({
+                recordDelimiter: recordDelimiter,
+                fieldDelimiter: fieldDelimiter.length == 0 ? null : fieldDelimiter
+            });
+        } catch(_) {
+            return this.createCSV({});
+        }
+    }
+
     static createCSV({
         headerOption = CSVHeaderOption.USE,
         quoteEscapeChar = '"',

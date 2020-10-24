@@ -21,6 +21,7 @@ declare var proto;
 declare var ColumnType;
 declare var XcalarOrderingT;
 declare var WorkbookManager;
+declare var xcSuggest;
 
 // Constructors
 declare function XcalarApiKeyT(...params: any): void;
@@ -69,3 +70,4 @@ declare function XcalarDeleteRetina(...params: any): Promise<any>;
 declare function XcalarDeletePython(...params: any): Promise<any>;
 declare function XcalarTargetDelete(...params: any): any;
 declare function XcalarQueryCancel(...params: any): Promise<any>;
+declare function XcalarPreview(...params: any): Promise<any>;
