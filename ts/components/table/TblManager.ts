@@ -1,4 +1,8 @@
 class TblManager {
+
+    public static maxEntriesPerPage = 60;
+    private static minRowsPerScreen = 60;
+    private static firstRowPositionTop = 60;
     /**
      * TblManager.refreshTable
      * @param newTableNames
@@ -1444,16 +1448,16 @@ class TblManager {
             const frameTop: number = $topBar[0].getBoundingClientRect().bottom;
             const frameBottom: number = $('#statusBar')[0].getBoundingClientRect().top;
             const frameHeight: number = frameBottom - frameTop;
-            const tableAreaHeight: number = frameHeight - gFirstRowPositionTop;
+            const tableAreaHeight: number = frameHeight - TblManager.firstRowPositionTop;
             const maxVisibleRows: number = Math.ceil(tableAreaHeight / gRescol.minCellHeight);
             const buffer: number = 5;
             const rowsNeeded: number = maxVisibleRows + TableMeta.NumEntriesPerPage + buffer;
-            gMaxEntriesPerPage = Math.max(rowsNeeded, gMinRowsPerScreen);
-            gMaxEntriesPerPage = Math.ceil(gMaxEntriesPerPage / 10) * 10;
+            TblManager.maxEntriesPerPage = Math.max(rowsNeeded, TblManager.minRowsPerScreen);
+            TblManager.maxEntriesPerPage = Math.ceil(TblManager.maxEntriesPerPage / 10) * 10;
         } catch (e) {
             console.error("adjustRowFetchQuantity error", e);
         }
-        return gMaxEntriesPerPage;
+        return TblManager.maxEntriesPerPage;
     }
 
     /**

@@ -140,7 +140,7 @@ class XcTableViewer extends XcViewer {
             initialTableBuilt = true;
 
             const $table: JQuery = $('#xcTable-' + tableId);
-            const requiredNumRows: number = Math.min(gMaxEntriesPerPage,
+            const requiredNumRows: number = Math.min(TblManager.maxEntriesPerPage,
                                               table.resultSetCount);
             const numRowsStillNeeded: number = requiredNumRows - $table.find('tbody tr').length;
             if (numRowsStillNeeded > 0) {
@@ -432,7 +432,7 @@ class XcTableViewer extends XcViewer {
         let needsFocusing: boolean = true;
         let focusTimer: number;
         $xcTbodyWrap.scroll(() => {
-            if (gMouseStatus === "movingTable") {
+            if (TblAnim.mouseStatus === "movingTable") {
                 return;
             }
 
@@ -548,7 +548,7 @@ class XcTableViewer extends XcViewer {
     }
 
     private _getVisibleRows(): number {
-        return Math.min(gMaxEntriesPerPage, this.table.resultSetCount);
+        return Math.min(TblManager.maxEntriesPerPage, this.table.resultSetCount);
     }
 
     private _renderRowInput($container: JQuery): void {

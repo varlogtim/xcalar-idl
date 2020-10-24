@@ -333,6 +333,7 @@ class MenuHelper {
                 }
             },
             "mouseenter": function() {
+                $(this).siblings().removeClass("hover highlighted");
                 $(this).addClass("hover");
             },
             "mouseleave": function() {
@@ -487,6 +488,8 @@ class MenuHelper {
 
             $('.selectedCell').removeClass('selectedCell');
             self._addKeyboardNavigation($lists);
+            $list.filter(":not(.hasSubList)").find('li:visible:not(.unavailable)').eq(0).addClass("hover");
+            $list.find('li li:visible:not(.unavailable)').eq(0).addClass("hover");
         }
         xcTooltip.hideAll();
     }

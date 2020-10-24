@@ -123,6 +123,7 @@ class DagPanel {
         DagList.Instance.toggleDisable(false);
         DagGraphBar.Instance.toggleDisable(false);
         DagTabManager.Instance.toggleDisable(false);
+        DagTabManager.Instance.scrollToActiveTab();
         this._getLoadSectionEl().remove();
     }
 

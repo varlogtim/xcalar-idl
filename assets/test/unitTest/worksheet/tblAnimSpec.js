@@ -43,13 +43,13 @@ describe.skip('TblAnim Test', function() {
         });
 
         it('startColResize should work', function() {
-            expect(gMouseStatus).to.be.null;
+            expect(TblAnim.mouseStatus).to.be.null;
             expect(startWidth).to.be.gt(50);
 
             var e = $.Event('mousedown', {pageX: startX});
             TblAnim.startColResize($el, e);
 
-            expect(gMouseStatus).to.equal("checkingResizeCol");
+            expect(TblAnim.mouseStatus).to.equal("checkingResizeCol");
             expect(gRescol.index).to.equal(1);
             expect(gRescol.startWidth).to.equal(startWidth);
             expect(gRescol.newWidth).to.equal(startWidth);
@@ -58,14 +58,14 @@ describe.skip('TblAnim Test', function() {
 
         // xx need to test on hidden col
         it('checkColResize should work', function() {
-            expect(gMouseStatus).to.equal("checkingResizeCol");
+            expect(TblAnim.mouseStatus).to.equal("checkingResizeCol");
             expect($table.hasClass('resizingCol')).to.be.false;
 
             var newX = 1;
             var e = $.Event('mousemove', {pageX: newX});
             TblAnim.__testOnly__.checkColResize(e);
 
-            expect(gMouseStatus).to.equal("checkingResizeCol");
+            expect(TblAnim.mouseStatus).to.equal("checkingResizeCol");
             expect($table.hasClass('resizingCol')).to.be.false;
             expect($('#resizeCursor').length).to.equal(0);
 
@@ -74,7 +74,7 @@ describe.skip('TblAnim Test', function() {
 
             TblAnim.__testOnly__.checkColResize(e);
 
-            expect(gMouseStatus).to.equal('resizingCol');
+            expect(TblAnim.mouseStatus).to.equal('resizingCol');
             expect($table.hasClass('resizingCol')).to.be.true;
             expect($('#resizeCursor').length).to.equal(1);
         });
@@ -88,7 +88,7 @@ describe.skip('TblAnim Test', function() {
             var e = $.Event('mousemove', {pageX: newX});
             TblAnim.__testOnly__.onColResize(e);
 
-            expect(gMouseStatus).to.equal('resizingCol');
+            expect(TblAnim.mouseStatus).to.equal('resizingCol');
             expect(gRescol.cellMinWidth).to.equal(15);
             expect($th.outerWidth()).to.equal(gRescol.cellMinWidth);
             // increasing width by 10px
@@ -99,13 +99,13 @@ describe.skip('TblAnim Test', function() {
         });
 
         it('endColResize should work', function() {
-            expect(gMouseStatus).to.equal('resizingCol');
+            expect(TblAnim.mouseStatus).to.equal('resizingCol');
             expect($('#resizeCursor').length).to.equal(1);
             expect(progCol.sizedTo).to.equal("header");
 
             TblAnim.__testOnly__.endColResize();
 
-            expect(gMouseStatus).to.be.null;
+            expect(TblAnim.mouseStatus).to.be.null;
             expect(progCol.isMinimized).to.be.false;
             expect(progCol.width).to.equal(startWidth);
             progCol = table.tableCols[0];
@@ -179,14 +179,14 @@ describe.skip('TblAnim Test', function() {
         });
 
         it('startRowResize should work', function() {
-            expect(gMouseStatus).to.be.null;
+            expect(TblAnim.mouseStatus).to.be.null;
             expect(startHeight).to.equal(21);
 
             var e = $.Event('mousedown', {pageY: startY});
 
             TblAnim.startRowResize($el, e);
 
-            expect(gMouseStatus).to.equal("checkingRowMove");
+            expect(TblAnim.mouseStatus).to.equal("checkingRowMove");
             expect(rowInfo.startHeight).to.equal(startHeight);
             expect($('#rowResizeCursor').length).to.equal(0);
             expect($tr.find('td > div').eq(0).css('max-height')).to.equal("none");
@@ -194,13 +194,13 @@ describe.skip('TblAnim Test', function() {
         });
 
         it('checkRowResize should work', function() {
-            expect(gMouseStatus).to.equal("checkingRowMove");
+            expect(TblAnim.mouseStatus).to.equal("checkingRowMove");
 
             var newY = 0;
             var e = $.Event('mousemove', {pageY: newY});
             TblAnim.__testOnly__.checkRowResize(e);
 
-            expect(gMouseStatus).to.equal("checkingRowMove");
+            expect(TblAnim.mouseStatus).to.equal("checkingRowMove");
             expect($('#rowResizeCursor').length).to.equal(0);
             expect($tr.find('td > div').eq(0).css('max-height')).to.equal("none");
             expect($tr.find('td > div').eq(1).css('max-height')).to.equal("none");
@@ -210,7 +210,7 @@ describe.skip('TblAnim Test', function() {
 
             TblAnim.__testOnly__.checkRowResize(e);
 
-            expect(gMouseStatus).to.equal('rowMove');
+            expect(TblAnim.mouseStatus).to.equal('rowMove');
             expect($('#rowResizeCursor').length).to.equal(1);
             expect($tr.find('td > div').eq(0).css('max-height')).to.equal("21px");
             expect($tr.find('td > div').eq(1).css('max-height')).to.equal("17px");
@@ -226,7 +226,7 @@ describe.skip('TblAnim Test', function() {
             var e = $.Event('mousemove', {pageY: newY});
             TblAnim.__testOnly__.onRowResize(e);
 
-            expect(gMouseStatus).to.equal('rowMove');
+            expect(TblAnim.mouseStatus).to.equal('rowMove');
             expect(gRescol.minCellHeight).to.equal(21);
             expect($tr.outerHeight()).to.equal(gRescol.minCellHeight);
             // increasing height by 10px
@@ -239,12 +239,12 @@ describe.skip('TblAnim Test', function() {
         });
 
         it('endRowResize should work', function() {
-            expect(gMouseStatus).to.equal('rowMove');
+            expect(TblAnim.mouseStatus).to.equal('rowMove');
             expect($('#rowResizeCursor').length).to.equal(1);
 
             TblAnim.__testOnly__.endRowResize();
 
-            expect(gMouseStatus).to.be.null;
+            expect(TblAnim.mouseStatus).to.be.null;
             var table = gTables[tableId];
             var rowObj = table.rowHeights;
             expect(rowObj[0]).to.be.an('object');
@@ -309,14 +309,14 @@ describe.skip('TblAnim Test', function() {
         });
 
         it('startColDrag should work', function() {
-            expect(gMouseStatus).to.be.null;
+            expect(TblAnim.mouseStatus).to.be.null;
             expect(startWidth).to.be.gt(50);
             expect($table.find('th').index($th)).to.equal(1);
 
             var e = $.Event('mousedown', {pageX: startX});
             TblAnim.startColDrag($el, e);
 
-            expect(gMouseStatus).to.equal("checkingMovingCol");
+            expect(TblAnim.mouseStatus).to.equal("checkingMovingCol");
             expect($('#moveCursor').length).to.equal(1);
         });
 
@@ -325,12 +325,12 @@ describe.skip('TblAnim Test', function() {
             var newX = 1;
             var e = $.Event('mousemove', {pageX: newX});
             TblAnim.__testOnly__.checkColDrag(e);
-            expect(gMouseStatus).to.equal("checkingMovingCol");
+            expect(TblAnim.mouseStatus).to.equal("checkingMovingCol");
 
             newX = 5;
             e = $.Event('mousemove', {pageX: newX});
             TblAnim.__testOnly__.checkColDrag(e);
-            expect(gMouseStatus).to.equal("dragging");
+            expect(TblAnim.mouseStatus).to.equal("dragging");
             var numCols = gTables[tableId].tableCols.length;
             expect(numCols).to.be.gt(5);
             expect($("#fauxCol").length).to.equal(1);
@@ -371,9 +371,9 @@ describe.skip('TblAnim Test', function() {
 
 
         it('endColDrag should work', function() {
-            expect(gMouseStatus).to.equal("dragging");
+            expect(TblAnim.mouseStatus).to.equal("dragging");
             TblAnim.__testOnly__.endColDrag();
-            expect(gMouseStatus).to.be.null;
+            expect(TblAnim.mouseStatus).to.be.null;
             expect($("#fauxCol").length).to.equal(0);
             expect($("#shadowDiv").length).to.equal(0);
             expect($(".dropTarget").length).to.equal(0);

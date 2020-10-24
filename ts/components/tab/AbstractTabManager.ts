@@ -83,6 +83,11 @@ abstract class AbstractTabManager {
         return index;
     }
 
+    public scrollToActiveTab() {
+        const $tabs: JQuery = this._getTabsEle();
+        $tabs.filter(".active").scrollintoview({duration: 0});
+    }
+
     protected _getEditingName($tabName: JQuery): string {
         return $tabName.text();
     }
@@ -265,7 +270,7 @@ abstract class AbstractTabManager {
                         .catch(() => {
                             reject();
                         });
-                        
+
                     }
                 }, {
                     name: CommonTxtTstr.Save,
@@ -285,5 +290,5 @@ abstract class AbstractTabManager {
                 }
             })
         });
-    } 
+    }
 }

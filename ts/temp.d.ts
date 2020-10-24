@@ -442,12 +442,8 @@ declare var PB: number;
 declare var helpHashTags: any;
 declare var gScrollbarWidth: number;
 declare var gMaxDivHeight: number;
-declare var gMaxEntriesPerPage: number;
-declare var gMinRowsPerScreen: number;
-declare var gFirstRowPositionTop: number;
 declare var gPrefixLimit: number;
 declare var gMouseEvents: MouseEvents;
-declare var gMouseStatus: string;
 declare var gRescol: {
     minCellHeight: number
     cellMinWidth: number

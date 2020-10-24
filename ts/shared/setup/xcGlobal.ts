@@ -15,10 +15,6 @@ namespace xcGlobal {
         TB = 1024 * GB;
         PB = 1024 * TB;
         // ================================================================== //
-        gMaxEntriesPerPage = 60;
-        gMinRowsPerScreen = 60;
-        gFirstRowPositionTop = 60;
-        gMouseStatus = null;
         gPrefixLimit = 31;
         if (!has_require) {
             if (typeof MouseEvents !== 'undefined') {

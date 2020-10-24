@@ -1,6 +1,7 @@
 class CustomFunctionTestForm {
     private static _instance = null;
     private _isOpen = false;
+    private _newField: string = "TEST_FIELD";
 
     public static get Instance(): CustomFunctionTestForm {
         return this._instance || (this._instance = new this());
@@ -456,7 +457,7 @@ class CustomFunctionTestForm {
             input: {
                 eval: [{
                     evalString: `${fnTab.name}:${ argsMap.get("function")}(${argsMap.get("columns").value.join(", ")})`,
-                    newField: "testField"
+                    newField: this._newField
                 }],
                 icv: false,
                 outputTableName: "ScalarFnTest"
@@ -524,7 +525,7 @@ class CustomFunctionTestForm {
     }
 
     private _hideColumns(columns, mapNode) {
-        columns =[...columns, "testField"];
+        columns =[...columns, this._newField];
         const colsToHide = mapNode.getLineage().getColumns().filter((progCol) => {
             return !columns.includes(progCol.getBackColName());
         });

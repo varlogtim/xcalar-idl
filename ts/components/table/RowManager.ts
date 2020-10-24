@@ -43,7 +43,7 @@ class RowManager {
         const table: TableMeta = this.table;
         // XXX TODO: this need to update
         TblManager.adjustRowFetchQuantity();
-        const numRowsToAdd: number = Math.min(gMaxEntriesPerPage, table.resultSetCount);
+        const numRowsToAdd: number = Math.min(TblManager.maxEntriesPerPage, table.resultSetCount);
         return this._getDataColumnJson(null, numRowsToAdd);
     }
 
@@ -155,16 +155,16 @@ class RowManager {
             rowOnScreen = RowManager.parseRowNum($table.find('tr:last'));
         }
         // divide evenly on both top and bottom buffer
-        const rowToBuffer: number = Math.floor((gMaxEntriesPerPage - rowOnScreen) / 2);
+        const rowToBuffer: number = Math.floor((TblManager.maxEntriesPerPage - rowOnScreen) / 2);
 
         targetRow = Math.max(1, targetRow);
         targetRow = Math.min(targetRow, maxCount);
 
-        backRow = Math.min(table.resultSetMax - gMaxEntriesPerPage,
+        backRow = Math.min(table.resultSetMax - TblManager.maxEntriesPerPage,
                             targetRow - rowToBuffer);
         backRow = Math.max(backRow, 0);
 
-        const numRowsToAdd: number = Math.min(gMaxEntriesPerPage, table.resultSetMax);
+        const numRowsToAdd: number = Math.min(TblManager.maxEntriesPerPage, table.resultSetMax);
         const info = {
             "bulk": true,
             "dontRemoveRows": false,
@@ -526,7 +526,7 @@ class RowManager {
                 $xcTbodyWrap.scrollTop(newScrollTop);
             }
         } else {
-            $table.find("tbody tr").slice(gMaxEntriesPerPage).remove();
+            $table.find("tbody tr").slice(TblManager.maxEntriesPerPage).remove();
         }
     }
 
@@ -692,7 +692,7 @@ class RowManager {
 
         const tableId: TableId = table.getId();
         if (!info.bulk) {
-            const visibleRows: number = Math.min(gMaxEntriesPerPage,
+            const visibleRows: number = Math.min(TblManager.maxEntriesPerPage,
                                        table.resultSetCount);
             const numRowsAbove: number = table.currentRowNumber - visibleRows;
             const rowsAboveHeight: number = this.getRowsAboveHeight(numRowsAbove);
@@ -752,7 +752,7 @@ class RowManager {
                 const scrollMeta = table.scrollMeta;
                 scrollMeta.isTableScrolling = true;
                 const numRowsAbove: number = table.currentRowNumber -
-                        Math.min(gMaxEntriesPerPage, table.resultSetCount);
+                        Math.min(TblManager.maxEntriesPerPage, table.resultSetCount);
                 const rowsAboveHeight: number = this.getRowsAboveHeight(numRowsAbove);
                 const scrollBarTop: number = scrollPos + rowsAboveHeight;
                 const newTop: number = scrollBarTop / scrollMeta.scale;

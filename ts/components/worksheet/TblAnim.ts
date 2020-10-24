@@ -72,6 +72,8 @@ namespace TblAnim {
         $divs: undefined
     };
 
+    export let mouseStatus = null;
+
     /* START COLUMN RESIZING */
     /**
      * TblAnim.startColResize
@@ -123,7 +125,7 @@ namespace TblAnim {
             $('.selectedCell').removeClass('selectedCell');
         }
 
-        gMouseStatus = "checkingResizeCol";
+        mouseStatus = "checkingResizeCol";
         $(document).on('mousemove.checkColResize', checkColResize);
         $(document).on('mouseup.endColResize', endColResize);
 
@@ -137,7 +139,7 @@ namespace TblAnim {
         if (Math.abs(rescol.mouseStart - rescol.pageX) > 2) {
             $(document).off('mousemove.checkColResize', checkColResize);
             $(document).on('mousemove.onColResize', onColResize);
-            gMouseStatus = "resizingCol";
+            mouseStatus = "resizingCol";
 
             let $table: JQuery = rescol.$th.closest('.dataTable');
             let colNum: number = rescol.index;
@@ -177,9 +179,9 @@ namespace TblAnim {
     function endColResize(): void {
         $(document).off('mousemove.onColResize');
         $(document).off('mouseup.endColResize');
-        let mouseStatus = gMouseStatus;
-        gMouseStatus = null;
-        if (mouseStatus === "checkingResizeCol") {
+        let newMouseStatus = mouseStatus;
+        mouseStatus = null;
+        if (newMouseStatus === "checkingResizeCol") {
             $(document).off('mousemove.checkColResize');
             return;
         }
@@ -221,7 +223,7 @@ namespace TblAnim {
             $('#resizeCursor').remove();
             $('body').removeClass('tooltipOff');
             $el.tooltip('destroy');
-            gMouseStatus = null;
+            mouseStatus = null;
             $(document).off('mousemove.checkColResize');
             $(document).off('mousemove.onColResize');
             $(document).off('mouseup.endColResize');
@@ -436,7 +438,7 @@ namespace TblAnim {
         event: JQueryMouseEventObject
     ): void {
         rowInfo.mouseStart = event.pageY;
-        gMouseStatus = "checkingRowMove";
+        mouseStatus = "checkingRowMove";
         rowInfo.$el = $el;
         let $table = $el.closest('.xcTbodyWrap');
         rowInfo.$table = $table;
@@ -461,7 +463,7 @@ namespace TblAnim {
         if (mouseDistance + rowInfo.startHeight > gRescol.minCellHeight) {
             $(document).off('mousemove.checkRowResize');
             $(document).on('mousemove.onRowResize', onRowResize);
-            gMouseStatus = "rowMove";
+            mouseStatus = "rowMove";
 
             let $table: JQuery = rowInfo.$table;
             rowInfo.tableId = TblManager.parseTableId($table);
@@ -503,14 +505,14 @@ namespace TblAnim {
     function endRowResize(): void {
         $(document).off('mouseup.endRowResize');
 
-        if (gMouseStatus === "checkingRowMove") {
+        if (mouseStatus === "checkingRowMove") {
             $(document).off('mousemove.checkRowResize');
-            gMouseStatus = null;
+            mouseStatus = null;
             return;
         }
 
         $(document).off('mousemove.onRowResize');
-        gMouseStatus = null;
+        mouseStatus = null;
 
         let newRowHeight = rowInfo.targetTd.outerHeight();
         let rowNum = RowManager.parseRowNum(rowInfo.targetTd.parent()) + 1;
@@ -635,7 +637,7 @@ namespace TblAnim {
             return;
         }
 
-        gMouseStatus = "checkingMovingCol";
+        mouseStatus = "checkingMovingCol";
         dragInfo.mouseX = event.pageX;
         dragInfo.$el = $el;
         dragInfo.$tableWrap = $tableWrap;
@@ -663,7 +665,7 @@ namespace TblAnim {
 
         $(document).off('mousemove.checkColDrag');
         $(document).on('mousemove.onColDrag', onColDrag);
-        gMouseStatus = "dragging";
+        mouseStatus = "dragging";
         let el = dragInfo.$el;
         let pageX = event.pageX;
         dragInfo.colNum = ColManager.parseColNum(el);
@@ -762,16 +764,16 @@ namespace TblAnim {
             // without timeout, tooltip will flicker on and off
         }, 0);
 
-        if (gMouseStatus === "checkingMovingCol") {
+        if (mouseStatus === "checkingMovingCol") {
             // endColDrag is called on mouseup but if there was no mouse movement
             // then just clean up and exit
-            gMouseStatus = null;
+            mouseStatus = null;
             $(document).off('mousemove.checkColDrag');
             return;
         }
         $(document).off('mousemove.onColDrag');
 
-        gMouseStatus = null;
+        mouseStatus = null;
         let $tableWrap: JQuery = dragInfo.$table;
         let $th: JQuery = dragInfo.element;
         dragInfo.$container.off('scroll.draglocked');
@@ -1027,7 +1029,7 @@ namespace TblAnim {
         // essentially moving the horizontal mainframe scrollbar if the mouse is
         // near the edge of the viewport
         let $mainFrame = dragInfo.$container;
-        if (gMouseStatus === 'dragging') {
+        if (mouseStatus === 'dragging') {
             if (dragInfo.pageX > dragInfo.windowWidth - 30) { // scroll right
                 let left: number = $mainFrame.scrollLeft() + 40;
                 $mainFrame.scrollLeft(left);
