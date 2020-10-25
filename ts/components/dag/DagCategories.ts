@@ -114,14 +114,14 @@ class DagCategories {
 
         const columnOpsCategory = new DagCategory(DagCategoryType.ColumnOps, [
             new DagCategoryNodeColumnOps(DagNodeFactory.create({
+                type: DagNodeType.Map
+            })),
+            new DagCategoryNodeColumnOps(DagNodeFactory.create({
                 type: DagNodeType.Map,
                 subType: DagNodeSubType.Cast
             })),
             new DagCategoryNodeColumnOps(DagNodeFactory.create({
                 type: DagNodeType.Split
-            })),
-            new DagCategoryNodeColumnOps(DagNodeFactory.create({
-                type: DagNodeType.Map
             })),
             new DagCategoryNodeColumnOps(DagNodeFactory.create({
                 type: DagNodeType.Round
@@ -131,7 +131,7 @@ class DagCategories {
             })),
             new DagCategoryNodeColumnOps(DagNodeFactory.create({
                 type: DagNodeType.Project
-            })),
+            }))
         ]);
 
         const rowOpsCategory = new DagCategory(DagCategoryType.RowOps, [

@@ -40,15 +40,12 @@ describe("DagCategories Test", function() {
             expect(categories[2].operators[1].node instanceof DagNodeSQLSubInput).to.be.true;
             expect(categories[2].operators[2].node instanceof DagNodeSQLSubOutput).to.be.true;
 
-            expect(categories[3].operators.length).to.equal(6);
-            expect(categories[3].operators[0].node instanceof DagNodeMap).to.be.true;
-            expect(categories[3].operators[1].node instanceof DagNodeSplit).to.be.true;
-            expect(categories[3].operators[2].node instanceof DagNodeMap).to.be.true;
 
             expect(categories[3].operators.length).to.equal(6);
             expect(categories[3].operators[0].node instanceof DagNodeMap).to.be.true;
-            expect(categories[3].operators[1].node instanceof DagNodeSplit).to.be.true;
-            expect(categories[3].operators[2].node instanceof DagNodeMap).to.be.true;
+            expect(categories[3].operators[1].node instanceof DagNodeMap).to.be.true;
+            expect(categories[3].operators[2].node instanceof DagNodeSplit).to.be.true;
+
             expect(categories[3].operators[3].node instanceof DagNodeRound).to.be.true;
             expect(categories[3].operators[4].node instanceof DagNodeRowNum).to.be.true;
             expect(categories[3].operators[5].node instanceof DagNodeProject).to.be.true;
@@ -120,13 +117,8 @@ describe("DagCategories Test", function() {
 
             expect(categories[3].operators.length).to.equal(6);
             expect(categories[3].operators[0].node instanceof DagNodeMap).to.be.true;
-            expect(categories[3].operators[1].node instanceof DagNodeSplit).to.be.true;
-            expect(categories[3].operators[2].node instanceof DagNodeMap).to.be.true;
-
-            expect(categories[3].operators.length).to.equal(6);
-            expect(categories[3].operators[0].node instanceof DagNodeMap).to.be.true;
-            expect(categories[3].operators[1].node instanceof DagNodeSplit).to.be.true;
-            expect(categories[3].operators[2].node instanceof DagNodeMap).to.be.true;
+            expect(categories[3].operators[1].node instanceof DagNodeMap).to.be.true;
+            expect(categories[3].operators[2].node instanceof DagNodeSplit).to.be.true;
             expect(categories[3].operators[3].node instanceof DagNodeRound).to.be.true;
             expect(categories[3].operators[4].node instanceof DagNodeRowNum).to.be.true;
             expect(categories[3].operators[5].node instanceof DagNodeProject).to.be.true;

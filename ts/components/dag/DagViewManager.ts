@@ -580,9 +580,14 @@ class DagViewManager {
      */
     public newComment(
         commentInfo: CommentInfo,
-        isFocus?: boolean
+        isFocus?: boolean,
+        tabId?: string
     ): XDPromise<void> {
-        return this.activeDagView.newComment(commentInfo, isFocus);
+        let dagView = this.activeDagView;
+        if (tabId) {
+            dagView = this.dagViewMap.get(tabId);
+        }
+        return dagView.newComment(commentInfo, isFocus);
     }
 
     /**

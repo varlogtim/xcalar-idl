@@ -898,7 +898,6 @@ class DagView {
     }
 
     public addInstructionNode() {
-
         let nodeInfo: DagNodeInfo = {
             type: DagNodeType.Instruction,
             subType: null,
@@ -2715,7 +2714,8 @@ class DagView {
                 subGraphNodes.forEach(node => {
                     dagView._addNodeNoPersist(node, {
                         isNoLog: true,
-                        $svg: $svg
+                        $svg: $svg,
+                        notSelected: true
                     });
                 });
                 dagView.$dfArea.find(".edgeSvg").after($svg);
@@ -5862,7 +5862,8 @@ class DagView {
         options?: {
             isNoLog?: boolean,
             $svg?: JQuery,
-            noViewOutput?: boolean
+            noViewOutput?: boolean,
+            notSelected?: boolean
         }
     ): LogParam {
         options = options || {};
@@ -5872,14 +5873,20 @@ class DagView {
             this.$dfArea.find(".operator.instruction").remove();
             this._hasInstructionNode = false;
         }
+        let select = true;
+        if (options.notSelected) {
+            select = false;
+        }
 
         this._deselectAllNodes();
         const nodeId = node.getId();
-        const $node = this._drawNode(node, true, options.$svg != null, options.noViewOutput);
+        const $node = this._drawNode(node, select, options.$svg != null, options.noViewOutput);
         if (options.$svg) {
             $node.appendTo(options.$svg);
         }
-        DagNodeInfoPanel.Instance.show(node);
+        if (!options.notSelected) {
+            DagNodeInfoPanel.Instance.show(node);
+        }
         this._setGraphDimensions(xcHelper.deepCopy(node.getPosition()))
 
         const logParam: LogParam = {

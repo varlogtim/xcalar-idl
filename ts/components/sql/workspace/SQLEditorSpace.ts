@@ -362,6 +362,7 @@ class SQLEditorSpace {
         return deferred.promise();
     }
 
+    // used to convert statement into table function
     private async _compileSingleSQL(sql: string): Promise<SQLDagExecutor | null> {
         if (!sql || !sql.trim()) {
             return null;

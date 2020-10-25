@@ -109,14 +109,14 @@ class SQLDagExecutor {
             this._sqlNode.setSQLQuery({statementType: SQLStatementType.Create});
         }
 
-        if (this._options.compileOnly) {
+        if (this._options.compileOnly) { // for table functions
             this._tempGraph = new DagGraph();
             this._tempTab = new DagTabUser({name: "temp"});
             this._tempTab.setGraph(this._tempGraph);
             this._tempGraph.addNode(this._sqlNode);
         } else {
             this._sqlNode.subscribeHistoryUpdate();
-            this._appendNodeToDataflow();
+            this._appendSQLNodeToDataflow();
         }
     }
 
@@ -295,7 +295,7 @@ class SQLDagExecutor {
     public restoreDataflow(): XDPromise<DagNode[]> {
         const deferred: XDDeferred<DagNode[]> = PromiseHelper.deferred();
 
-        this._configureSQLNode(true, true)
+        this._configureSQLNode(true)
         .then(() => {
             return DagView.expandSQLNodeAndHide(this._sqlNode.getId(), this._tempTab.getId());
         })
@@ -348,17 +348,44 @@ class SQLDagExecutor {
         }
     }
 
-    private _appendNodeToDataflow(): void {
+    private _appendSQLNodeToDataflow(): void {
         this._tempTab = DagTabManager.Instance.openAndResetExecuteOnlyTab(new DagTabSQLExecute());
         this._tempGraph = this._tempTab.getGraph();
         this._sqlNode.hide();
         this._tempGraph.addNode(this._sqlNode);
+        DagViewManager.Instance.newComment({
+            text: "Original SQL Statement:\n" + this._sql,
+            display: {
+                x: 200,
+                y: 200,
+                height: 100,
+                width: 220
+            }
+        }, null, this._tempTab.getId());
     }
 
     private _configureSQLNode(noStatusUpdate: boolean = false): XDPromise<any> {
+        let identifiersArray = [];
+        for (let i in this._identifiers) {
+            identifiersArray.push({
+                key: parseInt(i),
+                value: this._identifiers[i]
+            });
+        }
+        identifiersArray.sort((a, b) => {
+            return a.key - b.key
+        });
+        const sourceMapping = [];
+        identifiersArray.forEach((identifier, i) => {
+            sourceMapping.push({
+                "identifier": identifier.value,
+                "source": (i + 1)
+            });
+        });
         this._sqlNode.setParam({
             sqlQueryStr: this._sql,
             identifiers: this._identifiers,
+            mapping: sourceMapping,
             dropAsYouGo: null
         }, true);
         const queryId = xcHelper.randName("sqlQuery", 8);
@@ -383,7 +410,8 @@ class SQLDagExecutor {
             sqlFunctions: this._sqlFunctions,
             noPushToSelect: true ,// XXX hack to prevent pushDown
             sessionTables: this._sessionTables,
-            schema: this._schema
+            schema: this._schema,
+            sourceMapping: sourceMapping
         }
         return this._sqlNode.compileSQL(this._newSql, queryId, options);
     }
