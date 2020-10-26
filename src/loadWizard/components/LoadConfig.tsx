@@ -969,20 +969,24 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
 
             // Auto detect/suggest delimiters
             if (suggestType == SchemaService.FileType.CSV) {
-                // Read sample data from selected file
-                const sampleData = await readFileContent({ fileInfo: selectedFile });
-                // Suggest delimiters
-                inputSerialization = SchemaService.InputSerializationFactory.suggestCSV({
-                    sampleData: sampleData
-                });
-                // Store the new config into state
-                this.setState(({ inputSerialConfigState }) => ({
-                    inputSerialization: inputSerialization,
-                    inputSerialConfigState: {
-                        ...inputSerialConfigState,
-                        configWIP: inputSerialization
-                    }
-                }));
+                try {
+                    // Read sample data from selected file
+                    const sampleData = await readFileContent({ fileInfo: selectedFile });
+                    // Suggest delimiters
+                    inputSerialization = SchemaService.InputSerializationFactory.suggestCSV({
+                        sampleData: sampleData
+                    });
+                    // Store the new config into state
+                    this.setState(({ inputSerialConfigState }) => ({
+                        inputSerialization: inputSerialization,
+                        inputSerialConfigState: {
+                            ...inputSerialConfigState,
+                            configWIP: inputSerialization
+                        }
+                    }));
+                } catch(_) {
+                    // Ignore the error and skip this step, as it's not critical
+                }
             }
 
             // Create a new Load App (conceptually)
