@@ -1134,7 +1134,22 @@ class DagView {
                 : error.type;
             }
             delete error.node;
-            Alert.error("Error", error);
+            console.log(error);
+            if (error === DFTStr.AllExecuted) {
+                Alert.error("Error", error, {
+                    buttons: [{
+                        name: "Re-execute All",
+                        func: () => {
+                            this.reset(null, true)
+                            .then(() => {
+                                this.run();
+                            });
+                        }
+                    }]
+                });
+            } else {
+                Alert.error("Error", error);
+            }
         }
         return error;
     }

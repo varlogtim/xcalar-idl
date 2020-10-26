@@ -1026,7 +1026,7 @@ DFTStr = {
     "ExpandToEdit": "Expand to edit operation",
     "NoEdits": "No edits made",
     "RunEdits": "Run",
-    "AllExecuted": "All operators have been executed",
+    "AllExecuted": "All operators have already been executed. Would you like to re-execute all operators?",
     "ParamModalBasicInstr": "To convert this operation into a parameterized" +
                             " operation, please click the New Parameter button," +
                             " provide a name, and drag and drop the parameter into its appropriate place.",
