@@ -20,9 +20,9 @@ namespace xcTooltip {
     }
 
     export const HTML: any = {
-        'WithHead': '<b><head></b>' +
-                        '<div style="width: 100%; height: 1px; background-color: white; margin: 4px 0; opacity: 0.8;"></div>' +
-                    '<div><content></div>'
+        'WithHead': '<div style="font-family: OpenSans; font-weight: 600; font-size: 12px;"><head></div>' +
+                        '<div style="width: 100%; height: 1px; background-color: #72849d; margin: 4px 0; opacity: 0.8;"></div>' +
+                    '<div style="font-family: font-size: 12px;"><content></div>'
     }
 
     // xcTooltip.Attrs
