@@ -22,7 +22,7 @@ export default {
     "DeletePbTableModalTStr": {
         "header": "Drop Published Tables",
         "instr": "To free space in this application please drop unused published tables.",
-        "confirm": "Are you sure you want to drop the following tables : \"<tableName>\"? This action cannot be undone.",
+        "confirm": "Are you sure you want to drop the selected tables? This action cannot be undone.",
     },
 
     "ReceateTablesModalTStr": {

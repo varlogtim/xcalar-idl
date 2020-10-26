@@ -36,12 +36,9 @@ class DeletePbTableModal extends React.Component<{}, {}> {
     return items;
   }
 
-  private _getConfirmAlert(items: Item[]): {title: string, msg: string} {
+  private _getConfirmAlert(): {title: string, msg: string} {
     const xcStringHelper = window["xcStringHelper"];
-    let tables: string[] = items.map((item) => item.name);
-    let msg = xcStringHelper.replaceMsg(DeletePbTableModalTStr.confirm, {
-      "tableName": tables.join(", ")
-    });
+    let msg = xcStringHelper.replaceMsg(DeletePbTableModalTStr.confirm);
     return {
       title: DeletePbTableModalTStr.header,
       msg
