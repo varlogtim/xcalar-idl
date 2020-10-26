@@ -55,13 +55,16 @@ class SQLEditorSpace {
             if (!val.trim().endsWith(";")) {
                 val += ";";
             }
-            const delim: string = val.endsWith("\n") ? "" : "\n";
-            val += delim + sql;
+            const delimiter: string = val.endsWith("\n") ? "" : "\n";
+            val += delimiter + sql;
         } else {
             val = sql;
         }
         this._sqlEditor.setValue(val);
         this._sqlEditor.refresh();
+        const code_mirror_editor: CodeMirror.Editor = this._sqlEditor.getEditor();
+        // scroll to the last line
+        code_mirror_editor.setCursor({ line: code_mirror_editor.lineCount() });
 
         this._saveSnippetChange();
     }
