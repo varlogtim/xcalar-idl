@@ -432,12 +432,14 @@ class DagTabManager extends AbstractTabManager {
         DagViewManager.Instance.resetActiveDagTab();
     }
 
-    public lockTab(tabId: string): void {
-        this._getTabEleById(tabId).find(".after").addClass("xc-disabled");
+    public lockTab(tabId: string, tooltip?: string): void {
+        this._getTabEleById(tabId).find(".after").addClass("xc-unavailable").find(".close").addClass("xc-disabled");
+        xcTooltip.add(this._getTabEleById(tabId).find(".after"), {title: tooltip});
     }
 
     public unlockTab(tabId: string): void {
-        this._getTabEleById(tabId).find(".after").removeClass("xc-disabled");
+        this._getTabEleById(tabId).find(".after").removeClass("xc-unavailable").find(".close").removeClass("xc-disabled");
+        xcTooltip.remove(this._getTabEleById(tabId).find(".after"));
     }
 
     /**

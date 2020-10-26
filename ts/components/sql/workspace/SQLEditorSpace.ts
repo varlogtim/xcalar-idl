@@ -996,7 +996,8 @@ class SQLEditorSpace {
         const input: DagNodeSQLInputStruct = {
             sqlQueryStr: sql,
             identifiers: {},
-            dropAsYouGo: true
+            dropAsYouGo: true,
+            mapping: []
         };
         const identifiersMap = new Map();
         SQLUtil.lockProgress();
@@ -1005,6 +1006,10 @@ class SQLEditorSpace {
             sqlStruct.identifiers.forEach((identifier, index) => {
                 identifiersMap.set(index + 1, identifier);
                 input.identifiers[index + 1] = identifier;
+                input.mapping.push({
+                    identifier: identifier,
+                    source: null
+                })
             });
             let node: DagNodeSQL = <DagNodeSQL>await DagViewManager.Instance.autoAddNode(DagNodeType.SQL,
                 null, null, input, {
@@ -1013,9 +1018,6 @@ class SQLEditorSpace {
                     autoConnect: true
             });
             node.setIdentifiers(identifiersMap);
-            if (!FormHelper.activeForm) {
-                DagNodeMenu.execute("configureNode", {node: node});
-            }
         } catch (e) {
             Alert.error(ErrTStr.Error, e);
         }

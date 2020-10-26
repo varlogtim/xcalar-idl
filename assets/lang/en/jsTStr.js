@@ -1,5 +1,5 @@
 // if using in browser, make sure to include assets/lang/en/globalAutogen.js
-// with <script tag 
+// with <script tag
 
 var autogenVars = (typeof window === 'undefined' && typeof require !== 'undefined') ? require('./globalAutogen.js') : window.autogenVars;
 StatusMessageTStr = {
@@ -118,7 +118,7 @@ TooltipTStr = {
     "OnlyInOpMode": "Feature only available in Operational Cluster",
     "ColumnAlreadyInt": "Column is already an integer",
     "ColumnAlreadyFloat": "Column is already a float",
-    "CloseConfigForm": "Exit the configuration form to perform this action",
+    "CloseConfigForm": "Exit the configuration form to perform this action.",
 
     // with replace
     'Undo': 'Undo: <op>',

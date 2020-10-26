@@ -46,9 +46,15 @@ class CustomFunctionTestForm {
 
     public show() {
         this._isOpen = true;
-        $("#udfSection").addClass("testFormOpen");
-        UDFPanel.Instance.refresh();
         const $form = this._getForm();
+        $("#udfSection").addClass("testFormOpen");
+        let topSectionHeight = $("#udfSection").find(".menuContent").height();
+
+        if (topSectionHeight < 20) {
+            $form.height("-=" + (20 - topSectionHeight));
+        }
+        UDFPanel.Instance.refresh();
+
         if ($form.find(".arg[data-arg='function']").val().trim() === "" &&
             !UDFTabManager.Instance.getActiveTab().isNew) {
             const prefix = UDFTabManager.Instance.getActiveTab().name + ":";
@@ -269,7 +275,8 @@ class CustomFunctionTestForm {
                 if (!special) {
                     val = gColPrefix + val;
                 }
-                $columnList.find(".text").val(val);
+                this._appendColumn(val);
+                // $columnList.find(".text").val(val);
             },
             "container": "#udfSection",
             "bounds": "#udfSection",
@@ -286,11 +293,57 @@ class CustomFunctionTestForm {
             order: true,
             preventClearOnBlur: true,
             isColumnsList: true,
+            getInput: () => {
+                const $input = this._getForm().find(".arg[data-arg='columns']");
+                const argsMap = new Map();
+                argsMap.set("columns", {
+                    type: $input.data("arg"),
+                    rawValue: $input.val(),
+                    parsedValue: $input.val().trim(),
+                    $input: $input
+                });
+                this._parseColumns(argsMap);
+                let columns = argsMap.get("columns").columns;
+                let lastCol = "";
+                if (columns.length) {
+                    lastCol = columns[columns.length - 1];
+                    if (lastCol.startsWith(gColPrefix)) {
+                        lastCol = lastCol.slice(1);
+                    }
+                }
+                return lastCol;
+            },
             onEnter: (val, $input) => {
-                $input.val(gColPrefix + val);
+                // $input.val(gColPrefix + val);
+                this._appendColumn(gColPrefix + val);
                 return true;
             }
         });
+    }
+
+    private _appendColumn(val) {
+        const $input = this._getForm().find(".arg[data-arg='columns']");
+        const argsMap = new Map();
+        argsMap.set("columns", {
+            type: $input.data("arg"),
+            rawValue: $input.val(),
+            parsedValue: $input.val().trim(),
+            $input: $input
+        });
+        this._parseColumns(argsMap);
+        let columns = argsMap.get("columns").columns;
+        if (columns.length) {
+            let lastCol = columns[columns.length - 1].toLowerCase();
+            if (val.toLowerCase().startsWith(lastCol) ||
+             (!lastCol.startsWith(gColPrefix) && val.toLowerCase().startsWith(gColPrefix + lastCol))) {
+                columns[columns.length - 1] = val;
+            } else {
+                columns.push(val);
+            }
+            $input.val(columns.join(", "));
+        } else {
+            $input.val(val);
+        }
     }
 
     private _getValidations(arg) {
@@ -341,7 +394,7 @@ class CustomFunctionTestForm {
             argsMap.set($input.data('arg'), data);
         }
 
-        this._parseColumns(argsMap);
+        this._parseColumns(argsMap, true);
         this._parseRows(argsMap);
 
         for (let [_key, arg] of argsMap) {
@@ -368,10 +421,14 @@ class CustomFunctionTestForm {
         return finalArgs;
     }
 
-    private _parseColumns(argsMap) {
+    private _parseColumns(argsMap, replacePrefix?: boolean) {
         let columns = [];
         const replacement = "<X4GHSef8gF>";
-        const res = XDParser.XEvalParser.parseEvalStr("a(" + GeneralOpPanelModel.replaceColPrefixes(argsMap.get("columns").parsedValue, replacement) + ")");
+        let originalCols = argsMap.get("columns").parsedValue;
+        if (replacePrefix) {
+            originalCols = GeneralOpPanelModel.replaceColPrefixes(argsMap.get("columns").parsedValue, replacement)
+        }
+        const res = XDParser.XEvalParser.parseEvalStr("a(" + originalCols + ")");
         if (!res.error) {
             let colSet = new Set();
             replace(res);

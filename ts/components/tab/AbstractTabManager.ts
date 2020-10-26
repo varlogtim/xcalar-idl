@@ -96,6 +96,9 @@ abstract class AbstractTabManager {
         this._addMenuEventListeners();
         const $tabArea: JQuery = this._getTabArea();
         $tabArea.on("click", ".after", (event) => {
+            if ($(event.currentTarget).hasClass("xc-unavailable")) {
+                return;
+            }
             event.stopPropagation();
             xcTooltip.hideAll();
             const index: number = this._getTabIndexFromEl($(event.currentTarget));

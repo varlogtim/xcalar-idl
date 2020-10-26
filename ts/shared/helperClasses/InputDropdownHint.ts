@@ -4,7 +4,8 @@ interface InputDropdownHintOptions {
     onEnter?: Function,
     order?: boolean,
     noBold?: boolean,
-    isColumnsList?: boolean
+    isColumnsList?: boolean,
+    getInput?: Function
 }
 // options:
 // menuHelper: (required) instance of MenuHelper
@@ -49,7 +50,12 @@ class InputDropdownHint {
 
         $input.on("input", function() {
             if (!$input.is(":visible")) return; // ENG-8642
-            const text: string = $input.val().trim();
+            let text: string = $input.val().trim();
+            if (options.getInput) {
+                text = options.getInput();
+            } else if (options.isColumnsList && text.startsWith(gColPrefix)) {
+                text = text.slice(1);
+            }
             if (!$dropdown.hasClass("open")) {
                 let filter;
                 if (menuHelper.options.onOpen) {

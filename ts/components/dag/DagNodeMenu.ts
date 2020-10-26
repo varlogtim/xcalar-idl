@@ -649,7 +649,7 @@ namespace DagNodeMenu {
         DagConfigNodeModal.Instance.closeForms(); // close opened forms first
 
         Log.lockUndoRedo();
-        DagTabManager.Instance.lockTab(tabId);
+        DagTabManager.Instance.lockTab(tabId, TooltipTStr.CloseConfigForm);
         DagGraphBar.Instance.lock();
 
         // Nodes in SQL sub graph can't be configured
