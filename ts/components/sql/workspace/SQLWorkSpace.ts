@@ -52,7 +52,7 @@ class SQLWorkSpace {
             const $target = $(event.target);
             if ($target.closest("#sqlWorkSpacePanel").length &&
                 !$target.closest("#dagView").length &&
-                !$target.closest("#dataflowMenu").length &&
+                !$target.closest("#dagNodeInfoPanel").length &&
                 !$target.closest("#dagNodeMenu").length &&
                 !$target.closest("#dagTableNodeMenu").length &&
                 !$target.closest("#dagTableNodeSubMenu").length &&
