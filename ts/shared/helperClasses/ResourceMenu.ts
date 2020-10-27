@@ -168,7 +168,7 @@ class ResourceMenu {
                 }
                 const appId: string = dagTab.getApp();
                 let html: string = map.get(appId) || "";
-                html += this._getListHTML(name, listClassNames, iconClassNames, id);
+                html += this._getListHTML(name + ".tf", listClassNames, iconClassNames, id);
                 map.set(appId, html);
             }
         });

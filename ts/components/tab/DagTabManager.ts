@@ -855,9 +855,11 @@ class DagTabManager extends AbstractTabManager {
         const $tab: JQuery = $tabName.parent();
         const index: number = $tab.index();
         const dagTab: DagTab = this.getTabByIndex(index);
+        let extension: string = "";
         if (dagTab instanceof DagTabSQLFunc) {
             // sql func force name to be case insensitive
             newName = newName.toLowerCase();
+            extension = ".tf";
         }
 
         if (dagTab != null &&
@@ -870,7 +872,7 @@ class DagTabManager extends AbstractTabManager {
             // Reset name if it already exists
             newName = dagTab ? dagTab.getName() : null;
         }
-        return this._getAppPath(dagTab);
+        return this._getAppPath(dagTab) + extension;
     }
 
     protected _duplicateTabAction(index: number) {
@@ -1013,6 +1015,7 @@ class DagTabManager extends AbstractTabManager {
      */
     private _addTabHTML(dagTab: DagTab, tabIndex?: number): void {
         let tabName: string = this._getAppPath(dagTab);
+        let extension: string = "";
         const tabId = dagTab.getId();
         let isEditable: boolean = (dagTab instanceof DagTabUser);
         const isViewOnly: boolean = (dagTab instanceof DagTabProgress || dagTab instanceof DagTabExecuteOnly);
@@ -1033,6 +1036,8 @@ class DagTabManager extends AbstractTabManager {
         } else if (dagTab instanceof DagTabSQLFunc) {
             extraClass += " sqlFunc";
             extraIcon = '<i class="icon xi-SQLfunction tabIcon"></i>';
+            extension = ".tf";
+            tabName += extension;
         } else if (dagTab instanceof DagTabCustom) {
             extraClass += " custom";
         } else if (DagTabUser.isForSQLFolder(dagTab) || dagTab instanceof DagTabSQL) {

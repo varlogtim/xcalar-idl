@@ -239,7 +239,11 @@ class DagList extends Durable {
             // this is a rename of SQL Function
             dagTab.setName(newName);
             this._saveDagList(dagTab);
-            $li.find(".name").text(newName);
+            if (dagTab instanceof DagTabSQLFunc) {
+                $li.find(".name").text(newName + ".tf");
+            } else {
+                $li.find(".name").text(newName);
+            }
         }
         // not support rename published df now
         ResourceMenu.Instance.render(ResourceMenu.KEY.DF);
