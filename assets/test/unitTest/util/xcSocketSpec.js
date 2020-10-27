@@ -297,7 +297,7 @@ describe("xcSocket Test", function() {
             let res = xcSocket._handleNotification({ user: "efg" });
             expect(res).to.be.false;
 
-            let res = xcSocket._handleNotification({ user: "abc" });
+            res = xcSocket._handleNotification({ user: "abc" });
             expect(res).to.be.true;
 
             XcUser.getCurrentUserName = oldFunc;
@@ -319,7 +319,7 @@ describe("xcSocket Test", function() {
             let res = xcSocket._handleNotification({ sessionId: "wrongSession" });
             expect(res).to.be.false;
 
-            let res = xcSocket._handleNotification({ sessionId: "testSession" });
+            res = xcSocket._handleNotification({ sessionId: "testSession" });
             expect(res).to.be.true;
 
             WorkbookManager.getWorkbooks = oldGetWorkbooks;
@@ -334,7 +334,7 @@ describe("xcSocket Test", function() {
             let res = xcSocket._handleNotification({ notebookName: "efg" });
             expect(res).to.be.false;
 
-            let res = xcSocket._handleNotification({ notebookName: "abc" });
+            res = xcSocket._handleNotification({ notebookName: "abc" });
             expect(res).to.be.true;
 
             WorkbookManager.getActiveWKBK = oldGetActiveWKBK;

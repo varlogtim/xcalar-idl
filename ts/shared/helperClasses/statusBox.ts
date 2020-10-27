@@ -25,7 +25,7 @@ namespace StatusBox {
     export interface StatusDisplayerOpions {
         type?: "info" | "error";
         highZindex?: boolean;
-        side?: "left" | "right" | "top" | "bottom";
+        side?: string; // "left" | "right" | "top" | "bottom";
         offsetX?: number;
         offsetY?: number;
         html?: boolean;
@@ -49,7 +49,7 @@ namespace StatusBox {
         private $target: JQuery;
         private open: boolean;
         private type: "info" | "error";
-        private side: "left" | "right" | "top" | "bottom";
+        private side: string; // "left" | "right" | "top" | "bottom";
         private coordinates: {
             bottom: number,
             left: number,
@@ -63,7 +63,7 @@ namespace StatusBox {
             this.$statusBox = $("#statusBox");
             this.open = false;
             this.$target = $();
-            this.setupListerers();
+            this.setupListeners();
             this.type = "error";
             this.side = "right";
         }
@@ -111,7 +111,7 @@ namespace StatusBox {
             return this.open;
         }
 
-        private setupListerers() {
+        private setupListeners() {
             $("#statusBox").mousedown(this._mousedownEvent.bind(this));
             $("#statusBox .detailAction").mousedown(function(event) {
                 event.preventDefault();
@@ -145,7 +145,7 @@ namespace StatusBox {
             const $doc: JQuery = $(document);
             const self = this;
 
-            // focus moves scrollbar position so focus first before we get
+            // focus moves scroll bar position so focus first before we get
             // the position of the input
             $target.focus();
             if (formMode) {
@@ -243,8 +243,8 @@ namespace StatusBox {
             let left: number = bound.left - statusBoxWidth;
 
             if (this.side === "right" && bound.left > (winWidth - statusBoxWidth)) {
-                // if statusbox is to be positioned on the right but the target
-                // is too far to the right, the statusbox would obscure it, so
+                // if status box is to be positioned on the right but the target
+                // is too far to the right, the status box would obscure it, so
                 // position it to the left
                 this.side = "left";
                 $statusBox.removeClass("right");

@@ -871,6 +871,80 @@ describe("UDFFileManager Test", function() {
         });
     });
 
+    it("listLocalAndSharedUDFs test", function() {
+        const oldKV = UDFFileManager.Instance.kvStoreUDF;
+        const testKV = new Map();
+        testKV.set("a", {});
+        testKV.set(`${UDFFileManager.Instance.getSharedUDFPath()}/a`, {});
+        testKV.set(`${UDFFileManager.Instance._newPrefix}/a`, {});
+        testKV.set(`${UDFFileManager.Instance._unsavedPrefix    }/a`, {});
+        UDFFileManager.Instance.kvStoreUDF = testKV;
+
+        const res = UDFFileManager.Instance.listLocalAndSharedUDFs();
+        expect(res.length).to.equal(2);
+        expect(res[0].displayName).to.equal('a.py');
+        expect(res[1].displayName).to.equal(`${UDFFileManager.Instance.getSharedUDFPath()}/a.py`);
+        UDFFileManager.Instance.kvStoreUDF = oldKV;
+    });
+
+    it("_normalizeBackUDFWithKV should create new UDF if not exist", function() {
+        const oldKV = UDFFileManager.Instance.kvStoreUDF;
+        const testKV = new Map();
+        UDFFileManager.Instance.kvStoreUDF = testKV;
+
+        UDFFileManager.Instance._normalizeBackUDFWithKV("a.py", "test");
+        expect(testKV.size).to.equal(1);
+        expect(testKV.has('a')).to.be.true;
+        const snippetObj = testKV.get('a');
+        expect(snippetObj.name).to.equal('a');
+        expect(snippetObj.snippet).to.equal('test');
+
+        UDFFileManager.Instance.kvStoreUDF = oldKV;
+    });
+
+    it("_normalizeBackUDFWithKV should overwrite UDF if not match", function() {
+        const oldKV = UDFFileManager.Instance.kvStoreUDF;
+        const testKV = new Map();
+        UDFFileManager.Instance.kvStoreUDF = testKV;
+        testKV.set('a', {name: 'a', snippet: "test1"});
+        UDFFileManager.Instance._normalizeBackUDFWithKV("a.py", "test2");
+        expect(testKV.size).to.equal(1);
+        expect(testKV.has('a')).to.be.true;
+        const snippetObj = testKV.get('a');
+        expect(snippetObj.name).to.equal('a');
+        expect(snippetObj.snippet).to.equal('test2');
+
+        UDFFileManager.Instance.kvStoreUDF = oldKV;
+    });
+
+    it("getNSPathFromModuleName should work", function() {
+        // case 1
+        let moduleName = `${UDFFileManager.Instance.getSharedUDFPath()}/a`;
+        let res = UDFFileManager.Instance.getNSPathFromModuleName(moduleName);
+        expect(res).to.equal(moduleName);
+        // case 2
+        moduleName = 'a';
+        res = UDFFileManager.Instance.getNSPathFromModuleName(moduleName);
+        expect(res).not.to.equal(moduleName);
+    });
+
+    it('getDisplayNameFromNSPath should work', function() {
+        // case 1
+        let nsPath = `${UDFFileManager.Instance.getSharedUDFPath()}/a`;
+        let res = UDFFileManager.Instance.getDisplayNameFromNSPath(nsPath);
+        expect(res).to.equal(`${nsPath}.py`);
+        // case 2
+        nsPath = UDFFileManager.Instance.getNSPathFromModuleName('a');
+        res = UDFFileManager.Instance.getDisplayNameFromNSPath(nsPath);
+        expect(res).to.equal('a.py');
+    });
+
+    it('parseModuleNameFromFileName should work', function() {
+        // case 1
+        let res = UDFFileManager.Instance.parseModuleNameFromFileName('a.py');
+        expect(res).to.equal('a');
+    });
+
     // describe("_warnDatasetUDF test", function() {
     //     let testUDF;
     //     let testUDFPath;

@@ -923,9 +923,11 @@ namespace WorkbookManager {
     */
     export function getGlobalScopeKeys(version: number): any {
         const gSettingsKey: string = generateKey("", "gSettings", version);
+        const gShareUDFKey: string = generateKey("", "gShareUDF", version);
 
         return {
-            "gSettingsKey": gSettingsKey
+            gSettingsKey,
+            gShareUDFKey
         };
     }
 
@@ -959,7 +961,7 @@ namespace WorkbookManager {
         const gSQLManagerKey: string = generateKey("gSQLManagerKey", version);
         const gDagManagerKey: string = generateKey("gDagManagerKey", version);
         const gUDFManagerKey: string = generateKey("gUDFManagerKey", version);
-        const gUDFUnsavedKey: string = generateKey("gUDFUnsavedKey", version);
+        const gUDFSnippetQuery: string = generateKey('gUDFSnippetQuery', version);
         const gTableManagerKey: string = generateKey("gTableManagerKey", version);
         const gDagTableManagerKey: string = generateKey("gDagTableManagerKey", version);
         const gDagAggKey: string = generateKey("gDagAggKey", version);
@@ -971,7 +973,7 @@ namespace WorkbookManager {
         const gDagParamKey: string = generateKey("gDagParamKey", version);
         const gSQLQueryKey: string = generateKey("gSQLQuery", version);
         const gSQLQueriesKey: string = generateKey("gSQLQueries", version);
-        const gSQLSnippetQueryKey: string = generateKey("gSQLSnippetQuery", version);
+        const gSQLSnippetQuery: string = generateKey("gSQLSnippetQuery", version);
         const gStoredDatasetsKey: string = generateKey("gStoredDatasetsKey", version);
         const gIdCountKey: string = generateKey("gIdCount", version);
         const gPopupManagerKey: string = generateKey("gPopupManagerKey", version);
@@ -985,7 +987,7 @@ namespace WorkbookManager {
             "gSQLManagerKey": gSQLManagerKey,
             "gDagManagerKey": gDagManagerKey,
             "gUDFManagerKey": gUDFManagerKey,
-            "gUDFUnsavedKey": gUDFUnsavedKey,
+            "gUDFSnippetQuery": gUDFSnippetQuery,
             "gTableManagerKey": gTableManagerKey,
             "gDagTableManagerKey": gDagTableManagerKey,
             "gDagAggKey": gDagAggKey,
@@ -995,7 +997,7 @@ namespace WorkbookManager {
             "gOptimizedDagListKey": gOptimizedDagListKey,
             "gDagResetKey": gDagResetKey,
             "gDagParamKey": gDagParamKey,
-            "gSQLSnippetQuery": gSQLSnippetQueryKey,
+            "gSQLSnippetQuery": gSQLSnippetQuery,
             "gStoredDatasetsKey": gStoredDatasetsKey,
             "gIdCountKey": gIdCountKey,
             "gPopupManagerKey": gPopupManagerKey

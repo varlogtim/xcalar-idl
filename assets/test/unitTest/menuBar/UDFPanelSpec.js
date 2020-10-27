@@ -33,6 +33,70 @@ describe("UDFPanel Test", function() {
         }
     });
 
+    describe("checkErrorUDF Test", function() {
+        it("should not check when is new UDF", function() {
+            const res = UDFPanel.Instance.checkErrorUDF("a", true);
+            expect(res).to.be.false;
+        });
+
+        it("should not check when is unsaved UDF", function() {
+            let oldFunc = UDFFileManager.Instance.getUnsavedSnippet;
+            let called = false;
+            UDFFileManager.Instance.getUnsavedSnippet = () => {
+                called = true;
+                return {};
+            };
+            const res = UDFPanel.Instance.checkErrorUDF("a", false);
+            expect(res).to.be.false;
+            expect(called).to.be.true;
+
+            UDFFileManager.Instance.getUnsavedSnippet = oldFunc;
+        });
+
+        it("should return false when it's not error UDF", function() {
+            let oldUnsaved = UDFFileManager.Instance.getUnsavedSnippet;
+            let oldIsError = UDFFileManager.Instance.isErrorSnippet;
+            let called = false;
+            UDFFileManager.Instance.getUnsavedSnippet = () => null;
+            UDFFileManager.Instance.isErrorSnippet = () => {
+                called = true;
+                return false;
+            };
+            const res = UDFPanel.Instance.checkErrorUDF("a", false);
+            expect(res).to.be.false;
+            expect(called).to.be.true;
+
+            UDFFileManager.Instance.getUnsavedSnippet = oldUnsaved;
+            UDFFileManager.Instance.isErrorSnippet = oldIsError;
+        });
+
+        it("should return true when it's error UDF", function(done) {
+            let oldUnsaved = UDFFileManager.Instance.getUnsavedSnippet;
+            let oldIsError = UDFFileManager.Instance.isErrorSnippet;
+            let oldSave = UDFPanel.Instance._saveUDF;
+            let called = false;
+            UDFFileManager.Instance.getUnsavedSnippet = () => null;
+            UDFFileManager.Instance.isErrorSnippet = () => true;
+            UDFPanel.Instance._saveUDF = () => { called = true; };
+
+            const res = UDFPanel.Instance.checkErrorUDF("a", false);
+
+            UnitTest.testFinish(() => called === true)
+            .then(() => {
+                expect(res).to.be.true;
+                done();
+            })
+            .fail(() => {
+                done("fail");
+            })
+            .always(() => {
+                UDFFileManager.Instance.getUnsavedSnippet = oldUnsaved;
+                UDFFileManager.Instance.isErrorSnippet = oldIsError;
+                UDFPanel.Instance._saveUDF = oldSave;
+            });
+        });
+    });
+
     describe("Basic Function Test", function() {
         // it("readUDFFromFile should work", function() {
         //     var readUDFFromFile = UDFPanel.Instance.__testOnly__.readUDFFromFile;

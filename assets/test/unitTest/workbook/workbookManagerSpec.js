@@ -333,8 +333,9 @@ describe("WorkbookManager Test", function() {
         it("WorkbookManager.getGlobalScopeKeys should work", function() {
             var res = WorkbookManager.getGlobalScopeKeys();
             expect(res).to.be.an("object");
-            expect(Object.keys(res).length).to.equal(1);
+            expect(Object.keys(res).length).to.equal(2);
             expect(res).to.ownProperty("gSettingsKey");
+            expect(res).to.ownProperty("gShareUDFKey");
         });
 
         it("WorkbookManager.upgrade should work", function() {

@@ -38,6 +38,7 @@ class UDFTabManager extends AbstractTabManager {
     /**
      * UDFTabManager.Instance.openTab
      * @param name
+     * @return {boolean} true if load a new, false otherwise
      */
     public openTab(name: string, newModule?: boolean): void {
         const index: number = this._getTabIndexByName(name);
@@ -142,11 +143,16 @@ class UDFTabManager extends AbstractTabManager {
         this._cacheNewModule();
         index = super._switchTabs(index);
         const tab = this._activeTabs[index];
-        const cache = this._moduleCache.get(tab.name);
+        const { name, isNew } = tab;
+        const cache = this._moduleCache.get(name);
         if (cache) {
             UDFPanel.Instance.getEditor().setValue(cache);
+            UDFPanel.Instance.checkErrorUDF(name, isNew);
         } else {
-            UDFPanel.Instance.openUDF(tab.name, tab.isNew);
+            UDFPanel.Instance.openUDF(name, isNew)
+            .then(() => {
+                UDFPanel.Instance.checkErrorUDF(name, isNew);
+            });
         }
         this._focusOnList(tab);
         return index;
@@ -155,10 +161,16 @@ class UDFTabManager extends AbstractTabManager {
     protected _restoreTabs(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._getKVStore().getAndParse()
-        .then((restoreData: {tabs: string[]}) => {
+        .then((restoreData: {tabs: UDFTabDurable[]}) => {
             if (restoreData != null) {
                 restoreData.tabs.forEach((tab) => {
-                    this._loadTab(tab, undefined, false);
+                    if (typeof tab === 'string') {
+                        // this is the old version of data
+                        this._loadTab(<string>tab, undefined, false);
+                    } else {
+                        this._loadTab(tab.name, undefined, tab.isNew);
+                    }
+                    
                 });
 
             }
@@ -258,15 +270,9 @@ class UDFTabManager extends AbstractTabManager {
         }
     }
 
-    protected _getJSON(): {tabs: string[]} {
-        const tabs: string[] = [];
-        this._activeTabs.forEach((tab) => {
-            if (!tab.isNew) {
-                tabs.push(tab.name);
-            }
-        });
+    protected _getJSON(): {tabs: UDFTabDurable[]} {
         return {
-            tabs
+            tabs: [...this._activeTabs]
         };
     }
 

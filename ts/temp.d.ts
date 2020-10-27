@@ -136,7 +136,7 @@ interface WkbkKVKeySet {
     gDagManagerKey: string;
     gSQLManagerKey: string;
     gUDFManagerKey: string;
-    gUDFUnsavedKey: string;
+    gUDFSnippetQuery: string;
     gTableManagerKey: string;
     gDagTableManagerKey: string;
     gAppListKey: string;
@@ -144,7 +144,7 @@ interface WkbkKVKeySet {
     gSQLFuncListKey: string;
     gOptimizedDagListKey: string;
     gSQLSnippetKey: string;
-    gSQLSnippetQueryKey: string;
+    gSQLSnippetQuery: string;
     gTutorialKey: string;
     gStoredDatasetsKey: string;
 }

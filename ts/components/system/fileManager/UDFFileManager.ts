@@ -1,16 +1,22 @@
 class UDFFileManager {
     private static _instance = null;
 
+
     public static get Instance(): UDFFileManager {
         return this._instance || (this._instance = new this());
     }
 
     private storedUDF: Map<string, string>;
+    private kvStoreUDF: Map<string, UDFSnippetDurable>;
     private defaultModule: string;
     private userIDWorkbookMap: Map<string, Map<string, string>>;
     private userWorkbookIDMap: Map<string, Map<string, string>>;
     private panels: FileManagerPanel[];
     private storedSQLFuncs: {name: string, numArg: number}[];
+    private _fetched: boolean;
+    private _delaySave: boolean;
+    private readonly _newPrefix = '.new';
+    private readonly _unsavedPrefix = '.unsaved';
 
     /*
      * Pay special attention when dealing with UDF paths / names.
@@ -50,12 +56,15 @@ class UDFFileManager {
      */
 
     public constructor() {
-        this.storedUDF = new Map<string, string>();
+        this.storedUDF = new Map();
+        this.kvStoreUDF = new Map();
         this.defaultModule = "default";
         this.userIDWorkbookMap = new Map();
         this.userWorkbookIDMap = new Map();
         this.panels = [];
         this.storedSQLFuncs = [];
+        this._fetched = false;
+        this._delaySave = false;
     }
 
     /**
@@ -66,7 +75,7 @@ class UDFFileManager {
         displayPath = displayPath.startsWith(this.getCurrWorkbookDisplayPath())
             ? displayPath.split("/").pop()
             : displayPath;
-        const moduleName = UDFPanel.parseModuleNameFromFileName(displayPath);
+        const moduleName = this.parseModuleNameFromFileName(displayPath);
         UDFPanel.Instance.loadUDF(moduleName);
     }
 
@@ -225,19 +234,19 @@ class UDFFileManager {
                 classes: "dark"
             }
         );
-        let hasSQLUDF: boolean = false;
+        let has_SQL_UDF: boolean = false;
 
         this.list()
         .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
             const listXdfsObjUpdate: XcalarApiListXdfsOutputT = xcHelper.deepCopy(listXdfsObj);
-            hasSQLUDF = this._updateStoredUDF(listXdfsObjUpdate);
+            has_SQL_UDF = this._updateStoredUDF(listXdfsObjUpdate);
             this.filterWorkbookAndSharedUDF(listXdfsObjUpdate);
             DSTargetManager.updateUDF(listXdfsObjUpdate);
 
             return this._getUserWorkbookMap(listXdfsObj);
         })
         .then(() => {
-            return UDFPanel.Instance.loadUnsaved();
+            return this._fetchSnippets();
         })
         .then(() => {
             UDFTabManager.Instance.setup();
@@ -245,8 +254,8 @@ class UDFFileManager {
             this.panels.forEach((panel: FileManagerPanel) =>
                 this._updatePanel(panel, false)
             );
-            if (!hasSQLUDF) {
-                this._createDefaultSQLUDF();
+            if (!has_SQL_UDF) {
+                this._createDefaultSQL_UDF();
             }
             deferred.resolve();
         })
@@ -270,6 +279,47 @@ class UDFFileManager {
 
     public listSQLUDFFuncs(): {name: string, numArg: number}[] {
         return this.storedSQLFuncs;
+    }
+
+    /**
+     * UDFFileManager.Instance.listLocalAndSharedUDFs
+     */
+    public listLocalAndSharedUDFs(): {
+        displayName: string,
+        path: string,
+        isOpen: boolean,
+        isError: boolean
+    }[] {
+        const res: {displayName: string, path: string, isOpen: boolean, isError: boolean}[] = [];
+        const sharedUDFPath: string = UDFFileManager.Instance.getSharedUDFPath();
+        const workbookUDF: string[] = [];
+        const sharedUDF: string[] = [];
+    
+        this.kvStoreUDF.forEach((_v, moduleName) => {
+            if (!moduleName.startsWith(this._newPrefix) &&
+                !moduleName.startsWith(this._unsavedPrefix)
+            ) {
+                if (moduleName.startsWith(sharedUDFPath)) {
+                    sharedUDF.push(moduleName);
+                } else {
+                    workbookUDF.push(this.getNSPathFromModuleName(moduleName));
+                }
+            }
+        });
+        const nsPaths = workbookUDF.sort().concat(sharedUDF.sort());
+        const set = new Set();
+        for (const nsPath of nsPaths) {
+            const displayName: string = this.getDisplayNameFromNSPath(nsPath);
+            const shortName: string = this.parseModuleNameFromFileName(displayName);
+            set.add(shortName);
+            res.push({
+                displayName,
+                path: nsPath,
+                isOpen: UDFTabManager.Instance.isOpen(shortName),
+                isError: !this.storedUDF.has(nsPath)
+            });
+        }
+        return res;
     }
 
     /**
@@ -300,19 +350,77 @@ class UDFFileManager {
             XcalarDownloadPython(nsPath)
             .then((udfStr: string) => {
                 this.storedUDF.set(nsPath, udfStr);
+                this._normalizeBackUDFWithKV(nsPath, udfStr); 
                 deferred.resolve(udfStr);
             })
             .fail((error) => {
                 deferred.reject(error, true);
             });
         } else {
+            this._normalizeBackUDFWithKV(nsPath, entireString); 
             deferred.resolve(entireString);
         }
 
         return deferred.promise();
     }
 
+    private _normalizeBackUDFWithKV(nsPath: string, udfStr: string): void {
+        const moduleName = this._getModuleNameFromNSPath(nsPath);
+        let kvUDF = this.kvStoreUDF.get(moduleName);
+        if (!kvUDF) {
+            console.warn(`${moduleName} exists in backend but not in kv`);
+            kvUDF = this._newSnippet({
+                name: moduleName,
+                snippet: udfStr,
+            });
+        } else {
+            if (kvUDF.snippet !== udfStr) {
+                console.warn(`${moduleName}'s snippet is out of sync with the backend one`);
+                kvUDF.snippet = udfStr;
+            }
+        }
+    }
+
     /**
+     * UDFFileManager.Instance.getNSPathFromModuleName
+     * @param moduleName
+     */
+    public getNSPathFromModuleName(moduleName: string): string {
+        const sharedPath = UDFFileManager.Instance.getSharedUDFPath();
+        if (moduleName.startsWith(sharedPath)) {
+            return moduleName;
+        } else {
+            return UDFFileManager.Instance.getCurrWorkbookPath() + moduleName;
+        }
+    }
+
+    /**
+     * UDFFileManager.Instance.getDisplayNameFromNSPath
+     * @param nsPath
+     */
+    public getDisplayNameFromNSPath(nsPath: string): string {
+        const nsPathSplit: string[] = nsPath.split("/");
+        let displayName: string = nsPath.startsWith(
+            UDFFileManager.Instance.getCurrWorkbookPath()
+        )
+            ? nsPathSplit[nsPathSplit.length - 1]
+            : nsPath;
+        displayName = UDFFileManager.Instance.nsPathToDisplayPath(
+            displayName
+        );
+        return displayName;
+    }
+
+    /**
+     * UDFFileManager.Instance.parseModuleNameFromFileName
+     * @param fileName
+     */
+    public parseModuleNameFromFileName(fileName: string): string {
+        return fileName.substring(0, fileName.indexOf(".py"));
+    }
+
+    /**
+     * UDFFileManager.Instance.delete
      * @param  {string[]} displayPaths
      * @returns XDPromise<void> The promise is used in tests.
      */
@@ -329,7 +437,10 @@ class UDFFileManager {
                 ? nsPath
                 : nsPath.split("/").pop();
             XcalarDeletePython(uploadPath, absolutePath)
-            .then(deferred.resolve)
+            .then(() => {
+                this._deleteSnippet(uploadPath, absolutePath);
+                deferred.resolve();
+            })
             .fail((error) => {
                 // assume deletion if module is not listed
                 if (
@@ -339,6 +450,7 @@ class UDFFileManager {
                     XcalarListXdfs(nsPath + ":*", "User*")
                     .then((listXdfsObj: any) => {
                         if (listXdfsObj.numXdfs === 0) {
+                            this._deleteSnippet(uploadPath, absolutePath);
                             deferred.resolve();
                         } else {
                             Alert.error(UDFTStr.DelFail, error);
@@ -420,8 +532,9 @@ class UDFFileManager {
         uploadPath: string,
         entireString: string,
         absolutePath?: boolean,
-        overwiteShareUDF?: boolean,
-        noNotification?: boolean
+        overwriteShareUDF?: boolean,
+        noNotification?: boolean,
+        showHintError?: boolean
     ): XDPromise<any> {
         const uploadPathSplit: string[] = uploadPath.split("/");
         uploadPathSplit[uploadPathSplit.length - 1] = uploadPathSplit[
@@ -433,7 +546,7 @@ class UDFFileManager {
             let hasToggleBtn: boolean = false;
 
             // if upload finish with in 1 second, do not toggle
-            const timer: NodeJS.Timer = setTimeout(() => {
+            const timer = setTimeout(() => {
                 hasToggleBtn = true;
                 xcUIHelper.toggleBtnInProgress($fnUpload, false);
             }, 1000);
@@ -441,10 +554,9 @@ class UDFFileManager {
             xcUIHelper.disableSubmit($fnUpload);
             XcalarUploadPython(uploadPath, entireString, absolutePath, true)
             .then(() => {
-                if (overwiteShareUDF) {
+                if (overwriteShareUDF) {
                     let shareUDFPath = this.getSharedUDFPath() + uploadPath;
-                    let promise = XcalarUploadPython(shareUDFPath, entireString, true, true)
-                    return promise;
+                    return XcalarUploadPython(shareUDFPath, entireString, true, true);
                 }
             })
             .then(() => {
@@ -466,8 +578,8 @@ class UDFFileManager {
             .fail((error) => {
                 // XXX might not actually be a syntax error
                 const syntaxErr: {
-                reason: string;
-                line: number;
+                    reason: string;
+                    line: number;
                 } = this._parseSyntaxError(error);
                 if (syntaxErr != null) {
                     UDFPanel.Instance.updateHints(syntaxErr);
@@ -477,10 +589,14 @@ class UDFFileManager {
                         error && typeof error === "object" && error.error
                             ? error.error
                             : error;
-                    Alert.error(SideBarTStr.UploadError, null, {
-                        msgTemplate: errorMsg,
-                        align: "left"
-                    });
+                    if (showHintError) {
+                        UDFPanel.Instance.updateHints({ reason: errorMsg, line: 1 });
+                    } else {
+                        Alert.error(SideBarTStr.UploadError, null, {
+                            msgTemplate: errorMsg,
+                            align: "left"
+                        });
+                    }
                 }
                 deferred.reject(error);
             })
@@ -507,11 +623,9 @@ class UDFFileManager {
     }
 
     /**
-     * @param  {string} displayPath
-     * @param  {string} entireString
-     * @returns XDPromise
+     * UDFFileManager.Instance.add
      */
-    public add(displayPath: string, entireString: string): XDPromise<void> {
+    public add(displayPath: string, entireString: string, showHintError?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         let uploadPath: string = displayPath;
@@ -533,14 +647,18 @@ class UDFFileManager {
         ? this._warnDatasetUDF(uploadPath, entireString)
         : PromiseHelper.resolve();
         def
-        .then((overwiteShareUDF: boolean) => {
-            return this.upload(uploadPath, entireString, absolutePath, overwiteShareUDF);
+        .then((overwriteShareUDF: boolean) => {
+            return this.upload(uploadPath, entireString, absolutePath, overwriteShareUDF, false, showHintError);
+        })
+        .then(() => {
+            const promise = PromiseHelper.convertToJQuery(this._storeSnippet(uploadPath, entireString, !isLocalUDF))
+            return PromiseHelper.alwaysResolve(promise); // save a local copy
         })
         .then(() => {
             deferred.resolve();
         })
-        .fail(() => {
-            deferred.reject();
+        .fail((error) => {
+            deferred.reject(error);
         });
 
         return deferred.promise();
@@ -792,7 +910,7 @@ class UDFFileManager {
     }
 
     private _parseSyntaxError(error: {
-    error: string;
+        error: string;
     }): {reason: string; line: number} {
         if (!error || !error.error) {
             return null;
@@ -808,12 +926,12 @@ class UDFFileManager {
                 // try another format of error
                 splits = error.error.match(/^.*line (.*)/);
                 line = Number(splits[1].trim());
-                const syntexErrorIndex: number = error.error.indexOf(
+                const syntaxErrorIndex: number = error.error.indexOf(
                     "SyntaxError:"
                 );
                 reason =
-                    syntexErrorIndex > -1
-                        ? error.error.substring(syntexErrorIndex).trim()
+                syntaxErrorIndex > -1
+                        ? error.error.substring(syntaxErrorIndex).trim()
                         : error.error.trim();
             } else {
                 reason = splits[1].trim();
@@ -857,8 +975,8 @@ class UDFFileManager {
         // Make sure the current workbook folder is updated quickly enough,
         // since listing all UDFs from backend is slow when there are lots of
         // UDFs.
-        // This is hacky, and should be carefully thought about if patterned to
-        // other folers (like the shared folder).
+        // This is a hack way, and should be carefully thought about if patterned to
+        // other folders (like the shared folder).
         this.list(this.getCurrWorkbookPath())
         .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
             this._updateStoredUDF(listXdfsObj, this.getCurrWorkbookPath());
@@ -909,7 +1027,7 @@ class UDFFileManager {
         listXdfsObj: XcalarApiListXdfsOutputT,
         prefix?: string
     ): boolean {
-        let hasSQLUDF = false;
+        let has_SQL_UDF = false;
         this.storedSQLFuncs = [];
         const sqlUDFPath: string = UDFFileManager.Instance.getCurrWorkbookPath() + "sql";
         const newStoredUDF: Map<string, string> = new Map();
@@ -923,7 +1041,7 @@ class UDFFileManager {
                     name: splits[1],
                     numArg: udf.numArgs
                 });
-                hasSQLUDF = true;
+                has_SQL_UDF = true;
             }
         });
 
@@ -938,10 +1056,10 @@ class UDFFileManager {
         }
         this.storedUDF = newStoredUDF;
         ResourceMenu.Instance.render(ResourceMenu.KEY.UDF);
-        return hasSQLUDF;
+        return has_SQL_UDF;
     }
 
-    private _createDefaultSQLUDF(): XDPromise<void> {
+    private _createDefaultSQL_UDF(): XDPromise<void> {
         const udf = UDFPanel.Instance.udfDefault +
                     'def sampleAddOne(col1):\n' +
                     '    return col1 + 1\n';
@@ -1053,7 +1171,7 @@ class UDFFileManager {
         // XXX dataset is not used anymore
         let shareUDFPath = this.getSharedUDFPath() + udfPath;
         if (shareUDFPath === this.getDefaultUDFPath()) {
-            // when it's shared UDF, xcalar will handle it, no need to warn
+            // when it's shared UDF, backend will handle it, no need to warn
             return PromiseHelper.resolve(false);
         }
 
@@ -1110,6 +1228,238 @@ class UDFFileManager {
             return false;
         }
         return false;
+    }
+
+    private _getModuleNameFromNSPath(nsPath: string): string {
+        const displayPath = this.getDisplayNameFromNSPath(nsPath);
+        return this.parseModuleNameFromFileName(displayPath);
+    }
+
+    private _getKVStore(shared: boolean): KVStore {
+        if (shared) {
+            let key: string = KVStore.getKey('gShareUDFKey');
+            return new KVStore(key, gKVScope.GLOB);
+        } else {
+            let key: string = KVStore.getKey('gUDFSnippetQuery');
+            return new KVStore(key, gKVScope.WKBK);
+        }
+    }
+
+    private _getDurable(shared: boolean): UDFSnippetsSetDurable {
+        const snippets: {[key: string]: UDFSnippetDurable} = {};
+        const sharedPath = this.getSharedUDFPath();
+        this.kvStoreUDF.forEach((value, key) => {
+            const isSharedUDF = key.startsWith(sharedPath)
+            if (
+                (shared && isSharedUDF) ||
+                (!shared && !isSharedUDF)
+            ) {
+                snippets[key] = value;
+            }
+        });
+        return {
+            snippets 
+        };
+    }
+
+    private _newSnippet(snippet: UDFSnippetDurable): UDFSnippetDurable {
+        const { name } = snippet;
+        this.kvStoreUDF.set(name, snippet);
+        return snippet;
+    }
+
+    private async _deleteSnippet(name: string, shared: boolean): Promise<void> {
+        this.kvStoreUDF.delete(name);
+        await this._updateSnippets(shared);
+    }
+
+    private async _fetchSnippets(): Promise<boolean | null> {
+        if (this._fetched) {
+            return true;
+        }
+
+        try {
+            const promise1 = this._restoreSnippets(true);
+            const promise2 = this._restoreSnippets(false);
+            await Promise.all([promise1, promise2]);
+            this._fetched = true;
+            await this._syncSnippets();
+            return true;
+        } catch (e) {
+            console.error("fetch custom scalar functions from kv fails", e);
+            return null;
+        }
+    }
+
+    private async _restoreSnippets(shared: boolean): Promise<void> {
+        const res: UDFSnippetsSetDurable = await this._getKVStore(shared).getAndParse();
+        // console.log("res", res)
+        if (res != null) {
+            const { snippets } = res;
+            if (snippets) {
+                for (let key in snippets) {
+                    this.kvStoreUDF.set(key, res.snippets[key]);
+                }
+            }
+        }
+    }
+
+    /**
+     * UDFFileManager.Instance.isErrorSnippet
+     * @param name
+     */
+    public isErrorSnippet(name: string): boolean {
+        const nsPath = this.getNSPathFromModuleName(name);
+        return (!this.storedUDF.has(nsPath) && this.kvStoreUDF.has(name));
+    }
+
+    /**
+     * UDFFileManager.Instance.getSavedSnippet
+     * @param name
+     */
+    public getSavedSnippet(name: string): string {
+        const nsPath = this.getNSPathFromModuleName(name);
+        let udf = this.storedUDF.get(nsPath);
+        if (udf == null) {
+            // error UDF
+            const kvUDF = this.kvStoreUDF.get(name);
+            return kvUDF ? kvUDF.snippet : null;
+        } else {
+            return udf;
+        }
+    }
+
+    /**
+     * UDFFileManager.Instance.getUnsavedSnippet
+     * @param name
+     * @param isNew
+     */
+    public getUnsavedSnippet(name: string, isNew: boolean): string | null {
+        const key = this._getUnsavedKey(name, isNew);
+        if (this.kvStoreUDF.has(key)) {
+            return this.kvStoreUDF.get(key).snippet || '';
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * UDFFileManager.Instance.storeUnsavedSnippet
+     */
+    public async storeUnsavedSnippet(
+        name: string,
+        snippet: string,
+        isNew: boolean
+    ): Promise<void> {
+        const key = this._getUnsavedKey(name, isNew);
+        let oldSnippet = null;
+        let snippetObj: UDFSnippetDurable = this.kvStoreUDF.get(key);
+        if (snippetObj == null) {
+            snippetObj = { name, snippet };
+            this.kvStoreUDF.set(key, snippetObj);
+        } else {
+            oldSnippet = snippetObj.snippet;
+            snippetObj.snippet = snippet;
+        }
+
+        if (oldSnippet !== snippet) {
+            return this._updateSnippets(false);
+        }
+    }
+
+    /**
+     * UDFFileManager.Instance.deleteUnsavedSnippet
+     */
+    public async deleteUnsavedSnippet(
+        name: string,
+        isNew: boolean
+    ): Promise<void> {
+        const deleted = this._deleteUnsavedSnippet(name, isNew);
+        if (deleted) {
+            return this._updateSnippets(false);
+        }
+    }
+
+    private async _syncSnippets(): Promise<void> {
+        try {
+            let needUpdate = false;
+            let needUpdateShared = false;
+            const promises = [];
+            const workbookPath = this.getCurrWorkbookPath();
+            const shareUDFPath = this.getSharedUDFPath();
+            this.storedUDF.forEach((_udf, nsPath) => {
+                let moduleName = null;
+                if (nsPath.startsWith(workbookPath)) {
+                    moduleName = this._getModuleNameFromNSPath(nsPath);
+                } else if (nsPath.startsWith(shareUDFPath)) {
+                    moduleName = nsPath;
+                }
+                   
+                if (moduleName && !this.kvStoreUDF.has(moduleName)) {
+                    promises.push(PromiseHelper.convertToNative(this.getEntireUDF(nsPath)));
+                    needUpdate = true;
+                    needUpdateShared = nsPath.startsWith(shareUDFPath);
+                }
+            });
+            await Promise.all(promises);
+            if (needUpdate) {
+                await this._updateSnippets(false);
+                if (needUpdateShared) {
+                    await this._updateSnippets(true);
+                }
+            }
+        } catch (e) {
+            console.error("sync up custom scalar function failed", e);
+        }
+    }
+
+    private async _updateSnippets(shared, delay = false): Promise<void> {
+        if (delay) {
+            if (this._delaySave) {
+                return;
+            }
+            this._delaySave = true;
+            await xcHelper.asyncTimeout(1000);
+            if (!this._delaySave) {
+                return;
+            }
+        }
+        this._delaySave = false;
+        const jsonStr = JSON.stringify(this._getDurable(shared));
+        // console.log("save", this._getDurable())
+        await this._getKVStore(shared).put(jsonStr, true);
+        return;
+    }
+
+    private async _storeSnippet(
+        name: string,
+        snippet: string,
+        shared: boolean,
+    ): Promise<void> {
+        const snippetObj = this.kvStoreUDF.get(name) || this._newSnippet({ name, snippet });
+        snippetObj.snippet = snippet;
+        this._deleteUnsavedSnippet(name, false);
+        await this._updateSnippets(false);
+        if (shared) {
+            // when shared, need to update both local kv and
+            // global kv
+            await this._updateSnippets(true);
+        }
+    }
+
+    private _deleteUnsavedSnippet(name: string, isNew: boolean): boolean {
+        const key: string = this._getUnsavedKey(name, isNew);
+        if (!this.kvStoreUDF.has(key)) {
+            return false;
+        } else {
+            this.kvStoreUDF.delete(key);
+            return true;
+        }
+    }
+
+    private _getUnsavedKey(name: string, isNew: boolean): string {
+        const prefix = isNew ? this._newPrefix : this._unsavedPrefix;
+        return `${prefix}.${name}`;
     }
 
     /* Unit Test Only */

@@ -132,6 +132,7 @@ class SQLSnippet {
 
     /**
      * SQLSnippet.Instance.update
+     * @param id
      * @param snippetName
      * @param snippet
      */

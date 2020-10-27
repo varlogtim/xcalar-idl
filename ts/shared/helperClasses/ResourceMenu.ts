@@ -179,15 +179,16 @@ class ResourceMenu {
     }
 
     private _renderUDFList(): void {
-        const udfs = UDFPanel.Instance.listUDFs();
+        const udfs = UDFFileManager.Instance.listLocalAndSharedUDFs();
         const iconClassNames: string[] = ["xi-menu-udf"];
         const defaultUDF = UDFFileManager.Instance.getDefaultUDFPath() + ".py";
-        let html: HTML = udfs.map((udf) => {
-            const displayName: string = udf.displayName;
+        let html: HTML = udfs.map(({ displayName, isOpen, isError }) => {
             const listClassNames: string[] = ["udf"];
-            const shortName: string = UDFPanel.parseModuleNameFromFileName(displayName);
-            if (UDFTabManager.Instance.isOpen(shortName)) {
+            if (isOpen) {
                 listClassNames.push("open");
+            }
+            if (isError) {
+                listClassNames.push("error");
             }
             if (displayName === defaultUDF) {
                 listClassNames.push("defaultUDF");
@@ -613,7 +614,7 @@ class ResourceMenu {
         });
 
         $menu.on("click", ".udfDelete", () => {
-            const name: string = UDFPanel.parseModuleNameFromFileName($menu.data("name"));
+            const name: string = UDFFileManager.Instance.parseModuleNameFromFileName($menu.data("name"));
             UDFPanel.Instance.deleteUDF(name);
         });
 
@@ -704,7 +705,7 @@ class ResourceMenu {
                 return;
             }
             let name: string = $li.find(".name").text();
-            name = UDFPanel.parseModuleNameFromFileName(name);
+            name = UDFFileManager.Instance.parseModuleNameFromFileName(name);
             UDFPanel.Instance.loadUDF(name);
         });
 
