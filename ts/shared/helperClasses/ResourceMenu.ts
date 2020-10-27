@@ -213,7 +213,7 @@ class ResourceMenu {
             }
             const appId: string = snippet.app;
             let html: string = map.get(appId) || "";
-            html += this._getListHTML(name, listClassNames, iconClassNames, id);
+            html += this._getListHTML(name + ".sql", listClassNames, iconClassNames, id);
             map.set(appId, html);
         });
 

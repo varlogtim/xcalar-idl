@@ -1,11 +1,11 @@
-namespace Alert { 
+namespace Alert {
     let modalHelper: ModalHelper;
     let hasSetup: boolean = false;
 
     interface AlertButton {
         name: string; // name of the button
-        className?: string; // class of the button
         func: Function; // callback to trigger when click,
+        className?: string; // class of the button
         tooltip?: string; // tooltip to add
     }
 

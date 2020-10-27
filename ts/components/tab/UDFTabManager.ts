@@ -341,14 +341,14 @@ class UDFTabManager extends AbstractTabManager {
         let html: HTML =
             '<li class="' + classNames.join(" ") + '" ' +
             xcTooltip.Attrs +
-            ' data-title="' + name + '"' +
+            ' data-title="' + name + '.py"' +
             '>' +
                 '<div class="dragArea">' +
                     '<i class="icon xi-ellipsis-v" ' + xcTooltip.Attrs +
                     ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>' +
                 '</div>' +
                 '<div class="name">' +
-                    name +
+                    name + '.py' +
                 '</div>' +
                 '<div class="after">' +
                     '<i class="icon xi-close-no-circle close" ' +

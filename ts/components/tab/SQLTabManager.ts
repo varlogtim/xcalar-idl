@@ -100,8 +100,8 @@ class SQLTabManager extends AbstractTabManager {
 
     /**
      * SQLTabManager.Instance.toggleUnSaved
-     * @param id 
-     * @param unsaved 
+     * @param id
+     * @param unsaved
      */
     public toggleUnSaved(id: string, unsaved: boolean): void {
         const index: number = this._activeTabs.indexOf(id);
@@ -241,7 +241,7 @@ class SQLTabManager extends AbstractTabManager {
     protected _renameTabAction($input: JQuery): string {
         let newName: string = $input.text().trim();
         const $tabName: JQuery = $input.parent();
-        const $tab: JQuery = $tabName.parent();
+        const $tab: JQuery = $tabName.parent().parent();
         const index: number = $tab.index();
         const id: string = this._activeTabs[index];
         const snippetObj = SQLSnippet.Instance.getSnippetObj(id);
@@ -253,7 +253,7 @@ class SQLTabManager extends AbstractTabManager {
             this._save();
             this._updateList();
         }
-        return this._getAppPath(snippetObj);
+        return this._getAppPath(snippetObj) + ".sql";
     }
 
     // do nothing
@@ -322,11 +322,14 @@ class SQLTabManager extends AbstractTabManager {
     private _addTabHTML(snippetObj: SQLSnippetDurable, tabIndex?: number): void {
         let liClass = "";
         let nameClass = "";
+        let name: string = this._getAppPath(snippetObj);
         if (snippetObj.temp) {
             liClass += " tempTab";
             nameClass += " nonedit";
+        } else {
+            name += ".sql"
         }
-        const name: string = this._getAppPath(snippetObj);
+
         const html: HTML =
             '<li class="tab tooltipOverflow ' + liClass + '"' +
             ` data-id="${snippetObj.id}"` +
@@ -336,8 +339,11 @@ class SQLTabManager extends AbstractTabManager {
                 '<div class="dragArea">' +
                     '<i class="icon xi-ellipsis-v" ' + xcTooltip.Attrs + ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>' +
                 '</div>' +
-                '<div class="name ' +  nameClass +'">' +
-                    name +
+                '<div class="nameArea">' +
+                    '<div class="name ' +  nameClass +'">' +
+                        name +
+                    '</div>' +
+                    '<div class="extension">.sql</div>' +
                 '</div>' +
                 '<div class="after">' +
                     '<i class="icon xi-close-no-circle close" ' +

@@ -133,7 +133,7 @@ abstract class AbstractTabManager {
         $tabArea.on("focusout", ".name .xc-input", (event) => {
             const $input: JQuery = $(event.currentTarget);
             const newName = this._renameTabAction($input);
-
+            $input.closest(".tab").removeClass("renaming");
             if (newName) {
                 const $tabName: JQuery = $input.parent();
                 $tabName.text(newName);
@@ -177,7 +177,7 @@ abstract class AbstractTabManager {
     }
 
     protected _focusTabRename($dragArea: JQuery) {
-        let $tabName: JQuery = $dragArea.siblings(".name");
+        let $tabName: JQuery = $dragArea.parent().find(".name");
         if ($tabName.hasClass('nonedit')) {
             return;
         }
@@ -189,6 +189,7 @@ abstract class AbstractTabManager {
         let $input: JQuery = $tabName.find('.xc-input');
         $input.text(editingName);
         $input.focus();
+        $input.closest(".tab").addClass("renaming");
         document.execCommand('selectAll', false, null);
     }
 
