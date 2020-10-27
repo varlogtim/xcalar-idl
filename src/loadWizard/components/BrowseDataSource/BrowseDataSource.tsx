@@ -9,7 +9,7 @@ import * as S3Service from '../../services/S3Service'
 import getForensics from '../../services/Forensics';
 import FileBrowserTable from './FileBrowserTable'
 import LoadingText from '../../../components/widgets/LoadingText';
-import { Rnd } from "react-rnd";
+import Pagination from '../../../components/widgets/Pagination'
 import {
     PieChart, Pie, Cell, Label, ResponsiveContainer
 } from 'recharts';
@@ -49,6 +49,8 @@ function getSelectedIdsForCurrentView(fileMapViewing, selectedFiles) {
     return selectedIds;
 }
 
+const pageSize = 100;
+
 type BrowseDataSourceProps = {
     fileType: SchemaService.FileType,
     bucket: string,
@@ -69,22 +71,26 @@ type BrowseDataSourceState = {
     showForensics: boolean,
     forensicsMessage: any[],
     isForensicsLoading: boolean,
-    forensicsPath: string
+    forensicsPath: string,
+    offset: number,
+    maxOffset: number
 }
 
 class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseDataSourceState> {
     private metadataMap;
     private navCount;
+    private filesCursor: S3Service.ListFilesCursor;
     constructor(props) {
         super(props);
 
         const { bucket, homePath, selectedFileDir, fileNamePattern } = props;
+        const fullPath = Path.join(bucket, homePath);
 
         this.metadataMap = new Map();
         this.navCount = 0;
         this.state = {
             isLoading: true,
-            path: Path.join(bucket, homePath),
+            path: fullPath,
             fileMapViewing: new Map(),
             selectedFileDir: selectedFileDir.map((v) => ({...v})),
             fileNamePattern: fileNamePattern,
@@ -92,7 +98,9 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
             showForensics: false,
             forensicsMessage: [],
             isForensicsLoading: false,
-            forensicsPath: ""
+            forensicsPath: "",
+            offset: 0,
+            maxOffset: Number.MAX_VALUE
         }
     }
 
@@ -100,10 +108,40 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
         try {
             (document.activeElement as HTMLElement).blur();
         } catch(e){}
+
         // browsePath
         const success = await this._browsePath(this.state.path, this.props.fileType);
         if (!success) {
             this.props.onCancel();
+        }
+    }
+
+    async _fetchFileList(fullPath, offset) {
+        try {
+            this.setState({ isLoading: true });
+            let cursorOffset = offset;
+            if (fullPath != this.state.path || this.filesCursor == null) {
+                this.filesCursor = S3Service.createListFilesCursor({
+                    targetName: this.props.connector,
+                    path: Path.join('/', fullPath, '/'),
+                    fileNamePattern: '*',
+                    isRecursive: false
+                });
+                cursorOffset = 0;
+                this.setState({ maxOffset: Number.MAX_VALUE });
+            }
+            const files = await this.filesCursor.fetchData({ offset: cursorOffset, count: pageSize });
+            const fileMap = new Map();
+            for (const file of files) {
+                fileMap.set(file.fullPath, file);
+            }
+            if (files.length < pageSize) {
+                this.setState({ maxOffset: this.filesCursor.getSize() - 1 });
+            }
+
+            return { fileMap: fileMap, offset: offset };
+        } finally {
+            this.setState({ isLoading: false });
         }
     }
 
@@ -121,7 +159,7 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
             // });
             this.navCount++;
             let navCount = this.navCount;
-            const fileMap = await S3Service.listFiles(Path.join(newFullPath, '/'), this.props.connector);
+            const { fileMap, offset } = await this._fetchFileList(newFullPath, this.state.offset);
 
             if (this.navCount !== navCount) {
                 return false;
@@ -164,7 +202,8 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
                 this.setState({
                     path: newFullPath,
                     fileMapViewing: fileMap,
-                    isLoading: false
+                    isLoading: false,
+                    offset: offset
                 });
             }, 0);
 
@@ -377,7 +416,8 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
             path,
             fileMapViewing,
             selectedFileDir,
-            fileNamePattern
+            fileNamePattern,
+            offset, maxOffset
         } = this.state;
 
         let rootFullPath = Path.join(bucket);
@@ -402,6 +442,50 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
         if (rootFullPath === currentFullPath) {
             upFolderClass += " xc-disabled";
         }
+
+        // List file pagination
+        const pagePrev = offset > 0 && !isLoading
+            ? () => {
+                const fetchData = async () => {
+                    try {
+                        const newOffset = offset - pageSize;
+                        const { fileMap } = await this._fetchFileList(path, newOffset);
+                        this.setState({
+                            fileMapViewing: fileMap,
+                            offset: newOffset
+                        });
+                    } catch(e) {
+                        Alert.show({
+                            title: 'Browse path failed',
+                            msg: `${e.message || e.log || e.error || e}`,
+                            isAlert: true
+                        });
+                    }
+                };
+                fetchData();
+            }
+            : null;
+        const pageNext = (offset + pageSize) <= maxOffset && !isLoading
+            ? () => {
+                const fetchData = async () => {
+                    try {
+                        const newOffset = offset + pageSize;
+                        const { fileMap } = await this._fetchFileList(path, newOffset);
+                        this.setState({
+                            fileMapViewing: fileMap,
+                            offset: newOffset
+                        });
+                    } catch(e) {
+                        Alert.show({
+                            title: 'Browse path failed',
+                            msg: `${e.message || e.log || e.error || e}`,
+                            isAlert: true
+                        });
+                    }
+                };
+                fetchData();
+            }
+            : null;
 
         return (
             <div className="browseDataSourceScreen">
@@ -468,6 +552,7 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
                             refreshPath={(path) => {this._refreshPath(path)}}
                         /> )
                     }
+                    <Pagination onNext={pageNext} onPrev={pagePrev} />
                     </div>
                     {/* <Rnd
                         className="rightAreaResizable"

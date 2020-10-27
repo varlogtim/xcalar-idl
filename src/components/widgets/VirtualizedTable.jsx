@@ -7,6 +7,52 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { TableSortLabel } from '@material-ui/core';
 import { Folder, FileCopy, InsertDriveFileOutlined } from '@material-ui/icons';
 
+function isListDiff(l1, l2, getKey) {
+    if (l1 == l2) {
+        return false;
+    }
+
+    if (!Array.isArray(l1) || !Array.isArray(l2)) {
+        return true;
+    }
+
+    if (l1.length != l2.length) {
+        return true;
+    }
+
+    const key1 = new Set(l1.map(getKey));
+    for (const item of l2) {
+        if (!key1.has(getKey(item))) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function sortList({sortBy, sortDirection, list}) {
+    if (sortBy == null || sortBy.length == 0) {
+        return [...list];
+    }
+
+    if (sortBy === "size") {
+        sortBy = "sizeInBytes";
+    }
+
+    const sortedList = [...list];
+    const order = (sortDirection === "ASC") ? -1 : 1;
+    sortedList.sort((a,b) => {
+        if (a[sortBy] < b[sortBy]) {
+            return order;
+        } else if (a[sortBy] > b[sortBy]) {
+            return -order;
+        } else {
+            return 0;
+        }
+    });
+    return sortedList;
+
+}
+
 class MuiVirtualizedTable extends React.PureComponent {
     constructor(props) {
         super(props);
@@ -41,6 +87,20 @@ class MuiVirtualizedTable extends React.PureComponent {
     componentDidMount() {
         this._navString = "";
         document.addEventListener("keydown", this._keyboardNav);
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        // File list changed in props, need to update the sortedList state
+        const prevFileList = prevProps.fileList;
+        const currFileList = this.props.fileList;
+        if (isListDiff(prevFileList, currFileList, ({fullPath}) => fullPath)) {
+            const { sortBy, sortDirection } = this.state;
+            const sortedList = sortList({
+                sortBy: sortBy, sortDirection: sortDirection,
+                list: currFileList
+            });
+            this.setState({ sortedList: sortedList });
+        }
     }
 
     componentWillUnmount() {
@@ -332,21 +392,14 @@ class MuiVirtualizedTable extends React.PureComponent {
         }
         let list;
         if (this.state && this.state.sortedList) {
-            list = [...this.state.sortedList];
+            list = this.state.sortedList;
         } else {
-            list = [...this.props.fileList]
+            list = this.props.fileList;
         }
-        let order = (sortDirection === "ASC") ? -1 : 1;
-        list.sort((a,b) => {
-            if (a[sortBy] < b[sortBy]) {
-                return order;
-            } else if (a[sortBy] > b[sortBy]) {
-                return -order;
-            } else {
-                return 0;
-            }
+        return sortList({
+            sortBy: sortBy, sortDirection: sortDirection,
+            list: list
         });
-        return list;
     }
 
     render() {
@@ -378,7 +431,7 @@ class MuiVirtualizedTable extends React.PureComponent {
                 sort={this.sort}
                 sortBy={sortBy}
                 sortDirection={sortDirection}
-                rowGetter={({index}) => sortedList[index]}
+                rowGetter={({index}) => (sortedList[index] || {})}
             >
                 {selectableRows &&
                     <Column

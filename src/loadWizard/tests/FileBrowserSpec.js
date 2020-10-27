@@ -1,12 +1,13 @@
 import { expect } from 'chai'
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { act } from 'react-dom/test-utils'
 import {BrowseDataSourceModal} from './../components/BrowseDataSource/BrowseDataSource';
 import * as S3Service from './../services/S3Service'
 
 describe('React FileBrowser Test', () => {
 
-    let oldS3ListFiles = S3Service.listFiles;
+    let oldCreateFilesCursor = S3Service.createListFilesCursor;
     let containerDiv;
 
     before(async () => {
@@ -19,15 +20,14 @@ describe('React FileBrowser Test', () => {
     });
 
     after(async () => {
-        S3Service.listFiles = oldS3ListFiles;
+        S3Service.createListFilesCursor = oldCreateFilesCursor;
         ReactDOM.unmountComponentAtNode(containerDiv);
         $(containerDiv).remove();
     });
 
-    it("renders a list of files", async (done) => {
-        S3Service.listFiles = async () => {
-            let list = new Map();
-            list.set("/xcfield/abc.csv", {
+    it("renders a list of files", async () => {
+        const fileList = [
+            {
                 directory: false,
                 fileId: "/xcfield/abc.csv",
                 fullPath: "/xcfield/abc.csv",
@@ -35,8 +35,8 @@ describe('React FileBrowser Test', () => {
                 sizeInBytes: 132,
                 targetName: "S3 Select Connector",
                 type: "csv"
-            });
-            list.set("/xcfield/def.json", {
+            },
+            {
                 directory: false,
                 fileId: "/xcfield/def.json",
                 fullPath: "/xcfield/def.json",
@@ -44,8 +44,8 @@ describe('React FileBrowser Test', () => {
                 sizeInBytes: 160,
                 targetName: "S3 Select Connector",
                 type: "json"
-            });
-            list.set("/xcfield/udfs", {
+            },
+            {
                 directory: true,
                 fileId: "/xcfield/udfs",
                 fullPath: "/xcfield/udfs",
@@ -53,30 +53,49 @@ describe('React FileBrowser Test', () => {
                 sizeInBytes: 0,
                 targetName: "S3 Select Connector",
                 type: "directory"
-            });
-            return list;
+            }
+        ];
+
+        let fetchResolve;
+        S3Service.createListFilesCursor = () => {
+            return {
+                preFetch: async () => {},
+                fetchData: async () => {
+                    return new Promise(_resolve => {
+                        fetchResolve = _resolve;
+                    });
+                },
+                getSize: () => fileList.length,
+                hasMore: () => false,
+                getFileSize: () => fileList.reduce((total, {sizeInBytes}) => (total + sizeInBytes), 0),
+                getFiles: () => [...fileList]
+            }
         };
 
-
-        ReactDOM.render(<BrowseDataSourceModal
-            connector={"S3 Select Connector"}
-            bucket={"/xcfield"}
-            homePath={""}
-            fileNamePattern={"*"}
-            fileType={"csv"}
-            selectedFileDir={[]}
-            onPathChange={(newPath) => {
-            }}
-            onCancel={() => {
-            }}
-            onDone={(selectedFileDir, fileNamePattern) => {
-            }}
-        />, containerDiv);
-
-        await xcHelper.asyncTimeout(10);
+        act(() => {
+            ReactDOM.render(<BrowseDataSourceModal
+                connector={"S3 Select Connector"}
+                bucket={"/xcfield"}
+                homePath={""}
+                fileNamePattern={"*"}
+                fileType={"csv"}
+                selectedFileDir={[]}
+                onPathChange={(newPath) => {
+                }}
+                onCancel={() => {
+                }}
+                onDone={(selectedFileDir, fileNamePattern) => {
+                }}
+            />, containerDiv);
+        });
+        await act(async () => {
+            fetchResolve([...fileList]);
+        })
+        await act(async () => {
+            await xcHelper.asyncTimeout(2);
+        });
         expect($(containerDiv).find(".ReactVirtualized__Table__row").length).to.equal(3);
         expect($(containerDiv).find(".ReactVirtualized__Table__row").eq(0).text()).to.equal("abc.csv132 Bcsv");
-        done();
     });
 
     it("sort by name should work", () => {
@@ -135,13 +154,13 @@ describe('React FileBrowser Test', () => {
         expect($(containerDiv).find(".selectedFile input").val()).to.equal("*");
     });
 
-    it("should navigate through folder", async (done) => {
+    it("should navigate through folder", async () => {
         let called = false;
-        S3Service.listFiles = async (args) => {
-            called = true;
-            expect(args).to.equal("/xcfield/udfs/");
-            let list = new Map();
-            list.set("/xcfield/udfs/x.csv", {
+        let pathToGo = null;
+        let fetchResolve;
+
+        const fileList = [
+            {
                 directory: false,
                 fileId: "/xcfield/udfs/x.csv",
                 fullPath: "/xcfield/udfs/x.csv",
@@ -149,14 +168,42 @@ describe('React FileBrowser Test', () => {
                 sizeInBytes: 132,
                 targetName: "S3 Select Connector",
                 type: "csv"
-            });
-            return list;
+            }
+        ];
+        S3Service.createListFilesCursor = ({path}) => {
+            return {
+                preFetch: async () => {},
+                fetchData: () => {
+                    called = true;
+                    pathToGo = path;
+                    return new Promise(_resolve => {
+                        fetchResolve = _resolve;
+                    });
+                },
+                getSize: () => fileList.length,
+                hasMore: () => false,
+                getFileSize: () => fileList.reduce((total, {sizeInBytes}) => (total + sizeInBytes), 0),
+                getFiles: () => [...fileList]
+            }
         };
-        $(containerDiv).find(".ReactVirtualized__Table__row:nth-child(3) > div:nth-child(2) > div").click();
-        await xcHelper.asyncTimeout(10);
+
+        // Note: The react act api usage - https://github.com/threepointone/react-act-examples/blob/master/sync.md
+        // componentDidMount fired
+        act(() => {
+            $(containerDiv).find(".ReactVirtualized__Table__row:nth-child(3) > div:nth-child(2) > div").click();
+        });
         expect(called).to.be.true;
+        expect(pathToGo).to.equal('/xcfield/udfs/');
+
+        // fetch done
+        await act(async () => {
+            fetchResolve([...fileList]);
+        });
+        // setState in timeout done
+        await act(async () => {
+            await xcHelper.asyncTimeout(2);
+        })
         expect($(containerDiv).find(".ReactVirtualized__Table__row").length).to.equal(1);
         expect($(containerDiv).find(".ReactVirtualized__Table__row").eq(0).text()).to.equal("x.csv132 Bcsv");
-        done();
     });
 });
