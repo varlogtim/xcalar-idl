@@ -1364,7 +1364,7 @@ module.exports = {
         "restoreAllSource": "Restore All Sources",
         "generateResult": "Generate Table",
         "viewResult": "View Table",
-        "viewUDFErrors": "View Custom Scalar Fn Errors",
+        "viewUDFErrors": "View Scalar Function Errors",
         "autoAlign": "Auto Align",
         "copy": "Copy",
         "cut": "Cut",

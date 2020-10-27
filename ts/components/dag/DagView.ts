@@ -1255,7 +1255,6 @@ class DagView {
         }
         this.deselectNodes();
 
-
         let minXCoor: number = nodeInfos[0].display.x;
         let minYCoor: number = nodeInfos[0].display.y;
         let maxXCoor: number = 0;
@@ -1337,6 +1336,18 @@ class DagView {
                         nodeInfo = this._convertInNodeForSQLFunc(nodeInfo);
                     }
                     const newNode: DagNode = this.graph.newNode(nodeInfo);
+                    if (newNode.getState() === DagNodeState.Unused && !newNode.isConfigured()) {
+                        // check if really unused
+                        let input = newNode.getParam();
+                        let baseNode = DagNodeFactory.create({
+                            type: nodeInfo.type,
+                            subType: nodeInfo.subType
+                        });
+                        if (!xcHelper.deepCompare(input, baseNode.getParam())) {
+                            newNode.beConfiguredState();
+                        }
+                    }
+
                     let nodeType: DagNodeType = newNode.getType();
                     if (newNode instanceof DagNodeAggregate) {
                         newAggNodes.push(newNode);
