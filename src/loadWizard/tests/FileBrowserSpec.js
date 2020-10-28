@@ -56,11 +56,16 @@ describe('React FileBrowser Test', () => {
             }
         ];
 
+        let preFetchResolve;
         let fetchResolve;
         S3Service.createListFilesCursor = () => {
             return {
-                preFetch: async () => {},
-                fetchData: async () => {
+                preFetch: () => {
+                    return new Promise(_resolve => {
+                        preFetchResolve = _resolve;
+                    })
+                },
+                fetchData: () => {
                     return new Promise(_resolve => {
                         fetchResolve = _resolve;
                     });
@@ -87,6 +92,9 @@ describe('React FileBrowser Test', () => {
                 onDone={(selectedFileDir, fileNamePattern) => {
                 }}
             />, containerDiv);
+        });
+        await act(async () => {
+            preFetchResolve();
         });
         await act(async () => {
             fetchResolve([...fileList]);
@@ -158,6 +166,7 @@ describe('React FileBrowser Test', () => {
         let called = false;
         let pathToGo = null;
         let fetchResolve;
+        let preFetchResolve;
 
         const fileList = [
             {
@@ -172,7 +181,11 @@ describe('React FileBrowser Test', () => {
         ];
         S3Service.createListFilesCursor = ({path}) => {
             return {
-                preFetch: async () => {},
+                preFetch: () => {
+                    return new Promise(_resolve => {
+                        preFetchResolve = _resolve;
+                    })
+                },
                 fetchData: () => {
                     called = true;
                     pathToGo = path;
@@ -192,6 +205,9 @@ describe('React FileBrowser Test', () => {
         act(() => {
             $(containerDiv).find(".ReactVirtualized__Table__row:nth-child(3) > div:nth-child(2) > div").click();
         });
+        await act(async () => {
+            preFetchResolve();
+        })
         expect(called).to.be.true;
         expect(pathToGo).to.equal('/xcfield/udfs/');
 

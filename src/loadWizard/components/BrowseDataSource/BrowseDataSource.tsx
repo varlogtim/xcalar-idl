@@ -116,6 +116,19 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
         }
     }
 
+    _getListFileStats() {
+        try {
+            return {
+                count: this.filesCursor.getSize(),
+                hasMore: this.filesCursor.hasMore()
+            };
+        } catch(_) {
+            return {
+                count: 0, hasMore: false
+            };
+        }
+    }
+
     async _fetchFileList(fullPath, offset) {
         try {
             this.setState({ isLoading: true });
@@ -129,6 +142,7 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
                 });
                 cursorOffset = 0;
                 this.setState({ maxOffset: Number.MAX_VALUE });
+                await this.filesCursor.preFetch();
             }
             const files = await this.filesCursor.fetchData({ offset: cursorOffset, count: pageSize });
             const fileMap = new Map();
@@ -139,7 +153,7 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
                 this.setState({ maxOffset: this.filesCursor.getSize() - 1 });
             }
 
-            return { fileMap: fileMap, offset: offset };
+            return { fileMap: fileMap, offset: cursorOffset };
         } finally {
             this.setState({ isLoading: false });
         }
@@ -486,6 +500,7 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
                 fetchData();
             }
             : null;
+        const { count: numFiles, hasMore: hasMoreFiles } = this._getListFileStats();
 
         return (
             <div className="browseDataSourceScreen">
@@ -515,7 +530,7 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
                             }}>
                         </i>
                         <input value={displayFullPath} readOnly disabled />
-                        {!isLoading ? <div className="numItems">{(fileMapViewing.size).toLocaleString()} items</div>
+                        {!isLoading ? <div className="numItems">{numFiles.toLocaleString()}{hasMoreFiles ? "+" : ""} {numFiles === 1 ? "item" : "items"}</div>
                         : null}
                     </div>
                 </div>
