@@ -174,6 +174,7 @@ class DagGraphBar {
         $topBar.find(".useInSQL").click(function() {
             const dagTab = DagViewManager.Instance.getActiveTab();
             if (dagTab instanceof DagTabSQLFunc) {
+                console.log(dagTab);
                 SQLWorkSpace.Instance.tableFuncQuery(dagTab.getName());
             }
         });

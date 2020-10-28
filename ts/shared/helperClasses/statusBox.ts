@@ -33,7 +33,15 @@ namespace StatusBox {
         persist?: boolean;
         detail?: string;
         delayHide?: number;
-        title?: string
+        title?: string,
+        coordinates: {// relative to page, coordinates of target
+            bottom: number,
+            left: number,
+            right?: number,
+            top: number,
+            width?: number,
+            height?: number
+        }
     }
 
     class StatusDisplayer {
@@ -42,6 +50,12 @@ namespace StatusBox {
         private open: boolean;
         private type: "info" | "error";
         private side: "left" | "right" | "top" | "bottom";
+        private coordinates: {
+            bottom: number,
+            left: number,
+            right: number,
+            top: number
+        };
 
         constructor() {
             this.$statusBox = $("#statusBox");
@@ -53,17 +67,21 @@ namespace StatusBox {
         }
 
         public show(text: string, $target: JQuery, formMode?: boolean, options: StatusDisplayerOpions = <StatusDisplayerOpions>{}): void {
-            if (!$target.length) {
+            if (!options.coordinates && !$target.length) {
                 // XXX this shouldn't happen but it has before
                 console.error($target, "statusBox target not found");
                 return;
-            } else if ($target.length > 1) {
+            } else if ($target && $target.length > 1) {
                 $target = $target.eq(0);
+            }
+            if (options.coordinates) {
+                $target = $();
             }
 
             this.$target = $target;
             this.type = options.type || "error";
             this.side = options.side || "right";
+            this.coordinates = options.coordinates || null;
             this.setupBasicClasses(options);
             this.setupTargetEvents(formMode, options.persist);
             this.addTitle(options.title);
@@ -184,9 +202,23 @@ namespace StatusBox {
             const $statusBox: JQuery = this.$statusBox;
             const target = $target[0];
             if (target == null) {
-                return;
+                if (!this.coordinates) {
+                    return;
+                }
             }
-            const bound: ClientRect = target.getBoundingClientRect();
+            let bound: ClientRect;
+            if (this.coordinates) {
+                bound = {
+                    left: this.coordinates.left,
+                    right: this.coordinates.right,
+                    top: this.coordinates.top,
+                    bottom: this.coordinates.bottom,
+                    height: this.coordinates.top - this.coordinates.bottom,
+                    width: this.coordinates.right - this.coordinates.left
+                };
+            } else {
+                bound = target.getBoundingClientRect();
+            }
             const winWidth: number = <number>$(window).width();
             const winHeight: number = <number>$(window).height();
             const arrowWidth: number = 12;

@@ -245,7 +245,12 @@
       <li class="table tableDelete"><%= dicts.MenuTStr.PermanentDel %></li>
       <li class="app appDownload"><%= dicts.fileManager.Download %></li>
       <li class="app appDelete"><%= dicts.fileManager.Delete %></li>
-      <li class="tableFunc tableFuncQuery"><%= dicts.resouceMenu.UseInSQL %></li>
+      <li class="tableFunc tableFuncQuery"
+        data-toggle="tooltip"
+        data-placement="auto right"
+        data-container="body"
+        data-original-title="<%= dicts.TooltipTStr.UseInSQL %>"
+      ><%= dicts.resouceMenu.UseInSQL %></li>
       <li class="udf udfDelete"><%= dicts.fileManager.Delete %></li>
       <li class="sql sqlDownload"><%= dicts.fileManager.Download %></li>
       <li class="sql sqlDelete"><%= dicts.fileManager.Delete %></li>

@@ -56,7 +56,9 @@ class DagTabSQLFunc extends DagTabUser {
         if (dagTab == null) {
             return 0;
         }
-        await dagTab.load();
+        if (!dagTab.isLoaded()) {
+            await dagTab.load();
+        }
         return dagTab.getGraph().getNodesByType(DagNodeType.SQLFuncIn).length;
     }
 

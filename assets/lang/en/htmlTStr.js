@@ -359,6 +359,7 @@ module.exports = {
         "RawDSPreviewRefresh": "Click to refresh the preview",
         "RawDSTableSchema": "Schema for the table being created",
         "RawDSKafkaNumRows": "Number of rows to fetch",
+        "UseInSQL": "Click to add this table function to the active SQL statement."
     },
 
     "Table": {

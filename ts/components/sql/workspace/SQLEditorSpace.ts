@@ -48,8 +48,9 @@ class SQLEditorSpace {
     /**
      * SQLEditorSpace.Instance.newSQL
      * @param sql
+     * @param msg //optional status box message to display
      */
-    public newSQL(sql: string): void {
+    public newSQL(sql: string, msg?: string): void {
         let val: string = this._sqlEditor.getValue();
         if (val) {
             if (!val.trim().endsWith(";")) {
@@ -60,11 +61,22 @@ class SQLEditorSpace {
         } else {
             val = sql;
         }
+        if (SQLTabManager.Instance.getNumTabs() === 0) {
+            SQLTabManager.Instance.newTab();
+        }
         this._sqlEditor.setValue(val);
         this._sqlEditor.refresh();
         const code_mirror_editor: CodeMirror.Editor = this._sqlEditor.getEditor();
+        code_mirror_editor.focus();
         // scroll to the last line
         code_mirror_editor.setCursor({ line: code_mirror_editor.lineCount() });
+        const coords = code_mirror_editor.cursorCoords(true);
+        if (msg) {
+            StatusBox.show(msg, null, false, {
+                coordinates: coords,
+                type: "info"
+            });
+        }
 
         this._saveSnippetChange();
     }

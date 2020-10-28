@@ -84,10 +84,11 @@ class SQLWorkSpace {
     /**
      * SQLWorkSpace.Instance.newSQL
      * @param sql
+     * @param msg optional message to display in status box
      */
-    public newSQL(sql: string): void {
+    public newSQL(sql: string, msg?: string): void {
         try {
-            SQLEditorSpace.Instance.newSQL(sql);
+            SQLEditorSpace.Instance.newSQL(sql, msg);
         } catch (e) {
             console.error(e);
         }
@@ -99,11 +100,25 @@ class SQLWorkSpace {
      */
     public async tableFuncQuery(name: string): Promise<void> {
         try {
-            const numInput = await DagTabSQLFunc.getFuncInputNum(name);
-            const inputSignature = new Array(numInput).fill(null)
-            .map((_v, i) => `Input${i + 1}`).join(", ");
+            const dagTab: DagTabSQLFunc = DagTabSQLFunc.getFunc(name);
+            if (!dagTab.isLoaded()) {
+                await dagTab.load();
+            }
+            let missingSource = false;
+            const inputSignature = dagTab.getGraph().getNodesByType(DagNodeType.SQLFuncIn).map((node, i) => {
+                let source = node.getParam().source
+                if (source) {
+                    return source;
+                }
+                missingSource = true;
+                return `Input${i + 1}`;
+            }).join(", ");
             const sql: string = `select * from ${name}(${inputSignature});`;
-            SQLWorkSpace.Instance.newSQL(sql);
+            let msg = null;
+            if (missingSource)  {
+                msg = "Substitute the placeholder arguments with actual table names.";
+            }
+            SQLWorkSpace.Instance.newSQL(sql, msg);
         } catch (e) {
             console.error(e);
             Alert.error(ErrTStr.Error, "Error occurred when compose query from table function.");
