@@ -147,6 +147,9 @@ class DFUploadModal {
         .fail((error, cancel) => {
             try {
                 if (!cancel) {
+                    if (this._file && !this._file.name.includes(gDFSuffixFirst)) {
+                        error.error += ". " + DFTStr.InvalidUploadExt;
+                    }
                     StatusBox.show(error.error, $confirmBtn, false, {
                         detail: error.log
                     });

@@ -1017,6 +1017,7 @@ DFTStr = {
     'UpdateParamFail': 'Update Parameters Failed',
     'UploadErr': 'Upload Module Error',
     'UpoladErrInstr': 'The module is successfully uploaded, but some errors occurred when uploading the custom scalar functions in the module',
+    "InvalidUploadExt": "Ensure your file is of the format .xlrdf.tar.gz",
     'NewParam': 'New Parameter',
     'EnterNewParam': 'Enter New Parameter Here',
     "NewComment": "Add a comment",

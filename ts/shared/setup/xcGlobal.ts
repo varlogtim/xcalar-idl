@@ -75,7 +75,8 @@ namespace xcGlobal {
         // to use it anymore, just set it back to 0
         gUdfDefaultNoCheck = false; // when set true, allow update default udf
         gXcalarRecordNum = "xcalarRecordNum";
-        gDFSuffix = ".xlrdf.tar.gz";
+        gDFSuffixFirst = ".xlrdf";
+        gDFSuffix = gDFSuffixFirst + ".tar.gz";
         gAppSuffix = ".xlrapp.tar.gz";
         gShowSQLDF = false;
         // Shut up the console logs

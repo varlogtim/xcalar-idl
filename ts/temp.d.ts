@@ -492,6 +492,7 @@ declare var gMaxSampleSize: number;
 declare var gUdfDefaultNoCheck: boolean;
 declare var gXcalarRecordNum: string;
 declare var gDFSuffix: string;
+declare var gDFSuffixFirst: string;
 declare var gAppSuffix: string;
 declare var gShowSQLDF: boolean;
 
