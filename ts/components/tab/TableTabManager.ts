@@ -354,6 +354,10 @@ class TableTabManager extends AbstractTabManager {
                 default:
                     break;
             }
+            if (this._activeTabs[index]) {
+                super._switchTabs(index); // call again after async calls return
+                // in case tab was switched during wait
+            }
             SQLResultSpace.Instance.switchTab(viewName);
             this._focusOnList(tab);
         } catch (e) {
