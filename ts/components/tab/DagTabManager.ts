@@ -125,6 +125,10 @@ class DagTabManager extends AbstractTabManager {
         const graph: DagGraph = new DagGraph();
         const tab: DagTab = this._newTab(name, graph, false, isEmpty, index);
         this._tabListScroller.showOrHideScrollers();
+        setTimeout(() => {
+            // timeout keeps unwanted tooltip from showing
+            this._focusTabRename(this._getTabEleById(tab.getId()).find(".dragArea"));
+        }, 0);
         Log.add(SQLTStr.NewTab, {
             "operation": SQLOps.NewDagTab,
             "isSQLFunc": false,

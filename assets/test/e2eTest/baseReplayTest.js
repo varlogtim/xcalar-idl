@@ -123,13 +123,14 @@ function replay(testConfig, tags) {
                 browser.pause(1000);
                 browser.waitForElementVisible("#tabButton");
                 const tabNames = Object.keys(testTabs);
-                console.log("taName", tabNames);
+                console.log("tabName", tabNames);
                 let newTabIndex = tabNames.length + 2; // sqltab + 1
                 for (const tabName of tabNames) {
                     const selector = `#dagTabSectionTabs .dagTab:nth-child(${newTabIndex}).active`;
                     browser
                         .click('#tabButton')
                         .waitForElementPresent(selector, 2000)
+                        .click("body") // blur the editable tab name input
                         .getText(`${selector} div.name`, function(result) {
                             testTabMapping.set(tabName, result.value);
                         })

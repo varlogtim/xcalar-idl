@@ -36,7 +36,11 @@ class SQLTabManager extends AbstractTabManager {
         if (focusName) {
             const index = this._activeTabs.indexOf(id);
             const $tab: JQuery = this._getTabElByIndex(index);
-            $tab.find(".dragArea").dblclick();
+            setTimeout(() => {
+                // timeout keeps unwanted tooltip from showing
+                this._focusTabRename($tab.find(".dragArea"));
+            }, 0);
+
         }
         return id;
     }
@@ -291,11 +295,11 @@ class SQLTabManager extends AbstractTabManager {
         super._addEventListeners();
 
         this._getContainer().find(".addTab").click(() => {
-            this.newTab();
+            this.newTab(null, true);
         });
 
         this._getView().find(".hintSection .action").click(() => {
-            this.newTab();
+            this.newTab(null, true);
         });
         const $menu: JQuery = this._getMenu();
         $menu.find(".duplicate").remove();

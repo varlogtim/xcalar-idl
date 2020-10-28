@@ -671,7 +671,7 @@ class ResourceMenu {
 
         $container.on("click", ".addSQL", (event) => {
             event.stopPropagation();
-            SQLTabManager.Instance.newTab();
+            SQLTabManager.Instance.newTab(null, true);
         });
 
         $container.on("click", ".addTableFunc", (event) => {
