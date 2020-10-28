@@ -202,7 +202,7 @@ class ResourceMenu {
         const iconClassNames: string[] = ["xi-menu-sql"];
         const map: Map<string, HTML> = new Map(); // appId to html map
         snippets.forEach((snippet) => {
-            if (snippet.temp) {
+            if (snippet.temp || SQLSnippet.Instance.hasUnsavedId(snippet)) {
                 return;
             }
             const name = snippet.name;

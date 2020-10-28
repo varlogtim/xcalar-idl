@@ -329,6 +329,9 @@ class SQLTabManager extends AbstractTabManager {
         } else {
             name += ".sql"
         }
+        if (SQLSnippet.Instance.hasUnsavedChanges(snippetObj)) {
+            liClass += " unsaved";
+        }
 
         const html: HTML =
             '<li class="tab tooltipOverflow ' + liClass + '"' +

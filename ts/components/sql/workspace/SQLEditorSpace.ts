@@ -196,7 +196,14 @@ class SQLEditorSpace {
                 editor.execCommand("autocompleteSQLInVDW");
             }
         })
-        .on("change", () => {
+        .on("quickChange", () => { // fired before "change" without any delay
+            // show dot icon before we actually save to kvstore
+            const snippet = this._sqlEditor.getValue() || "";
+            const snippetObj = SQLSnippet.Instance.getSnippetObj(this._currentSnippetId);
+            const lastSnippet = SQLSnippet.Instance.getSnippetText(snippetObj);
+            SQLTabManager.Instance.toggleUnSaved(this._currentSnippetId, (snippet !== lastSnippet));
+        })
+        .on("change", () => { // fired after a delay when user stops typing
             this._saveSnippetChange(true);
             const snippetObj: SQLSnippetDurable = SQLSnippet.Instance.getSnippetObj(this._currentSnippetId);
             if (snippetObj && snippetObj.temp) {
@@ -881,6 +888,16 @@ class SQLEditorSpace {
 
         $container.find(".close").click(() => {
             this.toggleDisplay(false);
+        });
+
+        const $editArea: JQuery = $container.find(".editSection .editArea");
+        $editArea.keydown((event) => {
+            if (xcHelper.isCMDKey(event) && event.which === keyCode.S) {
+                // ctl + s to save
+                event.preventDefault();
+                event.stopPropagation(); // Stop propagation, otherwise will clear StatusBox.
+                this._saveSnippetChange();
+            }
         });
     }
 

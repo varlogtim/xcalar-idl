@@ -2971,10 +2971,10 @@ namespace xcHelper {
     }
 
     /**
-     * xcHelper.isShirtKey
+     * xcHelper.isCMDKey
      * @param event
      */
-    export function isShirtKey(event): boolean {
+    export function isCMDKey(event): boolean {
         return isSystemMac && event.metaKey ||
                 !isSystemMac && event.ctrlKey;
     }

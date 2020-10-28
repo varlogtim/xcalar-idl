@@ -15,6 +15,11 @@ class SQLService {
         let SQLSnippet = window["SQLSnippet"];
         SQLSnippet.Instance.deleteByIds(snippetIds);
     }
+
+    public hasUnsavedId(snippet): boolean {
+        let SQLSnippet = window["SQLSnippet"];
+        return  SQLSnippet.Instance.hasUnsavedId(snippet);
+    }
 }
 
 export default new SQLService();

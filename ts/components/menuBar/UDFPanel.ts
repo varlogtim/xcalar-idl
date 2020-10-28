@@ -383,7 +383,7 @@ class UDFPanel {
 
         const $editArea: JQuery = $udfSection.find(".editSection .editArea");
         $editArea.keydown((event) => {
-            if (xcHelper.isShirtKey(event) && event.which === keyCode.S) {
+            if (xcHelper.isCMDKey(event) && event.which === keyCode.S) {
                 // ctl + s to save
                 event.preventDefault();
                 event.stopPropagation(); // Stop propagation, otherwise will clear StatusBox.

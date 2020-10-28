@@ -1,6 +1,7 @@
 class SQLSnippet {
     private static _instance: SQLSnippet;
     private static _uid: XcUID;
+    private static _unsavedPrefix  = ".unsaved.";
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -262,6 +263,17 @@ class SQLSnippet {
         return validName;
     }
 
+    public hasUnsavedId(snippetObj: SQLSnippetDurable): boolean {
+        return snippetObj.id.startsWith(SQLSnippet._unsavedPrefix);
+    }
+
+    // checks if snippet has corresponding unsaved ID
+    public hasUnsavedChanges(snippetObj: SQLSnippetDurable): boolean {
+        const unsavedId: string = this._getUnsavedId(snippetObj.id);
+        const unsavedSnippetObj: SQLSnippetDurable = this._getSnippetObjectById(unsavedId);
+        return unsavedSnippetObj != null;
+    }
+
     private _getKVStore(): KVStore {
         let snippetQueryKey: string = KVStore.getKey("gSQLSnippetQuery");
         return new KVStore(snippetQueryKey, gKVScope.WKBK);
@@ -387,7 +399,7 @@ class SQLSnippet {
     }
 
     private _getUnsavedId(id: string): string {
-        return `.unsaved.${id}`;
+        return `${SQLSnippet._unsavedPrefix}${id}`;
     }
 
     private _getUnsavedSnippetObjById(id: string): SQLSnippetDurable {

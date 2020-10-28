@@ -23,15 +23,18 @@ class DeleteSQLModal extends React.Component<{}, {}> {
 
   private async _fetch(): Promise<Item[]> {
     let snippets = await service.list();
-    let items = snippets.map((snippet) => {
+    let items = [];
+    snippets.forEach((snippet) => {
       let { id, name } = snippet;
-      return {
-        id,
-        name,
-        size: null,
-        date: null,
-        locked: false,
-        checked: false
+      if (!service.hasUnsavedId(snippet)) {
+        items.push({
+            id,
+            name,
+            size: null,
+            date: null,
+            locked: false,
+            checked: false
+          });
       }
     });
     return items;

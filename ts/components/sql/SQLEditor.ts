@@ -584,6 +584,7 @@ class SQLEditor {
         self._editor.on("change", function() {
             // the change even will cause a save data to KV
             // and parse the sql
+            self._event.dispatchEvent("quickChange");
             clearTimeout(saveTimer);
             saveTimer = setTimeout(function() {
                 self._event.dispatchEvent("change");
