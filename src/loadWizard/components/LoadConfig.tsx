@@ -1570,10 +1570,8 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                         this.setState({
                                             waitingBrowseClose: true
                                         });
-                                        const success = await this._browseClose(selectedFileDir, fileNamePattern);
-                                        if (success) {
-                                            this._changeStep(StepEnum.SchemaDiscovery);
-                                        }
+                                        await this._browseClose(selectedFileDir, fileNamePattern);
+                                        this._changeStep(StepEnum.SchemaDiscovery);
                                     } catch(_) {
                                         // Do nothing
                                     }
@@ -1705,14 +1703,12 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                 <NavButtons
                                     right={{
                                         label: "Next",
-                                        disabled: stepNumMap[currentStep] === 1 || hasInputSerialError || numRecordsInFile == 0,
+                                        disabled: stepNumMap[currentStep] === 1 || hasInputSerialError,
                                         tooltip: stepNumMap[currentStep] === 1
-                                            ? (fileContentState.error == null
-                                                ? "Select a file first" // No file selected
-                                                : "Select an eligible file first") // Fail sampling the file
+                                            ? "Select a file first" // No file selected
                                             : (hasInputSerialError
                                                 ? "Finish your configuration first"
-                                                : (numRecordsInFile == 0 ? "Select an eligible file first" : "")),
+                                                : ""),
                                         onClick: () => {
                                             this._applyInputSerialConfig();
                                             this.setState({
