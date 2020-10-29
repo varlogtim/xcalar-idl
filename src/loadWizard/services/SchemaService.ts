@@ -92,7 +92,7 @@ class InputSerializationFactory {
             const fieldDelimiter = xcSuggest.detectFieldDelimiter(sampleData, recordDelimiter, quoteChar);
             return this.createCSV({
                 recordDelimiter: recordDelimiter,
-                fieldDelimiter: fieldDelimiter.length == 0 ? null : fieldDelimiter
+                fieldDelimiter: fieldDelimiter
             });
         } catch(_) {
             return this.createCSV({});
