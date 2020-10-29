@@ -181,6 +181,7 @@ class DataPreview extends React.Component {
                     <Table columns={columns} data={data} />
                 </div>
             }
+            {(!isLoading && metadata.totalSize == 0) && <div>0 rows</div> }
             {isLoading && <LoadingText className="clearfix" />}
             <Pagination onNext={pageNext} onPrev={pagePrev} />
         </React.Fragment>);
