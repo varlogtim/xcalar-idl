@@ -1116,11 +1116,18 @@
     .mainSection {
         .header {
             background-color: @color-bg-default;
+
+            .row:hover {
+                > div {
+                    outline: 1px solid #333333;
+                }
+            }
         }
 
         .row {
             position: relative;
             overflow: hidden;
+            display: flex;
 
             > div {
                 position: relative;
@@ -1159,9 +1166,7 @@
             }
         }
     }
-}
 
-#sqlTableListerArea, #sqlTableSchemaArea {
     .row {
         > div {
             font-size: 12px;

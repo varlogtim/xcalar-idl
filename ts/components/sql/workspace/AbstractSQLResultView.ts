@@ -53,10 +53,10 @@ abstract class AbstractSQLResultView {
         });
     }
 
-    protected _addResizeEvent($section: JQuery): void {
+    protected _addResizeEvent($col: JQuery): void {
         // resizable left part of a column
         let $prev: JQuery = null;
-        const minWidth: number = 80;
+        const minWidth: number = 40;
         let lastLeft: number = 0;
         let colW: number = 0;
         let preColW: number = 0;
@@ -68,16 +68,18 @@ abstract class AbstractSQLResultView {
                 return $el.outerWidth();
             }
         };
+        let $row;
 
-        $section.resizable({
+        $col.resizable({
             handles: "w",
             minWidth: minWidth,
-            alsoResize: $prev,
+            // alsoResize: $prev,
             start: (_event, ui) => {
-                $prev = $section.prev();
+                $prev = $col.prev();
                 lastLeft = ui.position.left;
-                colW = getWidth($section);
+                colW = getWidth($col);
                 preColW = getWidth($prev);
+                $row = $col.closest(".row");
                 this._getMainSection().addClass("resizing");
             },
             resize: (_event, ui) => {
@@ -94,16 +96,17 @@ abstract class AbstractSQLResultView {
                 }
 
                 $prev.outerWidth(prevWidth);
-                $section.outerWidth(sectionW);
-                $section.css("left", 0);
+                $col.outerWidth(sectionW);
+                $col.css("left", 0);
 
-                let rowWidth: number[] = this._getColumnsWidth($section.closest(".row"));
+                let rowWidth: number[] = this._getColumnsWidth($row);
                 this._resizeColums(rowWidth, false);
             },
             stop: () => {
                 this._getMainSection().removeClass("resizing");
-                let rowWidth: number[] = this._getColumnsWidth($section.closest(".row"));
+                let rowWidth: number[] = this._getColumnsWidth($row);
                 this._resizeColums(rowWidth, true);
+                $row = null;
             }
         });
     }
@@ -126,7 +129,7 @@ abstract class AbstractSQLResultView {
         }
         let $section = this._getMainSection();
         let total: number = rowWidth.reduce((total, width) => total + width, 0);
-        $section.find(".row").each((_inex, el) => {
+        $section.find(".row").each((_index, el) => {
             let $row = $(el);
             $row.find("> div").each((index, el) => {
                 let width = percentage
