@@ -477,6 +477,14 @@ class PTblManager {
         const succeeds: string[] = [];
         const failures: string[] = [];
 
+        const activateFunc = (tableName, succeeds, failures, tableNodeMapping): XDPromise<void> => {
+            let dagNode;
+            if (tableNodeMapping && tableNodeMapping.has(tableName)) {
+                dagNode = tableNodeMapping.get(tableName);
+            }
+            return this._activateOneTable(tableName, succeeds, failures, dagNode);
+        };
+
         tableNames.forEach((tableName) => {
             const tableInfo: PbTblInfo = this._tableMap.get(tableName);
             if (tableInfo) {
@@ -499,14 +507,7 @@ class PTblManager {
                         const chains = [];
                         tablesToActivate.forEach((tableName) => {
                             set.add(tableName);
-                            let func = (): XDPromise<void> => {
-                                let dagNode;
-                                if (tableNodeMapping && tableNodeMapping.has(tableName)) {
-                                    dagNode = tableNodeMapping.get(tableName);
-                                }
-                                return this._activateOneTable(tableName, succeeds, failures, dagNode);
-                            };
-                            chains.push(func);
+                            chains.push(activateFunc.bind(this, tableName, succeeds, failures, tableNodeMapping));
                         });
                         // group when dependency set as one chain
                         promises.push(PromiseHelper.chain(chains));
@@ -514,15 +515,20 @@ class PTblManager {
                 }
             });
 
+            let count = 1;
+            let chains = [];
             noDependencyTables.forEach((tableName) => {
                 if (!set.has(tableName)) {
-                    let dagNode;
-                    if (tableNodeMapping && tableNodeMapping.has(tableName)) {
-                        dagNode = tableNodeMapping.get(tableName);
+                    chains.push(activateFunc.bind(this, tableName, succeeds, failures, tableNodeMapping));
+                    if (count % 32 === 0) {
+                        // only send 32 threads at one time
+                        promises.push(PromiseHelper.chain(chains));
+                        chains = [];
                     }
-                    promises.push(this._activateOneTable(tableName, succeeds, failures, dagNode));
+                    count++;
                 }
-            })
+            });
+            promises.push(PromiseHelper.chain(chains));
 
             return PromiseHelper.when.apply(this, promises);
         })
