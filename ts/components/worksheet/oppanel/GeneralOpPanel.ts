@@ -1804,6 +1804,9 @@ class GeneralOpPanel extends BaseOpPanel {
                         false, {'side': 'right'});
                 this._dagNode.beErrorState(this.model.modelError);
             }
+        } else {
+            // scroll to the bottom of the form in case form is already filled
+            this._$panel.find(".opSection").scrollTop(this._$panel.find(".opSection").height());
         }
     }
 
