@@ -132,13 +132,19 @@ class GeneralOpPanel extends BaseOpPanel {
             // loop through arguments within a group
             args.forEach((arg) => {
                 let colNames: string[];
-                const formattedValue = arg.getFormattedValue();
+                let formattedValue = arg.getFormattedValue();
                 if (arg.getType() !== "function" &&
                     formattedValue[0] !== '"' &&
                     formattedValue[0] !== "'") {
                     // if not a string in quotes, ok to split into separate values
                     colNames = formattedValue.split(",");
                 } else {
+                    if (formattedValue.length > 1 &&
+                        formattedValue[0] === '"' &&
+                        formattedValue[formattedValue.length - 1] === '"') {
+                            formattedValue = formattedValue.slice(1, -1);
+                            formattedValue = '"' + formattedValue.replace(/\\/g, '\\\\').replace(/\"/g, '\\"') + '"';
+                        }
                     colNames = [formattedValue];
                 }
                 let colStr: string = "";
@@ -564,6 +570,7 @@ class GeneralOpPanel extends BaseOpPanel {
         super.hidePanel(isSubmit);
         $(document).off('click.OpSection');
         $(document).off("keydown.OpSection");
+        this._$panel.find(".functionsInput").val("").data("val", "");
         GeneralOpPanel.updateOperatorsMap();
     }
 

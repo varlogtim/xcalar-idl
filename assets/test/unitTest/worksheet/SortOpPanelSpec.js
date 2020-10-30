@@ -147,7 +147,7 @@ describe('Sort Op Panel Test', function() {
             expect($sortOpPanel.is(":visible")).to.be.true;
             SortOpPanel.Instance._submitForm();
             expect($sortOpPanel.is(":visible")).to.be.true;
-            UnitTest.hasStatusBoxWithError("Error: Duplicate column names are not allowed: prefix::average_stars");
+            UnitTest.hasStatusBoxWithError("Duplicate column names are not allowed: prefix::average_stars");
             SortOpPanel.Instance.close();
         });
     });

@@ -53,8 +53,10 @@ namespace StatusBox {
         private coordinates: {
             bottom: number,
             left: number,
-            right: number,
-            top: number
+            right?: number,
+            top: number,
+            width?: number,
+            height?: number
         };
 
         constructor() {
@@ -185,6 +187,18 @@ namespace StatusBox {
             if (html) {
                 this.$statusBox.find(".message").html(text);
             } else {
+                try {
+                    if (text as any instanceof Error) {
+                        text = (text as any).message;
+                    }
+                    if (typeof text === "string" && text.toLowerCase().startsWith("error: ") &&
+                        this.$statusBox.find(".titleText").text() === "Error") {
+                        // remove duplicate "error: " text
+                        text = text.slice("error: ".length);
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
                 this.$statusBox.find(".message").text(text);
             }
         }

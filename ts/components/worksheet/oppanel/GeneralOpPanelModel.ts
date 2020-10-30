@@ -47,7 +47,7 @@ abstract class GeneralOpPanelModel {
         let params: any = this.dagNode.getParam();
         this._originalParam = params;
         try {
-            this._initialize(params);
+            this._initialize(params, this.dagNode.getState() !== DagNodeState.Unused);
             this.modelError = null;
         } catch (e) {
             this.modelError = xcHelper.parseJSONError(e).error;
@@ -180,7 +180,7 @@ abstract class GeneralOpPanelModel {
         this.dagNode.setParam(this._originalParam, true);
     }
 
-    protected abstract _initialize(_paramsRaw): void;
+    protected abstract _initialize(_paramsRaw, strictCheck?: boolean): void;
 
     protected _update(all?: boolean): void {
         if (this.event != null) {
@@ -219,7 +219,7 @@ abstract class GeneralOpPanelModel {
             formattedValue = trimmedVal;
             arg.setType("aggregate");
         } else {
-            formattedValue = GeneralOpPanelModel.formatArgumentInput(val, arg.getTypeid()).value
+            formattedValue = GeneralOpPanelModel.formatArgumentInput(val, arg.getTypeid()).value;
             arg.setType("value");
         }
         arg.setFormattedValue(formattedValue.toString());
@@ -334,7 +334,12 @@ abstract class GeneralOpPanelModel {
         function validateEvalHelper(func: ParsedEval, expectedTypeid: number, errorObj) {
 
             const opInfo = validateFnName(func.fnName, expectedTypeid, errorObj);
-
+            if (!errorObj.error && opInfo) {
+                const numArgsCheck = _checkNumArgs(func, opInfo);
+                if (numArgsCheck) {
+                    errorObj.error = numArgsCheck;
+                }
+            }
             for (let i = 0; i < func.args.length; i++) {
                 if (errorObj.error) {
                     return errorObj;
@@ -343,6 +348,7 @@ abstract class GeneralOpPanelModel {
                 // otherwise arg is a value so check that the value has the correct type
                 // for it's respective operator
                 if (func.args[i].type === "fn") {
+
                     validateEvalHelper(<ParsedEval>func.args[i], opInfo.argDescs[i].typesAccepted,
                                         errorObj);
                 } else {
@@ -356,6 +362,31 @@ abstract class GeneralOpPanelModel {
                                         (opInfo.category === FunctionCategoryT.FunctionCategoryCast));
                     if (typeCheck) {
                         errorObj.error = typeCheck;
+                    }
+                }
+            }
+        }
+
+        function _checkNumArgs(func, opInfo) {
+            if (func.args.length > opInfo.argDescs.length) {
+                let lastArg = opInfo.argDescs[opInfo.argDescs.length - 1];
+                if (lastArg.argType === XcalarEvalArgTypeT.VariableArg ||
+                    (lastArg.argDesc.indexOf("*") === 0 &&
+                    lastArg.argDesc.indexOf("**") === -1)) {
+                    // no error
+                } else {
+                    return "\"" + func.fnName + "\" only accepts " +
+                        opInfo.argDescs.length + " arguments.";
+                }
+            } else if (func.args.length < opInfo.argDescs.length) {
+                const diff = opInfo.argDescs.length - func.args.length;
+                for (let j = opInfo.argDescs.length - diff; j < opInfo.argDescs.length; j++) {
+                    const arg = opInfo.argDescs[j];
+                    if ((arg.argDesc.indexOf("*") !== 0 ||
+                            arg.argDesc.indexOf("**") !== -1)
+                        && !self._isOptional(opInfo, j)) {
+                        return  "\"" + func.fnName + "\" expects " +
+                                        opInfo.argDescs.length + " arguments.";
                     }
                 }
             }
@@ -417,7 +448,7 @@ abstract class GeneralOpPanelModel {
         }
     }
 
-    private _getFnOperatorInfo(operator) {
+    protected _getFnOperatorInfo(operator) {
         const opsMap = XDFManager.Instance.getOperatorsMap();
         let operatorInfo = null;
         for (let category in opsMap) {
@@ -789,6 +820,7 @@ abstract class GeneralOpPanelModel {
                 // input only accepts strings, or leave quotes if
                 if (!GeneralOpPanelModel.isNumberInQuotes(value) || (shouldBeString && !shouldBeNumber)) {
                     value = value.slice(1, -1); // remove surrounding quotes
+                    value = value.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
                 }
             }
         }
@@ -1019,7 +1051,6 @@ abstract class GeneralOpPanelModel {
                             type: "missingFields"};
                     }
                 }
-
             }
         }
 

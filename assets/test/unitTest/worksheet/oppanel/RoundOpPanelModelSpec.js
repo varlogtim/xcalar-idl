@@ -32,53 +32,75 @@ describe('RoundOpPanelModel Test', () => {
         });
 
         it('Case: invalid eval', () => {
-            const model = RoundOpPanelModel.fromDagInput(preset.columnMap, {eval: 1});
-            expect(model == null).to.equal(false);
-            expect(model._allColMap.size).to.equal(preset.columnMap.size);
-            checkDefaultModel(model, 'invalid eval');
+            let error;
+            let model;
+            try {
+                model = RoundOpPanelModel.fromDagInput(preset.columnMap, {eval: 1});
+            } catch (e) {
+                error = e;
+            }
+            expect(model == null).to.equal(true);
         });
 
         it('Case: wrong function name', () => {
-            const model = RoundOpPanelModel.fromDagInput(preset.columnMap, {eval: [{
-                evalString: 'func(abc,1)', newField: 'newCol'
-            }]});
-            expect(model == null).to.equal(false);
-            expect(model._allColMap.size).to.equal(preset.columnMap.size);
-            checkDefaultModel(model, 'wrong function name');
+            let model;
+            let error;
+            try {
+                model = RoundOpPanelModel.fromDagInput(preset.columnMap, {eval: [{
+                    evalString: 'func(abc,1)', newField: 'newCol'
+                }]});
+            } catch (e) {
+                error = e;
+            }
+
+            expect(model == null).to.equal(true);
+            expect(error.message).to.equal("Invalid function name(func)");
         });
 
         it('Case: invalid function arguments', () => {
-            const model = RoundOpPanelModel.fromDagInput(preset.columnMap, {eval: [{
-                evalString: 'round()', newField: 'newCol'
-            }]});
-            expect(model == null).to.equal(false);
-            expect(model._allColMap.size).to.equal(preset.columnMap.size);
-            checkDefaultModel(model, 'invalid function arguments');
+            let error;
+            let model;
+            try {
+                model = RoundOpPanelModel.fromDagInput(preset.columnMap, {eval: [{
+                    evalString: 'round()', newField: 'newCol'
+                }]});
+            } catch(e) {
+                error = e;
+            }
+            expect(model == null).to.equal(true);
+            expect(error.message).to.equal("Invalid column name");
         });
 
         it('Case: invalid column name', () => {
-            const model = RoundOpPanelModel.fromDagInput(preset.columnMap, {eval: [{
-                evalString: 'round(func(abc),1)', newField: 'newCol'
-            }]});
-            expect(model == null).to.equal(false);
-            expect(model._allColMap.size).to.equal(preset.columnMap.size);
-            checkDefaultModel(model, 'invalid column name');
+            let error;
+            let model;
+            try {
+                model = RoundOpPanelModel.fromDagInput(preset.columnMap, {eval: [{
+                    evalString: 'round(func(abc),1)', newField: 'newCol'
+                }]});
+            } catch(e){error = e}
+            expect(model == null).to.equal(true);
+            expect(error.message).to.equal("Invalid column name");
         });
 
         it('Case: invalid numDecimals', () => {
-            let model = RoundOpPanelModel.fromDagInput(preset.columnMap, {eval: [{
-                evalString: 'round(abc,func(1))', newField: 'newCol'
-            }]});
-            expect(model == null).to.equal(false);
-            expect(model._allColMap.size).to.equal(preset.columnMap.size);
-            checkDefaultModel(model, 'numDecimals is a function');
+            let error;
+            let model;
+            try {
+                model = RoundOpPanelModel.fromDagInput(preset.columnMap, {eval: [{
+                    evalString: 'round(abc,func(1))', newField: 'newCol'
+                }]});
+            } catch(e){error = e}
+            expect(model == null).to.equal(true);
+            expect(error.message).to.equal("Invalid num decimals");
 
-            model = RoundOpPanelModel.fromDagInput(preset.columnMap, {eval: [{
-                evalString: 'round(abc,"aaa")', newField: 'newCol'
-            }]});
-            expect(model == null).to.equal(false);
-            expect(model._allColMap.size).to.equal(preset.columnMap.size);
-            checkDefaultModel(model, 'numDecimals should be a number');
+            try {
+                model = RoundOpPanelModel.fromDagInput(preset.columnMap, {eval: [{
+                    evalString: 'round(abc,"aaa")', newField: 'newCol'
+                }]});
+            } catch(e){error = e}
+            expect(model == null).to.equal(true);
+            expect(error.message).to.equal("Invalid num decimals");
         });
 
         it('Case: valid input', () => {

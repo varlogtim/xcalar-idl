@@ -23,6 +23,9 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
     }
 
     public enterFunction(value: string, opInfo, index: number): void {
+        if (!this.groups.length) {
+            this.addGroup();
+        }
         this.groups[index].operator = value;
         if (opInfo) {
             const numArgs = Math.max(Math.abs(opInfo.numArgs),
@@ -85,20 +88,10 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
             this.andOrOperator = "and";
         }
 
-        function detectAndOr(func, operator) {
-            let split = self._isValidAndOr(func, operator);
-            if (split) {
-                detectAndOr(func.args[0], operator);
-                detectAndOr(func.args[1], operator);
-            } else {
-                argGroups.push(func);
-            }
-        }
-
         for (let i = 0; i < argGroups.length; i++) {
             let argGroup = argGroups[i];
             let args: OpPanelArg[] = [];
-            const opInfo = this._getOperatorObj(argGroup.fnName);
+            let opInfo = this._getOperatorObj(argGroup.fnName);
             let lastArg;
             let hasVariableArg = false;
             let hasParamFn = false;
@@ -108,9 +101,8 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
                         hasParamFn = true;
                         // ok to submit when parameter is found
                     } else if (argGroup.fnName.length) {
-                        throw({error: "\"" + argGroup.fnName + "\" is not a" +
-                                " valid filter function."});
-                    } else {
+                        throw({error: `"${argGroup.fnName}" is not a valid filter function.`});
+                    } else if (!argGroup.fnName.length) {
                         throw({error: "Function not selected."});
                     }
                 } else if (argGroup.args.length > opInfo.argDescs.length) {
@@ -125,6 +117,7 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
                     }
                 }
             }
+
             for (let j = 0; j < argGroup.args.length; j++) {
                 let arg = argGroup.args[j].value;
                 if (argGroup.args[j].type === "fn") {
@@ -172,13 +165,25 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
         }
         this.outputTableName = paramsRaw.outputTableName;
         this.groups = groups;
+
+        function detectAndOr(func, operator) {
+            let split = self._isValidAndOr(func, operator);
+            if (split) {
+                detectAndOr(func.args[0], operator);
+                detectAndOr(func.args[1], operator);
+            } else {
+                argGroups.push(func);
+            }
+        }
     }
 
     private _isValidAndOr(func, operator) {
         return (func.fnName === operator &&
                 func.args.length === 2 &&
                 func.args[0].type === "fn" &&
-                func.args[1].type === "fn");
+                func.args[1].type === "fn"  &&
+                this._getOperatorObj(func.args[0].fnName) &&
+                this._getOperatorObj(func.args[1].fnName));
     }
 
     protected _getParam(): DagNodeFilterInputStruct {

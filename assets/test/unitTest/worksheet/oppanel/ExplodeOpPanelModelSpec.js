@@ -89,7 +89,7 @@ describe('ExplodeOpPanelModel Test', () => {
             } catch(e) {
                 error = e;
             }
-            expect(error == null).to.equal(true);
+            expect(error).to.equal("line 1:19 no viable alternative at input 'invalid eval string'");
         });
     });
 

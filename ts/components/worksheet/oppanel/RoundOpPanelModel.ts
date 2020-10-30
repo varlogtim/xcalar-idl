@@ -45,9 +45,13 @@ class RoundOpPanelModel extends BaseOpPanelModel {
             const evalObj = dagInput.eval[0];
             const evalFunc = XDParser.XEvalParser.parseEvalStr(evalObj.evalString);
 
+            if (evalFunc["error"]) {
+                throw evalFunc.error;
+            }
+
             // Function name should be 'round'
             if (evalFunc.fnName !== this._funcName) {
-                throw new Error('Invalid function name');
+                throw new Error(`Invalid function name(${evalFunc.fnName})`);
             }
 
             // Source column
@@ -79,6 +83,7 @@ class RoundOpPanelModel extends BaseOpPanelModel {
             model._destColumn = '';
             model._includeErrRow = false;
             model._outputTableName = "";
+            throw e;
         }
 
         return model;

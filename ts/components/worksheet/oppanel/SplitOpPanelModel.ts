@@ -51,6 +51,10 @@ class SplitOpPanelModel extends BaseOpPanelModel {
                 }
                 const evalFunc = XDParser.XEvalParser.parseEvalStr(evalObj.evalString);
 
+                if (evalFunc["error"]) {
+                    throw evalFunc.error;
+                }
+
                 // Function name should be 'cut'
                 if (evalFunc.fnName !== this._funcName) {
                     throw new Error(`Invalid function name(${evalFunc.fnName})`);

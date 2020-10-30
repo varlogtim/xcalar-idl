@@ -36,7 +36,9 @@ describe("FilterOpPanelModel Test", function() {
         describe("various functions", function() {
             it ("isValidAndOr should work", function() {
                 const parsedEval = XDParser.XEvalParser.parseEvalStr("or(eq(1,2), eq(3,4))");
-                expect(model._isValidAndOr(parsedEval, "or")).to.be.true;
+                expect(model._isValidAndOr(parsedEval, "or")).to.not.be.false;
+                const parsedEval2 = XDParser.XEvalParser.parseEvalStr("or(eq(1,2), bool(3,4))");
+                expect(model._isValidAndOr(parsedEval2, "or")).to.be.null;
             });
         });
 
