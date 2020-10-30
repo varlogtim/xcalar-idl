@@ -1,7 +1,7 @@
 abstract class AbstractTabManager {
     private _container: string;
     private _key: string;
-    private _hasSetup: boolean;
+    protected _hasSetup: boolean;
     protected _tabListScroller: ListScroller;
     private _$menu; JQuery;
 

@@ -57,7 +57,7 @@ class PopupManager {
         },
         tableViewContainer: {
             isUndocked: false,
-            isVisible: true,
+            isVisible: false,
             dockedWidth: 50,
             dockedHeight: 50,
             undockedWidth: "auto",

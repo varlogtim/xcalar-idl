@@ -107,7 +107,6 @@ class TableTabManager extends AbstractTabManager {
 
     protected _restoreTabs(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        // this._loadTab(this._getSQLTab());
         this._getKVStore().getAndParse()
         .then((restoreData: {tabs: {
             name: string,
@@ -317,6 +316,7 @@ class TableTabManager extends AbstractTabManager {
         const $view = $("#tableViewContainer");
         if (this._activeTabs.length === 0) {
             $view.addClass("hint");
+            SQLResultSpace.Instance.toggleDisplay(false);
         } else {
             $view.removeClass("hint");
         }

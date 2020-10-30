@@ -73,8 +73,8 @@ class SQLResultSpace {
 
     public setup(): void {
         this._sqlTable.close();
-        this._tableLister.close();
         this._sqlTableSchema.close();
+        // tableList will show by default if panel is open
 
         this._setupListeners();
     }
@@ -265,6 +265,9 @@ class SQLResultSpace {
         }
         const $tab = $("#tableResultTab");
         if (display) {
+            if (!TableTabManager.Instance._activeTabs.length) {
+                SQLResultSpace.Instance.showTables(false);
+            }
             $tab.addClass("active");
             $container.removeClass("noResult");
             $resultSection.removeClass("xc-hidden");
