@@ -66,12 +66,15 @@ class DagGraphBar {
             $userAndPublishOnlyBtns.addClass("xc-disabled");
         }
 
-        const isViewOnly: boolean = (dagTab instanceof DagTabProgress ||
-        dagTab instanceof DagTabExecuteOnly);
-        if (isViewOnly) {
+        if (!dagTab.isEditable() && !dagTab.getApp()) {
             $topBar.addClass("viewOnly");
         } else {
             $topBar.removeClass("viewOnly");
+        }
+        if (dagTab.isEditable()) {
+            $("#dagView").removeClass("viewOnly");
+        } else {
+            $("#dagView").addClass("viewOnly");
         }
 
         const graph: DagGraph = dagTab.getGraph();

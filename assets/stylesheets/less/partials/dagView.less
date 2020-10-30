@@ -1,4 +1,4 @@
-#dagView {  
+#dagView {
     @category-height: 32px;
     @operator-height: 26px;
     @operator-width: 67px;
@@ -72,6 +72,21 @@
         }
         .run.dropDownList .iconWrapper {
             display: none;
+        }
+    }
+
+    &.viewOnly {
+        .operatorBar, .categorySection {
+            display: none !important;
+        }
+        .categoryBar {
+            .rightText {
+                display: block;
+            }
+            .rightIconArea {
+                box-shadow: none !important;
+                margin-left: 0px;
+            }
         }
     }
 
@@ -207,6 +222,11 @@
             min-width: 10px;
         }
 
+        .rightText {
+            margin-left: auto;
+            padding: 0px 6px;
+            display: none;
+        }
 
         .rightIconArea {
             margin-left: auto;
@@ -1570,9 +1590,6 @@
     }
 
     &.viewOnly {
-        .editSQLGraph {
-            display: none;
-        }
         &.executeOnly {
             .editSQLGraph {
                 display: block;
@@ -1582,6 +1599,9 @@
             display: flex;
         }
         .run {
+            display: none;
+        }
+        .editSQLGraph {
             display: none;
         }
     }
