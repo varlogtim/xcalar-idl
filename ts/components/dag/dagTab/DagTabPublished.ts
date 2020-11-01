@@ -206,7 +206,7 @@ class DagTabPublished extends DagTab {
         }
         const json = this._getDurable();
         if (json == null) {
-            return PromiseHelper.reject("Invalid module structure");
+            return PromiseHelper.reject("Invalid plan structure");
         }
         DagTabPublished._switchSession(this._getWKBKName());
         const promise = super._writeToKVStore(json);
@@ -327,7 +327,7 @@ class DagTabPublished extends DagTab {
                     promies.push(this._writeModuleToWKBKKVStore(tab, udfSet));
                 } else {
                     // current valid tab in app is DagTabUser or DagTabMain
-                    throw new Error("Invalid type of module exist in the app");
+                    throw new Error("Invalid type of plan exist in the app");
                 }
             }
         });
@@ -344,7 +344,7 @@ class DagTabPublished extends DagTab {
                     promises.push(this._findLoaderUDFs(tab, udfAbsolutePaths));
                 } else {
                     // current valid tab in app is DagTabUser or DagTabMain
-                    throw new Error("Invalid type of module exist in the app");
+                    throw new Error("Invalid type of plan exist in the app");
                 }
             }
         });

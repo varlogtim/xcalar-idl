@@ -374,9 +374,9 @@ class TableTabManager extends AbstractTabManager {
             const dfTab = DagList.Instance.getDagTabById(tabId);
             let error: string;
             if (dfTab == null) {
-                error = "The corresponding module doesn't exist";
+                error = "The corresponding plan doesn't exist";
             } else {
-                error = `Module "${dfTab.getName()}" is closed, cannot view result`;
+                error = `Plan "${dfTab.getName()}" is closed, cannot view result`;
             }
             throw error;
         }

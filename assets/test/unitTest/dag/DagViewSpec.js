@@ -1908,8 +1908,7 @@ describe("DagView Test", () => {
             }
 
             setTimeout(() => {
-                UnitTest.hasAlertWithText("The module contains an optimized node and can only be executed in optimized mode. " +
-                "Would you like to execute all nodes in optimized mode?", {confirm: true});
+                UnitTest.hasAlertWithText(DFTStr.OptimizedOnlyWarn, {confirm: true});
             }, 0);
 
             dagView.run()
@@ -1955,8 +1954,7 @@ describe("DagView Test", () => {
             }
 
             setTimeout(() => {
-                UnitTest.hasAlertWithText("The module contains an optimized node and can only be executed in optimized mode. " +
-                "Would you like to execute all nodes in optimized mode?");
+                UnitTest.hasAlertWithText(DFTStr.OptimizedOnlyWarn);
             }, 0);
 
             dagView.run()

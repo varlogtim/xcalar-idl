@@ -393,7 +393,7 @@ class SQLOpPanel extends BaseOpPanel {
                 data-toggle="tooltip"
                 data-container="body"
                 data-placement="auto top"
-                data-title="If no module input is selected, the SQL statement table name will be used"></i>`;
+                data-title="If no plan input is selected, the SQL statement table name will be used"></i>`;
             }
             rightCol += this._getConnectorHTML(connectorName);
         });
@@ -507,7 +507,7 @@ class SQLOpPanel extends BaseOpPanel {
                     data-toggle="tooltip"
                     data-container="body"
                     data-placement="auto top"
-                    data-title="If no module input is selected, the SQL statement table name will be used"></i></li>` + html;
+                    data-title="If no plan input is selected, the SQL statement table name will be used"></i></li>` + html;
                     if (!nodeInfos.length) {
                         html += `<li data-id="" class="hint">No tables found</li>`
                     }
@@ -532,7 +532,7 @@ class SQLOpPanel extends BaseOpPanel {
                             data-toggle="tooltip"
                             data-container="body"
                             data-placement="auto top"
-                            data-title="If no module input is selected, the SQL statement table name will be used"></i>`);
+                            data-title="If no plan input is selected, the SQL statement table name will be used"></i>`);
                     } else {
                         $dropDownList.find(".text").text(val);
                     }
@@ -884,7 +884,7 @@ class SQLOpPanel extends BaseOpPanel {
         }
         this._parsedIdentifiers.forEach(identifier => {
             if (!identiferSet.has(identifier)) {
-                throw(`Specify a corresponding module table for '${identifier}'`);
+                throw(`Specify a corresponding plan table for '${identifier}'`);
             }
         });
     }

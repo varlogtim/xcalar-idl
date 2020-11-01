@@ -91,15 +91,15 @@ class DagTabUser extends DagTab {
         try {
             const deferred: XDDeferred<void> = PromiseHelper.deferred();
             // const path = DagList.getAppPath(dagTab);
-            const title = `Current module is view only`;
+            const title = `Current plan is read only`;
             let msg: string;
             let buttons =[];
             const appSourceTab = dagTab.getAppSourceTab();
             const sourceTab = DagList.Instance.getDagTabById(appSourceTab);
             if (sourceTab) {
-                msg = "Please edit on the origial module instead.";
+                msg = "Please edit on the original plan instead.";
                 buttons = [{
-                    name: "Edit original module",
+                    name: "Edit original plan",
                     className: "larger",
                     func: () => {
                         DagTabManager.Instance.loadTab(sourceTab);
@@ -107,9 +107,9 @@ class DagTabUser extends DagTab {
                     }
                 }];
             } else {
-                msg = "The original module has been deleted, do you want to create a new module for modification?";
+                msg = "The original plan has been deleted, do you want to create a new plan for modification?";
                 buttons = [{
-                    name: "Create new module",
+                    name: "Create new plan",
                     className: "larger",
                     func: () => {
                         DagTabManager.Instance.convertNoEditableTab(dagTab);
@@ -397,7 +397,7 @@ class DagTabUser extends DagTab {
             if (hasGetMeta) {
                 let alertOption: Alert.AlertOptions = {
                     title: DFTStr.UploadErr,
-                    instr: DFTStr.UpoladErrInstr,
+                    instr: DFTStr.UploadErrInstr,
                     msg: error.error,
                     isAlert: true
                 };

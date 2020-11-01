@@ -106,7 +106,7 @@ describe('DagTab Test', function() {
         it("Should return the correct errors for validate kv store info",
                 function() {
             var dagInfo = "not an object";
-            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid module information");
+            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid plan information");
             dagInfo = {
                 name: 5,
                 id: "kvTab",
@@ -116,7 +116,7 @@ describe('DagTab Test', function() {
                     comments: []
                 },
             }
-            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid module name");
+            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid plan name");
             dagInfo = {
                 name: "kvstore",
                 id: 5,
@@ -126,13 +126,13 @@ describe('DagTab Test', function() {
                     comments: []
                 },
             }
-            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid module ID");
+            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid plan ID");
             dagInfo = {
                 name: "kvstore",
                 id: "kvTab",
                 dag: null,
             }
-            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid module");
+            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid plan");
         });
 
         it("Should load from kv store correctly", function(done) {

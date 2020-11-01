@@ -12,7 +12,6 @@ abstract class DagTabExecuteOnly extends DagTabUser {
     }
 
     public abstract getIcon(): string;
-    protected abstract _getViewOnlyMessage(): string;
 
     /**
      * @override
@@ -35,11 +34,11 @@ abstract class DagTabExecuteOnly extends DagTabUser {
                 }
             };
             Alert.show({
-                title: `${this._name} is view only`,
+                title: `${this._name} is read only`,
                 msg: this._getViewOnlyMessage(),
                 isCheckBox: true,
                 buttons: [{
-                    name: "Create new module",
+                    name: "Create new plan",
                     className: "larger",
                     func: (hasChecked) => {
                         writeChecked(hasChecked);
@@ -58,5 +57,9 @@ abstract class DagTabExecuteOnly extends DagTabUser {
             console.error(e);
             return PromiseHelper.resolve();
         }
+    }
+
+    private _getViewOnlyMessage(): string {
+        return "To change this ready-only plan, please save it as a new plan.";
     }
 }

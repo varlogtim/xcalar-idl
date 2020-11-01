@@ -202,7 +202,7 @@ class DagList extends Durable {
     }
 
     /**
-     * DagList.Instanace.addUserDags
+     * DagList.Instance.addUserDags
      * @param dagTabs
      */
     public addUserDags(dagTabs: DagTabUser[]): boolean {
@@ -213,7 +213,7 @@ class DagList extends Durable {
         dagTabs.forEach((dagTab) => {
             if (dagTab.getType() !== DagTabType.User) {
                 // in case of error
-                throw new Error("Wrong type of module to add");
+                throw new Error("Wrong type of plan to add");
             }
             this._dags.set(dagTab.getId(), dagTab);
         });
@@ -221,7 +221,7 @@ class DagList extends Durable {
     }
 
     /**
-     * Changes the name of a Dataflow in the user's dataflows.
+     * Changes the name of a Dataflow in the user's data flows.
      * @param newName the new name
      * @param id The dataflow we change.
      */
@@ -298,7 +298,7 @@ class DagList extends Durable {
      * @returns {string}
      */
     public isUniqueName(name: string, app: string | null): boolean {
-        for (let [key, dagTab] of this._dags) {
+        for (let [_key, dagTab] of this._dags) {
             if (app != null && dagTab.getApp() !== app) {
                 continue;
             }
@@ -320,7 +320,7 @@ class DagList extends Durable {
         isOptimizedDag?: boolean,
         app?: string
     ): string {
-        const prefix: string = prefixName || (isSQLFunc ? "fn" : "Module");
+        const prefix: string = prefixName || (isSQLFunc ? "fn" : "Untitled");
         const nameSet: Set<string> = new Set();
         let cnt: number = 1;
         this._dags.forEach((dagTab) => {

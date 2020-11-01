@@ -39,8 +39,4 @@ class DagTabScalarFnExecute extends DagTabExecuteOnly {
     public getIcon(): string {
         return 'xi-menu-udf';
     }
-
-    protected _getViewOnlyMessage(): string {
-        return "To change this test module, save it as a new module.";
-    }
 }

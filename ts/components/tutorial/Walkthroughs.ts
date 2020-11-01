@@ -89,12 +89,12 @@ const Walkthroughs = {
         {
             highlight_div: "#tabButton",
             interact_div: "#tabButton",
-            text: "A module is a series of actions performed on data to develop a data model. Click the new module icon to create a new module at any time.",
+            text: "A plan is a series of actions performed on data to develop a data model. Click the new plan icon to create a new plan at any time.",
             type: TooltipType.Click
         },
         {
             highlight_div: ".dataflowMainArea",
-            text: "The module canvas is where you create and connect Nodes to create modules.",
+            text: "The plan canvas is where you create and connect Nodes to create plans.",
             type: TooltipType.Text
         },
         {
@@ -104,19 +104,19 @@ const Walkthroughs = {
         },
         {
             highlight_div: "#dagView .operatorBar",
-            text: "Each category displays the operation Nodes you'll use to build your modules. Double click or drag and drop Nodes from the toolbar to the module canvas.",
+            text: "Each category displays the operation Nodes you'll use to build your plans. Double click or drag and drop Nodes from the toolbar to the plan canvas.",
             type: TooltipType.Text
         },
         {
             pre_mousedown_div: '.category-in',
             highlight_div: "#dagView .operatorBar",
-            text: "Before creating a module, import at least one data source into a dataset. A module must start with a source Node (a Dataset or a Table Node) to read the imported data.",
+            text: "Before creating a plan, import at least one data source into a dataset. A plan must start with a source Node (a Dataset or a Table Node) to read the imported data.",
             type: TooltipType.Text
         },
         {
             highlight_div: "#dagView .operatorWrap .active .operator",
             interact_div: "#dagView .operatorWrap .active .operator .main",
-            text: "Double click this Dataset Node to add it to the module canvas.",
+            text: "Double click this Dataset Node to add it to the plan canvas.",
             type: TooltipType.DoubleClick
         },
         {
@@ -128,7 +128,7 @@ const Walkthroughs = {
             pre_mousedown_div: '.category-rowOps',
             highlight_div: "#dagView .operatorWrap .active .operator",
             interact_div: "#dagView .operatorWrap .active .operator .main",
-            text: "Double click this Sort Node to add it to the module canvas.",
+            text: "Double click this Sort Node to add it to the plan canvas.",
             type: TooltipType.DoubleClick,
         },
         {

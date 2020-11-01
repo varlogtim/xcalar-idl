@@ -1070,7 +1070,7 @@ class DagTabManager extends AbstractTabManager {
                 '<div class="after">' +
                     '<i class="icon xi-close-no-circle close" ' +
                     xcTooltip.Attrs +
-                    ' data-original-title="' + DFTStr.CloseModule + '" ' +
+                    ' data-original-title="' + AlertTStr.Close + '" ' +
                     '></i>' +
                     '<i class="icon xi-solid-circle dot"></i>' +
                 '</div>' +

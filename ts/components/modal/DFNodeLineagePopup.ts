@@ -537,7 +537,7 @@ class DFNodeLineagePopup {
             await DagTabManager.Instance.loadTab(tab);
             return tab;
         } catch (e) {
-            throw new Error(DFNodeLineageTStr.SouceTabLoadErr);
+            throw new Error(DFNodeLineageTStr.SourceTabLoadErr);
         }
     }
 

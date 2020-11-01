@@ -69,14 +69,14 @@ enum DagNodeErrorType {
     InvalidOptimizedLinkOutCount = "Optimized application cannot have multiple Function Output operators",
     InvalidOptimizedLinkOutOptimizedCount = "Optimized application cannot have multiple Function Output operators",
     InvalidOptimizedDuplicateExport = "Optimized application cannot have multiple export operators originating from the same operator",
-    InvalidOptimizedPublishNode = "Optimized application that publishing the final table cannot have Export or Function Ouput operators",
+    InvalidOptimizedPublishNode = "Optimized application that publishing the final table cannot have Export or Function Output operators",
     InvalidOptimizedPublishCount = "Optimized application cannot have multiple Publish Table operators",
-    Disjoint = "Multiple disjoint modules detected. Optimized execution can only occur on 1 continuous module.",
+    Disjoint = "Multiple disjoint plans detected. Optimized execution can only occur on 1 continuous plan.",
     NoColumn = "Invalid column in the schema:\n",
     NoColumns = "Invalid columns in the schema:\n",
-    NoAccessToSource = "Dataset does not exist or you have no rights to access it. Please change the configuration or restore the dastaset.",
+    NoAccessToSource = "Dataset does not exist or you have no rights to access it. Please change the configuration or restore the dataset.",
     InvalidSQLFunc = "Invalid Table Function",
-    SQLFuncOutDupCol = "Table function's output has duplicate column name (the output's column name is case insensitivie)",
+    SQLFuncOutDupCol = "Table function's output has duplicate column name (the output's column name is case insensitive)",
     SQLFuncInNoSource = "Table function's input must have source configured to run",
 }
 
@@ -203,14 +203,14 @@ DagNodeTooltip[DagNodeSubType.Union] = "Combines the results from two or more ta
 DagNodeTooltip[DagNodeSubType.Intersect] = "Returns rows within the selected tables whose columns match";
 DagNodeTooltip[DagNodeSubType.Except] = "Returns the columns of Table #1 that are not in the column results of the other selected tables";
 DagNodeTooltip[DagNodeSubType.ExportOptimized] = "Exports the results of an optimized application via an export driver";
-DagNodeTooltip[DagNodeSubType.DFOutOptimized] = "Exports the results of an optimized application to another module";
+DagNodeTooltip[DagNodeSubType.DFOutOptimized] = "Exports the results of an optimized application to another plan";
 
 
 
 const DagCategoryTooltip = {};
 
-DagCategoryTooltip[DagCategoryType.In] = "These operators provide the module’s input data";
-DagCategoryTooltip[DagCategoryType.Out] = "These operators output data from the module";
+DagCategoryTooltip[DagCategoryType.In] = "These operators provide the plan's input data";
+DagCategoryTooltip[DagCategoryType.Out] = "These operators output data from the plan";
 DagCategoryTooltip[DagCategoryType.SQL] = "These operators apply SQL";
 DagCategoryTooltip[DagCategoryType.ColumnOps] = "These operators target columns";
 DagCategoryTooltip[DagCategoryType.RowOps] = "These operators target rows";

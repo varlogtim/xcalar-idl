@@ -339,17 +339,17 @@ abstract class DagTab extends Durable {
 
     protected _validateKVStoreDagInfo(dagInfo) {
         if (typeof dagInfo !== "object") {
-            return {error: "Invalid module information"}
+            return {error: "Invalid plan information"}
         }
         if (typeof dagInfo.name !== "string") {
-            return {error: "Invalid module name"}
+            return {error: "Invalid plan name"}
         }
         if (typeof dagInfo.id !== "string") {
-            return {error: "Invalid module ID"}
+            return {error: "Invalid plan ID"}
         }
         if (!dagInfo.dag  || typeof dagInfo.dag !== "object" ||
             dagInfo.dag.constructor !== Object) {
-            return {error: "Invalid module"}
+            return {error: "Invalid plan"}
         }
 
         return {}

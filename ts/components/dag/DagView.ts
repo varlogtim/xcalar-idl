@@ -4580,8 +4580,7 @@ class DagView {
             if (nodeIds == null && !optimized && DagViewManager.Instance.hasOptimizedNode()) {
                 Alert.show({
                     "title": "Confirmation",
-                    "msgTemplate": "The module contains an optimized node and can only be executed in optimized mode. " +
-                            "Would you like to execute all nodes in optimized mode?",
+                    "msgTemplate": DFTStr.OptimizedOnlyWarn,
                     "onConfirm": function() {
                         deferred.resolve({optimized: true});
                     },

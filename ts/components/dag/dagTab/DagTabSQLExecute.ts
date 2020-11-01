@@ -31,8 +31,4 @@ class DagTabSQLExecute extends DagTabExecuteOnly {
     public getIcon(): string {
         return 'xi-menu-sql';
     }
-
-    protected _getViewOnlyMessage(): string {
-        return "To change this SQL graph, save the graph as a new module.";
-    }
 }

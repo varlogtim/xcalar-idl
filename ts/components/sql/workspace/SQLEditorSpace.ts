@@ -977,7 +977,7 @@ class SQLEditorSpace {
         let schemas = {};
         parsedIdentifiers.forEach((parsedIdentifier) => {
             if (!panelIdentifiers.has(parsedIdentifier)) {
-                throw(`Specify a corresponding module table for '${parsedIdentifier}'`);
+                throw(`Specify a corresponding table for '${parsedIdentifier}'`);
             }
             let panelIdentifierIndex = panelIdentifiers.get(parsedIdentifier);
             if (panelIdentifierIndex && parents[panelIdentifierIndex - 1]) {
@@ -1007,7 +1007,7 @@ class SQLEditorSpace {
                     this._addSQLNodeToModule();
                 });
             } else {
-                Alert.error(ErrTStr.Error, "Cannot add SQL node to this type of module.");
+                Alert.error(ErrTStr.Error, "Cannot add SQL node to this type of plan.");
             }
             return;
         } else {

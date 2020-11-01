@@ -144,10 +144,10 @@ class DagQueryConverter {
                 dataflowInfo = JSON.parse(dataflowInfo);
             }
         } catch (e) {
-            return this._getFailedDataflowRet("Cannot parse module: " + JSON.stringify(dataflowInfo));
+            return this._getFailedDataflowRet("Cannot parse plan: " + JSON.stringify(dataflowInfo));
         }
         if (typeof dataflowInfo !== "object" || dataflowInfo == null || (dataflowInfo instanceof Array)) {
-            return this._getFailedDataflowRet("Invalid module structure: " + JSON.stringify(dataflowInfo));
+            return this._getFailedDataflowRet("Invalid plan structure: " + JSON.stringify(dataflowInfo));
         }
         this._modifyOriginalInput(dataflowInfo);
         if (!nestedPrefix) {
