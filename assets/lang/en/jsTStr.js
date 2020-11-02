@@ -1049,6 +1049,8 @@ DFTStr = {
     "CannotEditOperator": "This operator is not editable",
     "PreviewLimit": "Preview Limit",
     "OptimizedOnlyWarn": "The plan contains an optimized node and can only be executed in optimized mode. Would you like to execute all nodes in optimized mode?",
+    "ConvertToEditable": "Convert to editable plan",
+    "ConvertToEditableMsg": "Are you sure you want to convert the current plan to an editable plan?",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     "ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized.",

@@ -125,10 +125,7 @@ class DagTabManager extends AbstractTabManager {
         const graph: DagGraph = new DagGraph();
         const tab: DagTab = this._newTab(name, graph, false, isEmpty, index);
         this._tabListScroller.showOrHideScrollers();
-        setTimeout(() => {
-            // timeout keeps unwanted tooltip from showing
-            this._focusTabRename(this._getTabEleById(tab.getId()).find(".dragArea"));
-        }, 0);
+        this._focusOnNewTabName(tab);
         Log.add(SQLTStr.NewTab, {
             "operation": SQLOps.NewDagTab,
             "isSQLFunc": false,
@@ -272,14 +269,29 @@ class DagTabManager extends AbstractTabManager {
      * DagTabManager.Instance.convertNoEditableTab
      * @param dagTab
      */
-    public convertNoEditableTab(dagTab: DagTab): void {
-        DagPanel.Instance.toggleDisplay(true);
-        const graphJSON = dagTab.getGraph().getSerializableObj(true);
-        const name: string = DagList.Instance.getValidName();
-        const graph: DagGraph = new DagGraph();
-        graph.create(graphJSON);
-        this._newTab(name, graph, false, false);
-        this._tabListScroller.showOrHideScrollers();
+    public convertNoEditableTab(dagTab: DagTab, alert: boolean = false): void {
+        const cb = () => {
+            DagPanel.Instance.toggleDisplay(true);
+            const graphJSON = dagTab.getGraph().getSerializableObj(true);
+            const name: string = DagList.Instance.getValidName();
+            const graph: DagGraph = new DagGraph();
+            graph.create(graphJSON);
+            const newTab = this._newTab(name, graph, false, false);
+            this._tabListScroller.showOrHideScrollers();
+            this._focusOnNewTabName(newTab);
+        };
+
+        if (alert) {
+            Alert.show({
+                title: DFTStr.ConvertToEditable,
+                msg: DFTStr.ConvertToEditableMsg,
+                onConfirm: () => {
+                    cb();
+                }
+            });
+        } else {
+            cb();
+        }
     }
 
     /**
@@ -1194,5 +1206,12 @@ class DagTabManager extends AbstractTabManager {
         $("#tabButton").on("click", () => {
             this.newTab(true);
         });
+    }
+
+    private _focusOnNewTabName(tab: DagTab): void {
+        setTimeout(() => {
+            // timeout keeps unwanted tooltip from showing
+            this._focusTabRename(this._getTabEleById(tab.getId()).find(".dragArea"));
+        }, 0);
     }
 }

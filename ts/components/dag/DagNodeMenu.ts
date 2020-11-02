@@ -433,7 +433,7 @@ namespace DagNodeMenu {
                 case ("editSQLGraph"):
                     dagTab = DagViewManager.Instance.getActiveTab();
                     if (dagTab instanceof DagTabExecuteOnly) {
-                        DagTabManager.Instance.convertNoEditableTab(dagTab);
+                        DagTabManager.Instance.convertNoEditableTab(dagTab, true);
                     }
                     break;
                 case ("search"):

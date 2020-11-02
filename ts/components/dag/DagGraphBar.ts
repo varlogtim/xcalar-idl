@@ -238,7 +238,7 @@ class DagGraphBar {
         $topBar.find(".editSQLGraph").click(() => {
             const dagTab = DagViewManager.Instance.getActiveTab();
             if (dagTab instanceof DagTabExecuteOnly) {
-                DagTabManager.Instance.convertNoEditableTab(dagTab);
+                DagTabManager.Instance.convertNoEditableTab(dagTab, true);
             }
         });
 
