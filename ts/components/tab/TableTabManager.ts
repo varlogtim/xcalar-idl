@@ -12,6 +12,7 @@ class TableTabManager extends AbstractTabManager {
 
     private static _instance: TableTabManager;
     private _activeTabs: {name: string, type: TableTabType, meta?: any}[];
+    private _setupCallback: Function;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -45,6 +46,10 @@ class TableTabManager extends AbstractTabManager {
         meta?: any,
         displayName?: string
     ): Promise<void> {
+        if (!this._hasSetup) {
+            this._setupCallback = this.openTab.bind(this, name, type, meta, displayName);
+            return;
+        }
         if (this._belongToSQLTab(type, meta)) {
             const sqlTab = this._getSQLTab();
             name = sqlTab.name;
@@ -107,6 +112,11 @@ class TableTabManager extends AbstractTabManager {
 
     protected _restoreTabs(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
+
+        if (this._setupCallback) {
+            this._setupCallback();
+        }
+        // this._loadTab(this._getSQLTab());
         this._getKVStore().getAndParse()
         .then((restoreData: {tabs: {
             name: string,
