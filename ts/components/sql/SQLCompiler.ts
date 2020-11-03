@@ -835,7 +835,8 @@ class SQLCompiler {
     static getColTypeFromString(item: string, node: TreeNode): SQLColumnType {
         if (typeof item !== "string") {
             return null;
-        } else if (item.indexOf("sql:") === 0) {
+        } else if (item.indexOf(":") !== -1 && item.indexOf(":") < item.indexOf("(")) {
+            // UDF case, always return string
             return SQLColumnType.String;
         } else if (item.indexOf("*") === 0) {
             let opName = item.substring(1, item.indexOf("("));
@@ -1484,8 +1485,10 @@ class SQLCompiler {
                         SQLUtil.assert(condTree.value.name != "xdf_explodeString",
                                        SQLErrTStr.XdfExplodeString);
                         outStr += condTree.value.name.substring(4) + "(";
-                    } else {
+                    } else if (condTree.value.name.indexOf(":") === -1) {
                         outStr += "sql:" + condTree.value.name + "(";
+                    } else {
+                        outStr += condTree.value.name + "(";
                     }
                     numLeftPar++;
                     if (acc.hasOwnProperty("udfs")) {

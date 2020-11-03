@@ -52,7 +52,7 @@ class FilterPushUp {
 
         function dfs(evalStruct): boolean {
             if (evalStruct.type === "fn" &&
-                evalStruct.fnName.startsWith("sql:")) return true;
+                evalStruct.fnName.indexOf(":") !== -1) return true;
             if (evalStruct.args) {
                 for (const arg of evalStruct.args) {
                     if (dfs(arg)) {

@@ -58,7 +58,7 @@ class SelectPushDown {
                 return true;
             }
             // XXX should re-enable it when Select supports UDF
-            if (curNode.value.args.eval[0].evalString.indexOf("sql:") > -1) {
+            if (curNode.value.args.eval[0].evalString.indexOf(":") > -1) {
                 return true;
             }
             const filterString = XDParser.XEvalParser.replaceColName(
@@ -82,7 +82,7 @@ class SelectPushDown {
                 const maps = jQuery.extend(true, [], curNode.value.args.eval);
                 for (let i = 0; i < maps.length; i++) {
                     // XXX should re-enable it when Select supports UDF
-                    if (maps[i].evalString.indexOf("sql:") > -1) {
+                    if (maps[i].evalString.indexOf(":") > -1) {
                         return true;
                     }
                     maps[i].evalString = XDParser.XEvalParser.replaceColName(
