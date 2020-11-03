@@ -5,7 +5,7 @@ class DeleteWorkbook extends EventEmitter {
         const self = this;
         userName = userName || this.api.globals.user;
 
-        this.api.ensureHomeScreenOpen()
+        this.api.ensureHomeScreenOpen();
         this.api.isPresent('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"]', isPresent => {
             if (isPresent) {
                 self.api
@@ -13,7 +13,7 @@ class DeleteWorkbook extends EventEmitter {
                     .waitForElementNotPresent("#wkbkMenu .deactivate.inActive")
                     .click('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"] .dropDown')
 
-                self.api.isPresent('.workbookBox.active input[value="' + workbookName + '"]', isPresent => {
+                self.api.isPresent('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"]', isPresent => {
                     if (isPresent) {
                         self.api
                             .waitForElementVisible("#wkbkMenu .deactivate")

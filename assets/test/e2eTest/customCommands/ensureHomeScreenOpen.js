@@ -4,6 +4,7 @@ class EnsureHomeScreenOpen extends EventEmitter {
     command() {
         this.api.isVisible('#workbookPanel', results => {
             if (results.value) {
+                console.log("ensure home screen is open: Workbook Panel is visible");
                 /* is visible */
             } else {
                 this.api
@@ -11,7 +12,8 @@ class EnsureHomeScreenOpen extends EventEmitter {
                     .moveToElement("#projectTab", 0, 0)
                     .mouseButtonClick("left")
                     .waitForElementNotVisible("#modalBackground", 120000)
-                    .waitForElementVisible("#workbookPanel", 120000)
+                    .waitForElementVisible("#workbookPanel", 120000);
+                    console.log("Navigated to Workbook Panel");
             }
             this.emit('complete');
             return this;

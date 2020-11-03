@@ -76,11 +76,11 @@ module.exports = {
     },
 
     getFinalWorkbookName: function() {
-        return $("#workbookPanel .workbookBox.noResource .subHeading input").val();
+        return $("#workbookPanel .workbookBox.noResource .name input").val();
     },
 
     getFirstWorkbookName: function() {
-        return $("#workbookPanel .workbookBox:first .subHeading input").val();
+        return $("#workbookPanel .workbookBox:first input").val();
     },
 
     openOpPanel: function(nodeId) {
@@ -272,5 +272,14 @@ module.exports = {
 
     enableLogin: function() {
         gLoginEnabled = true;
+    },
+
+    getNumElements: function(selector) {
+        return $(selector).length;
+    },
+
+    getText: function(selector) {
+        return $(selector).text().trim();
     }
+
 };
