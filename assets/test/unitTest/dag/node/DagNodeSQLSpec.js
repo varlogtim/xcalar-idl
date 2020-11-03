@@ -88,7 +88,8 @@ describe("SQL Dag Node Test", () => {
                 "udfErrors": {},
                 "udfError": undefined,
                 "headName": null,
-                "schema": []
+                "schema": [],
+                "complementNodeId": undefined
             });
         });
 

@@ -188,7 +188,7 @@ class DagUDFErrorModal {
             if ($(this).hasClass("unavailable")) {
                 return;
             }
-            self._genErrorTable();
+            self._genErrorTable.bind(self)();
         });
         this._$modal.on("click", ".groupHeader", function() {
             const $group = $(this).closest(".evalGroup");
@@ -228,12 +228,12 @@ class DagUDFErrorModal {
 
     private async _genErrorTable(): Promise<void> {
         let node = this._node;
+        let tabId = this._tabId;
         this.close();
 
         let parentNode = node.getParents()[0];
 
         let oldTitle = node.getTitle().trim();
-        let newTitle = oldTitle.length ? (oldTitle + "- Failed Rows") : "Failed Rows";
         let input = node.getParam();
         if (node instanceof DagNodeFilter) {
             input.eval = [{
@@ -244,21 +244,49 @@ class DagUDFErrorModal {
         }
 
         input.icv = true;
-        input.outputTableName = input.outputTableName || "FailedRows";
+        if ( node.getTable()) {
+            input.outputTableName = node.getTable().replace(/#/g, "") + "_ERRORS";
+        } else {
+            if (input.outputTableName) {
+                input.outputTableName += "_ERRORS";
+            } else {
+                input.outputTableName = "ERRORS";
+            }
+        }
 
-        let newNode = await DagViewManager.Instance.autoAddNode(DagNodeType.Map, null, parentNode.getId(), null, {
-            nodeTitle: newTitle,
-            byPassAlert: true
-        });
-        if (newNode == null) {
+        let icvNode: DagNodeMap;
+        if (node.getComplementNodeId()) {
+            let icvNodeId = node.getComplementNodeId();
+            const tab = DagTabManager.Instance.getTabById(tabId);
+            icvNode = tab.getGraph().getNode(icvNodeId) as DagNodeMap;
+        }
+        if (!icvNode) {
+            let type;
+            let subType;
+            if (node instanceof DagNodeFilter) {
+                type  = DagNodeType.Map;
+            } else {
+                type = node.getType();
+                subType = node.getSubType();
+            }
+            icvNode = await DagViewManager.Instance.autoAddNode(type, subType, parentNode.getId(), null, {
+                        nodeTitle: oldTitle,
+                        byPassAlert: true
+                    }) as DagNodeMap;
+        }
+
+        if (!icvNode) {
             return;
         }
-        newNode.setParam(input, true);
+        icvNode.beConfiguredState();
+        icvNode.setParam(input, true);
+        icvNode.setComplementNodeId(node.getId());
+        node.setComplementNodeId(icvNode.getId());
 
-        DagViewManager.Instance.run([newNode.getId()], false, false, true)
+        DagViewManager.Instance.run([icvNode.getId()], false, false, true)
         .then(() => {
-            this._reorderColumns(newNode);
-            return DagViewManager.Instance.viewResult(newNode, this._tabId);
+            this._reorderColumns(icvNode);
+            return DagViewManager.Instance.viewResult(icvNode, tabId);
         })
         .then(() => {
             TblManager.highlightColumn($("#sqlTableArea .xcTable th.col1"));

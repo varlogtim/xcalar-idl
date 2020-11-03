@@ -173,7 +173,7 @@ describe("Map Dag Node Test", () => {
                 eval: [
                     {evalString: "add(prefix::average_stars,1)", newField: "col1"}
                 ],
-                icv: true
+                icv: false
             };
             node.setParam(testParam);
 
@@ -199,7 +199,7 @@ describe("Map Dag Node Test", () => {
                 eval: [
                     {evalString: "my:udf(5, another:one(1))", newField: "col1"}
                 ],
-                icv: true
+                icv: false
             };
             node.setParam(testParam);
             const udfs = node.getUsedUDFModules();

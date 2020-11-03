@@ -145,7 +145,7 @@ describe("Xcalar Log Test", function() {
             var curUndo = Log.undo;
             var oldGetDag = DagViewManager.Instance.getActiveDag;
             var $undo = $("#undo");
-            var isDisabled = $undo.hasClass("disabled");
+            var isDisabled = $undo.hasClass("unavailable");
             var isLocked = $undo.hasClass("locked");
             var called = 0;
 
@@ -158,17 +158,17 @@ describe("Xcalar Log Test", function() {
                 return new DagGraph();
             };
 
-            $undo.addClass("disabled");
+            $undo.addClass("unavailable");
             $undo.click();
             expect(called).to.equal(0);
             // case 2
-            $undo.removeClass("disabled");
+            $undo.removeClass("unavailable");
             $undo.removeClass("locked");
             $undo.click();
             expect(called).to.equal(2);
 
             if (isDisabled) {
-                $undo.addClass("disabled");
+                $undo.addClass("unavailable");
             }
             if (isLocked) {
                 $undo.addClass("locked");
@@ -180,7 +180,7 @@ describe("Xcalar Log Test", function() {
         it("should click to trigger redo", function() {
             var curRedo = Log.redo;
             var $redo = $("#redo");
-            var isDisabled = $redo.hasClass("disabled");
+            var isDisabled = $redo.hasClass("unavailable");
             var called = 0;
             var oldGetDag = DagViewManager.Instance.getActiveDag;
 
@@ -193,16 +193,16 @@ describe("Xcalar Log Test", function() {
                 return new DagGraph();
             };
 
-            $redo.addClass("disabled");
+            $redo.addClass("unavailable");
             $redo.click();
             expect(called).to.equal(0);
             // case 2
-            $redo.removeClass("disabled");
+            $redo.removeClass("unavailable");
             $redo.click();
             expect(called).to.equal(2);
 
             if (isDisabled) {
-                $redo.addClass("disabled");
+                $redo.addClass("unavailable");
             }
 
             Log.redo = curRedo;
@@ -213,9 +213,9 @@ describe("Xcalar Log Test", function() {
             var $undo = $("#undo");
             var $redo = $("#redo");
             Log.lockUndoRedo();
-            expect($undo.hasClass("disabled")).to.be.true;
+            expect($undo.hasClass("unavailable")).to.be.true;
             Log.unlockUndoRedo();
-            expect($redo.hasClass("disabled")).to.be.true;
+            expect($redo.hasClass("unavailable")).to.be.true;
         });
 
         it("Should not undo in error case", function(done) {

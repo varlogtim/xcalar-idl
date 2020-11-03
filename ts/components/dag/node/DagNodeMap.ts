@@ -1,5 +1,6 @@
 class DagNodeMap extends DagNode {
     protected input: DagNodeMapInput;
+
     public constructor(options: DagNodeMapInfo, runtime?: DagRuntime) {
         super(options, runtime);
         this.type = DagNodeType.Map;
@@ -185,7 +186,9 @@ class DagNodeMap extends DagNode {
     protected _genParamHint(): string {
         let hint: string = "";
         const input: DagNodeMapInputStruct = this.getParam();
-        if (input.eval.length) {
+        if (input.icv) {
+            hint = "ERRORS";
+        } else if (input.eval.length) {
             const evalStrs: string[] = input.eval.map((evalInfo) => evalInfo.evalString);
             hint = evalStrs.join(",");
         }

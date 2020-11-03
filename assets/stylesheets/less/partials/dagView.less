@@ -602,6 +602,12 @@
             cursor: pointer;
         }
 
+        &.icv {
+            .mainTableIcon {
+                fill: darken(@color-error-red, 10%);
+            }
+        }
+
         .graphHead {
             position: relative;
             display: inline-block;
@@ -1252,10 +1258,6 @@
     flex-wrap: nowrap;
 
     &.locked {
-        .undo, .redo {
-            pointer-events: none;
-            opacity: @opacity-disabled;
-        }
         .run {
             display: none !important;
         }

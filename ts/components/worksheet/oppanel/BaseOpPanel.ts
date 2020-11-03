@@ -376,6 +376,10 @@ class BaseOpPanel {
         return this.$panel;
     }
 
+    public getPanel(): JQuery {
+        return this._getPanel();
+    }
+
     /**
      * refetch source columns
      */

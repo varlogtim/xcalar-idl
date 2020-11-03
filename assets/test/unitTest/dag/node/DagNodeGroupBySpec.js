@@ -76,12 +76,13 @@ describe("GroupBy Dag Node Test", () => {
                 "groupAll": false,
                 "newKeys": [],
                 "dhtName": "",
-                outputTableName: ""
+                "outputTableName": ""
             };
             node.setParam(testParam);
             const res = node.lineageChange([]);
 
             expect(res.columns.length).to.equal(2);
+            console.log(res);
             expect(res.columns[0].getBackColName()).to.equal("a");
             expect(res.columns[0].getType()).to.equal("integer");
             expect(res.columns[1].getBackColName()).to.equal("b");

@@ -46,9 +46,9 @@ namespace Log {
     /**
      * Log.add
      * @param title
-     * @param options 
-     * @param cli 
-     * @param willCommit 
+     * @param options
+     * @param cli
+     * @param willCommit
      */
     export function add(title: string, options: any, cli?: string): void {
         options = options || {};
@@ -78,10 +78,10 @@ namespace Log {
 
     /**
      * Log.errorLog
-     * @param title 
-     * @param options 
-     * @param cli 
-     * @param error 
+     * @param title
+     * @param options
+     * @param cli
+     * @param error
      */
     export function errorLog(title, options, cli, error) {
         let xcLog: XcLog = new XcLog({
@@ -332,12 +332,12 @@ namespace Log {
     /**
      * Log.lockUndoRedo
      */
-    export function lockUndoRedo(): void {
-        $undo.addClass("disabled locked");
-        xcTooltip.changeText($undo, TooltipTStr.LockedTableUndo);
+    export function lockUndoRedo(msg?: string): void {
+        $undo.addClass("unavailable locked");
+        xcTooltip.changeText($undo, msg || TooltipTStr.LockedTableUndo);
 
-        $redo.addClass("disabled locked");
-        xcTooltip.changeText($redo, TooltipTStr.LockedTableRedo);
+        $redo.addClass("unavailable locked");
+        xcTooltip.changeText($redo, msg || TooltipTStr.LockedTableRedo);
     }
 
     /**
@@ -349,7 +349,7 @@ namespace Log {
         $undo.removeClass("locked");
         $redo.removeClass("locked");
         if (lastUndoState !== "disabled") {
-            $undo.removeClass("disabled");
+            $undo.removeClass("unavailable");
         }
 
         xcTooltip.changeText($undo, lastUndoMessage);
@@ -357,7 +357,7 @@ namespace Log {
         let lastRedoMessage: string = $redo.data("lastmessage");
         let lastRedoState: string = $redo.data("laststate");
         if (lastRedoState !== "disabled") {
-            $redo.removeClass("disabled");
+            $redo.removeClass("unavailable");
         }
 
         xcTooltip.changeText($redo, lastRedoMessage);
@@ -512,14 +512,14 @@ namespace Log {
         if (next === logs.length) {
             // when nothing to redo
             let tooltip: string = TooltipTStr.NoRedo;
-            $redo.addClass("disabled")
+            $redo.addClass("unavailable")
                  .data("lastmessage", tooltip)
                  .data("laststate", "disabled");
             xcTooltip.changeText($redo, tooltip);
 
         } else if (getUndoType(logs[next]) !== UndoType.Valid) {
             console.error("Have invalid log to redo", logs[next]);
-            $redo.addClass("disabled")
+            $redo.addClass("unavailable")
                  .data("lastmessage", TooltipTStr.NoRedo)
                  .data("laststate", "disabled");
             xcTooltip.changeText($redo, TooltipTStr.NoRedo);
@@ -529,7 +529,7 @@ namespace Log {
                 "op": logs[next].getTitle()
             });
 
-            $redo.removeClass("disabled")
+            $redo.removeClass("unavailable")
                  .data("lastmessage", redoTitle)
                  .data("laststate", "enabled");
             xcTooltip.changeText($redo, redoTitle);
@@ -547,7 +547,7 @@ namespace Log {
         let undoTitle;
         if (cur === -1 || cur === lastRestoreCursor) {
             // when no operation to undo
-            $undo.addClass("disabled")
+            $undo.addClass("unavailable")
                  .data("lastmessage", TooltipTStr.NoUndoNoOp)
                  .data("laststate", "disabled");
             xcTooltip.changeText($undo, TooltipTStr.NoUndoNoOp);
@@ -557,7 +557,7 @@ namespace Log {
                 "op": logs[cur].getTitle()
             });
 
-            $undo.addClass("disabled")
+            $undo.addClass("unavailable")
                  .data("lastmessage", undoTitle)
                  .data("laststate", "disabled");
             xcTooltip.changeText($undo, undoTitle);
@@ -566,7 +566,7 @@ namespace Log {
             undoTitle = xcStringHelper.replaceMsg(TooltipTStr.Undo, {
                 "op": logs[cur].getTitle()
             });
-            $undo.removeClass("disabled")
+            $undo.removeClass("unavailable")
                  .data("lastmessage", undoTitle)
                  .data("laststate", "enabled");
             xcTooltip.changeText($undo, undoTitle);

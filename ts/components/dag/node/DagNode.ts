@@ -36,6 +36,7 @@ abstract class DagNode extends Durable {
         // we try to retain the old stats for as long as possible
     };
     protected _udfError: MapUDFFailureInfo;
+    protected _complementNodeId;
 
     public static generateId(): string {
         this.uid = this.uid || new XcUID(DagNode.KEY, true);
@@ -77,6 +78,7 @@ abstract class DagNode extends Durable {
         this.lineage = new DagLineage(this);
         this.columnDeltas = new Map();
         this.tag = options.tag || <any>[];
+        this._complementNodeId = options.complementNodeId;
         if (options.columnDeltas) { // turn array into map
             options.columnDeltas.forEach((columnDelta) => {
                 let modifiedColumnDelta = $.extend({}, columnDelta);
@@ -1583,6 +1585,9 @@ abstract class DagNode extends Durable {
             isHidden: this.display.isHidden,
             udfError: this._udfError
         };
+        if (!_forCopy) {
+            info.complementNodeId = this._complementNodeId
+        }
         if (includeStats) {
             if (this.runStats.hasRun) {
                 info.stats = this.runStats.nodes;
@@ -1846,6 +1851,14 @@ abstract class DagNode extends Durable {
 
     public getUDFError(): MapUDFFailureInfo {
         return this._udfError;
+    }
+
+    public setComplementNodeId(nodeId): void {
+        this._complementNodeId = nodeId;
+    }
+
+    public getComplementNodeId(): DagNodeId {
+        return this._complementNodeId;
     }
 
     private _cleanUDFError() {

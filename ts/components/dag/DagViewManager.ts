@@ -174,7 +174,6 @@ class DagViewManager {
             }
             if (self.activeDag == null ||
                 self.activeDag.isLocked() ||
-                $("#container").hasClass("formOpen") ||
                 $("input:focus").length || $("textarea:focus").length ||
                 $('[contentEditable="true"]').length
             ) {
@@ -183,6 +182,10 @@ class DagViewManager {
             switch (e.which) {
                 case (keyCode.Backspace):
                 case (keyCode.Delete):
+                    if (FormHelper.activeForm) {
+                        StatusBox.show(TooltipTStr.CloseConfigForm, FormHelper.activeForm.getPanel());
+                        return;
+                    }
                     if (self.isDisableActions(true)) {
                         break;
                     }
@@ -219,6 +222,9 @@ class DagViewManager {
                 $('textarea:focus').length ||
                 $('input:focus').length
             ) {
+                if (FormHelper.activeForm) {
+                    StatusBox.show(TooltipTStr.CloseConfigForm, FormHelper.activeForm.getPanel());
+                }
                 return;
             }
 

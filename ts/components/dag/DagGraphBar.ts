@@ -182,7 +182,7 @@ class DagGraphBar {
         });
 
         $topBar.find(".undo").click(function() {
-            if ($(this).hasClass("disabled") || $(this).hasClass("locked")) {
+            if ($(this).hasClass("unavailable") || $(this).hasClass("locked")) {
                 return;
             }
             let dagTab = DagViewManager.Instance.getActiveDag();
@@ -193,7 +193,7 @@ class DagGraphBar {
         });
 
         $topBar.find(".redo").click(function() {
-            if ($(this).hasClass("disabled") || $(this).hasClass("locked")) {
+            if ($(this).hasClass("unavailable") || $(this).hasClass("locked")) {
                 return;
             }
             let dagTab = DagViewManager.Instance.getActiveDag();

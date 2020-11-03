@@ -3656,6 +3656,11 @@ class DagView {
         this._registerGraphEvent(this.graph, DagNodeEvents.ParamChange, (info) => {
             const $node: JQuery = this._getNode(info.id);
 
+            if (info.node.getParam().icv) {
+                $node.addClass("icv");
+            } else {
+                $node.removeClass("icv");
+            }
             this._drawTitleText($node, info.node);
             this._setParameterIcon($node, info.node);
             if (info.node instanceof DagNodeDFOut) {
@@ -4049,6 +4054,12 @@ class DagView {
              node instanceof DagNodeIn
         ) {
             this._drawHeadText($node, node);
+        }
+
+        if (node.getParam().icv) {
+            $node.addClass("icv");
+        } else {
+            $node.removeClass("icv");
         }
 
         // use .attr instead of .data so we can grab by selector

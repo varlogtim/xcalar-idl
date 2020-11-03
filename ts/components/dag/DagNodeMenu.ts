@@ -541,6 +541,7 @@ namespace DagNodeMenu {
                 case ("executeNodeOptimized"):
                 case ("createNodeOptimized"):
                 case ("resetNode"):
+                case ("reexecuteNode"):
                 case ("deleteAllTables"):
                 case ("deleteTable"):
                 case ("cutNodes"):
@@ -648,7 +649,7 @@ namespace DagNodeMenu {
         });
         DagConfigNodeModal.Instance.closeForms(); // close opened forms first
 
-        Log.lockUndoRedo();
+        Log.lockUndoRedo("Cannot undo or redo when editing an operator node.");
         DagTabManager.Instance.lockTab(tabId, TooltipTStr.CloseConfigForm);
         DagGraphBar.Instance.lock();
 
@@ -826,7 +827,7 @@ namespace DagNodeMenu {
             if (DagViewManager.Instance.isNodeLocked(nodeIds[i])) {
                 $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
                       ".executeNodeOptimized, .createNodeOptimized," +
-                      ".resetNode, .deleteTable, .cutNodes, .removeNode, " +
+                      ".resetNode, .reexecuteNode, .deleteTable, .cutNodes, .removeNode, " +
                       ".removeAllNodes, .editCustom, .createCustom")
                 .addClass("unavailable");
                 break;
@@ -868,11 +869,15 @@ namespace DagNodeMenu {
         }
 
         if (!nodeIds.length && DagViewManager.Instance.getActiveDag().isNoDelete()) {
-            $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
+            if (FormHelper.activeForm) {
+                $menu.find(".configureNode, .editCustom").addClass("unavailable");
+            } else {
+                $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
                         ".executeNodeOptimized, .createNodeOptimized" +
-                        ".resetNode, .deleteTable, .cutNodes, .removeNode, " +
+                        ".resetNode, reexecuteNode, .deleteTable, .cutNodes, .removeNode, " +
                         ".removeAllNodes, .editCustom")
                 .addClass("unavailable");
+            }
         }
 
         position = {x: event.pageX, y: event.pageY};
@@ -1086,7 +1091,7 @@ namespace DagNodeMenu {
         if (DagViewManager.Instance.isNodeLocked(nodeId)) {
             $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
                       ".generateResult, .executeNodeOptimized, .createNodeOptimized," +
-                      ".resetNode, .deleteTable, .cutNodes, .removeNode, .removeAllNodes, .editCustom")
+                      ".resetNode, .reexecuteNode, .deleteTable, .cutNodes, .removeNode, .removeAllNodes, .editCustom")
                 .addClass("unavailable");
         }
         return classes;

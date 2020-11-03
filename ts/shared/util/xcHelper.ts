@@ -1326,6 +1326,7 @@ namespace xcHelper {
 
     // xcHelper.getTableName, get out tableName from tableName + hashId
     export function getTableName(wholeName: string): string {
+        if (!wholeName) return "";
         const hashIndex: number = wholeName.lastIndexOf('#');
         let tableName: string;
         if (hashIndex > -1) {
