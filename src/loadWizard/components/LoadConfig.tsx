@@ -971,7 +971,9 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             if (suggestType == SchemaService.FileType.CSV) {
                 try {
                     // Read sample data from selected file
-                    const sampleData = await readFileContent({ fileInfo: selectedFile });
+                    // Note: value of size is experimental, the larger the more accurate,
+                    // but it should not exceed the API limitation(15000?)
+                    const sampleData = await readFileContent({ fileInfo: selectedFile, size: 8192 });
                     // Suggest delimiters
                     inputSerialization = SchemaService.InputSerializationFactory.suggestCSV({
                         sampleData: sampleData
