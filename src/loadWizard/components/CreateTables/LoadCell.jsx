@@ -23,10 +23,12 @@ function Loading({ message, onClick = () => {} }) {
         loadingMessage = <div className="loadingBarWrap">
                 <div className="loadingBar" style={{width: pct + "%"}} ></div>
                 <div className="loadingText">Creating... {pct + "%"}</div>
-                <div className="cancelText">Cancel</div>
             </div>;
     }
-    return <span onClick={onClick}>{loadingMessage}</span>
+    return (<div className="loadingCell">
+        <span>{loadingMessage}</span>
+        <button className="btn btn-secondary btn-new btn-cancel loadingCell-btn" onClick={onClick}>Cancel</button>
+    </div>);
 }
 
 function Success({ complementTable }) {

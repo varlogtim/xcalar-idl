@@ -1008,6 +1008,15 @@
             top: -2px;
         }
 
+        .loadingCell {
+            display: flex;
+        }
+
+        .loadingCell-btn {
+            width: 100px;
+            margin-left: 8px;
+        }
+
         .loadingBarWrap {
             width: @button-w;
             border: 1px solid @color-font-default;
@@ -1023,7 +1032,7 @@
                 background-color: #1ba22b;
             }
 
-            .loadingText, .cancelText {
+            .loadingText {
                 width: 100%;
                 text-align: center;
                 position: relative;
@@ -1032,21 +1041,21 @@
                 user-select: none;
             }
 
-            .cancelText {
-                display: none;
-            }
+            // .cancelText {
+            //     display: none;
+            // }
 
-            &:hover {
-                cursor: pointer;
+            // &:hover {
+            //     cursor: pointer;
 
-                .loadingText {
-                    display: none;
-                }
+            //     .loadingText {
+            //         display: none;
+            //     }
 
-                .cancelText {
-                    display: block;
-                }
-            }
+            //     .cancelText {
+            //         display: block;
+            //     }
+            // }
         }
 
         .xi-tick {
