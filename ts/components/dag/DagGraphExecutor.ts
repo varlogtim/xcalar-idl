@@ -1213,9 +1213,9 @@ class DagGraphExecutor {
         const udfContext = this._getUDFContext();
 
         let txId: number = Transaction.start({
-            operation: "optimized df",
+            operation: "Execute physical plan",
             sql: {
-                operation: "Optimized Application",
+                operation: "Execute physical plan",
                 retName: dagTab.getName()
             },
             track: true,
@@ -1249,8 +1249,7 @@ class DagGraphExecutor {
             if (error &&
                 error.status === StatusT.StatusRetinaAlreadyExists
             ) {
-                error.error = "The optimized application already exists\nReset the optimized node and select " +
-                    "Execute Optimized to re-execute";
+                error.error = "The physical plan already exists\nReset the export/function output operator and re-execute";
             }
             Transaction.fail(txId, {
                 "error": error,
@@ -1345,7 +1344,7 @@ class DagGraphExecutor {
         const parentTab: DagTab = DagTabManager.Instance.getTabById(parentTabId);
         let dfOutName: string = this._isOptimizedActiveSession ?
                         this._optimizedLinkOutNode.getParam().name : "export";
-        let tabName: string = parentTab.getName() + " " + dfOutName + " optimized";
+        let tabName: string = parentTab.getName() + " " + dfOutName + " physical plan";
         return tabName;
     }
 

@@ -977,9 +977,9 @@ DFTStr = {
     "AddValues": "Add Values",
     "AdvancedOpts": "Advanced Export Options",
     "DF": "Plan",
-    "OptimizedDF": "Optimized Application",
-    "OptimizedDFUnavailable": "Optimized Application Unavailable",
-    "OptimizedDFNotExist": "Optimized Application does not exit",
+    "OptimizedDF": "Physical Plan",
+    "OptimizedDFUnavailable": "Physical Plan Unavailable",
+    "OptimizedDFNotExist": "Physical plan does not exit",
     "DelDF": "Permanently Delete Plan",
     'DelDFErr': "Cannot delete the plan",
     'DelSubErr': "Plan has an open sub plan",
@@ -1051,12 +1051,15 @@ DFTStr = {
     "OptimizedOnlyWarn": "The plan contains an optimized node and can only be executed in optimized mode. Would you like to execute all nodes in optimized mode?",
     "ConvertToEditable": "Convert to editable plan",
     "ConvertToEditableMsg": "Are you sure you want to convert the current plan to an editable plan?",
+    "NotFoundOriginalPlan": "Cannot find the original source of the physical plan",
+    "OriginalPlanTitle": "Original source for physical plan",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     "ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized.",
     "CustomizeTitle": "Customize <op> Operation",
     "LockedTableWarning": "Pinned Table Warning",
-    "LockedTableMsg": "This action removes this table’s results, which will impact those pinned tables following this table whose input data requires this table’s results. To continue, you must unpin all the tables whose results are affected by this action and reselect."
+    "LockedTableMsg": "This action removes this table’s results, which will impact those pinned tables following this table whose input data requires this table’s results. To continue, you must unpin all the tables whose results are affected by this action and reselect.",
+    "OriginPlanMsg": "The original plan is: \"<name>\"",
 };
 
 DFNodeLineageTStr = {

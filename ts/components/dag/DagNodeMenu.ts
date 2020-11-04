@@ -9,7 +9,7 @@ namespace DagNodeMenu {
         configureNode: "This action opens the operator's configuration panel",
         executeNode: "This action runs the configured operator's operation.",
         executeAllNodes: "This action runs all the operations in a plan.",
-        createNodeOptimized: "This action gives a preview of how your application will run without intermediate table results. Optimization reduces memory consumption, creates a faster runtime, and provides optimal performance when used in your production platform.",
+        createNodeOptimized: "This action gives a preview of how physical plan will run without intermediate table results. Physical plan execution reduces memory consumption, creates a faster runtime, and provides optimal performance when used in your production platform.",
         reexecuteNode: "This action regenerates your intermediate table results for this operator.",
         deleteAllTables: "WARNING: This action deletes your intermediate table results for all functions in a plan. All the operators configuration settings remain unchanged.",
         copyNodes: "This action copies the selected graph-node or graph-nodes, and connectors. Configuration settings remain but Intermediate table results are removed.",
@@ -18,8 +18,8 @@ namespace DagNodeMenu {
         copyTableName: "This action copies the name of the selected table",
         duplicateDf: "This action creates a copy of the plan, including configuration settings, in a new Plan tab.",
         selectAll: "This action selects all the operators and comments within the plan.",
-        findOptimizedSource: "This action opens the Plan Lineage window, which displays the name of the plan that was used for the optimized application.",
-        findSourceNode: "This action opens the Operator Lineage window, which displays the history of the selected graph-node, including the originating custom operator and the plan that was used for the optimized application.",
+        findOptimizedSource: "This action opens the Plan Lineage window, which displays the name of the logical plan that was the source of the physical plan.",
+        findSourceNode: "This action opens the Operator Lineage window, which displays the history of the selected graph-node, including the originating custom operator and the logical plan that was used for the physical plan.",
         viewSchemaChanges: "This action opens the schema window and displays the current new, deleted, and updated columns and data types.",
         createCustom: "This action creates an operator from one or multiple graph-nodes for reuse. Custom operators keep their original configuration settings.",
         autoAlign: "This action rearranges the graph-nodes for each function in a straight line in your plan.",
@@ -1160,11 +1160,11 @@ namespace DagNodeMenu {
             let dagTab: DagTabOptimized = <DagTabOptimized>DagList.Instance.getDagTabById(tabId);
             let srcTab = dagTab.getSourceTab();
             if (srcTab == null) {
-                Alert.error(AlertTStr.Error, "Cannot find the original source of the optimized dataflow");
+                Alert.error(AlertTStr.Error, DFTStr.NotFoundOriginalPlan);
             } else {
                 Alert.show({
-                    title: "Original source for optimized application",
-                    msg: `The original plan is: "${srcTab.getName()}"`,
+                    title: DFTStr.OriginalPlanTitle,
+                    msg: xcStringHelper.replaceMsg(DFTStr.OriginPlanMsg, {name: srcTab.getName()}),
                     isAlert: true,
                     isInfo: true
                 });
