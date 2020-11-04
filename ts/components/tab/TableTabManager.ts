@@ -95,10 +95,10 @@ class TableTabManager extends AbstractTabManager {
     /**
      * TableTabManager.Instance.refreshTab
      */
-    public refreshTab(): void {
+    public refreshTab(loadingState: boolean = false): void {
         const index: number = this._getTabArea().find(".tab.active").index();
         if (index > -1) {
-            this._switchResult(index);
+            this._switchResult(index, loadingState);
         }
     }
 
@@ -168,7 +168,7 @@ class TableTabManager extends AbstractTabManager {
             } else if (this.getNumTabs() > 1) {
                 this._switchResult(index + 1);
             }
-            this._unfocusOnList(this._activeTabs[index]);
+            this._unFocusOnList(this._activeTabs[index]);
         }
         this._activeTabs.splice(index, 1);
         this._save();
@@ -240,7 +240,7 @@ class TableTabManager extends AbstractTabManager {
         super._addEventListeners();
 
         const $tabArea: JQuery = this._getTabArea();
-        $tabArea.off("dblclick", ".dragArea"); // turn off dblick to rename
+        $tabArea.off("dblclick", ".dragArea"); // turn off dblclick to rename
         const $menu: JQuery = this._getMenu();
         const $rename = $menu.find(".rename");
         $rename.addClass("unavailable");
@@ -333,7 +333,7 @@ class TableTabManager extends AbstractTabManager {
         this._tabListScroller.showOrHideScrollers();
     }
 
-    private async _switchResult(index?: number): Promise<void> {
+    private async _switchResult(index?: number, loadingState: boolean = false): Promise<void> {
         try {
             index = super._switchTabs(index);
             const tab = this._activeTabs[index];
@@ -354,8 +354,13 @@ class TableTabManager extends AbstractTabManager {
                     if (meta.columns) {
                         this._viewSQLHistoryResult(meta);
                     } else if (meta.tabId) {
-                        SQLResultSpace.Instance.showHint();
-                        await this._viewResult(meta);
+                        const tab = DagTabManager.Instance.getTabById(meta.tabId);
+                        if (tab && loadingState) {
+                            SQLResultSpace.Instance.showHint();
+                        } else {
+                            SQLResultSpace.Instance.showHint();
+                            await this._viewResult(meta);
+                        }
                     } else {
                         viewName = "sql";
                         DagTable.Instance.close();
@@ -464,7 +469,7 @@ class TableTabManager extends AbstractTabManager {
         }
     }
 
-    private _unfocusOnList(tab: {name: string, type: TableTabType}): void {
+    private _unFocusOnList(tab: {name: string, type: TableTabType}): void {
         const $list: JQuery = ResourceMenu.Instance.getContainer().find(".tableList");
         if (tab.type === TableTabType.PbTable) {
             const $li: JQuery = $list.find('li').filter((_index, e) => {

@@ -215,6 +215,7 @@ class SQLDagExecutor {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let tabId: string = this._tempTab.getId();
         SQLDagExecutor.setTab(tabId, this._tempTab);
+        this._refreshResult(true);
 
         let succeed: boolean = false;
         let columns: {name: string, backName: string, type: ColumnType}[];
@@ -434,6 +435,12 @@ class SQLDagExecutor {
         }
         this._sqlNode.setSQLQuery(queryObj);
         this._sqlNode.updateSQLQueryHistory(true);
+    }
+
+    private _refreshResult(loadingState: boolean): void {
+        if (typeof TableTabManager !== 'undefined') {
+            TableTabManager.Instance.refreshTab(loadingState);
+        }
     }
 }
 
