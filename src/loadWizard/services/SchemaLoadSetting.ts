@@ -1,5 +1,6 @@
 const setting = {
-    isPublishTables: true
+    isPublishTables: true,
+    isStoreQuery: false
 }
 
 function set(name, value) {

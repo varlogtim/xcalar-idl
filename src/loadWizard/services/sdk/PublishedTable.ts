@@ -42,10 +42,18 @@ class PublishedTable {
      * Persist the dataflow from which the table is created
      * @param {Array<Object>} query
      */
-    public async saveDataflowFromQuery(query: Array<any>) {
+    public async saveDataflowFromQuery(query: Array<any>, options?: {
+        isConvertQuery?: boolean
+    }) {
         try {
+            const { isConvertQuery = true } = options || {};
             const pbTblInfo = new PbTblInfo({name: this.getName()});
-            await pbTblInfo.saveDataflowFromQuery(query.concat(this._preCreateQuery), true);
+            const dfQuery = query.concat(this._preCreateQuery);
+            if (isConvertQuery) {
+                await pbTblInfo.saveDataflowFromQuery(dfQuery, true);
+            } else {
+                await pbTblInfo.saveXcalarQuery(dfQuery);
+            }
         } catch (e) {
             console.error('PublishedTable.saveDataflowFromQuery error:', e);
             throw e;

@@ -2,6 +2,7 @@ import { normalizeQueryString } from './Api';
 import { PublishedTable } from './PublishedTable';
 import { SharedTable } from './SharedTable';
 import { IXcalarSession } from './Session';
+import * as SchemaLoadSetting from '../SchemaLoadSetting'
 
 type TableColumn = {
     name: string, type: string
@@ -84,7 +85,9 @@ class Table {
 
         // Persiste creation DF for XD
         const pubTable = new PublishedTable({ name: publishedName, srcTable: this });
-        await pubTable.saveDataflowFromQuery(query);
+        await pubTable.saveDataflowFromQuery(query, {
+            isConvertQuery: !SchemaLoadSetting.get('isStoreQuery', false)
+        });
 
         return pubTable;
     }

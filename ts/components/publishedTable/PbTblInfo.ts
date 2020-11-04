@@ -205,20 +205,34 @@ class PbTblInfo {
         return cols;
     }
 
+    public async saveXcalarQuery(query: Array<any>): Promise<void> {
+        await this._getKVStore().put(JSON.stringify(query), true);
+    }
+
     public async saveDataflowFromQuery(query: Array<any>, addSchemaToSource: boolean = false): Promise<void> {
-        const convert = new DagQueryConverter({query: query});
-        let subGraph: DagSubGraph = convert.convertToSubGraph();
-        if (addSchemaToSource) {
-            this._addSchemaToSourceNode(subGraph);
-        }
-        subGraph = await this._normalizeSubgraph(subGraph);
-        const serializedStr: string = JSON.stringify(subGraph.getSerializableObj());
+        const subGraphInfo = await this._convertQueryToGraph(query, addSchemaToSource);
+        const serializedStr: string = JSON.stringify(subGraphInfo);
         await this._getKVStore().put(serializedStr, true);
     }
 
     public async saveDataflow(resultSetName: string, addSchemaToSource: boolean = false): Promise<void> {
         const dag: {node: any[]} = await XcalarGetDag(resultSetName);
         await this.saveDataflowFromQuery(dag.node, addSchemaToSource);
+    }
+
+    private async _convertQueryToGraph(query: Array<any>, addSchemaToSource: boolean = false): Promise<DagGraphInfo> {
+        try {
+            const convert = new DagQueryConverter({query: query});
+            let subGraph: DagSubGraph = convert.convertToSubGraph();
+            if (addSchemaToSource) {
+                this._addSchemaToSourceNode(subGraph);
+            }
+            subGraph = await this._normalizeSubgraph(subGraph);
+            return subGraph.getSerializableObj();
+        } catch(e) {
+            console.error('PbTblInfo._convertQueryToGraph error: ', e);
+            return null;
+        }
     }
 
     private _addSchemaToSourceNode(graph: DagGraph): void {
@@ -248,8 +262,19 @@ class PbTblInfo {
         }
     }
 
+    private _isRawQuery(query: any): boolean {
+        return Array.isArray(query);
+    }
+
     public async getDataflow(): Promise<DagGraphInfo> {
-        return await this._getKVStore().getAndParse();
+        const query = await this._getKVStore().getAndParse();
+        if (this._isRawQuery(query)) {
+            // Convert xcalar query to DF2 dataflow
+            return await this._convertQueryToGraph(query, true);
+        } else {
+            // It's already a DF2 dataflow
+            return query;
+        }
     }
 
     public async deleteDataflow(): Promise<void> {
