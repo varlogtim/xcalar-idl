@@ -150,18 +150,28 @@ namespace StatusBox {
             $target.focus();
             if (formMode) {
                 $doc.on("mousedown.statusBox", {"target": $target, "type": this.type}, function(event) {
+                    if ($(event.target).closest("#statusBox").length && !$(event.target).closest("#statusBoxClose").length) {
+                        return;
+                    }
                     self.hideStatusBox(event);
                 });
                 $target.on("keydown.statusBox", {"target": $target, "type": this.type}, function(event) {
-                    self.hideStatusBox(event);
+                    if (!xcHelper.isCMDKey(event)) {
+                        self.hideStatusBox(event);
+                    }
                 });
                 $target.addClass(self.type);
             } else {
                 $doc.on("mousedown.statusBox", function(event) {
+                    if ($(event.target).closest("#statusBox").length && !$(event.target).closest("#statusBoxClose").length) {
+                        return;
+                    }
                     self.hideStatusBox(event);
                 });
                 $doc.on("keydown.statusBox", function(event) {
-                    self.hideStatusBox(event);
+                    if (!xcHelper.isCMDKey(event)) {
+                        self.hideStatusBox(event);
+                    }
                 });
             }
 
