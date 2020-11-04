@@ -1821,6 +1821,10 @@ class DagView {
             dataflowId: this.tabId,
             nodeId: node.getId()
         });
+
+        const $node = this.getNodeElById(node.getId());
+        $node.scrollintoview({duration: 0});
+
         this.dagTab.turnOnSave();
         this.dagTab.save();
         return node;

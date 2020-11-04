@@ -1843,7 +1843,7 @@ class TblManager {
             } else if ($(event.target).closest(".sortDesc").length) {
                 order = XcalarOrderingT.XcalarOrderingDescending;
             }
-            ColManager.sortColumn([colNum], tableId, order);
+            ColManager.sortColumn([colNum], tableId, order, DagTable.Instance.getBindTabId());
         });
 
         $thead.find(".rowNumHead").mousedown(() => {

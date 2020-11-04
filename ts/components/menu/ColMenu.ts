@@ -330,7 +330,7 @@ class ColMenu extends AbstractMenu {
             }
             const colNums: number[] = $colMenu.data("colNums");
             const tableId: TableId = $colMenu.data('tableId');
-            ColManager.sortColumn(colNums, tableId, XcalarOrderingT.XcalarOrderingAscending);
+            ColManager.sortColumn(colNums, tableId, XcalarOrderingT.XcalarOrderingAscending, this._getTabId());
         });
 
         // XXX TODO: change to DF 2.0
@@ -340,7 +340,7 @@ class ColMenu extends AbstractMenu {
             }
             const colNums: number[] = $colMenu.data("colNums");
             const tableId: TableId = $colMenu.data('tableId');
-            ColManager.sortColumn(colNums, tableId, XcalarOrderingT.XcalarOrderingDescending);
+            ColManager.sortColumn(colNums, tableId, XcalarOrderingT.XcalarOrderingDescending, this._getTabId());
         });
 
           // XXX TODO: change to DF 2.0

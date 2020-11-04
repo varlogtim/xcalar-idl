@@ -226,8 +226,8 @@ namespace ColManager {
         return deferred.promise();
     };
 
-    export function sortColumn(colNums: number[], tableId: TableId, order: number): XDPromise<any> {
-        let colInfo = [];
+    export function sortColumn(colNums: number[], tableId: TableId, order: number, tabId: string): XDPromise<any> {
+        let colInfo: xcFunction.XcFuncSortColInfo[] = [];
         for (let i = 0; i < colNums.length; i++) {
             colInfo.push({
                 colNum: colNums[i],
@@ -236,12 +236,14 @@ namespace ColManager {
             });
         }
         const isSqlTable: boolean = !$("#sqlTableArea").hasClass("dagTableMode");
-
-        if (colNums.length > 1) {
-            return xcFunction.sort(tableId, colInfo, {isSqlTable: isSqlTable});
-        }
         let colNum = colNums[0];
         let table = gTables[tableId];
+
+        if (colNums.length > 1) {
+            // return xcFunction.sort(tableId, colInfo, {isSqlTable: isSqlTable});
+            return _createSortAndExecute(colInfo, table, tabId);
+        }
+
         let progCol = table.getCol(colNum);
         let keys = table.backTableMeta.keyAttr;
         let keyNames = table.getKeyName();
@@ -272,7 +274,8 @@ namespace ColManager {
         let type = progCol.getType();
 
         if (type !== "string") {
-            return xcFunction.sort(tableId, colInfo, {isSqlTable: isSqlTable});
+            // return xcFunction.sort(tableId, colInfo, {isSqlTable: isSqlTable});
+            return _createSortAndExecute(colInfo, table, tabId);
         }
 
         let $tds = $("#xcTable-" + tableId).find("tbody td.col" + colNum);
@@ -284,42 +287,101 @@ namespace ColManager {
             datas.push(val);
         });
 
-        let suggType = xcSuggest.suggestType(datas, type, 0.9);
-        if (suggType === "integer" || suggType === "float") {
-             const deferred: XDDeferred<any> = PromiseHelper.deferred();
-            let instr = xcStringHelper.replaceMsg(IndexTStr.SuggInstr, {
-                "type": suggType
-            });
+        // let suggType = xcSuggest.suggestType(datas, type, 0.9);
+        // if (suggType === "integer" || suggType === "float") {
+        //      const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        //     let instr = xcStringHelper.replaceMsg(IndexTStr.SuggInstr, {
+        //         "type": suggType
+        //     });
 
-            Alert.show({
-                "title": IndexTStr.SuggTitle,
-                "instr": instr,
-                "msg": IndexTStr.SuggMsg,
-                "onCancel": deferred.reject,
-                "buttons": [{
-                    "name": IndexTStr.NoCast,
-                    "func": function() {
-                        xcFunction.sort(tableId, colInfo, {isSqlTable: isSqlTable})
-                        .then(deferred.resolve)
-                        .fail(deferred.reject);
-                    }
-                },
-                {
-                    "name": IndexTStr.CastToNum,
-                    "func": function() {
-                        colInfo[0].typeToCast = suggType;
-                        xcFunction.sort(tableId, colInfo, {isSqlTable: isSqlTable})
-                        .then(deferred.resolve)
-                        .fail(deferred.reject);
-                    }
-                }
-                ]
-            });
-            return deferred.promise();
-        } else {
-            return xcFunction.sort(tableId, colInfo, {isSqlTable: isSqlTable});
-        }
+        //     Alert.show({
+        //         "title": IndexTStr.SuggTitle,
+        //         "instr": instr,
+        //         "msg": IndexTStr.SuggMsg,
+        //         "onCancel": deferred.reject,
+        //         "buttons": [{
+        //             "name": IndexTStr.NoCast,
+        //             "func": function() {
+        //                 xcFunction.sort(tableId, colInfo, {isSqlTable: isSqlTable})
+        //                 .then(deferred.resolve)
+        //                 .fail(deferred.reject);
+        //             }
+        //         },
+        //         {
+        //             "name": IndexTStr.CastToNum,
+        //             "func": function() {
+        //                 colInfo[0].typeToCast = suggType;
+        //                 xcFunction.sort(tableId, colInfo, {isSqlTable: isSqlTable})
+        //                 .then(deferred.resolve)
+        //                 .fail(deferred.reject);
+        //             }
+        //         }
+        //         ]
+        //     });
+        //     return deferred.promise();
+        // } else {
+            // return xcFunction.sort(tableId, colInfo, {isSqlTable: isSqlTable});
+            return _createSortAndExecute(colInfo, table, tabId);
+        // }
     };
+
+    function _createSortAndExecute(
+        colInfo: xcFunction.XcFuncSortColInfo[],
+        table: TableMeta,
+        tabId: string
+    ): Promise<any> {
+        const isSqlTable: boolean = !$("#sqlTableArea").hasClass("dagTableMode");
+        if (isSqlTable) {
+            this._createFromSQLTable(callback);
+        } else {
+            callback.bind(this)();
+        }
+        async function callback(_allNodes?: DagNode[], parentNodeId?: string) {
+            try {
+
+                const type: DagNodeType = DagNodeType.Sort;
+                const input: DagNodeSortInputStruct = {
+                    columns: colInfo.map((col)=> {
+                        let name;
+                        if (col.name) {
+                            name = col.name;
+                        } else {
+                            name = table.getCol(col.colNum).getBackColName();
+                        }
+                        return {
+                            "columnName": name,
+                            "ordering": XcalarOrderingTStr[col.ordering]
+                        };
+                    }),
+                    newKeys: []
+                };
+
+                DagTabManager.Instance.switchTab(tabId);
+                let parentNodeId = DagTable.Instance.getBindNodeId();
+                let parentNode = DagViewManager.Instance.getActiveDag().getNode(parentNodeId);
+                let node: DagNodeSort;
+                if (parentNode && parentNode instanceof DagNodeSort && parentNode.getParents()[0]) {
+                    node = parentNode;
+                    parentNode = node.getParents()[0];
+                    node.setParam(input, true);
+                } else {
+                    node = <DagNodeSort>await DagViewManager.Instance.autoAddNode(type,
+                    null, parentNodeId, input, {
+                        configured: true,
+                        forceAdd: true
+                    });
+                }
+
+                if (node != null) {
+                    await DagViewManager.Instance.run([node.getId()], false, false, true)
+                    await DagViewManager.Instance.viewResult(node);
+                }
+            } catch (e) {
+                console.error("error", e);
+                Alert.error(ErrTStr.Error, ErrTStr.Unknown);
+            }
+        }
+    }
 
     // options
     // keepEditable: boolean, if true then we dont remove disabled and editable

@@ -3,7 +3,7 @@ namespace xcFunction {
         formOpenTime?: number;
     }
 
-    interface XcFuncSortColInfo {
+    export interface XcFuncSortColInfo {
         colNum?: number;
         ordering: number;
         typeToCast: ColumnType | null;
