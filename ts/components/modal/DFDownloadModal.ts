@@ -11,13 +11,13 @@ class DFDownloadModal {
     private _model: {type: string, text: string, suffix: string}[];
     private readonly _DownloadTypeEnum = {
         DF: "DF",
-        // OptimizedDF: "OptimizedDF",
+        OptimizedDF: "OptimizedDF",
         Image: "Image",
         OperationStats: "Operation Statistics"
     };
 
     private constructor() {
-        const $modal: JQuery = this._getModal();
+        const $modal: JQ_setupModeluery = this._getModal();
         this._modalHelper = new ModalHelper($modal, {
             sizeToDefault: true,
             center: {verticalQuartile: true}
@@ -65,11 +65,11 @@ class DFDownloadModal {
             text: DFTStr.DF,
             suffix: gDFSuffix
         },
-        // {
-        //     type: this._DownloadTypeEnum.OptimizedDF,
-        //     text: DFTStr.OptimizedDF,
-        //     suffix: DagTabOptimized.FILEEXT
-        // },
+        {
+            type: this._DownloadTypeEnum.OptimizedDF,
+            text: DFTStr.OptimizedDF,
+            suffix: DagTabOptimized.FILEEXT
+        },
         {
             type: this._DownloadTypeEnum.Image,
             text: "Image",
@@ -102,11 +102,11 @@ class DFDownloadModal {
             }).addClass("xc-disabled");
         }
 
-        // if (this._dagTab instanceof DagTabOptimized) {
-        //     this._toggleOptimizedOption(true);
-        // } else {
-        //     this._toggleOptimizedOption(false);
-        // }
+        if (this._dagTab instanceof DagTabOptimized) {
+            this._toggleOptimizedOption(true);
+        } else {
+            this._toggleOptimizedOption(false);
+        }
 
         // XXX TODO: support download parial dataflow as image
         if (this._selectedNodes != null) {
@@ -120,24 +120,24 @@ class DFDownloadModal {
         this._getNameInput().val(this._dagTab.getName().replace(/\//g, "_"));
     }
 
-    // private _toggleOptimizedOption(show: boolean): void {
-    //     const $dropdown: JQuery = this._getDownloadTypeList();
-    //     const $lis: JQuery = $dropdown.find("li");
-    //     const $optimizedLi = $lis.filter((_index, el) => {
-    //         return $(el).data("type") === this._DownloadTypeEnum.OptimizedDF;
-    //     });
-    //     const $dfLi = $lis.filter((_index, el) => {
-    //         return $(el).data("type") === this._DownloadTypeEnum.DF;
-    //     });
+    private _toggleOptimizedOption(show: boolean): void {
+        const $dropdown: JQuery = this._getDownloadTypeList();
+        const $lis: JQuery = $dropdown.find("li");
+        const $optimizedLi = $lis.filter((_index, el) => {
+            return $(el).data("type") === this._DownloadTypeEnum.OptimizedDF;
+        });
+        const $dfLi = $lis.filter((_index, el) => {
+            return $(el).data("type") === this._DownloadTypeEnum.DF;
+        });
 
-    //     if (show) {
-    //         $optimizedLi.removeClass("xc-hidden").removeClass("xc-disabled");
-    //         $dfLi.addClass("xc-hidden");
-    //     } else {
-    //         $optimizedLi.addClass("xc-hidden");
-    //         $dfLi.removeClass("xc-hidden");
-    //     }
-    // }
+        if (show) {
+            $optimizedLi.removeClass("xc-hidden").removeClass("xc-disabled");
+            $dfLi.addClass("xc-hidden");
+        } else {
+            $optimizedLi.addClass("xc-hidden");
+            $dfLi.removeClass("xc-hidden");
+        }
+    }
 
     private _validate(): {name: string} {
         const $nameInput: JQuery = this._getNameInput();
@@ -212,8 +212,8 @@ class DFDownloadModal {
         switch (this._downloadType) {
             case this._DownloadTypeEnum.DF:
                 return this._downloadDataflow(name);
-            // case this._DownloadTypeEnum.OptimizedDF:
-            //     return this._downloadOptimizedDataflow(name);
+            case this._DownloadTypeEnum.OptimizedDF:
+                return this._downloadOptimizedDataflow(name);
             case this._DownloadTypeEnum.Image:
                 return this._downloadImage(name);
             case this._DownloadTypeEnum.OperationStats:
