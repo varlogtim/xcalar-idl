@@ -207,6 +207,26 @@ class FileContentWrap extends React.PureComponent<any, any> {
             ? () => { onOffsetChange(nextOffset); }
             : null;
 
+        // Find out empty column names
+        // For example in CSV:
+        // a,b,c,,
+        // 1,2,3,4,5
+        let noNameError = null;
+        try {
+            for (const { status } of content) {
+                const { hasError, unsupportedColumns } = status;
+                if (hasError) {
+                    for (const { name } of unsupportedColumns) {
+                        if (name.length === 0 || name === '""') {
+                            throw 'Field(s) with no names detected';
+                        }
+                    }
+                }
+            }
+        } catch(e) {
+            noNameError = `${e}`;
+        }
+
         if (fileTypesNoSelect.has(parserType)) {
             if (linesHaveError) {
                 let errorLines = [];
@@ -218,16 +238,17 @@ class FileContentWrap extends React.PureComponent<any, any> {
                         });
                     }
                 })
-                return <ErrorFileContent
-                    {...this.props}
-                    data={errorLines}
-                />
+                return (<React.Fragment>
+                    {noNameError && <div className="preview-error">{noNameError}</div>}
+                    <ErrorFileContent {...this.props} data={errorLines} />
+                </React.Fragment>);
             } else {
                 return null;
             }
         }
 
         return (<div>
+            {noNameError && <div className="preview-error">{noNameError}</div>}
             {/* <AutoDetectOption checked={isAutoDetect} onChange={(checked) => { onAutoDetectChange(checked); }}></AutoDetectOption> */}
             {isAutoDetect || <FileContent
                 data={content.map(({data, status}) => ({line: data, status: status}))}
@@ -327,7 +348,7 @@ function ErrorFileContent(props: any) {
     const startIndex = lineOffset;
     const endIndex = startIndex + (pageSize > 0 ? pageSize : data.length) - 1;
     return (<div className="csvErrorSection">
-        <div>Errors were found in the following rows:</div>
+        <div className="preview-error">Errors were found in the following rows:</div>
         <div className="scrollSection">
             <div className="innerScrollSection">
             {data.map(({line, status}, index) => {
@@ -336,14 +357,14 @@ function ErrorFileContent(props: any) {
                     'data-toggle': "tooltip",
                     'data-container': "body",
                     'data-placement': "top auto",
-                    'data-original-title': JSON.stringify(unsupportedColumns, null, ' ')
+                    'data-original-title': line
                 };
 
                 return (<div className="csvArgs-chkbox" key={index}>
                     <div className="lineNum">{index + 1}</div>
                     <span className="preview-line">
-                        <span className={"fileLine-error"} {...hintProps}>
-                            {line}
+                        <span className={"fileLine-warn"}>
+                            {JSON.stringify(unsupportedColumns)}
                         </span>
                     </span>
                 </div>);

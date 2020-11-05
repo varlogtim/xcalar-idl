@@ -1473,26 +1473,6 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             );
         };
 
-        // Find out empty column names
-        // For example in CSV:
-        // a,b,c,,
-        // 1,2,3,4,5
-        let persistSchemaError = null;
-        try {
-            for (const { status } of fileContentState.content) {
-                const { hasError, unsupportedColumns } = status;
-                if (hasError) {
-                    for (const { name } of unsupportedColumns) {
-                        if (name.length === 0 || name === '""') {
-                            throw 'Field(s) with no names detected';
-                        }
-                    }
-                }
-            }
-        } catch(e) {
-            persistSchemaError = `${e}`;
-        }
-
         const hasInputSerialError = inputSerialConfigState.errorFields.size > 0;
         const hasPendingConfig = !isEqual(inputSerialConfigState.configWIP.CSV, inputSerialization.CSV);
 
@@ -1632,7 +1612,6 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                 }}
                                 editSchemaProps={{
                                     ...editSchemaState,
-                                    persistError: persistSchemaError,
                                     isMappingEditable: !fileTypesNotShowContent.has(fileType),
                                     showAdd: !fileTypesNotShowContent.has(fileType) || SchemaService.isHeaderlessCSV(inputSerialization),
                                     addColTip: `Columns cannot be added to ${fileType.toUpperCase()} schemas.`,
