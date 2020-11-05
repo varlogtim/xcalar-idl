@@ -1263,7 +1263,9 @@ UDFTStr = {
     "InValidName": "Module name should start with a lowercase letter or underscore and contain only letters, digits, underscores(_)",
     "InValidFileName": "File name should end with \".py\"",
     "InValidFnName": "Function name should start with a lowercase letter or underscore and contain only letters, digits or underscores(_)",
-    "InValidPath": "Custom scalar function file path is read only",
+    "InValidPath": "The current path is read only.",
+    "NoProject": "You must be inside an active  project to perform this action.",
+    "InactiveProject": "This action cannot be performed on an inactive project. Activate this project and try again.",
     "Show": "Show",
 };
 

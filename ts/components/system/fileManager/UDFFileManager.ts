@@ -150,7 +150,7 @@ class UDFFileManager {
                 nsPathSplit[3] = idWorkbookMap.get(workbookId);
             }
         }
-        return nsPathSplit.join("/") + ".py";
+        return nsPathSplit.join("/") + this.fileExtension();
     }
 
     /**
@@ -172,10 +172,8 @@ class UDFFileManager {
                 displayPathSplit.push("");
             }
             displayPathSplit.splice(4, 0, "udf");
-            const workbookIDMap: Map<
-            string,
-            string
-            > = this.userWorkbookIDMap.get(displayPathSplit[2]);
+            const workbookIDMap: Map<string,string> =
+                    this.userWorkbookIDMap.get(displayPathSplit[2]);
             if (workbookIDMap && workbookIDMap.has(displayPathSplit[3])) {
                 displayPathSplit[3] = workbookIDMap.get(displayPathSplit[3]);
             }
@@ -294,7 +292,7 @@ class UDFFileManager {
         const sharedUDFPath: string = UDFFileManager.Instance.getSharedUDFPath();
         const workbookUDF: string[] = [];
         const sharedUDF: string[] = [];
-    
+
         this.kvStoreUDF.forEach((_v, moduleName) => {
             if (!moduleName.startsWith(this._newPrefix) &&
                 !moduleName.startsWith(this._unsavedPrefix)
@@ -350,14 +348,14 @@ class UDFFileManager {
             XcalarDownloadPython(nsPath)
             .then((udfStr: string) => {
                 this.storedUDF.set(nsPath, udfStr);
-                this._normalizeBackUDFWithKV(nsPath, udfStr); 
+                this._normalizeBackUDFWithKV(nsPath, udfStr);
                 deferred.resolve(udfStr);
             })
             .fail((error) => {
                 deferred.reject(error, true);
             });
         } else {
-            this._normalizeBackUDFWithKV(nsPath, entireString); 
+            this._normalizeBackUDFWithKV(nsPath, entireString);
             deferred.resolve(entireString);
         }
 
@@ -416,7 +414,7 @@ class UDFFileManager {
      * @param fileName
      */
     public parseModuleNameFromFileName(fileName: string): string {
-        return fileName.substring(0, fileName.indexOf(".py"));
+        return fileName.substring(0, fileName.indexOf(this.fileExtension()));
     }
 
     /**
@@ -499,7 +497,7 @@ class UDFFileManager {
                 } else {
                     const moduleSplit: string[] = nsPath.split("/");
                     xcHelper.downloadAsFile(
-                        moduleSplit[moduleSplit.length - 1] + ".py",
+                        moduleSplit[moduleSplit.length - 1] + this.fileExtension(),
                         entireString
                     );
                 }
@@ -534,7 +532,8 @@ class UDFFileManager {
         absolutePath?: boolean,
         overwriteShareUDF?: boolean,
         noNotification?: boolean,
-        showHintError?: boolean
+        showHintError?: boolean,
+        targetSessionName?: string
     ): XDPromise<any> {
         const uploadPathSplit: string[] = uploadPath.split("/");
         uploadPathSplit[uploadPathSplit.length - 1] = uploadPathSplit[
@@ -552,11 +551,11 @@ class UDFFileManager {
             }, 1000);
 
             xcUIHelper.disableSubmit($fnUpload);
-            XcalarUploadPython(uploadPath, entireString, absolutePath, true)
+            XcalarUploadPython(uploadPath, entireString, absolutePath, true, targetSessionName)
             .then(() => {
                 if (overwriteShareUDF) {
                     let shareUDFPath = this.getSharedUDFPath() + uploadPath;
-                    return XcalarUploadPython(shareUDFPath, entireString, true, true);
+                    return XcalarUploadPython(shareUDFPath, entireString, true, true, targetSessionName);
                 }
             })
             .then(() => {
@@ -576,6 +575,7 @@ class UDFFileManager {
                 SQLResultSpace.Instance.refresh();
             })
             .fail((error) => {
+                console.error("failed", error);
                 // XXX might not actually be a syntax error
                 const syntaxErr: {
                     reason: string;
@@ -631,8 +631,13 @@ class UDFFileManager {
         let uploadPath: string = displayPath;
         let absolutePath: boolean = true;
         let isLocalUDF: boolean = false;
+        let targetSessionName: string = null;
 
-        if (displayPath.startsWith(this.getCurrWorkbookDisplayPath())) {
+        if (displayPath.startsWith(this.getCurrWorkbookDisplayPath()) ||
+            this._isValidUserPath(displayPath)) {
+            if (!displayPath.startsWith(this.getCurrWorkbookDisplayPath())) {
+                targetSessionName = displayPath.split("/")[3];
+            }
             displayPath = displayPath
             .split("/")
             .pop()
@@ -648,7 +653,7 @@ class UDFFileManager {
         : PromiseHelper.resolve();
         def
         .then((overwriteShareUDF: boolean) => {
-            return this.upload(uploadPath, entireString, absolutePath, overwriteShareUDF, false, showHintError);
+            return this.upload(uploadPath, entireString, absolutePath, overwriteShareUDF, false, showHintError, targetSessionName);
         })
         .then(() => {
             const promise = PromiseHelper.convertToJQuery(this._storeSnippet(uploadPath, entireString, !isLocalUDF))
@@ -740,16 +745,35 @@ class UDFFileManager {
             return false;
         }
 
-        if (
-            !(
-                nsPath.startsWith(this.getCurrWorkbookPath()) ||
-                nsPath.startsWith(this.getSharedUDFPath())
-            ) ||
-            this.writeLocked
-        ) {
+        if (!this._isValidUserPath(nsPath) &&
+            !nsPath.startsWith(this.getSharedUDFPath())) {
             if ($actionButton) {
                 StatusBox.show(
                     UDFTStr.InValidPath,
+                    $actionButton,
+                    true,
+                    options
+                );
+            }
+            return false;
+        }
+
+        if (this._isValidUserPath(nsPath) && !this._isActiveProject(nsPath)) {
+            if ($actionButton) {
+                StatusBox.show(
+                    UDFTStr.InactiveProject,
+                    $actionButton,
+                    true,
+                    options
+                );
+            }
+            return false;
+        }
+
+        if (this.writeLocked) {
+            if ($actionButton) {
+                StatusBox.show(
+                    UDFTStr.NoProject,
                     $actionButton,
                     true,
                     options
@@ -808,7 +832,7 @@ class UDFFileManager {
      * @param  {string} newDisplayPath
      * @returns void
      */
-    public copy(
+    public copyTo(
         oldDisplayPath: string,
         newDisplayPath: string
     ): XDPromise<void> {
@@ -1094,6 +1118,51 @@ class UDFFileManager {
         return deferred.promise();
     }
 
+    private _isValidUserPath(nsPath) {
+        const nsPathSplit = nsPath.split("/");
+        if (nsPathSplit.length === 6) {
+            return nsPathSplit[1] === "workbook" &&
+            nsPathSplit[2] === XcUser.getCurrentUserName() &&
+                // nsPathSplit 3 can be any workbook id
+                nsPathSplit[4] === "udf" &&
+                nsPathSplit[5].length;
+        } else if (nsPathSplit.length === 5) {
+            return nsPathSplit[1] === "workbook" &&
+            nsPathSplit[2] === XcUser.getCurrentUserName() &&
+                // nsPathSplit 3 can be any workbook id
+                nsPathSplit[4].length;
+        } else {
+            return false;
+        }
+    }
+
+
+    private _isActiveProject(nsPath) {
+        const nsPathSplit = nsPath.split("/");
+        if (nsPathSplit[1] === "workbook") {
+            nsPathSplit.splice(4, 1);
+
+            const userName: string = nsPathSplit[2];
+            const workbookId: string = nsPathSplit[3];
+
+            const idWorkbookMap: Map<
+            string,
+            string
+            > = this.userIDWorkbookMap.get(userName);
+
+            if (idWorkbookMap && idWorkbookMap.has(workbookId)) {
+                const workbookName = idWorkbookMap.get(workbookId);
+                const wkbkId = WorkbookManager.getIDfromName(workbookName);
+                const wkbk = WorkbookManager.getWorkbook(wkbkId);
+                if (wkbk) {
+                    return wkbk.hasResource();
+                }
+            }
+        }
+        return false;
+    }
+
+
     private _getUserWorkbookMap(listXdfsObj): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
@@ -1258,7 +1327,7 @@ class UDFFileManager {
             }
         });
         return {
-            snippets 
+            snippets
         };
     }
 
@@ -1394,7 +1463,7 @@ class UDFFileManager {
                 } else if (nsPath.startsWith(shareUDFPath)) {
                     moduleName = nsPath;
                 }
-                   
+
                 if (moduleName && !this.kvStoreUDF.has(moduleName)) {
                     promises.push(PromiseHelper.convertToNative(this.getEntireUDF(nsPath)));
                     needUpdate = true;

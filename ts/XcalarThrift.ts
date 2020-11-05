@@ -4819,7 +4819,8 @@ XcalarUploadPython = function(
     moduleName: string,
     pythonStr: string,
     absolutePath: boolean,
-    checkBlank?: boolean
+    checkBlank?: boolean,
+    targetSessionName?: string
 ): XDPromise<StatusT> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -4829,11 +4830,20 @@ XcalarUploadPython = function(
         moduleName = moduleName.split("/").pop(); // remove absolute path
     }
 
+    const currentSession = sessionName;
+    if (targetSessionName) {
+        setSessionName(targetSessionName);
+    }
+
     xcalarApiUdfAdd(tHandle, UdfTypeT.UdfTypePython, moduleName, pythonStr)
     .then(deferred.resolve)
     .fail(function(error) {
         let thriftError = thriftLog("XcalarUploadPython", error);
         if (thriftError.status === StatusT.StatusUdfModuleAlreadyExists) {
+            if (targetSessionName) {
+                setSessionName(targetSessionName);
+            }
+
             XcalarUpdatePython(moduleName, pythonStr, absolutePath)
             .then(function() {
                 deferred.resolve();
@@ -4850,6 +4860,10 @@ XcalarUploadPython = function(
                              thriftError);
                 deferred.reject(thriftError);
             });
+
+            if (targetSessionName) {
+                setSessionName(currentSession);
+            }
             return;
             // here do the update call
         } else if (!checkBlank && thriftError.status === StatusT.StatusUdfModuleEmpty) {
@@ -4870,6 +4884,9 @@ XcalarUploadPython = function(
         Log.errorLog("Upload Python", null, null, thriftError);
         deferred.reject(thriftError);
     });
+    if (targetSessionName) {
+        setSessionName(currentSession);
+    }
     return (deferred.promise());
 };
 

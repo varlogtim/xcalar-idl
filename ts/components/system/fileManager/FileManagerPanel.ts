@@ -534,7 +534,7 @@ class FileManagerPanel {
                         const newPath: string = this._getDuplicateFileName(
                             oldPath
                         );
-                        this.manager.copy(oldPath, newPath).fail((error) => {
+                        this.manager.copyTo(oldPath, newPath).fail((error) => {
                             Alert.error(FileManagerTStr.DuplicateFail, error);
                         });
                         break;
@@ -550,7 +550,7 @@ class FileManagerPanel {
                         const options = {
                             onSave: (newPath: string) => {
                                 this.manager
-                                .copy(oldPath, newPath)
+                                .copyTo(oldPath, newPath)
                                 .fail((error) => {
                                     Alert.error(
                                         FileManagerTStr.DuplicateFail,
