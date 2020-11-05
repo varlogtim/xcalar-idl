@@ -530,12 +530,24 @@
             }
         }
 
-        &.selected {
+        &.selected:not(.tableSelected) {
             .main {
-                fill: #888888;
+                fill: #777777;
+                stroke: @color-outline-blue;
+                stroke-width: 2;
+            }
+            .connectorInVisible {
+                stroke: @color-outline-blue;
+                stroke-width: 2;
             }
             .opTitle {
                 font-weight: 600;
+            }
+        }
+
+        &.tableSelected {
+            .mainTableIcon {
+                stroke: @color-outline-blue;
             }
         }
 
@@ -566,6 +578,7 @@
         .selection {
             fill: @color-bg-opaque2;
             stroke: @color-border-nodeEdge;
+            display: none; // XXX disabling halo effect
         }
 
         rect {

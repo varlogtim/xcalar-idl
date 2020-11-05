@@ -262,6 +262,9 @@ class DagView {
     // ok to pass in multiple nodes
     public static selectNode($node: JQuery, onTableIcon?: boolean): JQuery {
         $node.addClass("selected");
+        if (onTableIcon) {
+            $node.addClass("tableSelected");
+        }
         if ($node.hasClass("operator")) {
             DagView._setSelectedStyle($node, onTableIcon);
         }
@@ -269,7 +272,7 @@ class DagView {
     }
 
     public static deselectNode($node) {
-        $node.removeClass("selected");
+        $node.removeClass("selected tableSelected");
         $node.find(".selection").remove();
     }
 
@@ -1458,7 +1461,7 @@ class DagView {
 
     public deselectNodes(): void {
         const $selected = this.$dfArea.find(".selected");
-        $selected.removeClass("selected");
+        $selected.removeClass("selected tableSelected");
         $selected.find(".selection").remove();
     }
 
@@ -4798,7 +4801,7 @@ class DagView {
 
     private _deselectAllNodes(): void {
         const $selected = DagView.$dfWrap.find(".selected");
-        $selected.removeClass("selected");
+        $selected.removeClass("selected tableSelected");
         $selected.find(".selection").remove();
     }
 
