@@ -68,7 +68,7 @@ class SchemaSelectionModal {
         this._schemaSection.setInitialSchema(null);
     }
 
-    private _submitForm(): void {
+    protected _submitForm(): void {
         let schema: ColSchema[] = this._schemaSection.getSchema(false);
         if (schema == null) {
             // error case

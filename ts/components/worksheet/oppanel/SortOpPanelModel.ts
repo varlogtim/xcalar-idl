@@ -7,13 +7,12 @@ class SortOpPanelModel extends BaseOpPanelModel {
      * Create data model instance from DagNode
      * @param dagNode
      */
-    public static fromDag(dagNode: DagNodeSort): SortOpPanelModel {
+    public static fromDag(dagNode: DagNodeSort, ignoreError?: boolean): SortOpPanelModel {
         try {
             const colMap: Map<string, ProgCol> = this._createColMap(dagNode);
-            return this.fromDagInput(colMap, dagNode.getParam());
+            return this.fromDagInput(colMap, dagNode.getParam(), ignoreError);
         } catch(e) {
-            console.error(e);
-            return new this();
+            throw e;
         }
     }
 
@@ -24,20 +23,26 @@ class SortOpPanelModel extends BaseOpPanelModel {
      * @description use case: advanced from
      */
     public static fromDagInput(
-        colMap: Map<string, ProgCol>, dagInput: DagNodeSortInputStruct
+        colMap: Map<string, ProgCol>, dagInput: DagNodeSortInputStruct, ignoreError?: boolean
     ): SortOpPanelModel {
         // input validation
-
-        if (dagInput.columns == null) {
-            throw new Error('Source column cannot be null');
-        }
-
         const model = new this();
 
         model._title = OpPanelTStr.SortPanelTitle;
         model._instrStr = OpPanelTStr.SortPanelInstr;
         model._instrStrTip = OpPanelTStr.SortPanelInstrTip;
         model._allColMap = colMap;
+
+        try {
+            if (dagInput.columns == null) {
+                throw new Error('Source column cannot be null');
+            }
+        } catch (e) {
+            if (!ignoreError) {
+                throw e;
+            }
+        }
+
         model._newKeys = dagInput.newKeys;
         model._sortedColumns = xcHelper.deepCopy(dagInput.columns);
         model._outputTableName = dagInput.outputTableName;

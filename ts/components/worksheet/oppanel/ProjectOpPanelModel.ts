@@ -4,87 +4,93 @@ class ProjectOpPanelModel extends BaseOpPanelModel {
     public columnMap: Map<string, ProgCol> = new Map();
     public outputTableName: string;
 
-    public static fromDag(dagNode: DagNodeProject) {
+    public static fromDag(dagNode: DagNodeProject, ignoreError?: boolean) {
         try {
             const allColMap: Map<string, ProgCol> = this.getColumnsFromDag(dagNode);
-            return this.fromDagInput(allColMap, dagNode.getParam());
+            return this.fromDagInput(allColMap, dagNode.getParam(), ignoreError);
         } catch(e) {
-            console.error(e);
-            return null;
+            throw e;
         }
     }
 
     public static fromDagInput(
         colMap: Map<string, ProgCol>,
-        dagInput: DagNodeProjectInputStruct
+        dagInput: DagNodeProjectInputStruct,
+        ignoreError?: boolean
     ) {
         const model = new ProjectOpPanelModel();
         model.columnMap = colMap;
         model.outputTableName = dagInput.outputTableName;
 
-        const projectedColumns = dagInput.columns.reduce( (res, col) => {
-            res[col] = true;
-            return res;
-        }, {});
+        try {
+            const projectedColumns = dagInput.columns.reduce( (res, col) => {
+                res[col] = true;
+                return res;
+            }, {});
 
-        const prefixLookupMap = {};
-        for (const [colName, colInfo] of colMap.entries()) {
-            const isSelected = projectedColumns[colName] ? true : false;
-            delete projectedColumns[colName]; // remove found ones so at the
-            // end we can see which columns were not included in the map
-            if (colInfo.prefix == null || colInfo.prefix.length === 0) {
-                // Derived column
-                model.derivedList.push({
-                    name: colName,
-                    isSelected: isSelected,
-                    isHidden: false
-                });
-            } else {
-                // Prefixed column
-                const prefix = colInfo.prefix;
-                let prefixIndex = prefixLookupMap[prefix];
-                if (prefixIndex == null) {
-                    model.prefixedList.push({
-                        prefix: prefix,
+            const prefixLookupMap = {};
+            for (const [colName, colInfo] of colMap.entries()) {
+                const isSelected = projectedColumns[colName] ? true : false;
+                delete projectedColumns[colName]; // remove found ones so at the
+                // end we can see which columns were not included in the map
+                if (colInfo.prefix == null || colInfo.prefix.length === 0) {
+                    // Derived column
+                    model.derivedList.push({
+                        name: colName,
                         isSelected: isSelected,
-                        columnList: []
+                        isHidden: false
                     });
-                    prefixIndex = model.prefixedList.length - 1;
-                    prefixLookupMap[prefix] = prefixIndex;
+                } else {
+                    // Prefixed column
+                    const prefix = colInfo.prefix;
+                    let prefixIndex = prefixLookupMap[prefix];
+                    if (prefixIndex == null) {
+                        model.prefixedList.push({
+                            prefix: prefix,
+                            isSelected: isSelected,
+                            columnList: []
+                        });
+                        prefixIndex = model.prefixedList.length - 1;
+                        prefixLookupMap[prefix] = prefixIndex;
+                    }
+                    model.prefixedList[prefixIndex].columnList.push({
+                        name: colName,
+                        isSelected: false, // Not used for prefixed column
+                        isHidden: false
+                    });
                 }
-                model.prefixedList[prefixIndex].columnList.push({
-                    name: colName,
-                    isSelected: false, // Not used for prefixed column
-                    isHidden: false
-                });
             }
-        }
 
-        for (let name in projectedColumns) {
-            const colInfo = xcHelper.parsePrefixColName(name);
-            if (colInfo.prefix == null || colInfo.prefix.length === 0) {
-                model.derivedList.push({
-                    name: name,
-                    isSelected: true,
-                    isHidden: false
-                });
-            } else {
-                const prefix = colInfo.prefix;
-                let prefixIndex = prefixLookupMap[prefix];
-                if (prefixIndex == null) {
-                    model.prefixedList.push({
-                        prefix: prefix,
+            for (let name in projectedColumns) {
+                const colInfo = xcHelper.parsePrefixColName(name);
+                if (colInfo.prefix == null || colInfo.prefix.length === 0) {
+                    model.derivedList.push({
+                        name: name,
                         isSelected: true,
-                        columnList: []
+                        isHidden: false
                     });
-                    prefixIndex = model.prefixedList.length - 1;
-                    prefixLookupMap[prefix] = prefixIndex;
+                } else {
+                    const prefix = colInfo.prefix;
+                    let prefixIndex = prefixLookupMap[prefix];
+                    if (prefixIndex == null) {
+                        model.prefixedList.push({
+                            prefix: prefix,
+                            isSelected: true,
+                            columnList: []
+                        });
+                        prefixIndex = model.prefixedList.length - 1;
+                        prefixLookupMap[prefix] = prefixIndex;
+                    }
+                    model.prefixedList[prefixIndex].columnList.push({
+                        name: name,
+                        isSelected: false, // Not used for prefixed column
+                        isHidden: false
+                    });
                 }
-                model.prefixedList[prefixIndex].columnList.push({
-                    name: name,
-                    isSelected: false, // Not used for prefixed column
-                    isHidden: false
-                });
+            }
+        } catch (e) {
+            if (!ignoreError) {
+                throw e;
             }
         }
 

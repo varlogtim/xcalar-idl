@@ -9,7 +9,7 @@ describe('ExplodeOpPanelModel Test', () => {
             } catch(e) {
                 error = e;
             }
-            expect(error == null).to.equal(true);
+            expect(error.message).to.equal("Cannot read property 'getParents' of null");
         });
 
         it('Case: normal case', () => {

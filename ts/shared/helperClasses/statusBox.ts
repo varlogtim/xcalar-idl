@@ -34,7 +34,7 @@ namespace StatusBox {
         detail?: string;
         delayHide?: number;
         title?: string,
-        coordinates: {// relative to page, coordinates of target
+        coordinates?: {// relative to page, coordinates of target
             bottom: number,
             left: number,
             right?: number,

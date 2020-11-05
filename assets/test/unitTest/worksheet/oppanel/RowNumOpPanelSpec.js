@@ -15,7 +15,10 @@ describe('RowNumOpPanel Test', () => {
             getType: () => (DagNodeType.RowNum),
             getParam: () => ({ newField: 'rowNumColumn' }),
             getTitle: () => "Node 1",
-            getId:() => "Node1"
+            getId:() => "Node1",
+            validateParam: () => true,
+            isConfigured: () => true,
+            beErrorState: () => true
         };
 
         RowNumOpPanel.Instance.show(rowNumNode, {});

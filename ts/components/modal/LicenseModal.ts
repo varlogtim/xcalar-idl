@@ -34,7 +34,7 @@ class LicenseModal {
         this._getModal().find(".newLicenseKey").val("");
     }
 
-    private _submitForm(): XDPromise<void> {
+    protected _submitForm(): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         let newLicense = this._getModal().find(".newLicenseKey").val();
         XcalarUpdateLicense(newLicense)

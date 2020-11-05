@@ -268,7 +268,7 @@ class IMDTableOpPanel extends BaseOpPanel {
     }
 
 
-    private _submitForm(dagNode: DagNodeIMDTable): void {
+    protected _submitForm(dagNode: DagNodeIMDTable): void {
         let params: DagNodeIMDTableInputStruct = null;
         if (this._advMode) {
             try {
@@ -295,7 +295,7 @@ class IMDTableOpPanel extends BaseOpPanel {
         this.close(true);
     }
 
-    private _preview() {
+    protected _preview() {
         let params: DagNodeIMDTableInputStruct = null;
         if (this._advMode) {
             try {

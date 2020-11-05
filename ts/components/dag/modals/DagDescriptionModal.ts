@@ -75,7 +75,7 @@ class DagDescriptionModal {
         this._$textArea.val("");
     }
 
-    private _submitForm(): XDPromise<void> {
+    protected _submitForm(): XDPromise<void> {
         let newDescription = this._$textArea.val().trim();
         let descriptionLen = newDescription.length;
         if (descriptionLen > XcalarApisConstantsT.XcalarApiMaxDagNodeCommentLen) {

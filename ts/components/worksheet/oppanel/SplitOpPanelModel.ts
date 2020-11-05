@@ -10,13 +10,12 @@ class SplitOpPanelModel extends BaseOpPanelModel {
      * Create data model instance from DagNode
      * @param dagNode
      */
-    public static fromDag(dagNode: DagNodeSplit): SplitOpPanelModel {
+    public static fromDag(dagNode: DagNodeSplit, ignoreError?: boolean): SplitOpPanelModel {
         try {
             const colMap: Map<string, ProgCol> = this._createColMap(dagNode);
-            return this.fromDagInput(colMap, dagNode.getParam());
+            return this.fromDagInput(colMap, dagNode.getParam(), ignoreError);
         } catch(e) {
-            console.error(e);
-            return new this();
+            throw e;
         }
     }
 
@@ -27,20 +26,21 @@ class SplitOpPanelModel extends BaseOpPanelModel {
      * @description use case: advanced from
      */
     public static fromDagInput(
-        colMap: Map<string, ProgCol>, dagInput: DagNodeMapInputStruct
+        colMap: Map<string, ProgCol>, dagInput: DagNodeMapInputStruct,
+        ignoreError?: boolean
     ): SplitOpPanelModel {
-        // Validate inputs
-        if (dagInput.eval == null) {
-            throw new Error('Eval string cannot be null');
-        }
 
         const model = new this();
-
         model._title = OpPanelTStr.SplitPanelTitle;
         model._instrStr = OpPanelTStr.SplitPanelInstr;
         model._allColMap = colMap;
 
         try {
+            // Validate inputs
+            if (dagInput.eval == null) {
+                throw new Error('Eval string cannot be null');
+            }
+
             let sourceColumn: string = '';
             let delimiter: string = '';
             const destColumns: Map<string, string> = new Map(); // cutIndex => columnName
@@ -117,13 +117,16 @@ class SplitOpPanelModel extends BaseOpPanelModel {
             model._includeErrRow = dagInput.icv;
             model._outputTableName = dagInput.outputTableName;
         } catch(e) {
+
             // If anything goes wrong, reset the model and popup the error(for adv. form)
             model._sourceColName = '';
             model._delimiter = '';
             model._destColNames = [''];
             model._includeErrRow = false;
             model._outputTableName = "";
-            throw e;
+            if (!ignoreError) {
+                throw e;
+            }
         }
 
         if (model._destColNames.length === 0) {

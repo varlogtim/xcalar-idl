@@ -14,7 +14,7 @@ class AdminAlertCard {
         return $("#" + this._id);
     }
 
-    private _submitForm(): void {
+    protected _submitForm(): void {
         let $card: JQuery = this._getCard();
         let message: string = $card.find(".alert-msg").val();
         if (message) {

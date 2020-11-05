@@ -23,7 +23,8 @@ describe('RoundOpPanel Test', () => {
             }),
             getTitle: () => "Node 1",
             validateParam: () => null,
-            getId:() => "Node1"
+            getId:() => "Node1",
+            isConfigured: () => true
         };
 
         oldGetActiveDag = DagViewManager.Instance.getActiveDag;

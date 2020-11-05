@@ -169,7 +169,7 @@ class SetOpPanel extends BaseOpPanel {
         $panel.find('.columnList[data-index="' + colIndex + '"]').addClass("cast");
     }
 
-    private _submitForm(): void {
+    protected _submitForm(): void {
         if (!this._validate()) {
             return;
         }

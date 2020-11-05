@@ -73,7 +73,7 @@ class DeskewOpPanel extends BaseOpPanel {
         this._outputTableName = param.outputTableName;
     }
 
-    private _submitForm() {
+    protected _submitForm() {
         let args: DagNodeDeskewInputStruct;
         if (this._isAdvancedMode()) {
             args = this._validateAdvancedMode();

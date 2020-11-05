@@ -368,7 +368,7 @@ class ExportSQLTableModal {
         this._$modal.find(".argsSectionBox .argsSection").empty();
     }
 
-    private _submitForm(): void {
+    protected _submitForm(): void {
         if (!this._dataModel.validateDriverArgs(this._$modal)) {
             return;
         }

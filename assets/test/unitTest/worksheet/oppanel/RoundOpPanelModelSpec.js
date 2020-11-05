@@ -128,9 +128,14 @@ describe('RoundOpPanelModel Test', () => {
 
     describe('fromDag() should work', () => {
         it('Case: invalid input', () => {
-            const model = RoundOpPanelModel.fromDag(null);
-            expect(model).to.not.be.null;
-            expect(model._allColMap.size).to.equal(0);
+            let model;
+            try {
+                model = RoundOpPanelModel.fromDag(null);
+            } catch (e) {
+
+            }
+
+            expect(model).to.be.undefined;
         });
 
         it('Case: normal input', () => {

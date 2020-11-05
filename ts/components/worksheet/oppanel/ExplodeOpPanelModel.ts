@@ -11,13 +11,12 @@ class ExplodeOpPanelModel extends BaseOpPanelModel {
      * Create data model instance from DagNode
      * @param dagNode
      */
-    public static fromDag(dagNode: DagNodeExplode): ExplodeOpPanelModel {
+    public static fromDag(dagNode: DagNodeExplode, ignoreError?: boolean): ExplodeOpPanelModel {
         try {
             const colMap: Map<string, ProgCol> = this._createColMap(dagNode);
-            return this.fromDagInput(colMap, dagNode.getParam());
+            return this.fromDagInput(colMap, dagNode.getParam(), ignoreError);
         } catch(e) {
-            console.error(e);
-            return new this();
+            throw e;
         }
     }
 
@@ -28,13 +27,9 @@ class ExplodeOpPanelModel extends BaseOpPanelModel {
      * @description use case: advanced from
      */
     public static fromDagInput(
-        colMap: Map<string, ProgCol>, dagInput: DagNodeMapInputStruct
+        colMap: Map<string, ProgCol>, dagInput: DagNodeMapInputStruct,
+        ignoreError?: boolean
     ): ExplodeOpPanelModel {
-        // input validation
-        if (dagInput.eval == null) {
-            throw new Error('Eval string cannot be null');
-        }
-
         const model = new this();
 
         model._title = OpPanelTStr.ExplodePanelTitle;
@@ -42,6 +37,10 @@ class ExplodeOpPanelModel extends BaseOpPanelModel {
         model._allColMap = colMap;
 
         try {
+            // input validation
+            if (dagInput.eval == null) {
+                throw new Error('Eval string cannot be null');
+            }
             const evalObj = dagInput.eval[0];
             const evalFunc = XDParser.XEvalParser.parseEvalStr(evalObj.evalString);
 
@@ -82,7 +81,9 @@ class ExplodeOpPanelModel extends BaseOpPanelModel {
             model._destColumn = '';
             model._includeErrRow = false;
             model._outputTableName = "";
-            throw e;
+            if (!ignoreError) {
+                throw e;
+            }
         }
 
         return model;

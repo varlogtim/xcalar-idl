@@ -709,7 +709,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         }
     }
 
-    private _submitForm(): void {
+    protected _submitForm(): void {
         const dagNode: DagNodeDataset = this._dagNode;
         let prefix: string;
         let id: string;

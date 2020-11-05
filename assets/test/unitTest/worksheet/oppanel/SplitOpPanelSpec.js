@@ -23,7 +23,9 @@ describe('SplitOpPanel Test', () => {
             }),
             getTitle: () => "Node 1",
             validateParam: () => null,
-            getId:() => "Node1"
+            getId:() => "Node1",
+            beErrorState: () => {},
+            isConfigured: () => true
         };
 
         SplitOpPanel.Instance.show(splitNode, {});

@@ -16,7 +16,10 @@ describe('ProjectOpPanel Test', () => {
             getParents: () => ([parentNode]),
             getParam: () => ({ columns: ['myPrefix::col#1', 'col#1'] }),
             getTitle: () => "Node 1",
-            getId:() => "Node1"
+            getId:() => "Node1",
+            validateParam: () => true,
+            isConfigured: () => true,
+            beErrorState: () => true
         };
 
         ProjectOpPanel.Instance.show(projectNode, {});

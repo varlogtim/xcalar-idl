@@ -67,11 +67,17 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
      */
     public show(dagNode: DagNodeProject, options?): void {
         this._dagNode = dagNode;
-        this._dataModel = this._mainModel.fromDag(dagNode);
+        this._dataModel = null;
         let error: string;
         try {
+
+            this._dataModel = this._mainModel.fromDag(dagNode, !dagNode.isConfigured());
             this._updateUI();
         } catch (e) {
+            if (!this._dataModel) {
+                this._dataModel = this._mainModel.fromDag(dagNode, true);
+                this._setupEventListener();
+            }
             // handle error after we call showPanel so that the rest of the form
             // gets setup
             error = e;
@@ -231,7 +237,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
      * @param dagNode DagNode object
      * @returns true: success; false: failed validation
      */
-    private _submitForm(dagNode: DagNodeProject): boolean {
+    protected _submitForm(dagNode: DagNodeProject): boolean {
         if (!this._validate()) return false;
         // save data
         dagNode.setParam(this._dataModel.toDag());

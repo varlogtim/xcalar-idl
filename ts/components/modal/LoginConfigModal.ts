@@ -122,7 +122,7 @@ class LoginConfigModal {
         StatusBox.forceHide();
     }
 
-    private _submitForm(): void {
+    protected _submitForm(): void {
         this._submitDefaultAdminConfig()
         .then(() => {
             return this._submitMSALConfig();

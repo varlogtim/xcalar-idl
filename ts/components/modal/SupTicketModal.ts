@@ -618,7 +618,7 @@ class SupTicketModal {
         }
     }
 
-    private _submitForm(download: boolean): XDPromise<void> {
+    protected _submitForm(download: boolean): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         let genBundle: boolean = false;
         let issueType = this._getIssueType();

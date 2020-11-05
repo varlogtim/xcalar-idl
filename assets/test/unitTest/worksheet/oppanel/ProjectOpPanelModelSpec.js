@@ -147,8 +147,16 @@ describe('ProjectOpPanelModel Test', () => {
                 getParents: () => [parentNode],
                 getParam: () => null
             };
-            const model = ProjectOpPanelModel.fromDag(projectNode);
-            expect(model).to.equal(null);
+            let model;
+            let error;
+            try {
+                const model = ProjectOpPanelModel.fromDag(projectNode);
+            } catch (e) {
+                error = e;
+            }
+
+            expect(model).to.equal(undefined);
+            expect(error.message).to.equal("Cannot read property \'outputTableName\' of null");
         });
 
         it('Case: normal case', () => {

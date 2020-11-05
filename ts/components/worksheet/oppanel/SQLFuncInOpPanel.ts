@@ -135,7 +135,7 @@ class SQLFuncInOpPanel extends BaseOpPanel {
         this._schemaSection.render(input.schema);
     }
 
-    private _submitForm(): void {
+    protected _submitForm(): void {
         let args: {source: string, schema: ColSchema[]};
         if (this._isAdvancedMode()) {
             args = this._validAdvancedMode();

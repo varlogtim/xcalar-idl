@@ -202,6 +202,8 @@ class BaseOpPanel {
     protected _tab: DagTabUser;
     protected _previewNodes: DagNode[] = [];
     protected _previewInProgress: boolean = false;
+    protected _isCachedParamInvalid: boolean = false;
+    protected _componentFactory: OpPanelComponentFactory;
 
     protected constructor() {
         this.allColumns = [];
@@ -324,6 +326,7 @@ class BaseOpPanel {
         this.udfMap = {};
         this.xdfMap = {};
         this.aggMap = {};
+        this._isCachedParamInvalid = false;
         DagConfigNodeModal.Instance.close();
 
         if (this._previewNodes.length) {
@@ -771,7 +774,7 @@ class BaseOpPanel {
         return true;
     }
 
-    protected _preview(param, callback?: Function) {
+    protected _preview(param?, callback?: Function) {
         const graph = this._tab.getGraph();
         if (this._previewNodes.length) {
             let table;
@@ -789,23 +792,7 @@ class BaseOpPanel {
         const lastNode = graph.newNode(nodeInfo);
 
         let count = 0;
-        // let rowNumName =  "XC_ROW_COL_" + Date.now() + count++;
-        // let rowNumNode = graph.newNode({
-        //     type: DagNodeType.RowNum,
-        //     input: {
-        //         newField: rowNumName
-        //     },
-        //     isHidden: true,
-        //     state: DagNodeState.Configured
-        // });
-        // let filterNode = graph.newNode({
-        //     type: DagNodeType.Filter,
-        //     input: {
-        //         evalString: `le(${rowNumName}, ${UserSettings.Instance.getPref("dfPreviewLimit")})`
-        //     },
-        //     isHidden: true,
-        //     state: DagNodeState.Configured
-        // });
+
         this._previewNodes = [];
         this._dagNode.getParents().forEach((parent, index) => {
             if (!parent) return;
@@ -898,6 +885,7 @@ class BaseOpPanel {
                     this.$panel.find(".advancedEditor"),
                     false, {'side': 'right'});
             this._dagNode.beErrorState(errorStr);
+            this._isCachedParamInvalid = true;
         }
         this._updateMode(true);
         const paramStr = JSON.stringify(this._dagNode.getParam(), null, 4);
@@ -939,5 +927,36 @@ class BaseOpPanel {
 
     protected _updateUI(): void {
         // implemented by inheritor
+    }
+
+    protected close(): void {
+        // implemented by inheritor
+    }
+
+    protected _submitForm(): void {
+        // implemented by inheritor
+    }
+
+    protected _registerEventListeners(): void {
+        const $submitBtn = this._getPanel().find('.btn.submit');
+        $submitBtn.off();
+        $submitBtn.on('click', () => this._submitForm());
+        this._getPanel().find(".btn.preview").off();
+        this._getPanel().find(".btn.preview").on("click", () => this._preview());
+    }
+
+    protected _updateHeader(): void {
+        this._clearValidationList();
+        this._clearColumnPickerTarget();
+
+        const $header = this._getPanel().find('header');
+        $header.empty();
+        $header.append(this._componentFactory.createHeader({
+            text: this._dataModel.getTitle(),
+            nodeTitle: this._dagNode.getTitle(),
+            onClose: () => this.close()
+        }));
+
+        this._registerEventListeners();
     }
 }

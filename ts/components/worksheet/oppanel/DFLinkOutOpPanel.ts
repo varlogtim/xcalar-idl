@@ -94,7 +94,7 @@ class DFLinkOutOpPanel extends BaseOpPanel {
         });
     }
 
-    private _submitForm(): void {
+    protected _submitForm(): void {
         let args: DagNodeDFOutInputStruct | {error: any};
         if (this._isAdvancedMode()) {
             try {

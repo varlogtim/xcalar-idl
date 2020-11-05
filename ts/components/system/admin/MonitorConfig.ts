@@ -233,7 +233,7 @@ class MonitorConfig {
         });
     }
 
-    private _submitForm(): XDPromise<void> {
+    protected _submitForm(): XDPromise<void> {
         let errorFound: {input: JQuery, reason: string};
         let promises: XDPromise<void>[] = [];
         let rows: JQuery[] = [];

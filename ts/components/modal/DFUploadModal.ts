@@ -93,7 +93,7 @@ class DFUploadModal {
         };
     }
 
-    private _submitForm(): XDPromise<void> {
+    protected _submitForm(): XDPromise<void> {
         const $confirmBtn: JQuery = this._getModal().find(".confirm");
         if ($confirmBtn.hasClass("btn-disabled")) {
             return PromiseHelper.reject();

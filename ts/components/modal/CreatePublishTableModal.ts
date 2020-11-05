@@ -338,7 +338,7 @@ class CreatePublishTableModal {
         this._$nameInput.val("");
     }
 
-    private _submitForm(): void {
+    protected _submitForm(): void {
         let name: string = this._$nameInput.val().trim().toUpperCase();
         if (!name) {
             StatusBox.show(ErrTStr.NoEmpty, this._$nameInput);

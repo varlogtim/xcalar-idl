@@ -186,7 +186,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
         this._schemaSection.render(param.schema);
     }
 
-    private _submitForm(): void {
+    protected _submitForm(): void {
         let args: {linkOutName: string, dataflowId: string, source: string, schema: ColSchema[]};
         if (this._isAdvancedMode()) {
             args = this._validAdvancedMode();

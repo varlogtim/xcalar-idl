@@ -6,13 +6,12 @@ class RowNumOpPanelModel extends BaseOpPanelModel {
      * Create data model instance from DagNode
      * @param dagNode
      */
-    public static fromDag(dagNode: DagNodeRowNum): RowNumOpPanelModel {
+    public static fromDag(dagNode: DagNodeRowNum, ignoreError?: boolean): RowNumOpPanelModel {
         try {
             const colMap: Map<string, ProgCol> = this._createColMap(dagNode);
-            return this.fromDagInput(colMap, dagNode.getParam());
+            return this.fromDagInput(colMap, dagNode.getParam(), ignoreError);
         } catch(e) {
-            console.error(e);
-            return new this();
+            throw e;
         }
     }
 
@@ -23,18 +22,24 @@ class RowNumOpPanelModel extends BaseOpPanelModel {
      * @description use case: advanced from
      */
     public static fromDagInput(
-        colMap: Map<string, ProgCol>, dagInput: DagNodeRowNumInputStruct
+        colMap: Map<string, ProgCol>, dagInput: DagNodeRowNumInputStruct, ignoreError?: boolean
     ): RowNumOpPanelModel {
-        // input validation
-        if (dagInput.newField == null) {
-            throw new Error('Dest column cannot be null');
-        }
-
         const model = new this();
 
         model._title = OpPanelTStr.RowNumPanelTitle;
         model._instrStr = OpPanelTStr.RowNumPanelInstr;
         model._allColMap = colMap;
+
+        try {
+            // input validation
+            if (dagInput.newField == null) {
+                throw new Error('Dest column cannot be null');
+            }
+        } catch (e) {
+            if (!ignoreError) {
+                throw e;
+            }
+        }
 
         model._destColumn = dagInput.newField;
         model._outputTableName = dagInput.outputTableName;

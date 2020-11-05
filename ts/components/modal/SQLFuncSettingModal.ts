@@ -64,7 +64,7 @@ class SQLFuncSettingModal {
         this._onCancel = null;
     }
 
-    private _submitForm(): void {
+    protected _submitForm(): void {
         let res = this._validate();
         if (res == null) {
             // invalid case

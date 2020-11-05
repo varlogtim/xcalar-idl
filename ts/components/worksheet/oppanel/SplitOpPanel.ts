@@ -2,7 +2,7 @@
  * The operation editing panel for Split operator
  */
 class SplitOpPanel extends BaseOpPanel implements IOpPanel {
-    private _componentFactory: OpPanelComponentFactory;
+    protected _componentFactory: OpPanelComponentFactory;
     protected _dagNode: DagNodeSplit = null;
     protected _dataModel: SplitOpPanelModel;
 
@@ -21,12 +21,17 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
      * @param dagNode DagNode object
      */
     public show(dagNode: DagNodeSplit, options?): void {
+        this._dataModel = null;
         this._dagNode = dagNode;
-        this._dataModel = this._mainModel.fromDag(dagNode);
         let error: string;
         try {
+            this._dataModel = this._mainModel.fromDag(dagNode, !dagNode.isConfigured());
             this._updateUI();
         } catch (e) {
+            if (!this._dataModel) {
+                this._dataModel = this._mainModel.fromDag(dagNode, true);
+                this._updateHeader();
+            }
             // handle error after we call showPanel so that the rest of the form
             // gets setup
             error = e;
@@ -48,16 +53,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
     }
 
     protected _updateUI(): void {
-        this._clearValidationList();
-        this._clearColumnPickerTarget();
-
-        const $header = this._getPanel().find('header');
-        $header.empty();
-        $header.append(this._componentFactory.createHeader({
-            text: this._dataModel.getTitle(),
-            nodeTitle: this._dagNode.getTitle(),
-            onClose: () => this.close()
-        }));
+        this._updateHeader();
 
         const $opSection = this._getPanel().find('.opSection');
         const opSectionDom = this._componentFactory.createOpSection({
@@ -66,15 +62,6 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
         });
         this._componentFactory.getTemplateMgr().updateDOM(
             <any>$opSection[0], <NodeDefDOMElement[]>opSectionDom);
-        this._registerEventListeners();
-    }
-
-    private _registerEventListeners(): void {
-        const $submitBtn = this._getPanel().find('.btn.submit');
-        $submitBtn.off();
-        $submitBtn.on('click', () => this._submitForm());
-        this._getPanel().find(".btn.preview").off();
-        this._getPanel().find(".btn.preview").on("click", () => this._preview());
     }
 
     private _getArgs(): AutogenSectionProps[] {
@@ -215,7 +202,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
         return args;
     }
 
-    private _submitForm() {
+    protected _submitForm() {
         if (this._validate()) {
             this._dagNode.setParam(this._dataModel.toDagInput());
             this.close(true);
@@ -251,6 +238,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
      */
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         if (toAdvancedMode) {
+            this._isCachedParamInvalid = false;
             const param: DagNodeMapInputStruct = this._dataModel.toDagInput();
             const paramStr = JSON.stringify(param, null, 4);
             this._cachedBasicModeParam = paramStr;
@@ -258,9 +246,11 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
         } else {
             try {
                 const advConfig = <DagNodeMapInputStruct>JSON.parse(this._editor.getValue());
-                if (JSON.stringify(advConfig, null, 4) !== this._cachedBasicModeParam) {
+                if (JSON.stringify(advConfig, null, 4) !== this._cachedBasicModeParam ||
+                    this._isCachedParamInvalid) {
                     this._dataModel = this._convertAdvConfigToModel(advConfig);
                     this._updateUI();
+                    this._isCachedParamInvalid = false;
                 }
             } catch (e) {
                 return {error: e};

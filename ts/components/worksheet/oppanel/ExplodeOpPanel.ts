@@ -1,5 +1,5 @@
 class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
-    private _componentFactory: OpPanelComponentFactory;
+    protected _componentFactory: OpPanelComponentFactory;
     protected _dagNode: DagNodeExplode = null;
     protected _dataModel: ExplodeOpPanelModel;
 
@@ -19,12 +19,17 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
      * @param dagNode DagNode object
      */
     public show(dagNode: DagNodeExplode, options?): void {
+        this._dataModel = null;
         this._dagNode = dagNode;
-        this._dataModel = this._mainModel.fromDag(dagNode);
         let error: string;
         try {
+            this._dataModel = this._mainModel.fromDag(dagNode, !dagNode.isConfigured());
             this._updateUI();
         } catch (e) {
+            if (!this._dataModel) {
+                this._dataModel = this._mainModel.fromDag(dagNode, true);
+                this._updateHeader();
+            }
             // handle error after we call showPanel so that the rest of the form
             // gets setup
             error = e;
@@ -48,16 +53,7 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
     }
 
     protected _updateUI(): void {
-        this._clearValidationList();
-        this._clearColumnPickerTarget();
-
-        const $header = this._getPanel().find('header');
-        $header.empty();
-        $header.append(this._componentFactory.createHeader({
-            text: this._dataModel.getTitle(),
-            nodeTitle: this._dagNode.getTitle(),
-            onClose: () => this.close()
-        }));
+        this._updateHeader();
 
         const $opSection = this._getPanel().find('.opSection');
         const opSectionDom = this._componentFactory.createOpSection({
@@ -66,15 +62,6 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
         });
         this._componentFactory.getTemplateMgr().updateDOM(
             <any>$opSection[0], <NodeDefDOMElement[]>opSectionDom);
-        this._registerEventListeners();
-    }
-
-    private _registerEventListeners(): void {
-        const $submitBtn = this._getPanel().find('.btn.submit');
-        $submitBtn.off();
-        $submitBtn.on('click', () => this._submitForm());
-        this._getPanel().find(".btn.preview").off();
-        this._getPanel().find(".btn.preview").on("click", () => this._preview());
     }
 
     private _getArgs(): AutogenSectionProps[] {
@@ -186,7 +173,7 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
         return args;
     }
 
-    private _submitForm() {
+    protected _submitForm() {
         if (this._validate()) {
             this._dagNode.setParam(this._dataModel.toDagInput());
             this.close(true);

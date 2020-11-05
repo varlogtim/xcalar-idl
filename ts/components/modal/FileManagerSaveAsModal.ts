@@ -88,7 +88,7 @@ class FileManagerSaveAsModal {
         this._getNameInput().val("");
     }
 
-    private _submitForm(): void {
+    protected _submitForm(): void {
         if (typeof this.options.onSave === "function") {
             let path: string = this.fileManagerPanel.getViewPath();
             const $pressed: JQuery = this._getModal().find(

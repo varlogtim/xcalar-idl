@@ -42,7 +42,7 @@ class SynthesizeOpPanel extends BaseOpPanel {
         this._editor.setValue(paramStr);
     }
 
-    private _submitForm() {
+    protected _submitForm() {
         let args: DagNodeSynthesizeInputStruct = this._validateAdvancedMode();
         if (args == null) {
             // invalid case

@@ -156,7 +156,7 @@ class DFDownloadModal {
         };
     }
 
-    private _submitForm(): XDPromise<void> {
+    protected _submitForm(): XDPromise<void> {
         const res: {name: string} = this._validate();
         if (res == null) {
             return PromiseHelper.reject();

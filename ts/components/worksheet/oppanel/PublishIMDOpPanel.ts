@@ -564,7 +564,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
     }
 
 
-    private _submitForm(dagNode: DagNodePublishIMD): void {
+    protected _submitForm(dagNode: DagNodePublishIMD): void {
         let keys: string[] = [];
         let operator: string = "";
         let name: string = "";
