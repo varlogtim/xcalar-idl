@@ -790,6 +790,9 @@ class SQLOpPanel extends BaseOpPanel {
     protected _switchToStandardMode() {
         try {
             const advancedParams: DagNodeSQLInputStruct = JSON.parse(this._editor.getValue());
+            if (JSON.stringify(advancedParams, null, 4) === this._cachedBasicModeParam) {
+                return PromiseHelper.resolve();
+            }
             let errorMsg = this._validateAdvancedParams(advancedParams);
             if (errorMsg) {
                 return PromiseHelper.reject(errorMsg);
