@@ -528,16 +528,12 @@
 
         &.selected:not(.tableSelected) {
             .main {
-                fill: #777777;
                 stroke: @color-outline-blue;
                 stroke-width: 2;
             }
             .connInGroup:not(.noIn) .connectorInVisible {
                 stroke: @color-outline-blue;
                 stroke-width: 2;
-            }
-            .opTitle {
-                font-weight: 600;
             }
 
             &.icv {
@@ -590,9 +586,9 @@
         }
 
         .selection {
-            fill: @color-bg-opaque2;
-            stroke: @color-border-nodeEdge;
-            display: none; // XXX disabling halo effect
+            fill: @color-outline-blue;
+            stroke: none;
+            opacity: 0.3;
         }
 
         rect {

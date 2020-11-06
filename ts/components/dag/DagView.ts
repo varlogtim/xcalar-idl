@@ -609,9 +609,9 @@ class DagView {
             .attr('ry', '13');
 
         } else {
-            rect.attr('x', '-3')
+            rect.attr('x', '-2')
             .attr('y', '-5')
-            .attr('width', DagView.nodeWidth + 5)
+            .attr('width', DagView.nodeWidth + 3)
             .attr('height', DagView.nodeHeight + 10)
             .attr('rx', '16')
             .attr('ry', '43');
@@ -4139,8 +4139,7 @@ class DagView {
         let topClass = " topNodeIcon ";
 
         const g = d3.select($node.get(0)).append("g")
-        .attr("class", iconType + topClass + " nodeIcon")
-        .attr("transform", `translate(${left}, ${top})`);
+        .attr("class", iconType + topClass + " nodeIcon");
 
         g.append("circle")
             .attr("cx", 16)
