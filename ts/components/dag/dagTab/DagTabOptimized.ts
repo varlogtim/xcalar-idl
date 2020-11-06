@@ -2,7 +2,8 @@ class DagTabOptimized extends DagTabProgress {
     public static readonly KEY = "xcRet_";
     public static readonly XDPATH = "Physical plan/";
     public static readonly SDKPATH = "Physical plan from SDK/";
-    public static readonly FILEEXT = ".opt.tar.gz";
+    public static readonly FILE_EXT = ".physical.plan.tar.gz";
+    public static readonly FILE_SUFFIX = "physical plan";
     public uid: XcUID;
 
     /**
@@ -279,7 +280,11 @@ class DagTabOptimized extends DagTabProgress {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         XcalarExportRetina(this._queryName)
         .then((res) => {
-            const fileName: string = name + DagTabOptimized.FILEEXT;
+            let fileName = name;
+            if (fileName.endsWith(DagTabOptimized.FILE_SUFFIX)) {
+                fileName = fileName.slice(0, fileName.length - DagTabOptimized.FILE_SUFFIX.length).trim();
+            }
+            fileName = fileName + DagTabOptimized.FILE_EXT;
             const fileContent: string = res.retina;
             xcHelper.downloadAsFile(fileName, fileContent, "application/gzip");
             deferred.resolve();

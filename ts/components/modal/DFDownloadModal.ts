@@ -68,7 +68,7 @@ class DFDownloadModal {
         {
             type: this._DownloadTypeEnum.OptimizedDF,
             text: DFTStr.OptimizedDF,
-            suffix: DagTabOptimized.FILEEXT
+            suffix: DagTabOptimized.FILE_EXT
         },
         {
             type: this._DownloadTypeEnum.Image,
@@ -108,9 +108,9 @@ class DFDownloadModal {
             this._toggleOptimizedOption(false);
         }
 
-        // XXX TODO: support download parial dataflow as image
+        // XXX TODO: support download partial dataflow as image
         if (this._selectedNodes != null) {
-            // when selecte parital nodes, disable download as image
+            // when select partial nodes, disable download as image
             $lis.filter((_index, el) => {
                 return $(el).data("type") === this._DownloadTypeEnum.Image;
             }).addClass("xc-disabled");
@@ -265,7 +265,7 @@ class DFDownloadModal {
             return PromiseHelper.reject(ErrTStr.InvalidDFDownload);
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        // this is necessory for correct image rendering
+        // this is necessary for correct image rendering
         const $svg: JQuery = $("#cut-off-right").closest("svg").clone();
         $dataflowArea.prepend($svg);
         // setTimeout to help lag
