@@ -6,6 +6,7 @@ class SQLEditorSpace {
     private _executers: SQLDagExecutor[];
     private _currentSnippetId: string;
     private _popup: PopupPanel;
+    private _connector: string = "native";
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -483,6 +484,61 @@ class SQLEditorSpace {
                 }
                 return this._validateParameters(sqlStructArray);
             })
+            .then(function(){
+                return XcalarTargetList()
+            })
+            .then(function (res) {
+                let snowflakeParams: any = {};
+                let targetNames = [];
+                let sfTargetNamesAliasMap = {};
+                for( var r in res){
+                    if (res[r]["type_id"] == "snowflake"){
+                        snowflakeParams = res[r]["params"];
+                        targetNames.push(snowflakeParams.alias);
+                        sfTargetNamesAliasMap[snowflakeParams.alias] = res[r]["name"];
+                        // We only support one target currently
+                        sqlStructArray[0].predicateTargetName = res[r]["name"]
+                    }
+                }
+                for (let tbl in sqlStructArray[0].identifierMap) {
+                    let sourceList =
+                        sqlStructArray[0].identifierMap[tbl].sourceList;
+                    if (sourceList.length === 0) {
+                        sqlStructArray[0].identifierMap[tbl].target = undefined;
+                    } else if (targetNames.indexOf(sourceList[0]) !== -1) {
+                        sqlStructArray[0].identifierMap[tbl].target = sourceList[0];
+                        // We only support one target currently
+                        let targetName = sfTargetNamesAliasMap[sourceList[0]]
+                        sqlStructArray[0].predicateTargetName = targetName
+                    } else {
+                        return PromiseHelper.reject("Cannot find source " +
+                            sourceList[0] + " for table " +
+                            sqlStructArray[0].identifierMap[tbl].rawName);
+                    }
+                }
+                if (targetNames.length === 0) {
+                    return '{"names": []}';
+                } else {
+                    let snowflakeInfo = {
+                        sfURL: snowflakeParams["host"]+".snowflakecomputing.com",
+                        sfUser: snowflakeParams["username"],
+                        sfPassword: snowflakeParams["psw_arguments"],
+                        sfDatabase: snowflakeParams["dbname"],
+                        sfSchema: snowflakeParams["schema"]
+                    };
+                    if(snowflakeParams.role){
+                        snowflakeInfo.role = snowflakeParams.role;
+                    }
+                    if(snowflakeParams.warehouse){
+                        snowflakeInfo.warehouse = snowflakeParams.warehouse;
+                    }
+                    return SQLUtil.sendToPlanner("", "listSFTables", snowflakeInfo);
+                }
+            })
+            .then((tables) => {
+                let SFTables = JSON.parse(tables).names;
+                sqlStructArray[0].SFTables = SFTables;
+            })
             .then(() => {
                 if (!struct.isMulti && sqlStructArray.length === 1 &&
                     Object.keys(sqlStructArray[0].functions).length === 0 &&
@@ -492,48 +548,64 @@ class SQLEditorSpace {
                     sqlStructArray[0].sql = sqlStructArray[0].newSql = sqls;
                 }
                 for (let sqlStruct of sqlStructArray) {
-                    if (sqlStruct.command.type === "dropTable") {
-                        const tableName: string = sqlStruct.command.args[0];
-                        executePromiseArray.push(this._dropTable.bind(this,
-                                                     tableName, sqlStruct.sql));
-                    } else if (sqlStruct.command.type === "createTable") {
-                        if (sqlStructArray.length > 1) {
-                            return PromiseHelper.reject(SQLErrTStr.MultiCreate);
+                    if (this._connector === "native") {
+                        if (sqlStruct.command.type === "dropTable") {
+                            const tableName = sqlStruct.command.args[0];
+                            executePromiseArray.push(this._dropTable.bind(this, tableName, sqlStruct.sql));
                         }
-                        selectArray.push(sqlStruct);
-                    } else if (sqlStruct.command.type === "showTables"
-                               || sqlStruct.command.type === "describeTable") {
-                        lastShow = sqlStruct.command;
-                    } else if (sqlStruct.nonQuery) {
-                        return PromiseHelper.reject(SQLErrTStr.NoSupport + sqlStruct.sql);
+                        else if (sqlStruct.command.type === "createTable") {
+                            if (sqlStructArray.length > 1) {
+                                return PromiseHelper.reject(SQLErrTStr.MultiCreate);
+                            }
+                            selectArray.push(sqlStruct);
+                        }
+                        else if (sqlStruct.command.type === "showTables"
+                            || sqlStruct.command.type === "describeTable") {
+                            lastShow = sqlStruct.command;
+                        }
+                        else if (sqlStruct.nonQuery) {
+                            return PromiseHelper.reject(SQLErrTStr.NoSupport + sqlStruct.sql);
+                        }
+                        else {
+                            selectArray.push(sqlStruct);
+                        }
                     } else {
+                        if (sqlStruct.command.type === "showTables"
+                            || sqlStruct.command.type === "describeTable") {
+                            lastShow = sqlStruct.command;
+                        }
+                        else if (sqlStruct.nonQuery) {
+                            return PromiseHelper.reject(SQLErrTStr.NoSupport + sqlStruct.sql);
+                        }
                         selectArray.push(sqlStruct);
                     }
                 }
-                // Basic show tables and describe table
-                // If there are multiple queries they are ignored
-                if (sqlStructArray.length === 1 && lastShow.type === "showTables") {
-                    SQLResultSpace.Instance.showTables(true);
-                } else if (sqlStructArray.length === 1 &&
-                           lastShow.type === "describeTable") {
-                    let tableInfos: PbTblInfo[] = PTblManager.Instance.getTables();
-                    const targetTableName: string = lastShow.args[0];
-                    for (let i = 0; i < tableInfos.length; i++) {
-                        if (tableInfos[i].name === targetTableName) {
-                            SQLResultSpace.Instance.showSchema(tableInfos[i]);
-                            return;
+                if (this._connector == "native") {
+                    // Basic show tables and describe table
+                    // If there are multiple queries they are ignored
+                    if (sqlStructArray.length === 1 && lastShow.type === "showTables") {
+                        SQLResultSpace.Instance.showTables(true);
+                    } else if (sqlStructArray.length === 1 &&
+                            lastShow.type === "describeTable") {
+                        let tableInfos: PbTblInfo[] = PTblManager.Instance.getTables();
+                        const targetTableName: string = lastShow.args[0];
+                        for (let i = 0; i < tableInfos.length; i++) {
+                            if (tableInfos[i].name === targetTableName) {
+                                SQLResultSpace.Instance.showSchema(tableInfos[i]);
+                                return;
+                            }
                         }
+                        // Table not found
+                        console.error("Table not found: " + targetTableName);
+                        SQLResultSpace.Instance.showSchemaError("Table not found: "
+                                                                + targetTableName);
                     }
-                    // Table not found
-                    console.error("Table not found: " + targetTableName);
-                    SQLResultSpace.Instance.showSchemaError("Table not found: "
-                                                            + targetTableName);
                 }
                 for (let i = 0; i < selectArray.length; i++) {
                     const sqlStruct: SQLParserStruct = selectArray[i];
                     let executor: SQLDagExecutor;
                     try {
-
+                        sqlStruct.connector = this._connector;
                         executor = new SQLDagExecutor(sqlStruct, {
                             sqlStatementName: snippetName + ".sql",
                             snippetId: snippetId
@@ -608,7 +680,10 @@ class SQLEditorSpace {
                 errorMsg = error.error;
                 detail = error.log;
                 if (error.status === StatusT.StatusAstNoSuchFunction) {
-                    errorMsg = (error.error.startsWith("Error: ") ? error.error.substring(7) : error.error) + "\nVerify, that the function exists or that the function name is correct.";
+                    errorMsg = (error.error.startsWith("Error: ") ?
+                               error.error.substring(7) : error.error) +
+                               "\nVerify, that the function exists or that" +
+                               "the function name is correct.";
                 } else if (error.status === StatusT.StatusInval) {
                     let logLines = error.log.split("\n");
                     let tempIndex = logLines[0].search(/Line [0-9]+:/);
@@ -1090,6 +1165,7 @@ class SQLEditorSpace {
     // XXX Wire in the real functionality here
     private _changeConnector(connector: string): void {
         console.log("connector has changed to", connector);
+        this._connector = connector;
     }
 }
 

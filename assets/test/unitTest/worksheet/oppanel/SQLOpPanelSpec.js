@@ -116,7 +116,7 @@ describe("SQLOpPanel Test", function() {
             };
             UnitTest.testFinish(() => {
                 return $(".identifiersList").find(".source input").length &&
-                        $(".identifiersList").find(".source input").val().trim() === "test";
+                        $(".identifiersList").find(".source input").val().trim().toUpperCase() === "TEST";
             })
             .then(() => {
                 $sqlOpPanel.find(".submit").click();
@@ -127,7 +127,7 @@ describe("SQLOpPanel Test", function() {
             .then(() => {
                 expect(called).to.be.true;
                 expect(node.getIdentifiers().size).to.equal(1);
-                expect(node.getIdentifiers().get(1)).to.equal("test");
+                expect(node.getIdentifiers().get(1).toUpperCase()).to.equal("TEST");
                 expect(node.xcQueryString).to.equal("queryString");
                 expect(node.configured).to.be.true;
                 expect(node.getParam().sqlQueryStr).to.equal("Select * FROM test");
@@ -183,7 +183,7 @@ describe("SQLOpPanel Test", function() {
             })
             .then(() => {
                 expect(node.getIdentifiers().size).to.equal(1);
-                expect(node.getIdentifiers().get(1)).to.equal("a");
+                expect(node.getIdentifiers().get(1).toUpperCase()).to.equal("A");
                 expect(node.configured).to.be.true;
                 expect(node.getParam().sqlQueryStr).to.equal("Select * FROM a");
                 done();

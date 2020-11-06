@@ -35,6 +35,15 @@ class SQLUtil {
                 url = planServer + "/sqlparse";
                 action = "POST";
                 break;
+            case("listSFTables"):
+                url = planServer + "/snowflake/listtables";
+                action = "POST";
+                break;
+            case("createSFTables"):
+                url = planServer + "/snowflake/createtables/" +
+                      encodeURIComponent(encodeURIComponent(sessionPrefix + session));
+                action = "PUT";
+                break;
             default:
                 return PromiseHelper.reject("Invalid type for updatePlanServer");
         }

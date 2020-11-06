@@ -8,6 +8,7 @@ class SQLQuery {
     public runTxId?: number;
     public allColumns?: SQLColumn[];
     public orderColumns?: SQLColumn[];
+    public predicateTargetName?: string;
     // For sql history
     public status?: SQLStatus;
     public startTime?: Date;
@@ -24,7 +25,7 @@ class SQLQuery {
         queryId: string,
         queryString: string,
         logicalPlan: any,
-        optimizations: SQLOptimization
+        optimizations: SQLOptimization,
     ) {
         this.queryId = queryId || xcHelper.randName("sql", 8);
         this.queryString = queryString;

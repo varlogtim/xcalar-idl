@@ -20,6 +20,13 @@ interface SQLSchema {
     xcTableName: string
 }
 
+interface SQLParserIdentifierStruct {
+    name: string,
+    rawName: string,
+    sourceList: string[],
+    target?: string
+}
+
 interface SQLParserStruct {
     sql: string,
     command?: {type: string, args: string[]},
@@ -28,7 +35,11 @@ interface SQLParserStruct {
     functions?: {},
     newSql?: string,
     nonQuery?: boolean,
-    parameters?: string[]
+    parameters?: string[],
+    SFTables?: string[],
+    connector?: string,
+    predicateTargetName?: string,
+    identifierMap?: {[key: string]: SQLParserIdentifierStruct}
 }
 
 interface SQLEvalStruct {

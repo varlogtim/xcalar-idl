@@ -1169,7 +1169,9 @@ class DagNodeSQL extends DagNodeIn {
         compileId?: string,
         sessionTables?: Map<string,string>,
         sourceMapping?: any[],
-        sessionTablesSchema?: {}
+        sessionTablesSchema?: {},
+        SFTables?: string[],
+        SFTableAlias?: string[]
     ): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
         const self = this;
@@ -1250,6 +1252,37 @@ class DagNodeSQL extends DagNodeIn {
         .then(function() {
             // always drop schema on plan server first
             return SQLUtil.sendToPlanner(self.getId() + compileId, "dropAll");
+        })
+        .then(function() {
+            return XcalarTargetList()
+        })
+        .then(function (res) {
+            let snowflakeInfo = {};
+            for( var r in res){
+                if (res[r]["type_id"] == "snowflake"){
+                        snowflakeInfo = res[r]["params"]
+                        let snowflakeInfoTables: any = {
+                            sfURL: snowflakeInfo["host"]+".snowflakecomputing.com",
+                            sfUser: snowflakeInfo["username"],
+                            sfPassword: snowflakeInfo["psw_arguments"],
+                            sfDatabase: snowflakeInfo["dbname"],
+                            sfSchema: snowflakeInfo["schema"]
+                        };
+                        if(snowflakeInfo.role){
+                            snowflakeInfoTables.role = snowflakeInfo.role;
+                        }
+                        if(snowflakeInfo.warehouse){
+                            snowflakeInfoTables.warehouse = snowflakeInfo.warehouse;
+                        }
+                        snowflakeInfoTables.tables = {};
+                        if (SFTables && SFTables.length != 0 ){
+                            for (let i in SFTables) {
+                                snowflakeInfoTables.tables[SFTables[i]] = SFTableAlias[i];
+                            }
+                        }
+                        return SQLUtil.sendToPlanner(self.getId() + compileId, "createSFTables", snowflakeInfoTables);
+                 }
+            }
         })
         .then(function() {
             allSchemas = allSchemas.concat(sqlFuncSchemas);
@@ -1425,7 +1458,11 @@ class DagNodeSQL extends DagNodeIn {
             noPushToSelect?: boolean,
             sessionTables?: Map<string, string>,
             schema?: {},
-            sourceMapping?: any[]
+            sourceMapping?: any[],
+            SFTables?: string[],
+            SFTableAlias?: string[],
+            commandType?: string,
+            predicateTargetName?: string
         } = {},
         replaceParam: boolean = true
     ): XDPromise<any> {
@@ -1479,76 +1516,152 @@ class DagNodeSQL extends DagNodeIn {
                 combineProjectWithSynthesize: true,
                 dropAsYouGo: dropAsYouGo
             };
-            let promise;
-            if (!sqlMode) {
-                const parseStruct = {
-                    sqlQuery: sqlQueryStr,
-                    ops: ["identifier", "sqlfunc", "parameters"],
-                    isMulti: true
-                };
-                promise = SQLUtil.sendToPlanner(this.getId() + compileId, "parse",
-                                                parseStruct);
+            let globPromise;
+            // XXX When we figure out how to get schema from SF JDBC, this
+            // hard code part can be removed
+            if (options.commandType == "showTables") {
+                let logicalPlan = JSON.parse(JSON.stringify([
+                    {
+                        "class" : SQLPrefix.snowflakePredicatePrefix,
+                        "num-children" : 0,
+                        "plan" : [
+                            {
+                                "class" : "net.snowflake.spark.snowflake.pushdowns.SnowflakePlan",
+                                "num-children" : 0,
+                                "output" : [
+                                    [{"name": "created_on", "dataType": "timestamp"}],
+                                    [{"name": "name", "dataType": "varchar(16777216)"}],
+                                    [{"name": "database_name", "dataType": "varchar(16777216)"}],
+                                    [{"name": "schema_name", "dataType": "varchar(16777216)"}],
+                                    [{"name": "kind", "dataType": "varchar(16777216)"}],
+                                    [{"name": "comment", "dataType": "varchar(16777216)"}],
+                                    [{"name": "cluster_by", "dataType": "varchar(16777216)"}],
+                                    [{"name": "rows", "dataType": "number(38,0)"}],
+                                    [{"name": "bytes", "dataType": "number(38,0)"}],
+                                    [{"name": "owner", "dataType": "varchar(16777216)"}],
+                                    [{"name": "retention_time", "dataType": "varchar(16777216)"}],
+                                    [{"name": "automatic_clustering", "dataType": "varchar(16777216)"}],
+                                    [{"name": "change_tracking", "dataType": "varchar(16777216)"}],
+                                    [{"name": "is_external", "dataType": "varchar(16777216)"}]
+                                ],
+                                "rdd" : null,
+                                "query" : sqlQueryStr,
+                                "aliasList" : [],
+                            }
+                        ]
+                    }
+                ]))
+                const sqlQueryObj = new SQLQuery(queryId, sqlQueryStr,
+                                                 logicalPlan, optimizations);
+                sqlQueryObj.predicateTargetName = options.predicateTargetName;
+                globPromise = SQLCompiler.compile(sqlQueryObj);
+            } else if (options.commandType == "describeTable") {
+                let logicalPlan = JSON.parse(JSON.stringify([
+                    {
+                        "class" : SQLPrefix.snowflakePredicatePrefix,
+                        "num-children" : 0,
+                        "plan" : [
+                            {
+                                "class" : "net.snowflake.spark.snowflake.pushdowns.SnowflakePlan",
+                                "num-children" : 0,
+                                "output" : [
+                                    [{"name": "name", "type": "varchar(16777216)"}],
+                                    [{"name": "type", "type": "varchar(16777216)"}],
+                                    [{"name": "kind", "type": "varchar(16777216)"}],
+                                    [{"name": "null?", "type": "varchar(16777216)"}],
+                                    [{"name": "default", "type": "varchar(16777216)"}],
+                                    [{"name": "primary key", "type": "varchar(16777216)"}],
+                                    [{"name": "unique key", "type": "varchar(16777216)"}],
+                                    [{"name": "check", "type": "varchar(16777216)"}],
+                                    [{"name": "expression", "type": "varchar(16777216)"}],
+                                    [{"name": "comment", "type": "varchar(16777216)"}],
+                                ],
+                                "rdd" : null,
+                                "query" : sqlQueryStr,
+                                "aliasList" : [],
+                            }
+                        ]
+                    }
+                ]))
+                const sqlQueryObj = new SQLQuery(queryId, sqlQueryStr,
+                                                 logicalPlan, optimizations);
+                sqlQueryObj.predicateTargetName = options.predicateTargetName;
+                globPromise = SQLCompiler.compile(sqlQueryObj);
             } else {
-                promise = PromiseHelper.resolve();
-            }
-            promise
-            .then((ret) => {
                 let promise;
-
-                if (ret) {
-
-                    const sqlParseRet = JSON.parse(ret).ret;
-                    let sqlStructArray: SQLParserStruct[];
-                    if (!(sqlParseRet instanceof Array)) { // Remove this after parser change in
-                        if (sqlParseRet.errorMsg) {
-                            return PromiseHelper.reject(sqlParseRet.errorMsg);
-                        }
-                        sqlStructArray = sqlParseRet.parseStructs;
-                    } else {
-                        sqlStructArray = sqlParseRet;
-                    }
-                    if (sqlStructArray.length > 1) {
-                        return PromiseHelper.reject(SQLErrTStr.MultiQueries);
-                    }
-                    promise = this._handleParsedStruct(sqlStructArray[0], sourceMapping, sessionTables);
-
+                if (!sqlMode) {
+                    const parseStruct = {
+                        sqlQuery: sqlQueryStr,
+                        ops: ["identifier", "sqlfunc", "parameters"],
+                        isMulti: true
+                    };
+                    promise = SQLUtil.sendToPlanner(this.getId() + compileId, "parse",
+                                                    parseStruct);
                 } else {
                     promise = PromiseHelper.resolve();
                 }
-                return promise;
-            })
-            .then((ret) => {
-                let usedTables: string[];
-                if (ret) {
-                    usedTables = ret.usedTables;
-                    sqlQueryStr = ret.sqlQueryStr;
-                    sqlFunctions = ret.sqlFunctions;
-                    sessionTablesSchema = ret.sessionTablesSchema;
-                    this.input.setParameter(ret.sqlParameters);
-                }
-                return this.sendSchema(identifiers, pubTablesInfo, sqlFunctions,
-                                       usedTables, compileId, sessionTables, sourceMapping,
-                                        sessionTablesSchema);
-            })
-            .then((ret) => {
-                schemaQueryString = ret.queryString;
-                tableSrcMap = ret.tableSrcMap;
-                invalidColumnsMap = ret.invalidColumnsMap;
-                this.setTableSrcMap(tableSrcMap);
-                const struct = {"sqlQuery": sqlQueryStr};
-                return SQLUtil.sendToPlanner(this.getId() + compileId, "query", struct);
-            })
-            .then((data) => {
-                let logicalPlan = "";
-                try {
-                    logicalPlan = JSON.parse(JSON.parse(data).sqlQuery);
-                } catch(e) {
-                    return PromiseHelper.reject("Failed to parse plan: " + data);
-                }
-                const sqlQueryObj = new SQLQuery(queryId, sqlQueryStr,
-                                                 logicalPlan, optimizations);
-                return SQLCompiler.compile(sqlQueryObj);
-            })
+                globPromise = promise
+                .then((ret) => {
+                    let promise;
+
+                    if (ret) {
+
+                        const sqlParseRet = JSON.parse(ret).ret;
+                        let sqlStructArray: SQLParserStruct[];
+                        if (!(sqlParseRet instanceof Array)) { // Remove this after parser change in
+                            if (sqlParseRet.errorMsg) {
+                                return PromiseHelper.reject(sqlParseRet.errorMsg);
+                            }
+                            sqlStructArray = sqlParseRet.parseStructs;
+                        } else {
+                            sqlStructArray = sqlParseRet;
+                        }
+                        if (sqlStructArray.length > 1) {
+                            return PromiseHelper.reject(SQLErrTStr.MultiQueries);
+                        }
+                        promise = this._handleParsedStruct(sqlStructArray[0], sourceMapping, sessionTables);
+
+                    } else {
+                        promise = PromiseHelper.resolve();
+                    }
+                    return promise;
+                })
+                .then((ret) => {
+                    let usedTables: string[];
+                    if (ret) {
+                        usedTables = ret.usedTables;
+                        sqlQueryStr = ret.sqlQueryStr;
+                        sqlFunctions = ret.sqlFunctions;
+                        sessionTablesSchema = ret.sessionTablesSchema;
+                        this.input.setParameter(ret.sqlParameters);
+                    }
+                    return this.sendSchema(identifiers, pubTablesInfo, sqlFunctions,
+                                        usedTables, compileId, sessionTables,
+                                        sourceMapping, sessionTablesSchema,
+                                        options.SFTables, options.SFTableAlias);
+                })
+                .then((ret) => {
+                    schemaQueryString = ret.queryString;
+                    tableSrcMap = ret.tableSrcMap;
+                    invalidColumnsMap = ret.invalidColumnsMap;
+                    this.setTableSrcMap(tableSrcMap);
+                    const struct = {"sqlQuery": sqlQueryStr};
+                    return SQLUtil.sendToPlanner(this.getId() + compileId, "query", struct);
+                })
+                .then((data) => {
+                    let logicalPlan = "";
+                    try {
+                        logicalPlan = JSON.parse(JSON.parse(data).sqlQuery);
+                    } catch(e) {
+                        return PromiseHelper.reject("Failed to parse plan: " + data);
+                    }
+                    const sqlQueryObj = new SQLQuery(queryId, sqlQueryStr,
+                                                    logicalPlan, optimizations);
+                    sqlQueryObj.predicateTargetName = options.predicateTargetName;
+                    return SQLCompiler.compile(sqlQueryObj);
+                })
+            }
+            globPromise
             .then((sqlQueryObj: SQLQuery) => {
                 this.setColumns(sqlQueryObj.allColumns);
                 let optimizeStruct;
@@ -1851,28 +1964,30 @@ class DagNodeSQL extends DagNodeIn {
             if (typeof source === "string") {
                 source = [source];
             }
-            for (let i = 0; i < source.length; i++) {
-                if (tabId && tableSrcMap && replaceMap) {
-                    if (!newTableMap[source[i]]) {
-                        const idx = tableSrcMap[source[i]];
-                        if (idx) {
-                            newTableMap[source[i]] = replaceMap[idx];
-                            newTableSrcMap[replaceMap[idx]] = idx;
-                        } else {
-                            // console.log("publish table as source: ", source[i]);
-                            continue;
+            if (source) {
+                for (let i = 0; i < source.length; i++) {
+                    if (tabId && tableSrcMap && replaceMap) {
+                        if (!newTableMap[source[i]]) {
+                            const idx = tableSrcMap[source[i]];
+                            if (idx) {
+                                newTableMap[source[i]] = replaceMap[idx];
+                                newTableSrcMap[replaceMap[idx]] = idx;
+                            } else {
+                                // console.log("publish table as source: ", source[i]);
+                                continue;
+                            }
                         }
+                        source[i] = newTableMap[source[i]];
+                    } else {
+                        newTableMap[source[i]] = newTableMap[source[i]] || source[i];
+                        source[i] = newTableMap[source[i]];
                     }
-                    source[i] = newTableMap[source[i]];
-                } else {
-                    newTableMap[source[i]] = newTableMap[source[i]] || source[i];
-                    source[i] = newTableMap[source[i]];
                 }
-            }
-            if (source.length === 1) {
-                operation.args.source = source[0];
-            } else {
-                operation.args.source = source;
+                if (source.length === 1) {
+                    operation.args.source = source[0];
+                } else {
+                    operation.args.source = source;
+                }
             }
             // agg replacement for eval strings
             if (operation.operation === "XcalarApiJoin") {
@@ -1893,17 +2008,21 @@ class DagNodeSQL extends DagNodeIn {
             if (operation.args.dest === oldDestTableName) {
                 newTableMap[operation.args.dest] = newDestTableName;
                 operation.args.dest = newDestTableName;
-            } else if (operation.operation !== "XcalarApiAggregate") {
-                if (!newTableMap[operation.args.dest]) {
-                    tagCount++;
-                    newTableMap[operation.args.dest] = this._generateTableName("SQLTAG_" + tagCount, tabId);
-                }
-                operation.args.dest = newTableMap[operation.args.dest];
-            } else {
+            } else if (operation.operation === "XcalarApiAggregate") {
                 tagCount++;
                 let newAggName = this._generateTableName("SQLTAG_" + tagCount, tabId, true);
                 newAggMap["^" + operation.args.dest] = "^" + newAggName;
                 operation.args.dest = newAggName;
+            } else {
+                if (!newTableMap[operation.args.dest]) {
+                    tagCount++;
+                    if (operation.operation === "XcalarApiBulkLoad") {
+                        newTableMap[operation.args.dest] = this._generateTableName("SQLTAG_" + tagCount, tabId, false, true);
+                    } else {
+                        newTableMap[operation.args.dest] = this._generateTableName("SQLTAG_" + tagCount, tabId);
+                    }
+                }
+                operation.args.dest = newTableMap[operation.args.dest];
             }
         });
         return {newQueryStr: JSON.stringify(queryStruct),
@@ -1912,11 +2031,13 @@ class DagNodeSQL extends DagNodeIn {
                 newTableMap: newTableMap};
     }
 
-    private _generateTableName(tag: string, tabId?: string, isAgg?: boolean): string {
+    private _generateTableName(tag: string, tabId?: string, isAgg?: boolean, isLoad?: boolean): string {
         let tableName;
         try {
             let prefix;
-            if (this.getParam().outputTableName) {
+            if (isLoad) {
+                prefix = ".XcalarDS."
+            } else if(this.getParam().outputTableName) {
                 prefix = this.getParam(true).outputTableName;
             } else {
                 prefix = xcHelper.genTableNameFromNode(this);
@@ -1931,8 +2052,10 @@ class DagNodeSQL extends DagNodeIn {
                 tableName = prefix + (tag ? "_" + tag : "") +
                         Authentication.getTableId().substring(1);
             } else {
-                tableName = prefix + (tag ? "_" + tag : "") +
-                        Authentication.getTableId();
+                if (!isLoad && tag != "") {
+                    tag = "_" + tag;
+                }
+                tableName = prefix + tag + Authentication.getTableId();
                 if (!XIApi.isValidTableName(tableName)) {
                     tableName = XIApi.getNewTableName(tableName);
                 }

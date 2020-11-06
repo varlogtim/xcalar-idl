@@ -221,7 +221,8 @@ class DagQueryConverter {
                 indexedFields: string[],
                 isActive?: boolean,
                 worksheet?: string,
-                aggregates?: string[]
+                aggregates?: string[],
+                xcQueryString?: string
             } = {
                 name: name,
                 parents: [],
@@ -381,6 +382,14 @@ class DagQueryConverter {
                     } else {
                         args.dest = sourcePrefix + args.dest;
                     }
+                    if (args.sourceType === "Snowflake") {
+                        xcAssert(i + 2 < query.length);
+                        xcAssert(query[i + 1].operation === "XcalarApiSynthesize");
+                        xcAssert(query[i + 2].operation === "XcalarApiDeleteObjects");
+                        node.xcQueryString = JSON.stringify([query[i], query[i + 1], query[i + 2]]);
+                        node.name = query[i + 1].args.dest;
+                        i += 2;
+                    }
                     let datasetBeforeXDChange = xcHelper.deepCopy(rawNode);
                     args.loadArgs = this._updateLoadArgsForXD(args);
                     datasets.push(datasetBeforeXDChange);
@@ -394,7 +403,9 @@ class DagQueryConverter {
                 isChainedRetina = true;
             }
 
-            node.name = args.dest; // reset name because we've prefixed it
+            if (args.sourceType !== "Snowflake") {
+                node.name = args.dest; // reset name because we've prefixed it
+            }
             if (!isIgnoredApi) {
                 nodes.set(node.name, node);
             }
@@ -938,6 +949,10 @@ class DagQueryConverter {
                         type: DagNodeType.Dataset,
                         input: <DagNodeDatasetInputStruct>node.createTableInput
                     };
+                    if (node.subGraphNodes[0].subType) {
+                        dagNodeInfo.subType = node.subGraphNodes[0].subType;
+                        dagNodeInfo.xcQueryString = node.subGraphNodes[0].xcQueryString;
+                    }
                     if (node.schema) {
                         dagNodeInfo["schema"] = node.schema;
                     }
@@ -1289,7 +1304,7 @@ class DagQueryConverter {
                 break;
             case (XcalarApisT.XcalarApiBulkLoad): // should not have any
             // as the "createTable" index node should take it's place
-
+            // unless snowflake
                 let loadArgs = node.args.loadArgs;
                 if (typeof loadArgs === "object") {
                     loadArgs = JSON.stringify(loadArgs);
@@ -1308,10 +1323,12 @@ class DagQueryConverter {
                     synthesize: synthesize,
                     loadArgs: loadArgs
                 }
-
+                const subType = this._getDatasetSubtype(node);
                 dagNodeInfo = <DagNodeInInfo>{
                     type: DagNodeType.Dataset,
+                    subType: subType,
                     input: createTableInput,
+                    xcQueryString: node.xcQueryString
                 };
                 let schema = this._getSchemaFromLoadArgs(loadArgs);
                 if (schema) {
@@ -1872,6 +1889,19 @@ class DagQueryConverter {
         } catch (e) {
             console.error(e);
             return [];
+        }
+    }
+
+    private _getDatasetSubtype(node): string {
+        if (node.rawNode && node.rawNode.args) {
+            switch (node.rawNode.args.sourceType) {
+                case "Snowflake":
+                    return DagNodeSubType.Snowflake;
+                default:
+                    return null;
+            };
+        } else {
+            return null;
         }
     }
 }

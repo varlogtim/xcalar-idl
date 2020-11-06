@@ -1335,12 +1335,12 @@ namespace DSTargetManager {
         val: string
     ): object {
         // XXX @Kevan, please fix type_id and param if it's wrong
-        if (targetType === "snowflake" && paramName === "prefix") {
+        if (targetType === "snowflake" && paramName === "alias") {
             return {
                 $ele,
                 // return true the the invalid condition, here have space is invalid
                 check: () => val.includes(" "),
-                error: 'Prefix should not include space.'
+                error: 'Alias should not include space.'
             }
         } else {
             return null;

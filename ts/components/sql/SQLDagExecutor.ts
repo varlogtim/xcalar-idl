@@ -36,6 +36,10 @@ class SQLDagExecutor {
     private _publishName: string;
     private _options: {compileOnly?: boolean, schemas?: {}, sqlStatementName?: string,
     snippetId?: string};
+    private _commandType: string;
+    private _SFTableList: string[];
+    private _SFTableAliasList: string[];
+    private _predicateTargetName: string;
 
 
     public constructor(
@@ -61,44 +65,64 @@ class SQLDagExecutor {
         this._sqlTabCached = false;
         this._publishName = undefined;
         this._sessionTables = new Map();
+        this._commandType = sqlStruct.command.type;
+        this._SFTableList = [];
+        this._SFTableAliasList = [];
+        this._predicateTargetName = sqlStruct.predicateTargetName;
 
         const tables: string[] = sqlStruct.identifiers || [];
+        const identifierMap = sqlStruct.identifierMap;
         const tableMap = PTblManager.Instance.getTableMap();
         tables.forEach((identifier, idx) => {
             let pubTableName = identifier.toUpperCase();
+            let connector = "native";
+            if(sqlStruct.connector){
+                connector = sqlStruct.connector;
+            }
             // pub table name can't have backticks. If see backticks, it must be for escaping in SQL
-            if (pubTableName[0] === "`" && pubTableName[identifier.length - 1] === "`") {
-                pubTableName = pubTableName.slice(1, -1);
-            }
-            if (tableMap.has(pubTableName)) {
-                const columns = [];
-                tableMap.get(pubTableName).columns.forEach((column) => {
-                    const upperName = column.name.toUpperCase();
-                    if (!upperName.startsWith("XCALARRANKOVER") &&
-                        !upperName.startsWith("XCALAROPCODE") &&
-                        !upperName.startsWith("XCALARBATCHID") &&
-                        !upperName.startsWith("XCALARROWNUMPK")) {
-                        columns.push(column);
-                    }
-                });
-                this._schema[pubTableName] = columns;
-                this._batchId[pubTableName] = tableMap.get(pubTableName).batchId;
-            } else {
-                let tableName = identifier;
-                if (sqlStruct.newIdentifiers && sqlStruct.newIdentifiers[tableName]) {
-                    tableName = sqlStruct.newIdentifiers[tableName];
+            if (connector === "native") {
+                if (pubTableName[0] === "`" && pubTableName[identifier.length - 1] === "`") {
+                    pubTableName = pubTableName.slice(1, -1);
                 }
-                if (DagTblManager.Instance.hasTable(tableName) ||
-                    (tableName.includes("#") && this._sql.includes("`" + tableName + "`"))) {
-                    this._sessionTables.set(identifier.toUpperCase(), tableName);
-                } else if (this._options.schemas && this._options.schemas[identifier.toUpperCase()]) {
-                    this._schema[identifier.toUpperCase()] = this._options.schemas[identifier.toUpperCase()];
+                if (tableMap.has(pubTableName)) {
+                    const columns = [];
+                    tableMap.get(pubTableName).columns.forEach((column) => {
+                        const upperName = column.name.toUpperCase();
+                        if (!upperName.startsWith("XCALARRANKOVER") &&
+                            !upperName.startsWith("XCALAROPCODE") &&
+                            !upperName.startsWith("XCALARBATCHID") &&
+                            !upperName.startsWith("XCALARROWNUMPK")) {
+                            columns.push(column);
+                        }
+                    });
+                    this._schema[pubTableName] = columns;
+                    this._batchId[pubTableName] = tableMap.get(pubTableName).batchId;
                 } else {
-                    throw new Error("Cannot find published table: " + pubTableName);
+                    let tableName = identifier;
+                    if (sqlStruct.newIdentifiers && sqlStruct.newIdentifiers[tableName]) {
+                        tableName = sqlStruct.newIdentifiers[tableName];
+                    }
+                    if (DagTblManager.Instance.hasTable(tableName) ||
+                        (tableName.includes("#") && this._sql.includes("`" + tableName + "`"))) {
+                        this._sessionTables.set(identifier.toUpperCase(), tableName);
+                    } else if (this._options.schemas && this._options.schemas[identifier.toUpperCase()]) {
+                        this._schema[identifier.toUpperCase()] = this._options.schemas[identifier.toUpperCase()];
+                    } else if (identifierMap[tableName].target) {
+                        // XXX This is a workaround when we only support 1 Snowflake connector
+                        this._SFTableList.push(identifierMap[tableName].sourceList[1]);
+                        this._SFTableAliasList.push(tableName);
+                    } else {
+                        throw new Error("Cannot find published table: " + pubTableName);
+                    }
                 }
+                if(!this._SFTableAliasList.includes(pubTableName)){
+                    this._identifiersOrder.push(idx + 1);
+                    this._identifiers[idx + 1] = pubTableName;
+                }
+            } else {
+                this._SFTableList.push(pubTableName);
+                this._SFTableAliasList.push(pubTableName);
             }
-            this._identifiersOrder.push(idx + 1);
-            this._identifiers[idx + 1] = pubTableName;
         });
 
         this._sqlNode = <DagNodeSQL>DagNodeFactory.create({
@@ -415,7 +439,11 @@ class SQLDagExecutor {
             noPushToSelect: true ,// XXX hack to prevent pushDown
             sessionTables: this._sessionTables,
             schema: this._schema,
-            sourceMapping: sourceMapping
+            sourceMapping: sourceMapping,
+            SFTables: this._SFTableList,
+            SFTableAlias: this._SFTableAliasList,
+            commandType: this._commandType,
+            predicateTargetName: this._predicateTargetName
         }
         return this._sqlNode.compileSQL(this._newSql, queryId, options);
     }

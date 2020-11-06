@@ -75,6 +75,8 @@ global.SQLUnion = SQLUnion = sqlHelpers ? sqlHelpers.SQLUnion :
                                   require("../sqlHelpers/SQLUnion.js").SQLUnion;
 global.SQLWindow = SQLWindow = sqlHelpers ? sqlHelpers.SQLWindow :
                                 require("../sqlHelpers/SQLWindow.js").SQLWindow;
+global.SnowflakePredicate = SnowflakePredicate = sqlHelpers ? sqlHelpers.SnowflakePredicate :
+                require("../sqlHelpers/SnowflakePredicate.js").SnowflakePredicate;
 
 // optimizer rules
 global.AddIndex = AddIndex = sqlHelpers ? sqlHelpers.AddIndex :

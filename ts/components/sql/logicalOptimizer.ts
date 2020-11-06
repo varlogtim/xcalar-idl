@@ -134,8 +134,8 @@ class LogicalOptimizer {
         parent?: XcOpNode
     ): XcOpNode {
         const operator = opArray[index];
-        let sources = typeof operator.args.source === "string" ?
-                        [operator.args.source] : operator.args.source;
+        let sources = operator.args.source? (typeof operator.args.source === "string" ?
+                        [operator.args.source] : operator.args.source) : [];
         const dest = operator.args.dest;
         if (operator.args.aggSource) {
             sources = sources.concat(operator.args.aggSource);
@@ -229,7 +229,7 @@ class LogicalOptimizer {
                     "operation": "XcalarApiDeleteObjects",
                     "args": {
                         "namePattern": namePattern,
-                        "srcType": "Table",
+                        "srcType": namePattern.includes('.XcalarDS.Optimized.ds') ? "Dataset": "Table",
                         "deleteCompletely": deleteCompletely || false
                     }
                 };

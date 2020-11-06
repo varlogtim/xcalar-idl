@@ -1080,7 +1080,8 @@ class DagGraphExecutor {
             }
 
             const source: string = node.getDSName();
-            if (typeof DS !== "undefined" && !DS.isAccessible(source)) {
+            if (typeof DS !== "undefined" && !DS.isAccessible(source)
+                && node.getSubType() !== DagNodeSubType.Snowflake) {
                 return DagNodeErrorType.NoAccessToSource;
             } else {
                 return null;

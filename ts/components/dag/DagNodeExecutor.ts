@@ -265,7 +265,18 @@ class DagNodeExecutor {
                 }
             }
 
-            if (params.synthesize === true) {
+            if (node.getSubType() === DagNodeSubType.Snowflake) {
+                const desTable = this._generateTableName(xcHelper.parseDSName(dsName).dsName);
+                const queryObj = JSON.parse(node.xcQueryString);
+                queryObj[1].args.dest = desTable;
+                return XIApi.query(this.txId, desTable, JSON.stringify(queryObj))
+                .then(() => {
+                    return PromiseHelper.resolve(desTable);
+                })
+                .fail((err) => {
+                    return PromiseHelper.reject(err);
+                });
+            } else if (params.synthesize === true) {
                 const schema: ColSchema[] = node.getSchema();
                 return this._synthesizeDataset(dsName, schema);
             } else {
@@ -1536,7 +1547,19 @@ class DagNodeExecutor {
             finalQueryStr = JSON.stringify(queryNodes);
             node.setXcQueryString(finalQueryStr);
 
-            node.getSubGraph().startExecution(queryNodes, null);
+            const queryNodesMerged = [];
+            for (let i = 0; i < queryNodes.length; i++) {
+                if (queryNodes[i].operation === "XcalarApiBulkLoad" &&
+                    queryNodes[i].args.sourceType === "Snowflake") {
+                    xcAssert(i + 2 < queryNodes.length);
+                    xcAssert(queryNodes[i + 1].operation === "XcalarApiSynthesize");
+                    xcAssert(queryNodes[i + 2].operation === "XcalarApiDeleteObjects");
+                    queryNodes[i].xcQueryString = JSON.stringify([queryNodes[i], queryNodes[i + 1], queryNodes[i + 2]]);
+                    i += 2;
+                }
+                queryNodesMerged.push(queryNodes[i]);
+            }
+            node.getSubGraph().startExecution(queryNodesMerged, null);
             // Might need to make it configurable
 
             // Set status to Running

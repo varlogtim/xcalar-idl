@@ -44,6 +44,7 @@ enum DagNodeSubType {
     Except = "Except",
     ExportOptimized = "Export Optimized",
     DFOutOptimized = "link out Optimized",
+    Snowflake = "Snowflake"
 }
 
 enum DagNodeState {

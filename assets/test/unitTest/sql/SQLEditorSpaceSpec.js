@@ -47,10 +47,13 @@ describe("SQLEditorSpace Test", function() {
     describe("execute SQL Test", function() {
         let oldSendToPlanner;
         let oldAlert;
+        let oldTargetList
 
         before(function() {
             oldSendToPlanner = SQLUtil.sendToPlanner;
             oldAlert = Alert.show;
+            oldTargetList = XcalarTargetList;
+            XcalarTargetList = () => { return {}; }
         });
 
         it("should not execute if no sql", function() {
@@ -231,6 +234,7 @@ describe("SQLEditorSpace Test", function() {
         after(function() {
             SQLUtil.sendToPlanner = oldSendToPlanner;
             Alert.show = oldAlert;
+            XcalarTargetList = oldTargetList;
         });
     });
 

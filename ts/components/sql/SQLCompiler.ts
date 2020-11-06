@@ -11,7 +11,8 @@ const SQLPushDownDriver = {
     "Intersect": SQLUnion,
     "Except": SQLUnion,
     "Window": SQLWindow,
-    "LocalRelation": SQLLocalRelation
+    "LocalRelation": SQLLocalRelation,
+    "SnowflakePredicate": SnowflakePredicate
 }
 class SQLCompiler {
     static compile(sqlQueryObj: SQLQuery): XDPromise<any> {
@@ -27,7 +28,7 @@ class SQLCompiler {
         try {
             // Catch any exception including assertion failures
             let tree = SQLCompiler.genTree(undefined, sqlQueryObj.logicalPlan,
-                                           sqlQueryObj.tablePrefix);
+                                           sqlQueryObj.tablePrefix, sqlQueryObj.predicateTargetName);
             if (tree.value.class ===
                 "org.apache.spark.sql.execution.LogicalRDD") {
                 // If the logicalRDD is root, we should add an extra Project
@@ -42,6 +43,7 @@ class SQLCompiler {
 
             SQLCompiler.prepareUsedColIds(tree);
             const promiseArray = SQLCompiler.traverseAndPushDown(tree);
+            xcConsole.log(JSON.stringify(promiseArray));
             promiseArray.push(SQLCompiler.handleDupCols.bind(this, tree));
             PromiseHelper.chain(promiseArray)
             .then(function() {
@@ -937,10 +939,15 @@ class SQLCompiler {
     static genTree(
         parent: TreeNode,
         logicalPlan: any,
-        tablePrefix: string
+        tablePrefix: string,
+        predicateTargetName?: string
     ): TreeNode {
         const newNode = TreeNodeFactory.getGeneralNode(logicalPlan.shift(),
                                                        tablePrefix);
+        if (newNode.value.class === SQLPrefix.snowflakePredicatePrefix) {
+            // We need to set the data target
+            newNode.targetName = predicateTargetName;
+        }
         if (parent) {
             newNode.parent = parent;
             if (newNode.value.class ===
@@ -951,7 +958,8 @@ class SQLCompiler {
         }
         for (let i = 0; i < newNode.value["num-children"]; i++) {
             newNode.children.push(SQLCompiler.genTree(newNode, logicalPlan,
-                                                                  tablePrefix));
+                                                                  tablePrefix,
+                                                                  predicateTargetName));
         }
         return newNode;
     }
@@ -982,7 +990,8 @@ class SQLCompiler {
         for (let i = 0; i < node.children.length; i++) {
             SQLCompiler.traverse(node.children[i], promiseArray);
         }
-        if (node.value.class.indexOf(SQLPrefix.logicalOpPrefix) === 0) {
+        if (node.value.class.indexOf(SQLPrefix.logicalOpPrefix) === 0 ||
+                    node.value.class.indexOf(SQLPrefix.snowflakePredicatePrefix) === 0) {
             promiseArray.push(SQLCompiler.pushDown.bind(this, node));
         }
     }
@@ -996,14 +1005,18 @@ class SQLCompiler {
         // }
         const deferred = PromiseHelper.deferred();
         let promise;
-        const operator = treeNode.value.class.substring(
-            "org.apache.spark.sql.catalyst.plans.logical.".length);
-        if (SQLPushDownDriver.hasOwnProperty(operator)) {
-            promise = SQLPushDownDriver[operator].compile(treeNode);
+        if ( treeNode.value.class.indexOf(SQLPrefix.snowflakePredicatePrefix) == 0) {
+            promise = SQLPushDownDriver["SnowflakePredicate"].compile(treeNode);
         } else {
-            console.error("Unexpected operator: ", operator);
-            // Ignore the operator during compilation
-            promise = SQLIgnore.compile(treeNode);
+            const operator = treeNode.value.class.substring(
+                "org.apache.spark.sql.catalyst.plans.logical.".length);
+            if (SQLPushDownDriver.hasOwnProperty(operator)) {
+                promise = SQLPushDownDriver[operator].compile(treeNode);
+            } else {
+                console.error("Unexpected operator: ", operator);
+                // Ignore the operator during compilation
+                promise = SQLIgnore.compile(treeNode);
+            }
         }
         promise
         .then(function(ret) {
@@ -1031,7 +1044,8 @@ class SQLCompiler {
         for (let i = 0; i < node.children.length; i++) {
             SQLCompiler.getCli(node.children[i], cliArray);
         }
-        if (node.value.class.indexOf(SQLPrefix.logicalOpPrefix) === 0 &&
+        if ((node.value.class.indexOf(SQLPrefix.logicalOpPrefix) === 0
+            || node.value.class === SQLPrefix.snowflakePredicatePrefix) &&
             node.xcCli) {
             if (node.xcCli.endsWith(";")) {
                 node.xcCli = node.xcCli.substring(0, node.xcCli.length - 1);
@@ -1902,22 +1916,39 @@ class SQLCompiler {
             console.error(SQLErrTStr.UnsupportedColType + JSON.stringify(dataType));
             return SQLColumnType.String;
         }
-        if (dataType.indexOf("decimal(") != -1) {
-            return SQLColumnType.Money;
+        let typeStr = dataType.split("(")[0]
+        if (typeStr == "decimal" || typeStr == "number") {
+            // example format -> decimal(38, 0) or number(12, 2)
+            let tmpArr = dataType.substring(dataType.indexOf("(") + 1, dataType.indexOf(")")).split(",")
+            if (tmpArr.length > 1) {
+                let scale = tmpArr.pop()
+                if (parseInt(scale) > 0) {
+                    return SQLColumnType.Money;
+                }
+            }
+            return SQLColumnType.Integer;
         }
-        switch (dataType) {
+        switch (typeStr) {
             case ("double"):
             case ("float"):
                 return SQLColumnType.Float;
             case ("integer"):
+            case ("int"):
             case ("long"):
             case ("short"):
+            case ("bigint"):
+            case ("smallint"):
             case ("byte"):
             case ("null"):
                 return SQLColumnType.Integer;
             case ("boolean"):
                 return SQLColumnType.Boolean;
             case ("string"):
+            case ("varchar"):
+            case ("char"):
+            case ("text"):
+            case ("binary"):
+            case ("varbinary"):
                 return SQLColumnType.String;
             case ("date"):
             case ("timestamp"):

@@ -31,7 +31,7 @@ class DagCategories {
             })),
             new DagCategoryNodeSQL(DagNodeFactory.create({
                 type: DagNodeType.Module
-            })),
+            }))
         ]);
 
         let inCategory: DagCategory;
@@ -55,6 +55,10 @@ class DagCategories {
             hiddenCategory.add(new DagCategoryNodeIn(DagNodeFactory.create({
                 type: DagNodeType.Dataset
             })));
+            hiddenCategory.add(new DagCategoryNodeIn(DagNodeFactory.create({
+                type: DagNodeType.Dataset,
+                subType: DagNodeSubType.Snowflake
+            })));
 
             inCategory = new DagCategory(DagCategoryType.In, [
                 new DagCategoryNodeIn(DagNodeFactory.create({
@@ -65,7 +69,7 @@ class DagCategories {
                 })),
                 new DagCategoryNodeIn(DagNodeFactory.create({
                     type: DagNodeType.SQL
-                })),
+                }))
             ]);
         }
 

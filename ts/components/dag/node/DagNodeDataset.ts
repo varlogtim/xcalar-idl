@@ -1,11 +1,13 @@
 class DagNodeDataset extends DagNodeIn {
     protected input: DagNodeDatasetInput;
+    public xcQueryString: string;
 
     public constructor(options: DagNodeInInfo, runtime?: DagRuntime) {
         super(options, runtime);
         this.type = DagNodeType.Dataset;
         this.display.icon = "&#xe90f";
         this.input = this.getRuntime().accessible(new DagNodeDatasetInput(options.input));
+        this.xcQueryString = options.xcQueryString;
     }
 
     public static readonly specificSchema = {
@@ -55,6 +57,11 @@ class DagNodeDataset extends DagNodeIn {
                 "type": {
                   "$id": "#/properties/schema/items/properties/type",
                   "type": ["string", "null"],
+                  "subType": {
+                    "$id": "#/properties/subType",
+                    "type": ["string", "null"],
+                    "enum": [DagNodeSubType.Snowflake, null]
+                  },
                   "enum": [
                         ColumnType.integer,
                         ColumnType.float,
@@ -146,6 +153,12 @@ class DagNodeDataset extends DagNodeIn {
             hint += `Source: ${dsName}`;
         }
         return hint;
+    }
+
+    protected _getSerializeInfo(includeStats?: boolean, forCopy?: boolean):DagNodeInInfo {
+      const serializedInfo: DagNodeInInfo = <DagNodeInInfo>super._getSerializeInfo(includeStats);
+      serializedInfo.xcQueryString = this.xcQueryString;
+      return serializedInfo;
     }
 
     protected _getColumnsUsedInInput() {

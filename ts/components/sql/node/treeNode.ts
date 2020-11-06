@@ -38,6 +38,9 @@ class TreeNode {
     public order?: XcalarOrderingT;
     public sortColName?: string;
 
+    // For predicate pushdown
+    public targetName?: string;
+
     constructor(value: any, tablePrefix?: string) {
         if (value.class === "org.apache.spark.sql.execution.LogicalRDD") {
             // These are leaf nodes
@@ -67,6 +70,15 @@ class TreeNode {
                                                           rdds[i][0].dataType)};
                 this.usrCols.push(col);
             }
+        } else if (value.class == "org.apache.spark.sql.execution.PushDownPlanWrapper") {
+            // These are leaf nodes
+            this.usrCols = [];
+            this.xcCols = [];
+            this.sparkCols = [];
+            this.renamedCols = {};
+            this.orderCols = [];
+            this.dupCols = {};
+            this.targetName = "";
         }
         this.value = value;
         this.parent;
