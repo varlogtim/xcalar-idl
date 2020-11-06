@@ -2,7 +2,7 @@ class TblManager {
 
     public static maxEntriesPerPage = 60;
     private static minRowsPerScreen = 60;
-    private static firstRowPositionTop = 60;
+    public static firstRowPositionTop = 60;
     /**
      * TblManager.refreshTable
      * @param newTableNames

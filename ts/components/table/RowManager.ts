@@ -287,7 +287,7 @@ class RowManager {
         }
         const tableWrapTop: number = $tableWrap.offset().top;
         let tableBottom: number = $tableWrap.offset().top + $tableWrap.height();
-        const minTableBottom: number = tableWrapTop + gFirstRowPositionTop +
+        const minTableBottom: number = tableWrapTop + TblManager.firstRowPositionTop +
                              gRescol.minCellHeight;
         tableBottom = Math.max(tableBottom, minTableBottom);
         const $trs: JQuery = $tableWrap.find(".xcTable tbody tr");
