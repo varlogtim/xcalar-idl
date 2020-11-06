@@ -32,6 +32,7 @@ class DagNodeSQLInput extends DagNodeInput {
             "title": "The Mapping Schema",
             "minItems": 1,
             "additionalItems": false,
+            "examples": ["{\"identifier\": \"tableName\", \"source\": null}"],
             "items": {
                 "$id": "#/properties/mapping/items",
                 "type": "object",

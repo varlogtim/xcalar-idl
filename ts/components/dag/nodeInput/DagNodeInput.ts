@@ -194,6 +194,7 @@ class DagNodeInput {
         }
         const valid = this.constructor["validateFn"](input);
         if (!valid) {
+            console.log( this.constructor["validateFn"].errors);
             // only saving first error message
             const msg = this._parseValidationErrMsg( this.constructor["validateFn"].errors[0]);
             return {error: msg};
@@ -221,6 +222,23 @@ class DagNodeInput {
                 break;
             case ("additionalProperties"):
                 msg += ": " + errorObj.params.additionalProperty;
+                break;
+            case ("minItems"):
+                if (msg === "should NOT have fewer than 1 items") {
+                    msg = "should NOT have fewer than 1 item."
+                    let paths = errorObj.schemaPath.split("/");
+                    paths.unshift();
+                    paths.pop();
+                    let builtPath = this.constructor["schema"];
+                    paths.forEach((path) => {
+                        if (builtPath[path]) {
+                            builtPath = builtPath[path];
+                        }
+                    });
+                    if (builtPath.examples && builtPath.examples.length) {
+                        msg += "\n Item example: " + builtPath.examples[0];
+                    }
+                }
                 break;
             default:
             // do nothing
