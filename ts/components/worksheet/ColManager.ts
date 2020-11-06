@@ -332,11 +332,11 @@ namespace ColManager {
     ): Promise<any> {
         const isSqlTable: boolean = !$("#sqlTableArea").hasClass("dagTableMode");
         if (isSqlTable) {
-            this._createFromSQLTable(callback);
+            _createFromSQLTable(table, callback);
         } else {
-            callback.bind(this)();
+            callback.bind(this)(tabId);
         }
-        async function callback(_allNodes?: DagNode[], parentNodeId?: string) {
+        async function callback(_allNodes?: DagNode[], parentNodeId?: string, newTabId? ) {
             try {
 
                 const type: DagNodeType = DagNodeType.Sort;
@@ -356,8 +356,10 @@ namespace ColManager {
                     newKeys: []
                 };
 
+                tabId = newTabId || tabId;
+
                 DagTabManager.Instance.switchTab(tabId);
-                let parentNodeId = DagTable.Instance.getBindNodeId();
+                parentNodeId = parentNodeId || DagTable.Instance.getBindNodeId();
                 let parentNode = DagViewManager.Instance.getActiveDag().getNode(parentNodeId);
                 let node: DagNodeSort;
                 if (parentNode && parentNode instanceof DagNodeSort && parentNode.getParents()[0]) {
@@ -380,6 +382,77 @@ namespace ColManager {
                 console.error("error", e);
                 Alert.error(ErrTStr.Error, ErrTStr.Unknown);
             }
+        }
+    }
+
+    async function _createFromSQLTable(table, callback) {
+        /*
+            check if sql statement exists, if so then we create a dataflow, and copy
+            and paste the nodes from this dataflow into the active dataflow in
+            the dataflow panel, then we attach a node from whatever operation
+            is triggered by the column menu. The callback function then configures
+            that node and opens the operation panel or executes
+            If sql statement doesn't exist, we just create a published table node
+            from the table
+        */
+        try {
+            let tableName: string;
+            let sqlString: string;
+            if (table) {
+                tableName = table.getName();
+                sqlString = SqlQueryHistory.getInstance().getSQLFromTableName(tableName);
+            }
+
+            if (sqlString) {
+                this._restoreDataflow(sqlString)
+                .then((newNodes) => {
+                    let tabId = null;
+                    if (DagTabManager.Instance.getNumTabs() === 0) {
+                        tabId = DagTabManager.Instance.newTab();
+                    }
+
+                    let parentNodeId;
+                    newNodes.forEach((node) => {
+                        if (node.getChildren().length === 0) {
+                            parentNodeId = node.getId();
+                        }
+                    });
+                    callback.bind(this)(newNodes, parentNodeId, tabId);
+                })
+                .fail((e) => {
+                    console.error("error", e);
+                    Alert.error(ErrTStr.Error, ErrTStr.Unknown);
+                });
+            } else {
+                // sql string may not exist so we just create a published
+                // table node as the start point
+                const tabId = DagTabManager.Instance.newTab();
+
+                const input = {
+                    "source": xcHelper.getTableName(tableName),
+                    "schema": table.getAllCols(true).map((progCol) => {
+                                    return {
+                                        name: progCol.getBackColName(),
+                                        type: progCol.getType()
+                                    }
+                            })
+                };
+
+                let parentNode = await DagViewManager.Instance.autoAddNode(DagNodeType.IMDTable,
+                    null, null, input, {
+                        configured: true,
+                        forceAdd: true
+                });
+                if (parentNode) {
+                    parentNode.setParam(input, true);
+                    callback.bind(this)([parentNode], parentNode.getId(), tabId);
+                } else {
+                    Alert.error(ErrTStr.Error, "Module not found");
+                }
+            }
+        }  catch (e) {
+            console.error("error", e);
+            Alert.error(ErrTStr.Error, ErrTStr.Unknown);
         }
     }
 
