@@ -4389,6 +4389,16 @@ class DagView {
 
     private _updateTableNameText($node: JQuery, node: DagNode) {
         let fullTableName: string = node.getTable() || "";
+        if (node.getParam().icv && node.getComplementNodeId()) {
+            const complementNodeId = node.getComplementNodeId();
+            const complementNode = this.graph.getNode(complementNodeId);
+            if (complementNode && complementNode.getTable()) {
+                fullTableName = complementNode.getTable();
+                const prefix = xcHelper.getTableName(fullTableName);
+                const suffix = xcHelper.getTableId(fullTableName);
+                fullTableName = prefix + "_ERRORS#" + suffix;
+            }
+        }
         let tableName: string;
         if (fullTableName.length > 14) {
             tableName = fullTableName.slice(0, 7) + "..." + fullTableName.slice(-7);

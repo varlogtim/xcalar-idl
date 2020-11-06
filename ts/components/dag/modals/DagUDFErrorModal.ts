@@ -245,8 +245,8 @@ class DagUDFErrorModal {
         }
 
         input.icv = true;
-        if ( node.getTable()) {
-            input.outputTableName = node.getTable().replace(/#/g, "") + "_ERRORS";
+        if (node.getTable()) {
+            input.outputTableName = xcHelper.getTableName(node.getTable()) + "_ERRORS";
         } else {
             if (input.outputTableName) {
                 input.outputTableName += "_ERRORS";
