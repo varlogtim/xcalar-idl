@@ -119,7 +119,7 @@ describe('SchemaLoadService Test', function() {
         } catch(_) {
             isICVExist = false;
         }
-        expect(isICVExist, 'Check ICV table existence').to.be.true;
+        expect(isICVExist, 'Check ICV table existence').to.be.false;
 
         let isDataExist = false;
         try {
@@ -144,7 +144,7 @@ describe('SchemaLoadService Test', function() {
         const numTablesAfter = (await session.listTables({
             namePattern: '*', isGlobal: false
         })).length;
-        expect(numTablesAfter).to.equal(numTablesBefore + 2);
+        expect(numTablesAfter).to.equal(numTablesBefore + 1);
 
         // Verify datasets
         const numDatasetsAfter = (await session.callLegacyApi(
@@ -230,11 +230,10 @@ describe('SchemaLoadService Test', function() {
         let loadUDFs = null;
 
         before(async () => {
+            await createResultTables();
             const graph = await createLoadGraph();
             const moduleNames = graph.getUsedLoaderUDFModules();
             loadUDFs = await getUDFContent(sessionName, moduleNames);
-
-            await createResultTables();
         });
 
         after(async () => {
@@ -438,11 +437,34 @@ describe('SchemaLoadService Test', function() {
         const dataName = `${baseName}_DATA`;
         const icvName = `${baseName}_ICV`;
 
+        // Create App
+        app = await createDiscoverApp({
+            targetName: defaultConnector,
+        });
+
+        // Get DFs
+        const {
+            cancel: getQueryCancel,
+            done: getQueryDone,
+            cleanup: getQueryCleanup
+        } = app.getCreateTableQueryWithCancel({
+            path: filePath, filePattern: fileNamePattern,
+            inputSerialization: inputSerialization,
+            isRecursive: false,
+            schema: dataSchema
+        });
+
+        // Generate DFs
+        const queries = await getQueryDone();
+
+        const { cancel: createCancel, done: createDone } = app.createResultTablesWithCancel(queries);
+        resultTables = await createDone();
+
         // Publish tables
         const compHasData = await app.publishResultTables(
             resultTables,
             { data: dataName, comp: icvName },
-            tableQuery
+            queries
         );
 
         publishedTables.data = dataName;

@@ -537,11 +537,10 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                         })
                     });
 
-                    await Promise.all([
-                        tables.load.destroy(),
-                        tables.data.destroy(),
-                        tables.comp.destroy()
-                    ]);
+                    await Promise.all([tables.load, tables.data, tables.comp]
+                        .filter((t) => (t != null))
+                        .map((t) => t.destroy())
+                    );
                 } else {
                     // Publish to SharedTable
                     const { data: sharedDataTable, icv: sharedICVTable } = await this._shareDataCompTables(app, tables, tableName);
@@ -558,9 +557,6 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                     });
 
                     const cleanupTasks = [tables.load.destroy()];
-                    if (sharedICVTable == null) {
-                        cleanupTasks.push(tables.comp.destroy());
-                    }
                     await Promise.all(cleanupTasks);
                 }
 

@@ -328,37 +328,42 @@ async function createDiscoverApp(params: {
             }
 
             // Execute ICV DF
-            const compQuery = JSON.parse(compQueryOpt).retina;
-            const compProgress = updateProgress((p) => progressCB(p), 80, 99);
-            try {
-                const icvQueryName = `q_${loadId}_comp`;
-                const icvJob = session.executeQueryOptimized({
-                    queryStringOpt: compQuery,
-                    queryName: icvQueryName,
+            let compTable = null;
+            const numRowsTotal = await getNumRows(loadTable);
+            const numRowsData = await getNumRows(dataTable);
+            if (numRowsData != numRowsTotal) {
+                const compQuery = JSON.parse(compQueryOpt).retina;
+                const compProgress = updateProgress((p) => progressCB(p), 80, 99);
+                try {
+                    const icvQueryName = `q_${loadId}_comp`;
+                    const icvJob = session.executeQueryOptimized({
+                        queryStringOpt: compQuery,
+                        queryName: icvQueryName,
+                        tableName: tableNames.comp
+                    });
+                    setRunningQuery(icvQueryName);
+                    await icvJob;
+                    compProgress.done();
+                } catch(e) {
+                    if (isCancelled()) {
+                        console.log('Cancel: icv excution');
+                        throw JobCancelExeption;
+                    } else {
+                        throw e;
+                    }
+                } finally {
+                    setRunningQuery(null);
+                    compProgress.stop();
+                }
+                compTable = new Table({
+                    session: session,
                     tableName: tableNames.comp
                 });
-                setRunningQuery(icvQueryName);
-                await icvJob;
-                compProgress.done();
-            } catch(e) {
+                failCleanupJobs.push(() => compTable.destroy());
                 if (isCancelled()) {
-                    console.log('Cancel: icv excution');
+                    console.log('Cancel: post icv excution');
                     throw JobCancelExeption;
-                } else {
-                    throw e;
                 }
-            } finally {
-                setRunningQuery(null);
-                compProgress.stop();
-            }
-            const compTable = new Table({
-                session: session,
-                tableName: tableNames.comp
-            });
-            failCleanupJobs.push(() => compTable.destroy());
-            if (isCancelled()) {
-                console.log('Cancel: post icv excution');
-                throw JobCancelExeption;
             }
 
             // Delete Load XDB but keep lineage
@@ -401,6 +406,19 @@ async function createDiscoverApp(params: {
         }
     }
 
+    async function getNumRows(table: Table) {
+        const cursor = table.createCursor(false);
+        try {
+            await cursor.open();
+            return cursor.getNumRows();
+        } catch(e) {
+            console.log('getNumRow: ', e);
+            return 0;
+        } finally {
+            await cursor.close();
+        }
+    }
+
     const app: App = {
         appId: appId,
         getSession: () => session,
@@ -410,19 +428,8 @@ async function createDiscoverApp(params: {
             // Publish data table
             const dataTable = await tables.data.share();
 
-            // Check if comp table is empty
-            let compHasData = false;
-            const cursor = tables.comp.createCursor(false);
-            try {
-                await cursor.open();
-                if (cursor.getNumRows() > 0) {
-                    compHasData = true;
-                }
-            } finally {
-                cursor.close();
-            }
-
             // Publish comp table
+            const compHasData = tables.comp != null;
             let icvTable = null;
             if (compHasData) {
                 icvTable = await tables.comp.share();
@@ -438,23 +445,16 @@ async function createDiscoverApp(params: {
             const { dataQueryComplete = '[]', compQueryComplete = '[]' } = dataflows || {};
 
             // Publish data table
-            await tables.data.publishWithQuery(dataName, JSON.parse(dataQueryComplete));
-
-            // Check if comp table is empty
-            let compHasData = false;
-            const cursor = tables.comp.createCursor(false);
-            try {
-                await cursor.open();
-                if (cursor.getNumRows() > 0) {
-                    compHasData = true;
-                }
-            } finally {
-                cursor.close();
-            }
+            await tables.data.publishWithQuery(dataName, JSON.parse(dataQueryComplete), {
+                isDropSrc: true
+            });
 
             // Publish comp table
+            const compHasData = tables.comp != null;
             if (compHasData) {
-                await tables.comp.publishWithQuery(compName, JSON.parse(compQueryComplete));
+                await tables.comp.publishWithQuery(compName, JSON.parse(compQueryComplete), {
+                    isDropSrc: true
+                });
             }
 
             return compHasData;

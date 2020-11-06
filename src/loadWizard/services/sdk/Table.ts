@@ -74,12 +74,16 @@ class Table {
      * @param {string} publishedName
      * @param {any[]} query
      */
-    public async publishWithQuery(publishedName, query) {
+    public async publishWithQuery(publishedName, query, options?: {
+        isDropSrc?: boolean
+    }) {
+        const { isDropSrc = false } = options || {};
+
         const srcTableName = this.getName();
         // Publish table
         await this._session.callLegacyApi(
             () => XcalarPublishTable(
-                srcTableName, publishedName
+                srcTableName, publishedName, null, isDropSrc
             )
         );
 
