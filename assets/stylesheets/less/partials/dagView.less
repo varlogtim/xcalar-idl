@@ -473,10 +473,6 @@
         }
 
         &.hasUdfError {
-            .opTitle {
-                transform: translate(4px, 0px);
-            }
-
             .iconArea {
                 pointer-events: initial;
                 cursor: pointer;
@@ -536,18 +532,36 @@
                 stroke: @color-outline-blue;
                 stroke-width: 2;
             }
-            .connectorInVisible {
+            .connInGroup:not(.noIn) .connectorInVisible {
                 stroke: @color-outline-blue;
                 stroke-width: 2;
             }
             .opTitle {
                 font-weight: 600;
             }
+
+            &.icv {
+                .connectorInVisible, .main {
+                    stroke: darken(@color-error-red, 10%);
+                }
+            }
         }
 
         &.tableSelected {
-            .mainTableIcon {
+            .connectorOutVisible {
                 stroke: @color-outline-blue;
+            }
+            .mainTableIcon {
+                fill: @color-outline-blue;
+            }
+            &.icv {
+                .mainTableIcon, .connectorOutVisible {
+                    stroke: darken(@color-error-red, 10%);
+                }
+                .mainTableIcon {
+                    fill:darken(@color-error-red, 10%);
+                    stroke: darken(@color-error-red, 10%);
+                }
             }
         }
 
@@ -606,6 +620,10 @@
             cursor: pointer;
         }
 
+        .udfErrorIcon {
+            cursor: pointer;
+        }
+
         .tableLine {
             cursor: initial;
         }
@@ -616,8 +634,11 @@
         }
 
         &.icv {
+            .tableLine, .connectorOutVisible, .connectorInVisible, .main {
+                stroke:  @color-error-red;
+            }
             .mainTableIcon {
-                fill: darken(@color-error-red, 10%);
+                fill: @color-error-red;
             }
         }
 
@@ -1995,7 +2016,7 @@
     &.linkInMenu {
         .findLinkOut {
             .icon {
-                color: darken(@color-operator-in, 10%);
+                color: darken(@color-operator-in, 30%);
             }
 
             display: list-item;
@@ -2010,7 +2031,7 @@
         .restoreSource {
             display: list-item;
             .icon {
-                color: darken(@color-operator-in, 10%);
+                color: darken(@color-operator-in, 30%);
             }
         }
     }

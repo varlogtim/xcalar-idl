@@ -13,14 +13,15 @@ class DagView {
     public static readonly nodeAndTableWidth = DagView.nodeWidth + DagView.tableWidth + 32;
     public static readonly gridSpacing = 20;
     public static zoomLevels = [.25, .5, .75, 1, 1.2, 1.5, 2];
-    public static iconOrder = ["tableIcon", "columnIcon", "descriptionIcon", "lockIcon", "aggregateIcon", "paramIcon"];
+    public static iconOrder = ["tableIcon", "columnIcon", "descriptionIcon", "lockIcon", "aggregateIcon", "paramIcon", "udfErrorIcon"];
     public static iconMap = {
         "descriptionIcon": "\ue966", // xi-info-no-bg
         "lockIcon": "\ue940", // xi-lock
         "aggregateIcon": "\ue939", // xi-aggregate
         "paramIcon": "\uea69", // xi-parameter
         "tableIcon": "\ue920", // xi-show
-        "columnIcon": "c"
+        "columnIcon": "c",
+        "udfErrorIcon": "\ue9c8"
     };
 
     private containerSelector: string = "#dagView";
@@ -4117,46 +4118,55 @@ class DagView {
     }
 
     private _updateNodeUDFErrorIcon($node: JQuery, node: DagNode) {
-        if ($node.find("iconArea").length) {
-            $node.find("iconArea").remove();
-        }
         $node.addClass("hasUdfError");
-        const g = d3.select($node.get(0));
-
-        g.append("rect")
-            .attr("class", "iconArea")
-            .attr("clip-path", "url(#cut-off-right)")
-            .attr("x", 0)
-            .attr("y", 0)
-            .attr("width", 23)
-            .attr("height", DagView.nodeHeight)
-            .attr("stroke", "#849CB0")
-            .attr("stroke-width", 1)
-            .attr("fill", DagView.udfErrorColor);
-
-        g.append("text")
-            .attr("class", "icon")
-            .attr("x", 9)
-            .attr("y", 19)
-            .attr("font-family", "icomoon")
-            .attr("font-size", 13)
-            .attr("fill", "white")
-            .attr("font-family", "icomoon")
-            .text("\uea70");
-
+        let tooltip;
         if (node instanceof DagNodeSQL) {
             let numFailed = xcStringHelper.numToStr(Object.keys(node.getUDFErrors()).length);
-            xcTooltip.add($node.find(".iconArea"), {title: numFailed + " map operator(s) with errors. Inspect to view details."});
+            tooltip =  numFailed + " map operator(s) with errors. Inspect to view details.";
         } else {
             let numFailed = xcStringHelper.numToStr(node.getUDFError().numRowsFailedTotal);
-            xcTooltip.add($node.find(".iconArea"), {title: numFailed + " rows failed. Click to view details."});
+            tooltip = numFailed + " rows failed. Click to view details.";
         }
+        xcTooltip.add($node.find(".iconArea"), {title: tooltip});
+
+        let iconType = "udfErrorIcon";
+        let fontSize: number = 13;
+        let iconLeft: number = 10;
+        let iconTop: number = 6;
+        let left = 0;
+        let tipClasses: string = "";
+        let fontFamily: string = "icomoon";
+        let topClass = " topNodeIcon ";
+
+        const g = d3.select($node.get(0)).append("g")
+        .attr("class", iconType + topClass + " nodeIcon")
+        .attr("transform", `translate(${left}, ${top})`);
+
+        g.append("circle")
+            .attr("cx", 16)
+            .attr("cy", 0)
+            .attr("r", 5)
+            .style("stroke", "black")
+            .style("fill", "black");
+        g.append("text")
+            .attr("font-family", fontFamily)
+            .attr("font-size", fontSize)
+            .attr("fill", DagView.udfErrorColor)
+            .attr("x", iconLeft)
+            .attr("y", iconTop)
+            .text(function (_d) {return DagView.iconMap[iconType]});
+
+        xcTooltip.add($node.find("." + iconType), {
+            title: tooltip,
+            classes: tipClasses
+        });
     }
 
     private _removeNodeUDFErrorIcon($node: JQuery): void {
         $node.removeClass("hasUdfError");
-        $node.find(".iconArea").remove();
-        $node.find(".icon").remove();
+        $node.find(".udfErrorIcon").remove();
+        // $node.find(".iconArea").remove();
+        // $node.find(".icon").remove();
     }
 
     private _updateConnectorIn($node: JQuery, numInputs: number) {

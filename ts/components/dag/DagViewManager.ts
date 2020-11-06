@@ -1431,6 +1431,12 @@ class DagViewManager {
             DagDescriptionModal.Instance.show(nodeId, false);
         });
 
+        $dfWraps.on("click", ".udfErrorIcon", function () {
+            const nodeId: DagNodeId = $(this).closest(".operator")
+                .data("nodeid");
+            DagUDFErrorModal.Instance.show(nodeId);
+        });
+
         // add classes to skewTh and skewTd because we can't use
         // css to control their hover states together
         $dfWraps.on("mouseenter", ".skewTh, .skewTd", function() {

@@ -96,6 +96,7 @@ namespace xcTooltip {
      * @param delay
      */
     export function transient($element: JQuery, options: TooltipOptions, delay?: number): number {
+        if (!$element || !$element.length) return;
         const defaultOptions: TooltipOptions = {
             "title": "",
             "placement": "auto top",
@@ -111,6 +112,7 @@ namespace xcTooltip {
         $element.tooltip("show");
 
         const $tooltip: JQuery = $element.data("bs.tooltip").$tip;
+        $tooltip.addClass("noHide");
         let timer: number = null;
         if (delay != null) {
             timer = window.setTimeout(function() {

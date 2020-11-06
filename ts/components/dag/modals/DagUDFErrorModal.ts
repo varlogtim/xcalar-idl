@@ -5,6 +5,7 @@ class DagUDFErrorModal {
     private _node: DagNode;
     private _tabId: string;
     private _isOptimized: boolean;
+    private _tooltipCount = 0;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -271,8 +272,12 @@ class DagUDFErrorModal {
             }
             icvNode = await DagViewManager.Instance.autoAddNode(type, subType, parentNode.getId(), null, {
                         nodeTitle: oldTitle,
-                        byPassAlert: true
+                        byPassAlert: true,
+                        x: node.getPosition().x,
+                        y: node.getPosition().y + (DagView.gridSpacing * 4)
                     }) as DagNodeMap;
+        } else {
+            DagViewManager.Instance.getNode(icvNode.getId(), tabId).scrollintoview({duration: 0});
         }
 
         if (!icvNode) {
@@ -282,6 +287,15 @@ class DagUDFErrorModal {
         icvNode.setParam(input, true);
         icvNode.setComplementNodeId(node.getId());
         node.setComplementNodeId(icvNode.getId());
+
+        const $icvNode = DagViewManager.Instance.getNode(icvNode.getId(), tabId);
+        this._tooltipCount++;
+        if (this._tooltipCount < 4) {
+            xcTooltip.transient($icvNode.find(".connectorInVisible"), {
+                title: "Error node has been generated. You can edit the original node to debug.",
+                placement: "auto left"
+            }, 4000);
+        }
 
         DagViewManager.Instance.run([icvNode.getId()], false, false, true)
         .then(() => {
