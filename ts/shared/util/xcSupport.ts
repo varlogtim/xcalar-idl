@@ -85,10 +85,10 @@ namespace XcSupport {
      * XcSupport.heartbeatCheck
      */
     export function heartbeatCheck(): boolean {
-        if (WorkbookManager.getActiveWKBK() == null) {
-            console.info("no active workbook, not check");
-            return false;
-        }
+        // if (WorkbookManager.getActiveWKBK() == null) {
+        //     console.info("no active workbook, not check");
+        //     return false;
+        // }
 
         let isChecking: boolean = false;
         // 2 mins each check by default

@@ -100,11 +100,11 @@ describe('XcSupport Test', () => {
             expect(res).to.be.true;
         });
 
-        it('heartbeatCheck should not work if no active', () => {
+        it('heartbeatCheck should work if no active workbook', () => {
             const oldFunc = WorkbookManager.getActiveWKBK;
             WorkbookManager.getActiveWKBK = () => null;
             const res = XcSupport.heartbeatCheck();
-            expect(res).to.be.false;
+            expect(res).to.be.true;
             WorkbookManager.getActiveWKBK = oldFunc;
         });
     });
