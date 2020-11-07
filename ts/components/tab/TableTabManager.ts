@@ -246,6 +246,13 @@ class TableTabManager extends AbstractTabManager {
         $rename.addClass("unavailable");
         xcTooltip.add($rename, {title: "Tables cannot be renamed"});
         $menu.find(".duplicate").remove();
+        $tabArea.off("click", ".tab", (event) => {
+            const $tab: JQuery = $(event.currentTarget);
+            // dragging when sorting will trigger an unwanted click
+            if (!$tab.hasClass("ui-sortable-helper")) {
+                this._switchTabs($tab.index());
+            }
+        });
     }
 
     private _getTabIndexByName(name: string): number {
@@ -335,7 +342,7 @@ class TableTabManager extends AbstractTabManager {
 
     private async _switchResult(index?: number, loadingState: boolean = false): Promise<void> {
         try {
-            index = super._switchTabs(index);
+            index = this._switchTabsHelper(index);
             const tab = this._activeTabs[index];
             let viewName: string = "result";
             switch (tab.type) {
@@ -370,7 +377,7 @@ class TableTabManager extends AbstractTabManager {
                     break;
             }
             if (this._activeTabs[index]) {
-                super._switchTabs(index); // call again after async calls return
+                this._switchTabsHelper(index); // call again after async calls return
                 // in case tab was switched during wait
             }
             SQLResultSpace.Instance.switchTab(viewName);
@@ -378,6 +385,18 @@ class TableTabManager extends AbstractTabManager {
         } catch (e) {
             this._handleErrorCase(e);
         }
+    }
+
+    private _switchTabsHelper(index) {
+        if (index == null) {
+            index = this.getNumTabs() - 1;
+        }
+        const $tabs: JQuery = this._getTabsEle();
+        const $tab: JQuery = $tabs.eq(index);
+        $tabs.removeClass("active");
+        $tab.addClass("active");
+        $tab.scrollintoview({duration: 0});
+        return index;
     }
 
     private async _viewResult(
