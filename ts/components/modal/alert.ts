@@ -102,7 +102,7 @@ namespace Alert {
         modalHelper.setup(getExtraOptions(options));
 
         setButtonSize($modal);
-        setModalSize($modal, options.sizeToText);
+        setModalSize($modal, options.sizeToText, options);
         modalHelper.center({verticalQuartile: true});
         return id;
     }
@@ -357,7 +357,10 @@ namespace Alert {
         }
     }
 
-    function setModalSize($modal: JQuery, sizeToText: boolean): void {
+    function setModalSize($modal: JQuery, sizeToText: boolean, options): void {
+        if (options.size && options.size === "large") {
+            $modal.width(800);
+        }
         if (typeof isBrowserIE !== 'undefined' && isBrowserIE) { // all text will be on 1 line otherwise
             const width: number = $modal.width();
             setTimeout(() => {
@@ -370,7 +373,7 @@ namespace Alert {
             const $section: JQuery = $("#alertContent");
             const diff: number = $section.find(".text").outerHeight() - $section.height();
             if (diff > 0) {
-                const height: number = Math.min($modal.height() + diff + 10, $(window).height());
+                const height: number = Math.min($modal.height() + diff + 10, $(window).height() - 100);
                 $modal.height(height);
                 modalHelper.center({verticalQuartile: true});
             }

@@ -478,9 +478,10 @@ module.exports = {
         "UDFsHint": "Custom Scalar Functions",
         "AddUDF": "Add Custom Scalar Function",
         "UseInSQL": "Use in SQL",
-        "UseInModule": "Add to plan",
+        "UseInModule": "Add to Plan",
         "Edit": "Edit",
-        "DelApp": "Delete Apps"
+        "DelApp": "Delete Apps",
+        "viewSourceInfo": "View Source Details"
     },
 
     "bottomMenu": {

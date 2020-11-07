@@ -507,6 +507,36 @@ class ResourceMenu {
         }
     }
 
+    private async _tableSourceInfo(tableName: string): Promise<void> {
+        // const node = new DagNodeIMDTable({subGraph: null, schema: null, headName: null});
+        const node = new DagNodeIMDTable({} as any);
+        let sources = [];
+        try {
+            await node.fetchAndSetSubgraph(tableName);
+            const loadArgs = node.getLoadArgs();
+            for (let i in loadArgs) {
+                let item = loadArgs[i];
+                item.forEach((arg) => {
+                    sources.push(arg);
+                });
+            }
+            if (!sources.length) {
+                throw "no load args found";
+            }
+            Alert.show({
+                title: "Table Source",
+                instr: tableName,
+                isInfo: true,
+                sizeToText: true,
+                size: "large",
+                msgTemplate: `<pre style="white-space:pre-wrap;">${JSON.stringify(sources, null, 4)}<pre>`;
+            });
+        } catch (e) {
+            console.error(e);
+            Alert.show({title:"Table Source", msg: "Source details for this table are unavailable."});
+        }
+    }
+
     private async _tableModule(tableName: string): Promise<void> {
         const table = PTblManager.Instance.getTableByName(tableName);
         if (table == null) {
@@ -564,6 +594,11 @@ class ResourceMenu {
         $menu.on("click", ".tableQuery", () => {
             const name: string = $menu.data("name");
             this._tableQuery(name);
+        });
+
+        $menu.on("click", ".tableSource", () => {
+            const name: string = $menu.data("name");
+            this._tableSourceInfo(name);
         });
 
         $menu.on("click", ".tableSchema", () => {
