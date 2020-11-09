@@ -284,6 +284,8 @@ class DagUDFErrorModal {
             return;
         }
         icvNode.beConfiguredState();
+        icvNode.resetColumnDeltas();
+        icvNode.resetColumnOrdering();
         icvNode.setParam(input, true);
         icvNode.setComplementNodeId(node.getId());
         node.setComplementNodeId(icvNode.getId());
@@ -303,15 +305,21 @@ class DagUDFErrorModal {
             return DagViewManager.Instance.viewResult(icvNode, tabId);
         })
         .then(() => {
-            TblManager.highlightColumn($("#sqlTableArea .xcTable th.col1"));
+            let selectors = [];
+            node.getParam().eval.forEach((param, i) => {
+                selectors.push(`th.col${i + 1}`);
+                TblManager.highlightColumn($("#sqlTableArea .xcTable").find(`th.col${i + 1}`), true);
+            });
         });
     }
 
-    private _reorderColumns(mapNode) {
+    private _reorderColumns(mapNode: DagNodeMap) {
         const columns = mapNode.getLineage().getColumns().map(c => c.getBackColName());
         if (!columns.length) return;
-        const col = columns.pop();
-        columns.unshift(col);
+        mapNode.getParam().eval.forEach(() => {
+            const col = columns.pop();
+            columns.unshift(col);
+        });
         mapNode.columnChange(DagColumnChangeType.Reorder, columns);
     }
 }
