@@ -37,12 +37,12 @@ function Success({ isLoading, dataTable, icvTable, onShowICV = () => {} }) {
     if (icvTable == null) {
         // Hasn't been checked
         if (isLoading) {
-            return <LoadingText>{Texts.created} Checking Errors</LoadingText>
+            return <LoadingText>{Texts.created} Checking for Errors</LoadingText>
         } else {
             return (
                 <span>
                     {Texts.created}
-                    <span className="xc-action" onClick={() => onShowICV()}>Check Errors</span>
+                    <span className="xc-action loadingCell-link" onClick={() => onShowICV()}>Check for Errors</span>
                     <i className="icon qMark xi-unknown" data-toggle="tooltip" data-container="body" data-title={Texts.ComplementTableHint}></i>
                 </span>
             )
@@ -56,7 +56,7 @@ function Success({ isLoading, dataTable, icvTable, onShowICV = () => {} }) {
     return (
         <span>
             {Texts.created}
-            <span className="xc-action" onClick={() => onShowICV()}>Show Errors</span>
+            <span className="xc-action loadingCell-link" onClick={() => onShowICV()}>Show Errors</span>
             <i className="icon qMark xi-unknown" data-toggle="tooltip" data-container="body" data-title={Texts.ComplementTableHint2}></i>
         </span>
     );
