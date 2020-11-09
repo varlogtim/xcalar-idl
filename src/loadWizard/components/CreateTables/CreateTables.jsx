@@ -23,6 +23,7 @@ class CreateTables extends React.Component {
             tables, // Map<schemaName, tableName>
             onClickCreateTable = (schemaName, tableName) => {},
             onClickCancel = () => {},
+            onShowICV,
             onLoadSchemaDetail = (schemaHash) => {},
             onLoadFailureDetail = () => {},
             onFetchData,
@@ -49,6 +50,7 @@ class CreateTables extends React.Component {
                         onClickCreateTable={onClickCreateTable}
                         onClickCancel={onClickCancel}
                         onTableNameChange={onTableNameChange}
+                        onShowICV={onShowICV}
                     />
                 </div>
             </div>

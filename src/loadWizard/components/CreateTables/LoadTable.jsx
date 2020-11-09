@@ -223,6 +223,7 @@ function LoadTable({
     onClickFailedSchema = () => {},
     onClickCreateTable = (schemaName) => {},
     onClickCancel = () => {},
+    onShowICV,
     onFetchData = async (page, rowsPerPage) => {},
     onTableNameChange
 }) {
@@ -290,7 +291,12 @@ function LoadTable({
                 rowData.load = <LoadCell.Error error={schemasFailed.get(schemaName)} />
             } else if (tables.has(schemaName)) {
                 const createdRes = tables.get(schemaName);
-                rowData.load = <LoadCell.Success complementTable={createdRes.complementTable}/>
+                rowData.load = <LoadCell.Success
+                    isLoading={createdRes.isLoading}
+                    dataTable={createdRes.table}
+                    icvTable={createdRes.icvTable}
+                    onShowICV={onShowICV}
+                />
                 rowData.tableName = <span style={{userSelect: 'text'}}>{createdRes.table}</span>;
             } else {
                 const tableName = tablesInInput.get(schemaName);

@@ -190,10 +190,10 @@ class DataPreview extends React.Component {
 
 class DataPreviewModal extends React.Component {
     render() {
-        const { onClose, onFetchData, onFetchMeta } = this.props;
+        const { onClose, onFetchData, onFetchMeta, title = 'Table Preview' } = this.props;
         return (
             <Modal.Dialog>
-                <Modal.Header onClose={onClose}>Table Preview</Modal.Header>
+                <Modal.Header onClose={onClose}>{title}</Modal.Header>
                 <Modal.Body style={{padding: '12px', overflow: 'hidden', display: 'flex', flexDirection: 'column'}}>
                     <DataPreview pageSize={20} onFetchData={onFetchData} onFetchMeta={onFetchMeta}/>
                 </Modal.Body>

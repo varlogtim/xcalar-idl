@@ -21,6 +21,8 @@ import {
 import { DataPreviewModal } from './DataPreview'
 import LoadStep from './LoadStep';
 import RefreshIcon from '../../components/widgets/RefreshIcon';
+import { LoadSession } from '../services/sdk/Session'
+import { Table } from '../services/sdk/Table'
 
 /**
  * UI texts for this component
@@ -151,7 +153,10 @@ type LoadConfigState = {
     onCancelCreate: () => void,
     createInProgress: Map<string, {table: string, message: string}>,
     createFailed: Map<string, string>,
-    createTables: Map<string, {table: string, complementTable: string}>,
+    createTables: Map<string, {table: string, icvTable: string, appId: string, isLoading: boolean}>,
+    errorPreviewState: {
+        tableName: string
+    },
 
     schemaDetailState: {
         isLoading: boolean,
@@ -257,6 +262,9 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             createInProgress: new Map(), // Map<schemaName, tableName>
             createFailed: new Map(), // Map<schemaName, errorMsg>
             createTables: new Map(), // Map<schemaName, tableName>
+            errorPreviewState: {
+                tableName: null
+            },
 
             // Detail
             schemaDetailState: {
@@ -332,37 +340,22 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
         }
     }
 
-    async _publishDataCompTables(app, tables, publishTableName, dataflows) {
+    async _publishDataTable(srcTable, publishTableName, creationQuery) {
         const dataName = PTblManager.Instance.getUniqName(publishTableName.toUpperCase());
-        const compName = PTblManager.Instance.getUniqName(publishTableName + '_ERROR');
 
         try {
             PTblManager.Instance.addLoadingTable(dataName);
-            PTblManager.Instance.addLoadingTable(compName);
-
-            // Publish tables
-            const compHasData = await app.publishResultTables(
-                tables,
-                { data: dataName, comp: compName },
-                dataflows
-            )
+            await srcTable.publishWithQuery(dataName, JSON.parse(creationQuery), {
+                isDropSrc: true
+            });
 
             // XD table operations
             PTblManager.Instance.removeLoadingTable(dataName);
-            PTblManager.Instance.removeLoadingTable(compName);
             PTblManager.Instance.addTable(dataName);
-            if (compHasData) {
-                PTblManager.Instance.addTable(compName);
-            }
 
-            return {
-                table: dataName,
-                complementTable: compHasData ? compName : null
-            };
-
+            return  dataName;
         } catch(e) {
             PTblManager.Instance.removeLoadingTable(dataName);
-            PTblManager.Instance.removeLoadingTable(compName);
             throw e;
         }
     }
@@ -503,7 +496,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             cleanupCancelledJobs.push(getQueryCleanup);
             const query = await getQueryDone();
 
-            // Create data/comp session tables
+            // Create data session tables
             const { cancel: createCancel, done: createDone } = app.createResultTablesWithCancel(query, (progress) => {
                 this.setState((state) => {
                     const { createInProgress } = state;
@@ -523,26 +516,26 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             try {
                 if (isPublishTables) {
                     // Publish to IMDTable
-                    const result = await this._publishDataCompTables(app, tables, tableName, {
-                        dataQueryComplete: query.dataQueryComplete,
-                        compQueryComplete: query.compQueryComplete
-                    });
+                    const dataTableName = await this._publishDataTable(tables.load, tableName, query.dataQueryComplete);
 
                     // State: -loading + created
                     this.setState({
                         createInProgress: deleteEntry(this.state.createInProgress, schemaName),
                         createTables: this.state.createTables.set(schemaName, {
-                            table: result.table,
-                            complementTable: result.complementTable
+                            table: dataTableName,
+                            icvTable: null,
+                            appId: loadAppId,
+                            isLoading: false
                         })
                     });
 
-                    await Promise.all([tables.load, tables.data, tables.comp]
-                        .filter((t) => (t != null))
-                        .map((t) => t.destroy())
-                    );
+                    // await Promise.all([tables.load, tables.data, tables.comp]
+                    //     .filter((t) => (t != null))
+                    //     .map((t) => t.destroy())
+                    // );
                 } else {
                     // Publish to SharedTable
+                    // XXX TODO: this execution path is broken due to the one dataflow change
                     const { data: sharedDataTable, icv: sharedICVTable } = await this._shareDataCompTables(app, tables, tableName);
 
                     // State: -loading + created
@@ -550,9 +543,12 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                         createInProgress: deleteEntry(this.state.createInProgress, schemaName),
                         createTables: this.state.createTables.set(schemaName, {
                             table: sharedDataTable.getName(),
-                            complementTable: sharedICVTable == null
-                                ? null
-                                : sharedICVTable.getName()
+                            icvTable: null,
+                            appId: loadAppId,
+                            isLoading: false
+                            // complementTable: sharedICVTable == null
+                            //     ? null
+                            //     : sharedICVTable.getName()
                         })
                     });
 
@@ -570,16 +566,16 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             } catch(e) {
                 await Promise.all([
                     tables.load.destroy(),
-                    tables.data.destroy(),
-                    tables.comp.destroy()
+                    // tables.data.destroy(),
+                    // tables.comp.destroy()
                 ]);
                 throw e;
             }
         } catch(e) {
+            for (const job of cleanupCancelledJobs) {
+                await job();
+            }
             if (e === SchemaLoadService.JobCancelExeption) {
-                for (const job of cleanupCancelledJobs) {
-                    await job();
-                }
                 this.setState({
                     createInProgress: deleteEntry(this.state.createInProgress, schemaName)
                 });
@@ -595,6 +591,67 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             this.setState({ onCancelCreate: null });
         }
 
+    }
+
+    async _showICVTable() {
+        const schemaName = defaultSchemaName;
+        const { createTables } = this.state;
+        const { table: dataTableName, appId, icvTable: icvTableName } = createTables.get(schemaName) || {};
+
+        if (appId == null || dataTableName == null) {
+            return;
+        }
+        const app = SchemaLoadService.getDiscoverApp(appId);
+
+        if (icvTableName == null) {
+            // Table hasn't been created
+            try {
+                this.setState({
+                    createTables: createTables.set(schemaName, {
+                        table: dataTableName,
+                        icvTable: null,
+                        appId: appId,
+                        isLoading: true
+                    })
+                });
+
+                const icvTable = await app.createICVTable(dataTableName);
+
+                this.setState({
+                    createTables: createTables.set(schemaName, {
+                        table: dataTableName,
+                        icvTable: icvTable == null ? '' : icvTable.getName(),
+                        appId: appId,
+                        isLoading: false
+                    })
+                });
+
+                if (icvTable != null) {
+                    this.setState(({ errorPreviewState }) => ({
+                        errorPreviewState: {
+                            ...errorPreviewState,
+                            tableName: icvTable.getName()
+                        }
+                    }));
+                }
+            } catch(_) {
+                this.setState({
+                    createTables: createTables.set(schemaName, {
+                        table: dataTableName,
+                        icvTable: null,
+                        appId: appId,
+                        isLoading: false
+                    })
+                });
+            }
+        } else if (icvTableName.length > 0) {
+            this.setState(({ errorPreviewState }) => ({
+                errorPreviewState: {
+                    ...errorPreviewState,
+                    tableName: icvTableName
+                }
+            }));
+        }
     }
 
     // XXX this is copied from DSConfig
@@ -796,6 +853,26 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             createFailed: new Map(),
             createTables: new Map()
         });
+
+        // This is to cleanup the error session tables
+        const cleanupTables = async () => {
+            try {
+                const session = new LoadSession();
+                const tables  = await session.listTables();
+                for (const table of tables) {
+                    try {
+                        if (table instanceof Table) {
+                            await table.destroy();
+                        }
+                    } catch(_) {
+                        // Ignore errors
+                    }
+                }
+            } catch(_) {
+                // Ignore errors
+            }
+        };
+        cleanupTables();
     }
 
     _resetDiscoverResult() {
@@ -1396,6 +1473,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
             fileContentState,
             editSchemaState,
             tablePreviewState,
+            errorPreviewState,
             selectedSchema,
             finalSchema,
             browseShow,
@@ -1460,6 +1538,70 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                             tablePreviewState: {
                                 ...tablePreviewState,
                                 isShow: false
+                            }
+                        }));
+                        await onClose();
+                    }}
+                />
+
+            );
+        };
+
+        const createErrorPreview = () => {
+            if (errorPreviewState.tableName == null) {
+                return null;
+            }
+
+            const openTable = async () => {
+                const {
+                    loadAppId,
+                } = this.state;
+
+                // Load App
+                const app = SchemaLoadService.getDiscoverApp(loadAppId);
+
+                const { table, cursor } = await app.openICVTable(errorPreviewState.tableName);
+                return {
+                    table: table,
+                    cursor: cursor
+                };
+            };
+            const createTask = openTable();
+
+            const onFetchMeta = async () => {
+                const { table, cursor } = await createTask;
+                const { columns } = await table.getInfo();
+                return {
+                    columns: columns,
+                    numRows: cursor.getNumRows()
+                };
+            };
+
+            const onFetchData = async ({ offset, pageSize }) => {
+                const { cursor } = await createTask;
+                await cursor.position(offset);
+                return await cursor.fetchJson(pageSize);
+            }
+
+            const onClose = async () => {
+                try {
+                    const { cursor } = await createTask;
+                    await cursor.close();
+                } catch(_) {
+                    // Ignore error;
+                }
+            }
+
+            return (
+                <DataPreviewModal
+                    title="Errors"
+                    onFetchData={onFetchData}
+                    onFetchMeta={onFetchMeta}
+                    onClose={async () => {
+                        this.setState(({errorPreviewState}) => ({
+                            errorPreviewState: {
+                                ...errorPreviewState,
+                                tableName: null
                             }
                         }));
                         await onClose();
@@ -1636,7 +1778,9 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                 }
                             }
                             const { onCancelCreate } = this.state;
-                            return (
+                            return (<React.Fragment>
+                                { createErrorPreview() }
+
                                 <CreateTables
                                     {...this.state.createTableState}
                                     schemasInProgress={this.state.createInProgress}
@@ -1659,10 +1803,11 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                                     onPrevScreen = {() => { this._changeStep(StepEnum.SchemaDiscovery); }}
                                     onLoadSchemaDetail = {(schemaHash) => { this._getSchemaDetail(null); }}
                                     onLoadFailureDetail = {() => { /* Not supported anymore */ }}
+                                    onShowICV={() => { this._showICVTable(); }}
                                 >
                                     <div className="header">{Texts.stepNameCreateTables}</div>
                                 </CreateTables>
-                            );
+                            </React.Fragment>);
                         })()}
                     </div> {/* end of left part */}
                     <Details

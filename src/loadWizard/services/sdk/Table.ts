@@ -53,18 +53,33 @@ class Table {
         return cursor;
     }
 
-    public async publish(publishedName) {
+    public async publish(publishedName, options?: {
+        isDropSrc?: boolean
+    }) {
+        const { isDropSrc = false } = options || {};
         const srcTableName = this.getName();
-        // Publish table
-        await this._session.callLegacyApi(
-            () => XcalarPublishTable(
-                srcTableName, publishedName
-            )
-        );
 
         // Persiste creation DF for XD
+        // This must happen before publish table, because the session table will be deleted
+        // during publish api call if isDropSrc == true
         const pubTable = new PublishedTable({ name: publishedName, srcTable: this });
         await pubTable.saveDataflow();
+
+        // Publish table
+        try {
+            await this._session.callLegacyApi(
+                () => XcalarPublishTable(
+                    srcTableName, publishedName, null, isDropSrc
+                )
+            );
+        } catch(e) {
+            try {
+                await pubTable.deleteDataflow();
+            } catch(_) {
+                // Ignore errors
+            }
+            throw e;
+        }
 
         return pubTable;
     }

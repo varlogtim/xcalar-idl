@@ -125,7 +125,7 @@ class BaseSession implements IXcalarSession {
         return callApiInSession(this.sessionName, this.user.getUserName(), this.user.getUserId(), apiCall, this.user.getHashFunc());
     }
 
-    public async executeSql(sql: string, tableName: string = null) {
+    public async executeSql(sql: string, tableName: string = null): Promise<Table> {
         const resultTableName = await Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getSqlService().executeSql({
             sqlQuery: sql,
             tableName: tableName,

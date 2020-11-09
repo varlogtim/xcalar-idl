@@ -1,12 +1,14 @@
 import React from 'react';
+import LoadingText from '../../../components/widgets/LoadingText'
 
 const Texts = {
     createButtonLabel: 'Create Table',
     creatingTable: 'Creating table ...',
-    created: 'Table Created',
-    createdWithComplement: 'Created with error table',
+    created: 'Table Created.',
+    createdWithComplement: 'Table created with errors.',
     createError: 'Error',
-    ComplementTableHint: 'Some rows in the source files cannot be loaded, the failure reason is listed in the error table.'
+    ComplementTableHint: 'Some rows in the source files may not be loaded, click to check the errors.',
+    ComplementTableHint2: 'Some rows in the source files cannot be loaded, click to see the errors.'
 };
 
 function Create({ onClick }) {
@@ -31,17 +33,33 @@ function Loading({ message, onClick = () => {} }) {
     </div>);
 }
 
-function Success({ complementTable }) {
-    if (complementTable) {
-        return (
-            <span>
-                {Texts.createdWithComplement} {complementTable}
-                <i className="icon qMark xi-unknown" data-toggle="tooltip" data-container="body" data-title={Texts.ComplementTableHint}></i>
-            </span>
-        )
-    } else {
-        return <span><i className="icon xi-tick"></i>{Texts.created}</span>
+function Success({ isLoading, dataTable, icvTable, onShowICV = () => {} }) {
+    if (icvTable == null) {
+        // Hasn't been checked
+        if (isLoading) {
+            return <LoadingText>{Texts.created} Checking Errors</LoadingText>
+        } else {
+            return (
+                <span>
+                    {Texts.created}
+                    <span className="xc-action" onClick={() => onShowICV()}>Check Errors</span>
+                    <i className="icon qMark xi-unknown" data-toggle="tooltip" data-container="body" data-title={Texts.ComplementTableHint}></i>
+                </span>
+            )
+        }
+    } else if (icvTable.length == 0) {
+        // no error
+        return (<span><i className="icon xi-tick"></i>{Texts.created}</span>);
     }
+
+    // checked and has error
+    return (
+        <span>
+            {Texts.created}
+            <span className="xc-action" onClick={() => onShowICV()}>Show Errors</span>
+            <i className="icon qMark xi-unknown" data-toggle="tooltip" data-container="body" data-title={Texts.ComplementTableHint2}></i>
+        </span>
+    );
 }
 
 function Error({

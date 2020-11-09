@@ -1,6 +1,6 @@
 import * as Path from 'path'
 import { LoadSession, IXcalarSession } from './sdk/Session'
-import { Table } from './sdk/Table'
+import { Table, Cursor } from './sdk/Table'
 import { SharedTable } from './sdk/SharedTable'
 import { Schema, InputSerialization } from './SchemaService'
 
@@ -247,14 +247,14 @@ async function createDiscoverApp(params: {
          * or IMD table will persist an incomplete dataflow to its metadata
          * thus table restoration will fail
          */
-        const {loadQueryOpt, dataQueryOpt, compQueryOpt, tableNames, loadId} = query;
+        const {loadQueryOpt, tableNames, loadId} = query;
         const { isCancelled = () => false, setRunningQuery = () => {} } = options || {};
 
         const failCleanupJobs = [];
         try {
             // Execute Load DF
             const loadQuery = JSON.parse(loadQueryOpt).retina;
-            const loadProgress = updateProgress((p) => progressCB(p), 0, 60);
+            const loadProgress = updateProgress((p) => progressCB(p), 0, 99);
             try {
                 const loadQueryName = `q_${loadId}_load`;
                 const loadJob = session.executeQueryOptimized({
@@ -295,88 +295,88 @@ async function createDiscoverApp(params: {
             const loadUDFs = getIntermidateResource(loadQuery);
 
             // Execute Data DF
-            const dataQuery = JSON.parse(dataQueryOpt).retina;
-            const dataProgress = updateProgress((p) => progressCB(p), 60, 80);
-            try {
-                const dataQueryName =  `q_${loadId}_data`;
-                const dataJob = session.executeQueryOptimized({
-                    queryStringOpt: dataQuery,
-                    queryName: dataQueryName,
-                    tableName: tableNames.data
-                });
-                setRunningQuery(dataQueryName);
-                await dataJob;
-                dataProgress.done();
-            } catch(e) {
-                if (isCancelled()) {
-                    console.log('Cancel: data excution');
-                    throw JobCancelExeption;
-                } else {
-                    throw e;
-                }
-            } finally {
-                setRunningQuery(null);
-                dataProgress.stop();
-            }
-            const dataTable = new Table({
-                session: session, tableName: tableNames.data
-            });
-            failCleanupJobs.push(() => dataTable.destroy());
-            if (isCancelled()) {
-                console.log('Cancel: post data excution');
-                throw JobCancelExeption;
-            }
+            // const dataQuery = JSON.parse(dataQueryOpt).retina;
+            // const dataProgress = updateProgress((p) => progressCB(p), 60, 80);
+            // try {
+            //     const dataQueryName =  `q_${loadId}_data`;
+            //     const dataJob = session.executeQueryOptimized({
+            //         queryStringOpt: dataQuery,
+            //         queryName: dataQueryName,
+            //         tableName: tableNames.data
+            //     });
+            //     setRunningQuery(dataQueryName);
+            //     await dataJob;
+            //     dataProgress.done();
+            // } catch(e) {
+            //     if (isCancelled()) {
+            //         console.log('Cancel: data excution');
+            //         throw JobCancelExeption;
+            //     } else {
+            //         throw e;
+            //     }
+            // } finally {
+            //     setRunningQuery(null);
+            //     dataProgress.stop();
+            // }
+            // const dataTable = new Table({
+            //     session: session, tableName: tableNames.data
+            // });
+            // failCleanupJobs.push(() => dataTable.destroy());
+            // if (isCancelled()) {
+            //     console.log('Cancel: post data excution');
+            //     throw JobCancelExeption;
+            // }
 
             // Execute ICV DF
-            let compTable = null;
-            const numRowsTotal = await getNumRows(loadTable);
-            const numRowsData = await getNumRows(dataTable);
-            if (numRowsData != numRowsTotal) {
-                const compQuery = JSON.parse(compQueryOpt).retina;
-                const compProgress = updateProgress((p) => progressCB(p), 80, 99);
-                try {
-                    const icvQueryName = `q_${loadId}_comp`;
-                    const icvJob = session.executeQueryOptimized({
-                        queryStringOpt: compQuery,
-                        queryName: icvQueryName,
-                        tableName: tableNames.comp
-                    });
-                    setRunningQuery(icvQueryName);
-                    await icvJob;
-                    compProgress.done();
-                } catch(e) {
-                    if (isCancelled()) {
-                        console.log('Cancel: icv excution');
-                        throw JobCancelExeption;
-                    } else {
-                        throw e;
-                    }
-                } finally {
-                    setRunningQuery(null);
-                    compProgress.stop();
-                }
-                compTable = new Table({
-                    session: session,
-                    tableName: tableNames.comp
-                });
-                failCleanupJobs.push(() => compTable.destroy());
-                if (isCancelled()) {
-                    console.log('Cancel: post icv excution');
-                    throw JobCancelExeption;
-                }
-            }
+            // let compTable = null;
+            // const numRowsTotal = await getNumRows(loadTable);
+            // const numRowsData = await getNumRows(dataTable);
+            // if (numRowsData != numRowsTotal) {
+            //     const compQuery = JSON.parse(compQueryOpt).retina;
+            //     const compProgress = updateProgress((p) => progressCB(p), 80, 99);
+            //     try {
+            //         const icvQueryName = `q_${loadId}_comp`;
+            //         const icvJob = session.executeQueryOptimized({
+            //             queryStringOpt: compQuery,
+            //             queryName: icvQueryName,
+            //             tableName: tableNames.comp
+            //         });
+            //         setRunningQuery(icvQueryName);
+            //         await icvJob;
+            //         compProgress.done();
+            //     } catch(e) {
+            //         if (isCancelled()) {
+            //             console.log('Cancel: icv excution');
+            //             throw JobCancelExeption;
+            //         } else {
+            //             throw e;
+            //         }
+            //     } finally {
+            //         setRunningQuery(null);
+            //         compProgress.stop();
+            //     }
+            //     compTable = new Table({
+            //         session: session,
+            //         tableName: tableNames.comp
+            //     });
+            //     failCleanupJobs.push(() => compTable.destroy());
+            //     if (isCancelled()) {
+            //         console.log('Cancel: post icv excution');
+            //         throw JobCancelExeption;
+            //     }
+            // }
 
             // Delete Load XDB but keep lineage
-            await loadTable.destroy({ isCleanLineage: false });
-            if (isCancelled()) {
-                console.log('Cancel: post delete load lineage');
-                throw JobCancelExeption;
-            }
+            // await loadTable.destroy({ isCleanLineage: false });
+            // if (isCancelled()) {
+            //     console.log('Cancel: post delete load lineage');
+            //     throw JobCancelExeption;
+            // }
 
             // Return the session tables created from those 3 DFs
             return {
-                data: dataTable,
-                comp: compTable,
+                // data: dataTable,
+                // comp: compTable,
                 load: loadTable,
                 loadUDFs: loadUDFs
             };
@@ -440,30 +440,50 @@ async function createDiscoverApp(params: {
                 icv: icvTable
             };
         },
-        publishResultTables: async (tables, pubNames, dataflows) => {
-            const { data: dataName, comp: compName } = pubNames;
-            const { dataQueryComplete = '[]', compQueryComplete = '[]' } = dataflows || {};
+        // publishResultTables: async (tables, pubNames, dataflows) => {
+        //     const { data: dataName, comp: compName } = pubNames;
+        //     const { dataQueryComplete = '[]', compQueryComplete = '[]' } = dataflows || {};
 
-            // Publish data table
-            await tables.data.publishWithQuery(dataName, JSON.parse(dataQueryComplete), {
-                isDropSrc: true
-            });
+        //     // Publish data table
+        //     await tables.data.publishWithQuery(dataName, JSON.parse(dataQueryComplete), {
+        //         isDropSrc: true
+        //     });
 
-            // Publish comp table
-            const compHasData = tables.comp != null;
-            if (compHasData) {
-                await tables.comp.publishWithQuery(compName, JSON.parse(compQueryComplete), {
-                    isDropSrc: true
-                });
-            }
+        //     // Publish comp table
+        //     const compHasData = tables.comp != null;
+        //     if (compHasData) {
+        //         await tables.comp.publishWithQuery(compName, JSON.parse(compQueryComplete), {
+        //             isDropSrc: true
+        //         });
+        //     }
 
-            return compHasData;
-        },
+        //     return compHasData;
+        // },
         createResultTables: async (query, progressCB: ProgressCallback = () => {}) => {
             return await callInTransaction('Create tables', () => runTableQuery(query, progressCB));
         },
         createResultTablesWithCancel: (query, progressCB: ProgressCallback = () => {}) => {
             return runTableQueryWithCancel(query, progressCB);
+        },
+        createICVTable: async (loadTableName: string) => {
+            const icvFlagColumn = 'XCALAR_ICV';
+            const systemColumns = ['XCALAR_ICV', 'XCALAR_FILE_RECORD_NUM', 'XCALAR_SOURCEDATA', 'XCALAR_PATH'];
+            const sqlQuery = `select ${systemColumns.join(',')} from ${loadTableName} where ${icvFlagColumn} != ""`;
+            const icvTable = await session.executeSql(sqlQuery);
+            if ((await getNumRows(icvTable)) == 0) {
+                await icvTable.destroy();
+                return null;
+            }
+            return icvTable;
+        },
+        openICVTable: async (icvTableName: string) => {
+            const table = new Table({ session: session, tableName: icvTableName });
+            const cursor = table.createCursor();
+            await cursor.open();
+            return {
+                table: table,
+                cursor: cursor
+            };
         },
         getCreateTableQueryWithCancel: (param: getCreateTableQueryInput) => {
             let cancel = false;
@@ -537,14 +557,15 @@ async function createDiscoverApp(params: {
                 return {
                     loadQuery: combineQueries(response.load_df_query_string, '[]'),
                     loadQueryOpt: response.load_df_optimized_query_string,
-                    dataQuery: combineQueries(response.data_df_query_string, '[]'),
-                    dataQueryOpt: response.data_df_optimized_query_string,
-                    compQuery: combineQueries(response.comp_df_query_string, '[]'),
-                    compQueryOpt: response.comp_df_optimized_query_string,
+                    // dataQuery: combineQueries(response.data_df_query_string, '[]'),
+                    // dataQueryOpt: response.data_df_optimized_query_string,
+                    // compQuery: combineQueries(response.comp_df_query_string, '[]'),
+                    // compQueryOpt: response.comp_df_optimized_query_string,
                     tableNames: tableNames,
                     loadId: loadId,
-                    dataQueryComplete: combineQueries(response.load_df_query_string, response.data_df_query_string),
-                    compQueryComplete: combineQueries(response.load_df_query_string, response.comp_df_query_string)
+                    dataQueryComplete: combineQueries(response.load_df_query_string, '[]'),
+                    // dataQueryComplete: combineQueries(response.load_df_query_string, response.data_df_query_string),
+                    // compQueryComplete: combineQueries(response.load_df_query_string, response.comp_df_query_string)
                 };
             } finally {
                 getQueryProgress.stop();
@@ -599,15 +620,15 @@ async function createDiscoverApp(params: {
             // Remove unused tables
             try {
                 await Promise.all([
-                    results.load.destroy(),
-                    results.comp.destroy(),
+                    // results.load.destroy(),
+                    // results.comp.destroy(),
                     deleteLoadUDFs(results.loadUDFs)
                 ]);
             } catch(_) {
                 // Ignore errors
             }
 
-            return results.data;
+            return results.load;
         }
     };
 
@@ -627,16 +648,16 @@ type getCreateTableQueryInput = {
 type getCreateTableQueryResult = {
     loadQuery:string,
     loadQueryOpt: string,
-    dataQuery: string,
-    dataQueryOpt: string,
-    compQuery: string,
-    compQueryOpt: string,
+    // dataQuery: string,
+    // dataQueryOpt: string,
+    // compQuery: string,
+    // compQueryOpt: string,
     tableNames: {
         load: string, data: string, comp: string
     },
     loadId: string,
     dataQueryComplete: string,
-    compQueryComplete: string
+    // compQueryComplete: string
 };
 
 type previewFileInput = {
@@ -677,15 +698,15 @@ type App = {
         data: SharedTable,
         icv?: SharedTable
     }>,
-    publishResultTables: (tables: any, pubNames: any, dataflows: any) => Promise<boolean>,
+    // publishResultTables: (tables: any, pubNames: any, dataflows: any) => Promise<boolean>,
     createResultTables: (query: any, progressCB?: ProgressCallback) => Promise<{
-        data: Table, comp: Table, load: Table,
+        load: Table,
         loadUDFs: Set<string>
     }>,
     createResultTablesWithCancel: (query, progressCB?: ProgressCallback) => {
         cancel: () => Promise<void>,
         done: () => Promise<{
-            data: Table, comp: Table, load: Table,
+            load: Table,
             loadUDFs: Set<string>
         }>
     },
@@ -696,7 +717,9 @@ type App = {
     },
     getCreateTableQueryWithSchema: (params: getCreateTableQueryInput) => Promise<getCreateTableQueryResult>,
     previewFile: (params: previewFileInput) => Promise<previewFileResult>,
-    createPreviewTable: (params: createPreviewTableInput) => Promise<Table>
+    createPreviewTable: (params: createPreviewTableInput) => Promise<Table>,
+    createICVTable: (loadTableName: string) => Promise<Table>,
+    openICVTable: (icvTableName: string) => Promise<{table: Table, cursor: Cursor}>
 }
 
 function getDiscoverApp(appId) {

@@ -1,16 +1,17 @@
 import { IXcalarSession } from './Session'
+import { Table } from './Table'
 
 class PublishedTable {
     private _session: IXcalarSession;
     private _name: string;
-    private _srcTable: any;
+    private _srcTable: Table;
     private _isActive: boolean;
     private _preCreateQuery: Array<any>;
 
     constructor(params: {
         session?: IXcalarSession,
         name: string,
-        srcTable?: any,
+        srcTable?: Table,
         isActive?: boolean,
         preCreateQuery?: Array<any>
     }) {
@@ -63,9 +64,22 @@ class PublishedTable {
     public async saveDataflow() {
         try {
             const pbTblInfo = new PbTblInfo({name: this.getName()});
-            await pbTblInfo.saveDataflow(this._srcTable.getName(), true);
+            await this._srcTable.getSession().callLegacyApi(
+                () => pbTblInfo.saveDataflow(this._srcTable.getName(), true)
+            );
+            // await pbTblInfo.saveDataflow(this._srcTable.getName(), true);
         } catch (e) {
             console.error('PublishedTable.saveDataflow error:', e);
+            throw e;
+        }
+    }
+
+    public async deleteDataflow() {
+        try {
+            const pbTblInfo = new PbTblInfo({name: this.getName()});
+            await pbTblInfo.deleteDataflow();
+        } catch(e) {
+            console.error('PublishedTable.deleteDataflow error:', e);
             throw e;
         }
     }
