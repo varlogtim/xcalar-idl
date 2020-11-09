@@ -96,7 +96,7 @@ var productTypes = {
         'target': 'xcalar-desktop-edition'
     }
 }
-
+var helpTextObj = {};
 // js files req. only when running XD in XPE app.
 // scriptlinker xpe targets will inject as script tags,
 // so should be rel those targets' cwd attr
@@ -3001,6 +3001,10 @@ module.exports = function(grunt) {
         var skipfile = false;
         grunt.log.debug("Go through each eligible HTML file and template " +
             " unless its blacklisted");
+
+        var helpTextArr = grunt.file.readJSON(BLDROOT + 'assets/lang/en/helpText.json');
+        helpTextObj = translateHelpText(helpTextArr);
+
         for (var filepath of htmlFilepaths) {
             if (grunt.file.doesPathContain(HTML_STAGING_I_ABS, filepath)) {
                 skipfile = false;
@@ -3043,6 +3047,17 @@ module.exports = function(grunt) {
         }
 
     });
+
+    /**
+     * turns the helpText array into a key value object
+     */
+    function translateHelpText(helpTextArr) {
+        let helpObj = {};
+        helpTextArr.forEach((help) => {
+            helpObj[help.id] = help;
+        });
+        return helpObj;
+    }
 
     /**
         Template an HTML file with templating code
@@ -3098,6 +3113,7 @@ module.exports = function(grunt) {
         }
 
         dicts = requireUncached(BLDROOT + 'assets/lang/' + lang + '/htmlTStr.js');
+        dicts["HelpText"] = helpTextObj;
         /**
             htmlFilepath, if abs., should be within staging dir.
             But want to know (1) dest it will go in final bld

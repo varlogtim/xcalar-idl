@@ -3347,6 +3347,18 @@ body.tooltipOff {
     }
 }
 
+.tooltip.hasTipLink {
+    pointer-events: initial;
+    a {
+        .xc-action-link;
+        color: lightblue;
+        &::before {
+            content: "\A";
+            white-space: pre;
+        }
+    }
+}
+
 .tooltip.tutorial {
     @deep-yellow: @color-dag-yellow;
     pointer-events: initial;

@@ -49,7 +49,7 @@ namespace xcTooltip {
 
         // element's delay attribute will take precedence - unique for xcalar
         $("body").on("mouseenter", '[data-toggle="tooltip"]', function() {
-            xcTooltip.hideAll();
+            xcTooltip.hideAll(); // prevents multiple tips from being open at the same time
         });
     }
 

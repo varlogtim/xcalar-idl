@@ -51,7 +51,7 @@
     this.$element  = $(element)
     this.options   = this.getOptions(options)
     this.$viewport = this.options.viewport && $(this.options.viewport.selector || this.options.viewport)
-    var triggers = this.options.trigger.split(' ')
+    var triggers = this.options.trigger.split(' ');
 
     for (var i = triggers.length; i--;) {
       var trigger = triggers[i]
@@ -62,8 +62,12 @@
         var eventIn  = trigger == 'hover' ? 'mouseenter' : 'focusin'
         var eventOut = trigger == 'hover' ? 'mouseleave' : 'focusout'
 
-        this.$element.on(eventIn  + '.' + this.type, this.options.selector, $.proxy(this.enter, this))
-        this.$element.on(eventOut + '.' + this.type, this.options.selector, $.proxy(this.leave, this))
+        this.$element.on(eventIn  + '.' + this.type, this.options.selector, $.proxy(this.enter, this));
+        let selector = this.options.selector ;
+        if (selector === '[data-toggle="tooltip"]') {
+            selector += ':not(.hasTipLink)'
+        }
+        this.$element.on(eventOut + '.' + this.type, selector, $.proxy(this.leave, this))
       }
     }
 
@@ -96,6 +100,10 @@
 
     if (this.$element.data('tipclasses') != null) {
       options.tipclasses = this.$element.data('tipclasses');
+    }
+    if (this.$element.hasClass("hasTipLink")) {
+        options.tipclasses = options.tipclasses || "";
+        options.tipclasses += " hasTipLink";
     }
     if (this.$element.data('tiphtml') != null) {
       options.tiphtml = this.$element.data('tiphtml');
@@ -323,6 +331,8 @@
     var textType;
     if (this.options.tiphtml != null) {
       textType = this.options.tiphtml ? 'html' : 'text';
+    } else if (this.$element.hasClass("hasTipLink")) {
+        textType = "html";
     } else {
       textType = this.options.html ? 'html' : 'text';
     }
