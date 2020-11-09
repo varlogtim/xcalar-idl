@@ -4,7 +4,6 @@ import DeletePbTableModal from  "../components/modals/DeletePbTableModal";
 import DeleteSQLModal from "../components/modals/DeleteSQLModal";
 import DeleteModuleModal from "../components/modals/DeleteModuleModal";
 import DeleteTableFuncModal from "../components/modals/DeleteTableFuncModal";
-import DeleteAppModal from "../components/modals/DeleteAppModal";
 import SQLEditorShortcutsModal from "../components/modals/SQLEditorShortcutsModal";
 import RecreatePbTablesModal from "../components/modals/RecreatePbTablesModal";
 
@@ -15,7 +14,6 @@ const App = () => (
         <DeleteSQLModal/>
         <DeleteModuleModal />
         <DeleteTableFuncModal />
-        <DeleteAppModal />
         <SQLEditorShortcutsModal/>
         <RecreatePbTablesModal />
     </div>

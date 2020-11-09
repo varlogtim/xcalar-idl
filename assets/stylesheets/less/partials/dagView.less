@@ -1385,7 +1385,7 @@
             }
         }
 
-        &.run, &.stop, &.listFns, &.configuring {
+        &.run, &.stop, &.listFns, &.configuring, &.publish {
             .rounded(4px);
             line-height: @dagGraphBarHeight - 8px;
             height: @dagGraphBarHeight - 8px;
@@ -1412,6 +1412,21 @@
                 font-size: 12px;
                 border: none;
                 background-color: inherit;
+            }
+        }
+
+        &.publish {
+            > span {
+                display: inline-block;
+                height: 100%;
+
+                &:hover {
+                    background-color: @color-font-secondary-button-hover;
+                }
+
+                &:active {
+                    background-color: @color-font-secondary-button-active;
+                }
             }
         }
 
@@ -1643,7 +1658,7 @@
         min-width: 0px;
         .textOverflowOneLine;
 
-        .operaotrName {
+        .operatorName {
             text-decoration: underline;
             color: @color-font-link-blue;
             cursor: pointer;

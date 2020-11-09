@@ -32,7 +32,7 @@
             <div class="animatedEllipsisWrapper">
                 <div class="text">
                     Executing operator
-                    <span class="operaotrName" data-toggle="tooltip" data-container="body" data-placement="auto top" data-title="Click to focus on the operator"></span>
+                    <span class="operatorName" data-toggle="tooltip" data-container="body" data-placement="auto top" data-title="Click to focus on the operator"></span>
                 </div>
                 <div class="text altText">
                     Canceling
@@ -60,6 +60,12 @@
             <span class="text"><%= dicts.dag.executeAll %></span>
             <i class="icon xi-play-outline actionIcon"></i>
           </span>
+        </div>
+        <div class="topButton publish dropDownList" data-toggle="tooltip" data-container="body" data-placement="auto top" data-title="<%= dicts.dag.PublishHint %>">
+            <span>
+                <span class="text"><%= dicts.dag.Publish %></span>
+                <i class="icon xi-download actionIcon"></i>
+            </span>
         </div>
         <div class="topButton run dropDownList">
             <span>

@@ -35,7 +35,7 @@ class AppList extends Durable {
     /**
      * AppList.Instance.createApp
      */
-    public createApp(name: string,moduleNodes: Set<DagNodeModule>): boolean {
+    public createApp(name: string,moduleNodes: Set<DagNodeModule>): string {
         return this._createApp(name, moduleNodes);
     }
 
@@ -223,9 +223,9 @@ class AppList extends Durable {
         ResourceMenu.Instance.render(ResourceMenu.KEY.App);
     }
 
-    private _createApp(name: string, moduleNodes: Set<DagNodeModule>): boolean {
+    private _createApp(name: string, moduleNodes: Set<DagNodeModule>): string {
         if (this._has(name)) {
-            return;
+            return null;
         }
         let appId: string = null
         try {
@@ -234,11 +234,11 @@ class AppList extends Durable {
             this._createMainTab(appId, moduleNodesInApp);
             this._save();
             this._refreshMenuList();
-            return true;
+            return appId;
         } catch (e) {
             console.error(e);
             this._deleteApp(appId);
-            return false;
+            return null;
         }
     }
 

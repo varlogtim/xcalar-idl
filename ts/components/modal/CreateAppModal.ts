@@ -21,7 +21,7 @@ class CreateAppModal {
     /**
      * CreateAppModal.Instance.show
      */
-    public async show(): Promise<void> {
+    public async show(activeTab: DagTab): Promise<void> {
         if (this._isOpen) {
             return;
         }
@@ -32,7 +32,8 @@ class CreateAppModal {
             this._getModal().addClass("load");
         }, 500);
         await this._loadUnopenedTabs();
-        const {disjointGraphs} = DagViewManager.Instance.getDisjointGraphs();
+        let { disjointGraphs } = DagViewManager.Instance.getDisjointGraphs();
+        disjointGraphs = this._filterDisjointGraphs(activeTab, disjointGraphs);
         this._renderGraphList(disjointGraphs);
         let index = 0;
         this._graphMap = new Map();
@@ -42,6 +43,34 @@ class CreateAppModal {
         });
         clearTimeout(timer);
         this._getModal().removeClass("load");
+        if (index === 1) {
+            // only one graph exist
+            this._getModal().find(".graphList .checkbox").eq(0).click();
+        }
+    }
+
+    private _filterDisjointGraphs(
+        activeTab: DagTab,
+        disjointGraphs: Set<Set<DagNodeModule>>
+    ): Set<Set<DagNodeModule>> {
+        if (activeTab == null) {
+            return;
+        }
+        const filteredSet: Set<Set<DagNodeModule>> = new Set();
+        disjointGraphs.forEach((graphSet) => {
+            let isInTab = false;
+            graphSet.forEach(( dagNode: DagNodeModule ) => {
+                if (dagNode.getTabId() === activeTab.getId()) {
+                    isInTab = true; 
+                }
+            });
+
+            if (isInTab) {
+                filteredSet.add(graphSet);
+            }
+        });
+
+        return filteredSet;
     }
 
     private _getModal() {
@@ -180,26 +209,12 @@ class CreateAppModal {
             return false;
         }
         const moduleNodes = this._graphMap.get($checkbox.closest(".row").data("index"));
-        const succeed = AppList.Instance.createApp(newName, moduleNodes);
-        if (succeed) {
-
+        const appId = AppList.Instance.createApp(newName, moduleNodes);
+        if (appId != null) {
+            AppList.Instance.download(appId);
+        } else {
+            xcUIHelper.showFail(AppTStr.CreateFailed);
         }
-
-        setTimeout(() => {
-            if (succeed) {
-                xcUIHelper.showSuccess(AppTStr.Created);
-                // TODO move this logic into ResourceMenu or DagList
-                if (!$("#dagList .apps").hasClass("active")) {
-                    $("#dagList .apps").children(".listInfo").click();
-                }
-                $("#dagList .apps .listInfo").filter(function() {
-                    return $(this).text() === newName;
-                }).click();
-            } else {
-                xcUIHelper.showFail(AppTStr.CreateFailed);
-            }
-        }, 300);
-
         this._close();
         return true;
     }

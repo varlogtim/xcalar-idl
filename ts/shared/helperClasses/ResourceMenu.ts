@@ -134,24 +134,15 @@ class ResourceMenu {
     }
 
     private _renderApps(): void {
-        this._renderAppList();
         this._renderTableFuncList();
         this._renderSQLList();
         this._renderDataflowList();
+        this._renderPhysicalPlanList();
     }
 
-    private _renderAppList(): void {
-        const classNames: string[] = ["app"];
-        const apps = AppList.Instance.list();
-        const $container = this._getContainer();
-        const template = $container.find(".appTemplate").html();
-        let html: HTML = "";
-        apps.forEach((app) => {
-            html += this._getNestedListWrapHTML(app.name, template, classNames, app.id, true);
-        });
-
-        html = html + this._getSpecialAppList();
-        this._getContainer().find(".apps ul").html(html);
+    private _renderPhysicalPlanList(): void {
+        const html = this._getSpecialAppList();
+        this._getContainer().find(".physicalPlanList ul").html(html);
     }
 
     private _renderTableFuncList(): void {
@@ -222,7 +213,7 @@ class ResourceMenu {
             this._getList(".sqlList", appId).html(html);
         }
         if (!map.has(null)) {
-            // empty main list if no snipppets
+            // empty main list if no snippets
             this._getList(".sqlList", null).html("");
         }
     }
@@ -320,7 +311,7 @@ class ResourceMenu {
         queryDagList.sort((a, b) => this._sortAbandonedQueryTab(a, b));
 
         const html: HTML =
-        this._getNestedDagListHTML(optimizedDagList) +
+        this._getDagListHTML(optimizedDagList) +
         this._getNestedDagListHTML(optimizedSDKDagList) +
         this._getNestedDagListHTML(queryDagList) +
         this._getNestedDagListHTML(querySDKDagList)
@@ -432,13 +423,7 @@ class ResourceMenu {
 
         $menu.find("li").hide();
 
-        if ($dropDownLocation.closest(".listInfo").length &&
-            $dropDownLocation.closest(".app").length
-        ) {
-            // app option
-            $menu.find("li.app").show();
-            $menu.data("id", $dropDownLocation.closest(".app").data("id"));
-        } else if ($li.hasClass("table")) {
+        if ($li.hasClass("table")) {
             $menu.find("li.table").show();
             if ($li.hasClass("inActive")) {
                 $menu.find("li.tableActivate").show();
@@ -624,16 +609,6 @@ class ResourceMenu {
         $menu.on("click", ".tableModule", () => {
             const name: string = $menu.data("name");
             this._tableModule(name);
-        });
-
-        $menu.on("click", ".appDelete", () => {
-            const app: string = $menu.data("id");
-            AppList.Instance.delete(app);
-        });
-
-        $menu.on("click", ".appDownload", () => {
-            const app: string = $menu.data("id");
-            AppList.Instance.download(app);
         });
 
         $menu.on("click", ".tableFuncQuery", () => {

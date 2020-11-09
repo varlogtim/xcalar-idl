@@ -12,11 +12,11 @@ class DagGraphBar {
      */
     public toggleDisable(disable: boolean): void {
         // Not use this.$dagView as it's called before setup
-        let $btns: JQuery = this._getGraphBar().find(".topButtons");
+        let $buttons: JQuery = this._getGraphBar().find(".topButtons");
         if (disable) {
-            $btns.addClass("xc-disabled");
+            $buttons.addClass("xc-disabled");
         } else {
-            $btns.removeClass("xc-disabled");
+            $buttons.removeClass("xc-disabled");
         }
     }
 
@@ -47,22 +47,22 @@ class DagGraphBar {
             return;
         }
         let $topBar = this._getGraphBar();
-        const $btns: JQuery = $topBar.find(".topButtons");
+        const $buttons: JQuery = $topBar.find(".topButtons");
         if (dagTab == null) {
-            $btns.find(".topButton:not(.noTabRequired)").addClass("xc-disabled");
+            $buttons.find(".topButton:not(.noTabRequired)").addClass("xc-disabled");
             this._getMenu().find("li:not(.noTabRequired)").addClass("xc-disabled");
             return;
         }
         this._curDagTab = dagTab;
 
-        $btns.find(".topButton").removeClass("xc-disabled");
+        $buttons.find(".topButton").removeClass("xc-disabled");
         this._getMenu().find("li").removeClass("xc-disabled");
 
-        const $userAndPublishOnlyBtns: JQuery = $btns.find(".run");
+        const $userAndPublishOnlyButtons: JQuery = $buttons.find(".run, .publish");
         if (dagTab instanceof DagTabUser) {
-            $userAndPublishOnlyBtns.removeClass("xc-disabled");
+            $userAndPublishOnlyButtons.removeClass("xc-disabled");
         } else {
-            $userAndPublishOnlyBtns.addClass("xc-disabled");
+            $userAndPublishOnlyButtons.addClass("xc-disabled");
         }
 
         if (!dagTab.isEditable() && !dagTab.getApp()) {
@@ -80,15 +80,15 @@ class DagGraphBar {
         $topBar.removeClass("canceling");
         if (graph != null && graph.getExecutor() != null) {
             $topBar.addClass("running");
-            $btns.find(".stop").removeClass("xc-disabled");
-            $btns.find(".run, .stop").addClass("running");
+            $buttons.find(".stop").removeClass("xc-disabled");
+            $buttons.find(".run, .stop").addClass("running");
             if (graph.getExecutor().isCanceled()) {
                 $topBar.addClass("canceling");
             }
         } else {
             $topBar.removeClass("running");
-            $btns.find(".stop").addClass("xc-disabled");
-            $btns.find(".run, .stop").removeClass("running");
+            $buttons.find(".stop").addClass("xc-disabled");
+            $buttons.find(".run, .stop").removeClass("running");
             this.setRunningNode(null, null, null);
         }
 
@@ -146,7 +146,7 @@ class DagGraphBar {
     }
 
     public setRunningNode(tabId: string, nodeId: string, nodeName: string): void {
-        const $operatorName = this._getGraphBar().find(".runStatus .operaotrName");
+        const $operatorName = this._getGraphBar().find(".runStatus .operatorName");
         if (tabId == null && nodeId == null) {
             $operatorName.removeData('tabId');
             $operatorName.removeData('nodeId');
@@ -242,7 +242,7 @@ class DagGraphBar {
             }
         });
 
-        $topBar.find(".runStatus .operaotrName").click((event) => {
+        $topBar.find(".runStatus .operatorName").click((event) => {
             const $el = $(event.currentTarget);
             const tabId = $el.data('tabId');
             const nodeId = $el.data('nodeId');
@@ -253,6 +253,10 @@ class DagGraphBar {
             } catch (e) {
                 Alert.error(AlertTStr.Error, e.message);
             }
+        });
+
+        $topBar.find(".publish").click(() => {
+            CreateAppModal.Instance.show(DagViewManager.Instance.getActiveTab());
         });
 
         this._setupRunButton();
@@ -272,7 +276,7 @@ class DagGraphBar {
                 DagViewManager.Instance.runWithHead(nodeId);
             },
             onClose: () => {
-                DagViewManager.Instance.higlightGraph(null);
+                DagViewManager.Instance.highlightGraph(null);
             },
             onlyClickIcon: true,
             container: "#dagViewContainer",
@@ -285,11 +289,11 @@ class DagGraphBar {
                 return;
             }
             const nodeId = $li.data("id");
-            DagViewManager.Instance.higlightGraph(nodeId);
+            DagViewManager.Instance.highlightGraph(nodeId);
         });
 
         $run.on("mouseleave", "li", () => {
-            DagViewManager.Instance.higlightGraph(null);
+            DagViewManager.Instance.highlightGraph(null);
         });
     }
 
@@ -353,8 +357,8 @@ class DagGraphBar {
         let list: HTML = "";
         try {
             const graph = DagViewManager.Instance.getActiveDag();
-            const nodeHeasMap = graph.getNodeHeadsMap();
-            nodeHeasMap.forEach((nodeId, head) => {
+            const nodeHeadsMap = graph.getNodeHeadsMap();
+            nodeHeadsMap.forEach((nodeId, head) => {
                 list += '<li data-id="' + nodeId + '">' + head + '</li>';
             });
         } catch (e) {

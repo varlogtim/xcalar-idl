@@ -187,8 +187,22 @@
       </div>
       <ul></ul>
     </div>
+    <div class="physicalPlanList listWrap xc-expand-list">
+      <div class="listInfo">
+        <span class="expand">
+          <i class="icon xi-down fa-12"></i>
+        </span>
+        <span class="text tooltipOverflow"
+         data-toggle="tooltip"
+         data-title="<%= dicts.resouceMenu.PhysicalPlans %>"
+        >
+          <%= dicts.resouceMenu.PhysicalPlans %>
+        </span>
+      </div>
+      <ul></ul>
+    </div>
     <!-- app list -->
-    <div class="apps listWrap xc-expand-list">
+    <!-- <div class="apps listWrap xc-expand-list">
       <div class="listInfo">
         <span class="expand">
           <i class="icon xi-down fa-12"></i>
@@ -217,25 +231,7 @@
         </span>
       </div>
       <ul></ul>
-    </div>
-    <div class="appTemplate xc-hidden">
-      <div class="overView"></div>
-      <!-- module list -->
-      <div class="dfModuleList listWrap xc-expand-list">
-        <div class="listInfo">
-          <span class="expand">
-            <i class="icon xi-down fa-12"></i>
-          </span>
-          <span class="text tooltipOverflow"
-            data-toggle="tooltip"
-            data-title="<%= dicts.resouceMenu.AppModules %>"
-          >
-            <%= dicts.resouceMenu.AppModules %>
-          </span>
-        </div>
-        <ul></ul>
-      </div>
-    </div>
+    </div> -->
     <ul id="dagListMenu" class="menu">
       <li class="table tableQuery"><%= dicts.resouceMenu.UseInSQL %></li>
       <li class="table tableSource"><%= dicts.resouceMenu.viewSourceInfo %></li>
@@ -244,8 +240,6 @@
       <li class="table tableActivate"><%= dicts.Table.Activate %></li>
       <li class="table tableDeactivate"><%= dicts.Table.Deactivate %></li>
       <li class="table tableDelete"><%= dicts.MenuTStr.PermanentDel %></li>
-      <li class="app appDownload"><%= dicts.fileManager.Download %></li>
-      <li class="app appDelete"><%= dicts.fileManager.Delete %></li>
       <li class="tableFunc tableFuncQuery"
         data-toggle="tooltip"
         data-placement="auto right"

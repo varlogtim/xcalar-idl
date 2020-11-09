@@ -640,10 +640,10 @@ class DagViewManager {
     }
 
     /**
-     * DagViewManager.Instance.higlightGraph
+     * DagViewManager.Instance.highlightGraph
      * @param headNodeId
      */
-    public higlightGraph(headNodeId: string | null): void {
+    public highlightGraph(headNodeId: string | null): void {
         if (this.activeDagView == null) {
             return;
         }
