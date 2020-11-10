@@ -88,6 +88,11 @@
                 margin-left: 0px;
             }
         }
+        .dataflowMainArea {
+            .watermarkArea {
+                display: flex;
+            }
+        }
     }
 
     .ui-resizable-w {
@@ -1043,6 +1048,7 @@
     .operatorSvg, .edgeSvg, .secondarySvg, .commentArea, .tempCommentArea {
         overflow: visible;
         .position(absolute, @top: 0px, @left: 0px);
+        z-index: 1; // above watermark
 
         .edge {
             cursor: pointer;
@@ -1099,6 +1105,7 @@
         .rounded(3px);
         margin-left: -3px;
         text-align: left;
+        z-index: 1; // above watermark
 
         &.lineageTip {
             padding: 3px 6px;
@@ -1248,6 +1255,35 @@
         position: relative;
         overflow: hidden;
         height: 100%;
+
+        .watermarkArea {
+            display: none; // flex when #dagView.readonly
+            justify-content: space-between;
+            flex-direction: column;
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            pointer-events: none;
+            opacity: 0.1;
+            color: @color-font-default;
+            z-index: 1; // above grid background
+            padding: 10px 20px 20px;
+
+            .row {
+                display: flex;
+                justify-content: space-between;
+                flex-direction: row;
+            }
+
+            .watermark {
+                font-size: 28px;
+                font-weight: bold;
+
+                &:nth-child(2), &:last-child {
+                    align-self: flex-end;
+                }
+            }
+        }
 
 
         .dataflowWrap {
