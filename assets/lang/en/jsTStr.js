@@ -1049,8 +1049,8 @@ DFTStr = {
     "CannotEditOperator": "This operator is not editable",
     "PreviewLimit": "Preview Limit",
     "OptimizedOnlyWarn": "The plan contains an optimized node and can only be executed in optimized mode. Would you like to execute all nodes in optimized mode?",
-    "ConvertToEditable": "Convert to editable plan",
-    "ConvertToEditableMsg": "Are you sure you want to convert the current plan to an editable plan?",
+    "ConvertToEditable": "Modify/Extend Plan",
+    "ConvertToEditableMsg": "Confirm to create an editable version",
     "NotFoundOriginalPlan": "Cannot find the original source of the physical plan",
     "OriginalPlanTitle": "Original source for physical plan",
     // with replace
