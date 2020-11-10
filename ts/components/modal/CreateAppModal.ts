@@ -209,10 +209,8 @@ class CreateAppModal {
             return false;
         }
         const moduleNodes = this._graphMap.get($checkbox.closest(".row").data("index"));
-        const appId = AppList.Instance.createApp(newName, moduleNodes);
-        if (appId != null) {
-            AppList.Instance.download(appId);
-        } else {
+        const succeed = AppList.Instance.createAndDownload(newName, moduleNodes);
+        if (!succeed) {
             xcUIHelper.showFail(AppTStr.CreateFailed);
         }
         this._close();

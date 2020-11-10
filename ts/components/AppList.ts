@@ -33,6 +33,21 @@ class AppList extends Durable {
     }
 
     /**
+     * AppList.Instance.createAndDownload
+     * @param name 
+     * @param moduleNodes 
+     */
+    public async createAndDownload(name: string,moduleNodes: Set<DagNodeModule>): boolean {
+        const appId = this._createApp(name, moduleNodes);
+        if (appId != null) {
+            await this.download(appId);
+            this._deleteApp(appId);
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * AppList.Instance.createApp
      */
     public createApp(name: string,moduleNodes: Set<DagNodeModule>): string {
@@ -76,16 +91,7 @@ class AppList extends Durable {
         if (app == null) {
             return;
         }
-        const msg = xcStringHelper.replaceMsg(AppTStr.DeleteMsg, {
-            name: app.name
-        });
-        Alert.show({
-            title: AppTStr.Delete,
-            msg,
-            onConfirm: () => {
-                this._deleteApp(app.id);
-            }
-        });
+        this._deleteApp(app.id);
     }
 
     /**
