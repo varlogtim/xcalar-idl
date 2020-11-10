@@ -897,6 +897,17 @@ class SQLEditorSpace {
 
         }).setupListeners();
 
+        const $engineDropdown = $header.find(".engine");
+        new MenuHelper($header.find(".engine"), {
+            onSelect: ($li) => {
+                this._selectConnector($engineDropdown, $li);
+
+            },
+            container: selector,
+            bounds: selector,
+
+        }).setupListeners();
+
         $container.find(".close").click(() => {
             this.toggleDisplay(false);
         });
@@ -1063,6 +1074,22 @@ class SQLEditorSpace {
         }
 
         SQLUtil.resetProgress();
+    }
+
+    private _selectConnector($dropdown: JQuery, $li: JQuery): void {
+        if ($li.hasClass("active")) {
+            return
+        }
+        const connector = $li.data("action");
+        $dropdown.find(".text span").text($li.text());
+        $dropdown.find("li.active").removeClass("active");
+        $li.add("active");
+        this._changeConnector(connector);
+    }
+
+    // XXX Wire in the real functionality here
+    private _changeConnector(connector: string): void {
+        console.log("connector has changed to", connector);
     }
 }
 

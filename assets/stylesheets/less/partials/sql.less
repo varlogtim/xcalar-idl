@@ -700,6 +700,25 @@
             margin-right: auto;
         }
 
+        .engine {
+            display: flex;
+            align-items: center;
+
+            .text {
+                font-size: 12px;
+            }
+
+            .text, .iconWrapper {
+                border: none;
+            }
+
+            li {
+                &.active {
+                    color: @color-bg-select-blue
+                }
+            }
+        }
+
         button, > i {
             flex: 0 0 auto;
             margin-top: 4px;

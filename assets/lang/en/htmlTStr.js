@@ -442,7 +442,11 @@ module.exports = {
         "SchemaBack": "Back to show tables",
         "ResultLoading": "Result is loading, please wait...",
         "ResultHint": "This panel remains empty until you either click a table in the Resources panel, or run a SQL statement or plan.",
-        "OutOfSyncTip": "The original SQL statement has been modified since this SQL Node was last saved, but this SQL Node is still using the orignal statement."
+        "OutOfSyncTip": "The original SQL statement has been modified since this SQL Node was last saved, but this SQL Node is still using the original statement.",
+        "Engine": "Connector",
+        "EngineHint": "Click to select a different connector to run SQL",
+        "NativeEngine": "Native",
+        "SnowflakeEngine": "Snowflake",
     },
 
     "Debug": {

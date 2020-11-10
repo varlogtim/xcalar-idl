@@ -454,7 +454,11 @@ class MenuHelper {
                 }
 
                 self.$list.hide(); // open list can cause incorrect parentPos
-                // due to scrollbar showing
+                // due to scroll bar showing
+                if ($baseElement[0] == null) {
+                    console.error("error case");
+                    return;
+                }
                 const parentPos: ClientRect = $baseElement[0].getBoundingClientRect();
                 self.$list.show();
                 if (self.options.fixedPosition.float) {

@@ -6,6 +6,19 @@
     <div class="savingText"><%= dicts.common.Saving %>...</div>
     <div class="tempTabText">Editing SQL Graph Node</div>
     <div class="nodeInfo xc-hidden">NodeInfo</div> <!-- WIP -->
+    <div class="engine dropDownList">
+      <div class="text"><%= dicts.SQL.Engine %>: <span><%= dicts.SQL.NativeEngine %></span></div>
+      <div class="iconWrapper" data-toggle="tooltip" data-container="body" data-placement="auto top" data-title="<%= dicts.SQL.EngineHint %>">
+        <i class="icon xi-arrow-down"></i>
+      </div>
+      <div class="list">
+        <ul>
+          <li class="active" data-action="native"><%= dicts.SQL.NativeEngine %></li>
+          <li data-action="snowflake"><%= dicts.SQL.SnowflakeEngine %></li>
+          include "../../util/menuScrollArea.html"
+        </ul>
+      </div>
+    </div>
     <i class="icon xi-play-outline hintDisable execute xc-action"
     data-toggle="tooltip"
     data-placement="auto top"
@@ -17,9 +30,7 @@
     data-container="body"
     data-title="<%= dicts.TooltipTStr.SaveChanges %>"></i>
     <button class="btn btn-secondary more dropDownList">
-      <!-- <div class="iconWrapper"> -->
         <i class="icon xi-ellipsis-h xc-action" data-toggle="tooltip" data-placement="auto top" data-container="body" data-original-title="More"></i>
-      <!-- </div> -->
       <div class="list">
         <ul>
           <li data-action="addUDF"><%= dicts.resouceMenu.AddUDF %></li>
