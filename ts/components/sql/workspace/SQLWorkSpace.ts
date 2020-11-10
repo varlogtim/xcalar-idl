@@ -59,7 +59,8 @@ class SQLWorkSpace {
                 !$target.closest("#dagTableNodeSubSubMenu").length &&
                 !$target.closest(".dagSchemaPopup").length &&
                 !$target.closest("#dagTabView").length &&
-                !$target.closest("#configNodeContainer").length
+                !$target.closest("#configNodeContainer").length &&
+                !$target.closest(".ui-resizable-handle").length
             ) {
                 DagViewManager.Instance.deselectNodes();
                 DagNodeInfoPanel.Instance.hide();

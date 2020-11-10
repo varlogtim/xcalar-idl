@@ -55,6 +55,16 @@ class DagCategoryBar {
     }
 
     public updateCategories(dagTab: DagTab): void {
+        let heading
+        if (dagTab instanceof DagTabProgress ||
+            dagTab instanceof DagTabExecuteOnly  ||
+            dagTab instanceof DagTabSQL) {
+            heading = "Physical Plan";
+        } else {
+            heading = "Logical Plan";
+        }
+        this.$dagView.find(".categoryBar .sectionHeader").text(heading);
+
         let sqlFunc: boolean = (dagTab instanceof DagTabSQLFunc);
         if (this._isSQLFunc === sqlFunc) {
             // no need to update
@@ -64,6 +74,7 @@ class DagCategoryBar {
         this.dagCategories.update(sqlFunc);
         this._renderOperatorBar();
         this._focusOnCategory(this.currentCategory);
+
     }
 
     public loadCategories(): XDPromise<void> {
