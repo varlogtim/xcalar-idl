@@ -60,6 +60,6 @@ abstract class DagTabExecuteOnly extends DagTabUser {
     }
 
     private _getViewOnlyMessage(): string {
-        return "To change this ready-only plan, please save it as a new plan.";
+        return "To modify/extend this ready-only plan, you must convert the current version to an editable plan.";
     }
 }

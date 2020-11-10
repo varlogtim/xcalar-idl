@@ -905,11 +905,12 @@ namespace DagNodeMenu {
             state === DagNodeState.Complete
         ) {
             const table: string = dagNode.getTable();
-            const dagTab: DagTab = DagViewManager.Instance.getActiveTab();
-            if (dagTab instanceof DagTabExecuteOnly && dagNode.getChildren().length > 0) {
+            // const dagTab: DagTab = DagViewManager.Instance.getActiveTab();
+            // if (dagTab instanceof DagTabExecuteOnly && dagNode.getChildren().length > 0) {
                 // when it's SQL graph and is not the last node
-                $menu.find(".viewResult, .generateResult, .viewSkew").addClass("xc-hidden");
-            } else if (table != null && DagTblManager.Instance.hasTable(table)) {
+                // $menu.find(".viewResult, .generateResult, .viewSkew").addClass("xc-hidden");
+            // } else
+            if (table != null && DagTblManager.Instance.hasTable(table)) {
                 $menu.find(".generateResult").addClass("xc-hidden");
                 $menu.find(".viewResult, .copyTableName").removeClass("xc-hidden unavailable");
                 $menu.find(".viewSkew").removeClass("xc-hidden");

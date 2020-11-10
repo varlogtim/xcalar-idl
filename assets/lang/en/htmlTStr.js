@@ -1355,7 +1355,7 @@ module.exports = {
         "resetAll": "Reset All",
         "restoreSource": "Restore Source",
         "restoreAllSource": "Restore All Sources",
-        "generateResult": "Generate Table",
+        "generateResult": "View Table",
         "viewResult": "View Table",
         "viewUDFErrors": "View Scalar Function Errors",
         "autoAlign": "Auto Align",
