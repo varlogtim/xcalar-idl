@@ -1060,6 +1060,10 @@ class DagTabManager extends AbstractTabManager {
             extraClass += " sql";
         } else if (dagTab instanceof DagTabExecuteOnly) {
             extraClass += " executeOnly";
+            if (dagTab instanceof DagTabSQLExecute) {
+                extraClass += " sqlGraphTab";
+                tabName = "SQL Plan";
+            }
             extraIcon = `<i class="icon ${dagTab.getIcon()} tabIcon"></i>`;
             isEditable = false;
         } else if (dagTab instanceof DagTabMain) {
