@@ -322,7 +322,8 @@ class SQLEditorSpace {
     private _executeAction(): void {
         if (this._executers.length === 0) {
             let sqls: string = this._getSQLs();
-            this._executeSQL(sqls);
+            let snippetObj = SQLSnippet.Instance.getSnippetObj(this._currentSnippetId);
+            this._executeSQL(sqls, snippetObj);
         } else {
             Alert.show({
                 "title": SQLTStr.Execute,
@@ -442,7 +443,7 @@ class SQLEditorSpace {
         }
     }
 
-    private _executeSQL(sqls: string): void {
+    private _executeSQL(sqls: string, snippetObj?: SQLSnippetDurable): void {
         if (!sqls || !sqls.trim()) {
             return
         }
@@ -460,6 +461,12 @@ class SQLEditorSpace {
                 isMulti: true
             };
             let sqlStructArray: SQLParserStruct[];
+            let snippetName, snippetId;
+            if (snippetObj) {
+                snippetName = snippetObj.name;
+                snippetId = snippetObj.id;
+            }
+
             SQLUtil.sendToPlanner("", "parse", struct)
             .then((ret) => {
                 const sqlParseRet = JSON.parse(ret).ret;
@@ -526,7 +533,11 @@ class SQLEditorSpace {
                     const sqlStruct: SQLParserStruct = selectArray[i];
                     let executor: SQLDagExecutor;
                     try {
-                        executor = new SQLDagExecutor(sqlStruct);
+
+                        executor = new SQLDagExecutor(sqlStruct, {
+                            sqlStatementName: snippetName + ".sql",
+                            snippetId: snippetId
+                        });
                     } catch (e) {
                         console.error(e);
                         return PromiseHelper.reject(e);

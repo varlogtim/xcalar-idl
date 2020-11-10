@@ -505,6 +505,12 @@ class DagTabManager extends AbstractTabManager {
         if (index != -1) {
             this._switchTabs(index);
             const oldTab = this._activeUserDags[index] as DagTabExecuteOnly;
+            if (newDagTab instanceof DagTabSQLExecute) {
+                this._getTabElByIndex(index).find(".name").html(`<span spellcheck="false" contenteditable="true" class="xc-input">${newDagTab.getSQLStatementName()} Plan</span>`);
+                this._getTabElByIndex(index).find(".name .xc-input").trigger("focusout");
+                (oldTab as DagTabSQLExecute).setSQLStatementName(newDagTab.getSQLStatementName());
+                (oldTab as DagTabSQLExecute).setSnippetId(newDagTab.getSnippetId());
+            }
             // reset graph
             const graph = oldTab.getGraph();
             graph.reset();
@@ -689,6 +695,12 @@ class DagTabManager extends AbstractTabManager {
         DagGraphBar.Instance.reset();
         if (dagTab instanceof DagTabProgress) {
             dagTab.focus();
+        }
+        if (dagTab instanceof DagTabSQLExecute) {
+            const snippetId = dagTab.getSnippetId();
+            if (SQLSnippet.Instance.getSnippetObj(snippetId)) {
+                SQLTabManager.Instance.openTab(snippetId);
+            }
         }
         return index;
     }
@@ -878,9 +890,10 @@ class DagTabManager extends AbstractTabManager {
             extension = ".tf";
         }
 
-        if (dagTab != null &&
+        if (dagTab instanceof DagTabSQLExecute ||
+            (dagTab != null &&
             newName != dagTab.getName() &&
-            this._tabRenameCheck(newName, $tabName)
+            this._tabRenameCheck(newName, $tabName))
         ) {
             dagTab.setName(newName);
             DagList.Instance.changeName(newName, dagTab.getId());
@@ -1062,7 +1075,12 @@ class DagTabManager extends AbstractTabManager {
             extraClass += " executeOnly";
             if (dagTab instanceof DagTabSQLExecute) {
                 extraClass += " sqlGraphTab";
-                tabName = "SQL Plan";
+                const snippetObj = SQLSnippet.Instance.getSnippetObj(dagTab.getSnippetId());
+                if (snippetObj) {
+                    tabName =  snippetObj.name + ".sql" + " Plan";
+                } else {
+                    tabName = "SQL Plan";
+                }
             }
             extraIcon = `<i class="icon ${dagTab.getIcon()} tabIcon"></i>`;
             isEditable = false;

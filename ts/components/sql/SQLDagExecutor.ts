@@ -34,18 +34,21 @@ class SQLDagExecutor {
     private _sqlTabCached: boolean;
     private _sqlFunctions: {};
     private _publishName: string;
-    private _options: {compileOnly: boolean, schemas?: {}};
+    private _options: {compileOnly?: boolean, schemas?: {}, sqlStatementName?: string,
+    snippetId?: string};
 
 
     public constructor(
         sqlStruct: SQLParserStruct,
         options?: {
-            compileOnly: boolean,
-            schemas?: any
+            compileOnly?: boolean,
+            schemas?: any,
+            sqlStatementName?: string,
+            snippetId?: string
         }
     ) {
 
-        this._options = options || {compileOnly: false, schemas: {}};
+        this._options = options || {compileOnly: false, schemas: {}, sqlStatementName: ""};
         this._sql = sqlStruct.sql.replace(/;+$/, "");
         this._newSql = sqlStruct.newSql ? sqlStruct.newSql.replace(/;+$/, "") :
                                                                      this._sql;
@@ -116,7 +119,7 @@ class SQLDagExecutor {
             this._tempGraph.addNode(this._sqlNode);
         } else {
             this._sqlNode.subscribeHistoryUpdate();
-            this._appendSQLNodeToDataflow();
+            this._appendSQLNodeToDataflow(this._options.sqlStatementName, this._options.snippetId);
         }
     }
 
@@ -349,8 +352,8 @@ class SQLDagExecutor {
         }
     }
 
-    private _appendSQLNodeToDataflow(): void {
-        this._tempTab = DagTabManager.Instance.openAndResetExecuteOnlyTab(new DagTabSQLExecute());
+    private _appendSQLNodeToDataflow(sqlStatementName?: string, snippetId?: string): void {
+        this._tempTab = DagTabManager.Instance.openAndResetExecuteOnlyTab(new DagTabSQLExecute(sqlStatementName, snippetId));
         this._tempGraph = this._tempTab.getGraph();
         this._sqlNode.hide();
         this._tempGraph.addNode(this._sqlNode);
