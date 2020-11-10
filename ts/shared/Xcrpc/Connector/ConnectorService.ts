@@ -95,12 +95,16 @@ class ConnectorService {
                 while (result.length < batchSize) {
                     result.push(fileBuf.shift());
                 }
-                yield result;
+                if (fileBuf.length == 0 && pageToken == null) {
+                    return result;
+                } else {
+                    yield result;
+                }
             }
         }
 
         if (fileBuf.length > 0) {
-            yield [...fileBuf];
+            return [...fileBuf];
         }
     }
 }
