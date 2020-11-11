@@ -1396,7 +1396,7 @@ module.exports = {
     },
 
     "dagSearch": {
-        "Find": "Find",
+        "Find": "Search",
         "FindWithin": "Find within",
         "Keyword": "Keyword",
         "Filters": "Filters",

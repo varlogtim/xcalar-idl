@@ -40,7 +40,7 @@ class DagSearchModel {
     }
 
     /**
-     * return true if seraches all opened dataflows
+     * return true if searches all opened dataflows
      */
     public isGlobalSearch(): boolean {
         return this._searchScope === "all";
@@ -162,7 +162,7 @@ class DagSearchModel {
     }
 
     private _isValidStatus(node: DagNode): boolean {
-        // only check all the checed options
+        // only check all the checked options
         const options = this.statusOptions.filter((option) => option.checked);
         for (let option of options) {
             const valid: boolean = option.filter(node);

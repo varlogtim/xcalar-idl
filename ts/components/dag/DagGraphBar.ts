@@ -259,6 +259,10 @@ class DagGraphBar {
             CreateAppModal.Instance.show(DagViewManager.Instance.getActiveTab());
         });
 
+        $("#dagSearchTrigger").click(() => {
+            DagSearch.Instance.show();
+        });
+
         this._setupRunButton();
     }
 

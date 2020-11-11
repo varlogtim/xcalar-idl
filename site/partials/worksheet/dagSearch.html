@@ -25,7 +25,7 @@
     <!-- status filter -->
     <div class="group advanceSection status">
       <div class="row">
-        <span class="subTitle"><%= dicts.dagSearch.Filters %></span>
+        <span class="subTitle sectionToggle"><%= dicts.dagSearch.Filters %></span>
         <div class="action sectionToggle xc-icon-action">
           <i class="icon xi-minus"></i>
           <i class="icon xi-plus"></i>
@@ -37,7 +37,7 @@
     <div class="divider"></div>
     <div class="group advanceSection type">
       <div class="row">
-        <span class="subTitle"><%= dicts.dagSearch.FindWithin %></span>
+        <span class="subTitle sectionToggle"><%= dicts.dagSearch.FindWithin %></span>
         <div class="action sectionToggle xc-icon-action">
           <i class="icon xi-minus"></i>
           <i class="icon xi-plus"></i>
@@ -47,15 +47,6 @@
       <!-- search scope -->
       <div class="scope">
         <div class="radioButtonGroup">
-          <div class="choice radioButton" data-option="current">
-            <div class="radio">
-              <i class="icon xi-radio-selected"></i>
-              <i class="icon xi-radio-empty"></i>
-            </div>
-            <div class="label">
-              <%= dicts.dagSearch.CurrentTab %>
-            </div>
-          </div>
           <div class="choice radioButton" data-option="all">
             <div class="radio">
               <i class="icon xi-radio-selected"></i>
@@ -63,6 +54,15 @@
             </div>
             <div class="label">
               <%= dicts.dagSearch.AllTabs %>
+            </div>
+          </div>
+          <div class="choice radioButton" data-option="current">
+            <div class="radio">
+              <i class="icon xi-radio-selected"></i>
+              <i class="icon xi-radio-empty"></i>
+            </div>
+            <div class="label">
+              <%= dicts.dagSearch.CurrentTab %>
             </div>
           </div>
       </div>

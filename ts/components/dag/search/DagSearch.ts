@@ -34,12 +34,13 @@ class DagSearch {
         const $statusSection: JQuery = $popUp.find(".advanceSection.status");
         const $typeSection: JQuery = $popUp.find(".advanceSection.type");
         this._toggleAdvancedSection($statusSection, false);
-        this._toggleAdvancedSection($typeSection, false);
+        this._toggleAdvancedSection($typeSection, true);
         this._resetFilters($statusSection);
         this._resetFilters($typeSection);
         // select first radio button by default
         $popUp.find(".radioButton").removeClass("active")
         .eq(0).addClass("active");
+        this._searchModel.setScope('all');
         this._setup = true;
     }
 
@@ -65,7 +66,7 @@ class DagSearch {
             return;
         }
         if (!this._searchModel.isGlobalSearch()) {
-            this._search(); // new search when swtich tab
+            this._search(); // new search when switch tab
         }
     }
 
@@ -166,7 +167,7 @@ class DagSearch {
         const $section: JQuery = $cell.closest(".advanceSection");
         const options: DagSearchBasicOption[] = this._getOptionsFromSection($section);
         const index: number = $cell.index();
-        // keep data and UI in synce
+        // keep data and UI in sync
         options[index].checked = $checkbox.hasClass("checked");
 
         this._updateResetButton($section);
@@ -178,10 +179,10 @@ class DagSearch {
         try {
             const keyword: string = this._getSearchInput().val().trim();
             if (keyword === "" && !this._searchModel.hasStatusFilter()) {
-                // when no status filer options checked and empty serach
+                // when no status filer options checked and empty search
                 this._clearSearch();
             } else {
-                this._clearSearhHighlight();
+                this._clearSearchHighlight();
                 const $matches: JQuery = this._searchModel.search(keyword);
                 this._searchHelper.updateResults($matches);
                 if ($matches.length !== 0) {
@@ -209,12 +210,12 @@ class DagSearch {
     }
 
     private _clearSearch(): void {
-        this._clearSearhHighlight();
+        this._clearSearchHighlight();
         this._searchHelper.clearSearch(undefined, {keepVal: true});
         this._searchModel.clearMatches();
     }
 
-    private _clearSearhHighlight(searchIndex?: number): void {
+    private _clearSearchHighlight(searchIndex?: number): void {
         this._toggleHighlight(false, searchIndex);
     }
 
@@ -225,7 +226,7 @@ class DagSearch {
         const switchTab: boolean = highlight ? true : false;
         const $match: JQuery = this._getMatchedEl(searchIndex, switchTab);
         if ($match.is("textarea")) {
-            // when it's commment box
+            // when it's comment box
             if (highlight) {
                 $match.addClass("searchHighLight");
             } else {
@@ -240,7 +241,7 @@ class DagSearch {
 
             if (highlight) {
                 if (isSvgText) {
-                    this._drawhHighlightBox($match, "searchHighLight");
+                    this._drawHighlightBox($match, "searchHighLight");
                 }
                 DagView.addSelection($node, "searchHighLightSelection");
             } else {
@@ -252,25 +253,25 @@ class DagSearch {
         }
     }
 
-    private _drawhHighlightBox($text: JQuery, className: string): void {
+    private _drawHighlightBox($text: JQuery, className: string): void {
         try {
             const text = d3.select(<any>$text[0]);
             const parent = text.select(function() { return this.parentNode; });
-            const bbox = text.node().getBBox();
+            const bBox = text.node().getBBox();
 
             parent.insert("rect", ":first-child")
             .classed(className, true)
-            .attr("x", bbox.x - 8)
-            .attr("y", bbox.y)
-            .attr("width", bbox.width + 16)
-            .attr("height", bbox.height)
+            .attr("x", bBox.x - 8)
+            .attr("y", bBox.y)
+            .attr("width", bBox.width + 16)
+            .attr("height", bBox.height)
             .attr("transform", text.attr("transform"));
         } catch (e) {
             console.error(e);
         }
     }
 
-    private _srcollToMatch(): void {
+    private _scrollToMatch(): void {
         const index: number = this._searchHelper.getSearchIndex();
         const $match: JQuery = this._getMatchedEl(index, true);
         const $container: JQuery = $match.closest(".dataflowArea");
@@ -326,7 +327,7 @@ class DagSearch {
                 }
             }
         }, {
-            key: "Node Labels",
+            key: "Operator Labels",
             default: true,
             checked: false,
             selector: (keyword: string, node: DagNode) => {
@@ -337,7 +338,7 @@ class DagSearch {
                 }
             }
         }, {
-            key: "Node Type",
+            key: "Operator Type",
             default: true,
             checked: false,
             selector: (keyword: string, node: DagNode) => {
@@ -349,7 +350,7 @@ class DagSearch {
             }
         }, {
             key: "Description",
-            default: false,
+            default: true,
             checked: false,
             selector: (keyword: string, node: DagNode) => {
                 if (node.getDescription().toLowerCase().includes(keyword)
@@ -361,7 +362,7 @@ class DagSearch {
             }
         }, {
             key: "Parameters",
-            default: false,
+            default: true,
             checked: false,
             selector: (keyword: string, node: DagNode) => {
                 const parameters = node.getParameters();
@@ -374,7 +375,7 @@ class DagSearch {
             }
         }, {
             key: "Table Name",
-            default: false,
+            default: true,
             checked: false,
             selector: (keyword: string, node: DagNode) => {
                 const table: string = node.getTable();
@@ -383,22 +384,24 @@ class DagSearch {
                 }
                 return null;
             }
-        }, {
-            key: "Aggregates",
-            default: false,
-            checked: false,
-            selector: (keyword: string, node: DagNode) => {
-                const aggregates = node.getAggregates();
-                for (let aggragate of aggregates) {
-                    if (aggragate.toLowerCase().includes(keyword)) {
-                        return ($node) => $node;
-                    }
-                }
-                return null;
-            }
-        }, {
-            key: "Graph Node ID",
-            default: false,
+        },
+        // {
+        //     key: "Aggregates",
+        //     default: true,
+        //     checked: false,
+        //     selector: (keyword: string, node: DagNode) => {
+        //         const aggregates = node.getAggregates();
+        //         for (let aggregate of aggregates) {
+        //             if (aggregate.toLowerCase().includes(keyword)) {
+        //                 return ($node) => $node;
+        //             }
+        //         }
+        //         return null;
+        //     }
+        // },
+        {
+            key: "Operator ID",
+            default: true,
             checked: false,
             selector: (keyword: string, node: DagNode) => {
                 if (node.getId().toLowerCase().includes(keyword)) {
@@ -413,12 +416,12 @@ class DagSearch {
         const $searchArea: JQuery = this._getSearchArea();
         this._searchHelper = new SearchBar($searchArea, {
             removeSelected: (searchIndex) => {
-                this._clearSearhHighlight(searchIndex);
+                this._clearSearchHighlight(searchIndex);
             },
             highlightSelected: () => {
                 this._toggleHighlight(true);
             },
-            scrollMatchIntoView: () => this._srcollToMatch(),
+            scrollMatchIntoView: () => this._scrollToMatch(),
             $input: $searchArea.find("input"),
             arrowsPreventDefault: true
         });
@@ -445,7 +448,7 @@ class DagSearch {
                             $(".modalBackground:visible").length
                         ) {
                             // do not open if we're focused on another input, such
-                            // as codemirror
+                            // as code mirror
                             return;
                         }
                         this.show();

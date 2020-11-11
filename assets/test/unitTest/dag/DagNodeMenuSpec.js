@@ -36,8 +36,8 @@ describe("DagNodeMenu Test", function() {
 
         it("should show correct options on empty dataflow", function() {
             $dfWrap.contextmenu();
-            expect($menu.find("li:visible").length).to.equal(11);
-            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(6);
+            expect($menu.find("li:visible").length).to.equal(10);
+            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(5);
             let classes = [];
             $menu.find("li:visible").each(function() {
                 classes.push($(this).attr("class"));
@@ -53,7 +53,6 @@ describe("DagNodeMenu Test", function() {
                 "download",
                 "duplicateDf",
                 "removeAllNodes unavailable",
-                "search"
             ]);
             $("#container").trigger(fakeEvent.mousedown);
         });
@@ -335,8 +334,8 @@ describe("DagNodeMenu Test", function() {
             DagViewManager.Instance.deselectNodes();
             $dfWrap.contextmenu();
 
-            expect($menu.find("li:visible").length).to.equal(4);
-            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(4);
+            expect($menu.find("li:visible").length).to.equal(3);
+            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(3);
             let classes = [];
             $menu.find("li:visible").each(function() {
                 classes.push($(this).attr("class"));
@@ -345,7 +344,6 @@ describe("DagNodeMenu Test", function() {
                 "selectAll",
                 "autoAlign",
                 "download",
-                "search"
             ]);
 
             DagViewManager.Instance.isViewOnly = cachedFn;
