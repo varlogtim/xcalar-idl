@@ -1808,8 +1808,14 @@
             }
 
             &.optimized {
-                background-color: @color-dagTab-optimized;
-                font-style: italic;
+                .tabIcon, .name {
+                    color: #BCAA80;
+                }
+                &.active {
+                    .tabIcon, .name {
+                        color: #FFD36E;
+                    }
+                }
             }
 
             &.query {
@@ -1825,7 +1831,12 @@
 
             &.sqlGraphTab {
                 .tabIcon, .name {
-                    color: @color-icon-darkGreen;
+                    color: #A9A1C9;
+                }
+                &.active {
+                    .tabIcon, .name {
+                        color: #AB9AEF;
+                    }
                 }
             }
 

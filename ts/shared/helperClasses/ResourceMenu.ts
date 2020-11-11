@@ -540,7 +540,7 @@ class ResourceMenu {
                         this._addTableToModule(table);
                     });
                 } else {
-                    Alert.error(ErrTStr.Error, "Cannot add table to this type of module.");
+                    Alert.error(ErrTStr.Error, ErrTStr.InvalidAddToPlan);
                 }
                 return;
             } else {

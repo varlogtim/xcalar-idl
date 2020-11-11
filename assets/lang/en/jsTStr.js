@@ -360,6 +360,7 @@ ErrTStr = {
     'InvalidDFDownload': 'Invalid module to download',
     "NoPrimaryKey": "Published tables must have a primary key.",
     'DsNotFound': 'Table not found. It may be caused by module change or errors in the module, please reconfigure the operator and try execute again.',
+    'InvalidAddToPlan': "Cannot add table to this type of plan."
 
 };
 
