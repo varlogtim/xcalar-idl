@@ -3829,7 +3829,8 @@ proto.ParentAppLoadBufferRequest.toObject = function(includeInstance, msg) {
     databuffersList: jspb.Message.toObjectList(msg.getDatabuffersList(),
     proto.ParentAppLoadBufferRequest.DataBuffer.toObject, includeInstance),
     unusedbuffersList: jspb.Message.toObjectList(msg.getUnusedbuffersList(),
-    proto.ParentAppLoadBufferRequest.Buffer.toObject, includeInstance)
+    proto.ParentAppLoadBufferRequest.Buffer.toObject, includeInstance),
+    fixedschema: jspb.Message.getBooleanFieldWithDefault(msg, 6, false)
   };
 
   if (includeInstance) {
@@ -3887,6 +3888,10 @@ proto.ParentAppLoadBufferRequest.deserializeBinaryFromReader = function(msg, rea
       var value = new proto.ParentAppLoadBufferRequest.Buffer;
       reader.readMessage(value,proto.ParentAppLoadBufferRequest.Buffer.deserializeBinaryFromReader);
       msg.addUnusedbuffers(value);
+      break;
+    case 6:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setFixedschema(value);
       break;
     default:
       reader.skipField();
@@ -3952,6 +3957,13 @@ proto.ParentAppLoadBufferRequest.serializeBinaryToWriter = function(message, wri
       5,
       f,
       proto.ParentAppLoadBufferRequest.Buffer.serializeBinaryToWriter
+    );
+  }
+  f = message.getFixedschema();
+  if (f) {
+    writer.writeBool(
+      6,
+      f
     );
   }
 };
@@ -4395,6 +4407,24 @@ proto.ParentAppLoadBufferRequest.prototype.addUnusedbuffers = function(opt_value
  */
 proto.ParentAppLoadBufferRequest.prototype.clearUnusedbuffersList = function() {
   return this.setUnusedbuffersList([]);
+};
+
+
+/**
+ * optional bool fixedSchema = 6;
+ * @return {boolean}
+ */
+proto.ParentAppLoadBufferRequest.prototype.getFixedschema = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 6, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.ParentAppLoadBufferRequest} returns this
+ */
+proto.ParentAppLoadBufferRequest.prototype.setFixedschema = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 6, value);
 };
 
 

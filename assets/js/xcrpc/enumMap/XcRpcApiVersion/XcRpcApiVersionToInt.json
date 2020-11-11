@@ -9,7 +9,7 @@
     "KvStoreVersionSignature" : 141055042,
     "LicenseVersionSignature" : 237899198,
     "OperatorVersionSignature" : 40095163,
-    "ParentChildVersionSignature" : 240707532,
+    "ParentChildVersionSignature" : 122734764,
     "ProtoFieldValueVersionSignature" : 208059654,
     "ProtoMsgVersionSignature" : 222042168,
     "PublishedTableVersionSignature" : 142049541,
@@ -25,6 +25,6 @@
     "WorkbookVersionSignature" : 44639590,
     "logVersionSignature" : 31641366,
     "memoryVersionSignature" : 268227803,
-    "ProtoAPIVersionSignature" : 38295882
+    "ProtoAPIVersionSignature" : 24925356
 }
 
