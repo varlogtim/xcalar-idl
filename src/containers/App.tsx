@@ -6,6 +6,7 @@ import DeleteModuleModal from "../components/modals/DeleteModuleModal";
 import DeleteTableFuncModal from "../components/modals/DeleteTableFuncModal";
 import SQLEditorShortcutsModal from "../components/modals/SQLEditorShortcutsModal";
 import RecreatePbTablesModal from "../components/modals/RecreatePbTablesModal";
+import CustomNodeManagerModal from "../components/modals/CustomNodeManagerModal";
 
 const App = () => (
     <div>
@@ -16,6 +17,7 @@ const App = () => (
         <DeleteTableFuncModal />
         <SQLEditorShortcutsModal/>
         <RecreatePbTablesModal />
+        <CustomNodeManagerModal />
     </div>
 );
 

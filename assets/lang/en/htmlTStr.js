@@ -301,7 +301,9 @@ module.exports = {
         "Intersect": "Intersect",
         "Except": "Except",
         "CloseOthers": "Close Other Tabs",
-        "CloseOthersRight": "Close Tabs to the Right"
+        "CloseOthersRight": "Close Tabs to the Right",
+        "ClickForOperator": "Click to add an operator node",
+        "ClickToHide": "Click to hide",
     },
 
     "TooltipTStr": {

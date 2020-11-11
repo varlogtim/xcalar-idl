@@ -142,7 +142,10 @@ class DagCategoryBar {
 
         // Persist the change
         return this._saveCategories()
-        .then(() => newName);
+        .then(() => {
+            DagNodeMenu.updateCategories();
+           return newName
+        });
     }
 
     /**
@@ -908,6 +911,10 @@ class DagCategoryBar {
         return null;
     }
 
+    public deleteOperator(nodeId: DagNodeId): XDPromise<void> {
+        return this._deleteOperator(nodeId);
+    }
+
     private _deleteOperator(nodeId: DagNodeId): XDPromise<void> {
         // Delete from categories
         for (const category of this.dagCategories.getCategories()) {
@@ -924,10 +931,14 @@ class DagCategoryBar {
         // Re-render the operator bar(UI)
         this._renderOperatorBar();
         this._focusOnCategory(this.currentCategory);
-
+        DagNodeMenu.updateCategories();
         // Persist the change
         return this._saveCategories();
     }
+
+    public isValidOperatorName(category: DagCategory, newName: string): boolean {
+        return this._isValidOperatorName(category, newName);
+    };
 
     private _isValidOperatorName(category: DagCategory, newName: string): boolean {
         // Validate inputs
@@ -942,6 +953,10 @@ class DagCategoryBar {
         }
 
         return true;
+    }
+
+    public renameOperator(nodeId: DagNodeId, newName: string): XDPromise<void> {
+        return this._renameOperator(nodeId, newName);
     }
 
     private _renameOperator(nodeId: DagNodeId, newName: string): XDPromise<void> {
@@ -963,7 +978,7 @@ class DagCategoryBar {
         // Re-render the operator bar(UI)
         this._renderOperatorBar();
         this._focusOnCategory(this.currentCategory);
-
+        DagNodeMenu.updateCategories();
         // Persist the change
         return this._saveCategories();
     }
@@ -1042,4 +1057,13 @@ class DagCategoryBar {
             this._listScrollers[index].showOrHideScrollers();
         }
     }
+}
+
+
+if (typeof exports !== 'undefined') {
+    exports.DagCategoryBar = DagCategoryBar;
+};
+
+if (typeof runEntity !== "undefined") {
+    runEntity.DagCategoryBar = DagCategoryBar;
 }

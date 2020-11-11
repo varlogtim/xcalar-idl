@@ -103,6 +103,7 @@ module.exports = {
     enableOperatorBar: function() {
         UserSettings.Instance.setPref('dfPinOperatorBar', true, false);
         DagViewManager.Instance.pinOperatorBar(true);
+        $(".operatorBar, .categorySection").attr("style", "display: flex !important;");
     },
 
     disableSqlPanelAlert: function() {

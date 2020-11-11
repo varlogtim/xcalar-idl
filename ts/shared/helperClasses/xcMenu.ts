@@ -14,6 +14,8 @@ namespace xcMenu {
         hotkeys?: Function;
         allowSelection?: boolean;
         $subSubMenu?: JQuery;
+        subMenuTop?: number;
+        subMenuLeft?: number;
     }
 
     /**
@@ -102,10 +104,10 @@ namespace xcMenu {
                 clearTimeout(hideTimeout);
                 const subMenuClass: string = $li.data('submenu');
                 if (event.keyTriggered) { // mouseenter triggered by keypress
-                    showSubMenu($subMenu, $li, subMenuClass, subListScroller);
+                    showSubMenu($subMenu, $li, subMenuClass, subListScroller, options);
                 } else {
                     showTimeout = setTimeout(function() {
-                        showSubMenu($subMenu, $li, subMenuClass, subListScroller);
+                        showSubMenu($subMenu, $li, subMenuClass, subListScroller, options);
                     }, 150);
                 }
 
@@ -126,7 +128,8 @@ namespace xcMenu {
             e.preventDefault();
         });
 
-        function showSubMenu($subMenu: JQuery, $li: JQuery, subMenuClass: string, subListScroller): void {
+        function showSubMenu($subMenu: JQuery, $li: JQuery, subMenuClass: string, subListScroller, options?): void {
+            options = options || {};
             if ($li.hasClass('selected')) {
                 $subMenu.show();
                 const $targetSubMenu: JQuery = $subMenu.find('ul.' + subMenuClass);
@@ -142,8 +145,22 @@ namespace xcMenu {
                 if (!visible) {
                     StatusBox.forceHide();
                 }
-                let top: number = $li.offset().top + $li.outerHeight();
-                let left: number = $li.offset().left + $li.outerWidth() - 10;
+                let top: number;
+                let topOffset: number;
+                let left: number;
+                let leftOffset: number;
+                if (options.subMenuTop != null) {
+                    topOffset = options.subMenuTop;
+                } else {
+                    topOffset = $li.outerHeight();
+                }
+                if (options.subMenuLeft != null) {
+                    leftOffset = options.subMenuTop;
+                } else {
+                    leftOffset = -10;
+                }
+                top = $li.offset().top + topOffset;
+                left = $li.offset().left + $li.outerWidth() + leftOffset;
                 let shiftedLeft: boolean = false;
 
                 // move submenu to left if overflowing to the right
@@ -151,7 +168,9 @@ namespace xcMenu {
                 if (left + $subMenu.width() > viewportRight) {
                     $subMenu.addClass('left');
                     shiftedLeft = true;
-                    top -= 27;
+                    if (options.subMenuTop == null) {
+                        top -= 27;
+                    }
                 } else {
                     $subMenu.removeClass('left');
                 }
@@ -160,7 +179,7 @@ namespace xcMenu {
                 const viewportBottom: number = $(window).height();
                 if (top + $subMenu.height() > viewportBottom) {
                     top -= $subMenu.height();
-                    if (shiftedLeft) {
+                    if (shiftedLeft ||  options.subMenuTop != null) {
                         top += 27;
                     }
                 }
@@ -263,10 +282,10 @@ namespace xcMenu {
                     clearTimeout(hideTimeout);
                     const subMenuClass: string = $li.data('submenu');
                     if (event.keyTriggered) { // mouseenter triggered by keypress
-                        showSubMenu($subSubMenu, $li, subMenuClass, subSubListScroller);
+                        showSubMenu($subSubMenu, $li, subMenuClass, subSubListScroller, options);
                     } else {
                         showTimeout = setTimeout(function() {
-                            showSubMenu($subSubMenu, $li, subMenuClass, subSubListScroller);
+                            showSubMenu($subSubMenu, $li, subMenuClass, subSubListScroller, options);
                         }, 150);
                     }
                 },

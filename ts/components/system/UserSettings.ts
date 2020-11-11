@@ -501,10 +501,6 @@ class UserSettings {
                 name: "dfTableName",
                 text: DFTStr.ShowTableName
             }, {
-                name: "dfPinOperatorBar",
-                text: DFTStr.PinOperatorBar
-            },
-            {
                 name: "dfPreviewLimit",
                 text: DFTStr.PreviewLimit,
                 type: "numberInput",
@@ -540,9 +536,6 @@ class UserSettings {
                     break;
                 case ("dfTableName"):
                     DagViewManager.Instance.toggleTableName(val);
-                    break;
-                case ("dfPinOperatorBar"):
-                    DagViewManager.Instance.pinOperatorBar(val);
                     break;
                 default:
                     break;

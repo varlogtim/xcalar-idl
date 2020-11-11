@@ -87,6 +87,7 @@ namespace xcGlobal {
     };
 
     export let darkMode = true;
+    export let react: any = {};
 }
 
 if (typeof exports !== 'undefined') {

@@ -118,6 +118,7 @@ TooltipTStr = {
     "ColumnAlreadyInt": "Column is already an integer",
     "ColumnAlreadyFloat": "Column is already a float",
     "CloseConfigForm": "Exit the configuration form to perform this action.",
+    "EditCustomNodes": "Click to edit or delete custom nodes",
 
     // with replace
     'Undo': 'Undo: <op>',

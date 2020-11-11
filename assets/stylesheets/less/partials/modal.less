@@ -2002,6 +2002,37 @@ html.microsoft {
     }
 }
 
+#CustomNodeManagerModal {
+    .size(@height: 400px, @min-height: 300px, @min-width:300px);
+
+    .modalMain {
+        font-size: 13px;
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0px;
+
+            &:hover {
+                background-color: rgba(0, 0, 0, 0.1);
+            }
+        }
+        .actions {
+            display: flex;
+            flex: 0 0 auto;
+            .iconWrap {
+                margin-left: 10px;
+            }
+            .icon {
+                font-size: 14px;
+            }
+        }
+        .label {
+            .textOverflowOneLine;
+        }
+    }
+}
+
 #schemaSelectionModal {
     @h-without-main: @modal-header-h + @modal-bottom-h;
     .size(@height: 600px);
@@ -4902,6 +4933,7 @@ html.microsoft {
 #dagCustomRenameModal {
     @h: 201px;
     .size(@height: @h, @min-height: @h);
+    z-index: @z-index-modal + 1; // place in front of custom node modal
 }
 
 #createPublishTableModal {

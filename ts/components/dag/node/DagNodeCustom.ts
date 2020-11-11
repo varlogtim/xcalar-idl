@@ -16,7 +16,7 @@ class DagNodeCustom extends DagNode {
         this.maxParents = 0; // default to 0, will change when adding inputs
         this.minParents = 0; // default to 0, will change when adding inputs
         this.maxChildren = 0; // default to 0, will change when adding outputs
-        this.display.icon = "&#xea5e;";
+        this.display.icon = "&#xea5f;";
 
         if (options != null && options.subGraph != null
             && options.inPorts != null && options.outPorts != null

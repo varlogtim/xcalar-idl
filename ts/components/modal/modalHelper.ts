@@ -382,7 +382,10 @@ class ModalHelper {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         const options: ModalHelperOptions = $.extend(this.options, extraOptions) || {};
         const $modal: JQuery = this.$modal;
-        const numModalsOpen: number = $('.modalContainer:visible:not(.noBackground)').length;
+        let $openModals = $('.modalContainer:visible:not(.noBackground)').filter((_i, el) => {
+            return $(el).closest("#root").length === 0; // filter out react modals
+        });
+        const numModalsOpen: number = $openModals.length;
         $(document).off("keydown.xcModal" + this.id);
         $(document).off("keydown.xcModalTabbing" + this.id);
         $modal.removeClass("noBackground");

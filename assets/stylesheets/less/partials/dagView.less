@@ -93,6 +93,14 @@
                 display: flex;
             }
         }
+        #dagNodeOperatorsMenuWrap {
+            .menu {
+                .xc-disabled;
+            }
+            .viewOnlyText {
+                display: block;
+            }
+        }
     }
 
     .ui-resizable-w {
@@ -1797,7 +1805,8 @@
     }
 }
 #dagNodeMenu, #dagNodeSubMenu, #dagTableNodeMenu, #dagNodeInstructionSubMenu,
-#dagNodeInstructionMenu, #dagTableNodeSubMenu, #dagTableNodeSubSubMenu {
+#dagNodeInstructionMenu, #dagTableNodeSubMenu, #dagTableNodeSubSubMenu,
+#dagNodeOperatorsMenu,  #dagNodeOperatorsSubMenu, #dagNodeOperatorsMenuWrap {
     z-index: @z-index-popupUndocked + 5;
     border-radius: 5px;
     box-shadow:  0px 0px 0px 1px rgba(255, 255, 255, 0.2), 0px 1px 3px 1px rgba(0, 0, 0, 0.2);
@@ -2186,6 +2195,117 @@
     }
 }
 
+// TODO: remove these bars from html & js
+.operatorBar, .categorySection {
+    display: none !important;
+}
+
+#dagNodeOperatorsMenuWrap {
+    width: 24px;
+    border-radius: 0px;
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    overflow: hidden;
+    background-color: @color-bg-menu;
+
+    .controlBtn {
+        background-color: @color-icon-default;
+        color: @color-font-defaultInverse;
+        height: 24px;
+        width: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+
+        .icon {
+            font-size: 14px;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            &::before {
+                position: relative;
+                top: 5px;
+            }
+        }
+        .xi-plus {
+            display: none;
+        }
+    }
+
+    &.collapsed {
+        .xi-plus {
+            display: block;
+        }
+        .xi-minus {
+            display: none;
+        }
+        #dagNodeOperatorsMenu {
+            display: none !important;
+        }
+    }
+
+    &.dragging {
+        .controlBtn, .menu {
+            pointer-events: none;
+        }
+    }
+
+    .viewOnlyText  {
+        display: none;
+        height: ~"calc(100% - 24px)";
+        width: 100%;
+        position: absolute;
+        top: 24px;
+    }
+}
+
+#dagNodeOperatorsMenu {
+    width: 24px;
+    display: block !important;
+    border-radius: 0px;
+    position: relative;
+    box-shadow: none;
+
+    li {
+        padding: 0px;
+        height: 24px;
+
+        .icon {
+            font-size: 14px;
+            margin-left: 4px;
+        }
+    }
+    .parentMenu::after {
+        right: 0px;
+        bottom: 0px;
+        border-right: 5px solid @color-icon-default;
+        border-top: 5px solid transparent;
+    }
+}
+
+#dagNodeOperatorsSubMenu {
+    border-radius: 0px;
+    width: 120px;
+
+    &.left {
+        margin-left: -145px;
+    }
+
+    &.dragging {
+        display: none !important;
+    }
+
+    li {
+        display: flex;
+        overflow: hidden;
+
+        .label {
+            .textOverflowOneLine;
+        }
+    }
+}
 
 #dataflow-rectSelection {
     z-index: 2;

@@ -102,3 +102,12 @@ class DagCustomRenameModal {
         this._modalHelper.clear();
     }
 }
+
+
+if (typeof exports !== 'undefined') {
+    exports.DagCustomRenameModal = DagCustomRenameModal;
+};
+
+if (typeof runEntity !== "undefined") {
+    runEntity.DagCustomRenameModal = DagCustomRenameModal;
+}

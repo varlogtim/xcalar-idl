@@ -107,6 +107,12 @@ namespace DagNodeMenu {
         xcMenu.add(_getDagNodeMenu());
         xcMenu.add(_getDagTableMenu());
         xcMenu.add(_getInstructionMenu());
+        xcMenu.add(_getDagNodeOperatorsMenu() , {
+            subMenuTop: 0,
+            subMenuLeft: 2
+        });
+
+        DagNodeOperatorsMenu.Instance.setup();
 
         let $dfWrap = _getDFWrap();
         let $dfWraps = $dfWrap;
@@ -178,11 +184,9 @@ namespace DagNodeMenu {
         const iconMap = DagCategoryBar.Instance.getCategoryIconMap();
         let menuHtml: HTML = "";
         let subMenuHtml: HTML = "";
+        let hasCustomNodes: boolean;
         dagCategories.getCategories().forEach((category: DagCategory) => {
-            if (category.getType() === DagCategoryType.Hidden ||
-                category.getType() === DagCategoryType.Custom) {
-                return;
-            }
+            if (category.getType() === DagCategoryType.Hidden) return;
 
             const categoryType: DagCategoryType = category.getType();
             const categoryName: string = category.getName();
@@ -195,13 +199,16 @@ namespace DagNodeMenu {
                 if (categoryNode.isHidden()) {
                     return;
                 }
+                if (categoryNode.getNodeType() === DagNodeType.Custom) {
+                    hasCustomNodes = true;
+                }
                 const operator: DagNode = categoryNode.getNode();
                 const operatorName: string = categoryNode.getNodeType();
                 let opDisplayName: string = categoryNode.getDisplayNodeType();
                 const icon: string = categoryNode.getIcon();
                 const description: string = categoryNode.getDescription();
                 subMenuPart += `<li class="operator ${operatorName}" data-opid="${operator.getId()}"
-                                ${xcTooltip.AttrsLeft} data-delay="700" data-original-title="${description}">
+                                ${xcTooltip.AttrsLeft} data-delay="600" data-original-title="${description}">
                                     <i class="icon operatorIcon ${icon}">${icon}</i>
                                     <span class="label">${opDisplayName}</span>
                             </li>`;
@@ -222,6 +229,16 @@ namespace DagNodeMenu {
 
         _getDagTableSubMenu().find("ul").html(menuHtml);
         $("#dagTableNodeSubSubMenu").html(subMenuHtml);
+
+        _getDagNodeOperatorsMenu().find("ul").html(menuHtml);
+        $("#dagNodeOperatorsSubMenu").html(subMenuHtml);
+        if (hasCustomNodes) {
+            $("#dagNodeOperatorsSubMenu").find(".category-custom").append(`<li class="operator manageCustomNodes"
+            ${xcTooltip.AttrsLeft} data-delay="600" data-original-title="${TooltipTStr.EditCustomNodes}">
+                <span class="label">Edit Custom Nodes</span>
+        </li>`)
+        }
+        $("#dagNodeOperatorsSubMenu").find('[data-placement="auto left"]').attr("data-placement", "auto right");
     }
 
 
@@ -586,6 +603,10 @@ namespace DagNodeMenu {
 
     function _getInstructionMenu(): JQuery {
         return $("#dagNodeInstructionMenu");
+    }
+
+    function _getDagNodeOperatorsMenu(): JQuery {
+        return $("#dagNodeOperatorsMenu");
     }
 
     function expandSQLNode(
