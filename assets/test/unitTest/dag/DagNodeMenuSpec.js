@@ -36,14 +36,13 @@ describe("DagNodeMenu Test", function() {
 
         it("should show correct options on empty dataflow", function() {
             $dfWrap.contextmenu();
-            expect($menu.find("li:visible").length).to.equal(10);
+            expect($menu.find("li:visible").length).to.equal(9);
             expect($menu.find("li:visible:not(.unavailable)").length).to.equal(5);
             let classes = [];
             $menu.find("li:visible").each(function() {
                 classes.push($(this).attr("class"));
             });
             expect(classes).to.deep.equal([
-                "executeAllNodes unavailable",
                 "deleteAllTables unavailable",
                 "pasteNodes",
                 "selectAll unavailable",
@@ -1130,21 +1129,21 @@ describe("DagNodeMenu Test", function() {
             DagViewManager.Instance.run = cachedFn;
         });
 
-        it("executeAllNodes", function() {
-            var called = false;
-            var cachedFn = DagViewManager.Instance.run;
+        // it("executeAllNodes", function() {
+        //     var called = false;
+        //     var cachedFn = DagViewManager.Instance.run;
 
-            DagView.selectNode($dfArea.find(".operator"));
+        //     DagView.selectNode($dfArea.find(".operator"));
 
-            DagViewManager.Instance.run = function() {
-                called = true;
-            };
+        //     DagViewManager.Instance.run = function() {
+        //         called = true;
+        //     };
 
-            $dfArea.find(".operator .main").contextmenu();
-            $menu.find(".executeAllNodes").trigger(fakeEvent.mouseup);
-            expect(called).to.be.true;
-            DagViewManager.Instance.run = cachedFn;
-        });
+        //     $dfArea.find(".operator .main").contextmenu();
+        //     $menu.find(".executeAllNodes").trigger(fakeEvent.mouseup);
+        //     expect(called).to.be.true;
+        //     DagViewManager.Instance.run = cachedFn;
+        // });
 
         it("executeNodesOptimized", function() {
             var called = false;
