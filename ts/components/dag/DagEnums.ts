@@ -65,12 +65,12 @@ enum DagNodeErrorType {
     CycleInLink = "Cycle In Link",
     LinkOutNotExecute = "The linked operator only allow linking after execution",
     InvalidOptimizedOutNode = "Valid terminal operators must be either Export or Function Output",
-    InvalidOptimizedOutNodeCombo = "Physical plan cannot have both Export and Function Output operators",
-    InvalidOptimizedLinkOutCount = "Physical plan cannot have multiple Function Output operators",
-    InvalidOptimizedLinkOutOptimizedCount = "Physical plan cannot have multiple Function Output operators",
-    InvalidOptimizedDuplicateExport = "Physical plan cannot have multiple export operators originating from the same operator",
-    InvalidOptimizedPublishNode = "Physical plan that publishing the final table cannot have Export or Function Output operators",
-    InvalidOptimizedPublishCount = "Physical plan cannot have multiple Publish Table operators",
+    InvalidOptimizedOutNodeCombo = "Optimized plan cannot have both Export and Function Output operators",
+    InvalidOptimizedLinkOutCount = "Optimized plan cannot have multiple Function Output operators",
+    InvalidOptimizedLinkOutOptimizedCount = "Optimized plan cannot have multiple Function Output operators",
+    InvalidOptimizedDuplicateExport = "Optimized plan cannot have multiple export operators originating from the same operator",
+    InvalidOptimizedPublishNode = "Optimized plan that publishing the final table cannot have Export or Function Output operators",
+    InvalidOptimizedPublishCount = "Optimized plan cannot have multiple Publish Table operators",
     Disjoint = "Multiple disjoint plans detected. Optimized execution can only occur on 1 continuous plan.",
     NoColumn = "Invalid column in the schema:\n",
     NoColumns = "Invalid columns in the schema:\n",
@@ -202,8 +202,8 @@ DagNodeTooltip[DagNodeSubType.FilterJoin] = "Returns columns from the left table
 DagNodeTooltip[DagNodeSubType.Union] = "Combines the results from two or more tables";
 DagNodeTooltip[DagNodeSubType.Intersect] = "Returns rows within the selected tables whose columns match";
 DagNodeTooltip[DagNodeSubType.Except] = "Returns the columns of Table #1 that are not in the column results of the other selected tables";
-DagNodeTooltip[DagNodeSubType.ExportOptimized] = "Exports the results of a physical plan via an export driver";
-DagNodeTooltip[DagNodeSubType.DFOutOptimized] = "Exports the results of a physical plan to another plan";
+DagNodeTooltip[DagNodeSubType.ExportOptimized] = "Exports the results of a optimized plan via an export driver";
+DagNodeTooltip[DagNodeSubType.DFOutOptimized] = "Exports the results of a optimized plan to another plan";
 
 
 

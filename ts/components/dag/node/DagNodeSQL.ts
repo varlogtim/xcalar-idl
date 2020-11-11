@@ -1543,8 +1543,7 @@ class DagNodeSQL extends DagNodeIn {
                 try {
                     logicalPlan = JSON.parse(JSON.parse(data).sqlQuery);
                 } catch(e) {
-                    return PromiseHelper.reject("Failed to parse logical plan: "
-                                                                        + data);
+                    return PromiseHelper.reject("Failed to parse plan: " + data);
                 }
                 const sqlQueryObj = new SQLQuery(queryId, sqlQueryStr,
                                                  logicalPlan, optimizations);

@@ -1,9 +1,9 @@
 class DagTabOptimized extends DagTabProgress {
     public static readonly KEY = "xcRet_";
-    public static readonly XDPATH = "Physical plan/";
-    public static readonly SDKPATH = "Physical plan from SDK/";
-    public static readonly FILE_EXT = ".physical.plan.tar.gz";
-    public static readonly FILE_SUFFIX = "physical plan";
+    public static readonly XDPATH = "Optimized plan/";
+    public static readonly SDKPATH = "Optimized plan from SDK/";
+    public static readonly FILE_EXT = ".optimized.plan.tar.gz";
+    public static readonly FILE_SUFFIX = "optimized plan";
     public uid: XcUID;
 
     /**
@@ -56,7 +56,7 @@ class DagTabOptimized extends DagTabProgress {
                         }));
                         dagListMap.delete(retinaName);
                     } else if (retinaName.includes(key)) {
-                        console.warn("Physical plan", retinaName, "is missing in meta");
+                        console.warn("Optimized plan", retinaName, "is missing in meta");
                         dagTabs.push(new DagTabOptimized({
                             id: retinaName,
                             name: retinaName

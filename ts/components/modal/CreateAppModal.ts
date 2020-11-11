@@ -167,7 +167,7 @@ class CreateAppModal {
                         </div>
                         <div class="graphInfo listWrap xc-expand-list active">
                             <div class="graphName listInfo">
-                                <span class="text">Logical Plan ${index + 1}</span>
+                                <span class="text">Plan ${index + 1}</span>
                                 <span class="expand">
                                     <i class="icon xi-down fa-12"></i>
                                 </span>
