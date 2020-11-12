@@ -479,7 +479,7 @@ namespace DSTargetManager {
             hasNewConnectors = await createPublicS3Connector() || hasNewConnectors;
             hasNewConnectors = await createPrivateS3Connector() || hasNewConnectors;
         } catch (e) {
-            // ingore error
+            // ignore error
         }
 
         if (hasNewConnectors) {
@@ -498,7 +498,7 @@ namespace DSTargetManager {
             await createS3EnvConnector(connectorName, false);
             return true;
         } catch (e) {
-            // ingore the error
+            // ignore the error
             console.warn("create public s3 connector failed", e);
             return false;
         }
@@ -514,7 +514,7 @@ namespace DSTargetManager {
             await createS3EnvConnector(connectorName, true);
             return true;
         } catch (e) {
-            // ingore the error
+            // ignore the error
             console.warn("create public s3 connector failed", e);
             return false;
         }
@@ -1328,7 +1328,26 @@ namespace DSTargetManager {
         }
     }
 
-    function validateParams($params: JQuery): object {
+    function getParamValidateFunc(
+        $ele: JQuery,
+        targetType: string,
+        paramName: string,
+        val: string
+    ): object {
+        // XXX @Kevan, please fix type_id and param if it's wrong
+        if (targetType === "snowflake" && paramName === "prefix") {
+            return {
+                $ele,
+                // return true the the invalid condition, here have space is invalid
+                check: () => val.includes(" "),
+                error: 'Prefix should not include space.'
+            }
+        } else {
+            return null;
+        }
+    }
+
+    function validateParams($params: JQuery, targetType: string): object {
         let targetParams = {};
         let eles = [];
         $params.find(".formRow").each(function() {
@@ -1336,8 +1355,14 @@ namespace DSTargetManager {
             let $input = $param.find("input:visible");
             if ($input.length &&
                 (!$input.hasClass("optional") || $input.val().trim() !== "")) {
+                const paramName = $param.find("label").data("name");
+                const val = $input.val();
                 eles.push({$ele: $input});
-                targetParams[$param.find("label").data("name")] = $input.val();
+                const validateEl = getParamValidateFunc($input, targetType, paramName, val);
+                if (validateEl != null) {
+                    eles.push(validateEl);
+                }
+                targetParams[paramName] = val;
             }
         });
 
@@ -1365,7 +1390,7 @@ namespace DSTargetManager {
             return null;
         }
 
-        let targetParams = validateParams($form.find(".params"));
+        let targetParams = validateParams($form.find(".params"), targetType);
         if (targetParams == null) {
             // invalid case
             return null;
