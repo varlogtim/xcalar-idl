@@ -608,7 +608,7 @@ class SQLEditorSpace {
                 errorMsg = error.error;
                 detail = error.log;
                 if (error.status === StatusT.StatusAstNoSuchFunction) {
-                    errorMsg = error.error + "\n If there is any custom scalar function used in the SQL, please make sure it's defined in sql.py.";
+                    errorMsg = (error.error.startsWith("Error: ") ? error.error.substring(7) : error.error) + "\nVerify, that the function exists or that the function name is correct.";
                 } else if (error.status === StatusT.StatusInval) {
                     let logLines = error.log.split("\n");
                     let tempIndex = logLines[0].search(/Line [0-9]+:/);
