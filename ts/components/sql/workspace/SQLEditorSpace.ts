@@ -972,16 +972,7 @@ class SQLEditorSpace {
 
         }).setupListeners();
 
-        const $engineDropdown = $header.find(".engine");
-        new MenuHelper($header.find(".engine"), {
-            onSelect: ($li) => {
-                this._selectConnector($engineDropdown, $li);
-
-            },
-            container: selector,
-            bounds: selector,
-
-        }).setupListeners();
+        this._setupConnectorDropdown($header.find(".engine"), selector);
 
         $container.find(".close").click(() => {
             this.toggleDisplay(false);
@@ -1151,10 +1142,38 @@ class SQLEditorSpace {
         SQLUtil.resetProgress();
     }
 
+    private _setupConnectorDropdown($dropdown: JQuery, selector: string): void {
+        new MenuHelper($dropdown, {
+            onSelect: ($li) => {
+                if ($li.hasClass('hint') || $li.hasClass("active")) {
+                    return;
+                }
+                this._selectConnector($dropdown, $li);
+
+            },
+            container: selector,
+            bounds: selector,
+
+        }).setupListeners();
+        this._renderConnectorDropdown($dropdown);
+    }
+
+    // XXX @Mingke, please make sure:
+    // 1) the type_id is correct
+    // 2) the data-action part is the correct value, it will be the value passed _changeConnector
+    private _renderConnectorDropdown($dropdown: JQuery): void {
+        let html = "";
+        const targets = DSTargetManager.getAllTargets()
+        for (let key in targets) {
+            const target = targets[key];
+            if (target.type_id === "snowflake") {
+                html += '<li data-action="' + target.name + '">' + target.name + '</li>';
+            }
+        });
+        $dropdown.find(".hint").after(html);
+    }
+
     private _selectConnector($dropdown: JQuery, $li: JQuery): void {
-        if ($li.hasClass("active")) {
-            return
-        }
         const connector = $li.data("action");
         $dropdown.find(".text span").text($li.text());
         $dropdown.find("li.active").removeClass("active");
