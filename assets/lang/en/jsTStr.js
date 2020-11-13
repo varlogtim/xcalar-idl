@@ -1254,6 +1254,9 @@ AppTStr = {
     "Delete": "Delete App",
     "DeleteMsg": "Are you sure you want to delete app \"<name>\"?",
     "NameConflict": "App name already in use.",
+    "CreateValidate": "Validating plan for correctness",
+    "Downloading": "Downloading",
+    "Incorrect": "Plan is incorrect",
 }
 
 UDFTStr = {

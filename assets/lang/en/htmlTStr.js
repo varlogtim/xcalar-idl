@@ -409,9 +409,10 @@ module.exports = {
         "Header": "Apps",
         "Add": "Add App",
         "Create":" Create an App",
-        "CreateInstr": "To create an app, select from the list of plans below and provide a name for your app.",
         "Loading": "Loading data, please wait",
         "Name": "App name",
+        "CreateAndDownload": "Create & Download",
+        "CreateInstr": "To create an app, select from the list of plans below and provide a name for your app.",
     },
 
     "UDF": {

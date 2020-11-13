@@ -846,7 +846,7 @@ class DagGraph extends Durable {
         // If exactly 1 is found, we assign it to nodeIds so we can
         // back traverse the nodes and get all the nodes we need rather than
         // every node in the dataflow, where some unneeded nodes may be disjoint
-        // and cause the validation precheck test to fail
+        // and cause the validation pre check test to fail
 
         // XXX Deprecated, this should not happen in 2.1
         if (!nodeIds && optimized && parentTxId == null) {
@@ -965,7 +965,7 @@ class DagGraph extends Durable {
         // If exactly 1 is found, we assign it to nodeIds so we can
         // back traverse the nodes and get all the nodes we need rather than
         // every node in the dataflow, where some unneeded nodes may be disjoint
-        // and cause the validation precheck test to fail
+        // and cause the validation pre check test to fail
         if (nodeIds == null) {
             let ret = <any>this._getExecutingOptimizedNodeIds();
             if (ret && ret.hasError) {

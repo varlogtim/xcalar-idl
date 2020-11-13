@@ -33,25 +33,57 @@ class AppList extends Durable {
     }
 
     /**
-     * AppList.Instance.createAndDownload
-     * @param name 
-     * @param moduleNodes 
+     * AppList.Instance.createApp
      */
-    public async createAndDownload(name: string,moduleNodes: Set<DagNodeModule>): boolean {
-        const appId = this._createApp(name, moduleNodes);
-        if (appId != null) {
-            await this.download(appId);
-            this._deleteApp(appId);
-        } else {
-            return false;
-        }
+    public createApp(name: string, moduleNodes: Set<DagNodeModule>): string {
+        return this._createApp(name, moduleNodes);
     }
 
     /**
-     * AppList.Instance.createApp
+     * Note now we only validate a special case
+     * AppList.Instance.validate
+     * @param appId 
      */
-    public createApp(name: string,moduleNodes: Set<DagNodeModule>): string {
-        return this._createApp(name, moduleNodes);
+    public async validate(appId, sourceTabId): Promise<void> {
+        const app: AppDurable = this._getAppById(appId);
+        if (app == null) {
+            // error case
+            throw new Error("app doesn't exist");
+        }
+
+        // get source tab
+        const tabs: DagTabUser[] = [];
+        DagList.Instance.getAllDags().forEach((tab) => {
+            if (tab instanceof DagTabUser &&
+                tab.getApp() === appId &&
+                tab.getAppSourceTab() === sourceTabId
+            ) {
+                tabs.push(tab); 
+            }
+        });
+
+        if (tabs.length !== 1) {
+            return;
+        }
+        // only assume the current tab is the last tab and only one tab exist
+        const tab: DagTabUser = tabs[0];
+        try {
+            const { retina } = await tab.getGraph().getRetinaArgs();
+            const { retinaName, userName, sessionName } = retina;
+            await XcalarImportRetina(retinaName, true, null, retina.retina, userName, sessionName);
+            XcalarDeleteRetina(retinaName);
+        } catch (e) {
+            if (e.hasError) {
+                let error = e.type;
+                // change the word
+                if (error.startsWith('Optimized plan')) {
+                    error.replace('Optimized plan', 'To schedule an app, plan');
+                }
+                throw new Error(e.type);
+            } else {
+                throw e;
+            }
+        }
     }
 
     /**
@@ -79,7 +111,7 @@ class AppList extends Durable {
             if (typeof e === "object") {
                 error = e.log || e.message;
             }
-            Alert.error(AppTStr.DownloadFailed, error);
+            throw new Error(error);
         }
     }
 
@@ -314,7 +346,7 @@ class AppList extends Durable {
             const nodes = graph.getConnectedNodesFromHead(headNode.getId());
             nodes.forEach((nodeId) => usedNode.add(nodeId));
         });
-        // figue out unused node
+        // figure out unused node
         const unusedNode: Set<string> = new Set();
         graph.getAllNodes().forEach((node) => {
             const nodeId = node.getId();
@@ -348,7 +380,7 @@ class AppList extends Durable {
     }
 
     // XXX As we already remove unused nodes,
-    // if the logic is correct, it can just return all exisiting modules
+    // if the logic is correct, it can just return all existing modules
     // and the result should be correct
     private _getClonedNodeModules(
         tab: DagTabUser,

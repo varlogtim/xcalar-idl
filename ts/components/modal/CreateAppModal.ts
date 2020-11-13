@@ -4,6 +4,7 @@ class CreateAppModal {
     private _graphMap: Map<number, Set<DagNodeModule>>
     private _isOpen =false;
     private _cachedTabs: DagTabUser[];
+    private _id: string;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -28,8 +29,11 @@ class CreateAppModal {
         this._modalHelper.setup();
         this._isOpen = true;
 
+        this._id = xcHelper.randName("modal");
+        const $modal = this._getModal();
+        $modal.removeClass("submit");
         const timer = setTimeout(() => {
-            this._getModal().addClass("load");
+            $modal.addClass("load");
         }, 500);
         await this._loadUnopenedTabs();
         let { disjointGraphs } = DagViewManager.Instance.getDisjointGraphs();
@@ -42,7 +46,8 @@ class CreateAppModal {
             index++;
         });
         clearTimeout(timer);
-        this._getModal().removeClass("load");
+        $modal.removeClass("load");
+        
         if (index === 1) {
             // only one graph exist
             this._getModal().find(".graphList .checkbox").eq(0).click();
@@ -73,8 +78,12 @@ class CreateAppModal {
         return filteredSet;
     }
 
-    private _getModal() {
+    private _getModal(): JQuery {
         return $("#createAppModal");
+    }
+
+    private _getInstructionSection(): JQuery {
+        return this._getModal().find(".modalInstruction");
     }
 
     private _close() {
@@ -191,14 +200,18 @@ class CreateAppModal {
         }
         this._getModal().find(".graphList").html(html);
     }
+    
+    private _showProgress(text: string): void {
+        this._getInstructionSection().find(".progress .text").text(text);
+    }
 
-    private _submit() {
+    private async _submit(): Promise<void> {
         const $modal = this._getModal();
         const $input = $modal.find(".newName");
         const $checkbox = $modal.find(".graphList .checkbox.checked");
         if (!$checkbox.length) {
             StatusBox.show(AppTStr.NoLogicalPlan, $modal.find(".modalMain"));
-            return false;
+            return;
         }
 
         const newName: string = $input.val().trim();
@@ -206,14 +219,41 @@ class CreateAppModal {
         const error: string = AppList.Instance.validateName(newName);
         if (error) {
             StatusBox.show(error, $input);
-            return false;
+            return;
         }
+
         const moduleNodes = this._graphMap.get($checkbox.closest(".row").data("index"));
-        const succeed = AppList.Instance.createAndDownload(newName, moduleNodes);
-        if (!succeed) {
-            xcUIHelper.showFail(AppTStr.CreateFailed);
+        const id = this._id;
+        let appId = null;
+        try {
+            const activeTab = DagViewManager.Instance.getActiveTab();
+            $modal.addClass("submit");
+            appId = AppList.Instance.createApp(newName, moduleNodes);
+            if (appId == null) {
+                throw new Error("cannot create app");
+            }
+            this._showProgress(AppTStr.CreateValidate);
+            await AppList.Instance.validate(appId, activeTab.getId());
+            this._showProgress(AppTStr.Downloading);
+            await AppList.Instance.download(appId);
+            if (id === this._id) {
+                this._close();
+            }
+        } catch (e) {
+            console.error(e);
+            if (id === this._id) {
+                StatusBox.show(AppTStr.Incorrect, $input, false, {
+                    detail: e.message
+                });
+            }
+        } finally {
+            if (id === this._id) {
+                $modal.removeClass("submit");
+            }
+            
+            if (appId != null) {
+                AppList.Instance.delete(appId);
+            }
         }
-        this._close();
-        return true;
     }
 }

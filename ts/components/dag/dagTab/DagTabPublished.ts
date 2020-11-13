@@ -320,18 +320,18 @@ class DagTabPublished extends DagTab {
 
     private async _uploadAppModules(appId: string): Promise<void> {
         const udfSet: Set<string> = new Set();
-        const promies = [];
+        const promises = [];
         DagList.Instance.getAllDags().forEach((tab) => {
             if (tab.getApp() === appId) {
                 if (tab instanceof DagTabUser) {
-                    promies.push(this._writeModuleToWKBKKVStore(tab, udfSet));
+                    promises.push(this._writeModuleToWKBKKVStore(tab, udfSet));
                 } else {
                     // current valid tab in app is DagTabUser or DagTabMain
                     throw new Error("Invalid type of plan exist in the app");
                 }
             }
         });
-        await Promise.all(promies);
+        await Promise.all(promises);
         await this._uploadLocalUDFToShared(udfSet);
     }
 

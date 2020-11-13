@@ -5803,6 +5803,26 @@ html.microsoft {
         }
     }
 
+    &.submit {
+        .modalInstruction {
+            .normal {
+                display: none;
+            }
+        }
+
+        .confirm {
+            .xc-disabled;
+        }
+    }
+
+    &.submit {
+        .modalInstruction {
+            .progress {
+                display: block;
+            }
+        }
+    }
+
     .loadingSection {
         display: none;
         position: absolute;
@@ -5814,6 +5834,11 @@ html.microsoft {
         padding-top: 16px;
         padding-bottom: 16px;
         height: auto;
+        min-height: 66px;
+
+        .progress {
+            display: none;
+        }
     }
 
     .modalMain {
