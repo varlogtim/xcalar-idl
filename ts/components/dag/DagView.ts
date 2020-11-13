@@ -12,7 +12,7 @@ class DagView {
     public static readonly tableHeight = 25;
     public static readonly nodeAndTableWidth = DagView.nodeWidth + DagView.tableWidth + 32;
     public static readonly gridSpacing = 20;
-    public static zoomLevels = [.25, .5, .75, 1, 1.2, 1.5, 2];
+    public static zoomLevels = [.25, .5, .75, .9, 1, 1.1, 1.25, 1.5, 2];
     public static iconOrder = ["tableIcon", "columnIcon", "descriptionIcon", "lockIcon", "aggregateIcon", "paramIcon", "udfErrorIcon"];
     public static iconMap = {
         "descriptionIcon": "\ue966", // xi-info-no-bg
@@ -1062,6 +1062,20 @@ class DagView {
         return this.dagTab.save();
     }
 
+    private _rerunOptimized() {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+
+        (this.graph as DagOptimizedGraph).reexecute()
+        .then(() => {
+            deferred.resolve();
+        })
+        .fail((e) => {
+            Alert.error("Optimized Execution Error", e);
+            deferred.reject(e);
+        });
+        return deferred.promise();
+    }
+
     /**
      * DagView.run
      * // run the entire dag,
@@ -1071,9 +1085,14 @@ class DagView {
         nodeIds?: DagNodeId[],
         optimized?: boolean,
         generateOptimizedDataflow?: boolean,
-        noAutoPreview?: boolean
+        noAutoPreview?: boolean,
+        rerun?: boolean
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
+
+        if (this.dagTab instanceof DagTabOptimized) {
+            return this._rerunOptimized();
+        }
         let tabsToLoad: DagTabUser[] = [];
 
         PromiseHelper.convertToJQuery(this._openLinkedTabs(this.graph, nodeIds, optimized))
@@ -1090,7 +1109,7 @@ class DagView {
                 tabsToLoad = res;
                 tabsToLoad.forEach((tab) => DagTabManager.Instance.addTabCache(tab));
                 return this.graph.execute(nodeIds, optimized, null,
-                    generateOptimizedDataflow);
+                    generateOptimizedDataflow, rerun);
             })
             .then(() => {
                 if (!noAutoPreview && UserSettings.Instance.getPref("dfAutoPreview") === true &&
@@ -3931,6 +3950,16 @@ class DagView {
 
         this._registerGraphEvent(this.graph, DagNodeEvents.DoneActivatingTable, (info) => {
             this._doneActivatingTable(info.node.getId());
+        });
+
+        this._registerGraphEvent(this.graph, DagGraphEvents.Rerender, (info) => {
+            this.rerender();
+            DagGraphBar.Instance.setState(this.dagTab);
+        });
+
+        this._registerGraphEvent(this.graph, DagGraphEvents.ReexecuteStart, (info) => {
+            this.dagTab.unfocus();
+            this.dagTab.focus(true);
         });
     }
 

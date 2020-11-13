@@ -3992,10 +3992,12 @@ XcalarExecuteRetina = function(
         newTableName?: string,
         queryName?: string,
         udfUserName?: string,
-        udfSessionName?: string
+        udfSessionName?: string,
+        delayCheck?: number
     },
     txId: number
 ): XDPromise<any> {
+    console.log(arguments);
     if (retName === "" || retName == null ||
         [null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -4030,7 +4032,8 @@ XcalarExecuteRetina = function(
 
     const query = XcalarGetQuery(workItem);
     const transactionOptions = {
-        retName: retName
+        retName: retName,
+        delayCheck: options.delayCheck
     };
     Transaction.startSubQuery(txId, SQLOps.Retina, retName, query,
                                   transactionOptions);

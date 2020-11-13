@@ -137,7 +137,8 @@ window.UnitTest = (function(UnitTest, $) {
             };
             test = TestSuite.createTest();
 
-            $(".operatorBar, .categorySection").attr("style", "display: flex !important;");
+            $(".operatorBar").attr("style", "display: block !important;");
+            $(".categorySection").attr("style", "display: flex !important;");
         });
 
         $("#toggleXC").click(function() {

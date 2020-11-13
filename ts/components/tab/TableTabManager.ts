@@ -61,7 +61,8 @@ class TableTabManager extends AbstractTabManager {
         }
         const index: number = this._getTabIndexByName(name);
         if (index > -1) {
-            if (type === TableTabType.SQL || type === TableTabType.ScalarFn) {
+            if (type === TableTabType.SQL || type === TableTabType.ScalarFn ||
+                this._belongToOptimizedTab(type, meta)) {
                 this._activeTabs[index].meta = meta;
             }
             await this._switchResult(index);
@@ -457,6 +458,16 @@ class TableTabManager extends AbstractTabManager {
         if (type === TableTabType.ResultSet && meta) {
             const tab = DagTabManager.Instance.getTabById(meta.tabId);
             if (tab instanceof DagTabScalarFnExecute) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private _belongToOptimizedTab(type: TableTabType, meta: any): boolean {
+        if (type === TableTabType.ResultSet && meta) {
+            const tab = DagTabManager.Instance.getTabById(meta.tabId);
+            if (tab instanceof DagTabOptimized) {
                 return true;
             }
         }

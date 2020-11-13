@@ -88,7 +88,7 @@ class DagQueryConverter {
         }
     }
 
-    public convertToSubGraph(): DagSubGraph {
+    public convertToSubGraph(optimizedGraph?: boolean, oldGraph?: DagOptimizedGraph): DagSubGraph {
         const nameIdMap = {};
         const idToNamesMap = {};
         const retStruct = this.getResult();
@@ -119,8 +119,16 @@ class DagQueryConverter {
             nodes: nodeInfos,
             operationTime: null
         };
-
-        const graph: DagSubGraph = new DagSubGraph(retStruct.tableNewDagIdMap, retStruct.dagIdToTableNamesMap);
+        let graph: DagSubGraph | DagOptimizedGraph;
+        if (oldGraph) {
+            graph = oldGraph;
+        } else if (optimizedGraph) {
+            graph = new DagOptimizedGraph();
+        } else {
+            graph = new DagSubGraph();
+        }
+        graph.setTableDagIdMap(retStruct.tableNewDagIdMap);
+        graph.setDagIdToTableNamesMap(retStruct.dagIdToTableNamesMap);
         graph.rebuildGraph(graphInfo);
         return graph;
     }
@@ -1258,7 +1266,7 @@ class DagQueryConverter {
                         dagNodeInfo = {
                            type: DagNodeType.Synthesize,
                            input: <DagNodeSynthesizeInputStruct>{
-                               colsInfo: node.args.columns
+                               colsInfo: xcHelper.deepCopy(node.args.columns)
                            }
                        };
                    }

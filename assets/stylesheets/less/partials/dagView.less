@@ -1,5 +1,5 @@
 #dagView {
-    @category-height: 32px;
+    @category-height: @height-sectionBar;
     @operator-height: 26px;
     @operator-width: 67px;
 
@@ -67,9 +67,6 @@
         .operatorBar, .categorySection {
             display: none !important;
         }
-        .categoryBar .rightIconArea {
-            box-shadow: none !important;
-        }
         .run.dropDownList .iconWrapper {
             display: none;
         }
@@ -84,7 +81,6 @@
                 display: block;
             }
             .rightIconArea {
-                box-shadow: none !important;
                 margin-left: 0px;
             }
         }
@@ -103,6 +99,18 @@
         }
     }
 
+    &.optimized {
+        .categoryBar {
+            .rightText {
+                display: none;
+            }
+            .altRightText {
+                display: block;
+            }
+        }
+    }
+
+
     .ui-resizable-w {
         display: block !important;
     }
@@ -112,7 +120,6 @@
         @search-width: 135px;
         @labelWidth: 100px;
 
-        .size(@min-height: @category-height, @max-height: @category-height);
         background-color: @color-bg-categoryBar;
         line-height: @category-height;
         .flex-display;
@@ -235,7 +242,7 @@
             min-width: 10px;
         }
 
-        .rightText {
+        .rightText, .altRightText {
             margin-left: auto;
             padding: 0px 6px;
             display: none;
@@ -244,7 +251,6 @@
         .rightIconArea {
             margin-left: auto;
             padding: 0px 6px;
-            box-shadow: 0.25px 0px 1px #849CB0;
 
             .icon {
                 font-size: 14px;
@@ -1429,7 +1435,7 @@
             }
         }
 
-        &.run, &.stop, &.listFns, &.configuring, &.publish {
+        &.run, &.stop, &.rerunOptimized, &.listFns, &.configuring, &.publish {
             .rounded(4px);
             line-height: @dagGraphBarHeight - 8px;
             height: @dagGraphBarHeight - 8px;
@@ -1474,7 +1480,7 @@
             }
         }
 
-        &.run, &.listFns, &.configuring {
+        &.run, &.listFns, &.configuring, &.rerunOptimized {
             overflow: visible;
 
             &.running {
@@ -1692,6 +1698,22 @@
         .run, .editSQLGraph, .publish {
             display: none;
         }
+    }
+    &.optimized {
+        .rerunOptimized {
+            display: block;
+        }
+        .categoryBar {
+            .rightText {
+                display: none;
+            }
+            .altRightText {
+                display: block;
+            }
+        }
+    }
+    .rerunOptimized {
+        display: none;
     }
     .runStatus {
         display: none;

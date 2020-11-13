@@ -603,7 +603,7 @@
 
             .closeResult {
                 position: absolute;
-                top: 8px;
+                top: 7px;
                 right: 0px;
                 padding-left: 4px;
                 padding-right: 8px;
@@ -626,7 +626,7 @@
 
             .undock {
                 position: absolute;
-                top: 4px;
+                top: 3px;
                 right: 26px;
                 padding: 4px;
                 z-index: 3;
@@ -676,7 +676,7 @@
 
     .undock {
         position: absolute;
-        top: 9px;
+        top: 8px;
         right: 40px;
         font-size: 14px;
     }
@@ -684,7 +684,7 @@
     .close {
         position: absolute;
         font-size: 14px;
-        top: 5px;
+        top: 4px;
         padding: 4px;
         right: 10px;
     }
@@ -693,7 +693,7 @@
         border-bottom: 1px solid @color-border-medium2;
         display: flex;
         flex-wrap: wrap;
-        padding: 0px 54px 4px 8px;
+        padding: 0px 54px 0px 8px;
 
         .title {
             line-height: 32px;
@@ -703,6 +703,9 @@
         .engine {
             display: flex;
             align-items: center;
+            height: 100%;
+            margin-left: auto;
+            margin-right: 4px;
 
             .text {
                 font-size: 12px;
@@ -710,6 +713,10 @@
 
             .text, .iconWrapper {
                 border: none;
+            }
+            .iconWrapper {
+                width: @height-sectionBar;
+                height: @height-sectionBar - 10;
             }
 
             li {
@@ -747,6 +754,7 @@
                 border: none;
 
                 .icon {
+                    margin-top: 0px;
                     font-size: 14px;
                     line-height: 20px;
                 }

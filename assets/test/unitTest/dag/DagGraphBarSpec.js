@@ -31,7 +31,7 @@ describe("DagGraphBar Test", function() {
     });
 
     it("Should render all expected buttons", function () {
-        expect($topBar.find(".topButton").length).to.equal(10);
+        expect($topBar.find(".topButton").length).to.equal(11);
         expect($topBar.find(".undo").length).to.equal(1);
         expect($topBar.find(".redo").length).to.equal(1);
         expect($topBar.find(".run").length).to.equal(1);

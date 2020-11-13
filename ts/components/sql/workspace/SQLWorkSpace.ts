@@ -66,15 +66,6 @@ class SQLWorkSpace {
                 DagNodeInfoPanel.Instance.hide();
             }
         });
-
-        // $(window).off(".sqlPanelResize");
-        // let resizeTimer;
-        // $(window).on("resize.sqlPanelResize", () => {
-        //     clearTimeout(resizeTimer);
-        //     resizeTimer = setTimeout(() => {
-        //         this._sqlEditorSpace.resize();
-        //     }, 300);
-        // });
     }
 
     public unfocus(): void {

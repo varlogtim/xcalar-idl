@@ -154,6 +154,7 @@ class DagTabOptimized extends DagTabProgress {
     private _fromSDK: boolean;
     private _noRetina: boolean;
     protected _state: string;
+    protected _dagGraph: DagOptimizedGraph;
 
     constructor(options: {
         id: string,
@@ -298,9 +299,10 @@ class DagTabOptimized extends DagTabProgress {
 
         XcalarGetRetinaJson(this._queryName)
         .then((retina) => {
-            this._dagGraph = this._constructGraphFromQuery(retina.query);
+            this._dagGraph = this._constructGraphFromQuery(retina.query) as DagOptimizedGraph;
             this._dagGraph.startExecution(retina.query, null);
             this.setGraph(this._dagGraph);
+            this._dagGraph.setQueryName(this._queryName);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -312,9 +314,10 @@ class DagTabOptimized extends DagTabProgress {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         XcalarQueryState(this._queryName)
         .then((retina) => {
-            this._dagGraph = this._constructGraphFromQuery(retina.queryGraph.node);
+            this._dagGraph = this._constructGraphFromQuery(retina.queryGraph.node) as DagOptimizedGraph;
             this._dagGraph.startExecution(retina.queryGraph.node, null);
             this.setGraph(this._dagGraph);
+            this._dagGraph.setQueryName(this._queryName);
             deferred.resolve();
         })
         .fail(deferred.reject);

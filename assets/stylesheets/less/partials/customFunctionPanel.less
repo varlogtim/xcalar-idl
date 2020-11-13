@@ -18,6 +18,7 @@
         }
     }
 
+
     .heading {
         .size(@width: 100%);
         text-align: left;
@@ -26,9 +27,8 @@
         padding-left: 8px;
         display: flex;
 
-        h2 {
-            .font(@line-height: @height-sectionBar, @weight: 600);
-            display: inline-block;
+        .sectionHeader {
+            .font(@line-height: @height-sectionBar);
             .textOverflowOneLine;
         }
 

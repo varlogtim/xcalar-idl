@@ -7,7 +7,7 @@ class DagGraph extends Durable {
     private innerEvents: object;
     private lock: boolean;
     private noDelete: boolean;
-    private parentTabId: string;
+    protected parentTabId: string;
     private _isBulkStateSwitch: boolean;
     private _stateSwitchSet: Set<DagNode>;
     private _noTableDelete: boolean = false;
@@ -315,6 +315,10 @@ class DagGraph extends Durable {
         this._noTableDelete = true;
     }
 
+    public unsetNoTableDelete() {
+        this._noTableDelete = false;
+    }
+
     /**
      * Filter node based on the callback
      * @param callback return true for valid case
@@ -346,6 +350,16 @@ class DagGraph extends Durable {
             }
         }
         return matches;
+    }
+
+    public getTerminalNodes() {
+        const nodes: DagNode[] = [];
+        this.nodesMap.forEach((node, nodeId) => {
+            if (node.getChildren().length === 0) {
+                nodes.push(node);
+            }
+        });
+        return nodes;
     }
 
     /**
@@ -1310,6 +1324,12 @@ class DagGraph extends Durable {
         if (!this.parentTabId) {
             return;
         };
+        if (!nodeIds) {
+            nodeIds = [];
+            this.nodesMap.forEach((node, nodeId) => {
+                nodeIds.push(nodeId);
+            });
+        }
         this.events.trigger(DagGraphEvents.LockChange, {
             lock: true,
             tabId: this.parentTabId,
@@ -1324,6 +1344,12 @@ class DagGraph extends Durable {
         this.lock = false;
         this.currentExecutor = null;
         if (!this.parentTabId) return;
+        if (!nodeIds) {
+            nodeIds = [];
+            this.nodesMap.forEach((node, nodeId) => {
+                nodeIds.push(nodeId);
+            });
+        }
         this.events.trigger(DagGraphEvents.LockChange, {
             lock: false,
             tabId: this.parentTabId,

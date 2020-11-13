@@ -194,7 +194,6 @@ class DagNodeInput {
         }
         const valid = this.constructor["validateFn"](input);
         if (!valid) {
-            console.log( this.constructor["validateFn"].errors);
             // only saving first error message
             const msg = this._parseValidationErrMsg( this.constructor["validateFn"].errors[0]);
             return {error: msg};

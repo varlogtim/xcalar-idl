@@ -75,20 +75,27 @@ class DagGraphBar {
         } else {
             $("#dagView").addClass("viewOnly");
         }
+        if (dagTab instanceof DagTabOptimized) {
+            $topBar.addClass("optimized");
+            $("#dagView").addClass("optimized");
+        } else {
+            $topBar.removeClass("optimized");
+            $("#dagView").removeClass("optimized");
+        }
 
         const graph: DagGraph = dagTab.getGraph();
         $topBar.removeClass("canceling");
         if (graph != null && graph.getExecutor() != null) {
             $topBar.addClass("running");
             $buttons.find(".stop").removeClass("xc-disabled");
-            $buttons.find(".run, .stop").addClass("running");
+            $buttons.find(".run, .stop, .rerunOptimized").addClass("running");
             if (graph.getExecutor().isCanceled()) {
                 $topBar.addClass("canceling");
             }
         } else {
             $topBar.removeClass("running");
             $buttons.find(".stop").addClass("xc-disabled");
-            $buttons.find(".run, .stop").removeClass("running");
+            $buttons.find(".run, .stop, .rerunOptimized").removeClass("running");
             this.setRunningNode(null, null, null);
         }
 
@@ -166,6 +173,10 @@ class DagGraphBar {
         const self = this;
         let $topBar = this._getGraphBar();
         $topBar.find(".run > span").click(function() {
+            DagViewManager.Instance.run();
+        });
+
+        $topBar.find(".rerunOptimized").click(async () => {
             DagViewManager.Instance.run();
         });
 

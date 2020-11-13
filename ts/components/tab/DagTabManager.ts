@@ -503,7 +503,7 @@ class DagTabManager extends AbstractTabManager {
         // Check if we already have the tab
         const index: number = this.getTabIndex(newDagTab.getId());
         if (index != -1) {
-            this._switchTabs(index);
+            this._switchTabs(index, null, true);
             const oldTab = this._activeUserDags[index] as DagTabExecuteOnly;
             if (newDagTab instanceof DagTabSQLExecute) {
                 this._getTabElByIndex(index).find(".name").html(`<span spellcheck="false" contenteditable="true" class="xc-input">${newDagTab.getSQLStatementName()} Plan</span>`);
@@ -662,7 +662,7 @@ class DagTabManager extends AbstractTabManager {
      * @override
      * @param index
      */
-    protected _switchTabs(index?: number, cache: boolean = true): number {
+    protected _switchTabs(index?: number, cache: boolean = true, runSQL?: boolean): number {
         index = super._switchTabs(index);
 
         const $dataflowAreas: JQuery = this._getDataflowArea();
@@ -696,7 +696,7 @@ class DagTabManager extends AbstractTabManager {
         if (dagTab instanceof DagTabProgress) {
             dagTab.focus();
         }
-        if (dagTab instanceof DagTabSQLExecute) {
+        if (!runSQL && dagTab instanceof DagTabSQLExecute) {
             const snippetId = dagTab.getSnippetId();
             if (SQLSnippet.Instance.getSnippetObj(snippetId)) {
                 SQLTabManager.Instance.openTab(snippetId);

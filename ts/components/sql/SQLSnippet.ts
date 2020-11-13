@@ -49,7 +49,7 @@ class SQLSnippet {
         this._snippets.push({
             id,
             name,
-            snippet: "",
+            snippet: "SELECT * FROM ",
             app: null
         });
         this._updateSnippets();

@@ -110,7 +110,7 @@ abstract class DagTabProgress extends DagTab {
 
     protected _constructGraphFromQuery(queryNodes: any[]): DagSubGraph {
         const converter = new DagQueryConverter({query: queryNodes});
-        const graph: DagSubGraph = converter.convertToSubGraph();
+        const graph: DagSubGraph = converter.convertToSubGraph(this instanceof DagTabOptimized);
         graph.setNoTableDelete();
         graph.initializeProgress();
         this._dagGraph = graph;
@@ -250,6 +250,9 @@ abstract class DagTabProgress extends DagTab {
         this._dagGraph = this._constructGraphFromQuery(queryStateOutput.queryGraph.node);
         this._dagGraph.startExecution(queryStateOutput.queryGraph.node, null);
         this.setGraph(this._dagGraph);
+        if (this instanceof DagTabOptimized) {
+            this._dagGraph.setQueryName(this._queryName);
+        }
         this._trigger("rerender");
     }
 }

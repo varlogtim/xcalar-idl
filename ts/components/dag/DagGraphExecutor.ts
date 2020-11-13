@@ -578,13 +578,7 @@ class DagGraphExecutor {
     public cancel(): void {
         this._isCanceled = true;
         if (this._hasProgressGraph) {
-            XcalarQueryCancel(this._queryName)
-            .then(() => {
-                if (this._queryName.startsWith(DagTabOptimized.KEY)) {
-                    // delete non-private retinas
-                    this._retinaDeleteLoop();
-                }
-            });
+            XcalarQueryCancel(this._queryName);
         } else {
             QueryManager.cancelQuery(this._currentTxId);
         }
@@ -1203,10 +1197,11 @@ class DagGraphExecutor {
         return this._graph;
     }
 
-    private _executeRetina(
+    public executeRetina(
         dagTab: DagTabOptimized,
         retinaName: string,
-        outputTableName: string
+        outputTableName: string,
+        delayCheck?: number
     ): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         // retina name will be the same as the graph/tab's ID
@@ -1225,11 +1220,13 @@ class DagGraphExecutor {
 
         this._currentTxId = txId;
         let subGraph: DagSubGraph = dagTab.getGraph();
+
         XcalarExecuteRetina(retinaName, [], {
             activeSession: this._isOptimizedActiveSession,
             newTableName: outputTableName,
             udfUserName: udfContext.udfUserName || userIdName,
-            udfSessionName: udfContext.udfSessionName || sessionName
+            udfSessionName: udfContext.udfSessionName || sessionName,
+            delayCheck: delayCheck
         }, this._currentTxId)
         .then(() => {
             this._optimizedExecuteInProgress = false;
@@ -1291,7 +1288,7 @@ class DagGraphExecutor {
         this._createRetina(retinaParameters, tabName, outputTableName)
         .then((dagTab) => {
             this._optimizedExecuteInProgress = true;
-            return this._executeRetina(dagTab, retinaName, outputTableName);
+            return this.executeRetina(dagTab, retinaName, outputTableName);
         })
         .then(() => {
             this._optimizedExecuteInProgress = false;
@@ -1328,9 +1325,6 @@ class DagGraphExecutor {
                     this._optimizedExportNodes.forEach((node) => {
                         node.beErrorState(msg, true);
                     });
-                }
-                if (error && error.status === StatusT.StatusCanceled) {
-                    XcalarDeleteRetina(retinaName);
                 }
             }
             deferred.reject(error);
@@ -1517,20 +1511,6 @@ class DagGraphExecutor {
         .fail(deferred.reject);
 
         return deferred.promise();
-    }
-
-    // called after canceling a query, may take a while to cancel so keep trying
-    private _retinaDeleteLoop(count = 0): void {
-        const self = this;
-        setTimeout(() => {
-            XcalarDeleteRetina(self._queryName)
-            .fail((error) => {
-                if (error && error.status === StatusT.StatusRetinaInUse && count < 5) {
-                    count++;
-                    self._retinaDeleteLoop(count);
-                }
-            });
-        }, 2000);
     }
 
     protected getRuntime(): DagRuntime {

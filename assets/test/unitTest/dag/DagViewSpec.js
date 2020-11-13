@@ -1255,22 +1255,32 @@ describe("DagView Test", () => {
         it("should zoom out", function() {
             expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1.5);
             DagViewManager.Instance.zoom(false);
-            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1.2);
+            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1.25);
         });
         it("should zoom out", function() {
-            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1.2);
+            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1.25);
+            DagViewManager.Instance.zoom(false);
+            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1.1);
+        });
+        it("should zoom out", function() {
+            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1.1);
             DagViewManager.Instance.zoom(false);
             expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1);
         });
         it("should zoom out", function() {
             expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1);
+            DagViewManager.Instance.zoom(false);
+            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(0.9);
+        });
+        it("should zoom out", function() {
+            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(0.9);
             DagViewManager.Instance.zoom(false);
             expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(0.75);
         });
         it("should zoom in", function() {
             expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(0.75);
             DagViewManager.Instance.zoom(true);
-            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1);
+            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(0.9);
         });
     });
 

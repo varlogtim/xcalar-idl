@@ -46,9 +46,9 @@ class UDFTabManager extends AbstractTabManager {
             this._switchTabs(index);
         } else {
             this._loadTab(name, undefined, newModule);
+            this._updateList();
             this._switchTabs();
             this._save();
-            this._updateList();
         }
     }
 
@@ -170,7 +170,7 @@ class UDFTabManager extends AbstractTabManager {
                     } else {
                         this._loadTab(tab.name, undefined, tab.isNew);
                     }
-                    
+
                 });
 
             }

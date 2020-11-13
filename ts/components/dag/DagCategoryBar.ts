@@ -289,8 +289,8 @@ class DagCategoryBar {
 
     public getCategoryIconMap() {
         const iconMap = {};
-        iconMap[DagCategoryType.In] = "xi-horizontal-align-center";
-        iconMap[DagCategoryType.Out] = "xi-horizontal-align-center";
+        iconMap[DagCategoryType.In] = "xi-data-in";
+        iconMap[DagCategoryType.Out] = "xi-data-out";
         iconMap[DagCategoryType.SQL] = "xi-menu-sql";
         iconMap[DagCategoryType.ColumnOps] = "xi-tables-columnsicon";
         iconMap[DagCategoryType.RowOps] = "xi-server";
