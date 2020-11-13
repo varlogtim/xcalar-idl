@@ -16,6 +16,25 @@ function Create({ onClick }) {
 }
 
 function Loading({ message, onClick = () => {} }) {
+    const pct = parseInt(message);
+    const loadingMessage = !Number.isNaN(pct)
+        ? <div className="loadingProgress">
+            <div className="loadingProgress-text">Creating... {pct + "%"}</div>
+            <div className="loadingProgress-wrap">
+                <div className="loadingProgress-bg" />
+                <div className="loadingProgress-bar" style={{width: pct + "%"}} ></div>
+            </div>
+        </div>
+        : <span>{`Creating ... ${message || ''}`}</span>;
+    return (<div className="loadingWrap">
+        {loadingMessage}
+        <div className="loading-cancel" onClick={onClick}>
+            <i className="icon xi-close" />
+        </div>
+    </div>);
+}
+
+function Loading2({ message, onClick = () => {}}) {
     let loadingMessage = Texts.creatingTable;
     if (message) {
         loadingMessage += " (" + message + ")";

@@ -1008,6 +1008,67 @@
             top: -2px;
         }
 
+        .loadingWrap {
+            display: flex;
+            flex-direction: row;
+            height: @input-height;
+            align-items: center;
+        }
+
+        .loadingProgress {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100px;
+
+            .loadingProgress-text {
+                display:flex;
+                align-items: center;
+                height: 100%;
+                user-select: none;
+            }
+
+            .loadingProgress-wrap {
+                height: 6px;
+                // border: 1px solid @color-font-default;
+                // border-radius: 2px;
+                position: relative;
+            }
+
+            .loadingProgress-bar, .loadingProgress-bg {
+                height: 100%;
+                position: absolute;
+                border-radius: 3px;
+                top: 0;
+                left: 0
+            }
+
+            .loadingProgress-bg {
+                width: 100%;
+                border: 1px solid #fff;
+                background-color: #fff;
+                opacity: 0.2;
+            }
+
+            .loadingProgress-bar {
+                background-color: #1ba22b;
+                border: 1px solid #1ba22b;
+            }
+        }
+
+        .loading-cancel {
+            height: 18px;
+            width: 18px;
+            margin-left: 27px;
+
+            &:hover,
+            &:focus {
+              opacity: 0.6;
+              text-decoration: none;
+              cursor: pointer;
+            }
+        }
+
         .loadingCell {
             display: flex;
         }
