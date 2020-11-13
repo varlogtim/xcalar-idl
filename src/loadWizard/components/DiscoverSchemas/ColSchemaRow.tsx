@@ -1,5 +1,18 @@
 import * as React from "react";
 import InputDropdown from '../../../components/widgets/InputDropdown'
+import { ColumnType, getColumnStringFromType, getColumnTypeFromString } from '../../services/SchemaService'
+
+const columnTypeList = [
+    ColumnType.Integer,
+    ColumnType.String,
+    ColumnType.Float,
+    ColumnType.Boolean
+].map((type) => {
+    const typeName = getColumnStringFromType(type);
+    return {
+        value: typeName, text: typeName
+    }
+});
 
 type ColSchemaRowProps = {
     rowInfo: any,
@@ -35,15 +48,11 @@ function ColSchemaRow(props: ColSchemaRowProps) {
                 }
             </div>
             <InputDropdown
-                val={props.rowInfo.type.slice(2)}
+                val={getColumnStringFromType(props.rowInfo.type)}
                 onSelect={(value) => {
-                    props.onInputChange("Df" + value, "type");
+                    props.onInputChange(getColumnTypeFromString(value), "type");
                 }}
-                list={
-                    ["Int64", "String", "Float64", "Boolean"].map((type, i) => {
-                        return {text: type, value: type};
-                    })
-                }
+                list={columnTypeList}
                 readOnly
             />
             <InputDropdown

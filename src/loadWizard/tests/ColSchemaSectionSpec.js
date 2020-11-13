@@ -2,6 +2,7 @@ import { expect } from 'chai'
 import React from 'react';
 import ReactDOM from 'react-dom';
 import ColSchemaSection from './../components/DiscoverSchemas/ColSchemaSection'
+import { ColumnType, getColumnStringFromType } from '../services/SchemaService'
 
 describe('React ColSchemaSection Test', () => {
     let containerDiv;
@@ -29,12 +30,12 @@ describe('React ColSchemaSection Test', () => {
         expect(1).to.equal(1);
          defaultSchema = [{
             name: "a",
-            type: "dfstring",
+            type: ColumnType.String,
             mapping: "aLocation"
         }];
          cols = [{
             name: "a",
-            type: "dfstring",
+            type: ColumnType.String,
             mapping: "aLocation"
         }];
 
@@ -54,7 +55,7 @@ describe('React ColSchemaSection Test', () => {
         expect($(containerDiv).find(".row:not(.schemaHeader) > div").length).to.equal(3);
         expect($(containerDiv).find(".row:not(.schemaHeader) > div:first-child input").attr("readonly")).to.be.undefined;
         expect($(containerDiv).find(".row:not(.schemaHeader) > div:first-child input").val()).to.equal("aLocation");
-        expect($(containerDiv).find(".row:not(.schemaHeader) > div:nth-child(2) input").val()).to.equal("string");
+        expect($(containerDiv).find(".row:not(.schemaHeader) > div:nth-child(2) input").val()).to.equal(getColumnStringFromType(cols[0].type));
         expect($(containerDiv).find(".row:not(.schemaHeader) > div:nth-child(3) input").val()).to.equal("a");
     });
 
@@ -118,12 +119,12 @@ describe('React ColSchemaSection Test', () => {
     it("column dropdown should work", () => {
         cols = [{
                 name: "a",
-                type: "dfstring",
+                type: ColumnType.String,
                 mapping: "aLocation"
             },
             {
                 name: "b",
-                type: "dfint",
+                type: ColumnType.Integer,
                 mapping: "bLocation"
             }
         ];
@@ -139,16 +140,20 @@ describe('React ColSchemaSection Test', () => {
         />, containerDiv);
         $(containerDiv).find(".row:nth-child(2) > div:nth-child(2) .iconWrapper").click();
         expect($(containerDiv).find(".row:nth-child(2) > div:nth-child(2) li").length).to.equal(4);
-        expect($(containerDiv).find(".row:nth-child(2) > div:nth-child(2) li").text()).to.equal("BooleanFloat64Int64String");
+        expect($(containerDiv).find(".row:nth-child(2) > div:nth-child(2) li").text()).to.equal(
+            [ColumnType.Boolean, ColumnType.Float, ColumnType.Integer, ColumnType.String]
+                .map((type) => getColumnStringFromType(type))
+                .join('')
+        );
 
         $(containerDiv).find(".row:nth-child(2) > div:nth-child(2) li:first-child").click();
-        expect(cols[0].type).to.equal("DfBoolean");
+        expect(cols[0].type).to.equal(ColumnType.Boolean);
     });
 
     it("addCol should be disabled", () => {
         cols = [{
                 name: "a",
-                type: "dfstring",
+                type: ColumnType.String,
                 mapping: "aLocation"
             }
         ];
@@ -173,7 +178,7 @@ describe('React ColSchemaSection Test', () => {
     it("isMappingEditable set to false should show dropdown", () => {
         cols = [{
                 name: "a",
-                type: "dfstring",
+                type: ColumnType.String,
                 mapping: "aLocation"
             }
         ];

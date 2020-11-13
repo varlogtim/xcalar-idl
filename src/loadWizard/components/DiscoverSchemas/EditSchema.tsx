@@ -1,5 +1,11 @@
 import * as React from "react";
-import { validateSchemaString, getDupeColumnsInSchema, getDupeColumnsInSchemaString } from '../../services/SchemaService'
+import {
+    validateSchemaString,
+    getDupeColumnsInSchema,
+    getDupeColumnsInSchemaString,
+    getColumnStringFromType,
+    getColumnTypeFromString
+} from '../../services/SchemaService'
 import ColSchemaSection from "./ColSchemaSection";
 
 type EditSchemaState = {
@@ -33,6 +39,7 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
         let validSchema;
         try {
             validSchema = validateSchemaString(newSchema);
+            convertStingToColumnType(validSchema);
             onSchemaChange({
                 schema: newSchema,
                 validSchema: validSchema,
@@ -151,7 +158,7 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
                 <textarea
                     className="xc-textArea editSchema-textarea"
                     onChange={(e) => { this._schemaChange(e.target.value) }}
-                    value={schema}
+                    value={prettyJson(schema)}
                     spellCheck={false}
                 />
                 :
@@ -169,6 +176,36 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
             }
             <div id="schemaSelectionModalWrapper"></div>
         </div>);
+    }
+}
+
+function prettyJson(jsonStr: string) {
+    try {
+        const json = JSON.parse(jsonStr);
+        convertColumnTypeToString(json);
+        return JSON.stringify(json, null, '  ');
+    } catch(_) {
+        return jsonStr;
+    }
+}
+
+function convertColumnTypeToString(json) {
+    try {
+        for (const column of json.columns) {
+            column.type = getColumnStringFromType(column.type);
+        }
+    } catch(_) {
+        // Ignore errors
+    }
+}
+
+function convertStingToColumnType(json) {
+    try {
+        for (const column of json.columns) {
+            column.type = getColumnTypeFromString(column.type);
+        }
+    } catch(_) {
+        // Ignore errors
     }
 }
 

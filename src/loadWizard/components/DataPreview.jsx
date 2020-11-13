@@ -153,7 +153,8 @@ class DataPreview extends React.Component {
                             <span className="column-name">{name}</span>
                             </React.Fragment>);
                     },
-                    accessor: name
+                    accessor: name,
+                    Cell: ({row}) => `${row.original[name]}`
                 }
             })
         ];

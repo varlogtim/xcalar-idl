@@ -296,6 +296,44 @@ function unionSchemas(columns: Array<ColumnDef>) {
     return columnMap.values();
 }
 
+enum ColumnType {
+    Integer = 'DfInt64',
+    Float = 'DfFloat64',
+    String = 'DfString',
+    Boolean = 'DfBoolean'
+}
+
+enum ColumnTypeString {
+    Integer = 'Int64',
+    Float = 'Float64',
+    String = 'String',
+    Boolean = 'Boolean'
+}
+
+const columnTypeToString = new Map([
+    [ColumnType.Integer, ColumnTypeString.Integer],
+    [ColumnType.Float, ColumnTypeString.Float],
+    [ColumnType.Boolean, ColumnTypeString.Boolean],
+    [ColumnType.String, ColumnTypeString.String]
+]);
+
+const columnStringToType = new Map([
+    [ColumnTypeString.Integer, ColumnType.Integer],
+    [ColumnTypeString.Float, ColumnType.Float],
+    [ColumnTypeString.Boolean, ColumnType.Boolean],
+    [ColumnTypeString.String, ColumnType.String]
+]);
+
+function getColumnStringFromType(type: string) {
+    const str = columnTypeToString.get(type as ColumnType);
+    return str || type;
+}
+
+function getColumnTypeFromString(typeString: string) {
+    const type = columnStringToType.get(typeString as ColumnTypeString);
+    return type || typeString
+}
+
 export {
     FileType, FileTypeFilter,
     FileTypeFilterFunction,
@@ -307,5 +345,6 @@ export {
     suggestParserType,
     validateSchemaString, validateSchema,
     getDupeColumnsInSchemaString, getDupeColumnsInSchema,
-    unionSchemas
+    unionSchemas,
+    ColumnType, getColumnStringFromType, getColumnTypeFromString
 };
