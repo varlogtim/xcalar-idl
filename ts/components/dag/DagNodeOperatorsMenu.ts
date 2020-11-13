@@ -104,7 +104,7 @@ class DagNodeOperatorsMenu {
         const menuRect = $menu[0].getBoundingClientRect();
         if (menuRect.bottom > containerRect.bottom) {
             let top = containerRect.height - menuRect.height;
-            let topPct = (top / containerRect.height) * 100;
+            let topPct = Math.max(0, (top / containerRect.height) * 100);
             $menu.css("top", `${topPct}%`);
         }
     }

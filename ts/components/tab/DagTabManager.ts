@@ -919,6 +919,12 @@ class DagTabManager extends AbstractTabManager {
             $menu.find(".duplicate").addClass("unavailable");
         }
 
+        if (dagTab instanceof DagTabSQLExecute) {
+            $menu.find(".close").addClass("unavailable");
+        } else {
+            $menu.find(".close").removeClass("unavailable");
+        }
+
         if ($tab.find(".name").hasClass("nonedit")) {
             $menu.find(".rename").addClass("unavailable");
         } else {

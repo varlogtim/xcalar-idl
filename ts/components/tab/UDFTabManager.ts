@@ -170,9 +170,7 @@ class UDFTabManager extends AbstractTabManager {
                     } else {
                         this._loadTab(tab.name, undefined, tab.isNew);
                     }
-
                 });
-
             }
 
             if (this._activeTabs.length) {

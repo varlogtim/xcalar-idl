@@ -45,7 +45,7 @@ abstract class AbstractTabManager {
     }
 
     protected _getTabsSection(): JQuery {
-        return this._getContainer().find(".tabsSection");
+        return this._getContainer().find(".tabsSection").last();
     }
 
     protected _getTabArea(): JQuery {
