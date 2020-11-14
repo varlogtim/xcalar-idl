@@ -36,8 +36,8 @@ describe("Project Dag Node Test", () => {
         });
 
         const result = node.lineageChange(columns);
-        expect(result.columns.length).to.equal(4);
-        expect(result.changes.length).to.equal(2);
+        expect(result.columns.length).to.equal(2);
+        expect(result.changes.length).to.equal(4);
     });
 
     it("lineageChange with hidden columns should work", () => {
@@ -53,11 +53,11 @@ describe("Project Dag Node Test", () => {
             return map;
         };
         const result = node.lineageChange(columns);
-        expect(result.columns.length).to.equal(4);
-        expect(result.changes.length).to.equal(3);
-        expect(result.changes[2].from.getBackColName()).to.equal("a");
+        expect(result.columns.length).to.equal(2);
+        expect(result.changes.length).to.equal(5);
+        expect(result.changes[2].from.getBackColName()).to.equal("col#2");
         expect(result.changes[2].to).to.be.null;
-        expect(result.changes[2].hidden).to.be.true;
+        expect(result.changes[4].hidden).to.be.true;
     });
 
     function genProgCols(colPrefix, count) {

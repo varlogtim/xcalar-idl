@@ -933,8 +933,9 @@ class BaseOpPanel {
         // implemented by inheritor
     }
 
-    protected _submitForm(): void {
+    protected _submitForm(_?: any): boolean {
         // implemented by inheritor
+        return true;
     }
 
     protected _registerEventListeners(): void {

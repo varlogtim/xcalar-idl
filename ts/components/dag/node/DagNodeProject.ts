@@ -54,40 +54,36 @@ class DagNodeProject extends DagNode {
     }
 
     public lineageChange(
-        columns: ProgCol[],
+        sourceColumns: ProgCol[],
         replaceParameters?: boolean
     ): DagLineageChange {
         const changes: DagColumnChange[] = [];
         const finalCols: ProgCol[] = [];
         const prefixSet: Set<string> = new Set();
         const derivedSet: Set<string> = new Set();
+        const sourceColumnsMap: Map<string, ProgCol> = new Map();
 
-        this.input.getInput(replaceParameters).columns.forEach((colName) => {
-            const parsed: PrefixColInfo = xcHelper.parsePrefixColName(colName);
-            if (parsed.prefix) {
-                prefixSet.add(parsed.prefix);
-            } else {
-                derivedSet.add(colName);
-            }
-        });
-
-
-        if (columns != null) {
-            columns.forEach((progCol) => {
+        if (sourceColumns != null) {
+            sourceColumns.forEach((progCol) => {
                 const colName: string = progCol.getBackColName();
-                const parsed: PrefixColInfo = xcHelper.parsePrefixColName(colName);
-                const keep: boolean = parsed.prefix ?
-                prefixSet.has(parsed.prefix) : derivedSet.has(colName);
-                if (keep) {
-                    finalCols.push(progCol);
-                } else {
-                    changes.push({
-                        from: progCol,
-                        to: null
-                    });
-                }
+                sourceColumnsMap.set(colName, progCol);
             });
         }
+
+        this.input.getInput(replaceParameters).columns.forEach((colName) => {
+            if (sourceColumnsMap.has(colName)) {
+                finalCols.push(sourceColumnsMap.get(colName));
+            }
+            sourceColumnsMap.delete(colName);
+            derivedSet.add(colName);
+        });
+
+        sourceColumnsMap.forEach((progCol) => {
+            changes.push({
+                from: progCol,
+                to: null
+            });
+        });
 
         let hiddenColumns = this.lineage.getHiddenColumns();
         hiddenColumns.forEach((progCol, colName) => {
