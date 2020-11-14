@@ -742,7 +742,7 @@ class SQLEditorSpace {
             if (i === statementCount - 1) {
                 callback = (outputNode: DagNode, tabId: string, succeed, options) => {
                     this._removeExecutor(curExecutor);
-                    if (succeed && options.show === "resultTable") {
+                    if (succeed && options.show === "resultTable" && outputNode) {
                         DagViewManager.Instance.viewResult(outputNode, tabId);
                     } else if (succeed && options.show === "tableList") {
                         SQLResultSpace.Instance.showTables(true);

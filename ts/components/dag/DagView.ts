@@ -2748,18 +2748,19 @@ class DagView {
                         }
                     }
                 });
+                if (positionInfos.length) {
+                        // move the sub graph nodes where there's open space
+                    const nextAvailablePosition = dagView._getNextAvailablePosition(null,
+                        upperLeftMostNode.position.x, upperLeftMostNode.position.y, {vertSpacing: 80});
 
-                // move the sub graph nodes where there's open space
-                const nextAvailablePosition = dagView._getNextAvailablePosition(null,
-                    upperLeftMostNode.position.x, upperLeftMostNode.position.y, {vertSpacing: 80});
+                    let xDelta = nextAvailablePosition.x - upperLeftMostNode.position.x;
+                    let yDelta = nextAvailablePosition.y - upperLeftMostNode.position.y;
 
-                let xDelta = nextAvailablePosition.x - upperLeftMostNode.position.x;
-                let yDelta = nextAvailablePosition.y - upperLeftMostNode.position.y;
-
-                for (const posInfo of positionInfos) {
-                    posInfo.position.x += xDelta;
-                    posInfo.position.y += yDelta;
-                    subGraph.getNode(posInfo.id).setPosition(posInfo.position);
+                    for (const posInfo of positionInfos) {
+                        posInfo.position.x += xDelta;
+                        posInfo.position.y += yDelta;
+                        subGraph.getNode(posInfo.id).setPosition(posInfo.position);
+                    }
                 }
 
                 // draw the nodes
