@@ -170,7 +170,9 @@ function thriftLog(
             msg = title + " failed with status " + status + " : " +
                     StatusTStr[status];
         } else if (httpStatus != null) {
-            error = "Proxy Error with http status code: " + httpStatus;
+            error = xcStringHelper.replaceMsg(ErrTStr.ProxyError, {
+                httpStatus: httpStatus
+            });
             msg = title + " failed with network exception. Http status : " +
                     httpStatus;
         } else {
@@ -179,7 +181,7 @@ function thriftLog(
 
         if (error === StatusTStr[StatusT.StatusDgDagAlreadyExists]) {
             // 'DAG name already exists'
-            error = "Table name already exists. Rename the table or aggregate and try again.";
+            error = ErrTStr.StatusDgDagAlreadyExists;
         }
 
         if (status === StatusT.StatusKvEntryNotFound) {

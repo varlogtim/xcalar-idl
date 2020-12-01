@@ -53,7 +53,7 @@ namespace XcSupport {
             });
         if (error == null) {
             // not ready case
-            msg = "Xcalar is setting up, please wait" + ".".repeat(cnt % 3 + 1);
+            msg = StatusMessageTStr.SettingUp + ".".repeat(cnt % 3);
         }
         const alertOpen = Alert.updateMsg(alertId, msg);
         clearTimeout(_connectionCheckTimer);
@@ -187,7 +187,7 @@ namespace XcSupport {
             }
             id = Alert.show({
                 title,
-                msg: "Xcalar is setting up, please wait.",
+                msg: StatusMessageTStr.SettingUp,
                 isAlert: true,
                 lockScreen: true,
                 hideButtons: ["downloadLog", "genSub"]

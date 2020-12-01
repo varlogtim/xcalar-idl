@@ -51,6 +51,25 @@ namespace xcTooltip {
         $("body").on("mouseenter", '[data-toggle="tooltip"]', function() {
             xcTooltip.hideAll(); // prevents multiple tips from being open at the same time
         });
+
+        $("body").on("mouseup", (_) => {
+            // hide tip links otherwise they just stay stuck there
+            $(".tooltip.hasTipLink").hide();
+        });
+
+        // on page load, look for html with helpTextID and generate the tooltip text
+        // from the helpText global object
+        $('[data-helpTextID]').each((_i, el) => {
+            let helpTextObj = window["helpText"][$(el).data("helptextid")];
+            if (!helpTextObj) return;
+            let text = helpTextObj.text;
+            if (text && helpTextObj.link) {
+                text +=  "\n" + `<a href=${helpTextObj.link} target="helpText">${helpTextObj.linkText || "View More..."}</a>`
+                $(el).attr("title", "")
+                    .attr("data-title", text)
+                    .attr("data-original-title", text);
+            }
+        });
     }
 
     /**

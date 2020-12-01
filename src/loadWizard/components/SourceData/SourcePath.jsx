@@ -4,6 +4,7 @@ import { defaultConnector } from "../../services/SchemaLoadService"
 import InputDropdown from "../../../components/widgets/InputDropdown"
 import Pagination from '../../../components/widgets/Pagination'
 import LoadingText from '../../../components/widgets/LoadingText'
+import QMark from '../../../components/widgets/QMark'
 import NavButtons from '../NavButtons'
 import { Folder, FileCopy, InsertDriveFileOutlined } from '@material-ui/icons'
 import ConnectorsModal from '../ConnectorsModal'
@@ -96,7 +97,8 @@ function SourcePath({
                 <a className="needHelp xc-action" style={{ position: "relative", top: "4px" }} href="https://xcalar.com/documentation/Content/Content_QSG/qs_intro_build_datamart.htm" target="_blank">Need help?</a>
                 <div className="row">
                     <div className="connectorSelection">
-                        <label className="label">{Texts.connector}</label>
+                        <label className="label">{Texts.connector}
+                        </label>
                         <div className="inputRow">
                             <InputDropdown
                                 val={connectorText}

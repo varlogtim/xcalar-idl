@@ -5,60 +5,17 @@ namespace DagNodeMenu {
     let curConnectorIndex: number;
     let _ignorePinnedWarning: boolean;
 
-    const tooltipMap = {
-        configureNode: "This action opens the operator's configuration panel",
-        executeNode: "This action runs the configured operator's operation.",
-        executeAllNodes: "This action runs all the operations in a plan.",
-        createNodeOptimized: "This action gives a preview of how optimized plan will run without intermediate table results. Optimized plan execution reduces memory consumption, creates a faster runtime, and provides optimal performance when used in your production platform.",
-        reexecuteNode: "This action regenerates your intermediate table results for this operator.",
-        deleteAllTables: "WARNING: This action deletes your intermediate table results for all functions in a plan. All the operators configuration settings remain unchanged.",
-        copyNodes: "This action copies the selected graph-node or graph-nodes, and connectors. Configuration settings remain but Intermediate table results are removed.",
-        cutNodes: "This action removes the graph-node and its links. Unlike the Delete option, the graph-node is saved to the clip-board buffer.",
-        pasteNodes: "This action pastes the copied graph-node or graph-nodes and connectors into a new or existing function of a plan. Configuration settings remain but intermediate table results are removed.",
-        copyTableName: "This action copies the name of the selected table",
-        duplicateDf: "This action creates a copy of the plan, including configuration settings, in a new Plan tab.",
-        selectAll: "This action selects all the operators and comments within the plan.",
-        findOptimizedSource: "This action opens the Plan Lineage window, which displays the name of the plan that was the source of the optimized plan.",
-        findSourceNode: "This action opens the Operator Lineage window, which displays the history of the selected graph-node, including the originating custom operator and the plan that was used for the optimized plan.",
-        viewSchemaChanges: "This action opens the schema window and displays the current new, deleted, and updated columns and data types.",
-        createCustom: "This action creates an operator from one or multiple graph-nodes for reuse. Custom operators keep their original configuration settings.",
-        autoAlign: "This action rearranges the graph-nodes for each function in a straight line in your plan.",
-        description: "This action creates a description, which is displayed in the left panel when you select a graph-node.",
-        newComment: "This action opens a text box for entering comments about your function or plan.",
-        inspectSQL: "This action provides debugging capabilities by inspecting your statements within the SQL operator. When selected the original SQL operator stays in the plan and a new SQL plan tab is created containing the operators present in the SQL statement.",
-        expandSQL: "Unlike Inspect, this action replaces the selected Custom or SQL operator in the plan with individual graph-nodes for each operation.",
-        shareCustom: "This action saves the new custom operator in the Operator bar.",
-        removeNode: "This action permanently removes the graph-node.",
-        removeAllNodes: "This action permanently removes the operators and functions from a plan.",
-        removeInConnection: "This action deletes the connection between two graph-nodes.",
-        restoreSource: "This action regenerates the source table by reloading data from your source repository.",
-        restoreAllSource: "This action regenerates all the source tables by reloading data from your source repository.",
-        download: "Saves the plan outside of Notebook as one of three formats: Xcalar plan format, PNG, and JSON.",
-        exitOp: "This action closes the operator’s configuration panel. IMPORTANT: There is no auto save or warning message for unsaved changes.",
-        pinTable: "This action prevents the intermediate table from being deleted by you or by Xcalar when memory is low.<br/><br/>NOTE: Intermediate tables must be unpinned before Delete or Clear All Table Results actions can be performed on the pinned table’s operator.",
-        unpinTable: "This action removes the pin associated with the intermediate table.<br/><br/>NOTE: This action re-enables configuration modifications and floating menu actions on the intermediate table’s operator.",
-        generateResult: "This action runs the operation and regenerates the results in the selected table.",
-        viewResult: "This action displays the table in the Table panel.",
-        deleteTable: "This action removes the table results from the selected table.",
-        viewSchema: "This action displays the table’s schema and data lineage when column names are clicked.",
-        viewSkew: "This action displays the distribution of this table’s data across all cluster nodes. Where, a value of 0 denotes a balanced distribution of data and 100 denotes an imbalanced distribution of data across the cluster.",
-        addOperation: "This action lists the operators for selecting a new operation.",
-        copyComment: "This action copies the text box and text.",
-        cutComment: "This action removes the text box and text. Unlike the Delete option, the text box and text is saved to the clip-board buffer.",
-        removeComment: "This action permanently removes the text box and its text."
-    };
-
     export function setup() {
         _setupNodeMenu();
         _setupNodeMenuActions();
         _setupInstructionNodeCategories();
 
         let $menus = _getDagNodeMenu().add(_getDagTableMenu());
-        for (let key in tooltipMap) {
+        for (let key in DagNodeMenuTipTStr) {
             let $li = $menus.find("." + key);
             if ($li.length) {
                 xcTooltip.add($li, {
-                    title: tooltipMap[key],
+                    title: DagNodeMenuTipTStr[key],
                     placement: "auto left"
                 });
             }
@@ -770,9 +727,9 @@ namespace DagNodeMenu {
             $menu = _getDagNodeMenu();
         }
 
-        xcTooltip.changeText($menu.find(".copyNodes"), tooltipMap["copyNodes"]);
-        xcTooltip.changeText($menu.find(".cutNodes"), tooltipMap["cutNodes"]);
-        xcTooltip.changeText($menu.find(".removeNode"), tooltipMap["removeNode"]);
+        xcTooltip.changeText($menu.find(".copyNodes"), DagNodeMenuTipTStr["copyNodes"]);
+        xcTooltip.changeText($menu.find(".cutNodes"), DagNodeMenuTipTStr["cutNodes"]);
+        xcTooltip.changeText($menu.find(".removeNode"), DagNodeMenuTipTStr["removeNode"]);
 
         curNodeId = nodeId;
         $menu.find("li").removeClass("unavailable");
@@ -1100,7 +1057,7 @@ namespace DagNodeMenu {
             $menu.find('.configureNode').addClass('unavailable');
             xcTooltip.changeText($menu.find(".configureNode"), DFTStr.CannotEditOperator);
         } else {
-            xcTooltip.changeText($menu.find(".configureNode"), tooltipMap["configureNode"]);
+            xcTooltip.changeText($menu.find(".configureNode"), DagNodeMenuTipTStr["configureNode"]);
         }
 
         if (dagNodeType === DagNodeType.SQL) {
@@ -1145,9 +1102,9 @@ namespace DagNodeMenu {
     }
 
     function _changeCommentMenuTooltips($menu: JQuery) {
-        xcTooltip.changeText($menu.find(".copyNodes"), tooltipMap["copyComment"]);
-        xcTooltip.changeText($menu.find(".cutNodes"), tooltipMap["cutComment"]);
-        xcTooltip.changeText($menu.find(".removeNode"), tooltipMap["removeComment"]);
+        xcTooltip.changeText($menu.find(".copyNodes"), DagNodeMenuTipTStr["copyComment"]);
+        xcTooltip.changeText($menu.find(".cutNodes"), DagNodeMenuTipTStr["cutComment"]);
+        xcTooltip.changeText($menu.find(".removeNode"), DagNodeMenuTipTStr["removeComment"]);
     }
 
     function _findLinkOutNode(nodeId: DagNodeId): void {

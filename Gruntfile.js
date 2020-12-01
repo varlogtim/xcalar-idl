@@ -3048,16 +3048,22 @@ module.exports = function(grunt) {
             }
         }
 
+        fs.writeFileSync(BLDROOT + 'assets/lang/en/helpText.js', "var helpText = " + JSON.stringify(helpTextObj, null, 4));
+
+
     });
 
     /**
      * turns the helpText array into a key value object
      */
-    function translateHelpText(helpTextArr) {
+    function translateHelpText(helpTextObj) {
         let helpObj = {};
-        helpTextArr.forEach((help) => {
-            helpObj[help.id] = help;
-        });
+        for (let category in helpTextObj) {
+            helpTextObj[category].forEach((help) => {
+                helpObj[help.id] = help;
+            });
+        }
+
         return helpObj;
     }
 

@@ -46,9 +46,11 @@ StatusMessageTStr = {
     "PleaseWait": "Please wait",
     'Finalize': "Finalizing Table",
     'FinalizeFailed': "Finalize failed",
+    "SettingUp": "Xcalar is setting up, please wait",
     // Must keep in sync with htmlTStr
     'ActionSuccess': 'Your action was successful!',
     'ActionFailed': 'Your action failed!',
+
 };
 
 TooltipTStr = {
@@ -346,23 +348,24 @@ ErrTStr = {
     'NoBucketAccess': "You don't have access to the s3 bucket, please check your access permission or configure to use a valid bucket.",
     "LicenseErr": "License Error",
     "LicenseInvalid": "Your don't have a valid license. Please contact your administrator to acquire a new license key.",
+    "StatusDgDagAlreadyExists": "Table name already exists. Rename the table or aggregate and try again.",
+    'MaxPayload': 'Request size limit exceeded. Please select fewer files or ' +
+    'recursively load the directory or use regex.',
+    'MaxFiles': 'The number of files under the current directory exceeds the ' +
+    'limit. Please try to search in a child directory.',
+    'InvalidUDFModule': 'Invalid module name',
+    'InvalidUDFFunction': 'Invalid function name',
+    'InvalidDFDownload': 'Invalid module to download',
+    "NoPrimaryKey": "Published tables must have a primary key.",
+    'DsNotFound': 'Table not found. It may be caused by module change or errors in the module, please reconfigure the operator and try execute again.',
+    'InvalidAddToPlan': "Cannot add table to this type of plan.",
     // With replace
     'WorkbookExists': 'A project named <workbookName> already exists. Please' +
                       ' choose another name.',
     'InvalidColumn': 'Invalid column name: <name>',
     'LicenseWillExpire': 'Your license will expire on \"<date>\". Please contact your administrator to acquire a new license key.',
     'LicenseExpire': 'Your license has expired on \"<date>\". Please contact your administrator to acquire a new license key.',
-    'MaxPayload': 'Request size limit exceeded. Please select fewer files or ' +
-                  'recursively load the directory or use regex.',
-    'MaxFiles': 'The number of files under the current directory exceeds the ' +
-                'limit. Please try to search in a child directory.',
-    'InvalidUDFModule': 'Invalid module name',
-    'InvalidUDFFunction': 'Invalid function name',
-    'InvalidDFDownload': 'Invalid module to download',
-    "NoPrimaryKey": "Published tables must have a primary key.",
-    'DsNotFound': 'Table not found. It may be caused by module change or errors in the module, please reconfigure the operator and try execute again.',
-    'InvalidAddToPlan': "Cannot add table to this type of plan."
-
+    "ProxyError":  "Proxy Error with http status code: <httpStatus>"
 };
 
 ErrWRepTStr = {
@@ -1657,3 +1660,46 @@ SetOpTStr = {
     "IntersectInstr": "Returns rows which are common from the results of two or more tables.",
     "ExceptInstr": "Returns the rows of Table #1 that are not in the results of the other selected tables."
 };
+
+DagNodeMenuTipTStr = {
+    configureNode: "This action opens the operator's configuration panel",
+    executeNode: "This action runs the configured operator's operation.",
+    executeAllNodes: "This action runs all the operations in a plan.",
+    createNodeOptimized: "This action gives a preview of how optimized plan will run without intermediate table results. Optimized plan execution reduces memory consumption, creates a faster runtime, and provides optimal performance when used in your production platform.",
+    reexecuteNode: "This action regenerates your intermediate table results for this operator.",
+    deleteAllTables: "WARNING: This action deletes your intermediate table results for all functions in a plan. All the operators configuration settings remain unchanged.",
+    copyNodes: "This action copies the selected graph-node or graph-nodes, and connectors. Configuration settings remain but Intermediate table results are removed.",
+    cutNodes: "This action removes the graph-node and its links. Unlike the Delete option, the graph-node is saved to the clip-board buffer.",
+    pasteNodes: "This action pastes the copied graph-node or graph-nodes and connectors into a new or existing function of a plan. Configuration settings remain but intermediate table results are removed.",
+    copyTableName: "This action copies the name of the selected table",
+    duplicateDf: "This action creates a copy of the plan, including configuration settings, in a new Plan tab.",
+    selectAll: "This action selects all the operators and comments within the plan.",
+    findOptimizedSource: "This action opens the Plan Lineage window, which displays the name of the plan that was the source of the optimized plan.",
+    findSourceNode: "This action opens the Operator Lineage window, which displays the history of the selected graph-node, including the originating custom operator and the plan that was used for the optimized plan.",
+    viewSchemaChanges: "This action opens the schema window and displays the current new, deleted, and updated columns and data types.",
+    createCustom: "This action creates an operator from one or multiple graph-nodes for reuse. Custom operators keep their original configuration settings.",
+    autoAlign: "This action rearranges the graph-nodes for each function in a straight line in your plan.",
+    description: "This action creates a description, which is displayed in the left panel when you select a graph-node.",
+    newComment: "This action opens a text box for entering comments about your function or plan.",
+    inspectSQL: "This action provides debugging capabilities by inspecting your statements within the SQL operator. When selected the original SQL operator stays in the plan and a new SQL plan tab is created containing the operators present in the SQL statement.",
+    expandSQL: "Unlike Inspect, this action replaces the selected Custom or SQL operator in the plan with individual graph-nodes for each operation.",
+    shareCustom: "This action saves the new custom operator in the Operator bar.",
+    removeNode: "This action permanently removes the graph-node.",
+    removeAllNodes: "This action permanently removes the operators and functions from a plan.",
+    removeInConnection: "This action deletes the connection between two graph-nodes.",
+    restoreSource: "This action regenerates the source table by reloading data from your source repository.",
+    restoreAllSource: "This action regenerates all the source tables by reloading data from your source repository.",
+    download: "Saves the plan outside of Notebook as one of three formats: Xcalar plan format, PNG, and JSON.",
+    exitOp: "This action closes the operator’s configuration panel. IMPORTANT: There is no auto save or warning message for unsaved changes.",
+    pinTable: "This action prevents the intermediate table from being deleted by you or by Xcalar when memory is low.<br/><br/>NOTE: Intermediate tables must be unpinned before Delete or Clear All Table Results actions can be performed on the pinned table’s operator.",
+    unpinTable: "This action removes the pin associated with the intermediate table.<br/><br/>NOTE: This action re-enables configuration modifications and floating menu actions on the intermediate table’s operator.",
+    generateResult: "This action runs the operation and regenerates the results in the selected table.",
+    viewResult: "This action displays the table in the Table panel.",
+    deleteTable: "This action removes the table results from the selected table.",
+    viewSchema: "This action displays the table’s schema and data lineage when column names are clicked.",
+    viewSkew: "This action displays the distribution of this table’s data across all cluster nodes. Where, a value of 0 denotes a balanced distribution of data and 100 denotes an imbalanced distribution of data across the cluster.",
+    addOperation: "This action lists the operators for selecting a new operation.",
+    copyComment: "This action copies the text box and text.",
+    cutComment: "This action removes the text box and text. Unlike the Delete option, the text box and text is saved to the clip-board buffer.",
+    removeComment: "This action permanently removes the text box and its text."
+}
