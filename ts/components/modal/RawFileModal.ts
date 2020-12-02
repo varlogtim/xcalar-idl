@@ -18,14 +18,14 @@ class RawFileModal {
         let timeout;
         this._modalHelper = new ModalHelper(this._getModal(), {
             noEnter: true,
-            resizeCallback: () => {
-                if (!this._isInHexMode()) {
-                    return;
-                }
+            resizeCallback: (_e, resizeInfo) => {
+                // if (!this._isInHexMode()) {
+                //     return;
+                // }
                 this._inLoadMode();
                 clearTimeout(timeout);
                 timeout = setTimeout(() => {
-                    this._initialPreview();
+                    this._initialPreview(resizeInfo.size.height, resizeInfo.size.width);
                 }, 500);
             }
         });
@@ -120,20 +120,20 @@ class RawFileModal {
                         .addClass("error");
     }
 
-    private _initialPreview(): XDPromise<void> {
-        return this._previewFile(0);
+    private _initialPreview(height?: number, width?: number): XDPromise<void> {
+        return this._previewFile(0, height, width);
     }
 
-    private _previewFile(offset: number): XDPromise<void> {
+    private _previewFile(offset: number, height?: number, width?: number): XDPromise<void> {
         if (this._previewArgs == null) {
             console.error("invalid arguments");
             return PromiseHelper.reject("invalid arguments");
         }
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let perviewerId = this._getPreviewerId();
+        let previewerId = this._getPreviewerId();
 
-        let blockSize = this._calculateCharsPerLine();
-        let numBytesToRequest = this._calculateBtyesToPreview(blockSize);
+        let blockSize = this._calculateCharsPerLine(width);
+        let numBytesToRequest = this._calculateBytesToPreview(blockSize, height);
         let wasHexMode = this._isInHexMode();
         this._inLoadMode();
 
@@ -144,7 +144,7 @@ class RawFileModal {
         };
         XcalarPreview(args, numBytesToRequest, offset)
         .then((res) => {
-            if (!this._isValidId(perviewerId)) {
+            if (!this._isValidId(previewerId)) {
                 deferred.reject(this._outDateError);
             } else {
                 try {
@@ -166,8 +166,8 @@ class RawFileModal {
             }
         })
         .fail((error) => {
-            if (!this._isValidId(perviewerId)) {
-                // ingore the error
+            if (!this._isValidId(previewerId)) {
+                // ignore the error
                 deferred.reject(this._outDateError);
             } else {
                 this._handleError(error);
@@ -197,9 +197,15 @@ class RawFileModal {
         return charWidth;
     }
 
-    private _calculateCharsPerLine(): number {
+    private _calculateCharsPerLine(width?: number): number {
         const padding: number = 37;
-        let sectionWidth: number = 340 - padding;
+        let sectionWidth: number
+        if (this._isInHexMode()) {
+            sectionWidth = 340 - padding;
+        } else {
+            let $modal = this._getModal();
+            sectionWidth = width || $modal.width() - 30;
+        }
         let charWidth = this._calculateCharWidth();
         const oneBlockChars: number = 8;
         let numOfBlock: number = Math.floor(sectionWidth / charWidth / oneBlockChars);
@@ -207,9 +213,9 @@ class RawFileModal {
         return charsPerLine;
     }
 
-    private _calculateBtyesToPreview(charsPerLine: number): number {
+    private _calculateBytesToPreview(charsPerLine: number, height?: number): number {
         let $section = this._getModal().find(".preview.normal");
-        let height = $section.height();
+        height = height || $section.height();
         let numLine: number = Math.floor(height / this._lineHeight);
         let numBytes: number = numLine * charsPerLine;
         return numBytes;
@@ -322,6 +328,7 @@ class RawFileModal {
             } else {
                 this._inHexMode();
             }
+            this._initialPreview();
         });
 
         let $skipToOffset = $modal.find(".skipToOffset");
