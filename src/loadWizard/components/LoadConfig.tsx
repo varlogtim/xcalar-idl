@@ -1811,6 +1811,7 @@ class LoadConfig extends React.Component<LoadConfigProps, LoadConfigState> {
                         })()}
                     </div> {/* end of left part */}
                     <Details
+                        showSchemaOnly={true}
                         schemaDetail={this.state.schemaDetailState}
                         discoverStats={this.state.discoverStatsState}
                         selectedFileDir={this.state.selectedFileDir}

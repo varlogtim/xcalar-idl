@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Rnd } from "react-rnd";
 
 import SchemaChart from '../DiscoverSchemas/SchemaChart2'
@@ -129,13 +129,13 @@ function BucketChart({stats}) {
 }
 
 function SchemaDetail(props) {
-    const { hash = '', columns = [], files, errorColumns = [], errorStack } = props || {};
+    const { hash = '', columns = [], files, errorColumns = [], errorStack, showSchemaOnly } = props || {};
     return (
         <Collapsible>
             <Collapsible.Header>{hash}</Collapsible.Header>
             <Collapsible.List>
                 {
-                    files &&
+                    files && !showSchemaOnly &&
                     <Collapsible.Item>
                         <div>Paths:</div>
                         {
@@ -188,12 +188,28 @@ function LoadDetail() {
         </Collapsible>
     );
 }
+type DetailsProps = {
+    schemaDetail: any,
+    discoverStats: any,
+    showSchemaOnly?: boolean,
+    discoverFileSchemas: Map<any,any>,
+    showForensics?: boolean,
+    forensicsStats: any,
+    forensicsMessage?: any
+    selectedFileDir?: any
+};
 
-export default class Details extends React.Component {
+export default class Details extends React.Component<DetailsProps> {
     render() {
         const {
             schemaDetail,
-            discoverStats
+            discoverStats,
+            showSchemaOnly,
+            discoverFileSchemas,
+            showForensics,
+            forensicsStats,
+            forensicsMessage,
+            selectedFileDir
         } = this.props;
         const showSchemaDetail = schemaDetail != null && (
             schemaDetail.isLoading || (schemaDetail.schema != null || schemaDetail.error != null)
@@ -203,14 +219,14 @@ export default class Details extends React.Component {
         );
 
         let rightPartClasses = "rightPart";
-        if (showSchemaDetail || showChart || this.props.showForensics ||
-            this.props.discoverFileSchemas.size > 0) {
+        if (showSchemaDetail || showChart || showForensics ||
+            discoverFileSchemas.size > 0) {
             rightPartClasses += " active";
         }
         return (
             <Rnd
                 className={rightPartClasses}
-                default={{width: 300}}
+                default={{width: 300, height: "auto", x: 0, y: 0}}
                 minWidth={100}
                 maxWidth={"70%"}
                 bounds="parent"
@@ -219,14 +235,14 @@ export default class Details extends React.Component {
                 enableResizing={{ top:false, right:false, bottom:false, left:true, topRight:false, bottomRight:false, bottomLeft:false, topLeft:false }}
             >
                 <div className="innerRightPart">
-                    <ForensicsContent isShow={ this.props.showForensics } stats={ this.props.forensicsStats } message={ this.props.forensicsMessage } />
-                    { schemaDetail.isLoading ? <LoadDetail /> : null}
-                    { schemaDetail.schema != null ? <SchemaDetail {...schemaDetail.schema} /> : null }
-                    { schemaDetail.error != null ? <ErrorDetail error={schemaDetail.error} /> : null }
+                    <ForensicsContent isShow={ this.props.showForensics } stats={forensicsStats } message={ forensicsMessage } />
+                    { schemaDetail.isLoading && <LoadDetail /> }
+                    { schemaDetail.schema != null && <SchemaDetail showSchemaOnly {...schemaDetail.schema} /> }
+                    { schemaDetail.error != null && <ErrorDetail error={schemaDetail.error} /> }
                     { showChart &&
                         <SchemaChart
                             discoverStats={discoverStats}
-                            selectedData={this.props.selectedFileDir}
+                            selectedData={selectedFileDir}
                             schemasFileMap={this.props.discoverFileSchemas}
                         />
                     }
