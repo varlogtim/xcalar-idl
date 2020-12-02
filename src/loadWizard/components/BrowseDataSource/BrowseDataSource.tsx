@@ -1,4 +1,4 @@
-import * as Path from 'path';
+import * as Path from 'path'; 
 import * as React from "react";
 import NavButtons from '../NavButtons'
 import SelectedFilesArea from "./SelectedFilesArea"
@@ -129,11 +129,11 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
         }
     }
 
-    async _fetchFileList(fullPath, offset) {
+    async _fetchFileList(fullPath, offset, refresh?: boolean) {
         try {
             this.setState({ isLoading: true });
             let cursorOffset = offset;
-            if (fullPath != this.state.path || this.filesCursor == null) {
+            if (refresh || fullPath != this.state.path || this.filesCursor == null) {
                 this.filesCursor = S3Service.createListFilesCursor({
                     targetName: this.props.connector,
                     path: Path.join('/', fullPath, '/'),
@@ -159,7 +159,7 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
         }
     }
 
-    async _browsePath(newFullPath, fileType) {
+    async _browsePath(newFullPath, fileType, refresh?: boolean) {
         try {
             this.setState({
                 isLoading: true,
@@ -173,7 +173,7 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
             // });
             this.navCount++;
             let navCount = this.navCount;
-            const { fileMap, offset } = await this._fetchFileList(newFullPath, this.state.offset);
+            const { fileMap, offset } = await this._fetchFileList(newFullPath, this.state.offset, refresh);
 
             if (this.navCount !== navCount) {
                 return false;
@@ -187,12 +187,8 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
                     value.isLoading = true;
                 }
             }
-            if (!newFullPath.startsWith("/")) {
-                newFullPath = "/" + newFullPath;
-            }
-            if (newFullPath.endsWith("/")) {
-                newFullPath = newFullPath.slice(0, -1);
-            }
+            newFullPath = this._normalizePath(newFullPath);
+
             this.state.loadingFiles.forEach((val) => {
                 if (Path.dirname(val) === newFullPath && !fileMap.has(val)) {
                     fileMap.set(val, {
@@ -233,9 +229,20 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
         }
     }
 
+    _normalizePath(path) {
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+        if (path.endsWith("/")) {
+            path = path.slice(0, -1);
+        }
+        return path;
+    }
+
     _refreshPath(newPath) {
+        newPath = this._normalizePath(newPath);
         if (newPath !== this.state.path) return;
-        this._browsePath(this.state.path, null);
+        this._browsePath(this.state.path, null, true);
     }
 
     _selectFiles(newSelectedFiles) {
@@ -286,12 +293,7 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
 
     _addTempFile(fileName, path) {
         const fileMapViewing = this.state.fileMapViewing;
-        if (!path.startsWith("/")) {
-            path = "/" + path;
-        }
-        if (path.endsWith("/")) {
-            path = path.slice(0, -1)
-        }
+        path = this._normalizePath(path);
 
         fileMapViewing.set(path + "/" + fileName, {
             directory: false,
@@ -436,19 +438,20 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
 
         let rootFullPath = Path.join(bucket);
         if (rootFullPath.startsWith("/")) {
-            rootFullPath = rootFullPath.slice(1)
+            rootFullPath = rootFullPath.slice(1);
         }
         if (rootFullPath.endsWith("/")) {
-            rootFullPath = rootFullPath.slice(0, -1)
+            rootFullPath = rootFullPath.slice(0, -1);
         }
+
         rootFullPath = rootFullPath.split('/')[0];
 
         let currentFullPath = path;
         if (currentFullPath.startsWith("/")) {
-            currentFullPath = currentFullPath.slice(1)
+            currentFullPath = currentFullPath.slice(1);
         }
         if (currentFullPath.endsWith("/")) {
-            currentFullPath = currentFullPath.slice(0, -1)
+            currentFullPath = currentFullPath.slice(0, -1);
         }
         const displayFullPath = this.getDisplayPath(currentFullPath);
         const forensicsStats = this.metadataMap.get(this.state.forensicsPath);
