@@ -1,6 +1,7 @@
 import * as React from "react";
 import {
     validateSchemaString,
+    cleanSchema,
     getDupeColumnsInSchema,
     getDupeColumnsInSchemaString,
     getColumnStringFromType,
@@ -39,6 +40,7 @@ class EditSchema extends React.PureComponent<EditSchemaProps, EditSchemaState> {
         let validSchema;
         try {
             validSchema = validateSchemaString(newSchema);
+            cleanSchema(validSchema);
             convertStingToColumnType(validSchema);
             onSchemaChange({
                 schema: newSchema,

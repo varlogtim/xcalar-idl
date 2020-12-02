@@ -68,7 +68,8 @@ function ColSchemaRow(props: ColSchemaRowProps) {
                         return {text: schemaRow.name, value: schemaRow.name};
                     })
                 }
-                hintDropdown={true}
+                hintDropdown
+                noMatchNoHint
             />
             <i className="remove icon xi-load-delete xc-action-icon" onClick={props.onRemoveRow}></i>
         </div>

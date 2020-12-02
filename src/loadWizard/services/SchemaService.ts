@@ -288,6 +288,22 @@ function validateSchemaString(
     return schema;
 }
 
+function cleanSchema(schema) {
+    try {
+        let columns = [];
+        schema.columns.forEach(col => {
+            if (col.name === "" &&
+                col.type === "" &&
+                (col.mapping === "$." || col.mapping === ""))
+            {
+                return;
+            }
+            columns.push(col);
+        });
+        schema.columns = columns;
+    } catch (_) {}
+}
+
 function unionSchemas(columns: Array<ColumnDef>) {
     const columnMap = new Map(columns.map((column) => [
         `${column.name}_${column.type}_${column.mapping}`,
@@ -343,7 +359,7 @@ export {
     isHeaderlessCSV,
     CSVHeaderOption,
     suggestParserType,
-    validateSchemaString, validateSchema,
+    validateSchemaString, validateSchema, cleanSchema,
     getDupeColumnsInSchemaString, getDupeColumnsInSchema,
     unionSchemas,
     ColumnType, getColumnStringFromType, getColumnTypeFromString

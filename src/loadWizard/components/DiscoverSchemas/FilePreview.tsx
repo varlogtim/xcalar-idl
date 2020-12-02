@@ -145,6 +145,7 @@ function FileSelectArea(props) {
 
     const numFiles = filesCursor.getSize();
     const hasMoreFiles = filesCursor.hasMore();
+    let page = Math.floor(offset / pageSize) + 1;
 
     return <div className="fileListArea">
                 <div className="fileListHeader">
@@ -157,7 +158,7 @@ function FileSelectArea(props) {
                     </div>
                 </div>
                 <div className="paginationRow">
-                    <Pagination onNext={pageNext} onPrev={pagePrev} />
+                    <Pagination onNext={pageNext} onPrev={pagePrev} page={page} />
                     {/* <div className="skipToPage">Page <input className="xc-input" value={currPage}
                     onChange={(e) => {
                         setCurrPage(e.target.value);

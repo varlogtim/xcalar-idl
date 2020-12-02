@@ -11,7 +11,8 @@ type InputDropdownProps = {
     disabled?: boolean,
     classNames?: string[],
     hintDropdown?: boolean,
-    noListSort?: boolean
+    noListSort?: boolean,
+    noMatchNoHint?: boolean, // option to not show dropdown if no matches found when typing
 };
 
 type InputDropdownState = {
@@ -173,6 +174,7 @@ export default class InputDropdown extends React.Component<InputDropdownProps, I
                             onItemClick={this.onItemClick}
                             onEscape={this.closeDropdown}
                             usingHintList={this.state.usingHintList}
+                            noMatchNoHint={this.props.noMatchNoHint}
                         />
                     }
                 </div>

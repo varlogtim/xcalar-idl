@@ -1,11 +1,24 @@
 import * as React from "react";
-
+type props = {
+    onNext: Function,
+    onPrev: Function,
+    page?: number,
+    numPages?: number
+}
 export default function Pagination(props) {
-    const { onNext, onPrev } = props;
-    return (<ul style={{listStyle: 'none', userSelect: 'none'}}>
-        <NavButton onClick={onPrev}>{'< Previous'}</NavButton>
-        <NavButton onClick={onNext}>{'Next >'}</NavButton>
-    </ul>);
+    const { onNext, onPrev, page, numPages } = props;
+    return (<div className="paginationRow">
+        <ul style={{listStyle: 'none', userSelect: 'none'}}>
+            <NavButton onClick={onPrev}>{'< Previous'}</NavButton>
+            <NavButton onClick={onNext}>{'Next >'}</NavButton>
+        </ul>
+        {(page) ?
+            <div className="pageInfo">
+                Page {page} {numPages ? "of " + numPages: null }
+            </div>
+            : null
+        }
+    </div>);
 
     function NavButton({ onClick, children }) {
         const style = {

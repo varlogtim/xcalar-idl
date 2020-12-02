@@ -501,7 +501,7 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
             }
             : null;
         const { count: numFiles, hasMore: hasMoreFiles } = this._getListFileStats();
-
+        let page = Math.floor(offset / pageSize) + 1;
         return (
             <div className="browseDataSourceScreen">
                 { selectedFileDir.length > 0 &&
@@ -567,7 +567,7 @@ class BrowseDataSource extends React.Component<BrowseDataSourceProps, BrowseData
                             refreshPath={(path) => {this._refreshPath(path)}}
                         /> )
                     }
-                    <Pagination onNext={pageNext} onPrev={pagePrev} />
+                    <Pagination onNext={pageNext} onPrev={pagePrev} page={page} />
                     </div>
                     {/* <Rnd
                         className="rightAreaResizable"

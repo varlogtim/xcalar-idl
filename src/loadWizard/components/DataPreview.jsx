@@ -174,8 +174,9 @@ class DataPreview extends React.Component {
             ? () => { this._fetchData(nextOffset, pageSize); }
             : null;
 
-        const columns = this._createColumnsDefs(metadata.columns);
+        const page = Math.floor(offset / pageSize) + 1;
 
+        const columns = this._createColumnsDefs(metadata.columns);
         return (<React.Fragment>
             {columns.length > 1 &&
                 <div className="previewTable">
@@ -184,7 +185,7 @@ class DataPreview extends React.Component {
             }
             {(!isLoading && metadata.totalSize == 0) && <div>0 rows</div> }
             {isLoading && <LoadingText className="clearfix" />}
-            <Pagination onNext={pageNext} onPrev={pagePrev} />
+            <Pagination onNext={pageNext} onPrev={pagePrev} page={page} />
         </React.Fragment>);
     }
 }

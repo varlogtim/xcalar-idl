@@ -7,7 +7,8 @@ type DropdownULProps = {
     onItemClick: Function,
     onEscape: Function,
     rightMargin?: number,
-    usingHintList?: boolean
+    usingHintList?: boolean,
+    noMatchNoHint?: boolean
 };
 
 interface DropdownULState {
@@ -275,6 +276,8 @@ export default class DropdownUL extends React.Component<DropdownULProps, Dropdow
                     </li>
                 )
             });
+        } else if (this.props.noMatchNoHint) {
+            this.props.onEscape();
         } else {
             if (this.props.usingHintList) {
                 listHTML = <li

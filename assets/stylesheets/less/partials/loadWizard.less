@@ -59,7 +59,7 @@
             }
 
             &:hover {
-                background-color: #404040;
+                background-color: @color-bg-2;
             }
 
             &.selected {
@@ -402,6 +402,10 @@
                 display: flex;
                 align-items: center;
                 position: relative;
+
+                &:hover {
+                    background-color: @color-bg-2;
+                }
 
                 .fileType {
                     width: 32px;
@@ -850,7 +854,7 @@
             }
             &:hover {
                 .MuiTableCell-root {
-                    background-color: #404040;
+                    background-color: @color-bg-2;
                 }
             }
             &:hover, &.selectedRow {
@@ -1499,19 +1503,23 @@
         .fileListSection {
             margin: 8px 0px 4px;
         }
+    }
 
-        .paginationRow {
-            display: flex;
-            line-height: 24px;
+    .paginationRow {
+        display: flex;
+        line-height: 24px;
+        width: 100%;
 
-            .skipToPage {
-                margin-left: auto;
-            }
-            .xc-input {
-                width: 48px;
-                height: 24px;
-                margin: 0px 4px;
-            }
+        .skipToPage {
+            margin-left: auto;
+        }
+        .pageInfo {
+            margin-left: auto;
+        }
+        .xc-input {
+            width: 48px;
+            height: 24px;
+            margin: 0px 4px;
         }
     }
 
@@ -1551,7 +1559,7 @@
                 height: 30px;
             }
             &:hover, &.selected {
-                background-color: #404040;
+                background-color: @color-bg-2;
                 .icon {
                     display: block;
                 }
@@ -1612,7 +1620,7 @@
 
     .editSchema-textarea {
         width: 100%;
-        min-height: 200px;
+        min-height: 300px;
         margin-top: 8px;
         resize: vertical;
     }
@@ -1669,8 +1677,10 @@
     }
 
     .preview-error, .fileLine-error {
-        // white-space: normal;
         color: @color-text-error;
+        &pre {
+            white-space: pre-wrap;
+        }
     }
 
     .fileLine-warn {
