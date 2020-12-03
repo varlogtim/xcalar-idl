@@ -88,7 +88,7 @@ export default {
         'Cancel': 'Cancel',
         'Confirm': 'Confirm',
         'Confirmation': 'Confirmation',
-        'NoConnectToServer': "Cannot Connect to Xcalar Server",
+        'NoConnectToServer': "Cannot Connect to Xcalar Server's web socket, please check if the socket protocol is enabled or contact Xcalar support",
         'NoConnect': 'Not connected.',
         'Connecting': 'Connecting...',
         'TryConnect': 'Connecting in <second>s.',
