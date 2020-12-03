@@ -6876,6 +6876,19 @@ namespace DSConfig {
         WorkbookManager.resetXDInternalSession();
     }
 
+    function _translateSchema(schema) {
+        // input [{name: "teacher_name", type: "string"}]
+        // output {"rowpath":"$","columns":[{"name":"BASE_NUMBER","mapping":"$.\"base_number\"","type":"DfString"}]}
+        const newSchemaObj = {"rowpath":"$", "columns": []};
+        schema.forEach((col) => {
+            newSchemaObj.columns.push({
+                name: col.name,
+                mapping: "$.",
+                type: DfFieldTypeTStr[xcHelper.convertColTypeToFieldType(col.type)]
+            });
+        })
+    }
+
     /* Unit Test Only */
     export let __testOnly__: any = {};
     if (typeof window !== 'undefined' && window['unitTestMode']) {

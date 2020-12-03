@@ -3,6 +3,18 @@ import '../styles/App.less';
 import ModelPanel from './ModelPanel'
 import { LoadConfig, stepEnum } from './LoadConfig';
 
+import * as SchemaLoadService from '../services/SchemaLoadService';
+import * as S3Service from '../services/S3Service';
+import * as SchemaLoadSetting from '../services/SchemaLoadSetting';
+import * as SchemaService from '../services/SchemaService';
+const LoadServices = {};
+window["LoadServices"] = LoadServices;
+
+LoadServices["SchemaLoadService"] = SchemaLoadService;
+LoadServices["S3Service"] = SchemaLoadService;
+LoadServices["SchemaLoadSetting"] = SchemaLoadService;
+LoadServices["SchemaService"] = SchemaLoadService;
+
 /**
  * Component
  */
