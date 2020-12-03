@@ -682,7 +682,7 @@ class SQLEditorSpace {
                 if (error.status === StatusT.StatusAstNoSuchFunction) {
                     errorMsg = (error.error.startsWith("Error: ") ?
                                error.error.substring(7) : error.error) +
-                               "\nVerify, that the function exists or that" +
+                               "\nVerify, that the function exists or that " +
                                "the function name is correct.";
                 } else if (error.status === StatusT.StatusInval) {
                     let logLines = error.log.split("\n");

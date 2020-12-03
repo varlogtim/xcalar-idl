@@ -140,7 +140,7 @@ class DagUDFErrorModal {
             const param = this._node.getParam();
             if (this._node instanceof DagNodeFilter) {
                 evalStr = param.evalString;
-            } else {
+            } else if (param.eval) {
                 const evalObj = param.eval.find((e) => {
                     return e.newField === curColumnName;
                 });
@@ -148,7 +148,7 @@ class DagUDFErrorModal {
                     evalStr = evalObj.evalString;
                 }
             }
-            console.log(err);
+
             html += `<div class="errorRow">
                 <div class="subRow">
                     <div class="evalString">${evalStr}</div>
@@ -174,6 +174,8 @@ class DagUDFErrorModal {
             xcUIHelper.disableElement(this._$modal.find(".genErrorTable"), TooltipTStr.UDFErrorModalNoParent);
         } else if (!parentNode.getTable()) {
             xcUIHelper.disableElement(this._$modal.find(".genErrorTable"), TooltipTStr.UDFErrorModalNoTable);
+        } else if (this._node instanceof DagNodeSQL || this._node instanceof DagNodeCustom) {
+            xcUIHelper.disableElement(this._$modal.find(".genErrorTable"), TooltipTStr.UDFErrorModaSubGraphNodeError);
         } else {
             xcUIHelper.enableElement(this._$modal.find(".genErrorTable"));
         }
@@ -264,7 +266,8 @@ class DagUDFErrorModal {
         if (!icvNode) {
             let type;
             let subType;
-            if (node instanceof DagNodeFilter) {
+            if (node instanceof DagNodeFilter || node instanceof DagNodeSQL ||
+                node instanceof DagNodeCustom) {
                 type  = DagNodeType.Map;
             } else {
                 type = node.getType();

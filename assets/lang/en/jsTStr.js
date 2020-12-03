@@ -110,6 +110,7 @@ TooltipTStr = {
     "SelectToViewSchema": "Select a table to view schema",
     "UDFErrorModalNoParent": "Parent operator does not exist",
     "UDFErrorModalNoTable": "Parent operator requires an active table",
+    "UDFErrorModaSubGraphNodeError": "Cannot generate table of errors directly from this operator node. Expand this node and try again on an inner node.",
     "NoUDFRename": "Custom scalar functions cannot be renamed",
     "SaveUDFToName": "To name this custom scalar function, select the save icon.",
     "Examine": "Examine",
