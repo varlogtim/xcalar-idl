@@ -1518,6 +1518,7 @@ table.datasetTable {
         border-top: 1px solid @color-border-medium2;
         // overflow: hidden;
         z-index: 1;
+        background-color: @color-bg-modal;
 
         .ui-resizable-n {
             top: 0px;
@@ -1590,14 +1591,15 @@ table.datasetTable {
         position: relative;
         margin-right: 0px;
         min-width: 0px;
+
+        &:hover .xi-copy-clipboard {
+            opacity: 0.8;
+        }
+
         label {
             .textOverflowOneLine;
             cursor: pointer;
             margin-right: 0px;
-        }
-
-        label:hover~.xi-copy-clipboard {
-            opacity: 0.8;
         }
 
         i {
