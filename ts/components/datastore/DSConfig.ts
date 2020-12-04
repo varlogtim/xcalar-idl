@@ -2034,6 +2034,7 @@ namespace DSConfig {
             });
             return PromiseHelper.when(...promises);
         } else {
+
             let sources = files.map(getSource);
             let previewIndex = loadArgs.getPreivewIndex();
             let extraUDFArgs = getAutoDetectUDFArgs(dsArgs, files[previewIndex]);
@@ -2045,6 +2046,7 @@ namespace DSConfig {
             let dsToReplace = files[0].dsToReplace || null;
             let promise;
             if (createTable) {
+                _translateSchema(dsArgs);
                 promise = PromiseHelper.convertToJQuery(TblSource.Instance.import(multiLoadArgs.name, multiLoadArgs));
             } else {
                 promise = DS.load(multiLoadArgs, {
@@ -6876,17 +6878,41 @@ namespace DSConfig {
         WorkbookManager.resetXDInternalSession();
     }
 
-    function _translateSchema(schema) {
-        // input [{name: "teacher_name", type: "string"}]
+    function _translateSchema(dsArgs) {
+        let schema = dsArgs.schema;
         // output {"rowpath":"$","columns":[{"name":"BASE_NUMBER","mapping":"$.\"base_number\"","type":"DfString"}]}
+        // mapping can look like "$.\"entities\".\"user_mentions\"[0].\"id_str\"",
         const newSchemaObj = {"rowpath":"$", "columns": []};
-        schema.forEach((col) => {
+        let sourceIndex = loadArgs.getPreivewIndex();
+        let prevTypedCols = loadArgs.getOriginalHeaders(sourceIndex);
+
+        schema.forEach((col, i) => {
+            let mapping;
+            if (dsArgs.format === formatMap.CSV && prevTypedCols[i]) {
+                mapping = prevTypedCols[i].colName;
+            } else {
+                mapping = col.name;
+            }
+            // translate "a.b[0].c" into '"a".
+            let colPathInfo = ColManager.parseColFuncArgs(mapping);
+            for (let i = 0; i < colPathInfo.nested.length; i++) {
+                if (colPathInfo.types[i - 1] === "array") {
+                    colPathInfo.nested[i] = "[" + colPathInfo.nested[i] + "]";
+                } else {
+                    colPathInfo.nested[i] = '"' + colPathInfo.nested[i] + '"';
+                }
+            }
+            mapping = colPathInfo.nested.join(".");
+
             newSchemaObj.columns.push({
-                name: col.name,
-                mapping: "$.",
+                name: dsArgs.newNames[i] || col.name,
+                mapping:  "$." + mapping,
                 type: DfFieldTypeTStr[xcHelper.convertColTypeToFieldType(col.type)]
             });
-        })
+        });
+        console.log(newSchemaObj);
+        // TO DO: uncomment and use this
+        // dsArgs.schema = newSchemaObj;
     }
 
     /* Unit Test Only */
