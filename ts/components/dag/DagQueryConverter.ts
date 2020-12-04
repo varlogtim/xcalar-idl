@@ -949,7 +949,7 @@ class DagQueryConverter {
                         type: DagNodeType.Dataset,
                         input: <DagNodeDatasetInputStruct>node.createTableInput
                     };
-                    if (node.subGraphNodes[0].subType) {
+                    if (node.subGraphNodes[0] && node.subGraphNodes[0].subType) {
                         dagNodeInfo.subType = node.subGraphNodes[0].subType;
                         dagNodeInfo.xcQueryString = node.subGraphNodes[0].xcQueryString;
                     }
@@ -1628,9 +1628,14 @@ class DagQueryConverter {
         node.realParents = [];
         const newParents = [];
         for (let i = 0; i < node.parents.length; i++) {
-            let parent = nodes.get(node.parents[i]);
+            let parentName = node.parents[i];
+            let parent = nodes.get(parentName);
+            if (!parent && parentName.startsWith(gDSPrefix + "Optimized")) {
+                parentName = parentName.slice(gDSPrefix.length);
+                parent = nodes.get(parentName);
+            }
             if (!parent && otherNodes) {
-                parent = otherNodes.get(node.parents[i]);
+                parent = otherNodes.get(parentName);
             }
             if (parent) {
                 parent.children.push(node);

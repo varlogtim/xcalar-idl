@@ -1,4 +1,4 @@
-enum DagNodeType {
+enum DagNodeType { 
     Aggregate = "singleValue",
     Custom = "custom",
     CustomInput = "customInput",
@@ -69,7 +69,7 @@ enum DagNodeErrorType {
     InvalidOptimizedOutNodeCombo = "Optimized plan cannot have both Export and Function Output operators",
     InvalidOptimizedLinkOutCount = "Optimized plan cannot have multiple Function Output operators",
     InvalidOptimizedLinkOutOptimizedCount = "Optimized plan cannot have multiple Function Output operators",
-    InvalidOptimizedDuplicateExport = "Optimized plan cannot have multiple export operators originating from the same operator",
+    InvalidOptimizedDuplicateExport = "Optimized plan cannot have multiple export operators originating from the same operator.",
     InvalidOptimizedPublishNode = "Optimized plan that publishing the final table cannot have Export or Function Output operators",
     InvalidOptimizedPublishCount = "Optimized plan cannot have multiple Publish Table operators",
     Disjoint = "Multiple disjoint plans detected. Optimized execution can only occur on 1 continuous plan.",

@@ -32,6 +32,7 @@ class DagGraph extends Durable {
         this._setupEvents();
     }
 
+
     public static readonly schema = {
         "definitions": {},
         "$schema": "http://json-schema.org/draft-07/schema#",
@@ -909,7 +910,7 @@ class DagGraph extends Durable {
         // want this to effect the actual graph
         const clonedGraph = this.clone();
         clonedGraph.setTabId(this.getTabId());
-        this._normalizeSelfLinkingInOptimzedQuery(clonedGraph, nodeIds);
+        this._normalizeSelfLinkingInOptimizedQuery(clonedGraph, nodeIds);
         let orderedNodes: DagNode[] = nodeIds.map((nodeId) => clonedGraph._getNodeFromId(nodeId));
         // save original sql nodes so we can cache query compilation
         let sqlNodes: Map<string, DagNodeSQL> = new Map();
@@ -928,10 +929,350 @@ class DagGraph extends Durable {
                 parentTxId: parentTxId
             })
         );
-        return executor.getBatchQuery();
+        const deferred: XDDeferred<{queryStr: string, destTables: string[]}> = PromiseHelper.deferred();
+        executor.getBatchQuery()
+        .then((res) => {
+            res = this._dedupeOptimizedQuery(res) as any;
+            if (res["error"]) {
+                deferred.reject(res);
+            }
+            deferred.resolve(res);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
-    private _normalizeSelfLinkingInOptimzedQuery(clondeGraph: DagGraph, nodeIds: DagNodeId[]): void {
+    // optimized nodes can have duplicate operators so we remove the duplicates
+    // and fix the tables that used those removed duplicates as its source
+    private _dedupeOptimizedQuery(queryInfo) {
+
+        let queryStr = queryInfo.queryStr;
+        let destTables = queryInfo.destTables;
+        const seen = new Map();
+        const childMap = new Map(); // source -> dest
+        const nodesMap = new Map();
+
+        try {
+            let query = JSON.parse(queryStr);
+
+            for (let i = 0; i < query.length; i++) {
+                const operator = query[i];
+                operator.source = operator.args.source;
+                operator.dest = operator.args.dest;
+                if (XcalarApisTFromStr[operator.operation] === XcalarApisT.XcalarApiAggregate) {
+                    operator.dest = gAggVarPrefix + operator.dest;
+                }
+                operator.children = [];
+                operator.parents = [];
+                operator.aggs = [];
+                delete operator.args.source;
+                delete operator.args.dest;
+                if (operator.source && operator.source.length) {
+                    let sources = [];
+                    if (typeof operator.source === "string") {
+                        sources = [operator.source];
+                    } else {
+                        sources = [...operator.source]
+                    }
+
+                    let api = XcalarApisTFromStr[operator.operation];
+                    let args = operator.args;
+                    switch (api) {
+                        case (XcalarApisT.XcalarApiAggregate):
+                        case (XcalarApisT.XcalarApiFilter):
+                        case (XcalarApisT.XcalarApiMap):
+                        case (XcalarApisT.XcalarApiGroupBy):
+                            operator.aggs = getAggsFromEvalStrs(args.eval);
+                            break;
+                        case (XcalarApisT.XcalarApiJoin):
+                            operator.aggs = getAggsFromEvalStrs([args]);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    operator.parents = sources;
+                    sources.forEach((source) => {
+                        if (!childMap.has(source)) {
+                          childMap.set(source, new Set());
+                        }
+                        childMap.get(source).add(operator.dest);
+                    });
+                    nodesMap.set(operator.dest, query[i]);
+                }
+            }
+
+            childMap.forEach((children, nodeId) => {
+                if (nodeId.startsWith(gDSPrefix + "Optimized")) {
+                    nodeId = nodeId.slice(gDSPrefix.length)
+                }
+                let parentNode = nodesMap.get(nodeId);
+                if (parentNode) {
+                    parentNode.children = [...children];
+                }
+            });
+            nodesMap.forEach((node) => {
+                let parents = [];
+                node.parents.forEach((nodeId) => {
+                    let name = nodeId;
+                    if (name.startsWith(gDSPrefix + "Optimized")) {
+                        name = nodeId.slice(gDSPrefix.length)
+                    }
+                    let parentNode = nodesMap.get(name);
+                    if (parentNode) {
+                        parents.push(nodeId);
+                    }
+                });
+                node.parents = parents;
+            });
+
+            let dedupedDests = new Set();
+
+            for (let i = query.length - 1; i >= 0; i--) {
+                const operator = query[i];
+                let sourceNodeId;
+                let sourceTabId;
+                if (!operator.comment) continue;
+                try {
+                    let lineage = JSON.parse(operator.comment).graph_node_locator;
+                    if (lineage.length && lineage[lineage.length - 1].nodeId) {
+                        sourceNodeId = lineage[lineage.length - 1].nodeId;
+                        sourceTabId = lineage[lineage.length - 1].tabId;
+                        let seenNode = seen.get(operator.operation + JSON.stringify(operator.args) + sourceNodeId + "#" + sourceTabId)
+
+                        if (seenNode) {
+
+                            let dupeNode = operator;
+                            let info = {diffFound: false, allDupes: []};
+                            compareParents(dupeNode, seenNode, info);
+                            if (!info.diffFound) {
+                                info.allDupes.forEach((dupeSet) => {
+                                    let dupe = dupeSet.dupe;
+                                    let orig = dupeSet.orig
+                                    let dupeDest = dupe.dest;
+                                    let children = childMap.get(dupeDest);
+                                    if (children) {
+                                        adjustChildren(children, orig, dupeDest);
+                                    }
+
+                                    dedupedDests.add(dupe.dest);
+                                    let index = query.indexOf(dupe);
+                                    if (index > -1) {
+                                        query.splice(index, 1);
+                                        if (index < i) {
+                                            i--;
+                                        }
+                                    }
+                                });
+                            }
+                        } else {
+                            seen.set(operator.operation + JSON.stringify(operator.args) + sourceNodeId + "#" + sourceTabId, operator);
+                        }
+                    }
+                } catch(e) {
+                   console.error(e);
+                }
+            }
+            for (let i = query.length - 1; i >= 0; i--) {
+                if (query.operation === XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects] && dedupedDests.has(query.args.namePattern)) {
+                    query.splice(i, 1);
+                }
+            }
+
+            remakeChildmap(query);
+            query = sort(query);
+
+            query.forEach((operator) => {
+                operator.args.source = operator.source;
+
+                operator.args.dest = operator.dest;
+                if (XcalarApisTFromStr[operator.operation] === XcalarApisT.XcalarApiAggregate) {
+                    operator.args.dest = operator.args.dest.slice(gAggVarPrefix.length);
+                }
+                delete operator.source;
+                delete operator.dest;
+                delete operator.parents;
+                delete operator.children;
+                delete operator.aggs;
+            });
+
+            queryStr = JSON.stringify(query);
+            let exportNodesSources = new Set();
+            for (let i = 0; i < query.length; i++) {
+                const node = query[i];
+                if (node.operation ===  XcalarApisTStr[XcalarApisT.XcalarApiExport]) {
+                    if (exportNodesSources.has(node.args.source)) {
+                        return {error : DagNodeErrorType.InvalidOptimizedDuplicateExport};
+                    } else {
+                        exportNodesSources.add(node.args.source);
+                    }
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
+
+        function remakeChildmap(query) {
+            for (let i = 0; i < query.length; i++) {
+                const operator = query[i];
+                operator.children = [];
+                if (operator.source && operator.source.length) {
+                    let sources = [];
+                    if (typeof operator.source === "string") {
+                        sources = [operator.source];
+                    } else {
+                        sources = [...operator.source]
+                    }
+
+                    let api = XcalarApisTFromStr[operator.operation];
+                    let args = operator.args;
+                    switch (api) {
+                        case (XcalarApisT.XcalarApiAggregate):
+                        case (XcalarApisT.XcalarApiFilter):
+                        case (XcalarApisT.XcalarApiMap):
+                        case (XcalarApisT.XcalarApiGroupBy):
+                            operator.aggs = getAggsFromEvalStrs(args.eval);
+                            break;
+                        case (XcalarApisT.XcalarApiJoin):
+                            operator.aggs = getAggsFromEvalStrs([args]);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    sources.forEach((source) => {
+                        if (!childMap.has(source)) {
+                          childMap.set(source, new Set());
+                        }
+                        childMap.get(source).add(operator.dest);
+                    });
+                    operator.aggs.forEach((agg) => {
+                        if (!childMap.has(agg)) {
+                            childMap.set(agg, new Set())
+                        }
+                        childMap.get(agg).add(operator.dest);
+                    });
+                }
+            }
+
+            childMap.forEach((children, nodeId) => {
+                if (nodeId.startsWith(gDSPrefix + "Optimized")) {
+                    nodeId = nodeId.slice(gDSPrefix.length)
+                }
+                let parentNode = nodesMap.get(nodeId);
+                if (parentNode) {
+                    parentNode.children = [...children];
+                }
+            });
+        }
+
+        function sort(query) {
+            let numParentsMap = new Map();
+            let orderedNodes = [];
+            let zeroInputNodes = [];
+            query.forEach((q) => {
+                numParentsMap.set(q.dest, q.parents.length);
+                if (q.parents.length === 0) {
+                    zeroInputNodes.push(q);
+                }
+            });
+            while (zeroInputNodes.length > 0) {
+                const node = zeroInputNodes.shift();
+                numParentsMap.delete(node.dest);
+                orderedNodes.push(node);
+                node.children.forEach((childName) => {
+                    if (numParentsMap.has(childName)) {
+                        const numParents = numParentsMap.get(childName) - 1;
+                        numParentsMap.set(childName, numParents);
+                        if (numParents === 0) {
+                            zeroInputNodes.push(nodesMap.get(childName));
+                        }
+                    }
+                });
+            }
+            return orderedNodes;
+        }
+
+
+        function getAggsFromEvalStrs(evalStrs) {
+            let aggs = [];
+            for (let i = 0; i < evalStrs.length; i++) {
+                aggs = XDParser.XEvalParser.getAggNames(evalStrs[i].evalString, false);
+            }
+            aggs.forEach((agg, i) => {
+                aggs[i] = gAggVarPrefix + agg;
+            });
+            return [...(new Set(aggs))];
+        }
+
+        function compareParents(dupeNode, origNode, info) {
+            if (info.diffFound) return;
+            if (dupeNode && origNode) {
+                info.allDupes.push({dupe: dupeNode, orig: origNode});
+            } else {
+                return;
+            }
+            if (!dupeNode.comment || !origNode.comment) {
+                info.diffFound = true;
+                return;
+            }
+            let dupeLineage = JSON.parse(dupeNode.comment).graph_node_locator;
+
+            if (dupeLineage.length && dupeLineage[dupeLineage.length - 1].nodeId) {
+                let dupeNodeId = dupeLineage[dupeLineage.length - 1].nodeId;
+                let dupeTabId = dupeLineage[dupeLineage.length - 1].tabId;
+                let origLineage = JSON.parse(origNode.comment).graph_node_locator;
+                if (origLineage.length && origLineage[origLineage.length - 1].nodeId) {
+                    let origNodeId = origLineage[origLineage.length - 1].nodeId;
+                    let origTabId = origLineage[origLineage.length - 1].tabId;
+                    if (origNode.operation === dupeNode.operation &&
+                        origNodeId === dupeNodeId &&
+                        origTabId === dupeTabId &&
+                        JSON.stringify(origNode.args) === JSON.stringify(dupeNode.args)) {
+                            origNode.parents.forEach((parentId, i) => {
+                                let origNodeParent = nodesMap.get(parentId);
+                                let dupeNodeParent = nodesMap.get(dupeNode.parents[i]);
+                                compareParents(dupeNodeParent, origNodeParent, info)
+                            });
+                            return;
+                    }
+                }
+            }
+            info.diffFound = true;
+        }
+
+        function adjustChildren(children, seenNode, dupeDest) {
+            children.forEach((childId) => {
+                let childNode = nodesMap.get(childId);
+                if (typeof childNode.source === "string") {
+                    if (childNode.operation ===  XcalarApisTStr[XcalarApisT.XcalarApiExport]) {
+                        destTables.forEach((destTable, i) => {
+                            if (destTable === childNode.source) {
+                                destTables[i] = seenNode.dest;
+                            }
+                        });
+                        childNode.dest = DagNodeExecutor.XcalarApiLrqExportPrefix + seenNode.dest;
+                    }
+                    childNode.source = seenNode.dest;
+                } else {
+                    // swap out dependent's source for the seen node's dest
+                    childNode.source.forEach((source, i) => {
+                        if (source === dupeDest) {
+                            childNode.source[i] = seenNode.dest;
+                        }
+                    });
+                }
+            });
+        }
+
+        return {
+            queryStr: queryStr,
+            destTables: destTables
+        }
+    }
+
+    private _normalizeSelfLinkingInOptimizedQuery(clonedGraph: DagGraph, nodeIds: DagNodeId[]): void {
         let dataflowId = this.getTabId();
         nodeIds.forEach((nodeId) => {
             try {
@@ -942,7 +1283,7 @@ class DagGraph extends Durable {
                         // if the link in link to link out in current datflow,
                         // need to reuse the link out in the non-cloned graph
                         // to reuse the result
-                        let clonedNode = clondeGraph.getNode(nodeId);
+                        let clonedNode = clonedGraph.getNode(nodeId);
                         clonedNode.setParam({
                             dataflowId: dataflowId,
                             linkOutName: param.linkOutName,

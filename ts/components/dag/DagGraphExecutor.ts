@@ -84,9 +84,6 @@ class DagGraphExecutor {
         let validateResult = this.checkCanExecuteAll();
 
         if (!validateResult.hasError && this._isOptimized) {
-            validateResult = this._checkDisjoint();
-        }
-        if (!validateResult.hasError && this._isOptimized) {
             validateResult = this._checkValidOptimizedDataflow();
         }
 
@@ -306,6 +303,7 @@ class DagGraphExecutor {
         return errorResult;
     }
 
+    // XXX NO LONGER BLOCKING USERS FROM EXECUTING DISJOINT GRAPHS FOR OPTIMIZED DATAFLOWS
     // first traverses all the ancestors of the endNode and puts them into a tree
     // then traverses all the nodes left out and puts them into a new tree
     // while doing the traversing, if we encounter a node that already belongs to
