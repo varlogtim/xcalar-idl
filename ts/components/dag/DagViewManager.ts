@@ -70,6 +70,7 @@ class DagViewManager {
      */
     public show(): void {
         const self = this;
+        this.hide(); // reset the panel
         DagCategoryBar.Instance.showOrHideArrows();
         TblFunc.moveFirstColumn();
 

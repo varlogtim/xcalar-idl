@@ -35,6 +35,7 @@ class SQLWorkSpace {
      * SQLWorkSpace.Instance.focus
      */
     public focus(): void {
+        this.unfocus(); // reset the panel
         // XXX the refresh is quite slow and seems not needed
         // so commented out. Uncomment it if it's actually necessary
         // this.refresh();
@@ -69,7 +70,6 @@ class SQLWorkSpace {
     }
 
     public unfocus(): void {
-        $(window).off(".sqlPanelResize");
         $("#container").off(".sqlPanelMouseDown");
     }
 

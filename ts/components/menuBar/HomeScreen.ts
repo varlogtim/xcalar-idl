@@ -44,9 +44,9 @@ class HomeScreen {
         const params: {panel?: string} = xcHelper.decodeFromUrl(window.location.href);
         if (params.panel) {
             const panel: string = UrlToTab[params.panel];
-            this._switchScreen(panel, false);
+            this._switchScreen(panel, false, true);
         } else {
-            this._switchScreen(UrlToTab.home, false);
+            this._switchScreen(UrlToTab.home, false, true);
         }
     }
 
@@ -54,16 +54,20 @@ class HomeScreen {
         return $("#homeScreen");
     }
 
-    private static _switchScreen(id: string, addHistory: boolean = true): void {
+    private static _switchScreen(id: string, addHistory: boolean = true, onSetup?: boolean): void {
         const $homeScreen = this._getHomeScreen();
         const $notebookScreen = $("#sqlWorkSpacePanel");
         switch (id) {
             case UrlToTab.home:
+                SQLWorkSpace.Instance.unfocus();
+                DagViewManager.Instance.hide();
                 LoadScreen.hide();
                 $notebookScreen.hide();
                 $homeScreen.show();
                 break;
             case UrlToTab.load:
+                SQLWorkSpace.Instance.unfocus();
+                DagViewManager.Instance.hide();
                 $homeScreen.hide();
                 $notebookScreen.hide();
                 LoadScreen.show();
@@ -72,6 +76,10 @@ class HomeScreen {
                 $homeScreen.hide();
                 LoadScreen.hide();
                 $notebookScreen.show();
+                if (!onSetup) {
+                    SQLWorkSpace.Instance.focus();
+                    DagViewManager.Instance.show();
+                }
                 break;
             default:
                 console.error("error case");

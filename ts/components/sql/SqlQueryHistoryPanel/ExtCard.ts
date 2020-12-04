@@ -42,6 +42,9 @@ namespace SqlQueryHistoryPanel {
             refresh: boolean
         ): XDPromise<any> {
             // Disable header buttons when loading
+            if (!this.getCardContainer()) {
+                return; // not set up yet
+            }
             this.getCardContainer().addClass('loading');
             // Show loading animation
             // The animation element will be replaced/deleted by table content,
