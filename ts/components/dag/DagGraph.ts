@@ -1826,16 +1826,24 @@ class DagGraph extends Durable {
 
         try {
             const allParameters = DagParamManager.Instance.getParamMap();
+            const allParametersUpper = {};
+            for (const param in allParameters) {
+                allParametersUpper[param.toUpperCase()] = param;
+            }
             let orderedNodes = this._topologicalSort(nodesMap, startingNodes);
             const noValues = [];
             const seen = new Set();
             orderedNodes.forEach((node) => {
-                const parameters = node.getParameters();
-                for (const parameter of parameters) {
+                const nodeParameters = node.getParameters();
+                for (const parameter of nodeParameters) {
                     if (seen.has(parameter)) {
                         continue;
                     }
-                    if (!allParameters[parameter]) {
+                    if (node instanceof DagNodeSQL) {
+                        if (!allParametersUpper[parameter.toUpperCase()]) {
+                            noValues.push(parameter);
+                        }
+                    } else if (!allParameters[parameter]) {
                         noValues.push(parameter);
                     }
                     seen.add(parameter);

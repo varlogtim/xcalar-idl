@@ -614,8 +614,11 @@ namespace DSTargetManager {
                 selectTargetType(typeId);
                 StatusBox.forceHide();
             },
-            "container": "#dsTarget-create-card",
-            "bounds": "#dsTarget-create-card"
+            "bounds": "body",
+            "bottomPadding": 10,
+            "fixedPosition": {
+                $selector: $targetTypeList.find(".text")
+            }
         }).setupListeners();
 
         $("#dsTarget-submit").click(function(event) {
@@ -1059,8 +1062,12 @@ namespace DSTargetManager {
                 $input.data("id", typeId).val($li.text());
                 StatusBox.forceHide();
             },
-            "container": "#dsTarget-create-card",
-            "bounds": "#dsTarget-create-card"
+            "container": "body",
+            "bounds": "body",
+            "bottomPadding": 10,
+            "fixedPosition": {
+                $selector: $menuparms.find(".text")
+            }
         }).setupListeners();
 
         let moduleMenuHelper = new MenuHelper($udfModuleList, {
@@ -1068,8 +1075,12 @@ namespace DSTargetManager {
                     let moduleName = $li.data("module");
                     selectUDFModule(moduleName);
                 },
-                "container": "#dsTarget-create-card",
-                "bounds": "#dsTarget-create-card"
+                "container": "body",
+                "bounds": "body",
+                "bottomPadding": 10,
+                "fixedPosition": {
+                    $selector: $udfModuleList.find(".text")
+                }
             });
 
         let funcMenuHelper = new MenuHelper($udfFuncList, {
@@ -1077,8 +1088,12 @@ namespace DSTargetManager {
                 let func = $li.text();
                 selectUDFFunc(func);
             },
-            "container": "#dsTarget-create-card",
-            "bounds": "#dsTarget-create-card"
+            "container": "body",
+            "bounds": "body",
+            "bottomPadding": 10,
+            "fixedPosition": {
+                $selector: $udfFuncList.find(".text")
+            }
         });
 
         udfModuleHint = new InputDropdownHint($udfModuleList, {
