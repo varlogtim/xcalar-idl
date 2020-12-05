@@ -39,7 +39,7 @@ class SQLDagExecutor {
     private _commandType: string;
     private _SFTableList: string[];
     private _SFTableAliasList: string[];
-    private _predicateTargetName: string;
+    private _predicateTargets: any;
 
 
     public constructor(
@@ -68,7 +68,7 @@ class SQLDagExecutor {
         this._commandType = sqlStruct.command.type;
         this._SFTableList = [];
         this._SFTableAliasList = [];
-        this._predicateTargetName = sqlStruct.predicateTargetName;
+        this._predicateTargets = sqlStruct.predicateTargets;
 
         const tables: string[] = sqlStruct.identifiers || [];
         const identifierMap = sqlStruct.identifierMap;
@@ -107,7 +107,8 @@ class SQLDagExecutor {
                         this._sessionTables.set(identifier.toUpperCase(), tableName);
                     } else if (this._options.schemas && this._options.schemas[identifier.toUpperCase()]) {
                         this._schema[identifier.toUpperCase()] = this._options.schemas[identifier.toUpperCase()];
-                    } else if (identifierMap[tableName].target) {
+                    } else if (identifierMap[tableName].target &&
+                        identifierMap[tableName].target !== "Xcalar") {
                         // XXX This is a workaround when we only support 1 Snowflake connector
                         this._SFTableList.push(identifierMap[tableName].sourceList[1]);
                         this._SFTableAliasList.push(tableName);
@@ -120,7 +121,10 @@ class SQLDagExecutor {
                     this._identifiers[idx + 1] = pubTableName;
                 }
             } else {
-                this._SFTableList.push(pubTableName);
+                // XXX This is a workaround when we only support 1 Snowflake connector
+                this._SFTableList.push(
+                    identifierMap[pubTableName].sourceList.length === 0 ?
+                    pubTableName : identifierMap[pubTableName].sourceList[1]);
                 this._SFTableAliasList.push(pubTableName);
             }
         });
@@ -443,7 +447,7 @@ class SQLDagExecutor {
             SFTables: this._SFTableList,
             SFTableAlias: this._SFTableAliasList,
             commandType: this._commandType,
-            predicateTargetName: this._predicateTargetName
+            predicateTargets: this._predicateTargets
         }
         return this._sqlNode.compileSQL(this._newSql, queryId, options);
     }

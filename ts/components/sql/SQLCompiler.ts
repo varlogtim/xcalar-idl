@@ -27,8 +27,14 @@ class SQLCompiler {
         const deferred = PromiseHelper.deferred();
         try {
             // Catch any exception including assertion failures
+            // XXX Workaround when we only support one target
+            let targetName: string;
+            for (let alias in sqlQueryObj.predicateTargets) {
+                targetName = sqlQueryObj.predicateTargets[alias].name;
+                break;
+            }
             let tree = SQLCompiler.genTree(undefined, sqlQueryObj.logicalPlan,
-                                           sqlQueryObj.tablePrefix, sqlQueryObj.predicateTargetName);
+                                           sqlQueryObj.tablePrefix, targetName);
             if (tree.value.class ===
                 "org.apache.spark.sql.execution.LogicalRDD") {
                 // If the logicalRDD is root, we should add an extra Project

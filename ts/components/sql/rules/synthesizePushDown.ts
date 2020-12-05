@@ -305,8 +305,8 @@ class SynthesizePushDown {
             }
             case "XcalarApiJoin":
             case "XcalarApiUnion":
-                return false;
             case "XcalarApiBulkLoad":
+                return false;
             case "XcalarApiExecuteRetina":
             case "XcalarApiExport":
             case "XcalarApiDeleteObjects":

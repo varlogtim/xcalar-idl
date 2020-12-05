@@ -1171,7 +1171,8 @@ class DagNodeSQL extends DagNodeIn {
         sourceMapping?: any[],
         sessionTablesSchema?: {},
         SFTables?: string[],
-        SFTableAlias?: string[]
+        SFTableAlias?: string[],
+        predicateTargets?: any
     ): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
         const self = this;
@@ -1254,34 +1255,34 @@ class DagNodeSQL extends DagNodeIn {
             return SQLUtil.sendToPlanner(self.getId() + compileId, "dropAll");
         })
         .then(function() {
-            return XcalarTargetList()
-        })
-        .then(function (res) {
-            let snowflakeInfo = {};
-            for( var r in res){
-                if (res[r]["type_id"] == "snowflake"){
-                        snowflakeInfo = res[r]["params"]
-                        let snowflakeInfoTables: any = {
-                            sfURL: snowflakeInfo["host"]+".snowflakecomputing.com",
-                            sfUser: snowflakeInfo["username"],
-                            sfPassword: snowflakeInfo["psw_arguments"],
-                            sfDatabase: snowflakeInfo["dbname"],
-                            sfSchema: snowflakeInfo["schema"]
-                        };
-                        if(snowflakeInfo.role){
-                            snowflakeInfoTables.role = snowflakeInfo.role;
-                        }
-                        if(snowflakeInfo.warehouse){
-                            snowflakeInfoTables.warehouse = snowflakeInfo.warehouse;
-                        }
-                        snowflakeInfoTables.tables = {};
-                        if (SFTables && SFTables.length != 0 ){
-                            for (let i in SFTables) {
-                                snowflakeInfoTables.tables[SFTables[i]] = SFTableAlias[i];
-                            }
-                        }
-                        return SQLUtil.sendToPlanner(self.getId() + compileId, "createSFTables", snowflakeInfoTables);
-                 }
+            let snowflakeInfo: any = {};
+            let targetInfo: any;
+            for (let alias in predicateTargets) {
+                targetInfo = predicateTargets[alias];
+            }
+            if (targetInfo) {
+                snowflakeInfo = targetInfo["params"];
+                let snowflakeInfoTables: any = {
+                    sfURL: snowflakeInfo["host"]+".snowflakecomputing.com",
+                    sfUser: snowflakeInfo["username"],
+                    sfPassword: snowflakeInfo["psw_arguments"],
+                    sfDatabase: snowflakeInfo["dbname"],
+                    sfSchema: snowflakeInfo["schema"]
+                };
+                if(snowflakeInfo.role){
+                    snowflakeInfoTables.role = snowflakeInfo.role;
+                }
+                if(snowflakeInfo.warehouse){
+                    snowflakeInfoTables.warehouse = snowflakeInfo.warehouse;
+                }
+                snowflakeInfoTables.tables = {};
+                if (SFTables && SFTables.length != 0 ){
+                    for (let i in SFTables) {
+                        snowflakeInfoTables.tables[SFTables[i]] = SFTableAlias[i];
+                    }
+                }
+                return SQLUtil.sendToPlanner(self.getId() + compileId,
+                                        "createSFTables", snowflakeInfoTables);
             }
         })
         .then(function() {
@@ -1462,7 +1463,7 @@ class DagNodeSQL extends DagNodeIn {
             SFTables?: string[],
             SFTableAlias?: string[],
             commandType?: string,
-            predicateTargetName?: string
+            predicateTargets?: any
         } = {},
         replaceParam: boolean = true
     ): XDPromise<any> {
@@ -1553,7 +1554,7 @@ class DagNodeSQL extends DagNodeIn {
                 ]))
                 const sqlQueryObj = new SQLQuery(queryId, sqlQueryStr,
                                                  logicalPlan, optimizations);
-                sqlQueryObj.predicateTargetName = options.predicateTargetName;
+                sqlQueryObj.predicateTargets = options.predicateTargets;
                 globPromise = SQLCompiler.compile(sqlQueryObj);
             } else if (options.commandType == "describeTable") {
                 let logicalPlan = JSON.parse(JSON.stringify([
@@ -1585,7 +1586,7 @@ class DagNodeSQL extends DagNodeIn {
                 ]))
                 const sqlQueryObj = new SQLQuery(queryId, sqlQueryStr,
                                                  logicalPlan, optimizations);
-                sqlQueryObj.predicateTargetName = options.predicateTargetName;
+                sqlQueryObj.predicateTargets = options.predicateTargets;
                 globPromise = SQLCompiler.compile(sqlQueryObj);
             } else {
                 let promise;
@@ -1638,7 +1639,8 @@ class DagNodeSQL extends DagNodeIn {
                     return this.sendSchema(identifiers, pubTablesInfo, sqlFunctions,
                                         usedTables, compileId, sessionTables,
                                         sourceMapping, sessionTablesSchema,
-                                        options.SFTables, options.SFTableAlias);
+                                        options.SFTables, options.SFTableAlias,
+                                        options.predicateTargets);
                 })
                 .then((ret) => {
                     schemaQueryString = ret.queryString;
@@ -1657,7 +1659,7 @@ class DagNodeSQL extends DagNodeIn {
                     }
                     const sqlQueryObj = new SQLQuery(queryId, sqlQueryStr,
                                                     logicalPlan, optimizations);
-                    sqlQueryObj.predicateTargetName = options.predicateTargetName;
+                    sqlQueryObj.predicateTargets = options.predicateTargets;
                     return SQLCompiler.compile(sqlQueryObj);
                 })
             }

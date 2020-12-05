@@ -38,7 +38,7 @@ interface SQLParserStruct {
     parameters?: string[],
     SFTables?: string[],
     connector?: string,
-    predicateTargetName?: string,
+    predicateTargets?: any,
     identifierMap?: {[key: string]: SQLParserIdentifierStruct}
 }
 

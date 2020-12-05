@@ -7,6 +7,7 @@ class SQLEditorSpace {
     private _currentSnippetId: string;
     private _popup: PopupPanel;
     private _connector: string = "native";
+    private _connectorTypesSupported: string[] = ["snowflake"];
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -456,6 +457,7 @@ class SQLEditorSpace {
             let compilePromiseArray: XDPromise<any>[] = [];
             let executePromiseArray: XDPromise<any>[] = [];
             let schemaPromiseArray: XDPromise<any>[] = [];
+            let self: SQLEditorSpace = this;
             const struct = {
                 sqlQuery: sqls,
                 ops: ["identifier", "sqlfunc", "parameters"],
@@ -485,61 +487,55 @@ class SQLEditorSpace {
                 return this._validateParameters(sqlStructArray);
             })
             .then(function(){
-                return XcalarTargetList()
+                return XcalarTargetList();
             })
             .then(function (res) {
                 let snowflakeParams: any = {};
-                let targetNames = [];
-                let sfTargetNamesAliasMap = {};
-                for( var r in res){
+                let targetAliases = [];
+                let targetAliasMap = {};
+                sqlStructArray[0].predicateTargets = {};
+                for (var r in res) {
                     if (res[r]["type_id"] == "snowflake"){
                         snowflakeParams = res[r]["params"];
-                        targetNames.push(snowflakeParams.alias);
-                        sfTargetNamesAliasMap[snowflakeParams.alias] = res[r]["name"];
-                        // We only support one target currently
-                        sqlStructArray[0].predicateTargetName = res[r]["name"]
+                        targetAliases.push(snowflakeParams.alias);
+                        targetAliasMap[snowflakeParams.alias] = res[r];
                     }
                 }
                 for (let tbl in sqlStructArray[0].identifierMap) {
                     let sourceList =
                         sqlStructArray[0].identifierMap[tbl].sourceList;
                     if (sourceList.length === 0) {
-                        sqlStructArray[0].identifierMap[tbl].target = undefined;
-                    } else if (targetNames.indexOf(sourceList[0]) !== -1) {
+                        if (self._connector === "native") {
+                            sqlStructArray[0].identifierMap[tbl].target = "Xcalar";
+                        } else {
+                            // We only support one target currently
+                            for (let alias in sqlStructArray[0].predicateTargets) {
+                                if (alias !== self._connector) {
+                                    return PromiseHelper.reject(
+                                            "Multiple target not supported!");
+                                }
+                            }
+                            // Here _connector should be in target alias list
+                            sqlStructArray[0].predicateTargets[self._connector]
+                                                = targetAliasMap[self._connector];
+                        }
+                    } else if (targetAliases.indexOf(sourceList[0]) !== -1) {
                         sqlStructArray[0].identifierMap[tbl].target = sourceList[0];
                         // We only support one target currently
-                        let targetName = sfTargetNamesAliasMap[sourceList[0]]
-                        sqlStructArray[0].predicateTargetName = targetName
+                        for (let alias in sqlStructArray[0].predicateTargets) {
+                            if (alias !== sourceList[0]) {
+                                return PromiseHelper.reject(
+                                        "Multiple target not supported!");
+                            }
+                        }
+                        sqlStructArray[0].predicateTargets[sourceList[0]]
+                                                = targetAliasMap[sourceList[0]];
                     } else {
                         return PromiseHelper.reject("Cannot find source " +
                             sourceList[0] + " for table " +
                             sqlStructArray[0].identifierMap[tbl].rawName);
                     }
                 }
-                if (targetNames.length === 0) {
-                    return '{"names": []}';
-                } else {
-                    let snowflakeInfo = {
-                        sfURL: snowflakeParams["host"]+".snowflakecomputing.com",
-                        sfUser: snowflakeParams["username"],
-                        sfPassword: snowflakeParams["psw_arguments"],
-                        sfDatabase: snowflakeParams["dbname"],
-                        sfSchema: snowflakeParams["schema"]
-                    };
-                    if(snowflakeParams.role){
-                        snowflakeInfo.role = snowflakeParams.role;
-                    }
-                    if(snowflakeParams.warehouse){
-                        snowflakeInfo.warehouse = snowflakeParams.warehouse;
-                    }
-                    return SQLUtil.sendToPlanner("", "listSFTables", snowflakeInfo);
-                }
-            })
-            .then((tables) => {
-                let SFTables = JSON.parse(tables).names;
-                sqlStructArray[0].SFTables = SFTables;
-            })
-            .then(() => {
                 if (!struct.isMulti && sqlStructArray.length === 1 &&
                     Object.keys(sqlStructArray[0].functions).length === 0 &&
                     sqlStructArray[0].command.type !== "createTable") {
@@ -548,7 +544,7 @@ class SQLEditorSpace {
                     sqlStructArray[0].sql = sqlStructArray[0].newSql = sqls;
                 }
                 for (let sqlStruct of sqlStructArray) {
-                    if (this._connector === "native") {
+                    if (self._connector === "native") {
                         if (sqlStruct.command.type === "dropTable") {
                             const tableName = sqlStruct.command.args[0];
                             executePromiseArray.push(this._dropTable.bind(this, tableName, sqlStruct.sql));
@@ -580,7 +576,7 @@ class SQLEditorSpace {
                         selectArray.push(sqlStruct);
                     }
                 }
-                if (this._connector == "native") {
+                if (self._connector == "native") {
                     // Basic show tables and describe table
                     // If there are multiple queries they are ignored
                     if (sqlStructArray.length === 1 && lastShow.type === "showTables") {
@@ -605,7 +601,7 @@ class SQLEditorSpace {
                     const sqlStruct: SQLParserStruct = selectArray[i];
                     let executor: SQLDagExecutor;
                     try {
-                        sqlStruct.connector = this._connector;
+                        sqlStruct.connector = self._connector;
                         executor = new SQLDagExecutor(sqlStruct, {
                             sqlStatementName: snippetName + ".sql",
                             snippetId: snippetId
@@ -1166,10 +1162,11 @@ class SQLEditorSpace {
         const targets = DSTargetManager.getAllTargets()
         for (let key in targets) {
             const target = targets[key];
-            if (target.type_id === "snowflake") {
-                html += '<li data-action="' + target.name + '">' + target.name + '</li>';
+            if (this._connectorTypesSupported.indexOf(target.type_id) !== -1) {
+                html += '<li data-action="' + target.params.alias
+                        + '">' + target.params.alias + '</li>';
             }
-        });
+        };
         $dropdown.find(".hint").after(html);
     }
 

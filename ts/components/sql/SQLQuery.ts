@@ -8,7 +8,7 @@ class SQLQuery {
     public runTxId?: number;
     public allColumns?: SQLColumn[];
     public orderColumns?: SQLColumn[];
-    public predicateTargetName?: string;
+    public predicateTargets?: any;
     // For sql history
     public status?: SQLStatus;
     public startTime?: Date;
