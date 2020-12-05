@@ -789,6 +789,7 @@ module.exports = {
     "dsFormat": {
         "CSV": "Separated Values(CSV, TSV...)",
         "JSON": "JSON",
+        "JSONL": "JSONL",
         "EXCEL": "Excel",
         "TEXT": "Text",
         "XML": "XML",

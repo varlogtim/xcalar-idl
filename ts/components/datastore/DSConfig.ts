@@ -77,6 +77,7 @@ namespace DSConfig {
 
     const formatMap = {
         "JSON": "JSON",
+        "JSONL": "JSONL",
         "CSV": "CSV",
         "TEXT": "TEXT",
         "EXCEL": "Excel",
@@ -701,7 +702,7 @@ namespace DSConfig {
     }
 
     function setupDataMartConfig(): void {
-        const whiteList: string[] = [formatMap.CSV, formatMap.JSON, formatMap.PARQUET, formatMap.EXCEL.toUpperCase(), formatMap.UDF];
+        const whiteList: string[] = [formatMap.CSV, formatMap.JSON, formatMap.JSONL, formatMap.PARQUET, formatMap.EXCEL.toUpperCase(), formatMap.UDF];
         $("#fileFormatMenu li").each((_index, el) => {
             const $li = $(el);
             const name: string = $li.attr("name");
@@ -1559,7 +1560,7 @@ namespace DSConfig {
             componentConfluentFormat.restore(options.udfQuery);
             delete options.moduleName;
             delete options.funcName;
-        } else if (format === formatMap.JSON) {
+        } else if (format === formatMap.JSON || format === formatMap.JSONL) {
             const useUDF = componentJsonFormat.restore(
                 {udfQuery: options.udfQuery});
             if (!useUDF) {
@@ -2046,8 +2047,8 @@ namespace DSConfig {
             let dsToReplace = files[0].dsToReplace || null;
             let promise;
             if (createTable) {
-                _translateSchema(dsArgs);
-                promise = PromiseHelper.convertToJQuery(TblSource.Instance.import(multiLoadArgs.name, multiLoadArgs));
+                const newLoadSchema = _translateSchema(dsArgs);
+                promise = PromiseHelper.convertToJQuery(TblSource.Instance.import(multiLoadArgs.name, multiLoadArgs, newLoadSchema));
             } else {
                 promise = DS.load(multiLoadArgs, {
                     "dsToReplace": dsToReplace
@@ -2588,7 +2589,7 @@ namespace DSConfig {
                 udfFunc = udfDef.udfFunc;
                 udfQuery = udfDef.udfQuery;
             }
-        } else if (format === formatMap.JSON) {
+        } else if (format === formatMap.JSON || format === formatMap.JSONL) {
             let validRes = componentJsonFormat.validateValues();
             if (validRes == null) {
                 return null;
@@ -2736,7 +2737,7 @@ namespace DSConfig {
             udfModule = udfDef.udfModule;
             udfFunc = udfDef.udfFunc;
             udfQuery = udfDef.udfQuery;
-        } else if (format === formatMap.JSON) {
+        } else if (format === formatMap.JSON || format === formatMap.JSONL) {
             let jsonArgs = componentJsonFormat.validateValues();
             if (jsonArgs == null) {
                 return null;
@@ -3055,6 +3056,7 @@ namespace DSConfig {
                 $form.find(".format.excel").removeClass("xc-hidden");
                 break;
             case "JSON":
+            case "JSONL":
                 componentJsonFormat.show();
                 break;
             case "PARQUETFILE":
@@ -3643,11 +3645,22 @@ namespace DSConfig {
     }
 
     function hideDataFormatsByTarget(targetName: string): void {
+        const isAWSConnector = DSTargetManager.isAWSConnector(targetName);
         let exclusiveFormats = {
             PARQUET: DSTargetManager.isSparkParquet(targetName),
             DATABASE: DSTargetManager.isDatabaseTarget(targetName),
-            CONFLUENT: DSTargetManager.isConfluentTarget(targetName)
+            CONFLUENT: DSTargetManager.isConfluentTarget(targetName),
         };
+
+        if (isAWSConnector) {
+            // hide JSON, UDF and EXCEL in aws connector
+            exclusiveFormats['JSON'] = false;
+            exclusiveFormats['UDF'] = false;
+            exclusiveFormats['EXCEL'] = false;
+        } else {
+            // hide JSONL in non-aws connector;
+            exclusiveFormats['JSONL'] = false;
+        }
 
         let exclusiveFormat = null;
         for (let [format, isCurrentTarget] of Object.entries(exclusiveFormats)) {
@@ -4298,7 +4311,9 @@ namespace DSConfig {
             return;
         }
 
-        if (isUseUDFWithFunc() || format === formatMap.JSON ||
+        if (isUseUDFWithFunc() ||
+            format === formatMap.JSON ||
+            format === formatMap.JSONL ||
             format === formatMap.PARQUETFILE
         ) {
             getJSONTable(rawData);
@@ -4307,7 +4322,10 @@ namespace DSConfig {
         }
 
         var isSuccess = false;
-        if (isUseUDFWithFunc() || format === formatMap.JSON) {
+        if (isUseUDFWithFunc() ||
+            format === formatMap.JSON ||
+            format === formatMap.JSONL
+        ) {
             isSuccess = getJSONTable(rawData);
         } else if (format === formatMap.EXCEL) {
             isSuccess = getJSONTable(rawData, getSkipRows());
@@ -5510,11 +5528,18 @@ namespace DSConfig {
             let rows = lineSplitHelper(data, lineDelim, 0);
             let detectRes = xcSuggest.detectFormat(rows);
 
+            if (DSTargetManager.isAWSConnector(loadArgs.getTargetName()) &&
+                (detectRes === DSFormat.JSON || detectRes === DSFormat.SpecialJSON)
+            ) {
+                // use JSONL
+                return formatMap.JSONL;
+            }
+    
             if (detectRes === DSFormat.JSON) {
                 return formatMap.JSON;
             } else if (!isUseUDF() && detectRes === DSFormat.SpecialJSON) {
-                // speical json should use udf to parse,
-                // so if already use udf, cannot be speical json
+                // special json should use udf to parse,
+                // so if already use udf, cannot be special json
                 return DSFormat.SpecialJSON;
             } else if (detectRes === DSFormat.XML) {
                 return formatMap.XML;
@@ -6911,8 +6936,7 @@ namespace DSConfig {
             });
         });
         console.log(newSchemaObj);
-        // TO DO: uncomment and use this
-        // dsArgs.schema = newSchemaObj;
+        return newSchemaObj;
     }
 
     /* Unit Test Only */

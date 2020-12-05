@@ -3999,7 +3999,7 @@ XcalarExecuteRetina = function(
     },
     txId: number
 ): XDPromise<any> {
-    console.log(arguments);
+    // console.log(arguments);
     if (retName === "" || retName == null ||
         [null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);

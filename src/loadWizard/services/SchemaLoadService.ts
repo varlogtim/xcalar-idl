@@ -486,6 +486,7 @@ async function createDiscoverApp(params: {
             };
         },
         getCreateTableQueryWithCancel: (param: getCreateTableQueryInput) => {
+            console.log('param', param)
             let cancel = false;
             let loadUDFs = null;
             return {
@@ -494,7 +495,7 @@ async function createDiscoverApp(params: {
                     const result = await app.getCreateTableQueryWithSchema(param);
                     loadUDFs = getIntermidateResource(JSON.parse(result.loadQueryOpt).retina);
                     if (cancel) {
-                        console.log('Cancle: getQuery')
+                        console.log('Cancel: getQuery')
                         throw JobCancelExeption;
                     }
                     return result;

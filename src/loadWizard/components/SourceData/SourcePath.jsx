@@ -134,7 +134,7 @@ function SourcePath({
                                     onBucketChange(newBucket.trim());
                                 }}
                                 onOpen={() => {
-                                    if (DSTargetManager.isAWSConnector(connector)) {
+                                    if (XVM.isOnAWS() && DSTargetManager.isAWSConnector(connector)) {
                                         setS3Buckets([...DSTargetManager.getAvailableS3Buckets()]);
                                     } else {
                                         setS3Buckets([]);

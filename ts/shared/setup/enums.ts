@@ -73,6 +73,7 @@ enum DSObjTerm {
 
 enum DSFormat {
     JSON ="JSON",
+    JSONL="JSONL",
     SpecialJSON = "SpecialJSON",
     CSV = "CSV",
     XML = "XML"
