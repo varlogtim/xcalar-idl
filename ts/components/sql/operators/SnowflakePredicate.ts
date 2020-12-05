@@ -30,7 +30,7 @@ class SnowflakePredicate {
         let key = xcHelper.randName("sfPredicateQuery_");
         let query = node.value.plan[0].query;
         let parserArgs;
-        let maxQueryLen = XcalarApisConstantsT.XcalarApiMaxQuerySize
+        let maxQueryLen = XcalarApisConstantsT.XcalarApiMaxFileNameLen + XcalarApisConstantsT.XcalarApiMaxUrlLen;
         if (JSON.stringify({"query": query, "kvstoreKey": key}).length >= maxQueryLen) {
             // Store query in KV store
             XcalarKeyPutXcrpc(key, query, false,  gKVScope.GLOB);

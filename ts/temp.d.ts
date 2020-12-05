@@ -790,7 +790,7 @@ declare namespace XcalarApisConstantsT {
     export var XcalarApiMaxUdfSourceLen: number;
     export var XcalarApiMaxDagNodeCommentLen: number;
     export var XcalarApiMaxFileNameLen: number;
-    export var XcalarApiMaxQuerySize: number;
+    export var XcalarApiMaxUrlLen: number;
 }
 
 declare enum JoinOperatorTStr {
