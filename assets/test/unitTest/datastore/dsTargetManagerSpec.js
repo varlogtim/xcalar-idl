@@ -12,11 +12,6 @@ describe("Datastore-DSTargetManger Test", function() {
         });
     });
 
-    it("should have default connectors", function() {
-        const targetSet = DSTargetManager.getAllTargets();
-        expect(targetSet).to.have.property(DSTargetManager.getPublicS3Connector());
-    });
-
     describe("Public API Test", function() {
         it("DSTargetManager.refreshTargets", function(done) {
             DSTargetManager.refreshTargets()
@@ -71,10 +66,6 @@ describe("Datastore-DSTargetManger Test", function() {
             let html = DSTargetManager.renderConnectorConfig(id);
             // has 5 formRow
             expect(html.split("formRow").length).to.equal(6);
-        });
-
-        it("DSTargetManager.getPublicS3Connector should work", function() {
-            expect(DSTargetManager.getPublicS3Connector()).to.equal("Public S3");
         });
 
         it("DSTargetManager.getAvailableS3Buckets should work", function() {
@@ -212,7 +203,7 @@ describe("Datastore-DSTargetManger Test", function() {
         });
 
         it("should not use reserved name in form", function() {
-            var connector = DSTargetManager.getPublicS3Connector();
+            var connector = DSTargetManager.getS3Connector();
             var $name = $("#dsTarget-name");
             $name.val(connector);
             $("#dsTarget-submit").click();

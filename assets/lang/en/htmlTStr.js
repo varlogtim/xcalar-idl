@@ -683,7 +683,7 @@ module.exports = {
         "CreateInstr": "Enter your connector name and select a connector type. Provide any additional information as needed.",
         "Type": "Connector Type",
         "TargetInfo": "Connector Information",
-        "TargetInfoInstr": "Details about the selected connector are provided below. To create a new connector, click the button on the top left corner of the left panel.",
+        "TargetInfoInstr": "Details about the selected connector are provided below.",
         "TargetParams": "Connector Configuration",
         "DELETETARGET": "Delete Connector",
         "ImportData": "Import Data"
@@ -702,7 +702,7 @@ module.exports = {
     },
 
     "dsForm": {
-        "PathInstr": "Select a connector, then browse to choose a data source or fill in the data source path and click the <b>Next</b> button. When importing multiple files, they must use the same schema and file format.",
+        "PathInstr": "Select a connector, then browse to choose a data source or fill in the data source path and click the <b>Next</b> button.",
         "filePath": "Data Source Path",
         "DSName": "Dataset Name",
         "fileNameTitle": "A valid name with no special characters",

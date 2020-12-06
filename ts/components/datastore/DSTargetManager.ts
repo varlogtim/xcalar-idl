@@ -13,8 +13,7 @@ namespace DSTargetManager {
     let udfModuleHint: InputDropdownHint;
     let udfFuncHint: InputDropdownHint;
     let targetModalHelper: ModalHelper;
-    const xcalar_public_s3: string = "Public S3";
-    const xcalar_private_s3: string = "Private S3";
+    const xcalar_s3_connector: string = "Xcalar S3 Connector";
     // connectors for IMD, generted by XCE
     const xcalar_table_gen: string = "TableGen";
     const xcalar_table_store: string = "TableStore";
@@ -27,10 +26,9 @@ namespace DSTargetManager {
         // "s3environ"
     ];
     const reservedList: string[] = [
-        xcalar_public_s3,
-        xcalar_private_s3,
         xcalar_table_gen,
-        xcalar_table_store
+        xcalar_table_store,
+        xcalar_s3_connector,
     ];
     let privateBucket: string = null;
     let availableS3Buckets: string[] = [];
@@ -215,9 +213,6 @@ namespace DSTargetManager {
         }
 
         getConnectorList()
-        .then(function() {
-            return PromiseHelper.convertToJQuery(defaultConnectorsSetup());
-        })
         .then(function() {
             let targets: string[] = Object.keys(targetSet).sort();
             updateTargetMenu(targets);
@@ -416,7 +411,7 @@ namespace DSTargetManager {
             return PromiseHelper.reject();
         }
 
-        let targetParams = validateParams($params);
+        let targetParams = validateParams($params, typeId);
         if (targetParams == null) {
             // invalid case
             return PromiseHelper.reject();
@@ -438,18 +433,8 @@ namespace DSTargetManager {
 
     }
 
-    /**
-     * DSTargetManager.getPublicS3Connector
-     */
-    export function getPublicS3Connector(): string {
-        return xcalar_public_s3;
-    }
-
-    /**
-     * DSTargetManager.getPrivateS3Connector
-     */
-    export function getPrivateS3Connector(): string {
-        return xcalar_private_s3;
+    export function getS3Connector(): string {
+        return xcalar_s3_connector;
     }
 
     export function updateSelectedConnector(_targetName) {
@@ -467,67 +452,6 @@ namespace DSTargetManager {
         .fail(deferred.reject);
 
         return deferred.promise();
-    }
-
-    // set up some default connectors
-    async function defaultConnectorsSetup(): Promise<void> {
-        if (XVM.isCloud()) {
-            return; // sass cloud don't create it
-        }
-        let hasNewConnectors: boolean = false;
-        try {
-            hasNewConnectors = await createPublicS3Connector() || hasNewConnectors;
-            hasNewConnectors = await createPrivateS3Connector() || hasNewConnectors;
-        } catch (e) {
-            // ignore error
-        }
-
-        if (hasNewConnectors) {
-            // refresh the list
-            await getConnectorList();
-        }
-    }
-
-    // a public s3 connector
-    async function createPublicS3Connector(): Promise<boolean> {
-        const connectorName: string = xcalar_public_s3;
-        if (targetSet[connectorName] != null) {
-            return false;
-        }
-        try {
-            await createS3EnvConnector(connectorName, false);
-            return true;
-        } catch (e) {
-            // ignore the error
-            console.warn("create public s3 connector failed", e);
-            return false;
-        }
-    }
-
-    // a private s3 connector
-    export async function createPrivateS3Connector(): Promise<boolean> {
-        const connectorName: string = xcalar_private_s3;
-        if (targetSet[connectorName] != null) {
-            return false;
-        }
-        try {
-            await createS3EnvConnector(connectorName, true);
-            return true;
-        } catch (e) {
-            // ignore the error
-            console.warn("create public s3 connector failed", e);
-            return false;
-        }
-    }
-
-    async function createS3EnvConnector(
-        connectorName: string,
-        isPrivate: boolean
-    ): Promise<void> {
-        const connectorType: string = "s3environ";
-        const auth_request: string = isPrivate ? "true" : "false";
-        const params = {authenticate_requests: auth_request};
-        return XcalarTargetCreate(connectorType, connectorName, params);
     }
 
     async function fetchAvailableS3Buckets(): Promise<void> {
@@ -918,11 +842,11 @@ namespace DSTargetManager {
             $paramSection.addClass("xc-hidden");
         }
 
-        var $deletBtn = $("#dsTarget-delete");
+        var $deleteBtn = $("#dsTarget-delete");
         if (isDefaultTarget(targetName)) {
-            $deletBtn.addClass("xc-disabled");
+            $deleteBtn.addClass("xc-disabled");
         } else {
-            $deletBtn.removeClass("xc-disabled");
+            $deleteBtn.removeClass("xc-disabled");
         }
     }
 
@@ -1048,14 +972,14 @@ namespace DSTargetManager {
                  .find(".formContent").empty();
         }
 
-        let $menuparms = $('#dsTarget-params-targets');
+        let $menuParams = $('#dsTarget-params-targets');
         $udfModuleList = $("#dsTarget-params-udfModule");
         $udfFuncList = $("#dsTarget-params-udfFunc");
 
-        new MenuHelper($menuparms, {
+        new MenuHelper($menuParams, {
             "onSelect": function($li) {
                 let typeId: string = $li.data("id");
-                let $input = $menuparms.find(".text");
+                let $input = $menuParams.find(".text");
                 if ($input.data("id") === typeId) {
                     return;
                 }
@@ -1066,7 +990,7 @@ namespace DSTargetManager {
             "bounds": "body",
             "bottomPadding": 10,
             "fixedPosition": {
-                $selector: $menuparms.find(".text")
+                $selector: $menuParams.find(".text")
             }
         }).setupListeners();
 
@@ -1237,11 +1161,11 @@ namespace DSTargetManager {
             let labelName: string = "dsTarget-param-" + index;
             let type: string = param.secret ? "password" : "text";
             let inputClass: string = "xc-input white";
-            let descrp = param.description;
+            let description = param.description;
 
             if (param.optional) {
                 inputClass += " optional";
-                descrp = "(" + CommonTxtTstr.Optional + ") " + descrp;
+                description = "(" + CommonTxtTstr.Optional + ") " + description;
             }
             if (param.name === 'backingTargetName') {
                 return getTargetsForParamOptions(param, index);
@@ -1258,13 +1182,13 @@ namespace DSTargetManager {
                         '<input ' +
                         'class="' + inputClass + '" ' +
                         'style="display:none"' +
-                        'placeholder="' + descrp + '" ' +
+                        'placeholder="' + description + '" ' +
                         'autocomplete="off" ' +
                         'spellcheck="false">' +
                         '<input id="' + labelName + '" ' +
                         'class="' + inputClass + '" ' +
                         'type="' + type + '" ' +
-                        'placeholder="' + descrp + '" ' +
+                        'placeholder="' + description + '" ' +
                         'autocomplete="off" ' +
                         'spellcheck="false">' +
                     '</div>';
@@ -1282,11 +1206,12 @@ namespace DSTargetManager {
             onConfirm: function() {
                 XcalarTargetDelete(targetName)
                 .then(function() {
-                    if ($grid.hasClass("active")) {
-                        // when still focus on grid to delete
-                        showTargetCreateView();
-                    }
+                    const wasActive = $grid.hasClass("active");
                     $grid.remove();
+                    if (wasActive) {
+                        // when still focus on grid to delete
+                        selectTarget($gridView.find(".target").eq(0));
+                    }
                     DSTargetManager.refreshTargets(false);
                 })
                 .fail(function(error) {
@@ -1298,7 +1223,7 @@ namespace DSTargetManager {
 
     function validateTargetName($targetName: JQuery): string | null {
         let targetName: string = $targetName.val().trim();
-        let eles = [{
+        let elements = [{
             $ele: $targetName
         }, {
             $ele: $targetName,
@@ -1325,7 +1250,7 @@ namespace DSTargetManager {
             }
         }];
 
-        if (xcHelper.validate(eles)) {
+        if (xcHelper.validate(elements)) {
             return targetName;
         } else {
             return null;
@@ -1364,7 +1289,7 @@ namespace DSTargetManager {
 
     function validateParams($params: JQuery, targetType: string): object {
         let targetParams = {};
-        let eles = [];
+        let elements = [];
         $params.find(".formRow").each(function() {
             let $param = $(this);
             let $input = $param.find("input:visible");
@@ -1372,16 +1297,16 @@ namespace DSTargetManager {
                 (!$input.hasClass("optional") || $input.val().trim() !== "")) {
                 const paramName = $param.find("label").data("name");
                 const val = $input.val();
-                eles.push({$ele: $input});
+                elements.push({$ele: $input});
                 const validateEl = getParamValidateFunc($input, targetType, paramName, val);
                 if (validateEl != null) {
-                    eles.push(validateEl);
+                    elements.push(validateEl);
                 }
                 targetParams[paramName] = val;
             }
         });
 
-        if (xcHelper.validate(eles)) {
+        if (xcHelper.validate(elements)) {
             return targetParams;
         } else {
             return null;

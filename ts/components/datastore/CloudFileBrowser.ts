@@ -12,7 +12,7 @@ namespace CloudFileBrowser {
      */
     export function show(restore: boolean): void {
         this.clear(); // necessary to reset first
-        let targetName = DSTargetManager.getPrivateS3Connector();
+        let targetName = DSTargetManager.getS3Connector();
         let options = {
             cloud: true,
             backCB: () => DSForm.show()

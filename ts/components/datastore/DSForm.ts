@@ -3,7 +3,7 @@ namespace DSForm {
     let $filePath: JQuery;  // $("#filePath");
     let historyPathsSet = {};
     let hasInitialized = false;
-
+    let parserSuffix = '(using S3 Select parser)';
     /**
      * DSForm.setup
      */
@@ -36,7 +36,7 @@ namespace DSForm {
 
         $pathCard.find(".cardBottom .clear").removeClass("xc-hidden");
         $pathCard.find(".cardBottom .back").addClass("xc-hidden");
-        setPrivateS3Bucket();
+        setAvailableS3Buckets();
     }
 
     /**
@@ -120,7 +120,16 @@ namespace DSForm {
     }
 
     function getDataTarget(): string {
-        return $("#dsForm-target input").val();
+        const displayName = $("#dsForm-target input").val();
+        if (displayName === getS3ConnectorDisplayName()) {
+            return DSTargetManager.getS3Connector();
+        } else {
+            return displayName;
+        }
+    }
+
+    function getS3ConnectorDisplayName(): string {
+        return `${DSTargetManager.getS3Connector()} ${parserSuffix}`;
     }
 
     /**
@@ -128,7 +137,11 @@ namespace DSForm {
      * @param targetName
      */
     export function setDataTarget(targetName: string): void {
-        $("#dsForm-target input").val(targetName);
+        let displayName = targetName;
+        if (targetName === DSTargetManager.getS3Connector()) {
+            displayName = getS3ConnectorDisplayName();
+        }
+        $("#dsForm-target input").val(displayName);
         if (DSTargetManager.isGeneratedTarget(targetName)) {
             $pathCard.addClass("target-generated");
             $filePath.attr("placeholder", DSFormTStr.GeneratedTargetHint);
@@ -291,12 +304,12 @@ namespace DSForm {
         $filePath.val(path);
     }
 
-    function setPrivateS3Bucket(): void {
+    function setAvailableS3Buckets(): void {
         const s3Buckets: string[] = DSTargetManager.getAvailableS3Buckets();
         if (s3Buckets.length === 0) {
             return;
         }
-        const targetName = DSTargetManager.getPrivateS3Connector();
+        const targetName = DSTargetManager.getS3Connector();
         historyPathsSet[targetName] = historyPathsSet[targetName] || [];
         historyPathsSet[targetName] = historyPathsSet[targetName].filter((path) => !s3Buckets.includes(path));
         s3Buckets.forEach((bucket) => historyPathsSet[targetName].unshift(bucket));
