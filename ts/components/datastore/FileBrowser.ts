@@ -1133,16 +1133,34 @@ namespace FileBrowser {
         return deferred.promise();
     }
 
+    function normalizeError(error: any): string {
+        try {
+            if (error && typeof error === "object" && error.log) {
+                const err_str = error.log.toLowerCase();
+                if (err_str.includes('no files found')) {
+                    return 'No files found';
+                } else if (err_str.includes('access denied')) {
+                    return 'Access Denied';
+                } else if (err_str.includes('s3environ.py')) {
+                    return 'Cannot access the S3 bucket';
+                }
+            }
+        } catch (e) {
+        }
+        return null;
+    }
+
     function loadFailHandler(error: any, path: string): void {
         $pathLists.empty();
         appendPath(path, false);
 
         console.error(error);
+        error = normalizeError(error);
         let msg = xcStringHelper.replaceMsg(ErrWRepTStr.NoPathInLoad, {
             "path": path
         });
-        if (error && typeof error === "object" && error.log) {
-            msg += " " + AlertTStr.Error + ": " + error.log;
+        if (error) {
+            msg = error;
         }
         let html: HTML =
         '<div class="error">' +
