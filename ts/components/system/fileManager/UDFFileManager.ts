@@ -295,7 +295,8 @@ class UDFFileManager {
 
         this.kvStoreUDF.forEach((_v, moduleName) => {
             if (!moduleName.startsWith(this._newPrefix) &&
-                !moduleName.startsWith(this._unsavedPrefix)
+                !moduleName.startsWith(this._unsavedPrefix) &&
+                !xcHelper.isLoadUDF(moduleName)
             ) {
                 if (moduleName.startsWith(sharedUDFPath)) {
                     sharedUDF.push(moduleName);
