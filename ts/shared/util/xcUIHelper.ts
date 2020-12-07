@@ -694,6 +694,7 @@ namespace xcUIHelper {
         }
         // refresh tooltip
         if (!noRefresh) {
+            $btn = $btn.filter((_index, el) => $(el).is(":visible"));
             xcTooltip.refresh($btn, null);
         }
     }

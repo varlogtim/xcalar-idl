@@ -2458,9 +2458,6 @@ namespace FileBrowser {
     }
 
     function previewDS(fileName): void {
-        if (!fileName) {
-            return;
-        }
         RawFileModal.Instance.show({
             targetName: getCurrentTarget(),
             path: getCurrentPath() + fileName,

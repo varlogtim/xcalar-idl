@@ -32,6 +32,10 @@ class RawFileModal {
         this._addEventListeners();
     }
 
+    /**
+     * RawFileModal.Instance.show
+     * @param options
+     */
     public show(
         options: {
             targetName: string,

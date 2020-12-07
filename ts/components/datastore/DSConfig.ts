@@ -687,7 +687,7 @@ namespace DSConfig {
             return getHintSchema();
         })
         .registerEvent(DataSourceSchemaEvent.ChangeSchema, function(arg){
-            applySchemaChangetoPreview(arg.schema, arg.newNames, arg.autoDetect);
+            applySchemaChangeToPreview(arg.schema, arg.newNames, arg.autoDetect);
         })
         .registerEvent(DataSourceSchemaEvent.ValidateSchema, function(schema) {
             return validateMatchOfSchemaAndHeaders(schema);
@@ -777,7 +777,7 @@ namespace DSConfig {
         }
     }
 
-    function applySchemaChangetoPreview(
+    function applySchemaChangeToPreview(
         schema: ColSchema[],
         newNames: string[],
         autoDetect: boolean
@@ -827,7 +827,7 @@ namespace DSConfig {
             } else {
                 let schema = getHintSchema();
                 dataSourceSchema.setSchema(schema);
-                applySchemaChangetoPreview(schema, [], false);
+                applySchemaChangeToPreview(schema, [], false);
             }
         } catch (e) {
             console.error(e);
@@ -844,7 +844,7 @@ namespace DSConfig {
         });
 
 
-        // set up format dropdownlist
+        // set up format drop down list
         new MenuHelper($("#fileFormat"), {
             "onSelect": function($li) {
                 var format = $li.attr("name");
@@ -1625,7 +1625,7 @@ namespace DSConfig {
             }
 
             if (hasAdvancedArg) {
-                openAdvanceSetcion();
+                openAdvanceSection();
             }
         } catch (e) {
             console.error(e);
@@ -2027,7 +2027,7 @@ namespace DSConfig {
                 }, extraUDFArgs);
                 let promise;
                 if (createTable) {
-                    promise =  PromiseHelper.convertToJQuery(TblSource.Instance.import(args.name, args));
+                    promise =  PromiseHelper.convertToJQuery(TblSource.Instance.import(args.name, args, null));
                 } else{
                     promise = DS.load(args, {});
                 }
@@ -2425,7 +2425,7 @@ namespace DSConfig {
                         return (xcHelper.validateColName(val) != null);
                     },
                     onErr: function() {
-                        openAdvanceSetcion();
+                        openAdvanceSection();
                     },
                     error: ErrTStr.InvalidColName,
                     delay: 300 // there is a forceHide event on scroll, so need delay to show the statusbox
@@ -2439,7 +2439,7 @@ namespace DSConfig {
                         }
                     },
                     onErr: function() {
-                        openAdvanceSetcion();
+                        openAdvanceSection();
                     },
                     error: ErrTStr.ColumnConflict,
                     delay: 300 // there is a forceHide event on scroll, so need delay to show the statusbox
@@ -2470,7 +2470,7 @@ namespace DSConfig {
         };
     }
 
-    function openAdvanceSetcion(): void {
+    function openAdvanceSection(): void {
         let $advanceSection = $form.find(".advanceSection");
         if (!$advanceSection.hasClass("active")) {
             $advanceSection.find(".listWrap").click();
@@ -4613,16 +4613,16 @@ namespace DSConfig {
         return name;
     }
 
-    function getJSONTable(datas: string, skipRows: number = 0): boolean {
-        let json = parseJSONData(datas);
+    function getJSONTable(data: string, skipRows: number = 0): boolean {
+        let json = parseJSONData(data);
         if (json == null) {
             // error case
             return false;
         }
-        if (json.length === 0 && datas.length > 0) {
+        if (json.length === 0 && data.length > 0) {
             // Possibly multi-line json, which we are not able to parse
             // Show the raw data
-            return getXMLTable(datas);
+            return getXMLTable(data);
         }
         json = json.splice(skipRows);
 
