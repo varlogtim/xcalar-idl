@@ -23,6 +23,8 @@ namespace DSForm {
         DSConfig.update();
         if (!XVM.isSingleUser()) {
             $("#dsForm-target input").val(gDefaultSharedRoot);
+        } else {
+            $("#dsForm-target input").val(getS3ConnectorDisplayName());
         }
     }
 
@@ -275,9 +277,18 @@ namespace DSForm {
         let path = getFilePath(null);
         let cb = () => restoreFromPreview(targetName, path);
         resetForm();
-        FileBrowser.show(targetName, path, false, {
-            backCB: cb,
-        });
+
+        if (path.startsWith("/")) {
+            path = path.slice(1);
+        }
+        let bucket = path.split("/")[0] + "/";
+        if (DSTargetManager.isPrivateS3Bucket(targetName, bucket)) {
+            CloudFileBrowser.show(false, path);
+        } else {
+            FileBrowser.show(targetName, path, false, {
+                backCB: cb
+            });
+        }
     }
 
     function goToPreview(): void {

@@ -10,14 +10,14 @@ namespace CloudFileBrowser {
     /**
      * CloudFileBrowser.show
      */
-    export function show(restore: boolean): void {
+    export function show(restore: boolean, path: string): void {
         this.clear(); // necessary to reset first
         let targetName = DSTargetManager.getS3Connector();
         let options = {
             cloud: true,
             backCB: () => DSForm.show()
         };
-        FileBrowser.show(targetName, null, restore, options);
+        FileBrowser.show(targetName, path, restore, options);
         _getFileBrowser().addClass("cloud");
         $("#fileBrowserPath .text").attr("readonly", "readonly");
         uploader.toggle(true);

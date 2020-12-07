@@ -339,6 +339,7 @@ namespace DSTargetManager {
 
     /**
      * DSTargetManager.isPrivateS3Bucket
+     * note: we only allow file upload on privateS3Buckets so this helps us check
      */
     export function isPrivateS3Bucket(targetName: string, bucket: string): boolean {
         if (!XVM.isCloud()) {

@@ -1,4 +1,4 @@
-import * as Path from 'path'; 
+import * as Path from 'path';
 import * as React from "react";
 import NavButtons from '../NavButtons'
 import SelectedFilesArea from "./SelectedFilesArea"

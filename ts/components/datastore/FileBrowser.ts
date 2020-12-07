@@ -207,7 +207,8 @@ namespace FileBrowser {
         _options = options || {};
 
         setTarget(targetName);
-        let def = _options.cloud ? CloudFileBrowser.getCloudPath() : PromiseHelper.resolve(path);
+        // let def = _options.cloud ? CloudFileBrowser.getCloudPath() : PromiseHelper.resolve(path);
+        let def = PromiseHelper.resolve(path);
         def
         .then(function(res: string) {
             path = res;
@@ -1496,7 +1497,7 @@ namespace FileBrowser {
 
         let cb: Function;
         if (_options && _options.cloud) {
-            cb = () => CloudFileBrowser.show(true);
+            cb = () => CloudFileBrowser.show(true, curDir);
         } else {
             cb = () => FileBrowser.show(targetName, curDir, true);
         }
