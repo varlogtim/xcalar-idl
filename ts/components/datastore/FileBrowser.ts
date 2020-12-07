@@ -25,15 +25,16 @@ namespace FileBrowser {
     let $pathLists: JQuery;       // $("#fileBrowserPathMenu")
     let $searchSection: JQuery;    // $("#fileBrowserSearch");
     let $searchDropdown: JQuery;  // $("#fileSearchDropdown")
-    let $visibleFiles: JQuery;   // will hold nonhidden files
+    let $visibleFiles: JQuery;   // will hold non hidden files
 
     let fileBrowserId: string;
     let searchId: string;
 
     let _options: {backCB?: Function, cloud?: boolean};
     let dragInfo: any = {};
+    let defaultPath: string = "/";
 
-    /* Contants */
+    /* Constants */
     const defaultSortKey: string = "name"; // default is sort by name;
     let dsIconHeight: number = 77;
     let dsIconWidth: number = 70; // width height get calculated later but default to this
@@ -44,7 +45,6 @@ namespace FileBrowser {
     const sortFileLimit: number = 25000; // do not allow sort if over 25k
     const oldBrowserError: string = "Deferred From Old Browser";
     const oldSearchError: string = "Deferred From Old Search";
-    const defaultPath: string = "/";
     const listFormatMap = {
         "JSON": "xi-json-big-file",
         "CSV": "xi-csv-big-file",
@@ -75,7 +75,7 @@ namespace FileBrowser {
         "GIF": "xi-gif-file",
         "BMP": "xi-bmp-file-1"
     };
-    /* End Of Contants */
+    /* End Of Constants */
 
     let curFiles: XcFile[] = [];
     let curPathFiles = [];
@@ -197,6 +197,7 @@ namespace FileBrowser {
             FileBrowser.clear();
         }
         setMode();
+        path = setDefaultPath(targetName, path);
         updateActiveFileInfo(null);
         DataSourceManager.switchView(DataSourceManager.View.Browser);
 
@@ -309,12 +310,26 @@ namespace FileBrowser {
         }
     }
 
+    function setDefaultPath(targetName: string, path: string): string {
+        if (DSTargetManager.isAWSConnector(targetName)) {
+            if (path[0] === '/') {
+                path = path.substring(1);
+            }
+            const splits = path.split('/');
+            defaultPath = '/' + splits[0] + '/';
+            return splits.slice(1).join('/');
+        } else {
+            defaultPath = '/';
+            return path;
+        }
+    }
+
     function addContainerEvents(): void {
         $fileBrowser.on("click", "input", function() {
             hideBrowserMenu();
         });
 
-        // click blank space to remove foucse on folder/dsds
+        // click blank space to remove focus on folder/ds
         $fileBrowser.on("click", function() {
             cleanContainer({keepPicked: true});
         });
@@ -387,7 +402,7 @@ namespace FileBrowser {
                 $lastSelectedFile = $grid;
             },
             "dblclick": function(event) {
-                // dbclick on checkbox does nothing and should stopPropagation
+                // double click on checkbox does nothing and should stopPropagation
                 event.stopPropagation();
                 return;
             },
@@ -428,7 +443,7 @@ namespace FileBrowser {
             goUpPath();
         });
 
-        // toggle between listview and gridview
+        // toggle between list view and grid view
         $("#fileBrowserGridView").click(function(event) {
             event.stopPropagation();
             toggleView(null, false);
@@ -1043,7 +1058,7 @@ namespace FileBrowser {
                 $containerWrapper.scrollTop(row * unitHeight - (containerHeight / 2));
                 showScrolledFiles();
                 // browser's auto scrolling will be triggered here but will
-                // return when it finds that $container has class noscrolling;
+                // return when it finds that $container has class noScrolling;
                 setTimeout(function() {
                     $container.removeClass('noScrolling');
                 });
@@ -1121,7 +1136,7 @@ namespace FileBrowser {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         setTimeout(function() {
-            // do this because fadeIn has 300 dealy,
+            // do this because fadeIn has 300 delay,
             // if statusBox show before the fadeIn finish, it will fail
             let error = xcStringHelper.replaceMsg(ErrWRepTStr.NoPath, {
                 "path": path
@@ -1198,20 +1213,20 @@ namespace FileBrowser {
         }
     }
 
-    function dedupFiles(
+    function deDupFiles(
         targetName: string,
         files: XcFile[]
     ): XcFile[] {
         if (DSTargetManager.isPreSharedTarget(targetName)) {
-            let dedupedFiles: XcFile[] = [];
+            let deDupedFiles: XcFile[] = [];
             let nameSet = {};
             files.forEach(function(file) {
                 if (!nameSet.hasOwnProperty(file.name)) {
                     nameSet[file.name] = true;
-                    dedupedFiles.push(file);
+                    deDupedFiles.push(file);
                 }
             });
-            return dedupedFiles;
+            return deDupedFiles;
         } else {
             return files;
         }
@@ -1274,7 +1289,7 @@ namespace FileBrowser {
                     deferred.reject({"error": oldSearchError, "oldSearch": true});
                     return;
                 }
-                allFiles = dedupFiles(targetName, listFilesOutput.files);
+                allFiles = deDupFiles(targetName, listFilesOutput.files);
                 renderFiles(path, !options);
                 deferred.resolve();
             } else {
@@ -1933,7 +1948,7 @@ namespace FileBrowser {
             let isDirectory = fileObj.attr.isDirectory;
             let name = fileObj.name;
             let ctime = fileObj.attr.ctime;
-            let mtime = fileObj.attr.mtime; // in untix time
+            let mtime = fileObj.attr.mtime; // in unix time
             let isSelected = fileObj.isSelected;
             let isPicked = fileObj.isPicked;
             let isLoading = fileObj.isLoading || false;
@@ -2162,33 +2177,33 @@ namespace FileBrowser {
             let $target = $(event.target);
             let code = event.which;
             let $lastTarget = gMouseEvents.getLastMouseDownTarget();
-            let $lastTargParents = gMouseEvents.getLastMouseDownParents();
+            let $lastTargetParents = gMouseEvents.getLastMouseDownParents();
 
             hideBrowserMenu();
             let $activeEl = $(document.activeElement);
             if ($fileBrowser.is(":visible") && !$activeEl.is("textarea") &&
                 !$activeEl.is("input")) {
-                // filebrowser is visible and there's no cursor in an input so
+                // file browser is visible and there's no cursor in an input so
                 // we assume user is trying to navigate folders
             } else if ($target.is("input") ||
                 ($lastTarget != null &&
                 $lastTarget.length > 0 &&
-                !$lastTargParents.filter("#fileBrowser").length &&
-                !$lastTargParents.filter("#dsForm-path").length &&
-                !$lastTargParents.filter("#importDataForm").length))
+                !$lastTargetParents.filter("#fileBrowser").length &&
+                !$lastTargetParents.filter("#dsForm-path").length &&
+                !$lastTargetParents.filter("#importDataForm").length))
             {
                 // last click did not come from fileBrowser, dsFormPath, or
                 // importData form
-                // input doese trigger keyboard event
+                // input does trigger keyboard event
                 return true;
             } else {
                 // Should always return true, in case fileBrowser is invisible
                 // Is this true?
 
-                // hack for textareas in importData form
+                // hack for text areas in importData form
                 if ($target.is('textarea') &&
                     $lastTarget != null &&
-                    $lastTargParents.filter('#importDataForm').length) {
+                    $lastTargetParents.filter('#importDataForm').length) {
                     return true;
                 }
             }
@@ -2260,7 +2275,7 @@ namespace FileBrowser {
                     files.some(function(file) {
                         var name = file.name;
                         if (name.toLowerCase().startsWith(self.searchString)) {
-                            // filename donot use lowercase, otherwise
+                            // filename do not use lowercase, otherwise
                             // search may fail in focusOn();
                             fileName = name;
                             return true;
@@ -2273,7 +2288,7 @@ namespace FileBrowser {
                         self.searchString = "";
                     }
                 } else {
-                    // invalid char, empty the navi str
+                    // invalid char, empty the search str
                     self.searchString = "";
                 }
 
@@ -2391,7 +2406,7 @@ namespace FileBrowser {
                 showScrolledFiles();
                 // browser's auto scrolling will be triggered here
                 // but will return when it finds that $container
-                // has class noscrolling;
+                // has class noScrolling;
                 setTimeout(function() {
                     $container.removeClass('noScrolling');
                 });
@@ -2538,7 +2553,7 @@ namespace FileBrowser {
 
 
     function selectMultiFiles($curActiveGrid: JQuery): void {
-        // Selecet but not pick
+        // Select but not pick
         let startIndex: number;
         if (!$lastSelectedFile) {
             startIndex = 0;
@@ -2565,7 +2580,7 @@ namespace FileBrowser {
     }
 
     function deselectMultiFiles($curActiveGrid: JQuery): void {
-        // Selecet but not pick
+        // Select but not pick
         let startIndex: number;
         if (!$lastSelectedFile) {
             startIndex = 0;
@@ -2591,8 +2606,8 @@ namespace FileBrowser {
             let name = getGridUnitName($cur);
             let escName = xcStringHelper.escapeDblQuote(name);
             let isFolder: boolean = $cur.hasClass("folder");
-            let fullpath = getFullPath(escPath + escName, isFolder);
-            $pickedFileList.find('li[data-fullpath="' + fullpath + '"]').remove();
+            let fullPath = getFullPath(escPath + escName, isFolder);
+            $pickedFileList.find('li[data-fullpath="' + fullPath + '"]').remove();
         });
 
 
@@ -2616,7 +2631,7 @@ namespace FileBrowser {
     }
 
     function createListElement($grid: JQuery): HTML {
-        // e.g. path can be "/netstore" and name can be "/datasets/test.txt"
+        // e.g. path can be "/netStore" and name can be "/datasets/test.txt"
         let curDir = getCurrentPath();
         let escDir = xcStringHelper.escapeDblQuoteForHTML(curDir);
         if ($grid != null) {
