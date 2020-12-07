@@ -157,11 +157,16 @@ class TblSource {
             for (const job of cleanupCancelledJobs) {
                 await job();
             }
+            tableInfo.state = PbTblState.Error;
             if (e !== SchemaLoadService.JobCancelExeption) {
                 let error = e.message || e.error || e;
                 error = xcHelper.parseError(error);
+                tableInfo.errorMsg = error;
+                this._focusOnTable(tableInfo, false);
                 throw new Error(error);
             } else {
+                tableInfo.errorMsg = xcHelper.parseError(e);
+                this._focusOnTable(tableInfo, false);
                 throw e;
             }
         }
@@ -207,7 +212,7 @@ class TblSource {
                     RecordDelimiter: lineDelim,
                 }
             }
-        } else if (format === "JSON") {
+        } else if (format === "JSON" || format === "JSONL") {
             return {
                 JSON: {
                     Type: "LINES"

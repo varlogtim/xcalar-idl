@@ -18,7 +18,7 @@ namespace DSForm {
             return;
         }
         hasInitialized = true;
-        // reset anything browser may have autofilled
+        // reset anything browser may have auto filled
         resetForm();
         DSConfig.update();
         if (!XVM.isSingleUser()) {
@@ -276,7 +276,7 @@ namespace DSForm {
         let cb = () => restoreFromPreview(targetName, path);
         resetForm();
         FileBrowser.show(targetName, path, false, {
-            backCB: cb
+            backCB: cb,
         });
     }
 

@@ -12,6 +12,7 @@ class PbTblInfo {
     public active: boolean;
     public updates: PublishTableUpdateInfo[];
     public state: PbTblState;
+    public errorMsg: string;
     public loadMsg: string;
     public dsName: string;
     public txId: number;

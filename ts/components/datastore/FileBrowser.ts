@@ -311,7 +311,7 @@ namespace FileBrowser {
     }
 
     function setDefaultPath(targetName: string, path: string): string {
-        if (DSTargetManager.isAWSConnector(targetName)) {
+        if (path && DSTargetManager.isAWSConnector(targetName)) {
             if (path[0] === '/') {
                 path = path.substring(1);
             }

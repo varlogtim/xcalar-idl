@@ -41,6 +41,8 @@ class TblSourcePreview {
         if (msg) {
             $container.addClass("loading");
             this._setupLoadingView(msg);
+        } else if (tableInfo.state === PbTblState.Error) {
+            this._setErrorView(tableInfo.errorMsg || 'Load table error');
         } else if (tableInfo.state === PbTblState.BeDataset) {
             $container.addClass("dataset");
             this._viewDatasetTable(tableInfo);
@@ -128,6 +130,13 @@ class TblSourcePreview {
         this._showSchemaSection();
         const $section = this._getSchemaSection();
         const html: HTML = this._loadHTMLTemplate(msg);
+        $section.find(".content").html(html);
+    }
+
+    private _setErrorView(error: string): void {
+        this._showSchemaSection();
+        const $section = this._getSchemaSection();
+        const html: HTML = `<div style="color: #F46D73; white-space: pre-wrap; padding: 1rem;">${error}</div>`;
         $section.find(".content").html(html);
     }
 
