@@ -76,7 +76,7 @@ class RawFileModal {
     }
 
     private _setInstr(fileName: string): void {
-        this._getFileNameEl().text(fileName);
+        this._getFileNameEl().text(xcStringHelper.escapeHTMLSpecialChar(fileName));
     }
 
     private _getPreviewerId(): string {
@@ -222,7 +222,7 @@ class RawFileModal {
     }
 
     private _showPreview(base64Data: any, blockSize: number): void {
-        // Note: hexdump is different from view the data using editor.
+        // Note: hex dump is different from view the data using editor.
         // so use atob instead of Base64.decode
         let buffer = atob(base64Data);
         let codeHtml: string = "";
@@ -237,6 +237,10 @@ class RawFileModal {
 
             charHtml += this._getCharHtml(chars, blockSize, i);
             codeHtml += this._getCodeHtml(block, blockSize, i);
+        }
+
+        if (!charHtml) {
+            charHtml = "File is empty.";
         }
 
         let $modal = this._getModal();
@@ -349,7 +353,7 @@ class RawFileModal {
         });
     }
 
-    // the noFetch is a prevent of potential resucsive
+    // the noFetch is a prevent of potential recursive
     private _updateOffset(offset: number, noFetch: boolean): void {
         if (!Number.isInteger(offset) || offset < 0) {
             return;
