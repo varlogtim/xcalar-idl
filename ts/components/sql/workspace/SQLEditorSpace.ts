@@ -501,6 +501,11 @@ class SQLEditorSpace {
                         targetAliasMap[snowflakeParams.alias] = res[r];
                     }
                 }
+                if (sqlStructArray[0].command.type !== "select"
+                    && self._connector !== "native") {
+                    sqlStructArray[0].predicateTargets[self._connector]
+                                            = targetAliasMap[self._connector];
+                }
                 for (let tbl in sqlStructArray[0].identifierMap) {
                     let sourceList =
                         sqlStructArray[0].identifierMap[tbl].sourceList;
@@ -517,7 +522,7 @@ class SQLEditorSpace {
                             }
                             // Here _connector should be in target alias list
                             sqlStructArray[0].predicateTargets[self._connector]
-                                                = targetAliasMap[self._connector];
+                                            = targetAliasMap[self._connector];
                         }
                     } else if (targetAliases.indexOf(sourceList[0]) !== -1) {
                         sqlStructArray[0].identifierMap[tbl].target = sourceList[0];

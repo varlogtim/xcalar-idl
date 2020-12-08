@@ -6,25 +6,49 @@ class SnowflakePredicate {
 
         let schema = [];
         let newTableName: string = XIApi.getNewTableName("XCPUSHDOWN");
+        let columns = [];
+        let retStruct = SQLCompiler.genMapArray(node.value.plan[0].output,
+                                                columns, [], [], {}, []);
+        node.dupCols = retStruct.dupCols;
+        const renames = SQLCompiler.resolveCollision(node.usrCols, columns,
+                                            [], [], "", newTableName, true);
+        node.renamedCols = renames;
+        node.usrCols = columns;
         if (node.value.plan[0].aliasList.length === 0) {
-            for (let i = 0; i < node.value.plan[0].output.length; i++) {
-                let dataType = node.value.plan[0].output[i][0].dataType;
-                let colInfo = {
-                    'sourceColumn': node.value.plan[0].output[i][0].name,
-                    'destColumn': SQLCompiler.cleanseColName(node.value.plan[0].output[i][0].name),
-                    'columnType': DfFieldTypeTStr[xcHelper.convertColTypeToFieldType(xcHelper.convertSQLTypeToColType(SQLCompiler.convertSparkTypeToXcalarType(dataType)))]
+            for (let i = 0; i < columns.length; i++) {
+                for (let j = 0; j < node.value.plan[0].output.length; j++) {
+                    if (columns[i].colId ===
+                        node.value.plan[0].output[j][0].exprId.id) {
+                        let colInfo = {
+                            'sourceColumn': node.value.plan[0].output[j][0].name,
+                            'destColumn': columns[i].rename || columns[i].colName,
+                            'columnType': DfFieldTypeTStr[
+                                xcHelper.convertColTypeToFieldType(
+                                    xcHelper.convertSQLTypeToColType(
+                                        columns[i].colType))]
+                        }
+                        schema.push(colInfo);
+                        break;
+                    }
                 }
-                schema.push(colInfo);
             }
         } else {
-            for (let i = 0; i < node.value.plan[0].aliasList.length; i++) {
-                let dataType = node.value.plan[0].output[i][0].dataType;
-                let colInfo = {
-                    'sourceColumn': node.value.plan[0].aliasList[i][0].name,
-                    'destColumn': SQLCompiler.cleanseColName(node.value.plan[0].output[i][0].name),
-                    'columnType': DfFieldTypeTStr[xcHelper.convertColTypeToFieldType(xcHelper.convertSQLTypeToColType(SQLCompiler.convertSparkTypeToXcalarType(dataType)))]
+            for (let i = 0; i < columns.length; i++) {
+                for (let j = 0; j < node.value.plan[0].aliasList.length; j++) {
+                    if (columns[i].colId ===
+                        node.value.plan[0].aliasList[j][0].exprId.id) {
+                        let colInfo = {
+                            'sourceColumn': node.value.plan[0].aliasList[j][0].name,
+                            'destColumn': columns[i].rename || columns[i].colName,
+                            'columnType': DfFieldTypeTStr[
+                                xcHelper.convertColTypeToFieldType(
+                                    xcHelper.convertSQLTypeToColType(
+                                        columns[i].colType))]
+                        }
+                        schema.push(colInfo);
+                        break;
+                    }
                 }
-                schema.push(colInfo);
             }
         }
         let key = xcHelper.randName("sfPredicateQuery_");
@@ -80,18 +104,6 @@ class SnowflakePredicate {
                 'tag': ''
             };
         node.newTableName = newTableName;
-        for (let i = 0; i < node.value.plan[0].output.length; i++) {
-            let colIdVal = null
-            if ("expId" in node.value.plan[0].output[i][0]) {
-                colIdVal = node.value.plan[0].output[i][0].exprId.id
-            }
-            let col: SQLColumn = {
-                colName: SQLCompiler.cleanseColName(node.value.plan[0].output[i][0].name),
-                colId: colIdVal,
-                colType: SQLCompiler.convertSparkTypeToXcalarType(node.value.plan[0].output[i][0].dataType)
-            }
-            node.usrCols.push(col);
-        }
         deferred.resolve({
             "newTableName": newTableName,
             "cli": JSON.stringify(bulkload) + "," + JSON.stringify(index) + ","

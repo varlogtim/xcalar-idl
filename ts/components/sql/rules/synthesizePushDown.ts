@@ -317,6 +317,23 @@ class SynthesizePushDown {
                 return false;
         }
     }
+
+    static synchronizeBulkLoad(opNode: XcOpNode) {
+        const visitedMap = {};
+        const leafNodes = [];
+        LogicalOptimizer.findLeafNodes(opNode, visitedMap, leafNodes);
+        for (let i = 0; i < leafNodes.length; i++) {
+            if (leafNodes[i].value.operation === "XcalarApiBulkLoad") {
+                SQLUtil.assert(leafNodes[i].parents.length === 1 &&
+                    leafNodes[i].parents[0].value.operation ===
+                    "XcalarApiSynthesize", SQLErrTStr.BadBulkLoad +
+                    leafNodes[i].parents[0].value.operation);
+                leafNodes[i].value.args.loadArgs.parseArgs.schema
+                    = leafNodes[i].parents[0].value.args.columns;
+            }
+        }
+        return opNode;
+    }
 }
 if (typeof exports !== "undefined") {
     exports.SynthesizePushDown = SynthesizePushDown;

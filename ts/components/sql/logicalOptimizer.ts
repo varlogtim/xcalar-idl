@@ -7,13 +7,14 @@ const optimizationDriver = {
     combineProjectWithSynthesize: SynthesizePushDown.
                                     combineProjectWithSynthesize,
     dropAsYouGo: DropAsYouGo.addDrops,
-    udfFilter: FilterPushUp.pushFromJoin
+    udfFilter: FilterPushUp.pushFromJoin,
+    synchronizeBulkLoad: SynthesizePushDown.synchronizeBulkLoad
 };
 // Order matters
-const optimizationOrder = ["pushToSelect", "dedup",
-                            "combineLastSynthesize",
-                            "randomCrossJoin", "udfFilter",
-                            "combineProjectWithSynthesize", "dropAsYouGo"];
+const optimizationOrder = ["pushToSelect", "dedup", "combineLastSynthesize",
+                           "randomCrossJoin", "udfFilter",
+                           "combineProjectWithSynthesize", "dropAsYouGo",
+                           "synchronizeBulkLoad"];
 class LogicalOptimizer {
     static optimize(
         queryString: string,
@@ -99,6 +100,8 @@ class LogicalOptimizer {
                                  null ? options["combineLastSynthesize"] : true;
         options["udfFilter"] = options["udfFilter"] != null ?
                                options["udfFilter"] : true;
+        options["synchronizeBulkLoad"] = options["synchronizeBulkLoad"] != null ?
+                                         options["synchronizeBulkLoad"] : true;
         const structs = {
             nodeHashMap: opGraph.nodeHashMap,
             aggregateNameMap: opGraph.aggregateNameMap

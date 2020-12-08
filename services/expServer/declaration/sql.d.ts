@@ -176,7 +176,8 @@ declare enum SQLErrTStr {
     MultiQueries,
     DuplicateParamNames,
     NoInputColumn,
-    CalendarIntervalFrame
+    CalendarIntervalFrame,
+    BadBulkLoad
 }
 
 declare enum SQLStatus {
