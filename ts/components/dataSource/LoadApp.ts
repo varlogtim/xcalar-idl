@@ -10,13 +10,14 @@ class LoadApp {
         this._cancelAction = event;
     }
 
-    public async cancel() {
+    public async cancel(): Promise<boolean> {
         const confirmed = await this._confirm({
             title: 'Confirm',
             message: 'Do you want to cancel the loading?'
         });
         if (this._cancelAction != null && confirmed) {
             this._cancelAction();
+            return true;
         }
     }
 

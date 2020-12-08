@@ -416,6 +416,7 @@ enum PbTblState {
     Loading = "Loading",
     BeDataset = "BeDataset",
     Error = "Error",
+    Canceling = "Canceling",
     Activating = "Recreating",
     Deactivating = "Deleting"
 }

@@ -14,6 +14,7 @@ class PbTblInfo {
     public state: PbTblState;
     public errorMsg: string;
     public loadMsg: string;
+    public loadApp: LoadApp;
     public dsName: string;
     public txId: number;
 

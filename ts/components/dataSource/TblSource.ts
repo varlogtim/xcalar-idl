@@ -116,6 +116,7 @@ class TblSource {
             });
             const appId = app.appId;
             const loadAppObj = new LoadApp(appId);
+            tableInfo.loadApp = loadAppObj;
             this._loadApps.set(appId, loadAppObj);
 
             // Get create table dataflow

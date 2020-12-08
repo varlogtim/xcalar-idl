@@ -141,14 +141,20 @@ class TblSourcePreview {
     }
 
     private _loadHTMLTemplate(text: string): HTML {
+        const isCancelling = this._tableInfo && this._tableInfo.state === PbTblState.Canceling;
         const html: HTML =
-        '<div class="loading animatedEllipsisWrapper">' +
-            '<div class="text">' +
-            text +
+        '<div class="loadingContainer">' +
+            '<div class="loading animatedEllipsisWrapper">' +
+                '<div class="text">' +
+                text +
+                '</div>' +
+                '<div class="wrap">' +
+                    '<div class="animatedEllipsis hiddenEllipsis">....</div>' +
+                    '<div class="animatedEllipsis staticEllipsis">....</div>' +
+                '</div>' +
             '</div>' +
-            '<div class="wrap">' +
-                '<div class="animatedEllipsis hiddenEllipsis">....</div>' +
-                '<div class="animatedEllipsis staticEllipsis">....</div>' +
+            '<div class="cancel' + (isCancelling ? ' xc-disabled' : '') + '">' +
+                'Cancel' +
             '</div>' +
         '</div>';
         return html;
@@ -465,14 +471,33 @@ class TblSourcePreview {
         }
     }
 
+    private async _cancelLoad(): Promise<void> {
+        if (this._tableInfo && this._tableInfo.loadApp) {
+            try {
+                const canceled = await this._tableInfo.loadApp.cancel();
+                if (canceled) {
+                    this._tableInfo.state = PbTblState.Canceling;
+                    this.show(this._tableInfo, "Canceling");
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    }
+
     private _addEventListeners(): void {
-        let $infoSection = this._getInfoSection();
+        const $infoSection = this._getInfoSection();
         $infoSection.on("click", ".viewTable", () => {
             this._viewTableResult(this._tableInfo, false);
         });
 
         $infoSection.on("click", ".viewSchema", () => {
             this._viewSchema(this._tableInfo);
+        });
+
+        const $schemaSection = this._getSchemaSection();
+        $schemaSection.on("click", ".loadingContainer .cancel", () => {
+            this._cancelLoad();
         });
     }
 }
