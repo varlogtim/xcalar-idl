@@ -968,7 +968,7 @@ class SQLEditorSpace {
 
         }).setupListeners();
 
-        this._setupConnectorDropdown($header.find(".engine"), selector);
+        this._setupConnectorDropdown($("#sqlEditorConnectorMenu"), selector);
 
         $container.find(".close").click(() => {
             this.toggleDisplay(false);
@@ -1139,24 +1139,35 @@ class SQLEditorSpace {
     }
 
     private _setupConnectorDropdown($dropdown: JQuery, selector: string): void {
-        new MenuHelper($dropdown, {
-            onSelect: ($li) => {
-                if ($li.hasClass('hint') || $li.hasClass("active")) {
-                    return;
-                }
-                this._selectConnector($dropdown, $li);
+        const $subMenu = $("#sqlEditorSnowflakeSubMenu")
+        xcMenu.add($dropdown);
+        let $menus =  $dropdown.add($subMenu)
+        $menus.on("mouseup", "li", (e) => {
+            const $li = $(e.currentTarget);
+            if ($li.hasClass('hint') || $li.hasClass("active")) {
+                return;
+            }
+            this._selectConnector($menus, $header.find(".engine .text span"), $li);
+        });
 
-            },
-            container: selector,
-            bounds: selector,
+        this._renderConnectorDropdown($subMenu);
 
-        }).setupListeners();
-        this._renderConnectorDropdown($dropdown);
+        const $container = this._getEditorSpaceEl();
+        const $header = $container.find("header");
+
+        $header.find(".engine").click((event) => {
+            MenuHelper.dropdownOpen($(event.target), $dropdown, {
+                mouseCoors: {x: event.pageX, y: event.pageY},
+                offsetY: 8,
+                floating: true,
+                classes: ""
+            });
+        });
     }
 
     // XXX @Mingke, please make sure:
     // 1) the type_id is correct
-    // 2) the data-action part is the correct value, it will be the value passed _changeConnector
+    // 2) the data-act1 `ion part is the correct value, it will be the value passed _changeConnector
     private _renderConnectorDropdown($dropdown: JQuery): void {
         let html = "";
         const targets = DSTargetManager.getAllTargets()
@@ -1167,18 +1178,17 @@ class SQLEditorSpace {
                         + '">' + target.params.alias + '</li>';
             }
         };
-        $dropdown.find(".hint").after(html);
+        $dropdown.find("ul").html(html);
     }
 
-    private _selectConnector($dropdown: JQuery, $li: JQuery): void {
+    private _selectConnector($menus: JQuery, $textArea, $li: JQuery): void {
         const connector = $li.data("action");
-        $dropdown.find(".text span").text($li.text());
-        $dropdown.find("li.active").removeClass("active");
+        $textArea.text($li.text());
+        $menus.find("li.active").removeClass("active");
         $li.add("active");
         this._changeConnector(connector);
     }
 
-    // XXX Wire in the real functionality here
     private _changeConnector(connector: string): void {
         console.log("connector has changed to", connector);
         this._connector = connector;

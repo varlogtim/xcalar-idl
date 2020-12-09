@@ -6,17 +6,21 @@
     <div class="savingText"><%= dicts.common.Saving %>...</div>
     <div class="tempTabText">Editing SQL Graph Node</div>
     <div class="nodeInfo xc-hidden">NodeInfo</div> <!-- WIP -->
-    <div class="engine dropDownList">
+    <div class="engine" >
       <div class="text"><%= dicts.SQL.Engine %>: <span><%= dicts.SQL.NativeEngine %></span></div>
       <div class="iconWrapper" data-toggle="tooltip" data-container="body" data-placement="auto top" data-title="<%= dicts.SQL.EngineHint %>">
-        <i class="icon xi-arrow-down"></i>
+        <i class="icon xi-down"></i>
       </div>
-      <div class="list">
-        <ul>
-          <li class="active" data-action="native"><%= dicts.SQL.NativeEngine %></li>
-          <div class="hint"><%= dicts.SQL.SnowflakeEngine %></div>
-        </ul>
-      </div>
+    </div>
+    <div id="sqlEditorConnectorMenu" class="menu" data-submenu="sqlEditorSnowflakeSubMenu">
+      <ul>
+        <li class="active" data-action="native"><%= dicts.SQL.NativeEngine %></li>
+        <li class="parentMenu hint" data-submenu="snowflake"><%= dicts.SQL.SnowflakeEngine %></li>
+      </ul>
+    </div>
+    <div id="sqlEditorSnowflakeSubMenu" class="menu subMenu">
+      <ul class="snowflake">
+      </ul>
     </div>
     <i class="icon xi-play-outline hintDisable execute xc-action"
     data-toggle="tooltip"
