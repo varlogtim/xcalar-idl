@@ -702,7 +702,7 @@ namespace DSConfig {
     }
 
     function setupDataMartConfig(): void {
-        const whiteList: string[] = [formatMap.CSV, formatMap.JSON, formatMap.JSONL, formatMap.PARQUET, formatMap.EXCEL.toUpperCase(), formatMap.UDF];
+        const whiteList: string[] = [formatMap.CSV, formatMap.JSON, formatMap.JSONL, formatMap.PARQUETFILE, formatMap.PARQUET, formatMap.EXCEL.toUpperCase(), formatMap.UDF];
         $("#fileFormatMenu li").each((_index, el) => {
             const $li = $(el);
             const name: string = $li.attr("name");

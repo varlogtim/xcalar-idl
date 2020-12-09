@@ -36,7 +36,7 @@ class ParquetFileForm {
     }
 
     /**
-     * Resture parquet file form
+     * Restore parquet file form
      * @param udfQuery query used to restore the parquet file form
      */
     public restore(udfQuery: {parquetParser: string}): void {
@@ -60,7 +60,7 @@ class ParquetFileForm {
      * return parser value in the format of {parquetParser: value}
      */
     public getParser(): {parquetParser: string} {
-        const $input: JQuery = this._getIputEle();
+        const $input: JQuery = this._getInputEle();
         return {parquetParser: $input.data("name")};
     }
 
@@ -68,7 +68,7 @@ class ParquetFileForm {
         return $("#dsForm-parquetParser");
     }
 
-    private _getIputEle(): JQuery {
+    private _getInputEle(): JQuery {
         return this._getDropdownEle().find("input.text");
     }
 
@@ -81,7 +81,7 @@ class ParquetFileForm {
     }
 
     private _setParserValue($li) {
-        const $input: JQuery = this._getIputEle();
+        const $input: JQuery = this._getInputEle();
         $input.val($li.text());
         $input.data("name", $li.attr("name"));
     }
