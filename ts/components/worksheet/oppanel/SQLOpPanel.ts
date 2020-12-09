@@ -615,12 +615,7 @@ class SQLOpPanel extends BaseOpPanel {
 
             parent.getLineage().getColumns(false, true).forEach((parentCol) => {
                 let colName = xcHelper.cleanseSQLColName(parentCol.name);
-                let upperName = colName.toUpperCase();
-                if (colName != "DATA" &&
-                    !upperName.startsWith("XCALARRANKOVER") &&
-                    !upperName.startsWith("XCALAROPCODE") &&
-                    !upperName.startsWith("XCALARBATCHID") &&
-                    !upperName.startsWith("XCALARROWNUMPK")) {
+                if (colName != "DATA" && !xcHelper.isInternalColumn(colName)) {
                     tableColumns.push(colName);
                     if (!acTables[colName]) {
                         acTables[colName] = [];
@@ -646,12 +641,7 @@ class SQLOpPanel extends BaseOpPanel {
 
             parent.getLineage().getColumns(false, true).forEach((parentCol) => {
                 let colName = xcHelper.cleanseSQLColName(parentCol.name);
-                let upperName = colName.toUpperCase();
-                if (colName != "DATA" &&
-                    !upperName.startsWith("XCALARRANKOVER") &&
-                    !upperName.startsWith("XCALAROPCODE") &&
-                    !upperName.startsWith("XCALARBATCHID") &&
-                    !upperName.startsWith("XCALARROWNUMPK")) {
+                if (colName != "DATA" && !xcHelper.isInternalColumn(colName)) {
                     columnSet.add(tableName + colName); // includes "."
                 }
             });

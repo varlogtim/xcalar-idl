@@ -2980,6 +2980,14 @@ namespace xcHelper {
                 !isSystemMac && event.ctrlKey;
     }
 
+    export function isInternalColumn(col: string): boolean {
+        const upperName = col.toUpperCase();
+        return upperName.startsWith("XCALARRANKOVER") ||
+                upperName.startsWith("XCALAROPCODE") ||
+                upperName.startsWith("XCALARBATCHID") ||
+                upperName.startsWith("XCALARROWNUMPK");
+    }
+
     /**
      * xcHelper.getBasicColTypes
      * @param includeMixed

@@ -539,12 +539,8 @@ class SQLEditor {
         SQLResultSpace.Instance.getAvailableTables().forEach((table: PbTblInfo) => {
             const tableName: string = table.name;
             table.columns.forEach((col) => {
-                const upperName = col.name.toUpperCase();
                 if (col.name != "DATA" &&
-                    !upperName.startsWith("XCALARRANKOVER") &&
-                    !upperName.startsWith("XCALAROPCODE") &&
-                    !upperName.startsWith("XCALARBATCHID") &&
-                    !upperName.startsWith("XCALARROWNUMPK")) {
+                    !xcHelper.isInternalColumn(col.name)) {
                     columnSet.add(tableName + "." + col.name);
                 }
             });

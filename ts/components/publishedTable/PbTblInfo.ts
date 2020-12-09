@@ -75,6 +75,7 @@ class PbTblInfo {
             this.columns.forEach((col: ColSchema) => {
                 const name: string = col.name;
                 if (!PTblManager.InternalColumns.includes(name) &&
+                    !PTblManager.LoadColumns.includes(name) &&
                     !name.startsWith(PTblManager.PKPrefix)
                 ) {
                     columns.push({

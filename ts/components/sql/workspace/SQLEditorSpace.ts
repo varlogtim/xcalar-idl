@@ -232,12 +232,8 @@ class SQLEditorSpace {
             tables.forEach((table) => {
                 arcTables[table.name] = [];
                 table.columns.forEach((col) => {
-                    const upperName = col.name.toUpperCase();
                     if (col.name != "DATA" &&
-                        !upperName.startsWith("XCALARRANKOVER") &&
-                        !upperName.startsWith("XCALAROPCODE") &&
-                        !upperName.startsWith("XCALARBATCHID") &&
-                        !upperName.startsWith("XCALARROWNUMPK")) {
+                        !xcHelper.isInternalColumn(col.name)) {
                         arcTables[table.name].push(col.name);
                         if (!arcTables[col.name]) { // prevent table/column name collision
                             arcTables[col.name] = [];

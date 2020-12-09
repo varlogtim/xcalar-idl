@@ -95,6 +95,7 @@ declare namespace xcHelper {
     ): ColRenameInfo
     export function convertColTypeToFieldType(colType: ColumnType): DfFieldTypeT
     export function parsePrefixColName(colName: string): PrefixColInfo
+    export function isInternalColumn(colName: string): boolean
 }
 
 declare interface PrefixColInfo {

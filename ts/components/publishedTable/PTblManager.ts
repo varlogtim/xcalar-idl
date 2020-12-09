@@ -4,6 +4,7 @@ class PTblManager {
     public static readonly InternalColumns: string[] = ["XcalarRankOver", "XcalarOpCode", "XcalarBatchId"];
     public static readonly PKPrefix: string = "XcalarRowNumPk";
     public static readonly IMDDependencyKey = "/sys/imd_dependencies";
+    public static readonly LoadColumns: string[] = ["XCALAR_ICV", "XCALAR_FILE_RECORD_NUM", "XCALAR_SOURCEDATA", "XCALAR_PATH"];
 
     public static get Instance() {
         return this._instance || (this._instance = new this());

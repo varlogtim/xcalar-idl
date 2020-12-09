@@ -237,14 +237,7 @@ class CustomFunctionTestForm {
                     }
 
                     columns = columns.filter((column) => {
-                        const upperName = column.name.toUpperCase();
-                        if (!upperName.startsWith("XCALARRANKOVER") &&
-                            !upperName.startsWith("XCALAROPCODE") &&
-                            !upperName.startsWith("XCALARBATCHID") &&
-                            !upperName.startsWith("XCALARROWNUMPK")) {
-                            return true;
-                        }
-                        return false;
+                        return !xcHelper.isInternalColumn(column.name);
                     });
 
                     columns.sort((a, b) => {

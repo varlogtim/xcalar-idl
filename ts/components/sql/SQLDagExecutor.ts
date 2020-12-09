@@ -87,11 +87,7 @@ class SQLDagExecutor {
                 if (tableMap.has(pubTableName)) {
                     const columns = [];
                     tableMap.get(pubTableName).columns.forEach((column) => {
-                        const upperName = column.name.toUpperCase();
-                        if (!upperName.startsWith("XCALARRANKOVER") &&
-                            !upperName.startsWith("XCALAROPCODE") &&
-                            !upperName.startsWith("XCALARBATCHID") &&
-                            !upperName.startsWith("XCALARROWNUMPK")) {
+                        if (!xcHelper.isInternalColumn(column.name)) {
                             columns.push(column);
                         }
                     });

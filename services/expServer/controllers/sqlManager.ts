@@ -573,10 +573,7 @@ class SqlManager {
                 let obj = allSchemas[args[i].publishName][j];
                 var colName = Object.keys(obj)[0];
                 var upColName = colName.toUpperCase();
-                if (!upColName.startsWith("XCALARRANKOVER") &&
-                    !upColName.startsWith("XCALAROPCODE") &&
-                    !upColName.startsWith("XCALARBATCHID") &&
-                    !upColName.startsWith("XCALARROWNUMPK")) {
+                if (!xcHelper.isInternalColumn(colName)) {
                     renameMap.push({sourceColumn: colName, destColumn: upColName,
                                     columnType: DfFieldTypeTStr[xcHelper
                                         .convertColTypeToFieldType(obj[colName])]});
