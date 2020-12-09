@@ -89,7 +89,7 @@ function createListFilesCursor(params: {
         }
     };
 
-    const convertFileInfo = ({name, isDirectory, size}) => {
+    const convertFileInfo = ({name, isDirectory, size, mtime}) => {
         const fullFilePath = Path.join(path, name);
         return {
             fileId: fullFilePath,
@@ -98,6 +98,7 @@ function createListFilesCursor(params: {
             directory: isDirectory,
             name: name,
             sizeInBytes: size,
+            mtime: mtime,
             type: isDirectory
                 ? 'directory'
                 : getFileExt(name)

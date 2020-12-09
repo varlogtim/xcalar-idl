@@ -1412,6 +1412,40 @@ table.datasetTable {
             }
         }
     }
+
+    .paginationRow {
+        display: none;
+    }
+
+    &.s3 {
+        .paginationRow {
+            display: flex;
+            line-height: 24px;
+            margin-left: auto;
+
+            .pageBtn {
+                padding: 0 8px;
+            }
+
+            .pageNumber {
+                padding: 0px 8px;
+            }
+
+            .skipToPage {
+                margin-left: auto;
+            }
+            .pageInfo {
+                margin-left: auto;
+            }
+            .xc-input {
+                width: 48px;
+                height: 24px;
+                margin: 0px 4px;
+            }
+        }
+    }
+
+
 }
 /* End Of File Browser */
 

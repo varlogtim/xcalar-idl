@@ -87,6 +87,28 @@ namespace FileBrowser {
     let pathDropdownMenu: MenuHelper;
     let searchDropdownMenu: MenuHelper;
     let searchInfo: string = "";
+    let isS3: boolean = false;
+    const PAGE_SIZE = 100;
+
+    let initialState = {
+        isLoading: true,
+        path: "",
+        fileMapViewing: new Map(),
+        fileNamePattern: "",
+        loadingFiles: new Set(),
+        showForensics: false,
+        forensicsMessage: [],
+        isForensicsLoading: false,
+        forensicsPath: "",
+        offset: 0,
+        maxOffset: Number.MAX_VALUE,
+        numFiles: 0,
+        hasMoreFiles: false
+    };
+
+    let state = {...initialState};
+
+    let filesCursor = null;
 
     /**
      * FileBrowser.setup
@@ -135,6 +157,8 @@ namespace FileBrowser {
      * FileBrowser.clear
      */
     export function clear(): void {
+        state = {...initialState};
+        setState({});
         $("#fileBrowserUp").addClass("disabled");
         setPath("");
         updateActiveFileInfo(null);
@@ -196,6 +220,7 @@ namespace FileBrowser {
         if (!restore) {
             FileBrowser.clear();
         }
+
         setMode();
         path = setDefaultPath(targetName, path);
         updateActiveFileInfo(null);
@@ -207,6 +232,13 @@ namespace FileBrowser {
         _options = options || {};
 
         setTarget(targetName);
+        if (targetName.startsWith("Xcalar S3 Connector")) {
+            $fileBrowser.addClass("s3");
+            isS3 = true;
+        } else {
+            $fileBrowser.removeClass("s3");
+            isS3 = false;
+        }
         // let def = _options.cloud ? CloudFileBrowser.getCloudPath() : PromiseHelper.resolve(path);
         let def = PromiseHelper.resolve(path);
         def
@@ -476,6 +508,14 @@ namespace FileBrowser {
             $fileBrowser.removeClass("loadMode");
             $fileBrowserMain.find(".searchLoadingSection").hide();
         });
+
+        $fileBrowser.on('click', ".pageBtn", (e) => {
+            let $btn = $(e.currentTarget);
+            if ($btn.hasClass("xc-unavailable")) {
+                return;
+            }
+            _pageNavigation($btn.hasClass("next"));
+        });
     }
 
     function addInfoContainerEvents(): void {
@@ -592,6 +632,7 @@ namespace FileBrowser {
     }
 
     function displayFiles(filePath: string): void {
+        resetFileCursor();
         listFiles(filePath, null)
         .then(function() {
             appendPath(filePath, false);
@@ -1282,8 +1323,17 @@ namespace FileBrowser {
             args.recursive = options.recursive;
             args.fileNamePattern = options.fileNamePattern;
         }
-        XcalarListFiles(args)
-        .then(function(listFilesOutput) {
+        _fetchFileList(args)
+        .then((listFilesOutput) => {
+            /**
+             * {files: XcalarApiFileT[], numFiles: string}
+             *
+             * XcalarApiFileT {
+             *  attr: {isDirectory: true, mtime: 0, size: 0}
+             *  name: string
+             * }
+             */
+
             if (curBrowserId === fileBrowserId) {
                 if (options && curSearchId !== searchId) {
                     // If it is a search but not current search
@@ -1297,7 +1347,7 @@ namespace FileBrowser {
                 deferred.reject({"error": oldBrowserError, "oldBrowser": true});
             }
         })
-        .fail(function(error) {
+        .catch(function(error) {
             if (curBrowserId === fileBrowserId) {
                 if (options && curSearchId !== searchId) {
                     // If it is a search but not current search
@@ -1309,7 +1359,7 @@ namespace FileBrowser {
                 deferred.reject({"error": oldBrowserError, "oldBrowser": true});
             }
         })
-        .always(function() {
+        .finally(function() {
             if (curBrowserId === fileBrowserId) {
                 if (options && curSearchId !== searchId) {
                     return;
@@ -1324,6 +1374,103 @@ namespace FileBrowser {
 
         return deferred.promise();
     }
+
+    function setState(obj) {
+        state = {...state, ...obj};
+        if (state.isLoading) {
+            $fileBrowser.find(".pageBtn").addClass("xc-unavailable");
+        } else {
+            if (state.offset + PAGE_SIZE <= state.maxOffset) {
+                $fileBrowser.find(".pageBtn.next").removeClass("xc-unavailable");
+            } else {
+                $fileBrowser.find(".pageBtn.next").addClass("xc-unavailable");
+            }
+            if (state.offset > 0) {
+                $fileBrowser.find(".pageBtn.prev").removeClass("xc-unavailable");
+            } else {
+                $fileBrowser.find(".pageBtn.prev").addClass("xc-unavailable");
+            }
+        }
+    }
+
+    function resetFileCursor() {
+        filesCursor = null;
+        setState({offset: 0, fileNamePattern: ""});
+    }
+
+
+    function _pageNavigation(forward) {
+        if (forward) {
+            setState({offset: state.offset + PAGE_SIZE})
+            return listFiles(state.path, {fileNamePattern: state.fileNamePattern, recursive: state.fileNamePattern && state.fileNamePattern !== "*"});
+        } else {
+            setState({offset: Math.max(state.offset - PAGE_SIZE, 0)});
+            return listFiles(state.path, {fileNamePattern: state.fileNamePattern, recursive: state.fileNamePattern && state.fileNamePattern !== "*"})
+        }
+    }
+
+    async function _fetchFileList(args): Promise<any> {
+        if (args.targetName === "Default Shared Root") {
+            return XcalarListFiles(args);
+        }
+
+        try {
+            setState({ isLoading: true });
+            let cursorOffset = state.offset || 0;
+            cursorOffset = Math.max(0, cursorOffset);
+            let fileNamePattern = args.fileNamePattern || state.fileNamePattern || "*";
+          // this was stored in the class
+            if (filesCursor == null || fileNamePattern !== state.fileNamePattern) {
+                filesCursor = LoadServices.S3Service.createListFilesCursor({
+                    targetName: args.targetName,
+                    path: args.path,
+                    fileNamePattern: fileNamePattern,
+                    isRecursive: args.recursive || false
+                });
+                cursorOffset = 0;
+                setState({ fileNamePattern: fileNamePattern, offset: 0, maxOffset: Number.MAX_VALUE , path: args.path});
+                await filesCursor.preFetch();
+            }
+            const files = await filesCursor.fetchData({ offset: cursorOffset, count: PAGE_SIZE });
+            let fileList = files.map((file) => {
+                return {
+                    name: file.name,
+                    attr: {
+                        ...file,
+                        isDirectory: file.directory,
+                        mtime: file.mtime,
+                        size: file.sizeInBytes
+                    }
+                }
+            });
+            if (files.length < PAGE_SIZE) {
+                setState({ maxOffset: filesCursor.getSize() - 1 });
+            }
+
+            const { numFiles, hasMoreFiles } = _getListFileStats();
+            setState({numFiles, hasMoreFiles, fileNamePattern});
+            _updateNumItems();
+            $fileBrowser.find(".pageNumber .text").text(Math.floor(state.offset / PAGE_SIZE) + 1);
+
+            return {files: fileList, numFiles: fileList.length};
+        } finally {
+            setState({ isLoading: false });
+        }
+    }
+
+    function _getListFileStats() {
+        try {
+            return {
+                numFiles: filesCursor.getSize(),
+                hasMoreFiles: filesCursor.hasMore()
+            };
+        } catch(_) {
+            return {
+                count: 0, hasMore: false
+            };
+        }
+    }
+
 
     function renderFiles(path: string, toClearSearch: boolean): void {
         cleanContainer({keepPicked: true});
@@ -1368,6 +1515,7 @@ namespace FileBrowser {
 
         var oldPath = getCurrentPath();
         var path = $newPath.text();
+        resetFileCursor();
 
         listFiles(path, null)
         .then(function() {
@@ -1568,7 +1716,6 @@ namespace FileBrowser {
 
         searchId = xcHelper.randName("search");
         let cancelSearch: boolean = false;
-
         listFiles(path, {recursive: true, fileNamePattern: pattern})
         .fail(function(error) {
             if (error && (error.oldBrowser || error.oldSearch)) {
@@ -1905,6 +2052,8 @@ namespace FileBrowser {
         }
 
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        resetFileCursor();
+
         listFiles(paths[0], null)
         .then(function() {
             $pathLists.empty();
@@ -1928,7 +2077,9 @@ namespace FileBrowser {
 
     function genDateHtml(fileTime: number, type: string): HTML {
         let time = moment(fileTime * 1000);
-        let date = time.calendar();
+        let date = time.calendar(null, {
+            sameElse: 'll LT'
+        }) || "-";
         let dateTip = xcTimeHelper.getDateTip(time);
         return '<div class="fileDate ' + type + '">' +
                     '<span ' + dateTip + '>' +
@@ -2482,6 +2633,21 @@ namespace FileBrowser {
         }
     }
 
+    function _updateNumItems() {
+        const $fileInfoTop = $infoContainer.find(".fileInfoTop");
+        let numItems;
+        if (isS3) {
+            numItems = xcStringHelper.numToStr(state.numFiles);
+            if (state.hasMoreFiles) {
+                numItems += "+";
+            }
+        } else {
+            numItems = xcStringHelper.numToStr(curFiles.length);
+        }
+
+        $fileInfoTop.find(".numItems .content").text(numItems);
+    }
+
     function updateActiveFileInfo($grid: JQuery): void {
         const $fileInfoTop = $infoContainer.find(".fileInfoTop");
         if (!$grid) {
@@ -2494,8 +2660,7 @@ namespace FileBrowser {
             // &lrm; is used to fix direction: rtl issue where slashes get moved
             const path = xcStringHelper.escapeHTMLSpecialChar(getCurrentPath());
             $fileInfoTop.find(".path .content").html("&lrm;" + path + "&lrm;");
-            const numItems = xcStringHelper.numToStr(curFiles.length)
-            $fileInfoTop.find(".numItems .content").text(numItems);
+            _updateNumItems();
             return;
         }
         $fileInfoTop.removeClass("pathInfoMode");

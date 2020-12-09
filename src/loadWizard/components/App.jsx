@@ -11,9 +11,9 @@ const LoadServices = {};
 window["LoadServices"] = LoadServices;
 
 LoadServices["SchemaLoadService"] = SchemaLoadService;
-LoadServices["S3Service"] = SchemaLoadService;
-LoadServices["SchemaLoadSetting"] = SchemaLoadService;
-LoadServices["SchemaService"] = SchemaLoadService;
+LoadServices["S3Service"] = S3Service;
+LoadServices["SchemaLoadSetting"] = SchemaLoadSetting;
+LoadServices["SchemaService"] = SchemaService;
 
 /**
  * Component
