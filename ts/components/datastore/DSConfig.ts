@@ -5534,7 +5534,7 @@ namespace DSConfig {
                 // use JSONL
                 return formatMap.JSONL;
             }
-    
+
             if (detectRes === DSFormat.JSON) {
                 return formatMap.JSON;
             } else if (!isUseUDF() && detectRes === DSFormat.SpecialJSON) {
@@ -6905,11 +6905,21 @@ namespace DSConfig {
 
     function _translateSchema(dsArgs) {
         let schema = dsArgs.schema;
+        let newNames = dsArgs.newNames || [];
         // output {"rowpath":"$","columns":[{"name":"BASE_NUMBER","mapping":"$.\"base_number\"","type":"DfString"}]}
         // mapping can look like "$.\"entities\".\"user_mentions\"[0].\"id_str\"",
         const newSchemaObj = {"rowpath":"$", "columns": []};
         let sourceIndex = loadArgs.getPreivewIndex();
         let prevTypedCols = loadArgs.getOriginalHeaders(sourceIndex);
+
+        if (!schema) { // when num columns > 1000
+            schema = prevTypedCols.map(({colType, colName}, i) => {
+                return {
+                    name: colName,
+                    type: colType
+                }
+            });
+        }
 
         schema.forEach((col, i) => {
             let mapping;
@@ -6930,11 +6940,12 @@ namespace DSConfig {
             mapping = colPathInfo.nested.join(".");
 
             newSchemaObj.columns.push({
-                name: dsArgs.newNames[i] || col.name,
+                name: newNames[i] || col.name,
                 mapping:  "$." + mapping,
                 type: DfFieldTypeTStr[xcHelper.convertColTypeToFieldType(col.type)]
             });
         });
+
         console.log(newSchemaObj);
         return newSchemaObj;
     }
