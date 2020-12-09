@@ -49,21 +49,21 @@ class TblSource {
                 error: "Table: " + tableName + " already exists"
             }
         }
-
+        let loadApp = null;
         try {
             const tableInfo: PbTblInfo = PTblManager.Instance.createTableInfo(tableName);
             this._focusOnTable(tableInfo, true);
             if (this._shouldUseNewLoad(args)) {
-                await this._newLoad(tableName, args, newLoadSchema, tableInfo);
+                loadApp = await this._newLoad(tableName, args, newLoadSchema, tableInfo);
             } else {
                 await PTblManager.Instance.createTableFromSource(tableInfo, args);
             }
-
         } catch (e) {
             console.error("create table failed", e);
             this._refresh(); // update to remove loading icon
         } finally {
             const tableInfo: PbTblInfo = PTblManager.Instance.getTableByName(tableName);
+            tableInfo.loadApp = loadApp;
             this._focusOnTable(tableInfo, false);
         }
     }
@@ -103,10 +103,11 @@ class TblSource {
         args,
         newLoadSchema,
         tableInfo: PbTblInfo
-    ): Promise<void> {
+    ): Promise<LoadApp> {
         const cleanupCancelledJobs = [];
         const SchemaLoadService = window.LoadServices['SchemaLoadService'];
         try {
+            tableInfo.state = PbTblState.Loading;
             const { path, filePattern, isRecursive, connector } = this._adaptNewSourceArg(args);
             const inputSerialization = this._adaptInputSerialization(args);
             const schema = newLoadSchema;
@@ -115,7 +116,7 @@ class TblSource {
                 targetName: connector
             });
             const appId = app.appId;
-            const loadAppObj = new LoadApp(appId);
+            const loadAppObj = new LoadApp(app, tableInfo);
             tableInfo.loadApp = loadAppObj;
             this._loadApps.set(appId, loadAppObj);
 
@@ -127,7 +128,7 @@ class TblSource {
                 isRecursive,
                 schema,
                 progressCB: (progress) => {
-                    this._reportNewLoadProgress(tableInfo, this._convertProgress(progress, [0, 30]));
+                    loadAppObj.updateProgress(progress, [0, 30]);
                 }
             });
             loadAppObj.setCancelEvent(getQueryCancel);
@@ -136,7 +137,7 @@ class TblSource {
 
             // Create data session tables
             const { cancel: createCancel, done: createDone } = app.createResultTablesWithCancel(query, (progress) => {
-                this._reportNewLoadProgress(tableInfo, this._convertProgress(progress, [30, 95]));
+                loadAppObj.updateProgress(progress, [30, 95]);
             });
             loadAppObj.setCancelEvent(createCancel);
             const tables = await createDone();
@@ -144,6 +145,8 @@ class TblSource {
             // Publish tables
             try {
                 const dataTableName = await this._publishDataTable(tables.load, tableName, query.dataQueryComplete);
+                loadAppObj.setDataTableName(dataTableName);
+                tableInfo.state = null;
                 console.log("_publishDataTable", dataTableName)
             } catch (e) {
                 await Promise.all([
@@ -153,6 +156,8 @@ class TblSource {
                 ]);
                 throw e;
             }
+
+            return loadAppObj;
         } catch (e) {
             console.error(e);
             for (const job of cleanupCancelledJobs) {
@@ -170,6 +175,8 @@ class TblSource {
                 this._focusOnTable(tableInfo, false);
                 throw e;
             }
+
+            return null;
         }
     }
 
@@ -243,18 +250,6 @@ class TblSource {
         } catch(e) {
             PTblManager.Instance.removeLoadingTable(dataName);
             throw e;
-        }
-    }
-
-    private _convertProgress(progress: number, range: number[]): number {
-        const [start, end] = range;
-        return Math.min(Math.ceil(progress / 100 * (end - start) + start), end);
-    }
-
-    private _reportNewLoadProgress(tableInfo: PbTblInfo, progress: number) {
-        if (tableInfo != null) {
-            tableInfo.loadMsg = `${TblTStr.Creating} progress: ${progress}%`;
-            this._focusOnTable(tableInfo, true);
         }
     }
 

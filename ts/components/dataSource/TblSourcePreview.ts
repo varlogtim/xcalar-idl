@@ -129,7 +129,12 @@ class TblSourcePreview {
     private _setupLoadingView(msg: string): void {
         this._showSchemaSection();
         const $section = this._getSchemaSection();
-        const html: HTML = this._loadHTMLTemplate(msg);
+        let html: HTML = null;
+        if (this._tableInfo && this._tableInfo.loadApp) {
+            html = this._tableInfo.loadApp.getStatusHTML();
+        } else {
+            html = this._loadHTMLTemplate(msg);
+        }
         $section.find(".content").html(html);
     }
 
@@ -141,7 +146,6 @@ class TblSourcePreview {
     }
 
     private _loadHTMLTemplate(text: string): HTML {
-        const isCancelling = this._tableInfo && this._tableInfo.state === PbTblState.Canceling;
         const html: HTML =
         '<div class="loadingContainer">' +
             '<div class="loading animatedEllipsisWrapper">' +
@@ -152,9 +156,6 @@ class TblSourcePreview {
                     '<div class="animatedEllipsis hiddenEllipsis">....</div>' +
                     '<div class="animatedEllipsis staticEllipsis">....</div>' +
                 '</div>' +
-            '</div>' +
-            '<div class="cancel' + (isCancelling ? ' xc-disabled' : '') + '">' +
-                'Cancel' +
             '</div>' +
         '</div>';
         return html;
@@ -289,7 +290,11 @@ class TblSourcePreview {
         }
 
         $tableArea.addClass("loading").removeClass("error");
-        $tableArea.find(".loadingSection").html("Table is created! Please go into a notebook project and check.");
+        if (this._tableInfo && this._tableInfo.loadApp) {
+            $tableArea.find(".loadingSection").html(this._tableInfo.loadApp.getStatusHTML());
+        } else {
+            $tableArea.find(".loadingSection").html("Table is created! Please go into a notebook project and check.");
+        }
         return PromiseHelper.resolve();
 
         // if (WorkbookManager.getActiveWKBK() == null) {
@@ -485,6 +490,12 @@ class TblSourcePreview {
         }
     }
 
+    private _createICV() {
+        if (this._tableInfo && this._tableInfo.loadApp) {
+            this._tableInfo.loadApp.createICVTable();
+        }
+    }
+
     private _addEventListeners(): void {
         const $infoSection = this._getInfoSection();
         $infoSection.on("click", ".viewTable", () => {
@@ -498,6 +509,10 @@ class TblSourcePreview {
         const $schemaSection = this._getSchemaSection();
         $schemaSection.on("click", ".loadingContainer .cancel", () => {
             this._cancelLoad();
+        });
+
+        this._getContainer().on("click", ".createICV", () => {
+            this._createICV();
         });
     }
 }
