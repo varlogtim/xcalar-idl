@@ -2668,7 +2668,10 @@ namespace FileBrowser {
         var file = curFiles[index];
         var name = file.name;
         var path = getCurrentPath() + name;
-        var mTime = moment(file.attr.mtime * 1000).format("h:mm:ss A ll");
+        let mTime  = "- -";
+        if (file.attr.mtime) {
+            mTime = moment(file.attr.mtime * 1000).format("h:mm:ss A ll");
+        }
         // var cTime = file.attr.ctime ?
         //             moment(file.attr.ctime * 1000).format("h:mm:ss A ll") :
         //             "--";
