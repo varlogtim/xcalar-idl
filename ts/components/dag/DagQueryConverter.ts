@@ -1494,8 +1494,10 @@ class DagQueryConverter {
     private _collapseIndexNodes(node) {
         if (node.api === XcalarApisT.XcalarApiIndex) {
             const parent = node.parents[0];
+            // XXX Here use hard coded SF type but in the future we need
+            // to use some general way for checking instead
             if (parent && parent.api === XcalarApisT.XcalarApiBulkLoad &&
-                !node.createTableInput) {
+                parent.args.sourceType !== "Snowflake" && !node.createTableInput) {
                 let loadArgs = parent.args.loadArgs;
                 if (typeof loadArgs === "object") {
                     loadArgs = JSON.stringify(loadArgs);
