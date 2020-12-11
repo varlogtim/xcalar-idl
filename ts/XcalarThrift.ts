@@ -5317,6 +5317,25 @@ XcalarAppReap = function(
     return (deferred.promise());
 };
 
+function reapAppwithRetry(appId, tryCnt): XDPromise<void> {
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+
+    XcalarAppReap(null, appId)
+    .then(deferred.resolve)
+    .fail((error) => {
+        if (error.status === StatusT.StatusAppInProgress && tryCnt > 0) {
+            console.log("retry")
+            reapAppwithRetry(appId, tryCnt - 1)
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        } else {
+            deferred.reject(error);
+        }
+    });
+
+    return deferred.promise();
+}
+
 XcalarAppExecute = function(
     name: string,
     isGlobal: boolean,
@@ -5327,7 +5346,7 @@ XcalarAppExecute = function(
     XcalarAppRun(name, isGlobal, inStr)
     .then(function(ret) {
         const appGroupId = ret.appGroupId;
-        return XcalarAppReap(name, appGroupId);
+        return reapAppwithRetry(appGroupId, 50);
     })
     .then(deferred.resolve)
     .fail(deferred.reject);

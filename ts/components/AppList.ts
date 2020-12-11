@@ -90,7 +90,7 @@ class AppList extends Durable {
      * AppList.Instance.download
      * @param appId
      */
-    public async download(appId: string): Promise<void> {
+    public async download(appId: string, bucketPath: string): Promise<void> {
         const app: AppDurable = this._getAppById(appId);
         if (app == null) {
             // error case
@@ -104,7 +104,12 @@ class AppList extends Durable {
                 dagGraph: null
             });
             await fakeTab.publishApp(appId);
-            await fakeTab.downloadApp(app.name);
+            if (bucketPath != null) {
+                await fakeTab.exportAppToS3(app.name, bucketPath);
+            } else {
+                await fakeTab.downloadApp(app.name);
+            }
+            await fakeTab.delete();
         } catch (e) {
             console.error(e);
             let error = e;

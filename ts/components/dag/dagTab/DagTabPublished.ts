@@ -105,6 +105,35 @@ class DagTabPublished extends DagTab {
         return this._downloadHelper(name + gAppSuffix);
     }
 
+    public exportAppToS3(name, bucketPath: string): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const appName = "NotebookApp";
+        const path = bucketPath + name + gAppSuffix;
+        const inStr = JSON.stringify({
+            "op": "download_to_target",
+            "notebook_name": this._getWKBKName(),
+            "connector_name": "Xcalar S3 Connector",
+            "notebook_path": path,
+            "user_name": DagTabPublished._secretUser,
+        });
+        XcalarAppExecute(appName, false, inStr)
+        .then(deferred.resolve)
+        .fail((error) => {
+            let errorStr = "";
+            if (error.output && error.output.errStr) {
+                errorStr = error.output.errStr;
+                if (errorStr.includes('AccessDenied')) {
+                    errorStr = 'Access Denied';
+                }
+            } else {
+                errorStr = error.log || error.error;
+            }
+            deferred.reject(errorStr);
+        });
+
+        return deferred.promise();
+    }
+
     public download(name: string): XDPromise<void> {
         let fileName: string = name || this.getShortName();
         fileName += gDFSuffix;

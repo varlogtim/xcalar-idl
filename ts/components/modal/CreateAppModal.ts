@@ -133,6 +133,20 @@ class CreateAppModal {
         return deferred.promise();
     }
 
+    private _toggleDownloadOption(option: string): void {
+        const $modal = this._getModal();
+        const $options = $modal.find(".modalBottomMain .options");
+        const $option = $options.find('.radioButton[data-option="' + option + '"]');
+        $options.find(".radioButton.active").removeClass("active");
+        $option.addClass("active");
+        const $bucketOptions = $modal.find(".modalBottomMain .bucket, .modalBottomMain .bucketPath");
+        if (option === "s3") {
+            $bucketOptions.removeClass("xc-hidden");
+        } else {
+            $bucketOptions.addClass("xc-hidden");
+        }
+    }
+
     private _addEventListeners() {
         let $modal = this._getModal();
         $modal.on("click", ".close, .cancel", () => {
@@ -163,6 +177,29 @@ class CreateAppModal {
             const dagTab = DagList.Instance.getDagTabById(tabId);
             DagTabManager.Instance.loadTab(dagTab);
         });
+
+        xcUIHelper.optionButtonEvent($modal.find(".modalBottomMain .options"), (option) => {
+            this._toggleDownloadOption(option);
+        });
+
+        const $dropdownList: JQuery = $modal.find(".modalBottomMain .bucket .dropDownList");
+        // set default value
+        new MenuHelper($dropdownList, {
+            onOpen: ($curDropdown) => {
+                this._renderS3BucketsDropdown($curDropdown);
+            },
+            onSelect: ($li) => {
+                $dropdownList.find("input").val($li.text());
+            },
+            container: "#createAppModal",
+            bounds: "#createAppModal"
+        }).setupListeners();
+    }
+
+    private _renderS3BucketsDropdown($dropdown: JQuery): void {
+        const s3Buckets = DSTargetManager.getAvailableS3Buckets();
+        const html = s3Buckets.map((bucket) => `<li>${bucket}</li>`).join("");
+        $dropdown.find('ul').html(html);
     }
 
     private _renderGraphList(disjointGraphs) {
@@ -205,22 +242,69 @@ class CreateAppModal {
         this._getInstructionSection().find(".progress .text").text(text);
     }
 
+    private _normalizePath(path: string): string {
+        // remove the starting / and add ending /
+        if (path.startsWith('/')) {
+            path = path.substring(1);
+        }
+        if (!path.endsWith('/')) {
+            path = path + '/';
+        }
+        return path;
+    }
+
+    private _validate(): {
+        $checkbox: JQuery,
+        appName: string,
+        bucketPath: string
+    } {
+        const $modal = this._getModal();
+        const $checkbox = $modal.find(".graphList .checkbox.checked");
+        const $appName = $modal.find(".newName");
+        const appName = $appName.val().trim();
+        const appNameError = AppList.Instance.validateName(appName);
+        const checks: xcHelper.ValidateObj[] = [{
+            $ele: $modal.find(".modalMain"),
+            error: AppTStr.NoLogicalPlan,
+            check: () => $checkbox.length === 0
+        }, {
+            $ele: $appName,
+            error: appNameError,
+            check: () => appNameError != null
+        }];
+
+        let bucketPath = null;
+        if ($modal.find('.radioButton[data-option="s3"]').hasClass('active')) {
+            const $bucket = $modal.find(".bucket input");
+            const $path = $modal.find(".bucketPath input");
+            checks.push({ $ele: $bucket }, { $ele: $path });
+
+            const s3Bucket = this._normalizePath($bucket.val().trim());
+            const s3bucketPath = this._normalizePath($path.val().trim());
+            bucketPath = `/${s3Bucket}${s3bucketPath}`;
+        }
+
+        const valid = xcHelper.validate(checks);
+        if (valid) {
+            return {
+                $checkbox,
+                appName,
+                bucketPath
+            };
+        } else {
+            return null;
+        }
+    }
+
     private async _submit(): Promise<void> {
         const $modal = this._getModal();
-        const $input = $modal.find(".newName");
-        const $checkbox = $modal.find(".graphList .checkbox.checked");
-        if (!$checkbox.length) {
-            StatusBox.show(AppTStr.NoLogicalPlan, $modal.find(".modalMain"));
+
+        const param = this._validate();
+        if (param == null) {
+            // error case
             return;
         }
-
-        const newName: string = $input.val().trim();
-
-        const error: string = AppList.Instance.validateName(newName);
-        if (error) {
-            StatusBox.show(error, $input);
-            return;
-        }
+        const { $checkbox, appName, bucketPath } = param;
 
         const moduleNodes = this._graphMap.get($checkbox.closest(".row").data("index"));
         const id = this._id;
@@ -228,22 +312,23 @@ class CreateAppModal {
         try {
             const activeTab = DagViewManager.Instance.getActiveTab();
             $modal.addClass("submit");
-            appId = AppList.Instance.createApp(newName, moduleNodes);
+            appId = AppList.Instance.createApp(appName, moduleNodes);
             if (appId == null) {
                 throw new Error("cannot create app");
             }
             this._showProgress(AppTStr.CreateValidate);
             await AppList.Instance.validate(appId, activeTab.getId());
-            this._showProgress(AppTStr.Downloading);
-            await AppList.Instance.download(appId);
+            this._showProgress(bucketPath == null ? AppTStr.Downloading : 'Exporting');
+            await AppList.Instance.download(appId, bucketPath);
             if (id === this._id) {
                 this._close();
             }
         } catch (e) {
             console.error(e);
             if (id === this._id) {
+                const $input = $modal.find(".newName");
                 StatusBox.show(AppTStr.Incorrect, $input, false, {
-                    detail: e.message
+                    detail: typeof e === 'string' ? e : e.message
                 });
             }
         } finally {
