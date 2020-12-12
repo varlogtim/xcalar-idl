@@ -51,6 +51,9 @@ class LoadScreen {
             case "loadWizard":
                 DataSourceManager.switchToLoadWizardView();
                 break;
+            case "loadHistory":
+                DataSourceManager.switchToLoadHistoryView();
+                break;
             default:
                 break;
         }

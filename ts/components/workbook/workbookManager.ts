@@ -924,10 +924,14 @@ namespace WorkbookManager {
     export function getGlobalScopeKeys(version: number): any {
         const gSettingsKey: string = generateKey("", "gSettings", version);
         const gShareUDFKey: string = generateKey("", "gShareUDF", version);
+        const gLoadHistoryListPrefix: string = generateKey("/XD/LoadLog", version);
+        const gLoadHistoryArchivePrefix: string = generateKey("/XD/LoadArchive", version);
 
         return {
             gSettingsKey,
-            gShareUDFKey
+            gShareUDFKey,
+            gLoadHistoryListPrefix,
+            gLoadHistoryArchivePrefix
         };
     }
 

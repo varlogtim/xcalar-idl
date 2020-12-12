@@ -41,6 +41,7 @@ class TblSourcePreview {
         if (msg) {
             $container.addClass("loading");
             this._setupLoadingView(msg);
+            window["reactHack"]["setLoadResultsPageVisible"](true);
         } else if (tableInfo.state === PbTblState.Error) {
             this._setErrorView(tableInfo.errorMsg || 'Load table error');
         } else if (tableInfo.state === PbTblState.BeDataset) {
@@ -515,4 +516,8 @@ class TblSourcePreview {
             this._createICV();
         });
     }
+}
+
+if (typeof runEntity !== "undefined") {
+    runEntity.TblSourcePreview = TblSourcePreview;
 }

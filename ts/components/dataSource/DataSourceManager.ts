@@ -75,6 +75,10 @@ class DataSourceManager {
         this._switchToLoadWizard();
     }
 
+    public static switchToLoadHistoryView(): void {
+        this._switchToLoadHistoryView();
+    }
+
     /**
      * DataSourceManager.startImport
      * show the first step import screen
@@ -304,6 +308,12 @@ class DataSourceManager {
         $panel.addClass("load");
     }
 
+    private static _switchToLoadHistoryView(): void {
+        const $panel = this._getPanel();
+        this._restPanelView();
+        $panel.addClass("loadHistory");
+    }
+
     private static _switchToViewTarget(): void {
         this._restPanelView();
         let isAdmin: boolean = this._readOnlyForNoAdmin();
@@ -332,6 +342,7 @@ class DataSourceManager {
             .removeClass("table")
             .removeClass("target")
             .removeClass("load")
+            .removeClass("loadHistory")
         $menu.removeClass("xc-hidden");
         $menu.find(".menuSection").addClass("xc-hidden");
     }

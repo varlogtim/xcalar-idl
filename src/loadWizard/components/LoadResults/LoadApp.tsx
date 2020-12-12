@@ -1,3 +1,6 @@
+
+type PbTblInfo = any;
+type HTML = any;
 class LoadApp {
     private _app: any;
     private _tableInfo: PbTblInfo;
@@ -5,11 +8,14 @@ class LoadApp {
     private _cancelAction: Function;
     private _icvTable: any;
     private _isCreatingICV: boolean;
+    private _eventListener;
+    public status: string; // "inProgress", "canceled", "done", "error";
+    public progress: number;
 
     private Texts = {
         createButtonLabel: 'Create Table',
         creatingTable: 'Creating table',
-        created: 'Table Created. Please go into a notebook project and check',
+        created: 'Table Created. Please go into a notebook project and check.',
         createdCheckError: 'Table Created.',
         createdWithComplement: 'Table created with errors.',
         createError: 'Error',
@@ -17,10 +23,12 @@ class LoadApp {
         ComplementTableHint2: 'Some rows in the source files cannot be loaded, click to see the errors.'
     };
 
-    constructor(app: any, tableInfo: PbTblInfo) {
+    constructor(app: any, tableInfo: PbTblInfo, eventListener) {
         this._app = app;
         this._tableInfo = tableInfo;
         this._isCreatingICV = false;
+        this._eventListener = eventListener;
+        this.status = "inProgress";
     }
 
     get app() {
@@ -31,13 +39,23 @@ class LoadApp {
         this._cancelAction = event;
     }
 
+    // signifies that operation is done
     public setDataTableName(dataTableName: string): void {
+        if (dataTableName) {
+            this.status = "done";
+        }
         this._dataTableName = dataTableName;
+        this._refreshPreview();
+    }
+
+    public getDataTableName(): string {
+        return this._dataTableName;
     }
 
     public updateProgress(progress, range) {
         progress = this._convertProgress(progress, range);
-        this._tableInfo.loadMsg = `${this.Texts.creatingTable} progress: ${progress}%`;
+        this.progress = progress;
+        this._tableInfo.loadMsg = `${this.Texts.creatingTable}`;
         this._refreshPreview();
     }
 
@@ -48,6 +66,8 @@ class LoadApp {
         });
         if (this._cancelAction != null && confirmed) {
             this._cancelAction();
+            this.status = "canceled";
+            this._eventListener(this._tableInfo, this);
             return true;
         }
     }
@@ -71,13 +91,14 @@ class LoadApp {
     }
 
     private _refreshPreview(): void {
-        TblSourcePreview.Instance.show(this._tableInfo, this._tableInfo.loadMsg);
+        this._eventListener(this._tableInfo, this);
+        // TblSourcePreview.Instance.show(this._tableInfo, this._tableInfo.loadMsg);
     }
 
     public getStatusHTML(): HTML {
         const state = this._tableInfo.state;
-        if (state === PbTblState.Loading || state === PbTblState.Canceling) {
-            return this._getLoadingAndCancelingHTML(this._tableInfo.loadMsg, state === PbTblState.Canceling);
+        if (state === window["PbTblState"].Loading || state === window["PbTblState"].Canceling) {
+            return this._getLoadingAndCancelingHTML(this._tableInfo.loadMsg, state === window["PbTblState"].Canceling);
         } else {
             return this._getSuccessHTML();
         }
@@ -156,3 +177,5 @@ class LoadApp {
         return Math.min(Math.ceil(progress / 100 * (end - start) + start), end);
     }
 }
+
+export default LoadApp;

@@ -640,6 +640,7 @@ namespace xcManager {
 
     function setupWKBKIndependentPanels(): XDPromise<void> {
         KVStore.setupUserAndGlobalKey();
+        window["reactHack"]["setupLoadHistoryView"](); // set up load history list
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         setupConfigParams()
         .then(() => {

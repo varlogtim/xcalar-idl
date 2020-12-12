@@ -75,7 +75,7 @@ class TblSource {
     }
 
     /**
-     * 
+     *
      * @param tableName
      * var a = {
     filePattern: "GlobalLandTemperaturesByCity_200lines.csv",
@@ -96,7 +96,7 @@ class TblSource {
         type: 'DfString'
     }]}
 }
-     * @param args 
+     * @param args
      */
     private async _newLoad(
         tableName: string,
@@ -104,6 +104,9 @@ class TblSource {
         newLoadSchema,
         tableInfo: PbTblInfo
     ): Promise<LoadApp> {
+        LoadScreen.switchTab("loadHistory");
+        return window["reactHack"]["newLoad"](tableName, args, newLoadSchema, tableInfo);
+
         const cleanupCancelledJobs = [];
         const SchemaLoadService = window.LoadServices['SchemaLoadService'];
         try {
@@ -115,12 +118,13 @@ class TblSource {
             const app = await SchemaLoadService.createDiscoverApp({
                 targetName: connector
             });
+
             const appId = app.appId;
             const loadAppObj = new LoadApp(app, tableInfo);
             tableInfo.loadApp = loadAppObj;
             this._loadApps.set(appId, loadAppObj);
 
-            // Get create table dataflow
+            // // Get create table dataflow
             const { cancel: getQueryCancel, done: getQueryDone, cleanup: getQueryCleanup } = app.getCreateTableQueryWithCancel({
                 path,
                 filePattern,
@@ -376,4 +380,8 @@ class TblSource {
             }
         });
     }
+}
+
+if (typeof runEntity !== "undefined") {
+    runEntity.TblSource = TblSource;
 }

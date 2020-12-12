@@ -720,14 +720,6 @@ namespace TblAnim {
 
         let scrollLeft: number;
         dragInfo.$container.on('scroll.draglocked', function() {
-            scrollLeft = dragInfo.$container.scrollLeft();
-
-            if (scrollLeft <= leftLimit) {
-                dragInfo.$container.scrollLeft(leftLimit);
-            } else if (scrollLeft >= rightLimit) {
-                dragInfo.$container.scrollLeft(rightLimit);
-            }
-
             TblFunc.moveFirstColumn(null, true);
         });
 

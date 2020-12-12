@@ -3,7 +3,7 @@ import dict from "../../lang";
 const CommonTStr = dict.CommonTStr;
 
 type LoadingTextProps = {
-    className: string,
+    className?: string,
     children?: any
 }
 
