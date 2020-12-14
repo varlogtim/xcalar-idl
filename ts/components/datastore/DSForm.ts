@@ -116,6 +116,10 @@ namespace DSForm {
     }
 
     function isValidToPreview(): boolean {
+        const targetName = getDataTarget();
+        if (DSTargetManager.isSnowflakeTarget(targetName)) {
+            return true;
+        }
         return xcHelper.validate([{
             $ele: $filePath
         }]);
@@ -158,6 +162,12 @@ namespace DSForm {
         } else {
             $pathCard.removeClass("target-confluent");
             $filePath.removeAttr("placeholder");
+        }
+
+        if (DSTargetManager.isSnowflakeTarget(targetName)) {
+            $pathCard.addClass("target-snowflake");
+        } else {
+            $pathCard.removeClass("target-snowflake");
         }
 
         if (DSTargetManager.isDatabaseTarget(targetName)) {
@@ -207,6 +217,9 @@ namespace DSForm {
         }
         if (DSTargetManager.isDatabaseTarget(targetName)) {
             path = `/${targetName}`;
+        }
+        if (DSTargetManager.isSnowflakeTarget(targetName)) {
+            path = '/';
         }
         return path;
     }

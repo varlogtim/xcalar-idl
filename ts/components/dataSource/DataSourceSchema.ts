@@ -27,6 +27,11 @@ class DataSourceSchema {
         this._toggleAutoDetect(true);
     }
 
+    public setManualSchema(): void {
+        this._toggleAutoDetect(false);
+        this._toggleAutoDetectCheckbox(false);
+    }
+
     public setSchema(schema: ColSchema[], uncheckAutoDetect: boolean = false): void {
         this._toggleAutoDetect(false);
         this._addSchema(schema);

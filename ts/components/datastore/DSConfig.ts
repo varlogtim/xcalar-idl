@@ -41,6 +41,7 @@ namespace DSConfig {
     let componentJsonFormat;
     let componentXmlFormat;
     let componentConfluentFormat;
+    let componentSnowflakeFormat;
     let componentParquetFileFormat;
     let dataSourceSchema: DataSourceSchema;
 
@@ -87,6 +88,7 @@ namespace DSConfig {
         "PARQUETFILE": "PARQUETFILE",
         "DATABASE": "DATABASE",
         "CONFLUENT": "CONFLUENT",
+        "SNOWFLAKE": "SNOWFLAKE",
     };
 
     /**
@@ -139,6 +141,11 @@ namespace DSConfig {
             $container: $form,
             udfModule: defaultModule,
             udfFunction: 'ingestFromConfluent'
+        });
+        componentSnowflakeFormat = createSnowflakeFormat({
+            $container: $form,
+            udfModule: defaultModule,
+            udfFunction: 'snowflakeTableLoad'
         });
 
         setupDataSourceSchema();
@@ -944,6 +951,13 @@ namespace DSConfig {
             event.preventDefault();
         });
 
+        $("#dsForm-snowflake-table").on("blur", function() {
+            const name = $("#dsForm-snowflake-table").val().trim();
+            if (name) {
+                $form.find(".dsName").eq(0).val(PTblManager.Instance.getUniqName(name.toUpperCase()));
+            }
+        });
+
         setupUDFSection();
         setupXMLSection();
         setupAdvanceSection();
@@ -1459,6 +1473,7 @@ namespace DSConfig {
         componentJsonFormat.reset();
         componentParquetFileFormat.reset();
         componentConfluentFormat.reset();
+        componentSnowflakeFormat.reset();
         dataSourceSchema.reset();
         $("#dsForm-udfExtraArgs").val("");
         $form.find(".checkbox.checked").removeClass("checked");
@@ -1558,6 +1573,10 @@ namespace DSConfig {
             delete options.funcName;
         } else if (format == formatMap.CONFLUENT) {
             componentConfluentFormat.restore(options.udfQuery);
+            delete options.moduleName;
+            delete options.funcName;
+        } else if (format === formatMap.SNOWFLAKE) {
+            componentSnowflakeFormat.restore(options.udfQuery);
             delete options.moduleName;
             delete options.funcName;
         } else if (format === formatMap.JSON || format === formatMap.JSONL) {
@@ -2624,6 +2643,18 @@ namespace DSConfig {
             udfModule = udfDef.udfModule;
             udfFunc = udfDef.udfFunc;
             udfQuery = udfDef.udfQuery;
+        } else if (format === formatMap.SNOWFLAKE) {
+            let args = componentSnowflakeFormat.validateValues(true);
+            if (args == null) {
+                return null;
+            }
+
+            let udfDef = componentSnowflakeFormat.getUDFDefinition({
+                table_name: args.table_name
+            });
+            udfModule = udfDef.udfModule;
+            udfFunc = udfDef.udfFunc;
+            udfQuery = udfDef.udfQuery;
         }
 
         let terminationOptions = getTerminationOptions();
@@ -2737,6 +2768,18 @@ namespace DSConfig {
             udfModule = udfDef.udfModule;
             udfFunc = udfDef.udfFunc;
             udfQuery = udfDef.udfQuery;
+        } else if (format === formatMap.SNOWFLAKE) {
+                let args = componentSnowflakeFormat.validateValues();
+                if (args == null) {
+                    return null;
+                }
+    
+                let udfDef = componentSnowflakeFormat.getUDFDefinition({
+                    table_name: args.table_name
+                });
+                udfModule = udfDef.udfModule;
+                udfFunc = udfDef.udfFunc;
+                udfQuery = udfDef.udfQuery;
         } else if (format === formatMap.JSON || format === formatMap.JSONL) {
             let jsonArgs = componentJsonFormat.validateValues();
             if (jsonArgs == null) {
@@ -3094,6 +3137,9 @@ namespace DSConfig {
             case "CONFLUENT":
                 componentConfluentFormat.show();
                 break;
+            case "SNOWFLAKE":
+                componentSnowflakeFormat.show();
+                break;
             default:
                 throw ("Format Not Support");
         }
@@ -3296,6 +3342,7 @@ namespace DSConfig {
         let targetName: string = loadArgs.getTargetName();
         let dsName: string = $form.find(".dsName").eq(0).val();
         let hasUDF: boolean = false;
+        let shouldNotPreview: boolean = false;
 
         if (udfModule && udfFunc) {
             hasUDF = true;
@@ -3408,6 +3455,21 @@ namespace DSConfig {
                     if (!isRestore) {
                         toggleFormat("CONFLUENT");
                     }
+                } else if (DSTargetManager.isSnowflakeTarget(targetName)) {
+                    const args = componentSnowflakeFormat.validateValues(true);
+                    let udfDef = componentSnowflakeFormat.getUDFDefinition({
+                        table_name: args.table_name
+                    });
+                    shouldNotPreview = true;
+                    hasUDF = true;
+                    noDetect = true;
+                    udfModule = udfDef.udfModule;
+                    udfFunc = udfDef.udfFunc;
+                    udfQuery = udfDef.udfQuery;
+                    if (!isRestore) {
+                        toggleFormat("SNOWFLAKE");
+                        dataSourceSchema.setManualSchema();
+                    }
                 }
             }
 
@@ -3418,7 +3480,9 @@ namespace DSConfig {
             let args: any = {};
             format = loadArgs.getFormat();
 
-            if (hasUDF) {
+            if (shouldNotPreview) {
+                return "";
+            } else if (hasUDF) {
                 showProgressCircle(txId);
                 args.sources = [{
                     targetName: targetName,
@@ -3447,7 +3511,7 @@ namespace DSConfig {
                 });
             }
 
-            if (!result) {
+            if (!result && !shouldNotPreview) {
                 let error = DSTStr.NoRecords + '\n' + DSTStr.NoRecrodsHint;
                 return PromiseHelper.reject(error);
             }
@@ -3483,6 +3547,7 @@ namespace DSConfig {
             }
             // check
             if (!notGetPreviewTable &&
+                !shouldNotPreview &&
                 (hasSmartDetect || loadArgs.getFormat() === format)
             ) {
                 getPreviewTable(false, hasUDF);
@@ -3650,6 +3715,7 @@ namespace DSConfig {
             PARQUET: DSTargetManager.isSparkParquet(targetName),
             DATABASE: DSTargetManager.isDatabaseTarget(targetName),
             CONFLUENT: DSTargetManager.isConfluentTarget(targetName),
+            SNOWFLAKE: DSTargetManager.isSnowflakeTarget(targetName),
         };
 
         if (isAWSConnector) {
@@ -4334,7 +4400,10 @@ namespace DSConfig {
             }
         } else if (format === formatMap.XML) {
             isSuccess = hasUDF ? getJSONTable(rawData) : getXMLTable(rawData);
-        } else if (format === formatMap.DATABASE || format === formatMap.CONFLUENT) {
+        } else if (format === formatMap.DATABASE ||
+                format === formatMap.CONFLUENT ||
+                format === formatMap.SNOWFLAKE
+        ) {
             isSuccess = getJSONTable(rawData);
         } else {
             isSuccess = getCSVTable(rawData, format);
@@ -6179,6 +6248,46 @@ namespace DSConfig {
         };
     }
     // End === ConfluentFormat component factory
+
+    // Start === SnowflakeFormat component factory
+    function createSnowflakeFormat(options: {
+        udfModule: string,
+        udfFunction: string,
+        $container: JQuery,
+    }) {
+        const { udfModule, udfFunction, $container } = options;
+        const $tableName = $('#dsForm-snowflake-table');
+
+        return {
+            show: function() {
+                $container.find('.format.snowflake').removeClass("xc-hidden");
+            },
+
+            validateValues: function(): { table_name: string } {
+                const tableName = $tableName.val().trim();
+                return { table_name: tableName };
+            },
+
+            restore: function({ table_name }) {
+                if (table_name != null) {
+                    $tableName.val(table_name);
+                }
+            },
+
+            reset: function() {
+                // $elementNumRows.val('20');
+            },
+
+            getUDFDefinition: function({table_name = ''} = {}) {
+                return {
+                    udfModule: udfModule,
+                    udfFunc: udfFunction,
+                    udfQuery: { table_name }
+                };
+            },
+        };
+    }
+    // End === SnowflakeFormat component factory
 
     // Start === DatabaseFormat component factory
     function createDatabaseFormat({

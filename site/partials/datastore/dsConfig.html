@@ -72,6 +72,7 @@
                     <li name="UDF"><%= dicts.dsFormat.UDF %></li>
                     <li name="DATABASE"><%= dicts.dsFormat.DATABASE %></li>
                     <li name="CONFLUENT"><%= dicts.dsFormat.CONFLUENT %></li>
+                    <li name="SNOWFLAKE"><%= dicts.dsFormat.SNOWFLAKE %></li>
                   </ul>
                   include "../../util/menuScrollArea.html"
                 </div>
@@ -369,6 +370,13 @@
               <label for="dsForm-dbSQL"><%= dicts.dsForm.DatabaseQuery %>:</label>
               <div class="inputWrap inputWrap-large">
                 <input id="dsForm-dbSQL" class="text" type="text" spellcheck="false">
+              </div>
+            </div>
+             <!-- snowflake -->
+             <div class="row format snowflake">
+              <label for="dsForm-snowflake-table">Snowflake Table:</label>
+              <div class="inputWrap inputWrap-large">
+                <input id="dsForm-snowflake-table" class="text" type="text" spellcheck="false">
               </div>
             </div>
             <!-- confluent number of rows -->

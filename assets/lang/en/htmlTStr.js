@@ -765,7 +765,7 @@ module.exports = {
         "ParquetParserTooltip": "Xcalar will use the selected parser to parse parquet files",
         "AutoDetectSchema": "Use Auto Detected Schema",
         "UseSchemaWizard": "Use Schema Wizard",
-        "UDFArgs": "Custom Scalar Function Args",
+        "UDFArgs": "Scalar Function Args",
         "UDFArgsHint": "Specify the custom scalar function arguments (other than fullPath and inStream) in JSON format"
     },
 
@@ -798,7 +798,8 @@ module.exports = {
         "PARQUETFILE": "Parquet File",
         "UDF": "Custom Format",
         "DATABASE": "Custom Database",
-        "CONFLUENT": "Confluent Kafka"
+        "CONFLUENT": "Confluent Kafka",
+        "SNOWFLAKE": "Snowflake",
     },
 
     "dsTable": {

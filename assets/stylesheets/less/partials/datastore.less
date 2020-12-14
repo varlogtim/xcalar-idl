@@ -495,12 +495,19 @@ table.datasetTable {
 #dsForm-path {
     height: 100%;
 
+    &.target-snowflake,
     &.target-confluent,
     &.target-database,
     &.target-generated {
         .browse {
             pointer-events: none;
             opacity: @opacity-disabled;
+        }
+    }
+
+    &.target-snowflake {
+        .content.path {
+            display: none;
         }
     }
 
