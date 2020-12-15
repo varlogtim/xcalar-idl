@@ -740,6 +740,10 @@
     "738" : "Max columns found for schema",
     "739" : "Encountered an internal error - please contact Xcalar support",
     "740" : "Value returned by Scalar Function exceeds maximum Xcalar field size",
-    "741" : "A Scalar Function must always return a non None value"
+    "741" : "A Scalar Function must always return a non None value",
+    "742" : "The return type annotation in your Scalar Function <> is an unsupported data type. Supported data types are: bytes, bool, int, float.",
+    "743" : "Scalar Function with 'bool' return type returning non-'bool' value",
+    "744" : "Scalar Function with 'bytes' return type failed due to conversion or resource failure while trying to return the result",
+    "745" : "Scalar Function tried to return a value with unsupported type"
 }
 

@@ -747,7 +747,11 @@ StatusT = {
   'StatusMaxColumnsFound' : 738,
   'StatusXpuDeath' : 739,
   'StatusScalarFunctionFieldOverflow' : 740,
-  'StatusUdfInvalidRetValue' : 741
+  'StatusUdfInvalidRetValue' : 741,
+  'StatusUdfFuncAnnotErr' : 742,
+  'StatusUdfFuncRetBoolInvalid' : 743,
+  'StatusUdfFuncRetStrInvalid' : 744,
+  'StatusUdfFuncRetInvalid' : 745
 };
 StatusTStr = {
   0 : 'Success',
@@ -1491,7 +1495,11 @@ StatusTStr = {
   738 : 'Max columns found for schema',
   739 : 'Encountered an internal error - please contact Xcalar support',
   740 : 'Value returned by Scalar Function exceeds maximum Xcalar field size',
-  741 : 'A Scalar Function must always return a non None value'
+  741 : 'A Scalar Function must always return a non None value',
+  742 : 'The return type annotation in your Scalar Function <> is an unsupported data type. Supported data types are: bytes, bool, int, float.',
+  743 : 'Scalar Function with \'bool\' return type returning non-\'bool\' value',
+  744 : 'Scalar Function with \'bytes\' return type failed due to conversion or resource failure while trying to return the result',
+  745 : 'Scalar Function tried to return a value with unsupported type'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2235,5 +2243,9 @@ StatusTFromStr = {
   'Max columns found for schema' : 738,
   'Encountered an internal error - please contact Xcalar support' : 739,
   'Value returned by Scalar Function exceeds maximum Xcalar field size' : 740,
-  'A Scalar Function must always return a non None value' : 741
+  'A Scalar Function must always return a non None value' : 741,
+  'The return type annotation in your Scalar Function <> is an unsupported data type. Supported data types are: bytes, bool, int, float.' : 742,
+  'Scalar Function with \'bool\' return type returning non-\'bool\' value' : 743,
+  'Scalar Function with \'bytes\' return type failed due to conversion or resource failure while trying to return the result' : 744,
+  'Scalar Function tried to return a value with unsupported type' : 745
 };
