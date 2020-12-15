@@ -13,14 +13,16 @@ class ExportOpPanelModel extends BaseOpPanelModel {
         "single_csv": ExportDriverPrettyNames.SingleCSV,
         "multiple_csv": ExportDriverPrettyNames.MultipleCSV,
         "fast_csv": ExportDriverPrettyNames.FastCSV,
-        "legacy_udf": ExportDriverPrettyNames.LegacyUDF
+        "legacy_udf": ExportDriverPrettyNames.LegacyUDF,
+        "snowflake_export": ExportDriverPrettyNames.Snowflake
     }
 
     private static DriverFromPretty: {[key: string]: string} = {
         [ExportDriverPrettyNames.SingleCSV]: "single_csv",
         [ExportDriverPrettyNames.MultipleCSV]: "multiple_csv",
         [ExportDriverPrettyNames.FastCSV]: "fast_csv",
-        [ExportDriverPrettyNames.LegacyUDF]: "legacy_udf"
+        [ExportDriverPrettyNames.LegacyUDF]: "legacy_udf",
+        [ExportDriverPrettyNames.Snowflake]: "snowflake_export"
     }
 
     public static convertPrettyName(name: string) {

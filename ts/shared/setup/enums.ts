@@ -437,7 +437,8 @@ enum ExportDriverPrettyNames {
     SingleCSV = "Single CSV file",
     MultipleCSV = "Multiple CSV files",
     FastCSV = "Multiple CSV files using only ASCII delimiters",
-    LegacyUDF = "Custom export using a UDF (deprecated)"
+    LegacyUDF = "Custom export using a UDF (deprecated)",
+    Snowflake = "Snowflake Export"
 }
 
 enum VersionComparison {
