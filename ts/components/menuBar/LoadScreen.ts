@@ -19,6 +19,7 @@ class LoadScreen {
             this._swtichTab(tab); // reset the tab
         }
         $container.removeClass("xc-hidden");
+        window["reactHack"]["getInitialLogs"]();
     }
 
     public static hide(): void {

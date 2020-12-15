@@ -65,7 +65,6 @@ function setLoadFn(ctx) {
                 schema,
                 progressCB: (progress) => {
                     loadAppObj.updateProgress(progress, [0, 30]);
-                    ctx.setCurrentApp(loadAppObj);
                 }
             });
             loadAppObj.setCancelEvent(getQueryCancel);
@@ -75,7 +74,6 @@ function setLoadFn(ctx) {
             // Create data session tables
             const { cancel: createCancel, done: createDone } = app.createResultTablesWithCancel(query, (progress) => {
                 loadAppObj.updateProgress(progress, [30, 95]);
-                ctx.setCurrentApp(loadAppObj);
             });
             loadAppObj.setCancelEvent(createCancel);
             const tables = await createDone();
@@ -156,9 +154,6 @@ export default class LoadResultsPage extends React.Component<any, any>  {
     }
 
     setCurrentApp(app) {
-        if (typeof app === "string") {
-            debugger;
-        }
         this.setState({currentApp: app})
     }
 

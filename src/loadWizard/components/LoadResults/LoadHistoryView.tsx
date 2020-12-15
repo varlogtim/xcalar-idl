@@ -30,22 +30,17 @@ export default class LoadHistoryView extends React.Component<any,any> {
             });
             this.props.createNewLog(log);
         }
-    }
 
-    async componentDidMount() {
-
-    }
-
-    async componentDidUpdate(prevProps) {
-        if (this.state.loaded || !this.props.loadLog) return;
-        this.setState({loaded: true})
-        const numMoreLogs = LoadLog.DEFAULT_PAGE_SIZE - this.props.loadLog.size();
-        const res = await this.props.loadLog.loadMore(numMoreLogs);
-        if (!res.length || res.length < LoadLog.DEFAULT_PAGE_SIZE) {
-            this.setState({allLoaded: true});
+        window["reactHack"]["getInitialLogs"] = async () => {
+            if (this.state.loaded || !this.props.loadLog) return;
+            this.setState({loaded: true});
+            const numMoreLogs = LoadLog.DEFAULT_PAGE_SIZE - this.props.loadLog.size();
+            const res = await this.props.loadLog.loadMore(numMoreLogs);
+            if (!res.length || res.length < LoadLog.DEFAULT_PAGE_SIZE) {
+                this.setState({allLoaded: true});
+            }
         }
-   }
-
+    }
 
     async loadMoreLogs() {
         this.setState({status: "loadingMore"})
