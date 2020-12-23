@@ -2115,6 +2115,7 @@ class DagNodeSQL extends DagNodeIn {
         });
     }
 
+    // makes sure source numbers === number of dag node parents
     private _reconcileSourceMapping(sourceMapping) {
         let numParents = this.getParents().length;
         // remove any sources that are greater than number of parents
@@ -2122,6 +2123,8 @@ class DagNodeSQL extends DagNodeIn {
         sortedSourceMapping.sort((a, b) => {
             if (a.source == null) {
                 return 1;
+            } else if (b.source == null) {
+                return -1;
             }
             return a.source - b.source;
         });

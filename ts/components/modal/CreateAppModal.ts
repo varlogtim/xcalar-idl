@@ -47,7 +47,7 @@ class CreateAppModal {
         });
         clearTimeout(timer);
         $modal.removeClass("load");
-        
+
         if (index === 1) {
             // only one graph exist
             this._getModal().find(".graphList .checkbox").eq(0).click();
@@ -66,7 +66,7 @@ class CreateAppModal {
             let isInTab = false;
             graphSet.forEach(( dagNode: DagNodeModule ) => {
                 if (dagNode.getTabId() === activeTab.getId()) {
-                    isInTab = true; 
+                    isInTab = true;
                 }
             });
 
@@ -163,7 +163,7 @@ class CreateAppModal {
             if ($checkbox.hasClass("checked")) {
                 $checkbox.removeClass("checked");
             } else {
-                $modal.find(".graphList .checkbox").removeClass("checked");
+                // $modal.find(".graphList .checkbox").removeClass("checked");
                 $checkbox.addClass("checked");
             }
         });
@@ -237,7 +237,7 @@ class CreateAppModal {
         }
         this._getModal().find(".graphList").html(html);
     }
-    
+
     private _showProgress(text: string): void {
         this._getInstructionSection().find(".progress .text").text(text);
     }
@@ -254,19 +254,19 @@ class CreateAppModal {
     }
 
     private _validate(): {
-        $checkbox: JQuery,
+        $checkboxes: JQuery,
         appName: string,
         bucketPath: string
     } {
         const $modal = this._getModal();
-        const $checkbox = $modal.find(".graphList .checkbox.checked");
+        const $checkboxes = $modal.find(".graphList .checkbox.checked");
         const $appName = $modal.find(".newName");
         const appName = $appName.val().trim();
         const appNameError = AppList.Instance.validateName(appName);
         const checks: xcHelper.ValidateObj[] = [{
             $ele: $modal.find(".modalMain"),
             error: AppTStr.NoLogicalPlan,
-            check: () => $checkbox.length === 0
+            check: () => $checkboxes.length === 0
         }, {
             $ele: $appName,
             error: appNameError,
@@ -287,7 +287,7 @@ class CreateAppModal {
         const valid = xcHelper.validate(checks);
         if (valid) {
             return {
-                $checkbox,
+                $checkboxes,
                 appName,
                 bucketPath
             };
@@ -304,9 +304,13 @@ class CreateAppModal {
             // error case
             return;
         }
-        const { $checkbox, appName, bucketPath } = param;
+        const { $checkboxes, appName, bucketPath } = param;
+        let moduleNodes = new Set();
+        $checkboxes.each((_i, checkbox) => {
+            const nodes = this._graphMap.get($(checkbox).closest(".row").data("index"));
+            moduleNodes = new Set([...moduleNodes, ...nodes]);
+        });
 
-        const moduleNodes = this._graphMap.get($checkbox.closest(".row").data("index"));
         const id = this._id;
         let appId = null;
         try {
@@ -335,7 +339,7 @@ class CreateAppModal {
             if (id === this._id) {
                 $modal.removeClass("submit");
             }
-            
+
             if (appId != null) {
                 AppList.Instance.delete(appId);
             }

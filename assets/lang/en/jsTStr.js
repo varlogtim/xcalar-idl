@@ -1261,7 +1261,7 @@ AppTStr = {
     "NameConflict": "App name already in use.",
     "CreateValidate": "Validating plan for correctness",
     "Downloading": "Downloading",
-    "Incorrect": "Plan is incorrect",
+    "Incorrect": "Plan is invalid",
 }
 
 UDFTStr = {

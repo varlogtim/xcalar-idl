@@ -453,7 +453,7 @@ class SQLOpPanel extends BaseOpPanel {
                     let connectorIndex = this._dagNode.getNextOpenConnectionIndex();
                     let cachedLabels = [];
                     nodes.forEach(node => {
-                        if (node === this._dagNode) {
+                        if (node === this._dagNode || node.isHidden()) {
                             return;
                         }
                         if (!this._graph.canConnect(node.getId(), this._dagNode.getId(),
@@ -1012,7 +1012,7 @@ class SQLOpPanel extends BaseOpPanel {
         this._previewInProgress = false;
     }
 
-    // makes sure source numbers < dag node parents
+    // makes sure source numbers == number of dag node parents
     private _reconcileSourceMapping() {
         let numParents = this._dagNode.getParents().length;
         // remove any sources that are greater than number of parents
@@ -1020,6 +1020,8 @@ class SQLOpPanel extends BaseOpPanel {
         sortedSourceMapping.sort((a, b) => {
             if (a.source == null) {
                 return 1;
+            } else if (b.source == null) {
+                return -1;
             }
             return a.source - b.source;
         });
