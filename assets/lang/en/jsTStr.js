@@ -1,5 +1,5 @@
 // if using in browser, make sure to include assets/lang/en/globalAutogen.js
-// with <script tag
+// with <script> tag
 
 var autogenVars = (typeof window === 'undefined' && typeof require !== 'undefined') ? require('./globalAutogen.js') : window.autogenVars;
 StatusMessageTStr = {
@@ -1277,6 +1277,7 @@ UDFTStr = {
     "NoProject": "You must be inside an active  project to perform this action.",
     "InactiveProject": "This action cannot be performed on an inactive project. Activate this project and try again.",
     "Show": "Show",
+    "NoFunction": "No functions found"
 };
 
 TblTStr = {

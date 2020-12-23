@@ -113,7 +113,7 @@ class CustomFunctionTestForm {
                 if (!list.length) {
                     list = '<li class="hint noResultHint" ' +
                      'style="pointer-events:none">' +
-                        CommonTxtTstr.NoResult +
+                        UDFTStr.NoFunction +
                     '</li>';
                 }
                 $list.find(".list > ul").empty().append(list);
@@ -487,14 +487,14 @@ class CustomFunctionTestForm {
         const argsMap = this._validate();
         if (!argsMap) return;
         const sqlString =  `SELECT * FROM \`${argsMap.get("table")}\` LIMIT ${argsMap.get("rows")}`;
-
+        const cleanTableName = xcHelper.checkNamePattern(PatternCategory.SQLIdentifier, PatternAction.Fix,argsMap.get("table"), "_");
         const sqlNode: DagNodeSQL = DagNodeFactory.create({
             type: DagNodeType.SQL,
             input: {
                 sqlQueryStr: sqlString,
                 dropAsYouGo: true,
                 mapping: [{
-                    identifier: argsMap.get("table"),
+                    identifier: cleanTableName,
                     source: null
                 }],
                 outputTableName: "ScalarFnTest"
@@ -517,11 +517,8 @@ class CustomFunctionTestForm {
 
         const dagTab = DagTabScalarFnExecute.test(sqlNode, mapNode);
         $form.find(".submit").addClass('xc-disabled');
-        this._configureSQL(sqlNode, sqlString, argsMap)
+        this._configureSQL(sqlNode, sqlString, cleanTableName)
         .then(() => {
-            // if (!this._getForm().find(".keepColumns").hasClass("checked")) {
-            //     this._hideColumns(argsMap.get("columns").columns, mapNode);
-            // }
             this._reorderColumns(mapNode);
             const dagView = DagViewManager.Instance.getDagViewById(dagTab.getId());
             return dagView.run([mapNode.getId()], false, false, true)
@@ -544,15 +541,15 @@ class CustomFunctionTestForm {
         });
     }
 
-    private _configureSQL(sqlNode, sqlString, argsMap) {
+    private _configureSQL(sqlNode, sqlString, tableName) {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         const queryId = xcHelper.randName("sqlQuery", 8);
         const sourceMapping = [{
-            identifier: argsMap.get("table"),
+            identifier: tableName,
             source: null
         }];
         const identifiers = new Map();
-        identifiers.set(1, argsMap.get("table"));
+        identifiers.set(1, tableName);
         const options = {
             identifiers: identifiers,
             dropAsYouGo: true,
