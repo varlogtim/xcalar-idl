@@ -18,6 +18,11 @@ class DagConfigNodeModal {
         this._popup = new PopupPanel("configNodeContainer", {
             draggableHeader: ".draggableHeader"
         });
+
+        // fixes issue where resizable makes it relative and
+        // ruins the fixed position dropdown z-index
+        $("#configNodeContainer").css("position", "static");
+
         this._popup
         .on("Undock", () => {
             this._refreshEditor();
