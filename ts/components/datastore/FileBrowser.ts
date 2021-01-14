@@ -232,7 +232,7 @@ namespace FileBrowser {
         _options = options || {};
 
         setTarget(targetName);
-        if (targetName.startsWith("Xcalar S3 Connector")) {
+        if (!xcGlobal.isLegacyLoad && targetName.startsWith("Xcalar S3 Connector")) {
             $fileBrowser.addClass("s3");
             isS3 = true;
         } else {
@@ -344,7 +344,7 @@ namespace FileBrowser {
     }
 
     function setDefaultPath(targetName: string, path: string): string {
-        if (path && DSTargetManager.isAWSConnector(targetName)) {
+        if (!xcGlobal.isLegacyLoad && path && DSTargetManager.isAWSConnector(targetName)) {
             if (path[0] === '/') {
                 path = path.substring(1);
             }
@@ -1410,7 +1410,7 @@ namespace FileBrowser {
     }
 
     async function _fetchFileList(args): Promise<any> {
-        if (args.targetName === "Default Shared Root") {
+        if (xcGlobal.isLegacyLoad || args.targetName === "Default Shared Root") {
             return XcalarListFiles(args);
         }
 

@@ -2773,7 +2773,7 @@ namespace DSConfig {
                 if (args == null) {
                     return null;
                 }
-    
+
                 let udfDef = componentSnowflakeFormat.getUDFDefinition({
                     table_name: args.table_name
                 });
@@ -3710,7 +3710,8 @@ namespace DSConfig {
     }
 
     function hideDataFormatsByTarget(targetName: string): void {
-        const isAWSConnector = DSTargetManager.isAWSConnector(targetName);
+        const isAWSConnector = DSTargetManager.isAWSConnector(targetName) &&
+                              !xcGlobal.isLegacyLoad;
         let exclusiveFormats = {
             PARQUET: DSTargetManager.isSparkParquet(targetName),
             DATABASE: DSTargetManager.isDatabaseTarget(targetName),
@@ -5598,6 +5599,7 @@ namespace DSConfig {
             let detectRes = xcSuggest.detectFormat(rows);
 
             if (DSTargetManager.isAWSConnector(loadArgs.getTargetName()) &&
+                !xcGlobal.isLegacyLoad &&
                 (detectRes === DSFormat.JSON || detectRes === DSFormat.SpecialJSON)
             ) {
                 // use JSONL
@@ -7013,6 +7015,7 @@ namespace DSConfig {
     }
 
     function _translateSchema(dsArgs) {
+        if (xcGlobal.isLegacyLoad) return dsArgs;
         let schema = dsArgs.schema;
         let newNames = dsArgs.newNames || [];
         // output {"rowpath":"$","columns":[{"name":"BASE_NUMBER","mapping":"$.\"base_number\"","type":"DfString"}]}

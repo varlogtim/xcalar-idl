@@ -290,6 +290,12 @@ namespace DSForm {
         let path = getFilePath(null);
         let cb = () => restoreFromPreview(targetName, path);
         resetForm();
+        if (xcGlobal.isLegacyLoad) {
+            FileBrowser.show(targetName, path, false, {
+                backCB: cb
+            });
+            return;
+        }
 
         if (path.startsWith("/")) {
             path = path.slice(1);

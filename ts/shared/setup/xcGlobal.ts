@@ -82,12 +82,11 @@ namespace xcGlobal {
         // Shut up the console logs
         verbose = false;
         superVerbose = false;
-
-
     };
 
     export let darkMode = true;
     export let react: any = {};
+    export let isLegacyLoad = false;
 }
 
 if (typeof exports !== 'undefined') {

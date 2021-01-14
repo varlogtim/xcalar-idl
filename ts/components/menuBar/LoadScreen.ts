@@ -20,6 +20,11 @@ class LoadScreen {
         }
         $container.removeClass("xc-hidden");
         window["reactHack"]["getInitialLogs"]();
+        if (xcGlobal.isLegacyLoad) {
+            $list.find('[data-tab="loadHistory"]').hide();
+        } else {
+            $list.find('[data-tab="loadHistory"]').show();
+        }
     }
 
     public static hide(): void {

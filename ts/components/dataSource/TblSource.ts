@@ -71,7 +71,7 @@ class TblSource {
     private _shouldUseNewLoad(args) {
         const { sources } = args;
         const { targetName } = sources[0];
-        return DSTargetManager.isAWSConnector(targetName);
+        return !xcGlobal.isLegacyLoad && DSTargetManager.isAWSConnector(targetName);
     }
 
     /**
